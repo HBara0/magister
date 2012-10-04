@@ -12,7 +12,7 @@
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 } 
-
+echo 'git';
 if($core->usergroup['hr_canEditEmployee'] == 0) {
 	error($lang->sectionnopermission);
 }
