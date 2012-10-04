@@ -1,10 +1,10 @@
 <?php
 $module['name'] = 'cms';
 $module['title'] = 'CMS';
-$module['homepage'] = 'listpages';
+$module['homepage'] = 'managenews';
 $module['globalpermission'] = 'canAdminCP';
-$module['menu'] = array('file' 		  => array('listpages', 'settings', 'managenews'),
-						'title'		 => array('listpages', 'cmssettings', 'managenews'),
-						'permission'	=> array('canAccessSystem', 'canAccessSystem', 'canAccessSystem')
+$module['menu'] = array('file' 		  => array('list', 'settings', 'managenews','managewebpage','listwebpages','listmenu'),
+						'title'		 => array('listnews', 'cmssettings', 'managenews','managewebpage','listwebpages','listmenu'),
+						'permission'	=> array('canAccessSystem', 'canAccessSystem', 'canAccessSystem', 'canAccessSystem', 'canAccessSystem', 'canAccessSystem')
 						);
 ?>
