@@ -39,9 +39,9 @@ require_once ROOT.INC_ROOT.'config.php';
 define('Tprefix', $config['database']['prefix']);
 define('DB_NAME', $config['database']['database']);
 define('DOMAIN', ''); // ex. http://localhost/web/ocos/
-define('COOKIE_DOMAIN', ''); // ex. .localhost
-define('COOKIE_PATH', ''); // ex: /web/ocos/
-define('COOKIE_PREFIX', 'ocos_');
+define('COOKIE_DOMAIN', '127.0.0.1'); // ex. .localhost
+define('COOKIE_PATH', '/ocos'); // ex: /web/ocos/
+define('COOKIE_PREFIX', 'ocosproduction_');
 define('ADMIN_DIR', 'manage');
 define("TIME_NOW", time());
 
