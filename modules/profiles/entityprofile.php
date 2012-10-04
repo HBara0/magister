@@ -3,10 +3,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Entity profile
  * $module: profiles
- * $id: entityprofile.php	
+ * $id: entityprofile.php
  * Created:		@zaher.reda		September 28, 2010 | 11:08 AM
  * Last Update: @zaher.reda 	April 21, 2011 | 03:14 PM
  */
@@ -87,7 +87,7 @@ if (!$core->input['action']) {
     }
 
     $representative_query = $db->query("SELECT *
-										FROM " . Tprefix . "representatives r JOIN " . Tprefix . "entitiesrepresentatives er ON (er.rpid=r.rpid) 
+										FROM " . Tprefix . "representatives r JOIN " . Tprefix . "entitiesrepresentatives er ON (er.rpid=r.rpid)
 										WHERE er.eid={$eid}");
     while ($representative = $db->fetch_assoc($representative_query)) {
         $representativelist .= '<a href="#" id="contactpersoninformation_' . base64_encode($representative['rpid']) . '_profiles/entityprofile_loadpopupbyid">' . $representative['name'] . '</a> - <a href="mailto:' . $representative['email'] . '">' . $representative['email'] . '</a><br />';
@@ -137,8 +137,8 @@ if (!$core->input['action']) {
     if ($profile['type'] == 's') {
         /* Load supplier's quarterly reports - Start */
         $report_lang = $lang->lastfinalized;
-        $report_query = $db->query("SELECT *, a.name AS affiliate_name FROM " . Tprefix . "reports r 
-									LEFT JOIN " . Tprefix . "affiliates a ON (a.affid=r.affid)  
+        $report_query = $db->query("SELECT *, a.name AS affiliate_name FROM " . Tprefix . "reports r
+									LEFT JOIN " . Tprefix . "affiliates a ON (a.affid=r.affid)
 									WHERE r.spid={$eid} AND r.type='q' AND status = 1
 									ORDER BY r.finishDate DESC
 									LIMIT 0, 4");
@@ -236,7 +236,7 @@ if (!$core->input['action']) {
         /* Prepare the private part of the profile - Start */
         if ($core->usergroup['profiles_canViewEntityPrivateProfile'] == '1') {
             /* Get related files - End */
-            $files_query = $db->query("SELECT *, f.title AS file_title FROM " . Tprefix . "files f LEFT JOIN " . Tprefix . "fileversions fv ON (f.fid=fv.fid)  
+            $files_query = $db->query("SELECT *, f.title AS file_title FROM " . Tprefix . "files f LEFT JOIN " . Tprefix . "fileversions fv ON (f.fid=fv.fid)
 									  WHERE f.referenceId={$eid} AND f.reference='eid' ORDER BY fv.timeLine DESC");
             $files_counter = 0;
             while ($files = $db->fetch_array($files_query)) {
@@ -279,9 +279,9 @@ if (!$core->input['action']) {
         /* Prepare the private part of the profile - End */
     } elseif ($profile['type'] == 'c') {
         $report_lang = $lang->lastvisited;
-        $visitreport_query = $db->query("SELECT *, CONCAT(firstName, ' ', lastName) AS employeename 
-										FROM " . Tprefix . " visitreports r JOIN " . Tprefix . "users u ON (u.uid=r.uid)  
-										WHERE r.cid={$eid} 
+        $visitreport_query = $db->query("SELECT *, CONCAT(firstName, ' ', lastName) AS employeename
+										FROM " . Tprefix . " visitreports r JOIN " . Tprefix . "users u ON (u.uid=r.uid)
+										WHERE r.cid={$eid}
 										ORDER BY r.date DESC
 										LIMIT 0, 4");
 
@@ -345,9 +345,9 @@ if (!$core->input['action']) {
 
         if (!$readonlyratings) {
             $header_ratingjs = '$(".rateit").click(function() {
-					var targetid = $(this).parent().parent().attr("name");                           
+					var targetid = $(this).parent().parent().attr("name");
 					var returndiv = "";
-		
+
 					sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=do_rateentity", "target="+targetid+"&value="+$("#rating_"+targetid).val()+"&eid="+$("#eid").val(), returndiv, returndiv, "html");
 				});';
         } else {
@@ -467,7 +467,7 @@ function log_rating($criterion, $eid, $value, $uid = '') {
         return false;
     }
 
-    $active_rating = $db->fetch_field($db->query('SELECT erid 
+    $active_rating = $db->fetch_field($db->query('SELECT erid
                                     FROM ' . Tprefix . 'entities_ratings
                                     WHERE ercid="' . $new_rating['ercid'] . '" AND uid="' . $new_rating['uid'] . '" AND eid="' . $new_rating['eid'] . '" AND dateTime>"' . strtotime('last week') . '"
 									ORDER BY dateTime DESC
@@ -513,52 +513,38 @@ function savematuritylevel($target, $eid) {
     global $db, $core;
 
     if ($core->usergroup["profiles_canUpdateRML"] != 1) {
-        return;
+        return false;
     }
-    $rmllevels_query = $db->query('SELECT * FROM ' . Tprefix . 'entities_rmlevels 
-                                       WHERE ermlid="' . $target . '"');
-    if ($db->num_rows($rmllevels_query) <= 0) {
-        return;
+
+    if (!value_exists('entities_rmlevels', 'ermlid', $target)) {
+        return false;
     }
-    $actualrmllevel_query = $db->query('SELECT ermlid FROM ' . Tprefix . 'relationmaturity 
-                                            WHERE eid=' . $eid);
-    $rmlcurrentlevel;
-    if ($db->num_rows($actualrmllevel_query) > 0) {
-        if ($savedmaturitylevel = $db->fetch_array($actualrmllevel_query)) {
-            $rmlcurrentlevel = $savedmaturitylevel["ermlid"];
-        }
+
+    if (!value_exists('entities', 'eid', $eid)) {
+        return false;
     }
+
     global $log;
-    if (isset($rmlcurrentlevel)) {
-        //update
-
-
-        $db->update_query('relationmaturity', array('ermlid' => $target), "eid=" . $eid);
-        $log->record('update RLM ' . $target . " " . $eid);
-    } else {
-        // insert            
-
-        $db->insert_query('relationmaturity', array('eid' => $eid, 'ermlid' => $target));
-        $log->record('insert RLM ' . $target . " " . $eid);
-    }
+    $db->update_query('entities', array('relationMaturity' => $target), "eid=" . $eid);
+    $log->record('Set RLM to ' . $target . " on " . $eid);
 }
 
 function get_rml_bar($eid) {
     $multicolored = true;
-    $jscript = '<script type="text/javascript">                
+    $jscript = '<script type="text/javascript">
                 $(document).ready(function() {
                     $(".rmlselectable").click(function() {
                         var returndiv="RMLmaindiv";
                         var targetid=$(this).attr("id");
                         sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=do_updaterml", "target="+targetid+"&eid="+$("#eid").val(),returndiv,returndiv,"html");
                     });
-                    
+
                     $(".rmlselectable").hover(function() {
                         $(this).prevAll().toggleClass("rmlhighlight");
                     },function() {
                         $(this).prevAll().toggleClass("rmlhighlight");
                     });
-                });               
+                });
              </script>';
     $maturity;
     $readonlymaturity = true;
@@ -568,7 +554,7 @@ function get_rml_bar($eid) {
     }
     $rmllist;
     global $db;
-    $rmllevels_query = $db->query('SELECT * FROM ' . Tprefix . 'entities_rmlevels 
+    $rmllevels_query = $db->query('SELECT * FROM ' . Tprefix . 'entities_rmlevels
                                        ORDER BY sequence');
     if ($db->num_rows($rmllevels_query) > 0) {
         while ($maturitylevelrow = $db->fetch_array($rmllevels_query)) {
@@ -577,11 +563,11 @@ function get_rml_bar($eid) {
     }
 
     $rmlcurrentlevel;
-    $actualrmllevel_query = $db->query('SELECT ermlid FROM ' . Tprefix . 'relationmaturity 
+    $actualrmllevel_query = $db->query('SELECT relationMaturity FROM ' . Tprefix . 'entities
                                        WHERE eid=' . $eid);
     if ($db->num_rows($actualrmllevel_query) > 0) {
         if ($savedmaturitylevel = $db->fetch_array($actualrmllevel_query)) {
-            $rmlcurrentlevel = $savedmaturitylevel["ermlid"];
+            $rmlcurrentlevel = $savedmaturitylevel["relationMaturity"];
         }
     }
 
@@ -631,6 +617,7 @@ function get_rml_bar($eid) {
         }
     }
     $maturity.='</div>' . $jscript;
+    
     return $maturity;
 }
 
