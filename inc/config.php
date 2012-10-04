@@ -13,7 +13,7 @@
 	Database Information
 */
 $config['database']['hostname'] = 'localhost';
-$config['database']['username'] = 'appuser'; 
+$config['database']['username'] = 'root'; 
 $config['database']['password'] = '';
 $config['database']['database'] = 'ocos';
 $config['database']['prefix'] = '';
