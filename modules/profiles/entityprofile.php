@@ -513,34 +513,20 @@ function savematuritylevel($target, $eid) {
     global $db, $core;
 
     if ($core->usergroup["profiles_canUpdateRML"] != 1) {
-        return;
+        return false;
     }
-    $rmllevels_query = $db->query('SELECT * FROM ' . Tprefix . 'entities_rmlevels 
-                                       WHERE ermlid="' . $target . '"');
-    if ($db->num_rows($rmllevels_query) <= 0) {
-        return;
-    }
-    $actualrmllevel_query = $db->query('SELECT ermlid FROM ' . Tprefix . 'relationmaturity 
-                                            WHERE eid=' . $eid);
-    $rmlcurrentlevel;
-    if ($db->num_rows($actualrmllevel_query) > 0) {
-        if ($savedmaturitylevel = $db->fetch_array($actualrmllevel_query)) {
-            $rmlcurrentlevel = $savedmaturitylevel["ermlid"];
-        }
-    }
+    
+    if (!value_exists('entities_rmlevels', 'ermlid',$target )) {
+        return false;
+    }            
+
+    if (!value_exists('entities', 'eid',$eid)) {
+        return false;
+    }            
+    
     global $log;
-    if (isset($rmlcurrentlevel)) {
-        //update
-
-
-        $db->update_query('relationmaturity', array('ermlid' => $target), "eid=" . $eid);
-        $log->record('update RLM ' . $target . " " . $eid);
-    } else {
-        // insert            
-
-        $db->insert_query('relationmaturity', array('eid' => $eid, 'ermlid' => $target));
-        $log->record('insert RLM ' . $target . " " . $eid);
-    }
+    $db->update_query('entities', array('relationMaturity' => $target), "eid=" . $eid);
+    $log->record('Set RLM to ' . $target . " on " . $eid);
 }
 
 function get_rml_bar($eid) {
@@ -577,11 +563,11 @@ function get_rml_bar($eid) {
     }
 
     $rmlcurrentlevel;
-    $actualrmllevel_query = $db->query('SELECT ermlid FROM ' . Tprefix . 'relationmaturity 
+    $actualrmllevel_query = $db->query('SELECT relationMaturity FROM ' . Tprefix . 'entities 
                                        WHERE eid=' . $eid);
     if ($db->num_rows($actualrmllevel_query) > 0) {
         if ($savedmaturitylevel = $db->fetch_array($actualrmllevel_query)) {
-            $rmlcurrentlevel = $savedmaturitylevel["ermlid"];
+            $rmlcurrentlevel = $savedmaturitylevel["relationMaturity"];
         }
     }
 

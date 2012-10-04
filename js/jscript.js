@@ -505,7 +505,7 @@ $(function() {
 					beforeSend: function() { $("div[id='" + loadingId + "'],span[id='" + loadingId + "']").html("<img src='" + imagespath +"/loading.gif' alt='" + loading_text + "' border='0' />");},
 					complete: function () { if(loadingId != contentId) { $("#" + loadingId).empty(); } },
 					success: function(returnedData) {
-						alert(returnedData);
+						//alert(returnedData);
 						if(datatype == 'xml') {
 							if($(returnedData).find('status').text() == 'true') { var spanClass = 'green_text'; } else { var spanClass = 'red_text'; }
 							
