@@ -111,7 +111,7 @@ class Filter {
 	}
 	
 	public function sanitize_email($email) {
-		return filter_var($email, FILTER_SANITIZE_EMAIL)
+		return filter_var($email, FILTER_SANITIZE_EMAIL);
 	}	
 	
 	public function sanitize_URL($url) {
