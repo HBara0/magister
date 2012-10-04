@@ -513,7 +513,7 @@ $(function() {
 						}
 						else
 						{
-							$("#" + contentId).html(returnedData);		
+							$("#" + contentId).html($.trim(returnedData));
 						}
 					}//,
 					//dataType: datatype
