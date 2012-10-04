@@ -550,7 +550,7 @@ function get_rml_bar($eid) {
                     $(".rmlselectable").click(function() {
                         var returndiv="RMLmaindiv";
                         var targetid=$(this).attr("id");
-                        sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=do_updaterml", "target="+targetid+"&eid="+$("#eid"),returndiv,returndiv,"html");
+                        sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=do_updaterml", "target="+targetid+"&eid="+$("#eid").val(),returndiv,returndiv,"html");
                     });
                     
                     $(".rmlselectable").hover(function() {
