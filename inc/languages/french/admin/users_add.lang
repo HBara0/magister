@@ -1,0 +1,3 @@
+<?php
+$lang['nousers'] = "There are no users";
+?>
