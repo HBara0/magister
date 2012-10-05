@@ -30,9 +30,10 @@ if(!$core->input['action']) {
 			foreach($job_applicant as $key=>$jobapplicant) {
 				$rowclass = alt_row($rowclass);
 					if($jobapplicant['isFlagged']==1) {	
-					$jobapplicant['flagicon'] = '<img  src="././images/icons/red_flag.gif" border="0"/>';
+					$jobapplicant['flagicon'] = '<img  id="'.$jobapplicant['hrvaid'].'" src="././images/icons/red_flag.gif" border="0"/>';
 				}
-				
+				//$td = '<td id="flagg"></td>';
+
 				$jobapplicant['dateCreated_output'] = date($core->settings['dateformat'], $jobapplicant['dateSubmitted']);
 				eval("\$hr_listjobsapplicants_rows.= \"".$template->get('hr_listjobsapplicants_rows')."\";");
 			}
@@ -55,12 +56,18 @@ elseif($core->input['action']=='do_moderation') {
 		$vacancy_id = $db->escape_string($core->input['vacancyid']);
 		$inapplicant = implode(',', $core->input['listCheckbox']); 
 		if($core->input['moderationtool'] == 'flag') {
-			$action= 'flag';			
+			$action= 'flag';
+			$vacancy->moderate($action,$vacancy_id,$inapplicant);			
+			header('Content-type: text/xml+javascript');		/* hide each selected <tr> has applicant id  after successfull deletion */
 			output_xml("<status>true</status><message>{$lang->flagged}</message>"); 
+			exit;		
 		}		
 		elseif($core->input['moderationtool'] == 'unflag') { 
 			$action= 'unflag';	
-			output_xml("<status>true</status><message>{$lang->unflagged}</message>"); 
+			$vacancy->moderate($action,$vacancy_id,$inapplicant);			
+			header('Content-type: text/xml+javascript');		/* hide each image of selected <td>  */
+			output_xml("<status>true</status><message>{$lang->unflagged}</message>");
+			exit;		
 		}
 		elseif($core->input['moderationtool'] == 'delete') {
 			$action = 'delete';
