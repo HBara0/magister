@@ -18,14 +18,19 @@ if($core->usergroup['canAddSuppliers'] == 0 && $core->usergroup['canAddCustomers
 	//exit;
 }
 
-$lang->load('contents_addentities');
 if(!$core->input['action']) {
-
+	if($core->input['type'] == 'edit') {
+		$actiontype = 'Edit';
+	}
+		else
+	{
+		$actiontype = 'Add';
+	}
 	eval("\$sourcingmanagesupplier = \"".$template->get('sourcing_managesupplier')."\";");
 	output_page($sourcingmanagesupplier);
 }
 else 
-{
+{ 
 	if($core->input['action'] == 'do_perform_addentities') {
 
 	}

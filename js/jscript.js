@@ -281,6 +281,7 @@ $(function() {
 	$("input[accept='numeric']").live("keydown", function(e) {
 		if(e.keyCode > 31 && (e.keyCode < 48 || (e.keyCode > 57 && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode != 190 && e.keyCode != 110))) {
 			$(this).val($(this).val().substring(0, ($(this).val().length - 1)));
+			
 			return false
 		}
 		return true										
