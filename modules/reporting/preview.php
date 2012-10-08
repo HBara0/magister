@@ -211,7 +211,7 @@ if(!$core->input['action']) {
 					$query2 = $db->query("SELECT u.uid, displayName AS fullname FROM ".Tprefix."marketreport_authors ma JOIN ".Tprefix."users u ON (u.uid=ma.uid) WHERE mrid='{$marketreports_rawdata[mrid]}'");
 					if($db->num_rows($query2) > 0) {
 						while($author = $db->fetch_assoc($query2)) {
-							$marketreport_data[$marketreports_rawdata['psid']]['authors'][$author['uid']] = $author['fullname'];	
+							$marketreport_data[$marketreports_rawdata['psid']]['authors'][$author['uid']] = $author['fullname'];
 						}
 					}
 				}
@@ -472,6 +472,7 @@ if(!$core->input['action']) {
 										ORDER by r.quarter ASC");//AND r.quarter<='{$current_quarter}'
 				}
 				while($addproduct = $db->fetch_assoc($additionproducts_query)) {
+					
 					$addproducts[$addproduct['pid']]['name'] = $addproduct['name'];
 					$productsdata_perquarter[$addproduct['quarter']][$addproduct['year']]['turnover'] += @round($addproduct['sumturnOver'], 2);
 					$productsdata_perquarter[$addproduct['quarter']][$addproduct['year']]['quantity'] += @round($addproduct['sumquantity'], 2);
@@ -482,7 +483,6 @@ if(!$core->input['action']) {
 						if($addproduct['year'] == $current_year) {
 							$addproducts[$addproduct['pid']]['salesuptoquarter'] += @round($addproduct['sumturnOver'], 2);
 							$addproducts[$addproduct['pid']]['quantitiesuptoquarter'] += @round($addproduct['sumquantity'], 2);
-							
 							$addproducts[$addproduct['pid']]['salesforecastyear'] = @round($addproduct['salesForecast'], 2);
 							$addproducts[$addproduct['pid']]['quantitiesforecastyear'] =  @round($addproduct['quantityForecast'], 2);
 						}
@@ -497,10 +497,12 @@ if(!$core->input['action']) {
 						if($addproduct['year'] != $current_year) {
 							$addproducts[$addproduct['pid']]['salesprevyear'] += @round($addproduct['sumturnOver'], 2);
 							$addproducts[$addproduct['pid']]['quantitiesprevyear'] += @round($addproduct['sumquantity'], 2);
-							$addproducts[$addproduct['pid']]['salesuptoquarter'] = 0;
-							$addproducts[$addproduct['pid']]['quantitiesuptoquarter'] = 0;
-							$addproducts[$addproduct['pid']]['salesforecastyear'] = 0;
-							$addproducts[$addproduct['pid']]['quantitiesforecastyear'] = 0;
+							if(!isset($addproducts[$addproduct['pid']]['salesuptoquarter'])) {
+								$addproducts[$addproduct['pid']]['salesuptoquarter'] = 0;
+								$addproducts[$addproduct['pid']]['quantitiesuptoquarter'] = 0;
+								$addproducts[$addproduct['pid']]['salesforecastyear'] = 0;
+								$addproducts[$addproduct['pid']]['quantitiesforecastyear'] = 0;
+							}
 						}
 					} 
 				}
@@ -671,7 +673,7 @@ if(!$core->input['action']) {
 			eval("\$salesbox = \"".$template->get('reporting_report_salesbox')."\";");			
 			eval("\$quantitiesbox = \"".$template->get('reporting_report_quantitiesbox')."\";");	
 		}
-			
+	
 		if(empty($productsdata)) {
 			$overviewtotals['affiliatename'][$report['affid']] = $overview2totals['affiliatename'][$report['affid']] = $report['affiliate'];
 			$overviewtotals['uptoprevquarteryear'][$report['affid']] = $overview2totals['uptoprevquarteryear'][$report['affid']] = 0;
@@ -774,7 +776,7 @@ if(!$core->input['action']) {
 	 * End of generating reports
 	 * Start gathering them up
 	 */
-	 
+
 	if(is_array($overviewtotals) && is_array($overview2totals)) {	
 		if($core->input['generateType'] == 1) {
 			//array_walk_recursive($overviewtotals, 'ceil_by_reference');
