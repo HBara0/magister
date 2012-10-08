@@ -6,7 +6,7 @@
 * Search tools
 * $id: search.php
 * Created: 		@zaher.reda			Mar 21, 2009 | 11:40 AM		
-* Last Update: 	@zaher.reda 		April 10, 2012 | 10:01 PM
+* Last Update: 	@tony.assaad		October 5, 2012 | 3:01 PM
 */
 require_once 'global.php';
 
@@ -78,6 +78,15 @@ if($core->input['type'] == 'quick') {
 			  $extra_where = 'type="'.$type.'"';
 		  }
 	  }
+	  elseif($core->input['for'] == 'chemical') {
+		   $table = 'sourcing_chemicalproducts';
+		  $attributes = array('name');
+		  $key_attribute = 'cpid';
+		  $select_attributes = array('name');
+		  $order = array('by' => 'name', 'sort' => 'ASC');
+			
+		}
+	  
 	  elseif($core->input['for'] == 'product') {
 		  if(isset($core->input['rid']) && !empty($core->input['rid'])) {
 			  $extra_where .= 'spid = "'.$report_data['spid'].'"';

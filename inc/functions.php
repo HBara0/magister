@@ -538,7 +538,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 		$notkeys = implode(',', $foundkeys);
 		$notin = ' AND '.$key_attribute.' NOT IN ('.$notkeys.') ';
 	}
-	
+echo("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$soundex_where_string}){$notin}{$extra_where_string}{$order}");
+
 	$query2 = $db->query("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$soundex_where_string}){$notin}{$extra_where_string}{$order}");
 	if($db->num_rows($query2) > 0) {
 		while($result2 = $db->fetch_array($query2)) {
@@ -551,7 +552,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 		}
 	}
 	
-	if(is_array($results)) {
+	if(is_array($results)) {print_r($results);
 		$results_list .= '<ul id="searchResultsList">';
 		foreach($results as $key => $val) {
 			$results_list .= '<li id="'.$key.'">'.$val.'</li>';

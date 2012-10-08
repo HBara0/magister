@@ -25,6 +25,7 @@ if(!$core->input['action']) {
 		else
 	{
 		$actiontype = 'Add';
+		$countries_list = '';
 	}
 	eval("\$sourcingmanagesupplier = \"".$template->get('sourcing_managesupplier')."\";");
 	output_page($sourcingmanagesupplier);

@@ -434,7 +434,7 @@ table.sectionbox td {
 }
 
 /*new added class by tony*/
-input, textarea.rounded {   /*each input with class rounded*/
+input.rounded, textarea.rounded {   /*each input and textarea with class rounded*/
   border: 1px solid #ccc;
 -moz-border-radius: 5px;
 	-webkit-border-radius: 5px;

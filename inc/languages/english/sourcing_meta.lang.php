@@ -7,7 +7,7 @@ $lang['activityareas'] = 'Activity Areas';
 $lang['commentstoshare'] = 'Comment Stoshare';
 $lang['marketingrecords'] = 'Marketing Records';
 
-$lang['marketingrecords'] = 'Marketing Records';
+$lang['chemicalproduct'] = 'Chemical';
 $lang['marketingrecords'] = 'Marketing Records';
 $lang['marketingrecords'] = 'Marketing Records';
 $lang['marketingrecords'] = 'Marketing Records';
