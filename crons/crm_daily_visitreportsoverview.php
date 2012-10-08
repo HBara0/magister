@@ -7,8 +7,10 @@ $excp_notifications = array(21 => 20, 27 => 20);
 $timeframe['from'] = strtotime('today');
 $timeframe['to'] = strtotime('tomorrow');
 
-$query = $db->query("SELECT vr.*, u.displayName AS employeename, u.reportsTo, e.companyName as customer
-					FROM visitreports vr JOIN users u ON (u.uid=vr.uid) JOIN entities e ON (e.eid=vr.cid)
+$query = $db->query("SELECT vr.*, u.displayName AS employeename, u.reportsTo, e.companyName as customer, aff.vrAlwaysNotify
+					FROM ".Tprefix."visitreports vr JOIN ".Tprefix."users u ON (u.uid=vr.uid) 
+					JOIN ".Tprefix."entities e ON (e.eid=vr.cid)
+					JOIN ".Tprefix."affiliates aff ON (aff.affid=vr.affid)
 					WHERE finishDate BETWEEN {$timeframe[from]} AND {$timeframe[to]} ORDER BY uid ASC, cid ASC");
 
 if($db->num_rows($query) > 0) {
@@ -21,6 +23,18 @@ if($db->num_rows($query) > 0) {
 		$report['type_output'] = $cache['visitreport_type'][$report['type']];
 		
 		$reports[$report['reportsTo']][$report['uid']][$report['vrid']] = $report;
+		
+		/* Parse supervisors who are always notified - START */
+		if(!empty($report['vrAlwaysNotify'])) {
+			$report['vrAlwaysNotify'] = unserialize($report['vrAlwaysNotify']);
+			if(is_array($report['vrAlwaysNotify'])) {
+				foreach($report['vrAlwaysNotify'] as $uid) {
+					$reports[$uid][$report['uid']][$report['vrid']] = $report;	
+				}
+			}
+		}
+		/* Parse supervisors who are always notified - START */
+		
 		/* Temporary Solution for some employees */
 		if(array_key_exists($report['uid'], $excp_notifications)) {
 			$reports[$excp_notifications[$report['uid']]][$report['uid']][$report['vrid']] = $report;
@@ -30,7 +44,7 @@ if($db->num_rows($query) > 0) {
 
 if(is_array($reports)) {
 	foreach($reports as $supervisor => $reports_users) {
-		$supervisor_info = $db->fetch_assoc($db->query('SELECT displayName, email FROM users WHERE uid='.$supervisor));
+		$supervisor_info = $db->fetch_assoc($db->query('SELECT displayName, email FROM '.Tprefix.'users WHERE uid='.$supervisor));
 		if(empty($supervisor_info['email'])) {
 			continue;
 		}
@@ -43,7 +57,7 @@ if(is_array($reports)) {
 					$user_section_parsed = true;
 					$message_user_reports .= '<strong>'.$report['employeename'].'</strong><ul>';
 				}
-				$message_user_reports .= '<li><a href="http://ocos.orkila.com/index.php?module=crm/previewvisitreport&referrer=list&vrid='.$vrid.'">'.$report['customer'].' - '.$report['type_output'].' ('.$report['date_output'].')</a></li>';
+				$message_user_reports .= '<li><a href="'.DOMAIN.'/index.php?module=crm/previewvisitreport&referrer=list&vrid='.$vrid.'">'.$report['customer'].' - '.$report['type_output'].' ('.$report['date_output'].')</a></li>';
 			}
 			$message_user_reports .= '</ul>';
 		}
@@ -58,7 +72,7 @@ if(is_array($reports)) {
 			'message'	=> $message_output,
 			'to'		=> $supervisor_info['email']
 		);
-		
+
 		$mail = new Mailer($email_data, 'php');
 			
 		if($mail->get_status() === true) {
