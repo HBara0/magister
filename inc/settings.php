@@ -33,6 +33,6 @@ $settings['sendreportsto'] = "zaher.reda@orkila.com";
 $settings['systemtitle'] = "OCOS";
 $settings['timeformat'] = "h:i A";
 $settings['weeklyplan_deletehours'] = "2";
-$settings['weeklyplan_editdays'] = "30";
+$settings['weeklyplan_editdays'] = "31";
 
 ?>

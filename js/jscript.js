@@ -376,7 +376,7 @@ $(function() {
 	});
 <<<<<<< master
 	
-	$('input[title],a[title]').qtip({style: {classes: 'ui-tooltip-green ui-tooltip-shadow'}, show: {event: 'focus mouseenter', solo: true}, hide: 'unfocus mouseleave', position:{viewport: $(window)}});
+	$('input[title],a[title],div[title]').qtip({style: {classes: 'ui-tooltip-green ui-tooltip-shadow'}, show: {event: 'focus mouseenter', solo: true}, hide: 'unfocus mouseleave', position:{viewport: $(window)}});
 	
 =======
 

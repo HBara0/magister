@@ -14,7 +14,7 @@
 */
 $config['database']['hostname'] = 'localhost';
 $config['database']['username'] = 'appuser'; 
-$config['database']['password'] = '';
+$config['database']['password'] = 'S3d$2%ff';
 $config['database']['database'] = 'ocos';
 $config['database']['prefix'] = '';
 $config['database']['encoding'] = 'utf8';
