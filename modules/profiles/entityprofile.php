@@ -300,16 +300,13 @@ if(!$core->input['action']) {
 			/* Get sent reports - End */
 		}
 		/* Prepare the private part of the profile - End */
-	elseif ($profile['type'] == 'c') {
 		
 		/* Parse Maturity Section - START */
 		$maturity_section = '<div id="rml_maindiv"><span class="subtitle">'.$lang->rmlevel.'</span><br />'.get_rml_bar($eid).'</div>';
 		if($core->usergroup['profiles_canUpdateRML'] == 1) {
 		    $header_rmljs = '$(".rmlselectable").live("click", function() {
 					if(sharedFunctions.checkSession() == false) {
-						return;	
-			elseif ($reports_counter == 3) {
-			else {
+						return;
 					}
                         sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=do_updaterml", "target="+$(this).attr("id")+"&eid="+$("#eid").val(), "rml_bars", "rml_bars", "html");
                     });
@@ -649,6 +646,8 @@ function get_rml_bar($eid) {
             if($counter == 2) {
                 $positionclass = ' first last';
 			}
+			else
+			{
                 $positionclass = ' last';
 			}
 		}
@@ -660,7 +659,6 @@ function get_rml_bar($eid) {
 
         if($is_coloredlevel) {
 			$maturity_bars .= '<div id="'.$ermlid.'" class="'.$divclassactive.$positionclass.'" title="'.($lang->{$name} ? $lang->{$name} : $name).'">&nbsp;</div>';
-			else {
         } 
 		else
 		{
