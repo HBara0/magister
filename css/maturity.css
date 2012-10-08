@@ -1,11 +1,11 @@
-/* 
-    Document   : maturity
-    Created on : Oct 3, 2012, 10:32:25 AM
-    Author     : alain.paulikevitch
-    Description:
-        Purpose of the stylesheet follows.
-*/
-
+/*
+ * Orkila Central Online System (OCOS)
+ * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * 
+ * $id: rml.css	
+ * Created:		@alain.paulikevitch		October 3, 2012 10:32 AM
+ * Last Update: @zaher.reda 			October 8, 2012 9:52 AM
+ */
 #rml_maindiv { 
 	position:relative;
 	vertical-align: middle;
