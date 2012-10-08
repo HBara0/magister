@@ -4,5 +4,5 @@
  PLEASE USE the Admin CP
 \*********************************/
 
-$lang['rmlevel'] = '';
+$lang['rmlevel'] = 'Niveau de Maturite de la Relation (RML)';
 ?>
