@@ -468,7 +468,7 @@ else
 	}
 	elseif($core->input['action'] == 'do_updaterml') 
 	{
-		savematuritylevel($core->input['target'], $core->input['eid']);
+		savematuritylevel($core->input['target'],$core->input['eid']);
 		echo get_rml_bar($core->input['eid']);
 	}
 }
@@ -488,8 +488,8 @@ function parse_calltype(&$value) {
 	return $value;
 }
 
-function validate_rating($eid, $value, $criterion) {
-	global $core, $maxstars;
+function validate_rating($eid,$value,$criterion) {
+	global $core,$maxstars;
 	/* Check if user is assigned to supplier */
 	if(!isset($core->user['suppliers']['eid'][$eid])) {
 		return false;	
@@ -503,7 +503,7 @@ function validate_rating($eid, $value, $criterion) {
 		return false;	
 	}
 	/* Check if rate is valid */
-	if($target < 0 || $target > $maxstars) {
+	if ($target < 0 || $target > $maxstars) {
 		return false;
 	}
 
@@ -533,7 +533,7 @@ function log_rating($criterion, $eid, $value, $uid='') {
                                     FROM '.Tprefix.'entities_ratings
                                     WHERE ercid="'.$new_rating['ercid'].'" AND uid="'.$new_rating['uid'].'" AND eid="'.$new_rating['eid'].'" AND dateTime>"'.strtotime('last week').'"
 									ORDER BY dateTime DESC
-									LIMIT 0, 1'), 'erid');
+									LIMIT 0, 1'),'erid');
     if(isset($active_rating) && !empty($active_rating)) {   
 		$query = $db->update_query('entities_ratings', array('rating' => $new_rating['rating']), 'erid="'.$active_rating.'"');   
    		$log->record($active_rating);   
@@ -551,7 +551,7 @@ function log_rating($criterion, $eid, $value, $uid='') {
 	return false;
 }
 
-function get_current_rating($eid, $ercid) {
+function get_current_rating($eid,$ercid) {
 	global $db;
 	    
 	$getratings_query = $db->query('SELECT DISTINCT(uid), rating
@@ -586,7 +586,7 @@ function savematuritylevel($level, $eid) {
 		return false;
 	}
 
-	if(!value_exists('entities', 'eid', $eid)) {
+	if (!value_exists('entities','eid',$eid)) {
 		return false;
 	}
 
