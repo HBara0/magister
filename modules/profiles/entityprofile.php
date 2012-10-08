@@ -11,171 +11,171 @@
  */
  
 if(!defined('DIRECT_ACCESS')) {
-    die('Direct initialization of this file is not allowed.');
+	die('Direct initialization of this file is not allowed.');
 }
 
 if(!$core->input['action']) {
 	if(!isset($core->input['eid']) || empty($core->input['eid'])) {
 		redirect($_SERVER['HTTP_REFERER']);	
-    }
+	}
 
-    $eid = $db->escape_string($core->input['eid']);
+	$eid = $db->escape_string($core->input['eid']);
 	
-    $profile = $db->fetch_assoc($db->query("SELECT * FROM " . Tprefix . "entities WHERE eid={$eid}"));
+	$profile = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid={$eid}"));
 	if(!empty($profile['building'])) {
-        $profile['fulladdress'] .= $profile['building'] . ' - ';
-    }
+		$profile['fulladdress'] .= $profile['building'].' - ';
+	}
 	
-    //$profile['fulladdress'] = $profile['building'];
+	//$profile['fulladdress'] = $profile['building'];
 	if(!empty($profile['postCode'])) {
-        $profile['fulladdress'] .= $profile['postCode'] . ', ';
-    }
+		$profile['fulladdress'] .= $profile['postCode'].', ';
+	}
 	
 	if(!empty($profile['addressLine1'])) {
-        $profile['fulladdress'] .= $profile['addressLine1'] . ' ';
-    }
+		$profile['fulladdress'] .= $profile['addressLine1'].' ';
+	}
 	
 	if(!empty($profile['addressLine2'])) {
-        $profile['fulladdress'] .= $profile['addressLine2'] . ', ';
-    }
+		$profile['fulladdress'] .= $profile['addressLine2'].', ';
+	}
 	
 	if(!empty($profile['city'])) {
-        $profile['fulladdress'] .= $profile['city'] . ' - ';
-    }
+		$profile['fulladdress'] .= $profile['city'].' - ';
+	}
 	
 	if(!empty($profile['floor'])) {
-        $profile['fulladdress'] .= 'F ' . $profile['floor'] . ' - ';
-    }
+		$profile['fulladdress'] .= 'F '.$profile['floor'].' - ';
+	}
 	
 	if((empty($profile['phone1'])) && (empty($profile['phone2']))) {
-        $phone = $lang->na;
-    } elseif (empty($profile['phone2'])) {
+		$phone = $lang->na;
+	}
 	elseif(empty($profile['phone2']))
 	{
-        $phone = $profile['phone1'];
-    } else {
+		$phone = $profile['phone1'];
+	}
 	else
 	{
 		$phone = $profile['phone1'].'/'.$profile['phone2'];	
-    }
+	}
 	
 	if((empty($profile['fax1'])) && (empty($profile['fax2']))) {
-        $fax = $lang->na;
-    } elseif (empty($profile['fax2'])) {
+		$fax = $lang->na;
+	}
 	elseif(empty($profile['fax2']))
 	{
-        $fax = $profile['fax1'];
-    } else {
+		$fax = $profile['fax1'];
+	}
 	else
 	{
 		$fax = $profile['fax1'].'/'.$profile['fax2'];	
-    }
+	}
 	
 	if(empty($profile['logo'])) {
-        $profile['logo'] = './images/no_logo_entity.gif';
+		$profile['logo'] = './images/no_logo_entity.gif';
 	}	
 	else
 	{
-        $profile['logo'] = $core->settings['rootdir'] . '/' . $core->settings['entitylogodir'] . '/' . $profile['logo'];
-    }
+		$profile['logo'] = $core->settings['rootdir'].'/'.$core->settings['entitylogodir'].'/'.$profile['logo'];
+	}
 	
 	$profile['country'] = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid='{$profile[country]}'"), 'name');
 	
-    $profile['fulladdress'] .= $profile['country'];
+	$profile['fulladdress'] .= $profile['country'];
 	
 	foreach($profile as $key => $val){
 		if(empty($val)) {
-            $profile[$key] = $lang->na;
-        }
-    }
+			$profile[$key] = $lang->na;
+		}
+	}
 	
 	if(!empty($profile['website'])) {
 		$profile['website'] = '<a href="'.$profile['website'].'" target="_blank">'.$profile['website'].'</a>'; 
-    } else {
+	}
 	else
 	{
-        $profile['website'] = '';
-    }
+		$profile['website'] = '';
+	}
 	
-    $representative_query = $db->query("SELECT *
+	$representative_query = $db->query("SELECT *
 										FROM ".Tprefix."representatives r JOIN ".Tprefix."entitiesrepresentatives er ON (er.rpid=r.rpid) 
 										WHERE er.eid={$eid}");
 	while($representative = $db->fetch_assoc($representative_query)) {
-        $representativelist .= '<a href="#" id="contactpersoninformation_' . base64_encode($representative['rpid']) . '_profiles/entityprofile_loadpopupbyid">' . $representative['name'] . '</a> - <a href="mailto:' . $representative['email'] . '">' . $representative['email'] . '</a><br />';
-    }
+		$representativelist .= '<a href="#" id="contactpersoninformation_'.base64_encode($representative['rpid']).'_profiles/entityprofile_loadpopupbyid">'.$representative['name'].'</a> - <a href="mailto:'.$representative['email'].'">'.$representative['email'].'</a><br />';
+	}
 		
-    $segment_query = $db->query("SELECT * FROM " . Tprefix . "entitiessegments es JOIN " . Tprefix . " productsegments ps ON (es.psid=ps.psid) WHERE es.eid={$eid}");
+	$segment_query = $db->query("SELECT * FROM ".Tprefix."entitiessegments es JOIN ".Tprefix." productsegments ps ON (es.psid=ps.psid) WHERE es.eid={$eid}");
 	while($segment = $db->fetch_assoc($segment_query)) {
-        $segmentlist .= $segment['title'] . '<br />';
-    }
+		$segmentlist .= $segment['title'].'<br />';
+	}
 				
-    $affiliate_query = $db->query("SELECT *
-								   FROM " . Tprefix . "affiliates a LEFT JOIN " . Tprefix . "affiliatedentities ae ON (ae.affid=a.affid)
+	$affiliate_query = $db->query("SELECT *
+								   FROM ".Tprefix."affiliates a LEFT JOIN ".Tprefix."affiliatedentities ae ON (ae.affid=a.affid)
 								   WHERE ae.eid={$eid}
 								   ORDER BY a.name ASC");
 	while($affiliate = $db->fetch_array($affiliate_query)) {
-        $listitem['link'] = 'index.php?module=profiles/affiliateprofile&affid=' . $affiliate['affid'];
-        $listitem['title'] = $affiliate['name'];
-        $listitem['divhref'] = 'affiliate';
-        $listitem['loadiconid'] = 'loadentityusers_' . $affiliate['affid'] . '_' . $eid;
+		$listitem['link'] = 'index.php?module=profiles/affiliateprofile&affid='.$affiliate['affid'];
+		$listitem['title'] = $affiliate['name'];
+		$listitem['divhref'] = 'affiliate';
+		$listitem['loadiconid'] = 'loadentityusers_'.$affiliate['affid'].'_'.$eid;
 			
-        eval("\$affiliateslist .= \"" . $template->get('profiles_affliatesentities_inlinelistitem') . "\";");
-    }
+		eval("\$affiliateslist .= \"".$template->get('profiles_affliatesentities_inlinelistitem')."\";");
+	}
 
-    $entityusers_query = $db->query("SELECT *, CONCAT(firstName, ' ', lastName) AS fullname
-						FROM " . Tprefix . "assignedemployees ae JOIN " . Tprefix . "users u ON (ae.uid=u.uid)
+	$entityusers_query = $db->query("SELECT *, CONCAT(firstName, ' ', lastName) AS fullname
+						FROM ".Tprefix."assignedemployees ae JOIN ".Tprefix."users u ON (ae.uid=u.uid)
 						WHERE ae.eid={$eid} AND u.gid!=7
 						GROUP BY u.username
 						ORDER BY u.username ASC");
-    $entityusers_counter = 0;
+	$entityusers_counter = 0;
 
 	while($entityusers = $db->fetch_array($entityusers_query)) {
 		if(++$entityusers_counter > $core->settings['itemsperlist'])  {
-            $hidden_entityusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a></li>";
-        } elseif ($entityusers_counter == $core->settings['itemsperlist']) {
+			$hidden_entityusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a></li>";
+		}
 		elseif($entityusers_counter == $core->settings['itemsperlist']) 
 		{
 			$shown_entityallusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a>";				
-        } else {
+		}
 		else
 		{
 			$shown_entityallusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a></li>";				
-        }
-    }
+		}
+	}
 	
 	if($entityusers_counter > $core->settings['itemsperlist']) {
-        $entityallusers = "<ul style='list-style:none; padding:2px;margin-top:0px;'>" . $shown_entityallusers . ", <a href='#entityusers' id='showmore_entityusers_{$entityusers[uid]}' class='smalltext'>read more</a></li> <span style='display:none;' id='entityusers_{$entityusers[uid]}'>{$hidden_entityusers}</span></ul>";
-    } else {
+		$entityallusers = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_entityallusers.", <a href='#entityusers' id='showmore_entityusers_{$entityusers[uid]}' class='smalltext'>read more</a></li> <span style='display:none;' id='entityusers_{$entityusers[uid]}'>{$hidden_entityusers}</span></ul>";
+	}
 	else
 	{
-        $entityallusers = '<ul style="list-style:none; padding:2px;margin-top:0px;">' . $shown_entityallusers . '</ul>';
+		$entityallusers = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_entityallusers.'</ul>';
 	}	
 		
 	if($profile['type'] == 's') {
-        /* Load supplier's quarterly reports - Start */
-        $report_lang = $lang->lastfinalized;
+		/* Load supplier's quarterly reports - Start */
+		$report_lang = $lang->lastfinalized;
 		$report_query = $db->query("SELECT *, a.name AS affiliate_name FROM ".Tprefix."reports r 
 									LEFT JOIN ".Tprefix."affiliates a ON (a.affid=r.affid)  
 									WHERE r.spid={$eid} AND r.type='q' AND status = 1
 									ORDER BY r.finishDate DESC
 									LIMIT 0, 4");
 			
-        $reports_counter = 0;
-        $finalized_reports = '';
+		$reports_counter = 0;
+		$finalized_reports = '';
 		if($db->num_rows($report_query)) {
 			while($report = $db->fetch_assoc($report_query)) {
-                $row_class = alt_row($row_class);
+				$row_class = alt_row($row_class);
 				if($report['status'] == 1) {
-                    $icon_locked = '';
+					$icon_locked = '';
 					if($report['isLocked'] == 1) { 
-                        $icon_locked = '_locked';
-                    }
-                    $report_icon = '<a href="index.php?module=reporting/preview&referrer=list&amp;affid=' . $report['affid'] . '&amp;spid=' . $report['spid'] . '&amp;quarter=' . $report['quarter'] . '&amp;year=' . $report['year'] . '"><img src="images/icons/report' . $icon_locked . '.gif" alt="' . $report['status'] . '" border="0"/></a>';
-                }
+						$icon_locked = '_locked';
+					}
+					$report_icon = '<a href="index.php?module=reporting/preview&referrer=list&amp;affid='.$report['affid'].'&amp;spid='.$report['spid'].'&amp;quarter='.$report['quarter'].'&amp;year='.$report['year'].'"><img src="images/icons/report'.$icon_locked.'.gif" alt="'.$report['status'].'" border="0"/></a>';
+				}
 					
-                $finalized_reports .= '<tr class="' . $row_class . '"><td>' . $report['affiliate_name'] . '</td><td>Q' . $report['quarter'] . '</td><td>' . $report['year'] . '</td><td style="width:1%; text-align:right;">' . $report_icon . '</td></tr>';
-            }
-            $finalized_reports .= '<tr><td colspan="4"><a href="index.php?module=reporting/list&filterby=spid&filtervalue=' . $eid . '">Read more</a></tr></td>';
+				$finalized_reports .= '<tr class="'.$row_class.'"><td>'.$report['affiliate_name'].'</td><td>Q'.$report['quarter'].'</td><td>'.$report['year'].'</td><td style="width:1%; text-align:right;">'.$report_icon.'</td></tr>';
+			}
+			$finalized_reports .= '<tr><td colspan="4"><a href="index.php?module=reporting/list&filterby=spid&filtervalue='.$eid.'">Read more</a></tr></td>';
 		 	eval("\$reports_section = \"".$template->get('profiles_entityprofile_reports')."\";");
 		 }
 		
@@ -206,20 +206,20 @@ if(!$core->input['action']) {
 			$reports_section = '<tr><td  valign="top" style="padding:10px;"><span class="subtitle">'.$report_lang.'</span><br />'.$reports_list.'</td><td valign="top" style="padding:10px;">&nbsp;</td></tr>';
 		}
 		*/
-        /* Load supplier's quarterly reports - End */
+		/* Load supplier's quarterly reports - End */
 		
-        /* Load supplier's products list - Start */
-        $products_query = $db->query("SELECT p.pid, p.name, gp.title AS genericname FROM " . Tprefix . "products p JOIN " . Tprefix . "genericproducts gp ON (gp.gpid=p.gpid) WHERE p.spid={$eid}");
+		/* Load supplier's products list - Start */
+		$products_query = $db->query("SELECT p.pid, p.name, gp.title AS genericname FROM ".Tprefix."products p JOIN ".Tprefix."genericproducts gp ON (gp.gpid=p.gpid) WHERE p.spid={$eid}");
 		
-        //$products_counter = 0;
-        $productslist = '';
+		//$products_counter = 0;
+		$productslist = '';
 		if($db->num_rows($products_query) > 0) {
 			while($product = $db->fetch_assoc($products_query )) {
-                $row_class = alt_row($row_class);
-                $productslist .= '<tr class="' . $row_class . '"><td style="width:50%;">' . $product['name'] . '</td><td>' . $product['genericname'] . '</td></tr>';
-            }
-            eval("\$products_section = \"" . $template->get('profiles_entityprofile_products') . "\";");
-        }
+				$row_class = alt_row($row_class);
+				$productslist .= '<tr class="'.$row_class.'"><td style="width:50%;">'.$product['name'].'</td><td>'.$product['genericname'].'</td></tr>';
+			}
+			eval("\$products_section = \"".$template->get('profiles_entityprofile_products')."\";");
+		}
 		
 			/*if(++$products_counter > $core->settings['itemsperlist'])  {
 				$hidden_products .= '<li>'.$products['name'].'</li>';
@@ -248,58 +248,59 @@ if(!$core->input['action']) {
 		{
 			$productslist = ' - ';
 		}*/
-        /* Load supplier's products list - End */
+		/* Load supplier's products list - End */
 			
-        /* Prepare the private part of the profile - Start */
+		/* Prepare the private part of the profile - Start */
 		if($core->usergroup['profiles_canViewEntityPrivateProfile'] == '1') {
-            /* Get related files - End */
+			/* Get related files - End */
 			$files_query = $db->query("SELECT *, f.title AS file_title FROM ".Tprefix."files f LEFT JOIN ".Tprefix."fileversions fv ON (f.fid=fv.fid)  
 									  WHERE f.referenceId={$eid} AND f.reference='eid' ORDER BY fv.timeLine DESC");
 			$files_counter = 0;			
 			while($files = $db->fetch_array($files_query )) {  
 				$time = date($core->settings['dateformat'], $files['timeLine']);
 				if(++$files_counter > 3) {
-                    $hidden_files .= "<li><a href='index.php?module=profiles/entityprofile&action=download&fvid={$files[fvid]}' target='_blank'>{$files['file_title']}({$time})</a></li>";
-                } elseif ($files_counter == 3) {
+					$hidden_files .= "<li><a href='index.php?module=profiles/entityprofile&action=download&fvid={$files[fvid]}' target='_blank'>{$files['file_title']}({$time})</a></li>";
+				}
 				elseif($files_counter == 3) 
 				{
-                    $shown_files .= "<li><a href='index.php?module=profiles/entityprofile&action=download&fvid={$files[fvid]}' target='_blank'>{$files['file_title']}({$time})</a>";
-                } else {
+					$shown_files .= "<li><a href='index.php?module=profiles/entityprofile&action=download&fvid={$files[fvid]}' target='_blank'>{$files['file_title']}({$time})</a>";
+				}
 				else
 				{
 					$shown_files .= "<li><a href='index.php?module=profiles/entityprofile&action=download&fvid={$files[fvid]}' target='_blank'>{$files['file_title']}({$time})</a></li>";			
-                }
-            }
+				}
+			}
 			
 			if($files_counter > 3) {
-                $files_list = "<ul style='list-style:none; padding:2px;margin-top:0px;'>" . $shown_files . ", <a href='#files' id='showmore_files_{$files[fvid]}' class='smalltext'>read more</a></li> <span style='display:none;' id='files_{$files[fvid]}'>{$hidden_files}</span></ul>";
-            } else {
+				$files_list = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_files.", <a href='#files' id='showmore_files_{$files[fvid]}' class='smalltext'>read more</a></li> <span style='display:none;' id='files_{$files[fvid]}'>{$hidden_files}</span></ul>";
+			}
 			else
 			{
-                $files_list = '<ul style="list-style:none; padding:2px;margin-top:0px;">' . $shown_files . '</ul>';
-            }
+				$files_list = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_files.'</ul>';
+			}
 			
 			if(!empty($files_list)) {
-                $entityprofile_private = '<tr><td  valign="top" style="padding:10px;"><span class="subtitle">' . $lang->lastfiles . '</span><br />' . $files_list . '</td><td valign="top" style="padding:10px;">&nbsp;</td></tr>';
-            }
-            /* Get related files - End */
+				$entityprofile_private = '<tr><td  valign="top" style="padding:10px;"><span class="subtitle">'.$lang->lastfiles.'</span><br />'.$files_list.'</td><td valign="top" style="padding:10px;">&nbsp;</td></tr>';
+			}
+			/* Get related files - End */
 			
-            /* Get sent reports - Start */
-            $sentreports_query = $db->query("SELECT * FROM " . Tprefix . "reports WHERE isSent=1 AND spid='{$eid}' ORDER BY year DESC");
+			/* Get sent reports - Start */
+			$sentreports_query = $db->query("SELECT * FROM ".Tprefix."reports WHERE isSent=1 AND spid='{$eid}' ORDER BY year DESC");
 			while($ready_report = $db->fetch_assoc($sentreports_query)) {
-                $ready_affids[] = $ready_report['affid'];
+				$ready_affids[] = $ready_report['affid'];
 			
 				$ready_reports_link[$ready_report['affid']] = $core->settings['rootdir'].'/index.php?module=reporting/preview&referrer=direct&identifier='.base64_encode(serialize(array('year' => $current_report_details['year'], 'quarter' => $current_report_details['quarter'], 'spid' => $current_report_details['eid'], 'affid' => $ready_affids)));
 				
-                $sent_reports .= '<a href="' . $ready_reports_link[$ready_report['affid']] . '">sent reports Q' . $ready_report['quarter'] . ' </a><br />';
-            }
+				$sent_reports .= '<a href="'.$ready_reports_link[$ready_report['affid']].'">sent reports Q'.$ready_report['quarter'].' </a><br />';
+			}
 		
 			if(!empty($sent_reports)) {
-                $entityprofile_private .= '<tr><td  valign="top" style="padding:10px;"><span class="subtitle">' . $lang->lastfiles . '</span><br />' . $sent_reports . '</td><td valign="top" style="padding:10px;">&nbsp;</td></tr>';
-            }
-            /* Get sent reports - End */
-        }
-        /* Prepare the private part of the profile - End */
+				$entityprofile_private .= '<tr><td  valign="top" style="padding:10px;"><span class="subtitle">'.$lang->lastfiles.'</span><br />'.$sent_reports.'</td><td valign="top" style="padding:10px;">&nbsp;</td></tr>';
+			}
+			/* Get sent reports - End */
+		}
+		/* Prepare the private part of the profile - End */
+	elseif ($profile['type'] == 'c') {
 		
 		/* Parse Maturity Section - START */
 		$maturity_section = '<div id="rml_maindiv"><span class="subtitle">'.$lang->rmlevel.'</span><br />'.get_rml_bar($eid).'</div>';
@@ -307,6 +308,8 @@ if(!$core->input['action']) {
 		    $header_rmljs = '$(".rmlselectable").live("click", function() {
 					if(sharedFunctions.checkSession() == false) {
 						return;	
+			elseif ($reports_counter == 3) {
+			else {
 					}
                         sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=do_updaterml", "target="+$(this).attr("id")+"&eid="+$("#eid").val(), "rml_bars", "rml_bars", "html");
                     });
@@ -407,188 +410,188 @@ if(!$core->input['action']) {
 		}
 	}
 	
-    eval("\$profilepage = \"" . $template->get('profiles_entityprofile') . "\";");
-    output_page($profilepage);
-} else {
+	eval("\$profilepage = \"".$template->get('profiles_entityprofile')."\";");
+	output_page($profilepage);
+}
 else
 {
 	if($core->input['action'] == 'download') {
-        $path = $core->settings['rootdir'] . '/uploads/entitiesfiles/';
+		$path = $core->settings['rootdir'].'/uploads/entitiesfiles/';
 	 	$download = new Download('fileversions', 'name', array('fvid' => $core->input['fvid']), $path);
 		$download ->download_file();
-    } elseif ($core->input['action'] == 'getentityusers' || $core->input['action'] == 'getallusers') {
+	}
 	elseif($core->input['action'] == 'getentityusers' || $core->input['action'] == 'getallusers') 
 	{
-        $eid = $db->escape_string($core->input['eid']);
-        $query_string = '';
+		$eid = $db->escape_string($core->input['eid']);
+		$query_string = '';
 		if($core->input['action'] == 'getentityusers') {
-            $query_string = " AND ae.affid = '" . $db->escape_string($core->input['affid']) . "'";
-        }
+			$query_string = " AND ae.affid = '".$db->escape_string($core->input['affid'])."'";
+		}
 		
-        $entityusers_query = $db->query("SELECT *, CONCAT(firstName, ' ', lastName) AS fullname
-							FROM " . Tprefix . "assignedemployees e JOIN " . Tprefix . "users u ON (e.uid=u.uid) JOIN " . Tprefix . "affiliatedentities ae ON (ae.affid=e.affid)
+		$entityusers_query = $db->query("SELECT *, CONCAT(firstName, ' ', lastName) AS fullname
+							FROM ".Tprefix."assignedemployees e JOIN ".Tprefix."users u ON (e.uid=u.uid) JOIN ".Tprefix."affiliatedentities ae ON (ae.affid=e.affid)
 							WHERE e.eid={$eid}{$query_string} AND u.gid!=7
 							GROUP BY u.username
 							ORDER BY u.firstName ASC");
 		if($db->num_rows($entityusers_query) > 0) {
 			while($entityusers = $db->fetch_array($entityusers_query)) {
-                $entityusers_list .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a></li>";
-            }
-        } else {
+				$entityusers_list .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a></li>";
+			}
+		}
 		else
 		{
-            $entityusers_list = $lang->na;
-        }
+			$entityusers_list = $lang->na;
+		}
 		
  		$entityusers_list_output = '<ul style="list-style:none; padding:2px; margin-top:0px;">'.$entityusers_list.'</ul>';
-        echo $entityusers_list_output;
-    } elseif ($core->input['action'] == 'get_contactpersoninformation') {
+		echo $entityusers_list_output;
+	}
 	elseif($core->input['action'] == 'get_contactpersoninformation') 
 	{
-        $rpid = $db->escape_string(base64_decode($core->input['id']));
+		$rpid = $db->escape_string(base64_decode($core->input['id']));
 
-        $information = $db->fetch_assoc($db->query("SELECT * FROM " . Tprefix . "representatives WHERE rpid={$rpid}"));
+		$information = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid={$rpid}"));
 		
 		$segments = get_specificdata("representativessegments s JOIN ".Tprefix."productsegments seg ON(seg.psid=s.psid)", array('title','s.psid as id'), 'id', 'title', '', 0, "rpid='{$rpid}'");
 		if(is_array($segments)) {
 			$information['segments'] = implode(',', $segments);
-        }
+		}
 		
 		$positions = get_specificdata("representativespositions p JOIN ".Tprefix."positions pos ON(pos.posid=p.posid)", array('title','p.posid as id'), 'id', 'title', '', 0, "rpid='{$rpid}'");
 		if(is_array($positions)) {
 			$information['positions'] = implode(',', $positions);
-        }
+		}
 		
-        eval("\$contactinformation = \"" . $template->get('popup_profiles_contactpersoninformation') . "\";");
-        echo $contactinformation;
-    }
+		eval("\$contactinformation = \"".$template->get('popup_profiles_contactpersoninformation')."\";");
+		echo $contactinformation;
+	}
  	elseif($core->input['action'] == 'do_rateentity') 
 	{
 		log_rating($core->input['target'], $core->input['eid'], $core->input['value']);
-    } elseif ($core->input['action'] == 'do_updaterml') {
+	}
 	elseif($core->input['action'] == 'do_updaterml') 
 	{
-        savematuritylevel($core->input['target'], $core->input['eid']);
-        echo get_rml_bar($core->input['eid']);
-    }
+		savematuritylevel($core->input['target'],$core->input['eid']);
+		echo get_rml_bar($core->input['eid']);
+	}
 }
 
 function parse_calltype(&$value) {
-    global $lang;
+	global $lang;
 	
 	switch($value) {
 		case '1': 
 				$value = $lang->facetoface;
 				break;
-        case '2':
+		case '2':
 				$value = $lang->telephonecall;
 				break;
-        default: break;
-    }
-    return $value;
+		default: break;
+	}
+	return $value;
 }
 
-function validate_rating($eid, $value, $criterion) {
-    global $core, $maxstars;
-    /* Check if user is assigned to supplier */
+function validate_rating($eid,$value,$criterion) {
+	global $core,$maxstars;
+	/* Check if user is assigned to supplier */
 	if(!isset($core->user['suppliers']['eid'][$eid])) {
 		return false;	
-    }
-    /* Check if criterion exists */
+	}
+	/* Check if criterion exists */
 	if(!value_exists('entities_ratingcriteria', 'ercid', $criterion)) {
 		return false;	
-    }
-    /* Check if entity exists */
+	}
+	/* Check if entity exists */
 	if(!value_exists('entities', 'eid', $eid)) {
 		return false;	
-    }
-    /* Check if rate is valid */
-    if ($target < 0 || $target > $maxstars) {
-        return false;
-    }
+	}
+	/* Check if rate is valid */
+	if ($target < 0 || $target > $maxstars) {
+		return false;
+	}
 
-    return true;
+	return true;
 }
 
 function log_rating($criterion, $eid, $value, $uid='') {
 	global $core, $db, $log;
     
-    $new_rating['ercid'] = intval($criterion);
-    $new_rating['eid'] = intval($core->sanitize_inputs($eid));
+	$new_rating['ercid'] = intval($criterion);
+	$new_rating['eid'] = intval($core->sanitize_inputs($eid));
 	$new_rating['rating'] = $db->escape_string($core->sanitize_inputs($value, array('removetags' => true)));
 	
 	if(empty($uid)) {
 		$new_rating['uid'] = $core->user['uid'];	
-    } else {
+	}
 	else
 	{
-        $new_rating['uid'] = intval($uid);
-    }
+		$new_rating['uid'] = intval($uid);
+	}
 	
 	if(!validate_rating($new_rating['eid'], $new_rating['rating'], $new_rating['ercid'])) {
     	return false;
-    }
+	}
 
     $active_rating = $db->fetch_field($db->query('SELECT erid 
                                     FROM '.Tprefix.'entities_ratings
                                     WHERE ercid="'.$new_rating['ercid'].'" AND uid="'.$new_rating['uid'].'" AND eid="'.$new_rating['eid'].'" AND dateTime>"'.strtotime('last week').'"
 									ORDER BY dateTime DESC
-									LIMIT 0, 1'), 'erid');
+									LIMIT 0, 1'),'erid');
     if(isset($active_rating) && !empty($active_rating)) {   
 		$query = $db->update_query('entities_ratings', array('rating' => $new_rating['rating']), 'erid="'.$active_rating.'"');   
    		$log->record($active_rating);   
     } 
     else
     {
-        $new_rating['dateTime'] = TIME_NOW;
+		$new_rating['dateTime'] = TIME_NOW;
 		$query = $db->insert_query('entities_ratings', $new_rating);
 		$log->record($db->last_id());   
     }   
 	
 	if($query) {
-        return true;
-    }
-    return false;
+		return true;
+	}
+	return false;
 }
 
-function get_current_rating($eid, $ercid) {
-    global $db;
+function get_current_rating($eid,$ercid) {
+	global $db;
 	    
-    $getratings_query = $db->query('SELECT DISTINCT(uid), rating
+	$getratings_query = $db->query('SELECT DISTINCT(uid), rating
                                     FROM '.Tprefix.'entities_ratings
                                     WHERE eid='.intval($eid).' AND ercid='.intval($ercid).'
 									ORDER BY dateTime DESC');
-    $returnvalue = $counter = 0;
+	$returnvalue = $counter = 0;
     
     if($db->num_rows($getratings_query) > 0) {
         while($rating = $db->fetch_assoc($getratings_query)) {                            
-            $returnvalue += $rating['rating'];
-            $counter++;
-        }
-    }
+			$returnvalue += $rating['rating'];
+			$counter++;
+		}
+	}
     if($counter == 0) {
-        return 0;
+		return 0;
     } 
     else
     {
         return ($returnvalue/$counter);
-    }
+	}
 }
 
 function savematuritylevel($level, $eid) {
     global $db, $core, $log;
 
     if ($core->usergroup['profiles_canUpdateRML'] != 1) {
-        return false;
-    }
+		return false;
+	}
 
     if (!value_exists('entities_rmlevels', 'ermlid', $level)) {
-        return false;
-    }
+		return false;
+	}
 
-    if (!value_exists('entities', 'eid', $eid)) {
-        return false;
-    }
+	if (!value_exists('entities','eid',$eid)) {
+		return false;
+	}
 
     $query = $db->update_query('entities', array('relationMaturity' => $level), 'eid='.intval($eid));
 	if($query) {
@@ -601,11 +604,11 @@ function get_rml_bar($eid) {
 	
     //$multicolored = true;
     $maturity_bars = '';
-    $readonlymaturity = true;
+	$readonlymaturity = true;
   
     if($core->usergroup['profiles_canUpdateRML'] == 1) {
     	$readonlymaturity = false;
-    }
+	}
 	
     $rmllist = array();
     
@@ -613,62 +616,64 @@ function get_rml_bar($eid) {
     if($db->num_rows($rmllevels_query) > 0) {
         while($maturitylevelrow = $db->fetch_assoc($rmllevels_query)) {
         	$rmllist[$maturitylevelrow['ermlid']] = $maturitylevelrow['title'];
-        }
-    }
+		}
+	}
 	else
 	{
 		return false;	
-    }
+	}
 
 
 	$rmlcurrentlevel = $db->fetch_field($db->query('SELECT relationMaturity FROM '.Tprefix.'entities WHERE eid='.intval($eid)), 'relationMaturity');
     
 	$maturity_bars .= '<div id="rml_bars" style="text-align:center;">';
-    $divclassactive = (!$readonlymaturity) ? 'rmlselectable rmlactive' : 'rmlactive';
-    $divclassinactive = (!$readonlymaturity) ? 'rmlselectable rmlinactive' : 'rmlinactive';
-    $counter = 1;
+	$divclassactive = (!$readonlymaturity)?'rmlselectable rmlactive':'rmlactive';
+	$divclassinactive = (!$readonlymaturity)?'rmlselectable rmlinactive':'rmlinactive';
+	$counter = 1;
     $positionclass = ' first';
     
 	$is_coloredlevel = true;
     if(!isset($rmlcurrentlevel)) {
         $is_coloredlevel = false;
-    }
+	}
     $is_lastactiveitem = false;
 	
     foreach($rmllist as $ermlid => $name) {
         if($is_coloredlevel == true) {
             if($rmlcurrentlevel == $ermlid) {
                 $is_lastactiveitem = true;
-            }
-        }
+			}
+		}
 		
         if($counter++ == count($rmllist)) {
             if($counter == 2) {
                 $positionclass = ' first last';
-            } else {
+			}
                 $positionclass = ' last';
-            }
-        } else {
+			}
+		}
+		else {
             if($counter != 2) {
                 $positionclass = '';
-            }
-        }
+			}
+		}
 
         if($is_coloredlevel) {
 			$maturity_bars .= '<div id="'.$ermlid.'" class="'.$divclassactive.$positionclass.'" title="'.($lang->{$name} ? $lang->{$name} : $name).'">&nbsp;</div>';
+			else {
         } 
 		else
 		{
             $maturity_bars .= '<div id="'.$ermlid.'" class="'.$divclassinactive.$positionclass.'" title="'.($lang->{$name} ? $lang->{$name} : $name).'">&nbsp;</div>';
-        }
+		}
 		
         if($is_lastactiveitem) {
             $is_coloredlevel = false;
             $is_lastactiveitem = false;
-        }
-    }
+		}
+	}
     $maturity_bars .= '</div>';
-    
+
     return $maturity_bars;
 }
 ?>
