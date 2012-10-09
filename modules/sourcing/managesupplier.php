@@ -22,6 +22,9 @@ if(!$core->input['action']) {
 	
 	if($core->input['type'] == 'edit') {
 		$actiontype = 'Edit';
+		$id = $db->escape_string($core->input['id']);
+		$potential_supplier = new Sourcing($id);
+		$supplier = $potential_supplier->get();
 	}
 	else
 	{
@@ -55,6 +58,22 @@ else
 			break;
 			}
 		
+	}
+	/* if we attempt to create new representative from the popup */
+	elseif($core->input['action'] == 'do_add_representative') {
+		$representative = new Entities($core->input, 'add_representative');
+		
+		if($representative->get_status() === true) {
+			output_xml("<status>true</status><message>{$lang->representativecreated}</message>");
+		}
+		else
+		{
+			output_xml("<status>false</status><message>{$lang->errorcreatingreprentative}</message>");
+		}	
+	}
+	elseif($core->input['action'] == 'get_addnew_representative') {
+		eval("\$addrepresentativebox = \"".$template->get('popup_addrepresentative')."\";");
+		output_page($addrepresentativebox);
 	}
 elseif($core->input['action'] == 'checkcompany') {
 	$company = $db->escape_string($core->input['company']);

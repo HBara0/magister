@@ -16,6 +16,7 @@ class Sourcing {
 	public function __construct($id='', $simple=false) {
 		if(isset($id) && !empty($id)){
 			$this->supplier = $this->read($id, $simple);
+		
 		}
 	}
 	
@@ -25,8 +26,8 @@ class Sourcing {
 		
 		$this->chemical = $this->supplier['chemicalproducts'];
 		$this->productsegment = $this->supplier['productsegment'];
-		unset($this->supplier['chemicalproducts'],$this->supplier['productsegment']);
-		
+		$this->representative = $this->supplier['representative']['id'];
+		unset($this->supplier['chemicalproducts'],$this->supplier['productsegment'],$this->supplier['representative']);
 		/* if the action is edit here we call the add and pass the [options type] function if the action type is do_editsupplier */
 		if(is_empty($this->supplier['companyName'])) {
 			$this->status = 1;
@@ -44,8 +45,7 @@ class Sourcing {
 		$this->supplier['website'] = $core->validtate_URL($this->supplier['website']);
 		$this->supplier['createdBy'] = $core->user['uid'];
 		$this->supplier['dateCreated'] = TIME_NOW;
-	
-	print_r($this->supplier);
+
 		/* Insert supplier - START */
 		if(is_array($this->supplier)) {
 			$query = $db->insert_query('sourcing_suppliers', $this->supplier);
@@ -68,6 +68,13 @@ class Sourcing {
 					
 				$log->record($this->supplier['ssid']);
 			}
+			foreach($this->representative as  $representative) {	
+					$suppliers_contactpersons = array('ssid'=>$ssid,
+													 'rpid'=>$representative
+												);
+				$querycontactpersons = $db->insert_query('sourcing_suppliers_contactpersons', $suppliers_contactpersons);
+			}
+		
 			foreach($this->chemical['name'] as  $chemical) {print_r($chemical);
 				$db->insert_query('sourcing_suppliers_chemicals', $chemical);
 			}
@@ -93,21 +100,21 @@ class Sourcing {
 	
 	private function read($id, $simple=false) {
 		global $db;
-		
+	
 		if(empty($id)) {
 			return false;	
 		}
 	
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'cmspid, title, alias';	
+			$query_select = '*';	
 		}
 
-		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."cms_pages WHERE cmspid=".$db->escape_string($id)));		
+		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."sourcing_suppliers WHERE ssid=".$db->escape_string($id)));		
 	}
 	
 	public function get() {
-		return $this->page;				
+		return $this->supplier;				
 	}
 
 

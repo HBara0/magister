@@ -30,4 +30,9 @@ $lang['marketingrecords'] = 'Marketing Records';
 $lang['fieldrequired'] = 'Company is Empty';
 $lang['companyexsist'] = 'Company Already exist';
 $lang['product'] = 'Product Segment';
+$lang['representative'] = 'representative';
+$lang['addnewrepresentative'] = 'Add New Representative';
+$lang['representativecreated'] = 'The representative was successfully created';
+$lang['representativename'] = 'Representative name';
+$lang['errorcreatingreprentative'] = 'Please make sure to fill all required fields';
 ?>
