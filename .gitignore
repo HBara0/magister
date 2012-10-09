@@ -1,3 +1,5 @@
 /nbproject/private/
+/inc/config.php
+/inc/settings.php
+/inc/init.php
 inc/config.php
-inc/settings.php
