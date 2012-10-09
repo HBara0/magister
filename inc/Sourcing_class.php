@@ -6,7 +6,7 @@
  * Sourcing Class
  * $id: Sourcing_class.php
  * Created:			@tony.assaad	October 08, 2012 | 10:53 PM
- * Last Update: 	@tony.assaad	October 08, 2012 | 10:59  AM
+ * Last Update: 	@tony.assaad	October 09, 2012 | 10:59  AM
  */
  
 class Sourcing {
@@ -24,7 +24,8 @@ class Sourcing {
 		$this->supplier = $data;
 		
 		$this->chemical = $this->supplier['chemicalproducts'];
-		unset($this->supplier['chemicalproducts']);
+		$this->productsegment = $this->supplier['productsegment'];
+		unset($this->supplier['chemicalproducts'],$this->supplier['productsegment']);
 		
 		/* if the action is edit here we call the add and pass the [options type] function if the action type is do_editsupplier */
 		if(is_empty($this->supplier['companyName'])) {
@@ -44,20 +45,35 @@ class Sourcing {
 		$this->supplier['createdBy'] = $core->user['uid'];
 		$this->supplier['dateCreated'] = TIME_NOW;
 	
-	print_r($this->chemical['name']);
+	print_r($this->supplier);
 		/* Insert supplier - START */
-		//if(is_array($this->supplier)) {
+		if(is_array($this->supplier)) {
 			$query = $db->insert_query('sourcing_suppliers', $this->supplier);
 			if($query) {
 				$this->status = 0;
 				$ssid = $db->last_id();
+				/*Insert suppliers_activityareas - START */
+				$activity_area = array('ssid'=>$ssid,
+										'coid'=>$this->supplier['country'],	
+									   );
+					$db->insert_query('sourcing_suppliers_activityareas', $activity_area);
+				/*Insert suppliers_activityareas - END */
+				
+				/*Insert suppliers_productsegments - START */
+				$suppliers_productsegments = array('ssid'=>$ssid,
+													'psid'=>$this->productsegment,	
+									 		  		);
+					$db->insert_query('sourcing_suppliers_productsegments', $suppliers_productsegments);
+				/*Insert suppliers_productsegments - END */
+					
 				$log->record($this->supplier['ssid']);
 			}
 			foreach($this->chemical['name'] as  $chemical) {print_r($chemical);
 				$db->insert_query('sourcing_suppliers_chemicals', $chemical);
 			}
 			return true;						
-		//}
+		}
+		/* Insert supplier - END */
 	}
 	
 	

@@ -29,4 +29,5 @@ $lang['productFunction'] = 'Product Function';
 $lang['marketingrecords'] = 'Marketing Records';
 $lang['fieldrequired'] = 'Company is Empty';
 $lang['companyexsist'] = 'Company Already exist';
+$lang['product'] = 'Product Segment';
 ?>

@@ -79,17 +79,16 @@ if($core->input['type'] == 'quick') {
 		  }
 	  }
 	  elseif($core->input['for'] == 'chemical') {
-		  print_r($core->input);exit;
+		  print_r($core->input);
 		$table = 'sourcing_chemicalproducts';
 		$attributes = array('name');
 		$key_attribute = 'cpid';
-		//$inentities = implode(',', $core->input['chemicalproducts']);
-		//$extra_where = 'cpid IN ('.$inentities.')';
+		
 		$select_attributes = array('name');
 		$order = array('by' => 'name', 'sort' => 'ASC');
 	}
 	  
-	  elseif($core->input['for'] == 'product') {
+	  elseif($core->input['for'] == 'product') { 
 		  if(isset($core->input['rid']) && !empty($core->input['rid'])) {
 			  $extra_where .= 'spid = "'.$report_data['spid'].'"';
 		  }
