@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright Â© 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Lists available reports
  * $module: reporting
