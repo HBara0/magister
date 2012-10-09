@@ -411,6 +411,7 @@ function value_exists($table, $attribute, $value, $extra_where='') {
 		$extra_where = ' AND '.$extra_where;
 	}
 	$attribute = $db->escape_string($attribute);
+	//echo ("SELECT {$attribute} FROM ".Tprefix."{$table} WHERE {$attribute}='".$db->escape_string($value)."'{$extra_where}");
 	$query = $db->query("SELECT {$attribute} FROM ".Tprefix."{$table} WHERE {$attribute}='".$db->escape_string($value)."'{$extra_where}");
 	if($db->num_rows($query) > 0) {
 		return true;

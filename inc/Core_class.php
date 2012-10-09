@@ -125,6 +125,7 @@ class Core {
 	
 	public function validtate_URL($url) {
 		return filter_var($url, FILTER_VALIDATE_URL);
+
 	}
 	
 	public function sanitize_special_chars($string) {

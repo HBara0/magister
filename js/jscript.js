@@ -127,7 +127,7 @@ $(function() {
 		var exclude = "";
 		var comma = "";
 		var count = 1;
-		
+
 		if(id[1] != 'noexception') {
 			var inputselection_extra = '';
 			if(id[1] == 'sectionexception') {

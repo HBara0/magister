@@ -61,7 +61,7 @@ class DBConnection {
 					$data_string .= $comma."'".$this->escape_string($val)."'";
 				}
 				$comma = ', ';
-			}
+			}echo ("INSERT INTO {$this->db['prefix']}{$table} ({$index_string}) VALUES ({$data_string})");
 			return $this->query("INSERT INTO {$this->db['prefix']}{$table} ({$index_string}) VALUES ({$data_string})");
 		}
 		else

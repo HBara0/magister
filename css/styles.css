@@ -435,16 +435,14 @@ table.sectionbox td {
 
 /*new added class by tony*/
 input.rounded, textarea.rounded {   /*each input and textarea with class rounded*/
-  border: 1px solid #ccc;
--moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
+	border: 1px solid #ccc;
+	-moz-border-radius: 5px;
 	border-radius: 5px;
 
 }
 input[type='text'].rounded:focus, textarea:focus, select:focus {   /*each input,textarea,selecte with class rounded and on focus event*/
- border-color: #000 !important; 
--moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
+	border-color: #333333 !important; 
+	-moz-border-radius: 5px;
 	border-radius: 5px;
 
 }
