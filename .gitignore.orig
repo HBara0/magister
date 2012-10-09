@@ -3,4 +3,8 @@
 /inc/settings.php
 /inc/init.php
 inc/config.php
+<<<<<<< HEAD
+inc/settings.php
 Thumbs.db
+=======
+>>>>>>> 150b58df15b3ce3c9d1efbe95082231ec6852009
