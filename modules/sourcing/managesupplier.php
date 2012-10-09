@@ -35,7 +35,6 @@ if(!$core->input['action']) {
 	$countries_list = parse_selectlist('supplier[country]', 8, $countries, '');
 	$products = get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title','');
 	$product_list = parse_selectlist('supplier[productsegment]', 8, $products, $supplier['productsegment']);	
-
 		
 	eval("\$sourcingmanagesupplier = \"".$template->get('sourcing_managesupplier')."\";");
 	output_page($sourcingmanagesupplier);

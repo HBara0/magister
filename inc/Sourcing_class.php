@@ -42,10 +42,11 @@ class Sourcing {
 			$this->supplier[$val] = $core->sanitize_inputs($this->supplier[$val], array('removetags'=> true));	
 		}
 		$this->supplier['mainEmail'] = $core->sanitize_email($this->supplier['mainEmail']);
+		$this->supplier['mainEmail']= $core->validate_email($this->supplier['mainEmail']);
 		$this->supplier['website'] = $core->validtate_URL($this->supplier['website']);
 		$this->supplier['createdBy'] = $core->user['uid'];
 		$this->supplier['dateCreated'] = TIME_NOW;
-
+	
 		/* Insert supplier - START */
 		if(is_array($this->supplier)) {
 			$query = $db->insert_query('sourcing_suppliers', $this->supplier);
