@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2010 Orkila International Offshore, All Rights Reserved
+ * Copyright Â© 2010 Orkila International Offshore, All Rights Reserved
  * Import Stock
  * $module: Stock
  * Created		@zaher.reda 		September 7, 2012 | 3:41 PM
@@ -68,7 +68,7 @@ else {
     }
     elseif ($core->input['action'] == 'do_perform_import') {
         $error_handler = new ErrorHandler();
-        $allowed_headers = array('spid'=>$lang->supplier,'pid'=>$lang->product,'date'=>$lang->date,'amount'=>$lang->amount,'currency'=>$lang->currency,'usdFxrate'=>$lang->fxrate,'quantity'=>$lang->quantity,'quantityUnit'=>$lang->quantityunit,'orderId'=>$lang->orderid,'orderLineId'=>$lang->orderlineid,'TransID'=>$lang->TRansID);
+		$allowed_headers = array('spid'=>$lang->supplier,'pid'=>$lang->product,'date'=>$lang->date,'amount'=>$lang->amount,'currency'=>$lang->currency,'usdFxrate'=>$lang->fxrate,'quantity'=>$lang->quantity,'quantityUnit'=>$lang->quantityunit,'orderId'=>$lang->orderid,'orderLineId'=>$lang->orderlineid,'TransID'=>$lang->TRansID);
         $allowed_formatdates = array(1=>'m/d/Y',2=>'m-d-Y',3=>'d/m/Y',4=>'d-m-Y',5=>'Y-m-d');
 
         $headers_cache = array();
@@ -101,34 +101,82 @@ else {
 
         $stock_data = unserialize($session->get_phpsession('sdata_'.$core->input['identifier']));
 
-
-
         if (is_array($stock_data)) {
-            /* Process Here */
-            $a=$core->input;
-            $b=$a;
-        }
-        $import_errors = $error_handler->get_errors_inline();
+			for($i=0;;$i++) {
+				if (isset($core->input['selectheader_'.$i])) {
+					$headers_ordered[]=$core->input['selectheader_'.$i];
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			foreach($stock_data as $rowkey=>$row) {
+				$counter=0;
+				foreach($row as $columnkey=>$column) {
+					unset($stock_data[$rowkey][$columnkey]);
+					$stock_data[$rowkey][$headers_ordered[$counter++]]=$column;
+				}
+			}
+
+			foreach($stock_data as $rowkey=>$row) {
+				$problems=false;
+				foreach($row as $columnkey=>$column) {
+					if ($columnkey=='spid') {
+						if ($core->input['resolvesuppliername']=='on')
+						{
+							$row['spid']= resolve_entity($column,'s');
+						}
+						else
+						{
+							$row['spid']= $column;
+						}
+					} elseif ($columnkey=='pid') {
+						if ($core->input['resolveproductname']=='on')
+						{
+							$row['pid']= resolve_productname($column,$row['spid']);
+						}
+						else
+						{
+							$row['pid']= $column;
+						}
+					} elseif($columnkey=='date') {
+						$row['date']=parse_date($allowed_formatdates[$core->input['dateformat']],$column);
+						if (!isset($row['date'])) {
+							$problems=true;
+							$error_handler->record('errordateformat', $column);
+						}
+					}
+				}
+				$row['foreignSystem']=$core->input['foreignSystem'];
+				$row['affid']=$core->input['filteraffiliate'];
+				$row['saleType']='ski';
+				if (!$db->insert_query('integration_mediation_stockpurchases',$row))
+				{
+					$error_handler->record('database_insert', 'row '.$rowkey);
+				}
+			}
+		}
+
+		$import_errors = $error_handler->get_errors_inline();
         $log->record();
-        if (isset($import_errors)) {
-            output_xml("<status>false</status><message>{$lang->resulterror}<br/><![CDATA[{$import_errors}]]></message>");
+        if ($import_errors!= '') {
+            output_xml("<status>false</status><message><![CDATA[$lang->resulterror<br/>{$import_errors}]]></message>");
         }
         else {
-            output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+            output_xml("<status>true</status><message><![CDATA[$lang->successfullysaved $rowkey entries]]></message>");
         }
     }
     else {
-        output_xml("<status>true</status><message>{$lang->resulterror}</message>");
+        output_xml("<status>true</status><message><![CDATA[$lang->resulterror<hr>No reason to be here. Something went terribly wrong.]]></message>");
     }
 }
 
 function parse_datapreview($csv_header,$data) {
     global $session,$lang,$core;
-
-    //$output .= '<pre>'.print_r($csv_header,true).'</pre>';
     $output .= '<span class="subtitle">'.$lang->importstockpreview.'</span><br /><form id="perform_stock/import_Form"><table class="datatable"><tr>'; //Lng file title
     $allowed_headers = array('spid'=>$lang->supplier,'pid'=>$lang->product,'date'=>$lang->date,'amount'=>$lang->amount,'currency'=>$lang->currency,'usdFxrate'=>$lang->fxrate,'quantity'=>$lang->quantity,'quantityUnit'=>$lang->quantityunit,'orderId'=>$lang->orderid,'orderLineId'=>$lang->orderlineid,'TransID'=>$lang->TRansID);
-
     foreach ($csv_header as $header_key=>$header_val) {
         $output .= '<td><select name="selectheader_'.$header_key.'" id="selectheader_'.$header_key.'">';
         $output .= '<option value="">&nbsp;</option>';
@@ -240,5 +288,23 @@ function custom_sort_reverse($a,$b) {
     else {
         return 1;
     }
+}
+
+function parse_date($format,$date) {
+	$delimiter=substr($format,1,1);
+	$format_parts=explode($delimiter, $format);
+	$date_parts=explode($delimiter, $date);
+	foreach($format_parts as $key=>$value) {
+		$date_parts[$value]=$date_parts[$key];
+		unset($date_parts[$key]);
+	}
+	$timestamp=mktime(0,0,0,$date_parts['m'],$date_parts['d'],$date_parts['Y']);
+	if (date($format,$timestamp) == $date) {
+		return $timestamp;
+	}
+	else
+	{
+		return null;
+	}
 }
 ?>
