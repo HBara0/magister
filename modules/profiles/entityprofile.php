@@ -488,7 +488,7 @@ function parse_calltype(&$value) {
 	return $value;
 }
 
-function validate_rating($eid,$value,$criterion) {
+function validate_rating($eid, $value, $criterion) {
 	global $core,$maxstars;
 	/* Check if user is assigned to supplier */
 	if(!isset($core->user['suppliers']['eid'][$eid])) {
@@ -503,7 +503,7 @@ function validate_rating($eid,$value,$criterion) {
 		return false;
 	}
 	/* Check if rate is valid */
-	if ($target < 0 || $target > $maxstars) {
+	if ($value < 0 || $value > $maxstars) {
 		return false;
 	}
 
