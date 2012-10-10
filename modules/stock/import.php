@@ -68,18 +68,16 @@ else {
     }
     elseif ($core->input['action'] == 'do_perform_import') {
         $error_handler = new ErrorHandler();
-		$allowed_headers = array('spid'=>$lang->supplier,'pid'=>$lang->product,'date'=>$lang->date,'amount'=>$lang->amount,'currency'=>$lang->currency,'usdFxrate'=>$lang->fxrate,'quantity'=>$lang->quantity,'quantityUnit'=>$lang->quantityunit,'orderId'=>$lang->orderid,'orderLineId'=>$lang->orderlineid,'TransID'=>$lang->TRansID);
+		$allowed_headers = array('spid'=>$lang->supplier,'pid'=>$lang->product,'date'=>$lang->date,'amount'=>$lang->amount,'currency'=>$lang->currency,'usdFxrate'=>$lang->fxrate,'quantity'=>$lang->quantity,'quantityUnit'=>$lang->quantityunit,'orderId'=>$lang->orderid,'orderLineId'=>$lang->orderlineid,'TransID'=>$lang->transid,'saleType'=>$lang->saletype);
         $allowed_formatdates = array(1=>'m/d/Y',2=>'m-d-Y',3=>'d/m/Y',4=>'d-m-Y',5=>'Y-m-d');
-
-        $headers_cache = array();
-
+        /*
+		$headers_cache = array();
         for ($i = 0; $i < count($allowed_headers); $i++) {
             if ((empty($core->input['selectheader_'.$i])) || (in_array($core->input['selectheader_'.$i],$headers_cache))) {
                 if (empty($core->input['selectheader_'.$i])) {
                     $error_text = $lang->fillallrequiredfields; //clarify names
                     $error_title = $lang->emptyfield;
                 }
-
                 if (in_array($core->input['selectheader_'.$i],$headers_cache)) {
                     $error_text = $lang->fieldrepeated; //clarify names
                     $error_title = $lang->repeatedvalue;
@@ -98,6 +96,7 @@ else {
             }
         }
         unset($headers_cache);
+		*/
 
         $stock_data = unserialize($session->get_phpsession('sdata_'.$core->input['identifier']));
 
@@ -111,7 +110,6 @@ else {
 					break;
 				}
 			}
-
 			foreach($stock_data as $rowkey=>$row) {
 				$counter=0;
 				foreach($row as $columnkey=>$column) {
@@ -119,7 +117,6 @@ else {
 					$stock_data[$rowkey][$headers_ordered[$counter++]]=$column;
 				}
 			}
-
 			foreach($stock_data as $rowkey=>$row) {
 				$problems=false;
 				foreach($row as $columnkey=>$column) {
@@ -158,7 +155,6 @@ else {
 				}
 			}
 		}
-
 		$import_errors = $error_handler->get_errors_inline();
         $log->record();
         if ($import_errors!= '') {
@@ -176,18 +172,17 @@ else {
 function parse_datapreview($csv_header,$data) {
     global $session,$lang,$core;
     $output .= '<span class="subtitle">'.$lang->importstockpreview.'</span><br /><form id="perform_stock/import_Form"><table class="datatable"><tr>'; //Lng file title
-    $allowed_headers = array('spid'=>$lang->supplier,'pid'=>$lang->product,'date'=>$lang->date,'amount'=>$lang->amount,'currency'=>$lang->currency,'usdFxrate'=>$lang->fxrate,'quantity'=>$lang->quantity,'quantityUnit'=>$lang->quantityunit,'orderId'=>$lang->orderid,'orderLineId'=>$lang->orderlineid,'TransID'=>$lang->TRansID);
+	$allowed_headers = array('spid'=>$lang->supplier,'pid'=>$lang->product,'date'=>$lang->date,'amount'=>$lang->amount,'currency'=>$lang->currency,'usdFxrate'=>$lang->fxrate,'quantity'=>$lang->quantity,'quantityUnit'=>$lang->quantityunit,'orderId'=>$lang->orderid,'orderLineId'=>$lang->orderlineid,'TransID'=>$lang->transid,'saleType'=>$lang->saletype);
     foreach ($csv_header as $header_key=>$header_val) {
         $output .= '<td><select name="selectheader_'.$header_key.'" id="selectheader_'.$header_key.'">';
         $output .= '<option value="">&nbsp;</option>';
         foreach ($allowed_headers as $allowed_header_key=>$allowed_header_val) {
             if ((strtolower($header_val) == strtolower($allowed_header_key)) || (strtolower($header_val) == strtolower($allowed_header_val))) {
-                $selected_header = ' selected="selected"';
+				$selected_header = ' selected="selected"';
             }
             else {
-                $selected_header = '';
+				$selected_header = '';
             }
-
             $output .= '<option value="'.$allowed_header_key.'"'.$selected_header.'>'.$allowed_header_val.'</option>';
             $selected_header = '';
         }
@@ -224,7 +219,6 @@ function resolve_productname($product,$supplier = '') {
     else {
         /* Check products table */
         $local = $db->fetch_field($db->query('SELECT pid FROM '.Tprefix.'products WHERE name="'.$db->escape_string($product).'"'),'pid');
-
         $new_product = array(
             'foreignSystem'=>$options['foreignSystem'],
             'foreignId'=>substr(md5(uniqid(microtime())),1,5).bin2hex($product),
@@ -288,23 +282,5 @@ function custom_sort_reverse($a,$b) {
     else {
         return 1;
     }
-}
-
-function parse_date($format,$date) {
-	$delimiter=substr($format,1,1);
-	$format_parts=explode($delimiter, $format);
-	$date_parts=explode($delimiter, $date);
-	foreach($format_parts as $key=>$value) {
-		$date_parts[$value]=$date_parts[$key];
-		unset($date_parts[$key]);
-	}
-	$timestamp=mktime(0,0,0,$date_parts['m'],$date_parts['d'],$date_parts['Y']);
-	if (date($format,$timestamp) == $date) {
-		return $timestamp;
-	}
-	else
-	{
-		return null;
-	}
 }
 ?>
