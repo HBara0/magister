@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright Â© 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Generate a report for preview and export
  * $module: reporting
@@ -33,7 +33,7 @@ if(!$core->input['action']) {
 else
 {
 	if($core->input['action'] == "get_years") {
-		$month = $db->escape_string($core->input['id']);	
+		$month = $db->escape_string($core->input['id']);
 		
 		$additional_where = getquery_entities_viewpermissions();
 

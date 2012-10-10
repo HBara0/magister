@@ -16,63 +16,63 @@ $(function() {
 			draggable: false
 		});
 	}
-	
+
 	$("#login_Button").live("click", login);
-	$("#login_Form input").bind('keypress', function(e) { 
+	$("#login_Form input").bind('keypress', function(e) {
 		if(e.keyCode==13) {
 			login();
 		}
 	});
-	
+
 	$("#currentmodule_name").hover(function() {
 		$(this).toggleClass("currentmodule_name_hover");
 	});
-	
+
 	$("#currentmodule_name").click(function() {
 		$(".moduleslist_container").fadeToggle('fast');
 	});
-	
+
 	$("#mainmenu > li").hover(function(){
-		$(this).not(":has(ul)").addClass("mainmenuitem_hover");		   
+		$(this).not(":has(ul)").addClass("mainmenuitem_hover");
 
 		if($(this).find("div").css("display") == "none") {
-			$(this).addClass("mainmenuitem_hover");	
+			$(this).addClass("mainmenuitem_hover");
 		}
 		else if($(this).find("div").css("display") != "none") {
 			$(this).find("div > ul > li").hover(function() { $(this).toggleClass("submenuitem_hover"); });
 		}
-	}, 
-		function(){ $(this).removeClass("mainmenuitem_hover"); 
+	},
+		function(){ $(this).removeClass("mainmenuitem_hover");
 	});
-	
+
 	$("#mainmenu > li[class='expandable']").find("span:first").click(function() {
-		$(this).parent().removeClass("mainmenuitem_hover"); 
+		$(this).parent().removeClass("mainmenuitem_hover");
 		$("#" + $(this).attr("id") + "_children_container").slideToggle();
 	});
-	
+
 	$("#mainmenu > li[class!='expandable']").not(":has(div)").find("span").click(function(){
 		window.location = "index.php?module=" + $(this).attr("id");
 	});
-	
+
 	$("#mainmenu > li > div > ul > li").find("span").click(function(){
 		window.location = "index.php?module=" + $(this).attr("id");
 	});
-	
+
 	if($(window).height() < 765) {
 		$("#sidedesignImage").height($(window).height());
 	}
-	
+
 	if($("input[id^='pickDate']").length > 0) {
-		if($('link[id="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.css"') == 'undefined') {	
+		if($('link[id="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.css"') == 'undefined') {
 			$('head').append('<link rel="stylesheet" href="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.css" type="text/css" />');
 		}
 	}
-	
+
 	if($(".texteditormin, .texteditor").length > 0) {
-		//if($('link[id="' + rootdir + 'js/redactor.min.js"') == 'undefined') {	
+		//if($('link[id="' + rootdir + 'js/redactor.min.js"') == 'undefined') {
 			$('head').append('<script src="' + rootdir + 'js/redactor.min.js" type="text/javascript"></script>');
 			$('head').append('<link rel="stylesheet" href="' + rootdir + 'css/redactor.css" type="text/css" />');
-			
+
 			if($(".texteditormin").length > 0) {
 				$('.texteditormin').redactor({
 					air: true,
@@ -82,24 +82,24 @@ $(function() {
 			}
 		//}
 	}
-	
+
 	$("input[id^='pickDate']").live('click', function() {
-		//$(this).removeClass('hasDatepicker');			
-		$(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown'}).focus();	
-		$("#ui-datepicker-div").css("z-index", $(this).parents(".ui-dialog").css("z-index")+1); 
-		
+		//$(this).removeClass('hasDatepicker');
+		$(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown'}).focus();
+		$("#ui-datepicker-div").css("z-index", $(this).parents(".ui-dialog").css("z-index")+1);
+
 	});
-			
+
 	$("input[id$='_QSearch']").live("keyup", QSearch);
-		
+
 	function QSearch() {
 		if(sharedFunctions.checkSession() == false) {
-			return;	
+			return;
 		}
-		
+
 		var inputValue = $(this).val();
 		var id =  $(this).attr("id").split("_");
-		var searchInput = $(this);	
+		var searchInput = $(this);
 
 		if(id.length >= 5) {
 			var resultsIn = "#searchQuickResults";
@@ -111,11 +111,11 @@ $(function() {
 		{
 			var resultsIn = "#searchQuickResults_" + id[0] + "_" + id[id.length-2];
 		}
-		
+
 		if($(resultsIn).length <= 0) {
 			resultsIn = "#searchQuickResults_" + id[id.length-2];
 		}
-		
+
 		if($("#" + id[0] + "_" + id[id.length-3] + "_" + id[id.length-2] + "_id").length > 0) {
 			var valueIn = "#" + id[0] + "_" + id[id.length-3] + "_" + id[id.length-2] + "_id";
 		}
@@ -123,7 +123,7 @@ $(function() {
 		{
 			var valueIn = "#" + id[0] + "_" + id[id.length-2] + "_id";
 		}
-		
+
 		var exclude = "";
 		var comma = "";
 		var count = 1;
@@ -144,7 +144,7 @@ $(function() {
 			});
 		}
 		//if(count == 2) { exclude = ""; }
-		
+
 		filtersQuery = "";
 		var filters=new Array("rid","spid","cid", "spid[]");
 		for(var i=0;i<filters.length;i++) {
@@ -154,16 +154,16 @@ $(function() {
 				}
 			}
 		}
-		
+
 		if(filtersQuery.length > 0) {
 			filtersQuery += "&filter=1";
 		}
 		/*
 		var ridQuery = "";
 		if($("#rid").length > 0) {
-			ridQuery = "&rid=" + $("#rid").val();		
+			ridQuery = "&rid=" + $("#rid").val();
 		}*/
-		
+
 		if(inputValue.length == 0)
 		{
 			$(resultsIn).hide();
@@ -172,14 +172,14 @@ $(function() {
 		}
 		else
 		{
-			$.post(rootdir + "search.php?type=quick&for=" + id[0] + "&exclude=" + exclude + filtersQuery, 
-			{value: ""+inputValue+""}, 
+			$.post(rootdir + "search.php?type=quick&for=" + id[0] + "&exclude=" + exclude + filtersQuery,
+			{value: ""+inputValue+""},
 			function(returnedData) {
 				if(returnedData.length > 0) {
 					$(resultsIn).html(returnedData);
 					$(resultsIn).slideDown();
-					
-					$("#searchResultsList > li").click(function() { 
+
+					$("#searchResultsList > li").click(function() {
 						searchInput.val($(this).text());
 						$(valueIn).val($(this).attr("id"));
 						$(valueIn + "_output").val($(this).attr("id")).trigger('change');
@@ -191,7 +191,7 @@ $(function() {
 						alert(id);
 						popUp(id[1], id[0] + "_" + id[2]);
 					});*/
-					
+
 					$(document).not("input[id='" + id[0] + "_" + id[1] + "_QSearch']").click(function() {
 						$(resultsIn).slideUp().empty();
 					});
@@ -200,35 +200,35 @@ $(function() {
 		}
 		inputValue = "";
 	}
-	
+
 	$("input.ajaxcheckbox").live('change', function() {
 		if(sharedFunctions.checkSession() == false) {
-			return;	
+			return;
 		}
-		
+
 		var id =  $(this).attr("id").split("_");
 		if($(this).is(':checked') == false) {
-			$(this).val('0');	
+			$(this).val('0');
 		}
 
 		sharedFunctions.requestAjax("post", "index.php?module=" + id[id.length-2], 'action='+id[0]+'&value='+$(this).val()+'&id='+id[1], $(this).attr("id")+'_Result', $(this).attr("id")+'_Result');
 	});
-	
+
 	$(document).on("click", "input[id^='perform_'][id$='_Button'],input[id^='add_'][id$='_Button'],input[id^='change_'][id$='_Button']", function() {
 	//$("input[id^='perform_'][id$='_Button'],input[id^='add_'][id$='_Button'],input[id^='change_'][id$='_Button']").live("click", function() {
 		if(sharedFunctions.checkSession() == false) {
-			return;	
+			return;
 		}
 
 		var id =  $(this).attr("id").split("_");
-		
+
 		var formid = '';
 		for(var i=0;i<id.length-1;i++) {
-			formid += id[i]+ "_"; 	
+			formid += id[i]+ "_";
 		}
-						
+
 		var formData = $("form[id='" + formid + "Form']").serialize();
-		
+
 		var details = id[id.length-2].split("/");
 
 		var url = "index.php?module=" + id[id.length-2];
@@ -238,20 +238,20 @@ $(function() {
 
 		sharedFunctions.requestAjax("post", url, formData, formid + "Results", formid + "Results");
 	});
-	
+
 	$("a[id^='showmore_'][href^='#']").click(function() {
 		var id =  $(this).attr("id").split("_");
 		$("#" + id[1] + "_" + id[2]).toggle();
 	});
-	
-	
+
+
 	$("img[id^='addmore_']").live('click', function() { sharedFunctions.addmoreRows($(this));});
-	
+
 	$("input[id='email']").live("keyup", validateEmailInline);
-	$("input[id='email']").change(validateEmailInline);	
-	
+	$("input[id='email']").change(validateEmailInline);
+
 	function validateEmailInline() {
-		var action = $("form:has(input[id='email'])").attr("id").substring(0, ($("form:has(input[id='email'])").attr("id").length - 5));						  
+		var action = $("form:has(input[id='email'])").attr("id").substring(0, ($("form:has(input[id='email'])").attr("id").length - 5));
 		var result = $(this).attr("name");
 		if($(this).val() != '') {
 			if(validateEmail($(this).val())) {
@@ -267,72 +267,72 @@ $(function() {
 		else
 		{
 			$("input[id='" + action + "_Button']").removeAttr('disabled');
-			$("#"+ result +"_Validation").html("");	
+			$("#"+ result +"_Validation").html("");
 		}
 	}
-	
+
 	$("input[type='button'][id$='_swap']").click(function() {
 		var id = $(this).attr("id").split("_");
 		if($("#" + id[0] + "_last").val().length > 0) {
 			$("#" + id[0]).val($("#" + id[0] + "_last").val());
 		}
 	});
-	
+
 	$("input[accept='numeric']").live("keydown", function(e) {
 		if(e.keyCode > 31 && (e.keyCode < 48 || (e.keyCode > 57 && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode != 190 && e.keyCode != 110))) {
 			$(this).val($(this).val().substring(0, ($(this).val().length - 1)));
 			
 			return false
 		}
-		return true										
+		return true
 	});
 
-	$("a[id='resetpassword']").click(function() { 
+	$("a[id='resetpassword']").click(function() {
 		$("#logincontent").hide();
 		$("#resetpasswordcontent").show();
 	});
-	
-	$("#resetpassword_Button").click(function() {									  
-		sharedFunctions.requestAjax("post", "users.php?action=reset_password", "email=" + $("input[id='email']").val(), "resetpassword_Results", "resetpassword_Results");									  
+
+	$("#resetpassword_Button").click(function() {
+		sharedFunctions.requestAjax("post", "users.php?action=reset_password", "email=" + $("input[id='email']").val(), "resetpassword_Results", "resetpassword_Results");
 	});
-	
-	$("#changepassword_Button").click(function() {						  
-		sharedFunctions.requestAjax("post", "users.php?action=do_changepassword", $("form[id='changepassword_Form']").serialize(), "changepassword_Results", "changepassword_Results");									  
+
+	$("#changepassword_Button").click(function() {
+		sharedFunctions.requestAjax("post", "users.php?action=do_changepassword", $("form[id='changepassword_Form']").serialize(), "changepassword_Results", "changepassword_Results");
 	});
-	
+
 	$("#modifyprofile_Button").click(function() {
-		var formData = $("form[id='modifyprofile_Form']").serialize();									  
-		sharedFunctions.requestAjax("post", "users.php?action=do_modifyprofile", formData, "modifyprofile_Results", "modifyprofile_Results");									  
+		var formData = $("form[id='modifyprofile_Form']").serialize();
+		sharedFunctions.requestAjax("post", "users.php?action=do_modifyprofile", formData, "modifyprofile_Results", "modifyprofile_Results");
 	});
-	
+
 	$("input[id='getReports']").click(function() {
 		if(sharedFunctions.checkSession() == false) {
-			return;	
+			return;
 		}
 		$.post("index.php?module=reporting/createreports&action=get_reports",
-				{quarter: $("#quarter").val(), year: $("#year").val()}, 
+				{quarter: $("#quarter").val(), year: $("#year").val()},
 				function(returnedData) {
 					$("select[id='reports']").empty();
 					$("select[id='reports']").html(returnedData);
 				}
-		);	
+		);
 	});
-		
+
 	function show_loginbox() {
 		$('head').append('<link rel="stylesheet" href="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.css" type="text/css" />');
 		popUp("", "popup_loginbox", "users.php");
 	}
-	
+
 	function login() {
 		$.post(rootdir + "users.php?action=do_login",
-				{username: $("#username").val(), password: $("#password").val(), token: $("#logintoken").val()}, 
+				{username: $("#username").val(), password: $("#password").val(), token: $("#logintoken").val()},
 				function(returnedData) {
 					if($("status", returnedData).text() == 'true') { var spanClass = 'green_text'; } else { var spanClass = 'red_text'; }
-					
+
 					$("#login_Results").html("<span class='"+ spanClass +"'>" + $("message", returnedData).text() + "</span>");
-					
+
 					if($("#noredirect").val() != '1') {
-						if($("status", returnedData).text() == "true") { 
+						if($("status", returnedData).text() == "true") {
 							goToURL($("#referer").val());
 						}
 					}
@@ -340,20 +340,20 @@ $(function() {
 				'xml'
 			);
 	}
-	
+
 	$("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").click(function() {
 		var id =  $(this).attr("id").split("_");
 		popUp(id[2], id[0], id[1]);
 	});
-	
+
 	$(".showpopup,input[id^='showpopup_']").live("click", function() {
 		var id =  $(this).attr("id").split("_");
 		$('#popup_' + id[1]).dialog('open');
 	});
-	
+
 	if($("div[id^='popup_']").length > 0) {
-		$("div[id^='popup_']").dialog({ 
-			autoOpen: false,						  	
+		$("div[id^='popup_']").dialog({
+			autoOpen: false,
 			bgiframe: true,
 			closeOnEscape: true,
 			modal: true,
@@ -366,53 +366,53 @@ $(function() {
 			}
 		});
 	}
-	
+
 	if($("div[id^='tabs_']").length > 0) {
 		$("div[id^='tabs_']").tabs();
 	}
-	
+
 	$("a[id^='addnew_']").live("click", function() {
 		var id = $(this).attr("id").split("_");
 		popUp(id[1], id[0] + "_" + id[2]);
 	});
-	
-	$('input[title],a[title]').qtip({style: {classes: 'ui-tooltip-green ui-tooltip-shadow'}, show: {event: 'focus mouseenter', solo: true}, hide: 'unfocus mouseleave', position:{viewport: $(window)}});
-	
+
+	$('input[title],a[title],div[title]').qtip({style: {classes: 'ui-tooltip-green ui-tooltip-shadow'}, show: {event: 'focus mouseenter', solo: true}, hide: 'unfocus mouseleave', position:{viewport: $(window)}});
+
 	function popUp(module, template, id) {
 		if(id != 'users.php') {
 			if(sharedFunctions.checkSession() == false) {
-				return;	
+				return;
 			}
 		}
-		
+
 		if(id === undefined) {
-			id = '';	
+			id = '';
 		}
-		
+
 		//$("#popupBox").hide("fast");
-		
+
 		//$(".contentContainer").append("<div id='popupBox'></div>");
 		//if(jQuery.browser.msie) {
 		//	$("#popupBox").css("top", ($(document).height()/2) + ($("#messageBox").offset().top/2));
 			//$("#popupBox").css("position", "absolute");
 		//}]
-		
-		
+
+
 		if($("div[id^='popup_']").length > 0) {
 			//$("div[id^='popup_']").remove();
 		}
-		
+
 		var file = "index.php";
 		if(module == '' && id != '') {
-			file = rootdir + id;	
+			file = rootdir + id;
 		}
-		
+
 		$.post(file,
 				{module: module, action: "get_" + template, id: id},
 				function(returnedData) {
 					$(".contentContainer").append(returnedData);
-					
-					$("div[id^='popup_']").dialog({ 
+
+					$("div[id^='popup_']").dialog({
 						bgiframe: true,
 						closeOnEscape: true,
 						modal: true,
@@ -433,98 +433,98 @@ $(function() {
 					$("input[id='email']").change(validateEmailInline);
 					/*$("input[id$='_Button']").click(function() {
 						if($.cookie(cookie_prefix + 'uid') == null) {
-							window.location = window.location;	
+							window.location = window.location;
 						}
 						var id =  $(this).attr("id").split("_");
-						
+
 						var formid = '';
 						for(var i=0;i<id.length-1;i++) {
-							formid += id[i]+ "_"; 	
+							formid += id[i]+ "_";
 						}
-					
+
 						var formData = $("form[id='" + formid +"Form']").serialize();
 						var url = "index.php?module=" + id[id.length-2];
 
 						if(!formData.match(/action=[A-Za-z0-9]+/)) {
 							url += "&action=save_" + id[1];
 						}
-					
+
 						sharedFunctions.requestAjax("post", url, formData, formid + "Results", formid + "Results");
 					});	*/
 					$("input[id='hide_popupBox']").click(function() { $("#popupBox").hide("fast"); });
 				}
-		);	
+		);
 	}
-	
+
 	$("a[href='#'][id^='approve_']").click(function() {
 		if(sharedFunctions.checkSession() == false) {
-			return;	
+			return;
 		}
 		var details = $(this).attr("id").split("_");
 		var data = "&action=do_" + details[0] + "&attribute=" + details[2] + "&newvalue=" + details[3] + "&id=" + details[4];
 
 		sharedFunctions.requestAjax("post", "index.php?module=" + details[1], data, $(this).attr("id"), $(this).attr("id"));
 	});
-	
+
 	$("input[class='inlineCheck']").blur(function() {
-		if($(this).val().length != 0) {										  
+		if($(this).val().length != 0) {
 			var parentId = $(this).parents("form").attr("id").split("_");
-		
+
 			var results = $(this).attr("id") + "_inlineCheckResult";
 			var data = "&action=inlineCheck&attr=" + $(this).attr("name") + "&value=" + $(this).val();
 			sharedFunctions.requestAjax("post", "index.php?module=" + parentId[1], data, results, results);
 		}
 	});
-	
+
 	$("img[id^='ajaxaddmore_']").live("click", function() {
 		var id = $(this).attr('id').split('_');
-		var sections_count = parseInt($("#sectionvalue").val())+1;	
-					 
-		$.post(rootdir + "index.php?module=" + id[1] +"&action=ajaxaddmore_"+id[2], 
-			{value: sections_count}, 
+		var sections_count = parseInt($("#sectionvalue").val())+1;
+
+		$.post(rootdir + "index.php?module=" + id[1] +"&action=ajaxaddmore_"+id[2],
+			{value: sections_count},
 			function(returnedData) {
 				$('#'+id[2]+'_tbody').append(returnedData);
 				$("#sectionvalue").val(sections_count);
 			}
 		);
 	});
-	
+
 	window.sharedFunctions = function() {
 		function requestAjax(methodParam, urlParam, dataParam, loadingId, contentId, datatype) {
 				//var datatype = 'html';
 				/* Check if value = 1 just to ensure background compatibility with previous code */
-				if(datatype == 1) { 
+				if(datatype == 1) {
 					datatype = 'html';
 				}
 				if(typeof datatype == "undefined") {
 					datatype = 'xml'
 				}
-				
+
 				$.ajax({type: methodParam,
 					url: urlParam,
 					data: dataParam,
 					beforeSend: function() { $("div[id='" + loadingId + "'],span[id='" + loadingId + "']").html("<img src='" + imagespath +"/loading.gif' alt='" + loading_text + "' border='0' />");},
 					complete: function () { if(loadingId != contentId) { $("#" + loadingId).empty(); } },
 					success: function(returnedData) {
-						alert(returnedData);
+						//alert(returnedData);
 						if(datatype == 'xml') {
 							if($(returnedData).find('status').text() == 'true') { var spanClass = 'green_text'; } else { var spanClass = 'red_text'; }
-							
+
 							$("div[id='" + contentId + "'],a[id='" + contentId + "'],span[id='" + contentId + "']").html("<span class='"+ spanClass +"'><img src='" + imagespath +"/"+ $(returnedData).find('status').text() +".gif' border='0' />&nbsp;" + $(returnedData).find('message').text() + "</span>");
 						}
 						else
 						{
-							$("#" + contentId).html(returnedData);		
+							$("#" + contentId).html($.trim(returnedData));
 						}
-					}//,
-					//dataType: datatype
+					},
+					dataType: datatype
 			});
 		}
 		function checkSession() {
 			if($.cookie(cookie_prefix + 'uid') == null || $.cookie(cookie_prefix + 'uid') == 0) {
 				show_loginbox();
 				return false;
-			}	
+			}
 		}
 		function addmoreRows(trigger) {
 			if(typeof trigger == 'object') {
@@ -534,15 +534,15 @@ $(function() {
 			{
 				var id = trigger.split("_");
 			}
-			
+
 			if($("#" + id[1] + "_" + id[2] + "_tbody").length > 0) {
 				 id[1] = id[1] + "_" + id[2];
 			}
-			
+
 			var last = $("#"+ id[1] +"_tbody > tr:last").attr("id");
-		
+
 			var increment = parseInt(last) + 1;
-	
+
 			//var template =  $("#"+ id[1] +"_tbody > tr:last").html();
 		/*	if($.browser.msie) {
 				alert(template);
@@ -559,7 +559,7 @@ $(function() {
 			}
 			*/
 			//$("#"+ id[1] +"_tbody").append("<tr id='" + increment + "'>" + template + "</tr>");
-			
+
 			$("#"+ id[1] +"_tbody > tr:last").clone(true).removeAttr('id').attr('id', increment).appendTo("#"+ id[1] +"_tbody");
 
 			/*if(!$.browser.msie) {
@@ -574,7 +574,7 @@ $(function() {
 
 				$("#"+ id[1] +"_tbody > tr[id='" + increment + "']").find("tr["+val+"],input["+val+"],select["+val+"],div["+val+"],span["+val+"],textarea["+val+"],img["+val+"],tbody["+val+"]").each(function() {
 					if($(this).attr(val).length == 0) {
-						return true;	
+						return true;
 					}
 
 					if($(this).attr(val).search(/([A-Za-z_0-9]+)_[\d]+_([A-Za-z_]+)/gi) != -1) {
@@ -593,15 +593,15 @@ $(function() {
 					{
 						$(this).attr(val, $(this).attr(val).replace(last, increment.toString()));
 					}
-					
+
 					if($(this).attr("type") != 'checkbox' && $(this).attr("type") != 'radio') {
 						$(this).val("");
 					}
-					
+
 					if($(this).attr("type") == 'checkbox') {
 						$(this).removeAttr('checked')
 					}
-					
+
 					if($(this).is("span")) {
 						$(this).html("");
 					}
@@ -610,7 +610,7 @@ $(function() {
 			if(id[1] == 'keycustomers') {
 				$("#"+ id[1] +"_tbody > tr:last").find("td:first").html($("#"+ id[1] +"_tbody tr:last").find("td:first").html().replace(last, increment.toString()));
 			}
-	
+
 		//	$("input[id$='_QSearch']").keyup(QSearch);
 			//$("input[id='email']").keyup(validateEmailInline);
 			$("input[id='email']").change(validateEmailInline);
@@ -635,7 +635,7 @@ $(function() {
 });
 
 function validateEmail(email) {
-	return email.match(/^[a-zA-Z0-9&*+\-_.{}~^\?=\/]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9.-]+$/);	
+	return email.match(/^[a-zA-Z0-9&*+\-_.{}~^\?=\/]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9.-]+$/);
 }
 
 function IsNumeric(object, callFunction) {
@@ -651,8 +651,8 @@ function IsNumeric(object, callFunction) {
 	return true
 }
 
-function goToURL(url) 
-{ 
+function goToURL(url)
+{
 	if(url != '')
 	{
 		if(!window.location)
@@ -663,5 +663,5 @@ function goToURL(url)
 		{
 			window.location = url;
 		}
-	} 
+	}
 }

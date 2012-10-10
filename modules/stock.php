@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $module['name'] = 'stock';
 $module['title'] = $lang->stock;
 $module['homepage'] = 'order';

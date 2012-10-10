@@ -81,4 +81,25 @@ $lang['yearlyorder'] = "Yearly";
 
 $lang['warehousing'] = "Warehousing";
 $lang['criteria'] = "Criteria";
+
+$lang['resolveproductname'] = 'Resolve Product Name';
+$lang['resolvesuppliername'] = 'Resolve Supplier Name';
+$lang['importstockallowedtypes'] = 'Only CSV files are allowed';
+$lang['uploadinprogress'] = 'Upload in progress';
+$lang['affiliate'] = 'Affiliate';
+$lang['dateformat'] = 'Date Format';
+$lang['selectattfile'] = 'Select a File';
+$lang['system'] = 'Foreign System';
+$lang['importstockbutton'] = 'Preview Stocks';
+$lang['importoptions'] = 'Options';
+$lang['importstockspagetitle'] = 'Import Stocks';
+$lang['amount'] = 'Amount';
+$lang['fxrate'] = 'FX to $';
+$lang['quantity'] = 'Quantity';
+$lang['quantityunit'] = 'Unit';
+$lang['orderid'] = 'Order ID';
+$lang['orderlineid'] = 'Order Line ID';
+$lang['TRansID'] = 'Trans ID';
+$lang['successfullysaved'] = 'Successfully Saved';
+$lang['resulterror'] = 'Error';
 ?>
