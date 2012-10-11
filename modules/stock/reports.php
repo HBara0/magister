@@ -74,13 +74,13 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 			$query.=$datefrom?('date>=\''.$datefrom.'\''):'';
 		}
 
-		  /*
+		/*
 		  if ($core->input['reporttype']==0) {
 		  $query.='AND (spid='.$spid.' OR pid='.$pid.' OR affid='.$affid.')';
 		  } else {
 		  $query.='AND spid='.$spid.' AND pid='.$pid.' AND affid='.$affid;
 		  }
-		  */
+		 */
 
 
 		if(isset($core->input['supplier'])) {
@@ -150,15 +150,22 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 			$query.=')';
 		}
 
+		if (true) {
+			$content.='<pre>'.print_r(process_query($query, 'spid',array('amount'),array('table'=>'entities','id'=>'eid','name'=>'companyName')), true).'</pre>';
+			$content.='<pre>'.print_r(process_query($query, 'pid',array('amount','quantity'),array('table'=>'products','id'=>'pid','name'=>'name')), true).'</pre>';
+		} else {
+			$content.='<pre>'.print_r(process_query($query, 'spid',array('amount')), true).'</pre>';
+			$content.='<pre>'.print_r(process_query($query, 'pid',array('amount','quantity')), true).'</pre>';
+		}
 
 		$content.="<hr>$query<hr>";
 		$purchase_report = $db->query($query);
 		if($db->num_rows($purchase_report) > 0) {
 			$content.='</td></tr><tr><td colspan=3>';
-			$firstrow=true;
+			$firstrow = true;
 			while($purchase = $db->fetch_assoc($purchase_report)) {
-				if ($firstrow) {
-					$firstrow=false;
+				if($firstrow) {
+					$firstrow = false;
 					$content.='<table border=1 cellspacing=0 cellpading=0><tr><td>ID</td><td>supplier</td><td>product</td><td>date("m/d/Y")</td><td>amount</td><td>affiliate</td></tr>';
 				}
 				$content.='<tr><td>'.$purchase['imspid'].'</td><td>'.$purchase['spid'].'</td><td>'.$purchase['pid'].'</td><td>'.date("m/d/Y", $purchase['date']).'</td><td>'.$purchase['amount'].'</td><td>'.$purchase['affid'].'</td></tr>';
@@ -173,6 +180,78 @@ else {
 
 eval("\$report_template = \"".$template->get('stock_purchasereport')."\";");
 output_page($report_template);
+
+
+function get_name_from_id($id,$tablename='products',$idcolumn='pid',$namecolumn='name') {
+	static $idtonamecache=array();
+	global $db;
+	try {
+		$name=$idtonamecache[$tablename][$idcolumn][$namecolumn][$id];
+		if (isset($name)) {
+			return $name;
+		}
+	} catch (Exception $e) {
+		$msg= 'Exception '.$e->getMessage();
+	}
+	$name = $db->fetch_field($db->query('SELECT '.$namecolumn.' FROM '.Tprefix.$tablename.' WHERE '.$idcolumn.'="'.$db->escape_string($id).'"'),$namecolumn);
+	$idtonamecache[$tablename][$idcolumn][$namecolumn][$id]=$name;
+	if (isset($name))
+	{
+		return $name;
+	}
+	else
+	{
+		return $id;
+	}
+}
+
+
+function process_query($query, $groupingattribute, $trackedcolumns = array("amount"),$resolve=null) {
+	global $db;
+	$currency_obj = new Currencies('USD');
+	$purchase_report = $db->query($query);
+	$dataarray = array();
+	if($db->num_rows($purchase_report) > 0) {
+		while($purchase = $db->fetch_assoc($purchase_report)) {
+
+			/*
+			if(!isset($dataarray[$purchase[$groupingattribute]])) {
+				foreach($trackedcolumns as $column) {
+					$dataarray[$purchase[$groupingattribute]][$column] = 0;
+				}
+			}
+
+			 */
+			if (isset($resolve))
+			{
+				$name=get_name_from_id($purchase[$groupingattribute],$resolve['table'],$resolve['id'],$resolve['name']);
+			}
+			else
+			{
+				$name=$purchase[$groupingattribute];
+			}
+			foreach($trackedcolumns as $column) {
+
+				if (!isset($dataarray[$name]['count'])) {
+					$dataarray[$name]['count']=1;
+				} else {
+					$dataarray[$name]['count']++;
+				}
+
+				if($column == 'amount') {
+					$rate = $purchase['usdFxrate'];
+					if(!isset($rate) || $rate == 0) {
+						$rate = $currency_obj->get_average_fxrate($purchase['currency'], array('from'=>date("-4 days", strtotime($purchase['date'])), 'to'=>date("+4 days", strtotime($purchase['date']))));
+					}
+					$dataarray[$name][$column]+=$purchase[$column] * $rate;
+				} else {
+					$dataarray[$name][$column]+=$purchase[$column];
+				}
+			}
+		}
+	}
+	return $dataarray;
+}
 
 function dump_templates_to_file_folder() {
 	global $db, $template;
@@ -209,5 +288,6 @@ function dump_templates_to_file_folder() {
 	eval("\$debug = \"".$template->get('debug')."\";");
 	output_page($debug);
 }
+
 
 ?>
