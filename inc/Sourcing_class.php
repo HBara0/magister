@@ -135,30 +135,35 @@ class Sourcing {
 
 			$filter_where = ' WHERE '.$db->escape_string($attributes_filter_options['title'][$core->input['filterby']].$core->input['filterby']).$filter_value;
 		}	
-		/* if no permission person should only see suppliers who work in the same segements he/she is working in --START*/
+		/* if no permission person should only see suppliers who work in the same segements he/she is working in --START*/		
+			if($core->usergroup['sourcing_canManageEntries'] == 0) { 
+				$user_suppliers_id = implode(',',$core->user['suppliers']['eid']);
+				$join_employeessegments = "JOIN ".Tprefix."employeessegments es on es.psid = ssp.psid and es.uid=".$core->user['uid']."";
+					}
+			/* person should only see suppliers who work in the same segements he/she is working in --END*/
+
+				else
+				{		
+					/*Return All  potentials suppliers--START*/
+					$join_employeessegments = '';
+					/*Return All  potentials suppliers --END*/
+				}				
 		
-			if($core->usergroup['sourcing_canManageEntries'] == 1) { 
-			$user_suppliers_id = implode(',',$core->user['suppliers']['eid']);	
-				$suppliers_query = $db->query("SELECT ps.title,ssp.psid,s.ssid,s.companyName FROM ".Tprefix."sourcing_suppliers_productsegments  ssp JOIN ".Tprefix."productsegments ps ON(ps.psid=ssp.psid)
-											JOIN ".Tprefix."employeessegments es on es.psid =ssp.psid and es.uid=1
-											JOIN ".Tprefix."sourcing_suppliers s on s.ssid= ssp.ssid");
+				$suppliers_query = $db->query("SELECT ps.title,ssp.psid,s.ssid,s.companyName,s.type,s.businessPotential,co.name as country FROM ".Tprefix."sourcing_suppliers_productsegments  ssp 
+												JOIN ".Tprefix."productsegments ps ON(ps.psid=ssp.psid)
+												JOIN ".Tprefix."countries co
+												JOIN ".Tprefix."sourcing_suppliers_activityareas ssa ON(ssa.coid=co.coid)
+												{$join_employeessegments}
+												JOIN ".Tprefix."sourcing_suppliers s on s.ssid= ssp.ssid
+												{$filter_where}
+												");
+
 				if($db->num_rows($suppliers_query) > 0) {
 					while($suppliers = $db->fetch_assoc($suppliers_query)) {
 						$potential_suppliers[$suppliers['ssid']]= $suppliers;
 					}
-					
-				}
-				else
-				{
-					$potential_suppliers = $lang->na;
-				}
-			}
-			
-		/*Return All  potentials suppliers*/
-			
+				}		
 		return $potential_suppliers;
-		/* person should only see suppliers who work in the same segements he/she is working in --END*/
-
 		}
 	
 	public function get() {
