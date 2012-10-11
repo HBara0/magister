@@ -55,9 +55,9 @@ if(!$core->input['action']) {
 						}
 	
 						var returndiv = "";
-						targetid = 3;
-						ssid=64;
-						sharedFunctions.requestAjax("post", "index.php?module=sourcing/listpotentialsupplier&action=do_rateentity","value="+targetid+"&ssid="+ssid, "html");
+						ssid=$(this).parent().parent().attr("name");
+						rateid =$("#rating_"+ssid).val();				
+						sharedFunctions.requestAjax("post", "index.php?module=sourcing/listpotentialsupplier&action=do_rateentity","value="+rateid+"&ssid="+ssid, "html");
 						});';
 					}
 					else
@@ -87,10 +87,8 @@ if(!$core->input['action']) {
 
  	elseif($core->input['action'] == 'do_rateentity')
 	{
-		
 		$sourcing['businessPotential'] = $db->escape_string($core->sanitize_inputs($core->input['value'], array('removetags' => true)));
 		$active_rating =  $db->escape_string($core->input['ssid']);
-		echo $active_rating;
 		$db->update_query('sourcing_suppliers',array('businessPotential' => $sourcing['businessPotential']), 'ssid="'.$active_rating.'"');
 	}
 	
