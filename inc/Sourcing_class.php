@@ -108,7 +108,7 @@ class Sourcing {
 	
 	public function get_potential_supplier() {
 		global $db,$core;
-		$sort_query = 'ORDER BY ss.dateCreated ASC';
+		$sort_query = 'ORDER BY ss.companyName ASC';
 		if(isset($core->input['sortby'], $core->input['order'])) {		
 			$sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
 		}
@@ -123,9 +123,9 @@ class Sourcing {
 		}
 		
 		if(isset($core->input['filterby'], $core->input['filtervalue'])) {
-			$attributes_filter_options['title'] = array('title' => 'hv.');
+			$attributes_filter_options['companyname'] = array('companyName' => 'ss.');
 			
-			if($attributes_filter_options['title'][$core->input['filterby']] == 'int') {
+			if($attributes_filter_options['companyname'][$core->input['filterby']] == 'int') {
 				$filter_value = ' = "'.$db->escape_string($core->input['filtervalue']).'"';
 			}
 			else
@@ -133,7 +133,7 @@ class Sourcing {
 				$filter_value = ' LIKE "%'.$db->escape_string($core->input['filtervalue']).'%"';
 			}
 
-			$filter_where = ' WHERE '.$db->escape_string($attributes_filter_options['title'][$core->input['filterby']].$core->input['filterby']).$filter_value;
+			$filter_where = ' WHERE '.$db->escape_string($attributes_filter_options['companyname'][$core->input['filterby']].$core->input['filterby']).$filter_value;
 		}	
 		/* if no permission person should only see suppliers who work in the same segements he/she is working in --START*/		
 			if($core->usergroup['sourcing_canManageEntries'] == 0) { 
@@ -149,15 +149,17 @@ class Sourcing {
 					/*Return All  potentials suppliers --END*/
 				}				
 		
-				$suppliers_query = $db->query("SELECT ps.title,ssp.psid,s.ssid,s.companyName,s.type,s.businessPotential,co.name as country FROM ".Tprefix."sourcing_suppliers_productsegments  ssp 
+				$suppliers_query = $db->query("SELECT ps.title,ssp.psid,ss.ssid,ss.companyName,ss.type,ss.businessPotential,co.name as country FROM ".Tprefix."sourcing_suppliers_productsegments  ssp 
 												JOIN ".Tprefix."productsegments ps ON(ps.psid=ssp.psid)
 												JOIN ".Tprefix."countries co
 												JOIN ".Tprefix."sourcing_suppliers_activityareas ssa ON(ssa.coid=co.coid)
 												{$join_employeessegments}
-												JOIN ".Tprefix."sourcing_suppliers s on s.ssid= ssp.ssid
+												JOIN ".Tprefix."sourcing_suppliers ss on ss.ssid= ssp.ssid
 												{$filter_where}
-												");
-
+												{$sort_query} 
+												LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
+												
+											
 				if($db->num_rows($suppliers_query) > 0) {
 					while($suppliers = $db->fetch_assoc($suppliers_query)) {
 						$potential_suppliers[$suppliers['ssid']]= $suppliers;

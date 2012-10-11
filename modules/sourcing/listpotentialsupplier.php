@@ -7,7 +7,7 @@
  * $module: hr
  * $id: listjob.php	
  * Created By: 		@tony.assaad		Augusst 10, 2012 | 12:30 PM
- * Last Update: 	@tony.assaad		October 10, 2012 | 4:13 PM
+ * Last Update: 	@tony.assaad		October 11, 2012 | 4:13 PM
  */
 
 
@@ -53,11 +53,9 @@ if(!$core->input['action']) {
 						if(sharedFunctions.checkSession() == false) {
 							return;
 						}
-	
-						var returndiv = "";
 						ssid=$(this).parent().parent().attr("name");
 						rateid =$("#rating_"+ssid).val();				
-						sharedFunctions.requestAjax("post", "index.php?module=sourcing/listpotentialsupplier&action=do_rateentity","value="+rateid+"&ssid="+ssid, "html");
+						sharedFunctions.requestAjax("post", "index.php?module=sourcing/listpotentialsupplier&action=do_ratepotential","value="+rateid+"&ssid="+ssid, "html");
 						});';
 					}
 					else
@@ -85,7 +83,7 @@ if(!$core->input['action']) {
 
 }
 
- 	elseif($core->input['action'] == 'do_rateentity')
+ 	elseif($core->input['action'] == 'do_ratepotential')
 	{
 		$sourcing['businessPotential'] = $db->escape_string($core->sanitize_inputs($core->input['value'], array('removetags' => true)));
 		$active_rating =  $db->escape_string($core->input['ssid']);
