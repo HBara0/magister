@@ -9,12 +9,12 @@ $settings['dateformat'] = "M d, Y";
 $settings['enablecompression'] = "0";
 $settings['entitylogodir'] = "uploads/entitieslogos/";
 $settings['exportdirectory'] = "exports/";
-$settings['failedlogintime'] = "10";
+$settings['failedlogintime'] = "2";
 $settings['fxfeedurl'] = "http://www.webservicex.net/CurrencyConvertor.asmx/ConversionRate?FromCurrency={FROM}&ToCurrency={TO}";
-$settings['gziplevel'] = "4";
-$settings['idletime'] = "200";
+$settings['gziplevel'] = "8";
+$settings['idletime'] = "240";
 $settings['itemsperlist'] = "10";
-$settings['loginattempts'] = "5";
+$settings['loginattempts'] = "6";
 $settings['maintenancemessage'] = "The system in undergoing maintenance. ";
 $settings['onmaintenance'] = "0";
 $settings['profilepicdir'] = "images/profilepictures/";
@@ -32,7 +32,5 @@ $settings['sendreportsonapprove'] = "0";
 $settings['sendreportsto'] = "zaher.reda@orkila.com";
 $settings['systemtitle'] = "OCOS";
 $settings['timeformat'] = "h:i A";
-$settings['weeklyplan_deletehours'] = "2";
-$settings['weeklyplan_editdays'] = "30";
 
 ?>

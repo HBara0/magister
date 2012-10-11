@@ -14,8 +14,8 @@ if(!defined('DIRECT_ACCESS'))
 }
 
 if($core->usergroup['sourcing_canManageEntries'] == 0 ) {
-	//error($lang->sectionnopermission);
-	//exit;
+	error($lang->sectionnopermission);
+	exit;
 }
 
 if(!$core->input['action']) {

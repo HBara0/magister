@@ -6,6 +6,7 @@ $lang['generalinfo'] = 'General Information';
 $lang['activityareas'] = 'Activity Areas';
 $lang['commentstoshare'] = 'Comment Stoshare';
 $lang['marketingrecords'] = 'Marketing Records';
+$lang['listpotentialsupplier'] = 'List Potential Supplier';
 
 $lang['chemicalproduct'] = 'Substance Name';
 $lang['country'] = 'Country';
@@ -29,6 +30,11 @@ $lang['productFunction'] = 'Product Function';
 $lang['marketingrecords'] = 'Marketing Records';
 $lang['fieldrequired'] = 'Company is Empty';
 $lang['companyexsist'] = 'Company Already exist';
+$lang['type'] = 'Type';
+$lang['companyexsist'] = 'Company Already exist';
+$lang['segments'] = 'Segments';
+$lang['opportunity'] = 'Opportunity';
+
 $lang['product'] = 'Product Segment';
 $lang['representative'] = 'representative';
 $lang['addnewrepresentative'] = 'Add New Representative';

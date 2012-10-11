@@ -512,7 +512,6 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 	
 	$query = $db->query("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$where_string}){$extra_where_string} {$order}");
 	echo ("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$where_string}){$extra_where_string} {$order}");
-	
 	$clean_key_attribute = $key_attribute;
 	if(strstr($key_attribute, '.')) {
 		$key_attribute_parts = explode('.', $key_attribute);
@@ -615,7 +614,7 @@ function currentquarter_info($real=false) {
 	
 	$time_now = TIME_NOW;
 	$current_year = date('Y', $time_now);
-	
+
 	for($i=1;$i<=4;$i++) {
 		$start = explode('/', $core->settings['q'.$i.'start']);
 		$end = explode('/', $core->settings['q'.$i.'end']);

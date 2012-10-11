@@ -3,10 +3,10 @@
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
  * 
- * Create Survey
+ * List Job Applicants
  * $module: hr
  * $id: listjob.php	
- * Created By: 		@tony.assaad		Augusst 17, 2012 | 5:30 PM
+ * Created By: 		@tony.assaad		September 24, 2012 | 5:30 PM
  * Last Update: 	@tony.assaad		September 24, 2012 | 2:13 PM
  */
 

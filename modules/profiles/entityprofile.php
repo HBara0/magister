@@ -323,10 +323,9 @@ if(!$core->input['action']) {
 		$rating_section = '';
 		$inpagescriptforrating;
 		$readonlyratings = true;
-
 		if(count($core->user['suppliers']) > 0) {
-			if(isset($core->user['suppliers']['eid'][$eid])) {
-				$readonlyratings = false;;
+			if(isset($core->user['suppliers']['eid'][$eid])) {  /* if the supplier is for the core user */
+				$readonlyratings = false;
 			}
 
 			$ratingcriteria_query = $db->query('SELECT * FROM '.Tprefix.'entities_ratingcriteria');

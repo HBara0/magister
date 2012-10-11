@@ -85,15 +85,7 @@ class Sourcing {
 	}
 	
 	
-	private function get_lastversion_supplier($alias, array $options = array()) {
-		global $db;								
-		if(isset($options['exclude'])) {
-			$exclude_querystring = ' AND cmspid NOT IN ('.implode(',', $options['exclude']).')';
-		}
-		
-		return $db->fetch_assoc($db->query("SELECT title, alias, bodyText,version FROM ".Tprefix."cms_page WHERE alias='".$db->escape_string($alias)."'{$exclude_querystring} ORDER BY version DESC"));
-	}
-	
+
 	public function edit($page='') {
 		global $core,$db;
 		// check similar string if major or minor update version.				
@@ -114,10 +106,64 @@ class Sourcing {
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."sourcing_suppliers WHERE ssid=".$db->escape_string($id)));		
 	}
 	
+	public function get_potential_supplier() {
+		global $db,$core;
+		$sort_query = 'ORDER BY ss.dateCreated ASC';
+		if(isset($core->input['sortby'], $core->input['order'])) {		
+			$sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
+		}
+		
+		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+			$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+		}
+		
+		$limit_start = 0;
+		if(isset($core->input['start'])) {
+			$limit_start = $db->escape_string($core->input['start']);
+		}
+		
+		if(isset($core->input['filterby'], $core->input['filtervalue'])) {
+			$attributes_filter_options['title'] = array('title' => 'hv.');
+			
+			if($attributes_filter_options['title'][$core->input['filterby']] == 'int') {
+				$filter_value = ' = "'.$db->escape_string($core->input['filtervalue']).'"';
+			}
+			else
+			{
+				$filter_value = ' LIKE "%'.$db->escape_string($core->input['filtervalue']).'%"';
+			}
+
+			$filter_where = ' WHERE '.$db->escape_string($attributes_filter_options['title'][$core->input['filterby']].$core->input['filterby']).$filter_value;
+		}	
+		/* if no permission person should only see suppliers who work in the same segements he/she is working in --START*/
+		
+			if($core->usergroup['sourcing_canManageEntries'] == 1) { 
+			$user_suppliers_id = implode(',',$core->user['suppliers']['eid']);	
+				$suppliers_query = $db->query("SELECT ps.title,ssp.psid,s.ssid,s.companyName FROM ".Tprefix."sourcing_suppliers_productsegments  ssp JOIN ".Tprefix."productsegments ps ON(ps.psid=ssp.psid)
+											JOIN ".Tprefix."employeessegments es on es.psid =ssp.psid and es.uid=1
+											JOIN ".Tprefix."sourcing_suppliers s on s.ssid= ssp.ssid");
+				if($db->num_rows($suppliers_query) > 0) {
+					while($suppliers = $db->fetch_assoc($suppliers_query)) {
+						$potential_suppliers[$suppliers['ssid']]= $suppliers;
+					}
+					
+				}
+				else
+				{
+					$potential_suppliers = $lang->na;
+				}
+			}
+			
+		/*Return All  potentials suppliers*/
+			
+		return $potential_suppliers;
+		/* person should only see suppliers who work in the same segements he/she is working in --END*/
+
+		}
+	
 	public function get() {
 		return $this->supplier;				
 	}
-
 
 	
 	public function get_status() {
