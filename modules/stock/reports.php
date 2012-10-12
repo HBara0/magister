@@ -31,7 +31,6 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		}
 		$content.='</select>';
 	}
-
 	$suppliers_query = $db->query('SELECT eid,companyName from '.Tprefix.'entities WHERE type=\'s\'');
 	if($db->num_rows($suppliers_query) > 0) {
 		$content.='<td><select name="supplier[]" multiple="true">';
@@ -40,7 +39,6 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		}
 		$content.='</select>';
 	}
-
 	$products_query = $db->query('SELECT pid,name from '.Tprefix.'products');
 	if($db->num_rows($products_query) > 0) {
 		$content.='</td><td><select name="product[]" multiple="true">';
@@ -49,19 +47,14 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		}
 		$content.='</select>';
 	}
-
 	$content.='</td></tr><td colspan=2><input type=submit value=Generate></td></tr>';
-
 	$content.='</form></div>'.$headerjs;
-
 	if($core->input['action'] == 'getreport') {
 		//$content .= '<pre><hr>'.print_r($core->input, true).'</hr></pre>';
-
 		$query = 'SELECT * from '.Tprefix.'integration_mediation_stockpurchases';
 		$checkifwherewasadded = false;
 		$dateto = parse_date("m/d/Y", $core->input['dateto']);
 		$datefrom = parse_date("m/d/Y", $core->input['datefrom']);
-
 		if($dateto || $datefrom) {
 			$checkifwherewasadded = true;
 			$query.=' WHERE ';
@@ -71,7 +64,6 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 			}
 			$query.=$datefrom ? ('date>=\''.$datefrom.'\'') : '';
 		}
-
 		/*
 		  if ($core->input['reporttype']==0) {
 		  $query.='AND (spid='.$spid.' OR pid='.$pid.' OR affid='.$affid.')';
@@ -79,8 +71,6 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		  $query.='AND spid='.$spid.' AND pid='.$pid.' AND affid='.$affid;
 		  }
 		 */
-
-
 		if(isset($core->input['supplier'])) {
 			$spid = $core->input['supplier'];
 			$firstone = true;
@@ -147,9 +137,8 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 			}
 			$query.=')';
 		}
-		$content.=generate_stock_reports_email_data(process_query($query, 'spid', array('amount'), array('table' => 'entities', 'id' => 'eid', 'name' => 'companyName')));
-		$content.=generate_stock_reports_email_data(process_query($query, 'pid', array('amount', 'quantity', 'spid'), array('table' => 'products', 'id' => 'pid', 'name' => 'name')));
-
+		$content.=generate_stock_reports_email_data(process_query($query, 'spid', array('amount','affid'), array('table' => 'entities', 'id' => 'eid', 'name' => 'companyName')));
+		$content.=generate_stock_reports_email_data(process_query($query, 'pid', array('amount', 'quantity', 'spid','affid'), array('table' => 'products', 'id' => 'pid', 'name' => 'name')));
 		$content.="<hr>$query<hr>";
 		$purchase_report = $db->query($query);
 		if($db->num_rows($purchase_report) > 0) {
@@ -169,10 +158,8 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 else {
 	$content = 'You do not have the right to access this page.<br>Contact an administrator for more information.';
 }
-
 eval("\$report_template = \"".$template->get('stock_purchasereport')."\";");
 output_page($report_template);
-
 function get_name_from_id($id, $tablename = 'products', $idcolumn = 'pid', $namecolumn = 'name') {
 	static $idtonamecache = array();
 	global $db;
@@ -233,6 +220,11 @@ function process_query($query, $groupingattribute, $trackedcolumns = array("amou
 					}
 					$dataarray[$name][$column]+=$purchase[$column] * $rate;
 				}
+				elseif($column == 'affid') {
+					if(isset($resolve)) {
+						$dataarray[$name][$column] = get_name_from_id($purchase[$column], 'affiliates', 'affid', 'name');
+					}
+				}
 				elseif($column == 'spid') {
 					if(isset($resolve)) {
 						$dataarray[$name][$column] = get_name_from_id($purchase[$column], 'entities', 'eid', 'companyName');
@@ -252,51 +244,17 @@ function process_query($query, $groupingattribute, $trackedcolumns = array("amou
 	return $dataarray;
 }
 
-function dump_templates_to_file_folder() {
-	global $db, $template;
-	$base_dir = ROOT;
-	$base_dir = substr($base_dir, 0, strlen($base_dir) - 1);
-	$base_dir.='\templates';
-	$content = '<div style="padding:20px;"><form><hr>';
-	$templates_query = $db->query('SELECT * FROM '.Tprefix.'templates');
-	if($db->num_rows($templates_query) > 0) {
-		while($singletemplate = $db->fetch_assoc($templates_query)) {
-			$content.='<br>'.$singletemplate['title'];
-			try {
-				$filename = $base_dir.'\\'.$singletemplate['title'];
-				$filehandle = fopen($filename, 'w');
-				fwrite($filehandle, $singletemplate['template']);
-				fclose($filehandle);
-				$content.=' V';
-			}
-			catch(Exception $e) {
-				$content.=' X '.$e->getMessage();
-			}
-		}
-	}
-	$content.='<br><input type=submit value=send id="sendform"/><hr>';
-	$content.='</form><div id=resultsdiv></div></div>';
 
-	$script = '<script>
-				$(document).ready(function() {
-					$("#sendform").click(function(){
-						sharedFunctions.requestAjax("post", "index.php?module=stock/migrate&action=do_migrate","", "resultsdiv","resultsdiv", "html");
-					});
-				});
-			  </script>';
-	$content.=$script;
-	eval("\$debug = \"".$template->get('debug')."\";");
-	output_page($debug);
-}
 
 function generate_stock_reports_email_data($data) {
-	$oddline = '<tr  style="text-align: right; padding: 5px; border-bottom: 1px dashed #888888; background-color:#F7FAFD;">';
-	$evenline = '<tr  style="text-align: right; padding: 5px; border-bottom: 1px dashed #888888; background-color:#E1E1E1;">';
-	$content = '<table style="text-align: right; padding:5px;margin:5px;width:100%; font-size: inherit; border-bottom: 1px solid black; border-right: 1px solid black;border-top: 1px solid black;border-left: 1px solid black;"  cellpadding="0" cellspacing="0" ><tr>';
+	$align="left";
+	$oddline = '<tr  style="text-align: '.$align.'; padding: 5px; border-bottom: 1px dashed #888888; background-color:#F7FAFD;">';
+	$evenline = '<tr  style="text-align: '.$align.'; padding: 5px; border-bottom: 1px dashed #888888; background-color:#E1E1E1;">';
+	$content = '<table style="text-align: '.$align.'; padding:5px;margin:5px;width:100%; font-size: inherit; border-bottom: 1px solid black; border-right: 1px solid black;border-top: 1px solid black;border-left: 1px solid black;"  cellpadding="0" cellspacing="0" ><tr>';
 	$th = '<th style="padding: 5px; border-bottom: 1px dashed #888888; background-color:#92D050;">';
 	$td = '<td style="border-bottom: 1px dashed #888888;">';
 	$toggle = true;
-	
+
 	foreach($data as $key => $row) {
 		$content.=$th.'Name</th>';
 		foreach($row as $columnid => $value) {

@@ -15,11 +15,9 @@ span.listitem:hover { border-bottom: #CCCCCC solid thin; }
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>
         	<td>
+        	{$content}
         	</td>
         </tr>
-	{$products_section}
-        {$reports_section}
-        {$entityprofile_private}
   </table>
 </td></tr>
 {$footer}
