@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Orkila Central Online System (OCOS)
  * Copyright Â© 2010 Orkila International Offshore, All Rights Reserved
@@ -24,7 +23,6 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 	$content.='<select name="reporttype"><option value="0">Basic</option><option value="1">Detailed</option></select><div style="margin-left:20%;display:inline;">From:</div></td><td>';
 	$content.='<input type="text" name="datefrom" class="datepicker" /><div style="margin-left:28%;display:inline;">To:</div></td><td>';
 	$content.='<input type="text" name="dateto" class="datepicker" /></td></tr><tr>';
-
 	$affiliates_query = $db->query('SELECT affid,name from '.Tprefix.'affiliates');
 	if($db->num_rows($affiliates_query) > 0) {
 		$content.='<td><select name="affiliate[]" multiple="true">';
@@ -67,11 +65,11 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		if($dateto || $datefrom) {
 			$checkifwherewasadded = true;
 			$query.=' WHERE ';
-			$query.=$dateto?('date<=\''.$dateto.'\''):'';
+			$query.=$dateto ? ('date<=\''.$dateto.'\'') : '';
 			if($dateto && $datefrom) {
 				$query.=' AND ';
 			}
-			$query.=$datefrom?('date>=\''.$datefrom.'\''):'';
+			$query.=$datefrom ? ('date>=\''.$datefrom.'\'') : '';
 		}
 
 		/*
@@ -86,7 +84,7 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		if(isset($core->input['supplier'])) {
 			$spid = $core->input['supplier'];
 			$firstone = true;
-			foreach($spid as $key=>$value) {
+			foreach($spid as $key => $value) {
 				$value = $db->escape_string($value);
 				if($checkifwherewasadded) {
 					if($firstone) {
@@ -108,7 +106,7 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		if(isset($core->input['product'])) {
 			$pid = $core->input['product'];
 			$firstone = true;
-			foreach($pid as $key=>$value) {
+			foreach($pid as $key => $value) {
 				$value = $db->escape_string($value);
 				if($checkifwherewasadded) {
 					if($firstone) {
@@ -130,7 +128,7 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		if(isset($core->input['affiliate'])) {
 			$affid = $core->input['affiliate'];
 			$firstone = true;
-			foreach($affid as $key=>$value) {
+			foreach($affid as $key => $value) {
 				$value = $db->escape_string($value);
 				if($checkifwherewasadded) {
 					if($firstone) {
@@ -149,14 +147,8 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 			}
 			$query.=')';
 		}
-
-		if (true) {
-			$content.='<pre>'.print_r(process_query($query, 'spid',array('amount'),array('table'=>'entities','id'=>'eid','name'=>'companyName')), true).'</pre>';
-			$content.='<pre>'.print_r(process_query($query, 'pid',array('amount','quantity'),array('table'=>'products','id'=>'pid','name'=>'name')), true).'</pre>';
-		} else {
-			$content.='<pre>'.print_r(process_query($query, 'spid',array('amount')), true).'</pre>';
-			$content.='<pre>'.print_r(process_query($query, 'pid',array('amount','quantity')), true).'</pre>';
-		}
+		$content.=generate_stock_reports_email_data(process_query($query, 'spid', array('amount'), array('table' => 'entities', 'id' => 'eid', 'name' => 'companyName')));
+		$content.=generate_stock_reports_email_data(process_query($query, 'pid', array('amount', 'quantity', 'spid'), array('table' => 'products', 'id' => 'pid', 'name' => 'name')));
 
 		$content.="<hr>$query<hr>";
 		$purchase_report = $db->query($query);
@@ -181,32 +173,29 @@ else {
 eval("\$report_template = \"".$template->get('stock_purchasereport')."\";");
 output_page($report_template);
 
-
-function get_name_from_id($id,$tablename='products',$idcolumn='pid',$namecolumn='name') {
-	static $idtonamecache=array();
+function get_name_from_id($id, $tablename = 'products', $idcolumn = 'pid', $namecolumn = 'name') {
+	static $idtonamecache = array();
 	global $db;
 	try {
-		$name=$idtonamecache[$tablename][$idcolumn][$namecolumn][$id];
-		if (isset($name)) {
+		$name = $idtonamecache[$tablename][$idcolumn][$namecolumn][$id];
+		if(isset($name)) {
 			return $name;
 		}
-	} catch (Exception $e) {
-		$msg= 'Exception '.$e->getMessage();
 	}
-	$name = $db->fetch_field($db->query('SELECT '.$namecolumn.' FROM '.Tprefix.$tablename.' WHERE '.$idcolumn.'="'.$db->escape_string($id).'"'),$namecolumn);
-	$idtonamecache[$tablename][$idcolumn][$namecolumn][$id]=$name;
-	if (isset($name))
-	{
+	catch(Exception $e) {
+		$msg = 'Exception '.$e->getMessage();
+	}
+	$name = $db->fetch_field($db->query('SELECT '.$namecolumn.' FROM '.Tprefix.$tablename.' WHERE '.$idcolumn.'="'.$db->escape_string($id).'"'), $namecolumn);
+	$idtonamecache[$tablename][$idcolumn][$namecolumn][$id] = $name;
+	if(isset($name)) {
 		return $name;
 	}
-	else
-	{
+	else {
 		return $id;
 	}
 }
 
-
-function process_query($query, $groupingattribute, $trackedcolumns = array("amount"),$resolve=null) {
+function process_query($query, $groupingattribute, $trackedcolumns = array("amount"), $resolve = null) {
 	global $db;
 	$currency_obj = new Currencies('USD');
 	$purchase_report = $db->query($query);
@@ -215,37 +204,47 @@ function process_query($query, $groupingattribute, $trackedcolumns = array("amou
 		while($purchase = $db->fetch_assoc($purchase_report)) {
 
 			/*
-			if(!isset($dataarray[$purchase[$groupingattribute]])) {
-				foreach($trackedcolumns as $column) {
-					$dataarray[$purchase[$groupingattribute]][$column] = 0;
-				}
-			}
+			  if(!isset($dataarray[$purchase[$groupingattribute]])) {
+			  foreach($trackedcolumns as $column) {
+			  $dataarray[$purchase[$groupingattribute]][$column] = 0;
+			  }
+			  }
 
 			 */
-			if (isset($resolve))
-			{
-				$name=get_name_from_id($purchase[$groupingattribute],$resolve['table'],$resolve['id'],$resolve['name']);
+			if(isset($resolve)) {
+				$name = get_name_from_id($purchase[$groupingattribute], $resolve['table'], $resolve['id'], $resolve['name']);
 			}
-			else
-			{
-				$name=$purchase[$groupingattribute];
+			else {
+				$name = $purchase[$groupingattribute];
 			}
 			foreach($trackedcolumns as $column) {
 
-				if (!isset($dataarray[$name]['count'])) {
-					$dataarray[$name]['count']=1;
-				} else {
+				if(!isset($dataarray[$name]['count'])) {
+					$dataarray[$name]['count'] = 1;
+				}
+				else {
 					$dataarray[$name]['count']++;
 				}
 
 				if($column == 'amount') {
 					$rate = $purchase['usdFxrate'];
 					if(!isset($rate) || $rate == 0) {
-						$rate = $currency_obj->get_average_fxrate($purchase['currency'], array('from'=>date("-4 days", strtotime($purchase['date'])), 'to'=>date("+4 days", strtotime($purchase['date']))));
+						$rate = $currency_obj->get_average_fxrate($purchase['currency'], array('from' => date("-4 days", strtotime($purchase['date'])), 'to' => date("+4 days", strtotime($purchase['date']))));
 					}
 					$dataarray[$name][$column]+=$purchase[$column] * $rate;
-				} else {
-					$dataarray[$name][$column]+=$purchase[$column];
+				}
+				elseif($column == 'spid') {
+					if(isset($resolve)) {
+						$dataarray[$name][$column] = get_name_from_id($purchase[$column], 'entities', 'eid', 'companyName');
+					}
+				}
+				elseif($column == 'pid') {
+					if(isset($resolve)) {
+						$dataarray[$name][$column] = get_name_from_id($purchase[$column], 'products', 'pid', 'name');
+					}
+				}
+				else {
+					$dataarray[$name][$column] = $purchase[$column];
 				}
 			}
 		}
@@ -269,7 +268,8 @@ function dump_templates_to_file_folder() {
 				fwrite($filehandle, $singletemplate['template']);
 				fclose($filehandle);
 				$content.=' V';
-			} catch(Exception $e) {
+			}
+			catch(Exception $e) {
 				$content.=' X '.$e->getMessage();
 			}
 		}
@@ -289,5 +289,37 @@ function dump_templates_to_file_folder() {
 	output_page($debug);
 }
 
+function generate_stock_reports_email_data($data) {
+	$oddline = '<tr  style="text-align: right; padding: 5px; border-bottom: 1px dashed #888888; background-color:#F7FAFD;">';
+	$evenline = '<tr  style="text-align: right; padding: 5px; border-bottom: 1px dashed #888888; background-color:#E1E1E1;">';
+	$content = '<table style="text-align: right; padding:5px;margin:5px;width:100%; font-size: inherit; border-bottom: 1px solid black; border-right: 1px solid black;border-top: 1px solid black;border-left: 1px solid black;"  cellpadding="0" cellspacing="0" ><tr>';
+	$th = '<th style="padding: 5px; border-bottom: 1px dashed #888888; background-color:#92D050;">';
+	$td = '<td style="border-bottom: 1px dashed #888888;">';
+	$toggle = true;
+	
+	foreach($data as $key => $row) {
+		$content.=$th.'Name</th>';
+		foreach($row as $columnid => $value) {
+			$content.=$th.$columnid.'</th>';
+		}
+		$content.='</tr>';
+		break;
+	}
+	foreach($data as $key => $row) {
+		if($toggle = !$toggle) {
+			$content.=$oddline;
+		}
+		else {
+			$content.=$evenline;
+		}
+		$content.=$td.$key.'</td>';
+		foreach($row as $columnid => $value) {
+			$content.=$td.$value.'</td>';
+		}
+		$content.='</tr>';
+	}
+	$content.='</table>';
+	return $content;
+}
 
 ?>
