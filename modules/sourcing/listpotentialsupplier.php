@@ -22,19 +22,22 @@ if($core->usergroup['sourcing_canListSuppliers'] == 0) {
 if(!$core->input['action']) {	
 	$vacancy_id = $db->escape_string($core->input['id']);
 	if(!$core->input['action']) {
-			$sort_url = sort_url();
-			$sourcing = new Sourcing();
-			$potential_suppliers = $sourcing->get_potential_supplier();
-		if(is_array($potential_suppliers)) {
-			$criteriaandstars = '';
+		$criteriaandstars = '';
 			$maxstars = 5;
 			$rating_section = '';
 			$readonlyratings = true;
-			foreach($potential_suppliers as $potential_supplier) {
+			$segments_counter = 0;
+			$sort_url = sort_url();
+			$sourcing = new Sourcing();
+			$potential_suppliers = $sourcing->get_potential_supplier();
+		if(is_array($potential_suppliers)) {		
+			foreach($potential_suppliers as $potential_supplier) { 
 				if($core->usergroup['sourcing_canManageEntries'] == 1) {
 					$readonlyratings = false;
 					$edit = '<a href="'.DOMAIN.'index.php?module=sourcing/managesupplier&type=edit&id='.$potential_supplier['ssid'].'"><img src="././images/icons/edit.gif" border="0"/></a>';
 				}
+						
+					$rowclass = alt_row($rowclass);				
 					$criteriaandstars  = '<div class="evaluation_criterium" name="'.$potential_supplier['ssid'].'">';
 					$criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
 
@@ -62,13 +65,34 @@ if(!$core->input['action']) {
 					{
 					   $header_ratingjs = '';
 					}
-					$rating_section = '<div>'.$criteriaandstars.'</div><hr>';
-			
-					$rowclass = alt_row($rowclass);
+					$rating_section = '<div>'.$criteriaandstars.'</div>';
 		
+					
+					if(++$segments_counter > 2) {
+						$hidden_segments .= $potential_supplier['title'].' '.$potential_supplier['psid'][$potential_supplier['psid']].'<br />';
+					}
+					elseif($segments_counter == 2)
+					{
+						$supplier_segments .= $potential_supplier['title'].' '.$potential_supplier['psid'][$potential_supplier['psid']];
+						
+					}
+					else
+					{
+						$supplier_segments .= $potential_supplier['title'].' '.$potential_supplier['psid'][$potential_supplier['psid']].'<br />';
+						
+					}
+
+				if($segments_counter > 2) {
+					$potential_supplier['title'] = $supplier_segments.", <a href='#segment' id='showmore_segments_{$potential_supplier[psid]}'>...</a><br /> <span style='display:none;' id='segments_{$potential_supplier[psid]}'>{$hidden_segments}</span>";
+				}
+				else
+				{
+					$potential_supplier['title'] = $supplier_segments;
+				}
+	
 				eval("\$sourcing_listpotentialsupplier_rows.= \"".$template->get('sourcing_listpotentialsupplier_rows')."\";");
 			}
-			
+
 			$multipage_where .= $db->escape_string($attributes_filter_options['prefixes'][$core->input['filterby']].$core->input['filterby']).$filter_value;
 			$multipages = new Multipages('sourcing_suppliers ss', $core->settings['itemsperlist'], $multipage_where);
 			$sourcing_listpotentialsupplier_rows .= "<tr><td colspan='6'>".$multipages->parse_multipages()."</td></tr>";

@@ -108,7 +108,7 @@ class Sourcing {
 	
 	public function get_potential_supplier() {
 		global $db,$core;
-		$sort_query = 'ORDER BY ss.companyName ASC';
+		//$sort_query = 'ORDER BY ss.ssid ASC';
 		if(isset($core->input['sortby'], $core->input['order'])) {		
 			$sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
 		}
@@ -135,20 +135,19 @@ class Sourcing {
 
 			$filter_where = ' WHERE '.$db->escape_string($attributes_filter_options['companyname'][$core->input['filterby']].$core->input['filterby']).$filter_value;
 		}	
-		/* if no permission person should only see suppliers who work in the same segements he/she is working in --START*/		
+			/* if no permission person should only see suppliers who work in the same segements he/she is working in --START*/		
 			if($core->usergroup['sourcing_canManageEntries'] == 0) { 
 				$user_suppliers_id = implode(',',$core->user['suppliers']['eid']);
 				$join_employeessegments = "JOIN ".Tprefix."employeessegments es on es.psid = ssp.psid and es.uid=".$core->user['uid']."";
 					}
 			/* person should only see suppliers who work in the same segements he/she is working in --END*/
-
 				else
 				{		
 					/*Return All  potentials suppliers--START*/
 					$join_employeessegments = '';
 					/*Return All  potentials suppliers --END*/
 				}				
-		
+
 				$suppliers_query = $db->query("SELECT ps.title,ssp.psid,ss.ssid,ss.companyName,ss.type,ss.businessPotential,co.name as country FROM ".Tprefix."sourcing_suppliers_productsegments  ssp 
 												JOIN ".Tprefix."productsegments ps ON(ps.psid=ssp.psid)
 												JOIN ".Tprefix."countries co
@@ -157,16 +156,17 @@ class Sourcing {
 												JOIN ".Tprefix."sourcing_suppliers ss on ss.ssid= ssp.ssid
 												{$filter_where}
 												{$sort_query} 
-												LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
-												
+												LIMIT {$limit_start}, {$core->settings[itemsperlist]}");											
 											
 				if($db->num_rows($suppliers_query) > 0) {
 					while($suppliers = $db->fetch_assoc($suppliers_query)) {
+					
 						$potential_suppliers[$suppliers['ssid']]= $suppliers;
 					}
+					return $potential_suppliers;
 				}		
-		return $potential_suppliers;
-		}
+			return false;
+			}
 	
 	public function get() {
 		return $this->supplier;				
