@@ -268,7 +268,9 @@ if(!$core->input['action']) {
 		if($core->input['incVisitDetails'] != 0 || !isset($core->input['incVisitDetails'])) {
 			$visitdetails = '<div class="subtitle">'.$lang->visitdetails.'</div>';
 			foreach($visitreport['spid'] as $k => $v) {
-				
+				if(empty($v) && $v != 0) {
+					continue;
+				}
 				/*if($core->usergroup['canViewAllSupp'] == 0)  {
 					if(!in_array($k, $core->user['suppliers']['eid'])) {
 						continue;
@@ -282,6 +284,9 @@ if(!$core->input['action']) {
 			$competitioncomments = '<div class="subtitle">'.$lang->commentsoncompetition.'</div>';
 			
 			foreach($visitreport['spid'] as $k => $v) {
+				if(empty($v) && $v != 0) {
+					continue;
+				}
 				/*if($core->usergroup['canViewAllSupp'] == 0)  {
 					if(!in_array($k, $core->user['suppliers']['eid'])) {
 						continue;
