@@ -26,6 +26,7 @@ body .redactor_air {
 	outline: none;	
 	border: none;
 	width: 100%;
+	white-space: normal;	
 }
 
 .redactor_editor, .redactor_editor:focus {
@@ -39,6 +40,8 @@ body .redactor_air {
 	overflow: auto;
 	font-family: Arial, Helvetica, Verdana, Tahoma, sans-serif !important;      
 	font-size: 15px !important;
+	line-height: 1.45em !important;	
+	white-space: normal;
 }
 .redactor_editor a {
 	color: #15c !important;
@@ -69,7 +72,7 @@ body .redactor_air {
 	background: none !important;
 	margin: 0 !important;
 	margin-bottom: 15px !important;
-	line-height: 1.5em !important;
+	line-height: 1.45em !important;
 	font-family: Arial, Helvetica, Verdana, Tahoma, sans-serif !important;      
 	font-size: 15px !important;
 	border: none;	
@@ -142,8 +145,8 @@ body .redactor_air {
 .redactor_editor h4,
 .redactor_editor h5 {
 	font-family: Helvetica, Arial, Verdana, Tahoma, sans-serif !important;
-	color: #000 !important;
-	background: none !important;	
+	color: #000;
+	background: none;	
 	margin: 0 !important;
 	padding: 0 !important;
 	font-weight: bold;	
@@ -484,6 +487,11 @@ body .redactor_toolbar li a.redactor_btn_horizontalrule 	{ background-position: 
 	height: 270px; 
 	overflow: auto; 
 	margin-bottom: 10px;
+}
+#redactor_image_box_select {
+	display: block;
+	width: 200px;
+	margin-bottom: 15px;
 }
 #redactor_image_box img {
 	margin-right: 10px;
