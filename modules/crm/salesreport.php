@@ -35,14 +35,27 @@ if(!$core->input['action']) {
 	
 	$saletypes_list = parse_selectlist('saleType', 2, array('0' => $lang->any, 's-1' => $lang->stock, 'r-1' => $lang->reinvoice), '');
 	$affiliates_list = parse_selectlist('affids[]', 2, $affiliates, '');
-								 
-	$suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 0, 'type="s" AND eid IN ('.implode(',', $core->user['suppliers']['eid']).')');
+	
+	if($core->usergroup['canViewAllSupp'] == 0) {
+		if(!is_array($core->user['suppliers']['eid'])) {
+			error($lang->sectionnopermission);
+		}
+		$suppliers_where = $products_where = ' AND eid IN ('.implode(',', $core->user['suppliers']['eid']).')';	
+		$suppliers_where = ' AND '.$suppliers_where;
+	}
+	$suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 0, 'type="s"'.$suppliers_where);
 	$suppliers_list = parse_selectlist('spid[]', 9, $suppliers, '', 1);
 	
-	$customers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 0, 'type="c" AND eid IN ('.implode(',', $core->user['customers']).')');
+	if($core->usergroup['canViewAllCust'] == 0) {
+		if(!is_array($core->user['customers'])) {
+			error($lang->sectionnopermission);
+		}
+		$customers_where = '  AND eid IN ('.implode(',', $core->user['customers']).')';	
+	}
+	$customers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 0, 'type="c"'.$customers_where);
 	$customers_list = parse_selectlist('cid[]', 9, $customers, '', 1);
 	
-	$products = get_specificdata('products', array('pid', 'name'), 'pid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0, 'spid IN ('.implode(',', $core->user['suppliers']['eid']).')');
+	$products = get_specificdata('products', array('pid', 'name'), 'pid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0, $products_where);
 	$products_list = parse_selectlist('pid[]', 9, $products, '', 1);
 
     eval("\$generatepage = \"".$template->get('crm_generatesalesreport')."\";");
@@ -54,10 +67,20 @@ else
 		if(empty($core->input['affids'])) {
 			redirect('index.php?module=crm/salesreport');
 		}
+		
+		if(is_empty($core->input['fromDate'])) {
+			redirect('index.php?module=crm/salesreport');
+		}
+		
 		$current_date = getdate(TIME_NOW);
 		$period['from'] = strtotime($core->input['fromDate']);//strtotime($current_date['year'].'-1-1');//'30 minutes ago';
-		$period['to'] = strtotime($core->input['toDate']);//strtotime('last day of this month');;
-	
+		if(empty($core->input['toDate'])) {
+			$period['to'] = TIME_NOW;
+		}
+		else {
+			$period['to'] = strtotime($core->input['toDate']);//strtotime('last day of this month');;
+		}
+		
 		$currency_obj = new Currencies('USD');
 		//Verify AFFids
 		if(!empty($core->input['spid'])) {
