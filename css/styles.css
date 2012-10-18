@@ -209,6 +209,18 @@ td { padding: 2px; }
 	border-left: 1px solid #F2F2F2;
 }
 
+.border_bottom
+{
+   top: 0px;
+   margin:0px;  
+   padding: 0px 2px 2px 3px;    
+   border-width: 2px;
+   border-bottom-width:42px;
+   border-bottom-color:#F2F2F2;
+   width: 100%;
+}
+
+
 .border_right {
 	border-right: 1px solid #F2F2F2;
 }
