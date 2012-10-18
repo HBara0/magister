@@ -1,4 +1,0 @@
-<tr id="{$rowid}">
-    <td width="15%">{$lang->keycustomer} {$rowid}</td>
-    <td align="left"><input type='text' id='customer_{$rowid}_QSearch' name="customer_{$rowid}_QSearch" value="{$customer[$i][companyName]}" autocomplete='off'/><input type='text' size='3' id='customer_{$rowid}_id_output' disabled='disabled' value="{$customer[$i][cid]}"/><input type='hidden' value="{$customer[$i][cid]}" id='customer_{$rowid}_id' name='eid_{$rowid}' /><a href="index.php?module=contents/addentities&type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a><div id='searchQuickResults_{$rowid}' class='searchQuickResults' style='display:none;'></div></td>
-</tr>

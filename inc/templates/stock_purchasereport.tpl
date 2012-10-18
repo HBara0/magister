@@ -5,7 +5,6 @@
 <style type="text/css">
 span.listitem:hover { border-bottom: #CCCCCC solid thin; }
 </style>
-
 </head>
 <body>
 {$header}
