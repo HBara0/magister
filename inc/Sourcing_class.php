@@ -12,14 +12,15 @@
 class Sourcing {
 	protected $status = 0;
 	private $supplier = array();
-	
+
 	public function __construct($id='', $simple=false) {
 		if(isset($id) && !empty($id)){
-			$this->supplier = $this->read($id, $simple);
-		
+			$this->supplier = $this->read_supplier($id, $simple);
+			$this->supplier_id = $this->supplier['ssid'];
+			$supplier_id = $this->supplier_id;
 		}
 	}
-	
+
 	public function add($data, array $options = array()) {
 		global $db, $log, $core, $errorhandler,$lang;
 		$this->supplier = $data;
@@ -84,7 +85,6 @@ class Sourcing {
 		/* Insert supplier - END */
 	}
 	
-	
 
 	public function edit($page='') {
 		global $core,$db;
@@ -148,29 +148,127 @@ class Sourcing {
 					/*Return All  potentials suppliers --END*/
 				}				
 
-				$suppliers_query = $db->query("SELECT ps.title,ssp.psid,ss.ssid,ss.companyName,ss.type,ss.businessPotential,co.name as country FROM ".Tprefix."sourcing_suppliers_productsegments  ssp 
-												JOIN ".Tprefix."productsegments ps ON(ps.psid=ssp.psid)
-												JOIN ".Tprefix."countries co
-												JOIN ".Tprefix."sourcing_suppliers_activityareas ssa ON(ssa.coid=co.coid)
-												{$join_employeessegments}
-												JOIN ".Tprefix."sourcing_suppliers ss on ss.ssid= ssp.ssid
-												{$filter_where}
-												{$sort_query} 
-												LIMIT {$limit_start}, {$core->settings[itemsperlist]}");											
-											
+			$suppliers_query = $db->query("SELECT ps.title,ssp.psid,ss.*,co.name as country FROM ".Tprefix."sourcing_suppliers_productsegments ss 
+											JOIN ".Tprefix."productsegments ps ON(ps.psid=ssp.psid)
+											JOIN ".Tprefix."countries co
+											JOIN ".Tprefix."sourcing_suppliers_activityareas ssa ON(ssa.coid=co.coid)
+											{$join_employeessegments}
+											JOIN ".Tprefix."sourcing_suppliers ss on ss.ssid= ssp.ssid
+											{$filter_where}
+											{$sort_query} 
+											LIMIT {$limit_start}, {$core->settings[itemsperlist]}");											
+								
 				if($db->num_rows($suppliers_query) > 0) {
 					while($suppliers = $db->fetch_assoc($suppliers_query)) {
 					
 						$potential_suppliers[$suppliers['ssid']]= $suppliers;
 					}
+		
 					return $potential_suppliers;
 				}		
 			return false;
 			}
+
+		public function get_supplier_segments ($supplier_id='') {
+			global $db; 
+			$segments_query = $db->query("SELECT ss.ssid,ssp.sspsid, ps.title as segment from  ".Tprefix."sourcing_suppliers ss
+									JOIN ".Tprefix."sourcing_suppliers_productsegments ssp ON (ss.ssid= ssp.ssid)
+									JOIN ".Tprefix."productsegments ps ON(ps.psid=ssp.psid)
+									WHERE ss.ssid= ".$db->escape_string($this->supplier_id)."");
+				if($db->num_rows($segments_query) > 0) {
+					while($segments = $db->fetch_assoc($segments_query)) {
+						$segments_suppliers[$segments['sspsid']]= $segments;
+					}
+					return $segments_suppliers;
+				}					
+				return false;		
+			}
 	
-	public function get() {
-		return $this->supplier;				
+	public function get_supplier_contact($supplier_id='') {
+		global $db; 
+
+		if(!$this->validate_segment_permission($supplier_id)) {  //change remove the not
+				return $db->fetch_assoc($db->query("SELECT ss.*, ps.title as segment from  ".Tprefix."sourcing_suppliers ss
+									JOIN ".Tprefix."sourcing_suppliers_productsegments ssp ON (ss.ssid= ssp.ssid)
+									JOIN ".Tprefix."productsegments ps ON(ps.psid=ssp.psid)
+									JOIN ".Tprefix."employeessegments es on (es.psid = ssp.psid)
+									WHERE ss.ssid= ".$db->escape_string($this->supplier_id).""));	
+				}
+			}
+			
+	public function get_supplier_contact_persons(){
+		global $db; 
+		if(!$this->validate_segment_permission($this->supplier_id)) {  //change remove the not
+			$contact_query = $db->query("SELECT ss.ssid ,rp.* from ".Tprefix."sourcing_suppliers ss
+									JOIN ".Tprefix." sourcing_suppliers_contactpersons sscp ON(sscp.ssid=ss.ssid)
+									JOIN ".Tprefix." representatives rp ON(sscp.rpid=rp.rpid)
+									WHERE ss.ssid= ".$db->escape_string($this->supplier_id)."");	
+				if($db->num_rows($contact_query) > 0) {
+					while($contact_person = $db->fetch_assoc($contact_query)) {
+						$contact_persons[$contact_person['rpid']]= $contact_person;
+					}
+					return $contact_persons;
+				}					
+				return false;
+			}
+		}
+	public function get_supplier_activity_area(){
+		global $db; 
+			$activity_area_query = $db->query("SELECT ss.ssid ,co.name,aff.name as affiliate from ".Tprefix."sourcing_suppliers ss
+									JOIN ".Tprefix."sourcing_suppliers_activityareas ssaa ON (ss.ssid= ssaa.ssid)
+									JOIN ".Tprefix."countries co ON (co.coid = ssaa.coid)
+									JOIN ".Tprefix."affiliates aff ON (aff.affid = co.affid)
+									WHERE ss.ssid= ".$db->escape_string($this->supplier_id)."");	
+				if($db->num_rows($activity_area_query) > 0) {
+					while($activity_areas = $db->fetch_assoc($activity_area_query)) {
+						$supplier_activity_area[$activity_areas['rpid']]= $activity_areas;
+					}
+					return $supplier_activity_area;
+				}					
+				return false;
+		}
+	
+ public function get_single_supplier_contact_persons($id) {
+	 global $db; 
+	 return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
 	}
+
+ 
+	private function validate_segment_permission($id='') {
+		global $db,$core;
+		/* if no permission person should only see suppliers who work in the same segements he/she is working in --START*/		
+		if($core->usergroup['sourcing_canManageEntries'] == 0) { 
+			$suppliers_query = $db->query("SELECT ssp.psid FROM ".Tprefix."sourcing_suppliers_productsegments ssp 
+			JOIN ".Tprefix."employeessegments es on (es.psid = ssp.psid)
+			JOIN ".Tprefix."sourcing_suppliers ss on ss.ssid= ssp.ssid
+			WHERE ss.ssid= ".$db->escape_string($id)."
+			AND es.uid=".$db->escape_string($core->user['uid'])."");
+			
+			if($db->num_rows($suppliers_query) > 0) {
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		/* person should only see suppliers who work in the same segements he/she is working in --END*/
+	}
+			
+		private function read_supplier($id, $simple=false) {
+		global $db;
+	
+		$query_select = '*';
+		if($simple == true) {
+			$query_select = 'ssid';	
+		}
+		
+		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."sourcing_suppliers WHERE ssid='".$db->escape_string($id)."'"));
+	}
+	
+	public function get_supplier() {
+		return $this->supplier;
+	}		
 
 	
 	public function get_status() {
