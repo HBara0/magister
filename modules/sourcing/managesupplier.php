@@ -4,9 +4,10 @@
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Add entities
- * $module: contents
+ *  $module: Sourcing
  * $id: addentities.php	
- * Last Update: @zaher.reda 	February 15, 2012 | 10:05 AM
+ * Created By: 		@tony.assaad		October 8, 2012 | 12:30 PM
+ * Last Update: 	@tony.assaad		October 10, 2012 | 4:13 PM
  */
 if(!defined('DIRECT_ACCESS'))
 {

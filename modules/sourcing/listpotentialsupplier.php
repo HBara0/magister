@@ -3,10 +3,10 @@
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
  * 
- * Create Survey
- * $module: hr
- * $id: listjob.php	
- * Created By: 		@tony.assaad		Augusst 10, 2012 | 12:30 PM
+ * List Potential Supplier
+ * $module: Sourcing
+ * $id:  Listpotentialaupplier.php	
+ * Created By: 		@tony.assaad		October 10, 2012 | 12:30 PM
  * Last Update: 	@tony.assaad		October 11, 2012 | 4:13 PM
  */
 
@@ -31,12 +31,12 @@ if(!$core->input['action']) {
 			$sourcing = new Sourcing();
 			$potential_suppliers = $sourcing->get_potential_supplier();
 		if(is_array($potential_suppliers)) {		
-			foreach($potential_suppliers as $potential_supplier) { 
+			foreach($potential_suppliers as $key=>$potential_supplier) { 
 				if($core->usergroup['sourcing_canManageEntries'] == 1) {
 					$readonlyratings = false;
 					$edit = '<a href="'.DOMAIN.'index.php?module=sourcing/managesupplier&type=edit&id='.$potential_supplier['ssid'].'"><img src="././images/icons/edit.gif" border="0"/></a>';
 				}
-						
+					$hidden_segments = $supplieregments = '';
 					$rowclass = alt_row($rowclass);				
 					$criteriaandstars  = '<div class="evaluation_criterium" name="'.$potential_supplier['ssid'].'">';
 					$criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
@@ -69,26 +69,25 @@ if(!$core->input['action']) {
 		
 					
 					if(++$segments_counter > 2) {
-						$hidden_segments .= $potential_supplier['title'].' '.$potential_supplier['psid'][$potential_supplier['psid']].'<br />';
+						$hidden_segments .= $potential_supplier['title'].' '.$filters['psid'][$key].'<br />';
 					}
 					elseif($segments_counter == 2)
 					{
-						$supplier_segments .= $potential_supplier['title'].' '.$potential_supplier['psid'][$potential_supplier['psid']];
+						$supplieregments .= $potential_supplier['title'].' '.$filters['psid'][$key];
 						
 					}
 					else
 					{
-						$supplier_segments .= $potential_supplier['title'].' '.$potential_supplier['psid'][$potential_supplier['psid']].'<br />';
+						$supplieregments .= $potential_supplier['title'].' '.$filters['psid'][$key].'<br />';
 						
 					}
-
-				if($segments_counter > 2) {
-					$potential_supplier['title'] = $supplier_segments.", <a href='#segment' id='showmore_segments_{$potential_supplier[psid]}'>...</a><br /> <span style='display:none;' id='segments_{$potential_supplier[psid]}'>{$hidden_segments}</span>";
-				}
-				else
-				{
-					$potential_supplier['title'] = $supplier_segments;
-				}
+					if($segments_counter > 2) {
+						$potential_supplier['title'] = $supplieregments.", <a href='#supplieregments' id='showmore_supplieregments_{$potential_supplier[psid]}'>...</a><br /> <span style='display:none;' id='supplieregments_{$potential_supplier[psid]}'>{$hidden_segments}</span>";
+					}
+					else
+					{
+						$potential_supplier['title'] = $supplieregments;
+					}
 	
 				eval("\$sourcing_listpotentialsupplier_rows.= \"".$template->get('sourcing_listpotentialsupplier_rows')."\";");
 			}
