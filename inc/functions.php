@@ -1273,4 +1273,29 @@ function generate_random_color($lum=0.97, $hue=0.58, $sat=0.6) {
 	}
 	return $color;
 }
+
+
+function parse_date($format,$date) {
+	$delimiter=substr($format,1,1);
+	$format_parts=explode($delimiter, $format);
+	$date_parts=explode($delimiter, $date);
+	if (count($date_parts)!=3)
+	{
+		return $date;
+	}
+
+	foreach($format_parts as $key=>$value) {
+		$date_parts[$value]=$date_parts[$key];
+		unset($date_parts[$key]);
+	}
+	$timestamp=mktime(0,0,0,$date_parts['m'],$date_parts['d'],$date_parts['Y']);
+	if (date($format,$timestamp) == $date) {
+		return $timestamp;
+	}
+	else
+	{
+		return null;
+	}
+}
+
 ?>
