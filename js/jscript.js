@@ -321,7 +321,7 @@ $(function() {
 		$('head').append('<link rel="stylesheet" href="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.css" type="text/css" />');
 		popUp("", "popup_loginbox", "users.php");
 	}
-
+	
 	function login() {
 		$.post(rootdir + "users.php?action=do_login",
 				{username: $("#username").val(), password: $("#password").val(), token: $("#logintoken").val()},
