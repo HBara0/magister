@@ -67,7 +67,7 @@ if(!$core->input['action']) {
 					'mainTable' => array(
 							'name' => 'users',
 							'filters' => array('reportsTo' => 'reportsTo'),
-							'extraSelect' => 'CONCAT(firstName, \' \', lastName) AS firstName',
+							'extraSelect' => 'CONCAT(firstName, \' \', lastName) AS fullName',
 							'havingFilters' => array('fullName' => 'fullName')
 					),
 					'secTables' => array(

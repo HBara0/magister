@@ -84,7 +84,7 @@ class Inlinefilters {
 	 * @return Array		$filters			Parsed fields to be used in search
 	 */
 	public function parse_multi_filters(array $exclude=array()) {
-		global $core, $db;
+		global $core, $db, $lang;
 		$tabindex = 1;
 	
 		if(is_array($this->config['parse'])) {
@@ -105,6 +105,7 @@ class Inlinefilters {
 							break;
 						case 'posid':
 						case 'position':
+							$lang->load('positions');
 							$positions = get_specificdata('positions', array('posid', 'name'), 'posid', 'name', '');
 							foreach($positions as $key => $val) {
 								if(isset($lang->{$val})) {

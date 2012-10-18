@@ -10,6 +10,7 @@
 <td class="contentContainer">
 <h3>{$lang->employeeslist}</h3>
 {$affid_field}
+<form method='post' action='$_SERVER[REQUEST_URI]'>
 <table class="datatable">
 	<thead>
 		<tr>
@@ -22,14 +23,17 @@
 			<th style="width:30%;">{$lang->position}</th>
 			<th style="width:10%;">&nbsp;</th>
 		</tr>
+		{$filters_row}
 	</thead>
+</table>
+</form>
+<table class="datatable">
+	<thead><tr class="dummytrow"><th style="width:35%;"></th><th style="width:25%;"></th><th style="width:30%;"></th><th style="width:10%;"></th></tr></thead>
 	<tbody>
 		{$users_list}
 	</tbody>
 </table>
 <div style="width:40%; float:left; margin-top:0px;" class="smalltext"><form method='post' action='$_SERVER[REQUEST_URI]'>{$lang->perlist}: <input type='text' size='4' id='perpage_field' name='perpage' value='{$core->settings[itemsperlist]}' class="smalltext"/></form></div>
-<div style="width:50%; float:right; margin-top:0px; text-align:right;" class="smalltext"><form method='post' action='$_SERVER[REQUEST_URI]'>
- <input type="text" name="filtervalue" id="filtervalue"> <input type="submit" class="button" value="{$lang->filter}"></form></div>
 </td>
 </tr>
 {$footer}

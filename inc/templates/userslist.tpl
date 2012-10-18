@@ -15,26 +15,28 @@
 </td>
 <td class="contentContainer">
 <h3>{$lang->employeeslist}</h3>
+<form method='post' action='$_SERVER[REQUEST_URI]'>
 <table class="datatable">
-<thead>
-<tr>
-<th>{$lang->fullname} <a href="{$sort_url}&amp;sortby=name&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=name&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
-<th>{$lang->displayname} <a href="{$sort_url}&amp;sortby=displayname&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=displayname&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
-<th>{$lang->mainaffiliate} <a href="{$sort_url}&amp;sortby=mainaffiliate&&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=mainaffiliate&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
-<th>{$lang->position}</th>
-<th>{$lang->reportsto} <a href="{$sort_url}&amp;sortby=supervisor&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=supervisor&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
-<th width="6%">&nbsp;</th>
-</tr>
-</thead>
-<tbody>
-    {$usersrows}    
-</tbody>
+    <thead>
+        <tr>
+            <th style="width:22%;">{$lang->fullname} <a href="{$sort_url}&amp;sortby=name&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=name&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
+            <th style="width:14%;">{$lang->displayname} <a href="{$sort_url}&amp;sortby=displayname&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=displayname&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
+            <th style="width:16%;">{$lang->mainaffiliate} <a href="{$sort_url}&amp;sortby=mainaffiliate&&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=mainaffiliate&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
+            <th style="width:28%;">{$lang->position}</th>
+            <th style="width:14%;">{$lang->reportsto} <a href="{$sort_url}&amp;sortby=supervisor&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=supervisor&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
+            <th style="width:6%;">&nbsp;</th>
+        </tr>
+    	{$filters_row}
+    </thead>
 </table>
-<div style="width:40%; float:left; margin-top:0px;" class="smalltext"><form method='post' action='$_SERVER[REQUEST_URI]'>{$lang->perlist}: <input type='text' size='4' id='perpage_field' name='perpage' value='{$core->settings[itemsperlist]}' class="smalltext"/></form></div>
-<div style="width:50%; float:right; margin-top:0px; text-align:right;" class="smalltext"><form method='post' action='users.php?action=userslist'><select id="filterby" name="filterby">
-<option value="displayname">{$lang->displayname}</option>
-<option value="firstname">{$lang->fullname}</option>
-</select> <input type="text" name="filtervalue" id="filtervalue"> <input type="submit" class="button" value="{$lang->filter}"></form></div>
+</form>
+<table class="datatable">
+	<thead><tr class="dummytrow"><th style="width:22%;"></th><th style="width:14%;"></th><th style="width:16%;"></th><th style="width:28%;"></th><th style="width:14%;"></th><th style="width:6%;"></th></tr></thead>
+    <tbody>
+        {$usersrows}    
+    </tbody>
+</table>
+	<div style="width:40%; float:left; margin-top:0px;" class="smalltext"><form method='post' action='$_SERVER[REQUEST_URI]'>{$lang->perlist}: <input type='text' size='4' id='perpage_field' name='perpage' value='{$core->settings[itemsperlist]}' class="smalltext"/></form></div>
 </td>
 </tr>
 {$footer}
