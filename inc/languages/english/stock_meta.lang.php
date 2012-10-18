@@ -99,7 +99,8 @@ $lang['quantity'] = 'Quantity';
 $lang['quantityunit'] = 'Unit';
 $lang['orderid'] = 'Order ID';
 $lang['orderlineid'] = 'Order Line ID';
-$lang['TRansID'] = 'Trans ID';
+$lang['transid'] = 'Trans ID';
 $lang['successfullysaved'] = 'Successfully Saved';
 $lang['resulterror'] = 'Error';
+$lang['saletype'] = 'Sale Type';
 ?>
