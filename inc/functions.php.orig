@@ -411,6 +411,7 @@ function value_exists($table, $attribute, $value, $extra_where='') {
 		$extra_where = ' AND '.$extra_where;
 	}
 	$attribute = $db->escape_string($attribute);
+	//echo ("SELECT {$attribute} FROM ".Tprefix."{$table} WHERE {$attribute}='".$db->escape_string($value)."'{$extra_where}");
 	$query = $db->query("SELECT {$attribute} FROM ".Tprefix."{$table} WHERE {$attribute}='".$db->escape_string($value)."'{$extra_where}");
 	if($db->num_rows($query) > 0) {
 		return true;
@@ -510,7 +511,11 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 	}
 
 	$query = $db->query("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$where_string}){$extra_where_string} {$order}");
+<<<<<<< HEAD
+	echo ("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$where_string}){$extra_where_string} {$order}");
+=======
 
+>>>>>>> origin/master
 	$clean_key_attribute = $key_attribute;
 	if(strstr($key_attribute, '.')) {
 		$key_attribute_parts = explode('.', $key_attribute);
@@ -538,6 +543,10 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 		$notkeys = implode(',', $foundkeys);
 		$notin = ' AND '.$key_attribute.' NOT IN ('.$notkeys.') ';
 	}
+<<<<<<< HEAD
+//echo("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$soundex_where_string}){$notin}{$extra_where_string}{$order}");
+=======
+>>>>>>> origin/master
 
 	$query2 = $db->query("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$soundex_where_string}){$notin}{$extra_where_string}{$order}");
 	if($db->num_rows($query2) > 0) {

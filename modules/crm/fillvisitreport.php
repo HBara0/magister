@@ -38,10 +38,11 @@ if(!$core->input['action']) {
 			if($session->isset_phpsession('visitreportvisitdetailsdata_'.$identifier)) {
 				$visitdetails = unserialize($session->get_phpsession("visitreportvisitdetailsdata_{$identifier}"));
 				$visitreport_data = unserialize($session->get_phpsession("visitreportdata_{$identifier}"));
-
+				
 				if(is_array($visitreport_data['spid'])) {
 					foreach($visitreport_data['spid'] as $key => $val) {
-						if(empty($val) && $val != 0) {
+						if(empty($val) && $val != 0 || (count($visitreport_data['spid']) > 1 && $val == 0)) {
+							unset($visitreport_data['spid'][$key]);
 							continue;	
 						}
 						$visitdetails['comments'][$val]['suppliername'] = $db->fetch_field($db->query("SELECT companyName FROM ".Tprefix."entities WHERE eid='".$db->escape_string($val)."'"), 'companyName');
@@ -69,14 +70,12 @@ if(!$core->input['action']) {
 					error($lang->fillallrequiredfields, 'index.php?module=crm/fillvisitreport&identifier='.$identifier);
 				}
 				
-				$session->set_phpsession(array('visitreportdata_'.$identifier => serialize($core->input)));
-
 				if(is_array($core->input['spid'])) {
 					$marktask_date_output = date('F d, Y', strtotime('+5 weekdays'));
 					$marktask_date = date('d-m-Y', strtotime('+5 weekdays'));
 
 					foreach($core->input['spid'] as $key => $val) {
-						if(empty($val) && $val != 0) {
+						if(empty($val) && $val != 0 || (count($core->input['spid']) > 1 && $val == 0)) {
 							unset($core->input['spid'][$key]);
 						}
 						else
@@ -99,6 +98,7 @@ if(!$core->input['action']) {
 			}
 			
 			eval("\$fillreportpage = \"".$template->get('crm_fillvisitreport_visitdetailspage')."\";");	
+			$session->set_phpsession(array('visitreportdata_'.$identifier => serialize($core->input)));
 		}
 		else
 		{ 
@@ -186,10 +186,11 @@ if(!$core->input['action']) {
 	
 		$visitreport_data = unserialize($session->get_phpsession('visitreportdata_'.$identifier));
 		$competition = unserialize($session->get_phpsession('visitreportcompetitiondata_'.$identifier));
-		
+
 		if(is_array($visitreport_data['spid'])) {
 			foreach($visitreport_data['spid'] as $key => $val) {
-				if(empty($val) && $val != 0) {
+				if(empty($val) && $val != 0 || (count($visitreport_data['spid']) > 1 && $val == 0)) {
+					unset($visitreport_data['spid'][$key]);
 					continue;	
 				}
 				$competition['comments'][$val]['suppliername'] = $db->fetch_field($db->query("SELECT companyName FROM ".Tprefix."entities WHERE eid='".$db->escape_string($val)."'"), "companyName");
