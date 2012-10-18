@@ -375,6 +375,10 @@ input.button {
 	height:auto;
 }
 
+.moduleslist_container div {
+	margin: 1em 0px;	
+}
+
 input[disabled="disabled"], input.disabled, .disabled {
 	background-color:#F9F9F9;
 }
@@ -432,3 +436,40 @@ table.sectionbox {
 table.sectionbox td {
 	padding: 4px;
 }
+/* Classes required for the multiple filtering - START */
+.tablefilters_row th, .tablefilters_row td, .tablefilters_row_toggle td {
+	margin: 0px 0px !important;	
+	background-color:#F7FAFD;
+	border-spacing: 0px;
+	vertical-align:top;
+}
+.tablefilters_row th, .tablefilters_row td {
+	border-top: 1px solid #CCC !important;
+}
+.tablefilters_row  {
+	-moz-box-shadow:inset 0px 5px 10px #EEF4FB;
+	-webkit-box-shadow:inset 0px 5px 10px #EEF4FB;
+	box-shadow:inset 0px 5px 10px #EEF4FB;
+}
+.tablefilters_row_toggle td {
+	padding: 0px !important;
+	text-align:center !important;
+	height: 2px !important;
+	border-bottom: 1px solid #CCC !important;
+	color: #666;
+	line-height: 6px;
+	cursor: pointer;
+}
+
+.tablefilters_row_toggle td:hover {
+	background-color:#F2FAED;
+	color: #333;
+}
+
+tr.dummytrow td, tr.dummytrow th {
+	height:1px !important;
+	padding:0px !important;
+	margin:0px !important;
+	line-height: 1px;
+}
+/* Classes required for the multiple filtering - START */
