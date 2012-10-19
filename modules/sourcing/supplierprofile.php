@@ -6,7 +6,7 @@
  * Potential Supplier Profile
  * $module: Sourcing
  * $id: supplierprofile.php	
- * Last Update: @tony.assaad	February 15, 2012 | 10:05 AM
+ * Last Update: @tony.assaad	october 19, 2012 | 10:05 AM
  */
 if(!defined('DIRECT_ACCESS'))
 {
@@ -24,6 +24,7 @@ if(!$core->input['action']) {
 		$segments_suppliers = $potential_supplier->get_supplier_segments();
 		$supplier_contact =  $potential_supplier->get_supplier_contact_persons();
 		$supplier_activity_area =  $potential_supplier->get_supplier_activity_area();
+		$chemical_substances = $potential_supplier->get_chemicalsubstances();
 		$segment_data = '<ul>';
 		foreach($segments_suppliers  as $segments_supplier) {
 			$segment_data .='<li>'. $segments_supplier['segment'].'</li>';
@@ -32,7 +33,6 @@ if(!$core->input['action']) {
 	
 	foreach($supplier_contact  as $contact_person) {
 			$contact_person_data .= '</br><span id="contactpersondata_'.$contact_person['rpid'].'">'.$contact_person['name'].'</span>';
-		
 			}	
 		$activity_area_data = '<ul>';
 		foreach($supplier_activity_area  as $activity_area) {
@@ -40,9 +40,50 @@ if(!$core->input['action']) {
 			}
 			$activity_area_data = $activity_area_data.'</ul>';
 			
+			/*Chemical nList -START*/
+			if(is_array($chemical_substances)) {
+				$listcas_numbers_section = '<div style="width:100% ;height: 200px; overflow:auto; display:inline-block; vertical-align:top;">
+				<table class="datatable" width="100%">
+				<thead> <td class="thead">'.$lang->cas.'</td><td class="thead">'.$lang->checmicalproduct.'</td></thead>';
+				foreach($chemical_substances as $chemical) {
+					$listcas_numbers_section .='<tr class="{$rowclass}"><td width="10%">'.$chemical['casNum'].'</td>
+					<td align="left">'.$chemical['name'].'</td>
+					</tr>';
+				}
+				
+				$listcas_numbers_section .='</table></div>';
+			}
+	
+
+			/*Chemical List -END*/
+			if(!empty($potential_supplier_details['commentsToShare'])){
+				$commentshare_section = "<div style=display:table-row; padding:10px;><strong>{$lang->commentstoshare}</strong></div>
+								{$potential_supplier_details[commentsToShare]}
+								<div class=border_bottom> </div>";	
+			}
+			if(!empty($potential_supplier_details['marketingRecords'])){
+				$marketingrecords_section = "<div style=display:table-row; padding:10px;><strong>{$lang->marketingrecords}</strong></div>
+								{$potential_supplier_details[marketingRecords]}
+								<div class=border_bottom> </div>";	
+			}
+			if(!empty($potential_supplier_details['historical'])){
+			$historical_section = "<div style=display:table-row; padding:10px;><strong>{$lang->historical}</strong></div>
+							{$potential_supplier_details[historical]}
+							<div class=border_bottom> </div>";	
+		}
+			if(!empty($potential_supplier_details['sourcingRecords'])){
+				$sourcingRecords_section = "<div style=display:table-row; padding:10px;><strong>{$lang->sourcingRecords}</strong></div>
+				{$potential_supplier_details[sourcingRecords]}
+				<div class=border_bottom> </div>";	
+			}
+			if(!empty($potential_supplier_details['coBriefing'])){
+				$coBriefing_section = "<div style=display:table-row; padding:10px;><strong>{$lang->coBriefing}</strong></div>
+				{$potential_supplier_details[coBriefing]}
+				<div class=border_bottom> </div>";	
+			}
 		$potential_supplier_details['rating'].= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$potential_supplier_details['businessPotential'].'"></div>';
 
-	$potential_supplier_details['fulladress'] = $potential_supplier_details['addressLine1'].','.$potential_supplier_details['addressLine2'] ;	
+		$potential_supplier_details['fulladress'] = $potential_supplier_details['addressLine1'].','.$potential_supplier_details['addressLine2'] ;	
 		
 /*When user has not initiated a contact -STARY*/		
 	if(!value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid'])) {
@@ -67,13 +108,10 @@ if(!$core->input['action']) {
 		$countries = get_specificdata('countries', array('coid', 'name'), 'coid', 'name','');
 		$countries_list = parse_selectlist('contacthst[origin]', 8, $countries, '');
 	
-		
 		eval("\$sourcing_Potentialsupplierprofile_reportcommunication = \"".$template->get('sourcing_Potentialsupplierprofile_reportcommunication')."\";");		
 	}
 /*communication Report after the user has initiated contact -END*/		
-
 	eval("\$sourcing_Potentialsupplierprofile_contactsection = \"".$template->get('sourcing_Potentialsupplierprofile_contactsection')."\";");
-
 
 	eval("\$sourcingPotentialsupplierprofile = \"".$template->get('sourcing_Potentialsupplierprofile')."\";");
 	output_page($sourcingPotentialsupplierprofile);
@@ -81,17 +119,28 @@ if(!$core->input['action']) {
 }
 
 elseif($core->input['action']=='do_contactsupplier') {
-
 	$potential_supplier->contact_supplier();
 	redirect(DOMAIN."/index.php?module=sourcing/supplierprofile");
 		
 }
 elseif($core->input['action'] == 'do_savecommunication') {
-	//system should check if user has any entry in the sourcing_contactshistory, value_exists
-	$potential_supplier->save_communication_report($core->input['contacthst']);		
+	/* system should check if user has  previous contactshistory */
+	if(value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid'])) {
+		$potential_supplier->save_communication_report($core->input['contacthst']);		
+	}
+	switch($potential_supplier->get_status()) {
+			case 3:
+				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+			break;
+		case 1:
+				output_xml("<status>false</status><message>{$lang->reportfieldrequired}</message>");
+			break;
+		case 2:
+				output_xml("<status>true</status><message>{$lang->successfullyupdate}</message>");
+			break;
+	}
+	
 }
-
-
 
 elseif($core->input['action']=='preview') {
 	$rpid = $db->escape_string($core->input['rpid']);

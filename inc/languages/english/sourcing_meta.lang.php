@@ -7,11 +7,14 @@ $lang['activityareas'] = 'Activity Areas';
 $lang['commentstoshare'] = 'Comments To Share';
 $lang['marketingrecords'] = 'Marketing Records';
 $lang['listpotentialsupplier'] = 'List Potential Supplier';
-
+$lang['successfullyupdate'] = 'successfullyupdate';
+$lang['reportfieldrequired'] = 'Fill Required Field';
 $lang['contact'] = 'Need to contact the supplier';
 $lang['country'] = 'Country';
 $lang['city'] = 'City';
 $lang['date'] = 'Date';
+$lang['cas'] = 'Cas Number';
+$lang['checmicalproduct'] = 'Checmical';
 $lang['address1'] = 'Address1';
 $lang['affilliate'] = 'Affiliate';
 $lang['address2'] = 'Address2';

@@ -96,14 +96,36 @@ class Sourcing {
 
 	public function save_communication_report($data,$id='') {
 		global $core,$db;
+		if(is_empty($data['chemical'], $data['application'],$data['affid'],$data['origin'])) {
+			$this->status = 1;
+			return false;	
+		}
+
+		$this->communication_entriesexist  = 'false';
 		$data['date'] = strtotime($data['date']);
 		$this->communication_report = $data;
+		$this->communication_report['uid'] = $core->user['uid'];
+		$this->communication_report['ssid'] = $this->supplier_id;
 		$this->communication_report['description'] = $core->sanitize_inputs($this->communication_report['description'],array('removetags' => true));
-		print_r($this->communication_report);
-			$db->update_query('sourcing_suppliers_contacthist',$this->communication_report, 'uid='.$core->user['uid'].' AND ssid='.$this->supplier_id);
+		if(!empty($this->communication_report['description']) && !empty($this->communication_report['chemical']) && !empty($this->communication_report['appplication'])&& !empty($this->communication_report['date'])&& !empty($this->communication_report['market'])) {
+			$this->communication_entriesexist = 'true';
 		}
-		
-		
+		$communication_report_query = $db->query("SELECT * FROM ".Tprefix."  sourcing_suppliers_contacthist  
+												 WHERE ssid = ".$this->supplier_id." and uid = ".$core->user['uid']."");
+				if($db->num_rows($communication_report_query) == 1 && value_exists('sourcing_suppliers_contacthist', 'ssid', $this->supplier_id, 'uid='.$core->user['uid'].' AND chemical="" AND application="" AND market="" AND competitors="" AND description=""')) {
+					$db->update_query('sourcing_suppliers_contacthist',$this->communication_report, 'uid='.$core->user['uid'].' AND ssid='.$this->supplier_id);
+					$this->status = 2;
+					return true;
+				}
+				else
+				{  
+					$db->insert_query('sourcing_suppliers_contacthist', $this->communication_report);
+						$this->status = 3;
+						return true;
+				}
+	
+		}
+			
 	public function edit($page='') {
 		global $core,$db;
 		// check similar string if major or minor update version.				
@@ -251,7 +273,19 @@ class Sourcing {
 	 return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
 	}
 
- 
+	 public function get_chemicalsubstances () {
+		global $db;
+		$chemicalsubstances_query = $db->query("SELECT * from ".Tprefix."chemicalsubstances chs
+												JOIN ".Tprefix."sourcing_suppliers_chemicals ssc ON (ssc.csid= chs.csid)");
+		if($db->num_rows($chemicalsubstances_query) > 0) {
+					while($chemicalsubstances = $db->fetch_assoc($chemicalsubstances_query)) {
+						$chemical_substances[$chemicalsubstances['csid']]= $chemicalsubstances;
+					}
+					return $chemical_substances;
+				}					
+				return false;
+		
+		 }
 	private function validate_segment_permission($id='') {
 		global $db,$core;
 		/* if no permission person should only see suppliers who work in the same segements he/she is working in --START*/		

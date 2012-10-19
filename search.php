@@ -80,11 +80,11 @@ if($core->input['type'] == 'quick') {
 	  }
 	  elseif($core->input['for'] == 'chemical') {
 		  print_r($core->input);
-		$table = 'sourcing_chemicalproducts';
+		$table = 'chemicalsubstances';
 		$attributes = array('name');
 		$key_attribute = 'cpid';
 		
-		$select_attributes = array('name');
+		$select_attributes = array('casNum', 'name');
 		$order = array('by' => 'name', 'sort' => 'ASC');
 	}
 	  
