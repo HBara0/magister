@@ -9,6 +9,7 @@
 {$menu}
 <td class="contentContainer">
 <h3>{$lang->supplierslist}</h3>
+<form method='post' action='$_SERVER[REQUEST_URI]'>
 <table class="datatable" width="100%">
 	<thead>
 		<tr>
@@ -16,7 +17,12 @@
 			<th style="width:35%;">{$lang->affiliate}</th>
 			<th style="width:35%;">{$lang->segment}</th>
 		</tr>
-	</thead>
+		{$filters_row}
+    </thead>
+</table>
+</form>
+<table class="datatable" width="100%">
+	<thead><tr class="dummytrow"><th style="width:30%;"></th><th style="width:35%;"></th><th style="width:35%;"></th></tr></thead>
 	<tbody>
 		{$suppliers_list}
 	</tbody>
