@@ -85,7 +85,25 @@ class Sourcing {
 		/* Insert supplier - END */
 	}
 	
+	public function contact_supplier($id='') {
+		global $core,$db;
+	/*	$contact_hitorydata = array(
+			
+		);*/
+		$db->insert_query('sourcing_suppliers_contacthist', array('ssid'=>$this->supplier_id,'uid'=>$core->user['uid']));
+		}
 
+
+	public function save_communication_report($data,$id='') {
+		global $core,$db;
+		$data['date'] = strtotime($data['date']);
+		$this->communication_report = $data;
+		$this->communication_report['description'] = $core->sanitize_inputs($this->communication_report['description'],array('removetags' => true));
+		print_r($this->communication_report);
+			$db->update_query('sourcing_suppliers_contacthist',$this->communication_report, 'uid='.$core->user['uid'].' AND ssid='.$this->supplier_id);
+		}
+		
+		
 	public function edit($page='') {
 		global $core,$db;
 		// check similar string if major or minor update version.				

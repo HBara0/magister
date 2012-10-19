@@ -1,0 +1,8 @@
+<IfModule mod_rewrite.c>
+	RewriteEngine on
+	
+RewriteRule ^surveys/(.*)$ index.php?module=surveys/fill&identifier=$1 [L,QSA]
+RewriteRule ^users/(.*)$ ./users.php?action=profile&uid=$1 [L,QSA]
+</IfModule> 
+
+

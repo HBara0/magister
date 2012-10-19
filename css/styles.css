@@ -212,11 +212,12 @@ td { padding: 2px; }
 .border_bottom
 {
    top: 0px;
-   margin:0px;  
+   margin-top:7px;  
    padding: 0px 2px 2px 3px;    
    border-width: 2px;
-   border-bottom-width:42px;
+   border-bottom-width:2px;
    border-bottom-color:#F2F2F2;
+   border-bottom-style: solid;
    width: 100%;
 }
 

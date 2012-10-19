@@ -1,0 +1,33 @@
+<html>
+<head>
+<title>{$core->settings[systemtitle]} | {$lang->modifysitesettings}</title>
+{$headerinc}
+
+</head>
+<body>
+{$header}
+<style>
+     .blur {
+   color: transparent;
+   text-shadow: 0 0 5px rgba(0,0,0,1);
+
+</style>
+<tr> 
+    {$menu}
+    <td class="contentContainer">
+    <h3>{$pagetitle}</h3>
+
+  <form   name="perform_sourcing/supplierprofile_Form" action="{$_SERVER[QUERY_STRING]}" method="post"  id="perform_sourcing/supplierprofile_Form" >
+      <div class="blur">tonykjti</div>
+   </form>
+    <div style=" display:table-row">
+      <div style="display:table-cell;"id="perform_sourcing/supplierprofile_Results"></div>
+      </div> 
+
+
+  </td>
+</tr>
+{$footer}
+
+</body>
+</html>
