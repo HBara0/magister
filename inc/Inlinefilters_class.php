@@ -106,7 +106,7 @@ class Inlinefilters {
 							break;
 						case 'posid':
 						case 'position':
-							//$lang->load('positions');
+							$lang->load('positions');
 							$positions = get_specificdata('positions', array('posid', 'name'), 'posid', 'name', '');
 							foreach($positions as $key => $val) {
 								if(isset($lang->{$val})) {
@@ -212,8 +212,9 @@ class Inlinefilters {
 			if(isset($options['overwriteCountItems']) && !empty($options['overwriteCountItems'])) {
 				$count_items = $options['overwriteCountItems'];
 			}
-			$rows .= '<th style="text-align:right;"><input type="image" src="./images/icons/search.gif" border="0" alt="'.$lang->filter.'" value="'.$lang->filter.'"></th></tr>';
-			$rows .= '<tr class="tablefilters_row_toggle"><td colspan="'.$count_items.'" onClick="$(\'#tablefilters\').toggle();">&middot;&middot;&middot;</td></tr>';
+			$rows .= '<th style="text-align:right;"><input type="image" src="./images/icons/search.gif" border="0" alt="'.$lang->filter.'" value="'.$lang->filter.'">';
+			$rows .= '<br /><a href="'.$_SERVER['REQUEST_URI'].'"><img src="./images/invalid.gif" alt="'.$lang->clear.'" border="0" /></a></th></tr>';
+			$rows .= '<tr class="tablefilters_row_toggle"><td colspan="'.$count_items.'" onClick="$(\'#tablefilters\').toggle();"><a title="'.$lang->filter.'">&middot;&middot;&middot;</a></td></tr>';
 		}
 
 		return $rows;
