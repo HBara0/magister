@@ -259,7 +259,7 @@ function make_options() {
 	}
 	else {
 		if(isset($core->input['resolveidintoname'])) {
-			$options.='<input id="resolveidintoname" type="checkbox" name="Resolve" value="resolve" checked="false">Resolve</input>';
+			$options.='<input id="resolveidintoname" type="checkbox" name="Resolve" value="resolve">Resolve</input>';
 		}
 		else {
 			$options.='<input id="resolveidintoname" type="checkbox" name="Resolve" value="resolve" checked="true">Resolve</input>';
