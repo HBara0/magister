@@ -15,19 +15,18 @@ if(!defined('DIRECT_ACCESS')) {
 $session->start_phpsession();
 $content = encapsulate_in_fieldset(make_filters($db, $core), 'Filter', false);
 $content .= encapsulate_in_fieldset(make_options(), 'Options', false);
+$content .= encapsulate_in_fieldset(choose_columns(), 'Columns', false);
 
 if($core->usergroup['stock_canGenerateReports'] == '1') {
 	if($core->input['action'] == 'getreport') {
 		$query = assemble_filter_query($core, $db);
-		$rawdata = retrieve_data($query, array('pid', 'amount', 'affid', 'spid', 'date', 'currency', 'usdFxrate', 'quantity', 'quantityUnit', 'saleType', 'TRansID'));
-
+		$allcolumns = array('pid' => 'id', 'amount' => 'numeric', 'affid' => 'id', 'spid' => 'id', 'date' => 'date', 'currency' => 'numeric', 'usdFxrate' => 'numeric', 'quantity' => 'numeric', 'quantityUnit' => 'text', 'saleType' => 'text', 'TRansID' => 'text');
+		$rawdata = retrieve_data($query, $allcolumns);
+		$trackedcolumns = array();
 		$groupingatr = $core->input['groupingattribute'];
 		if(!isset($groupingatr))
 			$groupingatr = 'pid';
-
 		$doresolve = ($core->input['resolveidintoname'] == 'resolve') ? true : false;
-
-
 		$resolve = array(
 				'affid' => array('table' => 'affiliates', 'id' => 'affid', 'name' => 'name'),
 				'spid' => array('table' => 'entities', 'id' => 'eid', 'name' => 'companyName'),
@@ -37,32 +36,49 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		if($doresolve)
 			$rawdata = resolve_names($rawdata, $resolve);
 
+		foreach($allcolumns as $column => $type) {
+			if($core->input[$column] == '1') {
+				$trackedcolumns[$column] = $allcolumns[$column];
+			}
+		}
+
 		if($core->input['reporttype'] == 1) {
 			$timesliced = time_regroup($rawdata, 'date');
 			foreach($timesliced as $year => $yearly) {
 				foreach($yearly as $month => $monthly) {
 					foreach($monthly as $week => $weekly) {
 						unset($timesliced[$year][$month][$week]);
-						$timesliced[$year][$month][$week] = regroup_and_sum($weekly, $groupingatr, array('pid' => 'id', 'amount' => 'numeric', "quantity" => 'numeric'), ($doresolve) ? $resolve[$groupingatr] : null);
+						$timesliced[$year][$month][$week] = regroup_and_sum($weekly, $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null);
 					}
 				}
 			}
 			$datapresented = '<pre>'.print_r($timesliced, true).'</pre>';
+			$datapresented = encapsulate_in_fieldset(turn_data_into_html($timesliced, true), 'Grouped');
 		}
 		else {
-			$rawdata = regroup_and_sum($rawdata, $groupingatr, array('pid' => 'id', 'amount' => 'numeric', "quantity" => 'numeric'), ($doresolve) ? $resolve[$groupingatr] : null);
-			$datapresented = '<pre>'.print_r($rawdata, true).'</pre>';
+			$rawdata = regroup_and_sum($rawdata, $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null);
+			if($core->input['isajax'] != 'true') {
+				$datapresented = encapsulate_in_fieldset('<div id="results_fieldset">'.turn_data_into_html($rawdata, false).'</div>', 'Grouped', false);
+			}
 		}
-
-
-
+		//debug(array($rawdata,$datapresented,$allcolumns, $trackedcolumns));
 		if($core->input['isajax'] == 'true') {
-			output_xml($datapresented);
+			if($core->input['reporttype'] == 1) {
+				output_xml('<div id="results_fieldset">'.turn_data_into_html($timesliced, true).'</div>');
+			}
+			else {
+				output_xml('<div id="results_fieldset">'.turn_data_into_html($rawdata, false).'</div>');
+			}
 			exit;
 		}
-		$content .= encapsulate_in_fieldset('<div id="results_fieldset">'.$datapresented.'</div>', 'grouped', false);
-		//$content.=generate_stock_reports_email_data(retrieve_data($query, array('amount', 'affid'), array('table' => 'entities', 'id' => 'eid', 'name' => 'companyName'), 'spid'));
-		//$content.=generate_stock_reports_email_data(retrieve_data($query, array('amount', 'quantity', 'spid', 'affid'), array('table' => 'products', 'id' => 'pid', 'name' => 'name'), 'pid'));
+		else {
+			$content.=$datapresented;
+		}
+
+
+		//$content .= encapsulate_in_fieldset('<div id="results_fieldset">'.$datapresented.'</div>', 'grouped', false);
+		//$content.=encapsulate_in_fieldset(generate_stock_reports_email_data(retrieve_data($query, array('amount' => 'numeric', 'quantity' => 'numeric', 'affid' => 'id', 'date' => 'date'))));
+		//$content.=encapsulate_in_fieldset(generate_stock_reports_email_data(retrieve_data($query, array('amount' => 'numeric', 'quantity' => 'numeric', 'spid' => 'id', 'affid' => 'id', 'date' => 'date'))));
 		//$content.="<hr>$query<hr>";/* */
 	}
 }
@@ -76,19 +92,195 @@ output_page($report_template);
  *
  *
  */
+function turn_data_into_html($data, $timesliced = false) {
+	if(!$timesliced) {
+		$html = '<table cellspacing=0 cellpadding=2 border=1>';
+		$gotone = false;
+		foreach($data as $groupingkey => $values) {
+			foreach($values as $key => $row) {
+				if(is_numeric($key) && !$gotone) {
+					$gotone = true;
+					$html.='<tr align="left">';
+					foreach($row as $column => $value) {
+						if($column != '#StackedRows') {
+							$html.='<th>'.$column.'</th>';
+						}
+					}
+					$html.='</tr>';
+					break;
+				}
+				else {
+					continue;
+				}
+			}
+		}
+
+		foreach($data as $groupingkey => $values) {
+			foreach($values as $key => $row) {
+				if(is_numeric($key)) {
+					$html.='<tr>';
+					foreach($row as $column => $value) {
+						if($column != '#StackedRows') {
+							if(isset($value['name'])) {
+								$html.='<td>'.$value['name'].'</td>';
+							}
+							else {
+								$html.='<td>'.$value['value'].'</td>';
+							}
+						}
+					}
+					$html.='</tr>';
+				}
+			}
+		}
+		$html.='</td></tr></table>';
+	}
+	else {
+		$html = '<table cellspacing=0 cellpadding=2 border=1>';
+		$gotone = false;
+		$countrows = 0;
+		$gotone = false;
+		foreach($data as $year => $yearly) {
+			foreach($yearly as $month => $monthly) {
+				foreach($monthly as $week => $weekly) {
+					if(is_array($weekly) && $weekly)
+						foreach($weekly as $groupingkey => $values) {
+							foreach($values as $key => $row) {
+								if(is_numeric($key) && !$gotone) {
+									$gotone = true;
+									$html.='<tr align="left">';
+									foreach($row as $column => $value) {
+										if($column != '#StackedRows') {
+											$html.='<th>'.$column.'</th>';
+											$countrows++;
+										}
+									}
+									$html.='</tr>';
+								}
+								else {
+									continue;
+								}
+								break;
+							}
+							break;
+						}
+					break;
+				}
+				break;
+			}
+			break;
+		}
+
+		foreach($data as $year => $yearly) {
+			$html .= '<tr><td colspan="'.$countrows.'">'.$year.'</td></tr>';
+			$yearlyamount=0;
+			foreach($yearly as $month => $monthly) {
+				$monthlyamount=0;
+				$html .= '<tr><td colspan="'.$countrows.'">'.$month.'</td></tr>';
+				foreach($monthly as $week => $weekly) {
+					$weeklyamount=0;
+					$html .= '<tr><td colspan="'.$countrows.'"><b>Week '.$week.'</b></td></tr>';
+					if(is_array($weekly) && $weekly)
+						foreach($weekly as $groupingkey => $values) {
+							foreach($values as $key => $row) {
+								if(is_numeric($key)) {
+									$html.='<tr>';
+									foreach($row as $column => $value) {
+										if ($column == 'amount')
+										{
+											$weeklyamount+=$value['value'];
+										}
+										if($column != '#StackedRows') {
+											if(isset($value['name'])) {
+												$html.='<td>'.$value['name'].'</td>';
+											}
+											else {
+												$html.='<td>'.$value['value'].'</td>';
+											}
+										}
+									}
+									$html.='</tr>';
+								}
+							}
+							
+						}
+						$html.='<tr><td colspan="'.$countrows.'" style="text-align:right;"><b>Weekly total: '.$weeklyamount.'</b></td></tr>';
+						$montlyamount+=$weeklyamount;
+						
+				}
+				$html.='<tr><td colspan="'.$countrows.'" style="text-align:right;"><B>Monthly total: '.$montlyamount.'</b></td></tr>';
+				$yearlyamount+=$montlyamount;
+			}
+			$html.='<tr><td colspan="'.$countrows.'" style="text-align:right;"><B>Yearly total: '.$yearlyamount.'</b></td></tr>';
+		}
+		$html.='</td></tr></table>';
+	}
+
+	return $html;
+}
+
+function debug($something, $label = '+') {
+	global $content, $template, $core;
+	if($core->input['isajax'] == 'true') {
+		$content = encapsulate_in_fieldset('<pre>'.print_r($something, true).'</pre>', $label, false);
+		output_xml($content);
+	}
+	else {
+		$content.=encapsulate_in_fieldset('<pre>'.print_r($something, true).'</pre>', $label, false);
+		eval("\$report_template = \"".$template->get('stock_purchasereport')."\";");
+		output_page($report_template);
+		exit;
+	}
+}
+
 function make_options() {
+	global $core;
 	$options = '<div class="strep_optdiv"><form name="reportoptions" action="index.php?module=stock/reports&action=getreport" method="POST" enctype="multipart/form-data">';
-	$options.='Group By <select id="groupingattribute" name="group"><option value="pid" selected=true>Product</option><option value="spid">Supplier</option><option value="affid">Affiliate</option>';
-	$options.='<input id="resolveidintoname" type="checkbox" name="Resolve" value="resolve">Resolve</input>';
-	$options.='<input id="switchdetailed" type="checkbox" name="reporttype">Detailed</input></form></div>';
+	if(isset($core->input['groupingattribute'])) {
+		switch($core->input['groupingattribute']) {
+			case 'pid':
+				$pid = "selected=true";
+				break;
+			case 'spid':
+				$spid = "selected=true";
+				break;
+			case 'affid':
+				$affid = "selected=true";
+				break;
+		}
+	}
+	$options.='Group By <select id="groupingattribute" name="group">
+				<option value="pid" '.$pid.'>Product</option>
+				<option value="spid" '.$spid.'>Supplier</option>
+				<option value="affid" '.$affid.'>Affiliate</option></select>';
+
+	if($core->input['resolveidintoname'] == 'resolve') {
+		$options.='<input id="resolveidintoname" type="checkbox" name="Resolve" value="resolve" checked="true">Resolve</input>';
+	}
+	else {
+		if(isset($core->input['resolveidintoname'])) {
+			$options.='<input id="resolveidintoname" type="checkbox" name="Resolve" value="resolve" checked="false">Resolve</input>';
+		}
+		else {
+			$options.='<input id="resolveidintoname" type="checkbox" name="Resolve" value="resolve" checked="true">Resolve</input>';
+		}
+	}
+	if($core->input['reporttype'] == '1') {
+		$options.='<input id="switchdetailed" type="checkbox" name="reporttype" checked="true">Detailed</input></form></div>';
+	}
+	else {
+		$options.='<input id="switchdetailed" type="checkbox" name="reporttype">Detailed</input></form></div>';
+	}
 	$options.='<script type="text/javascript">
 					$(document).ready(function() {
 						$("#groupingattribute").change(function() {
-							post_ajax($(this));						});
+							post_col_ajax($(this)); // use post_ajax to remove column filters from post
+							});
 						$("#resolveidintoname").change(function() {
-							post_ajax($(this));						});
+							post_col_ajax($(this));	// use post_ajax to remove column filters from post
+							});
 						$("#switchdetailed").change(function() {
-							post_ajax($(this));
+							post_col_ajax($(this)); // use post_ajax to remove column filters from post
 						});
 					});
 					function post_ajax(target) {
@@ -103,13 +295,88 @@ function make_options() {
 								firstform+="&dateto="+$("#dateto").val();
 							if ($("#datefrom").val())
 								firstform+="&datefrom="+$("#datefrom").val();
-							//alert(firstform);return;
+								
 							var resolveidintoname=0,switchdetailed=0;
 							if ($("#switchdetailed").prop("checked")==true)
 								switchdetailed=1;
 							if ($("#resolveidintoname").prop("checked")==true)
 								resolveidintoname="resolve";
 							sharedFunctions.requestAjax("post", "index.php?module=stock/reports&action=getreport", "isajax=true&reporttype="+switchdetailed+"&groupingattribute="+$("#groupingattribute").val()+"&resolveidintoname="+resolveidintoname+firstform, "results_fieldset", "results_fieldset", "html");
+					}
+			   </script>';
+	return $options;
+}
+
+function choose_columns() {
+	global $core;
+	$columns = array('pid' => 1, 'amount' => 1, 'affid' => 1, 'spid' => 1, 'date' => 1, 'currency' => 1, 'usdFxrate' => 1, 'quantity' => 1, 'quantityUnit' => 1, 'saleType' => 1, 'TRansID' => 1);
+	$options = '<div class="strep_coldiv"><form name="datacolumns" action="index.php?module=stock/reports&action=getreport" method="POST" enctype="multipart/form-data">';
+	foreach($columns as $column => $status) {
+		if(isset($core->input[$column])) {
+			if($core->input[$column] != "1") {
+				$status = 0;
+			}
+		}
+		if($status == 1) {
+			$options.='<input id="column_'.$column.'" type="checkbox" name="'.$column.'" value="'.$column.'" checked=true>'.$column.'</input>';
+		}
+		else {
+			$options.='<input id="column_'.$column.'" type="checkbox" name="'.$column.'" value="'.$column.'">'.$column.'</input>';
+		}
+	}
+	$options.='</form></div>';
+	$options.='<script type="text/javascript">
+				$(document).ready(function() {
+				$("form").submit( function () {
+					var input = $("<input>").attr("type", "hidden").attr("name", "resolveidintoname").val(($("#resolveidintoname").prop("checked")==true?"resolve":"0"));
+					$("form").append($(input));
+					input = $("<input>").attr("type", "hidden").attr("name", "reporttype").val(($("#switchdetailed").prop("checked")==true?"1":"0"));
+					$("form").append($(input));
+					input = $("<input>").attr("type", "hidden").attr("name", "groupingattribute").val($("#groupingattribute").val());
+				$("form").append($(input));';
+	foreach($columns as $column => $status) {
+		$options.='input = $("<input>").attr("type", "hidden").attr("name", "'.$column.'").val($("#column_'.$column.'").prop("checked")==true?"1":"0");
+	$("form").append($(input));';
+	}
+	$options.='});';
+
+	foreach($columns as $column => $status) {
+		$options.='$("#column_'.$column.'").change(function() {
+						post_col_ajax($(this));
+					});
+					';
+	}
+	$options.='});
+					function post_col_ajax(target) {
+							var firstform="";
+							if ($("#affiliate").val())
+								firstform+="&affiliate="+$("#affiliate").val();
+							if ($("#supplier").val())
+								firstform+="&supplier="+$("#supplier").val();
+							if ($("#product").val())
+								firstform+="&product="+$("#product").val();
+							if ($("#dateto").val())
+								firstform+="&dateto="+$("#dateto").val();
+							if ($("#datefrom").val())
+								firstform+="&datefrom="+$("#datefrom").val();';
+
+	$options .='var checkboxes="";
+		';
+	foreach($columns as $column => $status) {
+		$options.='var var_'.$column.'="0";
+			if ($("#column_'.$column.'").prop("checked")==true) {
+				var_'.$column.'="1";
+				checkboxes+="&'.$column.'="+var_'.$column.';
+				} else {
+				checkboxes+="&'.$column.'="+var_'.$column.';
+				}';
+	}
+	$options.='var resolveidintoname=0,switchdetailed=0;
+				if ($("#switchdetailed").prop("checked")==true)
+					switchdetailed=1;
+				if ($("#resolveidintoname").prop("checked")==true)
+					resolveidintoname="resolve";';
+	$options.='sharedFunctions.requestAjax("post", "index.php?module=stock/reports&action=getreport", "isajax=true&reporttype="+switchdetailed+"&groupingattribute="+$("#groupingattribute").val()+"&resolveidintoname="+resolveidintoname+firstform+checkboxes, "results_fieldset", "results_fieldset", "html");
 					}
 			   </script>';
 	return $options;
@@ -268,8 +535,13 @@ function make_filters($db, $core) {
 		}
 		$return.='</select>';
 	}
-	$return.='</td></tr><td colspan=2><input type=submit value=Generate></td></tr>';
-	$return.='</form></div></td></tr></table>'.'<script>$(document).ready(function(){$(".datepicker" ).datepicker();});</script>';
+	$return.='</td></tr><td colspan=2><input type=submit value=Generate id="formsubmit"></td></tr>';
+	$return.='</form></div></td></tr></table>'.'
+		<script>
+			$(document).ready(function(){
+				$(".datepicker" ).datepicker();
+			});
+		</script>';
 	return $return;
 }
 
@@ -278,84 +550,79 @@ function time_regroup($data, $datecolumn) {
 	foreach($data as $key => $row) {
 		foreach($row as $column => $value) {
 			if($column == $datecolumn) {
-				$timesliced[date('Y', $value)][date('F', $value)][date('W', $value)][] = $row;
+				$timesliced[date('Y', $value['value'])][date('F', $value['value'])][date('W', $value['value'])][] = $row;
 			}
 		}
 	}
 	return $timesliced;
 }
 
-function regroup_and_sum($data, $groupingattribute, $trackedcolumns = array("amount" => 'numeric'), $resolve = null) {
+function regroup_and_sum($data, $groupingattribute = 'pid', $trackedcolumns = array("amount" => 'numeric'), $resolve = null) {
 	$currency_obj = new Currencies('USD');
 	$grouped = array();
-	foreach($data as $key => $purchase) {
-		if($groupingattribute != '') {
-			if(isset($resolve)) {
-				$name = get_name_from_id($purchase[$groupingattribute], $resolve['table'], $resolve['id'], $resolve['name']);
-			}
-			else {
-				$name = $purchase[$groupingattribute];
-			}
+	$value = '';
+	foreach($data as $rowkey => $purchase) {
+		$value = $purchase[$groupingattribute]['value'];		
+		if(isset($resolve)) {
+			$name = get_name_from_id($purchase[$groupingattribute]['value'], $resolve['table'], $resolve['id'], $resolve['name']);
+			$grouped[$value]['#name'] = $name;
 		}
-
-		if(isset($grouped[$name])) {
-			$id = check_for_presence($grouped[$name], $purchase, $trackedcolumns);
+		$doinitialisethisvalue = false;
+		if(isset($grouped[$value])) {
+			$haystack = $grouped[$value];
+			$id = check_for_presence($haystack, $purchase, $trackedcolumns);
 			if($id) {
-				foreach($id as $key => $value) {
+				foreach($id as $key => $v) {
 					$break;
 				}
-				$grouped[$name][$key]['#StackedRows'] = $grouped[$name][$key]['#StackedRows'] + 1;
+				$grouped[$value][$key]['#StackedRows'] = $grouped[$value][$key]['#StackedRows'] + 1;
 				foreach($trackedcolumns as $trackname => $columntype) {
 					if($columntype == 'numeric') {
-						$grouped[$name][$key][$trackname] += $purchase[$trackname];
-					}
-					else {
-						$grouped[$name][$key][$trackname] = $purchase[$trackname];
+						$grouped[$value][$key][$trackname] += $purchase[$trackname];
 					}
 				}
 			}
 			else {
-				$counter = 0;
-				if(isset($grouped[$name])) {
-					foreach($grouped[$name] as $tmp) {
-						$counter++;
-					}
-				}
-				$grouped[$name][$counter]['#StackedRows'] = 1;
-				foreach($trackedcolumns as $trackname => $columntype) {
-					$grouped[$name][$counter][$trackname] = $purchase[$trackname];
-				}
+				$doinitialisethisvalue = true;
 			}
 		}
 		else {
+			$doinitialisethisvalue = true;
+		}
+		if($doinitialisethisvalue) {
 			$counter = 0;
-			if(isset($grouped[$name])) {
-				foreach($grouped[$name] as $tmp) {
-					$counter++;
+			if($grouped[$value]) {
+				foreach($grouped[$value] as $tmpk => $tmpv) {
+					if($tmpk != '#name') {
+						$counter++;
+					}
 				}
 			}
-			$grouped[$name][$counter]['#StackedRows'] = 1;
+			$grouped[$value][$counter]['#StackedRows'] = 1;
 			foreach($trackedcolumns as $trackname => $columntype) {
-				$grouped[$name][$counter][$trackname] = $purchase[$trackname];
+				$grouped[$value][$counter][$trackname] = $purchase[$trackname];
 			}
 		}
 	}
+
 	return $grouped;
 }
 
 function check_for_presence($haystack, $needle, $filter) {
 	$results = array();
 	foreach($haystack as $key => $row) {
-		$present = true;
-		foreach($filter as $column => $type) {
-			if($type != 'numeric') {
-				if($row[$column] != $needle[$column]) {
-					$present = false;
+		if(is_numeric($key)) {
+			$present = true;
+			foreach($filter as $column => $type) {
+				if($type != 'numeric') {
+					if($row[$column]['value'] != $needle[$column]['value']) {
+						$present = false;
+					}
 				}
 			}
-		}
-		if($present) {
-			$results[$key] = 1;
+			if($present) {
+				$results[$key] = 1;
+			}
 		}
 	}
 	return $results;
@@ -365,7 +632,7 @@ function resolve_names($data, $resolverules) {
 	foreach($data as $key => $row) {
 		foreach($row as $column => $value) {
 			if(isset($resolverules[$column])) {
-				$data[$key][$column] = get_name_from_id($value, $resolverules[$column]['table'], $resolverules[$column]['id'], $resolverules[$column]['name']);
+				$data[$key][$column]['name'] = get_name_from_id($value['value'], $resolverules[$column]['table'], $resolverules[$column]['id'], $resolverules[$column]['name']);
 			}
 		}
 	}
@@ -394,15 +661,15 @@ function get_name_from_id($id, $tablename = 'products', $idcolumn = 'pid', $name
 	}
 }
 
-function retrieve_data($query, $trackedcolumns = array("amount")) {
+function retrieve_data($query, $trackedcolumns = array("amount" => 'numeric')) {
 	global $db;
 	$purchase_report = $db->query($query);
 	$dataarray = array();
 	if($db->num_rows($purchase_report) > 0) {
 		$counter = 0;
 		while($purchase = $db->fetch_assoc($purchase_report)) {
-			foreach($trackedcolumns as $column) {
-				$dataarray[$counter][$column] = $purchase[$column];
+			foreach($trackedcolumns as $column => $type) {
+				$dataarray[$counter][$column]['value'] = $purchase[$column];
 			}
 			$counter++;
 		}
@@ -436,8 +703,8 @@ function generate_stock_reports_email_data($data) {
 		$content.=$td.$key.'</td>';
 		foreach($row as $columnid => $value) {
 			if($columnid == 'date')
-				$value = date('m-d-Y', $value);
-			$content.=$td.$value.'</td>';
+				$value['value'] = date('m-d-Y', $value['value']);
+			$content.=$td.$value['value'].'</td>';
 		}
 		$content.='</tr>';
 	}
