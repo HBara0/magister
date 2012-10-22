@@ -82,7 +82,18 @@ $(function() {
 			}
 		//}
 	}
-
+	
+	if($(".tablefilters_row_toggle").length > 0) {
+		$(window).keypress(function(e) {
+			if((e.which == 102 || e.which == 70) && e.ctrlKey) {
+				e.preventDefault();
+				$('#tablefilters, .tablefilters_row').toggle();
+				$('#tablefilters').find('input:first').focus();
+				return false;
+			}
+		});
+	}
+	
 	$("input[id^='pickDate']").live('click', function() {
 		//$(this).removeClass('hasDatepicker');
 		$(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown'}).focus();

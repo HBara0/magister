@@ -70,38 +70,39 @@ class Inlinefilters {
 	private $config = array();
 	private $matching_rule = 'all';
 	private $parsed_fields = array();
-	
+
 	/* Construct the filtering object
 	 * @param  Array		$config			Configuration array for the filtering operation
 	 * @param  String		$matching_rule	A match-all (all) or match-any (any) rule for the queries
 	 */
-	public function __construct($config, $matching_rule='all') {
+	public function __construct($config, $matching_rule = 'all') {
 		$this->config = $config;
 		$this->set_matchingrule($matching_rule);
 	}
-	
+
 	/* Parse the search fiedls based on configurations
 	 * @return Array		$filters			Parsed fields to be used in search
 	 */
-	public function parse_multi_filters(array $exclude=array()) {
+	public function parse_multi_filters(array $exclude = array()) {
 		global $core, $db, $lang;
 		$tabindex = 1;
-	
+
 		if(is_array($this->config['parse'])) {
 			foreach($this->config['parse']['filters'] as $filter) {
 				if(in_array($filter, $exclude)) {
-					continue;	
+					continue;
 				}
 				if(!isset($this->config['parse']['overwriteField'][$filter]) || empty($this->config['parse']['overwriteField'][$filter])) {
 					switch($filter) {
 						case 'affid':
 						case 'affiliate':
 						case 'mainAffid':
-							if($core->usergroup['canViewAllAff'] == 0) { 
+						case 'useraffiliates':
+							if($core->usergroup['canViewAllAff'] == 0) {
 								$affiliate_where = 'affid IN ('.implode(',', $core->user['affiliates']).')';
 							}
 							$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', '', 0, $affiliate_where);
-							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $affiliates, $core->input['filters'][$filter], 1, '', array('multiplesize' => 2));	
+							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $affiliates, $core->input['filters'][$filter], 1, '', array('multiplesize' => 2));
 							break;
 						case 'posid':
 						case 'position':
@@ -112,15 +113,24 @@ class Inlinefilters {
 									$positions[$key] = $lang->{$val};
 								}
 							}
-							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $positions, $core->input['filters'][$filter], 1, '', array('multiplesize' => 2));	
+							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $positions, $core->input['filters'][$filter], 1, '', array('multiplesize' => 2));
 							break;
-						case 'psid':
-						case 'segment':
-							$psegments_query = $db->query("SELECT ps.psid, title FROM ".Tprefix."productsegments ps JOIN ".Tprefix."employeessegments es ON (es.psid=ps.psid) WHERE es.uid={$core->user[uid]}");
-							while($productline = $db->fetch_assoc($productlines_query)) {
-								$productlines[$productline['psid']] = $productline['title'];
+						case 'usersuppliers':
+							$filters[$filter] = '';
+							break;
+						case 'psid': //all segments
+						case 'segment': //all segments
+						case 'usersegments': //user assigned segments
+							if($filter == 'usersegments') {
+								$psegments_query = $db->query("SELECT ps.psid, title FROM ".Tprefix."productsegments ps JOIN ".Tprefix."employeessegments es ON (es.psid=ps.psid) WHERE es.uid={$core->user[uid]}");
+								while($productline = $db->fetch_assoc($psegments_query)) {
+									$productlines[$productline['psid']] = $productline['title'];
+								}
 							}
-							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $productlines, '', 1);
+							else {
+								$productlines = get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', '');
+							}
+							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $productlines, $core->input['filters'][$filter], 1, '', array('multiplesize' => 2));
 							break;
 						case 'reportsTo':
 							$reportsto = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', '', 0, 'gid!=7 AND uid IN (SELECT reportsTo FROM '.Tprefix.'users WHERE gid!=7)');
@@ -128,42 +138,41 @@ class Inlinefilters {
 							break;
 						default:
 							$filters[$filter] = '<input type="text" width="100%" name="filters['.$filter.']" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter].'" id="filers_'.$filter.'" title="'.$this->config['parse']['filterTitles'][$filter].'">';
-							break;	
+							break;
 					}
 				}
-				else
-				{
+				else {
 					$filters[$filter] = $this->config['parse']['overwriteField'][$filter];
 				}
 				$tabindex++;
 			}
-			
-			$this->parsed_fields = $filters; 
+
+			$this->parsed_fields = $filters;
 			return $filters;
 		}
 		return false;
 	}
-	
+
 	public function parse_hidden_filters(array $filters) {
 		global $lang;
-		
+
 		if(!empty($filters)) {
 			foreach($filters as $filter) {
 				if(!isset($this->parsed_fields[$filter])) {
 					continue;
 				}
-				
+
 				$hidden_fields .= $lang->{$filter}.' '.$this->parsed_fields[$filter].'<br />';
 			}
-			
+
 			if(!empty($hidden_fields)) {
-				return '<div id="popup_additionalfilters" title="'.$lang->additionalfilters.'">'.$hidden_fields.'</div>';	
+				return '<div id="popup_additionalfilters" title="'.$lang->additionalfilters.'">'.$hidden_fields.'</div>';
 			}
 		}
 		return false;
 	}
-	
-	public function prase_filtersrows($options = array('tags' => 'table', 'display' => 'hide'), $exclude=array()) {
+
+	public function prase_filtersrows($options = array('tags' => 'table', 'display' => 'hide'), $exclude = array()) {
 		global $lang;
 
 		if($options['display'] == 'show') {
@@ -172,14 +181,14 @@ class Inlinefilters {
 		else {
 			$options['display'] = 'display: none;';
 		}
-		
+
 		if($options['tags'] == 'div') {
 			$rows .= '<div class="tablefilters_row" style="'.$options['display'].'" id="tablefilters">';
 		}
 		else {
 			$rows .= '<tr class="tablefilters_row" style="'.$options['display'].'" id="tablefilters">';
 		}
-		
+
 		if(empty($this->parsed_fields)) {
 			$this->parse_multi_filters($exclude);
 		}
@@ -194,7 +203,7 @@ class Inlinefilters {
 			}
 			$count_items++;
 		}
-		
+
 		if($options['tags'] == 'div') {
 			$rows .= '<div><input type="image" src="./images/icons/search.gif" border="0" alt="'.$lang->filter.'" value="'.$lang->filter.'"></div></div>';
 			$rows .= '<div class="tablefilters_row_toggle" onClick="$(\'#tablefilters\').toggle();">&middot;&middot;&middot;</div>';
@@ -203,27 +212,28 @@ class Inlinefilters {
 			if(isset($options['overwriteCountItems']) && !empty($options['overwriteCountItems'])) {
 				$count_items = $options['overwriteCountItems'];
 			}
-			$rows .= '<th style="text-align:right;"><input type="image" src="./images/icons/search.gif" border="0" alt="'.$lang->filter.'" value="'.$lang->filter.'"></th></tr>';
-			$rows .= '<tr class="tablefilters_row_toggle"><td colspan="'.$count_items.'" onClick="$(\'#tablefilters\').toggle();">&middot;&middot;&middot;</td></tr>';
+			$rows .= '<th style="text-align:right;"><input type="image" src="./images/icons/search.gif" border="0" alt="'.$lang->filter.'" value="'.$lang->filter.'">';
+			$rows .= '<br /><a href="'.$_SERVER['REQUEST_URI'].'"><img src="./images/invalid.gif" alt="'.$lang->clear.'" border="0" /></a></th></tr>';
+			$rows .= '<tr class="tablefilters_row_toggle"><td colspan="'.$count_items.'" onClick="$(\'#tablefilters\').toggle();"><a title="'.$lang->filter.'">&middot;&middot;&middot;</a></td></tr>';
 		}
-		
+
 		return $rows;
 	}
-	
+
 	/* Perform advanced multi filtering from DB
 	 * @return Array		$items			A unique array of requested data
 	 */
 	public function process_multi_filters() {
 		global $core, $db;
-		
+
 		if(!isset($core->input['filters'])) {
-			return false;	
+			return false;
 		}
-		
+
 		$main_query_where = $this->parse_filterstatements($this->config['process']['mainTable']['filters']);
-	
+
 		if(isset($this->config['process']['mainTable']['havingFilters']) && !empty($this->config['process']['mainTable']['havingFilters'])) {
-			$main_query_having = $this->parse_filterstatements($this->config['process']['mainTable']['havingFilters']);	
+			$main_query_having = $this->parse_filterstatements($this->config['process']['mainTable']['havingFilters']);
 		}
 
 		$this->config['process']['filterKey'] = $db->escape_string($this->config['process']['filterKey']);
@@ -232,11 +242,11 @@ class Inlinefilters {
 			if(!empty($main_query_where)) {
 				$main_query_where = ' WHERE '.$main_query_where;
 			}
-			
+
 			if(!empty($main_query_having)) {
 				$main_query_having = ' HAVING '.$main_query_having;
-			}			
-		
+			}
+
 			if(!empty($this->config['process']['mainTable']['extraSelect'])) {
 				$this->config['process']['mainTable']['extraSelect'] = ', '.$this->config['process']['mainTable']['extraSelect'];
 			}
@@ -246,31 +256,30 @@ class Inlinefilters {
 
 			if($db->num_rows($main_query) > 0) {
 				while($item = $db->fetch_assoc($main_query)) {
-					$items[$item[$this->config['process']['filterKey']]] = $item[$this->config['process']['filterKey']];	
+					$items[$item[$this->config['process']['filterKey']]] = $item[$this->config['process']['filterKey']];
 				}
 			}
-			else
-			{
+			else {
 				/* If all should match, and main has no results, then stop the process */
 				if($this->matching_rule == 'all') {
 					return array(0);
 				}
 			}
 		}
-		
+
 		if(isset($this->config['process']['secTables'])) {
 			foreach($this->config['process']['secTables'] as $table => $options) {
 				if(!isset($options['filterKeyOverwrite']) || empty($options['filterKeyOverwrite'])) {
-					$options['filterKeyOverwrite'] = $this->config['process']['filterKey']; 
+					$options['filterKeyOverwrite'] = $this->config['process']['filterKey'];
 				}
 
 				/* Prepare any necessary joins - START */
 				$sec_query_join_clause = '';
-				if((isset($options['joinWith'] )&& !empty($options['joinWith'])) && (isset($options['joinKeyAttr']) && !empty($options['joinKeyAttr']))) {
+				if((isset($options['joinWith']) && !empty($options['joinWith'])) && (isset($options['joinKeyAttr']) && !empty($options['joinKeyAttr']))) {
 					if(!isset($options['joinWord']) && empty($options['joinWord'])) {
 						$options['joinWord'] = 'JOIN';
 					}
-					$sec_query_join_clause = ' '.$options['joinWord'].' '.$options['joinWith'].' ON ('.$table.'.'.$options['keyAttr'].'='.$options['joinWith'].'.'.$options['joinKeyAttr'].')'; 
+					$sec_query_join_clause = ' '.$options['joinWord'].' '.$options['joinWith'].' ON ('.$table.'.'.$options['keyAttr'].'='.$options['joinWith'].'.'.$options['joinKeyAttr'].')';
 				}
 				/* Prepare any necessary joins - END */
 
@@ -286,28 +295,26 @@ class Inlinefilters {
 					if(isset($options['extraWhere']) && !empty($options['extraWhere'])) {
 						$sec_query_where .= ' AND '.$db->escape_string($options['extraWhere']);
 					}
-					
+
 					$sec_query = $db->query('SELECT DISTINCT('.$options['filterKeyOverwrite'].')
 										FROM '.Tprefix.$table.$sec_query_join_clause.' 
 										WHERE '.$sec_query_where);
 
 					if($db->num_rows($sec_query) > 0) {
 						while($item = $db->fetch_assoc($sec_query)) {
-							$items_sec[$item[$options['filterKeyOverwrite']]] = $item[$options['filterKeyOverwrite']];	
+							$items_sec[$item[$options['filterKeyOverwrite']]] = $item[$options['filterKeyOverwrite']];
 						}
-						
+
 						if(is_array($items)) {
 							$items = array_intersect($items, $items_sec);
 						}
-						else
-						{
+						else {
 							$items = $items_sec;
 						}
-						
+
 						unset($items_sec);
 					}
-					else
-					{
+					else {
 						if($this->matching_rule == 'all') {
 							return array(0);
 						}
@@ -317,63 +324,72 @@ class Inlinefilters {
 		}
 		return $items;
 	}
-	
+
 	private function parse_filterstatements(array $filters) {
 		global $core;
-		
+
 		$query_filter_statement = '';
 		foreach($filters as $filteritem => $attr) {
 			if(isset($core->input['filters'][$filteritem]) && !empty($core->input['filters'][$filteritem])) {
 				$query_filter_statement .= $query_operator.$this->parse_whereentry($attr, $filteritem);
-			
+
 				if($this->matching_rule == 'all') {
 					$query_operator = ' AND ';
 				}
-				else
-				{
-					$query_operator = ' OR ';	
+				else {
+					$query_operator = ' OR ';
 				}
 			}
 		}
-		
+
 		if(empty($query_filter_statement)) {
 			return false;
 		}
-		
+
 		return $query_filter_statement;
 	}
-	
+
 	private function parse_whereentry($attr_param, $filteritem) {
 		global $db, $core;
-	
+
 		if(!is_array($attr_param)) {
-			$attr['name'] = $attr_param;	
+			$attr['name'] = $attr_param;
 			$attr['operatorType'] = 'single';
 		}
-		else
-		{
-			$attr = $attr_param;		
+		else {
+			$attr = $attr_param;
 		}
 
 		if($attr['operatorType'] == 'multiple') {
-			$query_where = $sec_query_operator.$attr['name'].' IN ("'.implode('", "', $core->input['filters'][$filteritem]).'")';	//To add $db->escape_string();
+			$query_where = $sec_query_operator.$attr['name'].' IN ("'.implode('", "', $core->input['filters'][$filteritem]).'")'; //To add $db->escape_string();
 		}
 		elseif($attr['operatorType'] == 'between') {
-			$query_where = $sec_query_operator.'('.$attr['name'].' BETWEEN '.$db->escape_string($core->input['filters'][$filteritem]['start']).' AND '.$db->escape_string($core->input['filters'][$filteritem]['end']).')';	
+			$query_where = $sec_query_operator.'('.$attr['name'].' BETWEEN '.$db->escape_string($core->input['filters'][$filteritem]['start']).' AND '.$db->escape_string($core->input['filters'][$filteritem]['end']).')';
 		}
-		else
-		{
-			$query_where = $sec_query_operator.$attr['name'].' LIKE "%'.$db->escape_string($core->input['filters'][$filteritem]).'%"';
+		else {
+			/* Check if user using seperator to filter multiple values of same attribute */
+			if(strstr($core->input['filters'][$filteritem], ';')) {
+				$multiple_items = explode(';', $core->input['filters'][$filteritem]);
+				foreach($multiple_items as $value) {
+					$query_where .= $query_where_operator.$sec_query_operator.$attr['name'].' LIKE "%'.$db->escape_string($value).'%"';
+					$query_where_operator = ' OR ';	
+				}
+				
+				$query_where = '('.$query_where.')';
+			}
+			else {
+				$query_where = $sec_query_operator.$attr['name'].' LIKE "%'.$db->escape_string($core->input['filters'][$filteritem]).'%"';
+			}	
 		}
 
 		return $query_where;
 	}
-	
+
 	public function add_filter($newfilter) {
 		if(!isset($newfilter['parse'], $newfilter['process']) && !is_empty($newfilter['parse'], $newfilter['process'])) {
-			return false;	
+			return false;
 		}
-		
+
 		if(isset($newfilter['parse']['filter'])) {
 			array_push($this->config['parse']['filters'], $newfilter['parse']['filter']);
 		}
@@ -381,22 +397,21 @@ class Inlinefilters {
 		if(isset($newfilter['process']['mainTable'])) {
 			array_push($this->config['process']['mainTable']['filters'], $newfilter['process']['mainTable']['filter']);
 		}
-		elseif(isset($newfilter['process']['secTable']))
-		{
+		elseif(isset($newfilter['process']['secTable'])) {
 			if(isset($this->config['process']['secTable'][key($newfilter['process']['secTable'])])) {
 				$table = key($newfilter['process']['secTable']);
 				array_push($this->config['process']['secTable'][$table]['filters'], $newfilter['process']['secTable'][$table]['filter']);
 			}
-			else
-			{
-				array_push($this->config['process']['secTable'], $newfilter['process']['secTable']);	
+			else {
+				array_push($this->config['process']['secTable'], $newfilter['process']['secTable']);
 			}
 		}
 	}
-	
+
 	public function set_matchingrule($rule) {
 		global $core;
 		$this->matching_rule = $core->sanitize_inputs($rule, array('removetags' => true));
 	}
+
 }
 ?>

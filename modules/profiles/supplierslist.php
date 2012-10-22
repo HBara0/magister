@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
 * Orkila Central Online System (OCOS)
 * Copyright © 2009 Orkila International Offshore, All Rights Reserved
@@ -23,7 +23,7 @@ if(!$core->input['action']) {
 	
 	$sort_url = sort_url();
 	$limit_start = 0;
-	$multipage_where = " type='s' ";
+	$multipage_where = ' type="s" ';
 	if(isset($core->input['start'])) {
 		$limit_start = $db->escape_string($core->input['start']);
 	}
@@ -32,38 +32,43 @@ if(!$core->input['action']) {
 		$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
 	}
 	
-	if(isset($core->input['filterby'], $core->input['filtervalue'])) {
-		$value_accepted = true;
-		
-		if($core->input['filterby'] == 'affid'){
-			$table = 'affiliatedentities';
-		}
-		elseif($core->input['filterby'] == 'psid')
-		{
-			$table = 'entitiessegments';
-		}
-		else
-		{
-			$value_accepted = false;
-		}
-		
-		if($value_accepted == true) {
-			$extra_where = " AND eid IN (SELECT eid FROM ".Tprefix.$table." WHERE ".$db->escape_string($core->input['filterby']).'='.$db->escape_string($core->input['filtervalue']).")";
-		}	
-		else
-		{
-			$extra_where = '';
-		}
-		$multipage_where .= $extra_where;
+	/* Perform inline filtering - START */
+	$filters_config = array(
+			'parse' => array('filters' => array('companyName', 'affid', 'segment')
+			),
+			'process' => array(
+					'filterKey' => 'eid',
+					'mainTable' => array(
+							'name' => 'entities',
+							'filters' => array('companyName' => 'companyName'),
+					),
+					'secTables' => array(
+							'affiliatedentities' => array(
+									'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'))
+							),
+							'entitiessegments' => array(
+									'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid'))
+							)
+					)
+			)
+	);
+
+	$filter = new Inlinefilters($filters_config);
+	$filter_where_values = $filter->process_multi_filters();
+
+	$filters_row_display = 'hide';
+	if(is_array($filter_where_values)) {
+		$filters_row_display = 'show';
+		$filter_where = 'AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+		$multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
 	}
-	
-	//$affiliate_filters_cache = $segment_filters_cache = array();
-	$filters_required = array('psid', 'affid');
-	$filters_cache = array();
-		
+
+	$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+	/* Perform inline filtering - END */
+			
 	$query = $db->query("SELECT *, companyName AS entityname
 						FROM ".Tprefix."entities 
-						WHERE type='s' {$extra_where}
+						WHERE type='s' {$filter_where}
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 						
@@ -76,32 +81,17 @@ if(!$core->input['action']) {
 			$affiliates = $hidden_affiliates = $show_affiliates = '';
 			$segments = $hidden_segments = $show_segments = '';
 			while($affiliate = $db->fetch_assoc($query2)) {
-				if(!is_array($filters_cache['affid'])) {
-					$filters_cache['affid'] = array();
-				}
-				
-				if(!in_array($affiliate['affid'], $filters_cache['affid'])) {
-					//$aff_filter_icon= "<a href='index.php?module=profiles/supplierslist&filterby=affid&filtervalue={$affiliate[affid]}'> <img src='./images/icons/search.gif' border='0' alt='{$lang->filterby}'/></a>";
-					$filters['affid'][$affiliate['affid']] = "<a href='index.php?module=profiles/supplierslist&filterby=affid&filtervalue={$affiliate[affid]}'> <img src='./images/icons/search.gif' border='0' alt='{$lang->filterby}'/></a>";
-				}
-				else
-				{
-					$filters['affid'][$affiliate['affid']] = '';
-				}
-				
 				if(++$affiliates_counter > 2) {	
-					$hidden_affiliates .= '<a href="index.php?module=profiles/affiliateprofile&affid='.$affiliate['affid'].'">'.$affiliate['name'].'</a> '.$filters['affid'][$affiliate['affid']].'<br />';
+					$hidden_affiliates .= '<a href="index.php?module=profiles/affiliateprofile&affid='.$affiliate['affid'].'">'.$affiliate['name'].'</a><br />';
 						
 				}
 				elseif($affiliates_counter == 2)
 				{	
-					$show_affiliates .= '<a href="index.php?module=profiles/affiliateprofile&affid='.$affiliate['affid'].'">'.$affiliate['name'].'</a> '.$filters['affid'][$affiliate['affid']];
-					$filters_cache['affid'][] = $affiliate['affid'];
+					$show_affiliates .= '<a href="index.php?module=profiles/affiliateprofile&affid='.$affiliate['affid'].'">'.$affiliate['name'].'</a>';
 				}
 				else
 				{	
-					$show_affiliates .= '<a href="index.php?module=profiles/affiliateprofile&affid='.$affiliate['affid'].'">'.$affiliate['name'].'</a> '.$filters['affid'][$affiliate['affid']].'<br />';
-					$filters_cache['affid'][] = $affiliate['affid'];				
+					$show_affiliates .= '<a href="index.php?module=profiles/affiliateprofile&affid='.$affiliate['affid'].'">'.$affiliate['name'].'</a><br />';				
 				}
 	
 				if($affiliates_counter > 2) 
@@ -116,31 +106,16 @@ if(!$core->input['action']) {
 	
 			$query3 = $db->query("SELECT title,es.psid FROM ".Tprefix."productsegments p JOIN ".Tprefix."entitiessegments es ON (es.psid=p.psid) WHERE es.eid='$supplier[eid]'");
 			while($segment = $db->fetch_assoc($query3)) {
-				if(!is_array($filters_cache['psid'])) {
-					$filters_cache['psid'] = array();
-				}
-					
-				if(!in_array($segment['psid'], $filters_cache['psid'])) {
-					//$seg_filter_icon = "<a href='index.php?module=profiles/supplierslist&filterby=psid&filtervalue={$segment[psid]}'> <img src='./images/icons/search.gif' border='0' alt='{$lang->filterby}'/></a>";
-					$filters['psid'][$segment['psid']] = "<a href='index.php?module=profiles/supplierslist&filterby=psid&filtervalue={$segment[psid]}'> <img src='./images/icons/search.gif' border='0' alt='{$lang->filterby}'/></a>";
-				}
-				else
-				{
-					$filters['psid'][$segment['psid']] = '';
-				}	 
-				
 				if(++$segments_counter > 2) {
-					$hidden_segments .= $segment['title'].' '.$filters['psid'][$segment['psid']].'<br />';
+					$hidden_segments .= $segment['title'].'<br />';
 				}
 				elseif($segments_counter == 2)
 				{
-					$show_segments .= $segment['title'].' '.$filters['psid'][$segment['psid']];
-					$filters_cache['psid'][] = $segment['psid'];
+					$show_segments .= $segment['title'];
 				}
 				else
 				{
-					$show_segments .= $segment['title'].' '.$filters['psid'][$segment['psid']].'<br />';
-					$filters_cache['psid'][] = $segment['psid'];
+					$show_segments .= $segment['title'].'<br />';
 				}
 				
 				if($segments_counter > 2) {
@@ -152,7 +127,7 @@ if(!$core->input['action']) {
 				}
 			}
 		
-			$suppliers_list .= "<tr class='{$class}'><td valign='top'><a href='index.php?module=profiles/entityprofile&eid={$supplier[eid]}'>{$supplier[companyName]}</td><td valign='top'>{$affiliates}</td><td valign='top'>{$segments}</td>";
+			$suppliers_list .= "<tr class='{$class}'><td valign='top'><a href='index.php?module=profiles/entityprofile&amp;eid={$supplier[eid]}'>{$supplier[companyName]}</td><td valign='top'>{$affiliates}</td><td valign='top'>{$segments}</td>";
 		}
 		
 		$multipages = new Multipages('entities', $core->settings['itemsperlist'], $multipage_where);
