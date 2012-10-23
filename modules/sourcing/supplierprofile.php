@@ -6,7 +6,7 @@
  * Potential Supplier Profile
  * $module: Sourcing
  * $id: supplierprofile.php	
- * Last Update: @tony.assaad	october 19, 2012 | 10:05 AM
+ * Last Update: @tony.assaad	october 19, 2012 | 4:05 AM
  */
 if(!defined('DIRECT_ACCESS'))
 {
@@ -53,7 +53,6 @@ if(!$core->input['action']) {
 				
 				$listcas_numbers_section .='</table></div>';
 			}
-	
 
 			/*Chemical List -END*/
 			if(!empty($potential_supplier_details['commentsToShare'])){
@@ -104,17 +103,13 @@ if(!$core->input['action']) {
 	else
 	{
 		$affiliates = get_specificdata('affiliates', array('affid','name'), 'affid', 'name','');
-		$affiliates_list = parse_selectlist("contacthst[affid]",1, $affiliates, $useraffiliates, 0);
+		$affiliates_list = parse_selectlist("contacthst[affid]",1, $affiliates, $core->user['mainaffiliate'], 0);
 		$countries = get_specificdata('countries', array('coid', 'name'), 'coid', 'name','');
 		$countries_list = parse_selectlist('contacthst[origin]', 8, $countries, '');
-	
-		eval("\$sourcing_Potentialsupplierprofile_reportcommunication = \"".$template->get('sourcing_Potentialsupplierprofile_reportcommunication')."\";");		
+			eval("\$sourcing_Potentialsupplierprofile_reportcommunication = \"".$template->get('sourcing_Potentialsupplierprofile_reportcommunication')."\";");		
 	}
 /*communication Report after the user has initiated contact -END*/		
 	eval("\$sourcing_Potentialsupplierprofile_contactsection = \"".$template->get('sourcing_Potentialsupplierprofile_contactsection')."\";");
-
-	eval("\$sourcingPotentialsupplierprofile = \"".$template->get('sourcing_Potentialsupplierprofile')."\";");
-	output_page($sourcingPotentialsupplierprofile);
 
 }
 
@@ -148,7 +143,25 @@ elseif($core->input['action']=='preview') {
 
 	echo '<div style="min-width:400px; max-width:600px;">
 	<div style="display:inline-block;width:180px;">'.$supplier_contact['name'].'<br><strong>'.$lang->email.'</strong>  <a href="mailto:'.$supplier_contact['email'].'">'.$supplier_contact['email'].'</a><br>'.'<strong>'.$lang->phone.'</strong> '.$supplier_contact['phone'].'<br>'.'<strong>'.$lang->positon.'</strong><br>'.'<strong>'.$contact_personposition.'</strong></div></div>'; 
-					
+				
 	}
 	
+	
+	/*contact histrory -START*/
+		if(value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid'])) {
+			$contacts_history = $potential_supplier->get_contact_history();
+			foreach($contacts_history as $contact_history) {
+				$rowclass = alt_row($rowclass);				
+				$contact_history['date_output'] = date($core->settings['dateformat'],$contact_history['date']);
+				eval("\$sourcing_Potentialsupplierprofile_contacthistory .= \"".$template->get('sourcing_Potentialsupplierprofile_contacthistory')."\";");
+
+			}
+
+		}
+
+	/*contact histrory -END*/
+		
+		
+	eval("\$sourcingPotentialsupplierprofile = \"".$template->get('sourcing_Potentialsupplierprofile')."\";");
+	output_page($sourcingPotentialsupplierprofile);
 ?>
