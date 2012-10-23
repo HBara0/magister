@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright ï¿½ 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Add entities
  *  $module: Sourcing
@@ -20,12 +20,19 @@ if($core->usergroup['sourcing_canManageEntries'] == 0 ) {
 }
 
 if(!$core->input['action']) {
-	
-	if($core->input['type'] == 'edit') {
+	//<input name='.supplier['isBlacklisted'].'type=checkbox value='.$supplier['isBlacklisted'].'>
+	if($core->input['type'] == 'edit' && isset($core->input['id'])) {
 		$actiontype = 'Edit';
 		$id = $db->escape_string($core->input['id']);
 		$potential_supplier = new Sourcing($id);
-		$supplier = $potential_supplier->get();
+		$supplier = $potential_supplier->get_supplier();
+		$checkboxes_index = array('isBlacklisted');
+		foreach($checkboxes_index as $key) {
+			if($supplier[$key] == 1) {
+				$checkedboxes = ' checked="checked"';
+			} 
+		}
+		$mark_blacklist = $lang->blacklisted.'<input name="supplier[isBlacklisted]" type="checkbox" value="1"'.$checkedboxes.'>'; 		
 	}
 	else
 	{
@@ -35,11 +42,19 @@ if(!$core->input['action']) {
 	$countries = get_specificdata('countries', array('coid', 'name'), 'coid', 'name','');
 	$countries_list = parse_selectlist('supplier[country]', 8, $countries, '');
 	$products = get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title','');
-	$product_list = parse_selectlist('supplier[productsegment]', 8, $products, $supplier['productsegment']);	
-		
+	$product_list = parse_selectlist('supplier[productsegment]', 8, $products, $supplier['productsegment']);
+	$maturity_level = get_specificdata('entities_rmlevels', array('ermlid', 'title'), 'ermlid', 'title','');
+	$relation_Maturity_level = 	parse_selectlist('supplier[relationMaturity]', 8, $maturity_level, $supplier['relationMaturity']);
+	
 	eval("\$sourcingmanagesupplier = \"".$template->get('sourcing_managesupplier')."\";");
 	output_page($sourcingmanagesupplier);
 }
+
+elseif($core->input['action'] == 'do_Editpage') {
+	$potential_supplier = new Sourcing($id);
+	$potential_supplier->edit($core->input['supplier']);
+}
+
 else 
 { 
 	if($core->input['action'] == 'do_Addpage') {
@@ -82,6 +97,5 @@ elseif($core->input['action'] == 'checkcompany') {
 	
 		}
 	}
-
 }
 ?>
