@@ -20,6 +20,7 @@ $content .= encapsulate_in_fieldset(choose_columns(), 'Columns', false);
 if($core->usergroup['stock_canGenerateReports'] == '1') {
 	if($core->input['action'] == 'getreport') {
 		$query = assemble_filter_query($core, $db);
+		$content.=encapsulate_in_fieldset($query, 'Query');
 		$allcolumns = array('pid' => 'id', 'amount' => 'numeric', 'affid' => 'id', 'spid' => 'id', 'date' => 'date', 'currency' => 'numeric', 'usdFxrate' => 'numeric', 'quantity' => 'numeric', 'quantityUnit' => 'text', 'saleType' => 'text', 'TRansID' => 'text');
 		$rawdata = retrieve_data($query, $allcolumns);
 		$trackedcolumns = array();
@@ -52,22 +53,20 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 					}
 				}
 			}
-			$datapresented = '<pre>'.print_r($timesliced, true).'</pre>';
-			$datapresented = encapsulate_in_fieldset(turn_data_into_html($timesliced, true), 'Grouped');
+			//$datapresented = '<pre>'.print_r($timesliced, true).'</pre>';
+			$datapresented = encapsulate_in_fieldset('<div id="results_fieldset">'.turn_data_into_html($timesliced, true).'</div>', 'Grouped');
 		}
 		else {
-			$rawdata = regroup_and_sum($rawdata, $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null);
-			if($core->input['isajax'] != 'true') {
-				$datapresented = encapsulate_in_fieldset('<div id="results_fieldset">'.turn_data_into_html($rawdata, false).'</div>', 'Grouped', false);
-			}
+			$summeddata = regroup_and_sum($rawdata, $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null);
+			$datapresented = encapsulate_in_fieldset('<div id="results_fieldset">'.turn_data_into_html($summeddata, false).'</div>', 'Grouped', false);
 		}
 		//debug(array($rawdata,$datapresented,$allcolumns, $trackedcolumns));
 		if($core->input['isajax'] == 'true') {
 			if($core->input['reporttype'] == 1) {
-				output_xml('<div id="results_fieldset">'.turn_data_into_html($timesliced, true).'</div>');
+				output_xml(turn_data_into_html($timesliced, true));
 			}
 			else {
-				output_xml('<div id="results_fieldset">'.turn_data_into_html($rawdata, false).'</div>');
+				output_xml(turn_data_into_html($summeddata, false));
 			}
 			exit;
 		}
@@ -75,7 +74,24 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 			$content.=$datapresented;
 		}
 
+		$content.=encapsulate_in_fieldset(make_jqpchart(regroup_by_day($rawdata)).'<pre>'.print_r(regroup_by_day($rawdata), true).'</pre>', "jQchart");
+		//$content.=encapsulate_in_fieldset(make_pchart(regroup_by_day($rawdata)), "pChart");
 
+
+
+
+		/*
+		  foreach ($data as $key=>$value) {
+		  $data2[$key]=-$value;
+		  }
+
+		 */
+
+
+
+
+		/* */
+		//$content.='<hr>'.getcwd().'<hr>';
 		//$content .= encapsulate_in_fieldset('<div id="results_fieldset">'.$datapresented.'</div>', 'grouped', false);
 		//$content.=encapsulate_in_fieldset(generate_stock_reports_email_data(retrieve_data($query, array('amount' => 'numeric', 'quantity' => 'numeric', 'affid' => 'id', 'date' => 'date'))));
 		//$content.=encapsulate_in_fieldset(generate_stock_reports_email_data(retrieve_data($query, array('amount' => 'numeric', 'quantity' => 'numeric', 'spid' => 'id', 'affid' => 'id', 'date' => 'date'))));
@@ -85,13 +101,194 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 else {
 	error($lang->sectionnopermission);
 }
+
 eval("\$report_template = \"".$template->get('stock_purchasereport')."\";");
 output_page($report_template);
+
+
 /*
  *
  *
  *
  */
+function make_jqpchart($data) {
+	$urlparts = explode('?', get_curent_page_URL());
+	$baseurl = substr($urlparts[0], 0, strlen($urlparts[0]) - 9);
+	$includes = '<script type="text/javascript" src="'.$baseurl.'inc/jQplot/jquery.jqplot.min.js"></script>
+				<link rel="stylesheet" type="text/css" hrf="'.$baseurl.'inc/jQplot/jquery.jqplot.min.css" />
+				<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
+				<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.dateAxisRenderer.min.js"></script>
+				<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.cursor.min.js"></script>
+				<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
+				<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.highlighter.min.js"></script>';
+
+	$function = '<div id="jqChart" style="width:670px;height:300px;padding:10px;"></div><script>
+				$(document).ready(function(){
+				var dataPoints = [];';
+	foreach($data as $date => $value) {
+		$function.='dataPoints.push(["'.$date.'",'.$value.']);';
+	}
+
+	$function.='
+	var plot = $.jqplot("jqChart", [dataPoints],
+	{
+		highlighter: {show: true},
+		cursor: {show:true,zoom:true},
+		//series: {showMarker:true},
+		//seriesDefaults: {rendererOptions: {smooth: true}},
+		axes:{
+			xaxis:{
+				renderer:$.jqplot.DateAxisRenderer,
+				rendererOptions:{
+                    tickRenderer:$.jqplot.CanvasAxisTickRenderer
+                },
+				tickOptions:{
+                    fontSize:"8pt",
+                    fontFamily:"Tahoma",
+                    angle:-40
+                }
+			},
+			yaxis:{
+				rendererOptions:{
+					tickRenderer:$.jqplot.CanvasAxisTickRenderer
+				},
+                tickOptions:{
+					fontSize:"8pt",
+                    fontFamily:"Tahoma",
+					formatString: ""
+                }				
+		}
+	}
+});
+
+
+jqplotToImg("jqChart");
+
+});
+
+	
+
+function jqplotToImg(objId) {
+// first we draw an image with all the chart components
+var newCanvas = document.createElement("canvas");
+newCanvas.width = $("#" + objId).width();
+newCanvas.height = $("#" + objId).height();
+var baseOffset = $("#" + objId).offset();
+
+$("#" + objId).children().each(
+function() {
+// for the div\'s with the X and Y axis
+if ($(this)[0].tagName.toLowerCase() == \'div\') {
+// X axis is built with canvas
+$(this).children("canvas").each(
+function() {
+var offset = $(this).offset();
+newCanvas.getContext("2d").drawImage(this,
+offset.left - baseOffset.left,
+offset.top - baseOffset.top);
+});
+// Y axis got div inside, so we get the text and draw it on
+// the canvas
+$(this).children("div").each(
+function() {
+var offset = $(this).offset();
+var context = newCanvas.getContext("2d");
+context.font = $(this).css(\'font-style\') + " "
++ $(this).css(\'font-size\') + " "
++ $(this).css(\'font-family\');
+context.fillText($(this).html(), offset.left
+- baseOffset.left, offset.top
+- baseOffset.top + 10);
+});
+}
+// all other canvas from the chart
+else if ($(this)[0].tagName.toLowerCase() == \'canvas\') {
+var offset = $(this).offset();
+newCanvas.getContext("2d").drawImage(this,
+offset.left - baseOffset.left,
+offset.top - baseOffset.top);
+}
+});
+
+// add the point labels
+$("#" + objId).children(".jqplot-point-label").each(
+function() {
+var offset = $(this).offset();
+var context = newCanvas.getContext("2d");
+context.font = $(this).css(\'font-style\') + " "
++ $(this).css(\'font-size\') + " "
++ $(this).css(\'font-family\');
+context.fillText($(this).html(), offset.left - baseOffset.left,
+offset.top - baseOffset.top + 10);
+});
+
+// add the rectangles
+$("#" + objId + " *").children(".jqplot-table-legend-swatch").each(
+function() {
+var offset = $(this).offset();
+var context = newCanvas.getContext("2d");
+context.setFillColor($(this).css(\'background-color\'));
+context.fillRect(offset.left - baseOffset.left, offset.top
+- baseOffset.top, 15, 15);
+});
+
+// add the legend
+$("#" + objId + " *").children(".jqplot-table-legend td:last-child").each(
+function() {
+var offset = $(this).offset();
+var context = newCanvas.getContext("2d");
+context.font = $(this).css(\'font-style\') + " "
++ $(this).css(\'font-size\') + " "
++ $(this).css(\'font-family\');
+context.fillText($(this).html(), offset.left - baseOffset.left,
+offset.top - baseOffset.top + 15);
+});
+
+window.open(newCanvas.toDataURL(), "directories=no");
+}
+
+</script>
+
+';
+
+	return $includes.$function;
+}
+
+function make_pchart($data) {
+	chdir('inc');
+	include('pChart\pChart.class');
+	include('pChart\pData.class');
+	$DataSet = new pData();
+	$formateddata = array();
+
+	foreach($data as $key => $value) {
+		$formateddata[str_replace('-', '', $key)] = $value;
+	}
+	if(count($formateddata) > 0)
+		$DataSet->AddPoint($formateddata);
+	else
+		return '';
+	$DataSet->AddSerie('Serie1');
+	$DataSet->SetSerieName("Raw data", "Serie1");
+
+	$Test = new pChart(700, 230);
+	$Test->setFontProperties('Fonts/tahoma.ttf', 10);
+	$Test->setGraphArea(40, 30, 680, 200);
+	$Test->drawGraphArea(252, 252, 252);
+	$Test->drawScale($DataSet->GetData(), $DataSet->GetDataDescription(), SCALE_NORMAL, 150, 150, 150, TRUE, 0, 2);
+	$Test->drawGrid(4, TRUE, 230, 230, 230, 255);
+
+	$Test->drawLineGraph($DataSet->GetData(), $DataSet->GetDataDescription());
+	$Test->drawPlotGraph($DataSet->GetData(), $DataSet->GetDataDescription(), 3, 2, 255, 255, 255);
+
+	$Test->setFontProperties("Fonts/tahoma.ttf", 8);
+	$Test->drawLegend(45, 35, $DataSet->GetDataDescription(), 255, 255, 255);
+	$Test->setFontProperties("Fonts/tahoma.ttf", 10);
+	$Test->drawTitle(60, 22, "Purchases Value", 50, 50, 50, 585);
+	$Test->Render("chart.png");
+	return '<img src="inc/chart.png"/>'.'<hr><pre>'.print_r($formateddata, true).'</pre>';
+}
+
 function turn_data_into_html($data, $timesliced = false) {
 	if(!$timesliced) {
 		$html = '<table cellspacing=0 cellpadding=2 border=1>';
@@ -106,7 +303,7 @@ function turn_data_into_html($data, $timesliced = false) {
 							$html.='<th>'.$column.'</th>';
 						}
 					}
-					$html.='</tr>';
+					$html.='<th>Stacked</th></tr>';
 					break;
 				}
 				else {
@@ -121,15 +318,27 @@ function turn_data_into_html($data, $timesliced = false) {
 					$html.='<tr>';
 					foreach($row as $column => $value) {
 						if($column != '#StackedRows') {
-							if(isset($value['name'])) {
-								$html.='<td>'.$value['name'].'</td>';
+							if($column != 'date') {
+								if(isset($value['name'])) {
+									$html.='<td>'.$value['name'].'</td>';
+								}
+								else {
+									$html.='<td>'.$value['value'].'</td>';
+								}
 							}
 							else {
-								$html.='<td>'.$value['value'].'</td>';
+								if(isset($value['name'])) {
+									$html.='<td>'.date("d-M-Y H:m:s", $value['name']).'</td>';
+								}
+								else {
+									$html.='<td>'.date("d-M-Y H:m:s", $value['value']).'</td>';
+								}
 							}
+						} else {
+							$stack=$value;
 						}
 					}
-					$html.='</tr>';
+					$html.='<td>'.$stack.'</td></tr>';
 				}
 			}
 		}
@@ -172,13 +381,13 @@ function turn_data_into_html($data, $timesliced = false) {
 		}
 
 		foreach($data as $year => $yearly) {
-			$html .= '<tr><td colspan="'.$countrows.'">'.$year.'</td></tr>';
-			$yearlyamount=0;
+			$html .= '<tr><td colspan="'.$countrows.'"><b>'.$year.'</b></td></tr>';
+			$yearlyamount = 0;
 			foreach($yearly as $month => $monthly) {
-				$monthlyamount=0;
-				$html .= '<tr><td colspan="'.$countrows.'">'.$month.'</td></tr>';
+				$monthlyamount = 0;
+				$html .= '<tr><td colspan="'.$countrows.'"><b>'.$month.'</b></td></tr>';
 				foreach($monthly as $week => $weekly) {
-					$weeklyamount=0;
+					$weeklyamount = 0;
 					$html .= '<tr><td colspan="'.$countrows.'"><b>Week '.$week.'</b></td></tr>';
 					if(is_array($weekly) && $weekly)
 						foreach($weekly as $groupingkey => $values) {
@@ -186,8 +395,7 @@ function turn_data_into_html($data, $timesliced = false) {
 								if(is_numeric($key)) {
 									$html.='<tr>';
 									foreach($row as $column => $value) {
-										if ($column == 'amount')
-										{
+										if($column == 'amount') {
 											$weeklyamount+=$value['value'];
 										}
 										if($column != '#StackedRows') {
@@ -202,16 +410,14 @@ function turn_data_into_html($data, $timesliced = false) {
 									$html.='</tr>';
 								}
 							}
-							
 						}
-						$html.='<tr><td colspan="'.$countrows.'" style="text-align:right;"><b>Weekly total: '.$weeklyamount.'</b></td></tr>';
-						$montlyamount+=$weeklyamount;
-						
+					$html.='<tr><td colspan="'.$countrows.'" style="text-align:right;">Weekly total: <b>'.$weeklyamount.'</b></td></tr>';
+					$montlyamount+=$weeklyamount;
 				}
-				$html.='<tr><td colspan="'.$countrows.'" style="text-align:right;"><B>Monthly total: '.$montlyamount.'</b></td></tr>';
+				$html.='<tr><td colspan="'.$countrows.'" style="text-align:right;">Monthly total: <b>'.$montlyamount.'</b></td></tr>';
 				$yearlyamount+=$montlyamount;
 			}
-			$html.='<tr><td colspan="'.$countrows.'" style="text-align:right;"><B>Yearly total: '.$yearlyamount.'</b></td></tr>';
+			$html.='<tr><td colspan="'.$countrows.'" style="text-align:right;">Yearly total: <b>'.$yearlyamount.'</b></td></tr>';
 		}
 		$html.='</td></tr></table>';
 	}
@@ -295,7 +501,7 @@ function make_options() {
 								firstform+="&dateto="+$("#dateto").val();
 							if ($("#datefrom").val())
 								firstform+="&datefrom="+$("#datefrom").val();
-								
+
 							var resolveidintoname=0,switchdetailed=0;
 							if ($("#switchdetailed").prop("checked")==true)
 								switchdetailed=1;
@@ -385,16 +591,16 @@ function choose_columns() {
 function assemble_filter_query($core, $db) {
 	$query = 'SELECT * from '.Tprefix.'integration_mediation_stockpurchases';
 	$checkifwherewasadded = false;
-	$dateto = parse_date("m/d/Y", $core->input['dateto']);
-	$datefrom = parse_date("m/d/Y", $core->input['datefrom']);
+	$dateto = parse_date("m/d/Y", $core->input['dateto'], 1);
+	$datefrom = parse_date("m/d/Y", $core->input['datefrom'], 0);
 	if($dateto || $datefrom) {
 		$checkifwherewasadded = true;
 		$query.=' WHERE ';
-		$query.=$dateto ? ('date<=\''.$dateto.'\'') : '';
+		$query.=$dateto ? ('date<='.$dateto.'') : '';
 		if($dateto && $datefrom) {
 			$query.=' AND ';
 		}
-		$query.=$datefrom ? ('date>=\''.$datefrom.'\'') : '';
+		$query.=$datefrom ? ('date>='.$datefrom.'') : '';
 	}
 	if(isset($core->input['supplier']))
 		if($core->input['supplier']) {
@@ -405,16 +611,16 @@ function assemble_filter_query($core, $db) {
 				if($checkifwherewasadded) {
 					if($firstone) {
 						$firstone = false;
-						$query .=' AND (spid=\''.$value.'\'';
+						$query .=' AND (spid='.$value.'';
 					}
 					else {
-						$query .=' OR spid=\''.$value.'\'';
+						$query .=' OR spid='.$value.'';
 					}
 				}
 				else {
 					$firstone = false;
 					$checkifwherewasadded = true;
-					$query .=' WHERE (spid=\''.$value.'\'';
+					$query .=' WHERE (spid='.$value.'';
 				}
 			}
 			$query.=')';
@@ -428,16 +634,16 @@ function assemble_filter_query($core, $db) {
 				if($checkifwherewasadded) {
 					if($firstone) {
 						$firstone = false;
-						$query .=' AND (pid=\''.$value.'\'';
+						$query .=' AND (pid='.$value.'';
 					}
 					else {
-						$query .=' OR pid=\''.$value.'\'';
+						$query .=' OR pid='.$value.'';
 					}
 				}
 				else {
 					$firstone = false;
 					$checkifwherewasadded = true;
-					$query .=' WHERE (pid=\''.$value.'\'';
+					$query .=' WHERE (pid='.$value.'';
 				}
 			}
 			$query.=')';
@@ -562,23 +768,34 @@ function regroup_and_sum($data, $groupingattribute = 'pid', $trackedcolumns = ar
 	$grouped = array();
 	$value = '';
 	foreach($data as $rowkey => $purchase) {
-		$value = $purchase[$groupingattribute]['value'];		
+		if(!isset($purchase['usdFxrate'])) {
+			$rate = $currency_obj->get_average_fxrate($purchase['currency']['value'], array('from' => strtotime('-1 day', $purchase['date']['value']), 'to' => strtotime('+1 day', $purchase['date']['value'])));
+		}
+		else {
+			$rate = $purchase['usdFxrate']['value'];
+		}
+
+		$value = $purchase[$groupingattribute]['value'];
 		if(isset($resolve)) {
 			$name = get_name_from_id($purchase[$groupingattribute]['value'], $resolve['table'], $resolve['id'], $resolve['name']);
 			$grouped[$value]['#name'] = $name;
 		}
 		$doinitialisethisvalue = false;
 		if(isset($grouped[$value])) {
-			$haystack = $grouped[$value];
-			$id = check_for_presence($haystack, $purchase, $trackedcolumns);
+			$id = check_for_presence($grouped[$value], $purchase, $trackedcolumns);
 			if($id) {
 				foreach($id as $key => $v) {
-					$break;
+					break;
 				}
 				$grouped[$value][$key]['#StackedRows'] = $grouped[$value][$key]['#StackedRows'] + 1;
 				foreach($trackedcolumns as $trackname => $columntype) {
 					if($columntype == 'numeric') {
-						$grouped[$value][$key][$trackname] += $purchase[$trackname];
+						if($column == 'amount') {
+							$grouped[$value][$key][$trackname] += (0+$purchase[$trackname]) * $rate;
+						}
+						else {
+							$grouped[$value][$key][$trackname] += $purchase[$trackname];
+						}
 					}
 				}
 			}
@@ -593,15 +810,44 @@ function regroup_and_sum($data, $groupingattribute = 'pid', $trackedcolumns = ar
 			$counter = 0;
 			if($grouped[$value]) {
 				foreach($grouped[$value] as $tmpk => $tmpv) {
-					if($tmpk != '#name') {
-						$counter++;
+					if(is_numeric($tmpk)) {
+						$counter+=1;
 					}
 				}
 			}
+			
+
 			$grouped[$value][$counter]['#StackedRows'] = 1;
 			foreach($trackedcolumns as $trackname => $columntype) {
-				$grouped[$value][$counter][$trackname] = $purchase[$trackname];
+				if($trackname == 'amount') {
+					$grouped[$value][$counter][$trackname]['value'] = (0+$purchase[$trackname]['value'])*$rate ;
+				}
+				else {
+					$grouped[$value][$counter][$trackname] = $purchase[$trackname];
+				}
 			}
+		}
+	}
+	return $grouped;
+}
+
+function regroup_by_day($data) {
+	$currency_obj = new Currencies('USD');
+	$grouped = array();
+	$value = '';
+	foreach($data as $rowkey => $purchase) {
+		if(!isset($purchase['usdFxrate'])) {
+			$rate = $currency_obj->get_average_fxrate($purchase['currency']['value'], array('from' => strtotime('-1 day', $purchase['date']['value']), 'to' => strtotime('+1 day', $purchase['date']['value'])));
+		}
+		else {
+			$rate = $purchase['usdFxrate']['value'];
+		}
+
+		if(isset($grouped[date("Y-m-d", $purchase['date']['value'])])) {
+			$grouped[date("Y-m-d", $purchase['date']['value'])] += $purchase['amount']['value'] * $rate;
+		}
+		else {
+			$grouped[date("Y-m-d", $purchase['date']['value'])] = $purchase['amount']['value'] * $rate;
 		}
 	}
 
@@ -610,6 +856,35 @@ function regroup_and_sum($data, $groupingattribute = 'pid', $trackedcolumns = ar
 
 function check_for_presence($haystack, $needle, $filter) {
 	$results = array();
+
+	/*
+	$temphs = array();
+	$tempns = array();
+	foreach($haystack as $key => $row) {
+		if(is_numeric($key)) {
+			foreach($filter as $column => $type) {
+				if($type != 'numeric') {
+					$temphs[$key][$column] = $haystack[$key][$column]['value'];
+				}
+			}
+		}
+	}
+	foreach($needle as $column => $row) {
+		foreach($filter as $column => $type) {
+			if($type != 'numeric') {
+				$tempns[$column] = $needle[$column]['value'];
+			}
+		}
+	}
+
+
+	$key=in_array($tempns, $temphs);
+	if ($key) {
+		$gotmatch = 'got one';
+		$gotmatch.='asd';
+	}
+	*/
+	
 	foreach($haystack as $key => $row) {
 		if(is_numeric($key)) {
 			$present = true;
