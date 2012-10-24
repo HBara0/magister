@@ -51,6 +51,7 @@ if($core->usergroup[$module['globalpermission']] == 1) {
 	$action_file = $current_module[1].'.php';
 	
 	$menu_items = parse_menuitems($run_module);
+	eval("\$menu = \"".$template->get('mainmenu')."\";");
 	
 	/* Get Module Help Section - Start */
 	//$help_document  = $db->fetch_assoc($db->query("SELECT hdid FROM ".Tprefix."helpdocuments WHERE module='{$run_module}' AND relatesTo LIKE '%:\"{$current_module[1]}\";%' LIMIT 0, 1"));
