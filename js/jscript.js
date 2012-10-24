@@ -496,7 +496,7 @@ $(function() {
 
 	window.sharedFunctions = function() {
 		function requestAjax(methodParam, urlParam, dataParam, loadingId, contentId, datatype) {
-				//var datatype = 'html';
+                                //var datatype = 'html';
 				/* Check if value = 1 just to ensure background compatibility with previous code */
 				if(datatype == 1) {
 					datatype = 'html';

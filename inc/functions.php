@@ -1275,7 +1275,7 @@ function generate_random_color($lum=0.97, $hue=0.58, $sat=0.6) {
 }
 
 
-function parse_date($format,$date) {
+function parse_date($format,$date,$daytime=0) {
 	$delimiter=substr($format,1,1);
 	$format_parts=explode($delimiter, $format);
 	$date_parts=explode($delimiter, $date);
@@ -1288,7 +1288,12 @@ function parse_date($format,$date) {
 		$date_parts[$value]=$date_parts[$key];
 		unset($date_parts[$key]);
 	}
-	$timestamp=mktime(0,0,0,$date_parts['m'],$date_parts['d'],$date_parts['Y']);
+	if ($daytime==0) {
+			$timestamp=mktime(0,0,0,$date_parts['m'],$date_parts['d'],$date_parts['Y']);
+	} else {
+			$timestamp=mktime(23,59,59,$date_parts['m'],$date_parts['d'],$date_parts['Y']);
+	}
+	
 	if (date($format,$timestamp) == $date) {
 		return $timestamp;
 	}
@@ -1298,4 +1303,15 @@ function parse_date($format,$date) {
 	}
 }
 
+function get_curent_page_URL() {
+ $pageURL = 'http';
+ if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
+ $pageURL .= "://";
+ if ($_SERVER["SERVER_PORT"] != "80") {
+  $pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
+ } else {
+  $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
+ }
+ return $pageURL;
+}
 ?>
