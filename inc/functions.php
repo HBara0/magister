@@ -522,7 +522,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 	
 	if($db->num_rows($query) > 0) {
 		//$results_list .= "<ul id='searchResultsList'>";
-		while($result = $db->fetch_array($query)) {
+		while($result = $db->fetch_assoc($query)) {
 			$space = '';
 			foreach($select_attributes as $key => $val) {
 				$output .= $space.$result[$val];
@@ -544,7 +544,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 	
 	$query2 = $db->query("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$soundex_where_string}){$notin}{$extra_where_string}{$order}");
 	if($db->num_rows($query2) > 0) {
-		while($result2 = $db->fetch_array($query2)) {
+		while($result2 = $db->fetch_assoc($query2)) {
 			foreach($select_attributes as $key => $val) {
 				$output .= $space.$result2[$val];
 				$space = ' ';	
