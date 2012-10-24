@@ -38,7 +38,6 @@ if(!$core->input['action']) {
 			if($session->isset_phpsession('visitreportvisitdetailsdata_'.$identifier)) {
 				$visitdetails = unserialize($session->get_phpsession("visitreportvisitdetailsdata_{$identifier}"));
 				$visitreport_data = unserialize($session->get_phpsession("visitreportdata_{$identifier}"));
-				
 				if(is_array($visitreport_data['spid'])) {
 					foreach($visitreport_data['spid'] as $key => $val) {
 						if(empty($val) && $val != 0 || (count($visitreport_data['spid']) > 1 && $val == 0)) {
@@ -95,10 +94,11 @@ if(!$core->input['action']) {
 						}
 					}
 				}
+			
+				$session->set_phpsession(array('visitreportdata_'.$identifier => serialize($core->input)));
 			}
 			
 			eval("\$fillreportpage = \"".$template->get('crm_fillvisitreport_visitdetailspage')."\";");	
-			$session->set_phpsession(array('visitreportdata_'.$identifier => serialize($core->input)));
 		}
 		else
 		{ 
