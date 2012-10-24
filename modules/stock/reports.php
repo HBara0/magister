@@ -13,6 +13,7 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 $session->start_phpsession();
+$lang->load('stock_meta');
 
 if($core->usergroup['stock_canGenerateReports'] == '1') {
 
@@ -22,14 +23,14 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 
 	if($core->input['action'] == 'getreport') {
 		$query = assemble_filter_query($core, $db);
-		//$content.=encapsulate_in_fieldset($query, 'Query');
-		$allcolumns = array('pid' => 'id', 'amount' => 'numeric', 'affid' => 'id', 'spid' => 'id', 'date' => 'date', 'currency' => 'numeric', 'usdFxrate' => 'numeric', 'quantity' => 'numeric', 'quantityUnit' => 'text', 'saleType' => 'text', 'TRansID' => 'text');
+		$content.=encapsulate_in_fieldset($query, 'Query');
+		$allcolumns = array('affid' => 'id', 'spid' => 'id', 'pid' => 'id', 'amount' => 'numeric', 'currency' => 'numeric', 'usdFxrate' => 'numeric', 'quantity' => 'numeric', 'quantityUnit' => 'text', 'date' => 'date', 'saleType' => 'text', 'TRansID' => 'text');
 		$rawdata = retrieve_data($query, $allcolumns);
 		$trackedcolumns = array();
 		$groupingatr = $core->input['groupingattribute'];
 		if(!isset($groupingatr))
 			$groupingatr = 'pid';
-		$doresolve = ($core->input['resolveidintoname'] == 'resolve') ? true : false;
+		//$doresolve = ($core->input['resolveidintoname'] == 'resolve') ? true : false;
 		$resolve = array(
 				'affid' => array('table' => 'affiliates', 'id' => 'affid', 'name' => 'name'),
 				'spid' => array('table' => 'entities', 'id' => 'eid', 'name' => 'companyName'),
@@ -37,8 +38,8 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		);
 
 
-		if($doresolve)
-			$rawdata = resolve_names($rawdata, $resolve);
+		//if($doresolve)
+		$rawdata = resolve_names($rawdata, $resolve);
 
 		foreach($allcolumns as $column => $type) {
 			if($core->input[$column] == '1') {
@@ -226,7 +227,7 @@ function make_jqpchart($data) {
 });';
 
 
-	/*
+	/* // function that exports jquery graph to an image
 	  $function.='function jqplotToImg(objId) {
 	  // first we draw an image with all the chart components
 	  var newCanvas = document.createElement("canvas");
@@ -346,6 +347,7 @@ function make_pchart($data) {
 }
 
 function turn_data_into_html($data, $timesliced = false) {
+	global $core, $lang;
 	if(!$timesliced) {
 		$html = '<table cellspacing=0 cellpadding=2 border=1>';
 		$gotone = false;
@@ -357,7 +359,7 @@ function turn_data_into_html($data, $timesliced = false) {
 					$html.='<tr align="left">';
 					foreach($row as $column => $value) {
 						if($column != '#StackedRows') {
-							$html.='<th>'.$column.'</th>';
+							$html.='<th>'.$lang->{$column}.'</th>';
 							$rowcount+=1;
 						}
 					}
@@ -429,7 +431,7 @@ function turn_data_into_html($data, $timesliced = false) {
 									$html.='<tr align="left">';
 									foreach($row as $column => $value) {
 										if($column != '#StackedRows') {
-											$html.='<th>'.$column.'</th>';
+											$html.='<th>'.$lang->{$column}.'</th>';
 											$countrows++;
 										}
 									}
@@ -517,7 +519,7 @@ function debug($something, $label = '+') {
 }
 
 function make_options() {
-	global $core;
+	global $core, $lang;
 	$options = '<div class="strep_optdiv"><form name="reportoptions" action="index.php?module=stock/reports&action=getreport" method="POST" enctype="multipart/form-data">';
 	if(isset($core->input['groupingattribute'])) {
 		switch($core->input['groupingattribute']) {
@@ -532,7 +534,7 @@ function make_options() {
 				break;
 		}
 	}
-	$options.='Group By <select id="groupingattribute" name="group">
+	$options.=$lang->groupby.' <select id="groupingattribute" name="group">
 				<option value="pid" '.$pid.'>Product</option>
 				<option value="spid" '.$spid.'>Supplier</option>
 				<option value="affid" '.$affid.'>Affiliate</option></select>';
@@ -542,26 +544,26 @@ function make_options() {
 	}
 	else {
 		if(isset($core->input['resolveidintoname'])) {
-			$options.='<input id="resolveidintoname" type="checkbox" name="Resolve" value="resolve">Resolve</input>';
+			//$options.='<input id="resolveidintoname" type="checkbox" name="Resolve" value="resolve">Resolve</input>';
 		}
 		else {
-			$options.='<input id="resolveidintoname" type="checkbox" name="Resolve" value="resolve" checked="true">Resolve</input>';
+			//$options.='<input id="resolveidintoname" type="checkbox" name="Resolve" value="resolve" checked="true">Resolve</input>';
 		}
 	}
 	if($core->input['reporttype'] == '1') {
-		$options.='<input id="switchdetailed" type="checkbox" name="reporttype" checked="true">Detailed</input></form></div>';
+		$options.='<input id="switchdetailed" type="checkbox" name="reporttype" checked="true">'.$lang->detailed.'</input></form></div>';
 	}
 	else {
-		$options.='<input id="switchdetailed" type="checkbox" name="reporttype">Detailed</input></form></div>';
+		$options.='<input id="switchdetailed" type="checkbox" name="reporttype">'.$lang->detailed.'</input></form></div>';
 	}
 	$options.='<script type="text/javascript">
 					$(document).ready(function() {
 						$("#groupingattribute").change(function() {
 							post_col_ajax($(this)); // use post_ajax to remove column filters from post
 							});
-						$("#resolveidintoname").change(function() {
-							post_col_ajax($(this));	// use post_ajax to remove column filters from post
-							});
+						//$("#resolveidintoname").change(function() {
+						//	post_col_ajax($(this));	// use post_ajax to remove column filters from post
+						//	});
 						$("#switchdetailed").change(function() {
 							post_col_ajax($(this)); // use post_ajax to remove column filters from post
 						});
@@ -582,8 +584,8 @@ function make_options() {
 							var resolveidintoname=0,switchdetailed=0;
 							if ($("#switchdetailed").prop("checked")==true)
 								switchdetailed=1;
-							if ($("#resolveidintoname").prop("checked")==true)
-								resolveidintoname="resolve";
+							//if ($("#resolveidintoname").prop("checked")==true)
+							//	resolveidintoname="resolve";
 							sharedFunctions.requestAjax("post", "index.php?module=stock/reports&action=getreport", "isajax=true&reporttype="+switchdetailed+"&groupingattribute="+$("#groupingattribute").val()+"&resolveidintoname="+resolveidintoname+firstform, "results_fieldset", "results_fieldset", "html");
 					}
 			   </script>';
@@ -591,8 +593,8 @@ function make_options() {
 }
 
 function choose_columns() {
-	global $core;
-	$columns = array('pid' => 1, 'amount' => 1, 'affid' => 1, 'spid' => 1, 'date' => 1, 'currency' => 1, 'usdFxrate' => 1, 'quantity' => 1, 'quantityUnit' => 1, 'saleType' => 1, 'TRansID' => 1);
+	global $core, $lang;
+	$columns = array('pid' => 1, 'amount' => 1, 'affid' => 1, 'spid' => 1, 'date' => 1, 'currency' => 1, 'usdFxrate' => 1, 'quantity' => 1, 'quantityUnit' => 1, 'saleType' => 1, 'TRansID' => 0);
 	$options = '<div class="strep_coldiv"><form name="datacolumns" action="index.php?module=stock/reports&action=getreport" method="POST" enctype="multipart/form-data">';
 	foreach($columns as $column => $status) {
 		if(isset($core->input[$column])) {
@@ -601,22 +603,22 @@ function choose_columns() {
 			}
 		}
 		if($status == 1) {
-			$options.='<input id="column_'.$column.'" type="checkbox" name="'.$column.'" value="'.$column.'" checked=true>'.$column.'</input>';
+			$options.='<input id="column_'.$column.'" type="checkbox" name="'.$column.'" value="'.$column.'" checked=true>'.$lang->{$column}.'</input>';
 		}
 		else {
-			$options.='<input id="column_'.$column.'" type="checkbox" name="'.$column.'" value="'.$column.'">'.$column.'</input>';
+			$options.='<input id="column_'.$column.'" type="checkbox" name="'.$column.'" value="'.$column.'">'.$lang->{$column}.'</input>';
 		}
 	}
 	$options.='</form></div>';
 	$options.='<script type="text/javascript">
 				$(document).ready(function() {
 				$("form").submit( function () {
-					var input = $("<input>").attr("type", "hidden").attr("name", "resolveidintoname").val(($("#resolveidintoname").prop("checked")==true?"resolve":"0"));
-					$("form").append($(input));
+					//var input = $("<input>").attr("type", "hidden").attr("name", "resolveidintoname").val(($("#resolveidintoname").prop("checked")==true?"resolve":"0"));
+					//$("form").append($(input));
 					input = $("<input>").attr("type", "hidden").attr("name", "reporttype").val(($("#switchdetailed").prop("checked")==true?"1":"0"));
 					$("form").append($(input));
 					input = $("<input>").attr("type", "hidden").attr("name", "groupingattribute").val($("#groupingattribute").val());
-				$("form").append($(input));';
+					$("form").append($(input));';
 	foreach($columns as $column => $status) {
 		$options.='input = $("<input>").attr("type", "hidden").attr("name", "'.$column.'").val($("#column_'.$column.'").prop("checked")==true?"1":"0");
 	$("form").append($(input));';
@@ -654,14 +656,13 @@ function choose_columns() {
 				checkboxes+="&'.$column.'="+var_'.$column.';
 				}';
 	}
-	$options.='var resolveidintoname=0,switchdetailed=0;
+	$options.='var switchdetailed=0; //,resolveidintoname=0
 				if ($("#switchdetailed").prop("checked")==true)
 					switchdetailed=1;
-				if ($("#resolveidintoname").prop("checked")==true)
-					resolveidintoname="resolve";';
-	$options.='sharedFunctions.requestAjax("post", "index.php?module=stock/reports&action=getreport", "isajax=true&reporttype="+switchdetailed+"&groupingattribute="+$("#groupingattribute").val()+"&resolveidintoname="+resolveidintoname+firstform+checkboxes, "results_fieldset", "results_fieldset", "html");
-					}
-			   </script>';
+				//if ($("#resolveidintoname").prop("checked")==true)
+				//	resolveidintoname="resolve";
+				sharedFunctions.requestAjax("post", "index.php?module=stock/reports&action=getreport", "isajax=true&reporttype="+switchdetailed+"&groupingattribute="+$("#groupingattribute").val()+firstform+checkboxes, "results_fieldset", "results_fieldset", "html");}</script>';
+	//$options.='sharedFunctions.requestAjax("post", "index.php?module=stock/reports&action=getreport", "isajax=true&reporttype="+switchdetailed+"&groupingattribute="+$("#groupingattribute").val()+"&resolveidintoname="+resolveidintoname+firstform+checkboxes, "results_fieldset", "results_fieldset", "html");}</script>';
 	return $options;
 }
 
@@ -679,79 +680,72 @@ function assemble_filter_query($core, $db) {
 		}
 		$query.=$datefrom ? ('date>='.$datefrom.'') : '';
 	}
-	if(isset($core->input['supplier']))
-		if($core->input['supplier']) {
-			$spid = $core->input['supplier'];
-			$firstone = true;
-			foreach($spid as $key => $value) {
-				$value = $db->escape_string($value);
-				if($checkifwherewasadded) {
-					if($firstone) {
-						$firstone = false;
-						$query .=' AND (spid='.$value.'';
-					}
-					else {
-						$query .=' OR spid='.$value.'';
-					}
-				}
-				else {
-					$firstone = false;
-					$checkifwherewasadded = true;
-					$query .=' WHERE (spid='.$value.'';
-				}
-			}
-			$query.=')';
+	if($core->input['supplier']) {
+		if($checkifwherewasadded) {
+			$query.=' AND spid IN ('.implode(',', $core->input['supplier']).')';
 		}
-	if(isset($core->input['product']))
-		if($core->input['product']) {
-			$pid = $core->input['product'];
-			$firstone = true;
-			foreach($pid as $key => $value) {
-				$value = $db->escape_string($value);
-				if($checkifwherewasadded) {
-					if($firstone) {
-						$firstone = false;
-						$query .=' AND (pid='.$value.'';
-					}
-					else {
-						$query .=' OR pid='.$value.'';
-					}
-				}
-				else {
-					$firstone = false;
-					$checkifwherewasadded = true;
-					$query .=' WHERE (pid='.$value.'';
-				}
-			}
-			$query.=')';
+		else {
+			$checkifwherewasadded = true;
+			$query.=' WHERE spid IN ('.implode(',', $core->input['supplier']).')';
 		}
-	if(isset($core->input['affiliate']))
-		if($core->input['affiliate']) {
-			$affid = $core->input['affiliate'];
-			$firstone = true;
-			foreach($affid as $key => $value) {
-				$value = $db->escape_string($value);
-				if($checkifwherewasadded) {
-					if($firstone) {
-						$firstone = false;
-						$query .=' AND (affid=\''.$value.'\'';
-					}
-					else {
-						$query .=' OR affid=\''.$value.'\'';
-					}
-				}
-				else {
-					$firstone = false;
-					$checkifwherewasadded = true;
-					$query .=' WHERE (affid=\''.$value.'\'';
-				}
-			}
-			$query.=')';
+	}
+	else {
+		$suppliers = getSuppliersList(true);
+		if($checkifwherewasadded) {
+			$query.=' AND spid IN ('.implode(',', $suppliers).')';
 		}
+		else {
+			$checkifwherewasadded = true;
+			$query.=' WHERE spid IN ('.implode(',', $suppliers).')';
+		}
+	}
+
+
+	if($core->input['product']) {
+		if($checkifwherewasadded) {
+			$query.=' AND pid IN ('.implode(',', $core->input['product']).')';
+		}
+		else {
+			$checkifwherewasadded = true;
+			$query.=' WHERE pid IN ('.implode(',', $core->input['product']).')';
+		}
+	}
+	else {
+		$suppliers = getSuppliersList(true);
+		$products = getProductsList($suppliers, true);
+		if($checkifwherewasadded) {
+			$query.=' AND pid IN ('.implode(',', $products).')';
+		}
+		else {
+			$checkifwherewasadded = true;
+			$query.=' WHERE pid IN ('.implode(',', $products).')';
+		}
+	}
+
+	if($core->input['affiliate']) {
+		if($checkifwherewasadded) {
+			$query.=' AND affid IN ('.implode(',', $core->input['affiliate']).')';
+		}
+		else {
+			$checkifwherewasadded = true;
+			$query.=' WHERE affid IN ('.implode(',', $core->input['affiliate']).')';
+		}
+	}
+	else {
+		$affiliates = getAffiliateList(true);
+		if($checkifwherewasadded) {
+			$query.=' AND affid IN ('.implode(',', $affiliates).')';
+		}
+		else {
+			$checkifwherewasadded = true;
+			$query.=' WHERE affid IN ('.implode(',', $affiliates).')';
+		}
+	}
 	return $query;
 }
 
 function make_filters($db, $core) {
+	global $lang;
 	if(isset($core->input['datefrom'])) {
 		$datefrom = $core->input['datefrom'];
 	}
@@ -791,33 +785,26 @@ function make_filters($db, $core) {
 			$core->input['product'] = explode(',', $core->input['product']);
 		}
 	}
-	$return = '<div class="strep_maindiv"><table cellspacing=0 cellpadding=0 border=0><tr><td><form name="reportfilter" action="index.php?module=stock/reports&action=getreport" method="POST" enctype="multipart/form-data">';
-	$return.='<div style="text-align:right;"><b><u>From:</u></b></font></div></td><td><input type="text" id="datefrom" name="datefrom" class="datepicker" value="'.$datefrom.'" /><div style="margin-left:28%;display:inline;"><b><u>To:</u></b></div></td><td>';
-	$return.='<input type="text" id="dateto" name="dateto" class="datepicker" value="'.$dateto.'"/></td></tr><tr><td><b><u>Affiliate:</u></b></td><td><b><u>Supplier:</u></b></td><td><b><u>Product:</u></b></td></tr><tr>';
-	$affiliates_query = $db->query('SELECT affid,name from '.Tprefix.'affiliates');
-	if($db->num_rows($affiliates_query) > 0) {
-		$return.='<td><select id="affiliate" name="affiliate[]" multiple="true">';
-		while($affiliate = $db->fetch_assoc($affiliates_query)) {
-			$return.='<option '.(in_array($affiliate['affid'], $core->input['affiliate']) ? 'selected="true"' : '').' value="'.$affiliate['affid'].'">'.$affiliate['name'].'</option>';
-		}
-		$return.='</select>';
-	}
-	$suppliers_query = $db->query('SELECT eid,companyName from '.Tprefix.'entities WHERE type=\'s\'');
-	if($db->num_rows($suppliers_query) > 0) {
-		$return.='<td><select id="supplier" name="supplier[]" multiple="true">';
-		while($supplier = $db->fetch_assoc($suppliers_query)) {
-			$return.='<option '.(in_array($supplier['eid'], $core->input['supplier']) ? 'selected="true"' : '').' value="'.$supplier['eid'].'">'.$supplier['companyName'].'</option>';
-		}
-		$return.='</select>';
-	}
-	$products_query = $db->query('SELECT pid,name from '.Tprefix.'products');
-	if($db->num_rows($products_query) > 0) {
-		$return.='</td><td><select id="product" name="product[]" multiple="true">';
-		while($product = $db->fetch_assoc($products_query)) {
-			$return.='<option '.(in_array($product['pid'], $core->input['product']) ? 'selected="true"' : '').' value="'.$product['pid'].'">'.$product['name'].'</option>';
-		}
-		$return.='</select>';
-	}
+	$return = '<div class="strep_maindiv"><table cellspacing=2 cellpadding=5 border=0><tr><td><form name="reportfilter" action="index.php?module=stock/reports&action=getreport" method="POST" enctype="multipart/form-data">';
+	$return.='<div style=""><b><u>'.$lang->from.':</u></b></font></div><input type="text" id="datefrom" name="datefrom" class="datepicker" value="'.$datefrom.'" /></td><td>';
+	$return.='<div style=""><b><u>'.$lang->to.':</u></b></div>';
+	$return.='<input type="text" id="dateto" name="dateto" class="datepicker" value="'.$dateto.'"/></td></tr><tr><td><b><u>'.$lang->affiliate.':</u></b></td><td><b><u>'.$lang->supplier.':</u></b></td><td><b><u>'.$lang->product.':</u></b></td></tr><tr>';
+
+	$affiliates = getAffiliateList();
+	asort($affiliates);
+	$return .='<td>'.parse_selectlist('affiliate[]', 1, $affiliates, $core->input['affiliate'], 1).'</td>';
+
+	$suppliers = getSuppliersList();
+	asort($suppliers);
+	$return .='<td>'.parse_selectlist('supplier[]', 2, $suppliers, $core->input['supplier'], 1).'</td>';
+
+
+	$products = getProductsList($suppliers);
+	asort($products);
+	$return .='<td>'.parse_selectlist('product[]', 3, $products, $core->input['product'], 1).'</td>';
+
+
+
 	$return.='</td></tr><td colspan=2><input type=submit value=Generate id="formsubmit"></td></tr>';
 	$return.='</form></div></td></tr></table>'.'
 		<script>
@@ -826,6 +813,83 @@ function make_filters($db, $core) {
 			});
 		</script>';
 	return $return;
+}
+
+function getAffiliateList($idsonly = false) {
+	global $core, $db;
+	if($core->usergroup['canViewAllAff'] == 0) {
+		$tmpaffiliates = $core->user['affiliates'];
+		foreach($tmpaffiliates as $value) {
+			if($idsonly) {
+				$affiliates[$value] = $value;
+			}
+			else {
+				$affiliates[$value] = get_name_from_id($value, 'affiliates', 'affid', 'name');
+			}
+		}
+	}
+	else {
+		$affiliates_query = $db->query('SELECT affid,name from '.Tprefix.'affiliates');
+		if($db->num_rows($affiliates_query) > 0) {
+			while($affiliate = $db->fetch_assoc($affiliates_query)) {
+				if($idsonly) {
+					$affiliates[$affiliate['affid']] = $affiliate['affid'];
+				}
+				else {
+					$affiliates[$affiliate['affid']] = $affiliate['name'];
+				}
+			}
+		}
+	}
+	return $affiliates;
+}
+
+function getSuppliersList($idsonly = false) {
+	global $core, $db;
+	if($core->usergroup['canViewAllSupp'] == 0) {
+		$tmpsuppliers = $core->user['suppliers'];
+		foreach($tmpsuppliers['eid'] as $value) {
+			if($idsonly) {
+				$suppliers[$value] = $value;
+			}
+			else {
+				$suppliers[$value] = get_name_from_id($value, 'entities', 'eid', 'companyName');
+			}
+		}
+	}
+	else {
+		$suppliers_query = $db->query('SELECT eid,companyName from '.Tprefix.'entities WHERE type=\'s\'');
+		if($db->num_rows($suppliers_query) > 0) {
+			while($dbsupplier = $db->fetch_assoc($suppliers_query)) {
+				if($idsonly) {
+					$suppliers[$dbsupplier['eid']] = $dbsupplier['eid'];
+				}
+				else {
+					$suppliers[$dbsupplier['eid']] = $dbsupplier['companyName'];
+				}
+			}
+		}
+	}
+	return $suppliers;
+}
+
+function getProductsList($suppliers, $idsonly = false) {
+	global $core, $db;
+	foreach($suppliers as $key => $value) {
+		$suppliers[$key] = $key;
+	}
+	$products_query = $db->query('SELECT pid,name from '.Tprefix.'products WHERE spid IN ('.implode(',', $suppliers).')');
+	if($db->num_rows($products_query) > 0) {
+		while($product = $db->fetch_assoc($products_query)) {
+			if($idsonly) {
+				$products[$product['pid']] = $product['pid'];
+			}
+			else {
+				$products[$product['pid']] = $product['name'];
+			}
+		}
+	}
+	return $products;
 }
 
 function time_regroup($data, $datecolumn) {
@@ -905,9 +969,6 @@ function regroup_and_sum($data, $groupingattribute = 'pid', $trackedcolumns = ar
 					}
 				}
 			}
-			else {
-				echo 'this is the one that is not being counted <pre>'.print_r($purchase, true).'</pre>';
-			}
 		}
 	}
 	return $grouped;
@@ -938,35 +999,6 @@ function regroup_by_day($data) {
 
 function check_for_presence($haystack, $needle, $filter) {
 	$results = array();
-
-	/*
-	  $temphs = array();
-	  $tempns = array();
-	  foreach($haystack as $key => $row) {
-	  if(is_numeric($key)) {
-	  foreach($filter as $column => $type) {
-	  if($type != 'numeric') {
-	  $temphs[$key][$column] = $haystack[$key][$column]['value'];
-	  }
-	  }
-	  }
-	  }
-	  foreach($needle as $column => $row) {
-	  foreach($filter as $column => $type) {
-	  if($type != 'numeric') {
-	  $tempns[$column] = $needle[$column]['value'];
-	  }
-	  }
-	  }
-
-
-	  $key=in_array($tempns, $temphs);
-	  if ($key) {
-	  $gotmatch = 'got one';
-	  $gotmatch.='asd';
-	  }
-	 */
-
 	foreach($haystack as $key => $row) {
 		if(is_numeric($key)) {
 			$present = true;
@@ -1014,7 +1046,7 @@ function get_name_from_id($id, $tablename = 'products', $idcolumn = 'pid', $name
 		return $name;
 	}
 	else {
-		return $id;
+		return '-NA-';
 	}
 }
 
@@ -1060,7 +1092,7 @@ function generate_stock_reports_email_data($data) {
 		$content.=$td.$key.'</td>';
 		foreach($row as $columnid => $value) {
 			if($columnid == 'date')
-				$value['value'] = date('m-d-Y', $value['value']);
+				$value['value'] = date($core->settings['dateformat'], $value['value']);
 			$content.=$td.$value['value'].'</td>';
 		}
 		$content.='</tr>';
