@@ -643,83 +643,87 @@ if($core->input['action']) {
 		}
 	
 		$multipage_where = 'gid!=7';
-		if(isset($core->input['filterby'], $core->input['filtervalue'])) {
-			$attributes_filter_options['prefixes'] = array('affid' => 'aff.');
-			$attributes_filter_options['types'] = array('affid' => 'int', 'reportsTo' => 'int');
-			
-			if($attributes_filter_options['types'][$core->input['filterby']] == 'int') {
-				$filter_value = ' = "'.$db->escape_string($core->input['filtervalue']).'"';
-			}
-			else
-			{
-				$filter_value = ' LIKE "%'.$db->escape_string($core->input['filtervalue']).'%"';
-			}
-			$multipage_where .= ' AND '.$db->escape_string($attributes_filter_options['prefixes'][$core->input['filterby']].$core->input['filterby']).$filter_value;
-			$filter_where = ' AND '.$db->escape_string($attributes_filter_options['prefixes'][$core->input['filterby']].$core->input['filterby']).$filter_value;
+		/* Perform inline filtering - START */
+		$filters_config = array(
+				'parse' => array('filters' => array('fullName', 'displayName', 'affid', 'position', 'reportsTo')
+				),
+				'process' => array(
+						'filterKey' => 'uid',
+						'mainTable' => array(
+								'name' => 'users',
+								'filters' => array('displayName' => 'displayName', 'reportsTo' => array('operatorType' => 'multiple', 'name' => 'reportsTo')),
+								'extraSelect' => 'CONCAT(firstName, \' \', lastName) AS fullName',
+								'havingFilters' => array('fullName' => 'fullName')
+						),
+						'secTables' => array(
+								'userspositions' => array(
+										'filters' => array('position' => array('operatorType' => 'multiple', 'name' => 'posid')),
+								),
+								'affiliatedemployees' => array(
+										'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid')),
+										'extraWhere' => 'isMain=1'
+								)
+						)
+				)
+		);
+
+		$filter = new Inlinefilters($filters_config);
+		$filter_where_values = $filter->process_multi_filters();
+
+		$filters_row_display = 'hide';
+		if(is_array($filter_where_values)) {
+			$filters_row_display = 'show';
+			$filter_where = 'AND u.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+			$multipage_where .= ' AND u.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
 		}
+		
+		$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+		/* Perform inline filtering - END */
 
 		$query = $db->query("SELECT DISTINCT(u.uid), u.*, aff.*, reportsTo AS supervisor, CONCAT(firstName, ' ', lastName) AS name, aff.name AS mainaffiliate, aff.affid
 							FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) JOIN ".Tprefix."affiliates aff ON (aff.affid=ae.affid)
 							WHERE gid!='7' AND isMain='1'
 							{$filter_where}
-							{$filter_having}
 							ORDER BY {$sort_query} 
 							LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
-		$filters_required = array('affid', 'reportsTo');
 		$filters_cache = array();
 		if($db->num_rows($query) > 0) {
-			while($user = $db->fetch_assoc($query)) {
-			$class = alt_row($class);
-			/*$user['mainaffiliate'] = $db->fetch_field($db->query("SELECT aff.name as affiliatename 
-						  FROM ".Tprefix."affiliates aff LEFT JOIN ".Tprefix."affiliatedemployees ae ON (ae.affid=aff.affid)
-						  WHERE ae.uid='{$user[uid]}' AND isMain='1'"), 'affiliatename');*/
-	
-			$userpositions = $hiddenpositions = $break = '';
-				
-			$query2 = $db->query("SELECT p.* FROM ".Tprefix."positions p LEFT JOIN ".Tprefix."userspositions up ON (up.posid=p.posid) WHERE  up.uid='{$user[uid]}' ORDER BY p.name ASC");
-			$positions_counter = 0;
-	
-			while($position = $db->fetch_assoc($query2)) {
-				if(!empty($lang->{$position['name']})) { $position['title'] = $lang->{$position['name']}; } 
-	
-				if(++$positions_counter > 2) {
-					$hidden_positions .= $break.$position['title'];
-				}
-				else
-				{
-					$userpositions .= $break.$position['title']; 
-				}
-				$break = '<br />';
-			}	
+				while($user = $db->fetch_assoc($query)) {
+				$class = alt_row($class);
+				/*$user['mainaffiliate'] = $db->fetch_field($db->query("SELECT aff.name as affiliatename 
+							FROM ".Tprefix."affiliates aff LEFT JOIN ".Tprefix."affiliatedemployees ae ON (ae.affid=aff.affid)
+							WHERE ae.uid='{$user[uid]}' AND isMain='1'"), 'affiliatename');*/
+
+				$userpositions = $hiddenpositions = $break = '';
+
+				$query2 = $db->query("SELECT p.* FROM ".Tprefix."positions p LEFT JOIN ".Tprefix."userspositions up ON (up.posid=p.posid) WHERE  up.uid='{$user[uid]}' ORDER BY p.name ASC");
+				$positions_counter = 0;
+
+				while($position = $db->fetch_assoc($query2)) {
+					if(!empty($lang->{$position['name']})) { $position['title'] = $lang->{$position['name']}; } 
+
+					if(++$positions_counter > 2) {
+						$hidden_positions .= $break.$position['title'];
+					}
+					else
+					{
+						$userpositions .= $break.$position['title']; 
+					}
+					$break = '<br />';
+				}	
+			
 				if($positions_counter > 2) {
 					$userpositions = $userpositions.", <a href='#' id='showmore_positions_{$user[uid]}'>...</a> <span style='display:none;' id='positions_{$user[uid]}'>{$hidden_positions}</span>";
 				}
-				//CONCAT(firstName, \' \', lastName)
+				
 				list($user['reportsToName']) = get_specificdata('users', array('CONCAT(firstName, \' \', lastName) as reportsToName'), '0', 'reportsToName', '', 0, "uid='{$user[reportsTo]}'");
 				
 				$skypelink = '';
 				if(isset($user['skype']) && !empty($user['skype'])) {
 					$skypelink = "<a href='skype:{$user[skype]}'><img src='./images/icons/skype.gif' alt='{$lang->skype}' border='0' /></a>";
 				}
-			
-				foreach($filters_required as $key) {
-					if(!is_array($filters_cache[$key])) {
-						$filters_cache[$key] = array();
-					}
-					
-					if(!in_array($user[$key], $filters_cache[$key])) {
-						$filters[$key][$user[$key]] = '<a href="users.php?action=userslist&filterby='.$key.'&filtervalue='.$user[$key].'"><img src="./images/icons/search.gif" border="0" alt="'.$lang->filterby.'"/></a>';
-						$filters_cache[$key][] = $user[$key];
-					}
-					else
-					{
-						$filters[$key][$user[$key]] = '';
-					}
-				}
-				
-				
-				$tooltip = $lang->extension.':'.$user['extension'].'<br />'.$lang->mobile.':'.$user['mobile'];
+				//$tooltip = $lang->extension.':'.$user['extension'].'<br />'.$lang->mobile.':'.$user['mobile'];
 				eval("\$usersrows .= \"".$template->get('userslist_row')."\";");
 			}
 			

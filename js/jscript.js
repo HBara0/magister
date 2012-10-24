@@ -3,7 +3,7 @@ $(function() {
 		Check the browswer version before anything else
 	*/
 	if($.browser.msie && $.browser.version.substr(0,1)<7) {
-		$('head').append('<link rel="stylesheet" href="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.css" type="text/css" />');
+		$('head').append('<link rel="stylesheet" href="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.min.css" type="text/css" />');
 		$("body").append("<div id='browserversionerror' title='Browser version is too old'>Please upgrade your browser to a newer version.</div>");
 		$("#browserversionerror").dialog({
 			bgiframe: true,
@@ -62,12 +62,6 @@ $(function() {
 		$("#sidedesignImage").height($(window).height());
 	}
 
-	if($("input[id^='pickDate']").length > 0) {
-		if($('link[id="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.css"') == 'undefined') {
-			$('head').append('<link rel="stylesheet" href="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.css" type="text/css" />');
-		}
-	}
-
 	if($(".texteditormin, .texteditor").length > 0) {
 		//if($('link[id="' + rootdir + 'js/redactor.min.js"') == 'undefined') {
 			$('head').append('<script src="' + rootdir + 'js/redactor.min.js" type="text/javascript"></script>');
@@ -82,7 +76,19 @@ $(function() {
 			}
 		//}
 	}
-
+	
+	if($(".tablefilters_row_toggle").length > 0) {
+		$(window).keypress(function(e) {
+			if((e.which == 102 || e.which == 70) && e.ctrlKey) {
+				e.preventDefault();
+				$('#tablefilters, .tablefilters_row').toggle();
+				$('html, body').animate({ scrollTop: 0 }, 'fast');
+				$('#tablefilters').find('input:first').focus();
+				return false;
+			}
+		});
+	}
+	
 	$("input[id^='pickDate']").live('click', function() {
 		//$(this).removeClass('hasDatepicker');
 		$(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown'}).focus();
@@ -319,10 +325,10 @@ $(function() {
 	});
 
 	function show_loginbox() {
-		$('head').append('<link rel="stylesheet" href="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.css" type="text/css" />');
+		$('head').append('<link rel="stylesheet" href="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.min.css" type="text/css" />');
 		popUp("", "popup_loginbox", "users.php");
 	}
-
+	
 	function login() {
 		$.post(rootdir + "users.php?action=do_login",
 				{username: $("#username").val(), password: $("#password").val(), token: $("#logintoken").val()},
@@ -491,7 +497,7 @@ $(function() {
 
 	window.sharedFunctions = function() {
 		function requestAjax(methodParam, urlParam, dataParam, loadingId, contentId, datatype) {
-				//var datatype = 'html';
+                                //var datatype = 'html';
 				/* Check if value = 1 just to ensure background compatibility with previous code */
 				if(datatype == 1) {
 					datatype = 'html';

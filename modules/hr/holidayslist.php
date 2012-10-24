@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
 * Orkila Central Online System (OCOS)
 * Copyright © 2009 Orkila International Offshore, All Rights Reserved
@@ -63,10 +63,32 @@ if(!$core->input['action']) {
 	
 	$multipage_where = 'affid='.$affid;
 	
-	if(isset($core->input['filtervalue'])) {
-		$filter_where = 'AND name LIKE "%'.$db->escape_string($core->input['filtervalue']).'%"';
-		$multipage_where .= ' AND name LIKE "%'.$db->escape_string($core->input['filtervalue']).'%"';
+	/* Perform inline filtering - START */
+	$filters_config = array(
+			'parse' => array('filters' => array('title', 'month', 'day', 'numDays', 'year'),
+					'overwriteField' => array('month' => '', 'day' => '')
+			),
+			'process' => array(
+					'filterKey' => 'hid',
+					'mainTable' => array(
+							'name' => 'holidays',
+							'filters' => array('title' => 'title', 'year' => 'year', 'month' => 'month', 'numDays' => 'numDays')
+					)
+			)
+	);
+
+	$filter = new Inlinefilters($filters_config);
+	$filter_where_values = $filter->process_multi_filters();
+	$filters_row_display = 'hide';
+	
+	if(is_array($filter_where_values)) {
+		$filters_row_display = 'show';
+		$filter_where = 'AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+		$multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
 	}
+	
+	$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+	/* Perform inline filtering - END */
 	
 	$query = $db->query("SELECT * FROM ".Tprefix."holidays
 						WHERE affid={$affid}
@@ -107,7 +129,7 @@ if(!$core->input['action']) {
 	if(is_array($affiliates)) {
 		$affid_field = $lang->affiliate.': '.parse_selectlist('affid', 1, $affiliates, $affid, 0, 'goToURL("index.php?module=hr/holidayslist&amp;affid="+$(this).val())').'';
 	}
-	eval("\$list = \"".$template->get("hr_holidayslist")."\";");
+	eval("\$list = \"".$template->get('hr_holidayslist')."\";");
 	output_page($list);
 }
 else
