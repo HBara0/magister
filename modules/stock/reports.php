@@ -13,14 +13,16 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 $session->start_phpsession();
-$content = encapsulate_in_fieldset(make_filters($db, $core), 'Filter', false);
-$content .= encapsulate_in_fieldset(make_options(), 'Options', false);
-$content .= encapsulate_in_fieldset(choose_columns(), 'Columns', false);
 
 if($core->usergroup['stock_canGenerateReports'] == '1') {
+
+	$content = encapsulate_in_fieldset(make_filters($db, $core), 'Filter', false);
+	$content .= encapsulate_in_fieldset(make_options(), 'Options', false);
+	$content .= encapsulate_in_fieldset(choose_columns(), 'Columns', false);
+
 	if($core->input['action'] == 'getreport') {
 		$query = assemble_filter_query($core, $db);
-		$content.=encapsulate_in_fieldset($query, 'Query');
+		//$content.=encapsulate_in_fieldset($query, 'Query');
 		$allcolumns = array('pid' => 'id', 'amount' => 'numeric', 'affid' => 'id', 'spid' => 'id', 'date' => 'date', 'currency' => 'numeric', 'usdFxrate' => 'numeric', 'quantity' => 'numeric', 'quantityUnit' => 'text', 'saleType' => 'text', 'TRansID' => 'text');
 		$rawdata = retrieve_data($query, $allcolumns);
 		$trackedcolumns = array();
@@ -63,6 +65,10 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		}
 		//debug(array($rawdata,$datapresented,$allcolumns, $trackedcolumns));
 
+		$content.=encapsulate_in_fieldset(make_jqpchart(regroup_by_day($rawdata)), "jQchart");
+		//$content.=encapsulate_in_fieldset(make_pchart(regroup_by_day($rawdata)), "pChart");
+		//$content.=encapsulate_in_fieldset(make_jqppiechart(regroup_and_sum($rawdata, 'affid', array('amount' => 'numeric'), $resolve['affid'])), 'jQPieChart');
+
 
 		if($core->input['isajax'] == 'true') {
 			if($core->input['reporttype'] == 1) {
@@ -77,9 +83,6 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 			$content.=$datapresented;
 		}
 
-		//$content.=encapsulate_in_fieldset(make_jqpchart(regroup_by_day($rawdata)), "jQchart");
-		//$content.=encapsulate_in_fieldset(make_pchart(regroup_by_day($rawdata)), "pChart");		
-		$content.=encapsulate_in_fieldset(make_jqppiechart(regroup_and_sum($rawdata, 'affid', array('amount' => 'numeric'), $resolve['affid'])), 'jQPieChart');
 
 		/*
 		  foreach ($data as $key=>$value) {
@@ -137,7 +140,7 @@ function make_jqppiechart($data) {
 		if(is_array($row)) {
 			$total = 0;
 			foreach($row as $key => $value) {
-				if (is_array($value)) {
+				if(is_array($value)) {
 					$total+=$value['amount']['value'];
 				}
 			}
@@ -159,8 +162,8 @@ function make_jqppiechart($data) {
       legend: { show:true, location: \'e\' }
     }
   );
- 
-   
+
+
 });
 </script>';
 	return $includes.$function;
@@ -169,7 +172,8 @@ function make_jqppiechart($data) {
 function make_jqpchart($data) {
 	$urlparts = explode('?', get_curent_page_URL());
 	$baseurl = substr($urlparts[0], 0, strlen($urlparts[0]) - 9);
-	$includes = '<script type="text/javascript" src="'.$baseurl.'inc/jQplot/jquery.jqplot.min.js"></script>
+	$includes = '
+				<script type="text/javascript" src="'.$baseurl.'inc/jQplot/jquery.jqplot.min.js"></script>
 				<link rel="stylesheet" type="text/css" hrf="'.$baseurl.'inc/jQplot/jquery.jqplot.min.css" />
 				<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
 				<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.dateAxisRenderer.min.js"></script>
@@ -217,96 +221,93 @@ function make_jqpchart($data) {
 });
 
 
-jqplotToImg("jqChart");
+//jqplotToImg("jqChart");
 
-});
+});';
 
 
+	/*
+	  $function.='function jqplotToImg(objId) {
+	  // first we draw an image with all the chart components
+	  var newCanvas = document.createElement("canvas");
+	  newCanvas.width = $("#" + objId).width();
+	  newCanvas.height = $("#" + objId).height();
+	  var baseOffset = $("#" + objId).offset();
 
-function jqplotToImg(objId) {
-// first we draw an image with all the chart components
-var newCanvas = document.createElement("canvas");
-newCanvas.width = $("#" + objId).width();
-newCanvas.height = $("#" + objId).height();
-var baseOffset = $("#" + objId).offset();
+	  $("#" + objId).children().each(
+	  function() {
+	  // for the div\'s with the X and Y axis
+	  if ($(this)[0].tagName.toLowerCase() == \'div\') {
+	  // X axis is built with canvas
+	  $(this).children("canvas").each(
+	  function() {
+	  var offset = $(this).offset();
+	  newCanvas.getContext("2d").drawImage(this,
+	  offset.left - baseOffset.left,
+	  offset.top - baseOffset.top);
+	  });
+	  // Y axis got div inside, so we get the text and draw it on
+	  // the canvas
+	  $(this).children("div").each(
+	  function() {
+	  var offset = $(this).offset();
+	  var context = newCanvas.getContext("2d");
+	  context.font = $(this).css(\'font-style\') + " "
+	  + $(this).css(\'font-size\') + " "
+	  + $(this).css(\'font-family\');
+	  context.fillText($(this).html(), offset.left
+	  - baseOffset.left, offset.top
+	  - baseOffset.top + 10);
+	  });
+	  }
+	  // all other canvas from the chart
+	  else if ($(this)[0].tagName.toLowerCase() == \'canvas\') {
+	  var offset = $(this).offset();
+	  newCanvas.getContext("2d").drawImage(this,
+	  offset.left - baseOffset.left,
+	  offset.top - baseOffset.top);
+	  }
+	  });
 
-$("#" + objId).children().each(
-function() {
-// for the div\'s with the X and Y axis
-if ($(this)[0].tagName.toLowerCase() == \'div\') {
-// X axis is built with canvas
-$(this).children("canvas").each(
-function() {
-var offset = $(this).offset();
-newCanvas.getContext("2d").drawImage(this,
-offset.left - baseOffset.left,
-offset.top - baseOffset.top);
-});
-// Y axis got div inside, so we get the text and draw it on
-// the canvas
-$(this).children("div").each(
-function() {
-var offset = $(this).offset();
-var context = newCanvas.getContext("2d");
-context.font = $(this).css(\'font-style\') + " "
-+ $(this).css(\'font-size\') + " "
-+ $(this).css(\'font-family\');
-context.fillText($(this).html(), offset.left
-- baseOffset.left, offset.top
-- baseOffset.top + 10);
-});
-}
-// all other canvas from the chart
-else if ($(this)[0].tagName.toLowerCase() == \'canvas\') {
-var offset = $(this).offset();
-newCanvas.getContext("2d").drawImage(this,
-offset.left - baseOffset.left,
-offset.top - baseOffset.top);
-}
-});
+	  // add the point labels
+	  $("#" + objId).children(".jqplot-point-label").each(
+	  function() {
+	  var offset = $(this).offset();
+	  var context = newCanvas.getContext("2d");
+	  context.font = $(this).css(\'font-style\') + " "
+	  + $(this).css(\'font-size\') + " "
+	  + $(this).css(\'font-family\');
+	  context.fillText($(this).html(), offset.left - baseOffset.left,
+	  offset.top - baseOffset.top + 10);
+	  });
 
-// add the point labels
-$("#" + objId).children(".jqplot-point-label").each(
-function() {
-var offset = $(this).offset();
-var context = newCanvas.getContext("2d");
-context.font = $(this).css(\'font-style\') + " "
-+ $(this).css(\'font-size\') + " "
-+ $(this).css(\'font-family\');
-context.fillText($(this).html(), offset.left - baseOffset.left,
-offset.top - baseOffset.top + 10);
-});
+	  // add the rectangles
+	  $("#" + objId + " *").children(".jqplot-table-legend-swatch").each(
+	  function() {
+	  var offset = $(this).offset();
+	  var context = newCanvas.getContext("2d");
+	  context.setFillColor($(this).css(\'background-color\'));
+	  context.fillRect(offset.left - baseOffset.left, offset.top
+	  - baseOffset.top, 15, 15);
+	  });
 
-// add the rectangles
-$("#" + objId + " *").children(".jqplot-table-legend-swatch").each(
-function() {
-var offset = $(this).offset();
-var context = newCanvas.getContext("2d");
-context.setFillColor($(this).css(\'background-color\'));
-context.fillRect(offset.left - baseOffset.left, offset.top
-- baseOffset.top, 15, 15);
-});
+	  // add the legend
+	  $("#" + objId + " *").children(".jqplot-table-legend td:last-child").each(
+	  function() {
+	  var offset = $(this).offset();
+	  var context = newCanvas.getContext("2d");
+	  context.font = $(this).css(\'font-style\') + " "
+	  + $(this).css(\'font-size\') + " "
+	  + $(this).css(\'font-family\');
+	  context.fillText($(this).html(), offset.left - baseOffset.left,
+	  offset.top - baseOffset.top + 15);
+	  });
 
-// add the legend
-$("#" + objId + " *").children(".jqplot-table-legend td:last-child").each(
-function() {
-var offset = $(this).offset();
-var context = newCanvas.getContext("2d");
-context.font = $(this).css(\'font-style\') + " "
-+ $(this).css(\'font-size\') + " "
-+ $(this).css(\'font-family\');
-context.fillText($(this).html(), offset.left - baseOffset.left,
-offset.top - baseOffset.top + 15);
-});
+	  window.open(newCanvas.toDataURL(), "directories=no");
+	  }'; */
+	$function.='</script>';
 
-window.open(newCanvas.toDataURL(), "directories=no");
-}
-
-</script>
-
-';
-
-	return $includes.$function.'<pre>'.print_r($data, true).'</pre>';
+	return $includes.$function; //.'<pre>'.print_r($data, true).'</pre>';
 }
 
 function make_pchart($data) {
@@ -341,7 +342,7 @@ function make_pchart($data) {
 	$Test->setFontProperties("Fonts/tahoma.ttf", 10);
 	$Test->drawTitle(60, 22, "Purchases Value", 50, 50, 50, 585);
 	$Test->Render("chart.png");
-	return '<img src="inc/chart.png"/>'.'<hr><pre>'.print_r($formateddata, true).'</pre>';
+	return '<img src="inc/chart.png"/>'; //.'<hr><pre>'.print_r($formateddata, true).'</pre>';
 }
 
 function turn_data_into_html($data, $timesliced = false) {
@@ -377,21 +378,27 @@ function turn_data_into_html($data, $timesliced = false) {
 					foreach($row as $column => $value) {
 						if($column != '#StackedRows') {
 							if($column != 'date') {
-								if($column == 'amount')
+								if($column == 'amount') {
 									$totalamount+=(float)$value['value'];
+								}
 								if(isset($value['name'])) {
 									$html.='<td>'.$value['name'].'</td>';
 								}
 								else {
-									$html.='<td>'.$value['value'].'</td>';
+									if($column == 'amount') {
+										$html.='<td>'.number_format($value['value'], 2, '.', ' ').'</td>';
+									}
+									else {
+										$html.='<td>'.$value['value'].'</td>';
+									}
 								}
 							}
 							else {
 								if(isset($value['name'])) {
-									$html.='<td>'.date("d-M-Y", $value['name'])./* '<br>'.date("H:m:s", $value['name']). */'</td>';
+									$html.='<td>'.date($core->settings['dateformat'], $value['name'])./* '<br>'.date($core->settings['timeformat'], $value['name']). */'</td>';
 								}
 								else {
-									$html.='<td>'.date("d-M-Y", $value['value'])./* '<br>'.date("H:m:s", $value['value']). */'</td>';
+									$html.='<td>'.date($core->settings['dateformat'], $value['value'])./* '<br>'.date($core->settings['timeformat'], $value['value']). */'</td>';
 								}
 							}
 						}
@@ -404,7 +411,7 @@ function turn_data_into_html($data, $timesliced = false) {
 				}
 			}
 		}
-		$html.='</td></tr><tr>'.($rowcount > 1 ? '<td colspan="'.($rowcount - 1).'" style="text-align:right;">Total: <b>'.$totalamount.'</b></td>' : '').'<td>'.$totalstack.'</td></tr></table>';
+		$html.='</td></tr><tr>'.($rowcount > 1 ? '<td colspan="'.($rowcount - 1).'" style="text-align:right;">Total: <b>'.number_format($totalamount, 2, '.', ' ').'</b></td>' : '').'<td>'.$totalstack.'</td></tr></table>';
 	}
 	else {
 		$html = '<table cellspacing=0 cellpadding=2 border=1>';
@@ -466,7 +473,12 @@ function turn_data_into_html($data, $timesliced = false) {
 												$html.='<td>'.$value['name'].'</td>';
 											}
 											else {
-												$html.='<td>'.$value['value'].'</td>';
+												if($column == 'amount') {
+													$html.='<td>'.number_format($value['value'], 2, '.', ' ').'</td>';
+												}
+												else {
+													$html.='<td>'.$value['value'].'</td>';
+												}
 											}
 										}
 									}
@@ -474,16 +486,17 @@ function turn_data_into_html($data, $timesliced = false) {
 								}
 							}
 						}
-					$html.='<tr><td colspan="'.$countrows.'" style="text-align:right;">Weekly total: <b>'.$weeklyamount.'</b></td></tr>';
+
+					$html.='<tr><td colspan="'.$countrows.'" style="text-align:right;">Weekly total: <b>'.number_format($weeklyamount, 2, '.', ' ').'</b></td></tr>';
 					$monthlyamount+=$weeklyamount;
 				}
-				$html.='<tr><td colspan="'.$countrows.'" style="text-align:right;">Monthly total: <b>'.$monthlyamount.'</b></td></tr>';
+				$html.='<tr><td colspan="'.$countrows.'" style="text-align:right;">Monthly total: <b>'.number_format($monthlyamount, 2, '.', ' ').'</b></td></tr>';
 				$yearlyamount+=$monthlyamount;
 			}
-			$html.='<tr><td colspan="'.$countrows.'" style="text-align:right;">Yearly total: <b>'.$yearlyamount.'</b></td></tr>';
+			$html.='<tr><td colspan="'.$countrows.'" style="text-align:right;">Yearly total: <b>'.number_format($yearlyamount, 2, '.', ' ').'</b></td></tr>';
 			$grandtotal+=$yearlyamount;
 		}
-		$html.='</td></tr><tr><td>TOTAL:<b>'.$grandtotal.'</b></td></tr></table>';
+		$html.='</td></tr><tr><td>TOTAL:<b>'.number_format($grandtotal, 2, '.', ' ').'</b></td></tr></table>';
 	}
 
 	return $html;
