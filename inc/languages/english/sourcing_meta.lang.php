@@ -33,7 +33,7 @@ $lang['competitor'] = 'Competitor';
 $lang['website'] = 'Webiste';
 $lang['chemicalproducts'] = 'Chemical Products';
 $lang['comments'] = 'Comments And Reviews';
-$lang['coBriefing'] = 'coBriefing';
+$lang['coBriefing'] = 'co-Briefing';
 $lang['origin'] = 'Origin';
 $lang['application'] = 'Application';
 $lang['historical'] = 'Historical';
@@ -52,7 +52,9 @@ $lang['addnewrepresentative'] = 'Add New Representative';
 $lang['representativecreated'] = 'The representative was successfully created';
 $lang['representativename'] = 'Representative name';
 $lang['errorcreatingreprentative'] = 'Please make sure to fill all required fields';
-
+$lang['contacthistory'] = 'Contact History';
 $lang['reportcommunication'] = 'Report Communication';
-
+$lang['chemical'] = 'chemical Product';
+$lang['blacklisted'] = 'Mark Supplier as Blacklist';
+$lang['maturitylevel'] = 'Relation Maturity Level (RML)';
 ?>

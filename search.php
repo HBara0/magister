@@ -79,10 +79,10 @@ if($core->input['type'] == 'quick') {
 		  }
 	  }
 	  elseif($core->input['for'] == 'chemical') {
-		  print_r($core->input);
+
 		$table = 'chemicalsubstances';
 		$attributes = array('name');
-		$key_attribute = 'cpid';
+		$key_attribute = 'csid';
 		
 		$select_attributes = array('casNum', 'name');
 		$order = array('by' => 'name', 'sort' => 'ASC');
