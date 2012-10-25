@@ -366,6 +366,9 @@ class Inlinefilters {
 		elseif($attr['operatorType'] == 'between') {
 			$query_where = $sec_query_operator.'('.$attr['name'].' BETWEEN '.$db->escape_string($core->input['filters'][$filteritem]['start']).' AND '.$db->escape_string($core->input['filters'][$filteritem]['end']).')';
 		}
+		elseif($attr['operatorType'] == 'equal') {
+			$query_where = $sec_query_operator.$attr['name'].'="'.$db->escape_string($core->input['filters'][$filteritem]).'"';
+		}
 		else {
 			/* Check if user using seperator to filter multiple values of same attribute */
 			if(strstr($core->input['filters'][$filteritem], ';')) {
