@@ -7,7 +7,7 @@
 * $module: hr
 * $id: holidayslist.php	
 * Created:			@najwa.kassem		October 28, 2010 | 13:30 AM
-* Last Update:		@zaher.reda		  	May 20, 2012 | 10:29 AM
+* Last Update:		@zaher.reda		  	October 25, 2012 | 10:29 AM
 */
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
@@ -22,10 +22,9 @@ if(!$core->input['action']) {
 		$affid = $core->user['mainaffiliate'];
 		if($core->usergroup['hr_canHrAllAffiliates'] == 0) {
 			if(is_array($core->user['hraffids']) && !empty($core->user['hraffids'])) {
-				
-					if(!in_array($core->user['mainaffiliate'], $core->user['hraffids'])) {
-						$affid = $core->user['hraffids'][current($core->user['hraffids'])];
-					}
+				if(!in_array($core->user['mainaffiliate'], $core->user['hraffids'])) {
+					$affid = $core->user['hraffids'][current($core->user['hraffids'])];
+				}
 			}
 			else
 			{
@@ -62,17 +61,23 @@ if(!$core->input['action']) {
 	}
 	
 	$multipage_where = 'affid='.$affid;
-	
 	/* Perform inline filtering - START */
+	$months[0] = '';
+	for($i = 1; $i<=12;$i++) {
+		$months[$i] = $lang->{strtolower(date('F', mktime(0, 0, 0, $i, 1, 1970)))};
+	}
+	
+	$days_number = range(1, 31);
+	array_unshift($days_number, '');
 	$filters_config = array(
 			'parse' => array('filters' => array('title', 'month', 'day', 'numDays', 'year'),
-					'overwriteField' => array('month' => '', 'day' => '')
+					'overwriteField' => array('month' => parse_selectlist('filters[month]', 3, $months, $core->input['filters']['month'], 0), 'day' => parse_selectlist('filters[day]', 3, array_combine(range(0, 31), $days_number), $core->input['filters']['day'], 0))
 			),
 			'process' => array(
 					'filterKey' => 'hid',
 					'mainTable' => array(
 							'name' => 'holidays',
-							'filters' => array('title' => 'title', 'year' => 'year', 'month' => 'month', 'numDays' => 'numDays')
+							'filters' => array('title' => 'title', 'year' => 'year', 'day' => array('operatorType' => 'equal', 'name' => 'day'), 'month' => array('operatorType' => 'equal', 'name' => 'month'), 'numDays' => 'numDays')
 					)
 			)
 	);
@@ -105,7 +110,7 @@ if(!$core->input['action']) {
 			{
 				$year = $holiday['year'];
 			}
-			$holidays_list .= "<tr><td align='center'>{$holiday[title]}</td><td align='center'>".$lang->{strtolower(date("F", mktime(0,0,0, $holiday['month'], 1, 0)))}."</td><td align='center'>{$holiday[day]}</td><td align='center'>{$holiday[numDays]}</td><td align='center'>{$year}</td><td><a href='index.php?module=hr/manageholidays&amp;id={$holiday[hid]}'><img src='./images/icons/edit.gif' border='0' alt=''/></a></td></tr>"; 
+			$holidays_list .= "<tr><td align='center'>{$holiday[title]}</td><td align='center'>".$lang->{strtolower(date('F', mktime(0,0,0, $holiday['month'], 1, 0)))}."</td><td align='center'>{$holiday[day]}</td><td align='center'>{$holiday[numDays]}</td><td align='center'>{$year}</td><td style='text-align: right;'><a href='index.php?module=hr/holidayslist&amp;action=sendholidays&amp;id={$holiday[hid]}'><img src='./images/icons/send.gif' border='0' alt=''/></a> <a href='index.php?module=hr/manageholidays&amp;id={$holiday[hid]}'><img src='./images/icons/edit.gif' border='0' alt=''/></a></td></tr>"; 
 		}
 		
 		$multipages = new Multipages('holidays', $core->settings['itemsperlist'], $multipage_where);
@@ -135,56 +140,83 @@ if(!$core->input['action']) {
 else
 {
 	if($core->input['action'] == 'sendholidays') {
-		if(!isset($core->input['affidtoinform'])) {
-			output_xml("<status>false</status><message>{$lang->unknownaffiliate}</message>");
-			exit;
+		$current_year = date('Y', TIME_NOW);
+		$message = array();
+		$message['body'] = '<ul>';
+		
+		if(isset($core->input['id'])) {
+			$holiday = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'holidays WHERE hid='.intval($core->input['id'])));//TO add affid restriction
+			if(!empty($holiday) && is_array($holiday)) {
+				if($holiday['year'] == 0) {
+					$holiday['year'] = $current_year;
+				}
+				$message['body'] .= '<li>'.date('l, F j', mktime(0,0,0, $holiday['month'], $holiday['day'], $holiday['year'])).' - '.$holiday['title'].', '.$holiday['numDays'].' day(s).</li>';
+			
+				$core->input['affidtoinform'] = $holiday['affid'];
+			}
+			else {
+				error($lang->noholidaysavailable);
+			}
+		}
+		else {
+			if(!isset($core->input['affidtoinform'])) {
+				output_xml("<status>false</status><message>{$lang->unknownaffiliate}</message>");
+				exit;
+			}
 		}
 		
-		$affiliate = $db->fetch_assoc($db->query("SELECT affid, mailingList FROM affiliates WHERE affid='".$db->escape_string($core->input['affidtoinform'])."'"));
-		
+		$affiliate = $db->fetch_assoc($db->query("SELECT affid, name, mailingList FROM ".Tprefix."affiliates WHERE affid='".$db->escape_string($core->input['affidtoinform'])."'"));	
 		if(empty($affiliate['mailingList'])) {
 			output_xml("<status>false</status><message>{$lang->errorsendingemail}</message>");
 			exit;
 		}
-		$message = array();
-		$message['recepient'] = $affiliate['mailingList'];
 		
-		$current_year = date('Y', TIME_NOW);
-		
-		$message['body'] = '<ul>';
-		
-		$query = $db->query("SELECT * FROM holidays WHERE affid='{$affiliate[affid]}' AND (year={$current_year} OR isOnce=0) ORDER BY month ASC, day ASC");
-		if($db->num_rows($query) > 0) {
+		$message['recepient'] = $affiliate['mailingList'];	
+		if(!isset($core->input['id'])) {
+			$query = $db->query("SELECT * FROM ".Tprefix."holidays WHERE affid='{$affiliate[affid]}' AND (year={$current_year} OR isOnce=0) ORDER BY month ASC, day ASC");
+			if($db->num_rows($query) == 0) {
+				output_xml("<status>false</status><message>{$lang->noholidaysavailable}</message>");
+				exit;
+			}
+
 			while($holiday = $db->fetch_assoc($query)) {
 				$message['body'] .= '<li>'.date('l, F j', mktime(0,0,0, $holiday['month'], $holiday['day'], $current_year)).' - '.$holiday['title'].', '.$holiday['numDays'].' day(s).</li>';
 			}
-			
-			$message['body'] .= '</ul><br />';
-			$lang->load('messages');
-			
-			$email_data = array(
-				'to'		 => $message['recepient'],
-				'from_email'  => $core->settings['adminemail'],
-				'from'	   => 'OCOS Mailer',
-				'subject'	=> $lang->sprint($lang->holidaysmessagesubject, $current_year),
-				'message'   => $lang->sprint($lang->holidaysmessagebody, $current_year, $message['body'])
-				);
-	
-			$mail = new Mailer($email_data, 'php');
-			
-			if($mail) {
-				$log->record($affiliate['affid']);
-				output_xml("<status>true</status><message>{$lang->holidayssent}</message>");
+		}
+		$message['body'] .= '</ul><br />';
+		$lang->load('messages');
+
+		$email_data = array(
+			'to'		 => $message['recepient'],
+			'from_email'  => $core->settings['maileremail'],
+			'from'	   => 'OCOS Mailer'
+		);
+		
+		if(isset($core->input['id'])) {
+			$email_data['subject'] = $lang->upcomingholidays_subject;
+			$email_data['message'] = $lang->sprint($lang->upcomingholidays_message, $affiliate['name'], $message['body']);
+		}
+		else {
+			$email_data['subject'] = $lang->sprint($lang->holidaysmessagesubject, $current_year);
+			$email_data['message'] = $lang->sprint($lang->holidaysmessagebody, $current_year, $message['body']);
+		}
+		
+		$mail = new Mailer($email_data, 'php');
+
+		if($mail) {
+			$log->record($affiliate['affid']);
+			if(isset($core->input['id'])) {
+				redirect('index.php?module=hr/holidayslist', 1, $lang->holidayssent);
 			}
-			else
-			{
-				output_xml("<status>false</status><message>{$lang->errorsendingemail}</message>");
-				exit;
-			}
+			output_xml("<status>true</status><message>{$lang->holidayssent}</message>");
 		}
 		else
 		{
-			output_xml("<status>false</status><message>{$lang->noholidaysavailable}</message>");
+			if(isset($core->input['id'])) {
+				error($lang->errorsendingemail, 'index.php?module=hr/holidayslist' );
+			}
+			output_xml("<status>false</status><message>{$lang->errorsendingemail}</message>");
+			exit;
 		}
 	}
 }
