@@ -108,6 +108,7 @@ table.calendar {
 
 .calendar_hour, .calendar_thishour, .calendar_weekview_today {
 	width: 170px;
+        max-width: 170px;
 	vertical-align: top;
 	border-right: 1px solid #999;
 	padding:0px !important;
@@ -123,6 +124,7 @@ table.calendar {
 
 .calendar_legendhour {
 	width: 62px !important;
+        max-width: 62px;
 	text-align:right;
 	vertical-align: top;
 	padding: 0px 2px !important;
@@ -137,6 +139,7 @@ table.calendar {
 
 .calendar_hourevent {
 	width: 160px;
+        max-width: 160px;
 	height: 20px;
 	/*display:inline;*/
 	position: absolute;
