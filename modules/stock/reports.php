@@ -21,7 +21,7 @@ $resolve = array(
 		'affid' => array('table' => 'affiliates', 'id' => 'affid', 'name' => 'name'),
 		'spid' => array('table' => 'entities', 'id' => 'eid', 'name' => 'companyName'),
 		'pid' => array('table' => 'products', 'id' => 'pid', 'name' => 'name'),
-		'currency'=>array('table'=>'currencies','id'=>'numCode','name'=>'name')
+		'currency' => array('table' => 'currencies', 'id' => 'numCode', 'name' => 'alphaCode')
 );
 
 
@@ -29,10 +29,43 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 	$content = encapsulate_in_fieldset(make_filters($db, $core), 'Filter', false);
 	$content .= encapsulate_in_fieldset(make_options(), 'Options', false);
 	$content .= encapsulate_in_fieldset(choose_columns(), 'Columns', false);
-	if($core->input['action'] == 'getreport') {
+	$dummydata;
+	if($core->input['action'] == 'generatedummy') {
+		$howmany = 100;
+		if(isset($core->input['number'])) {
+			if(is_numeric($core->input['number'])) {
+				$howmany = $core->input['number'];
+			}
+		}
+
+		for($i = 0; $i < $howmany; $i++) {
+			seed_random_gen();
+			$gen_product = get_random_entry('products');
+			$gen_affiliate = get_random_entry('affiliates');
+			$gen_currency = get_random_entry('currencies');
+
+			$dummydata[$i]['pid'] = $gen_product['pid'];
+			$dummydata[$i]['spid'] = $gen_product['spid'];
+			$dummydata[$i]['affid'] = $gen_affiliate['affid'];
+			$dummydata[$i]['amount'] = get_random_float(50000)-30000;
+			$dummydata[$i]['currency'] = $gen_currency['numCode'];
+			$dummydata[$i]['usdFxrate'] = get_random_float(3);
+			$dummydata[$i]['quantity'] = get_random_integer(50);
+			$dummydata[$i]['quantityUnit'] = get_random_value(array("MT", "KG", "L"));
+			$dummydata[$i]['date'] = get_random_date(1104559200, 1356847200);
+			$dummydata[$i]['saleType'] = 'SKI';
+			$dummydata[$i]['TRansID'] = '{NA}';
+		}
+		foreach($dummydata as $row) {
+			$db->insert_query('integration_mediation_stockpurchases', $row);
+		}
+		echo 'done';
+		exit;
+	}
+	elseif($core->input['action'] == 'getreport') {
 		$query = assemble_filter_query($core, $db);
 		$allcolumns = array('affid' => 'id', 'spid' => 'id', 'pid' => 'id', 'amount' => 'numeric', 'currency' => 'numeric', 'usdFxrate' => 'numeric', 'quantity' => 'numeric', 'quantityUnit' => 'text', 'date' => 'date', 'saleType' => 'text', 'TRansID' => 'text');
-		$rawdata = retrieve_data($query, $allcolumns);		
+		$rawdata = retrieve_data($query, $allcolumns);
 		$trackedcolumns = array();
 		$groupingatr = $core->input['groupingattribute'];
 		if(!isset($groupingatr))
@@ -65,14 +98,9 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 
 		//$content.=encapsulate_in_fieldset($query, 'Query');
 
-		$charts = '<div style="position:relative;"><div id="general_chart" style="margin-left:5px;margin-bottom:10px;">'.make_jqpchart(regroup_by_day(convert_to_dollars($rawdata))).'</div>';
-		$charts.='<div id="affiliate_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata), 'affid', array('amount' => 'numeric'), $resolve['affid'])), 'affiliate_pie', 'Top 10 Affiliates').'</div>';
-		$charts.='<div id="supplier_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata), 'spid', array('amount' => 'numeric'), $resolve['spid'])), 'supplier_pie', 'Top 10 Suppliers').'</div>';
-		$charts.='<div id="product_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata), 'pid', array('amount' => 'numeric'), $resolve['pid'])), 'product_pie', 'Top 10 Products').'</div></div>';
-		$content.=encapsulate_in_fieldset($charts, "Charts");
 
-		
-		
+
+
 		if($core->input['isajax'] == 'true') {
 			if($core->input['reporttype'] == 1) {
 				output_xml(turn_data_into_html($timesliced, true, $trackedcolumns, $groupingatr));
@@ -83,6 +111,12 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 			exit;
 		}
 		else {
+			$charts = '<div style="position:relative;"><div id="general_chart" style="margin-left:5px;margin-bottom:10px;">'.make_jqpchart(regroup_by_day(convert_to_dollars($rawdata))).'</div>';
+			$charts.='<div id="affiliate_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata), 'affid', array('amount' => 'numeric'), $resolve['affid'])), 'affiliate_pie', 'Top 10 Affiliates').'</div>';
+			$charts.='<div id="supplier_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata), 'spid', array('amount' => 'numeric'), $resolve['spid'])), 'supplier_pie', 'Top 10 Suppliers').'</div>';
+			$charts.='<div id="product_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata), 'pid', array('amount' => 'numeric'), $resolve['pid'])), 'product_pie', 'Top 10 Products').'</div></div>';
+			$content.=encapsulate_in_fieldset($charts, "Charts");
+
 			$content.=$datapresented;
 		}
 
@@ -113,6 +147,41 @@ function turn_to_table($data, $title = '') {
 	}
 	$html.='</table>';
 	return $html;
+}
+
+function seed_random_gen() {
+	list($usec, $sec) = explode(' ', microtime());
+	$seed = (float)$sec + ((float)$usec * 100000);
+	srand($seed);
+}
+
+function get_random_value($array) {
+	return $array[rand(0, count($array) - 1)];
+}
+
+function get_random_entry($tablename) {
+	global $db;
+	$result = mysql_query('SELECT * FROM '.Tprefix.$tablename);
+	mysql_data_seek($result, rand(0, mysql_num_rows($result) - 1));
+	return mysql_fetch_array($result);
+}
+
+function get_random_date($from, $to) {
+	return $from + rand(0, $to - $from - 1);
+}
+
+function get_random_float($max = null) {
+	if(!isset($max)) {
+		$max = getrandmax();
+	}
+	return rand(0, getrandmax()) * $max / getrandmax();
+}
+
+function get_random_integer($max = null) {
+	if(!isset($max)) {
+		$max = getrandmax();
+	}
+	return rand(0, $max);
 }
 
 function turn_to_adv_table($data, $title = '') {
@@ -248,7 +317,7 @@ function make_jqppiechart($data, $id = "jqpieid", $title = '') {
 				if(is_array($value)) {
 					$total+=(float)$value['amount']['value'];
 				}
-			}			
+			}
 			$function.='["'.$row['#name'].'",'.number_format($total, 2, '.', '').'],';
 		}
 	}
@@ -280,6 +349,38 @@ function make_jqppiechart($data, $id = "jqpieid", $title = '') {
 	return $includes.$function;
 }
 
+function reduce_density_by_grouping($data, $maxtarget) {
+	$first = true;
+	foreach($data as $date => $value) {
+		if($first) {
+			$min = $date;
+			$max = $date;
+			$first = false;
+		}
+		if($date < $min) {
+			$min = $date;
+		}
+		if($date > $max) {
+			$max = $date;
+		}
+	}
+	$step = ($max - $min) / $maxtarget;
+	$previous=0;
+	for($i = 0; $i < $maxtarget; $i++) {
+		$currentstamp = (int)($min + $step * $i);
+		$nextstep = (int)($min + $step * ($i + 1));
+		$newdata[$currentstamp] = $previous;
+		//$newdata[$currentstamp] = 0;
+		foreach($data as $date => $value) {
+			if($date >= $currentstamp && $date < $nextstep) {
+				$newdata[$currentstamp]+=(float)$value;
+			}
+		}
+		$previous=$newdata[$currentstamp];
+	}
+	return $newdata;
+}
+
 function make_jqpchart($data) {
 	$urlparts = explode('?', get_curent_page_URL());
 	$baseurl = substr($urlparts[0], 0, strlen($urlparts[0]) - 9);
@@ -304,13 +405,18 @@ function make_jqpchart($data) {
 	$function = '<div id="jqChart" style="width:670px;height:300px;padding:10px;"></div><script>
 				$(document).ready(function(){
 				var dataPoints = [];';
+
+
+	$data = reduce_density_by_grouping($data, 30);
+
+
 	foreach($data as $date => $value) {
-		if (is_numeric($value)) {			
-			$function.='dataPoints.push(["'.$date.'",'.number_format($value, 2, '.', '').']);';
-		} else {
-			$function.='dataPoints.push(["'.$date.'",'.$value.']);';
+		if(is_numeric($value)) {
+			$function.='dataPoints.push(["'.date('m-d-Y', $date).'",'.number_format($value, 2, '.', '').']);';
 		}
-		
+		else {
+			$function.='dataPoints.push(["'.date('m-d-Y', $date).'",'.$value.']);';
+		}
 	}
 
 	$function.='
@@ -318,8 +424,8 @@ function make_jqpchart($data) {
 	{
 		highlighter: {show: true},
 		cursor: {show:true,zoom:true},
-		//series: {showMarker:true},
-		//seriesDefaults: {rendererOptions: {smooth: true}},
+		series: {showMarker:true},
+		seriesDefaults: {rendererOptions: {smooth: false}},
 		axes:{
 			xaxis:{
 				renderer:$.jqplot.DateAxisRenderer,
@@ -1116,10 +1222,10 @@ function regroup_by_day($data) {
 		}
 
 		if(isset($grouped[date("Y-m-d", $purchase['date']['value'])])) {
-			$grouped[date("Y-m-d", $purchase['date']['value'])] += (float)$purchase['amount']['value'] * $rate;
+			$grouped[$purchase['date']['value']] += (float)$purchase['amount']['value'] * $rate;
 		}
 		else {
-			$grouped[date("Y-m-d", $purchase['date']['value'])] = (float)$purchase['amount']['value'] * $rate;
+			$grouped[$purchase['date']['value']] = (float)$purchase['amount']['value'] * $rate;
 		}
 	}
 
