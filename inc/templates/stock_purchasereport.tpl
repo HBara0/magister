@@ -20,5 +20,6 @@ span.listitem:hover { border-bottom: #CCCCCC solid thin; }
   </table>
 </td></tr>
 {$footer}
+{$perfdata}
 </body>
 </html>

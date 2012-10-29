@@ -25,11 +25,19 @@ $resolve = array(
 );
 
 
+$performance["start"] = microtime();
+
 if($core->usergroup['stock_canGenerateReports'] == '1') {
+	
 	$content = encapsulate_in_fieldset(make_filters($db, $core), 'Filter', false);
+	$performance['filters'] = microtime();
+	
 	$content .= encapsulate_in_fieldset(make_options(), 'Options', false);
+	$performance['options'] = microtime();
+	
 	$content .= encapsulate_in_fieldset(choose_columns(), 'Columns', false);
-	$dummydata;
+	$performance['columns'] = microtime();
+
 	if($core->input['action'] == 'generatedummy') {
 		$howmany = 100;
 		if(isset($core->input['number'])) {
@@ -37,40 +45,20 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 				$howmany = $core->input['number'];
 			}
 		}
-
-		for($i = 0; $i < $howmany; $i++) {
-			seed_random_gen();
-			$gen_product = get_random_entry('products');
-			$gen_affiliate = get_random_entry('affiliates');
-			$gen_currency = get_random_entry('currencies');
-
-			$dummydata[$i]['pid'] = $gen_product['pid'];
-			$dummydata[$i]['spid'] = $gen_product['spid'];
-			$dummydata[$i]['affid'] = $gen_affiliate['affid'];
-			$dummydata[$i]['amount'] = get_random_float(50000)-30000;
-			$dummydata[$i]['currency'] = $gen_currency['numCode'];
-			$dummydata[$i]['usdFxrate'] = get_random_float(3);
-			$dummydata[$i]['quantity'] = get_random_integer(50);
-			$dummydata[$i]['quantityUnit'] = get_random_value(array("MT", "KG", "L"));
-			$dummydata[$i]['date'] = get_random_date(1104559200, 1356847200);
-			$dummydata[$i]['saleType'] = 'SKI';
-			$dummydata[$i]['TRansID'] = '{NA}';
-		}
-		foreach($dummydata as $row) {
-			$db->insert_query('integration_mediation_stockpurchases', $row);
-		}
-		echo 'done';
-		exit;
+		random_fill_for_testing($howmany);
 	}
-	elseif($core->input['action'] == 'getreport') {
+	elseif($core->input['action'] == 'getreport') {		
 		$query = assemble_filter_query($core, $db);
+		$performance["gotquery"] = microtime();
 		$allcolumns = array('affid' => 'id', 'spid' => 'id', 'pid' => 'id', 'amount' => 'numeric', 'currency' => 'numeric', 'usdFxrate' => 'numeric', 'quantity' => 'numeric', 'quantityUnit' => 'text', 'date' => 'date', 'saleType' => 'text', 'TRansID' => 'text');
 		$rawdata = retrieve_data($query, $allcolumns);
+		$performance["gotdata"] = microtime();
 		$trackedcolumns = array();
 		$groupingatr = $core->input['groupingattribute'];
 		if(!isset($groupingatr))
 			$groupingatr = 'pid';
 		$rawdata = resolve_names($rawdata, $resolve);
+		$performance["gotresolved"] = microtime();
 		$trackedcolumns['amount'] = $allcolumns['amount'];
 		foreach($allcolumns as $column => $type) {
 			if($core->input[$column] == '1') {
@@ -79,6 +67,7 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		}
 
 		if($core->input['reporttype'] == 1) {
+			$performance["timeslicedget"] = microtime();
 			$timesliced = time_regroup($rawdata, 'date');
 			foreach($timesliced as $year => $yearly) {
 				foreach($yearly as $month => $monthly) {
@@ -89,64 +78,100 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 				}
 			}
 			$datapresented = encapsulate_in_fieldset('<div id="results_fieldset">'.turn_data_into_html($timesliced, true, $trackedcolumns, $groupingatr).'</div>', 'Grouped');
+			$performance["gottimesliced"] = microtime();
 		}
 		else {
-			//$summeddata = sort_by_amount(regroup_and_sum($rawdata, $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null));
+			$performance["bulkget"] = microtime();
 			$summeddata = regroup_and_sum($rawdata, $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null);
 			$datapresented = encapsulate_in_fieldset('<div id="results_fieldset">'.turn_data_into_html($summeddata, false, $trackedcolumns, $groupingatr).'</div>', 'Grouped', false);
+			$performance["gotbulk"] = microtime();
 		}
-
 		//$content.=encapsulate_in_fieldset($query, 'Query');
 
 
-
-
 		if($core->input['isajax'] == 'true') {
+			$performance['end'] = microtime();
 			if($core->input['reporttype'] == 1) {
-				output_xml(turn_data_into_html($timesliced, true, $trackedcolumns, $groupingatr));
+				output_xml(turn_data_into_html($timesliced, true, $trackedcolumns, $groupingatr).get_perf_data());
 			}
 			else {
-				output_xml(turn_data_into_html($summeddata, false, $trackedcolumns, $groupingatr));
+				output_xml(turn_data_into_html($summeddata, false, $trackedcolumns, $groupingatr).get_perf_data());
 			}
 			exit;
 		}
 		else {
+			$performance['linechart'] = microtime();
 			$charts = '<div style="position:relative;"><div id="general_chart" style="margin-left:5px;margin-bottom:10px;">'.make_jqpchart(regroup_by_day(convert_to_dollars($rawdata))).'</div>';
+			$performance['pie1'] = microtime();
 			$charts.='<div id="affiliate_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata), 'affid', array('amount' => 'numeric'), $resolve['affid'])), 'affiliate_pie', 'Top 10 Affiliates').'</div>';
+			$performance['pie2'] = microtime();
 			$charts.='<div id="supplier_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata), 'spid', array('amount' => 'numeric'), $resolve['spid'])), 'supplier_pie', 'Top 10 Suppliers').'</div>';
+			$performance['pie3'] = microtime();
 			$charts.='<div id="product_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata), 'pid', array('amount' => 'numeric'), $resolve['pid'])), 'product_pie', 'Top 10 Products').'</div></div>';
 			$content.=encapsulate_in_fieldset($charts, "Charts");
-
+			//$content.=encapsulate_in_fieldset(make_pchart(regroup_by_day($rawdata)), "pChart");
 			$content.=$datapresented;
 		}
-
-
-		//$content.=encapsulate_in_fieldset(make_pchart(regroup_by_day($rawdata)), "pChart");
-		//$content.=encapsulate_in_fieldset('<table cellspacing=10 cellpading=0 border=0><tr><td valign=top>'.turn_to_table($rawdata,'raw').'</td><td valign=top>'.turn_to_table($rawdata,'dolarized').'</td><td valign=top>'.turn_to_adv_table(regroup_and_sum($rawdata, 'pid', array('amount' => 'numeric'), $resolve['pid']),'grouped').'</td><td valign=top>'.turn_to_adv_table(sort_by_amount(regroup_and_sum($rawdata, 'pid', array('amount' => 'numeric'), $resolve['pid'])),'sorted').'</td></tr></table>','raw');
-		//$content .= encapsulate_in_fieldset('<div id="results_fieldset">'.$datapresented.'</div>', 'grouped', false);
-		//$content.=encapsulate_in_fieldset(generate_stock_reports_email_data($rawdata));
 	}
 }
 else {
 	error($lang->sectionnopermission);
 }
 
+$performance["end"] = microtime();
+$perfdata = get_perf_data();
+
 eval("\$report_template = \"".$template->get('stock_purchasereport')."\";");
 output_page($report_template);
 /*
  *
  */
-function turn_to_table($data, $title = '') {
-	$html = "<table cellspacing=0 border=1 cellpadding=0><tr><td colspan=4>$title</td></tr><tr><td>id</td><td>amount</td><td>currency</td><td>fxrate</td></tr>";
-	foreach($data as $key => $value) {
-		$html.='<tr><td>'.$value['pid']['value']
-				.'</td><td>'.$value['amount']['value']
-				.'</td><td>'.$value['currency']['value']
-				.'</td><td>'.$value['usdFxrate']['value']
-				.'</td></tr>';
+function get_perf_data() {
+	global $performance;
+	$tmphtml = '<table border=1 cellspacing=0 cellpadding=4><tr style="background-color:lightgrey;"><td><b>Point</b></td><td><b>Delta</b></td><td><b>Time</b></td></tr>';
+	$forpie;
+	$timedate=explode(" ",$performance['start']);	
+	$timecomp=explode(":",date('H:i:s',$timedate[1]));
+	//$initialtiming=(int)$timecomp[1]*60+(int)$timecomp[2]+(float)('0.'.str_replace('0.','',$timedate[0]));
+	$initialtiming=$timedate[1]+(float)('0.'.str_replace('0.','',$timedate[0]));
+	$totaltiming=0;
+	foreach($performance as $key => $value) {		
+		$timedate=explode(" ",$value);	
+		//$timecomp=explode(":",date('H:i:s',$value));
+		//$timing=(int)$timecomp[1]*60+(int)$timecomp[2]+(float)('0.'.str_replace('0.','',$timedate[0]))-$initialtiming;		
+		//$timing=(float)(date('s',$timedate[1]).'.'.str_replace('0.','',$timedate[0]))-(float)$initialtiming;
+		$timing=$timedate[1]+(float)('0.'.str_replace('0.','',$timedate[0]))-$initialtiming;
+		$totaltiming+=$timing;
+		$tmphtml.='<tr><td>'.$key.'</td><td>'.number_format((1000*$timing),3,'.','').'</td><td>'.number_format(1000*$totaltiming,3,'.','').'</td></tr>';
+		$forpie[]=array('#name'=>$key,0=>array('amount'=>array('value'=>number_format((1000*$timing),3,'.',''))));
 	}
-	$html.='</table>';
-	return $html;
+	$tmphtml .= '</table>';
+	return encapsulate_in_fieldset('<table border=0 cellspacing=2 cellpadding=2><tr><td valign=top>'.$tmphtml.'</td><td valign=top>'.make_jqppiechart($forpie,"perfpie",'',0,-90,800,600).'</td></tr></table>',"Performance");
+}
+
+function random_fill_for_testing($howmany) {	
+	for($i = 0; $i < $howmany; $i++) {
+		seed_random_gen();
+		$gen_product = get_random_entry('products');
+		$gen_affiliate = get_random_entry('affiliates');
+		$gen_currency = get_random_entry('currencies');
+		$dummydata[$i]['pid'] = $gen_product['pid'];
+		$dummydata[$i]['spid'] = $gen_product['spid'];
+		$dummydata[$i]['affid'] = $gen_affiliate['affid'];
+		$dummydata[$i]['amount'] = get_random_float(50000) - 30000;
+		$dummydata[$i]['currency'] = $gen_currency['numCode'];
+		$dummydata[$i]['usdFxrate'] = get_random_float(3);
+		$dummydata[$i]['quantity'] = get_random_integer(50);
+		$dummydata[$i]['quantityUnit'] = get_random_value(array("MT", "KG", "L"));
+		$dummydata[$i]['date'] = get_random_date(1104559200, 1356847200);
+		$dummydata[$i]['saleType'] = 'SKI';
+		$dummydata[$i]['TRansID'] = '{NA}';
+	}
+	foreach($dummydata as $row) {
+		$db->insert_query('integration_mediation_stockpurchases', $row);
+	}
+	echo 'done';
+	exit;
 }
 
 function seed_random_gen() {
@@ -182,19 +207,6 @@ function get_random_integer($max = null) {
 		$max = getrandmax();
 	}
 	return rand(0, $max);
-}
-
-function turn_to_adv_table($data, $title = '') {
-	$html = "<table cellspacing=0 border=1 cellpadding=0><tr><td colspan=2>$title</td></tr><tr><td>id</td><td>amount</td></tr>";
-	$total = 0;
-	foreach($data as $key => $value) {
-		$html.='<tr><td>'.$key
-				.'</td><td>'.$value[0]['amount']['value']
-				.'</td></tr>';
-		$total+=(float)$value[0]['amount']['value'];
-	}
-	$html.='<tr><td colspan=2>'.$total.'</td></tr></table>';
-	return $html;
 }
 
 function convert_to_dollars($rawdata) {
@@ -279,7 +291,7 @@ function sort_by_amount($data, $numberofrows = 10) {
 	return $sorted;
 }
 
-function make_jqppiechart($data, $id = "jqpieid", $title = '') {
+function make_jqppiechart($data, $id = "jqpieid", $title = '',$margin=0,$startangle=0,$divwidth='230px',$divheight='230px',$fill=true) {	
 	$urlparts = explode('?', get_curent_page_URL());
 	$baseurl = substr($urlparts[0], 0, strlen($urlparts[0]) - 9);
 
@@ -306,9 +318,9 @@ function make_jqppiechart($data, $id = "jqpieid", $title = '') {
 		$jq_pie = true;
 	}
 
-	$function = '<div id="'.$id.'" style="width:230px;height:230px;vertical-align:top;overflow: hidden;"></div><script>
+	$function = '<div id="'.$id.'" style="width:'.$divwidth.';height:'.$divheight.';vertical-align:top;overflow: hidden;"></div><script>
 	$(document).ready(function(){
-	 plot3 = jQuery.jqplot(\''.$id.'\',[[';
+	 plot_'.$id.' = jQuery.jqplot(\''.$id.'\',[[';
 
 	foreach($data as $key => $row) {
 		if(is_array($row)) {
@@ -328,7 +340,11 @@ function make_jqppiechart($data, $id = "jqpieid", $title = '') {
                         shadow: true,
                         renderer: jQuery.jqplot.PieRenderer,
                         rendererOptions: {
-                            showDataLabels: true
+                            showDataLabels: true,
+							fill: '.($fill?'true':'false').',
+							sliceMargin: '.$margin.', 
+							startAngle: '.$startangle.',
+							lineWidth: 2
                         }
                     },
                     legend: {
@@ -365,7 +381,7 @@ function reduce_density_by_grouping($data, $maxtarget) {
 		}
 	}
 	$step = ($max - $min) / $maxtarget;
-	$previous=0;
+	$previous = 0;
 	for($i = 0; $i < $maxtarget; $i++) {
 		$currentstamp = (int)($min + $step * $i);
 		$nextstep = (int)($min + $step * ($i + 1));
@@ -376,7 +392,7 @@ function reduce_density_by_grouping($data, $maxtarget) {
 				$newdata[$currentstamp]+=(float)$value;
 			}
 		}
-		$previous=$newdata[$currentstamp];
+		$previous = $newdata[$currentstamp];
 	}
 	return $newdata;
 }
