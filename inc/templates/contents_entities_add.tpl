@@ -62,7 +62,7 @@
         </tr>
          <tr>
            <td>{$lang->email}</td>
-           <td colspan="2"><input type="text" id="email" name="mainEmail" /> <span id="email_Validation"></span></td>
+           <td colspan="2"><input type="text" id="mainEmail" accept="email" name="mainEmail" /> <span id="mainEmail_Validation"></span></td>
         </tr>
        <tr>
            <td>{$lang->website}</td>
