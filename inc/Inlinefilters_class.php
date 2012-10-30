@@ -15,7 +15,8 @@ class Inlinefilters {
 		'parse' => array( // Config to parse fields
 						'filters' => array('attr1', 'attr2', 'attr3', 'attr4', 'attr5'), // Filter names to be used for filter fields
 						'filterTitles' => array('attr1' => 'Attribute Name'), // [Optional] Specific titles for specific fields
-						'overwriteField' => array('attr2' => 'SOME HTML') // [Optional] Overwrite generated field by custom HTML
+						'overwriteField' => array('attr2' => 'SOME HTML'), // [Optional] Overwrite generated field by custom HTML
+						'fieldsSequence' => array('attr2' => 1, 'attr1' => 2) // [Optional] By default parse of filter row follows the sequence of attributes in 'filters'; you can overwrite the sequence here. Useful in case where you add a field later.
 						),
 		'process' => array( // Config to configure the filtering process
 			'filterKey' => 'attr', // The key to which's values will be returned to be user if later queries
@@ -102,7 +103,7 @@ class Inlinefilters {
 								$affiliate_where = 'affid IN ('.implode(',', $core->user['affiliates']).')';
 							}
 							$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', '', 0, $affiliate_where);
-							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $affiliates, $core->input['filters'][$filter], 1, '', array('multiplesize' => 2));
+							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $affiliates, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
 							break;
 						case 'posid':
 						case 'position':
@@ -113,7 +114,7 @@ class Inlinefilters {
 									$positions[$key] = $lang->{$val};
 								}
 							}
-							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $positions, $core->input['filters'][$filter], 1, '', array('multiplesize' => 2));
+							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $positions, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
 							break;
 						case 'usersuppliers':
 							$filters[$filter] = '';
@@ -130,11 +131,16 @@ class Inlinefilters {
 							else {
 								$productlines = get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', '');
 							}
-							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $productlines, $core->input['filters'][$filter], 1, '', array('multiplesize' => 2));
+							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $productlines, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
 							break;
 						case 'reportsTo':
 							$reportsto = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', '', 0, 'gid!=7 AND uid IN (SELECT reportsTo FROM '.Tprefix.'users WHERE gid!=7)');
-							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $reportsto, $core->input['filters'][$filter], 1, '', array('multiplesize' => 2));
+							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $reportsto, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
+							break;
+						case 'fromDate':
+						case 'toDate':
+						case 'date':
+							$filters[$filter] = '<input type="text" id="pickDate_'.$filter.'" autocomplete="off" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter].'" /><input type="hidden" name="filters['.$filter.']" id="altpickDate_'.$filter.'" value="'.$core->input['filters'][$filter].'" />';
 							break;
 						default:
 							$filters[$filter] = '<input type="text" width="100%" name="filters['.$filter.']" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter].'" id="filers_'.$filter.'" title="'.$this->config['parse']['filterTitles'][$filter].'">';
@@ -194,16 +200,23 @@ class Inlinefilters {
 		}
 
 		$count_items = 1;
-		foreach($this->parsed_fields as $content) {
+		
+		$iteration_element = $this->parsed_fields;
+		if(isset($this->config['parse']['fieldsSequence']) && !empty($this->config['parse']['fieldsSequence'])) {
+			$iteration_element =  $this->config['parse']['fieldsSequence'];
+		}
+		
+		foreach($iteration_element as $filter_item => $filter_value) {
 			if($options['tags'] == 'div') {
-				$rows .= '<div>'.$content.'</div>'; //Will add more CSS for this later
+				$rows .= '<div>'.$this->parsed_fields[$filter_item].'</div>'; //Will add more CSS for this later
 			}
 			else {
-				$rows .= '<th>'.$content.'</th>';
+				$rows .= '<th>'.$this->parsed_fields[$filter_item].'</th>';
 			}
 			$count_items++;
 		}
-
+		unset($filter_value);
+		
 		if($options['tags'] == 'div') {
 			$rows .= '<div><input type="image" src="./images/icons/search.gif" border="0" alt="'.$lang->filter.'" value="'.$lang->filter.'"></div></div>';
 			$rows .= '<div class="tablefilters_row_toggle" onClick="$(\'#tablefilters\').toggle();">&middot;&middot;&middot;</div>';
@@ -366,6 +379,9 @@ class Inlinefilters {
 		elseif($attr['operatorType'] == 'between') {
 			$query_where = $sec_query_operator.'('.$attr['name'].' BETWEEN '.$db->escape_string($core->input['filters'][$filteritem]['start']).' AND '.$db->escape_string($core->input['filters'][$filteritem]['end']).')';
 		}
+		elseif($attr['operatorType'] == 'date') {
+			$query_where = $sec_query_operator.'('.$attr['name'].' BETWEEN '.strtotime($core->input['filters'][$filteritem]).' AND '.(strtotime($core->input['filters'][$filteritem])+(60*60*24)-1).')';
+		}
 		elseif($attr['operatorType'] == 'equal') {
 			$query_where = $sec_query_operator.$attr['name'].'="'.$db->escape_string($core->input['filters'][$filteritem]).'"';
 		}
@@ -393,10 +409,29 @@ class Inlinefilters {
 			return false;
 		}
 
-		if(isset($newfilter['parse']['filter'])) {
-			array_push($this->config['parse']['filters'], $newfilter['parse']['filter']);
+		$parse_items = array('filters' => 'filter', 'overwriteField', 'fieldsSequence');
+		foreach($parse_items as $realkey => $addkey) {
+			if(isset($newfilter['parse'][$addkey])) {
+				if(empty($realkey)) {
+					$realkey = $addkey;
+				}
+				
+				if(isset($this->config['parse'][$realkey])) {					
+					if(is_array($newfilter['parse'][$addkey])) {
+						$this->config['parse'][$realkey] = array_merge($this->config['parse'][$realkey], $newfilter['parse'][$addkey]);
+					}
+					else
+					{
+						array_push($this->config['parse'][$realkey], $newfilter['parse'][$addkey]);
+					}
+				}
+				else
+				{
+					$this->config['parse'][$realkey] = $newfilter['parse'][$addkey];
+				}
+			}	
 		}
-
+		
 		if(isset($newfilter['process']['mainTable'])) {
 			array_push($this->config['process']['mainTable']['filters'], $newfilter['process']['mainTable']['filter']);
 		}
