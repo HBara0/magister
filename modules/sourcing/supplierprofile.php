@@ -6,7 +6,7 @@
  * Potential Supplier Profile
  * $module: Sourcing
  * $id: supplierprofile.php	
- * Last Update: @tony.assaad	october 19, 2012 | 4:05 AM
+ * Last Update: @tony.assaad	october 30, 2012 | 4:05 AM
  */
 if(!defined('DIRECT_ACCESS'))
 {
@@ -24,8 +24,8 @@ if(!value_exists('sourcing_suppliers', 'ssid', $supplier_id)) {  /*if we no supp
 $potential_supplier = new Sourcing($supplier_id);
 if(!$core->input['action']) {
 		$potential_supplier_details = $potential_supplier->get_supplier_contact();
-		$segments_suppliers = $potential_supplier->get_supplier_segments();
-		$supplier_contact =  $potential_supplier->get_supplier_contact_persons();
+		$segments_suppliers	 = $potential_supplier->get_supplier_segments();
+		$supplier_contact	 =  $potential_supplier->get_supplier_contact_persons();
 		$supplier_activity_area =  $potential_supplier->get_supplier_activity_area();
 		$chemical_substances = $potential_supplier->get_chemicalsubstances();
 		$segment_data = '<ul>';
@@ -42,10 +42,11 @@ if(!$core->input['action']) {
 			}
 			$activity_area_data = '<ul>';
 			if(is_array($supplier_activity_area)) {	//print_r($supplier_activity_area);
+				$langactivityarea = $lang->activityarea;
 				foreach($supplier_activity_area  as $activity_area) {
 					$activity_area_data .='<li>'. $activity_area['country'].'-'.$activity_area['affiliate'].'</li>';
 				}
-			}	
+			}
 			$activity_area_data = $activity_area_data.'</ul>';
 			
 			/*Chemical nList -START*/
@@ -100,7 +101,9 @@ if(!$core->input['action']) {
 		}
 		
 	$contactsupplier_form = '<form  name="perform_sourcing/supplierprofile_Form" action="index.php?module=sourcing/supplierprofile&action=do_contactsupplier" method="post" id"perform_sourcing/supplierprofile_Form" >
-<input type="submit" class="button" value="'.$lang->contact.'" /></form>';
+<input type="submit" class="button" value="'.$lang->contact.'" />
+<input type="hidden" value="'.$potential_supplier_details['ssid'].'" name="supplierid" />	
+</form>';
 		$header_blurjs = '$(function(){
 			$(".detailsvalue").each(function(){$(this).addClass("blur");});
 			});';
@@ -125,25 +128,29 @@ if(!$core->input['action']) {
 		/*contact histrory -START*/
 		if(value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid'])) {
 			$contacts_history = $potential_supplier->get_contact_history();
-			foreach($contacts_history as $contact_history) {
-				$rowclass = alt_row($rowclass);				
-				$contact_history['date_output'] = date($core->settings['dateformat'],$contact_history['date']);
-				eval("\$sourcing_Potentialsupplierprofile_contacthistory .= \"".$template->get('sourcing_Potentialsupplierprofile_contacthistory')."\";");
+			if(is_array($contacts_history)) {
+				foreach($contacts_history as $contact_history) {
+					$rowclass = alt_row($rowclass);				
+					$contact_history['date_output'] = date($core->settings['dateformat'],$contact_history['date']);
+					eval("\$sourcing_Potentialsupplierprofile_contacthistory .= \"".$template->get('sourcing_Potentialsupplierprofile_contacthistory')."\";");
+				}
 			}
 		}
-
+ 
 	/*contact histrory -END*/
 		
 	eval("\$sourcingPotentialsupplierprofile = \"".$template->get('sourcing_Potentialsupplierprofile')."\";");
 	output_page($sourcingPotentialsupplierprofile);
 }
+
 else
 {
 	if($core->input['action']=='do_contactsupplier') {
-	$potential_supplier->contact_supplier();
-	redirect(DOMAIN."/index.php?module=sourcing/supplierprofile");
-		
+		$supplier_id = $db->escape_string($core->input['supplierid']); echo $supplier_id;
+		$potential_supplier->contact_supplier($supplier_id);
+		redirect(DOMAIN."/index.php?module=sourcing/supplierprofile&id=".$supplier_id."");	
 	}
+	
 elseif($core->input['action'] == 'do_savecommunication') { 
 	$supplier_id = $db->escape_string($core->input['contacthst']['ssid']);
 	$potential_supplier = new Sourcing($core->input['id'],$supplier_id);
