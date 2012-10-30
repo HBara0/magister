@@ -53,17 +53,24 @@ class Sourcing {
 		$this->supplier['website'] = $core->validtate_URL($this->supplier['website']);
 		$this->supplier['createdBy'] = $core->user['uid'];
 		$this->supplier['dateCreated'] = TIME_NOW;
-		print_r($current_supplier_id);
+		
+		if($options['operationtype'] == 'update') { 
+			$update_supplier_data = $this->supplier;
+			$update_supplier_data['dateModified'] =  TIME_NOW;
+			$update_supplier_data['modifiedBy'] = $core->user['uid'];
+			unset($update_supplier_data['createdBy'],$update_supplier_data['dateCreated']); print_R($update_supplier_data);
+			$query = $db->update_query('sourcing_suppliers',$update_supplier_data,'ssid='.$current_supplier_id.'');
+		}
 		/* Insert supplier - START */
 		if(is_array($this->supplier)) {
 			$query = $db->insert_query('sourcing_suppliers', $this->supplier);
 			if($query) {
 				$this->status = 0;
 				$ssid = $db->last_id();
-				/* if edit empty table  and add */
+		
 			if($options['operationtype'] == 'update') {
 					$db->delete_query('sourcing_suppliers_activityareas',"ssid='{$current_supplier_id}'");
-						/*update suppliers_activityareas - START */  
+				/*update suppliers_activityareas - START */  
 				if(is_array($this->activityarea)) {
 					foreach($this->activityarea  as  $activityarea) { 
 					$activity_area = array('ssid'=>$current_supplier_id,
@@ -78,23 +85,22 @@ class Sourcing {
 			{
 				/*Insert new suppliers_activityareas - START */  
 				if(is_array($this->activityarea)) {
-					foreach($this->activityarea  as  $activityarea) { 
+					foreach($this->activityarea  as  $activityarea) {
 					$activity_area = array('ssid'=>$ssid,
 											'coid'=>$activityarea,	
 											);
 						$db->insert_query('sourcing_suppliers_activityareas', $activity_area);
 					}
-				}
-					/*Insert suppliers_activityareas - END */
-			}
+				}		
+			} /*Insert suppliers_activityareas - END */
 				if($options['operationtype'] == 'update') {
 					$db->delete_query('sourcing_suppliers_productsegments',"ssid='{$current_supplier_id}'");
-					$ssid = $current_supplier_id;	//new id to update
+					$ssid = $current_supplier_id;	/* new id for update */
 				}
 				
 			/*Insert suppliers_productsegments - START */
 			if(is_array($this->productsegment)) {
-				foreach($this->productsegment  as  $productsegment) { 
+				foreach($this->productsegment  as  $productsegment) {
 				$suppliers_productsegments = array('ssid'=>$ssid,
 														'psid'=>$productsegment,	
 														);
@@ -129,7 +135,6 @@ class Sourcing {
 					$db->insert_query('sourcing_suppliers_chemicals', $casid);
 				}	
 			}
-		
 			return true;						
 		}
 		/* Insert supplier - END */
@@ -202,7 +207,7 @@ class Sourcing {
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."sourcing_suppliers WHERE ssid=".$db->escape_string($id)));		
 	}
 	
-	public function get_all_potential_supplier() {
+	public function get_all_potential_supplier($filter_where = '') {
 		global $db,$core;
 		//$sort_query = 'ORDER BY ss.ssid ASC';
 		if(isset($core->input['sortby'], $core->input['order'])) {		
@@ -229,7 +234,7 @@ class Sourcing {
 				$filter_value = ' LIKE "%'.$db->escape_string($core->input['filtervalue']).'%"';
 			}
 
-			$filter_where = ' WHERE '.$db->escape_string($attributes_filter_options['companyName'][$core->input['filterby']].$core->input['filterby']).$filter_value;
+			$multipage_where = ' WHERE '.$db->escape_string($attributes_filter_options['companyName'][$core->input['filterby']].$core->input['filterby']).$filter_value;
 		}	
 			/* if no permission person should only see suppliers who work in the same segements he/she is working in --START*/		
 			if($core->usergroup['sourcing_canManageEntries'] == 0) { 
@@ -245,6 +250,7 @@ class Sourcing {
 
 			$suppliers_query = $db->query("SELECT ss.ssid,ss.companyName,ss.type,ss.isBlacklisted,ss.businessPotential FROM ".Tprefix."sourcing_suppliers ss							
 											{$join_employeessegments}
+											{$multipage_where}
 											{$filter_where}
 											{$sort_query} 
 											LIMIT {$limit_start}, {$core->settings[itemsperlist]}");									

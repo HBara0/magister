@@ -24,7 +24,7 @@ if(!$core->input['action']) {
 		$actiontype = 'Edit';
 		$id = $db->escape_string($core->input['id']);
 		$potential_supplier = new Sourcing($id);
-		$supplier = $potential_supplier->get_supplier(); print_r($supplier);
+		$supplier = $potential_supplier->get_supplier();
 		$checkboxes_index = array('isBlacklisted');
 		foreach($checkboxes_index as $key) {
 			if($supplier[$key] == 1) {
@@ -61,6 +61,7 @@ else
 	if($core->input['action'] == 'do_Addpage' || $core->input['action'] == 'do_Editpage') {
 		if($core->input['action'] == 'do_Editpage') {
 			$options['operationtype'] = 'update';
+			$lang->successfullysaved = 'Successfully Update';
 		}
 		else
 		{
@@ -113,7 +114,6 @@ elseif($core->input['action'] == 'checkcompany') {
 				{
 					echo '';
 				}
-	
 	}
 }
 ?>
