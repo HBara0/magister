@@ -78,7 +78,7 @@ $(function() {
 	}
 	
 	if($(".tablefilters_row_toggle").length > 0) {
-		$(window).keypress(function(e) {
+		$(window).on('keydown', function(e) {
 			if((e.which == 102 || e.which == 70) && e.ctrlKey) {
 				e.preventDefault();
 				$('#tablefilters, .tablefilters_row').toggle();
@@ -253,12 +253,16 @@ $(function() {
 
 	$("img[id^='addmore_']").live('click', function() { sharedFunctions.addmoreRows($(this));});
 
-	$("input[id='email']").live("keyup", validateEmailInline);
-	$("input[id='email']").change(validateEmailInline);
+	$("input[id='email'],input[accept='email']").live("keyup", validateEmailInline);
+	//$("input[id='email'],input[accept='email']").change(validateEmailInline);
 
 	function validateEmailInline() {
-		var action = $("form:has(input[id='email'])").attr("id").substring(0, ($("form:has(input[id='email'])").attr("id").length - 5));
-		var result = $(this).attr("name");
+		//var action = $("form:has(input[id='email'])").attr("id").substring(0, ($("form:has(input[id='email'])").attr("id").length - 5));
+		var formId = $(this).closest('form').attr("id");
+		var action = formId.substring(0, formId.length - 5);
+		var form = $("form[id='" + formId + "']");
+		
+		var result = $(this).attr("id");
 		if($(this).val() != '') {
 			if(validateEmail($(this).val())) {
 				$("input[id='" + action + "_Button']").removeAttr('disabled');
