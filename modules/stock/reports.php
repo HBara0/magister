@@ -44,7 +44,7 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 	}
 	elseif($core->input['action'] == 'getreport') {
 		$query = assemble_filter_query($core, $db);
-		//$content.=encapsulate_in_fieldset($query, 'Query');
+		$content.=encapsulate_in_fieldset($query, 'Query');
 		$allcolumns = array('affid' => 'id', 'spid' => 'id', 'pid' => 'id', 'amount' => 'numeric', 'currency' => 'numeric', 'usdFxrate' => 'numeric', 'quantity' => 'numeric', 'quantityUnit' => 'text', 'date' => 'date', 'saleType' => 'text', 'TRansID' => 'text');
 		$rawdata = retrieve_data($query, $allcolumns);
 		$trackedcolumns = array();
@@ -68,11 +68,11 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 					}
 				}
 			}
-			$datapresented = encapsulate_in_fieldset(turn_data_into_html($timesliced, true, $trackedcolumns, $groupingatr), 'Grouped',false);
+			$datapresented = encapsulate_in_fieldset(turn_data_into_html($timesliced, true, $trackedcolumns, $groupingatr), 'Grouped', true);
 		}
 		else {
 			$summeddata = regroup_and_sum($rawdata, $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null);
-			$datapresented = encapsulate_in_fieldset(turn_data_into_html($summeddata, false, $trackedcolumns, $groupingatr), 'Grouped', false);
+			$datapresented = encapsulate_in_fieldset(turn_data_into_html($summeddata, false, $trackedcolumns, $groupingatr), 'Grouped', true);
 		}
 
 		$charts = '<div style="position:relative;"><div id="general_chart" style="margin-left:5px;margin-bottom:10px;">'.make_jqpchart(regroup_by_day(convert_to_dollars($rawdata))).'</div>';
@@ -80,7 +80,7 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		$charts.='<div id="affiliate_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata), 'affid', array('amount' => 'numeric'), $resolve['affid'])), 'affiliate_pie', 'Top 10 Affiliates').'</div>';
 		$charts.='<div id="supplier_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata), 'spid', array('amount' => 'numeric'), $resolve['spid'])), 'supplier_pie', 'Top 10 Suppliers').'</div>';
 		$charts.='<div id="product_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata), 'pid', array('amount' => 'numeric'), $resolve['pid'])), 'product_pie', 'Top 10 Products').'</div></div>';
-		$charts =encapsulate_in_fieldset($charts, "Charts", false);
+		$charts = encapsulate_in_fieldset($charts, "Charts", false);
 		$performance["--END--"] = microtime();
 		if($core->input['isajax'] == 'true') {
 			output_xml($charts.$datapresented.get_perf_data());
@@ -184,91 +184,110 @@ function sort_by_amount($data, $numberofrows = 10) {
 
 function make_jqbarchart($data) {
 	log_performance(__METHOD__);
+	global $jq_common, $jq_bar,$jq_pie;
 	$urlparts = explode('?', get_curent_page_URL());
 	$baseurl = substr($urlparts[0], 0, strlen($urlparts[0]) - 9);
+	$includes = '';
 	if(!$jq_common) {
-		$includes .= '
-			<script type="text/javascript" src="'.$baseurl.'inc/jQplot/jquery.jqplot.min.js"></script>
-			<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.highlighter.min.js"></script>
-			<link rel="stylesheet" type="text/css" hrf="'.$baseurl.'inc/jQplot/jquery.jqplot.min.css" />
-				';
+		$includes .= '	<script type="text/javascript" src="'.$baseurl.'inc/jQplot/jquery.jqplot.min.js"></script>
+						<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.highlighter.min.js"></script>
+						<script type="text/javascript" src="'.$baseurl.'inc/jQplot/excanvas.min.js"></script>
+						<link rel="stylesheet" type="text/css" hrf="'.$baseurl.'inc/jQplot/jquery.jqplot.min.css" />';
 		$jq_common = true;
 	}
 	if(!$jq_bar) {
 		$includes .= '<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.cursor.min.js"></script>';
 		$includes .= '<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.barRenderer.min.js"></script>';
 		$includes .= '<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.categoryAxisRenderer.min.js"></script>';
-		$includes .= '<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.categoryAxisRenderer.min.js"></script>';
+		$includes .= '<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.pointLabels.min.js"></script>
+				<style>
+					.jqplot-cursor-tooltip {
+						background-color:#E2F2A2;
+						padding:2px;
+					}
+				</style>
+			';
 		$jq_bar = true;
 	}
 
-	$function = '<span id="info1"></span>
-		<div id="chart1" style="width:'.$divwidth.';height:'.$divheight.';vertical-align:top;overflow: hidden;"></div><script>
+	$function = '<div id="bchart1" style="width:400px;sheight:500px;vertical-align:top;overflow: hidden;"></div>
+		<script>
 		$(document).ready(function(){
-        $.jqplot.config.enablePlugins = true;';
+			var s1 = [';
 
-			$firstvar=' var s1 = [';
-			$secondvar=' var ticks = [';
-
-		foreach($data as $key => $row) {
+	$ticks='var ticks = [';
+	foreach($data as $key => $row) {
 		if(is_array($row)) {
 			$total = 0;
 			foreach($row as $key => $value) {
 				if(is_array($value)) {
-					$total+=(float)$value['amount']['value'];
+					if($value['amount']['value'] < 0) {
+						$total-=(float)$value['amount']['value'];
+					}
+					else {
+						$total+=(float)$value['amount']['value'];
+					}
 				}
 			}
-			if ($total<0) {
-				$total=-$total;
-			}
-			$firstvar.= number_format($total, 2, '.', '').',';
-			$secondvar.='"'.$row['#name'].'",';
+			$function .= '["'.$row['#name'].'",'.number_format($total, 2, '.', '').'],';
+			$ticks.='["'.$row['#name'].'"],';
 		}
 	}
-	$firstvar.='];';
-	$secondvar.='];';
 
+	$ticks = substr($ticks, 0, strlen($ticks) - 1);
+	$ticks .='];';
+	$function = substr($function, 0, strlen($function) - 1);
+	$function .='];';
 
-    $function.=$firstvar.$secondvar.'
-		plot11 = $.jqplot(\'chart1\', [s1], {
-            animate: !$.jqplot.use_excanvas,
-            seriesDefaults:{
+	$function.=$firstvar.$secondvar.'
+		plot1 = $.jqplot(\'bchart1\', [s1], {
+			animate: !$.jqplot.use_excanvas,
+			seriesDefaults:{
                 renderer:$.jqplot.BarRenderer,
-                pointLabels: { show: true }
+				shadowAngle: 135,
+				showHighlight: true,
+				rendererOptions: {
+					barWidth: 5,
+                    barPadding: 2,
+                    barMargin: 2,
+		        },
+
             },
             axes: {
-                xaxis: {
-                    renderer: $.jqplot.CategoryAxisRenderer,
-                    ticks: ticks
-                }
+				xaxis: {
+					renderer: $.jqplot.CategoryAxisRenderer,
+					numberTicks: 3,
+					showTicks: 1
+				},
+				yaxis: {
+					padMin: 0,
+				}
             },
-            highlighter: { show: true }
+			cursor:{
+                show: true,
+                zoom:false,
+                showTooltip:true,
+                followMouse: false,
+				tooltipLocation: "se",
+				tooltipAxes: "both",
+				formatString: \'%d\',
+			},
         });
-
-        $(\'#chart1\').bind(\'jqplotDataClick\',
-            function (ev, seriesIndex, pointIndex, data) {
-                $(\'#info1\').html(\'series: \'+seriesIndex+\', point: \'+pointIndex+\', data: \'+data);
-            }
-        );
     });
 	</script>';
 	return $includes.$function;
 }
 
-
 function make_jqppiechart($data, $id = "jqpieid", $title = '', $margin = 0, $startangle = 0, $divwidth = '230px', $divheight = '230px', $fill = true) {
 	log_performance(__METHOD__);
 	$urlparts = explode('?', get_curent_page_URL());
 	$baseurl = substr($urlparts[0], 0, strlen($urlparts[0]) - 9);
-
-	global $jq_common, $jq_pie;
+	global $jq_common, $jq_bar,$jq_pie;
 	$includes = '';
 	if(!$jq_common) {
-		$includes .= '
-			<script type="text/javascript" src="'.$baseurl.'inc/jQplot/jquery.jqplot.min.js"></script>
-			<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.highlighter.min.js"></script>
-			<link rel="stylesheet" type="text/css" hrf="'.$baseurl.'inc/jQplot/jquery.jqplot.min.css" />
-				';
+		$includes .= '	<script type="text/javascript" src="'.$baseurl.'inc/jQplot/jquery.jqplot.min.js"></script>
+						<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.highlighter.min.js"></script>
+						<link rel="stylesheet" type="text/css" hrf="'.$baseurl.'inc/jQplot/jquery.jqplot.min.css" />';
 		$jq_common = true;
 	}
 	if(!$jq_pie) {
@@ -293,11 +312,16 @@ function make_jqppiechart($data, $id = "jqpieid", $title = '', $margin = 0, $sta
 			$total = 0;
 			foreach($row as $key => $value) {
 				if(is_array($value)) {
-					$total+=(float)$value['amount']['value'];
+					if ($value['amount']['value']<0) {
+						$total-=(float)$value['amount']['value'];
+					} else {
+						$total+=(float)$value['amount']['value'];
+					}
+
 				}
 			}
-			if ($total<0) {
-				$total=-$total;
+			if($total < 0) {
+				$total = -$total;
 			}
 			$function.='["'.$row['#name'].'",'.number_format($total, 2, '.', '').'],';
 		}
@@ -356,8 +380,8 @@ function reduce_density_by_grouping($data, $maxtarget) {
 		$currentstamp = (int)($min + $step * $i);
 		$nextstep = (int)($min + $step * ($i + 1));
 		$newdata[$currentstamp] = $previous;
-		foreach($data as $date => $value) {
-			if($date >= $currentstamp && $date < $nextstep) {
+		foreach($data as $tdate => $value) {
+			if($tdate >= $currentstamp && $tdate < $nextstep) {
 				$newdata[$currentstamp]+=(float)$value;
 			}
 		}
@@ -370,13 +394,12 @@ function make_jqpchart($data) {
 	log_performance(__METHOD__);
 	$urlparts = explode('?', get_curent_page_URL());
 	$baseurl = substr($urlparts[0], 0, strlen($urlparts[0]) - 9);
-	global $jq_common, $jq_chart;
+	global $jq_common, $jq_bar,$jq_pie;
 	$includes = '';
 	if(!$jq_common) {
-		$includes .= '
-			<script type="text/javascript" src="'.$baseurl.'inc/jQplot/jquery.jqplot.min.js"></script>
-			<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.highlighter.min.js"></script>
-			<link rel="stylesheet" type="text/css" hrf="'.$baseurl.'inc/jQplot/jquery.jqplot.min.css" />';
+		$includes .= '	<script type="text/javascript" src="'.$baseurl.'inc/jQplot/jquery.jqplot.min.js"></script>
+						<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.highlighter.min.js"></script>
+						<link rel="stylesheet" type="text/css" hrf="'.$baseurl.'inc/jQplot/jquery.jqplot.min.css" />';
 		$jq_common = true;
 	}
 	if(!$jq_chart) {
@@ -391,11 +414,7 @@ function make_jqpchart($data) {
 	$function = '<div id="jqChart" style="width:670px;height:300px;padding:10px;"></div><script>
 				$(document).ready(function(){
 				var dataPoints = [];';
-
-
-	$data = reduce_density_by_grouping($data, 50);
-
-
+	$data = reduce_density_by_grouping($data, 100);
 	foreach($data as $date => $value) {
 		if(is_numeric($value)) {
 			$function.='dataPoints.push(["'.date('Y-m-d', $date).'",'.number_format($value, 2, '.', '').']);';
@@ -404,7 +423,6 @@ function make_jqpchart($data) {
 			$function.='dataPoints.push(["'.date('Y-m-d', $date).'",'.$value.']);';
 		}
 	}
-
 	$function.='
 	var plot = $.jqplot("jqChart", [dataPoints],
 	{
@@ -1234,7 +1252,7 @@ function regroup_by_day($data) {
 			$rate = $purchase['usdFxrate']['value'];
 		}
 
-		$date=strtotime(date('Y-m-d',$purchase['date']['value']));
+		$date = strtotime(date('Y-m-d', $purchase['date']['value']));
 		if(isset($grouped[$date])) {
 			$grouped[$date] += (float)$purchase['amount']['value'] * $rate;
 		}
@@ -1423,11 +1441,18 @@ function get_name_from_id($id, $tablename = 'products', $idcolumn = 'pid', $name
 
 function log_performance($name) {
 	global $performance, $perflogcount;
-	if(isset($performance['FUNCTION_START_'.str_replace(' ', '', $name)])) {
-		$performance['FUNCTION_START_'.str_replace(' ', '', $name).'_'.($perflogcount++)] = microtime();
+	$perflogcount++;
+	if(isset($performance['_FUNCTION_START_'.str_replace(' ', '', $name)])) {
+
+
+		for($count = 1; $count < $perflogcount; $count++) {
+			if(!isset($performance['_FUNCTION_START_'.str_replace(' ', '', $name).'_'.$count]))
+				break;
+		}
+		$performance['_FUNCTION_START_'.str_replace(' ', '', $name).'_'.$count] = microtime();
 	}
 	else {
-		$performance['FUNCTION_START_'.str_replace(' ', '', $name)] = microtime();
+		$performance['_FUNCTION_START_'.str_replace(' ', '', $name)] = microtime();
 	}
 }
 
@@ -1445,11 +1470,13 @@ function get_perf_data() {
 		$timing = ($timedate[1] + (float)('0.'.str_replace('0.', '', $timedate[0]))) - (float)$initialtiming;
 		$totaltiming+=$timing;
 		$tmphtml.='<tr><td>'.$counter++.'</td><td>'.number_format(1000 * $totaltiming, 3, '.', '').'</td><td>'.$key.'</td><td>'.number_format((1000 * $timing), 3, '.', '').'</td></tr>';
-		$forpie[] = array('#name' => $key, 0 => array('amount' => array('value' => number_format((1000 * $timing), 3, '.', ''))));
+		$forpie[] = array('#name' => $key, 0 => array('amount' => array('value' => 1000 * $totaltiming)));
 	}
 	$tmphtml .= '</table>';
-
-	$html='<table border=1 cellspacing=0 cellpadding=4><tr><td valign=top rowspan=2>'.$tmphtml.'</td><td valign=top>'.make_jqppiechart($forpie, "perfpie", '', 0, -90, 800, 600).'</td></tr><tr><td>'./*make_jqbarchart($forpie)*/''.'</td></tr></table>';
+	//'<td valign=top>'.make_jqppiechart($forpie, "perfpie", '', 0, -90, 800, 600).'</td>'
+	//make_jqpchart($forpie);
+	//make_jqbarchart($forpie)
+	$html = '<table border=0 cellspacing=0 cellpadding=2><tr><td valign=top>'.$tmphtml.'</td><td valign=top>'.make_jqbarchart($forpie).'</td></tr></table>';
 	return encapsulate_in_fieldset($html, "Performance");
 }
 
