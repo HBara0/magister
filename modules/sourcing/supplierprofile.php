@@ -93,9 +93,9 @@ if(!$core->input['action']) {
 
 		$potential_supplier_details['fulladress'] = $potential_supplier_details['addressLine1'].','.$potential_supplier_details['addressLine2'] ;	
 		
-/*When user has not initiated a contact -STARY*/		
+/*When user has not initiated a contact -START*/		
 	if(!value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid'])) {
-		$hashed_attributes = array('fulladress'=>$potential_supplier_details['fulladress'],'poBox'=>$potential_supplier_details['poBox'],'fax'=>$potential_supplier_details['fax'],'mainEmail'=>$potential_supplier_details['mainEmail'],'website'=>$potential_supplier_details['website']);
+		$hashed_attributes = array('fulladress'=>$potential_supplier_details['fulladress'],'poBox'=>$potential_supplier_details['poBox'],'fax'=>$potential_supplier_details['fax'],'mainEmail'=>$potential_supplier_details['mainEmail'],'website'=>$potential_supplier_details['website'],'contact'=>$contact_person['name']);
 		foreach($hashed_attributes as $key=>$hashedvalue){
 			$potential_supplier_details[$key] = md5($potential_supplier_details[$key]);
 		}
