@@ -58,8 +58,8 @@ if(!$core->input['action']) {
 					$listcas_numbers_section .='<tr class="{$rowclass}"><td width="10%">'.$chemical['casNum'].'</td>
 					<td align="left">'.$chemical['name'].'</td>
 					</tr>';
-				}
-				
+				} 
+				 
 				$listcas_numbers_section .='</table></div>';
 			}
 

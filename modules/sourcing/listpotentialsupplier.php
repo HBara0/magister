@@ -107,7 +107,7 @@ if(!$core->input['action']) {
 					if($potential_supplier['supplier']['isBlacklisted'] == 1){
 						$criteriaandstars = '<img  title ="blackListed" src="././images/icons/notemark.gif" border="0"/>';
 					}
-					
+					 
 					if(!$readonlyratings) {
 						$header_ratingjs = '$(".rateit").live("click",function() {
 						if(sharedFunctions.checkSession() == false) {
@@ -161,7 +161,6 @@ if(!$core->input['action']) {
 	output_page($listpotentialsupplier);
 
 }
-
  	elseif($core->input['action'] == 'do_ratepotential')
 	{
 		$sourcing['businessPotential'] = $db->escape_string($core->sanitize_inputs($core->input['value'], array('removetags' => true)));

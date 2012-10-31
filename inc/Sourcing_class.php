@@ -43,7 +43,7 @@ class Sourcing {
 			return false;	
 		}
 	}
-
+  
 		$sanitize_fields = array('companyName','companyNameAbbr','country','city','addressLine1','addressLine2','building','postCode','poBox','commentsToShare','marketingRecords','coBriefing','historical','sourcingRecords','productFunction');
 			foreach($sanitize_fields as $val) {
 			$this->supplier[$val] = $core->sanitize_inputs($this->supplier[$val], array('removetags'=> true));	
@@ -362,7 +362,7 @@ class Sourcing {
 				}					
 				return false;
 		
-		 }
+		 } 
 		 
 		 private function read_contact_history($id='') {
 			 global $db,$core;

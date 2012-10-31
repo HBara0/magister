@@ -55,7 +55,7 @@ if(!$core->input['action']) {
 	$potential_supplier = new Sourcing($id);
 	$potential_supplier->edit($core->input['supplier']);
 }*/
-
+ 
 else 
 { 
 	if($core->input['action'] == 'do_Addpage' || $core->input['action'] == 'do_Editpage') {
