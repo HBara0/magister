@@ -114,7 +114,7 @@ if(!$core->input['action']) {
 	
 /*communication Report after the user has initiated contact-START*/		
 	else
-	{	
+	{	 
 		$contactsupplier_form = '';
 		$affiliates = get_specificdata('affiliates', array('affid','name'), 'affid', 'name','');
 		$affiliates_list = parse_selectlist("contacthst[affid]",1, $affiliates, $core->user['mainaffiliate'], 0);

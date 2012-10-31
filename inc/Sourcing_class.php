@@ -283,7 +283,7 @@ class Sourcing {
 					return $segments_suppliers;
 				}					
 				return false;		
-			}
+			} 
 	
 	public function get_supplier_contact($id='') {
 		global $db;  
