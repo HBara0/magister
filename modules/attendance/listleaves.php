@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright Â© 2009 Orkila International Offshore, All Rights Reserved
  * 
  * List Leaves
  * $module: attendance
@@ -18,7 +18,6 @@ if(!defined('DIRECT_ACCESS'))
 if(!$core->input['action']) {
 	if(value_exists('users', 'reportsTo', $core->user['uid']) || value_exists('affiliates', 'generalManager', $core->user['uid'])) {
 		$is_supervisor = true;
-		$yoursonly_filter = '<a href="index.php?module=attendance/listleaves&amp;yoursonly=1">'.$lang->yoursonly.'</a> |';
 	}
 	
 	$sort_query = 'requestTime DESC, username ASC';
@@ -36,39 +35,71 @@ if(!$core->input['action']) {
 		$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
 	}
 	
-	if(isset($core->input['yoursonly']) && $core->input['yoursonly'] == 1) {
+	if($core->usergroup['attendance_canViewAllLeaves'] == 0) {
 		$where = ' WHERE ';
-		$uid_where = 'l.uid="'.$core->user['uid'].'"';
+		$uid_where = ' (l.uid="'.$core->user['uid'].'"';
+		if($core->usergroup['attendance_canViewAffAllLeaves'] == 1) {
+			$query = $db->query("SELECT u.uid FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE isMain=1 AND affid='{$core->user[mainaffiliate]}'");
+			if($db->num_rows($query) > 1) {
+				while($user = $db->fetch_assoc($query)) {
+					$users[] = $user['uid'];
+				}
+				$uid_where .= ' OR l.uid IN ('.implode(',', $users).')';
+			}
+		}
+
+		$reporting_users = get_specificdata('users', 'uid', 'uid', 'uid', '', 0, "reportsTo='{$core->user[uid]}'");
+		if(is_array($reporting_users) && !empty($reporting_users)) {
+			$uid_where .= ' OR l.uid IN ('.implode(',', $reporting_users).')';
+		}
+		$uid_where .= ')';
 	}
 	else
 	{
-		if($core->usergroup['attendance_canViewAllLeaves'] == 0) {
-			$where = ' WHERE ';
-			$uid_where = ' l.uid="'.$core->user['uid'].'"';
-			if($core->usergroup['attendance_canViewAffAllLeaves'] == 1) {
-				$query = $db->query("SELECT u.uid FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE isMain=1 AND affid='{$core->user[mainaffiliate]}'");
-				if($db->num_rows($query) > 1) {
-					while($user = $db->fetch_assoc($query)) {
-						$users[] = $user['uid'];
-					}
-					$uid_where .= ' OR l.uid IN ('.implode(',', $users).')';
-				}
-			}
-	
-			$reporting_users = get_specificdata('users', 'uid', 'uid', 'uid', '', 0, "reportsTo='{$core->user[uid]}'");
-			if(is_array($reporting_users) && !empty($reporting_users)) {
-				$uid_where .= ' OR l.uid IN ('.implode(',', $reporting_users).')';
-			}
-		}
-		else
-		{
-			$where = '';
-		}
+		$where = '';
 	}
-	$multipage_where = $uid_where;//"uid='{$core->user[uid]}'";
+	
+	/* Perform inline filtering - START */
+	$filters_config = array(
+			'parse' => array('filters' => array('employee', 'date', 'fromDate', 'toDate', 'type'),
+							'overwriteField' => array('employee' => parse_selectlist('filters[employee][]', 1, get_specificdata('users l', array('uid', 'displayName'), 'uid', 'displayName', '', 0, $uid_where), $core->input['filters']['employee'], 1, '', array('multiplesize' => 3)), 'type' => parse_selectlist('filters[type][]', 1, get_specificdata('leavetypes', array('ltid', 'title'), 'ltid', 'title', '', 0), $core->input['filters']['type'], 1, '', array('multiplesize' => 3))),
+							'fieldsSequence' => array('employee' => 1, 'date' => 2, 'fromDate' => 3, 'toDate' => 4, 'type' => 5)
+			),
+			'process' => array(
+					'filterKey' => 'lid',
+					'mainTable' => array(
+							'name' => 'leaves',
+							'filters' => array('employee' => array('operatorType' => 'multiple', 'name' => 'uid'), 'date' => array('operatorType' => 'date', 'name' => 'requestTime'), 'fromDate' => array('operatorType' => 'date', 'name' => 'fromDate'), 'toDate', 'type' => array('operatorType' => 'multiple', 'name' => 'type')),
+					)
+			)
+	);
+
+	$filter = new Inlinefilters($filters_config);
+	$filter_where_values = $filter->process_multi_filters();
+
+	$filters_row_display = 'hide';
+	if(is_array($filter_where_values)) {
+		$filters_row_display = 'show';
+		$filter_where = ' AND ';
+		if(empty($uid_where)) {
+			$filter_where = ' WHERE ';	
+		}
+		$filter_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+		$multipage_filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+	}
+
+	$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+	/* Perform inline filtering - END */
+	
+	$multipage_where = $uid_where.$multipage_filter_where;//"uid='{$core->user[uid]}'";
+	if(!empty($multipage_filter_where)) {
+		$multipage_where = $multipage_filter_where;
+	}
+	
 	$query = $db->query("SELECT l.*, l.fromDate AS fromdate, l.toDate AS till, l.requestTime AS daterequested, Concat(u.firstName, ' ', u.lastName) AS employeename 
-						FROM ".Tprefix."leaves l LEFT JOIN ".Tprefix."users u ON (u.uid=l.uid) 
-						{$where}{$uid_where}
+						FROM ".Tprefix."leaves l 
+						JOIN ".Tprefix."users u ON (u.uid=l.uid) 
+						{$where}{$uid_where}{$filter_where}
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
@@ -147,9 +178,10 @@ if(!$core->input['action']) {
 
 	$requestslist .= '<tr><td colspan="6">'.$multipages->parse_multipages().'&nbsp;</td></tr>';//<td colspan="3"><a href="index.php?module=attendance/leavesstats"><img src="images/icons/report.gif" alt="'.$lang->viewbalances.'" border="0" /> '.$lang->viewbalances.'</a></td>
 
-	if($is_supervisor == true) {
-		eval("\$moderationtools .= \"".$template->get('attendance_listleaves_moderationtools')."\";");
-	}
+//	if($is_supervisor == true) {
+//		eval("\$moderationtools .= \"".$template->get('attendance_listleaves_moderationtools')."\";");
+//	}
+	
 	eval("\$listleavespage = \"".$template->get('attendance_listleaves')."\";");
 	output_page($listleavespage);
 }

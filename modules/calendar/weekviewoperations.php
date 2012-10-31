@@ -252,7 +252,7 @@ elseif($core->input['action'] == 'do_perform_weekviewoperations')  {
 			header('Content-type: text/xml+javascript');
 			$value = array( 
 				'fromDate_output' => date('H:i', $fromdate),
-				'toDate_output'	=>  ' - '.date('H:i', $todate),
+				'toDate_output'	=>  ' - <span id="toTime_'.$lid.'">'.date('H:i', $todate).'</span>',
 				'lid'	=> $lid,
 				'identifier'	=> $identifier,
 				'customername'	=> $customer['companyName'],

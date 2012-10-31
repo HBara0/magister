@@ -331,7 +331,8 @@ function parse_selectlist($id, $tabindex, $options, $selected_options, $multiple
 		$onchange_actions = ' onchange=\''.$onchange_actions.'\'';
 	}
 	
-	$list .= '<select id="'.$id.'" name="'.$id.'" tabindex="'.$tabindex.'"'.$multiple.$onchange_actions.'>';
+	
+	$list .= '<select id="'.(($config['id'])?$config['id']:$id).'" name="'.$id.'" tabindex="'.$tabindex.'"'.$multiple.$onchange_actions.'>';
 	foreach($options as $key => $val) {
 		if($multiple_selected == true) {
 			if(in_array($key, $selected_options)) {

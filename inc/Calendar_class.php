@@ -509,7 +509,7 @@ class Calendar {
 							$is_first = false;
 													
 							$value['fromDate_output'] = date('H:i', $value['fromDate']);
-							$value['toDate_output'] = ' - '.date('H:i', $value['toDate']);
+							$value['toDate_output'] = ' - <span id="toTime_'.$value['lid'].'">'.date('H:i', $value['toDate']).'</span>';
 							
 							$visit['customername_prefix'] = '<br />';
 							if(($value['toDate'] - $value['fromDate']) <= $this->options['depth']) {

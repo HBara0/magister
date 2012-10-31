@@ -103,4 +103,23 @@ $lang['transid'] = 'Trans ID';
 $lang['successfullysaved'] = 'Successfully Saved';
 $lang['resulterror'] = 'Error';
 $lang['saletype'] = 'Sale Type';
+
+$lang['from']='From';
+$lang['to']='To';
+$lang['affiliate']='Affiliate';
+$lang['product']='Product';
+$lang['supplier']='Supplier';
+$lang['affid']='Affiliate';
+$lang['spid']='Supplier';
+$lang['pid']='Product';
+$lang['amount']= 'Amount';
+$lang['currency']='Currency';
+$lang['usdFxrate']='Forex Rate';
+$lang['quantity']='Quantity';
+$lang['quantityUnit']='Unit';
+$lang['date']= 'Date';
+$lang['saleType']= 'Sale Type';
+$lang['TRansID']= 'Transaction ID';
+$lang['groupby']= 'Group by';
+$lang['detailed']='Detailed';
 ?>
