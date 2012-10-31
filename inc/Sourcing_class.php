@@ -142,7 +142,7 @@ class Sourcing {
 	
 	public function contact_supplier($id='') {
 		global $core,$db;
-		
+		echo 'conttt';
 		$db->insert_query('sourcing_suppliers_contacthist', array('ssid'=>$id,'uid'=>$core->user['uid']));
 		}
 
@@ -294,15 +294,14 @@ class Sourcing {
 		{
 			$supplier_id = $id;
 		}
-
-		if(!$this->validate_segment_permission($supplier_id)) {  //change remove the not
+		
+		//if($this->validate_segment_permission($supplier_id)) {  //change remove the not
 				return $db->fetch_assoc($db->query("SELECT ss.*, ps.title as segment from  ".Tprefix."sourcing_suppliers ss
 									JOIN ".Tprefix."sourcing_suppliers_productsegments ssp ON (ss.ssid= ssp.ssid)
 									JOIN ".Tprefix."productsegments ps ON(ps.psid=ssp.psid)
 									JOIN ".Tprefix."employeessegments es on (es.psid = ssp.psid)
-									WHERE ss.ssid= ".$db->escape_string($supplier_id).""));
-			
-				}
+									WHERE ss.ssid= ".$db->escape_string($supplier_id).""));		
+				//}
 			}
 			
 	public function get_supplier_contact_persons($supplier_id=''){
@@ -310,7 +309,7 @@ class Sourcing {
 		if(empty($supplier_id)){
 			$supplier_id = $this->supplier_id;
 			}
-		if(!$this->validate_segment_permission($this->supplier_id)) {  //change remove the not
+		//if(!$this->validate_segment_permission($this->supplier_id)) {  //change remove the not
 			$contact_query = $db->query("SELECT ss.ssid ,rp.* from ".Tprefix."sourcing_suppliers ss
 									JOIN ".Tprefix." sourcing_suppliers_contactpersons sscp ON(sscp.ssid=ss.ssid)
 									JOIN ".Tprefix." representatives rp ON(sscp.rpid=rp.rpid)
@@ -322,7 +321,7 @@ class Sourcing {
 					return $contact_persons;
 				}					
 				return false;
-			}
+			//}
 		}
 	public function get_supplier_activity_area($supplier_id=''){
 		global $db; 

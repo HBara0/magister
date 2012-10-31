@@ -23,7 +23,7 @@ if(!value_exists('sourcing_suppliers', 'ssid', $supplier_id)) {  /*if we no supp
 }
 $potential_supplier = new Sourcing($supplier_id);
 if(!$core->input['action']) {
-		$potential_supplier_details = $potential_supplier->get_supplier_contact();
+		$potential_supplier_details = $potential_supplier->get_supplier_contact(); print_r($potential_supplier_details);
 		$segments_suppliers	 = $potential_supplier->get_supplier_segments();
 		$supplier_contact	 =  $potential_supplier->get_supplier_contact_persons();
 		$supplier_activity_area =  $potential_supplier->get_supplier_activity_area();
@@ -108,17 +108,20 @@ if(!$core->input['action']) {
 			$(".detailsvalue").each(function(){$(this).addClass("blur");});
 			});';
 	}
+
+	
 /*When user has not initiated a contact -END*/
 	
 /*communication Report after the user has initiated contact-START*/		
 	else
-	{
+	{	
+		$contactsupplier_form = '';
 		$affiliates = get_specificdata('affiliates', array('affid','name'), 'affid', 'name','');
 		$affiliates_list = parse_selectlist("contacthst[affid]",1, $affiliates, $core->user['mainaffiliate'], 0);
 		$countries = get_specificdata('countries', array('coid', 'name'), 'coid', 'name','');
 		$countries_list = parse_selectlist('contacthst[origin]', 8, $countries, '');	
 		$product_segmentlist = parse_selectlist('contacthst[market]', 9, $segments_suppliers, ''); /*product segments (that the current supplier(loaded from the object) works in) */
-		$supplierid = $core->input['id'];
+		$supplierid = $core->input['supplierid'];
 	
 		eval("\$sourcing_Potentialsupplierprofile_reportcommunication = \"".$template->get('sourcing_Potentialsupplierprofile_reportcommunication')."\";");		
 	}
@@ -146,7 +149,7 @@ if(!$core->input['action']) {
 else
 {
 	if($core->input['action']=='do_contactsupplier') {
-		$supplier_id = $db->escape_string($core->input['supplierid']); echo $supplier_id;
+		$supplier_id = $db->escape_string($core->input['supplierid']); echo  $supplier_id;
 		$potential_supplier->contact_supplier($supplier_id);
 		redirect(DOMAIN."/index.php?module=sourcing/supplierprofile&id=".$supplier_id."");	
 	}
