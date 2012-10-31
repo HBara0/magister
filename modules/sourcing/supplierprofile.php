@@ -23,7 +23,7 @@ if(!value_exists('sourcing_suppliers', 'ssid', $supplier_id)) {  /*if we no supp
 }
 $potential_supplier = new Sourcing($supplier_id);
 if(!$core->input['action']) {
-		$potential_supplier_details = $potential_supplier->get_supplier_contact(); print_r($potential_supplier_details);
+		$potential_supplier_details = $potential_supplier->get_supplier_contact();
 		$segments_suppliers	 = $potential_supplier->get_supplier_segments();
 		$supplier_contact	 =  $potential_supplier->get_supplier_contact_persons();
 		$supplier_activity_area =  $potential_supplier->get_supplier_activity_area();
@@ -114,7 +114,7 @@ if(!$core->input['action']) {
 	
 /*communication Report after the user has initiated contact-START*/		
 	else
-	{	 
+	{	
 		$contactsupplier_form = '';
 		$affiliates = get_specificdata('affiliates', array('affid','name'), 'affid', 'name','');
 		$affiliates_list = parse_selectlist("contacthst[affid]",1, $affiliates, $core->user['mainaffiliate'], 0);
@@ -122,7 +122,7 @@ if(!$core->input['action']) {
 		$countries_list = parse_selectlist('contacthst[origin]', 8, $countries, '');	
 		$product_segmentlist = parse_selectlist('contacthst[market]', 9, $segments_suppliers, ''); /*product segments (that the current supplier(loaded from the object) works in) */
 		$supplierid = $core->input['supplierid'];
-	
+		$newsupplierid=	$potential_supplier_details['ssid'];
 		eval("\$sourcing_Potentialsupplierprofile_reportcommunication = \"".$template->get('sourcing_Potentialsupplierprofile_reportcommunication')."\";");		
 	}
 /*communication Report after the user has initiated contact -END*/		
@@ -149,17 +149,17 @@ if(!$core->input['action']) {
 else
 {
 	if($core->input['action']=='do_contactsupplier') {
-		$supplier_id = $db->escape_string($core->input['supplierid']); echo  $supplier_id;
+		$supplier_id = $db->escape_string($core->input['supplierid']);
 		$potential_supplier->contact_supplier($supplier_id);
 		redirect(DOMAIN."/index.php?module=sourcing/supplierprofile&id=".$supplier_id."");	
 	}
 	
 elseif($core->input['action'] == 'do_savecommunication') { 
-	$supplier_id = $db->escape_string($core->input['contacthst']['ssid']);
-	$potential_supplier = new Sourcing($core->input['id'],$supplier_id);
+	$newsupplierid = $db->escape_string($core->input['contacthst']['ssid']);
+	//$potential_supplier = new Sourcing($core->input['id']);
 	 /* system should check if user has  previous contactshistory */
-	if(value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid'])) {
-		$potential_supplier->save_communication_report($core->input['contacthst'],$supplier_id);		
+	if(value_exists('sourcing_suppliers_contacthist', 'ssid', $newsupplierid, 'uid='.$core->user['uid'])) {
+		$potential_supplier->save_communication_report($core->input['contacthst'],$newsupplierid);		
 	}
 	switch($potential_supplier->get_status()) {
 			case 3:
@@ -184,6 +184,5 @@ elseif($core->input['action']=='preview') {
 				
 	}
 }
-
 
 ?>
