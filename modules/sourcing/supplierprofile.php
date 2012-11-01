@@ -23,7 +23,7 @@ if(!value_exists('sourcing_suppliers', 'ssid', $supplier_id)) {  /*if we no supp
 }
 $potential_supplier = new Sourcing($supplier_id);
 if(!$core->input['action']) {
-		$potential_supplier_details = $potential_supplier->get_supplier_contact();
+		$potential_supplier_details = $potential_supplier->get_supplier_contactdetails();
 		$segments_suppliers	 = $potential_supplier->get_supplier_segments();
 		$supplier_contact	 =  $potential_supplier->get_supplier_contact_persons();
 		$supplier_activity_area =  $potential_supplier->get_supplier_activity_area();
@@ -59,32 +59,31 @@ if(!$core->input['action']) {
 					<td align="left">'.$chemical['name'].'</td>
 					</tr>';
 				} 
-				 
 				$listcas_numbers_section .='</table></div>';
 			}
 
 			/*Chemical List -END*/
-			if(!empty($potential_supplier_details['commentsToShare'])){
+			if(!empty($potential_supplier_details['commentsToShare'])) {
 				$commentshare_section = "<div style=display:table-row; padding:10px;><strong>{$lang->commentstoshare}</strong></div>
 								{$potential_supplier_details[commentsToShare]}
 								<div class=border_bottom> </div>";	
 			}
-			if(!empty($potential_supplier_details['marketingRecords'])){
+			if(!empty($potential_supplier_details['marketingRecords'])) {
 				$marketingrecords_section = "<div style=display:table-row; padding:10px;><strong>{$lang->marketingrecords}</strong></div>
 								{$potential_supplier_details[marketingRecords]}
 								<div class=border_bottom> </div>";	
 			}
-			if(!empty($potential_supplier_details['historical'])){
+			if(!empty($potential_supplier_details['historical'])) {
 			$historical_section = "<div style=display:table-row; padding:10px;><strong>{$lang->historical}</strong></div>
 							{$potential_supplier_details[historical]}
 							<div class=border_bottom> </div>";	
 		}
-			if(!empty($potential_supplier_details['sourcingRecords'])){
+			if(!empty($potential_supplier_details['sourcingRecords'])) {
 				$sourcingRecords_section = "<div style=display:table-row; padding:10px;><strong>{$lang->sourcingRecords}</strong></div>
 				{$potential_supplier_details[sourcingRecords]}
 				<div class=border_bottom> </div>";	
 			}
-			if(!empty($potential_supplier_details['coBriefing'])){
+			if(!empty($potential_supplier_details['coBriefing'])) {
 				$coBriefing_section = "<div style=display:table-row; padding:10px;><strong>{$lang->coBriefing}</strong></div>
 				{$potential_supplier_details[coBriefing]}
 				<div class=border_bottom> </div>";	

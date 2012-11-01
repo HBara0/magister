@@ -161,10 +161,7 @@ class CmsPages extends Cms {
 		return $db->fetch_assoc($db->query("SELECT title, alias, bodyText,version FROM ".Tprefix."cms_page WHERE alias='".$db->escape_string($alias)."'{$exclude_querystring} ORDER BY version DESC"));
 	}
 	
-	public function edit($page='') {
-		global $core,$db;
-		// check similar string if major or minor update version.				
-	}
+
 	
 	private function read($id, $simple=false) {
 		global $db;
