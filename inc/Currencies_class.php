@@ -144,6 +144,30 @@ class Currencies {
 					LIMIT 0, 1"));
 	}
 	
+	public function get_fxrate_bytype() {
+		$args = func_get_args();
+		if(!is_array($args)) {
+			return false;
+		}
+		
+		switch($args[0]) {
+			case 'mavg':
+				return $this->get_yearaverage_fxrate_monthbased($args[1], $args[2], $args[3], $args[4]);
+				return $this->get_average_fxrate($args[1], array('from' => strtotime($args[2]['year'].'-'.$args[2]['month'].'-1'), 'to' => strtotime($args[2]['year'].'-'.($args[2]['month']+1).'-1 +1month -1sec')), $args[3], $args[4]);
+				break;
+			case 'yavg':		
+				return $this->get_average_fxrate($args[1], array('from' => strtotime($args[2].'-1-1'), 'to' => strtotime($args[2].'-12-31')), $args[3], $args[4]);
+				break;
+			case 'ylast':
+				return $this->get_yearlast_fxrate($args[1], $args[2], $args[3], $args[4]);
+				break;
+			case 'real':
+			default:
+				return $this->get_average_fxrate($args[1], $args[2], $args[3], $args[4]);
+				break;
+		}
+	}
+	
 	private function parse_period_assql(array $period = array()) {
 		global $db;
 		$query_where = '';

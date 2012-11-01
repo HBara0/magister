@@ -60,7 +60,7 @@ if(!$core->input['action']) {
 
 	/* Perform inline filtering - START */
 	$filters_config = array(
-			'parse' => array('filters' => array('fullName', 'joinDate', 'position', 'reportsTo'),
+			'parse' => array('filters' => array('fullName', 'date', 'position', 'reportsTo'),
 			),
 			'process' => array(
 					'filterKey' => 'uid',
@@ -72,7 +72,7 @@ if(!$core->input['action']) {
 					),
 					'secTables' => array(
 							'userhrinformation' => array(
-									'filters' => array('segment' => array('operatorType' => 'between', 'name' => 'joinDate')),
+									'filters' => array('date' => array('operatorType' => 'date', 'name' => 'joinDate')),
 							),
 							'userspositions' => array(
 									'filters' => array('position' => array('operatorType' => 'multiple', 'name' => 'posid')),
