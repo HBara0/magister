@@ -287,8 +287,8 @@ class Sourcing {
 
 		return $db->fetch_assoc($db->query("SELECT c.name AS country, ct.name AS city, ss.addressLine1, ss.addressLine2, ss.building, ss.floor, ss.postCode, ss.poBox, ss.phone1, ss.phone2, ss.fax, ss.mainEmail, ss.website
 											FROM  ".Tprefix."sourcing_suppliers ss
-											JOIN ".Tprefix."countries c ON (ss.country.c.coid)
-											JOIN ".Tprefix."cities ct ON (ct.cidd=ss.city)
+											JOIN ".Tprefix."countries c ON (ss.country=c.coid)
+											JOIN ".Tprefix."cities ct ON (ct.ciid=ss.city)
 											WHERE ss.ssid= ".$db->escape_string($supplier_id).""));
 	}
 
@@ -353,8 +353,12 @@ class Sourcing {
 		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
 	}
 
-	public function get_chemicalsubstances() {
+	public function get_chemicalsubstances($supplier_id='') {
 		global $db;
+			
+		if(empty($supplier_id)) {
+			$supplier_id = $this->supplier['ssid'];;
+		}
 		
 		$chemicalsubstances_query = $db->query("SELECT * 
 												FROM ".Tprefix."chemicalsubstances chs
