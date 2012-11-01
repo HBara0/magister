@@ -102,7 +102,7 @@ if(!$core->input['action']) {
 		
 	$contactsupplier_form = '<form  name="perform_sourcing/supplierprofile_Form" action="index.php?module=sourcing/supplierprofile&action=do_contactsupplier" method="post" id"perform_sourcing/supplierprofile_Form" >
 <input type="submit" class="button" value="'.$lang->contact.'" />
-<input type="hidden" value="'.$potential_supplier_details['ssid'].'" name="supplierid" />	
+<input type="hidden" value="'.$core->input['id'].'" name="supplierid" />	
 </form>';
 		$header_blurjs = '$(function(){
 			$(".detailsvalue").each(function(){$(this).addClass("blur");});
@@ -122,7 +122,7 @@ if(!$core->input['action']) {
 		$countries_list = parse_selectlist('contacthst[origin]', 8, $countries, '');	
 		$product_segmentlist = parse_selectlist('contacthst[market]', 9, $segments_suppliers, ''); /*product segments (that the current supplier(loaded from the object) works in) */
 		$supplierid = $core->input['supplierid'];
-		$newsupplierid=	$potential_supplier_details['ssid'];
+		$newsupplierid = $core->input['id'];
 		eval("\$sourcing_Potentialsupplierprofile_reportcommunication = \"".$template->get('sourcing_Potentialsupplierprofile_reportcommunication')."\";");		
 	}
 /*communication Report after the user has initiated contact -END*/		
