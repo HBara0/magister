@@ -22,6 +22,16 @@ if($core->usergroup['canAdminCP'] == 0) {
 	error($lang->sectionnopermission);
 }
 
+if(!isset($core->input['identifier'])) {
+	$identifier = substr(md5(uniqid(microtime())), 1,10);
+}
+else
+{
+	$identifier = $core->input['identifier'];
+}
+$session->name_phpsession(COOKIE_PREFIX.'sreport'.$identifier);
+$session->start_phpsession();
+
 $lang->load('crm_salesreport');
 if(!$core->input['action']) {
 	$affiliates_query = $db->query("SELECT a.affid, a.name
@@ -64,6 +74,7 @@ if(!$core->input['action']) {
 else
 {
 	if($core->input['action'] == 'do_generatereport') {
+		$core->input['fxtype'] = 'ylast';
 		if(empty($core->input['affids'])) {
 			redirect('index.php?module=crm/salesreport');
 		}
@@ -100,13 +111,13 @@ else
 					WHERE imso.affid IN (".$db->escape_string(implode(',', $core->input['affids'])).") AND (date BETWEEN ".$period['from']." AND ".$period['to']."){$query_where}
 					ORDER by date DESC");
 
-		if($db->num_rows($query) > 0) {		
+		if($db->num_rows($query) > 0) {
 			while($order = $db->fetch_assoc($query)) {
 				if(!isset($average_fx[$order['currency']])) {
-					$average_fx[$order['currency']] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $order['currency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00')-(7*24*3600), 'to' => strtotime(date('Y-m-d', $order['date']))), array('precision' => 4));					
+					$average_fx[$order['currency']] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $order['currency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00')-(7*24*3600), 'to' => strtotime(date('Y-m-d', $order['date'])), 'year' => date('Y', $order['date']), 'month' => date('m', $order['date'])), array('precision' => 4));					
 				}
 				
-				$fxrates['price'] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $order['currency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $order['date']).' 24:00')), array('precision' => 4));
+				$fxrates['price'] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $order['currency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $order['date']).' 24:00'), 'year' => date('Y', $order['date']), 'month' => date('m', $order['date'])), array('precision' => 4));
 				if(empty($fxrates['price'])) {
 					$fxrates['price'] = $average_fx[$order['currency']];
 				}
@@ -126,9 +137,9 @@ else
 				$quantity_accuml = 0;
 				while($orderline = $db->fetch_assoc($orderline_query)) {
 					if(!isset($average_fx[$orderline['costCurrency']])) {
-						$average_fx[$orderline['costCurrency']] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $orderline['costCurrency'], $period, array('precision' => 4));
+						$average_fx[$orderline['costCurrency']] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $orderline['costCurrency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $order['date']).' 24:00')-(7*24*3600), 'year' => date('Y', $order['date']), 'month' => date('m', $order['date'])), array('precision' => 4));
 					}
-					$fxrates['cost'] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $orderline['costCurrency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $order['date']).' 24:00')), array('precision' => 4));
+					$fxrates['cost'] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $orderline['costCurrency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $order['date']).' 24:00'), 'year' => date('Y', $order['date']), 'month' => date('m', $order['date'])), array('precision' => 4));
 
 					if(empty($fxrates['cost'])) {
 						$fxrates['cost'] = $average_fx[$orderline['costCurrency']];
@@ -330,12 +341,19 @@ else
 			}
 		}
 		
-		  eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
-   		 output_page($previewpage);
+		$session->set_phpsession(array('sreportcontent_'.$identifier => base64_encode($salesreport)));
+		
+		$salesreport .= '<a href="index.php?module=crm/salesreport&action=sendreport&amp;identifier='.$identifier.'" target="_self">Send</a>';
+		eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
+		output_page($previewpage);
 	}
-	elseif($core->input['action'] == 'sendsales') {
-				/* Send Sales Table */
-		$message = '<html><head></head><body style="font-size:12px; font-family: Tahoma; color: #333333;">'.$sales_table.'</body>';
+	elseif($core->input['action'] == 'sendreport') {
+		$identifier = $db->escape_string($core->input['identifier']);
+		$report_content = base64_decode($session->get_phpsession('sreportcontent_'.$identifier));
+		$session->destroy_phpsession(true);
+		
+		/* Send Sales Table */
+		$message = '<html><head></head><body style="font-size:12px; font-family: Tahoma; color: #333333;">'.$report_content.'</body>';
 		
 		$email_data = array(
 			'to'	      => 'christophe.sacy@orkila.com',
@@ -356,25 +374,25 @@ else
 			//$log->record('hrbirthdaynotification',array('to' => $recepient_details['email']), 'emailnotsent');
 		}
 		
-		/* Send Classifications */
-		$message = '<html><head></head><body style="font-size:12px; font-family: Tahoma; color: #333333;">'.$yearoverview.'</body>';
-		$email_data = array(
-			'to'	      => 'christophe.sacy@orkila.com',
-			'from_email'  => $core->settings['adminemail'],
-			'from'	      => 'OCOS Mailer',
-			'subject'     => 'Week '.date('W', TIME_NOW).' '.$current_date['year'].' sales classifications',
-			'message'     => '<h2>Sales Year '.$current_date['year'].' Overview in Orkila Tunisie</h2>'.$message
-		);
-		
-		$mail = new Mailer($email_data, 'php');
-		if($mail->get_status() === true) {
-			//$log->record('hrbirthdaynotification', array('to' => $recepient_details['email']), 'emailsent');
-		}
-		else
-		{
-			echo 'error';
-			//$log->record('hrbirthdaynotification',array('to' => $recepient_details['email']), 'emailnotsent');
-		}
+//		/* Send Classifications */
+//		$message = '<html><head></head><body style="font-size:12px; font-family: Tahoma; color: #333333;">'.$yearoverview.'</body>';
+//		$email_data = array(
+//			'to'	      => 'christophe.sacy@orkila.com',
+//			'from_email'  => $core->settings['adminemail'],
+//			'from'	      => 'OCOS Mailer',
+//			'subject'     => 'Week '.date('W', TIME_NOW).' '.$current_date['year'].' sales classifications',
+//			'message'     => '<h2>Sales Year '.$current_date['year'].' Overview in Orkila Tunisie</h2>'.$message
+//		);
+//		
+//		$mail = new Mailer($email_data, 'php');
+//		if($mail->get_status() === true) {
+//			//$log->record('hrbirthdaynotification', array('to' => $recepient_details['email']), 'emailsent');
+//		}
+//		else
+//		{
+//			echo 'error';
+//			//$log->record('hrbirthdaynotification',array('to' => $recepient_details['email']), 'emailnotsent');
+//		}
 	
 	}
 }
