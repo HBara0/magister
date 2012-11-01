@@ -47,7 +47,7 @@ class Currencies {
 		if($db->num_rows($query) > 0) {
 			$fx_rate = $db->fetch_assoc($query);
 			if(isset($options['precision']) && !empty($options['precision'])) {
-				$fx_rate['rate'] = number_format($fx_rate['rate'], $options['precision']);
+				$fx_rate['rate'] = round($fx_rate['rate'], $options['precision']);
 			}
 				
 			return $fx_rate['rate'];
@@ -87,7 +87,7 @@ class Currencies {
 		if($db->num_rows($query) > 0) {
 			while($fx_rate = $db->fetch_assoc($query)) {
 				if(isset($options['precision']) && !empty($options['precision'])) {
-					$fx_rate['rate'] = number_format($fx_rate['rate'], $options['precision']);
+					$fx_rate['rate'] = round($fx_rate['rate'], $options['precision']);
 				}
 				
 				$fx_rates[$fx_rate[$options['distinct_by']]] = $fx_rate['rate'];	
@@ -126,6 +126,22 @@ class Currencies {
 			$rates[$i] = $this->get_average_fxrate($currency, $period, $options, $base_currency);
 		}
 		return $rates;
+	}
+	
+	public function get_yearlast_fxrate($currency, $year, array $options = array(), $base_currency = '') {
+		if(empty($base_currency)) {
+			$base_currency = $this->base_currency;	
+		}
+		
+		$query_where = $this->parse_period_assql(array('from' => strtotime($year.'-1-1'), 'to' => strtotime($year.'-12-31')));
+		
+		return $db->fetch_assoc($db->query("SELECT rate
+					FROM ".Tprefix."currencies_fxrates 
+					WHERE baseCurrency=(SELECT numCode FROM ".Tprefix."currencies WHERE alphaCode='".$db->escape_string($base_currency)."') 
+					AND currency=(SELECT numCode FROM ".Tprefix."currencies WHERE alphaCode='".$db->escape_string($currency)."')
+					{$query_where}
+					ORDER BY date DESC
+					LIMIT 0, 1"));
 	}
 	
 	private function parse_period_assql(array $period = array()) {
