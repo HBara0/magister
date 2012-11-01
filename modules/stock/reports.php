@@ -1201,7 +1201,7 @@ function choose_columns() {
 	$options.='<script type="text/javascript">
 				$(document).ready(function() {
 				$("form").submit( function () {
-					input = $("<input>").attr("type", "hidden").attr("name", "fxratetype").val(($("#fxratetype").val());
+					input = $("<input>").attr("type", "hidden").attr("name", "fxratetype").val($("#fxratetype").val());
 					$("form").append($(input));
 					input = $("<input>").attr("type", "hidden").attr("name", "reporttype").val(($("#switchdetailed").prop("checked")==true?"1":"0"));
 					$("form").append($(input));
