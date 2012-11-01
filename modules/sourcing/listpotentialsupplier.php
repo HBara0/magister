@@ -24,8 +24,6 @@ if(!$core->input['action']) {
 		$criteriaandstars = $rating_section = '';
 		$maxstars = 5;
 		$readonlyratings = true;
-		$segments_counter = 0;
-		
 		$sort_url = sort_url();
 		
 		$opportunity_scale = range(0, 5);
@@ -71,16 +69,38 @@ if(!$core->input['action']) {
 		/* Perform inline filtering - END */
 
 		$sourcing = new Sourcing();
-		$potential_suppliers = $sourcing->get_all_potential_supplier($filter_where);  /* this function return array with all associated sgements and activity area of the supplier */
+		$potential_suppliers = $sourcing->get_all_potential_suppliers($filter_where);  /* this function return array with all associated sgements and activity area of the supplier */
 		if(is_array($potential_suppliers)) {
 			foreach($potential_suppliers as $key => $potential_supplier) {
 				if($core->usergroup['sourcing_canManageEntries'] == 1) {
 					$readonlyratings = false;
 					$edit = '<a href="'.DOMAIN.'index.php?module=sourcing/managesupplier&type=edit&id='.$potential_supplier['supplier']['ssid'].'"><img src="././images/icons/edit.gif" border="0"/></a>';
 				}
-
+				$segments_counter = 0;
+				$segments = $hidden_segments = $show_segments = '';
 				if(is_array($potential_supplier['segments'])) {
-					$potential_supplier['segments'] = implode(',', $potential_supplier['segments']);
+					foreach($potential_supplier['segments'] as $psid=> $segments) { print_r($potential_supplier['segments']);
+						if(++$segments_counter > 2) {
+							$hidden_segments .= $segments.'<br />';
+						}
+						elseif($segments_counter == 2)
+						{
+							$show_segments .= $segments;
+						}
+						else
+						{
+							$show_segments .= $segments.'<br />';
+						}
+
+						if($segments_counter > 2) {
+							$segments = $show_segments.", <a href='#segment' id='showmore_segments_{$key}'>...</a><br /> <span style='display:none;' id='segments_{$key}'>{$hidden_segments}</span>";
+						}
+						else
+						{
+							$segments = $show_segments;
+						}
+					}
+	
 				}
 				if(is_array($potential_supplier['activityarea'])) {
 					foreach($potential_supplier['activityarea'] as $area) {
@@ -88,7 +108,7 @@ if(!$core->input['action']) {
 					}
 				}
 
-				$hidden_segments = $supplieregments = '';
+				
 				$rowclass = alt_row($rowclass);
 				$criteriaandstars = '<div class="evaluation_criterium" name="'.$potential_supplier['supplier']['ssid'].'">';
 				$criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
@@ -122,21 +142,7 @@ if(!$core->input['action']) {
 				$rating_section = '<div>'.$criteriaandstars.'</div>';
 
 
-				if(++$segments_counter > 2) {
-					$hidden_segments .= $potential_supplier['supplier']['title'].' '.$filters['psid'][$key].'<br />';
-				}
-				elseif($segments_counter == 2) {
-					$supplieregments .= $potential_supplier['supplier']['title'].' '.$filters['psid'][$key];
-				}
-				else {
-					$supplieregments .= $potential_supplier['supplier']['title'].' '.$filters['psid'][$key].'<br />';
-				}
-				if($segments_counter > 2) {
-					$potential_supplier['supplier']['title'] = $supplieregments.", <a href='#supplieregments' id='showmore_supplieregments_'".$potential_supplier['psid']."'>...</a><br /> <span style='display:none;' id='supplieregments_'".$potential_supplier['psid']."'>{$hidden_segments}</span>";
-				}
-				else {
-					$potential_supplier['supplier']['title'] = $supplieregments;
-				}
+				
 
 				eval("\$sourcing_listpotentialsupplier_rows.= \"".$template->get('sourcing_listpotentialsupplier_rows')."\";");
 			} /* foreach loop END */
