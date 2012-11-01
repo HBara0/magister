@@ -21,7 +21,19 @@ $jq_common = false;
 $jq_pie = false;
 $jq_chart = false;
 $jq_bar = false;
-
+$allcolumns = array(
+		'affid' => 'id',
+		'spid' => 'id',
+		'pid' => 'id',
+		'currency' => 'numeric',
+		'usdFxrate' => 'numeric',
+		'quantity' => 'numeric',
+		'quantityUnit' => 'text',
+		'date' => 'date',
+		'saleType' => 'text',
+		'TRansID' => 'text',
+		'amount' => 'numeric'
+);
 $resolve = array(
 		'affid' => array('table' => 'affiliates', 'id' => 'affid', 'name' => 'name'),
 		'spid' => array('table' => 'entities', 'id' => 'eid', 'name' => 'companyName'),
@@ -42,22 +54,63 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		}
 		random_fill_for_testing($howmany);
 	}
+	elseif($core->input['action'] == 'emailreport') {
+		$affiliate = $core->input['affiliate_id'];
+		$query = weak_decrypt($core->input['data_filter'], 'orkilakey');
+		$rawdata = resolve_names(retrieve_data($query, $allcolumns), $resolve);
+		$type = (int)$core->input['report_type'];
+		$groupingatr = $core->input['grouping_atr'];
+
+		if(!isset($groupingatr))
+			$groupingatr = 'pid';
+		$rawdata = resolve_names($rawdata, $resolve);
+		foreach($allcolumns as $column => $type) {
+			if($core->input[$column] == '1') {
+				$trackedcolumns[$column] = $allcolumns[$column];
+			}
+		}
+		$trackedcolumns['amount'] = $allcolumns['amount'];
+		if($type == 1) {
+			$timesliced = time_regroup($rawdata, 'date');
+			foreach($timesliced as $year => $yearly) {
+				foreach($yearly as $month => $monthly) {
+					foreach($monthly as $week => $weekly) {
+						unset($timesliced[$year][$month][$week]);
+						$timesliced[$year][$month][$week] = sort_by_amount(regroup_and_sum($weekly, $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null));
+					}
+				}
+			}
+			$datapresented = turn_data_into_html($timesliced, true, $trackedcolumns, $groupingatr, false);
+		}
+		else {
+			$summeddata = regroup_and_sum($rawdata, $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null);
+			$datapresented = turn_data_into_html($summeddata, false, $trackedcolumns, $groupingatr, false);
+		}
+
+		die($datapresented);
+	}
 	elseif($core->input['action'] == 'getreport') {
 		$query = assemble_filter_query($core, $db);
-		$content.=encapsulate_in_fieldset($query, 'Query');
-		$allcolumns = array('affid' => 'id', 'spid' => 'id', 'pid' => 'id', 'amount' => 'numeric', 'currency' => 'numeric', 'usdFxrate' => 'numeric', 'quantity' => 'numeric', 'quantityUnit' => 'text', 'date' => 'date', 'saleType' => 'text', 'TRansID' => 'text');
+		//$content.=encapsulate_in_fieldset($query, 'Query');
+
+		if(isset($core->input['affiliate'])) {
+			if(count($core->input['affiliate']) == 1) {
+				$content .= encapsulate_in_fieldset(email_report($core->input['affiliate'][0], $query), 'Send as e-mail', false);
+			}
+		}
+
 		$rawdata = retrieve_data($query, $allcolumns);
 		$trackedcolumns = array();
 		$groupingatr = $core->input['groupingattribute'];
 		if(!isset($groupingatr))
 			$groupingatr = 'pid';
 		$rawdata = resolve_names($rawdata, $resolve);
-		$trackedcolumns['amount'] = $allcolumns['amount'];
 		foreach($allcolumns as $column => $type) {
 			if($core->input[$column] == '1') {
 				$trackedcolumns[$column] = $allcolumns[$column];
 			}
 		}
+		$trackedcolumns['amount'] = $allcolumns['amount'];
 		if($core->input['reporttype'] == 1) {
 			$timesliced = time_regroup($rawdata, 'date');
 			foreach($timesliced as $year => $yearly) {
@@ -68,11 +121,11 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 					}
 				}
 			}
-			$datapresented = encapsulate_in_fieldset(turn_data_into_html($timesliced, true, $trackedcolumns, $groupingatr), 'Grouped', true);
+			$datapresented = encapsulate_in_fieldset(turn_data_into_html($timesliced, true, $trackedcolumns, $groupingatr), 'Grouped', false);
 		}
 		else {
 			$summeddata = regroup_and_sum($rawdata, $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null);
-			$datapresented = encapsulate_in_fieldset(turn_data_into_html($summeddata, false, $trackedcolumns, $groupingatr), 'Grouped', true);
+			$datapresented = encapsulate_in_fieldset(turn_data_into_html($summeddata, false, $trackedcolumns, $groupingatr), 'Grouped', false);
 		}
 
 		$charts = '<div style="position:relative;"><div id="general_chart" style="margin-left:5px;margin-bottom:10px;">'.make_jqpchart(regroup_by_day(convert_to_dollars($rawdata))).'</div>';
@@ -83,11 +136,11 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		$charts = encapsulate_in_fieldset($charts, "Charts", false);
 		$performance["--END--"] = microtime();
 		if($core->input['isajax'] == 'true') {
-			output_xml($charts.$datapresented.get_perf_data());
+			output_xml($datapresented.$charts.get_perf_data());
 			exit;
 		}
 		else {
-			$content.='<div id="results_fieldset">'.$charts.$datapresented.get_perf_data().'</div>';
+			$content.='<div id="results_fieldset">'.$datapresented.$charts.get_perf_data().'</div>';
 		}
 	}
 }
@@ -182,9 +235,96 @@ function sort_by_amount($data, $numberofrows = 10) {
 	return $sorted;
 }
 
+function make_jqlinechart($data) {
+	log_performance(__METHOD__);
+	$urlparts = explode('?', get_curent_page_URL());
+	$baseurl = substr($urlparts[0], 0, strlen($urlparts[0]) - 9);
+	global $jq_common, $jq_bar, $jq_pie;
+	$includes = '';
+	if(!$jq_common) {
+		$includes .= '	<script type="text/javascript" src="'.$baseurl.'inc/jQplot/jquery.jqplot.min.js"></script>
+						<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.highlighter.min.js"></script>
+						<link rel="stylesheet" type="text/css" hrf="'.$baseurl.'inc/jQplot/jquery.jqplot.min.css" />';
+		$jq_common = true;
+	}
+	if(!$jq_chart) {
+		$includes .= '<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
+					<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.cursor.min.js"></script>
+					<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
+					<script type="text/javascript" src="'.$baseurl.'inc/jQplot/plugins/jqplot.canvasOverlay.min.js"></script>';
+		$jq_chart = true;
+	}
+
+
+	$function = '<div id="jqPerfChart" style="width:300px;height:200px;padding:5px;"></div><script>
+				$(document).ready(function(){
+				var dataPoints=[];
+				var ticks=[];';
+
+	foreach($data as $key => $row) {
+		if(is_array($row)) {
+			$total = 0;
+			$timing = 0;
+			foreach($row as $key => $value) {
+				if(is_array($value)) {
+					$total+=(float)$value['amount']['value'];
+					$timing+=(float)$value['timing']['value'];
+				}
+			}
+			$function .= 'dataPoints.push(['.$timing.','.number_format($total, 2, '.', '').',"'.$row['#name'].'"]);';
+			$function .= 'ticks.push(["'.$row['#name'].'"]);';
+		}
+	}
+
+	/*
+	  pointLabels:{
+	  show:true,
+	  location:"n",
+	  ypadding:3,
+	  labels: ticks
+	  },
+	 */
+	$function.='
+	var plot = $.jqplot("jqPerfChart", [dataPoints],
+	{
+		highlighter: {show: true},
+		cursor: {show:true,zoom:true,dblClickReset:true},
+		seriesDefaults: {
+			showMarker:true,
+			rendererOptions: {smooth: false}
+		},
+		axes:{
+			xaxis:{
+				padMin: 0,
+				label:"Time",
+				tick:ticks,
+				tickOptions:{
+                    fontSize:"8pt",
+                    fontFamily:"Tahoma",
+                    angle:-40
+                }
+			},
+			yaxis:{
+				padMin: 0,
+				label:"Exe",
+                tickOptions:{
+					fontSize:"8pt",
+                    fontFamily:"Tahoma",
+					formatString: ""
+                }
+			},
+		},
+});
+});';
+
+	$function.='</script>';
+
+	return $includes.$function;
+}
+
 function make_jqbarchart($data) {
 	log_performance(__METHOD__);
-	global $jq_common, $jq_bar,$jq_pie;
+	global $jq_common, $jq_bar, $jq_pie;
 	$urlparts = explode('?', get_curent_page_URL());
 	$baseurl = substr($urlparts[0], 0, strlen($urlparts[0]) - 9);
 	$includes = '';
@@ -215,7 +355,7 @@ function make_jqbarchart($data) {
 		$(document).ready(function(){
 			var s1 = [';
 
-	$ticks='var ticks = [';
+	$ticks = 'var ticks = [';
 	foreach($data as $key => $row) {
 		if(is_array($row)) {
 			$total = 0;
@@ -265,7 +405,8 @@ function make_jqbarchart($data) {
             },
 			cursor:{
                 show: true,
-                zoom:false,
+                zoom:true,
+				dblClickReset:true,
                 showTooltip:true,
                 followMouse: false,
 				tooltipLocation: "se",
@@ -282,7 +423,7 @@ function make_jqppiechart($data, $id = "jqpieid", $title = '', $margin = 0, $sta
 	log_performance(__METHOD__);
 	$urlparts = explode('?', get_curent_page_URL());
 	$baseurl = substr($urlparts[0], 0, strlen($urlparts[0]) - 9);
-	global $jq_common, $jq_bar,$jq_pie;
+	global $jq_common, $jq_bar, $jq_pie;
 	$includes = '';
 	if(!$jq_common) {
 		$includes .= '	<script type="text/javascript" src="'.$baseurl.'inc/jQplot/jquery.jqplot.min.js"></script>
@@ -312,12 +453,12 @@ function make_jqppiechart($data, $id = "jqpieid", $title = '', $margin = 0, $sta
 			$total = 0;
 			foreach($row as $key => $value) {
 				if(is_array($value)) {
-					if ($value['amount']['value']<0) {
+					if($value['amount']['value'] < 0) {
 						$total-=(float)$value['amount']['value'];
-					} else {
+					}
+					else {
 						$total+=(float)$value['amount']['value'];
 					}
-
 				}
 			}
 			if($total < 0) {
@@ -394,7 +535,7 @@ function make_jqpchart($data) {
 	log_performance(__METHOD__);
 	$urlparts = explode('?', get_curent_page_URL());
 	$baseurl = substr($urlparts[0], 0, strlen($urlparts[0]) - 9);
-	global $jq_common, $jq_bar,$jq_pie;
+	global $jq_common, $jq_bar, $jq_pie;
 	$includes = '';
 	if(!$jq_common) {
 		$includes .= '	<script type="text/javascript" src="'.$baseurl.'inc/jQplot/jquery.jqplot.min.js"></script>
@@ -427,9 +568,8 @@ function make_jqpchart($data) {
 	var plot = $.jqplot("jqChart", [dataPoints],
 	{
 		highlighter: {show: true},
-		cursor: {show:true,zoom:true},
-		series: {showMarker:true},
-		seriesDefaults: {rendererOptions: {smooth: false}},
+		cursor: {show:true,zoom:true,dblClickReset:true},
+		seriesDefaults: {showMarker:false,rendererOptions: {smooth: false}},
 		axes:{
 			xaxis:{
 				renderer:$.jqplot.DateAxisRenderer,
@@ -581,162 +721,353 @@ function make_pchart($data) {
 	return '<img src="inc/chart.png"/>'; //.'<hr><pre>'.print_r($formateddata, true).'</pre>';
 }
 
-function turn_data_into_html($data, $timesliced = false, $trackedcolumns, $groupingcol = "pid") {
+function generate_stock_reports_email_data($data) {
 	log_performance(__METHOD__);
 
+	$align = "left";
+	$oddline = '<tr  style="text-align: '.$align.'; padding: 5px; border-bottom: 1px dashed #888888; background-color:#F7FAFD;">';
+	$evenline = '<tr  style="text-align: '.$align.'; padding: 5px; border-bottom: 1px dashed #888888; background-color:#E1E1E1;">';
+	$content = '<table style="text-align: '.$align.'; padding:5px;margin:5px;width:100%; font-size: inherit; border-bottom: 1px solid black; border-right: 1px solid black;border-top: 1px solid black;border-left: 1px solid black;"  cellpadding="0" cellspacing="0" ><tr>';
+	$th = '<th style="padding: 5px; border-bottom: 1px dashed #888888; background-color:#92D050;">';
+	$td = '<td style="border-bottom: 1px dashed #888888;">';
+	$toggle = true;
+	foreach($data as $key => $row) {
+		$content.=$th.'Name</th>';
+		foreach($row as $columnid => $value) {
+			$content.=$th.$columnid.'</th>';
+		}
+		$content.='</tr>';
+		break;
+	}
+	foreach($data as $key => $row) {
+		if($toggle = !$toggle) {
+			$content.=$oddline;
+		}
+		else {
+			$content.=$evenline;
+		}
+		$content.=$td.$key.'</td>';
+		foreach($row as $columnid => $value) {
+			if($columnid == 'date')
+				$value['value'] = date($core->settings['dateformat'], $value['value']);
+			$content.=$td.$value['value'].'</td>';
+		}
+		$content.='</tr>';
+	}
+	$content.='</table>';
+	return $content;
+}
+
+function turn_data_into_html($data, $timesliced = false, $trackedcolumns, $groupingcol = "pid", $stack = true) {
+	log_performance(__METHOD__);
+	//<editor-fold defaultstate="collapsed" desc="variables">
+	$nbsp = '&nbsp;&nbsp;&nbsp;&nbsp;';
+
+	$align = "right";
+	$rth = '<th style="padding: 5px;padding-left:10px;padding-right:10px; border-bottom: 1px solid black; background-color:#92D050;text-align:'.$align.';">';
+	$rtd0 = '<td style="border-bottom: 1px dashed #888888;background-color:#FFFFFF;padding-'.$align.':10px;text-align:'.$align.';">';
+	$rtd1 = '<td style="border-bottom: 1px dashed #888888;background-color:#F7FAFD;padding-'.$align.':10px;text-align:'.$align.';">';
+	$rtd2 = '<td style="border-bottom: 1px dashed #888888;background-color:#E1E1E1;padding-'.$align.':10px;text-align:'.$align.';">';
+
+
+	$align = "left";
+	$tr = '<tr  style="text-align: '.$align.'; padding: 5px; border-bottom: 1px dashed #888888;">';
+	$th = '<th style="padding: 5px;padding-left:10px;padding-right:10px; border-bottom: 1px solid black; background-color:#92D050;text-align:'.$align.';">';
+	$thstack = '<th style="padding: 5px;padding-left:10px;padding-right:10px; border-bottom: 1px solid black; background-color:#92D050;border-left:1px solid black;text-align:right;">';
+	$td0 = '<td style="border-bottom: 1px dashed #888888;background-color:#FFFFFF;padding-'.$align.':10px;">';
+	$td1 = '<td style="border-bottom: 1px dashed #888888;background-color:#F7FAFD;padding-'.$align.':10px;">';
+	$td2 = '<td style="border-bottom: 1px dashed #888888;background-color:#E1E1E1;padding-'.$align.':10px;">';
+	$tdstack = '<td style="border-bottom: 1px dashed #888888;border-left:1px solid black;text-align:right;padding-right:10px;">';
+	$grouptd1 = '<td style="border-bottom: 1px dashed #888888;background-color:#F7FAFD;padding-'.$align.':10px;" ';
+	$grouptd2 = '<td style="border-bottom: 1px dashed #888888;background-color:#E1E1E1;padding-'.$align.':10px;" ';
+
+	$toggle = false;
+	$togglegroup = true;
 	global $core, $lang, $resolve;
 	$rowcount = 2;
-	$head = '<tr align="left"><th>'.$lang->{$groupingcol}.'</th>';
+	//</editor-fold>
+	//<editor-fold defaultstate="collapsed" desc="tablehead">
+	$head = '<tr align="left">'.$th.$lang->{$groupingcol}.'</th>';
 	foreach($trackedcolumns as $colid => $coltype) {
-		$head.='<th>'.$lang->{$colid}.'</th>';
+		if($colid == 'amount') {
+			$head.=$rth.$lang->{$colid}.'</th>';
+		}
+		else {
+			$head.=$th.$lang->{$colid}.'</th>';
+		}
+
 		$rowcount+=1;
 	}
-	$head.='<th>Stacked</th></tr>';
 
+	if($stack) {
+		$head.=$thstack.'Stacked</th></tr>';
+	}
+	else {
+		$rowcount-=1;
+		$head.='</tr>';
+	}
+	//</editor-fold>
 	if(!$timesliced) {
-		$html = '<table cellspacing=0 cellpadding=2 border=1>'.$head;
+		//<editor-fold defaultstate="collapsed" desc="not detailed">
+		$html = '<table style="text-align: '.$align.'; padding:0px;margin:5px;width:100%; font-size: inherit; border-bottom: 1px solid black; border-right: 1px solid black;border-top: 1px solid black;border-left: 1px solid black;"  cellpadding="4" cellspacing="0" >'.$head;
 		$totalstack = 0;
 		$totalamount = 0;
 		foreach($data as $groupingkey => $values) {
 			$idneedsadding = true;
 			foreach($values as $key => $row) {
 				if(is_numeric($key)) {
-					$html.='<tr>';
+					$html.=$tr;
 					if($idneedsadding) {
 						$name = get_name_from_id($groupingkey, $resolve[$groupingcol]['table'], $resolve[$groupingcol]['id'], $resolve[$groupingcol]['name']);
 						if($name == '-NA-') {
-							$html.='<td rowspan="'.(count($values) - 1).'">'.$groupingkey.'</td>';
+							if($togglegroup) {
+								$html.=$grouptd1.' rowspan="'.(count($values) - 1).'">'.$groupingkey.'</td>';
+							}
+							else {
+								$html.=$grouptd2.' rowspan="'.(count($values) - 1).'">'.$groupingkey.'</td>';
+							}
 						}
 						else {
-							$html.='<td rowspan="'.(count($values) - 1).'">'.$name.'</td>';
+							if($togglegroup) {
+								$html.=$grouptd1.' rowspan="'.(count($values) - 1).'">'.$name.'</td>';
+							}
+							else {
+								$html.=$grouptd2.' rowspan="'.(count($values) - 1).'">'.$name.'</td>';
+							}
 						}
+						$togglegroup = !$togglegroup;
 						$idneedsadding = false;
+						$toggle = false;
+					}
+
+					if($togglegroup) {
+						if($toggle = !$toggle) {
+							$td = $td2;
+							$rtd = $rtd2;
+						}
+						else {
+							$td = $td0;
+							$rtd = $rtd0;
+						}
+					}
+					else {
+						if($toggle = !$toggle) {
+							$td = $td1;
+							$rtd = $rtd1;
+						}
+						else {
+							$td = $td0;
+							$rtd = $rtd0;
+						}
 					}
 					foreach($trackedcolumns as $column => $coltype) {
 						switch($column) {
 							case 'date':
 								if(isset($row[$column]['name'])) {
 									if(is_numeric($row[$column]['name'])) {
-										$html.='<td>'.date($core->settings['dateformat'], $row[$column]['name'])./* '<br>'.date($core->settings['timeformat'], $row[$column]['name']). */'</td>';
+										$html.=$td.date($core->settings['dateformat'], $row[$column]['name'])./* '<br>'.date($core->settings['timeformat'], $row[$column]['name']). */'</td>';
 									}
 									else {
-										$html.='<td>'.$row[$column]['name'].'</td>';
+										$html.=$td.$row[$column]['name'].'</td>';
 									}
 								}
 								else {
 									if(is_numeric($row[$column]['value'])) {
-										$html.='<td>'.date($core->settings['dateformat'], $row[$column]['value'])./* '<br>'.date($core->settings['timeformat'], $row[$column]['value']). */'</td>';
+										$html.=$td.date($core->settings['dateformat'], $row[$column]['value'])./* '<br>'.date($core->settings['timeformat'], $row[$column]['value']). */'</td>';
 									}
 									else {
-										$html.='<td>'.$row[$column]['value'].'</td>';
+										$html.=$td.$row[$column]['value'].'</td>';
 									}
 								}
 								break;
 							case 'amount':
 								$totalamount+=(float)$row[$column]['value'];
-								$html.='<td>'.number_format($row[$column]['value'], 2, '.', ' ').'</td>';
+								$html.=$rtd.number_format($row[$column]['value'], 2, '.', ',').'</td>';
 								break;
 							default:
 								if(isset($row[$column]['name'])) {
-									$html.='<td>'.$row[$column]['name'].'</td>';
+									$html.=$td.$row[$column]['name'].'</td>';
 								}
 								else {
-									$html.='<td>'.$row[$column]['value'].'</td>';
+									$html.=$td.$row[$column]['value'].'</td>';
 								}
 								break;
 						}
 					}
-					$html.='<td>'.$row['#StackedRows'].'</td></tr>';
+					if($stack) {
+						$html.=$tdstack.$row['#StackedRows'].'</td>';
+					}
+					$html.='</tr>';
 					$totalstack+=$row['#StackedRows'];
 				}
 			}
 		}
-		$html.='</td></tr><tr>'.($rowcount > 1 ? '<td colspan="'.($rowcount - 1).'" style="text-align:right;">Grand total: <b>'.number_format($totalamount, 2, '.', ' ').'</b></td>' : '').'<td>'.$totalstack.'</td></tr></table>';
+		if($stack) {
+			$html.='</td></tr><tr>'.($rowcount > 1 ? '<td colspan="'.($rowcount - 2).'" style="text-align:'.$align.';">Total</td><td style="text-align:right;padding-right:10px;"><b>'.number_format($totalamount, 2, '.', ',').'</b></td>' : '').'<td style="border-left:1px solid black;text-align:right;padding-right:10px;"><b>'.$totalstack.'</b></td></tr></table>';
+		}
+		else {
+			$html.='</td></tr><tr>'.($rowcount > 1 ? '<td colspan="'.($rowcount - 1).'" style="text-align:'.$align.';">Total</td><td style="text-align:right;padding-right:10px;"><b>'.number_format($totalamount, 2, '.', ',').'</b></td>' : '').'</tr></table>';
+		}
+		//</editor-fold>
 	}
 	else {
-		$html = '<table cellspacing=0 cellpadding=2 border=1>'.$head;
+		//<editor-fold defaultstate="collapsed" desc="detailed">
+		$html = '<table style="text-align: '.$align.'; padding:0px;margin:5px;width:100%; font-size: inherit; border-bottom: 1px solid black; border-right: 1px solid black;border-top: 1px solid black;border-left: 1px solid black;"  cellpadding="4" cellspacing="0" >'.$head;
 		$grandtotal = 0;
 		foreach($data as $year => $yearly) {
-			$html .= '<tr><td colspan="'.$rowcount.'"><b>'.$year.'</b></td></tr>';
+			if($stack) {
+				$html .='<tr><td style="padding-left:10px;font-weight:bold;background-color:#AA9A9A;" colspan="'.($rowcount - 1).'"><b>'.$year.'</b></td>'.$tdstack.'</td></tr>';
+			}
+			else {
+				$html .= '<tr><td style="padding-left:10px;font-weight:bold;background-color:#AA9A9A;" colspan="'.$rowcount.'"><b>'.$year.'</b></td></tr>';
+			}
 			$yearlyamount = 0;
 			$yearlystack = 0;
 			foreach($yearly as $month => $monthly) {
 				$monthlyamount = 0;
 				$monthlystack = 0;
-				$html .= '<tr><td colspan="'.$rowcount.'"><b>'.$month.'</b></td></tr>';
+				if($stack) {
+					$html .= '<tr><td style="padding-left:10px;font-weight:bold;background-color:#AA9A9A;" colspan="'.($rowcount - 1).'"><b>'.$month.'</b></td>'.$tdstack.'</td></tr>';
+				}
+				else {
+					$html .= '<tr"><td style="padding-left:10px;font-weight:bold;background-color:#AA9A9A;" colspan="'.$rowcount.'"><b>'.$month.'</b></td></tr>';
+				}
 				foreach($monthly as $week => $weekly) {
 					$weeklyamount = 0;
 					$weeklystack = 0;
-					$html .= '<tr><td colspan="'.$rowcount.'"><b>Week '.$week.'</b></td></tr>';
+					if($stack) {
+						$html .= '<tr><td style="padding-left:10px;font-weight:bold;border-top:1px solid black;" colspan="'.($rowcount - 1).'"><b>'.'Week '.$week.'</b></td>'.$tdstack.'</td></tr>';
+					}
+					else {
+						$html .= '<tr><td style="padding-left:10px;font-weight:bold;border-top:1px solid black;" colspan="'.$rowcount.'"><b>'.'Week '.$week.'</b></td></tr>';
+					}
 					if(is_array($weekly) && $weekly)
 						foreach($weekly as $groupingkey => $values) {
 							$idneedsadding = true;
 							foreach($values as $key => $row) {
-								$html.='<tr>';
+								$html.=$tr;
 								if(is_numeric($key)) {
 									if($idneedsadding) {
 										$name = get_name_from_id($groupingkey, $resolve[$groupingcol]['table'], $resolve[$groupingcol]['id'], $resolve[$groupingcol]['name']);
 										if($name == '-NA-') {
-											$html.='<td rowspan="'.(count($values) - 1).'">'.$groupingkey.'</td>';
+											if($togglegroup) {
+												$html.=$grouptd1.' rowspan="'.(count($values) - 1).'">'.$groupingkey.'</td>';
+											}
+											else {
+												$html.=$grouptd2.' rowspan="'.(count($values) - 1).'">'.$groupingkey.'</td>';
+											}
 										}
 										else {
-											$html.='<td rowspan="'.(count($values) - 1).'">'.$name.'</td>';
+											if($togglegroup) {
+												$html.=$grouptd1.' rowspan="'.(count($values) - 1).'">'.$name.'</td>';
+											}
+											else {
+												$html.=$grouptd2.' rowspan="'.(count($values) - 1).'">'.$name.'</td>';
+											}
 										}
+										$togglegroup = !$togglegroup;
 										$idneedsadding = false;
+										$toggle = false;
+									}
+
+									if($togglegroup) {
+										if($toggle = !$toggle) {
+											$td = $td2;
+											$rtd = $rtd2;
+										}
+										else {
+											$td = $td0;
+											$rtd = $rtd0;
+										}
+									}
+									else {
+										if($toggle = !$toggle) {
+											$td = $td1;
+											$rtd = $rtd1;
+										}
+										else {
+											$td = $td0;
+											$rtd = $rtd0;
+										}
 									}
 									foreach($trackedcolumns as $column => $coltype) {
 										switch($column) {
 											case 'date':
 												if(isset($row[$column]['name'])) {
 													if(is_numeric($row[$column]['name'])) {
-														$html.='<td>'.date($core->settings['dateformat'], $row[$column]['name'])./* '<br>'.date($core->settings['timeformat'], $row[$column]['name']). */'</td>';
+														$html.=$td.date($core->settings['dateformat'], $row[$column]['name'])./* '<br>'.date($core->settings['timeformat'], $row[$column]['name']). */'</td>';
 													}
 													else {
-														$html.='<td>'.$row[$column]['name'].'</td>';
+														$html.=$td.$row[$column]['name'].'</td>';
 													}
 												}
 												else {
 													if(is_numeric($row[$column]['value'])) {
-														$html.='<td>'.date($core->settings['dateformat'], $row[$column]['value'])./* '<br>'.date($core->settings['timeformat'], $row[$column]['value']). */'</td>';
+														$html.=$td.date($core->settings['dateformat'], $row[$column]['value'])./* '<br>'.date($core->settings['timeformat'], $row[$column]['value']). */'</td>';
 													}
 													else {
-														$html.='<td>'.$row[$column]['value'].'</td>';
+														$html.=$td.$row[$column]['value'].'</td>';
 													}
 												}
 												break;
 											case 'amount':
 												$weeklyamount+=(float)$row[$column]['value'];
-												$html.='<td>'.number_format($row[$column]['value'], 2, '.', ' ').'</td>';
+												$html.=$rtd.number_format($row[$column]['value'], 2, '.', ',').'</td>';
 												break;
 											default:
 												if(isset($row[$column]['name'])) {
-													$html.='<td>'.$row[$column]['name'].'</td>';
+													$html.=$td.$row[$column]['name'].'</td>';
 												}
 												else {
-													$html.='<td>'.$row[$column]['value'].'</td>';
+													$html.=$td.$row[$column]['value'].'</td>';
 												}
 												break;
 										}
 									}
-
-									$html.='<td>'.$row['#StackedRows'].'</td></tr>';
+									if($stack) {
+										$html.=$tdstack.$row['#StackedRows'].'</td></tr>';
+									}
+									else {
+										$html.='</tr>';
+									}
 									$weeklystack+=$row['#StackedRows'];
 								}
 							}
 						}
 					$monthlyamount+=$weeklyamount;
 					$monthlystack+=$weeklystack;
-					$html.='<tr><td '.(($rowcount > 1) ? 'colspan="'.($rowcount - 1).'"' : '').' style="text-align:right;">Weekly total: <b>'.number_format($weeklyamount, 2, '.', ' ').'</b></td><td>'.$weeklystack.'</td></tr>';
+					if($stack) {
+						$html.='<tr style="background-color:#F0FFF0;"><td '.(($rowcount > 1) ? 'colspan="'.($rowcount - 2).'"' : '').' style="text-align:right;padding-left:20px;">Weekly total</td><td style="text-align:right;padding-right:10px;"><b>'.number_format($weeklyamount, 2, '.', ',').'</b></td>'.$tdstack.$weeklystack.'</td></tr>';
+					}
+					else {
+						$html.='<tr style="background-color:#F0FFF0;"><td '.(($rowcount > 1) ? 'colspan="'.($rowcount - 1).'"' : '').' style="text-align:right;padding-left:20px;">Weekly total</td><td style="text-align:right;padding-right:10px;"><b>'.number_format($weeklyamount, 2, '.', ',').'</b></td></tr>';
+					}
 				}
 				$yearlyamount+=$monthlyamount;
 				$yearlystack+=$monthlystack;
-				$html.='<tr><td '.(($rowcount > 1) ? 'colspan="'.($rowcount - 1).'"' : '').' style="text-align:right;">Monthly total: <b>'.number_format($monthlyamount, 2, '.', ' ').'</b></td><td>'.$monthlystack.'</td></tr>';
+				if($stack) {
+					$html.='<tr style="background-color:#F0FFF0;"><td '.(($rowcount > 1) ? 'colspan="'.($rowcount - 2).'"' : '').' style="text-align:right;padding-left:20px;">Monthly total</td><td style="text-align:right;padding-right:10px;"><b>'.number_format($monthlyamount, 2, '.', ',').'</b></td>'.$tdstack.$monthlystack.'</td></tr>';
+				}
+				else {
+					$html.='<tr style="background-color:#F0FFF0;"><td '.(($rowcount > 1) ? 'colspan="'.($rowcount - 1).'"' : '').' style="text-align:right;padding-left:20px;">Monthly total</td><td style="text-align:right;padding-right:10px;"><b>'.number_format($monthlyamount, 2, '.', ',').'</b></td></tr>';
+				}
 			}
 			$grandtotal+=$yearlyamount;
 			$totalstack+=$yearlystack;
-			$html.='<tr><td '.(($rowcount > 1) ? 'colspan="'.($rowcount - 1).'"' : '').' style="text-align:right;">Yearly total: <b>'.number_format($yearlyamount, 2, '.', ' ').'</b></td><td>'.$yearlystack.'</td></tr>';
+			if($stack) {
+				$html.='<tr style="background-color:#F0FFF0;"><td '.(($rowcount > 1) ? 'colspan="'.($rowcount - 2).'"' : '').' style="text-align:right;padding-left:20px;">Yearly total</td><td style="text-align:right;padding-right:10px;"><b>'.number_format($yearlyamount, 2, '.', ',').'</b></td>'.$tdstack.$yearlystack.'</td></tr>';
+			}
+			else {
+				$html.='<tr style="background-color:#F0FFF0;"><td '.(($rowcount > 1) ? 'colspan="'.($rowcount - 1).'"' : '').' style="text-align:right;padding-left:20px;">Yearly total</td><td style="text-align:right;padding-right:10px;"><b>'.number_format($yearlyamount, 2, '.', ',').'</b></td></tr>';
+			}
 		}
-		$html.='</td></tr><tr><td '.(($rowcount > 1) ? 'colspan="'.($rowcount - 1).'"' : '').'" style="text-align:right;">Grand total:<b>'.number_format($grandtotal, 2, '.', ' ').'</b></td><td>'.$totalstack.'</td></tr></table>';
+		if($stack) {
+			$html.='</td></tr><tr style="border-top:1px solid black;background-color:#FFF0F0;"><td '.(($rowcount > 1) ? 'colspan="'.($rowcount - 2).'"' : '').'" style="text-align:right;padding-left:20px;">Grand Total</td><td style="text-align:right;padding-right:10px;"><b>'.number_format($grandtotal, 2, '.', ',').'</b></td><td style="text-align:right;padding-right:10px;border-left:1px solid black;"><b>'.$totalstack.'</b></td></tr></table>';
+		}
+		else {
+			$html.='</td></tr><tr style="border-top:1px solid black;background-color:#FFF0F0;"><td '.(($rowcount > 1) ? 'colspan="'.($rowcount - 1).'"' : '').'" style="text-align:right;padding-left:20px;">Grand Total</td><td style="text-align:right;padding-right:10px;"><b>'.number_format($grandtotal, 2, '.', ',').'</b></td></tr></table>';
+		}
+		//</editor-fold>
 	}
 
 	return $html;
@@ -777,38 +1108,52 @@ function make_options() {
 		}
 	}
 	$options.=$lang->groupby.' <select id="groupingattribute" name="group">
-				<option value="pid" '.$pid.'>Product</option>
-				<option value="spid" '.$spid.'>Supplier</option>
-				<option value="affid" '.$affid.'>Affiliate</option></select>';
+				<option value="pid" '.$pid.'>'.$lang->pid.'</option>
+				<option value="spid" '.$spid.'>'.$lang->spid.'</option>
+				<option value="affid" '.$affid.'>'.$lang->affid.'</option></select>';
 
-	if($core->input['resolveidintoname'] == 'resolve') {
-		$options.='<input id="resolveidintoname" type="checkbox" name="Resolve" value="resolve" checked="true">Resolve</input>';
-	}
-	else {
-		if(isset($core->input['resolveidintoname'])) {
-			//$options.='<input id="resolveidintoname" type="checkbox" name="Resolve" value="resolve">Resolve</input>';
-		}
-		else {
-			//$options.='<input id="resolveidintoname" type="checkbox" name="Resolve" value="resolve" checked="true">Resolve</input>';
-		}
-	}
 	if($core->input['reporttype'] == '1') {
 		$options.='<input id="switchdetailed" type="checkbox" name="reporttype" checked="true">'.$lang->detailed.'</input></form></div>';
 	}
 	else {
 		$options.='<input id="switchdetailed" type="checkbox" name="reporttype">'.$lang->detailed.'</input></form></div>';
 	}
+
+	if(isset($core->input['fxratetype'])) {
+		switch($core->input['fxratetype']) {
+			case 'yearlast':
+				$yearlast = "selected=true";
+				break;
+			case 'monthavg':
+				$monthavg = "selected=true";
+				break;
+			case 'yearavg':
+				$yearavg = "selected=true";
+				break;
+			case 'realrate':
+				$realrate = "selected=true";
+				break;
+		}
+	}
+
+	$options.=$lang->fxmethod.' <select id="fxratetype" name="fxratetype">
+				<option value="'.$yearlast.'">'.$lang->yearlast.'</option>
+				<option value="'.$monthavg.'">'.$lang->monthavg.'</option>
+				<option value="'.$yearavg.'">'.$lang->yearavg.'</option>
+				<option value="'.$realrate.'">'.$lang->realrate.'</option></select>';
+
+
 	$options.='<script type="text/javascript">
 					$(document).ready(function() {
 						$("#groupingattribute").change(function() {
 							$("#column_"+$("#groupingattribute").val()).removeAttr("checked");
 								post_col_ajax($(this)); // use post_ajax to remove column filters from post
 							});
-						//$("#resolveidintoname").change(function() {
-						//	post_col_ajax($(this));	// use post_ajax to remove column filters from post
-						//	});
 						$("#switchdetailed").change(function() {
 							post_col_ajax($(this)); // use post_ajax to remove column filters from post
+						});
+						$("#fxratetype").change(function() {
+							post_col_ajax($(this));
 						});
 					});
 					function post_ajax(target) {
@@ -827,9 +1172,7 @@ function make_options() {
 							var resolveidintoname=0,switchdetailed=0;
 							if ($("#switchdetailed").prop("checked")==true)
 								switchdetailed=1;
-							//if ($("#resolveidintoname").prop("checked")==true)
-							//	resolveidintoname="resolve";
-							sharedFunctions.requestAjax("post", "index.php?module=stock/reports&action=getreport", "isajax=true&reporttype="+switchdetailed+"&groupingattribute="+$("#groupingattribute").val()+"&resolveidintoname="+resolveidintoname+firstform, "results_fieldset", "results_fieldset", "html");
+							sharedFunctions.requestAjax("post", "index.php?module=stock/reports&action=getreport", "isajax=true&reporttype="+switchdetailed+"&fxratetype="+$("#fxratetype").val()+"&groupingattribute="+$("#groupingattribute").val()+"&resolveidintoname="+resolveidintoname+firstform, "results_fieldset", "results_fieldset", "html");
 					}
 			   </script>';
 	return $options;
@@ -858,8 +1201,8 @@ function choose_columns() {
 	$options.='<script type="text/javascript">
 				$(document).ready(function() {
 				$("form").submit( function () {
-					//var input = $("<input>").attr("type", "hidden").attr("name", "resolveidintoname").val(($("#resolveidintoname").prop("checked")==true?"resolve":"0"));
-					//$("form").append($(input));
+					input = $("<input>").attr("type", "hidden").attr("name", "fxratetype").val(($("#fxratetype").val());
+					$("form").append($(input));
 					input = $("<input>").attr("type", "hidden").attr("name", "reporttype").val(($("#switchdetailed").prop("checked")==true?"1":"0"));
 					$("form").append($(input));
 					input = $("<input>").attr("type", "hidden").attr("name", "groupingattribute").val($("#groupingattribute").val());
@@ -904,11 +1247,25 @@ function choose_columns() {
 	$options.='var switchdetailed=0; //,resolveidintoname=0
 				if ($("#switchdetailed").prop("checked")==true)
 					switchdetailed=1;
-				//if ($("#resolveidintoname").prop("checked")==true)
-				//	resolveidintoname="resolve";
-				sharedFunctions.requestAjax("post", "index.php?module=stock/reports&action=getreport", "isajax=true&reporttype="+switchdetailed+"&groupingattribute="+$("#groupingattribute").val()+firstform+checkboxes, "results_fieldset", "results_fieldset", "html");}</script>';
-	//$options.='sharedFunctions.requestAjax("post", "index.php?module=stock/reports&action=getreport", "isajax=true&reporttype="+switchdetailed+"&groupingattribute="+$("#groupingattribute").val()+"&resolveidintoname="+resolveidintoname+firstform+checkboxes, "results_fieldset", "results_fieldset", "html");}</script>';
+				sharedFunctions.requestAjax("post", "index.php?module=stock/reports&action=getreport", "isajax=true&reporttype="+switchdetailed+"&groupingattribute="+$("#groupingattribute").val()+firstform+checkboxes+"&fxratetype="+$("#fxratetype").val(), "results_fieldset", "results_fieldset", "html");}</script>';
 	return $options;
+}
+
+function email_report($afid, $query) {
+	global $core, $allcolumns;
+	$return = '<div class="email_report">
+				<form name="email_report" action="index.php?module=stock/reports&action=emailreport" method="POST" enctype="multipart/form-data">
+				<input type=hidden name="affiliate_id" value="'.$afid.'">
+				<input type=hidden name="data_filter" value="'.weak_encrypt($query, 'orkilakey').'">
+				<input type=hidden name="report_type" value="'.$core->input['reporttype'].'">
+				<input type=hidden name="grouping_atr" value="'.$core->input['groupingattribute'].'">';
+	foreach($allcolumns as $column => $type) {
+		if($core->input[$column] == '1') {
+			$return.='<input type=hidden name="'.$column.'" value="1">';
+		}
+	}
+	$return.='<input type=submit value="Email" id="formsubmit"></form></div>';
+	return $return;
 }
 
 function assemble_filter_query($core, $db) {
@@ -1037,9 +1394,9 @@ function make_filters($db, $core) {
 		}
 	}
 	$return = '<div class="strep_maindiv"><table cellspacing=2 cellpadding=5 border=0><tr><td><form name="reportfilter" action="index.php?module=stock/reports&action=getreport" method="POST" enctype="multipart/form-data">';
-	$return.='<div style=""><b><u>'.$lang->from.':</u></b></font></div><input type="text" id="datefrom" name="datefrom" class="datepicker" value="'.$datefrom.'" /></td><td>';
-	$return.='<div style=""><b><u>'.$lang->to.':</u></b></div>';
-	$return.='<input type="text" id="dateto" name="dateto" class="datepicker" value="'.$dateto.'"/></td></tr><tr><td><b><u>'.$lang->affiliate.':</u></b></td><td><b><u>'.$lang->supplier.':</u></b></td><td><b><u>'.$lang->product.':</u></b></td></tr><tr>';
+	$return.='<div style=""><b>'.$lang->from.'</b></font></div><input type="text" id="datefrom" name="datefrom" class="datepicker" value="'.$datefrom.'" /></td><td>';
+	$return.='<div style=""><b>'.$lang->to.'</b></div>';
+	$return.='<input type="text" id="dateto" name="dateto" class="datepicker" value="'.$dateto.'"/></td></tr><tr><td><b>'.$lang->affiliate.':</b></td><td><b>'.$lang->supplier.'</u></b></td><td><b>'.$lang->product.'</b></td></tr><tr>';
 
 	$affiliates = getAffiliateList();
 	asort($affiliates);
@@ -1295,43 +1652,6 @@ function retrieve_data($query, $trackedcolumns = array("amount" => 'numeric')) {
 	return $dataarray;
 }
 
-function generate_stock_reports_email_data($data) {
-	log_performance(__METHOD__);
-
-	$align = "left";
-	$oddline = '<tr  style="text-align: '.$align.'; padding: 5px; border-bottom: 1px dashed #888888; background-color:#F7FAFD;">';
-	$evenline = '<tr  style="text-align: '.$align.'; padding: 5px; border-bottom: 1px dashed #888888; background-color:#E1E1E1;">';
-	$content = '<table style="text-align: '.$align.'; padding:5px;margin:5px;width:100%; font-size: inherit; border-bottom: 1px solid black; border-right: 1px solid black;border-top: 1px solid black;border-left: 1px solid black;"  cellpadding="0" cellspacing="0" ><tr>';
-	$th = '<th style="padding: 5px; border-bottom: 1px dashed #888888; background-color:#92D050;">';
-	$td = '<td style="border-bottom: 1px dashed #888888;">';
-	$toggle = true;
-	foreach($data as $key => $row) {
-		$content.=$th.'Name</th>';
-		foreach($row as $columnid => $value) {
-			$content.=$th.$columnid.'</th>';
-		}
-		$content.='</tr>';
-		break;
-	}
-	foreach($data as $key => $row) {
-		if($toggle = !$toggle) {
-			$content.=$oddline;
-		}
-		else {
-			$content.=$evenline;
-		}
-		$content.=$td.$key.'</td>';
-		foreach($row as $columnid => $value) {
-			if($columnid == 'date')
-				$value['value'] = date($core->settings['dateformat'], $value['value']);
-			$content.=$td.$value['value'].'</td>';
-		}
-		$content.='</tr>';
-	}
-	$content.='</table>';
-	return $content;
-}
-
 function encapsulate_in_fieldset($html, $legend = "+", $boolStartClosed = false) {
 	log_performance(__METHOD__);
 
@@ -1465,19 +1785,47 @@ function get_perf_data() {
 	$timecomp = explode(":", date('H:i:s', $timedate[1]));
 	$initialtiming = $timedate[1] + (float)('0.'.str_replace('0.', '', $timedate[0]));
 	$totaltiming = 0;
+	$previoustiming = 0;
 	foreach($performance as $key => $value) {
 		$timedate = explode(" ", $value);
 		$timing = ($timedate[1] + (float)('0.'.str_replace('0.', '', $timedate[0]))) - (float)$initialtiming;
-		$totaltiming+=$timing;
-		$tmphtml.='<tr><td>'.$counter++.'</td><td>'.number_format(1000 * $totaltiming, 3, '.', '').'</td><td>'.$key.'</td><td>'.number_format((1000 * $timing), 3, '.', '').'</td></tr>';
-		$forpie[] = array('#name' => $key, 0 => array('amount' => array('value' => 1000 * $totaltiming)));
+
+		$delta = $timing - $previoustiming;
+
+		$previoustiming = $timing;
+		//$totaltiming+=$timing;
+		$tmphtml.='<tr><td>'.$counter++.'</td><td>'.number_format(1000 * $timing, 3, '.', '').'</td><td>'.$key.'</td><td>'.number_format((1000 * $delta), 3, '.', '').'</td></tr>';
+		$forpie[] = array('#name' => $key, 0 => array('amount' => array('value' => 1000 * $delta), 'timing' => array('value' => (1000 * $timing))));
 	}
 	$tmphtml .= '</table>';
 	//'<td valign=top>'.make_jqppiechart($forpie, "perfpie", '', 0, -90, 800, 600).'</td>'
 	//make_jqpchart($forpie);
 	//make_jqbarchart($forpie)
-	$html = '<table border=0 cellspacing=0 cellpadding=2><tr><td valign=top>'.$tmphtml.'</td><td valign=top>'.make_jqbarchart($forpie).'</td></tr></table>';
+	$html = '<table border=0 cellspacing=0 cellpadding=2><tr><td valign=top>'.$tmphtml.'</td><td valign=top>'.make_jqlinechart($forpie).'</td></tr></table>';
 	return encapsulate_in_fieldset($html, "Performance");
+}
+
+function weak_encrypt($string, $key) {
+	$result = '';
+	for($i = 0; $i < strlen($string); $i++) {
+		$char = substr($string, $i, 1);
+		$keychar = substr($key, ($i % strlen($key)) - 1, 1);
+		$char = chr(ord($char) + ord($keychar));
+		$result.=$char;
+	}
+	return base64_encode($result);
+}
+
+function weak_decrypt($string, $key) {
+	$result = '';
+	$string = base64_decode($string);
+	for($i = 0; $i < strlen($string); $i++) {
+		$char = substr($string, $i, 1);
+		$keychar = substr($key, ($i % strlen($key)) - 1, 1);
+		$char = chr(ord($char) - ord($keychar));
+		$result.=$char;
+	}
+	return $result;
 }
 
 // <editor-fold defaultstate="collapsed" desc="functions used to randomly populate the purchases table">
