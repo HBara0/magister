@@ -18,12 +18,16 @@ if($core->usergroup['sourcing_canListSuppliers'] == 0 || $core->usergroup['sourc
 	exit;
 }
 $supplier_id = $db->escape_string($core->input['id']);
+if(value_exists('sourcing_suppliers', 'ssid', $supplier_id,' isBlacklisted=1')) {  /*if supplier isBlacklisted */
+	redirect(DOMAIN."/index.php?module=sourcing/listpotentialsupplier"); 
+}
 if(!value_exists('sourcing_suppliers', 'ssid', $supplier_id)) {  /*if we no supplier id exist in the database */
 	//redirect(DOMAIN."/index.php?module=sourcing/listpotentialsupplier");  // fix redirect
 }
-$potential_supplier = new Sourcing($supplier_id);
+$potential_supplier = new Sourcing($supplier_id); 
 if(!$core->input['action']) {
-		$potential_supplier_details = $potential_supplier->get_supplier_contactdetails();
+		$supplier_details = $potential_supplier->get_supplier();
+		$potential_supplier_details = $potential_supplier->get_supplier_contactdetails(); 
 		$segments_suppliers	 = $potential_supplier->get_supplier_segments();
 		$supplier_contact	 =  $potential_supplier->get_supplier_contact_persons();
 		$supplier_activity_area =  $potential_supplier->get_supplier_activity_area();
@@ -63,32 +67,32 @@ if(!$core->input['action']) {
 			}
 
 			/*Chemical List -END*/
-			if(!empty($potential_supplier_details['commentsToShare'])) {
+			if(!empty($supplier_details['commentsToShare'])) {
 				$commentshare_section = "<div style=display:table-row; padding:10px;><strong>{$lang->commentstoshare}</strong></div>
-								{$potential_supplier_details[commentsToShare]}
+								{$supplier_details[commentsToShare]}
 								<div class=border_bottom> </div>";	
 			}
-			if(!empty($potential_supplier_details['marketingRecords'])) {
+			if(!empty($supplier_details['marketingRecords'])) {
 				$marketingrecords_section = "<div style=display:table-row; padding:10px;><strong>{$lang->marketingrecords}</strong></div>
-								{$potential_supplier_details[marketingRecords]}
+								{$supplier_details[marketingRecords]}
 								<div class=border_bottom> </div>";	
 			}
-			if(!empty($potential_supplier_details['historical'])) {
+			if(!empty($supplier_details['historical'])) {
 			$historical_section = "<div style=display:table-row; padding:10px;><strong>{$lang->historical}</strong></div>
-							{$potential_supplier_details[historical]}
+							{$supplier_details[historical]}
 							<div class=border_bottom> </div>";	
 		}
-			if(!empty($potential_supplier_details['sourcingRecords'])) {
+			if(!empty($supplier_details['sourcingRecords'])) {
 				$sourcingRecords_section = "<div style=display:table-row; padding:10px;><strong>{$lang->sourcingRecords}</strong></div>
-				{$potential_supplier_details[sourcingRecords]}
+				{$supplier_details[sourcingRecords]}
 				<div class=border_bottom> </div>";	
 			}
-			if(!empty($potential_supplier_details['coBriefing'])) {
+			if(!empty($supplier_details['coBriefing'])) {
 				$coBriefing_section = "<div style=display:table-row; padding:10px;><strong>{$lang->coBriefing}</strong></div>
-				{$potential_supplier_details[coBriefing]}
+				{$supplier_details[coBriefing]}
 				<div class=border_bottom> </div>";	
 			}
-		$potential_supplier_details['rating'].= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$potential_supplier_details['businessPotential'].'"></div>';
+		$supplier_details['rating'].= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$supplier_details['businessPotential'].'"></div>';
 
 		$potential_supplier_details['fulladress'] = $potential_supplier_details['addressLine1'].','.$potential_supplier_details['addressLine2'] ;	
 		
