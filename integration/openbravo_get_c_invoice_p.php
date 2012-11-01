@@ -3,6 +3,7 @@ require '../inc/init.php';
 
 $period['from'] = '30 minutes ago';
 $period['to'] = 'tomorrow';
+$currency_obj = new Currencies('USD');
 
 $affiliates_index = array(
 	'C08F137534222BD001345BAA60661B97'	=> 19
@@ -68,7 +69,7 @@ if($purchase_type == 'order') {
 	$query = pg_query("SELECT o.c_order_id AS documentid, o.ad_org_id, o.dateordered AS documentdate, bp.name AS bpname, bp.c_bpartner_id, c.iso_code AS currency
 					FROM c_order o JOIN c_bpartner bp ON (bp.c_bpartner_id=o.c_bpartner_id) 
 					JOIN c_currency c ON (c.c_currency_id=o.c_currency_id)
-					WHERE o.ad_org_id='C08F137534222BD001345BAA60661B97' AND issotrx='N' AND docstatus = 'CO' AND (dateordered BETWEEN '".date('Y-m-d 00:00:00', strtotime($period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($period['to']))."')");}
+					WHERE o.ad_org_id='C08F137534222BD001345BAA60661B97' AND issotrx='N' AND docstatus = 'CO' AND ((dateordered BETWEEN '".date('Y-m-d 00:00:00', strtotime($period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($period['to']))."') OR (o.updated BETWEEN '".date('Y-m-d 00:00:00', strtotime($period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($period['to']))."'))");}
 else
 {
 	$query = pg_query("SELECT i.c_invoice_id AS documentid, i.ad_org_id, bp.name AS bpname, bp.c_bpartner_id, c.iso_code AS currency, dateinvoiced AS documentdate
@@ -103,7 +104,6 @@ while($document = pg_fetch_assoc($query)) {
 						'pid' 		 => $documentline['m_product_id'], 
 						'date'		=> strtotime($document['documentdate']),
 						'currency' 	=> $document['currency'],
-						'usdFxrate'  => 0.7650,
 						'quantity' 	=> $documentline['quantity'],
 						'amount'	  => $documentline['linenetamt'],
 						'quantityUnit' => $documentline['uom'],
@@ -111,7 +111,11 @@ while($document = pg_fetch_assoc($query)) {
 						'orderId' => $document['documentid'],
 						'orderLineId' => $documentline['documentlineid']
 						);
-
+		
+		$newdata['usdFxrate'] = $currency_obj->get_average_fxrate($document['currency'], array('from' => strtotime(date('Y-m-d', $newdata['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $newdata['date']).' 24:00')));
+		if(empty($newdata['usdFxrate'])) {
+			$newdata['usdFxrate'] = $currency_obj->get_average_fxrate($document['currency'], array('from' => strtotime(date('Y-m-d', $newdata['date']).' 01:00')-(24*60*60*7), 'to' => strtotime(date('Y-m-d', $newdata['date']).' 24:00')));
+		}
 		if(value_exists('integration_mediation_stockpurchases', 'orderLineId', $documentline['documentlineid'])) {
 			$db->update_query('integration_mediation_stockpurchases', $newdata, 'orderLineId="'. $documentline['documentlineid'].'"');	
 		}

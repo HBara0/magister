@@ -59,8 +59,7 @@ while($order = pg_fetch_assoc($query)) {
 								LEFT JOIN m_product_po ppo ON (p.m_product_id=ppo.m_product_id)
 								LEFT JOIN c_bpartner bp ON (bp.c_bpartner_id=ppo.c_bpartner_id) 
 								WHERE c_order_id='{$order[c_order_id]}' AND ('".$order['dateordered']."' BETWEEN ct.datefrom AND ct.dateto) AND ol.m_product_id NOT IN ('".implode('\',\'', $exclude['products'])."')");
-
-								
+					
 		//echo pg_num_rows($orderline_query).' entries<br />';					
 		while($orderline = pg_fetch_assoc($orderline_query)) {
 			$orderline_newdata = array(

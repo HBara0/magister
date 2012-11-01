@@ -47,12 +47,36 @@ if(!$core->input['action']) {
 			$query_where .= $query_where_and.'cid IN ('.implode(', ', $core->user['customers']).')';
 		}
 	}
+	
+	/* Perform inline filtering - START */
+	$filters_config = array(
+			'parse' => array('filters' => array('customer', 'employee', 'type', 'date'),
+			),
+			'process' => array(
+					'filterKey' => 'vrid',
+					'mainTable' => array(
+							'name' => 'visitreports',
+							'filters' => array('customer' => 'cid', 'employee' => 'uid', 'date', 'type')
+					)
+			)
+	);
 
+	$filter = new Inlinefilters($filters_config);	
+	$filter_where_values = $filter->process_multi_filters();
+	$filters_row_display = 'hide';
+	if(is_array($filter_where_values)) {
+		$filters_row_display = 'show';
+		$filter_where = ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+		$multipage_filter_where = ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+	}
+	$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+	/* Perform inline filtering - END */
+	
 	$query = $db->query("SELECT vr.*, vr.cid AS customer, displayName AS employeename, e.companyName as customername, e.companyNameAbbr
 						 FROM ".Tprefix."visitreports vr 
 						 JOIN ".Tprefix."users u ON (u.uid=vr.uid) 
 						 JOIN ".Tprefix."entities e ON (vr.cid=e.eid)
-						 WHERE isDraft=0{$query_where}
+						 WHERE isDraft=0{$query_where}{$filter_where}
 						 ORDER BY {$sort_query}
 						 LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 

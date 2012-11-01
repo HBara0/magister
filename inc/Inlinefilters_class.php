@@ -134,7 +134,7 @@ class Inlinefilters {
 							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $productlines, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
 							break;
 						case 'reportsTo':
-							$reportsto = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', '', 0, 'gid!=7 AND uid IN (SELECT reportsTo FROM '.Tprefix.'users WHERE gid!=7)');
+							$reportsto = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', array('sort' => 'ASC', 'by' => 'displayName'), 0, 'gid!=7 AND uid IN (SELECT reportsTo FROM '.Tprefix.'users WHERE gid!=7)');
 							$filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $reportsto, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
 							break;
 						case 'fromDate':

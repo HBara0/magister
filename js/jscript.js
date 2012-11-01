@@ -76,7 +76,7 @@ $(function() {
 			}
 		//}
 	}
-	
+
 	if($(".tablefilters_row_toggle").length > 0) {
 		$(window).on('keydown', function(e) {
 			if((e.which == 102 || e.which == 70) && e.ctrlKey) {
@@ -88,7 +88,7 @@ $(function() {
 			}
 		});
 	}
-	
+
 	$("input[id^='pickDate']").live('click', function() {
 		//$(this).removeClass('hasDatepicker');
 		$(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown'}).focus();
@@ -261,7 +261,7 @@ $(function() {
 		var formId = $(this).closest('form').attr("id");
 		var action = formId.substring(0, formId.length - 5);
 		var form = $("form[id='" + formId + "']");
-		
+
 		var result = $(this).attr("id");
 		if($(this).val() != '') {
 			if(validateEmail($(this).val())) {
@@ -291,7 +291,7 @@ $(function() {
 	$("input[accept='numeric']").live("keydown", function(e) {
 		if(e.keyCode > 31 && (e.keyCode < 48 || (e.keyCode > 57 && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode != 190 && e.keyCode != 110))) {
 			$(this).val($(this).val().substring(0, ($(this).val().length - 1)));
-			
+
 			return false
 		}
 		return true
@@ -332,7 +332,7 @@ $(function() {
 		$('head').append('<link rel="stylesheet" href="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.min.css" type="text/css" />');
 		popUp("", "popup_loginbox", "users.php");
 	}
-	
+
 	function login() {
 		$.post(rootdir + "users.php?action=do_login",
 				{username: $("#username").val(), password: $("#password").val(), token: $("#logintoken").val()},
@@ -516,7 +516,7 @@ $(function() {
 					beforeSend: function() { $("div[id='" + loadingId + "'],span[id='" + loadingId + "']").html("<img src='" + imagespath +"/loading.gif' alt='" + loading_text + "' border='0' />");},
 					complete: function () { if(loadingId != contentId) { $("#" + loadingId).empty(); } },
 					success: function(returnedData) {
-						alert(returnedData);
+						//alert(returnedData);
 						if(datatype == 'xml') {
 							if($(returnedData).find('status').text() == 'true') { var spanClass = 'green_text'; } else { var spanClass = 'red_text'; }
 
@@ -526,8 +526,8 @@ $(function() {
 						{
 							$("#" + contentId).html($.trim(returnedData));
 						}
-					}//,
-					//dataType: datatype
+					},
+					dataType: datatype
 			});
 		}
 		function checkSession() {

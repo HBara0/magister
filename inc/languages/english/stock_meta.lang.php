@@ -122,4 +122,15 @@ $lang['saleType']= 'Sale Type';
 $lang['TRansID']= 'Transaction ID';
 $lang['groupby']= 'Group by';
 $lang['detailed']='Detailed';
+$lang['fxmethod']='Exchange Rate Calculation';
+$lang['yearlast']='Last rate of the year';
+$lang['monthavg']='Average rate of the month';
+$lang['yearavg']='Average rate of the year';
+$lang['realrate']='Actual transaction rate';
+
+
+
+
+
+
 ?>

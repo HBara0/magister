@@ -101,7 +101,7 @@ if(is_array($reports)) {
 					$user_section_parsed = true;
 					//$message_user_reports .= '<strong>'.$report['employeename'].'</strong><ul>';
 				}*/
-				$message_user_reports .= '<li><a href="http://ocos.orkila.com/index.php?module=crm/previewvisitreport&referrer=list&vrid='.$vrid.'">'.$report['customer'].' - '.$report['type_output'].' ('.$report['date_output'].')</a></li>';
+				$message_user_reports .= '<li><a href="'.DOMAIN.'/index.php?module=crm/previewvisitreport&referrer=list&amp;vrid='.$vrid.'">'.$report['customer'].' - '.$report['type_output'].' ('.$report['date_output'].')</a></li>';
 			}
 			$message_user_reports .= '</ul>';
 		

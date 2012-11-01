@@ -103,11 +103,10 @@ else
 		if($db->num_rows($query) > 0) {		
 			while($order = $db->fetch_assoc($query)) {
 				if(!isset($average_fx[$order['currency']])) {
-					$average_fx[$order['currency']] = $currency_obj->get_average_fxrate($order['currency'], $period);
+					$average_fx[$order['currency']] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $order['currency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00')-(7*24*3600), 'to' => strtotime(date('Y-m-d', $order['date']))), array('precision' => 4));					
 				}
 				
-				$fxrates['price'] = $currency_obj->get_average_fxrate($order['currency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $order['date']).' 24:00')));
-
+				$fxrates['price'] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $order['currency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $order['date']).' 24:00')), array('precision' => 4));
 				if(empty($fxrates['price'])) {
 					$fxrates['price'] = $average_fx[$order['currency']];
 				}
@@ -115,7 +114,7 @@ else
 				if(empty($fxrates['price'])) {
 					$fxrates['price'] = $order['usdFxrate'];
 				}
-				
+
 				$orderline_query = $db->query("SELECT imol.*, imol.foreignId AS orderline_id, imp.foreignName AS productname, cost, costCurrency, ime.foreignName AS supplier, ps.titleAbbr AS productcategory
 											FROM integration_mediation_salesorderlines imol 
 											JOIN integration_mediation_products imp ON (imp.foreignId=imol.pid)
@@ -127,9 +126,9 @@ else
 				$quantity_accuml = 0;
 				while($orderline = $db->fetch_assoc($orderline_query)) {
 					if(!isset($average_fx[$orderline['costCurrency']])) {
-						$average_fx[$orderline['costCurrency']] = $currency_obj->get_average_fxrate($orderline['costCurrency'], $period);
+						$average_fx[$orderline['costCurrency']] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $orderline['costCurrency'], $period, array('precision' => 4));
 					}
-					$fxrates['cost'] = $currency_obj->get_average_fxrate($orderline['costCurrency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $order['date']).' 24:00')));
+					$fxrates['cost'] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $orderline['costCurrency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $order['date']).' 24:00')), array('precision' => 4));
 
 					if(empty($fxrates['cost'])) {
 						$fxrates['cost'] = $average_fx[$orderline['costCurrency']];
@@ -148,7 +147,7 @@ else
 							$purchase_times = 1000;
 						}
 						
-						$quantity_accuml += $purchase['quantity']/$purchase_times;
+						$quantity_accuml += $purchase['quantity']*$purchase_times;
 						$purchase_prices[$orderline['pid']][$purchase['imspid']] = ($purchase['amount']*$purchase['usdFxrate'])/($purchase['quantity']*$purchase_times);
 						if($orderline['quantity'] < $quantity_accuml) {
 							break;
@@ -167,10 +166,12 @@ else
 					$order['day'] = date('d', $order['date']);
 					$order['week'] = date('W', $order['date']);
 					
-					$orderline['linenetamt'] = ($orderline['quantity']*$orderline['price'])*$fxrates['price'];
-					$orderline['price'] = round($orderline['price']*$fxrates['price'], 2);
+					$orderline['price'] = $orderline['price']*$fxrates['price'];
+					$orderline['linenetamt'] = $orderline['quantity']*$orderline['price'];
+					//$orderline['price'] = round($orderline['price']*$fxrates['price'], 2);
 					
-					$orderline['totalcost'] = ($orderline['cost']*$fxrates['cost'])*$orderline['quantity'];
+					$orderline['cost'] = $orderline['cost']*$fxrates['cost'];
+					$orderline['totalcost'] = $orderline['cost']*$orderline['quantity'];
 					$orderline['netmargin'] = $orderline['linenetamt']-$orderline['totalcost'];
 					$orderline['grossmargin'] = $orderline['linenetamt']-($orderline['purchaseprice']*$orderline['quantity']);
 					$orderline['marginperc'] = round(($orderline['netmargin']*100)/$orderline['linenetamt'], 1);
@@ -218,7 +219,7 @@ else
 					$required_data = array('day', 'salesrep', 'productcategory', 'productname', 'supplier', 'bpname', 'purchaseprice', 'cost', 'totalcost', 'paymenttermsdays', 'quantity',  'price', 'linenetamt', 'grossmargin', 'netmargin', 'marginperc');
 					$required_data_count = count($required_data);
 					$rightcols_count = 4;
-					$toround = array('orderline', 'grossmargin', 'netmargin', 'linenetamt', 'totalcost');
+					$toround = array('orderline', 'grossmargin', 'netmargin', 'linenetamt', 'totalcost', 'price', 'cost', 'purchaseprice');
 			
 					$salesreport .= '<tr><td style="text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC; background-color:#F7FAFD;" colspan="'.$required_data_count.'"><strong>'.date('F', mktime(0, 0, 0, $month, 1, 0)).' '.$current_date['year'].'</strong></td></tr>';
 					foreach($weeks as $week => $sections) {
@@ -229,7 +230,7 @@ else
 								$salesreport_cell_align = 'left';
 								$value = $order_details[$key];
 								if(in_array($key, $toround)) {
-									$value = number_format($value, 0, '.', ' ');
+									$value = number_format($value, 2, '.', ' ');
 									$salesreport_cell_align = 'right';
 								}
 								if($key == 'bpname') {
@@ -258,7 +259,7 @@ else
 				$details_headers = array('salesrep' => array('amounts', 'numorders', 'grossmargin', 'netmargin'), 'customers' => array('amounts', 'numorders', 'grossmargin', 'netmargin'));
 				//$sections_titles = array('salesrep' => 'Sales Representatives', 'customers' => 'Top 10 Customers');
 				
-				$classifications_rowlimits = array('customers' => 10);
+				$classifications_rowlimits = array('customers' => 100);
 				/*foreach($bm_details as $type => $salesreps) {
 					arsort($salesreps);
 					$bm_sales_table .= '<tr><td style="margin-top: 10px; font-weight: bold; text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC; background-color:#F7FAFD;">BM</td><td style="margin-top: 10px; font-weight: bold; text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC; background-color:#F7FAFD;">'.$bm_details_headers[$type].'</td></tr>';
