@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright ï¿½ 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Initialtions file
  * $id: init.php
@@ -38,9 +38,9 @@ require_once ROOT.INC_ROOT.'config.php';
  */
 define('Tprefix', $config['database']['prefix']);
 define('DB_NAME', $config['database']['database']);
-define('DOMAIN', 'http://127.0.0.1/development/ocos/'); // ex. http://localhost/web/ocos/
+define('DOMAIN', 'http://127.0.0.1/web/development/ocos'); // ex. http://localhost/web/ocos/
 define('COOKIE_DOMAIN', '.127.0.0.1'); // ex. .localhost
-define('COOKIE_PATH', '/development/ocos/'); // ex: /web/ocos/
+define('COOKIE_PATH', 'web/development/ocos/'); // ex: /web/ocos/
 define('COOKIE_PREFIX', 'ocosproduction_');
 define('ADMIN_DIR', 'manage');
 define("TIME_NOW", time());
