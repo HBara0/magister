@@ -79,7 +79,7 @@ if(!$core->input['action']) {
 				$segments_counter = 0;
 				$segments = $hidden_segments = $show_segments = '';
 				if(is_array($potential_supplier['segments'])) {
-					foreach($potential_supplier['segments'] as $psid=> $segments) { print_r($potential_supplier['segments']);
+					foreach($potential_supplier['segments'] as $psid=> $segments) {
 						if(++$segments_counter > 2) {
 							$hidden_segments .= $segments.'<br />';
 						}
@@ -100,8 +100,7 @@ if(!$core->input['action']) {
 							$segments = $show_segments;
 						}
 					}
-	
-				}
+					}
 				if(is_array($potential_supplier['activityarea'])) {
 					foreach($potential_supplier['activityarea'] as $area) {
 						$potential_supplier['activityarea'] = implode(',', $area);
