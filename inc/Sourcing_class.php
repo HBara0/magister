@@ -6,7 +6,7 @@
  * Sourcing Class
  * $id: Sourcing_class.php
  * Created:			@tony.assaad	October 15, 2012 | 10:53 PM
- * Last Update: 	@tony.assaad	october 25, 2012 | 3:59  AM
+ * Last Update: 	@zaher.reda		October 31, 2012 | 17:06 PM
  */
 
 class Sourcing {
@@ -15,28 +15,27 @@ class Sourcing {
 
 	public function __construct($id = '', $simple = false) {
 		if(isset($id) && !empty($id)) {
-			$this->supplier = $this->read_supplier($id, $simple);
-			$this->supplier_id = $this->supplier['ssid'];
-			$supplier_id = $this->supplier_id;
+			$this->supplier = $this->read($id, $simple);
 		}
 	}
 
 	public function add($data, array $options = array()) {
 		global $db, $log, $core, $errorhandler, $lang;
+		
+		if(is_empty($data['companyName'], $data['productsegment']) || (empty($data['ssid']) && $options['operationtype'] == 'update')) {
+			$this->status = 1;
+			return false;
+		}
+		
 		$this->supplier = $data;
-		$this->chemical = $this->supplier['chemicalproducts'];
-		$this->productsegment = $this->supplier['productsegment'];
+		$this->chemicals = $this->supplier['chemicalproducts'];
+		$this->productsegments = $this->supplier['productsegment'];
 		$this->representative = $this->supplier['representative']['id'];
 		$this->activityarea = $this->supplier['activityarea'];
-		$current_supplier_id = $this->supplier['ssid'];
-		/* if the action is edit here we call the add and pass the [options type] function if the action type is do_editsupplier */
-		if($options['operationtype'] != 'update') {
-			if(is_empty($this->supplier['companyName'] && $this->supplier['productsegment'])) {
-				$this->status = 1;
-				return false;
-			}
-		}
+		$this->supplier['ssid'] = intval($this->supplier['ssid']);
+		
 		unset($this->supplier['ssid'], $this->supplier['chemicalproducts'], $this->supplier['productsegment'], $this->supplier['representative'], $this->supplier['activityarea']);
+		/* If action is edit, don't check if supplier already exists */
 		if($options['operationtype'] != 'update') {
 			if(value_exists('sourcing_suppliers', 'companyName', $this->supplier['companyName'])) {
 				$this->status = 2;
@@ -44,118 +43,121 @@ class Sourcing {
 			}
 		}
 
+		/* Santize inputs - START */
 		$sanitize_fields = array('companyName', 'companyNameAbbr', 'country', 'city', 'addressLine1', 'addressLine2', 'building', 'postCode', 'poBox', 'commentsToShare', 'marketingRecords', 'coBriefing', 'historical', 'sourcingRecords', 'productFunction');
 		foreach($sanitize_fields as $val) {
 			$this->supplier[$val] = $core->sanitize_inputs($this->supplier[$val], array('removetags' => true));
 		}
-		$this->supplier['mainEmail'] = $core->sanitize_email($this->supplier['mainEmail']);
-		$this->supplier['mainEmail'] = $core->validate_email($this->supplier['mainEmail']);
+			
+		$this->supplier['mainEmail'] = $core->validate_email($core->sanitize_email($this->supplier['mainEmail']));
 		$this->supplier['website'] = $core->validtate_URL($this->supplier['website']);
-		$this->supplier['createdBy'] = $core->user['uid'];
-		$this->supplier['dateCreated'] = TIME_NOW;
+		/* Santize inputs - END  */
 
 		if($options['operationtype'] == 'update') {
-			$update_supplier_data = $this->supplier;
-			$update_supplier_data['dateModified'] = TIME_NOW;
-			$update_supplier_data['modifiedBy'] = $core->user['uid'];
-			unset($update_supplier_data['createdBy'], $update_supplier_data['dateCreated']);
-			$query = $db->update_query('sourcing_suppliers', $update_supplier_data, 'ssid='.$current_supplier_id.'');
+			$this->supplier['dateModified'] = TIME_NOW;
+			$this->supplier['modifiedBy'] = $core->user['uid'];
+			
+			$query = $db->update_query('sourcing_suppliers', $this->supplier, 'ssid='.$this->supplier['ssid'].'');
 		}
-		/* Insert supplier - START */
-		if(is_array($this->supplier)) {
+		else {
+			$this->supplier['createdBy'] = $core->user['uid'];
+			$this->supplier['dateCreated'] = TIME_NOW;
+			
 			$query = $db->insert_query('sourcing_suppliers', $this->supplier);
-			if($query) {
-				$this->status = 0;
-				$ssid = $db->last_id();
+			$this->supplier['ssid'] = $db->last_id();
+		}
+		
+		/* Insert/Update Related Tables - START */
+		if($query) {
+			$this->status = 0;
 
-				if($options['operationtype'] == 'update') {
-					$db->delete_query('sourcing_suppliers_activityareas', "ssid='{$current_supplier_id}'");
-					/* update suppliers_activityareas - START */
-					if(is_array($this->activityarea)) {
-						foreach($this->activityarea as $activityarea) {
-							$activity_area = array('ssid' => $current_supplier_id,
-									'coid' => $activityarea,
-							);
-							$db->insert_query('sourcing_suppliers_activityareas', $activity_area);
-						}
-					}
-					/* update suppliers_activityareas - END */
-				}
-				else {
-					/* Insert new suppliers_activityareas - START */
-					if(is_array($this->activityarea)) {
-						foreach($this->activityarea as $activityarea) {
-							$activity_area = array('ssid' => $ssid,
-									'coid' => $activityarea,
-							);
-							$db->insert_query('sourcing_suppliers_activityareas', $activity_area);
-						}
-					}
-				} /* Insert suppliers_activityareas - END */
-				if($options['operationtype'] == 'update') {
-					$db->delete_query('sourcing_suppliers_productsegments', "ssid='{$current_supplier_id}'");
-					$ssid = $current_supplier_id; /* new id for update */
-				}
-
-				/* Insert suppliers_productsegments - START */
-				if(is_array($this->productsegment)) {
-					foreach($this->productsegment as $productsegment) {
-						$suppliers_productsegments = array('ssid' => $ssid,
-								'psid' => $productsegment,
-						);
-						$db->insert_query('sourcing_suppliers_productsegments', $suppliers_productsegments);
-					}
-				}
-				/* Insert suppliers_productsegments - END */
-
-				$log->record($this->supplier['ssid']);
-			}
 			if($options['operationtype'] == 'update') {
-				$db->delete_query('sourcing_suppliers_contactpersons', "ssid='{$current_supplier_id}'");
-				$ssid = $current_supplier_id; //new id to update
+				$db->delete_query('sourcing_suppliers_activityareas', 'ssid='.$this->supplier['ssid']);
 			}
+
+			/* Insert  suppliers_activityareas - START */
+			if(is_array($this->activityarea)) {
+				foreach($this->activityarea as $activityarea) {
+					$activity_area = array(
+							'ssid' => $this->supplier['ssid'],
+							'coid' => $activityarea,
+					);
+					$db->insert_query('sourcing_suppliers_activityareas', $activity_area);
+				}
+			}
+			/* Insert suppliers_activityareas - END */
+				
+			if($options['operationtype'] == 'update') {
+				$db->delete_query('sourcing_suppliers_productsegments', 'ssid='.$this->supplier['ssid']);
+			}
+
+			/* Insert suppliers_productsegments - START */
+			if(is_array($this->productsegments)) {
+				foreach($this->productsegments as $productsegment) {
+					$suppliers_productsegments = array(
+							'ssid' => $this->supplier['ssid'],
+							'psid' => $productsegment,
+					);
+					$db->insert_query('sourcing_suppliers_productsegments', $suppliers_productsegments);
+				}
+			}
+			/* Insert suppliers_productsegments - END */
+
+			
+			if($options['operationtype'] == 'update') {
+				$db->delete_query('sourcing_suppliers_contactpersons', 'ssid='.$this->supplier['ssid']);
+			}
+			
 			if(is_array($this->representative)) {
 				foreach($this->representative as $representative) {
-					$suppliers_contactpersons = array('ssid' => $ssid,
+					$suppliers_contactpersons = array(
+							'ssid' => $this->supplier['ssid'],
 							'rpid' => $representative
 					);
 					$querycontactpersons = $db->insert_query('sourcing_suppliers_contactpersons', $suppliers_contactpersons);
 				}
 			}
+			
 			if($options['operationtype'] == 'update') {
-				$db->delete_query('sourcing_suppliers_chemicals', "ssid='{$current_supplier_id}'");
-				$ssid = $current_supplier_id; //new id to update
+				$db->delete_query('sourcing_suppliers_chemicals', 'ssid='.$this->supplier['ssid']);
 			}
-			if(is_array($this->chemical['csid'])) {
-				foreach($this->chemical['csid'] as $chemical) { // if edit empty table  and add 
-					$casid = array('ssid' => $ssid,
+			
+			if(is_array($this->chemicals['csid'])) {
+				foreach($this->chemicals['csid'] as $chemical) {
+					$new_chemicals = array(
+							'ssid' => $this->supplier['ssid'],
 							'csid' => $chemical
 					);
-					$db->insert_query('sourcing_suppliers_chemicals', $casid);
+					$db->insert_query('sourcing_suppliers_chemicals', $new_chemicals);
 				}
 			}
+			$log->record($this->supplier['ssid']);
 			return true;
 		}
-		/* Insert supplier - END */
+		/* Insert/Update Related Tables - END */
+		$this->status = 4;
+		return false;
 	}
 
 	public function contact_supplier($id = '') {
 		global $core, $db;
-		echo 'conttt';
+		
+		if(empty($id)) {
+			$id = $this->supplier['ssid'];
+		}
 		$db->insert_query('sourcing_suppliers_contacthist', array('ssid' => $id, 'uid' => $core->user['uid']));
 	}
 
-	public function save_communication_report($data, $id = '') {
+	public function save_communication_report($data, $supplier_id = '') {
 		global $core, $db;
+		
 		if(is_empty($data['chemical'], $data['application'], $data['affid'], $data['origin'])) {
 			$this->status = 1;
 			return false;
 		}
-		if(empty($id)) {
-			$supplier_id = $this->supplier_id;
-		}
-		else {
-			$supplier_id = $id;
+		
+		if(empty($supplier_id)) {
+			$supplier_id = $this->supplier['ssid'];
 		}
 
 		$this->communication_entriesexist = 'false';
@@ -181,13 +183,6 @@ class Sourcing {
 		}
 	}
 
-	/*public function edit($data) {
-		global $core, $db;
-		unset($data['representative'], $data['chemicalproducts'], $data['productsegment']);
-		print_r($data);
-		$db->update_query('sourcing_suppliers', $data);
-	}*/
-
 	private function read($id, $simple = false) {
 		global $db;
 
@@ -197,14 +192,15 @@ class Sourcing {
 
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = '*';
+			$query_select = 'ssid, companyName';
 		}
 
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."sourcing_suppliers WHERE ssid=".$db->escape_string($id)));
 	}
 
-	public function get_all_potential_supplier($filter_where = '') {
+	public function get_all_potential_suppliers($filter_where = '') {
 		global $db, $core;
+		
 		//$sort_query = 'ORDER BY ss.ssid ASC';
 		if(isset($core->input['sortby'], $core->input['order'])) {
 			$sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
@@ -219,42 +215,31 @@ class Sourcing {
 			$limit_start = $db->escape_string($core->input['start']);
 		}
 
-		if(isset($core->input['filterby'], $core->input['filtervalue'])) {
-			$attributes_filter_options['companyName'] = array('companyName' => 'ss.');
-
-			if($attributes_filter_options['companyName'][$core->input['filterby']] == 'int') {
-				$filter_value = ' = "'.$db->escape_string($core->input['filtervalue']).'"';
-			}
-			else {
-				$filter_value = ' LIKE "%'.$db->escape_string($core->input['filtervalue']).'%"';
-			}
-
-			$multipage_where = ' WHERE '.$db->escape_string($attributes_filter_options['companyName'][$core->input['filterby']].$core->input['filterby']).$filter_value;
-		}
-		/* if no permission person should only see suppliers who work in the same segements he/she is working in --START */
+		/* if no permission person should only see suppliers who work in the same segements he/she is working in - START */
+		$join_employeessegments = '';
 		if($core->usergroup['sourcing_canManageEntries'] == 0) {
-			$join_employeessegments = "JOIN ".Tprefix."employeessegments es on es.psid = ssp.psid and es.uid=".$core->user['uid']."";
+			$join_employeessegments = "JOIN ".Tprefix."employeessegments es ON (es.psid = ssp.psid) WHERE es.uid=".$core->user['uid'];
+			if(!empty($filter_where)) {
+				$filter_where = ' AND '.$filter_where;
+			}
 		}
-		/* person should only see suppliers who work in the same segements he/she is working in --END */
 		else {
-			/* Return All  potentials suppliers--START */
-			$join_employeessegments = '';
-			/* Return All  potentials suppliers --END */
+			$filter_where = ' WHERE '.$filter_where;
 		}
+		/* if no permission person should only see suppliers who work in the same segements he/she is working in - END */
 
-		$suppliers_query = $db->query("SELECT ss.ssid,ss.companyName,ss.type,ss.isBlacklisted,ss.businessPotential FROM ".Tprefix."sourcing_suppliers ss							
+		$suppliers_query = $db->query("SELECT ss.ssid, ss.companyName, ss.type, ss.isBlacklisted, ss.businessPotential 
+											FROM ".Tprefix."sourcing_suppliers ss							
 											{$join_employeessegments}
-											{$multipage_where}
 											{$filter_where}
 											{$sort_query} 
 											LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
 		if($db->num_rows($suppliers_query) > 0) {
-			while($suppliers = $db->fetch_assoc($suppliers_query)) {
-				$current_supplier_id = $suppliers['ssid'];
-				$potential_suppliers[$suppliers['ssid']]['segments'] = $this->get_supplier_segments($suppliers['ssid']);
-				$potential_suppliers[$suppliers['ssid']]['activityarea'] = $this->get_supplier_activity_area($suppliers['ssid']);
-				$potential_suppliers[$suppliers['ssid']]['supplier'] = $suppliers;
+			while($supplier = $db->fetch_assoc($suppliers_query)) {
+				$potential_suppliers[$supplier['ssid']]['segments'] = $this->get_supplier_segments($supplier['ssid']);
+				$potential_suppliers[$supplier['ssid']]['activityarea'] = $this->get_supplier_activity_area($supplier['ssid']);
+				$potential_suppliers[$supplier['ssid']]['supplier'] = $supplier;
 			}
 			return $potential_suppliers;
 		}
@@ -263,50 +248,67 @@ class Sourcing {
 
 	public function get_supplier_segments($supplier_id = '') {
 		global $db;
+		
 		if(empty($supplier_id)) {
-			$supplier_id = $this->supplier_id;
+			$supplier_id = $this->supplier['ssid'];;
 		}
-		$segments_query = $db->query("SELECT ssp.sspsid, ssp.psid,ps.title AS segment FROM  ".Tprefix."sourcing_suppliers ss
-									JOIN ".Tprefix."sourcing_suppliers_productsegments ssp ON (ss.ssid= ssp.ssid)
-									JOIN ".Tprefix."productsegments ps ON(ps.psid=ssp.psid)
-									WHERE ss.ssid= ".$db->escape_string($supplier_id)."");
-		if($db->num_rows($segments_query) > 0) {
-			while($segments = $db->fetch_assoc($segments_query)) {
-				$segments_suppliers[$segments['psid']] = $segments['segment'];
+		else
+		{
+			if(!$this->validate_segment_permission($supplier_id)) {
+				return false;
 			}
-			return $segments_suppliers;
+		}
+		
+		$segments_query = $db->query("SELECT ssp.psid, ps.title AS segment 
+									FROM ".Tprefix."sourcing_suppliers_productsegments ssp
+									JOIN ".Tprefix."productsegments ps ON(ps.psid=ssp.psid)
+									WHERE ssp.ssid= ".$db->escape_string($supplier_id)."");
+		if($db->num_rows($segments_query) > 0) {
+			while($segment = $db->fetch_assoc($segments_query)) {
+				$segments[$segment['psid']] = $segment['segment'];
+			}
+			return $segments;
 		}
 		return false;
 	}
 
-	public function get_supplier_contact($id = '') {
+	public function get_supplier_contactdetails($supplier_id = '') {
 		global $db;
-		if(empty($id)) {
-			$supplier_id = $this->supplier_id;
+		
+		if(empty($supplier_id)) {
+			$supplier_id = $this->supplier['ssid'];;
 		}
-		else {
-			$supplier_id = $id;
+		else
+		{
+			if(!$this->validate_segment_permission($supplier_id)) {
+				return false;
+			}
 		}
 
-		//if($this->validate_segment_permission($supplier_id)) {  //change remove the not
-		return $db->fetch_assoc($db->query("SELECT ss.*, ps.title as segment from  ".Tprefix."sourcing_suppliers ss
-									JOIN ".Tprefix."sourcing_suppliers_productsegments ssp ON (ss.ssid= ssp.ssid)
-									JOIN ".Tprefix."productsegments ps ON(ps.psid=ssp.psid)
-									JOIN ".Tprefix."employeessegments es on (es.psid = ssp.psid)
-									WHERE ss.ssid= ".$db->escape_string($supplier_id).""));
-		//}
+		return $db->fetch_assoc($db->query("SELECT c.name AS country, ct.name AS city, ss.addressLine1, ss.addressLine2, ss.building, ss.floor, ss.postCode, ss.poBox, ss.phone1, ss.phone2, ss.fax, ss.mainEmail, ss.website
+											FROM  ".Tprefix."sourcing_suppliers ss
+											JOIN ".Tprefix."countries c ON (ss.country.c.coid)
+											JOIN ".Tprefix."cities ct ON (ct.cidd=ss.city)
+											WHERE ss.ssid= ".$db->escape_string($supplier_id).""));
 	}
 
 	public function get_supplier_contact_persons($supplier_id = '') {
 		global $db;
+		
 		if(empty($supplier_id)) {
-			$supplier_id = $this->supplier_id;
+			$supplier_id = $this->supplier['ssid'];;
 		}
-		//if(!$this->validate_segment_permission($this->supplier_id)) {  //change remove the not
-		$contact_query = $db->query("SELECT ss.ssid ,rp.* from ".Tprefix."sourcing_suppliers ss
-									JOIN ".Tprefix." sourcing_suppliers_contactpersons sscp ON(sscp.ssid=ss.ssid)
+		else
+		{
+			if(!$this->validate_segment_permission($supplier_id)) {
+				return false;
+			}
+		}
+		
+		$contact_query = $db->query("SELECT rp.* 
+									FROM ".Tprefix." sourcing_suppliers_contactpersons sscp
 									JOIN ".Tprefix." representatives rp ON(sscp.rpid=rp.rpid)
-									WHERE ss.ssid= ".$db->escape_string($supplier_id)."");
+									WHERE sscp.ssid= ".$db->escape_string($supplier_id)."");
 		if($db->num_rows($contact_query) > 0) {
 			while($contact_person = $db->fetch_assoc($contact_query)) {
 				$contact_persons[$contact_person['rpid']] = $contact_person;
@@ -314,14 +316,21 @@ class Sourcing {
 			return $contact_persons;
 		}
 		return false;
-		//}
 	}
 
 	public function get_supplier_activity_area($supplier_id = '') {
 		global $db;
+		
 		if(empty($supplier_id)) {
-			$supplier_id = $this->supplier_id;
+			$supplier_id = $this->supplier['ssid'];;
 		}
+		else
+		{
+			if(!$this->validate_segment_permission($supplier_id)) {
+				return false;
+			}
+		}
+		
 		$activity_area_query = $db->query("SELECT ss.ssid,ssaa.ssaid ,co.name as country,aff.name as affiliate from ".Tprefix."sourcing_suppliers ss
 									JOIN ".Tprefix."sourcing_suppliers_activityareas ssaa ON (ss.ssid= ssaa.ssid)
 									JOIN ".Tprefix."countries co ON (co.coid = ssaa.coid)
@@ -338,34 +347,42 @@ class Sourcing {
 		return false;
 	}
 
-	public function get_single_supplier_contact_persons($id) {
+	public function get_single_supplier_contact_person($id) {
 		global $db;
+		
 		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
 	}
 
 	public function get_chemicalsubstances() {
 		global $db;
-		$chemicalsubstances_query = $db->query("SELECT * from ".Tprefix."chemicalsubstances chs
-												JOIN ".Tprefix."sourcing_suppliers_chemicals ssc ON (ssc.csid= chs.csid)");
+		
+		$chemicalsubstances_query = $db->query("SELECT * 
+												FROM ".Tprefix."chemicalsubstances chs
+												JOIN ".Tprefix."sourcing_suppliers_chemicals ssc ON (ssc.csid= chs.csid)
+												WHERE ssc.ssid= ".$db->escape_string($supplier_id)."");
 		if($db->num_rows($chemicalsubstances_query) > 0) {
-			while($chemicalsubstances = $db->fetch_assoc($chemicalsubstances_query)) {
-				$chemical_substances[$chemicalsubstances['csid']] = $chemicalsubstances;
+			while($chemicalsubstance = $db->fetch_assoc($chemicalsubstances_query)) {
+				$chemicalsubstances[$chemicalsubstance['csid']] = $chemicalsubstance;
 			}
-			return $chemical_substances;
+			return $chemicalsubstances;
 		}
 		return false;
 	}
 
-	private function read_contact_history($id = '') {
+	private function read_contact_history($supplier_id = '') {
 		global $db, $core;
-
-		$contact_query = $db->query("SELECT aff.name as affiliate, aff.affid ,co.name as origincountry, ssch.*,u.displayName,u.uid FROM ".Tprefix."sourcing_suppliers_contacthist  ssch
+		
+		if(empty($supplier_id)) {
+			$supplier_id = $this->supplier['ssid'];;
+		}
+		
+		$contact_query = $db->query("SELECT aff.name AS affiliate, aff.affid, co.name AS origincountry, ssch.*, u.displayName, u.uid 
+										FROM ".Tprefix."sourcing_suppliers_contacthist  ssch
 										JOIN ".Tprefix."countries co ON (co.coid = ssch.origin)
 										JOIN ".Tprefix."affiliates aff ON (aff.affid = ssch.affid)
 										JOIN ".Tprefix."users u ON (u.uid = ssch.uid)
-										WHERE ssch.ssid = ".$db->escape_string($this->supplier_id)." 
-										AND ssch.uid =".$db->escape_string($core->user['uid'])."
-										Order by ssch.date DESC");
+										WHERE ssch.ssid = ".$db->escape_string($supplier_id)."
+										ORDER BY ssch.date DESC");
 		if($db->num_rows($contact_query) > 0) {
 			while($contact_history = $db->fetch_assoc($contact_query)) {
 				$sourcing_contact_history[$contact_history['sschid']] = $contact_history;
@@ -377,15 +394,21 @@ class Sourcing {
 		return false;
 	}
 
-	private function validate_segment_permission($id = '') {
+	private function validate_segment_permission($supplier_id = '') {
 		global $db, $core;
-		/* if no permission person should only see suppliers who work in the same segements he/she is working in --START */
+		
+		if(empty($supplier_id)) {
+			$supplier_id = $this->supplier['ssid'];;
+		}
+
+		/* If user is not a sourcing agent, check his/her segements - START */
 		if($core->usergroup['sourcing_canManageEntries'] == 0) {
-			$suppliers_query = $db->query("SELECT ssp.psid FROM ".Tprefix."sourcing_suppliers_productsegments ssp 
-			JOIN ".Tprefix."employeessegments es on (es.psid = ssp.psid)
-			JOIN ".Tprefix."sourcing_suppliers ss on ss.ssid= ssp.ssid
-			WHERE ss.ssid= ".$db->escape_string($id)."
-			AND es.uid=".$db->escape_string($core->user['uid'])."");
+			$suppliers_query = $db->query("SELECT ssp.psid 
+										FROM ".Tprefix."sourcing_suppliers_productsegments ssp 
+										JOIN ".Tprefix."employeessegments es ON (es.psid = ssp.psid)
+										WHERE ssp.ssid=".$db->escape_string($supplier_id)."
+										AND es.uid=".$db->escape_string($core->user['uid'])."
+										LIMIT 0, 1");
 
 			if($db->num_rows($suppliers_query) > 0) {
 				return true;
@@ -394,20 +417,10 @@ class Sourcing {
 				return false;
 			}
 		}
-		/* person should only see suppliers who work in the same segements he/she is working in --END */
+		/* If user is not a sourcing agent, check his/her segements - END */
+		return true;
 	}
-
-	private function read_supplier($id, $simple = false) {
-		global $db;
-
-		$query_select = '*';
-		if($simple == true) {
-			$query_select = 'ssid';
-		}
-
-		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."sourcing_suppliers WHERE ssid='".$db->escape_string($id)."'"));
-	}
-
+	
 	public function get_contact_history() {
 		return $this->read_contact_history();
 	}
