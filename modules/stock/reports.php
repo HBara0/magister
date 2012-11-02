@@ -1,4 +1,5 @@
 <?php
+//<editor-fold defaultstate="collapsed" desc="All">
 /*
  * Orkila Central Online System (OCOS)
  * Copyright Â© 2010 Orkila International Offshore, All Rights Reserved
@@ -13,6 +14,7 @@ if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
 
+//<editor-fold defaultstate="collapsed" desc="init">
 $session->start_phpsession();
 $lang->load('stock_meta');
 $performance["--START--"] = microtime();
@@ -25,7 +27,7 @@ $allcolumns = array(
 		'affid' => 'id',
 		'spid' => 'id',
 		'pid' => 'id',
-		'currency' => 'numeric',
+		'currency' => 'text',
 		'usdFxrate' => 'numeric',
 		'quantity' => 'numeric',
 		'quantityUnit' => 'text',
@@ -38,14 +40,15 @@ $resolve = array(
 		'affid' => array('table' => 'affiliates', 'id' => 'affid', 'name' => 'name'),
 		'spid' => array('table' => 'entities', 'id' => 'eid', 'name' => 'companyName'),
 		'pid' => array('table' => 'products', 'id' => 'pid', 'name' => 'name'),
-		'currency' => array('table' => 'currencies', 'id' => 'numCode', 'name' => 'alphaCode')
+		//'currency' => array('table' => 'currencies', 'id' => 'numCode', 'name' => 'alphaCode')
 );
-
+//</editor-fold>
 if($core->usergroup['stock_canGenerateReports'] == '1') {
 	$content = encapsulate_in_fieldset(make_filters($db, $core), 'Filter', false);
 	$content .= encapsulate_in_fieldset(make_options(), 'Options', false);
 	$content .= encapsulate_in_fieldset(choose_columns(), 'Columns', false);
 	if($core->input['action'] == 'generatedummy') {
+		//<editor-fold defaultstate="collapsed" desc="populate the database with random entry">
 		$howmany = 100;
 		if(isset($core->input['number'])) {
 			if(is_numeric($core->input['number'])) {
@@ -53,12 +56,15 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 			}
 		}
 		random_fill_for_testing($howmany);
+		//</editor-fold>
 	}
 	elseif($core->input['action'] == 'emailreport') {
-		$affiliate = $core->input['affiliate_id'];
-		$query = weak_decrypt($core->input['data_filter'], 'orkilakey');
+		//<editor-fold defaultstate="collapsed" desc="send a report by email">
+		//$affiliate = $core->input['affiliate_id'];
+		$query = assemble_filter_query($core, $db);
+		//$queryorg = weak_decrypt($core->input['data_filter'], 'orkilakey');
+		//echo "<b>Constructed query:</b><br>".$query.'<br><b>Original query</b>s<br>'.$queryorg.'<br>';
 		$rawdata = resolve_names(retrieve_data($query, $allcolumns), $resolve);
-		$type = (int)$core->input['report_type'];
 		$groupingatr = $core->input['grouping_atr'];
 
 		if(!isset($groupingatr))
@@ -70,29 +76,30 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 			}
 		}
 		$trackedcolumns['amount'] = $allcolumns['amount'];
-		if($type == 1) {
+		if($core->input['reporttype'] == 1) {
 			$timesliced = time_regroup($rawdata, 'date');
 			foreach($timesliced as $year => $yearly) {
 				foreach($yearly as $month => $monthly) {
 					foreach($monthly as $week => $weekly) {
 						unset($timesliced[$year][$month][$week]);
-						$timesliced[$year][$month][$week] = sort_by_amount(regroup_and_sum($weekly, $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null));
+						$timesliced[$year][$month][$week] = sort_by_amount(regroup_and_sum($weekly, $core->input['fxratetype'], $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null));
 					}
 				}
 			}
 			$datapresented = turn_data_into_html($timesliced, true, $trackedcolumns, $groupingatr, false);
 		}
 		else {
-			$summeddata = regroup_and_sum($rawdata, $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null);
+			$summeddata = regroup_and_sum($rawdata, $core->input['fxratetype'], $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null);
 			$datapresented = turn_data_into_html($summeddata, false, $trackedcolumns, $groupingatr, false);
+			$datapresented .= turn_data_into_html(sort_by_amount($summeddata), false, $trackedcolumns, $groupingatr, false);
 		}
-
-		die($datapresented);
+		send_mail(get_affiliate_gm_email($core->input['affiliate'][0]),$datapresented,get_name_from_id($core->input['affiliate'][0],'affiliates','affid','name'));
+		//</editor-fold>
 	}
 	elseif($core->input['action'] == 'getreport') {
+		//<editor-fold defaultstate="collapsed" desc="generate a report">
 		$query = assemble_filter_query($core, $db);
 		//$content.=encapsulate_in_fieldset($query, 'Query');
-
 		if(isset($core->input['affiliate'])) {
 			if(count($core->input['affiliate']) == 1) {
 				$content .= encapsulate_in_fieldset(email_report($core->input['affiliate'][0], $query), 'Send as e-mail', false);
@@ -117,22 +124,22 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 				foreach($yearly as $month => $monthly) {
 					foreach($monthly as $week => $weekly) {
 						unset($timesliced[$year][$month][$week]);
-						$timesliced[$year][$month][$week] = sort_by_amount(regroup_and_sum($weekly, $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null));
+						$timesliced[$year][$month][$week] = sort_by_amount(regroup_and_sum($weekly, $core->input['fxratetype'], $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null));
 					}
 				}
 			}
 			$datapresented = encapsulate_in_fieldset(turn_data_into_html($timesliced, true, $trackedcolumns, $groupingatr), 'Grouped', false);
 		}
 		else {
-			$summeddata = regroup_and_sum($rawdata, $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null);
+
+			$summeddata = sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata, $core->input['fxratetype']), $core->input['fxratetype'], $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null), 0);
 			$datapresented = encapsulate_in_fieldset(turn_data_into_html($summeddata, false, $trackedcolumns, $groupingatr), 'Grouped', false);
 		}
 
-		$charts = '<div style="position:relative;"><div id="general_chart" style="margin-left:5px;margin-bottom:10px;">'.make_jqpchart(regroup_by_day(convert_to_dollars($rawdata))).'</div>';
-		//$charts.='<div id="product_piechart" style="position:relative;float:left;">'.make_pchart(regroup_by_day($rawdata)).'</div>';
-		$charts.='<div id="affiliate_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata), 'affid', array('amount' => 'numeric'), $resolve['affid'])), 'affiliate_pie', 'Top 10 Affiliates').'</div>';
-		$charts.='<div id="supplier_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata), 'spid', array('amount' => 'numeric'), $resolve['spid'])), 'supplier_pie', 'Top 10 Suppliers').'</div>';
-		$charts.='<div id="product_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata), 'pid', array('amount' => 'numeric'), $resolve['pid'])), 'product_pie', 'Top 10 Products').'</div></div>';
+		$charts = '<div style="position:relative;"><div id="general_chart" style="margin-left:5px;margin-bottom:10px;">'.make_jqpchart(regroup_by_day(convert_to_dollars($rawdata, $core->input['fxratetype']), $core->input['fxratetype'])).'</div>';
+		$charts.='<div id="affiliate_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata, $core->input['fxratetype']), $core->input['fxratetype'], 'affid', array('amount' => 'numeric'), $resolve['affid'])), 'affiliate_pie', 'Top 10 Affiliates').'</div>';
+		$charts.='<div id="supplier_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata, $core->input['fxratetype']), $core->input['fxratetype'], 'spid', array('amount' => 'numeric'), $resolve['spid'])), 'supplier_pie', 'Top 10 Suppliers').'</div>';
+		$charts.='<div id="product_piechart" style="position:relative;float:left;">'.make_jqppiechart(sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata, $core->input['fxratetype']), $core->input['fxratetype'], 'pid', array('amount' => 'numeric'), $resolve['pid'])), 'product_pie', 'Top 10 Products').'</div></div>';
 		$charts = encapsulate_in_fieldset($charts, "Charts", false);
 		$performance["--END--"] = microtime();
 		if($core->input['isajax'] == 'true') {
@@ -142,6 +149,7 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		else {
 			$content.='<div id="results_fieldset">'.$datapresented.$charts.get_perf_data().'</div>';
 		}
+		//</editor-fold>
 	}
 }
 else {
@@ -151,28 +159,36 @@ eval("\$report_template = \"".$template->get('stock_purchasereport')."\";");
 output_page($report_template);
 //</editor-fold>
 
-function convert_to_dollars($rawdata) {
+function send_mail($recipient, $content, $subject) {
+	$header=$headers = "From: reporting@orkila.com\r\nReply-To: reporting@orkila.com\r\nX-Mailer: PHP/".phpversion();
+	if(mail($recipient, $subject, $content,$headers)) {
+		echo("<p>Message successfully sent!</p>");
+	}
+	else {
+		echo("<p>Message delivery failed...</p>");
+	}
+	die();
+}
+
+function convert_to_dollars($rawdata, $mode) {
 	log_performance(__METHOD__);
 	global $db;
-	$usdcode = $db->fetch_field($db->query('SELECT numCode FROM '.Tprefix.'currencies WHERE alphaCode="USD"'), 'numCode');
-	$currency_obj = new Currencies('USD');
+	//$usdcode = $db->fetch_field($db->query('SELECT numCode FROM '.Tprefix.'currencies WHERE alphaCode="USD"'), 'numCode');
 	foreach($rawdata as $key => $value) {
-		if(!isset($value['usdFxrate'])) {
-			$rate = (float)$currency_obj->get_average_fxrate($value['currency']['value'], array('from' => strtotime('-7 days', $value['date']['value']), 'to' => strtotime('+7 days', $value['date']['value'])));
-		}
-		else {
-			$rate = (float)$value['usdFxrate']['value'];
-		}
+		$rate = get_fx_rate($mode, $value['usdFxrate']['value'], $value['currency']['value'], $value['date']['value']);
 		$rawdata[$key]['amount']['value'] = (float)$value['amount']['value'] * $rate;
 		$rawdata[$key]['usdFxrate']['value'] = 1;
-		$rawdata[$key]['currency']['value'] = $usdcode;
+		$rawdata[$key]['currency']['value'] = 'USD';
 	}
 	return $rawdata;
 }
 
 function sort_by_amount($data, $numberofrows = 10) {
 	log_performance(__METHOD__);
-	$itemcount = 0;
+
+	if($numberofrows == 0)
+		$numberofrows = count($data) + 1;
+
 	for($i = 0; $i < count($data) && ($i < $numberofrows - 1); $i++) {
 		$biggest = null;
 		foreach($data as $key => $row) {
@@ -194,10 +210,6 @@ function sort_by_amount($data, $numberofrows = 10) {
 					if($rowvalue > $bigvalue) {
 						$biggest = $key;
 					}
-
-					//if($row[0]['amount']['value'] > $data[$biggest][0]['amount']['value']) {
-					//	$biggest = $key;
-					//}
 				}
 				else {
 					$biggest = $key;
@@ -207,22 +219,24 @@ function sort_by_amount($data, $numberofrows = 10) {
 		if(isset($biggest)) {
 			$processed[$biggest] = 1;
 			$sorted[''.$biggest] = $data[$biggest];
-			$itemcount++;
 		}
 	}
-
-	$itemcount = 'Other';
-	$sorted[$itemcount] = array('#name' => 'Other', 0 => array('#StackedRows' => 0, 'amount' => array('value' => 0)));
+	$label = 'Other';
+	$sorted[$label] = array('#name' => 'Other', 0 => array('#StackedRows' => 0, 'amount' => array('value' => 0)));
 	$gotfiller = false;
 	foreach($data as $key => $row) {
 		if(!isset($processed[$key])) {
-			$sorted[$itemcount][0]['#StackedRows']+=$row[0]['#StackedRows'];
-			$sorted[$itemcount][0]['amount']['value']+=(float)$row[0]['amount']['value'];
+			foreach($row as $rkey => $rvals) {
+				if(is_numeric($rkey)) {
+					$sorted[$label][0]['#StackedRows']+=$rvals['#StackedRows'];
+					$sorted[$label][0]['amount']['value']+=(float)$rvals['amount']['value'];
+				}
+			}
 			if(!$gotfiller) {
 				foreach($row[0] as $key2 => $value) {
 					if($key2 != '#StackedRows' && $key2 != 'amount') {
-						$sorted[$itemcount][0][$key2]['value'] = '-NA-';
-						$sorted[$itemcount][0][$key2]['name'] = '-NA-';
+						$sorted[$label][0][$key2]['value'] = '-NA-';
+						$sorted[$label][0][$key2]['name'] = '-NA-';
 					}
 				}
 				$gotfiller = true;
@@ -230,8 +244,8 @@ function sort_by_amount($data, $numberofrows = 10) {
 		}
 	}
 
-	if($sorted[$itemcount][0]['#StackedRows'] == 0)
-		unset($sorted[$itemcount]);
+	if($sorted[$label][0]['#StackedRows'] == 0)
+		unset($sorted[$label]);
 	return $sorted;
 }
 
@@ -288,7 +302,7 @@ function make_jqlinechart($data) {
 	var plot = $.jqplot("jqPerfChart", [dataPoints],
 	{
 		highlighter: {show: true},
-		cursor: {show:true,zoom:true,dblClickReset:true},
+		cursor: {show:true,zoom:true,dblClickReset: true},
 		seriesDefaults: {
 			showMarker:true,
 			rendererOptions: {smooth: false}
@@ -406,7 +420,7 @@ function make_jqbarchart($data) {
 			cursor:{
                 show: true,
                 zoom:true,
-				dblClickReset:true,
+				clickReset: true,
                 showTooltip:true,
                 followMouse: false,
 				tooltipLocation: "se",
@@ -568,7 +582,7 @@ function make_jqpchart($data) {
 	var plot = $.jqplot("jqChart", [dataPoints],
 	{
 		highlighter: {show: true},
-		cursor: {show:true,zoom:true,dblClickReset:true},
+		cursor: {show:true,zoom:true,clickReset: true},
 		seriesDefaults: {showMarker:false,rendererOptions: {smooth: false}},
 		axes:{
 			xaxis:{
@@ -903,10 +917,10 @@ function turn_data_into_html($data, $timesliced = false, $trackedcolumns, $group
 			}
 		}
 		if($stack) {
-			$html.='</td></tr><tr>'.($rowcount > 1 ? '<td colspan="'.($rowcount - 2).'" style="text-align:'.$align.';">Total</td><td style="text-align:right;padding-right:10px;"><b>'.number_format($totalamount, 2, '.', ',').'</b></td>' : '').'<td style="border-left:1px solid black;text-align:right;padding-right:10px;"><b>'.$totalstack.'</b></td></tr></table>';
+			$html.='</td></tr><tr>'.($rowcount > 1 ? '<td colspan="'.($rowcount - 2).'" style="text-align:'.$align.';padding-left:10px;">Total</td><td style="text-align:right;padding-right:10px;"><b>'.number_format($totalamount, 2, '.', ',').'</b></td>' : '').'<td style="border-left:1px solid black;text-align:right;padding-right:10px;"><b>'.$totalstack.'</b></td></tr></table>';
 		}
 		else {
-			$html.='</td></tr><tr>'.($rowcount > 1 ? '<td colspan="'.($rowcount - 1).'" style="text-align:'.$align.';">Total</td><td style="text-align:right;padding-right:10px;"><b>'.number_format($totalamount, 2, '.', ',').'</b></td>' : '').'</tr></table>';
+			$html.='</td></tr><tr>'.($rowcount > 1 ? '<td colspan="'.($rowcount - 1).'" style="text-align:'.$align.';padding-left:10px;">Total</td><td style="text-align:right;padding-right:10px;"><b>'.number_format($totalamount, 2, '.', ',').'</b></td>' : '').'</tr></table>';
 		}
 		//</editor-fold>
 	}
@@ -1121,26 +1135,26 @@ function make_options() {
 
 	if(isset($core->input['fxratetype'])) {
 		switch($core->input['fxratetype']) {
-			case 'yearlast':
+			case 'ylast':
 				$yearlast = "selected=true";
 				break;
-			case 'monthavg':
+			case 'mavg':
 				$monthavg = "selected=true";
 				break;
-			case 'yearavg':
+			case 'yavg':
 				$yearavg = "selected=true";
 				break;
-			case 'realrate':
+			case 'real':
 				$realrate = "selected=true";
 				break;
 		}
 	}
 
 	$options.=$lang->fxmethod.' <select id="fxratetype" name="fxratetype">
-				<option value="'.$yearlast.'">'.$lang->yearlast.'</option>
-				<option value="'.$monthavg.'">'.$lang->monthavg.'</option>
-				<option value="'.$yearavg.'">'.$lang->yearavg.'</option>
-				<option value="'.$realrate.'">'.$lang->realrate.'</option></select>';
+				<option value="ylast" '.$yearlast.'>'.$lang->ylast.'</option>
+				<option value="mavg" '.$monthavg.'>'.$lang->mavg.'</option>
+				<option value="yavg" '.$yearavg.'>'.$lang->yavg.'</option>
+				<option value="real" '.$realrate.'>'.$lang->real.'</option></select>';
 
 
 	$options.='<script type="text/javascript">
@@ -1253,12 +1267,36 @@ function choose_columns() {
 
 function email_report($afid, $query) {
 	global $core, $allcolumns;
+
 	$return = '<div class="email_report">
 				<form name="email_report" action="index.php?module=stock/reports&action=emailreport" method="POST" enctype="multipart/form-data">
-				<input type=hidden name="affiliate_id" value="'.$afid.'">
-				<input type=hidden name="data_filter" value="'.weak_encrypt($query, 'orkilakey').'">
+				<input type=hidden name="datefrom" value="'.$core->input['datefrom'].'">
+				<input type=hidden name="dateto" value="'.$core->input['dateto'].'">
 				<input type=hidden name="report_type" value="'.$core->input['reporttype'].'">
-				<input type=hidden name="grouping_atr" value="'.$core->input['groupingattribute'].'">';
+				<input type=hidden name="grouping_atr" value="'.$core->input['groupingattribute'].'">
+				<input type=hidden name="fxratetype" value="'.$core->input['fxratetype'].'">';
+	//'<input type=hidden name="data_filter" value="'.weak_encrypt($query, 'orkilakey').'">';
+	//'<input type=hidden name="affiliate_id" value="'.$afid.'">';
+
+	if(isset($core->input['affiliate'])) {
+		if(gettype($core->input['affiliate']) == "array" && count($core->input['affiliate']) > 0) {
+			$core->input['affiliate'] = implode(',', $core->input['affiliate']);
+			$return .='<input type=hidden name="affiliate" value="'.$core->input['affiliate'].'">';
+		}
+	}
+	if(isset($core->input['supplier'])) {
+		if(gettype($core->input['supplier']) == "array" && count($core->input['supplier']) > 0) {
+			$core->input['supplier'] = implode(',', $core->input['supplier']);
+			$return .='<input type=hidden name="supplier" value="'.$core->input['supplier'].'">';
+		}
+	}
+	if(isset($core->input['product'])) {
+		if(gettype($core->input['product']) == "array" && count($core->input['product']) > 0) {
+			$core->input['product'] = implode(',', $core->input['product']);
+			$return .='<input type=hidden name="product" value="'.$core->input['product'].'">';
+		}
+	}
+
 	foreach($allcolumns as $column => $type) {
 		if($core->input[$column] == '1') {
 			$return.='<input type=hidden name="'.$column.'" value="1">';
@@ -1266,6 +1304,11 @@ function email_report($afid, $query) {
 	}
 	$return.='<input type=submit value="Email" id="formsubmit"></form></div>';
 	return $return;
+}
+
+function get_affiliate_gm_email($affid) {
+	global $db;
+	return $db->fetch_field($db->query('SELECT '.Tprefix.'users.email FROM '.Tprefix.'affiliates INNER JOIN '.Tprefix.'users ON '.Tprefix.'affiliates.generalManager='.Tprefix.'users.uid  WHERE '.Tprefix.'affiliates.affid="'.$affid.'"'), 'email');
 }
 
 function assemble_filter_query($core, $db) {
@@ -1507,32 +1550,43 @@ function getProductsList($suppliers, $idsonly = false) {
 }
 
 function time_regroup($data, $datecolumn) {
+	$monthnames = array(1 => "January", 2 => "February", 3 => "March", 4 => "April", 5 => "May", 6 => "June", 7 => "July", 8 => "August", 9 => "September", 10 => "October", 11 => "November", 12 => "December");
 	log_performance(__METHOD__);
-
 	$timesliced = array();
 	foreach($data as $key => $row) {
-		foreach($row as $column => $value) {
-			if($column == $datecolumn) {
-				$timesliced[date('Y', $value['value'])][date('F', $value['value'])][date('W', $value['value'])][] = $row;
+		$timesliced[date('Y', $row['date']['value'])][date('m', $row['date']['value'])][date('W', $row['date']['value'])][] = $row;
+	}
+	foreach($timesliced as $year => $yearly) {
+		$sorted[$year] = $year;
+	}
+	asort($sorted);
+	foreach($sorted as $year) {
+		unset($msorted);
+		foreach($timesliced[$year] as $month => $monthly) {
+			$msorted[$month] = $month;
+		}
+		asort($msorted);
+		foreach($msorted as $month) {
+			unset($weeks);
+			foreach($timesliced[$year][$month] as $week => $weekly) {
+				$weeks[$week] = $week;
+			}
+			asort($weeks);
+			foreach($weeks as $week) {
+				$sortedm[$monthnames[(int)$month]][$week] = $timesliced[$year][$month][$week];
 			}
 		}
+		$sorted[$year] = $sortedm;
 	}
-	return $timesliced;
+	return $sorted;
 }
 
-function regroup_and_sum($data, $groupingattribute = 'pid', $trackedcolumns = array("amount" => 'numeric'), $resolve = null) {
+function regroup_and_sum($data, $ratemode, $groupingattribute = 'pid', $trackedcolumns = array("amount" => 'numeric'), $resolve = null) {
 	log_performance(__METHOD__);
-
-	$currency_obj = new Currencies('USD');
 	$grouped = array();
 	$value = '';
 	foreach($data as $rowkey => $purchase) {
-		if(!isset($purchase['usdFxrate'])) {
-			$rate = (float)$currency_obj->get_average_fxrate($purchase['currency']['value'], array('from' => strtotime('-7 days', $purchase['date']['value']), 'to' => strtotime('+7 days', $purchase['date']['value'])));
-		}
-		else {
-			$rate = (float)$purchase['usdFxrate']['value'];
-		}
+		$rate = get_fx_rate($ratemode, $purchase['usdFxrate'], $purchase['currency']['value'], $purchase['date']['value']);
 
 		$value = $purchase[$groupingattribute]['value'];
 		if(isset($resolve)) {
@@ -1595,20 +1649,37 @@ function regroup_and_sum($data, $groupingattribute = 'pid', $trackedcolumns = ar
 	return $grouped;
 }
 
-function regroup_by_day($data) {
-	log_performance(__METHOD__);
-
+function get_fx_rate($ratemode, $indatarate, $currency, $date) {
 	$currency_obj = new Currencies('USD');
+	if($ratemode == 'real') {
+		if(!isset($indatarate)) {
+			$rate = (float)$currency_obj->get_average_fxrate($currency, array('from' => strtotime('-7 days', date('d-m-Y', $date)), 'to' => strtotime('+7 days', date('d-m-Y', $date))));
+		}
+		else {
+			$rate = (float)$indatarate;
+		}
+	}
+	else {
+		$rate = (float)$currency_obj->get_fxrate_bytype(
+						$ratemode, $currency, array('from' => strtotime('-7 days', date('d-m-Y', $date)),
+						'to' => strtotime('+7 days', date('d-m-Y', $date)),
+						'year' => date('Y', $date),
+						'month' => date('m', $date)
+						)
+		);
+	}
+	if($rate == 0) {
+		$rate = $currency_obj->get_any_rate($currency, array('from' => $date));
+	}
+	return (float)$rate;
+}
+
+function regroup_by_day($data, $fxmode) {
+	log_performance(__METHOD__);
 	$grouped = array();
 	$value = '';
 	foreach($data as $rowkey => $purchase) {
-		if(!isset($purchase['usdFxrate'])) {
-			$rate = $currency_obj->get_average_fxrate($purchase['currency']['value'], array('from' => strtotime('-1 day', $purchase['date']['value']), 'to' => strtotime('+1 day', $purchase['date']['value'])));
-		}
-		else {
-			$rate = $purchase['usdFxrate']['value'];
-		}
-
+		$rate = get_fx_rate($fxmode, $purchase['usdFxrate']['value'], $purchase['currency']['value'], $purchase['date']['value']);
 		$date = strtotime(date('Y-m-d', $purchase['date']['value']));
 		if(isset($grouped[$date])) {
 			$grouped[$date] += (float)$purchase['amount']['value'] * $rate;
@@ -1802,7 +1873,7 @@ function get_perf_data() {
 	//make_jqpchart($forpie);
 	//make_jqbarchart($forpie)
 	$html = '<table border=0 cellspacing=0 cellpadding=2><tr><td valign=top>'.$tmphtml.'</td><td valign=top>'.make_jqlinechart($forpie).'</td></tr></table>';
-	return encapsulate_in_fieldset($html, "Performance");
+	return encapsulate_in_fieldset($html, "Performance", false);
 }
 
 function weak_encrypt($string, $key) {
@@ -1830,6 +1901,7 @@ function weak_decrypt($string, $key) {
 
 // <editor-fold defaultstate="collapsed" desc="functions used to randomly populate the purchases table">
 function random_fill_for_testing($howmany) {
+	global $db;
 	for($i = 0; $i < $howmany; $i++) {
 		seed_random_gen();
 		$gen_product = get_random_entry('products');
@@ -1838,13 +1910,13 @@ function random_fill_for_testing($howmany) {
 		$dummydata[$i]['pid'] = $gen_product['pid'];
 		$dummydata[$i]['spid'] = $gen_product['spid'];
 		$dummydata[$i]['affid'] = $gen_affiliate['affid'];
-		$dummydata[$i]['amount'] = get_random_float(50000) - 30000;
-		$dummydata[$i]['currency'] = $gen_currency['numCode'];
+		$dummydata[$i]['amount'] = get_random_float(500000);
+		$dummydata[$i]['currency'] = $gen_currency['alphaCode'];
 		$dummydata[$i]['usdFxrate'] = get_random_float(3);
 		$dummydata[$i]['quantity'] = get_random_integer(50);
 		$dummydata[$i]['quantityUnit'] = get_random_value(array("MT", "KG", "L"));
-		$dummydata[$i]['date'] = get_random_date(1104559200, 1356847200);
-		$dummydata[$i]['saleType'] = 'SKI';
+		$dummydata[$i]['date'] = get_random_date(1199167200, 1356847200);
+		$dummydata[$i]['saleType'] = get_random_value(array("SKI", "BGP"));
 		$dummydata[$i]['TRansID'] = '{NA}';
 	}
 	foreach($dummydata as $row) {
@@ -1892,4 +1964,5 @@ function get_random_integer($max = null) {
 }
 
 // </editor-fold>
+//</editor-fold>
 ?>
