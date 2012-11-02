@@ -12,10 +12,13 @@
 class Currencies {
 	private $base_currency = 'USD';
 	private $error_handler = NULL;
-
-	public function __constructor($base_currency) {
+	private $cache = '';
+	
+	public function __construct($base_currency) {
 		$this->error_handler = new ErrorHandler(true);
 		$this->base_currency = $base_currency;
+		
+		$this->cache = new Cache();
 	}
 
 	public function get_average_fxrate($currency, array $period = array(), array $options = array(), $base_currency = '') {
@@ -35,6 +38,10 @@ class Currencies {
 			return '1';
 		}
 
+		if($this->cache->iscached('fxrates', $currency.'-'.$period['from'].'-'.$period['from'].'-'.$period['year'].'-'.$period['month'].'-'.$base_currency)) {
+			return $this->cache->data['fxrates'][$currency.'-'.$period['from'].'-'.$period['from'].'-'.$period['year'].'-'.$period['month'].'-'.$base_currency];
+		}
+		echo $currency.'-'.$period['from'].'-'.$period['from'].'-'.$period['year'].'-'.$period['month'].'-'.$base_currency.'<br />';
 		$query_where = $this->parse_period_assql($period);
 
 		$query = $db->query("SELECT AVG(rate) AS rate
@@ -49,7 +56,8 @@ class Currencies {
 			if(isset($options['precision']) && !empty($options['precision'])) {
 				$fx_rate['rate'] = round($fx_rate['rate'], $options['precision']);
 			}
-
+			
+			$this->cache->data['fxrates'][$currency.'-'.$period['from'].'-'.$period['from'].'-'.$period['year'].'-'.$period['month'].'-'.$base_currency] = $fx_rate['rate'];
 			return $fx_rate['rate'];
 		}
 		else {
@@ -133,9 +141,17 @@ class Currencies {
 			$base_currency = $this->base_currency;
 		}
 
+		if($currency == $base_currency) {
+			return 1;
+		}
+		
+		if($this->cache->iscached('fxrates', $currency.'-'.$year.'-'.$base_currency)) {
+			return $this->cache->data['fxrates'][$currency.'-'.$year.'-'.$base_currency];
+		}
+		
 		$query_where = $this->parse_period_assql(array('from' => strtotime($year.'-1-1'), 'to' => strtotime($year.'-12-31')));
-
-		return $db->fetch_field($db->query("SELECT rate
+		
+		return $this->cache->data['fxrates'][$currency.'-'.$year.'-'.$base_currency] = $db->fetch_field($db->query("SELECT rate
 					FROM ".Tprefix."currencies_fxrates 
 					WHERE baseCurrency=(SELECT numCode FROM ".Tprefix."currencies WHERE alphaCode='".$db->escape_string($base_currency)."') 
 					AND currency=(SELECT numCode FROM ".Tprefix."currencies WHERE alphaCode='".$db->escape_string($currency)."')
@@ -154,11 +170,11 @@ class Currencies {
 			case 'mavg':
 				return $this->get_average_fxrate($args[1], array('from' => strtotime($args[2]['year'].'-'.$args[2]['month'].'-1'), 'to' => strtotime($args[2]['year'].'-'.($args[2]['month'] + 1).'-1 +1month -1sec')), $args[3], $args[4]);
 				break;
-			case 'yavg':
+			case 'yavg':			
 				return $this->get_average_fxrate($args[1], array('from' => strtotime($args[2]['year'].'-1-1'), 'to' => strtotime($args[2]['year'].'-12-31')), $args[3], $args[4]);
 				break;
 			case 'ylast':
-				return $this->get_yearlast_fxrate($args[1], $args[2], $args[3], $args[4]);
+				return $this->get_yearlast_fxrate($args[1], $args[2]['year'], $args[3], $args[4]);
 				break;
 			case 'real':
 			default:

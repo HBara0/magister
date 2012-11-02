@@ -91,7 +91,7 @@ else
 		else {
 			$period['to'] = strtotime($core->input['toDate']);//strtotime('last day of this month');;
 		}
-		
+	
 		$currency_obj = new Currencies('USD');
 		//Verify AFFids
 		if(!empty($core->input['spid'])) {
@@ -343,7 +343,7 @@ else
 		
 		$session->set_phpsession(array('sreportcontent_'.$identifier => base64_encode($salesreport)));
 		
-		$salesreport .= '<a href="index.php?module=crm/salesreport&action=sendreport&amp;identifier='.$identifier.'" target="_self">Send</a>';
+		//$salesreport .= '<a href="index.php?module=crm/salesreport&action=sendreport&amp;identifier='.$identifier.'" target="_self">Send</a>';
 		eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
 		output_page($previewpage);
 	}
