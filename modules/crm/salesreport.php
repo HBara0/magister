@@ -74,7 +74,7 @@ if(!$core->input['action']) {
 else
 {
 	if($core->input['action'] == 'do_generatereport') {
-		$core->input['fxtype'] = 'ylast';
+		$core->input['fxtype'] = 'lastm';
 		if(empty($core->input['affids'])) {
 			redirect('index.php?module=crm/salesreport');
 		}
@@ -125,7 +125,7 @@ else
 				if(empty($fxrates['price'])) {
 					$fxrates['price'] = $order['usdFxrate'];
 				}
-
+				
 				$orderline_query = $db->query("SELECT imol.*, imol.foreignId AS orderline_id, imp.foreignName AS productname, cost, costCurrency, ime.foreignName AS supplier, ps.titleAbbr AS productcategory
 											FROM integration_mediation_salesorderlines imol 
 											JOIN integration_mediation_products imp ON (imp.foreignId=imol.pid)

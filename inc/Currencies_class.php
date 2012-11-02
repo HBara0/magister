@@ -41,7 +41,7 @@ class Currencies {
 		if($this->cache->iscached('fxrates', $currency.'-'.$period['from'].'-'.$period['from'].'-'.$period['year'].'-'.$period['month'].'-'.$base_currency)) {
 			return $this->cache->data['fxrates'][$currency.'-'.$period['from'].'-'.$period['from'].'-'.$period['year'].'-'.$period['month'].'-'.$base_currency];
 		}
-		echo $currency.'-'.$period['from'].'-'.$period['from'].'-'.$period['year'].'-'.$period['month'].'-'.$base_currency.'<br />';
+		
 		$query_where = $this->parse_period_assql($period);
 
 		$query = $db->query("SELECT AVG(rate) AS rate
@@ -160,6 +160,37 @@ class Currencies {
 					LIMIT 0, 1"), 'rate');
 	}
 
+	public function get_lastmonth_fxrate($currency, $period, array $options = array(), $base_currency = '') {
+		global $db;
+		
+		if(empty($base_currency)) {
+			$base_currency = $this->base_currency;
+		}
+
+		if($currency == $base_currency) {
+			return 1;
+		}
+		
+		$period['month'] = 12;
+		if($period['year'] == date('Y', TIME_NOW)) {
+			$period['month'] = date('m', strtotime('last month')); 
+		}
+
+		if($this->cache->iscached('fxrates', $currency.'-'.$period['year'].'-'.$period['month'].'-'.$base_currency)) {
+			return $this->cache->data['fxrates'][$currency.'-'.$period['year'].'-'.$period['month'].'-'.$base_currency];
+		}
+
+		$query_where = $this->parse_period_assql(array('from' => strtotime($period['year'].'-'.$period['month'].'-1'), 'to' => strtotime($period['year'].'-'.$period['month'].'-1 +1month -1sec')));
+		
+		return $this->cache->data['fxrates'][$currency.'-'.$period['year'].'-'.$period['month'].'-'.$base_currency] = $db->fetch_field($db->query("SELECT rate
+			FROM ".Tprefix."currencies_fxrates 
+			WHERE baseCurrency=(SELECT numCode FROM ".Tprefix."currencies WHERE alphaCode='".$db->escape_string($base_currency)."') 
+			AND currency=(SELECT numCode FROM ".Tprefix."currencies WHERE alphaCode='".$db->escape_string($currency)."')
+			{$query_where}
+			ORDER BY date DESC
+			LIMIT 0, 1"), 'rate');
+	}
+	
 	public function get_fxrate_bytype() {
 		$args = func_get_args();
 		if(!is_array($args)) {
@@ -175,6 +206,9 @@ class Currencies {
 				break;
 			case 'ylast':
 				return $this->get_yearlast_fxrate($args[1], $args[2]['year'], $args[3], $args[4]);
+				break;
+			case 'lastm':
+				return $this->get_lastmonth_fxrate($args[1], $args[2], $args[3], $args[4]);;
 				break;
 			case 'real':
 			default:
