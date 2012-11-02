@@ -59,13 +59,14 @@ class Sourcing {
 			
 			$query = $db->update_query('sourcing_suppliers', $this->supplier, 'ssid='.$this->supplier['ssid'].'');
 		}
-		else {
+		else 
+			{
 			$this->supplier['createdBy'] = $core->user['uid'];
 			$this->supplier['dateCreated'] = TIME_NOW;
 			
 			$query = $db->insert_query('sourcing_suppliers', $this->supplier);
 			$this->supplier['ssid'] = $db->last_id();
-		}
+			}
 		
 		/* Insert/Update Related Tables - START */
 		if($query) {
@@ -223,8 +224,11 @@ class Sourcing {
 				$filter_where = ' AND '.$filter_where;
 			}
 		}
-		else {
-			$filter_where = ' WHERE '.$filter_where;
+		else
+		{
+			if(!empty($filter_where)) {
+				$filter_where = ' WHERE '.$filter_where;
+			}
 		}
 		/* if no permission person should only see suppliers who work in the same segements he/she is working in - END */
 

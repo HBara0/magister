@@ -78,10 +78,10 @@ if($core->input['type'] == 'quick') {
 			  $extra_where = 'type="'.$type.'"';
 		  }
 	  }
-	  elseif($core->input['for'] == 'chemical') {
+	  elseif($core->input['for'] == 'chemicalproducts') {
 
 		$table = 'chemicalsubstances';
-		$attributes = array('name');
+		$attributes = array('csid','name');
 		$key_attribute = 'csid';
 		
 		$select_attributes = array('casNum', 'name');

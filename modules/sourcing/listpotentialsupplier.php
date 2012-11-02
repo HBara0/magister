@@ -91,7 +91,6 @@ if(!$core->input['action']) {
 						{
 							$show_segments .= $segments.'<br />';
 						}
-
 						if($segments_counter > 2) {
 							$segments = $show_segments.", <a href='#segment' id='showmore_segments_{$key}'>...</a><br /> <span style='display:none;' id='segments_{$key}'>{$hidden_segments}</span>";
 						}

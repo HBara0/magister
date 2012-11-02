@@ -214,7 +214,7 @@ class Surveys {
 		}
 		
 		/* Validate that data is complete before creating anything - END */
-exit;
+
 		$newsurveys_template = array(
 							'dateCreated' => TIME_NOW,
 							'category' =>  $core->input['category'],

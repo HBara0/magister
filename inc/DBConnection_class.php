@@ -93,6 +93,7 @@ class DBConnection {
 			if(!empty($where)) {
 				$where = ' WHERE '.$where;
 			}
+			//echo "UPDATE {$this->db['prefix']}{$table} SET {$query_string}{$where}";
 			return $this->query("UPDATE {$this->db['prefix']}{$table} SET {$query_string}{$where}");
 	  	}
 		else 
@@ -106,6 +107,7 @@ class DBConnection {
 		if(!empty($where)) {
 			$where_query = ' WHERE '.$where;
 		}
+
 		return $this->query("DELETE FROM {$this->db['prefix']}{$table}{$where_query}");
 	}
 
