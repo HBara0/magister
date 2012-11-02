@@ -68,13 +68,13 @@ if(!$core->input['action']) {
 	$products = get_specificdata('products', array('pid', 'name'), 'pid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0, $products_where);
 	$products_list = parse_selectlist('pid[]', 9, $products, '', 1);
 
+	$fxtypes_selectlist = parse_selectlist('fxtype', 9, array('lastm' => $lang->lastmonthrate, 'ylast' => $lang->yearlatestrate, 'yavg' => $lang->yearaveragerate, 'mavg' => $lang->monthaveragerate, 'real' => $lang->realrate), '', 0);
     eval("\$generatepage = \"".$template->get('crm_generatesalesreport')."\";");
     output_page($generatepage);
 }	
 else
 {
 	if($core->input['action'] == 'do_generatereport') {
-		$core->input['fxtype'] = 'lastm';
 		if(empty($core->input['affids'])) {
 			redirect('index.php?module=crm/salesreport');
 		}
