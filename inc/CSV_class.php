@@ -13,7 +13,6 @@ class CSV {
 	private $data, $csvheader = array();
 	private $raw_data = '';
 	private $filename = '';
-//private $delimiter = ',';
 	private $rowscount = 0;
 
 	/* 	STATUS LEGEND
@@ -25,7 +24,8 @@ class CSV {
 	private $status = 0;
 	private $settings = array('type' => 1,
 			'frowheader' => true,
-			'delimiter' => ','
+			'delimiter' => ',',
+			'enclosure' => '"'
 	);
 
 	public function __construct($data, $type = 1, $frowheader = true, $delimiter = ',') {
@@ -77,9 +77,15 @@ class CSV {
 			if(empty($value)) {
 				continue;
 			}
-			//$data_source_seperated = explode($this->settings['delimiter'], $value);
-			$data_source_seperated = $this->my_str_getcsv($value, $this->settings['delimiter']);
 
+			if(function_exists('str_getcsv')) {
+				$data_source_seperated = str_getcsv($value, $this->settings['delimiter'], $this->settings['enclosure'], $this->settings['escape']);
+			}
+			else
+			{
+				$data_source_seperated = $this->my_str_getcsv($value, $this->settings['delimiter'], $this->settings['enclosure'], $this->settings['escape']);
+			}
+			
 			foreach($data_source_seperated as $key => $val) {
 				if($this->rowscount == 0 && $this->settings['frowheader'] == true) {
 					if(empty($filter)) {
