@@ -23,6 +23,7 @@ $jq_common = false;
 $jq_pie = false;
 $jq_chart = false;
 $jq_bar = false;
+
 $allcolumns = array(
 		'affid' => 'id',
 		'spid' => 'id',
@@ -149,6 +150,28 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		else {
 			$content.='<div id="results_fieldset">'.$datapresented.$charts.get_perf_data().'</div>';
 		}
+		//</editor-fold>
+	}
+	elseif($core->input['action'] == 'printlist') {
+		//<editor-fold defaultstate="collapsed" desc="print a full list">
+		$query = assemble_filter_query($core, $db)." ORDER BY Date DESC limit 10";
+
+
+		$trackedcolumns = $allcolumns;
+		$trackedcolumns ['imspid']="id";
+		$rawdata = retrieve_data($query, $allcolumns);
+		$groupingatr = "imspid";
+		$rawdata = resolve_names($rawdata, $resolve);
+		$summeddata = regroup_and_sum(convert_to_dollars($rawdata, $core->input['fxratetype']), $core->input['fxratetype'], $groupingatr, $trackedcolumns, null);
+
+		unset($allcolumns['currency']);
+		unset($allcolumns['usdFxrate']);
+		unset($allcolumns['saleType']);
+		unset($allcolumns['TRansID']);
+
+		$datapresented = encapsulate_in_fieldset(turn_data_into_html($summeddata, false, $allcolumns, $groupingatr), 'Bulk', false);
+		//$performance["--END--"] = microtime();
+		$content ='<div id="results_fieldset">'.$datapresented.'</div>';
 		//</editor-fold>
 	}
 }
@@ -827,7 +850,7 @@ function turn_data_into_html($data, $timesliced = false, $trackedcolumns, $group
 				if(is_numeric($key)) {
 					$html.=$tr;
 					if($idneedsadding) {
-						$name = get_name_from_id($groupingkey, $resolve[$groupingcol]['table'], $resolve[$groupingcol]['id'], $resolve[$groupingcol]['name']);
+						$name = $values['#name']; //get_name_from_id($groupingkey, $resolve[$groupingcol]['table'], $resolve[$groupingcol]['id'], $resolve[$groupingcol]['name']);
 						if($name == '-NA-') {
 							if($togglegroup) {
 								$html.=$grouptd1.' rowspan="'.(count($values) - 1).'">'.$groupingkey.'</td>';
@@ -1590,7 +1613,7 @@ function regroup_and_sum($data, $ratemode, $groupingattribute = 'pid', $trackedc
 			$grouped[$value]['#name'] = $name;
 		}
 		else {
-			$grouped[$value]['#name'] = '-NA-';
+			$grouped[$value]['#name'] = '-NA-'; // $purchase[$groupingattribute]['value'];
 		}
 
 		$doinitialisethisvalue = false;
