@@ -415,7 +415,7 @@ function value_exists($table, $attribute, $value, $extra_where='') {
 		$extra_where = ' AND '.$extra_where;
 	}
 	$attribute = $db->escape_string($attribute);
-	//echo ("SELECT {$attribute} FROM ".Tprefix."{$table} WHERE {$attribute}='".$db->escape_string($value)."'{$extra_where}");
+//echo ("SELECT {$attribute} FROM ".Tprefix."{$table} WHERE {$attribute}='".$db->escape_string($value)."'{$extra_where}");
 	$query = $db->query("SELECT {$attribute} FROM ".Tprefix."{$table} WHERE {$attribute}='".$db->escape_string($value)."'{$extra_where}");
 	if($db->num_rows($query) > 0) {
 		return true;
@@ -438,7 +438,7 @@ function get_specificdata($table, $attributes, $key_attribute, $value_attribute,
 	{
 		$attributes_string = $attributes;
 	}
-	
+
 	if(is_array($order)) {
 		if(!isset($order['sort']) || empty($order['sort'])) {
 			$order['sort'] = 'ASC';
@@ -455,7 +455,7 @@ function get_specificdata($table, $attributes, $key_attribute, $value_attribute,
 	if(!empty($where)) {
 		$where = 'WHERE '.$where.' ';
 	}
-	
+
 	$query = $db->query("SELECT {$attributes_string} FROM ".Tprefix."{$table} {$where}{$order}");
 
 	if($db->num_rows($query) > 0) {
@@ -467,7 +467,7 @@ function get_specificdata($table, $attributes, $key_attribute, $value_attribute,
 			if($key_attribute == '0') {
 				$result[$key_attribute] = 0;
 			}
-			$data[$result[$key_attribute]] = $result[$value_attribute];
+			$data[$result[$key_attribute]] = $result[$value_attribute]; 
 		}
 		return $data;
 	}
