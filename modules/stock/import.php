@@ -139,10 +139,15 @@ else {
 							$row['pid']= $column;
 						}
 					} elseif($columnkey=='date') {
+						try {
 						$row['date']=parse_date($allowed_formatdates[$core->input['dateformat']],$column);
-						if (!isset($row['date'])) {
+						} catch (Exception $e) {
 							$problems=true;
 							$error_handler->record('errordateformat', $column);
+						}
+						if (!isset($row['date'])) {
+							$problems=true;
+							//$error_handler->record('errordateformat', $column);
 						}
 					}
 				}

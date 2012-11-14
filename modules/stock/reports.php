@@ -23,6 +23,7 @@ $jq_common = false;
 $jq_pie = false;
 $jq_chart = false;
 $jq_bar = false;
+
 $allcolumns = array(
 		'affid' => 'id',
 		'spid' => 'id',
@@ -151,6 +152,28 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		}
 		//</editor-fold>
 	}
+	elseif($core->input['action'] == 'printlist') {
+		//<editor-fold defaultstate="collapsed" desc="print a full list">
+		$query = assemble_filter_query($core, $db)." ORDER BY Date DESC limit 10";
+
+
+		$trackedcolumns = $allcolumns;
+		$trackedcolumns ['imspid']="id";
+		$rawdata = retrieve_data($query, $allcolumns);
+		$groupingatr = "imspid";
+		$rawdata = resolve_names($rawdata, $resolve);
+		$summeddata = regroup_and_sum(convert_to_dollars($rawdata, $core->input['fxratetype']), $core->input['fxratetype'], $groupingatr, $trackedcolumns, null);
+
+		unset($allcolumns['currency']);
+		unset($allcolumns['usdFxrate']);
+		unset($allcolumns['saleType']);
+		unset($allcolumns['TRansID']);
+
+		$datapresented = encapsulate_in_fieldset(turn_data_into_html($summeddata, false, $allcolumns, $groupingatr), 'Bulk', false);
+		//$performance["--END--"] = microtime();
+		$content ='<div id="results_fieldset">'.$datapresented.'</div>';
+		//</editor-fold>
+	}
 }
 else {
 	error($lang->sectionnopermission);
@@ -270,11 +293,11 @@ function make_jqlinechart($data) {
 	}
 
 
-	$function = '<div id="jqPerfChart" style="width:300px;height:200px;padding:5px;"></div><script>
+	$function = '<div id="jqPerfChart" style="width:480px;height:360px;padding:5px;"></div><script>
 				$(document).ready(function(){
-				var dataPoints=[];
-				var ticks=[];';
+				var dataPoints=[];';
 
+	$counter=0;
 	foreach($data as $key => $row) {
 		if(is_array($row)) {
 			$total = 0;
@@ -286,7 +309,6 @@ function make_jqlinechart($data) {
 				}
 			}
 			$function .= 'dataPoints.push(['.$timing.','.number_format($total, 2, '.', '').',"'.$row['#name'].'"]);';
-			$function .= 'ticks.push(["'.$row['#name'].'"]);';
 		}
 	}
 
@@ -301,31 +323,27 @@ function make_jqlinechart($data) {
 	$function.='
 	var plot = $.jqplot("jqPerfChart", [dataPoints],
 	{
-		highlighter: {show: true},
-		cursor: {show:true,zoom:true,dblClickReset: true},
+		highlighter: {
+			show: true,
+			yvalues: 2,
+			formatString:"x:%d y:%d   %s",
+		},
+		cursor: {
+			show:true,
+			zoom:true,
+			dblClickReset: true,
+		},
 		seriesDefaults: {
 			showMarker:true,
-			rendererOptions: {smooth: false}
+			rendererOptions: {smooth: false},
 		},
 		axes:{
 			xaxis:{
 				padMin: 0,
 				label:"Time",
-				tick:ticks,
-				tickOptions:{
-                    fontSize:"8pt",
-                    fontFamily:"Tahoma",
-                    angle:-40
-                }
 			},
 			yaxis:{
 				padMin: 0,
-				label:"Exe",
-                tickOptions:{
-					fontSize:"8pt",
-                    fontFamily:"Tahoma",
-					formatString: ""
-                }
 			},
 		},
 });
@@ -832,7 +850,7 @@ function turn_data_into_html($data, $timesliced = false, $trackedcolumns, $group
 				if(is_numeric($key)) {
 					$html.=$tr;
 					if($idneedsadding) {
-						$name = get_name_from_id($groupingkey, $resolve[$groupingcol]['table'], $resolve[$groupingcol]['id'], $resolve[$groupingcol]['name']);
+						$name = $values['#name']; //get_name_from_id($groupingkey, $resolve[$groupingcol]['table'], $resolve[$groupingcol]['id'], $resolve[$groupingcol]['name']);
 						if($name == '-NA-') {
 							if($togglegroup) {
 								$html.=$grouptd1.' rowspan="'.(count($values) - 1).'">'.$groupingkey.'</td>';
@@ -1436,10 +1454,11 @@ function make_filters($db, $core) {
 			$core->input['product'] = explode(',', $core->input['product']);
 		}
 	}
+
 	$return = '<div class="strep_maindiv"><table cellspacing=2 cellpadding=5 border=0><tr><td><form name="reportfilter" action="index.php?module=stock/reports&action=getreport" method="POST" enctype="multipart/form-data">';
-	$return.='<div style=""><b>'.$lang->from.'</b></font></div><input type="text" id="datefrom" name="datefrom" class="datepicker" value="'.$datefrom.'" /></td><td>';
+	$return.='<div style=""><b>'.$lang->from.'</b></font></div><input type="text" id="pickDateFrom" name="datefrom" value="'.$datefrom.'" /></td><td>';
 	$return.='<div style=""><b>'.$lang->to.'</b></div>';
-	$return.='<input type="text" id="dateto" name="dateto" class="datepicker" value="'.$dateto.'"/></td></tr><tr><td><b>'.$lang->affiliate.':</b></td><td><b>'.$lang->supplier.'</u></b></td><td><b>'.$lang->product.'</b></td></tr><tr>';
+	$return.='<input type="text" id="pickDateTo" name="dateto" value="'.$dateto.'"/></td></tr><tr><td><b>'.$lang->affiliate.':</b></td><td><b>'.$lang->supplier.'</u></b></td><td><b>'.$lang->product.'</b></td></tr><tr>';
 
 	$affiliates = getAffiliateList();
 	asort($affiliates);
@@ -1594,7 +1613,7 @@ function regroup_and_sum($data, $ratemode, $groupingattribute = 'pid', $trackedc
 			$grouped[$value]['#name'] = $name;
 		}
 		else {
-			$grouped[$value]['#name'] = '-NA-';
+			$grouped[$value]['#name'] = '-NA-'; // $purchase[$groupingattribute]['value'];
 		}
 
 		$doinitialisethisvalue = false;
@@ -1872,7 +1891,7 @@ function get_perf_data() {
 	//'<td valign=top>'.make_jqppiechart($forpie, "perfpie", '', 0, -90, 800, 600).'</td>'
 	//make_jqpchart($forpie);
 	//make_jqbarchart($forpie)
-	$html = '<table border=0 cellspacing=0 cellpadding=2><tr><td valign=top>'.$tmphtml.'</td><td valign=top>'.make_jqlinechart($forpie).'</td></tr></table>';
+	$html = '<table border=0 cellspacing=0 cellpadding=2><tr><td valign=top>'.make_jqlinechart($forpie).'</td></tr></table>';  //<td valign=top>'.$tmphtml.'</td>
 	return encapsulate_in_fieldset($html, "Performance", false);
 }
 
