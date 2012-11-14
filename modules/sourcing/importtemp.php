@@ -180,7 +180,7 @@ if($core->input['action'] == 'do_import') {
 
 		/* start mainproducts */
 		foreach($company['mainproducts'] as $key => $mainproduct) {
-			
+
 			$checkchemical = $db->query("SELECT csid FROM chemicalsubstances WHERE name= '".$mainproduct."'");
 			if($db->num_rows($checkchemical) > 0) {
 				while($chemical = $db->fetch_assoc($checkchemical)) {
@@ -192,14 +192,13 @@ if($core->input['action'] == 'do_import') {
 			else {
 				unset($chemical_data['chemicalid']);
 			}
-			
+
 			/* insert exist csid into  sourcing_suppliers_chemicals */
 
-				$chemical_data = array('ssid' => $ssid['ssid'], 'csid' => $chemical_data['chemicalid']);
-				if(!value_exists('sourcing_suppliers_chemicals', 'csid', $chemical_data['csid'], ' ssid='.$supplier_id['ssid'])) {
-					$query = $db->insert_query('sourcing_suppliers_chemicals', $chemical_data);
-				}
-	
+			$chemical_data = array('ssid' => $ssid['ssid'], 'csid' => $chemical_data['chemicalid']);
+			if(!value_exists('sourcing_suppliers_chemicals', 'csid', $chemical_data['csid'], ' ssid='.$supplier_id['ssid'])) {
+				$query = $db->insert_query('sourcing_suppliers_chemicals', $chemical_data);
+			}
 			else {
 				$datanotfound[$compkey]['chemicalsubstances'][] = $mainproduct;
 			}
@@ -242,12 +241,11 @@ if($core->input['action'] == 'do_import') {
 			else {
 				unset($productsegments_data['productid']);
 			}
-			
-				$productsegments_data = array('ssid' => $supplier_id['ssid'], 'psid' => $productsegments_data['productid']);
-				if(!value_exists('sourcing_suppliers_productsegments', 'psid', $productsegments_data['psid'], ' ssid='.$supplier_id['ssid'])) {
-					$query = $db->insert_query('sourcing_suppliers_productsegments', $productsegments_data);
-				} /* if no supplier id exist in the database */
-	
+
+			$productsegments_data = array('ssid' => $supplier_id['ssid'], 'psid' => $productsegments_data['productid']);
+			if(!value_exists('sourcing_suppliers_productsegments', 'psid', $productsegments_data['psid'], ' ssid='.$supplier_id['ssid'])) {
+				$query = $db->insert_query('sourcing_suppliers_productsegments', $productsegments_data);
+			} /* if no supplier id exist in the database */
 			else {
 				$datanotfound[$compkey]['productsegment'][] = $productsegments;
 			}
@@ -269,12 +267,11 @@ if($core->input['action'] == 'do_import') {
 			else {
 				unset($contactperson_data['repid']);
 			}
-		
-				$contactperson_data = array('ssid' => $supplier_id['ssid'], 'rpid' => $contactperson_data['repid']);
-				if(!value_exists('sourcing_suppliers_contactpersons', 'rpid', $contactperson_data['rpid'], ' ssid='.$supplier_id['ssid'])) {
-					$query = $db->insert_query('sourcing_suppliers_contactpersons', $contactperson_data);
-				} /* if no contact id exist in the database */
-	
+
+			$contactperson_data = array('ssid' => $supplier_id['ssid'], 'rpid' => $contactperson_data['repid']);
+			if(!value_exists('sourcing_suppliers_contactpersons', 'rpid', $contactperson_data['rpid'], ' ssid='.$supplier_id['ssid'])) {
+				$query = $db->insert_query('sourcing_suppliers_contactpersons', $contactperson_data);
+			} /* if no contact id exist in the database */
 			else {
 				$datanotfound[$compkey]['contactperson'][] = $contactperson;
 			}

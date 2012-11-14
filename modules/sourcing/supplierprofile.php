@@ -15,14 +15,15 @@ if(!defined('DIRECT_ACCESS'))
 
 if($core->usergroup['sourcing_canListSuppliers'] == 0 || $core->usergroup['sourcing_canManageEntries'] == 0) {
 	error($lang->sectionnopermission);
-	exit;
+	
 }
 $supplier_id = $db->escape_string($core->input['id']);
 if(value_exists('sourcing_suppliers', 'ssid', $supplier_id,' isBlacklisted=1')) {  /*if supplier isBlacklisted */
 	redirect(DOMAIN."/index.php?module=sourcing/listpotentialsupplier"); 
+
 }
 if(!value_exists('sourcing_suppliers', 'ssid', $supplier_id)) {  /*if we no supplier id exist in the database */
-	//redirect(DOMAIN."/index.php?module=sourcing/listpotentialsupplier");  // fix redirect
+	redirect(DOMAIN."/index.php?module=sourcing/managesupplier"); 
 }
 $potential_supplier = new Sourcing($supplier_id); 
 if(!$core->input['action']) {
