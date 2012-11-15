@@ -1,10 +1,10 @@
 <?php
 $module['name'] = 'sourcing';
-$module['title'] = $lang->sourcing;
-$module['homepage'] = 'listpotentialsupplier';
+$module['title'] = 'SOURCING';
+$module['homepage'] = 'managesupplier';
 $module['globalpermission'] = 'canUseSourcing';
-$module['menu'] = array('file' 		  => array('managesupplier', 'listpotentialsupplier', 'supplierprofile'),
-						'title'		 => array('managesupplier', 'listpotentialsupplier', 'supplierprofile'),
-						'permission'	=> array('canAccessSystem', 'canAccessSystem', 'canAccesSystem')
+$module['menu'] = array('file' 		  => array('managesupplier','listpotentialsupplier'),
+						'title'		 => array('managesupplier','listpotentialsupplier'),
+						'permission'	=> array('canAccessSystem','canAccessSystem')
 						);
 ?>
