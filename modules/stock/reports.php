@@ -94,7 +94,7 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 			$datapresented = turn_data_into_html($summeddata, false, $trackedcolumns, $groupingatr, false);
 			$datapresented .= turn_data_into_html(sort_by_amount($summeddata), false, $trackedcolumns, $groupingatr, false);
 		}
-		send_mail(get_affiliate_gm_email($core->input['affiliate'][0]),$datapresented,get_name_from_id($core->input['affiliate'][0],'affiliates','affid','name'));
+		send_mail(get_affiliate_gm_email($core->input['affiliate'][0]), $datapresented, get_name_from_id($core->input['affiliate'][0], 'affiliates', 'affid', 'name'));
 		//</editor-fold>
 	}
 	elseif($core->input['action'] == 'getreport') {
@@ -155,10 +155,8 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 	elseif($core->input['action'] == 'printlist') {
 		//<editor-fold defaultstate="collapsed" desc="print a full list">
 		$query = assemble_filter_query($core, $db)." ORDER BY Date DESC limit 10";
-
-
 		$trackedcolumns = $allcolumns;
-		$trackedcolumns ['imspid']="id";
+		$trackedcolumns ['imspid'] = "id";
 		$rawdata = retrieve_data($query, $allcolumns);
 		$groupingatr = "imspid";
 		$rawdata = resolve_names($rawdata, $resolve);
@@ -171,8 +169,106 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 
 		$datapresented = encapsulate_in_fieldset(turn_data_into_html($summeddata, false, $allcolumns, $groupingatr), 'Bulk', false);
 		//$performance["--END--"] = microtime();
-		$content ='<div id="results_fieldset">'.$datapresented.'</div>';
+		$content = '<div id="results_fieldset">'.$datapresented.'</div>';
 		//</editor-fold>
+	}
+	elseif($core->input['action'] == 'test') {
+		$multipage_where = ' 1=1';
+		$limit_start = 0;
+		$sort_query = ' date ASC';
+
+		$sort_url = sort_url();
+		if(isset($core->input['start'])) {
+			$limit_start = $db->escape_string($core->input['start']);
+		}
+		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+			$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+		}
+		if(isset($core->input['sortby'], $core->input['order'])) {
+			$sort_query = $db->escape_string($core->input['sortby']).' '.$db->escape_string($core->input['order']);
+		}
+
+
+		$filters_config = array(
+				'parse' => array('filters' => array('pid', 'spid', 'affid','date','amount')
+				),
+				'process' => array(
+						'filterKey' => 'eid',
+						'mainTable' => array(
+								'name' => 'integration_mediation_stockpurchases',
+								'filters' => array('companyName' => 'companyName'),
+						),
+						'secTables' => array(
+							'integration_mediation_stockpurchases' => array(
+									'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'))
+							),
+							'integration_mediation_stockpurchases' => array(
+									'filters' => array('pid' => array('operatorType' => 'multiple', 'name' => 'pid'))
+							),
+							'integration_mediation_stockpurchases' => array(
+									'filters' => array('spid' => array('operatorType' => 'multiple', 'name' => 'spid'))
+							),
+						)
+				)
+		);
+
+
+		$filter = new Inlinefilters($filters_config);
+		$filter_where_values = $filter->process_multi_filters();
+		$filters_row_display = 'hide';
+
+		if(is_array($filter_where_values)) {
+			$filters_row_display = 'show';
+			$filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+			$multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+		}
+
+		$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+
+		/*
+		  $query = $db->query("SELECT * FROM ".Tprefix."integration_mediation_stockpurchases
+		  WHERE affid={$affid}
+		  {$filter_where}
+		  ORDER BY {$sort_query}
+		  LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
+		 */
+		$query = $db->query("SELECT * FROM ".Tprefix."integration_mediation_stockpurchases
+				ORDER BY {$sort_query}
+				LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
+
+		if($db->num_rows($query) > 0) {
+			while($purchase = $db->fetch_assoc($query)) {
+
+
+				$purchases_list .= '<tr><td>'.get_name_from_id($purchase['pid'], $resolve["pid"]["table"], $resolve["pid"]["id"], $resolve["pid"]["name"], false)
+						.'</td><td>'.get_name_from_id($purchase['spid'], $resolve["spid"]["table"], $resolve["spid"]["id"], $resolve["spid"]["name"], false)
+						.'</td><td>'.get_name_from_id($purchase['affid'], $resolve["affid"]["table"], $resolve["affid"]["id"], $resolve["affid"]["name"], false)
+						.'</td><td>'.date($settings['dateformat'], $purchase['date'])
+						.'</td><td>'.number_format($purchase['amount'], 2, '.', ',')
+						.'</td></tr>';
+			}
+			$multipages = new Multipages('integration_mediation_stockpurchases', $core->settings['itemsperlist'], $multipage_where);
+			$purchases_list .= '<tr><td colspan="6">'.$multipages->parse_multipages().'</td></tr>';
+		}
+		else {
+			$purchases_list = '<tr><td colspan="6">'.$lang->nomatchfound.'</td></tr>';
+		}
+
+		if($core->usergroup['hr_canHrAllAffiliates'] == 1) {
+			$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'));
+		}
+		else {
+			if(is_array($core->user['hraffids']) && !empty($core->user['hraffids']) && count($core->user['hraffids']) > 1) {
+				$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0, 'affid IN ('.implode(',', $core->user['hraffids']).')');
+			}
+		}
+
+		if(is_array($affiliates)) {
+			$affid_field = $lang->affiliate.': '.parse_selectlist('affid', 1, $affiliates, $affid, 0, 'goToURL("index.php?module=hr/holidayslist&amp;affid="+$(this).val())').'';
+		}
+		eval("\$list = \"".$template->get('stocks_purchaselist')."\";");
+		output_page($list);
+		die();
 	}
 }
 else {
@@ -183,8 +279,8 @@ output_page($report_template);
 //</editor-fold>
 
 function send_mail($recipient, $content, $subject) {
-	$header=$headers = "From: reporting@orkila.com\r\nReply-To: reporting@orkila.com\r\nX-Mailer: PHP/".phpversion();
-	if(mail($recipient, $subject, $content,$headers)) {
+	$header = $headers = "From: reporting@orkila.com\r\nReply-To: reporting@orkila.com\r\nX-Mailer: PHP/".phpversion();
+	if(mail($recipient, $subject, $content, $headers)) {
 		echo("<p>Message successfully sent!</p>");
 	}
 	else {
@@ -297,7 +393,7 @@ function make_jqlinechart($data) {
 				$(document).ready(function(){
 				var dataPoints=[];';
 
-	$counter=0;
+	$counter = 0;
 	foreach($data as $key => $row) {
 		if(is_array($row)) {
 			$total = 0;
@@ -1827,7 +1923,7 @@ function check_for_presence($haystack, $needle, $filter) {
 	return $results;
 }
 
-function get_name_from_id($id, $tablename = 'products', $idcolumn = 'pid', $namecolumn = 'name') {
+function get_name_from_id($id, $tablename = 'products', $idcolumn = 'pid', $namecolumn = 'name', $returnidifreolvefails = false) {
 	static $idtonamecache = array();
 	global $db;
 	try {
@@ -1845,7 +1941,12 @@ function get_name_from_id($id, $tablename = 'products', $idcolumn = 'pid', $name
 		return $name;
 	}
 	else {
-		return '-NA-';
+		if($returnidifreolvefails) {
+			return $id;
+		}
+		else {
+			return '-NA-';
+		}
 	}
 }
 
