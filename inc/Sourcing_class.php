@@ -6,7 +6,7 @@
  * Sourcing Class
  * $id: Sourcing_class.php
  * Created:			@tony.assaad	October 15, 2012 | 10:53 PM
- * Last Update: 	@zaher.reda		October 31, 2012 | 17:06 PM
+ * Last Update:      @tony.assaad	November 19, 2012 | 17:06 PM
  */
 
 class Sourcing {
@@ -54,6 +54,7 @@ class Sourcing {
 		/* Santize inputs - END  */
 
 		if($options['operationtype'] == 'update') {
+			print_R($this->supplier);
 			$this->supplier['dateModified'] = TIME_NOW;
 			$this->supplier['modifiedBy'] = $core->user['uid'];
 
@@ -141,7 +142,7 @@ class Sourcing {
 
 	public function contact_supplier($id = '') {
 		global $core, $db;
-
+		echo 'gsfa';
 		if(empty($id)) {
 			$id = $this->supplier['ssid'];
 		}
@@ -150,7 +151,6 @@ class Sourcing {
 
 	public function save_communication_report($data, $supplier_id = '') {
 		global $core, $db;
-
 		if(is_empty($data['chemical'], $data['application'], $data['affid'], $data['origin'])) {
 			$this->status = 1;
 			return false;
@@ -169,8 +169,7 @@ class Sourcing {
 		if(!empty($this->communication_report['description']) && !empty($this->communication_report['chemical']) && !empty($this->communication_report['appplication']) && !empty($this->communication_report['date']) && !empty($this->communication_report['market'])) {
 			$this->communication_entriesexist = 'true';
 		}
-		$communication_report_query = $db->query("SELECT * FROM ".Tprefix."  sourcing_suppliers_contacthist  
-												 WHERE ssid = ".$supplier_id." and uid = ".$core->user['uid']."");
+		$communication_report_query = $db->query("SELECT * FROM ".Tprefix."  sourcing_suppliers_contacthist  WHERE ssid = ".$supplier_id." and uid = ".$core->user['uid']."");
 		if($db->num_rows($communication_report_query) == 1 && value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid'].' AND chemical="" AND application="" AND market="" AND competitors="" AND description=""')) {
 			$db->update_query('sourcing_suppliers_contacthist', $this->communication_report, 'uid='.$core->user['uid'].' AND ssid='.$supplier_id);
 			$this->status = 2;
@@ -407,7 +406,6 @@ class Sourcing {
 
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
-			;
 		}
 
 		/* If user is not a sourcing agent, check his/her segements - START */
@@ -451,6 +449,84 @@ class Sourcing {
 		if($query) {
 			return true;
 		}
+	}
+
+	public function get_chemicalrequests() {
+		global $db, $core;
+
+		$sort_query = 'ORDER BY cs.name ASC, scr.timeRequested DESC';
+		if(isset($core->input['sortby'], $core->input['order'])) {
+			$sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
+		}
+
+
+		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+			$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+		}
+
+		$limit_start = 0;
+		if(isset($core->input['start'])) {
+			$limit_start = $db->escape_string($core->input['start']);
+		}
+		if($core->usergroup['sourcing_canManageEntries'] == 0) { /* Users shouldn't be able to see requests by other users. Sourcing agents can see all requests. */
+			$see_otherusers = "	WHERE scr.uid={$core->user['uid']}";
+		}
+		$chemicalrequests_query = $db->query("SELECT scr.*,u.displayName ,cs.name
+										FROM ".Tprefix."sourcing_chemicalrequests scr
+										JOIN ".Tprefix."users u ON (u.uid = scr.uid)
+										JOIN ".Tprefix."chemicalsubstances cs ON (cs.csid = scr.csid)
+										{$see_otherusers} {$sort_query}");
+
+		if($db->num_rows($chemicalrequests_query) > 0) {
+			while($chemicalrequest = $db->fetch_assoc($chemicalrequests_query)) {
+				$chemicalrequests[$chemicalrequest['scrid']] = $chemicalrequest;
+			}
+
+			return $chemicalrequests;
+		}
+		return false;
+	}
+
+	public function set_feedback($data, $request_id = '') {
+		global $db, $core;
+		if(is_empty($data['feedback'])) {
+			$this->status = 1;
+			return false;
+		}
+		if(value_exists('sourcing_chemicalrequests', 'feedback', $data['feedback'])) {
+			$this->status = 2;
+			return false;
+		}
+		$feedback_data = array('feedback' => $data['feedback'],
+				'feedbackBy' => $core->user['uid'],
+				'feedbackTime' => TIME_NOW,
+				'isclosed' => $data['isclosed']
+		);
+
+		$update_query = $db->update_query('sourcing_chemicalrequests', $feedback_data, 'scrid='.$request_id);
+		if($update_query) {
+			$this->status = 0;
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	private function read_feedback($request_id) {
+		global $db, $core;
+		if($core->usergroup['sourcing_canManageEntries'] == 0) { /* Users shouldn't be able to see requests by other users. Sourcing agents can see all requests. */
+			$see_otherusers = "	AND scr.uid={$core->user['uid']}";
+		}
+		return $db->fetch_assoc($db->query("SELECT scr.feedback,scr.feedbackTime,u.displayName
+										FROM ".Tprefix."sourcing_chemicalrequests scr
+										JOIN ".Tprefix."users u ON (u.uid = scr.feedbackBy)
+										WHERE scr.scrid=".$request_id."	
+										{$see_otherusers} "));
+	}
+
+	public function get_feedback($request_id) {
+		return $this->read_feedback($request_id);
 	}
 
 	public function get_contact_history() {
