@@ -23,7 +23,6 @@ $jq_common = false;
 $jq_pie = false;
 $jq_chart = false;
 $jq_bar = false;
-
 $allcolumns = array(
 		'affid' => 'id',
 		'spid' => 'id',
@@ -37,12 +36,14 @@ $allcolumns = array(
 		'TRansID' => 'text',
 		'amount' => 'numeric'
 );
+
 $resolve = array(
 		'affid' => array('table' => 'affiliates', 'id' => 'affid', 'name' => 'name'),
 		'spid' => array('table' => 'entities', 'id' => 'eid', 'name' => 'companyName'),
 		'pid' => array('table' => 'products', 'id' => 'pid', 'name' => 'name'),
 		//'currency' => array('table' => 'currencies', 'id' => 'numCode', 'name' => 'alphaCode')
 );
+
 //</editor-fold>
 if($core->usergroup['stock_canGenerateReports'] == '1') {
 	$content = encapsulate_in_fieldset(make_filters($db, $core), 'Filter', false);
@@ -152,7 +153,7 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		}
 		//</editor-fold>
 	}
-	elseif($core->input['action'] == 'printlist') {
+	elseif($core->input['action'] == 'test') {
 		//<editor-fold defaultstate="collapsed" desc="print a full list">
 		$query = assemble_filter_query($core, $db)." ORDER BY Date DESC limit 10";
 		$trackedcolumns = $allcolumns;
@@ -172,10 +173,20 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		$content = '<div id="results_fieldset">'.$datapresented.'</div>';
 		//</editor-fold>
 	}
-	elseif($core->input['action'] == 'test') {
-		$multipage_where = ' 1=1';
+	elseif($core->input['action'] == 'printlist') {
+		//<editor-fold defaultstate="collapsed" desc="print a dynamic list">
+
+		$affiliates = getAffiliateList(true);
+		$suppliers = getSuppliersList(true);
+		$products = getProductsList($suppliers, true);
+
+		$filter_where = ' '.Tprefix.'integration_mediation_stockpurchases.affid IN ('.implode(',', $affiliates).')';
+		$filter_where.=' AND '.Tprefix.'integration_mediation_stockpurchases.spid IN ('.implode(',', $suppliers).')';
+		$filter_where.=' AND '.Tprefix.'integration_mediation_stockpurchases.pid IN ('.implode(',', $products).')';
+
 		$limit_start = 0;
-		$sort_query = ' date ASC';
+		$sort_query = ' date DESC';
+		$multipage_where = $filter_where;
 
 		$sort_url = sort_url();
 		if(isset($core->input['start'])) {
@@ -188,30 +199,37 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 			$sort_query = $db->escape_string($core->input['sortby']).' '.$db->escape_string($core->input['order']);
 		}
 
-
+		$named_suppliers = getSuppliersList();
+		$named_products = getProductsList($named_suppliers);
+		$pid_autocomplete = "";
+		foreach($named_products as $key => $value) {
+			$pid_autocomplete .= '{ label: "'.$value.'", value: "'.$value.'" },';
+		}
+		$pid_autocomplete = substr($pid_autocomplete, 0, strlen($pid_autocomplete) - 1);
 		$filters_config = array(
-				'parse' => array('filters' => array('pid', 'spid', 'affid','date','amount')
-				),
+				'parse' => array(
+							'filters' => array('pid', 'spid', 'affid', 'date', 'amount'),
+							'overwriteField' => array(
+								'spid' =>parse_selectlist('filters[spid][]', 2, $named_suppliers, $core->input['filters']['spid'], 1, '', array('multiplesize' => 3, 'id' => 'spid')),
+								'pid' => '<input id="pid_QSearch" type="text" title="" autocomplete="off" value="" tabindex="1" name="filters[pid]"/><div id="searchQuickResults_pid_pid" class="searchQuickResults" style="display:none;"></div>',
+							),
+						),
 				'process' => array(
-						'filterKey' => 'eid',
+						'filterKey' => 'imspid',
 						'mainTable' => array(
 								'name' => 'integration_mediation_stockpurchases',
-								'filters' => array('companyName' => 'companyName'),
+								'filters' => array('spid' => array('operatorType' => 'multiple', 'name' => 'spid'), 'affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'date' => array('operatorType' => 'date', 'name' => 'date'), 'amount' => array('operatorType' => 'startswith', 'name' => 'amount')),
 						),
 						'secTables' => array(
-							'integration_mediation_stockpurchases' => array(
-									'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'))
-							),
-							'integration_mediation_stockpurchases' => array(
-									'filters' => array('pid' => array('operatorType' => 'multiple', 'name' => 'pid'))
-							),
-							'integration_mediation_stockpurchases' => array(
-									'filters' => array('spid' => array('operatorType' => 'multiple', 'name' => 'spid'))
-							),
-						)
-				)
+								'products' => array(
+										'keyAttr' => 'pid',
+										'joinKeyAttr' => 'pid',
+										'joinWith' => 'integration_mediation_stockpurchases',
+										'filters' => array('pid' => array('operatorType' => 'startswith', 'name' => 'products.name')),
+								),
+						),
+				),
 		);
-
 
 		$filter = new Inlinefilters($filters_config);
 		$filter_where_values = $filter->process_multi_filters();
@@ -219,27 +237,25 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 
 		if(is_array($filter_where_values)) {
 			$filters_row_display = 'show';
-			$filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-			$multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+			if(count($filter_where_values) > 0) {
+				$filter_where .= ' AND '.Tprefix.'integration_mediation_stockpurchases.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+				$multipage_where .= ' AND '.Tprefix.'integration_mediation_stockpurchases.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+			}
 		}
 
 		$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
 
-		/*
-		  $query = $db->query("SELECT * FROM ".Tprefix."integration_mediation_stockpurchases
-		  WHERE affid={$affid}
-		  {$filter_where}
-		  ORDER BY {$sort_query}
-		  LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
-		 */
-		$query = $db->query("SELECT * FROM ".Tprefix."integration_mediation_stockpurchases
-				ORDER BY {$sort_query}
-				LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
+		$query = "SELECT * FROM ".Tprefix."integration_mediation_stockpurchases
+					JOIN ".Tprefix."products ON (".Tprefix."products.pid=".Tprefix."integration_mediation_stockpurchases.pid)
+					WHERE $filter_where
+					ORDER BY {$sort_query}
+					LIMIT {$limit_start}, {$core->settings[itemsperlist]}"; // WHERE {$filter_where}
+		//$purchases_list = encapsulate_in_fieldset($query);
+
+		$query = $db->query($query);
 
 		if($db->num_rows($query) > 0) {
 			while($purchase = $db->fetch_assoc($query)) {
-
-
 				$purchases_list .= '<tr><td>'.get_name_from_id($purchase['pid'], $resolve["pid"]["table"], $resolve["pid"]["id"], $resolve["pid"]["name"], false)
 						.'</td><td>'.get_name_from_id($purchase['spid'], $resolve["spid"]["table"], $resolve["spid"]["id"], $resolve["spid"]["name"], false)
 						.'</td><td>'.get_name_from_id($purchase['affid'], $resolve["affid"]["table"], $resolve["affid"]["id"], $resolve["affid"]["name"], false)
@@ -251,7 +267,7 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 			$purchases_list .= '<tr><td colspan="6">'.$multipages->parse_multipages().'</td></tr>';
 		}
 		else {
-			$purchases_list = '<tr><td colspan="6">'.$lang->nomatchfound.'</td></tr>';
+			$purchases_list .= '<tr><td colspan="6">'.$lang->nomatchfound.'</td></tr>';
 		}
 
 		if($core->usergroup['hr_canHrAllAffiliates'] == 1) {
@@ -269,6 +285,7 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		eval("\$list = \"".$template->get('stocks_purchaselist')."\";");
 		output_page($list);
 		die();
+		//</editor-fold>
 	}
 }
 else {
@@ -1557,19 +1574,13 @@ function make_filters($db, $core) {
 	$return.='<input type="text" id="pickDateTo" name="dateto" value="'.$dateto.'"/></td></tr><tr><td><b>'.$lang->affiliate.':</b></td><td><b>'.$lang->supplier.'</u></b></td><td><b>'.$lang->product.'</b></td></tr><tr>';
 
 	$affiliates = getAffiliateList();
-	asort($affiliates);
 	$return .='<td>'.parse_selectlist('affiliate[]', 1, $affiliates, $core->input['affiliate'], 1, null, array('id' => 'affiliate')).'</td>';
 
 	$suppliers = getSuppliersList();
-	asort($suppliers);
 	$return .='<td>'.parse_selectlist('supplier[]', 2, $suppliers, $core->input['supplier'], 1, null, array('id' => 'supplier')).'</td>';
 
-
 	$products = getProductsList($suppliers);
-	asort($products);
 	$return .='<td>'.parse_selectlist('product[]', 3, $products, $core->input['product'], 1, null, array('id' => 'product')).'</td>';
-
-
 
 	$return.='</td></tr><td colspan=2><input type=submit value=Generate id="formsubmit"></td></tr>';
 	$return.='</form></div></td></tr></table>'.'
@@ -1609,6 +1620,7 @@ function getAffiliateList($idsonly = false) {
 			}
 		}
 	}
+	asort($affiliates);
 	return $affiliates;
 }
 
@@ -1640,6 +1652,7 @@ function getSuppliersList($idsonly = false) {
 			}
 		}
 	}
+	asort($suppliers);
 	return $suppliers;
 }
 
@@ -1661,6 +1674,7 @@ function getProductsList($suppliers, $idsonly = false) {
 			}
 		}
 	}
+	asort($products);
 	return $products;
 }
 

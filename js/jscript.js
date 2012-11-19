@@ -118,6 +118,7 @@ $(function() {
 			var resultsIn = "#searchQuickResults_" + id[0] + "_" + id[id.length-2];
 		}
 
+
 		if($(resultsIn).length <= 0) {
 			resultsIn = "#searchQuickResults_" + id[id.length-2];
 		}

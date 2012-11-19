@@ -2,6 +2,15 @@
 <head>
 <title>{$core->settings[systemtitle]} | {$lang->holidayslist}</title>
 {$headerinc}
+<script>
+/*
+    $(document).ready(function () {
+        $("#filers_pid").autocomplete({
+            source: [{$pid_autocomplete}]
+        });
+    });
+*/
+</script>
 </head>
 <body>
 {$header}
@@ -14,7 +23,7 @@
 	<thead>
 		<tr>
 			<th style="width:25%;">{$lang->pid}
-				<a href="{$sort_url}&amp;sortby=pid&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=pid&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a>
+				<a href="{$sort_url}&amp;sortby=products.name&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=products.name&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a>
 			</th>
 			<th style="width:18%;">{$lang->spid}
 				<a href="{$sort_url}&amp;sortby=spid&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=spid&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a>
