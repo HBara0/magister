@@ -160,13 +160,6 @@ if($core->input['type'] == 'quick') {
 		  $select_attributes = array('displayName');//array('Concat(firstName, \' \', lastName) AS employeename');
 		  $order = array('by' => 'firstName', 'sort' => 'ASC');
 	  }
-	  elseif($core->input['for'] == 'pid') {
-		  $table = 'products';
-		  $attributes = array('name');
-		  $key_attribute = 'pid';
-		  $select_attributes = array('name');
-		  $order = array('by' => 'name', 'sort' => 'ASC');
-	  }
 
 	  if(isset($core->input['exclude']) && !empty($core->input['exclude'])) {
 		  if(empty($extra_where)) {

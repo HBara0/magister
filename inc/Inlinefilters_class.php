@@ -280,7 +280,7 @@ class Inlinefilters {
 				}
 			}
 		}
-$a="@3";
+
 		if(isset($this->config['process']['secTables'])) {
 			foreach($this->config['process']['secTables'] as $table => $options) {
 				if(!isset($options['filterKeyOverwrite']) || empty($options['filterKeyOverwrite'])) {
@@ -310,9 +310,6 @@ $a="@3";
 						$sec_query_where .= ' AND '.$db->escape_string($options['extraWhere']);
 					}
 
-					$secq = 'SELECT DISTINCT('.$options['filterKeyOverwrite'].')
-										FROM '.Tprefix.$table.$sec_query_join_clause.'
-										WHERE '.$sec_query_where;
 					$sec_query = $db->query('SELECT DISTINCT('.$options['filterKeyOverwrite'].')
 										FROM '.Tprefix.$table.$sec_query_join_clause.'
 										WHERE '.$sec_query_where);
@@ -389,33 +386,23 @@ $a="@3";
 		elseif($attr['operatorType'] == 'equal') {
 			$query_where = $sec_query_operator.$attr['name'].'="'.$db->escape_string($core->input['filters'][$filteritem]).'"';
 		}
-		elseif($attr['operatorType'] == 'startswith') {
-			if(strstr($core->input['filters'][$filteritem], ';')) {
-				$multiple_items = explode(';', $core->input['filters'][$filteritem]);
-				foreach($multiple_items as $value) {
-					$query_where .= $query_where_operator.$sec_query_operator.$attr['name'].' LIKE "'.$db->escape_string($value).'%"';
-					$query_where_operator = ' OR ';
-				}
-
-				$query_where = '('.$query_where.')';
-			}
-			else {
-				$query_where = $sec_query_operator.$attr['name'].' LIKE "'.$db->escape_string($core->input['filters'][$filteritem]).'%"';
-			}
-		}
 		else {
 			/* Check if user using seperator to filter multiple values of same attribute */
+			$like_prefix = '%';
+			if($attr['operatorType'] === 'startswith') {
+				$like_prefix = '';
+			}
 			if(strstr($core->input['filters'][$filteritem], ';')) {
 				$multiple_items = explode(';', $core->input['filters'][$filteritem]);
 				foreach($multiple_items as $value) {
-					$query_where .= $query_where_operator.$sec_query_operator.$attr['name'].' LIKE "%'.$db->escape_string($value).'%"';
+					$query_where .= $query_where_operator.$sec_query_operator.$attr['name'].' LIKE "'.$like_prefix.$db->escape_string($value).'%"';
 					$query_where_operator = ' OR ';
 				}
 
 				$query_where = '('.$query_where.')';
 			}
 			else {
-				$query_where = $sec_query_operator.$attr['name'].' LIKE "%'.$db->escape_string($core->input['filters'][$filteritem]).'%"';
+				$query_where = $sec_query_operator.$attr['name'].' LIKE "'.$like_prefix.$db->escape_string($core->input['filters'][$filteritem]).'%"';
 			}
 		}
 

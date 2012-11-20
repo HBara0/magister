@@ -226,16 +226,18 @@ if(!$core->input['action']) {
 		);
 
 		$productlines_query = $db->query("SELECT ps.psid, title FROM ".Tprefix."productsegments ps JOIN ".Tprefix."employeessegments es ON (es.psid=ps.psid) WHERE es.uid={$core->user[uid]}");
-		while($productline = $db->fetch_assoc($productlines_query)) {
-			$productlines[$productline['psid']] = $productline['title'];
+		if($db->num_rows($productlines_query) > 0) {
+			while($productline = $db->fetch_assoc($productlines_query)) {
+				$productlines[$productline['psid']] = $productline['title'];
+			}
 		}
-		if (!isset($productlines)) {
-			error("No Product Line / Segment assigned.");
-		} else {
-			$productline_list = parse_selectlist('productLine[]', 3, $productlines, $productLine_selected, 1);
+		else
+		{
+			error($lang->notassignedtosegments);
 		}
 
-
+		$productline_list = parse_selectlist('productLine[]', 3, $productlines, $productLine_selected, 1);
+	
 		/* Parse draft reports select list - START */
 		$query = $db->query('SELECT vr.identifier, vr.date, companyName AS customerName 
 				FROM '.Tprefix.'visitreports vr 
