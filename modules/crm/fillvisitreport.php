@@ -234,7 +234,21 @@ if(!$core->input['action']) {
 		}
 		$productline_list = parse_selectlist('productLine[]', 3, $productlines, $productLine_selected, 1);
 
-		//$headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
+		/* Parse draft reports select list - START */
+		$query = $db->query('SELECT vr.identifier, vr.date, companyName AS customerName 
+				FROM '.Tprefix.'visitreports vr 
+				JOIN '.Tprefix.'entities c ON (c.eid=vr.cid) 
+				WHERE uid='.intval($core->user['uid']).' AND isDraft=1 
+				ORDER BY date ASC');
+
+		if($db->num_rows($query) > 0) {
+			$draftreports[0] = '';
+			while($draftreport = $db->fetch_assoc($query)) {
+				$draftreports[$draftreport['identifier']] = $draftreport['customerName'].' - '.date($core->settings['dateformat'], $draftreport['date']);
+			}
+			$draftreports_selectlist = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>'.$lang->continuefilling.': '.parse_selectlist('identifier', 1, $draftreports, '', 0, 'goToURL("index.php?module=crm/fillvisitreport&amp;identifier="+$(this).val())').'</p></div>';		
+		}
+		/* Parse draft reports select list - END */
 		eval("\$fillreportpage = \"".$template->get('crm_fillvisitreport')."\";");
 	}
 
