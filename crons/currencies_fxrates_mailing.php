@@ -6,6 +6,7 @@
 
 require '../inc/init.php';
 
+
 if($_REQUEST["authkey"] == 'currencyflip_only_if_you_know_why_you_re_calling_this') {
 $currencies = array(
 	422=>422,
@@ -37,7 +38,6 @@ if($_REQUEST["authkey"] == 'asfasdkj%2j!h4k23jh4k2_3h4k23jh') {
 	$from = mktime(0, 0, 0, date("m", strtotime("last month")), 1, date("Y", strtotime("last month")));
 	$to = mktime(23, 59, 59, date("m", strtotime("last month")), date("t", strtotime("last month")), date("Y", strtotime("last month")));
 
-
 	if($db->num_rows($res) > 0) {
 		while($row = $db->fetch_assoc($res)) {
 			$fm[$row["uid"]]["firstname"] = $row["firstName"];
@@ -55,9 +55,9 @@ if($_REQUEST["authkey"] == 'asfasdkj%2j!h4k23jh4k2_3h4k23jh') {
 					//echo date("d-m-Y",strtotime("first day of last month"))."<hr>";
 					$rate = $currency_obj->get_lastmonth_fxrate($row2["alphaCode"], array("year" => date("Y", mktime()), "month" => date("m", mktime())));
 					$rate2 = $currency_obj->get_average_fxrate($row2["alphaCode"], array("from"=>$from,"to"=>$to));
-					$text = ' ->  1 [USD] = '.number_format($rate, 6).' ['.$row2["alphaCode"]."] last:".number_format($rate2, 6)."\n";
+					$text = ' ->  1 [USD] = '.str_pad(number_format($rate, 6,".",""),11," ",STR_PAD_LEFT).' ['.$row2["alphaCode"]."] last: ".str_pad(number_format($rate2, 6,".",""),11," ",STR_PAD_LEFT)."\n";
 					$fm[$row["uid"]]["data"][$row2["alphaCode"]] = $text;
-					echo str_pad($rate, 6, 0 , STR_PAD_RIGHT)."<br>";
+
 				}
 			}
 		}
@@ -69,12 +69,12 @@ if($_REQUEST["authkey"] == 'asfasdkj%2j!h4k23jh4k2_3h4k23jh') {
 		$data["email"];
 		$subject = "Orkila forex mailer ".$data["when"];
 		$text = "\nDear ".$data["firstname"]." ".$data["lastname"].",\n\n";
-		$text .="Please find below the average USD exchange rates for the past month of ".$data["when"].":\n";
-		$text .= " ->  1 [USD] = ".number_format($data["euro"]["average"], 6)." [EUR] last:".number_format($data["euro"]["last"],6)."\n";
+		$text .="Please find below the average USD exchange rates for the past month of ".$data["when"].":\n\n";
+		$text .= " ->  1 [USD] = ".str_pad(number_format($data["euro"]["average"], 6,".",""),11," ",STR_PAD_LEFT)." [EUR] last: ".str_pad(number_format($data["euro"]["last"],6,".",""),11," ",STR_PAD_LEFT)."\n";
 		foreach($data["data"] as $curcode => $mail) {
 			$text.=$mail;
 		}
-		//echo '<pre>'.$subject."\n".$data["email"]."\n".$text."</pre><hr>";
+		echo '<pre>'.$subject."\n".$data["email"]."\n".$text."</pre><hr>";
 		send_mail($data["email"], $text, $subject);
 	}
 }
@@ -83,16 +83,6 @@ else {
 }
 function send_mail($recipient, $content, $subject) {
 	global $log;
-	/*
-	  $header = $headers = "From: reporting@orkila.com\r\nReply-To: reporting@orkila.com\r\nX-Mailer: PHP/".phpversion();
-	  if(mail($recipient, $subject, $content, $headers)) {
-	  return "Message successfully sent!";
-	  }
-	  else {
-	  return "Message delivery failed...";
-	  }
-	 */
-
 	$email_data = array(
 			'to' => $recipient,
 			'from_email' => $core->settings['maileremail'],
