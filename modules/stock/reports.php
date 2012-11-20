@@ -208,10 +208,10 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 		$pid_autocomplete = substr($pid_autocomplete, 0, strlen($pid_autocomplete) - 1);
 		$filters_config = array(
 				'parse' => array(
-							'filters' => array('pid', 'spid', 'affid', 'date', 'amount'),
+							'filters' => array('product', 'spid', 'affid', 'date', 'amount'),
 							'overwriteField' => array(
 								'spid' =>parse_selectlist('filters[spid][]', 2, $named_suppliers, $core->input['filters']['spid'], 1, '', array('multiplesize' => 3, 'id' => 'spid')),
-								'pid' => '<input id="pid_QSearch" type="text" title="" autocomplete="off" value="" tabindex="1" name="filters[pid]"/><div id="searchQuickResults_pid_pid" class="searchQuickResults" style="display:none;"></div>',
+								'product' => '<input id="product_QSearch" type="text" title="" autocomplete="off" value="" tabindex="1" name="filters[product]"/><div id="searchQuickResults_product_product" class="searchQuickResults" style="display:none;"></div>',
 							),
 						),
 				'process' => array(
@@ -225,7 +225,7 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 										'keyAttr' => 'pid',
 										'joinKeyAttr' => 'pid',
 										'joinWith' => 'integration_mediation_stockpurchases',
-										'filters' => array('pid' => array('operatorType' => 'startswith', 'name' => 'products.name')),
+										'filters' => array('product' => array('operatorType' => 'startswith', 'name' => 'products.name')),
 								),
 						),
 				),
@@ -294,17 +294,6 @@ else {
 eval("\$report_template = \"".$template->get('stock_purchasereport')."\";");
 output_page($report_template);
 //</editor-fold>
-
-function send_mail($recipient, $content, $subject) {
-	$header = $headers = "From: reporting@orkila.com\r\nReply-To: reporting@orkila.com\r\nX-Mailer: PHP/".phpversion();
-	if(mail($recipient, $subject, $content, $headers)) {
-		echo("<p>Message successfully sent!</p>");
-	}
-	else {
-		echo("<p>Message delivery failed...</p>");
-	}
-	die();
-}
 
 function convert_to_dollars($rawdata, $mode) {
 	log_performance(__METHOD__);
@@ -1437,11 +1426,12 @@ function email_report($afid, $query) {
 	return $return;
 }
 
+/* moved to functions
 function get_affiliate_gm_email($affid) {
 	global $db;
 	return $db->fetch_field($db->query('SELECT '.Tprefix.'users.email FROM '.Tprefix.'affiliates INNER JOIN '.Tprefix.'users ON '.Tprefix.'affiliates.generalManager='.Tprefix.'users.uid  WHERE '.Tprefix.'affiliates.affid="'.$affid.'"'), 'email');
 }
-
+*/
 function assemble_filter_query($core, $db) {
 	log_performance(__METHOD__);
 
@@ -2032,6 +2022,24 @@ function weak_decrypt($string, $key) {
 	}
 	return $result;
 }
+
+function get_affiliate_gm_email($affid) {
+	global $db;
+	return $db->fetch_field($db->query('SELECT '.Tprefix.'users.email FROM '.Tprefix.'affiliates INNER JOIN '.Tprefix.'users ON '.Tprefix.'affiliates.generalManager='.Tprefix.'users.uid  WHERE '.Tprefix.'affiliates.affid="'.$affid.'"'), 'email');
+}
+
+function send_mail($recipient, $content, $subject) {
+	global $core;
+	$header = $headers = "From: ".$core->settings['maileremail']."\r\nReply-To: ".$core->settings['maileremail']."\r\nX-Mailer: PHP/".phpversion();
+	if(mail($recipient, $subject, $content, $headers)) {
+		echo("<p>Message successfully sent.</p>");
+	}
+	else {
+		echo("<p>Message delivery failed...</p>");
+	}
+	die();
+}
+
 
 // <editor-fold defaultstate="collapsed" desc="functions used to randomly populate the purchases table">
 function random_fill_for_testing($howmany) {
