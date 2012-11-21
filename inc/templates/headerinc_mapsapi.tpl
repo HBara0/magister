@@ -2,12 +2,10 @@
 <script type="text/javascript">
 $(document).ready(function() {
 	var places = new Array();
-	{$places_script}
 	var map;
+	{$places_script}
 		
-	initialize();
-	
-	function initialize() {
+	function mapInitialize(overlayType) {
 		var myOptions = {
 			center: new google.maps.LatLng({$this->options[mapcenter]}),
 			zoom: 2,
@@ -17,9 +15,10 @@ $(document).ready(function() {
 		map = new google.maps.Map(document.getElementById("{$this->options[canvas_name]}"), myOptions);
 		infoWindow = new google.maps.InfoWindow();
 		
-		google.maps.event.addListenerOnce(map, 'tilesloaded', parseMarkers);
-		
-		
+		if(overlayType == '') {
+			overlayType = parseMarkers;	
+		}
+		google.maps.event.addListenerOnce(map, 'tilesloaded', overlayType);
 	}
 	
 	function createMarker(map, place) {
@@ -29,15 +28,43 @@ $(document).ready(function() {
 					title: place.title
 		});
 		
-		google.maps.event.addListener(marker, 'click', function() {
-			infoWindow.setContent('<div align="left"><a href="'+ place.link +'" target="_blank"><strong>'+ place.title +'</strong></a><br />' + place.otherinfo + '</div>');
-			infoWindow.open(map, marker);
-		});
+		if(place.hasInfoWindow == 1) {
+			google.maps.event.addListener(marker, 'click', function() {
+				infoWindow.setContent('<div align="left"><a href="'+ place.link +'" target="_blank"><strong>'+ place.title +'</strong></a><br />' + place.otherinfo + '</div>');
+				infoWindow.open(map, marker);
+			});
+		}
 	}
 	
 	function parseMarkers() {
 		for(var i=0;i<places.length; i++) {
 			createMarker(map, places[i]);
+		}
+	}
+	
+	function createPolyline(map, place, poly) {
+		var position = new google.maps.LatLng(place.lat, place.lng);
+		
+		var path = poly.getPath();
+ 		path.push(position);
+		
+		
+		place.title = path.getLength().toString();
+		createMarker(map, place);
+	}
+	
+	function parsePolylines() {
+		var polyOptions = {
+			strokeColor: '#993300',
+			strokeOpacity: 0.5,
+			strokeWeight: 3
+		}
+		
+		var poly = new google.maps.Polyline(polyOptions);
+		poly.setMap(map);
+		
+		for(var i=0;i<places.length; i++) {
+			createPolyline(map, places[i], poly);
 		}
 	}
 	
