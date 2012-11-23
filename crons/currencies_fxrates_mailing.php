@@ -19,13 +19,21 @@ if($_REQUEST['authkey'] == 'asfasdkj%2j!h4k23jh4k2_3h4k23jh') {
 			'subject' => 'FX Rates for '.date('F Y', strtotime('last month'))
 	);
 
+	$query = $db->query('SELECT finManager FROM '.Tprefix.'affiliates');
 
-	$query = $db->query('SELECT aff.affid as maffid,a.affid,maff.name,u.uid, aff.name as mname, displayName, u.email
-				FROM '.Tprefix.'affiliates aff
-				INNER JOIN '.Tprefix.'users u ON (aff.finManager = u.uid)
-				INNER JOIN '.Tprefix.'affiliatedemployees a ON (a.uid = u.uid)
-				INNER JOIN '.Tprefix.'affiliates maff ON (maff.affid = a.affid)
-				');
+	$users_list = array();
+	// get finmanagers
+	if($db->num_rows($query) > 0) {
+		while($finmanager = $db->fetch_assoc($query)) {
+			$users_list[$finmanager['finManager']] = $finmanager['finManager'];
+		}
+	}
+
+	$query = $db->query('SELECT u.uid,displayName,email,name,a.affid
+				FROM '.Tprefix.'affiliatedemployees a
+				INNER JOIN '.Tprefix.'users u ON (a.uid = u.uid)
+				INNER JOIN '.Tprefix.'affiliates aff ON (aff.affid = a.affid)
+				WHERE u.uid IN ('.implode($users_list, ',').')');
 
 	// get finmanagers
 	if($db->num_rows($query) > 0) {
@@ -35,9 +43,10 @@ if($_REQUEST['authkey'] == 'asfasdkj%2j!h4k23jh4k2_3h4k23jh') {
 				$finmanagers[$finmanager['uid']]['email'] = $finmanager["email"];
 			}
 			$finmanagers[$finmanager['uid']]['affiliates'][$finmanager['affid']] = $finmanager['name'];
-			$finmanagers[$finmanager['uid']]['affiliates'][$finmanager['maffid']] = $finmanager['mname'];
 		}
 	}
+
+
 
 	// get affiliates currencies
 	$affiliatecurrenciesquery = $db->query('SELECT affid,cur.alphaCode, cur.name
@@ -60,25 +69,43 @@ if($_REQUEST['authkey'] == 'asfasdkj%2j!h4k23jh4k2_3h4k23jh') {
 
 	foreach($finmanagers as $uid => $user) {
 		$email_data['to'] = $user['email'];
-		$email_data['message'] = 'Dear '.$user['name'].',<br/>'."\n";
-		$email_data['message'] .= 'Please find below the average USD exchange rates for the past month:<br />'."\n";
 
+		/*
+		  if($mailformat == "html") {
+		  $email_data['message'] = 'Dear '.$user['name'].',<br/>';
+		  $email_data['message'] .= 'Please find below the average USD exchange rates for the past month:<br/>';
+		  foreach($user["affiliates"] as $affid => $name) {
+		  foreach($affiliates_currencies[$affid] as $code => $cname) {
+		  $user["currencies"][$code] = $fxrates[$code];
+		  }
+		  }
+		  $email_data['message'] .= '<ul><li>[EUR] Avg: '. formatit($fxrates['EUR']['average']).'   Last: '.formatit($fxrates['EUR']['latest']) .'</li>';
+		  foreach($user['currencies'] as $alphacode => $rates) {
+		  $email_data['message'] .= '<li>['.$alphacode.'] Avg: '.formatit($rates['average']).'   Last: '.formatit($rates['latest']).'</li>';
+		  }
+		  $email_data['message'] .= '<br>Best Regards,<br>Signature</ul>';
+		  //echo $email_data['message'];
+		  } else { */
+		$email_data['message'] = '<hr><pre>Dear '.$user['name'].",\n\n";
+		$email_data['message'] .= "Please find below the average USD exchange rates for the past month\n\n";
 		foreach($user["affiliates"] as $affid => $name) {
 			foreach($affiliates_currencies[$affid] as $code => $cname) {
 				$user["currencies"][$code] = $fxrates[$code];
 			}
 		}
-
-		$email_data['message'] .= '<ul><li>EUR Avg: '.formatit($fxrates['EUR']['average']).' Last: '.formatit($fxrates['EUR']['latest']).'</li>'."\n";
+		$email_data['message'] .= '[EUR] Avg: '.formatit($fxrates['EUR']['average']).'   Last: '.formatit($fxrates['EUR']['latest'])."\n";
 		foreach($user['currencies'] as $alphacode => $rates) {
-			$email_data['message'] .= '<li>'.$alphacode.' Avg: '.formatit($rates['average']).' Last: '.formatit($rates['latest']).'</li>'."\n";
+			$email_data['message'] .= '['.$alphacode.'] Avg: '.formatit($rates['average']).'   Last: '.formatit($rates['latest'])."\n";
 		}
+		$email_data['message'].="\nBest Regards,\nSignature</pre>";
+		//echo $email_data['message'];
+		//}
 
 
-		$email_data['message'] .= '</ul>';
+
 		$mail = new Mailer($email_data, 'php');
 		if($mail->get_status() == true) {
-			$log->record($user['name'],"Success");
+			$log->record($user['name'], "Success");
 			echo 'Sent to '.$user['name']."<Br>";
 		}
 		else {
@@ -91,9 +118,13 @@ else {
 	die('Unauthorized Access');
 }
 echo 'Done';
-
 function formatit($number) {
-	return str_pad(number_format($number, 6, ".", ""), 11, " ", STR_PAD_LEFT);
+	if(isset($number)) {
+		return str_pad(round(number_format($number, 6, ".", ""), 6), 11, " ", STR_PAD_LEFT);
+	}
+	else {
+		return str_pad('-NA-', 11, " ", STR_PAD_LEFT);
+	}
 }
 
 ?>
