@@ -153,7 +153,7 @@ class Sourcing {
 		global $core, $db;
 		if(is_empty($data['chemical'], $data['application'], $data['affid'], $data['origin'])) {
 			$this->status = 1;
-			//return false;
+			return false;
 		}
 	
 		if(empty($supplier_id)) {
