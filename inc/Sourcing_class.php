@@ -6,7 +6,7 @@
  * Sourcing Class
  * $id: Sourcing_class.php
  * Created:			@tony.assaad	October 15, 2012 | 10:53 PM
- * Last Update:      @tony.assaad	November 19, 2012 | 17:06 PM
+ * Last Update:     @tony.assaad	November 22, 2012 | 1:06 PM
  */
 
 class Sourcing {
@@ -142,7 +142,7 @@ class Sourcing {
 
 	public function contact_supplier($id = '') {
 		global $core, $db;
-		echo 'gsfa';
+
 		if(empty($id)) {
 			$id = $this->supplier['ssid'];
 		}
@@ -153,19 +153,25 @@ class Sourcing {
 		global $core, $db;
 		if(is_empty($data['chemical'], $data['application'], $data['affid'], $data['origin'])) {
 			$this->status = 1;
-			return false;
+			//return false;
 		}
-
+	
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 		}
-
+		unset($data['orderpassed']);
 		$this->communication_entriesexist = 'false';
 		$data['date'] = strtotime($data['date']);
 		$this->communication_report = $data;
-		//$supplier_id = $data['supplier_id'];
 		$this->communication_report['uid'] = $core->user['uid'];
-		$this->communication_report['description'] = $core->sanitize_inputs($this->communication_report['description'], array('removetags' => true));
+		$date_tostrtime = array('customerDocumentDate','receivedQuantityDate','providedDocumentsDate','customerAnswerDate','provisionDate','offerDate','OfferAnswerDate');
+			foreach($date_tostrtime as $converteddate){
+				$this->communication_report[$converteddate] = strtotime($this->communication_report[$converteddate]);
+			}
+		$filter_inputs = array('customerDocument','requestedQuantity','requestedDocuments','receivedQuantity','receivedDocuments','providedQuantity','providedDocuments','customerAnswer','industrialQuantity','trialResult','offerMade','customerOfferAnswer','sourcingnotPossibleDesc','description');
+		foreach($filter_inputs as $sanitizedinput ){
+			$this->communication_report[$sanitizedinput] = $core->sanitize_inputs($this->communication_report[$sanitizedinput] , array('removetags' => true));
+		}
 		if(!empty($this->communication_report['description']) && !empty($this->communication_report['chemical']) && !empty($this->communication_report['appplication']) && !empty($this->communication_report['date']) && !empty($this->communication_report['market'])) {
 			$this->communication_entriesexist = 'true';
 		}
