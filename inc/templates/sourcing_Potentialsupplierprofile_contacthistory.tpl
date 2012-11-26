@@ -20,4 +20,4 @@
        
         <div style="padding: 10px;"></hr>{$lang->description}{$contact_history[description]}</div>
     </div>
-</div>
+</div>  
