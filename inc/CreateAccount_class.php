@@ -76,7 +76,7 @@ class CreateAccount extends Accounts {
 			}*/
 			
 			if(!empty($data['telephone_intcode']) || !empty($data['telephone_areacode']) || !empty($data['telephone_number'])) {
-				$data['phone1'] = $data['telephone_intcode']."-".$data['telephone_areacode']."-".$data['telephone_number'];
+				$data['telephone1'] = $data['telephone_intcode']."-".$data['telephone_areacode']."-".$data['telephone_number'];
 			}
 			
 			/*if(empty($data['telephone_number']) || empty($data['telephone_areacode']) || empty($data['telephone_intcode'])) {
@@ -85,7 +85,7 @@ class CreateAccount extends Accounts {
 			}*/
 			
 			if(!empty($data['telephone2_intcode']) || !empty($data['telephone2_areacode']) || !empty($data['telephone2_number'])) {
-				$data['phone2'] = $data['telephone2_intcode'].'-'.$data['telephone2_areacode'].'-'.$data['telephone2_number'];
+				$data['telephone2'] = $data['telephone2_intcode'].'-'.$data['telephone2_areacode'].'-'.$data['telephone2_number'];
 			}
 			
 			unset($data['telephone_intcode'], $data['telephone2_intcode'], $data['telephone_areacode'], $data['telephone2_areacode'], $data['telephone_number'], $data['telephone2_number']);
