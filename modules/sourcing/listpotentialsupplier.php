@@ -25,7 +25,6 @@ if(!$core->input['action']) {
 	$maxstars = 5;
 	$readonlyratings = true;
 	$sort_url = sort_url();
-
 	$opportunity_scale = range(0, 5);
 	array_unshift($opportunity_scale, ''); /* Prepend empty elements to the beginning */
 
@@ -46,7 +45,7 @@ if(!$core->input['action']) {
 									'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
 							),
 							'sourcing_suppliers_chemicals' => array(
-									'filters' => array('chemicalsubstance' => array('operatorType' => 'multiple', 'csid' => 'csid')),
+									'filters' => array('chemicalsubstance' => array('operatorType' => 'multiple', 'name' => 'csid')),
 							),
 							'sourcing_suppliers_activityareas' => array(
 									'filters' => array('country' => 'name'),
@@ -65,8 +64,6 @@ if(!$core->input['action']) {
 	while($chemicals = $db->fetch_assoc($chemicals_query)) {
 		$chemical_list_search.='<option value='.$chemicals['csid'].'>'.$chemicals['casNum'].'-'.$chemicals['name'].'</option>';
 	}
-
-
 
 	$filters_row_display = 'hide';
 	if(is_array($filter_where_values)) {
@@ -113,7 +110,6 @@ if(!$core->input['action']) {
 					$potential_supplier['activityarea'] = implode(',', $area);
 				}
 			}
-
 
 			$rowclass = alt_row($rowclass);
 			$criteriaandstars = '<div class="evaluation_criterium" name="'.$potential_supplier['supplier']['ssid'].'">';

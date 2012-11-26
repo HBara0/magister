@@ -56,15 +56,15 @@ class Sourcing {
 		if(!empty($this->supplier['phone1'])) {
 			$this->supplier['phone1'] = implode('-', $this->supplier['phone1']);
 		}
-		
+
 		if(!empty($this->supplier['phone2'])) {
 			$this->supplier['phone2'] = implode('-', $this->supplier['phone2']);
 		}
-		
+
 		if(!empty($this->supplier['fax'])) {
 			$this->supplier['fax'] = implode('-', $this->supplier['fax']);
 		}
-		
+
 		if($options['operationtype'] == 'update') {
 			$this->supplier['dateModified'] = TIME_NOW;
 			$this->supplier['modifiedBy'] = $core->user['uid'];
@@ -155,12 +155,11 @@ class Sourcing {
 
 	public function contact_supplier($supplier_id = '') {
 		global $core, $db;
-		
+
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 		}
-		else
-		{
+		else {
 			if(!$this->validate_segment_permission($supplier_id)) {
 				return false;
 			}
@@ -170,7 +169,6 @@ class Sourcing {
 
 	public function save_communication_report($data, $supplier_id = '') {
 		global $core, $db;
-		
 		if(is_empty($data['chemical'], $data['application'], $data['affid'], $data['origin'])) {
 			$this->status = 1;
 			return false;
@@ -179,13 +177,19 @@ class Sourcing {
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 		}
-
+		unset($data['orderpassed']);
 		$this->communication_entriesexist = 'false';
 		$data['date'] = strtotime($data['date']);
 		$this->communication_report = $data;
-		//$supplier_id = $data['supplier_id'];
 		$this->communication_report['uid'] = $core->user['uid'];
-		$this->communication_report['description'] = $core->sanitize_inputs($this->communication_report['description'], array('removetags' => true));
+		$date_tostrtime = array('customerDocumentDate', 'receivedQuantityDate', 'providedDocumentsDate', 'customerAnswerDate', 'provisionDate', 'offerDate', 'OfferAnswerDate');
+		foreach($date_tostrtime as $converteddate) {
+			$this->communication_report[$converteddate] = strtotime($this->communication_report[$converteddate]);
+		}
+		$filter_inputs = array('customerDocument', 'requestedQuantity', 'requestedDocuments', 'receivedQuantity', 'receivedDocuments', 'providedQuantity', 'providedDocuments', 'customerAnswer', 'industrialQuantity', 'trialResult', 'offerMade', 'customerOfferAnswer', 'sourcingnotPossibleDesc', 'description');
+		foreach($filter_inputs as $sanitizedinput) {
+			$this->communication_report[$sanitizedinput] = $core->sanitize_inputs($this->communication_report[$sanitizedinput], array('removetags' => true));
+		}
 		if(!empty($this->communication_report['description']) && !empty($this->communication_report['chemical']) && !empty($this->communication_report['appplication']) && !empty($this->communication_report['date']) && !empty($this->communication_report['market'])) {
 			$this->communication_entriesexist = 'true';
 		}
@@ -388,7 +392,7 @@ class Sourcing {
 				$chemicalsubstances[$chemicalsubstance['csid']] = $chemicalsubstance;
 			}
 			$db->free_result($chemicalsubstances_query);
-			
+
 			return $chemicalsubstances;
 		}
 		return false;
@@ -442,8 +446,7 @@ class Sourcing {
 				return false;
 			}
 		}
-		else
-		{
+		else {
 			return true;
 		}
 		/* If user is not a sourcing agent, check his/her segements - END */
@@ -452,17 +455,17 @@ class Sourcing {
 
 	public function request_chemical($data) {
 		global $db, $core;
-		
+
 		if(is_empty($data['product'], $data['requestDescription'])) {
 			$this->status = 1;
 			return false;
 		}
-		
+
 		if(value_exists('sourcing_chemicalrequests', 'requestDescription', $data['requestDescription'])) {
 			$this->status = 2;
 			return false;
 		}
-		
+
 		if(is_array($data)) {
 			$chemicalrequest_data = array(
 					'csid' => $data['product'],
@@ -494,11 +497,11 @@ class Sourcing {
 		if(isset($core->input['start'])) {
 			$limit_start = $db->escape_string($core->input['start']);
 		}
-		
+
 		if($core->usergroup['sourcing_canManageEntries'] == 0) { /* Users shouldn't be able to see requests by other users. Sourcing agents can see all requests. */
 			$see_otherusers = "	WHERE scr.uid={$core->user['uid']}";
 		}
-		
+
 		$chemicalrequests_query = $db->query("SELECT scr.*, u.displayName ,cs.name
 										FROM ".Tprefix."sourcing_chemicalrequests scr
 										JOIN ".Tprefix."users u ON (u.uid = scr.uid)

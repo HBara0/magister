@@ -25,8 +25,8 @@ else {
 if(value_exists('sourcing_suppliers', 'ssid', $supplier_id, ' isBlacklisted=1')) { /* if supplier isBlacklisted */
 	redirect(DOMAIN."/index.php?module=sourcing/listpotentialsupplier");
 }
-if(!value_exists('sourcing_suppliers', 'ssid', $supplier_id)) { /* if we no supplier id exist in the database */
-	error("id faulttt", 'index.php?module=sourcing/listpotentialsupplier');
+if(!value_exists('sourcing_suppliers', 'ssid', $supplier_id)) { /* if no supplier id exist in the database */
+	//error("id faulttt", 'index.php?module=sourcing/listpotentialsupplier');
 }
 $potential_supplier = new Sourcing($supplier_id);
 if(!$core->input['action']) {
@@ -36,8 +36,9 @@ if(!$core->input['action']) {
 	$supplier_contact = $potential_supplier->get_supplier_contact_persons();
 	$supplier_activity_area = $potential_supplier->get_supplier_activity_area();
 	$chemical_substances = $potential_supplier->get_chemicalsubstances();
-	$segment_data = '<ul>';
+
 	if(is_array($segments_suppliers)) {
+		$segment_data = '<ul>';
 		foreach($segments_suppliers as $segments_supplier) {
 			$segment_data .='<li>'.$segments_supplier.'</li>';
 		}
@@ -48,8 +49,9 @@ if(!$core->input['action']) {
 			$contact_person_data .= '</br><span id="contactpersondata_'.$contact_person['rpid'].'">'.$contact_person['name'].'</span>';
 		}
 	}
-	$activity_area_data = '<ul>';
+
 	if(is_array($supplier_activity_area)) { //print_r($supplier_activity_area);
+		$activity_area_data = '<ul>';
 		$langactivityarea = $lang->activityarea;
 		foreach($supplier_activity_area as $activity_area) {
 			$activity_area_data .='<li>'.$activity_area['country'].'-'.$activity_area['affiliate'].'</li>';
@@ -101,7 +103,8 @@ if(!$core->input['action']) {
 	$potential_supplier_details['fulladress'] = $potential_supplier_details['addressLine1'].','.$potential_supplier_details['addressLine2'];
 
 	/* When user has not initiated a contact -START */
-	if(!value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid'])) {
+
+	if(!value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid']) || ($core->usergroup['sourcing_canManageEntries'] == 0)) {
 		$hashed_attributes = array('fulladress' => $potential_supplier_details['fulladress'], 'poBox' => $potential_supplier_details['poBox'], 'fax' => $potential_supplier_details['fax'], 'mainEmail' => $potential_supplier_details['mainEmail'], 'website' => $potential_supplier_details['website'], 'contact' => $contact_person['name']);
 		foreach($hashed_attributes as $key => $hashedvalue) {
 			$potential_supplier_details[$key] = md5($potential_supplier_details[$key]);
@@ -126,7 +129,9 @@ if(!$core->input['action']) {
 		$affiliates_list = parse_selectlist("contacthst[affid]", 1, $affiliates, $core->user['mainaffiliate'], 0);
 		$countries = get_specificdata('countries', array('coid', 'name'), 'coid', 'name', '');
 		$countries_list = parse_selectlist('contacthst[origin]', 8, $countries, '');
-		$product_segmentlist = parse_selectlist('contacthst[market]', 9, $segments_suppliers, ''); /* product segments (that the current supplier(loaded from the object) works in) */
+		if(is_array($segments_suppliers)) {
+			$product_segmentlist = parse_selectlist('contacthst[market]', 9, $segments_suppliers, ''); /* product segments (that the current supplier(loaded from the object) works in) */
+		}
 		$supplierid = $core->input['supplierid'];
 		$newsupplierid = $core->input['id'];
 		eval("\$sourcing_Potentialsupplierprofile_reportcommunication = \"".$template->get('sourcing_Potentialsupplierprofile_reportcommunication')."\";");
@@ -161,6 +166,10 @@ else {
 		$newsupplierid = $db->escape_string($core->input['contacthst']['ssid']);
 		//$potential_supplier = new Sourcing($core->input['id']);
 		/* system should check if user has  previous contactshistory */
+		if(isset($core->input['contacthst']['orderpassed'])){
+			echo'orderr';
+			exit;
+		}
 		if(value_exists('sourcing_suppliers_contacthist', 'ssid', $newsupplierid, 'uid='.$core->user['uid'])) {
 			$potential_supplier->save_communication_report($core->input['contacthst'], $newsupplierid);
 		}
@@ -184,4 +193,4 @@ else {
 	<div style="display:inline-block;width:180px;">'.$supplier_contact['name'].'<br><strong>'.$lang->email.'</strong>  <a href="mailto:'.$supplier_contact['email'].'">'.$supplier_contact['email'].'</a><br>'.'<strong>'.$lang->phone.'</strong> '.$supplier_contact['phone'].'<br>'.'<strong>'.$lang->positon.'</strong><br>'.'<strong>'.$contact_personposition.'</strong></div></div>';
 	}
 }
-?>
+?> 
