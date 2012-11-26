@@ -26,7 +26,6 @@ if(!$core->input['action']) {
 	if(is_array($chemicalrequests)) {
 		foreach($chemicalrequests as $chemicalrequest) {
 
-
 			/* colorate Satisfied request */
 			if($chemicalrequest['isclosed'] == 1) {
 				$feedback_link = '<a href="#"  rel="'.$chemicalrequest['scrid'].'" id="readfeedback_'.$chemicalrequest['scrid'].'_sourcing/listchemcialsrequests_loadpopupbyid">'.$chemicalrequest['displayName'].'</a>';
@@ -51,8 +50,6 @@ else {
 		eval("\$sourcingfeedback = \"".$template->get('popup_sourcing_feedback')."\";");
 		output_page($sourcingfeedback);
 	}
-
-
 	elseif($core->input['action'] == 'get_readfeedback') {
 		$request_id = $core->input['id'];
 		$potential_supplier = new Sourcing();
@@ -66,18 +63,17 @@ else {
 		$potential_supplier = new Sourcing();
 		$request_id = $core->input['request']['rid'];
 		$requests_feedback = $potential_supplier->set_feedback($core->input['feedback'], $request_id);
-			switch($potential_supplier->get_status()) {
+		switch($potential_supplier->get_status()) {
 			case 0:
 				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
 				break;
-				case 1:
+			case 1:
 				output_xml("<status>false</status><message>{$lang->fieldrequired}</message>");
 				break;
 			case 2:
 				output_xml("<status>false</status><message>{$lang->feedbackexsist}</message>");
 				break;
-			
-			}
+		}
 		$requester_detials = $db->fetch_assoc($db->query("SELECT scr.*,u.displayName,u.email
 										FROM ".Tprefix."sourcing_chemicalrequests scr
 										JOIN ".Tprefix."users u ON (u.uid = scr.uid) WHERE scr.scrid=".$request_id));
