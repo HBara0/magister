@@ -467,7 +467,7 @@ function get_specificdata($table, $attributes, $key_attribute, $value_attribute,
 			if($key_attribute == '0') {
 				$result[$key_attribute] = 0;
 			}
-			$data[$result[$key_attribute]] = $result[$value_attribute]; 
+			$data[$result[$key_attribute]] = $result[$value_attribute];
 		}
 		return $data;
 	}
@@ -1193,9 +1193,9 @@ function alt_row($class) {
 function sort_url() {
 	$sort_url = $_SERVER['REQUEST_URI'];
 
-	if(preg_match("/\&sortby=[a-z]+/i", $sort_url)) {
-		$sort_url = preg_replace("/\&sortby=[a-z]+/i", '', $sort_url);
-		$sort_url = preg_replace("/\&order=[a-z]+/i", '', $sort_url);
+	if(preg_match("/\&sortby=[a-z.]+/i", $sort_url)) {
+		$sort_url = preg_replace("/\&sortby=[a-z.]+/i", '', $sort_url);
+		$sort_url = preg_replace("/\&order=[a-z.]+/i", '', $sort_url);
 	}
 
 	return $sort_url;

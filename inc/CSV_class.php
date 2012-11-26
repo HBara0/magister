@@ -37,7 +37,7 @@ class CSV {
 			$this->filename = $data;
 			if($this->checkfile() === false) {
 				$this->status = 1;
-				exit;
+				return false;
 			}
 		}
 		else {
@@ -68,7 +68,7 @@ class CSV {
 	public function readdata_string(array $filter = array(), $terminator = "\n") {
 		if(empty($this->raw_data)) {
 			$this->status = 3;
-			exit;
+			return false;
 		}
 
 		$data_source = explode($terminator, $this->raw_data);

@@ -2,11 +2,11 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Filtering/Inline Search Class
  * $id: Filter_class.php
- * Created: 	@zaher.reda		October 11, 2012 | 10:03 AM		
- * Last Update: @zaher.reda 	October 11, 2012 | 10:03 AM	
+ * Created: 	@zaher.reda		October 11, 2012 | 10:03 AM
+ * Last Update: @zaher.reda 	October 11, 2012 | 10:03 AM
  */
 
 class Inlinefilters {
@@ -24,7 +24,7 @@ class Inlinefilters {
 				'name' => 'tablename', // Table name
 				// Below are the filters that are applicable to this main table. The index of the array is the filter name, and the value is the attribute name. Attribute name can have prefixes
 				// The value can optionally be an array for more complex filter; where 'operatorType' specifies the operator of the logical operation, and 'name' specified the attribute name
-				// 'operatorType' can be 'multiple' to use IN, 'between' to use BETWEEN, and nothing or 'single' to use LIKE 
+				// 'operatorType' can be 'multiple' to use IN, 'between' to use BETWEEN, and nothing or 'single' to use LIKE
 				'filters' => array('attr1' => 'attr1', 'attr2' => 'attr2', 'attr3' => 'attr3', 'attr4' => array('operatorType' => 'between', 'name' => 'attr4'))
 				'extraSelect' => 'attr8 AS attr9', // [Optional] Custom addition to the SELECT statement, useful for aggregate functions and CONCAT. To be used jointly with 'havingFilters'
 				'havingFilters' => array('attr8' => 'attr9') // [Optional] Some filters require HAVING because they are a result of an aggregate function on CONCAT; these are specified here rather than the 'filter' which relies on WHERE statement
@@ -45,7 +45,7 @@ class Inlinefilters {
 			)
 		)
 	);
-	
+
 	EXAMPLE:
 	$config = array(
 		'parse' => array('filters' => array('fullName', 'displayName', 'mainAffid', 'position', 'reportsTo'),
@@ -200,12 +200,12 @@ class Inlinefilters {
 		}
 
 		$count_items = 1;
-		
+
 		$iteration_element = $this->parsed_fields;
 		if(isset($this->config['parse']['fieldsSequence']) && !empty($this->config['parse']['fieldsSequence'])) {
 			$iteration_element =  $this->config['parse']['fieldsSequence'];
 		}
-		
+
 		foreach($iteration_element as $filter_item => $filter_value) {
 			if($options['tags'] == 'div') {
 				$rows .= '<div>'.$this->parsed_fields[$filter_item].'</div>'; //Will add more CSS for this later
@@ -216,7 +216,7 @@ class Inlinefilters {
 			$count_items++;
 		}
 		unset($filter_value);
-		
+
 		if($options['tags'] == 'div') {
 			$rows .= '<div><input type="image" src="./images/icons/search.gif" border="0" alt="'.$lang->filter.'" value="'.$lang->filter.'"></div></div>';
 			$rows .= '<div class="tablefilters_row_toggle" onClick="$(\'#tablefilters\').toggle();">&middot;&middot;&middot;</div>';
@@ -263,6 +263,7 @@ class Inlinefilters {
 			if(!empty($this->config['process']['mainTable']['extraSelect'])) {
 				$this->config['process']['mainTable']['extraSelect'] = ', '.$this->config['process']['mainTable']['extraSelect'];
 			}
+
 			$main_query = $db->query('SELECT '.$this->config['process']['filterKey'].$this->config['process']['mainTable']['extraSelect'].'
 								FROM '.Tprefix.$this->config['process']['mainTable']['name'].'
 								'.$main_query_where.$main_query_having);
@@ -310,7 +311,7 @@ class Inlinefilters {
 					}
 
 					$sec_query = $db->query('SELECT DISTINCT('.$options['filterKeyOverwrite'].')
-										FROM '.Tprefix.$table.$sec_query_join_clause.' 
+										FROM '.Tprefix.$table.$sec_query_join_clause.'
 										WHERE '.$sec_query_where);
 
 					if($db->num_rows($sec_query) > 0) {
@@ -387,18 +388,22 @@ class Inlinefilters {
 		}
 		else {
 			/* Check if user using seperator to filter multiple values of same attribute */
+			$like_prefix = '%';
+			if($attr['operatorType'] === 'startswith') {
+				$like_prefix = '';
+			}
 			if(strstr($core->input['filters'][$filteritem], ';')) {
 				$multiple_items = explode(';', $core->input['filters'][$filteritem]);
 				foreach($multiple_items as $value) {
-					$query_where .= $query_where_operator.$sec_query_operator.$attr['name'].' LIKE "%'.$db->escape_string($value).'%"';
-					$query_where_operator = ' OR ';	
+					$query_where .= $query_where_operator.$sec_query_operator.$attr['name'].' LIKE "'.$like_prefix.$db->escape_string($value).'%"';
+					$query_where_operator = ' OR ';
 				}
-				
+
 				$query_where = '('.$query_where.')';
 			}
 			else {
-				$query_where = $sec_query_operator.$attr['name'].' LIKE "%'.$db->escape_string($core->input['filters'][$filteritem]).'%"';
-			}	
+				$query_where = $sec_query_operator.$attr['name'].' LIKE "'.$like_prefix.$db->escape_string($core->input['filters'][$filteritem]).'%"';
+			}
 		}
 
 		return $query_where;
@@ -415,8 +420,8 @@ class Inlinefilters {
 				if(empty($realkey)) {
 					$realkey = $addkey;
 				}
-				
-				if(isset($this->config['parse'][$realkey])) {					
+
+				if(isset($this->config['parse'][$realkey])) {
 					if(is_array($newfilter['parse'][$addkey])) {
 						$this->config['parse'][$realkey] = array_merge($this->config['parse'][$realkey], $newfilter['parse'][$addkey]);
 					}
@@ -429,9 +434,9 @@ class Inlinefilters {
 				{
 					$this->config['parse'][$realkey] = $newfilter['parse'][$addkey];
 				}
-			}	
+			}
 		}
-		
+
 		if(isset($newfilter['process']['mainTable'])) {
 			array_push($this->config['process']['mainTable']['filters'], $newfilter['process']['mainTable']['filter']);
 		}

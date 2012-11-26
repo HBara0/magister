@@ -3,11 +3,11 @@
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
  * 
- * DBConnection Class
- * $id: DBconnection_class.php
- * Last Update: @zaher.reda 	August 1, 2012 | 03:30 PM
+ * MySQL Connection Class
+ * $id: MySQLConnection_class.php
+ * Last Update: @zaher.reda 	November 26, 2012 | 08:44 AM
  */
-class DBConnection {
+class MySQLConnection {
 	protected $link;
 	private $db_encoding = 'utf8';
 	private $db = array();
@@ -44,8 +44,37 @@ class DBConnection {
 	public function insert_query($table, $data, $encrypt = '') {
 		$comma = $index_string = $data_string = $keyphrase = '';
 		if(is_array($data)) {
+			$query_data = $this->prepare_insertstatement_data($data, $encrypt);
+			
+			return $this->query('INSERT INTO '.$this->db['prefix'].$table.' ('.$query_data['index'].') VALUES ('.$query_data['value'].')');
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	public function multi_insert_query($table, array $data, $encrypt = '') {
+		if(!empty($data)) {
+			foreach($data as $entry => $entry_data) {
+				$query_data = $this->prepare_insertstatement_data($entry_data, $encrypt);
+				$query_values .= $comma.'('.$query_data['value'].')';
+				$comma = ', ';
+			}
+			
+			return $this->query('INSERT INTO '.$this->db['prefix'].$table.' ('.$query_data['index'].') VALUES '.$query_values);
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	private function prepare_insertstatement_data(array $data, $encrypt) {
+		$comma = $keyphrase = '';
+		if(!empty($data)) {
 			foreach($data as $key => $val) {			
-				$index_string .= $comma.$key;
+				$data['index'] .= $comma.$key;
 				if(!empty($encrypt) && is_array($encrypt) && in_array($key, $encrypt)) {
 					if(array_key_exists($key.'Key', $data)) {
 						$keyphrase = $data[$key.'Key'];
@@ -54,22 +83,19 @@ class DBConnection {
 					{
 						$keyphrase = $key; //or later set a default key setting
 					}
-					$data_string .= $comma."AES_ENCRYPT('{$val}', '{$keyphrase}')";
+					$data['value'] .= $comma."AES_ENCRYPT('{$val}', '{$keyphrase}')";
 				}
 				else
 				{
-					$data_string .= $comma."'".$this->escape_string($val)."'";
+					$data['value'] .= $comma."'".$this->escape_string($val)."'";
 				}
 				$comma = ', ';
 			}
-			return $this->query("INSERT INTO {$this->db['prefix']}{$table} ({$index_string}) VALUES ({$data_string})");
+			return $data;
 		}
-		else
-		{
-			return false;
-		}
+		return false;
 	}
-
+	
 	public function update_query($table, $data, $where='', $encrypt = '') {
 		$comma = $query_string = '';
 		if(is_array($data)) {
@@ -93,7 +119,7 @@ class DBConnection {
 			if(!empty($where)) {
 				$where = ' WHERE '.$where;
 			}
-			//echo "UPDATE {$this->db['prefix']}{$table} SET {$query_string}{$where}";
+
 			return $this->query("UPDATE {$this->db['prefix']}{$table} SET {$query_string}{$where}");
 	  	}
 		else 
@@ -134,6 +160,10 @@ class DBConnection {
 		return mysql_insert_id($this->link);
 	}
 
+	public function free_result($query) {
+		return mysql_free_result($query);
+	}
+	
 	public function close() { 
 		@mysql_close($this->link);
 	}
