@@ -2,25 +2,6 @@
 <head>
 <title>{$core->settings[systemtitle]} | {$lang->managesuppliers}</title>
 {$headerinc}
-<script>
-$(function(){
-	$("#companyName").on('change',function() {
-		var name = $("#companyName").val();
-		$.post("index.php?module=sourcing/managesupplier&action=checkcompany", { company: name}, function(returnedData) {
-		
-		if(returnedData) {
-			$("#companyresult").text(returnedData).css("color","red");
-			 $('input[type="button"]').attr("disabled", "true");
-			}
-			else
-			{
-				$('input[type="button"]').removeAttr('disabled');
-				$("#companyresult").empty();
-			}
-		});		
-	});
-});
-</script>
 </head>
 <body>
 {$header}
@@ -37,11 +18,12 @@ $(function(){
 				<div style="display:table-row;">
 					<div style="display: table-cell;"><strong>{$lang->companyname}</strong></div>
 					<div style="display: table-cell; padding:5px;">
-						<input id="companyName" name="supplier[companyName]" type="text" value="{$supplier[details][companyName]}" size="30" >
+						<input id="companyName" name="supplier[companyName]" type="text" value="{$supplier[details][companyName]}" class='inlineCheck' size="30">
 						&nbsp;{$lang->abbreviation}
 						<input name="supplier[companyNameAbbr]" type="text" value="{$supplier[details][companyNameAbbr]}" size="15">
+						<div id="companyName_inlineCheckResult" style="paddinng:5px;" class="red_text"></div>
 					</div>
-					<div id="companyresult" style="display: table-cell; paddinng:5px;"></div>
+					
 				</div>
 				<div style="display:table-row;">
 					<div style="display: table-cell; vertical-align:middle;">{$lang->product}</div>
@@ -103,27 +85,27 @@ $(function(){
 				<div style="display:table-row;">
 					<div style="display: table-cell;">{$lang->phone1}</div>
 					<div style="display: table-cell; padding:5px;"> +
-						<input type="text" id="phone1_intcode" name="supplier[phone1]_intcode" size="3" maxlength="3" accept="numeric" />
-						<input type="text" id="phone1_areacode" name="supplier[phone1]_areacode" size='4' maxlength="4" accept="numeric" />
-						<input type="text" id="phone1_number"name="supplier[phone1]"  value="{$supplier[details][phone1]}" accept="numeric"  />
+						<input type="text" id="phone1_intcode" name="supplier[phone1][intcode]" value="{$supplier[details][phone1][0]}" size="3" maxlength="3" accept="numeric" />
+						<input type="text" id="phone1_areacode" name="supplier[phone1][areacode]" value="{$supplier[details][phone1][1]}" size='4' maxlength="4" accept="numeric" />
+						<input type="text" id="phone1_number" name="supplier[phone1][number]" value="{$supplier[details][phone1][2]}" accept="numeric"  />
 						<br />
 					</div>
 				</div>
 				<div style="display:table-row;">
 					<div style="display: table-cell;">{$lang->phone2}</div>
 					<div style="display: table-cell; padding:5px;"> +
-						<input type="text" id="phone2_intcode" name="supplier[phone2]_intcode" size="3" maxlength="3" accept="numeric" />
-						<input type="text" id="phone2_areacode" name="supplier[phone2]_areacode" size='4' maxlength="4" accept="numeric" />
-						<input type="text" id="phone2_number" name="supplier[phone2]" value="{$supplier[details][phone2]}" accept="numeric"  />
+						<input type="text" id="phone2_intcode" name="supplier[phone2][intcode]" value="{$supplier[details][phone2][0]}" size="3" maxlength="3" accept="numeric" />
+						<input type="text" id="phone2_areacode" name="supplier[phone2][areacode]" value="{$supplier[details][phone2][1]}" size='4' maxlength="4" accept="numeric" />
+						<input type="text" id="phone2_number" name="supplier[phone2][number]" value="{$supplier[details][phone2][2]}" accept="numeric"  />
 						<br />
 					</div>
 				</div>
 				<div style="display:table-row;">
 					<div style="display: table-cell;">{$lang->fax}</div>
 					<div style="display: table-cell; padding:5px;"> +
-						<input type="text" id="fax_intcode" name="supplier[fax]_intcode" size="3" maxlength="3" accept="numeric" />
-						<input type="text" id="fax_areacode" name="supplier[fax]_areacode" size='4' maxlength="4" accept="numeric" />
-						<input type="text" id="fax_number" name="supplier[fax]" value="{$supplier[details][fax]}" accept="numeric" />
+						<input type="text" id="fax_intcode" name="supplier[fax][intcode]" size="3" maxlength="3" accept="numeric" />
+						<input type="text" id="fax_areacode" name="supplier[fax][areacode]" size='4' maxlength="4" accept="numeric" />
+						<input type="text" id="fax_number" name="supplier[fax][number]" value="{$supplier[details][fax]}" accept="numeric" />
 						<br />
 					</div>
 				</div>
