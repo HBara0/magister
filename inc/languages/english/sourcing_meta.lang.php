@@ -78,4 +78,40 @@ $lang['readfeedback'] = 'Read Feedback';
 $lang['replyfeedback'] = 'Reply Feedback';
 $lang['feedbacksubmitted'] = 'Feed Backsubmitted';
 $lang['feedbackexsist'] = 'Feed Backexsist';
+
+$lang['price'] = 'Price are suitable';
+$lang['payment'] = 'Approved payment terms';
+$lang['customerdocument'] = 'Customer provided wtith technical documentation for approval';
+$lang['provideddoc'] = 'Provided documents';
+$lang['specapproved'] = 'Specifications Approved';
+
+$lang['reqquantity'] = 'Requested Quantity';
+$lang['reqdocuments'] = 'Requested Documents';
+$lang['recquantity'] = 'Received Quantity';
+$lang['reqdocuments'] = 'Received Documents';
+$lang['samplerequest'] = 'Supplier simple request ';
+
+$lang['dateon'] = 'on';
+$lang['provideddocuments'] = 'Provided Documents';
+$lang['providedquantity'] = 'Provided Quantity';
+$lang['cutomeranswer'] = 'Cutomer Answer';
+$lang['compliantspec'] = 'Compliant With Specs ?';
+
+$lang['desciption'] = 'Explanation';
+$lang['sourcingnotpossible'] = 'Sourcing not Possible';
+
+
+$lang['customersample'] = 'Customer provided with sample';
+$lang['trialresult'] = 'Trial Result';
+$lang['customerAnswer'] = 'Customer Answer';
+
+$lang['industrialquantity'] = 'Quantity';
+$lang['provisiondate'] = 'Provision Date';
+$lang['productapproved'] = 'Product Approved? ';
+$lang['offertitle'] = 'Commercial Offer';
+$lang['offer'] = 'Offer Made';
+$lang['offerdate'] = 'Offer Date';
+$lang['answerdate'] = 'Answer Date';
+$lang['industrialtrial'] = 'Industrial Trial';
+$lang['orderpassed'] = 'Order Passed';
 ?>
