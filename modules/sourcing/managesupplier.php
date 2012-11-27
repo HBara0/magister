@@ -28,7 +28,7 @@ if(!$core->input['action']) {
 		$supplier['contactpersons'] = $potential_supplier->get_supplier_contact_persons();
 		$supplier['activityareas'] = array_keys($potential_supplier->get_supplier_activity_area());
 		$supplier['chemicalsubstances'] = $potential_supplier->get_chemicalsubstances();
-	
+
 		$checkboxes_index = array('isBlacklisted');
 		foreach($checkboxes_index as $key) {
 			if($supplier['details'][$key] == 1) {
@@ -40,22 +40,29 @@ if(!$core->input['action']) {
 		foreach($selectlists_index as $key) {
 			$selecteditems[$key][$supplier['details'][$key]] = ' select="selected"';
 		}
-		
-		$chemicalp_rowid = 1;
-		foreach($supplier['chemicalsubstances'] as $chemicalproduct) {
-			eval("\$chemicalproducts_rows .= \"".$template->get('sourcing_managesupplier_chemicalrow')."\";");
-			$chemicalp_rowid++;
+
+
+		if(is_array($supplier['chemicalsubstances'])) {
+			$chemicalp_rowid = 1;
+			foreach($supplier['chemicalsubstances'] as $chemicalproduct) {
+				eval("\$chemicalproducts_rows .= \"".$template->get('sourcing_managesupplier_chemicalrow')."\";");
+				$chemicalp_rowid++;
+			}
 		}
 
-		$contactp_rowid = 1;
-		foreach($supplier['contactpersons'] as $contactperson) {
-			eval("\$contactpersons_rows .= \"".$template->get('sourcing_managesupplier_contactprow')."\";");
-			$contactp_rowid++;
+
+		if(is_array($supplier['contactpersons'])) {
+			$contactp_rowid = 1;
+			foreach($supplier['contactpersons'] as $contactperson) {
+				eval("\$contactpersons_rows .= \"".$template->get('sourcing_managesupplier_contactprow')."\";");
+				$contactp_rowid++;
+			}
 		}
-		
+
+
 		$supplier['details']['phone1'] = explode('-', $supplier['details']['phone1']);
 		$supplier['details']['phone2'] = explode('-', $supplier['details']['phone2']);
-		
+
 		$mark_blacklist = '<div style="display: table-cell; width:700px;vertical-align:middle;">'.$lang->blacklisted.'</div><div style="display: table-cell; width:700px;vertical-align:middle;"><input name="supplier[isBlacklisted]" type="checkbox" value="1"'.$checkedboxes.'></div>';
 	}
 	else {
@@ -63,14 +70,14 @@ if(!$core->input['action']) {
 		$chemicalp_rowid = 1;
 		eval("\$chemicalproducts_rows .= \"".$template->get('sourcing_managesupplier_chemicalrow')."\";");
 		$contactp_rowid = 1;
-		eval("\$contactpersons_rows .= \"".$template->get('sourcing_managesupplier_contactprow')."\";");	
+		eval("\$contactpersons_rows .= \"".$template->get('sourcing_managesupplier_contactprow')."\";");
 	}
-	
+
 	$countries_list = parse_selectlist('supplier[country]', 8, get_specificdata('countries', array('coid', 'name'), 'coid', 'name', array('sort' => 'ASC', 'by' => 'name')), $supplier['details']['country']);
 	$product_list = parse_selectlist('supplier[productsegment][]', 9, get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', ''), $supplier['segments'], 1);
 	$rml_selectlist = parse_selectlist('supplier[relationMaturity]', 10, get_specificdata('entities_rmlevels', array('ermlid', 'title'), 'ermlid', 'title', ''), $supplier['details']['relationMaturity']);
 	$activityarea_list = parse_selectlist('supplier[activityarea][]', 8, get_specificdata('countries', array('coid', 'name'), 'coid', 'name', '', '', 'affid IN (SELECT affid FROM affiliates)'), $supplier['activityareas'], 1);
-	
+
 	$supplierid = $core->input['id'];
 	eval("\$sourcingmanagesupplier = \"".$template->get('sourcing_managesupplier')."\";");
 	output_page($sourcingmanagesupplier);
@@ -114,7 +121,7 @@ else {
 		eval("\$addrepresentativebox = \"".$template->get('popup_addrepresentative')."\";");
 		output_page($addrepresentativebox);
 	}
-	elseif($core->input['action'] == 'inlineCheck') {	
+	elseif($core->input['action'] == 'inlineCheck') {
 		$companies_exists_query = $db->query("SELECT companyName FROM ".Tprefix."sourcing_suppliers WHERE companyName LIKE '%".$db->escape_string($core->input['value'])."%'");
 
 		if($db->num_rows($companies_exists_query) > 0) {
