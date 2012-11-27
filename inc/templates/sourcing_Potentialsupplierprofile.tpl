@@ -1,13 +1,11 @@
 <html>
 <head>
 <title>{$core->settings[systemtitle]} | {$lang->modifysitesettings}</title>
+</head>
 {$headerinc}
-<link href="{$core->settings[rootdir]}/css/rateit.css" rel="stylesheet" type="text/css">
-<link href="{$core->settings[rootdir]}/css/supplierprofile.css" rel="stylesheet" type="text/css">
+<link href="{$core->settings[rootdir]}/css/rateit.css" rel="stylesheet" type="text/css" />
+<link href="{$core->settings[rootdir]}/css/supplierprofile.css" rel="stylesheet" type="text/css" />
 <style type="text/css">
-span.listitem:hover {
-	border-bottom: #CCCCCC solid thin;
-}
 .blur {
 	color: transparent;
 	text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
@@ -15,9 +13,8 @@ span.listitem:hover {
 </style>
 <script src="{$core->settings[rootdir]}/js/jquery.rateit.min.js" type="text/javascript"></script>
 <script>
-
 $(function(){
-	
+	{$header_blurjs}
 	$("input[type='radio'][id=approved_type]").attr( 'disabled',true);
 	$(".priceok").live('change',function() {
 		var val= $(this).val();
@@ -26,7 +23,7 @@ $(function(){
 		});
 	$(".pricenotOk").live('change',function() {
 		var val= $(this).val();
-		$(".approved,.notapproved").attr( 'disabled', true);	
+		$(".approved,.notapproved").attr( 'disabled', true);
 		});
 		
 	$(".approved").live('change',function() {
@@ -92,35 +89,62 @@ $("span[id^='contactpersondata_']").each(function(){
 			style: {
 				classes: ' ui-tooltip-light ui-tooltip-shadow'
 			}
-		})		
-	})
-
-	
+		});		
+	});
 });
-
 </script>
 </head><body>
 {$header}
 <tr> {$menu}
-  <td class="contentContainer"><h3>{$supplier_details[companyName]}  {$supplier_details[rating]}</h3>
-    <div id="suppliercontainer">
-      <div style="display:table-cell; padding:10px;"></div>
-      {$sourcing_Potentialsupplierprofile_contactsection}
-      
-      {$listcas_numbers_section}
-      <div class="subtitle">{$lang->comments}</div>
-      {$coBriefing_section}
-      
-      {$historical_section}
-      
-      {$sourcingRecords_section}
-      
-      {$marketingrecords_section}
-      
-      {$commentshare_section}
-      <div class="subtitle">{$lang->contacthistory}</div>
-      {$sourcing_Potentialsupplierprofile_contacthistory}
-      {$sourcing_Potentialsupplierprofile_reportcommunication } </div></td>
+	<td class="contentContainer"><h3>{$supplier[maindetails][companyName]} {$supplier[maindetails][businessPotential_output]}</h3>
+		<div style='display:inline-block; width:50%; padding:5px; vertical-align:top;'>
+			<div class="subtitle border_right"><strong>{$lang->contactdtails}</strong></div>
+			<div class="border_right">{$lang->fulladress}: <span class="contactsvalue">{$supplier[contactdetails][fulladress]}</span><br />
+				{$lang->pobox}: <span class="contactsvalue">{$supplier[contactdetails][poBox]}</span><br />
+				{$lang->telephone}: <span class="contactsvalue">{$supplier[contactdetails][phones]}</span><br />
+				{$lang->fax}: <span class="contactsvalue">{$supplier[contactdetails][fax]}</span><br />
+				{$lang->email}: <span class="contactsvalue">{$supplier[contactdetails][mainEmail]}</span><br />
+				{$lang->website}: <span class="contactsvalue">{$supplier[contactdetails][website]}</span><br />
+			</div>
+			<div class="border_right">{$contactsupplier_button}</div>
+		</div>
+		<div style='display:inline-block; width:45%; padding:5px; vertical-align:top;'>
+			<div class="subtitle"><strong>{$lang->contactperson}</strong></div>
+			{$contactpersons_output}</div>
+		<div style='display:inline-block; width:50%; padding:5px; margin-top:10px;' class="border_right"><strong>{$lang->segments}</strong><br />
+			{$segments_output}</div>
+		<div style='display:inline-block; width:45%; padding:5px; margin-top:10px;'><strong>{$lang->activityarea}</strong><br />
+			{$activityarea_output}</div>
+		<div style="width:100%; max-height: 200px; overflow:auto; display:inline-block; vertical-align:top; margin-top: 10px;">
+			<table class="datatable" width="100%">
+				<thead>
+					<tr>
+						<td class="thead">{$lang->cas}</td>
+						<td class="thead">{$lang->checmicalproduct}</td>
+					</tr>
+				</thead>
+				{$chemicalslist_section}
+			</table>
+			<hr />
+		</div>
+		<div>
+			<div class="subtitle" style="margin-top: 10px;">{$lang->comments}</div>
+			<div style='padding:5px; width:100%;' class='border_bottom'><strong>{$lang->cobriefing}</strong><br />
+				<p>{$supplier[maindetails][coBriefing]}</p></div>
+			<div style='padding:5px; width:100%;' class='border_bottom'><strong>{$lang->historical}</strong><br />
+				<p>{$supplier[maindetails][historical]}</p></div>
+			<div style='display:inline-block; width:45%; padding:5px;' class='border_bottom border_right'><strong>{$lang->marketingrecords}</strong><br />
+				<p>{$supplier[maindetails][marketingRecords]}</p></div>
+			<div style='display:inline-block; width:45%; padding:5px;' class='border_bottom'><strong>{$lang->sourcingrecords}</strong><br />
+				<p>{$supplier[maindetails][sourcingRecords]}</p></div>
+			<div style='padding:5px;' class='border_bottom'><strong>{$lang->commentstoshare}</strong><br />
+				<p>{$supplier[maindetails][commentsToShare]}</p></div>
+			<div>
+				<hr />
+				<div class="subtitle">{$lang->contacthistory}</div>
+				{$contacthistory_section}
+				{$reportcommunication_section} </div>
+		</div></td>
 </tr>
 {$footer}
 </body>
