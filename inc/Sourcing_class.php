@@ -221,7 +221,7 @@ class Sourcing {
 
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'ssid, companyName';
+			$query_select = 'ssid, companyName, isBlacklisted';
 		}
 
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."sourcing_suppliers WHERE ssid=".$db->escape_string($id)));
@@ -301,7 +301,7 @@ class Sourcing {
 			}
 			return $segments;
 		}
-		return $segments=array();
+		return array();
 	}
 
 	public function get_supplier_contactdetails($supplier_id = '') {
@@ -373,7 +373,7 @@ class Sourcing {
 			}
 			return $activity_areas;
 		}
-		return $activity_areas=array();
+		return array();
 	}
 
 	public function get_single_supplier_contact_person($id) {
@@ -562,6 +562,29 @@ class Sourcing {
 										{$see_otherusers} "));
 	}
 
+	public function is_blacklisted() {
+		if($this->supplier['isBlacklisted'] == 1) {
+			return true;
+		}
+		return false;
+ 	}
+	
+	public function supplier_exists($supplier_id = '') {
+		if(!empty($supplier_id)) {
+			if(value_exists('sourcing_suppliers', 'ssid', $supplier_id)) {
+				return true;
+			}
+			return false;
+		}
+		else {
+			if(is_array($this->supplier) && !empty($this->supplier)) {
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}
+	
 	public function get_feedback($request_id) {
 		return $this->read_feedback($request_id);
 	}
