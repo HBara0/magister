@@ -301,7 +301,7 @@ class Sourcing {
 			}
 			return $segments;
 		}
-		return false;
+		return $segments=array();
 	}
 
 	public function get_supplier_contactdetails($supplier_id = '') {
@@ -358,7 +358,7 @@ class Sourcing {
 			if(!$this->validate_segment_permission($supplier_id)) {
 				return false;
 			}
-		}
+		} 
 
 		$activity_area_query = $db->query("SELECT ssaa.ssaid, co.name AS country, aff.name AS affiliate 
 									FROM ".Tprefix."sourcing_suppliers ss
@@ -373,7 +373,7 @@ class Sourcing {
 			}
 			return $activity_areas;
 		}
-		return false;
+		return $activity_areas=array();
 	}
 
 	public function get_single_supplier_contact_person($id) {
