@@ -316,11 +316,11 @@ class Sourcing {
 			}
 		}
 
-		return $db->fetch_assoc($db->query("SELECT c.name AS country, ct.name AS city, ss.addressLine1, ss.addressLine2, ss.building, ss.floor, ss.postCode, ss.poBox, ss.phone1, ss.phone2, ss.fax, ss.mainEmail, ss.website
+		return $db->fetch_assoc($db->query("SELECT c.name AS country, ss.addressLine1, ss.addressLine2, ss.building, ss.floor, ss.postCode, ss.poBox, ss.phone1, ss.phone2, ss.fax, ss.mainEmail, ss.website
 											FROM ".Tprefix."sourcing_suppliers ss
 											JOIN ".Tprefix."countries c ON (ss.country=c.coid)
-											JOIN ".Tprefix."cities ct ON (ct.ciid=ss.city)
-											WHERE ss.ssid= ".$db->escape_string($supplier_id)));
+											
+											WHERE ss.ssid=".$db->escape_string($supplier_id)));//JOIN ".Tprefix."cities ct ON (ct.ciid=ss.city)
 	}
 
 	public function get_supplier_contact_persons($supplier_id = '') {
