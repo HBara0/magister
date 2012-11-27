@@ -156,8 +156,7 @@ else {
 	}
 	elseif($core->input['action'] == 'do_savecommunication') {
 		$newsupplierid = $db->escape_string($core->input['contacthst']['ssid']);
-		//$potential_supplier = new Sourcing($core->input['id']);
-		/* system should check if user has  previous contactshistory */
+			/* system should check if user has  previous contactshistory */
 		if(value_exists('sourcing_suppliers_contacthist', 'ssid', $newsupplierid, 'uid='.$core->user['uid'])) {
 			$potential_supplier->save_communication_report($core->input['contacthst'], $newsupplierid);
 		}
