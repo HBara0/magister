@@ -169,14 +169,20 @@ class Sourcing {
 
 	public function save_communication_report($data, $supplier_id = '') {
 		global $core, $db;
+		
 		if(is_empty($data['chemical'], $data['application'], $data['affid'], $data['origin'])) {
 			$this->status = 1;
 			return false;
 		}
-
+		
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 		}
+		
+		if(!value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid'])) {
+			return false;
+		}
+
 		unset($data['orderpassed']);
 		$this->communication_entriesexist = 'false';
 		$data['date'] = strtotime($data['date']);
