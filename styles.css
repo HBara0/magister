@@ -213,6 +213,10 @@ td { padding: 2px; }
 	border-right: 1px solid #F2F2F2;
 }
 
+.border_bottom {
+	border-bottom: 1px solid #F2F2F2;
+}
+
 .searchQuickResults {
 	width: 200px;
 	background:#F8F8F8;
