@@ -1,23 +1,63 @@
-<div>
-	<div style="padding:5px; cursor:pointer;" class="{$rowclass}" onClick="$('#content_{$contact_history[sschid]}').slideToggle('slow')">
-            <a href="index.php?module=profiles/affiliateprofile&affid={$contact_history[affid]}" target="_blank">{$contact_history[affiliate]}</a>
-            <a href="./users.php?action=profile&uid={$contact_history[uid]}">{$contact_history[displayName]}</a> 
-            {$contact_history[date_output]}
+<div style="display:inline-block" id="contactdetails"  class="border_left">
+    <div style="display:table-row;">
+   	 <div  style="display:table-cell; margin:10px;"><strong>{$lang->contactdtails}</strong></div>
+    </div>
     
+    <div style="display:table-row;">
+     <div  style="display:table-cell;">{$lang->fulladress}</div>
+        <div class="detailsvalue" style="display:table-cell;">{$potential_supplier_details[fulladress]}</div>
     </div>
-<div id="content_{$contact_history[sschid]}" style="display:none; padding:5px; margin-left: 15px; margin-right:15px; background-color:#CCC">
-        <div style="display:inline-block;float: left;  margin-bottom: 5px; margin-right:20px;padding: 5px; width:45%;">
-            <div>{$lang->chemical}: {$contact_history[chemical]}</div>
-            <div>{$lang->origin}:{$contact_history[origincountry]}</div>
-            <div>{$lang->application}{$contact_history[application]}</div>
-        </div>
-        
-        <div style="display:inline-block;float:right; margin-bottom: 5px; margin-left:15px; padding: 5px; width:45%;">
-            <div>{$lang->grade} {$contact_history[grade]}</div>
-            <div>{$lang->market} {$contact_history[market]}</div>
-            <div>{$lang->competitors} {$contact_history[competitors]}</div>
-        </div>
-       
-        <div style="padding: 10px;"></hr>{$lang->description}{$contact_history[description]}</div>
+    <div style="display:table-row;">
+   	 <div  style="display:table-cell;">{$lang->pobox}</div>
+  	  <div class="detailsvalue" style="display:table-cell;">{$potential_supplier_details[poBox]}</div>
     </div>
+    <div style="display:table-row;">
+   	 <div  style="display:table-cell;">{$lang->phone1}</div>
+   	 <div class="detailsvalue" style="display:table-cell;">{$potential_supplier_details[phone1]}</div>
+    </div>
+    <div style="display:table-row;">
+   	 <div  style="display:table-cell;">{$lang->fax}</div>
+   	 <div class="detailsvalue" style="display:table-cell;">{$potential_supplier_details[fax]}</div>
+    </div>
+    <div style="display:table-row;">
+   	 <div  style="display:table-cell;">{$lang->email}</div>
+   	 <div class="detailsvalue" style="display:table-cell;">{$potential_supplier_details[mainEmail]}</div>
+    </div>
+    <div style="display:table-row;">
+   	 <div  style="display:table-cell;">{$lang->website}</div>
+   	 <div class="detailsvalue" style="display:table-cell;">{$potential_supplier_details[website]}</div>
+    </div>
+    <div style="display:table-row;">
+        <div  style="display:table-cell;margin-bottom:15px"></div>
+        </div>
+      <div style="display:table-row;">
+        <div  style="display:table-cell;"><strong>{$lang->segments}</strong></div>   </div>
+  	 	  <div style="display:table-row;">
+        <div style="display:table-cell;"> $segment_data</div>
+   </div>
+   
+    <div style="display:table-row;">
+        <div style="display: table-cell;width:0px;"> 
+     {$contactsupplier_form}
+         </div>
+    </div>
+
+</div>
+
+<div class="border_left" style="display:inline-block; margin-left:40px; vertical-align:top;" >
+</div>
+<div style="display:inline-block; margin-left:40px; vertical-align:top;clear:right;" id="contactpersons">
+<div style="display:table-row;">
+	<div  style="display:table-cell;"><strong>{$lang->contactperson}</strong></div>
+    </div>
+    <div style="display:table-row;">
+        	<div  style="display:table-cell;">{$contact_person_data}</div>
+     </div>
+            
+       <div style="display:table-row;">
+        <div  style="display:table-cell; margin-top:10px;"><strong>{$langactivityarea}</strong></div>
+         </div>
+  	 	  <div style="display:table-row;">
+        <div style="display:table-cell;">{$activity_area_data}</div>
+   </div>
 </div>
