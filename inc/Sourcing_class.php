@@ -482,6 +482,7 @@ class Sourcing {
 			);
 			$query = $db->insert_query('sourcing_chemicalrequests', $chemicalrequest_data);
 			if($query) {
+				$this->status = 0;
 				return true;
 			}
 		}
@@ -506,10 +507,10 @@ class Sourcing {
 		}
 
 		if($core->usergroup['sourcing_canManageEntries'] == 0) { /* Users shouldn't be able to see requests by other users. Sourcing agents can see all requests. */
-			$see_otherusers = "	WHERE scr.uid={$core->user['uid']}";
+			$see_otherusers = '	WHERE scr.uid='.$core->user['uid'];
 		}
 
-		$chemicalrequests_query = $db->query("SELECT scr.*, u.displayName ,cs.name
+		$chemicalrequests_query = $db->query("SELECT scr.*, u.displayName, cs.name AS chemicalname
 										FROM ".Tprefix."sourcing_chemicalrequests scr
 										JOIN ".Tprefix."users u ON (u.uid = scr.uid)
 										JOIN ".Tprefix."chemicalsubstances cs ON (cs.csid = scr.csid)
@@ -531,17 +532,21 @@ class Sourcing {
 			$this->status = 1;
 			return false;
 		}
-		if(value_exists('sourcing_chemicalrequests', 'feedback', $data['feedback'])) {
+		
+		$data['feedback'] = $core->sanitize_inputs($data['feedback'], array('removetags' => true));
+		
+		if(value_exists('sourcing_chemicalrequests', 'feedback', $data['feedback'], 'isClosed='.intval($data['isClosed']))) {
 			$this->status = 2;
 			return false;
 		}
-		$feedback_data = array('feedback' => $data['feedback'],
+		
+		$feedback_data = array('feedback' => trim($data['feedback']),
 				'feedbackBy' => $core->user['uid'],
 				'feedbackTime' => TIME_NOW,
-				'isclosed' => $data['isclosed']
+				'isClosed' => $data['isClosed']
 		);
 
-		$update_query = $db->update_query('sourcing_chemicalrequests', $feedback_data, 'scrid='.$request_id);
+		$update_query = $db->update_query('sourcing_chemicalrequests', $feedback_data, 'scrid='.intval($request_id));
 		if($update_query) {
 			$this->status = 0;
 			return true;
@@ -554,13 +559,13 @@ class Sourcing {
 	private function read_feedback($request_id) {
 		global $db, $core;
 		if($core->usergroup['sourcing_canManageEntries'] == 0) { /* Users shouldn't be able to see requests by other users. Sourcing agents can see all requests. */
-			$see_otherusers = "	AND scr.uid={$core->user['uid']}";
+			$see_otherusers = '	AND scr.uid='.$core->user['uid'];
 		}
-		return $db->fetch_assoc($db->query("SELECT scr.feedback,scr.feedbackTime,u.displayName
+		return $db->fetch_assoc($db->query("SELECT scr.feedback, scr.feedbackTime, u.displayName, isClosed
 										FROM ".Tprefix."sourcing_chemicalrequests scr
 										JOIN ".Tprefix."users u ON (u.uid = scr.feedbackBy)
-										WHERE scr.scrid=".$request_id."	
-										{$see_otherusers} "));
+										WHERE scr.scrid=".intval($request_id)."	
+										{$see_otherusers}"));
 	}
 
 	public function is_blacklisted() {

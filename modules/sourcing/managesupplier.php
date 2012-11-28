@@ -110,10 +110,10 @@ else {
 		$representative = new Entities($core->input, 'add_representative');
 
 		if($representative->get_status() === true) {
-			output_xml("<status>true</status><message>{$lang->representativecreated}</message>");
+			output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
 		}
 		else {
-			output_xml("<status>false</status><message>{$lang->errorcreatingreprentative}</message>");
+			output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 		}
 	}
 	elseif($core->input['action'] == 'get_addnew_representative') {
