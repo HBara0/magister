@@ -77,11 +77,11 @@ class MySQLiConnection {
 		}
 	}
 	
-	private function prepare_insertstatement_data(array $data, $encrypt) {
+	private function prepare_insertstatement_data(array $data, $encrypt = '') {
 		$comma = $keyphrase = '';
 		if(!empty($data)) {
 			foreach($data as $key => $val) {			
-				$data['index'] .= $comma.$key;
+				$statement['index'] .= $comma.$key;
 				if(!empty($encrypt) && is_array($encrypt) && in_array($key, $encrypt)) {
 					if(array_key_exists($key.'Key', $data)) {
 						$keyphrase = $data[$key.'Key'];
@@ -90,15 +90,16 @@ class MySQLiConnection {
 					{
 						$keyphrase = $key; //or later set a default key setting
 					}
-					$data['value'] .= $comma."AES_ENCRYPT('{$val}', '{$keyphrase}')";
+					$statement['value'] .= $comma."AES_ENCRYPT('{$val}', '{$keyphrase}')";
 				}
 				else
 				{
-					$data['value'] .= $comma."'".$this->escape_string($val)."'";
+					$statement['value'] .= $comma."'".$this->escape_string($val)."'";
 				}
 				$comma = ', ';
 			}
-			return $data;
+
+			return $statement;
 		}
 		return false;
 	}
