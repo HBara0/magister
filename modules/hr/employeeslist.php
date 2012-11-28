@@ -6,8 +6,8 @@
  * List employees
  * $module: hr
  * $id: emplpoyeeslist.php	
- * Created:	   @najwa.kassem	October 21, 2010 | 9:37 AM
- * Last Update: @zaher.reda 		May 20, 2012 | 10:29 AM
+ * Created:		@najwa.kassem	October 21, 2010 | 9:37 AM
+ * Last Update: @zaher.reda 	November 28, 2012 | 11:29 AM
  */
 
 if(!defined('DIRECT_ACCESS')) {
@@ -56,7 +56,7 @@ if(!$core->input['action']) {
 	/* Check which affiliates user can see - END */
 	$sort_url = sort_url();
 	$limit_start = 0;
-	$multipage_where = ' affid='.$affid.' AND isMain=1 AND gid!=7 ';
+	$multipage_where = ' affid='.$affid.' AND isMain=1 ';
 
 	/* Perform inline filtering - START */
 	$filters_config = array(
@@ -103,7 +103,7 @@ if(!$core->input['action']) {
 
 	$query = $db->query("SELECT u.uid, uhr.joinDate as joindate, CONCAT(firstName, ' ', lastName) as fullname 
 						FROM ".Tprefix."users u LEFT JOIN ".Tprefix."userhrinformation uhr ON (uhr.uid=u.uid) JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid) 
-						WHERE a.affid={$affid} AND isMain=1 AND u.gid!=7
+						WHERE a.affid={$affid} AND isMain=1
 						{$filter_where}
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
