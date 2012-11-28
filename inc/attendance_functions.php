@@ -6,7 +6,7 @@
  * Attendance Modules Functions File
  * $id: attendance_functions.php
  * Created: 	@zaher.reda		September 17, 2010 | 09:03 AM
- * Created: 	@zaher.reda		November 10, 2011 | 04:20 PM		
+ * Created: 	@zaher.reda		November 28, 2012 | 01:15 PM		
  */
 
 /*
@@ -145,8 +145,8 @@ function update_leavestats_periods($leave, $is_wholeday = true, $countdays = tru
 			$first_in = true;
 			while($prev_leaves = $db->fetch_assoc($query2)) {
 				if($first_in == true) {
-					$newleavestats['remainPrevYear'] = $prev_leaves['entitledFor'] - $prev_leaves['daysTaken'];
-					$newleavestats['remainPrevYearActual'] =  $prev_leaves['canTake'] - $prev_leaves['daysTaken'];
+					$newleavestats['remainPrevYear'] = ($prev_leaves['entitledFor'] + $prev_leaves['additionalDays'])  - $prev_leaves['daysTaken'];
+					$newleavestats['remainPrevYearActual'] =  ($prev_leaves['canTake'] + $prev_leaves['additionalDays']) - $prev_leaves['daysTaken'];
 				}
 				$newleavestats['canTake'] += $prev_leaves['remainPrevYear'];
 				$first_in = false;
@@ -164,8 +164,8 @@ function update_leavestats_periods($leave, $is_wholeday = true, $countdays = tru
 		if($accumulated_vs_entitled_diff > $affiliate_policy['maxAccumulateDays']) {
 			$newleavestats['canTake'] -= $accumulated_vs_entitled_diff - $affiliate_policy['maxAccumulateDays'];
 		}
-		print_r($newleavestats);
-		//$db->insert_query('leavesstats', $newleavestats);
+		
+		$db->insert_query('leavesstats', $newleavestats);
 	}
 }
 
