@@ -24,7 +24,7 @@ class Users {
 	}
 	
 	public function get_positions() {
-		global $db;
+		global $db,$lang;
 		
 		$query = $db->query("SELECT name, title FROM ".Tprefix."positions p JOIN ".Tprefix."userspositions up ON (up.posid=p.posid) WHERE uid={$this->user[uid]}");
 		while($position = $db->fetch_assoc($query)) {

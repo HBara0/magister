@@ -59,7 +59,6 @@ if(!$core->input['action']) {
 			}
 		}
 
-
 		$supplier['details']['phone1'] = explode('-', $supplier['details']['phone1']);
 		$supplier['details']['phone2'] = explode('-', $supplier['details']['phone2']);
 

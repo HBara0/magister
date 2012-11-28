@@ -260,7 +260,7 @@ else
 		header('location:' . $core->settings['rootdir'].'/uploads/sharedfiles/thumbnails/th_'.$file['name']);
 	}
 	elseif($core->input['action'] == 'get_sharefolderbymail')
-	{
+	{ 
 		$fid = $db->escape_string($core->input['id']);
 		$creator = $db->fetch_field($db->query("SELECT uid as creator FROM ".Tprefix."filesfolder WHERE ffid='{$fid}'"), 'creator');
 		if($core->user['uid'] == $creator || $core->usergroup['filesharing_canSendAllFiles'] == 1) {

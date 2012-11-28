@@ -30,6 +30,7 @@ class Entities {
 	
 	protected function create() {
 		global $db, $core, $lang;
+		echo 'real suplier ';
 
 		if(empty($this->data['companyName'])) {
 			output_xml("<status>false</status><message>{$lang->specifycompanyname}</message>");
@@ -41,7 +42,7 @@ class Entities {
 			if(empty($this->data['affid'])) {
 				output_xml("<status>false</status><message>{$lang->specifyanaffiliate}</message>");
 				$this->status = false;
-				exit;
+				//exit;
 			}
 
 			if(array_key_exists('repName', $this->data) || array_key_exists('repEmail', $this->data)) {
@@ -67,18 +68,19 @@ class Entities {
 			if(isset($this->data['users']) && !empty($this->data['users'])) {
 				$employees = $this->data['users'];
 				unset($this->data['users'], $this->data['users_numrows']);
-			}
+			}	
 			/*else
 			{
 				output_xml("<status>false</status><message>{$lang->specifyauser} Select a user</message>");
 				$this->status = false;
 				exit;
 			}*/
-			
+	
 			if(isset($this->data['psid']) && !empty($this->data['psid'])) {
 				$segments = $this->data['psid'];
 				unset($this->data['psid']);
-			}
+			}		
+
 			else
 			{
 				output_xml("<status>false</status><message>{$lang->specifyasegment}</message>");
@@ -126,7 +128,7 @@ class Entities {
 			$this->data['contractExpiryDate'] = $this->checkgenerate_date($this->data['contractExpiryDate']);
 	
 			$this->data['dateAdded'] = TIME_NOW;
-			
+		
 			$query = $db->insert_query('entities', $this->data);
 			if($query) {
 				$this->eid = $db->last_id();
@@ -136,7 +138,7 @@ class Entities {
 						$geolocation = str_replace(', ', ' ', $geolocation);
 					}
 					$db->query('UPDATE entities SET geoLocation=geomFromText("POINT('.$db->escape_string($geolocation).')") WHERE eid='.$this->eid);
-				}
+				}print_r($this->data);
 				$this->insert_affiliatedentities($affiliates);
 				$this->insert_representatives($representatives);
 				if(is_array($segments)) {

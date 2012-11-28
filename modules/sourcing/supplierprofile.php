@@ -24,7 +24,9 @@ else {
 }
 
 $potential_supplier = new Sourcing($supplier_id);
-if(!$potential_supplier->supplier_exists()) {
+
+if(!$core->input['action']) {
+	if(!$potential_supplier->supplier_exists()) {
 	redirect('index.php?module=sourcing/listpotentialsupplier');
 }
 
@@ -32,7 +34,6 @@ if($potential_supplier->is_blacklisted()) { /* if supplier isBlacklisted */
 	redirect(DOMAIN."/index.php?module=sourcing/listpotentialsupplier");
 }
 
-if(!$core->input['action']) {
 	$supplier['maindetails'] = $potential_supplier->get_supplier();
 	$supplier['contactdetails'] = $potential_supplier->get_supplier_contactdetails();
 	$supplier['segments'] = $potential_supplier->get_supplier_segments();
@@ -147,11 +148,15 @@ else {
 		redirect(DOMAIN.'/index.php?module=sourcing/supplierprofile&amp;id='.$supplier_id);
 	}
 	elseif($core->input['action'] == 'do_savecommunication') {
-		$newsupplierid = $db->escape_string($core->input['contacthst']['ssid']);
+		$newsupplierid = $db->escape_string($core->input['contacthst']['ssid']); 
 		//$potential_supplier = new Sourcing($core->input['id']);
 		/* system should check if user has  previous contactshistory */
 
-		$potential_supplier->save_communication_report($core->input['contacthst'], $newsupplierid);
+		//$potential_supplier->save_communication_report($core->input['contacthst'], $newsupplierid);
+    	if(isset($core->input['contacthst']['orderpassed']) && $core->input['contacthst']['orderpassed']== 1){
+			$potential_supplier = new Sourcing($newsupplierid);
+			$potential_supplier->make_real_supplier($core->input['contacthst']['affid']);
+		}
 		
 		switch($potential_supplier->get_status()) {
 			case 3:
@@ -171,6 +176,8 @@ else {
 		//Make a template
 		echo '<div style="min-width:400px; max-width:600px;">
 	<div style="display:inline-block;width:180px;">'.$supplier_contact['name'].'<br><strong>'.$lang->email.'</strong>  <a href="mailto:'.$supplier_contact['email'].'">'.$supplier_contact['email'].'</a><br>'.'<strong>'.$lang->phone.'</strong> '.$supplier_contact['phone'].'<br>'.'<strong>'.$lang->positon.'</strong><br>'.'<strong>'.$contact_personposition.'</strong></div></div>';
+
+		
 	}
 }
 ?>

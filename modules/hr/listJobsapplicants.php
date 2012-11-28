@@ -20,7 +20,7 @@ if($core->usergroup['hr_canCreateJobOpport'] == 10) {
 	exit;
 	}
 	
-if(!$core->input['action']) {	
+if(!$core->input['action']) {
 	$vacancy_id = $db->escape_string($core->input['id']);
 	if(!$core->input['action']) {
 			$sort_url = sort_url();
@@ -59,7 +59,7 @@ elseif($core->input['action']=='do_moderation') {
 			$action= 'flag';
 			$vacancy->moderate($action,$vacancy_id,$inapplicant);			
 			header('Content-type: text/xml+javascript');		/* hide each selected <tr> has applicant id  after successfull deletion */
-			output_xml("<status>true</status><message>{$lang->flagged}</message>"); 
+			output_xml("<status>true</status><message>{$lang->flagged}</message>");
 			exit;		
 		}		
 		elseif($core->input['moderationtool'] == 'unflag') { 

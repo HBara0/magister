@@ -71,9 +71,6 @@ class CmsMenu extends Cms {
 			break;
 		}
 		
-/*		if(in_array($key, $this->menuitem['configurations'])) {
-			echo 'yesssssssssssssssssss';
-		} */ 
 	}
 	
 		if(is_array($this->menuitem)) {

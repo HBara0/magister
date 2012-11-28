@@ -144,8 +144,9 @@ class ErrorHandler {
 		}
 		
 		$core->settings['systemtitle'] = $settings['systemtitle'];
-		
+		echo $error_message; exit;
 		eval("\$errorpage = \"".$template->get('errorpage')."\";");
+		
 		output_page($errorpage);
 		
 		if($noexit == false) {

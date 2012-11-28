@@ -18,8 +18,8 @@ $leaves_query = $db->query("SELECT l.lid,vr.lid, vr.identifier, vr.finishDate, v
 							JOIN ".Tprefix."visitreports vr ON (l.lid = vr.lid) 
 							JOIN ".Tprefix."entities e ON (vr.cid=e.eid)   
 							JOIN  ".Tprefix."users u ON (vr.uid=u.uid)
-							WHERE (vr.isDraft = 1 AND ".TIME_NOW.">=(vr.date + 604800))");
-							
+							WHERE (vr.isDraft = 1 AND ".TIME_NOW.">=(vr.date + 604800))");  // send  after 2 days from the visit report creation.		
+																							
 if($db->num_rows($leaves_query) > 0) {
 	while($user_leaves = $db->fetch_assoc($leaves_query)) {						
 		$leaves[$user_leaves['uid']][$user_leaves['lid']] = $user_leaves;

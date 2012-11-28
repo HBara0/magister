@@ -169,16 +169,16 @@ class Sourcing {
 
 	public function save_communication_report($data, $supplier_id = '') {
 		global $core, $db;
-		
+
 		if(is_empty($data['chemical'], $data['application'], $data['affid'], $data['origin'])) {
 			$this->status = 1;
 			return false;
 		}
-		
+
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 		}
-		
+
 		if(!value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid'])) {
 			return false;
 		}
@@ -298,6 +298,7 @@ class Sourcing {
 		if($db->num_rows($segments_query) > 0) {
 			while($segment = $db->fetch_assoc($segments_query)) {
 				$segments[$segment['psid']] = $segment['segment'];
+				$segmentsss[$segment['segmentid']] = $segment['psid'];
 			}
 			return $segments;
 		}
@@ -320,7 +321,7 @@ class Sourcing {
 											FROM ".Tprefix."sourcing_suppliers ss
 											JOIN ".Tprefix."countries c ON (ss.country=c.coid)
 											
-											WHERE ss.ssid=".$db->escape_string($supplier_id)));//JOIN ".Tprefix."cities ct ON (ct.ciid=ss.city)
+											WHERE ss.ssid=".$db->escape_string($supplier_id))); //JOIN ".Tprefix."cities ct ON (ct.ciid=ss.city)
 	}
 
 	public function get_supplier_contact_persons($supplier_id = '') {
@@ -358,7 +359,7 @@ class Sourcing {
 			if(!$this->validate_segment_permission($supplier_id)) {
 				return false;
 			}
-		} 
+		}
 
 		$activity_area_query = $db->query("SELECT ssaa.ssaid, co.name AS country, aff.name AS affiliate 
 									FROM ".Tprefix."sourcing_suppliers ss
@@ -567,8 +568,8 @@ class Sourcing {
 			return true;
 		}
 		return false;
- 	}
-	
+	}
+
 	public function supplier_exists($supplier_id = '') {
 		if(!empty($supplier_id)) {
 			if(value_exists('sourcing_suppliers', 'ssid', $supplier_id)) {
@@ -584,7 +585,29 @@ class Sourcing {
 		}
 		return false;
 	}
-	
+
+	public function make_real_supplier($affid) {
+		global $db, $core;
+		$registered_supplier_data = array('companyName', 'companyNameAbbr', 'type', 'country', 'city', 'addressLine1', 'addressLine2', 'building', 'floor', 'postCode', 'geoLocation', 'poBox', 'phone1', 'phone2', 'fax1', 'mainEmail', 'website');
+		$temp_supplier = $this->supplier;
+		unset($temp_supplier['ssid'], $temp_supplier['eid']);
+		foreach($registered_supplier_data as $registered_supplier) {
+			$this->registered_supplier[$registered_supplier] = $temp_supplier[$registered_supplier];
+		}
+		$this->registered_supplier['affid'][] = $affid;
+		$this->registered_supplier['psid'] = array_keys($this->get_supplier_segments()); /* GET the psid from the array returned from the function */
+		$this->registered_supplier['representative'] = $this->get_supplier_contact_persons();
+		$registered_supplier = new Entities($this->registered_supplier);
+		if($registered_supplier) {
+			$this->status = 3;
+			return true;
+		}
+		else {
+			$this->status = 1;
+			return false;
+		}
+	}
+
 	public function get_feedback($request_id) {
 		return $this->read_feedback($request_id);
 	}
