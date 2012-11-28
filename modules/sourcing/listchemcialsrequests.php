@@ -25,47 +25,54 @@ if(!$core->input['action']) {
 	$chemicalrequests = $potential_supplier->get_chemicalrequests();
 	if(is_array($chemicalrequests)) {
 		foreach($chemicalrequests as $chemicalrequest) {
-
 			/* colorate Satisfied request */
-			if($chemicalrequest['isclosed'] == 1) {
-				$feedback_link = '<a href="#"  rel="'.$chemicalrequest['scrid'].'" id="readfeedback_'.$chemicalrequest['scrid'].'_sourcing/listchemcialsrequests_loadpopupbyid">'.$chemicalrequest['displayName'].'</a>';
-				$islocked = 'closed';
-				$rowcolor = "greenbackground";
+			if($chemicalrequest['isClosed'] == 1) {
+				$feedback_icon = 'valid.gif';
+				$rowcolor = 'greenbackground';
 			}
-			elseif($chemicalrequest['isclosed'] == 0) {
-				$feedback_link = '<a href="#"  rel="'.$chemicalrequest['scrid'].'" id="feedback_'.$chemicalrequest['scrid'].'_sourcing/listchemcialsrequests_loadpopupbyid">'.$chemicalrequest['displayName'].'</a>';
-				$islocked = '';
-				$rowcolor = "unapproved";
+			elseif($chemicalrequest['isClosed'] == 0) {
+				$feedback_icon = 'edit.gif';
+				$rowcolor = 'unapproved';
 			}
-			$chemicalrequest['timeRequested_output'] = date($core->settings['timeformat'].'-'.$core->settings['dateformat'], $chemicalrequest['timeRequested']);
-			eval("\$sourcing_listchemcialsrequests_rows .= \"".$template->get('sourcing_listchemcialsrequests_rows')."\";");
+	
+			
+			$chemicalrequest['timeRequested_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $chemicalrequest['timeRequested']);
+			eval("\$chemcialsrequests_rows .= \"".$template->get('sourcing_listchemcialsrequests_rows')."\";");
 		}
 	}
-
+	else
+	{
+		$chemcialsrequests_rows = '<tr><td colspan="4">'.$lang->na.'</td></tr>';
+	}
 	eval("\$sourcing_listchemcialsrequests = \"".$template->get('sourcing_listchemcialsrequests')."\";");
 	output_page($sourcing_listchemcialsrequests);
 }
 else {
-	if($core->input['action'] == 'get_feedback') {
-		eval("\$sourcingfeedback = \"".$template->get('popup_sourcing_feedback')."\";");
-		output_page($sourcingfeedback);
-	}
-	elseif($core->input['action'] == 'get_readfeedback') {
+	if($core->input['action'] == 'get_feedbackform') {
 		$request_id = $core->input['id'];
 		$potential_supplier = new Sourcing();
-		$read_feedback = $potential_supplier->get_feedback($request_id);
-		$read_feedback['feedbackTime_output'] = date($core->settings['timeformat'], $read_feedback['feedbackTime']);
-		eval("\$sourcingreedfeedback = \"".$template->get('popup_sourcing_readfeedback')."\";");
-		output_page($sourcingreedfeedback);
+		
+		$feedback = $potential_supplier->get_feedback($request_id);
+		if($feedback['isClosed'] == 1) {
+			$feedback['feedbackTime_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $feedback['feedbackTime']);
+			eval("\$sourcingfeedback = \"".$template->get('popup_sourcing_readfeedback')."\";");
+		}
+		else {
+			eval("\$sourcingfeedback = \"".$template->get('popup_sourcing_feedback')."\";");
+		}
+		output_page($sourcingfeedback);
 	}
-	/* Do Feedback */
 	elseif($core->input['action'] == 'do_feedback') {
 		$potential_supplier = new Sourcing();
-		$request_id = $core->input['request']['rid'];
+		$request_id = $db->escape_string($core->input['request']['rid']);
 		$requests_feedback = $potential_supplier->set_feedback($core->input['feedback'], $request_id);
+				
 		switch($potential_supplier->get_status()) {
 			case 0:
-				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+				if($requester_details['isClosed'] == 1) {
+					$success_feedback = '<![CDATA[<script>$("tr[id^='.$request_id.']").each(function() {$(this).addClass("greenbackground");});</script>]]>';
+				}
+				output_xml("<status>true</status><message>{$lang->successfullysaved}{$success_feedback}</message>");
 				break;
 			case 1:
 				output_xml("<status>false</status><message>{$lang->fieldrequired}</message>");
@@ -74,30 +81,22 @@ else {
 				output_xml("<status>false</status><message>{$lang->feedbackexsist}</message>");
 				break;
 		}
-		$requester_detials = $db->fetch_assoc($db->query("SELECT scr.*,u.displayName,u.email
+		$requester_details = $db->fetch_assoc($db->query("SELECT scr.*, u.displayName, u.email
 										FROM ".Tprefix."sourcing_chemicalrequests scr
 										JOIN ".Tprefix."users u ON (u.uid = scr.uid) WHERE scr.scrid=".$request_id));
-		/* colorate Satisfied request */
-		if($requester_detials['isclosed'] == 1) {
-			header('Content-type: text/xml+javascript');  /* colorate each selected <tr> has applicant id  after successfull update */
-
-			output_xml('<status>true</status><message><![CDATA[<script> $("tr[id^='.$request_id.']").each(function() {$(this).addClass("greenbackground");});</script>]]></message>');
-		}
-		if($requests_feedback && $requester_detials['isclosed'] == 1) {
-
-
-			/* Prepare the email_data array to pass the argument to the mail object */
-			$body_message = '<li>'.$lang->feedbacksubmitted.'</li>';
+		
+		if($requests_feedback && $requester_details['isClosed'] == 1) {
 			$email_data = array(
-					'to' => $requester_detials['email'],
+					'to' => $requester_details['email'],
 					'from_email' => $core->settings['maileremail'],
 					'from' => 'OCOS Mailer',
-					'subject' => $lang->feedback_subject,
-					'message' => $lang->sprint($lang->feedback_message, $requester_detials['displayName']).'<ul>'.$body_message.'</ul>'
+					'subject' => $lang->feedbacknotification_subject,
+					'message' => $core->input['feedback']['feedback']
 			);
+
 			$mail = new Mailer($email_data, 'php');
 			if($mail->get_status() === true) {
-				$log->record('sourcingchemicalrequests', array('to' => $requester_detials['email']));
+				$log->record('sourcingchemicalrequests', array('to' => $requester_details['email']));
 			}
 		}
 	}

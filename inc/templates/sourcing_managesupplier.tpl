@@ -112,7 +112,7 @@
 				<div style="display:table-row;">
 					<div style="display: table-cell;">{$lang->email}</div>
 					<div style="display: table-cell; padding:5px; ">
-						<input accept="email" type="text" value="{$supplier[details][mainEmail]}" name="supplier[mainEmail]" />
+						<input accept="email" type="text" value="{$supplier[details][mainEmail]}" id="mainEmail" name="supplier[mainEmail]" /><span id="mainEmail_Validation"></span>
 					</div>
 				</div>
 				<div style="display:table-row;">

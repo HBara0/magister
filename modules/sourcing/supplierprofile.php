@@ -12,7 +12,7 @@ if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
 
-if($core->usergroup['sourcing_canListSuppliers'] == 0 || $core->usergroup['sourcing_canManageEntries'] == 0) {
+if($core->usergroup['sourcing_canListSuppliers'] == 0) {
 	error($lang->sectionnopermission);
 }
 
@@ -158,7 +158,7 @@ else {
 				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
 				break;
 			case 1:
-				output_xml("<status>false</status><message>{$lang->reportfieldrequired}</message>");
+				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				break;
 			case 2:
 				output_xml("<status>true</status><message>{$lang->successfullyupdate}</message>");

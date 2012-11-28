@@ -199,10 +199,13 @@ else {
 		$request = $potential_supplier->request_chemical($core->input['request']);
 		switch($potential_supplier->get_status()) {
 			case 1:
-				output_xml("<status>false</status><message>{$lang->fillrequired}</message>");
+				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				break;
 			case 2:
 				output_xml("<status>false</status><message>{$lang->descriptionalreadyexsist}</message>");
+				break;
+			case 0:
+				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
 				break;
 		}
 	}
