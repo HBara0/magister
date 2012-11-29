@@ -1316,4 +1316,32 @@ function get_curent_page_URL() {
  }
  return $pageURL;
 }
+
+// moved here from stock/reports because in use in assets too
+function get_name_from_id($id, $tablename = 'products', $idcolumn = 'pid', $namecolumn = 'name', $returnidifreolvefails = false) {
+	static $idtonamecache = array();
+	global $db;
+	try {
+		$name = $idtonamecache[$tablename][$idcolumn][$namecolumn][$id];
+		if(isset($name)) {
+			return $name;
+		}
+	}
+	catch(Exception $e) {
+		$msg = 'Exception '.$e->getMessage();
+	}
+	$name = $db->fetch_field($db->query('SELECT '.$namecolumn.' FROM '.Tprefix.$tablename.' WHERE '.$idcolumn.'="'.$db->escape_string($id).'"'), $namecolumn);
+	$idtonamecache[$tablename][$idcolumn][$namecolumn][$id] = $name;
+	if(isset($name)) {
+		return $name;
+	}
+	else {
+		if($returnidifreolvefails) {
+			return $id;
+		}
+		else {
+			return '-NA-';
+		}
+	}
+}
 ?>

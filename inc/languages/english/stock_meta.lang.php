@@ -129,4 +129,7 @@ $lang['yavg']='Average rate of the year';
 $lang['real']='Actual transaction rate';
 $lang['stockreportstitle']='Stocks Purchase Reports';
 $lang['stocklistingtitle']='Purchases Listing';
+$lang['purchasereporttitle']='Purchase Reports';
+$lang['purchaselisttitle']='Purchases Listing';
+
 ?>

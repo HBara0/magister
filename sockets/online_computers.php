@@ -1,7 +1,9 @@
 <?php
-require '../inc/init.php';
+$currentscriptname = basename($_SERVER['SCRIPT_NAME']);
+$currentscriptfolder = substr($_SERVER['SCRIPT_NAME'],0,strlen($_SERVER['SCRIPT_NAME'])-strlen($currentscriptname));
+require $currentscriptfolder.'../inc/init.php';
 
-$config['ip'] = "70.38.119.243";
+$config['ip'] = "10.0.0.66";
 $config['port'] = 8805;
 $config['max_clients'] = 20;
 $config['timeout'] = 600; //seconds
@@ -24,11 +26,11 @@ while(true) {
 	for($i = 0; $i < $config['max_clients']; $i++) {
 		if($client[$i]['socket'] != null) {
 			$read[$i + 1] = $client[$i]['socket'];
-		}	
+		}
 	}
 
 	$ready = socket_select($read, $write, $except, null);
-	
+
 	if(in_array($socket, $read)) {
 		for($i = 0; $i < $config['max_clients']; $i++) {
 			if($client[$i]['socket'] == null) {
@@ -61,7 +63,7 @@ while(true) {
 				unset($client[$i]['socket']);
 			}
 			else {
-				if($client[$i]['socket'] != null) { 
+				if($client[$i]['socket'] != null) {
 					$data = $db->escape_string($core->sanitize_inputs($data, array('removetags' => true)));
 					if(!empty($data)) {
 						$lastentry = $db->fetch_assoc($db->query('SELECT isodid, timeLine FROM '.Tprefix.'itservices_onlinedevices WHERE deviceName="'.$data.'" ORDER BY timeLine DESC LIMIT 0, 1'));
@@ -75,14 +77,14 @@ while(true) {
 							}
 						}
 						else {
-							$db->insert_query('itservices_onlinedevices', array('deviceName' => $data, 'timeLine' => time()));	
+							$db->insert_query('itservices_onlinedevices', array('deviceName' => $data, 'timeLine' => time()));
 						}
 					}
 				}
 			}
 		}
 		else {
-			if($client[$i]['socket'] != null) { 
+			if($client[$i]['socket'] != null) {
 				socket_close($client[$i]['socket']);
 				unset($client[$i]['socket']);
 			}
