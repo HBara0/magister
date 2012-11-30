@@ -24,7 +24,7 @@ class Sourcing {
 
 		if(is_empty($data['companyName'], $data['productsegment']) || (empty($data['ssid']) && $options['operationtype'] == 'update')) {
 			$this->status = 1;
-			// return false;
+			return false;
 		}
 
 		$this->supplier = $data;
@@ -34,8 +34,7 @@ class Sourcing {
 		$this->activityarea = $this->supplier['activityarea'];
 		$this->supplier['ssid'] = intval($this->supplier['ssid']);
 		//$this->supplier['type'] = $this->supplier['chemicalproducts']['supplyType'];
-		$supplier_type = $this->supplier['chemicalproducts'];
-		$this->supplier['type'] = $this->chemical_supply_type($supplier_type);
+		$this->supplier['type'] = $this->determine_supplyiertype($this->chemicals);
 
 		unset($this->supplier['chemicalproducts'], $this->supplier['productsegment'], $this->supplier['representative'], $this->supplier['activityarea']);
 		/* If action is edit, don't check if supplier already exists */
@@ -238,7 +237,7 @@ class Sourcing {
 	public function get_all_potential_suppliers($filter_where = '') {
 		global $db, $core;
 
-		//$sort_query = 'ORDER BY ss.ssid ASC';
+		$sort_query = 'ORDER BY businessPotential DESC, isBlacklisted ASC, relationMaturity DESC';
 		if(isset($core->input['sortby'], $core->input['order'])) {
 			$sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
 		}
@@ -280,6 +279,7 @@ class Sourcing {
 				$potential_suppliers[$supplier['ssid']]['segments'] = $this->get_supplier_segments($supplier['ssid']);
 				$potential_suppliers[$supplier['ssid']]['activityarea'] = $this->get_supplier_activity_area($supplier['ssid']);
 				$potential_suppliers[$supplier['ssid']]['chemicalsubstance'] = $this->get_chemicalsubstances($supplier['ssid']);
+				$supplier['type'] = $this->parse_supplytype($supplier['type']);
 				$potential_suppliers[$supplier['ssid']]['supplier'] = $supplier;
 			}
 			return $potential_suppliers;
@@ -404,6 +404,7 @@ class Sourcing {
 												WHERE ssc.ssid= ".$db->escape_string($supplier_id));
 		if($db->num_rows($chemicalsubstances_query) > 0) {
 			while($chemicalsubstance = $db->fetch_assoc($chemicalsubstances_query)) {
+				$chemicalsubstance['supplyType'] = $this->parse_supplytype($chemicalsubstance['supplyType']);
 				$chemicalsubstances[$chemicalsubstance['csid']] = $chemicalsubstance;
 			}
 			$db->free_result($chemicalsubstances_query);
@@ -576,6 +577,27 @@ class Sourcing {
 										{$see_otherusers}"));
 	}
 
+	public function parse_supplytype($supplytype) {
+		global $lang;
+		
+		if(empty($supplytype)) {
+			$supplytype = $this->supplier['type'];
+		}
+		
+		switch($supplytype) {
+			case 't': 
+				return $lang->trader;
+				break;
+			case 'p':
+				return $lang->producer;
+				break;
+			case 'b':
+				return $lang->both;
+				break;
+		}
+		return false;
+	}
+	
 	public function is_blacklisted() {
 		if($this->supplier['isBlacklisted'] == 1) {
 			return true;
@@ -621,8 +643,8 @@ class Sourcing {
 		}
 	}
 
-	private function chemical_supply_type($supplier_type) {
-		foreach($supplier_type as $cas=>$supplytype) {
+	private function determine_supplyiertype($supply_types) {
+		foreach($supply_types as $cas=> $supplytype) {
 			$types[] = $supplytype['supplyType'];
 		}
 		
