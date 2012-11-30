@@ -356,7 +356,7 @@ class Sourcing {
 		return false;
 	}
 
-	public function get_supplier_activity_area($supplier_id = '') {
+	public function get_supplier_activity_area($supplier_id = '', $real = false) {
 		global $db;
 
 		if(empty($supplier_id)) {
@@ -367,13 +367,17 @@ class Sourcing {
 				return false;
 			}
 		}
-
+		
+		if($real == false) {
+			$query_whereadd = ' AND availability!="3"';	
+		}
+		
 		$activity_area_query = $db->query("SELECT ssaa.*, co.name AS country, aff.name AS affiliate 
 									FROM ".Tprefix."sourcing_suppliers ss
 									JOIN ".Tprefix."sourcing_suppliers_activityareas ssaa ON (ss.ssid=ssaa.ssid)
 									JOIN ".Tprefix."countries co ON (co.coid=ssaa.coid)
 									JOIN ".Tprefix."affiliates aff ON (aff.affid=co.affid)
-									WHERE ss.ssid= ".$db->escape_string($supplier_id));
+									WHERE ss.ssid= ".$db->escape_string($supplier_id).$query_whereadd);
 
 		if($db->num_rows($activity_area_query) > 0) {
 			while($activity_area = $db->fetch_assoc($activity_area_query)) {
@@ -643,29 +647,30 @@ class Sourcing {
 		}
 	}
 
-	public function create_chemical($data) {
+	public function create_chemical(array $data) {
 		global $db, $core;
 
-		if(is_empty($data['casNum'], $data['name'], $data['synonyms'])) {
+		if(is_empty($data['casNum'], $data['name'])) {
 			$this->status = 4;
 			return false;
 		}
-		if(value_exists('chemicalsubstances', 'casNum', $data['casNum'])) {
+		
+		if(value_exists('chemicalsubstances', 'casNum', $data['casNum']) || value_exists('chemicalsubstances', 'name', $data['name'])) {
 			$this->status = 5;
 			return false;
 		}
-		$data['casNum'] = $core->sanitize_inputs($data['casNum'], array('removetags' => true));
-		$data['name'] = $core->sanitize_inputs($data['name'], array('removetags' => true));
-		$data['synonyms'] = $core->sanitize_inputs($data['synonyms'], array('removetags' => true));
-		$chemica_data = array('casNum' => $data['casNum'],
-				'name' => $data['name'],
-				'synonyms' => $data['synonyms']
+		
+		$chemical_data = array(
+				'casNum' => $core->sanitize_inputs($data['casNum'], array('removetags' => true)),
+				'name' => $core->sanitize_inputs($data['name'], array('removetags' => true)),
+				'synonyms' => $core->sanitize_inputs($data['synonyms'], array('removetags' => true))
 		);
-		$query = $db->insert_query('chemicalsubstances', $chemica_data);
+		$query = $db->insert_query('chemicalsubstances', $chemical_data);
 		if($query) {
 			$this->status = 0;
 			return true;
 		}
+		return false;
 	}
 	
 	private function determine_supplyiertype($supply_types) {	

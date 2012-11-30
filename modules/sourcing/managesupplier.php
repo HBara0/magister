@@ -124,8 +124,6 @@ else {
 				break;
 		}
 	}
-	
-		/*Creat new chemical -START*/
 	elseif($core->input['action'] == 'do_createchemical') {
 		$potential_supplier->create_chemical($core->input['supplier']['chemcialsubstances']);
 		switch($potential_supplier->get_status()) {
@@ -133,19 +131,17 @@ else {
 				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
 				break;
 			case 4:
-				output_xml("<status>false</status><message>{$lang->chemicalrequired}</message>");
+				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				break;
 			case 5:
 				output_xml("<status>false</status><message>{$lang->chemicalexsist}</message>");
 				break;
 		}
 	}
-	/*Creat new chemical -END*/
 	elseif($core->input['action'] == 'get_addnew_chemical') {
-		eval("\$createchemical= \"".$template->get('popup_sourcing_createchemicalrequests')."\";");
+		eval("\$createchemical= \"".$template->get('popup_sourcing_createchemical')."\";");
 		output_page($createchemical);
 	}
-/* if we attempt to create new representative from the popup */
 	elseif($core->input['action'] == 'do_add_representative') {
 		$core->input['repPhone'] = $core->input['countrycode'].'-'.$core->input['area'].'-'.$core->input['repPhone'];
 		$representative = new Entities($core->input, 'add_representative');

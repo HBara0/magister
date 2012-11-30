@@ -357,7 +357,7 @@ class Entities {
 			exit;
 		}
 				
-		$query = $db->insert_query('representatives', array('name' => ucwords(strtolower($this->data['repName'])), 'email' => $this->data['repEmail'],'phone'=>$this->data['repPhone']));
+		$query = $db->insert_query('representatives', array('name' => ucwords(strtolower($this->data['repName'])), 'email' => $this->data['repEmail'], 'phone'=> $this->data['repPhone']));
 		if($query) {
 			$rpid = $db->last_id();
 			if(isset($this->data['repcid'])) {
