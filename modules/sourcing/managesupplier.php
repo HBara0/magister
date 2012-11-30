@@ -36,20 +36,14 @@ if(!$core->input['action']) {
 			}
 		}
 
-		$selectlists_index = array('type');
-		foreach($selectlists_index as $key) {
-			$selecteditems[$key][$supplier['details'][$key]] = ' select="selected"';
-		}
-
-
 		if(is_array($supplier['chemicalsubstances'])) {
 			$chemicalp_rowid = 1;
 			foreach($supplier['chemicalsubstances'] as $chemicalproduct) {
+				$selecteditems[$chemicalp_rowid]['supplyType'][$chemicalproduct['supplyType']] = ' select="selected"';
 				eval("\$chemicalproducts_rows .= \"".$template->get('sourcing_managesupplier_chemicalrow')."\";");
 				$chemicalp_rowid++;
 			}
 		}
-
 
 		if(is_array($supplier['contactpersons'])) {
 			$contactp_rowid = 1;
@@ -75,23 +69,32 @@ if(!$core->input['action']) {
 	$countries_list = parse_selectlist('supplier[country]', 8, get_specificdata('countries', array('coid', 'name'), 'coid', 'name', array('sort' => 'ASC', 'by' => 'name')), $supplier['details']['country']);
 	$product_list = parse_selectlist('supplier[productsegment][]', 9, get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', ''), $supplier['segments'], 1);
 	$rml_selectlist = parse_selectlist('supplier[relationMaturity]', 10, get_specificdata('entities_rmlevels', array('ermlid', 'title'), 'ermlid', 'title', ''), $supplier['details']['relationMaturity']);
-	//$activityarea_list = parse_selectlist('supplier[activityarea][]', 8, get_specificdata('countries', array('coid', 'name'), 'coid', 'name', '', '', 'affid IN (SELECT affid FROM affiliates)'), $supplier['activityareas'], 1);
-	$affiliates = get_specificdata('countries', array('coid', 'name'), 'coid', 'name', '', '', 'affid IN (SELECT affid FROM affiliates)');
-	$availability_radiobutton_items = array('1' => $lang->yes, '2' => $lang->no, '3' => $lang->undefined, '4' => $lang->sourcingdecide);
-	if(is_array($supplier['activityareas'])) {
-		foreach($supplier['activityareas'] as $key => $activityareasdata) {
-			$supplier['slectedactivityareas'] [$key]= $activityareasdata;
+	
+	/* Parse Availability section - START */
+	$availability_radiobutton_items = array('1' => $lang->undefined, '2' => $lang->yes, '3' => $lang->no, '4' => $lang->sourcingdecide);
+	if($core->input['type'] == 'edit') {
+		if(is_array($supplier['activityareas'])) {
+			foreach($supplier['activityareas'] as $key => $activityareasdata) {
+				$supplier['selectedactivityareas'][$key] = $activityareasdata;
+			}
 		}
 	}
-	foreach($affiliates as $affid => $name) {
+	
+	$availablecountries = get_specificdata('countries', array('coid', 'name'), 'coid', 'name', '', '', 'affid IN (SELECT affid FROM affiliates)');
+	foreach($availablecountries as $acoid => $name) {
 		$rowclass = alt_row($rowclass);
-		foreach($availability_radiobutton_items as $attr => $item) {
-			$availability_radiobutton[$item] = parse_radiobutton('supplier[activityarea]['.$affid.'][availability]', array($attr => $item), $supplier['slectedactivityareas'][$affid]['availability']);
+		
+		if(!isset($supplier['selectedactivityareas'][$acoid]['availability'])) {
+			$supplier['selectedactivityareas'][$acoid]['availability'] = '1';
+		}
+		
+		foreach($availability_radiobutton_items as $index => $item) {
+			$availability_radiobutton[$index] = parse_radiobutton('supplier[activityarea]['.$acoid.'][availability]', array($index => $item), $supplier['selectedactivityareas'][$acoid]['availability']);
 		}
 		eval("\$activityarea_list_row .= \"".$template->get('sourcing_managesupplier_activityarea_list_row')."\";");
 	}
-
-
+	/* Parse Availability section - END */
+	
 	$supplierid = $core->input['id'];
 	eval("\$sourcingmanagesupplier = \"".$template->get('sourcing_managesupplier')."\";");
 	output_page($sourcingmanagesupplier);
@@ -141,9 +144,14 @@ else {
 
 		if($db->num_rows($companies_exists_query) > 0) {
 			while($companies = $db->fetch_assoc($companies_exists_query)) {
-				$companies_exists .= implode('<br />', $companies);
+				$companies_exists .= $companies['companyName'].'<br />';
 			}
-			output_xml("<status>false</status><message>{$lang->companyexists}<br />{$companies_exists}</message>");
+			header('Content-type: text/xml+xthml');
+			output_xml("<status>false</status><message>{$lang->companyexists}<![CDATA[ <br />{$companies_exists} ]]></message>");
+		}
+		else
+		{
+			output_xml("<status>true</status><message></message>");	
 		}
 	}
 }
