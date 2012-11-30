@@ -81,27 +81,26 @@ if($core->input['type'] == 'quick') {
 	  elseif($core->input['for'] == 'chemicalproducts') {
 
 		$table = 'chemicalsubstances';
-		$attributes = array('csid','name');
+		$attributes = array('name', 'casNum', 'synonyms');
 		$key_attribute = 'csid';
 
-		$select_attributes = array('casNum', 'name');
+		$select_attributes = array('name', 'casNum');
 		$order = array('by' => 'name', 'sort' => 'ASC');
 	}
+	elseif($core->input['for'] == 'product') {
+		if(isset($core->input['rid']) && !empty($core->input['rid'])) {
+			$extra_where .= 'spid = "'.$report_data['spid'].'"';
+		}
 
-	  elseif($core->input['for'] == 'product') {
-		  if(isset($core->input['rid']) && !empty($core->input['rid'])) {
-			  $extra_where .= 'spid = "'.$report_data['spid'].'"';
-		  }
+		if(!empty($supplier_filter)) {
+			$extra_where .= $supplier_filter;
+		}
 
-		  if(!empty($supplier_filter)) {
-			  $extra_where .= $supplier_filter;
-		  }
-
-		  $table = 'products';
-		  $attributes = array('name');
-		  $key_attribute = 'pid';
-		  $select_attributes = array('name');
-		  $order = array('by' => 'name', 'sort' => 'ASC');
+		$table = 'products';
+		$attributes = array('name');
+		$key_attribute = 'pid';
+		$select_attributes = array('name');
+		$order = array('by' => 'name', 'sort' => 'ASC');
 	  }
 	  elseif($core->input['for'] == 'representative' || $core->input['for'] == 'supprepresentative') {
 		  if(IN_AREA == 'user') {
