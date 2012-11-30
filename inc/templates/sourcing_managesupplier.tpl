@@ -25,22 +25,38 @@
 					</div>
 					
 				</div>
-				<div style="display:table-row;">
+				<!--<div style="display:table-row;">
 					<div style="display: table-cell; vertical-align:middle;">{$lang->product}</div>
 					<div style="display: table-cell; padding:5px;">
-						<select name="supplier[type]">
-							<option value="t"{$selecteditems[type][t]}>{$lang->trader}</option>
-							<option value="p"{$selecteditems[type][p]}>{$lang->producer}</option>
-						</select>
+					  <select name="supplier[type]">
+					    <option value="t"{$selecteditems[type][t]}>{$lang->trader}</option>
+					    <option value="p"{$selecteditems[type][p]}>{$lang->producer}</option>
+				      </select>
 					</div>
-				</div>
+				</div>-->
 				<div style="display:table-row;">
 					<div style="display: table-cell; vertical-align:middle;">{$lang->product}</div>
 					<div style="display: table-cell; padding:5px;">{$product_list}</div>
 				</div>
 				<div style="display:table-row;">
-					<div style="display: table-cell; vertical-align:middle;">{$lang->activityarea}</div>
-					<div style="display: table-cell; padding:5px;">{$activityarea_list}</div>
+                 <div style="display: table-cell;width:0px;"></div>
+					  <div style="display: table-cell;width:100%;">
+				
+                  
+					  <div  align="left" style="width:100%; margin-top:10px; margin-bottom:15px; height: 200px; overflow:auto; display:inline-block; vertical-align:top;">
+					    <table width="100%"  class="datatable" border="0" cellspacing="2" cellpadding="1">
+					      <tr class='thead'>
+                          <th>{$lang->activityarea}</th>
+					        <th>{$lang->affiliate}</th>
+					          <th>{$lang->availaibility}</th>
+					        <th>&nbsp;</th>
+                             <th>&nbsp;</th>
+                              <th>&nbsp;</th>
+				          </tr>
+					      {$activityarea_list_row}
+				        </table>
+				      </div>
+				 </div>
 				</div>
 				<div style="display:table-row;">
 					<div style="display: table-cell;">{$lang->country}</div>

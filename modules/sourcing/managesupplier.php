@@ -26,7 +26,7 @@ if(!$core->input['action']) {
 		$supplier['details'] = $potential_supplier->get_supplier();
 		$supplier['segments'] = array_keys($potential_supplier->get_supplier_segments());
 		$supplier['contactpersons'] = $potential_supplier->get_supplier_contact_persons();
-		$supplier['activityareas'] = array_keys($potential_supplier->get_supplier_activity_area());
+		$supplier['activityareas'] = $potential_supplier->get_supplier_activity_area();
 		$supplier['chemicalsubstances'] = $potential_supplier->get_chemicalsubstances();
 
 		$checkboxes_index = array('isBlacklisted');
@@ -75,7 +75,22 @@ if(!$core->input['action']) {
 	$countries_list = parse_selectlist('supplier[country]', 8, get_specificdata('countries', array('coid', 'name'), 'coid', 'name', array('sort' => 'ASC', 'by' => 'name')), $supplier['details']['country']);
 	$product_list = parse_selectlist('supplier[productsegment][]', 9, get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', ''), $supplier['segments'], 1);
 	$rml_selectlist = parse_selectlist('supplier[relationMaturity]', 10, get_specificdata('entities_rmlevels', array('ermlid', 'title'), 'ermlid', 'title', ''), $supplier['details']['relationMaturity']);
-	$activityarea_list = parse_selectlist('supplier[activityarea][]', 8, get_specificdata('countries', array('coid', 'name'), 'coid', 'name', '', '', 'affid IN (SELECT affid FROM affiliates)'), $supplier['activityareas'], 1);
+	//$activityarea_list = parse_selectlist('supplier[activityarea][]', 8, get_specificdata('countries', array('coid', 'name'), 'coid', 'name', '', '', 'affid IN (SELECT affid FROM affiliates)'), $supplier['activityareas'], 1);
+	$affiliates = get_specificdata('countries', array('coid', 'name'), 'coid', 'name', '', '', 'affid IN (SELECT affid FROM affiliates)');
+	$availability_radiobutton_items = array('1' => $lang->yes, '2' => $lang->no, '3' => $lang->undefined, '4' => $lang->sourcingdecide);
+	if(is_array($supplier['activityareas'])) {
+		foreach($supplier['activityareas'] as $key => $activityareasdata) {
+			$supplier['slectedactivityareas'] [$key]= $activityareasdata;
+		}
+	}
+	foreach($affiliates as $affid => $name) {
+		$rowclass = alt_row($rowclass);
+		foreach($availability_radiobutton_items as $attr => $item) {
+			$availability_radiobutton[$item] = parse_radiobutton('supplier[activityarea]['.$affid.'][availability]', array($attr => $item), $supplier['slectedactivityareas'][$affid]['availability']);
+		}
+		eval("\$activityarea_list_row .= \"".$template->get('sourcing_managesupplier_activityarea_list_row')."\";");
+	}
+
 
 	$supplierid = $core->input['id'];
 	eval("\$sourcingmanagesupplier = \"".$template->get('sourcing_managesupplier')."\";");
@@ -107,6 +122,7 @@ else {
 	}
 	/* if we attempt to create new representative from the popup */
 	elseif($core->input['action'] == 'do_add_representative') {
+		$core->input['repPhone'] = $core->input['countrycode'].'-'.$core->input['area'].'-'.$core->input['repPhone'];
 		$representative = new Entities($core->input, 'add_representative');
 
 		if($representative->get_status() === true) {

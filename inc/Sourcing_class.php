@@ -5,8 +5,8 @@
  * 
  * Sourcing Class
  * $id: Sourcing_class.php
- * Created:			@tony.assaad	October 15, 2012 | 10:53 PM
- * Last Update:      @tony.assaad	November 19, 2012 | 17:06 PM
+ * Created:			@tony.assaad	October 15, 2012 |  10:53 PM
+ * Last Update:      @tony.assaad	November 29, 2012 | 5:06 PM
  */
 
 class Sourcing {
@@ -24,22 +24,25 @@ class Sourcing {
 
 		if(is_empty($data['companyName'], $data['productsegment']) || (empty($data['ssid']) && $options['operationtype'] == 'update')) {
 			$this->status = 1;
-			return false;
+			// return false;
 		}
 
 		$this->supplier = $data;
 		$this->chemicals = $this->supplier['chemicalproducts'];
 		$this->productsegments = $this->supplier['productsegment'];
-		$this->representative = $this->supplier['representative']['id'];
+		$this->representative = $this->supplier['representative'];
 		$this->activityarea = $this->supplier['activityarea'];
 		$this->supplier['ssid'] = intval($this->supplier['ssid']);
+		//$this->supplier['type'] = $this->supplier['chemicalproducts']['supplyType'];
+		$supplier_type = $this->supplier['chemicalproducts'];
+		$this->supplier['type'] = $this->chemical_supply_type($supplier_type);
 
 		unset($this->supplier['chemicalproducts'], $this->supplier['productsegment'], $this->supplier['representative'], $this->supplier['activityarea']);
 		/* If action is edit, don't check if supplier already exists */
 		if($options['operationtype'] != 'update') {
 			if(value_exists('sourcing_suppliers', 'companyName', $this->supplier['companyName'])) {
 				$this->status = 2;
-				return false;
+				//return false;
 			}
 		}
 
@@ -91,12 +94,15 @@ class Sourcing {
 			/* Insert  suppliers_activityareas - START */
 			if(is_array($this->activityarea)) {
 				foreach($this->activityarea as $activityarea) {
-					$activity_area = array(
-							'ssid' => $this->supplier['ssid'],
-							'coid' => $activityarea,
-					);
+					if(isset($activityarea['availability']) && !empty($activityarea['availability'])) {
+						$activity_area = array(
+								'ssid' => $this->supplier['ssid'],
+								'coid' => $activityarea['coid'],
+								'availability' => $activityarea['availability']
+						);
 
-					$db->insert_query('sourcing_suppliers_activityareas', $activity_area);
+						$db->insert_query('sourcing_suppliers_activityareas', $activity_area);
+					}
 				}
 			}
 			/* Insert suppliers_activityareas - END */
@@ -123,10 +129,11 @@ class Sourcing {
 			}
 
 			if(is_array($this->representative)) {
-				foreach($this->representative as $representative) {
+				foreach($this->representative as $key => $representative) {
 					$suppliers_contactpersons = array(
 							'ssid' => $this->supplier['ssid'],
-							'rpid' => $representative
+							'rpid' => $representative['id'],
+							'notes' => $representative['notes']
 					);
 					$querycontactpersons = $db->insert_query('sourcing_suppliers_contactpersons', $suppliers_contactpersons);
 				}
@@ -136,11 +143,12 @@ class Sourcing {
 				$db->delete_query('sourcing_suppliers_chemicals', 'ssid='.$this->supplier['ssid']);
 			}
 
-			if(is_array($this->chemicals['csid'])) {
-				foreach($this->chemicals['csid'] as $chemical) {
+			if(is_array($this->chemicals)) {
+				foreach($this->chemicals as $chemical) {
 					$new_chemicals = array(
 							'ssid' => $this->supplier['ssid'],
-							'csid' => $chemical
+							'csid' => $chemical['csid'],
+							'supplyType' => $chemical['supplyType']
 					);
 					$db->insert_query('sourcing_suppliers_chemicals', $new_chemicals);
 				}
@@ -298,7 +306,6 @@ class Sourcing {
 		if($db->num_rows($segments_query) > 0) {
 			while($segment = $db->fetch_assoc($segments_query)) {
 				$segments[$segment['psid']] = $segment['segment'];
-				$segmentsss[$segment['segmentid']] = $segment['psid'];
 			}
 			return $segments;
 		}
@@ -361,7 +368,7 @@ class Sourcing {
 			}
 		}
 
-		$activity_area_query = $db->query("SELECT ssaa.ssaid, co.name AS country, aff.name AS affiliate 
+		$activity_area_query = $db->query("SELECT ssaa.*, co.name AS country, aff.name AS affiliate 
 									FROM ".Tprefix."sourcing_suppliers ss
 									JOIN ".Tprefix."sourcing_suppliers_activityareas ssaa ON (ss.ssid=ssaa.ssid)
 									JOIN ".Tprefix."countries co ON (co.coid=ssaa.coid)
@@ -370,8 +377,9 @@ class Sourcing {
 
 		if($db->num_rows($activity_area_query) > 0) {
 			while($activity_area = $db->fetch_assoc($activity_area_query)) {
-				$activity_areas[$activity_area['ssaid']] = $activity_area;
+				$activity_areas[$activity_area['coid']] = $activity_area;
 			}
+
 			return $activity_areas;
 		}
 		return array();
@@ -532,14 +540,14 @@ class Sourcing {
 			$this->status = 1;
 			return false;
 		}
-		
+
 		$data['feedback'] = $core->sanitize_inputs($data['feedback'], array('removetags' => true));
-		
+
 		if(value_exists('sourcing_chemicalrequests', 'feedback', $data['feedback'], 'isClosed='.intval($data['isClosed']))) {
 			$this->status = 2;
 			return false;
 		}
-		
+
 		$feedback_data = array('feedback' => trim($data['feedback']),
 				'feedbackBy' => $core->user['uid'],
 				'feedbackTime' => TIME_NOW,
@@ -610,6 +618,20 @@ class Sourcing {
 		else {
 			$this->status = 1;
 			return false;
+		}
+	}
+
+	private function chemical_supply_type($supplier_type) {
+		foreach($supplier_type as $cas=>$supplytype) {
+			$types[] = $supplytype['supplyType'];
+		}
+		
+		$types = array_unique($types);
+		if(count($types)>1){
+			return 'b';
+		}
+		else{
+			return current($types);
 		}
 	}
 
