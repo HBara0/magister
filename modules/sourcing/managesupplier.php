@@ -7,7 +7,7 @@
  *  $module: Sourcing
  * $id: Managesupplier.php	
  * Created By: 		@tony.assaad		October 8, 2012 | 12:30 PM
- * Last Update: 	@tony.assaad		October 10, 2012 | 4:13 PM
+ * Last Update: 	@tony.assaad		November 30, 2012 | 11:13 PM
  */
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
@@ -100,6 +100,7 @@ if(!$core->input['action']) {
 	output_page($sourcingmanagesupplier);
 }
 else {
+	$potential_supplier = new Sourcing();
 	if($core->input['action'] == 'do_addpage' || $core->input['action'] == 'do_editpage') {
 		if($core->input['action'] == 'do_editpage') {
 			$options['operationtype'] = 'update';
@@ -123,7 +124,28 @@ else {
 				break;
 		}
 	}
-	/* if we attempt to create new representative from the popup */
+	
+		/*Creat new chemical -START*/
+	elseif($core->input['action'] == 'do_createchemical') {
+		$potential_supplier->create_chemical($core->input['supplier']['chemcialsubstances']);
+		switch($potential_supplier->get_status()) {
+			case 0:
+				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+				break;
+			case 4:
+				output_xml("<status>false</status><message>{$lang->chemicalrequired}</message>");
+				break;
+			case 5:
+				output_xml("<status>false</status><message>{$lang->chemicalexsist}</message>");
+				break;
+		}
+	}
+	/*Creat new chemical -END*/
+	elseif($core->input['action'] == 'get_addnew_chemical') {
+		eval("\$createchemical= \"".$template->get('popup_sourcing_createchemicalrequests')."\";");
+		output_page($createchemical);
+	}
+/* if we attempt to create new representative from the popup */
 	elseif($core->input['action'] == 'do_add_representative') {
 		$core->input['repPhone'] = $core->input['countrycode'].'-'.$core->input['area'].'-'.$core->input['repPhone'];
 		$representative = new Entities($core->input, 'add_representative');
