@@ -9,7 +9,7 @@
 	<td class="contentContainer"><h3>{$lang->$actiontype}</h3>
 		<form name="perform_sourcing/managesupplier_Form" action="{$_SERVER[QUERY_STRING]}" method="post" id="perform_sourcing/managesupplier_Form" >
 			<input type="hidden" value="do_{$actiontype}page" name="action" id="action" />
-			<input name="supplier[ssid]" type="hidden" value="{$supplierid}">
+			<input name="supplier[ssid]" type="hidden" value="{$supplierid}" />
 			<div style="display:table; border-collapse:collapse; width:100%;">
 				<div style="display:table-row;">
 					<div class="thead" style="display:table-cell; width:20%;">{$lang->generalinfo}</div>
@@ -18,45 +18,15 @@
 				<div style="display:table-row;">
 					<div style="display: table-cell;"><strong>{$lang->companyname}</strong></div>
 					<div style="display: table-cell; padding:5px;">
-						<input id="companyName" name="supplier[companyName]" type="text" value="{$supplier[details][companyName]}" class='inlineCheck' size="30">
+						<input id="companyName" name="supplier[companyName]" type="text" value="{$supplier[details][companyName]}" class='inlineCheck' size="30" />
 						&nbsp;{$lang->abbreviation}
-						<input name="supplier[companyNameAbbr]" type="text" value="{$supplier[details][companyNameAbbr]}" size="15">
+						<input name="supplier[companyNameAbbr]" type="text" value="{$supplier[details][companyNameAbbr]}" size="15" />
 						<div id="companyName_inlineCheckResult" style="paddinng:5px;" class="red_text"></div>
 					</div>
-					
 				</div>
-				<!--<div style="display:table-row;">
-					<div style="display: table-cell; vertical-align:middle;">{$lang->product}</div>
-					<div style="display: table-cell; padding:5px;">
-					  <select name="supplier[type]">
-					    <option value="t"{$selecteditems[type][t]}>{$lang->trader}</option>
-					    <option value="p"{$selecteditems[type][p]}>{$lang->producer}</option>
-				      </select>
-					</div>
-				</div>-->
 				<div style="display:table-row;">
 					<div style="display: table-cell; vertical-align:middle;">{$lang->product}</div>
 					<div style="display: table-cell; padding:5px;">{$product_list}</div>
-				</div>
-				<div style="display:table-row;">
-                 <div style="display: table-cell;width:0px;"></div>
-					  <div style="display: table-cell;width:100%;">
-				
-                  
-					  <div  align="left" style="width:100%; margin-top:10px; margin-bottom:15px; height: 200px; overflow:auto; display:inline-block; vertical-align:top;">
-					    <table width="100%"  class="datatable" border="0" cellspacing="2" cellpadding="1">
-					      <tr class='thead'>
-                          <th>{$lang->activityarea}</th>
-					        <th>{$lang->affiliate}</th>
-					          <th>{$lang->availaibility}</th>
-					        <th>&nbsp;</th>
-                             <th>&nbsp;</th>
-                              <th>&nbsp;</th>
-				          </tr>
-					      {$activityarea_list_row}
-				        </table>
-				      </div>
-				 </div>
 				</div>
 				<div style="display:table-row;">
 					<div style="display: table-cell;">{$lang->country}</div>
@@ -99,7 +69,7 @@
 					</div>
 				</div>
 				<div style="display:table-row;">
-					<div style="display: table-cell;">{$lang->phone1}</div>
+					<div style="display: table-cell;">{$lang->telephone}</div>
 					<div style="display: table-cell; padding:5px;"> +
 						<input type="text" id="phone1_intcode" name="supplier[phone1][intcode]" value="{$supplier[details][phone1][0]}" size="3" maxlength="3" accept="numeric" />
 						<input type="text" id="phone1_areacode" name="supplier[phone1][areacode]" value="{$supplier[details][phone1][1]}" size='4' maxlength="4" accept="numeric" />
@@ -108,7 +78,7 @@
 					</div>
 				</div>
 				<div style="display:table-row;">
-					<div style="display: table-cell;">{$lang->phone2}</div>
+					<div style="display: table-cell;">{$lang->telephone} 2</div>
 					<div style="display: table-cell; padding:5px;"> +
 						<input type="text" id="phone2_intcode" name="supplier[phone2][intcode]" value="{$supplier[details][phone2][0]}" size="3" maxlength="3" accept="numeric" />
 						<input type="text" id="phone2_areacode" name="supplier[phone2][areacode]" value="{$supplier[details][phone2][1]}" size='4' maxlength="4" accept="numeric" />
@@ -128,8 +98,8 @@
 				<div style="display:table-row;">
 					<div style="display: table-cell;">{$lang->email}</div>
 					<div style="display: table-cell; padding:5px; ">
-						<input accept="email" type="text" value="{$supplier[details][mainEmail]}" id="mainEmail" name="supplier[mainEmail]" /><span id="mainEmail_Validation"></span>
-					</div>
+						<input accept="email" type="text" value="{$supplier[details][mainEmail]}" id="mainEmail" name="supplier[mainEmail]" />
+						<span id="mainEmail_Validation"></span> </div>
 				</div>
 				<div style="display:table-row;">
 					<div style="display: table-cell;">{$lang->website}</div>
@@ -138,22 +108,37 @@
 					</div>
 				</div>
 				<div style="display:table-row;">
-					<div class="thead" style="display:table-cell;">{$lang->chemicalproducts}</div>
+					<div class="thead" style="display:table-cell;">{$lang->activityarea}</div>
 					<div class="thead" style="display:table-cell;"></div>
 				</div>
 				<div style="display:table-row;">
+					<div style="display: table-cell; width:1px;"></div>
+					<div style="display: table-cell; width:100%;">
+						<div align="left" style="width:100%; margin-top:10px; margin-bottom:15px; height: 200px; overflow:auto; display:inline-block; vertical-align:top;">
+							<table width="100%"  class="datatable" border="0" cellspacing="2" cellpadding="1">
+								{$activityarea_list_row}
+							</table>
+						</div>
+					</div>
+				</div>
+				<div style="display:table-row;">
+					<div class="thead" style="display:table-cell;">{$lang->chemicalproducts}</div>
+					<div class="thead" style="display:table-cell;"></div>
+				</div>
+				<div style="display:table-row; vertical-align:top;">
 					<div style="display: table-cell; padding:5px;">{$lang->selectchemicalproduct}</div>
 					<div style="display: table-cell; padding:5px;">
 						<table>
 							<tbody id="chemicalproduct_tbody" >
 								{$chemicalproducts_rows}
 							</tbody>
+							
 						</table>
 					</div>
 				</div>
 				<div style="display:table-row; margin-bottom: 10px;">
-					<div style="display: table-cell; padding:5px;"> <img src="images/add.gif" id="addmore_chemicalproduct" alt="{$lang->add}">
-						<input name="chemicalproduct_numrows" id="chemicalproduct_numrows" value="1" type="hidden">
+					<div style="display: table-cell; padding:5px;"> <img src="images/add.gif" id="addmore_chemicalproduct" alt="{$lang->add}" />
+						<input name="chemicalproduct_numrows" id="chemicalproduct_numrows" value="{$chemicalp_rowid}" type="hidden" />
 					</div>
 				</div>
 				<div style="display:table-row;">
@@ -161,18 +146,18 @@
 					<div class="thead" style="display:table-cell;"></div>
 				</div>
 				<div style="display:table-row;">
-					<div style="display: table-cell; padding:5px;">{$lang->selectcontactperson}</div>
+					<div style="display: table-cell; padding:5px; vertical-align:top;">{$lang->selectcontactperson}</div>
 					<div style="display: table-cell; padding:5px;">
 						<table>
 							<tbody id="representative_tbody">
-								{$contactpersons_rows}
+							{$contactpersons_rows}
 							</tbody>
 						</table>
 					</div>
 				</div>
 				<div style="display:table-row; margin-bottom: 10px;">
-					<div style="display: table-cell; padding:5px;"> <img src="images/add.gif" id="addmore_representative" alt="{$lang->add}">
-						<input name="representative_numrows" id="representative_numrows" value="1" type="hidden">
+					<div style="display: table-cell; padding:5px;"> <img src="images/add.gif" id="addmore_representative" alt="{$lang->add}" />
+						<input name="representative_numrows" id="representative_numrows" value="{$contactp_rowid}" type="hidden" />
 					</div>
 				</div>
 				<div style="display:table-row;">

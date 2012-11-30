@@ -58,12 +58,12 @@ if($potential_supplier->is_blacklisted()) { /* if supplier isBlacklisted */
 	if(is_array($supplier['chemicalsubstances'])) {
 		foreach($supplier['chemicalsubstances'] as $chemical) {
 			$rowclass = alt_row($rowclass);
-			$chemicalslist_section .='<tr class="'.$rowclass.'"><td width="10%">'.$chemical['casNum'].'</td><td align="left">'.$chemical['name'].'</td></tr>';
+			$chemicalslist_section .='<tr class="'.$rowclass.'"><td width="10%">'.$chemical['casNum'].'</td><td align="left">'.$chemical['name'].'</td><td>'.$chemical['supplyType'].'</td><td>'.$chemical['synonyms'].'</td></tr>';
 		}
 	}
 	else
 	{
-		$chemicalslist_section = '<tr><td colspan="2">{$lang->na}</td></tr>';
+		$chemicalslist_section = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
 	}
 	/* Chemical List - END */
 
