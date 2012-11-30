@@ -24,7 +24,7 @@ class Sourcing {
 
 		if(is_empty($data['companyName'], $data['productsegment']) || (empty($data['ssid']) && $options['operationtype'] == 'update')) {
 			$this->status = 1;
-			// return false;
+			return false;
 		}
 
 		$this->supplier = $data;
@@ -42,7 +42,7 @@ class Sourcing {
 		if($options['operationtype'] != 'update') {
 			if(value_exists('sourcing_suppliers', 'companyName', $this->supplier['companyName'])) {
 				$this->status = 2;
-				//return false;
+				return false;
 			}
 		}
 
@@ -621,16 +621,41 @@ class Sourcing {
 		}
 	}
 
+	public function create_chemical($data) {
+		global $db, $core;
+
+		if(is_empty($data['casNum'], $data['name'], $data['synonyms'])) {
+			$this->status = 4;
+			return false;
+		}
+		if(value_exists('chemicalsubstances', 'casNum', $data['casNum'])) {
+			$this->status = 5;
+			return false;
+		}
+		$data['casNum'] = $core->sanitize_inputs($data['casNum'], array('removetags' => true));
+		$data['name'] = $core->sanitize_inputs($data['name'], array('removetags' => true));
+		$data['synonyms'] = $core->sanitize_inputs($data['synonyms'], array('removetags' => true));
+		$chemica_data = array('casNum' => $data['casNum'],
+				'name' => $data['name'],
+				'synonyms' => $data['synonyms']
+		);
+		$query = $db->insert_query('chemicalsubstances', $chemica_data);
+		if($query) {
+			$this->status = 0;
+			return true;
+		}
+	}
+
 	private function chemical_supply_type($supplier_type) {
-		foreach($supplier_type as $cas=>$supplytype) {
+		foreach($supplier_type as $cas => $supplytype) {
 			$types[] = $supplytype['supplyType'];
 		}
-		
+
 		$types = array_unique($types);
-		if(count($types)>1){
+		if(count($types) > 1) {
 			return 'b';
 		}
-		else{
+		else {
 			return current($types);
 		}
 	}

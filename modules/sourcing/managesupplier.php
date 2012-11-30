@@ -7,7 +7,7 @@
  *  $module: Sourcing
  * $id: Managesupplier.php	
  * Created By: 		@tony.assaad		October 8, 2012 | 12:30 PM
- * Last Update: 	@tony.assaad		October 10, 2012 | 4:13 PM
+ * Last Update: 	@tony.assaad		November 30, 2012 | 11:13 PM
  */
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
@@ -75,28 +75,27 @@ if(!$core->input['action']) {
 	$countries_list = parse_selectlist('supplier[country]', 8, get_specificdata('countries', array('coid', 'name'), 'coid', 'name', array('sort' => 'ASC', 'by' => 'name')), $supplier['details']['country']);
 	$product_list = parse_selectlist('supplier[productsegment][]', 9, get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', ''), $supplier['segments'], 1);
 	$rml_selectlist = parse_selectlist('supplier[relationMaturity]', 10, get_specificdata('entities_rmlevels', array('ermlid', 'title'), 'ermlid', 'title', ''), $supplier['details']['relationMaturity']);
-	//$activityarea_list = parse_selectlist('supplier[activityarea][]', 8, get_specificdata('countries', array('coid', 'name'), 'coid', 'name', '', '', 'affid IN (SELECT affid FROM affiliates)'), $supplier['activityareas'], 1);
 	$affiliates = get_specificdata('countries', array('coid', 'name'), 'coid', 'name', '', '', 'affid IN (SELECT affid FROM affiliates)');
 	$availability_radiobutton_items = array('1' => $lang->yes, '2' => $lang->no, '3' => $lang->undefined, '4' => $lang->sourcingdecide);
 	if(is_array($supplier['activityareas'])) {
 		foreach($supplier['activityareas'] as $key => $activityareasdata) {
-			$supplier['slectedactivityareas'] [$key]= $activityareasdata;
+			$supplier['slectedactivityareas'] [$key] = $activityareasdata;
 		}
 	}
 	foreach($affiliates as $affid => $name) {
 		$rowclass = alt_row($rowclass);
 		foreach($availability_radiobutton_items as $attr => $item) {
-			$availability_radiobutton[$item] = parse_radiobutton('supplier[activityarea]['.$affid.'][availability]', array($attr => $item), $supplier['slectedactivityareas'][$affid]['availability']);
+			$availability_radiobutton[$item] = parse_radiobutton('supplier[activityarea]['.$affid.'][availability]', array($attr => $item), $supplier['slectedactivityareas'][$affid]['availability']); /* pass the selected avaialability value  for each affiltae */
 		}
 		eval("\$activityarea_list_row .= \"".$template->get('sourcing_managesupplier_activityarea_list_row')."\";");
 	}
-
 
 	$supplierid = $core->input['id'];
 	eval("\$sourcingmanagesupplier = \"".$template->get('sourcing_managesupplier')."\";");
 	output_page($sourcingmanagesupplier);
 }
 else {
+	$potential_supplier = new Sourcing();
 	if($core->input['action'] == 'do_addpage' || $core->input['action'] == 'do_editpage') {
 		if($core->input['action'] == 'do_editpage') {
 			$options['operationtype'] = 'update';
@@ -120,7 +119,28 @@ else {
 				break;
 		}
 	}
-	/* if we attempt to create new representative from the popup */
+	
+		/*Creat new chemical -START*/
+	elseif($core->input['action'] == 'do_createchemical') {
+		$potential_supplier->create_chemical($core->input['supplier']['chemcialsubstances']);
+		switch($potential_supplier->get_status()) {
+			case 0:
+				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+				break;
+			case 4:
+				output_xml("<status>false</status><message>{$lang->chemicalrequired}</message>");
+				break;
+			case 5:
+				output_xml("<status>false</status><message>{$lang->chemicalexsist}</message>");
+				break;
+		}
+	}
+	/*Creat new chemical -END*/
+	elseif($core->input['action'] == 'get_addnew_chemical') {
+		eval("\$createchemical= \"".$template->get('popup_sourcing_createchemicalrequests')."\";");
+		output_page($createchemical);
+	}
+/* if we attempt to create new representative from the popup */
 	elseif($core->input['action'] == 'do_add_representative') {
 		$core->input['repPhone'] = $core->input['countrycode'].'-'.$core->input['area'].'-'.$core->input['repPhone'];
 		$representative = new Entities($core->input, 'add_representative');
