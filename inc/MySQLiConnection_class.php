@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * MySQLi Connection Class
  * $id: MySQLiConnection_class.php
  * Created:		@zaher.reda 	November 25, 2012 | 09:30 PM
@@ -24,9 +24,9 @@ class MySQLiConnection {
 	}
 
 	private function connect() {
-		$this->link = @mysqli_connect($this->db['hostname'], $this->db['username'], $this->db['password']) or $this->mysqlerror();	
+		$this->link = @mysqli_connect($this->db['hostname'], $this->db['username'], $this->db['password']) or $this->mysqlerror();
 	}
-	
+
 	private function select_db() {
 		@mysqli_select_db($this->link, $this->db['db']) or $this->mysqlerror();
 		$this->query("SET NAMES '{$this->db_encoding}'");
@@ -34,22 +34,22 @@ class MySQLiConnection {
 
 	public function query($query_string) {
 		$query = @mysqli_query($this->link, $query_string);
-		
+
 		if($this->error_number()) {
 			$this->mysqlerror($query_string);
 		}
 		return $query;
 	}
-	
+
 	public function multi_query() {
 		$query = @mysqli_multi_query($this->link, $query_string);
-				
+
 		if($this->error_number()) {
 			$this->mysqlerror($query_string);
 		}
-		return $query;		
+		return $query;
 	}
-	
+
 	public function insert_query($table, $data, $encrypt = '') {
 		$comma = $index_string = $data_string = $keyphrase = '';
 		if(is_array($data)) {
@@ -76,11 +76,11 @@ class MySQLiConnection {
 			return false;
 		}
 	}
-	
+
 	private function prepare_insertstatement_data(array $data, $encrypt = '') {
 		$comma = $keyphrase = '';
 		if(!empty($data)) {
-			foreach($data as $key => $val) {			
+			foreach($data as $key => $val) {
 				$statement['index'] .= $comma.$key;
 				if(!empty($encrypt) && is_array($encrypt) && in_array($key, $encrypt)) {
 					if(array_key_exists($key.'Key', $data)) {
@@ -94,7 +94,12 @@ class MySQLiConnection {
 				}
 				else
 				{
-					$statement['value'] .= $comma."'".$this->escape_string($val)."'";
+					if ($key=="location" && strpos($val,'geoFromText')>=0) {
+						$statement['value'] .= $comma.$val;
+					} else {
+						$statement['value'] .= $comma."'".$this->escape_string($val)."'";
+					}
+
 				}
 				$comma = ', ';
 			}
@@ -103,7 +108,7 @@ class MySQLiConnection {
 		}
 		return false;
 	}
-	
+
 	public function update_query($table, $data, $where='', $encrypt = '') {
 		$comma = $query_string = '';
 		if(is_array($data)) {
@@ -130,12 +135,12 @@ class MySQLiConnection {
 
 			return $this->query("UPDATE {$this->db['prefix']}{$table} SET {$query_string}{$where}");
 	  	}
-		else 
+		else
 		{
 			return false;
 		}
 	}
- 
+
 	public function delete_query($table, $where='') {
 		$where_query = '';
 		if(!empty($where)) {
@@ -152,7 +157,7 @@ class MySQLiConnection {
 	public function fetch_assoc($query) {
 		return mysqli_fetch_assoc($query);
 	}
-	
+
 	public function fetch_field($query, $field, $row=false) {
 		if($row === false) {
 			$fetch = $this->fetch_array($query);
@@ -172,8 +177,8 @@ class MySQLiConnection {
 	public function free_result($query) {
 		return mysqli_free_result($query);
 	}
-	
-	public function close() { 
+
+	public function close() {
 		@mysqli_close($this->link);
 	}
 
@@ -186,11 +191,11 @@ class MySQLiConnection {
 	{
 		return mysqli_num_rows($query);
 	}
-	
+
 	public function affected_rows() {
 		return mysqli_affected_rows($this->link);
 	}
-	
+
 	public function escape_string($string) {
 		if(function_exists('mysql_real_escape_string') && $this->link) {
 			return mysqli_real_escape_string($this->link, $string);
@@ -201,19 +206,19 @@ class MySQLiConnection {
 		else
  		{
 			return addslashes($string);
-		}	
+		}
 	}
-	
+
 	protected function error_number() {
 		if($this->link) {
 			return mysqli_errno($this->link);
-		} 
+		}
 		else
 		{
 			return mysqli_errno();
 		}
 	}
-	
+
 	protected function error() {
 		if($this->link) {
 			return mysqli_error($this->link);
@@ -221,24 +226,24 @@ class MySQLiConnection {
 		else
 		{
 			return mysqli_error();
-		}	
+		}
 	}
-	
+
 	public function set_charset($charset='') {
 		if(empty($charset)) {
-			$charset = $this->db_encoding;	
+			$charset = $this->db_encoding;
 		}
-		
+
 		mysqli_set_charset($this->link, $charset);
 	}
-	
+
 	protected function mysqlerror($string='') {
-		global $errorhandler; 
-		
+		global $errorhandler;
+
 		if(!is_object($errorhandler)) {
 			$errorhandler = new errorHandler();
 		}
-		
+
 		$error = array(
 			'error_no' => $this->error_number(),
 			'error' => $this->error(),
@@ -258,7 +263,7 @@ class MySQLiConnection {
 	public function analyze_table($table) {
 		$this->query("ANALYZE TABLE {$this->db['prefix']}{$table}");
 	}
-	
+
 	public function show_create_table($table) {
 		$query = $this->query("SHOW CREATE TABLE {$this->db['prefix']}{$table}");
 		$structure = $this->fetch_array($query);
@@ -272,11 +277,11 @@ class MySQLiConnection {
 		}
 		return $field_info;
 	}
-	
+
 	public function field_name($result, $index) {
 		return mysqli_fetch_field_direct($result, $index);
 	}
-	
+
 	public function table_status($table='')
 	{
 		if(!empty($table)) {
@@ -292,7 +297,7 @@ class MySQLiConnection {
 		}
 		return $total;
 	}
-	
+
 	public function __sleep() {
 		return array('hostname', 'username', 'password', 'db');
 	}

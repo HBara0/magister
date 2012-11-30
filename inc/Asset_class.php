@@ -30,7 +30,7 @@ class Asset {
 		if(!isset($asset_id)) {
 			$asset_id = $my_asid;
 		}
-		$query = 'SELECT * FROM '.Tprefix.'assets_locations WHERE asid='.$asset_id;
+		$query = 'SELECT alid,asid,X(location) as latitude, Y(location) as longitude,timeLine,deviceId,speed,direction,antenna,fuel,vehiclestate,otherstate FROM '.Tprefix.'assets_locations WHERE asid='.$asset_id;
 		if(isset($from)) {
 			$query .= ' AND timeLine>'.$from;
 		}
@@ -49,11 +49,12 @@ class Asset {
 				$cache[$query] = $loc;
 			}
 		}
+		return $loc;
 	}
 
 	public function get_data_for_assets($asset_ids, $from = null, $to = null) {
 		global $db;
-		$query = 'SELECT * FROM '.Tprefix.'assets_locations WHERE asid IN ('.implode($asset_id, ',').')';
+		$query = 'SELECT alid,asid,X(location) as latitude, Y(location) as longitude,timeLine,deviceId,speed,direction,antenna,fuel,vehiclestate,otherstate FROM '.Tprefix.'assets_locations WHERE asid IN ('.implode(',', $asset_ids).')';
 		if(isset($from)) {
 			$query .= ' AND timeLine>'.$from;
 		}
@@ -64,14 +65,15 @@ class Asset {
 			return $cache[$query];
 		}
 		else {
-			$query = $db->query($query);
-			if($db->num_rows($query) > 0) {
-				while($row = $db->fetch_assoc($query)) {
+			$queryobj = $db->query($query);
+			if($db->num_rows($queryobj) > 0) {
+				while($row = $db->fetch_assoc($queryobj)) {
 					$loc[$row['asid']][$row['alid']] = $row;
 				}
 				$cache[$query] = $loc;
 			}
 		}
+		return $loc;
 	}
 
 	public function get_data_for_users($users_ids, $from, $to) {
@@ -99,7 +101,7 @@ class Asset {
 			}
 		}
 		foreach($tgt as $asid => $ranges) {
-			$subquery = 'SELECT * FROM '.Tprefix.'assets_locations WHERE asid IN ('.implode($asset_id, ',').') AND (';
+			$subquery = 'SELECT alid,asid,X(location) as latitude, Y(location) as longitude,timeLine,deviceId,speed,direction,antenna,fuel,vehiclestate,otherstate FROM '.Tprefix.'assets_locations WHERE asid IN ('.implode($asset_id, ',').') AND (';
 			$postquery = '';
 			foreach($ranges as $key => $range) {
 				$postquery.='(timeLine>'.$range["from"].' AND timeLine<'.$range["to"].') OR';
@@ -116,8 +118,22 @@ class Asset {
 	}
 
 	public function record_location($data) {
+		$data["deviceId"] = $data["pin"];
+		$data["timeLine"] = TIME_NOW;
+		$data["fuel"] = 0;
+		$data["antenna"] = 1;
+		$data["direction"] = $data["heading"];
+		$data["vehiclestate"] = 1;
+		$data["otherstate"] = (double)$data["altitude"];
+		$data['location'] = 'geomFromText("POINT('.$data['lat'].' '.$data['long'].')")';
+		unset($data["pin"]);
+		unset($data['lat']);
+		unset($data['long']);
+		unset($data["altitude"]);
+		unset($data["heading"]);
+
 		global $db;
-		$query = 'SELECT asid FROM '.Tprefix.'assets_trackingdevices WHERE deviceId='.$data["devId"].' AND fromDate<'.$data['timeLine'].' AND toDate>'.$data['timeLine'].' ORDER BY fromDate DSC';
+		$query = 'SELECT asid FROM '.Tprefix.'assets_trackingdevices WHERE deviceId='.$data["deviceId"].' AND fromDate<'.$data['timeLine'].' AND toDate>'.$data['timeLine'].' ORDER BY fromDate DESC';
 		$query = $db->query($query);
 		if($db->num_rows($query) > 0) {
 			if($row = $db->fetch_assoc($query)) {
@@ -127,23 +143,29 @@ class Asset {
 		$db->insert_query('assets_locations', $data);
 	}
 
-	public function get_map() { // ($uids,$asids,$from,$to) {
+	public function get_map($data) { // ($uids,$asids,$from,$to) {
 		global $db;
-		$lat=(float)33.869797;
-		$long=(float)35.522593;
-		$markers[]=array('title'=>'random1','otherinfo'=>'some other info','geoLocation'=>(number_format($lat,6).','.number_format($long,6)));
+
+		foreach($data as $key => $trackedasset) {
+			foreach($trackedasset as $key2 => $value) {
+				$markers[] = array('title' => $key.':'.Maps::get_streetname($value['latitude'], $value['longitude']), 'otherinfo' => 'some other info', 'geoLocation' => (number_format($value['latitude'], 6).','.number_format($value['longitude'], 6)));
+			}
+		}
+
 		$map = new Maps($markers, array('infowindow' => 1, 'mapcenter' => '32.887078, 34.195312'));
 		$map_view = $map->get_map(300, 200);
-		return $map_view.'<hr><pre>'.$map->get_streetname($lat,$long).'</pre>';
+		return $map_view.'<hr><pre>'.$map->get_streetname($lat, $long).'</pre>';
 	}
 
-	public function assign_assetuser($asid,$uid,$from,$to) {
+	public function assign_assetuser($asid, $uid, $from, $to) {
 		global $db;
-		$db->insert_query('assets_users', array('uid'=>$uid,'asid'=>$asid,'fromDate'=>$from,'toDate'=>$to));
+		$db->insert_query('assets_users', array('uid' => $uid, 'asid' => $asid, 'fromDate' => $from, 'toDate' => $to));
 	}
-	public function assign_tracker_to_asset($devid,$asid,$from,$to) {
+
+	public function assign_tracker_to_asset($devid, $asid, $from, $to) {
 		global $db;
-		$db->insert_query('assets_users', array('deviceId'=>$devid,'asid'=>$asid,'fromDate'=>$from,'toDate'=>$to));
+		$db->insert_query('assets_users', array('deviceId' => $devid, 'asid' => $asid, 'fromDate' => $from, 'toDate' => $to));
 	}
+
 }
 ?>

@@ -71,7 +71,7 @@ class Maps {
 	}
 
 	public function get_streetname($latitude,$longitude) {
-		return $this->reverse_geocoding($latitude,$longitude)->results[0]->formatted_address;
+		return Maps::reverse_geocoding($latitude,$longitude)->results[0]->formatted_address;
 	}
 }
 ?>
