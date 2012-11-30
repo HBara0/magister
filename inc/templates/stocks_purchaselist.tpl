@@ -17,7 +17,7 @@
 <tr>
 {$menu}
 <td class="contentContainer">
-<h3>{$lang->holidayslist}</h3>
+<h3>{$lang->purchaselisttitle}</h3>
 <form method='post' action='$_SERVER[REQUEST_URI]'>
 <table class="datatable">
 	<thead>

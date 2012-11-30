@@ -11,7 +11,8 @@ span.listitem:hover { border-bottom: #CCCCCC solid thin; }
 <tr>
 {$menu}
 <td class="contentContainer">
-    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+<h3>{$lang->purchasereporttitle}</h3>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>
         	<td>
         	{$content}

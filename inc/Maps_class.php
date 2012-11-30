@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Maps Class
  * $id: Maps_class.php
  * Created:		@zaher.reda		May 10, 2012 | 06:03 PM
@@ -66,5 +66,12 @@ class Maps {
 		return '<div id="'.$this->options['canvas_name'].'" style="height: '.$height.'px; width: '.$width.'px;"></div>';
 	}
 
+	public function reverse_geocoding($latitude, $longitude) {
+		return json_decode(file_get_contents('http://maps.googleapis.com/maps/api/geocode/json?latlng='.$latitude.','.$longitude.'&sensor=false'));
+	}
+
+	public function get_streetname($latitude,$longitude) {
+		return $this->reverse_geocoding($latitude,$longitude)->results[0]->formatted_address;
+	}
 }
 ?>

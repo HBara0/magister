@@ -101,4 +101,9 @@ $lang['username'] = 'Username';
 $lang['welcomeuser'] = 'Welcome {1}!';
 $lang['yes'] = 'Yes';
 $lang['stock'] = 'Stock';
+$lang['assetsmodule'] = 'Assets Module';
+$lang['assetstrackpage'] = 'Assets Tracking';
+$lang['assetsmanagepage'] = 'Assets Management';
+$lang['trackersmanagepage'] = 'Trackers Management';
+
 ?>

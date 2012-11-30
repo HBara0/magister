@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * User related actions
- * $id: users.php	
- * Created: 	@zaher.reda 
+ * $id: users.php
+ * Created: 	@zaher.reda
  * Last Update: @zaher.reda 	May 28, 2012 | 11:24 AM
  */
 require_once './global.php';
@@ -22,26 +22,26 @@ if($core->input['action']) {
 			$session->destroy_phpsession(true);
 			exit;
 		}*/
-		
+
 		$login_details = array(
 			'username' => $db->escape_string($core->input['username']),
 			'password'	=> $db->escape_string($core->input['password'])
 		);
-		
+
 		$validation = new ValidateAccount();
 		$user_details = $validation->get_user_by_username($login_details['username']);
 		unset($user_details['password'], $user_details['salt']);
-		
+
 		if($validation->can_attemptlogin($login_details['username'])) {
 			$validation  = new ValidateAccount($login_details);
-			
+
 			if($validation->get_validation_result()) {
 				$user_data = $validation->get_userdetails();
-				
+
 				create_cookie('uid', $user_data['uid'], (TIME_NOW + (60*$core->settings['idletime'])));
 				create_cookie('loginKey', $user_data['loginKey'], (TIME_NOW + (60*$core->settings['idletime'])));
 				$db->update_query('users', array('failedLoginAttempts' => 0), "uid='{$user_details[uid]}'");
-				
+
 				output_xml("<status>true</status><message>{$lang->loginsuccess}</message>");
 			}
 			else
@@ -67,28 +67,28 @@ if($core->input['action']) {
 	}
 	elseif($core->input['action'] == 'do_logout') {
 		$uid = $core->user['uid'];
-		
+
 		$db->update_query('users', array('lastVisit' => TIME_NOW), "uid='$uid'");
-		
+
 		$db->delete_query('sessions', "uid='$uid'");
-		
+
 		create_cookie('sid', '', (TIME_NOW - 3600));
 		create_cookie('uid', '', (TIME_NOW - 3600));
 		create_cookie('loginKey', '', (TIME_NOW - 3600));
-		
+
 		redirect('index.php');
 	}
 	elseif($core->input['action'] == 'reset_password') {
 		$lang->load("messages");
 		$email = $db->escape_string($core->input['email']);
-		
+
 		$new_details = $db->fetch_assoc($db->query("SELECT uid, firstName FROM ".Tprefix."users WHERE email='{$email}'"));
-		
+
 		if($new_details['uid']) {
 			$new_details['password'] = random_string(5);
-			
+
 			$lang->resetemailmessage = $lang->sprint($lang->resetemailmessage, $new_details['firstName'], $new_details['password'], $core->settings['adminemail']);
-			
+
 			$email_data = array(
 			'to'		 => $email,
 			'from_email'  => $core->settings['adminemail'],
@@ -118,13 +118,13 @@ if($core->input['action']) {
 			output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 			exit;
 		}
-		
+
 		$validation  = new ValidateAccount(array('username' => $core->user['username'], 'password' => $core->input['oldpassword']));
 		if(!$validation->get_validation_result()) {
 			output_xml("<status>false</status><message>{$lang->wrongoldpassword}</message>");
 			exit;
 		}
-		
+
 		if($core->input['newpassword'] == $core->input['newpassword2']) {
 			$newdata = array(
 			'uid'		 => $core->user['uid'],
@@ -146,14 +146,14 @@ if($core->input['action']) {
 		if($session->uid == 0) {
 			redirect('users.php?action=login');
 		}
-		
+
 		$lang->load('profile');
 
 		if(is_empty($core->input['email'], $core->input['firstName'], $core->input['lastName'], $core->input['skype'])) {
 			output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 			exit;
 		}
-		
+
 		unset($core->input['action']);
 		$core->input['uid'] = $core->user['uid'];
 
@@ -171,7 +171,7 @@ if($core->input['action']) {
 		if($session->uid == 0) {
 			redirect('users.php?action=login');
 		}
-		
+
 		$old_profilepicture = $db->fetch_field($db->query("SELECT profilePicture FROM ".Tprefix."users WHERE uid=".$core->user['uid']), 'profilePicture');
 		$upload = new Uploader('uploadfile', $_FILES, array('image/jpeg', 'image/png', 'image/gif'), 'putfile', 300000, 0, 1);
 		$upload->set_upload_path($core->settings['profilepicdir']);
@@ -183,12 +183,12 @@ if($core->input['action']) {
 		echo $headerinc;
 		?>
         <script language="javascript" type="text/javascript">
-			$(function() { 
+			$(function() {
 				window.top.$("#upload_Result").html("<?php echo $upload->parse_status($upload->get_status()); ?>");
-			}); 
-		</script>   
+			});
+		</script>
         <?php
-		
+
 		if($query) {
 			if(!empty($old_profilepicture)) {
 				unlink('./'.$core->settings['profilepicdir'].'/'.$old_profilepicture);
@@ -199,9 +199,9 @@ if($core->input['action']) {
 		if($session->uid == 0) {
 			redirect('users.php?action=login');
 		}
-		
+
 		$signature['name'] = 'Orkila';
-		
+
 		$identifier =  substr(md5(uniqid(microtime())), 1,5);
 		$zip = new ZipArchive();
 		$filepath = './tmp/';
@@ -218,75 +218,75 @@ if($core->input['action']) {
 
 		$signature['text'] = preg_replace("/<br \/>/i", "\n", $signature['text']);
 		$signature['text'] .= "\n".$lang->signaturefooter."\n".$lang->signaturefooter_2."\n";
-		
+
 		$signature['textmin'] = $user->generate_text_sign(true);
 		$signature['textmin'] = preg_replace("/<br \/>/i", "\n", $signature['textmin']);
-		
+
 		$zip->addFromString('Readme.txt', $lang->signatureguideline);
 		$zip->addFromString($signature['name'].'.txt', $signature['text']);
 		$zip->addFromString($signature['name'].'_compact.txt', $signature['textmin']);
-		
+
 		eval("\$signaturehtm = \"".$template->get('editprofile_downloadsignature_htm')."\";");
 		$zip->addFromString($signature['name'].'.htm', $signaturehtm);
-		
+
 		eval("\$signatureminhtm = \"".$template->get('editprofile_downloadsignaturemin_htm')."\";");
 		$zip->addFromString($signature['name'].'_compact.htm', $signatureminhtm);
-		
+
 		$zip->addEmptyDir($signature['name'].'_files');
 		$zip->addFile($image_location, $signature['name'].'_files/'.$signature['name'].'.png');
 		$zip->addFile($imagemin_location, $signature['name'].'_files/'.$signature['name'].'_compact.png');
-		
+
 		$zip->close();
-		
+
 		unlink(realpath($image_location));
-		
+
 		$download = new Download();
 		$download->set_real_path($filepath.$filename);
 		$download->stream_file(true);
-		
+
 	}
 	elseif($core->input['action'] == 'generatesignature' || $core->input['action'] == 'generatesignaturemin')
 	{
 		if($session->uid == 0) {
 			redirect('users.php?action=login');
 		}
-		
+
 		$user = new Users();
 		if($core->input['action'] == 'generatesignaturemin') {
-			$user->generate_image_sign(false, 180, 40, true);	
+			$user->generate_image_sign(false, 180, 40, true);
 		}
 		else
 		{
-			$user->generate_image_sign(false);		
+			$user->generate_image_sign(false);
 		}
 	}
 	elseif($core->input['action'] == 'profile') {
 		if($session->uid == 0) {
 			redirect('users.php?action=login&referer='.base64_encode(DOMAIN.'/users.php?'.$_SERVER['QUERY_STRING']));
-		}	
-		
+		}
+
 		$lang->load('profile');
-		
+
 		if($core->input['do'] == 'edit') {
 			$phones_index = array('mobile', 'mobile2', 'telephone', 'telephone2');
 			foreach($phones_index as $val) {
 				$phone[$val] = explode('-', $core->user[$val]);
-				
+
 				$phones[$val]['intcode'] = $phone[$val][0];
 				$phones[$val]['areacode'] = $phone[$val][1];
 				$phones[$val]['number'] = $phone[$val][2];
 			}
-			
+
 			$checkboxes_index = array('mobileIsPrivate', 'mobile2IsPrivate', 'newFilesNotification');
 			foreach($checkboxes_index as $key) {
 				if($core->user[$key] == 1) {
 					$checkedboxes[$key] = ' checked="checked"';
 				}
 			}
-		
+
 			$moduleslist = parse_moduleslist($core->user['defaultModule'], 'modules', true);
 			$languageslist = parse_selectlist('language', '', $lang->get_languages(), $core->user['language']);
-			
+
 			if(empty($core->user['profilePicture'])) {
 				if(isset($core->user['gender'])) {
 					if($core->user['gender'] == 1) {
@@ -301,8 +301,7 @@ if($core->input['action']) {
 				{
 					$core->user['profilePicture'] = 'no_photo_male.gif';
 				}
-			} 
-			
+			}
 			$user = new Users();
 			$signature['text'] = $user->generate_text_sign();
 			$signature['text'] = preg_replace("/\n/i", '<br />', $signature['text']).'</p>';
@@ -314,7 +313,7 @@ if($core->input['action']) {
 			if(!$core->input['uid']) {
 				$uid = $core->user['uid'];
 			}
-			else 
+			else
 			{
 				$uid = $db->escape_string($core->input['uid']);
 			}
@@ -323,13 +322,13 @@ if($core->input['action']) {
 			if($db->num_rows($query) > 0) {
 				$profile = $db->fetch_array($query);
 				unset($profile['password'], $profile['salt'], $profile['loginKey']);
-													  
+
 				$profile['reportsToName'] = $db->fetch_field($db->query("SELECT CONCAT(firstName, ' ', lastName) AS reportsToName FROM ".Tprefix."users WHERE uid='{$profile[reportsTo]}'"), 'reportsToName');
 				if(!empty($profile['assistant'])) {
 					$profile['assistantName'] = $db->fetch_field($db->query("SELECT CONCAT(firstName, ' ', lastName) AS assistantName FROM ".Tprefix."users WHERE uid='{$profile[assistant]}'"), 'assistantName');
 					$assistant_details = "{$lang->assistant}: <a href='users.php?action=profile&amp;uid={$profile[assistant]}'>{$profile[assistantName]}</a><br />";
 				}
-				
+
 				$profile['position'] = '';
 				$query = $db->query("SELECT p.* FROM ".Tprefix."positions p LEFT JOIN ".Tprefix."userspositions up ON (up.posid=p.posid) WHERE up.uid='{$uid}' ORDER BY p.name ASC");
 				while($position = $db->fetch_assoc($query)) {
@@ -353,25 +352,25 @@ if($core->input['action']) {
 					{
 						if(++$affiliates_counter > 2) {
 							$hidden_affiliates .= $break.$affiliate['name'];
-					
+
 						}
 						else
 						{
 							$useraffiliates .= $break.$affiliate['name'];
-							
+
 						}
-						$break = '<br />';	
+						$break = '<br />';
 					}
 				}
-				
+
 				if($affiliates_counter > 2) {
 					$profile['affiliatesList'] = $useraffiliates.", <a href='#affiliates' id='showmore_affiliates_{$profile[uid]}' class='smalltext'>{$lang->readmore}</a> <span style='display:none;' id='affiliates_{$profile[uid]}'>{$hidden_affiliates}</span>";
 				}
 				else
 				{
 					$profile['affiliatesList'] = $useraffiliates;
-				}	
-				
+				}
+
 				/* Prepared segements list */
 				$segments_query = $db->query("SELECT DISTINCT(ps.psid), ps.title FROM ".Tprefix."productsegments ps JOIN ".Tprefix."employeessegments es ON (es.psid=ps.psid) WHERE uid='{$uid}' ORDER BY title ASC");
 				if($db->num_rows($segments_query) > 0) {
@@ -385,8 +384,8 @@ if($core->input['action']) {
 					$profile['segmentsList'] = $lang->na;
 				}
 				/* Prepared segements list */
-				
-				/*	Prepare entities lists */		
+
+				/*	Prepare entities lists */
 				$query3 = $db->query("SELECT DISTINCT(e.eid), companyName, type
 									FROM ".Tprefix."entities e LEFT JOIN ".Tprefix."assignedemployees aemp ON (aemp.eid=e.eid)
 									WHERE aemp.uid='{$uid}'
@@ -406,54 +405,54 @@ if($core->input['action']) {
 							$usercustomers .= $cbreak.$entity['companyName'];
 						}
 						$cbreak = '<br />';
-					
+
 						if($customers_counter > 2) {
 							$profile['customersList'] = $usercustomers.", <a href='#customers' id='showmore_customers_{$profile[uid]}' class='smalltext'>{$lang->readmore}</a> <span style='display:none;' id='customers_{$profile[uid]}'>{$hidden_customers}</span>";
-						}	
+						}
 					}
 					else
 					{
 						if(++$suppliers_counter > 2) {
-							$hidden_suppliers .= $sbreak.$entity['companyName'];	
+							$hidden_suppliers .= $sbreak.$entity['companyName'];
 						}
 						else
 						{
 							$usersuppliers .= $sbreak.$entity['companyName'];
 						}
 						$sbreak = '<br />';
-					
+
 						if($suppliers_counter > 2) {
 							$profile['suppliersList'] = $usersuppliers.", <a href='#suppliers' id='showmore_suppliers_{$profile[uid]}' class='smalltext'>{$lang->readmore}</a> <span style='display:none;' id='suppliers_{$profile[uid]}'>{$hidden_suppliers}</span>";
-						}	
+						}
 					}
-						
+
 				}
 
 				if(!empty($profile['building'])) {
 					$profile['fulladdress'] .= $profile['building'].' - ';
 				}
-				
+
 				$profile['fulladdress'] = $profile['building'].' - ';
 				if(!empty($profile['postCode'])) {
 					$profile['fulladdress'] .= $profile['postCode'].', ';
 				}
-				
+
 				if(!empty($profile['addressLine1'])) {
 					$profile['fulladdress'] .= $profile['addressLine1'].', ';
 				}
-				
+
 				if(!empty($profile['addressLine2'])) {
 					$profile['fulladdress'] .= $profile['addressLine2'].', ';
 				}
-				
+
 				if(!empty($profile['city'])) {
 					$profile['fulladdress'] .= $profile['city'].' - ';
 				}
-				
+
 				if(!empty($profile['skype'])) {
 					$profile['skype_output'] = " &nbsp; <a href='skype:{$profile[skype]}'><img src='./images/icons/skype.gif' alt='{$lang->skype}' border='0' /> ".$profile['skype'].'</a><br />';
 				}
-				
+
 				$show_private_mobiles = true;
 				if(!value_exists('affiliatedemployees', 'affid', $profile['mainaffiliate'], "(canHr = 1 OR canAudit = 1) AND uid={$core->user[uid]}")) {
 					if($core->user['uid'] != $profile['reportsTo']) {
@@ -462,11 +461,11 @@ if($core->input['action']) {
 						}
 					}
 				}
-				
+
 				if(!empty($profile['mobile']) && ($profile['mobileIsPrivate'] == 0 || $show_private_mobiles === true)) {
 					$profile['mobile_output'] = '+'.$profile['mobile'];
 				}
-				
+
 				if(!empty($profile['mobile2']) && ($profile['mobile2IsPrivate'] == 0 || $show_private_mobiles === true)) {
 					$profile['mobile2_output'] = '+';
 					if(!empty($profile['mobile_output'])) {
@@ -481,18 +480,18 @@ if($core->input['action']) {
 				else
 				{
 					if(empty($profile['mobile_output'])) {
-						$profile['mobile_output'] = '-';	
+						$profile['mobile_output'] = '-';
 					}
 				}
-				
+
 				if(!empty($profile['telephoneExtension']) && !empty($profile['telephone'])) {
 					$profile['telephone'] .= '&times;'.$profile['telephoneExtension'];
 				}
-				
+
 				if(!empty($profile['telephone2Extension']) && !empty($profile['telephone2'])) {
 					$profile['telephone2'] .= '&times;'.$profile['telephone2Extension'];
 				}
-				
+
 				if(empty($profile['profilePicture'])) {
 					if(isset($profile['gender'])) {
 						if($profile['gender'] == 1) {
@@ -507,12 +506,12 @@ if($core->input['action']) {
 					{
 						$profile['profilePicture'] = 'no_photo_male.gif';
 					}
-				}	
-				
+				}
+
 				$profile['country'] = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid='{$profile[country]}'"), 'name');
-				
+
 				$profile['fulladdress'] .= $profile['country'];
-				
+
 				if($core->usergroup['canViewPrivateProfile'] == '1') {
 					$leaves_toshow = 3;
 					$lang->lastleaves = $lang->sprint($lang->lastleaves, $leaves_toshow);
@@ -535,7 +534,7 @@ if($core->input['action']) {
 					{
 						$leaves = '<li>'.$lang->na.'</li>';
 					}
-					
+
 					$logs_toshow = 3;
 					$lang->lastlogs = $lang->sprint($lang->lastlogs, $logs_toshow);
 					$query = $db->query("SELECT * FROM ".Tprefix."logs WHERE uid='{$uid}' ORDER BY date DESC LIMIT 0, {$logs_toshow}");
@@ -548,7 +547,7 @@ if($core->input['action']) {
 					{
 						$logs = '<li>'.$lang->na.'</li>';
 					}
-					
+
 					if(!empty($profile['lastVisit'])) {
 						$profile['lastVisit'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $profile['lastVisit']);
 					}
@@ -556,11 +555,11 @@ if($core->input['action']) {
 					{
 						$profile['lastVisit'] = $lang->na;
 					}
-					
+
 					$profile_user = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users WHERE uid={$profile[uid]})"));
-					
+
 					if($profile_user['canUseReporting'] == 1) {
-						$additional_where = getquery_entities_viewpermissions('', '', $profile['uid']);		
+						$additional_where = getquery_entities_viewpermissions('', '', $profile['uid']);
 						$query = $db->query("SELECT r.quarter, r.year, s.companyName, a.name AS affiliate_name
 											FROM ".Tprefix."reports r JOIN ".Tprefix."entities s ON (r.spid=s.eid) JOIN ".Tprefix."affiliates a ON (r.affid=a.affid)
 											WHERE r.type='q' AND r.status='0'{$additional_where[extra]}
@@ -575,7 +574,7 @@ if($core->input['action']) {
 						{
 							$due_reports_list = '<li>'.$lang->na.'</li>';
 						}
-						
+
 						$query = $db->query("SELECT r.quarter, r.year, s.companyName, a.name AS affiliate_name
 										FROM ".Tprefix."reports r JOIN ".Tprefix."entities s ON (r.spid=s.eid) JOIN ".Tprefix."affiliates a ON (r.affid=a.affid)
 										WHERE  r.type='q' AND r.status='1'{$additional_where[extra]}
@@ -590,9 +589,9 @@ if($core->input['action']) {
 						{
 							$last_reports_list = '<li>'.$lang->na.'</li>';
 						}
-													
+
 						$quarter = currentquarter_info();
-						
+
 						$countall_current_quarterly = $db->fetch_field($db->query("SELECT count(*) as countall FROM ".Tprefix."reports r WHERE type='q' AND year='{$quarter[year]}' AND quarter='{$quarter[quarter]}'{$additional_where[extra]}"), 'countall');
 						if($countall_current_quarterly > 0) {
 							$countall_current_quarterly_unfinalized = $db->fetch_field($db->query("SELECT count(*) as countall FROM ".Tprefix."reports r WHERE type='q' AND year='{$quarter[year]}' AND quarter='{$quarter[quarter]}' AND status='0'{$additional_where[extra]}"), 'countall');
@@ -602,9 +601,9 @@ if($core->input['action']) {
 							$countall_current_quarterly_unfinalized = 0;
 						}
 					}
-					eval("\$userprofile_private = \"".$template->get('userprofile_private')."\";");			
+					eval("\$userprofile_private = \"".$template->get('userprofile_private')."\";");
 				}
-				
+
 				foreach($profile as $key => $val) {
 					if(empty($val)) {
 						if(!in_array($key, array('middleName', 'reportsTo', 'reportsToName', 'skype_output'))) {
@@ -612,7 +611,7 @@ if($core->input['action']) {
 						}
 					}
 				}
-				
+
 				eval("\$profilepage = \"".$template->get('userprofile')."\";");
 				output_page($profilepage);
 			}
@@ -625,15 +624,15 @@ if($core->input['action']) {
 	elseif($core->input['action'] == 'userslist') {
 		if($session->uid == 0) {
 			redirect('users.php?action=login');
-		}	
+		}
 		$lang->load('profile');
-		
+
 		$sort_query = 'firstName ASC';
 		if(isset($core->input['sortby'], $core->input['order'])) {
 			$sort_query = $core->input['sortby'].' '.$core->input['order'];
 		}
 		$sort_url = sort_url();
-		
+
 		$limit_start = 0;
 		if(isset($core->input['start'])) {
 			$limit_start = $db->escape_string($core->input['start']);
@@ -641,7 +640,7 @@ if($core->input['action']) {
 		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
 			$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
 		}
-	
+
 		$multipage_where = 'gid!=7';
 		/* Perform inline filtering - START */
 		$filters_config = array(
@@ -676,7 +675,7 @@ if($core->input['action']) {
 			$filter_where = 'AND u.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
 			$multipage_where .= ' AND u.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
 		}
-		
+
 		$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
 		/* Perform inline filtering - END */
 
@@ -684,14 +683,14 @@ if($core->input['action']) {
 							FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) JOIN ".Tprefix."affiliates aff ON (aff.affid=ae.affid)
 							WHERE gid!='7' AND isMain='1'
 							{$filter_where}
-							ORDER BY {$sort_query} 
+							ORDER BY {$sort_query}
 							LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
 		$filters_cache = array();
 		if($db->num_rows($query) > 0) {
 				while($user = $db->fetch_assoc($query)) {
 				$class = alt_row($class);
-				/*$user['mainaffiliate'] = $db->fetch_field($db->query("SELECT aff.name as affiliatename 
+				/*$user['mainaffiliate'] = $db->fetch_field($db->query("SELECT aff.name as affiliatename
 							FROM ".Tprefix."affiliates aff LEFT JOIN ".Tprefix."affiliatedemployees ae ON (ae.affid=aff.affid)
 							WHERE ae.uid='{$user[uid]}' AND isMain='1'"), 'affiliatename');*/
 
@@ -701,24 +700,24 @@ if($core->input['action']) {
 				$positions_counter = 0;
 
 				while($position = $db->fetch_assoc($query2)) {
-					if(!empty($lang->{$position['name']})) { $position['title'] = $lang->{$position['name']}; } 
+					if(!empty($lang->{$position['name']})) { $position['title'] = $lang->{$position['name']}; }
 
 					if(++$positions_counter > 2) {
 						$hidden_positions .= $break.$position['title'];
 					}
 					else
 					{
-						$userpositions .= $break.$position['title']; 
+						$userpositions .= $break.$position['title'];
 					}
 					$break = '<br />';
-				}	
-			
+				}
+
 				if($positions_counter > 2) {
 					$userpositions = $userpositions.", <a href='#' id='showmore_positions_{$user[uid]}'>...</a> <span style='display:none;' id='positions_{$user[uid]}'>{$hidden_positions}</span>";
 				}
-				
+
 				list($user['reportsToName']) = get_specificdata('users', array('CONCAT(firstName, \' \', lastName) as reportsToName'), '0', 'reportsToName', '', 0, "uid='{$user[reportsTo]}'");
-				
+
 				$skypelink = '';
 				if(isset($user['skype']) && !empty($user['skype'])) {
 					$skypelink = "<a href='skype:{$user[skype]}'><img src='./images/icons/skype.gif' alt='{$lang->skype}' border='0' /></a>";
@@ -726,7 +725,7 @@ if($core->input['action']) {
 				//$tooltip = $lang->extension.':'.$user['extension'].'<br />'.$lang->mobile.':'.$user['mobile'];
 				eval("\$usersrows .= \"".$template->get('userslist_row')."\";");
 			}
-			
+
 			$multipages = new Multipages('users u JOIN '.Tprefix.'affiliatedemployees ae ON (u.uid=ae.uid) JOIN '.Tprefix.'affiliates aff ON (aff.affid=ae.affid)', $core->settings['itemsperlist'], $multipage_where, 'u.uid');
 			$usersrows .= "<tr><td colspan='6'>".$multipages->parse_multipages()."</td></tr>";
 		}
@@ -738,17 +737,17 @@ if($core->input['action']) {
 		output_page($userslist);
 	}
 	elseif($core->input['action'] == 'get_popup_loginbox') {
-		eval("\$loginbox = \"".$template->get('popup_loginbox')."\";");	
+		eval("\$loginbox = \"".$template->get('popup_loginbox')."\";");
 		echo $loginbox;
 	}
-	else 
+	else
 	{
 		$session->name_phpsession(COOKIE_PREFIX.'login');
 		$session->start_phpsession();
 		$session->regenerate_id_phpsession(true);
 		$token = $session->generate_token();
 		$session->set_phpsession(array('token' => $token));
-	
+
 		if(isset($core->input['referer']) && !empty($core->input['referer'])) {
 			$lastpage = base64_decode($db->escape_string($core->input['referer']));
 		}
@@ -766,16 +765,16 @@ if($core->usergroup['canSeePrivateProfile'] == '1') {
 	while($leave = $db->fetch_array($query4)) {
 	if(!empty($lang->{$leave['name']})) { $leave['title'] = $lang->{$leave['name']}; }
 	$leave['type_output'] = $leave['title'];
-				
+
 	$leaves .= "<li>".$leave['type_output']."</li>";}
-				
+
 	$query5 = $db->query("SELECT * FROM ".Tprefix."logs WHERE uid='{$uid}'ORDER BY date DESC LIMIT 0,3");
 	while($log = $db->fetch_array($query5)) {
 
 	}
-	
+
 	$lastvisit = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $profile['lastvisit']);
-								
+
 	$query7 = $db->query("SELECT r.quarter, r.year, s.companyName, a.name AS affiliate_name
 						FROM ".Tprefix."reports r JOIN ".Tprefix."entities s ON (r.spid=s.eid) JOIN ".Tprefix."affiliates a ON (r.affid=a.affid)
 						WHERE r.type='q' AND r.status='0'
@@ -790,7 +789,7 @@ if($core->usergroup['canSeePrivateProfile'] == '1') {
 	{
 		$due_reports_list = '<li>'.$lang->na.'</li>';
 	}
-	
+
 	$query = $db->query("SELECT r.quarter, r.year, s.companyName, a.name AS affiliate_name
 					FROM ".Tprefix."reports r JOIN ".Tprefix."entities s ON (r.spid=s.eid) JOIN ".Tprefix."affiliates a ON (r.affid=a.affid)
 					WHERE  r.type='q' AND r.status='1'{$extra_where}
@@ -805,15 +804,15 @@ if($core->usergroup['canSeePrivateProfile'] == '1') {
 	{
 		$last_reports_list = '<li>'.$lang->na.'</li>';
 	}
-	
+
 	$profile['privateprofile']= '<div style="width:200px; float:left; margin:10px;">
          <span class="subtitle">Private Porfile</span>
         <div> last 3 leaves
           <ul>'.$leaves.' </ul>
           <hr />last 3 logs <ul>'.$logs.'</ul><hr />last 3 quartly reports<ul>'.$due_reports_list.'</ul><hr />Last Visit was on '.$lastvisit;
-			
+
 	$quarter = currentquarter_info();
-	
+
 	$countall_current_quarterly = $db->fetch_field($db->query("SELECT count(*) as countall FROM ".Tprefix."reports r WHERE type='q' AND year='{$quarter[year]}' AND quarter='{$quarter[quarter]}'{$extra_where}"), 'countall');
 	if($countall_current_quarterly > 0) {
 		$countall_current_quarterly_unfinalized = $db->fetch_field($db->query("SELECT count(*) as countall FROM ".Tprefix."reports r WHERE type='q' AND year='{$quarter[year]}' AND quarter='{$quarter[quarter]}' AND status='0'{$extra_where}"), 'countall');
@@ -823,6 +822,6 @@ if($core->usergroup['canSeePrivateProfile'] == '1') {
 		$countall_current_quarterly_unfinalized = 0;
 	}
 
-	eval("\$userprofile_private = \"".$template->get('userprofile_private')."\";");			
+	eval("\$userprofile_private = \"".$template->get('userprofile_private')."\";");
 }*/
 ?>
