@@ -20,17 +20,14 @@ if($core->usergroup['assets_canTrack'] == 0) {
 $pagetitle="My Title";
 $pagecontents = 'Hello this is a new module<hr>';
 $asset = new Asset();
-
-
-$map = new Maps(array(), array('infowindow' => 1, 'mapcenter' => '32.887078, 34.195312'));
 $data=$asset->get_data_for_assets(array(8=>8));
 foreach ($data as $key=>$trackedasset) {
 	foreach ($trackedasset as $key=>$value) {
-		$pagecontents .= $map->get_streetname($value['latitude'],$value['longitude']).'<br>';
+		$pagecontents .= Maps::get_streetname($value['latitude'],$value['longitude']).'<br>';
 	}
 }
 
-$pagecontents .= $asset->get_map($data);
+$pagecontents .= $asset->get_map($data,array('infowindow' => 1, 'mapcenter' => '33.89, 35.51','zoom'=>14));
 eval("\$assetslist = \"".$template->get('assets_assets')."\";");
 echo $assetslist;
 
