@@ -143,7 +143,6 @@ else {
 		output_page($createchemical);
 	}
 	elseif($core->input['action'] == 'do_add_representative') {
-		$core->input['repPhone'] = $core->input['countrycode'].'-'.$core->input['area'].'-'.$core->input['repPhone'];
 		$representative = new Entities($core->input, 'add_representative');
 
 		if($representative->get_status() === true) {

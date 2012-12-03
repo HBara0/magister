@@ -81,7 +81,7 @@ if(!$core->input['action']) {
 	$filter = new Inlinefilters($filters_config);
 	$filter_where_values = $filter->process_multi_filters();
 
-	$chemicals_query = $db->query("SELECT csid, casNum name FROM ".Tprefix."chemicalsubstances ORDER BY name ASC");
+	$chemicals_query = $db->query("SELECT csid, casNum, name FROM ".Tprefix."chemicalsubstances ORDER BY name ASC");
 	while($chemicals = $db->fetch_assoc($chemicals_query)) {
 		$chemicals_selectlist_otps .= '<option value='.$chemicals['csid'].'>'.$chemicals['casNum'].' - '.$chemicals['name'].'</option>';
 	}

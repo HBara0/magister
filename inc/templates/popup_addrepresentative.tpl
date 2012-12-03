@@ -1,16 +1,16 @@
 <div id="popup_addrepresentative" title="{$lang->addnewrepresentative}">
-	<br />
+	<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>{$lang->addrepresentative_note}</p></div>
     <form action="#" method="post" id="add_representative_{$core->input[module]}_Form" name="add_representative_{$core->input[module]}_Form">
-    <input type="hidden" name="action" value="do_add_representative">
+    <input type="hidden" name="action" value="do_add_representative" />
      <table cellpadding='0' cellspacing='0' width='100%'>
         <tr>
             <td width="40%"><strong>{$lang->representativename}</strong></td><td><input type='text' id='repName' name='repName' tabindex="1"/></td>
         </tr>
         <tr>
-            <td><strong>{$lang->email}</strong></td><td><input type='text' id='email' name='repEmail' tabindex="2"/> <span id="repEmail_Validation"></span></td>
+            <td><strong>{$lang->email}</strong></td><td><input type='text' accept="email" id='repEmail' name='repEmail' tabindex="2"/> <span id="repEmail_Validation"></span></td>
         </tr>
              <tr>
-            <td><strong>{$lang->phone}</strong></td><td><input name="countrycode" type="text" size="3"><input name="area" type="text" size="4"><input type='text' id='phone' name='repPhone' tabindex="2"/> <span id="repphone_Validation"></span></td>
+            <td><strong>{$lang->telephone}</strong></td><td><input name="repTelephone[intcode]" accept="numeric" type="text" size="3" /><input name="repTelephone[areacode]" accept="numeric" type="text" size="4" /><input type='text' accept="numeric" id='repTelephone_number' name='repTelephone[number]' tabindex="2"/></td>
         </tr>
        {$entity_field_row}
           <td colspan="2" align="left">

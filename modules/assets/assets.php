@@ -28,7 +28,6 @@ foreach ($data as $key=>$trackedasset) {
 	foreach ($trackedasset as $key=>$value) {
 		$pagecontents .= $map->get_streetname($value['latitude'],$value['longitude']).'<br>';
 	}
-
 }
 
 $pagecontents .= $asset->get_map($data);
