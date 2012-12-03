@@ -53,9 +53,9 @@
 			<div style="display:table-row">
 				<div style="display:table-cell; width:130px; vertical-align:middle;">{$lang->chemicalname}</div>
 				<div style="display:table-cell">
-					<select name="request[product]">
-						{$chemicals_selectlist_otps}
-					</select>
+		<input type='text' id='chemicalproducts_{$chemicalp_rowid}_QSearch' autocomplete='off' size='40px'/>
+		<input type='hidden' id='chemicalproducts_{$chemicalp_rowid}_id' name='request[product]' value="{$supplier[chemicalproducts][csid]}"/>
+		<div id="searchQuickResults_chemicalproducts_{$chemicalp_rowid}" class="searchQuickResults" style="display:none;"></div>
 				</div>
 			</div>
 			<div style="display:table-row;">
