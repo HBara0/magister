@@ -28,6 +28,7 @@ $lang['pobox'] = 'PO Box';
 $lang['telephone'] = 'Telephone';
 $lang['fax'] = 'Fax';
 $lang['save'] = 'Save';
+$lang['chemicalsearch'] = 'chemical Search';
 $lang['contactdtails'] = 'Contact Details ';
 $lang['chemicalexsist'] = 'chemical exsist';
 $lang['chemicalrequired'] = 'all field are required';

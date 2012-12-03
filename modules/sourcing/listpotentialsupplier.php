@@ -61,8 +61,12 @@ if(!$core->input['action']) {
 							'sourcing_suppliers_productsegments' => array(
 									'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
 							),
+							
 							'sourcing_suppliers_chemicals' => array(
-									'filters' => array('chemicalsubstance' => array('operatorType' => 'multiple', 'csid' => 'csid')),
+									'filters' => array('chemicalsubstances' => 'casNum'),
+									'keyAttr' => 'csid',
+									'joinKeyAttr' => 'csid',
+									'joinWith' => 'chemicalsubstances'
 							),
 							'sourcing_suppliers_activityareas' => array(
 									'filters' => array('country' => 'name'),
@@ -77,11 +81,11 @@ if(!$core->input['action']) {
 	$filter = new Inlinefilters($filters_config);
 	$filter_where_values = $filter->process_multi_filters();
 
-	/*$chemicals_query = $db->query("SELECT csid, casNum, name FROM ".Tprefix."chemicalsubstances ORDER BY name ASC");
+	$chemicals_query = $db->query("SELECT csid, casNum name FROM ".Tprefix."chemicalsubstances ORDER BY name ASC");
 	while($chemicals = $db->fetch_assoc($chemicals_query)) {
 		$chemicals_selectlist_otps .= '<option value='.$chemicals['csid'].'>'.$chemicals['casNum'].' - '.$chemicals['name'].'</option>';
 	}
-	$db->free_result($chemicals_query);*/
+	$db->free_result($chemicals_query);
 
 	$filters_row_display = 'hide';
 	if(is_array($filter_where_values)) {

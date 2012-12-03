@@ -6,7 +6,7 @@
  * Sourcing Class
  * $id: Sourcing_class.php
  * Created:			@tony.assaad	October 15, 2012 |  10:53 PM
- * Last Update:      @tony.assaad	November 29, 2012 | 5:06 PM
+ * Last Update:     @tony.assaad	November 29, 2012 | 5:06 PM
  */
 
 class Sourcing {
@@ -274,6 +274,12 @@ class Sourcing {
 											{$filter_where}
 											{$sort_query} 
 											LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
+											echo ("SELECT ss.ssid, ss.companyName, ss.type, ss.isBlacklisted, ss.businessPotential 
+											FROM ".Tprefix."sourcing_suppliers ss							
+											{$join_employeessegments}
+											{$filter_where}
+											{$sort_query} 
+											LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 		if($db->num_rows($suppliers_query) > 0) {
 			while($supplier = $db->fetch_assoc($suppliers_query)) {
 				$potential_suppliers[$supplier['ssid']]['segments'] = $this->get_supplier_segments($supplier['ssid']);
@@ -386,7 +392,7 @@ class Sourcing {
 
 			return $activity_areas;
 		}
-		return array();
+		return array();  /* empty array */
 	}
 
 	public function get_single_supplier_contact_person($id) {
