@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * MySQL Connection Class
  * $id: MySQLConnection_class.php
  * Last Update: @zaher.reda 	November 26, 2012 | 08:44 AM
@@ -24,9 +24,9 @@ class MySQLConnection {
 	}
 
 	private function connect() {
-		$this->link = @mysql_connect($this->db['hostname'], $this->db['username'], $this->db['password'], $this->db['new']) or $this->mysqlerror();	
+		$this->link = @mysql_connect($this->db['hostname'], $this->db['username'], $this->db['password'], $this->db['new']) or $this->mysqlerror();
 	}
-	
+
 	private function select_db() {
 		@mysql_select_db($this->db['db'], $this->link) or $this->mysqlerror();
 		$this->query("SET NAMES '{$this->db_encoding}'");
@@ -34,18 +34,18 @@ class MySQLConnection {
 
 	public function query($query_string) {
 		$query = @mysql_query($query_string, $this->link);
-		
+
 		if($this->error_number()) {
 			$this->mysqlerror($query_string);
 		}
 		return $query;
 	}
-	
+
 	public function insert_query($table, $data, $options = '') {
 		$comma = $index_string = $data_string = $keyphrase = '';
 		if(is_array($data)) {
 			$query_data = $this->prepare_insertstatement_data($data, $options);
-			
+
 			return $this->query('INSERT INTO '.$this->db['prefix'].$table.' ('.$query_data['index'].') VALUES ('.$query_data['value'].')');
 		}
 		else
@@ -53,7 +53,7 @@ class MySQLConnection {
 			return false;
 		}
 	}
-	
+
 	public function multi_insert_query($table, array $data, $options = '') {
 		if(!empty($data)) {
 			foreach($data as $entry => $entry_data) {
@@ -61,7 +61,7 @@ class MySQLConnection {
 				$query_values .= $comma.'('.$query_data['value'].')';
 				$comma = ', ';
 			}
-			
+
 			return $this->query('INSERT INTO '.$this->db['prefix'].$table.' ('.$query_data['index'].') VALUES '.$query_values);
 		}
 		else
@@ -69,11 +69,11 @@ class MySQLConnection {
 			return false;
 		}
 	}
-	
+
 	private function prepare_insertstatement_data(array $data, $options = '') {
 		$comma = $keyphrase = '';
 		if(!empty($data)) {
-			foreach($data as $key => $val) {			
+			foreach($data as $key => $val) {
 				$statement['index'] .= $comma.$key;
 				if(!empty($options['encrypt']) && is_array($options['encrypt']) && in_array($key, $options['encrypt'])) {
 					if(array_key_exists($key.'Key', $data)) {
@@ -86,7 +86,7 @@ class MySQLConnection {
 					$statement['value'] .= $comma."AES_ENCRYPT('{$val}', '{$keyphrase}')";
 				}
 				elseif(!empty($options['geoLocation']) && is_array($options['geoLocation']) && in_array($key, $options['geoLocation'])) {
-					$statement['value'] .= $comma.'geomFromText("POINT('.$db->escape_string($val).'")';
+					$statement['value'] .= $comma.'geomFromText("POINT('.$this->escape_string($val).')")';
 				}
 				else
 				{
@@ -98,7 +98,7 @@ class MySQLConnection {
 		}
 		return false;
 	}
-	
+
 	public function update_query($table, $data, $where='', $options = '') {
 		$comma = $query_string = '';
 		if(is_array($data)) {
@@ -114,7 +114,7 @@ class MySQLConnection {
 					$query_string .= $comma."{$key}=AES_ENCRYPT('{$val}', '{$keyphrase}')";
 				}
 				elseif(!empty($options['geoLocation']) && is_array($options['geoLocation']) && in_array($key, $options['geoLocation'])) {
-					$statement['value'] .= $comma.$key.'=geomFromText("POINT('.$db->escape_string($val).'")';
+					$statement['value'] .= $comma.$key.'=geomFromText("POINT('.$this->escape_string($val).')")';
 				}
 				else
 				{
@@ -128,12 +128,12 @@ class MySQLConnection {
 
 			return $this->query("UPDATE {$this->db['prefix']}{$table} SET {$query_string}{$where}");
 	  	}
-		else 
+		else
 		{
 			return false;
 		}
 	}
- 
+
 	public function delete_query($table, $where='') {
 		$where_query = '';
 		if(!empty($where)) {
@@ -150,7 +150,7 @@ class MySQLConnection {
 	public function fetch_assoc($query) {
 		return mysql_fetch_assoc($query);
 	}
-	
+
 	public function fetch_field($query, $field, $row=false) {
 		if($row === false) {
 			$fetch = $this->fetch_array($query);
@@ -169,8 +169,8 @@ class MySQLConnection {
 	public function free_result($query) {
 		return mysql_free_result($query);
 	}
-	
-	public function close() { 
+
+	public function close() {
 		@mysql_close($this->link);
 	}
 
@@ -183,11 +183,11 @@ class MySQLConnection {
 	{
 		return mysql_num_rows($query);
 	}
-	
+
 	public function affected_rows() {
 		return mysql_affected_rows($this->link);
 	}
-	
+
 	public function escape_string($string) {
 		if(function_exists('mysql_real_escape_string') && $this->link) {
 			return mysql_real_escape_string($string, $this->link);
@@ -198,19 +198,19 @@ class MySQLConnection {
 		else
  		{
 			return addslashes($string);
-		}	
+		}
 	}
-	
+
 	protected function error_number() {
 		if($this->link) {
 			return mysql_errno($this->link);
-		} 
+		}
 		else
 		{
 			return mysql_errno();
 		}
 	}
-	
+
 	protected function error() {
 		if($this->link) {
 			return mysql_error($this->link);
@@ -218,24 +218,24 @@ class MySQLConnection {
 		else
 		{
 			return mysql_error();
-		}	
+		}
 	}
-	
+
 	public function set_charset($charset='') {
 		if(empty($charset)) {
-			$charset = $this->db_encoding;	
+			$charset = $this->db_encoding;
 		}
-		
+
 		mysql_set_charset($charset, $this->link);
 	}
-	
+
 	protected function mysqlerror($string='') {
-		global $errorhandler; 
-		
+		global $errorhandler;
+
 		if(!is_object($errorhandler)) {
 			$errorhandler = new errorHandler();
 		}
-		
+
 		$error = array(
 			'error_no' => $this->error_number(),
 			'error' => $this->error(),
@@ -255,7 +255,7 @@ class MySQLConnection {
 	public function analyze_table($table) {
 		$this->query("ANALYZE TABLE {$this->db['prefix']}{$table}");
 	}
-	
+
 	public function show_create_table($table) {
 		$query = $this->query("SHOW CREATE TABLE {$this->db['prefix']}{$table}");
 		$structure = $this->fetch_array($query);
@@ -269,11 +269,11 @@ class MySQLConnection {
 		}
 		return $field_info;
 	}
-	
+
 	public function field_name($result, $index) {
 		return mysql_field_name($result, $index);
 	}
-	
+
 	public function table_status($table='')
 	{
 		if(!empty($table)) {
@@ -289,7 +289,7 @@ class MySQLConnection {
 		}
 		return $total;
 	}
-	
+
 	public function __sleep() {
 		return array('hostname', 'username', 'password', 'db');
 	}

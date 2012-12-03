@@ -125,7 +125,8 @@ class Asset {
 		$data["direction"] = $data["heading"];
 		$data["vehiclestate"] = 1;
 		$data["otherstate"] = (double)$data["altitude"];
-		$data['location'] = 'geomFromText("POINT('.$data['lat'].' '.$data['long'].')")';
+		$data['location'] = $data['lat'].' '.$data['long'];
+		$options['geoLocation']=array('location');
 		unset($data["pin"]);
 		unset($data['lat']);
 		unset($data['long']);
@@ -140,7 +141,7 @@ class Asset {
 				$data["asid"] = $row['asid'];
 			}
 		}
-		$db->insert_query('assets_locations', $data);
+		$db->insert_query('assets_locations', $data,$options);
 	}
 
 	public function get_map($data) { // ($uids,$asids,$from,$to) {

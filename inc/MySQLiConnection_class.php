@@ -93,7 +93,7 @@ class MySQLiConnection {
 					$statement['value'] .= $comma."AES_ENCRYPT('{$val}', '{$keyphrase}')";
 				}
 				elseif(!empty($options['geoLocation']) && is_array($options['geoLocation']) && in_array($key, $options['geoLocation'])) {
-					$statement['value'] .= $comma.'geomFromText("POINT('.$db->escape_string($val).'")';
+					$statement['value'] .= $comma.'geomFromText("POINT('.$this->escape_string($val).')")';
 				}
 				else
 				{
@@ -122,7 +122,7 @@ class MySQLiConnection {
 					$query_string .= $comma."{$key}=AES_ENCRYPT('{$val}', '{$keyphrase}')";
 				}
 				elseif(!empty($options['geoLocation']) && is_array($options['geoLocation']) && in_array($key, $options['geoLocation'])) {
-					$statement['value'] .= $comma.$key.'=geomFromText("POINT('.$db->escape_string($val).'")';
+					$statement['value'] .= $comma.$key.'=geomFromText("POINT('.$this->escape_string($val).')")';
 				}
 				else
 				{
