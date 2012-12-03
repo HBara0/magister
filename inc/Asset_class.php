@@ -153,7 +153,7 @@ class Asset {
 			}
 		}
 
-		$map = new Maps($markers, array('infowindow' => 1, 'mapcenter' => '32.887078, 34.195312'));
+		$map = new Maps($markers, array('infowindow' => 1, 'mapcenter' => '32.888, 34.195'));
 		$map_view = $map->get_map(300, 200);
 		return $map_view.'<hr><pre>'.$map->get_streetname($lat, $long).'</pre>';
 	}
