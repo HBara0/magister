@@ -149,11 +149,12 @@ class Asset {
 
 		foreach($data as $key => $trackedasset) {
 			foreach($trackedasset as $key2 => $value) {
-				$markers[] = array('title' => $key.':'.Maps::get_streetname($value['latitude'], $value['longitude']), 'otherinfo' => 'some other info', 'geoLocation' => (number_format($value['latitude'], 6).','.number_format($value['longitude'], 6)));
+				$markers[] = array('title' => $value['latitude'].'|'.$value['longitude'].' ->'. $key.':'.Maps::get_streetname($value['latitude'], $value['longitude']), 'otherinfo' => 'some other info', 'geoLocation' => (number_format($value['latitude'], 6).','.number_format($value['longitude'], 6)));
 			}
 		}
 
-		$map = new Maps($markers, array('infowindow' => 1, 'mapcenter' => '32.887078, 34.195312'));
+		$options=array('overlaytype'=>'parsePolylines');
+		$map = new Maps($markers, array('infowindow' => 1, 'mapcenter' => '32.887078, 34.195312'),$options);
 		$map_view = $map->get_map(300, 200);
 		return $map_view.'<hr><pre>'.$map->get_streetname($lat, $long).'</pre>';
 	}
