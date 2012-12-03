@@ -36,6 +36,10 @@ class Maps {
 			$this->options['overlaytype'] = 'parseMarkers';
 		}
 
+		if(empty($this->options['zoom'])) {
+			$this->options['zoom']=2;
+		}
+
 		$places_script .= 'mapInitialize('.$this->options['overlaytype'].');';
 		eval("\$headerinc .= \"".$template->get('headerinc_mapsapi')."\";");
 	}

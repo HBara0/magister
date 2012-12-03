@@ -144,19 +144,17 @@ class Asset {
 		$db->insert_query('assets_locations', $data,$options);
 	}
 
-	public function get_map($data) { // ($uids,$asids,$from,$to) {
+	public function get_map($data,$options) { // ($uids,$asids,$from,$to) {
 		global $db;
-
 		foreach($data as $key => $trackedasset) {
 			foreach($trackedasset as $key2 => $value) {
 				$markers[] = array('title' => $value['latitude'].'|'.$value['longitude'].' ->'. $key.':'.Maps::get_streetname($value['latitude'], $value['longitude']), 'otherinfo' => 'some other info', 'geoLocation' => (number_format($value['latitude'], 6).','.number_format($value['longitude'], 6)));
 			}
 		}
-
-		$options=array('overlaytype'=>'parsePolylines');
-		$map = new Maps($markers, array('infowindow' => 1, 'mapcenter' => '32.887078, 34.195312'),$options);
+		$options['overlaytype']='parsePolylines';
+		$map = new Maps($markers, $options);
 		$map_view = $map->get_map(300, 200);
-		return $map_view.'<hr><pre>'.$map->get_streetname($lat, $long).'</pre>';
+		return $map_view.'<hr><pre>'.Maps::get_streetname($lat, $long).'</pre>';
 	}
 
 	public function assign_assetuser($asid, $uid, $from, $to) {
