@@ -25,7 +25,7 @@
 				{$filters_row}
 				</thead>
 				
-				<tbody>
+				<tbody></tbody>
 				
 				{$sourcing_listpotentialsupplier_rows}
 				</tbody>
@@ -41,7 +41,7 @@
 		<div style="width:40%; float:right;">
 			{$lang->chemicalname}
 			<select name="filters[chemicalsubstance][]"  multiple="multiple">
-				{$chemicals_selectlist_otps}		
+				{$chemicals_selectlist_otps}
 			</select>
 		</div></td>
 </tr>
@@ -53,9 +53,9 @@
 			<div style="display:table-row">
 				<div style="display:table-cell; width:130px; vertical-align:middle;">{$lang->chemicalname}</div>
 				<div style="display:table-cell">
-		<input type='text' id='chemicalproducts_{$chemicalp_rowid}_QSearch' autocomplete='off' size='40px'/>
-		<input type='hidden' id='chemicalproducts_{$chemicalp_rowid}_id' name='request[product]' value="{$supplier[chemicalproducts][csid]}"/>
-		<div id="searchQuickResults_chemicalproducts_{$chemicalp_rowid}" class="searchQuickResults" style="display:none;"></div>
+					<input type='text' id='chemicalproducts_1_QSearch' autocomplete='off' size='40px'/>
+					<input type='hidden' id='chemicalproducts_1_id' name='request[product]'/>
+					<div id="searchQuickResults_chemicalproducts_1" class="searchQuickResults" style="display:none;"></div>
 				</div>
 			</div>
 			<div style="display:table-row;">

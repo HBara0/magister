@@ -4,5 +4,7 @@
  PLEASE USE the Admin CP
 \*********************************/
 
+$lang['addrepresentative_note'] = '';
 $lang['monday'] = 'Lundi';
+$lang['telephone'] = 'Téléphone';
 ?>

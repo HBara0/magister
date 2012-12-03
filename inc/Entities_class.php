@@ -356,8 +356,17 @@ class Entities {
 			output_xml("<status>false</status><message>{$lang->invalidentityemail}</message>");
 			exit;
 		}
-				
-		$query = $db->insert_query('representatives', array('name' => ucwords(strtolower($this->data['repName'])), 'email' => $this->data['repEmail'], 'phone'=> $this->data['repPhone']));
+		
+		if(isset($this->data['repTelephone']) && !empty($this->data['repTelephone'])) {
+			if(!is_empty($this->data['repTelephone']['intcode'], $this->data['repTelephone']['areacode'], $this->data['repTelephone']['number'])) {
+				$this->data['repTelephone'] = implode('-', $this->data['repTelephone']);
+			}
+			else {
+				unset($this->data['repTelephone']);
+			}
+		}
+		
+		$query = $db->insert_query('representatives', array('name' => ucwords(strtolower($this->data['repName'])), 'email' => $this->data['repEmail'], 'phone'=> $this->data['repTelephone']));
 		if($query) {
 			$rpid = $db->last_id();
 			if(isset($this->data['repcid'])) {
