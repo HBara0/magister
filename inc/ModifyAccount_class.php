@@ -279,11 +279,11 @@ class ModifyAccount extends Accounts {
 				}
 				
 				if(value_exists('userhrinformation', 'uid', $uid)) {
-					$db->update_query('userhrinformation', $hr_data, "uid='{$uid}'", $db_encrypt_fields);
+					$db->update_query('userhrinformation', $hr_data, "uid='{$uid}'", array('encrypt' => $db_encrypt_fields));
 				}
 				else
 				{
-					$db->insert_query('userhrinformation', $hr_data, $db_encrypt_fields);
+					$db->insert_query('userhrinformation', $hr_data, array('encrypt' => $db_encrypt_fields));
 				}
 			}
 			

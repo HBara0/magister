@@ -41,10 +41,10 @@ class MySQLConnection {
 		return $query;
 	}
 	
-	public function insert_query($table, $data, $encrypt = '') {
+	public function insert_query($table, $data, $options = '') {
 		$comma = $index_string = $data_string = $keyphrase = '';
 		if(is_array($data)) {
-			$query_data = $this->prepare_insertstatement_data($data, $encrypt);
+			$query_data = $this->prepare_insertstatement_data($data, $options);
 			
 			return $this->query('INSERT INTO '.$this->db['prefix'].$table.' ('.$query_data['index'].') VALUES ('.$query_data['value'].')');
 		}
@@ -54,10 +54,10 @@ class MySQLConnection {
 		}
 	}
 	
-	public function multi_insert_query($table, array $data, $encrypt = '') {
+	public function multi_insert_query($table, array $data, $options = '') {
 		if(!empty($data)) {
 			foreach($data as $entry => $entry_data) {
-				$query_data = $this->prepare_insertstatement_data($entry_data, $encrypt);
+				$query_data = $this->prepare_insertstatement_data($entry_data, $options);
 				$query_values .= $comma.'('.$query_data['value'].')';
 				$comma = ', ';
 			}
@@ -70,12 +70,12 @@ class MySQLConnection {
 		}
 	}
 	
-	private function prepare_insertstatement_data(array $data, $encrypt = '') {
+	private function prepare_insertstatement_data(array $data, $options = '') {
 		$comma = $keyphrase = '';
 		if(!empty($data)) {
 			foreach($data as $key => $val) {			
 				$statement['index'] .= $comma.$key;
-				if(!empty($encrypt) && is_array($encrypt) && in_array($key, $encrypt)) {
+				if(!empty($options['encrypt']) && is_array($options['encrypt']) && in_array($key, $options['encrypt'])) {
 					if(array_key_exists($key.'Key', $data)) {
 						$keyphrase = $data[$key.'Key'];
 					}
@@ -84,6 +84,9 @@ class MySQLConnection {
 						$keyphrase = $key; //or later set a default key setting
 					}
 					$statement['value'] .= $comma."AES_ENCRYPT('{$val}', '{$keyphrase}')";
+				}
+				elseif(!empty($options['geoLocation']) && is_array($options['geoLocation']) && in_array($key, $options['geoLocation'])) {
+					$statement['value'] .= $comma.'geomFromText("POINT('.$db->escape_string($val).'")';
 				}
 				else
 				{
@@ -96,11 +99,11 @@ class MySQLConnection {
 		return false;
 	}
 	
-	public function update_query($table, $data, $where='', $encrypt = '') {
+	public function update_query($table, $data, $where='', $options = '') {
 		$comma = $query_string = '';
 		if(is_array($data)) {
 			foreach($data as $key => $val) {
-				if(!empty($encrypt) && is_array($encrypt) && in_array($key, $encrypt)) {
+				if(!empty($options['encrypt']) && is_array($options['encrypt']) && in_array($key, $options['encrypt'])) {
 					if(array_key_exists($key.'Key', $data)) {
 						$keyphrase = $data[$key.'Key'];
 					}
@@ -109,6 +112,9 @@ class MySQLConnection {
 						$keyphrase = $key; //or later set a default key setting
 					}
 					$query_string .= $comma."{$key}=AES_ENCRYPT('{$val}', '{$keyphrase}')";
+				}
+				elseif(!empty($options['geoLocation']) && is_array($options['geoLocation']) && in_array($key, $options['geoLocation'])) {
+					$statement['value'] .= $comma.$key.'=geomFromText("POINT('.$db->escape_string($val).'")';
 				}
 				else
 				{
