@@ -6,7 +6,7 @@
  * Sourcing Class
  * $id: Sourcing_class.php
  * Created:			@tony.assaad	October 15, 2012 |  10:53 PM
- * Last Update:      @tony.assaad	November 29, 2012 | 5:06 PM
+ * Last Update:     @tony.assaad	November 29, 2012 | 5:06 PM
  */
 
 class Sourcing {
@@ -21,10 +21,9 @@ class Sourcing {
 
 	public function add($data, array $options = array()) {
 		global $db, $log, $core, $errorhandler, $lang;
-
 		if(is_empty($data['companyName'], $data['productsegment']) || (empty($data['ssid']) && $options['operationtype'] == 'update')) {
 			$this->status = 1;
-			return false;
+			//return false;
 		}
 
 		$this->supplier = $data;
@@ -33,7 +32,6 @@ class Sourcing {
 		$this->representative = $this->supplier['representative'];
 		$this->activityarea = $this->supplier['activityarea'];
 		$this->supplier['ssid'] = intval($this->supplier['ssid']);
-		//$this->supplier['type'] = $this->supplier['chemicalproducts']['supplyType'];
 		$this->supplier['type'] = $this->determine_supplyiertype($this->chemicals);
 
 		unset($this->supplier['chemicalproducts'], $this->supplier['productsegment'], $this->supplier['representative'], $this->supplier['activityarea']);
@@ -41,7 +39,7 @@ class Sourcing {
 		if($options['operationtype'] != 'update') {
 			if(value_exists('sourcing_suppliers', 'companyName', $this->supplier['companyName'])) {
 				$this->status = 2;
-				return false;
+				//return false;
 			}
 		}
 
@@ -70,14 +68,12 @@ class Sourcing {
 		if($options['operationtype'] == 'update') {
 			$this->supplier['dateModified'] = TIME_NOW;
 			$this->supplier['modifiedBy'] = $core->user['uid'];
-
 			$query = $db->update_query('sourcing_suppliers', $this->supplier, 'ssid='.$this->supplier['ssid'].'');
 		}
 		else {
 			unset($this->supplier['ssid']);
 			$this->supplier['createdBy'] = $core->user['uid'];
 			$this->supplier['dateCreated'] = TIME_NOW;
-
 			$query = $db->insert_query('sourcing_suppliers', $this->supplier);
 			$this->supplier['ssid'] = $db->last_id();
 		}
@@ -92,7 +88,10 @@ class Sourcing {
 
 			/* Insert  suppliers_activityareas - START */
 			if(is_array($this->activityarea)) {
-				foreach($this->activityarea as $activityarea) {
+				foreach($this->activityarea as $coid => $activityarea) { /* If supplier not available in the country move to the next availablity country */
+					if(empty($activityarea['availability'])) {
+						continue;
+					}
 					if(isset($activityarea['availability']) && !empty($activityarea['availability'])) {
 						$activity_area = array(
 								'ssid' => $this->supplier['ssid'],
@@ -167,7 +166,7 @@ class Sourcing {
 			$supplier_id = $this->supplier['ssid'];
 		}
 		else {
-			if(!$this->validate_segment_permission($supplier_id)) {
+			if(!$this->validate_permission($supplier_id)) {
 				return false;
 			}
 		}
@@ -274,9 +273,15 @@ class Sourcing {
 											{$filter_where}
 											{$sort_query} 
 											LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
-											
+								
+
+
 		if($db->num_rows($suppliers_query) > 0) {
 			while($supplier = $db->fetch_assoc($suppliers_query)) {
+				$activity_area = $this->get_supplier_activity_area($supplier['ssid']);
+				if(!$this->validate_permission($supplier['ssid'])) {	
+				//	continue;
+				}
 				$potential_suppliers[$supplier['ssid']]['segments'] = $this->get_supplier_segments($supplier['ssid']);
 				$potential_suppliers[$supplier['ssid']]['activityarea'] = $this->get_supplier_activity_area($supplier['ssid']);
 				$potential_suppliers[$supplier['ssid']]['chemicalsubstance'] = $this->get_chemicalsubstances($supplier['ssid']);
@@ -295,7 +300,7 @@ class Sourcing {
 			$supplier_id = $this->supplier['ssid'];
 		}
 		else {
-			if(!$this->validate_segment_permission($supplier_id)) {
+			if(!$this->validate_permission($supplier_id)) {
 				return false;
 			}
 		}
@@ -320,7 +325,7 @@ class Sourcing {
 			$supplier_id = $this->supplier['ssid'];
 		}
 		else {
-			if(!$this->validate_segment_permission($supplier_id)) {
+			if(!$this->validate_permission($supplier_id)) {
 				return false;
 			}
 		}
@@ -339,7 +344,7 @@ class Sourcing {
 			$supplier_id = $this->supplier['ssid'];
 		}
 		else {
-			if(!$this->validate_segment_permission($supplier_id)) {
+			if(!$this->validate_permission($supplier_id)) {
 				return false;
 			}
 		}
@@ -348,6 +353,7 @@ class Sourcing {
 									FROM ".Tprefix."sourcing_suppliers_contactpersons sscp
 									JOIN ".Tprefix."representatives rp ON(sscp.rpid=rp.rpid)
 									WHERE sscp.ssid= ".$db->escape_string($supplier_id));
+
 		if($db->num_rows($contact_query) > 0) {
 			while($contact_person = $db->fetch_assoc($contact_query)) {
 				$contact_persons[$contact_person['rpid']] = $contact_person;
@@ -364,21 +370,22 @@ class Sourcing {
 			$supplier_id = $this->supplier['ssid'];
 		}
 		else {
-			if(!$this->validate_segment_permission($supplier_id)) {
+			if(!$this->validate_permission($supplier_id)) {
 				return false;
 			}
 		}
-		
+
 		if($real == false) {
-			$query_whereadd = ' AND availability!="3"';	
+			$query_whereadd = ' AND availability!=0';
 		}
-		
+
 		$activity_area_query = $db->query("SELECT ssaa.*, co.name AS country, aff.name AS affiliate 
 									FROM ".Tprefix."sourcing_suppliers ss
 									JOIN ".Tprefix."sourcing_suppliers_activityareas ssaa ON (ss.ssid=ssaa.ssid)
 									JOIN ".Tprefix."countries co ON (co.coid=ssaa.coid)
 									JOIN ".Tprefix."affiliates aff ON (aff.affid=co.affid)
 									WHERE ss.ssid= ".$db->escape_string($supplier_id).$query_whereadd);
+
 
 		if($db->num_rows($activity_area_query) > 0) {
 			while($activity_area = $db->fetch_assoc($activity_area_query)) {
@@ -387,7 +394,6 @@ class Sourcing {
 
 			return $activity_areas;
 		}
-		return array();
 		return array();  /* empty array */
 	}
 
@@ -445,21 +451,36 @@ class Sourcing {
 		return false;
 	}
 
-	private function validate_segment_permission($supplier_id = '') {
+	private function validate_permission($supplier_id = '') {
 		global $db, $core;
-
+		
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 		}
 
 		/* If user is not a sourcing agent, check his/her segements - START */
-		if($core->usergroup['sourcing_canManageEntries'] == 0) {
+		if($core->usergroup['sourcing_canManageEntries'] == 1) { // cid in activity area in countries for the affilt i work in
+			/* check country if availabilty is no */
+			$activityarea_query = $db->query("SELECT ssaa.ssaid
+												FROM ".Tprefix."sourcing_suppliers ss
+												JOIN ".Tprefix."sourcing_suppliers_activityareas ssaa ON (ss.ssid=ssaa.ssid)
+												JOIN ".Tprefix."countries co ON (co.coid=ssaa.coid)
+												JOIN ".Tprefix."affiliates aff ON (aff.affid=co.affid)
+												WHERE aff.affid in('".$core->user['mainaffiliate']."') AND ss.ssid= ".$db->escape_string($supplier_id));
+
+			if($db->num_rows($activityarea_query) > 0) {
+				return true;
+			}
+			else {
+				//return false;
+			}
 			$suppliers_query = $db->query("SELECT ssp.psid 
 										FROM ".Tprefix."sourcing_suppliers_productsegments ssp 
 										JOIN ".Tprefix."employeessegments es ON (es.psid = ssp.psid)
 										WHERE ssp.ssid=".$db->escape_string($supplier_id)."
 										AND es.uid=".$db->escape_string($core->user['uid'])."
 										LIMIT 0, 1");
+
 
 			if($db->num_rows($suppliers_query) > 0) {
 				return true;
@@ -585,13 +606,13 @@ class Sourcing {
 
 	public function parse_supplytype($supplytype) {
 		global $lang;
-		
+
 		if(empty($supplytype)) {
 			$supplytype = $this->supplier['type'];
 		}
-		
+
 		switch($supplytype) {
-			case 't': 
+			case 't':
 				return $lang->trader;
 				break;
 			case 'p':
@@ -603,7 +624,7 @@ class Sourcing {
 		}
 		return false;
 	}
-	
+
 	public function is_blacklisted() {
 		if($this->supplier['isBlacklisted'] == 1) {
 			return true;
@@ -656,12 +677,12 @@ class Sourcing {
 			$this->status = 4;
 			return false;
 		}
-		
+
 		if(value_exists('chemicalsubstances', 'casNum', $data['casNum']) || value_exists('chemicalsubstances', 'name', $data['name'])) {
 			$this->status = 5;
 			return false;
 		}
-		
+
 		$chemical_data = array(
 				'casNum' => $core->sanitize_inputs($data['casNum'], array('removetags' => true)),
 				'name' => $core->sanitize_inputs($data['name'], array('removetags' => true)),
@@ -674,19 +695,20 @@ class Sourcing {
 		}
 		return false;
 	}
-	
-	private function determine_supplyiertype($supply_types) {	
-		foreach($supply_types as $cas => $supplytype) {
-		foreach($supplier_type as $cas => $supplytype) {
-			$types[] = $supplytype['supplyType'];
-		}
 
-		$types = array_unique($types);
-		if(count($types) > 1) {
-			return 'b';
-		}
-		else {
-			return current($types);
+	private function determine_supplyiertype($supply_types) {
+		foreach($supply_types as $cas => $supplytype) {
+			foreach($supply_types as $cas => $supplytype) {
+				$types[] = $supplytype['supplyType'];
+			}
+
+			$types = array_unique($types);
+			if(count($types) > 1) {
+				return 'b';
+			}
+			else {
+				return current($types);
+			}
 		}
 	}
 
