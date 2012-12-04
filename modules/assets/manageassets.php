@@ -78,7 +78,7 @@ else {
 	<td colspan=2><input type="submit" name="saveasset" value="Save" tabindex="5"/></tr></td></form>';
 }
 
-$pagetitle = "Manage Assets";
+$pagetitle = $lang->assetsmanagepage;
 $pagecontents = $assetslist.$assetedit;
 eval("\$assetslist = \"".$template->get('assets_assets')."\";");
 echo $assetslist;
