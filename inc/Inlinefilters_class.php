@@ -288,7 +288,7 @@ class Inlinefilters {
 				}
 
 				/* Prepare any necessary joins - START */
-				$sec_query_join_clause = '';
+				$sec_query_join_clause = $sec_query_having = '';
 				if((isset($options['joinWith']) && !empty($options['joinWith'])) && (isset($options['joinKeyAttr']) && !empty($options['joinKeyAttr']))) {
 					if(!isset($options['joinWord']) && empty($options['joinWord'])) {
 						$options['joinWord'] = 'JOIN';
@@ -298,10 +298,18 @@ class Inlinefilters {
 				/* Prepare any necessary joins - END */
 
 				/* Prepare WHERE statement filters - START */
-				$sec_query_where = $this->parse_filterstatements($options['filters']);
+				if(isset($options['filters'])&& !empty($options['filters'])) {
+					$sec_query_where = $this->parse_filterstatements($options['filters']);
+				}
+				
 				/* Prepare WHERE statement filters - END */
+				
 
-				if(!empty($sec_query_where)) {
+				if(isset($options['havingFilters']) && !empty($options['havingFilters'])) {
+					$sec_query_having = $this->parse_filterstatements($options['havingFilters']);
+				}
+
+				if(!empty($sec_query_where)|| !empty($sec_query_having)) {
 					if($this->matching_rule == 'all' && !empty($items)) {
 						$sec_query_where .= ' AND '.$options['filterKeyOverwrite'].' IN ("'.implode('", "', $items).'")';
 					}
@@ -309,10 +317,19 @@ class Inlinefilters {
 					if(isset($options['extraWhere']) && !empty($options['extraWhere'])) {
 						$sec_query_where .= ' AND '.$db->escape_string($options['extraWhere']);
 					}
-
-					$sec_query = $db->query('SELECT DISTINCT('.$options['filterKeyOverwrite'].')
+					
+					if(!empty($options['extraSelect'])) {
+						$options['extraSelect'] = ', '.$options['extraSelect'];
+					}
+					
+					if(!empty($sec_query_having)) {
+						$sec_query_having = ' HAVING '.$sec_query_having;
+					}
+						echo $sec_query_having;
+				
+					$sec_query = $db->query('SELECT DISTINCT('.$options['filterKeyOverwrite'].')'.$options['extraSelect'].'
 										FROM '.Tprefix.$table.$sec_query_join_clause.'
-										WHERE '.$sec_query_where);
+										 '.$sec_query_where.$sec_query_having);
 
 					if($db->num_rows($sec_query) > 0) {
 						while($item = $db->fetch_assoc($sec_query)) {
