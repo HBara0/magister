@@ -274,6 +274,7 @@ class Sourcing {
 											{$filter_where}
 											{$sort_query} 
 											LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
+											
 		if($db->num_rows($suppliers_query) > 0) {
 			while($supplier = $db->fetch_assoc($suppliers_query)) {
 				$potential_suppliers[$supplier['ssid']]['segments'] = $this->get_supplier_segments($supplier['ssid']);
@@ -387,6 +388,7 @@ class Sourcing {
 			return $activity_areas;
 		}
 		return array();
+		return array();  /* empty array */
 	}
 
 	public function get_single_supplier_contact_person($id) {
@@ -674,6 +676,7 @@ class Sourcing {
 	}
 	
 	private function determine_supplyiertype($supply_types) {	
+		foreach($supply_types as $cas => $supplytype) {
 		foreach($supplier_type as $cas => $supplytype) {
 			$types[] = $supplytype['supplyType'];
 		}
