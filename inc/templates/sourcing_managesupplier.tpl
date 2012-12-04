@@ -181,7 +181,7 @@
 					</div>
 				</div>
 				<div style="display:table-row;">
-					<div style="display: table-cell; vertical-align:middle;">{$lang->coBriefing}</div>
+					<div style="display: table-cell; vertical-align:middle;">{$lang->cobriefing}</div>
 					<div style="display: table-cell; padding:5px; vertical-align:top;">
 						<textarea tabindex="27" class="texteditormin" cols="35" rows="5" name="supplier[coBriefing]">{$supplier[details][coBriefing]}</textarea>
 					</div>
@@ -193,13 +193,13 @@
 					</div>
 				</div>
 				<div style="display:table-row;">
-					<div style="display: table-cell; vertical-align:middle;">{$lang->sourcingRecords}</div>
+					<div style="display: table-cell; vertical-align:middle;">{$lang->sourcingrecords}</div>
 					<div style="display: table-cell; padding:5px; vertical-align:middle;">
 						<textarea tabindex="29" class="texteditormin" cols="35" rows="5" name="supplier[sourcingRecords]">{$supplier[details][sourcingRecords]}</textarea>
 					</div>
 				</div>
 				<div style="display:table-row;">
-					<div style="display: table-cell; vertical-align:middle;">{$lang->productFunction}</div>
+					<div style="display: table-cell; vertical-align:middle;">{$lang->productfunction}</div>
 					<div style="display: table-cell; padding:5px; vertical-align:middle;">
 						<textarea tabindex="30" class="texteditormin" cols="35" rows="5"name="supplier[productFunction]">{$supplier[details][productFunction]}</textarea>
 					</div>
