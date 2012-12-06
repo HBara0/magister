@@ -27,12 +27,12 @@ $potential_supplier = new Sourcing($supplier_id);
 
 if(!$core->input['action']) {
 	if(!$potential_supplier->supplier_exists()) {
-	redirect('index.php?module=sourcing/listpotentialsupplier');
-}
+		redirect('index.php?module=sourcing/listpotentialsupplier');
+	}
 
-if($potential_supplier->is_blacklisted()) { /* if supplier isBlacklisted */
-	redirect(DOMAIN."/index.php?module=sourcing/listpotentialsupplier");
-}
+	if($potential_supplier->is_blacklisted()) { /* if supplier isBlacklisted */
+		redirect(DOMAIN."/index.php?module=sourcing/listpotentialsupplier");
+	}
 
 	$supplier['maindetails'] = $potential_supplier->get_supplier();
 	$supplier['contactdetails'] = $potential_supplier->get_supplier_contactdetails();
@@ -61,32 +61,27 @@ if($potential_supplier->is_blacklisted()) { /* if supplier isBlacklisted */
 			$chemicalslist_section .='<tr class="'.$rowclass.'"><td width="10%">'.$chemical['casNum'].'</td><td align="left">'.$chemical['name'].'</td><td>'.$chemical['supplyType'].'</td><td>'.$chemical['synonyms'].'</td></tr>';
 		}
 	}
-	else
-	{
+	else {
 		$chemicalslist_section = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
 	}
 	/* Chemical List - END */
-$supplier['maindetails']['companyName'] = $supplier['maindetails']['companyName'].'('.$supplier['maindetails']['companyNameAbbr'].')';
+	$supplier['maindetails']['companyName'] = $supplier['maindetails']['companyName'].'('.$supplier['maindetails']['companyNameAbbr'].')';
 	$supplier['maindetails']['businessPotential_output'].= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$supplier['maindetails']['businessPotential'].'"></div>';
-	$supplier['maindetails']['relationMaturity_output']  =  '<div id="rml_bars" style="text-align:left;">'.$lang->maturitylevel.' ';
-	for($i=1;$i<=$supplier['maindetails']['relationMaturity'];$i++) {
-		$supplier['maindetails']['relationMaturity_output']  .= '<div id="'.$supplier['maindetails']['relationMaturity'].'" class = "rmlselectable rmlinactive rmlhighlight ">&nbsp;</div>';
-	}
-	
-	$supplier['maindetails']['relationMaturity_output']  .='</div>';
-	
+	$supplier['maindetails']['relationMaturity_output'] = $potential_supplier->get_rml_bar($supplier_id);
+
+
 	/* Parse contact info - START */
 	$supplier['contactdetails']['fulladress'] = $supplier['contactdetails']['addressLine1'].','.$supplier['contactdetails']['addressLine2'];
 	$supplier['contactdetails']['phones'] = '+'.$supplier['contactdetails']['phone1'];
 	if(!empty($supplier['contactdetails']['phone2'])) {
 		$supplier['contactdetails']['phones'] .= '/'.'+'.$supplier['contactdetails']['phone2'];
 	}
-	
+
 	$supplier['contactdetails']['fax'] = '+'.$supplier['contactdetails']['fax'];
 	if(!value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid']) && $core->usergroup['sourcing_canManageEntries'] == 0) {
 		$can_seecontactinfo = false;
 		/* Hash values */
-		
+
 		$hashed_attributes = array('fulladress' => $supplier['contactdetails']['fulladress'], 'phones' => $supplier['contactdetails']['phones'], 'poBox' => $supplier['contactdetails']['poBox'], 'fax' => $supplier['contactdetails']['fax'], 'mainEmail' => $supplier['contactdetails']['mainEmail'], 'website' => $supplier['contactdetails']['website'], 'contact' => $contact_person['name']);
 		foreach($hashed_attributes as $key => $hashedvalue) {
 			$supplier['contactdetails'][$key] = md5($supplier['contactdetails'][$key]);
@@ -100,11 +95,10 @@ $supplier['maindetails']['companyName'] = $supplier['maindetails']['companyName'
 		/* Blur text */
 		$header_blurjs = '$(".contactsvalue").each(function(){$(this).addClass("blur");});';
 	}
-	else
-	{
+	else {
 		$can_seecontactinfo = true;
 	}
-		
+
 	if(is_array($supplier['contactpersons'])) {
 		$contactpersons_output = '<ul>';
 		foreach($supplier['contactpersons'] as $contactperson) {
@@ -112,7 +106,7 @@ $supplier['maindetails']['companyName'] = $supplier['maindetails']['companyName'
 				$contactperson['name'] = md5($contactperson['name']);
 				$contactperson['rpid'] = 0;
 			}
-			$contactpersons_output .= '<li><span class="contactsvalue" id="contactpersondata_'.$contactperson['rpid'].'">'.$contactperson['name'].'</span></li>';
+			$contactpersons_output .= '<li><span class="contactsvalue" id="contactpersondata_'.$contactperson['rpid'].'_'.$supplier_id.'">'.$contactperson['name'].'</span></li>';
 		}
 		$contactpersons_output .= '</ul>';
 	}
@@ -150,20 +144,20 @@ else {
 	if($core->input['action'] == 'do_contactsupplier') {
 		$supplier_id = $db->escape_string($core->input['supplierid']);
 		$potential_supplier->contact_supplier($supplier_id);
-		
+
 		redirect(DOMAIN.'/index.php?module=sourcing/supplierprofile&amp;id='.$supplier_id);
 	}
 	elseif($core->input['action'] == 'do_savecommunication') {
-		$newsupplierid = $db->escape_string($core->input['contacthst']['ssid']); 
+		$newsupplierid = $db->escape_string($core->input['contacthst']['ssid']);
 		//$potential_supplier = new Sourcing($core->input['id']);
 		/* system should check if user has  previous contactshistory */
 
 		//$potential_supplier->save_communication_report($core->input['contacthst'], $newsupplierid);
-    	if(isset($core->input['contacthst']['orderpassed']) && $core->input['contacthst']['orderpassed']== 1){
+		if(isset($core->input['contacthst']['orderpassed']) && $core->input['contacthst']['orderpassed'] == 1) {
 			$potential_supplier = new Sourcing($newsupplierid);
 			$potential_supplier->make_real_supplier($core->input['contacthst']['affid']);
 		}
-		
+
 		switch($potential_supplier->get_status()) {
 			case 3:
 				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
@@ -178,11 +172,10 @@ else {
 	}
 	elseif($core->input['action'] == 'preview') {
 		$rpid = $db->escape_string($core->input['rpid']);
-		$supplier_id = $db->escape_string($core->input['ssid']);
-		$contact = $potential_supplier->get_supplier_contact_persons(1); 
+		$supplier_id = $db->escape_string($core->input['sid']);
+		$contact = $potential_supplier->get_supplier_contact_persons($supplier_id);
 		echo '<div style="min-width:400px; max-width:600px;">
 	<div style="display:inline-block;width:180px;">'.$contact[$rpid]['name'].'<br><strong>'.$lang->email.'</strong>  <a href="mailto:'.$contact[$rpid]['email'].'">'.$contact[$rpid]['email'].'</a><br>'.'<strong>'.$lang->phone.'</strong> '.$contact[$rpid]['phone'].'<br>'.'<strong>'.$lang->repnotes.': </strong>'.'<strong>'.$contact[$rpid]['notes'].'</strong></div></div>';
-	
 	}
 }
 ?>

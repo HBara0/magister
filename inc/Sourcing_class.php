@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Sourcing Class
  * $id: Sourcing_class.php
  * Created:			@tony.assaad	October 15, 2012 |  10:53 PM
@@ -53,30 +53,27 @@ class Sourcing {
 		$this->supplier['website'] = $core->validtate_URL($this->supplier['website']);
 		/* Santize inputs - END  */
 
-		if(!is_empty($this->supplier['phone1']['intcode'], $this->supplier['phone1']['areacode'], $this->supplier['phone1']['number'])) {	
+		if(!is_empty($this->supplier['phone1']['intcode'], $this->supplier['phone1']['areacode'], $this->supplier['phone1']['number'])) {
 			$this->supplier['phone1'] = implode('-', $this->supplier['phone1']);
 		}
-		else
-		{
+		else {
 			unset($this->supplier['phone1']);
 		}
-		
+
 		if(!is_empty($this->supplier['phone2']['intcode'], $this->supplier['phone2']['areacode'], $this->supplier['phone2']['number'])) {
 			$this->supplier['phone2'] = implode('-', $this->supplier['phone2']);
 		}
-		else
-		{
+		else {
 			unset($this->supplier['phone2']);
 		}
-		
+
 		if(!is_empty($this->supplier['fax']['intcode'], $this->supplier['fax']['areacode'], $this->supplier['fax']['number'])) {
 			$this->supplier['fax'] = implode('-', $this->supplier['fax']);
 		}
-		else
-		{
+		else {
 			unset($this->supplier['fax']);
 		}
-		
+
 		if($options['operationtype'] == 'update') {
 			$this->supplier['dateModified'] = TIME_NOW;
 			$this->supplier['modifiedBy'] = $core->user['uid'];
@@ -265,8 +262,8 @@ class Sourcing {
 		/* if no permission person should only see suppliers who work in the same segements he/she is working in - START */
 		$join_employeessegments = '';
 		if($core->usergroup['sourcing_canManageEntries'] == 0) {
-			$join_employeessegments = "	JOIN ".Tprefix."sourcing_suppliers_productsegments ssp ON (ssp.ssid = ss.ssid) 
-										JOIN ".Tprefix."employeessegments es ON (es.psid = ssp.psid) 
+			$join_employeessegments = "	JOIN ".Tprefix."sourcing_suppliers_productsegments ssp ON (ssp.ssid = ss.ssid)
+										JOIN ".Tprefix."employeessegments es ON (es.psid = ssp.psid)
 										WHERE es.uid=".$core->user['uid'];
 			if(!empty($filter_where) && isset($filter_where)) {
 				$filter_where = ' AND '.$filter_where;
@@ -279,11 +276,11 @@ class Sourcing {
 		}
 		/* if no permission person should only see suppliers who work in the same segements he/she is working in - END */
 
-		$suppliers_query = $db->query("SELECT ss.ssid, ss.companyName, ss.type, ss.isBlacklisted, ss.businessPotential 
-											FROM ".Tprefix."sourcing_suppliers ss							
+		$suppliers_query = $db->query("SELECT ss.ssid, ss.companyName, ss.type, ss.isBlacklisted, ss.businessPotential
+											FROM ".Tprefix."sourcing_suppliers ss
 											{$join_employeessegments}
 											{$filter_where}
-											{$sort_query} 
+											{$sort_query}
 											LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
 
@@ -317,7 +314,7 @@ class Sourcing {
 			}
 		}
 
-		$segments_query = $db->query("SELECT ssp.psid, ps.title AS segment 
+		$segments_query = $db->query("SELECT ssp.psid, ps.title AS segment
 									FROM ".Tprefix."sourcing_suppliers_productsegments ssp
 									JOIN ".Tprefix."productsegments ps ON(ps.psid=ssp.psid)
 									WHERE ssp.ssid= ".$db->escape_string($supplier_id));
@@ -345,7 +342,7 @@ class Sourcing {
 		return $db->fetch_assoc($db->query("SELECT c.name AS country, ss.addressLine1, ss.addressLine2, ss.building, ss.floor, ss.postCode, ss.poBox, ss.phone1, ss.phone2, ss.fax, ss.mainEmail, ss.website
 											FROM ".Tprefix."sourcing_suppliers ss
 											JOIN ".Tprefix."countries c ON (ss.country=c.coid)
-											
+
 											WHERE ss.ssid=".$db->escape_string($supplier_id))); //JOIN ".Tprefix."cities ct ON (ct.ciid=ss.city)
 	}
 
@@ -391,7 +388,7 @@ class Sourcing {
 			$query_whereadd = ' AND availability!=0';
 		}
 
-		$activity_area_query = $db->query("SELECT ssaa.*, co.name AS country, aff.name AS affiliate 
+		$activity_area_query = $db->query("SELECT ssaa.*, co.name AS country, aff.name AS affiliate
 									FROM ".Tprefix."sourcing_suppliers ss
 									JOIN ".Tprefix."sourcing_suppliers_activityareas ssaa ON (ss.ssid=ssaa.ssid)
 									JOIN ".Tprefix."countries co ON (co.coid=ssaa.coid)
@@ -422,7 +419,7 @@ class Sourcing {
 			$supplier_id = $this->supplier['ssid'];
 		}
 
-		$chemicalsubstances_query = $db->query("SELECT * 
+		$chemicalsubstances_query = $db->query("SELECT *
 												FROM ".Tprefix."chemicalsubstances chs
 												JOIN ".Tprefix."sourcing_suppliers_chemicals ssc ON (ssc.csid= chs.csid)
 												WHERE ssc.ssid= ".$db->escape_string($supplier_id));
@@ -445,7 +442,7 @@ class Sourcing {
 			$supplier_id = $this->supplier['ssid'];
 		}
 
-		$contact_query = $db->query("SELECT aff.name AS affiliate, aff.affid, co.name AS origincountry, ssch.*, u.displayName, u.uid 
+		$contact_query = $db->query("SELECT aff.name AS affiliate, aff.affid, co.name AS origincountry, ssch.*, u.displayName, u.uid
 										FROM ".Tprefix."sourcing_suppliers_contacthist  ssch
 										JOIN ".Tprefix."countries co ON (co.coid = ssch.origin)
 										JOIN ".Tprefix."affiliates aff ON (aff.affid = ssch.affid)
@@ -486,8 +483,8 @@ class Sourcing {
 			else {
 				//return false;
 			}
-			$suppliers_query = $db->query("SELECT ssp.psid 
-										FROM ".Tprefix."sourcing_suppliers_productsegments ssp 
+			$suppliers_query = $db->query("SELECT ssp.psid
+										FROM ".Tprefix."sourcing_suppliers_productsegments ssp
 										JOIN ".Tprefix."employeessegments es ON (es.psid = ssp.psid)
 										WHERE ssp.ssid=".$db->escape_string($supplier_id)."
 										AND es.uid=".$db->escape_string($core->user['uid'])."
@@ -612,7 +609,7 @@ class Sourcing {
 		return $db->fetch_assoc($db->query("SELECT scr.feedback, scr.feedbackTime, u.displayName, isClosed
 										FROM ".Tprefix."sourcing_chemicalrequests scr
 										JOIN ".Tprefix."users u ON (u.uid = scr.feedbackBy)
-										WHERE scr.scrid=".intval($request_id)."	
+										WHERE scr.scrid=".intval($request_id)."
 										{$see_otherusers}"));
 	}
 
@@ -722,7 +719,77 @@ class Sourcing {
 		}
 	}
 
+	public function get_rml_bar($supplier_id) {
+		global $core, $db;
+		if(empty($supplier_id)) {
+			$supplier_id = $this->supplier['ssid'];
+		}
+		$maturity_bars = '';
+		$readonlymaturity = true;
 
+		$rmllist = array();
+
+		$rmllevels_query = $db->query('SELECT ermlid, title FROM '.Tprefix.'entities_rmlevels ORDER BY sequence');
+		if($db->num_rows($rmllevels_query) > 0) {
+			while($maturitylevelrow = $db->fetch_assoc($rmllevels_query)) {
+				$rmllist[$maturitylevelrow['ermlid']] = $maturitylevelrow['title'];
+			}
+		}
+		else {
+			return false;
+		}
+
+		$rmlcurrentlevel = $db->fetch_field($db->query('SELECT relationMaturity FROM '.Tprefix.'sourcing_suppliers WHERE ssid='.intval($supplier_id)), 'relationMaturity');
+		$maturity_bars .= '<div id="rml_bars" style="text-align:left;">';
+		$divclassactive = (!$readonlymaturity) ? 'rmlselectable rmlactive' : 'rmlactive';
+		$divclassinactive = (!$readonlymaturity) ? 'rmlselectable rmlinactive' : 'rmlinactive';
+		$counter = 1;
+		$positionclass = ' first';
+
+		$is_coloredlevel = true;
+		if(!isset($rmlcurrentlevel)) {
+			$is_coloredlevel = false;
+		}
+		$is_lastactiveitem = false;
+
+		foreach($rmllist as $ermlid => $name) {
+			if($is_coloredlevel == true) {
+				if($rmlcurrentlevel == $ermlid) {
+					$is_lastactiveitem = true;
+				}
+			}
+
+			if($counter++ == count($rmllist)) {
+				if($counter == 2) {
+					$positionclass = ' first last';
+				}
+				else {
+					$positionclass = ' last';
+				}
+			}
+			else {
+				if($counter != 2) {
+					$positionclass = '';
+				}
+			}
+
+			if($is_coloredlevel) {
+			
+				$maturity_bars .= '<div id="'.$ermlid.'" class="'.$divclassactive.$positionclass.'" title="'.($lang->{$name} ? $lang->{$name} : $name).'">&nbsp;</div>';
+			}
+			else {
+				$maturity_bars .= '<div id="'.$ermlid.'" class="'.$divclassinactive.$positionclass.'" title="'.($lang->{$name} ? $lang->{$name} : $name).'">&nbsp;</div>';
+			}
+
+			if($is_lastactiveitem) {
+				$is_coloredlevel = false;
+				$is_lastactiveitem = false;
+			}
+		}
+		$maturity_bars .= '</div>';
+
+		return $maturity_bars;
+	}
 
 	public function get_feedback($request_id) {
 		return $this->read_feedback($request_id);
