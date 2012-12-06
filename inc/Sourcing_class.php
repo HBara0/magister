@@ -273,14 +273,14 @@ class Sourcing {
 											{$filter_where}
 											{$sort_query} 
 											LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
-								
+
 
 
 		if($db->num_rows($suppliers_query) > 0) {
 			while($supplier = $db->fetch_assoc($suppliers_query)) {
 				$activity_area = $this->get_supplier_activity_area($supplier['ssid']);
-				if(!$this->validate_permission($supplier['ssid'])) {	
-				//	continue;
+				if(!$this->validate_permission($supplier['ssid'])) {
+					//	continue;
 				}
 				$potential_suppliers[$supplier['ssid']]['segments'] = $this->get_supplier_segments($supplier['ssid']);
 				$potential_suppliers[$supplier['ssid']]['activityarea'] = $this->get_supplier_activity_area($supplier['ssid']);
@@ -356,7 +356,7 @@ class Sourcing {
 
 		if($db->num_rows($contact_query) > 0) {
 			while($contact_person = $db->fetch_assoc($contact_query)) {
-				$contact_persons[$contact_person['rpid']] = $contact_person; 
+				$contact_persons[$contact_person['rpid']] = $contact_person;
 			}
 			return $contact_persons;
 		}
@@ -453,7 +453,7 @@ class Sourcing {
 
 	private function validate_permission($supplier_id = '') {
 		global $db, $core;
-		
+
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 		}
@@ -698,19 +698,19 @@ class Sourcing {
 
 	private function determine_supplyiertype($supply_types) {
 		foreach($supply_types as $cas => $supplytype) {
-			foreach($supply_types as $cas => $supplytype) {
-				$types[] = $supplytype['supplyType'];
-			}
+			$types[] = $supplytype['supplyType'];
+		}
 
-			$types = array_unique($types);
-			if(count($types) > 1) {
-				return 'b';
-			}
-			else {
-				return current($types);
-			}
+		$types = array_unique($types);
+		if(count($types) > 1) {
+			return 'b';
+		}
+		else {
+			return current($types);
 		}
 	}
+
+
 
 	public function get_feedback($request_id) {
 		return $this->read_feedback($request_id);
