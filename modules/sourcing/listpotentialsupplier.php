@@ -102,6 +102,9 @@ if(!$core->input['action']) {
 
 	if(is_array($potential_suppliers)) {
 		foreach($potential_suppliers as $key => $potential_supplier) {
+			if(!empty($potential_supplier['supplier']['companyNameAbbr'])) {
+				$potential_supplier['supplier']['companyName'] .= ' ('.$potential_supplier['supplier']['companyNameAbbr'].')';
+			}
 			/* Check if supplier is blacklisted - if yes and user is sourcing agent, display it, else skip */
 			if($potential_supplier['supplier']['isBlacklisted'] == 1 && $core->usergroup['sourcing_canManageEntries'] == 1) {
 				$rating_section = '<img title="blackListed" src="./images/icons/notemark.gif" border="0" />';
@@ -182,6 +185,8 @@ if(!$core->input['action']) {
 		$multipage_where .= $db->escape_string($attributes_filter_options['prefixes'][$core->input['filterby']].$core->input['filterby']).$filter_value;
 		$multipages = new Multipages('sourcing_suppliers', $core->settings['itemsperlist'], $multipage_where);
 		$sourcing_listpotentialsupplier_rows .= '<tr><td colspan="6">'.$multipages->parse_multipages().'</td></tr>';
+	
+		unset($potential_supplier);
 	}
 	else {
 		$sourcing_listpotentialsupplier_rows .= '<tr><td colspan="5"><a href="#" id="showpopup_requestchemical" class="showpopup"><img alt="'.$lang->requestchemical.'" src="./images/addnew.png" border="0" /> '.$lang->requestchemical.'</a></td></tr>';

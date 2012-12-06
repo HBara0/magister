@@ -58,20 +58,23 @@ if(!$core->input['action']) {
 	if(is_array($supplier['chemicalsubstances'])) {
 		foreach($supplier['chemicalsubstances'] as $chemical) {
 			$rowclass = alt_row($rowclass);
-			$chemicalslist_section .='<tr class="'.$rowclass.'"><td width="10%">'.$chemical['casNum'].'</td><td align="left">'.$chemical['name'].'</td><td>'.$chemical['supplyType'].'</td><td>'.$chemical['synonyms'].'</td></tr>';
+			$chemicalslist_section .= '<tr class="'.$rowclass.'"><td width="10%">'.$chemical['casNum'].'</td><td align="left">'.$chemical['name'].'</td><td>'.$chemical['supplyType_output'].'</td><td width="50%">'.$chemical['synonyms'].'</td></tr>';
 		}
 	}
 	else {
 		$chemicalslist_section = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
 	}
 	/* Chemical List - END */
-	$supplier['maindetails']['companyName'] = $supplier['maindetails']['companyName'].'('.$supplier['maindetails']['companyNameAbbr'].')';
+	if(!empty($supplier['maindetails']['companyNameAbbr'])) {
+		$supplier['maindetails']['companyName'] .= ' ('.$supplier['maindetails']['companyNameAbbr'].')';
+	}
+	
 	$supplier['maindetails']['businessPotential_output'].= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$supplier['maindetails']['businessPotential'].'"></div>';
-	$supplier['maindetails']['relationMaturity_output'] = $potential_supplier->get_rml_bar($supplier_id);
+	$supplier['maindetails']['relationMaturity_output'] = $potential_supplier->parse_rmlbar();
 
 
 	/* Parse contact info - START */
-	$supplier['contactdetails']['fulladress'] = $supplier['contactdetails']['addressLine1'].','.$supplier['contactdetails']['addressLine2'];
+	$supplier['contactdetails']['fulladress'] = $supplier['contactdetails']['addressLine1'].', '.$supplier['contactdetails']['addressLine2'];
 	$supplier['contactdetails']['phones'] = '+'.$supplier['contactdetails']['phone1'];
 	if(!empty($supplier['contactdetails']['phone2'])) {
 		$supplier['contactdetails']['phones'] .= '/'.'+'.$supplier['contactdetails']['phone2'];
@@ -175,7 +178,7 @@ else {
 		$supplier_id = $db->escape_string($core->input['sid']);
 		$contact = $potential_supplier->get_supplier_contact_persons($supplier_id);
 		echo '<div style="min-width:400px; max-width:600px;">
-	<div style="display:inline-block;width:180px;">'.$contact[$rpid]['name'].'<br><strong>'.$lang->email.'</strong>  <a href="mailto:'.$contact[$rpid]['email'].'">'.$contact[$rpid]['email'].'</a><br>'.'<strong>'.$lang->phone.'</strong> '.$contact[$rpid]['phone'].'<br>'.'<strong>'.$lang->repnotes.': </strong>'.'<strong>'.$contact[$rpid]['notes'].'</strong></div></div>';
+	<div style="display:inline-block;width:180px;">'.$contact[$rpid]['name'].'<br /><a href="mailto:'.$contact[$rpid]['email'].'">'.$contact[$rpid]['email'].'</a><br />'.$contact[$rpid]['phone'].'<br /><br />'.'<strong>'.$lang->repnotes.': </strong>'.$contact[$rpid]['notes'].'</div></div>';
 	}
 }
 ?>
