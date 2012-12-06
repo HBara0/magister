@@ -1,5 +1,6 @@
 #!/usr/bin/php -q
 <?php
+ini_set('memory_limit', '512MB');
 $dir = dirname(dirname(__FILE__)).'/';
 if(!$dir)
 {

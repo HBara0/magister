@@ -105,4 +105,9 @@ $lang['travelmanager'] = 'Travel Manager';
 $lang['username'] = 'Username';
 $lang['welcomeuser'] = 'Welcome {1}!';
 $lang['yes'] = 'Yes';
+<<<<<<< HEAD
+$lang['stock'] = 'Stock';
+$lang['assetsmodule'] = 'Assets Module';
+=======
+>>>>>>> 50e9838b38fdad695eaa95d239245532a4b8f723
 ?>

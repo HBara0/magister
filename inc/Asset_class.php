@@ -76,15 +76,16 @@ class Asset {
 		return $loc;
 	}
 
-	public function get_data_for_users($users_ids, $from, $to) {
+	public function get_data_for_users($users_ids, $from = 0, $to = TIME_NOW) {
 		global $db;
-		$query = 'SELECT * FROM '.Tprefix.'assets_users WHERE uid IN ('.implode($asset_id, ',').')';
+		$tgt = array();
+		$query = 'SELECT * FROM '.Tprefix.'assets_users WHERE uid IN ('.implode($users_ids, ',').')';
 		if(isset($from) AND isset($to)) {
 			$query .= ' AND (toDate>'.$from.' AND fromDate<'.$to.')';
 		}
-		$query = $db->query($query);
-		if($db->num_rows($query) > 0) {
-			while($row = $db->fetch_assoc($query)) {
+		$query2 = $db->query($query);
+		if($db->num_rows($query2) > 0) {
+			while($row = $db->fetch_assoc($query2)) {
 				if($row['toDate'] > $to) {
 					$tmpTo = $row['toDate'];
 				}
@@ -101,15 +102,15 @@ class Asset {
 			}
 		}
 		foreach($tgt as $asid => $ranges) {
-			$subquery = 'SELECT alid,asid,X(location) as latitude, Y(location) as longitude,timeLine,deviceId,speed,direction,antenna,fuel,vehiclestate,otherstate FROM '.Tprefix.'assets_locations WHERE asid IN ('.implode($asset_id, ',').') AND (';
+			$subquery = 'SELECT alid,asid,X(location) as latitude, Y(location) as longitude,timeLine,deviceId,speed,direction,antenna,fuel,vehiclestate,otherstate FROM '.Tprefix.'assets_locations WHERE asid = '.$asid.' AND (';
 			$postquery = '';
 			foreach($ranges as $key => $range) {
 				$postquery.='(timeLine>'.$range["from"].' AND timeLine<'.$range["to"].') OR';
 			}
 			$subquery.= substr($postquery, 0, strlen($postquery) - 3).')';
-			$subquery = $db->query($subquery);
-			if($db->num_rows($subquery) > 0) {
-				while($row = $db->fetch_assoc($subquery)) {
+			$subquery2 = $db->query($subquery);
+			if($db->num_rows($subquery2) > 0) {
+				while($row = $db->fetch_assoc($subquery2)) {
 					$loc[$row['asid']][$row['alid']] = $row;
 				}
 			}
@@ -126,7 +127,7 @@ class Asset {
 		$data["vehiclestate"] = 1;
 		$data["otherstate"] = (double)$data["altitude"];
 		$data['location'] = $data['lat'].' '.$data['long'];
-		$options['geoLocation']=array('location');
+		$options['geoLocation'] = array('location');
 		unset($data["pin"]);
 		unset($data['lat']);
 		unset($data['long']);
@@ -141,20 +142,25 @@ class Asset {
 				$data["asid"] = $row['asid'];
 			}
 		}
-		$db->insert_query('assets_locations', $data,$options);
+		$db->insert_query('assets_locations', $data, $options);
 	}
 
-	public function get_map($data,$options) { // ($uids,$asids,$from,$to) {
+	public function get_map($data, $options) { // ($uids,$asids,$from,$to) {
 		global $db;
-		foreach($data as $key => $trackedasset) {
-			foreach($trackedasset as $key2 => $value) {
-				$markers[] = array('title' => $value['latitude'].'|'.$value['longitude'].' ->'. $key.':'.Maps::get_streetname($value['latitude'], $value['longitude']), 'otherinfo' => 'some other info', 'geoLocation' => (number_format($value['latitude'], 6).','.number_format($value['longitude'], 6)));
+		if(isset($data)) {
+			foreach($data as $key => $trackedasset) {
+				foreach($trackedasset as $key2 => $value) {
+					$markers[] = array('title' => $value['latitude'].'|'.$value['longitude'].' -> asset('.$key.')', 'otherinfo' => 'some other info', 'geoLocation' => (number_format($value['latitude'], 6).','.number_format($value['longitude'], 6)));
+				}
 			}
+			$options['overlaytype'] = 'parsePolylines';
+			$map = new Maps($markers, $options);
+			$map_view = $map->get_map(300, 200);
+			return $map_view;
 		}
-		$options['overlaytype']='parsePolylines';
-		$map = new Maps($markers, $options);
-		$map_view = $map->get_map(300, 200);
-		return $map_view.'<hr><pre>'.Maps::get_streetname($lat, $long).'</pre>';
+		else {
+			return "";
+		}
 	}
 
 	public function assign_assetuser($asid, $uid, $from, $to) {
@@ -165,6 +171,10 @@ class Asset {
 	public function assign_tracker_to_asset($devid, $asid, $from, $to) {
 		global $db;
 		$db->insert_query('assets_users', array('deviceId' => $devid, 'asid' => $asid, 'fromDate' => $from, 'toDate' => $to));
+	}
+
+	public function get_assets($user) {
+
 	}
 
 }

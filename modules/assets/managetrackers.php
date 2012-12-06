@@ -95,7 +95,7 @@ else {
 }
 
 
-$pagetitle = "Manage Trackers";
+$pagetitle = $lang->trackersmanagepage;
 $pagecontents = $assetslist.$assetedit;
 eval("\$assetslist = \"".$template->get('assets_assets')."\";");
 echo $assetslist;
