@@ -38,11 +38,12 @@ if(!$core->input['action']) {
 
 		if(is_array($supplier['chemicalsubstances'])) {
 			$chemicalp_rowid = 1;
-			foreach($supplier['chemicalsubstances'] as $chemicalproduct) {
-				$selecteditems[$chemicalp_rowid]['supplyType'][$chemicalproduct['supplyType']] = ' select="selected"';
+			foreach($supplier['chemicalsubstances'] as $key => $chemicalproduct) {
+				$selecteditems['supplyType'][$key][$chemicalproduct['supplyType']] = ' selected="selected"';
 				eval("\$chemicalproducts_rows .= \"".$template->get('sourcing_managesupplier_chemicalrow')."\";");
 				$chemicalp_rowid++;
 			}
+			unset($selecteditems);
 		}
 
 		if(is_array($supplier['contactpersons'])) {
@@ -55,7 +56,8 @@ if(!$core->input['action']) {
 
 		$supplier['details']['phone1'] = explode('-', $supplier['details']['phone1']);
 		$supplier['details']['phone2'] = explode('-', $supplier['details']['phone2']);
-
+		$supplier['details']['fax'] = explode('-', $supplier['details']['fax']);
+		
 		$mark_blacklist = '<div style="display: table-cell; width:700px;vertical-align:middle;">'.$lang->blacklisted.'</div><div style="display: table-cell; width:700px;vertical-align:middle;"><input name="supplier[isBlacklisted]" type="checkbox" value="1"'.$checkedboxes.'></div>';
 	}
 	else {

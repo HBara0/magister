@@ -39,6 +39,12 @@
 					</div>
 				</div>
 				<div style="display:table-row;">
+					<div style="display: table-cell;">{$lang->postcode}</div>
+					<div style="display: table-cell; padding:5px;">
+						<input type="text" value="{$supplier[details][postCode]}" name="supplier[postCode]" />
+					</div>
+				</div>
+				<div style="display:table-row;">
 					<div style="display: table-cell;">{$lang->address1}</div>
 					<div style="display: table-cell; padding:5px;">
 						<input type="text" value="{$supplier[details][addressLine1]}" name="supplier[addressLine1]" />
@@ -54,12 +60,6 @@
 					<div style="display: table-cell;">{$lang->buildingname}</div>
 					<div style="display: table-cell; padding:5px; ">
 						<input type="text"  value="{$supplier[details][building]}" name="supplier[building]" />
-					</div>
-				</div>
-				<div style="display:table-row;">
-					<div style="display: table-cell;">{$lang->postcode}</div>
-					<div style="display: table-cell; padding:5px;">
-						<input type="text" value="{$supplier[details][postCode]}" name="supplier[postCode]" />
 					</div>
 				</div>
 				<div style="display:table-row;">
@@ -89,9 +89,9 @@
 				<div style="display:table-row;">
 					<div style="display: table-cell;">{$lang->fax}</div>
 					<div style="display: table-cell; padding:5px;"> +
-						<input type="text" id="fax_intcode" name="supplier[fax][intcode]" size="3" maxlength="3" accept="numeric" />
-						<input type="text" id="fax_areacode" name="supplier[fax][areacode]" size='4' maxlength="4" accept="numeric" />
-						<input type="text" id="fax_number" name="supplier[fax][number]" value="{$supplier[details][fax]}" accept="numeric" />
+						<input type="text" id="fax_intcode" name="supplier[fax][intcode]" size="3" maxlength="3" accept="numeric" value="{$supplier[details][fax][0]}"/>
+						<input type="text" id="fax_areacode" name="supplier[fax][areacode]" size='4' maxlength="4" accept="numeric" value="{$supplier[details][fax][1]}" />
+						<input type="text" id="fax_number" name="supplier[fax][number]" value="{$supplier[details][fax]}" accept="numeric" value="{$supplier[details][fax][2]}" />
 						<br />
 					</div>
 				</div>
@@ -208,7 +208,7 @@
 				<div  style="margin-bottom: 0.9em;"></div>
 				<div style="display:table-row;">
 					<div style="display: table-cell; width:10px;">
-						<input type="button" class="button" value="{$lang->$actiontype}" id="perform_sourcing/managesupplier_Button" />
+						<input type="button" class="button" value="{$lang->savecaps}" id="perform_sourcing/managesupplier_Button" />
 						<input type="reset" class="button" value="{$lang->reset}"/>
 					</div>
 				</div>

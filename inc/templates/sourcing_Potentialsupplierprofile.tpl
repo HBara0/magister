@@ -1,15 +1,11 @@
 <html>
 <head>
 <title>{$core->settings[systemtitle]} | {$supplier[maindetails][companyName]}</title>
-</head>
 {$headerinc}
 <link href="{$core->settings[rootdir]}/css/rateit.css" rel="stylesheet" type="text/css" />
 <link href="{$core->settings[rootdir]}/css/supplierprofile.css" rel="stylesheet" type="text/css" />
-<link href="{$core->settings[rootdir]}/css/rml.css" rel="stylesheet" type="text/css">
+<link href="{$core->settings[rootdir]}/css/rml.css" rel="stylesheet" type="text/css" />
 <style type="text/css">
-span.listitem:hover {
-	border-bottom: #CCCCCC solid thin;
-}
 .blur {
 	color: transparent;
 	text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
@@ -17,7 +13,6 @@ span.listitem:hover {
 </style>
 <script src="{$core->settings[rootdir]}/js/jquery.rateit.min.js" type="text/javascript"></script>
 <script>
-
 $(function(){
 	{$header_blurjs}
 	$("input[type='radio'][id=approved_type]").attr( 'disabled',true);
@@ -53,9 +48,9 @@ $(function(){
 /*expand/collapse report section START*/
 
 $("input[type='checkbox'][id$='_check']").live('change',function() {
-			var id = $(this).attr("id");
-				$("div[id^='" + $(this).val() + "']").slideToggle("slow");
-		});		
+	var id = $(this).attr("id");
+	$("div[id^='" + $(this).val() + "']").slideToggle("slow");
+});		
 
 
 $("span[id^='contactpersondata_']").each(function(){
@@ -101,9 +96,11 @@ $("span[id^='contactpersondata_']").each(function(){
 </head><body>
 {$header}
 <tr> {$menu}
-	<td class="contentContainer"><h3>{$supplier[maindetails][companyName]} {$supplier[maindetails][businessPotential_output]}
-    </h3>
-{$supplier[maindetails][relationMaturity_output]}
+	<td class="contentContainer">
+		<div>
+			<h3>{$supplier[maindetails][companyName]} {$supplier[maindetails][businessPotential_output]}</h3>
+			{$supplier[maindetails][relationMaturity_output]}
+		</div>
 		<div style='display:inline-block; width:50%; padding:5px; vertical-align:top;'>
 			<div class="subtitle border_right"><strong>{$lang->contactdtails}</strong></div>
 			<div class="border_right">{$lang->fulladress}: <span class="contactsvalue">{$supplier[contactdetails][fulladress]}</span><br />
@@ -118,15 +115,15 @@ $("span[id^='contactpersondata_']").each(function(){
 		<div style='display:inline-block; width:45%; padding:5px; vertical-align:top;'>
 			<div class="subtitle"><strong>{$lang->contactperson}</strong></div>
 			{$contactpersons_output}</div>
-		<div style='display:inline-block; width:50%; padding:5px; margin-top:10px;' class="border_right"><strong>{$lang->segments}</strong><br />
+		<div style='display:inline-block; width:50%; padding:5px; margin-top:10px; vertical-align:top;' class="border_right"><strong>{$lang->segments}</strong><br />
 			{$segments_output}</div>
-		<div style='display:inline-block; width:45%; padding:5px; margin-top:10px;'><strong>{$lang->activityarea}</strong><br />
+		<div style='display:inline-block; width:45%; padding:5px; margin-top:10px; vertical-align:top;'><strong>{$lang->activityarea}</strong><br />
 			{$activityarea_output}</div>
 		<div style="width:100%; max-height: 200px; overflow:auto; display:inline-block; vertical-align:top; margin-top: 10px;">
 			<table class="datatable" width="100%">
 				<thead>
 					<tr>
-						<td class="thead">{$lang->cas}</td>
+						<td class="thead">{$lang->casnum}</td>
 						<td class="thead">{$lang->checmicalproduct}</td>
 						<td class="thead">{$lang->supplytype}</td>
 						<td class="thead">{$lang->synonyms}</td>

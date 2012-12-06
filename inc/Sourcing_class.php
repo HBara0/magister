@@ -276,15 +276,13 @@ class Sourcing {
 		}
 		/* if no permission person should only see suppliers who work in the same segements he/she is working in - END */
 
-		$suppliers_query = $db->query("SELECT ss.ssid, ss.companyName, ss.type, ss.isBlacklisted, ss.businessPotential
+		$suppliers_query = $db->query("SELECT ss.ssid, ss.companyName, ss.companyNameAbbr, ss.type, ss.isBlacklisted, ss.businessPotential
 											FROM ".Tprefix."sourcing_suppliers ss
 											{$join_employeessegments}
 											{$filter_where}
 											{$sort_query}
 											LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
-
-
-
+											
 		if($db->num_rows($suppliers_query) > 0) {
 			while($supplier = $db->fetch_assoc($suppliers_query)) {
 				$activity_area = $this->get_supplier_activity_area($supplier['ssid']);
@@ -293,7 +291,7 @@ class Sourcing {
 				}
 				$potential_suppliers[$supplier['ssid']]['segments'] = $this->get_supplier_segments($supplier['ssid']);
 				$potential_suppliers[$supplier['ssid']]['activityarea'] = $this->get_supplier_activity_area($supplier['ssid']);
-				$potential_suppliers[$supplier['ssid']]['chemicalsubstance'] = $this->get_chemicalsubstances($supplier['ssid']);
+				//$potential_suppliers[$supplier['ssid']]['chemicalsubstance'] = $this->get_chemicalsubstances($supplier['ssid']);
 				$supplier['type'] = $this->parse_supplytype($supplier['type']);
 				$potential_suppliers[$supplier['ssid']]['supplier'] = $supplier;
 			}
@@ -425,7 +423,7 @@ class Sourcing {
 												WHERE ssc.ssid= ".$db->escape_string($supplier_id));
 		if($db->num_rows($chemicalsubstances_query) > 0) {
 			while($chemicalsubstance = $db->fetch_assoc($chemicalsubstances_query)) {
-				$chemicalsubstance['supplyType'] = $this->parse_supplytype($chemicalsubstance['supplyType']);
+				$chemicalsubstance['supplyType_output'] = $this->parse_supplytype($chemicalsubstance['supplyType']);
 				$chemicalsubstances[$chemicalsubstance['csid']] = $chemicalsubstance;
 			}
 			$db->free_result($chemicalsubstances_query);
@@ -719,11 +717,18 @@ class Sourcing {
 		}
 	}
 
-	public function get_rml_bar($supplier_id) {
+	public function parse_rmlbar($supplier_id = '') {
 		global $core, $db;
+		
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
+			$rmlcurrentlevel = $this->supplier['relationMaturity'];
 		}
+		
+		if(empty($rmlcurrentlevel)) {
+			$rmlcurrentlevel = $db->fetch_field($db->query('SELECT relationMaturity FROM '.Tprefix.'sourcing_suppliers WHERE ssid='.intval($supplier_id)), 'relationMaturity');
+		}
+		
 		$maturity_bars = '';
 		$readonlymaturity = true;
 
@@ -739,8 +744,7 @@ class Sourcing {
 			return false;
 		}
 
-		$rmlcurrentlevel = $db->fetch_field($db->query('SELECT relationMaturity FROM '.Tprefix.'sourcing_suppliers WHERE ssid='.intval($supplier_id)), 'relationMaturity');
-		$maturity_bars .= '<div id="rml_bars" style="text-align:left;">';
+		$maturity_bars .= '<div id="rml_bars">';
 		$divclassactive = (!$readonlymaturity) ? 'rmlselectable rmlactive' : 'rmlactive';
 		$divclassinactive = (!$readonlymaturity) ? 'rmlselectable rmlinactive' : 'rmlinactive';
 		$counter = 1;
