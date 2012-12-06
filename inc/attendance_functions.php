@@ -45,9 +45,21 @@ function update_leavestats_periods($leave, $is_wholeday = true, $countdays = tru
 	$query = $db->query("SELECT * 
 						FROM ".Tprefix."leavesstats 
 						WHERE uid='".$db->escape_string($leave['uid'])."' AND ltid='".$db->escape_string($leave['policy_ltid'])."' AND ((".$db->escape_string($leave['fromDate'])." BETWEEN periodStart AND periodEnd) OR (".$db->escape_string($leave['toDate'])." BETWEEN periodStart AND periodEnd))");
-	
+
 	if($db->num_rows($query) > 1) {
-		update_leavestats_periods($leave, true);
+		while($period = $db->fetch_assoc($query)) {
+			echo date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']).' - '.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']).'====>';
+			if($leave['fromDate'] < $period['periodStart']) {
+				$leave['fromDate'] = $period['periodStart'];
+			}
+			
+			if($leave['toDate'] > $period['periodEnd']) {
+				$leave['toDate'] = $period['periodEnd'];
+			}
+			
+			update_leavestats_periods($leave, true);
+		}
+
 		return true;
 	}
 	elseif($db->num_rows($query) == 1) 
@@ -62,7 +74,7 @@ function update_leavestats_periods($leave, $is_wholeday = true, $countdays = tru
 		'ltid'		=> $leave['policy_ltid'],
 		'daysTaken'   => $leave['workingdays']
 		);
-		
+
 		$affiliate_policy = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."affiliatesleavespolicies WHERE ltid='{$leave[policy_ltid]}' AND affid='{$leave_user[affid]}'"));
 		if(empty($affiliate_policy)) {
 			return false;

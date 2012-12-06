@@ -65,7 +65,7 @@
 				<div style="display:table-row;">
 					<div style="display: table-cell;">{$lang->pobox}</div>
 					<div style="display: table-cell; padding:5px;">
-						<input size="10"type="text"  value="{$supplier[details][poBox]}" name="supplier[poBox]" />
+						<input size="10" type="text"  value="{$supplier[details][poBox]}" name="supplier[poBox]" />
 					</div>
 				</div>
 				<div style="display:table-row;">
@@ -201,13 +201,13 @@
 				<div style="display:table-row;">
 					<div style="display: table-cell; vertical-align:middle;">{$lang->productfunction}</div>
 					<div style="display: table-cell; padding:5px; vertical-align:middle;">
-						<textarea tabindex="30" class="texteditormin" cols="35" rows="5"name="supplier[productFunction]">{$supplier[details][productFunction]}</textarea>
+						<textarea tabindex="30" class="texteditormin" cols="35" rows="5" name="supplier[productFunction]">{$supplier[details][productFunction]}</textarea>
 					</div>
 				</div>
 				<div style="display:table-row;">{$mark_blacklist} </div>
 				<div  style="margin-bottom: 0.9em;"></div>
 				<div style="display:table-row;">
-					<div style="display: table-cell;width:10px;">
+					<div style="display: table-cell; width:10px;">
 						<input type="button" class="button" value="{$lang->$actiontype}" id="perform_sourcing/managesupplier_Button" />
 						<input type="reset" class="button" value="{$lang->reset}"/>
 					</div>

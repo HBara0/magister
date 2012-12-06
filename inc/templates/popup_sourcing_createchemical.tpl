@@ -1,4 +1,5 @@
-<div id="popup_createchemical" title="{$lang->createchemical}" >
+<div id="popup_createchemical" title="{$lang->createchemical}">
+	<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>{$lang->createchemical_notes}</p></div>
 	<form name='add_chemical_sourcing/managesupplier_Form' id='add_chemical_sourcing/managesupplier_Form' method="post">
 		<input type="hidden" id="action" name="action" value="do_createchemical" />
 		<div style="display:table-row">

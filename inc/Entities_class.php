@@ -122,7 +122,10 @@ class Entities {
 			$this->data['contractExpiryDate'] = $this->checkgenerate_date($this->data['contractExpiryDate']);
 
 			$this->data['dateAdded'] = TIME_NOW;
-
+			if(!isset($this->data['noQReportReq'])) {
+				$this->data['noQReportReq'] = 1; //By default no QR is required
+			}
+			
 			$query = $db->insert_query('entities', $this->data);
 			if($query) {
 				$this->eid = $db->last_id();
