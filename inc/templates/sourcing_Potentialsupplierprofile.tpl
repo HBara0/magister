@@ -134,7 +134,7 @@ $("span[id^='contactpersondata_']").each(function(){
 				</thead>
 				{$chemicalslist_section}
 			</table>
-			<hr />
+			<hr /> 
 		</div>
 		<div>
 			<div class="subtitle" style="margin-top: 10px;">{$lang->comments}</div>
