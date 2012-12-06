@@ -5,6 +5,7 @@
 {$headerinc}
 <link href="{$core->settings[rootdir]}/css/rateit.css" rel="stylesheet" type="text/css" />
 <link href="{$core->settings[rootdir]}/css/supplierprofile.css" rel="stylesheet" type="text/css" />
+<link href="{$core->settings[rootdir]}/css/rml.css" rel="stylesheet" type="text/css">
 <style type="text/css">
 span.listitem:hover {
 	border-bottom: #CCCCCC solid thin;
@@ -59,7 +60,7 @@ $("input[type='checkbox'][id$='_check']").live('change',function() {
 
 $("span[id^='contactpersondata_']").each(function(){
 	
-	var rpid = $(this).attr('id').split('_');
+	var id = $(this).attr('id').split('_');
 
 	// We make use of the .each() loop to gain access to each element via the "this" keyword...
 		$(this).qtip(
@@ -68,7 +69,7 @@ $("span[id^='contactpersondata_']").each(function(){
 				text: '<img class="throbber" src="images/loading.gif" alt="Loading..." />',
 		 		
 				ajax: {
-					url: 'index.php?module=sourcing/supplierprofile&action=preview&rpid='+rpid[1],
+					url: 'index.php?module=sourcing/supplierprofile&action=preview&sid='+id[2]+'&rpid='+id[1],
 				
 					data: {},// Data to pass along with your request
 						
@@ -100,7 +101,9 @@ $("span[id^='contactpersondata_']").each(function(){
 </head><body>
 {$header}
 <tr> {$menu}
-	<td class="contentContainer"><h3>{$supplier[maindetails][companyName]} {$supplier[maindetails][businessPotential_output]}</h3>
+	<td class="contentContainer"><h3>{$supplier[maindetails][companyName]} {$supplier[maindetails][businessPotential_output]}
+    </h3>
+{$supplier[maindetails][relationMaturity_output]}
 		<div style='display:inline-block; width:50%; padding:5px; vertical-align:top;'>
 			<div class="subtitle border_right"><strong>{$lang->contactdtails}</strong></div>
 			<div class="border_right">{$lang->fulladress}: <span class="contactsvalue">{$supplier[contactdetails][fulladress]}</span><br />
