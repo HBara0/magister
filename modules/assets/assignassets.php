@@ -22,41 +22,51 @@ if(isset($core->input['assignasset'])) {
 	$data['fromDate'] = strtotime($core->input['datefrom']);
 	$data['toDate'] = strtotime($core->input['dateto']);
 	if(!isset($core->input['auid']) || $core->input['auid'] == "") {
-		$db->insert_query('assets_users', $data);
+		Asset::add_assignedasset($data);
 	}
 	else {
-		$db->update_query('assets_users', $data, 'auid='.$core->input['auid']);
+		Asset::edit_assignedasset($core->input['auid'], $data);
 	}
 }
 
+if(isset($core->input['delete_assignedasset'])) {
+	Asset::delete_assignedasset($core->input['delete_assignedasset']);
+}
+
+$resolve = array(
+		'uid' => array('table' => 'users', 'id' => 'uid', 'name' => 'displayName'),
+		'asid' => array('table' => 'assets', 'id' => 'asid', 'name' => 'title')
+);
 $query = 'SELECT * FROM '.Tprefix.' assets_users';
 $query = $db->query($query);
 $assetslist = '<div id="assetslisting">
-	<table cellspacing=0 cellpadding=4 border=1><tr>
-	<th>Assignment ID</th>
-	<th>User</th>
-	<th>Asset</th>
-	<th>fromDate</th>
-	<th>toDate</th>
-	<th>Edit</td></tr>';
+	<table cellspacing=0 cellpadding=4 border=1 width="100%"><tr bgcolor="#91B64F">
+	<th>'.$lang->auid.'</th>
+	<th>'.$lang->uid.'</th>
+	<th>'.$lang->asid.'</th>
+	<th>'.$lang->from.'</th>
+	<th>'.$lang->to.'</th>
+	<th>'.$lang->edit.'</td>
+	<th>'.$lang->delete.'</th></tr>';
 
-$resolve = array('uid' => array('table' => 'users', 'id' => 'uid', 'name' => 'displayName'));
+
 //echo '<pre>'.print_r($core->input, true).'</pre>';
-
-
 if($db->num_rows($query) > 0) {
 	while($row = $db->fetch_assoc($query)) {
-		$assetslist.='<tr><td>'.$row['auid'].'</td>';
+		$assetslist.='<tr><td align="center">'.$row['auid'].'</td>';
 		$assetslist.='<td>'.get_name_from_id($row['uid'], $resolve['uid']['table'], $resolve['uid']['id'], $resolve['uid']['name']).'</td>';
-		$assetslist.='<td>'.$row["asid"].'</td>';
-		$assetslist.='<td>'.date('F d, Y',$row["fromDate"]).'</td>';
-		$assetslist.='<td>'.date('F d, Y',$row["toDate"]).'</td>';
+		$assetslist.='<td>'.get_name_from_id($row["asid"], $resolve['asid']['table'], $resolve['asid']['id'], $resolve['asid']['name']).'</td>';
+		$assetslist.='<td>'.date('F d, Y', $row["fromDate"]).'</td>';
+		$assetslist.='<td>'.date('F d, Y', $row["toDate"]).'</td>';
 		$assetslist.='<form name="asset_assign" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/assignassets">
 			<input type="hidden" name="e_uid" value="'.$row['uid'].'"/>
 			<input type="hidden" name="e_asid" value="'.$row["asid"].'"/>
 			<input type="hidden" name="e_dateFrom" value="'.$row["fromDate"].'"/>
-			<input type="hidden" name="e_dateTo" value="'.$row["toDate"].'"/>
-			<td><button type="submit" name="edit_asset_assign" value="'.$row['auid'].'" alt="Edit"><img src="'.DOMAIN.'/images/edit.gif"/></button></td></tr></form>';
+			<input type="hidden" name="e_dateTo" value="'.$row["toDate"].'"/><td align="center"><button type="submit" style="cursor:pointer;border: 0; background: transparent" name="edit_asset_assign" value="'.$row['auid'].'" alt="Edit"><img src="'.DOMAIN.'/images/edit.gif"/></button></td></form>';
+		$assetslist.='<form name="assignedasset_delete" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/assignassets">
+					<td align="center">
+					<button type="submit" style="cursor:pointer;border: 0; background: transparent" name="delete_assignedasset" value="'.$row['auid'].'" alt="Edit"><img src="'.DOMAIN.'/images/invalid.gif"/></button>
+					</td></form></tr>';
 	}
 	$assetslist.='</table></div>';
 }
@@ -68,44 +78,31 @@ if(isset($core->input['edit_asset_assign'])) {
 	$assetedit = '<form name="asset_assign" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/assignassets">
 	<input type="hidden" name="auid" value="'.$core->input['edit_asset_assign'].'"/>
 	<table cellspacing=5 cellpadding=4 border=0>
-	<tr><td>User</td><td>'.parse_selectlist('uid', 1, getAllUsers(), $core->input['e_uid']).'</td></tr>
-	<tr><td>Asset</td><td>'.parse_selectlist('asid', 2, getAllAssets(), $core->input['e_asid']).'</td></tr>
-	<tr><td>dateFrom</td><td><input type="text" name="datefrom" id="pickDateFrom" tabindex="3" value="'.date('F d, Y',$core->input['e_dateFrom']).'"/></td></tr>
-	<tr><td>dateTo</td><td><input type="text" name="dateto" id="pickDateTo" tabindex="4" value="'.date('F d, Y',$core->input['e_dateTo']).'"/></td></tr>
-	<td colspan=2><input type="submit" name="assignasset" value="Save" tabindex="5"/></tr></td></form>';
+	<tr><td>'.$lang->uid.'</td><td>'.parse_selectlist('uid', 1, getAllUsers(), $core->input['e_uid']).'</td></tr>
+	<tr><td>'.$lang->asid.'</td><td>'.parse_selectlist('asid', 2, Asset::getAllAssets(), $core->input['e_asid']).'</td></tr>
+	<tr><td>'.$lang->from.'</td><td><input type="text" name="datefrom" id="pickDateFrom" tabindex="3" value="'.date('F d, Y', $core->input['e_dateFrom']).'"/></td></tr>
+	<tr><td>'.$lang->to.'</td><td><input type="text" name="dateto" id="pickDateTo" tabindex="4" value="'.date('F d, Y', $core->input['e_dateTo']).'"/></td></tr>
+	<td colspan=2><input type="submit" name="assignasset" value="Save" tabindex="5"/></tr></td></table></form>';
 }
 else {
 	$assetedit = '<form name="asset_save" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/assignassets">
 	<input type="hidden" name="asid" />
 	<table cellspacing=5 cellpadding=4 border=0>
-	<tr><td>User</td><td>'.parse_selectlist('uid', 1, getAllUsers(),array()).'</td></tr>
-	<tr><td>Asset</td><td>'.parse_selectlist('asid', 2, getAllAssets(),array()).'</td></tr>
-	<tr><td>dateFrom</td><td><input type="text" name="datefrom" id="pickDateFrom" tabindex="3" value=""/></td></tr>
-	<tr><td>dateTo</td><td><input type="text" name="dateto" id="pickDateTo" tabindex="4" value=""/></td></tr>
-	<td colspan=2><input type="submit" name="assignasset" value="Save" tabindex="5"/></tr></td></form>';
+	<tr><td>'.$lang->uid.'</td><td>'.parse_selectlist('uid', 1, getAllUsers(), array()).'</td></tr>
+	<tr><td>'.$lang->asid.'</td><td>'.parse_selectlist('asid', 2, Asset::getAllAssets(), array()).'</td></tr>
+	<tr><td>'.$lang->from.'</td><td><input type="text" name="datefrom" id="pickDateFrom" tabindex="3" value=""/></td></tr>
+	<tr><td>'.$lang->to.'</td><td><input type="text" name="dateto" id="pickDateTo" tabindex="4" value=""/></td></tr>
+	<td colspan=2><input type="submit" name="assignasset" value="Save" tabindex="5"/></tr></td></table></form>';
 }
 
 $pagetitle = $lang->assignassetspage;
-$pagecontents = $assetslist.$assetedit;
+$pagecontents = $assetedit.'<hr><br>'.$assetslist;
 eval("\$assetslist = \"".$template->get('assets_assets')."\";");
 echo $assetslist;
-function getAllAssets() {
-	global $db;
-	$result = array();
-	$query = 'SELECT asid,title FROM '.Tprefix.'assets';
-	$query = $db->query($query);
-	if($db->num_rows($query) > 0) {
-		while($row = $db->fetch_assoc($query)) {
-			$result[$row['asid']] = $row['title'];
-		}
-	}
-	return $result;
-}
-
 function getAllUsers() {
 	global $db;
 	$result = array();
-	$query = 'SELECT uid,displayName FROM '.Tprefix.'users';
+	$query = 'SELECT uid,displayName FROM '.Tprefix.'users WHERE gid<>7';
 	$query = $db->query($query);
 	if($db->num_rows($query) > 0) {
 		while($row = $db->fetch_assoc($query)) {
@@ -113,36 +110,6 @@ function getAllUsers() {
 		}
 	}
 	return $result;
-}
-
-function getAffiliateList($idsonly = false) {
-	global $core, $db;
-	if($core->usergroup['canViewAllAff'] == 0) {
-		$tmpaffiliates = $core->user['affiliates'];
-		foreach($tmpaffiliates as $value) {
-			if($idsonly) {
-				$affiliates[$value] = $value;
-			}
-			else {
-				$affiliates[$value] = get_name_from_id($value, 'affiliates', 'affid', 'name');
-			}
-		}
-	}
-	else {
-		$affiliates_query = $db->query('SELECT affid,name from '.Tprefix.'affiliates');
-		if($db->num_rows($affiliates_query) > 0) {
-			while($affiliate = $db->fetch_assoc($affiliates_query)) {
-				if($idsonly) {
-					$affiliates[$affiliate['affid']] = $affiliate['affid'];
-				}
-				else {
-					$affiliates[$affiliate['affid']] = $affiliate['name'];
-				}
-			}
-		}
-	}
-	asort($affiliates);
-	return $affiliates;
 }
 
 ?>
