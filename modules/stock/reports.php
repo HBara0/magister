@@ -19,6 +19,7 @@ $session->start_phpsession();
 $lang->load('stock_meta');
 $performance["--START--"] = microtime();
 $perflogcount = 0;
+$doresolve=true;
 $jq_common = false;
 $jq_pie = false;
 $jq_chart = false;
@@ -133,7 +134,6 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 			$datapresented = encapsulate_in_fieldset(turn_data_into_html($timesliced, true, $trackedcolumns, $groupingatr), 'Grouped', false);
 		}
 		else {
-
 			$summeddata = sort_by_amount(regroup_and_sum(convert_to_dollars($rawdata, $core->input['fxratetype']), $core->input['fxratetype'], $groupingatr, $trackedcolumns, ($doresolve) ? $resolve[$groupingatr] : null), 0);
 			$datapresented = encapsulate_in_fieldset(turn_data_into_html($summeddata, false, $trackedcolumns, $groupingatr), 'Grouped', false);
 		}
@@ -176,7 +176,7 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
 	elseif($core->input['action'] == 'printlist') {
 		//<editor-fold defaultstate="collapsed" desc="print a dynamic list">
 
-		$affiliates = getAffiliateList(true);
+		$affiliates = getAffiliatesList(true);
 		$suppliers = getSuppliersList(true);
 		$products = getProductsList($suppliers, true);
 
@@ -943,6 +943,7 @@ function turn_data_into_html($data, $timesliced = false, $trackedcolumns, $group
 	//</editor-fold>
 	if(!$timesliced) {
 		//<editor-fold defaultstate="collapsed" desc="not detailed">
+		//echo '<pre>'.print_r($data,true).'</pre>';
 		$html = '<table style="text-align: '.$align.'; padding:0px;margin:5px;width:100%; font-size: inherit; border-bottom: 1px solid black; border-right: 1px solid black;border-top: 1px solid black;border-left: 1px solid black;"  cellpadding="4" cellspacing="0" >'.$head;
 		$totalstack = 0;
 		$totalamount = 0;
@@ -1426,12 +1427,6 @@ function email_report($afid, $query) {
 	return $return;
 }
 
-/* moved to functions
-function get_affiliate_gm_email($affid) {
-	global $db;
-	return $db->fetch_field($db->query('SELECT '.Tprefix.'users.email FROM '.Tprefix.'affiliates INNER JOIN '.Tprefix.'users ON '.Tprefix.'affiliates.generalManager='.Tprefix.'users.uid  WHERE '.Tprefix.'affiliates.affid="'.$affid.'"'), 'email');
-}
-*/
 function assemble_filter_query($core, $db) {
 	log_performance(__METHOD__);
 
@@ -1502,7 +1497,7 @@ function assemble_filter_query($core, $db) {
 		}
 	}
 	else {
-		$affiliates = getAffiliateList(true);
+		$affiliates = getAffiliatesList(true);
 		if($checkifwherewasadded) {
 			$query.=' AND affid IN ('.implode(',', $affiliates).')';
 		}
@@ -1563,7 +1558,7 @@ function make_filters($db, $core) {
 	$return.='<div style=""><b>'.$lang->to.'</b></div>';
 	$return.='<input type="text" id="pickDateTo" name="dateto" value="'.$dateto.'"/></td></tr><tr><td><b>'.$lang->affiliate.':</b></td><td><b>'.$lang->supplier.'</u></b></td><td><b>'.$lang->product.'</b></td></tr><tr>';
 
-	$affiliates = getAffiliateList();
+	$affiliates = getAffiliatesList();
 	$return .='<td>'.parse_selectlist('affiliate[]', 1, $affiliates, $core->input['affiliate'], 1, null, array('id' => 'affiliate')).'</td>';
 
 	$suppliers = getSuppliersList();
@@ -1582,7 +1577,7 @@ function make_filters($db, $core) {
 	return $return;
 }
 
-function getAffiliateList($idsonly = false) {
+function getAffiliatesList($idsonly = false) {
 	log_performance(__METHOD__);
 	global $core, $db;
 	if($core->usergroup['canViewAllAff'] == 0) {

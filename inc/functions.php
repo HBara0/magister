@@ -1318,7 +1318,7 @@ function get_curent_page_URL() {
 }
 
 // moved here from stock/reports because in use in assets too
-function get_name_from_id($id, $tablename = 'products', $idcolumn = 'pid', $namecolumn = 'name', $returnidifreolvefails = false) {
+function get_name_from_id($id, $tablename, $idcolumn, $namecolumn, $returnidifresolvefails = false) {
 	static $idtonamecache = array();
 	global $db;
 	try {
@@ -1336,7 +1336,7 @@ function get_name_from_id($id, $tablename = 'products', $idcolumn = 'pid', $name
 		return $name;
 	}
 	else {
-		if($returnidifreolvefails) {
+		if($returnidifresolvefails) {
 			return $id;
 		}
 		else {
@@ -1344,4 +1344,35 @@ function get_name_from_id($id, $tablename = 'products', $idcolumn = 'pid', $name
 		}
 	}
 }
+
+function getAffiliateList($idsonly = false) {
+	global $core, $db;
+	if($core->usergroup['canViewAllAff'] == 0) {
+		$tmpaffiliates = $core->user['affiliates'];
+		foreach($tmpaffiliates as $value) {
+			if($idsonly) {
+				$affiliates[$value] = $value;
+			}
+			else {
+				$affiliates[$value] = get_name_from_id($value, 'affiliates', 'affid', 'name');
+			}
+		}
+	}
+	else {
+		$affiliates_query = $db->query('SELECT affid,name from '.Tprefix.'affiliates');
+		if($db->num_rows($affiliates_query) > 0) {
+			while($affiliate = $db->fetch_assoc($affiliates_query)) {
+				if($idsonly) {
+					$affiliates[$affiliate['affid']] = $affiliate['affid'];
+				}
+				else {
+					$affiliates[$affiliate['affid']] = $affiliate['name'];
+				}
+			}
+		}
+	}
+	asort($affiliates);
+	return $affiliates;
+}
+
 ?>
