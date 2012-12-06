@@ -23,7 +23,7 @@ class Sourcing {
 		global $db, $log, $core, $errorhandler, $lang;
 		if(is_empty($data['companyName'], $data['productsegment']) || (empty($data['ssid']) && $options['operationtype'] == 'update')) {
 			$this->status = 1;
-			//return false;
+			return false;
 		}
 
 		$this->supplier = $data;
@@ -39,7 +39,7 @@ class Sourcing {
 		if($options['operationtype'] != 'update') {
 			if(value_exists('sourcing_suppliers', 'companyName', $this->supplier['companyName'])) {
 				$this->status = 2;
-				//return false;
+				return false;
 			}
 		}
 
@@ -53,18 +53,30 @@ class Sourcing {
 		$this->supplier['website'] = $core->validtate_URL($this->supplier['website']);
 		/* Santize inputs - END  */
 
-		if(!empty($this->supplier['phone1'])) {
+		if(!is_empty($this->supplier['phone1']['intcode'], $this->supplier['phone1']['areacode'], $this->supplier['phone1']['number'])) {	
 			$this->supplier['phone1'] = implode('-', $this->supplier['phone1']);
 		}
-
-		if(!empty($this->supplier['phone2'])) {
+		else
+		{
+			unset($this->supplier['phone1']);
+		}
+		
+		if(!is_empty($this->supplier['phone2']['intcode'], $this->supplier['phone2']['areacode'], $this->supplier['phone2']['number'])) {
 			$this->supplier['phone2'] = implode('-', $this->supplier['phone2']);
 		}
-
-		if(!empty($this->supplier['fax'])) {
+		else
+		{
+			unset($this->supplier['phone2']);
+		}
+		
+		if(!is_empty($this->supplier['fax']['intcode'], $this->supplier['fax']['areacode'], $this->supplier['fax']['number'])) {
 			$this->supplier['fax'] = implode('-', $this->supplier['fax']);
 		}
-
+		else
+		{
+			unset($this->supplier['fax']);
+		}
+		
 		if($options['operationtype'] == 'update') {
 			$this->supplier['dateModified'] = TIME_NOW;
 			$this->supplier['modifiedBy'] = $core->user['uid'];
@@ -349,7 +361,7 @@ class Sourcing {
 			}
 		}
 
-		$contact_query = $db->query("SELECT rp.* ,sscp.*
+		$contact_query = $db->query("SELECT rp.*, sscp.*
 									FROM ".Tprefix."sourcing_suppliers_contactpersons sscp
 									JOIN ".Tprefix."representatives rp ON(sscp.rpid=rp.rpid)
 									WHERE sscp.ssid= ".$db->escape_string($supplier_id));
@@ -579,7 +591,7 @@ class Sourcing {
 		$feedback_data = array('feedback' => trim($data['feedback']),
 				'feedbackBy' => $core->user['uid'],
 				'feedbackTime' => TIME_NOW,
-				'isClosed' => $data['isclosed']
+				'isClosed' => $data['isClosed']
 		);
 
 		$update_query = $db->update_query('sourcing_chemicalrequests', $feedback_data, 'scrid='.intval($request_id));
