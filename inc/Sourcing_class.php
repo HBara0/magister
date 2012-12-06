@@ -6,7 +6,7 @@
  * Sourcing Class
  * $id: Sourcing_class.php
  * Created:			@tony.assaad	October 15, 2012 |  10:53 PM
- * Last Update:     @tony.assaad	November 29, 2012 | 5:06 PM
+ * Last Update:     @tony.assaad	December 06, 2012 | 5:06 PM
  */
 
 class Sourcing {
@@ -470,29 +470,26 @@ class Sourcing {
 		/* If user is not a sourcing agent, check his/her segements - START */
 		if($core->usergroup['sourcing_canManageEntries'] == 1) { // cid in activity area in countries for the affilt i work in
 			/* check country if availabilty is no */
-			$activityarea_query = $db->query("SELECT ssaa.ssaid
-												FROM ".Tprefix."sourcing_suppliers ss
-												JOIN ".Tprefix."sourcing_suppliers_activityareas ssaa ON (ss.ssid=ssaa.ssid)
+			$activityarea_query = $db->query("SELECT ssaa.ssaid 
+												FROM ".Tprefix."sourcing_suppliers_activityareas ssaa
 												JOIN ".Tprefix."countries co ON (co.coid=ssaa.coid)
 												JOIN ".Tprefix."affiliates aff ON (aff.affid=co.affid)
-												WHERE aff.affid in('".$core->user['mainaffiliate']."') AND ss.ssid= ".$db->escape_string($supplier_id));
+												WHERE aff.affid IN ('".implode(',',$core->user['affiliates'])."') AND ssaa.ssid= ".$db->escape_string($supplier_id));
 
 			if($db->num_rows($activityarea_query) > 0) {
-				return true;
-			}
-			else {
-				//return false;
-			}
-			$suppliers_query = $db->query("SELECT ssp.psid
+				$suppliers_query = $db->query("SELECT ssp.psid
 										FROM ".Tprefix."sourcing_suppliers_productsegments ssp
 										JOIN ".Tprefix."employeessegments es ON (es.psid = ssp.psid)
 										WHERE ssp.ssid=".$db->escape_string($supplier_id)."
 										AND es.uid=".$db->escape_string($core->user['uid'])."
 										LIMIT 0, 1");
 
-
-			if($db->num_rows($suppliers_query) > 0) {
-				return true;
+				if($db->num_rows($suppliers_query) > 0) {
+					return true;
+				}
+				else {
+					return false;
+				}
 			}
 			else {
 				return false;
@@ -774,7 +771,7 @@ class Sourcing {
 			}
 
 			if($is_coloredlevel) {
-			
+
 				$maturity_bars .= '<div id="'.$ermlid.'" class="'.$divclassactive.$positionclass.'" title="'.($lang->{$name} ? $lang->{$name} : $name).'">&nbsp;</div>';
 			}
 			else {
