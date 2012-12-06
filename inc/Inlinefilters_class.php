@@ -303,7 +303,7 @@ class Inlinefilters {
 				}
 
 				/* Prepare WHERE statement filters - END */
-				if(!empty($sec_query_where)) {			/*added by tony */
+				if(!empty($sec_query_where)) {
 					$sec_query_where = 'WHERE '.$sec_query_where;
 				}
 
