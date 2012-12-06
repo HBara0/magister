@@ -1,7 +1,7 @@
 <?php
 $module['name'] = 'sourcing';
 $module['title'] = $lang->sourcing;
-$module['homepage'] = 'managesupplier';
+$module['homepage'] = 'listpotentialsupplier';
 $module['globalpermission'] = 'canUseSourcing';
 $module['menu'] = array('file' 		  => array('managesupplier', 'listpotentialsupplier', 'listchemcialsrequests'),
 						'title'		 => array('managesuppliers', 'listpotentialsupplier', 'listchemcialsrequests'),
