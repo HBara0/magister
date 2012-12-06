@@ -66,7 +66,26 @@ else {
 		$potential_supplier = new Sourcing();
 		$request_id = $db->escape_string($core->input['request']['rid']);
 		$requests_feedback = $potential_supplier->set_feedback($core->input['feedback'], $request_id);
-				
+	
+		$requester_details = $db->fetch_assoc($db->query("SELECT scr.*, u.displayName, u.email
+										FROM ".Tprefix."sourcing_chemicalrequests scr
+										JOIN ".Tprefix."users u ON (u.uid = scr.uid) WHERE scr.scrid=".$request_id));
+	
+		if($requests_feedback && $requester_details['isClosed'] == 1) {
+			$email_data = array(
+					'to' => $requester_details['email'],
+					'from_email' =>'sourcing@orkila.com',
+					'from' => 'OCOS Mailer',
+					'subject' => $lang->feedbacknotification_subject,
+					'message' => $core->input['feedback']['feedback']
+			);
+			
+			$mail = new Mailer($email_data, 'php');
+			if($mail->get_status() === true) {
+				$log->record('sourcingchemicalrequests', array('to' => $requester_details['email']));
+			}
+		}
+					
 		switch($potential_supplier->get_status()) {
 			case 0:
 				if($requester_details['isClosed'] == 1) {
@@ -80,24 +99,6 @@ else {
 			case 2:
 				output_xml("<status>false</status><message>{$lang->feedbackexsist}</message>");
 				break;
-		}
-		$requester_details = $db->fetch_assoc($db->query("SELECT scr.*, u.displayName, u.email
-										FROM ".Tprefix."sourcing_chemicalrequests scr
-										JOIN ".Tprefix."users u ON (u.uid = scr.uid) WHERE scr.scrid=".$request_id));
-		
-		if($requests_feedback && $requester_details['isClosed'] == 1) {
-			$email_data = array(
-					'to' => $requester_details['email'],
-					'from_email' => $core->settings['maileremail'],
-					'from' => 'OCOS Mailer',
-					'subject' => $lang->feedbacknotification_subject,
-					'message' => $core->input['feedback']['feedback']
-			);
-
-			$mail = new Mailer($email_data, 'php');
-			if($mail->get_status() === true) {
-				$log->record('sourcingchemicalrequests', array('to' => $requester_details['email']));
-			}
 		}
 	}
 }

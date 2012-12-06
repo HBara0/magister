@@ -349,14 +349,14 @@ class Sourcing {
 			}
 		}
 
-		$contact_query = $db->query("SELECT rp.* 
+		$contact_query = $db->query("SELECT rp.* ,sscp.*
 									FROM ".Tprefix."sourcing_suppliers_contactpersons sscp
 									JOIN ".Tprefix."representatives rp ON(sscp.rpid=rp.rpid)
 									WHERE sscp.ssid= ".$db->escape_string($supplier_id));
 
 		if($db->num_rows($contact_query) > 0) {
 			while($contact_person = $db->fetch_assoc($contact_query)) {
-				$contact_persons[$contact_person['rpid']] = $contact_person;
+				$contact_persons[$contact_person['rpid']] = $contact_person; 
 			}
 			return $contact_persons;
 		}
@@ -400,7 +400,7 @@ class Sourcing {
 	public function get_single_supplier_contact_person($id) {
 		global $db;
 
-		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
+		//return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
 	}
 
 	public function get_chemicalsubstances($supplier_id = '') {
@@ -579,7 +579,7 @@ class Sourcing {
 		$feedback_data = array('feedback' => trim($data['feedback']),
 				'feedbackBy' => $core->user['uid'],
 				'feedbackTime' => TIME_NOW,
-				'isClosed' => $data['isClosed']
+				'isClosed' => $data['isclosed']
 		);
 
 		$update_query = $db->update_query('sourcing_chemicalrequests', $feedback_data, 'scrid='.intval($request_id));

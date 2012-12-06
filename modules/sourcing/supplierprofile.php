@@ -6,7 +6,7 @@
  * Potential Supplier Profile
  * $module: Sourcing
  * $id: supplierprofile.php	
- * Last Update: @tony.assaad	october 30, 2012 | 4:05 AM
+ * Last Update: @tony.assaad	December 5, 2012 | 4:05 AM
  */
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
@@ -66,9 +66,15 @@ if($potential_supplier->is_blacklisted()) { /* if supplier isBlacklisted */
 		$chemicalslist_section = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
 	}
 	/* Chemical List - END */
-
+$supplier['maindetails']['companyName'] = $supplier['maindetails']['companyName'].'('.$supplier['maindetails']['companyNameAbbr'].')';
 	$supplier['maindetails']['businessPotential_output'].= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$supplier['maindetails']['businessPotential'].'"></div>';
-
+	$supplier['maindetails']['relationMaturity_output']  =  '<div id="rml_bars" style="text-align:left;">'.$lang->maturitylevel.' ';
+	for($i=1;$i<=$supplier['maindetails']['relationMaturity'];$i++) {
+		$supplier['maindetails']['relationMaturity_output']  .= '<div id="'.$supplier['maindetails']['relationMaturity'].'" class = "rmlselectable rmlinactive rmlhighlight ">&nbsp;</div>';
+	}
+	
+	$supplier['maindetails']['relationMaturity_output']  .='</div>';
+	
 	/* Parse contact info - START */
 	$supplier['contactdetails']['fulladress'] = $supplier['contactdetails']['addressLine1'].','.$supplier['contactdetails']['addressLine2'];
 	$supplier['contactdetails']['phones'] = '+'.$supplier['contactdetails']['phone1'];
@@ -172,12 +178,11 @@ else {
 	}
 	elseif($core->input['action'] == 'preview') {
 		$rpid = $db->escape_string($core->input['rpid']);
-		$supplier_contact = $potential_supplier->get_single_supplier_contact_person($rpid);
-		//Make a template
+		$supplier_id = $db->escape_string($core->input['ssid']);
+		$contact = $potential_supplier->get_supplier_contact_persons(1); 
 		echo '<div style="min-width:400px; max-width:600px;">
-	<div style="display:inline-block;width:180px;">'.$supplier_contact['name'].'<br><strong>'.$lang->email.'</strong>  <a href="mailto:'.$supplier_contact['email'].'">'.$supplier_contact['email'].'</a><br>'.'<strong>'.$lang->phone.'</strong> '.$supplier_contact['phone'].'<br>'.'<strong>'.$lang->positon.'</strong><br>'.'<strong>'.$contact_personposition.'</strong></div></div>';
-
-		
+	<div style="display:inline-block;width:180px;">'.$contact[$rpid]['name'].'<br><strong>'.$lang->email.'</strong>  <a href="mailto:'.$contact[$rpid]['email'].'">'.$contact[$rpid]['email'].'</a><br>'.'<strong>'.$lang->phone.'</strong> '.$contact[$rpid]['phone'].'<br>'.'<strong>'.$lang->repnotes.': </strong>'.'<strong>'.$contact[$rpid]['notes'].'</strong></div></div>';
+	
 	}
 }
 ?>

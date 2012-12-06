@@ -38,6 +38,7 @@ $lang['competitor'] = 'Competitor';
 $lang['contactdesc'] = 'Notes';
 $lang['website'] = 'Website';
 $lang['chemicalname'] = 'Chemical Name';
+$lang['chemicalsearch'] = 'Search By Chemical';
 $lang['chemicalproducts'] = 'Chemical Products';
 $lang['comments'] = 'Comments And Reviews';
 $lang['requestchemical'] = 'Request Chemical';

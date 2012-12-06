@@ -6,68 +6,68 @@
  * Filtering/Inline Search Class
  * $id: Filter_class.php
  * Created: 	@zaher.reda		October 11, 2012 | 10:03 AM
- * Last Update: @zaher.reda 	October 11, 2012 | 10:03 AM
+ * Last Update: @tony.assaad	December 05, 2012 | 10:03 AM
  */
 
 class Inlinefilters {
 	/* IMPORTANT: Config Array Structure,  Explained - START
-	$config = array(
-		'parse' => array( // Config to parse fields
-						'filters' => array('attr1', 'attr2', 'attr3', 'attr4', 'attr5'), // Filter names to be used for filter fields
-						'filterTitles' => array('attr1' => 'Attribute Name'), // [Optional] Specific titles for specific fields
-						'overwriteField' => array('attr2' => 'SOME HTML'), // [Optional] Overwrite generated field by custom HTML
-						'fieldsSequence' => array('attr2' => 1, 'attr1' => 2) // [Optional] By default parse of filter row follows the sequence of attributes in 'filters'; you can overwrite the sequence here. Useful in case where you add a field later.
-						),
-		'process' => array( // Config to configure the filtering process
-			'filterKey' => 'attr', // The key to which's values will be returned to be user if later queries
-			'mainTable' => array( // Configurations for the main filtering table
-				'name' => 'tablename', // Table name
-				// Below are the filters that are applicable to this main table. The index of the array is the filter name, and the value is the attribute name. Attribute name can have prefixes
-				// The value can optionally be an array for more complex filter; where 'operatorType' specifies the operator of the logical operation, and 'name' specified the attribute name
-				// 'operatorType' can be 'multiple' to use IN, 'between' to use BETWEEN, and nothing or 'single' to use LIKE
-				'filters' => array('attr1' => 'attr1', 'attr2' => 'attr2', 'attr3' => 'attr3', 'attr4' => array('operatorType' => 'between', 'name' => 'attr4'))
-				'extraSelect' => 'attr8 AS attr9', // [Optional] Custom addition to the SELECT statement, useful for aggregate functions and CONCAT. To be used jointly with 'havingFilters'
-				'havingFilters' => array('attr8' => 'attr9') // [Optional] Some filters require HAVING because they are a result of an aggregate function on CONCAT; these are specified here rather than the 'filter' which relies on WHERE statement
-			),
-			'secTables' => array( // In case filters are to be performed on other related tabels (associative entities), their configurations are done here; table by table
-				'sectablename' => array( // [Optional] Index of each table entry is the table name
-					'keyAttr' => 'secattr', // [Optional] Key attribute of the secondary table
-					'joinKeyAttr' => 'secattr', [Optional] In case of join with another table; state the other table key for ON statement
-					'joinWith' => 'othertable',// [Optional] In case of join with another table; state the table name
-					'joinWord' => 'JOIN', // [Optional] The join keyword; ex LEFT JOIN, RIGHT JOIN etc...
-					'filters' => array('attr5' => array('operatorType' => 'multiple', 'name' => 'sectablename.attr5')),
-					'filterKeyOverwrite' => '', // [Optional] Overwerite the 'filterKey' in case it doesn't have the same name in this secondary table (ex. eid <> spid)
-					'extraWhere' => ''// [Optional] If the table requires another specific filter, this can be set from here. Do not use WHERE statement in this.
-				),
-				'sectablename2' => array(// Another secondary table; with more simple filtering (no joins)
-					'filters' => array('attr6' => array('operatorType' => 'multiple', 'name' => 'attr6')),
-				)
-			)
-		)
-	);
+	  $config = array(
+	  'parse' => array( // Config to parse fields
+	  'filters' => array('attr1', 'attr2', 'attr3', 'attr4', 'attr5'), // Filter names to be used for filter fields
+	  'filterTitles' => array('attr1' => 'Attribute Name'), // [Optional] Specific titles for specific fields
+	  'overwriteField' => array('attr2' => 'SOME HTML'), // [Optional] Overwrite generated field by custom HTML
+	  'fieldsSequence' => array('attr2' => 1, 'attr1' => 2) // [Optional] By default parse of filter row follows the sequence of attributes in 'filters'; you can overwrite the sequence here. Useful in case where you add a field later.
+	  ),
+	  'process' => array( // Config to configure the filtering process
+	  'filterKey' => 'attr', // The key to which's values will be returned to be user if later queries
+	  'mainTable' => array( // Configurations for the main filtering table
+	  'name' => 'tablename', // Table name
+	  // Below are the filters that are applicable to this main table. The index of the array is the filter name, and the value is the attribute name. Attribute name can have prefixes
+	  // The value can optionally be an array for more complex filter; where 'operatorType' specifies the operator of the logical operation, and 'name' specified the attribute name
+	  // 'operatorType' can be 'multiple' to use IN, 'between' to use BETWEEN, and nothing or 'single' to use LIKE
+	  'filters' => array('attr1' => 'attr1', 'attr2' => 'attr2', 'attr3' => 'attr3', 'attr4' => array('operatorType' => 'between', 'name' => 'attr4'))
+	  'extraSelect' => 'attr8 AS attr9', // [Optional] Custom addition to the SELECT statement, useful for aggregate functions and CONCAT. To be used jointly with 'havingFilters'
+	  'havingFilters' => array('attr8' => 'attr9') // [Optional] Some filters require HAVING because they are a result of an aggregate function on CONCAT; these are specified here rather than the 'filter' which relies on WHERE statement
+	  ),
+	  'secTables' => array( // In case filters are to be performed on other related tabels (associative entities), their configurations are done here; table by table
+	  'sectablename' => array( // [Optional] Index of each table entry is the table name
+	  'keyAttr' => 'secattr', // [Optional] Key attribute of the secondary table
+	  'joinKeyAttr' => 'secattr', [Optional] In case of join with another table; state the other table key for ON statement
+	  'joinWith' => 'othertable',// [Optional] In case of join with another table; state the table name
+	  'joinWord' => 'JOIN', // [Optional] The join keyword; ex LEFT JOIN, RIGHT JOIN etc...
+	  'filters' => array('attr5' => array('operatorType' => 'multiple', 'name' => 'sectablename.attr5')),
+	  'filterKeyOverwrite' => '', // [Optional] Overwerite the 'filterKey' in case it doesn't have the same name in this secondary table (ex. eid <> spid)
+	  'extraWhere' => ''// [Optional] If the table requires another specific filter, this can be set from here. Do not use WHERE statement in this.
+	  ),
+	  'sectablename2' => array(// Another secondary table; with more simple filtering (no joins)
+	  'filters' => array('attr6' => array('operatorType' => 'multiple', 'name' => 'attr6')),
+	  )
+	  )
+	  )
+	  );
 
-	EXAMPLE:
-	$config = array(
-		'parse' => array('filters' => array('fullName', 'displayName', 'mainAffid', 'position', 'reportsTo'),
-						'filterTitles' => array('fullName' => 'Full Name'),
-						'overwriteField' => array('position' => '<select><option>Position 1</option><option>Position 2</option></select>')
-						),
-		'process' => array('filterKey' => 'uid',
-			'mainTable' => array(
-				'name' => 'users',
-				'filters' => array('fullName' => 'fullName', 'displayName' => 'displayName', 'reportsTo' => 'reportsTo', 'dateAdded' => array('operatorType' => 'between', 'name' => 'dateAdded'))
-			),
-			'secTables' => array(
-				'employeessegments' => array(
-					'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
-				),
-				'assignedemployees' => array(
-					'filters' => array('supplier' => array('operatorType' => 'multiple', 'name' => 'eid')),
-				)
-			)
-		)
-	);
-	Config Array Structure,  Explained - END */
+	  EXAMPLE:
+	  $config = array(
+	  'parse' => array('filters' => array('fullName', 'displayName', 'mainAffid', 'position', 'reportsTo'),
+	  'filterTitles' => array('fullName' => 'Full Name'),
+	  'overwriteField' => array('position' => '<select><option>Position 1</option><option>Position 2</option></select>')
+	  ),
+	  'process' => array('filterKey' => 'uid',
+	  'mainTable' => array(
+	  'name' => 'users',
+	  'filters' => array('fullName' => 'fullName', 'displayName' => 'displayName', 'reportsTo' => 'reportsTo', 'dateAdded' => array('operatorType' => 'between', 'name' => 'dateAdded'))
+	  ),
+	  'secTables' => array(
+	  'employeessegments' => array(
+	  'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
+	  ),
+	  'assignedemployees' => array(
+	  'filters' => array('supplier' => array('operatorType' => 'multiple', 'name' => 'eid')),
+	  )
+	  )
+	  )
+	  );
+	  Config Array Structure,  Explained - END */
 	private $config = array();
 	private $matching_rule = 'all';
 	private $parsed_fields = array();
@@ -203,7 +203,7 @@ class Inlinefilters {
 
 		$iteration_element = $this->parsed_fields;
 		if(isset($this->config['parse']['fieldsSequence']) && !empty($this->config['parse']['fieldsSequence'])) {
-			$iteration_element =  $this->config['parse']['fieldsSequence'];
+			$iteration_element = $this->config['parse']['fieldsSequence'];
 		}
 
 		foreach($iteration_element as $filter_item => $filter_value) {
@@ -288,7 +288,7 @@ class Inlinefilters {
 				}
 
 				/* Prepare any necessary joins - START */
-				$sec_query_join_clause = $sec_query_having = '';
+				$sec_query_join_clause = $sec_query_having = $sec_query_where = '';
 				if((isset($options['joinWith']) && !empty($options['joinWith'])) && (isset($options['joinKeyAttr']) && !empty($options['joinKeyAttr']))) {
 					if(!isset($options['joinWord']) && empty($options['joinWord'])) {
 						$options['joinWord'] = 'JOIN';
@@ -298,18 +298,21 @@ class Inlinefilters {
 				/* Prepare any necessary joins - END */
 
 				/* Prepare WHERE statement filters - START */
-				if(isset($options['filters'])&& !empty($options['filters'])) {
+				if(isset($options['filters']) && !empty($options['filters'])) {
 					$sec_query_where = $this->parse_filterstatements($options['filters']);
 				}
-				
+
 				/* Prepare WHERE statement filters - END */
-				
+				if(!empty($sec_query_where)) {			/*added by tony */
+					$sec_query_where = 'WHERE '.$sec_query_where;
+				}
 
 				if(isset($options['havingFilters']) && !empty($options['havingFilters'])) {
 					$sec_query_having = $this->parse_filterstatements($options['havingFilters']);
 				}
 
-				if(!empty($sec_query_where)|| !empty($sec_query_having)) {
+				if(!empty($sec_query_where) || !empty($sec_query_having)) {
+
 					if($this->matching_rule == 'all' && !empty($items)) {
 						$sec_query_where .= ' AND '.$options['filterKeyOverwrite'].' IN ("'.implode('", "', $items).'")';
 					}
@@ -317,16 +320,16 @@ class Inlinefilters {
 					if(isset($options['extraWhere']) && !empty($options['extraWhere'])) {
 						$sec_query_where .= ' AND '.$db->escape_string($options['extraWhere']);
 					}
-					
+
 					if(!empty($options['extraSelect'])) {
 						$options['extraSelect'] = ', '.$options['extraSelect'];
 					}
-					
+
 					if(!empty($sec_query_having)) {
 						$sec_query_having = ' HAVING '.$sec_query_having;
 					}
-						echo $sec_query_having;
-				
+			
+
 					$sec_query = $db->query('SELECT DISTINCT('.$options['filterKeyOverwrite'].')'.$options['extraSelect'].'
 										FROM '.Tprefix.$table.$sec_query_join_clause.'
 										 '.$sec_query_where.$sec_query_having);
@@ -363,7 +366,6 @@ class Inlinefilters {
 		foreach($filters as $filteritem => $attr) {
 			if(isset($core->input['filters'][$filteritem]) && !empty($core->input['filters'][$filteritem])) {
 				$query_filter_statement .= $query_operator.$this->parse_whereentry($attr, $filteritem);
-
 				if($this->matching_rule == 'all') {
 					$query_operator = ' AND ';
 				}
@@ -398,7 +400,7 @@ class Inlinefilters {
 			$query_where = $sec_query_operator.'('.$attr['name'].' BETWEEN '.$db->escape_string($core->input['filters'][$filteritem]['start']).' AND '.$db->escape_string($core->input['filters'][$filteritem]['end']).')';
 		}
 		elseif($attr['operatorType'] == 'date') {
-			$query_where = $sec_query_operator.'('.$attr['name'].' BETWEEN '.strtotime($core->input['filters'][$filteritem]).' AND '.(strtotime($core->input['filters'][$filteritem])+(60*60*24)-1).')';
+			$query_where = $sec_query_operator.'('.$attr['name'].' BETWEEN '.strtotime($core->input['filters'][$filteritem]).' AND '.(strtotime($core->input['filters'][$filteritem]) + (60 * 60 * 24) - 1).')';
 		}
 		elseif($attr['operatorType'] == 'equal') {
 			$query_where = $sec_query_operator.$attr['name'].'="'.$db->escape_string($core->input['filters'][$filteritem]).'"';
@@ -442,13 +444,11 @@ class Inlinefilters {
 					if(is_array($newfilter['parse'][$addkey])) {
 						$this->config['parse'][$realkey] = array_merge($this->config['parse'][$realkey], $newfilter['parse'][$addkey]);
 					}
-					else
-					{
+					else {
 						array_push($this->config['parse'][$realkey], $newfilter['parse'][$addkey]);
 					}
 				}
-				else
-				{
+				else {
 					$this->config['parse'][$realkey] = $newfilter['parse'][$addkey];
 				}
 			}
