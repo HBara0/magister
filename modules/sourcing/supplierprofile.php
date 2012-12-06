@@ -177,7 +177,7 @@ else {
 		$rpid = $db->escape_string($core->input['rpid']);
 		$supplier_id = $db->escape_string($core->input['sid']);
 		$contact = $potential_supplier->get_supplier_contact_persons($supplier_id);
-		echo '<div style="min-width:400px; max-width:600px;">
+		echo '<div style="min-width:400px; max-width:600px;"> 
 	<div style="display:inline-block;width:180px;">'.$contact[$rpid]['name'].'<br /><a href="mailto:'.$contact[$rpid]['email'].'">'.$contact[$rpid]['email'].'</a><br />'.$contact[$rpid]['phone'].'<br /><br />'.'<strong>'.$lang->repnotes.': </strong>'.$contact[$rpid]['notes'].'</div></div>';
 	}
 }

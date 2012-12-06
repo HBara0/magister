@@ -104,7 +104,10 @@ $("span[id^='contactpersondata_']").each(function(){
 		<div style='display:inline-block; width:50%; padding:5px; vertical-align:top;'>
 			<div class="subtitle border_right"><strong>{$lang->contactdtails}</strong></div>
 			<div class="border_right">{$lang->fulladress}: <span class="contactsvalue">{$supplier[contactdetails][fulladress]}</span><br />
-				{$lang->pobox}: <span class="contactsvalue">{$supplier[contactdetails][poBox]}</span><br />
+                {$lang->country}: <span class="contactsvalue">{$supplier[contactdetails][country]}</span><br />
+                {$lang->city}: <span class="contactsvalue">{$supplier[contactdetails][city]}</span><br />
+                {$lang->postcode}: <span class="contactsvalue">{$supplier[contactdetails][postCode]}</span><br />
+            	{$lang->pobox}: <span class="contactsvalue">{$supplier[contactdetails][poBox]}</span><br />
 				{$lang->telephone}: <span class="contactsvalue">{$supplier[contactdetails][phones]}</span><br />
 				{$lang->fax}: <span class="contactsvalue">{$supplier[contactdetails][fax]}</span><br />
 				{$lang->email}: <span class="contactsvalue">{$supplier[contactdetails][mainEmail]}</span><br />
