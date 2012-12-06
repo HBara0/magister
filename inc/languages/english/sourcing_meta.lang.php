@@ -1,7 +1,6 @@
 <?php
 $lang['managesuppliers'] = "Manage Suppliers";
 $lang['companyname'] = "Company name";
-$lang['sourcing'] = "sourcing";
 $lang['repnotes'] = 'Notes';
 $lang['abbreviation'] = 'Abbr.';
 $lang['generalinfo'] = 'General Information';
@@ -15,7 +14,7 @@ $lang['contact'] = 'Need to contact the supplier';
 $lang['country'] = 'Country';
 $lang['city'] = 'City';
 $lang['date'] = 'Date';
-$lang['cas'] = 'CAS Number';
+$lang['casnum'] = 'CAS Number';
 $lang['checmicalproduct'] = 'Checmical';
 $lang['address1'] = 'Address1';
 $lang['affilliate'] = 'Affiliate';
@@ -45,7 +44,6 @@ $lang['requestchemical'] = 'Request Chemical';
 $lang['cobriefing'] = 'Co-Briefing';
 $lang['createchemical'] = 'Create Chemical Substances';
 $lang['chemicalsynonym'] = 'Chemical Synonymes';
-$lang['casno'] = 'Cas Number';
 $lang['closefeedback'] = 'Close Feedback';
 $lang['origin'] = 'Origin';
 $lang['application'] = 'Application: ';
@@ -124,4 +122,5 @@ $lang['selectcontactperson'] = 'Select contact persons';
 $lang['both'] = 'Both';
 $lang['synonyms'] = 'Synonyms';
 $lang['supplytype'] = 'Type';
+$lang['createchemical_notes'] = 'Make sure to use a complete, valid, and existing chemical product name along to its CAS Number. <br />Always verify your chemcial names/CAS Numbers through specialized chemical databases before creating them.';
 ?>
