@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright � 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright © 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Potential Supplier Profile
  * $module: Sourcing
@@ -58,7 +58,7 @@ if(!$core->input['action']) {
 	if(is_array($supplier['chemicalsubstances'])) {
 		foreach($supplier['chemicalsubstances'] as $chemical) {
 			$rowclass = alt_row($rowclass);
-			$chemicalslist_section .= '<tr class="'.$rowclass.'"><td width="10%">'.$chemical['casNum'].'</td><td align="left">'.$chemical['name'].'</td><td>'.$chemical['supplyType_output'].'</td><td width="50%">'.$chemical['synonyms'].'</td></tr>';
+			$chemicalslist_section .= '<tr class="'.$rowclass.'" style="vertical-align:top;"><td width="10%">'.$chemical['casNum'].'</td><td align="left">'.$chemical['name'].'</td><td>'.$chemical['supplyType_output'].'</td><td width="50%">'.$chemical['synonyms'].'</td></tr>';
 		}
 	}
 	else {

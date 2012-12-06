@@ -91,7 +91,7 @@
 					<div style="display: table-cell; padding:5px;"> +
 						<input type="text" id="fax_intcode" name="supplier[fax][intcode]" size="3" maxlength="3" accept="numeric" value="{$supplier[details][fax][0]}"/>
 						<input type="text" id="fax_areacode" name="supplier[fax][areacode]" size='4' maxlength="4" accept="numeric" value="{$supplier[details][fax][1]}" />
-						<input type="text" id="fax_number" name="supplier[fax][number]" value="{$supplier[details][fax]}" accept="numeric" value="{$supplier[details][fax][2]}" />
+						<input type="text" id="fax_number" name="supplier[fax][number]" accept="numeric" value="{$supplier[details][fax][2]}" />
 						<br />
 					</div>
 				</div>

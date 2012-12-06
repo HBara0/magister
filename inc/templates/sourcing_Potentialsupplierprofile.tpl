@@ -2,9 +2,9 @@
 <head>
 <title>{$core->settings[systemtitle]} | {$supplier[maindetails][companyName]}</title>
 {$headerinc}
-<link href="{$core->settings[rootdir]}/css/rateit.css" rel="stylesheet" type="text/css" />
+<link href="{$core->settings[rootdir]}/css/rateit.min.css" rel="stylesheet" type="text/css" />
 <link href="{$core->settings[rootdir]}/css/supplierprofile.css" rel="stylesheet" type="text/css" />
-<link href="{$core->settings[rootdir]}/css/rml.css" rel="stylesheet" type="text/css" />
+<link href="{$core->settings[rootdir]}/css/rml.min.css" rel="stylesheet" type="text/css" />
 <style type="text/css">
 .blur {
 	color: transparent;
@@ -97,8 +97,8 @@ $("span[id^='contactpersondata_']").each(function(){
 {$header}
 <tr> {$menu}
 	<td class="contentContainer">
-		<div>
-			<h3>{$supplier[maindetails][companyName]} {$supplier[maindetails][businessPotential_output]}</h3>
+		<div style="margin-bottom: 10px;">
+			<h3 style="margin-bottom: 5px;">{$supplier[maindetails][companyName]} {$supplier[maindetails][businessPotential_output]}</h3>
 			{$supplier[maindetails][relationMaturity_output]}
 		</div>
 		<div style='display:inline-block; width:50%; padding:5px; vertical-align:top;'>
