@@ -317,6 +317,7 @@ function create_cookie($name, $value, $duration='', $secure=false, $httponly=fal
 */
 function parse_selectlist($id, $tabindex, $options, $selected_options, $multiple_list=0, $onchange_actions = '', $config = array()) {
 	if($multiple_list == 1) {
+
 		if(!isset($config['multiplesize']) || empty($config['multiplesize'])) {
 			$config['multiplesize'] = 5;
 		}
@@ -326,13 +327,11 @@ function parse_selectlist($id, $tabindex, $options, $selected_options, $multiple
 	if(is_array($selected_options)) {
 		$multiple_selected = true;
 	}
-
 	if(!empty($onchange_actions)) {
 		$onchange_actions = ' onchange=\''.$onchange_actions.'\'';
 	}
 
-
-	$list .= '<select id="'.(($config['id'])?$config['id']:$id).'" name="'.$id.'" tabindex="'.$tabindex.'"'.$multiple.$onchange_actions.'>';
+	$list .= '<select id="'.(($config['id'])?$config['id']:$id).'" name="'.$id.'" size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$multiple.$onchange_actions.'>';
 	foreach($options as $key => $val) {
 		if($multiple_selected == true) {
 			if(in_array($key, $selected_options)) {

@@ -201,7 +201,7 @@ class Sourcing {
 		unset($data['orderpassed']);
 		$this->communication_entriesexist = 'false';
 		$data['date'] = strtotime($data['date']);
-		$this->communication_report = $data;
+		$this->communication_report = $data;   
 		$this->communication_report['uid'] = $core->user['uid'];
 		$date_tostrtime = array('customerDocumentDate', 'receivedQuantityDate', 'providedDocumentsDate', 'customerAnswerDate', 'provisionDate', 'offerDate', 'OfferAnswerDate');
 		foreach($date_tostrtime as $converteddate) {
@@ -291,7 +291,6 @@ class Sourcing {
 				}
 				$potential_suppliers[$supplier['ssid']]['segments'] = $this->get_supplier_segments($supplier['ssid']);
 				$potential_suppliers[$supplier['ssid']]['activityarea'] = $this->get_supplier_activity_area($supplier['ssid']);
-				//$potential_suppliers[$supplier['ssid']]['chemicalsubstance'] = $this->get_chemicalsubstances($supplier['ssid']);
 				$supplier['type'] = $this->parse_supplytype($supplier['type']);
 				$potential_suppliers[$supplier['ssid']]['supplier'] = $supplier;
 			}
@@ -466,7 +465,7 @@ class Sourcing {
 		}
 
 		/* If user is not a sourcing agent, check his/her segements - START */
-		if($core->usergroup['sourcing_canManageEntries'] == 1) { // cid in activity area in countries for the affilt i work in
+		if($core->usergroup['sourcing_canManageEntries'] == 1) { 
 			/* check country if availabilty is no */
 			$activityarea_query = $db->query("SELECT ssaa.ssaid 
 												FROM ".Tprefix."sourcing_suppliers_activityareas ssaa

@@ -124,6 +124,15 @@ if(!$core->input['action']) {
 		$countries = get_specificdata('countries', array('coid', 'name'), 'coid', 'name', '');
 		$countries_list = parse_selectlist('contacthst[origin]', 8, $countries, '');
 		$product_segmentlist = parse_selectlist('contacthst[market]', 9, $supplier['segments'], ''); /* product segments (that the current supplier(loaded from the object) works in) */
+		$unit_measure = get_specificdata('uom', array('uomid', 'name'), 'uomid', 'name', '');
+			foreach($unit_measure as $key=>$unit) {
+				$selected='';
+				if($key ==4) { 
+					$selected = ' selected="selected"';
+				}
+				$uom .='<option value='.$key.''.$selected.'>'.$unit.'</option>';
+			}
+
 		$supplierid = $core->input['supplierid'];
 		$newsupplierid = $core->input['id'];
 		eval("\$reportcommunication_section = \"".$template->get('sourcing_potentialsupplierprofile_reportcommunication')."\";");
@@ -144,8 +153,8 @@ if(!$core->input['action']) {
 	eval("\$supplierprofile = \"".$template->get('sourcing_potentialsupplierprofile')."\";");
 	output_page($supplierprofile);
 }
-else {
-	if($core->input['action'] == 'do_contactsupplier') {
+else { echo 'asdfds';
+	if($core->input['action'] == 'do_contactsupplier') { 
 		$supplier_id = $db->escape_string($core->input['supplierid']);
 		$potential_supplier->contact_supplier($supplier_id);
 
@@ -153,10 +162,9 @@ else {
 	}
 	elseif($core->input['action'] == 'do_savecommunication') {
 		$newsupplierid = $db->escape_string($core->input['contacthst']['ssid']);
-		//$potential_supplier = new Sourcing($core->input['id']);
+		$potential_supplier = new Sourcing($core->input['id']);
 		/* system should check if user has  previous contactshistory */
-
-		//$potential_supplier->save_communication_report($core->input['contacthst'], $newsupplierid);
+		$potential_supplier->save_communication_report($core->input['contacthst'], $newsupplierid);
 		if(isset($core->input['contacthst']['orderpassed']) && $core->input['contacthst']['orderpassed'] == 1) {
 			$potential_supplier = new Sourcing($newsupplierid);
 			$potential_supplier->make_real_supplier($core->input['contacthst']['affid']);
