@@ -1,7 +1,7 @@
 <script src="http://maps.googleapis.com/maps/api/js?key={$this->api_key}&amp;sensor=false" type="text/javascript"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-	var places = new Array();
+	//var places = new Array();
 	var map;
 	{$places_script}
 
@@ -25,7 +25,14 @@ $(document).ready(function() {
 		var marker = new google.maps.Marker({
 					position: new google.maps.LatLng(place.lat, place.lng),
 					map: map,
-					title: place.title
+					title: place.title,
+					icon: {
+						path: google.maps.SymbolPath.CIRCLE,
+						scale: 2,
+						strokeOpacity: 0.5,
+						strokeColor: '#993300',
+						strokeWeight: 3
+				  	}	
 		});
 
 		if(place.hasInfoWindow == 1) {
@@ -37,8 +44,18 @@ $(document).ready(function() {
 	}
 
 	function parseMarkers() {
-		for(var i=0;i<places.length; i++) {
-			createMarker(map, places[i]);
+		for(var key in places) {
+			for(var key2 in places[key]) {
+				if(typeof places[key][key2].id == 'undefined') {
+					for(var key3 in places[key][key2]) {
+						createMarker(map, places[key][key2][key3]);
+					}
+				}
+				else
+				{
+					createMarker(map, places[key][key2]);
+				}
+			}
 		}
 	}
 
@@ -54,17 +71,23 @@ $(document).ready(function() {
 	}
 
 	function parsePolylines() {
-		var polyOptions = {
-			strokeColor: '#993300',
-			strokeOpacity: 0.5,
-			strokeWeight: 3
-		}
-
-		var poly = new google.maps.Polyline(polyOptions);
-		poly.setMap(map);
-
-		for(var i=0;i<places.length; i++) {
-			createPolyline(map, places[i], poly);
+		var poly = new Array();
+		
+		for(var key in places) {
+			poly[key] = new google.maps.Polyline({strokeColor: '#993300', strokeOpacity: 0.5, strokeWeight: 3});
+			poly[key].setMap(map);
+		
+			for(var key2 in places[key]) {
+				if(typeof places[key][key2].id == 'undefined') {
+					for(var key3 in places[key][key2]) {
+						createPolyline(map, places[key][key2][key3], poly[key]);
+					}
+				}
+				else
+				{
+					createPolyline(map, places[key][key2], poly[key]);
+				}
+			}
 		}
 	}
 
