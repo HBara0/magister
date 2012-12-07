@@ -6,6 +6,7 @@ $(document).ready(function() {
 	{$places_script}
 
 	function mapInitialize(overlayType) {
+                //alert("mapInitialize");
 		var myOptions = {
 			center: new google.maps.LatLng({$this->options[mapcenter]}),
 			zoom: {$this->options[zoom]},
@@ -22,6 +23,7 @@ $(document).ready(function() {
 	}
 
 	function createMarker(map, place) {
+                //alert("createMarker");
 		var marker = new google.maps.Marker({
 					position: new google.maps.LatLng(place.lat, place.lng),
 					map: map,
@@ -37,12 +39,14 @@ $(document).ready(function() {
 	}
 
 	function parseMarkers() {
+                //alert("parseMarker");
 		for(var i=0;i<places.length; i++) {
 			createMarker(map, places[i]);
 		}
 	}
 
 	function createPolyline(map, place, poly) {
+                //alert("createPolyline");
 		var position = new google.maps.LatLng(place.lat, place.lng);
 
 		var path = poly.getPath();
@@ -54,6 +58,7 @@ $(document).ready(function() {
 	}
 
 	function parsePolylines() {
+                //alert("parsePolylines");
 		var polyOptions = {
 			strokeColor: '#993300',
 			strokeOpacity: 0.5,
@@ -73,6 +78,7 @@ $(document).ready(function() {
 	var current_lng = '';
 	if(typeof navigator.geolocation != "undefined") {
 		function showLocation(position) {
+                        //alert("showLocation");
 			current_lat = position.coords.latitude;
 			current_lng = position.coords.longitude;
 

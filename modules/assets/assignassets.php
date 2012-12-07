@@ -99,10 +99,16 @@ $pagetitle = $lang->assignassetspage;
 $pagecontents = $assetedit.'<hr><br>'.$assetslist;
 eval("\$assetslist = \"".$template->get('assets_assets')."\";");
 echo $assetslist;
+
 function getAllUsers() {
 	global $db;
 	$result = array();
-	$query = 'SELECT uid,displayName FROM '.Tprefix.'users WHERE gid<>7';
+	$affiliateslist=getAffiliateList();
+	$affiliates=array();
+	foreach($affiliateslist as $key => $value) {
+		$affiliates[]=$key;
+	}
+	$query = 'SELECT DISTINCT(u.uid),displayName,affid FROM '.Tprefix.'users as u INNER JOIN affiliatedemployees as a ON (a.uid=u.uid) WHERE gid<>7 AND affid IN ('.implode(',',$affiliates).')';
 	$query = $db->query($query);
 	if($db->num_rows($query) > 0) {
 		while($row = $db->fetch_assoc($query)) {

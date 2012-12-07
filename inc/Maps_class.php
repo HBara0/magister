@@ -49,7 +49,14 @@ class Maps {
 			$i = 0;
 			foreach($this->places as $id => $place) {
 				list($latitude, $longitude) = explode(',', $place['geoLocation']);
-				$markers .= 'places['.$i.']={id:"'.$id.'", title:"'.$place['title'].'",otherinfo:"'.$place['otherinfo'].'",lat:'.$latitude.',lng:'.$longitude.',link:"'.$this->parse_link($place['type'], $id).'",hasInfoWindow:1};'."\n";
+				$markers .= 'places['.$i.']={
+									id:"'.$id.'",
+									title:"'.$place['title'].'",
+									otherinfo:"'.$place['otherinfo'].'",
+									lat:'.$latitude.',
+									lng:'.$longitude.',
+									link:"'.$this->parse_link($place['type'], $id).'",
+									hasInfoWindow:1};'."\n";
 				$i++;
 			}
 			return $markers;
