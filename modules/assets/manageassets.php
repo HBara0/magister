@@ -53,12 +53,30 @@ $assetslist = '<div id="assetslisting">
 
 if($db->num_rows($query) > 0) {
 	while($row = $db->fetch_assoc($query)) {
-		$assetslist.='<tr><td align="center">'.$row['asid'].'</td>';
-		$assetslist.='<td>'.get_name_from_id($row['affid'], $resolve['affid']['table'], $resolve['affid']['id'], $resolve['affid']['name']).'</td>';
-		$assetslist.='<td>'.$row["title"].'</td>';
-		$assetslist.='<td>'.$row["type"].'</td>';
-		$assetslist.='<td>'.$row["status"].'</td>';
-		$assetslist.='<form name="asset_edit" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/manageassets"><input type="hidden" name="e_affid" value="'.$row['affid'].'"/><input type="hidden" name="e_title" value="'.$row["title"].'"/><input type="hidden" name="e_type" value="'.$row["type"].'"/><input type="hidden" name="e_status" value="'.$row["status"].'"/><td align="center"><button type="submit" style="cursor:pointer;border: 0; background: transparent" name="edit_asset" value="'.$row['asid'].'" alt="Edit"><img src="'.DOMAIN.'/images/edit.gif"/></button></td></form>';
+		$assetslist.='<tr><td align="center" value="'.$row['asid'].'">'.$row['asid'].'</td>';
+		$assetslist.='<td value="'.$row['asid'].'">'.get_name_from_id($row['affid'], $resolve['affid']['table'], $resolve['affid']['id'], $resolve['affid']['name']).'</td>';
+		$assetslist.='<td value="'.$row['title'].'">'.$row["title"].'</td>';
+		$assetslist.='<td value="'.$row['type'].'">'.$row["type"].'</td>';
+		$assetslist.='<td value="'.$row['status'].'">'.$row["status"].'</td>';
+		$assetslist.='
+
+<td align="center">
+
+<button e_affid="$row["affid"]" e_title="$row["title"]" e_type="$row["type"]" e_status="$row["status"]" type="submit" style="cursor:pointer;border: 0; background: transparent" name="edit_asset" value="'.$row['asid'].'" alt="Edit" id="edit_entry_'.$row['asid'].'"><img src="'.DOMAIN.'/images/edit.gif"/></button>
+	</td>
+<script src="'.$core->settings["rootdir"].'/js/object_explorer.js" type="text/javascript"></script>
+<script>
+$(document).ready(function() {
+	$("[id^=edit_entry_]").click(function() {
+		z_jots.ShowDump($(this).parent().html);
+		//$(this).parent().parent().children("td").each(function() {});
+
+	});
+});
+
+
+</script>
+<!--</form>-->';
 		$assetslist.='<form name="asset_delete" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/manageassets">
 					<td align="center">
 					<button type="submit" style="cursor:pointer;border: 0; background: transparent" name="delete_asset" value="'.$row['asid'].'" alt="Edit"><img src="'.DOMAIN.'/images/invalid.gif"/></button>
