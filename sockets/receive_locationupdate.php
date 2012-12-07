@@ -108,6 +108,4 @@ while(true) {
 socket_set_nonblock($sock);
 socket_close($sock);
 
-
-/* */
 ?>

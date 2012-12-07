@@ -82,9 +82,13 @@ class Asset {
 	}
 
 	public function getAllAssets() {
-		global $db;
+		global $db,$core;
 		$result = array();
-		$query = 'SELECT asid,title FROM '.Tprefix.'assets';
+		$affiliates=array();
+		foreach(getAffiliateList() as $key=>$value) {
+			$affiliates[]=$key;
+		}
+		$query = 'SELECT asid,title FROM '.Tprefix.'assets WHERE affid IN ('.implode(',',$affiliates).')';
 		$query = $db->query($query);
 		if($db->num_rows($query) > 0) {
 			while($row = $db->fetch_assoc($query)) {
