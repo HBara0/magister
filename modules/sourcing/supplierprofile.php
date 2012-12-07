@@ -81,11 +81,12 @@ if(!$core->input['action']) {
 	}
 
 	$supplier['contactdetails']['fax'] = '+'.$supplier['contactdetails']['fax'];
+	/*if no contact history made with the user for  the supplier and he is not Sourcing Agent */
 	if(!value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid']) && $core->usergroup['sourcing_canManageEntries'] == 0) {
 		$can_seecontactinfo = false;
 		/* Hash values */
-
-		$hashed_attributes = array('fulladress' => $supplier['contactdetails']['fulladress'], 'phones' => $supplier['contactdetails']['phones'], 'poBox' => $supplier['contactdetails']['poBox'], 'fax' => $supplier['contactdetails']['fax'], 'mainEmail' => $supplier['contactdetails']['mainEmail'], 'website' => $supplier['contactdetails']['website'], 'contact' => $contact_person['name']);
+		;
+		$hashed_attributes = array('fulladress' => $supplier['contactdetails']['fulladress'], 'phones' => $supplier['contactdetails']['phones'],'city'=>$supplier['contactdetails']['city'] ,'postCode'=>$supplier['contactdetails']['postCode'] ,'country'=>$supplier['contactdetails']['country'],'poBox' => $supplier['contactdetails']['poBox'], 'fax' => $supplier['contactdetails']['fax'], 'mainEmail' => $supplier['contactdetails']['mainEmail'], 'website' => $supplier['contactdetails']['website'], 'contact' => $contact_person['name']);
 		foreach($hashed_attributes as $key => $hashedvalue) {
 			$supplier['contactdetails'][$key] = md5($supplier['contactdetails'][$key]);
 		}
