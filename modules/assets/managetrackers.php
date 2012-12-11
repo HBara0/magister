@@ -37,7 +37,41 @@ if(isset($core->input['delete_tracker'])) {
 $resolve = array('asid' => array('table' => 'assets', 'id' => 'asid', 'name' => 'title'));
 $query = 'SELECT * FROM '.Tprefix.'assets_trackingdevices';
 $query = $db->query($query);
-$assetslist = '<div id="trackerslisting">
+$assetslist = '
+<script>
+$(document).ready(function() {
+	$("form[name=tracker_delete]").submit(function(){
+		if (confirm("Delete tracker?")) {
+			return true;
+		} else {
+			return false;
+		}
+	});
+	$("[id^=edit_entry_]").click(function() {
+		$(this).parent().parent().children("td").each(function() {
+			switch($(this).attr("name")) {
+				case "atdid":
+					$("#atdid").val($(this).attr("value"));
+					break;
+				case "deviceId":
+					$("#deviceId").val($(this).attr("value"));
+					break;
+				case "asid":
+					$("#asid").val($(this).attr("value"));
+					break;
+				case "fromDate":
+					$("#pickDateFrom").val($(this).attr("value"));
+					break;
+				case "toDate":
+					$("#pickDateTo").val($(this).attr("value"));
+					break;
+			}
+		});
+	});
+});
+</script>
+
+	<div id="trackerslisting">
 	<table cellspacing=0 cellpadding=4 border=1  width="100%"><tr bgcolor="#91B64F">
 	<th>'.$lang->atdid.'</th>
 	<th>'.$lang->deviceid.'</th>
@@ -49,21 +83,16 @@ $assetslist = '<div id="trackerslisting">
 
 if($db->num_rows($query) > 0) {
 	while($row = $db->fetch_assoc($query)) {
-		$assetslist.='<tr><td align="center">'.$row['atdid'].'</td>';
-		$assetslist.='<td>'.$row['deviceId'].'</td>';
-		$assetslist.='<td>'.get_name_from_id($row["asid"], $resolve['asid']['table'], $resolve['asid']['id'], $resolve['asid']['name']).'</td>';
-		$assetslist.='<td>'.date('F d, Y', $row["fromDate"]).'</td>';
-		$assetslist.='<td>'.date('F d, Y', $row["toDate"]).'</td>';
-		$assetslist.='<form name="tracker_edit" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/managetrackers">
-			<input type="hidden" name="e_atdid" value="'.$row['atdid'].'"/>
-			<input type="hidden" name="e_deviceid" value="'.$row["deviceId"].'"/>
-			<input type="hidden" name="e_asid" value="'.$row["asid"].'"/>
-			<input type="hidden" name="e_fromdate" value="'.$row["fromDate"].'"/>
-			<input type="hidden" name="e_todate" value="'.$row["toDate"].'"/><td align="center"><button type="submit" style="cursor:pointer;border: 0; background: transparent" name="edit_tracker" value="'.$row['atdid'].'" alt="Edit"><img src="'.DOMAIN.'/images/edit.gif"/></button></td></form>';
+		$assetslist.='<tr><td align="center" name="atdid" value="'.$row['atdid'].'">'.$row['atdid'].'</td>';
+		$assetslist.='<td name="deviceId" value="'.$row['deviceId'].'">'.$row['deviceId'].'</td>';
+		$assetslist.='<td name="asid" value="'.$row['asid'].'">'.get_name_from_id($row["asid"], $resolve['asid']['table'], $resolve['asid']['id'], $resolve['asid']['name']).'</td>';
+		$assetslist.='<td name="fromDate" value="'.date('F d, Y', $row["fromDate"]).'">'.date('F d, Y', $row["fromDate"]).'</td>';
+		$assetslist.='<td name="toDate" value="'.date('F d, Y', $row["toDate"]).'">'.date('F d, Y', $row["toDate"]).'</td>';
+		$assetslist.='<td align="center" name="edit" value="">
+						<button id="edit_entry_'.$row['atdid'].'" type="submit" style="cursor:pointer;border: 0; background: transparent" name="edit_tracker" value="'.$row['atdid'].'" alt="Edit"><img src="'.DOMAIN.'/images/edit.gif"/></button></td>';
 		$assetslist.='<form name="tracker_delete" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/managetrackers">
-					<td align="center">
-					<button type="submit" style="cursor:pointer;border: 0; background: transparent" name="delete_tracker" value="'.$row['atdid'].'" alt="Edit"><img src="'.DOMAIN.'/images/invalid.gif"/></button>
-					</td><tr></form>';
+					<td align="center" name="delete" value="">
+					<button type="submit" id="button_delete_'.$row['atdid'].'" style="cursor:pointer;border: 0; background: transparent" name="delete_tracker" value="'.$row['atdid'].'" alt="Edit"><img src="'.DOMAIN.'/images/invalid.gif"/></button></td><tr></form>';
 
 	}
 	$assetslist.='</table></div>';
@@ -74,26 +103,16 @@ else {
 
 
 
-if(isset($core->input['edit_tracker'])) {
+
 	$assetedit = '<form name="asset_save" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/managetrackers">
-	<input type="hidden" name="atdid" value="'.$core->input['e_atdid'].'"/>
+	<input type="hidden" id="atdid" name="atdid" />
 	<table cellspacing=5 cellpadding=4 border=0>
-	<tr><td>'.$lang->deviceid.'</td><td><input type="text" name="deviceId" value="'.$core->input['e_deviceid'].'"/></td></tr>
-	<tr><td>'.$lang->asid.'</td><td>'.parse_selectlist('asid', 2, getAssetsList(), $core->input['e_asid']).'</td></tr>
-	<tr><td>'.$lang->from.'</td><td><input type="text" name="fromDate" tabindex="3" id="pickDateFrom" value="'.date('F d, Y', $core->input['e_fromdate']).'"/></td></tr>
-	<tr><td>'.$lang->to.'</td><td><input type="text" name="toDate" tabindex="4" id="pickDateTo" value="'.date('F d, Y', $core->input['e_todate']).'"/></td></tr>
-	<td colspan=2><input type="submit" name="savetracker" value="Save" tabindex="5"/></tr></td></table></form>';
-}
-else {
-	$assetedit = '<form name="asset_save" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/managetrackers">
-	<input type="hidden" name="asid" />
-	<table cellspacing=5 cellpadding=4 border=0>
-	<tr><td>'.$lang->deviceid.'</td><td><input type="text" name="deviceId" tabindex="1"/></td></tr>
+	<tr><td>'.$lang->deviceid.'</td><td><input id="deviceId" type="text" name="deviceId" tabindex="1"/></td></tr>
 	<tr><td>'.$lang->asid.'</td><td>'.parse_selectlist('asid', 2, getAssetsList(), '').'</td></tr>
 	<tr><td>'.$lang->from.'</td><td><input type="text" name="fromDate" id="pickDateFrom" tabindex="3"/></td></tr>
 	<tr><td>'.$lang->to.'</td><td><input type="text" name="toDate" id="pickDateTo" tabindex="4"/></td></tr>
 	<td colspan=2><input type="submit" name="savetracker" value="Save" tabindex="5"/></tr></td></table></form>';
-}
+
 
 $pagetitle = $lang->trackersmanagepage;
 $pagecontents = $assetedit.'<hr><br>'.$assetslist;

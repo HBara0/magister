@@ -39,7 +39,40 @@ $resolve = array(
 );
 $query = 'SELECT * FROM '.Tprefix.' assets_users';
 $query = $db->query($query);
-$assetslist = '<div id="assetslisting">
+$assetslist = '
+<script>
+$(document).ready(function() {
+	$("form[name=assignedasset_delete]").submit(function(){
+		if (confirm("Delete asset assignment?")) {
+			return true;
+		} else {
+			return false;
+		}
+	});
+	$("[id^=edit_entry_]").click(function() {
+		$(this).parent().parent().children("td").each(function() {
+				switch($(this).attr("name")) {
+					case "uid":
+						$("#uid").val($(this).attr("value"));
+						break;
+					case "asid":
+						$("#asid").val($(this).attr("value"));
+						break;
+					case "fromdate":
+						$("#pickDateFrom").val($(this).attr("value"));
+						break;
+					case "todate":
+						$("#pickDateTo").val($(this).attr("value"));
+						break;
+					case "auid":
+						$("#auid").val($(this).attr("value"));
+						break;
+					}
+		});
+	});
+});
+</script>
+	<div id="assetslisting">
 	<table cellspacing=0 cellpadding=4 border=1 width="100%"><tr bgcolor="#91B64F">
 	<th>'.$lang->auid.'</th>
 	<th>'.$lang->uid.'</th>
@@ -49,23 +82,17 @@ $assetslist = '<div id="assetslisting">
 	<th>'.$lang->edit.'</td>
 	<th>'.$lang->delete.'</th></tr>';
 
-
-//echo '<pre>'.print_r($core->input, true).'</pre>';
 if($db->num_rows($query) > 0) {
 	while($row = $db->fetch_assoc($query)) {
-		$assetslist.='<tr><td align="center">'.$row['auid'].'</td>';
-		$assetslist.='<td>'.get_name_from_id($row['uid'], $resolve['uid']['table'], $resolve['uid']['id'], $resolve['uid']['name']).'</td>';
-		$assetslist.='<td>'.get_name_from_id($row["asid"], $resolve['asid']['table'], $resolve['asid']['id'], $resolve['asid']['name']).'</td>';
-		$assetslist.='<td>'.date('F d, Y', $row["fromDate"]).'</td>';
-		$assetslist.='<td>'.date('F d, Y', $row["toDate"]).'</td>';
-		$assetslist.='<form name="asset_assign" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/assignassets">
-			<input type="hidden" name="e_uid" value="'.$row['uid'].'"/>
-			<input type="hidden" name="e_asid" value="'.$row["asid"].'"/>
-			<input type="hidden" name="e_dateFrom" value="'.$row["fromDate"].'"/>
-			<input type="hidden" name="e_dateTo" value="'.$row["toDate"].'"/><td align="center"><button type="submit" style="cursor:pointer;border: 0; background: transparent" name="edit_asset_assign" value="'.$row['auid'].'" alt="Edit"><img src="'.DOMAIN.'/images/edit.gif"/></button></td></form>';
+		$assetslist.='<tr><td align="center" name="auid" value="'.$row['auid'].'">'.$row['auid'].'</td>';
+		$assetslist.='<td name="uid" value="'.$row['uid'].'">'.get_name_from_id($row['uid'], $resolve['uid']['table'], $resolve['uid']['id'], $resolve['uid']['name']).'</td>';
+		$assetslist.='<td name="asid" value="'.$row["asid"].'">'.get_name_from_id($row["asid"], $resolve['asid']['table'], $resolve['asid']['id'], $resolve['asid']['name']).'</td>';
+		$assetslist.='<td name="fromdate" value="'.date('F d, Y', $row["fromDate"]).'">'.date('F d, Y', $row["fromDate"]).'</td>';
+		$assetslist.='<td name="todate" value="'.date('F d, Y', $row["toDate"]).'">'.date('F d, Y', $row["toDate"]).'</td>';
+		$assetslist.='<td align="center" name="edit" value=""><button id="edit_entry_'.$row['auid'].'" type="submit" style="cursor:pointer;border: 0; background: transparent" name="edit_asset_assign" value="'.$row['auid'].'" alt="Edit"><img src="'.DOMAIN.'/images/edit.gif"/></button></td>';
 		$assetslist.='<form name="assignedasset_delete" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/assignassets">
-					<td align="center">
-					<button type="submit" style="cursor:pointer;border: 0; background: transparent" name="delete_assignedasset" value="'.$row['auid'].'" alt="Edit"><img src="'.DOMAIN.'/images/invalid.gif"/></button>
+					<td align="center" name="delete" value="">
+					<button type="submit" id="button_delete_'.$row['auid'].'" style="cursor:pointer;border: 0; background: transparent" name="delete_assignedasset" value="'.$row['auid'].'" alt="Edit"><img src="'.DOMAIN.'/images/invalid.gif"/></button>
 					</td></form></tr>';
 	}
 	$assetslist.='</table></div>';
@@ -76,7 +103,7 @@ else {
 
 if(isset($core->input['edit_asset_assign'])) {
 	$assetedit = '<form name="asset_assign" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/assignassets">
-	<input type="hidden" name="auid" value="'.$core->input['edit_asset_assign'].'"/>
+	<input type="hidden" id="auid" name="auid" value="'.$core->input['edit_asset_assign'].'"/>
 	<table cellspacing=5 cellpadding=4 border=0>
 	<tr><td>'.$lang->uid.'</td><td>'.parse_selectlist('uid', 1, getAllUsers(), $core->input['e_uid']).'</td></tr>
 	<tr><td>'.$lang->asid.'</td><td>'.parse_selectlist('asid', 2, Asset::getAllAssets(), $core->input['e_asid']).'</td></tr>
@@ -86,7 +113,7 @@ if(isset($core->input['edit_asset_assign'])) {
 }
 else {
 	$assetedit = '<form name="asset_save" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/assignassets">
-	<input type="hidden" name="asid" />
+	<input type="hidden" id="auid" name="auid" />
 	<table cellspacing=5 cellpadding=4 border=0>
 	<tr><td>'.$lang->uid.'</td><td>'.parse_selectlist('uid', 1, getAllUsers(), array()).'</td></tr>
 	<tr><td>'.$lang->asid.'</td><td>'.parse_selectlist('asid', 2, Asset::getAllAssets(), array()).'</td></tr>

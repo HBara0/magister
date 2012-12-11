@@ -127,7 +127,12 @@ class Asset {
 
 	public function get_data_for_assets($asset_ids, $from = null, $to = null,$limit='All') {
 		global $db;
-		$query = 'SELECT alid,asid,X(location) as latitude, Y(location) as longitude,timeLine,deviceId,speed,direction,antenna,fuel,vehiclestate,otherstate,displayName FROM '.Tprefix.'assets_locations WHERE asid IN ('.implode(',', $asset_ids).')';
+		if (is_array($asset_ids)) {
+			$query = 'SELECT alid,asid,X(location) as latitude, Y(location) as longitude,timeLine,deviceId,speed,direction,antenna,fuel,vehiclestate,otherstate,displayName FROM '.Tprefix.'assets_locations WHERE asid IN ('.implode(',', $asset_ids).')';
+		} else {
+			return null;
+		}
+
 
 		if(isset($from)) {
 			$query .= ' AND timeLine>'.$from;
@@ -270,8 +275,9 @@ class Asset {
 				}
 			}
 			$options['overlaytype'] = 'parsePolylines';
+			//echo '<pre>'.print_r($markers).'</pre>';
 			$map = new Maps($markers, $options);
-			$map_view = $map->get_map(300, 200);
+			$map_view = $map->get_map(500, 400);
 			return $map_view;
 		}
 		else {

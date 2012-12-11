@@ -35,4 +35,7 @@ $lang['vehiclestate'] = 'State1';
 $lang['otherstate'] = 'State2';
 $lang['displayName'] = 'Street';
 
+$lang['date']='Date';
+$lang['hours']='Hours';
+$lang['minutes']='Minutes';
 ?>
