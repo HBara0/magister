@@ -38,4 +38,5 @@ $lang['displayName'] = 'Street';
 $lang['date']='Date';
 $lang['hours']='Hours';
 $lang['minutes']='Minutes';
+$lang['description']="Description";
 ?>

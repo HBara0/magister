@@ -47,8 +47,11 @@ class Asset {
 	}
 
 	public function delete_asset($id) {
-		global $db;
-		$db->query('delete from '.Tprefix.'assets where asid='.$id);
+		global $db,$core;
+		if($core->usergroup['assets_canDeleteAsset'] == 1) {
+			echo 'deleted asset '.$id.'<br>';
+			//$db->query('delete from '.Tprefix.'assets where asid='.$id);
+		}
 	}
 
 	public function edit_tracker($id, $tracker) {
@@ -62,8 +65,18 @@ class Asset {
 	}
 
 	public function delete_tracker($id) {
-		global $db;
-		$db->query('delete from '.Tprefix.'assets_trackingdevices where atdid='.$id);
+		global $db, $core;
+		if($core->usergroup['assets_canDeleteTracker'] == 1) {
+			$result = $db->query('select atdid,asid,fromDate,toDate from '.Tprefix.'assets_trackingdevices where atdid='.$id);
+			if($db->num_rows($result) > 0) {
+				if($row = $db->fetch_assoc($result)) {
+					if (TIME_NOW>$row['toDate']) {
+						echo 'deleted tracker '.$id.'<br>';
+						//$db->query('delete from '.Tprefix.'assets_trackingdevices where atdid='.$id);
+					}
+				}
+			}
+		}
 	}
 
 	public function edit_assignedasset($id, $assigned) {
@@ -77,18 +90,21 @@ class Asset {
 	}
 
 	public function delete_assignedasset($id) {
-		global $db;
-		$db->query('delete from '.Tprefix.'assets_users where auid='.$id);
+		global $db,$core;
+		if($core->usergroup['assets_canDeleteAssignement'] == 1) {
+			echo 'deleted assignement '.$id.'<br>';
+			//$db->query('delete from '.Tprefix.'assets_users where auid='.$id);
+		}
 	}
 
 	public function getAllAssets() {
-		global $db,$core;
+		global $db, $core;
 		$result = array();
-		$affiliates=array();
-		foreach(getAffiliateList() as $key=>$value) {
-			$affiliates[]=$key;
+		$affiliates = array();
+		foreach(getAffiliateList() as $key => $value) {
+			$affiliates[] = $key;
 		}
-		$query = 'SELECT asid,title FROM '.Tprefix.'assets WHERE affid IN ('.implode(',',$affiliates).')';
+		$query = 'SELECT asid,title FROM '.Tprefix.'assets WHERE affid IN ('.implode(',', $affiliates).')';
 		$query = $db->query($query);
 		if($db->num_rows($query) > 0) {
 			while($row = $db->fetch_assoc($query)) {
@@ -125,11 +141,12 @@ class Asset {
 		return $loc;
 	}
 
-	public function get_data_for_assets($asset_ids, $from = null, $to = null,$limit='All') {
+	public function get_data_for_assets($asset_ids, $from = null, $to = null, $limit = 'All') {
 		global $db;
-		if (is_array($asset_ids)) {
+		if(is_array($asset_ids)) {
 			$query = 'SELECT alid,asid,X(location) as latitude, Y(location) as longitude,timeLine,deviceId,speed,direction,antenna,fuel,vehiclestate,otherstate,displayName FROM '.Tprefix.'assets_locations WHERE asid IN ('.implode(',', $asset_ids).')';
-		} else {
+		}
+		else {
 			return null;
 		}
 
@@ -140,7 +157,7 @@ class Asset {
 		if(isset($to)) {
 			$query .= ' AND timeLine<'.$to;
 		}
-		if ($limit!='All') {
+		if($limit != 'All') {
 			$query .= ' LIMIT 0,'.$limit;
 		}
 
@@ -159,11 +176,12 @@ class Asset {
 		return $loc;
 	}
 
-	public function get_data($limit='All') {
+	public function get_data($limit = 'All') {
 		global $db;
-		if ($count=='All') {
+		if($count == 'All') {
 			$query = 'SELECT alid,asid,X(location) as latitude, Y(location) as longitude,timeLine,deviceId,speed,direction,antenna,fuel,vehiclestate,otherstate,displayName FROM '.Tprefix.'assets_locations WHERE asid='.$this->my_asid.' ORDER BY timeLine DESC';
-		} else {
+		}
+		else {
 			$query = 'SELECT alid,asid,X(location) as latitude, Y(location) as longitude,timeLine,deviceId,speed,direction,antenna,fuel,vehiclestate,otherstate,displayName FROM '.Tprefix.'assets_locations WHERE asid='.$this->my_asid.' ORDER BY timeLine DESC Limit 0,'.$count;
 		}
 
@@ -182,14 +200,14 @@ class Asset {
 		return $loc;
 	}
 
-	public function get_data_for_users($users_ids, $from = 0, $to = TIME_NOW,$limit='All') {
+	public function get_data_for_users($users_ids, $from = 0, $to = TIME_NOW, $limit = 'All') {
 		global $db;
 		$tgt = array();
 		$query = 'SELECT * FROM '.Tprefix.'assets_users WHERE uid IN ('.implode($users_ids, ',').')';
 		if(isset($from) AND isset($to)) {
 			$query .= ' AND (toDate>'.$from.' AND fromDate<'.$to.')';
 		}
-		if ($limit!='All') {
+		if($limit != 'All') {
 			$query .= ' LIMIT 0,'.$limit;
 		}
 		$query2 = $db->query($query);
@@ -227,7 +245,7 @@ class Asset {
 		return $loc;
 	}
 
-	public function update_location($id,$data) {
+	public function update_location($id, $data) {
 		global $db;
 		$data['location'] = $data['latitude'].' '.$data['longitude'];
 		unset($data['latitude']);
@@ -236,7 +254,7 @@ class Asset {
 
 		$options['geoLocation'] = array('location');
 
-		$db->update_query('assets_locations', $data, 'alid='.$id,$options);
+		$db->update_query('assets_locations', $data, 'alid='.$id, $options);
 	}
 
 	public function record_location($data) {
@@ -284,5 +302,6 @@ class Asset {
 			return "";
 		}
 	}
+
 }
 ?>

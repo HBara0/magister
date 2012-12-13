@@ -70,11 +70,9 @@ $pagecontents = '<form name="assets_filter" enctype="multipart/form-data" method
 				 <tr><td colspan = 4><input type = "submit" name = "filter_assets" value = "Filter" tabindex = "3"/></tr></tr></table></form>';
 //echo '<pre>'.print_r($core->input,true)."\n\n\n".print_r(array('from'=>date('Y-m-d h:i',$from),'to'=>date('Y-m-d h:i',$to),'fromstamp'=>$from,'tostamp'=>$to),true).'</pre>';
 if($core->input['action'] == 'map') {
-
 	$core->input['asid'];
 	$core->input['fromDate'];
 	$core->input['toDate'];
-
 	$pagetitle = $lang->assetstrackmap;
 	$asset = new Asset();
 	$data = $asset->get_data_for_assets($selected_options,$from,$to);
@@ -131,6 +129,7 @@ function get_first($foo) {
 		}
 	}
 }
+
 function turn_to_keys($foo) {
 	$new=array();
 	foreach ($foo as $key=>$value) {

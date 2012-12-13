@@ -1374,4 +1374,76 @@ function getAffiliateList($idsonly = false) {
 	return $affiliates;
 }
 
+function encapsulate_in_fieldset($html, $legend = "+", $boolStartClosed = false) {
+	//log_performance(__METHOD__);
+
+	$id = md5(rand(9, 99999).time());
+
+	$start_js_val = 1;
+	$fsstate = "open";
+	$content_style = "";
+
+	if($boolStartClosed) {
+		$start_js_val = 0;
+		$fsstate = "closed";
+		$content_style = "display: none;";
+	}
+
+	$js = "<script type='text/javascript'>
+
+  var fieldset_state_$id = $start_js_val;
+
+  function toggle_fieldset_$id() {
+
+    var content = document.getElementById('content_$id');
+    var fs = document.getElementById('fs_$id');
+
+    if (fieldset_state_$id == 1) {
+      // Already open.  Let's close it.
+      fieldset_state_$id = 0;
+      content.style.display = 'none';
+      fs.className = 'c-fieldset-closed-$id'+' collapsible_fieldset';
+    }
+    else {
+      // Was closed.  let's open it.
+      fieldset_state_$id = 1;
+      content.style.display = '';
+      fs.className = 'c-fieldset-open-$id'+' collapsible_fieldset';
+    }
+  }
+  function expand_fieldset_$id() {
+	  var content = document.getElementById('content_$id');
+	  var fs = document.getElementById('fs_$id');
+      fieldset_state_$id = 1;
+      content.style.display = '';
+      fs.className = 'c-fieldset-open-$id'+' collapsible_fieldset';
+  }
+  </script><noscript><b>This page contains collapsible fieldsets which require Javascript to function properly.</b></noscript>";
+
+	$rtn = "
+    <fieldset class='c-fieldset-$fsstate-$id collapsible_fieldset' id='fs_$id'>
+      <legend><a href='javascript: toggle_fieldset_$id();'>$legend</a></legend>
+      <div id='content_$id' style='$content_style'>
+        $html
+      </div>
+    </fieldset>
+    $js
+
+  <style>
+  fieldset.c-fieldset-open-$id {
+    border: 1px solid;
+  }
+
+  fieldset.c-fieldset-closed-$id {
+    border: 2px solid;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+  }
+  </style>
+
+  ";
+	return $rtn;
+}
+
 ?>
