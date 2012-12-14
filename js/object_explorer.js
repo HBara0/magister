@@ -257,7 +257,7 @@ ExtendPage: function()
 SelfDump: function()
 {
     this.ExtendPage();
-    this.ShowDump('document');
+    this.ShowDump('window');
     var version_view = document.getElementById('js_debug_version');
     if ( version_view ) version_view.innerHTML = this.Version();
     /* this function returns before the document in js_debug_tdoc iframe is loaded */
