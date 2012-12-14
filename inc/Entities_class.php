@@ -326,7 +326,7 @@ class Entities {
 			exit;
 		}
 
-		$count = $db->fetch_field($db->query("SELECT COUNT(*) AS existing FROM ".Tprefix."representatives WHERE name='".$db->escape_string($this->data['repName'])."'"), "existing");
+		$count = $db->fetch_field($db->query("SELECT COUNT(*) AS existing FROM ".Tprefix."representatives WHERE name='".$db->escape_string($this->data['repName'])."' AND email ='".$db->escape_string($this->data['repEmail'])."' "), "existing");
 		if($count > 0) {
 			output_xml("<status>false</status><message>{$lang->representativeexists}</message>");
 			exit;
