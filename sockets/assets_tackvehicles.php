@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2012 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Receive & Store tracking information
  * $id: assets_tackvehicles.php
  * Created:        @zaher.reda    Dec 7, 2012 | 2:36:34 PM
@@ -29,19 +29,18 @@ echo ' Server Initalized...'."\n";
 socket_listen($socket);
 echo ' Server is now listening...'."\n";
 //$fh = fopen('socketdata.txt', 'w');
-		
+
 while(true) {
 	$read = array();
 	$read[0] = $socket;
-
 	for($i = 0; $i < $config['max_clients']; $i++) {
 		if($client[$i]['socket'] != null) {
 			$read[$i + 1] = $client[$i]['socket'];
-		}	
+		}
 	}
 
 	$ready = socket_select($read, $write, $except, null);
-	
+
 	if(in_array($socket, $read)) {
 		for($i = 0; $i < $config['max_clients']; $i++) {
 			if($client[$i]['socket'] == null) {
@@ -52,7 +51,6 @@ while(true) {
 				echo 'Error: too many clients';
 			}
 		}
-
 		if(--$ready <= 0) {
 			continue;
 		}
@@ -75,13 +73,11 @@ while(true) {
 				unset($client[$i]['socket']);
 			}
 			else {
-				if($client[$i]['socket'] != null) { 
+				if($client[$i]['socket'] != null) {
 					if(!empty($data)) {
 						//fwrite($fh, $data."\n");
-						
 						/* Convert incoming binary into Hex */
 						$hex_input = str_split(bin2hex($data), 2);
-						
 						/* Respond to the request with handshake reply */
 						socket_write($client[$i]['socket'], hex2bin('2929210005'.$hex_input[10].$hex_input[2].'000D'));
 					}
@@ -89,7 +85,7 @@ while(true) {
 			}
 		}
 		else {
-			if($client[$i]['socket'] != null) { 
+			if($client[$i]['socket'] != null) {
 				socket_close($client[$i]['socket']);
 				unset($client[$i]['socket']);
 			}
