@@ -7,7 +7,7 @@
  * $module: Sourcing
  * $id:  listchemcialsrequests.php	
  * Created By: 		@tony.assaad		November 15, 2012 | 3:30 PM
- * Last Update: 	@tony.assaad		November 19, 2012 | 9:13 AM
+ * Last Update: 	@tony.assaad		December 07, 2012 | 9:13 AM
  */
 
 if(!defined('DIRECT_ACCESS')) {
@@ -60,18 +60,23 @@ else {
 			eval("\$sourcingfeedback = \"".$template->get('popup_sourcing_feedback')."\";");
 		}
 		output_page($sourcingfeedback);
-		/*header('Content-type: text/html+javascript');
-		'$("#popup_feedback").bind("clickoutside",function(){
-								$("#popup_feedback").dialog("close");
-								});';
-		exit;*/
+		/* header('Content-type: text/html+javascript');
+		  '$("#popup_feedback").bind("clickoutside",function(){
+		  $("#popup_feedback").dialog("close");
+		  });';
+		  exit; */
 	}
 	elseif($core->input['action'] == 'do_feedback') {
 		$potential_supplier = new Sourcing();
 		$request_id = $db->escape_string($core->input['request']['rid']);
-		$requests_feedback = $potential_supplier->set_feedback($core->input['feedback'], $request_id);
+		$sourcingagent_name = $db->fetch_assoc($db->query("SELECT  u.displayName AS agentname
+										FROM ".Tprefix."sourcing_chemicalrequests scr
+										JOIN ".Tprefix."users u ON (u.uid = scr.feedbackBy) WHERE scr.scrid=".$request_id));
 
-		$requester_details = $db->fetch_assoc($db->query("SELECT scr.*, u.displayName, u.email
+		$requests_feedback = $potential_supplier->set_feedback($core->input['feedback'], $request_id);
+		$lang = new Language('english');
+		$lang->load('messages');
+		$requester_details = $db->fetch_assoc($db->query("SELECT scr.isClosed, u.displayName, u.email
 										FROM ".Tprefix."sourcing_chemicalrequests scr
 										JOIN ".Tprefix."users u ON (u.uid = scr.uid) WHERE scr.scrid=".$request_id));
 
@@ -82,7 +87,7 @@ else {
 					'to' => $requester_details['email'],
 					'from_email' => 'sourcing@orkila.com',
 					'from' => 'OCOS Mailer',
-					'subject' => $lang->feedbacknotification_subject,
+					'subject' => $lang->sprint($lang->feedbacknotification_subject, $sourcingagent_name['agentname']),
 					'message' => $core->input['feedback']['feedback']
 			);
 
