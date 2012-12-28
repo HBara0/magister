@@ -96,7 +96,8 @@ else {
 			case 10:
 				if($requester_details['isClosed'] == 1) { 
 					header('Content-type: text/xml+javascript');  /* colorate each selected <tr> has applicant id  after successfull update */
-					output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script> $("tr[id^='.$request_id.']").each(function() {$(this).addClass("greenbackground");}); $("#popup_feedback").dialog("close");</script>]]></message>');
+					output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script> $("tr[id^='.$request_id.']").each(function() {$(this).addClass("greenbackground"); $(this).find("img").attr("src","./images/valid.gif") }); $("#popup_feedback").dialog("close");</script>]]></message>');
+				
 					break;
 				}
 				case 1:
