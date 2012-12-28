@@ -7,7 +7,7 @@
  * $module: Sourcing
  * $id:  listchemcialsrequests.php	
  * Created By: 		@tony.assaad		November 15, 2012 | 3:30 PM
- * Last Update: 	@tony.assaad		December 07, 2012 | 9:13 AM
+ * Last Update: 	@tony.assaad		November 19, 2012 | 9:13 AM
  */
 
 if(!defined('DIRECT_ACCESS')) {
@@ -72,17 +72,12 @@ else {
 		$sourcingagent_name = $db->fetch_assoc($db->query("SELECT  u.displayName AS agentname
 										FROM ".Tprefix."sourcing_chemicalrequests scr
 										JOIN ".Tprefix."users u ON (u.uid = scr.feedbackBy) WHERE scr.scrid=".$request_id));
-
 		$requests_feedback = $potential_supplier->set_feedback($core->input['feedback'], $request_id);
-		$lang = new Language('english');
-		$lang->load('messages');
-		$requester_details = $db->fetch_assoc($db->query("SELECT scr.isClosed, u.displayName, u.email
+		$requester_details = $db->fetch_assoc($db->query("SELECT scr.*, u.displayName, u.email
 										FROM ".Tprefix."sourcing_chemicalrequests scr
 										JOIN ".Tprefix."users u ON (u.uid = scr.uid) WHERE scr.scrid=".$request_id));
 
 		if($requests_feedback && $requester_details['isClosed'] == 1) {
-
-
 			$email_data = array(
 					'to' => $requester_details['email'],
 					'from_email' => 'sourcing@orkila.com',
@@ -98,14 +93,13 @@ else {
 		}
 
 		switch($potential_supplier->get_status()) {
-			case 0:
-				if($requester_details['isClosed'] == 1) {
+			case 10:
+				if($requester_details['isClosed'] == 1) { 
 					header('Content-type: text/xml+javascript');  /* colorate each selected <tr> has applicant id  after successfull update */
 					output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script> $("tr[id^='.$request_id.']").each(function() {$(this).addClass("greenbackground");}); $("#popup_feedback").dialog("close");</script>]]></message>');
-					exit;
+					break;
 				}
-
-			case 1:
+				case 1:
 				output_xml("<status>false</status><message>{$lang->fieldrequired}</message>");
 				break;
 			case 2:

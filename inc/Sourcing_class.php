@@ -598,7 +598,7 @@ class Sourcing {
 		return false;
 	}
 
-	public function set_feedback($data, $request_id = '') {
+public function set_feedback($data, $request_id = '') {
 		global $db, $core;
 		if(is_empty($data['feedback'])) {
 			$this->status = 1;
@@ -607,7 +607,7 @@ class Sourcing {
 
 		$data['feedback'] = $core->sanitize_inputs($data['feedback'], array('removetags' => true));
 
-		if(value_exists('sourcing_chemicalrequests', 'feedback', $data['feedback'], 'isClosed='.intval($data['isClosed']))) {
+		if(value_exists('sourcing_chemicalrequests', 'feedback', $data['feedback'])) {
 			$this->status = 2;
 			return false;
 		}
@@ -620,7 +620,7 @@ class Sourcing {
 
 		$update_query = $db->update_query('sourcing_chemicalrequests', $feedback_data, 'scrid='.intval($request_id));
 		if($update_query) {
-			$this->status = 0;
+			$this->status = 10;
 			return true;
 		}
 		else {
@@ -726,7 +726,7 @@ class Sourcing {
 		);
 		$query = $db->insert_query('chemicalsubstances', $chemical_data);
 		if($query) {
-			$this->status = 0;
+			$this->status = 10;
 			return true;
 		}
 		return false;
