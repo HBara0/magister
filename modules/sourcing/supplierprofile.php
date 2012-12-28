@@ -142,6 +142,7 @@ if(!$core->input['action']) {
 
 		if(is_array($contacts_history)) {
 			foreach($contacts_history as $historyid => $contact_history) {
+
 				$contact_history['chemical'] = $potential_supplier->get_chemicalsubstances($supplierid, $historyid, 'chemicalhistory');
 				if($contact_history['isCompleted'] == 0) {
 					if(isset($contact_history['identifier']) && !empty($contact_history['identifier'])) {
@@ -157,14 +158,26 @@ if(!$core->input['action']) {
 						$contact_history[$value.'_output'] = date($core->settings['dateformat'], $contact_history[$value]);
 					}
 					$rowclass = alt_row($rowclass);
-
 					/* load previous communication */
 					eval("\$reportcommunication_filled_section = \"".$template->get('sourcing_potentialsupplierprofile_filled_reportcommunication')."\";");
-
 					unset($datepicker_id);
 				}
 				elseif($contact_history['isCompleted'] == 1) {
 					$contact_history['chemical'] = $potential_supplier->get_chemicalsubstances($supplierid, $historyid, 'chemicalhistory');
+					$communications_fields = array('paymenttermssection' => array($lang->paymentterms => 'paymentTerms', $lang->discussion => 'Discussion'),
+							'customerdocument' => array('date' => 'customerDocumentDate_output', 'customerdocument' => 'customerDocument')
+					);
+
+					foreach($communications_fields as $section) { 
+						foreach($section as $label => $val) {
+						
+							if(isset($val) && !empty($val)) {
+								$label = '<div class=content>'.$label.'</div>';
+								$communictation_section .= '<div class=content>'.$contact_history[$val].'</div>';
+							}
+						}
+					}
+
 					eval("\$reportcommunication_filled_section = \"".$template->get('sourcing_potentialsupplierprofile_displaycontacthistory')."\";");
 				}
 				eval("\$contacthistory_section .= \"".$template->get('sourcing_potentialsupplierprofile_contacthistory')."\";");

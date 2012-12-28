@@ -12,3 +12,7 @@
 </div>
   </div>
 
+<div class="content">  
+{$label}
+{$communictation_section}
+</div>
