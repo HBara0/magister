@@ -229,7 +229,7 @@ class Sourcing {
 			$this->communication_entriesexist = 'true';
 		}
 
-		if($options['operationtype'] == 'update' && (isset($this->orderpassed) && ($this->orderpassed == 1))) {
+		if($options['operationtype'] == 'update') {
 			$this->communication_report['isCompleted'] = 1;
 			$db->update_query("sourcing_suppliers_contacthist", $this->communication_report, " identifier='".$db->escape_string($identifier)."' AND ssid=".$db->escape_string($supplier_id));
 			$this->status = 7;

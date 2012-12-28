@@ -102,7 +102,7 @@ else {
 				}
 				case 1:
 				output_xml("<status>false</status><message>{$lang->fieldrequired}</message>");
-				break;
+				break; 
 			case 2:
 				output_xml("<status>false</status><message>{$lang->feedbackexsist}</message>");
 				break;
