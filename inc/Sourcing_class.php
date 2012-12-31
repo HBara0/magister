@@ -6,7 +6,7 @@
  * Sourcing Class
  * $id: Sourcing_class.php
  * Created:			@tony.assaad	October 15, 2012 |  10:53 PM
- * Last Update:     @tony.assaad	December 06, 2012 | 5:06 PM
+ * Last Update:     @tony.assaad	December 26 2012 | 4:06 PM
  */
 
 class Sourcing {
@@ -182,10 +182,10 @@ class Sourcing {
 		$db->insert_query('sourcing_suppliers_contacthist', array('ssid' => $supplier_id, 'uid' => $core->user['uid']));
 	}
 
-	public function save_communication_report($data, $supplier_id = '') {
+	public function save_communication_report($data, $supplier_id = '', $identifier = '', $options = array()) {
 		global $core, $db;
-
-		if(is_empty($data['chemical'], $data['application'], $data['affid'], $data['origin'])) {
+		$data['isCompleted'] = 0;
+		if(is_empty($data['chemical'], $data['affid'])) {
 			$this->status = 1;
 			return false;
 		}
@@ -193,15 +193,29 @@ class Sourcing {
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 		}
+		if(empty($identifier)) {
+			$identifier = $identifier;
+		}
 
-		if(!value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid'])) {
+		if($options['operationtype'] == 'add' && (value_exists("sourcing_suppliers_contacthist", "isCompleted", 1, "identifier='".$identifier."'"))) {
+			$this->status = 6;
 			return false;
 		}
 
-		unset($data['orderpassed']);
+		/* if(!value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid'])) {
+		  return false;
+		  } */
+
+		/* Check whether the communications section has  been validated  completed */
+		if(isset($data['commercialoffer']) && !empty($data['commercialoffer']) || (isset($data['sourcingnotPossibleDesc']) && !empty($data['sourcingnotPossibleDesc']))) {
+			$data['isCompleted'] = 1;
+		}
+		$this->orderpassed = $data['orderpassed'];
+		unset($data['orderpassed'], $data['commercialoffer']);
+
 		$this->communication_entriesexist = 'false';
 		$data['date'] = strtotime($data['date']);
-		$this->communication_report = $data;   
+		$this->communication_report = $data;
 		$this->communication_report['uid'] = $core->user['uid'];
 		$date_tostrtime = array('customerDocumentDate', 'receivedQuantityDate', 'providedDocumentsDate', 'customerAnswerDate', 'provisionDate', 'offerDate', 'OfferAnswerDate');
 		foreach($date_tostrtime as $converteddate) {
@@ -214,15 +228,23 @@ class Sourcing {
 		if(!empty($this->communication_report['description']) && !empty($this->communication_report['chemical']) && !empty($this->communication_report['appplication']) && !empty($this->communication_report['date']) && !empty($this->communication_report['market'])) {
 			$this->communication_entriesexist = 'true';
 		}
+
+		if($options['operationtype'] == 'update') {
+			$this->communication_report['isCompleted'] = 1;
+			$db->update_query("sourcing_suppliers_contacthist", $this->communication_report, " identifier='".$db->escape_string($identifier)."' AND ssid=".$db->escape_string($supplier_id));
+			$this->status = 7;
+			return true;
+		}
 		$communication_report_query = $db->query("SELECT * FROM ".Tprefix."  sourcing_suppliers_contacthist  WHERE ssid = ".$supplier_id." and uid = ".$core->user['uid']."");
 		if($db->num_rows($communication_report_query) == 1 && value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid'].' AND chemical="" AND application="" AND market="" AND competitors="" AND description=""')) {
 			$db->update_query('sourcing_suppliers_contacthist', $this->communication_report, 'uid='.$core->user['uid'].' AND ssid='.$supplier_id);
 			$this->status = 2;
 			return true;
 		}
-		else {
+		elseif($options['operationtype'] == 'add') {
+			echo 'adding...';
 			$db->insert_query('sourcing_suppliers_contacthist', $this->communication_report);
-			$this->status = 3;
+			$this->status = 0;
 			return true;
 		}
 	}
@@ -282,7 +304,7 @@ class Sourcing {
 											{$filter_where}
 											{$sort_query}
 											LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
-											
+
 		if($db->num_rows($suppliers_query) > 0) {
 			while($supplier = $db->fetch_assoc($suppliers_query)) {
 				$activity_area = $this->get_supplier_activity_area($supplier['ssid']);
@@ -400,7 +422,7 @@ class Sourcing {
 
 			return $activity_areas;
 		}
-		return array();  /* empty array */
+		//return array();  /* empty array */
 	}
 
 	public function get_single_supplier_contact_person($id) {
@@ -409,17 +431,28 @@ class Sourcing {
 		//return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
 	}
 
-	public function get_chemicalsubstances($supplier_id = '') {
+	public function get_chemicalsubstances($id = '', $contact_hisoryid = '', $options = '') {
 		global $db;
 
-		if(empty($supplier_id)) {
-			$supplier_id = $this->supplier['ssid'];
+		if(empty($id)) {
+			$id = $this->supplier['ssid'];
+		}
+		elseif(!empty($contact_hisoryid)) {
+			$contact_hisoryid = $contact_hisoryid;
+		}
+		if(!empty($options) && $options == 'chemicalhistory') {
+
+			$chemical_name = $db->fetch_assoc($db->query("SELECT chs.csid,chs.casNum,chs.name 
+												FROM ".Tprefix."chemicalsubstances chs
+												JOIN ".Tprefix."sourcing_suppliers_contacthist ssch ON (ssch.chemical= chs.csid)
+												WHERE ssch.sschid= ".$db->escape_string($contact_hisoryid)));
+			return $chemical_name;
 		}
 
 		$chemicalsubstances_query = $db->query("SELECT *
 												FROM ".Tprefix."chemicalsubstances chs
 												JOIN ".Tprefix."sourcing_suppliers_chemicals ssc ON (ssc.csid= chs.csid)
-												WHERE ssc.ssid= ".$db->escape_string($supplier_id));
+												WHERE ssc.ssid= ".$db->escape_string($id));
 		if($db->num_rows($chemicalsubstances_query) > 0) {
 			while($chemicalsubstance = $db->fetch_assoc($chemicalsubstances_query)) {
 				$chemicalsubstance['supplyType_output'] = $this->parse_supplytype($chemicalsubstance['supplyType']);
@@ -439,13 +472,13 @@ class Sourcing {
 			$supplier_id = $this->supplier['ssid'];
 		}
 
-		$contact_query = $db->query("SELECT aff.name AS affiliate, aff.affid, co.name AS origincountry, ssch.*, u.displayName, u.uid
+		$contact_query = $db->query("SELECT aff.name AS affiliate, aff.affid, ssch.*, u.displayName, u.uid
 										FROM ".Tprefix."sourcing_suppliers_contacthist  ssch
-										JOIN ".Tprefix."countries co ON (co.coid = ssch.origin)
 										JOIN ".Tprefix."affiliates aff ON (aff.affid = ssch.affid)
 										JOIN ".Tprefix."users u ON (u.uid = ssch.uid)
 										WHERE ssch.ssid = ".$db->escape_string($supplier_id)."
 										ORDER BY ssch.date DESC"); // There is no user limitation
+
 		if($db->num_rows($contact_query) > 0) {
 			while($contact_history = $db->fetch_assoc($contact_query)) {
 				$sourcing_contact_history[$contact_history['sschid']] = $contact_history;
@@ -465,13 +498,13 @@ class Sourcing {
 		}
 
 		/* If user is not a sourcing agent, check his/her segements - START */
-		if($core->usergroup['sourcing_canManageEntries'] == 1) { 
+		if($core->usergroup['sourcing_canManageEntries'] == 1) {
 			/* check country if availabilty is no */
 			$activityarea_query = $db->query("SELECT ssaa.ssaid 
 												FROM ".Tprefix."sourcing_suppliers_activityareas ssaa
 												JOIN ".Tprefix."countries co ON (co.coid=ssaa.coid)
 												JOIN ".Tprefix."affiliates aff ON (aff.affid=co.affid)
-												WHERE aff.affid IN ('".implode(',',$core->user['affiliates'])."') AND ssaa.ssid= ".$db->escape_string($supplier_id));
+												WHERE aff.affid IN ('".implode(',', $core->user['affiliates'])."') AND ssaa.ssid= ".$db->escape_string($supplier_id));
 
 			if($db->num_rows($activityarea_query) > 0) {
 				$suppliers_query = $db->query("SELECT ssp.psid
@@ -489,7 +522,7 @@ class Sourcing {
 				}
 			}
 			else {
-				return false;//
+				return false; //
 			}
 		}
 		else {
@@ -565,7 +598,7 @@ class Sourcing {
 		return false;
 	}
 
-	public function set_feedback($data, $request_id = '') {
+public function set_feedback($data, $request_id = '') {
 		global $db, $core;
 		if(is_empty($data['feedback'])) {
 			$this->status = 1;
@@ -574,7 +607,7 @@ class Sourcing {
 
 		$data['feedback'] = $core->sanitize_inputs($data['feedback'], array('removetags' => true));
 
-		if(value_exists('sourcing_chemicalrequests', 'feedback', $data['feedback'], 'isClosed='.intval($data['isClosed']))) {
+		if(value_exists('sourcing_chemicalrequests', 'feedback', $data['feedback'])) {
 			$this->status = 2;
 			return false;
 		}
@@ -587,7 +620,7 @@ class Sourcing {
 
 		$update_query = $db->update_query('sourcing_chemicalrequests', $feedback_data, 'scrid='.intval($request_id));
 		if($update_query) {
-			$this->status = 0;
+			$this->status = 10;
 			return true;
 		}
 		else {
@@ -651,7 +684,7 @@ class Sourcing {
 		return false;
 	}
 
-	public function make_real_supplier($affid) {
+	public function register_supplier($affid) {
 		global $db, $core;
 		$registered_supplier_data = array('companyName', 'companyNameAbbr', 'type', 'country', 'city', 'addressLine1', 'addressLine2', 'building', 'floor', 'postCode', 'geoLocation', 'poBox', 'phone1', 'phone2', 'fax1', 'mainEmail', 'website');
 		$temp_supplier = $this->supplier;
@@ -693,7 +726,7 @@ class Sourcing {
 		);
 		$query = $db->insert_query('chemicalsubstances', $chemical_data);
 		if($query) {
-			$this->status = 0;
+			$this->status = 10;
 			return true;
 		}
 		return false;
@@ -715,16 +748,16 @@ class Sourcing {
 
 	public function parse_rmlbar($supplier_id = '') {
 		global $core, $db;
-		
+
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 			$rmlcurrentlevel = $this->supplier['relationMaturity'];
 		}
-		
+
 		if(empty($rmlcurrentlevel)) {
 			$rmlcurrentlevel = $db->fetch_field($db->query('SELECT relationMaturity FROM '.Tprefix.'sourcing_suppliers WHERE ssid='.intval($supplier_id)), 'relationMaturity');
 		}
-		
+
 		$maturity_bars = '';
 		$readonlymaturity = true;
 

@@ -96,6 +96,7 @@ $lang['sectionnopermission'] = 'You don\'t have permissions to access this secti
 $lang['september'] = 'September';
 $lang['sessionexpired'] = 'Your sessions has expired, please login again.';
 $lang['successfullysaved'] = 'Successfully saved';
+$lang['successfullyupdate'] = 'Successfully Update';
 $lang['supplier'] = 'Supplier';
 $lang['supplierslist'] = 'Suppliers List';
 $lang['surveys'] = 'Surveys';

@@ -49,8 +49,8 @@ class Asset {
 	public function delete_asset($id) {
 		global $db,$core;
 		if($core->usergroup['assets_canDeleteAsset'] == 1) {
-			echo 'deleted asset '.$id.'<br>';
-			//$db->query('delete from '.Tprefix.'assets where asid='.$id);
+			//echo 'deleted asset '.$id.'<br>';
+			$db->query('delete from '.Tprefix.'assets where asid='.$id);
 		}
 	}
 
@@ -71,8 +71,8 @@ class Asset {
 			if($db->num_rows($result) > 0) {
 				if($row = $db->fetch_assoc($result)) {
 					if (TIME_NOW>$row['toDate']) {
-						echo 'deleted tracker '.$id.'<br>';
-						//$db->query('delete from '.Tprefix.'assets_trackingdevices where atdid='.$id);
+						//echo 'deleted tracker '.$id.'<br>';
+						$db->query('delete from '.Tprefix.'assets_trackingdevices where atdid='.$id);
 					}
 				}
 			}
@@ -92,8 +92,8 @@ class Asset {
 	public function delete_assignedasset($id) {
 		global $db,$core;
 		if($core->usergroup['assets_canDeleteAssignement'] == 1) {
-			echo 'deleted assignement '.$id.'<br>';
-			//$db->query('delete from '.Tprefix.'assets_users where auid='.$id);
+			//echo 'deleted assignement '.$id.'<br>';
+			$db->query('delete from '.Tprefix.'assets_users where auid='.$id);
 		}
 	}
 
@@ -272,7 +272,6 @@ class Asset {
 		unset($data['long']);
 		unset($data["altitude"]);
 		unset($data["heading"]);
-
 		global $db;
 		$query = 'SELECT asid FROM '.Tprefix.'assets_trackingdevices WHERE deviceId='.$data["deviceId"].' AND fromDate<'.$data['timeLine'].' AND toDate>'.$data['timeLine'].' ORDER BY fromDate DESC';
 		$query = $db->query($query);
