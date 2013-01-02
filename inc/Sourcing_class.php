@@ -443,6 +443,7 @@ class Sourcing {
 	}
 
 	public function get_chemicalsubstance_byid($id, $selected_attr = array()) {
+		global $db;
 		if(empty($id)) {
 			return false;
 		}

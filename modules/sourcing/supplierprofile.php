@@ -6,7 +6,7 @@
  * Potential Supplier Profile
  * $module: Sourcing
  * $id: supplierprofile.php	
- * Last Update: @tony.assaad	December 27, 2012 | 11:05 PM
+ * Last Update: @tony.assaad	January 2, 2013 | 3:05 PM
  */
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
@@ -42,12 +42,12 @@ if(!$core->input['action']) {
 	$supplier['chemicalsubstances'] = $potential_supplier->get_chemicalsubstances();
 
 	if(is_array($supplier['segments']) && !empty($supplier['segments'])) {
-		$langsegments = $lang->segments;
 		$segments_output = '<ul><li>'.implode('</li><li>', $supplier['segments']).'</li></ul>';
 	}
 	else {
 		$segments_output = '<ul><li>'.$lang->na.'</li></ul>';
 	}
+	
 	if(is_array($supplier['activityareas'])) {
 		$langactivityarea = $lang->activityarea;
 		foreach($supplier['activityareas'] as $activity_area) {
@@ -127,23 +127,31 @@ if(!$core->input['action']) {
 	if(is_array($contacts_history) || $can_seecontactinfo == true) {
 		$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', '');
 		$affiliates_list = parse_selectlist('contacthst[affid]', 1, $affiliates, $core->user['mainaffiliate'], 0);
-		$countries = array($lang->anyorigin => $lang->anyorigin, $lang->chinese => $lang->chinese, $lang->nonchinese => $lang->nonchinese, $lang->indian => $lang->indian, $lang->nonindian => $lang->nonindian, $lang->european => $lang->european, $lang->noneuropean => $lang->noneuropean, $lang->american => $lang->american, $lang->nonamerican => $lang->nonamerican);
-		$countries_list = parse_selectlist('contacthst[origin]', 8, $countries, '');
+		
+		$origins = array($lang->anyorigin => $lang->anyorigin, $lang->chinese => $lang->chinese, $lang->nonchinese => $lang->nonchinese, $lang->indian => $lang->indian, $lang->nonindian => $lang->nonindian, $lang->european => $lang->european, $lang->noneuropean => $lang->noneuropean, $lang->american => $lang->american, $lang->nonamerican => $lang->nonamerican);
+		$origins_list = parse_selectlist('contacthst[origin]', 8, $origins, '');
+		
 		$product_segmentlist = parse_selectlist('contacthst[market]', 9, $supplier['segments'], ''); /* product segments (that the current supplier(loaded from the object) works in) */
-		$unit_measure = get_specificdata('uom', array('uomid', 'name'), 'uomid', 'name', '');
+		$unit_measure = get_specificdata('uom', array('uomid', 'symbol'), 'uomid', 'symbol', '');
 		$newsupplierid = $core->input['id'];
 		foreach($unit_measure as $key => $unit) {
 			$selected = '';
 			if($key == 4) {
 				$selected = ' selected="selected"';
 			}
-			$uom .='<option value='.$key.''.$selected.'>'.$unit.'</option>';
+			$uom .= '<option value="'.$key.'"'.$selected.'>'.$unit.'</option>';
 		}
 
 		if(is_array($contacts_history)) {
-			foreach($contacts_history as $historyid => $contact_history) {
-
-				$contact_history['chemical'] = $potential_supplier->get_chemicalsubstances($supplierid, $historyid, 'chemicalhistory');
+			foreach($contacts_history as $historyid => $contact_history) { 
+				$contact_history['chemical'] = $potential_supplier->get_chemicalsubstance_byid($contact_history['chemical']);
+				
+				$array_converteddate = array('date', 'customerDocumentDate', 'receivedQuantityDate', 'providedDocumentsDate', 'customerAnswerDate', 'provisionDate', 'offerDate', 'OfferAnswerDate');
+				foreach($array_converteddate as $key => $value) {
+					$datepicker_id[$value] = 'pickDate_'.$historyid.uniqid();
+					$contact_history[$value.'_output'] = date($core->settings['dateformat'], $contact_history[$value]);
+				}
+					
 				if($contact_history['isCompleted'] == 0) {
 					if(isset($contact_history['identifier']) && !empty($contact_history['identifier'])) {
 						$contact_history['identifier'] = $contact_history['identifier'];
@@ -152,19 +160,13 @@ if(!$core->input['action']) {
 						$contact_history['identifier'] = substr(md5(uniqid(microtime())), 1, 10);
 					}
 
-					$array_converteddate = array('date', 'customerDocumentDate', 'receivedQuantityDate', 'providedDocumentsDate', 'customerAnswerDate', 'provisionDate', 'offerDate', 'OfferAnswerDate');
-					foreach($array_converteddate as $key => $value) {
-						$datepicker_id[$value] = 'pickDate_'.$historyid.uniqid();
-						$contact_history[$value.'_output'] = date($core->settings['dateformat'], $contact_history[$value]);
-					}
-					$rowclass = alt_row($rowclass);
 					/* load previous communication */
 					eval("\$reportcommunication_filled_section = \"".$template->get('sourcing_potentialsupplierprofile_filled_reportcommunication')."\";");
 					unset($datepicker_id);
 				}
 				elseif($contact_history['isCompleted'] == 1) {
-					$contact_history['chemical'] = $potential_supplier->get_chemicalsubstances($supplierid, $historyid, 'chemicalhistory');
-					$communications_fields = array('paymenttermssection' => array($lang->paymentterms => 'paymentTerms', $lang->discussion => 'Discussion'),
+					$contact_history['chemical'] = $potential_supplier->get_chemicalsubstance_byid($contact_history['chemical']);
+					$communications_fields = array('paymenttermssection' => array('paymentTerms' => $lang->paymentterms, 'discussion' => $lang->discussion),
 							'customerdocument' => array('date' => 'customerDocumentDate_output', 'customerdocument' => 'customerDocument')
 					);
 
@@ -172,14 +174,16 @@ if(!$core->input['action']) {
 						foreach($section as $label => $val) {
 
 							if(isset($val) && !empty($val)) {
-								$label = '<div class=content>'.$label.'</div>';
-								$communictation_section .= '<div class=content>'.$contact_history[$val].'</div>';
+								$label = '<div class="content">'.$label.'</div>';
+								$communictation_section .= '<div class="content">'.$contact_history[$val].'</div>';
 							}
 						}
 					}
 
 					eval("\$reportcommunication_filled_section = \"".$template->get('sourcing_potentialsupplierprofile_displaycontacthistory')."\";");
 				}
+				
+				$altrow_class = alt_row($altrow_class);
 				eval("\$contacthistory_section .= \"".$template->get('sourcing_potentialsupplierprofile_contacthistory')."\";");
 			}
 		}
@@ -192,6 +196,7 @@ if(!$core->input['action']) {
 		$identifier = substr(md5(uniqid(microtime())), 1, 10);
 		$supplierid = $core->input['supplierid'];
 		$newsupplierid = $core->input['id'];
+
 		eval("\$reportcommunication_section = \"".$template->get('sourcing_potentialsupplierprofile_reportcommunication')."\";");
 	}
 	/* Communication Report after the user has initiated contact - END */
@@ -218,6 +223,12 @@ else {
 		$newsupplierid = $core->input['contacthst']['ssid'];
 		$potential_supplier = new Sourcing($core->input['id']);
 		$potential_supplier->save_communication_report($core->input['contacthst'], $newsupplierid, $identifier, $options);
+		
+		if(isset($core->input['contacthst']['orderpassed']) && $core->input['contacthst']['orderpassed'] == 1) {
+			$potential_supplier = new Sourcing($newsupplierid);
+			$potential_supplier->register_supplier($core->input['contacthst']['affid']);
+		}
+		
 		switch($potential_supplier->get_status()) {
 			case 0:
 				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
@@ -232,10 +243,7 @@ else {
 				output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
 				break;
 		}
-		if(isset($core->input['contacthst']['orderpassed']) && $core->input['contacthst']['orderpassed'] == 1) {
-			$potential_supplier = new Sourcing($newsupplierid);
-			$potential_supplier->register_supplier($core->input['contacthst']['affid']);
-		}
+
 	}
 	elseif($core->input['action'] == 'preview') {
 		$rpid = $db->escape_string($core->input['rpid']);
