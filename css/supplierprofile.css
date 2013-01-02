@@ -1,19 +1,17 @@
 @charset "utf-8";
 .main {
-  width: 100%;
-  border-bottom-width:1px;
-  border-bottom-style: solid;
-  border-bottom-color:#999;
-  padding:6px;
-  padding: 2px 2px 2px 3px; 
+	width: 100%;
+	border-bottom-width:1px;
+	border-bottom-style: solid;
+	border-bottom-color:#999;
+	padding:6px;
+	padding: 2px 2px 2px 3px;
 }
-
 .title {
 	width: 100%;
 	margin-top:10px;
 	padding-left:20px;
 }
-
 .question {
 	width: 100%;
 	background-color:#F2FAED;
@@ -21,19 +19,47 @@
 	padding: 5px;
 	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
 	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
-	box-sizing: border-box; 
- }
-
+	box-sizing: border-box;
+}
 .content {
 	vertical-align: top;
 	display: inline-block;
-	width: 45%;
+	width: 40%;
 	padding: 5px;
 	background-color:#F7FAFD;
-
-	
 }
 .content > div {
 	width: 40%;
-	
+}
+#reportcommunication {
+	width:100%;
+	background-color:#F7FAFD;
+	padding:10px;
+	border-style:solid;
+	border-width:1px;
+	margin-top:10px;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing:border-box;
+	float:left;
+}
+#previouscommunication {
+	width:100%;
+	background-color:#F7FAFD;
+	padding:10px;
+	border-style:solid;
+	border-width:1px;
+	margin-bottom:10px;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing:border-box;
+	float:left;
+}
+ div[id^='historybrief'] {
+	 width:100%;
+	 padding:10px;
+	 margin-bottom:8px;
+
+	 -moz-box-sizing: border-box;
+	 -webkit-box-sizing:border-box;
+	 text-align:left;
+	 cursor:pointer;
 }
