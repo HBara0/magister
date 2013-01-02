@@ -193,11 +193,13 @@ class Sourcing {
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 		}
+		$supplier_id = $db->escape_string($supplier_id);
+		
 		if(empty($identifier)) {
 			$identifier = $identifier;
 		}
 
-		if($options['operationtype'] == 'add' && (value_exists("sourcing_suppliers_contacthist", "isCompleted", 1, "identifier='".$identifier."'"))) {
+		if($options['operationtype'] == 'add' && (value_exists("sourcing_suppliers_contacthist", "isCompleted", 1, "identifier='".$db->escape_string($identifier)."'"))) {
 			$this->status = 6;
 			return false;
 		}
@@ -214,35 +216,44 @@ class Sourcing {
 		unset($data['orderpassed'], $data['commercialoffer']);
 
 		$this->communication_entriesexist = 'false';
-		$data['date'] = strtotime($data['date']);
+		if(!empty($data['date'])) {
+			$data['date'] = strtotime($data['date']);
+		}
+		else
+		{
+			$data['date'] = TIME_NOW;
+		}
 		$this->communication_report = $data;
 		$this->communication_report['uid'] = $core->user['uid'];
+		
 		$date_tostrtime = array('customerDocumentDate', 'receivedQuantityDate', 'providedDocumentsDate', 'customerAnswerDate', 'provisionDate', 'offerDate', 'OfferAnswerDate');
 		foreach($date_tostrtime as $converteddate) {
 			$this->communication_report[$converteddate] = strtotime($this->communication_report[$converteddate]);
 		}
+		
 		$filter_inputs = array('customerDocument', 'requestedQuantity', 'requestedDocuments', 'receivedQuantity', 'receivedDocuments', 'providedQuantity', 'providedDocuments', 'customerAnswer', 'industrialQuantity', 'trialResult', 'offerMade', 'customerOfferAnswer', 'sourcingnotPossibleDesc', 'description');
 		foreach($filter_inputs as $sanitizedinput) {
 			$this->communication_report[$sanitizedinput] = $core->sanitize_inputs($this->communication_report[$sanitizedinput], array('removetags' => true));
 		}
+
 		if(!empty($this->communication_report['description']) && !empty($this->communication_report['chemical']) && !empty($this->communication_report['appplication']) && !empty($this->communication_report['date']) && !empty($this->communication_report['market'])) {
 			$this->communication_entriesexist = 'true';
 		}
 
 		if($options['operationtype'] == 'update') {
-			$this->communication_report['isCompleted'] = 1;
+			//$this->communication_report['isCompleted'] = 1;
 			$db->update_query("sourcing_suppliers_contacthist", $this->communication_report, " identifier='".$db->escape_string($identifier)."' AND ssid=".$db->escape_string($supplier_id));
 			$this->status = 7;
 			return true;
 		}
-		$communication_report_query = $db->query("SELECT * FROM ".Tprefix."  sourcing_suppliers_contacthist  WHERE ssid = ".$supplier_id." and uid = ".$core->user['uid']."");
+
+		$communication_report_query = $db->query("SELECT * FROM ".Tprefix."sourcing_suppliers_contacthist  WHERE ssid = ".$supplier_id." AND uid = ".$core->user['uid']."");
 		if($db->num_rows($communication_report_query) == 1 && value_exists('sourcing_suppliers_contacthist', 'ssid', $supplier_id, 'uid='.$core->user['uid'].' AND chemical="" AND application="" AND market="" AND competitors="" AND description=""')) {
 			$db->update_query('sourcing_suppliers_contacthist', $this->communication_report, 'uid='.$core->user['uid'].' AND ssid='.$supplier_id);
 			$this->status = 2;
 			return true;
 		}
 		elseif($options['operationtype'] == 'add') {
-			echo 'adding...';
 			$db->insert_query('sourcing_suppliers_contacthist', $this->communication_report);
 			$this->status = 0;
 			return true;
@@ -422,7 +433,7 @@ class Sourcing {
 
 			return $activity_areas;
 		}
-		//return array();  /* empty array */
+		return array();  /* empty array */
 	}
 
 	public function get_single_supplier_contact_person($id) {
@@ -431,28 +442,29 @@ class Sourcing {
 		//return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
 	}
 
-	public function get_chemicalsubstances($id = '', $contact_hisoryid = '', $options = '') {
+	public function get_chemicalsubstance_byid($id, $selected_attr = array()) {
+		if(empty($id)) {
+			return false;
+		}
+		
+		$query_select = '*';
+		if(!empty($selected_attr)) {
+			$query_select = implode(', ', $selected_attr);
+		}
+		return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemicalsubstances WHERE csid='.intval($id)));
+	}
+	
+	public function get_chemicalsubstances($supplier_id = '', $contact_hisoryid = '', $options = '') {
 		global $db;
 
-		if(empty($id)) {
-			$id = $this->supplier['ssid'];
-		}
-		elseif(!empty($contact_hisoryid)) {
-			$contact_hisoryid = $contact_hisoryid;
-		}
-		if(!empty($options) && $options == 'chemicalhistory') {
-
-			$chemical_name = $db->fetch_assoc($db->query("SELECT chs.csid,chs.casNum,chs.name 
-												FROM ".Tprefix."chemicalsubstances chs
-												JOIN ".Tprefix."sourcing_suppliers_contacthist ssch ON (ssch.chemical= chs.csid)
-												WHERE ssch.sschid= ".$db->escape_string($contact_hisoryid)));
-			return $chemical_name;
+		if(empty($supplier_id)) {
+			$supplier_id = $this->supplier['ssid'];
 		}
 
 		$chemicalsubstances_query = $db->query("SELECT *
 												FROM ".Tprefix."chemicalsubstances chs
 												JOIN ".Tprefix."sourcing_suppliers_chemicals ssc ON (ssc.csid= chs.csid)
-												WHERE ssc.ssid= ".$db->escape_string($id));
+												WHERE ssc.ssid= ".$db->escape_string($supplier_id));
 		if($db->num_rows($chemicalsubstances_query) > 0) {
 			while($chemicalsubstance = $db->fetch_assoc($chemicalsubstances_query)) {
 				$chemicalsubstance['supplyType_output'] = $this->parse_supplytype($chemicalsubstance['supplyType']);
@@ -522,7 +534,7 @@ class Sourcing {
 				}
 			}
 			else {
-				return false; //
+				return false;
 			}
 		}
 		else {
@@ -598,7 +610,7 @@ class Sourcing {
 		return false;
 	}
 
-public function set_feedback($data, $request_id = '') {
+	public function set_feedback($data, $request_id = '') {
 		global $db, $core;
 		if(is_empty($data['feedback'])) {
 			$this->status = 1;
