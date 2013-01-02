@@ -168,9 +168,9 @@ if(!$core->input['action']) {
 							'customerdocument' => array('date' => 'customerDocumentDate_output', 'customerdocument' => 'customerDocument')
 					);
 
-					foreach($communications_fields as $section) { 
+					foreach($communications_fields as $section) {
 						foreach($section as $label => $val) {
-						
+
 							if(isset($val) && !empty($val)) {
 								$label = '<div class=content>'.$label.'</div>';
 								$communictation_section .= '<div class=content>'.$contact_history[$val].'</div>';
