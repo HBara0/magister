@@ -319,10 +319,10 @@ if(!$core->input['action']) {
 			$lastyear = $reportmeta['year'];
 			$lastquarter = $quarter - 1;
 		}
-		$last_report = $db->fetch_array($db->query("SELECT mr.* 
-													FROM ".Tprefix."marketreport mr LEFT JOIN reports r ON (r.rid=mr.rid) 
-													WHERE r.year='{$lastyear}' AND r.quarter='{$lastquarter}' AND r.spid='{$reportmeta[spid]}' AND r.affid='{$reportmeta[affid]}'"));
-			
+//		$last_report = $db->fetch_array($db->query("SELECT mr.* 
+//													FROM ".Tprefix."marketreport mr LEFT JOIN reports r ON (r.rid=mr.rid) 
+//													WHERE r.year='{$lastyear}' AND r.quarter='{$lastquarter}' AND r.spid='{$reportmeta[spid]}' AND r.affid='{$reportmeta[affid]}'"));
+//			
 		$query = $db->query("SELECT mr.* 
 							FROM ".Tprefix."marketreport mr LEFT JOIN reports r ON (r.rid=mr.rid) 
 							WHERE r.year='{$lastyear}' AND r.quarter='{$lastquarter}' AND r.spid='{$reportmeta[spid]}' AND r.affid='{$reportmeta[affid]}'");
@@ -496,7 +496,7 @@ else
 						$actual_forecast = ($prev_data[$core->input['pid_'.$i]][$validation_item]+$actual_current_validation+$actual_current_data['actualsum']);
 						$actual_current_forecast = $core->input[$validation_key.'Forecast_'.$i]+$actual_current_data['forecastsum'];
 						
-						if(round($actual_forecast, 4) > $actual_current_forecast || ($report_meta['quarter'] == 4 && round($actual_forecast, 4) < $actual_current_forecast)) {//$core->input[$validation_key.'Forecast_'.$i]) {
+						if(round($actual_forecast, 4) > round($actual_current_forecast, 4) || ($report_meta['quarter'] == 4 && round($actual_forecast, 4) < round($actual_current_forecast, 4))) {//$core->input[$validation_key.'Forecast_'.$i]) {
 							$forecast_corrections[$core->input['pid_'.$i]]['name'] = $core->input['product_'.$i.'_QSearch'];
 							$forecast_corrections[$core->input['pid_'.$i]][$validation_key] = $correctionsign.number_format($actual_forecast, 4);
 							$error_forecast_exists = true;
