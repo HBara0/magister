@@ -39,6 +39,7 @@
 	-moz-border-radius: 5px; 
 	-webkit-border-radius: 5px; 
 	border: thin solid #CCC;
+        cursor:pointer;
 }
 
 .ch_entryheader{

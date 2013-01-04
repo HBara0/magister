@@ -461,7 +461,7 @@ class Sourcing {
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 		}
-
+//mt123456
 		$chemicalsubstances_query = $db->query("SELECT *
 												FROM ".Tprefix."chemicalsubstances chs
 												JOIN ".Tprefix."sourcing_suppliers_chemicals ssc ON (ssc.csid= chs.csid)

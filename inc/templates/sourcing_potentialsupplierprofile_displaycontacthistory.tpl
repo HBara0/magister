@@ -10,5 +10,5 @@
 		<div class="content"> {$lang->competitors}{$contact_history[competitors]}</div>
 	</div>
 </div>
-<div class="content"> {$label}
-	{$communictation_section} </div>
+
+	{$communictation_section} 
