@@ -11,4 +11,4 @@
 	</div>
 </div>
 
-	{$communictation_section} 
+	{$maindivsection} 
