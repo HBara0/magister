@@ -6,7 +6,7 @@
  * Lists available reports
  * $module: reporting
  * $id: listreports.php	
- * Last Update: @zaher.reda 	July 21, 2011 | 10:22 PM
+ * Last Update: @tony.assaad 	January 14, 2013 | 1:22 PM
  */
 
 if(!defined('DIRECT_ACCESS')) {
@@ -64,7 +64,7 @@ if(!$core->input['action']) {
 
 
 	/* Perform inline filtering - START */
-	$quarter_scale = range(1, 5);
+	$quarter_scale = range(1, 4);
 	array_unshift($quarter_scale, '');
 	$year_scale = range(date("Y"), 2009);
 	array_unshift($year_scale, ''); // Creates array years use the first array(range from 2004 to current year) as the keys and the second as the values
