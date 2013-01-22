@@ -39,10 +39,13 @@ $(function() {
 			$(this).addClass("mainmenuitem_hover");
 		}
 		else if($(this).find("div").css("display") != "none") {
-			$(this).find("div > ul > li").hover(function() { $(this).toggleClass("submenuitem_hover"); });
+			$(this).find("div > ul > li").hover(function() {
+				$(this).toggleClass("submenuitem_hover");
+			});
 		}
 	},
-		function(){ $(this).removeClass("mainmenuitem_hover");
+	function(){
+		$(this).removeClass("mainmenuitem_hover");
 	});
 
 	$("#mainmenu > li[class='expandable']").find("span:first").click(function() {
@@ -221,6 +224,18 @@ $(function() {
 		sharedFunctions.requestAjax("post", "index.php?module=" + id[id.length-2], 'action='+id[0]+'&value='+$(this).val()+'&id='+id[1], $(this).attr("id")+'_Result', $(this).attr("id")+'_Result');
 	});
 
+	$(document).on("click", "input[type='submit'][id$='_Button']", function() {
+		var id =  $(this).attr("id").split("_");
+		var formid = '';
+		for(var i=0;i<id.length-1;i++) {
+			formid += id[i]+ "_";
+		}
+
+		$("form[id='" + formid + "Form']").submit(function(e){
+            e.preventDefault();
+        });
+	});
+
 	$(document).on("click", "input[id^='perform_'][id$='_Button'],input[id^='add_'][id$='_Button'],input[id^='change_'][id$='_Button']", function() {
 	//$("input[id^='perform_'][id$='_Button'],input[id^='add_'][id$='_Button'],input[id^='change_'][id$='_Button']").live("click", function() {
 		if(sharedFunctions.checkSession() == false) {
@@ -233,7 +248,7 @@ $(function() {
 		for(var i=0;i<id.length-1;i++) {
 			formid += id[i]+ "_";
 		}
-
+		
 		var formData = $("form[id='" + formid + "Form']").serialize();
 
 		var details = id[id.length-2].split("/");
@@ -252,7 +267,7 @@ $(function() {
 	});
 
 
-	$("img[id^='addmore_']").live('click', function() { sharedFunctions.addmoreRows($(this));});
+	$("img[id^='addmore_']").live('click', function() { sharedFunctions.newAddMoreRows($(this));});
 
 	$("input[id='email'],input[accept='email']").live("keyup", validateEmailInline);
 	//$("input[id='email'],input[accept='email']").change(validateEmailInline);
@@ -290,9 +305,9 @@ $(function() {
 	});
 
 	$("input[accept='numeric']").live("keydown", function(e) {
-		if(e.keyCode > 31 && (e.keyCode < 48 || (e.keyCode > 57 && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode != 190 && e.keyCode != 110))) {
-			$(this).val($(this).val().substring(0, ($(this).val().length - 1)));
-
+		if(e.keyCode > 31 && (e.keyCode < 48 || (e.keyCode > 57 && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode != 190 && e.keyCode != 110 && e.keyCode != 16 && e.keyCode != 17 && e.keyCode != 59))) {
+			//$(this).val($(this).val().substring(0, ($(this).val().length - 1)));
+			e.preventDefault();
 			return false
 		}
 		return true
@@ -517,7 +532,7 @@ $(function() {
 					beforeSend: function() { $("div[id='" + loadingId + "'],span[id='" + loadingId + "']").html("<img src='" + imagespath +"/loading.gif' alt='" + loading_text + "' border='0' />");},
 					complete: function () { if(loadingId != contentId) { $("#" + loadingId).empty(); } },
 					success: function(returnedData) {
-						//alert(returnedData);
+						alert(returnedData);
 						if(datatype == 'xml') {
 							if($(returnedData).find('status').text() == 'true') { var spanClass = 'green_text'; } else { var spanClass = 'red_text'; }
 
@@ -537,6 +552,78 @@ $(function() {
 				return false;
 			}
 		}
+		function newAddMoreRows(trigger) {
+			if(typeof trigger == 'object') {
+				var id = trigger.attr("id").split("_");
+			}
+			else
+			{
+				var id = trigger.split("_");
+			}
+			
+			if($("#" + id[1] + "_" + id[2] + "_tbody").length > 0) {
+				 id[1] = id[1] + "_" + id[2] + "_tbody";
+			}
+			else if($("#" + id[1] + "_tbody").length > 0)
+			{
+				 id[1] = id[1] + "_tbody";
+			}
+	
+			var newIds = '';
+			
+			if($("#"+ id[1]).parents('tbody').first().length > 0) {
+				newIds = $("#"+ id[1]).parents('tbody').first().attr('id');
+			}
+			alert(newIds);
+			var last = $("#"+ id[1] + " > tr:last");
+			
+			var increment = (last.index()+1)+1;
+			var newEntry = last.clone(true).removeAttr('id').appendTo("#"+ id[1]);
+		
+			var needed_attributes = ["id", "name"];
+			$.each(needed_attributes, function(key, val) {
+				newEntry.find("tr["+val+"],input["+val+"],select["+val+"],div["+val+"],span["+val+"],textarea["+val+"],img["+val+"],tbody["+val+"]").each(function() {
+					if($(this).attr(val).length == 0) {
+						return true;
+					}
+					
+
+					if($(this).attr(val).search(/([A-Za-z_0-9]+)_[\d]+_([A-Za-z_]+)/gi) != -1) {
+						$(this).attr(val, $(this).attr(val).replace(/([A-Za-z_0-9]+)_[\d]+_([A-Za-z_]+)/gi, "$1_" + increment + "_$2"));
+					}
+					else if($(this).attr(val).search(/([A-Za-z_0-9]+)_id[\d]+_([A-Za-z_]+)/gi) != -1) {
+						$(this).attr(val, $(this).attr(val).replace(/([A-Za-z_0-9]+)_id[\d]+_([a-z_]+)/gi, "$1_id" + increment + "_$2"));
+					}
+					else if($(this).attr(val).search(/([A-Za-z_0-9]+)_[\d]/gi) != -1) {
+						$(this).attr(val, $(this).attr(val).replace(/([A-Za-z_0-9]+)_[\d]+/gi, "$1_" + increment));
+					}
+					else if($(this).attr(val).search(/([A-Za-z_0-9]+)_id[\d]/gi) != -1) {
+						$(this).attr(val, $(this).attr(val).replace(/([A-Za-z_0-9]+)_id[\d]+/gi, "$1_id" + increment));
+					}
+					else if($(this).attr(val).search(/([A-Za-z_0-9]+)\[[\d]\]\[[\d]\]/gi) != -1) { alert('aaa');
+						$(this).attr(val, $(this).attr(val).replace(/([A-Za-z_0-9]+)\[[\d]\]\[[\d]\]/gi, "$1_["+(last.index()+1)+"][" + increment + "]"));		
+					}
+					else
+					{
+						$(this).attr(val, $(this).attr(val).replace((last.index()+1).toString(), increment.toString()));
+					}
+				
+					
+					if($(this).attr("type") != 'checkbox' && $(this).attr("type") != 'radio') {
+						$(this).val("");
+					}
+
+					if($(this).attr("type") == 'checkbox') {
+						$(this).removeAttr('checked')
+					}
+
+					if($(this).is("span")) {
+						$(this).html("");
+					}
+				});
+			});
+			
+		}
 		function addmoreRows(trigger) {
 			if(typeof trigger == 'object') {
 				var id = trigger.attr("id").split("_");
@@ -552,7 +639,7 @@ $(function() {
 
 			var last = $("#"+ id[1] +"_tbody > tr:last").attr("id");
 
-			var increment = parseInt(last) + 1;
+			var increment = ($("#"+ id[1] +"_tbody > tr:last").index()+1)+1;//parseInt(last) + 1;
 
 			//var template =  $("#"+ id[1] +"_tbody > tr:last").html();
 		/*	if($.browser.msie) {
@@ -640,6 +727,7 @@ $(function() {
 			"requestAjax": requestAjax,
 			"checkSession": checkSession,
 			"addmoreRows": addmoreRows,
+			"newAddMoreRows": newAddMoreRows,
 			"sharedPopUp": sharedPopUp
 		}
 	}();
