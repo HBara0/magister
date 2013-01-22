@@ -228,7 +228,8 @@ if(!$core->input['action']) {
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		
 		if($core->usergroup['canExcludeFillStages'] == 1) {
-			$exludestage = "<br /><input type='checkbox' name='excludeKeyCustomers' id='excludeKeyCustomers' title='{$lang->exclude_tip}'> {$lang->excludekeycustomers}";
+			$exludestage = '<br /><input type="checkbox" name="excludeKeyCustomers" style="width:35px;" id="excludeKeyCustomers" title="'.$lang->exclude_tip.'">'.$lang->excludekeycustomers;
+
 		}
 		
 		//Parse add customer popup
@@ -393,6 +394,8 @@ if(!$core->input['action']) {
 		$affiliates_list = parse_selectlist('affid', 1, $affiliates, '');
 		
 		if($core->usergroup['reporting_canTransFillReports'] == '1') {
+			
+			
 			$transfill_checkbox = "<br /><span class='smalltext'><input type='checkbox' name='transFill' id='transFill' value='1' title='{$lang->transfill_tip}'> {$lang->transparentlyfill}</span>";
 		}
 		eval("\$fillreportpage = \"".$template->get('reporting_fillreports_init')."\";");

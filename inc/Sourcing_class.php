@@ -184,6 +184,7 @@ class Sourcing {
 
 	public function save_communication_report($data, $supplier_id = '', $identifier = '', $options = array()) {
 		global $core, $db;
+		print_r($data);
 		$data['isCompleted'] = 0;
 		if(is_empty($data['chemical'], $data['affid'])) {
 			$this->status = 1;
@@ -194,7 +195,7 @@ class Sourcing {
 			$supplier_id = $this->supplier['ssid'];
 		}
 		$supplier_id = $db->escape_string($supplier_id);
-		
+
 		if(empty($identifier)) {
 			$identifier = $identifier;
 		}
@@ -219,18 +220,17 @@ class Sourcing {
 		if(!empty($data['date'])) {
 			$data['date'] = strtotime($data['date']);
 		}
-		else
-		{
+		else {
 			$data['date'] = TIME_NOW;
 		}
 		$this->communication_report = $data;
 		$this->communication_report['uid'] = $core->user['uid'];
-		
+
 		$date_tostrtime = array('customerDocumentDate', 'receivedQuantityDate', 'providedDocumentsDate', 'customerAnswerDate', 'provisionDate', 'offerDate', 'OfferAnswerDate');
 		foreach($date_tostrtime as $converteddate) {
 			$this->communication_report[$converteddate] = strtotime($this->communication_report[$converteddate]);
 		}
-		
+
 		$filter_inputs = array('customerDocument', 'requestedQuantity', 'requestedDocuments', 'receivedQuantity', 'receivedDocuments', 'providedQuantity', 'providedDocuments', 'customerAnswer', 'industrialQuantity', 'trialResult', 'offerMade', 'customerOfferAnswer', 'sourcingnotPossibleDesc', 'description');
 		foreach($filter_inputs as $sanitizedinput) {
 			$this->communication_report[$sanitizedinput] = $core->sanitize_inputs($this->communication_report[$sanitizedinput], array('removetags' => true));
@@ -442,26 +442,26 @@ class Sourcing {
 		//return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
 	}
 
-	public function get_chemicalsubstance_byid($id, $selected_attr = array()) {
+	public  function get_chemicalsubstance_byid($id, $selected_attr = array()) {
 		global $db;
 		if(empty($id)) {
 			return false;
 		}
-		
+
 		$query_select = '*';
 		if(!empty($selected_attr)) {
 			$query_select = implode(', ', $selected_attr);
 		}
 		return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemicalsubstances WHERE csid='.intval($id)));
 	}
-	
+
 	public function get_chemicalsubstances($supplier_id = '', $contact_hisoryid = '', $options = '') {
 		global $db;
 
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 		}
-//mt123456
+
 		$chemicalsubstances_query = $db->query("SELECT *
 												FROM ".Tprefix."chemicalsubstances chs
 												JOIN ".Tprefix."sourcing_suppliers_chemicals ssc ON (ssc.csid= chs.csid)
@@ -836,6 +836,23 @@ class Sourcing {
 
 		return $maturity_bars;
 	}
+/*return the affiliates based on availability if the supplier is avaialable in the country where the affiliate is*/
+	public function get_affiliates_byavailability($supplier_id = '') {
+		global $core, $db;
+		if(empty($supplier_id)) {
+			$supplier_id = $this->supplier['ssid'];
+		}
+		 $availabilityquery = $db->query("SELECT ssa.ssaid,aff.name AS affiliate, aff.affid  FROM ".Tprefix."sourcing_suppliers_activityareas ssa 
+										JOIN ".Tprefix."countries c ON (c.coid=ssa.coid)
+										JOIN ".Tprefix."affiliates aff ON (aff.affid=c.affid)  
+										WHERE ssa.availability<>0 AND ssa.ssid=".intval($supplier_id));
+		if($db->num_rows($availabilityquery) > 0) {
+			while($availableaffiliates = $db->fetch_assoc($availabilityquery)) {
+				$affiliates[$availableaffiliates['ssaid']] = $availableaffiliates;
+			}
+		}
+		return $affiliates;
+	}
 
 	public function get_feedback($request_id) {
 		return $this->read_feedback($request_id);
@@ -854,4 +871,5 @@ class Sourcing {
 	}
 
 }
+
 ?>

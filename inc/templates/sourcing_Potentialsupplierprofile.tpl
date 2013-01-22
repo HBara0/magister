@@ -57,7 +57,7 @@ $("input[type='checkbox'][id$='_check']").live('change',function() {
 	var id = $(this).attr("id");
 	$("div[id^='" + $(this).val() + "']").slideToggle("slow");
 });		
-
+{$hide_productsection}
 
 $("span[id^='contactpersondata_']").each(function(){
 	
@@ -96,6 +96,7 @@ $("span[id^='contactpersondata_']").each(function(){
 				classes: ' ui-tooltip-light ui-tooltip-shadow'
 			}
 		});		
+
 
 	});
 });
