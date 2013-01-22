@@ -331,7 +331,11 @@ function parse_selectlist($id, $tabindex, $options, $selected_options, $multiple
 		$id = $config['id'];
 	}
 
-	$list .= '<select id="'.$id.'" name="'.$id.'" size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$multiple.$onchange_actions.'>';
+	if($config['required']) {
+		$required = ' required = "required"';
+	}
+	
+	$list .= '<select id="'.$id.'" name="'.$id.'" size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
 	foreach($options as $key => $val) {
 		if($multiple_selected == true) {
 			if(in_array($key, $selected_options)) {
