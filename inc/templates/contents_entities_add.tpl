@@ -16,7 +16,9 @@
             <td width="20%"><strong>{$lang->entitytype}</strong></td><td colspan="2">{$types_list}</td>
         </tr>
         <tr>
-            <td><strong>{$lang->companyname}</strong></td><td width="30%"><input type="text" id="companyName" name="companyName" class="inlineCheck" title="{$lang->companyname_title}"/> {$lang->abbreviation} <input type="text" id="companyNameAbbr" name="companyNameAbbr" size='5' title="{$lang->companynameabbr_title}"/></td>
+            <td><strong>{$lang->companyname}</strong></td><td width="30%">
+                <input type="text" id="companyName" name="companyName" required="required" class="inlineCheck" title="{$lang->companyname_title}"/> {$lang->abbreviation} 
+                <input type="text" id="companyNameAbbr" name="companyNameAbbr" size='5' title="{$lang->companynameabbr_title}"/></td>
             <td width="50%" rowspan="3" valign="top"><span id="companyName_inlineCheckResult"></span></td>
         </tr>
         <tr>
@@ -62,11 +64,11 @@
         </tr>
          <tr>
            <td>{$lang->email}</td>
-           <td colspan="2"><input type="text" id="mainEmail" accept="email" name="mainEmail" /> <span id="mainEmail_Validation"></span></td>
+           <td colspan="2"><input type="email"  id="mainEmail" accept="email" name="mainEmail" /> </td>
         </tr>
        <tr>
            <td>{$lang->website}</td>
-           <td><input type="text" id="website" name="website" /></td>
+           <td><input type="url" id="website" name="website" /></td>
         </tr>
          <tr><td colspan="3"><hr /></td><tr>
          <td colspan="3" class="subtitle">{$lang->representatives}</td>
@@ -87,7 +89,7 @@
           <tr><td colspan="3"><hr /></td>
         <tr>
             <td colspan="3" align="left">
-            	<input type="button" value="{$lang->add}" id="perform_contents/addentities_Button" /> <input type="reset" value="{$lang->reset}"/>
+            	<input type="submit" value="{$lang->add}" id="perform_contents/addentities_Button" /> <input type="reset" value="{$lang->reset}"/>
             	<div id="perform_contents/addentities_Results"></div>            </td>
         </tr>
         </table>

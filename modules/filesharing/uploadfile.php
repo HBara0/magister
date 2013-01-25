@@ -20,8 +20,8 @@ if($core->usergroup['filesharing_canUploadFile'] == 0) {
 }
 
 if(!$core->input['action']) {
-	$categories_query = get_specificdata('filescategories', array('fcid', 'title'), 'fcid', 'title', array('by' => 'title', 'sort' => 'ASC'), 1, 'isPublic=1');	
-	$categories_list = parse_selectlist('category', 1, $categories_query, 0);
+	$categories_query = get_specificdata('filescategories', array('fcid','title'), 'fcid', 'title', array('by' => 'title', 'sort' => 'ASC'), 1, 'isPublic=1');	
+	$categories_list = parse_selectlist('category', 1, $categories_query,'','','',array('required'=>'required'));
 	
 	if($core->usergroup['filesharing_canViewAllFilesfolder'] == 0) {
 		$folder_query_where = " WHERE ffid NOT IN(SELECT ffid FROM ".Tprefix."filesfolder_viewrestriction WHERE uid={$core->user[uid]})";
@@ -45,7 +45,7 @@ if(!$core->input['action']) {
 	}
 	
 	$folders = get_folderstruture($folders, 0);
-	$folders_list = parse_selectlist('folder', 3, array(0=>'')+get_folderslist(), 0);
+	$folders_list = parse_selectlist('folder', 3,get_folderslist(),'','','',array('required'=>'required'));
 
 	$employees_query = $db->query("SELECT uid, displayName as fullname FROM ".Tprefix."users WHERE gid!=7 AND uid!={$core->user[uid]} ORDER by fullname ASC");
 	while($employee = $db->fetch_array($employees_query)) {

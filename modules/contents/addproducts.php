@@ -28,7 +28,7 @@ if(!$core->input['action']) {
 	);
 	
 	$generics = get_specificdata('genericproducts', $generic_attributes, 'gpid', 'title', $generic_order, 1);
-	$generics_list = parse_selectlist('gpid', 3, $generics, '');
+	$generics_list = parse_selectlist('gpid', 3, $generics, '','','',array('required'=>'required'));
 	
 	eval("\$addproductspage = \"".$template->get('contents_products_add')."\";");
 	output_page($addproductspage);

@@ -15,12 +15,12 @@
     <table>
         <tr>
             <td>{$lang->selectfile}</td>
-            <td colspan="3"><input type="file" id="uploadfile[]" name="uploadfile[]" multiple="true" ></td>
+            <td colspan="3"><input type="file" id="uploadfile[]" name="uploadfile[]" multiple="true" required="required" ></td>
             
         </tr>
         <tr>
             <td>{$lang->title}</td>
-            <td colspan="3"><input name='title' id='title' type="text" maxlength="220" autocomplete='off'/></td>
+            <td colspan="3"><input name='title' id='title' type="text" maxlength="220" autocomplete='off' required="required"/></td>
         </tr>
         <tr>
             <td>{$lang->category}</td>
@@ -56,7 +56,7 @@
      <input type="hidden" id="action" name="action" value="createfolder" />
     <table>
         <tr>
-            <td>{$lang->title}</td><td><input name='name' id='name' type="text" maxlength="220" autocomplete='off'/></td>
+            <td>{$lang->title}</td><td><input name='name' id='name' type="text" maxlength="220" autocomplete='off' required="required"/></td>
             
         </tr>
         <tr>
@@ -75,7 +75,7 @@
             <td align="center"><input type="checkbox" value="1" id="noWritePermissionsLater" name="noWritePermissionsLater" checked="checked">{$lang->preventallnewusers}<br />{$employees_preventwrite_list}</td>
         </tr>
         <tr>
-        	<td>&nbsp;</td><td><input type='button' class='button' value='{$lang->savecaps}' id='perform_filesharing/fileslist_Button' /></td>
+        	<td>&nbsp;</td><td><input type='submit' class='button' value='{$lang->savecaps}' id='perform_filesharing/fileslist_Button' /></td>
         </tr>
      </table>
         
