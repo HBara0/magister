@@ -2,7 +2,6 @@
 <head>
 <title>{$core->settings[systemtitle]} | {$lang->shareafile}</title>
 {$headerinc}
-<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />
 </head>
 <body>
 {$header}
@@ -11,11 +10,11 @@
 <td class="contentContainer">
     <iframe id='uploadFrame' name='uploadFrame' src='#' style="display:none;"></iframe>
     <h3>{$lang->shareafile}</h3>
-    <form  name='upload_Form' id="upload_Form" action="index.php?module=filesharing/uploadfile&amp;action=do_uploadfile" method="post" enctype="multipart/form-data" target="uploadFrame">
+    <form name='upload_Form' id="upload_Form" action="index.php?module=filesharing/uploadfile&amp;action=do_uploadfile" method="post" enctype="multipart/form-data" target="uploadFrame">
     <table>
         <tr>
             <td>{$lang->selectfile}</td>
-            <td colspan="3"><input type="file" id="uploadfile[]" name="uploadfile[]" multiple="true" required="required" ></td>
+            <td colspan="3"><input type="file" id="uploadfile[]" name="uploadfile[]" multiple="true" required="required" /></td>
             
         </tr>
         <tr>
@@ -26,7 +25,7 @@
             <td>{$lang->category}</td>
             <td>{$categories_list}</td>
             <td>{$lang->folder}</td>
-            <td>{$folders_list} <a href="#" id="showpopup_createfolder" class ="showpopup"><img src="images/addnew.png" alt="{$lang->createfolder}" border='0' /></a></td>
+            <td>{$folders_list} <a href="#" id="showpopup_createfolder" class="showpopup"><img src="images/addnew.png" alt="{$lang->createfolder}" border='0' /></a></td>
         </tr>
         <tr>
             <td>{$lang->description}</td>

@@ -4,18 +4,18 @@
     <input type="hidden" name="action" value="do_add_representative" />
      <table cellpadding='0' cellspacing='0' width='100%'>
         <tr>
-            <td width="40%"><strong>{$lang->representativename}</strong></td><td><input type='text' id='repName' name='repName' tabindex="1"/></td>
+            <td width="40%"><strong>{$lang->representativename}</strong></td><td><input type='text' required="required" id='repName' name='repName' tabindex="1"/></td>
         </tr>
         <tr>
-            <td><strong>{$lang->email}</strong></td><td><input type='text' accept="email" id='repEmail' name='repEmail' tabindex="2"/> <span id="repEmail_Validation"></span></td>
+            <td><strong>{$lang->email}</strong></td><td><input type='email' required="required" accept="email" id='repEmail' name='repEmail' tabindex="2"/> <span id="repEmail_Validation"></span></td>
         </tr>
              <tr>
-            <td><strong>{$lang->telephone}</strong></td><td><input name="repTelephone[intcode]" accept="numeric" type="text" size="3" /><input name="repTelephone[areacode]" accept="numeric" type="text" size="4" /><input type='text' accept="numeric" id='repTelephone_number' name='repTelephone[number]' tabindex="2"/></td>
+            <td>{$lang->telephone}</td><td><input name="repTelephone[intcode]" accept="numeric" type="text" size="3" /><input name="repTelephone[areacode]" accept="numeric" type="text" size="4" /><input type='text' accept="numeric" id='repTelephone_number' name='repTelephone[number]' tabindex="2"/></td>
         </tr>
        {$entity_field_row}
           <td colspan="2" align="left">
          		<hr />
-                <input type='button' id='add_representative_{$core->input[module]}_Button' value='{$lang->savecaps}' class='button'/>
+                <input type='submit' id='add_representative_{$core->input[module]}_Button' value='{$lang->savecaps}' class='button'/>
                 <div id="add_representative_{$core->input[module]}_Results"></div>
             </td>
         </tr>

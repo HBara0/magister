@@ -11,7 +11,7 @@
 <h3>{$lang->fillvisitreport}</h3>
     {$draftreports_selectlist}
     <form action="index.php?module=crm/fillvisitreport&amp;stage=visitdetails&amp;identifier={$identifier}" method="post">
-    <input type="hidden" name="referrer" value="fill">
+    <input type="hidden" name="referrer" value="fill" />
     <table cellpadding="0" cellspacing="0" width="100%">
     	<tr>
         	<td>{$lang->calltype}</td>
@@ -37,11 +37,11 @@
         </tr>
     	<tr>
         	<td>{$lang->customername}</td>
-            <td><input type='text' id='customer_1_QSearch' value="{$visitreport_values[customername]}" autocomplete="off"/><input type="text" size="3" id="customer_1_id_output" value="{$visitreport_values[cid]}" disabled/><input type='hidden' id='customer_1_id' name='cid' value="{$visitreport_values[cid]}"/><a href="index.php?module=contents/addentities&amp;type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
+            <td><input type='text' id='customer_1_QSearch' value="{$visitreport_values[customername]}" autocomplete="off" required='required' /><input type="text" size="3" id="customer_1_id_output" value="{$visitreport_values[cid]}" disabled required='required' /><input type='hidden' id='customer_1_id' name='cid' value="{$visitreport_values[cid]}"/><a href="index.php?module=contents/addentities&amp;type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}" /></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
         </tr>
         <tr>
         	<td>{$lang->contactperson}</td>
-            <td><input type='text' id='representative_2_QSearch' value="{$visitreport_values[representativename]}" autocomplete="off"/><input type="text" size="3" id="representative_2_id_output" value="{$visitreport_values[rpid]}" disabled/><input type='hidden' id='representative_2_id' name='rpid' value="{$visitreport_values[rpid]}" /><a href="#" id="addnew_crm/fillvisitreport_representative"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a><div id='searchQuickResults_2' class='searchQuickResults' style='display:none;'></div></td>
+            <td><input type='text' id='representative_2_QSearch' value="{$visitreport_values[representativename]}" autocomplete="off" required='required' /><input type="text" size="3" id="representative_2_id_output" value="{$visitreport_values[rpid]}" disabled required='required' /><input type='hidden' id='representative_2_id' name='rpid' value="{$visitreport_values[rpid]}" /><a href="#" id="addnew_crm/fillvisitreport_representative"><img src="images/addnew.png" border="0" alt="{$lang->add}" /></a><div id='searchQuickResults_2' class='searchQuickResults' style='display:none;'></div></td>
         </tr>
        	<tr>
             <td>{$lang->affiliate}</td>
@@ -97,7 +97,8 @@
             </td>
         </tr>
     </table>
-    <div align="center"><input type="submit" value="{$lang->next}" class="button"> <input type="reset" value="{$lang->reset}" class="button"></div>
+	<hr />
+    <div align="center"><input type="submit" value="{$lang->next}" class="button" /> <input type="reset" value="{$lang->reset}" class="button" /></div>
     </form>
 </td>
   </tr>

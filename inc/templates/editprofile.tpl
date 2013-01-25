@@ -9,48 +9,48 @@
 <td class="menuContainer" align="right"><span style="margin-right:10px;"><a href="{$_SERVER[HTTP_REFERER]}">&laquo; Go back</a></span></td>
 <td class="contentContainer">
 <h3>{$lang->edityouraccount}</h3>
-	<form id="changepassword_Form" name="changepassword_Form" action="#" method="post">
+	<form id="changepassword_Form" name="changepassword_Form" method="post">
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr><td colspan="2" class="subtitle">{$lang->changepassword}</td></tr>
            <tr>
             <td width="15%">{$lang->oldpassword}</td>
-            <td width="85%"><input type="password" id="oldpassword" name="oldpassword"/></td>
+            <td width="85%"><input type="password" id="oldpassword" name="oldpassword" required="required" /></td>
           </tr>
           <tr>
             <td>{$lang->newpassword}</td>
-             <td><input type="password" id="newpassword" name="newpassword"/></td>
+             <td><input type="password" id="newpassword" name="newpassword" required="required"/></td>
           </tr>
            <tr>
             <td>{$lang->confirmpassword}</td>
-             <td><input type="password" id="newpassword2" name="newpassword2"/></td>
+             <td><input type="password" id="newpassword2" name="newpassword2" required="required"/></td>
           </tr>
           <tr><td colspan="2">
-            <input type="button" id="changepassword_Button"  value="{$lang->change}"/> <input type="reset" value="{$lang->reset}" />
+            <input type="submit" id="changepassword_Button"  value="{$lang->change}"/> <input type="reset" value="{$lang->reset}" />
             <div id="changepassword_Results"></div>
             </td></tr>
         </table>
     </form>
     <hr  />
     	<div align="right"><a href="users.php?action=profile&uid={$core->user[uid]}">{$lang->viewyourprofile}</a></div>
-    	<form id="modifyprofile_Form" name="modifyprofile_Form" action="#" method="post">
+    	<form id="modifyprofile_Form" name="modifyprofile_Form" method="post">
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr><td colspan="3" class="subtitle">{$lang->editprofileinformation}</td></tr>
         <tr>
           <td rowspan="14" align="center" valign="top" class="border_right"><a id="showpopup_changeprofilepic" class="showpopup"><img id="profilePicture" src="{$core->settings[rootdir]}/{$core->settings[profilepicdir]}/{$core->user[profilePicture]}" alt="{$lang->changeprofilepic}" border="0" style="cursor:pointer;"/></a><hr /></td>
-            <td><strong>{$lang->firstname}</strong></td><td><input type="text" id="firstName" name="firstName"  value="{$core->user[firstName]}" tabindex="1"/></td>
+            <td><strong>{$lang->firstname}</strong></td><td><input type="text" id="firstName" name="firstName"  value="{$core->user[firstName]}" tabindex="1" required="required"/></td>
         </tr>
         <tr>
           <td>{$lang->middlename}</td><td><input type="text" id="middleName" name="middleName"  value="{$core->user[middleName]}" tabindex="2"/></td>
         </tr>
         <tr>
-          <td><strong>{$lang->lastname}</strong></td><td><input type="text" id="lastName" name="lastName"  value="{$core->user[lastName]}" tabindex="3"/></td>
+          <td><strong>{$lang->lastname}</strong></td><td><input type="text" id="lastName" name="lastName"  value="{$core->user[lastName]}" tabindex="3" required="required"/></td>
         </tr>
         <tr>
           <td><strong>{$lang->email}</strong></td>
-           <td><input type="text" id="email" name="email" value="{$core->user[email]}" tabindex="4"/> <span id="email_Validation"></span></td>
+           <td><input type="email" id="email" name="email" value="{$core->user[email]}" tabindex="4" required="required"/> <span id="email_Validation"></span></td>
         </tr>
         <td><strong>{$lang->skype}</strong></td>
-           <td><input type="text" id="skype" name="skype" value="{$core->user[skype]}" tabindex="4"/></td>
+           <td><input type="text" id="skype" name="skype" value="{$core->user[skype]}" tabindex="4" required="required"/></td>
         </tr>
         <tr>
           <td>{$lang->city}</td>
@@ -74,12 +74,12 @@
           </tr>
           <tr>
           	<td>{$lang->internalextension}</td>
-          	<td><input size="4" maxlength="4" name="internalExtension" id="internalExtension" value="{$core->user[internalExtension]}"></td>
+          	<td><input size="4" maxlength="4" name="internalExtension" id="internalExtension" value="{$core->user[internalExtension]}"/></td>
           </tr>
           <tr>
            <td>{$lang->telephone}</td>
-           <td>+ <input type="text" id="telephone_intcode" name="telephone_intcode" size="3" maxlength="3" accept="numeric"  value="{$phones[telephone][intcode]}" tabindex="10"/> <input type="text" id="telephone_areacode" name="telephone_areacode" size='4' maxlength="4" accept="numeric"  value="{$phones[telephone][areacode]}" tabindex="11"/> <input type="text" id="telephone_number" name="telephone_number" accept="numeric"  value="{$phones[telephone][number]}" tabindex="12"/> &times; <input size="4" maxlength="4" name="telephoneExtension" id="telephoneExtension" value="{$core->user[telephoneExtension]}"><br />
-           	+ <input type="text" id="telephone2_intcode" name="telephone2_intcode" size="3" maxlength="3" accept="numeric"  value="{$phones[telephone2][intcode]}" tabindex="13"/> <input type="text" id="telephone2_areacode" name="telephone2_areacode" size='4' maxlength="4" accept="numeric"  value="{$phones[telephone2][areacode]}" tabindex="14"/> <input type="text" id="telephone2_number" name="telephone2_number" accept="numeric"  value="{$phones[telephone2][number]}" tabindex="15"/>  &times; <input size="4" maxlength="4" name="telephone2Extension" id="telephone2Extension" value="{$core->user[telephone2Extension]}"> </td>
+           <td>+ <input type="text" id="telephone_intcode" name="telephone_intcode" size="3" maxlength="3" accept="numeric"  value="{$phones[telephone][intcode]}" tabindex="10"/> <input type="text" id="telephone_areacode" name="telephone_areacode" size='4' maxlength="4" accept="numeric"  value="{$phones[telephone][areacode]}" tabindex="11"/> <input type="text" id="telephone_number" name="telephone_number" accept="numeric"  value="{$phones[telephone][number]}" tabindex="12"/> &times; <input size="4" maxlength="4" name="telephoneExtension" id="telephoneExtension" value="{$core->user[telephoneExtension]}"/><br />
+           	+ <input type="text" id="telephone2_intcode" name="telephone2_intcode" size="3" maxlength="3" accept="numeric"  value="{$phones[telephone2][intcode]}" tabindex="13"/> <input type="text" id="telephone2_areacode" name="telephone2_areacode" size='4' maxlength="4" accept="numeric"  value="{$phones[telephone2][areacode]}" tabindex="14"/> <input type="text" id="telephone2_number" name="telephone2_number" accept="numeric"  value="{$phones[telephone2][number]}" tabindex="15"/>  &times; <input size="4" maxlength="4" name="telephone2Extension" id="telephone2Extension" value="{$core->user[telephone2Extension]}"/> </td>
         </tr>
          <tr>
         <td>{$lang->mobile}</td>
@@ -107,7 +107,7 @@
             </tr>
              <tr><td colspan="3" class="subtitle">&nbsp;</td></tr>
           <tr><td colspan="3">
-            <input type="button" id="modifyprofile_Button"  value="{$lang->modify}" tabindex="17" class="button"/> <input type="reset" value="{$lang->reset}" class="button"/>
+            <input type="submit" id="modifyprofile_Button"  value="{$lang->modify}" tabindex="17" class="button"/> <input type="reset" value="{$lang->reset}" class="button"/>
             <div id="modifyprofile_Results"></div>
             </td></tr>
         </table>

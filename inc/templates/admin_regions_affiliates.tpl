@@ -73,14 +73,6 @@
     </td>
 </tr>
 <tr>
-    <td width="20%">{$lang->annualleavedays}</td>
-    <td width="80%"><input type="text" id="annualLeaveDays" name="annualLeaveDays" accept="numeric" /></td>
-</tr>
-<tr>
-    <td width="20%">{$lang->allowedsickleavesnum}</td>
-    <td width="80%"><input type="text" id="sickLeaveDays" name="sickLeaveDays" accept="numeric" /></td>
-</tr>
-<tr>
 <td colspan="2"><input type="button" id="add_regions/affiliates_Button" value="{$lang->add}" /><input type="reset" value="{$lang->reset}" />
 <div id="add_regions/affiliates_Results"></div>
 </td>
