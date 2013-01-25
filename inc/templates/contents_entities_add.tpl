@@ -70,28 +70,27 @@
            <td>{$lang->website}</td>
            <td><input type="url" id="website" name="website" /></td>
         </tr>
-         <tr><td colspan="3"><hr /></td></tr><tr>
+         <tr><td colspan="3"><hr /></td><tr>
          <td colspan="3" class="subtitle">{$lang->representatives}</td>
          </tr>
          <tr>
          	<td colspan="3">
             <table width="100%">
             <tbody id="representatives_tbody">
-           	  <tr id='1'><td><input type='text' id='representative_1_QSearch' autocomplete='off' size='40px'/><input type='hidden' id='representative_1_id' name='representative[1][rpid]'/><a href='#representative_1_id' id='addnew_contents/addentities_representative'><img src='images/addnew.png' border='0' alt='{$lang->add}' /></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td></tr>   
+           	  <tr id='1'><td><input type='text' id='representative_1_QSearch' autocomplete='off' size='40px'/><input type='hidden' id='representative_1_id' name='representative[1][rpid]'/><a href='#representative_1_id' id='addnew_contents/addentities_representative'><img src='images/addnew.png' border='0' alt='{$lang->add}'></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></tr>   
            </tbody>
-             <tr><td colspan="2"><img src="images/add.gif" id="addmore_representatives" alt="{$lang->add}" /><input type="hidden" name="rep_numrows" id="numrows" value="1" /></td></tr><tr>
-         	</tr></table>            </td>
+             <tr><td colspan="2"><img src="images/add.gif" id="addmore_representatives" alt="{$lang->add}"><input type="hidden" name="rep_numrows" id="numrows" value="1"></td><tr>
+         	</table>            </td>
             </tr>
            <tr><td colspan="3"><hr /></td>
-        </tr><tr>
-            <td colspan="3" align="left"><input name="createReports" id="createReports" type="checkbox" value="1"{$createreports_disabled} /> {$lang->alsocreatecurrentreports}</td>
+        <tr>
+            <td colspan="3" align="left"><input name="createReports" id="createReports" type="checkbox" value="1"{$createreports_disabled}> {$lang->alsocreatecurrentreports}</td>
          </tr>
           <tr><td colspan="3"><hr /></td>
-        </tr><tr>
+        <tr>
             <td colspan="3" align="left">
             	<input type="submit" value="{$lang->add}" id="perform_contents/addentities_Button" /> <input type="reset" value="{$lang->reset}"/>
-            	<div id="perform_contents/addentities_Results"></div>
-			</td>
+            	<div id="perform_contents/addentities_Results"></div>            </td>
         </tr>
         </table>
     </form>

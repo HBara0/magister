@@ -236,7 +236,7 @@ if(!$core->input['action']) {
 			error($lang->notassignedtosegments);
 		}
 
-		$productline_list = parse_selectlist('productLine[]', 3, $productlines, $productLine_selected, 1, '', array('required' => 'required'));
+		$productline_list = parse_selectlist('productLine[]', 3, $productlines, $productLine_selected, 1);
 	
 		/* Parse draft reports select list - START */
 		$query = $db->query('SELECT vr.identifier, vr.date, companyName AS customerName 

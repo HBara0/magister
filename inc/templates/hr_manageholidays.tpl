@@ -23,15 +23,14 @@
 		});
 	});
 </script>
-</head>
-
-<body>
 {$header}
+</head>
+<body>
 <tr>
 {$menu}
 <td class="contentContainer">
 <h3>{$pagetitle}</h3>
-<form name='change_hr/manageholidays_Form' id="change_hr/manageholidays_Form" method="post">
+<form name='change_hr/manageholidays_Form' id="change_hr/manageholidays_Form" method="post"  >
 <input type="hidden" id="action" name="action" value="{$action}" />
 {$affid_field}
 {$hid_field}
@@ -47,11 +46,11 @@
 	</thead>
 	<tbody>
 		<tr>
-            <td align="center"><input type='text' name="title" id="title" required="required" value="{$holiday[title]}"/> <input type='checkbox' name='isOnce' id='isOnce' value="1"{$checkedboxes[isOnce]} />{$lang->once}</td>
+                    <td align="center"><input type='text' name="title" id="title" required="required" value="{$holiday[title]}"/> <input type='checkbox' name='isOnce' id='isOnce' value="1"{$checkedboxes[isOnce]}>{$lang->once}</td>
 			<td align="center">{$months_list}</td>
 			<td align="center">{$days_list}</td>
 			<td align="center"><input type='text' name="year" id="year" maxlength="4" size="4" accept="numeric" value="{$holiday[year]}"{$year_disabled}/></td>
-			<td align="center"><input type='text' name="numDays" id="numDays" size="3" maxlength="3" required="required" value="{$holiday[numDays]}" accept="numeric" /></td>
+			<td align="center"><input type='text' name="numDays" id="numDays" size="3" maxlength="3"  required="required"  value="{$holiday[numDays]}"   accept="numeric"/></td>
 		</tr>
 	</tbody>
 		<tr>
