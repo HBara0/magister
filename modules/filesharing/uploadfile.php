@@ -20,8 +20,8 @@ if($core->usergroup['filesharing_canUploadFile'] == 0) {
 }
 
 if(!$core->input['action']) {
-	$categories_query = get_specificdata('filescategories', array('fcid','title'), 'fcid', 'title', array('by' => 'title', 'sort' => 'ASC'), 1, 'isPublic=1');	
-	$categories_list = parse_selectlist('category', 1, $categories_query,'','','',array('required'=>'required'));
+	$categories_query = get_specificdata('filescategories', array('fcid','title'), 'fcid', 'title', array('by' => 'title', 'sort' => 'ASC'),  'isPublic=1');	
+	$categories_list = parse_selectlist('category', 1, $categories_query,'','','',array('required'=>'required','blankstart'=>true));
 	
 	if($core->usergroup['filesharing_canViewAllFilesfolder'] == 0) {
 		$folder_query_where = " WHERE ffid NOT IN(SELECT ffid FROM ".Tprefix."filesfolder_viewrestriction WHERE uid={$core->user[uid]})";
