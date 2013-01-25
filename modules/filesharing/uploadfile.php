@@ -20,8 +20,30 @@ if($core->usergroup['filesharing_canUploadFile'] == 0) {
 }
 
 if(!$core->input['action']) {
-	$categories_query = get_specificdata('filescategories', array('fcid','title'), 'fcid', 'title', array('by' => 'title', 'sort' => 'ASC'),  'isPublic=1');	
-	$categories_list = parse_selectlist('category', 1, $categories_query,'','','',array('required'=>'required','blankstart'=>true));
+<?php
+/*
+ * Orkila Central Online System (OCOS)
+ * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * 
+ * Upload a Shared File
+ * $module: filesharing
+ * $id: uploadfile.php
+ * Created:	   	 	@najwa.kassem	January 31, 2010 | 10:10 AM
+ * Last Update: 	@zaher.reda 	August 23, 2011 | 01:00 AM
+ */
+ 
+if(!defined("DIRECT_ACCESS")) {
+	die('Direct initialization of this file is not allowed.');
+}
+
+if($core->usergroup['filesharing_canUploadFile'] == 0) {
+	error($lang->sectionnopermission);
+	exit;
+}
+
+if(!$core->input['action']) {
+	$categories_query = get_specificdata('filescategories', array('fcid','title'), 'fcid', 'title', array('by' => 'title', 'sort' => 'ASC'), 0, 'isPublic=1');	
+	$categories_list = parse_selectlist('category', 1, $categories_query, '', '', '', array('required'=>'required', 'blankstart' => true));
 	
 	if($core->usergroup['filesharing_canViewAllFilesfolder'] == 0) {
 		$folder_query_where = " WHERE ffid NOT IN(SELECT ffid FROM ".Tprefix."filesfolder_viewrestriction WHERE uid={$core->user[uid]})";
@@ -45,7 +67,7 @@ if(!$core->input['action']) {
 	}
 	
 	$folders = get_folderstruture($folders, 0);
-	$folders_list = parse_selectlist('folder', 3,get_folderslist(),'','','',array('required'=>'required'));
+	$folders_list = parse_selectlist('folder', 3,array(0=>'')+get_folderslist(),0, '', '', array('required'=>'required'));
 
 	$employees_query = $db->query("SELECT uid, displayName as fullname FROM ".Tprefix."users WHERE gid!=7 AND uid!={$core->user[uid]} ORDER by fullname ASC");
 	while($employee = $db->fetch_array($employees_query)) {
@@ -74,16 +96,15 @@ elseif($core->input['action'] == 'do_uploadfile')
 		exit;
 	}
 
-	$allowed_types = array('application/excel', 'application/x-excel' ,'application/vnd.ms-excel', 'application/vnd.msexcel', 'image/jpeg', 'image/gif', 'image/png', 'application/zip', 'application/pdf', 'application/x-pdf', 'application/msword','application/vnd.ms-powerpoint', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
-	$upload = new Uploader('uploadfile', $_FILES, $allowed_types, 'ftp', 5242880, 1, 1); //5242880 bytes = 5 MB (1024)
+	$allowed_types = array('application/excel', 'application/x-excel' ,'application/vnd.ms-excel', 'application/vnd.msexcel', 'image/jpeg', 'image/gif', 'image/png', 'application/zip', 'application/pdf', 'application/x-pdf', 'application/msword','application/vnd.ms-powerpoint', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/vnd.openxmlformats-officedocument.presentationml.presentation');
 
-	//$path = "./uploads/sharedfiles/";
-	$path = "./";
-	$upload->establish_ftp(array('server' => '64.15.147.245', 'username' => 'ftpuser@orkila.com.lb', 'password' => 'r^;6fWkmTB;)'));
+	$upload = new Uploader('uploadfile', $_FILES, $allowed_types, 'putfile', 5242880, 1, 1); //5242880 bytes = 5 MB (1024)
+
+	$path = "./uploads/sharedfiles/";
 	$upload->set_upload_path($path);
 	$upload->process_file();
 	//$upload->resize(200);
-	$upload->close_ftp();
+	
 	$file_data = $upload->get_filesinfo();
 	
 	$multiple_files = false;
