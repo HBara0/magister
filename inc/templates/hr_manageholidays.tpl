@@ -46,11 +46,11 @@
 	</thead>
 	<tbody>
 		<tr>
-			<td align="center"><input type='text' name="title" id="title" value="{$holiday[title]}"/> <input type='checkbox' name='isOnce' id='isOnce' value="1"{$checkedboxes[isOnce]}>{$lang->once}</td>
+                    <td align="center"><input type='text' name="title" id="title" required="required" value="{$holiday[title]}"/> <input type='checkbox' name='isOnce' id='isOnce' value="1"{$checkedboxes[isOnce]}>{$lang->once}</td>
 			<td align="center">{$months_list}</td>
 			<td align="center">{$days_list}</td>
 			<td align="center"><input type='text' name="year" id="year" maxlength="4" size="4" accept="numeric" value="{$holiday[year]}"{$year_disabled}/></td>
-			<td align="center"><input type='text' name="numDays" id="numDays" size="3" maxlength="3" value="{$holiday[numDays]}" accept="numeric"/></td>
+			<td align="center"><input type='text' name="numDays" id="numDays" size="3" maxlength="3"  required="required"  value="{$holiday[numDays]}"   accept="numeric"/></td>
 		</tr>
 	</tbody>
 		<tr>
@@ -61,7 +61,7 @@
             </td>
 		</tr>
 		<tr>
-			<td colspan="5"><hr /><input type='button' class='button' value='{$lang->savecaps}' id='change_hr/manageholidays_Button' /> </td>
+			<td colspan="5"><hr /><input type='submit' class='button' value='{$lang->savecaps}' id='change_hr/manageholidays_Button' /> </td>
 		</tr>
 </table>
 </form>
