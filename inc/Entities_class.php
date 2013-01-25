@@ -282,6 +282,15 @@ class Entities {
 					$this->data['contractExpiryDate'] = $this->checkgenerate_date($this->data['contractExpiryDate']);
 				}
 
+				/* Set value for unchecked checkboxes - START  */
+				$checkboxes_tocheck = array('noQReportSend', 'noQReportReq');
+				foreach($checkboxes_tocheck as $checkid) {
+					if(!isset($this->data[$checkid])) {
+						$this->data[$checkid] = 0;
+					}
+				}
+				/* Set value for unchecked checkboxes - END */
+				
 				$query = $db->update_query('entities', $this->data, "eid='".$this->eid."'");
 				if($query) {
 					$db->delete_query('affiliatedentities', "eid='".$this->eid."'");
