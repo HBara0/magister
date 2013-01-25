@@ -285,7 +285,7 @@ function create_cookie($name, $value, $duration = '', $secure = false, $httponly
 }
 
 /* Parse input fields of various types */
-function parse_textfield($id, $type, $options = array(), $config = array()) {
+function parse_textfield($id, $type, $value = '', $options = array(), $config = array()) {
 	if(empty($id)) {
 		return false;
 	}
@@ -305,7 +305,7 @@ function parse_textfield($id, $type, $options = array(), $config = array()) {
 		$id = $config['id'];
 	}
 
-	$text = '<input type="'.$type.'" name="'.$id.'" id="'.$id.'"'.$attributes.'>';
+	$text = '<input type="'.$type.'" name="'.$id.'" value="'.$value.'" id="'.$id.'"'.$attributes.'>';
 	return $text;
 }
 
@@ -334,8 +334,11 @@ function parse_selectlist($id, $tabindex, $options, $selected_options, $multiple
 	if($config['required']) {
 		$required = ' required = "required"';
 	}
-	
+
 	$list .= '<select id="'.$id.'" name="'.$id.'" size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
+	if($config['blankstart'] == true) {
+		$list .= '<option></option>';
+	}
 	foreach($options as $key => $val) {
 		if($multiple_selected == true) {
 			if(in_array($key, $selected_options)) {
