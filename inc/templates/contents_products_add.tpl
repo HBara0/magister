@@ -29,7 +29,7 @@
     <td>{$lang->description}</td><td><textarea cols="30" rows="5" id="description" name="description" tabindex="5"></textarea></td>
 </tr>
 <tr>
-    <td><strong>{$lang->defaultcurrency}</strong></td><td><select name="defaultCurrency" id="defaultCurrency"   required="required" tabindex="6" disabled><option value="USD" selected="selected">USD</option><option value="EURO">EURO</option></select></td>
+    <td><strong>{$lang->defaultcurrency}</strong></td><td><select name="defaultCurrency" id="defaultCurrency" required="required" tabindex="6" disabled><option value="USD" selected="selected">USD</option><option value="EURO">EURO</option></select></td>
 </tr>
 <tr>
     <td>{$lang->taxrate}</td><td><input type="text" name="taxRate" id="taxRate" tabindex="7" disabled/></td>
