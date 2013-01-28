@@ -64,11 +64,11 @@
         </tr>
          <tr>
            <td>{$lang->email}</td>
-           <td colspan="2"><input type="email"  id="mainEmail" accept="email" name="mainEmail" /> </td>
+           <td colspan="2"><input type="email"  id="mainEmail" accept="email" name="mainEmail" placeholder="name@example.com" /> </td>
         </tr>
        <tr>
            <td>{$lang->website}</td>
-           <td><input type="url" id="website" name="website" /></td>
+           <td><input type="url" id="website" name="website" placeholder="http://www.example.com" /></td>
         </tr>
          <tr><td colspan="3"><hr /></td><tr>
          <td colspan="3" class="subtitle">{$lang->representatives}</td>

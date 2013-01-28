@@ -46,7 +46,7 @@
 	</thead>
 	<tbody>
 		<tr>
-                    <td align="center"><input type='text' name="title" id="title" required="required" value="{$holiday[title]}"/> <input type='checkbox' name='isOnce' id='isOnce' value="1"{$checkedboxes[isOnce]}>{$lang->once}</td>
+            <td align="center"><input type='text' name="title" id="title" required="required" value="{$holiday[title]}"/> <input type='checkbox' name='isOnce' id='isOnce' value="1"{$checkedboxes[isOnce]}>{$lang->once}</td>
 			<td align="center">{$months_list}</td>
 			<td align="center">{$days_list}</td>
 			<td align="center"><input type='text' name="year" id="year" maxlength="4" size="4" accept="numeric" value="{$holiday[year]}"{$year_disabled}/></td>
