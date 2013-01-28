@@ -50,7 +50,7 @@ if($db->num_rows($users_query) > 0) {
 		if(empty($body_message)) {
 			continue;
 		}
-echo $body_message;
+
 		/* build the email_data array to pass the argument to the mail object */
 		$email_data = array(
 				'to' => $recepient_details['email'],
