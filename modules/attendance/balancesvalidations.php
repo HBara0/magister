@@ -9,13 +9,12 @@
  */
 
 if(!isset($core->input['identifier'])) {
-	$identifier = substr(md5(uniqid(microtime())), 1,10);
+	$identifier = substr(md5(uniqid(microtime())), 1, 10);
 }
-else
-{
+else {
 	$identifier = $core->input['identifier'];
 }
-		
+
 $session->name_phpsession(COOKIE_PREFIX.'fillvisitreport'.$identifier);
 $session->start_phpsession();
 
@@ -100,15 +99,16 @@ if(!$core->input['action']) {
 	eval("\$validation_page = \"".$template->get('attendance_balancevalidation')."\";");
 	output_page($validation_page);
 }
-else {
+else {  //days taken must = actual taken
 	if($core->input['action'] == 'preview' || $core->input['action'] == 'fixbalances') {
+		
 		if($session->isset_phpsession('balancevalidations_'.$identifier)) {
 			$options = unserialize($session->get_phpsession('balancevalidations_'.$identifier));
 		}
 		else {
 			$options = $core->input;
 		}
-		
+
 		if(is_empty($options['period'])) {
 			error($lang->fillrequiredfields);
 		}
@@ -120,17 +120,17 @@ else {
 		if($core->input['action'] != 'fixbalances') {
 			list($options['periodStart'], $options['periodEnd']) = explode('-', $options['period']);
 			list($options['prevPeriodStart'], $options['prevPeriodEnd']) = explode('-', $options['prevPeriod']);
-		
+
 			$session->set_phpsession(array('balancevalidations_'.$identifier => serialize($options)));
 		}
-		
+
 		/* Validate attribute values at once - START */
 		$validation_items = array('periodStart', 'periodEnd', 'prevPeriodStart', 'prevPeriodEnd', 'type');
 		foreach($validation_items as $item) {
 			$options[$item] = intval($options[$item]);
 		}
 		/* Validate attribute values at once - END */
-		
+
 		$query = $db->query("SELECT l.*, lt.isWholeDay 
 			FROM ".Tprefix."leaves l 
 			JOIN leavetypes lt ON (lt.ltid=l.type) 
@@ -167,11 +167,15 @@ else {
 			if($leave['fromDate'] < $options['periodStart']) {
 				$leave['fromDate'] = $options['periodStart'];
 			}
+			
 			if($db->fetch_field($db->query("SELECT COUNT(*) AS count FROM leavesapproval WHERE isApproved=0 AND lid={$leave[lid]}"), 'count') == 0) {
 				$leaves_counts[$leave['uid']] += count_workingdays($leave['uid'], $leave['fromDate'], $leave['toDate'], $leave['isWholeDay']);
 			}
 		}
-		
+		 
+		if(!is_array($leaves_counts)) {
+			redirect('index.php?module=attendance/balancesvalidations');
+		}
 		$query2 = $db->query("SELECT lt.*, u.displayName
 						FROM ".Tprefix."leavesstats lt 
 						JOIN users u ON (u.uid=lt.uid)
@@ -196,7 +200,7 @@ else {
 				$prevbalance = $db->fetch_assoc($db->query("SELECT lt.*, u.displayName
 									FROM ".Tprefix."leavesstats lt JOIN users u ON (u.uid=lt.uid)
 									WHERE ltid={$options[type]} AND periodStart={$options[prevPeriodStart]} AND periodEnd={$options[prevPeriodEnd]} AND lt.uid={$leavestat[uid]}"));
-			
+
 				if(empty($prevbalance) && !isset($prevbalance)) {
 					$prevbalance['canTake'] = $prevbalance['daysTaken'] = 0;
 				}
@@ -204,13 +208,15 @@ else {
 			else {
 				$prevbalance['canTake'] = $prevbalance['daysTaken'] = 0;
 			}
-	
-			if($leavestat['remainPrevYear'] < ($prevbalance['canTake'] - $prevbalance['daysTaken'])) {
+ 
+			if($leavestat['remainPrevYear'] < ($prevbalance['canTake'] - $prevbalance['daysTaken'])) { 
 				$cellstyle['remainPrevYear'] = ' style="color:red;"';
 				if($core->input['fixremainPrevYear'] == 1) {
 					$db->update_query('leavesstats', array('remainPrevYear' => ($prevbalance['canTake'] - $prevbalance['daysTaken'])), 'lsid='.$leavestat['lsid']);
+			
+					
 				}
-			}
+			} 
 			elseif($leavestat['remainPrevYear'] > ($prevbalance['canTake'] - $prevbalance['daysTaken'])) {
 				$cellstyle['remainPrevYear'] = ' style="color:orange;"';
 				if($core->input['fixremainPrevYear'] == 1) {
@@ -243,14 +249,13 @@ else {
 				//<td'.$cellstyle['prevyear'].'>'.($prevbalance['canTake']-$prevbalance['daysTaken']).'</td>7';
 				$tablerows .= '</tr>';
 			}
-			else
-			{
+			else {
 				$session->destroy_phpsession();
 				redirect('index.php?module=attendance/balancesvalidations', 5, $lang->leavesuccessfullyapproved);
 			}
 		}
 	}
-	
+
 	eval("\$preview_page = \"".$template->get('attendance_balancevalidation_preview')."\";");
 	output_page($preview_page);
 }
