@@ -184,7 +184,7 @@ class Sourcing {
 
 	public function save_communication_report($data, $supplier_id = '', $identifier = '', $options = array()) {
 		global $core, $db;
-		print_r($data);
+		
 		$data['isCompleted'] = 0;
 		if(is_empty($data['chemical'], $data['affid'])) {
 			$this->status = 1;
@@ -836,13 +836,15 @@ class Sourcing {
 
 		return $maturity_bars;
 	}
-/*return the affiliates based on availability if the supplier is avaialable in the country where the affiliate is*/
+	
+	/* Return the affiliates based on availability if the supplier is avaialable in the country where the affiliate is */
 	public function get_affiliates_byavailability($supplier_id = '') {
 		global $core, $db;
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 		}
-		 $availabilityquery = $db->query("SELECT ssa.ssaid,aff.name AS affiliate, aff.affid  FROM ".Tprefix."sourcing_suppliers_activityareas ssa 
+		 $availabilityquery = $db->query("SELECT ssa.ssaid,aff.name AS affiliate, aff.affid
+										FROM ".Tprefix."sourcing_suppliers_activityareas ssa 
 										JOIN ".Tprefix."countries c ON (c.coid=ssa.coid)
 										JOIN ".Tprefix."affiliates aff ON (aff.affid=c.affid)  
 										WHERE ssa.availability<>0 AND ssa.ssid=".intval($supplier_id));
