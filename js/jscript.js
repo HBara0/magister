@@ -231,13 +231,12 @@ $(function() {
 			formid += id[i]+ "_";
 		}
 
-		$("form[id='" + formid + "Form']").submit(function(e){
+		$("form[id='" + formid + "Form']:not([action]),form[id='" + formid + "Form'][action='#']").submit(function(e){
             e.preventDefault();
         });
 	});
 
 	$(document).on("click", "input[id^='perform_'][id$='_Button'],input[id^='add_'][id$='_Button'],input[id^='change_'][id$='_Button']", function() {
-	//$("input[id^='perform_'][id$='_Button'],input[id^='add_'][id$='_Button'],input[id^='change_'][id$='_Button']").live("click", function() {
 		if(sharedFunctions.checkSession() == false) {
 			return;
 		}
@@ -642,20 +641,18 @@ $(function() {
 			var increment = ($("#"+ id[1] +"_tbody > tr:last").index()+1)+1;//parseInt(last) + 1;
 
 			//var template =  $("#"+ id[1] +"_tbody > tr:last").html();
-		/*	if($.browser.msie) {
-				alert(template);
-				alert(increment);
+			if($.browser.msie) {
 				template = template.replace(/name=([a-z]+)_[\d]+_([a-z_]+)/gi, "name='$1_" + increment + "_$2'");
 				template = template.replace(/name=([a-z]+)\[[\d]+\](\[[a-z_]+\])/gi, "name='$1[" + increment + "]$2'");
 				template = template.replace(/name=([A-Za-z]+)_[\d]+/gi, "name='$1_" + increment +"'");
 				template = template.replace(/id=([a-z]+)_[\d]+_([a-z_]+)/gi, "id='$1_" + increment + "_$2'");
 				template = template.replace(/id=([a-z]+)\[[\d]+\](\[[a-z_]+\])/gi, "id='$1[" + increment + "]$2'");
 				template = template.replace(/id=([A-Za-z]+)_[\d]+/gi, "id='$1_" + increment +"'");
-	alert(template);
+	
 				//template = template.replace(/id=([a-z_0-9]+)_id[\d]+_([a-z_]+)/gi, "id='$1_id" + increment + "_$2'");
 				//template = template.replace(/id=([a-z_0-9]+)_id[\d]+/gi, "id='$1_id" + increment + "'");
 			}
-			*/
+			
 			//$("#"+ id[1] +"_tbody").append("<tr id='" + increment + "'>" + template + "</tr>");
 
 			$("#"+ id[1] +"_tbody > tr:last").clone(true).removeAttr('id').attr('id', increment).appendTo("#"+ id[1] +"_tbody");
