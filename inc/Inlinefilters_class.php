@@ -128,7 +128,7 @@ class Inlinefilters {
 				if(in_array($filter, $exclude)) {
 					continue;
 				}
-				if(!isset($this->config['parse']['overwriteField'][$filter]) || empty($this->config['parse']['overwriteField'][$filter])) {
+				if(!isset($this->config['parse']['overwriteField'][$filter])) {
 					switch($filter) {
 						case 'affid':
 						case 'affiliate':
@@ -176,9 +176,6 @@ class Inlinefilters {
 						case 'toDate':
 						case 'date':
 							$filters[$filter] = '<input type="text" id="pickDate_'.$filter.'" autocomplete="off" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter].'" /><input type="hidden" name="filters['.$filter.']" id="altpickDate_'.$filter.'" value="'.$core->input['filters'][$filter].'" />';
-							break;
-						case'':
-							$filters[$filter] = '<input type="hidden" width="100%"  tabindex="'.$tabindex.'" name="spacer">';
 							break;
 						default:
 							$filters[$filter] = '<input type="text" width="100%" name="filters['.$filter.']" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter].'" id="filers_'.$filter.'" title="'.$this->config['parse']['filterTitles'][$filter].'">';
@@ -342,7 +339,7 @@ class Inlinefilters {
 				}
 				/* Prepare WHERE statement filters - END */
 
-				if(!empty($sec_query_where)) { /* added by tony */
+				if(!empty($sec_query_where)) {
 					$sec_query_where = 'WHERE '.$sec_query_where;
 				}
 
