@@ -9,6 +9,9 @@ $lang['accountsuspended'] = 'Sorry, you can\'t access OCOS.';
 $lang['add'] = 'Add';
 $lang['addcustomers'] = 'Add Customers';
 $lang['addproducts'] = 'Add Products';
+$lang['addrepresentative_note'] = 'Representatives (contact persons) are not you, they are the persons you deal with from the entity side.<br />
+<br />
+Always provide complete name, without title.';
 $lang['addsuppliers'] = 'Add Suppliers';
 $lang['affiliate'] = 'Affiliate';
 $lang['affiliateslist'] = 'Affiliates List';
@@ -40,6 +43,7 @@ $lang['filesharing'] = 'File Sharing';
 $lang['fillallrequiredfields'] = 'Please fill all required fields';
 $lang['fillreport'] = 'Fill Report';
 $lang['fillrequiredfields'] = 'Please make sure to fill all required fields';
+$lang['sourcing'] = 'sourcing';
 $lang['filter'] = 'Filter';
 $lang['firstvisit'] = 'This is your first visit';
 $lang['forgotyourpassword'] = 'Forgot your Password?';
@@ -92,18 +96,16 @@ $lang['sectionnopermission'] = 'You don\'t have permissions to access this secti
 $lang['september'] = 'September';
 $lang['sessionexpired'] = 'Your sessions has expired, please login again.';
 $lang['successfullysaved'] = 'Successfully saved';
+$lang['successfullyupdate'] = 'Successfully Updated';
 $lang['supplier'] = 'Supplier';
 $lang['supplierslist'] = 'Suppliers List';
 $lang['surveys'] = 'Surveys';
+$lang['telephone'] = 'Telephone';
 $lang['todate'] = 'To';
 $lang['travelmanager'] = 'Travel Manager';
 $lang['username'] = 'Username';
 $lang['welcomeuser'] = 'Welcome {1}!';
 $lang['yes'] = 'Yes';
 $lang['stock'] = 'Stock';
-$lang['assetsmodule'] = 'Assets Module';
-$lang['assetstrackpage'] = 'Assets Tracking';
-$lang['assetsmanagepage'] = 'Assets Management';
-$lang['trackersmanagepage'] = 'Trackers Management';
-
+$lang['assetsmodule'] = 'Assets';
 ?>

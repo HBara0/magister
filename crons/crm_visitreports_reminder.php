@@ -40,7 +40,7 @@ if($db->num_rows($leaves_query) > 0) {
 			'from_email'  => $core->settings['adminemail'],
 			'from'	      => 'OCOS Mailer',
 			'subject'     => $lang->visitreport_reminder_subject,
-			'message'     => $lang->sprint($lang->visitreport_reminder_message, $leavesdetails['displayname']).'<ul>'.$body_message.'</ul>'
+			'message'     => $lang->sprint($lang->visitreport_reminder_message, $leavesdetails['displayName']).'<ul>'.$body_message.'</ul>'
 		);
 		
 		/* If the visit is more than 2 weeks ago, include employee supervisor*/		

@@ -134,7 +134,7 @@ class MySQLiConnection {
 				$where = ' WHERE '.$where;
 			}
 
-			return $this->query("UPDATE {$this->db['prefix']}{$table} SET {$query_string}{$where}");
+			return $this->query("UPDATE {$this->db['prefix']}{$table} SET {$query_string}{$where}");			
 	  	}
 		else
 		{

@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright � 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright © 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Manage Supplier
  *  $module: Sourcing
@@ -38,11 +38,12 @@ if(!$core->input['action']) {
 
 		if(is_array($supplier['chemicalsubstances'])) {
 			$chemicalp_rowid = 1;
-			foreach($supplier['chemicalsubstances'] as $chemicalproduct) {
-				$selecteditems[$chemicalp_rowid]['supplyType'][$chemicalproduct['supplyType']] = ' select="selected"';
+			foreach($supplier['chemicalsubstances'] as $key => $chemicalproduct) {
+				$selecteditems['supplyType'][$key][$chemicalproduct['supplyType']] = ' selected="selected"';
 				eval("\$chemicalproducts_rows .= \"".$template->get('sourcing_managesupplier_chemicalrow')."\";");
 				$chemicalp_rowid++;
 			}
+			unset($selecteditems);
 		}
 
 		if(is_array($supplier['contactpersons'])) {
@@ -55,7 +56,8 @@ if(!$core->input['action']) {
 
 		$supplier['details']['phone1'] = explode('-', $supplier['details']['phone1']);
 		$supplier['details']['phone2'] = explode('-', $supplier['details']['phone2']);
-
+		$supplier['details']['fax'] = explode('-', $supplier['details']['fax']);
+		
 		$mark_blacklist = '<div style="display: table-cell; width:700px;vertical-align:middle;">'.$lang->blacklisted.'</div><div style="display: table-cell; width:700px;vertical-align:middle;"><input name="supplier[isBlacklisted]" type="checkbox" value="1"'.$checkedboxes.'></div>';
 	}
 	else {
@@ -69,9 +71,9 @@ if(!$core->input['action']) {
 	$countries_list = parse_selectlist('supplier[country]', 8, get_specificdata('countries', array('coid', 'name'), 'coid', 'name', array('sort' => 'ASC', 'by' => 'name')), $supplier['details']['country']);
 	$product_list = parse_selectlist('supplier[productsegment][]', 9, get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', ''), $supplier['segments'], 1);
 	$rml_selectlist = parse_selectlist('supplier[relationMaturity]', 10, get_specificdata('entities_rmlevels', array('ermlid', 'title'), 'ermlid', 'title', ''), $supplier['details']['relationMaturity']);
-	
+
 	/* Parse Availability section - START */
-	$availability_radiobutton_items = array('1' => $lang->undefined, '2' => $lang->yes, '3' => $lang->no, '4' => $lang->sourcingdecide);
+	$availability_radiobutton_items = array('1' => $lang->undefined, '2' => $lang->yes, '0' => $lang->no, '3' => $lang->sourcingdecide);
 	if($core->input['type'] == 'edit') {
 		if(is_array($supplier['activityareas'])) {
 			foreach($supplier['activityareas'] as $key => $activityareasdata) {
@@ -79,22 +81,26 @@ if(!$core->input['action']) {
 			}
 		}
 	}
-	
-	$availablecountries = get_specificdata('countries', array('coid', 'name'), 'coid', 'name', '', '', 'affid IN (SELECT affid FROM affiliates)');
-	foreach($availablecountries as $acoid => $name) {
-		$rowclass = alt_row($rowclass);
-		
-		if(!isset($supplier['selectedactivityareas'][$acoid]['availability'])) {
-			$supplier['selectedactivityareas'][$acoid]['availability'] = '1';
+
+	$availablecountries = get_specificdata('countries', array('coid', 'name'), 'coid', 'name', '', '', 'affid IN (SELECT affid FROM affiliates)'); /* get the countries that an affiliates works with */
+	if(is_array($availablecountries)) {
+		foreach($availablecountries as $acoid => $name) {
+			$rowclass = alt_row($rowclass);
+
+			if(!isset($supplier['selectedactivityareas'][$acoid]['availability'])) {
+				$supplier['selectedactivityareas'][$acoid]['availability'] = '1';
+			}
+
+			foreach($availability_radiobutton_items as $index => $item) {
+				$availability_radiobutton[$index] = parse_radiobutton('supplier[activityarea]['.$acoid.'][availability]', array($index => $item), $supplier['selectedactivityareas'][$acoid]['availability']);
+			
+				
+			}
+			eval("\$activityarea_list_row .= \"".$template->get('sourcing_managesupplier_activityarea_list_row')."\";"); 
 		}
-		
-		foreach($availability_radiobutton_items as $index => $item) {
-			$availability_radiobutton[$index] = parse_radiobutton('supplier[activityarea]['.$acoid.'][availability]', array($index => $item), $supplier['selectedactivityareas'][$acoid]['availability']);
-		}
-		eval("\$activityarea_list_row .= \"".$template->get('sourcing_managesupplier_activityarea_list_row')."\";");
 	}
 	/* Parse Availability section - END */
-	
+
 	$supplierid = $core->input['id'];
 	eval("\$sourcingmanagesupplier = \"".$template->get('sourcing_managesupplier')."\";");
 	output_page($sourcingmanagesupplier);
@@ -166,9 +172,8 @@ else {
 			header('Content-type: text/xml+xthml');
 			output_xml("<status>false</status><message>{$lang->companyexists}<![CDATA[ <br />{$companies_exists} ]]></message>");
 		}
-		else
-		{
-			output_xml("<status>true</status><message></message>");	
+		else {
+			output_xml("<status>true</status><message></message>");
 		}
 	}
 }

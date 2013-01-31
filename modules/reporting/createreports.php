@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright Â© 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Create reports
  * $module: reporting
@@ -25,7 +25,8 @@ if(!$core->input['action']) {
 	$query = $db->query("SELECT ae.*, a.name, e.companyName
 						FROM ".Tprefix."affiliatedentities ae JOIN ".Tprefix."entities e ON (e.eid=ae.eid) JOIN ".Tprefix."affiliates a ON (ae.affid=a.affid)
 						WHERE e.type='s' AND e.approved=1 AND e.noQReportReq=0
-						AND (ae.affid, ae.eid) NOT IN(SELECT r.affid, r.spid FROM ".Tprefix."reports r WHERE r.type='q' AND r.quarter='{$quarter[quarter]}' AND r.year='{$quarter[year]}')");
+						AND (ae.affid, ae.eid) NOT IN(SELECT r.affid, r.spid FROM ".Tprefix."reports r WHERE r.type='q' AND r.quarter='{$quarter[quarter]}' AND r.year='{$quarter[year]}')
+						ORDER BY a.name ASC, e.companyName ASC");
 	while($report = $db->fetch_array($query)) {
 		$reports_list .= "<option value='{$report[affid]}_{$report[eid]}'>{$report[name]} - {$report[companyName]}</option>";
 	}
@@ -47,7 +48,8 @@ else
 			$query = $db->query("SELECT ae.*, a.name, e.companyName
 							FROM ".Tprefix."affiliatedentities ae JOIN ".Tprefix."entities e ON (e.eid=ae.eid) JOIN ".Tprefix."affiliates a ON (ae.affid=a.affid)
 							WHERE e.type='s' AND e.approved=1 AND e.noQReportReq=0
-							AND (ae.affid, ae.eid) NOT IN(SELECT r.affid, r.spid FROM ".Tprefix."reports r WHERE r.type='q' AND r.quarter='".$db->escape_string($core->input['quarter'])."' AND r.year='".$db->escape_string($core->input['year'])."')");
+							AND (ae.affid, ae.eid) NOT IN(SELECT r.affid, r.spid FROM ".Tprefix."reports r WHERE r.type='q' AND r.quarter='".$db->escape_string($core->input['quarter'])."' AND r.year='".$db->escape_string($core->input['year'])."')
+							ORDER BY a.name ASC, e.companyName ASC");
 			while($report = $db->fetch_array($query)) {
 				$reports_list .= "<option value='{$report[affid]}_{$report[eid]}'>{$report[name]} - {$report[companyName]}</option>";
 			}
