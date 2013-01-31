@@ -54,6 +54,7 @@ class MySQLiConnection {
 		$comma = $index_string = $data_string = $keyphrase = '';
 		if(is_array($data)) {
 			$query_data = $this->prepare_insertstatement_data($data, $options);
+			//echo ('INSERT INTO '.$this->db['prefix'].$table.' ('.$query_data['index'].') VALUES ('.$query_data['value'].')').'</br></br>';
 			return $this->query('INSERT INTO '.$this->db['prefix'].$table.' ('.$query_data['index'].') VALUES ('.$query_data['value'].')');
 		}
 		else
@@ -132,9 +133,8 @@ class MySQLiConnection {
 			}
 			if(!empty($where)) {
 				$where = ' WHERE '.$where;
-			}
-
-			return $this->query("UPDATE {$this->db['prefix']}{$table} SET {$query_string}{$where}");
+			}//echo ("UPDATE {$this->db['prefix']}{$table} SET {$query_string}{$where}");	
+			return $this->query("UPDATE {$this->db['prefix']}{$table} SET {$query_string}{$where}");			
 	  	}
 		else
 		{
@@ -199,6 +199,7 @@ class MySQLiConnection {
 
 	public function escape_string($string) {
 		if(function_exists('mysql_real_escape_string') && $this->link) {
+
 			return mysqli_real_escape_string($this->link, $string);
 		}
 		elseif(function_exists('mysql_escape_string')) {
