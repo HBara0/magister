@@ -146,15 +146,14 @@ class Surveys {
 			$this->status = 2;
 			return false;
 		}
-		print_r($data);
+		
 		/* Validate that data is complete before creating anything - START */
 		foreach($core->input['section'] as $key => $section) {
 			if(!is_array($section)) {
 				unset($core->input['section'][$key]);
 				continue;
 			}
-
-			echo '<hr />';
+			
 			if(empty($section['title'])) {
 
 				$this->status = 1;
@@ -845,9 +844,10 @@ class Surveys {
 	}
 
 	public function parse_question(array $question, $secondary = false, array $response = array()) {
+		$question_output_requiredattr = '';
 		if($question['isRequired'] == 1) {
 			$question_output_required = '<span class="red_text">*</span>';
-			$required = "required=required";
+			$question_output_requiredattr = ' required="required"';
 		}
 
 		if($secondary == true) {
@@ -876,7 +876,7 @@ class Surveys {
 					}
 					else {
 						foreach($question['choices'] as $key => $choice) {
-							$question_output .= '<div style="margin-left:20px;">'.$choice.' <input type="text" id="answer_actual_'.$question['stqid'].'_'.$key.'" name="answer[actual]['.$question['stqid'].']['.$key.']" size="'.$question['fieldSize'].'"'.$question_output_inputaccept.' '.$required.' /> <input type="hidden" id="answer_comments_'.$question['stqid'].'_'.$key.'" name="answer[comments]['.$question['stqid'].']['.$key.']" value="'.$key.'"/>'.$this->parse_validation($question).'</div>';
+							$question_output .= '<div style="margin-left:20px;">'.$choice.' <input type="text" id="answer_actual_'.$question['stqid'].'_'.$key.'" name="answer[actual]['.$question['stqid'].']['.$key.']" size="'.$question['fieldSize'].'"'.$question_output_inputaccept.$question_output_requiredattr.' /> <input type="hidden" id="answer_comments_'.$question['stqid'].'_'.$key.'" name="answer[comments]['.$question['stqid'].']['.$key.']" value="'.$key.'"/>'.$this->parse_validation($question).'</div>';
 						}
 						echo $question_output;
 					}
@@ -891,7 +891,7 @@ class Surveys {
 							$question_output_idadd = '[comments]';
 						}
 
-						$question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><input type="text" id="answer_'.$question_output_idadd.'_'.$question['stqid'].'" name="answer'.$question_output_idadd.'['.$question['stqid'].']" size="'.$question['fieldSize'].'"'.$question_output_inputaccept.' '.$required.' /> '.$this->parse_validation($question).'</div>';
+						$question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><input type="text" id="answer_'.$question_output_idadd.'_'.$question['stqid'].'" name="answer'.$question_output_idadd.'['.$question['stqid'].']" size="'.$question['fieldSize'].'"'.$question_output_inputaccept.$question_output_requiredattr.' /> '.$this->parse_validation($question).'</div>';
 					}
 				}
 				break;
@@ -899,19 +899,16 @@ class Surveys {
 				if(!empty($response)) {
 					if($question['hasMultiAnswers'] == 0) {
 						$question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.$response['choice'].'</div>';
-						;
 					}
 					else {
 						foreach($response as $attr => $value) {
 							$question_output_response[] .= $value['choice'];
 						}
 						$question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.implode('<br />', $question_output_response).'</div>';
-						;
 					}
 				}
 				else {
-					$question_output .= '<div style="margin: 5px 20px; 5px; 20px;"> '.parse_selectlist('answer[actual]['.$question['stqid'].'][]', $question['order'], $question['choices'], '', $question['hasMultiAnswers']).'</div>';
-					;
+					$question_output .= '<div style="margin: 5px 20px; 5px; 20px;"> '.parse_selectlist('answer[actual]['.$question['stqid'].'][]', $question['order'], $question['choices'], '', $question['hasMultiAnswers'], '', array('required' => $question['isRequired'])).'</div>';
 				}
 				break;
 			case 'checkbox':
@@ -920,33 +917,29 @@ class Surveys {
 						$question_output_response[] .= $value['choice'];
 					}
 					$question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.implode(', ', $question_output_response).'</div>';
-					;
 				}
 				else {
 					$question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.parse_checkboxes('answer[actual]['.$question['stqid'].']', $question['choices'], '', true, '&nbsp;&nbsp;').'</div>';
-					;
 				}
 				break;
 			case 'radiobutton':
 				if(!empty($response)) {
 					$question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.$response['choice'].'</div>';
-					;
 				}
 				else {
-					$question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.parse_radiobutton('answer[actual]['.$question['stqid'].']', $question['choices'], '', true, '&nbsp;&nbsp;').'</div>';
+					$question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.parse_radiobutton('answer[actual]['.$question['stqid'].']', $question['choices'], '', true, '&nbsp;&nbsp;', array('required' => $question['isRequired'])).'</div>';
 				}
 				break;
 			case 'textarea':
 				if(!empty($response)) {
 					$question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.$response['response'].'</div>';
-					;
 				}
 				else {
 					$question_output_idadd = '[actual]';
 					if($secondary == true) {
 						$question_output_idadd = '[comments]';
 					}
-					$question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><textarea id="answer_'.$question_output_idadd.'_'.$question['stqid'].'" name="answer'.$question_output_idadd.'['.$question['stqid'].']" cols="50" rows="'.$question['fieldSize'].'"></textarea> '.$this->parse_validation($question).'</div>';
+					$question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><textarea id="answer_'.$question_output_idadd.'_'.$question['stqid'].'" name="answer'.$question_output_idadd.'['.$question['stqid'].']" cols="50" rows="'.$question['fieldSize'].'"'.$question_output_requiredattr.'></textarea> '.$this->parse_validation($question).'</div>';
 				}
 				break;
 			default: return false;
