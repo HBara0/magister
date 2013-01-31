@@ -24,7 +24,7 @@ else {
 }
 
 $potential_supplier = new Sourcing($supplier_id);
-$lang->load("global");
+$lang->load('global');
 if(!$core->input['action']) {
 	if(!$potential_supplier->supplier_exists()) {
 		redirect('index.php?module=sourcing/listpotentialsupplier');
@@ -203,7 +203,7 @@ if(!$core->input['action']) {
 					foreach($communications_fields as $key => $section) {
 
 						$maindivsection .= '<div class="ch_communicationsection altrow" style="width:100%;">';
-						$maindivsection .='<p>'.$lang->$key.'</p>';
+						$maindivsection .= '<div class="ch_communicationsection_entryhead">'.$lang->$key.'</div>';
 						foreach($section as $label => $val) {
 							if(isset($val) && !empty($val)) {
 								$communictation_section .= '<div class = "content"><strong>'.$lang->$label.'</strong>:'.$contact_history[$val].'</div>';

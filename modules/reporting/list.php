@@ -6,7 +6,7 @@
  * Lists available reports
  * $module: reporting
  * $id: listreports.php	
- * Last Update: @tony.assaad 	January 14, 2013 | 1:22 PM
+ * Last Update: @zaher.reda		January 30, 2013 | 03:59 PM
  */
 
 if(!defined('DIRECT_ACCESS')) {
@@ -30,47 +30,14 @@ if(!$core->input['action']) {
 		$limit_start = $db->escape_string($core->input['start']);
 	}
 
-
-	//if(isset($core->user['auditfor'])) {
-	/* 	$extra_where = ' AND ';
-	  foreach($core->user['suppliers']['eid'] as $val) {
-	  if(in_array($val, $core->user['auditfor'])) {
-	  $inaffiliates = implode(',', $core->user['auditedaffiliates'][$val]);
-	  }
-	  else
-	  {
-	  $inaffiliates = implode(',', $core->user['suppliers']['affid'][$val]);
-	  }
-	  $extra_where .= $query_or.'(r.spid='.$val.' AND r.affid IN ('.$inaffiliates.'))';
-	  $multipage_where .= $query_or.'(spid='.$val.' AND affid IN ('.$inaffiliates.'))';
-	  $query_or = ' OR ';
-	  } */
-	//}
-	/* else
-	  {
-	  if($core->usergroup['canViewAllAff'] == 0) {
-	  $inaffiliates = implode(',', $core->user['affiliates']);
-	  $extra_where = ' AND r.affid IN ('.$inaffiliates.') ';
-	  $multipage_where = 'affid IN ('.$inaffiliates.')';
-	  $query_and = ' AND ';
-	  }
-
-	  if($core->usergroup['canViewAllSupp'] == 0) {
-	  $insuppliers = implode(',', $core->user['suppliers']['eid']);
-	  $extra_where .= '  AND r.spid IN ('.$insuppliers.') ';
-	  $multipage_where .= $query_and.'spid IN ('.$insuppliers.')';
-	  }
-	  } */
-
-
 	/* Perform inline filtering - START */
 	$quarter_scale = range(1, 4);
 	array_unshift($quarter_scale, '');
-	$year_scale = range(date("Y"), 2009);
+	$year_scale = range(date('Y'), 2009);
 	array_unshift($year_scale, ''); // Creates array years use the first array(range from 2004 to current year) as the keys and the second as the values
 	$filters_config = array(
-			'parse' => array('filters' => array('', 'affid', 'spid', 'quarter', 'year'),
-					'overwriteField' => array('quarter' => parse_selectlist('filters[quarter]', '3', $quarter_scale, $core->input['filters']['quarter']), 'year' => parse_selectlist('filters[year]', '4', array_combine($year_scale, $year_scale), $core->input['filters']['year']))
+			'parse' => array('filters' => array('checkbox', 'affid', 'spid', 'quarter', 'year', 'status'),
+					'overwriteField' => array('checkbox' => '', 'quarter' => parse_selectlist('filters[quarter]', '3', $quarter_scale, $core->input['filters']['quarter']), 'year' => parse_selectlist('filters[year]', '4', array_combine($year_scale, $year_scale), $core->input['filters']['year']), 'status' => '')
 			),
 			'process' => array(
 					'filterKey' => 'rid',
@@ -84,8 +51,7 @@ if(!$core->input['action']) {
 									'keyAttr' => 'eid',
 									'joinKeyAttr' => 'spid',
 									'joinWith' => 'reports',
-									'extraSelect' => 'companyName',
-									//'extraWhere' => 'type="s"'
+									'extraSelect' => 'companyName'
 							)
 							
 					)
@@ -102,7 +68,6 @@ if(!$core->input['action']) {
 	}
 
 	$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
-
 	/* Perform inline filtering - END */
 
 	if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
@@ -110,11 +75,11 @@ if(!$core->input['action']) {
 	}
 	$extra_where = getquery_entities_viewpermissions();
 
-
+	$extra_where['multipage'] .= $multipage_where;
 	if(!empty($extra_where['multipage'])) {
 		$and = ' AND ';
 	}
-	$extra_where['multipage'] = ' AND r.type="q"'.$and.$extra_where['multipage'];
+
 	if(isset($extra_where['byspid'][$core->input['filtervalue']])) {
 		$extra_where['multipage'] = 'r.type="q"'.$extra_where['byspid'][$core->input['filtervalue']];
 	}
@@ -122,25 +87,12 @@ if(!$core->input['action']) {
 	{
 		$extra_where['multipage'] = 'r.type="q"'.$and.$extra_where['multipage'];
 	}
-		
-	if(isset($core->input['filterby'], $core->input['filtervalue'])) {
-		$extra_where['multipage'] = $db->escape_string($core->input['filterby']).'='.$db->escape_string($core->input['filtervalue']).' AND '.$extra_where['multipage'];
-
-		$filterby_prefix = '';
-		if($core->input['filterby'] == 'affid') {
-			$filterby_prefix = 'a.';
-		}
-		//$filter_where = ' AND '.$filterby_prefix.$db->escape_string($core->input['filterby']).'='.$db->escape_string($core->input['filtervalue']);
-	}
 
 	$query = $db->query("SELECT r.*, a.affid AS affiliate, a.name AS affiliatename, r.spid AS supplier, s.companyName AS suppliername
 						 FROM ".Tprefix."reports r JOIN ".Tprefix."affiliates a ON (a.affid=r.affid) JOIN ".Tprefix."entities s ON (r.spid=s.eid)
 						 WHERE r.type='q'{$filter_where}{$extra_where[extra]}
 						 ORDER BY {$sort_query}
 						 LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
-						 
-	$filters_required = array('quarter', 'year', 'affid', 'spid');
-	$filters_cache = array();
 
 	if($db->num_rows($query) > 0) {
 		while($report = $db->fetch_assoc($query)) {
@@ -150,20 +102,6 @@ if(!$core->input['action']) {
 					$icon_locked = '_locked';
 				}
 				$icon[$report['rid']] = "<a href='index.php?module=reporting/preview&referrer=list&amp;affid={$report[affid]}&amp;spid={$report[spid]}&amp;quarter={$report[quarter]}&amp;year={$report[year]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$report[status]}' border='0'/></a>";
-			}
-
-			foreach($filters_required as $key) {
-				if(!is_array($filters_cache[$key])) {
-					$filters_cache[$key] = array();
-				}
-
-				if(!in_array($report[$key], $filters_cache[$key])) {
-					$filters[$key][$report[$key]] = '<a href="index.php?module=reporting/list&filterby='.$key.'&filtervalue='.$report[$key].'"><img src="./images/icons/search.gif" border="0" alt="'.$lang->filterby.'"/></a>';
-					$filters_cache[$key][] = $report[$key];
-				}
-				else {
-					$filters[$key][$report[$key]] = '';
-				}
 			}
 
 			$report['status'] = parse_status($report['status'], $report['isLocked']);
@@ -206,14 +144,14 @@ if(!$core->input['action']) {
 			}
 			if($core->usergroup['reporting_canApproveReports'] == 1) {
 				$moderationtools .= "<option value='approveunapprove'>{$lang->approveunapprove}</option>";
-				$moderationtools .= "<option value='finalize'>{$lang->approveunapprove}Finalize</option>";
+				$moderationtools .= "<option value='finalize'>Finalize</option>";
 			}
 
 			$moderationtools .= "</select></td></tr>";
 		}
 	}
 	else {
-		$reportslist = "<tr><td colspan='6' align='center'>{$lang->noreportsavailable}</td></tr>";
+		$reportslist = '<tr><td colspan="6" align="center">'.$lang->noreportsavailable.'</td></tr>';
 	}
 
 	eval("\$listpage = \"".$template->get('reporting_reportslist')."\";");

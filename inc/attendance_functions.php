@@ -48,7 +48,6 @@ function update_leavestats_periods($leave, $is_wholeday = true, $countdays = tru
 
 	if($db->num_rows($query) > 1) {
 		while($period = $db->fetch_assoc($query)) {
-			echo date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']).' - '.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']).'====>';
 			if($leave['fromDate'] < $period['periodStart']) {
 				$leave['fromDate'] = $period['periodStart'];
 			}

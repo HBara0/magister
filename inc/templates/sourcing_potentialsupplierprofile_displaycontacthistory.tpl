@@ -10,5 +10,4 @@
 		<div class="content"> {$lang->competitors}{$contact_history[competitors]}</div>
 	</div>
 </div>
-
-	{$maindivsection} 
+{$maindivsection} 

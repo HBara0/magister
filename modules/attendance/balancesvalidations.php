@@ -8,6 +8,10 @@
  * Last Update:    @zaher.reda    Nov 30, 2012 | 6:38:41 PM
  */
 
+if($core->usergroup['canUseHR'] == 0) {
+	error($lang->sectionnopermission);
+}
+
 if(!isset($core->input['identifier'])) {
 	$identifier = substr(md5(uniqid(microtime())), 1, 10);
 }
@@ -142,13 +146,13 @@ else {  //days taken must = actual taken
 
 		if($core->input['action'] != 'fixbalances') {
 			$columns = array('displayName' => $lang->employeename,
-					'daysTaken' => $lang->taken,
-					'actualTaken' => $lang->actual,
+					'daysTaken' => $lang->daystaken,
+					'actualTaken' => $lang->actdaystaken,
 					'balance' => $lang->balance,
 					'actbalance' => $lang->actbalance,
 					'entitledFor' => $lang->entitledfor,
-					'remainPrevYear' => $lang->remainprevyear,
-					'remainPrevYearAct' => $lang->remainprevyearact);
+					'remainPrevYear' => $lang->balanceprevyear,
+					'remainPrevYearAct' => $lang->actbalanceprevyear);
 
 			$tableheader .= '<tr>';
 			foreach($columns as $key => $column) {
@@ -159,6 +163,7 @@ else {  //days taken must = actual taken
 			}
 			$tableheader .= '</tr>';
 		}
+		
 		while($leave = $db->fetch_assoc($query)) {
 			if($leave['toDate'] > $options['periodEnd']) {
 				$leave['toDate'] = $options['periodEnd'];
@@ -176,6 +181,7 @@ else {  //days taken must = actual taken
 		if(!is_array($leaves_counts)) {
 			redirect('index.php?module=attendance/balancesvalidations');
 		}
+		
 		$query2 = $db->query("SELECT lt.*, u.displayName
 						FROM ".Tprefix."leavesstats lt 
 						JOIN users u ON (u.uid=lt.uid)
@@ -230,28 +236,20 @@ else {  //days taken must = actual taken
 				$leavestat['actbalance'] = ($leavestat['canTake'] - $leaves_counts[$leavestat['uid']]);
 				$leavestat['remainPrevYearAct'] = ($prevbalance['canTake'] - $prevbalance['daysTaken']);
 
-				$tablerows .= '<tr>';
+				$row_class = alt_row($row_class);
+				$tablerows .= '<tr class="'.$row_class.'">';
 				foreach($columns as $key => $column) {
 					if(!isset($cellstyle[$key])) {
 						$cellstyle[$key] = '';
 					}
 					$tablerows .= '<td'.$cellstyle[$key].'>'.$leavestat[$key].'</td>';
 				}
-
-				//$rows .= '<td>'.$leavestat['displayName'].'</td>1
-				//<td>'.$leavestat['daysTaken'].'</td>2
-				//<td'.$cellstyle['taken'].'>'.$leaves_counts[$leavestat['uid']].'</td>3
-				//<td>'.($leavestat['canTake']-$leavestat['daysTaken']).'</td>4
-				//
-					//<td>'.($leavestat['canTake']-$leaves_counts[$leavestat['uid']]).'</td>5
-				//<td>'.$leavestat['entitledFor'].'</td>
-				//<td>'.$leavestat['remainPrevYear'].'</td>6
-				//<td'.$cellstyle['prevyear'].'>'.($prevbalance['canTake']-$prevbalance['daysTaken']).'</td>7';
+				
 				$tablerows .= '</tr>';
 			}
 			else {
 				$session->destroy_phpsession();
-				redirect('index.php?module=attendance/balancesvalidations', 5, $lang->leavesuccessfullyapproved);
+				redirect('index.php?module=attendance/balancesvalidations', 5, $lang->successfullyupdate);
 			}
 		}
 	}
