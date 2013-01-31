@@ -60,10 +60,11 @@ if(!$core->input['action']) {
     output_page($uploadfiles_page);
 }
 elseif($core->input['action'] == 'do_uploadfile') 
-{
+{ 
 	set_time_limit(0);
  	echo $headerinc;
 	if(is_empty($core->input['title']) || empty($core->input['category'])) {
+	
 		?>
 		<script language="javascript" type="text/javascript">
 			$(function() { 
@@ -71,7 +72,7 @@ elseif($core->input['action'] == 'do_uploadfile')
 			}); 
 		</script>   
 		<?php
-		exit;
+		
 	}
 
 	$allowed_types = array('application/excel', 'application/x-excel' ,'application/vnd.ms-excel', 'application/vnd.msexcel', 'image/jpeg', 'image/gif', 'image/png', 'application/zip', 'application/pdf', 'application/x-pdf', 'application/msword','application/vnd.ms-powerpoint', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/vnd.openxmlformats-officedocument.presentationml.presentation');

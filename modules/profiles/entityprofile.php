@@ -50,32 +50,27 @@ if(!$core->input['action']) {
 	if((empty($profile['phone1'])) && (empty($profile['phone2']))) {
 		$phone = $lang->na;
 	}
-	elseif(empty($profile['phone2']))
-	{
+	elseif(empty($profile['phone2'])) {
 		$phone = $profile['phone1'];
 	}
-	else
-	{
+	else {
 		$phone = $profile['phone1'].'/'.$profile['phone2'];
 	}
 
 	if((empty($profile['fax1'])) && (empty($profile['fax2']))) {
 		$fax = $lang->na;
 	}
-	elseif(empty($profile['fax2']))
-	{
+	elseif(empty($profile['fax2'])) {
 		$fax = $profile['fax1'];
 	}
-	else
-	{
+	else {
 		$fax = $profile['fax1'].'/'.$profile['fax2'];
 	}
 
 	if(empty($profile['logo'])) {
 		$profile['logo'] = './images/no_logo_entity.gif';
 	}
-	else
-	{
+	else {
 		$profile['logo'] = $core->settings['rootdir'].'/'.$core->settings['entitylogodir'].'/'.$profile['logo'];
 	}
 
@@ -83,7 +78,7 @@ if(!$core->input['action']) {
 
 	$profile['fulladdress'] .= $profile['country'];
 
-	foreach($profile as $key => $val){
+	foreach($profile as $key => $val) {
 		if(empty($val)) {
 			$profile[$key] = $lang->na;
 		}
@@ -92,8 +87,7 @@ if(!$core->input['action']) {
 	if(!empty($profile['website'])) {
 		$profile['website'] = '<a href="'.$profile['website'].'" target="_blank">'.$profile['website'].'</a>';
 	}
-	else
-	{
+	else {
 		$profile['website'] = '';
 	}
 
@@ -130,15 +124,13 @@ if(!$core->input['action']) {
 	$entityusers_counter = 0;
 
 	while($entityusers = $db->fetch_array($entityusers_query)) {
-		if(++$entityusers_counter > $core->settings['itemsperlist'])  {
+		if(++$entityusers_counter > $core->settings['itemsperlist']) {
 			$hidden_entityusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a></li>";
 		}
-		elseif($entityusers_counter == $core->settings['itemsperlist'])
-		{
+		elseif($entityusers_counter == $core->settings['itemsperlist']) {
 			$shown_entityallusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a>";
 		}
-		else
-		{
+		else {
 			$shown_entityallusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a></li>";
 		}
 	}
@@ -146,8 +138,7 @@ if(!$core->input['action']) {
 	if($entityusers_counter > $core->settings['itemsperlist']) {
 		$entityallusers = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_entityallusers.", <a href='#entityusers' id='showmore_entityusers_{$entityusers[uid]}' class='smalltext'>read more</a></li> <span style='display:none;' id='entityusers_{$entityusers[uid]}'>{$hidden_entityusers}</span></ul>";
 	}
-	else
-	{
+	else {
 		$entityallusers = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_entityallusers.'</ul>';
 	}
 
@@ -176,36 +167,36 @@ if(!$core->input['action']) {
 				$finalized_reports .= '<tr class="'.$row_class.'"><td>'.$report['affiliate_name'].'</td><td>Q'.$report['quarter'].'</td><td>'.$report['year'].'</td><td style="width:1%; text-align:right;">'.$report_icon.'</td></tr>';
 			}
 			$finalized_reports .= '<tr><td colspan="4"><a href="index.php?module=reporting/list&filterby=spid&filtervalue='.$eid.'">Read more</a></tr></td>';
-		 	eval("\$reports_section = \"".$template->get('profiles_entityprofile_reports')."\";");
-		 }
-
-		/*++$reports_counter;
-
-			if($reports_counter < 3) {
-				$shown_reports .= '<li><a href="index.php?module=reporting/preview&referrer=list&rid='.$reports['rid'].'" target="_blank">Q'.$reports['quarter'].'/'.$reports['year'].' - '.$reports['affiliate_name'].'</a></li>';
-			}
-			elseif($reports_counter == 3)
-			{
-				$shown_reports .= '<li><a href="index.php?module=reporting/preview&referrer=list&rid='.$reports['rid'].'" target="_blank">Q'.$reports['quarter'].'/'.$reports['year'].' - '.$reports['affiliate_name'].'</a>';
-			}
-			elseif($reports_counter > 3)
-			{
-				break;
-			}
+			eval("\$reports_section = \"".$template->get('profiles_entityprofile_reports')."\";");
 		}
 
-		if($reports_counter > 3) {
-			$reports_list = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_reports.", <a href='index.php?module=reporting/list&filterby=spid&filtervalue={$eid}' class='smalltext'>read more</a></li></ul>";
-		}
-		else
-		{
-			 $reports_list = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_reports.'</ul>';
-		}
+		/* ++$reports_counter;
 
-		if(!empty($reports_list)) {
-			$reports_section = '<tr><td  valign="top" style="padding:10px;"><span class="subtitle">'.$report_lang.'</span><br />'.$reports_list.'</td><td valign="top" style="padding:10px;">&nbsp;</td></tr>';
-		}
-		*/
+		  if($reports_counter < 3) {
+		  $shown_reports .= '<li><a href="index.php?module=reporting/preview&referrer=list&rid='.$reports['rid'].'" target="_blank">Q'.$reports['quarter'].'/'.$reports['year'].' - '.$reports['affiliate_name'].'</a></li>';
+		  }
+		  elseif($reports_counter == 3)
+		  {
+		  $shown_reports .= '<li><a href="index.php?module=reporting/preview&referrer=list&rid='.$reports['rid'].'" target="_blank">Q'.$reports['quarter'].'/'.$reports['year'].' - '.$reports['affiliate_name'].'</a>';
+		  }
+		  elseif($reports_counter > 3)
+		  {
+		  break;
+		  }
+		  }
+
+		  if($reports_counter > 3) {
+		  $reports_list = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_reports.", <a href='index.php?module=reporting/list&filterby=spid&filtervalue={$eid}' class='smalltext'>read more</a></li></ul>";
+		  }
+		  else
+		  {
+		  $reports_list = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_reports.'</ul>';
+		  }
+
+		  if(!empty($reports_list)) {
+		  $reports_section = '<tr><td  valign="top" style="padding:10px;"><span class="subtitle">'.$report_lang.'</span><br />'.$reports_list.'</td><td valign="top" style="padding:10px;">&nbsp;</td></tr>';
+		  }
+		 */
 		/* Load supplier's quarterly reports - End */
 
 		/* Load supplier's products list - Start */
@@ -214,40 +205,40 @@ if(!$core->input['action']) {
 		//$products_counter = 0;
 		$productslist = '';
 		if($db->num_rows($products_query) > 0) {
-			while($product = $db->fetch_assoc($products_query )) {
+			while($product = $db->fetch_assoc($products_query)) {
 				$row_class = alt_row($row_class);
 				$productslist .= '<tr class="'.$row_class.'"><td style="width:50%;">'.$product['name'].'</td><td>'.$product['genericname'].'</td></tr>';
 			}
 			eval("\$products_section = \"".$template->get('profiles_entityprofile_products')."\";");
 		}
 
-			/*if(++$products_counter > $core->settings['itemsperlist'])  {
-				$hidden_products .= '<li>'.$products['name'].'</li>';
-			}
-			elseif($products_counter == $core->settings['itemsperlist'])
-			{
-				$shown_products .= '<li>'.$products['name'].'</a>';
-			}
-			else
-			{
-				$shown_products .= '<li>'.$products['name'].'</li>';
-			}
+		/* if(++$products_counter > $core->settings['itemsperlist'])  {
+		  $hidden_products .= '<li>'.$products['name'].'</li>';
+		  }
+		  elseif($products_counter == $core->settings['itemsperlist'])
+		  {
+		  $shown_products .= '<li>'.$products['name'].'</a>';
+		  }
+		  else
+		  {
+		  $shown_products .= '<li>'.$products['name'].'</li>';
+		  }
 
-		}
+		  }
 
-		if($products_counter != 0) {
-			if($products_counter > $core->settings['itemsperlist']) {
-				$productslist = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_products.', <a href="#products" id="showmore_products_'.$products['pid'].'" class="smalltext">read more</a></li> <span style="display:none;" id="products_'.$products['pid'].'">'.$hidden_products.'</span></ul>';
-			}
-			else
-			{
-				$productslist .= '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_products.'</ul>';
-			}
-		}
-		else
-		{
-			$productslist = ' - ';
-		}*/
+		  if($products_counter != 0) {
+		  if($products_counter > $core->settings['itemsperlist']) {
+		  $productslist = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_products.', <a href="#products" id="showmore_products_'.$products['pid'].'" class="smalltext">read more</a></li> <span style="display:none;" id="products_'.$products['pid'].'">'.$hidden_products.'</span></ul>';
+		  }
+		  else
+		  {
+		  $productslist .= '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_products.'</ul>';
+		  }
+		  }
+		  else
+		  {
+		  $productslist = ' - ';
+		  } */
 		/* Load supplier's products list - End */
 
 		/* Prepare the private part of the profile - Start */
@@ -256,17 +247,15 @@ if(!$core->input['action']) {
 			$files_query = $db->query("SELECT *, f.title AS file_title FROM ".Tprefix."files f LEFT JOIN ".Tprefix."fileversions fv ON (f.fid=fv.fid)
 									  WHERE f.referenceId={$eid} AND f.reference='eid' ORDER BY fv.timeLine DESC");
 			$files_counter = 0;
-			while($files = $db->fetch_array($files_query )) {
+			while($files = $db->fetch_array($files_query)) {
 				$time = date($core->settings['dateformat'], $files['timeLine']);
 				if(++$files_counter > 3) {
 					$hidden_files .= "<li><a href='index.php?module=profiles/entityprofile&action=download&fvid={$files[fvid]}' target='_blank'>{$files['file_title']}({$time})</a></li>";
 				}
-				elseif($files_counter == 3)
-				{
+				elseif($files_counter == 3) {
 					$shown_files .= "<li><a href='index.php?module=profiles/entityprofile&action=download&fvid={$files[fvid]}' target='_blank'>{$files['file_title']}({$time})</a>";
 				}
-				else
-				{
+				else {
 					$shown_files .= "<li><a href='index.php?module=profiles/entityprofile&action=download&fvid={$files[fvid]}' target='_blank'>{$files['file_title']}({$time})</a></li>";
 				}
 			}
@@ -274,8 +263,7 @@ if(!$core->input['action']) {
 			if($files_counter > 3) {
 				$files_list = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_files.", <a href='#files' id='showmore_files_{$files[fvid]}' class='smalltext'>read more</a></li> <span style='display:none;' id='files_{$files[fvid]}'>{$hidden_files}</span></ul>";
 			}
-			else
-			{
+			else {
 				$files_list = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_files.'</ul>';
 			}
 
@@ -304,7 +292,7 @@ if(!$core->input['action']) {
 		/* Parse Maturity Section - START */
 		$maturity_section = '<div id="rml_maindiv"><span class="subtitle">'.$lang->rmlevel.'</span><br />'.get_rml_bar($eid).'</div>';
 		if($core->usergroup['profiles_canUpdateRML'] == 1) {
-		    $header_rmljs = '$(".rmlselectable").live("click", function() {
+			$header_rmljs = '$(".rmlselectable").live("click", function() {
 					if(sharedFunctions.checkSession() == false) {
 						return;
 					}
@@ -324,7 +312,7 @@ if(!$core->input['action']) {
 		$inpagescriptforrating;
 		$readonlyratings = true;
 		if(count($core->user['suppliers']) > 0) {
-			if(isset($core->user['suppliers']['eid'][$eid])) {  /* if the supplier is for the core user */
+			if(isset($core->user['suppliers']['eid'][$eid])) { /* if the supplier is for the core user */
 				$readonlyratings = false;
 			}
 
@@ -336,7 +324,7 @@ if(!$core->input['action']) {
 					$criterion['currentrating'] = get_current_rating($eid, $criterion['ercid']);
 
 					if(isset($lang->{$criterion['name']})) {
-						$criterion['title'] .= $lang->{$criterion['name']};
+						$criterion['title'] = $lang->{$criterion['name']};
 					}
 
 					$criteriaandstars .= '<div class="evaluation_criterium" name="'.$criterion['ercid'].'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;">'.$criterion['title'].'</div>';
@@ -345,10 +333,9 @@ if(!$core->input['action']) {
 					if($readonlyratings) {
 						$criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$criterion['currentrating'].'"></div>';
 					}
-					else
-					{
+					else {
 						$criteriaandstars .= '<input type="range" min="0" max="'.$maxstars.'" value="'.$criterion['currentrating'].'" step="1" id="rating_'.$criterion['ercid'].'" class="ratingscale">';
-						$criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$criterion['ercid'].'" data-rateit-value="'.$criterion['currentrating'].'""></div>';
+						$criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$criterion['ercid'].'" data-rateit-value="'.$criterion['currentrating'].'"></div>';
 					}
 					$criteriaandstars .= '</div></div>';
 				}
@@ -365,9 +352,8 @@ if(!$core->input['action']) {
 					sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=do_rateentity", "target="+targetid+"&value="+$("#rating_"+targetid).val()+"&eid="+$("#eid").val(), returndiv, returndiv, "html");
 				});';
 			}
-			else
-			{
-			   $header_ratingjs = '';
+			else {
+				$header_ratingjs = '';
 			}
 			$rating_section = '<div>'.$criteriaandstars.'</div><hr>';
 		}
@@ -387,12 +373,10 @@ if(!$core->input['action']) {
 			if($reports_counter < 3) {
 				$shown_reports .= "<li><a href='index.php?module=crm/previewvisitreport&amp;referrer=list&amp;vrid={$report[vrid]}' target='_blank'>".parse_calltype($report['type']).' / '.date($core->settings['dateformat'], $report['date'])." - {$report[employeename]}</a></li>";
 			}
-			elseif($reports_counter == 3)
-			{
+			elseif($reports_counter == 3) {
 				$shown_reports .= "<li><a href='index.php?module=crm/previewvisitreport&amp;referrer=list&amp;vrid={$report[vrid]}' target='_blank'>".parse_calltype($report['type']).' / '.date($core->settings['dateformat'], $report['date'])." - {$report[employeename]}</a>";
 			}
-			else
-			{
+			else {
 				break;
 			}
 		}
@@ -400,8 +384,7 @@ if(!$core->input['action']) {
 		if($reports_counter > 3) {
 			$reports_list = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_reports."<br /> <a href='index.php?module=crm/listvisitreports&filterby=cid&filtervalue={$eid}' class='smalltext'>Read more</a></li></ul>";
 		}
-		else
-		{
+		else {
 			$reports_list = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_reports.'</ul>';
 		}
 	}
@@ -409,15 +392,13 @@ if(!$core->input['action']) {
 	eval("\$profilepage = \"".$template->get('profiles_entityprofile')."\";");
 	output_page($profilepage);
 }
-else
-{
+else {
 	if($core->input['action'] == 'download') {
 		$path = $core->settings['rootdir'].'/uploads/entitiesfiles/';
-	 	$download = new Download('fileversions', 'name', array('fvid' => $core->input['fvid']), $path);
-		$download ->download_file();
+		$download = new Download('fileversions', 'name', array('fvid' => $core->input['fvid']), $path);
+		$download->download_file();
 	}
-	elseif($core->input['action'] == 'getentityusers' || $core->input['action'] == 'getallusers')
-	{
+	elseif($core->input['action'] == 'getentityusers' || $core->input['action'] == 'getallusers') {
 		$eid = $db->escape_string($core->input['eid']);
 		$query_string = '';
 		if($core->input['action'] == 'getentityusers') {
@@ -434,26 +415,24 @@ else
 				$entityusers_list .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a></li>";
 			}
 		}
-		else
-		{
+		else {
 			$entityusers_list = $lang->na;
 		}
 
- 		$entityusers_list_output = '<ul style="list-style:none; padding:2px; margin-top:0px;">'.$entityusers_list.'</ul>';
+		$entityusers_list_output = '<ul style="list-style:none; padding:2px; margin-top:0px;">'.$entityusers_list.'</ul>';
 		echo $entityusers_list_output;
 	}
-	elseif($core->input['action'] == 'get_contactpersoninformation')
-	{
+	elseif($core->input['action'] == 'get_contactpersoninformation') {
 		$rpid = $db->escape_string(base64_decode($core->input['id']));
 
 		$information = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid={$rpid}"));
 
-		$segments = get_specificdata("representativessegments s JOIN ".Tprefix."productsegments seg ON(seg.psid=s.psid)", array('title','s.psid as id'), 'id', 'title', '', 0, "rpid='{$rpid}'");
+		$segments = get_specificdata("representativessegments s JOIN ".Tprefix."productsegments seg ON(seg.psid=s.psid)", array('title', 's.psid as id'), 'id', 'title', '', 0, "rpid='{$rpid}'");
 		if(is_array($segments)) {
 			$information['segments'] = implode(',', $segments);
 		}
 
-		$positions = get_specificdata("representativespositions p JOIN ".Tprefix."positions pos ON(pos.posid=p.posid)", array('title','p.posid as id'), 'id', 'title', '', 0, "rpid='{$rpid}'");
+		$positions = get_specificdata("representativespositions p JOIN ".Tprefix."positions pos ON(pos.posid=p.posid)", array('title', 'p.posid as id'), 'id', 'title', '', 0, "rpid='{$rpid}'");
 		if(is_array($positions)) {
 			$information['positions'] = implode(',', $positions);
 		}
@@ -461,34 +440,34 @@ else
 		eval("\$contactinformation = \"".$template->get('popup_profiles_contactpersoninformation')."\";");
 		echo $contactinformation;
 	}
- 	elseif($core->input['action'] == 'do_rateentity')
-	{
+	elseif($core->input['action'] == 'do_rateentity') {
 		log_rating($core->input['target'], $core->input['eid'], $core->input['value']);
 	}
-	elseif($core->input['action'] == 'do_updaterml')
-	{
-		savematuritylevel($core->input['target'],$core->input['eid']);
+	elseif($core->input['action'] == 'do_updaterml') {
+		savematuritylevel($core->input['target'], $core->input['eid']);
 		echo get_rml_bar($core->input['eid']);
 	}
 }
-
 function parse_calltype(&$value) {
 	global $lang;
 
 	switch($value) {
 		case '1':
-				$value = $lang->facetoface;
-				break;
+			$value = $lang->facetoface;
+			break;
 		case '2':
-				$value = $lang->telephonecall;
-				break;
+			$value = $lang->telephonecall;
+			break;
 		default: break;
 	}
 	return $value;
 }
 
 function validate_rating($eid, $value, $criterion) {
-	global $core,$maxstars;
+	global $core, $maxstars;
+	if(empty($maxstars)) {
+		$maxstars = 5;
+	}
 	/* Check if user is assigned to supplier */
 	if(!isset($core->user['suppliers']['eid'][$eid])) {
 		return false;
@@ -502,14 +481,14 @@ function validate_rating($eid, $value, $criterion) {
 		return false;
 	}
 	/* Check if rate is valid */
-	if ($value < 0 || $value > $maxstars) {
+	if($value < 0 || $value > $maxstars) {
 		return false;
 	}
 
 	return true;
 }
 
-function log_rating($criterion, $eid, $value, $uid='') {
+function log_rating($criterion, $eid, $value, $uid = '') {
 	global $core, $db, $log;
 
 	$new_rating['ercid'] = intval($criterion);
@@ -519,30 +498,28 @@ function log_rating($criterion, $eid, $value, $uid='') {
 	if(empty($uid)) {
 		$new_rating['uid'] = $core->user['uid'];
 	}
-	else
-	{
+	else {
 		$new_rating['uid'] = intval($uid);
 	}
 
 	if(!validate_rating($new_rating['eid'], $new_rating['rating'], $new_rating['ercid'])) {
-    	return false;
+		return false;
 	}
 
-    $active_rating = $db->fetch_field($db->query('SELECT erid
+	$active_rating = $db->fetch_field($db->query('SELECT erid
                                     FROM '.Tprefix.'entities_ratings
                                     WHERE ercid="'.$new_rating['ercid'].'" AND uid="'.$new_rating['uid'].'" AND eid="'.$new_rating['eid'].'" AND dateTime>"'.strtotime('last week').'"
 									ORDER BY dateTime DESC
-									LIMIT 0, 1'),'erid');
-    if(isset($active_rating) && !empty($active_rating)) {
+									LIMIT 0, 1'), 'erid');
+	if(isset($active_rating) && !empty($active_rating)) {
 		$query = $db->update_query('entities_ratings', array('rating' => $new_rating['rating']), 'erid="'.$active_rating.'"');
-   		$log->record($active_rating);
-    }
-    else
-    {
+		$log->record($active_rating);
+	}
+	else {
 		$new_rating['dateTime'] = TIME_NOW;
 		$query = $db->insert_query('entities_ratings', $new_rating);
 		$log->record($db->last_id());
-    }
+	}
 
 	if($query) {
 		return true;
@@ -550,7 +527,7 @@ function log_rating($criterion, $eid, $value, $uid='') {
 	return false;
 }
 
-function get_current_rating($eid,$ercid) {
+function get_current_rating($eid, $ercid) {
 	global $db;
 
 	$getratings_query = $db->query('SELECT DISTINCT(uid), rating
@@ -559,118 +536,126 @@ function get_current_rating($eid,$ercid) {
 									ORDER BY dateTime DESC');
 	$returnvalue = $counter = 0;
 
-    if($db->num_rows($getratings_query) > 0) {
-        while($rating = $db->fetch_assoc($getratings_query)) {
+	if($db->num_rows($getratings_query) > 0) {
+		while($rating = $db->fetch_assoc($getratings_query)) {
 			$returnvalue += $rating['rating'];
 			$counter++;
 		}
 	}
-    if($counter == 0) {
+	if($counter == 0) {
 		return 0;
-    }
-    else
-    {
-        return ($returnvalue/$counter);
+	}
+	else {
+		return ($returnvalue / $counter);
 	}
 }
 
 function savematuritylevel($level, $eid) {
-    global $db, $core, $log;
+	global $db, $core, $log;
 
-    if ($core->usergroup['profiles_canUpdateRML'] != 1) {
+	if($core->usergroup['profiles_canUpdateRML'] != 1) {
 		return false;
 	}
 
-    if (!value_exists('entities_rmlevels', 'ermlid', $level)) {
+	if(!value_exists('entities_rmlevels', 'ermlid', $level)) {
 		return false;
 	}
 
-	if (!value_exists('entities','eid',$eid)) {
+	if(!value_exists('entities', 'eid', $eid)) {
 		return false;
 	}
 
-    $query = $db->update_query('entities', array('relationMaturity' => $level), 'eid='.intval($eid));
+	$query = $db->update_query('entities', array('relationMaturity' => $level), 'eid='.intval($eid));
 	if($query) {
-    	$log->record($eid, $level);
+		$log->record($eid, $level);
 	}
 }
 
 function get_rml_bar($eid) {
 	global $core, $db;
 
-    //$multicolored = true;
-    $maturity_bars = '';
+	//$multicolored = true;
+	$maturity_bars = '';
 	$readonlymaturity = true;
 
-    if($core->usergroup['profiles_canUpdateRML'] == 1) {
-    	$readonlymaturity = false;
+	if($core->usergroup['profiles_canUpdateRML'] == 1) {
+		$readonlymaturity = false;
 	}
 
-    $rmllist = array();
+	$rmllist = array();
+	$levels_counter = 0;
 
-    $rmllevels_query = $db->query('SELECT ermlid, title FROM '.Tprefix.'entities_rmlevels ORDER BY sequence');
-    if($db->num_rows($rmllevels_query) > 0) {
-        while($maturitylevelrow = $db->fetch_assoc($rmllevels_query)) {
-        	$rmllist[$maturitylevelrow['ermlid']] = $maturitylevelrow['title'];
+	$rmllevels_query = $db->query('SELECT ermlid, er.title, er.category, erc.title AS categoryTitle
+								FROM '.Tprefix.'entities_rmlevels er JOIN '.Tprefix.'entities_rmlevels_categories erc ON (erc.ercid=er.category)
+								ORDER BY sequence');
+	if($db->num_rows($rmllevels_query) > 0) {
+		while($maturitylevelrow = $db->fetch_assoc($rmllevels_query)) {
+			$rmllist[$maturitylevelrow['category']][$maturitylevelrow['ermlid']] = $maturitylevelrow['title'].' ('.$maturitylevelrow['categoryTitle'].')';
+			$levels_counter++;
 		}
 	}
-	else
-	{
+	else {
 		return false;
 	}
 
 
-	$rmlcurrentlevel = $db->fetch_field($db->query('SELECT relationMaturity FROM '.Tprefix.'entities WHERE eid='.intval($eid)), 'relationMaturity');
+	$rmlcurrentlevel['id'] = $db->fetch_field($db->query('SELECT relationMaturity FROM '.Tprefix.'entities WHERE eid='.intval($eid)), 'relationMaturity');
 
-	$maturity_bars .= '<div id="rml_bars" style="text-align:center;">';
-	$divclassactive = (!$readonlymaturity)?'rmlselectable rmlactive':'rmlactive';
-	$divclassinactive = (!$readonlymaturity)?'rmlselectable rmlinactive':'rmlinactive';
-	$counter = 1;
-    $positionclass = ' first';
+	$maturity_bars .= '<div id="rml_bars" style="text-align:left;">';
+	$divclassactive = (!$readonlymaturity) ? 'rmlselectable rmlactive' : 'rmlactive';
+	$divclassinactive = (!$readonlymaturity) ? 'rmlselectable rmlinactive' : 'rmlinactive';
+	$parse_counter = 1;
+	$positionclass = ' first';
 
 	$is_coloredlevel = true;
-    if(!isset($rmlcurrentlevel)) {
-        $is_coloredlevel = false;
+	if(!isset($rmlcurrentlevel['id'])) {
+		$is_coloredlevel = false;
 	}
-    $is_lastactiveitem = false;
+	$is_lastactiveitem = false;
 
-    foreach($rmllist as $ermlid => $name) {
-        if($is_coloredlevel == true) {
-            if($rmlcurrentlevel == $ermlid) {
-                $is_lastactiveitem = true;
+	foreach($rmllist as $cat => $levels) {
+		foreach($levels as $ermlid => $name) {
+			if($is_coloredlevel == true) {
+				if($rmlcurrentlevel['id'] == $ermlid) {
+					$is_lastactiveitem = true;
+					$rmlcurrentlevel['title'] = $name;
+				}
+			}
+
+			if($parse_counter++ == $levels_counter) {
+				if($parse_counter == 2) {
+					$positionclass = ' first last';
+				}
+				else {
+					$positionclass = ' last';
+				}
+			}
+			else {
+				if($parse_counter != 2) {
+					$positionclass = '';
+				}
+			}
+
+			if($is_coloredlevel) {
+				$maturity_bars .= '<div id="'.$ermlid.'" class="'.$divclassactive.$positionclass.'" title="'.($lang->{$name} ? $lang->{$name} : $name).'">&nbsp;</div>';
+			}
+			else {
+				$maturity_bars .= '<div id="'.$ermlid.'" class="'.$divclassinactive.$positionclass.'" title="'.($lang->{$name} ? $lang->{$name} : $name).'">&nbsp;</div>';
+			}
+
+			if($is_lastactiveitem) {
+				$is_coloredlevel = false;
+				$is_lastactiveitem = false;
 			}
 		}
 
-        if($counter++ == count($rmllist)) {
-            if($counter == 2) {
-                $positionclass = ' first last';
-			}
-			else
-			{
-                $positionclass = ' last';
-			}
-		}
-		else {
-            if($counter != 2) {
-                $positionclass = '';
-			}
-		}
-
-        if($is_coloredlevel) {
-			$maturity_bars .= '<div id="'.$ermlid.'" class="'.$divclassactive.$positionclass.'" title="'.($lang->{$name} ? $lang->{$name} : $name).'">&nbsp;</div>';
-        }
-		else
-		{
-            $maturity_bars .= '<div id="'.$ermlid.'" class="'.$divclassinactive.$positionclass.'" title="'.($lang->{$name} ? $lang->{$name} : $name).'">&nbsp;</div>';
-		}
-
-        if($is_lastactiveitem) {
-            $is_coloredlevel = false;
-            $is_lastactiveitem = false;
+		if(trim($positionclass) != 'last') {
+			$maturity_bars .= '&nbsp;&nbsp;';
 		}
 	}
-    $maturity_bars .= '</div>';
+	$maturity_bars .= '<br /><span class="smalltext" style="color:#999; font-style:italic;">'.$rmlcurrentlevel['title'].'</span></div>';
 
-    return $maturity_bars;
+	return $maturity_bars;
 }
+
 ?>
