@@ -228,7 +228,7 @@ if(!$core->input['action']) {
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		
 		if($core->usergroup['canExcludeFillStages'] == 1) {
-			$exludestage = '<br /><input type="checkbox" name="excludeKeyCustomers" style="width:35px;" id="excludeKeyCustomers" title="'.$lang->exclude_tip.'">'.$lang->excludekeycustomers;
+			$exludestage = '<br /><input type="checkbox" name="excludeKeyCustomers"  style="width:30px;" id="excludeKeyCustomers" title="'.$lang->exclude_tip.'" /> '.$lang->excludekeycustomers;
 
 		}
 		

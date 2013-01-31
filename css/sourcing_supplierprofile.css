@@ -42,7 +42,7 @@
     cursor:pointer;
 }
 
-.ch_entryheader,.ch_communicationsection{
+.ch_entryheader, .ch_communicationsection {
     padding:5px; 
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
     -moz-box-sizing: border-box;    /* Firefox, other Gecko */	
@@ -59,21 +59,25 @@
     margin-left: 15px; 
     margin-right:15px;
 }
-.ch_communicationsection{
 
+.ch_communicationsection{
     border-bottom: thin solid #CCC;
     margin-bottom: 4px;
-
+	border-right: thin solid #E8E8E8;
+	border-left: thin solid #E8E8E8;
+	border-top: thin solid #F0F0F0;
+	padding-top:0px; 
 }	
 
 .ch_productsection {
     display:none;
 }
-.ch_communicationsection > p{
+
+.ch_communicationsection_entryhead {
     vertical-align:top;
     width: 100%;
     padding: 2px;
-    background-color:#669900;
     font-weight:bold;
+	background-color: #F2FAED;
     border-bottom: 1px solid #F2F2F2;
 }
