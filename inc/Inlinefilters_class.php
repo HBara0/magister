@@ -153,8 +153,8 @@ class Inlinefilters {
 				}
 				$tabindex++;
 			}
-
 			$this->parsed_fields = $filters;
+
 			return $filters;
 		}
 		return false;
