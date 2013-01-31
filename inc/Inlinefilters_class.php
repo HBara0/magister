@@ -6,7 +6,7 @@
  * Filtering/Inline Search Class
  * $id: Filter_class.php
  * Created: 	@zaher.reda		October 11, 2012 | 10:03 AM
- * Last Update: @zaher.reda 	October 11, 2012 | 10:03 AM
+ * Last Update: @tony.assaad	December 05, 2012 | 10:03 AM
  */
 
 class Inlinefilters {
@@ -24,7 +24,7 @@ class Inlinefilters {
 				'name' => 'tablename', // Table name
 				// Below are the filters that are applicable to this main table. The index of the array is the filter name, and the value is the attribute name. Attribute name can have prefixes
 				// The value can optionally be an array for more complex filter; where 'operatorType' specifies the operator of the logical operation, and 'name' specified the attribute name
-				// 'operatorType' can be 'multiple' to use IN, 'between' to use BETWEEN, and nothing or 'single' to use LIKE
+				// 'operatorType' can be 'multiple' to use IN, 'between' to use BETWEEN, and nothing or 'single' to use LIKE 
 				'filters' => array('attr1' => 'attr1', 'attr2' => 'attr2', 'attr3' => 'attr3', 'attr4' => array('operatorType' => 'between', 'name' => 'attr4'))
 				'extraSelect' => 'attr8 AS attr9', // [Optional] Custom addition to the SELECT statement, useful for aggregate functions and CONCAT. To be used jointly with 'havingFilters'
 				'havingFilters' => array('attr8' => 'attr9') // [Optional] Some filters require HAVING because they are a result of an aggregate function on CONCAT; these are specified here rather than the 'filter' which relies on WHERE statement
@@ -38,6 +38,7 @@ class Inlinefilters {
 					'filters' => array('attr5' => array('operatorType' => 'multiple', 'name' => 'sectablename.attr5')),
 					'filterKeyOverwrite' => '', // [Optional] Overwerite the 'filterKey' in case it doesn't have the same name in this secondary table (ex. eid <> spid)
 					'extraWhere' => ''// [Optional] If the table requires another specific filter, this can be set from here. Do not use WHERE statement in this.
+					'havingFilters' => array('attr8' => 'attr9') // [Optional] Some filters require HAVING because they are a result of an aggregate function on CONCAT; these are specified here rather than the 'filter' which relies on WHERE statement
 				),
 				'sectablename2' => array(// Another secondary table; with more simple filtering (no joins)
 					'filters' => array('attr6' => array('operatorType' => 'multiple', 'name' => 'attr6')),
@@ -45,7 +46,7 @@ class Inlinefilters {
 			)
 		)
 	);
-
+	 * 
 	EXAMPLE:
 	$config = array(
 		'parse' => array('filters' => array('fullName', 'displayName', 'mainAffid', 'position', 'reportsTo'),
@@ -76,7 +77,7 @@ class Inlinefilters {
 	 * @param  Array		$config			Configuration array for the filtering operation
 	 * @param  String		$matching_rule	A match-all (all) or match-any (any) rule for the queries
 	 */
-	public function __construct($config, $matching_rule = 'all') {
+	public function __construct($config, $matching_rule = 'all') { 
 		$this->config = $config;
 		$this->set_matchingrule($matching_rule);
 	}
@@ -93,7 +94,7 @@ class Inlinefilters {
 				if(in_array($filter, $exclude)) {
 					continue;
 				}
-				if(!isset($this->config['parse']['overwriteField'][$filter]) || empty($this->config['parse']['overwriteField'][$filter])) {
+				if(!isset($this->config['parse']['overwriteField'][$filter])) {
 					switch($filter) {
 						case 'affid':
 						case 'affiliate':
@@ -203,7 +204,7 @@ class Inlinefilters {
 
 		$iteration_element = $this->parsed_fields;
 		if(isset($this->config['parse']['fieldsSequence']) && !empty($this->config['parse']['fieldsSequence'])) {
-			$iteration_element =  $this->config['parse']['fieldsSequence'];
+			$iteration_element = $this->config['parse']['fieldsSequence'];
 		}
 
 		foreach($iteration_element as $filter_item => $filter_value) {
@@ -234,7 +235,7 @@ class Inlinefilters {
 	}
 
 	/* Perform advanced multi filtering from DB
-	 * @return Array		$items			A unique array of requested data
+	 * @return Array $items	A unique array of requested data
 	 */
 	public function process_multi_filters() {
 		global $core, $db;
@@ -244,7 +245,7 @@ class Inlinefilters {
 		}
 
 		$main_query_where = $this->parse_filterstatements($this->config['process']['mainTable']['filters']);
-
+	
 		if(isset($this->config['process']['mainTable']['havingFilters']) && !empty($this->config['process']['mainTable']['havingFilters'])) {
 			$main_query_having = $this->parse_filterstatements($this->config['process']['mainTable']['havingFilters']);
 		}
@@ -267,9 +268,10 @@ class Inlinefilters {
 			$main_query = $db->query('SELECT '.$this->config['process']['filterKey'].$this->config['process']['mainTable']['extraSelect'].'
 								FROM '.Tprefix.$this->config['process']['mainTable']['name'].'
 								'.$main_query_where.$main_query_having);
+			
 
 			if($db->num_rows($main_query) > 0) {
-				while($item = $db->fetch_assoc($main_query)) {
+				while($item = $db->fetch_assoc($main_query)) { 
 					$items[$item[$this->config['process']['filterKey']]] = $item[$this->config['process']['filterKey']];
 				}
 			}
@@ -288,7 +290,7 @@ class Inlinefilters {
 				}
 
 				/* Prepare any necessary joins - START */
-				$sec_query_join_clause = '';
+				$sec_query_join_clause = $sec_query_having = $sec_query_where = '';
 				if((isset($options['joinWith']) && !empty($options['joinWith'])) && (isset($options['joinKeyAttr']) && !empty($options['joinKeyAttr']))) {
 					if(!isset($options['joinWord']) && empty($options['joinWord'])) {
 						$options['joinWord'] = 'JOIN';
@@ -298,10 +300,21 @@ class Inlinefilters {
 				/* Prepare any necessary joins - END */
 
 				/* Prepare WHERE statement filters - START */
-				$sec_query_where = $this->parse_filterstatements($options['filters']);
+				if(isset($options['filters']) && !empty($options['filters'])) {
+					$sec_query_where = $this->parse_filterstatements($options['filters']);
+				}
 				/* Prepare WHERE statement filters - END */
 
 				if(!empty($sec_query_where)) {
+					$sec_query_where = 'WHERE '.$sec_query_where;
+				}
+
+				if(isset($options['havingFilters']) && !empty($options['havingFilters'])) {
+					$sec_query_having = $this->parse_filterstatements($options['havingFilters']);
+				}
+
+				if(!empty($sec_query_where) || !empty($sec_query_having)) {
+
 					if($this->matching_rule == 'all' && !empty($items)) {
 						$sec_query_where .= ' AND '.$options['filterKeyOverwrite'].' IN ("'.implode('", "', $items).'")';
 					}
@@ -310,9 +323,17 @@ class Inlinefilters {
 						$sec_query_where .= ' AND '.$db->escape_string($options['extraWhere']);
 					}
 
-					$sec_query = $db->query('SELECT DISTINCT('.$options['filterKeyOverwrite'].')
+					if(!empty($options['extraSelect'])) {
+						$options['extraSelect'] = ', '.$options['extraSelect'];
+					}
+
+					if(!empty($sec_query_having)) {
+						$sec_query_having = ' HAVING '.$sec_query_having;
+					}
+
+					$sec_query = $db->query('SELECT DISTINCT('.$options['filterKeyOverwrite'].')'.$options['extraSelect'].'
 										FROM '.Tprefix.$table.$sec_query_join_clause.'
-										WHERE '.$sec_query_where);
+										 '.$sec_query_where.$sec_query_having);
 
 					if($db->num_rows($sec_query) > 0) {
 						while($item = $db->fetch_assoc($sec_query)) {
@@ -346,7 +367,6 @@ class Inlinefilters {
 		foreach($filters as $filteritem => $attr) {
 			if(isset($core->input['filters'][$filteritem]) && !empty($core->input['filters'][$filteritem])) {
 				$query_filter_statement .= $query_operator.$this->parse_whereentry($attr, $filteritem);
-
 				if($this->matching_rule == 'all') {
 					$query_operator = ' AND ';
 				}
@@ -381,7 +401,7 @@ class Inlinefilters {
 			$query_where = $sec_query_operator.'('.$attr['name'].' BETWEEN '.$db->escape_string($core->input['filters'][$filteritem]['start']).' AND '.$db->escape_string($core->input['filters'][$filteritem]['end']).')';
 		}
 		elseif($attr['operatorType'] == 'date') {
-			$query_where = $sec_query_operator.'('.$attr['name'].' BETWEEN '.strtotime($core->input['filters'][$filteritem]).' AND '.(strtotime($core->input['filters'][$filteritem])+(60*60*24)-1).')';
+			$query_where = $sec_query_operator.'('.$attr['name'].' BETWEEN '.strtotime($core->input['filters'][$filteritem]).' AND '.(strtotime($core->input['filters'][$filteritem]) + (60 * 60 * 24) - 1).')';
 		}
 		elseif($attr['operatorType'] == 'equal') {
 			$query_where = $sec_query_operator.$attr['name'].'="'.$db->escape_string($core->input['filters'][$filteritem]).'"';
@@ -425,13 +445,11 @@ class Inlinefilters {
 					if(is_array($newfilter['parse'][$addkey])) {
 						$this->config['parse'][$realkey] = array_merge($this->config['parse'][$realkey], $newfilter['parse'][$addkey]);
 					}
-					else
-					{
+					else {
 						array_push($this->config['parse'][$realkey], $newfilter['parse'][$addkey]);
 					}
 				}
-				else
-				{
+				else {
 					$this->config['parse'][$realkey] = $newfilter['parse'][$addkey];
 				}
 			}

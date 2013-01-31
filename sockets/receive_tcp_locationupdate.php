@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright © 2012 Orkila International Offshore, All Rights Reserved
+ * Copyright Â© 2012 Orkila International Offshore, All Rights Reserved
  *
  * [Provide Short Descption Here]
  * $id: receive_locationupdate.php
@@ -59,53 +59,47 @@ require $currentscriptfolder.'../inc/init.php';
   /* */
 system("mode con:lines=25");
 $timeout = 30;
-$sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-socket_bind($sock, "0.0.0.0", 8888);
-socket_set_block($sock);
+$sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+socket_bind($sock, "10.0.0.66", 8888);
 socket_set_option($sock, SOL_SOCKET, SO_RCVTIMEO, array("sec" => 10000, "usec" => 0));
-$count = 1;
-$target = $timeout + time();
-$results = array();
-//while(time() < $target) {
-while(true) {
-
-	if(($len = @socket_recvfrom($sock, $ret, 2048, 0, $cIP, $cPort)) != false) {
-		$count++;
-		////echo $count++.': '.$ret.' ['.$cIP.':'.$cPort.']'.PHP_EOL; //bin2hex($ret);
-		//$results[substr($ret, 0, 6)][substr($ret, 7, strlen($ret) - 7)] = 1;
-		//echo "\r";
-		//echo "$count:$cIP:$cPort=> ".$ret.PHP_EOL;
-		//echo print_r($results, true).PHP_EOL;
-		//$target = $timeout+time();
-	}
-	$tmppar = explode('&', $ret);
-	foreach($tmppar as $key => $value) {
-		$tmp = explode('=', $value);
-		$params[$tmp[0]] = $tmp[1];
-	}
-
-	var_dump($params);
-
-	$asst = new Asset();
-	$asst->record_location($params);
-
-
-//	$lines = 25;
-//	while($lines--)
-//		echo "\n";
-//	system("mode con:lines=25");
-//	echo "[".($target - time())."] ".$count.PHP_EOL;
-//	foreach($results as $key => $value) {
-	// bin2hex()
-	// ord()
-	// hexdec()
-	// dexhex()
-//		echo count($value)." received from $key".PHP_EOL;
-//	}
-//	echo 'target= '.$target.' time='.time().PHP_EOL;
+if(socket_listen($sock, 5) === false) {
+	echo "socket_listen() failed: reason: ".socket_strerror(socket_last_error($sock))."\n";
 }
 
-socket_set_nonblock($sock);
-socket_close($sock);
+do {
+	if(($msgsock = socket_accept($sock)) === false) {
+		echo "socket_accept() failed: reason: ".socket_strerror(socket_last_error($sock))."\n";
+		break;
+	}
 
+	do {
+		if(false === ($buf = socket_read($msgsock, 2048, PHP_BINARY_READ))) {
+			echo "socket_read() failed: reason: ".socket_strerror(socket_last_error($msgsock))."\n";
+			break 2;
+		}
+		var_dump($buf);
+		if(!$buf = trim($buf)) {
+			continue;
+		}
+		$tmppar = explode('&', $buf);
+		foreach($tmppar as $key => $value) {
+			$tmp = explode('=', $value);
+			$params[$tmp[0]] = $tmp[1];
+		}
+
+		var_dump($params);
+
+		$asst = new Asset();
+		$asst->record_location($params);
+
+		$talkback="ok";
+		socket_write($msgsock, $talkback, strlen($talkback));
+		echo "$buf\n";
+	}
+	while(true);
+	socket_close($msgsock);
+}
+while(true);
+
+socket_close($sock);
 ?>

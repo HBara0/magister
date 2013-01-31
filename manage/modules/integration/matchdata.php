@@ -119,7 +119,7 @@ else
 			output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 		}
 
-		$update_query_parameters = array('suppliers' => array('table' => 'integration_mediation_suppliers', 'id' => 'imspid'), 'products' => array('table' => 'integration_mediation_products', 'id' => 'impid'));
+		$update_query_parameters = array('suppliers' => array('table' => 'integration_mediation_entities', 'id' => 'imspid'), 'products' => array('table' => 'integration_mediation_products', 'id' => 'impid'));
 		if(is_array($core->input['foreignId'])) {
 			foreach($core->input['foreignId'] as $key => $val) {
 				if(isset($core->input['localId'][$key]) && !empty($core->input['localId'][$key])) {

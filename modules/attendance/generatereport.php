@@ -4,13 +4,12 @@
 * Copyright © 2012 Orkila International Offshore, All Rights Reserved
 * Generate a report for preview and export
 * $module: attendance
-* Created		@Tony.Assaad 		April 03, 2012 | 5:00 PM
+* Created		@tony.assaad 		April 03, 2012 | 5:00 PM
 * Last Update: 	@zaher.reda			May 09, 2012 | 12:02 AM
 */
 if(!defined("DIRECT_ACCESS")) {
 	die("Direct initialization of this file is not allowed.");
 }
-
 
 if($core->usergroup['attendance_canGenerateReport'] == 0) {
 	error($lang->sectionnopermission);
@@ -53,10 +52,6 @@ else
 			$core->input['toDate'] = date('d-m-y', TIME_NOW);	
 		}
 		
-		if($core->input['fromDate'] > $core->input['toDate']){
-			error($lang->invalidtodate, 'index.php?module=attendance/generatereport', false);
-		}
-		
 		//$core->input['fromDate'] = $db->escape_string($core->input['fromDate']);
 		//$core->input['toDate'] = $db->escape_string($core->input['toDate']);
 		$fromdate_object = new DateTime($core->input['fromDate']);
@@ -66,6 +61,10 @@ else
 		
 		$fromdate = $fromdate_object->getTimestamp();
 		$todate = $todate_object->getTimestamp();
+		
+		if($fromdate > $todate){
+			error($lang->invalidtodate, 'index.php?module=attendance/generatereport', false);
+		}
 		
 		if($fromdate > TIME_NOW) { 
 			$fromdate = strtotime('today midnight');
@@ -220,6 +219,16 @@ else
 						$rowclass = '';
 						if($type == 'attendance') {
 							foreach($day_data as $attendance) {
+								/* If person has not recorded entry use workshift default - START */
+								if(empty($attendance['timeIn']) || !isset($attendance['timeIn'])) {
+									$attendance['timeIn'] = mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']);
+								}
+								
+								if(empty($attendance['timeOut']) || !isset($attendance['timeOut'])) {
+									$attendance['timeOut'] = mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']);
+								}
+								/* If person has not recorded entry use workshift default - START */
+								
 								$attendance['timeIn_output']  = date($core->settings['timeformat'], $attendance['timeIn']);
 								$attendance['timeOut_output'] = date($core->settings['timeformat'], $attendance['timeOut']);
 								$attendance['date_output'] = date($core->settings['dateformat'],  $attendance['date']);

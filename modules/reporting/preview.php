@@ -1088,20 +1088,22 @@ if(!$core->input['action']) {
 			$currencies_to = date_timestamp_get(date_create_from_format('j/m/Y', $core->settings['q'.$report['quarter'].'end'].'/'.$report['year']));
 			$currencies_fx = $currency->get_average_fxrates_transposed($currencies, array('from' => $currencies_from, 'to' => $currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4));
 			
-			foreach($currencies_fx as $rate => $fx_currency) {
-				if(empty($fx_currency)) {
-					continue;	
+			if(is_array($currencies_fx)) {
+				foreach($currencies_fx as $rate => $fx_currency) {
+					if(empty($fx_currency)) {
+						continue;	
+					}
+
+					$currency_rates_year = $currency->get_yearaverage_fxrate_monthbased($fx_currency, $report['year'],  array('distinct_by' => 'alphaCode', 'precision' => 4));
+					$currency_rates_prevyear = $currency->get_yearaverage_fxrate_monthbased($fx_currency, $report['year']-1,  array('distinct_by' => 'alphaCode', 'precision' => 4));
+
+					$fxrates_linechart = new Charts(array('x' => array(1,2,3,4,5,6,7,8,9,10,11,12), 'y' => array('$1 '.$report['year'] => $currency_rates_year, '$1 '.($report['year']-1) => $currency_rates_prevyear)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => $fx_currency.' Rate', 'yaxisunit' => '', 'fixedscale' => array('min' => min($currency_rates_year), 'max' => max($currency_rates_year)), 'width' => 600, 'height' => 187));
+
+					$fx_rates_entries .= '<tr><td class="lightdatacell_freewidth" style="text-align:left; width:5%;">'.$fx_currency.'</td><td style="width:5%; border-bottom: 1px dashed #CCCCCC;">'.$rate.'</td><td style="border-bottom: 1px dashed #CCCCCC;"><img src="'.$fxrates_linechart->get_chart().'" /></td></tr>';	
 				}
-				
-				$currency_rates_year = $currency->get_yearaverage_fxrate_monthbased($fx_currency, $report['year'],  array('distinct_by' => 'alphaCode', 'precision' => 4));
-				$currency_rates_prevyear = $currency->get_yearaverage_fxrate_monthbased($fx_currency, $report['year']-1,  array('distinct_by' => 'alphaCode', 'precision' => 4));
-				
-				$fxrates_linechart = new Charts(array('x' => array(1,2,3,4,5,6,7,8,9,10,11,12), 'y' => array('$1 '.$report['year'] => $currency_rates_year, '$1 '.($report['year']-1) => $currency_rates_prevyear)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => $fx_currency.' Rate', 'yaxisunit' => '', 'fixedscale' => array('min' => min($currency_rates_year), 'max' => max($currency_rates_year)), 'width' => 600, 'height' => 187));
-	
-				$fx_rates_entries .= '<tr><td class="lightdatacell_freewidth" style="text-align:left; width:5%;">'.$fx_currency.'</td><td style="width:5%; border-bottom: 1px dashed #CCCCCC;">'.$rate.'</td><td style="border-bottom: 1px dashed #CCCCCC;"><img src="'.$fxrates_linechart->get_chart().'" /></td></tr>';	
+
+				eval("\$fxratespage = \"".$template->get('reporting_report_fxrates')."\";");
 			}
-		
-			eval("\$fxratespage = \"".$template->get('reporting_report_fxrates')."\";");
 		}
 		/* Output currencies FX table - END */
 	}

@@ -16,54 +16,94 @@ if($core->usergroup['assets_canManageAssets'] == 0) {
 	exit;
 }
 
-
-
 if(isset($core->input['savetracker'])) {
-
 	$data['deviceId'] = $core->input['deviceId'];
 	$data['asid'] = $core->input['asid'];
 	$data['fromDate'] = strtotime($core->input['fromDate']);
 	$data['toDate'] = strtotime($core->input['toDate']);
 
 	if(!isset($core->input['atdid']) || $core->input['atdid'] == "") {
-		$db->insert_query('assets_trackingdevices', $data);
+		Asset::add_tracker($data);
 	}
 	else {
-		$db->update_query('assets_trackingdevices', $data, 'atdid='.$core->input['atdid']);
+		Asset::edit_tracker($core->input['atdid'], $data);
 	}
 }
 
+if(isset($core->input['delete_tracker'])) {
+	Asset::delete_tracker($core->input['delete_tracker']);
+}
+
+$resolve = array('asid' => array('table' => 'assets', 'id' => 'asid', 'name' => 'title'));
 $query = 'SELECT * FROM '.Tprefix.'assets_trackingdevices';
 $query = $db->query($query);
-$assetslist = '<div id="trackerslisting">
-	<table cellspacing=0 cellpadding=4 border=1><tr>
-	<th>Tracker Id</th>
-	<th>Device Id</th>
-	<th>Asset</th>
-	<th>From</th>
-	<th>To</th>
-	<th>Edit</td></tr>';
+$assetslist = '
+<script>
+$(document).ready(function() {
+	$("form[name=tracker_delete]").submit(function(){
+		if (confirm("Delete tracker?")) {
+			return true;
+		} else {
+			return false;
+		}
+	});
+	$("#clear_asset_edit_form").click(function() {
+		$("#atdid").val("");
+	});
+	$("[id^=edit_entry_]").click(function() {
+		eval("javascript: expand_fieldset_"+$(".collapsible_fieldset").attr("id").substring(3,$(".collapsible_fieldset").attr("id").length)+"();");
+		$(this).parent().parent().children("td").each(function() {
+			switch($(this).attr("name")) {
+				case "atdid":
+					$("#atdid").val($(this).attr("value"));
+					break;
+				case "deviceId":
+					$("#deviceId").val($(this).attr("value"));
+					break;
+				case "asid":
+					$("#asid").val($(this).attr("value"));
+					break;
+				case "fromDate":
+					$("#pickDateFrom").val($(this).attr("value"));
+					break;
+				case "toDate":
+					$("#pickDateTo").val($(this).attr("value"));
+					break;
+			}
+		});
+	});
+});
+</script>
 
-$resolve = array(
-			'asid' => array('table' => 'assets', 'id' => 'asid', 'name' => 'title'),
-		);
-
+	<div id="trackerslisting">
+	<table cellspacing=0 cellpadding=4 border=1  width="100%"><tr bgcolor="#91B64F">
+	<th>'.$lang->atdid.'</th>
+	<th>'.$lang->deviceid.'</th>
+	<th>'.$lang->asid.'</th>
+	<th>'.$lang->from.'</th>
+	<th>'.$lang->to.'</th>';
+$assetslist.='<th>'.$lang->edit.'</td>';
+if($core->usergroup['assets_canDeleteTracker'] == 1) {
+	$assetslist.='<th>'.$lang->delete.'</th>';
+}
+	$assetslist.='</tr>';
 
 
 if($db->num_rows($query) > 0) {
 	while($row = $db->fetch_assoc($query)) {
-		$assetslist.='<tr><td>'.$row['atdid'].'</td>';
-		$assetslist.='<td>'.$row['deviceId'].'</td>';
-		$assetslist.='<td>'.get_name_from_id($row["asid"],$resolve['asid']['table'], $resolve['asid']['id'], $resolve['asid']['name']).'</td>';
-		$assetslist.='<td>'.date('F d, Y',$row["fromDate"]).'</td>';
-		$assetslist.='<td>'.date('F d, Y',$row["toDate"]).'</td>';
-		$assetslist.='<form name="tracker_edit" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/managetrackers">
-			<input type="hidden" name="e_atdid" value="'.$row['atdid'].'"/>
-			<input type="hidden" name="e_deviceid" value="'.$row["deviceId"].'"/>
-			<input type="hidden" name="e_asid" value="'.$row["asid"].'"/>
-			<input type="hidden" name="e_fromdate" value="'.$row["fromDate"].'"/>
-			<input type="hidden" name="e_todate" value="'.$row["toDate"].'"/>
-			<td><button type="submit" name="edit_tracker" value="'.$row['atdid'].'" alt="Edit"><img src="'.DOMAIN.'/images/edit.gif"/></button></td></tr></form>';
+		$assetslist.='<tr><td align="center" name="atdid" value="'.$row['atdid'].'">'.$row['atdid'].'</td>';
+		$assetslist.='<td name="deviceId" value="'.$row['deviceId'].'">'.$row['deviceId'].'</td>';
+		$assetslist.='<td name="asid" value="'.$row['asid'].'">'.get_name_from_id($row["asid"], $resolve['asid']['table'], $resolve['asid']['id'], $resolve['asid']['name']).'</td>';
+		$assetslist.='<td name="fromDate" value="'.date('F d, Y', $row["fromDate"]).'">'.date('F d, Y', $row["fromDate"]).'</td>';
+		$assetslist.='<td name="toDate" value="'.date('F d, Y', $row["toDate"]).'">'.date('F d, Y', $row["toDate"]).'</td>';
+		$assetslist.='<td align="center" name="edit" value="">
+						<button id="edit_entry_'.$row['atdid'].'" type="submit" style="cursor:pointer;border: 0; background: transparent" name="edit_tracker" value="'.$row['atdid'].'" alt="Edit"><img src="'.DOMAIN.'/images/edit.gif"/></button></td>';
+		if($core->usergroup['assets_canDeleteTracker'] == 1) {
+			$assetslist.='<form name="tracker_delete" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/managetrackers">
+					<td align="center" name="delete" value="">
+					<button type="submit" id="button_delete_'.$row['atdid'].'" style="cursor:pointer;border: 0; background: transparent" name="delete_tracker" value="'.$row['atdid'].'" alt="Edit"><img src="'.DOMAIN.'/images/invalid.gif"/></button></td></form>';
+		}
+		$assetslist.='<tr>';
 	}
 	$assetslist.='</table></div>';
 }
@@ -71,63 +111,20 @@ else {
 	$assetslist = '<div id="assetslist"></div>';
 }
 
-
-
-if(isset($core->input['edit_tracker'])) {
-	$assetedit = '<form name="asset_save" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/managetrackers">
-	<input type="hidden" name="atdid" value="'.$core->input['e_atdid'].'"/>
+$assetedit = '<form name="asset_save" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/managetrackers">
+	<input type="hidden" id="atdid" name="atdid" />
 	<table cellspacing=5 cellpadding=4 border=0>
-	<tr><td>Device Id</td><td><input type="text" name="deviceId" value="'.$core->input['e_deviceid'].'"/></td></tr>
-	<tr><td>Asset ID</td><td>'.parse_selectlist('asid',2,getAssetsList(),$core->input['e_asid']).'</td></tr>
-	<tr><td>From</td><td><input type="text" name="fromDate" tabindex="3" id="pickDateFrom" value="'.date('F d, Y',$core->input['e_fromdate']).'"/></td></tr>
-	<tr><td>To</td><td><input type="text" name="toDate" tabindex="4" id="pickDateTo" value="'.date('F d, Y',$core->input['e_todate']).'"/></td></tr>
-	<td colspan=2><input type="submit" name="savetracker" value="Save" tabindex="5"/></tr></td></form>';
-}
-else {
-	$assetedit = '<form name="asset_save" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/managetrackers">
-	<input type="hidden" name="asid" />
-	<table cellspacing=5 cellpadding=4 border=0>
-	<tr><td>Device Id</td><td><input type="text" name="deviceId" tabindex="1"/></td></tr>
-	<tr><td>Asset Id</td><td>'.parse_selectlist('asid',2,getAssetsList(),'').'</td></tr>
-	<tr><td>From</td><td><input type="text" name="fromDate" id="pickDateFrom" tabindex="3"/></td></tr>
-	<tr><td>To</td><td><input type="text" name="toDate" id="pickDateTo" tabindex="4"/></td></tr>
-	<td colspan=2><input type="submit" name="savetracker" value="Save" tabindex="5"/></tr></td></form>';
-}
+	<tr><td>'.$lang->deviceid.'</td><td><input id="deviceId" type="text" name="deviceId" tabindex="1"/></td></tr>
+	<tr><td>'.$lang->asid.'</td><td>'.parse_selectlist('asid', 2, getAssetsList(), '').'</td></tr>
+	<tr><td>'.$lang->from.'</td><td><input type="text" name="fromDate" id="pickDateFrom" tabindex="3"/></td></tr>
+	<tr><td>'.$lang->to.'</td><td><input type="text" name="toDate" id="pickDateTo" tabindex="4"/></td></tr>
+	<td colspan=2><input type="submit" name="savetracker" value="Save" tabindex="5"/>&nbsp;
+	<button type="reset" id="clear_asset_edit_form">Reset</button></td></tr></table></form>';
 
-
-$pagetitle = "Manage Trackers";
-$pagecontents = $assetslist.$assetedit;
+$pagetitle = $lang->trackersmanagepage;
+$pagecontents = encapsulate_in_fieldset($assetedit,"Add/Edit",true).'<hr><br>'.$assetslist;
 eval("\$assetslist = \"".$template->get('assets_assets')."\";");
 echo $assetslist;
-function getAffiliateList($idsonly = false) {
-	global $core, $db;
-	if($core->usergroup['canViewAllAff'] == 0) {
-		$tmpaffiliates = $core->user['affiliates'];
-		foreach($tmpaffiliates as $value) {
-			if($idsonly) {
-				$affiliates[$value] = $value;
-			}
-			else {
-				$affiliates[$value] = get_name_from_id($value, 'affiliates', 'affid', 'name');
-			}
-		}
-	}
-	else {
-		$affiliates_query = $db->query('SELECT affid,name from '.Tprefix.'affiliates');
-		if($db->num_rows($affiliates_query) > 0) {
-			while($affiliate = $db->fetch_assoc($affiliates_query)) {
-				if($idsonly) {
-					$affiliates[$affiliate['affid']] = $affiliate['affid'];
-				}
-				else {
-					$affiliates[$affiliate['affid']] = $affiliate['name'];
-				}
-			}
-		}
-	}
-	asort($affiliates);
-	return $affiliates;
-}
 
 function getAssetsList($idsonly = false) {
 	$assets = array();

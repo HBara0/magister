@@ -228,7 +228,8 @@ if(!$core->input['action']) {
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		
 		if($core->usergroup['canExcludeFillStages'] == 1) {
-			$exludestage = "<br /><input type='checkbox' name='excludeKeyCustomers' id='excludeKeyCustomers' title='{$lang->exclude_tip}'> {$lang->excludekeycustomers}";
+			$exludestage = '<br /><input type="checkbox" name="excludeKeyCustomers"  style="width:30px;" id="excludeKeyCustomers" title="'.$lang->exclude_tip.'" /> '.$lang->excludekeycustomers;
+
 		}
 		
 		//Parse add customer popup
@@ -319,10 +320,10 @@ if(!$core->input['action']) {
 			$lastyear = $reportmeta['year'];
 			$lastquarter = $quarter - 1;
 		}
-		$last_report = $db->fetch_array($db->query("SELECT mr.* 
-													FROM ".Tprefix."marketreport mr LEFT JOIN reports r ON (r.rid=mr.rid) 
-													WHERE r.year='{$lastyear}' AND r.quarter='{$lastquarter}' AND r.spid='{$reportmeta[spid]}' AND r.affid='{$reportmeta[affid]}'"));
-			
+//		$last_report = $db->fetch_array($db->query("SELECT mr.* 
+//													FROM ".Tprefix."marketreport mr LEFT JOIN reports r ON (r.rid=mr.rid) 
+//													WHERE r.year='{$lastyear}' AND r.quarter='{$lastquarter}' AND r.spid='{$reportmeta[spid]}' AND r.affid='{$reportmeta[affid]}'"));
+//			
 		$query = $db->query("SELECT mr.* 
 							FROM ".Tprefix."marketreport mr LEFT JOIN reports r ON (r.rid=mr.rid) 
 							WHERE r.year='{$lastyear}' AND r.quarter='{$lastquarter}' AND r.spid='{$reportmeta[spid]}' AND r.affid='{$reportmeta[affid]}'");
@@ -393,6 +394,8 @@ if(!$core->input['action']) {
 		$affiliates_list = parse_selectlist('affid', 1, $affiliates, '');
 		
 		if($core->usergroup['reporting_canTransFillReports'] == '1') {
+			
+			
 			$transfill_checkbox = "<br /><span class='smalltext'><input type='checkbox' name='transFill' id='transFill' value='1' title='{$lang->transfill_tip}'> {$lang->transparentlyfill}</span>";
 		}
 		eval("\$fillreportpage = \"".$template->get('reporting_fillreports_init')."\";");
@@ -496,7 +499,7 @@ else
 						$actual_forecast = ($prev_data[$core->input['pid_'.$i]][$validation_item]+$actual_current_validation+$actual_current_data['actualsum']);
 						$actual_current_forecast = $core->input[$validation_key.'Forecast_'.$i]+$actual_current_data['forecastsum'];
 						
-						if(round($actual_forecast, 4) > $actual_current_forecast || ($report_meta['quarter'] == 4 && round($actual_forecast, 4) < $actual_current_forecast)) {//$core->input[$validation_key.'Forecast_'.$i]) {
+						if(round($actual_forecast, 4) > round($actual_current_forecast, 4) || ($report_meta['quarter'] == 4 && round($actual_forecast, 4) < round($actual_current_forecast, 4))) {//$core->input[$validation_key.'Forecast_'.$i]) {
 							$forecast_corrections[$core->input['pid_'.$i]]['name'] = $core->input['product_'.$i.'_QSearch'];
 							$forecast_corrections[$core->input['pid_'.$i]][$validation_key] = $correctionsign.number_format($actual_forecast, 4);
 							$error_forecast_exists = true;

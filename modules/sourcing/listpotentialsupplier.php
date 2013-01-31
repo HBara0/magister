@@ -48,7 +48,7 @@ if(!$core->input['action']) {
 	/* Perform inline filtering - START */
 	$filters_config = array(
 			'parse' => array('filters' => array('companyName', 'type', 'segment', 'country', 'opportunity', 'chemicalsubstance'),
-					'overwriteField' => array('opportunity' => parse_selectlist('filters[opportunity]', 5, array_combine($opportunity_scale, $opportunity_scale), $core->input['filters']['opportunity']), 'type' => parse_selectlist('filters[type]', 2, array('' => '', 'b' => $lang->both, 't' => $lang->trader, 'p' => $lang->producer), $core->input['filters']['type']))
+					'overwriteField' => array('opportunity' => parse_selectlist('filters[opportunity]', 5, array_combine($opportunity_scale, $opportunity_scale), $core->input['filters']['opportunity']),'type'=>parse_selectlist('filters[type]',2,array(''=>'','b'=>$lang->both,'t'=>$lang->trader,'p'=>$lang->producer),$core->input['filters']['type']))
 			/* get the busieness potential and parse them in select list to pass to the filter array */
 			),
 			'process' => array(
@@ -57,16 +57,16 @@ if(!$core->input['action']) {
 							'name' => 'sourcing_suppliers',
 							'filters' => array('companyName' => 'companyName', 'type' => 'type', 'opportunity' => 'businessPotential'),
 					),
-					'secTables' => array(
+					'secTables' => array( 
 							'sourcing_suppliers_productsegments' => array(
 									'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
 							),
-							'sourcing_suppliers_chemicals' => array(
+								'sourcing_suppliers_chemicals' => array(
 									'havingFilters' => array('chemicalsubstance' => 'fullchemicalname'),
 									'keyAttr' => 'csid',
 									'joinKeyAttr' => 'csid',
 									'joinWith' => 'chemicalsubstances',
-									'extraSelect' => 'CONCAT(casNum,"-",name,"-",synonyms) AS fullchemicalname'
+									'extraSelect'=>'CONCAT(casNum,"-",name,"-",synonyms) AS fullchemicalname'
 							),
 							'sourcing_suppliers_activityareas' => array(
 									'filters' => array('country' => 'name'),
@@ -77,10 +77,10 @@ if(!$core->input['action']) {
 					)
 			)
 	);
-
+	
 	$filter = new Inlinefilters($filters_config);
 	$filter_where_values = $filter->process_multi_filters();
-
+	
 	$chemicals_query = $db->query("SELECT csid, casNum, name FROM ".Tprefix."chemicalsubstances ORDER BY name ASC");
 	while($chemicals = $db->fetch_assoc($chemicals_query)) {
 		$chemicals_selectlist_otps .= '<option value='.$chemicals['csid'].'>'.$chemicals['casNum'].' - '.$chemicals['name'].'</option>';
@@ -148,13 +148,13 @@ if(!$core->input['action']) {
 
 					reset($potential_supplier['activityarea']);
 					$first_activityarealen = strlen(current($potential_supplier['activityarea']));
-
-					if(strlen($potential_supplier['activityarea_imploded']) > $first_segmentlen) {
-						$potential_supplier['activityarea_output'] = substr($potential_supplier['activityarea_imploded'], 0, $first_activityarealen).' <a href="#activityarea_'.$potential_supplier['supplier']['ssid'].'" id="showmore_activityarea_'.$potential_supplier['supplier']['ssid'].'">...</a><span style="display:none;" id="activityarea_'.$potential_supplier['supplier']['ssid'].'">'.substr($potential_supplier['activityarea_imploded'], $first_activityarealen).'</span>';
-					}
-					else {
-						$potential_supplier['activityarea_output'] = current($potential_supplier['activityarea']);
-					}
+				
+				if(strlen($potential_supplier['activityarea_imploded']) > $first_segmentlen) {
+					$potential_supplier['activityarea_output'] = substr($potential_supplier['activityarea_imploded'], 0, $first_activityarealen).' <a href="#activityarea_'.$potential_supplier['supplier']['ssid'].'" id="showmore_activityarea_'.$potential_supplier['supplier']['ssid'].'">...</a><span style="display:none;" id="activityarea_'.$potential_supplier['supplier']['ssid'].'">'.substr($potential_supplier['activityarea_imploded'], $first_activityarealen).'</span>';
+				}
+				else {
+					$potential_supplier['activityarea_output'] = current($potential_supplier['activityarea']);
+				}
 				}
 				unset($potential_supplier['activityarea_imploded']);
 			}
@@ -185,7 +185,7 @@ if(!$core->input['action']) {
 		$multipage_where .= $db->escape_string($attributes_filter_options['prefixes'][$core->input['filterby']].$core->input['filterby']).$filter_value;
 		$multipages = new Multipages('sourcing_suppliers', $core->settings['itemsperlist'], $multipage_where);
 		$sourcing_listpotentialsupplier_rows .= '<tr><td colspan="6">'.$multipages->parse_multipages().'</td></tr>';
-
+	
 		unset($potential_supplier);
 	}
 	else {
@@ -219,4 +219,6 @@ else {
 		}
 	}
 }
+
+
 ?>

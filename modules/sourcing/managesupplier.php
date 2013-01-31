@@ -93,6 +93,7 @@ if(!$core->input['action']) {
 
 			foreach($availability_radiobutton_items as $index => $item) {
 				$availability_radiobutton[$index] = parse_radiobutton('supplier[activityarea]['.$acoid.'][availability]', array($index => $item), $supplier['selectedactivityareas'][$acoid]['availability']);
+			
 				
 			}
 			eval("\$activityarea_list_row .= \"".$template->get('sourcing_managesupplier_activityarea_list_row')."\";"); 

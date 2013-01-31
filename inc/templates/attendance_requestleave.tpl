@@ -43,11 +43,11 @@
 		{$requestonbehalf_field}
         <tr>
             <td width="18%">{$lang->fromdate}</td>
-        	<td><input type="text" id="pickDate_from" autocomplete="off" tabindex="1" value="{$leave[fromDate_output]}" /><input type="hidden" name="fromDate" id="altpickDate_from" value="{$leave[fromDate_formatted]}" /></td>
+        	<td><input type="text" id="pickDate_from" autocomplete="off" tabindex="1" value="{$leave[fromDate_output]}" required="required"/><input type="hidden" name="fromDate" id="altpickDate_from" value="{$leave[fromDate_formatted]}" /></td>
         </tr>
         <tr>
             <td>{$lang->todate}</td>
-        	<td><input type="text" id="pickDate_to" autocomplete="off" tabindex="2" value="{$leave[toDate_output]}" /><input type="hidden" name="toDate" id="altpickDate_to" value="{$leave[toDate_formatted]}"/></td>
+            <td><input type="text" id="pickDate_to" autocomplete="off" tabindex="2" value="{$leave[toDate_output]}" required="required" /><input type="hidden" name="toDate" id="altpickDate_to" value="{$leave[toDate_formatted]}"/></td>
         </tr>
         <tr><td>&nbsp;</td><td style="font-style:italic;"><span id="leavetime_details">{$lang->betweenhours}</span></td></tr>
         <tr>
@@ -90,7 +90,7 @@
         </tr>
         <tr><td colspan="2"><hr /></td></tr>
     </table>
-    <input type="button" id="perform_attendance/{$action}_Button" value="{$lang->$action}" class="button" />
+    <input type="submit" id="perform_attendance/{$action}_Button" value="{$lang->$action}" class="button" />
     </form>
     <div id="perform_attendance/{$action}_Results"></div>
     </td>

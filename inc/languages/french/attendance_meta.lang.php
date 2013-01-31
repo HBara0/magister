@@ -4,14 +4,25 @@
  PLEASE USE the Admin CP
 \*********************************/
 
+$lang['actbalance'] = '';
+$lang['actbalanceprevyear'] = '';
+$lang['actdaystaken'] = '';
+$lang['actualtaken'] = '';
 $lang['actualworkingdays'] = 'Jours de Travail Effectif';
+$lang['choosecorrections'] = '';
+$lang['correctbalances'] = '';
 $lang['earliestarrival'] = 'Arrivée le plus tôt';
 $lang['extraworkeddays'] = '';
+$lang['fixdaystaken'] = '';
+$lang['fixremprevyear'] = '';
 $lang['holidays'] = 'Fêtes';
 $lang['latestdeparture'] = 'Dernière départ';
 $lang['leaves'] = '';
 $lang['missingdays'] = 'Jours Manquants';
 $lang['perioddays'] = 'Période (Jours)';
+$lang['previewbalances'] = '';
+$lang['prevperiod'] = '';
 $lang['requireddays'] = 'Jours Obligatoires';
+$lang['validatebalances'] = '';
 $lang['weekends'] = 'Weekend';
 ?>

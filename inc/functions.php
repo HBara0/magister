@@ -29,7 +29,7 @@ function output_page($template) {
 
 	$debug = '';
 	if($core->usergroup['canPerformMaintenance'] == 1) {
-		$debug = 'Generated in '. $timer->get().' seconds';
+		$debug = 'Generated in '.$timer->get().' seconds';
 	}
 	$template = str_replace("<debug>", $debug, $template);
 
@@ -37,14 +37,13 @@ function output_page($template) {
 		if(version_compare(PHP_VERSION, '4.2.0', '>=')) {
 			$template = gzip_compression($template, $core->settings['gziplevel']);
 		}
-		else
-		{
+		else {
 			$template = gzip_compression($template);
 		}
 	}
 
 	@header("Content-type: text/html; charset={$lang->settings[charset]}");
- 	echo $template;
+	echo $template;
 }
 
 /* GZIP cotents to a certain level
@@ -52,43 +51,35 @@ function output_page($template) {
  * @param  int			$level	 	Level of compression
  * @return String					Compressed content
  */
-function gzip_compression($contents, $level=1) {
-	if(function_exists('gzcompress') && function_exists('crc32') && !headers_sent() && !(ini_get('output_buffering') && strpos(' '.ini_get('output_handler'), 'ob_gzhandler')))
-	{
+function gzip_compression($contents, $level = 1) {
+	if(function_exists('gzcompress') && function_exists('crc32') && !headers_sent() && !(ini_get('output_buffering') && strpos(' '.ini_get('output_handler'), 'ob_gzhandler'))) {
 		$httpaccept_encoding = '';
 
-		if(isset($_SERVER['HTTP_ACCEPT_ENCODING']))
-		{
+		if(isset($_SERVER['HTTP_ACCEPT_ENCODING'])) {
 			$httpaccept_encoding = $_SERVER['HTTP_ACCEPT_ENCODING'];
 		}
 
-		if(strpos(' '.$httpaccept_encoding, 'x-gzip'))
-		{
+		if(strpos(' '.$httpaccept_encoding, 'x-gzip')) {
 			$encoding = 'x-gzip';
 		}
 
-		if(strpos(" ".$httpaccept_encoding, 'gzip'))
-		{
+		if(strpos(" ".$httpaccept_encoding, 'gzip')) {
 			$encoding = 'gzip';
 		}
 
-		if(strpos(' '.$httpaccept_encoding, 'deflate'))
-		{
+		if(strpos(' '.$httpaccept_encoding, 'deflate')) {
 			$encoding = 'deflate';
 		}
 
-		if(isset($encoding))
-		{
+		if(isset($encoding)) {
 			header("Content-Encoding: {$encoding}");
 			if(function_exists('gzdeflate')) {
 				$contents = gzdeflate($contents, $level);
 			}
-			elseif(function_exists('gzencode'))
-			{
+			elseif(function_exists('gzencode')) {
 				$contents = gzencode($contents, $level);
 			}
-			else
-			{
+			else {
 				$size = strlen($contents);
 				$crc = crc32($contents);
 				$gzdata = "\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff";
@@ -132,12 +123,11 @@ function set_headers() {
  */
 function random_string($length) {
 	$keys = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-	$max  = strlen($keys) - 1;
+	$max = strlen($keys) - 1;
 
-	for ($i = 0; $i < $length; $i++)
-	{
-	   $rand  = rand(0, $max);
-	   $rand_key[] = $keys{$rand};
+	for($i = 0; $i < $length; $i++) {
+		$rand = rand(0, $max);
+		$rand_key[] = $keys{$rand};
 	}
 
 	$output = implode('', $rand_key);
@@ -148,46 +138,32 @@ function random_string($length) {
 /* Retrive the user's session IP address
  * @return  String 				The IP Address
  */
-function userip()
-{
-	if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])) //Let's catch the proxy behind the nat router.
-		{
-			if(preg_match_all("#[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}#s", $_SERVER['HTTP_X_FORWARDED_FOR'], $addr))
-			{
-				foreach($addr[0] as $key => $value)
-				{
-					if(!preg_match("#^(10|172\.16|192\.168)\.#", $value))
-					{
+function userip() {
+	if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])) { //Let's catch the proxy behind the nat router.
+		if(preg_match_all("#[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}#s", $_SERVER['HTTP_X_FORWARDED_FOR'], $addr)) {
+			foreach($addr[0] as $key => $value) {
+				if(!preg_match("#^(10|172\.16|192\.168)\.#", $value)) {
+					$ip = $value;
+					break;
+				}
+			}
+		}
+	}
+	if(!$ip || $ip == '') {
+		if($_SERVER['REMOTE_ADDR']) {
+			if(preg_match_all("#[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}#s", $_SERVER['REMOTE_ADDR'], $addr)) {
+				foreach($addr[0] as $key => $value) {
+					if(!preg_match("#^(10|172\.16|192\.168)\.#", $value)) {
 						$ip = $value;
 						break;
 					}
 				}
 			}
 		}
-	if(!$ip || $ip == '')
-	{
-		if($_SERVER['REMOTE_ADDR'])
-		{
-			if(preg_match_all("#[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}#s", $_SERVER['REMOTE_ADDR'], $addr))
-			{
-				foreach($addr[0] as $key => $value)
-				{
-					if(!preg_match("#^(10|172\.16|192\.168)\.#", $value))
-					{
-						$ip = $value;
-						break;
-					}
-				}
-			}
-		}
-		else
-		{
-			if(preg_match_all("#[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}#s", $_SERVER['HTTP_CLIENT_IP'], $addr))
-			{
-				foreach($addr[0] as $key => $value)
-				{
-					if(!preg_match("#^(10|172\.16|192\.168)\.#", $value))
-					{
+		else {
+			if(preg_match_all("#[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}#s", $_SERVER['HTTP_CLIENT_IP'], $addr)) {
+				foreach($addr[0] as $key => $value) {
+					if(!preg_match("#^(10|172\.16|192\.168)\.#", $value)) {
 						$ip = $value;
 						break;
 					}
@@ -202,8 +178,7 @@ function userip()
  * @param	String		$url		The URL to which should be directed
  * @param	int			$delay		Seconds to deplay redirection
  */
-function redirect($url, $delay=0, $redirect_message='')
-{
+function redirect($url, $delay = 0, $redirect_message = '') {
 	global $core, $lang, $template, $headerinc;
 	$url = str_replace("&amp;", "&", $url);
 	$url = str_replace("#", "&#", $url);
@@ -212,13 +187,11 @@ function redirect($url, $delay=0, $redirect_message='')
 		output_page($redirectpage);
 		exit;
 	}
-	else
-	{
+	else {
 		if($delay > 0) {
 			header("Refresh: $delay; url=$url");
 		}
-		else
-		{
+		else {
 			header("Location: $url");
 		}
 	}
@@ -231,16 +204,14 @@ function redirect($url, $delay=0, $redirect_message='')
  * @return	Boolean						Either valid or not
  */
 function isvalid_email($email) {
-	if(strpos($email, ' ') !== false)
-	{
+	if(strpos($email, ' ') !== false) {
 		return false;
 	}
 
 	if(function_exists('filter_var')) {
 		return filter_var($email, FILTER_VALIDATE_EMAIL);
 	}
-	else
-	{
+	else {
 		return preg_match("/^[a-zA-Z0-9&*+\-_.{}~^\?=\/]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9.-]+$/si", $email);
 	}
 }
@@ -276,12 +247,13 @@ function fix_newline(&$text) {
 		$text = preg_replace("/\\n/i", '<br />', $text);
 	}
 }
+
 /*
  * Displays a customized error message
  * @param	String		$message		The message to be displayed
  * @param	Boolean		$noexit			Don't stop execution or vice versa
  */
-function error($message, $redirect_url='', $noexit=false) {
+function error($message, $redirect_url = '', $noexit = false) {
 	global $core, $template, $lang, $config, $settings, $headerinc;
 
 	$error_message = $message;
@@ -301,21 +273,46 @@ function error($message, $redirect_url='', $noexit=false) {
  * @param  String		$value	 	Value of the cookie
  * @param  int			$duration	Expiry
  */
-function create_cookie($name, $value, $duration='', $secure=false, $httponly=false) {
+function create_cookie($name, $value, $duration = '', $secure = false, $httponly = false) {
 	global $core;
 
 	if(!is_array($value)) {
 		if(empty($duration)) {
-			$duration = (time() + (60*$core->settings['idletime']));
+			$duration = (time() + (60 * $core->settings['idletime']));
 		}
 		setcookie(COOKIE_PREFIX.$name, urlencode($value), $duration, COOKIE_PATH, COOKIE_DOMAIN, $secure, $httponly);
 	}
 }
 
+/* Parse input fields of various types */
+function parse_textfield($id, $type, $value = '', $options = array(), $config = array()) {
+	if(empty($id)) {
+		return false;
+	}
+
+	if(!empty($options)) {
+		foreach($options as $key => $val) {
+			$attributes.= ' '.$key.'="'.$val.'"';
+		}
+	}
+
+	$accepted_types = array('text', 'tel', 'search', 'url', 'email', 'datetime', 'date', 'month', 'week', 'time', 'checkbox', 'image', 'file');
+	if(!array($accepted_types, $type)) {
+		$type = 'text';
+	}
+
+	if(isset($config['id'])) {
+		$id = $config['id'];
+	}
+
+	$text = '<input type="'.$type.'" name="'.$id.'" value="'.$value.'" id="'.$id.'"'.$attributes.'>';
+	return $text;
+}
+
 /*
-	creates a selection list
-*/
-function parse_selectlist($id, $tabindex, $options, $selected_options, $multiple_list=0, $onchange_actions = '', $config = array()) {
+  creates a selection list
+ */
+function parse_selectlist($id, $tabindex, $options, $selected_options, $multiple_list = 0, $onchange_actions = '', $config = array()) {
 	if($multiple_list == 1) {
 		if(!isset($config['multiplesize']) || empty($config['multiplesize'])) {
 			$config['multiplesize'] = 5;
@@ -326,53 +323,65 @@ function parse_selectlist($id, $tabindex, $options, $selected_options, $multiple
 	if(is_array($selected_options)) {
 		$multiple_selected = true;
 	}
-
 	if(!empty($onchange_actions)) {
 		$onchange_actions = ' onchange=\''.$onchange_actions.'\'';
 	}
 
+	if(isset($config['id'])) {
+		$id = $config['id'];
+	}
 
-	$list .= '<select id="'.(($config['id'])?$config['id']:$id).'" name="'.$id.'" tabindex="'.$tabindex.'"'.$multiple.$onchange_actions.'>';
+	if($config['required']) {
+		$required = ' required = "required"';
+	}
+
+	$list .= '<select id="'.$id.'" name="'.$id.'" size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
+	if($config['blankstart'] == true) {
+		$list .= '<option></option>';
+	}
 	foreach($options as $key => $val) {
 		if($multiple_selected == true) {
 			if(in_array($key, $selected_options)) {
-				$selected = ' selected="selected"';
+				$attributes = ' selected="selected"';
 			}
 		}
-		else
-		{
+		else {
 			if($selected_options == $key) {
-				$selected = ' selected="selected"';
+				$attributes = ' selected="selected"';
 			}
 		}
-		$list .= '<option value="'.$key.'"'.$selected.'>'.$val.'</option>';
-		$selected = '';
+
+		if(isset($config['disabledItems'][$key])) {
+			$attributes .= ' disabled="disabled"';
+		}
+
+		$list .= '<option value="'.$key.'"'.$attributes.'>'.$val.'</option>';
+		$attributes = '';
 	}
 	$list .= '</select>';
 	return $list;
 }
 
-function parse_yesno($name, $tabindex, $checked_option=0) {
+function parse_yesno($name, $tabindex, $checked_option = 0) {
 	global $lang;
 
 	if($checked_option == '1') {
 		$yes_checked = ' checked="checked"';
 	}
-	else
-	{
+	else {
 		$no_checked = ' checked="checked"';
 	}
 
-    $radio = "<label><input type='radio' name='{$name}' value='1' id='{$name}_1'{$yes_checked}>{$lang->yes}</label>";
-    $radio .= "<label><input type='radio' name='{$name}' value='0' id='{$name}_0'{$no_checked}>{$lang->no}</label>";
+	$radio = "<label><input type='radio' name='{$name}' value='1' id='{$name}_1'{$yes_checked}>{$lang->yes}</label>";
+	$radio .= "<label><input type='radio' name='{$name}' value='0' id='{$name}_0'{$no_checked}>{$lang->no}</label>";
 	return $radio;
 }
 
-function parse_radiobutton($name, $items, $checked_option='', $display_title=true, $seperator='') {
+function parse_radiobutton($name, $items, $checked_option = '', $display_title = true, $seperator = '') {
 	if(is_array($items)) {
 		foreach($items as $key => $val) {
 			$checked = '';
-			if($display_title === false){
+			if($display_title === false) {
 				$val = '';
 			}
 
@@ -388,11 +397,11 @@ function parse_radiobutton($name, $items, $checked_option='', $display_title=tru
 	return false;
 }
 
-function parse_checkboxes($name, $items, $selected_options = array(), $display_title=true, $seperator='') {
+function parse_checkboxes($name, $items, $selected_options = array(), $display_title = true, $seperator = '') {
 	if(is_array($items)) {
 		foreach($items as $key => $val) {
 			$checked = '';
-			if($display_title === false){
+			if($display_title === false) {
 				$val = '';
 			}
 
@@ -408,25 +417,24 @@ function parse_checkboxes($name, $items, $selected_options = array(), $display_t
 	return false;
 }
 
-function value_exists($table, $attribute, $value, $extra_where='') {
+function value_exists($table, $attribute, $value, $extra_where = '') {
 	global $db;
 
 	if(!empty($extra_where)) {
 		$extra_where = ' AND '.$extra_where;
 	}
 	$attribute = $db->escape_string($attribute);
-//echo ("SELECT {$attribute} FROM ".Tprefix."{$table} WHERE {$attribute}='".$db->escape_string($value)."'{$extra_where}");
+
 	$query = $db->query("SELECT {$attribute} FROM ".Tprefix."{$table} WHERE {$attribute}='".$db->escape_string($value)."'{$extra_where}");
 	if($db->num_rows($query) > 0) {
 		return true;
 	}
-	else
-	{
+	else {
 		return false;
 	}
 }
 
-function get_specificdata($table, $attributes, $key_attribute, $value_attribute, $order, $blankstart=0, $where='') {
+function get_specificdata($table, $attributes, $key_attribute, $value_attribute, $order, $blankstart = 0, $where = '') {
 	global $db;
 	if(is_array($attributes)) {
 		foreach($attributes as $key => $val) {
@@ -434,8 +442,7 @@ function get_specificdata($table, $attributes, $key_attribute, $value_attribute,
 			$comma = ', ';
 		}
 	}
-	else
-	{
+	else {
 		$attributes_string = $attributes;
 	}
 
@@ -445,8 +452,7 @@ function get_specificdata($table, $attributes, $key_attribute, $value_attribute,
 		}
 		$order = 'ORDER BY '.$order['by'].' '.$order['sort'];
 	}
-	else
-	{
+	else {
 		if(!empty($order)) {
 			$order = 'ORDER BY '.$order.' ASC';
 		}
@@ -471,13 +477,12 @@ function get_specificdata($table, $attributes, $key_attribute, $value_attribute,
 		}
 		return $data;
 	}
-	else
-	{
+	else {
 		return false;
 	}
 }
 
-function quick_search($table, $attributes, $value, $select_attributes, $key_attribute, $order, $extra_where='', $andor_param = 'OR') {
+function quick_search($table, $attributes, $value, $select_attributes, $key_attribute, $order, $extra_where = '', $andor_param = 'OR') {
 	global $db, $lang;
 
 	$value = $db->escape_string($value);
@@ -489,8 +494,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 		}
 		$select_attributes_string .= ', '.$key_attribute;
 	}
-	else
-	{
+	else {
 		return false;
 	}
 
@@ -501,8 +505,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 			$andor = ' '.$andor_param.' ';
 		}
 	}
-	else
-	{
+	else {
 		return false;
 	}
 
@@ -563,8 +566,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 		}
 		$results_list .= '</ul>';
 	}
-	else
-	{
+	else {
 		$results_list = '<span class="red_text">'.$lang->nomatchfound.'</span>';
 	}
 
@@ -585,12 +587,12 @@ function log_action() {
 	}
 
 	$log_entry = array(
-		'uid' => $core->user['uid'],
-		'ipaddress' => $db->escape_string(userip()),
-		'date' => TIME_NOW,
-		'module' => $db->escape_string($core->input['module']),
-		'action' => $db->escape_string($core->input['action']),
-		'data' => $db->escape_string(@serialize($data))
+			'uid' => $core->user['uid'],
+			'ipaddress' => $db->escape_string(userip()),
+			'date' => TIME_NOW,
+			'module' => $db->escape_string($core->input['module']),
+			'action' => $db->escape_string($core->input['action']),
+			'data' => $db->escape_string(@serialize($data))
 	);
 
 	$db->insert_query('logs', $log_entry);
@@ -602,8 +604,7 @@ function record_contribution($rid, $isdone = 0) {
 	if($db->fetch_field($db->query("SELECT COUNT(*) AS contributed FROM ".Tprefix."reportcontributors WHERE rid='{$rid}' AND uid='{$core->user[uid]}'"), 'contributed') == 0) {
 		$db->insert_query('reportcontributors', array('rid' => $rid, 'uid' => $core->user['uid'], 'isDone' => $isdone, 'timeDone' => TIME_NOW));
 	}
-	else
-	{
+	else {
 		$db->update_query('reportcontributors', array('isDone' => 1, 'timeDone' => TIME_NOW), "rid='{$rid}' AND uid='{$core->user[uid]}'");
 	}
 }
@@ -612,23 +613,23 @@ function record_contribution($rid, $isdone = 0) {
  * @param  Boolean		$real		Whether a real current quarter or reporting quarter
  * @return Array					Current quarter and year
  */
-function currentquarter_info($real=false) {
+function currentquarter_info($real = false) {
 	global $core;
 
 	$time_now = TIME_NOW;
 	$current_year = date('Y', $time_now);
 
-	for($i=1;$i<=4;$i++) {
+	for($i = 1; $i <= 4; $i++) {
 		$start = explode('/', $core->settings['q'.$i.'start']);
 		$end = explode('/', $core->settings['q'.$i.'end']);
 
-		$quarter_start = mktime(0,0,0, $start[1], $start[0], $current_year);
-		$quarter_end = mktime(24,59,0, $end[1], $end[0], $current_year);
+		$quarter_start = mktime(0, 0, 0, $start[1], $start[0], $current_year);
+		$quarter_end = mktime(24, 59, 0, $end[1], $end[0], $current_year);
 
 		if($time_now >= $quarter_start && $time_now <= $quarter_end) {
 			$current_quarter = $i;
 			if($real === false) {
-				$current_quarter = $i-1;
+				$current_quarter = $i - 1;
 				if($current_quarter == 0) {
 					$current_quarter = 4;
 					$current_year -= 1;
@@ -647,8 +648,8 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
 	$list = '';
 	if(is_dir($path)) {
 		$dir = opendir($path);
-		while (false !== ($file = readdir($dir))) {
-			if ($file != '.' && $file != '..') {
+		while(false !== ($file = readdir($dir))) {
+			if($file != '.' && $file != '..') {
 				$file_info = pathinfo($path.'/'.$file);
 				if($file_info['extension'] == 'php') {
 					require $path.'/'.$file;
@@ -661,15 +662,13 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
 							$list .= '<option value="'.$module['name'].'"'.$selected.'>'.$module['title'].'</option>';
 						}
 					}
-					else
-					{
+					else {
 						if($current_module != $module['name']) {
 							if($core->usergroup[$module['globalpermission']] == 1) {
 								$list .= '<div><a href="index.php?module='.$module['name'].'/'.$module['homepage'].'">'.$module['title'].'</a></div>';
 							}
 						}
-						else
-						{
+						else {
 							$current_module_title = $module['title'];
 						}
 					}
@@ -683,13 +682,11 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
 		if($is_selectlist === true) {
 			return '<select name="defaultModule" id="defaultModule"><option value="">&nbsp;<option>'.$list.'</select>';
 		}
-		else
-		{
+		else {
 			return '<div id="currentmodule_name">'.$current_module_title.' <br /><div class="moduleslist_container">'.$list.'</div></div>';
 		}
 	}
-	else
-	{
+	else {
 		return false;
 	}
 }
@@ -723,16 +720,15 @@ function parse_menuitems($module_name, $modules_dir = 'modules') {
 								$items .= '<li class="expandable"><span id="'.$key.'">'.$lang->$array2_indexes[$current_index].'</span>';
 								$items .= '<div id="'.$key.'_children_container" style="display: none;">';
 								$items .= '<ul id="'.$key.'_children">';
-									foreach($item as $k => $v) {
-										if($core->usergroup[$menu['permission'][$array3_key][($k+1)]] == 1) {
-											$items .= "<li><span id='{$module_name}/{$v}'><a href='index.php?module={$module_name}/{$v}'>{$lang->$menu[title][$array2_key][$k]}</a></span></li>\n";
-										}
+								foreach($item as $k => $v) {
+									if($core->usergroup[$menu['permission'][$array3_key][($k + 1)]] == 1) {
+										$items .= "<li><span id='{$module_name}/{$v}'><a href='index.php?module={$module_name}/{$v}'>{$lang->$menu[title][$array2_key][$k]}</a></span></li>\n";
 									}
+								}
 								$items .= '</ul></div></li>';
 							}
 						}
-						else
-						{
+						else {
 							if($core->usergroup[$menu['permission'][$key]] == 1) {
 								$items .= "<li><span id='{$module_name}/{$item}'><a href='index.php?module={$module_name}/{$item}'>{$lang->$menu[title][$key]}</a></span></li>\n";
 							}
@@ -757,8 +753,7 @@ function get_user_business_assignments($uid) {
 	if($uid == $core->user['uid']) {
 		$usergroup = $core->usergroup;
 	}
-	else
-	{
+	else {
 		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users WHERE uid={$uid})"));
 	}
 
@@ -770,8 +765,7 @@ function get_user_business_assignments($uid) {
 			$data['auditfor'][] = $auditfor['eid'];
 		}
 	}
-	else
-	{
+	else {
 		$data['auditfor'] = array();
 	}
 	/* Get which suppliers user is editing - END */
@@ -790,8 +784,7 @@ function get_user_business_assignments($uid) {
 			}
 		}
 	}
-	else
-	{
+	else {
 		if(!is_array($affiliates)) {
 			$affiliates = array(0);
 		}
@@ -864,11 +857,10 @@ function getquery_business_assignments() {
 	$arguments = func_get_args();
 
 	if(!empty($arguments[2])) {
-		$user =  get_user_business_assignments($arguments[2]);
+		$user = get_user_business_assignments($arguments[2]);
 		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users WHERE uid={$arguments[2]})"));
 	}
-	else
-	{
+	else {
 		$user = $core->user;
 		$usergroup = $core->usergroup;
 	}
@@ -900,8 +892,7 @@ function getquery_business_assignments() {
 				$query_attribute = $attribute_prefix.'spid';
 			}
 		}
-		else
-		{
+		else {
 			if($usergroup['canViewAllAff'] == 0) {
 				$found_ids = $user['suppliers']['affid'][$arguments[1]];
 
@@ -913,8 +904,7 @@ function getquery_business_assignments() {
 			$where['extra'] = $and.'('.$query_attribute.' IN ('.implode(',', $found_ids).'))';
 		}
 	}
-	else
-	{
+	else {
 		if($usergroup['canViewAllSupp'] == 0) {
 			$where['extra'] = $and.'(';
 			print_r($user['suppliers']['eid']);
@@ -936,7 +926,7 @@ function getquery_business_assignments() {
 		if($usergroup['canViewAllSupp'] == 1 && $usergroup['canViewAllAff'] == 0) {
 			$inaffiliates = implode(',', $user['affiliates']);
 
-			$where['extra']  = ' AND '.$attribute_prefix.'affid IN ('.$inaffiliates.') '; //AND.
+			$where['extra'] = ' AND '.$attribute_prefix.'affid IN ('.$inaffiliates.') '; //AND.
 			$where['multipage'] = 'affid IN ('.$inaffiliates.')';
 		}
 	}
@@ -953,8 +943,7 @@ function parse_userentities_data($uid) {
 	if($uid == $core->user['uid']) {
 		$usergroup = $core->usergroup;
 	}
-	else
-	{
+	else {
 		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users WHERE uid={$uid})"));
 	}
 
@@ -965,8 +954,7 @@ function parse_userentities_data($uid) {
 			$data['auditfor'][] = $auditfor['eid'];
 		}
 	}
-	else
-	{
+	else {
 		$data['auditfor'] = array();
 	}
 
@@ -981,8 +969,7 @@ function parse_userentities_data($uid) {
 				}
 			}
 		}
-		else
-		{
+		else {
 			if(!is_array($affiliates)) {
 				$suppliers = array(0);
 			}
@@ -1048,11 +1035,10 @@ function getquery_entities_viewpermissions() {
 	$arguments = func_get_args();
 
 	if(!empty($arguments[2])) {
-		$user =  parse_userentities_data($arguments[2]);
+		$user = parse_userentities_data($arguments[2]);
 		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users WHERE uid={$arguments[2]})"));
 	}
-	else
-	{
+	else {
 		$user = $core->user;
 		$usergroup = $core->usergroup;
 	}
@@ -1082,8 +1068,7 @@ function getquery_entities_viewpermissions() {
 							$found_ids[] = $val;
 						}
 					}
-					else
-					{
+					else {
 						if(in_array($arguments[1], $user['suppliers']['affid'][$val])) {
 							$found_ids[] = $val;
 						}
@@ -1092,14 +1077,12 @@ function getquery_entities_viewpermissions() {
 				$query_attribute = $attribute_prefix.'spid';
 			}
 		}
-		else
-		{
+		else {
 			if($usergroup['canViewAllAff'] == 0) {
 				if(in_array($arguments[1], $auditfor)) {
 					$found_ids = $user['auditedaffiliates'][$arguments[1]];
 				}
-				else
-				{
+				else {
 					$found_ids = $user['suppliers']['affid'][$arguments[1]];
 				}
 				$query_attribute = $attribute_prefix.'affid';
@@ -1110,8 +1093,7 @@ function getquery_entities_viewpermissions() {
 			$where['extra'] = $and.'('.$query_attribute.' IN ('.implode(',', $found_ids).'))';
 		}
 	}
-	else
-	{
+	else {
 		if($usergroup['canViewAllSupp'] == 0) {
 			$where['extra'] = $and.'(';
 			foreach($user['suppliers']['eid'] as $val) {
@@ -1121,8 +1103,7 @@ function getquery_entities_viewpermissions() {
 						$inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['auditedaffiliates'][$val]).')';
 					}
 				}
-				else
-				{
+				else {
 					$inaffiliates_query = '';
 					if($usergroup['canViewAllAff'] == 0) {
 						$inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['suppliers']['affid'][$val]).')';
@@ -1140,7 +1121,7 @@ function getquery_entities_viewpermissions() {
 		if($usergroup['canViewAllSupp'] == 1 && $usergroup['canViewAllAff'] == 0) {
 			$inaffiliates = implode(',', $user['affiliates']);
 
-			$where['extra']  = ' AND '.$attribute_prefix.'affid IN ('.$inaffiliates.') '; //AND.
+			$where['extra'] = ' AND '.$attribute_prefix.'affid IN ('.$inaffiliates.') '; //AND.
 			$where['multipage'] = 'affid IN ('.$inaffiliates.')';
 		}
 	}
@@ -1153,27 +1134,27 @@ function getquery_entities_viewpermissions() {
  * @param	int			$check_dates_end			Timestamp from the end date
  * @return	int			$count_off_days				Numbers of working days between the 2 dates
  */
-/*function count_workingdays2($workdays, $check_dates_start, $check_dates_end) {
-	$reached_last_day == false;
-	$date_being_checked = '';
-	$count_off_days = 0;
+/* function count_workingdays2($workdays, $check_dates_start, $check_dates_end) {
+  $reached_last_day == false;
+  $date_being_checked = '';
+  $count_off_days = 0;
 
-	while($reached_last_day == false) {
-		if(empty($date_being_checked)) {
-			$date_being_checked = $check_dates_start;
-		}
+  while($reached_last_day == false) {
+  if(empty($date_being_checked)) {
+  $date_being_checked = $check_dates_start;
+  }
 
-		if(in_array(date('N', $date_being_checked), $workdays)) {
-			$count_off_days++;
-		}
+  if(in_array(date('N', $date_being_checked), $workdays)) {
+  $count_off_days++;
+  }
 
-		$date_being_checked = $date_being_checked+(60*60*24);
-		if($date_being_checked >= $check_dates_end) {
-			$reached_last_day = true;
-		}
-	}
-	return $count_off_days;
-}*/
+  $date_being_checked = $date_being_checked+(60*60*24);
+  if($date_being_checked >= $check_dates_end) {
+  $reached_last_day = true;
+  }
+  }
+  return $count_off_days;
+  } */
 
 /* Gives a different class for alternative rows
  * @param  String		$class			Current class
@@ -1184,7 +1165,12 @@ function alt_row($class) {
 		return 'trow';
 	}
 
-	if($class == 'trow') { return 'altrow'; } else { return 'trow'; }
+	if($class == 'trow') {
+		return 'altrow';
+	}
+	else {
+		return 'trow';
+	}
 }
 
 /* Formats the request url to a sortable one
@@ -1218,8 +1204,7 @@ function array_sum_recursive($array) {
 			if(is_array($val)) {
 				$total += array_sum_recursive($val);
 			}
-			else
-			{
+			else {
 				$total += $val;
 			}
 		}
@@ -1228,11 +1213,11 @@ function array_sum_recursive($array) {
 	return false;
 }
 
-function get_day_name($day_number, $type='names') {
+function get_day_name($day_number, $type = 'names') {
 	$names = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
 	$letters = array('M', 'T', 'W', 'Th', 'F', 'S', 'Su');
 
-	return ${$type}[$day_number-1];
+	return ${$type}[$day_number - 1];
 }
 
 function format_size($size) {
@@ -1240,10 +1225,10 @@ function format_size($size) {
 		return $size.'B';
 	}
 	elseif($size > 1024 && $size < 1048576) {
-		return sprintf('%.0fkB',($size / 1024) );
+		return sprintf('%.0fkB', ($size / 1024));
 	}
 	elseif($size >= 1048576) {
-        return sprintf('%.2fMB',($size / 1048576) );
+		return sprintf('%.2fMB', ($size / 1048576));
 	}
 }
 
@@ -1259,66 +1244,67 @@ function getdate_custom($timestamp) {
 	return $date;
 }
 
-function generate_random_color($lum=0.97, $hue=0.58, $sat=0.6) {
+function generate_random_color($lum = 0.97, $hue = 0.58, $sat = 0.6) {
 	$color_dims = array('r', 'g', 'b');
 
 	foreach($color_dims as $c) {
 		$colors['dec'][$c] = $colors['int'][$c] = mt_rand(0, 255);
-		$effect = $lum*$hue*$sat;
+		$effect = $lum * $hue * $sat;
 		$colors['dec'][$c] = round(min(max(0, $colors['dec'][$c] + ($colors['int'][$c] * $effect)), 255));
 		$colors['hex'][$c] = dechex($colors['dec'][$c]);
 	}
 
 	$color = implode('', $colors['hex']);
-	if(strlen($color) < 6 || ((($colors['dec']['r']*299) + ($colors['dec']['g']*587) + ($colors['dec']['b']*114)) / 1000) > 250) {
+	if(strlen($color) < 6 || ((($colors['dec']['r'] * 299) + ($colors['dec']['g'] * 587) + ($colors['dec']['b'] * 114)) / 1000) > 250) {
 		$color = generate_random_color($lum, $hue, $sat);
 	}
 	return $color;
 }
 
-
-function parse_date($format,$date,$daytime=0) {
-	$delimiter=substr($format,1,1);
-	$format_parts=explode($delimiter, $format);
-	$date_parts=explode($delimiter, $date);
-	if (count($date_parts)!=3)
-	{
+function parse_date($format, $date, $daytime = 0) {
+	$delimiter = substr($format, 1, 1);
+	$format_parts = explode($delimiter, $format);
+	$date_parts = explode($delimiter, $date);
+	if(count($date_parts) != 3) {
 		return $date;
 	}
 
-	foreach($format_parts as $key=>$value) {
-		$date_parts[$value]=$date_parts[$key];
+	foreach($format_parts as $key => $value) {
+		$date_parts[$value] = $date_parts[$key];
 		unset($date_parts[$key]);
 	}
-	if ($daytime==0) {
-			$timestamp=mktime(0,0,0,$date_parts['m'],$date_parts['d'],$date_parts['Y']);
-	} else {
-			$timestamp=mktime(23,59,59,$date_parts['m'],$date_parts['d'],$date_parts['Y']);
+	if($daytime == 0) {
+		$timestamp = mktime(0, 0, 0, $date_parts['m'], $date_parts['d'], $date_parts['Y']);
+	}
+	else {
+		$timestamp = mktime(23, 59, 59, $date_parts['m'], $date_parts['d'], $date_parts['Y']);
 	}
 
-	if (date($format,$timestamp) == $date) {
+	if(date($format, $timestamp) == $date) {
 		return $timestamp;
 	}
-	else
-	{
+	else {
 		return null;
 	}
 }
 
 function get_curent_page_URL() {
- $pageURL = 'http';
- if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
- $pageURL .= "://";
- if ($_SERVER["SERVER_PORT"] != "80") {
-  $pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
- } else {
-  $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
- }
- return $pageURL;
+	$pageURL = 'http';
+	if($_SERVER["HTTPS"] == "on") {
+		$pageURL .= "s";
+	}
+	$pageURL .= "://";
+	if($_SERVER["SERVER_PORT"] != "80") {
+		$pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
+	}
+	else {
+		$pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
+	}
+	return $pageURL;
 }
 
 // moved here from stock/reports because in use in assets too
-function get_name_from_id($id, $tablename = 'products', $idcolumn = 'pid', $namecolumn = 'name', $returnidifreolvefails = false) {
+function get_name_from_id($id, $tablename, $idcolumn, $namecolumn, $returnidifresolvefails = false) {
 	static $idtonamecache = array();
 	global $db;
 	try {
@@ -1336,7 +1322,7 @@ function get_name_from_id($id, $tablename = 'products', $idcolumn = 'pid', $name
 		return $name;
 	}
 	else {
-		if($returnidifreolvefails) {
+		if($returnidifresolvefails) {
 			return $id;
 		}
 		else {
@@ -1344,4 +1330,107 @@ function get_name_from_id($id, $tablename = 'products', $idcolumn = 'pid', $name
 		}
 	}
 }
+
+function getAffiliateList($idsonly = false) {
+	global $core, $db;
+	if($core->usergroup['canViewAllAff'] == 0) {
+		$tmpaffiliates = $core->user['affiliates'];
+		foreach($tmpaffiliates as $value) {
+			if($idsonly) {
+				$affiliates[$value] = $value;
+			}
+			else {
+				$affiliates[$value] = get_name_from_id($value, 'affiliates', 'affid', 'name');
+			}
+		}
+	}
+	else {
+		$affiliates_query = $db->query('SELECT affid,name from '.Tprefix.'affiliates');
+		if($db->num_rows($affiliates_query) > 0) {
+			while($affiliate = $db->fetch_assoc($affiliates_query)) {
+				if($idsonly) {
+					$affiliates[$affiliate['affid']] = $affiliate['affid'];
+				}
+				else {
+					$affiliates[$affiliate['affid']] = $affiliate['name'];
+				}
+			}
+		}
+	}
+	asort($affiliates);
+	return $affiliates;
+}
+
+function encapsulate_in_fieldset($html, $legend = "+", $boolStartClosed = false) {
+	//log_performance(__METHOD__);
+
+	$id = md5(rand(9, 99999).time());
+
+	$start_js_val = 1;
+	$fsstate = "open";
+	$content_style = "";
+
+	if($boolStartClosed) {
+		$start_js_val = 0;
+		$fsstate = "closed";
+		$content_style = "display: none;";
+	}
+
+	$js = "<script type='text/javascript'>
+
+  var fieldset_state_$id = $start_js_val;
+
+  function toggle_fieldset_$id() {
+
+    var content = document.getElementById('content_$id');
+    var fs = document.getElementById('fs_$id');
+
+    if (fieldset_state_$id == 1) {
+      // Already open.  Let's close it.
+      fieldset_state_$id = 0;
+      content.style.display = 'none';
+      fs.className = 'c-fieldset-closed-$id'+' collapsible_fieldset';
+    }
+    else {
+      // Was closed.  let's open it.
+      fieldset_state_$id = 1;
+      content.style.display = '';
+      fs.className = 'c-fieldset-open-$id'+' collapsible_fieldset';
+    }
+  }
+  function expand_fieldset_$id() {
+	  var content = document.getElementById('content_$id');
+	  var fs = document.getElementById('fs_$id');
+      fieldset_state_$id = 1;
+      content.style.display = '';
+      fs.className = 'c-fieldset-open-$id'+' collapsible_fieldset';
+  }
+  </script><noscript><b>This page contains collapsible fieldsets which require Javascript to function properly.</b></noscript>";
+
+	$rtn = "
+    <fieldset class='c-fieldset-$fsstate-$id collapsible_fieldset' id='fs_$id'>
+      <legend><a href='javascript: toggle_fieldset_$id();'>$legend</a></legend>
+      <div id='content_$id' style='$content_style'>
+        $html
+      </div>
+    </fieldset>
+    $js
+
+  <style>
+  fieldset.c-fieldset-open-$id {
+    border: 1px solid;
+  }
+
+  fieldset.c-fieldset-closed-$id {
+    border: 2px solid;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+  }
+  </style>
+
+  ";
+	return $rtn;
+}
+
 ?>

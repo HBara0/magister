@@ -36,19 +36,39 @@ class Maps {
 			$this->options['overlaytype'] = 'parseMarkers';
 		}
 
+		if(empty($this->options['zoom'])) {
+			$this->options['zoom'] = 2;
+		}
+
 		$places_script .= 'mapInitialize('.$this->options['overlaytype'].');';
 		eval("\$headerinc .= \"".$template->get('headerinc_mapsapi')."\";");
 	}
 
 	private function parse_markers() {
 		if(is_array($this->places)) {
-			$i = 0;
 			foreach($this->places as $id => $place) {
-				list($latitude, $longitude) = explode(',', $place['geoLocation']);
-				$markers .= 'places['.$i.']={id:"'.$id.'", title:"'.$place['title'].'",otherinfo:"'.$place['otherinfo'].'",lat:'.$latitude.',lng:'.$longitude.',link:"'.$this->parse_link($place['type'], $id).'",hasInfoWindow:1};'."\n";
-				$i++;
+				$i = 1;	
+				$level2_comma = '';
+				
+				if(count($place, COUNT_RECURSIVE) != count($place)) {
+					$markers .= $level1_comma.'{"'.$id.'":[';
+					foreach($place as $subid => $place_crumbs) {
+						list($latitude, $longitude) = explode(',', $place_crumbs['geoLocation']);
+						$markers .= $level2_comma.'{"id":"'.$subid.'", "title":"'.$place_crumbs['title'].'","otherinfo":"'.$place_crumbs['otherinfo'].'","lat":'.$latitude.',"lng":'.$longitude.',"link":"'.$this->parse_link($place_crumbs['type'], $id).'","hasInfoWindow":1}'."\n";
+						$level2_comma = ',';
+						$i++;
+					}
+					$level1_comma = ',';
+					$markers .= ']}'."\n";
+				}
+				else
+				{
+					list($latitude, $longitude) = explode(',', $place['geoLocation']);
+					$markers .= $level1_comma.'{"'.$id.'":{"id":"'.$id.'", "title":"'.$place['title'].'","otherinfo":"'.$place['otherinfo'].'","lat":'.$latitude.',"lng":'.$longitude.',"link":"'.$this->parse_link($place['type'], $id).'","hasInfoWindow":1}}'."\n";;
+					$level1_comma = ',';
+				}	
 			}
-			return $markers;
+			return 'places=['.$markers.'];'."\n";
 		}
 		return false;
 	}
@@ -70,8 +90,8 @@ class Maps {
 		return json_decode(file_get_contents('http://maps.googleapis.com/maps/api/geocode/json?latlng='.$latitude.','.$longitude.'&sensor=false'));
 	}
 
-	public function get_streetname($latitude,$longitude) {
-		return Maps::reverse_geocoding($latitude,$longitude)->results[0]->formatted_address;
+	public function get_streetname($latitude, $longitude) {
+		return Maps::reverse_geocoding($latitude, $longitude)->results[0]->formatted_address;
 	}
 }
 ?>

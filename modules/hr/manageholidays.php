@@ -36,7 +36,6 @@ if(!$core->input['action']) {
 	while($employee = $db->fetch_array($employees_query)) {
 		$employees[$employee['uid']] = $employee['fullname'];
 	}						
-	
 	if(isset($core->input['id'])) {
 		$query = $db->query("SELECT * FROM ".Tprefix."holidays WHERE hid=".$db->escape_string($core->input['id'])."");
 		if($db->num_rows($query) > 0) {		
@@ -71,8 +70,8 @@ if(!$core->input['action']) {
 				$year_disabled = ' disabled="disabled"';
 			}
 			
-			$months_list = parse_selectlist('month', 1, $months,$holiday['month'], 0);
-			$days_list = parse_selectlist('day', 1, $days,$holiday['day'], 0);
+			$months_list = parse_selectlist('month', 1, $months,$holiday['month'], 0,'','',array('required'=>'required'));
+			$days_list = parse_selectlist('day', 1, $days,$holiday['day'], 0,'',array('required'=>'required'));
 		}
 		else
 		{
@@ -92,8 +91,8 @@ if(!$core->input['action']) {
 		}
 
 		$pagetitle = $lang->addholiday;
-		$months_list = parse_selectlist('month', 1, $months, 0, 0);
-		$days_list = parse_selectlist('day', 1, $days, 0, 0);
+		$months_list = parse_selectlist('month', 1, $months, 0, 0,'',array('required'=>'required'));
+		$days_list = parse_selectlist('day', 1, $days, 0, 0,'',array('required'=>'required'));
 		
 		$exceptionsemployees_list = parse_selectlist('uid[]', 1, $employees, 0, 1);
 	}
