@@ -3,22 +3,28 @@
 <title>{$core->settings[systemtitle]} | {$lang->listofreports}</title>
 {$headerinc}
 <script language="javascript">
-$(function() 
-{
-	$('#moderationtools').change(function() 
-	{
-		if(sharedFunctions.checkSession() == false) 
-		{
+$(function() {
+	$('#moderationtools').change(function() {
+		if(sharedFunctions.checkSession() == false) {
 			return;	
 		}
 		
-		if($(this).val().length > 0) 
-		{
+		if($(this).val().length > 0) {
 			var formData = $("form[id='moderation_reporting/list_Form']").serialize();
 			var url = "index.php?module=reporting/list&action=do_moderation";
 			
 			sharedFunctions.requestAjax("post", url, formData, "moderation_reporting/list_Results", "moderation_reporting/list_Results");
 		}
+	});
+	
+	$('a[rel]').each(function() {
+		$(this).qtip({
+			overwrite: true,
+			content: {
+				text:  "<img src='" + imagespath +"/loading.gif' alt='" + loading_text + "' border='0' />",
+				ajax: {once: true, url: 'index.php?module=reporting/list&action=get_status&rid=' + $(this).attr('rel'),}
+			}
+		});
 	});
 });
 </script>

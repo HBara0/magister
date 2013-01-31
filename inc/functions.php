@@ -377,7 +377,7 @@ function parse_yesno($name, $tabindex, $checked_option = 0) {
 	return $radio;
 }
 
-function parse_radiobutton($name, $items, $checked_option = '', $display_title = true, $seperator = '') {
+function parse_radiobutton($name, $items, $checked_option = '', $display_title = true, $seperator = '', $config = array()) {
 	if(is_array($items)) {
 		foreach($items as $key => $val) {
 			$checked = '';
@@ -389,7 +389,11 @@ function parse_radiobutton($name, $items, $checked_option = '', $display_title =
 				$checked = ' checked="checked"';
 			}
 
-			$radio .= '<input type="radio" name="'.$name.'" value="'.$key.'" id="'.$name.'_'.$key.'"'.$checked.'/> '.$val.$seperator;
+			if($config['required']) {
+				$required = ' required = "required"';
+			}
+			
+			$radio .= '<input type="radio" name="'.$name.'" value="'.$key.'" id="'.$name.'_'.$key.'"'.$checked.$required.'/> '.$val.$seperator;
 		}
 		return $radio;
 	}
