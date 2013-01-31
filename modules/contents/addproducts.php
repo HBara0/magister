@@ -27,8 +27,8 @@ if(!$core->input['action']) {
 		'sort' => 'ASC'
 	);
 	
-	$generics = get_specificdata('genericproducts', $generic_attributes, 'gpid', 'title', $generic_order, 1);
-	$generics_list = parse_selectlist('gpid', 3, $generics, '','','',array('required'=>'required'));
+	$generics = get_specificdata('genericproducts', $generic_attributes, 'gpid', 'title', $generic_order, 0);
+	$generics_list = parse_selectlist('gpid', 3, $generics, '','','',array('required'=>'required','blankstart'=>true));
 	
 	eval("\$addproductspage = \"".$template->get('contents_products_add')."\";");
 	output_page($addproductspage);

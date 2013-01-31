@@ -624,7 +624,7 @@ function get_rml_bar($eid) {
 
 	$maturity_bars .= '<div id="rml_bars" style="text-align:center;">';
 	$divclassactive = (!$readonlymaturity)?'rmlselectable rmlactive':'rmlactive';
-	$divclassinactive = (!$readonlymaturity)?'rmlselectable rmlinactive':'rmlinactive';
+	$divclassinactive = (!$readonlymaturity)?'rmlselectable rmlinactive':'rmlinactive'; 
 	$counter = 1;
     $positionclass = ' first';
 
@@ -634,7 +634,7 @@ function get_rml_bar($eid) {
 	}
     $is_lastactiveitem = false;
 
-    foreach($rmllist as $ermlid => $name) {
+    foreach($rmllist as $ermlid => $name) { 
         if($is_coloredlevel == true) {
             if($rmlcurrentlevel == $ermlid) {
                 $is_lastactiveitem = true;
