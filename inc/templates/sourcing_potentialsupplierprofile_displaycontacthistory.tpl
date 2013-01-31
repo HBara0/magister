@@ -6,7 +6,7 @@
 	</div>
 	<div class="content">
 		<div class="content">{$lang->grade}: {$contact_history[grade]}</div>
-		<div class="content"> {$lang->market}:{$contact_history[market]}</div>
+		<div class="content"> {$lang->market}: {$contact_history[market]}</div>
 		<div class="content"> {$lang->competitors}{$contact_history[competitors]}</div>
 	</div>
 </div>
