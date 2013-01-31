@@ -70,7 +70,7 @@ if(!$core->input['action']) {
 	array_unshift($year_scale, ''); // Creates array years use the first array(range from 2004 to current year) as the keys and the second as the values
 	$filters_config = array(
 			'parse' => array('filters' => array('', 'affid', 'spid', 'quarter', 'year'),
-					'overwriteField' => array('quarter' => parse_selectlist('filters[quarter]', '3', $quarter_scale, 0), 'year' => parse_selectlist('filters[year]', '4', array_combine($year_scale, $year_scale), 1))
+					'overwriteField' => array('quarter' => parse_selectlist('filters[quarter]', '3', $quarter_scale, $core->input['filters']['quarter']), 'year' => parse_selectlist('filters[year]', '4', array_combine($year_scale, $year_scale), $core->input['filters']['year']))
 			),
 			'process' => array(
 					'filterKey' => 'rid',
