@@ -25,8 +25,28 @@
         	<div class="subtitle">{$lang->eventdetails}</div>
         	<div style="width:20%; display:inline-block;"><strong>{$lang->title}</strong></div><div style="width:70%; display:inline-block;"><input type="text" name="event[title]" size="50" required='required' /></div><br />
        		<div style="width:20%; display:inline-block;"><strong>{$lang->type}</strong></div><div style="width:70%; display:inline-block;">{$eventypes_selectlist}</div><br />
-            <div style="width:20%; display:inline-block;"><strong>{$lang->between}</strong></div><div style="width:70%; display:inline-block;"><input type="text" id="pickDate_eventfromdate" autocomplete="off" tabindex="2" value="" required='required' /><input type="hidden" name="event[fromDate]" id="altpickDate_eventfromdate" value=""/> & <input type="text" id="pickDate_eventtodate" autocomplete="off" tabindex="2" value="" required='required' /><input type="hidden" name="event[toDate]" id="altpickDate_eventtodate" value=""/></div><br />
-        	<div style="width:20%; display:inline-block;"><strong>{$lang->location}</strong></div><div style="width:70%; display:inline-block;"><input type="text" name="event[place]" maxlength="300" required='required' size="50"/></div><br />
+            <div style="width:20%; display:inline-block;"><strong>{$lang->fromdate}</strong></div>
+            
+                  
+    <div style="width:70%; display:inline-block;">  <input type="text" id="pickDate_eventfromdate" autocomplete="off" tabindex="2" value="" required='required' />
+      <input type="hidden" name="event[fromDate]" id="altpickDate_eventfromdate" value=""/> 
+            
+  <input type="time" name="event[fromTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="13:00" required="required">
+      
+      </div>
+      
+                <div style="width:20%; display:inline-block;"><strong>{$lang->todate}</strong></div>  
+       <div style="width:70%; display:inline-block;"><input type="text" id="pickDate_eventtodate" autocomplete="off" tabindex="2" value="" required='required' />
+            
+            <input type="hidden" name="event[toDate]" id="altpickDate_eventtodate" value=""/>
+                          <input type="time" name="event[toTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="13:00" required="required">
+      </div>
+
+ 
+ <br />
+ 	<div style="width:20%; display:inline-block;"><strong>{$lang->location}</strong></div><div style="width:70%; display:inline-block;">
+ 	  <input type="text" name="event[place]" maxlength="300" required='required' size="50"/>
+ 	</div><br />
         	<div style="width:20%; display:inline-block; vertical-align:top;">{$lang->description}</div><div style="width:70%; display:inline-block;"><textarea cols="50" rows="10" name="event[description]"></textarea></div><br />
 			{$ispublic_checkbox}
             {$restriction_selectlist}
