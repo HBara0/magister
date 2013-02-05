@@ -6,7 +6,7 @@
  * Calendar Class
  * $id: Calendar_class.php
  * Created:		@zaher.reda		May 14, 2012 | 10:11 PM
- * Last Update: @zaher.reda		August 28, 2012 | 12:58 AM
+ * Last Update: @Tony.assaad	February 1, 2013 | 12:58 AM
  */
 
 class Calendar {
@@ -304,7 +304,6 @@ class Calendar {
 
 	public function read_events() {
 		global $core, $db;
-
 		if($this->preferences['excludeEvents'] == 0) {
 			$events_query = $db->query("SELECT * FROM ".Tprefix."calendar_events WHERE (uid='{$core->user[uid]}' OR isPublic=1) AND ((fromDate BETWEEN ".$this->period['firstday'].". AND ".$this->period['lastday'].") OR (toDate BETWEEN ".$this->period['firstday']." AND ".$this->period['lastday']."))");
 			while($event = $db->fetch_assoc($events_query)) {
@@ -317,29 +316,27 @@ class Calendar {
 						}
 						$restricted = true;
 					}
-
 					if($restricted == true) {
 						continue;
 					}
 				}
-				$num_days_off = (($event['toDate'] - $event['fromDate']) / 24 / 60 / 60) + 1; //(date('z', $event['toDate'])-date('z', $event['fromDate']))+1;
+				$num_days_event = (($event['toDate'] - $event['fromDate']) / 24 / 60 / 60); /* divison to know how many days between the from and to*/ //(date('z', $event['toDate'])-date('z', $event['fromDate']))+1;
 
-				if($num_days_off == 1) {
+				if($num_days_event == 1) {
 					$current_check_date = getdate($event['toDate']);
 					$this->data['events'][$current_check_date['mday']][] = $event;
 				}
-				else {
-					for($i = 0; $i < $num_days_off; $i++) {
+				else { 
+					for($i = 0; $i < $num_days_event; $i++) {
 						$current_check = $event['fromDate'] + (60 * 60 * 24 * $i);
 
 						if($this->period['firstday'] > $current_check) { //|| $more_leaves['toDate'] < $current_check) {
 							continue;
 						}
-
 						if($current_check > ($this->period['firstday'] * 60 * 60 * 24 * $this->period['numdays'])) {
 							break;
 						}
-
+//print_R(getdate($current_check_date['mday']));
 						$current_check_date = getdate($current_check);
 						$this->data['events'][$current_check_date['mday']][] = $event;
 					}
