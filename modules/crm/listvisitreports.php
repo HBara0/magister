@@ -9,8 +9,7 @@
  * Created: 	@zaher.reda 	July 27, 2009 | 10:20 AM
  * Last Update: @zaher.reda 	July 06, 2012 | 04:29 PM
  */
- 
- 
+
 if(!defined("DIRECT_ACCESS")) {
 	die('Direct initialization of this file is not allowed.');
 }
@@ -27,12 +26,12 @@ if(!$core->input['action']) {
 		$sort_query = $core->input['sortby'].' '.$core->input['order'];
 	}
 	$sort_url = sort_url();
-	
+
 	$limit_start = 0;
 	if(isset($core->input['start'])) {
 		$limit_start = $db->escape_string($core->input['start']);
 	}
-	
+
 	if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
 		$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
 	}
@@ -41,16 +40,22 @@ if(!$core->input['action']) {
 		$query_where = ' AND affid IN ('.implode(', ', array_unique($core->user['affiliates'])).')';
 		$query_where_and = ' AND ';
 	}
-	
+
 	if($core->usergroup['canViewAllCust'] == 0) {
 		if(is_array($core->user['customers'])) {
 			$query_where .= $query_where_and.'cid IN ('.implode(', ', $core->user['customers']).')';
 		}
 	}
-	
+	else {
+		if(isset($core->user['auditedaffids'])) {
+			$query_where = ' AND affid IN ('.implode(',', $core->user['auditedaffids']).')';
+			$query_where_and = ' AND ';
+		}
+	}
 	/* Perform inline filtering - START */
 	$filters_config = array(
-			'parse' => array('filters' => array('customer', 'employee', 'type', 'date'),
+			'parse' => array('filters' => array('checkbox', 'customer', 'employee', 'type', 'date'),
+					'overwriteField' => array('checkbox' => '')
 			),
 			'process' => array(
 					'filterKey' => 'vrid',
@@ -61,7 +66,7 @@ if(!$core->input['action']) {
 			)
 	);
 
-	$filter = new Inlinefilters($filters_config);	
+	$filter = new Inlinefilters($filters_config);
 	$filter_where_values = $filter->process_multi_filters();
 	$filters_row_display = 'hide';
 	if(is_array($filter_where_values)) {
@@ -71,7 +76,7 @@ if(!$core->input['action']) {
 	}
 	$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
 	/* Perform inline filtering - END */
-	
+
 	$query = $db->query("SELECT vr.*, vr.cid AS customer, displayName AS employeename, e.companyName as customername, e.companyNameAbbr
 						 FROM ".Tprefix."visitreports vr 
 						 JOIN ".Tprefix."users u ON (u.uid=vr.uid) 
@@ -91,69 +96,65 @@ if(!$core->input['action']) {
 				}
 			}
 			$row_class = alt_row($row_class);
-			
+
 			$vrid_cache[] = $visitreport['vrid'];
 
 			$icon_locked = '';
-			if($visitreport['isLocked'] == 1) { 
+			if($visitreport['isLocked'] == 1) {
 				$icon_locked = '_locked';
 				$visitreport['status_text'] = $lang->finalized.$lang->andlocked;
 			}
-			
-			if($core->usergroup['canLockUnlockReports'] == 1) {	
+
+			if($core->usergroup['canLockUnlockReports'] == 1) {
 				$checkbox[$visitreport['vrid']] = "<input type='checkbox' id='checkbox_{$visitreport[vrid]}' name='listCheckbox[]' value='{$visitreport[vrid]}'/>";
 			}
-			
+
 			$icon[$visitreport['vrid']] = "<a href='index.php?module=crm/previewvisitreport&amp;referrer=list&amp;vrid={$visitreport[vrid]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$visitreport[status_text]}' border='0'/></a>";
-			
+
 			list($visitreport['suppliername']) = get_specificdata('entities', array('companyName'), '0', 'companyName', '', 0, "eid='{$visitreport[spid]}'");
 			//list($visitreport['customername']) = get_specificdata('entities', 'companyName', '0', 'companyName', '', 0, "eid='{$visitreport[cid]}'");
 			if(!empty($visitreport['companyNameAbbr'])) {
 				$visitreport['customername'] .= ' ('.$visitreport['companyNameAbbr'].')';
 			}
 			parse_calltype($visitreport['type']);
-			
-			$visitreport['formatteddate'] =  date($core->settings['dateformat'], $visitreport['date']);
-			
+
+			$visitreport['formatteddate'] = date($core->settings['dateformat'], $visitreport['date']);
+
 			eval("\$reportslist .= \"".$template->get('crm_visitreportslist_reportrow')."\";");
 		}
-		
-		if($core->usergroup['canLockUnlockReports'] == 1) {	
+
+		if($core->usergroup['canLockUnlockReports'] == 1) {
 			$buttons_row = "<tr><td colspan='4'><div id='moderation_crm/listvisitreports_Results'></div>&nbsp;</td><td style='text-align: right;' colspan='2'><select id='moderationtools' name='moderationtools'><option>&nbsp;</option><option value='lockunlock'>{$lang->lockunlock}</option></select></td></tr>";
 		}
-		
+
 		if(!empty($vrid_cache)) {
 			$multipages = new Multipages('visitreports', $core->settings['itemsperlist'], 'vrid IN ('.implode(', ', $vrid_cache).')');
-			$reportslist .= "<tr><td colspan='4'>".$multipages->parse_multipages()."&nbsp;</td><td style='text-align: right;' colspan='2'>&nbsp;</td></tr>";//<a href='".$_SERVER['REQUEST_URI']."&amp;action=exportexcel'><img src='images/icons/xls.gif' alt='{$lang->exportexcel}' border='0' /></a></td></tr>";
+			$reportslist .= "<tr><td colspan='4'>".$multipages->parse_multipages()."&nbsp;</td><td style='text-align: right;' colspan='2'>&nbsp;</td></tr>"; //<a href='".$_SERVER['REQUEST_URI']."&amp;action=exportexcel'><img src='images/icons/xls.gif' alt='{$lang->exportexcel}' border='0' /></a></td></tr>";
 		}
-		else
-		{
+		else {
 			$reportslist = "<tr><td colspan='7' align='center'>{$lang->novisitreportsavailable}</td></tr>";
 		}
 	}
-	else
-	{
+	else {
 		$reportslist = '<tr><td colspan="7" align="center">'.$lang->novisitreportsavailable.'</td></tr>';
 	}
 	eval("\$listpage = \"".$template->get('crm_visitreportslist')."\";");
 	output_page($listpage);
 }
-else
-{
+else {
 	if($core->input['action'] == 'exportexcel') {
 		$sort_query = 'date DESC';
 		if(isset($core->input['sortby'], $core->input['order'])) {
 			$sort_query = $core->input['sortby']." ".$core->input['order'];
 		}
-	
+
 		if($core->usergroup['canViewAllEmp'] == 0) {
 			$extra_where = " AND vr.uid = '{$core->user[uid]}' ";
 		}
-		else
-		{ 
+		else {
 			if($core->usergroup['canViewAllAff'] == 0) {
 				$inaffiliates = implode(',', $core->user['affiliates']);
-				
+
 				$query = $db->query("SELECT uid FROM ".Tprefix."affiliatedemployees WHERE affid IN ({$inaffiliates})");
 				while($user_uid = $db->fetch_array($query)) {
 					$inuid .= "{$comma}{$user_uid[uid]}";
@@ -162,43 +163,43 @@ else
 				$extra_where .= " AND vr.uid IN ({$inuid}) ";
 			}
 		}
-	
+
 		if($core->usergroup['canViewAllSupp'] == 0) {
 			$insuppliers = implode(',', $core->user['suppliers']);
-			$extra_where .= "  AND vr.spid IN ({$insuppliers}) ";	  
+			$extra_where .= "  AND vr.spid IN ({$insuppliers}) ";
 		}
-		
+
 		if($core->usergroup['canViewAllCust'] == 0) {
 			$incustomers = implode(',', $core->user['customers']);
-			$extra_where .= "  AND vr.cid IN ({$incustomers}) ";	  
-		}	
+			$extra_where .= "  AND vr.cid IN ({$incustomers}) ";
+		}
 
 		$query = $db->query("SELECT vr.cid AS customer, vr.spid AS supplier, Concat(u.firstName, ' ', u.lastName) AS employeename, vr.type, vr.date 
 						 FROM ".Tprefix."visitreports vr, ".Tprefix."users u, ".Tprefix."entities e 
 						 WHERE u.uid=vr.uid AND vr.cid=e.eid {$filter_where}{$extra_where}
 						 ORDER BY {$sort_query}");
-				 
+
 		if($db->num_rows($query) > 0) {
 			$visitreports[0]['customername'] = $lang->customername;
 			$visitreports[0]['suppliername'] = $lang->suppliername;
 			$visitreports[0]['employeename'] = $lang->prepareby;
 			$visitreports[0]['type'] = $lang->calltype;
 			$visitreports[0]['date'] = $lang->dateofvisit;
-			
-			$i= 1;
+
+			$i = 1;
 			while($visitreport[$i] = $db->fetch_assoc($query)) {
 				list($visitreports[$i]['customername']) = get_specificdata('entities', 'companyName', '0', 'companyName', '', 0, "eid='{$visitreport[$i][customer]}'");
 				list($visitreports[$i]['suppliername']) = get_specificdata('entities', array('companyName'), '0', 'companyName', '', 0, "eid='{$visitreport[$i][supplier]}'");
-				
+
 				$visitreports[$i]['employeename'] = $visitreport[$i]['employeename'];
-				
+
 				$visitreports[$i]['type'] = $visitreport[$i]['type'];
 				parse_calltype($visitreports[$i]['type']);
-				
+
 				$visitreports[$i]['date'] = date($core->settings['dateformat'], $visitreport[$i]['date']);
 				$i++;
 			}
-			
+
 			$excelfile = new Excel('array', $visitreports);
 		}
 	}
@@ -206,36 +207,40 @@ else
 		if($core->input['moderationtools'] != 'lockunlock') {
 			exit;
 		}
-		
+
 		if(count($core->input['listCheckbox']) > 0) {
 			foreach($core->input['listCheckbox'] as $key => $val) {
 				$vrid = $db->escape_string($val);
-				
+
 				list($current_status) = get_specificdata('visitreports', array('isLocked'), '0', 'isLocked', '', 0, "vrid='{$vrid}'");
 
-				if($current_status == 0) { $new_status = 1; } else { $new_status = 0; }
+				if($current_status == 0) {
+					$new_status = 1;
+				}
+				else {
+					$new_status = 0;
+				}
 				$db->update_query('visitreports', array('isLocked' => $new_status), "vrid='{$vrid}'");
 			}
-			output_xml("<status>true</status><message>{$lang->lockchanged}</message>"); 
+			output_xml("<status>true</status><message>{$lang->lockchanged}</message>");
 		}
-		else
-		{
-			output_xml("<status>false</status><message>{$lang->selectatleastonereport}</message>"); 
+		else {
+			output_xml("<status>false</status><message>{$lang->selectatleastonereport}</message>");
 		}
 	}
 }
-
 function parse_calltype(&$value) {
 	global $lang;
-	
+
 	switch($value) {
-		case '1': 
-				$value = $lang->facetoface;
-				break;
+		case '1':
+			$value = $lang->facetoface;
+			break;
 		case '2':
-				$value = $lang->telephonecall;
-				break;
+			$value = $lang->telephonecall;
+			break;
 		default: break;
 	}
 }
+
 ?>

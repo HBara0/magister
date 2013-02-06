@@ -775,7 +775,7 @@ function get_user_business_assignments($uid) {
 	/* Get which suppliers user is editing - END */
 
 	/* GET users affiliates - START */
-	$affiliates_query = $db->query("SELECT affid, isMain, canHR FROM ".Tprefix."affiliatedemployees WHERE uid='{$uid}'");
+	$affiliates_query = $db->query("SELECT affid, isMain, canHR, canAudit FROM ".Tprefix."affiliatedemployees WHERE uid='{$uid}'");
 	if($db->num_rows($affiliates_query) > 0) {
 		while($affiliate = $db->fetch_assoc($affiliates_query)) {
 			$affiliates[$affiliate['affid']] = $affiliate['affid'];
@@ -785,6 +785,10 @@ function get_user_business_assignments($uid) {
 
 			if($affiliate['canHR'] == 1) {
 				$data['hraffids'][$affiliate['affid']] = $affiliate['affid'];
+			}
+			
+			if($affiliate['canAudit'] == 1) {
+				$data['auditedaffids'][$affiliate['affid']] = $affiliate['affid'];
 			}
 		}
 	}
@@ -1062,6 +1066,7 @@ function getquery_entities_viewpermissions() {
 		$attribute_prefix = $db->escape_string($arguments[4]).'.';
 	}
 	$where = array();
+
 	if($arguments[0] == 'suppliersbyaffid' || $arguments[0] == 'affiliatebyspid') {
 		$query_attribute = '';
 		if($arguments[0] == 'suppliersbyaffid') {
@@ -1093,8 +1098,16 @@ function getquery_entities_viewpermissions() {
 			}
 		}
 
-		if(!empty($query_attribute)) {
-			$where['extra'] = $and.'('.$query_attribute.' IN ('.implode(',', $found_ids).'))';
+		if(!empty($found_ids)) {
+			if(!empty($query_attribute)) {
+				$where['extra'] = $and.'('.$query_attribute.' IN ('.implode(',', $found_ids).'))';
+			}
+		}
+		else
+		{
+			if($usergroup['canViewAllAff'] ==0 && $usergroup['canViewAllSupp'] == 0 && !empty($query_attribute)) {
+				$where['extra'] = $and.$query_attribute.' IN (0)';
+			}
 		}
 	}
 	else {
