@@ -48,17 +48,8 @@ class Calendar {
 			$this->title .= '<br /><span style="font-size: 14px;">('.date('M d', $this->period['firstday']).'</a> - '.date('M d', $this->period['lastday']).')</span>';
 
 			/* PARSE NEXT / PREV WEEK LINKS DATA - Start */
-			$this->other_periods['previous'] = getdate_custom(strtotime('-1 week', CALENDAR_TIME));
-			//$this->other_periods['next'] = getdate_custom(strtotime('+1 week', CALENDAR_TIME)); 
-
-			if($this->dates['current']['week'] != 53 && $this->dates['current']['week'] == 52) {
-				$this->other_periods['next']['year'] = $this->dates['current']['year'] + 1;
-				$this->other_periods['next']['week'] = '01';
-			}
-			else {
-				$this->other_periods['next'] = getdate_custom(strtotime('+1 week', CALENDAR_TIME));
-			}
-
+			$this->other_periods['previous'] = getdate_custom(strtotime('previous week first day', CALENDAR_TIME));
+			$this->other_periods['next'] = getdate_custom(strtotime('next week first day', CALENDAR_TIME));
 			/* PARSE NEXT / PREV WEEK LINKS DATA - END */
 		}
 		else {
@@ -90,7 +81,6 @@ class Calendar {
 			}
 			else {
 				/* PARSE NEXT / PREV MONTH LINKS DATA - Start */
-					
 				$this->other_periods['previous'] = getdate(strtotime('-1 month', CALENDAR_TIME));
 				$this->other_periods['next'] = getdate(strtotime('+1 month', CALENDAR_TIME));
 				/* PARSE NEXT / PREV MONTH LINKS DATA - END */
@@ -336,7 +326,7 @@ class Calendar {
 						if($current_check > ($this->period['firstday'] * 60 * 60 * 24 * $this->period['numdays'])) {
 							break;
 						}
-//print_R(getdate($current_check_date['mday']));
+
 						$current_check_date = getdate($current_check);
 						$this->data['events'][$current_check_date['mday']][] = $event;
 					}
