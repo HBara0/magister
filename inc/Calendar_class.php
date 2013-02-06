@@ -6,7 +6,7 @@
  * Calendar Class
  * $id: Calendar_class.php
  * Created:		@zaher.reda		May 14, 2012 | 10:11 PM
- * Last Update: @zaher.reda		August 28, 2012 | 12:58 AM
+ * Last Update: @Tony.assaad	February 1, 2013 | 12:58 AM
  */
 
 class Calendar {
@@ -48,17 +48,8 @@ class Calendar {
 			$this->title .= '<br /><span style="font-size: 14px;">('.date('M d', $this->period['firstday']).'</a> - '.date('M d', $this->period['lastday']).')</span>';
 
 			/* PARSE NEXT / PREV WEEK LINKS DATA - Start */
-			$this->other_periods['previous'] = getdate_custom(strtotime('-1 week', CALENDAR_TIME));
-			//$this->other_periods['next'] = getdate_custom(strtotime('+1 week', CALENDAR_TIME)); 
-
-			if($this->dates['current']['week'] != 53 && $this->dates['current']['week'] == 52) {
-				$this->other_periods['next']['year'] = $this->dates['current']['year'] + 1;
-				$this->other_periods['next']['week'] = '01';
-			}
-			else {
-				$this->other_periods['next'] = getdate_custom(strtotime('+1 week', CALENDAR_TIME));
-			}
-
+			$this->other_periods['previous'] = getdate_custom(strtotime('previous week first day', CALENDAR_TIME));
+			$this->other_periods['next'] = getdate_custom(strtotime('next week first day', CALENDAR_TIME));
 			/* PARSE NEXT / PREV WEEK LINKS DATA - END */
 		}
 		else {
@@ -90,7 +81,6 @@ class Calendar {
 			}
 			else {
 				/* PARSE NEXT / PREV MONTH LINKS DATA - Start */
-					
 				$this->other_periods['previous'] = getdate(strtotime('-1 month', CALENDAR_TIME));
 				$this->other_periods['next'] = getdate(strtotime('+1 month', CALENDAR_TIME));
 				/* PARSE NEXT / PREV MONTH LINKS DATA - END */
@@ -304,7 +294,6 @@ class Calendar {
 
 	public function read_events() {
 		global $core, $db;
-
 		if($this->preferences['excludeEvents'] == 0) {
 			$events_query = $db->query("SELECT * FROM ".Tprefix."calendar_events WHERE (uid='{$core->user[uid]}' OR isPublic=1) AND ((fromDate BETWEEN ".$this->period['firstday'].". AND ".$this->period['lastday'].") OR (toDate BETWEEN ".$this->period['firstday']." AND ".$this->period['lastday']."))");
 			while($event = $db->fetch_assoc($events_query)) {
@@ -317,25 +306,23 @@ class Calendar {
 						}
 						$restricted = true;
 					}
-
 					if($restricted == true) {
 						continue;
 					}
 				}
-				$num_days_off = (($event['toDate'] - $event['fromDate']) / 24 / 60 / 60) + 1; //(date('z', $event['toDate'])-date('z', $event['fromDate']))+1;
+				$num_days_event = (($event['toDate'] - $event['fromDate']) / 24 / 60 / 60); /* divison to know how many days between the from and to*/ //(date('z', $event['toDate'])-date('z', $event['fromDate']))+1;
 
-				if($num_days_off == 1) {
+				if($num_days_event == 1) {
 					$current_check_date = getdate($event['toDate']);
 					$this->data['events'][$current_check_date['mday']][] = $event;
 				}
-				else {
-					for($i = 0; $i < $num_days_off; $i++) {
+				else { 
+					for($i = 0; $i < $num_days_event; $i++) {
 						$current_check = $event['fromDate'] + (60 * 60 * 24 * $i);
 
 						if($this->period['firstday'] > $current_check) { //|| $more_leaves['toDate'] < $current_check) {
 							continue;
 						}
-
 						if($current_check > ($this->period['firstday'] * 60 * 60 * 24 * $this->period['numdays'])) {
 							break;
 						}

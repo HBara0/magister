@@ -45,7 +45,7 @@
            <td>{$lang->postcode}</td><td colspan="2"><input type="text" id="postCode" name="postCode" accept="numeric" /></td>
         </tr>
         <tr>
-        	<td>{$lang->geolocation}</td><td colspan="2"><input type="text" name="geoLocation" id="geoLocation" /> <span class="smalltext">({$lang->longlattidue})</span></td>
+        	<td>{$lang->geolocation}</td><td colspan="2"><input type="text" name="geoLocation" id="geoLocation" placeholder="33.892516 35.510929" pattern="(\-?\d+(\.\d+)?) \s*(\-?\d+(\.\d+)?)"/> <span class="smalltext">({$lang->longlattidue})</span></td>
         </tr>
          <tr>
            <td>{$lang->telephone}</td>
