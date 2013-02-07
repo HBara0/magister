@@ -59,7 +59,9 @@ else
 	/* Parse events/tasks popup - Start */
 	$eventtypes = get_specificdata('calendar_eventtypes', array('cetid', 'title'), 'cetid', 'title', array('by' => 'title', 'sort' => 'ASC'));	
 	$eventypes_selectlist = parse_selectlist('event[type]', 1, $eventtypes, 0);
-	
+	$location_query = $db->fetch_assoc($db->query("SELECT addressLine1 AS eventlocaion FROM ".Tprefix."affiliates WHERE affid = ".$core->user['mainaffiliate']));
+
+	$affiliate_address = $location_query['eventlocaion'];
 	$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name',  array('by' => 'name', 'sort' => 'ASC'));
 	$affiliates_selectlist = parse_selectlist('event[restrictto][]', 1, $affiliates, '', 1);
 	
