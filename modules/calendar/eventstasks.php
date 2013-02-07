@@ -32,8 +32,8 @@ else {
 			switch($task->get_status()) {
 				case 0:
 					header('Content-type: text/xml+javascript');
-					output_xml('<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>');
-//	output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+					//output_xml('<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>');
+					output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
 					break;
 				case 1:
 					output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
@@ -51,7 +51,7 @@ else {
 			}
 		}
 		elseif($core->input['type'] == 'event') {
-			if(is_empty($core->input['event']['title'])) {
+			if(is_empty($core->input['event']['title'], $core->input['event']['fromDate'], $core->input['event']['toDate'])) {
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				exit;
 			}
@@ -64,21 +64,9 @@ else {
 					'type' => $core->input['event']['type']
 			);
 
-			//$fromdate_details = explode('-', $core->input['event']['fromDate']);
-			//$todate_details = explode('-', $core->input['event']['toDate']);
-
 			$new_event['fromDate'] = strtotime($core->input['event']['fromDate'].' '.$core->input['event']['fromTime']);
 			$new_event['toDate'] = strtotime($core->input['event']['toDate'].' '.$core->input['event']['toTime']);
-			//$new_event['toDate'] = strtotime($core->input['event']['toDate'].' +1 day -1 hour'); //mktime(23, 59, 0, $todate_details[1], $todate_details[0], $todate_details[2]);
-			//$new_event['fromDate'] = strtotime($core->input['event']['fromDate'].' midnight'); //mktime(0, 0, 0, $fromdate_details[1], $fromdate_details[0], $fromdate_details[2]);
-			
-			
-			echo $core->input['event']['fromDate'].' '.$core->input['event']['fromTime']. " ".$new_event['fromDate'];
-			echo'<br>'.$core->input['event']['toDate'].' '.$core->input['event']['toTime']. ' '.$new_event['toDate'];
-			
-			
-		
-			
+
 			if(value_exists('calendar_events', 'title', $core->input['event']['title'], 'type='.$db->escape_string($core->input['event']['type']).' AND (toDate='.$new_event['toDate'].' OR fromDate='.$new_event['fromDate'].')')) {
 				output_xml("<status>false</status><message>{$lang->eventexists}</message>");
 				exit;
@@ -88,7 +76,7 @@ else {
 			if($query) {
 				$log->record($core->input['type'], $last_id);
 				header('Content-type: text/xml+javascript');
-				output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]></message>>');
+				output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>>');//<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>
 				exit;
 			}
 			else {
@@ -274,7 +262,7 @@ else {
 		switch($task->get_status()) {
 			case 0:
 				header('Content-type: text/javascript');
-
+				
 				if($core->input['percCompleted'] == 100) {
 					$output_js = '$("#ctid_'.$core->input['ctid'].'").css("text-decoration", "line-through");';
 				}
@@ -282,7 +270,6 @@ else {
 					$output_js = '$("#ctid_'.$core->input['ctid'].'").css("text-decoration", "none");';
 				}
 				echo $output_js;
-				/* output_xml("<status>true</status><message><![CDATA[<script>".$output_js."</script>]]></message>"); */
 				break;
 			case 1:
 			case 2:
