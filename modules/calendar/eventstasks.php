@@ -51,7 +51,7 @@ else {
 			}
 		}
 		elseif($core->input['type'] == 'event') {
-			if(is_empty($core->input['event']['title'])) {
+			if(is_empty($core->input['event']['title'], $core->input['event']['fromDate'], $core->input['event']['toDate'])) {
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				exit;
 			}
