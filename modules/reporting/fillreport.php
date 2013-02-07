@@ -1037,6 +1037,10 @@ else
 				record_contribution($rawdata['rid'], 1);
 			}
 			if($core->input['savetype'] == 'finalize') {
+				/* Force recording of contribution if user is finalizing with transparency and no other contributor exist */
+				if($report_meta['transFill'] == '1' && $db->num_rows($db->query('SELECT uid FROM '.Tprefix.'reportcontributors WHERE rid='.intval($rawdata['rid']))) == 0) {
+					record_contribution($rawdata['rid'], 1);
+				}
 				output_xml("<status>true</status><message>{$lang->reportfinalized}</message>");
 			}
 			else
