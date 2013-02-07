@@ -6,7 +6,7 @@
  * Calendar Class
  * $id: Calendar_class.php
  * Created:		@zaher.reda		May 14, 2012 | 10:11 PM
- * Last Update: @Tony.assaad	February 1, 2013 | 12:58 AM
+ * Last Update: @zaher.reda		February 2, 2013 | 01:12 PM
  */
 
 class Calendar {
