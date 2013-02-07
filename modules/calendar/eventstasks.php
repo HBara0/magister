@@ -64,21 +64,9 @@ else {
 					'type' => $core->input['event']['type']
 			);
 
-			//$fromdate_details = explode('-', $core->input['event']['fromDate']);
-			//$todate_details = explode('-', $core->input['event']['toDate']);
-
 			$new_event['fromDate'] = strtotime($core->input['event']['fromDate'].' '.$core->input['event']['fromTime']);
 			$new_event['toDate'] = strtotime($core->input['event']['toDate'].' '.$core->input['event']['toTime']);
-			//$new_event['toDate'] = strtotime($core->input['event']['toDate'].' +1 day -1 hour'); //mktime(23, 59, 0, $todate_details[1], $todate_details[0], $todate_details[2]);
-			//$new_event['fromDate'] = strtotime($core->input['event']['fromDate'].' midnight'); //mktime(0, 0, 0, $fromdate_details[1], $fromdate_details[0], $fromdate_details[2]);
-			
-			
-			echo $core->input['event']['fromDate'].' '.$core->input['event']['fromTime']. " ".$new_event['fromDate'];
-			echo'<br>'.$core->input['event']['toDate'].' '.$core->input['event']['toTime']. ' '.$new_event['toDate'];
-			
-			
-		
-			
+
 			if(value_exists('calendar_events', 'title', $core->input['event']['title'], 'type='.$db->escape_string($core->input['event']['type']).' AND (toDate='.$new_event['toDate'].' OR fromDate='.$new_event['fromDate'].')')) {
 				output_xml("<status>false</status><message>{$lang->eventexists}</message>");
 				exit;
