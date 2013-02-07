@@ -32,8 +32,8 @@ else {
 			switch($task->get_status()) {
 				case 0:
 					header('Content-type: text/xml+javascript');
-					output_xml('<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>');
-//	output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+					//output_xml('<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>');
+					output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
 					break;
 				case 1:
 					output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
@@ -76,7 +76,7 @@ else {
 			if($query) {
 				$log->record($core->input['type'], $last_id);
 				header('Content-type: text/xml+javascript');
-				output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]></message>>');
+				output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>>');//<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>
 				exit;
 			}
 			else {
@@ -262,7 +262,7 @@ else {
 		switch($task->get_status()) {
 			case 0:
 				header('Content-type: text/javascript');
-
+				
 				if($core->input['percCompleted'] == 100) {
 					$output_js = '$("#ctid_'.$core->input['ctid'].'").css("text-decoration", "line-through");';
 				}
@@ -270,7 +270,6 @@ else {
 					$output_js = '$("#ctid_'.$core->input['ctid'].'").css("text-decoration", "none");';
 				}
 				echo $output_js;
-				/* output_xml("<status>true</status><message><![CDATA[<script>".$output_js."</script>]]></message>"); */
 				break;
 			case 1:
 			case 2:
