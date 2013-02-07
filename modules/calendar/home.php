@@ -86,6 +86,8 @@ else
 	
 	$tasks_notify_radiobutton = parse_yesno('task[notify]', 5, 1);
 	$reminderinterval_selectlist = parse_selectlist('task[reminderInterval]', 1, array('' => '', '86400' => $lang->eveyday, '172800' => $lang->evey2day, '604800' => $lang->everyweek, '1209600' => $lang->every2weeks, '2592000' => $lang->everymonth, '31104000' => $lang->everyyear), '');	
+	$current_date = $main_calendar->get_currentdate();
+
 	eval("\$addeventtask_popup = \"".$template->get('popup_calendar_createeventtask')."\";");
 	/* Parse events/tasks popup - End */
 }

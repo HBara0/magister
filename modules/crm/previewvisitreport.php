@@ -89,7 +89,7 @@ if(!$core->input['action']) {
 
 			$extra_where = getquery_entities_viewpermissions('suppliersbyaffid', $visitreports[$i]['affid'], '', 0, 'visitreports_comments');
 
-			$comments_query = $db->query("SELECT * FROM ".Tprefix."visitreports_comments WHERE vrid='{$visitreports[$i][vrid]}'{$extra_where[extra]}");
+			$comments_query = $db->query("SELECT * FROM ".Tprefix."visitreports_comments WHERE (vrid='{$visitreports[$i][vrid]}'{$extra_where[extra]}) OR (vrid='{$visitreports[$i][vrid]}' AND spid=0)");
 			while($report_comment = $db->fetch_assoc($comments_query)) {
 				$visitreports[$i]['comments'][$report_comment['spid']] = $report_comment;
 			}
@@ -205,6 +205,7 @@ if(!$core->input['action']) {
 				$visitreport['comments'][$spidval][$key] = $core->sanitize_inputs($value, array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
 			}
 		}
+
 		//array_walk_recursive($visitreport, '$core->sanitize_inputs');
 		array_walk_recursive($visitreport, 'fix_newline');
 		array_walk_recursive($visitreport, 'parse_ocode');
