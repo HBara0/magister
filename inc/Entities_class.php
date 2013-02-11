@@ -24,7 +24,7 @@ class Entities {
 			}
 		}
 		else {
-			$this->get($this->data);
+			$this->data =$this->get_entity($data);
 		}
 	}
 
@@ -530,6 +530,18 @@ class Entities {
 		}
 	}
 
+	public function get(){
+		return $this->data;
+	}
+	
+	
+	private function get_entity($id) {
+		global $db;
+		if(isset($id)&& !empty($id)){
+		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid='".$db->escape_string($id)."'"));
+		}
+		
+	}
 	protected function existing_eid($name) {
 		global $db;
 		return $db->fetch_field($db->query("SELECT eid FROM ".Tprefix."entities WHERE companyName='".$db->escape_string($name)."'"), 'eid');

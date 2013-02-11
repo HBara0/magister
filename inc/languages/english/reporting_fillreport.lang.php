@@ -24,7 +24,7 @@ $lang['cancel'] = "Cancel";
 $lang['companyname'] = "Company name";
 $lang['representativename'] = "Representative name";
 $lang['country'] = "Country";
-
+$lang['excludekeycustomersmessage']='There is no Need to fill this section';
 $lang['addnewproduct'] = "Add a New Product";
 $lang['productadded'] = "Product {1} was added successfully";
 $lang['erroraddingproduct'] = "An error occurred while adding the product";
