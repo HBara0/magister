@@ -23,21 +23,24 @@
             <td width="21%" rowspan="2" valign="top" align="center"><strong>{$lang->turnover}<br />
             </strong><span class="smalltext"><em>({$lang->purchaseamount})</em><strong><br />
             </strong><em>.K Currency (i.e. 1000=1k)</em></span></td>
+            <td width="13%" rowspan="2" valign="top" align="center">&nbsp;</td>
+            
             <td width="13%" rowspan="2" valign="top" align="center"><strong>{$lang->quantity}<br /></strong><span class="smalltext"><em>{$lang->mt}</em></span></td>
+            <td width="18%" rowspan="2" valign="top" align="center"><strong>{$lang->soldquantity}</strong></td>
             <td width="18%" rowspan="2" valign="top" align="center"><strong>{$lang->salestype}</strong></div></td>
             <td colspan="2" valign="top" align="center"><strong>{$lang->yearforecasts}/{$core->input[baseCurrency]}</strong></td>
         </tr>
         <tr>
             <td width="11%" valign="top" align="center"><span class="smalltext"><em><strong>{$lang->purchaseamount}</strong></em></span></td>
-            <td width="9%" valign="top" align="center"><span class="smalltext"><em><strong>{$lang->qty}</strong></em></span></td>
+            <td width="9%" valign="top" align="center"><span class="smalltext"><em><strong>{$lang->purchaseqty}</strong></em></span></td>
         </tr>
     </thead>
     <tbody id="productsactivity_tbody">
-       {$productsrows}
+         {$productsrows}
     </tbody>
     <tfoot>
       <tr>
-      <td colspan="6">
+      <td colspan="8">
       	<div style="float:left; width: 50%;">
         <img src="images/add.gif" id="addmore_productsactivity_product" alt="{$lang->add}"> 
         <div id="save_productsactivity_reporting/fillreport_Results"></div>
@@ -54,7 +57,7 @@
 
     Are you sure you want to continue without saving?<br />
     <hr />
-    <input type="button" onClick="$('input[id^=\'save_\'][id$=\'_Button\']').trigger('click'); $('#popup_fillreportsconfirmnosave').dialog('close');" value="{$lang->savecaps}" class="button" /> <input type="button" onClick='$("form:first").trigger("submit");' value="{$lang->nextcaps}" class="button" />
+    <input type="submit" onClick="$('input[id^=\'save_\'][id$=\'_Button\']').trigger('click'); $('#popup_fillreportsconfirmnosave').dialog('close');" value="{$lang->savecaps}" class="button" /> <input type="button" onClick='$("form:first").trigger("submit");' value="{$lang->nextcaps}" class="button" />
 </div>
 </form>
 </td>

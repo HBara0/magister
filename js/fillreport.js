@@ -62,7 +62,7 @@ $(function() {
 		}
 	}
 		
-	$("form[id='save_productsactivity_reporting/fillreport_Form']").submit(function() { return validateEmpty('productsactivity'); });
+	//$("form[id='save_productsactivity_reporting/fillreport_Form']").submit(function() { return validateEmpty('productsactivity'); });
 	
 	$("input[id^='turnOver_'],input[id^='salesForecast_'],input[id^='quantityForecast_'],input[id^='quantity_']").live("click", function() {
 		$(this).blur(function() {

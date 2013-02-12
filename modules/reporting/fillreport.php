@@ -25,7 +25,7 @@ $lang->load('reporting_fillreport');
 if(!$core->input['action']) {
 	//$headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
 
-	if($core->input['stage'] == 'productsactivity') {
+	if($core->input['stage'] == 'productsactivity') { 
 		if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
 			$identifier = $db->escape_string($core->input['identifier']);
 			$core->input = unserialize($session->get_phpsession('reportmeta_'.$identifier));
@@ -156,7 +156,7 @@ if(!$core->input['action']) {
 
 		eval("\$fillreportpage = \"".$template->get('reporting_fillreports_productsactivity')."\";");
 	}
-	elseif($core->input['stage'] == 'keycustomers') {
+	elseif($core->input['stage'] == 'keycustomers') { print_R($core->input);
 		if(!isset($core->input['identifier'])) {
 			redirect('index.php?module=reporting/fillreport');
 		}
@@ -220,15 +220,15 @@ if(!$core->input['action']) {
 		}
 
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
-		/* If supplier does not have contract and contract Expired */
+		/* If supplier does not have contract and contract Expired -START*/
 		$entity = new Entities($report_meta['spid']);
 		$entity_data = $entity->get();
 
 		if((empty($entity_data['contractFirstSigDate']) || TIME_NOW > $entity_data['contractExpiryDate']) || ($entity_data['contractIsEvergreen'] != 1 && !empty($entity_data['contractExpiryDate']))) {
 			$exludestage_checked = ' checked="checked"';
-			$notifymessage = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-top: 10px; margin-bottom: 10px;">'.$lang->excludekeycustomersmessage.'</div>';
+			$notifymessage = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-top: 10px; margin-bottom: 10px;"><strong>'.$lang->excludekeycustomersmessage.'</strong></div>';
 		}
-		print_r($entity_data);
+			/* If supplier does not have contract and contract Expired -END*/
 		if($core->usergroup['canExcludeFillStages'] == 1) {
 			$exludestage = '<br /><input type="checkbox" name="excludeKeyCustomers"'.$exludestage_checked.' style="width:30px;" id="excludeKeyCustomers" title="'.$lang->exclude_tip.'" /> '.$lang->excludekeycustomers;
 		}
@@ -391,7 +391,6 @@ if(!$core->input['action']) {
 
 		if($core->usergroup['reporting_canTransFillReports'] == '1') {
 
-
 			$transfill_checkbox = "<br /><span class='smalltext'><input type='checkbox' name='transFill' id='transFill' value='1' title='{$lang->transfill_tip}'> {$lang->transparentlyfill}</span>";
 		}
 		eval("\$fillreportpage = \"".$template->get('reporting_fillreports_init')."\";");
@@ -548,6 +547,7 @@ else {
 
 			$product_activity = array(
 					'quantity' => $core->input['quantity_'.$i],
+					'soldQty' => $core->input['soldQty_'.$i],
 					'turnOver' => $core->input['turnOver_'.$i],
 					'saleType' => $core->input['saleType_'.$i],
 					'quantityForecast' => $core->input['quantityForecast_'.$i],
