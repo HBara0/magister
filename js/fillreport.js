@@ -142,7 +142,7 @@ $(function() {
 					}
 				});
 				if(isEmpty === true) { 
-					$("tr[id='" + row_id + "']").effect("highlight", {color:'#CC3300'}, 18000);
+					//$("tr[id='" + row_id + "']").effect("highlight", {color:'#CC3300'}, 18000);
 					//$("tr[id='" + row_id + "']").css("background-color", "#CC3300");
 					return false;
 				}

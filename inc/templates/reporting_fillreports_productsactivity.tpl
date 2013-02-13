@@ -46,9 +46,9 @@
         <div id="save_productsactivity_reporting/fillreport_Results"></div>
         </div>
       	<div style="margin-top: 6px; float:right; width:40%; text-align: right">
-			<input type="button" value="{$lang->prevcaps}" class="button" onClick="javascript:history.go(-1);"/> <input type="button" id="save_productsactivity_reporting/fillreport_Button" value="{$lang->savecaps}" class="button"/> <input type="button" value="{$lang->nextcaps}" id="showpopup_fillreportsconfirmnosave" class="button showpopup" />{$exludestage}
+			<input type="button" value="{$lang->prevcaps}" class="button" onClick="javascript:history.go(-1);"/> <input type="submit" id="save_productsactivity_reporting/fillreport_Button" value="{$lang->savecaps}" class="button"/> <input type="button" value="{$lang->nextcaps}" id="showpopup_fillreportsconfirmnosave" class="button showpopup" />{$exludestage}
         </div>
-       </td>
+       </td>70512096   03197232
       </tr>
       </tfoot>
 </table>
