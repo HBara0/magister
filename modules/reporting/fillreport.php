@@ -118,6 +118,7 @@ if(!$core->input['action']) {
 						$productactivity[$i]['turnOver'] = $productactivity[$i]['turnOver'] / $productsactivity['fxrate_'.$i];
 					}
 					$productactivity[$i]['quantity'] = $productsactivity['quantity_'.$i];
+					$productactivity[$i]['soldQty'] = $productsactivity['soldQty_'.$i];
 					$productactivity[$i]['salesForecast'] = $productsactivity['salesForecast_'.$i];
 					$productactivity[$i]['quantityForecast'] = $productsactivity['quantityForecast_'.$i];
 					$productactivity[$i]['saleType'] = $productsactivity['saleType_'.$i];
@@ -156,16 +157,17 @@ if(!$core->input['action']) {
 
 		eval("\$fillreportpage = \"".$template->get('reporting_fillreports_productsactivity')."\";");
 	}
-	elseif($core->input['stage'] == 'keycustomers') { print_R($core->input);
+	elseif($core->input['stage'] == 'keycustomers') {
 		if(!isset($core->input['identifier'])) {
 			redirect('index.php?module=reporting/fillreport');
 		}
 
 		$identifier = $db->escape_string($core->input['identifier']);
-
+	
 		if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'productsactivity') !== false) {
 			$productsactivitydata = serialize($core->input);
 			$session->set_phpsession(array('productsactivitydata_'.$identifier => $productsactivitydata));
+		//print_r($productsactivitydata);
 		}
 
 		if(!isset($core->input['rid'])) {
@@ -853,7 +855,6 @@ else {
 				exit;
 			}
 		}
-
 		if(empty($rawdata['excludeKeyCustomers'])) {
 			if(empty($rawdata['keycustomersdata'])) {
 				output_xml("<status>false</status><message>{$lang->keycustomersempty}</message>");
@@ -870,6 +871,7 @@ else {
 			for($i = 1; $i <= count($rawdata['productsdata']['pid']); $i++) {
 				$newdata = array(
 						'quantity' => $rawdata['productsdata']['quantity'][$i],
+						'soldQty' => $rawdata['productsdata']['soldQty'][$i],
 						'saleType' => $rawdata['productsdata']['saleType'][$i],
 						'turnOver' => $rawdata['productsdata']['turnOver'][$i],
 						'quantityForecast' => $rawdata['productsdata']['quantityForecast'][$i],
@@ -985,7 +987,7 @@ else {
 			exit;
 		}
 
-		if($core->input['savetype'] == 'finalize') {
+		if($core->input['savetype'] == 'finalize') { 
 			$new_status = array(
 					'uidFinish' => $core->user['uid'],
 					'finishDate' => TIME_NOW,

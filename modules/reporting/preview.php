@@ -259,6 +259,7 @@ if(!$core->input['action']) {
 					}
 			
 					$productsdata['quantity'][$i] = $db->escape_string($productsactivitydata['quantity_'.$q]);
+					$productsdata['soldQty'][$i] = $db->escape_string($productsactivitydata['soldQty_'.$q]);
 					$productsdata['saleType'][$i] = $db->escape_string($productsactivitydata['saleType_'.$q]);
 					$productsdata['salesForecast'][$i] = $db->escape_string($productsactivitydata['salesForecast_'.$q]);
 					$productsdata['quantityForecast'][$i] = $db->escape_string($productsactivitydata['quantityForecast_'.$q]);
@@ -1157,7 +1158,7 @@ if(!$core->input['action']) {
 		if($core->input['referrer'] == 'list' || $core->input['referrer'] == 'generate' || $core->input['referrer'] == 'direct') {
 			if($report['isApproved'] == 0) {
 				if($core->usergroup['reporting_canApproveReports'] == 1) {
-					$can_approve = true; 
+					$can_approve = true;
 					foreach(array_unique($reports_meta_data['spid']) as $key => $val) {
 						if(!in_array($val, $core->user['auditfor'])) {
 							$can_approve = false;
