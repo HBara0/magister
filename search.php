@@ -147,16 +147,16 @@ if($core->input['type'] == 'quick') {
 			  $extra_where = '';
 			  $table = Tprefix.'representatives r LEFT JOIN '.Tprefix.'entitiesrepresentatives er ON (r.rpid!=er.rpid)';
 		  }
-		  $attributes = array('r.name');
+		  $attributes = array('r.name','r.email');
 		  $key_attribute = 'r.rpid';
-		  $select_attributes = array('DISTINCT(r.rpid)', 'name');
+		  $select_attributes = array('name','email');
 		  $order = array('by' => 'name', 'sort' => 'ASC');
 	  }
 	  elseif($core->input['for'] == 'user') {
 		  $table = 'users';
 		  $attributes = array('firstName', 'lastName', 'displayName');
 		  $key_attribute = 'uid';
-		  $select_attributes = array('displayName');//array('Concat(firstName, \' \', lastName) AS employeename');
+		  $select_attributes = array('displayName');//array('Concat(firstName, \' \', lastName) AS employeename'); 
 		  $order = array('by' => 'firstName', 'sort' => 'ASC');
 	  }
 
