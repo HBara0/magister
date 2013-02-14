@@ -25,7 +25,7 @@ $lang->load('reporting_fillreport');
 if(!$core->input['action']) {
 	//$headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
 
-	if($core->input['stage'] == 'productsactivity') { 
+	if($core->input['stage'] == 'productsactivity') {
 		if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
 			$identifier = $db->escape_string($core->input['identifier']);
 			$core->input = unserialize($session->get_phpsession('reportmeta_'.$identifier));
@@ -163,11 +163,11 @@ if(!$core->input['action']) {
 		}
 
 		$identifier = $db->escape_string($core->input['identifier']);
-	
+
 		if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'productsactivity') !== false) {
 			$productsactivitydata = serialize($core->input);
 			$session->set_phpsession(array('productsactivitydata_'.$identifier => $productsactivitydata));
-		//print_r($productsactivitydata);
+			//print_r($productsactivitydata);
 		}
 
 		if(!isset($core->input['rid'])) {
@@ -222,15 +222,16 @@ if(!$core->input['action']) {
 		}
 
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
-		/* If supplier does not have contract and contract Expired -START*/
+		/* If supplier does not have contract and contract Expired -START */
 		$entity = new Entities($report_meta['spid']);
 		$entity_data = $entity->get();
-
+		$notifymessage =$exludestage_checked = '';
 		if((empty($entity_data['contractFirstSigDate']) || TIME_NOW > $entity_data['contractExpiryDate']) || ($entity_data['contractIsEvergreen'] != 1 && !empty($entity_data['contractExpiryDate']))) {
 			$exludestage_checked = ' checked="checked"';
 			$notifymessage = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-top: 10px; margin-bottom: 10px;"><strong>'.$lang->excludekeycustomersmessage.'</strong></div>';
 		}
-			/* If supplier does not have contract and contract Expired -END*/
+		
+		/* If supplier does not have contract and contract Expired -END */
 		if($core->usergroup['canExcludeFillStages'] == 1) {
 			$exludestage = '<br /><input type="checkbox" name="excludeKeyCustomers"'.$exludestage_checked.' style="width:30px;" id="excludeKeyCustomers" title="'.$lang->exclude_tip.'" /> '.$lang->excludekeycustomers;
 		}
@@ -987,7 +988,7 @@ else {
 			exit;
 		}
 
-		if($core->input['savetype'] == 'finalize') { 
+		if($core->input['savetype'] == 'finalize') {
 			$new_status = array(
 					'uidFinish' => $core->user['uid'],
 					'finishDate' => TIME_NOW,
