@@ -13,7 +13,7 @@ if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 } 
 
-if($core->usergroup['hr_canEditEmployee'] == 0) {
+if($core->usergroup['hr_canEditEmployee'] == 0 || $core->usergroup['hr_canManageHolidays']== 0 ) {
 	error($lang->sectionnopermission);
 }
 
