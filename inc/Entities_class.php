@@ -24,7 +24,7 @@ class Entities {
 			}
 		}
 		else {
-			$this->data =$this->get_entity($data);
+			$this->data = $this->get_entity($data);
 		}
 	}
 
@@ -533,12 +533,11 @@ class Entities {
 	public function get(){
 		return $this->data;
 	}
-	
-	
+
 	private function get_entity($id) {
 		global $db;
 		if(isset($id)&& !empty($id)){
-		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid='".$db->escape_string($id)."'"));
+			return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid='".$db->escape_string($id)."'"));
 		}
 		
 	}

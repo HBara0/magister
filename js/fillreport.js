@@ -174,13 +174,7 @@ $(function() {
             }
         }, 300000); // 300000 5 minutes
 		
-    }
-	
-        
-    $("input[id^='next_'][id$='_Button']").click(function() {
-        $("form:first").submit(function(e){
-        });
-    });      
+    }     
         
     $("input[id^='save_'][id$='_Button']").click(function() {
         if(sharedFunctions.checkSession() == false) {

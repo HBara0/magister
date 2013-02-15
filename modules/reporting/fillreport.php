@@ -167,7 +167,6 @@ if(!$core->input['action']) {
 		if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'productsactivity') !== false) {
 			$productsactivitydata = serialize($core->input);
 			$session->set_phpsession(array('productsactivitydata_'.$identifier => $productsactivitydata));
-			//print_r($productsactivitydata);
 		}
 
 		if(!isset($core->input['rid'])) {

@@ -20,7 +20,7 @@
     <thead>
         <tr>
             <td width="28%" rowspan="2" valign="top" align="left"><strong>{$lang->product}</strong></td>
-			<td width="12%" rowspan="2" valign="top" align="center"><strong>{$lang->soldquantity}</strong></td>
+			<td width="12%" rowspan="2" valign="top" align="center" class="altrow2 border_right"><strong>{$lang->soldquantity}</strong><br /><span class="smalltext"><em>{$lang->mt}</em></span></td>
             <td width="12%" rowspan="2" valign="top" align="center"><strong>{$lang->turnover}<br />
             </strong><span class="smalltext"><em>({$lang->purchaseamount})</em><strong><br />
             </strong><em>.K Currency (i.e. 1000=1k)</em></span></td>
