@@ -5,10 +5,10 @@
     <input type='hidden' value='{$productactivity[$i][pid]}' id='product_{$rowid}_id' name='pid_{$rowid}' />
     <a href="#" id="showpopup_addproduct" class="showpopup"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a>
     <div id='searchQuickResults_{$rowid}' class='searchQuickResults' style='display:none;'></div></td>
-  <td  style="border-bottom: dashed 1px #CCCCCC;" align="center"><input name="turnOver_{$rowid}" type="text" id="turnOver_{$rowid}" size="10" accept="numeric" value="{$productactivity[$i][turnOver]}" autocomplete='off'/>  </td>
- <td> {$currencyfx_selectlist}</td>
+ 	<td style="border-bottom: dashed 1px #CCCCCC;" align="center" class="altrow2 border_right"><input name="soldQty_{$rowid}" type="text" id="soldQty_{$rowid}" size="10" accept="numeric" value="{$productactivity[$i][soldQty]}" autocomplete='off'/></td>
+	<td  style="border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="turnOver_{$rowid}" type="text" id="turnOver_{$rowid}" size="10" accept="numeric" value="{$productactivity[$i][turnOver]}" autocomplete='off'/></td>
+ 	<td style="border-bottom: dashed 1px #CCCCCC;" align="center">{$currencyfx_selectlist}</td>
   <td style="border-bottom: dashed 1px #CCCCCC;" align="center"><input name="quantity_{$rowid}" type="text" id="quantity_{$rowid}" size="10" accept="numeric"  value="{$productactivity[$i][quantity]}" autocomplete='off'/></td>
-  <td style="border-bottom: dashed 1px #CCCCCC;" align="center"><input name="soldQty_{$rowid}" type="text" id="soldQty_{$rowid}" size="10" accept="numeric" value="{$productactivity[$i][soldQty]}" autocomplete='off'/></td>
   <td style="border-bottom: dashed 1px #CCCCCC;" align="center">{$saletype_selectlist}</td>
   <td style="border-bottom: dashed 1px #CCCCCC;" align="center"><input name="salesForecast_{$rowid}" type="text" id="salesForecast_{$rowid}" size="10" accept="numeric" value="{$productactivity[$i][salesForecast]}" autocomplete='off'/></td>
   <td style="border-bottom: dashed 1px #CCCCCC;" align="center"><input name="quantityForecast_{$rowid}" type="number" id="quantityForecast_{$rowid}" size="10"  accept="numeric" value="{$productactivity[$i][quantityForecast]}" autocomplete='off'/></td>

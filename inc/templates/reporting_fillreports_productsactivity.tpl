@@ -20,13 +20,12 @@
     <thead>
         <tr>
             <td width="28%" rowspan="2" valign="top" align="left"><strong>{$lang->product}</strong></td>
-            <td width="21%" rowspan="2" valign="top" align="center"><strong>{$lang->turnover}<br />
+			<td width="12%" rowspan="2" valign="top" align="center"><strong>{$lang->soldquantity}</strong></td>
+            <td width="12%" rowspan="2" valign="top" align="center"><strong>{$lang->turnover}<br />
             </strong><span class="smalltext"><em>({$lang->purchaseamount})</em><strong><br />
             </strong><em>.K Currency (i.e. 1000=1k)</em></span></td>
             <td width="10%" rowspan="2" valign="top" align="center">&nbsp;</td>
-            
             <td width="10%" rowspan="2" valign="top" align="center"><strong>{$lang->quantity}<br /></strong><span class="smalltext"><em>{$lang->mt}</em></span></td>
-            <td width="10%" rowspan="2" valign="top" align="center"><strong>{$lang->soldquantity}</strong></td>
             <td width="14%" rowspan="2" valign="top" align="center"><strong>{$lang->salestype}</strong></div></td>
             <td colspan="2" valign="top" align="center"><strong>{$lang->yearforecasts}/{$core->input[baseCurrency]}</strong></td>
         </tr>
@@ -57,7 +56,7 @@
 
     Are you sure you want to continue without saving?<br />
     <hr />
-    <input type="submit" onClick="$('input[id^=\'save_\'][id$=\'_Button\']').trigger('click'); $('#popup_fillreportsconfirmnosave').dialog('close');" value="{$lang->savecaps}" class="button" /> <input type="submit" onClick='$("form:first").trigger("submit");' value="{$lang->nextcaps}" class="button" />
+    <input type="submit" onClick="$('input[id^=\'save_\'][id$=\'_Button\']').trigger('click'); $('#popup_fillreportsconfirmnosave').dialog('close');" value="{$lang->savecaps}" class="button" /> <input type="submit" onClick='$("form:first").unbind("submit").trigger("submit");' value="{$lang->nextcaps}" class="button" />
 </div>
 </form>
 </td>
