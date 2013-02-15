@@ -225,10 +225,9 @@ if(!$core->input['action']) {
 		/* If supplier does not have contract and contract Expired -START */
 		$entity = new Entities($report_meta['spid']);
 		$entity_data = $entity->get();
-		$notifymessage =$exludestage_checked = '';
-		if((empty($entity_data['contractFirstSigDate']) || TIME_NOW > $entity_data['contractExpiryDate']) || ($entity_data['contractIsEvergreen'] != 1 && !empty($entity_data['contractExpiryDate']))) {
+		if(empty($entity_data['contractFirstSigDate']) || (!empty($entity_data['contractExpiryDate']) && TIME_NOW > $entity_data['contractExpiryDate']) || ($entity_data['contractIsEvergreen'] != 1 && !empty($entity_data['contractExpiryDate']))) {
 			$exludestage_checked = ' checked="checked"';
-			$notifymessage = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-top: 10px; margin-bottom: 10px;"><strong>'.$lang->excludekeycustomersmessage.'</strong></div>';
+			$excludekeycust_notifymessage = '<div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-top: 10px; margin-bottom: 10px;"><strong>'.$lang->notcontractedsupp.'</strong></div>';
 		}
 		
 		/* If supplier does not have contract and contract Expired -END */

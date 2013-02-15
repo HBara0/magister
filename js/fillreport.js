@@ -67,7 +67,7 @@ $(function() {
         }
     }
 		
-    //$("form[id='save_productsactivity_reporting/fillreport_Form']").submit(function() { return validateEmpty('productsactivity'); });
+   	$("form[id='save_productsactivity_reporting/fillreport_Form']").submit(function() { return validateEmpty('productsactivity'); });
 	
     $("input[id^='turnOver_'],input[id^='salesForecast_'],input[id^='quantityForecast_'],input[id^='quantity_']").live("click", function() {
         $(this).blur(function() {
@@ -137,18 +137,18 @@ $(function() {
 	
     function validateEmpty(bodyName) {
         var isEmpty = false;
-        $("#" + bodyName + "_tbody").find("tr").each(function() { 
+        $("#" + bodyName + "_tbody").find("tr").each(function() {
             var row_id = $(this).attr("id");
             if($(this).find("input:eq(2)").val() != '') {
-                $(this).find("input").each(function() { 
+                $(this).find("input").each(function() {
                     if($(this).val() == '' && $(this).attr('id').search(/paid_/gi) == -1) {
-                        isEmpty = true;
+                        $(this).attr('required', 'required');
+						isEmpty = true;
                         return false;
                     }
                 });
-                if(isEmpty === true) { 
-                    //$("tr[id='" + row_id + "']").effect("highlight", {color:'#CC3300'}, 18000);
-                    //$("tr[id='" + row_id + "']").css("background-color", "#CC3300");
+
+                if(isEmpty === true) {
                     return false;
                 }
             }
@@ -189,7 +189,7 @@ $(function() {
         var id =  $(this).attr("id").split("_");
 
         if(validateEmpty(id[1]) == true) {
-            var formData = $("form[id='" + id[0] + "_" + id[1] + "_" + id[2] +"_Form']").serialize();  alert(formData);
+            var formData = $("form[id='" + id[0] + "_" + id[1] + "_" + id[2] +"_Form']").serialize();
             $("form[id='" + id[0] + "_" + id[1] + "_" + id[2] +"_Form']").submit(function(e){
                 e.preventDefault();
             });
