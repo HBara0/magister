@@ -17,6 +17,7 @@ $lang['address'] = "Address";
 $lang['fulladdress'] = "Full address";
 $lang['buildingname'] = "Building";
 $lang['internalextension'] = "Internal extension";
+$lang['passwordexpired'] = "Your Pawword Expired";
 $lang['telephone'] = "Telephone";
 $lang['mobile'] = "Mobile";
 $lang['postcode'] = "Post code";
@@ -27,8 +28,23 @@ $lang['bbpin'] = "BB Pin";
 $lang['assistant'] = "Assistant";
 $lang['modify'] = "Modify";
 $lang['private'] = "Private";
-
+$lang['passwordhandling'] = "
+<ul>  
+<li>  minimum of 8 characters</li>
+	 <li>  at least 1 number</li>
+    <li>at least 1 uppercase character</li>
+	<li>at least 1 lowercase character</li>
+	<li>at least 1 symbol</li>
+	</ul>";
 $lang['passwordnomatch'] = "The new passwords did not match";
+
+$lang['passworddoesntmatch'] = "<ul>Password Must be: 
+<li>  minimum of 8 characters.</li>
+	 <li>  at least 1 number.</li>
+    <li>at least 1 uppercase character.</li>
+	<li>at least 1 lowercase character.</li>
+	<li>at least 1 symbol.</li>
+	</ul>";
 $lang['wrongoldpassword'] = "Wrong old password";
 $lang['passwordsuccessfullychanged'] = "The password was successfully changed";
 $lang['profilesuccessfullyupdated'] = "Your profile was successfully updated";
@@ -40,9 +56,9 @@ $lang['defaultmodule'] = "Default module";
 $lang['defaultlanguage'] = "Default language";
 $lang['newfilenotification'] = "Send me notification of new shared files";
 
-$lang['changeprofilepic']  = "Change Profile Picture";
+$lang['changeprofilepic'] = "Change Profile Picture";
 $lang['selectprofilepicture'] = "Select a profile picture";
-$lang['onlyfiletypesallowed']= "Only png, jpg, and gif files are allowed";
+$lang['onlyfiletypesallowed'] = "Only png, jpg, and gif files are allowed";
 $lang['uploadinginprogress'] = "Uploading in progress...";
 
 $lang['contactinformation'] = "Contact Information";

@@ -16,10 +16,10 @@
             <td width="20%"><strong>{$lang->username}</strong></td><td><input type="text" id="username" name="username" value="{$user[username]}" tabindex="1"/></td>
         </tr>
         <tr>
-            <td><strong>{$lang->password}</strong></td><td><input type="password" id="password" name="password" tabindex="2"/></td>
+            <td><strong>{$lang->password}</strong></td><td><input type="password" id="password" name="password"   title="{$lang->passwordhandling}" pattern="(?=^[\W+a-z A-Z0-9\/\\.'])(?=^.{6,}$)((?=.*\d)|(?=.*\W+))(?![.\n]).*" tabindex="2"/></td>
         </tr>
         <tr>
-            <td><strong>{$lang->confirmpassword}</strong></td><td><input type="password" id="password2" name="password2" tabindex="3"/></td>
+            <td><strong>{$lang->confirmpassword}</strong></td><td><input type="password" id="password2" name="password2" title="{$lang->passwordhandling}" pattern="(?=^[\W+a-z A-Z0-9\/\\.'])(?=^.{6,}$)((?=.*\d)|(?=.*\W+))(?![.\n]).*" tabindex="3"/></td>
         </tr>
         <tr>
            <td><strong>{$lang->email}</strong></td><td><input type="text" id="email" name="email" value="{$user[email]}" tabindex="4"/> <span id="email_Validation"></span></td>
@@ -65,6 +65,7 @@
         </tr>
         <tr>
            <td>{$lang->buildingname}</td><td><input type="text" id="building" name="building" value="{$user[building]}" tabindex="14"/></td>
+
         </tr>
         <tr>
            <td>{$lang->postcode}</td><td><input type="text" id="postCode" name="postCode" accept="numeric" value="{$user[postCode]}" tabindex="15"/></td>
