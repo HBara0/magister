@@ -13,7 +13,10 @@ class CreateAccount extends Accounts {
 			output_xml("<status>false</status><message>{$lang->specifyusername}</message>");
 			exit;	
 		}
-		
+		if(!parent::validate_password_complexity($data['password'])) {
+					output_xml("<status>false</status><message>{$lang->passworddoesntmatch}</message>");
+					exit;
+				}
 		if(!parent::username_exists($data['username'])) {
 			$db_encrypt_fields = '';
 			
