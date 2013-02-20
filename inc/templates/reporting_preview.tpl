@@ -16,7 +16,9 @@
 </form>
 <div align="center">
 {$reports}
+
 </div>
+<div align="center">{$reportingeditsummary}</div>
 <div align="right">{$tools}</div>
 </td>
 </tr>
