@@ -23,12 +23,9 @@ if($core->input['authCode'] == AUTHCODE) {
 //		echo 'Error';
 //		exit;
 //	}
-	
-	$integration->sync_products(array('0A36650996654AD2BA6B26CBC8BA7347'));
-	
-	$integration->sync_businesspartners();
-	
-	$integration->sync_purchases(array('C08F137534222BD001345BAA60661B97'), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')));
+	//$integration->sync_products(array('0A36650996654AD2BA6B26CBC8BA7347'));
+	//$integration->sync_businesspartners();
+	//$integration->sync_purchases(array('C08F137534222BD001345BAA60661B97'), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')));
 	$integration->sync_sales(array('C08F137534222BD001345BAA60661B97'), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')));
 }
 ?>

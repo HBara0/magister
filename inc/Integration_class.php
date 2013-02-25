@@ -78,5 +78,6 @@ class Integration {
 		}
 		return true;
 	}
+	
 }
 ?>
