@@ -150,7 +150,7 @@ if(!$core->input['action']) {
 			list($report['isApproved'], $report['isSent']) = $db->fetch_array($db->query("SELECT isApproved, isSent FROM ".Tprefix."reports WHERE rid='{$report[rid]}'"), MYSQL_NUM); //get_specificdata('reports', array('isApproved'), '0', 'isApproved', '', 0, "rid='{$report[rid]}'");
 
 			$reports_id = base64_encode(serialize($report['rid']));
-			echo $reports_id;
+
 			if($report['isSent'] == 0) {
 				$no_send_icon = false;
 			}
@@ -1053,9 +1053,12 @@ if(!$core->input['action']) {
 		/* Output summary table - START */
 
 		$report_summary = $db->fetch_assoc($db->query("SELECT rs.summary FROM ".Tprefix."reports r JOIN ".Tprefix."reporting_summary rs ON(r.summary=rs.rpsid) WHERE r.rid=".$report['rid'].""));
-		if($core->usergroup['canViewAllSupp'] == 1) {
-			eval("\$summarypage = \"".$template->get('reporting_report_summary')."\";");
+		if(is_array($report_summary)) {
+			if($core->usergroup['canViewAllSupp'] == 1) {
+				eval("\$summarypage = \"".$template->get('reporting_report_summary')."\";");
+			}
 		}
+
 		/* Output summary table  - END */
 
 		/* Output currencies FX table - Start */
@@ -1083,9 +1086,9 @@ if(!$core->input['action']) {
 			}
 		}
 		/* Output currencies FX table - END */
-	if($core->usergroup['canViewAllSupp'] == 1) {
-		eval("\$reportingeditsummary = \"".$template->get('reporting_report_editsummary')."\";");
-	}
+		if($core->usergroup['canViewAllSupp'] == 1) {
+			eval("\$reportingeditsummary = \"".$template->get('reporting_report_editsummary')."\";");
+		}
 	}
 
 
@@ -1190,7 +1193,7 @@ else {
 					'summary' => $summary
 			);
 
-		$query = $db->insert_query("reporting_summary", $summary_report);
+			$query = $db->insert_query("reporting_summary", $summary_report);
 			if($query) {
 				$summary_id = $db->last_id();
 				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
