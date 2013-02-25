@@ -17,7 +17,7 @@ class ModifyAccount extends Accounts {
 	}
 	
 	private function perform_modify(array $data) {
-		global $db, $core;
+		global $db, $core,$lang;
 		
 		if(empty($data['uid'])) {
 			output_xml("<status>false</status><message>{$lang->wrongid}</message>");
@@ -54,6 +54,11 @@ class ModifyAccount extends Accounts {
 		
 		if(array_key_exists('password', $data)) {
 			if(!empty($data['password'])) {
+				if(!parent::validate_password_complexity($data['password'])) {
+					output_xml("<status>false</status><message>{$lang->passworddoesntmatch}</message>");
+					exit;
+				}
+				
 				$data['salt']  = parent::create_salt(); 
 				$data['password'] = parent::create_password($data['password'], $data['salt']);
 				$data['loginKey']  = parent::create_loginkey();
