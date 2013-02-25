@@ -9,20 +9,22 @@
 <td class="menuContainer" align="right"><span style="margin-right:10px;"><a href="{$_SERVER[HTTP_REFERER]}">&laquo; Go back</a></span></td>
 <td class="contentContainer">
 <h3>{$lang->edityouraccount}</h3>
+
+<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;">{$message}</div>
 	<form id="changepassword_Form" name="changepassword_Form" method="post">
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr><td colspan="2" class="subtitle">{$lang->changepassword}</td></tr>
            <tr>
             <td width="15%">{$lang->oldpassword}</td>
-            <td width="85%"><input type="password" id="oldpassword" name="oldpassword" required="required" /></td>
+            <td width="85%"><input type="password" id="oldpassword" name="oldpassword" required="required"/></td>
           </tr>
           <tr>
             <td>{$lang->newpassword}</td>
-             <td><input type="password" id="newpassword" name="newpassword" required="required"/></td>
+             <td><input type="password" id="newpassword" name="newpassword" required="required"   title="{$lang->passwordhandling}" pattern="(?=^[\W+a-z A-Z0-9\/\\.'])(?=^.{6,}$)((?=.*\d)|(?=.*\W+))(?![.\n]).*"/></td>
           </tr>
            <tr>
             <td>{$lang->confirmpassword}</td>
-             <td><input type="password" id="newpassword2" name="newpassword2" required="required"/></td>
+             <td><input type="password" id="newpassword2" name="newpassword2" required="required"  title="{$lang->passwordhandling}"  pattern="(?=^[\W+a-z A-Z0-9\/\\.'])(?=^.{6,}$)((?=.*\d)|(?=.*\W+))(?![.\n]).*"/></td>
           </tr>
           <tr><td colspan="2">
             <input type="submit" id="changepassword_Button"  value="{$lang->change}"/> <input type="reset" value="{$lang->reset}" />
