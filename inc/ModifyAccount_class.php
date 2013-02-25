@@ -14,7 +14,7 @@ class ModifyAccount extends Accounts {
 	
 	public function get_status() {
 		return $this->status;
-	}
+	} 
 	
 	private function perform_modify(array $data) {
 		global $db, $core,$lang;
