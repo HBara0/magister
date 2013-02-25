@@ -10,11 +10,11 @@
 <br />
 <table class="reportbox">
 <tr>
-<td colspan="13" class="thead">{$lang->quantitiesperiodunderreview}</td>
+<td colspan="15" class="thead">{$lang->quantitiesperiodunderreview}</td>
   </tr>
   <tr>
     <td class="horizontalspacer">&nbsp;</td>
-    <td colspan="11" class="verticalspacer">&nbsp;</td>
+    <td colspan="13" class="verticalspacer">&nbsp;</td>
     <td class="horizontalspacer">&nbsp;</td>
   </tr>
   <tr>
@@ -23,6 +23,8 @@
     <td class="verticalspacer">&nbsp;</td>
     <td class="columnhead">{$lang->uptoq}{$current_quarter} {$previous_year}</td>
     <td class="horizontalspacer">&nbsp;</td>
+    <td class="columnhead">{$lang->uptoq}{$current_quarter} {$current_year}</td>
+	<td class="horizontalspacer">&nbsp;</td>
     <td class="columnhead">{$lang->uptoq}{$current_quarter} {$current_year}</td>
     <td class="horizontalspacer">&nbsp;</td>
     <td class="columnhead">{$previous_year}</td>
@@ -40,6 +42,8 @@
     <td class="horizontalspacer">&nbsp;</td>
     <td class="columnsubhead">{$lang->actualquantities}</td>
     <td class="horizontalspacer">&nbsp;</td>
+	<td class="columnsubhead">{$lang->actualsoldquantities}</td>
+    <td class="horizontalspacer">&nbsp;</td>
     <td class="columnsubhead">{$lang->actualquantities}</td>
     <td class="horizontalspacer">&nbsp;</td>
     <td class="columnsubhead">{$lang->quantitiesforecast}</td>
@@ -49,7 +53,7 @@
   </tr>
   <tr>
     <td class="horizontalspacer">&nbsp;</td>
-    <td colspan="11" class="verticalspacer">&nbsp;</td>
+    <td colspan="13" class="verticalspacer">&nbsp;</td>
     <td class="horizontalspacer">&nbsp;</td>
   </tr>
   <tr>
@@ -59,6 +63,8 @@
     <td class="totalscell">{$totals_output[uptoprevquarterquantities]}</td>
     <td class="horizontalspacer">&nbsp;</td>
     <td class="totalscell">{$totals_output[uptoquarterquantities]}</td>
+	<td class="horizontalspacer">&nbsp;</td>
+    <td class="totalscell">{$totals_output[uptoquartersoldqty]}</td>
     <td class="horizontalspacer">&nbsp;</td>
     <td class="totalscell">{$totals_output[prevyearquantities]}</td>
     <td class="horizontalspacer">&nbsp;</td>
@@ -69,13 +75,13 @@
   </tr>
   <tr>
     <td class="horizontalspacer">&nbsp;</td>
-    <td colspan="11" class="verticalspacer">&nbsp;</td>
+    <td colspan="13" class="verticalspacer">&nbsp;</td>
     <td class="horizontalspacer">&nbsp;</td>
   </tr>
 	{$quantitiesforperiod}
   <tr>
     <td class="horizontalspacer">&nbsp;</td>
-    <td colspan="11" class="verticalspacer">&nbsp;</td>
+    <td colspan="13" class="verticalspacer">&nbsp;</td>
     <td class="horizontalspacer">&nbsp;</td>
   </tr>
 </table>
