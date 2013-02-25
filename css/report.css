@@ -38,7 +38,7 @@
 }
 
 .totalcell, .datacell {
-	width: 60px;
+	width: 50px;
 	text-align: right;
 }
 
@@ -54,12 +54,17 @@
 	border-bottom: 1px dashed #BFBFBF;
 }
 
+.lightdatacell_freewidth {
+	background-color: #F0F9E8;
+	border-bottom: 1px dashed #BFBFBF;
+}
+
 .namescell {
 	width: 100px;
 	text-align: left;
 }
 
-.datacell, .datacell_freewidth {
+.datacell, .datacell_freewidth, .lightdatacell_freewidth {
 	border-left: 1px solid #BFBFBF;
 	border-right: 1px solid #D8D8D8;
 	text-align: right;
@@ -79,7 +84,7 @@
 }
 
 .verticalspacer, .horizontalspacer {
-	width: 15px;
+	width: 5px;
 }
 
 .highlight_textbox {

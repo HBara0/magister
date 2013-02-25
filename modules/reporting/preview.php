@@ -147,6 +147,156 @@ if(!$core->input['action']) {
 			$reports_meta_data['rid'][] = $report['rid'];
 			$reports_meta_data['spid'][] = $report['spid'];
 			$reports_meta_data['affid'][] = $report['affid'];
+<?php
+/*
+ * Orkila Central Online System (OCOS)
+ * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ *
+ * Preview and export quarter reports
+ * $module: reporting
+ * $id: preview.php
+ * Last Update: @zaher.reda 	March 07, 2012 | 04:33 PM
+ */
+
+if(!defined('DIRECT_ACCESS')) {
+	die('Direct initialization of this file is not allowed.');
+}
+
+if($core->usergroup['canFillReports'] == 0 && $core->usergroup['canGenerateReports'] == 0) {
+	error($lang->sectionnopermission);
+	exit;
+}
+
+$session->start_phpsession();
+
+if(!$core->input['action']) {
+	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list') {
+		if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {
+			redirect('index.php?module=reporting/generatereport');
+		}
+
+		/* foreach($core->input as $key => $val) {
+		  create_cookie($key, $val, (time() + (60*$core->settings['idletime']*2)));
+		  } */
+
+		if($core->input['generateType'] == 1) {
+			$foreach = $core->input['affid'];
+		}
+		else {
+			if($core->input['referrer'] == 'list') {
+				$core->input['incMarketReport'] = $core->input['incKeyCustomers'] = $core->input['incKeyProducts'] = $core->input['genByProduct'] = 1;
+				$core->input['spid'] = array($core->input['spid']);
+			}
+			$foreach = $core->input['spid'];
+		}
+	}
+	elseif($core->input['referrer'] == 'direct') {
+		if(isset($core->input['identifier'])) {
+			$identifier = unserialize(base64_decode($core->input['identifier']));
+			foreach($identifier as $key => $val) {
+				$core->input[$key] = $val;
+			}
+			$core->input['incMarketReport'] = $core->input['incKeyCustomers'] = $core->input['incKeyProducts'] = $core->input['genByProduct'] = 1;
+			$core->input['generateType'] = 1;
+			$foreach = $core->input['affid'];
+		}
+		else {
+			redirect('index.php?module=reporting/generatereport');
+		}
+	}
+	else {
+		$foreach = array(''); //Dummy array
+	}
+
+	$no_send_icon = true;
+	$session_identifier = md5(uniqid(microtime()));
+
+	/* Check if all reports are included - Start */
+	$incomplete_report = false;
+	if($core->input['generateType'] == 1) {
+		$report_affiliates_query = $db->query("SELECT a.name, r.affid FROM ".Tprefix."reports r JOIN affiliates a ON (a.affid=r.affid) WHERE quarter='".$db->escape_string($core->input['quarter'])."' AND year='".$db->escape_string($core->input['year'])."' AND spid='".$db->escape_string($core->input['spid'])."'");
+		while($report_affiliate = $db->fetch_assoc($report_affiliates_query)) {
+			if(!in_array($report_affiliate['affid'], $core->input['affid'])) {
+				$incomplete_report = true;
+				$missing_affiliates[] = $report_affiliate['name'];
+				//break;
+			}
+		}
+	}
+	$incomplete_report_notification = '';
+	if($incomplete_report === true) {
+		$missing_affiliates_list = implode(', ', $missing_affiliates);
+		//$incomplete_report_popup = '<div id="popup_missingaffiliates" title="'.$lang->missingaffiliates.'">'.$missing_affiliates_list.'</div>';
+		//$incomplete_report_notification = '<tr><td align="center"><span style="color:#993300; font:weight:100; font-size: 20px;"> <a href="#" id="showpopup_missingaffiliates" class="showpopup"><img src="images/notemark.gif" border="0"/></a> '.$lang->incompletereport.'</span>'.$incomplete_report_popup.'</td></tr>';
+		$incomplete_report_notification = '<tr><td align="center"><span style="color:#993300; font:weight:100; font-size: 20px;"><img src="images/notemark.gif" border="0"/> '.$lang->incompletereport.'</span><br /><span class="smalltext">Missing: '.$missing_affiliates_list.'</span></td></tr>';
+	}
+
+	/* Check if all reports are included - End */
+	foreach($foreach as $index => $entity) {
+		$salesforperiod = $quantitiesforperiod = '';
+		$productsdata = array();
+		$productsdata_perquarter = array();
+		if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list' || $core->input['referrer'] == 'direct') {
+			$report['quarter'] = $db->escape_string($core->input['quarter']);
+			$report['year'] = $db->escape_string($core->input['year']);
+
+			if($core->input['generateType'] == 1) {
+				$report['affid'] = $entity;
+				$report['spid'] = $db->escape_string($core->input['spid']);
+
+				if($core->usergroup['canViewAllAff'] == 0) {
+					if(!@in_array($report['affid'], $core->user['auditedaffiliates'][$report['spid']]) && !@in_array($report['affid'], $core->user['suppliers']['affid'][$report['spid']])) {
+						if(count($foreach) == 1) {
+							redirect($_SERVER['HTTP_REFERER']);
+						}
+						unset($foreach[$index]);
+						continue;
+					}
+				}
+
+				if($core->usergroup['canViewAllSupp'] == 0) {
+					if(!in_array($report['spid'], $core->user['suppliers']['eid'])) {
+						redirect($_SERVER['HTTP_REFERER']);
+					}
+				}
+			}
+			else {
+				$report['affid'] = $db->escape_string($core->input['affid']);
+				$report['spid'] = $entity;
+
+				if($core->usergroup['canViewAllAff'] == 0) {
+					if(!@in_array($report['affid'], $core->user['auditedaffiliates'][$report['spid']]) && !@in_array($report['affid'], $core->user['suppliers']['affid'][$report['spid']])) {
+						redirect($_SERVER['HTTP_REFERER']);
+					}
+				}
+				else {
+					if(!value_exists('reports', 'affid', $report['affid'], "spid='".$report['spid']."' AND status='1'")) {
+						redirect('index.php?module=reporting/generatereport');
+					}
+				}
+
+				if($core->usergroup['canViewAllSupp'] == 0) {
+					if(!in_array($report['spid'], $core->user['suppliers']['eid'])) {
+						if(count($foreach) == 1) {
+							redirect($_SERVER['HTTP_REFERER']);
+						}
+						continue;
+					}
+				}
+				else {
+					if(!value_exists('reports', 'spid', $report['spid'], "affid='".$report['affid']."' AND status='1'")) {
+						redirect('index.php?module=reporting/generatereport');
+					}
+				}
+			}
+
+			$where_clause = "quarter='{$report[quarter]}' AND year='{$report[year]}' AND affid='{$report[affid]}' AND spid='{$report[spid]}'";
+
+			list($report['rid']) = get_specificdata('reports', array('rid'), '0', 'rid', '', 0, $where_clause);
+			$reports_meta_data['rid'][] = $report['rid'];
+			$reports_meta_data['spid'][] = $report['spid'];
+			$reports_meta_data['affid'][] = $report['affid'];
+
 			list($report['isApproved'], $report['isSent']) = $db->fetch_array($db->query("SELECT isApproved, isSent FROM ".Tprefix."reports WHERE rid='{$report[rid]}'"), MYSQL_NUM); //get_specificdata('reports', array('isApproved'), '0', 'isApproved', '', 0, "rid='{$report[rid]}'");
 
 			$reports_id = base64_encode(serialize($report['rid']));
@@ -163,7 +313,7 @@ if(!$core->input['action']) {
 									ORDER BY pa.turnOver DESC");
 			}
 			else {
-				$query = $db->query("SELECT SUM(pa.turnOver) AS turnOver, SUM(pa.quantity) AS quantity, pa.salesForecast, pa.quantityForecast, ps.title AS productname, ps.psid AS pid
+				$query = $db->query("SELECT SUM(pa.turnOver) AS turnOver, SUM(pa.quantity) AS quantity, UM(pa.soldqty) AS soldqty, pa.salesForecast, pa.quantityForecast, ps.title AS productname, ps.psid AS pid
 									FROM ".Tprefix."productsactivity pa JOIN ".Tprefix."products p ON(pa.pid=p.pid) JOIN ".Tprefix."genericproducts gp ON (p.gpid=gp.gpid) JOIN ".Tprefix."productsegments ps ON (gp.psid=ps.psid)
 									WHERE pa.rid='{$report[rid]}'
 									GROUP BY ps.title");
@@ -173,6 +323,7 @@ if(!$core->input['action']) {
 				$productsdata['pid'][$i] = $productsactivitydata['pid'];
 				$productsdata['name'][$i] = $productsactivitydata['productname'];
 				$productsdata['turnOver'][$i] = $productsactivitydata['turnOver'];
+				$productsdata['soldQty'][$i] = $productsactivitydata['soldQty'];
 				$productsdata['quantity'][$i] = $productsactivitydata['quantity'];
 				$productsdata['saleType'][$i] = ucfirst($productsactivitydata['saleType']);
 				$productsdata['salesForecast'][$i] = $productsactivitydata['salesForecast'];
@@ -340,13 +491,13 @@ if(!$core->input['action']) {
 		if(!empty($productsdata)) {
 			for($k = 1; $k <= $products_numrows; $k++) {
 				if($core->input['genByProduct'] == 1) {
-					$query = $db->query("SELECT SUM(pa.quantity) AS sumquantity, SUM(pa.turnOver) AS sumturnOver, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter
+					$query = $db->query("SELECT SUM(pa.quantity) AS sumquantity, SUM(pa.soldqty) AS sumsoldqty, SUM(pa.turnOver) AS sumturnOver, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter
 										FROM ".Tprefix."productsactivity pa LEFT JOIN ".Tprefix."reports r ON (r.rid=pa.rid)
 										WHERE pa.pid='".$productsdata['pid'][$k]."' AND r.affid='{$report[affid]}' AND r.spid='{$report[spid]}' AND (r.year = '{$current_year}' OR r.year = '{$previous_year}')
 										GROUP BY r.year, r.quarter, pa.pid"); // AND r.quarter<='{$current_quarter}'
 				}
 				else {
-					$query = $db->query("SELECT SUM(pa.turnOver) AS sumturnOver, SUM(pa.quantity) AS sumquantity, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter
+					$query = $db->query("SELECT SUM(pa.turnOver) AS sumturnOver, SUM(pa.quantity) AS sumquantity, SUM(pa.soldqty) AS sumsoldqty, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter
 									FROM ".Tprefix."productsactivity pa JOIN ".Tprefix."products p ON (pa.pid=p.pid) JOIN ".Tprefix."genericproducts gp ON (p.gpid=gp.gpid) JOIN ".Tprefix."productsegments ps ON (gp.psid=ps.psid) JOIN ".Tprefix."reports r ON (r.rid=pa.rid)
 									WHERE r.rid=pa.rid AND ps.psid='".$productsdata['pid'][$k]."' AND r.affid='{$report[affid]}' AND r.spid='{$report[spid]}' AND (r.year = '{$current_year}' OR r.year = '{$previous_year}') AND r.quarter<='{$current_quarter}'
 									GROUP BY r.year, r.quarter");
@@ -358,6 +509,7 @@ if(!$core->input['action']) {
 					$productsdata_perquarter[$activity['quarter']][$activity['year']]['quantity'] += @round($activity['sumquantity'], 2);
 					$comparebox_totals[$activity['year']]['turnover'] = @round($activity['sumturnOver'], 2);
 					$comparebox_totals[$activity['year']]['quantity'] = @round($activity['sumquantity'], 2);
+					$comparebox_totals[$activity['year']]['soldqty'] = @round($activity['sumsoldqty'], 2);
 
 					if($activity['quarter'] > $current_quarter) {
 						continue;
@@ -370,6 +522,7 @@ if(!$core->input['action']) {
 
 						$productsdata['salesuptoquarter'][$k] += @round($activity['sumturnOver'], 2);
 						$productsdata['quantitiesuptoquarter'][$k] += @round($activity['sumquantity'], 2);
+						$productsdata['soldqtyuptoquarter'][$k] += @round($activity['sumsoldqty'], 2);
 						if($activity['quarter'] == $current_quarter) {
 							$productsdata['salesforecastyear'][$k] = @round($activity['salesForecast'], 2);
 							$productsdata['quantitiesforecastyear'][$k] = @round($activity['quantityForecast'], 2);
@@ -384,6 +537,7 @@ if(!$core->input['action']) {
 				if($quarter_found !== true && $core->input['referrer'] != 'generate') {
 					$productsdata['salesuptoquarter'][$k] += $productsdata['turnOver'][$k];
 					$productsdata['quantitiesuptoquarter'][$k] += $productsdata['quantity'][$k];
+					$productsdata['soldqtyuptoquarter'][$k] += $productsdata['soldqty'][$k];
 					$productsdata['salesforecastyear'][$k] = $productsdata['salesForecast'][$k];
 					$productsdata['quantitiesforecastyear'][$k] = $productsdata['quantityForecast'][$k];
 				}
@@ -440,7 +594,7 @@ if(!$core->input['action']) {
 			$product_query_string = "pa.pid NOT IN (".implode(',', $productsdata['pid']).") AND ";
 		}
 		if($core->input['genByProduct'] == 1) {
-			$additionproducts_query = $db->query("SELECT SUM(pa.quantity) AS sumquantity, SUM(pa.turnOver) AS sumturnOver, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter, pa.pid, p.name
+			$additionproducts_query = $db->query("SELECT SUM(pa.quantity) AS sumquantity, SUM(pa.soldQty) AS sumsoldqty, SUM(pa.turnOver) AS sumturnOver, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter, pa.pid, p.name
 											FROM ".Tprefix."productsactivity pa LEFT JOIN ".Tprefix."reports r ON (r.rid=pa.rid) LEFT JOIN ".Tprefix."products p ON (p.pid=pa.pid)
 											WHERE {$product_query_string}r.affid='{$report[affid]}' AND r.spid='{$report[spid]}' AND (r.year = '{$current_year}' OR r.year = '{$previous_year}')
 											GROUP BY r.year, r.quarter, pa.pid
@@ -450,7 +604,7 @@ if(!$core->input['action']) {
 			if(!empty($product_query_string)) {
 				$product_query_string .= "ps.psid='".$productsdata['pid'][$k]."' AND ";
 			}
-			$additionproducts_query = $db->query("SELECT SUM(pa.turnOver) AS sumturnOver, SUM(pa.quantity) AS sumquantity, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter, ps.title AS name, ps.psid AS pid
+			$additionproducts_query = $db->query("SELECT SUM(pa.turnOver) AS sumturnOver, SUM(pa.quantity) AS sumquantity, SUM(pa.soldQty) AS sumsoldqty, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter, ps.title AS name, ps.psid AS pid
 										FROM productsactivity pa JOIN products p ON (pa.pid=p.pid) JOIN genericproducts gp ON (p.gpid=gp.gpid) JOIN productsegments ps On (gp.psid=ps.psid) JOIN reports r ON (r.rid=pa.rid)
 										WHERE {$product_query_string}r.affid='{$report[affid]}' AND r.spid='{$report[spid]}' AND (r.year = '{$current_year}' OR r.year = '{$previous_year}')
 										GROUP BY r.year, r.quarter, ps.psid
@@ -465,9 +619,12 @@ if(!$core->input['action']) {
 			$comparebox_totals[$addproduct['year']]['quantity'] = @round($addproduct['sumquantity'], 2);
 
 			if($addproduct['quarter'] <= $current_quarter) {
+
 				if($addproduct['year'] == $current_year) {
 					$addproducts[$addproduct['pid']]['salesuptoquarter'] += @round($addproduct['sumturnOver'], 2);
 					$addproducts[$addproduct['pid']]['quantitiesuptoquarter'] += @round($addproduct['sumquantity'], 2);
+					$addproducts[$addproduct['pid']]['soldqtyuptoquarter'] += @round($addproduct['sumsoldqty'], 2);
+
 					$addproducts[$addproduct['pid']]['salesforecastyear'] = @round($addproduct['salesForecast'], 2);
 					$addproducts[$addproduct['pid']]['quantitiesforecastyear'] = @round($addproduct['quantityForecast'], 2);
 				}
@@ -483,6 +640,7 @@ if(!$core->input['action']) {
 					if(!isset($addproducts[$addproduct['pid']]['salesuptoquarter'])) {
 						$addproducts[$addproduct['pid']]['salesuptoquarter'] = 0;
 						$addproducts[$addproduct['pid']]['quantitiesuptoquarter'] = 0;
+						$addproducts[$addproduct['pid']]['soldqtyuptoquarter'] = 0;
 						$addproducts[$addproduct['pid']]['salesforecastyear'] = 0;
 						$addproducts[$addproduct['pid']]['quantitiesforecastyear'] = 0;
 					}
@@ -510,6 +668,7 @@ if(!$core->input['action']) {
 
 				$productsdata['salesuptoquarter'][$k] = $val['salesuptoquarter'];
 				$productsdata['quantitiesuptoquarter'][$k] = $val['quantitiesuptoquarter'];
+				$productsdata['soldqtyuptoquarter'][$k] = $val['soldqtyuptoquarter'];
 
 				if(!empty($val['salesprevyear'])) {
 					$productsdata['salesprevyear'][$k] = $val['salesprevyear'];
@@ -533,7 +692,7 @@ if(!$core->input['action']) {
 				eval("\$quantitiesforperiod .= \"".$template->get('reporting_report_quantitiesdatarow')."\";");
 			}
 		}
-		//}
+		//}	
 
 		if(!empty($productsdata)) {
 			$overviewtotals['affiliatename'][$report['affid']] = $overview2totals['affiliatename'][$report['affid']] = $report['affiliate'];
@@ -545,6 +704,7 @@ if(!$core->input['action']) {
 
 			$overview2totals['uptoprevquarteryear'][$report['affid']] = $totals['uptoprevquarterquantities'] = @array_sum($productsdata['quantitiesupprevyearquarter']);
 			$overview2totals['uptoquarter'][$report['affid']] = $totals['uptoquarterquantities'] = array_sum($productsdata['quantitiesuptoquarter']);
+			$overview2totals['uptoquarter'][$report['affid']] = $totals['uptoquartersoldqty'] = array_sum($productsdata['soldqtyuptoquarter']);
 			$overview2totals['prevyear'][$report['affid']] = $totals['prevyearquantities'] = array_sum($productsdata['quantitiesprevyear']);
 			$overview2totals['yearforecast'][$report['affid']] = $totals['quantitiesforecast'] = array_sum($productsdata['quantitiesforecastyear']);
 
@@ -1051,10 +1211,9 @@ if(!$core->input['action']) {
 		/* Output contrinutors table - END */
 
 		/* Output summary table - START */
-
-		$report_summary = $db->fetch_assoc($db->query("SELECT rs.summary FROM ".Tprefix."reports r JOIN ".Tprefix."reporting_summary rs ON(r.summary=rs.rpsid) WHERE r.rid=".$report['rid'].""));
 		if(is_array($report_summary)) {
 			if($core->usergroup['canViewAllSupp'] == 1) {
+			$report_summary = $db->fetch_assoc($db->query("SELECT rs.summary FROM ".Tprefix."reports r JOIN ".Tprefix."reporting_summary rs ON(r.summary=rs.rpsid) WHERE r.rid=".$report['rid'].""));
 				eval("\$summarypage = \"".$template->get('reporting_report_summary')."\";");
 			}
 		}
@@ -1172,10 +1331,107 @@ if(!$core->input['action']) {
 	output_page($reportspage);
 }
 else {
+	}
 
 
-	if($core->input['action'] == "do_savesummary") {
-		//$decoded_reportid = base64_decode($core->input['reportids']);
+	$reports = $coverpage.$contributorspage.$summarypage.$valuesbox.$valuesbox2.$reports.$fxratespage.$closingpage;
+	if($core->input['referrer'] != 'generate' && $core->input['referrer'] != 'list' && $core->input['referrer'] != 'direct') {
+		//$headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
+
+		/* Check who hasn't yet filled in the report - Start */
+		$missing_employees_query1 = $db->query("SELECT DISTINCT(u.uid), displayName
+												FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid)
+												WHERE ae.affid='{$report[affid]}' AND ae.eid='{$report[spid]}' AND u.gid NOT IN (SELECT gid FROM usergroups WHERE canUseReporting=0) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$report[rid]}' AND isDone=1) AND u.uid!={$core->user[uid]}"); // AND rc.rid='{$report[rid]}'
+		while($assigned_employee = $db->fetch_assoc($missing_employees_query1)) {
+			$missing_employees['name'][] = $assigned_employee['displayName'];
+			$missing_employees['uid'][] = $assigned_employee['uid'];
+		}
+
+		if(is_array($missing_employees)) {
+			$missing_employees_notification = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; font-weight:bold;">'.$lang->employeesnotfillpart.' <ul><li>'.implode('</li><li>', $missing_employees['name']).'</li></ul></div><br />';
+		}
+
+		if(($reportmeta['auditor'] == 1 && is_array($missing_employees)) || !is_array($missing_employees)) {
+			$reporting_preview_tools_finalize_button = $lang->suretofinalizebody.' <p align="center"><input type="button" id="save_report_reporting/fillreport_Button" value="'.$lang->yes.'" class="button" onclick="$(\'#popup_finalizereportconfirmation\').dialog(\'close\')"/></p>';
+			$reporting_preview_tools_finalize_type = 'finalize';
+		}
+		else {
+			$reporting_preview_tools_finalize_button = $lang->cannotfinalizereport.' <p align="center"><input type="button" id="save_report_reporting/fillreport_Button" value="'.$lang->yes.'" class="button" onclick="$(\'#popup_finalizereportconfirmation\').dialog(\'close\')"/></p>';
+			$reporting_preview_tools_finalize_type = 'saveonly';
+		}
+		/* Check who hasn't yet filled in the report - End */
+		unset($cache);
+		eval("\$tools .= \"".$template->get('reporting_preview_tools_finalize')."\";");
+	}
+	else {
+		//$session_identifier .= '_'.$report['rid'];
+
+
+
+		if($core->input['referrer'] == 'direct') {
+			if($no_send_icon == false) {
+				if($core->usergroup['reporting_canSendReportsEmail'] == 1) {
+					$unique_array = array_unique($reports_meta_data['spid']);
+					if(count(array_unique($reports_meta_data['spid'])) == 1 || $core->usergroup['canViewAllSupp'] == 1) {
+						if(in_array($reports_meta_data['spid'][0], $core->user['auditfor']) || $core->usergroup['canViewAllSupp'] == 1) {
+							$tools_send = "<a href='index.php?module=reporting/preview&amp;action=saveandsend&amp;identifier={$session_identifier}'><img src='images/icons/send.gif' border='0' alt='{$lang->sendbyemail}' /></a> ";
+						}
+					}
+				}
+			}
+		}
+
+		if($core->input['referrer'] == 'list' || $core->input['referrer'] == 'generate' || $core->input['referrer'] == 'direct') {
+			if($report['isApproved'] == 0) {
+				if($core->usergroup['reporting_canApproveReports'] == 1) {
+					$can_approve = true;
+					foreach(array_unique($reports_meta_data['spid']) as $key => $val) {
+						if(!in_array($val, $core->user['auditfor'])) {
+							$can_approve = false;
+							break;
+						}
+					}
+					if($can_approve == true || $core->usergroup['canViewAllSupp'] == 1) {
+						$tools_approve = "<script language='javascript' type='text/javascript'>$(function(){ $('#approvereport').click(function() { sharedFunctions.requestAjax('post', 'index.php?module=reporting/preview', 'action=approve&identifier={$session_identifier}', 'approvereport_span', 'approvereport_span');}) });</script>";
+						$tools_approve .= "<span id='approvereport_span'><a href='#approvereport' id='approvereport'><img src='images/valid.gif' alt='{$lang->approve}' border='0' /></a></span> | ";
+					}
+				}
+			}
+		}
+		$tools = $tools_approve.$tools_send."<a href='index.php?module=reporting/preview&amp;action=exportpdf&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;<a href='index.php?module=reporting/preview&amp;action=print&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/print.gif' border='0' alt='{$lang->printreport}'/></a>";
+	}
+	$reports_meta_data['type'] = 'q';
+	$reports_meta_data['quarter'] = $report['quarter'];
+	$reports_meta_data['year'] = $report['year'];
+
+	$session->set_phpsession(array('reportsmetadata_'.$session_identifier => serialize($reports_meta_data)));
+	$session->set_phpsession(array('reports_'.$session_identifier => $reports));
+
+
+	//$core->settings['rootdir'].'/index.php?module=reporting/preview&referrer=direct&identifier='.base64_encode(serialize(array('year' => $report['year'], 'quarter' => $report['quarter'], 'spid' => $reports_meta_data['spid'][0], 'affid' => $reports_meta_data['affid'])));
+	eval("\$reportspage .= \"".$template->get('reporting_preview')."\";");
+
+	output_page($reportspage);
+}
+else {
+	if($core->input['action'] == 'do_savesummary') {
+		$reportid = unserialize(base64_decode($core->input['reportids']));
+
+		if(empty($core->input['summary'])) {
+			output_xml("<status>false</status><message>{$lang->fillrequiredfield}</message>");
+			return false;
+		}
+		elseif(value_exists('reporting_summary', 'summary', $core->input['summary'])) {
+			output_xml("<status>false</status><message>{$lang->entryexists}</message>");
+			return false;
+		}
+		else {
+			$summary = $core->sanitize_inputs($core->input['summary'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
+			$summary_report = array(
+					'uid' => $core->user['uid'],
+					'summary' => $summary
+			);
+
 		$reportid = unserialize(base64_decode($core->input['reportids']));
 
 		if(empty($core->input['summary'])) {
@@ -1197,7 +1453,7 @@ else {
 			if($query) {
 				$summary_id = $db->last_id();
 				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
-				$db->update_query("reports", array('summary' => $summary_id), 'rid='.$reportid);
+				$db->update_query('reports', array('summary' => $summary_id), 'rid='.$reportid);
 			}
 		}
 	}
@@ -1215,7 +1471,7 @@ else {
 
 		//$identifier = explode('_', $core->input['identifier']);
 		$meta_data = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']));
-		/* $suppliername = $db->fetch_field($db->query("SELECT e.companyName AS suppliername FROM ".Tprefix."entities e, ".Tprefix."reports r
+		/* $suppliername = $db->fetch_field($db->query("SELECT e.companyName AS suppliername FROM ".Tprefix."entities e, ".Tprefix."reports r 
 		  WHERE r.spid=e.eid AND r.rid='".$db->escape_string($meta_data['spid'][0])."'"), 'suppliername');
 		 */
 		$suppliername = $db->fetch_field($db->query("SELECT companyName AS suppliername FROM ".Tprefix."entities WHERE eid='".$db->escape_string($meta_data['spid'][0])."'"), 'suppliername');

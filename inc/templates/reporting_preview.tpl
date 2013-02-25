@@ -2,7 +2,7 @@
 <head>
 <title>{$core->settings[systemtitle]} | {$report[title]}</title>
 {$headerinc}
-<link href="report.css" rel="stylesheet" type="text/css" />
+<link href="./css/report.css" rel="stylesheet" type="text/css" />
 <script src="{$core->settings[rootdir]}/js/fillreport.js" type="text/javascript"></script>
 </head>
 
