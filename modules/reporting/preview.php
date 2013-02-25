@@ -151,7 +151,6 @@ if(!$core->input['action']) {
 			list($report['isApproved'], $report['isSent']) = $db->fetch_array($db->query("SELECT isApproved, isSent FROM ".Tprefix."reports WHERE rid='{$report[rid]}'"), MYSQL_NUM); //get_specificdata('reports', array('isApproved'), '0', 'isApproved', '', 0, "rid='{$report[rid]}'");
 
 			$reports_id = base64_encode(serialize($report['rid']));
-			echo $reports_id;
 			if($report['isSent'] == 0) {
 				$no_send_icon = false;
 			}
@@ -1062,9 +1061,8 @@ if(!$core->input['action']) {
 		/* Output contrinutors table - END */
 
 		/* Output summary table - START */
-
-		$report_summary = $db->fetch_assoc($db->query("SELECT rs.summary FROM ".Tprefix."reports r JOIN ".Tprefix."reporting_summary rs ON(r.summary=rs.rpsid) WHERE r.rid=".$report['rid'].""));
 		if($core->usergroup['canViewAllSupp'] == 1) {
+			$report_summary = $db->fetch_assoc($db->query("SELECT rs.summary FROM ".Tprefix."reports r JOIN ".Tprefix."reporting_summary rs ON(r.summary=rs.rpsid) WHERE r.rid=".$report['rid'].""));
 			eval("\$summarypage = \"".$template->get('reporting_report_summary')."\";");
 		}
 		/* Output summary table  - END */
@@ -1180,9 +1178,7 @@ if(!$core->input['action']) {
 	output_page($reportspage);
 }
 else {
-
-	if($core->input['action'] == "do_savesummary") {
-		//$decoded_reportid = base64_decode($core->input['reportids']);
+	if($core->input['action'] == 'do_savesummary') {
 		$reportid = unserialize(base64_decode($core->input['reportids']));
 
 		if(empty($core->input['summary'])) {
@@ -1200,11 +1196,11 @@ else {
 					'summary' => $summary
 			);
 
-		$query = $db->insert_query("reporting_summary", $summary_report);
+			$query = $db->insert_query('reporting_summary', $summary_report);
 			if($query) {
 				$summary_id = $db->last_id();
 				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
-				$db->update_query("reports", array('summary' => $summary_id), 'rid='.$reportid);
+				$db->update_query('reports', array('summary' => $summary_id), 'rid='.$reportid);
 			}
 		}
 	}
