@@ -8,7 +8,7 @@ class ModifyAccount extends Accounts {
 		}
 	}
 	
-	private function set_status($new_status) {
+	private function set_status($new_status) { 
 		$this->status = $new_status;
 	}
 	

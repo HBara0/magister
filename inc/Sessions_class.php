@@ -19,7 +19,7 @@ class Sessions {
 			$this->create();
 		}
 		else {
-			$this->update();
+			$this->update(); 
 		}
 
 		if($this->uid != 0) {
