@@ -46,6 +46,10 @@ class PostgreSQLConnection {
 		return pg_fetch_assoc($query);
 	}
 	
+	public function fetch_field($query, $field, $row=NULL) {
+		return pg_fetch_result($query, $row, $field);
+	}
+	
 	public function free_result($query) {
 		return pg_free_result($query);
 	}
