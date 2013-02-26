@@ -1182,10 +1182,10 @@ else {
 			output_xml("<status>false</status><message>{$lang->fillrequiredfield}</message>");
 			return false;
 		}
-		elseif(value_exists('reporting_summary', 'summary', $core->input['summary'])) {
-			output_xml("<status>false</status><message>{$lang->entryexists}</message>");
-			return false;
-		}
+//		elseif(value_exists('reporting_summary', 'summary', $core->input['summary'])) {
+//			output_xml("<status>false</status><message>{$lang->entryexists}</message>");
+//			return false;
+//		}
 		else {
 			$summary = $core->sanitize_inputs($core->input['summary'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
 			$summary_report = array(
