@@ -66,7 +66,7 @@ if(is_array($reports)) {
 		$message_output .= 'Please find below the visit reports pertaining to your subordinates which were completed today:<br />'.$message_user_reports.'</body></html>';
 	
 		$email_data = array(
-			'from_email'  => $core->settings['adminemail'],
+			'from_email'  => $core->settings['maileremail'],
 			'from'	   => 'OCOS Mailer',
 			'subject'	=> 'Visit Reports Overview - '.date($core->settings['dateformat'], TIME_NOW),
 			'message'	=> $message_output,

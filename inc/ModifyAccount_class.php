@@ -8,16 +8,25 @@ class ModifyAccount extends Accounts {
 		}
 	}
 	
-	private function set_status($new_status) {
+	private function set_status($new_status) { 
 		$this->status = $new_status;
 	}
 	
 	public function get_status() {
 		return $this->status;
+	} 
+	
+	public function archive_password($password, $uid = '') {
+		global $db;
+		
+		if(empty($uid)) {
+			$uid = $this->data['uid']; /* to be implemented */
+		}
+		$db->insert_query('users_passwordarchive', array('uid' => $uid, 'password' =>  md5($password), 'archiveTime' => TIME_NOW));
 	}
 	
 	private function perform_modify(array $data) {
-		global $db, $core;
+		global $db, $core, $lang;
 		
 		if(empty($data['uid'])) {
 			output_xml("<status>false</status><message>{$lang->wrongid}</message>");
@@ -54,6 +63,15 @@ class ModifyAccount extends Accounts {
 		
 		if(array_key_exists('password', $data)) {
 			if(!empty($data['password'])) {
+				if(!parent::validate_password_complexity($data['password'])) {
+					output_xml("<status>false</status><message>{$lang->pwdpatternnomatch}</message>");
+					exit;
+				}
+				/* Check if password was used before */
+				if(parent::in_passwordarhive($data['password'], $uid)) {
+					output_xml("<status>false</status><message>{$lang->passwordalreadyused}</message>");
+					exit;
+				}
 				$data['salt']  = parent::create_salt(); 
 				$data['password'] = parent::create_password($data['password'], $data['salt']);
 				$data['loginKey']  = parent::create_loginkey();

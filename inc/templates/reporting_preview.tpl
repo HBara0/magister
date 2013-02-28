@@ -2,7 +2,7 @@
 <head>
 <title>{$core->settings[systemtitle]} | {$report[title]}</title>
 {$headerinc}
-<link href="report.css" rel="stylesheet" type="text/css" />
+<link href="./css/report.css" rel="stylesheet" type="text/css" />
 <script src="{$core->settings[rootdir]}/js/fillreport.js" type="text/javascript"></script>
 </head>
 
@@ -16,7 +16,9 @@
 </form>
 <div align="center">
 {$reports}
+
 </div>
+<div align="center">{$reportingeditsummary}</div>
 <div align="right">{$tools}</div>
 </td>
 </tr>

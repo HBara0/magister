@@ -17,6 +17,11 @@ class CreateAccount extends Accounts {
 		if(!parent::username_exists($data['username'])) {
 			$db_encrypt_fields = '';
 			
+			if(!parent::validate_password_complexity($data['password'])) {
+				output_xml("<status>false</status><message>{$lang->pwdpatternnomatch}</message>");
+				exit;
+			}
+		
 			$data['salt']  = parent::create_salt();
 			$data['password'] = parent::create_password($data['password'], $data['salt']);
 			$data['loginKey'] =  parent::create_loginkey();

@@ -9,9 +9,15 @@
 * Created:			@najwa.kassem		October 28, 2010 | 13:30 AM
 * Last Update:		@zaher.reda		  	October 25, 2012 | 10:29 AM
 */
+
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 } 
+
+if( $core->usergroup['hr_canManageHolidays']== 0 ) {
+	error($lang->sectionnopermission);
+}
+
 
 if(!$core->input['action']) {	
 	$sort_query = 'name ASC';

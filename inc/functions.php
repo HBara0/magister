@@ -535,10 +535,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 			$space = '';
 			foreach($select_attributes as $key => $val) {
 				$output .= $space.$result[$val];
-				$space = ' ';
+				$space = ' - ';
 				$foundkeys[] = $result[$clean_key_attribute];
 			}
-
 			$results[$result[$clean_key_attribute]] = $output;
 
 			$output = '';
