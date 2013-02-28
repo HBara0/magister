@@ -23,6 +23,9 @@ class ModifyAccount extends Accounts {
 			$uid = $this->data['uid']; /* to be implemented */
 		}
 		$db->insert_query('users_passwordarchive', array('uid' => $uid, 'password' =>  md5($password), 'archiveTime' => TIME_NOW));
+	
+		/* Maintain last X passwords */
+		$db->delete_query('users_passwordarchive', 'upaid IN (SELECT upaid FROM '.Tprefix.'users_passwordarchive WHERE uid='.intval($uid).' ORDER BY archiveTime ASC LIMIT '.$core->settings['users_passwordarchive'].', '.$core->settings['users_passwordarchive']);
 	}
 	
 	private function perform_modify(array $data) {
