@@ -74,7 +74,7 @@ if($core->input['action']) {
 		create_cookie('uid', '', (TIME_NOW - 3600));
 		create_cookie('loginKey', '', (TIME_NOW - 3600));
 
-		redirect('index.php');
+		redirect('users.php?action=login');
 	}
 	elseif($core->input['action'] == 'reset_password') {
 		$lang->load("messages");
@@ -125,7 +125,7 @@ if($core->input['action']) {
 			$newdata = array(
 					'uid' => $core->user['uid'],
 					'password' => $db->escape_string($core->input['newpassword']),
-					'lastPasswordChange ' => TIME_NOW
+					'lastPasswordChange' => TIME_NOW
 			);
 
 			$modify = new ModifyAccount($newdata);
@@ -253,13 +253,13 @@ if($core->input['action']) {
 		}
 	}
 	elseif($core->input['action'] == 'profile') {
-		if($session->uid == 0) {
-			redirect('users.php?action=login&referer='.base64_encode(DOMAIN.'/users.php?'.$_SERVER['QUERY_STRING']));
-		}
-
 		$lang->load('profile');
 
 		if($core->input['do'] == 'edit') {
+			if($session->uid == 0) {
+				redirect('users.php?action=login');
+			}
+			
 			$phones_index = array('mobile', 'mobile2', 'telephone', 'telephone2');
 			foreach($phones_index as $val) {
 				$phone[$val] = explode('-', $core->user[$val]);
@@ -298,12 +298,16 @@ if($core->input['action']) {
 			$signature['text'] = preg_replace("/\n/i", '<br />', $signature['text']).'</p>';
 			
 			if(isset($core->input['messagecode']) && $core->input['messagecode'] == 1) {
-				$notification_message = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;">'.$lang->passwordhasexpired.'</div>';
+				$notification_message = '<div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-bottom:10px; font-weight: bold;">'.$lang->passwordhasexpired.'</div>';
 			}
 			eval("\$editprofilepage = \"".$template->get('editprofile')."\";");
 			output_page($editprofilepage);
 		}
 		else {
+			if($session->uid == 0) {
+				redirect('users.php?action=login&referer='.base64_encode(DOMAIN.'/users.php?'.$_SERVER['QUERY_STRING']));
+			}
+		
 			if(!$core->input['uid']) {
 				$uid = $core->user['uid'];
 			}
