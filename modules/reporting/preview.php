@@ -163,7 +163,7 @@ if(!$core->input['action']) {
 									ORDER BY pa.turnOver DESC");
 			}
 			else {
-				$query = $db->query("SELECT SUM(pa.turnOver) AS turnOver, SUM(pa.quantity) AS quantity, pa.salesForecast, pa.quantityForecast, ps.title AS productname, ps.psid AS pid
+				$query = $db->query("SELECT SUM(pa.turnOver) AS turnOver, SUM(pa.quantity) AS quantity, UM(pa.soldqty) AS soldqty, pa.salesForecast, pa.quantityForecast, ps.title AS productname, ps.psid AS pid
 									FROM ".Tprefix."productsactivity pa JOIN ".Tprefix."products p ON(pa.pid=p.pid) JOIN ".Tprefix."genericproducts gp ON (p.gpid=gp.gpid) JOIN ".Tprefix."productsegments ps ON (gp.psid=ps.psid)
 									WHERE pa.rid='{$report[rid]}'
 									GROUP BY ps.title");
@@ -173,6 +173,7 @@ if(!$core->input['action']) {
 				$productsdata['pid'][$i] = $productsactivitydata['pid'];
 				$productsdata['name'][$i] = $productsactivitydata['productname'];
 				$productsdata['turnOver'][$i] = $productsactivitydata['turnOver'];
+				$productsdata['soldQty'][$i] = $productsactivitydata['soldQty'];
 				$productsdata['quantity'][$i] = $productsactivitydata['quantity'];
 				$productsdata['saleType'][$i] = ucfirst($productsactivitydata['saleType']);
 				$productsdata['salesForecast'][$i] = $productsactivitydata['salesForecast'];
@@ -340,13 +341,13 @@ if(!$core->input['action']) {
 		if(!empty($productsdata)) {
 			for($k = 1; $k <= $products_numrows; $k++) {
 				if($core->input['genByProduct'] == 1) {
-					$query = $db->query("SELECT SUM(pa.quantity) AS sumquantity, SUM(pa.turnOver) AS sumturnOver, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter
+					$query = $db->query("SELECT SUM(pa.quantity) AS sumquantity, SUM(pa.soldqty) AS sumsoldqty, SUM(pa.turnOver) AS sumturnOver, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter
 										FROM ".Tprefix."productsactivity pa LEFT JOIN ".Tprefix."reports r ON (r.rid=pa.rid)
 										WHERE pa.pid='".$productsdata['pid'][$k]."' AND r.affid='{$report[affid]}' AND r.spid='{$report[spid]}' AND (r.year = '{$current_year}' OR r.year = '{$previous_year}')
 										GROUP BY r.year, r.quarter, pa.pid"); // AND r.quarter<='{$current_quarter}'
 				}
 				else {
-					$query = $db->query("SELECT SUM(pa.turnOver) AS sumturnOver, SUM(pa.quantity) AS sumquantity, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter
+					$query = $db->query("SELECT SUM(pa.turnOver) AS sumturnOver, SUM(pa.quantity) AS sumquantity, SUM(pa.soldqty) AS sumsoldqty, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter
 									FROM ".Tprefix."productsactivity pa JOIN ".Tprefix."products p ON (pa.pid=p.pid) JOIN ".Tprefix."genericproducts gp ON (p.gpid=gp.gpid) JOIN ".Tprefix."productsegments ps ON (gp.psid=ps.psid) JOIN ".Tprefix."reports r ON (r.rid=pa.rid)
 									WHERE r.rid=pa.rid AND ps.psid='".$productsdata['pid'][$k]."' AND r.affid='{$report[affid]}' AND r.spid='{$report[spid]}' AND (r.year = '{$current_year}' OR r.year = '{$previous_year}') AND r.quarter<='{$current_quarter}'
 									GROUP BY r.year, r.quarter");
@@ -358,6 +359,7 @@ if(!$core->input['action']) {
 					$productsdata_perquarter[$activity['quarter']][$activity['year']]['quantity'] += @round($activity['sumquantity'], 2);
 					$comparebox_totals[$activity['year']]['turnover'] = @round($activity['sumturnOver'], 2);
 					$comparebox_totals[$activity['year']]['quantity'] = @round($activity['sumquantity'], 2);
+					$comparebox_totals[$activity['year']]['soldqty'] = @round($activity['sumsoldqty'], 2);
 
 					if($activity['quarter'] > $current_quarter) {
 						continue;
@@ -370,6 +372,7 @@ if(!$core->input['action']) {
 
 						$productsdata['salesuptoquarter'][$k] += @round($activity['sumturnOver'], 2);
 						$productsdata['quantitiesuptoquarter'][$k] += @round($activity['sumquantity'], 2);
+						$productsdata['soldqtyuptoquarter'][$k] += @round($activity['sumsoldqty'], 2);
 						if($activity['quarter'] == $current_quarter) {
 							$productsdata['salesforecastyear'][$k] = @round($activity['salesForecast'], 2);
 							$productsdata['quantitiesforecastyear'][$k] = @round($activity['quantityForecast'], 2);
@@ -384,6 +387,7 @@ if(!$core->input['action']) {
 				if($quarter_found !== true && $core->input['referrer'] != 'generate') {
 					$productsdata['salesuptoquarter'][$k] += $productsdata['turnOver'][$k];
 					$productsdata['quantitiesuptoquarter'][$k] += $productsdata['quantity'][$k];
+					$productsdata['soldqtyuptoquarter'][$k] += $productsdata['soldqty'][$k];
 					$productsdata['salesforecastyear'][$k] = $productsdata['salesForecast'][$k];
 					$productsdata['quantitiesforecastyear'][$k] = $productsdata['quantityForecast'][$k];
 				}
@@ -440,7 +444,7 @@ if(!$core->input['action']) {
 			$product_query_string = "pa.pid NOT IN (".implode(',', $productsdata['pid']).") AND ";
 		}
 		if($core->input['genByProduct'] == 1) {
-			$additionproducts_query = $db->query("SELECT SUM(pa.quantity) AS sumquantity, SUM(pa.turnOver) AS sumturnOver, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter, pa.pid, p.name
+			$additionproducts_query = $db->query("SELECT SUM(pa.quantity) AS sumquantity, SUM(pa.soldQty) AS sumsoldqty, SUM(pa.turnOver) AS sumturnOver, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter, pa.pid, p.name
 											FROM ".Tprefix."productsactivity pa LEFT JOIN ".Tprefix."reports r ON (r.rid=pa.rid) LEFT JOIN ".Tprefix."products p ON (p.pid=pa.pid)
 											WHERE {$product_query_string}r.affid='{$report[affid]}' AND r.spid='{$report[spid]}' AND (r.year = '{$current_year}' OR r.year = '{$previous_year}')
 											GROUP BY r.year, r.quarter, pa.pid
@@ -450,7 +454,7 @@ if(!$core->input['action']) {
 			if(!empty($product_query_string)) {
 				$product_query_string .= "ps.psid='".$productsdata['pid'][$k]."' AND ";
 			}
-			$additionproducts_query = $db->query("SELECT SUM(pa.turnOver) AS sumturnOver, SUM(pa.quantity) AS sumquantity, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter, ps.title AS name, ps.psid AS pid
+			$additionproducts_query = $db->query("SELECT SUM(pa.turnOver) AS sumturnOver, SUM(pa.quantity) AS sumquantity, SUM(pa.soldQty) AS sumsoldqty, SUM(pa.salesForecast) AS salesForecast, SUM(pa.quantityForecast) AS quantityForecast, r.year, r.quarter, ps.title AS name, ps.psid AS pid
 										FROM productsactivity pa JOIN products p ON (pa.pid=p.pid) JOIN genericproducts gp ON (p.gpid=gp.gpid) JOIN productsegments ps On (gp.psid=ps.psid) JOIN reports r ON (r.rid=pa.rid)
 										WHERE {$product_query_string}r.affid='{$report[affid]}' AND r.spid='{$report[spid]}' AND (r.year = '{$current_year}' OR r.year = '{$previous_year}')
 										GROUP BY r.year, r.quarter, ps.psid
@@ -465,9 +469,12 @@ if(!$core->input['action']) {
 			$comparebox_totals[$addproduct['year']]['quantity'] = @round($addproduct['sumquantity'], 2);
 
 			if($addproduct['quarter'] <= $current_quarter) {
+
 				if($addproduct['year'] == $current_year) {
 					$addproducts[$addproduct['pid']]['salesuptoquarter'] += @round($addproduct['sumturnOver'], 2);
 					$addproducts[$addproduct['pid']]['quantitiesuptoquarter'] += @round($addproduct['sumquantity'], 2);
+					$addproducts[$addproduct['pid']]['soldqtyuptoquarter'] += @round($addproduct['sumsoldqty'], 2);
+
 					$addproducts[$addproduct['pid']]['salesforecastyear'] = @round($addproduct['salesForecast'], 2);
 					$addproducts[$addproduct['pid']]['quantitiesforecastyear'] = @round($addproduct['quantityForecast'], 2);
 				}
@@ -483,6 +490,7 @@ if(!$core->input['action']) {
 					if(!isset($addproducts[$addproduct['pid']]['salesuptoquarter'])) {
 						$addproducts[$addproduct['pid']]['salesuptoquarter'] = 0;
 						$addproducts[$addproduct['pid']]['quantitiesuptoquarter'] = 0;
+						$addproducts[$addproduct['pid']]['soldqtyuptoquarter'] = 0;
 						$addproducts[$addproduct['pid']]['salesforecastyear'] = 0;
 						$addproducts[$addproduct['pid']]['quantitiesforecastyear'] = 0;
 					}
@@ -510,6 +518,7 @@ if(!$core->input['action']) {
 
 				$productsdata['salesuptoquarter'][$k] = $val['salesuptoquarter'];
 				$productsdata['quantitiesuptoquarter'][$k] = $val['quantitiesuptoquarter'];
+				$productsdata['soldqtyuptoquarter'][$k] = $val['soldqtyuptoquarter'];
 
 				if(!empty($val['salesprevyear'])) {
 					$productsdata['salesprevyear'][$k] = $val['salesprevyear'];
@@ -545,6 +554,7 @@ if(!$core->input['action']) {
 
 			$overview2totals['uptoprevquarteryear'][$report['affid']] = $totals['uptoprevquarterquantities'] = @array_sum($productsdata['quantitiesupprevyearquarter']);
 			$overview2totals['uptoquarter'][$report['affid']] = $totals['uptoquarterquantities'] = array_sum($productsdata['quantitiesuptoquarter']);
+			$overview2totals['uptoquarter'][$report['affid']] = $totals['uptoquartersoldqty'] = array_sum($productsdata['soldqtyuptoquarter']);
 			$overview2totals['prevyear'][$report['affid']] = $totals['prevyearquantities'] = array_sum($productsdata['quantitiesprevyear']);
 			$overview2totals['yearforecast'][$report['affid']] = $totals['quantitiesforecast'] = array_sum($productsdata['quantitiesforecastyear']);
 
@@ -1051,10 +1061,9 @@ if(!$core->input['action']) {
 		/* Output contrinutors table - END */
 
 		/* Output summary table - START */
-
-		$report_summary = $db->fetch_assoc($db->query("SELECT rs.summary FROM ".Tprefix."reports r JOIN ".Tprefix."reporting_summary rs ON(r.summary=rs.rpsid) WHERE r.rid=".$report['rid'].""));
 		if(is_array($report_summary)) {
 			if($core->usergroup['canViewAllSupp'] == 1) {
+			$report_summary = $db->fetch_assoc($db->query("SELECT rs.summary FROM ".Tprefix."reports r JOIN ".Tprefix."reporting_summary rs ON(r.summary=rs.rpsid) WHERE r.rid=".$report['rid'].""));
 				eval("\$summarypage = \"".$template->get('reporting_report_summary')."\";");
 			}
 		}
@@ -1092,7 +1101,7 @@ if(!$core->input['action']) {
 	}
 
 
-	$reports = $coverpage.$contributorspage.$valuesbox.$valuesbox2.$reports.$fxratespage.$closingpage;
+	$reports = $coverpage.$contributorspage.$summarypage.$valuesbox.$valuesbox2.$reports.$fxratespage.$closingpage;
 	if($core->input['referrer'] != 'generate' && $core->input['referrer'] != 'list' && $core->input['referrer'] != 'direct') {
 		//$headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
 
