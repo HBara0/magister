@@ -6,12 +6,24 @@
  * User related actions
  * $id: users.php	
  * Created: 	@zaher.reda 
- * Last Update: @tony.assaad		Feb 18, 2013 | 11:24 AM
+ * Last Update: @zaher.reda 	May 28, 2012 | 11:24 AM
  */
+define('PASSEXPIRE_EXCLUDE', 1);
 require_once './global.php';
 
 if($core->input['action']) {
 	if($core->input['action'] == 'do_login') {
+		$session->name_phpsession(COOKIE_PREFIX.'login');
+		$session->start_phpsession();
+		$session->regenerate_id_phpsession(true);
+		/* Ensure that request is genuine, not a CSRF */
+		$core->input['token'] = $core->sanitize_inputs($core->input['token']);
+		/* 		if(!$session->is_validtoken()) {
+		  output_xml("<status>false</status><message></message>");
+		  $session->destroy_phpsession(true);
+		  exit;
+		  } */
+
 		$login_details = array(
 				'username' => $db->escape_string($core->input['username']),
 				'password' => $db->escape_string($core->input['password'])
@@ -96,20 +108,18 @@ if($core->input['action']) {
 		}
 	}
 	elseif($core->input['action'] == 'do_changepassword') {
-
 		$lang->load('profile');
 
 		if(empty($core->input['oldpassword']) || empty($core->input['newpassword']) || empty($core->input['newpassword2'])) {
 			output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 			exit;
 		}
-		
+
 		$validation = new ValidateAccount(array('username' => $core->user['username'], 'password' => $core->input['oldpassword']));
 		if(!$validation->get_validation_result()) {
 			output_xml("<status>false</status><message>{$lang->wrongoldpassword}</message>");
 			exit;
 		}
-
 
 		if($core->input['newpassword'] == $core->input['newpassword2']) {
 			$newdata = array(
@@ -120,8 +130,9 @@ if($core->input['action']) {
 
 			$modify = new ModifyAccount($newdata);
 			if($modify->get_status() === true) {
+				$modify->archive_password($core->input['oldpassword'], $newdata['uid']);
 				output_xml("<status>true</status><message>{$lang->passwordsuccessfullychanged}</message>");
-				log_action($core->input['uid']);
+				$log->record($core->input['uid']);
 			}
 		}
 		else {
@@ -168,9 +179,9 @@ if($core->input['action']) {
 		echo $headerinc;
 		?>
 		<script language="javascript" type="text/javascript">
-			$(function() { 
+			$(function() {
 				window.top.$("#upload_Result").html("<?php echo $upload->parse_status($upload->get_status());?>");
-			}); 
+			});
 		</script>   
 		<?php
 		if($query) {
@@ -179,81 +190,67 @@ if($core->input['action']) {
 			}
 		}
 	}
-	elseif($core->input['action'] == 'generatesign') {
+	elseif($core->input['action'] == 'downloadsignature') {
 		if($session->uid == 0) {
 			redirect('users.php?action=login');
 		}
-		header('Content-Type: image/png');
 
-		if(isset($core->user['internalExtension']) && !empty($core->user['internalExtension'])) {
-			$core->user['internalExtension'] = ' ext:'.$core->user['internalExtension'];
-		}
-		/* Get affiliate details - START */
+		$signature['name'] = 'Orkila';
 
-		$affiliate = $db->fetch_assoc($db->query("SELECT a.*, c.name AS countryname FROM ".Tprefix."affiliates a JOIN ".Tprefix."countries c ON (c.coid=a.country) WHERE a.affid='{$core->user[mainaffiliate]}'"));
-
-		if(!empty($affiliate['addressLine1'])) {
-			$affiliate['fulladdress'] .= $affiliate['addressLine1'].', ';
-		}
-
-		if(!empty($affiliate['addressLine2'])) {
-			$affiliate['fulladdress'] .= $affiliate['addressLine2'].', ';
+		$identifier = substr(md5(uniqid(microtime())), 1, 5);
+		$zip = new ZipArchive();
+		$filepath = './tmp/';
+		$filename = $identifier.'.zip';
+		if($zip->open($filepath.$filename, ZIPARCHIVE::CREATE) !== TRUE) {
+			echo 'error';
+			exit;
 		}
 
-		if(!empty($affiliate['city'])) {
-			$affiliate['fulladdress'] .= strtoupper($affiliate['city']).' - ';
+		$user = new Users();
+		$image_location = $user->generate_image_sign(true);
+		$imagemin_location = $user->generate_image_sign(true, 180, 40, true);
+		$signature['text'] = $user->generate_text_sign();
+
+		$signature['text'] = preg_replace("/<br \/>/i", "\n", $signature['text']);
+		$signature['text'] .= "\n".$lang->signaturefooter."\n".$lang->signaturefooter_2."\n";
+
+		$signature['textmin'] = $user->generate_text_sign(true);
+		$signature['textmin'] = preg_replace("/<br \/>/i", "\n", $signature['textmin']);
+
+		$zip->addFromString('Readme.txt', $lang->signatureguideline);
+		$zip->addFromString($signature['name'].'.txt', $signature['text']);
+		$zip->addFromString($signature['name'].'_compact.txt', $signature['textmin']);
+
+		eval("\$signaturehtm = \"".$template->get('editprofile_downloadsignature_htm')."\";");
+		$zip->addFromString($signature['name'].'.htm', $signaturehtm);
+
+		eval("\$signatureminhtm = \"".$template->get('editprofile_downloadsignaturemin_htm')."\";");
+		$zip->addFromString($signature['name'].'_compact.htm', $signatureminhtm);
+
+		$zip->addEmptyDir($signature['name'].'_files');
+		$zip->addFile($image_location, $signature['name'].'_files/'.$signature['name'].'.png');
+		$zip->addFile($imagemin_location, $signature['name'].'_files/'.$signature['name'].'_compact.png');
+
+		$zip->close();
+
+		unlink(realpath($image_location));
+
+		$download = new Download();
+		$download->set_real_path($filepath.$filename);
+		$download->stream_file(true);
+	}
+	elseif($core->input['action'] == 'generatesignature' || $core->input['action'] == 'generatesignaturemin') {
+		if($session->uid == 0) {
+			redirect('users.php?action=login');
 		}
 
-		$affiliate['fulladdress'] .= strtoupper($affiliate['countryname']);
-		$affiliate['fax'] = '+'.$affiliate['fax'];
-		$affiliate['phone1'] = '+'.$affiliate['phone1'];
-		if(isset($affiliate['phone2']) && !empty($affiliate['phone2'])) {
-			$affiliate['phone2'] = '/+'.$affiliate['phone2'];
+		$user = new Users();
+		if($core->input['action'] == 'generatesignaturemin') {
+			$user->generate_image_sign(false, 180, 40, true);
 		}
-		/* Get affiliate details - END */
-
-		$message = $affiliate['fulladdress']."\n";
-		if(!empty($affiliate['poBox'])) {
-			$message .= $lang->pobox.'PO Box: '.$affiliate['poBox']."\n";
+		else {
+			$user->generate_image_sign(false);
 		}
-		$message .= $lang->telephone.'Telephone: '.$affiliate['phone1'].$affiliate['phone2'].$core->user['internalExtension']."\n";
-		$message .= $lang->fax.'Fax: '.$affiliate['fax']."\n";
-		if(!empty($core->user['skype'])) {
-			$core->user['skype'] = ' '.$lang->skype.'Skype: '.$core->user['skype'];
-		}
-		$message .= $lang->email.': '.$core->user['email'].$core->user['skype']."\n";
-		$message .= $lang->website.'Website: www.orkila.com'."\n";
-
-
-		$im = imagecreate(550, 201);
-		$white_color = imagecolorallocate($im, 255, 255, 255);
-		$black_color = imagecolorallocate($im, 0, 0, 0);
-		$blue_color = imagecolorallocate($im, 31, 73, 125);
-		$green_color = imagecolorallocate($im, 0, 128, 0);
-		$font = './inc/fonts/arial.ttf';
-		$font_bold = './inc/fonts/arialbd.ttf';
-		/* Parse Logo - Start */
-		$logo = imagecreatefromgif(DOMAIN.'/images/signlogo.gif');
-		imagecopy($im, $logo, 10, 30, 0, 0, 98, 60);
-		/* Parse Logo - End */
-
-
-		imagefttext($im, 10, 0, 10, 0.5, $black_color, $font, '___________________________________');
-		imagefttext($im, 12, 0, 10, 20, $black_color, $font_bold, $core->user['displayName']);
-		$query = $db->query("SELECT name, title FROM ".Tprefix."positions p JOIN ".Tprefix."userspositions up ON (up.posid=p.posid) WHERE uid={$core->user[uid]}");
-		while($position = $db->fetch_assoc($query)) {
-			if(!isset($lang->{$position['name']})) {
-				$lang->{$position['name']} = $position['title'];
-			}
-			$positions[] = $lang->{$position['name']};
-		}
-		imagefttext($im, 10, 0, 10, 100, $blue_color, $font_bold, implode(', ', $positions));
-		imagefttext($im, 10, 0, 10, 115, $green_color, $font, 'Orkila International');
-		imagefttext($im, 7.5, 0, 10, 130, $black_color, $font, $message);
-		//imagefttext($im, 8.5, 0, 10, 200, $green_color, $font, $footer);
-
-		imagepng($im, NULL, 9, PNG_NO_FILTER);
-		imagedestroy($im);
 	}
 	elseif($core->input['action'] == 'profile') {
 		if($session->uid == 0) {
@@ -261,40 +258,6 @@ if($core->input['action']) {
 		}
 
 		$lang->load('profile');
-		if($core->input['view'] == 'ProfilePreview') { /* if the user mouse over the displayName */
-			$username = $db->escape_string($core->input['username']);
-
-			$validation = new ValidateAccount();
-			$user_details = $validation->get_user_by_username($username);  /* pass the user name we got from the list to get all the infos */
-			if($user_details['mobileIsPrivate'] != 1) { /* if mobile is not private */
-				$mobile = $user_details['mobile'];
-			}
-			if(empty($user_details['skype'])) {
-				$lang->skype = '';
-			}
-			if(empty($user_details['email'])) {
-				$lang->email = '';
-			}
-			if(empty($user_details['mobile'])) {
-				$lang->mobile = '';
-			}
-			if(empty($user_details['telephoneExtension'])) {
-				$lang->internalextension = '';
-			}
-			if(!empty($user_details['profilePicture'])) {
-				$profilepicture = '<img src="'.$core->settings['rootdir'].'/'.$core->settings['profilepicdir'].'/'.$user_details['profilePicture'].'" alt="'.$user_details['username'].'" width="150px" border="0" />';
-			}
-			else {
-				$profilepicture = '<img  src="'.$core->settings['rootdir'].'/'.$core->settings['profilepicdir'].'/no_photo_male.gif" alt="'.$user_details['username'].'"   width="150px" border="0" />';
-			}
-
-			echo '<div style="min-width:400px; max-width:600px;">
-			<div style="display:inline-block; width:150px;">'.$profilepicture.'</div> 
-			<div style=" display:inline-block;  width:180px;">'.'<strong>'.$lang->mobile.'</strong> '.$mobile.'<br>'.'<strong>'.$lang->internalextension.'</strong> '.$user_details['telephoneExtension'].'<br>'.'<strong>'.$lang->skype.'</strong> <a href="skype:'.$user_details['skype'].'">'.$user_details['skype'].'<br>'.'<strong>'.$lang->email.'</strong> <a href="mailto:'.$user_details[email].'">'.$user_details['email'].'</a></div></div>';
-			exit;
-		}
-
-
 
 		if($core->input['do'] == 'edit') {
 			$phones_index = array('mobile', 'mobile2', 'telephone', 'telephone2');
@@ -312,9 +275,7 @@ if($core->input['action']) {
 					$checkedboxes[$key] = ' checked="checked"';
 				}
 			}
-			if(isset($core->input['messagecode']) && $core->input['messagecode'] == 1) {
-				$message = $lang->passwordexpired;
-			}
+
 			$moduleslist = parse_moduleslist($core->user['defaultModule'], 'modules', true);
 			$languageslist = parse_selectlist('language', '', $lang->get_languages(), $core->user['language']);
 
@@ -330,6 +291,14 @@ if($core->input['action']) {
 				else {
 					$core->user['profilePicture'] = 'no_photo_male.gif';
 				}
+			}
+
+			$user = new Users();
+			$signature['text'] = $user->generate_text_sign();
+			$signature['text'] = preg_replace("/\n/i", '<br />', $signature['text']).'</p>';
+			
+			if(isset($core->input['messagecode']) && $core->input['messagecode'] == 1) {
+				$notification_message = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;">'.$lang->passwordhasexpired.'</div>';
 			}
 			eval("\$editprofilepage = \"".$template->get('editprofile')."\";");
 			output_page($editprofilepage);
@@ -618,6 +587,7 @@ if($core->input['action']) {
 						}
 					}
 				}
+
 				eval("\$profilepage = \"".$template->get('userprofile')."\";");
 				output_page($profilepage);
 			}
@@ -630,6 +600,7 @@ if($core->input['action']) {
 		if($session->uid == 0) {
 			redirect('users.php?action=login');
 		}
+		define('PASSEXPIRE_EXCLUDE', 0);
 		$lang->load('profile');
 
 		$sort_query = 'firstName ASC';
@@ -647,29 +618,50 @@ if($core->input['action']) {
 		}
 
 		$multipage_where = 'gid!=7';
-		if(isset($core->input['filterby'], $core->input['filtervalue'])) {
-			$attributes_filter_options['prefixes'] = array('affid' => 'aff.');
-			$attributes_filter_options['types'] = array('affid' => 'int', 'reportsTo' => 'int');
+		/* Perform inline filtering - START */
+		$filters_config = array(
+				'parse' => array('filters' => array('fullName', 'displayName', 'affid', 'position', 'reportsTo')
+				),
+				'process' => array(
+						'filterKey' => 'uid',
+						'mainTable' => array(
+								'name' => 'users',
+								'filters' => array('displayName' => 'displayName', 'reportsTo' => array('operatorType' => 'multiple', 'name' => 'reportsTo')),
+								'extraSelect' => 'CONCAT(firstName, \' \', lastName) AS fullName',
+								'havingFilters' => array('fullName' => 'fullName')
+						),
+						'secTables' => array(
+								'userspositions' => array(
+										'filters' => array('position' => array('operatorType' => 'multiple', 'name' => 'posid')),
+								),
+								'affiliatedemployees' => array(
+										'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid')),
+										'extraWhere' => 'isMain=1'
+								)
+						)
+				)
+		);
 
-			if($attributes_filter_options['types'][$core->input['filterby']] == 'int') {
-				$filter_value = ' = "'.$db->escape_string($core->input['filtervalue']).'"';
-			}
-			else {
-				$filter_value = ' LIKE "%'.$db->escape_string($core->input['filtervalue']).'%"';
-			}
-			$multipage_where .= ' AND '.$db->escape_string($attributes_filter_options['prefixes'][$core->input['filterby']].$core->input['filterby']).$filter_value;
-			$filter_where = ' AND '.$db->escape_string($attributes_filter_options['prefixes'][$core->input['filterby']].$core->input['filterby']).$filter_value;
+		$filter = new Inlinefilters($filters_config);
+		$filter_where_values = $filter->process_multi_filters();
+
+		$filters_row_display = 'show';
+		if(is_array($filter_where_values)) {
+			$filters_row_display = 'hide';
+			$filter_where = 'AND u.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+			$multipage_where .= ' AND u.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
 		}
+
+		$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+		/* Perform inline filtering - END */
 
 		$query = $db->query("SELECT DISTINCT(u.uid), u.*, aff.*, reportsTo AS supervisor, CONCAT(firstName, ' ', lastName) AS name, aff.name AS mainaffiliate, aff.affid
 							FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) JOIN ".Tprefix."affiliates aff ON (aff.affid=ae.affid)
 							WHERE gid!='7' AND isMain='1'
 							{$filter_where}
-							{$filter_having}
 							ORDER BY {$sort_query} 
 							LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
-		$filters_required = array('affid', 'reportsTo');
 		$filters_cache = array();
 		if($db->num_rows($query) > 0) {
 			while($user = $db->fetch_assoc($query)) {
@@ -696,31 +688,18 @@ if($core->input['action']) {
 					}
 					$break = '<br />';
 				}
+
 				if($positions_counter > 2) {
 					$userpositions = $userpositions.", <a href='#' id='showmore_positions_{$user[uid]}'>...</a> <span style='display:none;' id='positions_{$user[uid]}'>{$hidden_positions}</span>";
 				}
-				//CONCAT(firstName, \' \', lastName)
+
 				list($user['reportsToName']) = get_specificdata('users', array('CONCAT(firstName, \' \', lastName) as reportsToName'), '0', 'reportsToName', '', 0, "uid='{$user[reportsTo]}'");
 
 				$skypelink = '';
 				if(isset($user['skype']) && !empty($user['skype'])) {
 					$skypelink = "<a href='skype:{$user[skype]}'><img src='./images/icons/skype.gif' alt='{$lang->skype}' border='0' /></a>";
 				}
-
-				foreach($filters_required as $key) {
-					if(!is_array($filters_cache[$key])) {
-						$filters_cache[$key] = array();
-					}
-
-					if(!in_array($user[$key], $filters_cache[$key])) {
-						$filters[$key][$user[$key]] = '<a href="users.php?action=userslist&filterby='.$key.'&filtervalue='.$user[$key].'"><img src="./images/icons/search.gif" border="0" alt="'.$lang->filterby.'"/></a>';
-						$filters_cache[$key][] = $user[$key];
-					}
-					else {
-						$filters[$key][$user[$key]] = '';
-					}
-				}
-
+				//$tooltip = $lang->extension.':'.$user['extension'].'<br />'.$lang->mobile.':'.$user['mobile'];
 				eval("\$usersrows .= \"".$template->get('userslist_row')."\";");
 			}
 
@@ -738,6 +717,12 @@ if($core->input['action']) {
 		echo $loginbox;
 	}
 	else {
+		$session->name_phpsession(COOKIE_PREFIX.'login');
+		$session->start_phpsession();
+		$session->regenerate_id_phpsession(true);
+		$token = $session->generate_token();
+		$session->set_phpsession(array('token' => $token));
+
 		if(isset($core->input['referer']) && !empty($core->input['referer'])) {
 			$lastpage = base64_decode($db->escape_string($core->input['referer']));
 		}
