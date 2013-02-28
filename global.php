@@ -9,7 +9,6 @@
  * Last Update: @zaher.reda 	August 1, 2012 | 03:17 PM
  */
 
-
 $dir = dirname(__FILE__);
 if(!$dir) {
 	$dir = '.';
@@ -80,7 +79,7 @@ if($session->uid > 0) {
 }
 else
 { 
-	if(strpos(strtolower($_SERVER['PHP_SELF']), "users.php") === false) {
+	if(strpos(strtolower($_SERVER['PHP_SELF']), 'users.php') === false) {
 		redirect(DOMAIN."/users.php?action=login&amp;referer=".base64_encode($_SERVER['REQUEST_URI'])."");
 	}
 }

@@ -33,7 +33,7 @@
     </fieldset>
     </p>
     <p><hr /></p>
-    <input type="submit" value="{$lang->send}" id="sendbymail_Button" class="button"/>
+    <input type="submit" value="{$lang->send}" id="sendbymail" class="button"/>
     </form>
     </td>
 </tr>

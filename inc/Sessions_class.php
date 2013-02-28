@@ -12,7 +12,7 @@ class Sessions {
 	public $sid, $uid, $ipaddress;
 
 	public function __construct() {
-		global $db, $core, $lang;
+		global $db, $core;
 		$this->cleanup();
 
 		if(!isset($core->cookies['sid'])) {
