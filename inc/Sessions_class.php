@@ -28,11 +28,6 @@ class Sessions {
 				$core->user = $db->fetch_assoc($query);
 				unset($core->user['password'], $core->user['salt']);
 
-				if((TIME_NOW - $core->user['lastPasswordChange']) / 24 / 60 / 60 > $core->settings['passwordExpiresAfter']) {
-					if($core->input['action'] != 'profile') {
-						redirect(DOMAIN.'/users.php?action=profile&do=edit&messagecode=1');
-					}
-				}
 				$query2 = $db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid='".$core->user['gid']."'");
 				$core->usergroup = $db->fetch_assoc($query2);
 

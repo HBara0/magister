@@ -16,7 +16,6 @@ if(!$dir) {
 }
 
 require $dir.'/inc/init.php';
-
 set_headers();
 
 if(strpos(strtolower($_SERVER['PHP_SELF']), ADMIN_DIR) !== false) {
@@ -27,6 +26,13 @@ if(strpos(strtolower($_SERVER['PHP_SELF']), ADMIN_DIR) !== false) {
 else
 {
 	define('IN_AREA', 'user');
+	
+	/* Check if passwors has expired */
+	if(((TIME_NOW - $core->user['lastPasswordChange']) / 24 / 60 / 60) > $core->settings['passwordExpiresAfter']) {
+		if(!defined('PASSEXPIRE_EXCLUDE') || PASSEXPIRE_EXCLUDE == 0) {
+			redirect(DOMAIN.'/users.php?action=profile&amp;do=edit&amp;messagecode=1');
+		}
+	}
 }
 
 $lang = new Language($core->user['language'], IN_AREA);
