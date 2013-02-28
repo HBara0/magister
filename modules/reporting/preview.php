@@ -149,8 +149,6 @@ if(!$core->input['action']) {
 			$reports_meta_data['affid'][] = $report['affid'];
 			list($report['isApproved'], $report['isSent']) = $db->fetch_array($db->query("SELECT isApproved, isSent FROM ".Tprefix."reports WHERE rid='{$report[rid]}'"), MYSQL_NUM); //get_specificdata('reports', array('isApproved'), '0', 'isApproved', '', 0, "rid='{$report[rid]}'");
 
-			$reports_id = base64_encode(serialize($reports_meta_data['rid']));
-
 			if($report['isSent'] == 0) {
 				$no_send_icon = false;
 			}
@@ -762,7 +760,7 @@ if(!$core->input['action']) {
 
 		eval("\$reports .= \"".$template->get('reporting_report')."\";");
 	}
-
+		
 	/*
 	 * End of generating reports
 	 * Start gathering them up
@@ -1028,7 +1026,6 @@ if(!$core->input['action']) {
 		}
 	}
 
-
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'direct') {
 		/* Output contrinutors table - START */
 		if(is_array($contributors_overview)) {
@@ -1059,17 +1056,16 @@ if(!$core->input['action']) {
 		}
 
 		/* Output contrinutors table - END */
-
+		
 		/* Output summary table - START */
-		if(is_array($report_summary)) {
-			if($core->usergroup['canViewAllSupp'] == 1) {
-			$report_summary = $db->fetch_assoc($db->query("SELECT rs.summary FROM ".Tprefix."reports r JOIN ".Tprefix."reporting_summary rs ON(r.summary=rs.rpsid) WHERE r.rid=".$report['rid'].""));
+		if(!empty($reports_meta_data['rid'])) {
+			$report_summary = $db->fetch_assoc($db->query("SELECT rs.summary FROM ".Tprefix."reports r JOIN ".Tprefix."reporting_report_summary rs ON(r.summary=rs.rpsid) WHERE rs.summary!= '' AND r.rid IN (".implode(', ', $reports_meta_data['rid']).") LIMIT 0, 1"));
+			if(!empty($report_summary)) {
 				eval("\$summarypage = \"".$template->get('reporting_report_summary')."\";");
 			}
 		}
-
 		/* Output summary table  - END */
-
+	
 		/* Output currencies FX table - Start */
 		if(is_array($currencies) && !empty($currencies)) {
 			$currency = new Currencies('USD'); //$reports_meta_data['baseCurrency']);
@@ -1095,9 +1091,6 @@ if(!$core->input['action']) {
 			}
 		}
 		/* Output currencies FX table - END */
-		if($core->usergroup['canViewAllSupp'] == 1) {
-			eval("\$reportingeditsummary = \"".$template->get('reporting_report_editsummary')."\";");
-		}
 	}
 
 
@@ -1142,6 +1135,7 @@ if(!$core->input['action']) {
 					if(count(array_unique($reports_meta_data['spid'])) == 1 || $core->usergroup['canViewAllSupp'] == 1) {
 						if(in_array($reports_meta_data['spid'][0], $core->user['auditfor']) || $core->usergroup['canViewAllSupp'] == 1) {
 							$tools_send = "<a href='index.php?module=reporting/preview&amp;action=saveandsend&amp;identifier={$session_identifier}'><img src='images/icons/send.gif' border='0' alt='{$lang->sendbyemail}' /></a> ";
+							eval("\$reportingeditsummary = \"".$template->get('reporting_report_editsummary')."\";");
 						}
 					}
 				}
@@ -1181,14 +1175,11 @@ if(!$core->input['action']) {
 	output_page($reportspage);
 }
 else {
+	if($core->input['action'] == 'do_savesummary') {
+		$reportsids = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']))['rid'];
 
-
-	if($core->input['action'] == "do_savesummary") {
-		//$decoded_reportid = base64_decode($core->input['reportids']);
-		$reportid = unserialize(base64_decode($core->input['reportids'])); 
-	
 		if(empty($core->input['summary'])) {
-			output_xml("<status>false</status><message>{$lang->fillrequiredfield}</message>");
+			output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
 			return false;
 		}
 //		elseif(value_exists('reporting_summary', 'summary', $core->input['summary'])) {
@@ -1202,11 +1193,10 @@ else {
 					'summary' => $summary
 			);
 
-			$query = $db->insert_query("reporting_summary", $summary_report);
+			$query = $db->insert_query('reporting_report_summary', $summary_report);
 			if($query) {
-				$summary_id = $db->last_id();
-				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
-				$db->update_query("reports", array('summary' => $summary_id), 'rid in('.implode(',',$reportid).')');
+				$db->update_query('reports', array('summary' => $db->last_id()), 'rid IN ('.$db->escape_string(implode(',', $reportsids)).')');
+				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");	
 			}
 		}
 	}
