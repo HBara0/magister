@@ -57,14 +57,21 @@ class Accounts {
 		return $output;
 	}
 
-	protected function validate_password_complexity($data ) {
-		$password_pattern = "/(?=^[\W+a-z A-Z0-9\/\\.'])(?=^.{6,}$)((?=.*\d)|(?=.*\W+))(?![.\n]).*/";
+	protected static function validate_password_complexity($data) {
+		$password_pattern = "/(?=^.{8,}$)(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/";
 		if(preg_match($password_pattern, $data)) {
 			return true;
 		}
 		else {
 			return false;
 		}
+	}
+	
+	protected static function in_passwordarhive($password, $uid) {
+		if(value_exists('users_passwordarchive', 'password', md5($password), 'uid='.intval($uid))) {
+			return true;
+		}
+		return false;
 	}
 
 }
