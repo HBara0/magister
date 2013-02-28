@@ -5,7 +5,6 @@ class ValidateAccount extends Accounts {
 	protected $user_details;
 	protected $error_message = '';
 
-
 	public function __construct(array $data = array()) {
 		if(!empty($data)) {
 			if(parent::username_exists($data['username'])) {
@@ -100,7 +99,6 @@ class ValidateAccount extends Accounts {
 		}
 		return false;
 	}
-
 
 }
 ?>

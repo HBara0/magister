@@ -17,12 +17,23 @@ class ModifyAccount extends Accounts {
 	} 
 	
 	public function archive_password($password, $uid = '') {
-		global $db;
+		global $core, $db;
 		
 		if(empty($uid)) {
 			$uid = $this->data['uid']; /* to be implemented */
 		}
 		$db->insert_query('users_passwordarchive', array('uid' => $uid, 'password' =>  md5($password), 'archiveTime' => TIME_NOW));
+	
+		/* Maintain last X passwords - START */
+		$query = $db->query('SELECT upaid FROM '.Tprefix.'users_passwordarchive WHERE uid='.intval($uid).' ORDER BY archiveTime DESC LIMIT '.$core->settings['passwordArchiveRetention'].', '.($core->settings['passwordArchiveRetention']+1));
+		if($db->num_rows($query) > 0) {
+			while($archived_password = $db->fetch_assoc($query)) {
+				$existing_passwords[] = $archived_password['upaid'];
+			}
+
+			$db->delete_query('users_passwordarchive', 'upaid IN ('.implode(', ', $existing_passwords).')');
+		}
+		/* Maintain last X passwords - END */
 	}
 	
 	private function perform_modify(array $data) {

@@ -20,8 +20,22 @@ if($core->usergroup['hr_canManageHolidays'] == 0 ) {
 if(!$core->input['action']) {
 	$year_disabled = ' disabled="disabled"';
 	
+	$affid = $core->user['mainaffiliate'];
+	if($core->usergroup['hr_canHrAllAffiliates'] == 0) {
+		if(is_array($core->user['hraffids']) && !empty($core->user['hraffids'])) {
+			if(!in_array($core->user['mainaffiliate'], $core->user['hraffids'])) {
+				$affid = $core->user['hraffids'][current($core->user['hraffids'])];
+			}
+		}
+		else
+		{
+			error($lang->sectionnopermission);
+			exit;	
+		}
+	}
+	
 	for($i=1;$i<=12;$i++) {
-		$months[$i] = $lang->{strtolower(date("F", mktime(0,0,0, $i, 1, 0)))};
+		$months[$i] = $lang->{strtolower(date('F', mktime(0,0,0, $i, 1, 0)))};
 	}
 	
 	for($i=1;$i<=31;$i++) {
@@ -40,7 +54,8 @@ if(!$core->input['action']) {
 		if($db->num_rows($query) > 0) {		
 			$holiday = $db->fetch_assoc($query);
 			if($core->usergroup['hr_canHrAllAffiliates'] == 0) {
-				if($holiday['affid'] != $core->user['mainaffiliate']) {
+				//if($holiday['affid'] != $core->user['mainaffiliate']) {
+				if(!in_array($holiday['affid'], $core->user['hraffids'])) {
 					redirect('index.php?module=hr/holidayslist');
 				}
 			}
@@ -82,11 +97,18 @@ if(!$core->input['action']) {
 		$action = 'do_add';
 		if($core->usergroup['hr_canHrAllAffiliates'] == 1) {
 			$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'));
-			$list_affiliates = parse_selectlist('affid', 1, $affiliates, $core->user['mainaffiliate'], 0);
+			$affid_field = $lang->affiliate.': '.parse_selectlist('affid', 1, $affiliates, $affid, 0);
 		}
 		else
 		{
-			$affid_field = '<input type="hidden" id="affid" name="affid" value="'.$core->user['mainaffiliate'].'" />';
+			if(is_array($core->user['hraffids']) && !empty($core->user['hraffids']) && count($core->user['hraffids']) > 1) {
+				$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0, 'affid IN ('.implode(',', $core->user['hraffids']).')');
+				$affid_field = $lang->affiliate.': '.parse_selectlist('affid', 1, $affiliates, $affid, 0);
+			}
+			else
+			{
+				$affid_field = '<input type="hidden" id="affid" name="affid" value="'.$core->user['mainaffiliate'].'" />';
+			}
 		}
 
 		$pagetitle = $lang->addholiday;
@@ -96,13 +118,28 @@ if(!$core->input['action']) {
 		$exceptionsemployees_list = parse_selectlist('uid[]', 1, $employees, 0, 1);
 	}
 
-	eval("\$managepage = \"".$template->get("hr_manageholidays")."\";");
+	eval("\$managepage = \"".$template->get('hr_manageholidays')."\";");
 	output_page($managepage);
 }
 else
 {
 	if($core->input['action'] == 'do_add' || $core->input['action'] == 'do_edit') {
 		$action = $core->input['action'];
+		
+		if($core->usergroup['hr_canHrAllAffiliates'] == 0) {
+			if(is_array($core->user['hraffids']) && !empty($core->user['hraffids'])) {
+				if(!in_array($core->input['affid'], $core->user['hraffids'])) {
+					output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+					exit;
+				}
+			}
+			else
+			{
+				output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+				exit;
+			}
+		}
+		
 		if(is_empty($core->input['title'], $core->input['numDays'])) {
 			output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 			exit;
@@ -140,12 +177,10 @@ else
 
 		if($action == 'do_edit') {
 			$query = $db->update_query('holidays', $core->input, "hid='".$db->escape_string($core->input['hid'])."'");
-			$log->record($core->input['affid']);
 		}
 		else
 		{
 			$query = $db->insert_query('holidays', $core->input);
-			$log->record($core->input['affid']);
 		}
 		
 		if($query) {
@@ -162,6 +197,7 @@ else
 					$db->insert_query('holidaysexceptions', array('hid' => $hid,'uid' => $uid)); 
 				}
 			}
+			$log->record($hid);
 			output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
 		}
 		else
