@@ -666,7 +666,7 @@ class Surveys {
 					$invitations_email['message'] = str_replace('{link}', $surveylink, $invitations_email['message']);
 				}
 				else {
-					$invitations_email['message'] .= '<br />'.$surveylink;
+					$invitations_email['message'] .= '<br />'. $lang->sprint($lang->accesssurveylink, $surveylink);
 				}
 			}
 			else {
