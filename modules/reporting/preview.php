@@ -1193,10 +1193,10 @@ else {
 					'summary' => $summary
 			);
 
-			$query = $db->insert_query('reporting_report_summary', $summary_report);
+			$query = $db->insert_query('reporting_report_summary', $summary_report); 
 			if($query) {
 				$db->update_query('reports', array('summary' => $db->last_id()), 'rid IN ('.$db->escape_string(implode(',', $reportsids)).')');
-				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");	
+				redirect($_SERVER['HTTP_REFERER']);
 			}
 		}
 	}
