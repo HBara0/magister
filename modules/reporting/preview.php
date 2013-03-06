@@ -1059,7 +1059,7 @@ if(!$core->input['action']) {
 		
 		/* Output summary table - START */
 		if(!empty($reports_meta_data['rid'])) {
-			$report_summary = $db->fetch_assoc($db->query("SELECT rs.summary FROM ".Tprefix."reports r JOIN ".Tprefix."reporting_report_summary rs ON(r.summary=rs.rpsid) WHERE rs.summary!= '' AND r.rid IN (".implode(', ', $reports_meta_data['rid']).") LIMIT 0, 1"));
+			$report_summary = $db->fetch_assoc($db->query("SELECT rs.rpsid, rs.summary FROM ".Tprefix."reports r JOIN ".Tprefix."reporting_report_summary rs ON(r.summary=rs.rpsid) WHERE rs.summary!= '' AND r.rid IN (".implode(', ', $reports_meta_data['rid']).") LIMIT 0, 1"));
 			if(!empty($report_summary)) {
 				eval("\$summarypage = \"".$template->get('reporting_report_summary')."\";");
 			}
@@ -1179,25 +1179,25 @@ else {
 		$reportsids = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']))['rid'];
 
 		if(empty($core->input['summary'])) {
-			output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
-			return false;
+			error($lang->fillrequiredfields);
 		}
-//		elseif(value_exists('reporting_summary', 'summary', $core->input['summary'])) {
-//			output_xml("<status>false</status><message>{$lang->entryexists}</message>");
-//			return false;
-//		}
 		else {
-			$summary = $core->sanitize_inputs($core->input['summary'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
 			$summary_report = array(
 					'uid' => $core->user['uid'],
-					'summary' => $summary
+					'summary' => $core->sanitize_inputs($core->input['summary'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true))
+		
 			);
-
-			$query = $db->insert_query('reporting_report_summary', $summary_report); 
-			if($query) {
-				$db->update_query('reports', array('summary' => $db->last_id()), 'rid IN ('.$db->escape_string(implode(',', $reportsids)).')');
-				redirect($_SERVER['HTTP_REFERER']);
+			
+			if(!empty($core->input['rpsid'])) {
+				$query = $db->update_query('reporting_report_summary', $summary_report, 'rpsid='.intval($core->input['rpsid'])); 
 			}
+			else {
+				$query = $db->insert_query('reporting_report_summary', $summary_report); 
+				if($query) {
+					$db->update_query('reports', array('summary' => $db->last_id()), 'rid IN ('.$db->escape_string(implode(',', $reportsids)).')');
+				}
+			}
+			redirect($_SERVER['HTTP_REFERER']);
 		}
 	}
 	if($core->input['action'] == 'exportpdf' || $core->input['action'] == 'print' || $core->input['action'] == 'saveandsend' || $core->input['action'] == 'approve') {

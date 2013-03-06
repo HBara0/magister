@@ -119,7 +119,7 @@ You were invited to complete the following survey:<br />
 Subject: {2}<br />
 Description: {3}<br />
 <br />
-To start filling, please click <a href=\'http://127.0.0.1/web/ocos/index.php?module=surveys/fill&identifier={4}\'>here</a>.<br />
+To start filling, please click <a href=\'{4}\'>here</a>.<br />
 <br />
 Thank  you';
 $lang['surveys_invitation_subject'] = 'New Survey: {1}';

@@ -91,11 +91,12 @@ class Surveys {
 			$this->status = 0;
 			$this->survey['sid'] = $db->last_id();
 
-			if((isset($this->survey['invitations']) && !empty($this->survey['invitations'])) || (isset($this->survey['externalinvitations']) && !empty($this->survey['externalinvitations']))) {
-				$this->set_invitations();
-				$this->send_invitations();
+			if($this->survey['isPublicFill'] == 0) {
+				if((isset($this->survey['invitations']) && !empty($this->survey['invitations'])) || (isset($this->survey['externalinvitations']) && !empty($this->survey['externalinvitations']))) {
+					$this->set_invitations();
+					$this->send_invitations();
+				}
 			}
-
 			$this->set_associations();
 			$log->record($this->survey['sid']);
 			return true;
@@ -650,28 +651,29 @@ class Surveys {
 				$invitations_email['subject'] = $lang->sprint($lang->surveys_invitation_subject, $this->survey['subject']);
 			}
 
+			$surveylink = DOMAIN.'/index.php?module=surveys/fill&amp;identifier='.$this->survey['identifier'];
+			if($this->survey['isExternal'] == 1) {
+				$surveylink = 'http://www.orkila.com/surveys/'.$this->survey['identifier'].'/'.$invitee['identifier'];
+			}
+
 			if(isset($this->survey['customInvitationBody']) && !empty($this->survey['customInvitationBody'])) {
 				fix_newline($this->survey['customInvitationBody']);
 				$this->survey['customInvitationBody'] = $this->survey['customInvitationBody'];
 
 				$invitations_email['message'] = $this->survey['customInvitationBody'];
 
-				if($this->survey['isExternal'] == 1) {
-					$invitations_email['message'] = str_replace('{link}', 'http://www.orkila.com/surveys/'.$this->survey['identifier'].'/'.$invitee['identifier'], $invitations_email['message']);
+				if(strstr($invitations_email['message'], '{link}')) {
+					$invitations_email['message'] = str_replace('{link}', $surveylink, $invitations_email['message']);
 				}
 				else {
-					$invitations_email['message'] = str_replace('{link}', DOMAIN.'/index.php?module=surveys/fill&amp;identifier='.$this->survey['identifier'].'"', $invitations_email['message']);
+					$invitations_email['message'] .= '<br />'. $lang->sprint($lang->accesssurveylink, $surveylink);
 				}
 			}
 			else {
 				fix_newline($this->survey['description']);
-
-				$surveylink = DOMAIN.'/index.php?module=surveys/fill&amp;identifier='.$this->survey['identifier'];
 				if($this->survey['isExternal'] == 1) {
-					$surveylink = 'http://www.orkila.com/surveys/'.$this->survey['identifier'].'/'.$invitee['identifier'];
 					$invitee['displayName'] = '';
 				}
-
 				$invitations_email['message'] = $lang->sprint($lang->surveys_invitation_message, $invitee['displayName'], $this->survey['subject'], $this->survey['description'], $surveylink);
 			}
 
