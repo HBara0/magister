@@ -24,7 +24,7 @@ class Entities {
 			}
 		}
 		else {
-			$this->data = $this->get_entity($data);
+			$this->data = $this->read($data);
 		}
 	}
 
@@ -534,7 +534,7 @@ class Entities {
 		return $this->data;
 	}
 
-	public function get_entity($id) {
+	public function read($id) {
 		global $db;
 		if(isset($id)&& !empty($id)){
 			return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid='".$db->escape_string($id)."'"));
