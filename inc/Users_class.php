@@ -20,9 +20,25 @@ class Users {
 			$this->user['uid'] = $db->escape_string($this->user['uid']);
 			$this->user['legalAffid'] = $db->fetch_field($db->query('SELECT legalAffid FROM '.Tprefix.'userhrinformation WHERE uid='.$this->user['uid']), 'legalAffid');
 		}
-		//$this->read_user($uid, $simple);
+	
+		$this->read_user($uid, $simple);
+		
 	}
 	
+	
+	private function read_user($uid) {
+		global $db;
+		if(isset($uid) && !empty($uid)) {
+			$this->user = $db->fetch_assoc($db->query("SELECT u.uid,u.username,u.firstName,u.middleName,u.lastName,u.displayName FROM ".Tprefix."users u
+																	WHERE  u.uid='".$uid."'"));
+
+		}
+		return false;
+	}
+	
+	public function get() {	
+		return $this->user;
+	}
 	public function get_positions() {
 		global $db,$lang;
 		

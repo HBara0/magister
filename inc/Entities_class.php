@@ -534,7 +534,7 @@ class Entities {
 		return $this->data;
 	}
 
-	private function get_entity($id) {
+	public function get_entity($id) {
 		global $db;
 		if(isset($id)&& !empty($id)){
 			return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid='".$db->escape_string($id)."'"));
