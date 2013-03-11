@@ -113,7 +113,7 @@ if(!$core->input['action']) {
 				eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
 			}
 		}
-	}
+	} 
 
 	if(is_array($report['contributors'])) {
 		$contributors_overview_entries = '';
@@ -225,10 +225,7 @@ else {
 			redirect('index.php?module=reporting/sendbymail&amp;identifier='.$core->input['identifier']);
 		}
 		
-		
-		
-		
-		
+	
 		
 		
 		/*pdf  Printing ----END*/
