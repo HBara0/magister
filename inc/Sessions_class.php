@@ -23,11 +23,11 @@ class Sessions {
 		}
 
 		if($this->uid != 0) {
-			$query = $db->query("SELECT * FROM ".Tprefix."users WHERE uid='".$this->uid."'");
-			if($db->num_rows($query) > 0) {
-				$core->user = $db->fetch_assoc($query);
+			$user = new Users($this->uid, FALSE);
+			if($user) {
+				$core->user = $user->get();
 				unset($core->user['password'], $core->user['salt']);
-
+				
 				$query2 = $db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid='".$core->user['gid']."'");
 				$core->usergroup = $db->fetch_assoc($query2);
 
@@ -81,9 +81,8 @@ class Sessions {
 				$core->user += get_user_business_assignments($this->uid); //parse_userentities_data($this->uid);
 
 				if(!isset($core->user['mainaffiliate'])) {
-					$core->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->uid}'"), 'affid');
+					$core->user['mainaffiliate'] = $user->get_mainaffiliate()->get()['affid'];
 				}
-				//print_r($core->user);
 			}
 		}
 	}
