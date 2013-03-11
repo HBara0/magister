@@ -29,6 +29,7 @@ class reportingQr Extends reporting {
 				$this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['salesForecast'];
 				$this->report['classifiedpactivity']['quantity']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['quantityForecast'];
 				$this->report['classifiedpactivity']['quantity']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['quantity'];
+				$this->report['classifiedpactivity']['amount']['percentage'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] = round($this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']]/	$this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']]*100);
 				$this->report['productsactivity'][$products_activityrow['paid']] = $products_activityrow;
 			}
 			if($get_prevyear == true) {
@@ -74,28 +75,7 @@ class reportingQr Extends reporting {
 				}
 			}
 		}
-//		for($i = 1; $i <= 2; $i++) {
-//			$previous_year = $this->report['year'] - $i;
-//			for($quarter = 1; $quarter <= 4; $quarter++) {
-//				$newreport = new reportingQr(array('year' => $previous_year, 'affid' => $this->report['affid'], 'spid' => $this->report['spid'], 'quarter' => $quarter));
-//				$reportdetails = $newreport->read_products_activity(false);
-//
-//				if(is_array($reportdetails)) {
-//					foreach($reportdetails as $category => $catitem) { /* amount or  quantity */
-//						if(is_array($catitem)) {
-//							foreach($catitem as $type => $typeitem) {
-//								if(isset($this->report['classifiedpactivity'][$category][$type][$previous_year])) {
-//									$this->report['classifiedpactivity'][$category][$type][$previous_year] +=$typeitem[$previous_year];
-//								}
-//								else {
-//									$this->report['classifiedpactivity'][$category][$type][$previous_year] = $typeitem[$previous_year];
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
+
 	}
 
 	public function get_product_name() {
