@@ -8,10 +8,11 @@
                 <table class="reportbox" style="width: 100%;">
                     <tr><td class="cathead">{$lang->reportsummary}</td></tr>
                     <tr><td>
-                            {$report_summary[summary]}</td>
+                            {$report[summary][summary]}</td>
                     </tr>
                 </table>
             </td>
         </tr>
     </table>
+    <br />
 </page>
