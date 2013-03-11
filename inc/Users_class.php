@@ -20,8 +20,9 @@ class Users {
 			$this->user['uid'] = $db->escape_string($this->user['uid']);
 			$this->user['legalAffid'] = $db->fetch_field($db->query('SELECT legalAffid FROM '.Tprefix.'userhrinformation WHERE uid='.$this->user['uid']), 'legalAffid');
 		}
-
-		$this->read_user($uid, $simple);
+		else {
+			$this->read_user($uid, $simple);
+		}
 	}
 
 	private function read_user($uid ='', $simple=true) {
@@ -38,14 +39,29 @@ class Users {
 		
 		$this->user = $db->fetch_assoc($db->query("SELECT ".$query_select."
 												FROM ".Tprefix."users
-												WHERE u.uid='".intval($uid)."'"));
-		return true;
+												WHERE uid='".intval($uid)."'"));
+		if(is_array($this->user) && !empty($this->user)) {
+			return true;
+		}
+		return false;
 	}
 
+	private function read_mainaffiliate() {
+		$this->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->uid}' AND isMain=1"), 'affid');
+	}
+	
 	public function get() {
 		return $this->user;
 	}
 
+	public function get_reportsto() {
+		return new Users($this->user['reportsTo']);
+	}
+	
+	public function get_assistant() {
+		return new Users($this->user['assistant']);
+	}
+	
 	public function get_positions() {
 		global $db, $lang;
 
@@ -57,17 +73,21 @@ class Users {
 			$this->user['positions'][] = $lang->{$position['name']};
 		}
 	}
-
-	public function get_mainaffiliate_details() {
-		global $db;
-		$this->user['mainaffiliate_details'] = $db->fetch_assoc($db->query("SELECT a.*, c.name AS countryname FROM ".Tprefix."affiliates a JOIN ".Tprefix."countries c ON (c.coid=a.country) WHERE a.affid='{$this->user[mainaffiliate]}'"));
+	
+	public function get_mainaffiliate() {
+		if(!isset($this->user['mainaffiliate']) || empty($this->user['mainaffiliate'])) {
+			$this->read_mainaffiliate();
+		} 
+		return new Affiliates($this->user['mainaffiliate'], FALSE);
 	}
-
+	
 	private function prepare_sign_info($seperate_lengend = false) {
 		global $lang;
 		$lang->load('profile');
 
-		$this->get_mainaffiliate_details();
+		$mainaffiliate = $this->get_mainaffiliate();
+		$this->user['mainaffiliate_details'] = $mainaffiliate->get();
+		$this->user['mainaffiliate_details']['countryname'] = $mainaffiliate->get_country()->get()['name'];
 
 		if(!empty($this->user['mainaffiliate_details']['addressLine1'])) {
 			$info['address'] .= $this->user['mainaffiliate_details']['addressLine1'].', ';
@@ -164,7 +184,8 @@ class Users {
 			if(($details['values_bbox'][4] + 65) > $width) {
 				$width = $details['values_bbox'][4] + 65;
 			}
-			$this->get_mainaffiliate_details();
+
+			$this->user['mainaffiliate_details'] = $this->get_mainaffiliate()->get();
 		}
 
 		$im = imagecreatetruecolor($width, $height);
@@ -253,7 +274,9 @@ class Users {
 			$signature .= preg_replace("/\n/i", '<br />', $details['values']);
 		}
 		else {
-			$this->get_mainaffiliate_details();
+			if(!isset($this->user['mainaffiliate_details'])) {
+				$this->user['mainaffiliate_details'] = $this->get_mainaffiliate()->get();
+			}
 			$signature .= '+'.$this->user['mainaffiliate_details']['phone1'].$this->user['internalExtension'];
 		}
 		return $signature;
