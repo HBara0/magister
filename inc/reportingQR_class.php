@@ -178,7 +178,7 @@ class reportingQr Extends reporting {
 		}
 	}
 
-	public function get_supplier_representatives() {
+	public function get_supplier_representatives() { 
 		global $db;
 		$repquery = $db->query("SELECT er.*, r.* FROM ".Tprefix."entitiesrepresentatives er LEFT JOIN ".Tprefix."representatives r ON (r.rpid=er.rpid)
 								WHERE er.eid='{$this->report['spid']}' ORDER BY name ASC");
@@ -214,7 +214,7 @@ class reportingQr Extends reporting {
 	public function get_report_supplier() {
 		global $db;
 		$report_supplier = new Entities($this->report['spid']);
-		return $this->reportdetails['supplier'] = $report_supplier->get_entity($this->report['spid']);
+		return $this->reportdetails['supplier'] = $report_supplier->get($this->report['spid']);
 	}
 
 	public function get_products_activity() { /* to check if isset then  read product  */

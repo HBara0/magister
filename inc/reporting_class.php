@@ -22,7 +22,7 @@ class reporting {
 				return false;
 			}
 		}
-	}
+	} 
 
 	protected function get_report($reportdata = array()) {
 		global $db;

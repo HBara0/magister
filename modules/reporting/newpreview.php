@@ -231,10 +231,6 @@ else {
 		
 		
 		
-		
-		
-		
-		
 		/*pdf  Printing ----END*/
 		
 	}
