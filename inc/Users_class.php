@@ -38,7 +38,7 @@ class Users {
 
 		$this->user = $db->fetch_assoc($db->query("SELECT ".$query_select."
 												FROM ".Tprefix."users
-												WHERE u.uid='".intval($uid)."'"));
+												WHERE uid='".intval($uid)."'"));
 		return true;
 	}
 
