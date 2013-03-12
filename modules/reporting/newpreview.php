@@ -185,7 +185,7 @@ if(!$core->input['action']) {
 			//if(count(array_unique($report['spid'])) == 1 || $core->usergroup['canViewAllSupp'] == 1) {
 			if(in_array($report['spid'], $core->user['auditfor']) || $core->usergroup['canViewAllSupp'] == 1) {
 				$tools_send = "<a href='index.php?module=reporting/preview&amp;action=saveandsend&amp;identifier={$session_identifier}'><img src='images/icons/send.gif' border='0' alt='{$lang->sendbyemail}' /></a> ";
-				eval("\$reportingeditsummary = \"".$template->get('reporting_report_editsummary')."\";");
+				eval("\$reportingeditsummary = \"".$template->get('new_reporting_report_editsummary')."\";");
 			}
 		}
 	}
@@ -219,14 +219,12 @@ else {
 		
 		if($core->input['action'] == 'saveandsend') {
 			set_time_limit(0);
-
 			$html2pdf->WriteHTML($content, $show_html);
 			$html2pdf->Output($core->settings['exportdirectory'].'quarterlyreports_'.$core->input['identifier'].'.pdf', 'F');
 			redirect('index.php?module=reporting/sendbymail&amp;identifier='.$core->input['identifier']);
 		}
 		
 	
-		
 		
 		/*pdf  Printing ----END*/
 		
