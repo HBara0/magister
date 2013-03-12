@@ -17,15 +17,17 @@ if(!defined('DIRECT_ACCESS')) {
 
 if(!$core->input['action']) {
 
-	$newreport = new reportingQr(array('year' => 2013, 'spid' => 12, 'affid' => 15, 'quarter' => 4));
+	$newreport = new ReportingQr(array('year' => 2015, 'spid' => 1, 'affid' => 1, 'quarter' => 2));
 	$report = $newreport->get();
-	$report['items'] = $newreport->read_products_activity(true);
+	
+	$newreport->read_products_activity(true);
+	$report['items'] = $newreport->get_classified_productsactivity();
 	$report['productsactivity'] = $newreport->get_products_activity();
 	$report['keycustomers'] = $newreport->get_key_customers();
 	$report['contributors'] = $newreport->get_report_contributors();
 	$report['marketreports'] = $newreport->get_market_reports();
 	$report['auditors'] = $newreport->get_report_supplier_audits();
-	$report['reportstats'] = $newreport->get_report_stats();
+	$report['reportstats'] = $newreport->get_report_status();
 	$report['finializer'] = $newreport->get_report_finalizer();
 	$report['affiliates'] = $newreport->get_report_affiliate();
 	$report['supplier'] = $newreport->get_report_supplier();
@@ -46,53 +48,60 @@ if(!$core->input['action']) {
 					foreach($report_years as $yearef => $year) {
 						$report['year'] = $report_years[$yearef][$year];
 						for($quarter = 1; $quarter <= 4; $quarter++) {
+							$item[$aggregate_type][$category][$type][$year][$quarter] = 0;
 							switch($aggregate_type) {
 								case 'affiliates':
 									if(is_array($report['items'][$category][$type][$year][$quarter])) {
-										//print_r($report['items'][$category][$type]);
 										foreach($report['items'][$category][$type][$year][$quarter] as $affid => $affiliatedata) {
 											$item['name'] = $newreport->get_report_affiliate($affid)['name'];
-											foreach($affiliatedata as $spid => $segmentdata) {
-												$item[$aggregate_type][$category][$type][$year][$quarter] = array_sum($report['items'][$category][$type][$year][$quarter][$affid][$spid]);
-											}
+												$item[$aggregate_type][$category][$type][$year][$quarter] = array_sum_recursive($report['items'][$category][$type][$year][$quarter][$affid]);											
+											
+												eval("\$reporting_report_newoverviewbox_row[$aggregate_type][$category][$affid] = \"".$template->get('new_reporting_report_overviewbox_row')."\";");
 										}
 									}
 									break;
 								case 'segments':
 									if(is_array($report['items'][$category][$type][$year][$quarter])) {
 										$item['name'] = '';
-										foreach($report['productsactivity'] as $paid => $sid) {
-											$item['name'] .= '<div>'.$sid['segment'].'</div>';
-										}
+		
 										//$item['name'] = $newreport->get_report_productsegment($report['productsactivity'] ['spid'])['segment'];
 										foreach($report['items'][$category][$type][$year][$quarter] as $affid => $affiliatedata) {
 											foreach($affiliatedata as $spid => $segmentdata) {
+												$item['name'] = $newreport->get_productssegments()[$spid];
 												$item[$aggregate_type][$category][$type][$year][$quarter] = array_sum($report['items'][$category][$type][$year][$quarter][$affid][$spid]);
+											
+												eval("\$reporting_report_newoverviewbox_row[$aggregate_type][$category][$spid] = \"".$template->get('new_reporting_report_overviewbox_row')."\";");
+												
 											}
 										}
 									}
+									
 									break;
 								case 'products':
 									if(is_array($report['items'][$category][$type][$year][$quarter])) {
-										$productsitem = $newreport->get_product_name()['productsname'];
-										$item['name'] = '';
-										foreach($productsitem as $product) { /* get the product name */
-											$item['name'] .='<div>'.$product['name'].'</div>';
-										}
 										foreach($report['items'][$category][$type][$year][$quarter] as $affid => $affiliatedata) {
 											foreach($affiliatedata as $spid => $segmentdata) {
-												foreach($segmentdata as $pid => $productdata) {
+												foreach($segmentdata as $pid => $productdata) {										
+													$item['name'] = $newreport->get_products()[$pid];
+
 													$item[$aggregate_type][$category][$type][$year][$quarter] = $report['items'][$category][$type][$year][$quarter][$affid][$spid][$pid];
+													eval("\$reporting_report_newoverviewbox_row[$aggregate_type][$category][$pid] = \"".$template->get('new_reporting_report_overviewbox_row')."\";");
 												}
+												
 											}
 										}
 									}
+
 									break;
-							}
-							eval("\$reporting_report_newoverviewbox_row[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox_row')."\";");
+							}	
 						}
 					}
 				}
+										
+				if(is_array($reporting_report_newoverviewbox_row[$aggregate_type][$category])) {
+					$reporting_report_newoverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newoverviewbox_row[$aggregate_type][$category]);
+				}
+				
 			}
 		}
 	}
@@ -145,19 +154,19 @@ if(!$core->input['action']) {
 
 	if(is_array($report['keycustomers']) && ($report['keyCustAvailable'] == 1)) {
 		foreach($report['keycustomers'] as $keycust => $customer) {
-			eval("\$keycustomers .= \"".$template->get("new_reporting_report_keycustomersbox_customerrow")."\";");
+			eval("\$keycustomers .= \"".$template->get('new_reporting_report_keycustomersbox_customerrow')."\";");
 		}
-		eval("\$keycustomersbox = \"".$template->get("new_reporting_report_keycustomersbox")."\";");
-
-		if(is_array($report['marketreports']['market']) && ($report['mktReportAvailable'] == 1)) {
-			foreach($report['marketreports']['market'] as $marketkey => $marketreport) {
-				$marketreport['authors'] = $report['marketreports']['marketauthors'][$marketkey]['displayName'];
-				eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
-				eval("\$marketauthors .= \"".$template->get('new_reporting_report_marketreporauthorstbox_row')."\";");
-			}
-		}
+		eval("\$keycustomersbox = \"".$template->get('new_reporting_report_keycustomersbox')."\";");
 	}
 
+	if(is_array($report['marketreports']['market']) && ($report['mktReportAvailable'] == 1)) {
+		foreach($report['marketreports']['market'] as $marketkey => $marketreport) {
+			$marketreport['authors'] = $report['marketreports']['marketauthors'][$marketkey]['displayName'];
+			eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
+			eval("\$marketauthors .= \"".$template->get('new_reporting_report_marketreporauthorstbox_row')."\";");
+		}
+	}
+		
 	if($core->usergroup['reporting_canApproveReports'] == 1 || $core->usergroup['canViewAllSupp'] == 1) {
 		$tools_approve = "<script language='javascript' type='text/javascript'>$(function(){ $('#approvereport').click(function() { 
 			sharedFunctions.requestAjax('post', 'index.php?module=reporting/newpreview', 'action=approve&identifier={$session_identifier}', 'approvereport_span', 'approvereport_span');}) });</script>";
@@ -172,8 +181,9 @@ if(!$core->input['action']) {
 
 	eval("\$marketreporauthorstbox = \"".$template->get('new_reporting_report_marketreporauthorstbox')."\";");
 	/* Output summary table - START */
-	if(!empty($report['rid']) && !empty($report['summary'])) {
-		eval("\$summarypage = \"".$template->get('reporting_report_summary')."\";");
+
+	if(!empty($report['summary']['summary'])) {
+		eval("\$summarypage = \"".$template->get('new_reporting_report_summary')."\";");
 	}
 	/* Output summary table  - END */
 
@@ -192,8 +202,13 @@ if(!$core->input['action']) {
 //}
 //}
 
-
-	$reports = $coverpage.$contributorspage.$summarypage.$highlightbox.$reporting_report_newoverviewbox['affiliates']['amount'].$reporting_report_newoverviewbox['segments']['amount'].$reporting_report_newoverviewbox['products']['amount'].$keycustomersbox.$marketreportbox.$marketreporauthorstbox.$reportauthors.$closingpage;
+	eval("\$reports .= \"".$template->get('new_reporting_report')."\";");
+	
+			
+	eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
+	$reports = $coverpage.$contributorspage.$summarypage.$overviewpage.$reports.$closingpage;
+	
+	//$reports = $coverpage.$contributorspage.$summarypage.$reporting_report_newoverviewbox['segments']['amount'].$reporting_report_newoverviewbox['products']['amount'].$keycustomersbox.$marketreportbox.$marketreporauthorstbox.$reportauthors.$closingpage;
 	eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
 	output_page($reportspage);
 }

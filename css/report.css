@@ -4,6 +4,7 @@
 	width: 100%;
 	padding: 0px;
 	border-spacing: 0px;
+        font-size: 10px !important;
 }
 
 .reportbox {
@@ -13,10 +14,23 @@
 	border-top: 1px solid #4F6228;
 }
 
+.border_bottom_thick {
+    border-bottom: 2px solid #D8D8D8 !important;
+}
+
+.mainbox_datacell, .mainbox_typenamecell {
+     border-left: 1px solid #D8D8D8 !important; 
+      border-bottom: 1px dotted #D8D8D8;
+}
+
+.mainbox_itemnamecell {
+       border-left: 0px; 
+}
+
 .thead {
 	background-color:#92D050;
 	font-weight: bold;
-	font-size: 12px;
+	font-size: 11px;
 	border-bottom: dashed 1px #4F6228;
 	text-align: left;
 	width: 100%;
@@ -25,14 +39,14 @@
 .cathead {
 	background-color:#538022;
 	color: #FFFFFF;
-	font-size: 14px !important;
+	font-size: 13px !important;
 	font-weight: bold;
 	text-align:left;
 	width: 100%;
 }
 
 .logo {
-	background: url(./images/Orkila_logo.jpg) center no-repeat;
+	background: url(../images/Orkila_logo.jpg) center no-repeat;
 	height: 100px;
 	width: 200px;
 }
@@ -69,13 +83,14 @@
 	font-weight: bold;
 	border-bottom:1px dashed #BFBFBF;
 	text-align: center;
-	font-size: 12px;
+
 }
 
 .columnsubhead {
-	font-style:italic;
+	font-style: italic;
 	text-align: center;
-	font-size: 10px;
+	font-size: 11px;
+        width: 60px;
 }
 
 .verticalspacer, .horizontalspacer {
