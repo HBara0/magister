@@ -201,7 +201,7 @@ class ErrorHandler {
 	}
 	
 	public function output_errors_inline($message='') {
-		echo get_errors_inline($message);
+		echo $this->get_errors_inline($message);
 	}
 }
 ?>
