@@ -27,6 +27,20 @@
        border-left: 0px; 
 }
 
+.totalsbox_numcell, .totalsbox_perccell {
+    width: 50px;
+    text-align: center;
+}
+
+.totalsbox_perccell {
+    font-style: italic;
+}
+
+.totalsbox_yearsep {
+    width: 10px;
+    text-align: center;
+}
+
 .thead {
 	background-color:#92D050;
 	font-weight: bold;
