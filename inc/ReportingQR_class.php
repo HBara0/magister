@@ -28,9 +28,13 @@ class ReportingQr Extends Reporting {
 		if($db->num_rows($products_activity_query) > 0) {
 			while($products_activityrow = $db->fetch_assoc($products_activity_query)) {
 				$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['turnOver'];
-				/*$this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['salesForecast'];*/
-				/*$this->report['classifiedpactivity']['quantity']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['quantityForecast'];*/
-				$this->report['classifiedpactivity']['quantity']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['quantity'];
+				$this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['salesForecast'];
+				
+				$this->report['classifiedpactivity']['purchasedQty']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['quantityForecast'];
+				$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['quantity'];
+				
+				$this->report['classifiedpactivity']['soldQty']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['soldQty'];
+				
 				$this->report['productsactivity'][$products_activityrow['paid']] = $products_activityrow;
 				
 //				$this->report['classifiedpactivity']['amount']['percentage'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] = round(($this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']]/$this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']])*100);
