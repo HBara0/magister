@@ -61,7 +61,7 @@ if(!$core->input['action']) {
 								default :
 									$divided = 1;
 							}
-							$item[$aggregate_type][$category][$type][$year][$quarter] = ($item[$aggregate_type][$category][$type][$report_years[current_year]][$quarter]) / $divided;
+							$item[$aggregate_type][$category][$type][$year][$quarter] = ($item[$aggregate_type][$category][$type][$report_years[current_year]][$quarter]) / (4-$report['quarter']);
 
 
 							switch($aggregate_type) {
