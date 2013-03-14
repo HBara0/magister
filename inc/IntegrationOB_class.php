@@ -35,6 +35,8 @@ class IntegrationOB extends Integration {
 		$newdata = array();
 		$items_count = 0;
 		while($product = $this->f_db->fetch_assoc($query)) {
+			//print_r($product);
+			//echo '<hr />';
 			$newdata = array(
 					'foreignSystem' => $this->foreign_system,
 					'foreignId' => $product['m_product_id'],
@@ -142,10 +144,10 @@ class IntegrationOB extends Integration {
 			$document_newdata['salesRepLocalId'] = $db->fetch_field($db->query("SELECT uid FROM ".Tprefix."users WHERE username='".$db->escape_string($document['username'])."'"), 'uid');
 
 			if(value_exists('integration_mediation_salesorders', 'foreignId', $document['doc_id'])) {
-				//$query2 = $db->update_query('integration_mediation_salesorders', $document_newdata, 'foreignId="'.$document['doc_id'].'"');
+				$query2 = $db->update_query('integration_mediation_salesorders', $document_newdata, 'foreignId="'.$document['doc_id'].'"');
 			}
 			else {
-				//$query2 = $db->insert_query('integration_mediation_salesorders', $document_newdata);
+				$query2 = $db->insert_query('integration_mediation_salesorders', $document_newdata);
 			}
 			$query2 = true;
 			if($query2) {
@@ -194,9 +196,7 @@ class IntegrationOB extends Integration {
 							'purPriceCurrency' => $purchaseprice_data['currency']
 					);
 
-					print_r($documentline_newdata);
-					echo '<hr />';
-					//$db->insert_query('integration_mediation_salesorderlines', $documentline_newdata);
+					$db->insert_query('integration_mediation_salesorderlines', $documentline_newdata);
 				}
 			}
 		}
