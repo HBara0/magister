@@ -135,7 +135,7 @@ if($core->input['type'] == 'quick') {
 			}
 			else {
 				$extra_where = '';
-				$table = Tprefix.'representatives r LEFT JOIN '.Tprefix.'entitiesrepresentatives er ON (r.rpid!=er.rpid)';
+				$table = Tprefix.'representatives r LEFT JOIN '.Tprefix.'entitiesrepresentatives er ON (r.rpid=er.rpid)';
 			}
 			$attributes = array('r.name', 'r.email');
 			$key_attribute = 'r.rpid';

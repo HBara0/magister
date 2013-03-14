@@ -18,6 +18,7 @@ $lang['emailonly'] = 'Valid email address only';
 $lang['fillsurvey'] = 'Fill Survey';
 $lang['invitationgroup'] = 'Invitation Group';
 $lang['invitations'] = 'Invitations';
+$lang['questiondesc'] = 'Question Description';
 $lang['invitee'] = 'Invitee';
 $lang['inviteesnumber_tip'] = 'Specified number will be used to randomly select x number of invitees out of the checked.';
 $lang['listsurveys'] = 'List Surveys';

@@ -74,5 +74,20 @@ class Accounts {
 		return false;
 	}
 
+	public static function generate_employeenumber($affiliate) {
+		$affiliate = new Affiliates($affiliate);
+		$country_code = $affiliate->get_country()->get()['acronym'];
+		if(empty($country_code)) {
+			return false;
+		}
+		
+		$random_num = substr(mt_rand(mt_rand(), mt_getrandmax()), 0, 4);
+		
+		$employeenum = $country_code.$random_num;
+		if(value_exists('userhrinformation', 'employeeNum', $employeenum)) {
+			$employeenum = Accounts::generate_employeenumber($affiliate);
+		}
+		return $employeenum;
+	}
 }
 ?>
