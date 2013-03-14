@@ -21,7 +21,6 @@ class Countries {
 	private function read($id) {
 		global $db;
 		$this->country = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'countries WHERE coid='.intval($id)));
-		print_r($this->country);
 	}
 	
 	public function get_maincurrency() {
