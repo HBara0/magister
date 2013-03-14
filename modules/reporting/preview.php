@@ -68,9 +68,9 @@ if(!$core->input['action']) {
 		else {
 			//Preview while filling
 		}
+
 		$newreport = new ReportingQr(array('year' => $core->input['year'], 'spid' => $report_param['spid'], 'affid' => $report_param['affid'], 'quarter' => $core->input['quarter']));
 		$report = $newreport->get();
-
 		$newreport->read_products_activity(true);
 		$report['items'] = $newreport->get_classified_productsactivity();
 		$report['productsactivity'] = $newreport->get_products_activity();
@@ -93,7 +93,7 @@ if(!$core->input['action']) {
 
 		$report['quartername'] = 'Q'.$report['quarter'].' '.$report['year'];
 		foreach($aggregate_types as $aggregate_type) {
-			$item['name'] = '';
+			$item = array();
 			if(is_array($report['items'])) {
 				foreach($report['items'] as $category => $catitem) {/* amount or  quantity */
 					foreach($catitem as $type => $typeitem) { /* actual or forecast */
@@ -103,11 +103,12 @@ if(!$core->input['action']) {
 							}
 							$report['year'] = $report_years[$yearef][$year];
 							for($quarter = 1; $quarter <= 4; $quarter++) {
+								$item[$aggregate_type][$category][$type][$year][$quarter] = 0;
 								switch($aggregate_type) {
 									case 'affiliates':
 										if(is_array($report['items'][$category][$type][$year][$quarter])) {
 											foreach($report['items'][$category][$type][$year][$quarter] as $affid => $affiliatedata) {
-												$item['name'] = &$newreport->get_report_affiliate($affid)['name'];
+												$item['name'] = $newreport->get_report_affiliate($affid)['name'];
 												$item[$aggregate_type][$category][$type][$year][$quarter] = array_sum_recursive($report['items'][$category][$type][$year][$quarter][$affid]);
 												$total_year[$aggregate_type][$affid]['data'][$year]+=$item[$aggregate_type][$category][$type][$year][$quarter];
 
@@ -130,7 +131,9 @@ if(!$core->input['action']) {
 													$item[$aggregate_type][$category][$type][$year][$quarter] = round(array_sum($report['items'][$category][$type][$year][$quarter][$affid][$spid]));
 													$item[$aggregate_type][$category][$type][$year][$quarter] = array_sum($report['items'][$category][$type][$year][$quarter][$affid][$spid]);
 													$total_year[$aggregate_type][$spid]['data'][$year]+=$item[$aggregate_type][$category][$type][$year][$quarter];
-													$total_year[$aggregate_type][$spid]['perc'][$year]/=$item[$aggregate_type][$category][$type][$year][$quarter];
+
+													//$total_year[$aggregate_type][$spid]['perc'][$year]/=$item[$aggregate_type][$category][$type][$year][$quarter];
+
 													$total_year[$aggregate_type][$spid]['name'] = $item['name'];
 													if($item[$aggregate_type][$category][$type][$year][$quarter] > 1) {
 														$item[$aggregate_type][$category][$type][$year][$quarter] = round($item[$aggregate_type][$category][$type][$year][$quarter]);
@@ -149,14 +152,16 @@ if(!$core->input['action']) {
 														$item['name'] = $newreport->get_products()[$pid];
 														$item[$aggregate_type][$category][$type][$year][$quarter] = $report['items'][$category][$type][$year][$quarter][$affid][$spid][$pid];
 														$total_year[$aggregate_type][$spid]['data'][$year]+=$item[$aggregate_type][$category][$type][$year][$quarter];
-														$total_year[$aggregate_type][$spid]['perc'][$year]/=$item[$aggregate_type][$category][$type][$year][$quarter];  //2012/2013
+
+														//$total_year[$aggregate_type][$spid]['perc'][$year]/=$item[$aggregate_type][$category][$type][$year][$quarter];  //2012/2013
+
 														$total_year[$aggregate_type][$spid]['name'] = $item['name'];
-														if($type == 'forecast' && $quarter > $report['quarter'] && $year == $report['year']) {
-															$item[$aggregate_type][$category][$type][$year][$quarter] = ($item[$aggregate_type][$category][$type][$report_years['current_year']][$quarter]);
-															if($quarter != $report['quarter']) {
-																$item[$aggregate_type][$category][$type][$year][$quarter] /= (4 - $report['quarter']);
-															}
-														}
+//														if($type == 'forecast' && $quarter > $report['quarter'] && $year == $report['year']) {
+//															$item[$aggregate_type][$category][$type][$year][$quarter] = ($item[$aggregate_type][$category][$type][$report_years['current_year']][$quarter]);
+//															if($quarter != $report['quarter']) {
+//																$item[$aggregate_type][$category][$type][$year][$quarter] /= (4 - $report['quarter']);
+//															}
+//														}
 														eval("\$reporting_report_newoverviewbox_row[$aggregate_type][$category][$pid] = \"".$template->get('new_reporting_report_overviewbox_row')."\";");
 													}
 												}
@@ -175,23 +180,26 @@ if(!$core->input['action']) {
 			}
 		}
 
-		foreach($total_year as $aggregate_type => $aggdata) {
-			foreach($aggdata as $itemkey => $item) {
-				foreach($report_years as $yearkey => $yearval) {
-					$current_yearval = current($item['data']);   /* get the current total value of  the year */
-					if($current_yearval == 0) {
-						$current_yearval = 1;
-					}
-					$item['perc'][$yearval] = round((next($item['data']) / $current_yearval) * 100);  /* Divide the next year total ammount with the ammount of previous year */
-				}
+		reset($report_years);
+		if(is_array($total_year) && !empty($total_year)) {
+			foreach($total_year as $aggregate_type => $aggdata) {
+				foreach($aggdata as $itemkey => $item) {
+					foreach($report_years as $yearkey => $yearval) {
+						$current_yearval = current($item['data']);   /* get the current total value of  the year */
+						if($current_yearval == 0) {
+							$current_yearval = 1;
+						}
 
-				eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type].= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
+						$item['perc'][$yearval] = round((next($item['data']) / $current_yearval) * 100);  /* Divide the next year total ammount with the ammount of previous year */
+					}
+
+					eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type].= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
+				}
+				eval("\$reporting_report_newtotaloverviewbox[$aggregate_type] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
 			}
-			eval("\$reporting_report_newtotaloverviewbox[$aggregate_type] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
 		}
 
-
-
+		$reporting_report_newoverviewbox = array();
 		if(is_array($report['items'])) {
 			foreach($report['items'] as $category => $catitem) {
 				foreach($aggregate_types as $aggregate_type) {
@@ -200,7 +208,7 @@ if(!$core->input['action']) {
 			}
 		}
 
-
+		$keycustomers = '';
 		if(is_array($report['keycustomers']) && ($report['keyCustAvailable'] == 1)) {
 			foreach($report['keycustomers'] as $keycust => $customer) {
 				eval("\$keycustomers .= \"".$template->get('new_reporting_report_keycustomersbox_customerrow')."\";");
@@ -208,15 +216,40 @@ if(!$core->input['action']) {
 			eval("\$keycustomersbox = \"".$template->get('new_reporting_report_keycustomersbox')."\";");
 		}
 
-		if(is_array($report['marketreports']['market']) && ($report['mktReportAvailable'] == 1)) {
-			foreach($report['marketreports']['market'] as $marketkey => $marketreport) {
-				$marketreport['authors'] = $report['marketreports']['marketauthors'][$marketkey]['displayName'];
+		$marketreportbox = '';
+		if(is_array($report['marketreports']) && ($report['mktReportAvailable'] == 1)) {
+			foreach($report['marketreports'] as $mrid => $marketreport) {
+				if(!empty($marketreport['authors'])) {
+					$mkauthors_overview[$report['affid']][$mrid] = $marketreport['authors'];
+					
+					$marketreport['authors_output'] = $lang->authors.': ';
+					
+					foreach($marketreport['authors'] as $author) {
+						$marketreport['authors_output'] .= $marketreportbox_comma.$author['displayName'];
+						$marketreportbox_comma = ', ';
+					}
+				}
 				eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
-				eval("\$marketauthors .= \"".$template->get('new_reporting_report_marketreporauthorstbox_row')."\";");
 			}
 		}
 
+		/* Show QR contributors */
+		$lang->reportpreparedby_text = $lang->reportpreparedby;
+		$lang->email_text = $lang->email;
+		if(is_array($report['contributors']) && !empty($report['contributors'])) {
+			$contributors = '';
+			foreach($report['contributors'] as $contributor) {
+				eval("\$contributors .= \"".$template->get('new_reporting_report_contributorrow')."\";");
+				$lang->reportpreparedby_text = $lang->email_text = '';
+			}
+		}
+		else {
+			$contributor['email'] = $core->user['email'];
+			$contributor['displayName'] = $core->user['displayName'];
+			eval("\$contributors = \"".$template->get('new_reporting_report_contributorrow')."\";");
+		}
 
+		eval("\$highlightbox = \"".$template->get('new_reporting_report_highlightbox')."\";");
 		eval("\$reports .= \"".$template->get('new_reporting_report')."\";");
 	}
 	/* loop throw new */
@@ -234,28 +267,35 @@ if(!$core->input['action']) {
 		}
 	}
 
+	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'direct') {
+		//Use Cache class where appropriate below
+		if(is_array($mkauthors_overview)) {
+			$authors_overview_entries = '';
+			foreach($mkauthors_overview as $affid => $mkauthors) {
+				if(is_array($mkauthors) && !empty($mkauthors)) {
+					$authors_overview_entries .= '<tr><td colspan="2" class="thead">USE CACHE TO GET AFFILIATE NAME'.$affid.'</td></tr>';
+					foreach($mkauthors as $psid => $authors) {
+						$parsed_authors = array();
+						if(empty($cache['productsegments'][$psid])) {
+							$cache['productsegments'][$psid] = $lang->others;
+						}
 
-	if(is_array($report['contributors'])) {
-		$contributors_overview_entries = '';
+						if(is_array($authors)) {
+							foreach($authors as $uid => $author) {
+								$parsed_authors[$uid] = '<a href="mailto:'.$author['email'].'">'.$author['displayName'].'</a> (<a href="mailto:'.$author['email'].'">'.$author['email'].'</a>)';
+							}
 
-		foreach($report['affiliates'] as $affid => $contributions) {
-			$contributors_overview_entries = '';
-			$contributors_overview_entries .= '<tr><td colspan="2" class="thead">'.$report['affiliates']['name'].'</td></tr>';
-			if(is_array($report['items'])) {
-				$contributors_overview_entries = '';
-
-				foreach($report['marketreports']['market'] as $marketkey => $marketreport) {
-					$auditors[$uid] = '<a href="mailto:'.$report['marketreports']['marketauthors'][$marketkey]['email'].'">'.$report['marketreports']['marketauthors'][$marketkey]['displayName'].'</a> (<a href="mailto:'.$report['marketreports']['marketauthors'][$marketkey]['email'].'">'.$report['marketreports']['marketauthors'][$marketkey]['email'].'</a>)';
-					$contributors_overview_entries .= '<tr><td class="lightdatacell_freewidth" style="text-align:left;">'.$marketreport['segmenttitle'].'</td><td style="width:70%; border-bottom: 1px dashed #CCCCCC;">'.$auditors[$uid].'</td></tr>';
+							$authors_overview_entries .= '<tr><td class="lightdatacell_freewidth" style="text-align:left;">'.$cache['productsegments'][$psid].'</td><td style="width:70%; border-bottom: 1px dashed #CCCCCC;">'.implode(', ', $parsed_authors).'</td></tr>';
+						}
+					}
 				}
 			}
+			eval("\$contributorspage = \"".$template->get('new_reporting_report_contributionoverview')."\";");
 		}
-		eval("\$contributorspage = \"".$template->get('new_reporting_report_contributionoverview')."\";");
 	}
-
 	eval("\$coverpage = \"".$template->get('new_reporting_report_coverpage')."\";");
 	eval("\$closingpage = \"".$template->get('reporting_report_closingpage')."\";");
-	eval("\$highlightbox = \"".$template->get('new_reporting_report_highlightbox')."\";");
+
 
 	if($core->usergroup['reporting_canApproveReports'] == 1 || $core->usergroup['canViewAllSupp'] == 1) {
 		$tools_approve = "<script language='javascript' type='text/javascript'>$(function(){ $('#approvereport').click(function() {
@@ -326,11 +366,11 @@ else {
 
 
 		//if($core->input['action'] == 'saveandsend') {
-			set_time_limit(0);
-			$html2pdf->WriteHTML($content, $show_html);
-			$html2pdf->Output($core->settings['exportdirectory'].'quarterlyreports_'.$core->input['identifier'].'.pdf', 'F');
-			redirect('index.php?module=reporting/sendbymail&amp;identifier='.$core->input['identifier']);
-	//	}
+		set_time_limit(0);
+		$html2pdf->WriteHTML($content, $show_html);
+		$html2pdf->Output($core->settings['exportdirectory'].'quarterlyreports_'.$core->input['identifier'].'.pdf', 'F');
+		redirect('index.php?module=reporting/sendbymail&amp;identifier='.$core->input['identifier']);
+		//	}
 
 		/* pdf Printing ----END */
 	}

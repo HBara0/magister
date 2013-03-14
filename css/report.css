@@ -24,7 +24,8 @@
 }
 
 .mainbox_itemnamecell {
-       border-left: 0px; 
+       border-left: 0px;
+       width:  100px;
 }
 
 .totalsbox_numcell, .totalsbox_perccell {
@@ -34,11 +35,13 @@
 
 .totalsbox_perccell {
     font-style: italic;
+    background-color:#F2FAED;
 }
 
 .totalsbox_yearsep {
     width: 10px;
     text-align: center;
+    background-color:#F2FAED;
 }
 
 .thead {
