@@ -45,11 +45,39 @@ class ReportingQr Extends Reporting {
 			}
 			if($get_prevactivity == true) {
 				$this->read_prev_products_activity();
+				$this->read_next_products_activity();
 			}
 		}
 		return false;
 	}
 
+	public function read_next_products_activity() {
+		if($this->report['quarter'] == 4) {
+			return false;
+		}
+		
+		for($quarter=$this->report['quarter'];$quarter<=4;$quarter++) {
+			$newreport = new ReportingQr(array('year' => $this->report['year'], 'affid' => $this->report['affid'], 'spid' => $this->report['spid'], 'quarter' => $quarter));
+			if($newreport) {
+				$newreport->read_products_activity(false);
+			}
+			else
+			{
+				/* If no future reports data exist, use forecast as actual */
+				foreach($this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']] as $affiliates_data) {
+					foreach($affiliates_data as $productssegments_data) {
+						foreach($productssegments_data as $products_data) {
+							$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter] = $products_data;
+							if($quarter != 4) {
+								$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter] /= (4 - $this->report['quarter']);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	public function read_prev_products_activity() {
 		for($year = $this->report['year']; $year >= ($this->report['year'] - 2); $year--) {		/* reverse back only 2 years  from the given report year*/
 			if($year == $this->report['year']) {
@@ -139,7 +167,7 @@ class ReportingQr Extends Reporting {
 
 	public function get_report_contributors() {
 		global $db;
-		$report_contributors_query = $db->query("SELECT rc.rcid, u.displayName 
+		$report_contributors_query = $db->query("SELECT rc.rcid, u.displayName, u.email
 												FROM ".Tprefix."reportcontributors rc
 												JOIN ".Tprefix."users u ON (u.uid=rc.uid)
 												WHERE rc.rid='".$this->report['rid']."'");
@@ -162,8 +190,8 @@ class ReportingQr Extends Reporting {
 				while($market_reportdata = $db->fetch_assoc($marketreport_queryid)) {
 
 					$marketreport = new ReportingQrMarketreport($market_reportdata['mrid']);
-					$reportdetails['market'][$market_reportdata['mrid']] = $marketreport->get();
-					$reportdetails['marketauthors'][$market_reportdata['mrid']] = $marketreport->get_authors();
+					$reportdetails[$market_reportdata['mrid']] = $marketreport->get();
+					$reportdetails[$market_reportdata['mrid']]['authors'] = $marketreport->get_authors();
 				}
 
 				return $reportdetails;
@@ -288,10 +316,17 @@ class ReportingQrMarketreport {
 
 	public function get_authors() {
 		global $db;
-		return $db->fetch_assoc($db->query("SELECT u.displayName, u.email 
+		$query = $db->query("SELECT u.displayName, email, u.uid
 												FROM ".Tprefix."marketreport_authors mra
 												JOIN ".Tprefix."users u ON (u.uid=mra.uid)
-												WHERE mra.mrid='".$db->escape_string($this->marketreport['mrid'])."'"));
+												WHERE mra.mrid='".$db->escape_string($this->marketreport['mrid'])."'");
+		if($db->num_rows($query) > 0) {
+			while($author = $db->fetch_assoc($query)) {
+				$authors[$author['uid']] = $author;
+			}
+			return $authors;
+		}
+		return false;
 	}
 
 }
