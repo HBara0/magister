@@ -29,7 +29,7 @@ if(!$core->input['action']) {
 		$stats[$affiliate['affid']]['name'] = $affiliate['name'];
 	}
 	
-	$quarter_details = explode('/', $settings['q'.$core->input['quarter'].'end']);// D/M
+	$quarter_details = explode('-', $settings['q'.$core->input['quarter'].'end']);// D/M
 	$quarter_end = mktime(0, 0, 0, $quarter_details[1], $quarter_details[0], $core->input['year']);
 	$duedate = $quarter_end + (60*60*24*15);
 
