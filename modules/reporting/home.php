@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright ï¿½ 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Reports overview
  * $module: reporting
@@ -88,7 +88,7 @@ if(!$core->input['action']) {
 		$last_finalized_reports_list = '<li>'.$lang->na.'</li>';
 	}
 	
-	$quarter_settings = explode('/', $core->settings['q'.$quarter['quarter'].'start']);
+	$quarter_settings = explode('-', $core->settings['q'.$quarter['quarter'].'start']);
 	
 	$start_notifications = mktime(0, 0, 0, $quarter_settings[1], $quarter_settings[0], $quarter['year']);
 	
