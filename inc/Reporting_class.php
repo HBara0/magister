@@ -28,10 +28,12 @@ class Reporting {
 		global $db;
 
 		if(isset($reportdata['year'], $reportdata['affid'], $reportdata['spid'], $reportdata['quarter']) && !empty($reportdata['year']) && !empty($reportdata['affid']) && !empty($reportdata['spid']) && !empty($reportdata['quarter'])) {
-			$this->report = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."reports  WHERE  year='".$db->escape_string($reportdata['year'])."' AND affid='".$db->escape_string($reportdata['affid'])."' AND quarter='".$db->escape_string($reportdata['quarter'])."' AND spid='".$db->escape_string($reportdata['spid'])."'"));
-			return true;
+			$this->report = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."reports WHERE  year='".$db->escape_string($reportdata['year'])."' AND affid='".$db->escape_string($reportdata['affid'])."' AND quarter='".$db->escape_string($reportdata['quarter'])."' AND spid='".$db->escape_string($reportdata['spid'])."'"));
+			if(is_array($this->report) && !empty($this->report)) {
+				return true;
+			}
+			return false;
 		}
-
 		return false;
 	}
 
@@ -39,7 +41,10 @@ class Reporting {
 		global $db;
 		if(!empty($rid)) {
 			$this->report = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."reports WHERE rid='".$db->escape_string($rid)."'"));
-			return true;
+			if(is_array($this->report) && !empty($this->report)) {
+				return true;
+			}
+			return false;
 		}
 		return false;
 	}
