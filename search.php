@@ -131,7 +131,7 @@ if($core->input['type'] == 'quick') {
 			}
 
 			if(!empty($supplier_filter) || !empty($customer_filter)) {
-				$table = Tprefix.'representatives r  JOIN '.Tprefix.'entitiesrepresentatives er ON (r.rpid=er.rpid)  JOIN '.Tprefix.'entities e ON (e.eid=er.eid)';
+				$table = Tprefix.'representatives r LEFT JOIN '.Tprefix.'entitiesrepresentatives er ON (r.rpid=er.rpid) LEFT JOIN '.Tprefix.'entities e ON (e.eid=er.eid)';
 			}
 			else {
 				$extra_where = '';
