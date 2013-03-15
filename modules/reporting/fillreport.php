@@ -68,8 +68,8 @@ if(!$core->input['action']) {
 		/* Instantiate currencies object and get currencies rate of period - START */
 		$core->input['baseCurrency'] = 'USD';
 		$currency = new Currencies($core->input['baseCurrency']);
-		$currencies_from = date_timestamp_get(date_create_from_format('j/m/Y', $core->settings['q'.$core->input['quarter'].'start'].'/'.$core->input['year']));
-		$currencies_to = date_timestamp_get(date_create_from_format('j/m/Y', $core->settings['q'.$core->input['quarter'].'end'].'/'.$core->input['year']));
+		$currencies_from = date_timestamp_get(date_create_from_format('j-m-Y', $core->settings['q'.$core->input['quarter'].'start'].'-'.$core->input['year']));
+		$currencies_to = date_timestamp_get(date_create_from_format('j-m-Y', $core->settings['q'.$core->input['quarter'].'end'].'-'.$core->input['year']));
 		$currencies = $currency->get_average_fxrates_transposed(array('GBP', 'EUR'), array('from' => $currencies_from, 'to' => $currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4));
 		$currencies[1] = $core->input['baseCurrency'];
 
