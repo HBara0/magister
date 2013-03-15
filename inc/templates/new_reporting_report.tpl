@@ -3,8 +3,8 @@
     {$reporting_report_newoverviewbox[segments][amount]}
     {$reporting_report_newoverviewbox[products][amount]}
     <hr />
-    {$reporting_report_newoverviewbox[segments][quantity]}
-    {$reporting_report_newoverviewbox[products][quantity]}
+    {$reporting_report_newoverviewbox[segments][purchasedQtty]}
+    {$reporting_report_newoverviewbox[products][purchasedQtty]}
     <hr />
     {$keycustomersbox}
     {$marketreportbox}
@@ -12,4 +12,4 @@
         {$contributors}
     </table>
 <br />
-</page>
+</page>   

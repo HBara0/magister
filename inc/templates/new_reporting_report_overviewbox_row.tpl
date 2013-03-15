@@ -13,3 +13,4 @@
    <td width="60px" class="altrow2 mainbox_datacell">{$item[$aggregate_type][$category][actual][$report_years[current_year]][3]}</td>
    <td width="60px" class="altrow2 mainbox_datacell">{$item[$aggregate_type][$category][actual][$report_years[current_year]][4]}</td>
  </tr>
+   

@@ -8,4 +8,4 @@
     </tr>
     {$reporting_report_newtotaloverviewbox_row[$aggregate_type]}
 </table>
-<br />  
+<br />   

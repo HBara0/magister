@@ -7,4 +7,4 @@
     {$reporting_report_newtotaloverviewbox[products]}
     {$reporting_report_newtotaloverviewbox[segments]}
     </div>
-</page>
+</page>   
