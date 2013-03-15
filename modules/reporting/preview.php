@@ -103,7 +103,7 @@ if(!$core->input['action']) {
 							if($type == 'forecast' && $year != $report['year']) {
 								continue;
 							}
-							$report['year'] = $report_years[$yearef][$year];
+							//$report['year'] = $report_years[$yearef][$year];
 							for($quarter = 1; $quarter <= 4; $quarter++) {
 								$item[$aggregate_type][$category][$type][$year][$quarter] = 0;
 								switch($aggregate_type) {
@@ -182,19 +182,33 @@ if(!$core->input['action']) {
 			}
 		}
 
-		reset($report_years);
 		if(is_array($total_year) && !empty($total_year)) {
 			foreach($total_year as $aggregate_type => $aggdata) {
 				foreach($aggdata as $itemkey => $item) {
 					foreach($report_years as $yearkey => $yearval) {
-						$current_yearval = current($item['data']);   /* get the current total value of  the year */
-						if($current_yearval == 0) {
-							$current_yearval = 1;
+						if($yearval == $report['year']) {
+							continue;
 						}
-
-						$item['perc'][$yearval] = round((next($item['data']) / $current_yearval) * 100);  /* Divide the next year total ammount with the ammount of previous year */
+						$current_yearval = $item['data'][$yearval];
+					
+						if(empty($current_yearval)) {
+							$item['data'][$yearval] = 0;
+						}		
+								
+						if(empty($current_yearval) && empty($item['data'][$yearval+1])) {
+							$item['perc'][$yearval] = 0;
+						}
+						else {
+							if(empty($current_yearval)) {
+								$item['perc'][$yearval] = 100;
+							}
+							else {
+								$item['perc'][$yearval] = round(($item['data'][$yearval+1] / $current_yearval) * 100);  /* Divide the next year total ammount with the ammount of previous year */
+							}
+						}
 					}
-
+						
+					
 					eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type].= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
 				}
 				eval("\$reporting_report_newtotaloverviewbox[$aggregate_type] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");

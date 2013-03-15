@@ -80,6 +80,7 @@ class ReportingQr Extends Reporting {
 				}
 
 				$reportdetails = $newreport->get_classified_productsactivity();
+
 				if(is_array($reportdetails)) {
 					foreach($reportdetails as $category => $catitem) { /* amount or  quantity */
 						if(is_array($catitem)) {
@@ -97,7 +98,6 @@ class ReportingQr Extends Reporting {
 				}
 			}
 			else {
-				echo 'next quarter after current quarter ';  /* move to the next quarter */
 				/* If no future reports data exist, use forecast as actual */
 				foreach($this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']] as $affid=> $affiliates_data) {
 					foreach($affiliates_data as $psid=> $productssegments_data) {
@@ -120,6 +120,7 @@ class ReportingQr Extends Reporting {
 			if(value_exists('productsactivity', 'rid', $this->report['rid'])) {
 				return true;
 			}
+			return false;
 		}
 		return false;
 	}
