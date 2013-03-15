@@ -65,11 +65,53 @@ if(!$core->input['action']) {
 				$report_param['spid'] = $entity;
 			}
 			$newreport = new ReportingQr(array('year' => $core->input['year'], 'spid' => $report_param['spid'], 'affid' => $report_param['affid'], 'quarter' => $core->input['quarter']));
-		
+			$report = $newreport->get();
+			$newreport->read_products_activity(true);
+			$report['items'] = $newreport->get_classified_productsactivity();
+			$report['productsactivity'] = $newreport->get_products_activity();
+			$report['keycustomers'] = $newreport->get_key_customers();
+			$report['contributors'] = $newreport->get_report_contributors();
+			$report['marketreports'] = $newreport->get_market_reports();
+			$report['auditors'] = $newreport->get_report_supplier_audits();
+			$report['reportstats'] = $newreport->get_report_status();
+			$report['finializer'] = $newreport->get_report_finalizer();
+			$report['affiliates'] = $newreport->get_report_affiliate();
+			$report['supplier'] = $newreport->get_report_supplier();
+			$report['representatives'] = $newreport->get_supplier_representatives();
+			$report['summary'] = $newreport->get_report_summary();
 		}
-		else {
+		else { /* if Referrrer fill  */
 			$newreport = new ReportingQr(array('rid' => $core->input['rid']));
-		
+			$report = $newreport->get();
+			$identifier = $db->escape_string($core->input['identifier']);
+			$reportdata['rid']= $report['rid'];
+			/* read productsactivity from fill  data session */
+			if($session->isset_phpsession('productsactivitydata_'.$identifier)) {
+				$productsactivity = unserialize($session->get_phpsession('productsactivitydata_'.$identifier));
+				unset($productsactivity['module']);
+				$reportdata['productsdata'] = $productsactivity; 
+			 
+			}
+			/* read keycustomersdata from fill  data session */
+			if($session->isset_phpsession('keycustomersdata_'.$identifier)) {
+				$keycustomers = unserialize($session->get_phpsession('keycustomersdata_'.$identifier));
+				unset($keycustomers['module']);
+				$reportdata['keycustomersdata'] = $keycustomers;
+			}
+
+			/* Set the marketrport data by serializing the inputs in the stage market report */
+			if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'marketreport') !== false) {
+				$marketreportdata = serialize($core->input);
+				$session->set_phpsession(array('marketreport_'.$identifier => $marketreportdata));
+			}
+			/* read marketreportdata from fill  data session */
+			if($session->isset_phpsession('marketreport_'.$identifier)) {
+				$marketreport = unserialize($session->get_phpsession('marketreport_'.$identifier));
+				unset($marketreport['module']);
+				$reportdata['marketreportdata'] = $marketreport;
+			}
+	print_R($reportdata);
+			$session->set_phpsession(array('reportrawdata_'.$session_identifier => serialize($reportdata)));
 		}
 
 		$report = $newreport->get();
@@ -223,9 +265,9 @@ if(!$core->input['action']) {
 			foreach($report['marketreports'] as $mrid => $marketreport) {
 				if(!empty($marketreport['authors'])) {
 					$mkauthors_overview[$report['affid']][$mrid] = $marketreport['authors'];
-					
+
 					$marketreport['authors_output'] = $lang->authors.': ';
-					
+
 					foreach($marketreport['authors'] as $author) {
 						$marketreport['authors_output'] .= $marketreportbox_comma.$author['displayName'];
 						$marketreportbox_comma = ', ';
@@ -268,7 +310,7 @@ if(!$core->input['action']) {
 				$representatives_list .= "<tr><td style='width: 25%; text-align: left;'>{$representative[name]}</td><td style='text-align: left;'>{$representative[email]}</td></tr>";
 			}
 		}
-	
+
 		//Use Cache class where appropriate below
 		if(is_array($mkauthors_overview)) {
 			$authors_overview_entries = '';
@@ -293,11 +335,11 @@ if(!$core->input['action']) {
 			}
 			eval("\$contributorspage = \"".$template->get('new_reporting_report_contributionoverview')."\";");
 		}
-		
+
 		eval("\$coverpage = \"".$template->get('new_reporting_report_coverpage')."\";");
 		eval("\$closingpage = \"".$template->get('reporting_report_closingpage')."\";");
-		
-		
+
+
 		eval("\$marketreporauthorstbox = \"".$template->get('new_reporting_report_marketreporauthorstbox')."\";");
 
 		/* Output summary table - START */
@@ -306,7 +348,7 @@ if(!$core->input['action']) {
 		}
 		/* Output summary table  - END */
 
-		
+
 		if($core->input['referrer'] == 'direct') {
 			if($report['isSent'] == 0) {
 				if($core->usergroup['reporting_canSendReportsEmail'] == 1) {
@@ -319,7 +361,7 @@ if(!$core->input['action']) {
 				}
 			}
 		}
-		
+
 		if($core->usergroup['reporting_canApproveReports'] == 1 || $core->usergroup['canViewAllSupp'] == 1) {
 			$tools_approve = "<script language='javascript' type='text/javascript'>$(function(){ $('#approvereport').click(function() {
 				sharedFunctions.requestAjax('post', 'index.php?module=reporting/preview', 'action=approve&identifier={$session_identifier}', 'approvereport_span', 'approvereport_span');}) });</script>";
@@ -331,14 +373,13 @@ if(!$core->input['action']) {
 
 
 		$tools = $tools_approve.$tools_send."<a href='index.php?module=reporting/preview&amp;action=exportpdf&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;".$tool_print;
-		
-		
+
+
 		eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
 		$reports = $coverpage.$contributorspage.$summarypage.$overviewpage.$reports.$closingpage;
 		$session->set_phpsession(array('reports_'.$session_identifier => $reports));
 	}
-	else
-	{
+	else {
 		// Add below to class
 		$missing_employees_query1 = $db->query("SELECT DISTINCT(u.uid), displayName
 												FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid)
@@ -402,6 +443,7 @@ else {
 
 
 	/* 	action Submit ----START */
+
 	if($core->input['action'] == 'do_savesummary') {
 		$reportsids = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']))['rid'];
 
