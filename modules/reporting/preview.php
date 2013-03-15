@@ -64,12 +64,14 @@ if(!$core->input['action']) {
 				$report_param['affid'] = $db->escape_string($core->input['affid']);
 				$report_param['spid'] = $entity;
 			}
+			$newreport = new ReportingQr(array('year' => $core->input['year'], 'spid' => $report_param['spid'], 'affid' => $report_param['affid'], 'quarter' => $core->input['quarter']));
+		
 		}
 		else {
-			//Preview while filling
+			$newreport = new ReportingQr(array('rid' => $core->input['rid']));
+		
 		}
 
-		$newreport = new ReportingQr(array('year' => $core->input['year'], 'spid' => $report_param['spid'], 'affid' => $report_param['affid'], 'quarter' => $core->input['quarter']));
 		$report = $newreport->get();
 		$newreport->read_products_activity(true);
 		$report['items'] = $newreport->get_classified_productsactivity();
@@ -208,7 +210,7 @@ if(!$core->input['action']) {
 			}
 		}
 
-		$keycustomers = '';
+		$keycustomersbox = $keycustomers = '';
 		if(is_array($report['keycustomers']) && ($report['keyCustAvailable'] == 1)) {
 			foreach($report['keycustomers'] as $keycust => $customer) {
 				eval("\$keycustomers .= \"".$template->get('new_reporting_report_keycustomersbox_customerrow')."\";");
@@ -256,18 +258,17 @@ if(!$core->input['action']) {
 
 
 
-
-	if(!empty($report['supplier']['logo'])) {
-		$report['supplierlogo'] = '<img src="./uploads/entitieslogos/'.$report['supplier']['logo'].'" alt="'.$report['supplier']['companyName'].'" width="200px"/><br /><span style="font-size:12px; font-weight:100;font-style:italic;">'.$report['supplier']['companyName'].'</span>';
-	}
-
-	if(is_array($report['representatives'])) {
-		foreach($report['representatives'] as $representative) {
-			$representatives_list .= "<tr><td style='width: 25%; text-align: left;'>{$representative[name]}</td><td style='text-align: left;'>{$representative[email]}</td></tr>";
-		}
-	}
-
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'direct') {
+		if(!empty($report['supplier']['logo'])) {
+			$report['supplierlogo'] = '<img src="./uploads/entitieslogos/'.$report['supplier']['logo'].'" alt="'.$report['supplier']['companyName'].'" width="200px"/><br /><span style="font-size:12px; font-weight:100;font-style:italic;">'.$report['supplier']['companyName'].'</span>';
+		}
+
+		if(is_array($report['representatives'])) {
+			foreach($report['representatives'] as $representative) {
+				$representatives_list .= "<tr><td style='width: 25%; text-align: left;'>{$representative[name]}</td><td style='text-align: left;'>{$representative[email]}</td></tr>";
+			}
+		}
+	
 		//Use Cache class where appropriate below
 		if(is_array($mkauthors_overview)) {
 			$authors_overview_entries = '';
@@ -292,54 +293,76 @@ if(!$core->input['action']) {
 			}
 			eval("\$contributorspage = \"".$template->get('new_reporting_report_contributionoverview')."\";");
 		}
-	}
-	eval("\$coverpage = \"".$template->get('new_reporting_report_coverpage')."\";");
-	eval("\$closingpage = \"".$template->get('reporting_report_closingpage')."\";");
+		
+		eval("\$coverpage = \"".$template->get('new_reporting_report_coverpage')."\";");
+		eval("\$closingpage = \"".$template->get('reporting_report_closingpage')."\";");
+		
+		
+		eval("\$marketreporauthorstbox = \"".$template->get('new_reporting_report_marketreporauthorstbox')."\";");
 
+		/* Output summary table - START */
+		if(!empty($report['summary']['summary'])) {
+			eval("\$summarypage = \"".$template->get('new_reporting_report_summary')."\";");
+		}
+		/* Output summary table  - END */
 
-	if($core->usergroup['reporting_canApproveReports'] == 1 || $core->usergroup['canViewAllSupp'] == 1) {
-		$tools_approve = "<script language='javascript' type='text/javascript'>$(function(){ $('#approvereport').click(function() {
-			sharedFunctions.requestAjax('post', 'index.php?module=reporting/preview', 'action=approve&identifier={$session_identifier}', 'approvereport_span', 'approvereport_span');}) });</script>";
-		$tools_approve .= "<span id='approvereport_span'><a href='#approvereport' id='approvereport'><img src='images/valid.gif' alt='{$lang->approve}' border='0' /></a></span> | ";
-	}
-
-
-	$tool_print = "<span id='printreport_span'><a href='index.php?module=reporting/preview&amp;action=print&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/print.gif' border='0' alt='{$lang->printreport}'/></a></span>";
-
-
-	$tools = $tools_approve.$tools_send."<a href='index.php?module=reporting/preview&amp;action=exportpdf&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;".$tool_print;
-
-	eval("\$marketreporauthorstbox = \"".$template->get('new_reporting_report_marketreporauthorstbox')."\";");
-	/* Output summary table - START */
-
-	if(!empty($report['summary']['summary'])) {
-		eval("\$summarypage = \"".$template->get('new_reporting_report_summary')."\";");
-	}
-	/* Output summary table  - END */
-
-
-//if($core->input['referrer'] == 'direct') {
-	if($report['isSent'] == 0) {
-		if($core->usergroup['reporting_canSendReportsEmail'] == 1) {
-			//$unique_array = array_unique($report['spid']);
-			//if(count(array_unique($report['spid'])) == 1 || $core->usergroup['canViewAllSupp'] == 1) {
-			if(in_array($report['spid'], $core->user['auditfor']) || $core->usergroup['canViewAllSupp'] == 1) {
-				$tools_send = "<a href='index.php?module=reporting/preview&amp;action=saveandsend&amp;identifier={$session_identifier}'><img src='images/icons/send.gif' border='0' alt='{$lang->sendbyemail}' /></a> ";
-				//eval("\$reportingeditsummary = \"".$template->get('new_reporting_report_editsummary')."\";");
+		
+		if($core->input['referrer'] == 'direct') {
+			if($report['isSent'] == 0) {
+				if($core->usergroup['reporting_canSendReportsEmail'] == 1) {
+					//$unique_array = array_unique($report['spid']);
+					//if(count(array_unique($report['spid'])) == 1 || $core->usergroup['canViewAllSupp'] == 1) {
+					if(in_array($report['spid'], $core->user['auditfor']) || $core->usergroup['canViewAllSupp'] == 1) {
+						$tools_send = "<a href='index.php?module=reporting/preview&amp;action=saveandsend&amp;identifier={$session_identifier}'><img src='images/icons/send.gif' border='0' alt='{$lang->sendbyemail}' /></a> ";
+						//eval("\$reportingeditsummary = \"".$template->get('new_reporting_report_editsummary')."\";");
+					}
+				}
 			}
 		}
+		
+		if($core->usergroup['reporting_canApproveReports'] == 1 || $core->usergroup['canViewAllSupp'] == 1) {
+			$tools_approve = "<script language='javascript' type='text/javascript'>$(function(){ $('#approvereport').click(function() {
+				sharedFunctions.requestAjax('post', 'index.php?module=reporting/preview', 'action=approve&identifier={$session_identifier}', 'approvereport_span', 'approvereport_span');}) });</script>";
+			$tools_approve .= "<span id='approvereport_span'><a href='#approvereport' id='approvereport'><img src='images/valid.gif' alt='{$lang->approve}' border='0' /></a></span> | ";
+		}
+
+
+		$tool_print = "<span id='printreport_span'><a href='index.php?module=reporting/preview&amp;action=print&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/print.gif' border='0' alt='{$lang->printreport}'/></a></span>";
+
+
+		$tools = $tools_approve.$tools_send."<a href='index.php?module=reporting/preview&amp;action=exportpdf&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;".$tool_print;
+		
+		
+		eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
+		$reports = $coverpage.$contributorspage.$summarypage.$overviewpage.$reports.$closingpage;
+		$session->set_phpsession(array('reports_'.$session_identifier => $reports));
 	}
-//}
-//}
+	else
+	{
+		// Add below to class
+		$missing_employees_query1 = $db->query("SELECT DISTINCT(u.uid), displayName
+												FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid)
+												WHERE ae.affid='{$report[affid]}' AND ae.eid='{$report[spid]}' AND u.gid NOT IN (SELECT gid FROM usergroups WHERE canUseReporting=0) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$report[rid]}' AND isDone=1) AND u.uid!={$core->user[uid]}"); // AND rc.rid='{$report[rid]}'
+		while($assigned_employee = $db->fetch_assoc($missing_employees_query1)) {
+			$missing_employees['name'][] = $assigned_employee['displayName'];
+			$missing_employees['uid'][] = $assigned_employee['uid'];
+		}
 
+		if(is_array($missing_employees)) {
+			$missing_employees_notification = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; font-weight:bold;">'.$lang->employeesnotfillpart.' <ul><li>'.implode('</li><li>', $missing_employees['name']).'</li></ul></div><br />';
+		}
 
-
-
-	eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
-	$reports = $coverpage.$contributorspage.$summarypage.$overviewpage.$reports.$closingpage;
-	$session->set_phpsession(array('reports_'.$session_identifier => $reports));
-
-//$reports = $coverpage.$contributorspage.$summarypage.$reporting_report_newoverviewbox['segments']['amount'].$reporting_report_newoverviewbox['products']['amount'].$keycustomersbox.$marketreportbox.$marketreporauthorstbox.$reportauthors.$closingpage;
+		if(($reportmeta['auditor'] == 1 && is_array($missing_employees)) || !is_array($missing_employees)) {
+			$reporting_preview_tools_finalize_button = $lang->suretofinalizebody.' <p align="center"><input type="button" id="save_report_reporting/fillreport_Button" value="'.$lang->yes.'" class="button" onclick="$(\'#popup_finalizereportconfirmation\').dialog(\'close\')"/></p>';
+			$reporting_preview_tools_finalize_type = 'finalize';
+		}
+		else {
+			$reporting_preview_tools_finalize_button = $lang->cannotfinalizereport.' <p align="center"><input type="button" id="save_report_reporting/fillreport_Button" value="'.$lang->yes.'" class="button" onclick="$(\'#popup_finalizereportconfirmation\').dialog(\'close\')"/></p>';
+			$reporting_preview_tools_finalize_type = 'saveonly';
+		}
+		/* Check who hasn't yet filled in the report - End */
+		eval("\$tools .= \"".$template->get('reporting_preview_tools_finalize')."\";");
+	}
 	eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
 	output_page($reportspage);
 }
