@@ -3,8 +3,8 @@
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
  * [reportingQR_class]
  * $id: reportingQR_class.php
- * Created:        @[user.name]    Feb 25, 2013 | 10:30:00 PM
- * Last Update:    @tony.assaad    March 07, 2013 | 3:30:00 PM
+ * Created:        @[tony.assaad]    Feb 25, 2013 | 10:30:00 PM
+ * Last Update:    @tony.assaad    March 14, 2013 | 3:30:00 PM
  */
 
 class ReportingQr Extends Reporting {
@@ -29,14 +29,14 @@ class ReportingQr Extends Reporting {
 			while($products_activityrow = $db->fetch_assoc($products_activity_query)) {
 				$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['turnOver'];
 				$this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['salesForecast'];
-				
+
 				$this->report['classifiedpactivity']['purchasedQty']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['quantityForecast'];
 				$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['quantity'];
-				
+
 				$this->report['classifiedpactivity']['soldQty']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] += $products_activityrow['soldQty'];
-				
+
 				$this->report['productsactivity'][$products_activityrow['paid']] = $products_activityrow;
-				
+
 //				$this->report['classifiedpactivity']['amount']['percentage'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] = round(($this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']]/$this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']])*100);
 //				$this->report['classifiedpactivity']['quantity']['percentage'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] = round(($this->report['classifiedpactivity']['quantity']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']]/$this->report['classifiedpactivity']['quantity']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']])*100);
 //				
@@ -55,21 +55,57 @@ class ReportingQr Extends Reporting {
 		if($this->report['quarter'] == 4) {
 			return false;
 		}
-		
-		for($quarter=$this->report['quarter'];$quarter<=4;$quarter++) {
+		$has_proudct_avtivity = false;
+		for($quarter = $this->report['quarter']+1; $quarter <= 4; $quarter++) {
 			$newreport = new ReportingQr(array('year' => $this->report['year'], 'affid' => $this->report['affid'], 'spid' => $this->report['spid'], 'quarter' => $quarter));
-			if($newreport) {
+			/* check whether produtact exist for this report */
+			if($newreport && $newreport->check_product_availability()) {
 				$newreport->read_products_activity(false);
+				$next_products = $newreport->get_products();
+
+				if(is_array($next_products)) {
+					$this->report['products'] += $next_products;
+				}
+
+				/* get product activity of next quarter of this report year  ex:Q2->2011 */
+				$next_productsactivity = $newreport->get_products_activity();
+				if(isset($this->report['productsactivity']) && !empty($next_productsactivity)) {
+					$this->report['productsactivity'] += $next_productsactivity;
+				}
+
+				/* get product segments of next quarter of this report year  ex:Q2->2011 */
+				$next_productssegments = $newreport->get_productssegments();
+				if(isset($this->report['productssegments']) && !empty($next_productssegments)) {
+					$this->report['productssegments'] += $next_productssegments;
+				}
+
+				$reportdetails = $newreport->get_classified_productsactivity();
+				if(is_array($reportdetails)) {
+					foreach($reportdetails as $category => $catitem) { /* amount or  quantity */
+						if(is_array($catitem)) {
+							foreach($catitem as $type => $typeitem) {
+								if(isset($this->report['classifiedpactivity'][$category][$type][$this->report['year']])) {
+									$this->report['classifiedpactivity'][$category][$type][$this->report['year']] += $typeitem[$this->report['year']];
+									
+								}
+								else {
+									$this->report['classifiedpactivity'][$category][$type][$this->report['year']] = $typeitem[$this->report['year']];
+								}
+							}
+						}
+					}
+				}
 			}
-			else
-			{
+			else {
+				echo 'next quarter after current quarter ';  /* move to the next quarter */
 				/* If no future reports data exist, use forecast as actual */
-				foreach($this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']] as $affiliates_data) {
-					foreach($affiliates_data as $productssegments_data) {
-						foreach($productssegments_data as $products_data) {
-							$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter] = $products_data;
-							if($quarter != 4) {
-								$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter] /= (4 - $this->report['quarter']);
+				foreach($this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']] as $affid=> $affiliates_data) {
+					foreach($affiliates_data as $psid=> $productssegments_data) {
+						foreach($productssegments_data as $pid=> $products_data) {print_R($products_data);
+							$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data;
+							
+							if($this->report['quarter'] != 4) {
+								$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] /= (4 - $this->report['quarter']);
 							}
 						}
 					}
@@ -77,9 +113,19 @@ class ReportingQr Extends Reporting {
 			}
 		}
 	}
-	
+
+	public function check_product_availability() {
+		global $db;
+		if(!empty($this->report['rid'])) {
+			if(value_exists('productsactivity', 'rid', $this->report['rid'])) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public function read_prev_products_activity() {
-		for($year = $this->report['year']; $year >= ($this->report['year'] - 2); $year--) {		/* reverse back only 2 years  from the given report year*/
+		for($year = $this->report['year']; $year >= ($this->report['year'] - 2); $year--) { /* reverse back only 2 years  from the given report year */
 			if($year == $this->report['year']) {
 				if($this->report['quarter'] == 1) {
 					continue;
@@ -96,17 +142,17 @@ class ReportingQr Extends Reporting {
 				if(!empty($prev_products)) {
 					$this->report['products'] += $prev_products;
 				}
-				
+
 				$prev_productsactivity = $newreport->get_products_activity();
 				if(isset($this->report['productsactivity']) && !empty($prev_productsactivity)) {
 					$this->report['productsactivity'] += $prev_productsactivity;
 				}
-				
+
 				$prev_productssegments = $newreport->get_productssegments();
 				if(isset($this->report['productssegments']) && !empty($prev_productssegments)) {
 					$this->report['productssegments'] += $prev_productssegments;
 				}
-				
+
 				$reportdetails = $newreport->get_classified_productsactivity();
 				if(is_array($reportdetails)) {
 					foreach($reportdetails as $category => $catitem) { /* amount or  quantity */
@@ -124,9 +170,8 @@ class ReportingQr Extends Reporting {
 				}
 			}
 		}
-
 	}
-	
+
 	public function get_report_affiliate() {
 		global $db;
 		return $report_affiliates = $db->fetch_assoc($db->query("SELECT aff.name,aff.affid,r.rid FROM ".Tprefix."affiliates aff
@@ -135,19 +180,19 @@ class ReportingQr Extends Reporting {
 	}
 
 	/* To be Implemented 
-	public function get_affiliate() {
-		return new Affiliates($this->report['affid']);
-	}
-	*/
+	  public function get_affiliate() {
+	  return new Affiliates($this->report['affid']);
+	  }
+	 */
 	/* This thing doesn't exist
-	public function get_report_productsegment() {
-		global $db;
-		return $report_segments = $db->fetch_assoc($db->query("SELECT ps.title 
-											FROM ".Tprefix."productsegments ps
-											JOIN ".Tprefix."reports r ON (ps.psid=r.spid)
-											WHERE r.rid='".$this->report['rid']."'"));
-	}
-*/
+	  public function get_report_productsegment() {
+	  global $db;
+	  return $report_segments = $db->fetch_assoc($db->query("SELECT ps.title
+	  FROM ".Tprefix."productsegments ps
+	  JOIN ".Tprefix."reports r ON (ps.psid=r.spid)
+	  WHERE r.rid='".$this->report['rid']."'"));
+	  }
+	 */
 	public function get_key_customers() {
 		global $db;
 		$key_customers_query = $db->query("SELECT kc.*, e.companyName 
@@ -155,7 +200,7 @@ class ReportingQr Extends Reporting {
 											JOIN ".Tprefix."entities e ON (e.eid=kc.cid)
 											WHERE kc.rid='".$this->report['rid']."'
 											ORDER BY kc.rank ASC");   // remove countrues and reportid
-		
+
 		if($db->num_rows($key_customers_query) > 0) {
 			while($key_customersrow = $db->fetch_assoc($key_customers_query)) {
 				$reportdetails[$key_customersrow['kcid']] = $key_customersrow;
@@ -199,7 +244,7 @@ class ReportingQr Extends Reporting {
 		}
 	}
 
-	public function get_supplier_representatives() { 
+	public function get_supplier_representatives() {
 		global $db;
 		$query = $db->query("SELECT er.*, r.* 
 								FROM ".Tprefix."entitiesrepresentatives er 
@@ -245,7 +290,7 @@ class ReportingQr Extends Reporting {
 	public function get_classified_productsactivity() {
 		return $this->report['classifiedpactivity'];
 	}
-	
+
 	public function get_products_activity() { /* to check if isset then  read product  */
 		return $this->report['productsactivity'];
 	}
@@ -282,10 +327,11 @@ class ReportingQr Extends Reporting {
 	public function get_products() {
 		return $this->report['products'];
 	}
-	
+
 	public function get_productssegments() {
 		return $this->report['productssegments'];
 	}
+
 	/* Setter Functionality --END */
 }
 /* Market report Class --START */
