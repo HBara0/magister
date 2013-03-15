@@ -3,8 +3,9 @@
     {$reporting_report_newoverviewbox[segments][amount]}
     {$reporting_report_newoverviewbox[products][amount]}
     <hr />
-    {$reporting_report_newoverviewbox[segments][purchasedQtty]}
-    {$reporting_report_newoverviewbox[products][purchasedQtty]}
+    {$reporting_report_newoverviewbox[segments][purchasedQty]}
+    {$reporting_report_newoverviewbox[products][purchasedQty]}
+    {$reporting_report_newoverviewbox[products][soldQty]}
     <hr />
     {$keycustomersbox}
     {$marketreportbox}
