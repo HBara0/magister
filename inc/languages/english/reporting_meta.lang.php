@@ -2,18 +2,18 @@
 $lang['quarter'] = "Quarter";
 $lang['turnover'] = "Turnover";
 $lang['purchaseamount'] = "Purchase Amount";
-$lang['quantity'] = "Quantity";
+$lang['quantity'] = "Purchased Quantity";
 $lang['mt'] = "MT";
 $lang['salestype'] = "Sales Type";
 $lang['forecasts'] = "Forecasts";
 $lang['yearforecasts'] = "Year End Forecasts";
 $lang['sales'] = "Sales";
 $lang['qty'] = "QTY";
-
+$lang['soldquantity'] = "Sold Quantity";
 $lang['productactivitydetails'] = "Products Activity Details";
 $lang['keycustomers'] = "Key Customers";
 $lang['contactperson'] = "Contact person";
-
+$lang['purchaseqty']="Purchase Qty";
 $lang['marketreport'] = "Market Report";
 $lang['marktrendcompetition'] = "Market Trend and Competition";
 $lang['quarterlyhighlights'] = "Quarterly Hightlights";
@@ -21,7 +21,7 @@ $lang['devprojectsnewop'] = "Development Projects and New Opportunities";
 $lang['issues'] = "Issues";
 $lang['actionplan'] = "Action Plan";
 $lang['remarks'] = "Remarks";
-
+$lang['reportsummary']="Reporting Summary";
 $lang['quarterlymarketreport'] = "Quarterly Market Report";
 $lang['quarterunderreview'] = "Quarter Under Review";
 $lang['salesperiodunderreview'] = "Sales for Period Under Review";
@@ -29,10 +29,13 @@ $lang['quantitiesperiodunderreview'] = "Quantities for Period Under Review";
 $lang['keyproducts'] = "Key Products";
 $lang['authors'] = "Author(s)";
 $lang['reportpreparedby'] = "Prepared by";
-
+$lang['reporteditsummary']="Report Edit Summary";
 $lang['listofreports'] = "List of Reports";
 $lang['year'] = "Year";
 $lang['status'] = "Status";
+$lang['entryexists'] = "Summary Already Exist";
+$lang['fillrequiredfield'] = "Smmmary can not be empty";
+$lang['save']="SAVE";
 $lang['moderatintools'] = "Moderation tools";
 $lang['lockunlock'] = "Lock/Unlock";
 $lang['lock'] = "Lock";

@@ -39,7 +39,7 @@
       </div>
  <br />
  	<div style="width:20%; display:inline-block;"><strong>{$lang->location}</strong></div><div style="width:70%; display:inline-block;">
- 	  <input type="text" name="event[place]" maxlength="300" required='required' size="50"/>
+ 	  <input type="text" value="{$affiliate_address}" name="event[place]" maxlength="300" required='required' size="50"/>
  	</div><br />
         	<div style="width:20%; display:inline-block; vertical-align:top;">{$lang->description}</div><div style="width:70%; display:inline-block;"><textarea cols="50" rows="10" name="event[description]"></textarea></div><br />
 			{$ispublic_checkbox}

@@ -1,5 +1,7 @@
 <?php
 class CreateAccount extends Accounts {
+	private $user = array();
+	
 	public function __construct($data) {
 		if(is_array($data)) {
 			$this->perform_registration($data);
@@ -17,6 +19,11 @@ class CreateAccount extends Accounts {
 		if(!parent::username_exists($data['username'])) {
 			$db_encrypt_fields = '';
 			
+			if(!parent::validate_password_complexity($data['password'])) {
+				output_xml("<status>false</status><message>{$lang->pwdpatternnomatch}</message>");
+				exit;
+			}
+		
 			$data['salt']  = parent::create_salt();
 			$data['password'] = parent::create_password($data['password'], $data['salt']);
 			$data['loginKey'] =  parent::create_loginkey();
@@ -107,6 +114,7 @@ class CreateAccount extends Accounts {
 			$query = $db->insert_query('users', $data);
 			$uid = $db->last_id();
 			if($query) {
+				$this->user['uid'] = $uid;
 				//$main_affiliate_found = false;
 				$affiliates['affids'][$affiliates['mainaffid']] = $affiliates['mainaffid']; 
 				if(is_array($affiliates['affids'])) {
@@ -139,6 +147,7 @@ class CreateAccount extends Accounts {
 					}
 				}
 				
+				$this->set_employeenum($this->generate_employeenumber($affiliates['mainaffid']));
 /*				if($main_affiliate_found == false) {
 					$main_affiliate_audit = 0;
 					if(isset($affiliates['affids']['canAudit'][$affiliates['mainaffid']])) {
@@ -190,6 +199,8 @@ class CreateAccount extends Accounts {
 						$db->insert_query('filesfolder_viewrestriction', array('uid' => $uid, 'ffid' => $folder['ffid'], 'noRead' => $folder['noReadPermissionsLater'], 'noWrite' => $folder['noWritePermissionsLater']));
 					}
 				}
+				
+			
 				/* Set File Sharing Module permissions - END */
 				
 				$lang->useradded = $lang->sprint($lang->useradded, $data['username']);
@@ -201,5 +212,16 @@ class CreateAccount extends Accounts {
 			output_xml("<status>false</status><message>{$lang->usernameexists}</message>");
 		}
 	}
+	
+	private function set_employeenum($number) {
+		global $db;
+		
+		if(empty($number)) {
+			return false;
+		}
+		
+		$db->insert_query('userhrinformation', array('employeeNum' => $number, 'uid' => $this->user['uid']));
+	}
+	
 }
 ?>

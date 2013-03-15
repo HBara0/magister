@@ -22,7 +22,7 @@
     <p>
     <strong>{$lang->subject}:</strong> <input type="text" size="100" maxlength="70" name="subject" id="subject" value="{$lang->sendbymailsubject}"/><br />
     <strong>{$lang->message}:</strong><br />
-    <textarea cols="100" rows="20" name="message" id="message">{$lang->sendbymaildefault}</textarea>
+    <textarea class="texteditormin" cols="100" rows="20" name="message" id="message">{$lang->sendbymaildefault}</textarea>
     </p>
     <p>
     <fieldset class="altrow">
@@ -33,7 +33,7 @@
     </fieldset>
     </p>
     <p><hr /></p>
-    <input type="submit" value="{$lang->send}" id="sendbymail_Button" class="button"/>
+    <input type="submit" value="{$lang->send}" id="sendbymail" class="button"/>
     </form>
     </td>
 </tr>

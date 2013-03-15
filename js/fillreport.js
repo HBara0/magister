@@ -184,8 +184,8 @@ $(function() {
 
         if(validateEmpty(id[1]) == true) {
             var formData = $("form[id='" + id[0] + "_" + id[1] + "_" + id[2] +"_Form']").serialize();
-            $("form[id='" + id[0] + "_" + id[1] + "_" + id[2] +"_Form']").submit(function(e){ 
-               e.preventDefault();
+            $("form[id='" + id[0] + "_" + id[1] + "_" + id[2] +"_Form']").submit(function(e){
+                e.preventDefault();
             });
             formData = formData.replace(/[^=&]+=(&|$)/g,'');
             if(formData == '') {

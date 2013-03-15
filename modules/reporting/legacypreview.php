@@ -20,6 +20,7 @@ if($core->usergroup['canFillReports'] == 0 && $core->usergroup['canGenerateRepor
 
 $session->start_phpsession();
 
+
 if(!$core->input['action']) {
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list') {
 		if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {

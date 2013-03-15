@@ -59,6 +59,7 @@ else
 	/* Parse events/tasks popup - Start */
 	$eventtypes = get_specificdata('calendar_eventtypes', array('cetid', 'title'), 'cetid', 'title', array('by' => 'title', 'sort' => 'ASC'));	
 	$eventypes_selectlist = parse_selectlist('event[type]', 1, $eventtypes, 0);
+	$affiliate_address = $db->fetch_field($db->query("SELECT CONCAT(addressLine1, ', ', addressLine2, ', ', city) AS address FROM ".Tprefix."affiliates WHERE affid = ".$core->user['mainaffiliate']), 'address');
 	
 	$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name',  array('by' => 'name', 'sort' => 'ASC'));
 	$affiliates_selectlist = parse_selectlist('event[restrictto][]', 1, $affiliates, '', 1);

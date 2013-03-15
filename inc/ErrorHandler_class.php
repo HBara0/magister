@@ -144,7 +144,6 @@ class ErrorHandler {
 		}
 		
 		$core->settings['systemtitle'] = $settings['systemtitle'];
-		echo $error_message; exit;
 		eval("\$errorpage = \"".$template->get('errorpage')."\";");
 		
 		output_page($errorpage);
@@ -201,7 +200,7 @@ class ErrorHandler {
 	}
 	
 	public function output_errors_inline($message='') {
-		echo get_errors_inline($message);
+		echo $this->get_errors_inline($message);
 	}
 }
 ?>

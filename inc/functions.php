@@ -535,10 +535,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 			$space = '';
 			foreach($select_attributes as $key => $val) {
 				$output .= $space.$result[$val];
-				$space = ' ';
+				$space = ' - ';
 				$foundkeys[] = $result[$clean_key_attribute];
 			}
-
 			$results[$result[$clean_key_attribute]] = $output;
 
 			$output = '';
@@ -624,8 +623,8 @@ function currentquarter_info($real = false) {
 	$current_year = date('Y', $time_now);
 
 	for($i = 1; $i <= 4; $i++) {
-		$start = explode('/', $core->settings['q'.$i.'start']);
-		$end = explode('/', $core->settings['q'.$i.'end']);
+		$start = explode('-', $core->settings['q'.$i.'start']);
+		$end = explode('-', $core->settings['q'.$i.'end']);
 
 		$quarter_start = mktime(0, 0, 0, $start[1], $start[0], $current_year);
 		$quarter_end = mktime(24, 59, 0, $end[1], $end[0], $current_year);

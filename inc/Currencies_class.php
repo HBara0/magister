@@ -110,7 +110,7 @@ class Currencies {
 		$rates = $this->get_average_fxrates($currencies, $period, $options, $base_currency);
 		if($rates) {
 			foreach($rates as $currency => $rate) {
-				$new_rates[$rate] = $currency;
+				$new_rates[strval($rate)] = $currency;
 				if($options['combine_values'] == true) {
 					$new_rates[$rate] .= ' - '.$rate;
 				}
@@ -191,7 +191,7 @@ class Currencies {
 			LIMIT 0, 1"), 'rate');
 	}
 
-	public function get_any_rate($currency,$period,array $options=array(),$base_currency='')	 {
+	public function get_any_rate($currency, $period, array $options = array(), $base_currency = '') {
 		global $db;
 
 		if(empty($base_currency)) {
@@ -203,7 +203,7 @@ class Currencies {
 		}
 
 		return $db->fetch_field($db->query(
-			"SELECT abs(".$period['from']."-date) as datedelta,rate
+								"SELECT abs(".$period['from']."-date) as datedelta,rate
 			FROM ".Tprefix."currencies_fxrates
 			WHERE baseCurrency=(SELECT numCode FROM ".Tprefix."currencies WHERE alphaCode='".$db->escape_string($base_currency)."')
 			AND currency=(SELECT numCode FROM ".Tprefix."currencies WHERE alphaCode='".$db->escape_string($currency)."')

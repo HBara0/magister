@@ -119,7 +119,7 @@ You were invited to complete the following survey:<br />
 Subject: {2}<br />
 Description: {3}<br />
 <br />
-To start filling, please click <a href=\'http://127.0.0.1/web/ocos/index.php?module=surveys/fill&identifier={4}\'>here</a>.<br />
+To start filling, please click <a href=\'{4}\'>here</a>.<br />
 <br />
 Thank  you';
 $lang['surveys_invitation_subject'] = 'New Survey: {1}';
@@ -133,4 +133,5 @@ $lang['visitreport_reminder_message'] = 'Dear {1},<br />
 The Following visits have been carried but no visit report has been completed. Please complete the visit reports mentioned below:';
 $lang['visitreport_reminder_subject'] = 'Visit Reports Reminder';
 $lang['yournewpassword'] = 'Your New OCOS Account Password';
+$lang['feedbacknotification_subject'] = 'You have received a feedback on a chemical request from {1}';
 ?>

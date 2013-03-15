@@ -17,7 +17,21 @@ $lang['jobdescription'] = "Job description";
 $lang['assignsupplier'] = "Assign user to the following suppliers";
 $lang['isvalidator'] = "Is validator";
 $lang['assigncustomers'] = "Assign user to the following customers";
+$lang['passworddoesntmatch'] = "<ul>Password Must be: 
+<li>  minimum of 8 characters.</li>
+	 <li>  at least 1 number.</li>
+    <li>at least 1 uppercase character.</li>
+	<li>at least 1 lowercase character.</li>
+	<li>at least 1 symbol.</li>
+	</ul>";
 
+$lang['passwordhandling'] = "<ul>  
+<li>  minimum of 8 characters</li>
+	 <li>  at least 1 number</li>
+    <li>at least 1 uppercase character</li>
+	<li>at least 1 lowercase character</li>
+	<li>at least 1 symbol</li>
+	</ul>";
 $lang['usernameexists'] = "Specified username already exists";
 $lang['specifypassword'] = "Please specify a password";
 $lang['passwordsnomatch'] = "Password does not match the confirmation";
