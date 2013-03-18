@@ -51,9 +51,6 @@ if(!$core->input['action']) {
 		$generate_by = array(''); //Dummy array
 	}
 
-	$no_send_icon = true;
-	$session_identifier = md5(uniqid(microtime()));
-
 	foreach($generate_by as $index => $entity) {
 		if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list' || $core->input['referrer'] == 'direct') {
 			if($core->input['generateType'] == 1) {
@@ -79,61 +76,48 @@ if(!$core->input['action']) {
 			$report['supplier'] = $newreport->get_report_supplier();
 			$report['representatives'] = $newreport->get_supplier_representatives();
 			$report['summary'] = $newreport->get_report_summary();
+			
+			$no_send_icon = true;
+			$session_identifier = md5(uniqid(microtime()));
 		}
 		else { /* if Referrrer fill  */
 			$newreport = new ReportingQr(array('rid' => $core->input['rid']));
 			$report = $newreport->get();
+			$report['affiliates'] = $newreport->get_report_affiliate();
+			$report['supplier'] = $newreport->get_report_supplier();
 			$identifier = $db->escape_string($core->input['identifier']);
+			$session_identifier = $identifier;
+	
 			$reportdata['rid']= $report['rid'];
 			/* read productsactivity from fill  data session */
 			if($session->isset_phpsession('productsactivitydata_'.$identifier)) {
 				$productsactivity = unserialize($session->get_phpsession('productsactivitydata_'.$identifier));
 				unset($productsactivity['module']);
-				$reportdata['productsdata'] = $productsactivity; 
+				$report['productsactivity'] = $reportdata['productactivitydata'] = $productsactivity['productactivity']; 
 			 
 			}
 			/* read keycustomersdata from fill  data session */
 			if($session->isset_phpsession('keycustomersdata_'.$identifier)) {
-				$keycustomers = unserialize($session->get_phpsession('keycustomersdata_'.$identifier));
-				unset($keycustomers['module']);
-				$reportdata['keycustomersdata'] = $keycustomers;
+				$keycustomersdata = unserialize($session->get_phpsession('keycustomersdata_'.$identifier));
+				unset($keycustomersdata['module']);
+				$report['keycustomers'] = $reportdata['keycustomersdata'] = $keycustomersdata['keycustomers'];
 			}
 
 			/* Set the marketrport data by serializing the inputs in the stage market report */
 			if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'marketreport') !== false) {
 				$marketreportdata = serialize($core->input);
+				$report['marketreports'] = $core->input['marketreport'];
+				$reportdata['marketreportdata'] = $report['marketreports'];
 				$session->set_phpsession(array('marketreport_'.$identifier => $marketreportdata));
 			}
-			/* read marketreportdata from fill  data session */
-			if($session->isset_phpsession('marketreport_'.$identifier)) {
-				$marketreport = unserialize($session->get_phpsession('marketreport_'.$identifier));
-				unset($marketreport['module']);
-				$reportdata['marketreportdata'] = $marketreport;
-			}
-	print_R($reportdata);
+			
 			$session->set_phpsession(array('reportrawdata_'.$session_identifier => serialize($reportdata)));
 		}
-
-		$report = $newreport->get();
-		$newreport->read_products_activity(true);
-		$report['items'] = $newreport->get_classified_productsactivity();
-		$report['productsactivity'] = $newreport->get_products_activity();
-		$report['keycustomers'] = $newreport->get_key_customers();
-		$report['contributors'] = $newreport->get_report_contributors();
-		$report['marketreports'] = $newreport->get_market_reports();
-		$report['auditors'] = $newreport->get_report_supplier_audits();
-		$report['reportstats'] = $newreport->get_report_status();
-		$report['finializer'] = $newreport->get_report_finalizer();
-		$report['affiliates'] = $newreport->get_report_affiliate();
-		$report['supplier'] = $newreport->get_report_supplier();
-		$report['representatives'] = $newreport->get_supplier_representatives();
-		$report['summary'] = $newreport->get_report_summary();
 
 		$aggregate_types = array('affiliates', 'segments', 'products');
 		$report_years = array('current_year' => $report['year'], 'before_1year' => $report['year'] - 1, 'before_2years' => $report['year'] - 2);
 		asort($report_years);
 		$report['d$report_yearsisplayyear'] = $report['year'];
-		/**/
 
 		$report['quartername'] = 'Q'.$report['quarter'].' '.$report['year'];
 		foreach($aggregate_types as $aggregate_type) {
@@ -267,16 +251,22 @@ if(!$core->input['action']) {
 		}
 
 		$keycustomersbox = $keycustomers = '';
-		if(is_array($report['keycustomers']) && ($report['keyCustAvailable'] == 1)) {
+		if(is_array($report['keycustomers'])) {
 			foreach($report['keycustomers'] as $keycust => $customer) {
+				if(empty($customer['cid'])) {
+					continue;
+				}
 				eval("\$keycustomers .= \"".$template->get('new_reporting_report_keycustomersbox_customerrow')."\";");
 			}
 			eval("\$keycustomersbox = \"".$template->get('new_reporting_report_keycustomersbox')."\";");
 		}
 
 		$marketreportbox = '';
-		if(is_array($report['marketreports']) && ($report['mktReportAvailable'] == 1)) {
+		if(is_array($report['marketreports'])) {
 			foreach($report['marketreports'] as $mrid => $marketreport) {
+				if(isset($marketreport['exclude']) &&  $marketreport['exclude'] == 1) {
+					continue;
+				}
 				if(!empty($marketreport['authors'])) {
 					$mkauthors_overview[$report['affid']][$mrid] = $marketreport['authors'];
 
@@ -314,63 +304,67 @@ if(!$core->input['action']) {
 
 
 
-	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'direct') {
-		if(!empty($report['supplier']['logo'])) {
-			$report['supplierlogo'] = '<img src="./uploads/entitieslogos/'.$report['supplier']['logo'].'" alt="'.$report['supplier']['companyName'].'" width="200px"/><br /><span style="font-size:12px; font-weight:100;font-style:italic;">'.$report['supplier']['companyName'].'</span>';
-		}
-
-		if(is_array($report['representatives'])) {
-			foreach($report['representatives'] as $representative) {
-				$representatives_list .= "<tr><td style='width: 25%; text-align: left;'>{$representative[name]}</td><td style='text-align: left;'>{$representative[email]}</td></tr>";
+	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'direct' || $core->input['referrer'] == 'list') {
+		if($core->input['referrer'] != 'list') {
+			if(!empty($report['supplier']['logo'])) {
+				$report['supplierlogo'] = '<img src="./uploads/entitieslogos/'.$report['supplier']['logo'].'" alt="'.$report['supplier']['companyName'].'" width="200px"/><br /><span style="font-size:12px; font-weight:100;font-style:italic;">'.$report['supplier']['companyName'].'</span>';
 			}
-		}
 
-		//Use Cache class where appropriate below
-		if(is_array($mkauthors_overview)) {
-			$authors_overview_entries = '';
-			foreach($mkauthors_overview as $affid => $mkauthors) {
-				if(is_array($mkauthors) && !empty($mkauthors)) {
-					$authors_overview_entries .= '<tr><td colspan="2" class="thead">USE CACHE TO GET AFFILIATE NAME'.$affid.'</td></tr>';
-					foreach($mkauthors as $psid => $authors) {
-						$parsed_authors = array();
-						if(empty($cache['productsegments'][$psid])) {
-							$cache['productsegments'][$psid] = $lang->others;
-						}
+			if(is_array($report['representatives'])) {
+				foreach($report['representatives'] as $representative) {
+					$representatives_list .= "<tr><td style='width: 25%; text-align: left;'>{$representative[name]}</td><td style='text-align: left;'>{$representative[email]}</td></tr>";
+				}
+			}
 
-						if(is_array($authors)) {
-							foreach($authors as $uid => $author) {
-								$parsed_authors[$uid] = '<a href="mailto:'.$author['email'].'">'.$author['displayName'].'</a> (<a href="mailto:'.$author['email'].'">'.$author['email'].'</a>)';
+			//Use Cache class where appropriate below
+			if(is_array($mkauthors_overview)) {
+				$authors_overview_entries = '';
+				foreach($mkauthors_overview as $affid => $mkauthors) {
+					if(is_array($mkauthors) && !empty($mkauthors)) {
+						$authors_overview_entries .= '<tr><td colspan="2" class="thead">USE CACHE TO GET AFFILIATE NAME'.$affid.'</td></tr>';
+						foreach($mkauthors as $psid => $authors) {
+							$parsed_authors = array();
+							if(empty($cache['productsegments'][$psid])) {
+								$cache['productsegments'][$psid] = $lang->others;
 							}
 
-							$authors_overview_entries .= '<tr><td class="lightdatacell_freewidth" style="text-align:left;">'.$cache['productsegments'][$psid].'</td><td style="width:70%; border-bottom: 1px dashed #CCCCCC;">'.implode(', ', $parsed_authors).'</td></tr>';
+							if(is_array($authors)) {
+								foreach($authors as $uid => $author) {
+									$parsed_authors[$uid] = '<a href="mailto:'.$author['email'].'">'.$author['displayName'].'</a> (<a href="mailto:'.$author['email'].'">'.$author['email'].'</a>)';
+								}
+
+								$authors_overview_entries .= '<tr><td class="lightdatacell_freewidth" style="text-align:left;">'.$cache['productsegments'][$psid].'</td><td style="width:70%; border-bottom: 1px dashed #CCCCCC;">'.implode(', ', $parsed_authors).'</td></tr>';
+							}
 						}
 					}
 				}
+				eval("\$contributorspage = \"".$template->get('new_reporting_report_contributionoverview')."\";");
 			}
-			eval("\$contributorspage = \"".$template->get('new_reporting_report_contributionoverview')."\";");
+
+			eval("\$coverpage = \"".$template->get('new_reporting_report_coverpage')."\";");
+			eval("\$closingpage = \"".$template->get('reporting_report_closingpage')."\";");
+
+
+			eval("\$marketreporauthorstbox = \"".$template->get('new_reporting_report_marketreporauthorstbox')."\";");
+
+			/* Output summary table - START */
+			if(!empty($report['summary']['summary'])) {
+				eval("\$summarypage = \"".$template->get('new_reporting_report_summary')."\";");
+			}
+			/* Output summary table  - END */
+			
+			eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
 		}
-
-		eval("\$coverpage = \"".$template->get('new_reporting_report_coverpage')."\";");
-		eval("\$closingpage = \"".$template->get('reporting_report_closingpage')."\";");
-
-
-		eval("\$marketreporauthorstbox = \"".$template->get('new_reporting_report_marketreporauthorstbox')."\";");
-
-		/* Output summary table - START */
-		if(!empty($report['summary']['summary'])) {
-			eval("\$summarypage = \"".$template->get('new_reporting_report_summary')."\";");
-		}
-		/* Output summary table  - END */
-
 
 		if($core->input['referrer'] == 'direct') {
 			if($report['isSent'] == 0) {
 				if($core->usergroup['reporting_canSendReportsEmail'] == 1) {
-					//$unique_array = array_unique($report['spid']);
-					//if(count(array_unique($report['spid'])) == 1 || $core->usergroup['canViewAllSupp'] == 1) {
-					if(in_array($report['spid'], $core->user['auditfor']) || $core->usergroup['canViewAllSupp'] == 1) {
-						$tools_send = "<a href='index.php?module=reporting/preview&amp;action=saveandsend&amp;identifier={$session_identifier}'><img src='images/icons/send.gif' border='0' alt='{$lang->sendbyemail}' /></a> ";
-						//eval("\$reportingeditsummary = \"".$template->get('new_reporting_report_editsummary')."\";");
+					$unique_array = array_unique($report['spid']);
+					if(count(array_unique($report['spid'])) == 1 || $core->usergroup['canViewAllSupp'] == 1) {
+						if(in_array($report['spid'], $core->user['auditfor']) || $core->usergroup['canViewAllSupp'] == 1) {
+							$tools_send = "<a href='index.php?module=reporting/preview&amp;action=saveandsend&amp;identifier={$session_identifier}'><img src='images/icons/send.gif' border='0' alt='{$lang->sendbyemail}' /></a> ";
+							eval("\$reportingeditsummary = \"".$template->get('new_reporting_report_editsummary')."\";");
+						}
 					}
 				}
 			}
@@ -382,14 +376,10 @@ if(!$core->input['action']) {
 			$tools_approve .= "<span id='approvereport_span'><a href='#approvereport' id='approvereport'><img src='images/valid.gif' alt='{$lang->approve}' border='0' /></a></span> | ";
 		}
 
-
 		$tool_print = "<span id='printreport_span'><a href='index.php?module=reporting/preview&amp;action=print&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/print.gif' border='0' alt='{$lang->printreport}'/></a></span>";
-
 
 		$tools = $tools_approve.$tools_send."<a href='index.php?module=reporting/preview&amp;action=exportpdf&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;".$tool_print;
 
-
-		eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
 		$reports = $coverpage.$contributorspage.$summarypage.$overviewpage.$reports.$closingpage;
 		$session->set_phpsession(array('reports_'.$session_identifier => $reports));
 	}
@@ -418,6 +408,7 @@ if(!$core->input['action']) {
 		/* Check who hasn't yet filled in the report - End */
 		eval("\$tools .= \"".$template->get('reporting_preview_tools_finalize')."\";");
 	}
+
 	eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
 	output_page($reportspage);
 }
