@@ -6,6 +6,14 @@ class Accounts {
 		return md5(md5($salt).$md5pass);
 	}
 
+	public static function generate_password_string($length) {
+		$string = self::random_string($length);
+		if(!self::validate_password_complexity($string)) {
+			$string = self::generate_password_string($length);
+		}
+		return $string;
+	}
+	
 	protected static function create_crypt_password($password, $salt, $workload = 12) {
 		return crypt($password, "$2a$".$workload."$".$salt);
 	}
@@ -45,7 +53,7 @@ class Accounts {
 	}
 
 	protected static function random_string($length) {
-		$keys = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$keys = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345679@#$%_^&*';
 		$max = strlen($keys) - 1;
 
 		for($i = 0; $i < $length; $i++) {

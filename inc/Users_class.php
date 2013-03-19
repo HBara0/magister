@@ -47,6 +47,7 @@ class Users {
 	}
 
 	private function read_mainaffiliate() {
+		global $db;
 		$this->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->uid}' AND isMain=1"), 'affid');
 	}
 	
