@@ -10,7 +10,7 @@
 
 require '../inc/init.php';
 
-$file_path = 'Integration - Sales.csv';
+$file_path = 'Integration - Business Partners.csv';
 
 $csv = new CSV($file_path, 1, true, ';');
 
@@ -36,12 +36,13 @@ switch($core->input['datatype']) {
 				'integration_mediation_salesorders' => array('foreignId', 'date', 'spid'));
 		break;
 	case 'entities':
-		$tables = array('integration_mediation_entities' => array('pk' => 'imspid'));
+		$tables = array('integration_mediation_entities' => array('pk' => 'imspid', 'identifier' => 'foreignId'));
 		$required_fields = array('integration_mediation_entities' => array('foreignId', 'foreignName', 'entityType'));
 		break;
 	case 'products':
-		$tables = array('integration_mediation_products' => array('pk' => 'impid'));
-		$required_fields = array('integration_mediation_entities' => array('foreignId', 'foreignName', 'foreignSupplier'));
+		$tables = array('integration_mediation_products' => array('pk' => 'impid', 'identifier' => 'foreignId'));
+		$required_fields = array('integration_mediation_products' => array('foreignId', 'foreignName', 'foreignSupplier'));
+		break;
 	default:
 		error('Unkown data type');
 		exit;
