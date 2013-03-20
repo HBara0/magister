@@ -159,4 +159,13 @@ $lang['q1']="Q1";
 $lang['q2']="Q2";
 $lang['q3']="Q3";
 $lang['q4']="Q4";
+
+$lang['activityby'] = 'Activity by';
+$lang['segments'] = 'segments';
+$lang['products'] = 'products';
+$lang['affiliates'] = 'affiliates';
+$lang['amount'] = 'Amount';
+$lang['purchasedQty'] = 'Purchased Quantities';
+$lang['soldQty'] = 'Sold Quantities';
+$lang['progressionyearsby'] = 'Progression over years by';
 ?>

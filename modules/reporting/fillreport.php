@@ -170,7 +170,7 @@ if(!$core->input['action']) {
 		$rid = $db->escape_string($core->input['rid']);
 
 		$customerscount = 5; //Make it a setting
-		$query = $db->query("SELECT kc.*, e.companyName AS customername
+		$query = $db->query("SELECT kc.*, e.companyNamecompanyName
 							FROM ".Tprefix."keycustomers kc LEFT JOIN ".Tprefix."entities e ON (e.eid=kc.cid) 
 							WHERE kc.rid='{$rid}' ORDER BY kc.rank ASC");
 
@@ -609,7 +609,7 @@ else {
 				continue;
 			}
 			$keycustomer['rid'] = $rid;
-			unset($keycustomer['customername']);
+			unset($keycustomer['companyName']);
 			$insert = $db->insert_query('keycustomers', $keycustomer);
 			$processed_once = true;
 		}
@@ -892,7 +892,7 @@ else {
 			foreach($rawdata['keycustomersdata'] as $rank => $newdata) {
 				$newdata['rid'] = $rawdata['rid'];
 				$newdata['rank'] = $rank;
-				unset($newdata['customername']);
+				unset($newdata['companyName']);
 				$db->insert_query('keycustomers', $newdata);
 			}
 		}

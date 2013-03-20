@@ -1,6 +1,6 @@
 <page>
     <table width="100%" cellpadding="0" cellspacing="0" class="reportbox">
-<tr><td colspan="14" width="50px"class="thead">{$lang->quarterscomparison} - $category</td></tr>
+<tr><td colspan="14" width="50px"class="thead">{$lang->activityby} {$lang->$aggregate_type} - <em>{$lang->$category} ({$categories_uom[$category]})</em></td></tr>
   <tr>
     <td  width="100px" rowspan="2" class="columnhead">&nbsp;</td>
  
