@@ -62,7 +62,7 @@ if(!$core->input['action']) {
 	);
 
 	$countries = get_specificdata('countries', $countries_attributes, 'coid', 'name', $countries_order);
-	$countries_list = parse_selectlist('country', 8, $countries, '', '', '', array('required' => 'required','blankstart'=>true));
+	$countries_list = parse_selectlist('country', 8, $countries, '', '', '', array('required' => 'required', 'blankstart' => true));
 
 	//$headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
 
@@ -187,7 +187,10 @@ else {
 		$representative = new Entities($core->input, 'add_representative');
 
 		if($representative->get_status() === true) {
-			output_xml("<status>true</status><message>{$lang->representativecreated}</message>");
+			header('Content-type: text/xml+javascript'); 
+			output_xml('<status>true</status><message>{$lang->representativecreated}<![CDATA[<script>$("#popup_addrepresentative").dialog("close");</script>]]></message>');
+			//output_xml("<status>true</status><message>{$lang->representativecreated}</message>");
+			exit;
 		}
 		else {
 			output_xml("<status>false</status><message>{$lang->errorcreatingreprentative}</message>");
