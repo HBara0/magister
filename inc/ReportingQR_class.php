@@ -90,7 +90,6 @@ class ReportingQr Extends Reporting {
 									foreach($this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$quarter] as $affid => $affiliates_data) {
 										foreach($affiliates_data as $psid => $productssegments_data) {
 											foreach($productssegments_data as $pid => $products_data) {
-												//echo $products_data;
 												$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data;
 											}
 										}

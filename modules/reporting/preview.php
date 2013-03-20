@@ -69,6 +69,7 @@ if(!$core->input['action']) {
 			$report['items'] = $newreport->get_classified_productsactivity();
 			unset($report['items']['amount']['forecast']);
 			$report['productsactivity'] = $newreport->get_products_activity();
+
 			$report['keycustomers'] = $newreport->get_key_customers();
 			$report['contributors'] = $newreport->get_report_contributors();
 			$report['marketreports'] = $newreport->get_market_reports();
@@ -118,8 +119,9 @@ if(!$core->input['action']) {
 
 		$report_years = array('current_year' => $report['year'], 'before_1year' => $report['year'] - 1, 'before_2years' => $report['year'] - 2);
 		asort($report_years);
-
+		
 		$report['quartername'] = 'Q'.$report['quarter'].' '.$report['year'];
+		$item = array();
 		if(is_array($report['items'])) {
 			foreach($aggregate_types as $aggregate_type) {
 				foreach($report['items'] as $category => $catitem) {/* amount or  quantity */
@@ -133,9 +135,11 @@ if(!$core->input['action']) {
 									case 'affiliates':
 										if(is_array($report['items'][$category][$type][$year][$quarter])) {
 											foreach($report['items'][$category][$type][$year][$quarter] as $affid => $affiliatedata) {
-												$item[$aggregate_type][$category][$affid]['name'] = $total_year[$aggregate_type][$affid]['name'] = $newreport->get_report_affiliate($affid)['name'];
+												$item[$aggregate_type][$category][$affid]['name'] = $total_year[$aggregate_type][$category][$affid]['name'] = $newreport->get_report_affiliate($affid)['name'];
 												$item[$aggregate_type][$category][$affid][$type][$year][$quarter] = array_sum_recursive($report['items'][$category][$type][$year][$quarter][$affid]);
-												$total_year[$aggregate_type][$affid][$year]+=$item[$aggregate_type][$category][$affid][$type][$year][$quarter];
+
+												$total_year[$aggregate_type][$category][$affid][$year]+=$item[$aggregate_type][$category][$affid][$type][$year][$quarter];
+
 												if($item[$aggregate_type][$category][$affid][$type][$year][$quarter] > 1) {
 													$item[$aggregate_type][$category][$affid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$affid][$type][$year][$quarter]);
 												}
@@ -149,9 +153,11 @@ if(!$core->input['action']) {
 											//$item['name'] = $newreport->get_report_productsegment($report['productsactivity'] ['spid'])['segment'];
 											foreach($report['items'][$category][$type][$year][$quarter] as $affid => $affiliatedata) {
 												foreach($affiliatedata as $spid => $segmentdata) {
-													$item[$aggregate_type][$category][$spid]['name'] = $total_year[$aggregate_type][$spid]['name'] = $newreport->get_productssegments()[$spid];
+													$item[$aggregate_type][$category][$spid]['name'] = $total_year[$aggregate_type][$category][$spid]['name'] = $newreport->get_productssegments()[$spid];
 													$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = array_sum($report['items'][$category][$type][$year][$quarter][$affid][$spid]);
-													$total_year[$aggregate_type][$spid][$year]+=$item[$aggregate_type][$category][$spid][$type][$year][$quarter];
+
+													$total_year[$aggregate_type][$category][$spid][$year] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
+
 													if($item[$aggregate_type][$category][$spid][$type][$year][$quarter] > 1) {
 														$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$spid][$type][$year][$quarter]);
 													}
@@ -167,9 +173,10 @@ if(!$core->input['action']) {
 											foreach($report['items'][$category][$type][$year][$quarter] as $affid => $affiliatedata) {
 												foreach($affiliatedata as $spid => $segmentdata) {
 													foreach($segmentdata as $pid => $productdata) {
-														$item[$aggregate_type][$category][$pid]['name'] = $total_year[$aggregate_type][$spid]['name'] = $newreport->get_products()[$pid];
+														$item[$aggregate_type][$category][$pid]['name'] = $total_year[$aggregate_type][$category][$spid]['name'] = $newreport->get_products()[$pid];
 														$item[$aggregate_type][$category][$pid][$type][$year][$quarter] = $report['items'][$category][$type][$year][$quarter][$affid][$spid][$pid];
-														$total_year[$aggregate_type][$spid][$year]+=$item[$aggregate_type][$category][$pid][$type][$year][$quarter];
+
+														$total_year[$aggregate_type][$category][$pid][$year] += $item[$aggregate_type][$category][$pid][$type][$year][$quarter];
 													}
 												}
 											}
@@ -184,7 +191,11 @@ if(!$core->input['action']) {
 
 			$temp_item = $item;
 			$item = array();
+
 			foreach($temp_item as $aggregate_type => $aggregate_data) {
+				if($aggregate_type != 'affiliates') {
+					$reporting_report_newoverviewbox[$aggregate_type] = $reporting_report_newoverviewbox_row[$aggregate_type] = array();
+				}
 				foreach($aggregate_data as $category => $cat_data) { /* amount or  quantity */
 					foreach($cat_data as $iid => $item) {
 						$item[$aggregate_type][$category] = $item;
@@ -201,51 +212,60 @@ if(!$core->input['action']) {
 					if(is_array($reporting_report_newoverviewbox_row[$aggregate_type][$category])) {
 						$reporting_report_newoverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newoverviewbox_row[$aggregate_type][$category]);
 					}
-						eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
+					eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
 				}
 			}
+			$item = array();
 
 			if(is_array($total_year) && !empty($total_year)) {
 				foreach($total_year as $aggregate_type => $aggdata) {
-					foreach($aggdata as $itemkey => $item) {
-						foreach($report_years as $yearkey => $yearval) {
-							if($yearval == $report['year']) {
-								continue;
-							}
-							$current_yearval = $item['data'][$yearval];
+					$reporting_report_newtotaloverviewbox[$aggregate_type] = $reporting_report_newtotaloverviewbox_row[$aggregate_type] = array();
+					foreach($aggdata as $category => $catdata) {
+						foreach($catdata as $itemkey => $item) {
+							foreach($report_years as $yearkey => $yearval) {
+								$item['data'][$yearval] = $item[$yearval];
+								//$current_yearval = $item[$yearval];
 
-							if(empty($current_yearval)) {
-								$item['data'][$yearval] = 0;
-							}
-
-							if(empty($current_yearval) && empty($item['data'][$yearval + 1])) {
-								$item['perc'][$yearval] = 0;
-							}
-							else {
-
-								if(empty($current_yearval)) {
-									$item['perc'][$yearval] = 100;
+								if(empty($item['data'][$yearval])) {
+									$item['data'][$yearval] = 0;
 								}
-								else {
-									$item['perc'][$yearval] = round(($item['data'][$yearval + 1] / $current_yearval) * 100);  /* Divide the next year total ammount with the ammount of previous year */
+								if($yearval != $report['year']) {
+									if(empty($item['data'][$yearval]) && empty($item[$yearval + 1])) {
+										$item['perc'][$yearval] = 0;
+									}
+									else {
+
+										if(empty($item['data'][$yearval])) {
+											$item['perc'][$yearval] = 100;
+										}
+										else {
+											$item['perc'][$yearval] = round((($item[$yearval + 1] / $item['data'][$yearval]) * 100) - 100);  /* Divide the next year total ammount with the ammount of previous year */
+										}
+									}
+
+									$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellpositive';
+									if($item['perc'][$yearval] == 0) {
+										$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellzero';
+									}
+									elseif($item['perc'][$yearval] < 0) {
+										$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellnegative';
+									}
 								}
 							}
 
-							$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellpositive';
-							if($item['perc'][$yearval] == 0) {
-								$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellzero';
-							}
-							elseif($item['perc'][$yearval] < 0) {
-								$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellnegative';
-							}
+							eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
 						}
 
-						eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type].= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
+						if(is_array($reporting_report_newtotaloverviewbox_row[$aggregate_type][$category])) {
+							$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category]);
+						}
+
+						eval("\$reporting_report_newtotaloverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
 					}
-					eval("\$reporting_report_newtotaloverviewbox[$aggregate_type] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
 				}
 			}
 		}
+		$item = array();
 
 		$keycustomersbox = $keycustomers = '';
 		if(is_array($report['keycustomers'])) {
@@ -268,7 +288,7 @@ if(!$core->input['action']) {
 					$mkauthors_overview[$report['affid']][$mrid] = $marketreport['authors'];
 
 					$marketreport['authors_output'] = $lang->authors.': ';
-
+					$marketreportbox_comma = '';
 					foreach($marketreport['authors'] as $author) {
 						$marketreport['authors_output'] .= $marketreportbox_comma.$author['displayName'];
 						$marketreportbox_comma = ', ';
@@ -469,9 +489,9 @@ else {
 		}
 		if($core->input['action'] == 'approve') {
 			$reportsids = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']));
-			if($core->usergroup['reporting_canApproveReports'] == 1) { 
+			if($core->usergroup['reporting_canApproveReports'] == 1) {
 				foreach($reportsids as $key => $val) {
-					$db->update_query('reports', array('isApproved' => 1), "rid='".$db->escape_string( $val)."'");
+					$db->update_query('reports', array('isApproved' => 1), "rid='".$db->escape_string($val)."'");
 				}
 				output_xml("<status>true</status><message>{$lang->approved}</message>");
 				$log->record($meta_data['rid'], 'approve');

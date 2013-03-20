@@ -6,6 +6,6 @@
         <td colspan="3" align="center" class="columnhead">{$report_years[before_1year]}</td>
         <td colspan="3" align="center" class="columnhead">{$report_years[current_year]}</td>
     </tr>
-    {$reporting_report_newtotaloverviewbox_row[$aggregate_type]}
+    {$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category]}
 </table>
 <br />   

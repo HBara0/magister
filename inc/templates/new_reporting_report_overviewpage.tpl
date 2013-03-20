@@ -6,8 +6,7 @@
     {$reporting_report_newoverviewbox[affiliates][soldQty]}
     <hr />
     
-    {$reporting_report_newtotaloverviewbox[affiliates]}
-    {$reporting_report_newtotaloverviewbox[products]}
-    {$reporting_report_newtotaloverviewbox[segments]}
+    {$reporting_report_newtotaloverviewbox[affiliates][purchasedQty]}
+    {$reporting_report_newtotaloverviewbox[segments][purchasedQty]}
     </div>
 </page>   

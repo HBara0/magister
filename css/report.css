@@ -23,6 +23,10 @@
       border-bottom: 1px dotted #D8D8D8;
 }
 
+.mainbox_datacell {
+    text-align: right;
+}
+
 .mainbox_itemnamecell {
        border-left: 0px;
        width:  100px;
@@ -116,7 +120,7 @@
 	font-style: italic;
 	text-align: center;
 	font-size: 11px;
-        width: 60px;
+        width: 30px;
 }
 
 .verticalspacer, .horizontalspacer {
