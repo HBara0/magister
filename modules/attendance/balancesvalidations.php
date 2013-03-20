@@ -135,6 +135,10 @@ else {  //days taken must = actual taken
 		}
 		/* Validate attribute values at once - END */
 
+		if(!isset($options['affid']) || empty($options['affid'])) {
+			$options['affid'] = $core->user['mainaffiliate'];
+		}
+		
 		$query = $db->query("SELECT l.*, lt.isWholeDay 
 			FROM ".Tprefix."leaves l 
 			JOIN leavetypes lt ON (lt.ltid=l.type) 

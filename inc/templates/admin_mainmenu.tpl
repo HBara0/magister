@@ -1,6 +1,6 @@
  <td class="menuContainer"><ul id="mainmenu">
     	<li><span id="home/index"><a href='index.php?module=home/index'>{$lang->home}</a></span></li>
-        <li><span id="config/settings"><a href='index.php?module=config/settings'>{$lang->settings}</a></span></li>
+        <li><span id="config/settings"><a href='index.php?module=config/settings'>{$lang->systemsettings}</a></span></li>
         <li class="expandable"><span id="users">{$lang->manageusers}</span>
        		<div id="users_children_container" style="display: none;">
                 <ul id="users_children">
@@ -42,11 +42,11 @@
         <li class="expandable"><span id="maintenance">{$lang->maintenance}</span>
         	<div id="maintenance_children_container" style="display: none;">
                 <ul id="maintenance_children">
-                    <li><span id="maintenance/overview"><a href='index.php?module=maintenance/overview'>{$lang->overview}</span></li>
-                    <li><span id="maintenance/logs"><a href='index.php?module=maintenance/logs'>{$lang->readlogs}</span></li>
-                    <li><span id="maintenance/backupdb"><a href='index.php?module=maintenance/backupdb'>{$lang->backupdb}</span></li>
-                    <li><span id="maintenance/optimizedb"><a href='index.php?module=maintenance/optimizedb'>{$lang->optimizedb}</span></li>
-                    <li><span id="maintenance/phpinfo"><a href='index.php?module=maintenance/phpinfo'>{$lang->phpinfo}</span></li>
+                    <li><span id="maintenance/overview"><a href='index.php?module=maintenance/overview'>{$lang->overview}</a></span></li>
+                    <li><span id="maintenance/logs"><a href='index.php?module=maintenance/logs'>{$lang->readlogs}</a></span></li>
+                    <li><span id="maintenance/backupdb"><a href='index.php?module=maintenance/backupdb'>{$lang->backupdb}</a></span></li>
+                    <li><span id="maintenance/optimizedb"><a href='index.php?module=maintenance/optimizedb'>{$lang->optimizedb}</a></span></li>
+                    <li><span id="maintenance/phpinfo"><a href='index.php?module=maintenance/phpinfo'>{$lang->phpinfo}</a></span></li>
                 </ul>
 			</div>
         </li>

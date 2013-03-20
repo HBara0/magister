@@ -43,7 +43,7 @@ if(!$core->input['action']) {
 	if($core->usergroup['canAddSuppliers'] == 1) {
 		$types['s'] = $lang->supplier;
 	}
-	$types_list = parse_selectlist('type', 1, $types, '', '', '', array('required' => 'required'));
+	$types_list = parse_selectlist('type', 1, $types, $selected_type, '', '', array('required' => 'required'));
 	$segments_list = parse_selectlist("psid[]", 3, get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', 'title'), '', 1, '', array('required' => 'required'));
 
 	$affiliates_attributes = array('affid', 'name');

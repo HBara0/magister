@@ -126,7 +126,7 @@ else
 					$fxrates['price'] = $order['usdFxrate'];
 				}
 				
-				$orderline_query = $db->query("SELECT imol.*, imol.foreignId AS orderline_id, imp.foreignName AS productname, cost, costCurrency, ime.foreignName AS supplier, ps.titleAbbr AS productcategory
+				$orderline_query = $db->query("SELECT imol.*, imol.foreignId AS orderline_id, imp.foreignName AS productname, imp.foreignNameAbbr AS productnameAbbr, imp.localId AS productLocalId, cost, costCurrency, ime.foreignName AS supplier, ps.titleAbbr AS productcategory
 											FROM integration_mediation_salesorderlines imol 
 											JOIN integration_mediation_products imp ON (imp.foreignId=imol.pid)
 											LEFT JOIN products p ON (imp.localId=p.pid)
@@ -136,6 +136,13 @@ else
 											WHERE foreignOrderId='{$order[order_id]}'{$orderline_query_where}");
 				$quantity_accuml = 0;
 				while($orderline = $db->fetch_assoc($orderline_query)) {
+					/* Get Supplier if not specified - START */
+					if(empty($orderline['supplier']) && !empty($orderline['productLocalId'])) {
+						$localproduct = new Products($orderline['productLocalId']);
+						$orderline['supplier'] = $localproduct->get_supplier()->get()['companyName'];
+					}
+					/* Get Supplier if not specified - END */
+					
 					if(!isset($average_fx[$orderline['costCurrency']])) {
 						$average_fx[$orderline['costCurrency']] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $orderline['costCurrency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $order['date']).' 24:00')-(7*24*3600), 'year' => date('Y', $order['date']), 'month' => date('m', $order['date'])), array('precision' => 4));
 					}
@@ -151,42 +158,54 @@ else
 					}
 				
 					/* Get Purchase Prices - START */
-					$purchase_query = $db->query("SELECT * FROM ".Tprefix."integration_mediation_stockpurchases WHERE pid='{$orderline[pid]}' AND date < {$order[date]}");
-					while($purchase = $db->fetch_assoc($purchase_query)) {
-						$purchase_times = 1;
-						if($purchase['quantityUnit'] == 'MT') {
-							$purchase_times = 1000;
-						}
-						
-						$quantity_accuml += $purchase['quantity']*$purchase_times;
-						$purchase_prices[$orderline['pid']][$purchase['imspid']] = ($purchase['amount']*$purchase['usdFxrate'])/($purchase['quantity']*$purchase_times);
-						if($orderline['quantity'] < $quantity_accuml) {
-							break;
-						}
+					if(empty($orderline['purchasePrice'])) {
+//						$purchase_query = $db->query("SELECT * FROM ".Tprefix."integration_mediation_stockpurchases WHERE pid='{$orderline[pid]}' AND date < {$order[date]}");
+//						while($purchase = $db->fetch_assoc($purchase_query)) {
+//							$purchase_times = 1;
+//							if($purchase['quantityUnit'] == 'MT') {
+//								$purchase_times = 1000;
+//							}
+//
+//							$quantity_accuml += $purchase['quantity']*$purchase_times;
+//							if(empty($purchase['usdFxrate'])) {
+//								$purchase['usdFxrate'] = 1;
+//							}
+//							$purchase_prices[$orderline['pid']][$purchase['imspid']] = ($purchase['amount']/$purchase['usdFxrate'])/($purchase['quantity']*$purchase_times);
+//							if($orderline['quantity'] < $quantity_accuml) {
+//								break;
+//							}
+//						}
+//						$orderline['purchaseprice'] = 0;
+//						if(is_array($purchase_prices[$orderline['pid']])) {
+//							$orderline['purchaseprice'] = array_sum($purchase_prices[$orderline['pid']])/count($purchase_prices[$orderline['pid']]);
+//						}
+//
+//						unset($purchase_prices[$orderline['pid']]);
 					}
-					$orderline['purchaseprice'] = 0;
-					if(is_array($purchase_prices[$orderline['pid']])) {
-						$orderline['purchaseprice'] = array_sum($purchase_prices[$orderline['pid']])/count($purchase_prices[$orderline['pid']]);
+					else {
+						$fxrates['purchasePrice'] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $orderline['purPriceCurrency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $order['date']).' 24:00'), 'year' => date('Y', $order['date']), 'month' => date('m', $order['date'])), array('precision' => 4));
+						if(empty($fxrates['cost'])) {
+							$fxrates['purchasePrice'] = $average_fx[$orderline['purPriceCurrency']];
+						}
+						$orderline['purchasePrice'] = $orderline['purchasePrice']*$fxrates['purchasePrice'];
 					}
-		
-					unset($purchase_prices[$orderline['pid']]);
-					
 					/* Get Purchase Prices - END */
+					
 					$order['month'] = date('M', $order['date']);
 					$order['month_num'] = date('n', $order['date']);
 					$order['day'] = date('d', $order['date']);
 					$order['week'] = date('W', $order['date']);
-					
+
 					$orderline['price'] = $orderline['price']*$fxrates['price'];
 					$orderline['linenetamt'] = $orderline['quantity']*$orderline['price'];
 					//$orderline['price'] = round($orderline['price']*$fxrates['price'], 2);
 					
 					$orderline['cost'] = $orderline['cost']*$fxrates['cost'];
-					$orderline['totalcost'] = $orderline['cost']*$orderline['quantity'];
+					$orderline['totalcost'] = $orderline['cost'];//*$orderline['quantity'];
 					$orderline['netmargin'] = $orderline['linenetamt']-$orderline['totalcost'];
-					$orderline['grossmargin'] = $orderline['linenetamt']-($orderline['purchaseprice']*$orderline['quantity']);
+					$orderline['grossmargin'] = $orderline['linenetamt']-($orderline['purchasePrice']*$orderline['quantity']);
 					$orderline['marginperc'] = round(($orderline['netmargin']*100)/$orderline['linenetamt'], 1);
-					
+
 					$sales[$order['month_num']][$order['week']]['entries'][$orderline['orderline_id']] = array_merge($order, $orderline);
 					//$sales[$order['month_num']][$order['week']]['linenetamt_total'] +=  $orderline['linenetamt'];
 					//$sales[$order['month_num']][$order['week']]['grossmargin_total'] +=  $orderline['grossmargin'];
@@ -198,7 +217,7 @@ else
 					$total_details_items = array('customers' => array('type' => 'topcustomers', 'id' => 'bpid', 'name' => 'bpname_abv', 'var' => 'order'), 
 					'suppliers' => array('type' => 'topsuppliers', 'id' => 'spid', 'name' => 'supplier', 'var' => 'orderline'),  
 					'salesrep' => array('type' => 'topemployees', 'id' => 'salesrep_id', 'name' => 'salesrep', 'var' => 'order'), 
-					'products' => array('type' => 'topproducts', 'id' => 'pid', 'name' => 'productname', 'var' => 'orderline'));
+					'products' => array('type' => 'topproducts', 'id' => 'pid', 'name' => 'productnameAbbr', 'var' => 'orderline'));
 					
 					foreach($total_details_items as $cat => $config) {
 						if($core->input['type'] == $config['type']) {
@@ -227,10 +246,10 @@ else
 				$salesreport .= '</tr>';
 				
 				foreach($sales as $month => $weeks) {
-					$required_data = array('day', 'salesrep', 'productcategory', 'productname', 'supplier', 'bpname', 'purchaseprice', 'cost', 'totalcost', 'paymenttermsdays', 'quantity',  'price', 'linenetamt', 'grossmargin', 'netmargin', 'marginperc');
+					$required_data = array('day', 'salesrep', 'productcategory', 'productnameAbbr', 'supplier', 'bpname', 'purchasePrice', 'cost', 'totalcost', 'paymenttermsdays', 'quantity',  'price', 'linenetamt', 'grossmargin', 'netmargin', 'marginperc');
 					$required_data_count = count($required_data);
 					$rightcols_count = 4;
-					$toround = array('orderline', 'grossmargin', 'netmargin', 'linenetamt', 'totalcost', 'price', 'cost', 'purchaseprice');
+					$toround = array('orderline', 'grossmargin', 'netmargin', 'linenetamt', 'totalcost', 'price', 'cost', 'purchasePrice');
 			
 					$salesreport .= '<tr><td style="text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC; background-color:#F7FAFD;" colspan="'.$required_data_count.'"><strong>'.date('F', mktime(0, 0, 0, $month, 1, 0)).' '.$current_date['year'].'</strong></td></tr>';
 					foreach($weeks as $week => $sections) {
@@ -343,7 +362,7 @@ else
 		
 		$session->set_phpsession(array('sreportcontent_'.$identifier => base64_encode($salesreport)));
 		
-		//$salesreport .= '<a href="index.php?module=crm/salesreport&action=sendreport&amp;identifier='.$identifier.'" target="_self">Send</a>';
+		$salesreport .= '<a href="index.php?module=crm/salesreport&action=sendreport&amp;identifier='.$identifier.'" target="_self">Send</a>';
 		eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
 		output_page($previewpage);
 	}
@@ -356,9 +375,9 @@ else
 		$message = '<html><head></head><body style="font-size:12px; font-family: Tahoma; color: #333333;">'.$report_content.'</body>';
 		
 		$email_data = array(
-			'to'	      => 'christophe.sacy@orkila.com',
-			'cc'			=> 'jalel.elghoul@orkila.tn',
-			'from_email'  => $core->settings['adminemail'],
+			'to'	      => 'zaher.reda@orkila.com',
+			//'cc'			=> 'jalel.elghoul@orkila.tn',
+			'from_email'  => $core->settings['maileremail'],
 			'from'	      => 'OCOS Mailer',
 			'subject'     => 'Week '.date('W', TIME_NOW).' '.$current_date['year'].' sales report',
 			'message'     => '<h3>Sales '.$current_date['month'].' '.$current_date['year'].' in Orkila Tunisie</h3><br />'.$message

@@ -83,7 +83,7 @@ if($core->input['action']) {
 		$new_details = $db->fetch_assoc($db->query("SELECT uid, firstName FROM ".Tprefix."users WHERE email='{$email}'"));
 
 		if($new_details['uid']) {
-			$new_details['password'] = random_string(5);
+			$new_details['password'] = Accounts::generate_password_string(8);
 
 			$lang->resetemailmessage = $lang->sprint($lang->resetemailmessage, $new_details['firstName'], $new_details['password'], $core->settings['adminemail']);
 
