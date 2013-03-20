@@ -28,20 +28,29 @@
        width:  100px;
 }
 
-.totalsbox_numcell, .totalsbox_perccell {
+.totalsbox_numcell, .totalsbox_perccellpositive, .totalsbox_perccellnegative, .totalsbox_perccellzero {
     width: 50px;
     text-align: center;
 }
 
-.totalsbox_perccell {
+.totalsbox_perccellpositive {
     font-style: italic;
-    background-color:#F2FAED;
+    background-color:#B0DE78;
+}
+
+.totalsbox_perccellnegative {
+    font-style: italic;
+    background-color:#F78B83;
+}
+
+.totalsbox_perccellzero {
+    font-style: italic;
+    background-color:#F0DE7D;   
 }
 
 .totalsbox_yearsep {
     width: 10px;
     text-align: center;
-    background-color:#F2FAED;
 }
 
 .thead {

@@ -1,5 +1,5 @@
 <table width="100%" cellpadding="0" cellspacing="0" class="reportbox">
-    <tr><td colspan="10" width="130" class="thead">{$lang->quarterscomparison} - {$aggregate_type}</td></tr>
+    <tr><td colspan="10" width="130" class="thead">{$lang->progressionyearsby} {$lang->$aggregate_type} - <em>{$lang->$category} ({$categories_uom[$category]})</em></td></tr>
     <tr>
         <td class="columnhead">&nbsp;</td>
         <td colspan="3" align="center" class="columnhead">{$report_years[before_2years]}</td>

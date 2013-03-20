@@ -252,12 +252,13 @@ class ReportingQr Extends Reporting {
 								LEFT JOIN ".Tprefix."representatives r ON (r.rpid=er.rpid)
 								WHERE er.eid='{$this->report['spid']}' 
 								ORDER BY name ASC");
+
 		if($db->num_rows($query) > 0) {
 			$representatives = array();
 			while($representative = $db->fetch_assoc($query)) {
-				$representatives['representataive'][$representative['erpid']] = $representative;
+				$representatives[$representative['erpid']] = $representative;
 			}
-			return $representative['representataive'];
+			return $representatives;
 		}
 		return false;
 	}
