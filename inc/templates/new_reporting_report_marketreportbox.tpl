@@ -19,7 +19,7 @@
   </tr>
 </table>
 <br />
-<page>
+
 <table class="reportbox">
   <tr>
     <td class="thead">{$lang->devprojectsnewop}</td>

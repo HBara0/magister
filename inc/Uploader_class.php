@@ -141,7 +141,7 @@ class Uploader {
 			return false;
 		}
 
-		if($this->format_path($key)) {
+		if($this->format_path($key)) { print_r($this->file[$this->fieldname]['tmp_name'][$key]);
 			$upload = move_uploaded_file($this->file[$this->fieldname]['tmp_name'][$key], $this->file_path[$key]); 
 			if($upload) {
 				$this->file[$this->fieldname]['destination'][$key] = $this->file_path[$key];
@@ -180,14 +180,14 @@ class Uploader {
 			$this->ftpconnection = $this->establish_ftp();
 		}
 		
-		if($this->format_path($key)) {
+		if($this->format_path($key)) { 
 			$upload = ftp_put($this->ftpconnection, $this->file_path[$key], $this->file[$this->fieldname]['tmp_name'][$key], FTP_BINARY);
 			if($upload == false) {
 				$this->set_status(0, $key);
 				$this->close_ftp();
 				return false;	
 			}
-			$chmod = ftp_chmod($this->ftpconnection, 0644, $this->file_path[$key]);
+			$chmod = ftp_chmod($this->ftpconnection, 7777, $this->file_path[$key]);
 		}
 		
 		return true;
@@ -224,7 +224,7 @@ class Uploader {
 			return false;	
 		}
 		
-		$connection = ftp_connect($this->ftp_settings['server']);
+		$connection = ftp_connect($this->ftp_settings['server']); 
 		$login = ftp_login($connection, $this->ftp_settings['username'], $this->ftp_settings['password']);
 		
 		if(!$connection || !$login) {

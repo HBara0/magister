@@ -15,10 +15,10 @@ if(!defined('DIRECT_ACCESS')) {
 
 $session->start_phpsession();
 if(!$core->input['action']) {
-	
+
 	$categories_uom = array('amount' => 'K. USD', 'purchasedQty' => 'MT/Units', 'soldQty' => 'MT/Units');
 	$aggregate_types = array('affiliates', 'segments', 'products');
-		
+
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list') {
 		if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {
 			redirect('index.php?module=reporting/generatereport');
@@ -115,10 +115,10 @@ if(!$core->input['action']) {
 
 			$session->set_phpsession(array('reportrawdata_'.$session_identifier => serialize($reportdata)));
 		}
-		
+
 		$report_years = array('current_year' => $report['year'], 'before_1year' => $report['year'] - 1, 'before_2years' => $report['year'] - 2);
 		asort($report_years);
-		
+
 		$report['quartername'] = 'Q'.$report['quarter'].' '.$report['year'];
 		if(is_array($report['items'])) {
 			foreach($aggregate_types as $aggregate_type) {
@@ -174,9 +174,8 @@ if(!$core->input['action']) {
 												}
 											}
 										}
+										break;
 								}
-
-								break;
 							}
 						}
 					}
@@ -202,7 +201,7 @@ if(!$core->input['action']) {
 					if(is_array($reporting_report_newoverviewbox_row[$aggregate_type][$category])) {
 						$reporting_report_newoverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newoverviewbox_row[$aggregate_type][$category]);
 					}
-					eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
+						eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
 				}
 			}
 
@@ -231,7 +230,7 @@ if(!$core->input['action']) {
 									$item['perc'][$yearval] = round(($item['data'][$yearval + 1] / $current_yearval) * 100);  /* Divide the next year total ammount with the ammount of previous year */
 								}
 							}
-							
+
 							$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellpositive';
 							if($item['perc'][$yearval] == 0) {
 								$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellzero';
@@ -240,14 +239,14 @@ if(!$core->input['action']) {
 								$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellnegative';
 							}
 						}
-					
+
 						eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type].= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
 					}
 					eval("\$reporting_report_newtotaloverviewbox[$aggregate_type] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
 				}
 			}
 		}
-		
+
 		$keycustomersbox = $keycustomers = '';
 		if(is_array($report['keycustomers'])) {
 			foreach($report['keycustomers'] as $keycust => $customer) {
@@ -379,6 +378,7 @@ if(!$core->input['action']) {
 		$tools = $tools_approve.$tools_send."<a href='index.php?module=reporting/preview&amp;action=exportpdf&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;".$tool_print;
 
 		$reports = $coverpage.$contributorspage.$summarypage.$overviewpage.$reports.$closingpage;
+
 		$session->set_phpsession(array('reports_'.$session_identifier => $reports));
 	}
 	else {
@@ -406,58 +406,23 @@ if(!$core->input['action']) {
 		/* Check who hasn't yet filled in the report - End */
 		eval("\$tools .= \"".$template->get('reporting_preview_tools_finalize')."\";");
 	}
-
+	$reports_meta_data['rid'] = $report['rid'];
+	$session->set_phpsession(array('reportsmetadata_'.$session_identifier => serialize($reports_meta_data)));
 	eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
 	output_page($reportspage);
 }
 else {
-	/* exportpdf,print,saveandsend,approve ---START */
-	if($core->input['action'] == 'exportpdf' || $core->input['action'] == 'print' || $core->input['action'] == 'saveandsend' || $core->input['action'] == 'approve') {
-
-		if($core->input['action'] == 'print') {
-			$content = "<link href='{$core->settings[rootdir]}/report_printable.css' rel='stylesheet' type='text/css' />";
-			$content .= "<script language='javascript' type='text/javascript'>window.print();</script>";
-		}
-		else {
-			$content = "<link href='styles.css' rel='stylesheet' type='text/css' />";
-			$content .= "<link href='report.css' rel='stylesheet' type='text/css' />";
-		}
-		$content .= $session->get_phpsession('reports_'.$core->input['identifier']);
-
-		/* pdf  Printing ----START */
-		require_once ROOT.'/'.INC_ROOT.'html2pdf/html2pdf.class.php';
-		$html2pdf = new HTML2PDF('P', 'A4', 'en');
-		$html2pdf->pdf->SetDisplayMode('fullpage');
-		$html2pdf->pdf->SetTitle($report['supplier']['companyName'], true);
-		$content = iconv("UTF-8", "ISO-8859-1//TRANSLIT", $content);
-
-
-		//if($core->input['action'] == 'saveandsend') {
-		set_time_limit(0);
-		$html2pdf->WriteHTML($content, $show_html);
-		$html2pdf->Output($core->settings['exportdirectory'].'quarterlyreports_'.$core->input['identifier'].'.pdf', 'F');
-		redirect('index.php?module=reporting/sendbymail&amp;identifier='.$core->input['identifier']);
-		//	}
-
-		/* pdf Printing ----END */
-	}
-
-	/* exportpdf,print,saveandsend,approve ---END */
-
-
-	/* 	action Submit ----START */
 
 	if($core->input['action'] == 'do_savesummary') {
 		$reportsids = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']))['rid'];
 
 		if(empty($core->input['summary'])) {
-			error($lang->fillrequiredfields
-			);
+			error($lang->fillrequiredfields);
 		}
 		else {
 			$summary_report = array(
 					'uid' => $core->user['uid'],
-					'summary' => $core->sanitize_inputs($core->input['summary'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><                tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true))
+					'summary' => $core->sanitize_inputs($core->input['summary'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true))
 			);
 
 			if(!empty($core->input['rpsid'])) {
@@ -470,6 +435,78 @@ else {
 				}
 			}
 			redirect($_SERVER['HTTP_REFERER']);
+		}
+	}
+	if($core->input['action'] == 'exportpdf' || $core->input['action'] == 'print' || $core->input['action'] == 'saveandsend' || $core->input['action'] == 'approve') {
+		if($core->input['action'] == 'print') {
+			$show_html = 1;
+			$content = "<link href='{$core->settings[rootdir]}/report_printable.css' rel='stylesheet' type='text/css' />";
+			$content .= "<script language='javascript' type='text/javascript'>window.print();</script>";
+		}
+		else {
+			$content = "<link href='styles.css' rel='stylesheet' type='text/css' />";
+			$content .= "<link href='report.css' rel='stylesheet' type='text/css' />";
+		}
+		$content .= $session->get_phpsession('reports_'.$core->input['identifier']);
+
+		$meta_data = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']));
+		$newreport = new ReportingQr(array('rid' => $meta_data['rid']));
+		$suppliername = $newreport->get_report_supplier()['companyName'];
+		ob_end_clean();
+
+		require_once ROOT.'/'.INC_ROOT.'html2pdf/html2pdf.class.php';
+		$html2pdf = new HTML2PDF('P', 'A4', 'en');
+		$html2pdf->pdf->SetDisplayMode('fullpage');
+		$html2pdf->pdf->SetTitle($suppliername, true);
+		$content = iconv("UTF-8", "ISO-8859-1//TRANSLIT", $content);
+
+		if($core->input['action'] == 'saveandsend') {
+			set_time_limit(0);
+
+			$html2pdf->WriteHTML($content, $show_html);
+			$html2pdf->Output($core->settings['exportdirectory'].'quarterlyreports_'.$core->input['identifier'].'.pdf', 'F');
+			redirect('index.php?module=reporting/sendbymail&amp;identifier='.$core->input['identifier']);
+		}
+		if($core->input['action'] == 'approve') {
+			$reportsids = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']));
+			if($core->usergroup['reporting_canApproveReports'] == 1) { 
+				foreach($reportsids as $key => $val) {
+					$db->update_query('reports', array('isApproved' => 1), "rid='".$db->escape_string( $val)."'");
+				}
+				output_xml("<status>true</status><message>{$lang->approved}</message>");
+				$log->record($meta_data['rid'], 'approve');
+
+				if($core->settings['sendreportsonapprove'] == 1) {
+					$html2pdf->WriteHTML($content, $show_html);
+					$html2pdf->Output($core->settings['exportdirectory'].'quarterlyreports_'.$core->input['identifier'].'.pdf', 'F');
+
+					if(empty($core->settings['sendreportsto'])) {
+						$core->settings['sendreportsto'] = $core->settings['adminemail'];
+					}
+
+					$query = $db->query("SELECT r.quarter, r.year, a.name, s.companyName
+										FROM ".Tprefix."reports r, ".Tprefix."entities s, ".Tprefix."affiliates a
+										WHERE r.spid=s.eid AND a.affid=r.affid AND r.rid='{$identifier[1]}'");
+
+					list($quarter, $year, $affiliate_name, $supplier_name) = $db->fetch_array($query);
+					$email_data = array(
+							'from_email' => 'no-reply@ocos.orkila.com',
+							'from' => 'OCOS Mailer',
+							'to' => $core->settings['sendreportsto'],
+							'subject' => 'Just approved: Q'.$quarter.' '.$year.' '.$supplier_name.'/'.$affiliate_name,
+							'message' => 'Q'.$quarter.' '.$year.' '.$supplier_name.'/'.$affiliate_name.' was just approved. ('.date($core->settings['dateformat'].' '.$core->settings['timeformat'], TIME_NOW).')',
+							'attachments' => array($core->settings['exportdirectory'].'quarterlyreports_'.$core->input['identifier'].'.pdf')
+					);
+
+					$mail = new Mailer($email_data, 'php');
+					@unlink($core->settings['exportdirectory'].'quarterlyreports_'.$core->input['identifier'].'.pdf');
+				}
+			}
+		}
+		else {
+			set_time_limit(0);
+			$html2pdf->WriteHTML(trim($content), $show_html);
+			$html2pdf->Output($suppliername.'_'.date($core->settings['dateformat'], TIME_NOW).'.pdf');
 		}
 	}
 }

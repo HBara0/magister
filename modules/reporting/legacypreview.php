@@ -21,10 +21,7 @@ if($core->usergroup['canFillReports'] == 0 && $core->usergroup['canGenerateRepor
 $session->start_phpsession();
 
 
-$product=new Product(4);
-$producs=$product->get_product_segment();
 
-print_r($producs);
 
 if(!$core->input['action']) {
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list') {
@@ -1118,7 +1115,7 @@ if(!$core->input['action']) {
 		}
 
 		if(($reportmeta['auditor'] == 1 && is_array($missing_employees)) || !is_array($missing_employees)) {
-			$reporting_preview_tools_finalize_button = $lang->suretofinalizebody.' <p align="center"><input type="button" id="save_report_reporting/fillreport_Button" value="'.$lang->yes.'" class="button" onclick="$(\'#popup_finalizereportconfirmation\').dialog(\'close\')"/></p>';
+			$reporting_preview_tools_finalize_button = $lang->suretofinalizebody.' <p align="center"><input type="button" id="save_report_reporting/fillreport_Button" value="'.$lang->yes.'" class="button" onclick="$(\'#popup_repreportconfirmation\').dialog(\'close\')"/></p>';
 			$reporting_preview_tools_finalize_type = 'finalize';
 		}
 		else {
@@ -1140,7 +1137,7 @@ if(!$core->input['action']) {
 					$unique_array = array_unique($reports_meta_data['spid']);
 					if(count(array_unique($reports_meta_data['spid'])) == 1 || $core->usergroup['canViewAllSupp'] == 1) {
 						if(in_array($reports_meta_data['spid'][0], $core->user['auditfor']) || $core->usergroup['canViewAllSupp'] == 1) {
-							$tools_send = "<a href='index.php?module=reporting/preview&amp;action=saveandsend&amp;identifier={$session_identifier}'><img src='images/icons/send.gif' border='0' alt='{$lang->sendbyemail}' /></a> ";
+							$tools_send = "<a href='index.php?module=reporting/preview&amp;action=finalizeandsend&amp;identifier={$session_identifier}'><img src='images/icons/send.gif' border='0' alt='{$lang->sendbyemail}' /></a> ";
 							eval("\$reportingeditsummary = \"".$template->get('reporting_report_editsummary')."\";");
 						}
 					}
