@@ -36,13 +36,13 @@ if($core->input['authCode'] == AUTHCODE) {
 		case 'entities':
 			$filename = 'Integration - Business Partners.csv';
 			
-			$tables = array('integration_mediation_entities' => array('pk' => 'imspid', 'identifier' => 'foreignId'));
+			$tables = array('integration_mediation_entities' => array('pk' => 'imspid', 'identifier' => 'foreignId', 'matchInfo' => array('table' => 'entities', 'dataField' => 'eid', 'match' => 'foreignName', 'matchWith' => 'companyName')));
 			$required_fields = array('integration_mediation_entities' => array('foreignId', 'foreignName', 'entityType'));
 			break;
 		case 'products':
 			$filename = 'Integration - Products.csv';
 			
-			$tables = array('integration_mediation_products' => array('pk' => 'impid', 'identifier' => 'foreignId'));
+			$tables = array('integration_mediation_products' => array('pk' => 'impid', 'identifier' => 'foreignId', 'matchInfo' => array('table' => 'products', 'dataField' => 'pid', 'match' => 'foreignName', 'matchWith' => 'name')));
 			$required_fields = array('integration_mediation_products' => array('foreignId', 'foreignName', 'foreignSupplier'));
 			break;
 		default:
@@ -84,7 +84,7 @@ function validate_data() {
 }
 
 function insert_data($runtype = 'dry', $validate = true) {
-	global $db, $errorhandler, $data, $tables, $tables_fields, $required_fields;
+	global $db, $core, $errorhandler, $data, $tables, $tables_fields, $required_fields;
 	if(is_array($data)) {
 		foreach($tables as $table => $table_config) {
 			foreach($data as $row => $values) {
@@ -111,6 +111,10 @@ function insert_data($runtype = 'dry', $validate = true) {
 
 				if($validate == false) {
 					if(!value_exists($table, $table_config['identifier'], $tables_fields_values[$table][$table_config['identifier']])) {
+						if($core->input['domatch'] == 1) {
+							$tables_fields_values[$table]['localId'] = $db->fetch_field($db->query("SELECT ".$table_config['matchInfo']['dataField']." FROM ".Tprefix.$table_config['matchInfo']['table']." WHERE ".$table_config['matchInfo']['matchWith']."='".$db->escape_string($tables_fields_values[$table][$table_config['matchInfo']['match']])."'"), $table_config['matchInfo']['dataField']);
+						}
+					
 						if($runtype != 'dry') {
 							$db->insert_query($table, $tables_fields_values[$table]);
 						}
