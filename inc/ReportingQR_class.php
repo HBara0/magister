@@ -56,7 +56,7 @@ class ReportingQr Extends Reporting {
 			return false;
 		}
 		$has_proudct_avtivity = false;
-		for($quarter = $this->report['quarter']+1; $quarter <= 4; $quarter++) {
+		for($quarter = $this->report['quarter'] + 1; $quarter <= 4; $quarter++) {
 			$newreport = new ReportingQr(array('year' => $this->report['year'], 'affid' => $this->report['affid'], 'spid' => $this->report['spid'], 'quarter' => $quarter));
 			/* check whether produtact exist for this report */
 			if($newreport && $newreport->check_product_availability()) {
@@ -87,7 +87,6 @@ class ReportingQr Extends Reporting {
 							foreach($catitem as $type => $typeitem) {
 								if(isset($this->report['classifiedpactivity'][$category][$type][$this->report['year']])) {
 									$this->report['classifiedpactivity'][$category][$type][$this->report['year']] += $typeitem[$this->report['year']];
-									
 								}
 								else {
 									$this->report['classifiedpactivity'][$category][$type][$this->report['year']] = $typeitem[$this->report['year']];
@@ -99,11 +98,12 @@ class ReportingQr Extends Reporting {
 			}
 			else {
 				/* If no future reports data exist, use forecast as actual */
-				foreach($this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']] as $affid=> $affiliates_data) {
-					foreach($affiliates_data as $psid=> $productssegments_data) {
-						foreach($productssegments_data as $pid=> $products_data) {print_R($products_data);
-							$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data;
-							
+
+				foreach($this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']] as $affid => $affiliates_data) {
+					foreach($affiliates_data as $psid => $productssegments_data) {
+						foreach($productssegments_data as $pid => $products_data) {
+							$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data - $this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid];
+
 							if($this->report['quarter'] != 4) {
 								$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] /= (4 - $this->report['quarter']);
 							}
