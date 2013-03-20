@@ -265,7 +265,7 @@ if(!$core->input['action']) {
 		}
 
 		$keycustomersbox = $keycustomers = '';
-		if(is_array($report['keycustomers'])) {
+		if(is_array($report['keycustomers'])) {  
 			foreach($report['keycustomers'] as $keycust => $customer) {
 				if(empty($customer['cid'])) {
 					continue;
@@ -277,7 +277,7 @@ if(!$core->input['action']) {
 
 		$marketreportbox = '';
 		if(is_array($report['marketreports'])) {
-			foreach($report['marketreports'] as $mrid => $marketreport) {
+			foreach($report['marketreports'] as $mrid => $marketreport) {  
 				if(isset($marketreport['exclude']) && $marketreport['exclude'] == 1) {
 					continue;
 				}
@@ -286,7 +286,7 @@ if(!$core->input['action']) {
 
 					$marketreport['authors_output'] = $lang->authors.': ';
 
-					foreach($marketreport['authors'] as $author) {
+					foreach($marketreport['authors'] as $author) {print_r($author);
 						$marketreport['authors_output'] .= $marketreportbox_comma.$author['displayName'];
 						$marketreportbox_comma = ', ';
 					}

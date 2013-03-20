@@ -57,3 +57,4 @@
 </table>
 <div style="text-align:left; font-style:italic;" class="smalltext">{$marketreport[authors_output]}</div>
 <br />
+   
