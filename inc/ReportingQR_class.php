@@ -310,7 +310,7 @@ class ReportingQr Extends Reporting {
 	}
 
 	public function get_report_supplier_audits() {
-		global $db;
+		global $db; 
 		return $db->fetch_assoc($db->query("SELECT displayName AS employeeName, u.email
 			FROM ".Tprefix."users u
 			JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid)

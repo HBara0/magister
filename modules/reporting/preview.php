@@ -315,7 +315,7 @@ if(!$core->input['action']) {
 		$lang->email_text = $lang->email;
 		if(is_array($report['contributors']) && !empty($report['contributors'])) {
 			$contributors = '';
-			foreach($report['contributors'] as $contributor) {
+			foreach($report['contributors'] as $contributor) { 
 				eval("\$contributors .= \"".$template->get('new_reporting_report_contributorrow')."\";");
 				$lang->reportpreparedby_text = $lang->email_text = '';
 			}
