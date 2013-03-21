@@ -1,5 +1,4 @@
 <page>
-
 <table class="reportbox">
     <tr>
     	<td class="thead" colspan="5">{$lang->reportpreparedby}</td>

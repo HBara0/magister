@@ -140,6 +140,8 @@ if(!$core->input['action']) {
 
 												$total_year[$aggregate_type][$category][$affid][$year]+=$item[$aggregate_type][$category][$affid][$type][$year][$quarter];
 
+												$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$affid][$type][$year][$quarter];
+														
 												if($item[$aggregate_type][$category][$affid][$type][$year][$quarter] > 1) {
 													$item[$aggregate_type][$category][$affid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$affid][$type][$year][$quarter]);
 												}
@@ -158,6 +160,8 @@ if(!$core->input['action']) {
 
 													$total_year[$aggregate_type][$category][$spid][$year] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
 
+													$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
+														
 													if($item[$aggregate_type][$category][$spid][$type][$year][$quarter] > 1) {
 														$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$spid][$type][$year][$quarter]);
 													}
@@ -177,6 +181,12 @@ if(!$core->input['action']) {
 														$item[$aggregate_type][$category][$pid][$type][$year][$quarter] = $report['items'][$category][$type][$year][$quarter][$affid][$spid][$pid];
 
 														$total_year[$aggregate_type][$category][$pid][$year] += $item[$aggregate_type][$category][$pid][$type][$year][$quarter];
+													
+														$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$pid][$type][$year][$quarter];
+														
+														if($item[$aggregate_type][$category][$pid][$type][$year][$quarter] > 1) {
+															$item[$aggregate_type][$category][$pid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$pid][$type][$year][$quarter]);
+														}
 													}
 												}
 											}
@@ -215,7 +225,7 @@ if(!$core->input['action']) {
 					eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
 				}
 			}
-			$item = array();
+			$item = $boxes_totals['mainbox'] = array();
 
 			if(is_array($total_year) && !empty($total_year)) {
 				foreach($total_year as $aggregate_type => $aggdata) {
@@ -251,6 +261,7 @@ if(!$core->input['action']) {
 										$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellnegative';
 									}
 								}
+								//$boxes_totals[$aggregate_type][$category][$yearval] += $item['data'][$yearval];
 							}
 
 							eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
@@ -458,6 +469,7 @@ else {
 		}
 	}
 	if($core->input['action'] == 'exportpdf' || $core->input['action'] == 'print' || $core->input['action'] == 'saveandsend' || $core->input['action'] == 'approve') {
+	ini_set( "memory_limit","300M");
 		if($core->input['action'] == 'print') {
 			$show_html = 1;
 			$content = "<link href='{$core->settings[rootdir]}/report_printable.css' rel='stylesheet' type='text/css' />";
@@ -465,7 +477,7 @@ else {
 		}
 		else {
 			$content = "<link href='styles.css' rel='stylesheet' type='text/css' />";
-			$content .= "<link href='report.css' rel='stylesheet' type='text/css' />";
+			$content .= "<link href='./css/report.css' rel='stylesheet' type='text/css' />";
 		}
 		$content .= $session->get_phpsession('reports_'.$core->input['identifier']);
 

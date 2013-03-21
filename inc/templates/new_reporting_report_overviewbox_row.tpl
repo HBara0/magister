@@ -1,5 +1,5 @@
 <tr>
-   <td width="130px" class="mainbox_itemnamecell">{$item[name]}</td>
+   <td class="mainbox_itemnamecell">{$item[name]}</td>
    <td class="mainbox_datacell">{$item[$aggregate_type][$category][actual][$report_years[before_2years]][1]}</td>
    <td class="mainbox_datacell">{$item[$aggregate_type][$category][actual][$report_years[before_2years]][2]}</td>
    <td class="mainbox_datacell">{$item[$aggregate_type][$category][actual][$report_years[before_2years]][3]}</td>
