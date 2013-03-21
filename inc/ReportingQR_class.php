@@ -42,7 +42,14 @@ class ReportingQr Extends Reporting {
 //
 				$this->report['products'][$products_activityrow['pid']] = $products_activityrow['productname'];
 				$this->report['productssegments'][$products_activityrow['psid']] = $products_activityrow['segment'];
+				
+				if(!empty($products_activityrow['originalCurrency']) && $get_prevactivity == true) {
+					$this->report['currencies'][$products_activityrow['originalCurrency']] = $products_activityrow['originalCurrency'];
+				}
 			}
+			
+			$db->free_result($products_activity_query);
+			
 			if($get_prevactivity == true) {
 				$this->read_prev_products_activity();
 				$this->read_next_products_activity();
@@ -305,6 +312,10 @@ class ReportingQr Extends Reporting {
 		return $this->report['productsactivity'];
 	}
 
+	public function get_currencies() {
+		return $this->report['currencies'];
+	}
+	
 	public function get_status() {
 		return $this->status;
 	}

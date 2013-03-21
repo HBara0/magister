@@ -18,7 +18,7 @@ if(!$core->input['action']) {
 
 	$categories_uom = array('amount' => 'K. USD', 'purchasedQty' => 'MT/Units', 'soldQty' => 'MT/Units');
 	$aggregate_types = array('affiliates', 'segments', 'products');
-
+	$report_currencies = array();
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list') {
 		if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {
 			redirect('index.php?module=reporting/generatereport');
@@ -69,7 +69,10 @@ if(!$core->input['action']) {
 			$report['items'] = $newreport->get_classified_productsactivity();
 			unset($report['items']['amount']['forecast']);
 			$report['productsactivity'] = $newreport->get_products_activity();
-
+			$report['currencies'] = $newreport->get_currencies();
+			if(is_array($report['currencies'])) {
+				$report_currencies += $report['currencies'];
+			}
 			$report['keycustomers'] = $newreport->get_key_customers();
 			$report['contributors'] = $newreport->get_report_contributors();
 			$report['marketreports'] = $newreport->get_market_reports();
@@ -117,6 +120,14 @@ if(!$core->input['action']) {
 			$session->set_phpsession(array('reportrawdata_'.$session_identifier => serialize($reportdata)));
 		}
 
+		/* Get affiliate currency */
+		//$report['affiliate'] = new Affiliates($report['affid']);
+		//$report['affiliate']->get_country()->get_currency()->get()['alphaCode'];
+		$affiliate_currency = $db->fetch_field($db->query('SELECT alphaCode FROM affiliates a JOIN countries c ON (c.coid=a.country) JOIN currencies cr ON (c.mainCurrency=cr.numCode) WHERE a.affid='.$report['affid']), 'alphaCode');
+		if(!empty($affiliate_currency)) {
+			$report_currencies[$affiliate_currency] = $affiliate_currency;
+		}
+		/* Get affiliate currency */
 		$report_years = array('current_year' => $report['year'], 'before_1year' => $report['year'] - 1, 'before_2years' => $report['year'] - 2);
 		asort($report_years);
 
@@ -382,6 +393,57 @@ if(!$core->input['action']) {
 			}
 			/* Output summary table  - END */
 
+			/* Parse Currencies Table - START */
+			if(!isset($report_currencies['USD'])) {
+				$report_currencies['USD'] = 'USD';
+			}
+
+			if(is_array($report_currencies) && !empty($report_currencies)) {
+				$fxratespage_tablecolspan = count($report_currencies) + 1;
+				$fxratespage_tablehead .= '<tr><td>&nbsp;</td>';
+				$currencies_from = strtotime($core->settings['q'.$report['quarter'].'start'].'-'.$report['year']);
+				$currencies_to = strtotime($core->settings['q'.$report['quarter'].'end'].'-'.$report['year']);
+				if($report['quarter'] == 1) {
+					$prev_currencies_from = strtotime($core->settings['q4start'].'-'.($report['year'] - 1));
+					$prev_currencies_to = strtotime($core->settings['q4end'].'-'.($report['year'] - 1));
+				}
+				else {
+					$prev_currencies_from = strtotime($core->settings['q'.($report['quarter'] - 1).'start'].'-'.$report['year']);
+					$prev_currencies_to = strtotime($core->settings['q'.($report['quarter'] - 1).'end'].'-'.$report['year']);
+				}
+
+				foreach($report_currencies as $cur) {
+					$fxratespage_tablehead .= '<td>'.$cur.'</td>';
+					$currency = new Currencies($cur); //$reports_meta_data['baseCurrency']);
+
+					$currencies_fx = $currency->get_average_fxrates($report_currencies, array('from' => $currencies_from, 'to' => $currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4));
+					if(is_array($currencies_fx)) {
+						$fx_rates_entries .= '<tr><td class="namescell" style="text-align:left; width: 20%;">'.$cur.'</td>';
+						foreach($report_currencies as $fx_currency) {
+							$trend_symbol = '';
+							if(empty($currencies_fx[$fx_currency])) {
+								$currencies_fx[$fx_currency] = ' - ';
+							}
+							else {
+								$currencies_fx[$fx_currency] = round($currencies_fx[$fx_currency], 4);
+								$prev_rate = $currency->get_average_fxrate($fx_currency, array('from' => $prev_currencies_from, 'to' => $prev_currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4), $cur);
+
+								$trend_symbol = '&darr;';
+								if($currencies_fx[$fx_currency] - $prev_rate > 0) {
+									$trend_symbol = '&uarr;';
+								}
+							}
+
+							$fx_rates_entries .= '<td class="currenciesbox_datacell">'.$trend_symbol.' '.$currencies_fx[$fx_currency].'</td>';
+						}
+						$fx_rates_entries .= '</tr>';
+					}
+				}
+
+				$fxratespage_tablehead .= '</tr>';
+				eval("\$fxratespage = \"".$template->get('reporting_report_fxrates')."\";");
+			}
+			/* Parse Currencies Table - END */
 			eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
 		}
 
@@ -409,7 +471,7 @@ if(!$core->input['action']) {
 
 		$tools = $tools_approve.$tools_send."<a href='index.php?module=reporting/preview&amp;action=exportpdf&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;".$tool_print;
 
-		$reports = $coverpage.$contributorspage.$summarypage.$overviewpage.$reports.$closingpage;
+		$reports = $coverpage.$contributorspage.$summarypage.$overviewpage.$reports.$fxratespage.$closingpage;
 
 		$session->set_phpsession(array('reports_'.$session_identifier => $reports));
 	}
@@ -470,7 +532,7 @@ else {
 		}
 	}
 	if($core->input['action'] == 'exportpdf' || $core->input['action'] == 'print' || $core->input['action'] == 'saveandsend' || $core->input['action'] == 'approve') {
-		ini_set("memory_limit", "300M");
+		//ini_set( "memory_limit","300M");
 		if($core->input['action'] == 'print') {
 			$show_html = 1;
 			$content = "<link href='{$core->settings[rootdir]}/report_printable.css' rel='stylesheet' type='text/css' />";
