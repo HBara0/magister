@@ -119,7 +119,7 @@ if(!$core->input['action']) {
 
 		$report_years = array('current_year' => $report['year'], 'before_1year' => $report['year'] - 1, 'before_2years' => $report['year'] - 2);
 		asort($report_years);
-		
+
 		$report['quartername'] = 'Q'.$report['quarter'].' '.$report['year'];
 		$item = array();
 		if(is_array($report['items'])) {
@@ -141,7 +141,7 @@ if(!$core->input['action']) {
 												$total_year[$aggregate_type][$category][$affid][$year]+=$item[$aggregate_type][$category][$affid][$type][$year][$quarter];
 
 												$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$affid][$type][$year][$quarter];
-														
+
 												if($item[$aggregate_type][$category][$affid][$type][$year][$quarter] > 1) {
 													$item[$aggregate_type][$category][$affid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$affid][$type][$year][$quarter]);
 												}
@@ -161,7 +161,7 @@ if(!$core->input['action']) {
 													$total_year[$aggregate_type][$category][$spid][$year] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
 
 													$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
-														
+
 													if($item[$aggregate_type][$category][$spid][$type][$year][$quarter] > 1) {
 														$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$spid][$type][$year][$quarter]);
 													}
@@ -181,9 +181,9 @@ if(!$core->input['action']) {
 														$item[$aggregate_type][$category][$pid][$type][$year][$quarter] = $report['items'][$category][$type][$year][$quarter][$affid][$spid][$pid];
 
 														$total_year[$aggregate_type][$category][$pid][$year] += $item[$aggregate_type][$category][$pid][$type][$year][$quarter];
-													
+
 														$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$pid][$type][$year][$quarter];
-														
+
 														if($item[$aggregate_type][$category][$pid][$type][$year][$quarter] > 1) {
 															$item[$aggregate_type][$category][$pid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$pid][$type][$year][$quarter]);
 														}
@@ -261,6 +261,7 @@ if(!$core->input['action']) {
 										$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellnegative';
 									}
 								}
+								$item['data'][$yearval] = round($item[$yearval]);
 								//$boxes_totals[$aggregate_type][$category][$yearval] += $item['data'][$yearval];
 							}
 
@@ -272,7 +273,7 @@ if(!$core->input['action']) {
 						}
 
 						eval("\$reporting_report_newtotaloverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
-					}
+					} 
 				}
 			}
 		}
@@ -384,11 +385,11 @@ if(!$core->input['action']) {
 			eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
 		}
 
-		if($core->input['referrer'] == 'direct') {
+		if($core->input['referrer'] == 'direct') { 
 			if($report['isSent'] == 0) {
-				if($core->usergroup['reporting_canSendReportsEmail'] == 1) {
-					$unique_array = array_unique($report['spid']);
-					if(count(array_unique($report['spid'])) == 1 || $core->usergroup['canViewAllSupp'] == 1) {
+				if($core->usergroup['reporting_canSendReportsEmail'] == 1) { 
+					$unique_array = $report['spid'];
+					if(count($report['spid']) == 1 || $core->usergroup['canViewAllSupp'] == 1) {
 						if(in_array($report['spid'], $core->user['auditfor']) || $core->usergroup['canViewAllSupp'] == 1) {
 							$tools_send = "<a href='index.php?module=reporting/preview&amp;action=saveandsend&amp;identifier={$session_identifier}'><img src='images/icons/send.gif' border='0' alt='{$lang->sendbyemail}' /></a> ";
 							eval("\$reportingeditsummary = \"".$template->get('new_reporting_report_editsummary')."\";");
@@ -469,7 +470,7 @@ else {
 		}
 	}
 	if($core->input['action'] == 'exportpdf' || $core->input['action'] == 'print' || $core->input['action'] == 'saveandsend' || $core->input['action'] == 'approve') {
-	ini_set( "memory_limit","300M");
+		ini_set("memory_limit", "300M");
 		if($core->input['action'] == 'print') {
 			$show_html = 1;
 			$content = "<link href='{$core->settings[rootdir]}/report_printable.css' rel='stylesheet' type='text/css' />";
@@ -483,6 +484,8 @@ else {
 
 		$meta_data = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']));
 		$newreport = new ReportingQr(array('rid' => $meta_data['rid']));
+		$report = $newreport->get();
+		$report['affiliates'] = $newreport->get_report_affiliate();
 		$suppliername = $newreport->get_report_supplier()['companyName'];
 		ob_end_clean();
 
@@ -503,10 +506,15 @@ else {
 			$reportsids = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']));
 			if($core->usergroup['reporting_canApproveReports'] == 1) {
 				foreach($reportsids as $key => $val) {
-					$db->update_query('reports', array('isApproved' => 1), "rid='".$db->escape_string($val)."'");
+					//$db->update_query('reports', array('isApproved' => 1), "rid='".$db->escape_string($val)."'");
+					$newreport->approve_report($db->escape_string($val));
 				}
-				output_xml("<status>true</status><message>{$lang->approved}</message>");
-				$log->record($meta_data['rid'], 'approve');
+				switch($newreport->get_status()) {
+					case 0:
+						output_xml("<status>true</status><message>{$lang->approved}</message>");
+						$log->record($meta_data['rid'], 'approve');
+						break;
+				}
 
 				if($core->settings['sendreportsonapprove'] == 1) {
 					$html2pdf->WriteHTML($content, $show_html);
@@ -520,13 +528,15 @@ else {
 										FROM ".Tprefix."reports r, ".Tprefix."entities s, ".Tprefix."affiliates a
 										WHERE r.spid=s.eid AND a.affid=r.affid AND r.rid='{$identifier[1]}'");
 
-					list($quarter, $year, $affiliate_name, $supplier_name) = $db->fetch_array($query);
+					$quarter = $report['quarter'];
+
+					//list($quarter, $year, $affiliate_name, $supplier_name) = $db->fetch_array($query);
 					$email_data = array(
 							'from_email' => 'no-reply@ocos.orkila.com',
 							'from' => 'OCOS Mailer',
 							'to' => $core->settings['sendreportsto'],
-							'subject' => 'Just approved: Q'.$quarter.' '.$year.' '.$supplier_name.'/'.$affiliate_name,
-							'message' => 'Q'.$quarter.' '.$year.' '.$supplier_name.'/'.$affiliate_name.' was just approved. ('.date($core->settings['dateformat'].' '.$core->settings['timeformat'], TIME_NOW).')',
+							'subject' => 'Just approved: Q'.$report['quarter'].' '.$report['year'].' '.$suppliername.'/'.$report['affiliates']['name'],
+							'message' => 'Q'.$report['quarter'].' '.$report['year'].' '.$supplier_name.'/'.$report['affiliates']['name'].' was just approved. ('.date($core->settings['dateformat'].' '.$core->settings['timeformat'], TIME_NOW).')',
 							'attachments' => array($core->settings['exportdirectory'].'quarterlyreports_'.$core->input['identifier'].'.pdf')
 					);
 

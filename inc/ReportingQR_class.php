@@ -16,13 +16,13 @@ class ReportingQr Extends Reporting {
 
 	public function read_products_activity($get_prevactivity = false) {
 		global $db;
-		$products_activity_query = $db->query("SELECT pa.*, p.name AS productname, ps.psid, ps.title AS segment 
+		$products_activity_query = $db->query("SELECT pa.*, p.name AS productname, ps.psid, ps.title AS segment
 			FROM ".Tprefix."reports r
 			JOIN ".Tprefix."productsactivity pa ON (pa.rid=r.rid)
 			JOIN ".Tprefix."products p ON (pa.pid=p.pid)
 			JOIN ".Tprefix."genericproducts gp ON (gp.gpid=p.gpid)
 			JOIN ".Tprefix."productsegments ps ON (ps.psid=gp.psid)
-			WHERE r.rid='".$this->report['rid']."' 
+			WHERE r.rid='".$this->report['rid']."'
 			ORDER BY pa.turnOver ASC");
 
 		if($db->num_rows($products_activity_query) > 0) {
@@ -39,7 +39,7 @@ class ReportingQr Extends Reporting {
 
 //				$this->report['classifiedpactivity']['amount']['percentage'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] = round(($this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']]/$this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']])*100);
 //				$this->report['classifiedpactivity']['quantity']['percentage'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] = round(($this->report['classifiedpactivity']['quantity']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']]/$this->report['classifiedpactivity']['quantity']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']])*100);
-//				
+//
 				$this->report['products'][$products_activityrow['pid']] = $products_activityrow['productname'];
 				$this->report['productssegments'][$products_activityrow['psid']] = $products_activityrow['segment'];
 			}
@@ -86,11 +86,12 @@ class ReportingQr Extends Reporting {
 						if(is_array($catitem)) {
 							foreach($catitem as $type => $typeitem) {
 								if(isset($this->report['classifiedpactivity'][$category][$type][$this->report['year']])) {
-
-									foreach($this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$quarter] as $affid => $affiliates_data) {
-										foreach($affiliates_data as $psid => $productssegments_data) {
-											foreach($productssegments_data as $pid => $products_data) {
-												$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data;
+									if(is_array($this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$quarter])) {
+										foreach($this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$quarter] as $affid => $affiliates_data) {
+											foreach($affiliates_data as $psid => $productssegments_data) {
+												foreach($productssegments_data as $pid => $products_data) {
+													$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data;
+												}
 											}
 										}
 									}
@@ -187,7 +188,7 @@ class ReportingQr Extends Reporting {
 											WHERE r.rid='".$this->report['rid']."'"));
 	}
 
-	/* To be Implemented 
+	/* To be Implemented
 	  public function get_affiliate() {
 	  return new Affiliates($this->report['affid']);
 	  }
@@ -203,7 +204,7 @@ class ReportingQr Extends Reporting {
 	 */
 	public function get_key_customers() {
 		global $db;
-		$key_customers_query = $db->query("SELECT kc.*, e.companyName 
+		$key_customers_query = $db->query("SELECT kc.*, e.companyName
 											FROM ".Tprefix."keycustomers kc
 											JOIN ".Tprefix."entities e ON (e.eid=kc.cid)
 											WHERE kc.rid='".$this->report['rid']."'
@@ -254,10 +255,10 @@ class ReportingQr Extends Reporting {
 
 	public function get_supplier_representatives() {
 		global $db;
-		$query = $db->query("SELECT er.*, r.* 
-								FROM ".Tprefix."entitiesrepresentatives er 
+		$query = $db->query("SELECT er.*, r.*
+								FROM ".Tprefix."entitiesrepresentatives er
 								LEFT JOIN ".Tprefix."representatives r ON (r.rpid=er.rpid)
-								WHERE er.eid='{$this->report['spid']}' 
+								WHERE er.eid='{$this->report['spid']}'
 								ORDER BY name ASC");
 
 		if($db->num_rows($query) > 0) {
@@ -272,10 +273,10 @@ class ReportingQr Extends Reporting {
 
 	public function get_report_summary() {
 		global $db;
-		return $report_summary = $db->fetch_assoc($db->query("SELECT rs.rpsid, rs.summary 
-						FROM ".Tprefix."reports r 
-						JOIN ".Tprefix."reporting_report_summary rs ON (r.summary=rs.rpsid) 
-						WHERE rs.summary!= '' 
+		return $report_summary = $db->fetch_assoc($db->query("SELECT rs.rpsid, rs.summary
+						FROM ".Tprefix."reports r
+						JOIN ".Tprefix."reporting_report_summary rs ON (r.summary=rs.rpsid)
+						WHERE rs.summary!= ''
 						AND r.rid = '".$this->report['rid']."'"));
 	}
 
@@ -310,16 +311,16 @@ class ReportingQr Extends Reporting {
 
 	public function get_report_supplier_audits() {
 		global $db;
-		return $db->fetch_assoc($db->query("SELECT displayName AS employeeName, u.email 
+		return $db->fetch_assoc($db->query("SELECT displayName AS employeeName, u.email
 			FROM ".Tprefix."users u
-			JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid) 
+			JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid)
 			WHERE sa.eid=".$this->report['spid'].""));
 	}
 
 	/* Setter Functionality --START */
 	public function lock_report() {
 		global $db;
-		$query = $db->update_query('report', array('isLocked', 1), 'rid='.$this->report['rid']);
+		$query = $db->update_query('reports', array('isLocked'=> 1), 'rid='.$this->report['rid']);
 		if($query) {
 			$this->status = 0;
 		}
@@ -327,9 +328,20 @@ class ReportingQr Extends Reporting {
 
 	public function set_status() {
 		global $db;
-		$query = $db->update_query('report', array('status', 1), 'rid='.$this->report['rid']);
+		$query = $db->update_query('reports', array('status'=> 1), 'rid='.$this->report['rid']);
 		if($query) {
 			$this->status = 0;
+		}
+	}
+
+	public function approve_report($rid) {
+		global $db;
+		if(isset($rid) && !empty($rid)) {
+			
+			$query = $db->update_query('reports', array('isApproved'=> 1), 'rid='.$rid);
+			if($query) {
+				$this->status = 0;
+			}
 		}
 	}
 
@@ -356,7 +368,7 @@ class ReportingQrMarketreport {
 	private function read($marketid) {
 		global $db;
 		if(isset($marketid) && !empty($marketid)) {
-			$this->marketreport = $db->fetch_assoc($db->query("SELECT mr.*, ps.title AS segmenttitle 
+			$this->marketreport = $db->fetch_assoc($db->query("SELECT mr.*, ps.title AS segmenttitle
 														FROM ".Tprefix."marketreport mr
 														LEFT JOIN ".Tprefix."productsegments ps ON (ps.psid=mr.psid)
 														JOIN ".Tprefix."reports r ON (r.rid=mr.rid)
