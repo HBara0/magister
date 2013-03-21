@@ -117,9 +117,9 @@ MT";
 $lang['graphdistquantities'] = "Distribution of quantities up to quarter over listed affiliates";
 
 $lang['reportcontributorsoverview'] = "Reports Contributors Overview";
-$lang['currenciesfxrate'] = "Currencies FX rates to ";
+$lang['currenciesfxrate'] = "Currencies FX rates";
 $lang['quarterfxaverage'] = "Quarter's Average";
-$lang['currenciesfxratenote'] = "Rates are relative to original currencies used in the report.";
+$lang['currenciesfxratenote'] = "Rates are relative to original currencies used in the report & involved countries.";
 $lang['auditedby'] = "Auditor";
 $lang['downloadpdf'] = "Download PDF";
 $lang['printreport'] = "Print Report";
