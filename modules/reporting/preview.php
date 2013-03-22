@@ -15,7 +15,7 @@ if(!defined('DIRECT_ACCESS')) {
 
 $session->start_phpsession();
 if(!$core->input['action']) {
-
+	$reportcache = new Cache();
 	$categories_uom = array('amount' => 'K. USD', 'purchasedQty' => 'MT/Units', 'soldQty' => 'MT/Units');
 	$aggregate_types = array('affiliates', 'segments', 'products');
 	$report_currencies = array();
@@ -41,6 +41,7 @@ if(!$core->input['action']) {
 			foreach($identifier as $key => $val) {
 				$core->input[$key] = $val;
 			}
+
 			$core->input['incMarketReport'] = $core->input['incKeyCustomers'] = $core->input['incKeyProducts'] = $core->input['genByProduct'] = 1;
 			$core->input['generateType'] = 1;
 			$generate_by = $core->input['affid'];
@@ -86,6 +87,9 @@ if(!$core->input['action']) {
 
 			$no_send_icon = true;
 			$session_identifier = md5(uniqid(microtime()));
+			if(!$reportcache->iscached('affiliatesmarketreport', $report['affiliates']['affid'])) {
+				$reportcache->add('affiliatesmarketreport', $report['affiliates']['name'], $report['affid']);
+			}
 		}
 		else { /* if Referrrer fill  */
 			$newreport = new ReportingQr(array('rid' => $core->input['rid']));
@@ -284,7 +288,7 @@ if(!$core->input['action']) {
 						}
 
 						eval("\$reporting_report_newtotaloverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
-					} 
+					}
 				}
 			}
 		}
@@ -304,11 +308,16 @@ if(!$core->input['action']) {
 		$marketreportbox = '';
 		if(is_array($report['marketreports'])) {
 			foreach($report['marketreports'] as $mrid => $marketreport) {
+				if(!$reportcache->iscached('marketsegments', $marketreport['psid'])) {
+					$reportcache->add('marketsegments', $marketreport['segmenttitle'], $marketreport['psid']);
+				}
+
 				if(isset($marketreport['exclude']) && $marketreport['exclude'] == 1) {
 					continue;
 				}
+
 				if(!empty($marketreport['authors'])) {
-					$mkauthors_overview[$report['affid']][$mrid] = $marketreport['authors'];
+					$mkauthors_overview[$report['affid']][$marketreport['psid']] = $marketreport['authors'];
 
 					$marketreport['authors_output'] = $lang->authors.': ';
 					$marketreportbox_comma = '';
@@ -326,7 +335,7 @@ if(!$core->input['action']) {
 		$lang->email_text = $lang->email;
 		if(is_array($report['contributors']) && !empty($report['contributors'])) {
 			$contributors = '';
-			foreach($report['contributors'] as $contributor) { 
+			foreach($report['contributors'] as $contributor) {
 				eval("\$contributors .= \"".$template->get('new_reporting_report_contributorrow')."\";");
 				$lang->reportpreparedby_text = $lang->email_text = '';
 			}
@@ -360,20 +369,17 @@ if(!$core->input['action']) {
 			if(is_array($mkauthors_overview)) {
 				$authors_overview_entries = '';
 				foreach($mkauthors_overview as $affid => $mkauthors) {
+			
 					if(is_array($mkauthors) && !empty($mkauthors)) {
-						$authors_overview_entries .= '<tr><td colspan="2" class="thead">USE CACHE TO GET AFFILIATE NAME'.$affid.'</td></tr>';
+						$authors_overview_entries .= '<tr><td colspan="2" class="thead">'.$reportcache->data['affiliatesmarketreport'][$affid].'</td></tr>';
 						foreach($mkauthors as $psid => $authors) {
 							$parsed_authors = array();
-							if(empty($cache['productsegments'][$psid])) {
-								$cache['productsegments'][$psid] = $lang->others;
-							}
-
 							if(is_array($authors)) {
 								foreach($authors as $uid => $author) {
 									$parsed_authors[$uid] = '<a href="mailto:'.$author['email'].'">'.$author['displayName'].'</a> (<a href="mailto:'.$author['email'].'">'.$author['email'].'</a>)';
 								}
 
-								$authors_overview_entries .= '<tr><td class="lightdatacell_freewidth" style="text-align:left;">'.$cache['productsegments'][$psid].'</td><td style="width:70%; border-bottom: 1px dashed #CCCCCC;">'.implode(', ', $parsed_authors).'</td></tr>';
+								$authors_overview_entries .= '<tr><td class="lightdatacell_freewidth" style="text-align:left;">'.$reportcache->data['marketsegments'][$psid].'</td><td style="width:70%; border-bottom: 1px dashed #CCCCCC;">'.implode(', ', $parsed_authors).'</td></tr>';
 							}
 						}
 					}
@@ -447,13 +453,14 @@ if(!$core->input['action']) {
 			eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
 		}
 
-		if($core->input['referrer'] == 'direct') { 
+		if($core->input['referrer'] == 'direct') {
 			if($report['isSent'] == 0) {
-				if($core->usergroup['reporting_canSendReportsEmail'] == 1) { 
+				if($core->usergroup['reporting_canSendReportsEmail'] == 1) {
 					$unique_array = $report['spid'];
 					if(count($report['spid']) == 1 || $core->usergroup['canViewAllSupp'] == 1) {
 						if(in_array($report['spid'], $core->user['auditfor']) || $core->usergroup['canViewAllSupp'] == 1) {
 							$tools_send = "<a href='index.php?module=reporting/preview&amp;action=saveandsend&amp;identifier={$session_identifier}'><img src='images/icons/send.gif' border='0' alt='{$lang->sendbyemail}' /></a> ";
+							$fillsummary_msg = $core->input['message'];
 							eval("\$reportingeditsummary = \"".$template->get('new_reporting_report_editsummary')."\";");
 						}
 					}
@@ -502,6 +509,7 @@ if(!$core->input['action']) {
 	}
 	$reports_meta_data['rid'] = $report['rid'];
 	$session->set_phpsession(array('reportsmetadata_'.$session_identifier => serialize($reports_meta_data)));
+	$session->set_phpsession(array('sessionid' => base64_encode(serialize($session_identifier))));
 	eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
 	output_page($reportspage);
 }
@@ -533,6 +541,7 @@ else {
 	}
 	if($core->input['action'] == 'exportpdf' || $core->input['action'] == 'print' || $core->input['action'] == 'saveandsend' || $core->input['action'] == 'approve') {
 		//ini_set( "memory_limit","300M");
+
 		if($core->input['action'] == 'print') {
 			$show_html = 1;
 			$content = "<link href='{$core->settings[rootdir]}/report_printable.css' rel='stylesheet' type='text/css' />";
@@ -547,6 +556,7 @@ else {
 		$meta_data = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']));
 		$newreport = new ReportingQr(array('rid' => $meta_data['rid']));
 		$report = $newreport->get();
+		$report['reqQRSummary'] = $newreport->get_report_supplier()['reqQRSummary'];
 		$report['affiliates'] = $newreport->get_report_affiliate();
 		$suppliername = $newreport->get_report_supplier()['companyName'];
 		ob_end_clean();
@@ -559,10 +569,17 @@ else {
 
 		if($core->input['action'] == 'saveandsend') {
 			set_time_limit(0);
-
-			$html2pdf->WriteHTML($content, $show_html);
-			$html2pdf->Output($core->settings['exportdirectory'].'quarterlyreports_'.$core->input['identifier'].'.pdf', 'F');
-			redirect('index.php?module=reporting/sendbymail&amp;identifier='.$core->input['identifier']);
+			if(is_empty($report['summary']) && $report['reqQRSummary'] == 1) {
+				$session_identifier = (($session->get_phpsession('sessionid')));
+				///redirect('index.php?module=reporting/preview&amp;referrer=direct&amp;identifier='.$session_identifier.'&amp;message='.$lang->fillsummary.'');
+				$fillsummary_msg_text = $lang->fillsummary;
+				redirect($_SERVER['HTTP_REFERER']);
+			}
+			else {
+				$html2pdf->WriteHTML($content, $show_html);
+				$html2pdf->Output($core->settings['exportdirectory'].'quarterlyreports_'.$core->input['identifier'].'.pdf', 'F');
+				redirect('index.php?module=reporting/sendbymail&amp;identifier='.$core->input['identifier']);
+			}
 		}
 		if($core->input['action'] == 'approve') {
 			$reportsids = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']));
