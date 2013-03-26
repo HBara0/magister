@@ -115,6 +115,10 @@ function insert_data($runtype = 'dry', $validate = true) {
 							$tables_fields_values[$table]['localId'] = $db->fetch_field($db->query("SELECT ".$table_config['matchInfo']['dataField']." FROM ".Tprefix.$table_config['matchInfo']['table']." WHERE ".$table_config['matchInfo']['matchWith']."='".$db->escape_string($tables_fields_values[$table][$table_config['matchInfo']['match']])."'"), $table_config['matchInfo']['dataField']);
 						}
 					
+						if(in_array('localDate', $tables_fields[$table])) {
+							$tables_fields_values[$table]['localDate'] = TIME_NOW;
+						}
+						
 						if($runtype != 'dry') {
 							$db->insert_query($table, $tables_fields_values[$table]);
 						}
