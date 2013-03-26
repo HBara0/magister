@@ -337,13 +337,34 @@ class ReportingQr Extends Reporting {
 				$productdata['rid'] = $this->report['rid'];
 				$productdata['uid'] = $core->user['uid'];
 				if(!empty($productdata['pid']) && isset($productdata['pid'])) {
-					$update_query_where = 'rid='.$this->report['rid'].' AND pid='.$db->escape_string($productdata['pid']);
+
 					if(value_exists('productsactivity', 'pid', $productdata['pid'], ' rid='.$this->report['rid'])) {
+						if(isset($productdata['paid']) && !empty($productdata['paid'])) {
+							$update_query_where = 'paid='.$db->escape_string($productdata['paid']);
+						}
+						else {
+							$update_query_where = 'rid='.$this->report['rid'].' AND pid='.$db->escape_string($productdata['pid']);
+						}
 						$db->update_query('productsactivity', $productdata, $update_query_where);
+						$processed_once = true;
 					}
 					else {
 						$db->insert_query('productsactivity', $productdata);
+						$cache['usedpaid'][] = $db->last_id();
+						$processed_once = true;
 					}
+
+					$cache['usedpids'][] = $productdata['pid'];
+					if(isset($productdata['paid']) && !empty($productdata['paid'])) {
+						$cache['usedpaid'][] = $productdata['paid'];
+					}
+				}
+				if($processed_once === true) {
+					if(is_array($cache['usedpaid'])) {
+						$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).')';
+					}
+					$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid=".$this->report['rid']." AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where})");
+					$update_status = $db->update_query('reports', array('prActivityAvailable' => 1), 'rid='.$this->report['rid'].'');
 				}
 			}
 		}
