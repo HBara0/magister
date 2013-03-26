@@ -149,7 +149,13 @@ else {
 				if($holiday['year'] == 0) {
 					$holiday['year'] = $current_year;
 				}
-				$message['body'] .= '<li>'.date('l, F j', mktime(0, 0, 0, $holiday['month'], $holiday['day'], $holiday['year'])).' - '.$holiday['title'].', '.$holiday['numDays'].' day(s).</li>';
+
+				$holiday['hasexceptions'] = '';
+				if(value_exists('holidaysexceptions', 'hid', $holiday['hid'])) {
+					$holiday['hasexceptions'] = 'SEL';
+				}
+
+				$message['body'] .= '<li>'.date('l, F j', mktime(0, 0, 0, $holiday['month'], $holiday['day'], $holiday['year'])).' - '.$holiday['title'].', '.$holiday['numDays'].' day(s). <sup>'.$holiday['hasexceptions'].'</sup></li>';
 
 				$core->input['affidtoinform'] = $holiday['affid'];
 			}
@@ -179,7 +185,12 @@ else {
 			}
 
 			while($holiday = $db->fetch_assoc($query)) {
-				$message['body'] .= '<li>'.date('l, F j', mktime(0, 0, 0, $holiday['month'], $holiday['day'], $current_year)).' - '.$holiday['title'].', '.$holiday['numDays'].' day(s).</li>';
+				$holiday['hasexceptions'] = '';
+				if(value_exists('holidaysexceptions', 'hid', $holiday['hid'])) {
+					$holiday['hasexceptions'] = 'SEL';
+				}
+
+				$message['body'] .= '<li>'.date('l, F j', mktime(0, 0, 0, $holiday['month'], $holiday['day'], $current_year)).' - '.$holiday['title'].', '.$holiday['numDays'].' day(s). <sup>'.$holiday['hasexceptions'].'</sup></li>';
 			}
 		}
 		$message['body'] .= '</ul><br />';

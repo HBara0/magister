@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
 * Orkila Central Online System (OCOS)
 * Copyright © 2009 Orkila International Offshore, All Rights Reserved
@@ -30,10 +30,11 @@ if(!$core->input['action']) {
 		$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
 	}
 	$current_year = date('Y', TIME_NOW);
-	$multipage_where = 'affid='.$core->user[mainaffiliate].' AND (year='.$current_year.' OR isOnce=0)';
+	$multipage_where = 'affid='.$core->user[mainaffiliate].' AND (year='.$current_year.' OR isOnce=0) AND hid NOT IN (SELECT hid FROM '.Tprefix.'holidaysexceptions WHERE uid='.$core->user['uid'].')';
 	
 	$query = $db->query("SELECT * FROM ".Tprefix."holidays
 						WHERE affid={$core->user[mainaffiliate]} AND (year={$current_year} OR isOnce=0)
+						AND hid NOT IN (SELECT hid FROM ".Tprefix."holidaysexceptions WHERE uid=".$core->user['uid'].")
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 						

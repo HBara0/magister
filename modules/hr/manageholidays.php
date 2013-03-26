@@ -84,8 +84,8 @@ if(!$core->input['action']) {
 				$year_disabled = ' disabled="disabled"';
 			}
 			
-			$months_list = parse_selectlist('month', 1, $months,$holiday['month'], 0,'','',array('required'=>'required'));
-			$days_list = parse_selectlist('day', 1, $days,$holiday['day'], 0,'',array('required'=>'required'));
+			$months_list = parse_selectlist('month', 1, $months,$holiday['month'], 0,'','', array('required'=>'required'));
+			$days_list = parse_selectlist('day', 1, $days,$holiday['day'], 0,'', array('required'=>'required'));
 		}
 		else
 		{
