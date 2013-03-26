@@ -4,7 +4,7 @@
  * [reportingQR_class]
  * $id: reportingQR_class.php
  * Created:        @[tony.assaad]    Feb 25, 2013 | 10:30:00 PM
- * Last Update:    @tony.assaad    March 14, 2013 | 3:30:00 PM
+ * Last Update:    @tony.assaad		March 26, 2013 | 3:30:00 PM
  */
 
 class ReportingQr Extends Reporting {
@@ -42,14 +42,14 @@ class ReportingQr Extends Reporting {
 //
 				$this->report['products'][$products_activityrow['pid']] = $products_activityrow['productname'];
 				$this->report['productssegments'][$products_activityrow['psid']] = $products_activityrow['segment'];
-				
+
 				if(!empty($products_activityrow['originalCurrency']) && $get_prevactivity == true) {
 					$this->report['currencies'][$products_activityrow['originalCurrency']] = $products_activityrow['originalCurrency'];
 				}
 			}
-			
+
 			$db->free_result($products_activity_query);
-			
+
 			if($get_prevactivity == true) {
 				$this->read_prev_products_activity();
 				$this->read_next_products_activity();
@@ -315,13 +315,13 @@ class ReportingQr Extends Reporting {
 	public function get_currencies() {
 		return $this->report['currencies'];
 	}
-	
+
 	public function get_status() {
 		return $this->status;
 	}
 
 	public function get_report_supplier_audits() {
-		global $db; 
+		global $db;
 		return $db->fetch_assoc($db->query("SELECT displayName AS employeeName, u.email
 			FROM ".Tprefix."users u
 			JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid)
@@ -329,9 +329,29 @@ class ReportingQr Extends Reporting {
 	}
 
 	/* Setter Functionality --START */
+	public function save_productactivity($data = array()) {
+		global $db, $core;
+		if(is_array($data)) {
+			foreach($data as $productdata) {
+				unset($productdata['fxrate'], $productdata['productname']);
+				$productdata['rid'] = $this->report['rid'];
+				$productdata['uid'] = $core->user['uid'];
+				if(!empty($productdata['pid']) && isset($productdata['pid'])) {
+					$update_query_where = 'rid='.$this->report['rid'].' AND pid='.$db->escape_string($productdata['pid']);
+					if(value_exists('productsactivity', 'pid', $productdata['pid'], ' rid='.$this->report['rid'])) {
+						$db->update_query('productsactivity', $productdata, $update_query_where);
+					}
+					else {
+						$db->insert_query('productsactivity', $productdata);
+					}
+				}
+			}
+		}
+	}
+
 	public function lock_report() {
 		global $db;
-		$query = $db->update_query('reports', array('isLocked'=> 1), 'rid='.$this->report['rid']);
+		$query = $db->update_query('reports', array('isLocked' => 1), 'rid='.$this->report['rid']);
 		if($query) {
 			$this->status = 0;
 		}
@@ -339,7 +359,7 @@ class ReportingQr Extends Reporting {
 
 	public function set_status() {
 		global $db;
-		$query = $db->update_query('reports', array('status'=> 1), 'rid='.$this->report['rid']);
+		$query = $db->update_query('reports', array('status' => 1), 'rid='.$this->report['rid']);
 		if($query) {
 			$this->status = 0;
 		}
@@ -348,8 +368,8 @@ class ReportingQr Extends Reporting {
 	public function approve_report($rid) {
 		global $db;
 		if(isset($rid) && !empty($rid)) {
-			
-			$query = $db->update_query('reports', array('isApproved'=> 1), 'rid='.$rid);
+
+			$query = $db->update_query('reports', array('isApproved' => 1), 'rid='.$rid);
 			if($query) {
 				$this->status = 0;
 			}

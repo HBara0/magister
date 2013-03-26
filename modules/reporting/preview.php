@@ -5,7 +5,7 @@
  * [Provide Short Descption Here]
  * $id: preview.php
  * Created:        @tony.assaad            |
- * Last Update:    @tony.assaad    March 13, 2013 | 1:24:11 PM
+ * Last Update:    @tony.assaad    March 26, 2013 | 3:24:11 PM
  */
 
 
@@ -92,6 +92,7 @@ if(!$core->input['action']) {
 			}
 		}
 		else { /* if Referrrer fill  */
+
 			$newreport = new ReportingQr(array('rid' => $core->input['rid']));
 			$report = $newreport->get();
 			$report['affiliates'] = $newreport->get_report_affiliate();
@@ -105,6 +106,14 @@ if(!$core->input['action']) {
 				$productsactivity = unserialize($session->get_phpsession('productsactivitydata_'.$identifier));
 				unset($productsactivity['module']);
 				$report['productsactivity'] = $reportdata['productactivitydata'] = $productsactivity['productactivity'];
+
+				/* Insert produt data coming from the session those are not saved yet --START */
+				if(is_array($productsactivity[productactivity])) {
+					$newreport->save_productactivity($productsactivity[productactivity]);
+				}
+				/* Insert produt data coming from the session those are not saved yet --END */
+				$newreport->read_products_activity(true);
+				$report['items'] = $newreport->get_classified_productsactivity();
 			}
 			/* read keycustomersdata from fill  data session */
 			if($session->isset_phpsession('keycustomersdata_'.$identifier)) {
@@ -369,7 +378,7 @@ if(!$core->input['action']) {
 			if(is_array($mkauthors_overview)) {
 				$authors_overview_entries = '';
 				foreach($mkauthors_overview as $affid => $mkauthors) {
-			
+
 					if(is_array($mkauthors) && !empty($mkauthors)) {
 						$authors_overview_entries .= '<tr><td colspan="2" class="thead">'.$reportcache->data['affiliatesmarketreport'][$affid].'</td></tr>';
 						foreach($mkauthors as $psid => $authors) {
