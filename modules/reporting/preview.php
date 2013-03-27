@@ -110,7 +110,7 @@ if(!$core->input['action']) {
 				$report['productsactivity'] = $reportdata['productactivitydata'] = $productsactivity['productactivity'];
 
 				/* Insert produt data coming from the session those are not saved yet --START */
-				if(is_array($productsactivity['productactivity'])) {
+				if(is_array($productsactivity['productactivity'])) { 
 					$newreport->save_productactivity($productsactivity['productactivity'], unserialize($session->get_phpsession('reportcurrencies_'.$identifier)), $options);
 				}
 				/* Insert produt data coming from the session those are not saved yet --END */
@@ -581,10 +581,7 @@ else {
 		if($core->input['action'] == 'saveandsend') {
 			set_time_limit(0);
 			if(is_empty($report['summary']) && $report['reqQRSummary'] == 1) {
-				$session_identifier = (($session->get_phpsession('sessionid')));
-				///redirect('index.php?module=reporting/preview&amp;referrer=direct&amp;identifier='.$session_identifier.'&amp;message='.$lang->fillsummary.'');
-				$fillsummary_msg_text = $lang->fillsummary;
-				redirect($_SERVER['HTTP_REFERER']);
+				error($lang->fillsummary,$_SERVER['HTTP_REFERER']);
 			}
 			else {
 				$html2pdf->WriteHTML($content, $show_html);
