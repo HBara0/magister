@@ -141,7 +141,7 @@ class Uploader {
 			return false;
 		}
 
-		if($this->format_path($key)) { print_r($this->file[$this->fieldname]['tmp_name'][$key]);
+		if($this->format_path($key)) {
 			$upload = move_uploaded_file($this->file[$this->fieldname]['tmp_name'][$key], $this->file_path[$key]); 
 			if($upload) {
 				$this->file[$this->fieldname]['destination'][$key] = $this->file_path[$key];
@@ -187,7 +187,7 @@ class Uploader {
 				$this->close_ftp();
 				return false;	
 			}
-			$chmod = ftp_chmod($this->ftpconnection, 7777, $this->file_path[$key]);
+			$chmod = ftp_chmod($this->ftpconnection, 0644, $this->file_path[$key]);
 		}
 		
 		return true;
