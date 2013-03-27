@@ -328,23 +328,9 @@ class ReportingQr Extends Reporting {
 			WHERE sa.eid=".$this->report['spid'].""));
 	}
 
-	private function get_currency_Byrate($data = array()) {
-		global $db;
-		
-		$currency_query = $db->query("SELECT * FROM  ".Tprefix."currencies_fxrates cf
-			JOIN ".Tprefix."currencies c ON (c.numCode=cf.currency )
-			WHERE cf.rate=".$data['fxrate']."");
-
-		while($currency_row = $db->fetch_assoc($currency_query)) {
-			$currency[$currency_row['numCode']] = $currency_row;
-		}
-		return $currency;
-	}
-
 	/* Setter Functionality - START */
 	public function save_productactivity($data, $currencies, $options = array()) {
 		global $db, $core, $log;
-		$currencies = array();
 
 		/* Check if audit - START */
 		if($options[isauditor] != '1') {
@@ -355,7 +341,7 @@ class ReportingQr Extends Reporting {
 
 		if(is_array($data)) {
 			foreach($data as $productdata) {
-				$currencies = $this->get_currency_Byrate(array('fxrate' => $productdata['fxrate']));
+				//$currencies = $this->get_currency_Byrate(array('fxrate' => $productdata['fxrate']));
 				if(!empty($productdata['pid']) && isset($productdata['pid'])) {
 					if($productdata['fxrate'] != 1) {
 						$productdata['turnOverOc'] = $productdata['turnOver'];

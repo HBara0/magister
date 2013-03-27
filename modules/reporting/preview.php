@@ -111,7 +111,7 @@ if(!$core->input['action']) {
 
 				/* Insert produt data coming from the session those are not saved yet --START */
 				if(is_array($productsactivity['productactivity'])) {
-					$newreport->save_productactivity($productsactivity['productactivity'],'', $options);
+					$newreport->save_productactivity($productsactivity['productactivity'], unserialize($session->get_phpsession('reportcurrencies_'.$identifier)), $options);
 				}
 				/* Insert produt data coming from the session those are not saved yet --END */
 				$newreport->read_products_activity(true);
