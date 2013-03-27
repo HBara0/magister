@@ -322,32 +322,47 @@ class ReportingQr Extends Reporting {
 
 	public function get_report_supplier_audits() {
 		global $db;
-		return $db->fetch_assoc($db->query("SELECT displayName AS employeeName, u.email
+		return $db->fetch_assoc($db->query("SELECT u.uid,displayName AS employeeName, u.email
 			FROM ".Tprefix."users u
 			JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid)
 			WHERE sa.eid=".$this->report['spid'].""));
 	}
 
+	private function get_currency_Byrate($data = array()) {
+		global $db;
+		
+		$currency_query = $db->query("SELECT * FROM  ".Tprefix."currencies_fxrates cf
+			JOIN ".Tprefix."currencies c ON (c.numCode=cf.currency )
+			WHERE cf.rate=".$data['fxrate']."");
+
+		while($currency_row = $db->fetch_assoc($currency_query)) {
+			$currency[$currency_row['numCode']] = $currency_row;
+		}
+		return $currency;
+	}
+
 	/* Setter Functionality - START */
-	public function save_productactivity($data, $currencies) {
+	public function save_productactivity($data, $currencies, $options = array()) {
 		global $db, $core, $log;
-		
 		$currencies = array();
-		
-		/* Data to be passed */
-		if($report_meta['auditor'] != '1') {
+
+		/* Check if audit - START */
+		if($options[isauditor] != '1') {
 			$existingentries_query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
 		}
-		
+		/* Check if audit - END */
+
+
 		if(is_array($data)) {
 			foreach($data as $productdata) {
-				if(!empty($productdata['pid']) && isset($productdata['pid'])) {			
+				$currencies = $this->get_currency_Byrate(array('fxrate' => $productdata['fxrate']));
+				if(!empty($productdata['pid']) && isset($productdata['pid'])) {
 					if($productdata['fxrate'] != 1) {
 						$productdata['turnOverOc'] = $productdata['turnOver'];
 						$productdata['turnOver'] = round($productdata['turnOver'] / $productdata['fxrate'], 4);
 						$productdata['originalCurrency'] = $currencies[$productdata['fxrate']];
 					}
-					
+
 					if(value_exists('productsactivity', 'pid', $productdata['pid'], ' rid='.$this->report['rid'])) {
 						if(isset($productdata['paid']) && !empty($productdata['paid'])) {
 							$update_query_where = 'paid='.$db->escape_string($productdata['paid']);
@@ -355,7 +370,7 @@ class ReportingQr Extends Reporting {
 						else {
 							$update_query_where = 'rid='.$this->report['rid'].' AND pid='.$db->escape_string($productdata['pid']);
 						}
-						
+
 						unset($productdata['fxrate'], $productdata['productname']);
 						$db->update_query('productsactivity', $productdata, $update_query_where);
 						$processed_once = true;
@@ -363,7 +378,7 @@ class ReportingQr Extends Reporting {
 					else {
 						$productdata['rid'] = $this->report['rid'];
 						$productdata['uid'] = $core->user['uid'];
-						
+
 						unset($productdata['fxrate'], $productdata['productname']);
 						$db->insert_query('productsactivity', $productdata);
 						$cache['usedpaid'][] = $db->last_id();
@@ -379,20 +394,20 @@ class ReportingQr Extends Reporting {
 					if(is_array($cache['usedpaid'])) {
 						//$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).')';
 					}
-				
-					$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid=".$this->report['rid']." AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where})");
+
+					$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid=".$this->report['rid']." AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
 					$update_status = $db->update_query('reports', array('prActivityAvailable' => 1), 'rid='.$this->report['rid'].'');
 				}
 			}
 			/* Data to be passed */
-			if($report_meta['transFill'] != '1') {
-				record_contribution($rid);
+			if($options['transFill'] != '1') {
+				record_contribution($this->report['rid']);
 			}
 			$log->record($this->report['rid']);
 		}
 	}
+
 	/* Setter Functionality --END */
-	
 	public function lock_report() {
 		global $db;
 		$query = $db->update_query('reports', array('isLocked' => 1), 'rid='.$this->report['rid']);
@@ -428,7 +443,6 @@ class ReportingQr Extends Reporting {
 		return $this->report['productssegments'];
 	}
 
-	
 }
 /* Market report Class --START */
 

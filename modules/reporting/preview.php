@@ -99,8 +99,10 @@ if(!$core->input['action']) {
 			$report['supplier'] = $newreport->get_report_supplier();
 			$identifier = $db->escape_string($core->input['identifier']);
 			$session_identifier = $identifier;
-
-			$reportdata['rid'] = $report['rid'];
+			$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
+			if(isset($report_meta['auditor']) && !empty($report_meta['auditor'])) {
+				$options['isauditor'] = $report_meta['auditor'];
+			}
 			/* read productsactivity from fill  data session */
 			if($session->isset_phpsession('productsactivitydata_'.$identifier)) {
 				$productsactivity = unserialize($session->get_phpsession('productsactivitydata_'.$identifier));
@@ -108,8 +110,8 @@ if(!$core->input['action']) {
 				$report['productsactivity'] = $reportdata['productactivitydata'] = $productsactivity['productactivity'];
 
 				/* Insert produt data coming from the session those are not saved yet --START */
-				if(is_array($productsactivity[productactivity])) {
-					$newreport->save_productactivity($productsactivity[productactivity]);
+				if(is_array($productsactivity['productactivity'])) {
+					$newreport->save_productactivity($productsactivity['productactivity'],'', $options);
 				}
 				/* Insert produt data coming from the session those are not saved yet --END */
 				$newreport->read_products_activity(true);
@@ -147,7 +149,7 @@ if(!$core->input['action']) {
 		$report['quartername'] = 'Q'.$report['quarter'].' '.$report['year'];
 		$item = array();
 		if(is_array($report['items'])) {
-			foreach($aggregate_types as $aggregate_type) {
+			foreach($aggregate_types  as $aggregate_type) {
 				foreach($report['items'] as $category => $catitem) {/* amount or  quantity */
 					foreach($catitem as $type => $typeitem) { /* actual or forecast */
 						foreach($report_years as $yearef => $year) {
