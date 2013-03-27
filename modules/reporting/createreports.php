@@ -54,7 +54,7 @@ else
 				$reports_list .= "<option value='{$report[affid]}_{$report[eid]}'>{$report[name]} - {$report[companyName]}</option>";
 			}
 			if(empty($reports_list)) {
-				$reports_list = $lang->allreportscreated;
+				$reports_list = '<option>'.$lang->allreportscreated.'</option>';
 			}
 			echo $reports_list;
 		}
