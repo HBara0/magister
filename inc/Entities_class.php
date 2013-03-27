@@ -534,7 +534,7 @@ class Entities {
 		return $this->data;
 	}
 
-	private function get_entity($id, $simple) {
+	public function read($id) {
 		global $db;
 		if(!empty($id)) {
 			$query_select = '*';

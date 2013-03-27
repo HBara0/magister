@@ -50,17 +50,30 @@ class Currencies {
 							AND currency=(SELECT numCode FROM ".Tprefix."currencies WHERE alphaCode='".$db->escape_string($currency)."'){$query_where}
 							ORDER BY date DESC
 							LIMIT 0, 1");
-
-		if($db->num_rows($query) > 0) {
-			$fx_rate = $db->fetch_assoc($query);
+		$fx_rate = $db->fetch_assoc($query);
+		if(!empty($fx_rate['rate'])) {
 			if(isset($options['precision']) && !empty($options['precision'])) {
 				$fx_rate['rate'] = round($fx_rate['rate'], $options['precision']);
 			}
 
 			$this->cache->data['fxrates'][$currency.'-'.$period['from'].'-'.$period['from'].'-'.$period['year'].'-'.$period['month'].'-'.$base_currency] = $fx_rate['rate'];
+			$db->free_result($query);
 			return $fx_rate['rate'];
 		}
 		else {
+			if($base_currency != 'USD') {
+				if($currency == 'USD') {
+					$usd_fx_rates[$currency] = $this->get_average_fxrate($base_currency, $period, $options, 'USD');
+					return 1 / $usd_fx_rates[$currency];
+				}
+				else {
+					if($currency != 'USD') {
+						$usd_fx_rates[$currency] = $this->get_average_fxrate($currency, $period, $options, 'USD');
+						$usd_fx_rates[$base_currency] = $this->get_average_fxrate($base_currency, $period, $options, 'USD');
+						return $usd_fx_rates[$currency] / $usd_fx_rates[$base_currency];
+					}
+				}
+			}
 			return 0;
 		}
 	}
@@ -99,9 +112,28 @@ class Currencies {
 
 				$fx_rates[$fx_rate[$options['distinct_by']]] = $fx_rate['rate'];
 			}
+			$db->free_result($query);
 			return $fx_rates;
 		}
 		else {
+			if($base_currency != 'USD') {
+				$usd_fx_rates = $this->get_average_fxrates($currencies, $period, $options, 'USD');
+				if(!empty($usd_fx_rates)) {
+					foreach($currencies as $currency) {
+						if($currency == $base_currency) {
+							if(!empty($usd_fx_rates[$currency])) {
+								$fx_rates['USD'] = 1 / $usd_fx_rates[$currency];
+							}
+						}
+						else {
+							if($currency != 'USD' && !empty($usd_fx_rates[$base_currency])) {
+								$fx_rates[$currency] = $usd_fx_rates[$currency] / $usd_fx_rates[$base_currency];
+							}
+						}
+					}
+					return $fx_rates;
+				}
+			}
 			return 0;
 		}
 	}
@@ -112,7 +144,7 @@ class Currencies {
 			foreach($rates as $currency => $rate) {
 				$new_rates[strval($rate)] = $currency;
 				if($options['combine_values'] == true) {
-					$new_rates[$rate] .= ' - '.$rate;
+					$new_rates[strval($rate)] .= ' - '.$rate;
 				}
 			}
 			return $new_rates;
