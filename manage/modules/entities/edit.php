@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright ï¿½ 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Edit entities
  * $module: admin/entities
@@ -112,6 +112,7 @@ if(!$core->input['action']) {
 	else
 	{
 		$affiliates_list_userssection = parse_selectlist("users[{$users_counter}][affiliates][]", 0, $affiliates, '', 1);
+		$val = array();
 		eval("\$users_rows = \"".$template->get('admin_entities_addedit_userrow')."\";");
 	}
 	$query2 = $db->query("SELECT er.*, r.* 
