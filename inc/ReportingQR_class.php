@@ -328,16 +328,26 @@ class ReportingQr Extends Reporting {
 			WHERE sa.eid=".$this->report['spid'].""));
 	}
 
-	/* Setter Functionality --START */
-	public function save_productactivity($data = array()) {
-		global $db, $core;
+	/* Setter Functionality - START */
+	public function save_productactivity($data, $currencies) {
+		global $db, $core, $log;
+		
+		$currencies = array();
+		
+		/* Data to be passed */
+		if($report_meta['auditor'] != '1') {
+			$existingentries_query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
+		}
+		
 		if(is_array($data)) {
 			foreach($data as $productdata) {
-				unset($productdata['fxrate'], $productdata['productname']);
-				$productdata['rid'] = $this->report['rid'];
-				$productdata['uid'] = $core->user['uid'];
-				if(!empty($productdata['pid']) && isset($productdata['pid'])) {
-
+				if(!empty($productdata['pid']) && isset($productdata['pid'])) {			
+					if($productdata['fxrate'] != 1) {
+						$productdata['turnOverOc'] = $productdata['turnOver'];
+						$productdata['turnOver'] = round($productdata['turnOver'] / $productdata['fxrate'], 4);
+						$productdata['originalCurrency'] = $currencies[$productdata['fxrate']];
+					}
+					
 					if(value_exists('productsactivity', 'pid', $productdata['pid'], ' rid='.$this->report['rid'])) {
 						if(isset($productdata['paid']) && !empty($productdata['paid'])) {
 							$update_query_where = 'paid='.$db->escape_string($productdata['paid']);
@@ -345,10 +355,16 @@ class ReportingQr Extends Reporting {
 						else {
 							$update_query_where = 'rid='.$this->report['rid'].' AND pid='.$db->escape_string($productdata['pid']);
 						}
+						
+						unset($productdata['fxrate'], $productdata['productname']);
 						$db->update_query('productsactivity', $productdata, $update_query_where);
 						$processed_once = true;
 					}
 					else {
+						$productdata['rid'] = $this->report['rid'];
+						$productdata['uid'] = $core->user['uid'];
+						
+						unset($productdata['fxrate'], $productdata['productname']);
 						$db->insert_query('productsactivity', $productdata);
 						$cache['usedpaid'][] = $db->last_id();
 						$processed_once = true;
@@ -361,15 +377,22 @@ class ReportingQr Extends Reporting {
 				}
 				if($processed_once === true) {
 					if(is_array($cache['usedpaid'])) {
-						$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).')';
+						//$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).')';
 					}
+				
 					$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid=".$this->report['rid']." AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where})");
 					$update_status = $db->update_query('reports', array('prActivityAvailable' => 1), 'rid='.$this->report['rid'].'');
 				}
 			}
+			/* Data to be passed */
+			if($report_meta['transFill'] != '1') {
+				record_contribution($rid);
+			}
+			$log->record($this->report['rid']);
 		}
 	}
-
+	/* Setter Functionality --END */
+	
 	public function lock_report() {
 		global $db;
 		$query = $db->update_query('reports', array('isLocked' => 1), 'rid='.$this->report['rid']);
@@ -405,7 +428,7 @@ class ReportingQr Extends Reporting {
 		return $this->report['productssegments'];
 	}
 
-	/* Setter Functionality --END */
+	
 }
 /* Market report Class --START */
 
