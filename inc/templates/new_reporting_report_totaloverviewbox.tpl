@@ -7,6 +7,7 @@
         <td colspan="3" align="center" class="columnhead" width="230px" >{$report_years[current_year]}</td>
     </tr>
     {$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category]}
-
+<tr>
 </table>
+<br />
 <br />

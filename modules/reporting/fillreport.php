@@ -56,8 +56,8 @@ if(!$core->input['action']) {
 		/* Instantiate currencies object and get currencies rate of period - START */
 		$core->input['baseCurrency'] = 'USD';
 		$currency = new Currencies($core->input['baseCurrency']);
-		$currencies_from = date_timestamp_get(date_create_from_format('j/m/Y', $core->settings['q'.$core->input['quarter'].'start'].'/'.$core->input['year']));
-		$currencies_to = date_timestamp_get(date_create_from_format('j/m/Y', $core->settings['q'.$core->input['quarter'].'end'].'/'.$core->input['year']));
+		$currencies_from = date_timestamp_get(date_create_from_format('j-m-Y', $core->settings['q'.$core->input['quarter'].'start'].'-'.$core->input['year']));
+		$currencies_to = date_timestamp_get(date_create_from_format('j-m-Y', $core->settings['q'.$core->input['quarter'].'end'].'-'.$core->input['year']));
 		$currencies = $currency->get_average_fxrates_transposed(array('GBP', 'EUR'), array('from' => $currencies_from, 'to' => $currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4));
 		$currencies[1] = $core->input['baseCurrency'];
 
@@ -125,7 +125,7 @@ if(!$core->input['action']) {
 				eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
 			}
 		}
-
+		
 		if($core->usergroup['canExcludeFillStages'] == 1) {
 			$exludestage = '<br /><input type="checkbox" name="excludeProductsActivity" id="excludeProductsActivity" title="'.$lang->exclude_tip.'"> '.$lang->excludeproductsactivity;
 		}
@@ -195,7 +195,7 @@ if(!$core->input['action']) {
 				}
 			}
 		}
-
+		
 		if(is_array($customers)) {
 			foreach($customers as $i => $customer) {
 				$rowid = $i;
@@ -210,6 +210,7 @@ if(!$core->input['action']) {
 			for($rowid = 1; $rowid <= 5; $rowid++) {
 				eval("\$customersrows .= \"".$template->get("reporting_fillreports_keycustomers_customerrow")."\";");
 			}
+		}
 		}
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		/* If supplier does not have contract and contract Expired -START */
@@ -467,14 +468,14 @@ else {
 			if(empty($productactivity['pid'])) {
 				continue;
 			}
-
+			
 			if(isset($prev_data[$productactivity['pid']])) {
 				foreach($validation_items as $validation_key => $validation_item) {
 					$actual_current_validation = $productactivity[$validation_item];
 					if($validation_key == 'sales') {
 						$actual_current_validation = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
 					}
-
+					
 					$actual_current_data_querystring = 'uid!='.$core->user['uid'];
 					if(isset($productactivity['paid'])) {
 						$actual_current_data_querystring = 'pa.paid!='.$productactivity['paid'];
@@ -536,13 +537,13 @@ else {
 			if(empty($productactivity['pid'])) {
 				continue;
 			}
-
+			
 			if($productactivity['fxrate'] != 1) {
 				$productactivity['turnOverOc'] = $productactivity['turnOver'];
 				$productactivity['turnOver'] = round($productactivity['turnOver'] / $productactivity['fxrate'], 4);
 				$productactivity['originalCurrency'] = $currencies[$productactivity['fxrate']];
 			}
-
+			
 			if(value_exists('productsactivity', 'rid', $rid, 'pid='.intval($productactivity['pid']).$existingentries_query_string)) {
 				if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
 					$update_query_where = 'paid='.$db->escape_string($productactivity['paid']);
@@ -807,12 +808,12 @@ else {
 		$identifier = $db->escape_string($core->input['identifier']);
 
 		$rawdata = unserialize($session->get_phpsession('reportrawdata_'.$identifier));
-	print_r($rawdata);
+
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
 		$rawdata['rid'] = $db->escape_string($rawdata['rid']);
 		$currencies = unserialize($session->get_phpsession('reportcurrencies_'.$identifier));
-
+	
 		$cache = array();
 		if(empty($rawdata['rid'])) {
 			output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
@@ -852,7 +853,7 @@ else {
 					$newdata['turnOver'] = round($newdata['turnOver'] / $newdata['fxrate'], 4);
 					$newdata['originalCurrency'] = $currencies[$newdata['fxrate']];
 				}
-
+			
 				unset($newdata['productname'], $newdata['fxrate']);
 				if(value_exists('productsactivity', 'rid', $rawdata['rid'], 'pid='.$newdata['pid'].$products_deletequery_string)) {
 					if(isset($newdata['paid']) && !empty($newdata['paid'])) {
@@ -948,12 +949,12 @@ else {
 
 				unset($val['segmenttitle'], $val['exclude']);
 				$val['psid'] = $psid;
-
+				
 				if(value_exists('marketreport', 'rid', $rawdata['rid'], 'psid="'.$val['psid'].'"')) {
 					$db->update_query('marketreport', $val, "rid='{$rawdata[rid]}' AND psid='{$val[psid]}'");
 					$mrid = $db->fetch_field($db->query("SELECT mrid FROM ".Tprefix."marketreport WHERE rid='{$rawdata[rid]}' AND psid='{$val[psid]}'"), 'mrid');
 				}
-				else {
+				else {					
 					$val['rid'] = $rawdata['rid'];
 					print_r($val);
 					$db->insert_query('marketreport', $val);

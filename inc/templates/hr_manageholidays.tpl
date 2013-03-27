@@ -50,7 +50,7 @@
 			<td align="center">{$months_list}</td>
 			<td align="center">{$days_list}</td>
 			<td align="center"><input type='text' name="year" id="year" maxlength="4" size="4" accept="numeric" value="{$holiday[year]}"{$year_disabled}/></td>
-			<td align="center"><input type='text' name="numDays" id="numDays" size="3" maxlength="3"  required="required"  value="{$holiday[numDays]}"   accept="numeric"/></td>
+			<td align="center"><input type='text' name="numDays" id="numDays" size="4" maxlength="4"  required="required"  value="{$holiday[numDays]}"   accept="numeric"/></td>
 		</tr>
 	</tbody>
 		<tr>

@@ -5,7 +5,7 @@
  * [Provide Short Descption Here]
  * $id: preview.php
  * Created:        @tony.assaad            |
- * Last Update:    @tony.assaad    March 13, 2013 | 1:24:11 PM
+ * Last Update:    @tony.assaad    March 26, 2013 | 3:24:11 PM
  */
 
 
@@ -92,19 +92,30 @@ if(!$core->input['action']) {
 			}
 		}
 		else { /* if Referrrer fill  */
+
 			$newreport = new ReportingQr(array('rid' => $core->input['rid']));
 			$report = $newreport->get();
 			$report['affiliates'] = $newreport->get_report_affiliate();
 			$report['supplier'] = $newreport->get_report_supplier();
 			$identifier = $db->escape_string($core->input['identifier']);
 			$session_identifier = $identifier;
-
-			$reportdata['rid'] = $report['rid'];
+			$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
+			if(isset($report_meta['auditor']) && !empty($report_meta['auditor'])) {
+				$options['isauditor'] = $report_meta['auditor'];
+			}
 			/* read productsactivity from fill  data session */
 			if($session->isset_phpsession('productsactivitydata_'.$identifier)) {
 				$productsactivity = unserialize($session->get_phpsession('productsactivitydata_'.$identifier));
 				unset($productsactivity['module']);
 				$report['productsactivity'] = $reportdata['productactivitydata'] = $productsactivity['productactivity'];
+
+				/* Insert produt data coming from the session those are not saved yet --START */
+				if(is_array($productsactivity['productactivity'])) { 
+					$newreport->save_productactivity($productsactivity['productactivity'], unserialize($session->get_phpsession('reportcurrencies_'.$identifier)), $options);
+				}
+				/* Insert produt data coming from the session those are not saved yet --END */
+				$newreport->read_products_activity(true);
+				$report['items'] = $newreport->get_classified_productsactivity();
 			}
 			/* read keycustomersdata from fill  data session */
 			if($session->isset_phpsession('keycustomersdata_'.$identifier)) {
@@ -138,7 +149,7 @@ if(!$core->input['action']) {
 		$report['quartername'] = 'Q'.$report['quarter'].' '.$report['year'];
 		$item = array();
 		if(is_array($report['items'])) {
-			foreach($aggregate_types as $aggregate_type) {
+			foreach($aggregate_types  as $aggregate_type) {
 				foreach($report['items'] as $category => $catitem) {/* amount or  quantity */
 					foreach($catitem as $type => $typeitem) { /* actual or forecast */
 						foreach($report_years as $yearef => $year) {
@@ -369,7 +380,7 @@ if(!$core->input['action']) {
 			if(is_array($mkauthors_overview)) {
 				$authors_overview_entries = '';
 				foreach($mkauthors_overview as $affid => $mkauthors) {
-			
+
 					if(is_array($mkauthors) && !empty($mkauthors)) {
 						$authors_overview_entries .= '<tr><td colspan="2" class="thead">'.$reportcache->data['affiliatesmarketreport'][$affid].'</td></tr>';
 						foreach($mkauthors as $psid => $authors) {
@@ -484,17 +495,17 @@ if(!$core->input['action']) {
 	}
 	else {
 		// Add below to class
-//		$missing_employees_query1 = $db->query("SELECT DISTINCT(u.uid), displayName
-//												FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid)
-//												WHERE ae.affid='{$report[affid]}' AND ae.eid='{$report[spid]}' AND u.gid NOT IN (SELECT gid FROM usergroups WHERE canUseReporting=0) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$report[rid]}' AND isDone=1) AND u.uid!={$core->user[uid]}"); // AND rc.rid='{$report[rid]}'
-//		while($assigned_employee = $db->fetch_assoc($missing_employees_query1)) {
-//			$missing_employees['name'][] = $assigned_employee['displayName'];
-//			$missing_employees['uid'][] = $assigned_employee['uid'];
-//		}
-//
-//		if(is_array($missing_employees)) {
-//			$missing_employees_notification = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; font-weight:bold;">'.$lang->employeesnotfillpart.' <ul><li>'.implode('</li><li>', $missing_employees['name']).'</li></ul></div><br />';
-//		}
+		$missing_employees_query1 = $db->query("SELECT DISTINCT(u.uid), displayName
+												FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid)
+												WHERE ae.affid='{$report[affid]}' AND ae.eid='{$report[spid]}' AND u.gid NOT IN (SELECT gid FROM usergroups WHERE canUseReporting=0) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$report[rid]}' AND isDone=1) AND u.uid!={$core->user[uid]}"); // AND rc.rid='{$report[rid]}'
+		while($assigned_employee = $db->fetch_assoc($missing_employees_query1)) {
+			$missing_employees['name'][] = $assigned_employee['displayName'];
+			$missing_employees['uid'][] = $assigned_employee['uid'];
+		}
+
+		if(is_array($missing_employees)) {
+			$missing_employees_notification = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; font-weight:bold;">'.$lang->employeesnotfillpart.' <ul><li>'.implode('</li><li>', $missing_employees['name']).'</li></ul></div><br />';
+		}
 
 		if(($reportmeta['auditor'] == 1 && is_array($missing_employees)) || !is_array($missing_employees)) {
 			$reporting_preview_tools_finalize_button = $lang->suretofinalizebody.' <p align="center"><input type="button" id="save_report_reporting/fillreport_Button" value="'.$lang->yes.'" class="button" onclick="$(\'#popup_finalizereportconfirmation\').dialog(\'close\')"/></p>';
@@ -570,10 +581,7 @@ else {
 		if($core->input['action'] == 'saveandsend') {
 			set_time_limit(0);
 			if(is_empty($report['summary']) && $report['reqQRSummary'] == 1) {
-				$session_identifier = (($session->get_phpsession('sessionid')));
-				///redirect('index.php?module=reporting/preview&amp;referrer=direct&amp;identifier='.$session_identifier.'&amp;message='.$lang->fillsummary.'');
-				$fillsummary_msg_text = $lang->fillsummary;
-				redirect($_SERVER['HTTP_REFERER']);
+				error($lang->fillsummary,$_SERVER['HTTP_REFERER']);
 			}
 			else {
 				$html2pdf->WriteHTML($content, $show_html);

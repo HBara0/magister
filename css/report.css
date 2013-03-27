@@ -5,6 +5,7 @@
 	padding: 0px;
 	border-spacing: 0px;
         font-size: 10px !important;
+        border-width: 0px;
 }
 
 .reportbox {
@@ -18,29 +19,48 @@
     border-bottom: 2px solid #D8D8D8 !important;
 }
 
-.mainbox_datacell, .mainbox_typenamecell {
+.mainbox_datacell, .mainbox_typenamecell, .mainbox_totalcell, .currenciesbox_datacell {
      border-left: 1px solid #D8D8D8 !important; 
-      border-bottom: 1px dotted #D8D8D8;
+     border-bottom: 1px dotted #D8D8D8;
+}
+
+.mainbox_datacell, .mainbox_totalcell {
+    text-align: right;
+}
+
+.mainbox_totalcell {
+    text-align: right;
+    font-weight: bold;
 }
 
 .mainbox_itemnamecell {
-       border-left: 0px; 
+       border-left: 0px;
+       width: 100px;
 }
 
-.totalsbox_numcell, .totalsbox_perccell {
-    width: 50px;
+.totalsbox_numcell, .totalsbox_perccellpositive, .totalsbox_perccellnegative, .totalsbox_perccellzero {
+    width: 110px !important;
     text-align: center;
 }
 
-.totalsbox_perccell {
+.totalsbox_perccellpositive {
     font-style: italic;
-    background-color:#F2FAED;
+    background-color:#D3EFB2;
+}
+
+.totalsbox_perccellnegative {
+    font-style: italic;
+    background-color:#FDBFBA;
+}
+
+.totalsbox_perccellzero {
+    font-style: italic;
+    background-color:#FCF1B8;   
 }
 
 .totalsbox_yearsep {
-    width: 10px;
+    width: 10px !important;
     text-align: center;
-    background-color:#F2FAED;
 }
 
 .thead {
@@ -62,7 +82,7 @@
 }
 
 .logo {
-	background: url(../images/Orkila_logo.jpg) center no-repeat;
+	/*background: url(../images/Orkila_logo.jpg) center no-repeat;*/
 	height: 100px;
 	width: 200px;
 }
@@ -106,7 +126,7 @@
 	font-style: italic;
 	text-align: center;
 	font-size: 11px;
-        width: 60px;
+        width: 30px;
 }
 
 .verticalspacer, .horizontalspacer {

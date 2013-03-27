@@ -10,5 +10,3 @@
     {$reporting_report_newtotaloverviewbox[segments][purchasedQty]}
     </div>
 </page>   
-    
-    
