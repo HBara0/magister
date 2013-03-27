@@ -15,6 +15,7 @@ $lang['keycustomers'] = "Key Customers";
 $lang['contactperson'] = "Contact person";
 $lang['purchaseqty']="Purchase Qty";
 $lang['marketreport'] = "Market Report";
+$lang['fillsummary']="summary cannot be empty for this supplier";
 $lang['marktrendcompetition'] = "Market Trend and Competition";
 $lang['quarterlyhighlights'] = "Quarterly Hightlights";
 $lang['devprojectsnewop'] = "Development Projects and New Opportunities";
