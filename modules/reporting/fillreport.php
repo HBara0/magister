@@ -211,7 +211,6 @@ if(!$core->input['action']) {
 				eval("\$customersrows .= \"".$template->get("reporting_fillreports_keycustomers_customerrow")."\";");
 			}
 		}
-		}
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		/* If supplier does not have contract and contract Expired -START */
 		$entity = new Entities($report_meta['spid']);
