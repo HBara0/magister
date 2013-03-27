@@ -24,7 +24,7 @@ class Entities {
 			}
 		}
 		else {
-			$this->data = $this->get_entity($data, $simple);
+			$this->data = $this->read($data, $simple);
 		}
 	}
 
@@ -534,7 +534,7 @@ class Entities {
 		return $this->data;
 	}
 
-	public function read($id) {
+	private function read($id, $simple) {
 		global $db;
 		if(!empty($id)) {
 			$query_select = '*';
