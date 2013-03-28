@@ -64,13 +64,17 @@ class Currencies {
 			if($base_currency != 'USD') {
 				if($currency == 'USD') {
 					$usd_fx_rates[$currency] = $this->get_average_fxrate($base_currency, $period, $options, 'USD');
-					return 1 / $usd_fx_rates[$currency];
+					if(!empty($usd_fx_rates[$base_currency])) {
+						return 1 / $usd_fx_rates[$currency];
+					}
 				}
 				else {
 					if($currency != 'USD') {
 						$usd_fx_rates[$currency] = $this->get_average_fxrate($currency, $period, $options, 'USD');
 						$usd_fx_rates[$base_currency] = $this->get_average_fxrate($base_currency, $period, $options, 'USD');
-						return $usd_fx_rates[$currency] / $usd_fx_rates[$base_currency];
+						if(!empty($usd_fx_rates[$base_currency])) {
+							return $usd_fx_rates[$currency] / $usd_fx_rates[$base_currency];
+						}
 					}
 				}
 			}
