@@ -9,4 +9,4 @@
     <td class='{$newtotaloverviewbox_row_percclass[$report_years[before_1year]]}'>{$item[perc][$report_years[before_1year]]}%</td>
     <td class='totalsbox_yearsep{$newtotaloverviewbox_row_percclass[$report_years[before_1year]]}'>&rsaquo;</td>
     <td class="totalsbox_numcell">{$item[data][$report_years[current_year]]}</td>
-</tr>   
+</tr>

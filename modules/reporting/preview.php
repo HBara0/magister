@@ -15,7 +15,7 @@ if(!defined('DIRECT_ACCESS')) {
 
 $session->start_phpsession();
 if(!$core->input['action']) {
-	$default_rounding = 3; //Later a setting
+	$default_rounding = 2; //Later a setting
 	$reportcache = new Cache();
 	$categories_uom = array('amount' => 'K. USD', 'purchasedQty' => 'MT/Units', 'soldQty' => 'MT/Units');
 	$aggregate_types = array('affiliates', 'segments', 'products');
@@ -186,10 +186,10 @@ if(!$core->input['action']) {
 
 												$total_year[$aggregate_type][$category][$affid][$year]+=$item[$aggregate_type][$category][$affid][$type][$year][$quarter];
 
-												$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += round($item[$aggregate_type][$category][$affid][$type][$year][$quarter], $default_rounding);
+												$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += round($item[$aggregate_type][$category][$affid][$type][$year][$quarter], 0);
 
 												$item_rounding = 0;
-												if($item[$aggregate_type][$category][$affid][$type][$year][$quarter] > 1) {
+												if($item[$aggregate_type][$category][$affid][$type][$year][$quarter] < 1) {
 													$item_rounding = $default_rounding;
 												}
 												$item[$aggregate_type][$category][$affid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$affid][$type][$year][$quarter], $item_rounding);
@@ -278,7 +278,7 @@ if(!$core->input['action']) {
 					eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
 				}
 			}
-			$item = $boxes_totals['mainbox'] = array();
+			$item = $boxes_totals['mainbox']['segments'] = $boxes_totals['mainbox']['products'] = array();
 
 			if(is_array($total_year) && !empty($total_year)) {
 				foreach($total_year as $aggregate_type => $aggdata) {
@@ -416,7 +416,10 @@ if(!$core->input['action']) {
 								foreach($authors as $uid => $author) {
 									$parsed_authors[$uid] = '<a href="mailto:'.$author['email'].'">'.$author['displayName'].'</a> (<a href="mailto:'.$author['email'].'">'.$author['email'].'</a>)';
 								}
-
+								
+								if(empty($reportcache->data['marketsegments'][$psid])) {
+									$reportcache->data['marketsegments'][$psid] = $lang->others;
+								}
 								$authors_overview_entries .= '<tr><td class="lightdatacell_freewidth" style="text-align:left;">'.$reportcache->data['marketsegments'][$psid].'</td><td style="width:70%; border-bottom: 1px dashed #CCCCCC;">'.implode(', ', $parsed_authors).'</td></tr>';
 							}
 						}
@@ -589,7 +592,6 @@ else {
 		}
 	}
 	elseif($core->input['action'] == 'exportpdf' || $core->input['action'] == 'print' || $core->input['action'] == 'saveandsend' || $core->input['action'] == 'approve') {
-		//ini_set( "memory_limit","300M");
 		if($core->input['action'] == 'print') {
 			$show_html = 1;
 			$content = "<link href='{$core->settings[rootdir]}/report_printable.css' rel='stylesheet' type='text/css' />";
@@ -611,13 +613,15 @@ else {
 		ob_end_clean();
 
 		require_once ROOT.'/'.INC_ROOT.'html2pdf/html2pdf.class.php';
-		$html2pdf = new HTML2PDF('P', 'A4', 'en');
+		$html2pdf = new HTML2PDF('P', 'B4', 'en', TRUE, 'UTF-8');
 		$html2pdf->pdf->SetDisplayMode('fullpage');
 		$html2pdf->pdf->SetTitle($suppliername, true);
-		$content = iconv("UTF-8", "ISO-8859-1//TRANSLIT", $content);
+		//$content = html_entity_decode($content, ENT_XHTML, 'ISO-8859-1');
+		//$content = iconv("UTF-8", "ISO-8859-1//TRANSLIT", $content);
 
 		if($core->input['action'] == 'saveandsend') {
 			set_time_limit(0);
+			ini_set('memory_limit', '200M');
 			if(is_empty($report['summary']) && $report['reqQRSummary'] == 1) {
 				error($lang->fillsummary,$_SERVER['HTTP_REFERER']);
 			}
@@ -672,11 +676,10 @@ else {
 		}
 		else {
 			set_time_limit(0);
+			ini_set('memory_limit', '200M');
 			$html2pdf->WriteHTML(trim($content), $show_html);
 			$html2pdf->Output($suppliername.'_'.date($core->settings['dateformat'], TIME_NOW).'.pdf');
 		}
 	}
 }
-
-/* action Submit ----END */
 ?>
