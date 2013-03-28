@@ -1,5 +1,5 @@
 <tr>
-    <td class="mainbox_itemnamecell">{$item[name]}</td>
+    <td class="totalbox_itemnamecell">{$item[name]}</td>
     <td class="totalsbox_numcell">{$item[data][$report_years[before_2years]]}</td>
     <td class='totalsbox_yearsep{$newtotaloverviewbox_row_percclass[$report_years[before_2years]]}'>&lsaquo;</td>
     <td class='{$newtotaloverviewbox_row_percclass[$report_years[before_2years]]}'>{$item[perc][$report_years[before_2years]]}%</td>

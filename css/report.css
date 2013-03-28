@@ -1,18 +1,18 @@
 @charset "utf-8";
 .reporttable, .reportbox {
-	text-align: left;
-	width: 100%;
-	padding: 0px;
-	border-spacing: 0px;
-        font-size: 10px !important;
-        border-width: 0px;
+    text-align: left;
+    width: 100%;
+    padding: 0px;
+    border-spacing: 0px;
+    font-size: 10px !important;
+    border-width: 0px;
 }
 
 .reportbox {
-	border-bottom: 1px solid #A5A5A5;
-	border-right: 1px solid #4F6228;
-	border-left: 1px solid #4F6228;
-	border-top: 1px solid #4F6228;
+    border-bottom: 1px solid #A5A5A5;
+    border-right: 1px solid #4F6228;
+    border-left: 1px solid #4F6228;
+    border-top: 1px solid #4F6228;
 }
 
 .border_bottom_thick {
@@ -35,12 +35,22 @@
 
 .mainbox_itemnamecell {
        border-left: 0px;
-       width: 100px;
+       width: 140px !important;
+       border-bottom: 1px dotted #D8D8D8;
 }
 
+.totalbox_itemnamecell {
+    border-left: 0px;
+    border-bottom: 1px dotted #D8D8D8;
+    width: 150px;
+}
 .totalsbox_numcell, .totalsbox_perccellpositive, .totalsbox_perccellnegative, .totalsbox_perccellzero {
-    width: 110px !important;
+    width: 100px;
     text-align: center;
+}
+
+.totalsbox_columnhead { 
+    width: 220px !important;
 }
 
 .totalsbox_perccellpositive {
@@ -59,7 +69,7 @@
 }
 
 .totalsbox_yearsep {
-    width: 10px !important;
+    width: 8px !important;
     text-align: center;
 }
 
@@ -82,7 +92,7 @@
 }
 
 .logo {
-	/*background: url(../images/Orkila_logo.jpg) center no-repeat;*/
+	background: url(./images/Orkila_logo.jpg) center no-repeat;
 	height: 100px;
 	width: 200px;
 }
@@ -115,18 +125,17 @@
 	text-align: right;
 }
 
-.columnhead {
+.columnhead, .totalsbox_columnhead {
 	font-weight: bold;
 	border-bottom:1px dashed #BFBFBF;
 	text-align: center;
-
 }
 
 .columnsubhead {
 	font-style: italic;
 	text-align: center;
 	font-size: 11px;
-        width: 30px;
+        width: 28px;
 }
 
 .verticalspacer, .horizontalspacer {
