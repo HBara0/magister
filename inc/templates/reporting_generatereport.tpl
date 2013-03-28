@@ -46,14 +46,6 @@
          <select id="spid" name="spid" tabindex="6">{$available_suppliers}
       </select>
     </td>
-     <tr>
-    <td style="border-right: 1px solid #E1F2D0; text-align: center; vertical-align:top; padding: 10px;">
-     <input type="radio" name="genByProduct" id="genByProduct" value="1" tabindex="7" checked> {$lang->generatebyproduct}
-    </td>
-    <td style="text-align:center; padding: 10px;">
-   	 <input type="radio" name="genByProduct" id="genByProduct2" value="0" tabindex="8"> {$lang->generatebysegment}
-    </td>
-    </tr>
     <tr><td colspan="2" align="center"><hr /></td></tr>
     <tr>
      <td style="border-right: 1px solid #E1F2D0; vertical-align:top; padding-left: 20%;">
@@ -61,14 +53,6 @@
     </td>
     <td>
    	 <input type="radio" name="incKeyCustomers" id="incKeyCustomers" value="1" tabindex="9" checked> Yes <input type="radio" name="incKeyCustomers" id="incKeyCustomers2" value="0" tabindex="10"> No
-    </td>
-    </tr>
-    <tr>
-   <td style="border-right: 1px solid #E1F2D0; vertical-align:top; padding-left: 20%;">
-    {$lang->includekeyproducts}
-    </td>
-    <td>
-   	 <input type="radio" name="incKeyProducts" id="incKeyProducts" value="1" tabindex="11" checked> Yes <input type="radio" name="incKeyProducts" id="incKeyProducts2" value="0" tabindex="12"> No
     </td>
     </tr>
      <tr>

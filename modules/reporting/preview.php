@@ -15,6 +15,7 @@ if(!defined('DIRECT_ACCESS')) {
 
 $session->start_phpsession();
 if(!$core->input['action']) {
+	$default_rounding = 3; //Later a setting
 	$reportcache = new Cache();
 	$categories_uom = array('amount' => 'K. USD', 'purchasedQty' => 'MT/Units', 'soldQty' => 'MT/Units');
 	$aggregate_types = array('affiliates', 'segments', 'products');
@@ -56,6 +57,10 @@ if(!$core->input['action']) {
 
 	foreach($generate_by as $index => $entity) {
 		if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list' || $core->input['referrer'] == 'direct') {
+			if($core->input['referrer'] != 'generate') {
+				$core->input['incKeyCustomers'] = $core->input['incMarketReport'] = 1;
+			}
+			
 			if($core->input['generateType'] == 1) {
 				$report_param['affid'] = $entity;
 				$report_param['spid'] = $db->escape_string($core->input['spid']);
@@ -74,9 +79,16 @@ if(!$core->input['action']) {
 			if(is_array($report['currencies'])) {
 				$report_currencies += $report['currencies'];
 			}
-			$report['keycustomers'] = $newreport->get_key_customers();
+			
+			if($core->input['incKeyCustomers'] == 1) {
+				$report['keycustomers'] = $newreport->get_key_customers();
+			}
+			
+			if($core->input['incMarketReport'] == 1) {
+				$report['marketreports'] = $newreport->get_market_reports();
+			}
+			
 			$report['contributors'] = $newreport->get_report_contributors();
-			$report['marketreports'] = $newreport->get_market_reports();
 			$report['auditors'] = $newreport->get_report_supplier_audits();
 			$report['reportstats'] = $newreport->get_report_status();
 			$report['finializer'] = $newreport->get_report_finalizer();
@@ -92,7 +104,6 @@ if(!$core->input['action']) {
 			}
 		}
 		else { /* if Referrrer fill  */
-
 			$newreport = new ReportingQr(array('rid' => $core->input['rid']));
 			$report = $newreport->get();
 			$report['affiliates'] = $newreport->get_report_affiliate();
@@ -106,6 +117,7 @@ if(!$core->input['action']) {
 			/* read productsactivity from fill  data session */
 			if($session->isset_phpsession('productsactivitydata_'.$identifier)) {
 				$productsactivity = unserialize($session->get_phpsession('productsactivitydata_'.$identifier));
+				$report_meta['excludeProductsActivity'] = $productsactivity['excludeProductsActivity'];
 				unset($productsactivity['module']);
 				$report['productsactivity'] = $reportdata['productactivitydata'] = $productsactivity['productactivity'];
 
@@ -120,8 +132,12 @@ if(!$core->input['action']) {
 			/* read keycustomersdata from fill  data session */
 			if($session->isset_phpsession('keycustomersdata_'.$identifier)) {
 				$keycustomersdata = unserialize($session->get_phpsession('keycustomersdata_'.$identifier));
-				unset($keycustomersdata['module']);
-				$report['keycustomers'] = $reportdata['keycustomersdata'] = $keycustomersdata['keycustomers'];
+				$report_meta['excludeKeyCustomers'] = $core->input['incKeyCustomers'] = $keycustomersdata['excludeKeyCustomers'];
+				
+				if(empty($report_meta['excludeKeyCustomers'])) {
+					$report['keycustomers'] = $reportdata['keycustomersdata'] = $keycustomersdata['keycustomers'];
+				}
+				unset($keycustomersdata['module']);		
 			}
 
 			/* Set the marketrport data by serializing the inputs in the stage market report */
@@ -131,10 +147,14 @@ if(!$core->input['action']) {
 				$reportdata['marketreportdata'] = $report['marketreports'];
 				$session->set_phpsession(array('marketreport_'.$identifier => $marketreportdata));
 			}
-
+			
+			$session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report_meta)));
 			$session->set_phpsession(array('reportrawdata_'.$session_identifier => serialize($reportdata)));
 		}
 
+		$reports_meta_data['rid'][] = $report['rid'];
+		$reports_meta_data['spid'][] = $report['spid'];
+		
 		/* Get affiliate currency */
 		//$report['affiliate'] = new Affiliates($report['affid']);
 		//$report['affiliate']->get_country()->get_currency()->get()['alphaCode'];
@@ -166,12 +186,13 @@ if(!$core->input['action']) {
 
 												$total_year[$aggregate_type][$category][$affid][$year]+=$item[$aggregate_type][$category][$affid][$type][$year][$quarter];
 
-												$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$affid][$type][$year][$quarter];
+												$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += round($item[$aggregate_type][$category][$affid][$type][$year][$quarter], $default_rounding);
 
+												$item_rounding = 0;
 												if($item[$aggregate_type][$category][$affid][$type][$year][$quarter] > 1) {
-													$item[$aggregate_type][$category][$affid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$affid][$type][$year][$quarter]);
+													$item_rounding = $default_rounding;
 												}
-												//eval("\$reporting_report_newoverviewbox_row[$aggregate_type][$category][$affid] = \"".$template->get('new_reporting_report_overviewbox_row')."\";");
+												$item[$aggregate_type][$category][$affid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$affid][$type][$year][$quarter], $item_rounding);
 											}
 										}
 										break;
@@ -186,12 +207,13 @@ if(!$core->input['action']) {
 
 													$total_year[$aggregate_type][$category][$spid][$year] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
 
-													$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
+													$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += round($item[$aggregate_type][$category][$spid][$type][$year][$quarter], $default_rounding);
 
-													if($item[$aggregate_type][$category][$spid][$type][$year][$quarter] > 1) {
-														$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$spid][$type][$year][$quarter]);
+													$item_rounding = 0;
+													if($item[$aggregate_type][$category][$spid][$type][$year][$quarter] < 1) {
+														$item_rounding = $default_rounding;
 													}
-													//eval("\$reporting_report_newoverviewbox_row[$aggregate_type][$category][$spid] = \"".$template->get('new_reporting_report_overviewbox_row')."\";");
+													$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$spid][$type][$year][$quarter], $item_rounding);;
 												}
 											}
 										}
@@ -208,11 +230,13 @@ if(!$core->input['action']) {
 
 														$total_year[$aggregate_type][$category][$pid][$year] += $item[$aggregate_type][$category][$pid][$type][$year][$quarter];
 
-														$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$pid][$type][$year][$quarter];
+														$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += round($item[$aggregate_type][$category][$pid][$type][$year][$quarter], $default_rounding);
 
-														if($item[$aggregate_type][$category][$pid][$type][$year][$quarter] > 1) {
-															$item[$aggregate_type][$category][$pid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$pid][$type][$year][$quarter]);
+														$item_rounding = 0;
+														if($item[$aggregate_type][$category][$pid][$type][$year][$quarter] < 1) {
+															$item_rounding = $default_rounding;
 														}
+														$item[$aggregate_type][$category][$pid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$pid][$type][$year][$quarter], $item_rounding);
 													}
 												}
 											}
@@ -238,6 +262,9 @@ if(!$core->input['action']) {
 
 						foreach($report_years as $yearef => $year) {
 							for($quarter = 1; $quarter <= 4; $quarter++) {
+								if(!isset($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter])) {
+									$boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = 0;
+								}
 								if(!isset($item[$aggregate_type][$category]['actual'][$year][$quarter])) {
 									$item[$aggregate_type][$category]['actual'][$year][$quarter] = 0;
 								}
@@ -315,7 +342,7 @@ if(!$core->input['action']) {
 			}
 			eval("\$keycustomersbox = \"".$template->get('new_reporting_report_keycustomersbox')."\";");
 		}
-
+		
 		$marketreportbox = '';
 		if(is_array($report['marketreports'])) {
 			foreach($report['marketreports'] as $mrid => $marketreport) {
@@ -362,17 +389,17 @@ if(!$core->input['action']) {
 	}
 	/* loop throw new */
 
-
-
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'direct' || $core->input['referrer'] == 'list') {
 		if($core->input['referrer'] != 'list') {
+			$report['supplierlogo'] = $report['supplier']['companyName'];
 			if(!empty($report['supplier']['logo'])) {
 				$report['supplierlogo'] = '<img src="./uploads/entitieslogos/'.$report['supplier']['logo'].'" alt="'.$report['supplier']['companyName'].'" width="200px"/><br /><span style="font-size:12px; font-weight:100;font-style:italic;">'.$report['supplier']['companyName'].'</span>';
 			}
 
 			if(is_array($report['representatives'])) {
 				foreach($report['representatives'] as $representative) {
-					$representatives_list .= "<tr><td style='width: 25%; text-align: left;'>{$representative[name]}</td><td style='text-align: left;'>{$representative[email]}</td></tr>";
+					//$representatives_list .= "<div style='width: 35%; text-align: left; display: inline-block;margin: 0px auto;'>{$representative[name]}</div><div style='width: 35%; text-align: left; display: inline-block;margin: 0px auto;'>{$representative[email]}</div>";
+					$representatives_list .= $representative['name'].' - '.$representative['email'].'<br />';
 				}
 			}
 
@@ -414,7 +441,7 @@ if(!$core->input['action']) {
 			if(!isset($report_currencies['USD'])) {
 				$report_currencies['USD'] = 'USD';
 			}
-
+			
 			if(is_array($report_currencies) && !empty($report_currencies)) {
 				$fxratespage_tablecolspan = count($report_currencies) + 1;
 				$fxratespage_tablehead .= '<tr><td>&nbsp;</td>';
@@ -458,7 +485,9 @@ if(!$core->input['action']) {
 				}
 
 				$fxratespage_tablehead .= '</tr>';
-				eval("\$fxratespage = \"".$template->get('reporting_report_fxrates')."\";");
+				if(!empty($fx_rates_entries)) {
+					eval("\$fxratespage = \"".$template->get('reporting_report_fxrates')."\";");
+				}
 			}
 			/* Parse Currencies Table - END */
 			eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
@@ -472,17 +501,27 @@ if(!$core->input['action']) {
 						if(in_array($report['spid'], $core->user['auditfor']) || $core->usergroup['canViewAllSupp'] == 1) {
 							$tools_send = "<a href='index.php?module=reporting/preview&amp;action=saveandsend&amp;identifier={$session_identifier}'><img src='images/icons/send.gif' border='0' alt='{$lang->sendbyemail}' /></a> ";
 							$fillsummary_msg = $core->input['message'];
-							eval("\$reportingeditsummary = \"".$template->get('new_reporting_report_editsummary')."\";");
+							eval("\$reportingeditsummary = \"".$template->get('reporting_report_editsummary')."\";");
 						}
 					}
 				}
 			}
 		}
 
-		if($core->usergroup['reporting_canApproveReports'] == 1 || $core->usergroup['canViewAllSupp'] == 1) {
-			$tools_approve = "<script language='javascript' type='text/javascript'>$(function(){ $('#approvereport').click(function() {
-				sharedFunctions.requestAjax('post', 'index.php?module=reporting/preview', 'action=approve&identifier={$session_identifier}', 'approvereport_span', 'approvereport_span');}) });</script>";
-			$tools_approve .= "<span id='approvereport_span'><a href='#approvereport' id='approvereport'><img src='images/valid.gif' alt='{$lang->approve}' border='0' /></a></span> | ";
+		if($report['isApproved'] == 0) {
+			if($core->usergroup['reporting_canApproveReports'] == 1) {
+				$can_approve = true;
+				foreach(array_unique($reports_meta_data['spid']) as $key => $val) {
+					if(!in_array($val, $core->user['auditfor'])) {
+						$can_approve = false;
+						break;
+					}
+				}
+				if($can_approve == true || $core->usergroup['canViewAllSupp'] == 1) {
+					$tools_approve = "<script language='javascript' type='text/javascript'>$(function(){ $('#approvereport').click(function() { sharedFunctions.requestAjax('post', 'index.php?module=reporting/preview', 'action=approve&identifier={$session_identifier}', 'approvereport_span', 'approvereport_span');}) });</script>";
+					$tools_approve .= "<span id='approvereport_span'><a href='#approvereport' id='approvereport'><img src='images/valid.gif' alt='{$lang->approve}' border='0' /></a></span> | ";
+				}
+			}
 		}
 
 		$tool_print = "<span id='printreport_span'><a href='index.php?module=reporting/preview&amp;action=print&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/print.gif' border='0' alt='{$lang->printreport}'/></a></span>";
@@ -507,7 +546,7 @@ if(!$core->input['action']) {
 			$missing_employees_notification = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; font-weight:bold;">'.$lang->employeesnotfillpart.' <ul><li>'.implode('</li><li>', $missing_employees['name']).'</li></ul></div><br />';
 		}
 
-		if(($reportmeta['auditor'] == 1 && is_array($missing_employees)) || !is_array($missing_employees)) {
+		if(($report_meta['auditor'] == 1 && is_array($missing_employees)) || !is_array($missing_employees)) {
 			$reporting_preview_tools_finalize_button = $lang->suretofinalizebody.' <p align="center"><input type="button" id="save_report_reporting/fillreport_Button" value="'.$lang->yes.'" class="button" onclick="$(\'#popup_finalizereportconfirmation\').dialog(\'close\')"/></p>';
 			$reporting_preview_tools_finalize_type = 'finalize';
 		}
@@ -518,14 +557,13 @@ if(!$core->input['action']) {
 		/* Check who hasn't yet filled in the report - End */
 		eval("\$tools .= \"".$template->get('reporting_preview_tools_finalize')."\";");
 	}
-	$reports_meta_data['rid'] = $report['rid'];
+	
 	$session->set_phpsession(array('reportsmetadata_'.$session_identifier => serialize($reports_meta_data)));
 	$session->set_phpsession(array('sessionid' => base64_encode(serialize($session_identifier))));
 	eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
 	output_page($reportspage);
 }
 else {
-
 	if($core->input['action'] == 'do_savesummary') {
 		$reportsids = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']))['rid'];
 
@@ -550,9 +588,8 @@ else {
 			redirect($_SERVER['HTTP_REFERER']);
 		}
 	}
-	if($core->input['action'] == 'exportpdf' || $core->input['action'] == 'print' || $core->input['action'] == 'saveandsend' || $core->input['action'] == 'approve') {
+	elseif($core->input['action'] == 'exportpdf' || $core->input['action'] == 'print' || $core->input['action'] == 'saveandsend' || $core->input['action'] == 'approve') {
 		//ini_set( "memory_limit","300M");
-
 		if($core->input['action'] == 'print') {
 			$show_html = 1;
 			$content = "<link href='{$core->settings[rootdir]}/report_printable.css' rel='stylesheet' type='text/css' />";
@@ -565,10 +602,11 @@ else {
 		$content .= $session->get_phpsession('reports_'.$core->input['identifier']);
 
 		$meta_data = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']));
-		$newreport = new ReportingQr(array('rid' => $meta_data['rid']));
+		$newreport = new ReportingQr(array('rid' => $meta_data['rid'][0]));
 		$report = $newreport->get();
 		$report['reqQRSummary'] = $newreport->get_report_supplier()['reqQRSummary'];
 		$report['affiliates'] = $newreport->get_report_affiliate();
+		
 		$suppliername = $newreport->get_report_supplier()['companyName'];
 		ob_end_clean();
 
@@ -589,13 +627,13 @@ else {
 				redirect('index.php?module=reporting/sendbymail&amp;identifier='.$core->input['identifier']);
 			}
 		}
-		if($core->input['action'] == 'approve') {
-			$reportsids = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']));
+		elseif($core->input['action'] == 'approve') {
+			$reportsids = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']))['rid'];
 			if($core->usergroup['reporting_canApproveReports'] == 1) {
 				foreach($reportsids as $key => $val) {
-					//$db->update_query('reports', array('isApproved' => 1), "rid='".$db->escape_string($val)."'");
-					$newreport->approve_report($db->escape_string($val));
+					$newreport->approve_report($val);
 				}
+				
 				switch($newreport->get_status()) {
 					case 0:
 						output_xml("<status>true</status><message>{$lang->approved}</message>");

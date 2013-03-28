@@ -127,7 +127,7 @@ if(!$core->input['action']) {
 		}
 		
 		if($core->usergroup['canExcludeFillStages'] == 1) {
-			$exludestage = '<br /><input type="checkbox" name="excludeProductsActivity" id="excludeProductsActivity" title="'.$lang->exclude_tip.'"> '.$lang->excludeproductsactivity;
+			$exludestage = '<br /><input type="checkbox" value="1" name="excludeProductsActivity" id="excludeProductsActivity" title="'.$lang->exclude_tip.'"> '.$lang->excludeproductsactivity;
 		}
 
 		$generic_attributes = array('gpid', 'title');
@@ -222,7 +222,7 @@ if(!$core->input['action']) {
 
 		/* If supplier does not have contract and contract Expired -END */
 		if($core->usergroup['canExcludeFillStages'] == 1) {
-			$exludestage = '<br /><input type="checkbox" name="excludeKeyCustomers"'.$exludestage_checked.' style="width:30px;" id="excludeKeyCustomers" title="'.$lang->exclude_tip.'" /> '.$lang->excludekeycustomers;
+			$exludestage = '<br /><input type="checkbox" value="1" name="excludeKeyCustomers"'.$exludestage_checked.' style="width:30px;" id="excludeKeyCustomers" title="'.$lang->exclude_tip.'" /> '.$lang->excludekeycustomers;
 		}
 
 		//Parse add customer popup
@@ -810,28 +810,28 @@ else {
 
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
-		$rawdata['rid'] = $db->escape_string($rawdata['rid']);
+		$report_meta['rid'] = $db->escape_string($report_meta['rid']);
 		$currencies = unserialize($session->get_phpsession('reportcurrencies_'.$identifier));
-	
+
 		$cache = array();
-		if(empty($rawdata['rid'])) {
+		if(empty($report_meta['rid'])) {
 			output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
 			exit;
 		}
 
-		list($islocked) = $db->fetch_field($db->query("SELECT isLocked FROM ".Tprefix."reports WHERE rid='{$rawdata[rid]}'"), 'isLocked');
+		list($islocked) = $db->fetch_field($db->query("SELECT isLocked FROM ".Tprefix."reports WHERE rid='{$report_meta[rid]}'"), 'isLocked');
 		if($islocked == 1) {
 			output_xml("<status>false</status><message>{$lang->reportlocked}</message>");
 			exit;
 		}
 
-		if(empty($rawdata['excludeProductsActivity'])) {
+		if(empty($report_meta['excludeProductsActivity'])) {
 			if(empty($rawdata['productactivitydata'])) {
 				output_xml("<status>false</status><message>{$lang->productsdataempty}</message>");
 				exit;
 			}
 		}
-		if(empty($rawdata['excludeKeyCustomers'])) {
+		if(empty($report_meta['excludeKeyCustomers'])) {
 			if(empty($rawdata['keycustomersdata'])) {
 				output_xml("<status>false</status><message>{$lang->keycustomersempty}</message>");
 				exit;
@@ -842,7 +842,7 @@ else {
 			$products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
 		}
 		//$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rawdata[rid]}'{$products_deletequery_string}");
-		if(empty($rawdata['excludeProductsActivity'])) {
+		if(empty($report_meta['excludeProductsActivity'])) {
 			foreach($rawdata['productactivitydata'] as $i => $newdata) {
 				if(empty($newdata['pid'])) {
 					continue;
@@ -854,12 +854,12 @@ else {
 				}
 			
 				unset($newdata['productname'], $newdata['fxrate']);
-				if(value_exists('productsactivity', 'rid', $rawdata['rid'], 'pid='.$newdata['pid'].$products_deletequery_string)) {
+				if(value_exists('productsactivity', 'rid', $report_meta['rid'], 'pid='.$newdata['pid'].$products_deletequery_string)) {
 					if(isset($newdata['paid']) && !empty($newdata['paid'])) {
 						$update_query_where = 'paid='.$db->escape_string($newdata['paid']);
 					}
 					else {
-						$update_query_where = 'rid='.$rawdata['rid'].' AND pid='.$newdata['pid'].$products_deletequery_string;
+						$update_query_where = 'rid='.$report_meta['rid'].' AND pid='.$newdata['pid'].$products_deletequery_string;
 					}
 
 					$update = $db->update_query('productsactivity', $newdata, $update_query_where);
@@ -879,18 +879,18 @@ else {
 
 			if(is_array($cache['usedpaid'])) {
 				$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).')';
-				$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rawdata[rid]}' AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$products_deletequery_string}");
+				$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}' AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$products_deletequery_string}");
 			}
 		}
 		else {
-			$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rawdata[rid]}'");
+			$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}'");
 		}
 
-		$db->query("DELETE FROM ".Tprefix."keycustomers WHERE rid='{$rawdata[rid]}'");
-		if(empty($rawdata['excludeKeyCustomers'])) {
+		$db->query("DELETE FROM ".Tprefix."keycustomers WHERE rid='{$report_meta[rid]}'");
+		if(empty($report_meta['excludeKeyCustomers'])) {
 			if(is_array($rawdata['keycustomersdata'])) {
 				foreach($rawdata['keycustomersdata'] as $rank => $newdata) {
-					$newdata['rid'] = $rawdata['rid'];
+					$newdata['rid'] = $report_meta['rid'];
 					$newdata['rank'] = $rank;
 					unset($newdata['companyName']);
 					$db->insert_query('keycustomers', $newdata);
@@ -949,13 +949,12 @@ else {
 				unset($val['segmenttitle'], $val['exclude']);
 				$val['psid'] = $psid;
 				
-				if(value_exists('marketreport', 'rid', $rawdata['rid'], 'psid="'.$val['psid'].'"')) {
-					$db->update_query('marketreport', $val, "rid='{$rawdata[rid]}' AND psid='{$val[psid]}'");
-					$mrid = $db->fetch_field($db->query("SELECT mrid FROM ".Tprefix."marketreport WHERE rid='{$rawdata[rid]}' AND psid='{$val[psid]}'"), 'mrid');
+				if(value_exists('marketreport', 'rid', $report_meta['rid'], 'psid="'.$val['psid'].'"')) {
+					$db->update_query('marketreport', $val, "rid='{$report_meta[rid]}' AND psid='{$val[psid]}'");
+					$mrid = $db->fetch_field($db->query("SELECT mrid FROM ".Tprefix."marketreport WHERE rid='{$report_meta[rid]}' AND psid='{$val[psid]}'"), 'mrid');
 				}
 				else {					
-					$val['rid'] = $rawdata['rid'];
-					print_r($val);
+					$val['rid'] = $report_meta['rid'];
 					$db->insert_query('marketreport', $val);
 					$mrid = $db->last_id();
 				}
@@ -987,29 +986,29 @@ else {
 			$new_status = array('mktReportAvailable' => 1);
 		}
 
-		if(!empty($rawdata['excludeProductsActivity'])) {
+		if(!empty($report_meta['excludeProductsActivity'])) {
 			$new_status['prActivityAvailable'] = 0;
 		}
-		if(!empty($rawdata['excludeKeyCustomers'])) {
+		if(!empty($report_meta['excludeKeyCustomers'])) {
 			$new_status['keyCustAvailable'] = 0;
 		}
 
-		$update_status = $db->update_query('reports', $new_status, "rid='{$rawdata[rid]}'");
+		$update_status = $db->update_query('reports', $new_status, "rid='{$report_meta[rid]}'");
 		if($update_status) {
 			if($report_meta['transFill'] != '1') {
-				record_contribution($rawdata['rid'], 1);
+				record_contribution($report_meta['rid'], 1);
 			}
 			if($core->input['savetype'] == 'finalize') {
 				/* Force recording of contribution if user is finalizing with transparency and no other contributor exist */
 				if($report_meta['transFill'] == '1' && $db->num_rows($db->query('SELECT uid FROM '.Tprefix.'reportcontributors WHERE rid='.intval($rawdata['rid']))) == 0) {
-					record_contribution($rawdata['rid'], 1);
+					record_contribution($report_meta['rid'], 1);
 				}
 				output_xml("<status>true</status><message>{$lang->reportfinalized}</message>");
 			}
 			else {
 				output_xml("<status>true</status><message>{$lang->savedsuccessfully}</message>");
 			}
-			$log->record($rawdata['rid']);
+			$log->record($report_meta['rid']);
 
 			$current_report_details = $db->fetch_assoc($db->query("SELECT e.eid, e.companyName, r.year, r.quarter, e.noQReportSend FROM ".Tprefix."reports r LEFT JOIN ".Tprefix."entities e ON (r.spid=e.eid) WHERE r.rid='{$rawdata[rid]}'"));
 
