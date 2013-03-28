@@ -413,8 +413,7 @@ class ReportingQr Extends Reporting {
 	public function approve_report($rid) {
 		global $db;
 		if(isset($rid) && !empty($rid)) {
-
-			$query = $db->update_query('reports', array('isApproved' => 1), 'rid='.$rid);
+			$query = $db->update_query('reports', array('isApproved' => 1), 'rid='.intval($rid));
 			if($query) {
 				$this->status = 0;
 			}

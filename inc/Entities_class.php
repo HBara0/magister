@@ -539,7 +539,7 @@ class Entities {
 		if(!empty($id)) {
 			$query_select = '*';
 			if($simple == true) {
-				$query_select = 'eid, companyName, companyNameAbbr';
+				$query_select = 'eid, companyName, companyNameAbbr, logo';
 			}
 			return $db->fetch_assoc($db->query("SELECT ".$query_select." FROM ".Tprefix."entities WHERE eid='".$db->escape_string($id)."'"));
 		}

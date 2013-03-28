@@ -1,18 +1,18 @@
 @charset "utf-8";
 .reporttable, .reportbox {
-	text-align: left;
-	width: 100%;
-	padding: 0px;
-	border-spacing: 0px;
-        font-size: 10px !important;
-        border-width: 0px;
+    text-align: left;
+    width: 100%;
+    padding: 0px;
+    border-spacing: 0px;
+    font-size: 8px !important;
+    border-width: 0px;
 }
 
 .reportbox {
-	border-bottom: 1px solid #A5A5A5;
-	border-right: 1px solid #4F6228;
-	border-left: 1px solid #4F6228;
-	border-top: 1px solid #4F6228;
+    border-bottom: 1px solid #A5A5A5;
+    border-right: 1px solid #4F6228;
+    border-left: 1px solid #4F6228;
+    border-top: 1px solid #4F6228;
 }
 
 .border_bottom_thick {
@@ -35,12 +35,22 @@
 
 .mainbox_itemnamecell {
        border-left: 0px;
-       width: 100px;
+       width: 140px !important;
+       border-bottom: 1px dotted #D8D8D8;
 }
 
+.totalbox_itemnamecell {
+    border-left: 0px;
+    border-bottom: 1px dotted #D8D8D8;
+    width: 150px;
+}
 .totalsbox_numcell, .totalsbox_perccellpositive, .totalsbox_perccellnegative, .totalsbox_perccellzero {
-    width: 110px !important;
+    width: 100px;
     text-align: center;
+}
+
+.totalsbox_columnhead { 
+    width: 220px !important;
 }
 
 .totalsbox_perccellpositive {
@@ -59,14 +69,14 @@
 }
 
 .totalsbox_yearsep {
-    width: 10px !important;
+    width: 8px !important;
     text-align: center;
 }
 
 .thead {
 	background-color:#92D050;
 	font-weight: bold;
-	font-size: 11px;
+	font-size: 10px;
 	border-bottom: dashed 1px #4F6228;
 	text-align: left;
 	width: 100%;
@@ -75,14 +85,14 @@
 .cathead {
 	background-color:#538022;
 	color: #FFFFFF;
-	font-size: 13px !important;
+	font-size: 12px !important;
 	font-weight: bold;
 	text-align:left;
 	width: 100%;
 }
 
 .logo {
-	/*background: url(../images/Orkila_logo.jpg) center no-repeat;*/
+	background: url(./images/Orkila_logo.jpg) center no-repeat;
 	height: 100px;
 	width: 200px;
 }
@@ -115,18 +125,17 @@
 	text-align: right;
 }
 
-.columnhead {
+.columnhead, .totalsbox_columnhead {
 	font-weight: bold;
 	border-bottom:1px dashed #BFBFBF;
 	text-align: center;
-
 }
 
 .columnsubhead {
 	font-style: italic;
 	text-align: center;
-	font-size: 11px;
-        width: 30px;
+	font-size: 10px;
+        width: 28px;
 }
 
 .verticalspacer, .horizontalspacer {
@@ -137,6 +146,6 @@
 	padding-left: 5px;
 	border: 1px solid #333333;
 	background-color:#DAEFC3;
-	font-size: 17px;
+	font-size: 16px;
 	color:#444444;
 }
