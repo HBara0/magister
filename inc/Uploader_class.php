@@ -180,7 +180,7 @@ class Uploader {
 			$this->ftpconnection = $this->establish_ftp();
 		}
 		
-		if($this->format_path($key)) {
+		if($this->format_path($key)) { 
 			$upload = ftp_put($this->ftpconnection, $this->file_path[$key], $this->file[$this->fieldname]['tmp_name'][$key], FTP_BINARY);
 			if($upload == false) {
 				$this->set_status(0, $key);
@@ -224,7 +224,7 @@ class Uploader {
 			return false;	
 		}
 		
-		$connection = ftp_connect($this->ftp_settings['server']);
+		$connection = ftp_connect($this->ftp_settings['server']); 
 		$login = ftp_login($connection, $this->ftp_settings['username'], $this->ftp_settings['password']);
 		
 		if(!$connection || !$login) {

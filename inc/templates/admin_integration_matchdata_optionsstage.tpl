@@ -13,7 +13,7 @@
    		<input type="hidden" value="preview_datatomatch" name="action" id="action" />
         <table width="100%" class="datatable">
         	<tr>
-            	<td>{$lang->matchwith}</td><td><select name="foreignSystem" id="foreignSystem"><option value="1">Outsys</option><option value="2">Sage Accpac</option><option value="3">Openbravo</option></select></td>
+            	<td>{$lang->matchwith}</td><td><select name="foreignSystem" id="foreignSystem"><option value="1">Outsys</option><option value="2">Sage Accpac</option><option value="3">Openbravo</option><option value="4">SYSPRO</option><option value="5">Iran ERP</option><option value="6">Sage 1000</option><option value="7">MS Excel</option><option value="8">Sage Evolution</option><option value="9">Sage 100</option></select></td>
             </tr>
             <tr>
             	<td>{$lang->matchitem}</td><td><select id="matchitem" name="matchitem"><option value="products">{$lang->products}</option><option value="suppliers">{$lang->suppliers}</option></select></td>

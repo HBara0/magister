@@ -5,7 +5,7 @@ class Entities {
 	protected $status = false;
 	protected $data = array();
 
-	public function __construct($data, $action = '') {
+	public function __construct($data, $action = '', $simple = true) {
 		if(is_array($data)) {
 			$this->data = $data;
 			switch($action) {
@@ -24,7 +24,7 @@ class Entities {
 			}
 		}
 		else {
-			$this->data = $this->get_entity($data);
+			$this->data = $this->read($data, $simple);
 		}
 	}
 
@@ -534,12 +534,16 @@ class Entities {
 		return $this->data;
 	}
 
-	private function get_entity($id) {
+	private function read($id, $simple) {
 		global $db;
-		if(isset($id)&& !empty($id)){
-			return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid='".$db->escape_string($id)."'"));
+		if(!empty($id)) {
+			$query_select = '*';
+			if($simple == true) {
+				$query_select = 'eid, companyName, companyNameAbbr, logo';
+			}
+			return $db->fetch_assoc($db->query("SELECT ".$query_select." FROM ".Tprefix."entities WHERE eid='".$db->escape_string($id)."'"));
 		}
-		
+		return false;
 	}
 	protected function existing_eid($name) {
 		global $db;

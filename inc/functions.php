@@ -317,6 +317,8 @@ function parse_selectlist($id, $tabindex, $options, $selected_options, $multiple
 		if(!isset($config['multiplesize']) || empty($config['multiplesize'])) {
 			$config['multiplesize'] = 5;
 		}
+		
+		$config['size'] = $config['multiplesize'];
 		$multiple = ' multiple="multiple" SIZE="'.$config['multiplesize'].'"';
 	}
 
@@ -331,10 +333,14 @@ function parse_selectlist($id, $tabindex, $options, $selected_options, $multiple
 		$id = $config['id'];
 	}
 
-	if($config['required']) {
+	if(isset($config['required']) && ($config['required'] == true || $config['required'] == 'required')) {
 		$required = ' required = "required"';
 	}
 
+	if(!isset($config['size']) && $multiple_list != 1) {
+		$config['size'] = 1;
+	}
+	
 	$list .= '<select id="'.$id.'" name="'.$id.'" size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
 	if($config['blankstart'] == true) {
 		$list .= '<option></option>';

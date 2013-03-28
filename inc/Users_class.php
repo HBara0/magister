@@ -47,6 +47,7 @@ class Users {
 	}
 
 	private function read_mainaffiliate() {
+		global $db;
 		$this->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->uid}' AND isMain=1"), 'affid');
 	}
 	
@@ -61,7 +62,7 @@ class Users {
 	public function get_assistant() {
 		return new Users($this->user['assistant']);
 	}
-	
+
 	public function get_positions() {
 		global $db, $lang;
 
@@ -73,14 +74,14 @@ class Users {
 			$this->user['positions'][] = $lang->{$position['name']};
 		}
 	}
-	
+
 	public function get_mainaffiliate() {
 		if(!isset($this->user['mainaffiliate']) || empty($this->user['mainaffiliate'])) {
 			$this->read_mainaffiliate();
 		} 
 		return new Affiliates($this->user['mainaffiliate'], FALSE);
 	}
-	
+
 	private function prepare_sign_info($seperate_lengend = false) {
 		global $lang;
 		$lang->load('profile');

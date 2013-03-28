@@ -35,8 +35,6 @@ class IntegrationOB extends Integration {
 		$newdata = array();
 		$items_count = 0;
 		while($product = $this->f_db->fetch_assoc($query)) {
-			//print_r($product);
-			//echo '<hr />';
 			$newdata = array(
 					'foreignSystem' => $this->foreign_system,
 					'foreignId' => $product['m_product_id'],

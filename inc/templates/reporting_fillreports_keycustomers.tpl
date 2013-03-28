@@ -22,7 +22,7 @@
     <tfoot>
     	<tr>
         	<td valign="top">{$addmore_customers}</td>
-        	<td align="right"><input type="button" value="{$lang->prevcaps}" class="button" onClick="goToURL('index.php?module=reporting/fillreport&amp;stage=productsactivity&amp;identifier={$core->input[identifier]}');"/> <input type="button" id="save_keycustomers_reporting/fillreport_Button" value="{$lang->savecaps}" class="button"/> <input type="submit" value="{$lang->nextcaps}" class="button"/>{$exludestage} 
+        	<td align="right"><input type="button" value="{$lang->prevcaps}" class="button" onClick="goToURL('index.php?module=reporting/fillreport&amp;stage=productsactivity&amp;identifier={$core->input[identifier]}');"/> <input type="button" id="save_keycustomers_reporting/fillreport_Button" value="{$lang->savecaps}" class="button"/> <input type="submit" value="{$lang->nextcaps}" onClick='$("form:first").unbind("submit").trigger("submit");' class="button"/>{$exludestage} 
             </td>
         </tr>
         <tr>

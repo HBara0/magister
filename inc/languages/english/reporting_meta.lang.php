@@ -33,6 +33,7 @@ $lang['reporteditsummary']="Report Edit Summary";
 $lang['listofreports'] = "List of Reports";
 $lang['year'] = "Year";
 $lang['status'] = "Status";
+
 $lang['entryexists'] = "Summary Already Exist";
 $lang['fillrequiredfield'] = "Smmmary can not be empty";
 $lang['save']="SAVE";
@@ -116,9 +117,9 @@ MT";
 $lang['graphdistquantities'] = "Distribution of quantities up to quarter over listed affiliates";
 
 $lang['reportcontributorsoverview'] = "Reports Contributors Overview";
-$lang['currenciesfxrate'] = "Currencies FX rates to ";
+$lang['currenciesfxrate'] = "Currencies FX rates";
 $lang['quarterfxaverage'] = "Quarter's Average";
-$lang['currenciesfxratenote'] = "Rates are relative to original currencies used in the report.";
+$lang['currenciesfxratenote'] = "Rates are relative to original currencies used in the report & involved countries.";
 $lang['auditedby'] = "Auditor";
 $lang['downloadpdf'] = "Download PDF";
 $lang['printreport'] = "Print Report";
@@ -150,4 +151,21 @@ $lang['suretofinalizetitle'] = "Are you sure you want to finalize?";
 $lang['suretofinalizebody'] = "Finalizing will mark the report as finished; and will lock it. Please make sure that all information are correct and that no offenses are posed to the supplier.";
 $lang['cannotfinalizereport'] = 'You cannot finalize the report until the others fill their part. Would like instead to save the changes you made to the report?';
 $lang['employeesnotfillpart'] = "The following employee(s) have not filled their part yet:";
+
+$lang['actual']="Actual";
+$lang['forecast']="Forecast";
+$lang['percbudget']="% of budget";
+$lang['q1']="Q1";
+$lang['q2']="Q2";
+$lang['q3']="Q3";
+$lang['q4']="Q4";
+
+$lang['activityby'] = 'Activity by';
+$lang['segments'] = 'segments';
+$lang['products'] = 'products';
+$lang['affiliates'] = 'affiliates';
+$lang['amount'] = 'Amount';
+$lang['purchasedQty'] = 'Purchased Quantities';
+$lang['soldQty'] = 'Sold Quantities';
+$lang['progressionyearsby'] = 'Progression over years by';
 ?>
