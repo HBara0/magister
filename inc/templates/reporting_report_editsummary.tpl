@@ -1,5 +1,5 @@
 <hr />
-<form name="preview_Form" id="preview_Form" action="index.php?module=reporting/newpreview&referrer=direct&amp;action=do_savesummary" method="post">
+<form name="preview_Form" id="preview_Form" action="index.php?module=reporting/preview&referrer=direct&amp;action=do_savesummary" method="post">
     <input type="hidden" value="{$report_summary[rpsid]}" name="rpsid"/>
     <input type="hidden" value="{$session_identifier}" name="identifier"/>
     <table style="width:100%;">
