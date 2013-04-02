@@ -69,13 +69,13 @@ class Calendar {
 				}
 				else {
 					define('CALENDAR_TIME', TIME_NOW);
-					$this->dates['current'] = $this->dates['actual'];    
+					$this->dates['current'] = $this->dates['actual'];
 				}
 			}
 
 			$this->title = $lang->{strtolower(date('F', CALENDAR_TIME))}.', '.$this->dates['current']['year'];
 
-			if(isset($date_param['from_time'], $date_param['to_time'])) { 	
+			if(isset($date_param['from_time'], $date_param['to_time'])) {
 				$this->period['firstday'] = $db->escape_string($date_param['from_time']);
 				$this->period['lastday'] = $db->escape_string($date_param['to_time']);
 			}
@@ -252,9 +252,11 @@ class Calendar {
 			if(is_array($this->exclude['affiliates'])) {
 				$holidays_querystring = ' AND aff.affid NOT IN ('.implode(',', $this->exclude['affiliates']).')';
 			}
+
 			$holidays_query = $db->query("SELECT aff.name AS affiliatename, h.*, c.acronym AS country
-											FROM ".Tprefix."holidays h JOIN ".Tprefix."affiliates aff ON (aff.affid=h.affid) LEFT JOIN countries c ON (aff.country=c.coid)
-											WHERE (year=0 OR year={$this->dates[current][year]}) AND month={$this->dates[current][mon]}{$holidays_querystring}"); // AND h.affid IN (".implode(',',$affiliates['affid']).")
+											FROM ".Tprefix."holidays h JOIN ".Tprefix."affiliates aff ON (aff.affid=h.affid) 
+											LEFT JOIN countries c ON (aff.country=c.coid)
+											WHERE  (".CALENDAR_TIME." BETWEEN validFrom AND validTo) OR (validFrom = 0 AND validTo = 0)  AND (year=0 OR year={$this->dates[current][year]}) AND month={$this->dates[current][mon]}{$holidays_querystring}"); // AND h.affid IN (".implode(",',$affiliates['affid']).")
 			while($holiday = $db->fetch_assoc($holidays_query)) {
 				if($holiday['year'] == 0) {
 					$holiday['year'] == $time_details['year'];
@@ -310,13 +312,13 @@ class Calendar {
 						continue;
 					}
 				}
-				$num_days_event = (($event['toDate'] - $event['fromDate']) / 24 / 60 / 60); /* divison to know how many days between the from and to*/ //(date('z', $event['toDate'])-date('z', $event['fromDate']))+1;
+				$num_days_event = (($event['toDate'] - $event['fromDate']) / 24 / 60 / 60); /* divison to know how many days between the from and to */ //(date('z', $event['toDate'])-date('z', $event['fromDate']))+1;
 
 				if($num_days_event == 1) {
 					$current_check_date = getdate($event['toDate']);
 					$this->data['events'][$current_check_date['mday']][] = $event;
 				}
-				else { 
+				else {
 					for($i = 0; $i < $num_days_event; $i++) {
 						$current_check = $event['fromDate'] + (60 * 60 * 24 * $i);
 

@@ -39,33 +39,44 @@
 		<tr>
 			<th colspan="2" style="width:30%;">{$lang->name}</th>
             <th style="width:25%;">{$lang->from}</th>
+            
             <th style="width:25%;">{$lang->fromtime}</th>
               
              <th style="width:18%;">{$lang->to}</th>
              <th style="width:18%;">{$lang->totime}</th>
 			<th style="width:18%;">{$lang->month}</th>
-			<th style="width:18%;">{$lang->day}</th>
-			<th style="width:17%;">{$lang->year}</th>
-			<th style="width:17%;">{$lang->days}</th>
+
+		
          
 		</tr>
 	</thead>
 	<tbody>
 		<tr>
                     <td align="center"><input type='text' name="title" id="title" required="required" value="{$holiday[title]}"/></td>
-                    <td align="center"> <input type='checkbox' name='isOnce' id='isOnce' value="1"{$checkedboxes[isOnce]}>{$lang->once}</td>
+                    <td align="center">{$lang->once} <input type='checkbox' name='isOnce' id='isOnce' value="1"{$checkedboxes[isOnce]}></td>
                    
-                    <td align="center"><input type="text" id="pickDate_holidayfromdate"  name="fromDate" autocomplete="off" ttabindexabindex="2" value="{$holiday[fromDate]}"  /></td>
+                    <td align="center"><input type="text" id="pickDate_holidayfromdate"  name="validFrom" autocomplete="off" ttabindexabindex="2" value="{$holiday[validFrom]}"  /></td>
                     <td align="center"><input type="time" name="fromTime" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" title="{$lang->hoursfrom}" value="{$holiday[fromTime]}" placeholder="08:00">  </td>
                     
-                    <td align="center"><input type="text" id="pickDate_holidaytodate" name="toDate" autocomplete="off" tabindex="2"value="{$holiday[toDate]}" /></td>
+                    <td align="center"><input type="text" id="pickDate_holidaytodate" name="validTo" autocomplete="off" tabindex="2"value="{$holiday[validTo]}" /></td>
                             <td align="center"> <input type="time" name="toTime" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})"  title="{$lang->hoursto}" value="{$holiday[toTime]}"placeholder="24:00" ></td>
                     
 			<td align="center">{$months_list}</td>
 			<td align="center">{$days_list}</td>
-			<td align="center"><input type='text' name="year" id="year" maxlength="4" size="4" accept="numeric" value="{$holiday[year]}"{$year_disabled}/></td>
-			<td align="center"><input type='text' name="numDays" id="numDays" size="3" maxlength="3"  required="required"  value="{$holiday[numDays]}"   accept="numeric"/></td>
-		</tr>
+			<td align="center">&nbsp;</td>
+		  </tr>
+        <tr>
+        	<th style="width:17%;">{$lang->year}</th>
+			<th style="width:17%;">{$lang->days}</th>
+        </tr>
+        
+		<tr>
+		  <td align="center"><input type='text' name="year" id="year" maxlength="4" size="4" accept="numeric" value="{$holiday[year]}"{$year_disabled}/></td>
+		  <td align="center"><input type='text' name="numDays" id="numDays" size="3" maxlength="3"  required="required"  value="{$holiday[numDays]}"   accept="numeric"/></td>
+
+		  </tr>
+      
+        
 	</tbody>
 		<tr>
 			<td colspan="8">
