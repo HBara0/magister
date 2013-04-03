@@ -290,6 +290,7 @@ if(!$core->input['action']) {
 						foreach($catdata as $itemkey => $item) {
 							foreach($report_years as $yearkey => $yearval) {
 								$item['data'][$yearval] = $item[$yearval];
+								$progression_totals['data'][$yearval] += round($item['data'][$yearval], $default_rounding);
 								//$current_yearval = $item[$yearval];
 
 								if(empty($item['data'][$yearval])) {
@@ -318,12 +319,13 @@ if(!$core->input['action']) {
 									elseif($item['perc'][$yearval] < 0) {
 										$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellnegative';
 									}
+									
+									/* Must have the same logic as above */
+									if(!empty($progression_totals['data'][$yearval])) {
+										$progression_totals['perc'][$yearval] = round((($progression_totals['data'][$yearval + 1] / $progression_totals['data'][$yearval]) * 100) - 100);
+									}
 								}
 								$item['data'][$yearval] = round($item[$yearval]);
-								$progression_totals['data'][$yearval] += round($item['data'][$yearval], $default_rounding);
-								if(!empty($progression_totals['data'][$yearval])) {
-									$progression_totals['perc'][$yearval] = round((($progression_totals['data'][$yearval + 1] / $progression_totals['data'][$yearval]) * 100) - 100);
-								}
 							}
 
 							eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");

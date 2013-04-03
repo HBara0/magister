@@ -19,7 +19,7 @@
     border-bottom: 2px solid #D8D8D8 !important;
 }
 
-.mainbox_datacell, .mainbox_typenamecell, .mainbox_totalcell, .currenciesbox_datacell {
+.mainbox_datacell, .mainbox_typenamecell, .mainbox_totalcell, .totalbox_totalcell, .currenciesbox_datacell {
      border-left: 1px solid #D8D8D8 !important; 
      border-bottom: 1px dotted #D8D8D8;
 }
@@ -30,9 +30,15 @@
 
 .mainbox_totalcell {
     text-align: right;
-    font-weight: bold;
 }
 
+.totalbox_totalcell {
+    text-align: center;
+}
+
+.totalbox_totalcell, .mainbox_totalcell {
+    font-weight: bold;
+}
 .mainbox_itemnamecell {
        border-left: 0px;
        width: 140px !important;
