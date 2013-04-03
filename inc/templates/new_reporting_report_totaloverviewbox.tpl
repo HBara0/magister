@@ -7,6 +7,19 @@
         <td colspan="3" align="center" class="totalsbox_columnhead">{$report_years[current_year]}</td>
     </tr>
     {$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category]}
+
+    <tr>
+  <td class="mainbox_itemnamecell" style="font-weight:bold;">{$lang->total}</td>
+     <td class="mainbox_totalcell">{$progression_totals[data][$report_years[before_2years]]}</td>
+    <td class='totalsbox_yearsep{$newtotaloverviewbox_row_percclass[$report_years[before_2years]]}'>&lsaquo;</td>
+    <td class='{$newtotaloverviewbox_row_percclass[$report_years[before_2years]]}'>{$progression_totals[perc][$report_years[before_2years]]}%</td>
+    <td class='totalsbox_yearsep{$newtotaloverviewbox_row_percclass[$report_years[before_2years]]}'>&rsaquo;</td>
+    <td class="totalsbox_numcell">{$progression_totals[data][$report_years[before_1year]]}</td>
+    <td class='totalsbox_yearsep{$newtotaloverviewbox_row_percclass[$report_years[before_1year]]}'>&lsaquo;</td>
+    <td class='{$newtotaloverviewbox_row_percclass[$report_years[before_1year]]}'>{$progression_totals[perc][$report_years[before_1year]]}%</td>
+    <td class='totalsbox_yearsep{$newtotaloverviewbox_row_percclass[$report_years[before_1year]]}'>&rsaquo;</td>
+      <td class="mainbox_totalcell">{$progression_totals[data][$report_years[current_year]]}</td>
+</tr>
 </table>
 <br />
 <br />
