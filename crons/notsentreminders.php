@@ -67,8 +67,8 @@ foreach($reports as $key => $val) {
 
 $quarter2 = currentquarter_info(true);
 
-$quarter_start_settings = explode('/', $core->settings['q'.$quarter2['quarter'].'start']);
-$quarter_end_settings = explode('/', $core->settings['q'.$quarter2['quarter'].'end']);
+$quarter_start_settings = explode('-', $core->settings['q'.$quarter2['quarter'].'start']);
+$quarter_end_settings = explode('-', $core->settings['q'.$quarter2['quarter'].'end']);
 
 $quarter_start = mktime(0, 0, 0, $quarter_start_settings[1], $quarter_start_settings[0], $quarter2['year']);
 $quarter_end = mktime(24, 59, 0, $quarter_end_settings[1], $quarter_end_settings[0], $quarter2['year']);
@@ -90,7 +90,7 @@ if($time_now >= $quarter_start && $time_now <= $quarter_end) {
 			if($val['email'] != $core->settings['sendreportsto']) {
 				$email_data['cc'][] = $core->settings['sendreportsto'];
 			}
-			echo $email_message.'<hr />';
+			//echo $email_message.'<hr />';
 			$mail = new Mailer($email_data, 'php');
 		}		
 		$core->input['action'] = 'autosendreportsnotsentreminders';

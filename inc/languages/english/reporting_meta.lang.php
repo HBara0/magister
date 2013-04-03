@@ -166,7 +166,7 @@ $lang['segments'] = 'segments';
 $lang['products'] = 'products';
 $lang['affiliates'] = 'affiliates';
 $lang['amount'] = 'Amount';
-$lang['purchasedQty'] = 'Purchased Quantities';
-$lang['soldQty'] = 'Sold Quantities';
+$lang['purchasedqty'] = 'Purchased Quantities';
+$lang['soldqty'] = 'Sold Quantities';
 $lang['progressionyearsby'] = 'Progression over years by';
 ?>
