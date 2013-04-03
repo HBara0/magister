@@ -334,11 +334,18 @@ if(!$core->input['action']) {
 
 		$keycustomersbox = $keycustomers = '';
 		if(is_array($report['keycustomers'])) {
+			$keycust_count = 0;
 			foreach($report['keycustomers'] as $keycust => $customer) {
+				/* Limit to 5 customers */
+				if($keycust_count == 5) {
+					break;
+				}
+				
 				if(empty($customer['cid'])) {
 					continue;
 				}
 				eval("\$keycustomers .= \"".$template->get('new_reporting_report_keycustomersbox_customerrow')."\";");
+				$keycust_count++;
 			}
 			eval("\$keycustomersbox = \"".$template->get('new_reporting_report_keycustomersbox')."\";");
 		}
@@ -420,7 +427,7 @@ if(!$core->input['action']) {
 								if(empty($reportcache->data['marketsegments'][$psid])) {
 									$reportcache->data['marketsegments'][$psid] = $lang->others;
 								}
-								$authors_overview_entries .= '<tr><td class="lightdatacell_freewidth" style="text-align:left;">'.$reportcache->data['marketsegments'][$psid].'</td><td style="width:70%; border-bottom: 1px dashed #CCCCCC;">'.implode(', ', $parsed_authors).'</td></tr>';
+								$authors_overview_entries .= '<tr><td class="mainbox_itemnamecell">'.$reportcache->data['marketsegments'][$psid].'</td><td style="width:70%; border-bottom: 1px dotted #CCCCCC;">'.implode(', ', $parsed_authors).'</td></tr>';
 							}
 						}
 					}
