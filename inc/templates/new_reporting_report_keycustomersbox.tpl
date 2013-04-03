@@ -1,4 +1,3 @@
-<br />
 <page>
 <table class="reportbox">
     <tr>
