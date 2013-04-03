@@ -327,8 +327,6 @@ if(!$core->input['action']) {
 							eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
 						}
 
-
-
 						if(is_array($reporting_report_newtotaloverviewbox_row[$aggregate_type][$category])) {
 							$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category]);
 						}
