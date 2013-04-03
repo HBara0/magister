@@ -276,7 +276,7 @@ if(!$core->input['action']) {
 					if(is_array($reporting_report_newoverviewbox_row[$aggregate_type][$category])) {
 						$reporting_report_newoverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newoverviewbox_row[$aggregate_type][$category]);
 					}
-					
+
 					$lang->$category = $lang->{(strtolower($category))};
 					eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
 				}
@@ -349,7 +349,7 @@ if(!$core->input['action']) {
 				if($keycust_count == 5) {
 					break;
 				}
-				
+
 				if(empty($customer['cid'])) {
 					continue;
 				}
@@ -576,7 +576,8 @@ if(!$core->input['action']) {
 		/* Check who hasn't yet filled in the report - End */
 		eval("\$tools .= \"".$template->get('reporting_preview_tools_finalize')."\";");
 	}
-
+	$reports_meta_data['quarter'] = $report['quarter'];
+	$reports_meta_data['year'] = $report['year'];
 	$session->set_phpsession(array('reportsmetadata_'.$session_identifier => serialize($reports_meta_data)));
 	$session->set_phpsession(array('sessionid' => base64_encode(serialize($session_identifier))));
 	eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
@@ -619,7 +620,7 @@ else {
 		}
 		$content .= $session->get_phpsession('reports_'.$core->input['identifier']);
 
-		$meta_data = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier'])); 
+		$meta_data = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']));
 		$newreport = new ReportingQr(array('rid' => $meta_data['rid'][0]));
 		$report = $newreport->get();
 		$report['reqQRSummary'] = $newreport->get_report_supplier()['reqQRSummary'];
