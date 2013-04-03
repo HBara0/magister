@@ -13,7 +13,7 @@
 		<input type="hidden" id="uid" name="uid" value="{$user[uid]}">
         <table width="100%" border="0" cellpadding="0" cellspacing="0">
         <tr>
-            <td><strong>{$lang->firstname}</strong></td><td><input type="text" id="firstName" name="firstName" value="{$user[firstName]}" tabindex="7"/> {$lang->middlename} <input type="text" id="middleName" name="middleName" value="{$user[middleName]}" tabindex="8"/> <strong>{$lang->lastname}</strong> <input type="text" id="lastName" name="lastName" value="{$user[lastName]}" tabindex="9"/></td>
+            <td><strong>{$lang->firstname}</strong></td><td><input type="text" id="firstName" name="firstName" value="{$user[firstName]}" required="required" tabindex="7"/> {$lang->middlename} <input type="text" id="middleName" name="middleName" value="{$user[middleName]}" tabindex="8"/> <strong>{$lang->lastname}</strong> <input type="text" id="lastName" required="required" name="lastName" value="{$user[lastName]}" tabindex="9"/></td>
         </tr>
         <tr>
         	<td>{$lang->gender}</td><td><select id="gender" name="gender"><option value="0">&nbsp;</option><option value="1"{$selectedoptions[gender][1]}>{$lang->female}</option><option value="2"{$selectedoptions[gender][2]}>{$lang->male}</option></select></td>
@@ -181,7 +181,7 @@
         </tr>
         <tr>
             <td colspan="2" align="left">
-            	<input type="button" value="{$lang->savecaps}" id="perform_hr/edituser_Button"/> <input type="reset" value="{$lang->reset}" />
+            	<input type="submit" value="{$lang->savecaps}" id="perform_hr/edituser_Button"/> <input type="reset" value="{$lang->reset}" />
             	<div id="perform_hr/edituser_Results"></div>
             </td>
         </tr>
