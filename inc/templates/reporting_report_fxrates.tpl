@@ -10,6 +10,7 @@
             <tr><td colspan="{$fxratespage_tablecolspan}" class="thead">{$lang->quarterfxaverage} - Q{$report[quarter]}/{$report[year]}</td></tr>
             {$fxratespage_tablehead}
     		{$fx_rates_entries}
+                {$fx_rates_chart}
             <tr><td colspan="{$fxratespage_tablecolspan}" class="altrow" style="font-style:italic;">{$lang->currenciesfxratenote}</td></tr>
         </table>
     </td>
