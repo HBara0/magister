@@ -217,8 +217,9 @@ $customerexist=false;
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		/* If supplier does not have contract and contract Expired -START */
 		$entity = new Entities($report_meta['spid']);
-		$entity_data = $entity->get(); 
-		if(!is_array($customers)&&(isset($entity_data['contractFirstSigDate']) && empty($entity_data['contractFirstSigDate'])) || (!empty($entity_data['contractExpiryDate']) && TIME_NOW > $entity_data['contractExpiryDate']) || ($entity_data['contractIsEvergreen'] != 1 && !empty($entity_data['contractExpiryDate']))) {
+		$entity_data = $entity->get();  
+		//|| (!empty($entity_data['contractExpiryDate'] && TIME_NOW > $entity_data['contractExpiryDate'])
+		if(empty($entity_data['contractFirstSigDate'])  || ($entity_data['contractIsEvergreen'] != 1 && !empty($entity_data['contractExpiryDate']))) {
 			$exludestage_checked = ' checked="checked"';
 			$excludekeycust_notifymessage = '<div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-top: 10px; margin-bottom: 10px;"><strong>'.$lang->notcontractedsupp.'</strong></div>';
 		}
