@@ -214,7 +214,7 @@ if(!$core->input['action']) {
 														$item_rounding = $default_rounding;
 													}
 													$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$spid][$type][$year][$quarter], $item_rounding);
-													;
+								
 												}
 											}
 										}
@@ -271,6 +271,7 @@ if(!$core->input['action']) {
 								}
 							}
 						}
+						$item[$aggregate_type][$category]['actual'][$year][$quarter] = msort($item[$aggregate_type][$category]['actual'], array('quarter'));
 						eval("\$reporting_report_newoverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_overviewbox_row')."\";");
 					}
 					if(is_array($reporting_report_newoverviewbox_row[$aggregate_type][$category])) {
@@ -288,10 +289,11 @@ if(!$core->input['action']) {
 					$reporting_report_newtotaloverviewbox[$aggregate_type] = $reporting_report_newtotaloverviewbox_row[$aggregate_type] = array();
 					foreach($aggdata as $category => $catdata) {
 						foreach($catdata as $itemkey => $item) {
+
 							foreach($report_years as $yearkey => $yearval) {
+
 								$item['data'][$yearval] = $item[$yearval];
 								$progression_totals['data'][$yearval] += round($item['data'][$yearval], $default_rounding);
-								//$current_yearval = $item[$yearval];
 
 								if(empty($item['data'][$yearval])) {
 									$item['data'][$yearval] = 0;
@@ -320,21 +322,20 @@ if(!$core->input['action']) {
 											$progression_totals['perc'][$yearval] = 100;
 										}
 										else {
-											if(!empty($progression_totals['data'][$yearval]) && isset($progression_totals['data'][$yearval])) {
-												$progression_totals['perc'][$yearval] = round((($progression_totals['data'][$yearval + 1] / $progression_totals['data'][$yearval]) * 100));
-												echo'total current '.$progression_totals['data'][$yearval].'<hr><br> ';
-												echo'total prev'.($progression_totals['data'][$yearval + 1]).'<hr> <br>';
-												echo 'total:'.$progression_totals['perc'][$yearval].' <br>';
+											if(!empty($progression_totals['data'][$yearval]) && !empty($progression_totals['data'][$yearval + 1])) {
+												$next_progression_totals = $progression_totals['data'][$yearval + 1];
+												$prev_progression_totals = $progression_totals['data'][$yearval];
+												$progression_totals['perc'][$yearval] = round((($next_progression_totals / $prev_progression_totals) * 100) - 100);
 											}
 										}
 									}
 
-
 									$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellpositive';
-									if($item['perc'][$yearval] == 0 || $progression_totals['perc'][$yearval] == 0) {
+									
+									if($item['perc'][$yearval] == 0 ) {
 										$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellzero';
 									}
-									elseif($item['perc'][$yearval] < 0 || $progression_totals['perc'][$yearval] < 0) {
+									elseif($item['perc'][$yearval] < 0 ) {
 										$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellnegative';
 									}
 								}
@@ -343,13 +344,13 @@ if(!$core->input['action']) {
 
 							eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
 						}
-
 						if(is_array($reporting_report_newtotaloverviewbox_row[$aggregate_type][$category])) {
 							$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category]);
 						}
 
 						eval("\$reporting_report_newtotaloverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
-						unset($progression_totals);
+						$progression_totals['data'] = array();
+						unset($newtotaloverviewbox_row_percclass);
 					}
 				}
 			}
@@ -719,26 +720,49 @@ else {
 		}
 	}
 }
-
-
-
-
-
-function aasort (&$array, $key) { 
-
-    $sorter=array();
-    $ret=array();
-    reset($array);
-    foreach ($array as $i => $va) {
-        $sorter[$i]=$va[$key];
-    }
-    asort($sorter);
-    foreach ($sorter as $i => $va) {
-        $ret[$i]=$array[$i];
-    }
-    $array=$ret;
+function msort($array, $key, $sort_flags = SORT_REGULAR) {
+	if(is_array($array) && count($array) > 0) {
+		if(!empty($key)) {
+			$mapping = array();
+			foreach($array as $k => $v) {
+				$sort_key = '';
+				if(!is_array($key)) {
+					$sort_key = $v[$key];
+				}
+				else {
+					// @TODO This should be fixed, now it will be sorted as string
+					foreach($key as $key_key) {
+						$sort_key .= $v[$key_key];
+					}
+					$sort_flags = SORT_STRING;
+				}
+				$mapping[$k] = $sort_key;
+			}
+			asort($mapping, $sort_flags);
+			$sorted = array();
+			foreach($mapping as $k => $v) {
+				$sorted[] = $array[$k];
+			}
+			return $sorted;
+		}
+	}
+	return $array;
 }
 
+//function aasort (&$array, $key) { 
+//
+//    $sorter=array();
+//    $ret=array();
+//    reset($array);
+//    foreach ($array as $i => $va) {
+//        $sorter[$i]=$va[$key];
+//    }
+//    asort($sorter);
+//    foreach ($sorter as $i => $va) {
+//        $ret[$i]=$array[$i];
+//    }
+//    $array=$ret;
+//}
 //function subval_sort($a,$subkey) {
 //	foreach($a as $k=>$v) {
 //		$b[$k] = strtolower($v[$subkey]);
@@ -746,15 +770,9 @@ function aasort (&$array, $key) {
 //	asort($b);
 //	foreach($b as $key=>$val) {
 //		$c[] = $a[$key];
+//		asort($b);
 //	}
+//
 //	return $c;
 //}
-
-
-
-
-
-
-
-
 ?>
