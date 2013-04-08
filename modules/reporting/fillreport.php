@@ -145,6 +145,7 @@ if(!$core->input['action']) {
 		eval("\$fillreportpage = \"".$template->get('reporting_fillreports_productsactivity')."\";");
 	}
 	elseif($core->input['stage'] == 'keycustomers') {
+		
 		if(!isset($core->input['identifier'])) {
 			redirect('index.php?module=reporting/fillreport');
 		}
@@ -168,7 +169,7 @@ if(!$core->input['action']) {
 		//create_cookie('rid', $core->input['rid'], (time() + (60*$core->settings['idletime']*2)));	
 
 		$rid = $db->escape_string($core->input['rid']);
-
+$customerexist=false;
 		$customerscount = 5; //Make it a setting
 		$query = $db->query("SELECT kc.*, e.companyName
 							FROM ".Tprefix."keycustomers kc LEFT JOIN ".Tprefix."entities e ON (e.eid=kc.cid) 
@@ -177,6 +178,7 @@ if(!$core->input['action']) {
 		$rowsnum = $db->num_rows($query);
 
 		if($rowsnum > 0) {
+				$customerexist=true;	
 			$i = 1;
 			while($customer = $db->fetch_array($query)) {
 				$customers[$i] = $customer;
@@ -184,7 +186,7 @@ if(!$core->input['action']) {
 			}
 			$customerscount = $rowsnum;
 		}
-		else {
+		else {	
 			if($session->isset_phpsession('keycustomersdata_'.$identifier)) {
 				$keycustomersdata = unserialize($session->get_phpsession('keycustomersdata_'.$identifier));
 
@@ -194,8 +196,8 @@ if(!$core->input['action']) {
 					$customerscount = 5;
 				}
 			}
-		}
-		
+		}		
+
 		if(is_array($customers)) {
 			foreach($customers as $i => $customer) {
 				$rowid = $i;
@@ -206,16 +208,18 @@ if(!$core->input['action']) {
 				eval("\$customersrows .= \"".$template->get("reporting_fillreports_keycustomers_customerrow")."\";");
 			}
 		}
-		else {
+		else {	
 			for($rowid = 1; $rowid <= 5; $rowid++) {
 				eval("\$customersrows .= \"".$template->get("reporting_fillreports_keycustomers_customerrow")."\";");
 			}
 		}
+
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		/* If supplier does not have contract and contract Expired -START */
 		$entity = new Entities($report_meta['spid']);
-		$entity_data = $entity->get();
-		if(empty($entity_data['contractFirstSigDate']) || (!empty($entity_data['contractExpiryDate']) && TIME_NOW > $entity_data['contractExpiryDate']) || ($entity_data['contractIsEvergreen'] != 1 && !empty($entity_data['contractExpiryDate']))) {
+		$entity_data = $entity->get();  
+		//|| (!empty($entity_data['contractExpiryDate'] && TIME_NOW > $entity_data['contractExpiryDate'])
+		if(empty($entity_data['contractFirstSigDate'])  || ($entity_data['contractIsEvergreen'] != 1 && !empty($entity_data['contractExpiryDate']))) {
 			$exludestage_checked = ' checked="checked"';
 			$excludekeycust_notifymessage = '<div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-top: 10px; margin-bottom: 10px;"><strong>'.$lang->notcontractedsupp.'</strong></div>';
 		}
@@ -803,7 +807,7 @@ else {
 		eval("\$addproductbox = \"".$template->get('popup_addproduct')."\";");
 		output_page($addproductbox);
 	}
-	elseif($core->input['action'] == 'save_report') {
+	elseif($core->input['action'] == 'save_report') { 
 		$identifier = $db->escape_string($core->input['identifier']);
 
 		$rawdata = unserialize($session->get_phpsession('reportrawdata_'.$identifier));
@@ -1038,7 +1042,7 @@ else {
 							'subject' => $lang->sprint($lang->reportsready, $current_report_details['quarter'], $current_report_details['year'], $current_report_details['companyName']),
 							'message' => $lang->sprint($lang->reportsreadymessage, $current_report_details['companyName'], $ready_reports_link)
 					);
-
+				
 					$mail = new Mailer($email_data, 'php');
 				}
 			}
