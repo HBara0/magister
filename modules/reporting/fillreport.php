@@ -56,8 +56,8 @@ if(!$core->input['action']) {
 		/* Instantiate currencies object and get currencies rate of period - START */
 		$core->input['baseCurrency'] = 'USD';
 		$currency = new Currencies($core->input['baseCurrency']);
-		$currencies_from = date_timestamp_get(date_create_from_format('j-m-Y', $core->settings['q'.$core->input['quarter'].'start'].'-'.$core->input['year']));
-		$currencies_to = date_timestamp_get(date_create_from_format('j-m-Y', $core->settings['q'.$core->input['quarter'].'end'].'-'.$core->input['year']));
+		$currencies_from = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'start']);//date_timestamp_get(date_create_from_format('j-m-Y', $core->settings['q'.$core->input['quarter'].'start']));
+		$currencies_to = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'end']);//date_timestamp_get(date_create_from_format('j-m-Y', $core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'end']));
 		$currencies = $currency->get_average_fxrates_transposed(array('GBP', 'EUR'), array('from' => $currencies_from, 'to' => $currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4));
 		$currencies[1] = $core->input['baseCurrency'];
 
@@ -1010,7 +1010,7 @@ else {
 			}
 			$log->record($report_meta['rid']);
 
-			$current_report_details = $db->fetch_assoc($db->query("SELECT e.eid, e.companyName, r.year, r.quarter, e.noQReportSend FROM ".Tprefix."reports r LEFT JOIN ".Tprefix."entities e ON (r.spid=e.eid) WHERE r.rid='{$rawdata[rid]}'"));
+			$current_report_details = $db->fetch_assoc($db->query("SELECT e.eid, e.companyName, r.year, r.quarter, e.noQReportSend FROM ".Tprefix."reports r LEFT JOIN ".Tprefix."entities e ON (r.spid=e.eid) WHERE r.rid='{$report_meta[rid]}'"));
 
 			if($current_report_details['noQReportSend'] == 0) {
 				if($db->fetch_field($db->query("SELECT COUNT(*) AS remainingreports FROM ".Tprefix."reports WHERE quarter='{$current_report_details[quarter]}' AND year='{$current_report_details[year]}' AND spid='{$current_report_details[eid]}' AND status='0' AND type='q'"), 'remainingreports') == 0) {

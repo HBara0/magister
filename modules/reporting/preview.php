@@ -466,15 +466,15 @@ if(!$core->input['action']) {
 			if(is_array($report_currencies) && !empty($report_currencies)) {
 				$fxratespage_tablecolspan = count($report_currencies) + 1;
 				$fxratespage_tablehead .= '<tr><td>&nbsp;</td>';
-				$currencies_from = strtotime($core->settings['q'.$report['quarter'].'start'].'-'.$report['year']);
-				$currencies_to = strtotime($core->settings['q'.$report['quarter'].'end'].'-'.$report['year']);
+				$currencies_from = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'start']);
+				$currencies_to = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'end']);
 				if($report['quarter'] == 1) {
-					$prev_currencies_from = strtotime($core->settings['q4start'].'-'.($report['year'] - 1));
-					$prev_currencies_to = strtotime($core->settings['q4end'].'-'.($report['year'] - 1));
+					$prev_currencies_from = strtotime(($report['year'] - 1).'-'.$core->settings['q4start']);
+					$prev_currencies_to = strtotime(($report['year'] - 1).'-'.$core->settings['q4end']);
 				}
 				else {
-					$prev_currencies_from = strtotime($core->settings['q'.($report['quarter'] - 1).'start'].'-'.$report['year']);
-					$prev_currencies_to = strtotime($core->settings['q'.($report['quarter'] - 1).'end'].'-'.$report['year']);
+					$prev_currencies_from = strtotime($report['year'].'-'.$core->settings['q'.($report['quarter'] - 1).'start']);
+					$prev_currencies_to = strtotime($report['year'].'-'.$core->settings['q'.($report['quarter'] - 1).'end']);
 				}
 
 				foreach($report_currencies as $cur) {
