@@ -506,7 +506,7 @@ if(!$core->input['action']) {
 								$currencies_fx[$fx_currency] = round($currencies_fx[$fx_currency], 4);
 								$prev_rate = $currency->get_average_fxrate($fx_currency, array('from' => $prev_currencies_from, 'to' => $prev_currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4), $cur);
 								$currency_rates_prevyear = $currency->get_yearaverage_fxrate_monthbased($fx_currency, $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4)); /* GET the fxrate of previous quarter year */
-								
+
 								$trend_symbol = '&darr;';
 								if($currencies_fx[$fx_currency] - $prev_rate > 0) {
 									$trend_symbol = '&uarr;';
@@ -719,4 +719,42 @@ else {
 		}
 	}
 }
+
+
+
+
+
+function aasort (&$array, $key) { 
+
+    $sorter=array();
+    $ret=array();
+    reset($array);
+    foreach ($array as $i => $va) {
+        $sorter[$i]=$va[$key];
+    }
+    asort($sorter);
+    foreach ($sorter as $i => $va) {
+        $ret[$i]=$array[$i];
+    }
+    $array=$ret;
+}
+
+//function subval_sort($a,$subkey) {
+//	foreach($a as $k=>$v) {
+//		$b[$k] = strtolower($v[$subkey]);
+//	}
+//	asort($b);
+//	foreach($b as $key=>$val) {
+//		$c[] = $a[$key];
+//	}
+//	return $c;
+//}
+
+
+
+
+
+
+
+
 ?>
