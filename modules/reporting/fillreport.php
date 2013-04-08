@@ -216,7 +216,7 @@ $customerexist=false;
 
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		/* If supplier does not have contract and contract Expired -START */
-		$entity = new Entities($report_meta['spid']);
+		$entity = new Entities($report_meta['spid'],'',false);
 		$entity_data = $entity->get();  
 		//|| (!empty($entity_data['contractExpiryDate'] && TIME_NOW > $entity_data['contractExpiryDate'])
 		if(empty($entity_data['contractFirstSigDate'])  || ($entity_data['contractIsEvergreen'] != 1 && !empty($entity_data['contractExpiryDate']))) {
