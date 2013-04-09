@@ -17,20 +17,20 @@ if($core->input['authCode'] == AUTHCODE) {
 		case 'purchases':
 			$filename = 'Integration - Purchases.csv';
 			$tables = array(
-					'integration_mediation_purchaseorders' => array('pk' => 'impoid', 'identifier' => 'foreignId', 'attrAlias' => array('orderId' => 'foreignId')),
+					'integration_mediation_purchaseorders' => array('pk' => 'impoid', 'identifier' => 'foreignId', 'attrAlias' => array('orderId' => 'foreignId'), 'dateAttrs' => array('date')),
 					'integration_mediation_purchaseorderlines' => array('pk' => 'impolid', 'identifier' => 'foreignId', 'attrAlias' => array('orderLineId' => 'foreignId', 'orderId' => 'foreignOrderId')));
 			$required_fields = array(
-					'integration_mediation_purchaseorderlines' => array('foreignId', 'foreignOrderId', 'pid'),
+					'integration_mediation_purchaseorderlines' => array('foreignId', 'foreignOrderId', 'pid', 'price', 'quantity', 'quantityUnit'),
 					'integration_mediation_purchaseorders' => array('foreignId', 'date', 'spid'));
 			break;
 		case 'sales':
 			$filename = 'Integration - Sales.csv';
 			
 			$tables = array(
-					'integration_mediation_salesorders' => array('pk' => 'imsoid', 'identifier' => 'foreignId', 'attrAlias' => array('invoiceId' => 'foreignId')),
+					'integration_mediation_salesorders' => array('pk' => 'imsoid', 'identifier' => 'foreignId', 'attrAlias' => array('invoiceId' => 'foreignId'), 'dateAttrs' => array('date')),
 					'integration_mediation_salesorderlines' => array('pk' => 'imsolid', 'identifier' => 'foreignId', 'attrAlias' => array('invoiceLineId' => 'foreignId', 'invoiceId' => 'foreignOrderId')));
 			$required_fields = array(
-					'integration_mediation_salesorderlines' => array('foreignId', 'foreignOrderId', 'pid'),
+					'integration_mediation_salesorderlines' => array('foreignId', 'foreignOrderId', 'pid', 'price', 'quantity'),
 					'integration_mediation_salesorders' => array('foreignId', 'date', 'spid'));
 			break;
 		case 'entities':
@@ -104,13 +104,18 @@ function insert_data($runtype = 'dry', $validate = true) {
 						$errorhandler->record('emptyfields', 'Row: '.$row.' Attr: '.$true_attr.' is empty.');
 					}
 
+					if(is_array($table_config['dateAttrs'])) {
+						if(in_array($true_attr, $table_config['dateAttrs'])) {
+							$val = strtotime($val);
+						}
+					}
 					if(in_array($true_attr, $tables_fields[$table])) {
 						$tables_fields_values[$table][$true_attr] = $val;
 					}
 				}
 
 				if($validate == false) {
-					if(!value_exists($table, $table_config['identifier'], $tables_fields_values[$table][$table_config['identifier']])) {
+					if(!value_exists($table, $table_config['identifier'], substr($tables_fields_values[$table][$table_config['identifier']], 0, 32))) {
 						if($core->input['domatch'] == 1) {
 							$tables_fields_values[$table]['localId'] = $db->fetch_field($db->query("SELECT ".$table_config['matchInfo']['dataField']." FROM ".Tprefix.$table_config['matchInfo']['table']." WHERE ".$table_config['matchInfo']['matchWith']."='".$db->escape_string($tables_fields_values[$table][$table_config['matchInfo']['match']])."'"), $table_config['matchInfo']['dataField']);
 						}
@@ -122,6 +127,18 @@ function insert_data($runtype = 'dry', $validate = true) {
 						if($runtype != 'dry') {
 							$db->insert_query($table, $tables_fields_values[$table]);
 						}
+						echo 'Added:';
+						print_r($tables_fields_values[$table]);
+						echo '<hr />';
+					}
+					else {
+						if($runtype != 'dry') {
+							unset($tables_fields_values[$table]['localId']);
+							$db->update_query($table, $tables_fields_values[$table], $table_config['identifier'].'="'.substr($tables_fields_values[$table][$table_config['identifier']], 0, 32).'"');
+						
+
+						}
+						echo 'Updated:';
 						print_r($tables_fields_values[$table]);
 						echo '<hr />';
 					}
