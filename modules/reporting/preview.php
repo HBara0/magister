@@ -69,8 +69,10 @@ if(!$core->input['action']) {
 				$report_param['affid'] = $db->escape_string($core->input['affid']);
 				$report_param['spid'] = $entity;
 			}
+			$session_identifier = md5(uniqid(microtime()));
 			$newreport = new ReportingQr(array('year' => $core->input['year'], 'spid' => $report_param['spid'], 'affid' => $report_param['affid'], 'quarter' => $core->input['quarter']));
 			$report = $newreport->get();
+			$session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report)));
 			$newreport->read_products_activity(true);
 			$report['items'] = $newreport->get_classified_productsactivity();
 			unset($report['items']['amount']['forecast']);
@@ -98,7 +100,7 @@ if(!$core->input['action']) {
 			$report['summary'] = $newreport->get_report_summary();
 
 			$no_send_icon = true;
-			$session_identifier = md5(uniqid(microtime()));
+
 			if(!$reportcache->iscached('affiliatesmarketreport', $report['affiliates']['affid'])) {
 				$reportcache->add('affiliatesmarketreport', $report['affiliates']['name'], $report['affid']);
 			}
@@ -271,7 +273,7 @@ if(!$core->input['action']) {
 								}
 							}
 						}
-						$item[$aggregate_type][$category]['actual'][$year][$quarter] = msort($item[$aggregate_type][$category]['actual'], array('quarter'));
+						//$item[$aggregate_type][$category]['actual'][$year][$quarter] = msort($item[$aggregate_type][$category]['actual'], array('quarter'));
 						eval("\$reporting_report_newoverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_overviewbox_row')."\";");
 					}
 					if(is_array($reporting_report_newoverviewbox_row[$aggregate_type][$category])) {
@@ -289,9 +291,7 @@ if(!$core->input['action']) {
 					$reporting_report_newtotaloverviewbox[$aggregate_type] = $reporting_report_newtotaloverviewbox_row[$aggregate_type] = array();
 					foreach($aggdata as $category => $catdata) {
 						foreach($catdata as $itemkey => $item) {
-
 							foreach($report_years as $yearkey => $yearval) {
-
 								$item['data'][$yearval] = $item[$yearval];
 								$progression_totals['data'][$yearval] += round($item['data'][$yearval], $default_rounding);
 
@@ -312,26 +312,8 @@ if(!$core->input['action']) {
 											$item['perc'][$yearval] = round((($item[$yearval + 1] / $item['data'][$yearval]) * 100) - 100);  /* Divide the next year total ammount with the ammount of previous year */
 										}
 									}
-									/* Must have the same logic as above */
-
-									if(empty($progression_totals['data'][$yearval]) && empty($progression_totals['data'][$yearval + 1])) {
-										$progression_totals['perc'][$yearval] = 0;
-									}
-									else {
-										if(empty($progression_totals['data'][$yearval])) {
-											$progression_totals['perc'][$yearval] = 100;
-										}
-										else {
-											if(!empty($progression_totals['data'][$yearval]) && !empty($progression_totals['data'][$yearval + 1])) {
-												$next_progression_totals = $progression_totals['data'][$yearval + 1];
-												$prev_progression_totals = $progression_totals['data'][$yearval];
-												$progression_totals['perc'][$yearval] = round((($next_progression_totals / $prev_progression_totals) * 100) - 100);
-											}
-										}
-									}
 
 									$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellpositive';
-									
 									if($item['perc'][$yearval] == 0 ) {
 										$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellzero';
 									}
@@ -344,6 +326,33 @@ if(!$core->input['action']) {
 
 							eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
 						}
+						
+						foreach($progression_totals['data'] as $year => $total_amount) {
+							if(empty($progression_totals['data'][$year]) && empty($progression_totals['data'][$year + 1])) {
+								$progression_totals['perc'][$year] = 0;
+							}
+							else {
+								if(empty($progression_totals['data'][$year])) {
+									$progression_totals['perc'][$year] = 100;
+								}
+								else {
+									if(!empty($progression_totals['data'][$year]) && !empty($progression_totals['data'][$year + 1])) {
+										$next_progression_totals = $progression_totals['data'][$year + 1];
+										$prev_progression_totals = $progression_totals['data'][$year];
+										$progression_totals['perc'][$year] = round((($next_progression_totals / $prev_progression_totals) * 100) - 100);
+									}
+								}
+							}
+							
+							$newtotaloverviewbox_row_percclass[$year] = ' totalsbox_perccellpositive';
+							if($progression_totals['perc'][$year] == 0) {
+								$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellzero';
+							}
+							elseif($progression_totals['perc'][$year] < 0 ) {
+								$newtotaloverviewbox_row_percclass[$year] = ' totalsbox_perccellnegative';
+							}
+						}
+						
 						if(is_array($reporting_report_newtotaloverviewbox_row[$aggregate_type][$category])) {
 							$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category]);
 						}
@@ -506,16 +515,10 @@ if(!$core->input['action']) {
 							else {
 								$currencies_fx[$fx_currency] = round($currencies_fx[$fx_currency], 4);
 								$prev_rate = $currency->get_average_fxrate($fx_currency, array('from' => $prev_currencies_from, 'to' => $prev_currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4), $cur);
-								$currency_rates_prevyear = $currency->get_yearaverage_fxrate_monthbased($fx_currency, $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4)); /* GET the fxrate of previous quarter year */
-
 								$trend_symbol = '&darr;';
 								if($currencies_fx[$fx_currency] - $prev_rate > 0) {
 									$trend_symbol = '&uarr;';
 								}
-							}
-							if(!empty($currencies_fx[$fx_currency]) && ($cur == 'USD' || $cur == 'EUR')) {
-								$fxrates_linechart = new Charts(array('x' => array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), 'y' => array($report['year'] => $currencies_fx, ($report['year'] - 1) => $currency_rates_prevyear)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => $cur.' Rate', 'yaxisunit' => '', 'fixedscale' => array('min' => min($currencies_fx), 'max' => max($currencies_fx)), 'width' => 600, 'height' => 200));
-								$fx_rates_chart .='<tr><td style="border-bottom: 1px dashed #CCCCCC;"><img src="'.$fxrates_linechart->get_chart().'" /></td>></tr>';
 							}
 
 							$fx_rates_entries .= '<td class="currenciesbox_datacell">'.$trend_symbol.' '.$currencies_fx[$fx_currency].'</td>';
@@ -525,6 +528,12 @@ if(!$core->input['action']) {
 				}
 
 				$fxratespage_tablehead .= '</tr>';
+				$currency_rates_year = $currency->get_yearaverage_fxrate_monthbased('EUR', $report['year'], array('distinct_by' => 'alphaCode', 'precision' => 4)); /* GET the fxrate of previous quarter year */
+				$currency_rates_prevyear = $currency->get_yearaverage_fxrate_monthbased('EUR', $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4));
+				if(is_array($currency_rates_prevyear)) {
+					$fxrates_linechart = new Charts(array('x' => array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), 'y' => array($report['year'] => $currency_rates_year, ($report['year'] - 1) => $currency_rates_prevyear)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'fixedscale' => array('min' => min($currency_rates_year), 'max' => max($currency_rates_year)), 'width' => 700, 'height' => 200));
+					$fx_rates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_linechart->get_chart().'" /></td></tr>';
+				}								
 				if(!empty($fx_rates_entries)) {
 					eval("\$fxratespage = \"".$template->get('reporting_report_fxrates')."\";");
 				}
@@ -547,7 +556,7 @@ if(!$core->input['action']) {
 				}
 			}
 		}
-
+							
 		if($report['isApproved'] == 0) {
 			if($core->usergroup['reporting_canApproveReports'] == 1) {
 				$can_approve = true;
@@ -597,8 +606,7 @@ if(!$core->input['action']) {
 		/* Check who hasn't yet filled in the report - End */
 		eval("\$tools .= \"".$template->get('reporting_preview_tools_finalize')."\";");
 	}
-	$reports_meta_data['quarter'] = $report['quarter'];
-	$reports_meta_data['year'] = $report['year'];
+
 	$session->set_phpsession(array('reportsmetadata_'.$session_identifier => serialize($reports_meta_data)));
 	$session->set_phpsession(array('sessionid' => base64_encode(serialize($session_identifier))));
 	eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");

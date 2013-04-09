@@ -169,7 +169,6 @@ if(!$core->input['action']) {
 		//create_cookie('rid', $core->input['rid'], (time() + (60*$core->settings['idletime']*2)));	
 
 		$rid = $db->escape_string($core->input['rid']);
-$customerexist=false;
 		$customerscount = 5; //Make it a setting
 		$query = $db->query("SELECT kc.*, e.companyName
 							FROM ".Tprefix."keycustomers kc LEFT JOIN ".Tprefix."entities e ON (e.eid=kc.cid) 
@@ -178,7 +177,6 @@ $customerexist=false;
 		$rowsnum = $db->num_rows($query);
 
 		if($rowsnum > 0) {
-				$customerexist=true;	
 			$i = 1;
 			while($customer = $db->fetch_array($query)) {
 				$customers[$i] = $customer;
@@ -216,7 +214,7 @@ $customerexist=false;
 
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		/* If supplier does not have contract and contract Expired -START */
-		$entity = new Entities($report_meta['spid'],'',false);
+		$entity = new Entities($report_meta['spid'], '', false);
 		$entity_data = $entity->get();  
 		//|| (!empty($entity_data['contractExpiryDate'] && TIME_NOW > $entity_data['contractExpiryDate'])
 		if(empty($entity_data['contractFirstSigDate'])  || ($entity_data['contractIsEvergreen'] != 1 && !empty($entity_data['contractExpiryDate']))) {
