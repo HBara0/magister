@@ -29,7 +29,18 @@ else
 		$query_filter = ' WHERE foreignSystem='.$db->escape_string($core->input['foreignSystem']);
 		
 		if(!empty($core->input['filterphrase'])) {
-			$query_filter = ' AND foreignName LIKE "%'.$db->escape_string($core->input['filterphrase']).'%"';
+			if(strstr($core->input['filterphrase'], ';')) {
+				$core->input['filterphrase'] = explode(';', $core->input['filterphrase']);
+				$query_filter .= ' AND (';
+				foreach($core->input['filterphrase']  as $phrase) {
+					$query_filter .= $query_filter_or.' foreignName LIKE "%'.$db->escape_string($phrase).'%"';
+					$query_filter_or = ' OR ';
+				}
+				$query_filter .= ')';
+			}
+			else {
+				$query_filter .= ' AND foreignName LIKE "%'.$db->escape_string($core->input['filterphrase']).'%"';
+			}
 			$query_filter_and = ' AND ';
 		}
 		
@@ -55,11 +66,15 @@ else
 				$query_filter .= ' AND '.$parameter['attr'].'="'.$parameter['value'].'"';
 			}
 		}
-				
+		
+		if($core->input['limitfrom'] >= 0 && !empty($core->input['limitnum'])) {
+			$query_limit = ' LIMIT '.$core->input['limitfrom'].', '.$core->input['limitnum'];
+		}
 		$query = $db->query("SELECT m.*, m.{$check_query_parameters[$core->input[matchitem]][mediationtableid]} AS dbkey, t.{$check_query_parameters[$core->input[matchitem]][name]} AS localName 
 							FROM ".Tprefix."{$check_query_parameters[$core->input[matchitem]][mediationtable]} m LEFT JOIN ".Tprefix."{$check_query_parameters[$core->input[matchitem]][table]} t ON (t.{$check_query_parameters[$core->input[matchitem]][id]}=m.localId)
-							{$query_filter} 
-							ORDER BY foreignName ASC, localId ASC");
+							{$query_filter}
+							ORDER BY foreignName ASC, localId ASC
+							{$query_limit}");
 							
 		if($db->num_rows($query) > 0) {
 			while($entrytomatch = $db->fetch_assoc($query)) {
@@ -77,10 +92,19 @@ else
 				}
 				else
 				{
+					$foreignname_parts = explode(' ', $entrytomatch['foreignName']);
+					$furthercheck_query_extra = '';
+					if(is_array($foreignname_parts)) {
+						foreach($foreignname_parts as $part) {
+							if(strlen($part) > 4 && is_string($part)) {
+								$furthercheck_query_extra .= ' OR '.$check_query_parameters[$core->input['matchitem']]['checkAttr'].' LIKE "%'.$part.'%"';
+							}
+						}
+					}
 					$furthercheck_query = $db->query("SELECT {$check_query_parameters[$core->input[matchitem]][id]} as localId, {$check_query_parameters[$core->input[matchitem]][name]} as localName
 											FROM ".Tprefix."{$check_query_parameters[$core->input[matchitem]][table]}  
 											WHERE (SOUNDEX({$check_query_parameters[$core->input[matchitem]][checkAttr]}) = SOUNDEX('".$db->escape_string($entrytomatch['foreignName'])."') 
-											OR {$check_query_parameters[$core->input[matchitem]][checkAttr]} LIKE '%".$db->escape_string($entrytomatch['foreignName'])."%'){$check_query_extrawhere}");
+											OR {$check_query_parameters[$core->input[matchitem]][checkAttr]} LIKE '%".$db->escape_string($entrytomatch['foreignName'])."%' OR {$check_query_parameters[$core->input[matchitem]][checkAttr]} SOUNDS LIKE '%".$db->escape_string($entrytomatch['foreignName'])."%'{$furthercheck_query_extra}){$check_query_extrawhere}");
 						
 					if($db->num_rows($furthercheck_query) > 0) {
 						$matching_entries = '<select id="localId_'.$entrytomatch['dbkey'].'" name="localId['.$entrytomatch['dbkey'].']">';

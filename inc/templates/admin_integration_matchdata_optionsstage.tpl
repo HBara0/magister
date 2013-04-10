@@ -24,6 +24,9 @@
             <tr>
             	<td>{$lang->filterphrase}</td><td><input type="text" id="filterphrase" name="filterphrase" /></td>
             </tr>
+            <tr>
+            	<td>{$lang->limit}</td><td><input accept='numeric' type="text" id="limitfrom" name="limitfrom" size='3'/> <input type="text" accept='numeric' id="limitnum" name="limitnum"  size='3'/></td>
+            </tr>
             <tr><td colspan="2"><input type="submit" class="button" value="{$lang->next}" id="do_integration/matchdata"/></td></tr>
         </table>
        
