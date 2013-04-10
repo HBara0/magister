@@ -30,6 +30,7 @@ if(!$core->input['action']) {
 		/* 	list($suppliername, $eid) = $db->fetch_array($db->query("SELECT e.companyName AS suppliername, e.eid FROM ".Tprefix."entities e, ".Tprefix."reports r 
 		  WHERE r.spid=e.eid AND r.rid='".$db->escape_string($meta_data['spid'][1])."'"));
 		 */
+	
 		switch($meta_data['type']) {
 			case 'm': $type = 'monthly';
 				$subject_monthquarter = $lang->{strtolower(date("F", mktime(0, 0, 0, $meta_data['month'], 1, 0)))};
