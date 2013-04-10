@@ -144,6 +144,7 @@ else {
 			$core->input['validTo'] = strtotime($core->input['validTo'].' '.$core->input['toTime']);
 		}
 
+
 		$core->input['name'] = strtolower(trim($core->input['title']));
 		$core->input['name'] = preg_replace('/\s+/', '', $core->input['name']);
 		$core->input['name'] = preg_replace("/[^a-zA-Z0-9]/", '', $core->input['name']);

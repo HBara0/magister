@@ -103,7 +103,7 @@ if(!$core->input['action']) {
 						WHERE affid={$affid}
 						{$filter_where}
 						AND (validFrom > ".$firstdayofyear." AND validTO >".$firstdayofyear.")
-						OR (validFrom = 0 AND validTo = 0)
+					OR (validFrom = 0 AND validTo = 0)
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
