@@ -97,13 +97,10 @@ if(!$core->input['action']) {
 
 	$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
 	/* Perform inline filtering - END */
-	$firstdayofyear = strtotime('01-01-'.date('Y'));
 
 	$query = $db->query("SELECT * FROM ".Tprefix."holidays
 						WHERE affid={$affid}
 						{$filter_where}
-						AND (validFrom > ".$firstdayofyear." AND validTO >".$firstdayofyear.")
-					OR (validFrom = 0 AND validTo = 0)
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
