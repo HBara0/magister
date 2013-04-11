@@ -527,7 +527,6 @@ if(!$core->input['action']) {
 						$fx_rates_entries .= '</tr>';
 					}
 				}
-
 				$fxratespage_tablehead .= '</tr>';
 				$currency_rates_year = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'], array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR'); /* GET the fxrate of previous quarter year */
 				$currency_rates_prevyear = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR');

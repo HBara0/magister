@@ -29,7 +29,6 @@ class Currencies {
 			  exit */;
 			return false;
 		}
-
 		if(empty($base_currency)) {
 			$base_currency = $this->base_currency;
 		}
@@ -61,6 +60,8 @@ class Currencies {
 			return $fx_rate['rate'];
 		}
 		else {
+
+
 			if($base_currency != 'USD') {
 				if($currency == 'USD') {
 					$usd_fx_rates[$currency] = $this->get_average_fxrate($base_currency, $period, $options, 'USD');
@@ -69,6 +70,14 @@ class Currencies {
 					}
 				}
 				else {
+					if($base_currency == 'EUR') {
+						if($currency == 'EUR') {  //1 dollar howmany
+							$eur_fx_rates[$curency] = $this->get_average_fxrate($base_currency, $period, $options, 'EUR');
+							if(!empty($eur_fx_rates[$base_currency])) {
+								return 1 / $eur_fx_rates[$base_currency];
+							}
+						}
+					}
 					if($currency != 'USD') {
 						$usd_fx_rates[$currency] = $this->get_average_fxrate($currency, $period, $options, 'USD');
 						$usd_fx_rates[$base_currency] = $this->get_average_fxrate($base_currency, $period, $options, 'USD');
