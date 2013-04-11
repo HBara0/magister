@@ -274,7 +274,7 @@ if(!$core->input['action']) {
 						}
 						//$item[$aggregate_type][$category]['actual'][$year][$quarter] = msort($item[$aggregate_type][$category]['actual'], array('quarter'));
 						array_walk($item[$aggregate_type][$category]['actual'][$year], 'number_formating');
-						array_walk(	$boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year], 'number_formating');
+						array_walk($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year], 'number_formating');
 						eval("\$reporting_report_newoverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_overviewbox_row')."\";");
 					}
 					if(is_array($reporting_report_newoverviewbox_row[$aggregate_type][$category])) {
