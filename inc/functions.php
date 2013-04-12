@@ -312,7 +312,7 @@ function parse_textfield($id, $type, $value = '', $options = array(), $config = 
 /*
   creates a selection list
  */
-function parse_selectlist($id, $tabindex, $options, $selected_options, $multiple_list = 0, $onchange_actions = '', $config = array()) {
+function parse_selectlist($name, $tabindex, $options, $selected_options, $multiple_list = 0, $onchange_actions = '', $config = array()) {
 	if($multiple_list == 1) {
 		if(!isset($config['multiplesize']) || empty($config['multiplesize'])) {
 			$config['multiplesize'] = 5;
@@ -329,10 +329,11 @@ function parse_selectlist($id, $tabindex, $options, $selected_options, $multiple
 		$onchange_actions = ' onchange=\''.$onchange_actions.'\'';
 	}
 
+	$id = $name;
 	if(isset($config['id'])) {
 		$id = $config['id'];
 	}
-
+	
 	if(isset($config['required']) && ($config['required'] == true || $config['required'] == 'required')) {
 		$required = ' required = "required"';
 	}
@@ -341,7 +342,7 @@ function parse_selectlist($id, $tabindex, $options, $selected_options, $multiple
 		$config['size'] = 1;
 	}
 	
-	$list .= '<select id="'.$id.'" name="'.$id.'" size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
+	$list .= '<select id="'.$id.'" name="'.$name.'" size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
 	if($config['blankstart'] == true) {
 		$list .= '<option></option>';
 	}
@@ -632,8 +633,8 @@ function currentquarter_info($real = false) {
 		$start = explode('-', $core->settings['q'.$i.'start']);
 		$end = explode('-', $core->settings['q'.$i.'end']);
 
-		$quarter_start = mktime(0, 0, 0, $start[1], $start[0], $current_year);
-		$quarter_end = mktime(24, 59, 0, $end[1], $end[0], $current_year);
+		$quarter_start = mktime(0, 0, 0, $start[0], $start[1], $current_year);
+		$quarter_end = mktime(24, 59, 0, $end[0], $end[1], $current_year);
 
 		if($time_now >= $quarter_start && $time_now <= $quarter_end) {
 			$current_quarter = $i;

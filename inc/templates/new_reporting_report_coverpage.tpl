@@ -9,7 +9,5 @@
         <div style="vertical-align:top; height:40mm; width: 50%; left: 30%; position: relative;">
             {$representatives_list}  
         </div>
-        <div style="padding-top: 10mm; width: 90%; text-align:left; vertical-align:top; height:10mm; margin: 0px auto;">{$lang->contactchris}</div>
-        <div style="height:2mm; width: 100%; text-align: center;"><hr></div>
     </div>
 </page>

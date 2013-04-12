@@ -75,7 +75,7 @@ if(!$core->input['action']) {
 			$session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report)));
 			$newreport->read_products_activity(true);
 			$report['items'] = $newreport->get_classified_productsactivity();
-
+			$report['itemsclasses'] = $newreport->get_classified_classes();
 			unset($report['items']['amount']['forecast']);
 			$report['productsactivity'] = $newreport->get_products_activity();
 			$report['currencies'] = $newreport->get_currencies();
@@ -131,6 +131,7 @@ if(!$core->input['action']) {
 				/* Insert produt data coming from the session those are not saved yet --END */
 				$newreport->read_products_activity(true);
 				$report['items'] = $newreport->get_classified_productsactivity();
+				$report['itemsclasses'] = $newreport->get_classified_classes();
 			}
 			/* read keycustomersdata from fill  data session */
 			if($session->isset_phpsession('keycustomersdata_'.$identifier)) {
@@ -207,7 +208,7 @@ if(!$core->input['action']) {
 												foreach($affiliatedata as $spid => $segmentdata) {
 													$item[$aggregate_type][$category][$spid]['name'] = $total_year[$aggregate_type][$category][$spid]['name'] = $newreport->get_productssegments()[$spid];
 													$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = array_sum($report['items'][$category][$type][$year][$quarter][$affid][$spid]);
-
+													
 													$total_year[$aggregate_type][$category][$spid][$year] += round($item[$aggregate_type][$category][$spid][$type][$year][$quarter], 0);
 
 													$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += round($item[$aggregate_type][$category][$spid][$type][$year][$quarter], $default_rounding);
@@ -230,6 +231,9 @@ if(!$core->input['action']) {
 													foreach($segmentdata as $pid => $productdata) {
 														$item[$aggregate_type][$category][$pid]['name'] = $total_year[$aggregate_type][$category][$spid]['name'] = $newreport->get_products()[$pid];
 														$item[$aggregate_type][$category][$pid][$type][$year][$quarter] = $report['items'][$category][$type][$year][$quarter][$affid][$spid][$pid];
+														
+														$item_class[$aggregate_type][$category][$pid][$type][$year][$quarter] = $report['itemsclasses'][$category][$type][$year][$quarter][$affid][$spid][$pid];
+
 														$total_year[$aggregate_type][$category][$pid][$year] += round($item[$aggregate_type][$category][$pid][$type][$year][$quarter], 0);
 														$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += round($item[$aggregate_type][$category][$pid][$type][$year][$quarter], $default_rounding);
 														$item_rounding = 0;
@@ -251,7 +255,7 @@ if(!$core->input['action']) {
 
 			$temp_item = $item;
 			$item = array();
-			$report['itemsclasses'] = $newreport->get_classified_classes();
+			
 			foreach($temp_item as $aggregate_type => $aggregate_data) {
 				if($aggregate_type != 'affiliates') {
 					$reporting_report_newoverviewbox[$aggregate_type] = $reporting_report_newoverviewbox_row[$aggregate_type] = array();
@@ -265,16 +269,16 @@ if(!$core->input['action']) {
 									$boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = 0;
 								}
 
-								$itemclass[$aggregate_type][$category]['actual'][$year][$quarter] = $report['itemsclasses'][$category]['actual'][$year][$quarter];
-								//print_r($report['itemsclasses'][$category]['actual'][$year][$quarter][$psid][$pid]);
 								if(!isset($item[$aggregate_type][$category]['actual'][$year][$quarter])) {
 									$item[$aggregate_type][$category]['actual'][$year][$quarter] = 0;
 								}
-							}
+								/* Format numbers for output */
+								$boxes_totals_output['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], 0, '.', ' ');
+								$item_output[$aggregate_type][$category]['actual'][$year][$quarter] = number_format($item[$aggregate_type][$category]['actual'][$year][$quarter], 0, '.', ' ');
+							}				
 						}
 						//$item[$aggregate_type][$category]['actual'][$year][$quarter] = msort($item[$aggregate_type][$category]['actual'], array('quarter'));
-						array_walk($item[$aggregate_type][$category]['actual'][$year], 'number_formating');
-						array_walk($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year], 'number_formating');
+						
 						eval("\$reporting_report_newoverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_overviewbox_row')."\";");
 					}
 					if(is_array($reporting_report_newoverviewbox_row[$aggregate_type][$category])) {
@@ -322,7 +326,8 @@ if(!$core->input['action']) {
 										$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellnegative';
 									}
 								}
-								$item['data'][$yearval] = round($item[$yearval]);
+								$item['data'][$yearval] = number_format($item[$yearval], 0, '.', ' ');
+								//$item['data'][$yearval] = round($item[$yearval]);
 							}
 
 							eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
@@ -352,6 +357,8 @@ if(!$core->input['action']) {
 							elseif($progression_totals['perc'][$year] < 0) {
 								$newtotaloverviewbox_row_percclass[$year] = ' totalsbox_perccellnegative';
 							}
+							
+							$progression_totals['data'][$year] = number_format($progression_totals['data'][$year], 0, '.', ' ');
 						}
 
 						if(is_array($reporting_report_newtotaloverviewbox_row[$aggregate_type][$category])) {
@@ -462,7 +469,7 @@ if(!$core->input['action']) {
 								if(empty($reportcache->data['marketsegments'][$psid])) {
 									$reportcache->data['marketsegments'][$psid] = $lang->others;
 								}
-								$authors_overview_entries .= '<tr><td class="mainbox_itemnamecell">'.$reportcache->data['marketsegments'][$psid].'</td><td style="width:70%; border-bottom: 1px dotted #CCCCCC;">'.implode('\n', $parsed_authors).'</td></tr>';
+								$authors_overview_entries .= '<tr><td class="mainbox_itemnamecell">'.$reportcache->data['marketsegments'][$psid].'</td><td style="width:70%; border-bottom: 1px dotted #CCCCCC;">'.implode('<br />', $parsed_authors).'</td></tr>';
 							}
 						}
 					}
@@ -507,7 +514,7 @@ if(!$core->input['action']) {
 
 					$currencies_fx = $currency->get_average_fxrates($report_currencies, array('from' => $currencies_from, 'to' => $currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4));
 					if(is_array($currencies_fx)) {
-						$fx_rates_entries .= '<tr><td class="namescell" style="text-align:left; width: 20%;">'.$cur.'</td>';
+						$fx_rates_entries .= '<tr><td class="namescell" style="text-align:left; width: 2%;">'.$cur.'</td>';
 						foreach($report_currencies as $currkey => $fx_currency) {
 							$trend_symbol = '';
 							if(empty($currencies_fx[$fx_currency])) {
@@ -522,16 +529,27 @@ if(!$core->input['action']) {
 								}
 							}
 
-							$fx_rates_entries .= '<td  width="25%" class="currenciesbox_datacell">'.$trend_symbol.' '.round($currencies_fx[$fx_currency], 2).'</td>';
+							$fx_rates_entries .= '<td style="width:5%;" class="currenciesbox_datacell">'.$trend_symbol.' '.round($currencies_fx[$fx_currency], 2).'</td>';
 						}
 						$fx_rates_entries .= '</tr>';
 					}
 				}
 				$fxratespage_tablehead .= '</tr>';
 				$currency_rates_year = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'], array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR'); /* GET the fxrate of previous quarter year */
+
 				$currency_rates_prevyear = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR');
 				if(is_array($currency_rates_prevyear)) {
-					$fxrates_linechart = new Charts(array('x' => array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), 'y' => array($report['year'] => $currency_rates_year, ($report['year'] - 1) => $currency_rates_prevyear)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'fixedscale' => array('min' => min($currency_rates_prevyear), 'max' => max($currency_rates_year)), 'width' => 700, 'height' => 200));
+					$fxrates_linechart_scale['min'] = min($currency_rates_prevyear);
+					if(min($currency_rates_year) < min($currency_rates_prevyear) && min($currency_rates_year) != 0) {	
+						$fxrates_linechart_scale['min'] = min($currency_rates_year);
+					}
+					
+					$fxrates_linechart_scale['max'] = max($currency_rates_prevyear);
+					if(max($currency_rates_year) > max($currency_rates_prevyear)) {
+						$fxrates_linechart_scale['max'] = max($currency_rates_year);
+					}
+					
+					$fxrates_linechart = new Charts(array('x' => array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), 'y' => array($report['year'] => $currency_rates_year, ($report['year'] - 1) => $currency_rates_prevyear)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'fixedscale' => $fxrates_linechart_scale, 'width' => 700, 'height' => 200));
 					$fx_rates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_linechart->get_chart().'" /></td></tr>';
 				}
 				if(!empty($fx_rates_entries)) {
@@ -755,10 +773,6 @@ function msort($array, $key, $sort_flags = SORT_REGULAR) {
 		}
 	}
 	return $array;
-}
-
-function number_formating(&$number) {
-	$number = number_format($number, 0, '.', ' ');
 }
 
 //function aasort (&$array, $key) { 

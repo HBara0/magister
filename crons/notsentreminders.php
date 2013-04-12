@@ -67,12 +67,9 @@ foreach($reports as $key => $val) {
 
 $quarter2 = currentquarter_info(true);
 
-$quarter_start_settings = explode('-', $core->settings['q'.$quarter2['quarter'].'start']);
-$quarter_end_settings = explode('-', $core->settings['q'.$quarter2['quarter'].'end']);
-
-$quarter_start = mktime(0, 0, 0, $quarter_start_settings[1], $quarter_start_settings[0], $quarter2['year']);
-$quarter_end = mktime(24, 59, 0, $quarter_end_settings[1], $quarter_end_settings[0], $quarter2['year']);
-$time_now = time();
+$quarter_start = strtotime($quarter2['year'].'-'.$core->settings['q'.$quarter2['quarter'].'start']);
+$quarter_end = strtotime($quarter2['year'].'-'.$core->settings['q'.$quarter2['quarter'].'end']);
+$time_now = TIME_NOW;
 
 if($time_now >= $quarter_start && $time_now <= $quarter_end) {
 	if(is_array($audits)) {		
@@ -94,7 +91,7 @@ if($time_now >= $quarter_start && $time_now <= $quarter_end) {
 			$mail = new Mailer($email_data, 'php');
 		}		
 		$core->input['action'] = 'autosendreportsnotsentreminders';
-		log_action(count($audits));
+		$log->record(count($audits));
 	}
 }
 ?>
