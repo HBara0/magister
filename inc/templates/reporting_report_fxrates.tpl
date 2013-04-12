@@ -13,7 +13,6 @@
                 <tr><td colspan="{$fxratespage_tablecolspan}" class="thead">EUR USD Monthly Average</td></tr>
                 {$fx_rates_chart}
             <tr><td width="25%" colspan="{$fxratespage_tablecolspan}" class="altrow" style="font-style:italic;">{$lang->currenciesfxratenote}</td></tr>
-            <tr><td colspan="{$fxratespage_tablecolspan}" class="altrow" style="font-style:italic;">{$lang->currenciesfxratenote}</td></tr>
         </table>
     </td>
 </tr>
