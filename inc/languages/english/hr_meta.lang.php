@@ -17,6 +17,7 @@ $lang['hoursfrom']="Hours From";
 $lang['lastname'] = "Last name";
 $lang['gender'] = "Gender";
 $lang['male'] = "Male:";
+$lang['validityperiod']="Validity Period";
 $lang['female'] = "Female:";
 $lang['fromtime'] = "From Time:";
 $lang['totime'] = "To Time:";
