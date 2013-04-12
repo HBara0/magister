@@ -98,7 +98,6 @@ class ReportingQr Extends Reporting {
 											foreach($affiliates_data as $psid => $productssegments_data) {
 												foreach($productssegments_data as $pid => $products_data) {
 													$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data;
-													$this->report['classifiedpactivity_class']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 'mainbox_actual';
 												}
 											}
 										}
@@ -122,8 +121,7 @@ class ReportingQr Extends Reporting {
 
 							if($this->report['quarter'] != 4) {
 								$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] /= (4 - $this->report['quarter']);
-								$this->report['classifiedpactivity_class']['amount']['forecast'][$this->report['year']][$quarter][$affid][$psid][$pid] = 'mainbox_forecast';
-								print_r($this->report['classifiedpactivity']['itemclass']['amount']['forecast'][$this->report['year']][$quarter][$affid][$psid][$pid]);
+								$this->report['classifiedpactivity_class']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 'mainbox_forecast';
 							}
 						}
 					}

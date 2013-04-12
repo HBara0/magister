@@ -27,18 +27,18 @@
   </tr>
 <tr>
    <td class="mainbox_itemnamecell" style="font-weight:bold;">{$lang->total}</td>
-   <td class="mainbox_totalcell">{$boxes_totals[mainbox][$aggregate_type][$category][actual][$report_years[before_2years]][1]}</td>
-   <td class="mainbox_totalcell">{$boxes_totals[mainbox][$aggregate_type][$category][actual][$report_years[before_2years]][2]}</td>
-   <td class="mainbox_totalcell">{$boxes_totals[mainbox][$aggregate_type][$category][actual][$report_years[before_2years]][3]}</td>
-   <td class="mainbox_totalcell">{$boxes_totals[mainbox][$aggregate_type][$category][actual][$report_years[before_2years]][4]}</td>
-   <td class="altrow mainbox_totalcell">{$boxes_totals[mainbox][$aggregate_type][$category][actual][$report_years[before_1year]][1]}</td>
-   <td class="altrow mainbox_totalcell">{$boxes_totals[mainbox][$aggregate_type][$category][actual][$report_years[before_1year]][2]}</td>
-   <td class="altrow mainbox_totalcell">{$boxes_totals[mainbox][$aggregate_type][$category][actual][$report_years[before_1year]][3]}</td>
-   <td class="altrow mainbox_totalcell">{$boxes_totals[mainbox][$aggregate_type][$category][actual][$report_years[before_1year]][4]}</td>
-   <td class="altrow2 mainbox_totalcell">{$boxes_totals[mainbox][$aggregate_type][$category][actual][$report_years[current_year]][1]}</td>
-   <td class="altrow2 mainbox_totalcell">{$boxes_totals[mainbox][$aggregate_type][$category][actual][$report_years[current_year]][2]}</td>
-   <td class="altrow2 mainbox_totalcell">{$boxes_totals[mainbox][$aggregate_type][$category][actual][$report_years[current_year]][3]}</td>
-   <td class="altrow2 mainbox_totalcell">{$boxes_totals[mainbox][$aggregate_type][$category][actual][$report_years[current_year]][4]}</td>
+   <td class="mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[before_2years]][1]}</td>
+   <td class="mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[before_2years]][2]}</td>
+   <td class="mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[before_2years]][3]}</td>
+   <td class="mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[before_2years]][4]}</td>
+   <td class="altrow mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[before_1year]][1]}</td>
+   <td class="altrow mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[before_1year]][2]}</td>
+   <td class="altrow mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[before_1year]][3]}</td>
+   <td class="altrow mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[before_1year]][4]}</td>
+   <td class="altrow2 mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[current_year]][1]}</td>
+   <td class="altrow2 mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[current_year]][2]}</td>
+   <td class="altrow2 mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[current_year]][3]}</td>
+   <td class="altrow2 mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[current_year]][4]}</td>
  </tr>
 </table>
 <br />
