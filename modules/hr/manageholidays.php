@@ -136,21 +136,17 @@ else {
 
 		if(is_empty($core->input['title'], $core->input['numDays'])) {
 			output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-			//exit;
+			exit;
 		}
 
 		if(!is_empty($core->input['validFrom'], $core->input['fromTime'], $core->input['validTo'], $core->input['toTime'])) {
 			$core->input['validFrom'] = strtotime($core->input['validFrom'].' '.$core->input['fromTime']);
 			$core->input['validTo'] = strtotime($core->input['validTo'].' '.$core->input['toTime']);
 		}
-
-
+		
 		$core->input['name'] = strtolower(trim($core->input['title']));
 		$core->input['name'] = preg_replace('/\s+/', '', $core->input['name']);
 		$core->input['name'] = preg_replace("/[^a-zA-Z0-9]/", '', $core->input['name']);
-
-
-		print_r($core->input);
 
 		$exceptions = $core->input['uid'];
 
