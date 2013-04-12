@@ -291,7 +291,8 @@ if(!$core->input['action']) {
 		}
 		else {
 			if($session->isset_phpsession('marketreport_'.$identifier)) {
-				$marketreport = unserialize($session->get_phpsession('marketreport_'.$identifier));
+				$marketreport = unserialize($session->get_phpsession('marketreport_'.$identifier)); 
+				$marketreport = $marketreport['marketreport'];  /*read martketreport ARRAY from the market report session*/
 			}
 		}
 
