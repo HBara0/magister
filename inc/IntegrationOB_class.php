@@ -148,7 +148,7 @@ class IntegrationOB extends Integration {
 			else {
 				$query2 = $db->insert_query('integration_mediation_salesorders', $document_newdata);
 			}
-			$query2 = true;
+	
 			if($query2) {
 				if(value_exists('integration_mediation_salesorderlines', 'foreignOrderId', $document['doc_id'])) {
 					$db->delete_query('integration_mediation_salesorderlines', 'foreignOrderId="'.$document['doc_id'].'"');
@@ -175,7 +175,7 @@ class IntegrationOB extends Integration {
 													LEFT JOIN m_product_po ppo ON (p.m_product_id=ppo.m_product_id)
 													WHERE c_invoice_id=\''.$document['doc_id'].'\' AND iscostcalculated=\'Y\' AND il.m_product_id NOT IN (\''.implode('\',\'', $exclude['products']).'\')
 												');
-				}
+					}
 
 				$documentline_newdata = array();
 				while($documentline = $this->f_db->fetch_assoc($documentline_query)) {

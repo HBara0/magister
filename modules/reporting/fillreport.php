@@ -104,7 +104,7 @@ if(!$core->input['action']) {
 		if(is_array($productsactivity)) {
 			foreach($productsactivity as $rowid => $productactivity) {
 				$saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, $productactivity['saleType']);
-				$currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1,'','',array('id'=>'fxrate_'.$rowid));
+				$currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id'=>'fxrate_'.$rowid));
 
 				if(isset($productactivity['fxrate']) && $productactivity['fxrate'] != 1) {
 					$productactivity['turnOver'] = $productactivity['turnOver'] / $productactivity['fxrate'];
@@ -120,7 +120,7 @@ if(!$core->input['action']) {
 		else {
 			for($rowid = 1; $rowid < $productscount; $rowid++) {
 				$saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, 'distribution');
-				$currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1,'','',array('id'=>'fxrate_'.$rowid));
+				$currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id'=>'fxrate_'.$rowid));
 
 				eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
 			}

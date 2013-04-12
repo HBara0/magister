@@ -83,10 +83,7 @@ if(!$core->input['action']) {
 		$last_finalized_reports_list = '<li>'.$lang->na.'</li>';
 	}
 
-	$quarter_settings = explode('-', $core->settings['q'.$quarter['quarter'].'start']);
-
-	$start_notifications = mktime(0, 0, 0, $quarter_settings[1], $quarter_settings[0], $quarter['year']);
-
+	$start_notifications = strtotime($quarter['year'].'-'.$core->settings['q'.$quarter['quarter'].'start']);
 	$query = $db->query("SELECT r.quarter, r.year, s.companyName, a.name AS affiliate_name
 						FROM ".Tprefix."reports r JOIN ".Tprefix."entities s ON (r.spid=s.eid) JOIN ".Tprefix."affiliates a ON (r.affid=a.affid)
 						WHERE r.type='q' AND r.status='0' AND (r.initDate+(15*24*60*60)-(60*60*24*10)) < ".time()." AND ((".time()." - r.initDate)/24/60/60) < 10{$additional_where[extra]}

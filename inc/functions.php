@@ -632,8 +632,8 @@ function currentquarter_info($real = false) {
 		$start = explode('-', $core->settings['q'.$i.'start']);
 		$end = explode('-', $core->settings['q'.$i.'end']);
 
-		$quarter_start = mktime(0, 0, 0, $start[1], $start[0], $current_year);
-		$quarter_end = mktime(24, 59, 0, $end[1], $end[0], $current_year);
+		$quarter_start = mktime(0, 0, 0, $start[0], $start[1], $current_year);
+		$quarter_end = mktime(24, 59, 0, $end[0], $end[1], $current_year);
 
 		if($time_now >= $quarter_start && $time_now <= $quarter_end) {
 			$current_quarter = $i;

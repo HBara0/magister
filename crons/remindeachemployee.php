@@ -4,13 +4,11 @@ require '../inc/init.php';
 $users = array();
 
 $quarter = currentquarter_info();
-
 $quarter2 = currentquarter_info(true);
-$quarter_start_settings = explode('-', $core->settings['q'.$quarter2['quarter'].'start']);
-$quarter_end_settings = explode('-', $core->settings['q'.$quarter2['quarter'].'end']);
 
-$quarter_start = mktime(0, 0, 0, $quarter_start_settings[1], $quarter_start_settings[0], $quarter2['year'])-(60*60*24*16);
-$quarter_end = mktime(24, 59, 0, $quarter_end_settings[1], $quarter_end_settings[0], $quarter2['year'])-(60*60*24*16);
+$quarter_start = strtotime($quarter2['year'].'-'.$core->settings['q'.$quarter2['quarter'].'start'])-(60*60*24*16);
+$quarter_end = strtotime($quarter2['year'].'-'.$core->settings['q'.$quarter2['quarter'].'end'])-(60*60*24*16);
+
 $time_now = TIME_NOW;
 
 $time_difference = abs(((((($quarter_start + (60*60*24*15)) - $time_now)/24)/60)/60));
