@@ -58,16 +58,14 @@
                         <tr>
                             <td>{$lang->from}</td>
                             <td colspan="4">
-                                <input type="text" id="pickDate_holidayfromdate"  name="validFrom" autocomplete="off" tabindex="2" value="{$holiday[validFrom]}"  />
-                                <input type="time" name="fromTime" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" title="{$lang->hoursfrom}" value="{$holiday[fromTime]}" placeholder="08:00">
+    <input type="text" id="pickDate_holidayfromdate"  name="validFrom" autocomplete="off" ttabindexabindex="2" value="{$holiday[validFromOuptut]}"  />
+            <input type="time" name="fromTime" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" title="{$lang->hoursfrom}" value="{$holiday[fromTime]}" placeholder="08:00">
                             </td>
-    <td><input type="text" id="pickDate_holidayfromdate"  name="validFrom" autocomplete="off" ttabindexabindex="2" value="{$holiday[validFromOuptut]}"  /></td>
-    <td><input type="text" id="pickDate_holidaytodate" name="validTo" autocomplete="off" tabindex="2"value="{$holiday[validToOutput]}" /></td>
                         </tr>
                          <tr>
                               <td>{$lang->to}</td>
                               <td colspan="4">
-                                <input type="text" id="pickDate_holidaytodate" name="validTo" autocomplete="off" tabindex="2" value="{$holiday[validTo]}" />
+                                    <input type="text" id="pickDate_holidaytodate" name="validTo" autocomplete="off" tabindex="2"value="{$holiday[validToOutput]}" />
                                 <input type="time" name="toTime" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})"  title="{$lang->hoursto}" value="{$holiday[toTime]}" placeholder="24:00" >
                             </td>
                         </tr>
