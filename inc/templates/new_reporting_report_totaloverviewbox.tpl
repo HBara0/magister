@@ -11,7 +11,7 @@
       <td colspan="10" class="columnhead" style="height:2px;"></td>
   </tr>
     <tr>
-  <td class="mainbox_itemnamecell" style="font-weight:bold;">{$lang->total}</td>
+  <td class="totalbox_itemnamecell" style="font-weight:bold;">{$lang->total}</td>
     <td class="totalbox_totalcell">{$progression_totals[data][$report_years[before_2years]]}</td>
     <td class='totalsbox_yearsep{$newtotaloverviewbox_row_percclass[$report_years[before_2years]]}'>&lsaquo;</td>
     <td class='{$newtotaloverviewbox_row_percclass[$report_years[before_2years]]}'>{$progression_totals[perc][$report_years[before_2years]]}%</td>

@@ -28,6 +28,10 @@
     text-align: right;
 }
 
+.mainbox_forecast {
+    font-style: italic;
+}
+
 .mainbox_totalcell {
     text-align: right;
 }
@@ -48,7 +52,7 @@
 .totalbox_itemnamecell {
     border-left: 0px;
     border-bottom: 1px dotted #D8D8D8;
-    width: 150px;
+    width: 160px;
 }
 .totalsbox_numcell, .totalsbox_perccellpositive, .totalsbox_perccellnegative, .totalsbox_perccellzero {
     width: 100px;
