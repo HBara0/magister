@@ -58,8 +58,17 @@ if(!$core->input['action']) {
 					redirect('index.php?module=hr/holidayslist');
 				}
 			}
-			$holiday['validFrom']= date($core->settings['dateformat'], $holiday['validFrom']);
-			$holiday['validTo']= date($core->settings['dateformat'], $holiday['validTo']);
+			if(isset($holiday['validFrom']) && !empty($holiday['validFrom'])) {
+				$holiday['validFromOuptut'] = date($core->settings['dateformat'], $holiday['validFrom']);
+				$holiday['fromTime'] = date('h:i', $holiday['validFrom']);
+			}
+
+
+			if(isset($holiday['validTo']) && !empty($holiday['validTo'])) {
+				$holiday['validToOutput'] = date($core->settings['dateformat'], $holiday['validTo']);
+				$holiday['toTime'] = date('h:i', $holiday['validTo']);
+			}
+
 			$action = 'do_edit';
 			$pagetitle = $lang->editholiday;
 
@@ -136,21 +145,19 @@ else {
 
 		if(is_empty($core->input['title'], $core->input['numDays'])) {
 			output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-			//exit;
+			exit;
 		}
 
-		if(!is_empty($core->input['validFrom'], $core->input['fromTime'], $core->input['validTo'], $core->input['toTime'])) {
+		if(!is_empty($core->input['validFrom'], $core->input['fromTime'])) {
 			$core->input['validFrom'] = strtotime($core->input['validFrom'].' '.$core->input['fromTime']);
+		}
+		if(!is_empty($core->input['validTo'], $core->input['toTime'])) {
 			$core->input['validTo'] = strtotime($core->input['validTo'].' '.$core->input['toTime']);
 		}
-
 
 		$core->input['name'] = strtolower(trim($core->input['title']));
 		$core->input['name'] = preg_replace('/\s+/', '', $core->input['name']);
 		$core->input['name'] = preg_replace("/[^a-zA-Z0-9]/", '', $core->input['name']);
-
-
-		print_r($core->input);
 
 		$exceptions = $core->input['uid'];
 
