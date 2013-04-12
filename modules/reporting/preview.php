@@ -326,7 +326,8 @@ if(!$core->input['action']) {
 										$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellnegative';
 									}
 								}
-								$item['data'][$yearval] = round($item[$yearval]);
+								$item['data'][$yearval] = number_format($item[$yearval], 0, '.', ' ');
+								//$item['data'][$yearval] = round($item[$yearval]);
 							}
 
 							eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
@@ -356,6 +357,8 @@ if(!$core->input['action']) {
 							elseif($progression_totals['perc'][$year] < 0) {
 								$newtotaloverviewbox_row_percclass[$year] = ' totalsbox_perccellnegative';
 							}
+							
+							$progression_totals['data'][$year] = number_format($progression_totals['data'][$year], 0, '.', ' ');
 						}
 
 						if(is_array($reporting_report_newtotaloverviewbox_row[$aggregate_type][$category])) {
@@ -511,7 +514,7 @@ if(!$core->input['action']) {
 
 					$currencies_fx = $currency->get_average_fxrates($report_currencies, array('from' => $currencies_from, 'to' => $currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4));
 					if(is_array($currencies_fx)) {
-						$fx_rates_entries .= '<tr><td class="namescell" style="text-align:left; width: 20%;">'.$cur.'</td>';
+						$fx_rates_entries .= '<tr><td class="namescell" style="text-align:left; width: 2%;">'.$cur.'</td>';
 						foreach($report_currencies as $currkey => $fx_currency) {
 							$trend_symbol = '';
 							if(empty($currencies_fx[$fx_currency])) {
@@ -526,7 +529,7 @@ if(!$core->input['action']) {
 								}
 							}
 
-							$fx_rates_entries .= '<td  width="25%" class="currenciesbox_datacell">'.$trend_symbol.' '.round($currencies_fx[$fx_currency], 2).'</td>';
+							$fx_rates_entries .= '<td style="width:5%;" class="currenciesbox_datacell">'.$trend_symbol.' '.round($currencies_fx[$fx_currency], 2).'</td>';
 						}
 						$fx_rates_entries .= '</tr>';
 					}
@@ -770,10 +773,6 @@ function msort($array, $key, $sort_flags = SORT_REGULAR) {
 		}
 	}
 	return $array;
-}
-
-function number_formating(&$number) {
-	$number = number_format($number, 0, '.', ' ');
 }
 
 //function aasort (&$array, $key) { 
