@@ -35,7 +35,7 @@ if(!$core->input['action']) {
 	$query = $db->query("SELECT * FROM ".Tprefix."holidays
 						WHERE affid={$core->user[mainaffiliate]} AND (year={$current_year} OR isOnce=0)
 						AND hid NOT IN (SELECT hid FROM ".Tprefix."holidaysexceptions WHERE uid=".$core->user['uid'].")
-						AND ( FROM_UNIXTIME(validFrom, '%Y')  >= ".$current_year." AND  FROM_UNIXTIME(validTO,'%Y')  >=".$current_year.") 
+						AND( ".$current_year.">=  FROM_UNIXTIME(validFrom, '%Y') OR  ".$current_year." <= FROM_UNIXTIME(validTO,'%Y') )
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
