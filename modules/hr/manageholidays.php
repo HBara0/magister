@@ -151,8 +151,14 @@ else {
 		if(!is_empty($core->input['validFrom'], $core->input['fromTime'])) {
 			$core->input['validFrom'] = strtotime($core->input['validFrom'].' '.$core->input['fromTime']);
 		}
+		else {
+			$core->input['validFrom'] = 0;
+		}
 		if(!is_empty($core->input['validTo'], $core->input['toTime'])) {
 			$core->input['validTo'] = strtotime($core->input['validTo'].' '.$core->input['toTime']);
+		}
+		else {
+			$core->input['validTo'] = 0;
 		}
 		
 		$core->input['name'] = strtolower(trim($core->input['title']));

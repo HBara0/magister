@@ -254,9 +254,11 @@ class Calendar {
 			}
 
 			$holidays_query = $db->query("SELECT aff.name AS affiliatename, h.*, c.acronym AS country
-											FROM ".Tprefix."holidays h JOIN ".Tprefix."affiliates aff ON (aff.affid=h.affid) 
+											FROM ".Tprefix."holidays h 
+											JOIN ".Tprefix."affiliates aff ON (aff.affid=h.affid) 
 											LEFT JOIN countries c ON (aff.country=c.coid)
-											WHERE  (".CALENDAR_TIME." BETWEEN validFrom AND validTo) OR (validFrom = 0 AND validTo = 0)  AND (year=0 OR year={$this->dates[current][year]}) AND month={$this->dates[current][mon]}{$holidays_querystring}"); // AND h.affid IN (".implode(",',$affiliates['affid']).")
+											WHERE ((validFrom = 0 OR ({$this->dates[current][year]} >= FROM_UNIXTIME(validFrom, '%Y') AND month >= FROM_UNIXTIME(validFrom, '%m') AND day >= FROM_UNIXTIME(validFrom, '%d'))) AND (validTo=0 OR ({$this->dates[current][year]} <= FROM_UNIXTIME(validTo, '%Y') AND month <= FROM_UNIXTIME(validTo, '%m') AND day <= FROM_UNIXTIME(validTo, '%d'))))
+											AND (year=0 OR year={$this->dates[current][year]}) AND month={$this->dates[current][mon]}{$holidays_querystring}"); // AND h.affid IN (".implode(",',$affiliates['affid']).")
 			while($holiday = $db->fetch_assoc($holidays_query)) {
 				if($holiday['year'] == 0) {
 					$holiday['year'] == $time_details['year'];
