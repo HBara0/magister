@@ -93,11 +93,11 @@ class ReportingQr Extends Reporting {
 						if(is_array($catitem)) {
 							foreach($catitem as $type => $typeitem) {
 								if(isset($this->report['classifiedpactivity'][$category][$type][$this->report['year']])) {
-									if(is_array($this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$quarter])) {
-										foreach($this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$quarter] as $affid => $affiliates_data) {
+									if(is_array($this->report['classifiedpactivity'][$category]['forecast'][$this->report['year']][$quarter])) {
+										foreach($this->report['classifiedpactivity'][$category]['forecast'][$this->report['year']][$quarter] as $affid => $affiliates_data) {
 											foreach($affiliates_data as $psid => $productssegments_data) {
 												foreach($productssegments_data as $pid => $products_data) {
-													$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data;
+													$this->report['classifiedpactivity'][$category]['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data;
 												}
 											}
 										}
@@ -118,10 +118,13 @@ class ReportingQr Extends Reporting {
 					foreach($affiliates_data as $psid => $productssegments_data) {
 						foreach($productssegments_data as $pid => $products_data) {
 							$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data - $this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid];
-
+							$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data - $this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid];
+							
 							if($this->report['quarter'] != 4) {
 								$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] /= (4 - $this->report['quarter']);
+								$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] /= (4 - $this->report['quarter']);
 								$this->report['classifiedpactivity_class']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 'mainbox_forecast';
+								$this->report['classifiedpactivity_class']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 'mainbox_forecast';
 							}
 						}
 					}
