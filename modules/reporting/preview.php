@@ -19,6 +19,7 @@ if(!$core->input['action']) {
 	$reportcache = new Cache();
 	$categories_uom = array('amount' => 'K. USD', 'purchasedQty' => 'MT/Units', 'soldQty' => 'MT/Units');
 	$aggregate_types = array('affiliates', 'segments', 'products');
+	$reporting_quarter = currentquarter_info(false);
 	$report_currencies = array();
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list') {
 		if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {
@@ -175,7 +176,7 @@ if(!$core->input['action']) {
 		if(is_array($report['items'])) {
 			foreach($aggregate_types as $aggregate_type) {
 				foreach($report['items'] as $category => $catitem) {/* amount or  quantity */
-					foreach($catitem as $type => $typeitem) { /* actual or forecast */  //print_r($catitem[actual]); echo  '  <hr>'; print_r($catitem[forecast]);
+					foreach($catitem as $type => $typeitem) { /* actual or forecast */
 						foreach($report_years as $yearef => $year) {
 							if($type == 'forecast' && $year != $report['year']) {
 								continue;
@@ -188,6 +189,9 @@ if(!$core->input['action']) {
 												$item[$aggregate_type][$category][$affid]['name'] = $total_year[$aggregate_type][$category][$type][$affid]['name'] = $newreport->get_report_affiliate($affid)['name'];
 												$item[$aggregate_type][$category][$affid][$type][$year][$quarter] = array_sum_recursive($report['items'][$category][$type][$year][$quarter][$affid]);
 
+												if($year == $reporting_quarter['year'] && $quarter > $reporting_quarter['quarter']) {  
+													$item_class[$aggregate_type][$category][$affid][$type][$year][$quarter] = 'mainbox_forecast';
+												}
 												$total_year[$aggregate_type][$category][$type][$affid][$year] += $item[$aggregate_type][$category][$affid][$type][$year][$quarter];
 
 												$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$affid][$type][$year][$quarter];
@@ -210,7 +214,12 @@ if(!$core->input['action']) {
 													$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = array_sum($report['items'][$category][$type][$year][$quarter][$affid][$spid]);
 
 													$total_year[$aggregate_type][$category][$type][$spid][$year] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
-
+													if($report['year'] != $year && $quarter != $report['quarter']) {
+														$item_class[$aggregate_type][$category][$spid][$type][$year][$quarter] = $report['itemsclasses'][$category][$type][$year][$quarter][$affid][$spid];
+													}
+													if($year == $reporting_quarter['year'] && $quarter > $reporting_quarter['quarter']) { 
+														$item_class[$aggregate_type][$category][$spid][$type][$year][$quarter] = 'mainbox_forecast';
+													}
 													$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
 
 //													$item_rounding = 0;

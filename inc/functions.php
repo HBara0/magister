@@ -317,7 +317,7 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
 		if(!isset($config['multiplesize']) || empty($config['multiplesize'])) {
 			$config['multiplesize'] = 5;
 		}
-		
+
 		$config['size'] = $config['multiplesize'];
 		$multiple = ' multiple="multiple" SIZE="'.$config['multiplesize'].'"';
 	}
@@ -333,7 +333,7 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
 	if(isset($config['id'])) {
 		$id = $config['id'];
 	}
-	
+
 	if(isset($config['required']) && ($config['required'] == true || $config['required'] == 'required')) {
 		$required = ' required = "required"';
 	}
@@ -341,7 +341,7 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
 	if(!isset($config['size']) && $multiple_list != 1) {
 		$config['size'] = 1;
 	}
-	
+
 	$list .= '<select id="'.$id.'" name="'.$name.'" size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
 	if($config['blankstart'] == true) {
 		$list .= '<option></option>';
@@ -399,7 +399,7 @@ function parse_radiobutton($name, $items, $checked_option = '', $display_title =
 			if($config['required']) {
 				$required = ' required = "required"';
 			}
-			
+
 			$radio .= '<input type="radio" name="'.$name.'" value="'.$key.'" id="'.$name.'_'.$key.'"'.$checked.$required.'/> '.$val.$seperator;
 		}
 		return $radio;
@@ -625,23 +625,18 @@ function record_contribution($rid, $isdone = 0) {
  */
 function currentquarter_info($real = false) {
 	global $core;
-
 	$time_now = TIME_NOW;
 	$current_year = date('Y', $time_now);
 
 	for($i = 1; $i <= 4; $i++) {
-		$start = explode('-', $core->settings['q'.$i.'start']);
-		$end = explode('-', $core->settings['q'.$i.'end']);
-
-		$quarter_start = mktime(0, 0, 0, $start[0], $start[1], $current_year);
-		$quarter_end = mktime(24, 59, 0, $end[0], $end[1], $current_year);
-
+		$quarter_start = strtotime($current_year.'-'.$core->settings['q'.$i.'start']);
+		$quarter_end = strtotime($current_year.'-'.$core->settings['q'.$i.'end']);
 		if($time_now >= $quarter_start && $time_now <= $quarter_end) {
 			$current_quarter = $i;
 			if($real === false) {
-				$current_quarter = $i - 1;
+				$current_quarter = $i - 1; 
 				if($current_quarter == 0) {
-					$current_quarter = 4;
+					$current_quarter = 4;  
 					$current_year -= 1;
 				}
 			}
@@ -792,7 +787,7 @@ function get_user_business_assignments($uid) {
 			if($affiliate['canHR'] == 1) {
 				$data['hraffids'][$affiliate['affid']] = $affiliate['affid'];
 			}
-			
+
 			if($affiliate['canAudit'] == 1) {
 				$data['auditedaffids'][$affiliate['affid']] = $affiliate['affid'];
 			}
@@ -1109,9 +1104,8 @@ function getquery_entities_viewpermissions() {
 				$where['extra'] = $and.'('.$query_attribute.' IN ('.implode(',', $found_ids).'))';
 			}
 		}
-		else
-		{
-			if($usergroup['canViewAllAff'] ==0 && $usergroup['canViewAllSupp'] == 0 && !empty($query_attribute)) {
+		else {
+			if($usergroup['canViewAllAff'] == 0 && $usergroup['canViewAllSupp'] == 0 && !empty($query_attribute)) {
 				$where['extra'] = $and.$query_attribute.' IN (0)';
 			}
 		}
