@@ -12,4 +12,4 @@
     {$reporting_report_newtotaloverviewbox[affiliates][purchasedQty]}
     {$reporting_report_newtotaloverviewbox[segments][purchasedQty]}
     </div>
-</page>   
+</page>

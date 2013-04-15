@@ -185,18 +185,18 @@ if(!$core->input['action']) {
 									case 'affiliates':
 										if(is_array($report['items'][$category][$type][$year][$quarter])) {
 											foreach($report['items'][$category][$type][$year][$quarter] as $affid => $affiliatedata) {
-												$item[$aggregate_type][$category][$affid]['name'] = $total_year[$aggregate_type][$category][$affid]['name'] = $newreport->get_report_affiliate($affid)['name'];
+												$item[$aggregate_type][$category][$affid]['name'] = $total_year[$aggregate_type][$category][$type][$affid]['name'] = $newreport->get_report_affiliate($affid)['name'];
 												$item[$aggregate_type][$category][$affid][$type][$year][$quarter] = array_sum_recursive($report['items'][$category][$type][$year][$quarter][$affid]);
 
-												$total_year[$aggregate_type][$category][$affid][$year]+=round($item[$aggregate_type][$category][$affid][$type][$year][$quarter], 0);
+												$total_year[$aggregate_type][$category][$type][$affid][$year] += $item[$aggregate_type][$category][$affid][$type][$year][$quarter];
 
-												$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += round($item[$aggregate_type][$category][$affid][$type][$year][$quarter], 0);
+												$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$affid][$type][$year][$quarter];
 
-												$item_rounding = 0;
-												if($item[$aggregate_type][$category][$affid][$type][$year][$quarter] < 1) {
-													$item_rounding = $default_rounding;
-												}
-												$item[$aggregate_type][$category][$affid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$affid][$type][$year][$quarter], $item_rounding);
+//												$item_rounding = 0;
+//												if($item[$aggregate_type][$category][$affid][$type][$year][$quarter] < 1) {
+//													$item_rounding = $default_rounding;
+//												}
+//												$item[$aggregate_type][$category][$affid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$affid][$type][$year][$quarter], $item_rounding);
 											}
 										}
 										break;
@@ -206,18 +206,18 @@ if(!$core->input['action']) {
 											//$item['name'] = $newreport->get_report_productsegment($report['productsactivity'] ['spid'])['segment'];
 											foreach($report['items'][$category][$type][$year][$quarter] as $affid => $affiliatedata) {
 												foreach($affiliatedata as $spid => $segmentdata) {
-													$item[$aggregate_type][$category][$spid]['name'] = $total_year[$aggregate_type][$category][$spid]['name'] = $newreport->get_productssegments()[$spid];
+													$item[$aggregate_type][$category][$spid]['name'] = $total_year[$aggregate_type][$category][$type][$spid]['name'] = $newreport->get_productssegments()[$spid];
 													$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = array_sum($report['items'][$category][$type][$year][$quarter][$affid][$spid]);
-													
-													$total_year[$aggregate_type][$category][$spid][$year] += round($item[$aggregate_type][$category][$spid][$type][$year][$quarter], 0);
 
-													$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += round($item[$aggregate_type][$category][$spid][$type][$year][$quarter], $default_rounding);
+													$total_year[$aggregate_type][$category][$type][$spid][$year] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
 
-													$item_rounding = 0;
-													if($item[$aggregate_type][$category][$spid][$type][$year][$quarter] < 1) {
-														$item_rounding = $default_rounding;
-													}
-													$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$spid][$type][$year][$quarter], $item_rounding);
+													$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
+
+//													$item_rounding = 0;
+//													if($item[$aggregate_type][$category][$spid][$type][$year][$quarter] < 1) {
+//														$item_rounding = $default_rounding;
+//													}
+//													$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$spid][$type][$year][$quarter], $item_rounding);
 												}
 											}
 										}
@@ -229,18 +229,18 @@ if(!$core->input['action']) {
 											foreach($report['items'][$category][$type][$year][$quarter] as $affid => $affiliatedata) {
 												foreach($affiliatedata as $spid => $segmentdata) {
 													foreach($segmentdata as $pid => $productdata) {
-														$item[$aggregate_type][$category][$pid]['name'] = $total_year[$aggregate_type][$category][$spid]['name'] = $newreport->get_products()[$pid];
+														$item[$aggregate_type][$category][$pid]['name'] = $total_year[$aggregate_type][$category][$type][$spid]['name'] = $newreport->get_products()[$pid];
 														$item[$aggregate_type][$category][$pid][$type][$year][$quarter] = $report['items'][$category][$type][$year][$quarter][$affid][$spid][$pid];
-														
+
 														$item_class[$aggregate_type][$category][$pid][$type][$year][$quarter] = $report['itemsclasses'][$category][$type][$year][$quarter][$affid][$spid][$pid];
 
-														$total_year[$aggregate_type][$category][$pid][$year] += round($item[$aggregate_type][$category][$pid][$type][$year][$quarter], 0);
-														$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += round($item[$aggregate_type][$category][$pid][$type][$year][$quarter], $default_rounding);
-														$item_rounding = 0;
-														if($item[$aggregate_type][$category][$pid][$type][$year][$quarter] < 1) {
-															$item_rounding = $default_rounding;
-														}
-														$item[$aggregate_type][$category][$pid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$pid][$type][$year][$quarter], $item_rounding);
+														$total_year[$aggregate_type][$category][$type][$pid][$year] += $item[$aggregate_type][$category][$pid][$type][$year][$quarter];
+														$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$pid][$type][$year][$quarter];
+														//$item_rounding = 0;
+//														if($item[$aggregate_type][$category][$pid][$type][$year][$quarter] < 1) {
+//															$item_rounding = $default_rounding;
+//														}
+//														$item[$aggregate_type][$category][$pid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$pid][$type][$year][$quarter], $item_rounding);
 													}
 												}
 											}
@@ -255,7 +255,6 @@ if(!$core->input['action']) {
 
 			$temp_item = $item;
 			$item = array();
-			
 			foreach($temp_item as $aggregate_type => $aggregate_data) {
 				if($aggregate_type != 'affiliates') {
 					$reporting_report_newoverviewbox[$aggregate_type] = $reporting_report_newoverviewbox_row[$aggregate_type] = array();
@@ -273,12 +272,20 @@ if(!$core->input['action']) {
 									$item[$aggregate_type][$category]['actual'][$year][$quarter] = 0;
 								}
 								/* Format numbers for output */
-								$boxes_totals_output['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], 0, '.', ' ');
-								$item_output[$aggregate_type][$category]['actual'][$year][$quarter] = number_format($item[$aggregate_type][$category]['actual'][$year][$quarter], 0, '.', ' ');
-							}				
+								$item_rounding = 0;
+								if($item[$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $item[$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
+									$item_rounding = $default_rounding;
+								}
+								$item_output[$aggregate_type][$category]['actual'][$year][$quarter] = number_format($item[$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ');
+								$item_rounding = 0;
+								if($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
+									$item_rounding = $default_rounding;
+								}
+								$boxes_totals_output['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ');
+							}
 						}
 						//$item[$aggregate_type][$category]['actual'][$year][$quarter] = msort($item[$aggregate_type][$category]['actual'], array('quarter'));
-						
+
 						eval("\$reporting_report_newoverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_overviewbox_row')."\";");
 					}
 					if(is_array($reporting_report_newoverviewbox_row[$aggregate_type][$category])) {
@@ -290,87 +297,6 @@ if(!$core->input['action']) {
 				}
 			}
 			$item = $boxes_totals['mainbox']['segments'] = $boxes_totals['mainbox']['products'] = array();
-
-			if(is_array($total_year) && !empty($total_year)) {
-				foreach($total_year as $aggregate_type => $aggdata) {
-					$reporting_report_newtotaloverviewbox[$aggregate_type] = $reporting_report_newtotaloverviewbox_row[$aggregate_type] = array();
-					foreach($aggdata as $category => $catdata) {
-						foreach($catdata as $itemkey => $item) {
-							foreach($report_years as $yearkey => $yearval) {
-								$item['data'][$yearval] = $item[$yearval];
-								$progression_totals['data'][$yearval] += round($item['data'][$yearval], $default_rounding);
-
-								if(empty($item['data'][$yearval])) {
-									$item['data'][$yearval] = 0;
-									$progression_totals['perc'][$yearval] = 0;
-								}
-
-								if($yearval != $report['year']) {
-									if(empty($item['data'][$yearval]) && empty($item[$yearval + 1])) {
-										$item['perc'][$yearval] = 0;
-									}
-									else {
-										if(empty($item['data'][$yearval])) {
-											$item['perc'][$yearval] = 100;
-										}
-										else {
-											$item['perc'][$yearval] = round((($item[$yearval + 1] / $item['data'][$yearval]) * 100) - 100);  /* Divide the next year total ammount with the ammount of previous year */
-										}
-									}
-
-									$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellpositive';
-									if($item['perc'][$yearval] == 0) {
-										$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellzero';
-									}
-									elseif($item['perc'][$yearval] < 0) {
-										$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellnegative';
-									}
-								}
-								$item['data'][$yearval] = number_format($item[$yearval], 0, '.', ' ');
-								//$item['data'][$yearval] = round($item[$yearval]);
-							}
-
-							eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
-						}
-
-						foreach($progression_totals['data'] as $year => $total_amount) {
-							if(empty($progression_totals['data'][$year]) && empty($progression_totals['data'][$year + 1])) {
-								$progression_totals['perc'][$year] = 0;
-							}
-							else {
-								if(empty($progression_totals['data'][$year])) {
-									$progression_totals['perc'][$year] = 100;
-								}
-								else {
-									if(!empty($progression_totals['data'][$year]) && !empty($progression_totals['data'][$year + 1])) {
-										$next_progression_totals = $progression_totals['data'][$year + 1];
-										$prev_progression_totals = $progression_totals['data'][$year];
-										$progression_totals['perc'][$year] = round((($next_progression_totals / $prev_progression_totals) * 100) - 100);
-									}
-								}
-							}
-
-							$newtotaloverviewbox_row_percclass[$year] = ' totalsbox_perccellpositive';
-							if($progression_totals['perc'][$year] == 0) {
-								$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellzero';
-							}
-							elseif($progression_totals['perc'][$year] < 0) {
-								$newtotaloverviewbox_row_percclass[$year] = ' totalsbox_perccellnegative';
-							}
-							
-							$progression_totals['data'][$year] = number_format($progression_totals['data'][$year], 0, '.', ' ');
-						}
-
-						if(is_array($reporting_report_newtotaloverviewbox_row[$aggregate_type][$category])) {
-							$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category]);
-						}
-
-						eval("\$reporting_report_newtotaloverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
-						$progression_totals['data'] = array();
-						unset($newtotaloverviewbox_row_percclass);
-					}
-				}
-			}
 		}
 		$item = array();
 
@@ -386,7 +312,7 @@ if(!$core->input['action']) {
 				if(empty($customer['cid'])) {
 					continue;
 				}
-				$customer['companyName'] = ucwords($customer['companyName']);
+				$customer['companyName'] = ucwords(strtolower($customer['companyName']));
 				eval("\$keycustomers .= \"".$template->get('new_reporting_report_keycustomersbox_customerrow')."\";");
 				$keycust_count++;
 			}
@@ -436,8 +362,100 @@ if(!$core->input['action']) {
 
 		eval("\$highlightbox = \"".$template->get('new_reporting_report_highlightbox')."\";");
 		eval("\$reports .= \"".$template->get('new_reporting_report')."\";");
+		$reporting_report_newoverviewbox['segments'] = $reporting_report_newoverviewbox['products'] = array();
 	}
 	/* loop throw new */
+
+	if(is_array($total_year) && !empty($total_year)) {
+		foreach($total_year as $aggregate_type => $aggdata) {
+			//$reporting_report_newtotaloverviewbox[$aggregate_type] = $reporting_report_newtotaloverviewbox_row[$aggregate_type] = array();
+			foreach($aggdata as $category => $catdata) {
+				foreach($catdata['actual'] as $itemkey => $item) {
+					foreach($report_years as $yearkey => $yearval) {
+						$item['data'][$yearval] = $item[$yearval];
+						$progression_totals['data'][$yearval] += $item['data'][$yearval];
+
+						if(empty($item['data'][$yearval])) {
+							$item['data'][$yearval] = 0;
+							$progression_totals['perc'][$yearval] = 0;
+						}
+
+						if($yearval != $report['year']) {
+							if(empty($item['data'][$yearval]) && empty($item[$yearval + 1])) {
+								$item['perc'][$yearval] = 0;
+							}
+							else {
+								if(empty($item['data'][$yearval])) {
+									$item['perc'][$yearval] = 100;
+								}
+								else {
+									$item['perc'][$yearval] = round((($item[$yearval + 1] / $item['data'][$yearval]) * 100) - 100);  /* Divide the next year total ammount with the ammount of previous year */
+								}
+							}
+
+							$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellpositive';
+							if($item['perc'][$yearval] == 0) {
+								$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellzero';
+							}
+							elseif($item['perc'][$yearval] < 0) {
+								$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellnegative';
+							}
+						}
+
+						$item_rounding = 0;
+						if($item[$yearval] < 1 && $item[$yearval] != 0) {
+							$item_rounding = $default_rounding;
+						}
+						$item['data'][$yearval] = number_format($item[$yearval], $item_rounding, '.', ' ');
+						//$item['data'][$yearval] = round($item[$yearval]);
+					}
+
+					eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
+				}
+
+				foreach($progression_totals['data'] as $year => $total_amount) {
+					if(empty($progression_totals['data'][$year]) && empty($progression_totals['data'][$year + 1])) {
+						$progression_totals['perc'][$year] = 0;
+					}
+					else {
+						if(empty($progression_totals['data'][$year])) {
+							$progression_totals['perc'][$year] = 100;
+						}
+						else {
+							if(!empty($progression_totals['data'][$year]) && !empty($progression_totals['data'][$year + 1])) {
+								$next_progression_totals = $progression_totals['data'][$year + 1];
+								$prev_progression_totals = $progression_totals['data'][$year];
+								$progression_totals['perc'][$year] = round((($next_progression_totals / $prev_progression_totals) * 100) - 100);
+							}
+						}
+					}
+
+					$newtotaloverviewbox_row_percclass[$year] = ' totalsbox_perccellpositive';
+					if($progression_totals['perc'][$year] == 0) {
+						$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellzero';
+					}
+					elseif($progression_totals['perc'][$year] < 0) {
+						$newtotaloverviewbox_row_percclass[$year] = ' totalsbox_perccellnegative';
+					}
+
+					$item_rounding = 0;
+					if($progression_totals['data'][$year] < 1 && $progression_totals['data'][$year] != 0) {
+						$item_rounding = $default_rounding;
+					}
+					$progression_totals['data'][$year] = number_format($progression_totals['data'][$year], $item_rounding, '.', ' ');
+				}
+
+				if(is_array($reporting_report_newtotaloverviewbox_row[$aggregate_type][$category])) {
+					$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category]);
+				}
+
+				eval("\$reporting_report_newtotaloverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
+				$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = array();
+				$progression_totals['data'] = array();
+				unset($newtotaloverviewbox_row_percclass);
+			}
+		}
+	}
 
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'direct' || $core->input['referrer'] == 'list') {
 		if($core->input['referrer'] != 'list') {
@@ -540,15 +558,15 @@ if(!$core->input['action']) {
 				$currency_rates_prevyear = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR');
 				if(is_array($currency_rates_prevyear)) {
 					$fxrates_linechart_scale['min'] = min($currency_rates_prevyear);
-					if(min($currency_rates_year) < min($currency_rates_prevyear) && min($currency_rates_year) != 0) {	
+					if(min($currency_rates_year) < min($currency_rates_prevyear) && min($currency_rates_year) != 0) {
 						$fxrates_linechart_scale['min'] = min($currency_rates_year);
 					}
-					
+
 					$fxrates_linechart_scale['max'] = max($currency_rates_prevyear);
 					if(max($currency_rates_year) > max($currency_rates_prevyear)) {
 						$fxrates_linechart_scale['max'] = max($currency_rates_year);
 					}
-					
+
 					$fxrates_linechart = new Charts(array('x' => array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), 'y' => array($report['year'] => $currency_rates_year, ($report['year'] - 1) => $currency_rates_prevyear)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'fixedscale' => $fxrates_linechart_scale, 'width' => 700, 'height' => 200));
 					$fx_rates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_linechart->get_chart().'" /></td></tr>';
 				}
