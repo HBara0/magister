@@ -118,7 +118,7 @@ class ReportingQr Extends Reporting {
 					foreach($affiliates_data as $psid => $productssegments_data) {
 						foreach($productssegments_data as $pid => $products_data) {
 							$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data - $this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid];
-							$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data - $this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid];
+							$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $this->report['classifiedpactivity']['purchasedQty']['forecast'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid] - $this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid];
 							
 							if($this->report['quarter'] != 4) {
 								$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] /= (4 - $this->report['quarter']);
