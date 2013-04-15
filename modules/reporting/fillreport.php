@@ -489,7 +489,7 @@ else {
 					$actual_current_forecast = $productactivity[$validation_key.'Forecast'] + $actual_current_data['forecastsum'];
 
 					if(round($actual_forecast, 4) > round($actual_current_forecast, 4) || ($report_meta['quarter'] == 4 && round($actual_forecast, 4) < round($actual_current_forecast, 4))) {//$core->input[$validation_key.'Forecast_'.$i]) {
-						$forecast_corrections[$productactivity['pid']]['name'] = $productactivity['name'];
+						$forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
 						$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.number_format($actual_forecast, 4);
 						$error_forecast_exists = true;
 					}
@@ -499,11 +499,11 @@ else {
 				foreach($validation_items as $validation_key => $validation_item) {
 					$actual_forecast = $productactivity[$validation_item];
 					if($validation_key == 'sales') {
-						$actual_forecast = round($core->input[$validation_item.'_'.$i] / $productactivity['fxrate'], 4);
+						$actual_forecast = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
 					}
 
 					if($productactivity[$validation_key.'Forecast'] < $actual_forecast || ($report_meta['quarter'] == 4 && round($productactivity[$validation_key.'Forecast'], 4) > $actual_forecast)) {
-						$forecast_corrections[$productactivity['pid']]['name'] = $productactivity['name'];
+						$forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
 						$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.number_format($actual_forecast, 4);
 						$error_forecast_exists = true;
 					}
