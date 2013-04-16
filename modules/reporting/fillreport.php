@@ -56,8 +56,8 @@ if(!$core->input['action']) {
 		/* Instantiate currencies object and get currencies rate of period - START */
 		$core->input['baseCurrency'] = 'USD';
 		$currency = new Currencies($core->input['baseCurrency']);
-		$currencies_from = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'start']);//date_timestamp_get(date_create_from_format('j-m-Y', $core->settings['q'.$core->input['quarter'].'start']));
-		$currencies_to = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'end']);//date_timestamp_get(date_create_from_format('j-m-Y', $core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'end']));
+		$currencies_from = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'start']); //date_timestamp_get(date_create_from_format('j-m-Y', $core->settings['q'.$core->input['quarter'].'start']));
+		$currencies_to = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'end']); //date_timestamp_get(date_create_from_format('j-m-Y', $core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'end']));
 		$currencies = $currency->get_average_fxrates_transposed(array('GBP', 'EUR'), array('from' => $currencies_from, 'to' => $currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4));
 		$currencies[1] = $core->input['baseCurrency'];
 
@@ -104,7 +104,7 @@ if(!$core->input['action']) {
 		if(is_array($productsactivity)) {
 			foreach($productsactivity as $rowid => $productactivity) {
 				$saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, $productactivity['saleType']);
-				$currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id'=>'fxrate_'.$rowid));
+				$currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid));
 
 				if(isset($productactivity['fxrate']) && $productactivity['fxrate'] != 1) {
 					$productactivity['turnOver'] = $productactivity['turnOver'] / $productactivity['fxrate'];
@@ -120,12 +120,12 @@ if(!$core->input['action']) {
 		else {
 			for($rowid = 1; $rowid < $productscount; $rowid++) {
 				$saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, 'distribution');
-				$currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id'=>'fxrate_'.$rowid));
+				$currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid));
 
 				eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
 			}
 		}
-		
+
 		if($core->usergroup['canExcludeFillStages'] == 1) {
 			$exludestage = '<br /><input type="checkbox" value="1" name="excludeProductsActivity" id="excludeProductsActivity" title="'.$lang->exclude_tip.'"> '.$lang->excludeproductsactivity;
 		}
@@ -145,7 +145,7 @@ if(!$core->input['action']) {
 		eval("\$fillreportpage = \"".$template->get('reporting_fillreports_productsactivity')."\";");
 	}
 	elseif($core->input['stage'] == 'keycustomers') {
-		
+
 		if(!isset($core->input['identifier'])) {
 			redirect('index.php?module=reporting/fillreport');
 		}
@@ -184,7 +184,7 @@ if(!$core->input['action']) {
 			}
 			$customerscount = $rowsnum;
 		}
-		else {	
+		else {
 			if($session->isset_phpsession('keycustomersdata_'.$identifier)) {
 				$keycustomersdata = unserialize($session->get_phpsession('keycustomersdata_'.$identifier));
 
@@ -194,7 +194,7 @@ if(!$core->input['action']) {
 					$customerscount = 5;
 				}
 			}
-		}		
+		}
 
 		if(is_array($customers)) {
 			foreach($customers as $i => $customer) {
@@ -206,7 +206,7 @@ if(!$core->input['action']) {
 				eval("\$customersrows .= \"".$template->get("reporting_fillreports_keycustomers_customerrow")."\";");
 			}
 		}
-		else {	
+		else {
 			for($rowid = 1; $rowid <= 5; $rowid++) {
 				eval("\$customersrows .= \"".$template->get("reporting_fillreports_keycustomers_customerrow")."\";");
 			}
@@ -215,9 +215,9 @@ if(!$core->input['action']) {
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		/* If supplier does not have contract and contract Expired -START */
 		$entity = new Entities($report_meta['spid'], '', false);
-		$entity_data = $entity->get();  
+		$entity_data = $entity->get();
 		//|| (!empty($entity_data['contractExpiryDate'] && TIME_NOW > $entity_data['contractExpiryDate'])
-		if(empty($entity_data['contractFirstSigDate'])  || ($entity_data['contractIsEvergreen'] != 1 && !empty($entity_data['contractExpiryDate']))) {
+		if(empty($entity_data['contractFirstSigDate']) || ($entity_data['contractIsEvergreen'] != 1 && !empty($entity_data['contractExpiryDate']))) {
 			$exludestage_checked = ' checked="checked"';
 			$excludekeycust_notifymessage = '<div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-top: 10px; margin-bottom: 10px;"><strong>'.$lang->notcontractedsupp.'</strong></div>';
 		}
@@ -291,8 +291,8 @@ if(!$core->input['action']) {
 		}
 		else {
 			if($session->isset_phpsession('marketreport_'.$identifier)) {
-				$marketreport = unserialize($session->get_phpsession('marketreport_'.$identifier)); 
-				$marketreport = $marketreport['marketreport'];  /*read martketreport ARRAY from the market report session*/
+				$marketreport = unserialize($session->get_phpsession('marketreport_'.$identifier));
+				$marketreport = $marketreport['marketreport'];  /* read martketreport ARRAY from the market report session */
 			}
 		}
 
@@ -470,14 +470,14 @@ else {
 			if(empty($productactivity['pid'])) {
 				continue;
 			}
-			
+
 			if(isset($prev_data[$productactivity['pid']])) {
 				foreach($validation_items as $validation_key => $validation_item) {
 					$actual_current_validation = $productactivity[$validation_item];
 					if($validation_key == 'sales') {
 						$actual_current_validation = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
 					}
-					
+
 					$actual_current_data_querystring = 'uid!='.$core->user['uid'];
 					if(isset($productactivity['paid'])) {
 						$actual_current_data_querystring = 'pa.paid!='.$productactivity['paid'];
@@ -539,13 +539,13 @@ else {
 			if(empty($productactivity['pid'])) {
 				continue;
 			}
-			
+
 			if($productactivity['fxrate'] != 1) {
 				$productactivity['turnOverOc'] = $productactivity['turnOver'];
 				$productactivity['turnOver'] = round($productactivity['turnOver'] / $productactivity['fxrate'], 4);
 				$productactivity['originalCurrency'] = $currencies[$productactivity['fxrate']];
 			}
-			
+
 			if(value_exists('productsactivity', 'rid', $rid, 'pid='.intval($productactivity['pid']).$existingentries_query_string)) {
 				if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
 					$update_query_where = 'paid='.$db->escape_string($productactivity['paid']);
@@ -556,6 +556,9 @@ else {
 				unset($productactivity['productname'], $productactivity['fxrate']);
 				$update = $db->update_query('productsactivity', $productactivity, $update_query_where);
 				$processed_once = true;
+				if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
+					$cache['usedpaid'][] = $productactivity['paid'];
+				}
 			}
 			else {
 				$productactivity['uid'] = $core->user['uid'];
@@ -568,11 +571,7 @@ else {
 			}
 
 			$cache['usedpids'][] = $productactivity['pid'];
-			if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
-				$cache['usedpaid'][] = $productactivity['paid'];
-			}
 		}
-
 		if($processed_once === true) {
 			/* if(is_array($oldentries)) {
 			  foreach($oldentries as $key => $val) {
@@ -580,8 +579,9 @@ else {
 			  }
 			  } */
 			if(is_array($cache['usedpaid'])) {
+				print_r($cache['usedpaid']);
 				/* Disabled because it was deleting produccts if inline-save is used then products are added */
-				//$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).')';
+				$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).') ';
 			}
 			$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rid}' AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
 			$update_status = $db->update_query('reports', array('prActivityAvailable' => 1), "rid='{$rid}'");
@@ -806,7 +806,7 @@ else {
 		eval("\$addproductbox = \"".$template->get('popup_addproduct')."\";");
 		output_page($addproductbox);
 	}
-	elseif($core->input['action'] == 'save_report') { 
+	elseif($core->input['action'] == 'save_report') {
 		$identifier = $db->escape_string($core->input['identifier']);
 
 		$rawdata = unserialize($session->get_phpsession('reportrawdata_'.$identifier));
@@ -855,7 +855,7 @@ else {
 					$newdata['turnOver'] = round($newdata['turnOver'] / $newdata['fxrate'], 4);
 					$newdata['originalCurrency'] = $currencies[$newdata['fxrate']];
 				}
-			
+
 				unset($newdata['productname'], $newdata['fxrate']);
 				if(value_exists('productsactivity', 'rid', $report_meta['rid'], 'pid='.$newdata['pid'].$products_deletequery_string)) {
 					if(isset($newdata['paid']) && !empty($newdata['paid'])) {
@@ -951,12 +951,12 @@ else {
 
 				unset($val['segmenttitle'], $val['exclude']);
 				$val['psid'] = $psid;
-				
+
 				if(value_exists('marketreport', 'rid', $report_meta['rid'], 'psid="'.$val['psid'].'"')) {
 					$db->update_query('marketreport', $val, "rid='{$report_meta[rid]}' AND psid='{$val[psid]}'");
 					$mrid = $db->fetch_field($db->query("SELECT mrid FROM ".Tprefix."marketreport WHERE rid='{$report_meta[rid]}' AND psid='{$val[psid]}'"), 'mrid');
 				}
-				else {					
+				else {
 					$val['rid'] = $report_meta['rid'];
 					$db->insert_query('marketreport', $val);
 					$mrid = $db->last_id();
@@ -1041,7 +1041,7 @@ else {
 							'subject' => $lang->sprint($lang->reportsready, $current_report_details['quarter'], $current_report_details['year'], $current_report_details['companyName']),
 							'message' => $lang->sprint($lang->reportsreadymessage, $current_report_details['companyName'], $ready_reports_link)
 					);
-				
+
 					$mail = new Mailer($email_data, 'php');
 				}
 			}
