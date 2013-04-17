@@ -39,6 +39,7 @@ if(!$core->input['action']) {
 	}
 
 	$altrow_class = alt_row($altrow_class);
+
 	eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionsrows')."\";");
 	eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
 
@@ -46,84 +47,98 @@ if(!$core->input['action']) {
 	eval("\$surveys_createtemplate = \"".$template->get('surveys_createtemplate')."\";");
 	output_page($surveys_createtemplate);
 }
-elseif($core->input['action'] == 'do_perform_createsurveytemplate') { 
-	$survey = new Surveys();
-	$survey->create_survey_template($core->input);
+else {
+	
+	echo $core->input['action'];
 
-	switch($survey->get_status()) {
-		case 0:
-			output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
-			break;
-		case 1:
-			output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-			break;
-		case 2:
-			output_xml("<status>false</status><message>{$lang->surveytemplateexists}</message>");
-			break;
-		case 3:
-			output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
-			break;
-		case 4:
-			output_xml("<status>false</status><message>{$lang->surveystemplatessections}</message>");
-			break;
-		case 5:
-			output_xml("<status>false</status><message>{$lang->surveystemplatessectionsquestion}</message>");
-			break;
+	if($core->input['action'] == 'do_perform_createsurveytemplate') {
+		$survey = new Surveys();
+		$survey->create_survey_template($core->input);
+
+		switch($survey->get_status()) {
+			case 0:
+				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+				break;
+			case 1:
+				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+				break;
+			case 2:
+				output_xml("<status>false</status><message>{$lang->surveytemplateexists}</message>");
+				break;
+			case 3:
+				output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+				break;
+			case 4:
+				output_xml("<status>false</status><message>{$lang->surveystemplatessections}</message>");
+				break;
+			case 5:
+				output_xml("<status>false</status><message>{$lang->surveystemplatessectionsquestion}</message>");
+				break;
+		}
 	}
-}
-elseif($core->input['action'] == 'parsetype') {
-	/* Get validation of the question - START */
-	$section_id = $core->input['sectionid'];
-	$question_id = $core->input['questionid'];
+	elseif($core->input['action'] == 'parsetype') {
+		/* Get validation of the question - START */
+		$section_id = $core->input['sectionid'];
+		$question_id = $core->input['questionid'];
 
-	$query = $db->query("SELECT * FROM ".Tprefix."surveys_questiontypes sqt
+		$query = $db->query("SELECT * FROM ".Tprefix."surveys_questiontypes sqt
 						WHERE sqt.sqtid = ".$db->escape_string($core->input['questiontype'])."");
 
-	$questiontypes = $db->fetch_assoc($query);
+		$questiontypes = $db->fetch_assoc($query);
 
-	header('Content-type: text/javascript');
+		header('Content-type: text/javascript');
 
-	if($questiontypes['isSizable'] == 1) {
-		echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'fieldSize_container\']").css("display","table-row");';
+		if($questiontypes['isSizable'] == 1) {
+			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'fieldSize_container\']").css("display","table-row");';
+		}
+		else {
+			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'fieldSize_container\']").css("display","none");';
+		}
+		if($questiontypes['hasChoices'] == 1) {
+			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'choices_container\']").css("display","table-row");';
+		}
+		else {
+			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'choices_container\']").css("display","none");';
+		}
+		if($questiontypes['hasValidation'] == 1) {
+			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'validationType_container\']").css("display","table-row");';
+		}
+		else {
+			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'validationType_container\']").css("display","none");';
+		}
+		exit;
 	}
-	else {
-		echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'fieldSize_container\']").css("display","none");';
+	elseif($core->input['action'] == 'ajaxaddmore_section') {
+		$question_rowid = 1;
+		$section_rowid = $db->escape_string($core->input['value']) + 1;
+
+		$fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 0);
+		$desctype = get_specificdata('surveys_questiontypes', array('sqtid', 'description'), 'sqtid', 'description', '', 0);
+		foreach($fieldtype as $key => $formatvalue) {
+			$fieldtype[$key] = $formatvalue.'  ('.$desctype[$key].')';
+			$question_types_options .= "<option value='{$key}'{$selected}>{$fieldtype[$key]}</option>";
+		}
+		$radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);
+
+		eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionsrows')."\";");
+		eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
+		echo $newsection;
 	}
-	if($questiontypes['hasChoices'] == 1) {
-		echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'choices_container\']").css("display","table-row");';
+	elseif($core->input['action'] == 'ajaxaddmore_questions') {
+		$question_rowid = $db->escape_string($core->input['value']) + 1;
+		$section_rowid = $db->escape_string($core->input['id']);
+
+		$fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 0);
+		$desctype = get_specificdata('surveys_questiontypes', array('sqtid', 'description'), 'sqtid', 'description', '', 0);
+		foreach($fieldtype as $key => $formatvalue) {
+			$fieldtype[$key] = $formatvalue.'  ('.$desctype[$key].')';
+			$question_types_options .= "<option value='{$key}'{$selected}>{$fieldtype[$key]}</option>";
+		}
+		$radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);
+
+
+		eval("\$newquestion = \"".$template->get('surveys_createtemplate_sectionrow_questionsrows')."\";");
+		echo $newquestion;
 	}
-	else {
-		echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'choices_container\']").css("display","none");';
-	}
-	if($questiontypes['hasValidation'] == 1) {
-		echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'validationType_container\']").css("display","table-row");';
-	}
-	else {
-		echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'validationType_container\']").css("display","none");';
-	}
-	exit;
 }
-//elseif($core->input['action'] == 'ajaxaddmore_section') {
-//
-//	$section_rowid = $db->escape_string($core->input['section_id']);  //echo '$section_rowid'.$section_rowid;
-//	//$section_rowid+=1;
-//	eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionsrows')."\";");
-//	eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
-//	echo $newsection;
-//}
-//elseif($core->input['action'] == 'ajaxaddmore_sectionquestions') {
-//
-//	$question_rowid = $db->escape_string($core->input['subsection_id']); //echo 'subsection_id'. $question_rowid;
-//	//$question_rowid+=1;
-//	$fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 0);
-//	$desctype = get_specificdata('surveys_questiontypes', array('sqtid', 'description'), 'sqtid', 'description', '', 0);
-//	foreach($fieldtype as $key => $formatvalue) {
-//		$fieldtype[$key] = $formatvalue.'  ('.$desctype[$key].')';
-//		$question_types_options .= "<option value='{$key}'{$selected}>{$fieldtype[$key]}</option>";
-//	}
-//	$radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);
-//
-//	eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionsrows')."\";");
-//	echo $newquestions;
-//}
 ?>
