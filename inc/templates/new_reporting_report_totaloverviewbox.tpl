@@ -20,7 +20,7 @@
     <td class='totalsbox_yearsep{$newtotaloverviewbox_row_percclass[$report_years[before_1year]]}'>&lsaquo;</td>
     <td class='{$newtotaloverviewbox_row_percclass[$report_years[before_1year]]}'>{$progression_totals[perc][$report_years[before_1year]]}%</td>
     <td class='totalsbox_yearsep{$newtotaloverviewbox_row_percclass[$report_years[before_1year]]}'>&rsaquo;</td>
-    <td class="totalbox_totalcell">{$progression_totals[data][$report_years[current_year]]}</td>
+    <td class="totalbox_totalcell{$newtotaloverviewbox_row_class[$report_years[before_1year]]}">{$progression_totals[data][$report_years[current_year]]}</td>
 </tr>
 </table>
 <br />
