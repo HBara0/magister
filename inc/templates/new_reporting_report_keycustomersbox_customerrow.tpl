@@ -5,6 +5,3 @@
     <td style="width: 40%">&nbsp;</td>
     <td class='horizontalspacer'>&nbsp;</td>
 </tr>
-
-
-
