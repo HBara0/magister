@@ -556,9 +556,9 @@ else {
 				unset($productactivity['productname'], $productactivity['fxrate']);
 				$update = $db->update_query('productsactivity', $productactivity, $update_query_where);
 				$processed_once = true;
-				if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
-					$cache['usedpaid'][] = $productactivity['paid'];
-				}
+					if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
+						$cache['usedpaid'][] = $productactivity['paid'];
+					}
 			}
 			else {
 				$productactivity['uid'] = $core->user['uid'];
@@ -578,7 +578,7 @@ else {
 			  $db->delete_query('productsactivity', "paid='{$val}'");
 			  }
 			  } */
-			if(is_array($cache['usedpaid'])) {
+			if(is_array($cache['usedpaid'])) { 
 				/* Disabled because it was deleting produccts if inline-save is used then products are added */
 				$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).') ';
 			}
