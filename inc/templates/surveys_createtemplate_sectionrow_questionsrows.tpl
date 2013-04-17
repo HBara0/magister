@@ -57,7 +57,7 @@
                     </table>
     			</td>
     		</tr>
-	</tbody>
+	</tbody>  
     <tfoot>
         <tr>
         	<td height="38" colspan="2">
