@@ -579,7 +579,6 @@ else {
 			  }
 			  } */
 			if(is_array($cache['usedpaid'])) {
-				print_r($cache['usedpaid']);
 				/* Disabled because it was deleting produccts if inline-save is used then products are added */
 				$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).') ';
 			}
@@ -591,7 +590,7 @@ else {
 				}
 				$log->record($rid);
 				output_xml("<status>true</status><message>{$lang->savedsuccessfully}</message>");
-			}
+			} 
 			else {
 				output_xml("<status>false</status><message>{$lang->saveerror}</message>");
 			}
