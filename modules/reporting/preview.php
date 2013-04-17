@@ -214,9 +214,7 @@ if(!$core->input['action']) {
 													$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = array_sum($report['items'][$category][$type][$year][$quarter][$affid][$spid]);
 
 													$total_year[$aggregate_type][$category][$type][$spid][$year] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
-													if($report['year'] != $year && $quarter != $report['quarter']) {
-														$item_class[$aggregate_type][$category][$spid][$type][$year][$quarter] = $report['itemsclasses'][$category][$type][$year][$quarter][$affid][$spid];
-													}
+
 													if($year == $reporting_quarter['year'] && $quarter > $reporting_quarter['quarter']) {
 														$item_class[$aggregate_type][$category][$spid][$type][$year][$quarter] = 'mainbox_forecast';
 													}
@@ -403,8 +401,8 @@ if(!$core->input['action']) {
 							}
 
 							$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellpositive';
-							if($yearval == $reporting_quarter['year']) {
-								$newtotaloverviewbox_row_percclass[$yearval] = ' mainbox_forecast ';
+							if(($yearval+1) == $reporting_quarter['year'] && $reporting_quarter['quarter'] < 4) {
+								$newtotaloverviewbox_row_class[$yearval] = ' mainbox_forecast';
 							}
 							if($item['perc'][$yearval] == 0) {
 								$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellzero';
@@ -441,8 +439,8 @@ if(!$core->input['action']) {
 							}
 						}
 					}
-					if($yearval == $reporting_quarter['year']) {   /*if the year val equal to  the previous  quarter year */ 
-						$newtotaloverviewbox_row_percclass[$yearval] = ' mainbox_forecast ';
+					if(($yearval+1) == $reporting_quarter['year'] && $reporting_quarter['quarter'] < 4) {   /*if the year val equal to  the previous  quarter year */ 
+						$newtotaloverviewbox_row_class[$yearval] = ' mainbox_forecast';
 					}
 					$newtotaloverviewbox_row_percclass[$year] = ' totalsbox_perccellpositive';
 					if($progression_totals['perc'][$year] == 0) {
