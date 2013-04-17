@@ -503,16 +503,29 @@ $(function() {
 
 	$("img[id^='ajaxaddmore_']").live("click", function() {
 		var id = $(this).attr('id').split('_');
-		var sections_count = parseInt($("#sectionvalue").val())+1;
-
-		$.post(rootdir + "index.php?module=" + id[1] +"&action=ajaxaddmore_"+id[2],
-			{value: sections_count},
-			function(returnedData) {
-				$('#'+id[2]+'_tbody').append(returnedData);
-				$("#sectionvalue").val(sections_count);
+                var num_rows = 0;
+                if($("#numrows_" + id[id.length - 2] + id[id.length-1]).length != 0) {
+                    var num_rows = parseInt($("#numrows_" + id[id.length - 2] + id[id.length-1]).val());
+                }
+               
+               $.ajax({type: 'post',
+                   url: rootdir + "index.php?module=" + id[1] + "&action=ajaxaddmore_"+id[2],
+                   data: {value: num_rows, id: id[id.length-1]},
+                   beforeSend: function(){ 
+                       $("body").append("<div id='modal-loading'></div>");
+                         $("#modal-loading" ).dialog({height: 0,modal: true,closeOnEscape: false,title: 'Loading...', resizable: false, minHeight: 0
+                        });
+                   },
+                   complete: function(){ $("#modal-loading").dialog("close").remove();
+                   },
+                   success: function(returnedData) {
+				$('#'+id[id.length - 2]+ id[id.length-1] +'_tbody').append(returnedData);
+				if($("#numrows_" + id[id.length - 2] + id[id.length-1]).length != 0) {
+                                   $("#numrows_" + id[id.length - 2] + id[id.length-1]).val(num_rows + 1);
+                                }
 			}
-		);
-	});
+               });
+        });
 
 	window.sharedFunctions = function() {
 		function requestAjax(methodParam, urlParam, dataParam, loadingId, contentId, datatype) {
