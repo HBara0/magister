@@ -346,12 +346,11 @@ class ReportingQr Extends Reporting {
 		}
 		/* Check if audit - END */
 
-
 		if(is_array($data)) {
 			foreach($data as $productdata) {
 				//$currencies = $this->get_currency_Byrate(array('fxrate' => $productdata['fxrate']));
 				if(!empty($productdata['pid']) && isset($productdata['pid'])) {
-					if($productdata['fxrate'] != 1) {
+					if($productdata['fxrate'] != 1 && isset($productdata['fxrate'])) {
 						$productdata['turnOverOc'] = $productdata['turnOver'];
 						$productdata['turnOver'] = round($productdata['turnOver'] / $productdata['fxrate'], 4);
 						$productdata['originalCurrency'] = $currencies[$productdata['fxrate']];
