@@ -23,7 +23,7 @@ if(!$core->input['action']) {
 	$action = 'createsurveytemplate';
 	$section_rowid = 1;
 	$question_rowid = 1;
-	$sequence_id = 0;
+	$sequence = 1;
 
 	$radiobuttons['isPublic'] = parse_yesno('isPublic', 1, $survey_template['isPublic']);
 	$radiobuttons['forceAnonymousFilling'] = parse_yesno('forceAnonymousFilling', 1, $lang->forceAnonymousFilling_tip);
@@ -48,8 +48,6 @@ if(!$core->input['action']) {
 	output_page($surveys_createtemplate);
 }
 else {
-	
-	echo $core->input['action'];
 
 	if($core->input['action'] == 'do_perform_createsurveytemplate') {
 		$survey = new Surveys();
@@ -111,7 +109,7 @@ else {
 	elseif($core->input['action'] == 'ajaxaddmore_section') {
 		$question_rowid = 1;
 		$section_rowid = $db->escape_string($core->input['value']) + 1;
-
+		$sequence = $db->escape_string($core->input['sequence']) + 1;
 		$fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 0);
 		$desctype = get_specificdata('surveys_questiontypes', array('sqtid', 'description'), 'sqtid', 'description', '', 0);
 		foreach($fieldtype as $key => $formatvalue) {
@@ -127,7 +125,7 @@ else {
 	elseif($core->input['action'] == 'ajaxaddmore_questions') {
 		$question_rowid = $db->escape_string($core->input['value']) + 1;
 		$section_rowid = $db->escape_string($core->input['id']);
-
+		$sequence = $db->escape_string($core->input['value']) + 1;
 		$fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 0);
 		$desctype = get_specificdata('surveys_questiontypes', array('sqtid', 'description'), 'sqtid', 'description', '', 0);
 		foreach($fieldtype as $key => $formatvalue) {
