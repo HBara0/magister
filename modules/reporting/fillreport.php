@@ -474,7 +474,7 @@ else {
 			if(isset($prev_data[$productactivity['pid']])) {
 				foreach($validation_items as $validation_key => $validation_item) {
 					$actual_current_validation = $productactivity[$validation_item];
-					if($validation_key == 'sales') {
+					if($validation_key == 'sales' && isset($productactivity['fxrate'])) {
 						$actual_current_validation = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
 					}
 
@@ -499,7 +499,9 @@ else {
 				foreach($validation_items as $validation_key => $validation_item) {
 					$actual_forecast = $productactivity[$validation_item];
 					if($validation_key == 'sales') {
-						$actual_forecast = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
+						if(isset($productactivity['fxrate']) && $productactivity['fxrate'] != 1) {
+							$actual_forecast = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
+						}
 					}
 
 					if($productactivity[$validation_key.'Forecast'] < $actual_forecast || ($report_meta['quarter'] == 4 && round($productactivity[$validation_key.'Forecast'], 4) > $actual_forecast)) {
@@ -540,7 +542,7 @@ else {
 				continue;
 			}
 
-			if($productactivity['fxrate'] != 1) {
+			if($productactivity['fxrate'] != 1 && isset($productactivity['fxrate'])) {
 				$productactivity['turnOverOc'] = $productactivity['turnOver'];
 				$productactivity['turnOver'] = round($productactivity['turnOver'] / $productactivity['fxrate'], 4);
 				$productactivity['originalCurrency'] = $currencies[$productactivity['fxrate']];
@@ -580,7 +582,7 @@ else {
 			  } */
 			if(is_array($cache['usedpaid'])) { 
 				/* Disabled because it was deleting produccts if inline-save is used then products are added */
-				$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).') ';
+				//$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).') ';
 			}
 			$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rid}' AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
 			$update_status = $db->update_query('reports', array('prActivityAvailable' => 1), "rid='{$rid}'");
