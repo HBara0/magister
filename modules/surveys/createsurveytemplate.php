@@ -87,22 +87,22 @@ else {
 		header('Content-type: text/javascript');
 
 		if($questiontypes['isSizable'] == 1) {
-			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'fieldSize_container\']").css("display","table-row");';
+			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'[fieldSize_container]\']").css("display","table-row");';
 		}
 		else {
-			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'fieldSize_container\']").css("display","none");';
+			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'[fieldSize_container]\']").css("display","none");';
 		}
 		if($questiontypes['hasChoices'] == 1) {
-			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'choices_container\']").css("display","table-row");';
+			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'[choices_container]\']").css("display","table-row");';
 		}
 		else {
-			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'choices_container\']").css("display","none");';
+			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'[choices_container]\']").css("display","none");';
 		}
 		if($questiontypes['hasValidation'] == 1) {
-			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'validationType_container\']").css("display","table-row");';
+			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'[validationType_container]\']").css("display","table-row");';
 		}
 		else {
-			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'validationType_container\']").css("display","none");';
+			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'[validationType_container]\']").css("display","none");';
 		}
 		exit;
 	}

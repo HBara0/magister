@@ -32,11 +32,11 @@
                 <td>{$lang->commentsgieldsize}</td>
                 <td><input accept="numeric" id="commentsFieldSize" value="{$section[section_rowid][questions][question_rowid][commentsFieldSize]}" name="section[{$section_rowid}][questions][{$question_rowid}][commentsFieldSize]" type="text" size="10" title="{$lang->commentsfieldsize_tip}" maxlength="3"><span id="fieldsizevalidate"></span></td>
             </tr>
-            <tr id="section[{$section_rowid}][questions][{$question_rowid}]fieldSize_container" style="display:none;">
+            <tr id="section[{$section_rowid}][questions][{$question_rowid}][fieldSize_container]" style="display:none;">
                 <td width="30%">{$lang->fieldsize}</td>
                 <td><input accept="numeric" name="section[{$section_rowid}][questions][{$question_rowid}][fieldSize]" type="text" value="" size="5"></td>
             </tr>
-            <tr id="section[{$section_rowid}][questions][{$question_rowid}]validationType_container" style="display:none;">
+            <tr id="section[{$section_rowid}][questions][{$question_rowid}][validationType_container]" style="display:none;">
                 <td width="30%">{$lang->validationtype}</td>
                 <td>
                     <select  id="section[{$section_rowid}][questions][{$question_rowid}][validationType]" name="section[{$section_rowid}][questions][{$question_rowid}][validationType]">
@@ -48,7 +48,7 @@
                     </select>
                 </td>
             </tr>
-            <tr id="section[{$section_rowid}][questions][{$question_rowid}]choices_container" style="display:none;">
+            <tr id="section[{$section_rowid}][questions][{$question_rowid}][choices_container]" style="display:none;">
                 <td width="30%">{$lang->choices}</td>
                 <td><textarea name="section[{$section_rowid}][questions][{$question_rowid}][choices]" title="{$lang->choice_tip}" cols="33" rows="5"></textarea></td>
             </tr>
