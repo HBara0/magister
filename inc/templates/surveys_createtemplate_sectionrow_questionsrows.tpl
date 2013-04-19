@@ -1,5 +1,5 @@
-<tr id="{$question_rowid}">
-    <td style="border-bottom:1px solid #91b64f;">    
+<tr id="{$question_rowid}" class="altrow2">
+    <td style="border-bottom:1px solid #CCC;">    
         <table border="0" cellspacing="1" cellpadding="1" >
             <tr>
                 <td width="30%">{$lang->sequence}</td>
