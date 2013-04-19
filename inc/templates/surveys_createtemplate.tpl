@@ -25,6 +25,7 @@
         <h3>{$lang->createsurveytemplate}</h3>
         <form name="perform_surveys/{$action}_Form" id="perform_surveys/{$action}_Form" action="#" method="post">
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr><td colspan='2'><span class="subtitle">{$lang->basictemplateinfo}</span></td></tr>
             <tr>
                 <td width="20%">{$lang->surveytemplatetitle}</td>
                 <td width="80%"><input name="title" id="title" type="text" size="30"></td>
@@ -52,7 +53,7 @@
                     <table width="100%">
                         <thead>
                             <tr>
-                                <td colspan="2" class="thead"><div style="width:40%; display:inline-block;" align="center">{$lang->section}</div></td>
+                                <td colspan="2"><hr /><span class="subtitle">{$lang->surveyquestions}</span></td>
                             </tr>
                         </thead>
                         <tbody id="section{$section_rowid}_tbody">
