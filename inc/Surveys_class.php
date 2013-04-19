@@ -135,7 +135,7 @@ class Surveys {
 
 	public function create_survey_template(array $data) {
 		global $db, $core, $log;
-
+		
 		$cache = new Cache();
 		unset($data['action'], $data['module']); /* here we destroy the  action and module from the data ARRAY to avoid insert module name and action in the DB  */
 		if(empty($data['title'])) {
@@ -208,7 +208,6 @@ class Surveys {
 		}
 
 		/* Validate that data is complete before creating anything - END */
-
 		$newsurveys_template = array(
 				'dateCreated' => TIME_NOW,
 				'category' => $core->input['category'],
@@ -233,7 +232,7 @@ class Surveys {
 						if(isset($question['choices'])) {
 							$question_choices = $question['choices'];
 						}
-
+						
 						if(!empty($question['commentsFieldTitle'])) {
 							$question['hasCommentsField'] = 1;
 							$question['commentsFieldType'] = 'textarea';
@@ -247,13 +246,13 @@ class Surveys {
 							if(!empty($question_choices)) {
 								/* Split the question choices by "\n" or ";" */
 								$question_choices = preg_split("/[\n;]+/", $question_choices);
-								if(is_array($question_choices)) {
+								if(is_array($question_choices)) {	
 									foreach($question_choices as $key => $choice) {
 										$choice = trim($choice);
 										if(empty($choice)) {
 											continue;
 										}
-										$newsurveys_questions_choice = array('stqid' => $stqid, 'choice' => $choice);
+										$newsurveys_questions_choices = array('stqid' => $stqid, 'choice' => $choice);
 										$query_choice = $db->insert_query('surveys_templates_questions_choices', $newsurveys_questions_choices);
 									}
 								}
@@ -884,7 +883,6 @@ class Surveys {
 						foreach($question['choices'] as $key => $choice) {
 							$question_output .= '<div style="margin-left:20px;">'.$choice.' <input type="text" id="answer_actual_'.$question['stqid'].'_'.$key.'" name="answer[actual]['.$question['stqid'].']['.$key.']" size="'.$question['fieldSize'].'"'.$question_output_inputaccept.$question_output_requiredattr.' /> <input type="hidden" id="answer_comments_'.$question['stqid'].'_'.$key.'" name="answer[comments]['.$question['stqid'].']['.$key.']" value="'.$key.'"/>'.$this->parse_validation($question).'</div>';
 						}
-						echo $question_output;
 					}
 				}
 				else /* Single textbox */ {
