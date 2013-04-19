@@ -27,7 +27,6 @@ $(function() {
               //$('#questionresponses_results_'+ id[1]).append(returnedData);
               }
         })
- 
     });	
 });
 </script>
