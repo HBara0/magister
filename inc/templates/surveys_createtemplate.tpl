@@ -60,7 +60,8 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="4"><img src="./images/add.gif" id="ajaxaddmore_surveys/createsurveytemplate_section_{$section_rowid}"  border="0" alt="{$lang->add}"><input name="numrows_section{$section_rowid}" type="hidden" id="numrows_section{$section_rowid}" value="{$section_rowid}"></td>
+                                <td colspan="4"><img src="./images/add.gif" id="ajaxaddmore_surveys/createsurveytemplate_section_{$section_rowid}"  border="0" alt="{$lang->add}">
+                                    <input name="numrows_section{$section_rowid}" type="hidden" id="numrows_section{$section_rowid}" value="{$section_rowid}"></td>
                             </tr>
                         </tfoot>
                     </table>    

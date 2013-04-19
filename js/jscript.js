@@ -538,7 +538,7 @@ $(function() {
                 }
                 $("html, body").animate({scrollTop: $(document).height() - 300}, 1000);
                 $('#' + id[id.length - 2] + id[id.length - 1] + '_tbody > tr:last').effect("highlight", {color: '#D6EAAC'}, 2000);
-                $('#' + id[id.length - 2] + id[id.length - 1] + '_tbody > tr:last').find(":text:first").focus();
+               $('#' + id[id.length - 2] + id[id.length - 1] + '_tbody > tr:last').find(":text:first").focus();
                // if (first.is(':disabled')) {
                     //('#' + id[id.length - 2] + id[id.length - 1] + '_tbody > tr:last').find(":text:first").focus();
                 //}
