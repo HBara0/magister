@@ -563,7 +563,7 @@ $(function() {
                 url: urlParam,
                 data: dataParam,
                 beforeSend: function() {
-                    $("div[id='" + loadingId + "'],span[id='" + loadingId + "']").html("<img src='" + imagespath + "/loading.gif' alt='" + loading_text + "' border='0' />");
+                    $("div[id='" + loadingId + "'],span[id='" + loadingId + "']").html("<img style='padding: 5px;' src='" + imagespath + "/loading-bar.gif' alt='" + loading_text + "' border='0' />");
                 },
                 complete: function() {
                     if (loadingId != contentId) {

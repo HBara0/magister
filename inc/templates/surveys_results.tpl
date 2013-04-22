@@ -9,26 +9,9 @@ $(function() {
 		}
 		var id =  $(this).attr("id").split("_");
 			
-		//sharedFunctions.requestAjax("post", "index.php?module=surveys/viewresults&action=get_questionresponses", "question=" + id[1] +"&identifier=" + id[2],'questionresponses_results_'+ id[1], 'questionresponses_results_'+ id[1], 'html');			
-            
-         $.ajax({ type: 'post',
-           url: "index.php?module=surveys/viewresults&action=get_questionresponses",
-            data: {question: id[1], identifier: id[2]}, 
-            beforeSend: function() {
-                $("body").append("<div id='modal-loading'></div>");
-                $("#modal-loading").dialog({ height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0 
-            });
-            },
-            complete: function() {
-                $("#modal-loading").dialog("close").remove();
+		sharedFunctions.requestAjax("post", "index.php?module=surveys/viewresults&action=get_questionresponses", "question=" + id[1] +"&identifier=" + id[2],'questionresponses_results_'+ id[1], 'questionresponses_results_'+ id[1], 'html');
                 
-            },
-              success: function(returnedData) { 
-            $('#questionresponses_results_'+ id[1]).append(returnedData);
-              //$('#questionresponses_results_'+ id[1]).append(returnedData);
              // $("[id^='getquestionresponses_"+ id[1]+"']").unbind("click"); /*prevent multiple ajax request by remove click event */
-              }
-        })
 
     });	
   

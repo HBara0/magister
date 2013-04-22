@@ -13,7 +13,7 @@
 
             <tr>
                 <td>{$lang->questiondesc}</td>
-                <td><input name="section[{$section_rowid}][questions][{$question_rowid}][question_description]"  value="{$section[section_rowid][questions][question_rowid][question_description]}" type="text" size="40" autocomplete="on"></td>
+                <td><input name="section[{$section_rowid}][questions][{$question_rowid}][description]"  value="{$section[section_rowid][questions][question_rowid][description]}" type="text" size="40" autocomplete="on"></td>
             </tr>
 
             <tr>
