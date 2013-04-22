@@ -30,11 +30,15 @@ if(!$core->input['action']) {
 
 	$radiobuttons['isRequired'] = parse_yesno("section[$section_rowid][questions][$question_rowid][isRequired]", 1, '');
 
-	$fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 0);
+	$fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 1);
 	$desctype = get_specificdata('surveys_questiontypes', array('sqtid', 'description'), 'sqtid', 'description', '', 0);
 
 	foreach($fieldtype as $key => $formatvalue) {
-		$fieldtype[$key] = $formatvalue.'  ('.$desctype[$key].')';
+		$fieldtype[$key] = $formatvalue;
+		if(!empty($desctype[$key])) {
+			$fieldtype[$key] .= '  ('.$desctype[$key].')';
+		}
+
 		$question_types_options .= "<option value='{$key}'{$selected}>{$fieldtype[$key]}</option>";
 	}
 

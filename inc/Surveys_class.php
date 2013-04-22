@@ -172,7 +172,6 @@ class Surveys {
 				foreach($section['questions'] as $stqid => $question) {
 					if(count($section['questions']) == 1) {
 						if(empty($question['question'])) {
-
 							unset($core->input['section'][$key]);
 							break;
 						}
@@ -855,8 +854,8 @@ class Surveys {
 			$question_output = '<div style="margin: 5px 0px 5px 20px; font-style:italic; ">'.$question['question'].'</div>';
 		}
 		else {
-			if(isset($question['question_description'])) {
-				$question_desc_output = '<div class="altrow2" style="margin-left:15px; font-style: italic;font-weight:normal;">'.$question['question_description'].'</div>';
+			if(isset($question['description'])) {
+				$question_desc_output = '<div class="altrow2" style="margin-left:15px; font-style: italic;font-weight:normal;">'.$question['description'].'</div>';
 			}
 
 			$question_output = '<div  class="altrow2" style="padding-bottom:10px; padding-top:10px; font-weight: bold;">'.$question['sequence'].' - '.$question['question'].$question_output_required.$question_desc_output.'</div>';
