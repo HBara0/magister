@@ -4,11 +4,12 @@
 {$headerinc}
 <script type="text/javascript">
 	$(function get_question_type() {	
-		$("select[id^='section']").live('change', function() {
+		$("select[id^='section_']").live('change', function() {
 			if(sharedFunctions.checkSession() == false) {
 				return;	
 			}	
 			var id = $(this).attr("id").split("_");
+                        
 			$.post("index.php?module=surveys/createsurveytemplate&action=parsetype", {
 			questiontype:$("select[id^='section_"+id[1]+"_[questions]_"+id[3]+"_[type]']").val(),sectionid:id[1],questionid:id[3]},
 			function(returnedData){alert(returnedData);}
@@ -16,6 +17,13 @@
 		});	
 	});
 </script>
+
+
+
+
+
+
+
 </head>
 <body>
 {$header}
@@ -23,12 +31,13 @@
     {$menu}
     <td class="contentContainer">
         <h3>{$lang->createsurveytemplate}</h3>
-        <form name="perform_surveys/{$action}_Form" id="perform_surveys/{$action}_Form" action="#" method="post">
+        <form name="perform_surveys/createsurveytemplate_Form" id="perform_surveys/createsurveytemplate_Form" action="#" method="post">
+             <input type="hidden" id="action" name="action" value="{$action}" />
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr><td colspan='2'><span class="subtitle">{$lang->basictemplateinfo}</span></td></tr>
             <tr>
                 <td width="20%">{$lang->surveytemplatetitle}</td>
-                <td width="80%"><input name="title" id="title" type="text" size="30"></td>
+                <td width="80%"><input name="title" id="title" type="text" size="30" required="requierd"></td>
             </tr>
             <tr>
                 <td>{$lang->category}</td>
@@ -71,7 +80,7 @@
             <tr>
                 <td colspan="3">
                     <hr />
-                    <input type="button" value="{$lang->$action}" id="perform_surveys/{$action}_Button" tabindex="26" class="button"/>
+                    <input type="submit" value="{$lang->$action}" id="perform_surveys/createsurveytemplate" tabindex="26" class="button"/>
                     <input type="reset" value="{$lang->reset}" class="button" />
                 </td>
             </tr>

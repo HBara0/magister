@@ -47,5 +47,6 @@ $lang['surveyexpired'] = 'Survey has expired';
 $lang['surveysassociations'] = 'Associates with';
 $lang['surveysinvitation'] = 'Invitations';
 $lang['template'] = 'Template';
+$lang['choice_tip']='you can add multiple choices and value sperated by(;) ex: choice1;value1';
 $lang['violation'] = 'One or more inputs you made violate the requirements';
 ?>

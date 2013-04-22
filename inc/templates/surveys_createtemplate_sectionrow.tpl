@@ -1,7 +1,7 @@
 <tr id="section_{$section_rowid}">
     <td width="20%" style="border-bottom:2px solid #CCC; margin-bottom: 5px;">
         <div style="padding:5px 5px 10px 5px;"><strong>{$lang->sectiontitle}</strong>
-            <input name="section[{$section_rowid}][title]" type="text" size="50"></div>
+            <input name="section[{$section_rowid}][title]" type="text" size="50"  required="requierd"></div>
         <table width="100%">
             <tbody  id="questions{$section_rowid}_tbody"  class="{$altrow_class}">
                 {$newquestions}

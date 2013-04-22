@@ -30,9 +30,9 @@ if(!$core->input['action']) {
 
 	$radiobuttons['isRequired'] = parse_yesno("section[$section_rowid][questions][$question_rowid][isRequired]", 1, '');
 
-	$fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 1);
+	$fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 0);
 	$desctype = get_specificdata('surveys_questiontypes', array('sqtid', 'description'), 'sqtid', 'description', '', 0);
-
+	$question_types_options = "<option value=''></option>";
 	foreach($fieldtype as $key => $formatvalue) {
 		$fieldtype[$key] = $formatvalue;
 		if(!empty($desctype[$key])) {
@@ -53,7 +53,7 @@ if(!$core->input['action']) {
 }
 else {
 
-	if($core->input['action'] == 'do_perform_createsurveytemplate') {
+	if($core->input['action'] == 'createsurveytemplate') {
 		$survey = new Surveys();
 		$survey->create_survey_template($core->input);
 
@@ -77,20 +77,19 @@ else {
 				output_xml("<status>false</status><message>{$lang->surveystemplatessectionsquestion}</message>");
 				break;
 		}
+		redirect("index.php?module=surveys/createsurveytemplate");
 	}
-	elseif($core->input['action'] == 'parsetype') {
+	elseif($core->input['action'] == 'parsetype') {	
 		/* Get validation of the question - START */
 		$section_id = $core->input['sectionid'];
 		$question_id = $core->input['questionid'];
-
 		$query = $db->query("SELECT * FROM ".Tprefix."surveys_questiontypes sqt
 						WHERE sqt.sqtid = ".$db->escape_string($core->input['questiontype'])."");
 
-		$questiontypes = $db->fetch_assoc($query);
+		$questiontypes = $db->fetch_assoc($query); 
 
 		header('Content-type: text/javascript');
-
-		if($questiontypes['isSizable'] == 1) {
+		if($questiontypes['isSizable'] == 1) { 
 			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'[fieldSize_container]\']").css("display","table-row");';
 		}
 		else {
@@ -116,8 +115,11 @@ else {
 		$sequence = $db->escape_string($core->input['sequence']) + 1;
 		$fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 0);
 		$desctype = get_specificdata('surveys_questiontypes', array('sqtid', 'description'), 'sqtid', 'description', '', 0);
+		$question_types_options = "<option value=''></option>";
 		foreach($fieldtype as $key => $formatvalue) {
-			$fieldtype[$key] = $formatvalue.'  ('.$desctype[$key].')';
+			if(!empty($desctype[$key])) {
+				$fieldtype[$key] = $formatvalue.'  ('.$desctype[$key].')';
+			}
 			$question_types_options .= "<option value='{$key}'{$selected}>{$fieldtype[$key]}</option>";
 		}
 		$radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);
@@ -132,8 +134,11 @@ else {
 		$sequence = $db->escape_string($core->input['value']) + 1;
 		$fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 0);
 		$desctype = get_specificdata('surveys_questiontypes', array('sqtid', 'description'), 'sqtid', 'description', '', 0);
+		$question_types_options="<option value=''></option>";
 		foreach($fieldtype as $key => $formatvalue) {
-			$fieldtype[$key] = $formatvalue.'  ('.$desctype[$key].')';
+			if(!empty($desctype[$key])) {
+				$fieldtype[$key] = $formatvalue.'  ('.$desctype[$key].')';
+			}
 			$question_types_options .= "<option value='{$key}'{$selected}>{$fieldtype[$key]}</option>";
 		}
 		$radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);

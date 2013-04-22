@@ -8,7 +8,7 @@
             </tr>
             <tr> 
                 <td>{$lang->question}</td>
-                <td><input name="section[{$section_rowid}][questions][{$question_rowid}][question]"  value="{$section[section_rowid][questions][question_rowid][question]}" type="text" size="40" autocomplete="on"></td>
+                <td><input name="section[{$section_rowid}][questions][{$question_rowid}][question]"  value="{$section[section_rowid][questions][question_rowid][question]}" type="text" size="40" autocomplete="on" required="required"></td>
             </tr>
 
             <tr>
@@ -22,7 +22,7 @@
             </tr>
             <tr>
                 <td>{$lang->questiontype}</td>                                                                        
-                <td><select tabindex="" name="section[{$section_rowid}][questions][{$question_rowid}][type]" id="section_[{$section_rowid}]_[questions]_[{$question_rowid}]_[type]">{$question_types_options}</select></td>
+                <td><select tabindex="" name="section[{$section_rowid}][questions][{$question_rowid}][type]" id="section_[{$section_rowid}]_[questions]_[{$question_rowid}]_[type]"  required>{$question_types_options}</select></td>
             </tr>
             <tr>
                 <td>{$lang->commentsfieldtitle}</td>
@@ -50,7 +50,9 @@
             </tr>
             <tr id="section[{$section_rowid}][questions][{$question_rowid}][choices_container]" style="display:none;">
                 <td width="30%">{$lang->choices}</td>
-                <td><textarea name="section[{$section_rowid}][questions][{$question_rowid}][choices]" title="{$lang->choice_tip}" cols="33" rows="5"></textarea></td>
+                <td><textarea name="section[{$section_rowid}][questions][{$question_rowid}][choices]" title="{$lang->choice_tip}" cols="33" rows="5"></textarea>  <span class="smalltext">{$lang->choice_tip}</span></td>
+          
+       
             </tr>
         </table>
     </td>
