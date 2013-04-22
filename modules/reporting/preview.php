@@ -78,7 +78,7 @@ if(!$core->input['action']) {
 			$report['items'] = $newreport->get_classified_productsactivity();
 			$report['itemsclasses'] = $newreport->get_classified_classes();
 			unset($report['items']['amount']['forecast']);
-			$report['productsactivity'] = $newreport->get_products_activity();
+			$report['productsactivity'] = $newreport->get_products_activity(); 
 			$report['currencies'] = $newreport->get_currencies();
 			if(is_array($report['currencies'])) {
 				$report_currencies += $report['currencies'];
@@ -308,7 +308,7 @@ if(!$core->input['action']) {
 		$item = array();
 
 		$keycustomersbox = $keycustomers = '';
-		if(is_array($report['keycustomers'])) {
+		if(is_array($report['keycustomers']) && ($report['keyCustAvailable']==1)) {
 			$keycust_count = 0;
 			foreach($report['keycustomers'] as $keycust => $customer) {
 				/* Limit to 5 customers */
@@ -586,7 +586,10 @@ if(!$core->input['action']) {
 				}
 			}
 			/* Parse Currencies Table - END */
-			eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
+			if(is_array($report['productsactivity'])){
+				eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
+			}
+			
 		}
 
 		if($core->input['referrer'] == 'direct') {

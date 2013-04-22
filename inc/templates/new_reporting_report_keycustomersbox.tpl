@@ -1,4 +1,4 @@
-<page>
+
 <table class="reportbox">
     <tr>
     	<td class="thead" colspan="5">{$lang->keycustomers}</td>
@@ -12,5 +12,4 @@
     </tr>
 </table>
 
-</page>
 <br />
