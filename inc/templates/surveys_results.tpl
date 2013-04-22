@@ -21,13 +21,17 @@ $(function() {
             },
             complete: function() {
                 $("#modal-loading").dialog("close").remove();
+                
             },
-              success: function(returnedData) { alert(returnedData);
+              success: function(returnedData) { 
             $('#questionresponses_results_'+ id[1]).append(returnedData);
               //$('#questionresponses_results_'+ id[1]).append(returnedData);
+             // $("[id^='getquestionresponses_"+ id[1]+"']").unbind("click"); /*prevent multiple ajax request by remove click event */
               }
         })
+
     });	
+  
 });
 </script>
 </head>

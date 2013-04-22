@@ -540,6 +540,7 @@ $(function() {
                 if ($("#numrows_" + id[id.length - 2] + id[id.length - 1]).length != 0) {
                     $("#numrows_" + id[id.length - 2] + id[id.length - 1]).val(num_rows + 1);
                 }
+                /*find the offset of the first input in the last tr*/
                 $("html, body").animate({scrollTop: $('#' + id[id.length - 2] + id[id.length - 1] + '_tbody > tr:last').find("input").filter(':visible:first').offset().top}, 1000);
                 $('#' + id[id.length - 2] + id[id.length - 1] + '_tbody > tr:last').effect("highlight", {color: '#D6EAAC'}, 1500).find('input').first().focus();
             }
@@ -643,7 +644,7 @@ $(function() {
                         $(this).attr(val, $(this).attr(val).replace(/([A-Za-z_0-9]+)_id[\d]+/gi, "$1_id" + increment));
                     }
                     else if ($(this).attr(val).search(/([A-Za-z_0-9]+)\[[\d]\]\[[\d]\]/gi) != -1) {
-                        alert('aaa');
+                   
                         $(this).attr(val, $(this).attr(val).replace(/([A-Za-z_0-9]+)\[[\d]\]\[[\d]\]/gi, "$1_[" + (last.index() + 1) + "][" + increment + "]"));
                     }
                     else
