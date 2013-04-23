@@ -6,13 +6,21 @@
     $(function() { 	
             $("select[id$='_[type]']").live('change', function() {
                 if(sharedFunctions.checkSession() == false) {
-                        return;	
-                }	
+                    return;	
+                }
                 var id = $(this).attr("id").split("_"); 
-                if($(this).val() != ""){
-                    $.post("index.php?module=surveys/createsurveytemplate&action=parsetype", {
-                    questiontype:$("select[id^='section_"+id[1]+"_[questions]_"+id[3]+"_[type]']").val(),sectionid:id[1],questionid:id[3]});
-                }	
+                if($(this).val() != "") {
+                    $.ajax({type: 'post',
+                        url: rootdir + "index.php?module=surveys/createsurveytemplate&action=parsetype",
+                        data: {questiontype:$("select[id^='section_"+id[1]+"_[questions]_"+id[3]+"_[type]']").val(),sectionid:id[1],questionid:id[3]},
+                        beforeSend: function() {
+                           $("select[id^='section_"+id[1]+"_[questions]_"+id[3]+"_[type]']").after("<img id='section_"+id[1]+"_[questions]_"+id[3]+"_[type][loading]' style='padding: 5px;' src='" + imagespath + "/loading-bar.gif' alt='" + loading_text + "' border='0' />");
+                        },
+                        complete: function() {
+                            $("img[id='section_"+id[1]+"_[questions]_"+id[3]+"_[type][loading]']").remove();
+                        }
+                    });
+                }
             });
 
             $("select[id$='[validationType]']").live('change', function() {               
