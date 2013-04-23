@@ -135,7 +135,6 @@ class Surveys {
 
 	public function create_survey_template(array $data) {
 		global $db, $core, $log;
-
 		$cache = new Cache();
 		unset($data['action'], $data['module']); /* here we destroy the  action and module from the data ARRAY to avoid insert module name and action in the DB  */
 		if(empty($data['title'])) {
