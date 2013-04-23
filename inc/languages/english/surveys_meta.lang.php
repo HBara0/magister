@@ -6,6 +6,7 @@
 
 $lang['accesssurveylink'] = 'To access the survey, please click the following: {1}';
 $lang['anonymousfilling'] = 'Anonymous filling';
+$lang['basictemplateinfo'] = 'Basic Template Infomation';
 $lang['category'] = 'Category';
 $lang['choices'] = 'Choices';
 $lang['closingdate'] = 'Auto-close on';
@@ -18,7 +19,6 @@ $lang['emailonly'] = 'Valid email address only';
 $lang['fillsurvey'] = 'Fill Survey';
 $lang['invitationgroup'] = 'Invitation Group';
 $lang['invitations'] = 'Invitations';
-$lang['questiondesc'] = 'Question Description';
 $lang['invitee'] = 'Invitee';
 $lang['inviteesnumber_tip'] = 'Specified number will be used to randomly select x number of invitees out of the checked.';
 $lang['listsurveys'] = 'List Surveys';
@@ -44,6 +44,7 @@ $lang['survey'] = 'Survey';
 $lang['surveydate'] = 'Date';
 $lang['surveyexists'] = 'A survey with the same subject exists';
 $lang['surveyexpired'] = 'Survey has expired';
+$lang['surveyquestions'] = 'Survey Questions';
 $lang['surveysassociations'] = 'Associates with';
 $lang['surveysinvitation'] = 'Invitations';
 $lang['template'] = 'Template';
