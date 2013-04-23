@@ -582,7 +582,6 @@ else {
 			  }
 			  } */
 			if(is_array($cache['usedpaid'])) { 
-				/* Disabled because it was deleting produccts if inline-save is used then products are added */
 				$delete_query_where = ' OR ( paid NOT IN ('.implode(', ', $cache['usedpaid']).') AND pid NOT IN ('.implode(', ', $cache['usedpids']).'))';
 			}
 			$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rid}' AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
@@ -1019,7 +1018,7 @@ else {
 
 			if($current_report_details['noQReportSend'] == 0) {
 				if($db->fetch_field($db->query("SELECT COUNT(*) AS remainingreports FROM ".Tprefix."reports WHERE quarter='{$current_report_details[quarter]}' AND year='{$current_report_details[year]}' AND spid='{$current_report_details[eid]}' AND status='0' AND type='q'"), 'remainingreports') == 0) {
-					$query = $db->query("SELECT u.* FROM ".Tprefix."users u LEFT JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid) WHERE sa.eid='{$current_report_details[eid]}' AND u.gid IN ('5', '13')");
+					$query = $db->query("SELECT u.* FROM ".Tprefix."users u LEFT JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid) WHERE sa.eid='{$current_report_details[eid]}' AND u.gid IN ('5', '13', '2')");
 					while($inform = $db->fetch_array($query)) {
 						$inform_employees[] = $inform['email'];
 					}
