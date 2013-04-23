@@ -5,4 +5,6 @@
 \*********************************/
 
 $lang['accesssurveylink'] = '';
+$lang['basictemplateinfo'] = '';
+$lang['surveyquestions'] = '';
 ?>
