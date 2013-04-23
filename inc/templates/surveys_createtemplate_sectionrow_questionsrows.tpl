@@ -39,7 +39,7 @@
             <tr id="section[{$section_rowid}][questions][{$question_rowid}][validationType_container]" style="display:none;">
                 <td width="30%">{$lang->validationtype}</td>
                 <td>
-                    <select  id="section[{$section_rowid}][questions][{$question_rowid}][validationType]" name="section[{$section_rowid}][questions][{$question_rowid}][validationType]">
+                    <select id="section_[{$section_rowid}]_[questions]_[{$question_rowid}]_[validationType]"  name="section[{$section_rowid}][questions][{$question_rowid}][validationType]">
                         <option value="" selected='selected'>&nbsp;</option>
                         <option value="minchars">{$lang->minchars}</option>
                         <option value="maxchars">{$lang->maxchars}</option>
@@ -48,6 +48,11 @@
                     </select>
                 </td>
             </tr>
+            <tr id="section_[{$section_rowid}]_[questions]_[{$question_rowid}]_[validationcriterion]"  style="display:none;">
+                <td width="30%">{$lang->validationCriterion}</td>
+                <td><input type="text" name="section[{$section_rowid}][questions][{$question_rowid}][validationCriterion]" accept="numeric"> </td>
+            </tr>
+            
             <tr id="section[{$section_rowid}][questions][{$question_rowid}][choices_container]" style="display:none;">
                 <td width="30%">{$lang->choices}</td>
                 <td><textarea name="section[{$section_rowid}][questions][{$question_rowid}][choices]" title="{$lang->choice_tip}" cols="33" rows="5"></textarea>  <span class="smalltext">{$lang->choice_tip}</span></td>

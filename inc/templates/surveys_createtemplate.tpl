@@ -3,26 +3,36 @@
 <title>{$core->settings[systemtitle]} | {$lang->createsurveytemplate}</title>
 {$headerinc}
 <script type="text/javascript">
-	$(function get_question_type() {	
-		$("select[id^='section_']").live('change', function() {
+	$(function() { 	
+		$("select[id$='_[type]']").live('change', function() {
 			if(sharedFunctions.checkSession() == false) {
 				return;	
 			}	
-			var id = $(this).attr("id").split("_");
-                        
-			$.post("index.php?module=surveys/createsurveytemplate&action=parsetype", {
-			questiontype:$("select[id^='section_"+id[1]+"_[questions]_"+id[3]+"_[type]']").val(),sectionid:id[1],questionid:id[3]},
-			function(returnedData){alert(returnedData);}
-				);	
-		});	
+			var id = $(this).attr("id").split("_"); 
+                        if($(this).val()!=""){
+                      $.post("index.php?module=surveys/createsurveytemplate&action=parsetype", {
+			questiontype:$("select[id^='section_"+id[1]+"_[questions]_"+id[3]+"_[type]']").val(),sectionid:id[1],questionid:id[3]}
+				);
+                        }
+				
+		});
+                
+                $("select[id$='[validationType]']").live('change', function() {               
+                    var id = $(this).attr("id").split("_"); 
+                   if($(this).val()=='minchars' || $(this).val()=='maxchars'){
+                               $("tr[id='section_"+id[1]+"_[questions]_"+id[3]+"_[validationcriterion]']").css("display","block");
+                       }
+                       else{
+                          $("tr[id='section_"+id[1]+"_[questions]_"+id[3]+"_[validationcriterion]']").css("display","none");
+                       }
+                    }
+                );              
 	});
+        
+        
+
+        
 </script>
-
-
-
-
-
-
 
 </head>
 <body>
