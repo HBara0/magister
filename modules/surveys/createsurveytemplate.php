@@ -117,6 +117,7 @@ else {
 		$desctype = get_specificdata('surveys_questiontypes', array('sqtid', 'description'), 'sqtid', 'description', '', 0);
 		$question_types_options = "<option value=''></option>";
 		foreach($fieldtype as $key => $formatvalue) {
+			$fieldtype[$key] = $formatvalue;
 			if(!empty($desctype[$key])) {
 				$fieldtype[$key] = $formatvalue.'  ('.$desctype[$key].')';
 			}
@@ -136,6 +137,7 @@ else {
 		$desctype = get_specificdata('surveys_questiontypes', array('sqtid', 'description'), 'sqtid', 'description', '', 0);
 		$question_types_options="<option value=''></option>";
 		foreach($fieldtype as $key => $formatvalue) {
+			$fieldtype[$key] = $formatvalue;
 			if(!empty($desctype[$key])) {
 				$fieldtype[$key] = $formatvalue.'  ('.$desctype[$key].')';
 			}

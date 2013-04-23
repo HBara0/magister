@@ -22,7 +22,7 @@
             </tr>
             <tr>
                 <td>{$lang->questiontype}</td>                                                                        
-                <td><select tabindex="" name="section[{$section_rowid}][questions][{$question_rowid}][type]" id="section_[{$section_rowid}]_[questions]_[{$question_rowid}]_[type]"  required>{$question_types_options}</select></td>
+                <td><select tabindex="" name="section[{$section_rowid}][questions][{$question_rowid}][type]" id="section_[{$section_rowid}]_[questions]_[{$question_rowid}]_[type]"  required="required">{$question_types_options}</select></td>
             </tr>
             <tr>
                 <td>{$lang->commentsfieldtitle}</td>

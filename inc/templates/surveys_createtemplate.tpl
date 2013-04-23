@@ -11,19 +11,11 @@
 			var id = $(this).attr("id").split("_");
                         
 			$.post("index.php?module=surveys/createsurveytemplate&action=parsetype", {
-			questiontype:$("select[id^='section_"+id[1]+"_[questions]_"+id[3]+"_[type]']").val(),sectionid:id[1],questionid:id[3]},
-			function(returnedData){alert(returnedData);}
-				);	
+			questiontype:$("select[id^='section_"+id[1]+"_[questions]_"+id[3]+"_[type]']").val(),sectionid:id[1],questionid:id[3]}
+			);
 		});	
 	});
 </script>
-
-
-
-
-
-
-
 </head>
 <body>
 {$header}
