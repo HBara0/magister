@@ -8,7 +8,6 @@
  * Last Update:    @tony.assaad    March 26, 2013 | 3:24:11 PM
  */
 
-
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
@@ -309,7 +308,7 @@ if(!$core->input['action']) {
 		$item = array();
 
 		$keycustomersbox = $keycustomers = '';
-		if(is_array($report['keycustomers']) && ($report['keyCustAvailable']==1)) {
+		if(is_array($report['keycustomers'])) {
 			$keycust_count = 0;
 			foreach($report['keycustomers'] as $keycust => $customer) {
 				/* Limit to 5 customers */
@@ -348,6 +347,9 @@ if(!$core->input['action']) {
 						$marketreportbox_comma = ', ';
 					}
 				}
+				
+				array_walk($marketreport, 'fix_newline');
+-				array_walk($marketreport, 'parse_ocode');
 				eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
 			}
 		}
@@ -566,7 +568,9 @@ if(!$core->input['action']) {
 				}
 				$fxratespage_tablehead .= '</tr>';
 				$currency_rates_year = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'], array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR'); /* GET the fxrate of previous quarter year */
-
+				if($report['year'] == $reporting_quarter['year']) {
+					$currency_rates_year = array_slice($currency_rates_year, 0, date('n', TIME_NOW));
+				}
 				$currency_rates_prevyear = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR');
 				if(is_array($currency_rates_prevyear)) {
 					$fxrates_linechart_scale['min'] = min($currency_rates_prevyear);
@@ -587,9 +591,9 @@ if(!$core->input['action']) {
 				}
 			}
 			/* Parse Currencies Table - END */
-			if(is_array($report['productsactivity'])){
+			//if(is_array($report['productsactivity'])){
 				eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
-			}
+			//}
 			
 		}
 
@@ -715,6 +719,7 @@ else {
 		$html2pdf->pdf->SetTitle($suppliername, true);
 		//$content = html_entity_decode($content, ENT_XHTML, 'ISO-8859-1');
 		//$content = iconv("UTF-8", "ISO-8859-1//TRANSLIT", $content);
+		$content = str_replace(array('&uarr;','&darr;'), array('^', '<sub>v</sub>'), $content);
 
 		if($core->input['action'] == 'saveandsend') {
 			set_time_limit(0);
