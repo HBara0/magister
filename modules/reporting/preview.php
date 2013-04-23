@@ -116,6 +116,7 @@ if(!$core->input['action']) {
 			$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 			if(isset($report_meta['auditor']) && !empty($report_meta['auditor'])) {
 				$options['isauditor'] = $report_meta['auditor'];
+				$options['transFill'] = $report_meta['transFill'];
 			}
 			/* read productsactivity from fill  data session */
 			if($session->isset_phpsession('productsactivitydata_'.$identifier)) {

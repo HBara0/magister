@@ -135,7 +135,7 @@ class Surveys {
 
 	public function create_survey_template(array $data) {
 		global $db, $core, $log;
-		
+
 		$cache = new Cache();
 		unset($data['action'], $data['module']); /* here we destroy the  action and module from the data ARRAY to avoid insert module name and action in the DB  */
 		if(empty($data['title'])) {
@@ -145,7 +145,7 @@ class Surveys {
 		/* Check if template with same name created by any user */
 		if(value_exists('surveys_templates', 'title', $data['title'])) {
 			$this->status = 2;
-			return false;
+			//return false;
 		}
 
 		/* Validate that data is complete before creating anything - START */
@@ -180,7 +180,9 @@ class Surveys {
 						unset($core->input['section'][$key]['questions'][$stqid]);
 						continue;
 					}
-
+					if(is_empty($question['question'], $question['type'])) {
+						return false;
+					}
 					if($cache->incache('questiontitles', $question['question'])) {
 						$this->status = 4;
 						return false;
@@ -231,7 +233,7 @@ class Surveys {
 						if(isset($question['choices'])) {
 							$question_choices = $question['choices'];
 						}
-						
+
 						if(!empty($question['commentsFieldTitle'])) {
 							$question['hasCommentsField'] = 1;
 							$question['commentsFieldType'] = 'textarea';
@@ -243,16 +245,20 @@ class Surveys {
 							$stqid = $db->last_id();
 
 							if(!empty($question_choices)) {
-								/* Split the question choices by "\n" or ";" */
-								$question_choices = preg_split("/[\n;]+/", $question_choices);
-								if(is_array($question_choices)) {	
-									foreach($question_choices as $key => $choice) {
-										$choice = trim($choice);
-										if(empty($choice)) {
+								/* Split the question choices by "\n"  */
+								$question_choices_choice = preg_split("/\n+/", $question_choices);
+
+								/* Split the choices value by ";\n"  */
+								if(is_array($question_choices_choice)) {
+									foreach($question_choices_choice as $key => $choices) {
+										$question_choices_values = preg_split("/;+/", $choices);
+										if(empty($question_choices_values[0]) || empty($question_choices_values[1])) {
 											continue;
 										}
-										$newsurveys_questions_choices = array('stqid' => $stqid, 'choice' => $choice);
-										$query_choice = $db->insert_query('surveys_templates_questions_choices', $newsurveys_questions_choices);
+										if(!empty($question_choices_values[0]) && !empty($question_choices_values[1])) {
+											$newsurveys_questions_choices = array('stqid' => $stqid, 'choice' => trim($question_choices_values[0]), 'value' => trim($question_choices_values[1]));
+											$query_choice = $db->insert_query('surveys_templates_questions_choices', $newsurveys_questions_choices);
+										}
 									}
 								}
 							}
@@ -260,7 +266,6 @@ class Surveys {
 					}
 				}
 			}
-
 			$log->record('createsurveytemplate', $stid);
 			$this->status = 0;
 			return true;
