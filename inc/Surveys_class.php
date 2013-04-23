@@ -144,7 +144,7 @@ class Surveys {
 		/* Check if template with same name created by any user */
 		if(value_exists('surveys_templates', 'title', $data['title'])) {
 			$this->status = 2;
-			//return false;
+			return false;
 		}
 
 		/* Validate that data is complete before creating anything - START */
@@ -247,13 +247,24 @@ class Surveys {
 								/* Split the question choices by "\n"  */
 								$question_choices_choice = preg_split("/\n+/", $question_choices);
 
-								/* Split the choices value by ";\n"  */
+								/* Split the choices value by ";"  */
 								if(is_array($question_choices_choice)) {
-									foreach($question_choices_choice as $key => $choices) {
-										$question_choices_values = preg_split("/;+/", $choices);
-										if(empty($question_choices_values[0]) || empty($question_choices_values[1])) {
+									foreach($question_choices_choice as $key => $choice) {
+										if(strstr($choice, ';')) {
+											$question_choices_values = preg_split("/;+/", $choice);
+										}
+										else {
+											$question_choices_values[0] = $choice;
+										}
+										
+										if(empty($question_choices_values[0])) {
 											continue;
 										}
+										
+										if(empty($question_choices_values[1])) {
+											$question_choices_values[1] = $question_choices_values[0];
+										}
+										
 										if(!empty($question_choices_values[0]) && !empty($question_choices_values[1])) {
 											$newsurveys_questions_choices = array('stqid' => $stqid, 'choice' => trim($question_choices_values[0]), 'value' => trim($question_choices_values[1]));
 											$query_choice = $db->insert_query('surveys_templates_questions_choices', $newsurveys_questions_choices);

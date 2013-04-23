@@ -3,35 +3,28 @@
 <title>{$core->settings[systemtitle]} | {$lang->createsurveytemplate}</title>
 {$headerinc}
 <script type="text/javascript">
-	$(function() { 	
-		$("select[id$='_[type]']").live('change', function() {
-			if(sharedFunctions.checkSession() == false) {
-				return;	
-			}	
-			var id = $(this).attr("id").split("_"); 
-                        if($(this).val()!=""){
-                      $.post("index.php?module=surveys/createsurveytemplate&action=parsetype", {
-			questiontype:$("select[id^='section_"+id[1]+"_[questions]_"+id[3]+"_[type]']").val(),sectionid:id[1],questionid:id[3]}
-				);
-                        }
-				
-		});
-                
-                $("select[id$='[validationType]']").live('change', function() {               
-                    var id = $(this).attr("id").split("_"); 
-                   if($(this).val()=='minchars' || $(this).val()=='maxchars'){
-                               $("tr[id='section_"+id[1]+"_[questions]_"+id[3]+"_[validationcriterion]']").css("display","block");
-                       }
-                       else{
-                          $("tr[id='section_"+id[1]+"_[questions]_"+id[3]+"_[validationcriterion]']").css("display","none");
-                       }
-                    }
-                );              
-	});
-        
-        
+    $(function() { 	
+            $("select[id$='_[type]']").live('change', function() {
+                if(sharedFunctions.checkSession() == false) {
+                        return;	
+                }	
+                var id = $(this).attr("id").split("_"); 
+                if($(this).val() != ""){
+                    $.post("index.php?module=surveys/createsurveytemplate&action=parsetype", {
+                    questiontype:$("select[id^='section_"+id[1]+"_[questions]_"+id[3]+"_[type]']").val(),sectionid:id[1],questionid:id[3]});
+                }	
+            });
 
-        
+            $("select[id$='[validationType]']").live('change', function() {               
+                var id = $(this).attr("id").split("_");
+                var valMatch = ["minchars", "maxchars"];
+                $("tr[id='section_"+id[1]+"_[questions]_"+id[3]+"_[validationCriterion]']").css("display", "none");
+                    if(jQuery.inArray($(this).val(), valMatch) != -1){
+                        $("tr[id='section_"+id[1]+"_[questions]_"+id[3]+"_[validationCriterion]']").css("display", "table-row");
+                    }
+                 }
+            );              
+    }); 
 </script>
 
 </head>
@@ -90,7 +83,7 @@
             <tr>
                 <td colspan="3">
                     <hr />
-                    <input type="submit" value="{$lang->$action}" id="perform_surveys/createsurveytemplate" tabindex="26" class="button"/>
+                    <input type="submit" value="{$lang->$action}" id="perform_surveys/createsurveytemplate_Button" tabindex="26" class="button"/>
                     <input type="reset" value="{$lang->reset}" class="button" />
                 </td>
             </tr>
