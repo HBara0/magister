@@ -60,14 +60,17 @@ else {
 				$pol_query = $db->query("SELECT imsol.*, imp.localId AS localpid, imsol.pid AS foreignpid, p.spid AS localspid, imp.foreignName AS productname
 										FROM ".Tprefix."integration_mediation_purchaseorderlines imsol 
 										JOIN integration_mediation_products imp ON (imsol.pid=imp.foreignId) 
-										JOIN products p ON (p.pid=imp.localId)
-										WHERE foreignOrderId='{$purchaseorder['foreignId']}' AND imp.localId!=0");
+										LEFT JOIN products p ON (p.pid=imp.localId)
+										WHERE foreignOrderId='{$purchaseorder['foreignId']}'
+										ORDER BY imp.foreignName ASC");// AND imp.localId!=0
+
 				if($db->num_rows($pol_query) > 0) {
 					while($purchaseorderline = $db->fetch_assoc($pol_query)) {
 						if(is_empty($purchaseorderline['localspid'], $purchaseorderline['localpid'])) {
+							$errors['productnotfound'][] = $purchaseorderline['productname'];
 							continue;
 						}
-
+						
 						$temporary_purchasetype = '';
 						/* GET Quarter Information - START */
 						$quarter_info = quarter_info($purchaseorder['date']);
@@ -95,26 +98,32 @@ else {
 								$newpurchase[$report['rid']][$purchaseorderline['localpid']] = array(
 										'pid' => $purchaseorderline['localpid'],
 										'quantity' => $purchaseorderline['quantity'],
-										'turnOver' => ($purchaseorderline['amount'] / $options['turnoverdivision']),
 										'rid' => $report['rid'],
 										'uid' => 0
 								);
 							}
 							else {
 								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['quantity'] += $purchaseorderline['quantity'];
-								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['turnOver'] += ($purchaseorderline['amount'] / $options['turnoverdivision']);
 							}
 
 							if(strtoupper($purchaseorder['currency']) != 'USD') {
 								if(empty($purchaseorder['usdFxrate'])) {
-									$purchaseorder['usdFxrate'] = $currency_obj->get_average_fxrate($purchaseorder['currency'], array('from' => strtotime(date('Y-m-d', $purchaseorder['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $purchaseorder['date']).' 24:00')));
-									if(empty($purchaseorder['usdFxrate'])) {
-										$purchaseorder['usdFxrate'] = $currency_obj->get_average_fxrate($purchaseorder['currency'], array('from' => strtotime($options['fromDate']), 'to' => strtotime($options['endDate'])));
+									$purchaseorderline['usdFxrate'] = $currency_obj->get_average_fxrate($purchaseorder['currency'], array('from' => strtotime(date('Y-m-d', $purchaseorder['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $purchaseorder['date']).' 24:00')));
+									if(empty($purchaseorderline['usdFxrate'])) {
+										$purchaseorderline['usdFxrate'] = $currency_obj->get_average_fxrate($purchaseorder['currency'], array('from' => strtotime($options['fromDate']), 'to' => strtotime($options['endDate'])));
 									}
 								}
-								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['turnOver'] = (($purchaseorderline['amount'] / $purchaseorder['usdFxrate']) / $options['turnoverdivision']);
-								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['turnOverOc'] = ($purchaseorderline['amount'] / $options['turnoverdivision']);
+								else {
+									$purchaseorderline['usdFxrate'] = 1 / $purchaseorder['usdFxrate'];
+								}
+
+								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['turnOver'] += (($purchaseorderline['amount'] / $purchaseorderline['usdFxrate']) / $options['turnoverdivision']);
+								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['turnOverOc'] += ($purchaseorderline['amount'] / $options['turnoverdivision']);
 								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['originalCurrency'] = $purchaseorder['currency'];
+							}
+							else
+							{
+								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['turnOver'] += ($purchaseorderline['amount'] / $options['turnoverdivision']);	
 							}
 
 							if(in_array(strtolower($purchaseorder['purchaseType']), array('ski', 'rei'))) {
@@ -172,8 +181,6 @@ else {
 		/* GET Quarter Information - END */
 		if($db->num_rows($query) > 0) {
 			while($sale = $db->fetch_assoc($query)) {
-
-
 				if(isset($reports_cache[$affid][$sale['localspid']][$quarter_info['year']][$quarter_info['quarter']])) {
 					$report = $reports_cache[$affid][$sale['localspid']][$quarter_info['year']][$quarter_info['quarter']];
 				}
@@ -252,6 +259,7 @@ else {
 
 			if(is_array($errors)) {
 				foreach($errors as $key => $val) {
+					echo '-'.$key.':<br />';
 					foreach($val as $error) {
 						echo $error.'<br />';
 					}
