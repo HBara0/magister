@@ -22,7 +22,7 @@ $query = $db->query("SELECT r.*, aff.name AS affiliatename, s.companyName AS sup
 					FROM ".Tprefix."reports r JOIN ".Tprefix."affiliates aff ON (r.affid=aff.affid) JOIN ".Tprefix."entities s ON (r.spid=s.eid)
 					WHERE year='{$quarter[year]}' AND quarter = '{$quarter[quarter]}' AND status!=1 AND isLocked!=1 AND r.type='q' AND s.noQReportSend=0");
 
-$audits_query = $db->query("SELECT u.email, sa.eid FROM ".Tprefix."users u JOIN ".Tprefix."suppliersaudits sa ON (u.uid=sa.uid) WHERE u.gid IN ('5', '13')");//Suppliers Audit
+$audits_query = $db->query("SELECT u.email, sa.eid FROM ".Tprefix."users u JOIN ".Tprefix."suppliersaudits sa ON (u.uid=sa.uid) WHERE u.gid IN ('5', '13', '2')");//Suppliers Audit
 while($audit = $db->fetch_assoc($audits_query)) {
 	$audits[$audit['eid']][] = $audit['email'];
 }
