@@ -29,7 +29,7 @@
                 <td><input name="section[{$section_rowid}][questions][{$question_rowid}][commentsFieldTitle]" value="{$section[section_rowid][questions][question_rowid][commentsFieldTitle]}"  title="{$lang->commentsFieldTitle_tip}" type="text"></td>
             </tr>
             <tr>
-                <td>{$lang->commentsgieldsize}</td>
+                <td>{$lang->commentsfieldsize}</td>
                 <td><input accept="numeric" id="commentsFieldSize" value="{$section[section_rowid][questions][question_rowid][commentsFieldSize]}" name="section[{$section_rowid}][questions][{$question_rowid}][commentsFieldSize]" type="text" size="10" title="{$lang->commentsfieldsize_tip}" maxlength="3"><span id="fieldsizevalidate"></span></td>
             </tr>
             <tr id="section[{$section_rowid}][questions][{$question_rowid}][fieldSize_container]" style="display:none;">
@@ -54,7 +54,7 @@
             </tr>
             <tr id="section[{$section_rowid}][questions][{$question_rowid}][choices_container]" style="display:none;">
                 <td width="30%">{$lang->choices}</td>
-                <td><textarea name="section[{$section_rowid}][questions][{$question_rowid}][choices]" title="{$lang->choice_tip}" cols="33" rows="5"></textarea><br /><span class="smalltext">{$lang->choice_tip}</span></td>
+                <td><textarea name="section[{$section_rowid}][questions][{$question_rowid}][choices]" title="{$lang->choices_tip}" cols="33" rows="5"></textarea><br /><span class="smalltext">{$lang->choices_tip}</span></td>
           
        
             </tr>

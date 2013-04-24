@@ -18,7 +18,7 @@ if(!defined('DIRECT_ACCESS')) {
   exit;
   } */
 
-$lang->load('surveytemplate');
+$lang->load('surveys_createtemplate');
 if(!$core->input['action']) {
 	$action = 'createsurveytemplate';
 	$section_rowid = 1;
@@ -44,7 +44,7 @@ if(!$core->input['action']) {
 
 	$altrow_class = alt_row($altrow_class);
 
-	eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionsrows')."\";");
+	eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
 	eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
 
 	$sequence_id += 1;
@@ -71,10 +71,10 @@ else {
 				output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
 				break;
 			case 4:
-				output_xml("<status>false</status><message>{$lang->surveystemplatessections}</message>");
+				output_xml("<status>false</status><message>{$lang->duplicationsectionname}</message>");
 				break;
 			case 5:
-				output_xml("<status>false</status><message>{$lang->surveystemplatessectionsquestion}</message>");
+				output_xml("<status>false</status><message>{$lang->duplicationquestionname}</message>");
 				break;
 		}
 		//redirect("index.php?module=surveys/createsurveytemplate");
@@ -125,7 +125,7 @@ else {
 		}
 		$radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);
 
-		eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionsrows')."\";");
+		eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
 		eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
 		echo $newsection;
 	}
@@ -146,7 +146,7 @@ else {
 		$radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);
 
 
-		eval("\$newquestion = \"".$template->get('surveys_createtemplate_sectionrow_questionsrows')."\";");
+		eval("\$newquestion = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
 		echo $newquestion;
 	}
 }

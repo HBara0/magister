@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>{$core->settings[systemtitle]} | {$lang->createsurveytemplate}</title>
+<title>{$core->settings[systemtitle]} | {$lang->createtemplate}</title>
 {$headerinc}
 <script type="text/javascript">
     $(function() { 	
@@ -41,7 +41,7 @@
 <tr>
     {$menu}
     <td class="contentContainer">
-        <h3>{$lang->createsurveytemplate}</h3>
+        <h3>{$lang->createtemplate}</h3>
         <form name="perform_surveys/createsurveytemplate_Form" id="perform_surveys/createsurveytemplate_Form" action="#" method="post">
              <input type="hidden" id="action" name="action" value="{$action}" />
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
