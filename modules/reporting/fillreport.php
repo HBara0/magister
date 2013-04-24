@@ -621,40 +621,10 @@ else {
 			$one_notexcluded = true;
 		}
 
-		/* $marketreport_data = array(
-		  'markTrendCompetition'	=> $core->input['markTrendCompetition'],
-		  'quarterlyHighlights'	 => $core->input['quarterlyHighlights'],
-		  'devProjectsNewOp'		=> $core->input['devProjectsNewOp'],
-		  'issues'				  => $core->input['issues'],
-		  'actionPlan'			  => $core->input['actionPlan'],
-		  'remarks'			  	 => $core->input['remarks']
-		  ); */
-
-		/* 	foreach($marketreport_data as $key => $val) {
-		  if(!empty($val)) {
-		  $found_one = true;
-		  break;
-		  }
-		  } */
-
 		if($found_one == true || $one_notexcluded == false) {
 			output_xml("<status>false</status><message>{$lang->fillonemktreportsection}</message>");
 			exit;
 		}
-
-		//$marketreport_data['rid'] = $rid;
-
-		/* if(value_exists('marketreport', 'rid', $rid)) {
-		  foreach($marketreport_data as $val) {
-		  $query = $db->update_query('marketreport', $val, "rid='{$rid}' AND psid='{$val[psid]}'");
-		  }
-		  }
-		  else
-		  {
-		  foreach($marketreport_data as $val) {
-		  $query = $db->insert_query('marketreport', $val);
-		  }
-		  } */
 
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
