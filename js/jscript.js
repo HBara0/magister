@@ -585,8 +585,8 @@ $(function() {
                     {
                         $("#" + contentId).html($.trim(returnedData));
                     }
-                }//,
-                //dataType: datatype
+                },
+                dataType: datatype
             });
         }
         function checkSession() {
