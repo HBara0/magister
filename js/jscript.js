@@ -267,7 +267,7 @@ $(function() {
 
 
     $("img[id^='addmore_']").live('click', function() {
-        sharedFunctions.newAddMoreRows($(this));
+        sharedFunctions.addmoreRows($(this));
     });
 
     $("input[id='email'],input[accept='email']").live("keyup", validateEmailInline);
@@ -571,7 +571,7 @@ $(function() {
                     }
                 },
                 success: function(returnedData) {
-                    alert(returnedData);
+            alert(returnedData);
                     if (datatype == 'xml') {
                         if ($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -585,8 +585,8 @@ $(function() {
                     {
                         $("#" + contentId).html($.trim(returnedData));
                     }
-                },
-                dataType: datatype
+                }//,
+               // dataType: datatype
             });
         }
         function checkSession() {
@@ -594,79 +594,6 @@ $(function() {
                 show_loginbox();
                 return false;
             }
-        }
-        function newAddMoreRows(trigger) {
-            if (typeof trigger == 'object') {
-                var id = trigger.attr("id").split("_");
-            }
-            else
-            {
-                var id = trigger.split("_");
-            }
-
-            if ($("#" + id[1] + "_" + id[2] + "_tbody").length > 0) {
-                id[1] = id[1] + "_" + id[2] + "_tbody";
-            }
-            else if ($("#" + id[1] + "_tbody").length > 0)
-            {
-                id[1] = id[1] + "_tbody";
-            }
-
-            var newIds = '';
-
-            if ($("#" + id[1]).parents('tbody').first().length > 0) {
-                newIds = $("#" + id[1]).parents('tbody').first().attr('id');
-            }
-            alert(newIds);
-            var last = $("#" + id[1] + " > tr:last");
-
-            var increment = (last.index() + 1) + 1;
-            var newEntry = last.clone(true).removeAttr('id').appendTo("#" + id[1]);
-
-            var needed_attributes = ["id", "name"];
-            $.each(needed_attributes, function(key, val) {
-                newEntry.find("tr[" + val + "],input[" + val + "],select[" + val + "],div[" + val + "],span[" + val + "],textarea[" + val + "],img[" + val + "],tbody[" + val + "]").each(function() {
-                    if ($(this).attr(val).length == 0) {
-                        return true;
-                    }
-
-
-                    if ($(this).attr(val).search(/([A-Za-z_0-9]+)_[\d]+_([A-Za-z_]+)/gi) != -1) {
-                        $(this).attr(val, $(this).attr(val).replace(/([A-Za-z_0-9]+)_[\d]+_([A-Za-z_]+)/gi, "$1_" + increment + "_$2"));
-                    }
-                    else if ($(this).attr(val).search(/([A-Za-z_0-9]+)_id[\d]+_([A-Za-z_]+)/gi) != -1) {
-                        $(this).attr(val, $(this).attr(val).replace(/([A-Za-z_0-9]+)_id[\d]+_([a-z_]+)/gi, "$1_id" + increment + "_$2"));
-                    }
-                    else if ($(this).attr(val).search(/([A-Za-z_0-9]+)_[\d]/gi) != -1) {
-                        $(this).attr(val, $(this).attr(val).replace(/([A-Za-z_0-9]+)_[\d]+/gi, "$1_" + increment));
-                    }
-                    else if ($(this).attr(val).search(/([A-Za-z_0-9]+)_id[\d]/gi) != -1) {
-                        $(this).attr(val, $(this).attr(val).replace(/([A-Za-z_0-9]+)_id[\d]+/gi, "$1_id" + increment));
-                    }
-                    else if ($(this).attr(val).search(/([A-Za-z_0-9]+)\[[\d]\]\[[\d]\]/gi) != -1) {
-                   
-                        $(this).attr(val, $(this).attr(val).replace(/([A-Za-z_0-9]+)\[[\d]\]\[[\d]\]/gi, "$1_[" + (last.index() + 1) + "][" + increment + "]"));
-                    }
-                    else
-                    {
-                        $(this).attr(val, $(this).attr(val).replace((last.index() + 1).toString(), increment.toString()));
-                    }
-
-
-                    if ($(this).attr("type") != 'checkbox' && $(this).attr("type") != 'radio') {
-                        $(this).val("");
-                    }
-
-                    if ($(this).attr("type") == 'checkbox') {
-                        $(this).removeAttr('checked')
-                    }
-
-                    if ($(this).is("span")) {
-                        $(this).html("");
-                    }
-                });
-            });
-
         }
         function addmoreRows(trigger) {
             if (typeof trigger == 'object') {
@@ -683,24 +610,26 @@ $(function() {
 
             var last = $("#" + id[1] + "_tbody > tr:last").attr("id");
 
-            var increment = ($("#" + id[1] + "_tbody > tr:last").index() + 1) + 1;//parseInt(last) + 1;
+			var increment = parseInt(last) + 1;
 
             //var template =  $("#"+ id[1] +"_tbody > tr:last").html();
-            if ($.browser.msie) {
+		/*	if($.browser.msie) {
+				alert(template);
+				alert(increment);
                 template = template.replace(/name=([a-z]+)_[\d]+_([a-z_]+)/gi, "name='$1_" + increment + "_$2'");
                 template = template.replace(/name=([a-z]+)\[[\d]+\](\[[a-z_]+\])/gi, "name='$1[" + increment + "]$2'");
-                template = template.replace(/name=([A-Za-z]+)_[\d]+/gi, "name='$1_" + increment + "'");
+				template = template.replace(/name=([A-Za-z]+)_[\d]+/gi, "name='$1_" + increment +"'");
                 template = template.replace(/id=([a-z]+)_[\d]+_([a-z_]+)/gi, "id='$1_" + increment + "_$2'");
                 template = template.replace(/id=([a-z]+)\[[\d]+\](\[[a-z_]+\])/gi, "id='$1[" + increment + "]$2'");
-                template = template.replace(/id=([A-Za-z]+)_[\d]+/gi, "id='$1_" + increment + "'");
-
+				template = template.replace(/id=([A-Za-z]+)_[\d]+/gi, "id='$1_" + increment +"'");
+	alert(template);
                 //template = template.replace(/id=([a-z_0-9]+)_id[\d]+_([a-z_]+)/gi, "id='$1_id" + increment + "_$2'");
                 //template = template.replace(/id=([a-z_0-9]+)_id[\d]+/gi, "id='$1_id" + increment + "'");
             }
-
+			*/
             //$("#"+ id[1] +"_tbody").append("<tr id='" + increment + "'>" + template + "</tr>");
 
-            $("#" + id[1] + "_tbody > tr:last").clone(true).removeAttr('id').attr('id', increment).appendTo("#" + id[1] + "_tbody");
+			$("#"+ id[1] +"_tbody > tr:last").clone(true).removeAttr('id').attr('id', increment).appendTo("#"+ id[1] +"_tbody");
 
             /*if(!$.browser.msie) {
              $("#"+ id[1] +"_tbody > tr[id='" + increment + "']").find("input[name],select[name],div[name],textarea[name],img").each(function() {
@@ -769,7 +698,6 @@ $(function() {
             "requestAjax": requestAjax,
             "checkSession": checkSession,
             "addmoreRows": addmoreRows,
-            "newAddMoreRows": newAddMoreRows,
             "sharedPopUp": sharedPopUp
         }
     }();
