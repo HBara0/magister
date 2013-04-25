@@ -60,13 +60,13 @@ if(!$core->input['action']) {
 			}
 			if(isset($holiday['validFrom']) && !empty($holiday['validFrom'])) {
 				$holiday['validFromOuptut'] = date($core->settings['dateformat'], $holiday['validFrom']);
-				$holiday['fromTime'] = date('h:i', $holiday['validFrom']);
+				$holiday['fromTime'] = date('H:i', $holiday['validFrom']);
 			}
 
 
 			if(isset($holiday['validTo']) && !empty($holiday['validTo'])) {
 				$holiday['validToOutput'] = date($core->settings['dateformat'], $holiday['validTo']);
-				$holiday['toTime'] = date('h:i', $holiday['validTo']);
+				$holiday['toTime'] = date('H:i', $holiday['validTo']);
 			}
 
 			$action = 'do_edit';
@@ -148,13 +148,20 @@ else {
 			exit;
 		}
 
-		if(!is_empty($core->input['validFrom'], $core->input['fromTime'])) {
+		if(!empty($core->input['validFrom'])) {
+			if(empty($core->input['fromTime'])) {
+				$core->input['fromTime'] = '00:00';
+			}
 			$core->input['validFrom'] = strtotime($core->input['validFrom'].' '.$core->input['fromTime']);
 		}
 		else {
 			$core->input['validFrom'] = 0;
 		}
-		if(!is_empty($core->input['validTo'], $core->input['toTime'])) {
+		
+		if(!empty($core->input['validTo'])) {
+			if(empty($core->input['toTime'])) {
+				$core->input['toTime'] = '23:59';
+			}
 			$core->input['validTo'] = strtotime($core->input['validTo'].' '.$core->input['toTime']);
 		}
 		else {
