@@ -135,4 +135,6 @@ Your {2} between {3} and {4} was revoked.<br />
 Regards';
 $lang['revokeleavenotificationsubject'] = '{1} revoked their {2}';
 $lang['revokeleavenotificationsubjectuser'] = 'Your {1} was revoked';
+
+$lang['adddaysnotificationmessage'] = '{1} requested additional days ';
 ?>
