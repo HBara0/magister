@@ -20,13 +20,13 @@ if(!defined('DIRECT_ACCESS')) {
 
 $lang->load('surveys_createtemplate');
 if(!$core->input['action']) {
-	$action = 'createsurveytemplate';
+	$action = 'createtemplate';
 	$section_rowid = 1;
 	$question_rowid = 1;
 	$sequence = 1;
 
 	$radiobuttons['isPublic'] = parse_yesno('isPublic', 1, $survey_template['isPublic']);
-	$radiobuttons['forceAnonymousFilling'] = parse_yesno('forceAnonymousFilling', 1, $lang->forceAnonymousFilling_tip);
+	$radiobuttons['forceAnonymousFilling'] = parse_yesno('forceAnonymousFilling', 1, $lang->forceanonymousfilling_tip);
 
 	$radiobuttons['isRequired'] = parse_yesno("section[$section_rowid][questions][$question_rowid][isRequired]", 1, '');
 
@@ -42,6 +42,9 @@ if(!$core->input['action']) {
 		$question_types_options .= "<option value='{$key}'{$selected}>{$fieldtype[$key]}</option>";
 	}
 
+	$surveycategories = get_specificdata('surveys_categories', array('scid', 'title'), 'scid', 'title', 'title');
+	$surveycategories_list = parse_selectlist('category', 5, $surveycategories, $survey_template['category']);
+	
 	$altrow_class = alt_row($altrow_class);
 
 	eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
@@ -53,7 +56,7 @@ if(!$core->input['action']) {
 }
 else {
 
-	if($core->input['action'] == 'createsurveytemplate') {
+	if($core->input['action'] == 'createtemplate') {
 		$survey = new Surveys();
 		$survey->create_survey_template($core->input);
 
