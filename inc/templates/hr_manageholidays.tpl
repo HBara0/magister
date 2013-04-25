@@ -17,11 +17,11 @@
                         $("#year").removeAttr("disabled");
                     }
                     else
-                                {
-                                                $("#year").attr("disabled", "true");
-                                            }
-                                        });
-                                    });
+                    {
+                        $("#year").attr("disabled", "true");
+                    }
+                });
+            });
         </script>
         {$header}
     </head>
@@ -52,26 +52,31 @@
                             <td align="center"><input type='text' name="year" id="year" maxlength="4" size="4" accept="numeric" value="{$holiday[year]}"{$year_disabled}/></td>
                             <td align="center"><input type='text' name="numDays" id="numDays" size="4" maxlength="4" required="required"  value="{$holiday[numDays]}" accept="numeric"/></td>
                         </tr>
-                        <tr class="subtitle">
-                            <td colspan="5"><hr />{$lang->validityperiod}</td>
+                        <tr>
+                            <td colspan="5"><hr /><div class="subtitle">{$lang->validityperiod}</div><span class="smalltext">{$lang->validityperiod_notes}</span></td>
                         </tr>
                         <tr>
-                            <td>{$lang->from}</td>
-                            <td colspan="4">
-    <input type="text" id="pickDate_holidayfromdate"  name="validFrom" autocomplete="off" ttabindexabindex="2" value="{$holiday[validFromOuptut]}"  />
-            <input type="time" name="fromTime" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" title="{$lang->hoursfrom}" value="{$holiday[fromTime]}" placeholder="08:00">
-                            </td>
+                            <td colspan="5">
+                                <div style='display:inline-block; width:15%;'>{$lang->fromdate}</div>
+                                <div style='display:inline-block; width:75%;'>
+                                    <input type="text" id="pickDate_holidayfromdate" name="validFrom" autocomplete="off" ttabindexabindex="2" value="{$holiday[validFromOuptut]}"  />
+                                    <input type="time" name="fromTime" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" title="{$lang->hoursfrom}" value="{$holiday[fromTime]}" placeholder="00:00">
+                                </div>
+                                </div>
+                           </td>
                         </tr>
                          <tr>
-                              <td>{$lang->to}</td>
-                              <td colspan="4">
+                               <td colspan="5">
+                                <div style='display:inline-block; width:15%;'>{$lang->todate}</div>
+                                <div style='display:inline-block; width:75%;'>
                                     <input type="text" id="pickDate_holidaytodate" name="validTo" autocomplete="off" tabindex="2"value="{$holiday[validToOutput]}" />
-                                <input type="time" name="toTime" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})"  title="{$lang->hoursto}" value="{$holiday[toTime]}" placeholder="24:00" >
-                            </td>
+                                    <input type="time" name="toTime" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})"  title="{$lang->hoursto}" value="{$holiday[toTime]}" placeholder="23:59" >
+                                </div>
+                             </td>
                         </tr>
                     </tbody>
                     <tr>
-                        <td colspan="8">
+                        <td colspan="5">
                             <hr />
                             <span class="subtitle">{$lang->exceptfollowingemployees}</span>
                             <div id="exceptionsemployees_list">{$exceptionsemployees_list}</div>
