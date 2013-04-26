@@ -44,19 +44,19 @@ if(!$core->input['action']) {
 }
 else {
 	if($core->input['action'] == 'do_addadditionaldays') {
-		foreach($core->input['AttendanceAddDays']['uid'] as $uid) {	
-				$attendance->request($core->input['AttendanceAddDays']);
+		foreach($core->input['AttendanceAddDays']['uid'] as $uid) {
+			$attendance->request($core->input['AttendanceAddDays']);
 		}
-	
+
 
 		switch($attendance->get_status()) {
 			case 0:
-				foreach($core->input['AttendanceAddDays']['uid'] as $uid) {			/*for each user instantiate his object and  get his ReportsTo details ,and the user detaails*/
+				foreach($core->input['AttendanceAddDays']['uid'] as $uid) { /* for each user instantiate his object and  get his ReportsTo details ,and the user detaails */
 					$user = new Users($uid);
 					$reporttsto[$uid] = $user->get_reportsto()->get();
 					$requester[$uid] = $user->get();
-					$attendance_daydata[$uid]=$user->get_additionaldays_byuser();
-					$attendance->notify_Request($reporttsto[$uid], $requester[$uid],$attendance_daydata[$uid]);
+					$attendance_daydata[$uid] = $user->get_additionaldays_byuser();
+					$attendance->notify_Request($reporttsto[$uid], $requester[$uid], $attendance_daydata[$uid]);
 				}
 				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
 				break;

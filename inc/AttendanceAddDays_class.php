@@ -20,24 +20,35 @@ class AttendanceAddDays Extends Attendance {
 	public function __construct($attedadddays_data = array()) {
 		parent::__construct($attedadddays_data);
 
-		if(!empty($attedadddays_data['adid'])) {
-			$this->additionaldays = $this->read($attedadddays_data['adid']);
+		if(!empty($attedadddays_data['adid']) && isset($attedadddays_data['adid'])) {
+			$this->read($attedadddays_data['adid'], '');
+		}
+		elseif(!empty($attedadddays_data['identifier']) && isset($attedadddays_data['identifier'])) {
+			$this->read('', $attedadddays_data['identifier']);
 		}
 	}
 
-	public function aprrove() {
+	public function approve($id, $uid, $fromemail) {
 		global $db;
+		$id=$db->escape_string($id);
+		if($this->can_Apporve('', $uid, $fromemail)) {
+			echo 'cam approve';
+				$db->update_query("attendance_additionalleaves",array('isApproved' => 1),"identifier='$id' AND isApproved='0'");
+		}
+		else {
+			echo 'cannott approve';
+		}
 	}
 
 	public function request($data = array()) {
 		global $db, $core, $log;
 
 		$this->usersdata['users'] = $data['uid'];
-		unset($data['module'], $data['action'], $data['uid']);  //'uid in', implode(',', $data['uid'])
+		unset($data['module'], $data['action'], $data['uid']);
 		$this->data = $data;
 
 		$this->data['uid'] = $this->usersdata['users'];
-		$this->data['identifier'] = substr(md5(uniqid(microtime())), 1, 10);
+
 		if(is_empty($this->data['date'], $this->data['numDays'])) {
 			$this->status = 1;
 			return false;
@@ -45,7 +56,7 @@ class AttendanceAddDays Extends Attendance {
 		foreach($this->data['uid'] as $userid) {
 			$additional_leavesdata[] = array(
 					'uid' => $userid,
-					'identifier' => $this->data['identifier'],
+					'identifier' => $identifier = substr(md5(uniqid(microtime())), 1, 10),
 					'numDays' => $core->sanitize_inputs($this->data['numDays']),
 					'date' => $core->sanitize_inputs(strtotime($this->data['date'])),
 					'addedBy' => $core->user['uid'],
@@ -82,15 +93,23 @@ class AttendanceAddDays Extends Attendance {
 		}
 	}
 
-	public function can_Apporve($id = '') {
-		
+	public function can_Apporve($id = '', $uid, $reporttofromemail) {
+		global $core;
+		// if  fromemail report == emailreport to  iffrom email= email of reportto to this user
+		$user = new Users($uid);
+		$reporttsto = $user->get_reportsto()->get();
+		if($reporttsto['email'] == $reporttofromemail) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	public function notify_Request($reportsto = array(), $requester, $additionaldaysdata = array()) {
 		global $log, $core, $lang;
-		/* notify reports to */
+		/* notify reports to */ print_r($additionaldaysdata);
 		$body_message = '';
-		print_r($additionaldaysdata);
 		if(is_array($reportsto)) {
 			$additionaldaysdata['dateoutput'] = date($core->settings['dateformat'], $additionaldaysdata['date']);
 			$body_message = $requester['displayName'].$lang->adddaysrequestaproval.'<br/>'.$lang->additionaldays.':'.$additionaldaysdata[numDays].' '.$lang->days.'<br/>'.$lang->correspondtoperiod.': '.$additionaldaysdata['dateoutput']
@@ -100,7 +119,7 @@ class AttendanceAddDays Extends Attendance {
 					'from_email' => 'approve_requestadddays@ocos.orkila.com',
 					'from' => 'Orkila Attendance System',
 					'to' => $reportsto['email'],
-					'subject' => $requester['displayName'].$lang->adddaysnotificationsubject,
+					'subject' => '['.$additionaldaysdata['identifier'].']'.$requester['displayName'].$lang->adddaysnotificationsubject,
 					'message' => $body_message
 			);
 
@@ -111,21 +130,24 @@ class AttendanceAddDays Extends Attendance {
 		}
 	}
 
-	private function read($id = '', $simple = true) {
+	private function read($id = '', $identifier = '', $simple = true) {
 		global $db;
-		if(empty($id)) {
-			$id = $this->additionaldays['adid'];
+		if(empty($id) && !empty($identifier)) {
+			$where_statement = ' WHERE identifier="'.$db->escape_string($identifier).'"';
 		}
-
+		elseif(!empty($id)) {
+			$where_statement = ' WHERE adid='.$db->escape_string($id);
+		}
 		$this->additionaldays = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."attendance_additionalleaves 
-															WHERE adid=".$db->escape_string($id).""));
+															{$where_statement}"));
+
 		if(is_array($this->additionaldays) && !empty($this->additionaldays)) {
 			return true;
 		}
 		return false;
 	}
 
-	public function get($id = '') {
+	public function get() {
 		return $this->additionaldays;
 	}
 
