@@ -9,9 +9,9 @@
 <tr>
 {$menu}
 <td class="contentContainer">
-<h3>{$lang->addadditionalbalance}</h3>
-<form name='add_attendance/addadditionalleaves_Form' id="add_attendance/addadditionalleaves_Form" method="post">
-<input type="hidden" id="action" name="action" value="do_addadditionalleaves" />
+<h3>{$lang->addadditionaldays}</h3>
+<form name='add_attendance/addadditionaldays_Form' id="add_attendance/addadditionaldays_Form" method="post">
+<input type="hidden" id="action" name="action" value="do_addadditionaldays" />
 	<table width="100%">
 		<tr>
 			<td style="width:25%;">{$lang->employeename}</td>
@@ -20,19 +20,20 @@
 			<td style="width:25%;">{$lang->justification}</td>
 		</tr>
 		<tr>
-			<td>{$users_list}</td>
-			<td style="vertical-align:top"><input type="text" id='numDays' name="numDays"  size="5" accept="numeric" tabindex="2"/></td>
+                    <td> <select id="AttendanceAddDays[uid]" name="AttendanceAddDays[uid][]" size="5" tabindex="1" multiple="multiple" style="width:160px;">{$users_list}</select> </td>
+			<td style="vertical-align:top"><input type="text" id='AttendanceAddDays[numDays]' name="AttendanceAddDays[numDays]"  size="5" accept="numeric" tabindex="2"/></td>
 			<td style="vertical-align:top"><input type='text' id='pickDate_date' autocomplete='off' tabindex="3"/><br />
-		  	<input type='hidden' name='date' id='altpickDate_date' /><input type='checkbox' name='correspondToDate' id='correspondToDate' value="1">{$lang->correspondtoperiod}</td>
-			<td style="vertical-align:top"><input type="text" id='remark' name="remark" size="40" tabindex="4"/></td>
+		  	<input type='hidden' name='AttendanceAddDays[date]' id='altpickDate_date' />
+            <input type='checkbox' name='AttendanceAddDays[correspondToDate]' id='AttendanceAddDays[correspondToDate]' value="1">{$lang->correspondtoperiod}</td>
+			<td style="vertical-align:top"><input type="text" id='AttendanceAddDays[remark]' name="AttendanceAddDays[remark]" size="40" tabindex="4"/></td>
 	  </tr>
 	  
 		<tr>
-			<td colspan="4"><hr/><input type='button' class='button' value='{$lang->savecaps}' id='add_attendance/addadditionalleaves_Button' /></td>
+			<td colspan="4"><hr/><input type='button' class='button' value='{$lang->savecaps}' id='add_attendance/addadditionaldays_Button' /></td>
 		</tr>
 	</table>
 </form>
-<div id="add_attendance/addadditionalleaves_Results"></div>
+<div id="add_attendance/addadditionaldays_Results"></div>
 </td>
 </tr>
 {$footer}
