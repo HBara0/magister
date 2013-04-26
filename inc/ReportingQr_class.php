@@ -279,7 +279,7 @@ class ReportingQr Extends Reporting {
 		if($db->num_rows($query) > 0) {
 			$representatives = array();
 			while($representative = $db->fetch_assoc($query)) {
-				$representatives[$representative['erpid']] = $representative;
+				$representatives[$representative['erpid'].$representative['rpid']] = $representative;
 			}
 			return $representatives;
 		}
