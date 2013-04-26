@@ -8,7 +8,6 @@
  * Last Update:    @tony.assaad    March 26, 2013 | 3:24:11 PM
  */
 
-
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
@@ -309,7 +308,7 @@ if(!$core->input['action']) {
 		$item = array();
 
 		$keycustomersbox = $keycustomers = '';
-		if(is_array($report['keycustomers']) && ($report['keyCustAvailable']==1)) {
+		if(is_array($report['keycustomers'])) {
 			$keycust_count = 0;
 			foreach($report['keycustomers'] as $keycust => $customer) {
 				/* Limit to 5 customers */
@@ -348,6 +347,8 @@ if(!$core->input['action']) {
 						$marketreportbox_comma = ', ';
 					}
 				}
+				array_walk($marketreport, 'fix_newline');
+				array_walk($marketreport, 'parse_ocode');
 				eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
 			}
 		}
@@ -584,13 +585,13 @@ if(!$core->input['action']) {
 				}
 				if(!empty($fx_rates_entries)) {
 					eval("\$fxratespage = \"".$template->get('reporting_report_fxrates')."\";");
+					$fxratespage = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $fxratespage);
 				}
 			}
 			/* Parse Currencies Table - END */
-			if(is_array($report['productsactivity'])){
+			//if(is_array($report['productsactivity'])){
 				eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
-			}
-			
+			//}
 		}
 
 		if($core->input['referrer'] == 'direct') {
@@ -714,8 +715,9 @@ else {
 		$html2pdf->pdf->SetDisplayMode('fullpage');
 		$html2pdf->pdf->SetTitle($suppliername, true);
 		//$content = html_entity_decode($content, ENT_XHTML, 'ISO-8859-1');
-		//$content = iconv("UTF-8", "ISO-8859-1//TRANSLIT", $content);
-
+		//$content = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $content);
+		$content = str_replace(array('&uarr;','&darr;'), array('^', '<sub>v</sub>'), $content);
+		
 		if($core->input['action'] == 'saveandsend') {
 			set_time_limit(0);
 			ini_set('memory_limit', '200M');
