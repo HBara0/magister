@@ -347,8 +347,9 @@ if(!$core->input['action']) {
 						$marketreportbox_comma = ', ';
 					}
 				}
+				
 				array_walk($marketreport, 'fix_newline');
-				array_walk($marketreport, 'parse_ocode');
+-				array_walk($marketreport, 'parse_ocode');
 				eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
 			}
 		}
@@ -567,7 +568,9 @@ if(!$core->input['action']) {
 				}
 				$fxratespage_tablehead .= '</tr>';
 				$currency_rates_year = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'], array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR'); /* GET the fxrate of previous quarter year */
-
+				if($report['year'] == $reporting_quarter['year']) {
+					$currency_rates_year = array_slice($currency_rates_year, 0, date('n', TIME_NOW));
+				}
 				$currency_rates_prevyear = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR');
 				if(is_array($currency_rates_prevyear)) {
 					$fxrates_linechart_scale['min'] = min($currency_rates_prevyear);

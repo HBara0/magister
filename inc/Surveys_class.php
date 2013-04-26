@@ -249,14 +249,25 @@ class Surveys {
 
 								/* Split the choices value by ";"  */
 								if(is_array($question_choices_choice)) {
-									foreach($question_choices_choice as $key => $choices) {
-										$question_choices_values = preg_split('/;+/', $choices);
+									foreach($question_choices_choice as $key => $choice) {
+										if(strstr($choice, ';')) {
+											$question_choices_values = preg_split("/;+/", $choice);
+										}
+										else {
+											$question_choices_values[0] = $choice;
+										}
+										
 										if(empty($question_choices_values[0])) {
 											continue;
 										}
 										if(empty($question_choices_values[1])) {
 											$question_choices_values[1] = $question_choices_values[0];
 										}
+										
+										if(empty($question_choices_values[1])) {
+											$question_choices_values[1] = $question_choices_values[0];
+										}
+										
 										if(!empty($question_choices_values[0]) && !empty($question_choices_values[1])) {
 											$newsurveys_questions_choices = array('stqid' => $stqid, 'choice' => trim($question_choices_values[0]), 'value' => trim($question_choices_values[1]));
 											$query_choice = $db->insert_query('surveys_templates_questions_choices', $newsurveys_questions_choices);

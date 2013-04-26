@@ -336,6 +336,81 @@ class ReportingQr Extends Reporting {
 			WHERE sa.eid=".$this->report['spid'].""));
 	}
 
+	
+	public function validate_forecasts($data, $currencies, $options = array()) {
+		global $db, $core;
+		
+		$validation_items = array('sales' => 'turnOver', 'quantity' => 'quantity');
+		$correctionsign = '&ge; ';
+		if($this->report['quarter'] == 4) {
+			$correctionsign = '&equiv; ';
+		}
+
+		if(is_array($data)) {
+			$query = $db->query("SELECT pid, SUM(quantity) AS quantity, SUM(turnOver) AS turnOver
+							FROM ".Tprefix."productsactivity pa 
+							JOIN ".Tprefix."reports r ON (r.rid=pa.rid)
+							WHERE r.quarter<'".$this->report['quarter']."' AND r.year='".$this->report['year']."' AND r.affid='".$this->report['affid']."' AND r.spid='".$this->report['spid']."'
+							GROUP BY pa.pid");
+			if($db->num_rows($query) > 0) {
+				while($prev_data_item = $db->fetch_assoc($query)) {
+					$prev_data[$prev_data_item['pid']] = $prev_data_item;
+				}
+			}
+
+			foreach($data as $productactivity) {
+				if(empty($productactivity['pid'])) {
+					continue;
+				}
+				
+				if(isset($prev_data[$productactivity['pid']])) {
+					foreach($validation_items as $validation_key => $validation_item) {
+						$actual_current_validation = $productactivity[$validation_item];
+						if($validation_key == 'sales' && isset($productactivity['fxrate'])) {
+							$actual_current_validation = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
+						}
+
+						$actual_current_data_querystring = 'uid!='.$core->user['uid'];
+						if(isset($productactivity['paid'])) {
+							$actual_current_data_querystring = 'pa.paid!='.$productactivity['paid'];
+						}
+
+						$actual_current_data = $db->fetch_assoc($db->query("SELECT SUM(".$validation_key."Forecast) AS forecastsum, SUM(".$validation_item.") AS actualsum FROM ".Tprefix."productsactivity pa JOIN ".Tprefix."reports r ON (r.rid=pa.rid) WHERE pid='".$db->escape_string($productactivity['pid'])."' AND quarter='".$this->report['quarter']."' AND year='".$this->report['year']."' AND affid='".$this->report['affid']."' AND spid='".$this->report['spid']."' AND {$actual_current_data_querystring}"));
+
+						$actual_forecast = ($prev_data[$productactivity['pid']][$validation_item] + $actual_current_validation + $actual_current_data['actualsum']);
+						$actual_current_forecast = $productactivity[$validation_key.'Forecast'] + $actual_current_data['forecastsum'];
+
+						if(round($actual_forecast, 4) > round($actual_current_forecast, 4) || ($this->report['quarter'] == 4 && round($actual_forecast, 4) < round($actual_current_forecast, 4))) {
+							$forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
+							$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.number_format($actual_forecast, 4);
+						}
+					}
+				}
+				else {
+					foreach($validation_items as $validation_key => $validation_item) {
+						$actual_forecast = $productactivity[$validation_item];
+						if($validation_key == 'sales') {
+							if(isset($productactivity['fxrate']) && $productactivity['fxrate'] != 1) {
+								$actual_forecast = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
+							}
+						}
+							
+						if($productactivity[$validation_key.'Forecast'] < $actual_forecast || ($this->report['quarter'] == 4 && round($productactivity[$validation_key.'Forecast'], 4) > $actual_forecast)) {
+							$forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
+							$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.number_format($actual_forecast, 4);
+						}
+					}
+				}
+			}
+
+			if(is_array($forecast_corrections)) {
+				return $forecast_corrections;
+			}
+			return true;
+		}
+		return false;
+	}
+	
 	/* Setter Functionality - START */
 	public function save_productactivity($data, $currencies, $options = array()) {
 		global $db, $core, $log;

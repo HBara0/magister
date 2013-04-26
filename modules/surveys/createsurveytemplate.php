@@ -77,7 +77,7 @@ else {
 				output_xml("<status>false</status><message>{$lang->surveystemplatessectionsquestion}</message>");
 				break;
 		}
-		redirect("index.php?module=surveys/createsurveytemplate");
+		//redirect("index.php?module=surveys/createsurveytemplate");
 	}
 	elseif($core->input['action'] == 'parsetype') {	
 		/* Get validation of the question - START */

@@ -98,13 +98,13 @@ $(function() {
             if($("#" + toEvaluate + "_" + id[1]).val() != '') {
                 if(evaluationType == "smaller") {
                     if((parseFloat($(this).val())/evaluationConversion) > parseFloat($("#" + toEvaluate + "_" + id[1]).val())) {
-                        $(this).val(($("#" + toEvaluate + "_" + id[1]).val()*evaluationConversion).toFixed(3));	
+                        $(this).val(($("#" + toEvaluate + "_" + id[1]).val()*evaluationConversion).toFixed(4));	
                     }
                 }
                 else
                 {
                     if(parseFloat($(this).val()) < (parseFloat($("#" + toEvaluate + "_" + id[1]).val())/evaluationConversion)) {
-                        $(this).val(($("#" + toEvaluate + "_" + id[1]).val()/evaluationConversion).toFixed(3));	
+                        $(this).val(($("#" + toEvaluate + "_" + id[1]).val()/evaluationConversion).toFixed(4));	
                     }
                 }
             }

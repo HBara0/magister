@@ -44,12 +44,12 @@ else
 			$query_filter_and = ' AND ';
 		}
 		
-		if($core->input['matchitem'] == 'suppliers' && !empty($core->input['filteraffiliate'])) {
+		//if($core->input['matchitem'] == 'suppliers' && !empty($core->input['filteraffiliate'])) {
 			/*if(empty($query_filter)) {
 				$query_filter_and = ' WHERE ';
 			}*/
 			$query_filter .= ' AND (affid="'.$db->escape_string($core->input['filteraffiliate']).'" OR affid=0)';
-		}
+	//	}
 
 		$check_query_parameters = array('suppliers' => array('id' => 'eid', 'name' => 'companyName', 'checkAttr' => 'companyName', 'table' => 'entities', 'mediationtable' => 'integration_mediation_entities', 'mediationtableid' => 'imspid', 'quicksearch' => 'supplier', 'addlink' => 'entities/add&type=supplier', 'extrawhere' => serialize(array(0 => array('attr' => 'type', 'value' => 's'))), 'mediationextrawhere' => serialize(array(0 => array('attr' => 'entityType', 'value' => 's')))), 'products' => array('id' => 'pid', 'name' => 'name', 'checkAttr' => 'name', 'table' => 'products', 'mediationtable' => 'integration_mediation_products', 'mediationtableid' => 'impid', 'quicksearch' => 'product', 'addlink' => 'products/add'));
 		
@@ -86,7 +86,7 @@ else
 				$check_query = $db->query("SELECT {$check_query_parameters[$core->input[matchitem]][id]} as localId, {$check_query_parameters[$core->input[matchitem]][name]} as localName 
 											FROM ".Tprefix."{$check_query_parameters[$core->input[matchitem]][table]} 
 											WHERE {$check_query_parameters[$core->input[matchitem]][checkAttr]}='".$db->escape_string($entrytomatch['foreignName'])."'{$check_query_extrawhere}");
-				if($db->num_rows($check_query) >0) {
+				if($db->num_rows($check_query) > 0) {
 					$check_results = $db->fetch_assoc($check_query);
 					$matching_entries = '<input type="hidden" value="'.$check_results['localId'].'" id="localId_'.$entrytomatch['dbkey'].'" name="localId['.$entrytomatch['dbkey'].']">'.$check_results['localName'];
 				}
@@ -101,6 +101,11 @@ else
 							}
 						}
 					}
+					
+					if(!empty($entrytomatch['localName'])) {
+						$furthercheck_query_extra .= ' OR '.$check_query_parameters[$core->input['matchitem']]['checkAttr'].' LIKE "%'.$part.'%"';
+					}
+					
 					$furthercheck_query = $db->query("SELECT {$check_query_parameters[$core->input[matchitem]][id]} as localId, {$check_query_parameters[$core->input[matchitem]][name]} as localName
 											FROM ".Tprefix."{$check_query_parameters[$core->input[matchitem]][table]}  
 											WHERE (SOUNDEX({$check_query_parameters[$core->input[matchitem]][checkAttr]}) = SOUNDEX('".$db->escape_string($entrytomatch['foreignName'])."') 

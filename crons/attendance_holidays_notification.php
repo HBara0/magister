@@ -58,6 +58,7 @@ while($affiliate = $db->fetch_assoc($query)) {
 }
 
 foreach($holidays as $affid => $holidayslist) {
+	$mailinglists[$affid]['email'] = array_unique($mailinglists[$affid]['email']);
 	$email_data = array(
 		'to'		 => $mailinglists[$affid]['email'],
 		'from_email'  => $core->settings['adminemail'],
@@ -65,12 +66,15 @@ foreach($holidays as $affid => $holidayslist) {
 		'subject'	=> 'Your upcoming holidays'
 	);
 	
+	if(empty($email_data['to'])) {
+		continue;
+	}
+	
 	$email_data['message'] = 'Following are the upcoming holidays of '.$mailinglists[$affid]['name'].': <ul>';
 	foreach($holidayslist as $key => $val) {
 		$email_data['message'] .= '<li>'.date('l, F j', mktime(0, 0, 0, $val['month'], $val['day'], $val['year'])).' - '.$val['title'].', '.$val['numDays'].' day(s).</li>';
 	}
 	$email_data['message'] .= '</ul>';
-		//print_r($email_data);
 	$mail = new Mailer($email_data, 'php');
 }
 $log->record($mailinglists);
