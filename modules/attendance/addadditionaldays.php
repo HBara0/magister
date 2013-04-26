@@ -15,7 +15,6 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 $attendance = new AttendanceAddDays();
-
 $affiliate = new Affiliates($core->user['mainaffiliate']);
 $affiliate_users = $affiliate->get_users();
 $user = new Users($core->user['uid']);
@@ -45,7 +44,10 @@ if(!$core->input['action']) {
 }
 else {
 	if($core->input['action'] == 'do_addadditionaldays') {
-		$attendance->request($core->input['AttendanceAddDays']);
+		foreach($core->input['AttendanceAddDays']['uid'] as $uid) {	
+				$attendance->request($core->input['AttendanceAddDays']);
+		}
+	
 
 		switch($attendance->get_status()) {
 			case 0:
@@ -53,7 +55,8 @@ else {
 					$user = new Users($uid);
 					$reporttsto[$uid] = $user->get_reportsto()->get();
 					$requester[$uid] = $user->get();
-					$attendance->notify_Request($reporttsto[$uid], $requester[$uid]);
+					$attendance_daydata[$uid]=$user->get_additionaldays_byuser();
+					$attendance->notify_Request($reporttsto[$uid], $requester[$uid],$attendance_daydata[$uid]);
 				}
 				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
 				break;
@@ -61,7 +64,7 @@ else {
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				break;
 			case 2:
-				output_xml("<status>false</status><message>{$lang->requestexist}</message>");
+				output_xml("<status>false</status><message>wwwww{$lang->requestexist}</message>");
 				break;
 		}
 	}

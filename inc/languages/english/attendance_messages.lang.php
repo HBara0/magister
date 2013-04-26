@@ -137,4 +137,7 @@ $lang['revokeleavenotificationsubject'] = '{1} revoked their {2}';
 $lang['revokeleavenotificationsubjectuser'] = 'Your {1} was revoked';
 
 $lang['adddaysnotificationmessage'] = '{1} requested additional days ';
+
+$lang['adddaysnotificationsubject'] = ' requested approval additional holiday days';
+$lang['adddaysrequestaproval']=' request approval for the following additional holiday days <br/>';
 ?>

@@ -69,6 +69,12 @@ class Users {
 		return $this->user['reportingTo'];
 	}
 
+	public function get_additionaldays_byuser() {
+		global $db;
+		return $this->user['additionaldays'] = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."attendance_additionalleaves 
+																				WHERE uid ={$this->user[uid]}"));
+	}
+
 	public function canHr($options = '') {
 		global $db, $core, $user;
 		if(!empty($options) && ($options == 'inaffiliate')) {

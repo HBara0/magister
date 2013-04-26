@@ -14,11 +14,14 @@
  * @author tony.assaad
  */
 class AttendanceAddDays Extends Attendance {
+	private $status = 0; //0=No errors;1=Subject missing;2=Entry exists;3=Error saving;4=validation violation
+	private $additionaldays = array();
+
 	public function __construct($attedadddays_data = array()) {
 		parent::__construct($attedadddays_data);
 
 		if(!empty($attedadddays_data['adid'])) {
-			$this->read($attedadddays_data['adid']);
+			$this->additionaldays = $this->read($attedadddays_data['adid']);
 		}
 	}
 
@@ -59,9 +62,10 @@ class AttendanceAddDays Extends Attendance {
 						$log->record($db->last_id());
 					}
 				}
-				else {
-					$this->status = 2;
-				}
+//				else {
+//					$this->status = 2;
+//					return false;
+//				}
 			}
 		}
 	}
@@ -82,16 +86,22 @@ class AttendanceAddDays Extends Attendance {
 		
 	}
 
-	public function notify_Request($reportsto = array(), $requester) {
-		global $log, $lang;
+	public function notify_Request($reportsto = array(), $requester, $additionaldaysdata = array()) {
+		global $log, $core, $lang;
 		/* notify reports to */
+		$body_message = '';
+		print_r($additionaldaysdata);
 		if(is_array($reportsto)) {
+			$additionaldaysdata['dateoutput'] = date($core->settings['dateformat'], $additionaldaysdata['date']);
+			$body_message = $requester['displayName'].$lang->adddaysrequestaproval.'<br/>'.$lang->additionaldays.':'.$additionaldaysdata[numDays].' '.$lang->days.'<br/>'.$lang->correspondtoperiod.': '.$additionaldaysdata['dateoutput']
+					.'<br/>'.$lang->justification.': '.$additionaldaysdata['remark'];
+
 			$email_data = array(
 					'from_email' => 'approve_requestadddays@ocos.orkila.com',
 					'from' => 'Orkila Attendance System',
 					'to' => $reportsto['email'],
-					'subject' => $lang->sprint($lang->adddaysnotificationsubject),
-					'message' => $requester['displayName'].'requested additional days'
+					'subject' => $requester['displayName'].$lang->adddaysnotificationsubject,
+					'message' => $body_message
 			);
 
 			$mail = new Mailer($email_data, 'php');
@@ -108,7 +118,7 @@ class AttendanceAddDays Extends Attendance {
 		}
 
 		$this->additionaldays = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."attendance_additionalleaves 
-															WHERE adid=".intval($id).""));
+															WHERE adid=".$db->escape_string($id).""));
 		if(is_array($this->additionaldays) && !empty($this->additionaldays)) {
 			return true;
 		}
