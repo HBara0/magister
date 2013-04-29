@@ -23,24 +23,23 @@ $lang = new Language('english');
 $lang->load('attendance_messages');
 $ignore_subject = false;
 
-//if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_subject == true) {
-
+if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_subject == true) {
 /* Check if reply is possiblity auto-responder */
 if(strstr(strtolower($data['subject']), 'auto')) {
 	exit;
 }
-$request_key = '899d8b636a';			//$db->escape_string($subject[1]);
-
+//$request_key = '4418fb4a4e';
+$request_key = $db->escape_string($subject[1]);
 $attendanceadddays = new AttendanceAddDays(array('identifier' => $request_key));
 
 $adddays_data = $attendanceadddays->get();
 
-$attendanceadddays->approve($request_key, $adddays_data['uid'], 'tony.assaad@orkila.com');
+$attendanceadddays->approve($request_key, $adddays_data['uid'], 'zaher.reda@orkila.com');
 
 //notify approve user
  $attendanceadddays->notifyApprove($request_key,$adddays_data['uid']);
  
 
 
-//}
+}
 ?>
