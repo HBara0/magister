@@ -118,7 +118,7 @@ class AttendanceAddDays Extends Attendance {
 					'from_email' => 'approve_requestadddays@sandbox.ocos.orkila.com',
 					'from' => 'Orkila Attendance System',
 					'to' => $reportsto['email'],
-					'subject' => '['.$additionaldaysdata['identifier'].']'.$requester['displayName'].$lang->adddaysnotificationsubject,
+					'subject' => $requester['displayName'].$lang->adddaysnotificationsubject.'['.$additionaldaysdata['identifier'].']',
 					'message' => $body_message
 			);
 
