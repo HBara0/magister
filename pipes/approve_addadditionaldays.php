@@ -29,22 +29,17 @@ $ignore_subject = false;
 if(strstr(strtolower($data['subject']), 'auto')) {
 	exit;
 }
-$request_key = '8498fe9aa1'; //$db->escape_string($subject[1]);
+$request_key = '899d8b636a';			//$db->escape_string($subject[1]);
 
 $attendanceadddays = new AttendanceAddDays(array('identifier' => $request_key));
 
 $adddays_data = $attendanceadddays->get();
 
-$attendanceadddays->approve($request_key, $core->user['uid'], 'anis.bohsali@orkila.com');
+$attendanceadddays->approve($request_key, $adddays_data['uid'], 'tony.assaad@orkila.com');
 
-$email_data = array(
-		'from_email' => 'approve_leaverequest@ocos.orkila.com',
-		'from' => 'Orkila Attendance System',
-		'to' => $approver['email'],
-		'subject' => $lang->requestleavesubject,
-		'message' => $lang->requestleavemessagesupervisor
-);
-
+//notify approve user
+ $attendanceadddays->notifyApprove($request_key,$adddays_data['uid']);
+ 
 
 
 //}

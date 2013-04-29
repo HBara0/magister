@@ -30,13 +30,12 @@ class AttendanceAddDays Extends Attendance {
 
 	public function approve($id, $uid, $fromemail) {
 		global $db;
-		$id=$db->escape_string($id);
-		if($this->can_Apporve('', $uid, $fromemail)) {
-			echo 'cam approve';
-				$db->update_query("attendance_additionalleaves",array('isApproved' => 1),"identifier='$id' AND isApproved='0'");
+		$id = $db->escape_string($id);
+		if($this->can_Apporve($uid, $fromemail)) {
+			$db->update_query("attendance_additionalleaves", array('isApproved' => 1), "identifier='$id' AND isApproved='0'");
 		}
 		else {
-			echo 'cannott approve';
+			return false;
 		}
 	}
 
@@ -73,10 +72,10 @@ class AttendanceAddDays Extends Attendance {
 						$log->record($db->last_id());
 					}
 				}
-//				else {
-//					$this->status = 2;
-//					return false;
-//				}
+				else {
+					$this->status = 2;
+					return false;
+				}
 			}
 		}
 	}
@@ -93,9 +92,9 @@ class AttendanceAddDays Extends Attendance {
 		}
 	}
 
-	public function can_Apporve($id = '', $uid, $reporttofromemail) {
+	public function can_Apporve($uid, $reporttofromemail) {
 		global $core;
-		// if  fromemail report == emailreport to  iffrom email= email of reportto to this user
+		/* /* if  from email= email of reportto to this user */
 		$user = new Users($uid);
 		$reporttsto = $user->get_reportsto()->get();
 		if($reporttsto['email'] == $reporttofromemail) {
@@ -108,7 +107,7 @@ class AttendanceAddDays Extends Attendance {
 
 	public function notify_Request($reportsto = array(), $requester, $additionaldaysdata = array()) {
 		global $log, $core, $lang;
-		/* notify reports to */ print_r($additionaldaysdata);
+		/* notify reports to */
 		$body_message = '';
 		if(is_array($reportsto)) {
 			$additionaldaysdata['dateoutput'] = date($core->settings['dateformat'], $additionaldaysdata['date']);
@@ -126,6 +125,26 @@ class AttendanceAddDays Extends Attendance {
 			$mail = new Mailer($email_data, 'php');
 			if($mail->get_status() === true) {
 				$log->record('notifysupervisors', $reportsto);
+			}
+		}
+	}
+
+	public function notifyApprove($request_key, $uid) {
+		global $db, $lang, $log;
+		if(value_exists('attendance_additionalleaves', 'isApproved', 1, 'identifier="'.$request_key.'"')) {
+			$user = new Users($uid);
+			$requester_details = $user->get();
+			$lang->adddaysrequestaproval = $lang->sprint($lang->adddaysapprovedmessage, $requester_details['displayName'], $this->additionaldays['numDays']);
+			$email_data = array(
+					'from_email' => 'attendance@ocos.orkila.com',
+					'from' => 'Orkila Attendance System',
+					'to' => $requester_details['email'],
+					'subject' => $lang->additionadaysapprovedsubject,
+					'message' => $lang->adddaysrequestaproval
+			);
+			$mail = new Mailer($email_data, 'php');
+			if($mail->get_status() === true) {
+				$log->record('notifyrequester', $reportsto);
 			}
 		}
 	}
@@ -154,10 +173,6 @@ class AttendanceAddDays Extends Attendance {
 	protected function get_affilisateduser() {
 		$user_attendance = new Users($id);
 		return $this->userattendance = $user_attendance->get();
-	}
-
-	public function notify_Approval($id = '') {
-		
 	}
 
 	public function get_status() {
