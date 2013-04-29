@@ -72,7 +72,7 @@ class Users {
 	public function get_additionaldays_byuser() {
 		global $db;
 		return $this->user['additionaldays'] = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."attendance_additionalleaves 
-																				WHERE uid ={$this->user[uid]}"));
+																			WHERE uid ={$this->user[uid]}"));
 	}
 
 	public function canHr($options = '') {

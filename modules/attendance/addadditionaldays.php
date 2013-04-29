@@ -9,7 +9,6 @@
  */
 
 
-
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
@@ -48,7 +47,6 @@ else {
 			$attendance->request($core->input['AttendanceAddDays']);
 		}
 
-
 		switch($attendance->get_status()) {
 			case 0:
 				foreach($core->input['AttendanceAddDays']['uid'] as $uid) { /* for each user instantiate his object and  get his ReportsTo details ,and the user detaails */
@@ -64,7 +62,7 @@ else {
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				break;
 			case 2:
-				output_xml("<status>false</status><message>wwwww{$lang->requestexist}</message>");
+				output_xml("<status>false</status><message>{$lang->requestexist}</message>");
 				break;
 		}
 	}
