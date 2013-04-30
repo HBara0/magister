@@ -5,7 +5,7 @@
                 <td>{$lang->question}</td>
                 <td>
                     <input name="section[{$section_rowid}][questions][{$question_rowid}][question]"  value="{$section[section_rowid][questions][question_rowid][question]}" type="text" size="40" autocomplete="on" required="required">
-                    <div style='float:right;' class="ui-state-default"><span class="questions-sort-icon ui-icon ui-icon-arrowthick-2-n-s"></span></div>
+                    <div style='float:right; cursor: move;' class="ui-state-default"><span class="questions-sort-icon ui-icon ui-icon-arrowthick-2-n-s"></span></div>
                 </td>
             </tr>
 
