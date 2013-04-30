@@ -144,28 +144,28 @@ else
 	if($core->input['action'] == 'do_perform_createsurvey')  {
 		$survey = new Surveys();
 		$survey->create_survey($core->input);
-	}
 
-	switch($survey->get_status()) {
-		case 0:
-			output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
-			break;
-		case 1: 
-			output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-			break;
-		case 2:
-			output_xml("<status>false</status><message>{$lang->surveyexists}</message>");
-			break;
-		case 3: 
-			output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
-			break;
-		case 4: 
-			output_xml("<status>false</status><message>{$lang->mustinviteusers}</message>");
-			break;
-		case 5:
-			header('Content-type: text/xml+xhtml');
-			output_xml("<status>false</status><message><![CDATA[ ".$errorhandler->get_errors_inline()." ]]></message>");
-			break;
+		switch($survey->get_status()) {
+			case 0:
+				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+				break;
+			case 1: 
+				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+				break;
+			case 2:
+				output_xml("<status>false</status><message>{$lang->surveyexists}</message>");
+				break;
+			case 3: 
+				output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+				break;
+			case 4: 
+				output_xml("<status>false</status><message>{$lang->mustinviteusers}</message>");
+				break;
+			case 5:
+				header('Content-type: text/xml+xhtml');
+				output_xml("<status>false</status><message><![CDATA[ ".$errorhandler->get_errors_inline()." ]]></message>");
+				break;
+		}
 	}
 }
 ?>

@@ -390,9 +390,9 @@ function count_holidays($uid, $check_dates_start, $check_dates_end, $reoccurring
 				$month_check++;
 			}
 		}
-		$query = $db->query("SELECT * FROM ".Tprefix."holidays WHERE affid='{$user[affid]}' 
-			WHERE ((validFrom = 0 OR ({$date_info[start][year]} >= FROM_UNIXTIME(validFrom, '%Y') AND month >= FROM_UNIXTIME(validFrom, '%m') AND day >= FROM_UNIXTIME(validFrom, '%d'))) AND (validTo=0 OR ({$date_info[end][year]} <= FROM_UNIXTIME(validTo, '%Y') AND month <= FROM_UNIXTIME(validTo, '%m') AND day <= FROM_UNIXTIME(validTo, '%d'))))
-			AND (month BETWEEN {$date_info[start][mon]} AND {$date_info[end][mon]}) AND hid NOT IN (SELECT hid FROM ".Tprefix."holidaysexceptions WHERE uid=".intval($uid).") AND ({$day_querystring}){$year_querystring}");
+		$query = $db->query("SELECT * FROM ".Tprefix."holidays 
+					WHERE affid='{$user[affid]}' AND ((validFrom = 0 OR ({$date_info[start][year]} >= FROM_UNIXTIME(validFrom, '%Y') AND month >= FROM_UNIXTIME(validFrom, '%m') AND day >= FROM_UNIXTIME(validFrom, '%d'))) AND (validTo=0 OR ({$date_info[end][year]} <= FROM_UNIXTIME(validTo, '%Y') AND month <= FROM_UNIXTIME(validTo, '%m') AND day <= FROM_UNIXTIME(validTo, '%d'))))
+					AND (month BETWEEN {$date_info[start][mon]} AND {$date_info[end][mon]}) AND hid NOT IN (SELECT hid FROM ".Tprefix."holidaysexceptions WHERE uid=".intval($uid).") AND ({$day_querystring}){$year_querystring}");
 		while($holiday = $db->fetch_assoc($query)) {
 			if($holiday['year'] == 0) { 
 				$holiday['year'] = $date_info['start']['year'];

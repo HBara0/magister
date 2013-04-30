@@ -43,7 +43,7 @@ $(function() {
         </tr>
         <tr>
           <td style="font-weight:bold;">{$lang->template}</td>
-          <td>{$surveytemplates_list} <a href="" target="_blank"><img src="./images/addnew.png" alt="{$lang->add}"></a></td>
+          <td>{$surveytemplates_list} <a href="index.php?module=surveys/createsurveytemplate" target="_blank"><img src="./images/addnew.png" alt="{$lang->add}"></a></td>
         </tr>
         <tr>
           <td style="font-weight:bold;">{$lang->publicfill}</td>

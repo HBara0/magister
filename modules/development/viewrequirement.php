@@ -18,7 +18,12 @@ if(!$core->input['action']) {
 	if(!empty($core->input['id'])) {
 		$requirementobj = new Requirements($core->input['id']);
 		$requirement = $requirementobj->get();
-	
+		$parent = $requirementobj->get_parent()->get();
+
+		if(!empty($parent['refKey'])) {
+			$reference_sep = '.';
+		}
+				
 		if(is_array($requirement['children'])) {
 			$children_list = '<div class="subtitle">'.$lang->children.'</div>';
 			$children_list .= '<ul>';
@@ -38,8 +43,8 @@ if(!$core->input['action']) {
 				if(!empty($change['outcomeReq'])) {
 					$change['description'] .= '<br />Check: <a href="index.php?module=development/viewrequirement&amp;id='.$change['outcomeReq'].'">'.$change['drRefWord'].' '.$change['drRefKey'].' '.$change['outcomeReqTitle'].'</a>';	
 				}
-				
-				$change['identifier'] = $requirement['refWord'].' '.$requirement['refKey'].' - C'.$change['refKey'];
+			
+				$change['identifier'] = $requirement['refWord'].' '.$parent['refKey'].$reference_sep.$requirement['refKey'].' - C'.$change['refKey'];
 				$changes_section .= '<div class="'.$rowclass.'" style="margin-bottom: 10px;"><span style="font-weight:bold;">'.$change['identifier'].' '.$change['title'].'</span><br />'.$change['description'].'. <span class="smalltext">Added '.$change['dateCreated_output'].' by '.$change['createdByName'].'</span></div>';	
 			}
 		}

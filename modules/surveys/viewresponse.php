@@ -31,7 +31,7 @@ if(!$core->input['action']) {
 		$questions = $survey->get_questions();
 	
 		foreach($questions as $section) {
-			$questions_list .= '<div class="subtitle">'.$section['section_title'].'</div>';
+			$questions_list .= '<div class="subtitle" style="margin-top:20px; border-top: thin solid #E8E8E8;">'.$section['section_title'].'</div>';
 			foreach($section['questions'] as $question) {
 				if(isset($responses[$question['stqid']])) {
 					$questions_list .= $survey->parse_response($responses[$question['stqid']], $question);	

@@ -13,20 +13,20 @@ if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
 
-/* if($core->usergroup['surveys_canCreateTemplates'] == 0) {
+if($core->usergroup['surveys_canCreateSurvey'] == 0) {
   error($lang->sectionnopermission);
   exit;
-  } */
+}
 
-$lang->load('surveytemplate');
+$lang->load('surveys_createtemplate');
 if(!$core->input['action']) {
-	$action = 'createsurveytemplate';
+	$action = 'createtemplate';
 	$section_rowid = 1;
 	$question_rowid = 1;
 	$sequence = 1;
 
 	$radiobuttons['isPublic'] = parse_yesno('isPublic', 1, $survey_template['isPublic']);
-	$radiobuttons['forceAnonymousFilling'] = parse_yesno('forceAnonymousFilling', 1, $lang->forceAnonymousFilling_tip);
+	$radiobuttons['forceAnonymousFilling'] = parse_yesno('forceAnonymousFilling', 1, $lang->forceanonymousfilling_tip);
 
 	$radiobuttons['isRequired'] = parse_yesno("section[$section_rowid][questions][$question_rowid][isRequired]", 1, '');
 
@@ -42,9 +42,12 @@ if(!$core->input['action']) {
 		$question_types_options .= "<option value='{$key}'{$selected}>{$fieldtype[$key]}</option>";
 	}
 
+	$surveycategories = get_specificdata('surveys_categories', array('scid', 'title'), 'scid', 'title', 'title');
+	$surveycategories_list = parse_selectlist('category', 5, $surveycategories, $survey_template['category']);
+	
 	$altrow_class = alt_row($altrow_class);
 
-	eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionsrows')."\";");
+	eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
 	eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
 
 	$sequence_id += 1;
@@ -53,7 +56,7 @@ if(!$core->input['action']) {
 }
 else {
 
-	if($core->input['action'] == 'createsurveytemplate') {
+	if($core->input['action'] == 'createtemplate') {
 		$survey = new Surveys();
 		$survey->create_survey_template($core->input);
 
@@ -71,13 +74,12 @@ else {
 				output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
 				break;
 			case 4:
-				output_xml("<status>false</status><message>{$lang->surveystemplatessections}</message>");
+				output_xml("<status>false</status><message>{$lang->duplicationsectionname}</message>");
 				break;
 			case 5:
-				output_xml("<status>false</status><message>{$lang->surveystemplatessectionsquestion}</message>");
+				output_xml("<status>false</status><message>{$lang->duplicationquestionname}</message>");
 				break;
 		}
-		//redirect("index.php?module=surveys/createsurveytemplate");
 	}
 	elseif($core->input['action'] == 'parsetype') {	
 		/* Get validation of the question - START */
@@ -125,7 +127,7 @@ else {
 		}
 		$radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);
 
-		eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionsrows')."\";");
+		eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
 		eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
 		echo $newsection;
 	}
@@ -146,7 +148,7 @@ else {
 		$radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);
 
 
-		eval("\$newquestion = \"".$template->get('surveys_createtemplate_sectionrow_questionsrows')."\";");
+		eval("\$newquestion = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
 		echo $newquestion;
 	}
 }

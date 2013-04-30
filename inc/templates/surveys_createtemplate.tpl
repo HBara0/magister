@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>{$core->settings[systemtitle]} | {$lang->createsurveytemplate}</title>
+<title>{$core->settings[systemtitle]} | {$lang->createtemplate}</title>
 {$headerinc}
 <script type="text/javascript">
     $(function() { 	
@@ -41,7 +41,7 @@
 <tr>
     {$menu}
     <td class="contentContainer">
-        <h3>{$lang->createsurveytemplate}</h3>
+        <h3>{$lang->createtemplate}</h3>
         <form name="perform_surveys/createsurveytemplate_Form" id="perform_surveys/createsurveytemplate_Form" action="#" method="post">
              <input type="hidden" id="action" name="action" value="{$action}" />
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -53,20 +53,16 @@
             <tr>
                 <td>{$lang->category}</td>
                 <td>
-                    <select name="category">
-                      <option value="1">{$lang->other}</option>
-                      <option value="2">{$lang->supplierevaluation}</option>
-                      <option value="3">{$lang->employeeevaluation}</option>
-                    </select>
+                    {$surveycategories_list}
                 </td>
             </tr>
             <tr>
-                <td>{$lang->publicfill}</td>
+                <td>{$lang->publicallyavailable}</td>
                 <td>{$radiobuttons[isPublic]}</td>
             </tr>
             <tr>
-                <td style="font-weight:bold;">{$lang->forceanonymousfilling}</td>
-                <td>{$radiobuttons[forceanonymousfilling]}</td>
+                <td>{$lang->forceanonymousfilling}</td>
+                <td>{$radiobuttons[forceAnonymousFilling]}</td>
             </tr>
             <tr>
                 <td colspan="2" style="text-align: left; padding:0; margin:0px;">
@@ -96,7 +92,7 @@
                 </td>
             </tr>
         </table>
-        <div id="perform_surveys/{$action}_Results"></div>  
+        <div id="perform_surveys/createsurveytemplate_Results"></div>  
         </form>  
     </td>
 </tr>
