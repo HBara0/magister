@@ -48,4 +48,5 @@ $lang['transfill_tip'] = 'If ticked, you will not be recorded as contributor in 
 $lang['transparentlyfill'] = 'Transparently fill report';
 $lang['unspecifiedsegment'] = 'Unspecified Segment';
 $lang['wrongforecastsexist'] = 'Wrong year end forecasts were provided; they should be at least as the following:';
+$lang['wrongforecastgoback'] = 'Wrong year end forecasts were provided; please go back and correct them.';
 ?>

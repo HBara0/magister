@@ -29,7 +29,6 @@ class Currencies {
 			  exit */;
 			return false;
 		}
-
 		if(empty($base_currency)) {
 			$base_currency = $this->base_currency;
 		}
@@ -64,13 +63,17 @@ class Currencies {
 			if($base_currency != 'USD') {
 				if($currency == 'USD') {
 					$usd_fx_rates[$currency] = $this->get_average_fxrate($base_currency, $period, $options, 'USD');
-					return 1 / $usd_fx_rates[$currency];
+					if(!empty($usd_fx_rates[$currency])) {
+						return 1 / $usd_fx_rates[$currency];
+					}
 				}
 				else {
 					if($currency != 'USD') {
 						$usd_fx_rates[$currency] = $this->get_average_fxrate($currency, $period, $options, 'USD');
 						$usd_fx_rates[$base_currency] = $this->get_average_fxrate($base_currency, $period, $options, 'USD');
-						return $usd_fx_rates[$currency] / $usd_fx_rates[$base_currency];
+						if(!empty($usd_fx_rates[$base_currency])) {
+							return $usd_fx_rates[$currency] / $usd_fx_rates[$base_currency];
+						}
 					}
 				}
 			}
@@ -158,9 +161,8 @@ class Currencies {
 		}
 
 		for($i = 1; $i <= 12; $i++) {
-			$period['from'] = mktime(0, 0, 0, $i, 1, $year);
-			$period['to'] = mktime(23, 59, 59, $i, date('t', $month_start), $year);
-
+			$period['from'] = mktime(0, 0, 0, $i, 1, $year);  /*period from first day of the month of the report year*/
+			$period['to'] = mktime(23, 59, 59, $i, date('t', $period['from']), $year);
 			$rates[$i] = $this->get_average_fxrate($currency, $period, $options, $base_currency);
 		}
 		return $rates;

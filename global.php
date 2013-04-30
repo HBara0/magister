@@ -25,13 +25,6 @@ if(strpos(strtolower($_SERVER['PHP_SELF']), ADMIN_DIR) !== false) {
 else
 {
 	define('IN_AREA', 'user');
-	
-	/* Check if passwors has expired */
-	if(((TIME_NOW - $core->user['lastPasswordChange']) / 24 / 60 / 60) > $core->settings['passwordExpiresAfter']) {
-		if(!defined('PASSEXPIRE_EXCLUDE') || PASSEXPIRE_EXCLUDE == 0) {
-			redirect(DOMAIN.'/users.php?action=profile&amp;do=edit&amp;messagecode=1');
-		}
-	}
 }
 
 $lang = new Language($core->user['language'], IN_AREA);
@@ -44,6 +37,15 @@ $lang->load('global');
 eval("\$headerinc = \"".$template->get('headerinc')."\";");
 
 if($session->uid > 0) {
+	/* Check if passwors has expired */
+	if(IN_AREA != 'admin') {
+		if(((TIME_NOW - $core->user['lastPasswordChange']) / 24 / 60 / 60) > $core->settings['passwordExpiresAfter']) {
+			if(!defined('PASSEXPIRE_EXCLUDE') || PASSEXPIRE_EXCLUDE == 0) {
+				redirect(DOMAIN.'/users.php?action=profile&amp;do=edit&amp;messagecode=1');
+			}
+		}
+	}
+	
 	if($core->usergroup['canAccessSystem'] == 0) {
 		error($lang->accountsuspended);
 	}
@@ -74,13 +76,12 @@ if($session->uid > 0) {
 	}
 	
 	eval("\$header = \"".$template->get('header')."\";");
-
 	eval("\$footer = \"".$template->get('footer')."\";");
 }
 else
-{ 
+{
 	if(strpos(strtolower($_SERVER['PHP_SELF']), 'users.php') === false) {
-		redirect(DOMAIN."/users.php?action=login&amp;referer=".base64_encode($_SERVER['REQUEST_URI'])."");
+		redirect(DOMAIN.'/users.php?action=login&amp;referer='.base64_encode($_SERVER['REQUEST_URI']));
 	}
 }
 ?>

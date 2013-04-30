@@ -161,7 +161,7 @@ if(!$core->input['action']) {
 				}
 			}
 			$edit_link = $revoke_link = '';
-			if($core->usergroup['attenance_canApproveAllLeaves'] == 1 || TIME_NOW < ($leave['toDate']+(60*60*24)) || (TIME_NOW > $leave['toDate'] && $status['approved'] != array_sum($status))) {
+			if($core->usergroup['attenance_canApproveAllLeaves'] == 1 || TIME_NOW < ($leave['toDate']+(60*60*24*$core->settings['attendance_caneditleaveafter'])) || (TIME_NOW > $leave['toDate'] && $status['approved'] != array_sum($status))) {
 				$edit_link = "<a href='index.php?module=attendance/editleave&amp;lid={$leave[lid]}'><img src='{$core->settings[rootdir]}/images/icons/edit.gif' border='0' alt='{$lang->modifyleave}' /></a>";
 				$revoke_link = "<a href='#{$leave[lid]}' id='revokeleave_{$leave[lid]}_attendance/listleaves_icon'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->revokeleave}' /></a>";
 			}

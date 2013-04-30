@@ -56,8 +56,8 @@ if(!$core->input['action']) {
 		/* Instantiate currencies object and get currencies rate of period - START */
 		$core->input['baseCurrency'] = 'USD';
 		$currency = new Currencies($core->input['baseCurrency']);
-		$currencies_from = date_timestamp_get(date_create_from_format('j-m-Y', $core->settings['q'.$core->input['quarter'].'start'].'-'.$core->input['year']));
-		$currencies_to = date_timestamp_get(date_create_from_format('j-m-Y', $core->settings['q'.$core->input['quarter'].'end'].'-'.$core->input['year']));
+		$currencies_from = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'start']); //date_timestamp_get(date_create_from_format('j-m-Y', $core->settings['q'.$core->input['quarter'].'start']));
+		$currencies_to = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'end']); //date_timestamp_get(date_create_from_format('j-m-Y', $core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'end']));
 		$currencies = $currency->get_average_fxrates_transposed(array('GBP', 'EUR'), array('from' => $currencies_from, 'to' => $currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4));
 		$currencies[1] = $core->input['baseCurrency'];
 
@@ -104,7 +104,7 @@ if(!$core->input['action']) {
 		if(is_array($productsactivity)) {
 			foreach($productsactivity as $rowid => $productactivity) {
 				$saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, $productactivity['saleType']);
-				$currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1);
+				$currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid));
 
 				if(isset($productactivity['fxrate']) && $productactivity['fxrate'] != 1) {
 					$productactivity['turnOver'] = $productactivity['turnOver'] / $productactivity['fxrate'];
@@ -120,12 +120,12 @@ if(!$core->input['action']) {
 		else {
 			for($rowid = 1; $rowid < $productscount; $rowid++) {
 				$saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, 'distribution');
-				$currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1);
+				$currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid));
 
 				eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
 			}
 		}
-		
+
 		if($core->usergroup['canExcludeFillStages'] == 1) {
 			$exludestage = '<br /><input type="checkbox" value="1" name="excludeProductsActivity" id="excludeProductsActivity" title="'.$lang->exclude_tip.'"> '.$lang->excludeproductsactivity;
 		}
@@ -145,6 +145,7 @@ if(!$core->input['action']) {
 		eval("\$fillreportpage = \"".$template->get('reporting_fillreports_productsactivity')."\";");
 	}
 	elseif($core->input['stage'] == 'keycustomers') {
+
 		if(!isset($core->input['identifier'])) {
 			redirect('index.php?module=reporting/fillreport');
 		}
@@ -168,7 +169,6 @@ if(!$core->input['action']) {
 		//create_cookie('rid', $core->input['rid'], (time() + (60*$core->settings['idletime']*2)));	
 
 		$rid = $db->escape_string($core->input['rid']);
-
 		$customerscount = 5; //Make it a setting
 		$query = $db->query("SELECT kc.*, e.companyName
 							FROM ".Tprefix."keycustomers kc LEFT JOIN ".Tprefix."entities e ON (e.eid=kc.cid) 
@@ -195,7 +195,7 @@ if(!$core->input['action']) {
 				}
 			}
 		}
-		
+
 		if(is_array($customers)) {
 			foreach($customers as $i => $customer) {
 				$rowid = $i;
@@ -211,11 +211,13 @@ if(!$core->input['action']) {
 				eval("\$customersrows .= \"".$template->get("reporting_fillreports_keycustomers_customerrow")."\";");
 			}
 		}
+
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		/* If supplier does not have contract and contract Expired -START */
-		$entity = new Entities($report_meta['spid']);
+		$entity = new Entities($report_meta['spid'], '', false);
 		$entity_data = $entity->get();
-		if(empty($entity_data['contractFirstSigDate']) || (!empty($entity_data['contractExpiryDate']) && TIME_NOW > $entity_data['contractExpiryDate']) || ($entity_data['contractIsEvergreen'] != 1 && !empty($entity_data['contractExpiryDate']))) {
+		//|| (!empty($entity_data['contractExpiryDate'] && TIME_NOW > $entity_data['contractExpiryDate'])
+		if(empty($entity_data['contractFirstSigDate']) || ($entity_data['contractIsEvergreen'] != 1 && !empty($entity_data['contractExpiryDate']))) {
 			$exludestage_checked = ' checked="checked"';
 			$excludekeycust_notifymessage = '<div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-top: 10px; margin-bottom: 10px;"><strong>'.$lang->notcontractedsupp.'</strong></div>';
 		}
@@ -290,6 +292,7 @@ if(!$core->input['action']) {
 		else {
 			if($session->isset_phpsession('marketreport_'.$identifier)) {
 				$marketreport = unserialize($session->get_phpsession('marketreport_'.$identifier));
+				$marketreport = $marketreport['marketreport'];  /* read martketreport ARRAY from the market report session */
 			}
 		}
 
@@ -439,92 +442,27 @@ else {
 		echo $years_list;
 	}
 	elseif($core->input['action'] == 'save_productsactivity') {
-
 		$rid = $db->escape_string($core->input['rid']);
 		$identifier = $db->escape_string($core->input['identifier']);
 		$numrows = intval($core->input['numrows']);
 
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		$currencies = unserialize($session->get_phpsession('reportcurrencies_'.$identifier));
+		
 		/* Validate Forecasts - Start */
-		//if($report_meta['quarter'] > 1) {
-		$query = $db->query("SELECT pid, SUM(quantity) AS quantity, SUM(turnOver) AS turnOver
-								FROM ".Tprefix."productsactivity pa JOIN ".Tprefix."reports r ON (r.rid=pa.rid)
-								WHERE r.quarter<'".$db->escape_string($report_meta['quarter'])."' AND r.year='".$db->escape_string($report_meta['year'])."' AND r.affid='".$db->escape_string($report_meta['affid'])."' AND r.spid='".$db->escape_string($report_meta['spid'])."'
-								GROUP BY pa.pid");
-		if($db->num_rows($query) > 0) {
-			while($prev_data_item = $db->fetch_assoc($query)) {
-				$prev_data[$prev_data_item['pid']] = $prev_data_item;
-			}
-		}
-		$validation_items = array('sales' => 'turnOver', 'quantity' => 'quantity');
-		$correctionsign = '&ge; ';
-		if($report_meta['quarter'] == 4) {
-			$correctionsign = '&equiv; ';
-		}
+		$report = new ReportingQr(array('rid' => $rid));
+		$validation = $report->validate_forecasts($core->input['productactivity'], $currencies);
 
-		foreach($core->input['productactivity'] as $i => $productactivity) {
-			if(empty($productactivity['pid'])) {
-				continue;
-			}
-			
-			if(isset($prev_data[$productactivity['pid']])) {
-				foreach($validation_items as $validation_key => $validation_item) {
-					$actual_current_validation = $productactivity[$validation_item];
-					if($validation_key == 'sales') {
-						$actual_current_validation = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
-					}
-					
-					$actual_current_data_querystring = 'uid!='.$core->user['uid'];
-					if(isset($productactivity['paid'])) {
-						$actual_current_data_querystring = 'pa.paid!='.$productactivity['paid'];
-					}
-
-					$actual_current_data = $db->fetch_assoc($db->query("SELECT SUM(".$validation_key."Forecast) AS forecastsum, SUM(".$validation_item.") AS actualsum FROM ".Tprefix."productsactivity pa JOIN ".Tprefix."reports r ON (r.rid=pa.rid) WHERE pid='".$db->escape_string($productactivity['pid'])."' AND quarter='".$db->escape_string($report_meta['quarter'])."' AND year='".$db->escape_string($report_meta['year'])."' AND affid='".$db->escape_string($report_meta['affid'])."' AND spid='".$db->escape_string($report_meta['spid'])."' AND {$actual_current_data_querystring}"));
-
-					$actual_forecast = ($prev_data[$productactivity['pid']][$validation_item] + $actual_current_validation + $actual_current_data['actualsum']);
-					$actual_current_forecast = $productactivity[$validation_key.'Forecast'] + $actual_current_data['forecastsum'];
-
-					if(round($actual_forecast, 4) > round($actual_current_forecast, 4) || ($report_meta['quarter'] == 4 && round($actual_forecast, 4) < round($actual_current_forecast, 4))) {//$core->input[$validation_key.'Forecast_'.$i]) {
-						$forecast_corrections[$productactivity['pid']]['name'] = $productactivity['name'];
-						$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.number_format($actual_forecast, 4);
-						$error_forecast_exists = true;
-					}
-				}
-			}
-			else {
-				foreach($validation_items as $validation_key => $validation_item) {
-					$actual_forecast = $productactivity[$validation_item];
-					if($validation_key == 'sales') {
-						$actual_forecast = round($core->input[$validation_item.'_'.$i] / $productactivity['fxrate'], 4);
-					}
-
-					if($productactivity[$validation_key.'Forecast'] < $actual_forecast || ($report_meta['quarter'] == 4 && round($productactivity[$validation_key.'Forecast'], 4) > $actual_forecast)) {
-						$forecast_corrections[$productactivity['pid']]['name'] = $productactivity['name'];
-						$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.number_format($actual_forecast, 4);
-						$error_forecast_exists = true;
-					}
-				}
-			}
-		}
-
-		if($error_forecast_exists === true) {
+		if($validation != true || is_array($validation)) {
 			$corrections_output = '<table width="100%" class="datatable">';
 			$corrections_output .= '<tr><th width="50%">'.$lang->product.'</th><th width="20%">'.$lang->purchaseamount.'</th><th width="20%">'.$lang->quantity.'</th></tr>';
-			foreach($forecast_corrections as $corrections) {
-				/* 					if(!empty($corrections['sales'])) {
-				  $corrections['sales'] = number_format($corrections['sales'], 4);
-				  }
-				  if(!empty($corrections['quantity'])) {
-				  $corrections['quantity'] = number_format($corrections['quantity'], 4);
-				  } */
+			foreach($validation as $corrections) {
 				$corrections_output .= '<tr><td>'.$corrections['name'].'</td><td>'.$corrections['sales'].'</td><td>'.$corrections['quantity'].'</td></tr>';
 			}
 			$corrections_output .= '</table>';
 			output_xml('<status>false</status><message>'.$lang->wrongforecastsexist.' <![CDATA['.$corrections_output.']]></message>');
 			exit;
 		}
-		//}
 		/* Validate Forecasts - End */
 
 		if($report_meta['auditor'] != '1') {
@@ -536,13 +474,13 @@ else {
 			if(empty($productactivity['pid'])) {
 				continue;
 			}
-			
-			if($productactivity['fxrate'] != 1) {
+
+			if($productactivity['fxrate'] != 1 && isset($productactivity['fxrate'])) {
 				$productactivity['turnOverOc'] = $productactivity['turnOver'];
 				$productactivity['turnOver'] = round($productactivity['turnOver'] / $productactivity['fxrate'], 4);
 				$productactivity['originalCurrency'] = $currencies[$productactivity['fxrate']];
 			}
-			
+
 			if(value_exists('productsactivity', 'rid', $rid, 'pid='.intval($productactivity['pid']).$existingentries_query_string)) {
 				if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
 					$update_query_where = 'paid='.$db->escape_string($productactivity['paid']);
@@ -553,6 +491,9 @@ else {
 				unset($productactivity['productname'], $productactivity['fxrate']);
 				$update = $db->update_query('productsactivity', $productactivity, $update_query_where);
 				$processed_once = true;
+					if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
+						$cache['usedpaid'][] = $productactivity['paid'];
+					}
 			}
 			else {
 				$productactivity['uid'] = $core->user['uid'];
@@ -560,25 +501,21 @@ else {
 
 				unset($productactivity['productname'], $productactivity['fxrate']);
 				$insert = $db->insert_query('productsactivity', $productactivity);
-				$cache['usedpaid'][] = $db->last_id();
+		
+				$cache['usedpaid'][] = $db->last_id(); 
 				$processed_once = true;
 			}
 
 			$cache['usedpids'][] = $productactivity['pid'];
-			if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
-				$cache['usedpaid'][] = $productactivity['paid'];
-			}
 		}
-
 		if($processed_once === true) {
 			/* if(is_array($oldentries)) {
 			  foreach($oldentries as $key => $val) {
 			  $db->delete_query('productsactivity', "paid='{$val}'");
 			  }
 			  } */
-			if(is_array($cache['usedpaid'])) {
-				/* Disabled because it was deleting produccts if inline-save is used then products are added */
-				//$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).')';
+			if(is_array($cache['usedpaid'])) { 
+				$delete_query_where = ' OR ( paid NOT IN ('.implode(', ', $cache['usedpaid']).') AND pid NOT IN ('.implode(', ', $cache['usedpids']).'))';
 			}
 			$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rid}' AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
 			$update_status = $db->update_query('reports', array('prActivityAvailable' => 1), "rid='{$rid}'");
@@ -588,7 +525,7 @@ else {
 				}
 				$log->record($rid);
 				output_xml("<status>true</status><message>{$lang->savedsuccessfully}</message>");
-			}
+			} 
 			else {
 				output_xml("<status>false</status><message>{$lang->saveerror}</message>");
 			}
@@ -684,40 +621,10 @@ else {
 			$one_notexcluded = true;
 		}
 
-		/* $marketreport_data = array(
-		  'markTrendCompetition'	=> $core->input['markTrendCompetition'],
-		  'quarterlyHighlights'	 => $core->input['quarterlyHighlights'],
-		  'devProjectsNewOp'		=> $core->input['devProjectsNewOp'],
-		  'issues'				  => $core->input['issues'],
-		  'actionPlan'			  => $core->input['actionPlan'],
-		  'remarks'			  	 => $core->input['remarks']
-		  ); */
-
-		/* 	foreach($marketreport_data as $key => $val) {
-		  if(!empty($val)) {
-		  $found_one = true;
-		  break;
-		  }
-		  } */
-
 		if($found_one == true || $one_notexcluded == false) {
 			output_xml("<status>false</status><message>{$lang->fillonemktreportsection}</message>");
 			exit;
 		}
-
-		//$marketreport_data['rid'] = $rid;
-
-		/* if(value_exists('marketreport', 'rid', $rid)) {
-		  foreach($marketreport_data as $val) {
-		  $query = $db->update_query('marketreport', $val, "rid='{$rid}' AND psid='{$val[psid]}'");
-		  }
-		  }
-		  else
-		  {
-		  foreach($marketreport_data as $val) {
-		  $query = $db->insert_query('marketreport', $val);
-		  }
-		  } */
 
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
@@ -811,6 +718,8 @@ else {
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
 		$report_meta['rid'] = $db->escape_string($report_meta['rid']);
+		
+		$report = new ReportingQr(array('rid' => $report_meta['rid']));
 		$currencies = unserialize($session->get_phpsession('reportcurrencies_'.$identifier));
 
 		$cache = array();
@@ -841,8 +750,14 @@ else {
 		if($report_meta['auditor'] != '1') {
 			$products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
 		}
+		
 		//$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rawdata[rid]}'{$products_deletequery_string}");
 		if(empty($report_meta['excludeProductsActivity'])) {
+			$productsactivity_validation = $report->validate_forecasts($rawdata['productactivitydata'], $currencies);
+			if($productsactivity_validation !== true) {
+				output_xml("<status>false</status><message>{$lang->wrongforecastgoback}</message>");
+				exit;
+			}
 			foreach($rawdata['productactivitydata'] as $i => $newdata) {
 				if(empty($newdata['pid'])) {
 					continue;
@@ -852,7 +767,7 @@ else {
 					$newdata['turnOver'] = round($newdata['turnOver'] / $newdata['fxrate'], 4);
 					$newdata['originalCurrency'] = $currencies[$newdata['fxrate']];
 				}
-			
+
 				unset($newdata['productname'], $newdata['fxrate']);
 				if(value_exists('productsactivity', 'rid', $report_meta['rid'], 'pid='.$newdata['pid'].$products_deletequery_string)) {
 					if(isset($newdata['paid']) && !empty($newdata['paid'])) {
@@ -948,12 +863,12 @@ else {
 
 				unset($val['segmenttitle'], $val['exclude']);
 				$val['psid'] = $psid;
-				
+
 				if(value_exists('marketreport', 'rid', $report_meta['rid'], 'psid="'.$val['psid'].'"')) {
 					$db->update_query('marketreport', $val, "rid='{$report_meta[rid]}' AND psid='{$val[psid]}'");
 					$mrid = $db->fetch_field($db->query("SELECT mrid FROM ".Tprefix."marketreport WHERE rid='{$report_meta[rid]}' AND psid='{$val[psid]}'"), 'mrid');
 				}
-				else {					
+				else {
 					$val['rid'] = $report_meta['rid'];
 					$db->insert_query('marketreport', $val);
 					$mrid = $db->last_id();
@@ -1010,11 +925,11 @@ else {
 			}
 			$log->record($report_meta['rid']);
 
-			$current_report_details = $db->fetch_assoc($db->query("SELECT e.eid, e.companyName, r.year, r.quarter, e.noQReportSend FROM ".Tprefix."reports r LEFT JOIN ".Tprefix."entities e ON (r.spid=e.eid) WHERE r.rid='{$rawdata[rid]}'"));
+			$current_report_details = $db->fetch_assoc($db->query("SELECT e.eid, e.companyName, r.year, r.quarter, e.noQReportSend FROM ".Tprefix."reports r LEFT JOIN ".Tprefix."entities e ON (r.spid=e.eid) WHERE r.rid='{$report_meta[rid]}'"));
 
 			if($current_report_details['noQReportSend'] == 0) {
 				if($db->fetch_field($db->query("SELECT COUNT(*) AS remainingreports FROM ".Tprefix."reports WHERE quarter='{$current_report_details[quarter]}' AND year='{$current_report_details[year]}' AND spid='{$current_report_details[eid]}' AND status='0' AND type='q'"), 'remainingreports') == 0) {
-					$query = $db->query("SELECT u.* FROM ".Tprefix."users u LEFT JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid) WHERE sa.eid='{$current_report_details[eid]}' AND u.gid IN ('5', '13')");
+					$query = $db->query("SELECT u.* FROM ".Tprefix."users u LEFT JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid) WHERE sa.eid='{$current_report_details[eid]}' AND u.gid IN ('5', '13', '2')");
 					while($inform = $db->fetch_array($query)) {
 						$inform_employees[] = $inform['email'];
 					}

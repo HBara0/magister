@@ -104,6 +104,7 @@ if(!$core->input['action']) {
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
+
 	if($db->num_rows($query) > 0) {
 		while($holiday = $db->fetch_assoc($query)) {
 			if($holiday['isOnce'] == 0) {

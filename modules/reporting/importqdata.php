@@ -22,48 +22,55 @@ if(!$core->input['action']) {
 
 	$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0);
 	$affid_field = parse_selectlist('affid', 1, $affiliates, '');
-	
+
 	eval("\$importqdata = \"".$template->get('reporting_importqdata')."\";");
 	output_page($importqdata);
 }
 else {
 	if($core->input['action'] == 'do_import') {
-		
+
 		if(is_empty($core->input['year'])) {
-			output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>"); 
+			output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 			exit;
 		}
+
+		$currency_obj = new Currencies('USD');
+
 		$affid = intval($core->input['affid']);
-		$affid = 19;
 		$options = $core->input;
 		$core->input['turnoverink'] = 0;
 		$options['method'] = 'productbase';
 
-		$options['fromDate'] = $core->settings['q'.$options['quarter'].'start'].'-'.$options['year'];
-		$options['toDate'] = $core->settings['q'.$options['quarter'].'end'].'-'.$options['year'];
+		$options['fromDate'] = $options['year'].'-'.$core->settings['q'.$options['quarter'].'start'];
+		$options['toDate'] = $options['year'].'-'.$core->settings['q'.$options['quarter'].'end'];
 
+		$core->input['turnoverink'] = 0;
 		$options['turnoverdivision'] = 1000;
 		if($core->input['turnoverink'] == 1) {
 			$options['turnoverdivision'] = 1;
 		}
 
-		$po_query = $db->query("SELECT imso.*
+		$po_query = $db->query("SELECT imso.*, ims.localId AS localspid
 						FROM ".Tprefix."integration_mediation_purchaseorders imso 
-						JOIN ".Tprefix."integration_mediation_entities ims ON (imso.spid=ims.foreignId)
+						LEFT JOIN ".Tprefix."integration_mediation_entities ims ON (imso.spid=ims.foreignId)
 						WHERE imso.foreignSystem={$options[foreignSystem]} AND imso.affid={$affid} AND (imso.date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).")");
+
 		if($db->num_rows($po_query) > 0) {
 			while($purchaseorder = $db->fetch_assoc($po_query)) {
-				$pol_query = $db->query("SELECT imsol.*, imp.localId AS localpid, imsol.pid AS foreignpid, p.spid AS localspid
+				$pol_query = $db->query("SELECT imsol.*, imp.localId AS localpid, imsol.pid AS foreignpid, p.spid AS localspid, imp.foreignName AS productname
 										FROM ".Tprefix."integration_mediation_purchaseorderlines imsol 
 										JOIN integration_mediation_products imp ON (imsol.pid=imp.foreignId) 
-										JOIN products p ON (p.pid=imp.localId)
-										WHERE foreignOrderId='{$purchaseorder['impoid']}' AND imp.localId!=0");
-										
+										LEFT JOIN products p ON (p.pid=imp.localId)
+										WHERE foreignOrderId='{$purchaseorder['foreignId']}'
+										ORDER BY imp.foreignName ASC");// AND imp.localId!=0
+
 				if($db->num_rows($pol_query) > 0) {
 					while($purchaseorderline = $db->fetch_assoc($pol_query)) {
 						if(is_empty($purchaseorderline['localspid'], $purchaseorderline['localpid'])) {
+							$errors['productnotfound'][] = $purchaseorderline['productname'];
 							continue;
 						}
+						
 						$temporary_purchasetype = '';
 						/* GET Quarter Information - START */
 						$quarter_info = quarter_info($purchaseorder['date']);
@@ -72,62 +79,140 @@ else {
 						if($quarter_info['quarter'] != $options['quarter']) {
 							continue;
 						}
+
 						if(isset($reports_cache[$affid][$purchaseorderline['localspid']][$quarter_info['year']][$quarter_info['quarter']])) {
 							$report = $reports_cache[$affid][$purchaseorderline['localspid']][$quarter_info['year']][$quarter_info['quarter']];
 						}
 						else {
-							$report = $db->fetch_assoc($db->query("SELECT * FROM reports WHERE affid='{$affid}' AND quarter='{$quarter_info[quarter]}' AND year='{$quarter_info[year]}' AND spid='{$purchase[localspid]}' AND type='q'"));
+							$report = $db->fetch_assoc($db->query("SELECT * FROM reports WHERE affid='{$affid}' AND quarter='{$quarter_info[quarter]}' AND year='{$quarter_info[year]}' AND spid='{$purchaseorderline[localspid]}' AND type='q'"));
 							$reports_cache[$affid][$purchaseorderline['localspid']][$quarter_info['year']][$quarter_info['quarter']] = $report;
 						}
 
 						if(is_array($report)) {
+							$purchaseorderline['amount'] = $purchaseorderline['quantity'] * $purchaseorderline['price'];
+							if(strtolower($purchaseorderline['quantityUnit']) == 'kg') {
+								$purchaseorderline['quantity'] = $purchaseorderline['quantity'] / 1000;
+							}
+
 							if(!isset($newpurchase[$report['rid']][$purchaseorderline['localpid']])) {
 								$newpurchase[$report['rid']][$purchaseorderline['localpid']] = array(
 										'pid' => $purchaseorderline['localpid'],
 										'quantity' => $purchaseorderline['quantity'],
-										'turnOver' => ($purchaseorderline['amount'] / $options['turnoverdivision']),
 										'rid' => $report['rid'],
 										'uid' => 0
 								);
 							}
 							else {
 								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['quantity'] += $purchaseorderline['quantity'];
-								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['turnOver'] += ($purchaseorderline['amount'] / $options['turnoverdivision']);
 							}
 
-							if($purchaseorder['currency'] != 'USD') {
-								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['turnOver'] = (($purchaseorderline['amount'] / $purchaseorder['usdFxrate']) / $options['turnoverdivision']);
-								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['turnOverOc'] = ($purchaseorderline['amount'] / $options['turnoverdivision']);
+							if(strtoupper($purchaseorder['currency']) != 'USD') {
+								if(empty($purchaseorder['usdFxrate'])) {
+									$purchaseorderline['usdFxrate'] = $currency_obj->get_average_fxrate($purchaseorder['currency'], array('from' => strtotime(date('Y-m-d', $purchaseorder['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $purchaseorder['date']).' 24:00')));
+									if(empty($purchaseorderline['usdFxrate'])) {
+										$purchaseorderline['usdFxrate'] = $currency_obj->get_average_fxrate($purchaseorder['currency'], array('from' => strtotime($options['fromDate']), 'to' => strtotime($options['endDate'])));
+									}
+								}
+								else {
+									$purchaseorderline['usdFxrate'] = 1 / $purchaseorder['usdFxrate'];
+								}
+
+								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['turnOver'] += (($purchaseorderline['amount'] / $purchaseorderline['usdFxrate']) / $options['turnoverdivision']);
+								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['turnOverOc'] += ($purchaseorderline['amount'] / $options['turnoverdivision']);
 								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['originalCurrency'] = $purchaseorder['currency'];
 							}
+							else
+							{
+								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['turnOver'] += ($purchaseorderline['amount'] / $options['turnoverdivision']);	
+							}
 
-							if(in_array($purchaseorder['purchaseType'], array('SKI', 'ReI'))) {
+							if(in_array(strtolower($purchaseorder['purchaseType']), array('ski', 'rei'))) {
 								$temporary_purchasetype = 'distribution';
 							}
-							elseif(in_array($purchaseorder['purchaseType'], array('DIv'))) {
+							elseif(in_array(strtolower($purchaseorder['purchaseType']), array('di'))) {
 								$temporary_purchasetype = 'indent';
 							}
 
-							/* 	if($newpurchase[$report['rid']]['saleType'] != $temporary_purchasetype) {
-							  $newpurchase[$report['rid']][$purchase['localpid']]['saleType'] = 'both';
-							  }
-							  else
-							  { */
-							$newpurchase[$report['rid']][$purchaseorderline['localpid']]['saleType'] = $temporary_purchasetype;
-							//}
+							if($newpurchase[$report['rid']][$purchaseorderline['localpid']]['saleType'] != $temporary_purchasetype) {
+								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['saleType'] = 'both';
+							}
+							else {
+								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['saleType'] = $temporary_purchasetype;
+							}
 							/* Get sold quantity - START */
-							$newpurchase[$report['rid']][$purchaseorderline['soldQty']] = $db->fetch_field($db->query("SELECT SUM(quantity) AS quantity
+							$soldqty_query = $db->query("SELECT quantity, quantityUnit
 								FROM ".Tprefix."integration_mediation_salesorderlines
-								WHERE pid='".$purchaseorderline['foreignpid']."' AND foreignOrderId IN (SELECT imsoid FROM ".Tprefix."integration_mediation_salesorders WHERE foreignSystem={$options[foreignSystem]} AND affid={$affid} AND (date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate'])."))"), 'quantity');
+								WHERE pid='".$purchaseorderline['foreignpid']."' AND foreignOrderId IN (SELECT foreignId FROM ".Tprefix."integration_mediation_salesorders WHERE foreignSystem={$options[foreignSystem]} AND affid={$affid} AND (date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate'])."))");
+							if($db->num_rows($soldqty_query) > 0) {
+								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['soldQty'] = 0;
+								while($sale = $db->fetch_assoc($soldqty_query)) {
+									if(strtolower($sale['quantityUnit']) == 'kg') {
+										$sale['quantity'] = $sale['quantity'] / 1000;
+									}
+									$newpurchase[$report['rid']][$purchaseorderline['localpid']]['soldQty'] += $sale['quantity'];
+									$useddata['foreignpid']['sale'][$purchaseorderline['foreignpid']] = $purchaseorderline['foreignpid'];
+								}
+							}
 							/* Get sold quantity - END */
 						}
 						else {
 							if(!isset($purchaseorder['foreignName']) || empty($purchaseorder['foreignName'])) {
 								$purchaseorder['foreignName'] = $db->fetch_field($db->query("SELECT companyName FROM entities WHERE eid={$purchaseorderline[localspid]}"), 'companyName');
 							}
+
 							$errors['reportnotfound'][] = 'Q'.$quarter_info['quarter'].'/'.$quarter_info['year'].' '.$affid.'-'.$purchaseorder['foreignName'];
 						}
 					}
+				}
+			}
+		}
+
+		if(!is_array($useddata['foreignpid']['sale'])) {
+			$useddata['foreignpid']['sale'] = array();
+		}
+		$query = $db->query("SELECT quantity, quantityUnit, imp.localId AS localpid, p.spid AS localspid
+								FROM ".Tprefix."integration_mediation_salesorderlines imsol
+								JOIN ".Tprefix."integration_mediation_products imp ON (imsol.pid=imp.foreignId)
+								JOIN ".Tprefix."products p ON (p.pid=imp.localId)
+								WHERE foreignOrderId IN (SELECT foreignId FROM ".Tprefix."integration_mediation_salesorders WHERE foreignSystem={$options[foreignSystem]} AND affid={$affid} AND (date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate'])."))
+								AND imsol.pid NOT IN ('".implode('\',\'', $useddata['foreignpid']['sale'])."')");
+		/* GET Quarter Information - START */
+		$quarter_info = quarter_info(strtotime($options['fromDate']));
+		/* GET Quarter Information - END */
+		if($db->num_rows($query) > 0) {
+			while($sale = $db->fetch_assoc($query)) {
+				if(isset($reports_cache[$affid][$sale['localspid']][$quarter_info['year']][$quarter_info['quarter']])) {
+					$report = $reports_cache[$affid][$sale['localspid']][$quarter_info['year']][$quarter_info['quarter']];
+				}
+				else {
+					$report = $db->fetch_assoc($db->query("SELECT * FROM reports WHERE affid='{$affid}' AND quarter='{$quarter_info[quarter]}' AND year='{$quarter_info[year]}' AND spid='{$sale[localspid]}' AND type='q'"));
+					$reports_cache[$affid][$sale['localspid']][$quarter_info['year']][$quarter_info['quarter']] = $report;
+				}
+
+				if(is_array($report)) {
+					if(strtolower($sale['quantityUnit']) == 'kg') {
+						$sale['quantity'] = $sale['quantity'] / 1000;
+					}
+					if(!isset($newpurchase[$report['rid']][$sale['localpid']])) {
+						$newpurchase[$report['rid']][$sale['localpid']] = array(
+								'pid' => $sale['localpid'],
+								'quantity' => 0,
+								'turnOver' => 0,
+								'rid' => $report['rid'],
+								'uid' => 0,
+								'soldQty' => $sale['quantity']
+						);
+					}
+					else {
+						$newpurchase[$report['rid']][$sale['localpid']]['soldQty'] += $sale['quantity'];
+					}
+				}
+				else {
+					if(!isset($sale['foreignName']) || empty($sale['foreignName'])) {
+						$sale['foreignName'] = $db->fetch_field($db->query("SELECT companyName FROM entities WHERE eid={$sale[localspid]}"), 'companyName');
+					}
+
+					$errors['reportnotfound'][] = 'Q'.$quarter_info['quarter'].'/'.$quarter_info['year'].' '.$affid.'-'.$sale['foreignName'];
 				}
 			}
 		}
@@ -147,14 +232,34 @@ else {
 		if(is_array($newpurchase)) {
 			foreach($newpurchase as $rid => $products) {
 				foreach($products as $pid => $activity) {
+					if(empty($activity)) {
+						continue;
+					}
+					
+						if(value_exists('productsactivity', 'rid', $rid, 'pid='.$pid.' AND uid=0')) {
+							echo 'Updated: ';
+							if($options['runtype'] != 'dry') {
+								$db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.' AND uid=0');
+							}
+						}
+						else {
+							echo 'Added: ';
+							if($options['runtype'] != 'dry') {
+								$db->insert_query('productsactivity', $activity);
+							}
+						}
+					
 					echo $activity['rid'].' '.print_r($activity).'<hr />';
-					//$db->insert_query('productsactivity', $activity);
 					echo "Done<br />";
 				}
+				if($options['runtype'] != 'dry') {
+					$db->update_query('reports', array('prActivityAvailable' => 1), 'rid='.$rid);
+				}
 			}
-		
+
 			if(is_array($errors)) {
 				foreach($errors as $key => $val) {
+					echo '-'.$key.':<br />';
 					foreach($val as $error) {
 						echo $error.'<br />';
 					}
@@ -162,9 +267,20 @@ else {
 			}
 		}
 		else {
-			output_xml("<status>false</status><message>{$lang->na}</message>"); 
+			if(is_array($errors)) {
+				foreach($errors as $key => $val) {
+					foreach($val as $error) {
+						echo $error.'<br />';
+					}
+				}
+			}
+			output_xml("<status>false</status><message>{$lang->na}</message>");
 			exit;
 		}
 	}
 }
+function quarter_info($time) {
+	return array('quarter' => ceil(date('m', $time) / 3), 'year' => date('Y', $time));
+}
+
 ?>

@@ -10,6 +10,8 @@
  */
  
 class Requirements {
+	private $requirement = array();
+	
 	public function __construct($id='', $simple=false) {
 		if(isset($id) && !empty($id)) {
 			$this->requirement = $this->read_requirement($id, $simple);
@@ -124,6 +126,13 @@ class Requirements {
 	
 	public function get() {
 		return $this->requirement;
+	}
+	
+	public function get_parent() {
+		if(!isset($this->requirement['parent'])) {
+			return false;
+		}
+		return new Requirements($this->requirement['parent']);
 	}
 	
 	public function parse_requirements_list(array $requirements = array(), $highlevel=true, $ref='') {

@@ -9,8 +9,12 @@ $(function() {
 		}
 		var id =  $(this).attr("id").split("_");
 			
-		sharedFunctions.requestAjax("post", "index.php?module=surveys/viewresults&action=get_questionresponses", "question=" + id[1] +"&identifier=" + id[2],'questionresponses_results_'+ id[1], 'questionresponses_results_'+ id[1], 'html');			
-	});	
+		sharedFunctions.requestAjax("post", "index.php?module=surveys/viewresults&action=get_questionresponses", "question=" + id[1] +"&identifier=" + id[2],'questionresponses_results_'+ id[1], 'questionresponses_results_'+ id[1], 'html');
+                
+             // $("[id^='getquestionresponses_"+ id[1]+"']").unbind("click"); /*prevent multiple ajax request by remove click event */
+
+    });	
+  
 });
 </script>
 </head>

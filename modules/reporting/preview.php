@@ -8,17 +8,17 @@
  * Last Update:    @tony.assaad    March 26, 2013 | 3:24:11 PM
  */
 
-
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
 
 $session->start_phpsession();
 if(!$core->input['action']) {
-	$default_rounding = 3; //Later a setting
+	$default_rounding = 2; //Later a setting
 	$reportcache = new Cache();
 	$categories_uom = array('amount' => 'K. USD', 'purchasedQty' => 'MT/Units', 'soldQty' => 'MT/Units');
 	$aggregate_types = array('affiliates', 'segments', 'products');
+	$reporting_quarter = currentquarter_info(false);
 	$report_currencies = array();
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list') {
 		if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {
@@ -60,7 +60,7 @@ if(!$core->input['action']) {
 			if($core->input['referrer'] != 'generate') {
 				$core->input['incKeyCustomers'] = $core->input['incMarketReport'] = 1;
 			}
-			
+
 			if($core->input['generateType'] == 1) {
 				$report_param['affid'] = $entity;
 				$report_param['spid'] = $db->escape_string($core->input['spid']);
@@ -69,25 +69,28 @@ if(!$core->input['action']) {
 				$report_param['affid'] = $db->escape_string($core->input['affid']);
 				$report_param['spid'] = $entity;
 			}
+			$session_identifier = md5(uniqid(microtime()));
 			$newreport = new ReportingQr(array('year' => $core->input['year'], 'spid' => $report_param['spid'], 'affid' => $report_param['affid'], 'quarter' => $core->input['quarter']));
 			$report = $newreport->get();
+			$session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report)));
 			$newreport->read_products_activity(true);
 			$report['items'] = $newreport->get_classified_productsactivity();
+			$report['itemsclasses'] = $newreport->get_classified_classes();
 			unset($report['items']['amount']['forecast']);
-			$report['productsactivity'] = $newreport->get_products_activity();
+			$report['productsactivity'] = $newreport->get_products_activity(); 
 			$report['currencies'] = $newreport->get_currencies();
 			if(is_array($report['currencies'])) {
 				$report_currencies += $report['currencies'];
 			}
-			
+
 			if($core->input['incKeyCustomers'] == 1) {
 				$report['keycustomers'] = $newreport->get_key_customers();
 			}
-			
+
 			if($core->input['incMarketReport'] == 1) {
 				$report['marketreports'] = $newreport->get_market_reports();
 			}
-			
+
 			$report['contributors'] = $newreport->get_report_contributors();
 			$report['auditors'] = $newreport->get_report_supplier_audits();
 			$report['reportstats'] = $newreport->get_report_status();
@@ -98,7 +101,7 @@ if(!$core->input['action']) {
 			$report['summary'] = $newreport->get_report_summary();
 
 			$no_send_icon = true;
-			$session_identifier = md5(uniqid(microtime()));
+
 			if(!$reportcache->iscached('affiliatesmarketreport', $report['affiliates']['affid'])) {
 				$reportcache->add('affiliatesmarketreport', $report['affiliates']['name'], $report['affid']);
 			}
@@ -113,6 +116,7 @@ if(!$core->input['action']) {
 			$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 			if(isset($report_meta['auditor']) && !empty($report_meta['auditor'])) {
 				$options['isauditor'] = $report_meta['auditor'];
+				$options['transFill'] = $report_meta['transFill'];
 			}
 			/* read productsactivity from fill  data session */
 			if($session->isset_phpsession('productsactivitydata_'.$identifier)) {
@@ -122,22 +126,23 @@ if(!$core->input['action']) {
 				$report['productsactivity'] = $reportdata['productactivitydata'] = $productsactivity['productactivity'];
 
 				/* Insert produt data coming from the session those are not saved yet --START */
-				if(is_array($productsactivity['productactivity'])) { 
+				if(is_array($productsactivity['productactivity'])) {
 					$newreport->save_productactivity($productsactivity['productactivity'], unserialize($session->get_phpsession('reportcurrencies_'.$identifier)), $options);
 				}
 				/* Insert produt data coming from the session those are not saved yet --END */
 				$newreport->read_products_activity(true);
 				$report['items'] = $newreport->get_classified_productsactivity();
+				$report['itemsclasses'] = $newreport->get_classified_classes();
 			}
 			/* read keycustomersdata from fill  data session */
 			if($session->isset_phpsession('keycustomersdata_'.$identifier)) {
 				$keycustomersdata = unserialize($session->get_phpsession('keycustomersdata_'.$identifier));
 				$report_meta['excludeKeyCustomers'] = $core->input['incKeyCustomers'] = $keycustomersdata['excludeKeyCustomers'];
-				
+
 				if(empty($report_meta['excludeKeyCustomers'])) {
 					$report['keycustomers'] = $reportdata['keycustomersdata'] = $keycustomersdata['keycustomers'];
 				}
-				unset($keycustomersdata['module']);		
+				unset($keycustomersdata['module']);
 			}
 
 			/* Set the marketrport data by serializing the inputs in the stage market report */
@@ -147,14 +152,14 @@ if(!$core->input['action']) {
 				$reportdata['marketreportdata'] = $report['marketreports'];
 				$session->set_phpsession(array('marketreport_'.$identifier => $marketreportdata));
 			}
-			
+
 			$session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report_meta)));
 			$session->set_phpsession(array('reportrawdata_'.$session_identifier => serialize($reportdata)));
 		}
 
 		$reports_meta_data['rid'][] = $report['rid'];
 		$reports_meta_data['spid'][] = $report['spid'];
-		
+
 		/* Get affiliate currency */
 		//$report['affiliate'] = new Affiliates($report['affid']);
 		//$report['affiliate']->get_country()->get_currency()->get()['alphaCode'];
@@ -169,7 +174,7 @@ if(!$core->input['action']) {
 		$report['quartername'] = 'Q'.$report['quarter'].' '.$report['year'];
 		$item = array();
 		if(is_array($report['items'])) {
-			foreach($aggregate_types  as $aggregate_type) {
+			foreach($aggregate_types as $aggregate_type) {
 				foreach($report['items'] as $category => $catitem) {/* amount or  quantity */
 					foreach($catitem as $type => $typeitem) { /* actual or forecast */
 						foreach($report_years as $yearef => $year) {
@@ -181,18 +186,21 @@ if(!$core->input['action']) {
 									case 'affiliates':
 										if(is_array($report['items'][$category][$type][$year][$quarter])) {
 											foreach($report['items'][$category][$type][$year][$quarter] as $affid => $affiliatedata) {
-												$item[$aggregate_type][$category][$affid]['name'] = $total_year[$aggregate_type][$category][$affid]['name'] = $newreport->get_report_affiliate($affid)['name'];
+												$item[$aggregate_type][$category][$affid]['name'] = $total_year[$aggregate_type][$category][$type][$affid]['name'] = $newreport->get_report_affiliate($affid)['name'];
 												$item[$aggregate_type][$category][$affid][$type][$year][$quarter] = array_sum_recursive($report['items'][$category][$type][$year][$quarter][$affid]);
 
-												$total_year[$aggregate_type][$category][$affid][$year]+=$item[$aggregate_type][$category][$affid][$type][$year][$quarter];
-
-												$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += round($item[$aggregate_type][$category][$affid][$type][$year][$quarter], $default_rounding);
-
-												$item_rounding = 0;
-												if($item[$aggregate_type][$category][$affid][$type][$year][$quarter] > 1) {
-													$item_rounding = $default_rounding;
+												if($year == $reporting_quarter['year'] && $quarter > $reporting_quarter['quarter']) {
+													$item_class[$aggregate_type][$category][$affid][$type][$year][$quarter] = 'mainbox_forecast';
 												}
-												$item[$aggregate_type][$category][$affid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$affid][$type][$year][$quarter], $item_rounding);
+												$total_year[$aggregate_type][$category][$type][$affid][$year] += $item[$aggregate_type][$category][$affid][$type][$year][$quarter];
+
+												$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$affid][$type][$year][$quarter];
+
+//												$item_rounding = 0;
+//												if($item[$aggregate_type][$category][$affid][$type][$year][$quarter] < 1) {
+//													$item_rounding = $default_rounding;
+//												}
+//												$item[$aggregate_type][$category][$affid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$affid][$type][$year][$quarter], $item_rounding);
 											}
 										}
 										break;
@@ -202,18 +210,21 @@ if(!$core->input['action']) {
 											//$item['name'] = $newreport->get_report_productsegment($report['productsactivity'] ['spid'])['segment'];
 											foreach($report['items'][$category][$type][$year][$quarter] as $affid => $affiliatedata) {
 												foreach($affiliatedata as $spid => $segmentdata) {
-													$item[$aggregate_type][$category][$spid]['name'] = $total_year[$aggregate_type][$category][$spid]['name'] = $newreport->get_productssegments()[$spid];
+													$item[$aggregate_type][$category][$spid]['name'] = $total_year[$aggregate_type][$category][$type][$spid]['name'] = $newreport->get_productssegments()[$spid];
 													$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = array_sum($report['items'][$category][$type][$year][$quarter][$affid][$spid]);
 
-													$total_year[$aggregate_type][$category][$spid][$year] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
+													$total_year[$aggregate_type][$category][$type][$spid][$year] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
 
-													$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += round($item[$aggregate_type][$category][$spid][$type][$year][$quarter], $default_rounding);
-
-													$item_rounding = 0;
-													if($item[$aggregate_type][$category][$spid][$type][$year][$quarter] < 1) {
-														$item_rounding = $default_rounding;
+													if($year == $reporting_quarter['year'] && $quarter > $reporting_quarter['quarter']) {
+														$item_class[$aggregate_type][$category][$spid][$type][$year][$quarter] = 'mainbox_forecast';
 													}
-													$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$spid][$type][$year][$quarter], $item_rounding);;
+													$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
+
+//													$item_rounding = 0;
+//													if($item[$aggregate_type][$category][$spid][$type][$year][$quarter] < 1) {
+//														$item_rounding = $default_rounding;
+//													}
+//													$item[$aggregate_type][$category][$spid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$spid][$type][$year][$quarter], $item_rounding);
 												}
 											}
 										}
@@ -225,18 +236,18 @@ if(!$core->input['action']) {
 											foreach($report['items'][$category][$type][$year][$quarter] as $affid => $affiliatedata) {
 												foreach($affiliatedata as $spid => $segmentdata) {
 													foreach($segmentdata as $pid => $productdata) {
-														$item[$aggregate_type][$category][$pid]['name'] = $total_year[$aggregate_type][$category][$spid]['name'] = $newreport->get_products()[$pid];
+														$item[$aggregate_type][$category][$pid]['name'] = $total_year[$aggregate_type][$category][$type][$spid]['name'] = $newreport->get_products()[$pid];
 														$item[$aggregate_type][$category][$pid][$type][$year][$quarter] = $report['items'][$category][$type][$year][$quarter][$affid][$spid][$pid];
 
-														$total_year[$aggregate_type][$category][$pid][$year] += $item[$aggregate_type][$category][$pid][$type][$year][$quarter];
+														$item_class[$aggregate_type][$category][$pid][$type][$year][$quarter] = $report['itemsclasses'][$category][$type][$year][$quarter][$affid][$spid][$pid];
 
-														$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += round($item[$aggregate_type][$category][$pid][$type][$year][$quarter], $default_rounding);
-
-														$item_rounding = 0;
-														if($item[$aggregate_type][$category][$pid][$type][$year][$quarter] < 1) {
-															$item_rounding = $default_rounding;
-														}
-														$item[$aggregate_type][$category][$pid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$pid][$type][$year][$quarter], $item_rounding);
+														$total_year[$aggregate_type][$category][$type][$pid][$year] += $item[$aggregate_type][$category][$pid][$type][$year][$quarter];
+														$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$pid][$type][$year][$quarter];
+														//$item_rounding = 0;
+//														if($item[$aggregate_type][$category][$pid][$type][$year][$quarter] < 1) {
+//															$item_rounding = $default_rounding;
+//														}
+//														$item[$aggregate_type][$category][$pid][$type][$year][$quarter] = round($item[$aggregate_type][$category][$pid][$type][$year][$quarter], $item_rounding);
 													}
 												}
 											}
@@ -251,7 +262,6 @@ if(!$core->input['action']) {
 
 			$temp_item = $item;
 			$item = array();
-
 			foreach($temp_item as $aggregate_type => $aggregate_data) {
 				if($aggregate_type != 'affiliates') {
 					$reporting_report_newoverviewbox[$aggregate_type] = $reporting_report_newoverviewbox_row[$aggregate_type] = array();
@@ -259,90 +269,63 @@ if(!$core->input['action']) {
 				foreach($aggregate_data as $category => $cat_data) { /* amount or  quantity */
 					foreach($cat_data as $iid => $item) {
 						$item[$aggregate_type][$category] = $item;
-
 						foreach($report_years as $yearef => $year) {
 							for($quarter = 1; $quarter <= 4; $quarter++) {
 								if(!isset($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter])) {
 									$boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = 0;
 								}
+
 								if(!isset($item[$aggregate_type][$category]['actual'][$year][$quarter])) {
 									$item[$aggregate_type][$category]['actual'][$year][$quarter] = 0;
 								}
+								/* Format numbers for output */
+								$item_rounding = 0;
+								if($item[$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $item[$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
+									$item_rounding = $default_rounding;
+								}
+								$item_output[$aggregate_type][$category]['actual'][$year][$quarter] = number_format($item[$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ');
+								$item_rounding = 0;
+								if($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
+									$item_rounding = $default_rounding;
+								}
+								$boxes_totals_output['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ');
 							}
 						}
+						//$item[$aggregate_type][$category]['actual'][$year][$quarter] = msort($item[$aggregate_type][$category]['actual'], array('quarter'));
+
 						eval("\$reporting_report_newoverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_overviewbox_row')."\";");
 					}
 					if(is_array($reporting_report_newoverviewbox_row[$aggregate_type][$category])) {
 						$reporting_report_newoverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newoverviewbox_row[$aggregate_type][$category]);
 					}
+
+					$lang->$category = $lang->{(strtolower($category))};
 					eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
 				}
 			}
-			$item = $boxes_totals['mainbox'] = array();
-
-			if(is_array($total_year) && !empty($total_year)) {
-				foreach($total_year as $aggregate_type => $aggdata) {
-					$reporting_report_newtotaloverviewbox[$aggregate_type] = $reporting_report_newtotaloverviewbox_row[$aggregate_type] = array();
-					foreach($aggdata as $category => $catdata) {
-						foreach($catdata as $itemkey => $item) {
-							foreach($report_years as $yearkey => $yearval) {
-								$item['data'][$yearval] = $item[$yearval];
-								//$current_yearval = $item[$yearval];
-
-								if(empty($item['data'][$yearval])) {
-									$item['data'][$yearval] = 0;
-								}
-								if($yearval != $report['year']) {
-									if(empty($item['data'][$yearval]) && empty($item[$yearval + 1])) {
-										$item['perc'][$yearval] = 0;
-									}
-									else {
-
-										if(empty($item['data'][$yearval])) {
-											$item['perc'][$yearval] = 100;
-										}
-										else {
-											$item['perc'][$yearval] = round((($item[$yearval + 1] / $item['data'][$yearval]) * 100) - 100);  /* Divide the next year total ammount with the ammount of previous year */
-										}
-									}
-
-									$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellpositive';
-									if($item['perc'][$yearval] == 0) {
-										$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellzero';
-									}
-									elseif($item['perc'][$yearval] < 0) {
-										$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellnegative';
-									}
-								}
-								$item['data'][$yearval] = round($item[$yearval]);
-								//$boxes_totals[$aggregate_type][$category][$yearval] += $item['data'][$yearval];
-							}
-
-							eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
-						}
-
-						if(is_array($reporting_report_newtotaloverviewbox_row[$aggregate_type][$category])) {
-							$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category]);
-						}
-
-						eval("\$reporting_report_newtotaloverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
-					}
-				}
-			}
+			$item = $boxes_totals['mainbox']['segments'] = $boxes_totals['mainbox']['products'] = array();
 		}
 		$item = array();
 
 		$keycustomersbox = $keycustomers = '';
 		if(is_array($report['keycustomers'])) {
+			$keycust_count = 0;
 			foreach($report['keycustomers'] as $keycust => $customer) {
+				/* Limit to 5 customers */
+				if($keycust_count == 5) {
+					break;
+				}
+
 				if(empty($customer['cid'])) {
 					continue;
 				}
+				$customer['companyName'] = ucwords(strtolower($customer['companyName']));
 				eval("\$keycustomers .= \"".$template->get('new_reporting_report_keycustomersbox_customerrow')."\";");
+				$keycust_count++;
 			}
 			eval("\$keycustomersbox = \"".$template->get('new_reporting_report_keycustomersbox')."\";");
 		}
-		
+
 		$marketreportbox = '';
 		if(is_array($report['marketreports'])) {
 			foreach($report['marketreports'] as $mrid => $marketreport) {
@@ -364,6 +347,9 @@ if(!$core->input['action']) {
 						$marketreportbox_comma = ', ';
 					}
 				}
+				
+				array_walk($marketreport, 'fix_newline');
+-				array_walk($marketreport, 'parse_ocode');
 				eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
 			}
 		}
@@ -386,8 +372,104 @@ if(!$core->input['action']) {
 
 		eval("\$highlightbox = \"".$template->get('new_reporting_report_highlightbox')."\";");
 		eval("\$reports .= \"".$template->get('new_reporting_report')."\";");
+		$reporting_report_newoverviewbox['segments'] = $reporting_report_newoverviewbox['products'] = array();
 	}
 	/* loop throw new */
+
+	if(is_array($total_year) && !empty($total_year)) {
+		foreach($total_year as $aggregate_type => $aggdata) {
+			//$reporting_report_newtotaloverviewbox[$aggregate_type] = $reporting_report_newtotaloverviewbox_row[$aggregate_type] = array();
+			foreach($aggdata as $category => $catdata) {
+				foreach($catdata['actual'] as $itemkey => $item) {
+					foreach($report_years as $yearkey => $yearval) {
+						$item['data'][$yearval] = $item[$yearval];
+						$progression_totals['data'][$yearval] += $item['data'][$yearval];
+
+						if(empty($item['data'][$yearval])) {
+							$item['data'][$yearval] = 0;
+							$progression_totals['perc'][$yearval] = 0;
+						}
+
+						if($yearval != $report['year']) {
+							if(empty($item['data'][$yearval]) && empty($item[$yearval + 1])) {
+								$item['perc'][$yearval] = 0;
+							}
+							else {
+								if(empty($item['data'][$yearval])) {
+									$item['perc'][$yearval] = 100;
+								}
+								else {
+									$item['perc'][$yearval] = round((($item[$yearval + 1] / $item['data'][$yearval]) * 100) - 100);  /* Divide the next year total ammount with the ammount of previous year */
+								}
+							}
+
+							$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellpositive';
+							if(($yearval+1) == $reporting_quarter['year'] && $reporting_quarter['quarter'] < 4) {
+								$newtotaloverviewbox_row_class[$yearval] = ' mainbox_forecast';
+							}
+							if($item['perc'][$yearval] == 0) {
+								$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellzero';
+							}
+							elseif($item['perc'][$yearval] < 0) {
+								$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellnegative';
+							}
+						}
+
+						$item_rounding = 0;
+						if($item[$yearval] < 1 && $item[$yearval] != 0) {
+							$item_rounding = $default_rounding;
+						}
+						$item['data'][$yearval] = number_format($item[$yearval], $item_rounding, '.', ' ');
+						//$item['data'][$yearval] = round($item[$yearval]);
+					}
+
+					eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
+				}
+
+				foreach($progression_totals['data'] as $year => $total_amount) {
+					if(empty($progression_totals['data'][$year]) && empty($progression_totals['data'][$year + 1])) {
+						$progression_totals['perc'][$year] = 0;
+					}
+					else {
+						if(empty($progression_totals['data'][$year])) {
+							$progression_totals['perc'][$year] = 100;
+						}
+						else {
+							if(!empty($progression_totals['data'][$year]) && !empty($progression_totals['data'][$year + 1])) {
+								$next_progression_totals = $progression_totals['data'][$year + 1];
+								$prev_progression_totals = $progression_totals['data'][$year];
+								$progression_totals['perc'][$year] = round((($next_progression_totals / $prev_progression_totals) * 100) - 100);
+							}
+						}
+					}
+					if(($yearval+1) == $reporting_quarter['year'] && $reporting_quarter['quarter'] < 4) {   /*if the year val equal to  the previous  quarter year */ 
+						$newtotaloverviewbox_row_class[$yearval] = ' mainbox_forecast';
+					}
+					$newtotaloverviewbox_row_percclass[$year] = ' totalsbox_perccellpositive';
+					if($progression_totals['perc'][$year] == 0) {
+						$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellzero';
+					}
+					elseif($progression_totals['perc'][$year] < 0) {
+						$newtotaloverviewbox_row_percclass[$year] = ' totalsbox_perccellnegative';
+					}
+					$item_rounding = 0;
+					if($progression_totals['data'][$year] < 1 && $progression_totals['data'][$year] != 0) {
+						$item_rounding = $default_rounding;
+					}
+					$progression_totals['data'][$year] = number_format($progression_totals['data'][$year], $item_rounding, '.', ' ');
+				}
+
+				if(is_array($reporting_report_newtotaloverviewbox_row[$aggregate_type][$category])) {
+					$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category]);
+				}
+
+				eval("\$reporting_report_newtotaloverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
+				$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = array();
+				$progression_totals['data'] = array();
+				unset($newtotaloverviewbox_row_percclass);
+			}
+		}
+	}
 
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'direct' || $core->input['referrer'] == 'list') {
 		if($core->input['referrer'] != 'list') {
@@ -407,7 +489,6 @@ if(!$core->input['action']) {
 			if(is_array($mkauthors_overview)) {
 				$authors_overview_entries = '';
 				foreach($mkauthors_overview as $affid => $mkauthors) {
-
 					if(is_array($mkauthors) && !empty($mkauthors)) {
 						$authors_overview_entries .= '<tr><td colspan="2" class="thead">'.$reportcache->data['affiliatesmarketreport'][$affid].'</td></tr>';
 						foreach($mkauthors as $psid => $authors) {
@@ -417,7 +498,10 @@ if(!$core->input['action']) {
 									$parsed_authors[$uid] = '<a href="mailto:'.$author['email'].'">'.$author['displayName'].'</a> (<a href="mailto:'.$author['email'].'">'.$author['email'].'</a>)';
 								}
 
-								$authors_overview_entries .= '<tr><td class="lightdatacell_freewidth" style="text-align:left;">'.$reportcache->data['marketsegments'][$psid].'</td><td style="width:70%; border-bottom: 1px dashed #CCCCCC;">'.implode(', ', $parsed_authors).'</td></tr>';
+								if(empty($reportcache->data['marketsegments'][$psid])) {
+									$reportcache->data['marketsegments'][$psid] = $lang->others;
+								}
+								$authors_overview_entries .= '<tr><td class="mainbox_itemnamecell">'.$reportcache->data['marketsegments'][$psid].'</td><td style="width:70%; border-bottom: 1px dotted #CCCCCC;">'.implode('<br />', $parsed_authors).'</td></tr>';
 							}
 						}
 					}
@@ -441,19 +525,19 @@ if(!$core->input['action']) {
 			if(!isset($report_currencies['USD'])) {
 				$report_currencies['USD'] = 'USD';
 			}
-			
+
 			if(is_array($report_currencies) && !empty($report_currencies)) {
 				$fxratespage_tablecolspan = count($report_currencies) + 1;
 				$fxratespage_tablehead .= '<tr><td>&nbsp;</td>';
-				$currencies_from = strtotime($core->settings['q'.$report['quarter'].'start'].'-'.$report['year']);
-				$currencies_to = strtotime($core->settings['q'.$report['quarter'].'end'].'-'.$report['year']);
+				$currencies_from = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'start']);
+				$currencies_to = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'end']);
 				if($report['quarter'] == 1) {
-					$prev_currencies_from = strtotime($core->settings['q4start'].'-'.($report['year'] - 1));
-					$prev_currencies_to = strtotime($core->settings['q4end'].'-'.($report['year'] - 1));
+					$prev_currencies_from = strtotime(($report['year'] - 1).'-'.$core->settings['q4start']);
+					$prev_currencies_to = strtotime(($report['year'] - 1).'-'.$core->settings['q4end']);
 				}
 				else {
-					$prev_currencies_from = strtotime($core->settings['q'.($report['quarter'] - 1).'start'].'-'.$report['year']);
-					$prev_currencies_to = strtotime($core->settings['q'.($report['quarter'] - 1).'end'].'-'.$report['year']);
+					$prev_currencies_from = strtotime($report['year'].'-'.$core->settings['q'.($report['quarter'] - 1).'start']);
+					$prev_currencies_to = strtotime($report['year'].'-'.$core->settings['q'.($report['quarter'] - 1).'end']);
 				}
 
 				foreach($report_currencies as $cur) {
@@ -462,8 +546,8 @@ if(!$core->input['action']) {
 
 					$currencies_fx = $currency->get_average_fxrates($report_currencies, array('from' => $currencies_from, 'to' => $currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4));
 					if(is_array($currencies_fx)) {
-						$fx_rates_entries .= '<tr><td class="namescell" style="text-align:left; width: 20%;">'.$cur.'</td>';
-						foreach($report_currencies as $fx_currency) {
+						$fx_rates_entries .= '<tr><td class="namescell" style="text-align:left; width: 2%;">'.$cur.'</td>';
+						foreach($report_currencies as $currkey => $fx_currency) {
 							$trend_symbol = '';
 							if(empty($currencies_fx[$fx_currency])) {
 								$currencies_fx[$fx_currency] = ' - ';
@@ -471,26 +555,46 @@ if(!$core->input['action']) {
 							else {
 								$currencies_fx[$fx_currency] = round($currencies_fx[$fx_currency], 4);
 								$prev_rate = $currency->get_average_fxrate($fx_currency, array('from' => $prev_currencies_from, 'to' => $prev_currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4), $cur);
-
 								$trend_symbol = '&darr;';
 								if($currencies_fx[$fx_currency] - $prev_rate > 0) {
 									$trend_symbol = '&uarr;';
 								}
 							}
 
-							$fx_rates_entries .= '<td class="currenciesbox_datacell">'.$trend_symbol.' '.$currencies_fx[$fx_currency].'</td>';
+							$fx_rates_entries .= '<td style="width:5%;" class="currenciesbox_datacell">'.$trend_symbol.' '.round($currencies_fx[$fx_currency], 2).'</td>';
 						}
 						$fx_rates_entries .= '</tr>';
 					}
 				}
-
 				$fxratespage_tablehead .= '</tr>';
+				$currency_rates_year = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'], array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR'); /* GET the fxrate of previous quarter year */
+				if($report['year'] == $reporting_quarter['year']) {
+					$currency_rates_year = array_slice($currency_rates_year, 0, date('n', TIME_NOW));
+				}
+				$currency_rates_prevyear = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR');
+				if(is_array($currency_rates_prevyear)) {
+					$fxrates_linechart_scale['min'] = min($currency_rates_prevyear);
+					if(min($currency_rates_year) < min($currency_rates_prevyear) && min($currency_rates_year) != 0) {
+						$fxrates_linechart_scale['min'] = min($currency_rates_year);
+					}
+
+					$fxrates_linechart_scale['max'] = max($currency_rates_prevyear);
+					if(max($currency_rates_year) > max($currency_rates_prevyear)) {
+						$fxrates_linechart_scale['max'] = max($currency_rates_year);
+					}
+
+					$fxrates_linechart = new Charts(array('x' => array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), 'y' => array($report['year'] => $currency_rates_year, ($report['year'] - 1) => $currency_rates_prevyear)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'fixedscale' => $fxrates_linechart_scale, 'width' => 700, 'height' => 200));
+					$fx_rates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_linechart->get_chart().'" /></td></tr>';
+				}
 				if(!empty($fx_rates_entries)) {
 					eval("\$fxratespage = \"".$template->get('reporting_report_fxrates')."\";");
 				}
 			}
 			/* Parse Currencies Table - END */
-			eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
+			//if(is_array($report['productsactivity'])){
+				eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
+			//}
+			
 		}
 
 		if($core->input['referrer'] == 'direct') {
@@ -557,7 +661,7 @@ if(!$core->input['action']) {
 		/* Check who hasn't yet filled in the report - End */
 		eval("\$tools .= \"".$template->get('reporting_preview_tools_finalize')."\";");
 	}
-	
+
 	$session->set_phpsession(array('reportsmetadata_'.$session_identifier => serialize($reports_meta_data)));
 	$session->set_phpsession(array('sessionid' => base64_encode(serialize($session_identifier))));
 	eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
@@ -589,7 +693,6 @@ else {
 		}
 	}
 	elseif($core->input['action'] == 'exportpdf' || $core->input['action'] == 'print' || $core->input['action'] == 'saveandsend' || $core->input['action'] == 'approve') {
-		//ini_set( "memory_limit","300M");
 		if($core->input['action'] == 'print') {
 			$show_html = 1;
 			$content = "<link href='{$core->settings[rootdir]}/report_printable.css' rel='stylesheet' type='text/css' />";
@@ -606,20 +709,23 @@ else {
 		$report = $newreport->get();
 		$report['reqQRSummary'] = $newreport->get_report_supplier()['reqQRSummary'];
 		$report['affiliates'] = $newreport->get_report_affiliate();
-		
+
 		$suppliername = $newreport->get_report_supplier()['companyName'];
 		ob_end_clean();
 
 		require_once ROOT.'/'.INC_ROOT.'html2pdf/html2pdf.class.php';
-		$html2pdf = new HTML2PDF('P', 'A4', 'en');
+		$html2pdf = new HTML2PDF('P', 'B4', 'en', TRUE, 'UTF-8');
 		$html2pdf->pdf->SetDisplayMode('fullpage');
 		$html2pdf->pdf->SetTitle($suppliername, true);
-		$content = iconv("UTF-8", "ISO-8859-1//TRANSLIT", $content);
+		//$content = html_entity_decode($content, ENT_XHTML, 'ISO-8859-1');
+		//$content = iconv("UTF-8", "ISO-8859-1//TRANSLIT", $content);
+		$content = str_replace(array('&uarr;','&darr;'), array('^', '<sub>v</sub>'), $content);
 
 		if($core->input['action'] == 'saveandsend') {
 			set_time_limit(0);
+			ini_set('memory_limit', '200M');
 			if(is_empty($report['summary']) && $report['reqQRSummary'] == 1) {
-				error($lang->fillsummary,$_SERVER['HTTP_REFERER']);
+				error($lang->fillsummary, $_SERVER['HTTP_REFERER']);
 			}
 			else {
 				$html2pdf->WriteHTML($content, $show_html);
@@ -633,7 +739,7 @@ else {
 				foreach($reportsids as $key => $val) {
 					$newreport->approve_report($val);
 				}
-				
+
 				switch($newreport->get_status()) {
 					case 0:
 						output_xml("<status>true</status><message>{$lang->approved}</message>");
@@ -672,11 +778,65 @@ else {
 		}
 		else {
 			set_time_limit(0);
+			ini_set('memory_limit', '200M');
 			$html2pdf->WriteHTML(trim($content), $show_html);
 			$html2pdf->Output($suppliername.'_'.date($core->settings['dateformat'], TIME_NOW).'.pdf');
 		}
 	}
 }
+function msort($array, $key, $sort_flags = SORT_REGULAR) {
+	if(is_array($array) && count($array) > 0) {
+		if(!empty($key)) {
+			$mapping = array();
+			foreach($array as $k => $v) {
+				$sort_key = '';
+				if(!is_array($key)) {
+					$sort_key = $v[$key];
+				}
+				else {
+					// @TODO This should be fixed, now it will be sorted as string
+					foreach($key as $key_key) {
+						$sort_key .= $v[$key_key];
+					}
+					$sort_flags = SORT_STRING;
+				}
+				$mapping[$k] = $sort_key;
+			}
+			asort($mapping, $sort_flags);
+			$sorted = array();
+			foreach($mapping as $k => $v) {
+				$sorted[] = $array[$k];
+			}
+			return $sorted;
+		}
+	}
+	return $array;
+}
 
-/* action Submit ----END */
+//function aasort (&$array, $key) { 
+//
+//    $sorter=array();
+//    $ret=array();
+//    reset($array);
+//    foreach ($array as $i => $va) {
+//        $sorter[$i]=$va[$key];
+//    }
+//    asort($sorter);
+//    foreach ($sorter as $i => $va) {
+//        $ret[$i]=$array[$i];
+//    }
+//    $array=$ret;
+//}
+//function subval_sort($a,$subkey) {
+//	foreach($a as $k=>$v) {
+//		$b[$k] = strtolower($v[$subkey]);
+//	}
+//	asort($b);
+//	foreach($b as $key=>$val) {
+//		$c[] = $a[$key];
+//		asort($b);
+//	}
+//
+//	return $c;
+//}
 ?>

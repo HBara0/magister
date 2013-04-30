@@ -4,7 +4,7 @@
     width: 100%;
     padding: 0px;
     border-spacing: 0px;
-    font-size: 10px !important;
+    font-size: 8px !important;
     border-width: 0px;
 }
 
@@ -19,7 +19,7 @@
     border-bottom: 2px solid #D8D8D8 !important;
 }
 
-.mainbox_datacell, .mainbox_typenamecell, .mainbox_totalcell, .currenciesbox_datacell {
+.mainbox_datacell, .mainbox_typenamecell, .mainbox_totalcell, .totalbox_totalcell, .currenciesbox_datacell {
      border-left: 1px solid #D8D8D8 !important; 
      border-bottom: 1px dotted #D8D8D8;
 }
@@ -28,11 +28,23 @@
     text-align: right;
 }
 
-.mainbox_totalcell {
-    text-align: right;
-    font-weight: bold;
+.mainbox_forecast {
+    font-style: italic;
+    background-color: #FCF1B8;
+    color: #888;
 }
 
+.mainbox_totalcell {
+    text-align: right;
+}
+
+.totalbox_totalcell {
+    text-align: center;
+}
+
+.totalbox_totalcell, .mainbox_totalcell {
+    font-weight: bold;
+}
 .mainbox_itemnamecell {
        border-left: 0px;
        width: 140px !important;
@@ -42,7 +54,7 @@
 .totalbox_itemnamecell {
     border-left: 0px;
     border-bottom: 1px dotted #D8D8D8;
-    width: 150px;
+    width: 160px;
 }
 .totalsbox_numcell, .totalsbox_perccellpositive, .totalsbox_perccellnegative, .totalsbox_perccellzero {
     width: 100px;
@@ -76,7 +88,7 @@
 .thead {
 	background-color:#92D050;
 	font-weight: bold;
-	font-size: 11px;
+	/*font-size: 10px;*/
 	border-bottom: dashed 1px #4F6228;
 	text-align: left;
 	width: 100%;
@@ -85,7 +97,7 @@
 .cathead {
 	background-color:#538022;
 	color: #FFFFFF;
-	font-size: 13px !important;
+	font-size: 10px !important;
 	font-weight: bold;
 	text-align:left;
 	width: 100%;
@@ -134,7 +146,7 @@
 .columnsubhead {
 	font-style: italic;
 	text-align: center;
-	font-size: 11px;
+	font-size: 10px;
         width: 28px;
 }
 
@@ -146,6 +158,6 @@
 	padding-left: 5px;
 	border: 1px solid #333333;
 	background-color:#DAEFC3;
-	font-size: 17px;
+	/*font-size: 16px;*/
 	color:#444444;
 }

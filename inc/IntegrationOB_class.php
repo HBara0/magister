@@ -117,11 +117,12 @@ class IntegrationOB extends Integration {
 		}
 		elseif($doc_type == 'invoice') {
 			$query = $this->f_db->query("SELECT i.ad_org_id, i.c_invoice_id AS doc_id, i.dateinvoiced AS doc_date, i.documentno, bp.name AS bpname, bp.c_bpartner_id AS bpid, bp.value AS bpname_abv, c.iso_code AS currency, i.salesrep_id, u.username, u.name AS salesrep, pt.netdays AS paymenttermsdays
-					FROM c_invoice i JOIN c_bpartner bp ON (bp.c_bpartner_id=i.c_bpartner_id)
+					FROM c_invoice i 
+					JOIN c_bpartner bp ON (bp.c_bpartner_id=i.c_bpartner_id)
 					JOIN c_currency c ON (c.c_currency_id=i.c_currency_id)
 					JOIN ad_user u ON (u.ad_user_id=i.salesrep_id)
 					JOIN c_paymentterm pt ON (i.c_paymentterm_id=pt.c_paymentterm_id)
-					WHERE i.ad_org_id IN ('".implode('","', $organisations)."') AND docstatus NOT IN ('VO', 'CL') AND issotrx='Y' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."')
+					WHERE i.ad_org_id IN ('".implode('\',\'', $organisations)."') AND docstatus NOT IN ('VO', 'CL') AND issotrx='Y' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."')
 					ORDER by dateinvoiced ASC");
 		}
 
@@ -147,7 +148,7 @@ class IntegrationOB extends Integration {
 			else {
 				$query2 = $db->insert_query('integration_mediation_salesorders', $document_newdata);
 			}
-			$query2 = true;
+	
 			if($query2) {
 				if(value_exists('integration_mediation_salesorderlines', 'foreignOrderId', $document['doc_id'])) {
 					$db->delete_query('integration_mediation_salesorderlines', 'foreignOrderId="'.$document['doc_id'].'"');
@@ -174,7 +175,7 @@ class IntegrationOB extends Integration {
 													LEFT JOIN m_product_po ppo ON (p.m_product_id=ppo.m_product_id)
 													WHERE c_invoice_id=\''.$document['doc_id'].'\' AND iscostcalculated=\'Y\' AND il.m_product_id NOT IN (\''.implode('\',\'', $exclude['products']).'\')
 												');
-				}
+					}
 
 				$documentline_newdata = array();
 				while($documentline = $this->f_db->fetch_assoc($documentline_query)) {

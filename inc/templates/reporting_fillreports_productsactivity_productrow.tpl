@@ -5,7 +5,7 @@
     <input type='hidden' value='{$productactivity[pid]}' id='product_{$rowid}_id' name='productactivity[$rowid][pid]' />
     <a href="#" id="showpopup_addproduct" class="showpopup"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a>
     <div id='searchQuickResults_{$rowid}' class='searchQuickResults' style='display:none;'></div></td>
- 	<td style="border-bottom: dashed 1px #CCCCCC;" align="center" class="altrow2 border_right"><input name="productactivity[$rowid][soldQty]" type="text" id="soldQty_{$rowid}" size="10" accept="numeric" value="{$productactivity[soldQty]}" autocomplete='off'/></td>
+  <td style="border-bottom: dashed 1px #CCCCCC;" align="center" class="altrow2 border_right"><input name="productactivity[$rowid][soldQty]" type="text" id="soldQty_{$rowid}" size="10" accept="numeric" value="{$productactivity[soldQty]}" autocomplete='off'/></td>
 	<td  style="border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="productactivity[$rowid][turnOver]" type="text" id="turnOver_{$rowid}" size="10" accept="numeric" value="{$productactivity[turnOver]}" autocomplete='off'/></td>
  	<td style="border-bottom: dashed 1px #CCCCCC;" align="center">{$currencyfx_selectlist}</td>
   <td style="border-bottom: dashed 1px #CCCCCC;" align="center"><input name="productactivity[$rowid][quantity]" type="text" id="quantity_{$rowid}" size="10" accept="numeric"  value="{$productactivity[quantity]}" autocomplete='off'/></td>

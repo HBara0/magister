@@ -7,7 +7,7 @@
         <tr><td><textarea name="summary" cols="50" rows="30" class="texteditormin" required="required">{$report[summary][summary]}</textarea></td></tr>
         <tr>
             <td>  
-                <input type="submit" value="{$lang->save}" class="button"> <input type="reset" value="{$lang->reset}" class="button">           
+                <input type="submit" value="{$lang->savecaps}" class="button"> <input type="reset" value="{$lang->reset}" class="button">           
                 <div style="display:block;" id="perform_reporting/newpreview_Results"></div>   
             </td>
         </tr>    

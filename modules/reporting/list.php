@@ -165,7 +165,7 @@ else {
 		$extra_where = getquery_entities_viewpermissions();
 
 		$report = $db->fetch_assoc($db->query("SELECT affid, spid, prActivityAvailable, keyCustAvailable, mktReportAvailable
-					 FROM ".Tprefix."reports
+					 FROM ".Tprefix."reports r
 					 WHERE type='q' AND rid=".$db->escape_string($core->input['rid']).$extra_where['extra']));
 
 		echo parse_statusdetails(array('prActivityAvailable' => $report['prActivityAvailable'], 'keyCustAvailable' => $report['keyCustAvailable'], 'mktReportAvailable' => $report['mktReportAvailable']));

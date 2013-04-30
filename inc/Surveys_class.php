@@ -135,7 +135,6 @@ class Surveys {
 
 	public function create_survey_template(array $data) {
 		global $db, $core, $log;
-
 		$cache = new Cache();
 		unset($data['action'], $data['module']); /* here we destroy the  action and module from the data ARRAY to avoid insert module name and action in the DB  */
 		if(empty($data['title'])) {
@@ -156,7 +155,6 @@ class Surveys {
 			}
 
 			if(empty($section['title'])) {
-
 				$this->status = 1;
 				return false;
 			}
@@ -172,7 +170,6 @@ class Surveys {
 				foreach($section['questions'] as $stqid => $question) {
 					if(count($section['questions']) == 1) {
 						if(empty($question['question'])) {
-
 							unset($core->input['section'][$key]);
 							break;
 						}
@@ -181,9 +178,11 @@ class Surveys {
 						unset($core->input['section'][$key]['questions'][$stqid]);
 						continue;
 					}
-
+					if(is_empty($question['question'], $question['type'])) {
+						return false;
+					}
 					if($cache->incache('questiontitles', $question['question'])) {
-						$this->status = 4;
+						$this->status = 5;
 						return false;
 					}
 					else {
@@ -208,7 +207,6 @@ class Surveys {
 		}
 
 		/* Validate that data is complete before creating anything - END */
-
 		$newsurveys_template = array(
 				'dateCreated' => TIME_NOW,
 				'category' => $core->input['category'],
@@ -223,7 +221,7 @@ class Surveys {
 			foreach($core->input['section'] as $key => $section) {
 				$newsurveys_section = array(
 						'stid' => $stid,
-						'title' => $core->sanitize_inputs($section['title']));
+						'title' => $core->sanitize_inputs(trim($section['title'])));
 
 				$section_query = $db->insert_query('surveys_templates_sections', $newsurveys_section);
 				if($section_query) {
@@ -239,22 +237,39 @@ class Surveys {
 							$question['commentsFieldType'] = 'textarea';
 						}
 						unset($question['choices']);
-
+						
+						$question['question'] = trim($question['question']);
+						
 						$query_question = $db->insert_query('surveys_templates_questions', $question);
 						if($query_question) {
 							$stqid = $db->last_id();
 
 							if(!empty($question_choices)) {
-								/* Split the question choices by "\n" or ";" */
-								$question_choices = preg_split("/[\n;]+/", $question_choices);
-								if(is_array($question_choices)) {
-									foreach($question_choices as $key => $choice) {
-										$choice = trim($choice);
-										if(empty($choice)) {
+								/* Split the question choices by "\n"  */
+								$question_choices_choice = preg_split("/\n+/", $question_choices);
+
+								/* Split the choices value by ";"  */
+								if(is_array($question_choices_choice)) {
+									foreach($question_choices_choice as $key => $choice) {
+										if(strstr($choice, ';')) {
+											$question_choices_values = preg_split("/;+/", $choice);
+										}
+										else {
+											$question_choices_values[0] = $choice;
+										}
+										
+										if(empty($question_choices_values[0])) {
 											continue;
 										}
-										$newsurveys_questions_choice = array('stqid' => $stqid, 'choice' => $choice);
-										$query_choice = $db->insert_query('surveys_templates_questions_choices', $newsurveys_questions_choices);
+										
+										if(empty($question_choices_values[1]) && $question_choices_values[1] != 0) {
+											$question_choices_values[1] = $question_choices_values[0];
+										}
+										
+										if(!empty($question_choices_values[0]) && (!empty($question_choices_values[1]) && $question_choices_values[1] != 0)) {
+											$newsurveys_questions_choices = array('stqid' => $stqid, 'choice' => trim($question_choices_values[0]), 'value' => trim($question_choices_values[1]));
+											$query_choice = $db->insert_query('surveys_templates_questions_choices', $newsurveys_questions_choices);
+										}
 									}
 								}
 							}
@@ -262,7 +277,6 @@ class Surveys {
 					}
 				}
 			}
-
 			$log->record('createsurveytemplate', $stid);
 			$this->status = 0;
 			return true;
@@ -822,7 +836,7 @@ class Surveys {
 	public function get_questions() {
 		global $db;
 
-		$query = $db->query("SELECT *, sts.title AS section_title
+		$query = $db->query("SELECT *, sts.title AS section_title, stq.description AS description
 							FROM ".Tprefix."surveys_templates st 
 							JOIN ".Tprefix."surveys_templates_sections sts ON (sts.stid=st.stid) 
 							JOIN ".Tprefix."surveys_templates_questions stq ON (sts.stsid=stq.stsid) 
@@ -856,8 +870,8 @@ class Surveys {
 			$question_output = '<div style="margin: 5px 0px 5px 20px; font-style:italic; ">'.$question['question'].'</div>';
 		}
 		else {
-			if(isset($question['question_description'])) {
-				$question_desc_output = '<div class="altrow2" style="margin-left:15px; font-style: italic;font-weight:normal;">'.$question['question_description'].'</div>';
+			if(isset($question['description'])) {
+				$question_desc_output = '<div class="altrow2" style="margin-left:15px; font-style: italic;font-weight:normal;">'.$question['description'].'</div>';
 			}
 
 			$question_output = '<div  class="altrow2" style="padding-bottom:10px; padding-top:10px; font-weight: bold;">'.$question['sequence'].' - '.$question['question'].$question_output_required.$question_desc_output.'</div>';
@@ -884,7 +898,6 @@ class Surveys {
 						foreach($question['choices'] as $key => $choice) {
 							$question_output .= '<div style="margin-left:20px;">'.$choice.' <input type="text" id="answer_actual_'.$question['stqid'].'_'.$key.'" name="answer[actual]['.$question['stqid'].']['.$key.']" size="'.$question['fieldSize'].'"'.$question_output_inputaccept.$question_output_requiredattr.' /> <input type="hidden" id="answer_comments_'.$question['stqid'].'_'.$key.'" name="answer[comments]['.$question['stqid'].']['.$key.']" value="'.$key.'"/>'.$this->parse_validation($question).'</div>';
 						}
-						echo $question_output;
 					}
 				}
 				else /* Single textbox */ {

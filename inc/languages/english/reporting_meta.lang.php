@@ -15,6 +15,7 @@ $lang['keycustomers'] = "Key Customers";
 $lang['contactperson'] = "Contact person";
 $lang['purchaseqty']="Purchase Qty";
 $lang['marketreport'] = "Market Report";
+$lang['fillsummary']="summary cannot be empty for this supplier";
 $lang['marktrendcompetition'] = "Market Trend and Competition";
 $lang['quarterlyhighlights'] = "Quarterly Hightlights";
 $lang['devprojectsnewop'] = "Development Projects and New Opportunities";
@@ -165,7 +166,7 @@ $lang['segments'] = 'segments';
 $lang['products'] = 'products';
 $lang['affiliates'] = 'affiliates';
 $lang['amount'] = 'Amount';
-$lang['purchasedQty'] = 'Purchased Quantities';
-$lang['soldQty'] = 'Sold Quantities';
+$lang['purchasedqty'] = 'Purchased Quantities';
+$lang['soldqty'] = 'Sold Quantities';
 $lang['progressionyearsby'] = 'Progression over years by';
 ?>
