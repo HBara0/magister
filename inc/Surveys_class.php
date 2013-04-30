@@ -166,7 +166,6 @@ class Surveys {
 			}
 			else {
 				$cache->add('sectiontitles', $section['title'], $key);
-
 				foreach($section['questions'] as $stqid => $question) {
 					if(count($section['questions']) == 1) {
 						if(empty($question['question'])) {
@@ -218,6 +217,7 @@ class Surveys {
 
 		if($query) {
 			$stid = $db->last_id();
+			$sequence = 1;
 			foreach($core->input['section'] as $key => $section) {
 				$newsurveys_section = array(
 						'stid' => $stid,
@@ -228,6 +228,7 @@ class Surveys {
 					$stsid = $db->last_id();
 					foreach($section['questions'] as $key => $question) {
 						$question['stsid'] = $stsid;
+						$question['sequence'] = $sequence;
 						if(isset($question['choices'])) {
 							$question_choices = $question['choices'];
 						}
@@ -277,6 +278,7 @@ class Surveys {
 								}
 							}
 						}
+						$sequence++;
 					}
 				}
 			}
