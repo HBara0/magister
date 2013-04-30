@@ -141,6 +141,22 @@ $("span[id^='contactpersondata_']").each(function(){
 			</table>
 			<hr /> 
 		</div>
+        
+        <div  style="display:inline-block; overflow:auto; width:100%; max-height:200px; vertical-align:top; margin-top:10px;">
+        
+        	<table class="datatable" width="100%">
+				<thead>
+					<tr>
+						<td class="thead">{$lang->genericproducts}</td>
+		
+					</tr>
+				</thead>
+				{$genericproductlist_section}
+			</table>
+			<hr /> 
+        
+        </div>
+        
 		<div>
 			<div class="subtitle" style="margin-top: 10px;">{$lang->comments}</div>
 			<div style='padding:5px; width:100%;' class='border_bottom'><strong>{$lang->cobriefing}</strong><br />

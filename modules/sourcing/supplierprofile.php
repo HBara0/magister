@@ -40,7 +40,7 @@ if(!$core->input['action']) {
 	$supplier['contactpersons'] = $potential_supplier->get_supplier_contact_persons();
 	$supplier['activityareas'] = $potential_supplier->get_supplier_activity_area();
 	$supplier['chemicalsubstances'] = $potential_supplier->get_chemicalsubstances();
-
+	$supplier['genericproducts'] = $potential_supplier->get_genericproducts();
 	if(is_array($supplier['segments']) && !empty($supplier['segments'])) {
 		$segments_output = '<ul><li>'.implode('</li><li>', $supplier['segments']).'</li></ul>';
 	}
@@ -71,6 +71,23 @@ if(!$core->input['action']) {
 		$chemicalslist_section = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
 	}
 	/* Chemical List - END */
+
+	/* Generic product List -START */
+	$genericproductlist_section = '';
+	if(is_array($supplier['genericproducts'])) {
+		foreach($supplier['genericproducts'] as $genericproduct) {
+			$rowclass = alt_row($rowclass);
+			$genericproductlist_section .= '<tr class="'.$rowclass.'" style="vertical-align:top;"><td width="10%">'.$genericproduct['title'].'</td></tr>';
+		}
+	}
+	else {
+		$genericproductlist_section = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
+	}
+
+
+
+	/* Generic product List--END */
+
 	if(!empty($supplier['maindetails']['companyNameAbbr'])) {
 		$supplier['maindetails']['companyName'] .= ' ('.$supplier['maindetails']['companyNameAbbr'].')';
 	}

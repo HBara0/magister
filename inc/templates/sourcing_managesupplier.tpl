@@ -136,11 +136,43 @@
 						</table>
 					</div>
 				</div>
+ 
+                
+                
 				<div style="display:table-row; margin-bottom: 10px;">
 					<div style="display: table-cell; padding:5px;"> <img src="images/add.gif" id="addmore_chemicalproduct" alt="{$lang->add}" />
 						<input name="chemicalproduct_numrows" id="chemicalproduct_numrows" value="{$chemicalp_rowid}" type="hidden" />
 					</div>
 				</div>
+                
+             
+                               
+                
+          	<div style="display:table-row;">
+            					<div class="thead" style="display:table-cell;">{$lang->genericproducts}</div>
+					<div class="thead" style="display:table-cell;"></div>
+            
+            </div>      
+                            
+<div style="display:table-row; vertical-align:top;">
+					<div style="display: table-cell; padding:5px;">{$lang->selectgenericproducts}</div>
+					<div style="display: table-cell; padding:5px;">
+						<table>
+							<tbody id="genericproducts_tbody" >
+								{$genericproducts_rows}
+							</tbody>
+						</table>
+					</div>
+				</div>
+                
+     <div style="display:table-row; margin-bottom: 10px;">
+					<div style="display: table-cell; padding:5px;"> <img src="images/add.gif" id="addmore_genericproducts" alt="{$lang->add}" />
+						<input name="genericproduct_numrows" id="genericproduct_numrows" value="{$genericproduct_rowid}" type="hidden" />
+					</div>
+				</div>
+                
+           
+                
 				<div style="display:table-row;">
 					<div class="thead" style="display:table-cell;">{$lang->representative}</div>
 					<div class="thead" style="display:table-cell;"></div>

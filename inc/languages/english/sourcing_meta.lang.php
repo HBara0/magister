@@ -43,7 +43,8 @@ $lang['competitor'] = 'Competitor';
 $lang['contactdesc'] = 'Notes';
 $lang['website'] = 'Website';
 $lang['chemicalname'] = 'Chemical Name';
-
+$lang['genericproducts']='Generic Products';
+$lang['selectgenericproducts']='Select Generic Products';
 $lang['chemicalsearch'] = 'Search By Chemical';
 $lang['chemicalproducts'] = 'Chemical Products';
 $lang['comments'] = 'Comments And Reviews';

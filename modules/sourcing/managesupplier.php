@@ -28,6 +28,7 @@ if(!$core->input['action']) {
 		$supplier['contactpersons'] = $potential_supplier->get_supplier_contact_persons();
 		$supplier['activityareas'] = $potential_supplier->get_supplier_activity_area();
 		$supplier['chemicalsubstances'] = $potential_supplier->get_chemicalsubstances();
+		$supplier['genericproducts'] = $potential_supplier->get_genericproducts();
 
 		$checkboxes_index = array('isBlacklisted');
 		foreach($checkboxes_index as $key) {
@@ -45,7 +46,16 @@ if(!$core->input['action']) {
 			}
 			unset($selecteditems);
 		}
-
+		if(is_array($supplier['genericproducts'])) {
+			$genericproduct_rowid = 1;
+			foreach($supplier['genericproducts'] as $key => $genericproducts) {
+				$selecteditems['supplyType'][$key][$genericproducts['supplyType']] = ' selected="selected"';
+				$generic_product_list = parse_selectlist('supplier[genericproducts]['.$genericproduct_rowid.'][gpid]', 9, get_specificdata('genericproducts', array('gpid', 'title'), 'gpid', 'title', ''), $genericproducts['gpid'], 0);
+				eval("\$genericproducts_rows .= \"".$template->get('sourcing_managesupplier_genericproductrow')."\";");
+				$genericproduct_rowid++;
+			}
+			unset($selecteditems);
+		}
 		if(is_array($supplier['contactpersons'])) {
 			$contactp_rowid = 1;
 			foreach($supplier['contactpersons'] as $contactperson) {
@@ -57,13 +67,17 @@ if(!$core->input['action']) {
 		$supplier['details']['phone1'] = explode('-', $supplier['details']['phone1']);
 		$supplier['details']['phone2'] = explode('-', $supplier['details']['phone2']);
 		$supplier['details']['fax'] = explode('-', $supplier['details']['fax']);
-		
+
 		$mark_blacklist = '<div style="display: table-cell; width:700px;vertical-align:middle;">'.$lang->blacklisted.'</div><div style="display: table-cell; width:700px;vertical-align:middle;"><input name="supplier[isBlacklisted]" type="checkbox" value="1"'.$checkedboxes.'></div>';
 	}
 	else {
 		$actiontype = 'add';
+
 		$chemicalp_rowid = 1;
 		eval("\$chemicalproducts_rows .= \"".$template->get('sourcing_managesupplier_chemicalrow')."\";");
+		$genericproduct_rowid = 1;
+		$generic_product_list = parse_selectlist('supplier[genericproducts]['.$genericproduct_rowid.'][gpid]', 9, get_specificdata('genericproducts', array('gpid', 'title'), 'gpid', 'title', ''), 'gpid', 0, '', array('blankstart' => 1));
+		eval("\$genericproducts_rows .= \"".$template->get('sourcing_managesupplier_genericproductrow')."\";");
 		$contactp_rowid = 1;
 		eval("\$contactpersons_rows .= \"".$template->get('sourcing_managesupplier_contactprow')."\";");
 	}
@@ -93,10 +107,8 @@ if(!$core->input['action']) {
 
 			foreach($availability_radiobutton_items as $index => $item) {
 				$availability_radiobutton[$index] = parse_radiobutton('supplier[activityarea]['.$acoid.'][availability]', array($index => $item), $supplier['selectedactivityareas'][$acoid]['availability']);
-			
-				
 			}
-			eval("\$activityarea_list_row .= \"".$template->get('sourcing_managesupplier_activityarea_list_row')."\";"); 
+			eval("\$activityarea_list_row .= \"".$template->get('sourcing_managesupplier_activityarea_list_row')."\";");
 		}
 	}
 	/* Parse Availability section - END */
