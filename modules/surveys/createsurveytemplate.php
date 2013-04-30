@@ -13,10 +13,10 @@ if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
 
-/* if($core->usergroup['surveys_canCreateTemplates'] == 0) {
+if($core->usergroup['surveys_canCreateSurvey'] == 0) {
   error($lang->sectionnopermission);
   exit;
-  } */
+}
 
 $lang->load('surveys_createtemplate');
 if(!$core->input['action']) {
@@ -80,7 +80,6 @@ else {
 				output_xml("<status>false</status><message>{$lang->duplicationquestionname}</message>");
 				break;
 		}
-		//redirect("index.php?module=surveys/createsurveytemplate");
 	}
 	elseif($core->input['action'] == 'parsetype') {	
 		/* Get validation of the question - START */
