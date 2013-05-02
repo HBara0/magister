@@ -40,6 +40,7 @@ $lang['fillrequiredfield'] = "Smmmary can not be empty";
 $lang['save']="SAVE";
 $lang['moderatintools'] = "Moderation tools";
 $lang['lockunlock'] = "Lock/Unlock";
+$lang['unlockwithreminders'] = "Unlock With Reminders";
 $lang['lock'] = "Lock";
 $lang['unlock'] = "Unlock";
 $lang['approve'] = "Approve";
