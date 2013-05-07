@@ -375,7 +375,6 @@ if(!$core->input['action']) {
 		eval("\$reports .= \"".$template->get('new_reporting_report')."\";");
 		$reporting_report_newoverviewbox['segments'] = $reporting_report_newoverviewbox['products'] = array();
 	}
-	/* loop throw new */
 
 	if(is_array($total_year) && !empty($total_year)) {
 		foreach($total_year as $aggregate_type => $aggdata) {
