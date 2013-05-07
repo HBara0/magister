@@ -718,7 +718,7 @@ else {
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
 		$report_meta['rid'] = $db->escape_string($report_meta['rid']);
-		
+
 		$report = new ReportingQr(array('rid' => $report_meta['rid']));
 		$currencies = unserialize($session->get_phpsession('reportcurrencies_'.$identifier));
 
@@ -915,7 +915,7 @@ else {
 			}
 			if($core->input['savetype'] == 'finalize') {
 				/* Force recording of contribution if user is finalizing with transparency and no other contributor exist */
-				if($report_meta['transFill'] == '1' && $db->num_rows($db->query('SELECT uid FROM '.Tprefix.'reportcontributors WHERE rid='.intval($rawdata['rid']))) == 0) {
+				if($report_meta['transFill'] == '1' && $db->num_rows($db->query('SELECT uid FROM '.Tprefix.'reportcontributors WHERE rid='.intval($report_meta['rid']))) == 0) {
 					record_contribution($report_meta['rid'], 1);
 				}
 				output_xml("<status>true</status><message>{$lang->reportfinalized}</message>");
