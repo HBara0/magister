@@ -87,7 +87,7 @@ if($time_now >= $quarter_start && $time_now <= $quarter_end) {
 			if($val['email'] != $core->settings['sendreportsto']) {
 				$email_data['cc'][] = $core->settings['sendreportsto'];
 			}
-			//echo $email_message.'<hr />';
+
 			$mail = new Mailer($email_data, 'php');
 		}		
 		$core->input['action'] = 'autosendreportsnotsentreminders';

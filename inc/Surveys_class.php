@@ -155,7 +155,6 @@ class Surveys {
 			}
 
 			if(empty($section['title'])) {
-
 				$this->status = 1;
 				return false;
 			}
@@ -167,7 +166,6 @@ class Surveys {
 			}
 			else {
 				$cache->add('sectiontitles', $section['title'], $key);
-
 				foreach($section['questions'] as $stqid => $question) {
 					if(count($section['questions']) == 1) {
 						if(empty($question['question'])) {
@@ -183,7 +181,7 @@ class Surveys {
 						return false;
 					}
 					if($cache->incache('questiontitles', $question['question'])) {
-						$this->status = 4;
+						$this->status = 5;
 						return false;
 					}
 					else {
@@ -219,16 +217,18 @@ class Surveys {
 
 		if($query) {
 			$stid = $db->last_id();
+			$sequence = 1;
 			foreach($core->input['section'] as $key => $section) {
 				$newsurveys_section = array(
 						'stid' => $stid,
-						'title' => $core->sanitize_inputs($section['title']));
+						'title' => $core->sanitize_inputs(trim($section['title'])));
 
 				$section_query = $db->insert_query('surveys_templates_sections', $newsurveys_section);
 				if($section_query) {
 					$stsid = $db->last_id();
 					foreach($section['questions'] as $key => $question) {
 						$question['stsid'] = $stsid;
+						$question['sequence'] = $sequence;
 						if(isset($question['choices'])) {
 							$question_choices = $question['choices'];
 						}
@@ -238,7 +238,9 @@ class Surveys {
 							$question['commentsFieldType'] = 'textarea';
 						}
 						unset($question['choices']);
-
+						
+						$question['question'] = trim($question['question']);
+						
 						$query_question = $db->insert_query('surveys_templates_questions', $question);
 						if($query_question) {
 							$stqid = $db->last_id();
@@ -264,11 +266,11 @@ class Surveys {
 											$question_choices_values[1] = $question_choices_values[0];
 										}
 										
-										if(empty($question_choices_values[1])) {
+										if(empty($question_choices_values[1]) && $question_choices_values[1] != 0) {
 											$question_choices_values[1] = $question_choices_values[0];
 										}
 										
-										if(!empty($question_choices_values[0]) && !empty($question_choices_values[1])) {
+										if(!empty($question_choices_values[0]) && (!empty($question_choices_values[1]) && $question_choices_values[1] != 0)) {
 											$newsurveys_questions_choices = array('stqid' => $stqid, 'choice' => trim($question_choices_values[0]), 'value' => trim($question_choices_values[1]));
 											$query_choice = $db->insert_query('surveys_templates_questions_choices', $newsurveys_questions_choices);
 										}
@@ -276,6 +278,7 @@ class Surveys {
 								}
 							}
 						}
+						$sequence++;
 					}
 				}
 			}
@@ -838,7 +841,7 @@ class Surveys {
 	public function get_questions() {
 		global $db;
 
-		$query = $db->query("SELECT *, sts.title AS section_title
+		$query = $db->query("SELECT *, sts.title AS section_title, stq.description AS description
 							FROM ".Tprefix."surveys_templates st 
 							JOIN ".Tprefix."surveys_templates_sections sts ON (sts.stid=st.stid) 
 							JOIN ".Tprefix."surveys_templates_questions stq ON (sts.stsid=stq.stsid) 
