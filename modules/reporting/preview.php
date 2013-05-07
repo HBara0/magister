@@ -77,7 +77,7 @@ if(!$core->input['action']) {
 			$report['items'] = $newreport->get_classified_productsactivity();
 			$report['itemsclasses'] = $newreport->get_classified_classes();
 			unset($report['items']['amount']['forecast']);
-			$report['productsactivity'] = $newreport->get_products_activity(); 
+			$report['productsactivity'] = $newreport->get_products_activity();
 			$report['currencies'] = $newreport->get_currencies();
 			if(is_array($report['currencies'])) {
 				$report_currencies += $report['currencies'];
@@ -109,6 +109,7 @@ if(!$core->input['action']) {
 		else { /* if Referrrer fill  */
 			$newreport = new ReportingQr(array('rid' => $core->input['rid']));
 			$report = $newreport->get();
+			$report['contributors'] = $newreport->get_report_contributors();
 			$report['affiliates'] = $newreport->get_report_affiliate();
 			$report['supplier'] = $newreport->get_report_supplier();
 			$identifier = $db->escape_string($core->input['identifier']);
@@ -347,7 +348,7 @@ if(!$core->input['action']) {
 						$marketreportbox_comma = ', ';
 					}
 				}
-				
+
 				array_walk($marketreport, 'fix_newline');
 -				array_walk($marketreport, 'parse_ocode');
 				eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
@@ -442,7 +443,7 @@ if(!$core->input['action']) {
 							}
 						}
 					}
-					if(($yearval+1) == $reporting_quarter['year'] && $reporting_quarter['quarter'] < 4) {   /*if the year val equal to  the previous  quarter year */ 
+					if(($yearval+1) == $reporting_quarter['year'] && $reporting_quarter['quarter'] < 4) {   /*if the year val equal to  the previous  quarter year */
 						$newtotaloverviewbox_row_class[$yearval] = ' mainbox_forecast';
 					}
 					$newtotaloverviewbox_row_percclass[$year] = ' totalsbox_perccellpositive';
@@ -720,7 +721,7 @@ else {
 		//$content = html_entity_decode($content, ENT_XHTML, 'ISO-8859-1');
 		//$content = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $content);
 		$content = str_replace(array('&uarr;','&darr;'), array('^', '<sub>v</sub>'), $content);
-		
+
 		if($core->input['action'] == 'saveandsend') {
 			set_time_limit(0);
 			ini_set('memory_limit', '200M');
@@ -813,7 +814,7 @@ function msort($array, $key, $sort_flags = SORT_REGULAR) {
 	return $array;
 }
 
-//function aasort (&$array, $key) { 
+//function aasort (&$array, $key) {
 //
 //    $sorter=array();
 //    $ret=array();
