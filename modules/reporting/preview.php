@@ -541,7 +541,7 @@ if(!$core->input['action']) {
 				}
 
 				foreach($report_currencies as $cur) {
-					$fxratespage_tablehead .= '<td>'.$cur.'</td>';
+					$fxratespage_tablehead .= '<td style="text-align:center;">'.$cur.'</td>';
 					$currency = new Currencies($cur); //$reports_meta_data['baseCurrency']);
 
 					$currencies_fx = $currency->get_average_fxrates($report_currencies, array('from' => $currencies_from, 'to' => $currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4));
@@ -561,7 +561,7 @@ if(!$core->input['action']) {
 								}
 							}
 
-							$fx_rates_entries .= '<td style="width:5%;" class="currenciesbox_datacell">'.$trend_symbol.' '.round($currencies_fx[$fx_currency], 2).'</td>';
+							$fx_rates_entries .= '<td style="width:5%; text-align:center;" class="currenciesbox_datacell">'.$trend_symbol.' '.round($currencies_fx[$fx_currency], 2).'</td>';
 						}
 						$fx_rates_entries .= '</tr>';
 					}
@@ -588,7 +588,6 @@ if(!$core->input['action']) {
 				}
 				if(!empty($fx_rates_entries)) {
 					eval("\$fxratespage = \"".$template->get('reporting_report_fxrates')."\";");
-					$fxratespage = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $fxratespage);
 				}
 			}
 			/* Parse Currencies Table - END */
