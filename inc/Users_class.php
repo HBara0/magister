@@ -25,18 +25,18 @@ class Users {
 		}
 	}
 
-	private function read_user($uid = '', $simple = true) {
+	private function read_user($uid ='', $simple=true) {
 		global $db;
-
+		
 		if(empty($uid)) {
 			$uid = $this->user['uid'];
 		}
-
-		$query_select = 'uid, username, reportsTo,firstName, middleName, lastName, displayName,email';
+		
+		$query_select = 'uid, username, firstName, middleName, lastName, displayName';
 		if($simple == false) {
 			$query_select = '*';
 		}
-
+		
 		$this->user = $db->fetch_assoc($db->query("SELECT ".$query_select."
 												FROM ".Tprefix."users
 												WHERE uid='".intval($uid)."'"));
@@ -50,7 +50,7 @@ class Users {
 		global $db;
 		$this->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->uid}' AND isMain=1"), 'affid');
 	}
-
+	
 	public function get() {
 		return $this->user;
 	}
@@ -58,38 +58,7 @@ class Users {
 	public function get_reportsto() {
 		return new Users($this->user['reportsTo']);
 	}
-
-	public function get_reportingto() {
-		global $db;
-		$reportsquery = $db->query("SELECT DISTINCT(uid), reportsTo,username, firstName, middleName, lastName, displayName FROM ".Tprefix."users 
-			 WHERE reportsTo={$this->user[uid]}");
-		while($reporting = $db->fetch_assoc($reportsquery)) {
-			$this->user['reportingTo'][] = $reporting;
-		}
-		return $this->user['reportingTo'];
-	}
-
-	public function get_additionaldays_byuser() {
-		global $db;
-		return $this->user['additionaldays'] = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."attendance_additionalleaves 
-																			WHERE uid ={$this->user[uid]}"));
-	}
-
-	public function canHr($options = '') {
-		global $db, $core, $user;
-		if(!empty($options) && ($options == 'inaffiliate')) {
-			$affiliate_where = 'AND affe.affid IN ('.implode(',', $core->user['hraffids']).')';
-		}
-		$hrquery = $db->query("SELECT canHR FROM ".Tprefix."users u JOIN affiliatedemployees affe ON(u.uid=affe.uid)
-			 WHERE affe.canHr=1 {$affiliate_where} AND affe.uid={$this->user[uid]}");
-		if($db->num_rows($hrquery) > 0) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-
+	
 	public function get_assistant() {
 		return new Users($this->user['assistant']);
 	}
@@ -109,7 +78,7 @@ class Users {
 	public function get_mainaffiliate() {
 		if(!isset($this->user['mainaffiliate']) || empty($this->user['mainaffiliate'])) {
 			$this->read_mainaffiliate();
-		}
+		} 
 		return new Affiliates($this->user['mainaffiliate'], FALSE);
 	}
 
