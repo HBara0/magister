@@ -555,13 +555,13 @@ if(!$core->input['action']) {
 							else {
 								$currencies_fx[$fx_currency] = round($currencies_fx[$fx_currency], 4);
 								$prev_rate = $currency->get_average_fxrate($fx_currency, array('from' => $prev_currencies_from, 'to' => $prev_currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4), $cur);
-								$trend_symbol = '&darr;';
+								$trend_symbol = '<div class="arrow-down"></div> ';
 								if($currencies_fx[$fx_currency] - $prev_rate > 0) {
-									$trend_symbol = '&uarr;';
+									$trend_symbol = '<div class="arrow-up"></div> ';
 								}
 							}
 
-							$fx_rates_entries .= '<td style="width:5%; text-align:center;" class="currenciesbox_datacell">'.$trend_symbol.' '.round($currencies_fx[$fx_currency], 2).'</td>';
+							$fx_rates_entries .= '<td style="width:5%; text-align: center;" class="currenciesbox_datacell">'.$trend_symbol.' '.round($currencies_fx[$fx_currency], 2).'</td>';
 						}
 						$fx_rates_entries .= '</tr>';
 					}

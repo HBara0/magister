@@ -515,7 +515,7 @@ else {
 			  }
 			  } */
 			if(is_array($cache['usedpaid'])) { 
-				$delete_query_where = ' OR ( paid NOT IN ('.implode(', ', $cache['usedpaid']).') AND pid NOT IN ('.implode(', ', $cache['usedpids']).'))';
+				//$delete_query_where = ' OR ( paid NOT IN ('.implode(', ', $cache['usedpaid']).') AND pid NOT IN ('.implode(', ', $cache['usedpids']).'))';
 			}
 			$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rid}' AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
 			$update_status = $db->update_query('reports', array('prActivityAvailable' => 1), "rid='{$rid}'");
