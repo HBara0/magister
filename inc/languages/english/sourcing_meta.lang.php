@@ -20,6 +20,7 @@ $lang['address1'] = 'Address1';
 $lang['affilliate'] = 'Affiliate';
 $lang['undefined'] = 'Undefined';
 $lang['sourcingdecide'] = 'Sourcing to decide';
+$lang['genericproductsearch']='Search By Generic Product  ';
 $lang['address2'] = 'Address2';
 $lang['buildingname'] = 'Building ';
 $lang['postcode'] = 'Post Code ';

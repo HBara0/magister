@@ -33,6 +33,9 @@
 			<div align="right">
 				{$lang->chemicalsearch} <input id="filters_chemical" name="filters[chemicalsubstance]" type="text" size="35" />
 			</div>
+                        <div align="right" style="clear:left; padding: 5px;">
+				{$lang->genericproductsearch}<select id="filters_genericproduct" name="filters[genericproduct]" size="1" tabindex="1">{$genericproductslist}</select>
+			</div>
 		</form>
 		<div style="width:40%; float:left; margin-top:0px;">
 			<form method='post' action='$_SERVER[REQUEST_URI]'>
@@ -54,6 +57,8 @@
 					<div id="searchQuickResults_chemicalproducts_1" class="searchQuickResults" style="display:none;"></div>
 				</div>
 			</div>
+                           
+                                
 			<div style="display:table-row;">
 				<div style="display:table-cell;width:130px; vertical-align:middle;">{$lang->requestdescription}</div>
 				<div style="display:table-cell; margin-top:5px;">
