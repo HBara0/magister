@@ -95,7 +95,7 @@ if(!$core->input['action']) {
 	$geneirc_query = $db->query("SELECT * FROM ".Tprefix."genericproducts ORDER BY title ASC");
 	$genericproductslist='<option value=""></option>';
 	while($generic = $db->fetch_assoc($geneirc_query)) {
-		$genericproductslist .= '<option value='.$generic['gpid'].'>'.$generic['title'].'</option>';
+		$genericproductslist .= '<option value='.$generic['title'].'>'.$generic['title'].'</option>';
 	}
 
 
