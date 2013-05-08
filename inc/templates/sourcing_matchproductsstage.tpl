@@ -12,8 +12,6 @@
         <td class="contentContainer">
             <h3>{$matchinproducts}</h3>
 
-
-
             <form name="perform_sourcing/matchproduct_Form" action="index.php?module=sourcing/matchproducts" method="post"  id="perform_sourcing/matchproduct_Form">
 
                 <div align="center">

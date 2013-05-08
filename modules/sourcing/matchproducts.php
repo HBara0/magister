@@ -86,11 +86,11 @@ if(!$core->input['action']) {
 	output_page($matchproductsstage);
 }
 elseif($core->input['action'] == 'do_match') {
-	
-	foreach( $core->input['matchproduct'] as $chem){
-		print_r($chem); echo'<br>';
+
+	foreach($core->input['matchproduct'] as $chem) {
+		print_r($chem);
+		echo'<br>';
 	}
-	
 }
 ?>
 
