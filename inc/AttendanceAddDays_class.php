@@ -31,7 +31,7 @@ class AttendanceAddDays Extends Attendance {
 	public function approve($id, $uid, $fromemail) {
 		global $db;
 		$id = $db->escape_string($id);
-		if($this->can_Apporve($uid, $fromemail)) {
+		if($this->can_apporve($uid, $fromemail)) {
 			$db->update_query("attendance_additionalleaves", array('isApproved' => 1), "identifier='$id' AND isApproved='0'");
 		}
 		else {
@@ -39,50 +39,43 @@ class AttendanceAddDays Extends Attendance {
 		}
 	}
 
-	public function request($data = array()) {
+	public function request($uid, $data = array()) {
 		global $db, $core, $log;
 
-		$this->usersdata['users'] = $data['uid'];
 		unset($data['module'], $data['action'], $data['uid']);
 		$this->data = $data;
-
-		$this->data['uid'] = $this->usersdata['users'];
 
 		if(is_empty($this->data['date'], $this->data['numDays'])) {
 			$this->status = 1;
 			return false;
 		}
-		foreach($this->data['uid'] as $userid) {
-			$additional_leavesdata[] = array(
-					'uid' => $userid,
-					'identifier' => $identifier = substr(md5(uniqid(microtime())), 1, 10),
-					'numDays' => $core->sanitize_inputs($this->data['numDays']),
-					'date' => $core->sanitize_inputs(strtotime($this->data['date'])),
-					'addedBy' => $core->user['uid'],
-					'isApproved' => $this->data['isApproved'],
-					'remark' => $core->sanitize_inputs($this->data['remark'])
-			);
-		}
+		$additional_leavesdata = array(
+				'identifier' => $identifier = substr(md5(uniqid(microtime())), 1, 10),
+				'numDays' => $core->sanitize_inputs($this->data['numDays']),
+				'date' => $core->sanitize_inputs(strtotime($this->data['date'])),
+				'addedBy' => $core->user['uid'],
+				'isApproved' => $this->data['isApproved'],
+				'remark' => $core->sanitize_inputs($this->data['remark'])
+		);
+		$additional_leavesdata['uid'] = $uid;
 		if(is_array($additional_leavesdata)) {
-			foreach($additional_leavesdata as $additional_leaves) {
-				if(!$this->check_existingrequest($additional_leaves['uid'], $additional_leaves['date'])) { /* check if users have exisintg additionalleaves in the same date they are requesting */
-					$query = $db->insert_query('attendance_additionalleaves', $additional_leaves);
-					if($query) {
-						$this->status = 0;
-						$log->record($db->last_id());
-					}
+			if(!$this->check_existingrequest($uid, $additional_leavesdata['date'])) { /* check if users have exisintg additionalleaves in the same date they are requesting */
+				$query = $db->insert_query('attendance_additionalleaves', $additional_leavesdata);
+				if($query) {
+					$this->status = 0;
+					$log->record($db->last_id());
 				}
-				else {
-					$this->status = 2;
-					return false;
-				}
+			}
+			else {
+				$this->status = 2;
+				return false;
 			}
 		}
 	}
 
 	public function check_existingrequest($uids, $date) {
 		global $db;
-		$query = $db->query("SELECT uid FROM ".Tprefix."attendance_additionalleaves WHERE uid in('".($uids)."')
+		$query = $db->query("SELECT uid FROM ".Tprefix."attendance_additionalleaves WHERE uid =('".( $uids)."')
 							AND date='".$db->escape_string($date)."' ");
 		if($db->num_rows($query) > 0) {
 			return true;
@@ -92,7 +85,7 @@ class AttendanceAddDays Extends Attendance {
 		}
 	}
 
-	public function can_Apporve($uid, $reporttofromemail) {
+	public function can_apporve($uid, $reporttofromemail) {
 		global $core;
 		/* /* if  from email= email of reportto to this user */
 		$user = new Users($uid);
@@ -105,7 +98,7 @@ class AttendanceAddDays Extends Attendance {
 		}
 	}
 
-	public function notify_Request($reportsto = array(), $requester, $additionaldaysdata = array()) {
+	public function notify_request($reportsto = array(), $requester, $additionaldaysdata = array()) {
 		global $log, $core, $lang;
 		/* notify reports to */
 		$body_message = '';
@@ -113,7 +106,6 @@ class AttendanceAddDays Extends Attendance {
 			$additionaldaysdata['dateoutput'] = date($core->settings['dateformat'], $additionaldaysdata['date']);
 			$body_message = $requester['displayName'].$lang->adddaysrequestaproval.'<br/>'.$lang->additionaldays.':'.$additionaldaysdata[numDays].' '.$lang->days.'<br/>'.$lang->correspondtoperiod.': '.$additionaldaysdata['dateoutput']
 					.'<br/>'.$lang->justification.': '.$additionaldaysdata['remark'];
-
 			$email_data = array(
 					'from_email' => 'approve_requestadddays@sandbox.ocos.orkila.com',
 					'from' => 'Orkila Attendance System',
@@ -129,7 +121,7 @@ class AttendanceAddDays Extends Attendance {
 		}
 	}
 
-	public function notifyApprove($request_key, $uid) {
+	public function notifyapprove($request_key, $uid) {
 		global $db, $lang, $log;
 		if(value_exists('attendance_additionalleaves', 'isApproved', 1, 'identifier="'.$request_key.'"')) {
 			$user = new Users($uid);
