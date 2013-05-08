@@ -101,7 +101,7 @@ if(!$core->input['action']) {
 				}
 				$icon[$report['rid']] = "<a href='index.php?module=reporting/preview&referrer=list&amp;affid={$report[affid]}&amp;spid={$report[spid]}&amp;quarter={$report[quarter]}&amp;year={$report[year]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$report[status]}' border='0'/></a>";
 			}
-			echo $report['rid'].'<br>';
+			
 			$report['status'] = parse_status($report['status'], $report['isLocked']);
 			$report['statusdetails'] = parse_statusdetails(array('prActivityAvailable' => $report['prActivityAvailable'], 'keyCustAvailable' => $report['keyCustAvailable'], 'mktReportAvailable' => $report['mktReportAvailable']));
 
@@ -193,19 +193,9 @@ else {
 								$new_status['isLocked'] = 0;
 							}
 						}
-						/* re-enable reminders */
 						elseif($core->input['moderationtool'] == 'unlockwithreminders') {
-							$contributors_query = $db->query("SELECT rc.rcid,rc.rid,rc.isDone,rc.uid,r.isLocked FROM ".Tprefix."reports r JOIN ".Tprefix."reportcontributors rc ON(rc.rid=r.rid)
-																WHERE r.type='q' AND r.rid in('".$db->escape_string($rid)."')");
-
-							while($contributors = $db->fetch_assoc($contributors_query)) {
-								if($contributors['isLocked'] == 1) {
-									$new_status['isLocked'] = 0;
-								}
-								if($contributors['isDone'] == 1) {
-									$db->update_query('reportcontributors', array('isDone' => 0), "rid='{$contributors['rid']}'");
-								}
-							}
+							$new_status['isLocked'] = 0;
+							$db->update_query('reportcontributors', array('isDone' => 0), "rid='{$rid}'");
 						}
 
 						if($new_status['isLocked'] == 0) {

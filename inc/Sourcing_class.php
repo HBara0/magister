@@ -33,12 +33,20 @@ class Sourcing {
 		$this->representative = $this->supplier['representative'];
 		$this->activityarea = $this->supplier['activityarea'];
 		$this->supplier['ssid'] = intval($this->supplier['ssid']);
-		if(is_array($this->chemicals)) {
-			$this->supplier['type'] = $this->determine_supplyiertype($this->chemicals);
+
+		if(is_array($this->chemicals) && is_array($this->genericproducts)) {
+			$this->supplier['type'] = $this->determine_supplyiertype(array_merge($this->chemicals, $this->genericproducts));
 		}
-		if(is_array($this->genericproducts)) {
-			$this->supplier['type'] = $this->determine_supplyiertype($this->genericproducts);
+		else {
+			if(is_array($this->genericproducts) && !is_array($this->chemicals)) {
+				$this->supplier['type'] = $this->determine_supplyiertype($this->genericproducts);
+			}
+			
+			if(!is_array($this->genericproducts) && is_array($this->chemicals)) {
+				$this->supplier['type'] = $this->determine_supplyiertype($this->chemicals);
+			}
 		}
+
 		unset($this->supplier['chemicalproducts'], $this->supplier['genericproducts'], $this->supplier['productsegment'], $this->supplier['representative'], $this->supplier['activityarea']);
 		/* If action is edit, don't check if supplier already exists */
 		if($options['operationtype'] != 'update') {
@@ -164,23 +172,22 @@ class Sourcing {
 					$db->insert_query('sourcing_suppliers_chemicals', $new_chemicals);
 				}
 			}
+			
 			if($options['operationtype'] == 'update') {
 				$db->delete_query('sourcing_suppliers_genericprod', 'ssid='.$this->supplier['ssid']);
 			}
-			/* insert geneiricproducts */
+		
 			if(is_array($this->genericproducts)) {
-				foreach($this->genericproducts as $genericproducts) {
-
-					$new_genericproducts = array(
+				foreach($this->genericproducts as $genericproduct) {
+					$new_genericproduct = array(
 							'ssid' => $this->supplier['ssid'],
-							'gpid' => $genericproducts['gpid'],
-							'supplyType' => $genericproducts['supplyType']
+							'gpid' => $genericproduct['gpid'],
+							'supplyType' => $genericproduct['supplyType']
 					);
-					$db->insert_query('sourcing_suppliers_genericprod', $new_genericproducts);
+					$db->insert_query('sourcing_suppliers_genericprod', $new_genericproduct);
 				}
 			}
-
-
+			
 			$log->record($this->supplier['ssid']);
 			return true;
 		}
@@ -501,13 +508,15 @@ class Sourcing {
 
 	public function get_genericproducts($supplier_id = '', $options = '') {
 		global $db;
+		
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 		}
+		
 		$genericproduct_query = $db->query("SELECT *
-												FROM ".Tprefix."genericproducts gp
-												JOIN ".Tprefix."sourcing_suppliers_genericprod ssgp ON (ssgp.gpid= gp.gpid)
-												WHERE ssgp.ssid= ".$db->escape_string($supplier_id));
+											FROM ".Tprefix."genericproducts gp
+											JOIN ".Tprefix."sourcing_suppliers_genericprod ssgp ON (ssgp.gpid= gp.gpid)
+											WHERE ssgp.ssid= ".$db->escape_string($supplier_id));
 		if($db->num_rows($genericproduct_query) > 0) {
 			while($genericproduct = $db->fetch_assoc($genericproduct_query)) {
 				$genericproduct['supplyType_output'] = $this->parse_supplytype($genericproduct['supplyType']);

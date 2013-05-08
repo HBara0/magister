@@ -26,7 +26,7 @@ while($holiday = $db->fetch_assoc($query)) {
 	  continue;
 	  } */
 	if(((mktime($time_details['hours'], $time_details['minutes'], $time_details['seconds'], $holiday['month'], $holiday['day'], $holiday['year']) - TIME_NOW) / 60 / 60 / 24) == 5) {
-		$holidays[$holiday['affid']][] = $holiday;
+		$holidays[$holiday['affid']][$holiday['hid']] = $holiday;
 	}
 
 	/* Check for exceptions - START */
@@ -36,7 +36,7 @@ while($holiday = $db->fetch_assoc($query)) {
 										FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (ae.uid=u.uid)
 										WHERE isMain=1 AND affid={$holiday[affid]} AND u.uid NOT IN (".implode(', ', $exceptions).") AND gid!=7");
 		while($holiday_employee = $db->fetch_assoc($holiday_employees)) {
-			$mailinglists[$holiday['affid']]['email'][] = $holiday_employee['email'];
+			$mailinglists[$holiday['affid']]['email'][$holiday['hid']][] = $holiday_employee['email'];
 		}
 	}
 	/* Check for exceptions - END */
@@ -61,24 +61,46 @@ while($affiliate = $db->fetch_assoc($query)) {
 }
 
 foreach($holidays as $affid => $holidayslist) {
-	$mailinglists[$affid]['email'] = array_unique($mailinglists[$affid]['email']);
 	$email_data = array(
 			'to' => $mailinglists[$affid]['email'],
 			'from_email' => $core->settings['adminemail'],
 			'from' => 'OCOS Mailer',
 			'subject' => 'Your upcoming holidays'
 	);
-
-	if(empty($email_data['to'])) {
-		continue;
+	
+	if(is_array($mailinglists[$affid]['email'])) {
+		foreach($holidayslist as $hid => $val) {
+			$email_data['message'] = 'Following are the upcoming holidays of '.$mailinglists[$affid]['name'].': <ul>';
+			if(is_array($mailinglists[$affid]['email'][$hid])) {
+				$email_data['to'] = array_unique($mailinglists[$affid]['email'][$hid]);
+			}
+			else {
+				$email_data['to'] = $db->fetch_field($db->query("SELECT mailingList FROM ".Tprefix."affiliates WHERE affid=".$affid), 'mailingList');
+			}
+			
+			if(empty($email_data['to'])) {
+				continue;
+			}
+			
+			$email_data['message'] .= '<li>'.date('l, F j', mktime(0, 0, 0, $val['month'], $val['day'], $val['year'])).' - '.$val['title'].', '.$val['numDays'].' day(s).</li>';
+			
+			$email_data['message'] .= '</ul>';
+			$mail = new Mailer($email_data, 'php');
+		}
 	}
-
-	$email_data['message'] = 'Following are the upcoming holidays of '.$mailinglists[$affid]['name'].': <ul>';
-	foreach($holidayslist as $key => $val) {
-		$email_data['message'] .= '<li>'.date('l, F j', mktime(0, 0, 0, $val['month'], $val['day'], $val['year'])).' - '.$val['title'].', '.$val['numDays'].' day(s).</li>';
+	else {	
+		if(empty($email_data['to'])) {
+			continue;
+		}
+		
+		$email_data['message'] = 'Following are the upcoming holidays of '.$mailinglists[$affid]['name'].': <ul>';
+		foreach($holidayslist as $key => $val) {
+			$email_data['message'] .= '<li>'.date('l, F j', mktime(0, 0, 0, $val['month'], $val['day'], $val['year'])).' - '.$val['title'].', '.$val['numDays'].' day(s).</li>';
+		}
+		$email_data['message'] .= '</ul>';
+	
+		$mail = new Mailer($email_data, 'php');
 	}
-	$email_data['message'] .= '</ul>';
-	$mail = new Mailer($email_data, 'php');
 }
 $log->record($mailinglists);
 ?>
