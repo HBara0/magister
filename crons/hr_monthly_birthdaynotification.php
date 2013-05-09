@@ -33,7 +33,7 @@ if($db->num_rows($users_query) > 0) {
 				$hr_affiliates['hrManager'] = $hr_affiliates['generalManager'];
 			}
 
-			$recepient_details = $db->fetch_assoc($db->query("SELECT uid, displayname,  email FROM ".Tprefix."users WHERE uid={$hr_affiliates[hrManager]}"));
+			$recepient_details = $db->fetch_assoc($db->query("SELECT uid, displayName, email FROM ".Tprefix."users WHERE uid={$hr_affiliates[hrManager]}"));
 			$hr_affid[$recepient_details['uid']][$hr_affiliates['affid']] = $recepient_details;
 		}
 	}
@@ -57,7 +57,7 @@ if($db->num_rows($users_query) > 0) {
 				'from_email' => $core->settings['adminemail'],
 				'from' => 'OCOS Mailer',
 				'subject' => 'Employee birthdays during '.$current_date['month'],
-				'message' => 'Hello '.$recepient_details['displayname'].',<br />The Following birthdays are taking during '.$current_date['month'].'</br></br />'.$body_message
+				'message' => 'Hello '.$recepient_details['displayName'].',<br />The Following birthdays are taking during '.$current_date['month'].'</br></br />'.$body_message
 		);
 
 		$mail = new Mailer($email_data, 'php');
