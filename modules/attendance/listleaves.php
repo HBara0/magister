@@ -191,11 +191,13 @@ else
 		$lid = $db->escape_string($core->input['torevoke']);
 		
 		$leave = $db->fetch_assoc($db->query("SELECT l.*, u.firstName, u.lastName, u.email FROM ".Tprefix."leaves l JOIN ".Tprefix."users u ON (u.uid=l.uid) WHERE l.lid='{$lid}'"));
-		
+	
 		if(value_exists('users', 'reportsTo', $core->user['uid'], "uid='{$leave[uid]}'")) {
 			$on_behalf = true;
 		}
-		
+				
+		$leave_affiliatename = $db->fetch_assoc($db->query("SELECT a.name FROM ".Tprefix."affiliates a JOIN ".Tprefix."leaves l ON (l.affid=a.affid) WHERE l.affid='{$leave['affid']}'"));
+			
 		$query = $db->query("SELECT isApproved, COUNT(*) AS counter FROM ".Tprefix."leavesapproval WHERE lid='{$lid}' GROUP BY isApproved");
 		while($approval = $db->fetch_assoc($query)) {
 			$leave_approval[$approval['isApproved']] = $approval['counter'];
@@ -260,7 +262,7 @@ else
 				//$leavetype_details = $db->fetch_assoc($db->query("SELECT name, title FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($leave['type'])."'"));
 				if(!empty($lang->{$leavetype_details['name']})) { $leavetype_details['title'] = $lang->{$leavetype_details['name']}; }
 				$leave['type_output'] = $leavetype_details['title'];
-				
+				$leave['affiliate']=$leave_affiliatename['name']; 
 				$email_data = array(
 					'from_email'  => 'attendance@ocos.orkila.com',
 					'from'	   	=> 'Orkila Attendance System',
@@ -274,8 +276,8 @@ else
 					}
 					else
 					{
-						$email_data['subject'] = $lang->sprint($lang->revokeleavenotificationsubjectuser, strtolower($leave['type_output']));
-						$email_data['message'] = $lang->sprint($lang->revokeleavenotificationmessageuser, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($todate_format, $leave['toDate']));
+						$email_data['subject'] = $lang->sprint($lang->revokeleavenotificationsubjectuser, strtolower($leave['type_output']),$leave['affiliate']);
+						$email_data['message'] = $lang->sprint($lang->revokeleavenotificationmessageuser, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']),$leave['affiliate'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($todate_format, $leave['toDate']));
 					}
 					$mail = new Mailer($email_data, 'php');
 					if($mail->get_status() === true) {
@@ -283,9 +285,9 @@ else
 					}
 				}
 								
-				$email_data['to'] = $to_notify;
-				$email_data['subject'] = $lang->sprint($lang->revokeleavenotificationsubject, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']));
-				$email_data['message'] = $lang->sprint($lang->revokeleavenotificationmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($todate_format, $leave['toDate']));
+				$email_data['to'] ='tony.assaad@orkila.com'; //$to_notify;
+				$email_data['subject'] = $lang->sprint($lang->revokeleavenotificationsubject, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']),strtolower($leave['affiliate']));
+				$email_data['message'] = $lang->sprint($lang->revokeleavenotificationmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']), strtolower($leave['affiliate']) , date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($todate_format, $leave['toDate']));
 
 				
 				$mail = new Mailer($email_data, 'php');

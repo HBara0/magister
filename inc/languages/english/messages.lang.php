@@ -98,14 +98,15 @@ Your password has been reset following your request<br />
 Your new password is: {2}<br />
 <br />
 For any further assistance please contact the system administrator on {3}.';
-$lang['revokeleavenotificationmessage'] = '{1} revoked the {2} between <strong>{3}</strong> and <strong>{4}</strong>.';
+
+$lang['revokeleavenotificationmessage'] = '{1} revoked the {2} to {3} between <strong>{4}</strong> and <strong>{5}</strong>.';
 $lang['revokeleavenotificationmessageuser'] = 'Dear {1},<br />
 <br />
-Your {2} between {3} and {4} was revoked.<br />
+Your {2} to {3} between {4} and {5} was revoked.<br />
 <br />
 Regards';
-$lang['revokeleavenotificationsubject'] = '{1} revoked their {2}';
-$lang['revokeleavenotificationsubjectuser'] = 'Your {1} was revoked';
+$lang['revokeleavenotificationsubject'] = '{1} revoked their {2} to {3}';
+$lang['revokeleavenotificationsubjectuser'] = 'Your {1} to {2} was revoked';
 $lang['sendbymaildefault'] = 'Dear all, <br />
 <br />
 Please find attached the {1} report for Orkila Distribution and Agency activities in the Middle East and African Markets. <br />
