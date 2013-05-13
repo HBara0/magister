@@ -285,7 +285,7 @@ else
 					}
 				}
 								
-				$email_data['to'] ='tony.assaad@orkila.com'; //$to_notify;
+				$email_data['to'] =$to_notify;
 				$email_data['subject'] = $lang->sprint($lang->revokeleavenotificationsubject, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']),strtolower($leave['affiliate']));
 				$email_data['message'] = $lang->sprint($lang->revokeleavenotificationmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']), strtolower($leave['affiliate']) , date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($todate_format, $leave['toDate']));
 
