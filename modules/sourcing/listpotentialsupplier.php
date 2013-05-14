@@ -43,7 +43,7 @@ if(!$core->input['action']) {
 	$sort_url = sort_url();
 	$opportunity_scale = range(0, 5);
 	array_unshift($opportunity_scale, ''); /* Prepend empty elements to the beginning */
-//$genericproducts=parse_selectlist('filters[genericproducts][]', 1, get_specificdata('genericproducts', array('gpid', 'title'), 'gpid', 'title', '', 0), $core->input['filters']['genericproducts'], 0, '', '');
+
 	/* Perform inline filtering - START */
 	$filters_config = array(
 			'parse' => array('filters' => array('companyName', 'type', 'segment', 'country', 'opportunity', 'chemicalsubstance', 'genericproduct'),
@@ -75,10 +75,8 @@ if(!$core->input['action']) {
 									'joinWith' => 'countries'
 							),
 							'sourcing_suppliers_genericprod' => array(
-									'filters' => array('genericproduct' => 'title'),
-									'keyAttr' => 'gpid',
-									'joinKeyAttr' => 'gpid',
-									'joinWith' => 'genericproducts'
+									'filters' => array('genericproduct' => 'gpid'),
+									'keyAttr' => 'gpid'
 							)
 					)
 			)
@@ -92,12 +90,9 @@ if(!$core->input['action']) {
 		$chemicals_selectlist_otps .= '<option value='.$chemicals['csid'].'>'.$chemicals['casNum'].' - '.$chemicals['name'].'</option>';
 	}
 	$db->free_result($chemicals_query);
-	$geneirc_query = $db->query("SELECT * FROM ".Tprefix."genericproducts ORDER BY title ASC");
-	$genericproductslist='<option value=""></option>';
-	while($generic = $db->fetch_assoc($geneirc_query)) {
-		$genericproductslist .= '<option value='.$generic['title'].'>'.$generic['title'].'</option>';
-	}
 
+	$generic_products = get_specificdata('genericproducts', array('gpid', 'title'), 'gpid', 'title', 'title');
+	$genericproducts_selectlist = parse_selectlist('filters[genericproduct]', '20', $generic_products, $core->input['filters']['genericproduct'], 0, '$("#tablefilters").show();', array('blankstart' => true));
 
 	$filters_row_display = 'hide';
 	if(is_array($filter_where_values)) {

@@ -27,6 +27,7 @@ class Sourcing {
 		}
 
 		$this->supplier = $data;
+		$this->supplier['companyName'] = mb_convert_case($this->supplier['companyName'], MB_CASE_TITLE, $lang->settings['charset']);
 		$this->chemicals = $this->supplier['chemicalproducts'];
 		$this->genericproducts = $this->supplier['genericproducts'];
 		$this->productsegments = $this->supplier['productsegment'];
@@ -48,6 +49,7 @@ class Sourcing {
 		}
 
 		unset($this->supplier['chemicalproducts'], $this->supplier['genericproducts'], $this->supplier['productsegment'], $this->supplier['representative'], $this->supplier['activityarea']);
+		
 		/* If action is edit, don't check if supplier already exists */
 		if($options['operationtype'] != 'update') {
 			if(value_exists('sourcing_suppliers', 'companyName', $this->supplier['companyName'])) {
@@ -62,6 +64,13 @@ class Sourcing {
 			$this->supplier[$val] = $core->sanitize_inputs($this->supplier[$val], array('removetags' => true));
 		}
 
+		$fixcase_fields = array('ucfirst' => array('building', 'commentsToShare', 'marketingRecords', 'coBriefing', 'historical', 'sourcingRecords'), 'ucwords' => array('city', 'addressLine1', 'addressLine2'));
+		foreach($fixcase_fields as $function => $attrs) {
+			foreach($attrs as $val) {
+				$this->supplier[$val] = $function(strtolower(trim($this->supplier[$val])));
+			}
+		}
+		
 		$this->supplier['mainEmail'] = $core->validate_email($core->sanitize_email($this->supplier['mainEmail']));
 		$this->supplier['website'] = $core->validtate_URL($this->supplier['website']);
 		/* Santize inputs - END  */
@@ -152,7 +161,7 @@ class Sourcing {
 					$suppliers_contactpersons = array(
 							'ssid' => $this->supplier['ssid'],
 							'rpid' => $representative['id'],
-							'notes' => $representative['notes']
+							'notes' => ucfirst($representative['notes'])
 					);
 					$querycontactpersons = $db->insert_query('sourcing_suppliers_contactpersons', $suppliers_contactpersons);
 				}
