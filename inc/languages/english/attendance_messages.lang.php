@@ -111,7 +111,7 @@ $lang['requestleavemessage_stats'] = '<strong>Leaves Stats:</strong><br />
 <br />
 Current final balance is <strong>{1}</strong> days. It will become <strong>{2}</strong> after approving this leave. ';
 $lang['requestleavesubject'] = '{1} requested a {2} [{3}]';
-$lang['revokeleavenotificationmessage'] = '{1} revoked the {2} between <strong>{3}</strong> and <strong>{4}</strong>.';
+$lang['revokeleavenotificationmessage'] = '{1} revoked the {2} to {3} between <strong>{4}</strong> and <strong>{5}</strong>.';
 $lang['revokeleavenotificationmessageuser'] = 'Dear {1},<br />
 <br />
 <br />
@@ -122,7 +122,7 @@ $lang['revokeleavenotificationmessageuser'] = 'Dear {1},<br />
 <br />
 <br />
 <br />
-Your {2} between {3} and {4} was revoked.<br />
+Your {2} to {3} between {4} and {5} was revoked.<br />
 <br />
 <br />
 <br />
@@ -133,6 +133,7 @@ Your {2} between {3} and {4} was revoked.<br />
 <br />
 <br />
 Regards';
-$lang['revokeleavenotificationsubject'] = '{1} revoked their {2}';
-$lang['revokeleavenotificationsubjectuser'] = 'Your {1} was revoked';
+$lang['revokeleavenotificationsubject'] = '{1} revoked their {2} to {3}';
+$lang['revokeleavenotificationsubjectuser'] = 'Your {1} to {2} was revoked';
+
 ?>
