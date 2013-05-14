@@ -99,14 +99,14 @@ Your new password is: {2}<br />
 <br />
 For any further assistance please contact the system administrator on {3}.';
 
-$lang['revokeleavenotificationmessage'] = '{1} revoked the {2} to {3} between <strong>{4}</strong> and <strong>{5}</strong>.';
+$lang['revokeleavenotificationmessage'] = '{1} revoked the {2} {3} between <strong>{4}</strong> and <strong>{5}</strong>.';
 $lang['revokeleavenotificationmessageuser'] = 'Dear {1},<br />
 <br />
-Your {2} to {3} between {4} and {5} was revoked.<br />
+Your {2} {3} between {4} and {5} was revoked.<br />
 <br />
 Regards';
-$lang['revokeleavenotificationsubject'] = '{1} revoked their {2} to {3}';
-$lang['revokeleavenotificationsubjectuser'] = 'Your {1} to {2} was revoked';
+$lang['revokeleavenotificationsubject'] = '{1} revoked their {2}  {3}';
+$lang['revokeleavenotificationsubjectuser'] = 'Your {1}  {2} was revoked';
 $lang['sendbymaildefault'] = 'Dear all, <br />
 <br />
 Please find attached the {1} report for Orkila Distribution and Agency activities in the Middle East and African Markets. <br />
@@ -135,4 +135,5 @@ The Following visits have been carried but no visit report has been completed. P
 $lang['visitreport_reminder_subject'] = 'Visit Reports Reminder';
 $lang['yournewpassword'] = 'Your New OCOS Account Password';
 $lang['feedbacknotification_subject'] = 'You have received a feedback on a chemical request from {1}';
+$lang['to']=' to ';
 ?>
