@@ -72,7 +72,7 @@ if(!$core->input['action']) {
 	}
 	/* Chemical List - END */
 
-	/* Generic product List -START */
+	/* Generic product List - START */
 	$genericproductlist_section = '';
 	if(is_array($supplier['genericproducts'])) {
 		foreach($supplier['genericproducts'] as $genericproduct) {
@@ -83,10 +83,7 @@ if(!$core->input['action']) {
 	else {
 		$genericproductlist_section = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
 	}
-
-
-
-	/* Generic product List--END */
+	/* Generic product List - END */
 
 	if(!empty($supplier['maindetails']['companyNameAbbr'])) {
 		$supplier['maindetails']['companyName'] .= ' ('.$supplier['maindetails']['companyNameAbbr'].')';

@@ -46,6 +46,7 @@ if(!$core->input['action']) {
 			}
 			unset($selecteditems);
 		}
+		
 		if(is_array($supplier['genericproducts'])) {
 			$genericproduct_rowid = 1;
 			foreach($supplier['genericproducts'] as $key => $genericproducts) {
@@ -56,6 +57,7 @@ if(!$core->input['action']) {
 			}
 			unset($selecteditems);
 		}
+		
 		if(is_array($supplier['contactpersons'])) {
 			$contactp_rowid = 1;
 			foreach($supplier['contactpersons'] as $contactperson) {
@@ -72,12 +74,14 @@ if(!$core->input['action']) {
 	}
 	else {
 		$actiontype = 'add';
-
+		
 		$chemicalp_rowid = 1;
 		eval("\$chemicalproducts_rows .= \"".$template->get('sourcing_managesupplier_chemicalrow')."\";");
+		
 		$genericproduct_rowid = 1;
 		$generic_product_list = parse_selectlist('supplier[genericproducts]['.$genericproduct_rowid.'][gpid]', 9, get_specificdata('genericproducts', array('gpid', 'title'), 'gpid', 'title', ''), 'gpid', 0, '', array('blankstart' => 1));
 		eval("\$genericproducts_rows .= \"".$template->get('sourcing_managesupplier_genericproductrow')."\";");
+		
 		$contactp_rowid = 1;
 		eval("\$contactpersons_rows .= \"".$template->get('sourcing_managesupplier_contactprow')."\";");
 	}
