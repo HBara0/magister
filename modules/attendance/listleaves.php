@@ -190,7 +190,14 @@ else {
 			$on_behalf = true;
 		}
 
-		$leave_affiliatename = $db->fetch_assoc($db->query("SELECT a.name FROM ".Tprefix."affiliates a JOIN ".Tprefix."leaves l ON (l.affid=a.affid) WHERE l.affid<>'' OR l.spid<>'' OR l.cid<>'' OR l.coid<>'' OR l.ceid<>'' AND l.affid='{$leave['affid']}'"));
+		$leavetypefields = $db->fetch_assoc($db->query("SELECT lt.additionalFields FROM ".Tprefix."leaves l JOIN ".Tprefix."leavetypes lt  ON (lt.ltid=l.type) WHERE l.lid='{$lid}'"));
+		$addtitonal_fields = unserialize($leavetypefields['additionalFields']);
+		if(is_array($addtitonal_fields)) {
+			foreach($addtitonal_fields as $key => $field) {
+				$leave_affiliatename = $db->fetch_assoc($db->query("SELECT ".$field[table].".".$field[value_attribute]." FROM ".Tprefix.$field[table]."  JOIN ".Tprefix."leaves l ON (l.".$field[key_attribute]."=".$field[table].".".$field[key_attribute].") WHERE  l.".$field[key_attribute]."='{$leave[$field[key_attribute]]}'"));
+			}
+		}
+
 
 		$query = $db->query("SELECT isApproved, COUNT(*) AS counter FROM ".Tprefix."leavesapproval WHERE lid='{$lid}' GROUP BY isApproved");
 		while($approval = $db->fetch_assoc($query)) {
@@ -259,7 +266,7 @@ else {
 				if(!empty($leave_affiliatename['name'])) {
 					$leave['affiliate'] = $lang->to.$leave_affiliatename['name'];
 				}
-			
+
 				$email_data = array(
 						'from_email' => 'attendance@ocos.orkila.com',
 						'from' => 'Orkila Attendance System',
@@ -281,7 +288,7 @@ else {
 					}
 				}
 
-				$email_data['to'] = 'tony.assaad@orkila.com'; //$to_notify;
+				$email_data['to'] = $to_notify;
 				$email_data['subject'] = $lang->sprint($lang->revokeleavenotificationsubject, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']), strtolower($leave['affiliate']));
 				$email_data['message'] = $lang->sprint($lang->revokeleavenotificationmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']), strtolower($leave['affiliate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($todate_format, $leave['toDate']));
 
