@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Fill up a quarter report
  * $module: reporting
- * $id: fillreport.php	
+ * $id: fillreport.php
  * Last Update: @tony.assaad	February 11, 2013 | 03:55 PM
  */
 
@@ -45,8 +45,8 @@ if(!$core->input['action']) {
 			unset($saletypes[$key]);
 		}
 
-		list($rid, $core->input['affiliate'], $core->input['supplier']) = $db->fetch_array($db->query("SELECT r.rid, a.name, s.companyName 
-												FROM ".Tprefix."reports r 
+		list($rid, $core->input['affiliate'], $core->input['supplier']) = $db->fetch_array($db->query("SELECT r.rid, a.name, s.companyName
+												FROM ".Tprefix."reports r
 												JOIN ".Tprefix."affiliates a ON (r.affid=a.affid)
 												JOIN ".Tprefix."entities s ON (r.spid=s.eid)
 												WHERE year='{$core->input[year]}' AND r.quarter='{$core->input[quarter]}' AND r.affid='{$core->input[affid]}' AND r.spid='{$core->input[spid]}'"));
@@ -81,8 +81,8 @@ if(!$core->input['action']) {
 			$query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
 		}
 
-		$query = $db->query("SELECT pa.*, p.name AS productname 
-								FROM ".Tprefix."productsactivity pa LEFT JOIN ".Tprefix."products p ON (pa.pid=p.pid) 
+		$query = $db->query("SELECT pa.*, p.name AS productname
+								FROM ".Tprefix."productsactivity pa LEFT JOIN ".Tprefix."products p ON (pa.pid=p.pid)
 								WHERE pa.rid='{$rid}'{$query_string}");
 		$rowsnum = $db->num_rows($query);
 		if($rowsnum > 0) {
@@ -166,12 +166,12 @@ if(!$core->input['action']) {
 				$core->input['rid'] = $report_meta['rid'];
 			}
 		}
-		//create_cookie('rid', $core->input['rid'], (time() + (60*$core->settings['idletime']*2)));	
+		//create_cookie('rid', $core->input['rid'], (time() + (60*$core->settings['idletime']*2)));
 
 		$rid = $db->escape_string($core->input['rid']);
 		$customerscount = 5; //Make it a setting
 		$query = $db->query("SELECT kc.*, e.companyName
-							FROM ".Tprefix."keycustomers kc LEFT JOIN ".Tprefix."entities e ON (e.eid=kc.cid) 
+							FROM ".Tprefix."keycustomers kc LEFT JOIN ".Tprefix."entities e ON (e.eid=kc.cid)
 							WHERE kc.rid='{$rid}' ORDER BY kc.rank ASC");
 
 		$rowsnum = $db->num_rows($query);
@@ -262,7 +262,6 @@ if(!$core->input['action']) {
 			redirect('index.php?module=reporting/fillreport');
 		}
 		$identifier = $db->escape_string($core->input['identifier']);
-
 		if(!isset($core->input['rid'])) {
 			$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 			if(!isset($report_meta['rid'])) {
@@ -282,11 +281,18 @@ if(!$core->input['action']) {
 
 		$rid = $db->escape_string($core->input['rid']);
 		if(value_exists('marketreport', 'rid', $core->input['rid'])) {
+
+			$ischecked[$marketreports_data['psid']] = array();
 			$query = $db->query("SELECT mr.*, r.quarter, r.year, r.spid, r.affid
-								  FROM ".Tprefix."marketreport mr LEFT JOIN ".Tprefix."reports r ON (r.rid=mr.rid) 
+								  FROM ".Tprefix."marketreport mr LEFT JOIN ".Tprefix."reports r ON (r.rid=mr.rid)
 								  WHERE mr.rid='{$rid}'");
 			while($marketreports_data = $db->fetch_assoc($query)) {
 				$marketreport[$marketreports_data['psid']] = $marketreports_data;
+				$marketreport[$marketreports_data['psid']]['exclude'] = unserialize($session->get_phpsession('excludesegment'.$identifier));
+				print_R($marketreport[$marketreports_data['psid']]['exclude']);
+				if(isset($marketreport[$marketreports_data['psid']]['exclude'])) {
+					$ischecked[$marketreports_data['psid']] = ' checked="checked"';
+				}
 			}
 		}
 		else {
@@ -299,11 +305,12 @@ if(!$core->input['action']) {
 		if(is_array($marketreport)) {
 			foreach($marketreport as $key => $val) {
 				$marketreport[$key] = preg_replace("/<br \/>/i", "\n", $val);
+				if(isset($marketreport[$key][exclude]) && $marketreport[$key][exclude] == 1) {
+					$ischecked[$key] = ' checked="checked"';
+				}
 			}
 		}
-
 		$reportmeta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
-
 		$quarter = $reportmeta['quarter'];
 		if($quarter == 1) {
 			$lastquarter = 4;
@@ -313,12 +320,12 @@ if(!$core->input['action']) {
 			$lastyear = $reportmeta['year'];
 			$lastquarter = $quarter - 1;
 		}
-//		$last_report = $db->fetch_array($db->query("SELECT mr.* 
-//													FROM ".Tprefix."marketreport mr LEFT JOIN reports r ON (r.rid=mr.rid) 
+//		$last_report = $db->fetch_array($db->query("SELECT mr.*
+//													FROM ".Tprefix."marketreport mr LEFT JOIN reports r ON (r.rid=mr.rid)
 //													WHERE r.year='{$lastyear}' AND r.quarter='{$lastquarter}' AND r.spid='{$reportmeta[spid]}' AND r.affid='{$reportmeta[affid]}'"));
-//			
-		$query = $db->query("SELECT mr.* 
-							FROM ".Tprefix."marketreport mr LEFT JOIN reports r ON (r.rid=mr.rid) 
+//
+		$query = $db->query("SELECT mr.*
+							FROM ".Tprefix."marketreport mr LEFT JOIN reports r ON (r.rid=mr.rid)
 							WHERE r.year='{$lastyear}' AND r.quarter='{$lastquarter}' AND r.spid='{$reportmeta[spid]}' AND r.affid='{$reportmeta[affid]}'");
 		while($lastmarketreports_data = $db->fetch_assoc($query)) {
 			$last_report[$lastmarketreports_data['psid']] = $lastmarketreports_data;
@@ -403,8 +410,8 @@ else {
 		  } */
 		$additional_where = getquery_entities_viewpermissions('suppliersbyaffid', $affid);
 		$suppliers_list = "<option value='0'>&nbsp;</option>";
-		$query = $db->query("SELECT DISTINCT(s.companyName), r.spid 
-							FROM ".Tprefix."entities s LEFT JOIN ".Tprefix."reports r ON (r.spid=s.eid) 
+		$query = $db->query("SELECT DISTINCT(s.companyName), r.spid
+							FROM ".Tprefix."entities s LEFT JOIN ".Tprefix."reports r ON (r.spid=s.eid)
 							WHERE r.affid='{$affid}' AND r.isLocked = '0' AND r.type='q'{$additional_where[extra]}
 							ORDER BY s.companyName ASC");
 		while($supplier = $db->fetch_array($query)) {
@@ -417,8 +424,8 @@ else {
 		$affid = $db->escape_string($core->input['affid']);
 
 		$quarters_list = "<option value='0'>&nbsp;</option>";
-		$query = $db->query("SELECT DISTINCT(quarter) 
-							FROM ".Tprefix."reports 
+		$query = $db->query("SELECT DISTINCT(quarter)
+							FROM ".Tprefix."reports
 							WHERE spid='{$spid}' AND affid='{$affid}' AND isLocked = '0' AND type='q'
 							ORDER BY quarter ASC");
 		while($quarter = $db->fetch_array($query)) {
@@ -432,8 +439,8 @@ else {
 		$affid = $db->escape_string($core->input['affid']);
 
 		$years_list = "<option value='0'>&nbsp;</option>";
-		$query = $db->query("SELECT DISTINCT(year) 
-							FROM ".Tprefix."reports 
+		$query = $db->query("SELECT DISTINCT(year)
+							FROM ".Tprefix."reports
 							WHERE quarter='{$quarter}' AND affid='{$affid}' AND spid='{$spid}' AND isLocked = '0' AND type='q'
 							ORDER BY year ASC");
 		while($year = $db->fetch_array($query)) {
@@ -448,7 +455,7 @@ else {
 
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		$currencies = unserialize($session->get_phpsession('reportcurrencies_'.$identifier));
-		
+
 		/* Validate Forecasts - Start */
 		$report = new ReportingQr(array('rid' => $rid));
 		$validation = $report->validate_forecasts($core->input['productactivity'], $currencies);
@@ -469,7 +476,7 @@ else {
 			$existingentries_query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
 		}
 
-		//$oldentries = get_specificdata('productsactivity', array('paid'), 'paid', 'paid', '', 0, "rid='{$rid}'{$oldentries_query_string}");		
+		//$oldentries = get_specificdata('productsactivity', array('paid'), 'paid', 'paid', '', 0, "rid='{$rid}'{$oldentries_query_string}");
 		foreach($core->input['productactivity'] as $i => $productactivity) {
 			if(empty($productactivity['pid'])) {
 				continue;
@@ -491,9 +498,9 @@ else {
 				unset($productactivity['productname'], $productactivity['fxrate']);
 				$update = $db->update_query('productsactivity', $productactivity, $update_query_where);
 				$processed_once = true;
-					if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
-						$cache['usedpaid'][] = $productactivity['paid'];
-					}
+				if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
+					$cache['usedpaid'][] = $productactivity['paid'];
+				}
 			}
 			else {
 				$productactivity['uid'] = $core->user['uid'];
@@ -501,8 +508,8 @@ else {
 
 				unset($productactivity['productname'], $productactivity['fxrate']);
 				$insert = $db->insert_query('productsactivity', $productactivity);
-		
-				$cache['usedpaid'][] = $db->last_id(); 
+
+				$cache['usedpaid'][] = $db->last_id();
 				$processed_once = true;
 			}
 
@@ -514,7 +521,7 @@ else {
 			  $db->delete_query('productsactivity', "paid='{$val}'");
 			  }
 			  } */
-			if(is_array($cache['usedpaid'])) { 
+			if(is_array($cache['usedpaid'])) {
 				//$delete_query_where = ' OR ( paid NOT IN ('.implode(', ', $cache['usedpaid']).') AND pid NOT IN ('.implode(', ', $cache['usedpids']).'))';
 			}
 			$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rid}' AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
@@ -525,7 +532,7 @@ else {
 				}
 				$log->record($rid);
 				output_xml("<status>true</status><message>{$lang->savedsuccessfully}</message>");
-			} 
+			}
 			else {
 				output_xml("<status>false</status><message>{$lang->saveerror}</message>");
 			}
@@ -581,9 +588,14 @@ else {
 
 		$found_one = $one_notexcluded = false;
 		foreach($core->input['marketreport'] as $key => $val) {
+			if(!empty($val['exclude']) && $val['exclude'] == 1) {
+				$marketreport_data[$key]['exclude'] = $val['exclude'];
+				$session->set_phpsession(array('excludesegment'.$identifier => serialize($marketreport_data[$key]['exclude'])));
+			}
+
 			$section_allempty = true;
 
-			if(isset($val['exclude']) && $val['exclude'] == 1) {
+			if(isset($val['exclude']) && $val['exclude'] == 1 && !empty($report_meta['exclude'])) {
 				continue;
 			}
 
@@ -614,6 +626,7 @@ else {
 			if($section_allempty == true) {
 				continue;
 			}
+
 			$marketreport_data[$key] = $val;
 			$marketreport_data[$key]['psid'] = $key;
 			$marketreport_data[$key]['rid'] = $rid;
@@ -750,7 +763,7 @@ else {
 		if($report_meta['auditor'] != '1') {
 			$products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
 		}
-		
+
 		//$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rawdata[rid]}'{$products_deletequery_string}");
 		if(empty($report_meta['excludeProductsActivity'])) {
 			$productsactivity_validation = $report->validate_forecasts($rawdata['productactivitydata'], $currencies);

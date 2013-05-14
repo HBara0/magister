@@ -1,9 +1,9 @@
 <tr>
-	<td colspan="2" class="subtitle">{$segment[title]}<input type="hidden" name="marketreport[{$segment[psid]}][segmenttitle]" value="{$segment[title]}"></td><td style="text-align: right; color:#999999;" class="smalltext">Exclude this segment <input name="marketreport[{$segment[psid]}][exclude]" id="marketreport[{$segment[psid]}][exclude]" type="checkbox" value="1" title="{$lang->marketreport_exclude_tip}"></td>
+    <td colspan="2" class="subtitle">{$segment[title]}<input type="hidden" name="marketreport[{$segment[psid]}][segmenttitle]" value="{$segment[title]}"></td><td style="text-align: right; color:#999999;" class="smalltext">Exclude this segment <input name="marketreport[{$segment[psid]}][exclude]" id="marketreport[{$segment[psid]}][exclude]"   type="checkbox" {$ischecked[$segment[psid]]} value="1" title="{$lang->marketreport_exclude_tip}"></td>
 </tr>
 <tr><td colspan="3"><strong>{$lang->marktrendcompetition}</strong></td></tr>
     <tr>
-    	<td><textarea cols="55" rows="5" id="markTrendCompetition{$segment[psid]}" name="marketreport[{$segment[psid]}][markTrendCompetition]">{$marketreport[$segment[psid]][markTrendCompetition]}</textarea></td>
+    	<td><textarea cols="55" rows="5" id="markTrendCompetition{$segment[psid]}" name="marketreport[{$segment[psid]}][markTrendCompetition]" >{$marketreport[$segment[psid]][markTrendCompetition]}</textarea></td>
         <td width="1%"><input type="button" style="height:55px; width:15px;" value="&lt;" id="markTrendCompetition{$segment[psid]}_swap"/></td>
         <td><textarea cols="55" rows="5" id="markTrendCompetition{$segment[psid]}_last" name="markTrendCompetition_last[{$segment[psid]}]" disabled="disabled" class="disabled">{$last_report[$segment[psid]][markTrendCompetition]}</textarea></td>
     </tr>
