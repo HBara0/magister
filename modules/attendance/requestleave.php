@@ -9,8 +9,7 @@
  * Last Update: @zaher.reda 	August 28, 2012 | 05:12 PM
  */
 
-if(!defined('DIRECT_ACCESS'))
-{
+if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
 
@@ -23,11 +22,10 @@ if(!$core->input['action']) {
 		while($user = $db->fetch_assoc($query)) {
 			$employees[$user['uid']] = $user['displayName'];
 		}
-	
+
 		$show_onbehalf = true;
 	}
-	else
-	{
+	else {
 		if(value_exists('users', 'reportsTo', $core->user['uid'])) {
 			$employees = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', '', 0, "reportsTo='{$core->user[uid]}' AND gid!=7");
 			$employees[$core->user['uid']] = '';
@@ -35,10 +33,10 @@ if(!$core->input['action']) {
 			$show_onbehalf = true;
 		}
 	}
-	
+
 	if($show_onbehalf == true) {
 		$is_supervisor = true;
-		$employees_list = parse_selectlist('uid', 1, $employees, '');	
+		$employees_list = parse_selectlist('uid', 1, $employees, '');
 		$requestonbehalf_field = '<tr><td width="18%">'.$lang->reqleaveonbehalf.'</td><td>'.$employees_list.'</td></tr>';
 	}
 	$employeeshift = $db->fetch_assoc($db->query("SELECT ws.* FROM ".Tprefix."employeesshifts es JOIN ".Tprefix."workshifts ws ON (ws.wsid=es.wsid) WHERE es.uid='{$core->user[uid]}' AND ((".TIME_NOW." BETWEEN es.fromDate AND es.toDate) OR es.fromDate IS NULL)"));
@@ -57,54 +55,55 @@ if(!$core->input['action']) {
 		if($type['restricted'] == 1 && $is_supervisor != true) {
 			continue;
 		}
-		if(!empty($lang->{$type['name']})) { $type['title'] = $lang->{$type['name']}; }
+		if(!empty($lang->{$type['name']})) {
+			$type['title'] = $lang->{$type['name']};
+		}
 		if(!empty($type['description'])) {
 			$type['description'] = ' ('.$type['description'].')';
 		}
 		$leave_types[$type['ltid']] = $type['title'].$type['description'];
 	}
-	
+
 	$leavetypes_list = parse_selectlist('type', 4, $leave_types, '1');
-	
+
 	$telephone = explode('-', $core->user['mobile']);
 	$telephone['intcode'] = &$telephone[0];
 	$telephone['areacode'] = &$telephone[1];
 	$telephone['number'] = &$telephone[2];
-	
-	/*if(!empty($core->user['building'])) {
-		$leave['fulladdress'] .= $core->user['building'].' - ';
-	}
-	
-	//$core->user['fulladdress'] = $core->user['building'];
-	if(!empty($core->user['postCode'])) {
-		$leave['addressWhileAbsent'] .= $core->user['postCode'].', ';
-	}
-	
-	if(!empty($core->user['addressLine1'])) {
-		$leave['addressWhileAbsent'] .= $core->user['addressLine1'].' ';
-	}
-	
-	if(!empty($core->user['addressLine2'])) {
-		$leave['addressWhileAbsent'] .= $core->user['addressLine2'].', ';
-	}
-	
-	if(!empty($core->user['city'])) {
-		$leave['addressWhileAbsent'] .= $core->user['city'].' - ';
-	}
-	
-	$core->user['country'] = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid='{$core->user[country]}'"), 'name');
-	
-	$leave['addressWhileAbsent'] .= $core->user['country'];
-	*/
-	
+
+	/* if(!empty($core->user['building'])) {
+	  $leave['fulladdress'] .= $core->user['building'].' - ';
+	  }
+
+	  //$core->user['fulladdress'] = $core->user['building'];
+	  if(!empty($core->user['postCode'])) {
+	  $leave['addressWhileAbsent'] .= $core->user['postCode'].', ';
+	  }
+
+	  if(!empty($core->user['addressLine1'])) {
+	  $leave['addressWhileAbsent'] .= $core->user['addressLine1'].' ';
+	  }
+
+	  if(!empty($core->user['addressLine2'])) {
+	  $leave['addressWhileAbsent'] .= $core->user['addressLine2'].', ';
+	  }
+
+	  if(!empty($core->user['city'])) {
+	  $leave['addressWhileAbsent'] .= $core->user['city'].' - ';
+	  }
+
+	  $core->user['country'] = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid='{$core->user[country]}'"), 'name');
+
+	  $leave['addressWhileAbsent'] .= $core->user['country'];
+	 */
+
 	$limitedemail_radiobutton = parse_yesno('limitedEmail', 11, 1);
 	$to_inform = parse_toinform_list();
-	
+
 	eval("\$requestleavepage = \"".$template->get('attendance_requestleave')."\";");
 	output_page($requestleavepage);
 }
-else
-{
+else {
 	if($core->input['action'] == 'getaffiliates') {
 		$leavetype_details = $db->fetch_assoc($db->query("SELECT isBusiness, noNotification FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['ltid'])."'"));
 
@@ -135,67 +134,64 @@ else
 		if(!empty($leave_type['countWith'])) {
 			$leave_policy_id = $leave_type['countWith'];
 		}
-		
-		$leave_policy = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."affiliatesleavespolicies WHERE ltid='{$leave_policy_id}' AND affid={$core->input[affid]}")); 
+
+		$leave_policy = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."affiliatesleavespolicies WHERE ltid='{$leave_policy_id}' AND affid={$core->input[affid]}"));
 
 		if(isset($core->input['fromDate']) && isset($core->input['toDate'])) {
 			$fromdate = explode('-', $core->input['fromDate']);
 
-			$fromdate_count_workingdays = $core->input['fromDate'] =  mktime(0,0, 0, $fromdate[1], $fromdate[0], $fromdate[2]);
+			$fromdate_count_workingdays = $core->input['fromDate'] = mktime(0, 0, 0, $fromdate[1], $fromdate[0], $fromdate[2]);
 			$todate = explode('-', $core->input['toDate']);
 
-			$todate_count_workingdays = $core->input['toDate'] =  mktime(23, 0, 0, $todate[1], $todate[0], $todate[2]);
-			
+			$todate_count_workingdays = $core->input['toDate'] = mktime(23, 0, 0, $todate[1], $todate[0], $todate[2]);
+
 			$workshift = $db->fetch_assoc($db->query("SELECT ws.* FROM ".Tprefix."employeesshifts es JOIN ".Tprefix."workshifts ws ON (ws.wsid=es.wsid) WHERE es.uid='".$db->escape_string($core->input['uid'])."' AND ((".$db->escape_string($core->input['fromDate'])." BETWEEN es.fromDate AND es.toDate) AND (".$db->escape_string($core->input['toDate'])." BETWEEN es.fromDate AND es.toDate) OR es.fromDate IS NULL)"));
 		}
-		else
-		{ 
+		else {
 			$workshift = $db->fetch_assoc($db->query("SELECT ws.* FROM ".Tprefix."employeesshifts es JOIN ".Tprefix."workshifts ws ON (ws.wsid=es.wsid) WHERE es.uid='".$db->escape_string($core->input['uid'])."' AND ((".TIME_NOW." BETWEEN es.fromDate AND es.toDate) OR es.fromDate IS NULL)"));
 			$fromdate_count_workingdays = $todate_count_workingdays = TIME_NOW;
 		}
-	
+
 		if($leave_type['isWholeDay'] == 0) {
-			$dutytime = (($workshift['offDutyHour']*60*60)+($workshift['offDutyMinutes']*60)) - (($workshift['onDutyHour']*60*60)+($workshift['onDutyMinutes']*60));
-			
+			$dutytime = (($workshift['offDutyHour'] * 60 * 60) + ($workshift['offDutyMinutes'] * 60)) - (($workshift['onDutyHour'] * 60 * 60) + ($workshift['onDutyMinutes'] * 60));
+
 			if($leave_type['isPM'] == 1) {
-				$leavefrom = (($workshift['offDutyHour']*60*60)+($workshift['offDutyMinutes']*60))-($dutytime/2)+($leave_policy['halfDayMargin']*60);
-				$leaveto = (($workshift['offDutyHour']*60*60)+($workshift['offDutyMinutes']*60));
+				$leavefrom = (($workshift['offDutyHour'] * 60 * 60) + ($workshift['offDutyMinutes'] * 60)) - ($dutytime / 2) + ($leave_policy['halfDayMargin'] * 60);
+				$leaveto = (($workshift['offDutyHour'] * 60 * 60) + ($workshift['offDutyMinutes'] * 60));
 			}
-			else
-			{
-				$leavefrom = (($workshift['onDutyHour']*60*60)+($workshift['onDutyMinutes']*60));
-				$leaveto = (($workshift['onDutyHour']*60*60)+($workshift['onDutyMinutes']*60))+($dutytime/2)-($leave_policy['halfDayMargin']*60);
+			else {
+				$leavefrom = (($workshift['onDutyHour'] * 60 * 60) + ($workshift['onDutyMinutes'] * 60));
+				$leaveto = (($workshift['onDutyHour'] * 60 * 60) + ($workshift['onDutyMinutes'] * 60)) + ($dutytime / 2) - ($leave_policy['halfDayMargin'] * 60);
 			}
-			
-			$leave_actual_times['fromHour'] = floor($leavefrom/60/60);
-			$leave_actual_times['fromMinutes'] = fmod($leavefrom/60, 60);
+
+			$leave_actual_times['fromHour'] = floor($leavefrom / 60 / 60);
+			$leave_actual_times['fromMinutes'] = fmod($leavefrom / 60, 60);
 			if($leave_actual_times['fromMinutes'] == 0) {
 				$leave_actual_times['fromMinutes'] = '00';
 			}
-			$leave_actual_times['toHour'] = floor($leaveto/60/60);
-			$leave_actual_times['toMinutes'] = fmod($leaveto/60, 60);
+			$leave_actual_times['toHour'] = floor($leaveto / 60 / 60);
+			$leave_actual_times['toMinutes'] = fmod($leaveto / 60, 60);
 			if($leave_actual_times['toMinutes'] == 0) {
 				$leave_actual_times['toMinutes'] = '00';
 			}
-			
+
 			$leave_actual_times['workingDays'] = count_workingdays($core->input['uid'], $fromdate_count_workingdays, $todate_count_workingdays, false);
 		}
-		else
-		{
-			$leave_actual_times = array( 
-			'fromHour'	   => $workshift['onDutyHour'],
-			'toHour'		 => $workshift['offDutyHour'],
-			'fromMinutes'	=> $workshift['onDutyMinutes'],
-			'toMinutes'	  => $workshift['offDutyMinutes'],
-			'workingDays'	=> count_workingdays($core->input['uid'], $fromdate_count_workingdays, $todate_count_workingdays, true)
+		else {
+			$leave_actual_times = array(
+					'fromHour' => $workshift['onDutyHour'],
+					'toHour' => $workshift['offDutyHour'],
+					'fromMinutes' => $workshift['onDutyMinutes'],
+					'toMinutes' => $workshift['offDutyMinutes'],
+					'workingDays' => count_workingdays($core->input['uid'], $fromdate_count_workingdays, $todate_count_workingdays, true)
 			);
 		}
 
 		$hidden_fields_exceptions = array('workingDays');
 		if($leave_type['isWholeDay'] == 0) {
-			if(isset($leave_type['additionalFields'])){
+			if(isset($leave_type['additionalFields'])) {
 				$additional_fields = unserialize($leave_type['additionalFields']);
-	
+
 				if(is_array($additional_fields)) {
 					foreach($additional_fields as $key => $val) {
 						if(isset($val['fromHidden'])) {
@@ -204,17 +200,17 @@ else
 					}
 				}
 			}
-		}		
-		
+		}
+
 		foreach($leave_actual_times as $key => $val) {
 			if(in_array($key, $hidden_fields_exceptions)) {
-				continue;				
+				continue;
 			}
-			
+
 			$input_type = 'hidden';
 			$field_name = '';
 			$name_field_width = 0;
-			
+
 			if(is_array($from_hidden) && !empty($from_hidden)) {
 				if(in_array($key, $from_hidden)) {
 					$input_type = 'text';
@@ -226,33 +222,30 @@ else
 					$field_name .= '<span style="display:inline-block; width: '.$name_field_width.'px;">'.$lang->$key_lowercased.'</span>';
 				}
 			}
-			
+
 			$hidden_fields .= $field_name.' <input type="'.$input_type.'" value="'.$val.'" name="'.$key.'" id="'.$key.'" size="4"/>';
 		}
-		
+
 		if(is_array($from_hidden) && !empty($from_hidden)) {
 			$hidden_fields = '<br />'.$lang->customizeit.':'.$hidden_fields;
 		}
-		
+
 		echo $lang->sprint($lang->betweenhours, $leave_actual_times['fromHour'], $leave_actual_times['fromMinutes'], $leave_actual_times['toHour'], $leave_actual_times['toMinutes'], $leave_actual_times['workingDays']).$hidden_fields;
 	}
-	elseif($core->input['action'] == 'do_perform_requestleave') 
-	{		
+	elseif($core->input['action'] == 'do_perform_requestleave') {
 		//NO LEAVE IF BEFORE EMPLOYMENT
 		if(isset($core->input['fromDate']) && !is_empty($core->input['fromDate'], $core->input['fromMinutes'], $core->input['fromHour'])) {
 			$fromdate = explode('-', $core->input['fromDate']);
 			if(checkdate($fromdate[1], $fromdate[0], $fromdate[2])) {
-				$core->input['fromDate'] =  mktime($core->input['fromHour'], $core->input['fromMinutes'], 0, $fromdate[1], $fromdate[0], $fromdate[2]);
+				$core->input['fromDate'] = mktime($core->input['fromHour'], $core->input['fromMinutes'], 0, $fromdate[1], $fromdate[0], $fromdate[2]);
 				unset($core->input['fromHour'], $core->input['fromMinutes']);
 			}
-			else
-			{
+			else {
 				output_xml("<status>false</status><message>{$lang->invalidfromdate}</message>");
 				exit;
 			}
 		}
-		else
-		{
+		else {
 			output_xml("<status>false</status><message>{$lang->invalidfromdate}</message>");
 			exit;
 		}
@@ -260,113 +253,113 @@ else
 		if(isset($core->input['toDate']) && !is_empty($core->input['toDate'], $core->input['toHour'], $core->input['toMinutes'])) {
 			$todate = explode('-', $core->input['toDate']);
 			if(checkdate($todate[1], $todate[0], $todate[2])) {
-				$core->input['toDate'] =  mktime($core->input['toHour'], $core->input['toMinutes'], 0, $todate[1], $todate[0], $todate[2]);
+				$core->input['toDate'] = mktime($core->input['toHour'], $core->input['toMinutes'], 0, $todate[1], $todate[0], $todate[2]);
 				unset($core->input['toHour'], $core->input['toMinutes']);
 			}
-			else
-			{
+			else {
 				output_xml("<status>false</status><message>{$lang->invalidtodate}</message>");
 				exit;
 			}
 		}
-		else
-		{
+		else {
 			output_xml("<status>false</status><message>{$lang->invalidtodate}</message>");
 			exit;
 		}
-	
+
 		if($core->input['toDate'] < $core->input['fromDate']) {
 			output_xml("<status>false</status><message>{$lang->invalidtodate}</message>");
 			exit;
 		}
-		
+
 		if(!isset($core->input['uid']) || empty($core->input['uid']) || $core->input['uid'] == $core->user['uid']) {
 			$core->input['uid'] = $core->user['uid'];
 			$leave_user = $core->user;
 			$is_onbehalf = false;
 		}
-		else
-		{
+		else {
 			$leave_user = $db->fetch_assoc($db->query("SELECT uid, firstName, lastName, reportsTo FROM ".Tprefix."users WHERE uid='".$db->escape_string($core->input['uid'])."'"));
 			$is_onbehalf = true;
 		}
-
-		if(value_exists('leaves', 'uid', $leave_user['uid'], "(fromDate BETWEEN {$core->input[fromDate]} AND {$core->input[toDate]} OR toDate BETWEEN {$core->input[fromDate]} AND {$core->input[toDate]})")) {
+		$leavetype_coexist = unserialize($db->fetch_field($db->query("SELECT coexistWith FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['type'])."'"), 'coexistWith'));
+		if(is_array($leavetype_coexist)) {
+			$coexistwhere = " AND type NOT IN(SELECT ltid FROM  leavetypes WHERE ltid NOT IN(".implode(',', $leavetype_coexist)."))";
+		}
+		if(value_exists('leaves', 'uid', $leave_user['uid'], "(fromDate BETWEEN {$core->input[fromDate]} AND {$core->input[toDate]} OR toDate BETWEEN {$core->input[fromDate]} AND {$core->input[toDate]}){$coexistwhere}")) {
 			output_xml("<status>false</status><message>{$lang->requestintersectsleave}</message>");
 			exit;
 		}
-		
+
 		$leavetype_details = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['type'])."'"));
-		if(!empty($lang->{$leavetype_details['name']})) { $leavetype_details['title'] = $lang->{$leavetype_details['name']}; }
+		if(!empty($lang->{$leavetype_details['name']})) {
+			$leavetype_details['title'] = $lang->{$leavetype_details['name']};
+		}
 		$leave['type_output'] = $leavetype_details['title'];
-			
+
 		if(!empty($leavetype_details['additionalFields'])) {
 			$leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields']);
 			if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
 				$leave['details_crumb'] = ' - '.implode(' ', $leave['details_crumb']);
 			}
-			else
-			{
+			else {
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				exit;
 			}
 		}
-				
+
 		if(!empty($core->input['telephone']['number'])) {
 			$core->input['phoneWhileAbsent'] = implode('-', $core->input['telephone']);
 		}
 		unset($core->input['telephone']);
 
-		/*if(empty($core->input['contactPerson'])) {
-			output_xml("<status>false</status><message>{$lang->selectcontactperson}</message>");
-			exit;
-		}*/
+		/* if(empty($core->input['contactPerson'])) {
+		  output_xml("<status>false</status><message>{$lang->selectcontactperson}</message>");
+		  exit;
+		  } */
 
 		$core->input['requestTime'] = TIME_NOW;
-		$core->input['requestKey'] =  substr(md5(uniqid(microtime())), 1,10);
-		
+		$core->input['requestKey'] = substr(md5(uniqid(microtime())), 1, 10);
+
 		unset($core->input['action'], $core->input['module']);
-	
+
 		$core->input['affToInform'] = serialize($core->input['affToInform']);
 
 		$query = $db->insert_query('leaves', $core->input);
 		if($query) {
 			$lid = $db->last_id();
 			$log->record($lid);
-			
+
 			$lang->load('attendance_messages');
-						
+
 			$approve_immediately = false;
 			if($is_onbehalf == true) {
 				if($core->user['uid'] == $leave_user['reportsTo'] || $core->usergroup['attenance_canApproveAllLeaves'] == 1 || empty($leave_user['reportsTo'])) {
 					$approve_immediately = true; //To be fully implemented at second stage
 				}
 			}
-			else
-			{
+			else {
 				if(empty($leave_user['reportsTo'])) {
 					$approve_immediately = true;
 				}
 			}
-			
+
 			if(!isset($leavetype_details['toApprove']) || empty($leavetype_details['toApprove'])) {
 				$approve_immediately = true;
 			}
-			/*if($leavetype_details['isWholeDay'] == 1) {
-				$employeeshift = $db->fetch_assoc($db->query("SELECT ws.* FROM ".Tprefix."employeesshifts es JOIN ".Tprefix."workshifts ws ON (ws.wsid=es.wsid) WHERE es.uid='".$db->escape_string($core->input['uid'])."'"));
-				$employeeshift['weekDays'] = unserialize($employeeshift['weekDays']);
-				
-				$lang->leavenotificationmessage_days = $lang->sprint($lang->leavenotificationmessage_days, count_workingdays($employeeshift['weekDays'], $core->input['fromDate'], $core->input['toDate']));
-			}
-			else
-			{
-				$lang->leavenotificationmessage_days = '.';
-			}*/
+			/* if($leavetype_details['isWholeDay'] == 1) {
+			  $employeeshift = $db->fetch_assoc($db->query("SELECT ws.* FROM ".Tprefix."employeesshifts es JOIN ".Tprefix."workshifts ws ON (ws.wsid=es.wsid) WHERE es.uid='".$db->escape_string($core->input['uid'])."'"));
+			  $employeeshift['weekDays'] = unserialize($employeeshift['weekDays']);
+
+			  $lang->leavenotificationmessage_days = $lang->sprint($lang->leavenotificationmessage_days, count_workingdays($employeeshift['weekDays'], $core->input['fromDate'], $core->input['toDate']));
+			  }
+			  else
+			  {
+			  $lang->leavenotificationmessage_days = '.';
+			  } */
 			$lang->leavenotificationmessage_days = $lang->sprint($lang->leavenotificationmessage_days, count_workingdays($leave_user['uid'], $core->input['fromDate'], $core->input['toDate'], $leavetype_details['isWholeDay']));
-			
+
 			//update_leavestats_periods($core->input, $leavetype_details['isWholeDay']);
 
-			$toapprove = $toapprove_select = unserialize($leavetype_details['toApprove']);//explode(',', $leavetype_details['toApprove']);
+			$toapprove = $toapprove_select = unserialize($leavetype_details['toApprove']); //explode(',', $leavetype_details['toApprove']);
 			if(is_array($toapprove)) {
 				foreach($toapprove as $key => $val) {
 					if($val == 'reportsTo') {
@@ -380,34 +373,33 @@ else
 									  FROM ".Tprefix."affiliates 
 									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
 			}
-						
+
 			$approvers['reportsTo'] = $leave_user['reportsTo'];
 			foreach($approvers as $key => $val) {
 				if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
 					continue;
 				}
-				
+
 				$approve_status = $timeapproved = 0;
 				if($approve_immediately == true && $key == 'reportsTo') {
 					$approve_status = 1;
 					$timeapproved = TIME_NOW;
 				}
-				
+
 				$sequence = 1;
 				if(is_array($toapprove)) {
 					$sequence = array_search($key, $toapprove);
 				}
-				$db->insert_query('leavesapproval', array('lid' => $lid, 'uid'=> $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
+				$db->insert_query('leavesapproval', array('lid' => $lid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
 			}
-			
+
 			if(count($approvers) > 1 && $approve_immediately == true) {
 				foreach($approvers as $key => $val) {
-					if($key != 'reportsTo' && $val == $approvers['reportsTo']) {	
+					if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
 						$already_approved = false;
 						continue;
 					}
-					elseif($key != 'reportsTo' &&  $val != $approvers['reportsTo'])
-					{
+					elseif($key != 'reportsTo' && $val != $approvers['reportsTo']) {
 						list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='".$approvers[$toapprove[array_search($key, $toapprove)]]."'"); //Second in sequence after reportsTo
 						$approve_immediately = false;
 						$already_approved = true;
@@ -415,119 +407,101 @@ else
 					}
 				}
 			}
-			
-			if(date($core->settings['dateformat'], $core->input['fromDate']) !=  date($core->settings['dateformat'], $core->input['toDate'])) {
+
+			if(date($core->settings['dateformat'], $core->input['fromDate']) != date($core->settings['dateformat'], $core->input['toDate'])) {
 				$message_todate_format = $core->settings['dateformat'].' '.$core->settings['timeformat'];
 				$subject_todate_format = ' - '.$core->settings['dateformat'];
 			}
-			else
-			{
+			else {
 				$message_todate_format = $core->settings['timeformat'];
 				$subject_todate_format = '';
 			}
-			
+
 			/* Generate Leaves Balances - START */
 			if($leavetype_details['noBalance'] == 0) {
 				update_leavestats_periods($core->input, $leavetype_details['isWholeDay'], $approve_immediately);
 			}
-			/* Generate Leaves Balances - END */		
+			/* Generate Leaves Balances - END */
 			if($approve_immediately == false) {
 				//$approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=perform_approveleave&toapprove='.base64_encode($core->input['requestKey']).'&referrer=email';
 				$approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($core->input['requestKey']).'&id='.base64_encode($lid);
-			
+
 				$leavestats = $db->fetch_assoc($db->query("SELECT * 
 												FROM ".Tprefix."leavesstats 
 												WHERE uid='".$db->escape_string($leave_user['uid'])."' AND (ltid='".$db->escape_string($core->input['type'])."' OR ltid = (SELECT countWith FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['type'])."' AND countWith!=0)) AND (".$db->escape_string($core->input['fromDate'])." BETWEEN periodStart AND periodEnd)"));
-				
+
 				$leave['workingdays'] = count_workingdays($leave_user['uid'], $core->input['fromDate'], $core->input['toDate'], $leavetype_details['isWholeDay']);
 				$lang->leavenotificationmessage_days = $lang->sprint($lang->leavenotificationmessage_days, $leave['workingdays']);
-				
+
 				$lang->requestleavesubject = $lang->sprint($lang->requestleavesubject, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']), $core->input['requestKey']);
 				if($already_approved == true) {
 					$lang->requestleavemessage = $lang->sprint($lang->requestleavemessagesupervisor, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($todate_format, $core->input['toDate']), $core->input['reason'], $core->user['firstName'].' '.$core->user['lastName'], $approve_link);
 				}
-				else
-				{
+				else {
 					//$lang->requestleavemessage = $lang->sprint($lang->requestleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $core->input['reason'], $approve_link);
-					
+
 					if($leavetype_details['isBusiness'] == 0) {
-/*						$lang->requestleavemessage_stats = $lang->sprint($lang->requestleavemessage_stats, 
-						$leavestats['canTake'],
-						$leavestats['entitledFor'],
-						$leavestats['additionalDays'],
-						$leavestats['daysTaken'],
-						($leavestats['canTake'] - $leavestats['daysTaken']),
-						($leavestats['canTake'] - $leavestats['daysTaken']) - $leave['workingdays']);	*/
-						
-						$lang->requestleavemessage_stats = $lang->sprint($lang->requestleavemessage_stats, 
-							($leavestats['canTake'] - $leavestats['daysTaken']) + $leavestats['additionalDays'],
-							(($leavestats['canTake'] - $leavestats['daysTaken']) + $leavestats['additionalDays']) - $leave['workingdays']
-							);	
+						/* 						$lang->requestleavemessage_stats = $lang->sprint($lang->requestleavemessage_stats, 
+						  $leavestats['canTake'],
+						  $leavestats['entitledFor'],
+						  $leavestats['additionalDays'],
+						  $leavestats['daysTaken'],
+						  ($leavestats['canTake'] - $leavestats['daysTaken']),
+						  ($leavestats['canTake'] - $leavestats['daysTaken']) - $leave['workingdays']); */
+
+						$lang->requestleavemessage_stats = $lang->sprint($lang->requestleavemessage_stats, ($leavestats['canTake'] - $leavestats['daysTaken']) + $leavestats['additionalDays'], (($leavestats['canTake'] - $leavestats['daysTaken']) + $leavestats['additionalDays']) - $leave['workingdays']
+						);
 					}
-					else
-					{
-						$lang->requestleavemessage_stats = '';	
+					else {
+						$lang->requestleavemessage_stats = '';
 					}
-					
-					$lang->requestleavemessage = $lang->sprint($lang->requestleavemessage, 
-						$leave_user['firstName'].' '.$leave_user['lastName'], 
-						strtolower($leave['type_output']).' ('.$leavetype_details['description'].')'.$leave['details_crumb'], 
-						date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), 
-						date($message_todate_format, $core->input['toDate']),
-						$lang->leavenotificationmessage_days,
-						$core->input['reason'],
-						$lang->requestleavemessage_stats,
-						$approve_link);
-					
+
+					$lang->requestleavemessage = $lang->sprint($lang->requestleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']).' ('.$leavetype_details['description'].')'.$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $core->input['reason'], $lang->requestleavemessage_stats, $approve_link);
+
 					/* Parse Calendar - Start */
-					$lang->requestleavemessage .= get_calendar(array('fromDate'=> $core->input['fromDate'], 'affid' => $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$leave_user[uid]}'"), 'affid')));
+					$lang->requestleavemessage .= get_calendar(array('fromDate' => $core->input['fromDate'], 'affid' => $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$leave_user[uid]}'"), 'affid')));
 					/* Parse Calendar - End */
 					//echo $lang->requestleavemessage;
 				}
 			}
-			else
-			{	
+			else {
 				if(TIME_NOW > $core->input['toDate']) {
 					if($leavetype_details['isBusiness'] == 0) {
 						$tooktaking = $lang->leavenotificationsubject_took;
 					}
-					else
-					{
+					else {
 						$tooktaking = $lang->leavenotificationsubject_wasat;
 					}
 				}
-				else
-				{
+				else {
 					if($leavetype_details['isBusiness'] == 0) {
 						$tooktaking = $lang->leavenotificationsubject_taking;
 					}
-					else
-					{
+					else {
 						$tooktaking = $lang->leavenotificationsubject_willbeat;
 					}
-					
+
 					if(!empty($core->input['phoneWhileAbsent'])) {
 						$lang->leavenotificationmessage_owncontact = $lang->leavenotificationmessage_owncontact_limitedemail;
-						
+
 						if($core->input['limitedEmail'] == 0) {
 							$lang->leavenotificationmessage_owncontact = $lang->leavenotificationmessage_owncontact_email;
 						}
 						$contact_details = $lang->sprint($lang->leavenotificationmessage_owncontact, $leave_user['firstName'].' '.$leave_user['lastName'], '+'.$core->input['phoneWhileAbsent'].'<br />'.$core->input['addressWhileAbsent']);
 					}
-					
+
 					if(!empty($core->input['contactPerson'])) {
 						$cotactperson_details = $db->fetch_assoc($db->query("SELECT displayName AS contactPersonName, email FROM ".Tprefix."users WHERE uid=".$db->escape_string($core->input['contactPerson']).""));
 						$contactperson_details = $lang->sprint($lang->leavenotificationmessage_contactperson, $cotactperson_details['contactPersonName'], $cotactperson_details['email']);
 					}
 				}
-				
+
 				if(!empty($leave['details_crumb'])) {
-/*					$core->input['details_crumb'] = implode(' ', parse_additionaldata($core->input, $leavetype_details['additionalFields']));
-					//$lang->leavenotificationmessage_typedetails .= ' ('.$core->input['details_crumb'].')';	*/
+					/* 					$core->input['details_crumb'] = implode(' ', parse_additionaldata($core->input, $leavetype_details['additionalFields']));
+					  //$lang->leavenotificationmessage_typedetails .= ' ('.$core->input['details_crumb'].')'; */
 					$lang->leavenotificationmessage_typedetails = $leave['details_crumb'];
 				}
-				else
-				{
+				else {
 					$lang->leavenotificationmessage_typedetails = strtolower($leave['type_output']);
 				}
 				$lang->leavenotificationsubject = $lang->sprint($lang->leavenotificationsubject, $leave_user['firstName'].' '.$leave_user['lastName'], $lang->leavenotificationmessage_typedetails, $tooktaking, date($core->settings['dateformat'], $core->input['fromDate']), date($subject_todate_format, $core->input['toDate']));
@@ -536,146 +510,141 @@ else
 
 			if($approve_immediately == false) {
 				$email_data = array(
-					'from_email'  => 'zaher.reda@l-probook4530-1.orkilalb.local',
-					'from'	   	=> 'Orkila Attendance System',
-					'to'		  => $to,
-					'subject' 	 => $lang->requestleavesubject,
-					'message'	 => $lang->requestleavemessage
+						'from_email' => 'zaher.reda@l-probook4530-1.orkilalb.local',
+						'from' => 'Orkila Attendance System',
+						'to' => $to,
+						'subject' => $lang->requestleavesubject,
+						'message' => $lang->requestleavemessage
 				);
 			}
-			else
-			{
+			else {
 				$to_inform = unserialize($core->input['affToInform']);
 				if(is_array($to_inform)) {
 					$mailingLists_attr = 'altMailingList';
 					if($leavetype_details['isBusiness'] == 1) {
 						$mailingLists_attr = 'mailingList';
 					}
-					
+
 					$mailingLists = get_specificdata('affiliates', array('affid', $mailingLists_attr), 'affid', $mailingLists_attr, '', 0, 'affid IN ('.implode(',', $to_inform).')');
 				}
-				
+
 				if(!is_array($mailingLists) || empty($mailingLists)) {
 					$mailingLists = $to;
 				}
-	
+
 				$email_data = array(
-					'from_email'  => 'zaher.reda@l-probook4530-1.orkilalb.local',
-					'from'	   	=> 'Orkila Attendance System',
-					'to'		  => $mailingLists,
-					'subject' 	 => $lang->leavenotificationsubject,
-					'message'	 => $lang->leavenotificationmessage
+						'from_email' => 'zaher.reda@l-probook4530-1.orkilalb.local',
+						'from' => 'Orkila Attendance System',
+						'to' => $mailingLists,
+						'subject' => $lang->leavenotificationsubject,
+						'message' => $lang->leavenotificationmessage
 				);
 			}
-			print_r($email_data);
-			exit;
+	
 			$mail = new Mailer($email_data, 'php');
 			if($mail->get_status() === true) {
 				$log->record('notifysupervisors', $email_data['to']);
 				output_xml("<status>true</status><message>{$lang->leavesuccessfullyrequested}</message>");
 			}
-			else
-			{
+			else {
 				output_xml("<status>false</status><message>{$lang->errorsendingemail}</message>");
 			}
 		}
 	}
 }
-
 function get_calendar($arguments) {
 	global $core, $db;
-		
+
 	$current_date = getdate($arguments['fromDate']);
 	$month['firstday'] = mktime(0, 0, 0, $current_date['mon'], 1, $current_date['year']);
 	$month['numdays'] = date('t', $month['firstday']);
 	$month['today_weekday'] = date('N', $month['firstday']);
-	
+
 	$affiliate_users = get_specificdata('affiliatedemployees', 'uid', 'uid', 'uid', '', 0, "affid='{$arguments[affid]}' AND isMain='1'");
 	if(empty($affiliate_users)) {
 		return false;
 	}
 	/* GET RELATED LEAVES - START */
-		$approved_lids = $unapproved_lids = array();
-		$query = $db->query("SELECT l.lid, la.isApproved FROM ".Tprefix."leaves l JOIN ".Tprefix."leavesapproval la ON (l.lid=la.lid) WHERE ((".$month['firstday']." BETWEEN l.fromDate AND l.toDate) OR (l.fromDate > ".$month['firstday'].")) AND l.uid IN (".implode(', ', $affiliate_users).")");
+	$approved_lids = $unapproved_lids = array();
+	$query = $db->query("SELECT l.lid, la.isApproved FROM ".Tprefix."leaves l JOIN ".Tprefix."leavesapproval la ON (l.lid=la.lid) WHERE ((".$month['firstday']." BETWEEN l.fromDate AND l.toDate) OR (l.fromDate > ".$month['firstday'].")) AND l.uid IN (".implode(', ', $affiliate_users).")");
 
-		if($db->num_rows($query) > 0) {
-			while($leave = $db->fetch_assoc($query)) {
-				if($leave['isApproved'] == 0) {
-					$unapproved_lids[$leave['lid']] = $leave['lid'];
-					if(in_array($leave['lid'], $approved_lids)) {
-						unset($approved_lids[$leave['lid']]);
-					}
-				}
-				if(!in_array($leave['lid'], $unapproved_lids) && $leave['isApproved'] == 1) {
-					$approved_lids[$leave['lid']] = $leave['lid'];
+	if($db->num_rows($query) > 0) {
+		while($leave = $db->fetch_assoc($query)) {
+			if($leave['isApproved'] == 0) {
+				$unapproved_lids[$leave['lid']] = $leave['lid'];
+				if(in_array($leave['lid'], $approved_lids)) {
+					unset($approved_lids[$leave['lid']]);
 				}
 			}
+			if(!in_array($leave['lid'], $unapproved_lids) && $leave['isApproved'] == 1) {
+				$approved_lids[$leave['lid']] = $leave['lid'];
+			}
 		}
-		
-		
-		if(!empty($approved_lids)) {
-			$query = $db->query("SELECT l.*, l.uid AS requester, Concat(u.firstName, ' ', u.lastName) AS employeename
+	}
+
+
+	if(!empty($approved_lids)) {
+		$query = $db->query("SELECT l.*, l.uid AS requester, Concat(u.firstName, ' ', u.lastName) AS employeename
 					FROM ".Tprefix."leaves l JOIN ".Tprefix."users u ON (l.uid=u.uid) 
 					WHERE l.lid IN (".implode(',', $approved_lids).") ORDER BY l.fromDate ASC");
-		
-			if($db->num_rows($query) > 0) {		
-				while($more_leaves = $db->fetch_assoc($query)) {
-					$num_days_off = (($more_leaves['toDate']-$more_leaves['fromDate'])/24/60/60);
-					
-					$leave_type_details = parse_type($more_leaves['type']);
-					$more_leaves['type'] = $leave_type_details;
-					
-					if($num_days_off == 1) {
-						$current_check_date = getdate($more_leaves['toDate']);
-						$leaves[$current_check_date['mon']][$current_check_date['mday']][] = $more_leaves;
-					}
-					else
-					{
-						for($i=0;$i<$num_days_off;$i++) {
-							$current_check = $more_leaves['fromDate']+(60*60*24*$i);
-							
-							if($month['firstday'] > $current_check) { //|| $more_leaves['toDate'] < $current_check) {
-								continue;
-							}
-							
-							if($current_check > ($month['firstday']*60*60*24*$month['numdays'])) {
-								break;
-							}
-							$current_check_date = getdate($current_check);
-							
-							$leaves[$current_check_date['mon']][$current_check_date['mday']][] = $more_leaves;
+
+		if($db->num_rows($query) > 0) {
+			while($more_leaves = $db->fetch_assoc($query)) {
+				$num_days_off = (($more_leaves['toDate'] - $more_leaves['fromDate']) / 24 / 60 / 60);
+
+				$leave_type_details = parse_type($more_leaves['type']);
+				$more_leaves['type'] = $leave_type_details;
+
+				if($num_days_off == 1) {
+					$current_check_date = getdate($more_leaves['toDate']);
+					$leaves[$current_check_date['mon']][$current_check_date['mday']][] = $more_leaves;
+				}
+				else {
+					for($i = 0; $i < $num_days_off; $i++) {
+						$current_check = $more_leaves['fromDate'] + (60 * 60 * 24 * $i);
+
+						if($month['firstday'] > $current_check) { //|| $more_leaves['toDate'] < $current_check) {
+							continue;
 						}
+
+						if($current_check > ($month['firstday'] * 60 * 60 * 24 * $month['numdays'])) {
+							break;
+						}
+						$current_check_date = getdate($current_check);
+
+						$leaves[$current_check_date['mon']][$current_check_date['mday']][] = $more_leaves;
 					}
 				}
 			}
 		}
-		
-		$current_leave_numdays = (date('z', $core->input['toDate'])-date('z', $core->input['fromDate']))+1;
-		for($i=0;$i<$current_leave_numdays;$i++) {
-			$current_leave_check = $core->input['fromDate']+(60*60*24*$i);
-			
-			if($month['firstday'] > $current_leave_check) { //|| $more_leaves['toDate'] < $current_check) {
-				continue;
-			}
-			
-/*			if($current_leave_check > ($month['firstday']*60*60*24*$month['numdays'])) {
-				break;
-			}*/
-			$current_leave_check_date = getdate($current_leave_check);
-			
-			$days_tohighlight[$current_leave_check_date['mon']][$current_leave_check_date['mday']] = $current_leave_check_date['mday'];
+	}
+
+	$current_leave_numdays = (date('z', $core->input['toDate']) - date('z', $core->input['fromDate'])) + 1;
+	for($i = 0; $i < $current_leave_numdays; $i++) {
+		$current_leave_check = $core->input['fromDate'] + (60 * 60 * 24 * $i);
+
+		if($month['firstday'] > $current_leave_check) { //|| $more_leaves['toDate'] < $current_check) {
+			continue;
 		}
-		
+
+		/* 			if($current_leave_check > ($month['firstday']*60*60*24*$month['numdays'])) {
+		  break;
+		  } */
+		$current_leave_check_date = getdate($current_leave_check);
+
+		$days_tohighlight[$current_leave_check_date['mon']][$current_leave_check_date['mday']] = $current_leave_check_date['mday'];
+	}
+
 	/* GET RELATED LEAVES - END */
 	$message .= '<table width="100%" cellspacing="0" cellpadding="5" style="border-left: 1px solid #CCC;" border="0">';
 	$message .= '<tr><td style="background: #91b64f; font-weight: bold; text-align: center; width: 120px; padding: 5px; border-bottom: 1px solid #999; border-top: 1px solid #999; border-right: 1px solid #999;">Week</td>';
-	$weekdays = array('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday');
+	$weekdays = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
 	$message .= '<td style="background: #91b64f; font-weight: bold; text-align: center; width: 120px; padding: 5px; border-bottom: 1px solid #999; border-top: 1px solid #999; border-right: 1px solid #999;">'.implode('</td><td style="background: #91b64f; font-weight: bold; text-align: center; width: 120px; padding: 5px; border-bottom: 1px solid #999; border-top: 1px solid #999; border-right: 1px solid #999;">', $weekdays).'</td></tr>';
 	$message .= '<tr><td style="width: 3%; text-align:center; font-weight: bold; font-size: 11px; position: relative; padding: 5px; min-height: 80px; border-bottom: 1px solid #999; border-right: 1px solid #999; height: 80px;">'.date('W', $arguments['fromDate']).'</td>';
-	
+
 	$week_num_days = 1;
 
-	for($prev_days=1; $prev_days<$month['today_weekday'];$prev_days++) {
+	for($prev_days = 1; $prev_days < $month['today_weekday']; $prev_days++) {
 		$message .= '<td style="background: #eee; width: 120px; padding: 5px; min-height: 80px; border-bottom: 1px solid #999; border-right: 1px solid #999; height: 80px;">&nbsp;</td>';
 		$week_num_days++;
 	}
@@ -684,11 +653,11 @@ function get_calendar($arguments) {
 
 	$message .= '</table>';
 	//$message .= '</body></html>';
-	
+
 	return $message;
 }
 
-function draw_available($start_from, $num_days, $start_date_info, $week_num_days, $leaves = '', $days_tohighlight = array(), $primary=true) {
+function draw_available($start_from, $num_days, $start_date_info, $week_num_days, $leaves = '', $days_tohighlight = array(), $primary = true) {
 	$current_date['mday'] = $start_from;
 	$month['numdays'] = $num_days;
 
@@ -696,8 +665,7 @@ function draw_available($start_from, $num_days, $start_date_info, $week_num_days
 		if($current_date['mday'] > $day) {
 			$message .= '<td style="background: #eee; width: 120px; padding: 5px; min-height: 80px; border-bottom: 1px solid #999; border-right: 1px solid #999; height: 80px;">&nbsp;</td>';
 		}
-		else
-		{
+		else {
 			$calendar_cell_highlight = '';
 			if(is_array($days_tohighlight[$start_date_info['mon']])) {
 				if(in_array($day, $days_tohighlight[$start_date_info['mon']])) {
@@ -707,7 +675,7 @@ function draw_available($start_from, $num_days, $start_date_info, $week_num_days
 
 			$message .= '<td style="'.$calendar_cell_highlight.'width: 120px; vertical-align: top; 	font-size: 11px; position: relative; padding: 5px; min-height: 80px; border-bottom: 1px solid #999; border-right: 1px solid #999; height: 80px;">';
 			$message .= '<div style="background: #CCC; padding: 5px; color: #333333; font-weight: bold; float: right; margin: -5px -5px 0 0; width: 20px; text-align: center;">'.$day.'</div>';
-		
+
 			if(isset($leaves[$start_date_info['mon']][$day])) {
 				$message .= '<p style="font-size: 12px;"><strong>Leaves:</strong><br />';
 				foreach($leaves[$start_date_info['mon']][$day] as $val) {
@@ -721,17 +689,16 @@ function draw_available($start_from, $num_days, $start_date_info, $week_num_days
 			}
 		}
 		$message .= '</td>';
-	
+
 		if($week_num_days == 7) {
-			$message .= '</tr><tr><td style="width: 3%; text-align:center; font-weight: bold; font-size: 11px; position: relative; padding: 5px; min-height: 80px; border-bottom: 1px solid #999; border-right: 1px solid #999; height: 80px;">'.date('W',  mktime(0, 0, 0, $start_date_info['mon'], 1, $start_date_info['year'])+(60*60*24*($day+1))).'</font></td>';
+			$message .= '</tr><tr><td style="width: 3%; text-align:center; font-weight: bold; font-size: 11px; position: relative; padding: 5px; min-height: 80px; border-bottom: 1px solid #999; border-right: 1px solid #999; height: 80px;">'.date('W', mktime(0, 0, 0, $start_date_info['mon'], 1, $start_date_info['year']) + (60 * 60 * 24 * ($day + 1))).'</font></td>';
 			$week_num_days = 0;
 		}
-		else
-		{
+		else {
 			if($day == $month['numdays']) {
-				/*for($next_month = 1; $next_month<=(7-$week_num_days);$next_month++) {
-					$message .= '<td class="calendar_noday">&nbsp;</td>';
-				}*/
+				/* for($next_month = 1; $next_month<=(7-$week_num_days);$next_month++) {
+				  $message .= '<td class="calendar_noday">&nbsp;</td>';
+				  } */
 				$week_num_days++;
 				//$message .= draw_available(1, abs(1-$current_date['mday']), getdate(strtotime("+1 month", mktime(0, 0, 0, $start_date_info['mon'], 1, $start_date_info['year']))), $week_num_days);
 				if($primary == true) {
@@ -739,10 +706,11 @@ function draw_available($start_from, $num_days, $start_date_info, $week_num_days
 				}
 				//$message .= '</tr>';
 			}
-		} 
+		}
 		$week_num_days++;
 	}
 
 	return $message;
 }
+
 ?>
