@@ -190,11 +190,10 @@ else {
 			$on_behalf = true;
 		}
 
-		$leavetypefields = $db->fetch_assoc($db->query("SELECT lt.additionalFields FROM ".Tprefix."leaves l JOIN ".Tprefix."leavetypes lt  ON (lt.ltid=l.type) WHERE l.lid='{$lid}'"));
-		$addtitonal_fields = unserialize($leavetypefields['additionalFields']);
+		$addtitonal_fields = unserialize($db->fetch_field($db->query("SELECT additionalFields FROM ".Tprefix."leavetypes WHERE ltid='".$leave['type']."'"), 'additionalFields'));
 		if(is_array($addtitonal_fields)) {
 			foreach($addtitonal_fields as $key => $field) {
-				$leave_affiliatename = $db->fetch_assoc($db->query("SELECT ".$field[table].".".$field[value_attribute]." FROM ".Tprefix.$field[table]."  JOIN ".Tprefix."leaves l ON (l.".$field[key_attribute]."=".$field[table].".".$field[key_attribute].") WHERE  l.".$field[key_attribute]."='{$leave[$field[key_attribute]]}'"));
+				$leave_additionalinfo = $db->fetch_assoc($db->query("SELECT ".$field[table].".".$field[value_attribute]." FROM ".Tprefix.$field[table]." JOIN ".Tprefix."leaves l ON (l.".$field[key_attribute]."=".$field[table].".".$field[key_attribute].") WHERE l.".$field[key_attribute]."='{$leave[$field[key_attribute]]}'"));
 			}
 		}
 
@@ -263,13 +262,13 @@ else {
 					$leavetype_details['title'] = $lang->{$leavetype_details['name']};
 				}
 				$leave['type_output'] = $leavetype_details['title'];
-				if(!empty($leave_affiliatename['name'])) {
-					$leave['affiliate'] = $lang->to.$leave_affiliatename['name'];
+				if(!empty($leave_additionalinfo['name'])) {
+					$leave['additionalInfo'] = ' ('.$leave_additionalinfo['name'].')';
 				}
 
 				$email_data = array(
 						'from_email' => 'attendance@ocos.orkila.com',
-						'from' => 'Orkila Attendance System',
+						'from' => 'Orkila Attendance System'
 				);
 
 				if($on_behalf == true) {
@@ -279,8 +278,8 @@ else {
 						$email_data['message'] = $lang->sprint($lang->declineleavenotificationmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($todate_format, $leave['toDate']));
 					}
 					else {
-						$email_data['subject'] = $lang->sprint($lang->revokeleavenotificationsubjectuser, strtolower($leave['type_output']), $leave['affiliate']);
-						$email_data['message'] = $lang->sprint($lang->revokeleavenotificationmessageuser, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']), $leave['affiliate'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($todate_format, $leave['toDate']));
+						$email_data['subject'] = $lang->sprint($lang->revokeleavenotificationsubjectuser, strtolower($leave['type_output']), $leave['additionalInfo']);
+						$email_data['message'] = $lang->sprint($lang->revokeleavenotificationmessageuser, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']), $leave['additionalInfo'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($todate_format, $leave['toDate']));
 					}
 					$mail = new Mailer($email_data, 'php');
 					if($mail->get_status() === true) {
