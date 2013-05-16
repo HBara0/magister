@@ -587,7 +587,6 @@ else {
 			$section_allempty = true;
 
 			if(isset($val['exclude']) && $val['exclude'] == 1) {
-				$excluded_segments[$key] = 1; 
 				continue;
 			}
 
@@ -631,7 +630,6 @@ else {
 			exit;
 		}
 
-		$session->set_phpsession(array('excludesegment'.$identifier => serialize($excluded_segments)));
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
 		foreach($marketreport_data as $val) {
