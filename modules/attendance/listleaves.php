@@ -263,7 +263,7 @@ else {
 				}
 				$leave['type_output'] = $leavetype_details['title'];
 				if(!empty($leave_additionalinfo['name'])) {
-					$leave['additionalInfo'] = $lang->to.$leave_additionalinfo['name'];
+					$leave['additionalInfo'] = ' ('.$leave_additionalinfo['name'].')';
 				}
 
 				$email_data = array(
