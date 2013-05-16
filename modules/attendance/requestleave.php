@@ -280,21 +280,23 @@ else {
 			$leave_user = $db->fetch_assoc($db->query("SELECT uid, firstName, lastName, reportsTo FROM ".Tprefix."users WHERE uid='".$db->escape_string($core->input['uid'])."'"));
 			$is_onbehalf = true;
 		}
-		$leavetype_coexist = unserialize($db->fetch_field($db->query("SELECT coexistWith FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['type'])."'"), 'coexistWith'));
-		if(is_array($leavetype_coexist)) {
-			$coexistwhere = " AND type NOT IN(SELECT ltid FROM  leavetypes WHERE ltid NOT IN(".implode(',', $leavetype_coexist)."))";
-		}
-		if(value_exists('leaves', 'uid', $leave_user['uid'], "(fromDate BETWEEN {$core->input[fromDate]} AND {$core->input[toDate]} OR toDate BETWEEN {$core->input[fromDate]} AND {$core->input[toDate]}){$coexistwhere}")) {
-			output_xml("<status>false</status><message>{$lang->requestintersectsleave}</message>");
-			exit;
-		}
-
+		
 		$leavetype_details = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['type'])."'"));
 		if(!empty($lang->{$leavetype_details['name']})) {
 			$leavetype_details['title'] = $lang->{$leavetype_details['name']};
 		}
 		$leave['type_output'] = $leavetype_details['title'];
 
+		
+		$leavetype_coexist = unserialize($leavetype_details['coexistWith']);
+		if(is_array($leavetype_coexist)) {
+			$coexistwhere = " AND type NOT IN (".implode(',', $leavetype_coexist).")";
+		}
+		if(value_exists('leaves', 'uid', $leave_user['uid'], "(fromDate BETWEEN {$core->input[fromDate]} AND {$core->input[toDate]} OR toDate BETWEEN {$core->input[fromDate]} AND {$core->input[toDate]}){$coexistwhere}")) {
+			output_xml("<status>false</status><message>{$lang->requestintersectsleave}</message>");
+			exit;
+		}
+		
 		if(!empty($leavetype_details['additionalFields'])) {
 			$leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields']);
 			if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
