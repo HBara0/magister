@@ -288,7 +288,6 @@ if(!$core->input['action']) {
 			while($marketreports_data = $db->fetch_assoc($query)) {
 				$marketreport[$marketreports_data['psid']] = $marketreports_data;
 				$marketreport[$marketreports_data['psid']]['exclude'] = unserialize($session->get_phpsession('excludesegment'.$identifier));
-				if(isset($marketreport[$marketreports_data['psid']]['exclude']) && $marketreport[$marketreports_data['psid']]['exclude'] == 1) {
 					$ischecked[$marketreports_data['psid']] = ' checked="checked"';
 				}
 			}
