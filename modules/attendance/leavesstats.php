@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
@@ -55,7 +55,7 @@ if(!$core->input['action']) {
 			//$where = ' WHERE (".TIME_NOW." BETWEEN periodStart AND periodEnd) AND ';
 			$uid_where = ' ls.uid="'.$core->user['uid'].'"';
 			if($core->usergroup['attendance_canViewAffAllLeaves'] == 1) {
-				$query = $db->query("SELECT u.uid FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE isMain=1 AND affid='{$core->user[mainaffiliate]}' AND gid!=7");
+				$query = $db->query("SELECT u.uid FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE isMain=1 AND affid='{$core->user[mainaffiliate]}'");
 				if($db->num_rows($query) > 1) {
 					while($user = $db->fetch_assoc($query)) {
 						$users[] = $user['uid'];
@@ -69,7 +69,7 @@ if(!$core->input['action']) {
 			else {
 				$period_where = '';
 			}
-			$reporting_users = get_specificdata('users', 'uid', 'uid', 'uid', '', 0, "reportsTo='{$core->user[uid]}' AND gid!=7");
+			$reporting_users = get_specificdata('users', 'uid', 'uid', 'uid', '', 0, "reportsTo='{$core->user[uid]}'");
 			if(is_array($reporting_users) && !empty($reporting_users)) {
 				$uid_where .= ' OR ls.uid IN ('.implode(',', $reporting_users).')';
 				if(empty($period_where)) {
@@ -94,7 +94,7 @@ if(!$core->input['action']) {
 
 	$query = $db->query("SELECT ls.*,Concat(u.firstName, ' ', u.lastName) AS employeename
 						FROM ".Tprefix."leavesstats ls JOIN ".Tprefix."users u ON (ls.uid=u.uid)
-						WHERE ltid='".$db->escape_string($core->input['type'])."'{$where} AND gid!=7
+						WHERE ltid='".$db->escape_string($core->input['type'])."'{$where}
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
