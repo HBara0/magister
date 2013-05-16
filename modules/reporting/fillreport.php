@@ -281,16 +281,14 @@ if(!$core->input['action']) {
 
 		$rid = $db->escape_string($core->input['rid']);
 		if(value_exists('marketreport', 'rid', $core->input['rid'])) {
-
-			$ischecked[$marketreports_data['psid']] = array();
+			$ischecked = array();
 			$query = $db->query("SELECT mr.*, r.quarter, r.year, r.spid, r.affid
 								  FROM ".Tprefix."marketreport mr LEFT JOIN ".Tprefix."reports r ON (r.rid=mr.rid)
 								  WHERE mr.rid='{$rid}'");
 			while($marketreports_data = $db->fetch_assoc($query)) {
 				$marketreport[$marketreports_data['psid']] = $marketreports_data;
 				$marketreport[$marketreports_data['psid']]['exclude'] = unserialize($session->get_phpsession('excludesegment'.$identifier));
-				print_R($marketreport[$marketreports_data['psid']]['exclude']);
-				if(isset($marketreport[$marketreports_data['psid']]['exclude'])) {
+				if(isset($marketreport[$marketreports_data['psid']]['exclude']) && $marketreport[$marketreports_data['psid']]['exclude'] == 1) {
 					$ischecked[$marketreports_data['psid']] = ' checked="checked"';
 				}
 			}
@@ -305,11 +303,9 @@ if(!$core->input['action']) {
 		if(is_array($marketreport)) {
 			foreach($marketreport as $key => $val) {
 				$marketreport[$key] = preg_replace("/<br \/>/i", "\n", $val);
-				if(isset($marketreport[$key][exclude]) && $marketreport[$key][exclude] == 1) {
-					$ischecked[$key] = ' checked="checked"';
-				}
 			}
 		}
+		
 		$reportmeta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		$quarter = $reportmeta['quarter'];
 		if($quarter == 1) {
@@ -588,14 +584,10 @@ else {
 
 		$found_one = $one_notexcluded = false;
 		foreach($core->input['marketreport'] as $key => $val) {
-			if(!empty($val['exclude']) && $val['exclude'] == 1) {
-				$marketreport_data[$key]['exclude'] = $val['exclude'];
-				$session->set_phpsession(array('excludesegment'.$identifier => serialize($marketreport_data[$key]['exclude'])));
-			}
-
 			$section_allempty = true;
 
-			if(isset($val['exclude']) && $val['exclude'] == 1 && !empty($report_meta['exclude'])) {
+			if(isset($val['exclude']) && $val['exclude'] == 1) {
+				$excluded_segments[$key] = 1; 
 				continue;
 			}
 
@@ -639,6 +631,7 @@ else {
 			exit;
 		}
 
+		$session->set_phpsession(array('excludesegment'.$identifier => serialize($excluded_segments)));
 		$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
 		foreach($marketreport_data as $val) {
