@@ -76,7 +76,7 @@ else {
 			if($query) {
 				$log->record($core->input['type'], $last_id);
 				header('Content-type: text/xml+javascript');
-				output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>>');//<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>
+				output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>>'); //<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>
 				exit;
 			}
 			else {
@@ -223,17 +223,15 @@ else {
 
 		switch($task->get_status()) {
 			case 0:
-				header('Content-type: text/xml+javascript');
-				output_xml("<status>true</status><message><![CDATA[<script>$('#note').val(''); $('#calendar_task_notes').prepend('<div id=\'note_1\' style=\'padding: 5px 0px 5px 10px;\' class=\'altrow2\'>".$db->escape_string($core->input['note']).". <span class=\'smalltext\' style=\'font-style:italic;\'>".date($core->settings['dateformat'], TIME_NOW)." by <a href=\'users.php?action=profile&uid=".$core->user['uid']."\' target=\'_blank\'>".$core->user['displayName']."</a></span></div>');</script>]]></message>");
-
 				if($core->user['uid'] == $task_details['uid']) {
 					if($task_details['createdby'] != $core->user['uid']) {
-						$to = $db->fetch_field($db->query('SELECT email FROM '.Tprefix.'users WHERE uid='.$task_details['createdby']), 'email');
+						$to = $db->fetch_field($db->query('SELECT email FROM '.Tprefix.'users WHERE uid='.$task_details['createdBy']), 'email');
 					}
 				}
 				else {
 					$to = $db->fetch_field($db->query('SELECT email FROM '.Tprefix.'users WHERE uid='.$task_details['uid']), 'email');
 				}
+
 				if(!empty($to)) {
 					$notification = array(
 							'to' => $to,
@@ -245,11 +243,13 @@ else {
 
 					$mail = new Mailer($notification, 'php');
 				}
-				break;
+				header('Content-type: text/xml+javascript');
+				output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[<script>$('#note').val(''); $('#calendar_task_notes').prepend('<div id=\'note_1\' style=\'padding: 5px 0px 5px 10px;\' class=\'altrow2\'>".$db->escape_string($core->input['note']).". <span class=\'smalltext\' style=\'font-style:italic;\'>".date($core->settings['dateformat'], TIME_NOW)." by <a href=\'users.php?action=profile&uid=".$core->user['uid']."\' target=\'_blank\'>".$core->user['displayName']."</a></span></div>');</script>]]></message>");
+				exit;
+
 			case 1:
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				break;
-			case 2:
 			case 3:
 				output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
 				exit;
@@ -262,7 +262,7 @@ else {
 		switch($task->get_status()) {
 			case 0:
 				header('Content-type: text/javascript');
-				
+
 				if($core->input['percCompleted'] == 100) {
 					$output_js = '$("#ctid_'.$core->input['ctid'].'").css("text-decoration", "line-through");';
 				}
