@@ -1,4 +1,3 @@
-
 <table class="reportbox">
     <tr>
     	<td class="thead" colspan="5">{$lang->keycustomers}</td>
@@ -11,5 +10,4 @@
     	<td colspan="5" class="verticalspacer">&nbsp;</td>
     </tr>
 </table>
-
 <br />
