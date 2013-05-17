@@ -190,7 +190,7 @@ else {
 			$is_onbehalf = false;
 		}
 		$leavetype_details = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['type'])."'"));
- 
+
 		$leavetype_coexist = unserialize($leavetype_details['coexistWith']);
 		if(is_array($leavetype_coexist)) {
 			$coexistwhere = " AND type NOT IN (".implode(',', $leavetype_coexist).")";
@@ -285,13 +285,25 @@ else {
 			}
 
 			if($approve_immediately == false && $notification_required == true) {
-				$toapprove = unserialize($leavetype_details['toApprove']); //explode(',', $leavetype_details['toApprove']);
+				$toapprove = $toapprove_select = unserialize($leavetype_details['toApprove']); //explode(',', $leavetype_details['toApprove']);
 
 				foreach($toapprove as $key => $val) {
 					if($val == 'reportsTo') {
 						list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
+						$approvers['reportsTo'] = $leave_user['reportsTo'];
+						unset($toapprove_select[$key]);
+					}
+					elseif(is_int($val)) {
+						$approvers[$val] = $val;
+						unset($toapprove_select[$key]);
 					}
 				}
+			}
+
+			if(is_array($toapprove_select) && !empty($toapprove_select)) {
+				$secondapprovers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
+									  FROM ".Tprefix."affiliates 
+									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
 			}
 
 			if($approve_immediately == true) {
@@ -300,6 +312,25 @@ else {
 					$to = $db->fetch_field($query, 'email', 1); //Second in sequence after reportsTo
 					$approve_immediately = false;
 				}
+			}
+
+			$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
+			foreach($approvers as $key => $val) {
+				if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
+					continue;
+				}
+
+				$approve_status = $timeapproved = 0;
+				if($approve_immediately == true && $key == 'reportsTo') {
+					$approve_status = 1;
+					$timeapproved = TIME_NOW;
+				}
+
+				$sequence = 1;
+				if(is_array($toapprove)) {
+					$sequence = array_search($key, $toapprove);
+				}
+				$db->insert_query('leavesapproval', array('lid' => $lid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
 			}
 			/* if(is_array($toapprove_select) && !empty($toapprove_select)) {
 			  $approvers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."

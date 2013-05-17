@@ -280,14 +280,14 @@ else {
 			$leave_user = $db->fetch_assoc($db->query("SELECT uid, firstName, lastName, reportsTo FROM ".Tprefix."users WHERE uid='".$db->escape_string($core->input['uid'])."'"));
 			$is_onbehalf = true;
 		}
-		
+
 		$leavetype_details = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['type'])."'"));
 		if(!empty($lang->{$leavetype_details['name']})) {
 			$leavetype_details['title'] = $lang->{$leavetype_details['name']};
 		}
 		$leave['type_output'] = $leavetype_details['title'];
 
-		
+
 		$leavetype_coexist = unserialize($leavetype_details['coexistWith']);
 		if(is_array($leavetype_coexist)) {
 			$coexistwhere = " AND type NOT IN (".implode(',', $leavetype_coexist).")";
@@ -296,7 +296,7 @@ else {
 			output_xml("<status>false</status><message>{$lang->requestintersectsleave}</message>");
 			exit;
 		}
-		
+
 		if(!empty($leavetype_details['additionalFields'])) {
 			$leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields']);
 			if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
@@ -366,17 +366,26 @@ else {
 				foreach($toapprove as $key => $val) {
 					if($val == 'reportsTo') {
 						list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
+						$approvers['reportsTo'] = $leave_user['reportsTo'];
+						unset($toapprove_select[$key]);
+					}
+					elseif(is_int($val)) {
+						$approvers[$val] = $val;
 						unset($toapprove_select[$key]);
 					}
 				}
 			}
+
 			if(is_array($toapprove_select) && !empty($toapprove_select)) {
-				$approvers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
+				$secondapprovers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
 									  FROM ".Tprefix."affiliates 
 									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
 			}
+			//$approvers['reportsTo'] = $leave_user['reportsTo'];  //add approvers
+			if(is_array($secondapprovers)) {
+				$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
+			}
 
-			$approvers['reportsTo'] = $leave_user['reportsTo'];
 			foreach($approvers as $key => $val) {
 				if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
 					continue;
@@ -542,7 +551,7 @@ else {
 						'message' => $lang->leavenotificationmessage
 				);
 			}
-	
+
 			$mail = new Mailer($email_data, 'php');
 			if($mail->get_status() === true) {
 				$log->record('notifysupervisors', $email_data['to']);
