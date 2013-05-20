@@ -8,7 +8,6 @@
  * Last Update:    @tony.assaad    Apr 22, 2013 | 4:28:35 PM
  */
 
-
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
@@ -21,12 +20,9 @@ $single_user = $user->get();
 $reporting_touser = $user->get_reportingto();
 $lang->load('attendance_messages');
 if(!$core->input['action']) {
-
 	/* if user is not HR */
-	if($core->usergroup['hr_canHrAllAffiliates'] == 1) {
-		if(is_array($reporting_touser)) {
-			$affiliate_users = array_merge($reporting_touser, $affiliate_users);
-		}
+	$user = new Users($core->user['uid']);
+	if($user->can_hr('inaffiliate')) {
 		if(is_array($affiliate_users)) {
 			foreach($affiliate_users as $uid => $users) {
 				$users_list .= "<option value='{$users['uid']}'{$selected}>{$users['displayName']}</option>";
@@ -35,8 +31,12 @@ if(!$core->input['action']) {
 	}
 	else {
 		$users_list = "<option value='{$core->user['uid']}' selected=selected>{$single_user['displayName']}</option>";
+		if(is_array($reporting_touser)) {
+			foreach($reporting_touser as $uid => $user) {
+				$users_list .= '<option value="'.$user['uid'].'"'.$selected.'>'.$user['displayName'].'</option>';
+			}
+		}
 	}
-
 
 	eval("\$addadditionaldays = \"".$template->get('attendance_addadditionaldays')."\";");
 	output_page($addadditionaldays);
