@@ -287,24 +287,27 @@ if(!$core->input['action']) {
 								  WHERE mr.rid='{$rid}'");
 			while($marketreports_data = $db->fetch_assoc($query)) {
 				$marketreport[$marketreports_data['psid']] = $marketreports_data;
-				$marketreport[$marketreports_data['psid']]['exclude'] = unserialize($session->get_phpsession('excludesegment'.$identifier));
-					$ischecked[$marketreports_data['psid']] = ' checked="checked"';
-				}
 			}
 		}
 		else {
 			if($session->isset_phpsession('marketreport_'.$identifier)) {
 				$marketreport = unserialize($session->get_phpsession('marketreport_'.$identifier));
 				$marketreport = $marketreport['marketreport'];  /* read martketreport ARRAY from the market report session */
+				if(isset($marketreport_excluded[$key]['exclude']) && $marketreport_excluded[$key]['exclude'] == 1) {
+					$ischecked[$key] = ' checked="checked"';
+				}
 			}
 		}
-
+		$marketreport_excluded = unserialize($session->get_phpsession('excludesegment'.$identifier));
 		if(is_array($marketreport)) {
 			foreach($marketreport as $key => $val) {
 				$marketreport[$key] = preg_replace("/<br \/>/i", "\n", $val);
+				if(isset($marketreport_excluded[$key]['exclude']) && $marketreport_excluded[$key]['exclude'] == 1) {
+					$ischecked[$key] = ' checked="checked"';
+				}
 			}
 		}
-		
+
 		$reportmeta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		$quarter = $reportmeta['quarter'];
 		if($quarter == 1) {
@@ -578,7 +581,10 @@ else {
 	elseif($core->input['action'] == 'save_marketreport') {
 		$rid = $db->escape_string($core->input['rid']);
 		$identifier = $db->escape_string($core->input['identifier']);
-
+		if(!empty($val['exclude']) && $val['exclude'] == 1) {
+			$marketreport_data[$key]['exclude'] = $val['exclude'];
+			$session->set_phpsession(array('excludesegment'.$identifier => serialize($marketreport_data[$key]['exclude'])));
+		}
 		$emtpy_terms = array('na', 'n/a', 'none', 'nothing', 'nothing to mention');
 
 		$found_one = $one_notexcluded = false;
