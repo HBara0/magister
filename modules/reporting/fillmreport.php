@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright ï¿½ 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Fill up a monthly report
  * $module: reporting
@@ -26,7 +26,7 @@ $lang->load('reporting_monthlyreport');
 if(!$core->input['action']) {
 	if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
 		$identifier = $db->escape_string($core->input['identifier']);
-		$report_data = unserialize($session->get_phpsession('reportsmetadata_'.$identifier));
+		$report_data = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 		if(isset($report_data['rid']) && !empty($report_data['rid'])) {
 			$rid_field = '<input type="hidden" name="rid" id="rid" value="'.$report_data['rid'].'" />';
 		}
@@ -159,7 +159,7 @@ else
 			
 			$identifier = $db->escape_string($core->input['identifier']);
 			if($core->input['processtype'] == 'finalize') {
-				$report_data = unserialize($session->get_phpsession('reportsmetadata_'.$identifier));
+				$report_data = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 			}
 			else
 			{

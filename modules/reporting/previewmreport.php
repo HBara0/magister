@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright ï¿½ 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Preview and export monthly reports
  * $module: reporting
@@ -78,7 +78,7 @@ if(!$core->input['action']) {
 				}
 				else
 				{
-					$session->set_phpsession(array('reportsmetadata_'.$identifier => serialize($report_data)));
+					$session->set_phpsession(array('reportmeta_'.$identifier => serialize($report_data)));
 				}
 			}
 			
@@ -121,7 +121,7 @@ if(!$core->input['action']) {
 			$identifier = $db->escape_string($val);
 			//$identifier = $db->escape_string($core->input['identifier']);
 			$core->input['type'] = 'm';
-			$session->set_phpsession(array('reportsmetadata_'.$core->input['identifier'] => serialize($core->input)));
+			$session->set_phpsession(array('reportmeta_'.$core->input['identifier'] => serialize($core->input)));
 			$report_data = $core->input;
 			$highlights_attr = array('actions', 'considerations', 'accomplishments');
 			foreach($highlights_attr as $key) {
@@ -273,7 +273,7 @@ else
 		$content .= $session->get_phpsession('monhtlyreports_'.$core->input['identifier']);
 		
 		//$identifier = explode('_', $core->input['identifier']);
-		$meta_data = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']));
+		$meta_data = unserialize($session->get_phpsession('reportmeta_'.$core->input['identifier']));
 		/*$suppliername = $db->fetch_field($db->query("SELECT e.companyName AS suppliername FROM ".Tprefix."entities e, ".Tprefix."reports r 
 													WHERE r.spid=e.eid AND r.rid='".$db->escape_string($meta_data['spid'][0])."'"), 'suppliername');
 													*/
