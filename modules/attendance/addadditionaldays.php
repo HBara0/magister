@@ -43,26 +43,32 @@ if(!$core->input['action']) {
 }
 else {
 	if($core->input['action'] == 'do_addadditionaldays') {
-		foreach($core->input['AttendanceAddDays']['uid'] as $uid) { /* for a single user call the object and the function therefore */
-			$attendance->request($uid, $core->input['AttendanceAddDays']);
-		}
-		switch($attendance->get_status()) {
-			case 0:
-				foreach($core->input['AttendanceAddDays']['uid'] as $uid) { /* for each user instantiate his object and  get his ReportsTo details ,and the user detaails */
-					$user = new Users($uid);
-					$reporttsto[$uid] = $user->get_reportsto()->get();
-					$requester[$uid] = $user->get();
-					$attendance_daydata[$uid] = $user->get_additionaldays_byuser();
-					$attendance->notify_request($reporttsto[$uid], $requester[$uid], $attendance_daydata[$uid]);
+		if(is_array($core->input['AttendanceAddDays']['uid'])) {
+			foreach($core->input['AttendanceAddDays']['uid'] as $uid) { /* for a single user call the object and the function therefore */
+				$newid = $attendance->request($uid, $core->input['AttendanceAddDays']);
+
+				switch($attendance->get_status()) {
+					case 0:
+						$new_adddays = new AttendanceAddDays(array('adid' => $newid));
+						$new_adddays->notify_request();
+						//output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+						break;
+					case 1:
+						//Record Error
+						//output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+						break;
+					case 2:
+						//Record Error
+						//output_xml("<status>false</status><message>{$lang->requestexist}</message>");
+						break;
 				}
-				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
-				break;
-			case 1:
-				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-				break;
-			case 2:
-				output_xml("<status>false</status><message>{$lang->requestexist}</message>");
-				break;
+			}
+
+			//Output errors
+			output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+		}
+		else {
+			output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 		}
 	}
 }
