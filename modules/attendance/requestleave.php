@@ -381,9 +381,10 @@ else {
 									  FROM ".Tprefix."affiliates 
 									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
 			}
-			//$approvers['reportsTo'] = $leave_user['reportsTo'];  //add approvers
+			
 			if(is_array($secondapprovers)) {
 				$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
+				unset($secondapprovers);
 			}
 
 			foreach($approvers as $key => $val) {
