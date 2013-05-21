@@ -723,8 +723,8 @@ else {
 		if($core->input['action'] == 'saveandsend') {
 			set_time_limit(0);
 			ini_set('memory_limit', '200M');
-			if(is_empty($report['summary']) && $report['reqQRSummary'] == 1) {
-				error($lang->fillsummary, $_SERVER['HTTP_REFERER']);
+			if(empty($report['summary']) && $report['reqQRSummary'] == 1) {
+				error($lang->summarymissing, $_SERVER['HTTP_REFERER']);
 			}
 			else {
 				$html2pdf->WriteHTML($content, $show_html);

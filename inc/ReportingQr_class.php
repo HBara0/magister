@@ -314,8 +314,8 @@ class ReportingQr Extends Reporting {
 
 	public function get_report_supplier() {
 		global $db;
-		$report_supplier = new Entities($this->report['spid']);
-		return $this->reportdetails['supplier'] = $report_supplier->get($this->report['spid']);
+		$report_supplier = new Entities($this->report['spid'], '', false);
+		return $this->reportdetails['supplier'] = $report_supplier->get();
 	}
 
 	public function get_classified_productsactivity() {
