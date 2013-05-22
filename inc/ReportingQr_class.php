@@ -121,7 +121,7 @@ class ReportingQr Extends Reporting {
 							if($products_data != 0) {
 								$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data - $this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid];
 							}
-							
+
 							$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 0;
 							if($this->report['classifiedpactivity']['purchasedQty']['forecast'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid] != 0) {
 								$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $this->report['classifiedpactivity']['purchasedQty']['forecast'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid] - $this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid];
@@ -341,10 +341,10 @@ class ReportingQr Extends Reporting {
 			JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid)
 			WHERE sa.eid=".$this->report['spid'].""));
 	}
-	
+
 	public function validate_forecasts($data, $currencies, $options = array()) {
 		global $db, $core;
-		
+
 		$validation_items = array('sales' => 'turnOver', 'quantity' => 'quantity');
 		$correctionsign = '&ge; ';
 		if($this->report['quarter'] == 4) {
@@ -367,7 +367,7 @@ class ReportingQr Extends Reporting {
 				if(empty($productactivity['pid'])) {
 					continue;
 				}
-				
+
 				if(isset($prev_data[$productactivity['pid']])) {
 					foreach($validation_items as $validation_key => $validation_item) {
 						$actual_current_validation = $productactivity[$validation_item];
@@ -399,7 +399,7 @@ class ReportingQr Extends Reporting {
 								$actual_forecast = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
 							}
 						}
-							
+
 						if($productactivity[$validation_key.'Forecast'] < $actual_forecast || ($this->report['quarter'] == 4 && round($productactivity[$validation_key.'Forecast'], 4) > $actual_forecast)) {
 							$forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
 							$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.number_format($actual_forecast, 4);
@@ -415,7 +415,7 @@ class ReportingQr Extends Reporting {
 		}
 		return false;
 	}
-	
+
 	/* Setter Functionality - START */
 	public function save_productactivity($data, $currencies, $options = array()) {
 		global $db, $core, $log;
@@ -428,7 +428,7 @@ class ReportingQr Extends Reporting {
 
 		if(is_array($data)) {
 			foreach($data as $productdata) {
-				//$currencies = $this->get_currency_Byrate(array('fxrate' => $productdata['fxrate']));
+//$currencies = $this->get_currency_Byrate(array('fxrate' => $productdata['fxrate']));
 				if(!empty($productdata['pid']) && isset($productdata['pid'])) {
 					if($productdata['fxrate'] != 1 && isset($productdata['fxrate'])) {
 						$productdata['turnOverOc'] = $productdata['turnOver'];
@@ -465,7 +465,7 @@ class ReportingQr Extends Reporting {
 				}
 				if($processed_once === true) {
 					if(is_array($cache['usedpaid'])) {
-						//$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).')';
+//$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).')';
 					}
 
 					$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid=".$this->report['rid']." AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
@@ -513,6 +513,62 @@ class ReportingQr Extends Reporting {
 
 	public function get_productssegments() {
 		return $this->report['productssegments'];
+	}
+
+	private static function create_salt() {
+		if(function_exists('random_string')) {
+			return random_string(10);
+		}
+		else {
+			return self::random_string(10);
+		}
+	}
+
+	private static function create_loginkey() {
+		if(function_exists('random_string')) {
+			return random_string(40);
+		}
+		else {
+			return self::random_string(40);
+		}
+	}
+
+	public function create_recipients($rpid,$identifier) {
+		global $db;
+		$password = Accounts::generate_password_string(10);
+		$salt = $this->create_salt();
+		$loginKey = $this->create_loginkey();
+		$token = md5(uniqid(microtime(), true));
+		$recipient_data = array('reportIdentifier' => $identifier,
+				'rpid' => $rpid,
+				'token' => $token,
+				'loginKey' => $loginKey,
+				'password' => $password,
+				'salt' => $salt
+		);
+	
+		$query = $db->insert_query('reporting_qrrecipients', $recipient_data);
+		if($query) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public function get_recipient($rpid) {
+		global $db; 
+		if(is_array($id)) {
+			$recipients_query = $db->query("SELECT * FROM ".Tprefix."reporting_qrrecipients rq JOIN ".Tprefix."entitiesrepresentatives er ON(er.rpid=rq.rpid)
+				JOIN ".Tprefix."representatives r ON(r.rpid=rq.rpid)
+				WHERE rq.rpid in(".implode(',',$rpid).")");
+			if($db->num_rows($recipients_query) > 0) {
+				while($recipients = $db->fetch_assoc($recipients_query)) {
+					$recipient[$recipients['rqrrid']] = $recipients;
+				}
+				return $recipient;
+			}
+		}
 	}
 
 }

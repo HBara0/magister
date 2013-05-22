@@ -14,6 +14,7 @@
     	<legend><strong>{$lang->recipients}:</strong></legend>
         <table width="100%" cellpadding="0" cellspacing="0">
     	{$representatives_list}
+        {$hiddenfield}
         </table>
         <hr />
         {$lang->additionalrecipients}: <input type="text" size="50" name="additional_recipients" id="additional_recipients" value="{$default_cc}"/> <span class="smalltext">{$lang->seperatedbycomma}.</span>
