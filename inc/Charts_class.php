@@ -1,15 +1,18 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright ï¿½ 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Charts Class
  * $id: Charts_class.php
  * Last Update: @zaher.reda 	July 11, 2012 | 09:53 AM
  */
 
-include("pChart/pData.class");  
-include("pChart/pChart.class"); 
+include("pChart/class/pData.class.php");
+include("pChart/class/pDraw.class.php");
+include("pChart/class/pPie.class.php");
+include("pChart/class/pImage.class.php");
+
 class Charts {
 	private $data = array();
 	private $options = array();
@@ -17,13 +20,13 @@ class Charts {
 	private $path = './images/charts/';
 	private $font = 'arial.ttf';
 	private $fonts_dir = 'fonts/';
-	
-	public function __construct(array $data, $type='line', array $options = array()) {
+
+	public function __construct(array $data, $type = 'line', array $options = array()) {
 		$this->font = ROOT.INC_ROOT.'/fonts/tahoma.ttf';
 
 		$this->data = $data;
 		$this->options = $options;
-				
+
 		if($type == 'pie') {
 			//$this->data = $this->normalizedata($this->data, 'values', 'titles');
 			$this->build_piechart();
@@ -32,189 +35,313 @@ class Charts {
 			//$this->data = $this->normalizedata($this->data, 'y', 'x');
 			$this->build_barchart();
 		}
-		else
-		{
+		elseif($type == 'stackedbar') {
+			$this->build_stackedbar();
+		}
+		else {
 			$this->build_linechart();
 		}
 		$this->clean_oldcharts();
 	}
-	
+
 	private function build_piechart() {
-		$this->DataSet = new pData;  
-		$this->DataSet->AddPoint($this->data['values'], 'Serie1');  
-		$this->DataSet->AddPoint($this->data['titles'], 'Serie2');  
-		$this->DataSet->AddAllSeries();  
-		$this->DataSet->SetAbsciseLabelSerie('Serie2');  
-		
-		#  // Initialise the graph  
-		$this->chart = new pChart(450,200);
-		$this->chart->loadColorPalette(ROOT.INC_ROOT.'/pChart/tones.txt');  
+		/* Create and populate the pData object */
+		$this->DataSet = new pData();
+		$this->DataSet->addPoints($this->data['values'], 'Values');
+		$this->DataSet->addPoints($this->data['titles'], 'Labels');
+		$this->DataSet->setSerieDescription('Values', 'Values');
+
+		/* Define the absissa serie */
+		$this->DataSet->setAbscissa("Labels");
+
+		/* Create the pChart object */
+		$this->chart = new pImage(450, 200, $this->DataSet, TRUE);
 		$this->chart->AntialiasQuality = 20;
-		$this->chart->setFontProperties($this->font, 8);  
-		
-		$this->chart->drawPieGraph($this->DataSet->GetData(),$this->DataSet->GetDataDescription(), 170, 90, 130, PIE_PERCENTAGE, TRUE, 50, 20, 5);  
-		$this->chart->drawPieLegend(330, 15, $this->DataSet->GetData(), $this->DataSet->GetDataDescription(), 250, 250, 250);  
-		#   
-  		$this->imagename = $this->path.'chart_'.uniqid(rand(0, time())).'.png';
-		$this->chart->Render($this->imagename);
-		//$this->chart = $image;	
+		/* Set the default font properties */
+		$this->chart->setFontProperties(array("FontName" => $this->font, "FontSize" => 10, "R" => 80, "G" => 80, "B" => 80));
+
+		/* Create the pPie object */
+		$PieChart = new pPie($this->chart, $this->DataSet);
+
+		/* Enable shadow computing */
+		$this->chart->setShadow(TRUE, array("X" => 3, "Y" => 3, "R" => 0, "G" => 0, "B" => 0, "Alpha" => 10));
+
+		/* Draw a splitted pie chart */
+		$PieChart->draw3DPie(170, 90, array("Radius" => 100, "DataGapAngle" => 12, "DataGapRadius" => 10, "Border" => TRUE, "DrawLabels" => TRUE));
+
+		/* Write the legend box */
+		$this->chart->setFontProperties(array("FontName" => $this->font, "FontSize" => 7, "R" => 0, "G" => 0, "B" => 0));
+		$PieChart->drawPieLegend(330, 15, array("Style" => LEGEND_NOBORDER, "Mode" => LEGEND_VERTICAL));
+
+		$this->imagename = $this->path.'chart_'.uniqid(rand(0, time())).'.png';
+
+		/* Render the picture (choose the best way) */
+		$this->chart->render($this->imagename);
 	}
-	
+
 	private function build_barchart() {
-		//ksort($this->data['y']);
-		
+		$this->DataSet = new pData();
+
 		foreach($this->data['y'] as $index => $rawdata) {
 			if(is_array($rawdata)) {
 				foreach($rawdata as $index2 => $val) {
 					$this->ready_data[$index2][] = $val;
 				}
 			}
-			else
-			{
+			else {
 				$this->ready_data['y'][$index] = $rawdata;
 			}
 		}
 
-		$this->DataSet = new pData; 
-		$i = 1;
 		foreach($this->ready_data as $legend => $bar) {
 			ksort($bar);
-			$this->DataSet->AddPoint($bar, 'Serie'.$i);
-			$this->DataSet->SetSerieName($legend, 'Serie'.$i);
-			$i++;
+			$this->DataSet->addPoints($bar, $legend);
 		}
 
-		$this->DataSet->AddAllSeries(); 
-
+		$this->DataSet->setAxisName(0, $this->options['yaxisname']);
+		$this->DataSet->SetAxisUnit(0, $this->options['yaxisunit']);
+		$this->DataSet->setAxisName(1, $this->options['xaxisname']);
 		ksort($this->data['x']);
-		$this->DataSet->AddPoint($this->data['x'], 'x');
-		$this->DataSet->SetAbsciseLabelSerie('x'); 
-		
-		// Initialise the graph  
-		$this->chart = new pChart(700,230); 
+		$this->DataSet->addPoints($this->data['x'], 'x');
+		$this->DataSet->setSerieDescription("x", $this->options['xaxisname']);
+		$this->DataSet->setAbscissa('x');
+
+		/* Create the pChart object */
+		if(!isset($this->options['width']) || empty($this->options['width'])) {
+			$this->options['width'] = 700;
+		}
+
+		if(!isset($this->options['height']) || empty($this->options['height'])) {
+			$this->options['height'] = 230;
+		}
+		$this->chart = new pImage($this->options['width'], $this->options['height'], $this->DataSet);
+
+		/* Turn of Antialiasing */
+		$this->chart->Antialias = TRUE;
 		$this->chart->AntialiasQuality = 100;
-		$this->chart->setFontProperties($this->font,8);  
-		$this->chart->setGraphArea(50,30,680,200);  
+		/* Add a border to the picture */
+		//$this->chart->drawRectangle(0,0,699,229,array("R"=>0,"G"=>0,"B"=>0));
 
-		$this->chart->drawGraphArea(255,255,255,TRUE);
-		if(!isset($this->options['scale']) || empty($this->options['scale'])) {
-			$this->options['scale'] = SCALE_NORMAL;
+		/* Set the default font */
+		$this->chart->setFontProperties(array("FontName" => $this->font, "FontSize" => 8));
+
+		/* Define the chart area */
+		$this->chart->setGraphArea(50, 30, 680, 200);
+
+		/* Draw the scale */
+
+		$scaleSettings = array("GridR" => 150, "GridG" => 150, "GridB" => 150, "DrawSubTicks" => TRUE, "CycleBackground" => TRUE, 'Mode' => SCALE_MODE_FLOATING);
+
+		if(isset($this->options['scale']) && !empty($this->options['scale'])) {
+			switch($this->options['scale']) {
+				case SCALE_START0: $this->options['scale'] = SCALE_MODE_START0;
+					break;
+				case SCALE_ADDALL: $this->options['scale'] = SCALE_MODE_ADDALL;
+					break;
+				case SCALE_NORMAL: $this->options['scale'] = SCALE_MODE_FLOATING;
+					break;
+				default: break;
+			}
+			$scaleSettings['Mode'] = $this->options['scale'];
 		}
+		$this->chart->drawScale($scaleSettings);
 
-		$this->chart->drawScale($this->DataSet->GetData(),$this->DataSet->GetDataDescription(), $this->options['scale'], 150,150,150,TRUE,0,2,TRUE);     
-		$this->chart->drawGrid(4,TRUE,230,230,230,50);  
-		
-		// Draw the 0 line  
-		$this->chart->setFontProperties($this->font,6);  
-		$this->chart->drawTreshold(0,143,55,72,TRUE,TRUE);  
-		
-		// Draw the bar graph  
-		$this->chart->drawBarGraph($this->DataSet->GetData(),$this->DataSet->GetDataDescription(),TRUE);  
-		
-		// Finish the graph  
-		$this->chart->setFontProperties($this->font,8);
+		/* Write the chart legend */
 		if($this->options['noLegend'] == false) {
-			$this->chart->drawLegend(596,150,$this->DataSet->GetDataDescription(),255,255,255);  
+
+			$this->chart->drawLegend(596, 150, array("Style" => LEGEND_NOBORDER, "Mode" => LEGEND_VERTICAL));
 		}
+
+		/* Turn on shadow computing */
+		$this->chart->setShadow(TRUE, array("X" => 1, "Y" => 1, "R" => 0, "G" => 0, "B" => 0, "Alpha" => 10));
+
+		/* Draw the chart */
+		//$this->chart->setShadow(TRUE,array("X"=>1,"Y"=>1,"R"=>0,"G"=>0,"B"=>0,"Alpha"=>10));
+		//$settings = array("Gradient"=>TRUE,"GradientMode"=>GRADIENT_EFFECT_CAN,"DisplayPos"=>LABEL_POS_INSIDE,"DisplayValues"=>TRUE,"DisplayR"=>255,"DisplayG"=>255,"DisplayB"=>255,"DisplayShadow"=>TRUE,"Surrounding"=>10);
+		$this->chart->drawBarChart();
+
 		$this->imagename = $this->path.'chart_'.uniqid(rand(0, time())).'.png';
-		$this->chart->Render($this->imagename);
+
+		/* Render the picture (choose the best way) */
+		$this->chart->render($this->imagename);
 	}
-	
+
 	private function build_linechart() {
-		$this->DataSet = new pData;     
-		
-		$i = 1;
+		$this->DataSet = new pData();
+
 		foreach($this->data['y'] as $legend => $line) {
 			if(count($line) == 1) {
 				$line[0] = 0;
 			}
 			ksort($line);
-			$this->DataSet->AddPoint($line, 'Serie'.$i);
-			$this->DataSet->SetSerieName($legend,'Serie'.$i);
-			$this->DataSet->AddSerie('Serie'.$i);
-			$i++; 
+			$this->DataSet->addPoints($line, $legend);
 		}
-   		
+
+		$this->DataSet->setAxisName(0, $this->options['yaxisname']);
+		$this->DataSet->SetAxisUnit(0, $this->options['yaxisunit']);
+		$this->DataSet->setAxisName(1, $this->options['xaxisname']);
+
 		if(count($this->data['x']) == 1) {
 			$this->data['x'][0] = '';
 		}
 		ksort($this->data['x']);
-		$this->DataSet->AddPoint($this->data['x'], 'x');
-		$this->DataSet->SetAbsciseLabelSerie('x');     
-  
-		$this->DataSet->SetYAxisName($this->options['yaxisname']);
-		$this->DataSet->SetYAxisUnit($this->options['yaxisunit']);
-		$this->DataSet->SetXAxisName($this->options['xaxisname']); 
-  
-		/* Initialise the graph */
+		$this->DataSet->addPoints($this->data['x'], 'x');
+		$this->DataSet->setSerieDescription("x", $this->options['xaxisname']);
+		$this->DataSet->setAbscissa("x");
+
+		/* Create the pChart object */
 		if(!isset($this->options['width']) || empty($this->options['width'])) {
 			$this->options['width'] = 700;
 		}
-		
+
 		if(!isset($this->options['height']) || empty($this->options['height'])) {
 			$this->options['height'] = 250;
 		}
-		
-		$this->chart = new pChart($this->options['width'], $this->options['height']);
-		$this->chart->AntialiasQuality = 25;   
-		$this->chart->setFontProperties($this->font, 8);     
-		$this->chart->setGraphArea(70, 30, $this->options['width']-20,  $this->options['height']-20);     
-   
-		$this->chart->drawGraphArea(255, 255, 255, TRUE);
-		
+		$this->chart = new pImage($this->options['width'], $this->options['height'], $this->DataSet);
+
+		/* Turn of Antialiasing */
+		$this->chart->Antialias = TRUE;
+
+		/* Add a border to the picture */
+		//$this->chart->drawRectangle(0,0,$this->options['width']-20,$this->options['height']-20,array("R"=>0,"G"=>0,"B"=>0));
+
+		/* Write the chart title */
+		//$this->chart->setFontProperties(array("FontName"=>$this->font,"FontSize"=>11));
+		//$this->chart->drawText(150,35,"Average temperature",array("FontSize"=>20,"Align"=>TEXT_ALIGN_BOTTOMMIDDLE));
+
+		/* Set the default font */
+		$this->chart->setFontProperties(array("FontName" => $this->font, "FontSize" => 8));
+
+		/* Define the chart area */
+		$this->chart->setGraphArea(70, 30, $this->options['width'] - 20, $this->options['height'] - 20);
+
+		/* Draw the scale */
+		$scaleSettings = array("XMargin" => 10, "YMargin" => 10, "Floating" => TRUE, "GridR" => 150, "GridG" => 150, "GridB" => 150, "DrawSubTicks" => TRUE, "CycleBackground" => TRUE);
 		if(is_array($this->options['fixedscale']) && !empty($this->options['fixedscale'])) {
-			$this->chart->setFixedScale($this->options['fixedscale']['min'], $this->options['fixedscale']['max']);
+			$scaleSettings['ManualScale'] = array(0 => array("Min" => $this->options['fixedscale']['min'], "Max" => $this->options['fixedscale']['max']));
+		}
+		$this->chart->drawScale($scaleSettings);
+
+		/* Turn on Antialiasing */
+		$this->chart->Antialias = TRUE;
+
+		/* Draw the line chart */
+		$this->chart->drawLineChart();
+
+		/* Write a label */
+		if($this->options['writelabel'] == true) {
+			if(!isset($this->options['label_series'])) {
+				$this->options['label_series'] = array_keys($this->data['y']);
+			}
+			
+			if(isset($this->options['label_seriesindexes'])) {
+				$this->chart->writeLabel($this->options['label_series'], $this->options['label_seriesindexes'], array("DrawVerticalLine" => TRUE));	
+			}
 		}
 		
-		$this->chart->drawScale($this->DataSet->GetData(), $this->DataSet->GetDataDescription(), SCALE_NORMAL, 150, 150, 150, TRUE, 0, 2);     
-		$this->chart->drawGrid(4,TRUE,230,230,230,50);  
-		   
-		/*  Draw the 0 line   */  
-		$this->chart->setFontProperties($this->font,6);     
-		$this->chart->drawTreshold(0,143,55,72,TRUE,TRUE);     
-		   
-		/*  Draw the line graph    */ 
-		$this->chart->drawLineGraph($this->DataSet->GetData(),$this->DataSet->GetDataDescription());     
-		$this->chart->drawPlotGraph($this->DataSet->GetData(),$this->DataSet->GetDataDescription(),3,2,255,255,255);     
-		    
-		/*  Finish the graph   */     
-		$this->chart->setFontProperties($this->font,8);     
-		$this->chart->drawLegend(75,35,$this->DataSet->GetDataDescription(),255,255,255);         
-		
+		/* Write the chart legend */
+		$this->chart->drawLegend(75, 20, array("Style" => LEGEND_NOBORDER, "Mode" => LEGEND_HORIZONTAL));
+
 		$this->imagename = $this->path.'chart_'.uniqid(rand(0, time())).'.png';
-		$this->chart->Render($this->imagename);
+
+		/* Render the picture (choose the best way) */
+		$this->chart->render($this->imagename);
 	}
-	
+
+	public function build_stackedbar() {
+		$this->DataSet = new pData();
+
+		foreach($this->data['y'] as $legend => $series) {
+			$this->DataSet->addPoints($series, $legend);
+		}
+
+		$this->DataSet->setAxisName(0, $this->options['yaxisname']);
+		$this->DataSet->SetAxisUnit(0, $this->options['yaxisunit']);
+
+
+		ksort($this->data['x']);
+		$this->DataSet->addPoints($this->data['x'], 'x');
+		$this->DataSet->setSerieDescription('x', $this->options['xaxisname']);
+		$this->DataSet->setAbscissa('x');
+
+
+		/* Create the pChart object */
+		/* Create the pChart object */
+		if(!isset($this->options['width']) || empty($this->options['width'])) {
+			$this->options['width'] = 700;
+		}
+
+		if(!isset($this->options['height']) || empty($this->options['height'])) {
+			$this->options['height'] = 250;
+		}
+		$this->chart = new pImage($this->options['width'], $this->options['height'], $this->DataSet);
+		$this->chart->drawGradientArea(0, 0, 700, 230, DIRECTION_VERTICAL, array("StartR" => 240, "StartG" => 240, "StartB" => 240, "EndR" => 180, "EndG" => 180, "EndB" => 180, "Alpha" => 100));
+		$this->chart->drawGradientArea(0, 0, 700, 230, DIRECTION_HORIZONTAL, array("StartR" => 240, "StartG" => 240, "StartB" => 240, "EndR" => 180, "EndG" => 180, "EndB" => 180, "Alpha" => 20));
+
+		/* Set the default font properties */
+		$this->chart->setFontProperties(array("FontName" => $this->font, "FontSize" => 6));
+
+		/* Draw the scale and the chart */
+		$this->chart->setGraphArea(70, 30, $this->options['width'] - 20, $this->options['height'] - 20);
+		
+		$scale_settings = array("DrawSubTicks" => TRUE, "Mode" => SCALE_MODE_ADDALL_START0, "Pos" => SCALE_POS_LEFTRIGHT);
+		if($this->options['orientation'] == 'horizontal') {
+			$scale_settings['Pos'] = SCALE_POS_TOPBOTTOM;
+		}
+		
+		$this->chart->drawScale($scale_settings);
+		$this->chart->setShadow(FALSE);
+		$this->chart->drawStackedBarChart(array("Surrounding" => -15, "InnerSurrounding" => 15, "DisplayValues"=>1));
+
+		/* Write a label */
+		if($this->options['writelabel'] == true) {
+			if(!isset($this->options['label_series'])) {
+				$this->options['label_series'] = array_keys($this->data['y']);
+			}
+			
+			if(isset($this->options['label_seriesindexes'])) {
+				$this->chart->writeLabel($this->options['label_series'], $this->options['label_seriesindexes'], array("DrawVerticalLine" => TRUE));	
+			}
+		}
+		
+		/* Write the chart legend */
+		$this->chart->drawLegend(75, 210, array("Style" => LEGEND_NOBORDER, "Mode" => LEGEND_HORIZONTAL));
+
+		$this->imagename = $this->path.'chart_'.uniqid(rand(0, time())).'.png';
+
+		/* Render the picture (choose the best way) */
+		$this->chart->render($this->imagename);
+	}
+
 	public function get_chart() {
 		return $this->imagename;
 	}
-	
+
 	private function normalizedata(array $array = array(), $values_index = '', $titles_index = '') {
 		if(empty($array)) {
 			$array = $this->data;
 		}
-				
+
 		if(isset($values_index) && !empty($values_index)) {
 			ksort($array[$values_index]);
 			$values_tocheck = $array[$values_index];
 			$newarray_tofill = &$new_array[$values_index];
 		}
-		else
-		{
+		else {
 			ksort($array);
 			$values_tocheck = $array;
 			$newarray_tofill = &$new_array;
 		}
-			$i = 0;
-			foreach($values_tocheck as $key => $val) {
-				if(is_array($val)) {
-					$val = $this->normalizedata($val);
-				}
-				$newarray_tofill[$i] = $val;
-				$i++;
+		$i = 0;
+		foreach($values_tocheck as $key => $val) {
+			if(is_array($val)) {
+				$val = $this->normalizedata($val);
 			}
+			$newarray_tofill[$i] = $val;
+			$i++;
+		}
 
-		
+
 		if(isset($titles_index) && !empty($titles_index)) {
 			$i = 0;
 			foreach($array[$titles_index] as $key => $val) {
@@ -224,14 +351,14 @@ class Charts {
 		}
 		return $new_array;
 	}
-	
+
 	private function array_replace_keys(array $array) {
 		arsort($array['values']);
 
 		$i = 0;
 		foreach($array['values'] as $key => $val) {
 			$new_array['values'][$i] = $val;
-			if(isset($array['titles'])){
+			if(isset($array['titles'])) {
 				$new_array['titles'][$i] = $array['titles'][$key];
 			}
 			$i++;
@@ -239,28 +366,29 @@ class Charts {
 
 		return $new_array;
 	}
-	
+
 	private function remove_values_spaces() {
 		foreach($this->data['values'] as $key => $val) {
 			$this->data['values'][$key] = str_replace(' ', '', strval($val));
 		}
 	}
-	
+
 	private function clean_oldcharts() {
 		global $core;
 
 		if(is_dir($this->path)) {
 			$dir = opendir($this->path);
-			while (false !== ($file = readdir($dir))) {
-				if ($file != '.' && $file != '..') {
-					if(time() - filemtime($this->path.$file) > (60*$core->settings['idletime'])) {
+			while(false !== ($file = readdir($dir))) {
+				if($file != '.' && $file != '..') {
+					if(TIME_NOW - filemtime($this->path.$file) > (60 * $core->settings['idletime'])) {
 						@unlink($this->path.$file);
-					} 
+					}
 				}
 			}
 			closedir($dir);
 			clearstatcache();
 		}
 	}
+
 }
 ?>
