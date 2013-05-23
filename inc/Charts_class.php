@@ -8,10 +8,10 @@
  * Last Update: @zaher.reda 	July 11, 2012 | 09:53 AM
  */
 
-include("pChart/class/pData.class.php");
-include("pChart/class/pDraw.class.php");
-include("pChart/class/pPie.class.php");
-include("pChart/class/pImage.class.php");
+include('pChart/class/pData.class.php');
+include('pChart/class/pDraw.class.php');
+include('pChart/class/pPie.class.php');
+include('pChart/class/pImage.class.php');
 
 class Charts {
 	private $data = array();
@@ -52,26 +52,26 @@ class Charts {
 		$this->DataSet->setSerieDescription('Values', 'Values');
 
 		/* Define the absissa serie */
-		$this->DataSet->setAbscissa("Labels");
+		$this->DataSet->setAbscissa('Labels');
 
 		/* Create the pChart object */
 		$this->chart = new pImage(450, 200, $this->DataSet, TRUE);
 		$this->chart->AntialiasQuality = 20;
 		/* Set the default font properties */
-		$this->chart->setFontProperties(array("FontName" => $this->font, "FontSize" => 10, "R" => 80, "G" => 80, "B" => 80));
+		$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 10, 'R' => 80, 'G' => 80, 'B' => 80));
 
 		/* Create the pPie object */
 		$PieChart = new pPie($this->chart, $this->DataSet);
 
 		/* Enable shadow computing */
-		$this->chart->setShadow(TRUE, array("X" => 3, "Y" => 3, "R" => 0, "G" => 0, "B" => 0, "Alpha" => 10));
+		$this->chart->setShadow(TRUE, array('X' => 3, 'Y' => 3, 'R' => 0, 'G' => 0, 'B' => 0, 'Alpha' => 10));
 
 		/* Draw a splitted pie chart */
-		$PieChart->draw3DPie(170, 90, array("Radius" => 100, "DataGapAngle" => 12, "DataGapRadius" => 10, "Border" => TRUE, "DrawLabels" => TRUE));
+		$PieChart->draw3DPie(170, 90, array('Radius' => 100, 'DataGapAngle' => 12, 'DataGapRadius' => 10, 'Border' => TRUE, 'DrawLabels' => TRUE));
 
 		/* Write the legend box */
-		$this->chart->setFontProperties(array("FontName" => $this->font, "FontSize" => 7, "R" => 0, "G" => 0, "B" => 0));
-		$PieChart->drawPieLegend(330, 15, array("Style" => LEGEND_NOBORDER, "Mode" => LEGEND_VERTICAL));
+		$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 7, 'R' => 0, 'G' => 0, 'B' => 0));
+		$PieChart->drawPieLegend(330, 15, array('Style' => LEGEND_NOBORDER, 'Mode' => LEGEND_VERTICAL));
 
 		$this->imagename = $this->path.'chart_'.uniqid(rand(0, time())).'.png';
 
@@ -119,18 +119,16 @@ class Charts {
 		/* Turn of Antialiasing */
 		$this->chart->Antialias = TRUE;
 		$this->chart->AntialiasQuality = 100;
-		/* Add a border to the picture */
-		//$this->chart->drawRectangle(0,0,699,229,array("R"=>0,"G"=>0,"B"=>0));
 
 		/* Set the default font */
-		$this->chart->setFontProperties(array("FontName" => $this->font, "FontSize" => 8));
+		$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 8));
 
 		/* Define the chart area */
 		$this->chart->setGraphArea(50, 30, 680, 200);
 
 		/* Draw the scale */
 
-		$scaleSettings = array("GridR" => 150, "GridG" => 150, "GridB" => 150, "DrawSubTicks" => TRUE, "CycleBackground" => TRUE, 'Mode' => SCALE_MODE_FLOATING);
+		$scaleSettings = array('GridR' => 150, 'GridG' => 150, 'GridB' => 150, 'DrawSubTicks' => TRUE, 'CycleBackground' => TRUE, 'Mode' => SCALE_MODE_FLOATING);
 
 		if(isset($this->options['scale']) && !empty($this->options['scale'])) {
 			switch($this->options['scale']) {
@@ -149,11 +147,11 @@ class Charts {
 		/* Write the chart legend */
 		if($this->options['noLegend'] == false) {
 
-			$this->chart->drawLegend(596, 150, array("Style" => LEGEND_NOBORDER, "Mode" => LEGEND_VERTICAL));
+			$this->chart->drawLegend(596, 150, array('Style' => LEGEND_NOBORDER, 'Mode' => LEGEND_VERTICAL));
 		}
 
 		/* Turn on shadow computing */
-		$this->chart->setShadow(TRUE, array("X" => 1, "Y" => 1, "R" => 0, "G" => 0, "B" => 0, "Alpha" => 10));
+		$this->chart->setShadow(TRUE, array('X' => 1, 'Y' => 1, 'R' => 0, 'G' => 0, 'B' => 0, 'Alpha' => 10));
 
 		/* Draw the chart */
 		//$this->chart->setShadow(TRUE,array("X"=>1,"Y"=>1,"R"=>0,"G"=>0,"B"=>0,"Alpha"=>10));
@@ -186,8 +184,8 @@ class Charts {
 		}
 		ksort($this->data['x']);
 		$this->DataSet->addPoints($this->data['x'], 'x');
-		$this->DataSet->setSerieDescription("x", $this->options['xaxisname']);
-		$this->DataSet->setAbscissa("x");
+		$this->DataSet->setSerieDescription('x', $this->options['xaxisname']);
+		$this->DataSet->setAbscissa('x');
 
 		/* Create the pChart object */
 		if(!isset($this->options['width']) || empty($this->options['width'])) {
@@ -202,23 +200,22 @@ class Charts {
 		/* Turn of Antialiasing */
 		$this->chart->Antialias = TRUE;
 
-		/* Add a border to the picture */
-		//$this->chart->drawRectangle(0,0,$this->options['width']-20,$this->options['height']-20,array("R"=>0,"G"=>0,"B"=>0));
-
 		/* Write the chart title */
-		//$this->chart->setFontProperties(array("FontName"=>$this->font,"FontSize"=>11));
-		//$this->chart->drawText(150,35,"Average temperature",array("FontSize"=>20,"Align"=>TEXT_ALIGN_BOTTOMMIDDLE));
+		if(isset($this->options['title']) && !empty($this->options['title'])) {
+			$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 11));
+			$this->chart->drawText(150, 35, $this->options['title'], array('FontSize' => 20, 'Align' => TEXT_ALIGN_BOTTOMMIDDLE));
+		}
 
 		/* Set the default font */
-		$this->chart->setFontProperties(array("FontName" => $this->font, "FontSize" => 8));
+		$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 8));
 
 		/* Define the chart area */
 		$this->chart->setGraphArea(70, 30, $this->options['width'] - 20, $this->options['height'] - 20);
 
 		/* Draw the scale */
-		$scaleSettings = array("XMargin" => 10, "YMargin" => 10, "Floating" => TRUE, "GridR" => 150, "GridG" => 150, "GridB" => 150, "DrawSubTicks" => TRUE, "CycleBackground" => TRUE);
+		$scaleSettings = array('XMargin' => 10, 'YMargin' => 10, 'Floating' => TRUE, 'GridR' => 150, 'GridG' => 150, 'GridB' => 150, 'DrawSubTicks' => TRUE, 'CycleBackground' => TRUE);
 		if(is_array($this->options['fixedscale']) && !empty($this->options['fixedscale'])) {
-			$scaleSettings['ManualScale'] = array(0 => array("Min" => $this->options['fixedscale']['min'], "Max" => $this->options['fixedscale']['max']));
+			$scaleSettings['ManualScale'] = array(0 => array('Min' => $this->options['fixedscale']['min'], 'Max' => $this->options['fixedscale']['max']));
 		}
 		$this->chart->drawScale($scaleSettings);
 
@@ -233,14 +230,14 @@ class Charts {
 			if(!isset($this->options['label_series'])) {
 				$this->options['label_series'] = array_keys($this->data['y']);
 			}
-			
+
 			if(isset($this->options['label_seriesindexes'])) {
-				$this->chart->writeLabel($this->options['label_series'], $this->options['label_seriesindexes'], array("DrawVerticalLine" => TRUE));	
+				$this->chart->writeLabel($this->options['label_series'], $this->options['label_seriesindexes'], array("DrawVerticalLine" => TRUE));
 			}
 		}
-		
+
 		/* Write the chart legend */
-		$this->chart->drawLegend(75, 20, array("Style" => LEGEND_NOBORDER, "Mode" => LEGEND_HORIZONTAL));
+		$this->chart->drawLegend(75, 20, array('Style' => LEGEND_NOBORDER, 'Mode' => LEGEND_HORIZONTAL));
 
 		$this->imagename = $this->path.'chart_'.uniqid(rand(0, time())).'.png';
 
@@ -275,37 +272,37 @@ class Charts {
 			$this->options['height'] = 250;
 		}
 		$this->chart = new pImage($this->options['width'], $this->options['height'], $this->DataSet);
-		$this->chart->drawGradientArea(0, 0, 700, 230, DIRECTION_VERTICAL, array("StartR" => 240, "StartG" => 240, "StartB" => 240, "EndR" => 180, "EndG" => 180, "EndB" => 180, "Alpha" => 100));
-		$this->chart->drawGradientArea(0, 0, 700, 230, DIRECTION_HORIZONTAL, array("StartR" => 240, "StartG" => 240, "StartB" => 240, "EndR" => 180, "EndG" => 180, "EndB" => 180, "Alpha" => 20));
+		$this->chart->drawGradientArea(0, 0, 700, 230, DIRECTION_VERTICAL, array('StartR' => 240, 'StartG' => 240, 'StartB' => 240, 'EndR' => 180, 'EndG' => 180, 'EndB' => 180, 'Alpha' => 100));
+		$this->chart->drawGradientArea(0, 0, 700, 230, DIRECTION_HORIZONTAL, array('StartR' => 240, 'StartG' => 240, 'StartB' => 240, 'EndR' => 180, 'EndG' => 180, 'EndB' => 180, 'Alpha' => 20));
 
 		/* Set the default font properties */
-		$this->chart->setFontProperties(array("FontName" => $this->font, "FontSize" => 6));
+		$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 6));
 
 		/* Draw the scale and the chart */
 		$this->chart->setGraphArea(70, 30, $this->options['width'] - 20, $this->options['height'] - 20);
-		
-		$scale_settings = array("DrawSubTicks" => TRUE, "Mode" => SCALE_MODE_ADDALL_START0, "Pos" => SCALE_POS_LEFTRIGHT);
+
+		$scale_settings = array('DrawSubTicks' => TRUE, 'Mode' => SCALE_MODE_ADDALL_START0, 'Pos' => SCALE_POS_LEFTRIGHT);
 		if($this->options['orientation'] == 'horizontal') {
 			$scale_settings['Pos'] = SCALE_POS_TOPBOTTOM;
 		}
-		
+
 		$this->chart->drawScale($scale_settings);
 		$this->chart->setShadow(FALSE);
-		$this->chart->drawStackedBarChart(array("Surrounding" => -15, "InnerSurrounding" => 15, "DisplayValues"=>1));
+		$this->chart->drawStackedBarChart(array('Surrounding' => -15, 'InnerSurrounding' => 15, 'DisplayValues' => 1));
 
 		/* Write a label */
 		if($this->options['writelabel'] == true) {
 			if(!isset($this->options['label_series'])) {
 				$this->options['label_series'] = array_keys($this->data['y']);
 			}
-			
+
 			if(isset($this->options['label_seriesindexes'])) {
-				$this->chart->writeLabel($this->options['label_series'], $this->options['label_seriesindexes'], array("DrawVerticalLine" => TRUE));	
+				$this->chart->writeLabel($this->options['label_series'], $this->options['label_seriesindexes'], array("DrawVerticalLine" => TRUE));
 			}
 		}
-		
+
 		/* Write the chart legend */
-		$this->chart->drawLegend(75, 210, array("Style" => LEGEND_NOBORDER, "Mode" => LEGEND_HORIZONTAL));
+		$this->chart->drawLegend(75, 210, array('Style' => LEGEND_NOBORDER, 'Mode' => LEGEND_HORIZONTAL));
 
 		$this->imagename = $this->path.'chart_'.uniqid(rand(0, time())).'.png';
 
