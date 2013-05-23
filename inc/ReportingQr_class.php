@@ -515,15 +515,6 @@ class ReportingQr Extends Reporting {
 		return $this->report['productssegments'];
 	}
 
-	private static function create_salt() {
-		if(function_exists('random_string')) {
-			return random_string(10);
-		}
-		else {
-			return self::random_string(10);
-		}
-	}
-
 	private static function create_loginkey() {
 		if(function_exists('random_string')) {
 			return random_string(40);
@@ -536,17 +527,16 @@ class ReportingQr Extends Reporting {
 	public function create_recipients($rpid,$identifier) {
 		global $db;
 		$password = Accounts::generate_password_string(10);
-		$salt = $this->create_salt();
+		$salt = random_string(10);
 		$loginKey = $this->create_loginkey();
 		$token = md5(uniqid(microtime(), true));
 		$recipient_data = array('reportIdentifier' => $identifier,
 				'rpid' => $rpid,
 				'token' => $token,
 				'loginKey' => $loginKey,
-				'password' => $password,
+				'password' => base64_encode($password.$salt),
 				'salt' => $salt
 		);
-	
 		$query = $db->insert_query('reporting_qrrecipients', $recipient_data);
 		if($query) {
 			return true;
@@ -558,7 +548,7 @@ class ReportingQr Extends Reporting {
 
 	public function get_recipient($rpid) {
 		global $db; 
-		if(is_array($id)) {
+		if(is_array($rpid)) {
 			$recipients_query = $db->query("SELECT * FROM ".Tprefix."reporting_qrrecipients rq JOIN ".Tprefix."entitiesrepresentatives er ON(er.rpid=rq.rpid)
 				JOIN ".Tprefix."representatives r ON(r.rpid=rq.rpid)
 				WHERE rq.rpid in(".implode(',',$rpid).")");

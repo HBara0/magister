@@ -170,6 +170,7 @@ else {
 					foreach($recipient as $rcid => $recipentdata) {
 						$previewreport_link = '';
 						$body_message = '';
+						$recipentdata['password']= str_replace($recipentdata['salt'],'',base64_decode($recipentdata['password']));
 						$previewreport_link[$rcid] = 'http://www.orkila.com/reporting/preview&reportidentifier='.$recipentdata['reportidentifier'].'&token='.$recipentdata['token'].'';
 						$body_message[$rcid] = '<br>'.$previewreport_link[$rcid].' <br>Your new  passowrd is:"'.$recipentdata['password'].'"<br>';
 						$recipientemail_data[$rcid] = array(
