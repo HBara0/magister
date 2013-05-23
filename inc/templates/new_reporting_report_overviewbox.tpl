@@ -42,4 +42,5 @@
  </tr>
  <tr><td colspan="14" class='smalltext' style='color: #acacac; font-style: italic; text-align: right; padding-right: 5px;'>{$categories_uom[$category]}</td></tr>
 </table>
+{$reporting_report_newoverviewbox_chart}
 <br />

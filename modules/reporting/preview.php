@@ -290,10 +290,12 @@ if(!$core->input['action']) {
 									$item_rounding = $default_rounding;
 								}
 								$boxes_totals_output['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ');
+							
+								/* Store stacked bar chart data */
+								$report_charts_data[$aggregate_type][$category]['actual']['y']['Q'.$quarter][$year] = $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter];
 							}
 						}
 						//$item[$aggregate_type][$category]['actual'][$year][$quarter] = msort($item[$aggregate_type][$category]['actual'], array('quarter'));
-
 						eval("\$reporting_report_newoverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_overviewbox_row')."\";");
 					}
 					if(is_array($reporting_report_newoverviewbox_row[$aggregate_type][$category])) {
@@ -301,9 +303,17 @@ if(!$core->input['action']) {
 					}
 
 					$lang->$category = $lang->{(strtolower($category))};
+					
+					/* Generate Chart */
+					if($aggregate_type == 'affiliates') {
+						$overviewbox_chart = new Charts(array('x' => $report_years, 'y' => $report_charts_data[$aggregate_type][$category]['actual']['y']), 'stackedbar');
+						$reporting_report_newoverviewbox_chart = '<img src="'.$overviewbox_chart->get_chart().'" />';
+					}
 					eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
+					$reporting_report_newoverviewbox_chart = '';
 				}
 			}
+			$report_charts_data['segments'] = $report_charts_data['products'] = array();
 			$item = $boxes_totals['mainbox']['segments'] = $boxes_totals['mainbox']['products'] = array();
 		}
 		$item = array();
