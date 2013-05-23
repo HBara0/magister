@@ -567,25 +567,18 @@ if(!$core->input['action']) {
 					}
 				}
 				$fxratespage_tablehead .= '</tr>';
-				$currency_rates_year = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'], array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR'); /* GET the fxrate of previous quarter year */
+
+				$currency_rates_year = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'], array('distinct_by' => 'alphaCode', 'precision' => 4, 'monthasname' => true), 'EUR'); /* GET the fxrate of previous quarter year */
 				if($report['year'] == $reporting_quarter['year']) {
 					$currency_rates_year = array_slice($currency_rates_year, 0, date('n', TIME_NOW));
 				}
-				$currency_rates_prevyear = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR');
-				if(is_array($currency_rates_prevyear)) {
-					$fxrates_linechart_scale['min'] = min($currency_rates_prevyear);
-					if(min($currency_rates_year) < min($currency_rates_prevyear) && min($currency_rates_year) != 0) {
-						$fxrates_linechart_scale['min'] = min($currency_rates_year);
-					}
+				
+				$overyears_rates = $currency->get_yearaverage_fxrate_yearbased('USD', 2005, $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR');
+				$overyears_rates = $overyears_rates + $currency_rates_year;
+				
+				$fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 EUR' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'width' => 700, 'height' => 200, 'writelabel' => true));
+				$fx_rates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_linechart->get_chart().'" /></td></tr>';
 
-					$fxrates_linechart_scale['max'] = max($currency_rates_prevyear);
-					if(max($currency_rates_year) > max($currency_rates_prevyear)) {
-						$fxrates_linechart_scale['max'] = max($currency_rates_year);
-					}
-
-					$fxrates_linechart = new Charts(array('x' => array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), 'y' => array($report['year'] => $currency_rates_year, ($report['year'] - 1) => $currency_rates_prevyear)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'fixedscale' => $fxrates_linechart_scale, 'width' => 700, 'height' => 200));
-					$fx_rates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_linechart->get_chart().'" /></td></tr>';
-				}
 				if(!empty($fx_rates_entries)) {
 					eval("\$fxratespage = \"".$template->get('reporting_report_fxrates')."\";");
 				}
