@@ -171,7 +171,8 @@ class Charts {
 			if(count($line) == 1) {
 				$line[0] = 0;
 			}
-			ksort($line);
+			
+			//ksort($line);
 			$this->DataSet->addPoints($line, $legend);
 		}
 
@@ -230,7 +231,7 @@ class Charts {
 			if(!isset($this->options['label_series'])) {
 				$this->options['label_series'] = array_keys($this->data['y']);
 			}
-
+		
 			if(isset($this->options['label_seriesindexes'])) {
 				$this->chart->writeLabel($this->options['label_series'], $this->options['label_seriesindexes'], array("DrawVerticalLine" => TRUE));
 			}
@@ -254,9 +255,8 @@ class Charts {
 
 		$this->DataSet->setAxisName(0, $this->options['yaxisname']);
 		$this->DataSet->SetAxisUnit(0, $this->options['yaxisunit']);
-
-
-		ksort($this->data['x']);
+		
+		//ksort($this->data['x']);
 		$this->DataSet->addPoints($this->data['x'], 'x');
 		$this->DataSet->setSerieDescription('x', $this->options['xaxisname']);
 		$this->DataSet->setAbscissa('x');
@@ -272,9 +272,7 @@ class Charts {
 			$this->options['height'] = 250;
 		}
 		$this->chart = new pImage($this->options['width'], $this->options['height'], $this->DataSet);
-		$this->chart->drawGradientArea(0, 0, 700, 230, DIRECTION_VERTICAL, array('StartR' => 240, 'StartG' => 240, 'StartB' => 240, 'EndR' => 180, 'EndG' => 180, 'EndB' => 180, 'Alpha' => 100));
-		$this->chart->drawGradientArea(0, 0, 700, 230, DIRECTION_HORIZONTAL, array('StartR' => 240, 'StartG' => 240, 'StartB' => 240, 'EndR' => 180, 'EndG' => 180, 'EndB' => 180, 'Alpha' => 20));
-
+		
 		/* Set the default font properties */
 		$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 6));
 
@@ -288,7 +286,11 @@ class Charts {
 
 		$this->chart->drawScale($scale_settings);
 		$this->chart->setShadow(FALSE);
-		$this->chart->drawStackedBarChart(array('Surrounding' => -15, 'InnerSurrounding' => 15, 'DisplayValues' => 1));
+		$stackbar_settings = array('Surrounding' => -15, 'InnerSurrounding' => 15, 'DisplayValues' => 1);
+		if($this->options['displayvalues'] == false) {
+			$stackbar_settings['DisplayValues'] = 0;
+		}
+		$this->chart->drawStackedBarChart($stackbar_settings);
 
 		/* Write a label */
 		if($this->options['writelabel'] == true) {
@@ -302,7 +304,7 @@ class Charts {
 		}
 
 		/* Write the chart legend */
-		$this->chart->drawLegend(75, 210, array('Style' => LEGEND_NOBORDER, 'Mode' => LEGEND_HORIZONTAL));
+		$this->chart->drawLegend(75, 20, array('Style' => LEGEND_NOBORDER, 'Mode' => LEGEND_HORIZONTAL));
 
 		$this->imagename = $this->path.'chart_'.uniqid(rand(0, time())).'.png';
 
