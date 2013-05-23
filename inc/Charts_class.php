@@ -17,7 +17,7 @@ class Charts {
 	private $data = array();
 	private $options = array();
 	//protected $chart = '';
-	private $path = './images/charts/';
+	private $path = './tmp/charts/';
 	private $font = 'arial.ttf';
 	private $fonts_dir = 'fonts/';
 
@@ -376,8 +376,9 @@ class Charts {
 		if(is_dir($this->path)) {
 			$dir = opendir($this->path);
 			while(false !== ($file = readdir($dir))) {
-				if($file != '.' && $file != '..') {
-					if(TIME_NOW - filemtime($this->path.$file) > (60 * $core->settings['idletime'])) {
+				$file_info = pathinfo($this->path.'/'.$file);
+				if($file != '.' && $file != '..' && $file_info['extension'] == 'png') {
+					if(TIME_NOW - filemtime($this->path.$file) > (60 * 60)) {
 						@unlink($this->path.$file);
 					}
 				}
