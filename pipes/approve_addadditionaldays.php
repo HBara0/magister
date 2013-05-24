@@ -9,7 +9,6 @@
  * Last Update:    @tony.assaad    Apr 26, 2013 | 2:43:16 PM
  */
 
-
 $dir = dirname(dirname(__FILE__)).'/';
 if(!$dir) {
 	$dir = '..';
@@ -23,7 +22,7 @@ $lang = new Language('english');
 $lang->load('attendance_messages');
 $ignore_subject = false;
 if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject)) {
-	/* Check if reply is possiblity auto-responder */
+	/* Check if reply is possibly auto-responder */
 	if(strstr(strtolower($data['subject']), 'auto')) {
 		exit;
 	}
@@ -33,9 +32,10 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject)) {
 
 	$adddays_data = $attendanceadddays->get();
 
-	$attendanceadddays->approve($request_key, $adddays_data['uid'], $data['from']);
+	$attendanceadddays->approve($data['from']);
 
-//notify approve user
-	$attendanceadddays->notifyapprove($request_key, $adddays_data['uid']);
+	//notify approve user
+	$attendanceadddays->update_leavestats();
+	$attendanceadddays->notifyapprove();
 }
 ?>

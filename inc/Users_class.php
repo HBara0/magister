@@ -32,7 +32,7 @@ class Users {
 			$uid = $this->user['uid'];
 		}
 
-		$query_select = 'uid, username, reportsTo,firstName, middleName, lastName, displayName,email';
+		$query_select = 'uid, username, reportsTo, firstName, middleName, lastName, displayName, email';
 		if($simple == false) {
 			$query_select = '*';
 		}
@@ -61,7 +61,7 @@ class Users {
 
 	public function get_reportingto() {
 		global $db;
-		$reportsquery = $db->query("SELECT DISTINCT(uid), reportsTo,username, firstName, middleName, lastName, displayName FROM ".Tprefix."users 
+		$reportsquery = $db->query("SELECT DISTINCT(uid), reportsTo, username, firstName, middleName, lastName, displayName FROM ".Tprefix."users 
 			 WHERE reportsTo={$this->user[uid]}");
 		while($reporting = $db->fetch_assoc($reportsquery)) {
 			$this->user['reportingTo'][] = $reporting;
@@ -75,7 +75,7 @@ class Users {
 																			WHERE uid ={$this->user[uid]}"));
 	}
 
-	public function canHr($options = '') {
+	public function can_hr($options = '') {
 		global $db, $core, $user;
 		if(!empty($options) && ($options == 'inaffiliate')) {
 			$affiliate_where = 'AND affe.affid IN ('.implode(',', $core->user['hraffids']).')';
