@@ -67,7 +67,6 @@ class AttendanceAddDays Extends Attendance {
 				'addedBy' => $core->user['uid'],
 				'isApproved' => $this->data['isApproved'],
 				'remark' => $core->sanitize_inputs($this->data['remark']),
-				'correspondToDate' => intval($this->data['correspondToDate']),
 				'uid' => $uid		
 		);
 

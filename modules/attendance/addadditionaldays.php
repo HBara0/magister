@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: addadditionaldays.php
  * Created:        @tony.assaad    Apr 22, 2013 | 4:28:35 PM
@@ -43,29 +43,42 @@ if(!$core->input['action']) {
 }
 else {
 	if($core->input['action'] == 'do_addadditionaldays') {
+		$error_handler = new ErrorHandler();
 		if(is_array($core->input['AttendanceAddDays']['uid'])) {
 			foreach($core->input['AttendanceAddDays']['uid'] as $uid) { /* for a single user call the object and the function therefore */
+				unset($usererror, $record_usererror);
+				$outputerror = '';
+
+				$useralreadyrequested = $lang->useralreadyrequested.' , ';
+				$lang->useralreadyrequested = '';
 				$newid = $attendance->request($uid, $core->input['AttendanceAddDays']);
 
 				switch($attendance->get_status()) {
 					case 0:
+		
 						$new_adddays = new AttendanceAddDays(array('adid' => $newid));
 						$new_adddays->notify_request();
-						//output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
 						break;
 					case 1:
+						$useralreadyrequested = '';
 						//Record Error
-						//output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+						$error_handler->record('fillallrequiredfields', '');
 						break;
 					case 2:
 						//Record Error
-						//output_xml("<status>false</status><message>{$lang->requestexist}</message>");
+						$user = new Users($uid);
+						$erroruser = $user->get();
+						$error_handler->record('requestintersectsleave', $erroruser['displayName']);
 						break;
 				}
 			}
-
-			//Output errors
-			output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+			$errors = $error_handler->get_errors_inline();
+			if(isset($errors)) {
+				output_xml('<status>false</status><message>'.$errors.'</message>');
+			}
+			else {
+				output_xml("<status>true</status><message>{$successfullysaved}</message>");
+			}
 		}
 		else {
 			output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
