@@ -133,16 +133,20 @@ Your {2} between {3} and {4} was revoked.<br />
 <br />
 <br />
 Regards';
-$lang['requestexist']='A request with the same date already exist';
+
 $lang['revokeleavenotificationsubject'] = '{1} revoked their {2}';
 $lang['revokeleavenotificationsubjectuser'] = 'Your {1} was revoked';
 
-$lang['adddaysnotificationmessage'] = '{1} requested additional days ';
+$lang['adddaysnotificationsubject'] = '{1} requested additional holiday days [{2}]';
+$lang['adddaysrequestapproval']= '{1} requested the following additional holiday days:<br/>
+Number of days: {2}
+<br />
+Corresponding date: {3}
+<br />
+Justification: {4}
+';
 
-$lang['adddaysnotificationsubject'] = ' requested approval additional holiday days';
-$lang['adddaysrequestaproval']=' request approval for the following additional holiday days <br/>';
-
-$lang['additionadaysapprovedsubject']='your request for additional days was approved!';
+$lang['additionadaysapprovedsubject']= 'Your request for additional days was approved!';
 
 $lang['adddaysapprovedmessage'] = 'Dear {1},<br />
 <br />

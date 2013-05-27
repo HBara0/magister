@@ -2,7 +2,7 @@
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
  * 
- * [Provide Short Descption Here]
+ * Additional Days Class
  * $id: AttendanceAddDays_class.php
  * Created:        @tony.assaad    Apr 23, 2013 | 2:18:23 PM
  * Last Update:    @tony.assaad    Apr 24, 2013 | 2:18:23 PM
@@ -88,10 +88,9 @@ class AttendanceAddDays Extends Attendance {
 		}
 	}
 
-	public function check_existingrequest($uids, $date) {
+	public function check_existingrequest($uid, $date) {
 		global $db;
-		$query = $db->query("SELECT uid FROM ".Tprefix."attendance_additionalleaves WHERE uid =('".( $uids)."')
-							AND date='".$db->escape_string($date)."' ");
+		$query = $db->query("SELECT uid FROM ".Tprefix."attendance_additionalleaves WHERE uid='".intval($uid)."' AND date='".$db->escape_string($date)."'");
 		if($db->num_rows($query) > 0) {
 			return true;
 		}
@@ -101,8 +100,7 @@ class AttendanceAddDays Extends Attendance {
 	}
 
 	public function can_apporve($reporttofromemail) {
-		global $core;
-		/* /* if  from email= email of reportto to this user */
+		/* if  from email= email of reportto to this user */
 		$user = new Users($this->additionaldays['uid']);
 		$reporttsto = $user->get_reportsto()->get();
 		if($reporttsto['email'] == $reporttofromemail) {
@@ -121,17 +119,15 @@ class AttendanceAddDays Extends Attendance {
 			$requester = $user->get();
 			$reportsto = $user->get_reportsto()->get();
 
-			$body_message = '';
 			if(is_array($reportsto)) {
 				$this->additionaldays['date_output'] = date($core->settings['dateformat'], $this->additionaldays['date']);
-				$body_message = $requester['displayName'].$lang->adddaysrequestaproval.'<br/>'.$lang->additionaldays.':'.$this->additionaldays['numDays'].' '.$lang->days.'<br/>'.$lang->correspondtoperiod.': '.$this->additionaldays['date_output']
-						.'<br/>'.$lang->justification.': '.$this->additionaldays['remark'];
+
 				$email_data = array(
-						'from_email' => 'approve_requestadddays@sandbox.ocos.orkila.com',
+						'from_email' => 'approve_requestadddays@ocos.orkila.com',
 						'from' => 'Orkila Attendance System',
 						'to' => $reportsto['email'],
-						'subject' => $requester['displayName'].$lang->adddaysnotificationsubject.'['.$this->additionaldays['identifier'].']',
-						'message' => $body_message
+						'subject' => $lang->sprint($lang->adddaysnotificationsubject, $requester['displayName'], $this->additionaldays['identifier']),
+						'message' => $lang->sprint($lang->adddaysrequestapproval, $requester['displayName'], $this->additionaldays['numDays'], $this->additionaldays['date_output'], $this->additionaldays['remark'])
 				);
 				
 				$mail = new Mailer($email_data, 'php');
@@ -144,17 +140,16 @@ class AttendanceAddDays Extends Attendance {
 
 	public function notifyapprove() {
 		global $db, $lang, $log;
-		//if(value_exists('attendance_additionalleaves', 'isApproved', 1, 'identifier="'.$this->additionaldays['identifier'].'"')) {
 		if($this->additionaldays['isApproved'] == 1) {
 			$user = new Users($this->additionaldays['uid']);
 			$requester_details = $user->get();
-			$lang->adddaysrequestaproval = $lang->sprint($lang->adddaysapprovedmessage, $requester_details['displayName'], $this->additionaldays['numDays']);
+			$lang->adddaysapprovedmessage = $lang->sprint($lang->adddaysapprovedmessage, $requester_details['displayName'], $this->additionaldays['numDays']);
 			$email_data = array(
 					'from_email' => 'attendance@ocos.orkila.com',
 					'from' => 'Orkila Attendance System',
 					'to' => $requester_details['email'],
 					'subject' => $lang->additionadaysapprovedsubject,
-					'message' => $lang->adddaysrequestaproval
+					'message' => $lang->adddaysapprovedmessage
 			);
 			$mail = new Mailer($email_data, 'php');
 			if($mail->get_status() === true) {
