@@ -31,7 +31,7 @@
                 <div style="display:table-row">
                     <div style="display:table-cell;"id="perform_sourcing/matchproducts_Results"></div>
                 </div>
-            </form>
+            </form> 
         </td>
 
 
