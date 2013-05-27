@@ -11,7 +11,8 @@
 
 class Users {
 	private $user = array();
-
+	private $errorcode = 0;
+	
 	public function __construct($uid = 0, $simple = true) {
 		global $core, $db;
 
@@ -43,12 +44,13 @@ class Users {
 		if(is_array($this->user) && !empty($this->user)) {
 			return true;
 		}
+		$this->status = 2;
 		return false;
 	}
 
 	private function read_mainaffiliate() {
 		global $db;
-		$this->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->uid}' AND isMain=1"), 'affid');
+		$this->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->user['uid']}' AND isMain=1"), 'affid');
 	}
 	
 	public function get() {
@@ -105,15 +107,32 @@ class Users {
 			}
 			$this->user['positions'][] = $lang->{$position['name']};
 		}
+		return $this->user['positions'];
 	}
 
 	public function get_mainaffiliate() {
 		if(!isset($this->user['mainaffiliate']) || empty($this->user['mainaffiliate'])) {
 			$this->read_mainaffiliate();
-		} 
+		}
 		return new Affiliates($this->user['mainaffiliate'], FALSE);
 	}
 
+	public function get_hrinfo($simple=true) {
+		global $db;
+		$query_select = '*';
+		if($simple == true) {
+			$query_select = 'employeeNum, joinDate, jobDescription';
+		}
+		
+		$this->user['hrinfo'] = $db->fetch_assoc($db->query("SELECT ".$query_select."
+										FROM ".Tprefix."userhrinformation
+										WHERE uid='".$this->user['uid']."'"));
+		if(is_array($this->user['hrinfo']) && !empty($this->user['hrinfo'])) {
+			return $this->user['hrinfo'];
+		}
+		return false;
+	}
+	
 	private function prepare_sign_info($seperate_lengend = false) {
 		global $lang;
 		$lang->load('profile');
@@ -315,5 +334,8 @@ class Users {
 		return $signature;
 	}
 
+	public function get_errorcode() {
+		return $this->errorcode;
+	}
 }
 ?>
