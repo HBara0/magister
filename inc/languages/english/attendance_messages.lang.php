@@ -135,5 +135,20 @@ Your {2}{3} between {4} and {5} was revoked.<br />
 Regards';
 $lang['revokeleavenotificationsubject'] = '{1} revoked their {2}{3}';
 $lang['revokeleavenotificationsubjectuser'] = 'Your {1}{2} was revoked';
+$lang['adddaysnotificationsubject'] = '{1} requested additional holiday days [{2}]';
+$lang['adddaysrequestapproval']= '{1} requested the following additional holiday days:<br/>
+Number of days: {2}
+<br />
+Corresponding date: {3}
+<br />
+Justification: {4}
+';
 
+$lang['additionadaysapprovedsubject']= 'Your request for additional days was approved!';
+
+$lang['adddaysapprovedmessage'] = 'Dear {1},<br />
+<br />
+Your request for {2} days was approved.<br />
+<br />
+Regards';
 ?>
