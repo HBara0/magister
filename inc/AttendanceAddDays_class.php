@@ -139,7 +139,7 @@ class AttendanceAddDays Extends Attendance {
 	}
 
 	public function notifyapprove() {
-		global $db, $lang, $log;
+		global $lang, $log;
 		if($this->additionaldays['isApproved'] == 1) {
 			$user = new Users($this->additionaldays['uid']);
 			$requester_details = $user->get();

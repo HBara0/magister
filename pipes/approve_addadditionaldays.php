@@ -3,7 +3,7 @@
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
  *
- * [Provide Short Descption Here]
+ * Pipe to approve additional days
  * $id: approve_addadditionaldays.php
  * Created:        @tony.assaad    Apr 26, 2013 | 2:43:16 PM
  * Last Update:    @tony.assaad    Apr 26, 2013 | 2:43:16 PM
@@ -20,7 +20,7 @@ $data = $pipe->get_data();
 
 $lang = new Language('english');
 $lang->load('attendance_messages');
-$ignore_subject = false;
+
 if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject)) {
 	/* Check if reply is possibly auto-responder */
 	if(strstr(strtolower($data['subject']), 'auto')) {
@@ -29,8 +29,6 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject)) {
 
 	$request_key = $db->escape_string($subject[1]);
 	$attendanceadddays = new AttendanceAddDays(array('identifier' => $request_key));
-
-	$adddays_data = $attendanceadddays->get();
 
 	$attendanceadddays->approve($data['from']);
 
