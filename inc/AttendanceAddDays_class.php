@@ -49,7 +49,7 @@ class AttendanceAddDays Extends Attendance {
 		unset($data['module'], $data['action'], $data['uid']);
 		$this->data = $data;
 
-		if(is_empty($this->data['date'], $this->data['numDays'])) {
+		if(is_empty($this->data['date'], $this->data['numDays'], $this->data['remark'])) {
 			$this->status = 1;
 			return false;
 		}
@@ -61,13 +61,14 @@ class AttendanceAddDays Extends Attendance {
 		}
 		
 		$additional_leavesdata = array(
-				'identifier' => $identifier = substr(md5(uniqid(microtime())), 1, 10),
-				'numDays' => $core->sanitize_inputs($this->data['numDays']),
-				'date' => $core->sanitize_inputs($this->data['date']),
-				'addedBy' => $core->user['uid'],
-				'isApproved' => $this->data['isApproved'],
-				'remark' => $core->sanitize_inputs($this->data['remark']),
-				'uid' => $uid		
+			'identifier' => $identifier = substr(md5(uniqid(microtime())), 1, 10),
+			'numDays' => $core->sanitize_inputs($this->data['numDays']),
+			'date' => $core->sanitize_inputs($this->data['date']),
+			'addedBy' => $core->user['uid'],
+			'isApproved' => $this->data['isApproved'],
+			'remark' => $core->sanitize_inputs($this->data['remark']),
+			'correspondToDate' => intval($this->data['correspondToDate']),
+			'uid' => $uid		
 		);
 
 		if(is_array($additional_leavesdata)) {
