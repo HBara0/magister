@@ -54,6 +54,7 @@
                 </p>
             </td>
           </tr>
+          <tr><td colspan="2">{$jobdescription_section}</td></tr>
             {$userprofile_private}
         </table>
     </td>

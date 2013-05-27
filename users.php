@@ -514,6 +514,16 @@ if($core->input['action']) {
 								$leave_dates = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']).'/'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']);
 							}
 							$leaves .= '<li>'.$leave_dates.': '.$leave['type_output'].'</li>';
+			/* Get user job description - START */
+			$jobdescription_permissioned = array($core->user['uid'], $core->user['reportsTo'], $main_affiliate->get_generalmanager(), $main_affiliate->get_hrmanager(), $main_affiliate->get_supervisor());
+			if(in_array($core->user['uid'], $jobdescription_permissioned)) {
+				$profile['hrinfo'] = $profile_user->get_hrinfo();
+				if(!empty($profile['hrinfo']['jobDescription'])) {
+					$jobdescription_section = '<hr /><div><div class="subtitle">'.$lang->jobdescription.'</div>'.$profile['hrinfo']['jobDescription'].'</div>';
+				}
+			}
+			/* Get user job description - END */
+			if($core->usergroup['canViewPrivateProfile'] == '1') {
 						}
 					}
 					else {
