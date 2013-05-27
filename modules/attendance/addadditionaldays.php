@@ -46,38 +46,30 @@ else {
 		$error_handler = new ErrorHandler();
 		if(is_array($core->input['AttendanceAddDays']['uid'])) {
 			foreach($core->input['AttendanceAddDays']['uid'] as $uid) { /* for a single user call the object and the function therefore */
-				unset($usererror, $record_usererror);
-				$outputerror = '';
-
-				$useralreadyrequested = $lang->useralreadyrequested.' , ';
-				$lang->useralreadyrequested = '';
 				$newid = $attendance->request($uid, $core->input['AttendanceAddDays']);
 
 				switch($attendance->get_status()) {
 					case 0:
-		
 						$new_adddays = new AttendanceAddDays(array('adid' => $newid));
 						$new_adddays->notify_request();
 						break;
 					case 1:
-						$useralreadyrequested = '';
-						//Record Error
 						$error_handler->record('fillallrequiredfields', '');
 						break;
 					case 2:
-						//Record Error
 						$user = new Users($uid);
-						$erroruser = $user->get();
-						$error_handler->record('requestintersectsleave', $erroruser['displayName']);
+						$error_handler->record('additionaldayexists', $user->get()['displayName']);
 						break;
 				}
 			}
+
 			$errors = $error_handler->get_errors_inline();
-			if(isset($errors)) {
-				output_xml('<status>false</status><message>'.$errors.'</message>');
+			if(!empty($errors)) {
+				header('Content-type: text/xml+xhtml');
+				output_xml('<status>false</status><message><![CDATA['.$errors.']]></message>');
 			}
 			else {
-				output_xml("<status>true</status><message>{$successfullysaved}</message>");
+				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
 			}
 		}
 		else {
