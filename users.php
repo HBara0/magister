@@ -497,6 +497,7 @@ if($core->input['action']) {
 			if(in_array($core->user['uid'], $jobdescription_permissioned)) {
 				$profile['hrinfo'] = $profile_user->get_hrinfo();
 				if(!empty($profile['hrinfo']['jobDescription'])) {
+					fix_newline($profile['hrinfo']['jobDescription']);
 					$jobdescription_section = '<hr /><div><div class="subtitle">'.$lang->jobdescription.'</div>'.$profile['hrinfo']['jobDescription'].'</div>';
 				}
 			}
