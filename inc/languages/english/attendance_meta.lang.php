@@ -119,4 +119,5 @@ $lang['validatebalances'] = 'Validate Balances';
 $lang['viewbalances'] = 'Leaves Balances';
 $lang['weekends'] = 'Weekends';
 $lang['yoursonly'] = 'Yours only';
+$lang['additionaldayexists'] = 'An additional day for the same date already exists';
 ?>
