@@ -6,7 +6,7 @@
 
 $lang['accesssurveylink'] = 'To access the survey, please click the following: {1}';
 $lang['anonymousfilling'] = 'Anonymous filling';
-$lang['basictemplateinfo'] = 'Basic Template Infomation';
+$lang['basictemplateinfo'] = 'Basic Template Information';
 $lang['category'] = 'Category';
 $lang['choices'] = 'Choices';
 $lang['closingdate'] = 'Auto-close on';
