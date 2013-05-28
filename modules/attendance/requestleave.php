@@ -287,11 +287,12 @@ else {
 		}
 		$leave['type_output'] = $leavetype_details['title'];
 
-
 		$leavetype_coexist = unserialize($leavetype_details['coexistWith']);
+
 		if(is_array($leavetype_coexist)) {
-			$coexistwhere = " AND type NOT IN (".implode(',', $leavetype_coexist).")";
+			$coexistwhere = ' AND type NOT IN ('.implode(',', $leavetype_coexist).')';
 		}
+		
 		if(value_exists('leaves', 'uid', $leave_user['uid'], "(fromDate BETWEEN {$core->input[fromDate]} AND {$core->input[toDate]} OR toDate BETWEEN {$core->input[fromDate]} AND {$core->input[toDate]}){$coexistwhere}")) {
 			output_xml("<status>false</status><message>{$lang->requestintersectsleave}</message>");
 			exit;
@@ -387,24 +388,25 @@ else {
 				unset($secondapprovers);
 			}
 
-			foreach($approvers as $key => $val) {
-				if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
-					continue;
-				}
+			if(is_array($approvers)) {
+				foreach($approvers as $key => $val) {
+					if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
+						continue;
+					}
 
-				$approve_status = $timeapproved = 0;
-				if($approve_immediately == true && $key == 'reportsTo') {
-					$approve_status = 1;
-					$timeapproved = TIME_NOW;
-				}
+					$approve_status = $timeapproved = 0;
+					if($approve_immediately == true && $key == 'reportsTo') {
+						$approve_status = 1;
+						$timeapproved = TIME_NOW;
+					}
 
-				$sequence = 1;
-				if(is_array($toapprove)) {
-					$sequence = array_search($key, $toapprove);
+					$sequence = 1;
+					if(is_array($toapprove)) {
+						$sequence = array_search($key, $toapprove);
+					}
+					$db->insert_query('leavesapproval', array('lid' => $lid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
 				}
-				$db->insert_query('leavesapproval', array('lid' => $lid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
 			}
-
 			if(count($approvers) > 1 && $approve_immediately == true) {
 				foreach($approvers as $key => $val) {
 					if($key != 'reportsTo' && $val == $approvers['reportsTo']) {

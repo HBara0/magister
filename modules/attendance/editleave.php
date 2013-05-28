@@ -315,22 +315,24 @@ else {
 			}
 
 			$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
-			foreach($approvers as $key => $val) {
-				if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
-					continue;
-				}
+			if(is_array($approvers)) {
+				foreach($approvers as $key => $val) {
+					if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
+						continue;
+					}
 
-				$approve_status = $timeapproved = 0;
-				if($approve_immediately == true && $key == 'reportsTo') {
-					$approve_status = 1;
-					$timeapproved = TIME_NOW;
-				}
+					$approve_status = $timeapproved = 0;
+					if($approve_immediately == true && $key == 'reportsTo') {
+						$approve_status = 1;
+						$timeapproved = TIME_NOW;
+					}
 
-				$sequence = 1;
-				if(is_array($toapprove)) {
-					$sequence = array_search($key, $toapprove);
+					$sequence = 1;
+					if(is_array($toapprove)) {
+						$sequence = array_search($key, $toapprove);
+					}
+					$db->insert_query('leavesapproval', array('lid' => $lid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
 				}
-				$db->insert_query('leavesapproval', array('lid' => $lid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
 			}
 			/* if(is_array($toapprove_select) && !empty($toapprove_select)) {
 			  $approvers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
