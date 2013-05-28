@@ -126,7 +126,6 @@ else {
 	if($core->input['action'] == 'do_addpage' || $core->input['action'] == 'do_editpage') {
 		if($core->input['action'] == 'do_editpage') {
 			$options['operationtype'] = 'update';
-			$lang->successfullysaved = 'Successfully Update';
 		}
 		else {
 			$options = array();
@@ -139,7 +138,7 @@ else {
 				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
 				break;
 			case 1:
-				output_xml("<status>false</status><message>{$lang->fieldrequired}</message>");
+				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				break;
 			case 2:
 				output_xml("<status>false</status><message>{$lang->companyexsist}</message>");
