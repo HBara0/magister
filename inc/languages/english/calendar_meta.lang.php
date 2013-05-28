@@ -64,4 +64,5 @@ $lang['everyweek'] = "Every Week";
 $lang['every2weeks'] = "Every 2 Weeks";
 $lang['everymonth'] = "Every Month";
 $lang['everyyear'] = "Every Year";
+$lang['successfullysaved'] = "Successfully Saved";
 ?>

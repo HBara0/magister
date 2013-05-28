@@ -145,12 +145,14 @@ else {
 		$message['body'] = '<ul>';
 
 		if(isset($core->input['id'])) {
-			$holiday = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'holidays WHERE hid='.intval($core->input['id']))); //TO add affid restriction
+			$holiday = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."holidays  WHERE ((validFrom = 0 OR ({$current_year} >= FROM_UNIXTIME(validFrom, '%Y') AND month >= FROM_UNIXTIME(validFrom, '%m') AND day >= FROM_UNIXTIME(validFrom, '%d')))
+													AND (validTo=0 OR ({$current_year} <= FROM_UNIXTIME(validTo, '%Y') AND month <= FROM_UNIXTIME(validTo, '%m') AND day <= FROM_UNIXTIME(validTo, '%d'))))
+													AND hid=".intval($core->input['id']))); //TO add affid restriction
+
 			if(!empty($holiday) && is_array($holiday)) {
 				if($holiday['year'] == 0) {
 					$holiday['year'] = $current_year;
 				}
-
 				$holiday['hasexceptions'] = '';
 				if(value_exists('holidaysexceptions', 'hid', $holiday['hid'])) {
 					$holiday['hasexceptions'] = '<sup>SEL</sup>';
@@ -179,7 +181,10 @@ else {
 
 		$message['recepient'] = $affiliate['mailingList'];
 		if(!isset($core->input['id'])) {
-			$query = $db->query("SELECT * FROM ".Tprefix."holidays WHERE affid='{$affiliate[affid]}' AND (year={$current_year} OR isOnce=0) ORDER BY month ASC, day ASC");
+			$query = $db->query("SELECT * FROM ".Tprefix."holidays  WHERE ((validFrom = 0 OR ({$current_year} >= FROM_UNIXTIME(validFrom, '%Y') AND month >= FROM_UNIXTIME(validFrom, '%m') AND day >= FROM_UNIXTIME(validFrom, '%d')))
+								AND (validTo=0 OR ({$current_year} <= FROM_UNIXTIME(validTo, '%Y') AND month <= FROM_UNIXTIME(validTo, '%m') AND day <= FROM_UNIXTIME(validTo, '%d'))))
+								AND affid='{$affiliate[affid]}' AND (year={$current_year} OR isOnce=0) ORDER BY month ASC, day ASC");
+
 			if($db->num_rows($query) == 0) {
 				output_xml("<status>false</status><message>{$lang->noholidaysavailable}</message>");
 				exit;

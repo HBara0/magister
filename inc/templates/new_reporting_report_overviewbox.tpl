@@ -40,5 +40,7 @@
    <td class="altrow2 mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[current_year]][3]}</td>
    <td class="altrow2 mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[current_year]][4]}</td>
  </tr>
+ <tr><td colspan="14" class='smalltext' style='color: #acacac; font-style: italic; text-align: right; padding-right: 5px;'>{$categories_uom[$category]}</td></tr>
 </table>
+{$reporting_report_newoverviewbox_chart}
 <br />

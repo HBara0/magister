@@ -25,13 +25,15 @@
 				{$filters_row}
 				</thead>
 				<tbody>
-				
 				{$sourcing_listpotentialsupplier_rows}
 				</tbody>
 				
 			</table>
 			<div align="right">
-				{$lang->chemicalsearch} <input id="filters_chemical" name="filters[chemicalsubstance]" type="text" size="35" />
+				{$lang->chemicalsearch} <input id="filters_chemical" name="filters[chemicalsubstance]" type="text" size="35" onkeyup="$('#tablefilters').show();" />
+			</div>
+                        <div align="right" style="clear:left; padding: 5px;">
+				{$lang->genericproductsearch}{$genericproducts_selectlist}
 			</div>
 		</form>
 		<div style="width:40%; float:left; margin-top:0px;">
@@ -53,7 +55,7 @@
 					<input type='hidden' id='chemicalproducts_1_id' name='request[product]'/>
 					<div id="searchQuickResults_chemicalproducts_1" class="searchQuickResults" style="display:none;"></div>
 				</div>
-			</div>
+			</div>      
 			<div style="display:table-row;">
 				<div style="display:table-cell;width:130px; vertical-align:middle;">{$lang->requestdescription}</div>
 				<div style="display:table-cell; margin-top:5px;">

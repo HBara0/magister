@@ -1,4 +1,4 @@
-<page>
+<page style="page-break-before:always;">
     {$highlightbox}
     {$reporting_report_newoverviewbox[segments][amount]}
     {$reporting_report_newoverviewbox[products][amount]}

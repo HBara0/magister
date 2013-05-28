@@ -27,14 +27,34 @@ class Sourcing {
 		}
 
 		$this->supplier = $data;
+		if(function_exists('mb_convert_case')) {
+			$this->supplier['companyName'] = mb_convert_case($this->supplier['companyName'], MB_CASE_TITLE, $lang->settings['charset']);
+		}
+		else {
+			$this->supplier['companyName'] = ucwords(strtolower($this->supplier['companyName']));
+		}
 		$this->chemicals = $this->supplier['chemicalproducts'];
+		$this->genericproducts = $this->supplier['genericproducts'];
 		$this->productsegments = $this->supplier['productsegment'];
 		$this->representative = $this->supplier['representative'];
 		$this->activityarea = $this->supplier['activityarea'];
 		$this->supplier['ssid'] = intval($this->supplier['ssid']);
-		$this->supplier['type'] = $this->determine_supplyiertype($this->chemicals);
 
-		unset($this->supplier['chemicalproducts'], $this->supplier['productsegment'], $this->supplier['representative'], $this->supplier['activityarea']);
+		if(is_array($this->chemicals) && is_array($this->genericproducts)) {
+			$this->supplier['type'] = $this->determine_supplyiertype(array_merge($this->chemicals, $this->genericproducts));
+		}
+		else {
+			if(is_array($this->genericproducts) && !is_array($this->chemicals)) {
+				$this->supplier['type'] = $this->determine_supplyiertype($this->genericproducts);
+			}
+			
+			if(!is_array($this->genericproducts) && is_array($this->chemicals)) {
+				$this->supplier['type'] = $this->determine_supplyiertype($this->chemicals);
+			}
+		}
+
+		unset($this->supplier['chemicalproducts'], $this->supplier['genericproducts'], $this->supplier['productsegment'], $this->supplier['representative'], $this->supplier['activityarea']);
+		
 		/* If action is edit, don't check if supplier already exists */
 		if($options['operationtype'] != 'update') {
 			if(value_exists('sourcing_suppliers', 'companyName', $this->supplier['companyName'])) {
@@ -49,6 +69,13 @@ class Sourcing {
 			$this->supplier[$val] = $core->sanitize_inputs($this->supplier[$val], array('removetags' => true));
 		}
 
+		$fixcase_fields = array('ucfirst' => array('building', 'commentsToShare', 'marketingRecords', 'coBriefing', 'historical', 'sourcingRecords'), 'ucwords' => array('city', 'addressLine1', 'addressLine2'));
+		foreach($fixcase_fields as $function => $attrs) {
+			foreach($attrs as $val) {
+				$this->supplier[$val] = $function(strtolower(trim($this->supplier[$val])));
+			}
+		}
+		
 		$this->supplier['mainEmail'] = $core->validate_email($core->sanitize_email($this->supplier['mainEmail']));
 		$this->supplier['website'] = $core->validtate_URL($this->supplier['website']);
 		/* Santize inputs - END  */
@@ -107,7 +134,6 @@ class Sourcing {
 								'coid' => $activityarea['coid'],
 								'availability' => $activityarea['availability']
 						);
-
 						$db->insert_query('sourcing_suppliers_activityareas', $activity_area);
 					}
 				}
@@ -140,7 +166,7 @@ class Sourcing {
 					$suppliers_contactpersons = array(
 							'ssid' => $this->supplier['ssid'],
 							'rpid' => $representative['id'],
-							'notes' => $representative['notes']
+							'notes' => ucfirst($representative['notes'])
 					);
 					$querycontactpersons = $db->insert_query('sourcing_suppliers_contactpersons', $suppliers_contactpersons);
 				}
@@ -160,6 +186,22 @@ class Sourcing {
 					$db->insert_query('sourcing_suppliers_chemicals', $new_chemicals);
 				}
 			}
+			
+			if($options['operationtype'] == 'update') {
+				$db->delete_query('sourcing_suppliers_genericprod', 'ssid='.$this->supplier['ssid']);
+			}
+		
+			if(is_array($this->genericproducts)) {
+				foreach($this->genericproducts as $genericproduct) {
+					$new_genericproduct = array(
+							'ssid' => $this->supplier['ssid'],
+							'gpid' => $genericproduct['gpid'],
+							'supplyType' => $genericproduct['supplyType']
+					);
+					$db->insert_query('sourcing_suppliers_genericprod', $new_genericproduct);
+				}
+			}
+			
 			$log->record($this->supplier['ssid']);
 			return true;
 		}
@@ -184,7 +226,7 @@ class Sourcing {
 
 	public function save_communication_report($data, $supplier_id = '', $identifier = '', $options = array()) {
 		global $core, $db;
-		
+
 		$data['isCompleted'] = 0;
 		if(is_empty($data['chemical'], $data['affid'])) {
 			$this->status = 1;
@@ -442,7 +484,7 @@ class Sourcing {
 		//return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
 	}
 
-	public  function get_chemicalsubstance_byid($id, $selected_attr = array()) {
+	public function get_chemicalsubstance_byid($id, $selected_attr = array()) {
 		global $db;
 		if(empty($id)) {
 			return false;
@@ -474,6 +516,27 @@ class Sourcing {
 			$db->free_result($chemicalsubstances_query);
 
 			return $chemicalsubstances;
+		}
+		return false;
+	}
+
+	public function get_genericproducts($supplier_id = '', $options = '') {
+		global $db;
+		
+		if(empty($supplier_id)) {
+			$supplier_id = $this->supplier['ssid'];
+		}
+		
+		$genericproduct_query = $db->query("SELECT *
+											FROM ".Tprefix."genericproducts gp
+											JOIN ".Tprefix."sourcing_suppliers_genericprod ssgp ON (ssgp.gpid= gp.gpid)
+											WHERE ssgp.ssid= ".$db->escape_string($supplier_id));
+		if($db->num_rows($genericproduct_query) > 0) {
+			while($genericproduct = $db->fetch_assoc($genericproduct_query)) {
+				$genericproduct['supplyType_output'] = $this->parse_supplytype($genericproduct['supplyType']);
+				$genericproducts[$genericproduct['gpid']] = $genericproduct;
+			}
+			return $genericproducts;
 		}
 		return false;
 	}
@@ -747,16 +810,17 @@ class Sourcing {
 	}
 
 	private function determine_supplyiertype($supply_types) {
-		foreach($supply_types as $cas => $supplytype) {
-			$types[] = $supplytype['supplyType'];
-		}
-
-		$types = array_unique($types);
-		if(count($types) > 1) {
-			return 'b';
-		}
-		else {
-			return current($types);
+		if(is_array($supply_types)) {
+			foreach($supply_types as $cas => $supplytype) {
+				$types[] = $supplytype['supplyType'];
+			}
+			$types = array_unique($types);
+			if(count($types) > 1) {
+				return 'b';
+			}
+			else {
+				return current($types);
+			}
 		}
 	}
 
@@ -837,14 +901,14 @@ class Sourcing {
 
 		return $maturity_bars;
 	}
-	
+
 	/* Return the affiliates based on availability if the supplier is avaialable in the country where the affiliate is */
 	public function get_affiliates_byavailability($supplier_id = '') {
 		global $core, $db;
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 		}
-		 $availabilityquery = $db->query("SELECT ssa.ssaid,aff.name AS affiliate, aff.affid
+		$availabilityquery = $db->query("SELECT ssa.ssaid,aff.name AS affiliate, aff.affid
 										FROM ".Tprefix."sourcing_suppliers_activityareas ssa 
 										JOIN ".Tprefix."countries c ON (c.coid=ssa.coid)
 										JOIN ".Tprefix."affiliates aff ON (aff.affid=c.affid)  
@@ -874,5 +938,4 @@ class Sourcing {
 	}
 
 }
-
 ?>

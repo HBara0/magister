@@ -1,14 +1,12 @@
 <tr id="{$question_rowid}" class="altrow2">
     <td style="border-bottom:1px solid #CCC;">    
-        <table border="0" cellspacing="1" cellpadding="1" >
-            <tr>
-                <td width="35%">{$lang->sequence}</td>
-                <td width="65%">
-                    <input accept="numeric" name="section[{$section_rowid}][questions][{$question_rowid}][sequence]" id="sequence_{$section_rowid}_{$question_rowid}"   value="{$sequence}"  type="text" size="2" maxlength="2"></td>
-            </tr>
+        <table border="0" cellspacing="1" cellpadding="1" width='100%'>
             <tr> 
                 <td>{$lang->question}</td>
-                <td><input name="section[{$section_rowid}][questions][{$question_rowid}][question]"  value="{$section[section_rowid][questions][question_rowid][question]}" type="text" size="40" autocomplete="on" required="required"></td>
+                <td>
+                    <input name="section[{$section_rowid}][questions][{$question_rowid}][question]"  value="{$section[section_rowid][questions][question_rowid][question]}" type="text" size="40" autocomplete="on" required="required">
+                    <div style='float:right; cursor: move;' class="ui-state-default"><span class="questions-sort-icon ui-icon ui-icon-arrowthick-2-n-s"></span></div>
+                </td>
             </tr>
 
             <tr>

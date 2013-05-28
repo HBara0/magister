@@ -105,7 +105,6 @@ if(!$core->input['action']) {
 }
 else {  //days taken must = actual taken
 	if($core->input['action'] == 'preview' || $core->input['action'] == 'fixbalances') {
-		
 		if($session->isset_phpsession('balancevalidations_'.$identifier)) {
 			$options = unserialize($session->get_phpsession('balancevalidations_'.$identifier));
 		}
@@ -156,9 +155,13 @@ else {  //days taken must = actual taken
 					'actbalance' => $lang->actbalance,
 					'entitledFor' => $lang->entitledfor,
 					'remainPrevYear' => $lang->balanceprevyear,
-					'remainPrevYearAct' => $lang->actbalanceprevyear);
+					'remainPrevYearAct' => $lang->actbalanceprevyear,
+					'canTake' => $lang->cantake,
+					'canTakeAct' => $lang->actcantake
+					);
 
 			$tableheader .= '<tr>';
+			$tableheader .= '<th></th>';
 			foreach($columns as $key => $column) {
 				if(empty($column)) {
 					$column = $key;
@@ -195,13 +198,13 @@ else {  //days taken must = actual taken
 			$cellstyle = '';
 			if($leavestat['daysTaken'] < $leaves_counts[$leavestat['uid']]) {
 				$cellstyle['daysTaken'] = ' style="color:red;"';
-				if($core->input['fixdaysTaken'] == 1) {
+				if($core->input['fixdaysTaken'] == 1 && $core->input['tofix'][$leavestat['lsid']] == 1) {
 					$db->update_query('leavesstats', array('daysTaken' => $leaves_counts[$leavestat['uid']]), 'lsid='.$leavestat['lsid']);
 				}
 			}
 			elseif($leavestat['daysTaken'] > $leaves_counts[$leavestat['uid']]) {
 				$cellstyle['daysTaken'] = ' style="color:orange;"';
-				if($core->input['fixdaysTaken'] == 1) {
+				if($core->input['fixdaysTaken'] == 1 && $core->input['tofix'][$leavestat['lsid']] == 1) {
 					$db->update_query('leavesstats', array('daysTaken' => $leaves_counts[$leavestat['uid']]), 'lsid='.$leavestat['lsid']);
 				}
 			}
@@ -221,19 +224,25 @@ else {  //days taken must = actual taken
  
 			if($leavestat['remainPrevYear'] < ($prevbalance['canTake'] - $prevbalance['daysTaken'])) { 
 				$cellstyle['remainPrevYear'] = ' style="color:red;"';
-				if($core->input['fixremainPrevYear'] == 1) {
+				if($core->input['fixremainPrevYear'] == 1 && $core->input['tofix'][$leavestat['lsid']] == 1) {
 					$db->update_query('leavesstats', array('remainPrevYear' => ($prevbalance['canTake'] - $prevbalance['daysTaken'])), 'lsid='.$leavestat['lsid']);
-			
-					
 				}
 			} 
 			elseif($leavestat['remainPrevYear'] > ($prevbalance['canTake'] - $prevbalance['daysTaken'])) {
 				$cellstyle['remainPrevYear'] = ' style="color:orange;"';
-				if($core->input['fixremainPrevYear'] == 1) {
+				if($core->input['fixremainPrevYear'] == 1 && $core->input['tofix'][$leavestat['lsid']] == 1) {
 					$db->update_query('leavesstats', array('remainPrevYear' => ($prevbalance['canTake'] - $prevbalance['daysTaken'])), 'lsid='.$leavestat['lsid']);
 				}
 			}
 
+			$leavestat['canTakeAct'] = $leavestat['entitledFor'] + $leavestat['remainPrevYear'];
+			if($leavestat['canTake'] > $leavestat['canTakeAct']) {
+				$cellstyle['canTake'] = ' style="color:red;"';
+				if($core->input['fixcanTake'] == 1 && $core->input['tofix'][$leavestat['lsid']] == 1) {
+					$db->update_query('leavesstats', array('canTake' => $leavestat['canTakeAct']), 'lsid='.$leavestat['lsid']);
+				}
+			}
+			
 			if($core->input['action'] != 'fixbalances') {
 				$leavestat['actualTaken'] = $leaves_counts[$leavestat['uid']];
 				$leavestat['balance'] = ($leavestat['canTake'] - $leavestat['daysTaken']);
@@ -242,6 +251,7 @@ else {  //days taken must = actual taken
 
 				$row_class = alt_row($row_class);
 				$tablerows .= '<tr class="'.$row_class.'">';
+				$tablerows .= '<td><input type="checkbox" value="1" name="tofix['.$leavestat['lsid'].']" id="tofix['.$leavestat['lsid'].']"></td>';
 				foreach($columns as $key => $column) {
 					if(!isset($cellstyle[$key])) {
 						$cellstyle[$key] = '';
@@ -251,10 +261,11 @@ else {  //days taken must = actual taken
 				
 				$tablerows .= '</tr>';
 			}
-			else {
-				$session->destroy_phpsession();
-				redirect('index.php?module=attendance/balancesvalidations', 5, $lang->successfullyupdate);
-			}
+		}
+		
+		if($core->input['action'] == 'fixbalances') { 
+			$session->destroy_phpsession();
+			redirect('index.php?module=attendance/balancesvalidations', 5, $lang->successfullyupdate);
 		}
 	}
 

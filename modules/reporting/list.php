@@ -53,7 +53,6 @@ if(!$core->input['action']) {
 									'joinWith' => 'reports',
 									'extraSelect' => 'companyName'
 							)
-							
 					)
 			)
 	);
@@ -83,8 +82,7 @@ if(!$core->input['action']) {
 	if(isset($extra_where['byspid'][$core->input['filtervalue']])) {
 		$extra_where['multipage'] = 'r.type="q"'.$extra_where['byspid'][$core->input['filtervalue']];
 	}
-	else
-	{
+	else {
 		$extra_where['multipage'] = 'r.type="q"'.$and.$extra_where['multipage'];
 	}
 
@@ -103,7 +101,7 @@ if(!$core->input['action']) {
 				}
 				$icon[$report['rid']] = "<a href='index.php?module=reporting/preview&referrer=list&amp;affid={$report[affid]}&amp;spid={$report[spid]}&amp;quarter={$report[quarter]}&amp;year={$report[year]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$report[status]}' border='0'/></a>";
 			}
-
+			
 			$report['status'] = parse_status($report['status'], $report['isLocked']);
 			$report['statusdetails'] = parse_statusdetails(array('prActivityAvailable' => $report['prActivityAvailable'], 'keyCustAvailable' => $report['keyCustAvailable'], 'mktReportAvailable' => $report['mktReportAvailable']));
 
@@ -141,6 +139,7 @@ if(!$core->input['action']) {
 				$moderationtools .= "<option value='lock'>{$lang->lock}</option>";
 				$moderationtools .= "<option value='unlock'>{$lang->unlock}</option>";
 				$moderationtools .= "<option value='lockunlock'>{$lang->lockunlock}</option>";
+				$moderationtools .= "<option value='unlockwithreminders'>{$lang->unlockwithreminders}</option>";
 			}
 			if($core->usergroup['reporting_canApproveReports'] == 1) {
 				$moderationtools .= "<option value='approveunapprove'>{$lang->approveunapprove}</option>";
@@ -171,13 +170,14 @@ else {
 		echo parse_statusdetails(array('prActivityAvailable' => $report['prActivityAvailable'], 'keyCustAvailable' => $report['keyCustAvailable'], 'mktReportAvailable' => $report['mktReportAvailable']));
 	}
 	elseif($core->input['action'] == 'do_moderation') {
-		if($core->input['moderationtool'] == 'lock' || $core->input['moderationtool'] == 'unlock' || $core->input['moderationtool'] == 'lockunlock') {
+		if($core->input['moderationtool'] == 'lock' || $core->input['moderationtool'] == 'unlock' || $core->input['moderationtool'] == 'lockunlock' || $core->input['moderationtool'] == 'unlockwithreminders') {
 			if($core->usergroup['canLockUnlockReports'] == 1) {
 				if(count($core->input['listCheckbox']) > 0) {
 					if($core->input['moderationtool'] == 'lock') {
 						$new_status['isLocked'] = 1;
 					}
 					if($core->input['moderationtool'] == 'unlock') {
+
 						$new_status['isLocked'] = 0;
 					}
 
@@ -192,6 +192,10 @@ else {
 							else {
 								$new_status['isLocked'] = 0;
 							}
+						}
+						elseif($core->input['moderationtool'] == 'unlockwithreminders') {
+							$new_status['isLocked'] = 0;
+							$db->update_query('reportcontributors', array('isDone' => 0), "rid='{$rid}'");
 						}
 
 						if($new_status['isLocked'] == 0) {

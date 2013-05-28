@@ -1,4 +1,4 @@
-<page>
+<page style="page-break-before:always;">
     <div class="logo" style="width:100%;">&nbsp;</div>
     <div>
     {$reporting_report_newoverviewbox[affiliates][amount]}

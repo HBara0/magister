@@ -31,8 +31,12 @@
                         $("tr[id='section_"+id[1]+"_[questions]_"+id[3]+"_[validationCriterion]']").css("display", "table-row");
                     }
                  }
-            );              
+            );
     }); 
+
+    $(document).ajaxSuccess(function() {
+        $("tbody[id^='questions'][id$='_tbody']").sortable({placeholder: "ui-state-highlight", forcePlaceholderSize: true, delay: 300, opacity: 0.5, containment: "parent", handle: '.questions-sort-icon'});        
+    });
 </script>
 
 </head>
