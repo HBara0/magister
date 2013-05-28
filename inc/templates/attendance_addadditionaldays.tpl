@@ -1,7 +1,7 @@
 <html>
 <head>
 <title>{$core->settings[systemtitle]} | {$lang->addadditionalbalance}</title>
-	{$headerinc}
+{$headerinc}
 </head>
 
 <body>

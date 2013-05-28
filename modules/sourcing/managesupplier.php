@@ -51,7 +51,7 @@ if(!$core->input['action']) {
 			$genericproduct_rowid = 1;
 			foreach($supplier['genericproducts'] as $key => $genericproducts) {
 				$selecteditems['supplyType'][$key][$genericproducts['supplyType']] = ' selected="selected"';
-				$generic_product_list = parse_selectlist('supplier[genericproducts]['.$genericproduct_rowid.'][gpid]', 9, get_specificdata('genericproducts', array('gpid', 'title'), 'gpid', 'title', ''), $genericproducts['gpid'], 0);
+				$generic_product_list = parse_selectlist('supplier[genericproducts]['.$genericproduct_rowid.'][gpid]', 9, get_specificdata('genericproducts', array('gpid', 'title'), 'gpid', 'title', 'title'), $genericproducts['gpid'], 0);
 				eval("\$genericproducts_rows .= \"".$template->get('sourcing_managesupplier_genericproductrow')."\";");
 				$genericproduct_rowid++;
 			}
@@ -79,7 +79,7 @@ if(!$core->input['action']) {
 		eval("\$chemicalproducts_rows .= \"".$template->get('sourcing_managesupplier_chemicalrow')."\";");
 		
 		$genericproduct_rowid = 1;
-		$generic_product_list = parse_selectlist('supplier[genericproducts]['.$genericproduct_rowid.'][gpid]', 9, get_specificdata('genericproducts', array('gpid', 'title'), 'gpid', 'title', ''), 'gpid', 0, '', array('blankstart' => 1));
+		$generic_product_list = parse_selectlist('supplier[genericproducts]['.$genericproduct_rowid.'][gpid]', 9, get_specificdata('genericproducts', array('gpid', 'title'), 'gpid', 'title', 'title'), 'gpid', 0, '', array('blankstart' => 1));
 		eval("\$genericproducts_rows .= \"".$template->get('sourcing_managesupplier_genericproductrow')."\";");
 		
 		$contactp_rowid = 1;

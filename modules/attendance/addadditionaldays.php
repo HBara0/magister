@@ -2,7 +2,7 @@
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
  *
- * [Provide Short Descption Here]
+ * Add/Request Additional Holidays Days
  * $id: addadditionaldays.php
  * Created:        @tony.assaad    Apr 22, 2013 | 4:28:35 PM
  * Last Update:    @tony.assaad    Apr 22, 2013 | 4:28:35 PM
@@ -25,12 +25,12 @@ if(!$core->input['action']) {
 	if($user->can_hr('inaffiliate')) {
 		if(is_array($affiliate_users)) {
 			foreach($affiliate_users as $uid => $users) {
-				$users_list .= "<option value='{$users['uid']}'{$selected}>{$users['displayName']}</option>";
+				$users_list .= '<option value="'.$users['uid'].'"'.$selected.'>'.$users['displayName'].'</option>';
 			}
 		}
 	}
 	else {
-		$users_list = "<option value='{$core->user['uid']}' selected=selected>{$single_user['displayName']}</option>";
+		$users_list = '<option value="'.$core->user['uid'].'" selected="selected">'.$single_user['displayName'].'</option>';
 		if(is_array($reporting_touser)) {
 			foreach($reporting_touser as $uid => $user) {
 				$users_list .= '<option value="'.$user['uid'].'"'.$selected.'>'.$user['displayName'].'</option>';
