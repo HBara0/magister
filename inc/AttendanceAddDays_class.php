@@ -18,8 +18,6 @@ class AttendanceAddDays Extends Attendance {
 	private $additionaldays = array();
 
 	public function __construct($attedadddays_data = array()) {
-		parent::__construct($attedadddays_data);
-
 		if(!empty($attedadddays_data['adid']) && isset($attedadddays_data['adid'])) {
 			$this->read($attedadddays_data['adid'], '');
 			return true;

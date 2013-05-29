@@ -27,7 +27,12 @@ class Sourcing {
 		}
 
 		$this->supplier = $data;
-		$this->supplier['companyName'] = mb_convert_case($this->supplier['companyName'], MB_CASE_TITLE, $lang->settings['charset']);
+		if(function_exists('mb_convert_case')) {
+			$this->supplier['companyName'] = mb_convert_case($this->supplier['companyName'], MB_CASE_TITLE, $lang->settings['charset']);
+		}
+		else {
+			$this->supplier['companyName'] = ucwords(strtolower($this->supplier['companyName']));
+		}
 		$this->chemicals = $this->supplier['chemicalproducts'];
 		$this->genericproducts = $this->supplier['genericproducts'];
 		$this->productsegments = $this->supplier['productsegment'];

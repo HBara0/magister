@@ -209,7 +209,7 @@ else {
 		if(!empty($leavetype_details['additionalFields'])) {
 			$leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields']);
 			if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
-				$leave['details_crumb'] = ' - '.implode(' ', $leave['details_crumb']);
+				$leave['details_crumb'] = implode(' ', $leave['details_crumb']);
 			}
 			else {
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
@@ -315,22 +315,24 @@ else {
 			}
 
 			$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
-			foreach($approvers as $key => $val) {
-				if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
-					continue;
-				}
+			if(is_array($approvers)) {
+				foreach($approvers as $key => $val) {
+					if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
+						continue;
+					}
 
-				$approve_status = $timeapproved = 0;
-				if($approve_immediately == true && $key == 'reportsTo') {
-					$approve_status = 1;
-					$timeapproved = TIME_NOW;
-				}
+					$approve_status = $timeapproved = 0;
+					if($approve_immediately == true && $key == 'reportsTo') {
+						$approve_status = 1;
+						$timeapproved = TIME_NOW;
+					}
 
-				$sequence = 1;
-				if(is_array($toapprove)) {
-					$sequence = array_search($key, $toapprove);
+					$sequence = 1;
+					if(is_array($toapprove)) {
+						$sequence = array_search($key, $toapprove);
+					}
+					$db->insert_query('leavesapproval', array('lid' => $lid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
 				}
-				$db->insert_query('leavesapproval', array('lid' => $lid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
 			}
 			/* if(is_array($toapprove_select) && !empty($toapprove_select)) {
 			  $approvers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
@@ -393,6 +395,9 @@ else {
 				$lang->modifyleavenotificationsubject = $lang->sprint($lang->modifyleavenotificationsubject, $leave_user['firstName'].' '.$leave_user['lastName'], '['.$old_leave_info['requestKey'].']');
 				//$lang->modifyleavemessage = $lang->sprint($lang->modifyleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($todate_format, $core->input['toDate']), $core->input['reason'], $approve_link);
 
+				if(!empty($leave['details_crumb'])) {
+					$leave['details_crumb'] = ' - '.$leave['details_crumb'];
+				}
 				$lang->modifyleavemessage = $lang->sprint($lang->modifyleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']).' ('.$leavetype_details['description'].')'.$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $core->input['reason'], $lang->modifyleavemessage_stats, $approve_link);
 			}
 			elseif($approve_immediately == true && $notification_required == true) {

@@ -112,7 +112,6 @@ else {
 	elseif($core->input['action'] == 'getadditionalfields') {
 		$additional_fields = unserialize($db->fetch_field($db->query("SELECT additionalFields FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['ltid'])."'"), 'additionalFields'));
 		if(is_array($additional_fields)) {
-			$leave = $core->input;
 			foreach($additional_fields as $key => $val) {
 				$fields .= parse_additonalfield($key, $val).'<br />';
 			}
@@ -287,11 +286,12 @@ else {
 		}
 		$leave['type_output'] = $leavetype_details['title'];
 
-
 		$leavetype_coexist = unserialize($leavetype_details['coexistWith']);
+
 		if(is_array($leavetype_coexist)) {
-			$coexistwhere = " AND type NOT IN (".implode(',', $leavetype_coexist).")";
+			$coexistwhere = ' AND type NOT IN ('.implode(',', $leavetype_coexist).')';
 		}
+		
 		if(value_exists('leaves', 'uid', $leave_user['uid'], "(fromDate BETWEEN {$core->input[fromDate]} AND {$core->input[toDate]} OR toDate BETWEEN {$core->input[fromDate]} AND {$core->input[toDate]}){$coexistwhere}")) {
 			output_xml("<status>false</status><message>{$lang->requestintersectsleave}</message>");
 			exit;
@@ -300,7 +300,7 @@ else {
 		if(!empty($leavetype_details['additionalFields'])) {
 			$leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields']);
 			if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
-				$leave['details_crumb'] = ' - '.implode(' ', $leave['details_crumb']);
+				$leave['details_crumb'] = implode(' ', $leave['details_crumb']);
 			}
 			else {
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
@@ -387,24 +387,25 @@ else {
 				unset($secondapprovers);
 			}
 
-			foreach($approvers as $key => $val) {
-				if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
-					continue;
-				}
+			if(is_array($approvers)) {
+				foreach($approvers as $key => $val) {
+					if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
+						continue;
+					}
 
-				$approve_status = $timeapproved = 0;
-				if($approve_immediately == true && $key == 'reportsTo') {
-					$approve_status = 1;
-					$timeapproved = TIME_NOW;
-				}
+					$approve_status = $timeapproved = 0;
+					if($approve_immediately == true && $key == 'reportsTo') {
+						$approve_status = 1;
+						$timeapproved = TIME_NOW;
+					}
 
-				$sequence = 1;
-				if(is_array($toapprove)) {
-					$sequence = array_search($key, $toapprove);
+					$sequence = 1;
+					if(is_array($toapprove)) {
+						$sequence = array_search($key, $toapprove);
+					}
+					$db->insert_query('leavesapproval', array('lid' => $lid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
 				}
-				$db->insert_query('leavesapproval', array('lid' => $lid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
 			}
-
 			if(count($approvers) > 1 && $approve_immediately == true) {
 				foreach($approvers as $key => $val) {
 					if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
@@ -467,7 +468,10 @@ else {
 					else {
 						$lang->requestleavemessage_stats = '';
 					}
-
+	
+					if(!empty($leave['details_crumb'])) {
+						$leave['details_crumb'] = ' - '.$leave['details_crumb'];
+					}
 					$lang->requestleavemessage = $lang->sprint($lang->requestleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']).' ('.$leavetype_details['description'].')'.$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $core->input['reason'], $lang->requestleavemessage_stats, $approve_link);
 
 					/* Parse Calendar - Start */
@@ -516,6 +520,7 @@ else {
 				else {
 					$lang->leavenotificationmessage_typedetails = strtolower($leave['type_output']);
 				}
+
 				$lang->leavenotificationsubject = $lang->sprint($lang->leavenotificationsubject, $leave_user['firstName'].' '.$leave_user['lastName'], $lang->leavenotificationmessage_typedetails, $tooktaking, date($core->settings['dateformat'], $core->input['fromDate']), date($subject_todate_format, $core->input['toDate']));
 				$lang->leavenotificationmessage = $lang->sprint($lang->leavenotificationmessage, $leave_user['firstName'].' '.$leave_user['lastName'], $lang->leavenotificationmessage_typedetails, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $tooktaking, $contact_details, $contactperson_details);
 			}

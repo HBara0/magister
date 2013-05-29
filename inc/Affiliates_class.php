@@ -46,15 +46,18 @@ class Affiliates {
 
 	public function get_users($options = array()) {
 		global $db;
+		
 		if(is_array($options)) {
 			if(isset($options['ismain']) && $options['ismain'] === 1) {
-				$is_main = 'AND isMain=1';
+				$query_where_add = ' AND isMain=1';
 			}
 		}
-		$query = $db->query("SELECT DISTINCT(u.uid) FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid) 
-						WHERE a.affid={$this->affiliate['affid']} ".$is_main."  AND u.gid!=7");
-		while($user = $db->fetch_array($query)) {
-			 $users = new Users($user['uid']);
+		$query = $db->query("SELECT DISTINCT(u.uid) 
+					FROM ".Tprefix."users u 
+					JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid) 
+					WHERE a.affid={$this->affiliate['affid']}".$query_where_add." AND u.gid!=7");
+		while($user = $db->fetch_assoc($query)) {
+			$users = new Users($user['uid']);
 			$users_affiliates[$user['uid']] = $users->get();
 		}
 		return $users_affiliates;
