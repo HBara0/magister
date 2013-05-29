@@ -6,10 +6,12 @@
 
 $lang['actbalance'] = 'Actual Balance';
 $lang['actbalanceprevyear'] = 'Act. Prev Balance';
+$lang['actcantake'] = 'Can Take Act.';
 $lang['actdaystaken'] = 'Act. Taken';
 $lang['actualtaken'] = 'Act. Taken';
 $lang['actualworkingdays'] = 'Actual Working Days';
 $lang['addadditionalbalance'] = 'Add Additional Days to Balance';
+$lang['additionaldayexists'] = 'An additional day for the same date already exists';
 $lang['additionaldays'] = 'Add Days';
 $lang['addleaveslist'] = 'Additional Leave Days List';
 $lang['all'] = 'All';
@@ -44,6 +46,7 @@ $lang['days'] = 'Days';
 $lang['daystaken'] = 'Taken';
 $lang['departure'] = 'Departure';
 $lang['deviation'] = 'Deviation';
+$lang['displayname'] = 'Display Name';
 $lang['duplicateentries'] = 'Duplicate entries';
 $lang['earliestarrival'] = 'Earliest arrival';
 $lang['editleave'] = 'Modify Leave';
@@ -54,6 +57,8 @@ $lang['errorrevoking'] = 'An error occurred while revoking';
 $lang['extraworkeddays'] = 'Extra Worked Days';
 $lang['fieldrepeated'] = 'There is a repeated column header';
 $lang['finalbalance'] = 'Final Balance';
+$lang['firstname'] = 'First Name';
+$lang['fixcantake'] = 'Fix can take';
 $lang['fixdaystaken'] = 'Fix days taken';
 $lang['fixremprevyear'] = 'Fix remaining prev. year';
 $lang['fromhour'] = 'From hour';
@@ -119,5 +124,4 @@ $lang['validatebalances'] = 'Validate Balances';
 $lang['viewbalances'] = 'Leaves Balances';
 $lang['weekends'] = 'Weekends';
 $lang['yoursonly'] = 'Yours only';
-$lang['additionaldayexists'] = 'An additional day for the same date already exists';
 ?>

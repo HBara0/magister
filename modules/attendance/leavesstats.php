@@ -46,7 +46,9 @@ if(!$core->input['action']) {
 		}
 		$leave_types[$type['ltid']] = $type['title'].$type['description'];
 	}
-
+	
+	/* Exceptional: Hide the sick leaves */
+	unset($leave_types[3]);
 	$types_list = parse_selectlist('type', 1, $leave_types, $core->input['type'], 0, 'goToURL("index.php?module=attendance/leavesstats&amp;type="+$(this).val())');
 	/* Parse types list - END */
 
@@ -92,7 +94,7 @@ if(!$core->input['action']) {
 		$where = ' AND '.$where;
 	}
 
-	$query = $db->query("SELECT ls.*,Concat(u.firstName, ' ', u.lastName) AS employeename
+	$query = $db->query("SELECT ls.*, Concat(u.firstName, ' ', u.lastName) AS employeename
 						FROM ".Tprefix."leavesstats ls JOIN ".Tprefix."users u ON (ls.uid=u.uid)
 						WHERE ltid='".$db->escape_string($core->input['type'])."'{$where}
 						ORDER BY {$sort_query}
@@ -102,16 +104,11 @@ if(!$core->input['action']) {
 	if($number_stats > 0) {
 		while($stats = $db->fetch_assoc($query)) {
 			$row_class = alt_row($row_class);
-
-
 			$stats['periodStart_output'] = date($core->settings['dateformat'], $stats['periodStart']);
 			$stats['periodEnd_output'] = date($core->settings['dateformat'], $stats['periodEnd']);
 			$stats['balance'] = $stats['canTake'] - $stats['daysTaken'];
 			$stats['finalBalance'] = $stats['balance'] + $stats['additionalDays'];
 
-			if($stats['ltid'] == 3) {
-				$stats['periodStart_output'] = $stats['periodEnd_output'] = $stats['entitledFor'] = $stats['remainPrevYear'] = $stats['canTake'] = $stats['additionalDays'] = '-';
-			}
 			if($number_stats == 1 && $stats['uid'] == $core->user['uid']) {
 				$stats['employeename'] = '';
 			}
