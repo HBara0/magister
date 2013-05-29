@@ -161,3 +161,16 @@
 	/*font-size: 16px;*/
 	color:#444444;
 }
+
+
+.scrollup{
+    width:70px;
+    height:45px;
+    opacity:0.6;
+    position:fixed;
+    bottom:50px;
+    right:85px;
+    display:none;
+    text-indent:-9999px;
+    background: url('../images/icons/icon_top.png') no-repeat;
+}

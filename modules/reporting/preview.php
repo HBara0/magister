@@ -260,6 +260,10 @@ if(!$core->input['action']) {
 					}
 				}
 			}
+			/* record reprot anchor --START */
+			$toc_data['qr-'.$report['affid'].'-'.$report['spid']] = array('title' => $report[affiliates][name]);
+
+			/* record reprot anchor --END */
 
 			$temp_item = $item;
 			$item = array();
@@ -290,9 +294,10 @@ if(!$core->input['action']) {
 									$item_rounding = $default_rounding;
 								}
 								$boxes_totals_output['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ');
-							
+
 								/* Store stacked bar chart data */
 								$report_charts_data[$aggregate_type][$category]['actual']['y']['Q'.$quarter][$year] = $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter];
+								$report_segment_charts_data[$aggregate_type][$category]['actual']['y']['Q'.$quarter][$year] = $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter];
 							}
 						}
 						//$item[$aggregate_type][$category]['actual'][$year][$quarter] = msort($item[$aggregate_type][$category]['actual'], array('quarter'));
@@ -303,16 +308,25 @@ if(!$core->input['action']) {
 					}
 
 					$lang->$category = $lang->{(strtolower($category))};
-					
+
 					/* Generate Chart */
 					if($aggregate_type == 'affiliates') {
 						$overviewbox_chart = new Charts(array('x' => $report_years, 'y' => $report_charts_data[$aggregate_type][$category]['actual']['y']), 'stackedbar');
 						$reporting_report_newoverviewbox_chart = '<img src="'.$overviewbox_chart->get_chart().'" />';
 					}
+
+					if($aggregate_type == 'segments') {
+						$overviewboxsegment_chart = new Charts(array('x' => $report_years, 'y' => $report_segment_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar');
+						$reporting_report_newoverviewbox_chart = '<img src="'.$overviewboxsegment_chart->get_chart().'" />';
+					}
+					$toc_data['affiliatesoverview'] = array(
+							'title' => 'Affiliates overview ',
+					);
 					eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
 					$reporting_report_newoverviewbox_chart = '';
 				}
 			}
+
 			$report_charts_data['segments'] = $report_charts_data['products'] = array();
 			$item = $boxes_totals['mainbox']['segments'] = $boxes_totals['mainbox']['products'] = array();
 		}
@@ -360,7 +374,7 @@ if(!$core->input['action']) {
 				}
 
 				array_walk($marketreport, 'fix_newline');
--				array_walk($marketreport, 'parse_ocode');
+				- array_walk($marketreport, 'parse_ocode');
 				eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
 			}
 		}
@@ -414,7 +428,7 @@ if(!$core->input['action']) {
 							}
 
 							$newtotaloverviewbox_row_percclass[$yearval] = ' totalsbox_perccellpositive';
-							if(($yearval+1) == $reporting_quarter['year'] && $reporting_quarter['quarter'] < 4) {
+							if(($yearval + 1) == $reporting_quarter['year'] && $reporting_quarter['quarter'] < 4) {
 								$newtotaloverviewbox_row_class[$yearval] = ' mainbox_forecast';
 							}
 							if($item['perc'][$yearval] == 0) {
@@ -431,6 +445,10 @@ if(!$core->input['action']) {
 						}
 						$item['data'][$yearval] = number_format($item[$yearval], $item_rounding, '.', ' ');
 						//$item['data'][$yearval] = round($item[$yearval]);
+						/* Store stacked bar chart data */
+
+						$report_charts_data[$aggregate_type][$category]['actual']['y'][1][$yearval] = $progression_totals['data'][$yearval];
+						$report_affiliate_charts_data[$aggregate_type][$category]['actual']['y'][$item['name']][$yearval] = $progression_totals['data'][$yearval];
 					}
 
 					eval("\$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_totaloverviewbox_row')."\";");
@@ -452,7 +470,7 @@ if(!$core->input['action']) {
 							}
 						}
 					}
-					if(($yearval+1) == $reporting_quarter['year'] && $reporting_quarter['quarter'] < 4) {   /*if the year val equal to  the previous  quarter year */
+					if(($yearval + 1) == $reporting_quarter['year'] && $reporting_quarter['quarter'] < 4) { /* if the year val equal to  the previous  quarter year */
 						$newtotaloverviewbox_row_class[$yearval] = ' mainbox_forecast';
 					}
 					$newtotaloverviewbox_row_percclass[$year] = ' totalsbox_perccellpositive';
@@ -472,13 +490,25 @@ if(!$core->input['action']) {
 				if(is_array($reporting_report_newtotaloverviewbox_row[$aggregate_type][$category])) {
 					$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category]);
 				}
+				/* Generate Chart */
+				if($aggregate_type == 'segments') {
+					$progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_charts_data[$aggregate_type][$category]['actual']['y']), 'stackedbar', array('seriesnames' => array(1 => $item['name'])));
+					$reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
+				}
+				if($aggregate_type == 'affiliates') {
+					$progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_affiliate_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar', array('seriesnames' => array(1 => $item['name'])));
+					$reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
+				}
 
 				eval("\$reporting_report_newtotaloverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
 				$reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = array();
+				$reporting_report_newtotaloverviewbox_chart = '';
 				$progression_totals['data'] = array();
 				unset($newtotaloverviewbox_row_percclass);
 			}
-		}
+		};
+		$toc_data['progression'] = array('title' => 'Progression boxes',
+		);
 	}
 
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'direct' || $core->input['referrer'] == 'list') {
@@ -518,18 +548,34 @@ if(!$core->input['action']) {
 				}
 				eval("\$contributorspage = \"".$template->get('new_reporting_report_contributionoverview')."\";");
 			}
-
+			$toc_data['closingpage'] = array('title' => 'Closing page');
 			eval("\$coverpage = \"".$template->get('new_reporting_report_coverpage')."\";");
+			/* Output summary table - START */
+			if(!empty($report['summary']['summary'])) {
+				$toc_data['summary'] = array('title' => 'report summary');
+				eval("\$summarypage = \"".$template->get('new_reporting_report_summary')."\";");
+			}
+			/* Output summary table  - END */
+			$toc_datasequence = array($report['affiliates']['name'] => $report['affiliates']['name'],
+					'affiliatesoverview' => 'Affiliates overview',
+					'progression' => ' Progression boxes',
+					'summary' => 'report summary',
+					'currenciesoverview' => 'Currencies overview table',
+					'closingpage' => 'Closing page'
+			);
+
+			foreach($toc_datasequence as $id => $entry) {
+				$agregated_sections.="<div style='float:left;clear:both; padding:2px;'> <a href=#".$id.">".$entry."</a></div>";
+			}
+
+			eval("\$tablecontent = \"".$template->get('new_reporting_report_tableofcontents')."\";");
+
 			eval("\$closingpage = \"".$template->get('reporting_report_closingpage')."\";");
 
 
 			eval("\$marketreporauthorstbox = \"".$template->get('new_reporting_report_marketreporauthorstbox')."\";");
 
-			/* Output summary table - START */
-			if(!empty($report['summary']['summary'])) {
-				eval("\$summarypage = \"".$template->get('new_reporting_report_summary')."\";");
-			}
-			/* Output summary table  - END */
+
 
 			/* Parse Currencies Table - START */
 			if(!isset($report_currencies['USD'])) {
@@ -576,26 +622,36 @@ if(!$core->input['action']) {
 						$fx_rates_entries .= '</tr>';
 					}
 				}
+				$affiliate = new Affiliates($report['affid']);
+				$country_maincurrency = $affiliate->get_country()->get()['mainCurrency'];
+//				$country_aff = $affiliate->get_country()->get()['coid'];
+//				$country = new Countries($country_aff);
+//				$maincurrency = $country->get_maincurrency();
+
 				$fxratespage_tablehead .= '</tr>';
 
 				$currency_rates_year = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'], array('distinct_by' => 'alphaCode', 'precision' => 4, 'monthasname' => true), 'EUR'); /* GET the fxrate of previous quarter year */
 				if($report['year'] == $reporting_quarter['year']) {
 					$currency_rates_year = array_slice($currency_rates_year, 0, date('n', TIME_NOW));
 				}
-				
+
 				$overyears_rates = $currency->get_yearaverage_fxrate_yearbased('USD', 2005, $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR');
 				$overyears_rates = $overyears_rates + $currency_rates_year;
-				
-				$fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 EUR' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'width' => 700, 'height' => 200, 'writelabel' => true));
-				$fx_rates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_linechart->get_chart().'" /></td></tr>';
+				$fxrates_eurolinechart = new Charts(array('x' => $overyears_rates, 'y' => array('1 EUR' => $country_maincurrency)), 'linebar', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'country Rate', 'yaxisunit' => '', 'writelabel' => true));
+				$fxrates_usdlinechart = new Charts(array('x' => $overyears_rates, 'y' => array('1 USD' => $country_maincurrency)), 'linebar', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'country Rate', 'yaxisunit' => '', 'writelabel' => true));
+				//$fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 EUR' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'width' => 700, 'height' => 200, 'writelabel' => true));
 
+				$fx_rates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_eurolinechart->get_chart().'" /></td></tr>';
+				$fx_usdrates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_usdlinechart->get_chart().'" /></td></tr>';
 				if(!empty($fx_rates_entries)) {
 					eval("\$fxratespage = \"".$template->get('reporting_report_fxrates')."\";");
 				}
+				$toc_data['currenciesoverview'] = array('section' => 'currencies overview table');
 			}
 			/* Parse Currencies Table - END */
+
 			//if(is_array($report['productsactivity'])){
-				eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
+			eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
 			//}
 		}
 
@@ -634,7 +690,7 @@ if(!$core->input['action']) {
 
 		$tools = $tools_approve.$tools_send."<a href='index.php?module=reporting/preview&amp;action=exportpdf&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;".$tool_print;
 
-		$reports = $coverpage.$contributorspage.$summarypage.$overviewpage.$reports.$fxratespage.$closingpage;
+		$reports = $coverpage.$tablecontent.$contributorspage.$summarypage.$overviewpage.$reports.$fxratespage.$closingpage;
 
 		$session->set_phpsession(array('reports_'.$session_identifier => $reports));
 	}
@@ -721,7 +777,7 @@ else {
 		$html2pdf->pdf->SetTitle($suppliername, true);
 		//$content = html_entity_decode($content, ENT_XHTML, 'ISO-8859-1');
 		//$content = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $content);
-		$content = str_replace(array('&uarr;','&darr;'), array('^', '<sub>v</sub>'), $content);
+		$content = str_replace(array('&uarr;', '&darr;'), array('^', '<sub>v</sub>'), $content);
 
 		if($core->input['action'] == 'saveandsend') {
 			set_time_limit(0);

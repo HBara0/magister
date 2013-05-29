@@ -250,6 +250,9 @@ class Charts {
 		$this->DataSet = new pData();
 
 		foreach($this->data['y'] as $legend => $series) {
+			if($this->options['seriesnames']){
+				$legend=$this->options['seriesnames'][$legend];
+			}
 			$this->DataSet->addPoints($series, $legend);
 		}
 

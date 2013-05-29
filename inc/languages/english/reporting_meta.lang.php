@@ -14,6 +14,7 @@ $lang['productactivitydetails'] = "Products Activity Details";
 $lang['keycustomers'] = "Key Customers";
 $lang['contactperson'] = "Contact person";
 $lang['purchaseqty']="Purchase Qty";
+$lang['tablecontenttitle']="Table of Content";
 $lang['marketreport'] = "Market Report";
 $lang['fillsummary']="summary cannot be empty for this supplier";
 $lang['marktrendcompetition'] = "Market Trend and Competition";
