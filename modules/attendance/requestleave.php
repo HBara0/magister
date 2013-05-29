@@ -112,7 +112,6 @@ else {
 	elseif($core->input['action'] == 'getadditionalfields') {
 		$additional_fields = unserialize($db->fetch_field($db->query("SELECT additionalFields FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['ltid'])."'"), 'additionalFields'));
 		if(is_array($additional_fields)) {
-			$leave = $core->input;
 			foreach($additional_fields as $key => $val) {
 				$fields .= parse_additonalfield($key, $val).'<br />';
 			}
@@ -301,7 +300,7 @@ else {
 		if(!empty($leavetype_details['additionalFields'])) {
 			$leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields']);
 			if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
-				$leave['details_crumb'] = ' - '.implode(' ', $leave['details_crumb']);
+				$leave['details_crumb'] = implode(' ', $leave['details_crumb']);
 			}
 			else {
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
@@ -469,7 +468,10 @@ else {
 					else {
 						$lang->requestleavemessage_stats = '';
 					}
-
+	
+					if(!empty($leave['details_crumb'])) {
+						$leave['details_crumb'] = ' - '.$leave['details_crumb'];
+					}
 					$lang->requestleavemessage = $lang->sprint($lang->requestleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']).' ('.$leavetype_details['description'].')'.$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $core->input['reason'], $lang->requestleavemessage_stats, $approve_link);
 
 					/* Parse Calendar - Start */
@@ -518,6 +520,7 @@ else {
 				else {
 					$lang->leavenotificationmessage_typedetails = strtolower($leave['type_output']);
 				}
+
 				$lang->leavenotificationsubject = $lang->sprint($lang->leavenotificationsubject, $leave_user['firstName'].' '.$leave_user['lastName'], $lang->leavenotificationmessage_typedetails, $tooktaking, date($core->settings['dateformat'], $core->input['fromDate']), date($subject_todate_format, $core->input['toDate']));
 				$lang->leavenotificationmessage = $lang->sprint($lang->leavenotificationmessage, $leave_user['firstName'].' '.$leave_user['lastName'], $lang->leavenotificationmessage_typedetails, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $tooktaking, $contact_details, $contactperson_details);
 			}

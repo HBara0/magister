@@ -476,4 +476,40 @@ tr.dummytrow td, tr.dummytrow th {
 	margin:0px !important;
 	line-height: 1px;
 }
+
+.arrow-up {
+    width: 0; 
+    height: 0; 
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid #666;
+    display: inline-block;
+}
+
+.arrow-down {
+    width: 0; 
+    height: 0; 
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #666;
+    display: inline-block;
+}
+
+.arrow-right {
+    width: 0; 
+    height: 0; 
+    border-top: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-left: 5px solid #666;
+    display: inline-block;
+}
+
+.arrow-left {
+    width: 0; 
+    height: 0; 
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent; 
+    border-right: 5px solid #666; 
+    display: inline-block;
+}
 /* Classes required for the multiple filtering - START */
