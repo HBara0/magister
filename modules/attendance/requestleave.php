@@ -15,7 +15,7 @@ if(!defined('DIRECT_ACCESS')) {
 
 if(!$core->input['action']) {
 	$action = 'requestleave';
-
+$actiontype='request';
 	if($core->usergroup['attendance_canViewAffAllLeaves'] == 1) {
 		$employees[$core->user['uid']] = '';
 		$query = $db->query("SELECT u.uid, u.displayName FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE (ae.isMain=1 AND ae.affid='{$core->user[mainaffiliate]}' OR u.reportsTo='{$core->user[uid]}') AND u.gid!=7 AND u.uid!={$core->user[uid]} ORDER BY displayName ASC");
@@ -233,6 +233,7 @@ else {
 	}
 	elseif($core->input['action'] == 'do_perform_requestleave') {
 		//NO LEAVE IF BEFORE EMPLOYMENT
+		unset($core->input['leaveid']);
 		if(isset($core->input['fromDate']) && !is_empty($core->input['fromDate'], $core->input['fromMinutes'], $core->input['fromHour'])) {
 			$fromdate = explode('-', $core->input['fromDate']);
 			if(checkdate($fromdate[1], $fromdate[0], $fromdate[2])) {
@@ -291,7 +292,7 @@ else {
 		if(is_array($leavetype_coexist)) {
 			$coexistwhere = ' AND type NOT IN ('.implode(',', $leavetype_coexist).')';
 		}
-		
+
 		if(value_exists('leaves', 'uid', $leave_user['uid'], "(fromDate BETWEEN {$core->input[fromDate]} AND {$core->input[toDate]} OR toDate BETWEEN {$core->input[fromDate]} AND {$core->input[toDate]}){$coexistwhere}")) {
 			output_xml("<status>false</status><message>{$lang->requestintersectsleave}</message>");
 			exit;
@@ -303,8 +304,8 @@ else {
 				$leave['details_crumb'] = implode(' ', $leave['details_crumb']);
 			}
 			else {
-				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-				exit;
+				//output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+				//exit;
 			}
 		}
 
@@ -324,12 +325,26 @@ else {
 		unset($core->input['action'], $core->input['module']);
 
 		$core->input['affToInform'] = serialize($core->input['affToInform']);
-
+		$expenses_data = $core->input['leaveexpenses'];
+		unset($core->input['leaveexpenses']);
 		$query = $db->insert_query('leaves', $core->input);
 		if($query) {
 			$lid = $db->last_id();
-			$log->record($lid);
+			/* creat leaveExpenses --START */
+			$leaveexpense = new Leaves(array('lid' => $lid));
+			$leaveexpense->create_expenses($expenses_data);
 
+			switch($leaveexpense->get_status()) {
+				case 1:
+					output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+					break;
+				case 0:
+					output_xml("<status>false</status><message>{$lang->leavesuccessfullyrequested}</message>");
+					break;
+			}
+
+			/* creat leaveExpenses --END */
+			$log->record($lid);
 			$lang->load('attendance_messages');
 
 			$approve_immediately = false;
@@ -381,7 +396,7 @@ else {
 									  FROM ".Tprefix."affiliates 
 									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
 			}
-			
+
 			if(is_array($secondapprovers)) {
 				$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
 				unset($secondapprovers);
@@ -468,7 +483,7 @@ else {
 					else {
 						$lang->requestleavemessage_stats = '';
 					}
-	
+
 					if(!empty($leave['details_crumb'])) {
 						$leave['details_crumb'] = ' - '.$leave['details_crumb'];
 					}
@@ -565,6 +580,17 @@ else {
 			}
 			else {
 				output_xml("<status>false</status><message>{$lang->errorsendingemail}</message>");
+			}
+		}
+	}
+	elseif($core->input['action'] == "parseexpenses") {
+		$ltid = $core->input['ltid'];
+		$leavetype = new Leavetypes($ltid);
+		if($leavetype->has_expenses()) {
+			$expenses_leavetype = $leavetype->get_expenses($ltid);
+			foreach($expenses_leavetype as $val) {
+				$expences_fields = $leavetype->parse_expensesfields($val, array(), $attribute);
+				echo $expences_fields;
 			}
 		}
 	}

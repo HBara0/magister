@@ -120,6 +120,10 @@ if(!$core->input['action']) {
 
 	$to_inform = parse_toinform_list($leave['uid'], unserialize($leave['affToInform']), $leavetype_details);
 
+
+
+
+
 	eval("\$requestleavepage = \"".$template->get('attendance_requestleave')."\";");
 	output_page($requestleavepage);
 }
@@ -129,9 +133,28 @@ else {
 
 		echo parse_toinform_list($core->input['uid'], '', $leavetype_details);
 	}
+	elseif($core->input['action'] == "parseexpenses") {
+		$leaveid = $db->escape_string($core->input['leaveid']);
+		unset($core->input['leaveid']);
+		$leaveobject = new Leaves(array('lid' => $leaveid));
+		$ltid = $core->input['ltid'];
+		$leavetype = new Leavetypes($ltid);
+		if($leavetype->has_expenses()) {
+			$leaveexpences = $leaveobject->get_expensesdetails();
+			foreach($leaveexpences as $alteid => $expenses) {
+				$leaveexpences['alteid'] = $alteid;
+				$expences_fields = $leavetype->parse_expensesfields($expenses, $leaveexpences, $attribute);
+				echo $expences_fields;
+			}
+		}
+	}
 	elseif($core->input['action'] == 'do_perform_editleave') {
+		unset($core->input['leaveid']);
+		$leaveexpenses_data = $core->input['leaveexpenses'];
+		unset($core->input['leaveexpenses']);
 
 		$lid = $db->escape_string($core->input['lid']);
+
 		if(isset($core->input['fromDate']) && !empty($core->input['fromDate'])) {
 			$fromdate = explode('-', $core->input['fromDate']);
 			if(checkdate($fromdate[1], $fromdate[0], $fromdate[2])) {
@@ -229,7 +252,13 @@ else {
 
 		$core->input['affToInform'] = serialize($core->input['affToInform']);
 
+
 		$query = $db->update_query('leaves', $core->input, "lid='{$lid}'");
+
+		/* creat leaveExpenses --START */
+		$leaveobject = new Leaves(array('lid' => $lid));
+		$leaveobject->update_leaveexpences($leaveexpenses_data);
+		/* creat leaveExpenses --END */
 		if($query) {
 			if($db->affected_rows() == 0) {
 				output_xml("<status>false</status><message>{$lang->leavenochangemade}</message>");

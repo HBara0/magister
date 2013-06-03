@@ -55,9 +55,8 @@ class Leavetypes {
 		}
 	}
 
-	public function parse_expensesfields(array $expensestype, array$leaveexpences = array(), $attribute) {
-		global $db;
-
+	public function parse_expensesfields(array $expensestype, array $leaveexpences, $attribute) {
+		global $db, $template;
 		if($expensestype['isRequired'] == 1) {
 			$expenses_output_required = '<span class="red_text">*</span>';
 			$expenses_output_requiredattr = ' required="required"';
@@ -65,16 +64,13 @@ class Leavetypes {
 
 		if(isset($expensestype['title'])) {
 
-			//$expensestitle_mainoutput='<div id="attendancecontainer_'.$expensestype['alteid'].'" style="display:inline-block; width:45%;" >';
-
-			$expensestitle_output = '<div style="display:inline-block;width:25%;">'.$expensestype['title'].'</div>';
-
-			$expenses_fields = '<div style="display:inline-block; padding:5px; text-align:left; width:30%;"> <input type="text"  tabindex="'.$tabindex.'" accept="numeric" size="7"  value="'.$leaveexpences[$expensestype['alteid']]['expectedAmt'].'" id="expenses_'.$expensestype['title'].'['.$expensestype['alteid'].']" name="leaveexpenses['.$expensestype['alteid'].'][expectedAmt]" '.$expenses_output_requiredattr.' /> <select name="leaveexpenses['.$expensestype['alteid'].'][currency]"><option value="USD">USD</option></select>'.$expenses_output_required.'</div>';
-			//$expenses_fields_currency.='<div style="display:inline-block;width:20%;text-align:left;"></div>';
+			//$expensestitle_output = '<div style="display:inline-block;width:25%;">'.$expensestype['title'].'</div>';
+			//$expenses_fields = '<div style="display:inline-block; padding:5px; text-align:left; width:30%;"> <input type="text"  tabindex="'.$tabindex.'" accept="numeric" size="7"  value="'.$leaveexpences[$expensestype['alteid']]['expectedAmt'].'" id="expenses_'.$expensestype['title'].'['.$expensestype['alteid'].']" name="leaveexpenses['.$expensestype['alteid'].'][expectedAmt]" '.$expenses_output_requiredattr.' /> <select name="leaveexpenses['.$expensestype['alteid'].'][currency]"><option value="USD">USD</option></select>'.$expenses_output_required.'</div>';
 		}
-		$expenses_output = $expensestitle_output.$expenses_fields.$expenses_fields_currency;
-
-		return '<div id="attendancecontainer_'.$expensestype['alteid'].'" style="display:inline-block; width:45%;" >'.$expenses_output.'</div>';
+		//$expenses_output = $expensestitle_output.$expenses_fields.$expenses_fields_currency;
+		eval("\$requestleaveexpenses = \"".$template->get('attendance_requestleave_expenses')."\";");
+		//return '<div id="attendancecontainer_'.$expensestype['alteid'].'" style="display:inline-block; width:45%;" >'.$expenses_output.'</div>';
+		return $requestleaveexpenses;
 	}
 
 	private function read($id, $simple = true) {

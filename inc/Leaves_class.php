@@ -19,7 +19,7 @@ class Leaves {
 	private $leave = array();
 
 	public function __construct($leavedata = array()) {
-		global $db;
+		global $db; 
 		if(isset($leavedata['lid']) && !empty($leavedata['lid'])) {
 			$this->leave = $this->read($leavedata['lid'], $simple);
 		}
@@ -137,9 +137,6 @@ class Leaves {
 		return $this->leave;
 	}
 
-	public function get_expenses_details() {
-		return $this->get_expensesdetails();
-	}
 
 	public function get_status() {
 		$this->status;
