@@ -174,7 +174,7 @@ if(!$core->input['action']) {
 
 		$report['quartername'] = 'Q'.$report['quarter'].' '.$report['year'];
 		$item = array();
-		$toc_sequence = 4;
+		$toc_sequence = 5;
 		if(is_array($report['items'])) {
 			foreach($aggregate_types as $aggregate_type) {
 				foreach($report['items'] as $category => $catitem) {/* amount or  quantity */
@@ -316,7 +316,7 @@ if(!$core->input['action']) {
 						$overviewboxsegment_chart = new Charts(array('x' => $report_years, 'y' => $report_segment_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar');
 						$reporting_report_newoverviewbox_chart = '<img src="'.$overviewboxsegment_chart->get_chart().'" />';
 					}
-					$toc_data[3]['affiliatesoverview'] = array('title' => 'Affiliates overview ');
+					$toc_data[3]['affiliatesoverview'] = array('title' => $lang->activityby.' '.$lang->affiliate);
 					eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
 					$reporting_report_newoverviewbox_chart = '';
 				}
@@ -505,7 +505,8 @@ if(!$core->input['action']) {
 				unset($newtotaloverviewbox_row_percclass);
 			}
 		};
-		$toc_data[4]['progression'] = array('title' => 'Progression boxes');
+		$toc_data[4]['progressionbyaffiliates'] = array('title' => $lang->progressionyearsby.' '.$lang->affiliates);
+		$toc_data[5]['progressionbysegments'] = array('title' => $lang->progressionyearsby.' '.$lang->segments);
 	}
 
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'direct' || $core->input['referrer'] == 'list') {
@@ -544,18 +545,18 @@ if(!$core->input['action']) {
 					}
 				}
 				eval("\$contributorspage = \"".$template->get('new_reporting_report_contributionoverview')."\";");
-				$toc_data[2]['contributors'] = array('title' => 'Contributors');
+				$toc_data[2]['contributors'] = array('title' => $lang->reportcontributorsoverview);
 			}
 			
 			eval("\$coverpage = \"".$template->get('new_reporting_report_coverpage')."\";");
 			/* Output summary table - START */
 			if(!empty($report['summary']['summary'])) {
-				$toc_data[1]['summary'] = array('title' => 'report summary');
+				$toc_data[1]['summary'] = array('title' => $lang->reportsummary);
 				eval("\$summarypage = \"".$template->get('new_reporting_report_summary')."\";");
 			}
 			/* Output summary table  - END */
 
-			$toc_data[$toc_sequence+2]['closingpage'] = array('title' => 'Closing page');
+			$toc_data[$toc_sequence+2]['closingpage'] = array('title' => 'Closing Page');
 			eval("\$closingpage = \"".$template->get('reporting_report_closingpage')."\";");
 
 
@@ -628,7 +629,7 @@ if(!$core->input['action']) {
 				$fx_rates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_eurolinechart->get_chart().'" /></td></tr>';
 				$fx_usdrates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_usdlinechart->get_chart().'" /></td></tr>';
 				if(!empty($fx_rates_entries)) {
-					$toc_data[$toc_sequence+1]['currenciesoverview'] = array('title' => 'Currencies overview table');
+					$toc_data[$toc_sequence+1]['currenciesoverview'] = array('title' => $lang->currenciesfxrate);
 					eval("\$fxratespage = \"".$template->get('reporting_report_fxrates')."\";");
 				}
 			}
@@ -676,7 +677,7 @@ if(!$core->input['action']) {
 
 		ksort($toc_data);
 		foreach($toc_data as $sequence => $entry) {
-			$toc_entries .=" <div style='float:left;clear:both; padding:2px;'><a href=#".key($entry).">".$entry[key($entry)]['title']."</a></div>";
+			$toc_entries .= '<div><a href=#'.key($entry).'>'.$entry[key($entry)]['title'].'</a></div>';
 		}
 
 		eval("\$tablecontent = \"".$template->get('new_reporting_report_tableofcontents')."\";");

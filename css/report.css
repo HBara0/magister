@@ -162,6 +162,14 @@
 	color:#444444;
 }
 
+#tableofcontent {
+    width: 100px;
+    text-align: left;
+}
+#tableofcontent > div {
+    padding: 5px;
+    border-bottom: dotted 1px #ccc;
+}
 
 .scrollup{
     width:70px;
