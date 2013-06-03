@@ -1,6 +1,5 @@
- <a name="closingpage"/>
-<page>
-   
+<page style="page-break-before:always;">
+<a name="closingpage">
 <div class="logo">&nbsp;</div>
 <div align='left' style='margin-top:20px;'>
 <div class="subtitle">The New Quarterly Report</div>
