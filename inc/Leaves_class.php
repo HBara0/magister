@@ -19,7 +19,7 @@ class Leaves {
 	private $leave = array();
 
 	public function __construct($leavedata = array()) {
-		global $db; 
+		global $db;
 		if(isset($leavedata['lid']) && !empty($leavedata['lid'])) {
 			$this->leave = $this->read($leavedata['lid'], $simple);
 		}
@@ -84,11 +84,13 @@ class Leaves {
 		global $db, $log;
 
 		if(is_array($expenses)) {
-
-
 			foreach($expenses as $alteid => $expense) {
+				$leavetypeid = $db->fetch_assoc($db->query("SELECT ltid FROM ".Tprefix."attendance_leavetypes_exptypes WHERE alteid=".$db->escape_string($alteid).""));
 
-				if(is_empty($expense['expectedAmt'], $expense['currency'])) {
+				$leavetype = new Leavetypes($leavetypeid['ltid']);
+				$expenses_types = $leavetype->get_expenses();
+				//if empty and type is required
+				if(is_empty($expense['expectedAmt'], $expense['currency']) && $expenses_types[$alteid]['isRequired'] == 1) {
 					$this->status = 1;
 					return false;
 				}
@@ -136,7 +138,6 @@ class Leaves {
 	public function get() {
 		return $this->leave;
 	}
-
 
 	public function get_status() {
 		$this->status;

@@ -337,10 +337,7 @@ else {
 			switch($leaveexpense->get_status()) {
 				case 1:
 					output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-					break;
-				case 0:
-					output_xml("<status>false</status><message>{$lang->leavesuccessfullyrequested}</message>");
-					break;
+					exit;
 			}
 
 			/* creat leaveExpenses --END */
