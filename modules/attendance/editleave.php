@@ -503,13 +503,28 @@ else {
 				$lang->modifyleavenotificationmessage = $lang->sprint($lang->modifyleavenotificationmessage, $leave_user['firstName'].' '.$leave_user['lastName'], $tooktaking, $lang->leavenotificationmessage_typedetails, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $contact_details);
 			}
 
+
+			$leaveexpense = new Leaves(array('lid' => $lid));
+			if($leaveexpense->has_expenses()) {
+				$expenses_data = $leaveexpense->get_expensesdetails();
+				$total = 0;
+				$expenses_message = '';
+				foreach($expenses_data as $expenses) {
+					if(!empty($lang->{$expenses['name']})) {
+						$expenses['title'] = $lang->{$expenses['name']};
+					}
+					$total+=$expenses['expectedAmt'];
+					$expenses_message.=$expenses['title'].' :'.$expenses['expectedAmt'].$expenses['currency'].'<br>';
+				}
+				$expenses_message_ouput = $lang->modifyleavemessage.$expenses_message.'<br><br> Total:'.$total;
+			}
 			if($approve_immediately == false) {
 				$email_data = array(
 						'from_email' => 'approve_leaverequest@ocos.orkila.com',
 						'from' => 'Orkila Attendance System',
 						'to' => $to,
 						'subject' => $lang->modifyleavenotificationsubject,
-						'message' => $lang->modifyleavemessage
+						'message' => $lang->modifyleavemessage.$expenses_message_ouput
 				);
 			}
 			elseif($approve_immediately == true) {  //&& $notification_required == true
