@@ -1,5 +1,4 @@
 <page style="page-break-before:always;">
-<a name="contributors"></a>
 <table style="width:100%;">
 <tr>
 <td class="logo" style="width:100%;">&nbsp;</td>

@@ -162,25 +162,15 @@
 	color:#444444;
 }
 
-#tableofcontent {
-    width: 100px;
-    text-align: left;
-}
-#tableofcontent > div {
-    padding: 5px;
-    border-bottom: dotted 1px #ccc;
-}
 
-.scrollup {
+.scrollup{
+    width:70px;
+    height:45px;
     opacity:0.6;
     position:fixed;
-    bottom:10px;
+    bottom:50px;
     right:85px;
     display:none;
     text-indent:-9999px;
-    width: 0; 
-    height: 0; 
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-bottom: 10px solid #666;
+    background: url('../images/icons/icon_top.png') no-repeat;
 }
