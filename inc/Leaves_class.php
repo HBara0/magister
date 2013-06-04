@@ -114,7 +114,7 @@ class Leaves {
 		return false;
 	}
 
-	public function update_leaveexpences(array $leaveexpenses_data) {
+	public function update_leaveexpenses(array $leaveexpenses_data) {
 		global $db;
 		if(is_array($leaveexpenses_data)) {
 			foreach($leaveexpenses_data as $alteid => $val) {
