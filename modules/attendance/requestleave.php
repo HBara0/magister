@@ -15,7 +15,7 @@ if(!defined('DIRECT_ACCESS')) {
 
 if(!$core->input['action']) {
 	$action = 'requestleave';
-$actiontype='request';
+
 	if($core->usergroup['attendance_canViewAffAllLeaves'] == 1) {
 		$employees[$core->user['uid']] = '';
 		$query = $db->query("SELECT u.uid, u.displayName FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE (ae.isMain=1 AND ae.affid='{$core->user[mainaffiliate]}' OR u.reportsTo='{$core->user[uid]}') AND u.gid!=7 AND u.uid!={$core->user[uid]} ORDER BY displayName ASC");
@@ -334,7 +334,7 @@ else {
 			$leaveexpense = new Leaves(array('lid' => $lid));
 			$leaveexpense->create_expenses($expenses_data);
 
-			switch($leaveexpense->get_status()) {
+			switch($leaveexpense->get_errorcode()) {
 				case 1:
 					output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 					exit;
