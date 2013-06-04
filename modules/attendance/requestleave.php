@@ -329,18 +329,17 @@ else {
 		$query = $db->insert_query('leaves', $core->input);
 		if($query) {
 			$lid = $db->last_id();
-			/* creat leaveExpenses --START */
 			$log->record($lid);
+			/* Create leave expenses - START */
 			$leaveexpense = new Leaves(array('lid' => $lid));
 			$leaveexpense->create_expenses($expenses_data);
 
 			switch($leaveexpense->get_errorcode()) {
 				case 1:
-					output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-					exit;
+					//output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+					//exit;
 			}
-
-			/* creat leaveExpenses --END */
+			/* Create leave expenses - END */
 			$lang->load('attendance_messages');
 
 			$approve_immediately = false;
@@ -580,9 +579,7 @@ else {
 		}
 	}
 	elseif($core->input['action'] == 'parseexpenses') {
-		$ltid = $core->input['ltid'];
-
-		$leavetype = new Leavetypes($ltid);
+		$leavetype = new Leavetypes($core->input['ltid']);
 		if($leavetype->has_expenses()) {
 			$expenses_leavetype = $leavetype->get_expenses();
 			foreach($expenses_leavetype as $val) {
