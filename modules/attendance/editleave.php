@@ -122,9 +122,12 @@ if(!$core->input['action']) {
 	$to_inform = parse_toinform_list($leave['uid'], unserialize($leave['affToInform']), $leavetype_details);
 
 	$leaveobject = new Leaves(array('lid' => $core->input['lid']));
-	$leavetype = new Leavetypes($core->input['ltid']);
+	$leavetype = new Leavetypes($leaveobject->get_leavetype()->get()['ltid']);
 	if($leaveobject->has_expenses()) {
 		$leave_expences = $leaveobject->get_expensesdetails();
+		if(!is_array($leaveexpences)) {
+			$leaveexpences = $leavetype->get_expenses();
+		}
 			
 		foreach($leave_expences as $alteid => $leaveexpenses) {
 			$expences_fields .= $leavetype->parse_expensesfield($leaveexpenses);
