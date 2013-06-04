@@ -586,7 +586,7 @@ else {
 		if($leavetype->has_expenses()) {
 			$expenses_leavetype = $leavetype->get_expenses();
 			foreach($expenses_leavetype as $val) {
-				$expences_fields .= $leavetype->parse_expensesfields($val, array());
+				$expences_fields .= $leavetype->parse_expensesfields($val);
 			}
 			eval("\$expsection = \"".$template->get('attendance_requestleave_expsection')."\";");
 			echo $expsection;
