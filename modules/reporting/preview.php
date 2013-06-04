@@ -607,12 +607,7 @@ if(!$core->input['action']) {
 						$fx_rates_entries .= '</tr>';
 					}
 				}
-				$affiliate = new Affiliates($report['affid']);
-				$country_maincurrency = $affiliate->get_country()->get()['mainCurrency'];
-//				$country_aff = $affiliate->get_country()->get()['coid'];
-//				$country = new Countries($country_aff);
-//				$maincurrency = $country->get_maincurrency();
-
+				
 				$fxratespage_tablehead .= '</tr>';
 
 				$currency_rates_year = $currency->get_yearaverage_fxrate_monthbased('USD', $report['year'], array('distinct_by' => 'alphaCode', 'precision' => 4, 'monthasname' => true), 'EUR'); /* GET the fxrate of previous quarter year */
@@ -622,12 +617,9 @@ if(!$core->input['action']) {
 
 				$overyears_rates = $currency->get_yearaverage_fxrate_yearbased('USD', 2005, $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR');
 				$overyears_rates = $overyears_rates + $currency_rates_year;
-				$fxrates_eurolinechart = new Charts(array('x' => $overyears_rates, 'y' => array('1 EUR' => $country_maincurrency)), 'linebar', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'country Rate', 'yaxisunit' => '', 'writelabel' => true));
-				$fxrates_usdlinechart = new Charts(array('x' => $overyears_rates, 'y' => array('1 USD' => $country_maincurrency)), 'linebar', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'country Rate', 'yaxisunit' => '', 'writelabel' => true));
-				//$fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 EUR' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'width' => 700, 'height' => 200, 'writelabel' => true));
+				$fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 EUR' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'width' => 700, 'height' => 200, 'writelabel' => true));
+				$fx_rates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_linechart->get_chart().'" /></td></tr>';
 
-				$fx_rates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_eurolinechart->get_chart().'" /></td></tr>';
-				$fx_usdrates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_usdlinechart->get_chart().'" /></td></tr>';
 				if(!empty($fx_rates_entries)) {
 					$toc_data[$toc_sequence+1]['currenciesoverview'] = array('title' => $lang->currenciesfxrate);
 					eval("\$fxratespage = \"".$template->get('reporting_report_fxrates')."\";");
