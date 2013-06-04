@@ -118,7 +118,9 @@ class Leaves {
 		global $db;
 		if(is_array($leaveexpenses_data)) {
 			foreach($leaveexpenses_data as $alteid => $val) {
-				if(isset($val['expectedAmt']) &&!empty($val['expectedAmt'])) {
+				$leavetype = $this->get_leavetype();
+				$expenses_types = $leavetype->get_expenses();
+				if(isset($val['expectedAmt']) && !empty($val['expectedAmt']) && $expenses_types[$alteid]['isRequired'] == 1) {
 					$db->update_query('attendance_leaves_expenses', $val, 'lid='.$this->leave['lid'].' AND alteid='.$db->escape_string($alteid));
 				}
 			}
@@ -143,7 +145,7 @@ class Leaves {
 		return new Leavetypes($this->leave['type']);
 	}
 
-		public function get() {
+	public function get() {
 		return $this->leave;
 	}
 

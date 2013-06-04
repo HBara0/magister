@@ -129,7 +129,7 @@ if(!$core->input['action']) {
 		foreach($leave_expences as $alteid => $leaveexpenses) {
 //			$leaveexpenses['alteid'] = $alteid;
 //			$expensestype['title'] = $leaveexpenses['title'];
-			$expences_fields .= $leavetype->parse_expensesfields($leaveexpenses,$leave_expences);
+			$expences_fields .= $leavetype->parse_expensesfield($leaveexpenses);
 		}
 		eval("\$expsection = \"".$template->get('attendance_requestleave_expsection')."\";");
 	}
@@ -149,8 +149,8 @@ else {
 		if($leavetype->has_expenses()) {
 			$leaveexpences = $leaveobject->get_expensesdetails();
 			foreach($leaveexpences as $alteid => $expenses) {
-				/*$leaveexpences['alteid'] = $alteid;*/
-				$expences_fields = $leavetype->parse_expensesfields($expenses, $leaveexpences, $attribute);
+				/* $leaveexpences['alteid'] = $alteid; */
+				$expences_fields = $leavetype->parse_expensesfield($expenses);
 				echo $expences_fields;
 			}
 		}
