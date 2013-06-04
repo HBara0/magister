@@ -15,7 +15,7 @@ class Leaves {
 	public function __construct($leavedata = array(), $simple = true) {
 		global $db;
 		if(!is_array($leavedata) && !empty($leavedata)) {
-			$this->leave = $this->read($leavedata, $simple);	
+			$this->leave = $this->read($leavedata, $simple);
 		}
 		else {
 			if(isset($leavedata['lid']) && !empty($leavedata['lid'])) {
@@ -26,7 +26,7 @@ class Leaves {
 
 	public function has_expenses($id = '') {
 		global $db;
-		
+
 		if(!empty($this->leave['lid']) && empty($id)) {
 			$id = $this->leave['lid'];
 		}
@@ -41,7 +41,7 @@ class Leaves {
 
 	public function get_expenses($id = '') {
 		global $db;
-		
+
 		if(!empty($this->leave['lid']) && empty($id)) {
 			$id = $this->leave['lid'];
 		}
@@ -61,7 +61,7 @@ class Leaves {
 
 	public function get_expensesdetails($id = '') {
 		global $db;
-		
+
 		if(!empty($this->leave['lid']) && empty($id)) {
 			$id = $this->leave['lid'];
 		}
@@ -90,7 +90,7 @@ class Leaves {
 				if(!isset($this->leave['ltid'])) {
 					$this->leave['ltid'] = $db->fetch_field($db->query("SELECT ltid FROM ".Tprefix."attendance_leavetypes_exptypes WHERE alteid=".$db->escape_string($alteid)), 'ltid');
 				}
-				
+
 				$leavetype = $this->get_leavetype();
 				$expenses_types = $leavetype->get_expenses();
 				/* if empty and type is required */
@@ -118,14 +118,16 @@ class Leaves {
 		global $db;
 		if(is_array($leaveexpenses_data)) {
 			foreach($leaveexpenses_data as $alteid => $val) {
-				$db->update_query('attendance_leaves_expenses', $val, 'alteid='.$db->escape_string($alteid));
+				if(isset($val['expectedAmt']) &&!empty($val['expectedAmt'])) {
+					$db->update_query('attendance_leaves_expenses', $val, 'lid='.$this->leave['lid'].' AND alteid='.$db->escape_string($alteid));
+				}
 			}
 		}
 	}
 
 	private function read($id, $simple = true) {
 		global $db;
-		
+
 		if(empty($id)) {
 			return false;
 		}
@@ -141,7 +143,7 @@ class Leaves {
 		return new Leavetypes($this->leave['type']);
 	}
 
-	public function get() {
+		public function get() {
 		return $this->leave;
 	}
 

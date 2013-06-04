@@ -10,7 +10,7 @@
 
 class Leavetypes {
 	private $leavetype = array();
-	
+
 	public function __construct($ltid = 0, $simple = true) {
 		global $db;
 		if(isset($ltid) && !empty($ltid)) {
@@ -20,13 +20,13 @@ class Leavetypes {
 
 	public function has_expenses($id = '') {
 		global $db;
-		
+
 		if(!empty($this->leavetype['ltid']) && empty($id)) {
 			$id = $this->leavetype['ltid'];
 		}
 
 		if(value_exists('attendance_leavetypes_exptypes', 'ltid', $db->escape_string($id))) {
-			
+
 			return true;
 		}
 		else {
@@ -36,7 +36,7 @@ class Leavetypes {
 
 	public function get_expenses($id = '') {
 		global $db;
-	
+
 		if(!empty($this->leavetype['ltid']) && empty($id)) {
 			$id = $this->leavetype['ltid'];
 		}
@@ -56,7 +56,6 @@ class Leavetypes {
 
 	public function parse_expensesfields(array $expensestype, array $leaveexpenses = array()) {
 		global $db, $template;
-		
 		if($expensestype['isRequired'] == 1) {
 			$expenses_output_required = '<span class="red_text">*</span>';
 			$expenses_output_requiredattr = ' required="required"';
@@ -85,5 +84,6 @@ class Leavetypes {
 	public function get() {
 		return $this->leavetype;
 	}
+
 }
 ?>
