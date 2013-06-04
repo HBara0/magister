@@ -15,7 +15,7 @@ if(!defined('DIRECT_ACCESS')) {
 
 if(!$core->input['action']) {
 	$action = 'requestleave';
-$actiontype='request';
+
 	if($core->usergroup['attendance_canViewAffAllLeaves'] == 1) {
 		$employees[$core->user['uid']] = '';
 		$query = $db->query("SELECT u.uid, u.displayName FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE (ae.isMain=1 AND ae.affid='{$core->user[mainaffiliate]}' OR u.reportsTo='{$core->user[uid]}') AND u.gid!=7 AND u.uid!={$core->user[uid]} ORDER BY displayName ASC");
@@ -233,7 +233,6 @@ else {
 	}
 	elseif($core->input['action'] == 'do_perform_requestleave') {
 		//NO LEAVE IF BEFORE EMPLOYMENT
-		unset($core->input['leaveid']);
 		if(isset($core->input['fromDate']) && !is_empty($core->input['fromDate'], $core->input['fromMinutes'], $core->input['fromHour'])) {
 			$fromdate = explode('-', $core->input['fromDate']);
 			if(checkdate($fromdate[1], $fromdate[0], $fromdate[2])) {
@@ -334,7 +333,7 @@ else {
 			$leaveexpense = new Leaves(array('lid' => $lid));
 			$leaveexpense->create_expenses($expenses_data);
 
-			switch($leaveexpense->get_status()) {
+			switch($leaveexpense->get_errorcode()) {
 				case 1:
 					output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 					exit;
@@ -580,15 +579,17 @@ else {
 			}
 		}
 	}
-	elseif($core->input['action'] == "parseexpenses") {
+	elseif($core->input['action'] == 'parseexpenses') {
 		$ltid = $core->input['ltid'];
+
 		$leavetype = new Leavetypes($ltid);
 		if($leavetype->has_expenses()) {
-			$expenses_leavetype = $leavetype->get_expenses($ltid);
+			$expenses_leavetype = $leavetype->get_expenses();
 			foreach($expenses_leavetype as $val) {
-				$expences_fields = $leavetype->parse_expensesfields($val, array(), $attribute);
-				echo $expences_fields;
+				$expences_fields .= $leavetype->parse_expensesfields($val);
 			}
+			eval("\$expsection = \"".$template->get('attendance_requestleave_expsection')."\";");
+			echo $expsection;
 		}
 	}
 }

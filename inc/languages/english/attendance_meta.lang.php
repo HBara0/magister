@@ -126,4 +126,6 @@ $lang['validatebalances'] = 'Validate Balances';
 $lang['viewbalances'] = 'Leaves Balances';
 $lang['weekends'] = 'Weekends';
 $lang['yoursonly'] = 'Yours only';
+$lang['associatedexpenses'] = 'Associated Expenses';
+$lang['expensestotal'] = 'Expenses Total';
 ?>

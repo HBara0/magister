@@ -9,7 +9,7 @@
 				return;	
 			}
 			
-			//sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getaffiliates", "uid=" + $('#uid').val() + "&ltid=" + $('#type').val(), 'to_inform_fields', 'to_inform_fields', true);
+			sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getaffiliates", "uid=" + $('#uid').val() + "&ltid=" + $('#type').val(), 'to_inform_fields', 'to_inform_fields', true);
 		});
 		
 		$("#type, #pickDate_to").live('change', function() {
@@ -18,55 +18,28 @@
 			}
 			
 			if(($("#altpickDate_from").val() != '') && $("#altpickDate_to").val() != '') {
-				//sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getleavetime", "ltid=" + $('#type').val() + "&uid=" + $("#uid").val()+ "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val(), 'leavetime_details', 'leavetime_details', true);
+				sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getleavetime", "ltid=" + $('#type').val() + "&uid=" + $("#uid").val()+ "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val(), 'leavetime_details', 'leavetime_details', true);
 			}
 			else
 			{			
-				//sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getleavetime", "ltid=" + $('#type').val() + "&uid=" + $("#uid").val(), 'leavetime_details', 'leavetime_details', true);
+				sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getleavetime", "ltid=" + $('#type').val() + "&uid=" + $("#uid").val(), 'leavetime_details', 'leavetime_details', true);
 			}
 			
-			//sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getadditionalfields", "ltid=" + $('#type').val() + "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val() + "&uid=" + $("#uid").val(), 'additionalfields_output', 'additionalfields_output', true);
+			sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getadditionalfields", "ltid=" + $('#type').val() + "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val() + "&uid=" + $("#uid").val(), 'additionalfields_output', 'additionalfields_output', true);
 		});
                 
-       	$("#type").live('change', function() {
-                $('#expensestotalrow').hide();
-                 $('#expensestitlerow').hide();   
-                $('#expensesfieldrow').hide();
-                 $.ajax({
-                type: "POST",
-                url: "index.php?module=attendance/{$action}&action=parseexpenses",
-                data: "ltid=" + $('#type').val()+ "&leaveid=" + $("#leaveid").val() + "&uid=" + $("#uid").val(),	
-             beforeSend: function() {
-                    $("#expensesloader").html("<img style='padding: 5px;' src='" + imagespath + "/loading-bar.gif' alt='" + loading_text + "' border='0' />");
-                },
-                complete: function() {
-                        $("#expensesloader").empty();
-                },
-                success: function(returnedData){
-                    if(returnedData!=null && returnedData!='')	//if no errors
-                    {    $('#expensestotalrow').show();
-                         $('#expensestitlerow').show();
-                         $('#expensesfieldrow').show();
-                        $('#expensescontainer').html(returnedData);	//load the returned html into pageContet
-                    }
-                 
-                }
-        });
-    }); 
+            $("#type").live('change', function() {
+                sharedFunctions.requestAjax("post", "index.php?module=attendance/{$action}&action=parseexpenses", "ltid=" + $('#type').val(), 'leaveexpenses_container', 'leaveexpenses_container', true);
+            }); 
     
-    $('input[id^=expenses_]').live('blur',function () {
-    var sum = 0;
-    $('input[id^=expenses_]').each(function() {
-    sum += Number($(this).val());
-    });
-    $('#expensestotal').val(sum);
- });
-
- 
-                
-	});
-        
-        
+        $('input[id^=expenses_]').live('blur',function () {
+            var sum = 0;
+            $('input[id^=expenses_]').each(function() {
+                sum += Number($(this).val());
+            });
+            $('#expensestotal').val(sum);
+        });        
+});    
 </script>
 </head>
 <body>
@@ -97,24 +70,9 @@
         	<td>{$lang->leavereason}</td>
             <td><textarea cols="50" rows="5" name="reason" id="reason">{$leave[reason]}</textarea></td>
         </tr>
-        <tr id="expensesloader"><td></td></tr>
-        <input type="hidden"  id="leaveid" name="leaveid" value="{$lid}"/>
-        <tr id="expensestitlerow" style="display: none;"><td colspan="2"><hr /><span class="subtitle">{$lang->expenses}</span></td></tr>
-        <tr id="expensesfieldrow" >
-            <td colspan="2" id="expensescontainer"  style="padding:5px;">
-            {$requestleaveexpenses}
-            </td>
+        <tr>
+            <td colspan='2' id='leaveexpenses_container'></td>
         </tr>
-        <tr id="expensestotalrow" style="display: none;">
-            <td> 
-                <div id="toalrow" style="width:100%;">
-                   <div style="display:inline-block;width:50%;">{$lang->expensestotal}</div>
-                  <div style="display:inline-block;width:40%;"> <input type="text" id="expensestotal"  accept="numeric" disabled="disabled"/></div>
-               </div>
-             
-            </td>
-        </tr>
-        
         <tr><td colspan="2"><hr /><span class="subtitle">{$lang->contactwhileabsent}</span></td></tr>
         <tr>
         	<td>{$lang->leaveaddress}</td>
