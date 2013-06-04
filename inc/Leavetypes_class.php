@@ -26,7 +26,6 @@ class Leavetypes {
 		}
 
 		if(value_exists('attendance_leavetypes_exptypes', 'ltid', $db->escape_string($id))) {
-
 			return true;
 		}
 		else {

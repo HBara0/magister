@@ -98,6 +98,11 @@ class Leaves {
 					$this->errorcode = 1;
 					return false;
 				}
+								
+				if($expense['expectedAmt'] == '') {
+					$expense['expectedAmt'] = 0;
+				}
+				
 				$expenses_data = array('alteid' => $alteid,
 						'lid' => $this->leave['lid'],
 						'expectedAmt' => $expense['expectedAmt'],
@@ -105,25 +110,45 @@ class Leaves {
 						'usdFxrate' => '1' //Hard coded for now given USD currency
 				);
 				$query = $db->insert_query('attendance_leaves_expenses', $expenses_data);
-				if($query) {
-					$log->record($expenses_data);
-					$this->errorcode = 0;
+				if(!$query) {
+					//Record Error
 				}
 			}
+			$log->record($this->leave['lid'], 'addedexpenses');
+			$this->errorcode = 0;
 		}
 		return false;
 	}
 
 	public function update_leaveexpenses(array $leaveexpenses_data) {
-		global $db;
+		global $db, $log;
+
 		if(is_array($leaveexpenses_data)) {
-			foreach($leaveexpenses_data as $alteid => $val) {
+			foreach($leaveexpenses_data as $alteid => $expense) {
+				$alteid = $db->escape_string($alteid);
 				$leavetype = $this->get_leavetype();
 				$expenses_types = $leavetype->get_expenses();
-				if(isset($val['expectedAmt']) && !empty($val['expectedAmt']) && $expenses_types[$alteid]['isRequired'] == 1) {
-					$db->update_query('attendance_leaves_expenses', $val, 'lid='.$this->leave['lid'].' AND alteid='.$db->escape_string($alteid));
+				if(empty($expense['expectedAmt']) && $expenses_types[$alteid]['isRequired'] == 1) {
+					$this->errorcode = 1;
+					return false;
+				}
+			
+				if($expense['expectedAmt'] == '') {
+					$expense['expectedAmt'] = 0;
+				}
+				
+				if(value_exists('attendance_leaves_expenses', 'lid', $this->leave['lid'], 'alteid='.$alteid)) {
+					$db->update_query('attendance_leaves_expenses', $expense, 'lid='.$this->leave['lid'].' AND alteid='.$alteid);
+				}
+				else {
+					$expense['lid'] = $this->leave['lid'];
+					$expense['alteid'] = $alteid;
+					$db->insert_query('attendance_leaves_expenses', $expense);
 				}
 			}
+			/* Remove unrelated expenses - in case the type has changed */
+			$db->delete_query('attendance_leaves_expenses', 'lid='.$this->leave['lid'].' AND alteid NOT IN ('.implode(',', array_keys($leaveexpenses_data)).')');
+			$log->record($this->leave['lid'], 'updatedexpenses');
 		}
 	}
 
