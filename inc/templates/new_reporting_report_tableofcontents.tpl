@@ -1,11 +1,8 @@
-<a name="tablecontent"/>
-<page>
-     <table style="width:100%;" id="tableofcontent">
-  
-        <tr class="thead">
-            <td>{$lang->tablecontenttitle}</td>
-        </tr> 
-        <tr><td> {$agregated_sections}</td></tr>
-
-     </table>
+<page style="page-break-before:always;">
+    <div class="logo" style="width:100%;">&nbsp;</div>
+    <a name="tableofcontent"></a>
+     <div style="width:100%;" id="tableofcontent">
+            <div class="thead">{$lang->tablecontenttitle}</div>
+            {$toc_entries}
+     </div>
 </page>

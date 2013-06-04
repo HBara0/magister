@@ -174,6 +174,7 @@ if(!$core->input['action']) {
 
 		$report['quartername'] = 'Q'.$report['quarter'].' '.$report['year'];
 		$item = array();
+		$toc_sequence = 5;
 		if(is_array($report['items'])) {
 			foreach($aggregate_types as $aggregate_type) {
 				foreach($report['items'] as $category => $catitem) {/* amount or  quantity */
@@ -260,10 +261,6 @@ if(!$core->input['action']) {
 					}
 				}
 			}
-			/* record reprot anchor --START */
-			$toc_data['qr-'.$report['affid'].'-'.$report['spid']] = array('title' => $report[affiliates][name]);
-
-			/* record reprot anchor --END */
 
 			$temp_item = $item;
 			$item = array();
@@ -319,9 +316,7 @@ if(!$core->input['action']) {
 						$overviewboxsegment_chart = new Charts(array('x' => $report_years, 'y' => $report_segment_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar');
 						$reporting_report_newoverviewbox_chart = '<img src="'.$overviewboxsegment_chart->get_chart().'" />';
 					}
-					$toc_data['affiliatesoverview'] = array(
-							'title' => 'Affiliates overview ',
-					);
+					$toc_data[3]['affiliatesoverview'] = array('title' => $lang->activityby.' '.$lang->affiliate);
 					eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
 					$reporting_report_newoverviewbox_chart = '';
 				}
@@ -374,7 +369,7 @@ if(!$core->input['action']) {
 				}
 
 				array_walk($marketreport, 'fix_newline');
-				- array_walk($marketreport, 'parse_ocode');
+				array_walk($marketreport, 'parse_ocode');
 				eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
 			}
 		}
@@ -395,6 +390,9 @@ if(!$core->input['action']) {
 			eval("\$contributors = \"".$template->get('new_reporting_report_contributorrow')."\";");
 		}
 
+		/* record report anchor - START */
+		$toc_data[++$toc_sequence]['qr-'.$report['affid'].'-'.$report['spid']] = array('title' => $report['affiliates']['name']);
+		/* record report anchor - END */
 		eval("\$highlightbox = \"".$template->get('new_reporting_report_highlightbox')."\";");
 		eval("\$reports .= \"".$template->get('new_reporting_report')."\";");
 		$reporting_report_newoverviewbox['segments'] = $reporting_report_newoverviewbox['products'] = array();
@@ -507,8 +505,8 @@ if(!$core->input['action']) {
 				unset($newtotaloverviewbox_row_percclass);
 			}
 		};
-		$toc_data['progression'] = array('title' => 'Progression boxes',
-		);
+		$toc_data[4]['progressionbyaffiliates'] = array('title' => $lang->progressionyearsby.' '.$lang->affiliates);
+		$toc_data[5]['progressionbysegments'] = array('title' => $lang->progressionyearsby.' '.$lang->segments);
 	}
 
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'direct' || $core->input['referrer'] == 'list') {
@@ -547,35 +545,22 @@ if(!$core->input['action']) {
 					}
 				}
 				eval("\$contributorspage = \"".$template->get('new_reporting_report_contributionoverview')."\";");
+				$toc_data[2]['contributors'] = array('title' => $lang->reportcontributorsoverview);
 			}
-			$toc_data['closingpage'] = array('title' => 'Closing page');
+			
 			eval("\$coverpage = \"".$template->get('new_reporting_report_coverpage')."\";");
 			/* Output summary table - START */
 			if(!empty($report['summary']['summary'])) {
-				$toc_data['summary'] = array('title' => 'report summary');
+				$toc_data[1]['summary'] = array('title' => $lang->reportsummary);
 				eval("\$summarypage = \"".$template->get('new_reporting_report_summary')."\";");
 			}
 			/* Output summary table  - END */
-			$toc_datasequence = array($report['affiliates']['name'] => $report['affiliates']['name'],
-					'affiliatesoverview' => 'Affiliates overview',
-					'progression' => ' Progression boxes',
-					'summary' => 'report summary',
-					'currenciesoverview' => 'Currencies overview table',
-					'closingpage' => 'Closing page'
-			);
 
-			foreach($toc_datasequence as $id => $entry) {
-				$agregated_sections.="<div style='float:left;clear:both; padding:2px;'> <a href=#".$id.">".$entry."</a></div>";
-			}
-
-			eval("\$tablecontent = \"".$template->get('new_reporting_report_tableofcontents')."\";");
-
+			$toc_data[$toc_sequence+2]['closingpage'] = array('title' => 'Closing Page');
 			eval("\$closingpage = \"".$template->get('reporting_report_closingpage')."\";");
 
 
 			eval("\$marketreporauthorstbox = \"".$template->get('new_reporting_report_marketreporauthorstbox')."\";");
-
-
 
 			/* Parse Currencies Table - START */
 			if(!isset($report_currencies['USD'])) {
@@ -644,9 +629,9 @@ if(!$core->input['action']) {
 				$fx_rates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_eurolinechart->get_chart().'" /></td></tr>';
 				$fx_usdrates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_usdlinechart->get_chart().'" /></td></tr>';
 				if(!empty($fx_rates_entries)) {
+					$toc_data[$toc_sequence+1]['currenciesoverview'] = array('title' => $lang->currenciesfxrate);
 					eval("\$fxratespage = \"".$template->get('reporting_report_fxrates')."\";");
 				}
-				$toc_data['currenciesoverview'] = array('section' => 'currencies overview table');
 			}
 			/* Parse Currencies Table - END */
 
@@ -690,6 +675,13 @@ if(!$core->input['action']) {
 
 		$tools = $tools_approve.$tools_send."<a href='index.php?module=reporting/preview&amp;action=exportpdf&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;".$tool_print;
 
+		ksort($toc_data);
+		foreach($toc_data as $sequence => $entry) {
+			$toc_entries .= '<div><a href=#'.key($entry).'>'.$entry[key($entry)]['title'].'</a></div>';
+		}
+
+		eval("\$tablecontent = \"".$template->get('new_reporting_report_tableofcontents')."\";");
+			
 		$reports = $coverpage.$tablecontent.$contributorspage.$summarypage.$overviewpage.$reports.$fxratespage.$closingpage;
 
 		$session->set_phpsession(array('reports_'.$session_identifier => $reports));

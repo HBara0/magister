@@ -412,7 +412,7 @@ input[disabled="disabled"], input.disabled, .disabled {
 }
 
 #profilePicture, .thumbnail {
-	background-color: #FDFAEE;*//*#FEFBE2;*/
+	background-color: #FDFAEE;/*#FEFBE2;*/
 	color:#004F75;
 	border: 1px solid #CCCCCC;/*#F2F2F2;*/ 
 	width: 200px;

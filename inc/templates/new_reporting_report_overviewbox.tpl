@@ -1,5 +1,3 @@
-
-  <a name="affiliatesoverview"/>
 <table class="reportbox">
 <tr><td colspan="14" class="thead">{$lang->activityby} {$lang->$aggregate_type} - <em>{$lang->$category} ({$categories_uom[$category]})</em></td></tr>
   <tr>
