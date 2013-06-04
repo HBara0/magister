@@ -92,7 +92,7 @@
         <tr>
         	<td>{$lang->leavetype}</td>
             <td>{$leavetypes_list}&nbsp;<span id="additionalfields_output">{$additional_fields_output}</span></td>
-        </tr>
+        </tr>   
         <tr>
         	<td>{$lang->leavereason}</td>
             <td><textarea cols="50" rows="5" name="reason" id="reason">{$leave[reason]}</textarea></td>
