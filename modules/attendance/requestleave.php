@@ -330,6 +330,7 @@ else {
 		if($query) {
 			$lid = $db->last_id();
 			/* creat leaveExpenses --START */
+			$log->record($lid);
 			$leaveexpense = new Leaves(array('lid' => $lid));
 			$leaveexpense->create_expenses($expenses_data);
 
@@ -340,7 +341,6 @@ else {
 			}
 
 			/* creat leaveExpenses --END */
-			$log->record($lid);
 			$lang->load('attendance_messages');
 
 			$approve_immediately = false;
