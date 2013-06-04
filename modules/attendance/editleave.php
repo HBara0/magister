@@ -121,15 +121,14 @@ if(!$core->input['action']) {
 
 	$to_inform = parse_toinform_list($leave['uid'], unserialize($leave['affToInform']), $leavetype_details);
 
-	$leaveid = $db->escape_string($core->input['lid']);
-	$leaveobject = new Leaves(array('lid' => $leaveid));
-	$ltid = $core->input['ltid'];
-	$leavetype = new Leavetypes($ltid);
+
+	$leaveobject = new Leaves(array('lid' => $core->input['lid']));
+	$leavetype = new Leavetypes($core->input['ltid']);
 	if($leaveobject->has_expenses()) {
 		$leave_expences = $leaveobject->get_expensesdetails();
 		foreach($leave_expences as $alteid => $leaveexpenses) {
-			$leaveexpenses['alteid'] = $alteid;
-			$expensestype['title'] = $leaveexpenses['title'];
+//			$leaveexpenses['alteid'] = $alteid;
+//			$expensestype['title'] = $leaveexpenses['title'];
 			$expences_fields .= $leavetype->parse_expensesfields($leaveexpenses,$leave_expences);
 		}
 		eval("\$expsection = \"".$template->get('attendance_requestleave_expsection')."\";");
@@ -144,16 +143,13 @@ else {
 
 		echo parse_toinform_list($core->input['uid'], '', $leavetype_details);
 	}
-	elseif($core->input['action'] == "parseexpenses") {
-		$leaveid = $db->escape_string($core->input['lid']);
-		//unset($core->input['leaveid']);
-		$leaveobject = new Leaves(array('lid' => $leaveid));
-		$ltid = $core->input['ltid'];
-		$leavetype = new Leavetypes($ltid);
+	elseif($core->input['action'] == 'parseexpenses') {
+		$leaveobject = new Leaves(array('lid' => $core->input['lid']));
+		$leavetype = new Leavetypes($core->input['ltid']);
 		if($leavetype->has_expenses()) {
 			$leaveexpences = $leaveobject->get_expensesdetails();
 			foreach($leaveexpences as $alteid => $expenses) {
-				$leaveexpences['alteid'] = $alteid;
+				/*$leaveexpences['alteid'] = $alteid;*/
 				$expences_fields = $leavetype->parse_expensesfields($expenses, $leaveexpences, $attribute);
 				echo $expences_fields;
 			}
