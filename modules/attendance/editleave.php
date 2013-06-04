@@ -350,7 +350,9 @@ else {
 				}
 			}
 
-			$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
+			if(is_array($secondapprovers)) {
+				$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
+			}
 			if(is_array($approvers)) {
 				foreach($approvers as $key => $val) {
 					if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
