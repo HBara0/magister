@@ -121,14 +121,15 @@ if(!$core->input['action']) {
 
 	$to_inform = parse_toinform_list($leave['uid'], unserialize($leave['affToInform']), $leavetype_details);
 
-
 	$leaveobject = new Leaves(array('lid' => $core->input['lid']));
-	$leavetype = new Leavetypes($core->input['ltid']);
+	$leavetype = new Leavetypes($leaveobject->get_leavetype()->get()['ltid']);
 	if($leaveobject->has_expenses()) {
 		$leave_expences = $leaveobject->get_expensesdetails();
+		if(!is_array($leaveexpences)) {
+			$leaveexpences = $leavetype->get_expenses();
+		}
+
 		foreach($leave_expences as $alteid => $leaveexpenses) {
-//			$leaveexpenses['alteid'] = $alteid;
-//			$expensestype['title'] = $leaveexpenses['title'];
 			$expences_fields .= $leavetype->parse_expensesfield($leaveexpenses);
 		}
 		eval("\$expsection = \"".$template->get('attendance_requestleave_expsection')."\";");
@@ -144,15 +145,15 @@ else {
 		echo parse_toinform_list($core->input['uid'], '', $leavetype_details);
 	}
 	elseif($core->input['action'] == 'parseexpenses') {
-		$leaveobject = new Leaves(array('lid' => $core->input['lid']));
 		$leavetype = new Leavetypes($core->input['ltid']);
 		if($leavetype->has_expenses()) {
-			$leaveexpences = $leaveobject->get_expensesdetails();
+			$leaveexpences = $leavetype->get_expenses();
 			foreach($leaveexpences as $alteid => $expenses) {
-				/* $leaveexpences['alteid'] = $alteid; */
-				$expences_fields = $leavetype->parse_expensesfield($expenses);
-				echo $expences_fields;
+				$expences_fields .= $leavetype->parse_expensesfield($expenses);
 			}
+
+			eval("\$expsection = \"".$template->get('attendance_requestleave_expsection')."\";");
+			echo $expsection;
 		}
 	}
 	elseif($core->input['action'] == 'do_perform_editleave') {
@@ -261,11 +262,10 @@ else {
 
 
 		$query = $db->update_query('leaves', $core->input, "lid='{$lid}'");
-
-		/* creat leaveExpenses --START */
+		/* Update leave expenses - START */
 		$leaveobject = new Leaves(array('lid' => $lid));
 		$leaveobject->update_leaveexpenses($leaveexpenses_data);
-		/* creat leaveExpenses --END */
+		/* Update leave expenses - END */
 		if($query) {
 			if($db->affected_rows() == 0) {
 				output_xml("<status>false</status><message>{$lang->leavenochangemade}</message>");
@@ -350,7 +350,9 @@ else {
 				}
 			}
 
-			$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
+			if(is_array($secondapprovers)) {
+				$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
+			}
 			if(is_array($approvers)) {
 				foreach($approvers as $key => $val) {
 					if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
@@ -431,6 +433,24 @@ else {
 				$lang->modifyleavenotificationsubject = $lang->sprint($lang->modifyleavenotificationsubject, $leave_user['firstName'].' '.$leave_user['lastName'], '['.$old_leave_info['requestKey'].']');
 				//$lang->modifyleavemessage = $lang->sprint($lang->modifyleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($todate_format, $core->input['toDate']), $core->input['reason'], $approve_link);
 
+				/* Parse expense information for message - START */
+				$leaveexpense = new Leaves(array('lid' => $lid));
+				if($leaveexpense->has_expenses()) {
+					$expenses_data = $leaveexpense->get_expensesdetails();
+					$total = 0;
+					$expenses_message = '';
+					foreach($expenses_data as $expense) {
+						if(!empty($lang->{$expense['name']})) {
+							$expense['title'] = $lang->{$expense['name']};
+						}
+						$total += $expenses['expectedAmt'];
+						$expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br />';
+					}
+					$expenses_message_ouput = '<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
+				}
+				 $core->input['reason'] .= $expenses_message_ouput;
+				/* Parse expense information for message - END */
+				
 				if(!empty($leave['details_crumb'])) {
 					$leave['details_crumb'] = ' - '.$leave['details_crumb'];
 				}
@@ -501,28 +521,13 @@ else {
 				$lang->modifyleavenotificationmessage = $lang->sprint($lang->modifyleavenotificationmessage, $leave_user['firstName'].' '.$leave_user['lastName'], $tooktaking, $lang->leavenotificationmessage_typedetails, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $contact_details);
 			}
 
-
-			$leaveexpense = new Leaves(array('lid' => $lid));
-			if($leaveexpense->has_expenses()) {
-				$expenses_data = $leaveexpense->get_expensesdetails();
-				$total = 0;
-				$expenses_message = '';
-				foreach($expenses_data as $expenses) {
-					if(!empty($lang->{$expenses['name']})) {
-						$expenses['title'] = $lang->{$expenses['name']};
-					}
-					$total+=$expenses['expectedAmt'];
-					$expenses_message.=$expenses['title'].' :'.$expenses['expectedAmt'].$expenses['currency'].'<br>';
-				}
-				$expenses_message_ouput = $lang->modifyleavemessage.$expenses_message.'<br><br> Total:'.$total;
-			}
 			if($approve_immediately == false) {
 				$email_data = array(
 						'from_email' => 'approve_leaverequest@ocos.orkila.com',
 						'from' => 'Orkila Attendance System',
 						'to' => $to,
 						'subject' => $lang->modifyleavenotificationsubject,
-						'message' => $lang->modifyleavemessage.$expenses_message_ouput
+						'message' => $lang->modifyleavemessage
 				);
 			}
 			elseif($approve_immediately == true) {  //&& $notification_required == true
@@ -544,7 +549,6 @@ else {
 					$mailingLists = $to;
 				}
 
-
 				$email_data = array(
 						'from_email' => 'attendance@ocos.orkila.com',
 						'from' => 'Orkila Attendance System',
@@ -553,7 +557,6 @@ else {
 						'message' => $lang->modifyleavenotificationmessage
 				);
 			}
-
 
 			if(!empty($email_data['to'])) {
 				$mail = new Mailer($email_data, 'php');
