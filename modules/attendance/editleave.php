@@ -158,7 +158,7 @@ else {
 	}
 	elseif($core->input['action'] == 'do_perform_editleave') {
 		unset($core->input['leaveid']);
-		$leaveexpenses_data = $core->input['leaveexpenses'];
+		$expenses_data = $core->input['leaveexpenses'];
 		unset($core->input['leaveexpenses']);
 
 		$lid = $db->escape_string($core->input['lid']);
@@ -259,12 +259,21 @@ else {
 		unset($core->input['action'], $core->input['module']);
 
 		$core->input['affToInform'] = serialize($core->input['affToInform']);
-
-
+		
+		/*Validate required Fields --START*/
+		$leavetype = new Leavetypes($core->input['type']);
+		$expensesfield_type = $leavetype->get_expenses();
+		foreach($expensesfield_type as $alteid => $expensesfield) {
+			if($expensesfield['isRequired'] == 1 && empty($expenses_data[$alteid]['expectedAmt'])) {
+				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+				exit;
+			}
+		}
+	/*Validate required Fields --END*/
 		$query = $db->update_query('leaves', $core->input, "lid='{$lid}'");
 		/* Update leave expenses - START */
 		$leaveobject = new Leaves(array('lid' => $lid));
-		$leaveobject->update_leaveexpenses($leaveexpenses_data);
+		$leaveobject->update_leaveexpenses($expenses_data);
 		/* Update leave expenses - END */
 		if($query) {
 			if($db->affected_rows() == 0) {

@@ -94,10 +94,6 @@ class Leaves {
 				$leavetype = $this->get_leavetype();
 				$expenses_types = $leavetype->get_expenses();
 				/* if empty and type is required */
-				if(is_empty($expense['expectedAmt'], $expense['currency']) && $expenses_types[$alteid]['isRequired'] == 1) {
-					$this->errorcode = 1;
-					return false;
-				}
 								
 				if($expense['expectedAmt'] == '') {
 					$expense['expectedAmt'] = 0;
@@ -128,15 +124,10 @@ class Leaves {
 				$alteid = $db->escape_string($alteid);
 				$leavetype = $this->get_leavetype();
 				$expenses_types = $leavetype->get_expenses();
-				if(empty($expense['expectedAmt']) && $expenses_types[$alteid]['isRequired'] == 1) {
-					$this->errorcode = 1;
-					return false;
-				}
-			
+
 				if($expense['expectedAmt'] == '') {
 					$expense['expectedAmt'] = 0;
 				}
-				
 				if(value_exists('attendance_leaves_expenses', 'lid', $this->leave['lid'], 'alteid='.$alteid)) {
 					$db->update_query('attendance_leaves_expenses', $expense, 'lid='.$this->leave['lid'].' AND alteid='.$alteid);
 				}

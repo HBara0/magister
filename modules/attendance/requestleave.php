@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Request Leave
  * $module: attendance
- * $id: requestleave.php	
+ * $id: requestleave.php
  * Last Update: @zaher.reda 	August 28, 2012 | 05:12 PM
  */
 
@@ -320,26 +320,30 @@ else {
 
 		$core->input['requestTime'] = TIME_NOW;
 		$core->input['requestKey'] = substr(md5(uniqid(microtime())), 1, 10);
-
 		unset($core->input['action'], $core->input['module']);
 
 		$core->input['affToInform'] = serialize($core->input['affToInform']);
 		$expenses_data = $core->input['leaveexpenses'];
 		unset($core->input['leaveexpenses']);
+		/*Validate required Fields --START*/
+		$leavetype = new Leavetypes($core->input['type']);
+		$expensesfield_type = $leavetype->get_expenses();
+		foreach($expensesfield_type as $alteid => $expensesfield) {
+			if($expensesfield['isRequired'] == 1 && empty($expenses_data[$alteid]['expectedAmt'])) {
+				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+				exit;
+			}
+		}
+	/*Validate required Fields --END*/
 		$query = $db->insert_query('leaves', $core->input);
 		if($query) {
 			$lid = $db->last_id();
 			$log->record($lid);
+
 			/* Create leave expenses - START */
 			$leaveexpense = new Leaves(array('lid' => $lid));
 			$leaveexpense->create_expenses($expenses_data);
 
-			switch($leaveexpense->get_errorcode()) {
-				case 1:
-				//output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-				//exit;
-			}
-			/* Create leave expenses - END */
 			$lang->load('attendance_messages');
 
 			$approve_immediately = false;
@@ -388,7 +392,7 @@ else {
 
 			if(is_array($toapprove_select) && !empty($toapprove_select)) {
 				$secondapprovers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
-									  FROM ".Tprefix."affiliates 
+									  FROM ".Tprefix."affiliates
 									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
 			}
 
@@ -449,8 +453,8 @@ else {
 				//$approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=perform_approveleave&toapprove='.base64_encode($core->input['requestKey']).'&referrer=email';
 				$approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($core->input['requestKey']).'&id='.base64_encode($lid);
 
-				$leavestats = $db->fetch_assoc($db->query("SELECT * 
-												FROM ".Tprefix."leavesstats 
+				$leavestats = $db->fetch_assoc($db->query("SELECT *
+												FROM ".Tprefix."leavesstats
 												WHERE uid='".$db->escape_string($leave_user['uid'])."' AND (ltid='".$db->escape_string($core->input['type'])."' OR ltid = (SELECT countWith FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['type'])."' AND countWith!=0)) AND (".$db->escape_string($core->input['fromDate'])." BETWEEN periodStart AND periodEnd)"));
 
 				$leave['workingdays'] = count_workingdays($leave_user['uid'], $core->input['fromDate'], $core->input['toDate'], $leavetype_details['isWholeDay']);
@@ -464,7 +468,7 @@ else {
 					//$lang->requestleavemessage = $lang->sprint($lang->requestleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $core->input['reason'], $approve_link);
 
 					if($leavetype_details['isBusiness'] == 0) {
-						/* 						$lang->requestleavemessage_stats = $lang->sprint($lang->requestleavemessage_stats, 
+						/* 						$lang->requestleavemessage_stats = $lang->sprint($lang->requestleavemessage_stats,
 						  $leavestats['canTake'],
 						  $leavestats['entitledFor'],
 						  $leavestats['additionalDays'],
@@ -494,9 +498,9 @@ else {
 						$expenses_message_ouput = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
 					}
 					/* Parse expense information for message - END */
-				
+
 					$core->input['reason'] .= $expenses_message_ouput;
-					
+
 					if(!empty($leave['details_crumb'])) {
 						$leave['details_crumb'] = ' - '.$leave['details_crumb'];
 					}
@@ -551,7 +555,7 @@ else {
 				$lang->leavenotificationsubject = $lang->sprint($lang->leavenotificationsubject, $leave_user['firstName'].' '.$leave_user['lastName'], $lang->leavenotificationmessage_typedetails, $tooktaking, date($core->settings['dateformat'], $core->input['fromDate']), date($subject_todate_format, $core->input['toDate']));
 				$lang->leavenotificationmessage = $lang->sprint($lang->leavenotificationmessage, $leave_user['firstName'].' '.$leave_user['lastName'], $lang->leavenotificationmessage_typedetails, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $tooktaking, $contact_details, $contactperson_details);
 			}
-			
+
 			if($approve_immediately == false) {
 				$email_data = array(
 						'from_email' => 'tony.assaad@orkila.com',
@@ -640,7 +644,7 @@ function get_calendar($arguments) {
 
 	if(!empty($approved_lids)) {
 		$query = $db->query("SELECT l.*, l.uid AS requester, Concat(u.firstName, ' ', u.lastName) AS employeename
-					FROM ".Tprefix."leaves l JOIN ".Tprefix."users u ON (l.uid=u.uid) 
+					FROM ".Tprefix."leaves l JOIN ".Tprefix."users u ON (l.uid=u.uid)
 					WHERE l.lid IN (".implode(',', $approved_lids).") ORDER BY l.fromDate ASC");
 
 		if($db->num_rows($query) > 0) {
@@ -767,5 +771,4 @@ function draw_available($start_from, $num_days, $start_date_info, $week_num_days
 
 	return $message;
 }
-
 ?>
