@@ -554,11 +554,10 @@ else {
 				$email_data = array(
 						'from_email' => 'tony.assaad@orkila.com',
 						'from' => 'Orkila Attendance System',
-						'to' =>$to,
+						'to' => $to,
 						'subject' => $lang->requestleavesubject,
 						'message' => $lang->requestleavemessage.$expenses_message_ouput
 				);
-
 			}
 		}
 		else {
