@@ -24,7 +24,7 @@ if(!$core->input['action']) {
 			if(empty($product)) {
 				continue;
 			}
-		
+
 			$matchproduct.='<tr>';
 			if(isset($product) && !empty($product)) {
 				$matchproduct.='<td><input type="hidden" id="matchproduct['.$rowid.']" name=" matchproduct['.$rowid.']" size="1" tabindex="1"  value="'.$product.'">'.$product;
@@ -36,7 +36,7 @@ if(!$core->input['action']) {
 
 		$matchproduct.='</tr>';
 	}
-	
+
 	eval("\$matchproductsstage = \"".$template->get('sourcing_matchproductsstage')."\";");
 	output_page($matchproductsstage);
 }
@@ -55,8 +55,7 @@ elseif($core->input['action'] == 'do_match') {
 	}
 	output_xml("<status>true</status><message>Successfully Saved</message>");
 }
-
-function get_importtemp_data($limit=0) {
+function get_importtemp_data($limit = 0) {
 	global $db;
 
 	$tempquery = $db->query("SELECT id,REPLACE(companyName,\"'\",\"\") AS companyName FROM importtemp 
@@ -95,12 +94,12 @@ function matchWithChemical($chemical_id, $product) {
 
 	if($db->num_rows($checkmatch_query) > 0) {
 		//$matchproduct .='<td><select id=matchwith['.$match['csid'].'] name= matchwith['.$match['csid'].'] size="1" tabindex="2">';
-
+		$matchproduct = '';
+		$matchproduct .= '<td><b><select id="matchwith['.$chemical_id.']" name= "matchwith['.$chemical_id.']" size="1" tabindex="2">';
+		$matchproduct .= '<option value=""></option>';
 		while($match = $db->fetch_assoc($checkmatch_query)) {
-			$matchproduct = '';
-			$matchproduct .='<td><b><select id="matchwith['.$chemical_id.']" name= "matchwith['.$chemical_id.']" size="1" tabindex="2">';
-			$option_selected = 'selected="selected"';
-			$matchproduct .= '<option value=""></option>';
+			//$option_selected = 'selected="selected"';
+
 			$matchproduct .= '<option value="'.$match['matchchemical'].'"'.$option_selected.'>'.$match['matchchemical'].'</option>';
 		}
 		$matchproduct .= '</select></td>';
@@ -113,4 +112,5 @@ function matchWithChemical($chemical_id, $product) {
 
 	return $matchproduct;
 }
+
 ?>
