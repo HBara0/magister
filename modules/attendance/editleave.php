@@ -259,8 +259,8 @@ else {
 		unset($core->input['action'], $core->input['module']);
 
 		$core->input['affToInform'] = serialize($core->input['affToInform']);
-		
-		/*Validate required Fields --START*/
+
+		/* Validate required Fields --START */
 		$leavetype = new Leavetypes($core->input['type']);
 		$expensesfield_type = $leavetype->get_expenses();
 		foreach($expensesfield_type as $alteid => $expensesfield) {
@@ -269,7 +269,7 @@ else {
 				exit;
 			}
 		}
-	/*Validate required Fields --END*/
+		/* Validate required Fields --END */
 		$query = $db->update_query('leaves', $core->input, "lid='{$lid}'");
 		/* Update leave expenses - START */
 		$leaveobject = new Leaves(array('lid' => $lid));
@@ -457,9 +457,9 @@ else {
 					}
 					$expenses_message_ouput = '<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
 				}
-				 $core->input['reason'] .= $expenses_message_ouput;
+				$core->input['reason'] .= $expenses_message_ouput;
 				/* Parse expense information for message - END */
-				
+
 				if(!empty($leave['details_crumb'])) {
 					$leave['details_crumb'] = ' - '.$leave['details_crumb'];
 				}

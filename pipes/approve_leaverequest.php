@@ -68,24 +68,25 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 						'message' => $lang->requestleavemessagesupervisor
 				);
 				$leaveexpense = new Leaves(array('lid' => $leave['lid']));
-				if($leaveexpense->has_expenses()) {
-					$expenses_data = $leaveexpense->get_expensesdetails();
-					$total = 0;
-					$expenses_message = '';
-					foreach($expenses_data as $expenses) {
-						if(!empty($lang->{$expenses['name']})) {
-							$expenses['title'] = $lang->{$expenses['name']};
+					/* Parse expense information for message - START */
+					if($leaveexpense->has_expenses()) {
+						$expenses_data = $leaveexpense->get_expensesdetails();
+						$total = 0;
+						$expenses_message = '';
+						foreach($expenses_data as $expense) {
+							if(!empty($lang->{$expense['name']})) {
+								$expense['title'] = $lang->{$expense['name']};
+							}
+							$total += $expense['expectedAmt'];
+							$expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
 						}
-						$total+=$expenses['expectedAmt'];
-						$expenses_message.=$expenses['title'].' :'.$expenses['expectedAmt'].$expenses['currency'].'<br><br>Total:'.$total;
+						$expenses_message_ouput = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
 					}
-					//$lang->leaveexpenses = $lang->sprint($lang->leaveexpenses, $expenses['title'], $expenses['expectedAmt'], $expenses['currency'], $total);
-					$lang->leaveexpenses = $lang->sprint($lang->leaveexpenses, $expenses_message);
-					array_push($email_data, $lang->leaveexpenses);
+					/* Parse expense information for message - END */
 
-					print_r($emailexpenses_data);
-				}
-
+					//$lang->leaveexpenses = $lang->sprint($lang->leaveexpenses, $expenses_message);
+					//array_push($email_data, $lang->leaveexpenses);
+				
 				$mail = new Mailer($email_data, 'php');
 				if($mail->get_status() === true) {
 					$log->record('notifysupervisors', $email_data['to']);
@@ -98,7 +99,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 					update_leavestats_periods($leave, $leave['type_details']['isWholeDay']);
 				}
 
-				$lang->leaveapprovedmessage = $lang->sprint($lang->leaveapprovedmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']));
+				$lang->leaveapprovedmessage = $lang->sprint($lang->leaveapprovedmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']),$expenses_message_ouput);
 
 				$email_data = array(
 						'from_email' => 'attendance@ocos.orkila.com',
