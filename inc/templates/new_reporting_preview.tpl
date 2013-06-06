@@ -4,19 +4,10 @@
         {$headerinc}
         <link href="./css/report.css" rel="stylesheet" type="text/css" />
         <script src="{$core->settings[rootdir]}/js/fillreport.js" type="text/javascript"></script>
-    </head>
-
-    <body>
-        {$header}
-    <tr>
-        {$menu}
-
-    <script type="text/javascript">
+        <script type="text/javascript">
         $(document).ready(function() {
-
             $(window).scroll(function() {
-                var divoffset = $('#tableofcontent').offset().top;
-                if ($(this).scrollTop() > divoffset) {
+                if ($(this).scrollTop() > $('#tableofcontent').offset().top) {
                     $('.scrollup').fadeIn();
                 } else {
                     $('.scrollup').fadeOut();
@@ -24,12 +15,17 @@
             });
 
             $('.scrollup').click(function() {
-                $("html, body").animate({scrollTop: 0}, 300);
+                $("html, body").animate({scrollTop: $('#tableofcontent').offset().top}, 300);
                 return false;
             });
-
         });
     </script>
+    </head>
+
+    <body>
+        {$header}
+    <tr>
+        {$menu}
     <td class="contentContainer">
         <form id="save_report_reporting/fillreport_Button" name="save_report_reporting/fillreport_Button" action="#" method="post">
             <input type="hidden" name="reportdata" value="{$reportrawdata}">
@@ -41,6 +37,7 @@
         </div>
         <div align="center">{$reportingeditsummary}</div>
         <div align="right">{$tools}</div>
+        <span><a href="#tableofcontent" class="scrollup"></a></span>
     </td>
 </tr>
 {$footer}
