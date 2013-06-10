@@ -77,8 +77,7 @@ $(document).ready(function() {
 });
 </script>
 	<div id="assetslisting">
-	<table cellspacing=0 cellpadding=4 border=1 width="100%"><tr bgcolor="#91B64F">
-	<th>'.$lang->auid.'</th>
+	<table class="datatable" width="100%"><tr bgcolor="#91B64F">
 	<th>'.$lang->uid.'</th>
 	<th>'.$lang->asid.'</th>
 	<th>'.$lang->from.'</th>
@@ -91,7 +90,7 @@ $assetslist.='</tr>';
 
 if($db->num_rows($query) > 0) {
 	while($row = $db->fetch_assoc($query)) {
-		$assetslist.='<tr><td align="center" name="auid" value="'.$row['auid'].'">'.$row['auid'].'</td>';
+		$assetslist.='<tr>';
 		$assetslist.='<td name="uid" value="'.$row['uid'].'">'.get_name_from_id($row['uid'], $resolve['uid']['table'], $resolve['uid']['id'], $resolve['uid']['name']).'</td>';
 		$assetslist.='<td name="asid" value="'.$row["asid"].'">'.get_name_from_id($row["asid"], $resolve['asid']['table'], $resolve['asid']['id'], $resolve['asid']['name']).'</td>';
 		$assetslist.='<td name="fromdate" value="'.date('F d, Y', $row["fromDate"]).'">'.date('F d, Y', $row["fromDate"]).'</td>';
@@ -128,8 +127,8 @@ if(isset($core->input['edit_asset_assign'])) {
 	<table cellspacing=5 cellpadding=4 border=0>
 	<tr><td>'.$lang->uid.'</td><td>'.parse_selectlist('uid', 1, getAllUsers(), array()).'</td></tr>
 	<tr><td>'.$lang->asid.'</td><td>'.parse_selectlist('asid', 2, Asset::getAllAssets(), array()).'</td></tr>
-	<tr><td>'.$lang->from.'</td><td><input type="text" name="datefrom" id="pickDateFrom" tabindex="3" value=""/></td></tr>
-	<tr><td>'.$lang->to.'</td><td><input type="text" name="dateto" id="pickDateTo" tabindex="4" value=""/></td></tr>
+	<tr><td>'.$lang->from.'</td><td><input type="text" name="datefrom" id="pickDateFrom" tabindex="3" value=""/> <input type="time" name="fromTime" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder=":" required="required"></td></tr>
+	<tr><td>'.$lang->to.'</td><td><input type="text" name="dateto" id="pickDateTo" tabindex="4" value=""/> <input type="time" name="toTime" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder=":" required="required"></td></tr>
 	<td colspan=2><input type="submit" name="assignasset" value="Save" tabindex="5"/>&nbsp;
 	<button type="reset" id="clear_asset_edit_form">Reset</button></td></tr></td></table></form>';
 
