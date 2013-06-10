@@ -172,8 +172,8 @@ else {
 						$body_message = '';
 						$recipentdata['password']= str_replace($recipentdata['salt'],'',base64_decode($recipentdata['password']));
 						//$previewreport_link[$rcid] = 'http://www.orkila.com/reporting/preview&reportidentifier='.$recipentdata['reportIdentifier'].'&token='.$recipentdata['token'].'';
-						$previewreport_link[$rcid] = 'http://127.0.0.1/website/index.php?module=reporting/preview&reportidentifier='.$recipentdata['reportIdentifier'].'&token='.$recipentdata['token'].'';
-						$body_message[$rcid] = '<br>'.$previewreport_link[$rcid].' <br>Your new  passowrd is:"'.$recipentdata['password'].'"<br>';
+						$previewreport_link[$rcid] = 'http://10.0.0.98/website/index.php?module=reporting/preview&reportidentifier='.$recipentdata['reportIdentifier'].'&token='.$recipentdata['token'].'';
+						$body_message[$rcid] = '<br>'.$previewreport_link[$rcid].' <br>Your new  passowrd is: '.$recipentdata['password'].'<br>';
 						$recipientemail_data[$rcid] = array(
 								'from_email' => 'reporting@ocos.orkila.com',
 								'from' => 'Orkila Reporting System',
