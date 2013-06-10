@@ -36,9 +36,9 @@
    <td class="altrow mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[before_1year]][3]}</td>
    <td class="altrow mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[before_1year]][4]}</td>
    <td class="altrow2 mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[current_year]][1]}</td>
-   <td class="altrow2 mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[current_year]][2]}</td>
-   <td class="altrow2 mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[current_year]][3]}</td>
-   <td class="altrow2 mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[current_year]][4]}</td>
+   
+   {$boxes_totals_mergedoutput[mergedmainbox]}
+   
  </tr>
  <tr><td colspan="14" class='smalltext' style='color: #acacac; font-style: italic; text-align: right; padding-right: 5px;'>{$categories_uom[$category]}</td></tr>
 </table>
