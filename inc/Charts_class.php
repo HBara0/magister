@@ -56,7 +56,7 @@ class Charts {
 
 		/* Create the pChart object */
 		$this->chart = new pImage(450, 200, $this->DataSet, TRUE);
-		$this->chart->AntialiasQuality = 20;
+
 		/* Set the default font properties */
 		$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 10, 'R' => 80, 'G' => 80, 'B' => 80));
 
@@ -116,9 +116,14 @@ class Charts {
 		}
 		$this->chart = new pImage($this->options['width'], $this->options['height'], $this->DataSet);
 
-		/* Turn of Antialiasing */
-		$this->chart->Antialias = TRUE;
-		$this->chart->AntialiasQuality = 100;
+		/* Enable/Disable Antialiasing */
+		$this->chart->Antialias = FALSE;
+		if($this->options['antialias'] == TRUE) {
+			$this->chart->Antialias = TRUE;
+			if(!empty($this->options['antialiasquality'])) {
+				$this->chart->AntialiasQuality = intval($this->options['antialiasquality']);
+			}
+		}
 
 		/* Set the default font */
 		$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 8));
@@ -198,9 +203,6 @@ class Charts {
 		}
 		$this->chart = new pImage($this->options['width'], $this->options['height'], $this->DataSet);
 
-		/* Turn of Antialiasing */
-		$this->chart->Antialias = TRUE;
-
 		/* Write the chart title */
 		if(isset($this->options['title']) && !empty($this->options['title'])) {
 			$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 11));
@@ -220,8 +222,14 @@ class Charts {
 		}
 		$this->chart->drawScale($scaleSettings);
 
-		/* Turn on Antialiasing */
-		$this->chart->Antialias = TRUE;
+		/* Enable/Disable Antialiasing */
+		$this->chart->Antialias = FALSE;
+		if($this->options['antialias'] == TRUE) {
+			$this->chart->Antialias = TRUE;
+			if(!empty($this->options['antialiasquality'])) {
+				$this->chart->AntialiasQuality = intval($this->options['antialiasquality']);
+			}
+		}
 
 		/* Draw the line chart */
 		$this->chart->drawLineChart();
