@@ -20,6 +20,8 @@ if(!$core->input['action']) {
 	$aggregate_types = array('affiliates', 'segments', 'products');
 	$reporting_quarter = currentquarter_info(false);
 	$report_currencies = array();
+	$toc_sequence = 5;
+			
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list') {
 		if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {
 			redirect('index.php?module=reporting/generatereport');
@@ -174,7 +176,6 @@ if(!$core->input['action']) {
 
 		$report['quartername'] = 'Q'.$report['quarter'].' '.$report['year'];
 		$item = array();
-		$toc_sequence = 5;
 		if(is_array($report['items'])) {
 			foreach($aggregate_types as $aggregate_type) {
 				foreach($report['items'] as $category => $catitem) {/* amount or  quantity */
