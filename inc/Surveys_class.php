@@ -238,9 +238,9 @@ class Surveys {
 							$question['commentsFieldType'] = 'textarea';
 						}
 						unset($question['choices']);
-						
+
 						$question['question'] = trim($question['question']);
-						
+
 						$query_question = $db->insert_query('surveys_templates_questions', $question);
 						if($query_question) {
 							$stqid = $db->last_id();
@@ -258,18 +258,18 @@ class Surveys {
 										else {
 											$question_choices_values[0] = $choice;
 										}
-										
+
 										if(empty($question_choices_values[0])) {
 											continue;
 										}
 										if(empty($question_choices_values[1])) {
 											$question_choices_values[1] = $question_choices_values[0];
 										}
-										
+
 										if(empty($question_choices_values[1]) && $question_choices_values[1] != 0) {
 											$question_choices_values[1] = $question_choices_values[0];
 										}
-										
+
 										if(!empty($question_choices_values[0]) && (!empty($question_choices_values[1]) && $question_choices_values[1] != 0)) {
 											$newsurveys_questions_choices = array('stqid' => $stqid, 'choice' => trim($question_choices_values[0]), 'value' => trim($question_choices_values[1]));
 											$query_choice = $db->insert_query('surveys_templates_questions_choices', $newsurveys_questions_choices);
@@ -546,7 +546,7 @@ class Surveys {
 				$id = $validation_id;
 			}
 
-			if(empty($value) && $validations[$id]['isRequired'] == 1) {
+			if(!is_array($value) && ((empty($value) || !isset($value)) && $validations[$id]['isRequired'] == 1)) {
 				$this->status = 1;
 				return false;
 			}
@@ -574,6 +574,16 @@ class Surveys {
 				if($validations[$id]['validationType'] == 'numeric' && !is_numeric($value)) {
 					$this->status = 4;
 					return false;
+				}
+			}
+			else {
+				if(is_array($value)) {
+					foreach($value as $sec_value) {
+						if((empty($sec_value) || !isset($sec_value)) && $validations[$id]['isRequired'] == 1) {
+							$this->status = 1;
+							return false;
+						}
+					}
 				}
 			}
 		}
@@ -932,7 +942,7 @@ class Surveys {
 					}
 				}
 				else {
-					$question_output .= '<div style="margin: 5px 20px; 5px; 20px;"> '.parse_selectlist('answer[actual]['.$question['stqid'].'][]', $question['order'], $question['choices'], '', $question['hasMultiAnswers'], '', array('required' => $question['isRequired'])).'</div>';
+					//$question_output .= '<div style="margin: 5px 20px; 5px; 20px;"> '.parse_selectlist('answer[actual]['.$question['stqid'].'][]', $question['order'], $question['choices'], '', $question['hasMultiAnswers'], '', array('required' => $question['isRequired'])).'</div>';
 				}
 				break;
 			case 'checkbox':
