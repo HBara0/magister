@@ -524,7 +524,7 @@ class ReportingQr Extends Reporting {
 		}
 	}
 
-	public function create_recipients($rpid,$identifier) {
+	public function create_recipients($rpid, $identifier) {
 		global $db;
 		$password = Accounts::generate_password_string(10);
 		$salt = random_string(10);
@@ -537,9 +537,11 @@ class ReportingQr Extends Reporting {
 				'password' => base64_encode($password.$salt),
 				'salt' => $salt
 		);
-		$query = $db->insert_query('reporting_qrrecipients', $recipient_data);
-		if($query) {
-			return true;
+		if(!value_exists('reporting_qrrecipients', 'rpid', $rpid)) {
+			$query = $db->insert_query('reporting_qrrecipients', $recipient_data);
+			if($query) {
+				return true;
+			}
 		}
 		else {
 			return false;
@@ -547,11 +549,11 @@ class ReportingQr Extends Reporting {
 	}
 
 	public function get_recipient($rpid) {
-		global $db; 
+		global $db;
 		if(is_array($rpid)) {
 			$recipients_query = $db->query("SELECT * FROM ".Tprefix."reporting_qrrecipients rq JOIN ".Tprefix."entitiesrepresentatives er ON(er.rpid=rq.rpid)
 				JOIN ".Tprefix."representatives r ON(r.rpid=rq.rpid)
-				WHERE rq.rpid in(".implode(',',$rpid).")");
+				WHERE rq.rpid in(".implode(',', $rpid).")");
 			if($db->num_rows($recipients_query) > 0) {
 				while($recipients = $db->fetch_assoc($recipients_query)) {
 					$recipient[$recipients['rqrrid']] = $recipients;

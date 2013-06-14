@@ -179,7 +179,7 @@ else {
 								'from' => 'Orkila Reporting System',
 								'to' => $recipentdata['email'],
 								'subject' => 'External link to view quarterly Report',
-								'message' => $lang->clicktoview.':<br>'.$body_message[$rcid],
+								'message' => $lang->clicktoview.': '.$body_message[$rcid],
 						);
 						$mail = new Mailer($recipientemail_data[$rcid], 'php');
 					}
