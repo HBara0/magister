@@ -34,6 +34,7 @@ $lang['reporteditsummary']="Report Edit Summary";
 $lang['listofreports'] = "List of Reports";
 $lang['year'] = "Year";
 $lang['status'] = "Status";
+$lang['clicktoview']="Please click here to view the Quarterly Report";
 
 $lang['entryexists'] = "Summary Already Exist";
 $lang['fillrequiredfield'] = "Smmmary can not be empty";
