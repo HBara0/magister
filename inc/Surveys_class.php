@@ -535,55 +535,56 @@ class Surveys {
 	 *
 	 */
 	private function validate_answers(array $answers, $validation_id = '') {
-		global $core;
-
 		$validations = $this->get_questions_validations();
 
 		foreach($validations as $id => $validation) {
-			$value = $answers[$id];
+			if($this->validate_answer($answers[$id], $validations[$id]) == false) {
+				return false;
+			}
+		}
+		return true;
+	}
 
-			if(!empty($validation_id)) {
-				$id = $validation_id;
+	private function validate_answer($answer, $validation) {
+		global $core;
+
+
+		if(!is_array($answer) && ((empty($answer) || !isset($answer)) && $validation['isRequired'] == 1)) {
+			$this->status = 1;
+			return false;
+		}
+
+		if($validation['hasValidation'] == 1 && !empty($answer)) {
+			if(is_array($answer)) {
+				foreach($answer as $value) {
+					return $this->validate_answer($value, $validation);
+				}
 			}
 
-			if(!is_array($value) && ((empty($value) || !isset($value)) && $validations[$id]['isRequired'] == 1)) {
-				$this->status = 1;
+			if($validation['validationType'] == 'minchars' && strlen($answer) < $validation['validationCriterion']) {
+				$this->status = 4;
 				return false;
 			}
 
-			if($validations[$id]['hasValidation'] == 1 && !empty($value)) {
-				if(is_array($value)) {
-					return $this->validate_answers($value, $id);
-				}
-
-				if($validations[$id]['validationType'] == 'minchars' && strlen($value) < $validations[$id]['validationCriterion']) {
-					$this->status = 4;
-					return false;
-				}
-
-				if($validations[$id]['validationType'] == 'maxchars' && strlen($value) > $validations[$id]['validationCriterion']) {
-					$this->status = 4;
-					return false;
-				}
-
-				if($validations[$id]['validationType'] == 'email' && !$core->validate_email($value)) {
-					$this->status = 4;
-					return false;
-				}
-
-				if($validations[$id]['validationType'] == 'numeric' && !is_numeric($value)) {
-					$this->status = 4;
-					return false;
-				}
+			if($validation['validationType'] == 'maxchars' && strlen($answer) > $validation['validationCriterion']) {
+				$this->status = 4;
+				return false;
 			}
-			else {
-				if(is_array($value)) {
-					foreach($value as $sec_value) {
-						if((empty($sec_value) || !isset($sec_value)) && $validations[$id]['isRequired'] == 1) {
-							$this->status = 1;
-							return false;
-						}
-					}
+
+			if($validation['validationType'] == 'email' && !$core->validate_email($answer)) {
+				$this->status = 4;
+				return false;
+			}
+
+			if($validation['validationType'] == 'numeric' && !is_numeric($answer)) {
+				$this->status = 4;
+				return false;
+			}
+		}
+		else {
+			if(is_array($answer)) {
+				foreach($answer as $value) {
+					return $this->validate_answer($value, $validation);
 				}
 			}
 		}
