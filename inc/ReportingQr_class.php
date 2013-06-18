@@ -558,7 +558,7 @@ class ReportingQr Extends Reporting {
 	}
 
 	public function get_recipient($rpid) {
-		global $db; 
+		global $db;
 		if(is_array($rpid)) {
 			$recipients_query = $db->query("SELECT * FROM ".Tprefix."reporting_qrrecipients rq 
 				JOIN ".Tprefix."entitiesrepresentatives er ON(er.rpid=rq.rpid)
