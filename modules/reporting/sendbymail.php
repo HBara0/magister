@@ -33,6 +33,9 @@ if(!$core->input['action']) {
 			case 'm': $type = 'monthly';
 				$subject_monthquarter = $lang->{strtolower(date('F', mktime(0, 0, 0, $meta_data['month'], 1, 0)))};
 				$default_cc = '';
+				
+				$attachments = "<li><a href='{$core->settings[exportdirectory]}{$type}reports_{$core->input[identifier]}.pdf' target'_blank'>{$type}reports_{$core->input[identifier]}.pdf</a></li>";
+				$attachments .= "<input type='hidden' value='./{$core->settings[exportdirectory]}{$type}reports_{$core->input[identifier]}.pdf' name='attachment' />";
 				break;
 			case 'q':
 			default: $type = 'quarterly';
@@ -77,19 +80,16 @@ if(!$core->input['action']) {
 		if($core->user['email'] != $core->settings['sendreportsto']) {
 			$default_cc .= ', '.$core->user['email'];
 		}
-
-		$attachments = "<li><a href='{$core->settings[exportdirectory]}{$type}reports_{$core->input[identifier]}.pdf' target'_blank'>{$type}reports_{$core->input[identifier]}.pdf</a></li>";
-		$attachments .= "<input type='hidden' value='./{$core->settings[exportdirectory]}{$type}reports_{$core->input[identifier]}.pdf' name='attachment' />";
-
+		
 		/* Parse Signature - START */
-		$profile = $db->fetch_assoc($db->query("SELECT *, CONCAT(firstName, ' ', lastName) AS fullname FROM ".Tprefix."users WHERE uid='{$core->user[uid]}'"));
-		$positions = $db->fetch_assoc($db->query("SELECT title FROM ".Tprefix."userspositions u JOIN ".Tprefix."positions p ON (u.posid=p.posid) WHERE uid='{$core->user[uid]}'"));
-		$postions = implode(', ', $positions);
-		$company = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."affiliates WHERE affid='{$core->user[mainaffiliate]}'"));
-		$country = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid=".$company['country']), 'name');
-
-		$signature = $profile['fullname'].'<br /><img src="'.$core->settings['rootdir'].'/images/Orkila_logo_2.jpg" width="50" /><br />'.$postions.'<br />'.$company['addressLine1'].' - PO box '.$company['poBox'].' - '.$company['city'].' - '.$country.'<br />Tel:'.$company['phone1'].'<br />Fax:'.$company['fax'].'<br />Mobile:'.$profile['mobile'].'<br />E-mail:'.$profile['email'].'<br />Website : www.orkila.com';
-		/* Parse Signature - END */
+//		$profile = $db->fetch_assoc($db->query("SELECT *, CONCAT(firstName, ' ', lastName) AS fullname FROM ".Tprefix."users WHERE uid='{$core->user[uid]}'"));
+//		$positions = $db->fetch_assoc($db->query("SELECT title FROM ".Tprefix."userspositions u JOIN ".Tprefix."positions p ON (u.posid=p.posid) WHERE uid='{$core->user[uid]}'"));
+//		$postions = implode(', ', $positions);
+//		$company = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."affiliates WHERE affid='{$core->user[mainaffiliate]}'"));
+//		$country = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid=".$company['country']), 'name');
+//
+//		$signature = $profile['fullname'].'<br /><img src="'.$core->settings['rootdir'].'/images/Orkila_logo_2.jpg" width="50" /><br />'.$postions.'<br />'.$company['addressLine1'].' - PO box '.$company['poBox'].' - '.$company['city'].' - '.$country.'<br />Tel:'.$company['phone1'].'<br />Fax:'.$company['fax'].'<br />Mobile:'.$profile['mobile'].'<br />E-mail:'.$profile['email'].'<br />Website : www.orkila.com';
+//		/* Parse Signature - END */
 
 		$lang->sendbymailsubject = $lang->sprint($lang->sendbymailsubject, ucfirst($lang->{$type}), $subject_monthquarter.'/'.$meta_data['year'], $suppliername);
 		$lang->sendbymaildefault = $lang->sprint($lang->sendbymaildefault, strtolower($lang->{$type}));
@@ -112,6 +112,7 @@ else {
 		if(is_empty($core->input['subject'], $core->input['message'])) {
 			error($lang->incompletemessage, $_SERVER['HTTP_REFERER']);
 		}
+
 		if($meta_data['type'] == 'q') {
 			$report = new ReportingQr($meta_data);
 		}

@@ -602,7 +602,7 @@ if(!$core->input['action']) {
 					$unique_array = $report['spid'];
 					if(count($report['spid']) == 1 || $core->usergroup['canViewAllSupp'] == 1) {
 						if(in_array($report['spid'], $core->user['auditfor']) || $core->usergroup['canViewAllSupp'] == 1) {
-							$tools_send = "<a href='index.php?module=reporting/preview&amp;action=saveandsend&amp;identifier={$session_identifier}'><img src='images/icons/send.gif' border='0' alt='{$lang->sendbyemail}' /></a> ";
+							$tools_send = "<a href='index.php?module=reporting/sendbymail&amp;identifier={$session_identifier}'><img src='images/icons/send.gif' border='0' alt='{$lang->sendbyemail}' /></a> ";
 							$fillsummary_msg = $core->input['message'];
 							eval("\$reportingeditsummary = \"".$template->get('reporting_report_editsummary')."\";");
 						}
@@ -610,7 +610,7 @@ if(!$core->input['action']) {
 				}
 			}
 		}
-
+		
 		if($report['isApproved'] == 0) {
 			if($core->usergroup['reporting_canApproveReports'] == 1) {
 				$can_approve = true;
