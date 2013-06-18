@@ -109,10 +109,15 @@ $lang['revokeleavenotificationsubject'] = '{1} revoked their {2}{3}';
 $lang['revokeleavenotificationsubjectuser'] = 'Your {1}{2} was revoked';
 $lang['sendbymaildefault'] = 'Dear all, <br />
 <br />
-Please find attached the {1} report for Orkila Distribution and Agency activities in the Middle East and African Markets. <br />
+Please find below access details to view the {1} report for Orkila Distribution and Agency activities in the Middle East and African Markets. <br />
 <br />
 Please feel free to provide us with your comments, in order to improve this communication for our mutual business interests. <br />
 <br />
+Access Details:<br />
+Link: {link}
+<br />
+Password: {password}
+<br /><br />
 Best regards, Orkila';
 $lang['sendbymailsubject'] = 'ORKILA {1} Report - {2} - {3}';
 $lang['surveys_invitation_message'] = 'Dear {1},<br />
