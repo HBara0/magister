@@ -524,13 +524,24 @@ class ReportingQr Extends Reporting {
 		}
 	}
 
-	public function create_recipients($rpid,$identifier) {
+	public function create_recipient($rpid, $identifier = '') {
 		global $db;
+	
+		if(empty($identifier)) {
+			$identifier = $this->report['identifier'];
+		}
+		
+		if(value_exists('reporting_qrrecipients', 'rpid', $rpid, 'reportIdentifier="'.$db->escape_string($identifier).'"')) {
+			return false;
+		}
+		
 		$password = Accounts::generate_password_string(10);
 		$salt = random_string(10);
 		$loginKey = $this->create_loginkey();
 		$token = md5(uniqid(microtime(), true));
-		$recipient_data = array('reportIdentifier' => $identifier,
+		
+		$recipient_data = array(
+				'reportIdentifier' => $identifier,
 				'rpid' => $rpid,
 				'token' => $token,
 				'loginKey' => $loginKey,
@@ -549,14 +560,15 @@ class ReportingQr Extends Reporting {
 	public function get_recipient($rpid) {
 		global $db; 
 		if(is_array($rpid)) {
-			$recipients_query = $db->query("SELECT * FROM ".Tprefix."reporting_qrrecipients rq JOIN ".Tprefix."entitiesrepresentatives er ON(er.rpid=rq.rpid)
-				JOIN ".Tprefix."representatives r ON(r.rpid=rq.rpid)
-				WHERE rq.rpid in(".implode(',',$rpid).")");
+			$recipients_query = $db->query("SELECT * FROM ".Tprefix."reporting_qrrecipients rq 
+				JOIN ".Tprefix."entitiesrepresentatives er ON(er.rpid=rq.rpid)
+				JOIN ".Tprefix."representatives r ON (r.rpid=rq.rpid)
+				WHERE rq.rpid IN (".implode(',', $rpid).")");
 			if($db->num_rows($recipients_query) > 0) {
-				while($recipients = $db->fetch_assoc($recipients_query)) {
-					$recipient[$recipients['rqrrid']] = $recipients;
+				while($recipient = $db->fetch_assoc($recipients_query)) {
+					$recipients[$recipient['rpid']] = $recipient;
 				}
-				return $recipient;
+				return $recipients;
 			}
 		}
 	}

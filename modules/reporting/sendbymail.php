@@ -69,9 +69,8 @@ if(!$core->input['action']) {
 								WHERE er.eid='{$eid}'");
 			while($representative = $db->fetch_array($query)) {
 				$representatives_list .= '<tr><td style="width: 20%; font-weight: bold;">';
-				$representatives_list .= '<input type="checkbox" name="recipients[]" id="recipient_'.$representative['rpid'].'" value="'.base64_encode($representative['email']).'" checked/> '.$representative['name'].'</td>';
+				$representatives_list .= '<input type="checkbox" name="recipients[id]['.$representative['rpid'].']" id="recipient_id_'.$representative['rpid'].'"  value="'.$representative['rpid'].'" checked/> <input type="hidden" name="recipients[email]['.$representative['rpid'].']" id="recipient_email_'.$representative['rpid'].'" value="'.base64_encode($representative['email']).'" >'.$representative['name'].'</td>';
 				$representatives_list .= '<td>'.$representative['email'].'</td></tr>';
-				$hiddenfield.='<td><input type="hidden" name="recipientsid[]" value='.$representative['rpid'].'></td>';
 			}
 		}
 		//$default_cc = $core->settings['sendreportsto'];
@@ -105,6 +104,7 @@ if(!$core->input['action']) {
 else {
 	if($core->input['action'] == 'do_sendbymail') {
 		$meta_data = unserialize($session->get_phpsession('reportmeta_'.$db->escape_string($core->input['identifier'])));
+
 		if(empty($core->input['recipients']) && empty($core->input['additional_recipients'])) {
 			error($lang->norecipientsselected, $_SERVER['HTTP_REFERER']);
 		}
@@ -112,26 +112,29 @@ else {
 		if(is_empty($core->input['subject'], $core->input['message'])) {
 			error($lang->incompletemessage, $_SERVER['HTTP_REFERER']);
 		}
-
+		if($meta_data['type'] == 'q') {
+			$report = new ReportingQr($meta_data);
+		}
+		
 		if(is_array($core->input['recipients'])) {
-			foreach($core->input['recipients'] as $recid => $val) {
-				$email = base64_decode($val);
-				if(isvalid_email($email)) {
-					$valid_emails[] = $email;
-				}
-				else {
-					$bad_emails[] = $email;
-				}
-			}
 			switch($meta_data['type']) {
-				case'q':
-					/*  recorded in a recipients table --START */
-					$report = new ReportingQr($meta_data);
-					foreach($core->input[recipientsid] as $rpid) {
-						$report->create_recipients($rpid, $core->input['identifier']);
+				case 'q':
+					/*  Recorded in a recipients table - START */
+					foreach($core->input['recipients']['id'] as $rpid) {
+						$report->create_recipient($rpid);
 					}
-
-					/*  recorded in a recipients table --END */
+					/* Recorded in a recipients table - END */
+					break;
+				case 'm':
+					foreach($core->input['recipients']['id'] as $recid => $val) {
+						$email = base64_decode($core->input['recipients']['email'][$recid]);
+						if(isvalid_email($email)) {
+							$valid_emails[] = $email;
+						}
+						else {
+							$bad_emails[] = $email;
+						}
+					}
 					break;
 			}
 		}
@@ -147,9 +150,10 @@ else {
 				}
 			}
 		}
+		
 		$core->input['message'] = $core->sanitize_inputs($core->input['message'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
 		switch($meta_data['type']) {
-			case'm':
+			case 'm':
 				$email_data = array(
 						'from_email' => 'reporting@ocos.orkila.com',
 						'from' => 'Orkila Reporting System',
@@ -159,36 +163,51 @@ else {
 						'message' => $core->input['message'],
 						'attachments' => array($core->input['attachment'])
 				);
+				
+				if(is_array($email_data)) {
+					$mail = new Mailer($email_data, 'php');
+					$email_sent = true;
+				}
 				break;
-		}
-
-
-		switch($meta_data['type']) {
-			case'q':
-				$recipient = $report->get_recipient($core->input[recipientsid]);
-				if(is_array($recipient)) {
-					foreach($recipient as $rcid => $recipentdata) {
-						$previewreport_link = '';
-						$body_message = '';
-						$recipentdata['password']= str_replace($recipentdata['salt'],'',base64_decode($recipentdata['password']));
-						$previewreport_link[$rcid] = 'http://www.orkila.com/reporting/preview&reportidentifier='.$recipentdata['reportidentifier'].'&token='.$recipentdata['token'].'';
-						$body_message[$rcid] = '<br>'.$previewreport_link[$rcid].' <br>Your new  passowrd is:"'.$recipentdata['password'].'"<br>';
-						$recipientemail_data[$rcid] = array(
+			case 'q':
+				$recipients = $report->get_recipient($core->input['recipients']['id']);
+				if(is_array($recipients)) {
+					foreach($core->input['recipients']['id'] as $rpid) {
+						$recipient = $recipients[$rpid];
+						$email_data = array();
+						$reportlink = 'http://www.orkila.com/reporting/preview&reportidentifier='.$recipient['reportIdentifier'].'&token='.$recipient['token'];
+						if(strstr($core->input['message'], '{link}')) {
+							$core->input['message'] = str_replace('{link}', $reportlink, $core->input['message']);
+						}
+						else {
+							$core->input['message'] .= '<br />'.$lang->link.': '.$reportlink;
+						}
+				
+						$recipient['password'] = str_replace($recipient['salt'],'',base64_decode($recipient['password']));
+						if(strstr($core->input['message'], '{password}')) {
+							$core->input['message'] = str_replace('{password}', $recipient['password'], $core->input['message']);
+						}
+						else {
+							$core->input['message'] .= '<br />'.$lang->password.': '.$recipient['password'];
+						}
+						
+						$email_data = array(
 								'from_email' => 'reporting@ocos.orkila.com',
 								'from' => 'Orkila Reporting System',
-								'to' => $recipentdata['email'],
-								'subject' => 'External link to view quarterly Report',
-								'message' => 'follow the blow link :<br>'.$body_message[$rcid],
+								'to' => $recipient['email'],
+								'cc' => $cc_valid_emails,
+								'subject' => $core->input['subject'],
+								'message' => $core->input['message']
 						);
-						$mail = new Mailer($recipientemail_data[$rcid], 'php');
+						//print_r($email_data);
+						$mail = new Mailer($email_data, 'php');
+						$email_sent = true;
 					}
 				}
-				redirect('index.php?module=reporting/generatereport', 1, $lang->messagesentsuccessfully);
 				break;
 		}
-		if(is_array($email_data)) {
-			$mail = new Mailer($email_data, 'php');
 
+		if($email_sent == true) {
 			if($mail->get_status() === true) {
 				if(is_array($meta_data['rid'])) {
 					$update_query_where = 'rid IN ('.implode(',', $meta_data['rid']).')';
