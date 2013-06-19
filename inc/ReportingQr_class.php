@@ -131,6 +131,8 @@ class ReportingQr Extends Reporting {
 								$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] /= (4 - $this->report['quarter']);
 								$this->report['classifiedpactivity_class']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 'mainbox_forecast';
 								$this->report['classifiedpactivity_class']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 'mainbox_forecast';
+							
+								$this->report['forecasteditems']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 1;
 							}
 						}
 					}
@@ -209,11 +211,14 @@ class ReportingQr Extends Reporting {
 		return $this->report['classifiedpactivity_class'];
 	}
 
-	/* To be Implemented
-	  public function get_affiliate() {
-	  return new Affiliates($this->report['affid']);
-	  }
-	 */
+	public function get_forecasted_items() {
+		return $this->report['forecasteditems'];
+	}
+	
+	public function get_affiliate() {
+		return new Affiliates($this->report['affid']);
+	}
+	 
 	/* This thing doesn't exist
 	  public function get_report_productsegment() {
 	  global $db;
