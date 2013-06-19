@@ -38,6 +38,31 @@ class PostgreSQLConnection {
 		return $query;
 	}
 	
+	public function insert_query($table, $data) {
+		if(is_array($data)) {
+			$query_data = $this->prepare_insertstatement_data($data, $options);
+
+			return $this->query('INSERT INTO '.$this->db['prefix'].$table.' ('.$query_data['index'].') VALUES ('.$query_data['value'].')');
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	private function prepare_insertstatement_data(array $data) {
+		$comma = '';
+		if(!empty($data)) {
+			foreach($data as $key => $val) {
+				$statement['index'] .= $comma.$key;
+				$statement['value'] .= $comma."'".$this->escape_string($val)."'";
+				$comma = ', ';
+			}
+			return $statement;
+		}
+		return false;
+	}
+	
 	public function fetch_array($query, $type = PGSQL_BOTH) {
 		return pg_fetch_array($query, $type);
 	}
