@@ -21,7 +21,7 @@ if(!$core->input['action']) {
 	$reporting_quarter = currentquarter_info(false);
 	$report_currencies = array();
 	$toc_sequence = 5;
-			
+
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list') {
 		if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {
 			redirect('index.php?module=reporting/generatereport');
@@ -76,6 +76,7 @@ if(!$core->input['action']) {
 			$report = $newreport->get();
 			$session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report)));
 			$newreport->read_products_activity(true);
+			$report['forecasteditems'] = $newreport->get_forecasted_items();
 			$report['items'] = $newreport->get_classified_productsactivity();
 			$report['itemsclasses'] = $newreport->get_classified_classes();
 			unset($report['items']['amount']['forecast']);
@@ -283,15 +284,14 @@ if(!$core->input['action']) {
 									$item[$aggregate_type][$category]['actual'][$year][$quarter] = 0;
 								}
 								/* Format numbers for output if we have forecast for the coming quarters */
-								if($year == $reporting_quarter['year'] && $quarter > $reporting_quarter['quarter']) {
+								if($year == $report['year'] && isset($report['forecasteditems'][$category]['actual'][$year][$quarter])) {
 									$item_outputmerged+= $item[$aggregate_type][$category]['actual'][$year][$quarter];
-									$item_outputmerged_total+=$item[$aggregate_type][$category]['actual'][$year][$quarter];
 									$colspan++;
 								}
-								elseif($year == $report['year'] && $quarter > 1) {
-									$mergeditem_output['forecastmergedcell'] .= '<td class="altrow2 mainbox_mergeddatacell '.$item_class.'['.$aggregate_type.']['.$category.']['.$iid.'][actual]['.$report_years.'[current_year]]['.$quarter.']}">'.$item[$aggregate_type][$category]['actual'][$year][$quarter].'</td>';
-									$boxes_totals_mergedoutput['mergedmainbox'] = '<td colspan="3" class="altrow2 mainbox_totalcell">'.$boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter].'</td>';
+								elseif($year == $report['year'] && $quarter != 1) {
+									$mergeditem_output['forecastmergedcell'] .= '<td class="altrow2 mainbox_datacell">'.number_format($item[$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ').'</td>';
 								}
+
 								$item_rounding = 0;
 								if($item[$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $item[$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
 									$item_rounding = $default_rounding;
@@ -316,10 +316,9 @@ if(!$core->input['action']) {
 								$report_segment_charts_data[$aggregate_type][$category]['actual']['y']['Q'.$quarter][$year] = $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter];
 							}
 						}
-						$boxes_totals_mergedoutput['mergedmainbox'] = '<td colspan="3" class="altrow2 mainbox_totalcell">'.$boxes_totals_merged.'</td>';
+
 						if($colspan > 0) {
 							$mergeditem_output['forecastmergedcell'] .= '<td colspan="'.$colspan.'"  class="altrow2 mainbox_forecast">'.$item_outputmerged.'</td>';
-							$boxes_totals_mergedoutput['mergedmainbox'] = '<td colspan="3" class="altrow2 mainbox_totalcell">'.$item_outputmerged_total.'</td>';
 						}
 						//$item[$aggregate_type][$category]['actual'][$year][$quarter] = msort($item[$aggregate_type][$category]['actual'], array('quarter'));
 						eval("\$reporting_report_newoverviewbox_row[$aggregate_type][$category] .= \"".$template->get('new_reporting_report_overviewbox_row')."\";");
@@ -331,7 +330,35 @@ if(!$core->input['action']) {
 					}
 
 					$lang->$category = $lang->{(strtolower($category))};
-
+					/* loop total */
+					foreach($report_years as $yearef => $year) {
+						$colspan = 0;
+						$item_rounding = 0;
+						for($quarter = 1; $quarter <= 4; $quarter++) {
+							if($year == $report['year'] && isset($report['forecasteditems'][$category]['actual'][$year][$quarter])) {
+								if($item[$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $item[$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
+									$item_rounding = $default_rounding;
+								}
+								if($item[$aggregate_type][$category]['actual'][$year][$quarter] == 0) {
+									$item_outputmerged_total = 0;
+								}
+								else {
+									$item_outputmerged_total+=$item[$aggregate_type][$category]['actual'][$year][$quarter];
+									$colspan++;
+								}
+								$boxes_totals_mergedoutput['mergedmainbox'] .='<td colspan="'.$colspan.'" class="altrow2 mainbox_totalcell">'.number_format($item_outputmerged_total, $item_rounding, '.', ' ').'</td>';
+							}
+							elseif($year == $report['year'] && $quarter != 1) {
+								if(!isset($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter])) {
+									$boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = 0;
+								}
+								if($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
+									$item_rounding = $default_rounding;
+								}
+								$boxes_totals_mergedoutput['mergedmainbox'] .= '<td class="altrow2 mainbox_totalcell">'.number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ').'</td>';
+							}
+						}
+					}
 					/* Generate Chart */
 					if($aggregate_type == 'affiliates') {
 						$overviewbox_chart = new Charts(array('x' => $report_years, 'y' => $report_charts_data[$aggregate_type][$category]['actual']['y']), 'stackedbar');
@@ -344,6 +371,7 @@ if(!$core->input['action']) {
 					}
 					$toc_data[3]['affiliatesoverview'] = array('title' => $lang->activityby.' '.$lang->affiliate);
 					eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
+					$boxes_totals_mergedoutput['mergedmainbox'] = '';
 					$reporting_report_newoverviewbox_chart = '';
 					$item_outputmerged_total = 0;
 				}
