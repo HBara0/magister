@@ -121,7 +121,7 @@ class ReportingQr Extends Reporting {
 							if($products_data != 0) {
 								$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data - $this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid];
 							}
-							
+
 							$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 0;
 							if($this->report['classifiedpactivity']['purchasedQty']['forecast'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid] != 0) {
 								$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $this->report['classifiedpactivity']['purchasedQty']['forecast'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid] - $this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid];
@@ -130,7 +130,7 @@ class ReportingQr Extends Reporting {
 								$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] /= (4 - $this->report['quarter']);
 								$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] /= (4 - $this->report['quarter']);
 								$this->report['classifiedpactivity_class']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 'mainbox_forecast';
-								$this->report['classifiedpactivity_class']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 'mainbox_forecast';
+								$this->report['forecasteditems']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 1;
 							}
 						}
 					}
@@ -322,6 +322,10 @@ class ReportingQr Extends Reporting {
 		return $this->report['classifiedpactivity'];
 	}
 
+	public function get_forecasted_items() {
+		return $this->report['forecasteditems'];
+	}
+
 	public function get_products_activity() { /* to check if isset then  read product  */
 		return $this->report['productsactivity'];
 	}
@@ -341,10 +345,10 @@ class ReportingQr Extends Reporting {
 			JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid)
 			WHERE sa.eid=".$this->report['spid'].""));
 	}
-	
+
 	public function validate_forecasts($data, $currencies, $options = array()) {
 		global $db, $core;
-		
+
 		$validation_items = array('sales' => 'turnOver', 'quantity' => 'quantity');
 		$correctionsign = '&ge; ';
 		if($this->report['quarter'] == 4) {
@@ -367,7 +371,7 @@ class ReportingQr Extends Reporting {
 				if(empty($productactivity['pid'])) {
 					continue;
 				}
-				
+
 				if(isset($prev_data[$productactivity['pid']])) {
 					foreach($validation_items as $validation_key => $validation_item) {
 						$actual_current_validation = $productactivity[$validation_item];
@@ -399,7 +403,7 @@ class ReportingQr Extends Reporting {
 								$actual_forecast = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
 							}
 						}
-							
+
 						if($productactivity[$validation_key.'Forecast'] < $actual_forecast || ($this->report['quarter'] == 4 && round($productactivity[$validation_key.'Forecast'], 4) > $actual_forecast)) {
 							$forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
 							$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.number_format($actual_forecast, 4);
@@ -415,7 +419,7 @@ class ReportingQr Extends Reporting {
 		}
 		return false;
 	}
-	
+
 	/* Setter Functionality - START */
 	public function save_productactivity($data, $currencies, $options = array()) {
 		global $db, $core, $log;
