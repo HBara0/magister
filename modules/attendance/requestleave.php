@@ -6,7 +6,7 @@
  * Request Leave
  * $module: attendance
  * $id: requestleave.php
- * Last Update: @zaher.reda 	August 28, 2012 | 05:12 PM
+ * Last Update: @tony.assaad	June 21, 2012 | 12:12 PM
  */
 
 if(!defined('DIRECT_ACCESS')) {
@@ -325,16 +325,16 @@ else {
 		$core->input['affToInform'] = serialize($core->input['affToInform']);
 		$expenses_data = $core->input['leaveexpenses'];
 		unset($core->input['leaveexpenses']);
-		/*Validate required Fields --START*/
+		/* Validate required Fields --START */
 		$leavetype = new Leavetypes($core->input['type']);
 		$expensesfield_type = $leavetype->get_expenses();
 		foreach($expensesfield_type as $alteid => $expensesfield) {
-			if($expensesfield['isRequired'] == 1 && empty($expenses_data[$alteid]['expectedAmt'])) {
+			if($expensesfield['isRequired'] == 1 && empty($expenses_data[$alteid]['expectedAmt']) || ($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description']))) {
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				exit;
 			}
 		}
-	/*Validate required Fields --END*/
+		/* Validate required Fields --END */
 		$query = $db->insert_query('leaves', $core->input);
 		if($query) {
 			$lid = $db->last_id();
@@ -771,4 +771,5 @@ function draw_available($start_from, $num_days, $start_date_info, $week_num_days
 
 	return $message;
 }
+
 ?>

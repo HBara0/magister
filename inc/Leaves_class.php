@@ -5,7 +5,7 @@
  * Leaves Class
  * $id: Leave.php
  * Created:        @tony.assaad    May 29, 2013 | 2:17:27 PM
- * Last Update:    @tony.assaad    May 29, 2013 | 2:17:27 PM
+ * Last Update:    @tony.assaad    June 21, 2013 | 12:17:27 PM
  */
 
 class Leaves {
@@ -66,7 +66,7 @@ class Leaves {
 			$id = $this->leave['lid'];
 		}
 
-		$leaveexpdetails_query = $db->query('SELECT alte.alteid, alte.name, alte.title, ale.expectedAmt, ale.currency, ale.lid
+		$leaveexpdetails_query = $db->query('SELECT alte.alteid, alte.name,ale.description, alte.title, ale.expectedAmt, ale.currency, ale.lid
 										FROM '.Tprefix.'attendance_leaves_expenses ale 
 										JOIN '.Tprefix.'attendance_leavetypes_exptypes alte ON (alte.alteid=ale.alteid)
 										WHERE ale.lid='.$db->escape_string($id));
@@ -94,15 +94,16 @@ class Leaves {
 				$leavetype = $this->get_leavetype();
 				$expenses_types = $leavetype->get_expenses();
 				/* if empty and type is required */
-								
+
 				if($expense['expectedAmt'] == '') {
 					$expense['expectedAmt'] = 0;
 				}
-				
+
 				$expenses_data = array('alteid' => $alteid,
 						'lid' => $this->leave['lid'],
 						'expectedAmt' => $expense['expectedAmt'],
 						'currency' => $expense['currency'],
+						'description' => $expense['description'],
 						'usdFxrate' => '1' //Hard coded for now given USD currency
 				);
 				$query = $db->insert_query('attendance_leaves_expenses', $expenses_data);

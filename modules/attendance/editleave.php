@@ -129,8 +129,8 @@ if(!$core->input['action']) {
 			$leaveexpences = $leavetype->get_expenses();
 		}
 
-		foreach($leave_expences as $alteid => $leaveexpenses) {
-			$expences_fields .= $leavetype->parse_expensesfield($leaveexpenses);
+		foreach($leaveexpences as $alteid => $leaveexpenses) {
+			$expences_fields .= $leavetype->parse_expensesfield($leaveexpenses, $leave_expences[$alteid]);
 		}
 		eval("\$expsection = \"".$template->get('attendance_requestleave_expsection')."\";");
 	}
@@ -146,10 +146,14 @@ else {
 	}
 	elseif($core->input['action'] == 'parseexpenses') {
 		$leavetype = new Leavetypes($core->input['ltid']);
-		if($leavetype->has_expenses()) {
+		$leaveobject = new Leaves(array('lid' => $core->input['lid']));
+		if($leaveobject->has_expenses()) {
+			$leave_expences_data = $leaveobject->get_expensesdetails();
+		}
+		if($leavetype->has_expenses() && $leaveobject->has_expenses()) {
 			$leaveexpences = $leavetype->get_expenses();
 			foreach($leaveexpences as $alteid => $expenses) {
-				$expences_fields .= $leavetype->parse_expensesfield($expenses);
+				$expences_fields .= $leavetype->parse_expensesfield($expenses, $leave_expences_data[$alteid]);
 			}
 
 			eval("\$expsection = \"".$template->get('attendance_requestleave_expsection')."\";");
@@ -264,7 +268,7 @@ else {
 		$leavetype = new Leavetypes($core->input['type']);
 		$expensesfield_type = $leavetype->get_expenses();
 		foreach($expensesfield_type as $alteid => $expensesfield) {
-			if($expensesfield['isRequired'] == 1 && empty($expenses_data[$alteid]['expectedAmt'])) {
+			if($expensesfield['isRequired'] == 1 && empty($expenses_data[$alteid]['expectedAmt']) || ($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description']))) {
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				exit;
 			}

@@ -53,11 +53,23 @@ class Leavetypes {
 		return false;
 	}
 
-	public function parse_expensesfield(array $expensestype) {
+	public function parse_expensesfield(array $expensestype, array $expensesvalues = array()) {
 		global $db, $template;
 		if($expensestype['isRequired'] == 1) {
 			$expenses_output_required = '<span class="red_text">*</span>';
 			$expenses_output_requiredattr = ' required="required"';
+		} 
+		/* parsing comments fields */
+		if(isset($lang->{$expensestype['commentsTitleLangVar']})) {
+			$expensestype['commentsTitle'] = $lang->{$expensestype['commentsTitleLangVar']};
+		}
+		if($expensestype['requireComments'] == 1) {
+			$expenses_output_required_comments = '<div class="red_text" style="display:inline-block; padding:2px; text-align:left; width:5%; vertical-align: top;">*</div>';
+			$expenses_output_comments_requiredattr = ' required="required"';
+		}
+		if($expensestype['hasComments'] == 1) {
+			$expenses_output_comments_title = '<div style="display:inline-block; padding:5px; text-align:left; width:30%; vertical-align: top;"> '.$expensestype['commentsTitle'].'</div>';
+			$expenses_output_comments_field = '<div style="display:inline-block; padding:5px; text-align:left; width:38%; vertical-align: top;"><textarea cols="25" rows="2" id="expenses_'.$expensestype['description'].'['.$expensestype['alteid'].']" name="leaveexpenses['.$expensestype['alteid'].'][description]" '.$expenses_output_comments_requiredattr.'>'.$expensesvalues['description'].'</textarea> '.$expenses_output_required_comments.'</div>';
 		}
 
 		if(isset($lang->{$expensestype['name']})) {
