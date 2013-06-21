@@ -840,4 +840,40 @@ class IntegrationOBCurrency {
 	}
 
 }
+
+class IntegrationOBLandedCosts {
+	private $landedcost;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+			//Open connections
+		}
+		$this->read($id);
+	}
+	
+	private function read($id) {
+		$this->currency = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM m_landedcosts
+						WHERE m_landedcosts_id='".$this->f_db->escape_string($id)."'"));
+	}
+	
+	public function get_id() {
+		return $this->landedcost['m_landedcosts_id'];
+	}
+	
+	public function is_intercompany() {
+		if($this->landedcost['isinterco']) {
+			return true;
+		}
+		return false;
+	}
+	
+	public function get() {
+		return $this->landedcost;
+	}
+}
 ?>

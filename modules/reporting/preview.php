@@ -193,9 +193,9 @@ if(!$core->input['action']) {
 												$item[$aggregate_type][$category][$affid]['name'] = $total_year[$aggregate_type][$category][$type][$affid]['name'] = $newreport->get_report_affiliate($affid)['name'];
 												$item[$aggregate_type][$category][$affid][$type][$year][$quarter] = array_sum_recursive($report['items'][$category][$type][$year][$quarter][$affid]);
 
-												if($year == $reporting_quarter['year'] && $quarter > $reporting_quarter['quarter']) {
-													$item_class[$aggregate_type][$category][$affid][$type][$year][$quarter] = 'mainbox_forecast';
-												}
+//												if($year == $reporting_quarter['year'] && $quarter > $reporting_quarter['quarter']) {
+//													$item_class[$aggregate_type][$category][$affid][$type][$year][$quarter] = 'mainbox_forecast';
+//												}
 												$total_year[$aggregate_type][$category][$type][$affid][$year] += $item[$aggregate_type][$category][$affid][$type][$year][$quarter];
 
 												$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$affid][$type][$year][$quarter];
@@ -219,9 +219,9 @@ if(!$core->input['action']) {
 
 													$total_year[$aggregate_type][$category][$type][$spid][$year] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
 
-													if($year == $reporting_quarter['year'] && $quarter > $reporting_quarter['quarter']) {
-														$item_class[$aggregate_type][$category][$spid][$type][$year][$quarter] = 'mainbox_forecast';
-													}
+//													if($year == $reporting_quarter['year'] && $quarter > $reporting_quarter['quarter']) {
+//														$item_class[$aggregate_type][$category][$spid][$type][$year][$quarter] = 'mainbox_forecast';
+//													}
 													$boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
 
 //													$item_rounding = 0;
@@ -283,19 +283,21 @@ if(!$core->input['action']) {
 								if(!isset($item[$aggregate_type][$category]['actual'][$year][$quarter])) {
 									$item[$aggregate_type][$category]['actual'][$year][$quarter] = 0;
 								}
+								
+								$item_rounding = 0;
+								if($item[$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $item[$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
+									$item_rounding = $default_rounding;
+								}
+								
 								/* Format numbers for output if we have forecast for the coming quarters */
 								if($year == $report['year'] && isset($report['forecasteditems'][$category]['actual'][$year][$quarter])) {
-									$item_outputmerged+= $item[$aggregate_type][$category]['actual'][$year][$quarter];
+									$item_outputmerged += $item[$aggregate_type][$category]['actual'][$year][$quarter];
 									$colspan++;
 								}
 								elseif($year == $report['year'] && $quarter != 1) {
 									$mergeditem_output['forecastmergedcell'] .= '<td class="altrow2 mainbox_datacell">'.number_format($item[$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ').'</td>';
 								}
-
-								$item_rounding = 0;
-								if($item[$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $item[$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
-									$item_rounding = $default_rounding;
-								}
+								
 								$item_output[$aggregate_type][$category]['actual'][$year][$quarter] = number_format($item[$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ');
 								//$item_output[$aggregate_type][$category]['actual'][$year][$quarter]+=$item_output[$aggregate_type][$category]['actual'][$year][$quarter];
 
@@ -330,7 +332,8 @@ if(!$core->input['action']) {
 					}
 
 					$lang->$category = $lang->{(strtolower($category))};
-					/* loop total */
+					
+					/* Loop totals to parse forecasts - START */
 					foreach($report_years as $yearef => $year) {
 						$colspan = 0;
 						$item_rounding = 0;
@@ -346,7 +349,7 @@ if(!$core->input['action']) {
 									$item_outputmerged_total+=$item[$aggregate_type][$category]['actual'][$year][$quarter];
 									$colspan++;
 								}
-								$boxes_totals_mergedoutput['mergedmainbox'] .='<td colspan="'.$colspan.'" class="altrow2 mainbox_totalcell">'.number_format($item_outputmerged_total, $item_rounding, '.', ' ').'</td>';
+								
 							}
 							elseif($year == $report['year'] && $quarter != 1) {
 								if(!isset($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter])) {
@@ -359,16 +362,21 @@ if(!$core->input['action']) {
 							}
 						}
 					}
+					if($colspan > 0) {
+						$boxes_totals_mergedoutput['mergedmainbox'] .='<td colspan="'.$colspan.'" class="altrow2 mainbox_totalcell">'.number_format($item_outputmerged_total, $item_rounding, '.', ' ').'</td>';
+					}
+					/* Loop totals to parse forecasts - END */
+					
 					/* Generate Chart */
 					if($aggregate_type == 'affiliates') {
 						$overviewbox_chart = new Charts(array('x' => $report_years, 'y' => $report_charts_data[$aggregate_type][$category]['actual']['y']), 'stackedbar');
-						//$reporting_report_newoverviewbox_chart = '<img src="'.$overviewbox_chart->get_chart().'" />';
+						$reporting_report_newoverviewbox_chart = '<img src="'.$overviewbox_chart->get_chart().'" />';
 					}
 
-					if($aggregate_type == 'segments') {
-						$overviewboxsegment_chart = new Charts(array('x' => $report_years, 'y' => $report_segment_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar');
-						//$reporting_report_newoverviewbox_chart = '<img src="'.$overviewboxsegment_chart->get_chart().'" />';
-					}
+//					if($aggregate_type == 'segments') {
+//						$overviewboxsegment_chart = new Charts(array('x' => $report_years, 'y' => $report_segment_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar');
+//						//$reporting_report_newoverviewbox_chart = '<img src="'.$overviewboxsegment_chart->get_chart().'" />';
+//					}
 					$toc_data[3]['affiliatesoverview'] = array('title' => $lang->activityby.' '.$lang->affiliate);
 					eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
 					$boxes_totals_mergedoutput['mergedmainbox'] = '';
