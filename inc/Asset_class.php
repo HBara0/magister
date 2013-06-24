@@ -13,14 +13,84 @@ class Asset {
 	private $cache = array();
 	private $my_asid;
 
-	public function __construct() {
+	public function __construct($id = '', $simple = false) {
+		if(isset($id) && !empty($id)) {
+			$this->assets = $this->read($id, $simple);
+		}
+	}
 
+	/* Setter Functions ----START */
+	public function add($data, array $options = array()) {
+		global $db, $log, $core, $errorhandler, $lang;
+
+		if(is_empty($data['title'], $data['type'], $data['status'])) {
+			$this->errorcode = 1;
+			return false;
+		}
+		if(is_array($data)) {
+			$this->assets = $data;
+		}
+		/* If action is edit, don't check if supplier already exists */
+		if($options['operationtype'] != 'update') {
+			if(value_exists('assets', 'title', $this->assets['title'])) {
+				$this->errorcode = 2;
+				return false;
+			}
+		}
+		print_r($this->assets);
+		if($options['operationtype'] == 'update') {
+			$query = $db->update_query('assets', $this->assets, 'asid='.$this->assets['asid'].'');
+		}
+		else {
+			$query = $db->insert_query('assets', $this->assets);
+			$this->supplier['ssid'] = $db->last_id();
+		}
 	}
 
 	public function set_asid($asid) {
 		$my_asid = $asid;
 	}
 
+	public function record_location($data) {
+		$data["deviceId"] = $data["pin"];
+		$data["timeLine"] = TIME_NOW;
+		$data["fuel"] = 0;
+		$data["antenna"] = 1;
+		$data["direction"] = $data["heading"];
+		$data["vehiclestate"] = 1;
+		$data["otherstate"] = (double)$data["altitude"];
+		$data['location'] = $data['lat'].' '.$data['long'];
+		$options['geoLocation'] = array('location');
+		unset($data["pin"]);
+		unset($data['lat']);
+		unset($data['long']);
+		unset($data["altitude"]);
+		unset($data["heading"]);
+
+		global $db;
+		$query = 'SELECT asid FROM '.Tprefix.'assets_trackingdevices WHERE deviceId='.$data["deviceId"].' AND fromDate<'.$data['timeLine'].' AND toDate>'.$data['timeLine'].' ORDER BY fromDate DESC';
+		$query = $db->query($query);
+		if($db->num_rows($query) > 0) {
+			if($row = $db->fetch_assoc($query)) {
+				$data["asid"] = $row['asid'];
+			}
+		}
+		$db->insert_query('assets_locations', $data, $options);
+	}
+
+	public function assign_assetuser($asid, $uid, $from, $to) {
+		global $db;
+		$db->insert_query('assets_users', array('uid' => $uid, 'asid' => $asid, 'fromDate' => $from, 'toDate' => $to));
+	}
+
+	public function assign_tracker_to_asset($devid, $asid, $from, $to) {
+		global $db;
+		$db->insert_query('assets_users', array('deviceId' => $devid, 'asid' => $asid, 'fromDate' => $from, 'toDate' => $to));
+	}
+
+	/* Setter Functions ----END */
+
+	/* Getter Functions ----START */
 	public function get_asid() {
 		return $my_asid;
 	}
@@ -52,7 +122,7 @@ class Asset {
 		return $loc;
 	}
 
-	public function get_data_for_assets($asset_ids, $from = null, $to = null) {
+	public function get_assets_data($asset_ids, $from = null, $to = null) {
 		global $db;
 		$query = 'SELECT alid,asid,X(location) as latitude, Y(location) as longitude,timeLine,deviceId,speed,direction,antenna,fuel,vehiclestate,otherstate FROM '.Tprefix.'assets_locations WHERE asid IN ('.implode(',', $asset_ids).')';
 		if(isset($from)) {
@@ -117,57 +187,36 @@ class Asset {
 		return $loc;
 	}
 
-	public function record_location($data) {
-		$data["deviceId"] = $data["pin"];
-		$data["timeLine"] = TIME_NOW;
-		$data["fuel"] = 0;
-		$data["antenna"] = 1;
-		$data["direction"] = $data["heading"];
-		$data["vehiclestate"] = 1;
-		$data["otherstate"] = (double)$data["altitude"];
-		$data['location'] = $data['lat'].' '.$data['long'];
-		$options['geoLocation']=array('location');
-		unset($data["pin"]);
-		unset($data['lat']);
-		unset($data['long']);
-		unset($data["altitude"]);
-		unset($data["heading"]);
-
-		global $db;
-		$query = 'SELECT asid FROM '.Tprefix.'assets_trackingdevices WHERE deviceId='.$data["deviceId"].' AND fromDate<'.$data['timeLine'].' AND toDate>'.$data['timeLine'].' ORDER BY fromDate DESC';
-		$query = $db->query($query);
-		if($db->num_rows($query) > 0) {
-			if($row = $db->fetch_assoc($query)) {
-				$data["asid"] = $row['asid'];
-			}
-		}
-		$db->insert_query('assets_locations', $data,$options);
-	}
-
 	public function get_map($data) { // ($uids,$asids,$from,$to) {
 		global $db;
 
 		foreach($data as $key => $trackedasset) {
 			foreach($trackedasset as $key2 => $value) {
-				$markers[] = array('title' => $value['latitude'].'|'.$value['longitude'].' ->'. $key.':'.Maps::get_streetname($value['latitude'], $value['longitude']), 'otherinfo' => 'some other info', 'geoLocation' => (number_format($value['latitude'], 6).','.number_format($value['longitude'], 6)));
+				$markers[] = array('title' => $value['latitude'].'|'.$value['longitude'].' ->'.$key.':'.Maps::get_streetname($value['latitude'], $value['longitude']), 'otherinfo' => 'some other info', 'geoLocation' => (number_format($value['latitude'], 6).','.number_format($value['longitude'], 6)));
 			}
 		}
 
-		$options=array('overlaytype'=>'parsePolylines');
-		$map = new Maps($markers, array('infowindow' => 1, 'mapcenter' => '32.887078, 34.195312'),$options);
-		$map_view = $map->get_map(300, 200);
-		return $map_view.'<hr><pre>'.$map->get_streetname($lat, $long).'</pre>';
+		$options = array('overlaytype' => 'parsePolylines');
+		$map = new Maps($markers, array('infowindow' => 1, 'mapcenter' => '32.887078, 34.195312'), $options);
+		$map_view = $map->get_map(400, 300);
+		return $map_view.'<hr><pre >'.$map->get_streetname($lat, $long).'</pre>';
 	}
 
-	public function assign_assetuser($asid, $uid, $from, $to) {
+	private function read($id, $simple = false) {
 		global $db;
-		$db->insert_query('assets_users', array('uid' => $uid, 'asid' => $asid, 'fromDate' => $from, 'toDate' => $to));
+
+		if(empty($id)) {
+			return false;
+		}
+
+		$query_select = '*';
+		if($simple == true) {
+			$query_select = 'asid, title, type';
+		}
+
+		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."assets WHERE asid=".$db->escape_string($id)));
 	}
 
-	public function assign_tracker_to_asset($devid, $asid, $from, $to) {
-		global $db;
-		$db->insert_query('assets_users', array('deviceId' => $devid, 'asid' => $asid, 'fromDate' => $from, 'toDate' => $to));
-	}
-
+	/* Getter Functions ----END */
 }
 ?>

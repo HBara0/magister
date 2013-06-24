@@ -7,8 +7,9 @@
 <tr>
 {$menu}
     <td class="contentContainer">
-        <h3>{$pagetitle}</h3>
-        {$pagecontents}
+        <h3>{$lang->titletracking}</h3>
+      {$assets_location}
+        {$assets_map} 
     </td>
 </tr>
 {$footer}
