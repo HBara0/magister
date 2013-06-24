@@ -19,14 +19,15 @@ if($core->usergroup['assets_canManageAssets'] == 0) {
 
 
 if(!$core->input['action']) {
-$affiliate=new Affiliate();
+$affiliate= new Affiliates($core->user['affid']);
 	if($core->input['type'] == 'edit' && isset($core->input['id'])) {
 		$actiontype = 'Edit';
 	}
 	else {
 		$actiontype = 'Add';
 	}
-	$affiliate_list = parse_selectlist('affid', 1, getAffiliateList(), $core->input['e_affid']);
+	$aff=$affiliate->get();
+	$affiliate_list = parse_selectlist('affid', 1, $aff, $core->input['e_affid']);
 	eval("\$assetsmange = \"".$template->get('assets_manage')."\";");
 	output_page($assetsmange);
 }
