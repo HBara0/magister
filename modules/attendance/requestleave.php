@@ -558,7 +558,7 @@ else {
 
 			if($approve_immediately == false) {
 				$email_data = array(
-						'from_email' => 'tony.assaad@orkila.com',
+						'from_email' => 'approve_leaverequest@ocos.orkila.com',
 						'from' => 'Orkila Attendance System',
 						'to' => $to,
 						'subject' => $lang->requestleavesubject,
@@ -581,7 +581,7 @@ else {
 				}
 
 				$email_data = array(
-						'from_email' => 'zaher.reda@l-probook4530-1.orkilalb.local',
+						'from_email' => 'attendance@ocos.orkila.com',
 						'from' => 'Orkila Attendance System',
 						'to' => $mailingLists,
 						'subject' => $lang->leavenotificationsubject,
