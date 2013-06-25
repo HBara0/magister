@@ -1,11 +1,12 @@
 <?php
 /*
- * Copyright © 2012 Orkila International Offshore, All Rights Reserved
- *
+ * Copyright © 2013 Orkila International Offshore, All Rights Reserved
+ * 
  * [Provide Short Descption Here]
  * $id: manageassets.php
- * Created:        @alain.paulikevitch    Nov 29, 2012 | 7:43:48 PM
- * Last Update:    @alain.paulikevitch    Nov 29, 2012 | 7:43:48 PM
+ * Created:        @tony.assaad    Jun 24, 2013 | 11:09:38 AM
+ * Last Update:    @tony.assaad    Jun 24, 2013 | 11:09:38 AM
+ * 
  */
 
 if(!defined('DIRECT_ACCESS')) {
@@ -16,38 +17,16 @@ if($core->usergroup['assets_canManageAssets'] == 0) {
 	exit;
 }
 
-if(isset($core->input['saveasset'])) {
-	$data['affid'] = $core->input['affid'];
-	$data['title'] = $core->input['Title'];
-	$data['type'] = $core->input['Type'];
-	$data['status'] = $core->input['Status'];
 	$data['description'] = $core->input['Description'];
-	if(!isset($core->input['asid']) || $core->input['asid'] == "") {
-		Asset::add_asset($data);
-	}
-	else {
-		Asset::edit_asset($core->input['asid'], $data);
-	}
-}
 
-//echo '<pre>'.print_r($core->input, true).'</pre>';
-
+if(!$core->input['action']) {
+	$affiliate = new Affiliates($core->user['affiliates']);
 if(isset($core->input['delete_asset'])) {
 	Asset::delete_asset($core->input['delete_asset']);
 }
 
 
 $resolve = array('affid' => array('table' => 'affiliates', 'id' => 'affid', 'name' => 'name'));
-$query = 'SELECT * FROM '.Tprefix.'assets';
-$query = $db->query($query);
-$assetslist = '
-<script>
-$(document).ready(function() {
-	$("form[name=asset_delete]").submit(function(){
-		if (confirm("Delete asset?")) {
-			return true;
-		} else {
-			return false;
 		}
 	});
 	$("#clear_asset_edit_form").click(function() {
@@ -94,14 +73,11 @@ if($core->usergroup['assets_canDeleteAsset'] == 1) {
 }
 $assetslist .='<th>'.$lang->open.'</th></tr>';
 
-if($db->num_rows($query) > 0) {
-	while($row = $db->fetch_assoc($query)) {
-		$assetslist.='<tr><td align="center" name="asid" value="'.$row['asid'].'">'.$row['asid'].'</td>';
-		$assetslist.='<td name="affid" value="'.$row['affid'].'">'.get_name_from_id($row['affid'], $resolve['affid']['table'], $resolve['affid']['id'], $resolve['affid']['name']).'</td>';
-		$assetslist.='<td name="title" value="'.$row["title"].'">'.$row["title"].'</td>';
-		$assetslist.='<td name="type" value="'.$row["type"].'">'.$row["type"].'</td>';
-		$assetslist.='<td name="status" value="'.$row["status"].'">'.$row["status"].'</td>';
-		$assetslist.='<td name="description" value="'.$row["description"].'">'.$row["description"].'</td>';
+	if($core->input['type'] == 'edit' && isset($core->input['id'])) {
+		$asid = $db->escape_string($core->input['id']);
+		$asset = new Asset($asid);
+		$assets = $asset->get_assets();
+		$actiontype = 'Edit';
 		$assetslist.='<td align="center" name="edit" value=""><button  type="submit" style="cursor:pointer;border: 0; background: transparent" name="edit_asset" value="'.$row['asid'].'" alt="Edit" id="edit_entry_'.$row['asid'].'"><img src="'.DOMAIN.'/images/edit.gif"/></button></td>';
 		if($core->usergroup['assets_canDeleteAsset'] == 1) {
 			$assetslist.='<form name="asset_delete" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/manageassets">
@@ -111,26 +87,44 @@ if($db->num_rows($query) > 0) {
 		}
 		$assetslist.='<td name="open" value=""><a href="'.DOMAIN.'/index.php?module=assets/assets&action=list&asid='.$row['asid'].'">open</a></td></tr>';
 	}
-	$assetslist.='</table></div>';
-}
-else {
-	$assetslist = '<div id="assetslist"></div>';
-}
+	else {
+		$actiontype = 'Add';
+	}
+	//$affiliate_country = $affiliate->get_country()->get();
 
-$assetedit = '<form name="asset_save" enctype="multipart/form-data" method="post" action="'.DOMAIN.'/index.php?module=assets/manageassets">
-	<input type="hidden" id="asid" name="asid" />
-	<table cellspacing=5 cellpadding=4 border=0>
-	<tr><td>'.$lang->afid.'</td><td>'.parse_selectlist('affid', 1, getAffiliateList(), '').'</td></tr>
-	<tr><td>'.$lang->title.'</td><td><input id="title" type="text" name="Title" tabindex="2"/></td></tr>
-	<tr><td>'.$lang->type.'</td><td><input id="type" type="text" name="Type" tabindex="3"/></td></tr>
-	<tr><td>'.$lang->status.'</td><td><input id="status" type="text" name="Status" tabindex="4"/></td></tr>
-	<tr><td>'.$lang->description.'</td><td><textarea id="description" type="textarea" name="Description" tabindex="5"></textarea></td></tr>
-	<td colspan=2><input type="submit" name="saveasset" value="Save" tabindex="6"/>&nbsp;
+	$affiliatesquery = $db->query("SELECT affid,name FROM ".Tprefix."affiliates WHERE affid IN('".implode(',', $core->user['affiliates'])."')");
+
+	while($affiliates_user = $db->fetch_assoc($affiliatesquery)) {
+		$affiliate_list.='<option value="'.$affiliates_user['affid'].'">'.$affiliates_user['name'].'</option>';
+	}
 	<button type="reset" id="clear_asset_edit_form">Reset</button></td></tr></table></form>';
 
-
-$pagetitle = $lang->assetsmanagepage;
 $pagecontents = encapsulate_in_fieldset($assetedit,"Add/Edit",true).'<hr><br>'.$assetslist;
-eval("\$assetslist = \"".$template->get('assets_assets')."\";");
-echo $assetslist;
+	eval("\$assetsmange = \"".$template->get('assets_manage')."\";");
+	output_page($assetsmange);
+}
+else {
+	$asset = new Asset();
+	if($core->input['action'] == 'do_Add' || $core->input['action'] == 'do_Edit') {
+		if($core->input['action'] == 'do_Edit') {
+			$options['operationtype'] = 'update';
+			$lang->successfullysaved = 'Successfully Update';
+		}
+		else {
+			$options = array();
+		}
+		$asset->add($core->input['asset'], $options);
+		switch($asset->get_errorcode()) {
+			case 0:
+				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+				break;
+			case 1:
+				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+				break;
+			case 2:
+				output_xml("<status>false</status><message>{$lang->entryexsist}</message>");
+				break;
 ?>
+
+
+
