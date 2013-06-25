@@ -19,15 +19,27 @@ if($core->usergroup['assets_canManageAssets'] == 0) {
 
 
 if(!$core->input['action']) {
-$affiliate= new Affiliates($core->user['affid']);
+	$affiliate = new Affiliates($core->user['affiliates']);
+
 	if($core->input['type'] == 'edit' && isset($core->input['id'])) {
+		$asid = $db->escape_string($core->input['id']);
+		$asset = new Asset($asid);
+		$assets = $asset->get_assets();
 		$actiontype = 'Edit';
 	}
 	else {
 		$actiontype = 'Add';
 	}
-	$aff=$affiliate->get();
-	$affiliate_list = parse_selectlist('affid', 1, $aff, $core->input['e_affid']);
+	//$affiliate_country = $affiliate->get_country()->get();
+
+	$affiliatesquery = $db->query("SELECT affid,name FROM ".Tprefix."affiliates WHERE affid IN('".implode(',', $core->user['affiliates'])."')");
+
+	while($affiliates_user = $db->fetch_assoc($affiliatesquery)) {
+		$affiliate_list.='<option value="'.$affiliates_user['affid'].'">'.$affiliates_user['name'].'</option>';
+	}
+
+
+
 	eval("\$assetsmange = \"".$template->get('assets_manage')."\";");
 	output_page($assetsmange);
 }
@@ -41,8 +53,18 @@ else {
 		else {
 			$options = array();
 		}
-
 		$asset->add($core->input['asset'], $options);
+		switch($asset->get_errorcode()) {
+			case 0:
+				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+				break;
+			case 1:
+				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+				break;
+			case 2:
+				output_xml("<status>false</status><message>{$lang->entryexsist}</message>");
+				break;
+		}
 	}
 }
 ?>

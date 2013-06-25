@@ -27,9 +27,17 @@ class Asset {
 			$this->errorcode = 1;
 			return false;
 		}
+
 		if(is_array($data)) {
 			$this->assets = $data;
 		}
+
+		/* Santize inputs - START */
+		$sanitize_fields = array('title', 'affid', 'type', 'description');
+		foreach($sanitize_fields as $val) {
+			$this->assets[$val] = $core->sanitize_inputs($this->supplier[$val], array('removetags' => true));
+		}
+
 		/* If action is edit, don't check if supplier already exists */
 		if($options['operationtype'] != 'update') {
 			if(value_exists('assets', 'title', $this->assets['title'])) {
@@ -37,13 +45,21 @@ class Asset {
 				return false;
 			}
 		}
-		print_r($this->assets);
+
 		if($options['operationtype'] == 'update') {
-			$query = $db->update_query('assets', $this->assets, 'asid='.$this->assets['asid'].'');
+			$this->assets = $data;
+			$assetid = intval($this->assets['asid']);
+			unset($this->assets['asid']);
+			$query = $db->update_query('assets', $this->assets, 'asid='.$assetid.'');
 		}
 		else {
+			print_r($this->assets);
 			$query = $db->insert_query('assets', $this->assets);
 			$this->supplier['ssid'] = $db->last_id();
+		}
+
+		if($query) {
+			$this->status = 0;
 		}
 	}
 
@@ -215,6 +231,23 @@ class Asset {
 		}
 
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."assets WHERE asid=".$db->escape_string($id)));
+	}
+
+	public function get_allassets() {
+		global $db;
+		$allassets = $db->query("SELECT asid,title,description FROM ".Tprefix."assets");
+		while($assets = $db->fetch_assoc($allassets)) {
+			$asset[$assets['asid']] = $assets;
+		}
+		return $asset;
+	}
+
+	public function get_assets() {
+		return $this->assets;
+	}
+
+	public function get_errorcode() {
+		return $this->errorcode;
 	}
 
 	/* Getter Functions ----END */

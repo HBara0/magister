@@ -16,12 +16,12 @@
                     <div style="display:table-cell; width:10%;">{$lang->title}</div>
                     <div style="display:table-cell; width:100%; padding:5px;"><input type="text"  tabindex="1" id="asset[title]" name="asset[title]" value="{$assets[title]}"/></div>
                 </div>
-                
-                   <div style="display:table-row;">
+
+                <div style="display:table-row;">
                     <div style="display:table-cell; width:10%;">{$lang->affiliate}</div>
-                    <div style="display:table-cell; width:100%; padding:5px;">{$affiliate_list}</div>
+                    <div style="display:table-cell; width:100%; padding:5px;">  <select name="asset[affid]"> {$affiliate_list}</select></div>
                 </div>
-                
+
                 <div style="display:table-row;">
                     <div style="display:table-cell; width:10%;">{$lang->type}</div>
                     <div style="display:table-cell; width:100%; padding:5px;"><input type="text" tabindex="2"  id="asset[type]" name="asset[type]" value="{$assets[type]}"/></div>
@@ -34,7 +34,7 @@
                 </div>
 
 
-    <div style="display:table-row;">
+                <div style="display:table-row;">
                     <div style="display:table-cell; width:10%; vertical-align:middle;">{$lang->description}</div>
                     <div style="display:table-cell; width:100%;padding:5px;"><textarea  name="asset[description]" tabindex="4" />{$assets[description]}</textarea></div>
                 </div>
@@ -49,7 +49,7 @@
                 </div>
             </div>
             <div style="display:table-row">
-                <div style="display:table-cell;"id="perform_assets/manageassets__Results"></div>
+                <div style="display:table-cell;"id="perform_assets/manageassets_Results"></div>
             </div>
         </form>
         <div
