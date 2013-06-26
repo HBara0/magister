@@ -6,7 +6,7 @@
  * Maps Class
  * $id: Maps_class.php
  * Created:		@Alain.Paulikevitch		May 10, 2012 | 06:03 PM
- * Last Update: @tony.assaad	        june 25, 2013 | 01:32 PM
+ * Last Update: @tony.assaad	        june 25, 2013 | 04:32 PM
  */
 
 class Asset {
@@ -35,7 +35,7 @@ class Asset {
 		/* Santize inputs - START */
 		$sanitize_fields = array('title', 'affid', 'type', 'description');
 		foreach($sanitize_fields as $val) {
-			$this->assets[$val] = $core->sanitize_inputs($this->supplier[$val], array('removetags' => true));
+			$this->assets[$val] = $core->sanitize_inputs($this->assets[$val], array('removetags' => true));
 		}
 
 		/* If action is edit, don't check if supplier already exists */
@@ -53,14 +53,54 @@ class Asset {
 			$query = $db->update_query('assets', $this->assets, 'asid='.$assetid.'');
 		}
 		else {
-			print_r($this->assets);
 			$query = $db->insert_query('assets', $this->assets);
-			$this->supplier['ssid'] = $db->last_id();
+			$this->assets['asid'] = $db->last_id();
 		}
 
 		if($query) {
-			$this->status = 0;
+			$this->errorcode = 0;
 		}
+	}
+
+	public function manage_tracker($trackerdata, array $options = array()) {
+		global $db, $log, $core, $errorhandler, $lang;
+		if(is_empty($trackerdata['deviceId'], $trackerdata['fromDate'], $trackerdata['toDate'])) {
+			$this->errorcode = 1;
+			return false;
+		}
+
+		$trackerdata['fromDate'] = strtotime($trackerdata['fromDate']);
+		$trackerdata['toDate'] = strtotime($trackerdata['toDate']);
+
+		if(value_exists('assets_trackingdevices', 'deviceId', $trackerdata['deviceId'], 'asid= '.$trackerdata['asid'].' AND (('.$trackerdata['fromDate'].' BETWEEN fromDate AND toDate) OR ('.$trackerdata['toDate'].' BETWEEN fromDate AND toDate))')) {
+			$this->errorcode = 2;
+			return false;
+		}
+		if(is_array($trackerdata)) {
+			$this->tracker = $trackerdata;
+		}
+		/* Santize inputs - START */
+		$sanitize_fields = array('deviceId', 'fromDate', 'toDate', 'asid');
+		foreach($sanitize_fields as $val) {
+			$this->tracker[$val] = $core->sanitize_inputs($this->tracker[$val], array('removetags' => true));
+		}
+
+		if($options['operationtype'] == 'update') {
+			$this->tracker = $trackerdata;
+			$trackerid = intval($this->tracker['atdid']);
+			unset($this->tracker['atdid']);
+			print_r($this->tracker);
+			$query = $db->update_query('assets_trackingdevices', $this->tracker, 'atdid='.$trackerid.'');
+		}
+		else {
+			$query = $db->insert_query('assets_trackingdevices', $this->tracker);
+		}
+
+		if($query) {
+			$this->errorcode = 0;
+		}
+
+		print_r($this->tracker);
 	}
 
 	public function set_asid($asid) {
@@ -218,6 +258,14 @@ class Asset {
 		return $map_view.'<hr><pre >'.$map->get_streetname($lat, $long).'</pre>';
 	}
 
+	public function delete_asset($id) {
+		global $db, $core;
+		if($core->usergroup['assets_canDeleteAsset'] == 1) {
+			//echo 'deleted asset '.$id.'<br>';
+			$db->query('delete from '.Tprefix.'assets where asid='.$id);
+		}
+	}
+
 	private function read($id, $simple = false) {
 		global $db;
 
@@ -233,9 +281,9 @@ class Asset {
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."assets WHERE asid=".$db->escape_string($id)));
 	}
 
-	public function get_allassets() {
-		global $db;
-		$allassets = $db->query("SELECT asid,title,description FROM ".Tprefix."assets");
+	public function get_affiliateassets() {
+		global $db, $core;
+		$allassets = $db->query("SELECT asid,title,description FROM ".Tprefix."assets WHERE affid in(".implode(',', $core->user['affiliates']).")");
 		while($assets = $db->fetch_assoc($allassets)) {
 			$asset[$assets['asid']] = $assets;
 		}
@@ -244,6 +292,16 @@ class Asset {
 
 	public function get_assets() {
 		return $this->assets;
+	}
+
+	public function get_trackingdevices($id) {
+		global $db, $core;
+		if(!empty($id)) {
+			$tracker_devices = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."assets_trackingdevices WHERE atdid=".$db->escape_string($id)));
+			$tracker_devices['fromDate_output'] = date($core->settings['dateformat'], $tracker_devices['fromDate']);
+			$tracker_devices['toDate_output'] = date($core->settings['dateformat'], $tracker_devices['toDate']);
+		}
+		return $tracker_devices;
 	}
 
 	public function get_errorcode() {

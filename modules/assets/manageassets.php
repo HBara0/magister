@@ -46,6 +46,7 @@ if(!$core->input['action']) {
 else {
 	$asset = new Asset();
 	if($core->input['action'] == 'do_Add' || $core->input['action'] == 'do_Edit') {
+		$core->input['asset']['asid'] = $db->escape_string($core->input['asid']);
 		if($core->input['action'] == 'do_Edit') {
 			$options['operationtype'] = 'update';
 			$lang->successfullysaved = 'Successfully Update';

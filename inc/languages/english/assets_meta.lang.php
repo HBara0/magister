@@ -3,6 +3,7 @@ $lang['assetspage'] = 'Assets Management';
 $lang['trackerspage'] = 'Trackers Management';
 $lang['titletracking'] = 'Assets Tracking';
 $lang['manageassets'] = 'Manage Assests';
+$lang['assignassetstitle'] = 'Assign Assets';
 $lang['title'] = 'Title';
 $lang['type'] = 'Type';
 $lang['status'] = 'Status';
@@ -21,7 +22,7 @@ $lang['type'] = 'Type';
 $lang['status'] = 'Status';
 $lang['delete'] = 'Delete';
 $lang['open'] = 'Open';
-
+$lang['assign']='Assign Assets';
 $lang['latitude'] = 'Latitude';
 $lang['longitude'] = 'Longitude';
 $lang['alid'] = 'Location ID';
@@ -34,7 +35,7 @@ $lang['fuel'] = 'Fuel';
 $lang['vehiclestate'] = 'State1';
 $lang['otherstate'] = 'State2';
 $lang['displayName'] = 'Street';
-
+$lang['assigners']='On behalf of';
 $lang['date'] = 'Date';
 $lang['hours'] = 'Hours';
 $lang['minutes'] = 'Minutes';
@@ -55,7 +56,7 @@ $lang['deviceId'] = "Device Id";
 $lang['assetid'] = 'Asset Id';
 $lang['from'] = 'From';
 $lang['to'] = 'To';
-$lang['assetstrackpage'] = '';
-$lang['assetsmanagepage'] = '';
-$lang['trackersmanagepage'] = '';
+$lang['assetslist'] = 'Assets List';
+$lang['trackerslist'] = 'Tracker List';
+
 ?>
