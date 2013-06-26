@@ -132,7 +132,7 @@ if(!$core->input['action']) {
 		foreach($leaveexpenses as $alteid => $leaveexpense) {
 			$expences_fields .= $leavetype->parse_expensesfield($leaveexpense);
 		}
-		
+
 		$expenses_total = $leaveobject->get_expensestotal();
 		eval("\$expsection = \"".$template->get('attendance_requestleave_expsection')."\";");
 	}
@@ -451,13 +451,22 @@ else {
 					$expenses_data = $leaveexpense->get_expensesdetails();
 					$total = 0;
 					$expenses_message = '';
+					$expenses_desc_message = '';
 					foreach($expenses_data as $expense) {
 						if(!empty($lang->{$expense['name']})) {
 							$expense['title'] = $lang->{$expense['name']};
 						}
-						$expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br />';
+						if(isset($expense['description']) && !empty($expense['description'])) {
+							$expencesdescriptiontitle = $lang->expencesdescription;
+							$expenses_desc_message = $expense['title'].$expencesdescriptiontitle.' : <strong>'.$expense['description'].'</ strong><br>';
+						}
+						else {
+							$expenses_desc_message = '';
+						}
+						$expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>'.$expenses_desc_message;
 					}
-					$total =  $leaveexpense->get_expensestotal();
+					$total = $leaveexpense->get_expensestotal();
+
 					$expenses_message_ouput = '<br />'.$expenses_message.'<br />Total: '.$total.' USD<br />';
 				}
 				$core->input['reason'] .= $expenses_message_ouput;

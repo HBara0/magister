@@ -86,5 +86,5 @@ $lang['revokeleavenotificationsubject'] = '{1} revoked their {2}{3}';
 $lang['revokeleavenotificationsubjectuser'] = 'Your {1}{2} was revoked';
 
 $lang['leaveexpenses'] = 'Expected Expences:<br />br />';
-
+$lang['expencesdescription']='  Description';
 ?>
