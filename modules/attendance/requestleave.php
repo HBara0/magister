@@ -325,16 +325,16 @@ else {
 		$core->input['affToInform'] = serialize($core->input['affToInform']);
 		$expenses_data = $core->input['leaveexpenses'];
 		unset($core->input['leaveexpenses']);
-		/* Validate required Fields --START */
+		/* Validate required Fields - START */
 		$leavetype = new Leavetypes($core->input['type']);
 		$expensesfield_type = $leavetype->get_expenses();
 		foreach($expensesfield_type as $alteid => $expensesfield) {
-			if($expensesfield['isRequired'] == 1 && empty($expenses_data[$alteid]['expectedAmt']) || ($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description']))) {
+			if(($expensesfield['isRequired'] == 1 && empty($expenses_data[$alteid]['expectedAmt'])) || (($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description'])))) {
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				exit;
 			}
 		}
-		/* Validate required Fields --END */
+		/* Validate required Fields - END */
 		$query = $db->insert_query('leaves', $core->input);
 		if($query) {
 			$lid = $db->last_id();

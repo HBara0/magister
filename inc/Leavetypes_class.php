@@ -53,7 +53,7 @@ class Leavetypes {
 		return false;
 	}
 
-	public function parse_expensesfield(array $expensestype, array $expensesvalues = array()) {
+	public function parse_expensesfield(array $expensestype) {
 		global $db, $template;
 		if($expensestype['isRequired'] == 1) {
 			$expenses_output_required = '<span class="red_text">*</span>';
