@@ -66,10 +66,10 @@ class Leaves {
 			$id = $this->leave['lid'];
 		}
 
-		$leaveexpdetails_query = $db->query('SELECT alte.alteid, alte.name,ale.description, alte.title, ale.expectedAmt, ale.currency, ale.lid
+		$leaveexpdetails_query = $db->query('SELECT ale.*, alte.*
 										FROM '.Tprefix.'attendance_leaves_expenses ale 
 										JOIN '.Tprefix.'attendance_leavetypes_exptypes alte ON (alte.alteid=ale.alteid)
-										WHERE ale.lid='.$db->escape_string($id));
+										WHERE ale.lid='.$db->escape_string($id).' ORDER BY hasComments DESC');
 		if($db->num_rows($leaveexpdetails_query) > 0) {
 			while($expensesdetail = $db->fetch_assoc($leaveexpdetails_query)) {
 				$expensesdetails[$expensesdetail['alteid']] = $expensesdetail;
@@ -82,6 +82,32 @@ class Leaves {
 		return false;
 	}
 
+	public function get_expensestotal($id = '', $amounttype = 'expected', $currency = '') {
+		global $db;
+		
+		if(!empty($this->leave['lid']) && empty($id)) {
+			$id = $this->leave['lid'];
+		}
+
+		if($this->has_expenses()) {
+			$total = 0;
+			$expenses_query = $db->query('SELECT *
+									FROM '.Tprefix.'attendance_leaves_expenses
+									WHERE lid='.$db->escape_string($id));
+			while($expense = $db->fetch_assoc($expenses_query)) {
+				/* To implement: convert from currency to parameter currency */
+				if($amounttype == 'actual') {
+					$total += $expense['actualAmt'];
+				}
+				else {
+					$total += $expense['expectedAmt'];
+				}
+			}
+			return $total;
+		}
+		return false;
+	}
+	
 	public function create_expenses($expenses = array()) {
 		global $db, $log;
 
