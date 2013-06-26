@@ -133,6 +133,7 @@ if(!$core->input['action']) {
 			$expences_fields .= $leavetype->parse_expensesfield($leaveexpense);
 		}
 		
+		$expenses_total = $leaveobject->get_expensestotal();
 		eval("\$expsection = \"".$template->get('attendance_requestleave_expsection')."\";");
 	}
 
@@ -148,6 +149,7 @@ else {
 	elseif($core->input['action'] == 'parseexpenses') {
 		$leavetype = new Leavetypes($core->input['ltid']);
 		if($leavetype->has_expenses()) {
+			$expenses_total = 0;
 			$leaveexpences = $leavetype->get_expenses();
 			foreach($leaveexpences as $alteid => $expenses) {
 				$expences_fields .= $leavetype->parse_expensesfield($expenses);

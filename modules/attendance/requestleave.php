@@ -602,6 +602,7 @@ else {
 	elseif($core->input['action'] == 'parseexpenses') {
 		$leavetype = new Leavetypes($core->input['ltid']);
 		if($leavetype->has_expenses()) {
+			$expenses_total = 0;
 			$expenses_leavetype = $leavetype->get_expenses();
 			foreach($expenses_leavetype as $val) {
 				$expences_fields .= $leavetype->parse_expensesfield($val);
