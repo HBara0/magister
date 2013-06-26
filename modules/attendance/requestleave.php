@@ -486,26 +486,21 @@ else {
 					/* Parse expense information for message - START */
 					if($leaveexpense->has_expenses()) {
 						$expenses_data = $leaveexpense->get_expensesdetails();
-						$total = 0;
 						$expenses_message = '';
-						$expenses_desc_message = '';
-						$expencesdescriptiontitle = '';
 						foreach($expenses_data as $expense) {
 
 							if(!empty($lang->{$expense['name']})) {
 								$expense['title'] = $lang->{$expense['name']};
 							}
 
-							$total += $expense['expectedAmt'];
 							if(isset($expense['description']) && !empty($expense['description'])) {
-								$expencesdescriptiontitle = $lang->expencesdescription;
-								$expenses_desc_message = $expense['title'].$expencesdescriptiontitle.' : <strong>'.$expense['description'].'</ strong><br>';
+								$expense['description'] = ' ('.$expense['description'].')';
 							}
-							else {
-								$expenses_desc_message = '';
-							}
-							$expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>'.$expenses_desc_message;
+
+							$expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].$expense['description'].'<br />';
 						}
+						
+						$total = $leaveexpense->get_expensestotal();
 						$expenses_message_ouput = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
 					}
 					/* Parse expense information for message - END */
