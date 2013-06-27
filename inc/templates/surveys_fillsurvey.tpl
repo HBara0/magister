@@ -20,7 +20,7 @@
         <hr />
         <input type='submit' class='button' value="{$lang->savecaps}" id='perform_surveys/fill_Button'>
         </form>
-		<div id="perform_surveys/fill_Results"></div>
+	<div id="perform_surveys/fill_Results"></div>
     </td> 
 </tr>
 {$footer}
