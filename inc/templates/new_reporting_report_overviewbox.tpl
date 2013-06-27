@@ -26,7 +26,7 @@
       <td colspan="13" class="columnhead" style="height:2px;"></td>
   </tr>
 <tr>
-   <td class="mainbox_itemnamecell" style="font-weight:bold;">{$lang->total}</td>
+   <td class="mainbox_itemnamecell" style="font-weight:bold;">{$lang->total} ({$categories_uom[$category]})</td>
    <td class="mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[before_2years]][1]}</td>
    <td class="mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[before_2years]][2]}</td>
    <td class="mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[before_2years]][3]}</td>
@@ -40,7 +40,6 @@
    {$boxes_totals_mergedoutput[mergedmainbox]}
    
  </tr>
- <tr><td colspan="14" class='smalltext' style='color: #acacac; font-style: italic; text-align: right; padding-right: 5px;'>{$categories_uom[$category]}</td></tr>
 </table>
-{$reporting_report_newoverviewbox_chart}
+<div style='text-align: center;'>{$reporting_report_newoverviewbox_chart}</div>
 <br />
