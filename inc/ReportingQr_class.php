@@ -525,7 +525,7 @@ class ReportingQr Extends Reporting {
 	}
 
 	public function create_recipient($rpid, $identifier = '') {
-		global $db;
+		global $db, $core;
 	
 		if(empty($identifier)) {
 			$identifier = $this->report['identifier'];
@@ -546,7 +546,9 @@ class ReportingQr Extends Reporting {
 				'token' => $token,
 				'loginKey' => $loginKey,
 				'password' => base64_encode($password.$salt),
-				'salt' => $salt
+				'salt' => $salt,
+				'sentOn' => TIME_NOW,
+				'sentBy' => $core->user['uid']
 		);
 		$query = $db->insert_query('reporting_qrrecipients', $recipient_data);
 		if($query) {
