@@ -327,10 +327,7 @@ class ReportingQr Extends Reporting {
 		return $this->report['classifiedpactivity'];
 	}
 
-	public function get_forecasted_items() {
-		return $this->report['forecasteditems'];
-	}
-
+	
 	public function get_products_activity() { /* to check if isset then  read product  */
 		return $this->report['productsactivity'];
 	}

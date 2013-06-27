@@ -283,12 +283,12 @@ if(!$core->input['action']) {
 								if(!isset($item[$aggregate_type][$category]['actual'][$year][$quarter])) {
 									$item[$aggregate_type][$category]['actual'][$year][$quarter] = 0;
 								}
-								
+
 								$item_rounding = 0;
 								if($item[$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $item[$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
 									$item_rounding = $default_rounding;
 								}
-								
+
 								/* Format numbers for output if we have forecast for the coming quarters */
 								if($year == $report['year'] && isset($report['forecasteditems'][$category]['actual'][$year][$quarter])) {
 									$item_outputmerged += $item[$aggregate_type][$category]['actual'][$year][$quarter];
@@ -297,7 +297,7 @@ if(!$core->input['action']) {
 								elseif($year == $report['year'] && $quarter != 1) {
 									$mergeditem_output['forecastmergedcell'] .= '<td class="altrow2 mainbox_datacell">'.number_format($item[$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ').'</td>';
 								}
-								
+
 								$item_output[$aggregate_type][$category]['actual'][$year][$quarter] = number_format($item[$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ');
 								//$item_output[$aggregate_type][$category]['actual'][$year][$quarter]+=$item_output[$aggregate_type][$category]['actual'][$year][$quarter];
 
@@ -332,7 +332,7 @@ if(!$core->input['action']) {
 					}
 
 					$lang->$category = $lang->{(strtolower($category))};
-					
+
 					/* Loop totals to parse forecasts - START */
 					foreach($report_years as $yearef => $year) {
 						$colspan = 0;
@@ -349,7 +349,6 @@ if(!$core->input['action']) {
 									$item_outputmerged_total+=$item[$aggregate_type][$category]['actual'][$year][$quarter];
 									$colspan++;
 								}
-								
 							}
 							elseif($year == $report['year'] && $quarter != 1) {
 								if(!isset($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter])) {
@@ -366,7 +365,7 @@ if(!$core->input['action']) {
 						$boxes_totals_mergedoutput['mergedmainbox'] .='<td colspan="'.$colspan.'" class="altrow2 mainbox_totalcell">'.number_format($item_outputmerged_total, $item_rounding, '.', ' ').'</td>';
 					}
 					/* Loop totals to parse forecasts - END */
-					
+
 					/* Generate Chart */
 					if($aggregate_type == 'affiliates') {
 						$overviewbox_chart = new Charts(array('x' => $report_years, 'y' => $report_charts_data[$aggregate_type][$category]['actual']['y']), 'stackedbar');
@@ -726,10 +725,9 @@ if(!$core->input['action']) {
 			}
 		}
 
-		$tool_print = "<span id='printreport_span'><a href='index.php?module=reporting/preview&amp;action=print&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/print.gif' border='0' alt='{$lang->printreport}'/></a></span>";
-
-		$tools = $tools_approve.$tools_send."<a href='index.php?module=reporting/preview&amp;action=exportpdf&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;".$tool_print;
-
+		//$tool_print = "<span id='printreport_span'><a href='index.php?module=reporting/preview&amp;action=print&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/print.gif' border='0' alt='{$lang->printreport}'/></a></span>";
+		//$tools = $tools_approve.$tools_send."<a href='index.php?module=reporting/preview&amp;action=exportpdf&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;".$tool_print;
+		$tools = $tools_approve.$tools_send.$tool_print;
 		ksort($toc_data);
 		foreach($toc_data as $sequence => $entry) {
 			$toc_entries .= '<div><a class="scrolldown" href=#'.key($entry).'>'.$entry[key($entry)]['title'].'</a></div>';
