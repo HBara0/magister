@@ -43,6 +43,7 @@ if(!$core->input['action']) {
 					$subject_monthquarter = 'Q'.$meta_data['quarter'];
 				}
 				$default_cc = $core->settings['sendreportsto'];
+				$attachments = '<li>Quarterly reports do not have attachments; use {link} and {password} to automatically provide recipients with access to the report. Without these two items together, the recipients will not be able to view the report.</li>';
 				break;
 		}
 
@@ -222,7 +223,6 @@ else {
 				if(is_array($core->input['attachment'])) {
 					unlink($core->input['attachment']);
 				}
-				exit;
 				redirect('index.php?module=reporting/generatereport', 1, $lang->messagesentsuccessfully);
 			}
 			else {
