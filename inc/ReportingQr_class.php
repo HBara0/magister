@@ -434,7 +434,7 @@ class ReportingQr Extends Reporting {
 
 		if(is_array($data)) {
 			foreach($data as $productdata) {
-				//$currencies = $this->get_currency_Byrate(array('fxrate' => $productdata['fxrate']));
+//$currencies = $this->get_currency_Byrate(array('fxrate' => $productdata['fxrate']));
 				if(!empty($productdata['pid']) && isset($productdata['pid'])) {
 					if($productdata['fxrate'] != 1 && isset($productdata['fxrate'])) {
 						$productdata['turnOverOc'] = $productdata['turnOver'];
@@ -471,7 +471,7 @@ class ReportingQr Extends Reporting {
 				}
 				if($processed_once === true) {
 					if(is_array($cache['usedpaid'])) {
-						//$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).')';
+//$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).')';
 					}
 
 					$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid=".$this->report['rid']." AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
@@ -519,6 +519,66 @@ class ReportingQr Extends Reporting {
 
 	public function get_productssegments() {
 		return $this->report['productssegments'];
+	}
+
+	private static function create_loginkey() {
+		if(function_exists('random_string')) {
+			return random_string(40);
+		}
+		else {
+			return self::random_string(40);
+		}
+	}
+
+	public function create_recipient($rpid, $identifier = '') {
+		global $db, $core;
+	
+		if(empty($identifier)) {
+			$identifier = $this->report['identifier'];
+		}
+		
+		if(value_exists('reporting_qrrecipients', 'rpid', $rpid, 'reportIdentifier="'.$db->escape_string($identifier).'"')) {
+			return false;
+		}
+		
+		$password = Accounts::generate_password_string(10);
+		$salt = random_string(10);
+		$loginKey = $this->create_loginkey();
+		$token = md5(uniqid(microtime(), true));
+		
+		$recipient_data = array(
+				'reportIdentifier' => $identifier,
+				'rpid' => $rpid,
+				'token' => $token,
+				'loginKey' => $loginKey,
+				'password' => base64_encode($password.$salt),
+				'salt' => $salt,
+				'sentOn' => TIME_NOW,
+				'sentBy' => $core->user['uid']
+		);
+		$query = $db->insert_query('reporting_qrrecipients', $recipient_data);
+		if($query) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public function get_recipient($rpid) {
+		global $db;
+		if(is_array($rpid)) {
+			$recipients_query = $db->query("SELECT * FROM ".Tprefix."reporting_qrrecipients rq 
+				JOIN ".Tprefix."entitiesrepresentatives er ON(er.rpid=rq.rpid)
+				JOIN ".Tprefix."representatives r ON (r.rpid=rq.rpid)
+				WHERE rq.rpid IN (".implode(',', $rpid).")");
+			if($db->num_rows($recipients_query) > 0) {
+				while($recipient = $db->fetch_assoc($recipients_query)) {
+					$recipients[$recipient['rpid']] = $recipient;
+				}
+				return $recipients;
+			}
+		}
 	}
 
 }
