@@ -275,6 +275,7 @@ if(!$core->input['action']) {
 						$item[$aggregate_type][$category] = $item;
 						foreach($report_years as $yearef => $year) {
 							$colspan = 0;
+							$usd = '';
 							for($quarter = 1; $quarter <= 4; $quarter++) {
 								if(!isset($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter])) {
 									$boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = 0;
@@ -288,7 +289,9 @@ if(!$core->input['action']) {
 								if($item[$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $item[$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
 									$item_rounding = $default_rounding;
 								}
-
+								if($category == 'amount') {
+									$usd = '<span class="smalltext"> USD </span>';
+								}
 								/* Format numbers for output if we have forecast for the coming quarters */
 								if($year == $report['year'] && isset($report['forecasteditems'][$category]['actual'][$year][$quarter])) {
 									$item_outputmerged += $item[$aggregate_type][$category]['actual'][$year][$quarter];
@@ -679,7 +682,9 @@ if(!$core->input['action']) {
 
 				$overyears_rates = $currency->get_yearaverage_fxrate_yearbased('USD', 2005, $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR');
 				$overyears_rates = $overyears_rates + $currency_rates_year;
-				$fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 EUR' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'width' => 700, 'height' => 200, 'writelabel' => true));
+				$index1=8;
+				$index2=count($overyears_rates)-1;
+				$fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 EUR' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholddata'=>array('firstindex'=>$index1,'secondindex'=>$index2),'hasthreshold' => 1,'width' => 700, 'height' => 200, 'writelabel' => true));
 				$fx_rates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_linechart->get_chart().'" /></td></tr>';
 
 				if(!empty($fx_rates_entries)) {
@@ -708,7 +713,7 @@ if(!$core->input['action']) {
 				}
 			}
 		}
-		
+
 		if($report['isApproved'] == 0) {
 			if($core->usergroup['reporting_canApproveReports'] == 1) {
 				$can_approve = true;

@@ -66,6 +66,10 @@ class Charts {
 		/* Enable shadow computing */
 		$this->chart->setShadow(TRUE, array('X' => 3, 'Y' => 3, 'R' => 0, 'G' => 0, 'B' => 0, 'Alpha' => 10));
 
+		/* Draw one static threshold area */
+		if(isset($this->options['hasthreshold']) && $this->options['hasthreshold'] == 1) {
+			$this->chart->drawXThresholdArea($this->options['treshholddata']['firstindex'], $this->options['treshholddata']['secondindex'], array("R" => 226, "G" => 194, "B" => 54, "Alpha" => 40));
+		}
 		/* Draw a splitted pie chart */
 		$PieChart->draw3DPie(170, 90, array('Radius' => 100, 'DataGapAngle' => 12, 'DataGapRadius' => 10, 'Border' => TRUE, 'DrawLabels' => TRUE));
 
@@ -115,7 +119,10 @@ class Charts {
 			$this->options['height'] = 230;
 		}
 		$this->chart = new pImage($this->options['width'], $this->options['height'], $this->DataSet);
-
+		/* Draw one static threshold area */
+		if(isset($this->options['hasthreshold']) && $this->options['hasthreshold'] == 1) {
+			$this->chart->drawXThresholdArea($this->options['treshholddata']['firstindex'], $this->options['treshholddata']['secondindex'], array("R" => 226, "G" => 194, "B" => 54, "Alpha" => 40));
+		}
 		/* Enable/Disable Antialiasing */
 		$this->chart->Antialias = FALSE;
 		if($this->options['antialias'] == TRUE) {
@@ -176,7 +183,7 @@ class Charts {
 			if(count($line) == 1) {
 				$line[0] = 0;
 			}
-			
+
 			//ksort($line);
 			$this->DataSet->addPoints($line, $legend);
 		}
@@ -222,6 +229,10 @@ class Charts {
 		}
 		$this->chart->drawScale($scaleSettings);
 
+		/* Draw one static threshold area */
+		if(isset($this->options['hasthreshold']) && $this->options['hasthreshold'] == 1) {
+			$this->chart->drawXThresholdArea($this->options['treshholddata']['firstindex'], $this->options['treshholddata']['secondindex'], array("R" => 226, "G" => 194, "B" => 54, "Alpha" => 40));
+		}
 		/* Enable/Disable Antialiasing */
 		$this->chart->Antialias = FALSE;
 		if($this->options['antialias'] == TRUE) {
@@ -233,13 +244,14 @@ class Charts {
 
 		/* Draw the line chart */
 		$this->chart->drawLineChart();
+		/**/
 
 		/* Write a label */
 		if($this->options['writelabel'] == true) {
 			if(!isset($this->options['label_series'])) {
 				$this->options['label_series'] = array_keys($this->data['y']);
 			}
-		
+
 			if(isset($this->options['label_seriesindexes'])) {
 				$this->chart->writeLabel($this->options['label_series'], $this->options['label_seriesindexes'], array("DrawVerticalLine" => TRUE));
 			}
@@ -258,15 +270,15 @@ class Charts {
 		$this->DataSet = new pData();
 
 		foreach($this->data['y'] as $legend => $series) {
-			if($this->options['seriesnames']){
-				$legend=$this->options['seriesnames'][$legend];
+			if($this->options['seriesnames']) {
+				$legend = $this->options['seriesnames'][$legend];
 			}
 			$this->DataSet->addPoints($series, $legend);
 		}
 
 		$this->DataSet->setAxisName(0, $this->options['yaxisname']);
 		$this->DataSet->SetAxisUnit(0, $this->options['yaxisunit']);
-		
+
 		//ksort($this->data['x']);
 		$this->DataSet->addPoints($this->data['x'], 'x');
 		$this->DataSet->setSerieDescription('x', $this->options['xaxisname']);
@@ -283,7 +295,7 @@ class Charts {
 			$this->options['height'] = 250;
 		}
 		$this->chart = new pImage($this->options['width'], $this->options['height'], $this->DataSet);
-		
+
 		/* Set the default font properties */
 		$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 6));
 
@@ -294,7 +306,10 @@ class Charts {
 		if($this->options['orientation'] == 'horizontal') {
 			$scale_settings['Pos'] = SCALE_POS_TOPBOTTOM;
 		}
-
+		/* Draw one static threshold area */
+		if(isset($this->options['drawxthreshold'])) {
+			$this->chart->drawXThresholdArea($this->options['treshholddata']['firstindex'], $this->options['treshholddata']['secondindex'], array("R" => 226, "G" => 194, "B" => 54, "Alpha" => 40));
+		}
 		$this->chart->drawScale($scale_settings);
 		$this->chart->setShadow(FALSE);
 		$stackbar_settings = array('Surrounding' => -15, 'InnerSurrounding' => 15, 'DisplayValues' => 1);
