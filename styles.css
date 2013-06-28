@@ -412,7 +412,7 @@ input[disabled="disabled"], input.disabled, .disabled {
 }
 
 #profilePicture, .thumbnail {
-	background-color: #FDFAEE;*//*#FEFBE2;*/
+	background-color: #FDFAEE;/*#FEFBE2;*/
 	color:#004F75;
 	border: 1px solid #CCCCCC;/*#F2F2F2;*/ 
 	width: 200px;
@@ -480,36 +480,36 @@ tr.dummytrow td, tr.dummytrow th {
 .arrow-up {
     width: 0; 
     height: 0; 
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-bottom: 5px solid #666;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid #666;
     display: inline-block;
 }
 
 .arrow-down {
     width: 0; 
     height: 0; 
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 5px solid #666;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid #666;
     display: inline-block;
 }
 
 .arrow-right {
     width: 0; 
     height: 0; 
-    border-top: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-left: 5px solid #666;
+    border-top: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-left: 4px solid #666;
     display: inline-block;
 }
 
 .arrow-left {
     width: 0; 
     height: 0; 
-    border-top: 5px solid transparent;
-    border-bottom: 5px solid transparent; 
-    border-right: 5px solid #666; 
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent; 
+    border-right: 4px solid #666; 
     display: inline-block;
 }
 /* Classes required for the multiple filtering - START */

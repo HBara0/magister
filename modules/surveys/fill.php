@@ -46,7 +46,8 @@ if(!$core->input['action']) {
 					$questions_list .= $survey->parse_question($question);
 				}
 			}
-
+			
+			fix_newline($survey_details['description']);
 			eval("\$fillreportpage = \"".$template->get('surveys_fillsurvey')."\";");
 			output_page($fillreportpage);
 		}

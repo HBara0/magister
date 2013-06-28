@@ -56,7 +56,7 @@ class Charts {
 
 		/* Create the pChart object */
 		$this->chart = new pImage(450, 200, $this->DataSet, TRUE);
-		$this->chart->AntialiasQuality = 20;
+
 		/* Set the default font properties */
 		$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 10, 'R' => 80, 'G' => 80, 'B' => 80));
 
@@ -115,10 +115,18 @@ class Charts {
 			$this->options['height'] = 230;
 		}
 		$this->chart = new pImage($this->options['width'], $this->options['height'], $this->DataSet);
-
-		/* Turn of Antialiasing */
-		$this->chart->Antialias = TRUE;
-		$this->chart->AntialiasQuality = 100;
+		/* Draw one static threshold area */
+		if(isset($this->options['treshholdsettings']) && !empty($this->options['treshholdsettings'])) {
+			$this->chart->drawXThresholdArea($this->options['treshholdsettings']['firstindex'], $this->options['treshholdsettings']['secondindex'], array('R' => 226, 'G' => 194, 'B' => 54, 'Alpha' => 20));
+		}
+		/* Enable/Disable Antialiasing */
+		$this->chart->Antialias = FALSE;
+		if($this->options['antialias'] == TRUE) {
+			$this->chart->Antialias = TRUE;
+			if(!empty($this->options['antialiasquality'])) {
+				$this->chart->AntialiasQuality = intval($this->options['antialiasquality']);
+			}
+		}
 
 		/* Set the default font */
 		$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 8));
@@ -171,7 +179,7 @@ class Charts {
 			if(count($line) == 1) {
 				$line[0] = 0;
 			}
-			
+
 			//ksort($line);
 			$this->DataSet->addPoints($line, $legend);
 		}
@@ -198,9 +206,6 @@ class Charts {
 		}
 		$this->chart = new pImage($this->options['width'], $this->options['height'], $this->DataSet);
 
-		/* Turn of Antialiasing */
-		$this->chart->Antialias = TRUE;
-
 		/* Write the chart title */
 		if(isset($this->options['title']) && !empty($this->options['title'])) {
 			$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 11));
@@ -220,18 +225,29 @@ class Charts {
 		}
 		$this->chart->drawScale($scaleSettings);
 
-		/* Turn on Antialiasing */
-		$this->chart->Antialias = TRUE;
+		/* Draw one static threshold area */
+		if(isset($this->options['treshholdsettings']) && !empty($this->options['treshholdsettings'])) {
+			$this->chart->drawXThresholdArea($this->options['treshholdsettings']['firstindex'], $this->options['treshholdsettings']['secondindex'], array('R' => 226, 'G' => 194, 'B' => 54, 'Alpha' => 20));
+		}
+		/* Enable/Disable Antialiasing */
+		$this->chart->Antialias = FALSE;
+		if($this->options['antialias'] == TRUE) {
+			$this->chart->Antialias = TRUE;
+			if(!empty($this->options['antialiasquality'])) {
+				$this->chart->AntialiasQuality = intval($this->options['antialiasquality']);
+			}
+		}
 
 		/* Draw the line chart */
 		$this->chart->drawLineChart();
+		/**/
 
 		/* Write a label */
 		if($this->options['writelabel'] == true) {
 			if(!isset($this->options['label_series'])) {
 				$this->options['label_series'] = array_keys($this->data['y']);
 			}
-		
+
 			if(isset($this->options['label_seriesindexes'])) {
 				$this->chart->writeLabel($this->options['label_series'], $this->options['label_seriesindexes'], array("DrawVerticalLine" => TRUE));
 			}
@@ -250,12 +266,15 @@ class Charts {
 		$this->DataSet = new pData();
 
 		foreach($this->data['y'] as $legend => $series) {
+			if($this->options['seriesnames']) {
+				$legend = $this->options['seriesnames'][$legend];
+			}
 			$this->DataSet->addPoints($series, $legend);
 		}
 
 		$this->DataSet->setAxisName(0, $this->options['yaxisname']);
 		$this->DataSet->SetAxisUnit(0, $this->options['yaxisunit']);
-		
+
 		//ksort($this->data['x']);
 		$this->DataSet->addPoints($this->data['x'], 'x');
 		$this->DataSet->setSerieDescription('x', $this->options['xaxisname']);
@@ -272,7 +291,7 @@ class Charts {
 			$this->options['height'] = 250;
 		}
 		$this->chart = new pImage($this->options['width'], $this->options['height'], $this->DataSet);
-		
+
 		/* Set the default font properties */
 		$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 6));
 
@@ -283,7 +302,10 @@ class Charts {
 		if($this->options['orientation'] == 'horizontal') {
 			$scale_settings['Pos'] = SCALE_POS_TOPBOTTOM;
 		}
-
+		/* Draw one static threshold area */
+		if(isset($this->options['treshholdsettings']) && !empty($this->options['treshholdsettings'])) {
+			$this->chart->drawXThresholdArea($this->options['treshholdsettings']['firstindex'], $this->options['treshholdsettings']['secondindex'], array('R' => 226, 'G' => 194, 'B' => 54, 'Alpha' => 20));
+		}
 		$this->chart->drawScale($scale_settings);
 		$this->chart->setShadow(FALSE);
 		$stackbar_settings = array('Surrounding' => -15, 'InnerSurrounding' => 15, 'DisplayValues' => 1);

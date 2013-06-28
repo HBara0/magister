@@ -67,9 +67,10 @@ else
 				$newreport = array(
 				'quarter'	 => $db->escape_string($core->input['quarter']),
 				'year'		=> $db->escape_string($core->input['year']),
+				'identifier' => md5($db->escape_string($ids[1].$core->input['quarter'].$core->input['year'])),
 				'affid'	   => $ids[0],
 				'spid'	    => $ids[1],
-				'initDate'	=> time(),
+				'initDate'	=> TIME_NOW,
 				'status'	  => 0
 				);
 				$db->insert_query('reports', $newreport);

@@ -156,7 +156,7 @@ class ErrorHandler {
 	public function get_errors_inline($message='') {
 		$output = '';
 		if(!empty($message)) {
-			$output = '&bull; '.$messsage;
+			$output = '&bull; '.$message;
 		}
 		else
 		{

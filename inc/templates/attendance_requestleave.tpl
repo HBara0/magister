@@ -3,31 +3,43 @@
 <title>{$core->settings[systemtitle]} | {$lang->requestleave}</title>
 {$headerinc}
 <script type="text/javascript">
-	$(function() {
-		$("#uid, #type").change(function() {
-			if(sharedFunctions.checkSession() == false) {
-				return;	
-			}
-			
-			sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getaffiliates", "uid=" + $('#uid').val() + "&ltid=" + $('#type').val(), 'to_inform_fields', 'to_inform_fields', true);
-		});
-		
-		$("#type, #pickDate_to").live('change', function() {
-			if(sharedFunctions.checkSession() == false) {
-				return;	
-			}
-			
-			if(($("#altpickDate_from").val() != '') && $("#altpickDate_to").val() != '') {
-				sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getleavetime", "ltid=" + $('#type').val() + "&uid=" + $("#uid").val()+ "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val(), 'leavetime_details', 'leavetime_details', true);
-			}
-			else
-			{			
-				sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getleavetime", "ltid=" + $('#type').val() + "&uid=" + $("#uid").val(), 'leavetime_details', 'leavetime_details', true);
-			}
-			
-			sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getadditionalfields", "ltid=" + $('#type').val() + "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val() + "&uid=" + $("#uid").val(), 'additionalfields_output', 'additionalfields_output', true);
-		});
-	});
+    $(function() {
+        $("#uid, #type").change(function() {
+                if(sharedFunctions.checkSession() == false) {
+                        return;	
+                }
+
+                sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getaffiliates", "uid=" + $('#uid').val() + "&ltid=" + $('#type').val(), 'to_inform_fields', 'to_inform_fields', true);
+        });
+
+        $("#type, #pickDate_to").live('change', function() {
+                if(sharedFunctions.checkSession() == false) {
+                        return;	
+                }
+
+                if(($("#altpickDate_from").val() != '') && $("#altpickDate_to").val() != '') {
+                        sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getleavetime", "ltid=" + $('#type').val() + "&uid=" + $("#uid").val()+ "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val(), 'leavetime_details', 'leavetime_details', true);
+                }
+                else
+                {			
+                        sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getleavetime", "ltid=" + $('#type').val() + "&uid=" + $("#uid").val(), 'leavetime_details', 'leavetime_details', true);
+                }
+
+                sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getadditionalfields", "ltid=" + $('#type').val() + "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val() + "&uid=" + $("#uid").val(), 'additionalfields_output', 'additionalfields_output', true);
+        });
+                
+        $("#type").live('change', function() {
+            sharedFunctions.requestAjax("post", "index.php?module=attendance/{$action}&action=parseexpenses", "ltid=" + $('#type').val()+"&lid=" + $('input[id=lid]').val(), 'leaveexpenses_container', 'leaveexpenses_container', true);
+        }); 
+    
+        $('input[id^=expenses_]').live('blur',function () {
+            var sum = 0;
+            $('input[id^=expenses_]').each(function() {
+                sum += Number($(this).val());
+            });
+            $('#expensestotal').val(sum);
+        });        
+    });    
 </script>
 </head>
 <body>
@@ -53,10 +65,15 @@
         <tr>
         	<td>{$lang->leavetype}</td>
             <td>{$leavetypes_list}&nbsp;<span id="additionalfields_output">{$additional_fields_output}</span></td>
-        </tr>
+        </tr>   
         <tr>
         	<td>{$lang->leavereason}</td>
             <td><textarea cols="50" rows="5" name="reason" id="reason">{$leave[reason]}</textarea></td>
+        </tr>
+        <tr>
+            <td colspan='2' id='leaveexpenses_container'>{$expsection}</td>
+            
+            
         </tr>
         <tr><td colspan="2"><hr /><span class="subtitle">{$lang->contactwhileabsent}</span></td></tr>
         <tr>

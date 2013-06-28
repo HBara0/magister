@@ -80,11 +80,17 @@ class Users {
 	public function can_hr($options = '') {
 		global $db, $core, $user;
 		if(!empty($options) && ($options == 'inaffiliate')) {
-			$affiliate_where = 'AND affe.affid IN ('.implode(',', $core->user['hraffids']).')';
+			if(is_array($core->user['hraffids'])) {
+				$affiliate_where = 'AND affe.affid IN ('.implode(',', $core->user['hraffids']).')';
+			}
+			else {
+				return false;
+			}
 		}
+		
 		$hrquery = $db->query("SELECT canHR 
 						FROM ".Tprefix."users u 
-						JOIN affiliatedemployees affe ON(u.uid=affe.uid)
+						JOIN ".Tprefix."affiliatedemployees affe ON(u.uid=affe.uid)
 						WHERE affe.canHr=1 {$affiliate_where} AND affe.uid={$this->user[uid]}");
 		if($db->num_rows($hrquery) > 0) {
 			return true;

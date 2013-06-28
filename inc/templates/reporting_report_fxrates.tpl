@@ -1,4 +1,6 @@
+ <a name="currenciesoverview" /> 
 <page>
+        
 <table style="width:100%;">
 <tr>
 <td class="logo" style="width:100%;">&nbsp;</td>
@@ -17,4 +19,5 @@
     </td>
 </tr>
 </table>
+
 </page>
