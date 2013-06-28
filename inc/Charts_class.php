@@ -66,10 +66,6 @@ class Charts {
 		/* Enable shadow computing */
 		$this->chart->setShadow(TRUE, array('X' => 3, 'Y' => 3, 'R' => 0, 'G' => 0, 'B' => 0, 'Alpha' => 10));
 
-		/* Draw one static threshold area */
-		if(isset($this->options['hasthreshold']) && $this->options['hasthreshold'] == 1) {
-			$this->chart->drawXThresholdArea($this->options['treshholddata']['firstindex'], $this->options['treshholddata']['secondindex'], array("R" => 226, "G" => 194, "B" => 54, "Alpha" => 40));
-		}
 		/* Draw a splitted pie chart */
 		$PieChart->draw3DPie(170, 90, array('Radius' => 100, 'DataGapAngle' => 12, 'DataGapRadius' => 10, 'Border' => TRUE, 'DrawLabels' => TRUE));
 
@@ -120,8 +116,8 @@ class Charts {
 		}
 		$this->chart = new pImage($this->options['width'], $this->options['height'], $this->DataSet);
 		/* Draw one static threshold area */
-		if(isset($this->options['hasthreshold']) && $this->options['hasthreshold'] == 1) {
-			$this->chart->drawXThresholdArea($this->options['treshholddata']['firstindex'], $this->options['treshholddata']['secondindex'], array("R" => 226, "G" => 194, "B" => 54, "Alpha" => 40));
+		if(isset($this->options['treshholdsettings']) && !empty($this->options['treshholdsettings'])) {
+			$this->chart->drawXThresholdArea($this->options['treshholdsettings']['firstindex'], $this->options['treshholdsettings']['secondindex'], array('R' => 226, 'G' => 194, 'B' => 54, 'Alpha' => 20));
 		}
 		/* Enable/Disable Antialiasing */
 		$this->chart->Antialias = FALSE;
@@ -230,8 +226,8 @@ class Charts {
 		$this->chart->drawScale($scaleSettings);
 
 		/* Draw one static threshold area */
-		if(isset($this->options['hasthreshold']) && $this->options['hasthreshold'] == 1) {
-			$this->chart->drawXThresholdArea($this->options['treshholddata']['firstindex'], $this->options['treshholddata']['secondindex'], array("R" => 226, "G" => 194, "B" => 54, "Alpha" => 40));
+		if(isset($this->options['treshholdsettings']) && !empty($this->options['treshholdsettings'])) {
+			$this->chart->drawXThresholdArea($this->options['treshholdsettings']['firstindex'], $this->options['treshholdsettings']['secondindex'], array('R' => 226, 'G' => 194, 'B' => 54, 'Alpha' => 20));
 		}
 		/* Enable/Disable Antialiasing */
 		$this->chart->Antialias = FALSE;
@@ -307,8 +303,8 @@ class Charts {
 			$scale_settings['Pos'] = SCALE_POS_TOPBOTTOM;
 		}
 		/* Draw one static threshold area */
-		if(isset($this->options['drawxthreshold'])) {
-			$this->chart->drawXThresholdArea($this->options['treshholddata']['firstindex'], $this->options['treshholddata']['secondindex'], array("R" => 226, "G" => 194, "B" => 54, "Alpha" => 40));
+		if(isset($this->options['treshholdsettings']) && !empty($this->options['treshholdsettings'])) {
+			$this->chart->drawXThresholdArea($this->options['treshholdsettings']['firstindex'], $this->options['treshholdsettings']['secondindex'], array('R' => 226, 'G' => 194, 'B' => 54, 'Alpha' => 20));
 		}
 		$this->chart->drawScale($scale_settings);
 		$this->chart->setShadow(FALSE);
