@@ -684,9 +684,8 @@ if(!$core->input['action']) {
 
 				$overyears_rates = $currency->get_yearaverage_fxrate_yearbased('USD', 2005, $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR');
 				$overyears_rates = $overyears_rates + $currency_rates_year;
-				$index1=8;
-				$index2=count($overyears_rates)-1;
-				$fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 EUR' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholddata'=>array('firstindex'=>$index1,'secondindex'=>$index2),'hasthreshold' => 1,'width' => 700, 'height' => 200, 'writelabel' => true));
+
+				$fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 EUR' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholdsettings' => array('firstindex' => 0, 'secondindex' => array_search('Jan', array_keys($overyears_rates))), 'width' => 700, 'height' => 200, 'writelabel' => true));
 				$fx_rates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_linechart->get_chart().'" /></td></tr>';
 
 				if(!empty($fx_rates_entries)) {
