@@ -1,5 +1,4 @@
 <page style="page-break-before:always;">
-    <a name="qr-{$report[affid]}-{$report[spid]}"></a>
     {$highlightbox}
     {$reporting_report_newoverviewbox[segments][amount]}
     {$reporting_report_newoverviewbox[products][amount]}

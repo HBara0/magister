@@ -27,7 +27,19 @@
 			
 			sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getadditionalfields", "ltid=" + $('#type').val() + "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val() + "&uid=" + $("#uid").val(), 'additionalfields_output', 'additionalfields_output', true);
 		});
-	});
+                
+            $("#type").live('change', function() {
+                sharedFunctions.requestAjax("post", "index.php?module=attendance/{$action}&action=parseexpenses", "ltid=" + $('#type').val()+"&lid=" + $('input[id=lid]').val(), 'leaveexpenses_container', 'leaveexpenses_container', true);
+            }); 
+    
+        $('input[id^=expenses_]').live('blur',function () {
+            var sum = 0;
+            $('input[id^=expenses_]').each(function() {
+                sum += Number($(this).val());
+            });
+            $('#expensestotal').val(sum);
+        });        
+});    
 </script>
 </head>
 <body>
@@ -53,10 +65,15 @@
         <tr>
         	<td>{$lang->leavetype}</td>
             <td>{$leavetypes_list}&nbsp;<span id="additionalfields_output">{$additional_fields_output}</span></td>
-        </tr>
+        </tr>   
         <tr>
         	<td>{$lang->leavereason}</td>
             <td><textarea cols="50" rows="5" name="reason" id="reason">{$leave[reason]}</textarea></td>
+        </tr>
+        <tr>
+            <td colspan='2' id='leaveexpenses_container'>{$expsection}</td>
+            
+            
         </tr>
         <tr><td colspan="2"><hr /><span class="subtitle">{$lang->contactwhileabsent}</span></td></tr>
         <tr>

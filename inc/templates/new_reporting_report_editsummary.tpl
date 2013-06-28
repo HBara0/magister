@@ -1,3 +1,4 @@
+  <a name="summary"/>
 <hr />
 <form name="preview_Form" id="preview_Form" action="index.php?module=reporting/newpreview&referrer=direct&amp;action=do_savesummary" method="post">
     <input type="hidden" value="{$report_summary[rpsid]}" name="rpsid"/>
