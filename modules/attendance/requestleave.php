@@ -594,7 +594,7 @@ else {
 						'message' => $lang->leavenotificationmessage
 				);
 			}
-
+			
 			$mail = new Mailer($email_data, 'php');
 			if($mail->get_status() === true) {
 				$log->record('notifysupervisors', $email_data['to']);

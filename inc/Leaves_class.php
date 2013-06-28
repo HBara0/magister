@@ -66,9 +66,10 @@ class Leaves {
 			$id = $this->leave['lid'];
 		}
 
-		$leaveexpdetails_query = $db->query('SELECT ale.*, alte.*
-										FROM '.Tprefix.'attendance_leaves_expenses ale 
-										JOIN '.Tprefix.'attendance_leavetypes_exptypes alte ON (alte.alteid=ale.alteid)
+		$leaveexpdetails_query = $db->query('SELECT ale.*, alte.*, alet.*
+										FROM '.Tprefix.'attendance_leaves_expenses ale
+										JOIN '.Tprefix.'attendance_leavetypes_expenses alte ON (alte.alteid=ale.alteid)
+										JOIN '.Tprefix.'attendance_leaveexptypes alet ON (alet.aletid=alte.aletid)
 										WHERE ale.lid='.$db->escape_string($id).' ORDER BY hasComments DESC');
 		if($db->num_rows($leaveexpdetails_query) > 0) {
 			while($expensesdetail = $db->fetch_assoc($leaveexpdetails_query)) {
@@ -114,7 +115,7 @@ class Leaves {
 		if(is_array($expenses)) {
 			foreach($expenses as $alteid => $expense) {
 				if(!isset($this->leave['ltid'])) {
-					$this->leave['ltid'] = $db->fetch_field($db->query("SELECT ltid FROM ".Tprefix."attendance_leavetypes_exptypes WHERE alteid=".$db->escape_string($alteid)), 'ltid');
+					$this->leave['ltid'] = $db->fetch_field($db->query("SELECT ltid FROM ".Tprefix."attendance_leavetypes_expenses WHERE alteid=".$db->escape_string($alteid)), 'ltid');
 				}
 
 				$leavetype = $this->get_leavetype();

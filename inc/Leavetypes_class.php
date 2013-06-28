@@ -25,7 +25,7 @@ class Leavetypes {
 			$id = $this->leavetype['ltid'];
 		}
 
-		if(value_exists('attendance_leavetypes_exptypes', 'ltid', $db->escape_string($id))) {
+		if(value_exists('attendance_leavetypes_expenses', 'ltid', $db->escape_string($id))) {
 			return true;
 		}
 		else {
@@ -40,7 +40,10 @@ class Leavetypes {
 			$id = $this->leavetype['ltid'];
 		}
 
-		$leavetypeexp_query = $db->query('SELECT * FROM '.Tprefix.'attendance_leavetypes_exptypes WHERE ltid='.$db->escape_string($id).' ORDER BY hasComments DESC');
+		$leavetypeexp_query = $db->query('SELECT * 
+										FROM '.Tprefix.'attendance_leavetypes_expenses alte
+										JOIN '.Tprefix.'attendance_leaveexptypes alet ON (alet.aletid=alte.aletid)
+										WHERE ltid='.$db->escape_string($id).' ORDER BY hasComments DESC');
 		if($db->num_rows($leavetypeexp_query) > 0) {
 			while($leavetype_expense = $db->fetch_assoc($leavetypeexp_query)) {
 				$leavetypeexpenses[$leavetype_expense['alteid']] = $leavetype_expense;
