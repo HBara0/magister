@@ -271,6 +271,7 @@ if(!$core->input['action']) {
 					$reporting_report_newoverviewbox[$aggregate_type] = $reporting_report_newoverviewbox_row[$aggregate_type] = array();
 				}
 				foreach($aggregate_data as $category => $cat_data) { /* amount or  quantity */
+					$item_value_prefix = '';
 					foreach($cat_data as $iid => $item) {
 						$item[$aggregate_type][$category] = $item;
 						foreach($report_years as $yearef => $year) {
@@ -289,8 +290,9 @@ if(!$core->input['action']) {
 								if($item[$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $item[$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
 									$item_rounding = $default_rounding;
 								}
+								
 								if($category == 'amount') {
-									$usd = '<span class="smalltext"> USD </span>';
+									$item_value_prefix = '<span class="smalltext">$</span>';
 								}
 								/* Format numbers for output if we have forecast for the coming quarters */
 								if($year == $report['year'] && isset($report['forecasteditems'][$category]['actual'][$year][$quarter])) {
@@ -298,17 +300,17 @@ if(!$core->input['action']) {
 									$colspan++;
 								}
 								elseif($year == $report['year'] && $quarter != 1) {
-									$mergeditem_output['forecastmergedcell'] .= '<td class="altrow2 mainbox_datacell">'.number_format($item[$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ').'</td>';
+									$mergeditem_output['forecastmergedcell'] .= '<td class="altrow2 mainbox_datacell">'.$item_value_prefix.number_format($item[$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ').'</td>';
 								}
 
-								$item_output[$aggregate_type][$category]['actual'][$year][$quarter] = number_format($item[$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ');
+								$item_output[$aggregate_type][$category]['actual'][$year][$quarter] = $item_value_prefix.number_format($item[$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ');
 								//$item_output[$aggregate_type][$category]['actual'][$year][$quarter]+=$item_output[$aggregate_type][$category]['actual'][$year][$quarter];
 
 								$item_rounding = 0;
 								if($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
 									$item_rounding = $default_rounding;
 								}
-								$boxes_totals_output['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ');
+								$boxes_totals_output['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = $item_value_prefix.number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ');
 
 //								if($year == $reporting_quarter['year'] && $quarter > $reporting_quarter['quarter']) {
 //									$boxes_totals_merged = $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter];
@@ -360,12 +362,12 @@ if(!$core->input['action']) {
 								if($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
 									$item_rounding = $default_rounding;
 								}
-								$boxes_totals_mergedoutput['mergedmainbox'] .= '<td class="altrow2 mainbox_totalcell">'.number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ').'</td>';
+								$boxes_totals_mergedoutput['mergedmainbox'] .= '<td class="altrow2 mainbox_totalcell">'.$item_value_prefix.number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ').'</td>';
 							}
 						}
 					}
 					if($colspan > 0) {
-						$boxes_totals_mergedoutput['mergedmainbox'] .='<td colspan="'.$colspan.'" class="altrow2 mainbox_totalcell">'.number_format($item_outputmerged_total, $item_rounding, '.', ' ').'</td>';
+						$boxes_totals_mergedoutput['mergedmainbox'] .='<td colspan="'.$colspan.'" class="altrow2 mainbox_totalcell">'.$item_value_prefix.number_format($item_outputmerged_total, $item_rounding, '.', ' ').'</td>';
 					}
 					/* Loop totals to parse forecasts - END */
 
