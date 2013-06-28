@@ -303,8 +303,8 @@ else {
 				$leave['details_crumb'] = implode(' ', $leave['details_crumb']);
 			}
 			else {
-				//output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-				//exit;
+				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+				exit;
 			}
 		}
 
