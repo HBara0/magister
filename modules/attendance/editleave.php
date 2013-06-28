@@ -14,7 +14,6 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
-	$lang->load('attendance_messages');
 	//$lid = $db->escape_string(base64_decode($core->input['lid']));
 	$lid = $db->escape_string($core->input['lid']);
 	$action = 'editleave';
