@@ -1,4 +1,7 @@
-<page style="page-break-before:always;">
+<page>
+    <div style="page-break-before:always;"></div>
+    <div class="paperContainer">
+    <a name="qr-{$report[affid]}-{$report[spid]}"></a>
     {$highlightbox}
     {$reporting_report_newoverviewbox[segments][amount]}
     {$reporting_report_newoverviewbox[products][amount]}
@@ -13,4 +16,5 @@
         {$contributors}
     </table>
 <br />
-</page>   
+</div>
+</page>
