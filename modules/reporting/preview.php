@@ -84,8 +84,20 @@ if(!$core->input['action']) {
 			$report['currencies'] = $newreport->get_currencies();
 			if(is_array($report['currencies'])) {
 				$report_currencies += $report['currencies'];
-			}
+				$currencies_from = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'start']);
+				$currencies_to = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'end']);
+				if($report['quarter'] == 1) {
+					$prev_currencies_from = strtotime(($report['year'] - 1).'-'.$core->settings['q4start']);
+					$prev_currencies_to = strtotime(($report['year'] - 1).'-'.$core->settings['q4end']);
+				}
+				else {
+					$prev_currencies_from = strtotime($report['year'].'-'.$core->settings['q'.($report['quarter'] - 1).'start']);
+					$prev_currencies_to = strtotime($report['year'].'-'.$core->settings['q'.($report['quarter'] - 1).'end']);
+				}
 
+				$currency = new Currencies($report['currencies']['USD']);
+				$currencies_ammount_fx = $currency->get_average_fxrates($report['currencies'], array('from' => $currencies_from, 'to' => $currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4));
+			}
 			if($core->input['incKeyCustomers'] == 1) {
 				$report['keycustomers'] = $newreport->get_key_customers();
 			}
@@ -276,6 +288,7 @@ if(!$core->input['action']) {
 						foreach($report_years as $yearef => $year) {
 							$colspan = 0;
 							$usd = '';
+							$currency_desc = '';
 							for($quarter = 1; $quarter <= 4; $quarter++) {
 								if(!isset($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter])) {
 									$boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = 0;
@@ -291,6 +304,14 @@ if(!$core->input['action']) {
 								}
 								if($category == 'amount') {
 									$usd = '<span class="smalltext"> USD </span>';
+									/* pasring  Fx Rate --START */
+									if(isset($report_currencies['USD'])) {
+										if(!empty($currencies_ammount_fx)) {
+											$currency_desc = $report_currencies['USD'].' : <span class="smalltext"> '.$currencies_ammount_fx[USD].'</span>';
+										}
+									}
+
+									/* pasring  Fx Rate --END */
 								}
 								/* Format numbers for output if we have forecast for the coming quarters */
 								if($year == $report['year'] && isset($report['forecasteditems'][$category]['actual'][$year][$quarter])) {
@@ -682,9 +703,9 @@ if(!$core->input['action']) {
 
 				$overyears_rates = $currency->get_yearaverage_fxrate_yearbased('USD', 2005, $report['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4), 'EUR');
 				$overyears_rates = $overyears_rates + $currency_rates_year;
-				$index1=8;
-				$index2=count($overyears_rates)-1;
-				$fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 EUR' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholddata'=>array('firstindex'=>$index1,'secondindex'=>$index2),'hasthreshold' => 1,'width' => 700, 'height' => 200, 'writelabel' => true));
+				$index1 = 8;
+				$index2 = count($overyears_rates) - 1;
+				$fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 EUR' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$report['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholddata' => array('firstindex' => $index1, 'secondindex' => $index2), 'hasthreshold' => 1, 'width' => 700, 'height' => 200, 'writelabel' => true));
 				$fx_rates_chart .= '<tr><td style="border-bottom: 1px dashed #CCCCCC; text-align: center;" colspan="'.$fxratespage_tablecolspan.'"><img src="'.$fxrates_linechart->get_chart().'" /></td></tr>';
 
 				if(!empty($fx_rates_entries)) {
