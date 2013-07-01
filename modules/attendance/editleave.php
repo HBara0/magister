@@ -264,11 +264,13 @@ else {
 
 		/* Validate required Fields --START */
 		$leavetype = new Leavetypes($core->input['type']);
-		$expensesfield_type = $leavetype->get_expenses();
-		foreach($expensesfield_type as $alteid => $expensesfield) {
-			if(($expensesfield['isRequired'] == 1 && empty($expenses_data[$alteid]['expectedAmt'])) || (($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description'])))) {
-				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-				exit;
+		if($leavetype->has_expenses()) {
+			$expensesfield_type = $leavetype->get_expenses();
+			foreach($expensesfield_type as $alteid => $expensesfield) {
+				if(($expensesfield['isRequired'] == 1 && empty($expenses_data[$alteid]['expectedAmt'])) || (($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description'])))) {
+					output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+					exit;
+				}
 			}
 		}
 		/* Validate required Fields --END */
