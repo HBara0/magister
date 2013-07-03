@@ -361,46 +361,46 @@ if(!$core->input['action']) {
 
 					/* Loop totals to parse forecasts - START */
 					//foreach($report_years as $yearef => $year) {
-					$year=$report_years['current_year'];
-						$colspan = 0;
-						$item_rounding = 0;
-						for($quarter = 1; $quarter <= 4; $quarter++) {
-							if(isset($report['forecasteditems'][$category]['actual'][$year][$quarter])) {
-								if($item[$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $item[$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
-									$item_rounding = $default_rounding;
-								}
-								if($item[$aggregate_type][$category]['actual'][$year][$quarter] == 0) {
-									//$item_outputmerged_total = 0;
-								}
-								else {
-									//echo ' $item total:  '.$item[$aggregate_type][$category]['actual'][$year][$quarter].'<hr>';
-									$item_outputmerged_total[$aggregate_type][$category]+=$item[$aggregate_type][$category]['actual'][$year][$quarter];
-									echo $aggregate_type.'  '.$category.' '.$quarter.' 	$item_outputmerged_total+= '.$item[$aggregate_type][$category]['actual'][$year][$quarter];
-									echo ' $item_outputmerged_total :  '.$item_outputmerged_total[$aggregate_type][$category].'<br>';
-									$colspan++;
-								}
+					$year = $report_years['current_year'];
+					$colspan = 0;
+					$item_rounding = 0;
+					for($quarter = 1; $quarter <= 4; $quarter++) {
+						if(isset($report['forecasteditems'][$category]['actual'][$year][$quarter])) {
+							if($item[$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $item[$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
+								$item_rounding = $default_rounding;
 							}
-							elseif($year == $report['year'] && $quarter != 1) {
-								if(!isset($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter])) {
-									//	$boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = 0;
-								}
+							if($item[$aggregate_type][$category]['actual'][$year][$quarter] == 0) {
+								//$item_outputmerged_total = 0;
+							}
+							else {
+								//echo ' $item total:  '.$item[$aggregate_type][$category]['actual'][$year][$quarter].'<hr>';
+								$item_outputmerged_total[$aggregate_type][$category]+=$item[$aggregate_type][$category]['actual'][$year][$quarter];
+								//echo $aggregate_type.'  '.$category.' '.$quarter.' 	$item_outputmerged_total+= '.$item[$aggregate_type][$category]['actual'][$year][$quarter];
+								//echo ' $item_outputmerged_total :  '.$item_outputmerged_total[$aggregate_type][$category].'<br>';
+								$colspan++;
+							}
+						}
+						elseif($year == $report['year'] && $quarter != 1) {
+							if(!isset($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter])) {
+								//	$boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = 0;
+							}
 //								else {
 //									$item_outputmerged_total2 +=$item[$aggregate_type][$category]['actual'][$year][$quarter];regate_type][$category]['actual'][$year][$quarter] != 0) {
-									$item_rounding = $default_rounding;
+							$item_rounding = $default_rounding;
 //							
 //								}
 
-								if($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
-									$item_rounding = $default_rounding;
-								}
-
-								$boxes_totals_mergedoutput['mergedmainbox'][$aggregate_type][$category] .= '<td class="altrow2 mainbox_totalcell">'.$item_value_prefix.number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ').'</td>';
+							if($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
+								$item_rounding = $default_rounding;
 							}
+
+							$boxes_totals_mergedoutput['mergedmainbox'][$aggregate_type][$category] .= '<td class="altrow2 mainbox_totalcell">'.$item_value_prefix.number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ').'</td>';
 						}
-						if($colspan > 0) {
-							$boxes_totals_mergedoutput['mergedmainbox'][$aggregate_type][$category] .='<td colspan="'.$colspan.'" class="altrow2 mainbox_totalcell">'.$item_value_prefix.number_format($item_outputmerged_total[$aggregate_type][$category], $item_rounding, '.', ' ').'</td>';
-						}
-						
+					}
+					if($colspan > 0) {
+						$boxes_totals_mergedoutput['mergedmainbox'][$aggregate_type][$category] .='<td colspan="'.$colspan.'" class="altrow2 mainbox_totalcell">'.$item_value_prefix.number_format($item_outputmerged_total[$aggregate_type][$category], $item_rounding, '.', ' ').'</td>';
+					}
+
 					//}
 
 					/* Loop totals to parse forecasts - END */
@@ -418,7 +418,7 @@ if(!$core->input['action']) {
 					$toc_data[3]['affiliatesoverview'] = array('title' => $lang->activityby.' '.$lang->affiliate);
 					eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
 					$boxes_totals_mergedoutput['mergedmainbox'][$aggregate_type][$category] = '';
-					$reporting_report_newoverviewbox_chart = '';				
+					$reporting_report_newoverviewbox_chart = '';
 				}
 				$item_outputmerged_total[$aggregate_type][$category] = 0;
 			}
@@ -691,6 +691,10 @@ if(!$core->input['action']) {
 						$fx_rates_entries .= '<tr><td class="namescell" style="text-align:left; width: 2%;">'.$cur.'</td>';
 						foreach($report_currencies as $currkey => $fx_currency) {
 							$trend_symbol = '';
+							if(array_sum($currencies_fx) == 0) {
+								$cur = '';
+								$currencies_fx[$fx_currency] = '';
+							}
 							if(empty($currencies_fx[$fx_currency])) {
 								$currencies_fx[$fx_currency] = ' - ';
 							}
@@ -698,6 +702,10 @@ if(!$core->input['action']) {
 								$currencies_fx[$fx_currency] = round($currencies_fx[$fx_currency], 4);
 								$prev_rate = $currency->get_average_fxrate($fx_currency, array('from' => $prev_currencies_from, 'to' => $prev_currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4), $cur);
 								$trend_symbol = '<div class="arrow-down"></div> ';
+								if(array_sum($currencies_fx) == 0) {
+									$cur = '';
+									$currencies_fx[$fx_currency] = '';
+								}
 								if($currencies_fx[$fx_currency] - $prev_rate > 0) {
 									$trend_symbol = '<div class="arrow-up"></div> ';
 								}
