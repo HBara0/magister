@@ -303,7 +303,7 @@ if(!$core->input['action']) {
 								if($item[$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $item[$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
 									$item_rounding = $default_rounding;
 								}
-								
+
 								if($category == 'amount') {
 									$item_value_prefix = '<span class="smalltext">$</span>';
 									/* pasring  Fx Rate --START */
@@ -360,36 +360,49 @@ if(!$core->input['action']) {
 					$lang->$category = $lang->{(strtolower($category))};
 
 					/* Loop totals to parse forecasts - START */
-					foreach($report_years as $yearef => $year) {
+					//foreach($report_years as $yearef => $year) {
+					$year=$report_years['current_year'];
 						$colspan = 0;
 						$item_rounding = 0;
 						for($quarter = 1; $quarter <= 4; $quarter++) {
-							if($year == $report['year'] && isset($report['forecasteditems'][$category]['actual'][$year][$quarter])) {
+							if(isset($report['forecasteditems'][$category]['actual'][$year][$quarter])) {
 								if($item[$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $item[$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
 									$item_rounding = $default_rounding;
 								}
 								if($item[$aggregate_type][$category]['actual'][$year][$quarter] == 0) {
-									$item_outputmerged_total = 0;
+									//$item_outputmerged_total = 0;
 								}
 								else {
-									$item_outputmerged_total+=$item[$aggregate_type][$category]['actual'][$year][$quarter];
+									//echo ' $item total:  '.$item[$aggregate_type][$category]['actual'][$year][$quarter].'<hr>';
+									$item_outputmerged_total[$aggregate_type][$category]+=$item[$aggregate_type][$category]['actual'][$year][$quarter];
+									echo $aggregate_type.'  '.$category.' '.$quarter.' 	$item_outputmerged_total+= '.$item[$aggregate_type][$category]['actual'][$year][$quarter];
+									echo ' $item_outputmerged_total :  '.$item_outputmerged_total[$aggregate_type][$category].'<br>';
 									$colspan++;
 								}
 							}
 							elseif($year == $report['year'] && $quarter != 1) {
 								if(!isset($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter])) {
-									$boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = 0;
+									//	$boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = 0;
 								}
+//								else {
+//									$item_outputmerged_total2 +=$item[$aggregate_type][$category]['actual'][$year][$quarter];regate_type][$category]['actual'][$year][$quarter] != 0) {
+									$item_rounding = $default_rounding;
+//							
+//								}
+
 								if($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
 									$item_rounding = $default_rounding;
 								}
-								$boxes_totals_mergedoutput['mergedmainbox'] .= '<td class="altrow2 mainbox_totalcell">'.$item_value_prefix.number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ').'</td>';
+
+								$boxes_totals_mergedoutput['mergedmainbox'][$aggregate_type][$category] .= '<td class="altrow2 mainbox_totalcell">'.$item_value_prefix.number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ').'</td>';
 							}
 						}
-					}
-					if($colspan > 0) {
-						$boxes_totals_mergedoutput['mergedmainbox'] .='<td colspan="'.$colspan.'" class="altrow2 mainbox_totalcell">'.$item_value_prefix.number_format($item_outputmerged_total, $item_rounding, '.', ' ').'</td>';
-					}
+						if($colspan > 0) {
+							$boxes_totals_mergedoutput['mergedmainbox'][$aggregate_type][$category] .='<td colspan="'.$colspan.'" class="altrow2 mainbox_totalcell">'.$item_value_prefix.number_format($item_outputmerged_total[$aggregate_type][$category], $item_rounding, '.', ' ').'</td>';
+						}
+						
+					//}
+
 					/* Loop totals to parse forecasts - END */
 
 					/* Generate Chart */
@@ -404,10 +417,10 @@ if(!$core->input['action']) {
 //					}
 					$toc_data[3]['affiliatesoverview'] = array('title' => $lang->activityby.' '.$lang->affiliate);
 					eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
-					$boxes_totals_mergedoutput['mergedmainbox'] = '';
-					$reporting_report_newoverviewbox_chart = '';
-					$item_outputmerged_total = 0;
+					$boxes_totals_mergedoutput['mergedmainbox'][$aggregate_type][$category] = '';
+					$reporting_report_newoverviewbox_chart = '';				
 				}
+				$item_outputmerged_total[$aggregate_type][$category] = 0;
 			}
 
 			$report_charts_data['segments'] = $report_charts_data['products'] = array();
