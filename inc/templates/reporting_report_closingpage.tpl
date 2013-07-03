@@ -12,37 +12,45 @@ We are also providing quantitative and qualitative summary, in addition to clear
 <p>We hope that the new format will meet your expectations, be useful, and help us strengthen our relations together.</p>
 <h3>Orkila Events</h3>
 <p>
-    <div class="subtitle">Orkila & Partners to exhibit at DJAZAGRO, 9-12 April 2013, Algiers - Food</div>
-    The biggest regional food industry exhibition held annually in Algiers since 2001, aimed at professionals involved in all aspects of the food and beverage industry. Traditional segments such as ingredients for bakery, pastry, food and beverage processing, have been augmented by the inclusion of food packaging and food hygiene products as well as the feed industry, all under the umbrella of Djazagri.
-    With an average of 13% growth due to the continuous development of artisanal and medium segment enterprises which is a characteristic / tendency in the region, Djazagro, together with the food event CFIA held in Morocco (Orkila exhibited in 2012) offer the opportunity for Orkila & Partners to grow its market share in a region that is ever more at the leading edge of food industrialization.
+    <div class="subtitle">Orkila strengthens its presence in Saudi Arabia</div>
+   The Orkila Group is pleased to announce the opening of new offices in the Kingdom of Saudi Arabia
+(KSA). Orkila’s offices and warehouse will be located in Al Khobar, within the premises of the
+ZAMIL GROUP.
 </p>
 <p>
-<div class="subtitle">In-Cosmetics, 16-18 April 2013, Paris - Cosmetics</div>
-Staged annually in Spring in a major European city, In-Cosmetics brings together the world’s leading cosmetics suppliers, R&D, production and marketing specialists and showcases the most diverse range of innovative cosmetics ingredients and services. Orkila will visit the show to meet customers together with our established industry partners as well as to seek new suppliers.
+Since its creation in 2005, Orkila has recognized the need for a local presence to assist its
+customers and to improve service levels. Orkila KSA will provide the platform upon which the
+Group can achieve these goals in this strategic market. This initiative further highlights Orkila’s
+sustained dedication to improve performance and to extend its reach throughout the Middle East.
+<p>
+With this latest investment, Orkila reinforces its established position as the leading chemical
+distributor in the Middle East and Africa through its activities in Morocco, Egypt, Algeria, Tunisia,
+Kenya, South Africa, Nigeria, Senegal, Ghana, Ivory Coast, Iran, Iraq, U.A.E, Cyprus, Jordan, Lebanon
+& Syria.
+</p>
+
+<p>
+<div class="subtitle">Orkila opens new office in East Nigeria</div>
+Following past year’s reinforcement of its West African network, ORKILA CHEMICALS LTD (Nigeria)
+is pleased to announce the opening of its new office and warehouse in Onitsha, southeastern
+Nigeria.
 </p>
 <p>
-<div class="subtitle">Buildexpo Kenya, 4-6 May, Nairobi - Paints & Construction</div>
-With trade visitors from all over East & Central African countries, Buildexpo showcases the widest range of technologies for the construction sector. Wacker and Orkila welcome regional customers at the Wacker Stand, B116, aiming to support the local manufacturing sector and to take the opportunity to gain an insight into the local market and its trends.
+Onitsha is a strategic gateway for trade between the former eastern and western regions. The
+Nigerian economy has developed impressively and it is against this background that ORKILA
+CHEMICALS LTD will offer, to customers and suppliers alike, a solid foundation for the growth and
+development of their interests.
 </p>
 <p>
-<div class="subtitle">Food Ingredients Turkey, 7-9 May 2013, Istanbul - Food</div>
-Orkila will visit this dynamic event seeking new suppliers to complement its existing range from one of the fastest growing economies in the region.
+With this latest move, Orkila reinforces its established position as the leading chemical distributor
+in Africa & the Middle East supplying multiple industrial sectors through its network of affiliates
+based in the key markets of the region, including Morocco, Egypt, Algeria, Tunisia, Kenya, South
+Africa, Senegal, Ivory Coast, Ghana, Iran, Iraq, U.A.E, Jordan, Lebanon & Syria.
 </p>
 <p>
-<div class="subtitle">Iran food + bev tec 2013, 26-29 May, Tehran - Food</div>
-Iran is a market of almost 80 million, its significant domestic consumption and growing regional export of food products makes it an excellent platform for the meeting of decision makers of the massive Iranian food industry. Present usually as an exhibitor, Orkila will participate this year as a visitor to the show in order to meet local customer.
-</p>
-<p>
-<div class="subtitle">Kenya Medex, 31 May – 2 June 2013, Nairobi - Pharmaceuticals</div>
-In conjunction with Kenya Tradex, and covering a wide range of market segments, the show attracts an unrivalled number of visitors from all over East & Central Africa. Exhibitors from over 25 countries will participate. Present at the Meggle booth, Orkila and Meggle look forward to meeting regional producers of pharmaceutical products and to offering innovative excipients used in drug formulation for solid & liquid dose processes.
-</p>
-<p>
-<div class="subtitle">Orkila and Partners to exhibit at Agrena 2013, 6-8 June 2013, Cairo - Feed & Agrochemicals</div>
-Orkila exhibits for the 6th consecutive year at the 15th International Exhibition for the Management and Production of Poultry & Livestock. With a wide range of high quality, specialty products, Orkila offers technical support and brings solutions to problems specific to poultry, ruminants, aquaculture, and seeks to improve animal production performances.
-</p>
-<p>
-<div class="subtitle">Customer Event, 11 June, Tunis - Pharmaceuticals</div>
-In recent years the Tunisian pharmaceutical market has demonstrated impressive growth and demands products manufactured to the highest standards of manufacturing and quality control. With this in mind, ORKILA is planning a technical seminar aiming to provide our Tunisian customers with the opportunity to benefit from the expertise of those companies represented by ORKILA in this field, notably Meggle, Aqvida, Novacyl or Pharmco-Aaper.
+We would like to take this opportunity to thank all our business partners, together with those
+working for Orkila affiliates throughout the region, for their continued support; and to invite
+anyone connected with the chemical industry to visit our web site at <a href="http://www.orkila.com" target="_blank">www.orkila.com</a>
 </p>
 </div>
 </div>
