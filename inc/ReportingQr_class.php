@@ -131,8 +131,7 @@ class ReportingQr Extends Reporting {
 								$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] /= (4 - $this->report['quarter']);
 								$this->report['classifiedpactivity_class']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 'mainbox_forecast';
 								$this->report['forecasteditems']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 1;
-							
-								$this->report['forecasteditems']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 1;
+								$this->report['forecasteditems']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 1;
 							}
 						}
 					}
