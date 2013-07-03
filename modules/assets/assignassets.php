@@ -14,12 +14,15 @@ if(!defined('DIRECT_ACCESS')) {
 if($core->usergroup['assets_canManageAssets'] == 0) {
 	error($lang->sectionnopermission);
 	exit;
+	
 }
 if(!$core->input['action']) {
-	
-	
-	
-	
+	$assets=new Asset();
+	$assetslist=$assets->get_affiliateassets(); 
+	$assigners=$assets->get_assignto();
+	$employees_list = parse_selectlist('assignee[uid]', 1, $assigners, '');	
+	$assets_list = parse_selectlist('assignee[asid]', 1, $assetslist, '');	
+
 	
 	eval("\$assetsassign = \"".$template->get('assets_assign')."\";");
 	output_page($assetsassign);

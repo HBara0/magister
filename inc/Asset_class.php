@@ -99,8 +99,6 @@ class Asset {
 		if($query) {
 			$this->errorcode = 0;
 		}
-
-		print_r($this->tracker);
 	}
 
 	public function set_asid($asid) {
@@ -243,7 +241,7 @@ class Asset {
 		return $loc;
 	}
 
-	public function get_map($data) { // ($uids,$asids,$from,$to) {
+	public function get_map($data) { 
 		global $db;
 
 		foreach($data as $key => $trackedasset) {
@@ -281,11 +279,22 @@ class Asset {
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."assets WHERE asid=".$db->escape_string($id)));
 	}
 
+	public function get_assignto() {
+		global $db, $core;
+		$query = $db->query("SELECT u.uid, u.displayName FROM ".Tprefix."users u 
+						JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE (ae.isMain=1 AND ae.affid='{$core->user[mainaffiliate]}' OR u.reportsTo='{$core->user[uid]}')
+						AND u.gid!=7 AND u.uid!={$core->user[uid]} ORDER BY displayName ASC");
+		while($user = $db->fetch_assoc($query)) {
+			$employees[$user['uid']] = $user['displayName'];
+		}
+		return $employees;
+	}
+
 	public function get_affiliateassets() {
 		global $db, $core;
 		$allassets = $db->query("SELECT asid,title,description FROM ".Tprefix."assets WHERE affid in(".implode(',', $core->user['affiliates']).")");
 		while($assets = $db->fetch_assoc($allassets)) {
-			$asset[$assets['asid']] = $assets;
+			$asset[$assets['asid']] = $assets['title'];
 		}
 		return $asset;
 	}
