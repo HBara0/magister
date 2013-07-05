@@ -19,7 +19,7 @@ if(!$core->input['action']) {
 	$assets = new Asset();
 	if($core->input['type'] == 'edit' && isset($core->input['id'])) {
 		$auid = $db->escape_string($core->input['id']);
-		$assignee = $assets->get_assigneduser($auid);
+		$assignee = $assets->get_assigneduser($auid);  
 		$actiontype = $lang->edit;
 	}
 	else {

@@ -20,17 +20,21 @@ if($core->usergroup['assets_canManageAssets'] == 0) {
 
 if(!$core->input['action']) {
 	$affiliate = new Affiliates($core->user['affiliates']);
-
+	$assetstype = array(1 => 1, 2 => 2, 3 => 3, 4 => 4);
+	$assets_status = array(1 => 1, 2 => 2, 3 => 3, 4 => 4);
 	if($core->input['type'] == 'edit' && isset($core->input['id'])) {
 		$asid = $db->escape_string($core->input['id']);
 		$asset = new Asset($asid);
 		$assets = $asset->get();
 		$actiontype = 'Edit';
+
+		$assets_type = parse_selectlist('asset[type]', 3, $assetstype, $assets['type']);
+		$assetsstatus = parse_selectlist('asset[status]', 4, $assets_status, $assets['status']);
 	}
 	else {
 		$actiontype = 'Add';
 	}
-	//$affiliate_country = $affiliate->get_country()->get();
+
 
 	$affiliatesquery = $db->query("SELECT affid,name FROM ".Tprefix."affiliates WHERE affid IN('".implode(',', $core->user['affiliates'])."')");
 
@@ -38,7 +42,8 @@ if(!$core->input['action']) {
 		$affiliate_list.='<option value="'.$affiliates_user['affid'].'">'.$affiliates_user['name'].'</option>';
 	}
 
-
+	$assets_type = parse_selectlist('asset[type]', 3, $assetstype, '');
+	$assetsstatus = parse_selectlist('asset[status]', 4, $assets_status, '');
 
 	eval("\$assetsmange = \"".$template->get('assets_manage')."\";");
 	output_page($assetsmange);

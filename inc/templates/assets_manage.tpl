@@ -24,13 +24,13 @@
 
                 <div style="display:table-row;">
                     <div style="display:table-cell; width:10%;">{$lang->type}</div>
-                    <div style="display:table-cell; width:100%; padding:5px;"><input type="text" tabindex="2"  required="required" id="asset[type]" name="asset[type]" value="{$assets[type]}"/></div>
+                    <div style="display:table-cell; width:100%; padding:5px;">{$assets_type}</div>
                 </div>
 
 
                 <div style="display:table-row;">
                     <div style="display:table-cell; width:10%;">{$lang->status}</div>
-                    <div style="display:table-cell; width:100%;padding:5px;"><input type="text" name="asset[status]" tabindex="3" value="{$assets[status]}"/></div>
+                    <div style="display:table-cell; width:100%;padding:5px;">{$assetsstatus}</div>
                 </div>
 
 

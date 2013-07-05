@@ -133,12 +133,13 @@ class Asset {
 
 	public function assign_assetuser($userdata, $options = array()) {
 		global $db;
-		if(is_empty($userdata['uid'], $userdata['fromDate'], $userdata['toDate'])) {
+		if(is_empty($userdata['uid'], $userdata['fromDate'], $userdata['toDate'], $userdata['fromTime'], $userdata['toTime'])) {
 			$this->errorcode = 1;
 			return false;
 		}
-		$userdata['fromDate'] = strtotime($userdata['fromDate']);
-		$userdata['toDate'] = strtotime($userdata['toDate']);
+
+		$userdata['fromDate'] = strtotime($userdata['fromDate'].' '.$userdata['fromTime']);
+		$userdata['toDate'] = strtotime($userdata['toDate'].' '.$userdata['toTime']);
 
 		if(value_exists('assets_users', 'asid', $userdata['asid'], '(('.$userdata['fromDate'].' BETWEEN fromDate AND toDate) OR ('.$userdata['toDate'].' BETWEEN fromDate AND toDate))')) {
 			$this->errorcode = 2;
@@ -148,7 +149,8 @@ class Asset {
 			$userassets_data = array('uid' => $userdata['uid'],
 					'asid' => $userdata['asid'],
 					'fromDate' => $userdata['fromDate'],
-					'toDate' => $userdata['toDate']
+					'conditionOnHandover' => $userdata['conditionOnHandover'],
+					'conditionOnReturn' => $userdata['conditionOnReturn']
 			);
 		}
 
@@ -174,14 +176,13 @@ class Asset {
 		$db->update_query('assets_users', $userassets_data, 'auid='.$auid.'');
 	}
 
-	public  function delete_userassets($id){
+	public function delete_userassets($id = '') {
 		global $db;
-		
-		if(!empty($id)){
-			$db->delete_query('assets_users','auid'.$auid);
+
+		if(!empty($id)) {
+			//$db->delete_query('assets_users', 'auid='.$id);
 		}
 	}
-
 
 	public function assign_tracker_to_asset($devid, $asid, $from, $to) {
 		global $db;

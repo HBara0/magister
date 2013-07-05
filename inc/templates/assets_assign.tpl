@@ -20,20 +20,37 @@
                 
                     <div style="display:table-row;">
                     <div style="display:table-cell; width:10%;">{$lang->assetid}</div>
-                    <div style="display:table-cell; width:100%; padding:5px;">{$assets_list}</div>
+                    <div style="display:table-cell; width:10%; padding:5px;">{$assets_list}</div>
                 </div>
 
-                <div style="display:table-row;">
-                    <div style="display:table-cell; width:10%;">{$lang->from}</div>
-                    <div style="display:table-cell; width:100%; padding:5px;"><input type="text" name="assignee[fromDate]"  value="{$assignee['fromDate_output']}"required="required" id="pickDateFrom" tabindex="3"/></div>
-                </div>
-                
+             
+                  <div style="width:20%; display:inline-block;">{$lang->from}</div>
+                    <div style="display:table-cell; width:10%; padding:5px;">
+                        <input type="text" name="assignee[fromDate]"  value="{$assignee['fromDate_output']}"required="required" id="pickDateFrom" tabindex="3"/>
+                    <input name="assignee[fromTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="08:30" required="required" type="time">
+                   </div>
+             
                 <div style="display:table-row;">
                     <div style="display:table-cell; width:10%;">{$lang->to}</div>
-                    <div style="display:table-cell; width:100%; padding:5px;"><input type="text" name="assignee[toDate]"  value="{$assignee['toDate_output']}" required="required" id="pickDateTo" tabindex="4"/></div>
+                    <div style="display:table-cell; width:100%; padding:5px;"><input type="text" name="assignee[toDate]"  value="{$assignee['toDate_output']}" required="required" id="pickDateTo" tabindex="4"/>
+                     <input name="assignee[toTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="05:00" required="required" type="time">
+                    </div>
                 </div>
 
+                    <div style="display:table-row;">
+                    <div style="display:table-cell; width:10%;">{$lang->conditionhandover}</div>
+                    <div style="display:table-cell; width:100%; padding:5px;"><textarea name="assignee[conditionOnHandover]">{$assignee['conditionOnHandover']}</textarea>
+                    
+                    </div>
+                </div>
                 
+                        <div style="display:table-row;">
+                    <div style="display:table-cell; width:10%; margin:20px;">{$lang->conditiononreturn}</div>
+                    <div style="display:table-cell; width:100%; padding:5px;"><textarea name="assignee[conditionOnReturn]">{$assignee['conditionOnReturn']}</textarea>
+                    
+                    </div>
+                </div>
+                    
                 <div style="display:table-row;">
                     <div style="display: table-cell; width:20%;">
                         <input type="submit" class="button" value="{$actiontype}" id="perform_assets/assignassets_Button" />
