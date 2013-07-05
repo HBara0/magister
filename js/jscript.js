@@ -382,6 +382,12 @@ $(function() {
 			bgiframe: true,
 			closeOnEscape: true,
 			modal: true,
+                        buttons: {
+                                   
+                                    Cancel: function() {
+                                    $( this ).dialog( "close" );
+                                    }
+                                },
 			width: 500,
 			maxWidth: 500,
 			close: function() {
