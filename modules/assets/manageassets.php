@@ -24,7 +24,7 @@ if(!$core->input['action']) {
 	if($core->input['type'] == 'edit' && isset($core->input['id'])) {
 		$asid = $db->escape_string($core->input['id']);
 		$asset = new Asset($asid);
-		$assets = $asset->get_assets();
+		$assets = $asset->get();
 		$actiontype = 'Edit';
 	}
 	else {

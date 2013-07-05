@@ -89,7 +89,6 @@ class Asset {
 			$this->tracker = $trackerdata;
 			$trackerid = intval($this->tracker['atdid']);
 			unset($this->tracker['atdid']);
-			print_r($this->tracker);
 			$query = $db->update_query('assets_trackingdevices', $this->tracker, 'atdid='.$trackerid.'');
 		}
 		else {
@@ -132,10 +131,57 @@ class Asset {
 		$db->insert_query('assets_locations', $data, $options);
 	}
 
-	public function assign_assetuser($asid, $uid, $from, $to) {
+	public function assign_assetuser($userdata, $options = array()) {
 		global $db;
-		$db->insert_query('assets_users', array('uid' => $uid, 'asid' => $asid, 'fromDate' => $from, 'toDate' => $to));
+		if(is_empty($userdata['uid'], $userdata['fromDate'], $userdata['toDate'])) {
+			$this->errorcode = 1;
+			return false;
+		}
+		$userdata['fromDate'] = strtotime($userdata['fromDate']);
+		$userdata['toDate'] = strtotime($userdata['toDate']);
+
+		if(value_exists('assets_users', 'asid', $userdata['asid'], '(('.$userdata['fromDate'].' BETWEEN fromDate AND toDate) OR ('.$userdata['toDate'].' BETWEEN fromDate AND toDate))')) {
+			$this->errorcode = 2;
+			return false;
+		}
+		if(is_array($userdata)) {
+			$userassets_data = array('uid' => $userdata['uid'],
+					'asid' => $userdata['asid'],
+					'fromDate' => $userdata['fromDate'],
+					'toDate' => $userdata['toDate']
+			);
+		}
+
+
+		$query = $db->insert_query('assets_users', $userassets_data);
+		if($query) {
+			$this->errorcode = 0;
+		}
 	}
+
+	public function update_assetuser($userdata) {
+		global $db;
+		$auid = intval($userdata['auid']);
+		$userdata['fromDate'] = strtotime($userdata['fromDate']);
+		$userdata['toDate'] = strtotime($userdata['toDate']);
+		if(is_array($userdata)) {
+			$userassets_data = array('uid' => $userdata['uid'],
+					'asid' => $userdata['asid'],
+					'fromDate' => $userdata['fromDate'],
+					'toDate' => $userdata['toDate']
+			);
+		}
+		$db->update_query('assets_users', $userassets_data, 'auid='.$auid.'');
+	}
+
+	public  function delete_userassets($id){
+		global $db;
+		
+		if(!empty($id)){
+			$db->delete_query('assets_users','auid'.$auid);
+		}
+	}
+
 
 	public function assign_tracker_to_asset($devid, $asid, $from, $to) {
 		global $db;
@@ -147,6 +193,25 @@ class Asset {
 	/* Getter Functions ----START */
 	public function get_asid() {
 		return $my_asid;
+	}
+
+	public function get_allassignee() {
+		global $db;
+		$assigne_query = $db->query("SELECT * FROM ".Tprefix."assets_users");
+		while($assignee = $db->fetch_assoc($assigne_query)) {
+			$assignees[$assignee['auid']] = $assignee;
+		}
+		return $assignees;
+	}
+
+	public function get_assigneduser($id) {
+		global $db, $core;
+		if(!empty($id)) {
+			$assignee = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."assets_users WHERE auid=".$db->escape_string($id)));
+			$assignee['fromDate_output'] = date($core->settings['dateformat'], $assignee['fromDate']);
+			$assignee['toDate_output'] = date($core->settings['dateformat'], $assignee['toDate']);
+		}
+		return $assignee;
 	}
 
 	public function get_asset_data($from = null, $to = null, $asset_id = null) {
@@ -241,7 +306,7 @@ class Asset {
 		return $loc;
 	}
 
-	public function get_map($data) { 
+	public function get_map($data) {
 		global $db;
 
 		foreach($data as $key => $trackedasset) {
@@ -299,7 +364,7 @@ class Asset {
 		return $asset;
 	}
 
-	public function get_assets() {
+	public function get() {
 		return $this->assets;
 	}
 

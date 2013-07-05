@@ -476,4 +476,6 @@ tr.dummytrow td, tr.dummytrow th {
 	margin:0px !important;
 	line-height: 1px;
 }
+
+ .highlight { background:#91b64f; }
 /* Classes required for the multiple filtering - START */
