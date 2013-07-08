@@ -28,8 +28,8 @@ if(!$core->input['action']) {
 	}
 	$asset = new Asset();
 	$affiliate_assets = $asset->get_affiliateassets();  /* get assets for user affiliates */
-	foreach($affiliate_assets as $affasset) {
-		$assetslist.='<option value="'.$affasset['asid'].'">'.$affasset['title'].'</option>';
+	foreach($affiliate_assets as $id => $affasset) {
+		$assetslist.='<option value="'.$id.'">'.$affasset.'</option>';
 	}
 
 	eval("\$assetsmanagetrackers = \"".$template->get('assets_managetrackers')."\";");
