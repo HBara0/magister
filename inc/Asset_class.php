@@ -165,14 +165,12 @@ class Asset {
 	public function update_assetuser($userdata) {
 		global $db;
 		$auid = intval($userdata['auid']);
-		print_r($userdata);
-		$userdata['fromDate'] = strtotime($userdata['fromDate']);
-		$userdata['toDate'] = strtotime($userdata['toDate']);
+
 		if(is_array($userdata)) {
 			$userassets_data = array('uid' => $userdata['uid'],
 					'asid' => $userdata['asid'],
-					'fromDate' => $userdata['fromDate'],
-					'toDate' => $userdata['toDate'],
+					'fromDate' => strtotime($userdata['fromDate'].' '.$userdata['fromTime']),
+					'toDate' => strtotime($userdata['toDate'].' '.$userdata['toTime']),
 					'conditionOnHandover' => $userdata['conditionOnHandover'],
 					'conditionOnReturn' => $userdata['conditionOnReturn']
 			);
@@ -185,6 +183,7 @@ class Asset {
 
 		if(!empty($id)) {
 			$db->delete_query('assets_users', 'auid='.$id);
+			$this->errorcode = 3;
 		}
 	}
 
@@ -359,14 +358,16 @@ class Asset {
 		return $employees;
 	}
 
-	public function get_affiliateassets($options = '') {
+	public function get_affiliateassets($option = '') {
 		global $db, $core;
 		$allassets = $db->query("SELECT * FROM ".Tprefix."assets WHERE affid in(".implode(',', $core->user['affiliates']).")");
 		while($assets = $db->fetch_assoc($allassets)) {
-			if($option = 'titleonly') {
+			if($option == 'titleonly') {
 				$asset[$assets['asid']] = $assets['title'];
 			}
-			$asset[$assets['asid']] = $assets;
+			else {
+				$asset[$assets['asid']] = $assets;
+			}
 		}
 		return $asset;
 	}

@@ -46,12 +46,12 @@
                 <div style="display:table-row;">
                     <div style="display: table-cell; width:35%;">
                         <input type="submit" class="button" value="{$actiontype}" id="perform_assets/assignassets_Button" />
-                        <input type="reset" class="button" value="{$lang->reset}"/>
+                        <input type="reset" class="button"   onclick="$('#popup_edituser').dialog('close')"value="{$lang->close}"/>
                     </div>
                 </div>
 
-                <div style="display:table-row">
-                    <div style="display:table-cell;" id="perform_assets/assignassets_Results"></div>
+                <div style="display:table-row;width:25%;">
+                    <div style="display:table-cell;width:25%;" id="perform_assets/assignassets_Results"></div>
                 </div>
                 </div>
                     </form>

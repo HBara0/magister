@@ -26,7 +26,7 @@ if(!$core->input['action']) {
 		$actiontype = $lang->add;
 	}
 
-	$assetslist = $assets->get_affiliateassets();
+	$assetslist = $assets->get_affiliateassets('titleonly');
 	$assets_list = parse_selectlist('assignee[asid]', 1, $assetslist, $assignee['asid']);
 	$assigners = $assets->get_assignto();
 	$employees_list = parse_selectlist('assignee[uid]', 1, $assigners, $assignee['uid']);

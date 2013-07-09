@@ -93,21 +93,31 @@ elseif($core->input['action'] == 'get_deleteuser') {
 	eval("\$deleteassignee = \"".$template->get("popup_assets_listuserdelete")."\";");
 	echo $deleteassignee;
 }
-elseif($core->input['action'] == 'get_edituser') {
-	$asset = new Asset();
-	$auid = $db->escape_string($core->input['id']);
-	$assignee = $asset->get_assigneduser($auid);
-	$assetslist = $asset->get_affiliateassets();  
-	$assets_list = parse_selectlist('assignee[asid]', 1, $assetslist, $assignee['asid']);
-	$assigners = $asset->get_assignto();
-	$employees_list = parse_selectlist('assignee[uid]', 1, $assigners, $assignee['uid']);
-	$actiontype = $lang->edit;
-	eval("\$editassignee = \"".$template->get("popup_assets_listuseredit")."\";");
-	echo $editassignee;
-}
+
 elseif($core->input['action'] == 'perform_delete') {
 	$auid = $db->escape_string($core->input['todelete']);
 	$asset = new Asset();
 	$asset->delete_userassets($auid);
+	switch($asset->get_errorcode()) {
+		case 3:
+			output_xml("<status>true</status><message>{$lang->successfullydeleted}</message>");
+			break;
+	}
 }
+
+elseif($core->input['action'] == 'get_edituser') {
+	$asset = new Asset();
+	$auid = $db->escape_string($core->input['id']);
+	$assignee = $asset->get_assigneduser($auid);
+	$assetslist = $asset->get_affiliateassets('titleonly');
+	$assets_list = parse_selectlist('assignee[asid]', 1, $assetslist, $assignee['asid']);
+	$assigners = $asset->get_assignto();
+	$employees_list = parse_selectlist('assignee[uid]', 1, $assigners, $assignee['uid']);
+	$actiontype = $lang->edit;
+
+	eval("\$editassignee = \"".$template->get("popup_assets_listuseredit")."\";");
+	echo $editassignee;
+}
+
+
 ?>
