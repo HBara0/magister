@@ -37,11 +37,11 @@ if(!$core->input['action']) {
 }
 else {
 	$assets = new Asset();
-	if($core->input['action'] == 'do_Add' || $core->input['action'] == 'do_Edit') {
+	if($core->input['action'] == 'do_Add' || $core->input['action'] == 'do_edit') {
 		if($core->input['action'] == 'do_Add') {
 			$assets->assign_assetuser($core->input['assignee']);
 		}
-		elseif($core->input['action'] == 'do_Edit') {
+		elseif($core->input['action'] == 'do_edit') {	
 			$core->input['assignee']['auid'] = $db->escape_string($core->input['auid']);
 			$assets->update_assetuser($core->input['assignee']);
 			$lang->successfullysaved = 'Successfully Update';

@@ -1,16 +1,8 @@
-<head>
-    <title>{$core->settings[systemtitle]} | {$lang->manageassets}</title>
-    {$headerinc}
-</head>
-<body>
-    {$header}
-<tr>
-    {$menu}
-    <td class="contentContainer">
-        <h3>{$lang->assign}</h3>
-            <form name="perform_assets/assignassets_Form" id="perform_assets/assignassets_Form" enctype="multipart/form-data" method="post">
-            <input type="hidden" name="auid" value="{$auid}" />
-            <input type="hidden" value="do_{$actiontype}" name="action" id="action" />
+<div id="popup_edituser" title="{$lang->edituserassets}">
+    
+        <form name="perform_assets/assignassets_Form" id="perform_assets/assignassets_Form" enctype="multipart/form-data" method="post">
+            <input type="hidden" name="auid" id="auid" value="{$core->input[id]}" />
+            <input type="hidden" value="do_edit" name="action" id="action" />
         
                 <div style="display:table; border-collapse:collapse; width:100%;">
                 <div style="display:table-row;">
@@ -27,13 +19,13 @@
                   <div style="width:20%; display:inline-block;">{$lang->from}</div>
                     <div style="display:table-cell; width:10%; padding:5px;">
                         <input type="text" name="assignee[fromDate]"  value="{$assignee['fromDate_output']}"required="required" id="pickDateFrom" tabindex="3"/>
-                    <input name="assignee[fromTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="08:30" required="required" type="time">
+                        <input name="assignee[fromTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" value="{$assignee['fromTime_output']}" placeholder="08:30" required="required" type="time">
                    </div>
              
                 <div style="display:table-row;">
                     <div style="display:table-cell; width:10%;">{$lang->to}</div>
                     <div style="display:table-cell; width:100%; padding:5px;"><input type="text" name="assignee[toDate]"  value="{$assignee['toDate_output']}" required="required" id="pickDateTo" tabindex="4"/>
-                     <input name="assignee[toTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="05:00" required="required" type="time">
+                     <input name="assignee[toTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" value="{$assignee['toTime_output']}" placeholder="05:00" required="required" type="time">
                     </div>
                 </div>
 
@@ -52,7 +44,7 @@
                 </div>
                     
                 <div style="display:table-row;">
-                    <div style="display: table-cell; width:20%;">
+                    <div style="display: table-cell; width:35%;">
                         <input type="submit" class="button" value="{$actiontype}" id="perform_assets/assignassets_Button" />
                         <input type="reset" class="button" value="{$lang->reset}"/>
                     </div>
@@ -63,9 +55,4 @@
                 </div>
                 </div>
                     </form>
-    </td>
-
-</tr>
-{$footer}
-</body>
-</html>
+    </div>

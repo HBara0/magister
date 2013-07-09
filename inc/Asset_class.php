@@ -14,7 +14,7 @@ class Asset {
 	private $my_asid;
 
 	public function __construct($id = '', $simple = false) {
-		if(isset($id) && !empty($id)) {
+		if(!empty($id)) {
 			$this->assets = $this->read($id, $simple);
 		}
 	}
@@ -149,6 +149,7 @@ class Asset {
 			$userassets_data = array('uid' => $userdata['uid'],
 					'asid' => $userdata['asid'],
 					'fromDate' => $userdata['fromDate'],
+					'toDate' => $userdata['toDate'],
 					'conditionOnHandover' => $userdata['conditionOnHandover'],
 					'conditionOnReturn' => $userdata['conditionOnReturn']
 			);
@@ -164,13 +165,16 @@ class Asset {
 	public function update_assetuser($userdata) {
 		global $db;
 		$auid = intval($userdata['auid']);
+		print_r($userdata);
 		$userdata['fromDate'] = strtotime($userdata['fromDate']);
 		$userdata['toDate'] = strtotime($userdata['toDate']);
 		if(is_array($userdata)) {
 			$userassets_data = array('uid' => $userdata['uid'],
 					'asid' => $userdata['asid'],
 					'fromDate' => $userdata['fromDate'],
-					'toDate' => $userdata['toDate']
+					'toDate' => $userdata['toDate'],
+					'conditionOnHandover' => $userdata['conditionOnHandover'],
+					'conditionOnReturn' => $userdata['conditionOnReturn']
 			);
 		}
 		$db->update_query('assets_users', $userassets_data, 'auid='.$auid.'');
@@ -180,7 +184,7 @@ class Asset {
 		global $db;
 
 		if(!empty($id)) {
-			//$db->delete_query('assets_users', 'auid='.$id);
+			$db->delete_query('assets_users', 'auid='.$id);
 		}
 	}
 
@@ -210,7 +214,9 @@ class Asset {
 		if(!empty($id)) {
 			$assignee = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."assets_users WHERE auid=".$db->escape_string($id)));
 			$assignee['fromDate_output'] = date($core->settings['dateformat'], $assignee['fromDate']);
+			$assignee['fromTime_output'] = preg_replace('[AM]', '', date($core->settings['timeformat'], $assignee['fromDate']));
 			$assignee['toDate_output'] = date($core->settings['dateformat'], $assignee['toDate']);
+			$assignee['toTime_output'] = preg_replace('[AM]', '', date($core->settings['timeformat'], $assignee['toDate']));
 		}
 		return $assignee;
 	}
@@ -325,7 +331,6 @@ class Asset {
 	public function delete_asset($id) {
 		global $db, $core;
 		if($core->usergroup['assets_canDeleteAsset'] == 1) {
-			//echo 'deleted asset '.$id.'<br>';
 			$db->query('delete from '.Tprefix.'assets where asid='.$id);
 		}
 	}
@@ -333,16 +338,14 @@ class Asset {
 	private function read($id, $simple = false) {
 		global $db;
 
-		if(empty($id)) {
-			return false;
-		}
-
 		$query_select = '*';
 		if($simple == true) {
 			$query_select = 'asid, title, type';
 		}
-
-		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."assets WHERE asid=".$db->escape_string($id)));
+		if(!empty($id)) {
+			$query_where = 'WHERE asid='.$db->escape_string($id);
+		}
+		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."assets {$query_where}"));
 	}
 
 	public function get_assignto() {
@@ -356,11 +359,14 @@ class Asset {
 		return $employees;
 	}
 
-	public function get_affiliateassets() {
+	public function get_affiliateassets($options = '') {
 		global $db, $core;
-		$allassets = $db->query("SELECT asid,title,description FROM ".Tprefix."assets WHERE affid in(".implode(',', $core->user['affiliates']).")");
+		$allassets = $db->query("SELECT * FROM ".Tprefix."assets WHERE affid in(".implode(',', $core->user['affiliates']).")");
 		while($assets = $db->fetch_assoc($allassets)) {
-			$asset[$assets['asid']] = $assets['title'];
+			if($option = 'titleonly') {
+				$asset[$assets['asid']] = $assets['title'];
+			}
+			$asset[$assets['asid']] = $assets;
 		}
 		return $asset;
 	}

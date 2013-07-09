@@ -17,6 +17,8 @@ if(!$core->input['action']) {
 	$asset = new Asset();
 	$assignee = $asset->get_allassignee();
 	$sort_url = sort_url();
+
+
 	if(is_array($assignee)) {
 		foreach($assignee as $auid => $assigneduser) {
 			$assigneduser['fromDate_output'] = date($core->settings['dateformat'], $assigneduser['fromDate']);
@@ -40,7 +42,7 @@ if(!$core->input['action']) {
 	$filters_config = array(
 			'parse' => array('filters' => array('assignee', 'asid', 'fromDate', 'toDate'),
 					'overwriteField' => array('assignee' => parse_selectlist('filters[assignee][]', 1, $asset->get_assignto(), ''),
-							'asid' => parse_selectlist('filters[asid]', 2, $asset->get_affiliateassets(), '')
+							'asid' => parse_selectlist('filters[asid]', 2, $asset->get_affiliateassets('titleonly'), '')
 					),
 					'fieldsSequence' => array('assignee' => 1, 'asid' => 2, 'fromDate' => 3, 'toDate' => 4)
 			/* get the busieness potential and parse them in select list to pass to the filter array */
@@ -64,6 +66,14 @@ if(!$core->input['action']) {
 	$filter = new Inlinefilters($filters_config);
 	//$filter_where_values = $filter->process_multi_filters();
 	$filters_row_display = 'hide';
+	$limit_start = 0;
+	if(isset($core->input['start'])) {
+		$limit_start = $db->escape_string($core->input['start']);
+	}
+
+	if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+		$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+	}
 	if(is_array($filter_where_values)) {
 		$filters_row_display = 'show';
 		$filter_where = 'ss.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
@@ -82,6 +92,18 @@ if(!$core->input['action']) {
 elseif($core->input['action'] == 'get_deleteuser') {
 	eval("\$deleteassignee = \"".$template->get("popup_assets_listuserdelete")."\";");
 	echo $deleteassignee;
+}
+elseif($core->input['action'] == 'get_edituser') {
+	$asset = new Asset();
+	$auid = $db->escape_string($core->input['id']);
+	$assignee = $asset->get_assigneduser($auid);
+	$assetslist = $asset->get_affiliateassets();  
+	$assets_list = parse_selectlist('assignee[asid]', 1, $assetslist, $assignee['asid']);
+	$assigners = $asset->get_assignto();
+	$employees_list = parse_selectlist('assignee[uid]', 1, $assigners, $assignee['uid']);
+	$actiontype = $lang->edit;
+	eval("\$editassignee = \"".$template->get("popup_assets_listuseredit")."\";");
+	echo $editassignee;
 }
 elseif($core->input['action'] == 'perform_delete') {
 	$auid = $db->escape_string($core->input['todelete']);

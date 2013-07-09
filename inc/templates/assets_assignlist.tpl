@@ -3,19 +3,20 @@
         <title>{$core->settings[systemtitle]} | {$lang->listpotentialsupplier}</title>
         {$headerinc}
         <script lang="javascript">
-            $(function() {
+                   $(function() {
        
             $('tr[id^="asset_"]').live('click',function() {
             var id = $(this).attr("id").split("_"); 
                 $('tr').not('[id$='+id[1]+']').removeClass('highlight');
-                 $('a[id^=deleteuser_]').not('[rel^="delete_'+id[1]+'"]') .css('display','none');          
+                $('a[id^=deleteuser_]').not('[rel^="delete_'+id[1]+'"]').css('display','none');
+                $('a[id^=edituser_]').not('[rel^="edit_'+id[1]+'"]').css('display','none');
                 $('tr[id$='+id[1]+']').toggleClass('highlight');
-               $('a[rel^="delete_'+id[1]+'"]').css('display','block');
+                $('a[rel^="delete_'+id[1]+'"]').css('display','block');
+                $('a[rel^="edit_'+id[1]+'"]').css('display','block');
                
         });
     
             });
-
         </script>
     </head>
 
