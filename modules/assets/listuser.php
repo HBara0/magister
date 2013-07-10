@@ -31,7 +31,7 @@ if(!$core->input['action']) {
 			/* Get assigned USER by user object */
 			$user = new Users($assigneduser['uid']);
 			$employee = $user->get();
-			eval("\$assignee_list .= \"".$template->get('assets_assigneelist')."\";");
+			eval("\$assignee_list .= \"".$template->get('assets_assignlist_row')."\";");
 		}
 	}
 	else {

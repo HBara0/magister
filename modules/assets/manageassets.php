@@ -27,14 +27,12 @@ if(!$core->input['action']) {
 		$asset = new Asset($asid);
 		$assets = $asset->get();
 		$actiontype = 'Edit';
-
 		$assets_type = parse_selectlist('asset[type]', 3, $assetstype, $assets['type']);
 		$assetsstatus = parse_selectlist('asset[status]', 4, $assets_status, $assets['status']);
 	}
 	else {
 		$actiontype = 'Add';
 	}
-
 
 	$affiliatesquery = $db->query("SELECT affid,name FROM ".Tprefix."affiliates WHERE affid IN('".implode(',', $core->user['affiliates'])."')");
 

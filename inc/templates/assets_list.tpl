@@ -8,11 +8,11 @@
             $('tr[id^="asset_"]').live('click',function() {
             var id = $(this).attr("id").split("_"); 
                 $('tr').not('[id$='+id[1]+']').removeClass('highlight');
-                $('a[id^=deleteuser_]').not('[rel^="delete_'+id[1]+'"]') .css('display','none');
-                $('a[id^=edituser_]').not('[rel^="edit_'+id[1]+'"]') .css('display','none');
+                $('a[id^=deleteasset_]').not('[rel^="delete_'+id[1]+'"]') .css('display','none');
+                $('a[id^=editasset_]').not('[rel^="edit_'+id[1]+'"]') .css('display','none');
                 $('tr[id$='+id[1]+']').toggleClass('highlight');
                 $('a[rel^="delete_'+id[1]+'"]').css('display','block');
-                 $('a[rel^="edit_'+id[1]+'"]').css('display','block');
+                $('a[rel^="edit_'+id[1]+'"]').css('display','block');
                
         });
     
@@ -31,8 +31,8 @@
                         <th style="width:20%">{$lang->title}</th>
                         <th style="width:20%;">{$lang->affiliate}</th>
                         <th style="width:20%;">{$lang->description} <a href="{$sort_url}&amp;sortby=description&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=description&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
-                        <th style="width:20%;">{$lang->type} <a href="{$sort_url}&amp;sortby=type&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=type&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
-                        <th style="width:20%;">{$lang->status} <a href="{$sort_url}&amp;sortby=status&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=status&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                        <th style="width:20%;">{$lang->type}</th>
+                        <th style="width:20%;">{$lang->status} </th>
                     </tr>
                     {$filters_row}
                 </thead>

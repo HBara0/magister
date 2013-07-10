@@ -53,6 +53,7 @@ class Asset {
 			$query = $db->update_query('assets', $this->assets, 'asid='.$assetid.'');
 		}
 		else {
+			$this->assets['isActive'] = 1;
 			$query = $db->insert_query('assets', $this->assets);
 			$this->assets['asid'] = $db->last_id();
 		}
@@ -165,7 +166,10 @@ class Asset {
 	public function update_assetuser($userdata) {
 		global $db;
 		$auid = intval($userdata['auid']);
-
+		if(is_empty($userdata['uid'], $userdata['fromDate'], $userdata['toDate'], $userdata['fromTime'], $userdata['toTime'])) {
+			$this->errorcode = 1;
+			return false;
+		}
 		if(is_array($userdata)) {
 			$userassets_data = array('uid' => $userdata['uid'],
 					'asid' => $userdata['asid'],
@@ -180,9 +184,16 @@ class Asset {
 
 	public function delete_userassets($id = '') {
 		global $db;
-
 		if(!empty($id)) {
-			$db->delete_query('assets_users', 'auid='.$id);
+			$db->delete_query('assets_users', 'auid='.$db->escape_string($id));
+			$this->errorcode = 3;
+		}
+	}
+
+	public function deactivate_asset($id) {
+		global $db;
+		if(!empty($id)) {
+			$db->update_query('assets', array('isActive' => 0), 'asid='.$db->escape_string($id));
 			$this->errorcode = 3;
 		}
 	}
@@ -360,7 +371,7 @@ class Asset {
 
 	public function get_affiliateassets($option = '') {
 		global $db, $core;
-		$allassets = $db->query("SELECT * FROM ".Tprefix."assets WHERE affid in(".implode(',', $core->user['affiliates']).")");
+		$allassets = $db->query("SELECT * FROM ".Tprefix."assets WHERE isActive=1 AND affid in(".implode(',', $core->user['affiliates']).")");
 		while($assets = $db->fetch_assoc($allassets)) {
 			if($option == 'titleonly') {
 				$asset[$assets['asid']] = $assets['title'];

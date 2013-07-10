@@ -1,15 +1,7 @@
-<head>
-    <title>{$core->settings[systemtitle]} | {$lang->manageassets}</title>
-    {$headerinc}
-</head>
-<body>
-    {$header}
-<tr>
-    {$menu}
-    <td class="contentContainer">
-        <h3>{$actiontype}</h3>
-        <form name="perform_assets/manageassets_Form" method="post" id="perform_assets/manageassets_Form" >
-            <input type="hidden" name="asid" value="{$asid}" />
+<div id="popup_editasset" title="{$lang->editasset}">
+
+ <form name="perform_assets/manageassets_Form" method="post" id="perform_assets/manageassets_Form" >
+            <input type="hidden" name="asid" value="{$core->input[id]}" />
             <input type="hidden" value="do_{$actiontype}" name="action" id="action" />
             <div style="display:table; border-collapse:collapse; width:100%;">
                 <div style="display:table-row;">
@@ -36,15 +28,15 @@
 
                 <div style="display:table-row;">
                     <div style="display:table-cell; width:10%; vertical-align:middle;">{$lang->description}</div>
-                    <div style="display:table-cell; width:100%;padding:5px;"><textarea  name="asset[description]" tabindex="4" />{$assets[description]}</textarea></div>
+                    <div style="display:table-cell; width:100%;padding:5px;"><textarea  name="asset[description]" tabindex="4" >{$assets[description]}</textarea></div>
                 </div>
 
 
 
                 <div style="display:table-row;">
-                    <div style="display: table-cell; width:20%;">
+                    <div style="display: table-cell; width:30%;">
                         <input type="submit" class="button" value="{$actiontype}" id="perform_assets/manageassets_Button" />
-                        <input type="reset" class="button" value="{$lang->reset}"/>
+                        <input type="reset" class="button"   onclick="$('#popup_editasset').dialog('close')"value="{$lang->close}"/>
                     </div>
                 </div>
             </div>
@@ -53,8 +45,5 @@
             </div>
         </form>
        
-</td>
-</tr>
-{$footer}
-</body>
-</html>
+
+</div>
