@@ -578,20 +578,27 @@ class ReportingQr Extends Reporting {
 		}
 	}
 
-	public function get_recipient_byuid($uid) {
+	public function get_recipient_byuid($id, $type) {
 		global $db;
-		if(!empty($uid)) {
-			$user_recipients_query = $db->query("SELECT u.uid,u.email,u.displayName,rq.* FROM ".Tprefix."reporting_qrrecipients rq 
-				JOIN ".Tprefix."users u ON(u.uid=rq.uid)
-				WHERE rq.uid IN (".$uid.")");
-			if($db->num_rows($user_recipients_query) > 0) {
-				while($userrecipient = $db->fetch_assoc($user_recipients_query)) {
-					$userrecipients[$userrecipient['uid']] = $userrecipient;
-				}
-				return $userrecipients;
-			}
+		//if(empty($uid)) {
+		if($type == 'unregisteredRcpts') {
+			$recipient_query = ("SELECT rq.* FROM ".Tprefix."reporting_qrrecipients rq WHERE rq.unregisteredRcpts='".$id."' ");
 		}
+		else {
+			$recipient_query = ("SELECT u.uid,u.email,u.displayName,rq.* FROM ".Tprefix."reporting_qrrecipients rq 
+				JOIN ".Tprefix."users u ON(u.uid=rq.uid)  WHERE rq.uid=".$id." ");
+		}
+		$user_recipients_query = $db->query($recipient_query);
+
+		if($db->num_rows($user_recipients_query) > 0) {
+			while($userrecipient = $db->fetch_assoc($user_recipients_query)) {
+				$userrecipients = $userrecipient;
+			}
+			return $userrecipients;
+		}
+		//}
 	}
+
 }
 /* Market report Class --START */
 

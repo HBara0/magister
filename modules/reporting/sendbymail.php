@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Send reports by email
  * $module: reporting
- * $id: sendbyemail.php	
+ * $id: sendbyemail.php
  * Created:		@zaher.reda		August 17, 2009
  * Last Update: @zaher.reda 	July 16, 2012 | 11:26 AM
  */
@@ -26,7 +26,7 @@ if(!$core->input['action']) {
 		$core->input['identifier'] = $db->escape_string($core->input['identifier']);
 		//$identifier = explode('_', $core->input['identifier']);
 		$meta_data = unserialize($session->get_phpsession('reportmeta_'.$core->input['identifier']));
-		/* 	list($suppliername, $eid) = $db->fetch_array($db->query("SELECT e.companyName AS suppliername, e.eid FROM ".Tprefix."entities e, ".Tprefix."reports r 
+		/* 	list($suppliername, $eid) = $db->fetch_array($db->query("SELECT e.companyName AS suppliername, e.eid FROM ".Tprefix."entities e, ".Tprefix."reports r
 		  WHERE r.spid=e.eid AND r.rid='".$db->escape_string($meta_data['spid'][1])."'"));
 		 */
 		switch($meta_data['type']) {
@@ -68,7 +68,7 @@ if(!$core->input['action']) {
 		}
 
 		if(!empty($eid)) {
-			$query = $db->query("SELECT er.*, r.* 
+			$query = $db->query("SELECT er.*, r.*
 								FROM ".Tprefix."entitiesrepresentatives er LEFT JOIN ".Tprefix."representatives r ON (r.rpid=er.rpid)
 								WHERE er.eid='{$eid}'");
 			while($representative = $db->fetch_array($query)) {
@@ -140,39 +140,71 @@ else {
 					break;
 			}
 		}
-
+		$core->input['message'] = $core->sanitize_inputs($core->input['message'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
 		if(!empty($core->input['additional_recipients'])) {
 			$additional_emails = explode(',', $core->input['additional_recipients']);
 			foreach($additional_emails as $val) {
 				if(isvalid_email(trim($val))) {
+					$cc_valid_emails[] = trim($val);
 					/* Get uid by email --START */
 					$user = new Users();
 					$cc_users = $user->get_userbyemail($val);
 					/* Get uid by email --END */
 					if(is_numeric($cc_users)) {
 						$type = 'uid';
-						$recipients = $report->get_recipient_byuid($cc_users);
-						if(is_array($recipients)) {
-							foreach($recipients as $user_recipient) {
-								/* preparing emaaildata */
-								print_r($user_recipient);
-								echo'<hr>';
-							}
-						}
 					}
 					else {
 						$type = 'unregisteredRcpts';
 					}
-					$report->create_recipient($cc_users, $type);
-					$cc_valid_emails[] = trim($val);
 				}
 				else {
 					$cc_bad_emails[] = $val;
 				}
+				$report->create_recipient($cc_users, $type);
+				$internal_recipients[$cc_users] = $report->get_recipient_byuid($cc_users, $type);
+			}
+			/* preparing emaildata --START */
+			if(is_array($internal_recipients)) {
+				foreach($internal_recipients as $uid => $internal_recipient) {
+					$email_data = array();
+					$to = $internal_recipient['email'];
+					if($type == 'unregisteredRcpts') {
+						$to .= $internal_recipient['unregisteredRcpts'];
+					}
+
+					$internal_recipient = $internal_recipients[$uid];
+					$reportlink = 'http://www.orkila.com/reporting/preview&reportidentifier='.$internal_recipient['reportIdentifier'].'&token='.$internal_recipient['token'];
+
+					if(strstr($core->input['message'], '{link}')) {
+						$message = str_replace('{link}', $reportlink, $core->input['message']);
+					}
+					else {
+						$message .= '<br />'.$lang->link.': '.$reportlink;
+					}
+					$internal_recipient['password'] = str_replace($internal_recipient['salt'], '', base64_decode($internal_recipient['password']));
+					if(strstr($message, '{password}')) {
+						$message = str_replace('{password}', $internal_recipient['password'], $message);
+					}
+					else {
+						$message .= '<br />'.$lang->password.': '.$internal_recipient['password'];
+					}
+
+					$email_data = array(
+							'from_email' => 'reporting@ocos.orkila.com',
+							'from' => 'Orkila Reporting System',
+							'to' => $to,
+							'subject' => $core->input['subject'],
+							'message' => $message
+					);
+
+					$mail = new Mailer($email_data, 'php');
+					$email_sent = true;
+				}
+				/* preparing emaildata --END */
 			}
 		}
 
-		$core->input['message'] = $core->sanitize_inputs($core->input['message'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
+
 		switch($meta_data['type']) {
 			case 'm':
 				$email_data = array(
@@ -230,33 +262,33 @@ else {
 								'message' => $core->input['message']
 						);
 
-						//$mail = new Mailer($email_data, 'php');
+						$mail = new Mailer($email_data, 'php');
 						$email_sent = true;
 					}
 				}
 				break;
 		}
-//
-//		if($email_sent == true) {
-//			if($mail->get_status() === true) {
-//				if(is_array($meta_data['rid'])) {
-//					$update_query_where = 'rid IN ('.implode(',', $meta_data['rid']).')';
-//				}
-//				else {
-//					$update_query_where = "rid = '{$meta_data[rid]}'";
-//				}
-//				$db->update_query('reports', array('isSent' => 1, 'isApproved' => 1, 'isLocked' => 1), $update_query_where);
-//
-//				log_action($valid_emails, $cc_valid_email);
-//				if(is_array($core->input['attachment'])) {
-//					unlink($core->input['attachment']);
-//				}
-//				//redirect('index.php?module=reporting/generatereport', 1, $lang->messagesentsuccessfully);
-//			}
-//			else {
-//				error($lang->errorsendingemail);
-//			}
-//		}
+
+		if($email_sent == true) {
+			if($mail->get_status() === true) {
+				if(is_array($meta_data['rid'])) {
+					$update_query_where = 'rid IN ('.implode(',', $meta_data['rid']).')';
+				}
+				else {
+					$update_query_where = "rid = '{$meta_data[rid]}'";
+				}
+				$db->update_query('reports', array('isSent' => 1, 'isApproved' => 1, 'isLocked' => 1), $update_query_where);
+
+				log_action($valid_emails, $cc_valid_email);
+				if(is_array($core->input['attachment'])) {
+					unlink($core->input['attachment']);
+				}
+				redirect('index.php?module=reporting/generatereport', 1, $lang->messagesentsuccessfully);
+			}
+			else {
+				error($lang->errorsendingemail);
+			}
+		}
 	}
 }
 ?>
