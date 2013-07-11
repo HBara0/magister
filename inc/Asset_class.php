@@ -345,6 +345,8 @@ class Asset {
 		}
 	}
 
+
+
 	private function read($id, $simple = false) {
 		global $db;
 
@@ -371,7 +373,8 @@ class Asset {
 
 	public function get_affiliateassets($option = '') {
 		global $db, $core;
-		$allassets = $db->query("SELECT * FROM ".Tprefix."assets WHERE isActive=1 AND affid in(".implode(',', $core->user['affiliates']).")");
+		$allassets = $db->query("SELECT * FROM ".Tprefix."assets a JOIN ".Tprefix."assets_types ast ON (a.type=ast.astid) 
+								WHERE  a.affid in(".implode(',', $core->user['affiliates']).")");
 		while($assets = $db->fetch_assoc($allassets)) {
 			if($option == 'titleonly') {
 				$asset[$assets['asid']] = $assets['title'];

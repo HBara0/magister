@@ -18,6 +18,7 @@ if(!$core->input['action']) {
 	$assets = new Asset();
 	$all_assets = $assets->get_affiliateassets();
 	$sort_url = sort_url();
+
 	foreach($all_assets as $asset) {
 		$affilate = new Affiliates($asset['affid']);
 		$asset['affiliate'] = $affilate->get_country()->get()['name'];
@@ -35,8 +36,8 @@ elseif($core->input['action'] == 'get_editasset') {
 	$asid = $db->escape_string($core->input['id']);
 	$asset = new Asset($asid);
 	$assets = $asset->get();
-	$assetstype = array(1 => 1, 2 => 2, 3 => 3, 4 => 4);
-	$assets_status = array(1 => 1, 2 => 2, 3 => 3, 4 => 4);
+	$assetstype = get_specificdata('assets_types', array('astid', 'name', 'title'), 'astid', 'title', 'title');
+	$assets_status = array('damaged' => 'damaged', 'notfunctional' => 'not-functional', 'fullyfunctional' => 'fully-functional');
 
 	$assets_type = parse_selectlist('asset[type]', 3, $assetstype, $assets['type']);
 	$assetsstatus = parse_selectlist('asset[status]', 4, $assets_status, $assets['status']);

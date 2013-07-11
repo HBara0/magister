@@ -20,14 +20,14 @@ if($core->usergroup['assets_canManageAssets'] == 0) {
 
 if(!$core->input['action']) {
 	$affiliate = new Affiliates($core->user['affiliates']);
-	$assetstype = array(1 => 1, 2 => 2, 3 => 3, 4 => 4);
-	$assets_status = array(1 => 1, 2 => 2, 3 => 3, 4 => 4);
+	$assetstype = get_specificdata('assets_types', array('astid','name','title'), 'astid', 'title', 'title');
+	$assets_status = array('damaged' => 'damaged', 'notfunctional' => 'not-functional', 'fullyfunctional' => 'fully-functional');
 	if($core->input['type'] == 'edit' && isset($core->input['id'])) {
 		$asid = $db->escape_string($core->input['id']);
 		$asset = new Asset($asid);
 		$assets = $asset->get();
 		$actiontype = 'Edit';
-		$assets_type = parse_selectlist('asset[type]', 3, $assetstype, $assets['type']);
+		$assets_type = parse_selectlist('asset[type]', 3, $assetstype, $assets['title']);
 		$assetsstatus = parse_selectlist('asset[status]', 4, $assets_status, $assets['status']);
 	}
 	else {
