@@ -213,11 +213,11 @@ class ReportingQr Extends Reporting {
 	public function get_forecasted_items() {
 		return $this->report['forecasteditems'];
 	}
-	
+
 	public function get_affiliate() {
 		return new Affiliates($this->report['affid']);
 	}
-	 
+
 	/* This thing doesn't exist
 	  public function get_report_productsegment() {
 	  global $db;
@@ -326,7 +326,6 @@ class ReportingQr Extends Reporting {
 		return $this->report['classifiedpactivity'];
 	}
 
-	
 	public function get_products_activity() { /* to check if isset then  read product  */
 		return $this->report['productsactivity'];
 	}
@@ -529,25 +528,24 @@ class ReportingQr Extends Reporting {
 		}
 	}
 
-	public function create_recipient($rpid, $identifier = '') {
+	public function create_recipient($id, $type, $identifier = '') {
 		global $db, $core;
-	
+
 		if(empty($identifier)) {
 			$identifier = $this->report['identifier'];
 		}
-		
-		if(value_exists('reporting_qrrecipients', 'rpid', $rpid, 'reportIdentifier="'.$db->escape_string($identifier).'"')) {
+
+		if(value_exists('reporting_qrrecipients', $type, $id, 'reportIdentifier="'.$db->escape_string($identifier).'"')) {
 			return false;
 		}
-		
 		$password = Accounts::generate_password_string(10);
 		$salt = random_string(10);
 		$loginKey = $this->create_loginkey();
 		$token = md5(uniqid(microtime(), true));
-		
+
 		$recipient_data = array(
 				'reportIdentifier' => $identifier,
-				'rpid' => $rpid,
+				$type => $id,
 				'token' => $token,
 				'loginKey' => $loginKey,
 				'password' => base64_encode($password.$salt),
@@ -580,6 +578,20 @@ class ReportingQr Extends Reporting {
 		}
 	}
 
+	public function get_recipient_byuid($uid) {
+		global $db;
+		if(!empty($uid)) {
+			$user_recipients_query = $db->query("SELECT u.uid,u.email,u.displayName,rq.* FROM ".Tprefix."reporting_qrrecipients rq 
+				JOIN ".Tprefix."users u ON(u.uid=rq.uid)
+				WHERE rq.uid IN (".$uid.")");
+			if($db->num_rows($user_recipients_query) > 0) {
+				while($userrecipient = $db->fetch_assoc($user_recipients_query)) {
+					$userrecipients[$userrecipient['uid']] = $userrecipient;
+				}
+				return $userrecipients;
+			}
+		}
+	}
 }
 /* Market report Class --START */
 

@@ -33,7 +33,7 @@ if(!$core->input['action']) {
 			case 'm': $type = 'monthly';
 				$subject_monthquarter = $lang->{strtolower(date('F', mktime(0, 0, 0, $meta_data['month'], 1, 0)))};
 				$default_cc = '';
-				
+
 				$attachments = "<li><a href='{$core->settings[exportdirectory]}{$type}reports_{$core->input[identifier]}.pdf' target'_blank'>{$type}reports_{$core->input[identifier]}.pdf</a></li>";
 				$attachments .= "<input type='hidden' value='./{$core->settings[exportdirectory]}{$type}reports_{$core->input[identifier]}.pdf' name='attachment' />";
 				break;
@@ -81,7 +81,7 @@ if(!$core->input['action']) {
 		if($core->user['email'] != $core->settings['sendreportsto']) {
 			$default_cc .= ', '.$core->user['email'];
 		}
-		
+
 		/* Parse Signature - START */
 //		$profile = $db->fetch_assoc($db->query("SELECT *, CONCAT(firstName, ' ', lastName) AS fullname FROM ".Tprefix."users WHERE uid='{$core->user[uid]}'"));
 //		$positions = $db->fetch_assoc($db->query("SELECT title FROM ".Tprefix."userspositions u JOIN ".Tprefix."positions p ON (u.posid=p.posid) WHERE uid='{$core->user[uid]}'"));
@@ -117,13 +117,13 @@ else {
 		if($meta_data['type'] == 'q') {
 			$report = new ReportingQr($meta_data);
 		}
-		
+
 		if(is_array($core->input['recipients'])) {
 			switch($meta_data['type']) {
 				case 'q':
 					/*  Recorded in a recipients table - START */
 					foreach($core->input['recipients']['id'] as $rpid) {
-						$report->create_recipient($rpid);
+						$report->create_recipient($rpid, 'rpid');
 					}
 					/* Recorded in a recipients table - END */
 					break;
@@ -145,6 +145,25 @@ else {
 			$additional_emails = explode(',', $core->input['additional_recipients']);
 			foreach($additional_emails as $val) {
 				if(isvalid_email(trim($val))) {
+					/* Get uid by email --START */
+					$user = new Users();
+					$cc_users = $user->get_userbyemail($val);
+					/* Get uid by email --END */
+					if(is_numeric($cc_users)) {
+						$type = 'uid';
+						$recipients = $report->get_recipient_byuid($cc_users);
+						if(is_array($recipients)) {
+							foreach($recipients as $user_recipient) {
+								/* preparing emaaildata */
+								print_r($user_recipient);
+								echo'<hr>';
+							}
+						}
+					}
+					else {
+						$type = 'unregisteredRcpts';
+					}
+					$report->create_recipient($cc_users, $type);
 					$cc_valid_emails[] = trim($val);
 				}
 				else {
@@ -152,7 +171,7 @@ else {
 				}
 			}
 		}
-		
+
 		$core->input['message'] = $core->sanitize_inputs($core->input['message'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
 		switch($meta_data['type']) {
 			case 'm':
@@ -165,13 +184,22 @@ else {
 						'message' => $core->input['message'],
 						'attachments' => array($core->input['attachment'])
 				);
-				
+
 				if(is_array($email_data)) {
 					$mail = new Mailer($email_data, 'php');
 					$email_sent = true;
 				}
 				break;
 			case 'q':
+				/* Link for each CCed person --START */
+				if(is_array($cc_valid_emails)) {
+					foreach($cc_valid_emails as $userrecipient) {
+						
+					}
+				}
+
+				/* Link for each CCed person --END* */
+
 				$recipients = $report->get_recipient($core->input['recipients']['id']);
 				if(is_array($recipients)) {
 					foreach($core->input['recipients']['id'] as $rpid) {
@@ -184,15 +212,15 @@ else {
 						else {
 							$core->input['message'] .= '<br />'.$lang->link.': '.$reportlink;
 						}
-				
-						$recipient['password'] = str_replace($recipient['salt'],'',base64_decode($recipient['password']));
+
+						$recipient['password'] = str_replace($recipient['salt'], '', base64_decode($recipient['password']));
 						if(strstr($core->input['message'], '{password}')) {
 							$core->input['message'] = str_replace('{password}', $recipient['password'], $core->input['message']);
 						}
 						else {
 							$core->input['message'] .= '<br />'.$lang->password.': '.$recipient['password'];
 						}
-						
+
 						$email_data = array(
 								'from_email' => 'reporting@ocos.orkila.com',
 								'from' => 'Orkila Reporting System',
@@ -201,34 +229,34 @@ else {
 								'subject' => $core->input['subject'],
 								'message' => $core->input['message']
 						);
-						//print_r($email_data);
-						$mail = new Mailer($email_data, 'php');
+
+						//$mail = new Mailer($email_data, 'php');
 						$email_sent = true;
 					}
 				}
 				break;
 		}
-
-		if($email_sent == true) {
-			if($mail->get_status() === true) {
-				if(is_array($meta_data['rid'])) {
-					$update_query_where = 'rid IN ('.implode(',', $meta_data['rid']).')';
-				}
-				else {
-					$update_query_where = "rid = '{$meta_data[rid]}'";
-				}
-				$db->update_query('reports', array('isSent' => 1, 'isApproved' => 1, 'isLocked' => 1), $update_query_where);
-
-				log_action($valid_emails, $cc_valid_email);
-				if(is_array($core->input['attachment'])) {
-					unlink($core->input['attachment']);
-				}
-				redirect('index.php?module=reporting/generatereport', 1, $lang->messagesentsuccessfully);
-			}
-			else {
-				error($lang->errorsendingemail);
-			}
-		}
+//
+//		if($email_sent == true) {
+//			if($mail->get_status() === true) {
+//				if(is_array($meta_data['rid'])) {
+//					$update_query_where = 'rid IN ('.implode(',', $meta_data['rid']).')';
+//				}
+//				else {
+//					$update_query_where = "rid = '{$meta_data[rid]}'";
+//				}
+//				$db->update_query('reports', array('isSent' => 1, 'isApproved' => 1, 'isLocked' => 1), $update_query_where);
+//
+//				log_action($valid_emails, $cc_valid_email);
+//				if(is_array($core->input['attachment'])) {
+//					unlink($core->input['attachment']);
+//				}
+//				//redirect('index.php?module=reporting/generatereport', 1, $lang->messagesentsuccessfully);
+//			}
+//			else {
+//				error($lang->errorsendingemail);
+//			}
+//		}
 	}
 }
 ?>
