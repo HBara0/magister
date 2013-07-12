@@ -50,7 +50,7 @@ else {
 			$options['turnoverdivision'] = 1;
 		}
 
-		$po_query = $db->query("SELECT imso.*, ims.localId AS localspid
+		$po_query = $db->query("SELECT imso.*, ims.localId AS localspid, ims.foreignName AS foreignSupplierName
 						FROM ".Tprefix."integration_mediation_purchaseorders imso 
 						LEFT JOIN ".Tprefix."integration_mediation_entities ims ON (imso.spid=ims.foreignId)
 						WHERE imso.foreignSystem={$options[foreignSystem]} AND imso.affid={$affid} AND (imso.date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).")");
@@ -59,15 +59,21 @@ else {
 			while($purchaseorder = $db->fetch_assoc($po_query)) {
 				$pol_query = $db->query("SELECT imsol.*, imp.localId AS localpid, imsol.pid AS foreignpid, p.spid AS localspid, imp.foreignName AS productname
 										FROM ".Tprefix."integration_mediation_purchaseorderlines imsol 
-										JOIN integration_mediation_products imp ON (imsol.pid=imp.foreignId) 
+										LEFT JOIN integration_mediation_products imp ON (imsol.pid=imp.foreignId) 
 										LEFT JOIN products p ON (p.pid=imp.localId)
 										WHERE foreignOrderId='{$purchaseorder['foreignId']}'
+										AND imp.foreignSystem={$options[foreignSystem]} AND imp.affid={$affid}
 										ORDER BY imp.foreignName ASC");// AND imp.localId!=0
 
 				if($db->num_rows($pol_query) > 0) {
 					while($purchaseorderline = $db->fetch_assoc($pol_query)) {
 						if(is_empty($purchaseorderline['localspid'], $purchaseorderline['localpid'])) {
-							$errors['productnotfound'][] = $purchaseorderline['productname'];
+							if(empty($purchaseorderline['productname'])) {
+								$errors['productnotexist'][] = $purchaseorderline['foreignpid'].' - '.$purchaseorder['foreignSupplierName'];
+							}
+							else {
+								$errors['productnotmatched'][] = $purchaseorderline['productname'].' - '.$purchaseorder['foreignSupplierName'];
+							}
 							continue;
 						}
 						
@@ -237,9 +243,12 @@ else {
 					}
 					
 						if(value_exists('productsactivity', 'rid', $rid, 'pid='.$pid.' AND uid=0')) {
-							echo 'Updated: ';
-							if($options['runtype'] != 'dry') {
+							if($options['runtype'] != 'dry' || $options['operation'] != 'addonly') {
+								echo 'Updated: ';
 								$db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.' AND uid=0');
+							}
+							else {
+								echo 'Skipped Update: ';
 							}
 						}
 						else {
