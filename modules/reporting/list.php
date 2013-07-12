@@ -74,18 +74,13 @@ if(!$core->input['action']) {
 	}
 	$extra_where = getquery_entities_viewpermissions();
 	
-	if(!empty($multipage_where)) {
-		$extra_where['multipage'] .= ' AND '.$multipage_where;
-	}
-
-	if(!empty($extra_where['multipage'])) {
-		$and = ' AND ';
-	}
-
 	if(isset($extra_where['byspid'][$core->input['filtervalue']])) {
 		$extra_where['multipage'] = 'r.type="q"'.$extra_where['byspid'][$core->input['filtervalue']];
 	}
 	else {
+		if(!empty($extra_where['multipage'])) {
+			$and = ' AND ';
+		}
 		$extra_where['multipage'] = 'r.type="q"'.$and.$extra_where['multipage'];
 	}
 
