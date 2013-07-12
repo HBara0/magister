@@ -504,9 +504,9 @@ else {
 				$productactivity['uid'] = $core->user['uid'];
 				$productactivity['rid'] = $rid;
 
-				unset($productactivity['productname'], $productactivity['fxrate']);
+				unset($productactivity['productname'], $productactivity['fxrate'], $productactivity['paid']);
 				$insert = $db->insert_query('productsactivity', $productactivity);
-
+				
 				$cache['usedpaid'][] = $db->last_id();
 				$processed_once = true;
 			}
