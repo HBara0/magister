@@ -78,9 +78,16 @@ else
 							
 		if($db->num_rows($query) > 0) {
 			while($entrytomatch = $db->fetch_assoc($query)) {
-				$matching_entries = '';
+				$matching_entries = $extra_info = '';
 				$integration_entries .= '<tr>';
-				$integration_entries .= '<td><input type="hidden" value="'.$entrytomatch['foreignId'].'" id="foreignId_'.$entrytomatch['dbkey'].'" name="foreignId['.$entrytomatch['dbkey'].']"><input type="hidden" value="'.$entrytomatch['foreignName'].'" id="foreignName_'.$entrytomatch['dbkey'].'" name="foreignName['.$entrytomatch['dbkey'].']">'.$entrytomatch['foreignName'].'</td>';
+				if(isset($entrytomatch['foreignSupplier']) && !empty($entrytomatch['foreignSupplier'])) {
+					
+					$extra_info = $db->fetch_field($db->query('SELECT foreignName FROM '.$check_query_parameters['suppliers']['mediationtable'].' WHERE foreignId="'.$db->escape_string($entrytomatch['foreignSupplier']).'"'), 'foreignName');
+					if(!empty($extra_info)) {
+						$extra_info = '<div class="font-size:9px">'.$extra_info.'</div>';
+					}
+				}
+				$integration_entries .= '<td><input type="hidden" value="'.$entrytomatch['foreignId'].'" id="foreignId_'.$entrytomatch['dbkey'].'" name="foreignId['.$entrytomatch['dbkey'].']"><input type="hidden" value="'.$entrytomatch['foreignName'].'" id="foreignName_'.$entrytomatch['dbkey'].'" name="foreignName['.$entrytomatch['dbkey'].']">'.$entrytomatch['foreignName'].$extra_info.'</td>';
 				$integration_entries .= '<td>&lt;-&gt;</td>';
 				
 				$check_query = $db->query("SELECT {$check_query_parameters[$core->input[matchitem]][id]} as localId, {$check_query_parameters[$core->input[matchitem]][name]} as localName 
