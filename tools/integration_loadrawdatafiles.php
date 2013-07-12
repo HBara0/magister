@@ -115,7 +115,11 @@ function insert_data($runtype = 'dry', $validate = true) {
 				}
 
 				if($validate == false) {
-					if(!value_exists($table, $table_config['identifier'], substr($tables_fields_values[$table][$table_config['identifier']], 0, 32))) {
+					$value_exists_extrawhere = '';
+					if(!empty($tables_fields_values[$table]['foreignSystem'])) {
+						$value_exists_extrawhere  = ' AND foreignSystem='.$db->escape_string($tables_fields_values[$table]['foreignSystem']);
+					}
+					if(!value_exists($table, $table_config['identifier'], substr($tables_fields_values[$table][$table_config['identifier']], 0, 32), 'affid='.$db->escape_string($tables_fields_values[$table]['affid']).$value_exists_extrawhere)) {
 						if($core->input['domatch'] == 1) {
 							$tables_fields_values[$table]['localId'] = $db->fetch_field($db->query("SELECT ".$table_config['matchInfo']['dataField']." FROM ".Tprefix.$table_config['matchInfo']['table']." WHERE ".$table_config['matchInfo']['matchWith']."='".$db->escape_string($tables_fields_values[$table][$table_config['matchInfo']['match']])."'"), $table_config['matchInfo']['dataField']);
 						}
