@@ -172,18 +172,19 @@ class IntegrationOB extends Integration {
 					$documentline_query = $this->f_db->query('SELECT m_transaction_id, il.*, il.c_invoiceline_id AS docline_id, il.qtyinvoiced AS quantity, ppo.c_bpartner_id, u.x12de355 AS uom, tr.transactioncost AS cost, c.iso_code AS costcurrency, m_costing_algorithm_id
 													FROM c_invoiceline il JOIN m_product p ON (p.m_product_id=il.m_product_id)
 													JOIN c_uom u ON (u.c_uom_id=il.c_uom_id)
-													JOIN m_inoutline iol ON (iol.m_inoutline_id=il.m_inoutline_id)
-													JOIN m_transaction tr ON (iol.m_inoutline_id=tr.m_inoutline_id)
-													JOIN c_currency c ON (c.c_currency_id=tr.c_currency_id)
+													LEFT JOIN m_inoutline iol ON (iol.m_inoutline_id=il.m_inoutline_id)
+													LEFT JOIN m_transaction tr ON (iol.m_inoutline_id=tr.m_inoutline_id)
+													LEFT JOIN c_currency c ON (c.c_currency_id=tr.c_currency_id)
 													LEFT JOIN m_product_po ppo ON (p.m_product_id=ppo.m_product_id)
-													WHERE c_invoice_id=\''.$document['doc_id'].'\' AND iscostcalculated=\'Y\' AND il.m_product_id NOT IN (\''.implode('\',\'', $exclude['products']).'\')
-												');
+													WHERE c_invoice_id=\''.$document['doc_id'].'\' AND il.m_product_id NOT IN (\''.implode('\',\'', $exclude['products']).'\')
+												'); // AND iscostcalculated=\'Y\'
 					}
 
 				$documentline_newdata = array();
 				while($documentline = $this->f_db->fetch_assoc($documentline_query)) {
-					$purchaseprice_data = $this->get_purchaseprice($documentline['m_transaction_id'], $documentline['m_costing_algorithm_id'], 'sale');
-
+					if(isset($documentline['m_transaction_id']) && !empty($documentline['m_transaction_id'])) {
+						$purchaseprice_data = $this->get_purchaseprice($documentline['m_transaction_id'], $documentline['m_costing_algorithm_id'], 'sale');
+					}
 					$documentline_newdata = array(
 							'foreignId' => $documentline['docline_id'],
 							'foreignOrderId' => $document['doc_id'],
@@ -393,6 +394,9 @@ class IntegrationOB extends Integration {
 				$price['currency'] = $orderline->get_order()->get_currency()->get()['iso_code'];
 			}
 			else {
+				if(empty($transcation->get()['movementqty'])) {
+					return false;
+				}
 				$price['price'] = $transcation->get()['transactioncost'] / $transcation->get()['movementqty'];
 				$price['currency'] = $transcation->get_currency()->get()['iso_code'];
 			}
