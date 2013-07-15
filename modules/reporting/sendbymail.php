@@ -106,6 +106,8 @@ else {
 	if($core->input['action'] == 'do_sendbymail') {
 		$meta_data = unserialize($session->get_phpsession('reportmeta_'.$db->escape_string($core->input['identifier'])));
 
+		$reports_meta_data = unserialize($session->get_phpsession('reportsmetadata_'.$core->input['identifier']));
+	
 		if(empty($core->input['recipients']) && empty($core->input['additional_recipients'])) {
 			error($lang->norecipientsselected, $_SERVER['HTTP_REFERER']);
 		}
@@ -271,15 +273,15 @@ else {
 
 		if($email_sent == true) {
 			if($mail->get_status() === true) {
-				if(is_array($meta_data['rid'])) {
-					$update_query_where = 'rid IN ('.implode(',', $meta_data['rid']).')';
+				if(is_array($reports_meta_data['rid'])) {
+					$update_query_where = 'rid IN ('.implode(',', $reports_meta_data['rid']).')';
 				}
 				else {
-					$update_query_where = "rid = '{$meta_data[rid]}'";
+					$update_query_where = "rid = '{$reports_meta_data[rid]}'";
 				}
 				$db->update_query('reports', array('isSent' => 1, 'isApproved' => 1, 'isLocked' => 1), $update_query_where);
 
-				log_action($valid_emails, $cc_valid_email);
+				$log->record($valid_emails, $cc_valid_email);
 				if(is_array($core->input['attachment'])) {
 					unlink($core->input['attachment']);
 				}
