@@ -54,16 +54,23 @@ class Users {
 	}
 
 	public function get_userbyemail($email) {
-		global $db;
-		$uidquery = $db->query("SELECT DISTINCT(uid), email FROM ".Tprefix."users WHERE email ='".$email."'");
-		if($db->num_rows($uidquery) > 0) {
-			while($useremail = $db->fetch_assoc($uidquery)) {
-				$userbyemail = $useremail['uid'];
-			}
-			return $userbyemail;
+		global $db, $core;
+		
+		$email = $core->sanitize_email($email);
+		if(!$core->validate_email($email)) {
+			return false;
+		}
+		
+		$query = $db->query("SELECT DISTINCT(u.uid)
+							FROM ".Tprefix."users u 
+							LEFT JOIN ".Tprefix."usersemails ue ON (ue.uid=u.uid) 
+							WHERE u.email='".$db->escape_string($email)."' OR ue.email='".$db->escape_string($email)."'");
+		if($db->num_rows($query) > 0) {
+			$uid = $db->fetch_field($query, 'uid');
+			return new Users($uid);
 		}
 		else {
-			return $email;
+			return false;
 		}
 	}
 
