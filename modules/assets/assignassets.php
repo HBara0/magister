@@ -57,6 +57,9 @@ else {
 			case 2:
 				output_xml("<status>false</status><message>{$lang->assetexitsamedate}</message>");
 				break;
+			case 5:
+				output_xml("<status>false</status><message>{$lang->assetinvalidtodate}</message>");
+				break;
 		}
 	}
 }

@@ -47,13 +47,21 @@ class Asset {
 		}
 
 		if($options['operationtype'] == 'update') {
+			if(is_empty($data['title'], $data['tag'], $data['status'])) {
+				$this->errorcode = 1;
+				return false;
+			}
 			$this->assets = $data;
+			$this->assets['editedon'] = TIME_NOW;
+			$this->assets['editedby'] = $core->user['uid'];
 			$assetid = intval($this->assets['asid']);
 			unset($this->assets['asid']);
 			$query = $db->update_query('assets', $this->assets, 'asid='.$assetid.'');
 		}
 		else {
 			$this->assets['isActive'] = 1;
+			$this->assets['createdon'] = TIME_NOW;
+			$this->assets['createdby'] = $core->user['uid'];
 			$query = $db->insert_query('assets', $this->assets);
 			$this->assets['asid'] = $db->last_id();
 		}
@@ -133,7 +141,7 @@ class Asset {
 	}
 
 	public function assign_assetuser($userdata, $options = array()) {
-		global $db;
+		global $db, $core;
 		if(is_empty($userdata['uid'], $userdata['fromDate'], $userdata['toDate'], $userdata['fromTime'], $userdata['toTime'])) {
 			$this->errorcode = 1;
 			return false;
@@ -142,6 +150,10 @@ class Asset {
 		$userdata['fromDate'] = strtotime($userdata['fromDate'].' '.$userdata['fromTime']);
 		$userdata['toDate'] = strtotime($userdata['toDate'].' '.$userdata['toTime']);
 
+		if($userdata['toDate'] < $userdata['fromDate']) {
+			$this->errorcode = 5;
+			return false;
+		}
 		if(value_exists('assets_users', 'asid', $userdata['asid'], '(('.$userdata['fromDate'].' BETWEEN fromDate AND toDate) OR ('.$userdata['toDate'].' BETWEEN fromDate AND toDate))')) {
 			$this->errorcode = 2;
 			return false;
@@ -152,19 +164,29 @@ class Asset {
 					'fromDate' => $userdata['fromDate'],
 					'toDate' => $userdata['toDate'],
 					'conditionOnHandover' => $userdata['conditionOnHandover'],
-					'conditionOnReturn' => $userdata['conditionOnReturn']
+					'conditionOnReturn' => $userdata['conditionOnReturn'],
+					'assignedon' => TIME_NOW,
+					'assignedby' => $core->user['uid']
 			);
 		}
-
-
 		$query = $db->insert_query('assets_users', $userassets_data);
 		if($query) {
 			$this->errorcode = 0;
 		}
 	}
 
+	public function isValidDate($dateTime) {
+		global $core;
+		if(date($core->settings['dateformat'], strtotime($dateTime)) == $dateTime) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	public function update_assetuser($userdata) {
-		global $db;
+		global $db, $core;
 		$auid = intval($userdata['auid']);
 		if(is_empty($userdata['uid'], $userdata['fromDate'], $userdata['toDate'], $userdata['fromTime'], $userdata['toTime'])) {
 			$this->errorcode = 1;
@@ -176,7 +198,9 @@ class Asset {
 					'fromDate' => strtotime($userdata['fromDate'].' '.$userdata['fromTime']),
 					'toDate' => strtotime($userdata['toDate'].' '.$userdata['toTime']),
 					'conditionOnHandover' => $userdata['conditionOnHandover'],
-					'conditionOnReturn' => $userdata['conditionOnReturn']
+					'conditionOnReturn' => $userdata['conditionOnReturn'],
+					'editedon' => TIME_NOW,
+					'editedby' => $core->user['uid']
 			);
 		}
 		$db->update_query('assets_users', $userassets_data, 'auid='.$auid.'');
@@ -190,10 +214,10 @@ class Asset {
 		}
 	}
 
-	public function deactivate_asset($id) {
+	public function deactivate_asset($id = '') {
 		global $db;
-		if(!empty($id)) {
-			$db->update_query('assets', array('isActive' => 0), 'asid='.$db->escape_string($id));
+		if(!empty($this->assets['asid'])) {
+			$db->update_query('assets', array('isActive' => 0), 'asid='.$db->escape_string($this->assets['asid']));
 			$this->errorcode = 3;
 		}
 	}
@@ -212,7 +236,7 @@ class Asset {
 
 	public function get_allassignee() {
 		global $db;
-		$assigne_query = $db->query("SELECT * FROM ".Tprefix."assets_users");
+		$assigne_query = $db->query("SELECT asu.* FROM ".Tprefix."assets_users asu JOIN ".Tprefix."assets a ON(a.asid=asu.asid) WHERE a.isActive='1'");
 		while($assignee = $db->fetch_assoc($assigne_query)) {
 			$assignees[$assignee['auid']] = $assignee;
 		}
@@ -338,14 +362,13 @@ class Asset {
 		return $map_view.'<hr><pre >'.$map->get_streetname($lat, $long).'</pre>';
 	}
 
-	public function delete_asset($id) {
+	public function delete_asset() {
 		global $db, $core;
 		if($core->usergroup['assets_canDeleteAsset'] == 1) {
-			$db->query('delete from '.Tprefix.'assets where asid='.$id);
+			$db->delete_query('assets', 'asid='.$db->escape_string($this->assets['asid']));
+			$this->errorcode = 4;
 		}
 	}
-
-
 
 	private function read($id, $simple = false) {
 		global $db;
@@ -373,8 +396,8 @@ class Asset {
 
 	public function get_affiliateassets($option = '') {
 		global $db, $core;
-		$allassets = $db->query("SELECT * FROM ".Tprefix."assets a JOIN ".Tprefix."assets_types ast ON (a.type=ast.astid) 
-								WHERE  a.affid in(".implode(',', $core->user['affiliates']).")");
+		$allassets = $db->query("SELECT a.*,ast.title AS type,ast.name FROM ".Tprefix."assets a JOIN ".Tprefix."assets_types ast ON (a.type=ast.astid) 
+								WHERE a.affid in(".implode(',', $core->user['affiliates']).") Order BY isActive DESC");
 		while($assets = $db->fetch_assoc($allassets)) {
 			if($option == 'titleonly') {
 				$asset[$assets['asid']] = $assets['title'];

@@ -7,6 +7,7 @@
 $lang['accountemailnotfound'] = 'No account corresponding to this email was found';
 $lang['accountsuspended'] = 'Sorry, you can\'t access OCOS.';
 $lang['add'] = 'Add';
+$lang['edit'] = 'Edit';
 $lang['addcustomers'] = 'Add Customers';
 $lang['addproducts'] = 'Add Products';
 $lang['addrepresentative_note'] = 'Representatives (contact persons) are not you, they are the persons you deal with from the entity side.<br />

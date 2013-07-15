@@ -5,7 +5,7 @@
         <script lang="javascript">
                    $(function() {
        
-            $('tr[id^="asset_"]').live('click',function() {
+            $('tr[id^="asset_"]').live('mouseover',function() {
             var id = $(this).attr("id").split("_"); 
                 $('tr').not('[id$='+id[1]+']').removeClass('highlight');
                 $('a[id^=deleteuser_]').not('[rel^="delete_'+id[1]+'"]').css('display','none');
@@ -16,6 +16,7 @@
                
         });
     
+ 
             });
         </script>
     </head>

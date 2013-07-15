@@ -33,7 +33,7 @@
                 <div style="display:table-row;">
                     <div style="display:table-cell; width:10%;">{$lang->to}</div>
                     <div style="display:table-cell; width:100%; padding:5px;"><input type="text" name="assignee[toDate]"  value="{$assignee['toDate_output']}" required="required" id="pickDateTo" tabindex="4"/>
-                     <input name="assignee[toTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="05:00" required="required" type="time">
+                     <input name="assignee[toTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="24:00" required="required" type="time">
                     </div>
                 </div>
 

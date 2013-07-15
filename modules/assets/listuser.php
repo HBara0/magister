@@ -105,7 +105,15 @@ elseif($core->input['action'] == 'perform_delete') {
 	}
 }
 
-elseif($core->input['action'] == 'get_edituser') {
+elseif($core->input['action'] == 'get_edituser') { 
+	
+	if(TIME_NOW > $core->settings['assets_preventeditasgnafter']){ echo 'greater';
+		echo'$("#assignassets").each(:input, function() {
+                   alert($(this).val());
+                    $(this).prop("disabled", "true");
+
+                });'; 
+	};
 	$asset = new Asset();
 	$auid = $db->escape_string($core->input['id']);
 	$assignee = $asset->get_assigneduser($auid);

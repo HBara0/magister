@@ -5,7 +5,7 @@
         <input type="hidden" name="action" value="perform_delete" />
         <input type="hidden" id="todelete" name="todelete" value="{$core->input[id]}" />
 
-        <p>{$lang->deleteasset}</p>
+        <p>{$lang->deleteassetcontent}<strong>{$asset[title]}</strong></p>
         <div align="center"><input type='button' id='perform_assets/listassets_Button' value='{$lang->yes}' class='button'/>
             <input type="button" class="button"    onclick="$('#popup_deleteasset').dialog('close')"value="{$lang->no}"/>
         </div>

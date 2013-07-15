@@ -1,6 +1,6 @@
 <div id="popup_edituser" title="{$lang->edituserassets}">
     
-        <form name="perform_assets/assignassets_Form" id="perform_assets/assignassets_Form" enctype="multipart/form-data" method="post">
+        <form name="perform_assets/assignassets_Form" id="assignassets"  method="post">
             <input type="hidden" name="auid" id="auid" value="{$core->input[id]}" />
             <input type="hidden" value="do_edit" name="action" id="action" />
         
