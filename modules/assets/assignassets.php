@@ -19,7 +19,7 @@ if(!$core->input['action']) {
 	$assets = new Asset();
 	if($core->input['type'] == 'edit' && isset($core->input['id'])) {
 		$auid = $db->escape_string($core->input['id']);
-		$assignee = $assets->get_assigneduser($auid);  
+		$assignee = $assets->get_assigneduser($auid);
 		$actiontype = $lang->edit;
 	}
 	else {
@@ -41,8 +41,20 @@ else {
 		if($core->input['action'] == 'do_Add') {
 			$assets->assign_assetuser($core->input['assignee']);
 		}
-		elseif($core->input['action'] == 'do_edit') {	
+		elseif($core->input['action'] == 'do_edit') {
 			$core->input['assignee']['auid'] = $db->escape_string($core->input['auid']);
+			$assignee = $assets->get_assigneduser($core->input['assignee']['auid']);
+
+			if(TIME_NOW > ($assignee['assignedon'] + ($core->settings['assets_preventeditasgnafter']))) {
+				$field_tounset = array('uid', 'asid', 'fromDate', 'toDate', 'fromTime', 'toTime');
+				foreach($field_tounset as $field) {
+					unset($core->input['assignee'][$field]);
+				}
+			}
+			if(TIME_NOW > ($assignee['assignedon'] + ($core->settings['assets_preventconditionupdtafter']))) {
+				output_xml("<status>false</status><message>{$lang->assetexpired}</message>");
+				exit;
+			}
 			$assets->update_assetuser($core->input['assignee']);
 			$lang->successfullysaved = 'Successfully Update';
 		}
@@ -59,6 +71,9 @@ else {
 				break;
 			case 5:
 				output_xml("<status>false</status><message>{$lang->assetinvalidtodate}</message>");
+				break;
+			case 6:
+				output_xml("<status>false</status><message>{$lang->invaliddateformat}</message>");
 				break;
 		}
 	}

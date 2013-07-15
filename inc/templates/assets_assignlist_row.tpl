@@ -3,6 +3,6 @@
     <td>{$assigneduser[asset]}</td>
     <td>{$assigneduser[fromDate_output]}</td>
      <td>{$assigneduser[toDate_output]}</td>
-     <td> <a href="#{$assigneduser[auid]}" style="display:none;" id="deleteuser_{$assigneduser[auid]}_assets/listuser_loadpopupbyid" rel="delete_{$assigneduser[auid]}"><img src="{$core->settings[rootdir]}/images/invalid.gif" alt="{$lang->delete}" border="0"></a> </td>
+     <td> {$control_icons} </td>
       <td> <a href="#{$assigneduser[auid]}" style="display:none;" id="edituser_{$assigneduser[auid]}_assets/listuser_loadpopupbyid" rel="edit_{$assigneduser[auid]}"><img src='{$core->settings[rootdir]}/images/icons/edit.gif' border='0' title="{$lang->edit}"/></a> </td>
 </tr>                                                                           

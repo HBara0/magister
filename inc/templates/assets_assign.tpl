@@ -26,14 +26,16 @@
              
                   <div style="width:20%; display:inline-block;">{$lang->from}</div>
                     <div style="display:table-cell; width:10%; padding:5px;">
-                        <input type="text" name="assignee[fromDate]"  value="{$assignee['fromDate_output']}"required="required" id="pickDateFrom" tabindex="3"/>
+                        <input type="text" name="assignee[fromDate]"  value="{$assignee['fromDate_output']} "required="required" id="pickDateFrom" tabindex="3"/>
+                        <input type="hidden" name="assignee[fromDate]" id="altpickDateFrom" value="{$assignee[fromDate_output]}"/>
                     <input name="assignee[fromTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="08:30" required="required" type="time">
                    </div>
              
                 <div style="display:table-row;">
                     <div style="display:table-cell; width:10%;">{$lang->to}</div>
                     <div style="display:table-cell; width:100%; padding:5px;"><input type="text" name="assignee[toDate]"  value="{$assignee['toDate_output']}" required="required" id="pickDateTo" tabindex="4"/>
-                     <input name="assignee[toTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="24:00" required="required" type="time">
+                        <input type="hidden" name="assignee[toDate]" id="altpickDateTo" value="{$assignee[toDate_output]}"/>
+                        <input name="assignee[toTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="24:00" required="required" type="time">
                     </div>
                 </div>
 

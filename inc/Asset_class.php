@@ -147,6 +147,14 @@ class Asset {
 			return false;
 		}
 
+		if(!$this->isValidDate($userdata['fromDate'])) {
+			//$this->errorcode = 6;
+			//return false;
+		}
+		if(!$this->isValidDate($userdata['toDate'])) {
+			//$this->errorcode = 6;
+			//return false;
+		}
 		$userdata['fromDate'] = strtotime($userdata['fromDate'].' '.$userdata['fromTime']);
 		$userdata['toDate'] = strtotime($userdata['toDate'].' '.$userdata['toTime']);
 
@@ -175,22 +183,21 @@ class Asset {
 		}
 	}
 
-	public function isValidDate($dateTime) {
+	public function isValidDate($date) {
 		global $core;
-		if(date($core->settings['dateformat'], strtotime($dateTime)) == $dateTime) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		$datetime = explode('-', $date);
+		var_dump(checkdate($dateTime[1], $dateTime[0], $dateTime[2]));
+		return checkdate($dateTime[1], $dateTime[0], $dateTime[2]);
 	}
 
 	public function update_assetuser($userdata) {
 		global $db, $core;
 		$auid = intval($userdata['auid']);
-		if(is_empty($userdata['uid'], $userdata['fromDate'], $userdata['toDate'], $userdata['fromTime'], $userdata['toTime'])) {
-			$this->errorcode = 1;
-			return false;
+		if(isset($userdata['uid'], $userdata['fromDate'], $userdata['toDate'], $userdata['fromTime'], $userdata['toTime'])) {
+			if(is_empty($userdata['buid'], $userdata['fromDate'], $userdata['toDate'], $userdata['fromTime'], $userdata['toTime'])) {
+				$this->errorcode = 1;
+				return false;
+			}
 		}
 		if(is_array($userdata)) {
 			$userassets_data = array('uid' => $userdata['uid'],

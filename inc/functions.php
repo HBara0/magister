@@ -334,8 +334,11 @@ function parse_selectlist($id, $tabindex, $options, $selected_options, $multiple
 	if($config['required']) {
 		$required = ' required = "required"';
 	}
+	if(isset($config['disabled'])) {
+		$disabled = ' disabled = "disabled"';
+	}
 
-	$list .= '<select id="'.$id.'" name="'.$id.'" size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
+	$list .= '<select id="'.$id.'" name="'.$id.'" size="'.$config['size'].'"  tabindex="'.$tabindex.'"'.$disabled.$required.$multiple.$onchange_actions.'>';
 	if($config['blankstart'] == true) {
 		$list .= '<option></option>';
 	}

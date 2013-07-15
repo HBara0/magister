@@ -31,6 +31,11 @@ if(!$core->input['action']) {
 			/* Get assigned USER by user object */
 			$user = new Users($assigneduser['uid']);
 			$employee = $user->get();
+			$control_icons = ' <a href="#'.$assigneduser[auid].'" style="display:block;" id="deleteuser_'.$assigneduser[auid].'_assets/listuser_loadpopupbyid" rel="delete_'.$assigneduser[auid].'"><img src="'.$core->settings[rootdir].'/images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>   ';
+			if(TIME_NOW > ($assigneduser['assignedon'] + ($core->settings['assets_preventeditasgnafter']))) {
+				$control_icons = '<a href="#'.$assigneduser[auid].'" style="display:none;" id="deleteuser_'.$assigneduser[auid].'_assets/listuser_loadpopupbyid" rel="delete_'.$assigneduser[auid].'"><img src="'.$core->settings[rootdir].'/images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>   ';
+			}
+
 			eval("\$assignee_list .= \"".$template->get('assets_assignlist_row')."\";");
 		}
 	}
@@ -41,7 +46,7 @@ if(!$core->input['action']) {
 	/* Perform inline filtering - START */
 	$filters_config = array(
 			'parse' => array('filters' => array('assignee', 'asid', 'fromDate', 'toDate'),
-					'overwriteField' => array('assignee' => parse_selectlist('filters[assignee][]', 1, $asset->get_assignto(), ''),
+					'overwriteField' => array('assignee' => parse_selectlist('filters[assignee]', 1, $asset->get_assignto(), ''),
 							'asid' => parse_selectlist('filters[asid]', 2, $asset->get_affiliateassets('titleonly'), '')
 					),
 					'fieldsSequence' => array('assignee' => 1, 'asid' => 2, 'fromDate' => 3, 'toDate' => 4)
@@ -51,16 +56,10 @@ if(!$core->input['action']) {
 					'filterKey' => 'auid',
 					'mainTable' => array(
 							'name' => 'assets_users',
-							'filters' => array('assignee' => array('operatorType' => 'multiple', 'name' => 'uid'), 'asid' => array('operatorType' => 'multiple', 'asid' => 'asid'), 'fromDate' => array('operatorType' => 'date', 'name' => 'fromDate'), 'toDate', 'type' => array('operatorType' => 'multiple', 'name' => 'type')),
+							'filters' => array( 'uid' => array('operatorType' => 'multiple', 'name' => 'assignee'),  'asid'=> array('operatorType' => 'multiple', 'name' => 'asid'),  'fromDate' => array('operatorType' => 'date', 'name' => 'fromDate'),'toDate' => array('operatorType' => 'date', 'name' => 'toDate')),
 					)
 			),
-			'secTables' => array(
-					'assets' => array(
-							'keyAttr' => 'asid',
-							'joinKeyAttr' => 'asid',
-							'joinWith' => 'assets_users',
-					)
-			)
+		
 	);
 
 	$filter = new Inlinefilters($filters_config);
@@ -93,39 +92,39 @@ elseif($core->input['action'] == 'get_deleteuser') {
 	eval("\$deleteassignee = \"".$template->get("popup_assets_listuserdelete")."\";");
 	echo $deleteassignee;
 }
-
 elseif($core->input['action'] == 'perform_delete') {
 	$auid = $db->escape_string($core->input['todelete']);
 	$asset = new Asset();
 	$asset->delete_userassets($auid);
+	$assignee = $asset->get_assigneduser($auid);
+	if(TIME_NOW > ($assignee['assignedon'] + ($core->settings['assets_preventeditasgnafter']))) {
+		exit;
+	}
 	switch($asset->get_errorcode()) {
 		case 3:
 			output_xml("<status>true</status><message>{$lang->successfullydeleted}</message>");
 			break;
 	}
 }
-
-elseif($core->input['action'] == 'get_edituser') { 
-	
-	if(TIME_NOW > $core->settings['assets_preventeditasgnafter']){ echo 'greater';
-		echo'$("#assignassets").each(:input, function() {
-                   alert($(this).val());
-                    $(this).prop("disabled", "true");
-
-                });'; 
-	};
+elseif($core->input['action'] == 'get_edituser') {
 	$asset = new Asset();
 	$auid = $db->escape_string($core->input['id']);
 	$assignee = $asset->get_assigneduser($auid);
 	$assetslist = $asset->get_affiliateassets('titleonly');
-	$assets_list = parse_selectlist('assignee[asid]', 1, $assetslist, $assignee['asid']);
+
+	if(TIME_NOW > ($assignee['assignedon'] + ($core->settings['assets_preventeditasgnafter']))) {
+		$disable_list = array('disabled' => 'disabled');
+		$disable_text = "disabled=disabled";
+	}
+	if(TIME_NOW > ($assignee['assignedon'] + ($core->settings['assets_preventconditionupdtafter']))) {
+		$disable_cor = "disabled=disabled";
+	}
+	$assets_list = parse_selectlist('assignee[asid]', 1, $assetslist, $assignee['asid'], '', '', $disable_list);
 	$assigners = $asset->get_assignto();
-	$employees_list = parse_selectlist('assignee[uid]', 1, $assigners, $assignee['uid']);
+	$employees_list = parse_selectlist('assignee[uid]', 1, $assigners, $assignee['uid'], '', '', $disable_list);
 	$actiontype = $lang->edit;
 
 	eval("\$editassignee = \"".$template->get("popup_assets_listuseredit")."\";");
 	echo $editassignee;
 }
-
-
 ?>

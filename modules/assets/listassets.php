@@ -33,7 +33,7 @@ if(!$core->input['action']) {
 
 	/* Perform inline filtering - START */
 	$filters_config = array(
-			'parse' => array('filters' => array('title', 'affid', 'description', 'type', 'status'),
+			'parse' => array('filters' => array('title', 'affid', 'description', 'type', 'status','',''),
 					'overwriteField' => array('type' => parse_selectlist('filters[type]', 4, get_specificdata('assets_types', array('astid', 'title'), 'astid', 'title', 'title'), ''),
 							'status'=> parse_selectlist('filters[status]', 4,  array('damaged' => 'damaged', 'notfunctional' => 'not-functional', 'fullyfunctional' => 'fully-functional'), ''),
 							'asid' => parse_selectlist('filters[affid]', 2, $affilate->get_country()->get(), '')
@@ -45,16 +45,16 @@ if(!$core->input['action']) {
 					'filterKey' => 'asid',
 					'mainTable' => array(
 							'name' => 'assets',
-							'filters' => array('title' => array('operatorType' => 'multiple', 'title' => 'title'), 'affid' => array('operatorType' => 'multiple', 'affid' => 'affid'), 'description' => array('operatorType' => 'description', 'description')),
+							'filters' => array('title' => array('operatorType' => 'multiple', 'name' => 'title'), 'affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'description' => array('operatorType' => 'name', 'description'), 'status' => array('operatorType' => 'name', 'status'), 'type' => array('operatorType' => 'name', 'type')),
 					)
 			),
-			'secTables' => array(
-					'assets_types' => array(
-							'keyAttr' => 'type',
-							'joinKeyAttr' => 'astid',
-							'joinWith' => 'assets_types',
-					)
-			)
+//			'secTables' => array(
+//					'assets_types' => array(
+//							'keyAttr' => 'type',
+//							'joinKeyAttr' => 'astid',
+//							'joinWith' => 'assets_types',
+//					)
+//			)
 	);
 
 	$filter = new Inlinefilters($filters_config);
