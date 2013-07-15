@@ -538,6 +538,11 @@ class ReportingQr Extends Reporting {
 		if(value_exists('reporting_qrrecipients', $type, $id, 'reportIdentifier="'.$db->escape_string($identifier).'"')) {
 			return false;
 		}
+		
+		if($type == 'unregisteredRcpts') {
+			$id =  $core->sanitize_email($id);
+		}
+		
 		$password = Accounts::generate_password_string(10);
 		$salt = random_string(10);
 		$loginKey = $this->create_loginkey();
@@ -578,27 +583,27 @@ class ReportingQr Extends Reporting {
 		}
 	}
 
-	public function get_recipient_byuid($id, $type) {
-		global $db;
-		//if(empty($uid)) {
+	public function get_otherrecipient($id, $type) {
+		global $db, $core;
+
+		
 		if($type == 'unregisteredRcpts') {
-			$recipient_query = ("SELECT rq.* FROM ".Tprefix."reporting_qrrecipients rq WHERE rq.unregisteredRcpts='".$id."' ");
+			$id =  $core->sanitize_email($id);
+			$recipient_query = ("SELECT * FROM ".Tprefix."reporting_qrrecipients WHERE unregisteredRcpts='".$db->escape_string($id)."'");
 		}
 		else {
-			$recipient_query = ("SELECT u.uid,u.email,u.displayName,rq.* FROM ".Tprefix."reporting_qrrecipients rq 
-				JOIN ".Tprefix."users u ON(u.uid=rq.uid)  WHERE rq.uid=".$id." ");
+			$recipient_query = ("SELECT u.uid,u.email, u.displayName, rq.* 
+								FROM ".Tprefix."reporting_qrrecipients rq 
+								JOIN ".Tprefix."users u ON (u.uid=rq.uid)
+								WHERE rq.uid=".intval($id));
 		}
 		$user_recipients_query = $db->query($recipient_query);
 
 		if($db->num_rows($user_recipients_query) > 0) {
-			while($userrecipient = $db->fetch_assoc($user_recipients_query)) {
-				$userrecipients = $userrecipient;
-			}
-			return $userrecipients;
+			return $db->fetch_assoc($user_recipients_query);
 		}
-		//}
+		return false;
 	}
-
 }
 /* Market report Class --START */
 

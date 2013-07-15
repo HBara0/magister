@@ -744,7 +744,7 @@ if(!$core->input['action']) {
 		}
 
 		if($core->input['referrer'] == 'direct') {
-			if($report['isSent'] == 0) {print_r($core->user['auditfor']);
+			if($report['isSent'] == 0) {
 				if($core->usergroup['reporting_canSendReportsEmail'] == 1) {
 					$unique_array = $report['spid'];
 					if(count($report['spid']) == 1 || $core->usergroup['canViewAllSupp'] == 1) {
