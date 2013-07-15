@@ -196,11 +196,11 @@ else
 					$order['day'] = date('d', $order['date']);
 					$order['week'] = date('W', $order['date']);
 
-					$orderline['price'] = $orderline['price']*$fxrates['price'];
+					$orderline['price'] = $orderline['price']/$fxrates['price'];
 					$orderline['linenetamt'] = $orderline['quantity']*$orderline['price'];
 					//$orderline['price'] = round($orderline['price']*$fxrates['price'], 2);
 					
-					$orderline['cost'] = $orderline['cost']*$fxrates['cost'];
+					$orderline['cost'] = $orderline['cost']/$fxrates['cost'];
 					$orderline['totalcost'] = $orderline['cost'];//*$orderline['quantity'];
 					$orderline['netmargin'] = $orderline['linenetamt']-$orderline['totalcost'];
 					$orderline['grossmargin'] = $orderline['linenetamt']-($orderline['purchasePrice']*$orderline['quantity']);
