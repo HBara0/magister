@@ -46,6 +46,9 @@ class IntegrationOB extends Integration {
 			$newdata['localId'] = $db->fetch_field($db->query("SELECT pid FROM ".Tprefix."products WHERE name='".$db->escape_string($product['name'])."'"), 'pid');
 
 			if(value_exists('integration_mediation_products', 'foreignId', $product['m_product_id'])) {
+				if(empty($newdata['localId'])) {
+					unset($newdata['localId']);
+				}
 				$db->update_query('integration_mediation_products', $newdata, 'foreignId="'.$product['m_product_id'].'"');
 			}
 			else {
@@ -239,18 +242,18 @@ class IntegrationOB extends Integration {
 		$currency_obj = new Currencies('USD');
 
 		if($doc_type == 'order') {
-			return false;
-//			$query = $this->f_db->query("SELECT o.c_order_id AS documentid, o.ad_org_id, o.dateordered AS documentdate, bp.name AS bpname, bp.c_bpartner_id, c.iso_code AS currency
-//							FROM c_order o JOIN c_bpartner bp ON (bp.c_bpartner_id=o.c_bpartner_id) 
-//							JOIN c_currency c ON (c.c_currency_id=o.c_currency_id)
-//							WHERE o.ad_org_id IN ('".implode('","', $organisations)."') AND issotrx='N' AND docstatus = 'CO' AND ((dateordered BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."') OR (o.updated BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."'))");}
+			$query = $this->f_db->query("SELECT o.c_order_id AS documentid, o.ad_org_id, o.documentno, o.dateordered AS documentdate, bp.name AS bpname, bp.c_bpartner_id AS bpid, c.iso_code AS currency, pt.netdays AS paymenttermsdays
+							FROM c_order o JOIN c_bpartner bp ON (bp.c_bpartner_id=o.c_bpartner_id) 
+							JOIN c_currency c ON (c.c_currency_id=o.c_currency_id)
+							JOIN c_paymentterm pt ON (o.c_paymentterm_id=pt.c_paymentterm_id)
+							WHERE o.ad_org_id IN ('".implode('\',\'', $organisations)."') AND issotrx='N' AND docstatus = 'CO' AND ((dateordered BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."') OR (o.updated BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."'))");
 		}
 		else {
 			$query = $this->f_db->query("SELECT i.c_invoice_id AS documentid, i.ad_org_id, i.documentno, bp.name AS bpname, bp.c_bpartner_id AS bpid, c.iso_code AS currency, dateinvoiced AS documentdate, pt.netdays AS paymenttermsdays
 							FROM c_invoice i JOIN c_bpartner bp ON (bp.c_bpartner_id=i.c_bpartner_id)
 							JOIN c_currency c ON (c.c_currency_id=i.c_currency_id)
 							JOIN c_paymentterm pt ON (i.c_paymentterm_id=pt.c_paymentterm_id)
-							WHERE  i.ad_org_id IN ('".implode('\',\'', $organisations)."') AND docstatus NOT IN ('VO', 'CL') AND issotrx='N' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."')");
+							WHERE i.ad_org_id IN ('".implode('\',\'', $organisations)."') AND docstatus NOT IN ('VO', 'CL') AND issotrx='N' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."')");
 		}
 
 		$document_newdata = array(0);
@@ -287,15 +290,13 @@ class IntegrationOB extends Integration {
 				}
 
 				if($doc_type == 'order') {
-					//				$documentline_query = $this->f_db->query("SELECT ol.*, c_orderline_id AS documentlineid, ol.qtyordered AS quantity, p.name AS productname, u.x12de355 AS uom
-					//									FROM c_orderline ol JOIN m_product p ON (p.m_product_id=ol.m_product_id) 
-					//									JOIN c_uom u ON (u.c_uom_id=p.c_uom_id) 
-					//									WHERE c_order_id='{$document[documentid]}'");
-
-					return false;
+					$documentline_query = $this->f_db->query('SELECT ol.*, c_orderline_id AS documentlineid, ol.qtyordered AS quantity, p.name AS productname, u.x12de355 AS uom
+										FROM c_orderline ol JOIN m_product p ON (p.m_product_id=ol.m_product_id) 
+										JOIN c_uom u ON (u.c_uom_id=p.c_uom_id) 
+										WHERE c_order_id=\''.$document['documentid'].'\'');
 				}
 				else {
-					$documentline_query = $this->f_db->query('SELECT il.*, c_invoiceline_id AS documentlineid, il.qtyinvoiced AS quantity, p.name AS productnamem, u.x12de355 AS uom
+					$documentline_query = $this->f_db->query('SELECT il.*, c_invoiceline_id AS documentlineid, il.qtyinvoiced AS quantity, p.name AS productname, u.x12de355 AS uom
 												FROM c_invoiceline il JOIN m_product p ON (p.m_product_id=il.m_product_id)
 												JOIN c_uom u ON (u.c_uom_id=p.c_uom_id)
 												WHERE c_invoice_id=\''.$document['documentid'].'\'');
