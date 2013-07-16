@@ -31,7 +31,7 @@
 
                     <div style="display:table-row;">
                     <div style="display:table-cell; width:10%;">{$lang->conditionhandover}</div>
-                    <div style="display:table-cell; width:100%; padding:5px;"><textarea name="assignee[conditionOnHandover]" {$disable_cor}>{$assignee['conditionOnHandover']}</textarea>
+                    <div style="display:table-cell; width:100%; padding:5px;"><textarea name="assignee[conditionOnHandover]" {$disable_text}>{$assignee['conditionOnHandover']}</textarea>
                     
                     </div>
                 </div>

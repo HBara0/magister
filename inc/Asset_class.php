@@ -148,12 +148,12 @@ class Asset {
 		}
 
 		if(!$this->isValidDate($userdata['fromDate'])) {
-			//$this->errorcode = 6;
-			//return false;
+			$this->errorcode = 6;
+			return false;
 		}
 		if(!$this->isValidDate($userdata['toDate'])) {
-			//$this->errorcode = 6;
-			//return false;
+			$this->errorcode = 6;
+			return false;
 		}
 		$userdata['fromDate'] = strtotime($userdata['fromDate'].' '.$userdata['fromTime']);
 		$userdata['toDate'] = strtotime($userdata['toDate'].' '.$userdata['toTime']);
@@ -168,7 +168,7 @@ class Asset {
 		}
 		if(is_array($userdata)) {
 			$userassets_data = array('uid' => $userdata['uid'],
-					'asid' => $userdata['asid'],
+					'asid' => $this->asset['asid'],
 					'fromDate' => $userdata['fromDate'],
 					'toDate' => $userdata['toDate'],
 					'conditionOnHandover' => $userdata['conditionOnHandover'],
@@ -186,8 +186,7 @@ class Asset {
 	public function isValidDate($date) {
 		global $core;
 		$datetime = explode('-', $date);
-		var_dump(checkdate($dateTime[1], $dateTime[0], $dateTime[2]));
-		return checkdate($dateTime[1], $dateTime[0], $dateTime[2]);
+		return checkdate($datetime[1], $datetime[0], $datetime[2]);
 	}
 
 	public function update_assetuser($userdata) {
@@ -241,9 +240,30 @@ class Asset {
 		return $my_asid;
 	}
 
-	public function get_allassignee() {
-		global $db;
-		$assigne_query = $db->query("SELECT asu.* FROM ".Tprefix."assets_users asu JOIN ".Tprefix."assets a ON(a.asid=asu.asid) WHERE a.isActive='1'");
+	public function get_allassignee($filter_where) {
+		global $db, $core;
+		if(!empty($filter_where) && isset($filter_where)) {
+			$filter_where = ' AND '.$filter_where;
+		}
+		if(isset($core->input['sortby'], $core->input['order'])) {
+			$sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
+		}
+
+		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+			$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+		}
+
+		$limit_start = 0;
+		if(isset($core->input['start'])) {
+			$limit_start = $db->escape_string($core->input['start']);
+		}
+
+		$assigne_query = $db->query("SELECT asu.* FROM ".Tprefix."assets_users asu 
+									JOIN ".Tprefix."assets a ON(a.asid=asu.asid) WHERE a.isActive='1'
+									{$filter_where}	
+									{$sort_query}
+									LIMIT {$limit_start},{$core->settings[itemsperlist]}");
+
 		while($assignee = $db->fetch_assoc($assigne_query)) {
 			$assignees[$assignee['auid']] = $assignee;
 		}
@@ -401,10 +421,30 @@ class Asset {
 		return $employees;
 	}
 
-	public function get_affiliateassets($option = '') {
+	public function get_affiliateassets($option = '', $filter_where='') {
 		global $db, $core;
-		$allassets = $db->query("SELECT a.*,ast.title AS type,ast.name FROM ".Tprefix."assets a JOIN ".Tprefix."assets_types ast ON (a.type=ast.astid) 
-								WHERE a.affid in(".implode(',', $core->user['affiliates']).") Order BY isActive DESC");
+		if(!empty($filter_where) && isset($filter_where)) {
+			$filter_where = ' AND '.$filter_where;
+		}
+		if(isset($core->input['sortby'], $core->input['order'])) {
+			$sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
+		}
+
+		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+			$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+		}
+
+		$limit_start = 0;
+		if(isset($core->input['start'])) {
+			$limit_start = $db->escape_string($core->input['start']);
+		}
+		/* Get asset for the affiliates that are for the user affilliates */
+		$allassets = $db->query("SELECT a.*,ast.title AS type,ast.name FROM ".Tprefix."assets a		
+								JOIN ".Tprefix."assets_types ast ON (a.type=ast.astid) 
+								WHERE  a.affid in(".implode(',', $core->user['affiliates']).")
+								{$filter_where} 
+								{$sort_query}
+								LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 		while($assets = $db->fetch_assoc($allassets)) {
 			if($option == 'titleonly') {
 				$asset[$assets['asid']] = $assets['title'];

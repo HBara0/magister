@@ -1,4 +1,4 @@
-<tr id="asset_{$asset[asid]}" class="{$notactive}">
+<tr id="asset_{$asset[asid]}" class="{$rowclass}{$notactive}">
     <td>{$asset[title]}</td>
     <td>{$asset[affiliate]}</td>
     <td>{$asset[description]}</td>

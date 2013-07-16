@@ -16,27 +16,17 @@ if($core->usergroup['assets_canManageAssets'] == 0) {
 
 if(!$core->input['action']) {
 	$assets = new Asset();
-	$all_assets = $assets->get_affiliateassets();
+
 	$sort_url = sort_url();
 
-	foreach($all_assets as $asset) {
-		if($asset['isActive'] == 0) {
-			$notactive = 'unapproved';
-		}
-		$affilate = new Affiliates($asset['affid']);
-		if(!empty($asset['createdon'])) {
-			$asset['createdon_ouput'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $asset['createdon']);
-		}
-		$asset['affiliate'] = $affilate->get_country()->get()['name'];
-		eval("\$assets_listrow .= \"".$template->get('assets_listrow')."\";");
-	}
+
 
 	/* Perform inline filtering - START */
 	$filters_config = array(
-			'parse' => array('filters' => array('title', 'affid', 'description', 'type', 'status','',''),
-					'overwriteField' => array('type' => parse_selectlist('filters[type]', 4, get_specificdata('assets_types', array('astid', 'title'), 'astid', 'title', 'title'), ''),
-							'status'=> parse_selectlist('filters[status]', 4,  array('damaged' => 'damaged', 'notfunctional' => 'not-functional', 'fullyfunctional' => 'fully-functional'), ''),
-							'asid' => parse_selectlist('filters[affid]', 2, $affilate->get_country()->get(), '')
+			'parse' => array('filters' => array('title', 'affid', 'description', 'type', 'status'),
+					'overwriteField' => array('type' => parse_selectlist('filters[type]', 4, get_specificdata('assets_types', array('astid', 'title'), 'astid', 'title', 'title'), '', '', '', array('blankstart' => true)),
+							'status' => parse_selectlist('filters[status]', 4, array('damaged' => 'damaged', 'notfunctional' => 'not-functional', 'fullyfunctional' => 'fully-functional'), '', '', '', array('blankstart' => true)),
+							'asid' => parse_selectlist('filters[affid]', 2, get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', 'affid in('.implode(',', $core->user['affiliates']).')'), '')
 					),
 					'fieldsSequence' => array('title' => 1, 'affid' => 2, 'description' => 3, 'type' => 4, 'status' => 5)
 			/* get the busieness potential and parse them in select list to pass to the filter array */
@@ -45,40 +35,45 @@ if(!$core->input['action']) {
 					'filterKey' => 'asid',
 					'mainTable' => array(
 							'name' => 'assets',
-							'filters' => array('title' => array('operatorType' => 'multiple', 'name' => 'title'), 'affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'description' => array('operatorType' => 'name', 'description'), 'status' => array('operatorType' => 'name', 'status'), 'type' => array('operatorType' => 'name', 'type')),
+							'filters' => array('title' => 'title', 'affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'description' => 'description', 'type' => 'type', 'status' => 'status'),
 					)
 			),
-//			'secTables' => array(
-//					'assets_types' => array(
-//							'keyAttr' => 'type',
-//							'joinKeyAttr' => 'astid',
-//							'joinWith' => 'assets_types',
-//					)
-//			)
 	);
 
 	$filter = new Inlinefilters($filters_config);
-	//$filter_where_values = $filter->process_multi_filters();
+	$filter_where_values = $filter->process_multi_filters();
 	$filters_row_display = 'hide';
-	$limit_start = 0;
-	if(isset($core->input['start'])) {
-		$limit_start = $db->escape_string($core->input['start']);
-	}
 
-	if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
-		$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
-	}
+
 	if(is_array($filter_where_values)) {
 		$filters_row_display = 'show';
-		$filter_where = 'ss.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+		$filter_where = $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
 		$multipage_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
 	}
 
+	$all_assets = $assets->get_affiliateassets('', $filter_where);
+
+	$multipage_where .= $db->escape_string($attributes_filter_options['prefixes'][$core->input['filterby']].$core->input['filterby']).$filter_value;
+	$multipages = new Multipages('assets', $core->settings['itemsperlist'], $multipage_where);
+	$assets_listrow .= '<tr><td colspan="6">'.$multipages->parse_multipages().'</td></tr>';
+
+	if(is_array($all_assets)) {
+		foreach($all_assets as $asset) {
+			$rowclass = alt_row($rowclass);
+			if($asset['isActive'] == 0) {
+				$notactive = 'unapproved';
+			}
+			$affilate = new Affiliates($asset['affid']);
+			if(!empty($asset['createdon'])) {
+				$asset['createdon_ouput'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $asset['createdon']);
+			}
+			$asset['affiliate'] = $affilate->get_country()->get()['name'];
+			eval("\$assets_listrow .= \"".$template->get('assets_listrow')."\";");
+		}
+	}
 	$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
 	/* Perform inline filtering - END */
-	$multipage_where .= $db->escape_string($attributes_filter_options['prefixes'][$core->input['filterby']].$core->input['filterby']).$filter_value;
-	$multipages = new Multipages('sourcing_suppliers', $core->settings['itemsperlist'], $multipage_where);
-	$assignee_list .= '<tr><td colspan="6">'.$multipages->parse_multipages().'</td></tr>';
+
 
 	eval("\$assets_list = \"".$template->get('assets_list')."\";");
 	output_page($assets_list);

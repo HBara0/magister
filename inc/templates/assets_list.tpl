@@ -31,7 +31,7 @@
                         <th style="width:20%">{$lang->title} <a href="{$sort_url}&amp;sortby=title&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=title&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
                         <th style="width:16%;">{$lang->affiliate}</th>
                         <th style="width:16%;">{$lang->description} <a href="{$sort_url}&amp;sortby=description&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=description&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
-                        <th style="width:16%;">{$lang->type} <a href="{$sort_url}&amp;sortby=type&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=type&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                        <th style="width:16%;">{$lang->type} <a href="{$sort_url}&amp;sortby=title&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=title&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
                         <th style="width:16%;">{$lang->status} <a href="{$sort_url}&amp;sortby=status&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=status&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a> </th>
                         <th style="width:20%;">{$lang->createdon} <a href="{$sort_url}&amp;sortby=createdon&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=createdon&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a> </th>
                     

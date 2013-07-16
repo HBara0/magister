@@ -15,12 +15,51 @@ if($core->usergroup['assets_canManageAssets'] == 0) {
 
 if(!$core->input['action']) {
 	$asset = new Asset();
-	$assignee = $asset->get_allassignee();
-	$sort_url = sort_url();
 
+	/* Perform inline filtering - START */
+	$filters_config = array(
+			'parse' => array('filters' => array('uid', 'asid', 'fromDate', 'toDate', 'toDate'),
+					'overwriteField' => array('uid' => parse_selectlist('filters[uid]', 1, $asset->get_assignto(), '', '', '', array('blankstart' => true)),
+							'asid' => parse_selectlist('filters[asid]', 2, get_specificdata('assets', array('asid', 'title'), 'asid', 'title', 'affid in('.implode(',', $core->user['affiliates']).')'), '', '', '', array('blankstart' => true))
+					),
+					'fieldsSequence' => array('uid' => 1, 'asid' => 2, 'fromDate' => 3, 'toDate' => 4)
+			/* get the busieness potential and parse them in select list to pass to the filter array */
+			),
+			'process' => array(
+					'filterKey' => 'auid',
+					'mainTable' => array(
+							'name' => 'assets_users',
+							'filters' => array('uid' => 'uid', 'asid' => 'asid', 'fromDate' => array('operatorType' => 'date', 'name' => 'fromDate'), 'toDate' => array('operatorType' => 'date', 'name' => 'toDate')),
+					)
+			),
+	);
+
+	$filter = new Inlinefilters($filters_config);
+	$filter_where_values = $filter->process_multi_filters();
+	$filters_row_display = 'hide';
+
+	if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+		$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+	}
+	if(is_array($filter_where_values)) {
+		$filters_row_display = 'show';
+		$filter_where = $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+		$multipage_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+	}
+
+	$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+	/* Perform inline filtering - END */
+	
+	$multipage_where .= $db->escape_string($attributes_filter_options['prefixes'][$core->input['filterby']].$core->input['filterby']).$filter_value;
+	$multipages = new Multipages('assets_users', $core->settings['itemsperlist'], $multipage_where);
+	$assignee_list .= '<tr><td colspan="6">'.$multipages->parse_multipages().'</td></tr>';
+	$assignee = $asset->get_allassignee($filter_where);
+	
+	$sort_url = sort_url();
 
 	if(is_array($assignee)) {
 		foreach($assignee as $auid => $assigneduser) {
+			$rowclass = alt_row($rowclass);
 			$assigneduser['fromDate_output'] = date($core->settings['dateformat'], $assigneduser['fromDate']);
 			$assigneduser['toDate_output'] = date($core->settings['dateformat'], $assigneduser['toDate']);
 			$auid = $assigneduser['auid'];
@@ -31,6 +70,7 @@ if(!$core->input['action']) {
 			/* Get assigned USER by user object */
 			$user = new Users($assigneduser['uid']);
 			$employee = $user->get();
+
 			$control_icons = ' <a href="#'.$assigneduser[auid].'" style="display:block;" id="deleteuser_'.$assigneduser[auid].'_assets/listuser_loadpopupbyid" rel="delete_'.$assigneduser[auid].'"><img src="'.$core->settings[rootdir].'/images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>   ';
 			if(TIME_NOW > ($assigneduser['assignedon'] + ($core->settings['assets_preventeditasgnafter']))) {
 				$control_icons = '<a href="#'.$assigneduser[auid].'" style="display:none;" id="deleteuser_'.$assigneduser[auid].'_assets/listuser_loadpopupbyid" rel="delete_'.$assigneduser[auid].'"><img src="'.$core->settings[rootdir].'/images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>   ';
@@ -42,48 +82,6 @@ if(!$core->input['action']) {
 	else {
 		$assignee_list = '<tr><td colspan="7">'.$lang->na.'</td></tr>';
 	}
-
-	/* Perform inline filtering - START */
-	$filters_config = array(
-			'parse' => array('filters' => array('assignee', 'asid', 'fromDate', 'toDate'),
-					'overwriteField' => array('assignee' => parse_selectlist('filters[assignee]', 1, $asset->get_assignto(), ''),
-							'asid' => parse_selectlist('filters[asid]', 2, $asset->get_affiliateassets('titleonly'), '')
-					),
-					'fieldsSequence' => array('assignee' => 1, 'asid' => 2, 'fromDate' => 3, 'toDate' => 4)
-			/* get the busieness potential and parse them in select list to pass to the filter array */
-			),
-			'process' => array(
-					'filterKey' => 'auid',
-					'mainTable' => array(
-							'name' => 'assets_users',
-							'filters' => array( 'uid' => array('operatorType' => 'multiple', 'name' => 'assignee'),  'asid'=> array('operatorType' => 'multiple', 'name' => 'asid'),  'fromDate' => array('operatorType' => 'date', 'name' => 'fromDate'),'toDate' => array('operatorType' => 'date', 'name' => 'toDate')),
-					)
-			),
-		
-	);
-
-	$filter = new Inlinefilters($filters_config);
-	//$filter_where_values = $filter->process_multi_filters();
-	$filters_row_display = 'hide';
-	$limit_start = 0;
-	if(isset($core->input['start'])) {
-		$limit_start = $db->escape_string($core->input['start']);
-	}
-
-	if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
-		$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
-	}
-	if(is_array($filter_where_values)) {
-		$filters_row_display = 'show';
-		$filter_where = 'ss.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-		$multipage_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-	}
-
-	$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
-	/* Perform inline filtering - END */
-	$multipage_where .= $db->escape_string($attributes_filter_options['prefixes'][$core->input['filterby']].$core->input['filterby']).$filter_value;
-	$multipages = new Multipages('sourcing_suppliers', $core->settings['itemsperlist'], $multipage_where);
-	$assignee_list .= '<tr><td colspan="6">'.$multipages->parse_multipages().'</td></tr>';
 
 	eval("\$assetsassignlist = \"".$template->get('assets_assignlist')."\";");
 	output_page($assetsassignlist);
