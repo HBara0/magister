@@ -18,6 +18,7 @@ $lang['all'] = 'All';
 $lang['annualleave'] = 'Annual leave';
 $lang['approvedonly'] = 'Approved only';
 $lang['approveleave'] = 'Approve Leave';
+$lang['dateapproved']='Approved On';
 $lang['arrival'] = 'Arrival';
 $lang['attendancelist'] = 'Attendance List';
 $lang['attendancereport'] = 'Attendance Report';
