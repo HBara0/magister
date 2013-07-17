@@ -162,6 +162,9 @@ function munch_one_location($line) {
    }
    logsomething ('<pre><font color=gray><u>'.$label."</u></font>\n".$hexdat."\n".$value.'</pre>');
 
+	//   Packet Structure
+	//   Package Trailer (0x29 0x29)|Command Word (0x8E)|Package Length (0x00 0x1B)|Terminal ID|LOCATION DATA|Check Code|Package Trailer (0x0D)
+	//   Location Data: yymmddhhmmss llll llll ssdd st fuel1 fuel2 fuel3 st1st2st3st4st5
    getsome(0,$line);
    if (bin2hex($start=getsome(2))=='2929')
    {
