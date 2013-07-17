@@ -16,6 +16,7 @@ $lang['additionaldays'] = 'Add Days';
 $lang['addleaveslist'] = 'Additional Leave Days List';
 $lang['all'] = 'All';
 $lang['annualleave'] = 'Annual leave';
+$lang['notapproved']='Not Approved';
 $lang['approvedonly'] = 'Approved only';
 $lang['approveleave'] = 'Approve Leave';
 $lang['dateapproved']='Approved On';

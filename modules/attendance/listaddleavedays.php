@@ -64,7 +64,11 @@ if(!$core->input['action']) {
 			if($leave['isApproved'] == 0) {
 				$unapproved = ' unapproved ';
 			}
-			$addleaves_list .= '<tr class="'.$unapproved.$class.'"><td>'.$leave['fullname'].'</td><td>'.$leave['numDays'].'</td><td>'.$leave['remark'].'</td><td>'.date($core->settings['dateformat'], $leave['date']).'</td><td>'.date($core->settings['dateformat'], $leave['approvedOn']).'</td><tr>';
+			$approved_date=$lang->notapproved;
+		if(!empty($leave['approvedOn'])){
+			$approved_date=date($core->settings['dateformat'], $leave['approvedOn']);
+		}
+			$addleaves_list .= '<tr class="'.$unapproved.$class.'"><td>'.$leave['fullname'].'</td><td>'.$leave['numDays'].'</td><td>'.$leave['remark'].'</td><td>'.date($core->settings['dateformat'], $leave['date']).'</td><td>'.$approved_date.'</td><tr>';
 		}
 
 		$multipages = new Multipages('attendance_additionalleaves l JOIN '.Tprefix.'users u ON (l.uid=u.uid) JOIN '.Tprefix.'affiliatedemployees a ON (u.uid=a.uid)', $core->settings['itemsperlist'], $multipage_where);
