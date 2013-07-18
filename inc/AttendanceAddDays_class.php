@@ -32,8 +32,8 @@ class AttendanceAddDays Extends Attendance {
 		global $db;
 		$id = $db->escape_string($id);
 		if($this->can_apporve($fromemail)) {
-			$db->update_query('attendance_additionalleaves', array('isApproved' => 1,'approvedOn'=>TIME_NOW), 'identifier="'.$this->additionaldays['identifier'].'" AND isApproved="0"');
-		
+			$db->update_query('attendance_additionalleaves', array('isApproved' => 1, 'approvedOn' => TIME_NOW), 'identifier="'.$this->additionaldays['identifier'].'" AND isApproved="0"');
+
 			return true;
 		}
 		else {
@@ -51,22 +51,23 @@ class AttendanceAddDays Extends Attendance {
 			$this->status = 1;
 			return false;
 		}
-		
+
 		$this->data['date'] = strtotime($this->data['date']);
 		if($this->data['date'] == false || $this->data['date'] == -1) {
 			output_xml("<status>false</status><message>{$lang->invalidtodate}</message>");
 			exit;
 		}
-		
+
 		$additional_leavesdata = array(
-			'identifier' => $identifier = substr(md5(uniqid(microtime())), 1, 10),
-			'numDays' => $core->sanitize_inputs($this->data['numDays']),
-			'date' => $core->sanitize_inputs($this->data['date']),
-			'addedBy' => $core->user['uid'],
-			'isApproved' => $this->data['isApproved'],
-			'remark' => $core->sanitize_inputs($this->data['remark']),
-			'correspondToDate' => intval($this->data['correspondToDate']),
-			'uid' => $uid		
+				'identifier' => $identifier = substr(md5(uniqid(microtime())), 1, 10),
+				'numDays' => $core->sanitize_inputs($this->data['numDays']),
+				'date' => $core->sanitize_inputs($this->data['date']),
+				'addedBy' => $core->user['uid'],
+				'isApproved' => $this->data['isApproved'],
+				'remark' => $core->sanitize_inputs($this->data['remark']),
+				'correspondToDate' => intval($this->data['correspondToDate']),
+				'uid' => $uid,
+				'requestedOn' => TIME_NOW
 		);
 
 		if(is_array($additional_leavesdata)) {
@@ -127,7 +128,7 @@ class AttendanceAddDays Extends Attendance {
 						'subject' => $lang->sprint($lang->adddaysnotificationsubject, $requester['displayName'], $this->additionaldays['identifier']),
 						'message' => $lang->sprint($lang->adddaysrequestapproval, $requester['displayName'], $this->additionaldays['numDays'], $this->additionaldays['date_output'], $this->additionaldays['remark'])
 				);
-				
+
 				$mail = new Mailer($email_data, 'php');
 				if($mail->get_status() === true) {
 					$log->record('notifysupervisors', $reportsto);
@@ -158,16 +159,15 @@ class AttendanceAddDays Extends Attendance {
 
 	public function update_leavestats() {
 		global $db, $log;
-		
+
 		if($this->additionaldays['correspondToDate'] == 1) {
 			$period = $this->additionaldays['date'];
 		}
-		else
-		{
+		else {
 			$period = TIME_NOW;
 		}
-			
-		$leavestats_query =  $db->query("SELECT lsid, additionalDays 
+
+		$leavestats_query = $db->query("SELECT lsid, additionalDays 
 										FROM ".Tprefix."leavesstats 
 										WHERE uid={$this->additionaldays['uid']} AND ltid=1 AND {$period} BETWEEN periodStart AND periodEnd");
 		if($db->num_rows($leavestats_query) > 0) {
@@ -175,12 +175,12 @@ class AttendanceAddDays Extends Attendance {
 				$additionalDays = $leavestat['additionalDays'];
 				$lsid = $leavestat['lsid'];
 			}
-			$additionalDays += $this->additionaldays['numDays'] ;
+			$additionalDays += $this->additionaldays['numDays'];
 			$db->update_query('leavesstats', array('additionalDays' => $additionalDays), "lsid={$lsid}");
 			$log->record('updateleavebalance', $this->additionaldays['adid']);
 		}
 	}
-	
+
 	private function read($id = '', $identifier = '', $simple = true) {
 		global $db;
 		if(empty($id) && !empty($identifier)) {
