@@ -14,7 +14,17 @@ $(function() {
              // $("[id^='getquestionresponses_"+ id[1]+"']").unbind("click"); /*prevent multiple ajax request by remove click event */
 
     });	
-  
+  	$("[id^='sendreminder_']").click(function() {
+		if(sharedFunctions.checkSession() == false) {
+			return;	
+		}
+		var id =  $(this).attr("id").split("_");
+	
+		sharedFunctions.requestAjax("post", "index.php?module=surveys/viewresults&action=sendreminder", "&identifier=" + id[1],'remindermsg','remindermsg','html');
+               
+            // $("[id^='sendreminder_]").unbind("click"); /*prevent multiple ajax request by remove click event */
+
+    });	
 });
 </script>
 </head>
