@@ -586,13 +586,12 @@ class ReportingQr Extends Reporting {
 	public function get_otherrecipient($id, $type) {
 		global $db, $core;
 
-		
 		if($type == 'unregisteredRcpts') {
 			$id =  $core->sanitize_email($id);
 			$recipient_query = ("SELECT * FROM ".Tprefix."reporting_qrrecipients WHERE unregisteredRcpts='".$db->escape_string($id)."'");
 		}
 		else {
-			$recipient_query = ("SELECT u.uid,u.email, u.displayName, rq.* 
+			$recipient_query = ("SELECT u.uid, u.email, u.displayName, rq.* 
 								FROM ".Tprefix."reporting_qrrecipients rq 
 								JOIN ".Tprefix."users u ON (u.uid=rq.uid)
 								WHERE rq.uid=".intval($id));

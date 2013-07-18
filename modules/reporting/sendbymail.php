@@ -144,12 +144,12 @@ else {
 		$core->input['message'] = $core->sanitize_inputs($core->input['message'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
 		if(!empty($core->input['additional_recipients'])) {
 			$additional_emails = explode(',', $core->input['additional_recipients']);
+
 			foreach($additional_emails as $val) {
 				if(isvalid_email(trim($val))) {
 					/* Get uid by email  & register as receipient - START */
 					$user = new Users();
 					$user_byemail = $user->get_userbyemail($val);
-
 
 					if($user_byemail != false) {
 						$type = 'uid';
@@ -157,58 +157,19 @@ else {
 					}
 					else {
 						$type = 'unregisteredRcpts';
-						$cc_user = $user_byemail->get()['email'];
+						$cc_user = $val;
 					}
 					$report->create_recipient($cc_user, $type);
-					$internal_recipients[$cc_user] = $report->get_otherrecipient($cc_user, $type);
+					$allrecipients[$type][$cc_user] = $report->get_otherrecipient($cc_user, $type);
+					
+					$cc_valid_emails[] = $val;
 					/* Get uid by email & register as receipient - END */
 				}
 				else {
 					$cc_bad_emails[] = $val;
 				}
 			}
-
-			/* preparing emaildata --START */
-//			if(is_array($internal_recipients)) {
-//				foreach($internal_recipients as $uid => $internal_recipient) {
-//					$email_data = array();
-//					$to = $internal_recipient['email'];
-//					if($type == 'unregisteredRcpts') {
-//						$to .= $internal_recipient['unregisteredRcpts'];
-//					}
-//
-//					$internal_recipient = $internal_recipients[$uid];
-//					$reportlink = 'http://www.orkila.com/reporting/preview&reportidentifier='.$internal_recipient['reportIdentifier'].'&token='.$internal_recipient['token'];
-//
-//					if(strstr($core->input['message'], '{link}')) {
-//						$message = str_replace('{link}', $reportlink, $core->input['message']);
-//					}
-//					else {
-//						$message .= '<br />'.$lang->link.': '.$reportlink;
-//					}
-//					$internal_recipient['password'] = str_replace($internal_recipient['salt'], '', base64_decode($internal_recipient['password']));
-//					if(strstr($message, '{password}')) {
-//						$message = str_replace('{password}', $internal_recipient['password'], $message);
-//					}
-//					else {
-//						$message .= '<br />'.$lang->password.': '.$internal_recipient['password'];
-//					}
-//
-//					$email_data = array(
-//							'from_email' => 'reporting@ocos.orkila.com',
-//							'from' => 'Orkila Reporting System',
-//							'to' => $to,
-//							'subject' => $core->input['subject'],
-//							'message' => $message
-//					);
-//
-//					$mail = new Mailer($email_data, 'php');
-//					$email_sent = true;
-//				}
-			/* preparing emaildata --END */
-			//	}
 		}
-
 
 		switch($meta_data['type']) {
 			case 'm':
@@ -228,24 +189,32 @@ else {
 				}
 				break;
 			case 'q':
-
 				$recipients = $report->get_recipient($core->input['recipients']['id']);
-
-				$allrecipients['users'] = $internal_recipients;
 				$allrecipients['representative'] = $recipients;
 
 				foreach($allrecipients as $rtype => $recipients) {
 					foreach($recipients as $id => $recipient) {
+						if($rtype == 'representative' && !in_array($recipient['rpid'], $core->input['recipients']['id'])) {
+							continue;
+						}
+						
+						if($rtype == 'unregisteredRcpts') {
+							$recipient['email'] = $recipient['unregisteredRcpts'];
+						}
+						
 						if(is_array($recipients)) {
 							$email_data = array(
 									'from_email' => 'reporting@ocos.orkila.com',
 									'from' => 'Orkila Reporting System',
 									'to' => $recipient['email'],
-									'cc' => $cc_valid_emails,
 									'subject' => $core->input['subject'],
 									'message' => $core->input['message']
 							);
-
+							
+							if($rtype == 'representative') {
+								$email_data['cc'] = $cc_valid_emails;
+							}
+							
 							$reportlink = 'http://www.orkila.com/qreport/'.$recipient['reportIdentifier'].'/'.$recipient['token'];
 							if(strstr($email_data['message'], '{link}')) {
 								$email_data['message'] = str_replace('{link}', $reportlink, $email_data['message']);
@@ -261,46 +230,11 @@ else {
 							else {
 								$email_data['message'] .= '<br />'.$lang->password.': '.$recipient['password'];
 							}
-
 							$mail = new Mailer($email_data, 'php');
 							$email_sent = true;
 						}
 					}
 				}
-
-
-//				if(is_array($recipients)) {
-//					foreach($core->input['recipients']['id'] as $rpid) {
-//						$recipient = $recipients[$rpid];
-//						$email_data = array(
-//								'from_email' => 'reporting@ocos.orkila.com',
-//								'from' => 'Orkila Reporting System',
-//								'to' => $recipient['email'],
-//								'cc' => $cc_valid_emails,
-//								'subject' => $core->input['subject'],
-//								'message' => $core->input['message']
-//						);
-//
-//						$reportlink = 'http://www.orkila.com/qreport/'.$recipient['reportIdentifier'].'/'.$recipient['token'];
-//						if(strstr($email_data['message'], '{link}')) {
-//							$email_data['message'] = str_replace('{link}', $reportlink, $email_data['message']);
-//						}
-//						else {
-//							$email_data['message'] .= '<br />'.$lang->link.': '.$reportlink;
-//						}
-//
-//						$recipient['password'] = str_replace($recipient['salt'], '', base64_decode($recipient['password']));
-//						if(strstr($email_data['message'], '{password}')) {
-//							$email_data['message'] = str_replace('{password}', $recipient['password'], $email_data['message']);
-//						}
-//						else {
-//							$email_data['message'] .= '<br />'.$lang->password.': '.$recipient['password'];
-//						}
-//
-//						//$mail = new Mailer($email_data, 'php');
-//						$email_sent = true;
-//					}
-//				}
 				break;
 		}
 
