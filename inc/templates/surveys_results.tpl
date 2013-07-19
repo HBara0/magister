@@ -20,7 +20,7 @@ $(function() {
 		}
 		var id =  $(this).attr("id").split("_");
 	
-		sharedFunctions.requestAjax("post", "index.php?module=surveys/viewresults&action=sendreminder", "&identifier=" + id[1],'remindermsg','remindermsg','html');
+		sharedFunctions.requestAjax("post", "index.php?module=surveys/viewresults&action=sendreminder", "&identifier=" + id[1],'','remindermsg','html');
                
             // $("[id^='sendreminder_]").unbind("click"); /*prevent multiple ajax request by remove click event */
 
@@ -35,6 +35,7 @@ $(function() {
 <td class="contentContainer">
     <h3>{$survey[subject]}</h3>
 	{$questionsstats}
+        <div class="subtitle" style="float:right;"><span id="remindermsg"></span><input type="button" id="sendreminder_{$core->input[identifier]}"  style=" margin: 5px;" class="button" value="{$lang->sendreminder}"/></div>
     {$responses}
 	{$invitations}   
 </td> 

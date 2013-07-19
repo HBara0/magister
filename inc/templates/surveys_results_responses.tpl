@@ -1,6 +1,6 @@
 <hr />
 <div class="subtitle">{$lang->responses}</div>
-<div class="subtitle" style="float:right;"><span id="remindermsg"></span><input type="button" id="sendreminder_{$core->input[identifier]}"  style=" margin: 5px;" class="button" value="{$lang->sendreminder}"/></div>
+
 <div style="width: 100%; height: 200px; overflow:auto; display: inline-block; vertical-align: top;">
     <table class="datatable">
         <thead>
