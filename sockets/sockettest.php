@@ -31,7 +31,7 @@ while(true && !$gotsomething) {
 	for($i = 0; $i < $config['max_clients']; $i++) {
 		if($client[$i]['socket'] != null) {
 			$read[$i + 1] = $client[$i]['socket'];
-			$data = 'start data'; 
+			$data = 'start dataaa'; 
 		}
 	}
 
