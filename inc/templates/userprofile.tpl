@@ -13,7 +13,8 @@
             <td colspan="2"><h3>{$profile[firstName]}, {$profile[middleName]} {$profile[lastName]}  ({$profile[displayName]})</h3></td>
           </tr>
           <tr>
-            <td valign="top" style="width:35%; text-align:center;"><img id="profilePicture" src="{$core->settings[rootdir]}/{$core->settings[profilepicdir]}/{$profile[profilePicture]}" alt="{$profile[username]}" border="0" />
+            <td valign="top" style="width:35%; text-align:center;">
+                {$porfile_picture}
             <hr /></td>
             <td valign="top" class="border_left" style="padding: 10px;">
             <div class="subtitle">{$lang->contactinformation}</div>
@@ -54,6 +55,8 @@
           <tr><td colspan="2">{$jobdescription_section}</td></tr>
             {$userprofile_private}
         </table>
+        
+        
     </td>
 </tr>
 {$footer}

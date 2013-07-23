@@ -167,7 +167,6 @@ if($core->input['action']) {
 		if($session->uid == 0) {
 			redirect('users.php?action=login');
 		}
-
 		$old_profilepicture = $db->fetch_field($db->query("SELECT profilePicture FROM ".Tprefix."users WHERE uid=".$core->user['uid']), 'profilePicture');
 		$upload = new Uploader('uploadfile', $_FILES, array('image/jpeg', 'image/png', 'image/gif'), 'putfile', 300000, 0, 1);
 		$upload->set_upload_path($core->settings['profilepicdir']);
@@ -474,6 +473,7 @@ if($core->input['action']) {
 				$profile['telephone2'] .= '&times;'.$profile['telephone2Extension'];
 			}
 
+
 			if(empty($profile['profilePicture'])) {
 				if(isset($profile['gender'])) {
 					if($profile['gender'] == 1) {
@@ -487,12 +487,19 @@ if($core->input['action']) {
 					$profile['profilePicture'] = 'no_photo_male.gif';
 				}
 			}
+			if($core->usergroup['canAdminCP'] == 1) {
+				eval("\$editprofilepage_popup_profilepic = \"".$template->get('editprofilepage_popup_profilepic')."\";");
+				output_page($editprofilepage_popup_profilepic);
 
+				$porfile_picture = '<a id="showpopup_changeprofilepic" class="showpopup"><img id="profilePicture" src="'.$core->settings[rootdir].'/'.$core->settings[profilepicdir].'/'.$profile[profilePicture].'" alt="'.$profile['username'].'" border="0" style="cursor:pointer;"/></a>';
+			}
+			else {
+				$porfile_picture = '<img id="profilePicture" src="'.$core->settings[rootdir].'/'.$core->settings[profilepicdir].'/'.$profile[profilePicture].'" alt="'.$profile['username'].'" border="0" />';
+			}
 			$profile['country'] = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid='{$profile[country]}'"), 'name');
 
 			$profile['fulladdress'] .= $profile['country'];
 
-			/* Get user job description - START */
 			$jobdescription_permissioned = array($profile['uid'], $profile['reportsTo'], $main_affiliate->get_generalmanager(), $main_affiliate->get_hrmanager(), $main_affiliate->get_supervisor());
 			if(in_array($core->user['uid'], $jobdescription_permissioned)) {
 				$profile['hrinfo'] = $profile_user->get_hrinfo();
@@ -717,6 +724,35 @@ if($core->input['action']) {
 		eval("\$userslist = \"".$template->get('userslist')."\";");
 		output_page($userslist);
 	}
+
+	/* admindo_changeprofilepic --START */
+	elseif($core->input['action'] == 'admin_do_changeprofilepic') {
+		$profile['uid'] = $core->input['profile']['uid'];
+		$old_profilepicture = $db->fetch_field($db->query("SELECT profilePicture FROM ".Tprefix."users WHERE uid=".$profile['uid']), 'profilePicture');
+		$upload = new Uploader('uploadfile', $_FILES, array('image/jpeg', 'image/png', 'image/gif'), 'putfile', 300000, 0, 1);
+		$upload->set_upload_path($core->settings['profilepicdir']);
+		$upload->process_file();
+		$filename = $upload->get_filename();
+		$upload->resize();
+		$query = $db->update_query('users', array('profilePicture' => $filename), 'uid='.$profile['uid']);
+		eval("\$headerinc = \"".$template->get('headerinc')."\";");
+		echo $headerinc;
+		?>
+		<script language="javascript" type="text/javascript">
+			$(function() {
+				window.top.$("#upload_Result").html("<?php echo $upload->parse_status($upload->get_status());?>");
+			});
+		</script>  
+		<?php
+		if($query) {
+			if(!empty($old_profilepicture)) {
+				unlink('./'.$core->settings['profilepicdir'].'/'.$old_profilepicture);
+			}
+		}
+	}
+	/* admindo_changeprofilepic --END */
+
+	/* Get user job description - START */
 	elseif($core->input['action'] == 'get_popup_loginbox') {
 		eval("\$loginbox = \"".$template->get('popup_loginbox')."\";");
 		echo $loginbox;
