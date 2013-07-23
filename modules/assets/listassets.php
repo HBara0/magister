@@ -16,10 +16,7 @@ if($core->usergroup['assets_canManageAssets'] == 0) {
 
 if(!$core->input['action']) {
 	$assets = new Asset();
-
 	$sort_url = sort_url();
-
-
 
 	/* Perform inline filtering - START */
 	$filters_config = array(

@@ -71,37 +71,40 @@ class Asset {
 		}
 	}
 
-	public function manage_tracker($trackerdata, array $options = array()) {
+	public function manage_trackers($trackersdata, array $options = array()) {
 		global $db, $log, $core, $errorhandler, $lang;
-		if(is_empty($trackerdata['deviceId'], $trackerdata['fromDate'], $trackerdata['toDate'])) {
+		if(is_empty($trackersdata['IMEI'])) {
 			$this->errorcode = 1;
 			return false;
 		}
-
-		$trackerdata['fromDate'] = strtotime($trackerdata['fromDate']);
-		$trackerdata['toDate'] = strtotime($trackerdata['toDate']);
-
-		if(value_exists('assets_trackingdevices', 'deviceId', $trackerdata['deviceId'], 'asid= '.$trackerdata['asid'].' AND (('.$trackerdata['fromDate'].' BETWEEN fromDate AND toDate) OR ('.$trackerdata['toDate'].' BETWEEN fromDate AND toDate))')) {
-			$this->errorcode = 2;
-			return false;
+		if($options['operationtype'] != 'update') {
+			if(value_exists('asssets_trackers', 'trackerid', $trackersdata['trackerid'])) {
+				$this->errorcode = 2;
+				return false;
+			}
 		}
-		if(is_array($trackerdata)) {
-			$this->tracker = $trackerdata;
+
+		if(is_array($trackersdata)) {
+			$this->tracker = $trackersdata;
 		}
 		/* Santize inputs - START */
-		$sanitize_fields = array('deviceId', 'fromDate', 'toDate', 'asid');
+		$sanitize_fields = array('IMEI', 'PUK', 'PIN', 'Phonenumber');
 		foreach($sanitize_fields as $val) {
 			$this->tracker[$val] = $core->sanitize_inputs($this->tracker[$val], array('removetags' => true));
 		}
 
 		if($options['operationtype'] == 'update') {
-			$this->tracker = $trackerdata;
-			$trackerid = intval($this->tracker['atdid']);
-			unset($this->tracker['atdid']);
-			$query = $db->update_query('assets_trackingdevices', $this->tracker, 'atdid='.$trackerid.'');
+			//$this->tracker = $trackersdata;
+			$this->tracker['editedOn'] = TIME_NOW;
+			$this->tracker['editedBy'] = $core->user['uid'];
+			$trackerid = intval($this->tracker['trackerid']);
+			unset($this->tracker['trackerid']);
+			$query = $db->update_query('asssets_trackers', $this->tracker, 'trackerid='.$trackerid.'');
 		}
 		else {
-			$query = $db->insert_query('assets_trackingdevices', $this->tracker);
+			$this->tracker['createdOn'] = TIME_NOW;
+			$this->tracker['createdBy'] = $core->user['uid'];
+			$query = $db->insert_query('asssets_trackers', $this->tracker);
 		}
 
 		if($query) {
@@ -421,7 +424,7 @@ class Asset {
 		return $employees;
 	}
 
-	public function get_affiliateassets($option = '', $filter_where='') {
+	public function get_affiliateassets($option = '', $filter_where = '') {
 		global $db, $core;
 		if(!empty($filter_where) && isset($filter_where)) {
 			$filter_where = ' AND '.$filter_where;
@@ -458,6 +461,14 @@ class Asset {
 
 	public function get() {
 		return $this->assets;
+	}
+
+	public function get_trackers($id) {
+		global $db;
+		if(!empty($id)) {
+			$this->tracker = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."asssets_trackers WHERE trackerid=".$db->escape_string($id)));
+		}
+		return $this->tracker;
 	}
 
 	public function get_trackingdevices($id) {

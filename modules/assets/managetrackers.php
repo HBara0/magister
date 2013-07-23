@@ -21,7 +21,7 @@ if(!$core->input['action']) {
 		$trackerid = $db->escape_string($core->input['id']);
 		$asset = new Asset();
 		$actiontype = 'Edit';
-		$trackers = $asset->get_trackingdevices($trackerid);
+		$trackers = $asset->get_trackers($trackerid);
 	}
 	else {
 		$actiontype = 'Add';
@@ -38,7 +38,7 @@ if(!$core->input['action']) {
 else {
 	$asset = new Asset();
 	if($core->input['action'] == 'do_Add' || $core->input['action'] == 'do_Edit') {
-		$core->input['tracker']['atdid'] = $db->escape_string($core->input['atdid']);
+		$core->input['tracker']['trackerid'] = $db->escape_string($core->input['trackerid']);
 		if($core->input['action'] == 'do_Edit') {
 			$options['operationtype'] = 'update';
 			$lang->successfullysaved = 'Successfully Update';
@@ -46,7 +46,7 @@ else {
 		else {
 			$options = array();
 		}
-		$asset->manage_tracker($core->input['tracker'], $options);
+		$asset->manage_trackers($core->input['tracker'], $options);
 		switch($asset->get_errorcode()) {
 			case 0:
 				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
