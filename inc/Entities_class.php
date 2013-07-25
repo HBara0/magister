@@ -125,7 +125,7 @@ class Entities {
 			if(!isset($this->data['noQReportReq'])) {
 				$this->data['noQReportReq'] = 1; //By default no QR is required
 			}
-			
+
 			$query = $db->insert_query('entities', $this->data);
 			if($query) {
 				$this->eid = $db->last_id();
@@ -290,7 +290,7 @@ class Entities {
 					}
 				}
 				/* Set value for unchecked checkboxes - END */
-				
+
 				$query = $db->update_query('entities', $this->data, "eid='".$this->eid."'");
 				if($query) {
 					$db->delete_query('affiliatedentities', "eid='".$this->eid."'");
@@ -530,7 +530,7 @@ class Entities {
 		}
 	}
 
-	public function get(){
+	public function get() {
 		return $this->data;
 	}
 
@@ -545,6 +545,7 @@ class Entities {
 		}
 		return false;
 	}
+
 	protected function existing_eid($name) {
 		global $db;
 		return $db->fetch_field($db->query("SELECT eid FROM ".Tprefix."entities WHERE companyName='".$db->escape_string($name)."'"), 'eid');
@@ -553,6 +554,16 @@ class Entities {
 	public function entity_type($name) {
 		global $db;
 		return $db->fetch_field($db->query("SELECT type FROM ".Tprefix."entities WHERE companyName='".$db->escape_string($name)."'"), 'type');
+	}
+
+	public function auto_assignsegment($id = '') {
+		global $db;
+		/* get segment of generic product */
+		$product_segmentid = $db->fetch_field($db->query("SELECT psid FROM ".Tprefix."genericproducts WHERE gpid='".$db->escape_string($id)."'"), 'psid');
+
+		if(!value_exists('entitiessegments', 'psid', $product_segmentid, 'eid='.$this->data['eid'].'')) {
+			$db->insert_query('entitiessegments', array('psid' => $product_segmentid, 'eid' => $this->data['eid']));
+		}
 	}
 
 }

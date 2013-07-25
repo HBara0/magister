@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright ï¿½ 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Add products
  * $module: admin/products
@@ -46,7 +46,8 @@ else
 			output_xml("<status>false</status><message>{$lang->productalreadyexists}</message>"); 
 			exit;
 		}
-		
+		$entite = new Entities($core->input['spid']);
+		$entite->auto_assignsegment($core->input['gpid']);
 		log_action($core->input['name']);
 		unset($core->input['action'], $core->input['module']);
 		
