@@ -415,7 +415,7 @@ if(!$core->input['action']) {
 //						$overviewboxsegment_chart = new Charts(array('x' => $report_years, 'y' => $report_segment_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar');
 //						//$reporting_report_newoverviewbox_chart = '<img src="'.$overviewboxsegment_chart->get_chart().'" />';
 //					}
-					$toc_data[3]['affiliatesoverview'] = array('title' => $lang->activityby.' '.$lang->affiliate);
+					$toc_data[5]['affiliatesoverview'] = array('title' => $lang->activityby.' '.$lang->affiliate);
 					eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
 					$boxes_totals_mergedoutput['mergedmainbox'][$aggregate_type][$category] = '';
 					$reporting_report_newoverviewbox_chart = '';
@@ -606,8 +606,8 @@ if(!$core->input['action']) {
 				unset($newtotaloverviewbox_row_percclass);
 			}
 		};
-		$toc_data[4]['progressionbyaffiliates'] = array('title' => $lang->progressionyearsby.' '.$lang->affiliates);
-		$toc_data[5]['progressionbysegments'] = array('title' => $lang->progressionyearsby.' '.$lang->segments);
+		$toc_data[3]['progressionbyaffiliates'] = array('title' => $lang->progressionyearsby.' '.$lang->affiliates);
+		$toc_data[4]['progressionbysegments'] = array('title' => $lang->progressionyearsby.' '.$lang->segments);
 	}
 
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'direct' || $core->input['referrer'] == 'list') {
