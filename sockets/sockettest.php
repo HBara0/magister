@@ -8,7 +8,7 @@ require '../inc/init.php';
 
 
 $config['ip'] = "70.38.119.243";
-$config['port'] = 8804;
+$config['port'] = 8809;
 $config['max_clients'] = 20;
 $config['timeout'] = 600; //seconds
 $client = array();
@@ -25,13 +25,14 @@ $fh = fopen('socketdata.txt', 'w');
 
 $gotsomething = false;
 while(true && !$gotsomething) {
+	//$data = ' connection interrupted';
 	$read = array();
 	$read[0] = $socket;
 
 	for($i = 0; $i < $config['max_clients']; $i++) {
 		if($client[$i]['socket'] != null) {
 			$read[$i + 1] = $client[$i]['socket'];
-			$data = 'start data';
+		
 		}
 	}
 
@@ -64,7 +65,7 @@ while(true && !$gotsomething) {
 				continue;
 			}
 
-			//$data = 'ip:'.$ip.PHP_EOL.'recv:'.bin2hex(trim($input));
+			$data = 'ip:'.$ip.PHP_EOL.'recv:'.bin2hex(trim($input));
 
 			if($data == 'exit') {
 				socket_close($client[$i]['socket']);
@@ -91,37 +92,8 @@ while(true && !$gotsomething) {
 	}
 }
 fclose($fh);
-function clearlog() {
-	$fh2 = fopen('logfile.html', 'w');
-	fwrite($fh2, date('Y-m-d H:i:s', TIME_NOW)."\n");
-	fclose($fh2);
-}
 
-function logsomething($msg) {
-	$fh2 = fopen('logfile.html', 'a');
-	fwrite($fh2, $msg."\n");
-	fclose($fh2);
-}
 
-function getsome($howmany, $string = null) {
-	static $data;
-	if(!isset($data)) {
-		if(isset($string)) {
-			$data = $string;
-		}
-		else {
-			return null;
-		}
-	}
-	else {
-		if(isset($string)) {
-			$data = $string;
-		}
-	}
-	$return = substr($data, 0, $howmany);
-	$data = substr($data, $howmany, strlen($data) - $howmany);
-	return $return;
-}
 
 function parse_one_location($line) {
 	$label = '';
@@ -190,8 +162,8 @@ function parse_one_location($line) {
 			$location['otherstate'] = hexdec(bin2hex(getsome(8)));
 			logsomething('<pre>'.print_r($location, true).'</pre>');
 			$return = true;
-			//$asst = new Asset();
-			//$asst->record_location($location);
+			$asst = new Asset();
+			$asst->record_location($location);
 		}
 		$checksum = $checksumdata[0];
 		for($i = 1; $i < strlen($checksumdata); $i++) {
@@ -205,4 +177,37 @@ function parse_one_location($line) {
 	return $return;
 }
 
+
+
+function getsome($howmany, $string = null) {
+	static $data;
+	if(!isset($data)) {
+		if(isset($string)) {
+			$data = $string;
+		}
+		else {
+			return null;
+		}
+	}
+	else {
+		if(isset($string)) {
+			$data = $string;
+		}
+	}
+	$return = substr($data, 0, $howmany);
+	$data = substr($data, $howmany, strlen($data) - $howmany);
+	return $return;
+}
+
+function clearlog() {
+	$fh2 = fopen('logfile.html', 'w');
+	fwrite($fh2, date('Y-m-d H:i:s', TIME_NOW)."\n");
+	fclose($fh2);
+}
+
+function logsomething($msg) {
+	$fh2 = fopen('logfile.html', 'a');
+	fwrite($fh2, $msg."\n");
+	fclose($fh2);
+}
 ?>
