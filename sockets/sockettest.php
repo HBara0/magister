@@ -8,7 +8,7 @@ require '../inc/init.php';
 
 
 $config['ip'] = "70.38.119.243";
-$config['port'] = 8809;
+$config['port'] = 8804;
 $config['max_clients'] = 20;
 $config['timeout'] = 600; //seconds
 $client = array();

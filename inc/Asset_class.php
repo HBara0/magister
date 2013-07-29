@@ -124,7 +124,9 @@ class Asset {
 		$data["direction"] = $data["heading"];
 		$data["vehiclestate"] = 1;
 		$data["otherstate"] = (double)$data["altitude"];
-		$data['location'] = $data['lat'].' '.$data['long'];
+		//$Dataloc = LineString($data['lat'].' '.$data['long']) ;
+		//$data['location'] = PointFromText(CONCAT('POINT(', $data['long'], ' ', $data['lat'], ')'));
+		//$data['location'] = POINT($data['long'], $data['lat']);
 		$options['geoLocation'] = array('location');
 		unset($data["pin"]);
 		unset($data['lat']);
@@ -140,7 +142,7 @@ class Asset {
 				$data["asid"] = $row['asid'];
 			}
 		}
-		$db->insert_query('assets_locations', $data, $options);
+		$query_insert = $db->insert_query('assets_locations', array('asid' => 1, 'deviceId' => $data["deviceId"], 'timeLine' => $data["timeLine"], 'fuel' => $data["fuel"], 'antenna' => $data["antenna"], 'direction' => $data["direction"], 'vehiclestate' => $data["vehiclestate"], 'otherstate' => $data["otherstate"], 'location' => POINT($data['lat'], $data['long'], 0), 'displayName' => 'gps'), $options);
 	}
 
 	public function assign_assetuser($userdata, $options = array()) {
