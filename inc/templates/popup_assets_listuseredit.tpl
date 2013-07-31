@@ -1,5 +1,4 @@
 <div id="popup_edituser" title="{$lang->edituserassets}">
-    
         <form name="perform_assets/assignassets_Form" id="perform_assets/assignassets_Form"  method="post">
             <input type="hidden" name="auid" id="auid" value="{$core->input[id]}" />
             <input type="hidden" value="do_edit" name="action" id="action" />
@@ -45,7 +44,7 @@
                     
                 <div style="display:table-row;">
                     <div style="display: table-cell; width:35%;">
-                        <input type="submit" class="button" value="{$actiontype}" id="perform_assets/assignassets_Button" />
+                        <input type="submit" class="button" value="{$lang->actiontype}" id="perform_assets/assignassets_Button" />
                         <input type="reset" class="button"   onclick="$('#popup_edituser').dialog('close')"value="{$lang->close}"/>
                     </div>
                 </div>
@@ -54,5 +53,5 @@
                     <div style="display:table-cell;width:25%;" id="perform_assets/assignassets_Results"></div>
                 </div>
                 </div>
-                    </form>
+         </form>
     </div>

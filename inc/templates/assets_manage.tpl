@@ -7,7 +7,7 @@
 <tr>
     {$menu}
     <td class="contentContainer">
-        <h3>{$actiontype}</h3>
+        <h3>{$lang->$actiontype}</h3>
         <form name="perform_assets/manageassets_Form" method="post" id="perform_assets/manageassets_Form" >
             <input type="hidden" name="asid" value="{$asid}" />
             <input type="hidden" value="do_{$actiontype}" name="action" id="action" />
@@ -24,7 +24,7 @@
 
                 <div style="display:table-row;">
                     <div style="display:table-cell; width:10%;">{$lang->affiliate}</div>
-                    <div style="display:table-cell; width:100%; padding:5px;">  <select name="asset[affid]"> {$affiliate_list}</select></div>
+                    <div style="display:table-cell; width:100%; padding:5px;"><select name="asset[affid]">{$affiliates_list}</select></div>
                 </div>
 
                 <div style="display:table-row;">
@@ -48,7 +48,7 @@
 
                 <div style="display:table-row;">
                     <div style="display: table-cell; width:20%;">
-                        <input type="submit" class="button" value="{$actiontype}" id="perform_assets/manageassets_Button" />
+                        <input type="submit" class="button" value="{$lang->$actiontype}" id="perform_assets/manageassets_Button" />
                         <input type="reset" class="button" value="{$lang->reset}"/>
                     </div>
                 </div>

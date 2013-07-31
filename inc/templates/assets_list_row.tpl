@@ -1,10 +1,14 @@
 <tr id="asset_{$asset[asid]}" class="{$rowclass}{$notactive}">
+    <td>{$asset[tag]}</td>
     <td>{$asset[title]}</td>
     <td>{$asset[affiliate]}</td>
-    <td>{$asset[description]}</td>
     <td>{$asset[type]}</td>
-    <td>{$asset[status]}</td>
-     <td>{$asset[createdon_ouput]}</td>
-    <td> <a href="#{$asset[asid]}" style="display:none;" id="deleteasset_{$asset[asid]}_assets/listassets_loadpopupbyid" rel="delete_{$asset[asid]}"><img src="{$core->settings[rootdir]}/images/invalid.gif" alt="{$lang->delete}" border="0"></a> </td>
-    <td> <a href="#{$asset[asid]}" style="display:none;" id="editasset_{$asset[asid]}_assets/listassets_loadpopupbyid" rel="edit_{$asset[asid]}"><img src='{$core->settings[rootdir]}/images/icons/edit.gif' border='0' title="{$lang->edit}"/></a> </td>
+    <td>{$asset[status_output]}</td>
+    <td>{$asset[createdOn_output]}</td>
+    <td id="asset_{$asset[asid]}_tools">
+        <div style="display:none;">
+            <a href="#{$asset[asid]}" id="deleteasset_{$asset[asid]}_assets/listassets_loadpopupbyid" rel="{$asset[asid]}"><img src="{$core->settings[rootdir]}/images/invalid.gif" alt="{$lang->delete}" border="0"></a>
+            <a href="#{$asset[asid]}" id="editasset_{$asset[asid]}_assets/listassets_loadpopupbyid" rel="{$asset[asid]}"><img src='{$core->settings[rootdir]}/images/icons/edit.gif' border='0' title="{$lang->edit}"/></a>
+        </div>
+    </td>
 </tr>
