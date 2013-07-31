@@ -31,7 +31,7 @@
       <tr class="altrow2">
         <td><span class='font-weight: bold;'>{$lang->month}/{$lang->year}</span></td>
         <td>{$month_list}
-          <input type="text" id="year" name="year" size="4"  value="{$report_data[year]}"/></td>
+          <input type="text" id="year" name="year" size="4" value="{$report_data[year]}"/></td>
       </tr>
       <tr>
       	<td colspan="2"><hr /></td>
