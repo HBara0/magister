@@ -107,7 +107,7 @@ if(!$core->input['action']) {
 	
 	$generics = get_specificdata('genericproducts', $generic_attributes, 'gpid', 'title', $generic_order, 1);	
 	if(isset($report_data['overallstatus_numrows'], $report_data['keycustomers_numrows'])) {
-		if(!empty($report_data['overallstatus_numrows'])) {		
+		if(!empty($report_data['overallstatus_numrows'])) {	
 			$overallstatusrownumber = intval($report_data['overallstatus_numrows']); 
 			
 			for($rowid=1;$rowid<=$overallstatusrownumber;$rowid++) {
@@ -118,6 +118,10 @@ if(!$core->input['action']) {
 					}
 				}
 				$generics_list = parse_selectlist('overallstatus['.$rowid.'][gpid]', 10, $generics, $report_data['overallstatus'][$rowid]['gpid']);
+				
+				if(!empty($report_data['overallstatus'][$rowid]['csid'])) {
+					$report_data['overallstatus'][$rowid]['chemsubstance'] = $db->fetch_field($db->query('SELECT name FROM '.Tprefix.'chemicalsubstances WHERE csid='.intval($report_data['overallstatus'][$rowid]['csid'])), 'name');
+				}
 				eval("\$overallstatus_fields .= \"".$template->get('reporting_fillmreport_overallstatusrow')."\";");
 			}
 		}
@@ -239,6 +243,7 @@ else
 				if($action_type == 'update') { 
 					$db->delete_query('monthly_productsstatus', "rid='{$rid}'");
 				}
+	
 				for($rowid=1;$rowid<=intval($report_data['overallstatus_numrows']);$rowid++) {
 					if(empty($report_data['overallstatus'][$rowid]['gpid'])) {
 						unset($report_data['overallstatus'][$rowid]);

@@ -89,8 +89,10 @@ if(!$core->input['action']) {
 			
 			$report_data = array_merge($report_data, $report_highlights);
 		
-			$query = $db->query("SELECT ps.gpid, ps.status, gp.title 
-								FROM ".Tprefix."monthly_productsstatus ps JOIN ".Tprefix."genericproducts gp ON (ps.gpid=gp.gpid)
+			$query = $db->query("SELECT ps.gpid, ps.csid, ps.status, gp.title, cs.name AS chemsubstance
+								FROM ".Tprefix."monthly_productsstatus ps 
+								JOIN ".Tprefix."genericproducts gp ON (ps.gpid=gp.gpid)
+								LEFT JOIN ".Tprefix."chemicalsubstances cs ON (cs.csid=ps.csid)
 								WHERE ps.rid='{$rid}'");
 								
 			//$report_data['overallstatus_numrows'] = 1;
@@ -156,6 +158,9 @@ if(!$core->input['action']) {
 				}
 			}
 			$report_data['overallstatus'][$rowid]['generic'] = $db->fetch_field($db->query("SELECT title FROM ".Tprefix."genericproducts WHERE gpid='".$db->escape_string($report_data['overallstatus'][$rowid]['gpid'])."'"), 'title');
+			if(!isset($report_data['overallstatus'][$rowid]['chemsubstance'])) {
+				$report_data['overallstatus'][$rowid]['chemsubstance'] = $db->fetch_field($db->query('SELECT name FROM '.Tprefix.'chemicalsubstances WHERE csid='.intval($report_data['overallstatus'][$rowid]['csid'])), 'name');
+			}
 			eval("\$overallstatus_rows .= \"".$template->get('reporting_monthlyreport_overallstatusrow')."\";");	
 		}
 			
