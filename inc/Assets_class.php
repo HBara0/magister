@@ -3,19 +3,20 @@
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
  *
- * Maps Class
- * $id: Maps_class.php
+ * Assets Class
+ * $id: Assets_class.php
  * Created:		@Alain.Paulikevitch		May 10, 2012 | 06:03 PM
- * Last Update: @tony.assaad	        june 25, 2013 | 04:32 PM
+ * Last Update: @tony.assaad	        June 25, 2013 | 04:32 PM
  */
 
-class Asset {
+class Assets {
 	private $cache = array();
 	private $my_asid;
+	private $asset = array();
 
 	public function __construct($id = '', $simple = false) {
 		if(!empty($id)) {
-			$this->assets = $this->read($id, $simple);
+			$this->asset = $this->read($id, $simple);
 		}
 	}
 
@@ -29,18 +30,18 @@ class Asset {
 		}
 
 		if(is_array($data)) {
-			$this->assets = $data;
+			$this->asset = $data;
 		}
 
 		/* Santize inputs - START */
 		$sanitize_fields = array('title', 'affid', 'type', 'description');
 		foreach($sanitize_fields as $val) {
-			$this->assets[$val] = $core->sanitize_inputs($this->assets[$val], array('removetags' => true));
+			$this->asset[$val] = $core->sanitize_inputs($this->asset[$val], array('removetags' => true));
 		}
 
 		/* If action is edit, don't check if supplier already exists */
 		if($options['operationtype'] != 'update') {
-			if(value_exists('assets', 'title', $this->assets['title'])) {
+			if(value_exists('assets', 'title', $this->asset['title'])) {
 				$this->errorcode = 2;
 				return false;
 			}
@@ -51,19 +52,19 @@ class Asset {
 				$this->errorcode = 1;
 				return false;
 			}
-			$this->assets = $data;
-			$this->assets['editedon'] = TIME_NOW;
-			$this->assets['editedby'] = $core->user['uid'];
-			$assetid = intval($this->assets['asid']);
-			unset($this->assets['asid']);
-			$query = $db->update_query('assets', $this->assets, 'asid='.$assetid.'');
+			$this->asset = $data;
+			$this->asset['editedOn'] = TIME_NOW;
+			$this->asset['editedBy'] = $core->user['uid'];
+			$assetid = intval($this->asset['asid']);
+			unset($this->asset['asid']);
+			$query = $db->update_query('assets', $this->asset, 'asid='.$assetid.'');
 		}
 		else {
-			$this->assets['isActive'] = 1;
-			$this->assets['createdon'] = TIME_NOW;
-			$this->assets['createdby'] = $core->user['uid'];
-			$query = $db->insert_query('assets', $this->assets);
-			$this->assets['asid'] = $db->last_id();
+			$this->asset['isActive'] = 1;
+			$this->asset['createdOn'] = TIME_NOW;
+			$this->asset['createdBy'] = $core->user['uid'];
+			$query = $db->insert_query('assets', $this->asset);
+			$this->asset['asid'] = $db->last_id();
 		}
 
 		if($query) {
@@ -222,8 +223,8 @@ class Asset {
 
 	public function deactivate_asset($id = '') {
 		global $db;
-		if(!empty($this->assets['asid'])) {
-			$db->update_query('assets', array('isActive' => 0), 'asid='.$db->escape_string($this->assets['asid']));
+		if(!empty($this->asset['asid'])) {
+			$db->update_query('assets', array('isActive' => 0), 'asid='.$db->escape_string($this->asset['asid']));
 			$this->errorcode = 3;
 		}
 	}
@@ -392,7 +393,7 @@ class Asset {
 	public function delete_asset() {
 		global $db, $core;
 		if($core->usergroup['assets_canDeleteAsset'] == 1) {
-			$db->delete_query('assets', 'asid='.$db->escape_string($this->assets['asid']));
+			$db->delete_query('assets', 'asid='.$db->escape_string($this->asset['asid']));
 			$this->errorcode = 4;
 		}
 	}
@@ -423,6 +424,7 @@ class Asset {
 
 	public function get_affiliateassets($option = '', $filter_where='') {
 		global $db, $core;
+		
 		if(!empty($filter_where) && isset($filter_where)) {
 			$filter_where = ' AND '.$filter_where;
 		}
@@ -439,9 +441,10 @@ class Asset {
 			$limit_start = $db->escape_string($core->input['start']);
 		}
 		/* Get asset for the affiliates that are for the user affilliates */
-		$allassets = $db->query("SELECT a.*,ast.title AS type,ast.name FROM ".Tprefix."assets a		
+		$allassets = $db->query("SELECT a.*, ast.title AS type, ast.name 
+								FROM ".Tprefix."assets a		
 								JOIN ".Tprefix."assets_types ast ON (a.type=ast.astid) 
-								WHERE  a.affid in(".implode(',', $core->user['affiliates']).")
+								WHERE a.affid IN (".$db->escape_string(implode(',', $core->user['affiliates'])).")
 								{$filter_where} 
 								{$sort_query}
 								LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
@@ -457,7 +460,7 @@ class Asset {
 	}
 
 	public function get() {
-		return $this->assets;
+		return $this->asset;
 	}
 
 	public function get_trackingdevices($id) {
@@ -473,7 +476,5 @@ class Asset {
 	public function get_errorcode() {
 		return $this->errorcode;
 	}
-
-	/* Getter Functions ----END */
 }
 ?>
