@@ -83,8 +83,7 @@ if(!$core->input['action']) {
 				$responses = ' <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom: 10px;"><p>'.$lang->noresponses.'</p></div>';
 			}
 			/* END resposne list - START */
-
-
+			
 			/* Parse Invitations Section - START */
 			$query = $db->query("SELECT DISTINCT(u.uid), u.*, aff.*, displayName, aff.name AS mainaffiliate, aff.affid
 							FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) JOIN ".Tprefix."affiliates aff ON (aff.affid=ae.affid)
@@ -183,43 +182,49 @@ else {
 		}
 		echo $responses_details_output;
 	}
-	elseif($core->input['action'] == 'sendreminder') {
+	elseif($core->input['action'] == 'sendreminders') {
 		$survey_identifier = $db->escape_string($core->input['identifier']);
 		$newsurvey = new Surveys($survey_identifier);
 		$survey = $newsurvey->get_survey();
+		
+		if($survey['createdBy'] != $core->user['uid']) {
+			exit;
+		}
+		
 		$survey['invitations'] = $newsurvey->get_invitations();
 
 		foreach($survey['invitations'] as $invitee) {
-
 			if(($invitee['isDone']) != 1) {
 				/* preparing reminder email */
+				$surveylink = DOMAIN.'/index.php?module=surveys/fill&amp;identifier='.$survey_identifier;
 				if($survey['isExternal'] == 1) {
 					$surveylink = 'http://www.orkila.com/surveys/'.$survey_identifier.'/'.$invitee['identifier'];
-					$to = $invitee['invitee'];
 					$invitee['displayName'] = split('@', $invitee['invitee'])[0];
+					
+					$email_data = array(
+							'to' => $invitee['invitee'],
+							'from_email' => $core->user['email'],
+							'from' => $core->user['displayName'],
+							'subject' => $lang->remindersubject
+					);
 				}
 				else {
-					$to = $invitee['email'];
+					$email_data = array(
+							'to' => $invitee['email'],
+							'from_email' => $core->settings['maileremail'],
+							'from' => 'OCOS Mailer',
+							'subject' => $lang->remindersubject
+					);
 				}
-				$surveylink = DOMAIN.'/index.php?module=surveys/fill&amp;identifier='.$survey_identifier;
 
-				$reminder_message = $lang->sprint($lang->survey_reminder_message, $invitee['displayName']).'<br />'.$lang->sprint($lang->accesssurveylink, $surveylink);
-				$email_data = array(
-						'from_email' => $core->settings['maileremail'],
-						'from' => 'OCOS Mailer',
-						'to' => $to,
-						'subject' => $lang->remindersubject,
-						'message' => $reminder_message
-				);
-				print_r($email_data);
+				$email_data['message'] = $lang->sprint($lang->survey_reminder_message, $invitee['displayName']).'<br />'.$lang->sprint($lang->accesssurveylink, $surveylink);
 				$mail = new Mailer($email_data, 'php');
-				$email_sent = true;
 			}
 		}
-		if($email_sent == true) {
-			if($mail->get_status() === true) {
-				echo $lang->remindersent;
-			}
+
+		if($mail->get_status() === true) {
+			output_xml("<status>true</status><message>{$lang->remindersent}</message>");
+			exit;
 		}
 	}
 }

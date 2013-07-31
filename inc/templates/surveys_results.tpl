@@ -10,21 +10,7 @@ $(function() {
 		var id =  $(this).attr("id").split("_");
 			
 		sharedFunctions.requestAjax("post", "index.php?module=surveys/viewresults&action=get_questionresponses", "question=" + id[1] +"&identifier=" + id[2],'questionresponses_results_'+ id[1], 'questionresponses_results_'+ id[1], 'html');
-                
-             // $("[id^='getquestionresponses_"+ id[1]+"']").unbind("click"); /*prevent multiple ajax request by remove click event */
-
-    });	
-  	$("[id^='sendreminder_']").click(function() {
-		if(sharedFunctions.checkSession() == false) {
-			return;	
-		}
-		var id =  $(this).attr("id").split("_");
-	
-		sharedFunctions.requestAjax("post", "index.php?module=surveys/viewresults&action=sendreminder", "&identifier=" + id[1],'','remindermsg','html');
-               
-            // $("[id^='sendreminder_]").unbind("click"); /*prevent multiple ajax request by remove click event */
-
-    });	
+        });	
 });
 </script>
 </head>
@@ -35,8 +21,8 @@ $(function() {
 <td class="contentContainer">
     <h3>{$survey[subject]}</h3>
 	{$questionsstats}
-        <div class="subtitle" style="float:right;"><span id="remindermsg"></span><input type="button" id="sendreminder_{$core->input[identifier]}"  style=" margin: 5px;" class="button" value="{$lang->sendreminder}"/></div>
-    {$responses}
+        <div style="display:inline-block; width: 50%; margin:0; text-align:right; float:right;"><div id="perform_surveys/viewresults_Results"><form action="#" method="post" id="perform_surveys/viewresults_Form" name="perform_surveys/viewresults_Form"><input type="hidden" value="{$core->input[identifier]}" name="identifier"><input name="action" value="sendreminders" type="hidden" /><input value="{$lang->sendreminders}" type="button" id="perform_surveys/viewresults_Button" class="button"/></form></div></div>
+        {$responses}
 	{$invitations}   
 </td> 
 </tr>
