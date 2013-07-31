@@ -76,6 +76,9 @@ if(!$core->input['action']) {
 	{
 		$identifier = md5(uniqid(microtime()));
 		$report_data = array();
+		$report_data['year'] = date('Y', TIME_NOW);
+		$report_data['month'] = date('n', TIME_NOW);
+		$report_data['affid'] = $core->user['mainaffiliate'];
 	}
 	
 	if($core->usergroup['canViewAllAff'] == 0) {
