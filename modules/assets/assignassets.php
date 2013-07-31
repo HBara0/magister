@@ -2,7 +2,7 @@
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
  *
- * [Provide Short Descption Here]
+ * Assign asset to user
  * $id: assignassets.php
  * Created:        @tony.assaad    Jun 25, 2013 | 3:58:55 PM
  * Last Update:    @tony.assaad    Jun 25, 2013 | 3:58:55 PM
@@ -11,34 +11,38 @@
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
+
 if($core->usergroup['assets_canManageAssets'] == 0) {
 	error($lang->sectionnopermission);
 	exit;
 }
+
 if(!$core->input['action']) {
-	$assets = new Asset();
+	$assets = new Assets();
 	if($core->input['type'] == 'edit' && isset($core->input['id'])) {
 		$auid = $db->escape_string($core->input['id']);
 		$assignee = $assets->get_assigneduser($auid);
-		$actiontype = $lang->edit;
+		$actiontype = 'edit';
 	}
 	else {
-		$actiontype = $lang->add;
+		$actiontype = 'add';
 	}
 
 	$assetslist = $assets->get_affiliateassets('titleonly');
-	$assets_list = parse_selectlist('assignee[asid]', 1, $assetslist, $assignee['asid']);
-	$assigners = $assets->get_assignto();
-	$employees_list = parse_selectlist('assignee[uid]', 1, $assigners, $assignee['uid']);
-
-
+	if(is_array($assetslist)) {
+		$assets_list = parse_selectlist('assignee[asid]', 1, $assetslist, $assignee['asid']);
+		$assigners = $assets->get_assignto();
+		$employees_list = parse_selectlist('assignee[uid]', 1, $assigners, $assignee['uid']);
+	} else {
+		$assets_list = $employees_list = $lang->na;
+	}
 	eval("\$assetsassign = \"".$template->get('assets_assign')."\";");
 	output_page($assetsassign);
 }
 else {
-	$assets = new Asset();
-	if($core->input['action'] == 'do_Add' || $core->input['action'] == 'do_edit') {
-		if($core->input['action'] == 'do_Add') {
+	$assets = new Assets();
+	if($core->input['action'] == 'do_add' || $core->input['action'] == 'do_edit') {
+		if($core->input['action'] == 'do_add') {
 			$assets->assign_assetuser($core->input['assignee']);
 		}
 		elseif($core->input['action'] == 'do_edit') {

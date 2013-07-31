@@ -2,7 +2,7 @@
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
  * 
- * [Provide Short Descption Here]
+ * Create/Edit Assets
  * $id: manageassets.php
  * Created:        @tony.assaad    Jun 24, 2013 | 11:09:38 AM
  * Last Update:    @tony.assaad    Jun 24, 2013 | 11:09:38 AM
@@ -19,25 +19,24 @@ if($core->usergroup['assets_canManageAssets'] == 0) {
 
 
 if(!$core->input['action']) {
-	$affiliate = new Affiliates($core->user['affiliates']);
-	$assetstype = get_specificdata('assets_types', array('astid','name','title'), 'astid', 'title', 'title');
-	$assets_status = array('damaged' => 'damaged', 'not-functional' => 'not-functional', 'fully-functional' => 'fully-functional');
+	//$affiliate = new Affiliates($core->user['affiliates']);
+	$assetstype = get_specificdata('assets_types', array('astid', 'name', 'title'), 'astid', 'title', 'title');
+	$assets_status = array(1 => 'damaged', 2 => 'not-functional', 3 => 'fully-functional');
 	if($core->input['type'] == 'edit' && isset($core->input['id'])) {
 		$asid = $db->escape_string($core->input['id']);
-		$asset = new Asset($asid);
+		$asset = new Assets($asid);
 		$assets = $asset->get();
-		$actiontype = 'Edit';
+		$actiontype = 'edit';
 		$assets_type = parse_selectlist('asset[type]', 3, $assetstype, $assets['title']);
 		$assetsstatus = parse_selectlist('asset[status]', 4, $assets_status, $assets['status']);
 	}
 	else {
-		$actiontype = 'Add';
+		$actiontype = 'add';
 	}
 
-	$affiliatesquery = $db->query("SELECT affid,name FROM ".Tprefix."affiliates WHERE affid IN('".implode(',', $core->user['affiliates'])."')");
-
-	while($affiliates_user = $db->fetch_assoc($affiliatesquery)) {
-		$affiliate_list.='<option value="'.$affiliates_user['affid'].'">'.$affiliates_user['name'].'</option>';
+	$affiliatesquery = $db->query("SELECT affid, name FROM ".Tprefix."affiliates WHERE affid IN ('".implode(',', $core->user['affiliates'])."')");
+	while($affiliate = $db->fetch_assoc($affiliatesquery)) {
+		$affiliates_list .= '<option value="'.$affiliate['affid'].'">'.$affiliate['name'].'</option>';
 	}
 
 	$assets_type = parse_selectlist('asset[type]', 3, $assetstype, '');
@@ -47,12 +46,11 @@ if(!$core->input['action']) {
 	output_page($assetsmange);
 }
 else {
-	$asset = new Asset();
-	if($core->input['action'] == 'do_Add' || $core->input['action'] == 'do_Edit') {
+	$asset = new Assets();
+	if($core->input['action'] == 'do_add' || $core->input['action'] == 'do_edit') {
 		$core->input['asset']['asid'] = $db->escape_string($core->input['asid']);
-		if($core->input['action'] == 'do_Edit') {
+		if($core->input['action'] == 'do_edit') {
 			$options['operationtype'] = 'update';
-			$lang->successfullysaved = 'Successfully Update';
 		}
 		else {
 			$options = array();
