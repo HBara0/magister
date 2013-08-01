@@ -330,7 +330,7 @@ else {
 		if($leavetype->has_expenses()) {
 			$expensesfield_type = $leavetype->get_expenses();
 			foreach($expensesfield_type as $alteid => $expensesfield) {
-				if(($expensesfield['isRequired'] == 1 && empty($expenses_data[$alteid]['expectedAmt'])) || (($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description'])))) {
+				if(($expensesfield['isRequired'] == 1 && (empty($expenses_data[$alteid]['expectedAmt']) && $expenses_data[$alteid]['expectedAmt'] != 0)) || (($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description'])))) {
 					output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 					exit;
 				}

@@ -171,7 +171,7 @@ class ErrorHandler {
 		global $lang;
 		
 		foreach($data as $type => $content) {
-			if(empty($lang->$type)) {
+			if(!empty($lang->$type)) {
 				$lang->$type = $type;
 			}
 			if($is_recursive == false) {

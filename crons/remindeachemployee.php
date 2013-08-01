@@ -11,10 +11,10 @@ $quarter_end = strtotime($quarter2['year'].'-'.$core->settings['q'.$quarter2['qu
 
 $time_now = TIME_NOW;
 
-$time_difference = abs(((((($quarter_start + (60*60*24*15)) - $time_now)/24)/60)/60));
+$time_difference = abs(((((($quarter_start + (60*60*24*20)) - $time_now)/24)/60)/60));
 
 if($time_now >= $quarter_end) {
-	$time_difference = abs(((((($quarter_end + (60*60*24*15)) - $time_now)/24)/60)/60));
+	$time_difference = abs(((((($quarter_end + (60*60*24*20)) - $time_now)/24)/60)/60));
 	$quarter = $quarter2;	
 }
 
@@ -84,7 +84,7 @@ while($report = $db->fetch_array($query)) {
 
 //if($core->input['type'] == 1) {
 	//if($time_now >= $quarter_start && $time_now <= $quarter_end) {
-		if((((($time_now - $quarter_start)/24)/60)/60) > 15  && $time_now <= $quarter_end) {
+		if((((($time_now - $quarter_start)/24)/60)/60) > 20  && $time_now <= $quarter_end) {
 			$message_sentence = ' day(s) have passed since due date of the following reports:';
 			$time_difference += 1;
 			$is_thedate = true;

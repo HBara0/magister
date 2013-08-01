@@ -73,16 +73,14 @@ if(!$core->input['action']) {
 		$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
 	}
 	$extra_where = getquery_entities_viewpermissions();
-
-	$extra_where['multipage'] .= $multipage_where;
-	if(!empty($extra_where['multipage'])) {
-		$and = ' AND ';
-	}
-
+	
 	if(isset($extra_where['byspid'][$core->input['filtervalue']])) {
 		$extra_where['multipage'] = 'r.type="q"'.$extra_where['byspid'][$core->input['filtervalue']];
 	}
 	else {
+		if(!empty($extra_where['multipage'])) {
+			$and = ' AND ';
+		}
 		$extra_where['multipage'] = 'r.type="q"'.$and.$extra_where['multipage'];
 	}
 
@@ -101,7 +99,7 @@ if(!$core->input['action']) {
 				}
 				$icon[$report['rid']] = "<a href='index.php?module=reporting/preview&referrer=list&amp;affid={$report[affid]}&amp;spid={$report[spid]}&amp;quarter={$report[quarter]}&amp;year={$report[year]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$report[status]}' border='0'/></a>";
 			}
-			
+
 			$report['status'] = parse_status($report['status'], $report['isLocked']);
 			$report['statusdetails'] = parse_statusdetails(array('prActivityAvailable' => $report['prActivityAvailable'], 'keyCustAvailable' => $report['keyCustAvailable'], 'mktReportAvailable' => $report['mktReportAvailable']));
 

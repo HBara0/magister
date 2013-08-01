@@ -50,7 +50,7 @@ else {
 			$options['turnoverdivision'] = 1;
 		}
 
-		$po_query = $db->query("SELECT imso.*, ims.localId AS localspid
+		$po_query = $db->query("SELECT imso.*, ims.localId AS localspid, ims.foreignName AS foreignSupplierName
 						FROM ".Tprefix."integration_mediation_purchaseorders imso 
 						LEFT JOIN ".Tprefix."integration_mediation_entities ims ON (imso.spid=ims.foreignId)
 						WHERE imso.foreignSystem={$options[foreignSystem]} AND imso.affid={$affid} AND (imso.date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).")");
@@ -59,15 +59,20 @@ else {
 			while($purchaseorder = $db->fetch_assoc($po_query)) {
 				$pol_query = $db->query("SELECT imsol.*, imp.localId AS localpid, imsol.pid AS foreignpid, p.spid AS localspid, imp.foreignName AS productname
 										FROM ".Tprefix."integration_mediation_purchaseorderlines imsol 
-										JOIN integration_mediation_products imp ON (imsol.pid=imp.foreignId) 
+										LEFT JOIN integration_mediation_products imp ON (imsol.pid=imp.foreignId) 
 										LEFT JOIN products p ON (p.pid=imp.localId)
 										WHERE foreignOrderId='{$purchaseorder['foreignId']}'
+										AND imp.foreignSystem={$options[foreignSystem]} AND (imp.affid={$affid} OR imp.affid=0)
 										ORDER BY imp.foreignName ASC");// AND imp.localId!=0
-
 				if($db->num_rows($pol_query) > 0) {
 					while($purchaseorderline = $db->fetch_assoc($pol_query)) {
 						if(is_empty($purchaseorderline['localspid'], $purchaseorderline['localpid'])) {
-							$errors['productnotfound'][] = $purchaseorderline['productname'];
+							if(empty($purchaseorderline['productname'])) {
+								$errors['productnotexist'][] = $purchaseorderline['foreignpid'].' - '.$purchaseorder['foreignSupplierName'];
+							}
+							else {
+								$errors['productnotmatched'][] = $purchaseorderline['productname'].' - '.$purchaseorder['foreignSupplierName'];
+							}
 							continue;
 						}
 						
@@ -167,20 +172,33 @@ else {
 			}
 		}
 
-		if(!is_array($useddata['foreignpid']['sale'])) {
-			$useddata['foreignpid']['sale'] = array();
+		if(is_array($useddata['foreignpid']['sale'])) {
+			//$useddata['foreignpid']['sale'] = array();
+			$sales_query_extrawhere = " AND imsol.pid NOT IN ('".implode('\',\'', $useddata['foreignpid']['sale'])."')";
 		}
-		$query = $db->query("SELECT quantity, quantityUnit, imp.localId AS localpid, p.spid AS localspid
+
+		$query = $db->query("SELECT quantity, quantityUnit, imp.localId AS localpid, p.spid AS localspid, imsol.pid AS foreignpid, imp.foreignName AS productname
 								FROM ".Tprefix."integration_mediation_salesorderlines imsol
-								JOIN ".Tprefix."integration_mediation_products imp ON (imsol.pid=imp.foreignId)
-								JOIN ".Tprefix."products p ON (p.pid=imp.localId)
+								LEFT JOIN ".Tprefix."integration_mediation_products imp ON (imsol.pid=imp.foreignId)
+								LEFT JOIN ".Tprefix."products p ON (p.pid=imp.localId)
 								WHERE foreignOrderId IN (SELECT foreignId FROM ".Tprefix."integration_mediation_salesorders WHERE foreignSystem={$options[foreignSystem]} AND affid={$affid} AND (date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate'])."))
-								AND imsol.pid NOT IN ('".implode('\',\'', $useddata['foreignpid']['sale'])."')");
+								{$sales_query_extrawhere}");
+
 		/* GET Quarter Information - START */
 		$quarter_info = quarter_info(strtotime($options['fromDate']));
 		/* GET Quarter Information - END */
 		if($db->num_rows($query) > 0) {
 			while($sale = $db->fetch_assoc($query)) {
+				if(is_empty($sale['localspid'], $sale['localpid'])) {
+					if(empty($sale['productname'])) {
+						$errors['productnotexist'][] = $sale['foreignpid'].' - '.$sale['foreignSupplierName'];
+					}
+					else {
+						$errors['productnotmatched'][] = $sale['productname'].' - '.$sale['foreignSupplierName'];
+					}
+					continue;
+				}
+						
 				if(isset($reports_cache[$affid][$sale['localspid']][$quarter_info['year']][$quarter_info['quarter']])) {
 					$report = $reports_cache[$affid][$sale['localspid']][$quarter_info['year']][$quarter_info['quarter']];
 				}
@@ -237,9 +255,12 @@ else {
 					}
 					
 						if(value_exists('productsactivity', 'rid', $rid, 'pid='.$pid.' AND uid=0')) {
-							echo 'Updated: ';
-							if($options['runtype'] != 'dry') {
+							if($options['runtype'] != 'dry' || $options['operation'] != 'addonly') {
+								echo 'Updated: ';
 								$db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.' AND uid=0');
+							}
+							else {
+								echo 'Skipped Update: ';
 							}
 						}
 						else {
@@ -269,6 +290,7 @@ else {
 		else {
 			if(is_array($errors)) {
 				foreach($errors as $key => $val) {
+					echo '-'.$key.':<br />';
 					foreach($val as $error) {
 						echo $error.'<br />';
 					}

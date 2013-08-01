@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright ï¿½ 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Add products
  * $module: admin/products
@@ -46,15 +46,16 @@ else
 			output_xml("<status>false</status><message>{$lang->productalreadyexists}</message>"); 
 			exit;
 		}
-		
-		log_action($core->input['name']);
 		unset($core->input['action'], $core->input['module']);
-		
 		//Temporary hardcode
 		$core->input['defaultCurrency'] = "USD";
 		
 		$query = $db->insert_query("products", $core->input);
 		if($query) {
+			$entity = new Entities($core->input['spid']);
+			$entity->auto_assignsegment($core->input['gpid']);
+			$log->record($core->input['name']);
+		
 			$lang->productadded = $lang->sprint($lang->productadded, htmlspecialchars($core->input['name']));
 			output_xml("<status>true</status><message>{$lang->productadded}</message>");
 		}

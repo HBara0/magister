@@ -37,9 +37,9 @@
    <td class="altrow mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[before_1year]][4]}</td>
    <td class="altrow2 mainbox_totalcell">{$boxes_totals_output[mainbox][$aggregate_type][$category][actual][$report_years[current_year]][1]}</td>
    
-   {$boxes_totals_mergedoutput[mergedmainbox]}
-   
+   {$boxes_totals_mergedoutput[mergedmainbox][$aggregate_type][$category]}
  </tr>
+  <tr><td>{$currency_desc}</td></tr>
 </table>
 <div style='text-align: center;'>{$reporting_report_newoverviewbox_chart}</div>
 <br />

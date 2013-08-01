@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Users Class
  * $id: Users_class.php
  * Created:		@zaher.reda		June 07, 2012 | 12:11 PM
@@ -12,7 +12,7 @@
 class Users {
 	private $user = array();
 	private $errorcode = 0;
-	
+
 	public function __construct($uid = 0, $simple = true) {
 		global $core, $db;
 
@@ -26,18 +26,18 @@ class Users {
 		}
 	}
 
-	private function read_user($uid ='', $simple=true) {
+	private function read_user($uid = '', $simple = true) {
 		global $db;
-		
+
 		if(empty($uid)) {
 			$uid = $this->user['uid'];
 		}
-		
+
 		$query_select = 'uid, username, reportsTo, firstName, middleName, lastName, displayName, email';
 		if($simple == false) {
 			$query_select = '*';
 		}
-		
+
 		$this->user = $db->fetch_assoc($db->query("SELECT ".$query_select."
 												FROM ".Tprefix."users
 												WHERE uid='".intval($uid)."'"));
@@ -52,7 +52,28 @@ class Users {
 		global $db;
 		$this->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->user['uid']}' AND isMain=1"), 'affid');
 	}
-	
+
+	public function get_userbyemail($email) {
+		global $db, $core;
+		
+		$email = $core->sanitize_email($email);
+		if(!$core->validate_email($email)) {
+			return false;
+		}
+		
+		$query = $db->query("SELECT DISTINCT(u.uid)
+							FROM ".Tprefix."users u 
+							LEFT JOIN ".Tprefix."usersemails ue ON (ue.uid=u.uid) 
+							WHERE u.email='".$db->escape_string($email)."' OR ue.email='".$db->escape_string($email)."'");
+		if($db->num_rows($query) > 0) {
+			$uid = $db->fetch_field($query, 'uid');
+			return new Users($uid);
+		}
+		else {
+			return false;
+		}
+	}
+
 	public function get() {
 		return $this->user;
 	}
@@ -60,11 +81,10 @@ class Users {
 	public function get_reportsto() {
 		return new Users($this->user['reportsTo']);
 	}
-	
 
 	public function get_reportingto() {
 		global $db;
-		$reportsquery = $db->query("SELECT DISTINCT(uid), reportsTo, username, firstName, middleName, lastName, displayName FROM ".Tprefix."users 
+		$reportsquery = $db->query("SELECT DISTINCT(uid), reportsTo, username, firstName, middleName, lastName, displayName FROM ".Tprefix."users
 			 WHERE reportsTo={$this->user[uid]}");
 		while($reporting = $db->fetch_assoc($reportsquery)) {
 			$this->user['reportingTo'][] = $reporting;
@@ -87,9 +107,9 @@ class Users {
 				return false;
 			}
 		}
-		
-		$hrquery = $db->query("SELECT canHR 
-						FROM ".Tprefix."users u 
+
+		$hrquery = $db->query("SELECT canHR
+						FROM ".Tprefix."users u
 						JOIN ".Tprefix."affiliatedemployees affe ON(u.uid=affe.uid)
 						WHERE affe.canHr=1 {$affiliate_where} AND affe.uid={$this->user[uid]}");
 		if($db->num_rows($hrquery) > 0) {
@@ -124,13 +144,13 @@ class Users {
 		return new Affiliates($this->user['mainaffiliate'], FALSE);
 	}
 
-	public function get_hrinfo($simple=true) {
+	public function get_hrinfo($simple = true) {
 		global $db;
 		$query_select = '*';
 		if($simple == true) {
 			$query_select = 'employeeNum, joinDate, jobDescription';
 		}
-		
+
 		$this->user['hrinfo'] = $db->fetch_assoc($db->query("SELECT ".$query_select."
 										FROM ".Tprefix."userhrinformation
 										WHERE uid='".$this->user['uid']."'"));
@@ -139,7 +159,7 @@ class Users {
 		}
 		return false;
 	}
-	
+
 	private function prepare_sign_info($seperate_lengend = false) {
 		global $lang;
 		$lang->load('profile');
@@ -344,5 +364,6 @@ class Users {
 	public function get_errorcode() {
 		return $this->errorcode;
 	}
+
 }
 ?>

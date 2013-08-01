@@ -16,8 +16,8 @@ if($db->num_rows($query) > 0) {
 		'subject'	=> 'Happy birthday!',
 		'message'   => 'Dear '.$birthday['fullname'].',<br />We would like to wish you a happy birthday.'
 		);
-		print_r($email_data);
-		//$mail = new Mailer($email_data, 'php');
+	
+		$mail = new Mailer($email_data, 'php');
 	}
 	
 	$core->input['action'] = 'autosendbirthdaymessage';
