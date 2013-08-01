@@ -556,13 +556,13 @@ class Entities {
 		return $db->fetch_field($db->query("SELECT type FROM ".Tprefix."entities WHERE companyName='".$db->escape_string($name)."'"), 'type');
 	}
 
-	public function auto_assignsegment($id = '') {
+	public function auto_assignsegment($gpid) {
 		global $db;
-		/* get segment of generic product */
-		$product_segmentid = $db->fetch_field($db->query("SELECT psid FROM ".Tprefix."genericproducts WHERE gpid='".$db->escape_string($id)."'"), 'psid');
+		/* Get segment of generic product */
+		$psid = $db->fetch_field($db->query("SELECT psid FROM ".Tprefix."genericproducts WHERE gpid='".$db->escape_string($gpid)."'"), 'psid');
 
-		if(!value_exists('entitiessegments', 'psid', $product_segmentid, 'eid='.$this->data['eid'].'')) {
-			$db->insert_query('entitiessegments', array('psid' => $product_segmentid, 'eid' => $this->data['eid']));
+		if(!value_exists('entitiessegments', 'psid', $psid, 'eid='.$this->data['eid'].'')) {
+			$db->insert_query('entitiessegments', array('psid' => $psid, 'eid' => $this->data['eid']));
 		}
 	}
 

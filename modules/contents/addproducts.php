@@ -34,7 +34,6 @@ if(!$core->input['action']) {
 }
 else {
 	if($core->input['action'] == 'do_perform_addproducts') {
-
 		if(empty($core->input['spid']) || empty($core->input['gpid']) || empty($core->input['name'])) {
 			output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
 			exit;
@@ -44,9 +43,6 @@ else {
 			output_xml("<status>false</status><message>{$lang->productalreadyexists}</message>");
 			exit;
 		}
-		$entite = new Entities($core->input['spid']);
-		$entite->auto_assignsegment($core->input['gpid']);
-		log_action($core->input['name']);
 		unset($core->input['action'], $core->input['module']);
 		//Temporary hardcode
 		$core->input['defaultCurrency'] = 'USD';
@@ -54,6 +50,10 @@ else {
 		$query = $db->insert_query('products', $core->input);
 
 		if($query) {
+			$entity = new Entities($core->input['spid']);
+			$entity->auto_assignsegment($core->input['gpid']);
+			$log->record($core->input['name']);
+
 			$lang->productadded = $lang->sprint($lang->productadded, $core->input['name']);
 			output_xml("<status>true</status><message>{$lang->productadded}</message>");
 		}
