@@ -49,7 +49,7 @@ function parse_one_location($line) {
 	$packet_pattern = array('trailerstart' => array(0, 1),
 			'command' => 2,
 			'length' => array(3, 4),
-			'terminal' => array(5, 6, 7, 8),
+			'deviceId' => array(5, 6, 7, 8),
 			'timeline' => array(9, 10, 11, 12, 13, 14),
 			'lat' => array(15, 16, 17, 18),
 			'long' => array(19, 20, 21, 22),
@@ -68,17 +68,14 @@ function parse_one_location($line) {
 	);
 
 	if(get_patterndata($packet_result, $packet_pattern['trailerstart']) == '2929') {
-
 		$command = get_patterndata($packet_result, $packet_pattern['command']);
-
 		$length = get_patterndata($packet_result, $packet_pattern['length']);
-
-		$termid = get_patterndata($packet_result, $packet_pattern['terminal']);
+		$termid = get_patterndata($packet_result, $packet_pattern['deviceId']);
 		$timeline = get_patterndata($packet_result, $packet_pattern['timeline'], $delimiter['timeline']);
 
 		if($command == 80) {
 			/* Recoed Location ---START */
-			$location['pin'] = $termid;
+			$location['deviceId'] = $termid;
 			$checksumdata = get_patterndata($packet_result, $packet_pattern['checkcode'], $delimiter['checkcode']);
 			$location['timeLine'] = date("d-m-Y H:i:s", strtotime($timeline.'/'.$timeline.'/'.$timeline.' '.$timeline.':'.$timeline.':'.$timeline));
 			$location['lat'] = $lat = get_patterndata($packet_result, $packet_pattern['lat'], $delimiter['lattitude']);

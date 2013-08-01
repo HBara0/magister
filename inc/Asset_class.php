@@ -117,7 +117,8 @@ class Asset {
 	}
 
 	public function record_location($data) {
-		$data["deviceId"] = $data["pin"];
+		global $db;
+		$data["deviceId"] = $data["deviceId"];
 		$data["timeLine"] = TIME_NOW;
 		$data["fuel"] = 0;
 		$data["antenna"] = 1;
@@ -128,21 +129,21 @@ class Asset {
 		//$data['location'] = PointFromText(CONCAT('POINT(', $data['long'], ' ', $data['lat'], ')'));
 		//$data['location'] = ($data['lat'].''. $data['long']);
 		$options['geoLocation'] = array('location');
-		unset($data["pin"]);
-		unset($data['lat']);
-		unset($data['long']);
-		unset($data["altitude"]);
-		unset($data["heading"]);
-print_r($data);
-		global $db;
-		$query = 'SELECT asid FROM '.Tprefix.'assets_trackingdevices WHERE trackerid='.$data["deviceId"].' AND fromDate<'.$data['timeLine'].' AND toDate>'.$data['timeLine'].' ORDER BY fromDate DESC';
+//		unset($data["pin"]);
+//		unset($data["altitude"]);
+//		unset($data["heading"]);
+
+		$query = 'SELECT asid FROM '.Tprefix.'assets_trackingdevices astd
+				  JOIN asssets_trackers ast  ON(ast.trackerid=astd.trackerid)
+				  WHERE ast.deviceId='.$data["deviceId"].' AND astd.fromDate<'.$data['timeLine'].' AND astd.toDate>'.$data['timeLine'].'
+				  ORDER BY fromDate DESC '; 
 		$query = $db->query($query);
 		if($db->num_rows($query) > 0) {
 			if($row = $db->fetch_assoc($query)) {
 				$data["asid"] = $row['asid'];
 			}
 		}
-		$query_insert = $db->insert_query('assets_locations', array('asid' => 1, 'deviceId' => $data["deviceId"], 'timeLine' => $data["timeLine"], 'fuel' => $data["fuel"], 'antenna' => $data["antenna"], 'direction' => $data["direction"], 'vehiclestate' => $data["vehiclestate"], 'otherstate' => $data["otherstate"], 'location' => $data['lat'].''.$data['long'], 'displayName' => 'gps'), $options);
+		$query_insert = $db->insert_query('assets_locations', array('asid' => $data["asid"], 'deviceId' => $data["deviceId"], 'timeLine' => $data["timeLine"], 'fuel' => $data["fuel"], 'antenna' => $data["antenna"], 'direction' => $data["direction"], 'vehiclestate' => $data["vehiclestate"], 'otherstate' => $data["otherstate"], 'location' => $data['lat'].' '.$data['long'], 'displayName' => 'gps'), $options);
 	}
 
 	public function assign_assetuser($userdata, $options = array()) {
@@ -491,7 +492,7 @@ print_r($data);
 		if(isset($core->input['start'])) {
 			$limit_start = $db->escape_string($core->input['start']);
 		}
-echo ("SELECT ast.*,astd.asid,a.title FROM ".Tprefix."asssets_trackers ast	
+		echo ("SELECT ast.*,astd.asid,a.title FROM ".Tprefix."asssets_trackers ast	
 								JOIN ".Tprefix."assets_trackingdevices astd ON (astd.trackerid=ast.trackerid)
 								JOIN ".Tprefix."assets a ON (a.asid=astd.asid) 
 								{$filter_where} 
