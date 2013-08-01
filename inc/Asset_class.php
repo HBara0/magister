@@ -78,12 +78,12 @@ class Asset {
 			return false;
 		}
 		if($options['operationtype'] != 'update') {
-			if(value_exists('asssets_trackers', 'trackerid', $trackersdata['trackerid'])) {
+			if(value_exists('asssets_trackers', 'deviceId', $trackersdata['deviceId'])) {
 				$this->errorcode = 2;
 				return false;
 			}
 		}
-
+		unset($trackersdata['mobileintcode'], $trackersdata['mobileareacode']);
 		if(is_array($trackersdata)) {
 			$this->tracker = $trackersdata;
 		}
@@ -92,7 +92,6 @@ class Asset {
 		foreach($sanitize_fields as $val) {
 			$this->tracker[$val] = $core->sanitize_inputs($this->tracker[$val], array('removetags' => true));
 		}
-
 		if($options['operationtype'] == 'update') {
 			//$this->tracker = $trackersdata;
 			$this->tracker['editedOn'] = TIME_NOW;
@@ -104,6 +103,7 @@ class Asset {
 		else {
 			$this->tracker['createdOn'] = TIME_NOW;
 			$this->tracker['createdBy'] = $core->user['uid'];
+			$this->tracker['password'] = base64_encode($this->tracker['password']);
 			$query = $db->insert_query('asssets_trackers', $this->tracker);
 		}
 
@@ -126,23 +126,23 @@ class Asset {
 		$data["otherstate"] = (double)$data["altitude"];
 		//$Dataloc = LineString($data['lat'].' '.$data['long']) ;
 		//$data['location'] = PointFromText(CONCAT('POINT(', $data['long'], ' ', $data['lat'], ')'));
-		//$data['location'] = POINT($data['long'], $data['lat']);
+		//$data['location'] = ($data['lat'].''. $data['long']);
 		$options['geoLocation'] = array('location');
 		unset($data["pin"]);
 		unset($data['lat']);
 		unset($data['long']);
 		unset($data["altitude"]);
 		unset($data["heading"]);
-
+print_r($data);
 		global $db;
-		$query = 'SELECT asid FROM '.Tprefix.'assets_trackingdevices WHERE deviceId='.$data["deviceId"].' AND fromDate<'.$data['timeLine'].' AND toDate>'.$data['timeLine'].' ORDER BY fromDate DESC';
+		$query = 'SELECT asid FROM '.Tprefix.'assets_trackingdevices WHERE trackerid='.$data["deviceId"].' AND fromDate<'.$data['timeLine'].' AND toDate>'.$data['timeLine'].' ORDER BY fromDate DESC';
 		$query = $db->query($query);
 		if($db->num_rows($query) > 0) {
 			if($row = $db->fetch_assoc($query)) {
 				$data["asid"] = $row['asid'];
 			}
 		}
-		$query_insert = $db->insert_query('assets_locations', array('asid' => 1, 'deviceId' => $data["deviceId"], 'timeLine' => $data["timeLine"], 'fuel' => $data["fuel"], 'antenna' => $data["antenna"], 'direction' => $data["direction"], 'vehiclestate' => $data["vehiclestate"], 'otherstate' => $data["otherstate"], 'location' => POINT($data['lat'], $data['long'], 0), 'displayName' => 'gps'), $options);
+		$query_insert = $db->insert_query('assets_locations', array('asid' => 1, 'deviceId' => $data["deviceId"], 'timeLine' => $data["timeLine"], 'fuel' => $data["fuel"], 'antenna' => $data["antenna"], 'direction' => $data["direction"], 'vehiclestate' => $data["vehiclestate"], 'otherstate' => $data["otherstate"], 'location' => $data['lat'].''.$data['long'], 'displayName' => 'gps'), $options);
 	}
 
 	public function assign_assetuser($userdata, $options = array()) {
@@ -465,12 +465,50 @@ class Asset {
 		return $this->assets;
 	}
 
-	public function get_trackers($id) {
+	public function get_tracker($id) {
 		global $db;
 		if(!empty($id)) {
 			$this->tracker = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."asssets_trackers WHERE trackerid=".$db->escape_string($id)));
 		}
 		return $this->tracker;
+	}
+
+	public function get_trackers($filter_where) {
+		global $db, $core;
+
+		if(!empty($filter_where) && isset($filter_where)) {
+			$filter_where = ' WHERE ast.'.$filter_where;
+		}
+		if(isset($core->input['sortby'], $core->input['order'])) {
+			$sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
+		}
+
+		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+			$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+		}
+
+		$limit_start = 0;
+		if(isset($core->input['start'])) {
+			$limit_start = $db->escape_string($core->input['start']);
+		}
+echo ("SELECT ast.*,astd.asid,a.title FROM ".Tprefix."asssets_trackers ast	
+								JOIN ".Tprefix."assets_trackingdevices astd ON (astd.trackerid=ast.trackerid)
+								JOIN ".Tprefix."assets a ON (a.asid=astd.asid) 
+								{$filter_where} 
+								{$sort_query}
+								LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
+		$alltrackers = $db->query("SELECT ast.*,astd.asid,a.title FROM ".Tprefix."asssets_trackers ast	
+								JOIN ".Tprefix."assets_trackingdevices astd ON (astd.trackerid=ast.trackerid)
+								JOIN ".Tprefix."assets a ON (a.asid=astd.asid) 
+								{$filter_where} 
+								{$sort_query}
+								LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
+		while($trackers = $db->fetch_assoc($alltrackers)) {
+			$tracker[$trackers['trackerid']] = $trackers;
+		}
+
+
+		return $tracker;
 	}
 
 	public function get_trackingdevices($id) {

@@ -18,10 +18,16 @@ if($core->usergroup['assets_canManageAssets'] == 0) {
 
 if(!$core->input['action']) {
 	if($core->input['type'] == 'edit' && isset($core->input['id'])) {
+
 		$trackerid = $db->escape_string($core->input['id']);
 		$asset = new Asset();
 		$actiontype = 'Edit';
-		$trackers = $asset->get_trackers($trackerid);
+		$trackers = $asset->get_tracker($trackerid);
+
+		$phonenumber = explode('-', $trackers['Phonenumber']);
+		$phonenumber_intcode = $phonenumber[0];
+		$phonenumber_areacode = $phonenumber[1];
+		$trackers['Phonenumber'] = $phonenumber[2];
 	}
 	else {
 		$actiontype = 'Add';
@@ -39,6 +45,7 @@ else {
 	$asset = new Asset();
 	if($core->input['action'] == 'do_Add' || $core->input['action'] == 'do_Edit') {
 		$core->input['tracker']['trackerid'] = $db->escape_string($core->input['trackerid']);
+		$core->input['tracker']['Phonenumber'] = $core->input['tracker']['mobileintcode'].'-'.$core->input['tracker']['mobileareacode'].'-'.$core->input['tracker']['Phonenumber'];
 		if($core->input['action'] == 'do_Edit') {
 			$options['operationtype'] = 'update';
 			$lang->successfullysaved = 'Successfully Update';
@@ -46,6 +53,7 @@ else {
 		else {
 			$options = array();
 		}
+
 		$asset->manage_trackers($core->input['tracker'], $options);
 		switch($asset->get_errorcode()) {
 			case 0:
