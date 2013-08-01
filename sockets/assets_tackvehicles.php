@@ -7,8 +7,8 @@
  * Created:        @zaher.reda    Dec 7, 2012 | 2:36:34 PM
  * Last Update:    @zaher.reda    Dec 7, 2012 | 2:36:34 PM
  */
-
-require './inc/init.php';
+ini_set('max_execution_time', 1000);
+require '../inc/init.php';
 
 /* Server Configurations - START */
 $config['ip'] = '70.38.119.243';
@@ -29,7 +29,7 @@ echo ' Server Initalized...'."\n";
 socket_listen($socket);
 echo ' Server is now listening...'."\n";
 //$fh = fopen('socketdata.txt', 'w');
-
+$fh = fopen('socketdata-2.txt', 'w');
 while(true) {
 	$read = array();
 	$read[0] = $socket;
@@ -75,8 +75,13 @@ while(true) {
 			else {
 				if($client[$i]['socket'] != null) {
 					if(!empty($data)) {
-						//fwrite($fh, $data."\n");
+						fwrite($fh, $data."\n");
 						/* Convert incoming binary into Hex */
+						fwrite($fh, print_r(unpack("cchars/nint", $data), true)."\n");
+						fwrite($fh, bin2hex($data)."\n");
+						fwrite($fh, base_convert(bin2hex($data), 16, 2)."\n");
+						fwrite($fh, bindec($data)."\n");
+						fwrite($fh, "\n --------- \n");
 						$hex_input = str_split(bin2hex($data), 2);
 						/* Respond to the request with handshake reply */
 						socket_write($client[$i]['socket'], hex2bin('2929210005'.$hex_input[10].$hex_input[2].'000D'));
@@ -92,6 +97,6 @@ while(true) {
 		}
 	}
 }
-//fclose($fh);
+fclose($fh);
 socket_close($socket);
 ?>
