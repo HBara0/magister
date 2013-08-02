@@ -91,56 +91,24 @@ while(true && !$gotsomething) {
 	}
 }
 fclose($fh);
+
+
+
+
+/* parse function --START */
 function parse_one_location($line) {
 	$label = '';
 	$return = false;
 	$hexdat = '';
 	$value = '';
-	for($i = 0; $i < strlen($line); $i++) {
-		if($i == 0) {
-			if(bin2hex($line[$i]) != '29')
-				break;
-			$hexdat.='<font color=green>';
-		}
-		if($i == 2)
-			$hexdat.='<font color=red><b>';
-		if($i == 3) {
-			$value.=str_pad(hexdec(bin2hex($line[$i]).bin2hex($line[$i + 1])), 5, '0', STR_PAD_LEFT);
-			$hexdat.='<font color=blue>';
-		}
-		else {
-			$value.='   ';
-		}
-		if($i == 5) {
-			$hexdat.='<font color=purple>';
-		}
-
-		$label.=str_pad($i, 2, '0', STR_PAD_LEFT).'<font color=gray style="font-weight:normal;">|</font>';
-		$hexdat.=bin2hex($line[$i]).'<font color=black style="font-weight:normal;">|</font>';
-		if($i == 1)
-			$hexdat.='</font>';
-		if($i == 2)
-			$hexdat.='</b></font>';
-		if($i == 4)
-			$hexdat.='</font>';
-		if($i == 8)
-			$hexdat.='</font>';
-	}
-//	logsomething('<pre><font color=gray><u>'.$label."</u></font>\n".$hexdat."\n".$value.'</pre>');
-	//   Packet Structure
-	//   Package Trailer (0x29 0x29)|Command Word (0x8E)|Package Length (0x00 0x1B)|Terminal ID|LOCATION DATA|Check Code|Package Trailer (0x0D)
-	//   Location Data: yymmddhhmmss llll llll ssdd st fuel1 fuel2 fuel3 st1st2st3st4st5
-	//getsome(0, $line);
 	$split_length = 2;
 
-	$packet_result = str_split($string, $line);
-	$line = '29 29 80 00 28 39 31 64 10 13 07 18 07 56 31 03 35 37 21 03 52 94 65 00 09 02 12 ff ff 00 00 02 fc 00 00 00 05 64 08 12 00 00 34 90';
-
+	$packet_result = str_split($line, $split_length);
 	$packet_pattern = array('trailerstart' => array(0, 1),
 			'command' => 2,
 			'length' => array(3, 4),
-			'terminal' => array(5, 6, 7, 8),
-			'timeline ' => array(9, 10, 11, 12, 13, 14),
+			'deviceId' => array(5, 6, 7, 8),
+			'timeline' => array(9, 10, 11, 12, 13, 14),
 			'lat' => array(15, 16, 17, 18),
 			'long' => array(19, 20, 21, 22),
 			'speed' => array(23, 24),
@@ -152,66 +120,57 @@ function parse_one_location($line) {
 			'checkcode' => 43,
 			'trailerend' => 44
 	);
+	$delimiter = array('timeline' => array(9 => '/', 10 => '/', 11 => ' ', 12 => ':', 13 => ':'),
+			'lattitude' => array(15 => '.'),
+			'longitutde' => array(19 => '.')
+	);
 
-	if(bin2hex($start = getsome(2)) == '2929') {
-		logsomething('start='.bin2hex($start).'<br>');
-		$command = getsome(1);
-		//logsomething('command= '.bin2hex($command).'<br>');
-		$length = hexdec(bin2hex(getsome(2)));
-		//logsomething('length= '.$length.'<br>');
-		$termid = hexdec(bin2hex(getsome(4)));
-		//logsomething('terminal= '.$termid.'<br>');
-		//$checksumdata = substr($line, 3, 6);
-		//logsomething('checksumdata='.bin2hex($checksumdata).'<Br>');
-		if(bin2hex($command) == "80") {
-			$location['pin'] = $termid;
-			$location['timeLine'] = date("d-m-Y H:i:s", strtotime('20'.bin2hex(getsome(1)).'/'.bin2hex(getsome(1)).'/'.bin2hex(getsome(1)).' '.bin2hex(getsome(1)).':'.bin2hex(getsome(1)).':'.bin2hex(getsome(1))));
-			$lat = bin2hex(getsome(4));
-			$location['lat'] = (float)(substr($lat, 0, 3).'.'.substr($lat, 3, strlen($lat) - 3));
-			$long = bin2hex(getsome(4));
-			$location['long'] = (float)(substr($long, 0, 3).'.'.substr($long, 3, strlen($long) - 3));
-			$location['speed'] = bin2hex(getsome(2));
-			$location['direction'] = bin2hex(getsome(2));
-			$location['antenna'] = hexdec(bin2hex(getsome(1)));
-			$location['fuel'] = hexdec(bin2hex(getsome(1)));
-			getsome(2);
-			$location['vehiclestate'] = hexdec(bin2hex(getsome(4)));
-			$location['otherstate'] = hexdec(bin2hex(getsome(8)));
-			//logsomething('<pre>'.print_r($location, true).'</pre>');
-			$return = true;
-			//$asst = new Asset();
-			//$asst->record_location($location);
+	if(get_patterndata($packet_result, $packet_pattern['trailerstart']) == '2929') {
+		$command = get_patterndata($packet_result, $packet_pattern['command']);
+		$length = get_patterndata($packet_result, $packet_pattern['length']);
+		$termid = get_patterndata($packet_result, $packet_pattern['deviceId']);
+		$timeline = get_patterndata($packet_result, $packet_pattern['timeline'], $delimiter['timeline']);
+
+		if($command == 80) {
+			/* Recoed Location ---START */
+			$location['deviceId'] = $termid;
+			$checksumdata = get_patterndata($packet_result, $packet_pattern['checkcode'], $delimiter['checkcode']);
+			$location['timeLine'] = date("d-m-Y H:i:s", strtotime($timeline.'/'.$timeline.'/'.$timeline.' '.$timeline.':'.$timeline.':'.$timeline));
+			$location['lat'] = $lat = get_patterndata($packet_result, $packet_pattern['lat'], $delimiter['lattitude']);
+			$location['long'] = $lat = get_patterndata($packet_result, $packet_pattern['long'], $delimiter['longitutde']);
+			$location['speed'] = get_patterndata($packet_result, $packet_pattern['speed'], $delimiter['speed']);
+			$location['speed'] = get_patterndata($packet_result, $packet_pattern['speed'], $delimiter['speed']);
+			$location['direction'] = get_patterndata($packet_result, $packet_pattern['direction'], $delimiter['direction']);
+			$location['antenna'] = get_patterndata($packet_result, $packet_pattern['antenna'], $delimiter['antenna']);
+			$location['fuel'] = get_patterndata($packet_result, $packet_pattern['fuel'], $delimiter['fuel']);
+			$location['vehiclestate'] = get_patterndata($packet_result, $packet_pattern['vehiclestate'], $delimiter['vehiclestate']);
+			$location['otherstate'] = get_patterndata($packet_result, $packet_pattern['otherstate'], $delimiter['otherstate']);
+			$asst = new Assets();
+			$asst->record_location($location);
+
+			/* Record Location ---END */
 		}
-		$checksum = $checksumdata[0];
-		for($i = 1; $i < strlen($checksumdata); $i++) {
-			//logsomething('chk: '.bin2hex($checksum).' ^ '.bin2hex($checksumdata[$i]).' = '.bin2hex($checksum ^ $checksumdata[$i]).'<Br>');
-			$checksum^=$checksumdata[$i];
-		}
-		//logsomething('calculated checksum= '.bin2hex($checksum).'<br>');
 	}
-	//logsomething('<br>');
-
-	return $return;
+	return true;
 }
 
-function getsome($howmany, $string = null) {
-	static $data;
-	if(!isset($data)) {
-		if(isset($string)) {
-			$data = $string;
-		}
-		else {
-			return null;
+/* parse function --END */
+function get_patterndata($dataresult = array(), $pattern = array(), $delimiters = array()) {
+	if(is_array($pattern)) {
+		foreach($pattern as $val) {
+			if(is_array($delimiters)) {
+				$pattern_val .=$dataresult[$val].$delimiters[$val];
+			}
+			else {
+				$pattern_val .=$dataresult[$val].$delimiters;
+			}
 		}
 	}
 	else {
-		if(isset($string)) {
-			$data = $string;
-		}
+		$pattern_val = $dataresult[$pattern];
 	}
-	$return = substr($data, 0, $howmany);
-	$data = substr($data, $howmany, strlen($data) - $howmany);
-	return $return;
+
+	return $pattern_val;
 }
 
 function clearlog() {
