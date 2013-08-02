@@ -485,13 +485,7 @@ class Assets {
 			$limit_start = $db->escape_string($core->input['start']);
 		}
 
-		$alltrackers = $db->query("SELECT ast.*,astd.asid,a.title FROM ".Tprefix."assets_trackers ast	
-		echo ("SELECT ast.*,astd.asid,a.title FROM ".Tprefix."asssets_trackers ast	
-								JOIN ".Tprefix."assets_trackingdevices astd ON (astd.trackerid=ast.trackerid)
-								JOIN ".Tprefix."assets a ON (a.asid=astd.asid) 
-								{$filter_where} 
-								{$sort_query}
-								LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
+	
 		$alltrackers = $db->query("SELECT ast.*,astd.asid,a.title FROM ".Tprefix."asssets_trackers ast	
 								JOIN ".Tprefix."assets_trackingdevices astd ON (astd.trackerid=ast.trackerid)
 								JOIN ".Tprefix."assets a ON (a.asid=astd.asid) 
