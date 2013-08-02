@@ -119,7 +119,7 @@ class Assets {
 
 	public function record_location($data) {
 		global $db;
-		$data["timeLine"] = strtotime($data["timeLine"]);
+		$data['timeLine'] = strtotime($data['timeLine']);
 		$data["otherstate"] = (double)$data["altitude"];
 		$options['geoLocation'] = array('location');
 
@@ -486,6 +486,13 @@ class Assets {
 		}
 
 		$alltrackers = $db->query("SELECT ast.*,astd.asid,a.title FROM ".Tprefix."assets_trackers ast	
+		echo ("SELECT ast.*,astd.asid,a.title FROM ".Tprefix."asssets_trackers ast	
+								JOIN ".Tprefix."assets_trackingdevices astd ON (astd.trackerid=ast.trackerid)
+								JOIN ".Tprefix."assets a ON (a.asid=astd.asid) 
+								{$filter_where} 
+								{$sort_query}
+								LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
+		$alltrackers = $db->query("SELECT ast.*,astd.asid,a.title FROM ".Tprefix."asssets_trackers ast	
 								JOIN ".Tprefix."assets_trackingdevices astd ON (astd.trackerid=ast.trackerid)
 								JOIN ".Tprefix."assets a ON (a.asid=astd.asid) 
 								{$filter_where} 
