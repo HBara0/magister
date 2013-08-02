@@ -119,13 +119,7 @@ class Assets {
 
 	public function record_location($data) {
 		global $db;
-		$data["deviceId"] = $data["deviceId"];
-		$data["timeLine"] = TIME_NOW;
-		$data["fuel"] = 0;
-		$data["antenna"] = 1;
-		$data["direction"] = $data["heading"];
-		$data["vehiclestate"] = 1;
-		$data["otherstate"] = (double)$data["altitude"];
+		$data['timeLine'] = strtotime($data['timeLine']);
 		//$Dataloc = LineString($data['lat'].' '.$data['long']) ;
 		//$data['location'] = PointFromText(CONCAT('POINT(', $data['long'], ' ', $data['lat'], ')'));
 		//$data['location'] = ($data['lat'].''. $data['long']);

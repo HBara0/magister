@@ -62,9 +62,10 @@ function parse_one_location($line) {
 			'checkcode' => 43,
 			'trailerend' => 44
 	);
-	$delimiter = array('timeline' => array(9 => '/', 10 => '/', 11 => ' ', 12 => ':', 13 => ':'),
-			'lattitude' => array(15 => '.'),
-			'longitutde' => array(19 => '.')
+	$delimiter = array(
+			'timeline' => array(9 => '-', 10 => '-', 11 => ' ', 12 => ':', 13 => ':'),
+			'lattitude' =>  array(2 => '.'),
+			'longitutde' => array(2 => '.')
 	);
 
 	if(get_patterndata($packet_result, $packet_pattern['trailerstart']) == '2929') {
@@ -77,9 +78,9 @@ function parse_one_location($line) {
 			/* Recoed Location ---START */
 			$location['deviceId'] = $termid;
 			$checksumdata = get_patterndata($packet_result, $packet_pattern['checkcode'], $delimiter['checkcode']);
-			$location['timeLine'] = date("d-m-Y H:i:s", strtotime($timeline.'/'.$timeline.'/'.$timeline.' '.$timeline.':'.$timeline.':'.$timeline));
-			$location['lat'] = $lat = get_patterndata($packet_result, $packet_pattern['lat'], $delimiter['lattitude']);
-			$location['long'] = $lat = get_patterndata($packet_result, $packet_pattern['long'], $delimiter['longitutde']);
+			$location['timeLine'] = get_patterndata($packet_result, $packet_pattern['timeline'], $delimiter['timeline']);
+			$location['lat'] = parse_data_bystrpos($packet_result, $packet_pattern['lat'], $delimiter['lattitude'], true);
+			$location['long'] = parse_data_bystrpos($packet_result, $packet_pattern['long'], $delimiter['longitutde'], true);
 			$location['speed'] = get_patterndata($packet_result, $packet_pattern['speed'], $delimiter['speed']);
 			$location['speed'] = get_patterndata($packet_result, $packet_pattern['speed'], $delimiter['speed']);
 			$location['direction'] = get_patterndata($packet_result, $packet_pattern['direction'], $delimiter['direction']);
@@ -87,13 +88,34 @@ function parse_one_location($line) {
 			$location['fuel'] = get_patterndata($packet_result, $packet_pattern['fuel'], $delimiter['fuel']);
 			$location['vehiclestate'] = get_patterndata($packet_result, $packet_pattern['vehiclestate'], $delimiter['vehiclestate']);
 			$location['otherstate'] = get_patterndata($packet_result, $packet_pattern['otherstate'], $delimiter['otherstate']);
-			$asst = new Asset();
-			$asst->record_location($location);
+			print_r($location);
+			//$asst = new Assets();
+			//$asst->record_location($location);
 
 			/* Record Location ---END */
 		}
 	}
 	return true;
+}
+
+function parse_data_bystrpos($dataresult = array(), $pattern = array(), $delimiters = array(), $islocation=false) {
+	foreach($pattern as $val) {
+		$pattern_val .= $dataresult[$val];
+	}
+	
+	if($islocation == true) {
+		$sign = substr($pattern_val, 0, 1);
+		$pattern_val = substr($pattern_val, 1, strlen($pattern_val));
+	}
+	
+	foreach($delimiters as $pos => $delim) {
+		$pattern_val = substr($pattern_val, 0, $pos).$delim.substr($pattern_val, $pos, strlen($pattern_val));
+	}
+	
+	if($islocation == true) { 
+		//$pattern_val = $sign.$pattern_val;
+	}
+	return $pattern_val;
 }
 
 /* parse function --END */
