@@ -120,20 +120,24 @@ class Assets {
 	public function record_location($data) {
 		global $db;
 		$data['timeLine'] = strtotime($data['timeLine']);
-		$data["otherstate"] = (double)$data["altitude"];
 		$options['geoLocation'] = array('location');
-
-		$query = 'SELECT asid FROM '.Tprefix.'assets_trackingdevices astd
-				  JOIN assets_trackers ast  ON(ast.trackerid=astd.trackerid)
-				  WHERE ast.deviceId='.$data["deviceId"].' AND astd.fromDate<'.$data['timeLine'].' AND astd.toDate>'.$data['timeLine'].'
+		
+		$data['location'] = $data['lat'].' '.$data['long'];
+		unset($data['lat'], $data['long']);
+		$query = 'SELECT asid 
+				  FROM '.Tprefix.'assets_trackingdevices astd
+				  JOIN assets_trackers ast  ON (ast.trackerid=astd.trackerid)
+				  WHERE ast.deviceId='.$data['deviceId'].' AND astd.fromDate<'.$data['timeLine'].' AND astd.toDate>'.$data['timeLine'].'
 				  ORDER BY fromDate DESC ';
 		$query = $db->query($query);
 		if($db->num_rows($query) > 0) {
-			if($row = $db->fetch_assoc($query)) {
-				$data["asid"] = $row['asid'];
-			}
+			$data['asid'] = $db->fetch_field($query, 'asid');
 		}
-		$query_insert = $db->insert_query('assets_locations', array('asid' => $data["asid"], 'deviceId' => $data["deviceId"], 'timeLine' => $data["timeLine"], 'fuel' => $data["fuel"], 'antenna' => $data["antenna"], 'direction' => $data["direction"], 'vehiclestate' => $data["vehiclestate"], 'otherstate' => $data["otherstate"], 'location' => $data['lat'].' '.$data['long'], 'displayName' => 'gps'), $options);
+		$query_insert = $db->insert_query('assets_locations', $data, $options);
+		if($query_insert) {
+			return true;
+		}
+		return false;
 	}
 
 	public function assign_assetuser($userdata, $options = array()) {
