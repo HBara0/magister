@@ -1,51 +1,115 @@
 <?php
 /*
- * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
- * [Provide Short Descption Here]
- * $id: sockettest2.php
- * Created:        @tony.assaad    Jul 18, 2013 | 10:10:52 AM
- * Last Update:    @tony.assaad    Jul 18, 2013 | 10:10:52 AM
+ * Copyright © 2012 Orkila International Offshore, All Rights Reserved
+ *
+ * Receive & Store tracking information
+ * $id: assets_tackvehicles.php
+ * Created:        @zaher.reda    Dec 7, 2012 | 2:36:34 PM
+ * Last Update:    @zaher.reda    Dec 7, 2012 | 2:36:34 PM
  */
-ini_set('max_execution_time', 6000);
-echo "Starting...".PHP_EOL.'<Br>';
-$currentscriptname = basename($_SERVER['SCRIPT_NAME']);
-$currentscriptfolder = substr($_SERVER['SCRIPT_NAME'], 0, strlen($_SERVER['SCRIPT_NAME']) - strlen($currentscriptname));
+ini_set('max_execution_time', 1000);
 require '../inc/init.php';
 
-
+/* Server Configurations - START */
 $config['ip'] = "70.38.119.243";
-$config['port'] = 8804;
-//$config['port'] = ceil(substr(microtime(),2,4));   /*auto generated port fot testing*/
+$config['port'] = 8805;
 $config['max_clients'] = 20;
 $config['timeout'] = 600; //seconds
+$client = array();
+/* Server Configurations - End */
 
+echo ' Server '.$config['ip'].' on port '.$config['port'].' started...'."\n";
+$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, array('sec' => $config['timeout'], 'usec' => 0));
+socket_bind($socket, $config['ip'], $config['port']) or die('Could not bind to address');
+echo ' Server Initialized...'."\n";
+/* Start Listening for connections */
+socket_listen($socket);
+echo ' Server is now listening...'."\n";
+$fh = fopen('sockettestdata.txt', 'w');
 
-$file = fopen('socketdata.txt', 'w');
-$read = array();
-$read[0] = $socket;
-//$ready = socket_select($read, $write, $except, null);
+while(true) {
+	//$data = ' connection interrupted';
+	$read = array();
+	$read[0] = $socket;
 
-for($i = 0; $i < $config['max_clients']; $i++) {
-	//socket_getpeername($client[$i]['socket'], $ip);
-	//$input = socket_read($client[$i]['socket'], 1024);
-	$data = 'ip:'.$ip.PHP_EOL.'recv:'.bin2hex(trim($input));
-	parse_one_location($input);
-	echo'<br>';
+	for($i = 0; $i < $config['max_clients']; $i++) {
+		if($client[$i]['socket'] != null) {
+			$read[$i + 1] = $client[$i]['socket'];
+		}
+	}
+
+	$ready = socket_select($read, $write, $except, null);
+
+	if(in_array($socket, $read)) {
+		for($i = 0; $i < $config['max_clients']; $i++) {
+			if($client[$i]['socket'] == null) {
+				$client[$i]['socket'] = socket_accept($socket);
+				break;
+			}
+			elseif($i == $config['max_clients'] - 1) {
+				echo 'Error: too many clients';
+			}
+		}
+
+		if(--$ready <= 0) {
+			continue;
+		}
+	}
+
+	for($i = 0; $i < $config['max_clients']; $i++) {
+		if(in_array($client[$i]['socket'], $read)) {
+			socket_getpeername($client[$i]['socket'], $ip);
+			$input = socket_read($client[$i]['socket'], 1024);
+
+			if($input == null) {
+				//socket_close($client[$i]['socket']);
+				unset($client[$i]['socket']);
+				continue;
+			}
+
+			$data = trim($input);
+			if($data == 'exit') {
+				socket_close($client[$i]['socket']);
+				unset($client[$i]['socket']);
+			}
+			else {
+				if($client[$i]['socket'] != null) {
+					if(!empty($data)) {
+//						fwrite($fh, $data."\n");
+//						fwrite($fh, print_r(unpack("cchars/nint", $data), true)."\n");
+//						fwrite($fh, bin2hex($data)."\n");
+//						fwrite($fh, base_convert(bin2hex($data), 16, 2)."\n");
+//						fwrite($fh, bindec($data)."\n");
+//						fwrite($fh, "\n --------- \n");
+						parse_one_location(bin2hex($data));
+						$hex_input = str_split(bin2hex($data), 2);
+						socket_write($client[$i]['socket'], hex2bin('2929210005'.$hex_input[10].$hex_input[2].'000D'));
+						//fwrite($fh,'sent:'.'2929210005'.$hex_input[10].$hex_input[2].'000D'."\n");
+					}
+				}
+			}
+		}
+		else {
+			if($client[$i]['socket'] != null) {
+				socket_close($client[$i]['socket']);
+				unset($client[$i]['socket']);
+			}
+		}
+	}
 }
-
-
+fclose($fh);
+socket_close($socket);
 /* parse function --START */
 function parse_one_location($line) {
+	global $fh;
 	$label = '';
 	$return = false;
 	$hexdat = '';
 	$value = '';
-
 	$split_length = 2;
-	$line = '292980002839316410130718075631033537210352946500090212ffff000002fc00000005640812000034900d';
-	$packet_result = str_split($line, $split_length);
 
+	$packet_result = str_split($line, $split_length);
 	$packet_pattern = array('trailerstart' => array(0, 1),
 			'command' => 2,
 			'length' => array(3, 4),
@@ -68,29 +132,29 @@ function parse_one_location($line) {
 			'longitutde' => array(2 => '.')
 	);
 
-	if(get_patterndata($packet_result, $packet_pattern['trailerstart']) == '2929') {
-		$command = get_patterndata($packet_result, $packet_pattern['command']);
-		$length = get_patterndata($packet_result, $packet_pattern['length']);
-		$termid = get_patterndata($packet_result, $packet_pattern['deviceId']);
-		$timeline = get_patterndata($packet_result, $packet_pattern['timeline'], $delimiter['timeline']);
+	if(parse_data_arrindex($packet_result, $packet_pattern['trailerstart']) == '2929') {
+		$command = parse_data_arrindex($packet_result, $packet_pattern['command']);
+		$length = parse_data_arrindex($packet_result, $packet_pattern['length']);
+		$termid = parse_data_arrindex($packet_result, $packet_pattern['deviceId']);
+		$timeline = parse_data_arrindex($packet_result, $packet_pattern['timeline'], $delimiter['timeline']);
 
 		if($command == 80) {
 			/* Recoed Location ---START */
 			$location['deviceId'] = $termid;
-			$checksumdata = get_patterndata($packet_result, $packet_pattern['checkcode'], $delimiter['checkcode']);
-			$location['timeLine'] = get_patterndata($packet_result, $packet_pattern['timeline'], $delimiter['timeline']);
-			$location['lat'] = parse_data_bystrpos($packet_result, $packet_pattern['lat'], $delimiter['lattitude'], true);
-			$location['long'] = parse_data_bystrpos($packet_result, $packet_pattern['long'], $delimiter['longitutde'], true);
-			$location['speed'] = get_patterndata($packet_result, $packet_pattern['speed'], $delimiter['speed']);
-			$location['speed'] = get_patterndata($packet_result, $packet_pattern['speed'], $delimiter['speed']);
-			$location['direction'] = get_patterndata($packet_result, $packet_pattern['direction'], $delimiter['direction']);
-			$location['antenna'] = get_patterndata($packet_result, $packet_pattern['antenna'], $delimiter['antenna']);
-			$location['fuel'] = get_patterndata($packet_result, $packet_pattern['fuel'], $delimiter['fuel']);
-			$location['vehiclestate'] = get_patterndata($packet_result, $packet_pattern['vehiclestate'], $delimiter['vehiclestate']);
-			$location['otherstate'] = get_patterndata($packet_result, $packet_pattern['otherstate'], $delimiter['otherstate']);
-			print_r($location);
-			//$asst = new Assets();
-			//$asst->record_location($location);
+			$checksumdata = parse_data_arrindex($packet_result, $packet_pattern['checkcode'], $delimiter['checkcode']);
+			$location['timeLine'] = parse_data_arrindex($packet_result, $packet_pattern['timeline'], $delimiter['timeline']);
+			$location['lat'] = $lat = parse_data_bystrpos($packet_result, $packet_pattern['lat'], $delimiter['lattitude'], true);
+			$location['long'] = $lat = parse_data_bystrpos($packet_result, $packet_pattern['long'], $delimiter['longitutde'], true);
+			$location['speed'] = parse_data_arrindex($packet_result, $packet_pattern['speed'], $delimiter['speed']);
+			$location['speed'] = parse_data_arrindex($packet_result, $packet_pattern['speed'], $delimiter['speed']);
+			$location['direction'] = parse_data_arrindex($packet_result, $packet_pattern['direction'], $delimiter['direction']);
+			$location['antenna'] = parse_data_arrindex($packet_result, $packet_pattern['antenna'], $delimiter['antenna']);
+			$location['fuel'] = parse_data_arrindex($packet_result, $packet_pattern['fuel'], $delimiter['fuel']);
+			$location['vehiclestate'] = parse_data_arrindex($packet_result, $packet_pattern['vehiclestate'], $delimiter['vehiclestate']);
+			$location['otherstate'] = parse_data_arrindex($packet_result, $packet_pattern['otherstate'], $delimiter['otherstate']);
+			fwrite($fh, implode('|', $location)."\n");
+			$asst = new Assets();
+			$asst->record_location($location);
 
 			/* Record Location ---END */
 		}
@@ -98,6 +162,7 @@ function parse_one_location($line) {
 	return true;
 }
 
+/* parse function --END */
 function parse_data_bystrpos($dataresult = array(), $pattern = array(), $delimiters = array(), $islocation=false) {
 	foreach($pattern as $val) {
 		$pattern_val .= $dataresult[$val];
@@ -118,24 +183,21 @@ function parse_data_bystrpos($dataresult = array(), $pattern = array(), $delimit
 	return $pattern_val;
 }
 
-/* parse function --END */
-function get_patterndata($dataresult = array(), $pattern = array(), $delimiters = array()) {
+function parse_data_arrindex($dataresult = array(), $pattern = array(), $delimiters = array()) {
 	if(is_array($pattern)) {
-		foreach($pattern as $val) {
-			if(is_array($delimiters)) {
-				$pattern_val .=$dataresult[$val].$delimiters[$val];
-			}
-			else {
-				$pattern_val .=$dataresult[$val].$delimiters;
+			foreach($pattern as $val) {
+				if(is_array($delimiters)) {
+					$pattern_val .= $dataresult[$val].$delimiters[$val];
+				}
+				else {
+					$pattern_val .= $dataresult[$val].$delimiters;
+				}
 			}
 		}
-	}
 	else {
 		$pattern_val = $dataresult[$pattern];
 	}
-
+	
 	return $pattern_val;
 }
 ?>
-
-
