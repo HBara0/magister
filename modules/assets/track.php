@@ -74,7 +74,7 @@ if($core->input['action'] == 'map') {
 	$core->input['fromDate'];
 	$core->input['toDate'];
 	$pagetitle = $lang->assetstrackmap;
-	$asset = new Asset();
+	$asset = new Assets();
 	$data = $asset->get_data_for_assets($selected_options,$from,$to);
 	$pagecontents .= $asset->get_map($data, array('infowindow' => 1, 'zoom' => 15,'mapcenter' => '33.89, 35.51'));
 }

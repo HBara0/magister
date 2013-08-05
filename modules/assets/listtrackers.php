@@ -14,7 +14,7 @@ if($core->usergroup['assets_canManageTracker'] == 0) {
 }
 
 if(!$core->input['action']) {
-	$assets = new Asset();
+	$assets = new Assets();
 
 	$sort_url = sort_url();
 	/* Perform inline filtering - START */

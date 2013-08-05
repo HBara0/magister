@@ -16,7 +16,7 @@ if($core->usergroup['assets_canTrack'] == 0) {
 	exit;
 }
 if(!$core->input['action']) {
-	$asset = new Asset();
+	$asset = new Assets();
 
 	$map = new Maps(array(), array('infowindow' => 1, 'mapcenter' => '32.887078, 34.195312'));
 	$data = $asset->get_assets_data(array(8 => 10));

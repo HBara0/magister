@@ -32,7 +32,7 @@ if(!$core->input['action']) {
 	else {
 		$actiontype = 'Add';
 	}
-	$asset = new Asset();
+	$asset = new Assets();
 	$affiliate_assets = $asset->get_affiliateassets();  /* get assets for user affiliates */
 	foreach($affiliate_assets as $id => $affasset) {
 		$assetslist.='<option value="'.$id.'">'.$affasset['title'].'</option>';
@@ -42,7 +42,7 @@ if(!$core->input['action']) {
 	output_page($assetsmanagetrackers);
 }
 else {
-	$asset = new Asset();
+	$asset = new Assets();
 	if($core->input['action'] == 'do_Add' || $core->input['action'] == 'do_Edit') {
 		$core->input['tracker']['trackerid'] = $db->escape_string($core->input['trackerid']);
 		$core->input['tracker']['Phonenumber'] = $core->input['tracker']['mobileintcode'].'-'.$core->input['tracker']['mobileareacode'].'-'.$core->input['tracker']['Phonenumber'];
