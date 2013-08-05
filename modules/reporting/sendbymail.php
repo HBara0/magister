@@ -141,35 +141,7 @@ else {
 					break;
 			}
 		}
-		$core->input['message'] = $core->sanitize_inputs($core->input['message'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
-		if(!empty($core->input['additional_recipients'])) {
-			$additional_emails = explode(',', $core->input['additional_recipients']);
 
-			foreach($additional_emails as $val) {
-				if(isvalid_email(trim($val))) {
-					/* Get uid by email  & register as receipient - START */
-					$user = new Users();
-					$user_byemail = $user->get_userbyemail($val);
-
-					if($user_byemail != false) {
-						$type = 'uid';
-						$cc_user = $user_byemail->get()['uid'];
-					}
-					else {
-						$type = 'unregisteredRcpts';
-						$cc_user = $val;
-					}
-					$report->create_recipient($cc_user, $type);
-					$allrecipients[$type][$cc_user] = $report->get_otherrecipient($cc_user, $type);
-					
-					$cc_valid_emails[] = $val;
-					/* Get uid by email & register as receipient - END */
-				}
-				else {
-					$cc_bad_emails[] = $val;
-				}
-			}
-		}
 
 		switch($meta_data['type']) {
 			case 'm':
@@ -189,6 +161,36 @@ else {
 				}
 				break;
 			case 'q':
+				$core->input['message'] = $core->sanitize_inputs($core->input['message'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
+				if(!empty($core->input['additional_recipients'])) {
+					$additional_emails = explode(',', $core->input['additional_recipients']);
+
+					foreach($additional_emails as $val) {
+						if(isvalid_email(trim($val))) {
+							/* Get uid by email  & register as receipient - START */
+							$user = new Users();
+							$user_byemail = $user->get_userbyemail($val);
+
+							if($user_byemail != false) {
+								$type = 'uid';
+								$cc_user = $user_byemail->get()['uid'];
+							}
+							else {
+								$type = 'unregisteredRcpts';
+								$cc_user = $val;
+							}
+							$report->create_recipient($cc_user, $type);
+							$allrecipients[$type][$cc_user] = $report->get_otherrecipient($cc_user, $type);
+
+							$cc_valid_emails[] = $val;
+							/* Get uid by email & register as receipient - END */
+						}
+						else {
+							$cc_bad_emails[] = $val;
+						}
+					}
+				}
+
 				$recipients = $report->get_recipient($core->input['recipients']['id']);
 				$allrecipients['representative'] = $recipients;
 
@@ -197,11 +199,11 @@ else {
 						if($rtype == 'representative' && !in_array($recipient['rpid'], $core->input['recipients']['id'])) {
 							continue;
 						}
-						
+
 						if($rtype == 'unregisteredRcpts') {
 							$recipient['email'] = $recipient['unregisteredRcpts'];
 						}
-						
+
 						if(is_array($recipients)) {
 							$email_data = array(
 									'from_email' => 'reporting@ocos.orkila.com',
@@ -210,11 +212,11 @@ else {
 									'subject' => $core->input['subject'],
 									'message' => $core->input['message']
 							);
-							
+
 							if($rtype == 'representative') {
 								$email_data['cc'] = $cc_valid_emails;
 							}
-							
+
 							$reportlink = 'http://www.orkila.com/qreport/'.$recipient['reportIdentifier'].'/'.$recipient['token'];
 							if(strstr($email_data['message'], '{link}')) {
 								$email_data['message'] = str_replace('{link}', $reportlink, $email_data['message']);
@@ -230,6 +232,7 @@ else {
 							else {
 								$email_data['message'] .= '<br />'.$lang->password.': '.$recipient['password'];
 							}
+
 							$mail = new Mailer($email_data, 'php');
 							$email_sent = true;
 						}
