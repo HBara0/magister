@@ -29,7 +29,7 @@ if(!$core->input['action']) {
 			'process' => array(
 					'filterKey' => 'trackerid',
 					'mainTable' => array(
-							'name' => 'asssets_trackers',
+							'name' => 'assets_trackers',
 							'filters' => array('deviceId' => 'deviceId', 'IMEI' => 'IMEI', 'password' => 'password', 'Phonenumber' => 'Phonenumber'),
 					)
 			),

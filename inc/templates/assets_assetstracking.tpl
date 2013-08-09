@@ -8,8 +8,15 @@
 {$menu}
     <td class="contentContainer">
         <h3>{$lang->titletracking}</h3>
-      {$assets_location}
-        {$assets_map} 
+  <table class="datatable">
+            <tr>
+                <th>{$lang->assets}</th>
+                <th>{$lang->location}</th>
+            </tr>
+            
+         {$assets_assetstracking_row}
+        </table>
+
     </td>
 </tr>
 {$footer}

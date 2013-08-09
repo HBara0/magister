@@ -121,7 +121,7 @@ class Assets {
 		global $db;
 		$data['timeLine'] = strtotime($data['timeLine']);
 		$options['geoLocation'] = array('location');
-		
+
 		$data['location'] = $data['lat'].' '.$data['long'];
 		unset($data['lat'], $data['long']);
 		$query = 'SELECT asid 
@@ -133,6 +133,9 @@ class Assets {
 		if($db->num_rows($query) > 0) {
 			$data['asid'] = $db->fetch_field($query, 'asid');
 		}
+
+		$map = new Maps();
+		$data['parsedLocation'] = Maps::reverse_geocoding($value['latitude'], $value['longitude']); /* record location as json coming directly from google */
 		$query_insert = $db->insert_query('assets_locations', $data, $options);
 		if($query_insert) {
 			return true;
@@ -282,36 +285,34 @@ class Assets {
 		return $assignee;
 	}
 
-	public function get_asset_data($from = null, $to = null, $asset_id = null) {
+	public function get_asset_data($from = null, $to = null, $asset_id = null, $options = '') {
 		global $db;
 		if(!isset($asset_id)) {
 			$asset_id = $my_asid;
 		}
-		$query = 'SELECT alid,asid,X(location) as latitude, Y(location) as longitude,timeLine,deviceId,speed,direction,antenna,fuel,vehiclestate,otherstate FROM '.Tprefix.'assets_locations WHERE asid='.$asset_id;
-		if(isset($from)) {
-			$query .= ' AND timeLine>'.$from;
+		if($options == 'topnew') {
+			$latestrecord_where = ' WHERE timeLine > '.strtotime('-24 HOURS').'';
 		}
-		if(isset($to)) {
-			$query .= ' AND timeLine<'.$to;
+		if(!empty($from) && !empty($to)) {
+			$from_to = ' WHERE (timeLine BETWEEN '.$from.' AND '.$to.') ';
 		}
-		if(isset($cache[$query])) {
-			return $cache[$query];
-		}
-		else {
-			$query = $db->query($query);
-			if($db->num_rows($query) > 0) {
-				while($row = $db->fetch_assoc($query)) {
-					$loc[$row['alid']] = $row;
-				}
-				$cache[$query] = $loc;
+
+		$query = 'SELECT alid,asid,parsedLocation,X(location) as latitude, Y(location) as longitude,timeLine,deviceId,speed,direction,antenna,fuel,vehiclestate,otherstate 
+				 FROM '.Tprefix.'assets_locations '.$from_to.' '.$latestrecord_where.' AND asid='.$asset_id.' LIMIT 0,10';
+		$query = $db->query($query);
+		if($db->num_rows($query) > 0) {
+			while($row = $db->fetch_assoc($query)) {
+				$loc[$row['alid']] = $row;
 			}
 		}
+
 		return $loc;
 	}
 
-	public function get_assets_data($asset_ids, $from = null, $to = null) {
-		global $db;
-		$query = 'SELECT alid,asid,X(location) as latitude, Y(location) as longitude,timeLine,deviceId,speed,direction,antenna,fuel,vehiclestate,otherstate FROM '.Tprefix.'assets_locations WHERE asid IN ('.implode(',', $asset_ids).')';
+	public function get_assets_data($id = '', $from = null, $to = null) {
+		global $db,$core;
+		$query = 'SELECT asl.alid,asl.asid,asl.parsedLocation,X(asl.location) as latitude, Y(asl.location) as longitude,asl.timeLine,asl.deviceId,asl.speed,asl.direction,asl.antenna,asl.fuel,asl.vehiclestate,asl.otherstate 
+				  FROM '.Tprefix.'assets_locations asl JOIN '.Tprefix.'assets ast ON(ast.asid=asl.asid) WHERE ast.isActive=1   and ast.affid IN('.$db->escape_string(implode(',', $core->user['affiliates'])).')  ORDER BY asl.alid DESC';
 		if(isset($from)) {
 			$query .= ' AND timeLine>'.$from;
 		}
@@ -325,12 +326,12 @@ class Assets {
 			$queryobj = $db->query($query);
 			if($db->num_rows($queryobj) > 0) {
 				while($row = $db->fetch_assoc($queryobj)) {
-					$loc[$row['asid']][$row['alid']] = $row;
+					$asset_location[$row['alid']] = $row;
 				}
-				$cache[$query] = $loc;
+				$cache[$query] = $asset_location;
 			}
 		}
-		return $loc;
+		return $asset_location;
 	}
 
 	public function get_data_for_users($users_ids, $from, $to) {
@@ -376,17 +377,14 @@ class Assets {
 
 	public function get_map($data) {
 		global $db;
-
-		foreach($data as $key => $trackedasset) {
-			foreach($trackedasset as $key2 => $value) {
-				$markers[] = array('title' => $value['latitude'].'|'.$value['longitude'].' ->'.$key.':'.Maps::get_streetname($value['latitude'], $value['longitude']), 'otherinfo' => 'some other info', 'geoLocation' => (number_format($value['latitude'], 6).','.number_format($value['longitude'], 6)));
+		if(is_array($data)) {
+			foreach($data as $key => $trackedasset) {
+				$markers[$trackedasset['asid']][$trackedasset['alid']] = array('title' => Maps::get_streetname($trackedasset['latitude'], $trackedasset['longitude']), 'otherinfo' => 'some other info', 'geoLocation' => $trackedasset['longitude'].','.$trackedasset['latitude']);
 			}
+			$map = new Maps($markers, array('infowindow' => 1, 'mapcenter' => '32.887078, 34.195312', 'overlaytype' => 'parsePolylines'));
+			$map_view = $map->get_map(400, 300);
+			return $map_view.'<hr>';
 		}
-
-		$options = array('overlaytype' => 'parsePolylines');
-		$map = new Maps($markers, array('infowindow' => 1, 'mapcenter' => '32.887078, 34.195312'), $options);
-		$map_view = $map->get_map(400, 300);
-		return $map_view.'<hr><pre >'.$map->get_streetname($lat, $long).'</pre>';
 	}
 
 	public function delete_asset() {
@@ -413,7 +411,8 @@ class Assets {
 	public function get_assignto() {
 		global $db, $core;
 		$query = $db->query("SELECT u.uid, u.displayName FROM ".Tprefix."users u 
-						JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE (ae.isMain=1 AND ae.affid='{$core->user[mainaffiliate]}' OR u.reportsTo='{$core->user[uid]}')
+						JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid)
+						WHERE (ae.isMain=1 AND ae.affid='{$core->user[mainaffiliate]}' OR u.reportsTo='{$core->user[uid]}')
 						AND u.gid!=7 AND u.uid!={$core->user[uid]} ORDER BY displayName ASC");
 		while($user = $db->fetch_assoc($query)) {
 			$employees[$user['uid']] = $user['displayName'];
@@ -489,10 +488,10 @@ class Assets {
 			$limit_start = $db->escape_string($core->input['start']);
 		}
 
-	
+
 		$alltrackers = $db->query("SELECT ast.*,astd.asid,a.title FROM ".Tprefix."asssets_trackers ast	
-								JOIN ".Tprefix."assets_trackingdevices astd ON (astd.trackerid=ast.trackerid)
-								JOIN ".Tprefix."assets a ON (a.asid=astd.asid) 
+								  JOIN ".Tprefix."assets_trackingdevices astd ON (astd.trackerid=ast.trackerid)
+								  JOIN ".Tprefix."assets a ON (a.asid=astd.asid) 
 								{$filter_where} 
 								{$sort_query}
 								LIMIT {$limit_start}, {$core->settings[itemsperlist]}");

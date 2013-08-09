@@ -15,26 +15,33 @@ if($core->usergroup['assets_canTrack'] == 0) {
 	error($lang->sectionnopermission);
 	exit;
 }
+
+
 if(!$core->input['action']) {
+	$sort_url = sort_url();
 	$asset = new Assets();
 
-	$map = new Maps(array(), array('infowindow' => 1, 'mapcenter' => '32.887078, 34.195312'));
-	$data = $asset->get_assets_data(array(8 => 10));
-	if(is_array($data)) {
-		$assets_map .= $asset->get_map($data);
-		foreach($data as $key => $trackedasset) {
-			foreach($trackedasset as $key => $value) {
-				$assets_location_ouput = '';
-				$altrow_class = alt_row($altrow_class);
-				$assets_location .= '<span  class="'.$altrow_class.'" style="width:100%; position:relative;">'.$map->get_streetname($value['latitude'], $value['longitude']).'<br></span>';
-			}
-		}
-	}
-	else {
-		$assets_location = $lang->na;
+	if($core->input['view'] == 'mapview') {
+		eval("\$assets_assetlocationmap.= \"".$template->get('assets_assetlocationmap')."\";");
 	}
 
-	eval("\$assetslist = \"".$template->get('assets_assets')."\";");
+	//$map = new Maps(array(), array('infowindow' => 1, 'mapcenter' => '32.887078, 34.195312'));
+	$trackedasset = $asset->get_assets_data();
+	if(is_array($trackedasset)) {
+		foreach($trackedasset as $key => $assetloc) {
+			$assets_location_ouput = '';
+			$altrow_class = alt_row($altrow_class);
+			$assets = new Assets($assetloc['asid']);
+			$assetname = $assets->get()['title'];
+			$streetname = json_decode($assetloc['parsedLocation'])->results[0]->formatted_address;
+
+			//$assets_location .= '<span  class="'.$altrow_class.'" style="width:100%; position:relative;">'.$map->get_streetname($value['latitude'], $value['longitude'], $value['parsedLocation']).'<br></span>';
+			eval("\$assets_assetstracking_row .= \"".$template->get('assets_assetstrackingrow')."\";");
+		}
+	}
+
+
+	eval("\$assetslist = \"".$template->get('assets_assetstracking')."\";");
 	output_page($assetslist);
 }
 ?>
