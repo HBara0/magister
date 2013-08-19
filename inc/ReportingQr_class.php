@@ -573,7 +573,7 @@ class ReportingQr Extends Reporting {
 			$recipients_query = $db->query("SELECT * FROM ".Tprefix."reporting_qrrecipients rq 
 				JOIN ".Tprefix."entitiesrepresentatives er ON(er.rpid=rq.rpid)
 				JOIN ".Tprefix."representatives r ON (r.rpid=rq.rpid)
-				WHERE rq.rpid IN (".implode(',', $rpid).")");
+				WHERE rq.rpid IN (".implode(',', $rpid).") AND reportIdentifier='".$db->escape_string($this->report['identifier'])."'");
 			if($db->num_rows($recipients_query) > 0) {
 				while($recipient = $db->fetch_assoc($recipients_query)) {
 					$recipients[$recipient['rpid']] = $recipient;
@@ -588,13 +588,13 @@ class ReportingQr Extends Reporting {
 
 		if($type == 'unregisteredRcpts') {
 			$id =  $core->sanitize_email($id);
-			$recipient_query = ("SELECT * FROM ".Tprefix."reporting_qrrecipients WHERE unregisteredRcpts='".$db->escape_string($id)."'");
+			$recipient_query = ("SELECT * FROM ".Tprefix."reporting_qrrecipients WHERE unregisteredRcpts='".$db->escape_string($id)."' AND reportIdentifier='".$db->escape_string($this->report['identifier'])."'");
 		}
 		else {
 			$recipient_query = ("SELECT u.uid, u.email, u.displayName, rq.* 
 								FROM ".Tprefix."reporting_qrrecipients rq 
 								JOIN ".Tprefix."users u ON (u.uid=rq.uid)
-								WHERE rq.uid=".intval($id));
+								WHERE rq.uid=".intval($id)." AND reportIdentifier='".$db->escape_string($this->report['identifier'])."'");
 		}
 		$user_recipients_query = $db->query($recipient_query);
 
