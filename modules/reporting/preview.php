@@ -774,7 +774,7 @@ if(!$core->input['action']) {
 			}
 		}
 
-		//$tool_print = "<span id='printreport_span'><a href='index.php?module=reporting/preview&amp;action=print&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/print.gif' border='0' alt='{$lang->printreport}'/></a></span>";
+		$tool_print = "<span id='printreport_span'><a href='index.php?".http_build_query($core->input, '', '&amp;')."&amp;media=print' target='_blank'><img src='images/icons/print.gif' border='0' alt='{$lang->printreport}'/></a></span>";
 		//$tools = $tools_approve.$tools_send."<a href='index.php?module=reporting/preview&amp;action=exportpdf&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;".$tool_print;
 		$tools = $tools_approve.$tools_send.$tool_print;
 		ksort($toc_data);
@@ -816,7 +816,13 @@ if(!$core->input['action']) {
 
 	$session->set_phpsession(array('reportsmetadata_'.$session_identifier => serialize($reports_meta_data)));
 	$session->set_phpsession(array('sessionid' => base64_encode(serialize($session_identifier))));
-	eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
+	if($core->input['media'] == 'print') {
+		$headerinc .= '<script language="javascript" type="text/javascript" >window.print();</script>';
+		eval("\$reportspage = \"".$template->get('website_reporting_preview')."\";");	
+	}
+	else {
+		eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
+	}
 	output_page($reportspage);
 }
 else {
