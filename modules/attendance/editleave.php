@@ -277,7 +277,9 @@ else {
 		$query = $db->update_query('leaves', $core->input, "lid='{$lid}'");
 		/* Update leave expenses - START */
 		$leaveobject = new Leaves(array('lid' => $lid));
-		$leaveobject->update_leaveexpenses($expenses_data);
+		if(is_array($expenses_data) && !empty($expenses_data)) {
+			$leaveobject->update_leaveexpenses($expenses_data);
+		}
 		/* Update leave expenses - END */
 		if($query) {
 			if($db->affected_rows() == 0) {
