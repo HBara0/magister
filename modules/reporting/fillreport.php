@@ -657,18 +657,31 @@ else {
 
 		if($query) {
 			$log->record($rid);
+			$new_status = array('mktReportAvailable' => 1);
 
+			/* Validate Forecasts - Start */
+			$report = new ReportingQr(array('rid' => $rid));
+			$forecast_validation = $report->validate_forecasts(unserialize($session->get_phpsession('productsactivitydata_'.$identifier))['productactivity'], $currencies);
+
+			if($forecast_validation != true || is_array($forecast_validation)) {
+				$output_message = $lang->savedsuccessfully.' | '.$lang->wrongforecastgoback;
+				$process_success = 'false';
+				$core->input['isDone'] = 0;
+			} 
+			else {
+				if($db->fetch_field($db->query("SELECT COUNT(*) as count FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid) WHERE ae.affid='{$report_meta[affid]}' AND ae.eid='{$report_meta[spid]}' AND u.gid NOT IN (SELECT gid FROM usergroups WHERE canUseReporting=0) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$rid}' AND isDone=1) AND u.uid!={$core->user[uid]}"), 'count') == 0) {
+					$new_status['status'] = 1;
+				}
+				$output_message = $lang->savedsuccessfully;
+				$process_success = 'true';
+			}
+			/* Validate Forecasts - End */
 			if($report_meta['transFill'] != '1' || !isset($report_meta['transFill'])) {
 				record_contribution($rid, $core->input['isDone']);
 			}
-
-			$new_status = array('mktReportAvailable' => 1);
-			if($db->fetch_field($db->query("SELECT COUNT(*) as count FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid) WHERE ae.affid='{$report_meta[affid]}' AND ae.eid='{$report_meta[spid]}' AND u.gid NOT IN (SELECT gid FROM usergroups WHERE canUseReporting=0) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$rid}' AND isDone=1) AND u.uid!={$core->user[uid]}"), 'count') == 0) {
-				$new_status['status'] = 1;
-			}
-
+			
 			$db->update_query('reports', $new_status, "rid='{$rid}'");
-			output_xml("<status>true</status><message>{$lang->savedsuccessfully}</message>");
+			output_xml('<status>'.$process_success."</status><message>{$output_message}</message>");
 		}
 		else {
 			output_xml("<status>false</status><message>{$lang->saveerror}</message>");
