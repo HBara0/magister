@@ -25,19 +25,19 @@ $lang->load('attendance_meta');
 
 
 if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_subject == true) {
-//	if($ignore_subject == true) {
-//		//$request_key = $db->escape_string($request['requestkey']);
-//		$data['from'] = $core->user['email'];
-//	}
-//	else
-//	{
-//		/* Check if reply ia possiblity auto-responder */
-//		if(strstr(strtolower($data['subject']), 'auto')) {
-//			exit;
-//		}
-//		//$request_key = $db->escape_string($subject[1]);
-//	}
-	$request_key = 'feccbb0b11';
+	if($ignore_subject == true) {
+		//$request_key = $db->escape_string($request['requestkey']);
+		$data['from'] = $core->user['email'];
+	}
+	else
+	{
+		/* Check if reply ia possiblity auto-responder */
+		if(strstr(strtolower($data['subject']), 'auto')) {
+			exit;
+		}
+		//$request_key = $db->escape_string($subject[1]);
+	}
+	
 	$leave = $db->fetch_assoc($db->query("SELECT l.*, u.firstName, u.lastName, email FROM ".Tprefix."leaves l LEFT JOIN ".Tprefix."users u ON (u.uid=l.uid) WHERE l.requestKey='{$request_key}'"));
 
 	$query = $db->query("SELECT DISTINCT(u.uid), Concat(firstName, ' ', lastName) AS employeename FROM ".Tprefix."users u LEFT JOIN ".Tprefix."usersemails ue ON (ue.uid=u.uid) WHERE u.email='".$db->escape_string($data['from'])."' OR ue.email='".$db->escape_string($data['from'])."'");
@@ -68,24 +68,22 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 						'message' => $lang->requestleavemessagesupervisor
 				);
 				$leaveexpense = new Leaves(array('lid' => $leave['lid']));
-					/* Parse expense information for message - START */
-					if($leaveexpense->has_expenses()) {
-						$expenses_data = $leaveexpense->get_expensesdetails();
-						$total = 0;
-						$expenses_message = '';
-						foreach($expenses_data as $expense) {
-							if(!empty($lang->{$expense['name']})) {
-								$expense['title'] = $lang->{$expense['name']};
-							}
-							$total += $expense['expectedAmt'];
-							$expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
+				/* Parse expense information for message - START */
+				if($leaveexpense->has_expenses()) {
+					$expenses_data = $leaveexpense->get_expensesdetails();
+					$total = 0;
+					$expenses_message = '';
+					foreach($expenses_data as $expense) {
+						if(!empty($lang->{$expense['name']})) {
+							$expense['title'] = $lang->{$expense['name']};
 						}
-						$expenses_message_ouput = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
+						$total += $expense['expectedAmt'];
+						$expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
 					}
-					/* Parse expense information for message - END */
-
-					//$lang->leaveexpenses = $lang->sprint($lang->leaveexpenses, $expenses_message);
-					//array_push($email_data, $lang->leaveexpenses);
+					$expenses_message_ouput = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
+				}
+				$email_data['message'] .= $expenses_message_ouput;
+				/* Parse expense information for message - END */
 				
 				$mail = new Mailer($email_data, 'php');
 				if($mail->get_status() === true) {
@@ -222,6 +220,20 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 					</script>
 					<?php
 				}
+			}
+		}
+		else {
+			if($ignore_subject == true) {
+				if(isset($request['referrer']) && $request['referrer'] == 'email') {
+					error('index.php?module=attendance/listleaves', $lang->youapprovedleave);
+				}
+			}
+		}
+	}
+	else {
+		if($ignore_subject == true) {
+			if(isset($request['referrer']) && $request['referrer'] == 'email') {
+				error('index.php?module=attendance/listleaves', $lang->sectionnopermission);
 			}
 		}
 	}
