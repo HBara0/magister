@@ -46,7 +46,7 @@ class Affiliates {
 
 	public function get_users($options = array()) {
 		global $db;
-		
+
 		if(is_array($options)) {
 			if(isset($options['ismain']) && $options['ismain'] === 1) {
 				$query_where_add = ' AND isMain=1';
@@ -61,6 +61,20 @@ class Affiliates {
 			$users_affiliates[$user['uid']] = $users->get();
 		}
 		return $users_affiliates;
+	}
+
+	public function get_suppliers() {
+		global $db;
+		$additional_where = getquery_entities_viewpermissions('suppliersbyaffid', $this->affiliate['affid']);
+		$query = $db->query("SELECT DISTINCT(e.eid) 
+					FROM ".Tprefix."entities e 
+					LEFT JOIN ".Tprefix."affiliatedentities ae ON (ae.eid=e.eid) 
+					WHERE ae.affid={$this->affiliate['affid']}".$additional_where[extra]."");
+		while($supplier = $db->fetch_assoc($query)) {
+			$suppliers = new Entities($supplier['eid']);
+			$suppliers_affiliates[$supplier['eid']] = $suppliers->get();
+		}
+		return $suppliers_affiliates;
 	}
 
 	public function get() {
