@@ -20,7 +20,7 @@ class Assets {
 		}
 	}
 
-	/* Setter Functions ----START */
+	/* Setter Functions - START */
 	public function add($data, array $options = array()) {
 		global $db, $log, $core, $errorhandler, $lang;
 
@@ -39,12 +39,13 @@ class Assets {
 			$this->asset[$val] = $core->sanitize_inputs($this->asset[$val], array('removetags' => true));
 		}
 
-		/* If action is edit, don't check if supplier already exists */
-		if($options['operationtype'] != 'update') {
-			if(value_exists('assets', 'title', $this->asset['title'])) {
-				$this->errorcode = 2;
-				return false;
-			}
+		if(!empty($this->asset['asid'])) {
+			$exists_check_extrawhere = ' AND asid !='.intval($this->asset['asid']);
+		}
+
+		if(value_exists('assets', 'tag', $this->asset['tag'], 'affid='.intval($this->asset['affid']).$exists_check_extrawhere)) {
+			$this->errorcode = 2;
+			return false;
 		}
 
 		if($options['operationtype'] == 'update') {
@@ -56,7 +57,11 @@ class Assets {
 			$this->asset['editedOn'] = TIME_NOW;
 			$this->asset['editedBy'] = $core->user['uid'];
 			$assetid = intval($this->asset['asid']);
-			unset($this->asset['asid']);
+			
+			if(!isset($this->asset['isActive'])) {
+				$this->asset['isActive'] = 0;
+			}
+			unset($this->asset['asid'], $data);
 			$query = $db->update_query('assets', $this->asset, 'asid='.$assetid.'');
 		}
 		else {
@@ -69,6 +74,11 @@ class Assets {
 
 		if($query) {
 			$this->errorcode = 0;
+			return true;
+		}
+		else {
+			$this->errorcode = 601;
+			return false;
 		}
 	}
 
@@ -123,6 +133,10 @@ class Assets {
 		$options['geoLocation'] = array('location');
 
 		$data['location'] = $data['lat'].' '.$data['long'];
+		$map = new Maps();
+		 /* Record location as json coming directly from web service */
+		$data['parsedLocation'] = Maps::reverse_geocoding($data['lat'], $data['long']);
+		
 		unset($data['lat'], $data['long']);
 		$query = 'SELECT asid 
 				  FROM '.Tprefix.'assets_trackingdevices astd
@@ -134,8 +148,6 @@ class Assets {
 			$data['asid'] = $db->fetch_field($query, 'asid');
 		}
 
-		$map = new Maps();
-		$data['parsedLocation'] = Maps::reverse_geocoding($value['latitude'], $value['longitude']); /* record location as json coming directly from google */
 		$query_insert = $db->insert_query('assets_locations', $data, $options);
 		if($query_insert) {
 			return true;
@@ -151,18 +163,18 @@ class Assets {
 		}
 
 		if(!$this->isValidDate($userdata['fromDate'])) {
-			$this->errorcode = 6;
+			$this->errorcode = 401;
 			return false;
 		}
 		if(!$this->isValidDate($userdata['toDate'])) {
-			$this->errorcode = 6;
+			$this->errorcode = 401;
 			return false;
 		}
 		$userdata['fromDate'] = strtotime($userdata['fromDate'].' '.$userdata['fromTime']);
 		$userdata['toDate'] = strtotime($userdata['toDate'].' '.$userdata['toTime']);
 
 		if($userdata['toDate'] < $userdata['fromDate']) {
-			$this->errorcode = 5;
+			$this->errorcode = 401;
 			return false;
 		}
 		if(value_exists('assets_users', 'asid', $userdata['asid'], '(('.$userdata['fromDate'].' BETWEEN fromDate AND toDate) OR ('.$userdata['toDate'].' BETWEEN fromDate AND toDate))')) {
@@ -218,17 +230,54 @@ class Assets {
 	public function delete_userassets($id = '') {
 		global $db;
 		if(!empty($id)) {
-			$db->delete_query('assets_users', 'auid='.$db->escape_string($id));
-			$this->errorcode = 3;
+			$query = $db->delete_query('assets_users', 'auid='.$db->escape_string($id));
+			if($query) {
+				$this->errorcode = 0;
+				return true;
+			}
+			else {
+				$this->errorcode = 604;
+				return false;
+			}
 		}
+		return false;
 	}
 
-	public function deactivate_asset($id = '') {
+	
+	public function delete_asset() {
+		global $db, $core;
+		if($core->usergroup['assets_canDeleteAsset'] == 1) {
+			$query = $db->delete_query('assets', 'asid='.$db->escape_string($this->asset['asid']));
+			if($query) {
+				$this->errorcode = 0;
+				return true;
+			}
+			else {
+				$this->errorcode = 604;
+				return false;
+			}
+		}
+		else {
+			$this->errorcode = 302;
+			return false;
+		}
+		return false;
+	}
+	
+	public function deactivate_asset() {
 		global $db;
 		if(!empty($this->asset['asid'])) {
-			$db->update_query('assets', array('isActive' => 0), 'asid='.$db->escape_string($this->asset['asid']));
-			$this->errorcode = 3;
+			$query = $db->update_query('assets', array('isActive' => 0), 'asid='.$db->escape_string($this->asset['asid']));
+			if($query) {
+			$this->errorcode = 0;
+			return true;
+			}
+			else {
+				$this->errorcode = 601;
+				return false;
+			}
 		}
+		return false;
 	}
 
 	public function assign_tracker_to_asset($devid, $asid, $from, $to) {
@@ -285,28 +334,30 @@ class Assets {
 		return $assignee;
 	}
 
-	public function get_asset_data($from = null, $to = null, $asset_id = null, $options = '') {
+	public function get_asset_locations($from = null, $to = null, $asset_id = null, $options = '') {
 		global $db;
 		if(!isset($asset_id)) {
-			$asset_id = $my_asid;
+			$asset_id = $this->asset['asid'];
 		}
+		
 		if($options == 'topnew') {
-			$latestrecord_where = ' WHERE timeLine > '.strtotime('-24 HOURS').'';
+			$extra_where = ' AND timeLine > '.strtotime('-24 hours').'';
 		}
+		
 		if(!empty($from) && !empty($to)) {
-			$from_to = ' WHERE (timeLine BETWEEN '.$from.' AND '.$to.') ';
+			$extra_where = ' AND (timeLine BETWEEN '.intval($from).' AND '.intval($to).') ';
 		}
 
-		$query = 'SELECT alid,asid,parsedLocation,X(location) as latitude, Y(location) as longitude,timeLine,deviceId,speed,direction,antenna,fuel,vehiclestate,otherstate 
-				 FROM '.Tprefix.'assets_locations '.$from_to.' '.$latestrecord_where.' AND asid='.$asset_id.' LIMIT 0,10';
-		$query = $db->query($query);
+		$query = $db->query('SELECT alid, asid, parsedLocation, X(location) as latitude, Y(location) as longitude, timeLine, deviceId, speed, direction, antenna, fuel, vehiclestate, otherstate 
+							FROM '.Tprefix.'assets_locations WHERE asid='.intval($asset_id).'{$extra_where}
+							LIMIT 0, 10');
 		if($db->num_rows($query) > 0) {
-			while($row = $db->fetch_assoc($query)) {
-				$loc[$row['alid']] = $row;
+			while($location = $db->fetch_assoc($query)) {
+				$locations[$location['alid']] = $location;
 			}
 		}
 
-		return $loc;
+		return $locations;
 	}
 
 	public function get_assets_data($id = '', $from = null, $to = null) {
@@ -387,14 +438,6 @@ class Assets {
 		}
 	}
 
-	public function delete_asset() {
-		global $db, $core;
-		if($core->usergroup['assets_canDeleteAsset'] == 1) {
-			$db->delete_query('assets', 'asid='.$db->escape_string($this->asset['asid']));
-			$this->errorcode = 4;
-		}
-	}
-
 	private function read($id, $simple = false) {
 		global $db;
 
@@ -420,7 +463,7 @@ class Assets {
 		return $employees;
 	}
 
-	public function get_affiliateassets($option = '', $filter_where = '') {
+	public function get_affiliateassets($options = '', $filter_where = '') {
 		global $db, $core;
 
 		if(!empty($filter_where) && isset($filter_where)) {
@@ -438,6 +481,10 @@ class Assets {
 		if(isset($core->input['start'])) {
 			$limit_start = $db->escape_string($core->input['start']);
 		}
+		$allassets_where = ' a.affid IN ('.$db->escape_string(implode(',', $core->user['affiliates'])).')';
+		if($options['mainaffidonly'] == 1) {
+			$allassets_where = ' a.affid='.$core->user['mainaffiliate'];
+		}
 		/* Get asset for the affiliates that are for the user affilliates */
 		$allassets = $db->query("SELECT a.*, ast.title AS type, ast.name 
 								FROM ".Tprefix."assets a		
@@ -447,7 +494,7 @@ class Assets {
 								{$sort_query}
 								LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 		while($assets = $db->fetch_assoc($allassets)) {
-			if($option == 'titleonly') {
+			if($options['titleonly'] == 1) {
 				$asset[$assets['asid']] = $assets['title'];
 			}
 			else {
