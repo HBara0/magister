@@ -109,4 +109,8 @@ $lang['welcomeuser'] = 'Welcome {1}!';
 $lang['yes'] = 'Yes';
 $lang['stock'] = 'Stock';
 $lang['assetsmodule'] = 'Assets';
+$lang['invaliddatetime'] = 'Invalid date/time';
+$lang['successfullydeleted']='Successfully Deleted';
+$lang['successfullydeactivated']='Successfully Deactivated';
+$lang['actionnopermission'] = 'You do not have permissions to perform this operation';
 ?>

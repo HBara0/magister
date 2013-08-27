@@ -4,12 +4,12 @@ $lang['trackerspage'] = 'Trackers Management';
 $lang['titletracking'] = 'Assets Tracking';
 $lang['manageassets'] = 'Manage Assests';
 $lang['assignassetstitle'] = 'Assign Assets';
-$lang['successfullydeleted']='Successfully Deleted';
+
 $lang['assetexitsamedate']='conflict cannot assign same assets with same date';
 $lang['title'] = 'Title';
 $lang['createtracker']='Create Trackers';
 $lang['listtrakers']="Trackers List";
-$lang['isactive']='isActive';
+$lang['isactive']='Active';
 $lang['changeview']='Change View';
 $lang['deviceid']='Device ID';
 $lang['tag']='Tag';
@@ -22,7 +22,7 @@ $lang['PIN'] = 'PIN';
 $lang['phonenumber'] = 'Phone Number';
 $lang['clicktomanage']='Click on the Row To Edit Or Delete';
 $lang['listusertitle']='Assets User List';
-$lang['successfullydeactivated']='Successfully Deactivated';
+
 $lang['createdon']='Created On';
 $lang['status'] = 'Status';
 $lang['siminfo']="SIM Info";
@@ -33,10 +33,7 @@ $lang['assetinvalidtodate']='Error To date Cannot be small than From Date';
 $lang['deleteassetcontent']='Are you sure you want to delete  ';
 $lang['close']='Close';
 $lang['deleteasset']='Delete Asset';
-$lang['successfullysaved'] = "Successfully Saved";
-$lang['fillallrequiredfields'] = "Fill all Required fields";
 $lang['assetexpired']='Asset Expired';
-$lang['entryexsist'] = "entry exsist";
 $lang['conditionhandover']='Condition On Hand Over';
 $lang['conditiononreturn']='Condition On Return';
 $lang['managetrackers'] = 'Manage Trackers';
@@ -84,9 +81,8 @@ $lang['title'] = 'Title';
 $lang['type'] = 'Type';
 $lang['status'] = 'Status';
 $lang['description'] = 'Description';
-$lang['successfullysaved'] = "Successfully Saved";
-$lang['fillallrequiredfields'] = "Fill all Required fields";
-$lang['entryexsist'] = "entry exsist";
+
+$lang['assetexists'] = "An asset with the same details already exists";
 $lang['managetrackers'] = 'Manage Trackers';
 $lang['deviceId'] = "Device Id";
 $lang['assetid'] = 'Asset Id';
@@ -96,4 +92,7 @@ $lang['to'] = 'To';
 $lang['assetslist'] = 'Assets List';
 $lang['trackerslist'] = 'Tracker List';
 
+$lang['damaged'] = 'Damaged';
+$lang['not-functional'] = 'Not Functional';
+$lang['fully-functional'] = 'Fully Functional';
 ?>
