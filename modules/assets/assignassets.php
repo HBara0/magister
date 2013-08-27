@@ -28,11 +28,12 @@ if(!$core->input['action']) {
 		$actiontype = 'add';
 	}
 
-	$assetslist = $assets->get_affiliateassets('titleonly');
+	$assetslist = $assets->get_affiliateassets(array('titleonly' => 1, 'mainaffidonly' => 1));
 	if(is_array($assetslist)) {
-		$assets_list = parse_selectlist('assignee[asid]', 1, $assetslist, $assignee['asid']);
-		$assigners = $assets->get_assignto();
-		$employees_list = parse_selectlist('assignee[uid]', 1, $assigners, $assignee['uid']);
+		$assets_selectlist = parse_selectlist('assignee[asid]', 1, $assetslist, $assignee['asid']);
+		$affiliate = new Affiliates($core->user['mainaffiliate']);
+		$affiliate_users = $affiliate->get_users(array('ismain' => 1, 'displaynameonly' => 1));
+		$employees_selectlist = parse_selectlist('assignee[uid]', 1, $affiliate_users, $assignee['uid']);
 	} else {
 		$assets_list = $employees_list = $lang->na;
 	}
@@ -60,7 +61,6 @@ else {
 				exit;
 			}
 			$assets->update_assetuser($core->input['assignee']);
-			$lang->successfullysaved = 'Successfully Update';
 		}
 
 		switch($assets->get_errorcode()) {
@@ -73,12 +73,12 @@ else {
 			case 2:
 				output_xml("<status>false</status><message>{$lang->assetexitsamedate}</message>");
 				break;
-			case 5:
-				output_xml("<status>false</status><message>{$lang->assetinvalidtodate}</message>");
+			case 401:
+				output_xml("<status>false</status><message>{$lang->invaliddatetime}</message>");
 				break;
-			case 6:
-				output_xml("<status>false</status><message>{$lang->invaliddateformat}</message>");
-				break;
+			case 601:
+			output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+			break;
 		}
 	}
 }

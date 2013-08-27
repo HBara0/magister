@@ -14,11 +14,11 @@
                 <div style="display:table; border-collapse:collapse; width:100%;">
                     <div style="display:table-row;">
                         <div style="display:table-cell; width:10%;">{$lang->assigners}</div>
-                        <div style="display:table-cell; width:100%; padding:5px;">{$employees_list}</div>
+                        <div style="display:table-cell; width:100%; padding:5px;">{$employees_selectlist}</div>
                     </div>
                     <div style="display:table-row;">
                         <div style="display:table-cell; width:10%;">{$lang->assetid}</div>
-                        <div style="display:table-cell; width:10%; padding:5px;">{$assets_list}</div>
+                        <div style="display:table-cell; width:10%; padding:5px;">{$assets_selectlist}</div>
                     </div>
                     <div style="display:table-row;">
                     <div style="display:table-cell; width:20%;">{$lang->from}</div>
