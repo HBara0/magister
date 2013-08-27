@@ -58,7 +58,12 @@ class Affiliates {
 					WHERE a.affid={$this->affiliate['affid']}".$query_where_add." AND u.gid!=7");
 		while($user = $db->fetch_assoc($query)) {
 			$users = new Users($user['uid']);
-			$users_affiliates[$user['uid']] = $users->get();
+			if($options['displaynameonly']) {
+				$users_affiliates[$user['uid']] = $users->get()['displayName'];
+			}
+			else {
+				$users_affiliates[$user['uid']] = $users->get();
+			}
 		}
 		return $users_affiliates;
 	}
