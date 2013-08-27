@@ -14,6 +14,8 @@ if($core->usergroup['assets_canManageAssets'] == 0) {
 }
 
 if(!$core->input['action']) {
+	$assets_status = array(1 => 'damaged', 2 => 'not-functional', 3 => 'fully-functional');
+	
 	$assets = new Assets();
 	$sort_url = sort_url();
 
@@ -56,6 +58,10 @@ if(!$core->input['action']) {
 				$notactive = 'unapproved';
 			}
 			$affilate = new Affiliates($asset['affid']);
+			
+			if(!empty($asset['status'])) {
+				$asset['status_output'] = $lang->$assets_status[$asset['status']];
+			}
 			if(!empty($asset['createdOn'])) {
 				$asset['createdOn_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $asset['createdOn']);
 			}
@@ -82,7 +88,7 @@ elseif($core->input['action'] == 'get_deleteasset') {
 	$asset = new Assets($asid);
 	$asset = $asset->get();
 
-	eval("\$deleteasset = \"".$template->get("popup_assets_listassetsdelete")."\";");
+	eval("\$deleteasset = \"".$template->get('popup_assets_listassetsdelete')."\";");
 	echo $deleteasset;
 }
 elseif($core->input['action'] == 'get_editasset') {
@@ -91,7 +97,7 @@ elseif($core->input['action'] == 'get_editasset') {
 	$asset = $asset_obj->get();
 	
 	if($asset['isActive'] == 1) {
-		$ischecked = "checked";
+		$checkboxes['isActive'] = 'checked="checked"';
 	}
 
 	$assetstype = get_specificdata('assets_types', array('astid', 'name', 'title'), 'astid', 'title', 'title');
@@ -116,19 +122,30 @@ elseif($core->input['action'] == 'perform_delete') {
 	foreach($asset_relatedtables as $assettable) {
 		if(value_exists($assettable, 'asid', $asid)) {
 			$asset->deactivate_asset();
+			$operation = 'deactivate';
 			break;
 		}
 		else {
 			$asset->delete_asset();
+			$operation = 'delete';
 		}
 	}
 	switch($asset->get_errorcode()) {
-		case 3:
-			output_xml("<status>true</status><message>{$lang->successfullydeactivated}</message>");
+		case 0:
+			if($operation == 'deactivate') {
+				output_xml("<status>true</status><message>{$lang->successfullydeactivated}</message>");
+			}
+			else {
+				output_xml("<status>true</status><message>{$lang->successfullydeleted}</message>");
+			}
 			break;
-		case 4:
-			output_xml("<status>true</status><message>{$lang->successfullydeleted}</message>");
+		case 601:
+		case 604:
+			output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
 			break;
+		case 302:
+			output_xml("<status>false</status><message>{$lang->actionnopermission}</message>");
+			break;	
 	}
 }
 ?>

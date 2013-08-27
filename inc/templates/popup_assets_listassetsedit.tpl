@@ -36,7 +36,7 @@
             </div>
             <div style="display:table-row;">
                 <div style="display:table-cell; width:10%; vertical-align:middle;">{$lang->isactive}</div>
-                <div style="display:table-cell; width:100%;padding:5px;"><input type="checkbox" name="asset[isActive]" value="1" {$ischecked}/></div>
+                <div style="display:table-cell; width:100%;padding:5px;"><input type="checkbox" name="asset[isActive]" value="1"{$checkboxes[isActive]}/></div>
             </div>
 
 
