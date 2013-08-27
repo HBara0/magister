@@ -24,18 +24,18 @@
 
                 <div style="display:table-row;">
                     <div style="display:table-cell; width:10%;">{$lang->affiliate}</div>
-                    <div style="display:table-cell; width:100%; padding:5px;"><select name="asset[affid]">{$affiliates_list}</select></div>
+                    <div style="display:table-cell; width:100%; padding:5px;"><select name="asset[affid]">{$affiliates_selectlist}</select></div>
                 </div>
 
                 <div style="display:table-row;">
                     <div style="display:table-cell; width:10%;">{$lang->type}</div>
-                    <div style="display:table-cell; width:100%; padding:5px;">{$assets_type}</div>
+                    <div style="display:table-cell; width:100%; padding:5px;">{$assettypes_selectlist}</div>
                 </div>
 
 
                 <div style="display:table-row;">
                     <div style="display:table-cell; width:10%;">{$lang->status}</div>
-                    <div style="display:table-cell; width:100%;padding:5px;">{$assetsstatus}</div>
+                    <div style="display:table-cell; width:100%;padding:5px;">{$assetsstatus_selectlist}</div>
                 </div>
 
 
