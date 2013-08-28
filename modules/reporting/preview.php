@@ -21,7 +21,8 @@ if(!$core->input['action']) {
 	$reporting_quarter = currentquarter_info(false);
 	$report_currencies = array();
 	$toc_sequence = 5;
-
+	$reportsinconsistency = false;
+	
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list') {
 		if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {
 			redirect('index.php?module=reporting/generatereport');
@@ -117,6 +118,15 @@ if(!$core->input['action']) {
 
 			$no_send_icon = true;
 
+			if(is_array($newreport->check_outliers())) {
+				$report['hasinconsistency'] = true;
+				
+				$reportsissues['inconsistent'][] = $report['affiliates']['name'];
+				if($reportsinconsistency == false) {
+					$reportsinconsistency = true;
+				}
+			}
+			
 			if(!$reportcache->iscached('affiliatesmarketreport', $report['affiliates']['affid'])) {
 				$reportcache->add('affiliatesmarketreport', $report['affiliates']['name'], $report['affid']);
 			}
@@ -784,7 +794,15 @@ if(!$core->input['action']) {
 
 		eval("\$tablecontent = \"".$template->get('new_reporting_report_tableofcontents')."\";");
 
-		$reports = $coverpage.$tablecontent.$contributorspage.$summarypage.$overviewpage.$reports.$fxratespage.$closingpage;
+		/* Display Warining Notifications - START */
+		if($reportsinconsistency == true) {
+			$warnings = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px; text-align: left;">';
+			$warnings .= '<p>'.$lang->reportsinconsistent.'<ul><li>'.implode('</li><li>', $reportsissues['inconsistent']).'</li></ul></p>';
+			$warnings .= '</div>';	
+		}
+		/* Display Warining Notifications - END */
+	
+		$reports = $warnings.$coverpage.$tablecontent.$contributorspage.$summarypage.$overviewpage.$reports.$fxratespage.$closingpage;
 
 		$session->set_phpsession(array('reports_'.$session_identifier => $reports));
 	}
