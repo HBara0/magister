@@ -26,7 +26,7 @@ $lang->load('attendance_meta');
 
 if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_subject == true) {
 	if($ignore_subject == true) {
-		//$request_key = $db->escape_string($request['requestkey']);
+		$request_key = $db->escape_string($request['requestkey']);
 		$data['from'] = $core->user['email'];
 	}
 	else
@@ -35,7 +35,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 		if(strstr(strtolower($data['subject']), 'auto')) {
 			exit;
 		}
-		//$request_key = $db->escape_string($subject[1]);
+		$request_key = $db->escape_string($subject[1]);
 	}
 	
 	$leave = $db->fetch_assoc($db->query("SELECT l.*, u.firstName, u.lastName, email FROM ".Tprefix."leaves l LEFT JOIN ".Tprefix."users u ON (u.uid=l.uid) WHERE l.requestKey='{$request_key}'"));
@@ -44,7 +44,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 	if($db->num_rows($query) > 0) {
 		$user = $db->fetch_assoc($query);
 
-		$db->update_query('leavesapproval', array('isApproved' => 1, 'timeApproved' => time()), "lid='{$leave[lid]}' AND uid='{$user[uid]}' AND isApproved='0'");
+		$db->update_query('leavesapproval', array('isApproved' => 1, 'timeApproved' => TIME_NOW), "lid='{$leave[lid]}' AND uid='{$user[uid]}' AND isApproved='0'");
 		if($db->affected_rows() > 0) {
 			$query3 = $db->query("SELECT l.uid, u.email
 								FROM ".Tprefix."leavesapproval l LEFT JOIN ".Tprefix."users u ON (u.uid=l.uid)
@@ -53,22 +53,17 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 				$approver = $db->fetch_assoc($query3);
 
 				$leave['type_details'] = parse_type($leave['type']);
-
+				
+				$leave['details_crumb'] = parse_additionaldata($leave, $leave['type_details']['additionalFields']);
+				if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
+					$leave['details_crumb'] = ' - '.implode(' ', $leave['details_crumb']);
+				}
+				
 				//$approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=perform_approveleave&toapprove='.base64_encode($core->input['requestKey']).'&referrer=email';
 				$approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($core->input['requestKey']).'&id='.base64_encode($leave['lid']);
 
-				$lang->requestleavesubject = $lang->sprint($lang->requestleavesubject, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), $request_key);
-				$lang->requestleavemessagesupervisor = $lang->sprint($lang->requestleavemessagesupervisor, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']), $core->input['reason'], $user['employeename'], '', $approve_link);
-
-				$email_data = array(
-						'from_email' => 'approve_leaverequest@ocos.orkila.com',
-						'from' => 'Orkila Attendance System',
-						'to' => $approver['email'],
-						'subject' => $lang->requestleavesubject,
-						'message' => $lang->requestleavemessagesupervisor
-				);
-				$leaveexpense = new Leaves(array('lid' => $leave['lid']));
 				/* Parse expense information for message - START */
+				$leaveexpense = new Leaves(array('lid' => $leave['lid']));
 				if($leaveexpense->has_expenses()) {
 					$expenses_data = $leaveexpense->get_expensesdetails();
 					$total = 0;
@@ -80,10 +75,21 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 						$total += $expense['expectedAmt'];
 						$expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
 					}
-					$expenses_message_ouput = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
+					$expenses_message_output = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
 				}
-				$email_data['message'] .= $expenses_message_ouput;
+				$leave['reason'] .= $expenses_message_output;
 				/* Parse expense information for message - END */
+				
+				$lang->requestleavesubject = $lang->sprint($lang->requestleavesubject, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), $request_key);
+				$lang->requestleavemessagesupervisor = $lang->sprint($lang->requestleavemessagesupervisor, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']).$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']), $leave['reason'], $user['employeename'], '', $approve_link);
+
+				$email_data = array(
+						'from_email' => 'approve_leaverequest@ocos.orkila.com',
+						'from' => 'Orkila Attendance System',
+						'to' => $approver['email'],
+						'subject' => $lang->requestleavesubject,
+						'message' => $lang->requestleavemessagesupervisor
+				);
 				
 				$mail = new Mailer($email_data, 'php');
 				if($mail->get_status() === true) {
@@ -97,7 +103,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 					update_leavestats_periods($leave, $leave['type_details']['isWholeDay']);
 				}
 
-				$lang->leaveapprovedmessage = $lang->sprint($lang->leaveapprovedmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']),$expenses_message_ouput);
+				$lang->leaveapprovedmessage = $lang->sprint($lang->leaveapprovedmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']));
 
 				$email_data = array(
 						'from_email' => 'attendance@ocos.orkila.com',
