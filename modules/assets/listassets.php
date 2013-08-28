@@ -42,14 +42,21 @@ if(!$core->input['action']) {
 	$filter_where_values = $filter->process_multi_filters();
 	$filters_row_display = 'hide';
 
-	$multipage_where = 'affid IN ('.$db->escape_string(implode(',', $core->user['affiliates'])).')';
+	if(true) {/* Later to be, if has permission to view multiple affiliates */
+		$get_affassets_options = array('mainaffidonly' => 1);
+		$multipage_where = 'affid = '.$core->user['mainaffiliate'];
+	} else {
+		$get_affassets_options = array('mainaffidonly' => 1);
+		$multipage_where = 'affid IN ('.$db->escape_string(implode(',', $core->user['affiliates'])).')';
+	}
+		
 	if(is_array($filter_where_values)) {
 		$filters_row_display = 'show';
 		$filter_where = $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
 		$multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
 	}
 	
-	$all_assets = $assets->get_affiliateassets('', $filter_where);
+	$all_assets = $assets->get_affiliateassets($get_affassets_options, $filter_where);
 
 	if(is_array($all_assets)) {
 		foreach($all_assets as $asset) {
