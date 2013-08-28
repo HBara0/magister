@@ -361,6 +361,53 @@ class ReportingQr Extends Reporting {
 			WHERE sa.eid=".$this->report['spid'].""));
 	}
 
+	public function check_outliers($method= 'standarddev', $threshold= 3) {
+		global $db;
+
+		$this->read_products();
+		$products = $this->get_products();
+
+		if(is_array($products)) {
+			foreach($products as $pid => $product) {
+				$pid = intval($pid);
+				if($method=='standarddev') {
+					/* Default $threshold 3 */
+					$query = $db->query('SELECT pa1.quantity, pa1.turnOver
+										FROM productsactivity pa1, 
+										(SELECT AVG(quantity) AS qtymean, STDDEV(quantity) AS qtystddev, AVG(turnover) AS tovmean, STDDEV(turnover) AS tovstddev
+										FROM productsactivity WHERE pid='.$pid.' AND rid IN (SELECT rid FROM reports WHERE affid="'.$this->report['affid'].'" AND spid="'.$this->report['spid'].'" AND rid!='.$this->report['rid'].')) as pa2
+										WHERE (ABS(pa1.quantity - pa2.qtymean) / pa2.qtystddev > '.$threshold.' OR ABS(pa1.turnover - pa2.tovmean) / pa2.tovstddev > '.$threshold.') AND pa1.pid='.$pid.' AND pa1.rid='.$this->report['rid']);
+				}
+				elseif($method == 'avgplusdev') {
+					/* Default $threshold 1.5 */
+					$query = $db->query('SELECT pa1.quantity, pa1.turnOver
+										FROM productsactivity pa1, 
+										(SELECT AVG(quantity)+'.$threshold.'*STDDEV(quantity) as qtythreshold, AVG(turnover/quantity)+'.$threshold.'*STDDEV(turnover/quantity) as tovthreshold
+										FROM productsactivity WHERE pid='.$pid.' AND rid IN (SELECT rid FROM reports WHERE affid="'.$this->report['affid'].'" AND spid="'.$this->report['spid'].'" AND rid!='.$this->report['rid'].')) as pa2
+										WHERE (pa1.quantity > pa2.qtythreshold OR pa1.turnover > pa2.tovthreshold) AND pa1.pid='.$pid.' AND pa1.rid='.$this->report['rid']);		
+				}
+				elseif($method == 'quartiles') {
+					/* Default $threshold 0.675 */
+					$query =  $db->query('SELECT pa1.quantity, pa1.turnOver
+										FROM productsactivity pa1, 
+										(SELECT AVG(quantity) - STD(quantity) AS qtythreshold_minus, (AVG(quantity) + STD(quantity) * '.$threshold.') AS qtythreshold_plus, AVG(turnover/quantity) - STD(turnover/quantity) AS tovthreshold_minus, (AVG(turnover/quantity) + STD(turnover/quantity) * '.$threshold.') AS tovthreshold_plus
+										FROM productsactivity WHERE pid='.$pid.' AND rid IN (SELECT rid FROM reports WHERE affid="'.$this->report['affid'].'" AND spid="'.$this->report['spid'].'" AND rid!='.$this->report['rid'].')) as pa2
+										WHERE (pa1.quantity > pa2.qtythreshold_plus OR pa1.turnover > pa2.tovthreshold_plus) AND pa1.pid='.$pid.' AND pa1.rid='.$this->report['rid']);
+				}
+				else {
+					return false;
+				}
+				if($db->num_rows($query) > 0) {
+					while($outlier = $db->fetch_assoc($query)) {
+						$outliers[$pid] = $outlier;
+					}
+				}
+			}
+			return $outliers;
+		}
+		return false;
+	}
+	
 	public function validate_forecasts($data, $currencies, $options = array()) {
 		global $db, $core;
 
