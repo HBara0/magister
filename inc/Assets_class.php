@@ -161,17 +161,18 @@ class Assets {
 			$this->errorcode = 1;
 			return false;
 		}
-
-		if(!$this->isValidDate($userdata['fromDate'])) {
-			$this->errorcode = 401;
-			return false;
-		}
-		if(!$this->isValidDate($userdata['toDate'])) {
-			$this->errorcode = 401;
-			return false;
-		}
+	
 		$userdata['fromDate'] = strtotime($userdata['fromDate'].' '.$userdata['fromTime']);
 		$userdata['toDate'] = strtotime($userdata['toDate'].' '.$userdata['toTime']);
+	
+		if($userdata['fromDate'] == false) {
+			$this->errorcode = 401;
+			return false;
+		}
+		if($userdata['toDate'] == false) {
+			$this->errorcode = 401;
+			return false;
+		}
 
 		if($userdata['toDate'] < $userdata['fromDate']) {
 			$this->errorcode = 401;
@@ -181,27 +182,18 @@ class Assets {
 			$this->errorcode = 2;
 			return false;
 		}
-		if(is_array($userdata)) {
-			$userassets_data = array('uid' => $userdata['uid'],
-					'asid' => $this->asset['asid'],
-					'fromDate' => $userdata['fromDate'],
-					'toDate' => $userdata['toDate'],
-					'conditionOnHandover' => $userdata['conditionOnHandover'],
-					'conditionOnReturn' => $userdata['conditionOnReturn'],
-					'assignedon' => TIME_NOW,
-					'assignedby' => $core->user['uid']
-			);
-		}
-		$query = $db->insert_query('assets_users', $userassets_data);
+
+		unset($userdata['fromTime'],$userdata['toTime']);
+
+		$userdata['assignedBy'] = $core->user['uid'];
+		$userdata['assignedOn'] = TIME_NOW;
+		$query = $db->insert_query('assets_users', $userdata);
 		if($query) {
 			$this->errorcode = 0;
 		}
-	}
-
-	public function isValidDate($date) {
-		global $core;
-		$datetime = explode('-', $date);
-		return checkdate($datetime[1], $datetime[0], $datetime[2]);
+		else {
+			return false;
+		}
 	}
 
 	public function update_assetuser($userdata) {
@@ -297,8 +289,10 @@ class Assets {
 		if(!empty($filter_where) && isset($filter_where)) {
 			$filter_where = ' AND '.$filter_where;
 		}
+		
+		$sort_query = 'fromDate DESC';
 		if(isset($core->input['sortby'], $core->input['order'])) {
-			$sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
+			$sort_query = $core->input['sortby'].' '.$core->input['order'];
 		}
 
 		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
@@ -310,11 +304,18 @@ class Assets {
 			$limit_start = $db->escape_string($core->input['start']);
 		}
 
-		$assigne_query = $db->query("SELECT asu.* FROM ".Tprefix."assets_users asu 
-									JOIN ".Tprefix."assets a ON(a.asid=asu.asid) WHERE a.isActive='1'
+		if(true) {/* Later to be, if has permission to view multiple affiliates */
+			$query_where = ' WHERE affid = '.$core->user['mainaffiliate'];
+		} else {
+			$query_where = ' WHERE affid IN ('.implode(',', $core->user['affiliates']).')';
+		}
+		$assigne_query = $db->query("SELECT asu.*
+									FROM ".Tprefix."assets_users asu 
+									JOIN ".Tprefix."assets a ON(a.asid=asu.asid)
+									{$query_where}
 									{$filter_where}	
-									{$sort_query}
-									LIMIT {$limit_start},{$core->settings[itemsperlist]}");
+									ORDER BY {$sort_query}
+									LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
 		while($assignee = $db->fetch_assoc($assigne_query)) {
 			$assignees[$assignee['auid']] = $assignee;
@@ -324,13 +325,13 @@ class Assets {
 
 	public function get_assigneduser($id) {
 		global $db, $core;
-		if(!empty($id)) {
-			$assignee = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."assets_users WHERE auid=".$db->escape_string($id)));
-			$assignee['fromDate_output'] = date($core->settings['dateformat'], $assignee['fromDate']);
-			$assignee['fromTime_output'] = preg_replace('[AM]', '', date($core->settings['timeformat'], $assignee['fromDate']));
-			$assignee['toDate_output'] = date($core->settings['dateformat'], $assignee['toDate']);
-			$assignee['toTime_output'] = preg_replace('[AM]', '', date($core->settings['timeformat'], $assignee['toDate']));
-		}
+		
+		$assignee = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."assets_users WHERE auid=".$db->escape_string($id)));
+		$assignee['fromDate_output'] = date($core->settings['dateformat'], $assignee['fromDate']);
+		$assignee['fromTime_output'] = preg_replace('[AM]', '', date($core->settings['timeformat'], $assignee['fromDate']));
+		$assignee['toDate_output'] = date($core->settings['dateformat'], $assignee['toDate']);
+		$assignee['toTime_output'] = preg_replace('[AM]', '', date($core->settings['timeformat'], $assignee['toDate']));
+		
 		return $assignee;
 	}
 
@@ -463,7 +464,7 @@ class Assets {
 		return $employees;
 	}
 
-	public function get_affiliateassets($options = '', $filter_where = '') {
+	public function get_affiliateassets($options = array('mainaffidonly' => 1, 'titleonly' => 1), $filter_where = '') {
 		global $db, $core;
 
 		if(!empty($filter_where) && isset($filter_where)) {
