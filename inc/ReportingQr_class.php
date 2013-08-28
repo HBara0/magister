@@ -14,6 +14,21 @@ class ReportingQr Extends Reporting {
 		parent::__construct($reportdata);
 	}
 
+	public function read_products() {
+		global $db;
+		if(is_array($this->report['products']) && !empty($this->report['products'])) {
+			$query_extrawhere = ' AND pid NOT IN ('.implode(',', array_keys($this->report['products'])).')';
+		}
+		
+		$query = $db->query("SELECT pid FROM ".Tprefix."productsactivity WHERE rid=".$this->report['rid'].$query_extrawhere);
+		if($db->num_rows($query) > 0) {
+			while($product = $db->fetch_assoc($query)) {
+				$product_obj = new Products($product['pid']);
+				$this->report['products'][$product['pid']] = $product_obj->get()['name'];
+			}
+		}	
+	}
+	
 	public function read_products_activity($get_prevactivity = false) {
 		global $db;
 		$products_activity_query = $db->query("SELECT pa.*, p.name AS productname, ps.psid, ps.title AS segment
