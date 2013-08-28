@@ -529,7 +529,18 @@ else {
 					record_contribution($rid);
 				}
 				$log->record($rid);
-				output_xml("<status>true</status><message>{$lang->savedsuccessfully}</message>");
+				
+				$outliers = $report->check_outliers();
+				if(is_array($outliers)) {
+					$corrections_output = $lang->pactivityincosistent.'<ul>';
+					foreach($outliers as $pid => $outlier) {
+						$product = new Products($pid);
+						
+						$corrections_output .= '<li>'.$product->get()['name'].'</li>';
+					}
+					$corrections_output .= '</ul>';
+				}
+				output_xml("<status>true</status><message>{$lang->savedsuccessfully} <![CDATA[<br />{$corrections_output}]]></message>");
 			}
 			else {
 				output_xml("<status>false</status><message>{$lang->saveerror}</message>");
