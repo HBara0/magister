@@ -17,14 +17,13 @@ if($core->usergroup['canUseBudgeting'] == 0) {
 }
 
 if(!$core->input['action']) {
-
 	if($core->usergroup['canViewAllAff'] == 0) {
 		$inaffiliates = implode(',', $core->user['affiliates']);
 		$affiliate_where = " affid IN ({$inaffiliates})";
 	}
 
 	$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, "{$affiliate_where}");
-	$affiliated_budget = parse_selectlist('budget[affid]', 1, $affiliates, $core->user['mainaffiliate'], '', '', array('id' => 'affid'));
+	$affiliated_budget = parse_selectlist('budget[affid]', 1, $affiliates, '', '', '', array('id' => 'affid'));
 
 	if($core->usergroup['canViewAllSupp'] == 0) {
 		$insupplier = implode(',', $core->user['suppliers']['eid']);
@@ -59,7 +58,6 @@ else {
 		$session->start_phpsession();
 		$session->set_phpsession(array('budgetdata' => serialize($core->input['budget'])));
 	}
-	
 	elseif($core->input['action'] == 'get_supplierslist') {
 		$affid = $db->escape_string($core->input['id']);
 		$affiliate = new Affiliates($affid);
@@ -87,9 +85,14 @@ else {
 		$spid = $db->escape_string($core->input['spid']);
 		/* implementing years restricitons */
 		$budget = new Budgets();
-		$year = $budget->populate_years(array('affid' => $affid, 'spid' => $spid))['year'];
-		$budget_year .= "<option value=''>Select the year</option><option value='{$year}'>{$year}</option>";
+		$budget_years = $budget->populate_budgetyears(array('affid' => $affid, 'spid' => $spid));
+		if(is_array($budget_years)) {
+			foreach($budget_years as $year) {
+				$budget_year .="<option value='{$year}'>{$year}</option>";
+			}
+		}
 
+		//$budget_year .="<option value=''>Select the year</option><option value='{$year}'>{$year}</option>";
 //		$years = array_combine(range(date("Y") + 1, date("Y") + 1), range(date("Y") + 1, date("Y") + 1));
 //		foreach($years as $year) {
 //			$year_selected = '';

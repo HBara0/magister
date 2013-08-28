@@ -22,7 +22,7 @@ class Products {
 		
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'pid, name, spid';
+			$query_select = 'pid, name, spid,gpid';
 		}
 		$this->product = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'products WHERE pid='.intval($id)));
 	}

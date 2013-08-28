@@ -41,7 +41,7 @@
                     <div style="display:inline-block;padding:8px; margin-left:20px;"><select name="budget[year]" id="year">{$budget_year}</select></div>
                     <div id="years_Loading" style="display:inline-block;padding:8px;"></div>
                 </div>
-                <div  id="buttons_row" style=" display: none;clear:left;">   <input type="button" id="perform_budgeting/create_Button" value="Proceed" class="button" onClick="goToURL('index.php?module=budgeting/fillbudget&amp;stage=fillbudgetline');" /></div>
+                <div  id="buttons_row" style=" display: none;clear:left;"><input type="button" id="perform_budgeting/create_Button" value="Proceed" class="button" onClick="goToURL('index.php?module=budgeting/fillbudget&amp;stage=fillbudgetline');" /></div>
 
             </div>
         </form>

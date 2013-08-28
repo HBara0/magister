@@ -13,4 +13,9 @@ $lang['quantity']="Quantity";
 $lang['income']="Income(LBP)";
 $lang['saleamount']="Sale Ammount(LBP)";
 $lang['salestype']="Sales Type";
-		?>
+$lang['generatebudget']="Generate Budget";
+$lang['bm']='Business Manager';
+$lang['budgetexist']='Budget Already exist';
+$lang['segment']="Segments";
+$lang['uom']='UOM';
+?>

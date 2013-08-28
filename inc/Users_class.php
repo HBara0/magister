@@ -55,12 +55,12 @@ class Users {
 
 	public function get_userbyemail($email) {
 		global $db, $core;
-		
+
 		$email = $core->sanitize_email($email);
 		if(!$core->validate_email($email)) {
 			return false;
 		}
-		
+
 		$query = $db->query("SELECT DISTINCT(u.uid)
 							FROM ".Tprefix."users u 
 							LEFT JOIN ".Tprefix."usersemails ue ON (ue.uid=u.uid) 
@@ -124,6 +124,19 @@ class Users {
 		return new Users($this->user['assistant']);
 	}
 
+	public function get_affiliateuser() {
+		global $db;
+		$affemployee_query = $db->query("SELECT affe.aeid,u.displayName,u.uid,u.username FROM affiliatedemployees affe 
+										JOIN ".Tprefix."users u ON (u.uid=affe.uid)
+										JOIN ".Tprefix."affiliates aff ON(aff.affid=affe.affid) WHERE affe.affid in('".$this->get_mainaffiliate()->get()['affid']."')");
+		if($db->num_rows($affemployee_query) > 0) {
+			while($affiliate_user = $db->fetch_assoc($affemployee_query)) {
+				$affiliate_users[$affiliate_user['aeid']] = $affiliate_user;
+			}
+			return $affiliate_users;
+		}
+	}
+
 	public function get_positions() {
 		global $db, $lang;
 
@@ -142,6 +155,19 @@ class Users {
 			$this->read_mainaffiliate();
 		}
 		return new Affiliates($this->user['mainaffiliate'], FALSE);
+	}
+
+	public function get_segments() {
+		global $db;
+		$segment_query = $db->query("SELECT ps.psid,ps.title,em.emsid,em.uid FROM employeessegments em 
+									JOIN ".Tprefix."users u on u.uid=em.uid
+									JOIN ".Tprefix."productsegments ps ON (ps.psid=em.psid) WHERE u.uid=".$this->user['uid']);
+		if($db->num_rows($segment_query) > 0) {
+			while($segments = $db->fetch_assoc($segment_query)) {
+				$segment[$segments['emsid']] = $segments;
+			}
+			return $segment;
+		}
 	}
 
 	public function get_hrinfo($simple = true) {

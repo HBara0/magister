@@ -17,10 +17,9 @@
             </div>
 
             <div style="display:block;padding:20px;">
-                <form id="perform_budgeting/fillbudget_Form" name="perform_budgeting/fillbudget_Form" action="#" method="post">
-                    <input type="hidden" id="rid" name="bid" value="{$core->input[bid]}">
+                <form id="perform_budgeting/fillbudget_Form" name="perform_budgeting/fillbudget_Form" action="index.php?module=budgeting/generatebudget&amp;identifier={$core->input[identifier]}" method="post">
+                    <input type="hidden"  name="budgetline[bid]" value="{$core->input[bid]}">
                     <input type="hidden" id="identifier" name="identifier" value="{$core->input[identifier]}">
-                    <input type="hidden" id="numrows" name="numrows" value="{$customerscount}">
                     <table width="100%" border="0" cellspacing="0" cellpadding="2" style="margin-left: 8px;">
                         <thead>
                             <tr>
@@ -37,11 +36,21 @@
                         </tbody>
 
                         <tr><td valign="top">{$addmore_customers}</td></tr>
-                        <div style="float:right; position:fixed; top:470px;right:200px;"><input type="button" value="{$lang->prevcaps}" class="button" onClick="goToURL('index.php?module=fillbudget/create&amp;identifier={$core->input[identifier]}');"/> <input type="button" id="perform_budgeting/fillbudget_Button" value="{$lang->savecaps}" class="button"/>
-                            <input type="submit" value="{$lang->nextcaps}" onClick='$("form:first").unbind("submit").trigger("submit");' class="button"/></div>        
-                        <tr>
+
+                            <tr>
+                                <td>
+                                    <table width="100%">
+                                        <tr> <td><input type="button" value="{$lang->prevcaps}" class="button" onClick="goToURL('index.php?module=budgeting/create&amp;identifier={$core->input[identifier]}');"/></td>
+                                <td><input type="button" id="perform_budgeting/fillbudget_Button" value="{$lang->savecaps}" class="button"/></td>
+                                <td> <input type="submit" value="{$lang->nextcaps}" onClick='$("form:first").unbind("submit").trigger("submit");'class="button"/>     </td></tr>
+                                    </table>
+                                </td>
+                               
+                            </tr>
+                              <tr>
                             <td ><div id="perform_budgeting/fillbudget_Results"></div></td>
                         </tr>
+                   
                     </table>
                 </form>
             </div>
