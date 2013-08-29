@@ -11,8 +11,9 @@
 
 <td class="contentContainer">
         <h3>{$lang->createbudget}</h3>
- <form name="perform_budgeting/create_Form" id="perform_budgeting/create_Form" action="#" method="post">
-                <input type="hidden" name="action" value="create"/>
+ <form name="perform_budgeting/create_Form" id="perform_budgeting/create_Form" action="index.php?module=budgeting/fillbudget&amp;sessionidentifier={$sessionidentifier}&amp;stage=fillbudgetline" method="post">
+              
+                    <input type="hidden" name="sessionidentifier" value="{$sessionidentifier}"/>
                 <div style="display:block;">
                     <div style="display:inline-block;padding:8px;">{$lang->affiliate}</div>
                     <div style="display:inline-block;padding:8px;">{$affiliated_budget}</div>
@@ -41,7 +42,7 @@
                     <div style="display:inline-block;padding:8px; margin-left:20px;"><select name="budget[year]" id="year">{$budget_year}</select></div>
                     <div id="years_Loading" style="display:inline-block;padding:8px;"></div>
                 </div>
-                <div  id="buttons_row" style=" display: none;clear:left;"><input type="button" id="perform_budgeting/create_Button" value="Proceed" class="button" onClick="goToURL('index.php?module=budgeting/fillbudget&amp;stage=fillbudgetline');" /></div>
+                <div  id="buttons_row" style=" display: none;clear:left;"><input type="submit" value="Proceed" class="button"  /></div>
 
             </div>
         </form>

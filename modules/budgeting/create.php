@@ -15,7 +15,7 @@ if(!defined("DIRECT_ACCESS")) {
 if($core->usergroup['canUseBudgeting'] == 0) {
 	error($lang->sectionnopermission);
 }
-
+$sessionidentifier = base64_encode(substr(uniqid(time()), 0, 10));
 if(!$core->input['action']) {
 	if($core->usergroup['canViewAllAff'] == 0) {
 		$inaffiliates = implode(',', $core->user['affiliates']);
@@ -44,11 +44,10 @@ if(!$core->input['action']) {
 		}
 		$budget_year .= "<option value='{$year}'{$year_selected}>{$year}</option>";
 	}
-	$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1);
+	//$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1);
 	$affiliate = new Affiliates($core->user['mainaffiliate']);
 	$affiliate_currency = $affiliate->get_country()->get()['mainCurrency'];
-	$budget_currencylist = parse_selectlist('budget[currency]', 1, $currencies, $affiliate_currency, '', '', array('id' => 'currency'));
-
+	$budget_currencylist = parse_selectlist('budget[currency]', 1, array(), $affiliate_currency, '', '', array('id' => 'currency'));
 
 	eval("\$budgetcreate = \"".$template->get('budgeting_createbudget')."\";");
 	output_page($budgetcreate);
@@ -56,7 +55,7 @@ if(!$core->input['action']) {
 else {
 	if($core->input['action'] == 'create') {
 		$session->start_phpsession();
-		$session->set_phpsession(array('budgetdata' => serialize($core->input['budget'])));
+		$session->set_phpsession(array('budgetdata_'.$sessionidentifier => $core->input['budget']));
 	}
 	elseif($core->input['action'] == 'get_supplierslist') {
 		$affid = $db->escape_string($core->input['id']);

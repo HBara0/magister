@@ -16,59 +16,62 @@ if($core->usergroup['canUseBudgeting'] == 0) {
 }
 $session->start_phpsession();
 
-if(!$core->input['action']) {
+//if($core->input['action']) { 
 
-	if($core->input['stage'] == 'fillbudgetline') {
-		$budget_data = unserialize($session->get_phpsession('budgetdata'));
-		$affiliate = new Affiliates($budget_data['affid']);
-		$affiliate_name = $affiliate->get()['name'];
-		$supplier = new Entities($budget_data['spid']);
-		$supplier_name = $supplier->get()['companyName'];
-		$budget = new Budgets();
-		$currentbudget = $budget->get_budgetbydata($budget_data);
-		$budgetlines = $budget->get_budgetLines($currentbudget['bid']);
-		$session->set_phpsession(array('budgetmetadata_'.$currentbudget['identifier'] => serialize($currentbudget)));
+if($core->input['stage'] == 'fillbudgetline') {
+	$session_identifier = $db->escape_string(base64_decode($core->input['budget']['sessionidentifier']));
+	$session->set_phpsession(array('budgetdata_'.$sessionidentifier => serialize($core->input['budget'])));
+	$budget_data = unserialize($session->get_phpsession('budgetdata_'.$session_identifier));
+	
+	$affiliate = new Affiliates($budget_data['affid']);
+	$affiliate_name = $affiliate->get()['name'];
+	$supplier = new Entities($budget_data['spid']);
+	$supplier_name = $supplier->get()['companyName'];
+	$budget = new Budgets();
+	$currentbudget = $budget->get_budgetbydata($budget_data);
+	$budgetlines = $budget->get_budgetLines($currentbudget['bid']);
+	$session->set_phpsession(array('budgetmetadata_'.$currentbudget['identifier'] => serialize($currentbudget)));
 
-		$saletypes = explode(';', $core->settings['saletypes']);
-		foreach($saletypes as $key => $val) {
-			$saletypes[$val] = ucfirst($val);
-			unset($saletypes[$key]);
-		}
-		/* check whether to display existing budget Form or display new one  */
-		if(is_array($budgetlines)) {
-			$core->input['identifier'] = base64_encode($currentbudget['identifier']);
-			$core->input['bid'] = $currentbudget['bid'];
-			$rowid = 0;
-			foreach($budgetlines as $blid => $budgetline) {
-				/* Get Products name from object */
-				$rowid++;
-				$product = new Products($budgetline['pid']);
-				$budgetline['productname'] = $product->get()['name'];
-				if(isset($budgetline['cid']) && !empty($budgetline['cid'])) {
-					$required = 'required="required"';
-				}
-				/* Get Customer name from object */
-				$customer = new Entities($budgetline['cid']);
-				$budgetline['customerName'] = $customer->get()['companyName'];
-
-				$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType']);
-				eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
-			}
-		}
-		else {
-			for($rowid = 1; $rowid <= 4; $rowid++) {
-				$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType']);
-				eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
-			}
-		}
-
-		$addmore_customers = '<img src="images/add.gif" id="addmore_budgetlines" alt="'.$lang->add.'">';
-
-		eval("\$fillbudget = \"".$template->get('budgeting_fill')."\";");
-		output_page($fillbudget);
+	$saletypes = explode(';', $core->settings['saletypes']);
+	foreach($saletypes as $key => $val) {
+		$saletypes[$val] = ucfirst($val);
+		unset($saletypes[$key]);
 	}
+	/* check whether to display existing budget Form or display new one  */
+	if(is_array($budgetlines)) {
+		$core->input['identifier'] = base64_encode($currentbudget['identifier']);
+		$core->input['bid'] = $currentbudget['bid'];
+		$rowid = 0;
+		foreach($budgetlines as $blid => $budgetline) {
+			/* Get Products name from object */
+			$rowid++;
+			$product = new Products($budgetline['pid']);
+			$budgetline['productname'] = $product->get()['name'];
+			if(isset($budgetline['cid']) && !empty($budgetline['cid'])) {
+				$required = 'required="required"';
+			}
+			/* Get Customer name from object */
+			$customer = new Entities($budgetline['cid']);
+			$budgetline['customerName'] = $customer->get()['companyName'];
+
+			$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType']);
+			eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
+		}
+	}
+	else {
+		for($rowid = 1; $rowid <= 4; $rowid++) {
+			$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType']);
+			eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
+		}
+	}
+
+	$addmore_customers = '<img src="images/add.gif" id="addmore_budgetlines" alt="'.$lang->add.'">';
+
+	eval("\$fillbudget = \"".$template->get('budgeting_fill')."\";");
+	output_page($fillbudget);
 }
-elseif($core->input['action'] == 'do_perform_fillbudget') {
+//}
+if($core->input['action'] == 'do_perform_fillbudget') {
 	$budget_data = unserialize($session->get_phpsession('budgetdata'));
 	if(is_array($core->input['budgetline'])) {
 		$budget = new Budgets();
