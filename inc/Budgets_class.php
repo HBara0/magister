@@ -87,7 +87,9 @@ class Budgets {
 			$budget_years[] = $next_budgetyear;
 		}
 
-
+		if(is_array($budget_years)) {
+			$budget_years = array_unique($budget_years);
+		}
 		return $budget_years;
 	}
 
@@ -144,7 +146,7 @@ class Budgets {
 			}
 
 			if(empty($data['pid']) || empty($data['cid'])) {
-				$this->errorcode = 1;
+				//$this->errorcode = 1;
 				continue;
 			}
 //	
