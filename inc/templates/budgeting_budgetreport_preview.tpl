@@ -14,12 +14,11 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-
             <form name="perform_budgeting/preview_Form" id="perform_budgeting/preview_Form" method="post" action="#">
                 <input type="hidden" name="budgetid" value="{$bid}">
             </form>
-          {$budgetreport_coverpage}
-            <div align="center">{$budgetingreport}</div>
+            {$budgetreport_coverpage}
+            {$budgeting_budgetrawreport}
             <div align="right">{$tools}</div>
             <span><a href="#tableofcontent" class="scrollup" title="{$lang->clicktoscroll}"></a></span>
         </td>

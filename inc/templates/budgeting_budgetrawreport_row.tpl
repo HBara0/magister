@@ -1,14 +1,14 @@
 <tr id="{$budgetitem[blid]}">
-    <td>{$manager}</td>
-    <td>{$budgetitem[customer]}</td>
-    <td>{$cusomtercountry}</td>
-    <td>{$country}</td>
-    <td>{$supplier}</td>
-    <td>{$segment}</td>
-    <td>{$budgetitem[product]}</td>
-    <td>{$budgetitem[Quantity]}</td>
-    <td>{$budgetitem[uom]}</td>
-    <td>{$budgetitem[saleType]}</td>
-    <td>{$budgetitem[ammount]}</td>
-    <td>{$budgetitem[income]}</td>
+    <td>{$budget[manager]}</td>
+    <td>{$budgetline[customer]}</td>
+    <td>{$budgetline[cusomtercountry]}</td>
+    <td>{$budget[country]}</td>
+    <td>{$budget[supplier]}</td>
+    <td>{$budgetline[segment]}</td>
+    <td>{$budgetline[product]}</td>
+    <td>{$budgetline[Quantity]}</td>
+    <td>{$budgetline[uom]}</td>
+    <td>{$budgetline[saleType]}</td>
+    <td>{$budgetline[ammount]}</td>
+    <td>{$budgetline[income]}</td>
 </tr>

@@ -1,4 +1,4 @@
-<table class="budgetbox" cellpadding="8px"  cellspacing="8px" width="50%;">
+<table class="datatable" width="100%">
     <tbody>
     <th>{$lang->bm}</th>
     <th>{$lang->customer}</th>
@@ -13,6 +13,5 @@
     <th>{$lang->saleamount}</th>
     <th>{$lang->income}</th>
 </tbody>
-{$userbudget_report_row}
-
+    {$budget_report_row}
 </table>
