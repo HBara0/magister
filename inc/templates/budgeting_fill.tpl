@@ -16,19 +16,19 @@
                 <div style="display:inline-block;padding:0px;">{$supplier_name}-{$budget_data[year]}|{$budget_data[currency]}</div>
             </div>
 
-            <div style="display:block;padding:20px;">
+       
                 <form id="perform_budgeting/fillbudget_Form" name="perform_budgeting/fillbudget_Form" action="index.php?module=budgeting/generatebudget&amp;identifier={$core->input[identifier]}" method="post">
                     <input type="hidden"  name="budgetline[bid]" value="{$core->input[bid]}">
                     <input type="hidden" id="identifier" name="identifier" value="{$core->input[identifier]}">
-                    <table width="100%" border="0" cellspacing="0" cellpadding="2" style="margin-left: 8px;">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="2">
                         <thead>
                             <tr>
-                                <td width="16.6%" class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->customer}</strong</td>
-                                <td width="16.6%" rowspan="2" valign="top" align="center" class=" border_right">{$lang->product}</td>
-                                <td width="16.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->quantity}<br /><span class="smalltext"><em>{$lang->mt}</em></span></td>
-                                <td width="16.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->saleamount}</td>
-                                <td width="16.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->income}</td>
-                                <td width="16.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->salestype}</td>
+                                <td width="20%" class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->customer}</strong</td>
+                                <td width="20%" rowspan="2" valign="top" align="center" class=" border_right">{$lang->product}</td>
+                                <td width="15%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->quantity}<br /><span class="smalltext"><em>{$lang->mt}</em></span></td>
+                                <td width="15%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->saleamount}</td>
+                                <td width="15%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->income}</td>
+                                <td width="15%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->salestype}</td>
                             </tr>
                         </thead>
                         <tbody id="budgetlines_tbody">
@@ -53,7 +53,7 @@
                    
                     </table>
                 </form>
-            </div>
+
 
         </td>
 
