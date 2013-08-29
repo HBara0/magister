@@ -22,9 +22,9 @@ if(!($core->input['action'])) {
 
 		//foreach($budgetsdata as $budget) {				
 
-		$budget = new Budgets();
+		$budget_genobj = new Budgets();
 		//foreach($budgetsdata[$aggregate_type] as $budgetitem) {
-		$budgets = $budget->get_budgets_byinfo($budgetsdata);
+		$budgets = $budget_genobj->get_budgets_byinfo($budgetsdata);
 		if(is_array($budgets)) {
 			foreach($budgets as $budgetid) {
 				$budget_obj = new Budgets($budgetid);
@@ -36,7 +36,7 @@ if(!($core->input['action'])) {
 				$budgetlines = $budget_obj->get_budgetLines();
 				foreach($budgetlines as $budgetline) {
 					$budgetline_obj = new BudgetLines($budgetline['blid']);
-					$countries = new Countries($budget_line->get_customer($budgetline['cid'])->get()['country']);
+					$countries = new Countries($budgetline_obj->get_customer($budgetline['cid'])->get()['country']);
 
 					$budgetline['uom'] = 'Kg';
 					$budgetline['cusomtercountry'] = $countries->get()['name'];
