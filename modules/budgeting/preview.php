@@ -27,23 +27,23 @@ if(!($core->input['action'])) {
 		$budgets = $budget->get_budgets_byinfo($budgetsdata);
 		if(is_array($budgets)) {
 			foreach($budgets as $budgetid) {
-				$budget = new Budgets($budgetid);
-				$budget['country'] = $budget->get_affiliate()->get()['name'];
+				$budget_obj = new Budgets($budgetid);
+				$budget['country'] = $budget_obj->get_affiliate()->get()['name'];
 
-				$budget['supplier'] = $budget->get_supplier()->get()['companyName'];
-				$budget['manager'] = $budget->get_CreateUser()->get()['displayName'];
+				$budget['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
+				$budget['manager'] = $budget_obj->get_CreateUser()->get()['displayName'];
 
-				$budgetlines = $budget->get_budgetLines();
+				$budgetlines = $budget_obj->get_budgetLines();
 				foreach($budgetlines as $budgetline) {
-					$budget_line = new BudgetLines($budgetline['blid']);
+					$budgetline_obj = new BudgetLines($budgetline['blid']);
 					$countries = new Countries($budget_line->get_customer($budgetline['cid'])->get()['country']);
 
 					$budgetline['uom'] = 'Kg';
 					$budgetline['cusomtercountry'] = $countries->get()['name'];
-					$budgetline['genericproduct'] = $budget_line->get_product()->get_generic_product();
-					$budgetline['segment'] = $budget_line->get_product()->get_segment()['title'];
-					$budgetline['customer'] = $budget_line->get_customer($budgetline['cid'])->get()['companyName'];
-					$budgetline['product'] = $budget_line->get_product($budgetline['pid'])->get()['name'];
+					$budgetline['genericproduct'] = $budgetline_obj->get_product()->get_generic_product();
+					$budgetline['segment'] = $budgetline_obj->get_product()->get_segment()['title'];
+					$budgetline['customer'] = $budgetline_obj->get_customer($budgetline['cid'])->get()['companyName'];
+					$budgetline['product'] = $budgetline_obj->get_product($budgetline['pid'])->get()['name'];
 					eval("\$budget_report_row .= \"".$template->get('budgeting_budgetrawreport_row')."\";");
 				}
 			}

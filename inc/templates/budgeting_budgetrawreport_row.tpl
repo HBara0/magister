@@ -1,4 +1,4 @@
-<tr id="{$budgetitem[blid]}">
+<tr id="{$budgetline[blid]}">
     <td>{$budget[manager]}</td>
     <td>{$budgetline[customer]}</td>
     <td>{$budgetline[cusomtercountry]}</td>

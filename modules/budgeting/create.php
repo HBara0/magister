@@ -63,6 +63,7 @@ else {
 		$affiliate = new Affiliates($affid);
 		$budget_suppliers = $affiliate->get_suppliers();
 
+		$budget_supplierslist.= "<option value='0'></option>";
 		if(is_array($budget_suppliers)) {
 			foreach($budget_suppliers as $supplier) {
 				$budget_supplierslist.= "<option value='{$supplier[eid]}'>{$supplier[companyName]}</option>";
@@ -77,7 +78,7 @@ else {
 		$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1, 'numCode='.$affiliate_currency);
 
 		if(is_array($currencies)) {
-			echo $budget_currencylist.= "<option value=''>Select the currency</option> <option value='{$currencies[$affiliate_currency]}'>{$currencies[$affiliate_currency]}</option>";
+			echo $budget_currencylist.= "<option value=''></option> <option value='{$currencies[$affiliate_currency]}'>{$currencies[$affiliate_currency]}</option>";
 		}
 	}
 	elseif($core->input['action'] == 'get_years') {
@@ -87,6 +88,7 @@ else {
 		$budget = new Budgets();
 		$budget_years = $budget->populate_budgetyears(array('affid' => $affid, 'spid' => $spid));
 		if(is_array($budget_years)) {
+			$budget_year .="<option value='0'></option>";
 			foreach($budget_years as $year) {
 				$budget_year .="<option value='{$year}'>{$year}</option>";
 			}

@@ -1,6 +1,5 @@
 <tr id="{$rowid}">
-<input type="hidden" name="budgetline[$rowid][blid]" value="{$blid}"/>
-    <td  style="padding: 2px; border-bottom: dashed 1px #CCCCCC;" align="left"><input type='text' id='customer_{$rowid}_QSearch' name="budgetline[$rowid][customerName]" value="{$budgetline[customerName]}" autocomplete='off' {$required}/>
+    <td  style="padding: 2px; border-bottom: dashed 1px #CCCCCC;" align="left"><input type="hidden" name="budgetline[$rowid][blid]" value="{$blid}"/><input type='text' id='customer_{$rowid}_QSearch' name="budgetline[$rowid][customerName]" value="{$budgetline[customerName]}" autocomplete='off' {$required}/>
         <input type='text' size='3' id='customer_{$rowid}_id_output' disabled='disabled' value="{$budgetline[cid]}" style="display:none;"/>
         <input type='hidden' value="{$budgetline[cid]}" id='customer_{$rowid}_id' name='budgetline[$rowid][cid]' />
         <a href="index.php?module=contents/addentities&type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a>

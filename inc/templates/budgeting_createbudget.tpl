@@ -2,7 +2,7 @@
 <head>
 <title>{$core->settings[systemtitle]} | {$lang->fillsurvey}</title>
 {$headerinc}
-<script src="http://10.0.0.98/ocos/js/fillreport.js" type="text/javascript"></script>
+    <script src="{$core->settings[rootdir]}/js/fillreport.js" type="text/javascript"></script>
 </head>
 <body>
 {$header}
