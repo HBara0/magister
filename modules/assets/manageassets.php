@@ -21,7 +21,7 @@ if($core->usergroup['assets_canManageAssets'] == 0) {
 if(!$core->input['action']) {
 	//$affiliate = new Affiliates($core->user['affiliates']);
 	$assetstype = get_specificdata('assets_types', array('astid', 'name', 'title'), 'astid', 'title', 'title');
-	$assets_status = array(1 => 'damaged', 2 => 'not-functional', 3 => 'fully-functional');
+	$assets_status = array(1 => $lang->damaged, 2 => $lang->notfunctional, 3 => $lang->fullyfunctional);
 	
 	if($core->input['type'] == 'edit' && isset($core->input['id'])) {
 		$asid = $db->escape_string($core->input['id']);

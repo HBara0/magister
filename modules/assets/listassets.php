@@ -14,7 +14,7 @@ if($core->usergroup['assets_canManageAssets'] == 0) {
 }
 
 if(!$core->input['action']) {
-	$assets_status = array(1 => 'damaged', 2 => 'not-functional', 3 => 'fully-functional');
+	$assets_status = array(1 => $lang->damaged, 2 => $lang->notfunctional, 3 => $lang->fullyfunctional);
 	
 	$assets = new Assets();
 	$sort_url = sort_url();
@@ -67,7 +67,7 @@ if(!$core->input['action']) {
 			$affilate = new Affiliates($asset['affid']);
 			
 			if(!empty($asset['status'])) {
-				$asset['status_output'] = $lang->$assets_status[$asset['status']];
+				$asset['status_output'] = $assets_status[$asset['status']];
 			}
 			if(!empty($asset['createdOn'])) {
 				$asset['createdOn_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $asset['createdOn']);
@@ -108,7 +108,7 @@ elseif($core->input['action'] == 'get_editasset') {
 	}
 
 	$assetstype = get_specificdata('assets_types', array('astid', 'name', 'title'), 'astid', 'title', 'title');
-	$assets_status = array(1 => 'damaged', 2 => 'not-functional', 3 => 'fully-functional');
+	$assets_status = array(1 => $lang->damaged, 2 => $lang->notfunctional, 3 => $lang->fullyfunctional);
 
 	$assettypes_selectlist = parse_selectlist('asset[type]', 3, $assetstype, $asset['type']);
 	$assetstatus_selectlist = parse_selectlist('asset[status]', 4, $assets_status, $asset['status']);

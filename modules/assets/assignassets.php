@@ -35,7 +35,7 @@ if(!$core->input['action']) {
 		$affiliate_users = $affiliate->get_users(array('ismain' => 1, 'displaynameonly' => 1));
 		$employees_selectlist = parse_selectlist('assignee[uid]', 1, $affiliate_users, $assignee['uid']);
 	} else {
-		$assets_list = $employees_list = $lang->na;
+		$assets_selectlist = $employees_selectlist = $lang->na;
 	}
 	eval("\$assetsassign = \"".$template->get('assets_assign')."\";");
 	output_page($assetsassign);
