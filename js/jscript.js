@@ -1,8 +1,8 @@
 $(function() {
 	/*
-		Check the browswer version before anything else
+            Check the browswer support before anything else
 	*/
-	if($.browser.msie && $.browser.version.substr(0,1)<7) {
+	if(jQuery.support.leadingWhitespace == false) {
 		$('head').append('<link rel="stylesheet" href="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.min.css" type="text/css" />');
 		$("body").append("<div id='browserversionerror' title='Browser version is too old'>Please upgrade your browser to a newer version.</div>");
 		$("#browserversionerror").dialog({
