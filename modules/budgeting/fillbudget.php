@@ -22,7 +22,7 @@ if($core->input['stage'] == 'fillbudgetline') {
 	$session_identifier = $db->escape_string(base64_decode($core->input['budget']['sessionidentifier']));
 	$session->set_phpsession(array('budgetdata_'.$sessionidentifier => serialize($core->input['budget'])));
 	$budget_data = unserialize($session->get_phpsession('budgetdata_'.$session_identifier));
-	
+
 	$affiliate = new Affiliates($budget_data['affid']);
 	$affiliate_name = $affiliate->get()['name'];
 	$supplier = new Entities($budget_data['spid']);

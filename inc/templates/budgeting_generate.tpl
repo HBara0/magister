@@ -19,8 +19,8 @@
 
         <td class="contentContainer">
             <h3>{$lang->generatebudget}</h3>
-            <form name="perform_budgeting/generatebudget_Form" id="perform_budgeting/generatebudget_Form" method="post" action="index.php?module=budgeting/preview&amp;identifier={$core->input[identifier]}&amp;referrer=generate">
-
+            <form name="perform_budgeting/generatebudget_Form" id="perform_budgeting/generatebudget_Form" method="post" action="index.php?module=budgeting/preview&amp;referrer=generate">
+                <input type="hidden" name="identifier" value="{$core->input[identifier]}"/>
                 <div style="display:block; padding:8px;">
                     <div style="display:inline-block;padding:10px; vertical-align:top;">{$lang->affiliate}</div>
                     <div style="display:inline-block;padding:10px;vertical-align:central;">{$affiliated_budget}</div>
@@ -53,8 +53,8 @@
                 </div>
 
                 <div  id="budget_currspecify"style="display:block;">
-                    
-                
+
+
                     <input type="submit" value="{$lang->generate}" class="button"> <input type="reset" value="{$lang->reset}" class="button">
                 </div>
             </form>

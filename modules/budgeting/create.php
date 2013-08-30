@@ -53,11 +53,7 @@ if(!$core->input['action']) {
 	output_page($budgetcreate);
 }
 else {
-	if($core->input['action'] == 'create') {
-		$session->start_phpsession();
-		$session->set_phpsession(array('budgetdata_'.$sessionidentifier => $core->input['budget']));
-	}
-	elseif($core->input['action'] == 'get_supplierslist') {
+	if($core->input['action'] == 'get_supplierslist') {
 		$affid = $db->escape_string($core->input['id']);
 		$affiliate = new Affiliates($affid);
 		$budget_suppliers = $affiliate->get_suppliers();
