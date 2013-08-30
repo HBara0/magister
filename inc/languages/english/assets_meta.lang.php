@@ -2,7 +2,7 @@
 $lang['assetspage'] = 'Assets Management';
 $lang['trackerspage'] = 'Trackers Management';
 $lang['titletracking'] = 'Assets Tracking';
-$lang['manageassets'] = 'Manage Assests';
+$lang['addassets'] = 'Add Assets';
 $lang['assignassetstitle'] = 'Assign Assets';
 
 $lang['assetexitsamedate']='conflict cannot assign same assets with same date';
@@ -93,6 +93,6 @@ $lang['assetslist'] = 'Assets List';
 $lang['trackerslist'] = 'Tracker List';
 
 $lang['damaged'] = 'Damaged';
-$lang['not-functional'] = 'Not Functional';
-$lang['fully-functional'] = 'Fully Functional';
+$lang['notfunctional'] = 'Not Functional';
+$lang['fullyfunctional'] = 'Fully Functional';
 ?>
