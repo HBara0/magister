@@ -2,13 +2,6 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->listpotentialsupplier}</title>
         {$headerinc}
-        <script lang="javascript">
-            $(function() {
-                $('tr[id^="assetuser_"]').hover(function() {
-                    $(this).toggleClass('altrow2').children('td [id$="_tools"]').find('div').toggle();
-                });
-            });
-        </script>
     </head>
 
     <body>

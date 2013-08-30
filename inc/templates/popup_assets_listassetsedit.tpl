@@ -32,7 +32,7 @@
 
             <div style="display:table-row;">
                 <div style="display:table-cell; width:10%; vertical-align:middle;">{$lang->description}</div>
-                <div style="display:table-cell; width:100%;padding:5px;"><textarea  name="asset[description]" tabindex="4" >{$asset[description]}</textarea></div>
+                <div style="display:table-cell; width:100%;padding:5px;"><textarea  name="asset[description]" tabindex="4" cols="50" rows="5">{$asset[description]}</textarea></div>
             </div>
             <div style="display:table-row;">
                 <div style="display:table-cell; width:10%; vertical-align:middle;">{$lang->isactive}</div>

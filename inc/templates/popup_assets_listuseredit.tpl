@@ -29,15 +29,15 @@
                 </div>
 
                     <div style="display:table-row;">
-                    <div style="display:table-cell; width:10%;">{$lang->conditionhandover}</div>
-                    <div style="display:table-cell; width:100%; padding:5px;"><textarea name="assignee[conditionOnHandover]"{$disabled_fields[conditionOnHandover]}>{$assignee['conditionOnHandover']}</textarea>
+                    <div style="display:table-cell; width:10%; vertical-align: top;">{$lang->conditionhandover}</div>
+                    <div style="display:table-cell; width:100%; padding:5px;"><textarea name="assignee[conditionOnHandover]"{$disabled_fields[conditionOnHandover]} cols="50" rows="5">{$assignee['conditionOnHandover']}</textarea>
                     
                     </div>
                 </div>
                 
-                        <div style="display:table-row;">
-                    <div style="display:table-cell; width:10%; margin:20px;">{$lang->conditiononreturn}</div>
-                    <div style="display:table-cell; width:100%; padding:5px;"><textarea name="assignee[conditionOnReturn]"{$disabled_fields[conditionOnReturn]}>{$assignee['conditionOnReturn']}</textarea>
+                  <div style="display:table-row;">
+                    <div style="display:table-cell; width:10%; margin:20px; vertical-align: top;">{$lang->conditiononreturn}</div>
+                    <div style="display:table-cell; width:100%; padding:5px;"><textarea name="assignee[conditionOnReturn]"{$disabled_fields[conditionOnReturn]} cols="50" rows="5">{$assignee['conditionOnReturn']}</textarea>
                     
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-<tr id="asset_{$asset[asid]}" class="{$rowclass}{$notactive}">
+<tr id="asset_{$asset[asid]}" class="{$rowclass}{$notactive}  trowtools">
     <td>{$asset[tag]}</td>
     <td>{$asset[title]}</td>
     <td>{$asset[affiliate]}</td>
