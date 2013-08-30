@@ -17,6 +17,10 @@ $(function() {
 		});
 	}
 
+        $('tr[class*="trowtools"]').hover(function() {
+            $(this).toggleClass('altrow2').children('td [id$="_tools"]').find('div').toggle();
+        });
+                
 	$("#login_Button").live("click", login);
 	$("#login_Form input").bind('keypress', function(e) {
 		if(e.keyCode==13) {
