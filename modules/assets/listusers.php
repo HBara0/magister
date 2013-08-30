@@ -19,13 +19,17 @@ if(!$core->input['action']) {
 	$asset = new Assets();
 	$affiliate = new Affiliates($core->user['mainaffiliate']);
 	$affiliate_users = $affiliate->get_users(array('ismain' => 1, 'displaynameonly' => 1));
-		
+	
+	$assets_data = get_specificdata('assets', array('asid', 'title'), $core->input['filters']['asid'], 'title', 'affid IN ('.implode(',', $core->user['affiliates']).')');
+	if(!is_array($assets_data) && empty($assets_data)) {
+		$assets_data = array();
+	}
 	/* Perform inline filtering - START */
 	$filters_config = array(
 			'parse' => array('filters' => array('uid', 'asid', 'fromDate', 'toDate', 'toDate'),
 					'overwriteField' => array(
 							'uid' => parse_selectlist('filters[uid]', 1, $affiliate_users, $core->input['filters']['uid'], '', '', array('blankstart' => true)),
-							'asid' => parse_selectlist('filters[asid]', 2, get_specificdata('assets', array('asid', 'title'), $core->input['filters']['asid'], 'title', 'affid IN ('.implode(',', $core->user['affiliates']).')'), '', '', '', array('blankstart' => true))
+							'asid' => parse_selectlist('filters[asid]', 2, $assets_data, '', '', '', array('blankstart' => true))
 					),
 					'fieldsSequence' => array('uid' => 1, 'asid' => 2, 'fromDate' => 3, 'toDate' => 4)
 			/* get the busieness potential and parse them in select list to pass to the filter array */
@@ -78,9 +82,9 @@ if(!$core->input['action']) {
 			$user = new Users($assigneduser['uid']);
 			$employee = $user->get();
 
-			$tools = ' <a href="#'.$assigneduser['auid'].'" id="deleteuser_'.$assigneduser['auid'].'_assets/listuser_loadpopupbyid" rel="delete_'.$assigneduser['auid'].'"><img src="'.$core->settings['rootdir'].'/images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>   ';
+			$tools = ' <a href="#'.$assigneduser['auid'].'" id="deleteuser_'.$assigneduser['auid'].'_assets/listusers_loadpopupbyid" rel="delete_'.$assigneduser['auid'].'"><img src="'.$core->settings['rootdir'].'/images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>   ';
 			if(TIME_NOW > ($assigneduser['assignedon'] + ($core->settings['assets_preventeditasgnafter']))) {
-				$tools = '<a href="#'.$assigneduser['auid'].'" id="deleteuser_'.$assigneduser['auid'].'_assets/listuser_loadpopupbyid" rel="delete_'.$assigneduser['auid'].'"><img src="'.$core->settings['rootdir'].'/images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>   ';
+				$tools = '<a href="#'.$assigneduser['auid'].'" id="deleteuser_'.$assigneduser['auid'].'_assets/listusers_loadpopupbyid" rel="delete_'.$assigneduser['auid'].'"><img src="'.$core->settings['rootdir'].'/images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>   ';
 			}
 
 			eval("\$assignee_list .= \"".$template->get('assets_assignlist_row')."\";");
