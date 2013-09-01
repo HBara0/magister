@@ -3,7 +3,6 @@
         <title>{$core->settings[systemtitle]} | {$lang->listpotentialsupplier}</title>
         {$headerinc}
     </head>
-
     <body>
         {$header}
     <tr> {$menu}
@@ -33,10 +32,7 @@
                 </form>
             </div>
         </td>
-
     </tr>
-
     {$footer}
-
 </body>
 </html>
