@@ -108,13 +108,29 @@ class CreateAccount extends Accounts {
 			$customers = $data['cid'];
 			$positions = $data['posid'];
 			$segments = $data['psid'];
-		
-			unset($data['affiliates'], $data['cid'], $data['supplier'], $data['posid'], $data['supp_numrows'], $data['psid']);
+			$usergroups['main'] = $data['maingid'];
+			$usergroups['additional'] = $data['addgids'];
+			array_push($usergroups['additional'], $data['maingid']);
+
+			unset($data['affiliates'], $data['cid'], $data['supplier'], $data['posid'], $data['supp_numrows'], $data['psid'], $data['maingid'], $data['addgids']);
 			
 			$query = $db->insert_query('users', $data);
 			$uid = $db->last_id();
 			if($query) {
 				$this->user['uid'] = $uid;
+				/* Set Usergroups - START */
+				foreach($usergroups['additional'] as $group) {
+					$newuser_group = array(
+						'uid' => $this->user['uid'],
+						'gid' => $group
+					);
+					if($group == $usergroups['main']) {
+						$newuser_group['isMain'] = 1;
+					}
+					$db->insert_query('users_usergroups', $newuser_group);
+				}
+				unset($usergroups);
+				/* Set Usergroups - END */
 				//$main_affiliate_found = false;
 				$affiliates['affids'][$affiliates['mainaffid']] = $affiliates['mainaffid']; 
 				if(is_array($affiliates['affids'])) {

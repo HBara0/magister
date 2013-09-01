@@ -28,6 +28,9 @@
             <td><strong>{$lang->usergroup}</strong></td><td>{$usergroups_list}</td>
         </tr>
         <tr>
+            <td><strong>{$lang->addusergroups}</strong></td><td>{$addusergroups_list}</td>
+        </tr>
+        <tr>
             <td colspan="2">
             	<div style="width:100%; margin-top:10px; margin-bottom:15px; height: 200px; overflow:auto; display:inline-block; vertical-align:top;">
 					<table width="100%"  class="datatable" border="0" cellspacing="2" cellpadding="1">
