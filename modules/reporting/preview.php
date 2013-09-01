@@ -22,7 +22,7 @@ if(!$core->input['action']) {
 	$report_currencies = array();
 	$toc_sequence = 5;
 	$reportsinconsistency = false;
-	
+
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list') {
 		if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {
 			redirect('index.php?module=reporting/generatereport');
@@ -118,15 +118,23 @@ if(!$core->input['action']) {
 
 			$no_send_icon = true;
 
-			if(is_array($newreport->check_outliers())) {
+			$report['outliers'] = $newreport->check_outliers();
+			if(is_array($report['outliers'])) {
 				$report['hasinconsistency'] = true;
-				
-				$reportsissues['inconsistent'][] = $report['affiliates']['name'];
+
+				$reportsissues['inconsistent'][$report['affid']] = $report['affiliates']['name'];
+				$reportsissues['inconsistent'][$report['affid']] .= '<ul>';
+				foreach($report['outliers'] as $pid => $outlier) {
+					$product = new Products($pid);
+					$reportsissues['inconsistent'][$report['affid']] .= '<li>'.$product->get()['name'].'</li>';
+				}
+				$reportsissues['inconsistent'][$report['affid']] .= '</ul>';
+
 				if($reportsinconsistency == false) {
 					$reportsinconsistency = true;
 				}
 			}
-			
+
 			if(!$reportcache->iscached('affiliatesmarketreport', $report['affiliates']['affid'])) {
 				$reportcache->add('affiliatesmarketreport', $report['affiliates']['name'], $report['affid']);
 			}
@@ -798,10 +806,10 @@ if(!$core->input['action']) {
 		if($reportsinconsistency == true) {
 			$warnings = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px; text-align: left;">';
 			$warnings .= '<p>'.$lang->reportsinconsistent.'<ul><li>'.implode('</li><li>', $reportsissues['inconsistent']).'</li></ul></p>';
-			$warnings .= '</div>';	
+			$warnings .= '</div>';
 		}
 		/* Display Warining Notifications - END */
-	
+
 		$reports = $warnings.$coverpage.$tablecontent.$contributorspage.$summarypage.$overviewpage.$reports.$fxratespage.$closingpage;
 
 		$session->set_phpsession(array('reports_'.$session_identifier => $reports));
@@ -836,7 +844,7 @@ if(!$core->input['action']) {
 	$session->set_phpsession(array('sessionid' => base64_encode(serialize($session_identifier))));
 	if($core->input['media'] == 'print') {
 		$headerinc .= '<script language="javascript" type="text/javascript" >window.print();</script>';
-		eval("\$reportspage = \"".$template->get('website_reporting_preview')."\";");	
+		eval("\$reportspage = \"".$template->get('website_reporting_preview')."\";");
 	}
 	else {
 		eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
