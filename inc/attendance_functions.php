@@ -567,23 +567,25 @@ function parse_additionaldata($leave, $field_settings) {
 	global $db;
 
 	$field_settings = unserialize($field_settings);
-
-	foreach($field_settings as $key => $val) {
-		if(isset($leave[$key])) {
-			if($val['datasource'] == 'db') {
-				$key_attribute = $key;
-				if(isset($val['altkey_attribute'])) {
-					$key_attribute = $val['altkey_attribute'];
+	if(is_array($field_settings)) {
+		foreach($field_settings as $key => $val) {
+			if(isset($leave[$key])) {
+				if($val['datasource'] == 'db') {
+					$key_attribute = $key;
+					if(isset($val['altkey_attribute'])) {
+						$key_attribute = $val['altkey_attribute'];
+					}
+					if(empty($leave[$key])) {
+						return false;
+					}
+					$additionaldata[] = $db->fetch_field($db->query("SELECT ".$db->escape_string($val['value_attribute'])." FROM ".Tprefix.$db->escape_string($val['table'])." WHERE {$val[key_attribute_prefix]}{$key_attribute}='{$leave[$key]}'"), $val['value_attribute']);
 				}
-				if(empty($leave[$key])) {
-					return false;
-				}
-				$additionaldata[] = $db->fetch_field($db->query("SELECT ".$db->escape_string($val['value_attribute'])." FROM ".Tprefix.$db->escape_string($val['table'])." WHERE {$val[key_attribute_prefix]}{$key_attribute}='{$leave[$key]}'"), $val['value_attribute']);
 			}
 		}
-	}
 
-	return $additionaldata;
+		return $additionaldata;
+	}
+	return false;
 }
 
 function parse_toinform_list($uid = '', $checked = '', $leavetype_details = array()) {
