@@ -53,6 +53,30 @@ class Users {
 		$this->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->user['uid']}' AND isMain=1"), 'affid');
 	}
 
+	public function read_usergroups() {
+		global $db, $core;
+		
+		$query = $db->query('SELECT * 
+							FROM '.Tprefix.'users_usergroups uug
+							JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid) 
+							WHERE uid='.$this->user['uid'].'
+							ORDER BY isMain DESC');
+		while($usergroup = $db->fetch_assoc($query)) {
+			if($usergroup['isMain'] != 1) {
+				unset($usergroup['title'], $usergroup['gid'], $usergroup['defaultModule']);
+			}
+			else {
+				$core->usergroup = $usergroup;
+			}
+			
+			foreach($usergroup as $permission => $value) {
+				if($core->usergroup[$permission] == 0 && $value == 1) {
+					$core->usergroup[$permission] = 1;
+				}
+			}
+		}
+	}
+	
 	public function get_userbyemail($email) {
 		global $db, $core;
 		
@@ -119,7 +143,7 @@ class Users {
 			return false;
 		}
 	}
-
+	
 	public function get_assistant() {
 		return new Users($this->user['assistant']);
 	}
