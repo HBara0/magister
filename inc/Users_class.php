@@ -53,13 +53,17 @@ class Users {
 		$this->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->user['uid']}' AND isMain=1"), 'affid');
 	}
 
-	public function read_usergroups() {
+	public function read_usergroups($mainonly = false) {
 		global $db, $core;
+		
+		if($mainonly == true) {
+			$query_extrawhere = ' AND isMain=1';
+		}
 		
 		$query = $db->query('SELECT * 
 							FROM '.Tprefix.'users_usergroups uug
 							JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid) 
-							WHERE uid='.$this->user['uid'].'
+							WHERE uid='.$this->user['uid'].$query_extrawhere.'
 							ORDER BY isMain DESC');
 		while($usergroup = $db->fetch_assoc($query)) {
 			if($usergroup['isMain'] != 1) {
