@@ -7,6 +7,7 @@
 $lang['accountemailnotfound'] = 'No account corresponding to this email was found';
 $lang['accountsuspended'] = 'Sorry, you can\'t access OCOS.';
 $lang['add'] = 'Add';
+$lang['edit'] = 'Edit';
 $lang['addcustomers'] = 'Add Customers';
 $lang['addproducts'] = 'Add Products';
 $lang['addrepresentative_note'] = 'Representatives (contact persons) are not you, they are the persons you deal with from the entity side.<br />
@@ -108,4 +109,8 @@ $lang['welcomeuser'] = 'Welcome {1}!';
 $lang['yes'] = 'Yes';
 $lang['stock'] = 'Stock';
 $lang['assetsmodule'] = 'Assets';
+$lang['invaliddatetime'] = 'Invalid date/time';
+$lang['successfullydeleted']='Successfully Deleted';
+$lang['successfullydeactivated']='Successfully Deactivated';
+$lang['actionnopermission'] = 'You do not have permissions to perform this operation';
 ?>
