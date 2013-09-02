@@ -52,8 +52,8 @@ class Users {
 		global $db;
 		$this->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->user['uid']}' AND isMain=1"), 'affid');
 	}
-
-	public function read_usergroups($mainonly = false) {
+	
+	public function read_usergroupsperm($mainonly = false) {
 		global $db, $core;
 		
 		if($mainonly == true) {
@@ -71,6 +71,7 @@ class Users {
 			}
 			else {
 				$core->usergroup = $usergroup;
+				$core->user['gid'] = $usergroup['gid'];
 			}
 			
 			foreach($usergroup as $permission => $value) {
@@ -79,6 +80,31 @@ class Users {
 				}
 			}
 		}
+	}
+	
+	public function get_usergroups($config = array()) {
+		global $db;
+		
+		$query = $db->query('SELECT uug.gid, uug.isMain, ug.title 
+					FROM '.Tprefix.'users_usergroups uug
+					JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid) 
+					WHERE uid='.$this->user['uid'].'
+					ORDER BY isMain DESC');
+		while($usergroup = $db->fetch_assoc($query)) {
+			if($config['classified'] == true) {
+				if($usergroup['isMain'] == 1) {
+					$usergroups['main'] = $usergroup;
+				}
+				else {
+					$usergroups['additional'][$usergroup['gid']] = $usergroup;
+				}
+			}
+			else {
+				$usergroups[$usergroup['gid']] = $usergroup;
+			}
+		}
+		
+		return $usergroups;
 	}
 	
 	public function get_userbyemail($email) {
