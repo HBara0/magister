@@ -26,10 +26,13 @@ if(!$core->input['action']) {
 	}
 	
 	$uid = $db->escape_string($core->input['uid']);
-	$user = $db->fetch_array($db->query("SELECT * FROM ".Tprefix."users WHERE uid='{$uid}'"));
+	$userobj = new Users($uid, false);
+	$user = $userobj->get();
 	
-	$user['reportsToName'] = $db->fetch_field($db->query("SELECT displayName FROM ".Tprefix."users WHERE uid='{$user[reportsTo]}'"), 'displayName');
-	$user['assistantName'] = $db->fetch_field($db->query("SELECT displayName FROM ".Tprefix."users WHERE uid='{$user[assistant]}'"), 'displayName');
+	$user['reportsToName'] = $userobj->get_reportsto()->get()['displayName'];
+	if(!empty($user['assistant'])) {
+		$user['assistantName'] = $userobj->get_assistant()->get()['displayName'];
+	}
 	
 	$usergroup_attributes = array('gid', 'title');
 	$usergroup_order = array(
@@ -41,8 +44,13 @@ if(!$core->input['action']) {
 	if($core->user['gid'] != 1) {
 		unset($usergroups[1]);
 	}
-	$usergroups_list = parse_selectlist('gid', 5, $usergroups, $user['gid']);	
-		
+	$user_usergroups = $userobj->get_usergroups(array('classified' => true));
+	if(is_array($user_usergroups['additional'])) {
+		$user_usergroups['additionalids'] = array_keys($user_usergroups['additional']);
+	}
+	$usergroups_list = parse_selectlist('maingid', 5, $usergroups, $user_usergroups['main']['gid']);	
+	$addusergroups_list = parse_selectlist('addgids[]', 5, $usergroups, $user_usergroups['additionalids'], 1);	
+	
 	$affiliates_attributes = array('affid', 'name');
 	$countries_attributes = array('coid', 'name');
 	$countries_order = array(
