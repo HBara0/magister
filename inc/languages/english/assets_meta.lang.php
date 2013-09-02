@@ -86,7 +86,6 @@ $lang['assetexists'] = "An asset with the same details already exists";
 $lang['managetrackers'] = 'Manage Trackers';
 $lang['deviceId'] = "Device Id";
 $lang['assetid'] = 'Asset Id';
-$lang['assets']='Asset';
 $lang['from'] = 'From';
 $lang['to'] = 'To';
 $lang['assetslist'] = 'Assets List';

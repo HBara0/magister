@@ -8,6 +8,10 @@
  * Last Update:    @tony.assaad    Jul 4, 2013 | 12:06:47 PM
  */
 
+if(!defined('DIRECT_ACCESS')) {
+	die('Direct initialization of this file is not allowed.');
+}
+
 if($core->usergroup['assets_canManageAssets'] == 0) {
 	error($lang->sectionnopermission);
 	exit;
