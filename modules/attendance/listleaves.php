@@ -157,14 +157,12 @@ if(!$core->input['action']) {
 				}
 			}
 			$edit_link = $revoke_link = '';
-			//get reporteto ot of coreuser.
 			$user_obj = new Users($core->user['uid']);
 			$reports_to = $user_obj->get_reportsto()->get()[uid];
 			if($core->usergroup['attenance_canApproveAllLeaves'] == 1 || ($core->usergroup['hr_canHrAllAffiliates'] == 1 && $reports_to == $core->user['uid'] && TIME_NOW < ($leave['toDate'] + (60 * 60 * 24 * $core->settings['attendance_caneditleaveafter'])) || (TIME_NOW > $leave['toDate'] && $status['approved'] != array_sum($status)))) {
-				$edit_link = "<a href='index.php?module=attendance/editlea($core->usergroup['hr_canHrAllAffiliates'] == 1 )ve&amp;lid={$leave[lid]}'><img src='{$core->settings[rootdir]}/images/icons/edit.gif' border='0' alt='{$lang->modifyleave}' /></a>";
+				$edit_link = "<a href='index.php?module=attendance/editleave&amp;lid={$leave[lid]}'><img src='{$core->settings[rootdir]}/images/icons/edit.gif' border='0' alt='{$lang->modifyleave}' /></a>";
 				$revoke_link = "<a href='#{$leave[lid]}' id='revokeleave_{$leave[lid]}_attendance/listleaves_icon'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->revokeleave}' /></a>";
 			}
-
 			eval("\$requestslist .= \"".$template->get('attendance_listleaves_leaverow')."\";");
 		}
 	}
@@ -186,9 +184,16 @@ if(!$core->input['action']) {
 else {
 	if($core->input['action'] == 'perform_revokeleave') {
 		$lid = $db->escape_string($core->input['torevoke']);
+		$user_obj = new Users($core->user['uid']);
+		$reports_to = $user_obj->get_reportsto()->get()[uid];
+
 
 		$leave = $db->fetch_assoc($db->query("SELECT l.*, u.firstName, u.lastName, u.email FROM ".Tprefix."leaves l JOIN ".Tprefix."users u ON (u.uid=l.uid) WHERE l.lid='{$lid}'"));
 
+		if($core->usergroup['attenance_canApproveAllLeaves'] == 1 || ($core->usergroup['hr_canHrAllAffiliates'] == 1 && $reports_to == $core->user['uid'] && TIME_NOW < ($leave['toDate'] + (60 * 60 * 24 * $core->settings['attendance_caneditleaveafter'])) || (TIME_NOW > $leave['toDate']))) {
+			output_xml("<status>false</status><message>{$lang->errorrevoking}</message>");
+			exit;
+		}
 		if(value_exists('users', 'reportsTo', $core->user['uid'], "uid='{$leave[uid]}'")) {
 			$on_behalf = true;
 		}
@@ -347,12 +352,12 @@ else {
 			if(!empty($lang->{$leave['type_details']['name']})) {
 				$leave['type_details']['title'] = $lang->{$leave['type_details']['name']};
 			}
-		
+
 			$leave['details_crumb'] = parse_additionaldata($leave, $leave['type_details']['additionalFields']);
 			if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
 				$leave['details_crumb'] = ' - '.implode(' ', $leave['details_crumb']);
 			}
-				
+
 			/* Parse expense information for message - START */
 			$leaveexpense = new Leaves($leave['lid']);
 			if($leaveexpense->has_expenses()) {
@@ -370,7 +375,7 @@ else {
 			}
 			$leave['reason'] .= $expenses_message_output;
 			/* Parse expense information for message - END */
-				
+
 			eval("\$takeactionpage = \"".$template->get('attendance_listleaves_takeaction')."\";");
 			output_page($takeactionpage);
 		}
