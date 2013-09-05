@@ -336,16 +336,41 @@ else {
 	elseif($core->input['action'] == 'takeactionpage') {
 		if(isset($core->input['id'], $core->input['requestKey'])) {
 			$core->input['id'] = base64_decode($core->input['id']);
-			$leave = $db->fetch_assoc($db->query("SELECT l.*, lt.title, lt.name, Concat(u.firstName, ' ', u.lastName) AS employeename 
-												FROM ".Tprefix."leaves l JOIN ".Tprefix."leavetypes lt ON (l.type=lt.ltid) JOIN ".Tprefix."users u ON (u.uid=l.uid)
-												WHERE l.lid='".$db->escape_string($core->input['id'])."'"));
+			$leaveobj = new Leaves($core->input['id'], false);
+			$leave = $leaveobj->get();
+			$leave['requester'] = $leaveobj->get_requester()->get();
+			$leavetype = new Leavetypes($leave['type'], false);
+			$leave['type_details'] = $leavetype->get();
 
 			$leave['fromDate_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']);
 			$leave['toDate_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']);
-			if(!empty($lang->{$leave['name']})) {
-				$leave['title'] = $lang->{$leave['name']};
+			if(!empty($lang->{$leave['type_details']['name']})) {
+				$leave['type_details']['title'] = $lang->{$leave['type_details']['name']};
 			}
-
+		
+			$leave['details_crumb'] = parse_additionaldata($leave, $leave['type_details']['additionalFields']);
+			if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
+				$leave['details_crumb'] = ' - '.implode(' ', $leave['details_crumb']);
+			}
+				
+			/* Parse expense information for message - START */
+			$leaveexpense = new Leaves($leave['lid']);
+			if($leaveexpense->has_expenses()) {
+				$expenses_data = $leaveexpense->get_expensesdetails();
+				$total = 0;
+				$expenses_message = '';
+				foreach($expenses_data as $expense) {
+					if(!empty($lang->{$expense['name']})) {
+						$expense['title'] = $lang->{$expense['name']};
+					}
+					$total += $expense['expectedAmt'];
+					$expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
+				}
+				$expenses_message_output = '<br /><p>'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD</p>';
+			}
+			$leave['reason'] .= $expenses_message_output;
+			/* Parse expense information for message - END */
+				
 			eval("\$takeactionpage = \"".$template->get('attendance_listleaves_takeaction')."\";");
 			output_page($takeactionpage);
 		}

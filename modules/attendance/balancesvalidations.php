@@ -242,6 +242,12 @@ else {  //days taken must = actual taken
 					$db->update_query('leavesstats', array('canTake' => $leavestat['canTakeAct']), 'lsid='.$leavestat['lsid']);
 				}
 			}
+			elseif($leavestat['canTake'] < $leavestat['canTakeAct']) {
+				$cellstyle['canTake'] = ' style="color:orange;"';
+				if($core->input['fixcanTake'] == 1 && $core->input['tofix'][$leavestat['lsid']] == 1) {
+					$db->update_query('leavesstats', array('canTake' => $leavestat['canTakeAct']), 'lsid='.$leavestat['lsid']);
+				}
+			}
 			
 			if($core->input['action'] != 'fixbalances') {
 				$leavestat['actualTaken'] = $leaves_counts[$leavestat['uid']];
