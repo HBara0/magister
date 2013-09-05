@@ -47,14 +47,14 @@ class Sourcing {
 			if(is_array($this->genericproducts) && !is_array($this->chemicals)) {
 				$this->supplier['type'] = $this->determine_supplyiertype($this->genericproducts);
 			}
-			
+
 			if(!is_array($this->genericproducts) && is_array($this->chemicals)) {
 				$this->supplier['type'] = $this->determine_supplyiertype($this->chemicals);
 			}
 		}
 
 		unset($this->supplier['chemicalproducts'], $this->supplier['genericproducts'], $this->supplier['productsegment'], $this->supplier['representative'], $this->supplier['activityarea']);
-		
+
 		/* If action is edit, don't check if supplier already exists */
 		if($options['operationtype'] != 'update') {
 			if(value_exists('sourcing_suppliers', 'companyName', $this->supplier['companyName'])) {
@@ -75,7 +75,7 @@ class Sourcing {
 				$this->supplier[$val] = $function(strtolower(trim($this->supplier[$val])));
 			}
 		}
-		
+
 		$this->supplier['mainEmail'] = $core->validate_email($core->sanitize_email($this->supplier['mainEmail']));
 		$this->supplier['website'] = $core->validtate_URL($this->supplier['website']);
 		/* Santize inputs - END  */
@@ -186,11 +186,11 @@ class Sourcing {
 					$db->insert_query('sourcing_suppliers_chemicals', $new_chemicals);
 				}
 			}
-			
+
 			if($options['operationtype'] == 'update') {
 				$db->delete_query('sourcing_suppliers_genericprod', 'ssid='.$this->supplier['ssid']);
 			}
-		
+
 			if(is_array($this->genericproducts)) {
 				foreach($this->genericproducts as $genericproduct) {
 					$new_genericproduct = array(
@@ -201,7 +201,7 @@ class Sourcing {
 					$db->insert_query('sourcing_suppliers_genericprod', $new_genericproduct);
 				}
 			}
-			
+
 			$log->record($this->supplier['ssid']);
 			return true;
 		}
@@ -315,6 +315,21 @@ class Sourcing {
 		}
 
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."sourcing_suppliers WHERE ssid=".$db->escape_string($id)));
+	}
+
+	public function get_applications_product_segment() {
+		global $db, $core;
+
+		$application_query = $db->query("SELECT psa.*  FROM ".Tprefix."productsegements_applications psa
+										JOIN ".Tprefix."employeessegments es ON (es.psid = psa.psid)
+										WHERE es.uid=".$core->user['uid']);
+
+		if($db->num_rows($application_query) > 0) {
+			while($segment_application = $db->fetch_assoc($application_query)) {
+				$segment_applications[$segment_application['psaid']] = $segment_application;
+			}
+			return $segment_applications;
+		}
 	}
 
 	public function get_all_potential_suppliers($filter_where = '') {
@@ -522,11 +537,11 @@ class Sourcing {
 
 	public function get_genericproducts($supplier_id = '', $options = '') {
 		global $db;
-		
+
 		if(empty($supplier_id)) {
 			$supplier_id = $this->supplier['ssid'];
 		}
-		
+
 		$genericproduct_query = $db->query("SELECT *
 											FROM ".Tprefix."genericproducts gp
 											JOIN ".Tprefix."sourcing_suppliers_genericprod ssgp ON (ssgp.gpid= gp.gpid)
@@ -625,6 +640,8 @@ class Sourcing {
 		if(is_array($data)) {
 			$chemicalrequest_data = array(
 					'csid' => $data['product'],
+					'psaid' => $data['segmentapplication'],
+					'origin' => $data['origin'],
 					'uid' => $core->user['uid'],
 					'timeRequested' => TIME_NOW,
 					'requestDescription' => $core->sanitize_inputs($data['requestDescription'], array('removetags' => true))

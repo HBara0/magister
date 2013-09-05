@@ -198,6 +198,14 @@ if(!$core->input['action']) {
 	else {
 		$sourcing_listpotentialsupplier_rows .= '<tr><td colspan="5"><a href="#" id="showpopup_requestchemical" class="showpopup"><img alt="'.$lang->requestchemical.'" src="./images/addnew.png" border="0" /> '.$lang->requestchemical.'</a></td></tr>';
 	}
+	$origins = array($lang->anyorigin => $lang->anyorigin, $lang->chinese => $lang->chinese, $lang->nonchinese => $lang->nonchinese, $lang->indian => $lang->indian, $lang->nonindian => $lang->nonindian, $lang->european => $lang->european, $lang->noneuropean => $lang->noneuropean, $lang->american => $lang->american, $lang->nonamerican => $lang->nonamerican, $lang->otherasian => $lang->otherasian, $lang->nootherasian => $lang->nootherasian);
+	$origins_list = parse_selectlist('request[origin]', 8, $origins, '');
+	$productsegements_applications = $sourcing->get_applications_product_segment();
+	foreach($productsegements_applications as $productsegements_application) {
+		$productsegment_applications .='<option value='.$productsegements_application['psaid'].'>'.$productsegements_application['description'].'</option>';
+	}
+
+
 	//} 
 
 	eval("\$listpotentialsupplier = \"".$template->get('sourcing_listpotentialsuppliers')."\";");
@@ -211,6 +219,7 @@ else {
 		}
 	}
 	elseif($core->input['action'] == 'do_requestchemical') {
+		print_r($core->input['request']);
 		$potential_supplier = new Sourcing();
 		$request = $potential_supplier->request_chemical($core->input['request']);
 		switch($potential_supplier->get_status()) {

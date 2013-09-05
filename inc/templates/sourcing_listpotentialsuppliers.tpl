@@ -50,12 +50,26 @@
 		<div style="display:table;">
 			<div style="display:table-row">
 				<div style="display:table-cell; width:130px; vertical-align:middle;">{$lang->chemicalname}</div>
-				<div style="display:table-cell">
+				<div style="display:table-cell; padding:10px;">
 					<input type='text' id='chemicalproducts_1_QSearch' autocomplete='off' size='40px'/>
 					<input type='hidden' id='chemicalproducts_1_id' name='request[product]'/>
 					<div id="searchQuickResults_chemicalproducts_1" class="searchQuickResults" style="display:none;"></div>
 				</div>
 			</div>      
+                                <div style="display:table-row;">
+                                <div style="display:table-cell;width:150px; vertical-align:middle;">{$lang->segmentapplication}</div>
+				<div style="display:table-cell;  padding:10px;;">
+                                    <select name="request[segmentapplication]"> {$productsegment_applications}</select>
+					
+				</div>
+                                </div>
+                                     <div style="display:table-row;">
+                                         <div style="display:table-cell;width:150px; vertical-align:middle;">{$lang->origin}</div>
+				<div style="display:table-cell; padding:10px;">
+                                     {$origins_list}
+                                    </div>
+                                     </div>
+                               
 			<div style="display:table-row;">
 				<div style="display:table-cell;width:130px; vertical-align:middle;">{$lang->requestdescription}</div>
 				<div style="display:table-cell; margin-top:5px;">

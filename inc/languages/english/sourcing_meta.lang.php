@@ -18,6 +18,7 @@ $lang['casnum'] = 'CAS Number';
 $lang['checmicalproduct'] = 'Checmical';
 $lang['address1'] = 'Address1';
 $lang['affilliate'] = 'Affiliate';
+$lang['segmentapplication']='Segment Applications';
 $lang['undefined'] = 'Undefined';
 $lang['sourcingdecide'] = 'Sourcing to decide';
 $lang['address2'] = 'Address2';
@@ -145,4 +146,6 @@ $lang['european'] = 'European';
 $lang['noneuropean'] = 'Non European';
 $lang['american'] = 'American';
 $lang['nonamerican'] = 'Non American';
+$lang['otherasian'] = ' Other Asian';
+$lang['nootherasian'] = 'No other Asian ';
 ?>
