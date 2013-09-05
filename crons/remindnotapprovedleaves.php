@@ -18,7 +18,10 @@ while($leave = $db->fetch_assoc($query)) {
 if(is_array($waiting_approval)) {
 	foreach($waiting_approval as $key => $pending_users) {
 		$approver_info = $db->fetch_assoc($db->query("SELECT uid, firstName, lastName, email FROM ".Tprefix."users WHERE uid='{$key}'"));
-	
+		if(empty($approver_info) || !is_array($approver_info)) {
+			$approver_info['email'] = $core->settings['adminemail'];
+		}
+		
 		foreach($pending_users as $k => $pending_lids) {
 			foreach($pending_lids as $lid => $leave) {
 				if(empty($message[$k])) {
@@ -53,7 +56,7 @@ if(is_array($waiting_approval)) {
 			'message'   => $email_message
 		);
 		
-		echo $email_message.'<hr />';
+		//echo $email_message.'<hr />';
 		$mail = new Mailer($email_data, 'php');
 		
 		$message = array();

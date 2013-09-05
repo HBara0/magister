@@ -21,6 +21,7 @@ if(!$core->input['action']) {
 	$reporting_quarter = currentquarter_info(false);
 	$report_currencies = array();
 	$toc_sequence = 5;
+	$reportsinconsistency = false;
 
 	if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list') {
 		if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {
@@ -116,6 +117,23 @@ if(!$core->input['action']) {
 			$report['summary'] = $newreport->get_report_summary();
 
 			$no_send_icon = true;
+
+			$report['outliers'] = $newreport->check_outliers();
+			if(is_array($report['outliers'])) {
+				$report['hasinconsistency'] = true;
+
+				$reportsissues['inconsistent'][$report['affid']] = $report['affiliates']['name'];
+				$reportsissues['inconsistent'][$report['affid']] .= '<ul>';
+				foreach($report['outliers'] as $pid => $outlier) {
+					$product = new Products($pid);
+					$reportsissues['inconsistent'][$report['affid']] .= '<li>'.$product->get()['name'].'</li>';
+				}
+				$reportsissues['inconsistent'][$report['affid']] .= '</ul>';
+
+				if($reportsinconsistency == false) {
+					$reportsinconsistency = true;
+				}
+			}
 
 			if(!$reportcache->iscached('affiliatesmarketreport', $report['affiliates']['affid'])) {
 				$reportcache->add('affiliatesmarketreport', $report['affiliates']['name'], $report['affid']);
@@ -774,7 +792,7 @@ if(!$core->input['action']) {
 			}
 		}
 
-		//$tool_print = "<span id='printreport_span'><a href='index.php?module=reporting/preview&amp;action=print&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/print.gif' border='0' alt='{$lang->printreport}'/></a></span>";
+		$tool_print = "<span id='printreport_span'><a href='index.php?".http_build_query($core->input, '', '&amp;')."&amp;media=print' target='_blank'><img src='images/icons/print.gif' border='0' alt='{$lang->printreport}'/></a></span>";
 		//$tools = $tools_approve.$tools_send."<a href='index.php?module=reporting/preview&amp;action=exportpdf&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;".$tool_print;
 		$tools = $tools_approve.$tools_send.$tool_print;
 		ksort($toc_data);
@@ -784,7 +802,15 @@ if(!$core->input['action']) {
 
 		eval("\$tablecontent = \"".$template->get('new_reporting_report_tableofcontents')."\";");
 
-		$reports = $coverpage.$tablecontent.$contributorspage.$summarypage.$overviewpage.$reports.$fxratespage.$closingpage;
+		/* Display Warining Notifications - START */
+		if($reportsinconsistency == true) {
+			$warnings = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px; text-align: left;">';
+			$warnings .= '<p>'.$lang->reportsinconsistent.'<ul><li>'.implode('</li><li>', $reportsissues['inconsistent']).'</li></ul></p>';
+			$warnings .= '</div>';
+		}
+		/* Display Warining Notifications - END */
+
+		$reports = $warnings.$coverpage.$tablecontent.$contributorspage.$summarypage.$overviewpage.$reports.$fxratespage.$closingpage;
 
 		$session->set_phpsession(array('reports_'.$session_identifier => $reports));
 	}
@@ -816,7 +842,13 @@ if(!$core->input['action']) {
 
 	$session->set_phpsession(array('reportsmetadata_'.$session_identifier => serialize($reports_meta_data)));
 	$session->set_phpsession(array('sessionid' => base64_encode(serialize($session_identifier))));
-	eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
+	if($core->input['media'] == 'print') {
+		$headerinc .= '<script language="javascript" type="text/javascript" >window.print();</script>';
+		eval("\$reportspage = \"".$template->get('website_reporting_preview')."\";");
+	}
+	else {
+		eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
+	}
 	output_page($reportspage);
 }
 else {
