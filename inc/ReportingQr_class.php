@@ -14,6 +14,21 @@ class ReportingQr Extends Reporting {
 		parent::__construct($reportdata);
 	}
 
+	public function read_products() {
+		global $db;
+		if(is_array($this->report['products']) && !empty($this->report['products'])) {
+			$query_extrawhere = ' AND pid NOT IN ('.implode(',', array_keys($this->report['products'])).')';
+		}
+		
+		$query = $db->query("SELECT pid FROM ".Tprefix."productsactivity WHERE rid=".$this->report['rid'].$query_extrawhere);
+		if($db->num_rows($query) > 0) {
+			while($product = $db->fetch_assoc($query)) {
+				$product_obj = new Products($product['pid']);
+				$this->report['products'][$product['pid']] = $product_obj->get()['name'];
+			}
+		}	
+	}
+	
 	public function read_products_activity($get_prevactivity = false) {
 		global $db;
 		$products_activity_query = $db->query("SELECT pa.*, p.name AS productname, ps.psid, ps.title AS segment
@@ -346,6 +361,53 @@ class ReportingQr Extends Reporting {
 			WHERE sa.eid=".$this->report['spid'].""));
 	}
 
+	public function check_outliers($method= 'standarddev', $threshold= 3) {
+		global $db;
+
+		$this->read_products();
+		$products = $this->get_products();
+
+		if(is_array($products)) {
+			foreach($products as $pid => $product) {
+				$pid = intval($pid);
+				if($method=='standarddev') {
+					/* Default $threshold 3 */
+					$query = $db->query('SELECT pa1.quantity, pa1.turnOver
+										FROM productsactivity pa1, 
+										(SELECT AVG(quantity) AS qtymean, STDDEV(quantity) AS qtystddev, AVG(turnover) AS tovmean, STDDEV(turnover) AS tovstddev
+										FROM productsactivity WHERE pid='.$pid.' AND rid IN (SELECT rid FROM reports WHERE affid="'.$this->report['affid'].'" AND spid="'.$this->report['spid'].'" AND rid!='.$this->report['rid'].')) as pa2
+										WHERE (ABS(pa1.quantity - pa2.qtymean) / pa2.qtystddev > '.$threshold.' OR ABS(pa1.turnover - pa2.tovmean) / pa2.tovstddev > '.$threshold.') AND pa1.pid='.$pid.' AND pa1.rid='.$this->report['rid']);
+				}
+				elseif($method == 'avgplusdev') {
+					/* Default $threshold 1.5 */
+					$query = $db->query('SELECT pa1.quantity, pa1.turnOver
+										FROM productsactivity pa1, 
+										(SELECT AVG(quantity)+'.$threshold.'*STDDEV(quantity) as qtythreshold, AVG(turnover/quantity)+'.$threshold.'*STDDEV(turnover/quantity) as tovthreshold
+										FROM productsactivity WHERE pid='.$pid.' AND rid IN (SELECT rid FROM reports WHERE affid="'.$this->report['affid'].'" AND spid="'.$this->report['spid'].'" AND rid!='.$this->report['rid'].')) as pa2
+										WHERE (pa1.quantity > pa2.qtythreshold OR pa1.turnover > pa2.tovthreshold) AND pa1.pid='.$pid.' AND pa1.rid='.$this->report['rid']);		
+				}
+				elseif($method == 'quartiles') {
+					/* Default $threshold 0.675 */
+					$query =  $db->query('SELECT pa1.quantity, pa1.turnOver
+										FROM productsactivity pa1, 
+										(SELECT AVG(quantity) - STD(quantity) AS qtythreshold_minus, (AVG(quantity) + STD(quantity) * '.$threshold.') AS qtythreshold_plus, AVG(turnover/quantity) - STD(turnover/quantity) AS tovthreshold_minus, (AVG(turnover/quantity) + STD(turnover/quantity) * '.$threshold.') AS tovthreshold_plus
+										FROM productsactivity WHERE pid='.$pid.' AND rid IN (SELECT rid FROM reports WHERE affid="'.$this->report['affid'].'" AND spid="'.$this->report['spid'].'" AND rid!='.$this->report['rid'].')) as pa2
+										WHERE (pa1.quantity > pa2.qtythreshold_plus OR pa1.turnover > pa2.tovthreshold_plus) AND pa1.pid='.$pid.' AND pa1.rid='.$this->report['rid']);
+				}
+				else {
+					return false;
+				}
+				if($db->num_rows($query) > 0) {
+					while($outlier = $db->fetch_assoc($query)) {
+						$outliers[$pid] = $outlier;
+					}
+				}
+			}
+			return $outliers;
+		}
+		return false;
+	}
+	
 	public function validate_forecasts($data, $currencies, $options = array()) {
 		global $db, $core;
 
@@ -573,7 +635,7 @@ class ReportingQr Extends Reporting {
 			$recipients_query = $db->query("SELECT * FROM ".Tprefix."reporting_qrrecipients rq 
 				JOIN ".Tprefix."entitiesrepresentatives er ON(er.rpid=rq.rpid)
 				JOIN ".Tprefix."representatives r ON (r.rpid=rq.rpid)
-				WHERE rq.rpid IN (".implode(',', $rpid).")");
+				WHERE rq.rpid IN (".implode(',', $rpid).") AND reportIdentifier='".$db->escape_string($this->report['identifier'])."'");
 			if($db->num_rows($recipients_query) > 0) {
 				while($recipient = $db->fetch_assoc($recipients_query)) {
 					$recipients[$recipient['rpid']] = $recipient;
@@ -588,13 +650,13 @@ class ReportingQr Extends Reporting {
 
 		if($type == 'unregisteredRcpts') {
 			$id =  $core->sanitize_email($id);
-			$recipient_query = ("SELECT * FROM ".Tprefix."reporting_qrrecipients WHERE unregisteredRcpts='".$db->escape_string($id)."'");
+			$recipient_query = ("SELECT * FROM ".Tprefix."reporting_qrrecipients WHERE unregisteredRcpts='".$db->escape_string($id)."' AND reportIdentifier='".$db->escape_string($this->report['identifier'])."'");
 		}
 		else {
 			$recipient_query = ("SELECT u.uid, u.email, u.displayName, rq.* 
 								FROM ".Tprefix."reporting_qrrecipients rq 
 								JOIN ".Tprefix."users u ON (u.uid=rq.uid)
-								WHERE rq.uid=".intval($id));
+								WHERE rq.uid=".intval($id)." AND reportIdentifier='".$db->escape_string($this->report['identifier'])."'");
 		}
 		$user_recipients_query = $db->query($recipient_query);
 

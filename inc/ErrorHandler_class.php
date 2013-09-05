@@ -62,6 +62,16 @@ class ErrorHandler {
 			return;
 		}
 		
+		/* Record error to log file */
+		if($type != 'CUSTOM_INLINE_ERROR') {
+			if(is_array($message)) {
+				error_log(implode(' ', $message['content'])."\n", 0);
+			}
+			else {
+				error_log($message."\n", 0);
+			}
+		}
+		
 		if(is_array($message)) {
 			if($message['display'] == 'inline') {
 				$this->output_errors_inline($message['content']);

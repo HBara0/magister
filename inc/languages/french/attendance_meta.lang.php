@@ -25,4 +25,5 @@ $lang['prevperiod'] = '';
 $lang['requireddays'] = 'Jours Obligatoires';
 $lang['validatebalances'] = '';
 $lang['weekends'] = 'Weekend';
+$lang['youapprovedleave'] = 'Vous avez déjà approuvé ce congé';
 ?>
