@@ -64,7 +64,6 @@ if($_REQUEST['authkey'] == 'asfasdkj%2j!h4k23jh4k2_3h4k23jh') {
 	}
 
 	foreach($finmanagers as $uid => $user) {
-		$user['email'] = 'tony.assaad@orkila.com';
 		$email_data['to'] = $user['email'];
 		$email_data['message'] = '<pre>Dear '.$user['name'].",\n\n";
 		$email_data['message'] .= "Please find below the average USD exchange rates for the past month\n\n";
