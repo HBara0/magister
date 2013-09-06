@@ -1,3 +1,4 @@
+
 <div id="popup_createeventtask" title="{$lang->createeventtask}">
     <form name='perform_calendar/eventstasks_Form' id="perform_calendar/eventstasks_Form" method="post">
         <input type="hidden" id="action" name="action" value="do_createeventtask" />
@@ -21,11 +22,24 @@
         	<div style="width:20%; display:inline-block; vertical-align:top;">{$lang->reminder}</div><div style="width:70%; display:inline-block;"><input type="text" value="" tabindex="1" autocomplete="off" name="task[reminderStart]"id="pickDate_reminderStart" size="15"/> {$lang->repeat} {$reminderinterval_selectlist}</div>
             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->notifytask}</div><div style="width:70%; display:inline-block;">{$tasks_notify_radiobutton}</div><br/>
         </div>
+        
+        
+        <!--create event -->
         <div id="createevent_fields">
         	<div class="subtitle">{$lang->eventdetails}</div>
         	<div style="width:20%; display:inline-block;"><strong>{$lang->title}</strong></div><div style="width:70%; display:inline-block;"><input type="text" name="event[title]" size="50" required='required' /></div><br />
        		<div style="width:20%; display:inline-block;"><strong>{$lang->type}</strong></div><div style="width:70%; display:inline-block;">{$eventypes_selectlist}</div><br />
-            <div style="width:20%; display:inline-block;"><strong>{$lang->fromdate}</strong></div>          
+                <div  id="visitypefields" style="display:none;width:100%; padding: 8px 0px 8px 0px;"> 
+                <div style="display:block;width:100%; padding: 8px 0px 8px 0px;"> 
+                <div style="width:20%; display:inline-block;"><strong>{$lang->affiliate}</strong></div>
+                <div style="width:30%; display:inline-block;">{$eventaffiliates_selectlist}</div><br />
+                </div>
+                 <div style="display:block;width:100%; padding: 8px 0px 8px 0px;"> 
+                <div style="width:20%; display:inline-block;"><strong>{$lang->supplier}</strong></div>
+                <div style="width:30%; display:inline-block;">{$suppliers_selectlist}</div><br />
+                </div>
+                </div>
+                <div style="width:20%; display:inline-block;"><strong>{$lang->fromdate}</strong></div>          
 		<div style="width:70%; display:inline-block;">
 			<input type="text" id="pickDate_eventfromdate" autocomplete="off" tabindex="2" value="" required='required' />
 			<input type="hidden" name="event[fromDate]" id="altpickDate_eventfromdate" value=""/>       
@@ -47,6 +61,9 @@
             {$notifyevent_checkbox}
 			{$publishonwebsite_checkbox}
         </div>
+        
+        
+        
         <input type='submit' class='button' value='{$lang->create}' id='perform_calendar/eventstasks_Button' />
     </form>
     <hr />
