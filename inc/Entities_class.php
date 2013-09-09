@@ -566,5 +566,40 @@ class Entities {
 		}
 	}
 
+	public function get_assignedusers(array $affiliates = array()) {
+		global $db;
+
+		if(!empty($affiliates)) {
+			$query_extrawhere .= ' AND affid IN ('.implode(', ', $affiliates).')';
+		}
+
+		$query = $db->query('SELECT * 
+						FROM '.Tprefix.'assignedemployees 
+						WHERE eid='.$this->data['eid'].' AND uid NOT IN (SELECT uid FROM '.Tprefix.'users WHERE gid=7)'.$query_extrawhere);
+		if($db->num_rows($query) > 0) {
+			while($assigned = $db->fetch_assoc($query)) {
+				$assigns[] = new Users($assigned['uid']);
+			}
+			return $assigns;
+		}
+		return false;
+	}
+
+	public function has_assignedusers(array $affiliates = array()) {
+		global $db;
+
+		if(!empty($affiliates)) {
+			$query_extrawhere .= ' AND affid IN ('.implode(', ', $affiliates).')';
+		}
+
+		$query = $db->query('SELECT * 
+					FROM '.Tprefix.'assignedemployees 
+					WHERE eid='.$this->data['eid'].' AND uid NOT IN (SELECT uid FROM '.Tprefix.'users WHERE gid=7)'.$query_extrawhere);
+		if($db->num_rows($query) > 0) {
+			return true;
+		}
+		return false;
+	}
+
 }
 ?>
