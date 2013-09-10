@@ -72,14 +72,20 @@ if($_REQUEST['authkey'] == 'asfasdkj%2j!h4k23jh4k2_3h4k23jh') {
 				$user['currencies'][$code] = $fxrates[$code];
 			}
 		}
-		$email_data['message'] .= '[EUR] Avg: '.formatit($fxrates['EUR']['average']).' Last: '.formatit($fxrates['EUR']['latest'])."\n";
+		$email_data['message'] .= '[EUR] Avg: '.formatit($fxrates['EUR']['average']).' ('.trim(formatit(1 / $fxrates['EUR']['average'])).') Last: '.trim(formatit($fxrates['EUR']['latest']))." (".trim(formatit(1 / $fxrates['EUR']['latest'])).")\n";
 		foreach($user['currencies'] as $alphacode => $rates) {
 			if(empty($rates['average']) && !empty($rates['latest'])) {
 				$rates['average'] = $rates['latest'];
 			}
-			$email_data['message'] .= '['.$alphacode.'] Avg: '.formatit($rates['average']).' Last: '.formatit($rates['latest'])."\n";
 			if(!empty($rates['average']) && !empty($rates['latest'])) {
-				$email_data['message'].= '[USD]:['.$alphacode.'] '.formatit(1 / $rates['average']).' Last: '.formatit(1 / $rates['latest'])."\n";
+				$email_data['message'] .= '['.$alphacode.'] Avg: '.formatit($rates['average']).' ('.trim(formatit(1 / $rates['average'])).') Last: '.trim(formatit($rates['latest']))." (".trim(formatit(1 / $rates['latest'])).") \n";
+			}
+
+//			if(!empty($rates['average']) && !empty($rates['latest'])) {
+//				$email_data['message'].= '[USD]:['.$alphacode.'] '.formatit(1 / $rates['average']).' Last: '.formatit(1 / $rates['latest'])."\n";
+//			}
+			else {
+				$email_data['message'] .= '['.$alphacode.'] Avg: '.formatit($rates['average']).' Last: '.formatit($rates['latest'])."\n";
 			}
 		}
 
