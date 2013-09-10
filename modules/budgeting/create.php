@@ -83,7 +83,7 @@ else {
 		$budget = new Budgets();
 		$budget_years = $budget->populate_budgetyears(array('affid' => $affid, 'spid' => $spid));
 		if(is_array($budget_years)) {
-			$budget_year .="<option value='0'></option>";
+			//$budget_year .="<option value='0'></option>";
 			foreach($budget_years as $year) {
 				$budget_year .="<option value='{$year}'>{$year}</option>";
 			}
