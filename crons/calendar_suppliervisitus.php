@@ -9,57 +9,61 @@
  */
 
 require_once '../inc/init.php';
-$lang = new Language('english');
-$lang->load('messages');
-$affiliates_query = $db->query("SELECT aff.*,ce.* FROM calendar_events ce 
-								JOIN affiliates aff  on aff.affid=ce.affid  WHERE ce.fromDate BETWEEN ".strtotime('tomorrow')." AND ".strtotime('+2 days -1 second', strtotime('today'))."");
-/* send to affiliates  one day prior to the visit of a supplier. */
 
-if($db->num_rows($affiliates_query) > 0) {
-	while($affiliates = $db->fetch_assoc($affiliates_query)) {
-		$aff_obj = new Affiliates($affiliates['affid'], false);
-		$affiliate_events[$affiliates['affid']][$affiliates['ceid']] = $affiliates;
+if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
+	$lang = new Language('english');
+	$lang->load('messages');
+	$affiliates_query = $db->query("SELECT aff.*, ce.* 
+								FROM ".Tprefix."calendar_events ce 
+								JOIN ".Tprefix."affiliates aff ON (aff.affid=ce.affid)
+								WHERE ce.fromDate BETWEEN ".strtotime('tomorrow')." AND ".strtotime('+2 days -1 second', strtotime('today')));
+
+	if($db->num_rows($affiliates_query) > 0) {
+		while($affiliates = $db->fetch_assoc($affiliates_query)) {
+//			$aff_obj = new Affiliates($affiliates['affid'], false);
+			$affiliate_events[$affiliates['affid']][$affiliates['ceid']] = $affiliates;
+		}
 	}
-}
 
-if(is_array($affiliate_events)) {
-	foreach($affiliate_events as $affid => $affevent) {
-		$body_message = '';
-		$aff_obj = new Affiliates($affid, false);
-		$affdata = $aff_obj->get();
+	if(is_array($affiliate_events)) {
+		foreach($affiliate_events as $affid => $events) {
+			$body_message = '';
+			$aff_obj = new Affiliates($affid, false);
+			$affiliate = $aff_obj->get();
 
-		foreach($affevent as $data) {
-			$affevent['title'] = $data['title'];
-			$affevent['fromDate'] = $data['fromDate'];
-			$affevent['toDate'] = $data['toDate'];
-			$affevent['place'] = $data['place'];
-			$affevent['description'] = $data['description'];
-		}
-		$body_message .= '<ul><li>'.$lang->sprint($lang->suppliervisit_reminder_message, $affdata['name'], $affevent['title']).'</li></ul>';
+			foreach($events as $data) {
+				$event['title'] = $data['title'];
+				$event['fromDate'] = $data['fromDate'];
+				$event['toDate'] = $data['toDate'];
+				$event['place'] = $data['place'];
+				$event['description'] = $data['description'];
+			}
+			$body_message .= '<ul><li>'.$lang->sprint($lang->suppliervisit_reminder_message, $affiliate['name'], $event['title']).'</li></ul>';
 
-		if(empty($body_message)) {
-			continue;
-		}
-		$email_data = array(
-				'to' => $affdata['mailingList'],
-				'from_email' => $core->settings['adminemail'],
-				'from' => 'OCOS Mailer',
-				'subject' => $lang->suppliervisit_subject,
-				//'message' => $body_message
-		);
-		$email_data['message'] = '<strong>'.$affevent['title'].'</strong> (';
+			if(empty($body_message)) {
+				continue;
+			}
+			$email_data = array(
+					'to' => $affiliate['mailingList'],
+					'from_email' => $core->settings['adminemail'],
+					'from' => 'OCOS Mailer',
+					'subject' => $lang->suppliervisit_subject,
+					//'message' => $body_message
+			);
+			$email_data['message'] = '<strong>'.$event['title'].'</strong> (';
 
-		$email_data['message'] .= date($core->settings['dateformat'], $affevent['fromDate']);
-		if($affevent['toDate'] != $affevent['fromDate']) {
-			$email_data['message'] .= ' - '.date($core->settings['dateformat'], $affevent['toDate']);
-		}
-		$email_data['message'] .= ')<br />';
-		$email_data['message'] .= $affevent['place'].'<br />';
-		$email_data['message'] .= str_replace("\n", '<br />', $affevent['description']);
+			$email_data['message'] .= date($core->settings['dateformat'], $event['fromDate']);
+			if($event['toDate'] != $event['fromDate']) {
+				$email_data['message'] .= ' - '.date($core->settings['dateformat'], $event['toDate']);
+			}
+			$email_data['message'] .= ')<br />';
+			$email_data['message'] .= $event['place'].'<br />';
+			$email_data['message'] .= str_replace("\n", '<br />', $event['description']);
 
-		$mail = new Mailer($email_data, 'php');
-		if($mail->get_status() === true) {
-			$log->record('suppliervisitreminder', array('to' => $affdata['mailingList']));
+			$mail = new Mailer($email_data, 'php');
+			if($mail->get_status() === true) {
+				$log->record('suppliervisitreminder', array('to' => $affiliate['mailingList']));
+			}
 		}
 	}
 }
