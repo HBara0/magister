@@ -21,6 +21,7 @@ $lang['affilliate'] = 'Affiliate';
 $lang['segmentapplication']='Segment Applications';
 $lang['undefined'] = 'Undefined';
 $lang['sourcingdecide'] = 'Sourcing to decide';
+$lang['applicationsegment']='application Segment';
 $lang['address2'] = 'Address2';
 $lang['buildingname'] = 'Building ';
 $lang['postcode'] = 'Post Code ';

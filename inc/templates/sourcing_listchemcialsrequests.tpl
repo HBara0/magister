@@ -13,6 +13,8 @@
 						<th>{$lang->user} <a href="{$sort_url}&amp;sortby=displayName&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=displayName&amp;order=DESC"><img src="./images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
 						<th>{$lang->chemicalname}<a href="{$sort_url}&amp;sortby=name&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=name&amp;order=DESC"><img src="./images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
 						<th>{$lang->requestdescription}</th>
+                                                <th>{$lang->applicationsegment}</th>
+                                                <th>{$lang->origin}</th>
 						<th>{$lang->time} <a href="{$sort_url}&amp;sortby=timeRequested&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=timeRequested&amp;order=DESC"><img src="./images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
 						<th>&nbsp;</th>
 					</tr>

@@ -627,7 +627,7 @@ class Sourcing {
 	public function request_chemical($data) {
 		global $db, $core;
 
-		if(is_empty($data['product'], $data['requestDescription'])) {
+		if(is_empty($data['requestDescription'])) {
 			$this->status = 1;
 			return false;
 		}
@@ -676,8 +676,9 @@ class Sourcing {
 			$see_otherusers = '	WHERE scr.uid='.$core->user['uid'];
 		}
 
-		$chemicalrequests_query = $db->query("SELECT scr.*, u.displayName, cs.name AS chemicalname
+		$chemicalrequests_query = $db->query("SELECT psa.description,scr.*, u.displayName, cs.name AS chemicalname
 										FROM ".Tprefix."sourcing_chemicalrequests scr
+										JOIN ".Tprefix."productsegements_applications psa ON (psa.psaid = scr.psaid)
 										JOIN ".Tprefix."users u ON (u.uid = scr.uid)
 										JOIN ".Tprefix."chemicalsubstances cs ON (cs.csid = scr.csid)
 										{$see_otherusers} {$sort_query}");
