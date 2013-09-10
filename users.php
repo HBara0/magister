@@ -727,7 +727,7 @@ if($core->input['action']) {
 			$change_view_url = preg_replace("/&view=[A-Za-z]+/i", '&view=list', $sort_url);
 		}
 		else {
-			$change_view_icon = 'thumbnail_view.gif';
+			$change_view_icon = 'thumbnail.png';
 			if(isset($core->input['view'])) {
 				$change_view_url = preg_replace("/&view=[A-Za-z]+/i", '&view=thumbnails', $sort_url);
 			}
