@@ -30,6 +30,10 @@ if(is_array($affiliate_events)) {
 
 		foreach($affevent as $data) {
 			$affevent['title'] = $data['title'];
+			$affevent['fromDate'] = $data['fromDate'];
+			$affevent['toDate'] = $data['toDate'];
+			$affevent['place'] = $data['place'];
+			$affevent['description'] = $data['description'];
 		}
 		$body_message .= '<ul><li>'.$lang->sprint($lang->suppliervisit_reminder_message, $affdata['name'], $affevent['title']).'</li></ul>';
 
@@ -41,8 +45,18 @@ if(is_array($affiliate_events)) {
 				'from_email' => $core->settings['adminemail'],
 				'from' => 'OCOS Mailer',
 				'subject' => $lang->suppliervisit_subject,
-				'message' => $body_message
+				//'message' => $body_message
 		);
+		$email_data['message'] = '<strong>'.$affevent['title'].'</strong> (';
+
+		$email_data['message'] .= date($core->settings['dateformat'], $affevent['fromDate']);
+		if($affevent['toDate'] != $affevent['fromDate']) {
+			$email_data['message'] .= ' - '.date($core->settings['dateformat'], $affevent['toDate']);
+		}
+		$email_data['message'] .= ')<br />';
+		$email_data['message'] .= $affevent['place'].'<br />';
+		$email_data['message'] .= str_replace("\n", '<br />', $affevent['description']);
+
 		$mail = new Mailer($email_data, 'php');
 		if($mail->get_status() === true) {
 			$log->record('suppliervisitreminder', array('to' => $affdata['mailingList']));
