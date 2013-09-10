@@ -2,7 +2,7 @@
 require '../inc/init.php';
 $core->input['action'] = 'autosendfxrates';
 
-if($_REQUEST['authkey'] == 'asfasdkj%2j!h4k23jh4k2_3h4k23jh') {
+if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
 	$currency_obj = new Currencies('USD');
 	$finmanagers = array();
 	$fxrates = array();
@@ -23,7 +23,7 @@ if($_REQUEST['authkey'] == 'asfasdkj%2j!h4k23jh4k2_3h4k23jh') {
 	/* Get Fin managers - START */
 	$query = $db->query('SELECT finManager FROM '.Tprefix.'affiliates WHERE finManager IS NOT NULL');
 
-	$users_list = array(66 => 66);
+	$users_list = array(63 => 63);
 	if($db->num_rows($query) > 0) {
 		while($finmanager = $db->fetch_assoc($query)) {
 			$users_list[$finmanager['finManager']] = $finmanager['finManager'];
@@ -80,16 +80,12 @@ if($_REQUEST['authkey'] == 'asfasdkj%2j!h4k23jh4k2_3h4k23jh') {
 			if(!empty($rates['average']) && !empty($rates['latest'])) {
 				$email_data['message'] .= '['.$alphacode.'] Avg: '.formatit($rates['average']).' ('.trim(formatit(1 / $rates['average'])).') Last: '.trim(formatit($rates['latest']))." (".trim(formatit(1 / $rates['latest'])).") \n";
 			}
-
-//			if(!empty($rates['average']) && !empty($rates['latest'])) {
-//				$email_data['message'].= '[USD]:['.$alphacode.'] '.formatit(1 / $rates['average']).' Last: '.formatit(1 / $rates['latest'])."\n";
-//			}
 			else {
 				$email_data['message'] .= '['.$alphacode.'] Avg: '.formatit($rates['average']).' Last: '.formatit($rates['latest'])."\n";
 			}
 		}
 
-		$email_data['message'].="\nBest Regards,\nSignature</pre>";
+		$email_data['message'] .= "\nBest Regards,\n</pre>";
 		$mail = new Mailer($email_data, 'php');
 		if($mail->get_status() == true) {
 			$log->record($user['name'], 'success');
