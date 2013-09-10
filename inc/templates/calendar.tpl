@@ -19,10 +19,10 @@
                 $('select[id=event_type]').live('change', function() {
                     var eventtype = $(this).val();
                     if (eventtype != 0 && (eventtype == 4)) {
-                        $('#visitypefields').show("slide", { direction: "left" }, 500);
+                        $('#visitypefields').slideDown();
                     }
                     else{
-                      $('#visitypefields').hide("slide", { direction: "left" }, 500);
+                      $('#visitypefields').slideUp();
                     }
                 });
 

@@ -14,7 +14,9 @@
 </ul>
 </td>
 <td class="contentContainer">
+    <div style="float:right;text-align:center; width: 100px; display:inline-block; margin:10px; vertical-align:top;"><a href="{$change_view_url}"><img src="./images/icons/{$change_view_icon}" alt="{$lang->changeview}" border="0"/></a></div>
 <h3>{$lang->employeeslist}</h3>
+
 <form method='post' action='$_SERVER[REQUEST_URI]'>
 <table class="datatable">
     <thead>
@@ -42,3 +44,4 @@
 {$footer}
 </body>
 </html>
+
