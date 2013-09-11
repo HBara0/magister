@@ -50,8 +50,8 @@ else {
 				$task->notify_task();
 			}
 		}
-		elseif($core->input['type'] == 'event') {print_r($core->input['event']);
-			if(is_empty($core->input['event']['title'], $core->input['event']['fromDate'], $core->input['event']['toDate'])) {
+		elseif($core->input['type'] == 'event') {
+			if(is_empty($core->input['event']['title'], $core->input['event']['fromDate'], $core->input['event']['toDate'], $core->input['event']['type'])) {
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				exit;
 			}
