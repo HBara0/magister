@@ -109,7 +109,7 @@ class Budgets {
 	public function save_budget($budgetline_data = array(), $budgetdata = array()) {
 		global $db, $core;
 		/* check available budget */
-		if(is_array($budgetdata)) {
+		if(is_array($budgetdata)) {print_r($budgetline_data);exit;
 			$this->budget['bid'] = $budgetdata['bid'];
 			if(!$this->budget_exist($budgetdata)) {
 				$budget_data = array('identifier' => substr(uniqid(time()), 0, 10),
@@ -215,7 +215,6 @@ class Budgets {
 
 	public function get_budgetbydata($data) {
 		global $db;
-
 		if(is_array($data)) {
 			$budget_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets WHERE affid='".$data['affid']."' AND spid='".$data['spid']."' AND year='".$data['year']."'");
 			if($db->num_rows($budget_bydataquery) > 0) {
@@ -227,18 +226,35 @@ class Budgets {
 		}
 	}
 
+	public function read_prev_budgetbydata($data) {
+		global $db;
+		for($year = $data['year']; $year >= ($data['year'] - 2); $year--) {
+			if($year == $data['year']) {
+				continue;
+			}
+			$prev_budget_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets WHERE affid='".$data['affid']."' AND spid='".$data['spid']."' AND year='".$year."'");
+			if($db->num_rows($prev_budget_bydataquery) > 0) {
+				while($prevbudget_bydata = $db->fetch_assoc($prev_budget_bydataquery)) {
+					$prevbudgetline_details[$prevbudget_bydata['bid']] = $prevbudget_bydata;
+				}
+			}
+		}
+		return $prevbudgetline_details;
+	}
+
 	public function get_budgetLines($bid = '') {
 		global $db;
 		if(empty($bid)) {
 			$bid = $this->budget['bid'];
 		}
+		
 		if(isset($bid) && !empty($bid)) {
+			
 			$budgetline_queryid = $db->query("SELECT *
 												FROM ".Tprefix."budgeting_budgets_lines
 												WHERE bid in(".$db->escape_string($bid).")");
 			if($db->num_rows($budgetline_queryid) > 0) {
 				while($budgetline_data = $db->fetch_assoc($budgetline_queryid)) {
-
 					$budgetline = new BudgetLines($budgetline_data['blid']);
 					$budgetline_details[$budgetline_data['blid']] = $budgetline->get();
 				}

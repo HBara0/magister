@@ -14,10 +14,13 @@
         <div id='searchQuickResults_1{$rowid}' class='searchQuickResults' style='display:none;'></div></td>
 
     <td style="padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_right">
-        <input name="budgetline[$rowid][Quantity]" type="text" id="Qty_{$rowid}" size="10" accept="numeric" value="{$budgetline[Quantity]}"{$required}  /><span >  <select name="budgetline[$rowid][UoM]" disabled="disabled"> <option value="kg">KG</option></select></span></td>
+        <input name="budgetline[$rowid][Quantity]" type="text" id="Qty_{$rowid}" size="10" accept="numeric" value="{$budgetline[Quantity]}"{$required}  /><span >  <select name="budgetline[$rowid][UoM]" disabled="disabled"> <option value="kg">KG</option></select></span>
+       {$previous_yearsqty} </td>
 
-    <td  style="padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[$rowid][ammount]" type="text" id="ammount_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[ammount]}" autocomplete='off'/></td>
-    <td style="padding:2px; border-bottom:  dashed 1px #CCCCCC;" align="center"><input name="budgetline[$rowid][income]"  value="{$budgetline[income]}" {$required}type="text" id="income_{$rowid}" size="10" accept="numeric" /></td>
+    <td  style="padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[$rowid][ammount]" type="text" id="ammount_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[ammount]}" autocomplete='off'/>
+        {$previous_yearsamount}</td>
+    <td style="padding:2px; border-bottom:  dashed 1px #CCCCCC;" align="center"><input name="budgetline[$rowid][income]"  value="{$budgetline[income]}" {$required}type="text" id="income_{$rowid}" size="10" accept="numeric" />
+        {$previous_yearsincome}</td>
 
     <td style="padding:2px;border-bottom: dashed 1px #CCCCCC;" align="center">{$saletype_selectlist}</td>
 </tr>

@@ -59,10 +59,42 @@ if($core->input['stage'] == 'fillbudgetline') {
 		}
 	}
 	else {
-		for($rowid = 1; $rowid <= 4; $rowid++) {
-			$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType']);
-			eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
+		$previous_budget = $budget->read_prev_budgetbydata($budget_data);
+		$rowid = 0;
+		foreach($previous_budget as $bid => $previous_budgetdetials) {
+			print_R($previous_budgetdetials[year]);
+			$budgetlines_data[$bid] = $budget->get_budgetLines($previous_budgetdetials[bid]);
+			$previous_year.=$previous_budgetdetials[year];
 		}
+		foreach($budgetlines_data as $blid => $budgetline_details) {
+			$rowid++;
+			foreach($budgetline_details as $blid => $budgetline) {
+				$previous_yearsqty = '';
+				$rowid++;
+				$budgetline_output['Quantity'] = $budgetline['Quantity'];
+				$budgetline_output['ammount'] = $budgetline['ammount'];
+				$budgetline_output['income'] = $budgetline['income'];
+				unset($budgetline['Quantity'], $budgetline['income'], $budgetline['ammount']);
+				/* Get Products name from object */
+				$product = new Products($budgetline['pid']);
+				$budgetline['productname'] = $product->get()['name'];
+				if(isset($budgetline[$rowid]['cid']) && !empty($budgetline[$rowid]['cid'])) {
+					$required = 'required="required"';
+				}
+				/* Get Customer name from object */
+				$customer = new Entities($budgetline['cid']);
+				$budgetline['customerName'] = $customer->get()['companyName'];
+				$previous_yearsqty = '<span style="display:block;"> '.$previous_year.' : '.$budgetline_output['Quantity'].'</span>';
+				$previous_yearsamount = '<span style="display:block;"> '.$previous_year.' : '.$budgetline_output['ammount'].'</span>';
+				$previous_yearsincome = '<span style="display:block;"> '.$previous_year.' : '.$budgetline_output['income'].'</span>';
+
+				$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType']);
+				eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
+			}
+		}
+
+		//for($rowid = 1; $rowid <= 4; $rowid++) {
+		//}
 	}
 
 	$addmore_customers = '<img src="images/add.gif" id="addmore_budgetlines" alt="'.$lang->add.'">';
