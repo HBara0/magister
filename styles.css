@@ -521,7 +521,7 @@ tr.dummytrow td, tr.dummytrow th {
 #mosaicgrid > div.profileuser {
     /* Giving equal sizes to each element */
     width: 100px;
-    height: 96px;
+    height: 100px;
     /* Positioning elements in lines */
     display:  inline-block;
     /* This is necessary for position:absolute to work as desired */
@@ -533,8 +533,8 @@ tr.dummytrow td, tr.dummytrow th {
 
 .profileuser img {
     /* Stretching the images to fill whole elements */
-    width: 100px;
-    height: 96px;
+    width: 100%;
+    height: 100%;
     vertical-align: top;
     /* Preventing blank space below the image */
     line-height: 0;
@@ -550,9 +550,8 @@ tr.dummytrow td, tr.dummytrow th {
 }
 .profileuser img:hover {
     /* Making images appear bigger and transparent on mouseover */
-    width:   120%;
-    height:  120%;
-    padding:5px;
+    width:   130%;
+    height:  130%;
     box-shadow: 2px 2px 4px rgb(204, 204, 204);
     cursor: -webkit-zoom-in;
     cursor: -moz-zoom-in;

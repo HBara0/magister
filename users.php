@@ -621,6 +621,44 @@ if($core->input['action']) {
 		}
 		$sort_url = sort_url();
 
+		if($core->input['view'] == 'thumbnails') {
+			$change_view_icon = 'list_view.gif';
+			$change_view_url = preg_replace("/&view=[A-Za-z]+/i", '&view=list', $sort_url);
+		}
+		else {
+			$change_view_icon = 'thumbnail.png';
+			if(isset($core->input['view'])) {
+				$change_view_url = preg_replace("/&view=[A-Za-z]+/i", '&view=thumbnails', $sort_url);
+			}
+			else {
+				$change_view_url = $sort_url.'&view=thumbnails';
+			}
+		}
+		if($core->input['view'] == 'thumbnails') {
+			/* users mosaiic View ----START */
+			$query_profilepic = $db->query("SELECT DISTINCT(u.uid)
+											FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) 
+											JOIN ".Tprefix."affiliates aff ON (aff.affid=ae.affid)
+											WHERE gid!='7' and u.profilePicture!='' AND isMain=1");
+
+			if($db->num_rows($query_profilepic) > 0) {
+				while($user = $db->fetch_assoc($query_profilepic)) {
+					$user_obj = new Users($user['uid'], false);
+					$users[$user['uid']] = $user_obj->get();
+				}
+			}
+			foreach($users as $user) {
+				if(isset($user['profilePicture']) && !empty($user['profilePicture']) && file_exists(($core->settings['profilepicdir'].$user['profilePicture']))) {
+					eval("\$userslistmosaic_row .= \"".$template->get('userslist_mosaic_row')."\";");
+				}
+			}
+			eval("\$userslistmosaic = \"".$template->get('userslist_mosaic')."\";");
+			output_page($userslistmosaic);
+		}
+		/* users mosaiic View ----END */
+
+
+
 		$limit_start = 0;
 		if(isset($core->input['start'])) {
 			$limit_start = $db->escape_string($core->input['start']);
@@ -722,44 +760,10 @@ if($core->input['action']) {
 			$usersrows = "<tr><td colspan='6' style='text-align:center;'>".$lang->nomatchfound."</td></tr>";
 		}
 
-		if($core->input['view'] == 'thumbnails') {
-			$change_view_icon = 'list_view.gif';
-			$change_view_url = preg_replace("/&view=[A-Za-z]+/i", '&view=list', $sort_url);
-		}
-		else {
-			$change_view_icon = 'thumbnail.png';
-			if(isset($core->input['view'])) {
-				$change_view_url = preg_replace("/&view=[A-Za-z]+/i", '&view=thumbnails', $sort_url);
-			}
-			else {
-				$change_view_url = $sort_url.'&view=thumbnails';
-			}
-		}
-		if($core->input['view'] == 'thumbnails') {
-			/* users mosaiic View ----START */
-			$query_profilepic = $db->query("SELECT DISTINCT(u.uid)
-							FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) JOIN ".Tprefix."affiliates aff ON (aff.affid=ae.affid)
-							WHERE gid!='7' and u.profilePicture!='' AND isMain=1");
-
-			if($db->num_rows($query_profilepic) > 0) {
-				while($user = $db->fetch_assoc($query_profilepic)) {
-					$user_obj = new Users($user['uid'], false);
-					$users[$user['uid']] = $user_obj->get();
-				}
-			}
-			foreach($users as $user) {
-				if(isset($user['profilePicture']) && !empty($user['profilePicture']) && file_exists(($core->settings['profilepicdir'].$user['profilePicture']))) {
-					eval("\$userslistmosaic_row .= \"".$template->get('userslist_mosaic_row')."\";");
-				}
-			}
-			eval("\$userslistmosaic = \"".$template->get('userslist_mosaic')."\";");
-			output_page($userslistmosaic);
-		}
-		/* users mosaiic View ----END */
-		else {
-			eval("\$userslist = \"".$template->get('userslist')."\";");
-			output_page($userslist);
-		}
+		//else {
+		eval("\$userslist = \"".$template->get('userslist')."\";");
+		output_page($userslist);
+		//}
 	}
 
 	/* admindo_changeprofilepic --START */
