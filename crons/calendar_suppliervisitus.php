@@ -2,7 +2,7 @@
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
  * 
- * [Provide Short Descption Here]
+ * Send reminder one day prior to event
  * $id: calendar_suppliervisitus.php
  * Created:        @tony.assaad    Sep 9, 2013 | 2:43:05 PM
  * Last Update:    @tony.assaad    Sep 9, 2013 | 2:43:05 PM
@@ -26,15 +26,18 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
 
 	if(is_array($affiliate_events)) {
 		foreach($affiliate_events as $affid => $events) {
-			$body_message = '';
 			$aff_obj = new Affiliates($affid, false);
 			$affiliate = $aff_obj->get();
 
+			if(empty($affiliate['mailingList'])) {
+				continue;
+			}
+			
 			$email_data = array(
 					'to' => $affiliate['mailingList'],
-					'from_email' => $core->settings['adminemail'],
+					'from_email' => $core->settings['maileremail'],
 					'from' => 'OCOS Mailer',
-					'subject' => $lang->suppliervisit_subject,
+					'subject' => $lang->upcomingevents,
 			);
 
 			foreach($events as $event) {
