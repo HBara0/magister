@@ -656,116 +656,114 @@ if($core->input['action']) {
 			output_page($userslistmosaic);
 		}
 		/* users mosaiic View ----END */
+		else {
+			$limit_start = 0;
+			if(isset($core->input['start'])) {
+				$limit_start = $db->escape_string($core->input['start']);
+			}
+			if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+				$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+			}
 
+			$multipage_where = 'gid!=7';
+			/* Perform inline filtering - START */
+			$filters_config = array(
+					'parse' => array('filters' => array('fullName', 'displayName', 'affid', 'position', 'reportsTo')
+					),
+					'process' => array(
+							'filterKey' => 'uid',
+							'mainTable' => array(
+									'name' => 'users',
+									'filters' => array('displayName' => 'displayName', 'reportsTo' => array('operatorType' => 'multiple', 'name' => 'reportsTo')),
+									'extraSelect' => 'CONCAT(firstName, \' \', lastName) AS fullName',
+									'havingFilters' => array('fullName' => 'fullName')
+							),
+							'secTables' => array(
+									'userspositions' => array(
+											'filters' => array('position' => array('operatorType' => 'multiple', 'name' => 'posid')),
+									),
+									'affiliatedemployees' => array(
+											'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid')),
+											'extraWhere' => 'isMain=1'
+									)
+							)
+					)
+			);
 
+			$filter = new Inlinefilters($filters_config);
+			$filter_where_values = $filter->process_multi_filters();
 
-		$limit_start = 0;
-		if(isset($core->input['start'])) {
-			$limit_start = $db->escape_string($core->input['start']);
-		}
-		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
-			$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
-		}
+			$filters_row_display = 'show';
+			if(is_array($filter_where_values)) {
+				$filters_row_display = 'hide';
+				$filter_where = 'AND u.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+				$multipage_where .= ' AND u.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+			}
 
-		$multipage_where = 'gid!=7';
-		/* Perform inline filtering - START */
-		$filters_config = array(
-				'parse' => array('filters' => array('fullName', 'displayName', 'affid', 'position', 'reportsTo')
-				),
-				'process' => array(
-						'filterKey' => 'uid',
-						'mainTable' => array(
-								'name' => 'users',
-								'filters' => array('displayName' => 'displayName', 'reportsTo' => array('operatorType' => 'multiple', 'name' => 'reportsTo')),
-								'extraSelect' => 'CONCAT(firstName, \' \', lastName) AS fullName',
-								'havingFilters' => array('fullName' => 'fullName')
-						),
-						'secTables' => array(
-								'userspositions' => array(
-										'filters' => array('position' => array('operatorType' => 'multiple', 'name' => 'posid')),
-								),
-								'affiliatedemployees' => array(
-										'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid')),
-										'extraWhere' => 'isMain=1'
-								)
-						)
-				)
-		);
+			$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+			/* Perform inline filtering - END */
 
-		$filter = new Inlinefilters($filters_config);
-		$filter_where_values = $filter->process_multi_filters();
-
-		$filters_row_display = 'show';
-		if(is_array($filter_where_values)) {
-			$filters_row_display = 'hide';
-			$filter_where = 'AND u.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-			$multipage_where .= ' AND u.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-		}
-
-		$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
-		/* Perform inline filtering - END */
-
-		$query = $db->query("SELECT DISTINCT(u.uid), u.*, aff.*, reportsTo AS supervisor, CONCAT(firstName, ' ', lastName) AS name, aff.name AS mainaffiliate, aff.affid
+			$query = $db->query("SELECT DISTINCT(u.uid), u.*, aff.*, reportsTo AS supervisor, CONCAT(firstName, ' ', lastName) AS name, aff.name AS mainaffiliate, aff.affid
 							FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) JOIN ".Tprefix."affiliates aff ON (aff.affid=ae.affid)
 							WHERE gid!='7' AND isMain='1'
 							{$filter_where}
 							ORDER BY {$sort_query} 
 							LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
-		$filters_cache = array();
-		if($db->num_rows($query) > 0) {
-			while($user = $db->fetch_assoc($query)) {
-				$class = alt_row($class);
-				/* $user['mainaffiliate'] = $db->fetch_field($db->query("SELECT aff.name as affiliatename 
-				  FROM ".Tprefix."affiliates aff LEFT JOIN ".Tprefix."affiliatedemployees ae ON (ae.affid=aff.affid)
-				  WHERE ae.uid='{$user[uid]}' AND isMain='1'"), 'affiliatename'); */
+			$filters_cache = array();
+			if($db->num_rows($query) > 0) {
+				while($user = $db->fetch_assoc($query)) {
+					$class = alt_row($class);
+					/* $user['mainaffiliate'] = $db->fetch_field($db->query("SELECT aff.name as affiliatename 
+					  FROM ".Tprefix."affiliates aff LEFT JOIN ".Tprefix."affiliatedemployees ae ON (ae.affid=aff.affid)
+					  WHERE ae.uid='{$user[uid]}' AND isMain='1'"), 'affiliatename'); */
 
-				$userpositions = $hiddenpositions = $break = '';
+					$userpositions = $hiddenpositions = $break = '';
 
-				$query2 = $db->query("SELECT p.* FROM ".Tprefix."positions p LEFT JOIN ".Tprefix."userspositions up ON (up.posid=p.posid) WHERE  up.uid='{$user[uid]}' ORDER BY p.name ASC");
-				$positions_counter = 0;
+					$query2 = $db->query("SELECT p.* FROM ".Tprefix."positions p LEFT JOIN ".Tprefix."userspositions up ON (up.posid=p.posid) WHERE  up.uid='{$user[uid]}' ORDER BY p.name ASC");
+					$positions_counter = 0;
 
-				while($position = $db->fetch_assoc($query2)) {
-					if(!empty($lang->{$position['name']})) {
-						$position['title'] = $lang->{$position['name']};
+					while($position = $db->fetch_assoc($query2)) {
+						if(!empty($lang->{$position['name']})) {
+							$position['title'] = $lang->{$position['name']};
+						}
+
+						if(++$positions_counter > 2) {
+							$hidden_positions .= $break.$position['title'];
+						}
+						else {
+							$userpositions .= $break.$position['title'];
+						}
+						$break = '<br />';
 					}
 
-					if(++$positions_counter > 2) {
-						$hidden_positions .= $break.$position['title'];
+					if($positions_counter > 2) {
+						$userpositions = $userpositions.", <a href='#' id='showmore_positions_{$user[uid]}'>...</a> <span style='display:none;' id='positions_{$user[uid]}'>{$hidden_positions}</span>";
 					}
-					else {
-						$userpositions .= $break.$position['title'];
+
+					list($user['reportsToName']) = get_specificdata('users', array('CONCAT(firstName, \' \', lastName) as reportsToName'), '0', 'reportsToName', '', 0, "uid='{$user[reportsTo]}'");
+
+					$skypelink = '';
+					if(isset($user['skype']) && !empty($user['skype'])) {
+						$skypelink = "<a href='skype:{$user[skype]}'><img src='./images/icons/skype.gif' alt='{$lang->skype}' border='0' /></a>";
 					}
-					$break = '<br />';
+					//$tooltip = $lang->extension.':'.$user['extension'].'<br />'.$lang->mobile.':'.$user['mobile'];
+					eval("\$usersrows .= \"".$template->get('userslist_row')."\";");
 				}
 
-				if($positions_counter > 2) {
-					$userpositions = $userpositions.", <a href='#' id='showmore_positions_{$user[uid]}'>...</a> <span style='display:none;' id='positions_{$user[uid]}'>{$hidden_positions}</span>";
-				}
-
-				list($user['reportsToName']) = get_specificdata('users', array('CONCAT(firstName, \' \', lastName) as reportsToName'), '0', 'reportsToName', '', 0, "uid='{$user[reportsTo]}'");
-
-				$skypelink = '';
-				if(isset($user['skype']) && !empty($user['skype'])) {
-					$skypelink = "<a href='skype:{$user[skype]}'><img src='./images/icons/skype.gif' alt='{$lang->skype}' border='0' /></a>";
-				}
-				//$tooltip = $lang->extension.':'.$user['extension'].'<br />'.$lang->mobile.':'.$user['mobile'];
-				eval("\$usersrows .= \"".$template->get('userslist_row')."\";");
+				$multipages = new Multipages('users u JOIN '.Tprefix.'affiliatedemployees ae ON (u.uid=ae.uid) JOIN '.Tprefix.'affiliates aff ON (aff.affid=ae.affid)', $core->settings['itemsperlist'], $multipage_where, 'u.uid');
+				$usersrows .= "<tr><td colspan='6'>".$multipages->parse_multipages()."</td></tr>";
+			}
+			else {
+				$usersrows = "<tr><td colspan='6' style='text-align:center;'>".$lang->nomatchfound."</td></tr>";
 			}
 
-			$multipages = new Multipages('users u JOIN '.Tprefix.'affiliatedemployees ae ON (u.uid=ae.uid) JOIN '.Tprefix.'affiliates aff ON (aff.affid=ae.affid)', $core->settings['itemsperlist'], $multipage_where, 'u.uid');
-			$usersrows .= "<tr><td colspan='6'>".$multipages->parse_multipages()."</td></tr>";
+			//else {
+			eval("\$userslist = \"".$template->get('userslist')."\";");
+			output_page($userslist);
+			//}
 		}
-		else {
-			$usersrows = "<tr><td colspan='6' style='text-align:center;'>".$lang->nomatchfound."</td></tr>";
-		}
-
-		//else {
-		eval("\$userslist = \"".$template->get('userslist')."\";");
-		output_page($userslist);
-		//}
 	}
-
 	/* admindo_changeprofilepic --START */
 	elseif($core->input['action'] == 'admin_do_changeprofilepic') {
 		$profile['uid'] = $core->input['profile']['uid'];
