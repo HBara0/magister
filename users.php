@@ -551,7 +551,7 @@ if($core->input['action']) {
 					$profile['lastVisit'] = $lang->na;
 				}
 
-				$profile_user = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users WHERE uid={$profile[uid]})"));
+				$profile_user = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users_usergroups WHERE isMain=1 AND uid={$profile[uid]})"));
 
 				if($profile_user['canUseReporting'] == 1) {
 					$additional_where = getquery_entities_viewpermissions('', '', $profile['uid']);
