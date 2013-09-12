@@ -503,7 +503,7 @@ if($core->input['action']) {
 				$profile['picture'] = '<a id="showpopup_changeprofilepic" class="showpopup"><img id="profilePicture" src="'.$core->settings[rootdir].'/'.$core->settings[profilepicdir].'/'.$profile[profilePicture].'" alt="'.$profile['username'].'" border="0" style="cursor:pointer;"/></a>';
 			}
 			else {
-				$porfile_picture = '<img id="profilePicture" src="'.$core->settings[rootdir].'/'.$core->settings[profilepicdir].'/'.$profile[profilePicture].'" alt="'.$profile['username'].'" border="0" />';
+				$profile['picture']  = '<img id="profilePicture" src="'.$core->settings[rootdir].'/'.$core->settings[profilepicdir].'/'.$profile[profilePicture].'" alt="'.$profile['username'].'" border="0" />';
 			}
 			$profile['country'] = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid='{$profile[country]}'"), 'name');
 
@@ -624,48 +624,41 @@ if($core->input['action']) {
 		define('PASSEXPIRE_EXCLUDE', 0);
 		$lang->load('profile');
 
-		$sort_query = 'firstName ASC';
-		if(isset($core->input['sortby'], $core->input['order'])) {
-			$sort_query = $core->input['sortby'].' '.$core->input['order'];
-		}
-		$sort_url = sort_url();
-
 		if($core->input['view'] == 'thumbnails') {
+			/* Users mosaic view - START */
 			$change_view_icon = 'list_view.gif';
-			$change_view_url = preg_replace("/&view=[A-Za-z]+/i", '&view=list', $sort_url);
-		}
-		else {
-			$change_view_icon = 'thumbnail.png';
-			if(isset($core->input['view'])) {
-				$change_view_url = preg_replace("/&view=[A-Za-z]+/i", '&view=thumbnails', $sort_url);
-			}
-			else {
-				$change_view_url = $sort_url.'&view=thumbnails';
-			}
-		}
-		if($core->input['view'] == 'thumbnails') {
-			/* users mosaiic View ----START */
-			$query_profilepic = $db->query("SELECT DISTINCT(u.uid)
-											FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) 
-											JOIN ".Tprefix."affiliates aff ON (aff.affid=ae.affid)
-											WHERE gid!='7' and u.profilePicture!='' AND isMain=1");
+			$change_view_url = 'users.php?action=userslist&view=list';
 
-			if($db->num_rows($query_profilepic) > 0) {
-				while($user = $db->fetch_assoc($query_profilepic)) {
+			$query = $db->query("SELECT uid
+								FROM ".Tprefix."users
+								WHERE gid!='7' and profilePicture!=''");
+
+			if($db->num_rows($query) > 0) {
+				while($user = $db->fetch_assoc($query)) {
 					$user_obj = new Users($user['uid'], false);
 					$users[$user['uid']] = $user_obj->get();
 				}
 			}
+			shuffle($users);
 			foreach($users as $user) {
 				if(isset($user['profilePicture']) && !empty($user['profilePicture']) && file_exists(($core->settings['profilepicdir'].$user['profilePicture']))) {
-					eval("\$userslistmosaic_row .= \"".$template->get('userslist_mosaic_row')."\";");
+					eval("\$userslistmosaic_pieces .= \"".$template->get('userslist_mosaic_piece')."\";");
 				}
 			}
 			eval("\$userslistmosaic = \"".$template->get('userslist_mosaic')."\";");
 			output_page($userslistmosaic);
+			/*  Users mosaic view - END */
 		}
-		/* users mosaiic View ----END */
 		else {
+			$change_view_icon = 'thumbnail_view.gif';
+			$change_view_url = 'users.php?action=userslist&view=thumbnails';
+			
+			$sort_query = 'firstName ASC';
+			if(isset($core->input['sortby'], $core->input['order'])) {
+				$sort_query = $core->input['sortby'].' '.$core->input['order'];
+			}
+			$sort_url = sort_url();
+
 			$limit_start = 0;
 			if(isset($core->input['start'])) {
 				$limit_start = $db->escape_string($core->input['start']);
