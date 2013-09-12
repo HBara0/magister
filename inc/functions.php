@@ -759,7 +759,7 @@ function get_user_business_assignments($uid) {
 		$usergroup = $core->usergroup;
 	}
 	else {
-		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users WHERE uid={$uid})"));
+		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users_usergroups WHERE isMain=1 AND uid={$uid})"));
 	}
 
 	$data = array();
@@ -867,7 +867,7 @@ function getquery_business_assignments() {
 
 	if(!empty($arguments[2])) {
 		$user = get_user_business_assignments($arguments[2]);
-		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users WHERE uid={$arguments[2]})"));
+		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users_usergroups WHERE isMain=1 AND uid={$arguments[2]})"));
 	}
 	else {
 		$user = $core->user;
@@ -953,7 +953,7 @@ function parse_userentities_data($uid) {
 		$usergroup = $core->usergroup;
 	}
 	else {
-		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users WHERE uid={$uid})"));
+		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users_usergroups WHERE isMain=1 AND uid={$uid})"));
 	}
 
 	$data = array();
@@ -1045,7 +1045,7 @@ function getquery_entities_viewpermissions() {
 
 	if(!empty($arguments[2])) {
 		$user = parse_userentities_data($arguments[2]);
-		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users WHERE uid={$arguments[2]})"));
+		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users_usergroups WHERE isMain=1 AND uid={$arguments[2]})"));
 	}
 	else {
 		$user = $core->user;
