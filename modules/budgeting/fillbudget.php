@@ -60,15 +60,14 @@ if($core->input['stage'] == 'fillbudgetline') {
 	}
 	else {
 		$previous_budget = $budget->read_prev_budgetbydata($budget_data);
+
 		$rowid = 0;
 		foreach($previous_budget as $bid => $previous_budgetdetials) {
-			print_R($previous_budgetdetials[year]);
-			$budgetlines_data[$bid] = $budget->get_budgetLines($previous_budgetdetials[bid]);
-			$previous_year.=$previous_budgetdetials[year];
-		}
-		foreach($budgetlines_data as $blid => $budgetline_details) {
-			$rowid++;
-			foreach($budgetline_details as $blid => $budgetline) {
+			$core->input['bid'] = $bid;
+			$budgetlines_data = $budget->get_budgetLines($previous_budgetdetials[bid]);
+			$previous_year = $previous_budgetdetials[year];
+
+			foreach($budgetlines_data as $blid => $budgetline) {
 				$previous_yearsqty = '';
 				$rowid++;
 				$budgetline_output['Quantity'] = $budgetline['Quantity'];
@@ -90,19 +89,28 @@ if($core->input['stage'] == 'fillbudgetline') {
 
 				$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType']);
 				eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
+				//}
 			}
 		}
-
 		//for($rowid = 1; $rowid <= 4; $rowid++) {
 		//}
 	}
 
-	$addmore_customers = '<img src="images/add.gif" id="addmore_budgetlines" alt="'.$lang->add.'">';
-
 	eval("\$fillbudget = \"".$template->get('budgeting_fill')."\";");
 	output_page($fillbudget);
 }
-//}
+elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
+	$rowid = $db->escape_string($core->input['value']) + 1;
+	$saletypes = explode(';', $core->settings['saletypes']);
+	foreach($saletypes as $key => $val) {
+		$saletypes[$val] = ucfirst($val);
+		unset($saletypes[$key]);
+	}
+	$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType']);
+	eval("\$budgetlinesrows = \"".$template->get('budgeting_fill_lines')."\";");
+	echo $budgetlinesrows;
+}
+
 if($core->input['action'] == 'do_perform_fillbudget') {
 	$budget_data = unserialize($session->get_phpsession('budgetdata'));
 	if(is_array($core->input['budgetline'])) {

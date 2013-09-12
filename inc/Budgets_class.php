@@ -109,7 +109,7 @@ class Budgets {
 	public function save_budget($budgetline_data = array(), $budgetdata = array()) {
 		global $db, $core;
 		/* check available budget */
-		if(is_array($budgetdata)) {print_r($budgetline_data);exit;
+		if(is_array($budgetdata)) {print_r($budgetline_data);echo '<hr>';
 			$this->budget['bid'] = $budgetdata['bid'];
 			if(!$this->budget_exist($budgetdata)) {
 				$budget_data = array('identifier' => substr(uniqid(time()), 0, 10),
