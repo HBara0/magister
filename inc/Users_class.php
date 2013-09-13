@@ -55,12 +55,12 @@ class Users {
 
 	public function get_userbyemail($email) {
 		global $db, $core;
-		
+
 		$email = $core->sanitize_email($email);
 		if(!$core->validate_email($email)) {
 			return false;
 		}
-		
+
 		$query = $db->query("SELECT DISTINCT(u.uid)
 							FROM ".Tprefix."users u 
 							LEFT JOIN ".Tprefix."usersemails ue ON (ue.uid=u.uid) 
@@ -79,6 +79,9 @@ class Users {
 	}
 
 	public function get_reportsto() {
+		if(empty($this->user['reportsTo'])) {
+			return false;
+		}
 		return new Users($this->user['reportsTo']);
 	}
 

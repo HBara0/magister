@@ -167,7 +167,7 @@ if($core->input['action']) {
 		if($session->uid == 0) {
 			redirect('users.php?action=login');
 		}
-		
+
 
 		if(!isset($core->input['uid'])) {
 			$core->input['uid'] = $core->user['uid'];
@@ -304,7 +304,7 @@ if($core->input['action']) {
 			if(isset($core->input['messagecode']) && $core->input['messagecode'] == 1) {
 				$notification_message = '<div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-bottom:10px; font-weight: bold;">'.$lang->passwordhasexpired.'</div>';
 			}
-			
+
 			$profile['uid'] = $core->user['uid'];
 			eval("\$editprofilepage_profilepicform = \"".$template->get('popup_changeprofilepic')."\";");
 			eval("\$editprofilepage = \"".$template->get('editprofile')."\";");
@@ -329,7 +329,10 @@ if($core->input['action']) {
 			}
 			$profile = $profile_user->get();
 
-			$profile['reportsToName'] = $profile_user->get_reportsto()->get()['displayName'];
+			if($profile_user->get_reportsto() != false) {
+				$profile['reportsToName'] = $profile_user->get_reportsto()->get()['displayName'];
+			}
+
 			$profile['assistantName'] = $profile_user->get_assistant()->get()['displayName'];
 
 			unset($profile['password'], $profile['salt'], $profile['loginKey']);
@@ -503,7 +506,7 @@ if($core->input['action']) {
 				$profile['picture'] = '<a id="showpopup_changeprofilepic" class="showpopup"><img id="profilePicture" src="'.$core->settings[rootdir].'/'.$core->settings[profilepicdir].'/'.$profile[profilePicture].'" alt="'.$profile['username'].'" border="0" style="cursor:pointer;"/></a>';
 			}
 			else {
-				$profile['picture']  = '<img id="profilePicture" src="'.$core->settings[rootdir].'/'.$core->settings[profilepicdir].'/'.$profile[profilePicture].'" alt="'.$profile['username'].'" border="0" />';
+				$profile['picture'] = '<img id="profilePicture" src="'.$core->settings[rootdir].'/'.$core->settings[profilepicdir].'/'.$profile[profilePicture].'" alt="'.$profile['username'].'" border="0" />';
 			}
 			$profile['country'] = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid='{$profile[country]}'"), 'name');
 
@@ -652,7 +655,7 @@ if($core->input['action']) {
 		else {
 			$change_view_icon = 'thumbnail_view.gif';
 			$change_view_url = 'users.php?action=userslist&view=thumbnails';
-			
+
 			$sort_query = 'firstName ASC';
 			if(isset($core->input['sortby'], $core->input['order'])) {
 				$sort_query = $core->input['sortby'].' '.$core->input['order'];
