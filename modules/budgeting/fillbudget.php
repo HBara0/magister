@@ -37,6 +37,11 @@ if($core->input['stage'] == 'fillbudgetline') {
 		$saletypes[$val] = ucfirst($val);
 		unset($saletypes[$key]);
 	}
+		$affiliate_currency = $affiliate->get_country()->get()['mainCurrency'];
+		$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1, 'numCode='.$affiliate_currency);
+		if(is_array($currencies)) {
+			 $budget_currencylist.= "<option value=''></option> <option value='{$currencies[$affiliate_currency]}'>{$currencies[$affiliate_currency]}</option>";
+		}
 	/* check whether to display existing budget Form or display new one  */
 	if(is_array($budgetlines)) {
 		$core->input['identifier'] = base64_encode($currentbudget['identifier']);
@@ -62,42 +67,43 @@ if($core->input['stage'] == 'fillbudgetline') {
 		$previous_budget = $budget->read_prev_budgetbydata($budget_data);
 
 		$rowid = 0;
-		foreach($previous_budget as $bid => $previous_budgetdetials) {
-			$core->input['bid'] = $bid;
-			$budgetlines_data = $budget->get_budgetLines($previous_budgetdetials[bid]);
-			$previous_year = $previous_budgetdetials[year];
+		if(is_array($previous_budget)) {
+			foreach($previous_budget as $bid => $previous_budgetdetials) {
+				$core->input['bid'] = $bid;
+				$budgetlines_data = $budget->get_budgetLines($previous_budgetdetials[bid]);
+				$previous_year = $previous_budgetdetials[year];
 
-			foreach($budgetlines_data as $blid => $budgetline) {
-				$previous_yearsqty = '';
-				$rowid++;
-				$budgetline_output['Quantity'] = $budgetline['Quantity'];
-				$budgetline_output['ammount'] = $budgetline['ammount'];
-				$budgetline_output['income'] = $budgetline['income'];
-				unset($budgetline['Quantity'], $budgetline['income'], $budgetline['ammount']);
-				/* Get Products name from object */
-				$product = new Products($budgetline['pid']);
-				$budgetline['productname'] = $product->get()['name'];
-				if(isset($budgetline[$rowid]['cid']) && !empty($budgetline[$rowid]['cid'])) {
-					$required = 'required="required"';
+				foreach($budgetlines_data as $blid => $budgetline) {
+					$previous_yearsqty = '';
+					$rowid++;
+					$budgetline_output['Quantity'] = $budgetline['Quantity'];
+					$budgetline_output['ammount'] = $budgetline['ammount'];
+					$budgetline_output['income'] = $budgetline['income'];
+					unset($budgetline['Quantity'], $budgetline['income'], $budgetline['ammount']);
+					/* Get Products name from object */
+					$product = new Products($budgetline['pid']);
+					$budgetline['productname'] = $product->get()['name'];
+					if(isset($budgetline[$rowid]['cid']) && !empty($budgetline[$rowid]['cid'])) {
+						$required = 'required="required"';
+					}
+					/* Get Customer name from object */
+					$customer = new Entities($budgetline['cid']);
+					$budgetline['customerName'] = $customer->get()['companyName'];
+					$previous_yearsqty = '<span style="display:block;"> '.$previous_year.' : '.$budgetline_output['Quantity'].'</span>';
+					$previous_yearsamount = '<span style="display:block;"> '.$previous_year.' : '.$budgetline_output['ammount'].'</span>';
+					$previous_yearsincome = '<span style="display:block;"> '.$previous_year.' : '.$budgetline_output['income'].'</span>';
+
+					$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType']);
+					eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
+					//}
 				}
-				/* Get Customer name from object */
-				$customer = new Entities($budgetline['cid']);
-				$budgetline['customerName'] = $customer->get()['companyName'];
-				$previous_yearsqty = '<span style="display:block;"> '.$previous_year.' : '.$budgetline_output['Quantity'].'</span>';
-				$previous_yearsamount = '<span style="display:block;"> '.$previous_year.' : '.$budgetline_output['ammount'].'</span>';
-				$previous_yearsincome = '<span style="display:block;"> '.$previous_year.' : '.$budgetline_output['income'].'</span>';
-
-				$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType']);
-				eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
-				//}
 			}
+			//for($rowid = 1; $rowid <= 4; $rowid++) {
+			//}
 		}
-		//for($rowid = 1; $rowid <= 4; $rowid++) {
-		//}
+		eval("\$fillbudget = \"".$template->get('budgeting_fill')."\";");
+		output_page($fillbudget);
 	}
-
-	eval("\$fillbudget = \"".$template->get('budgeting_fill')."\";");
-	output_page($fillbudget);
 }
 elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
 	$rowid = $db->escape_string($core->input['value']) + 1;
