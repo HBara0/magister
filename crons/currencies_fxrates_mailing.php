@@ -23,7 +23,7 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
 	/* Get Fin managers - START */
 	$query = $db->query('SELECT finManager FROM '.Tprefix.'affiliates WHERE finManager IS NOT NULL');
 
-	$users_list = array(63 => 63);
+	$users_list = array(63 => 63, 3 => 3);
 	if($db->num_rows($query) > 0) {
 		while($finmanager = $db->fetch_assoc($query)) {
 			$users_list[$finmanager['finManager']] = $finmanager['finManager'];
