@@ -413,6 +413,7 @@ class Calendar {
 		foreach($types as $type) {
 			if(isset($this->data[$type][$day])) {
 				$is_first = true;
+
 				foreach($this->data[$type][$day] as $key => $value) {
 					switch($type) {
 						case 'leaves':
@@ -443,7 +444,11 @@ class Calendar {
 											  JOIN '.Tprefix.'visitreports vr ON (l.lid = vr.lid) 
 											  JOIN '.Tprefix.'entities e ON (e.eid = vr.cid)
 											  WHERE vr.lid='.$value['lid']));
-							if(!empty($visit)) {
+
+							if(empty($visit) || !is_array($visit)) {
+								continue;
+							}
+							if(!empty($visit) && is_array($visit)) {
 								if(!empty($visit['finishDate'])) {
 									$reportlink_querystring = 'module=crm/previewvisitreport&amp;referrer=list&amp;vrid='.$visit['identifier'];
 									$visit['completesign'] = '&#10004;';
