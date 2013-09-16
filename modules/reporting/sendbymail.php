@@ -123,8 +123,10 @@ else {
 			switch($meta_data['type']) {
 				case 'q':
 					/*  Recorded in a recipients table - START */
-					foreach($core->input['recipients']['id'] as $rpid) {
-						$report->create_recipient($rpid, 'rpid');
+					if(is_array($core->input['recipients']['id']) && !empty($core->input['recipients']['id'])) {
+						foreach($core->input['recipients']['id'] as $rpid) {
+							$report->create_recipient($rpid, 'rpid');
+						}
 					}
 					/* Recorded in a recipients table - END */
 					break;
@@ -141,9 +143,12 @@ else {
 					break;
 			}
 		}
-	
+
 		$core->input['message'] = $core->sanitize_inputs($core->input['message'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
-		if(!empty($core->input['additional_recipients'])) {
+		if(!empty($core->input['additional_recipients']) || !empty($core->settings['qraddrecipients'])) {	
+			if(!empty($core->settings['qraddrecipients'])) {
+				$core->input['additional_recipients'] .= ','.$core->settings['qraddrecipients'];
+			}
 			$additional_emails = explode(',', $core->input['additional_recipients']);
 
 			foreach($additional_emails as $val) {
@@ -166,7 +171,6 @@ else {
 						/* Get uid by email & register as receipient - END */
 					}
 					$cc_valid_emails[] = $val;
-					
 				}
 				else {
 					$cc_bad_emails[] = $val;
@@ -194,7 +198,6 @@ else {
 			case 'q':
 				$recipients = $report->get_recipient($core->input['recipients']['id']);
 				$allrecipients['representative'] = $recipients;
-
 				foreach($allrecipients as $rtype => $recipients) {
 					foreach($recipients as $id => $recipient) {
 						if($rtype == 'representative' && !in_array($recipient['rpid'], $core->input['recipients']['id'])) {
