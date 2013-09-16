@@ -14,8 +14,8 @@
                 $('.redactor_air').css('z-index', ($('.ui-dialog').css('z-index') + 1));
 
                 $('select[id=event_type]').live('change', function() {
-                    var types = {$etypemorefields};
-                    if(jQuery.inArray(parseInt($(this).val()), types) > -1) {
+                    var types = [{$etypemorefields}];
+                    if (jQuery.inArray(parseInt($(this).val()), types) > -1) {
                         $('#visittypefields').slideDown();
                     }
                     else {

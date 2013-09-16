@@ -24,7 +24,7 @@ if(!isset($core->input['view'])) {
 }
 if($core->input['view'] == 'week' || !empty($core->input['week']) || $view_type == 'week') {
 	$view_type = 'week';
-	$headerinc .= '<script src="./js/calendar_weekview.js" type="text/javascript"></script>';
+	$headerinc .= '<script src="./js/calendar_weekview.min.js" type="text/javascript"></script>';
 }
 
 $main_calendar = new Calendar($view_type, array('year' => $core->input['year'], 'week' => $core->input['week'], 'month' => $core->input['month']));
@@ -59,8 +59,8 @@ else {
 	$eventtypes = get_specificdata('calendar_eventtypes', array('cetid', 'title'), 'cetid', 'title', array('by' => 'title', 'sort' => 'ASC'));
 	$eventypes_selectlist = parse_selectlist('event[type]', 1, $eventtypes, 0, '', '', array('blankstart' => 1, 'id' => 'event_type'));
 	$etypemorefields = array(4);
-	$etypemorefields = '['.implode(', ', $etypemorefields).']';
-	
+	$etypemorefields = implode(', ', $etypemorefields);
+
 	$affiliate_address = $db->fetch_field($db->query("SELECT CONCAT(addressLine1, ', ', addressLine2, ', ', city) AS address FROM ".Tprefix."affiliates WHERE affid = ".$core->user['mainaffiliate']), 'address');
 
 	if($core->usergroup['canViewAllAff'] == 0) {
@@ -70,16 +70,19 @@ else {
 	$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0, $affiliate_where);
 	$eventaffiliates_selectlist = parse_selectlist('event[affid]', 2, $affiliates, '', '', '', array('blankstart' => 1));
 
-	if($core->usergroup['canViewAllSupp'] == 0) {
-		$insupplier = implode(',', $core->user['suppliers']['eid']);
-		$supplier_where = ' eid IN ('.$insupplier.')';
-	}
-	else {
-		$supplier_where = ' type="s"';
-	}
-	$suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, $supplier_where);
-	$suppliers_selectlist = parse_selectlist('event[spid]', 3, $suppliers, '', 0, '', array('blankstart' => 1, 'id' => 'spid'));
+	$suppliers_selectlist = '-';
+	if(is_array($core->user['suppliers']['eid'])) {
+		if($core->usergroup['canViewAllSupp'] == 0) {
 
+			$insupplier = implode(',', $core->user['suppliers']['eid']);
+			$supplier_where = ' eid IN ('.$insupplier.')';
+		}
+		else {
+			$supplier_where = ' type="s"';
+		}
+		$suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, $supplier_where);
+		$suppliers_selectlist = parse_selectlist('event[spid]', 3, $suppliers, '', 0, '', array('blankstart' => 1, 'id' => 'spid'));
+	}
 	//$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'));
 	$affiliates_selectlist = parse_selectlist('event[restrictto][]', 1, $affiliates, '', 1);
 
