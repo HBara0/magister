@@ -12,17 +12,14 @@
                 });
 
                 $('.redactor_air').css('z-index', ($('.ui-dialog').css('z-index') + 1));
-                //get content of the popoup dialog and manipulate them.
-                //var popupdata=$('.ui-dialog');
-                //alert(popupdata.contents().find('#event_type').val());
 
                 $('select[id=event_type]').live('change', function() {
-                    var eventtype = $(this).val();
-                    if (eventtype != 0 && (eventtype == 4)) {
-                        $('#visitypefields').slideDown();
+                    var types = {$etypemorefields};
+                    if(jQuery.inArray(parseInt($(this).val()), types) > -1) {
+                        $('#visittypefields').slideDown();
                     }
-                    else{
-                      $('#visitypefields').slideUp();
+                    else {
+                        $('#visittypefields').slideUp();
                     }
                 });
 

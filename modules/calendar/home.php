@@ -7,7 +7,7 @@
  * $module: calendar
  * $id: home.php
  * Created: 	@zaher.reda		Feb 04, 2009 | 10:14 AM		
- * Last Update:    @tony.assaad Sep 6, 2013 | 12:09:56 PM
+ * Last Update: @tony.assaad	Sep 6, 2013 | 12:09:56 PM
  */
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
@@ -57,28 +57,30 @@ else {
 
 	/* Parse events/tasks popup - Start */
 	$eventtypes = get_specificdata('calendar_eventtypes', array('cetid', 'title'), 'cetid', 'title', array('by' => 'title', 'sort' => 'ASC'));
-	$eventypes_selectlist = parse_selectlist('event[type]', 1, $eventtypes, 0, '', '', array('blankstart'=>1,'id' => 'event_type'));
+	$eventypes_selectlist = parse_selectlist('event[type]', 1, $eventtypes, 0, '', '', array('blankstart' => 1, 'id' => 'event_type'));
+	$etypemorefields = array(4);
+	$etypemorefields = '['.implode(', ', $etypemorefields).']';
+	
 	$affiliate_address = $db->fetch_field($db->query("SELECT CONCAT(addressLine1, ', ', addressLine2, ', ', city) AS address FROM ".Tprefix."affiliates WHERE affid = ".$core->user['mainaffiliate']), 'address');
 
 	if($core->usergroup['canViewAllAff'] == 0) {
 		$inaffiliates = implode(',', $core->user['affiliates']);
 		$affiliate_where = 'affid IN ('.$inaffiliates.')';
 	}
-	$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', $affiliates_order, 0, $affiliate_where);
-	$eventaffiliates_selectlist = parse_selectlist("event[affid]", 2, $affiliates, '','','',array('blankstart'=>1));
-	
+	$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0, $affiliate_where);
+	$eventaffiliates_selectlist = parse_selectlist('event[affid]', 2, $affiliates, '', '', '', array('blankstart' => 1));
+
 	if($core->usergroup['canViewAllSupp'] == 0) {
 		$insupplier = implode(',', $core->user['suppliers']['eid']);
-		$supplier_where = " eid IN ({$insupplier})";
+		$supplier_where = ' eid IN ('.$insupplier.')';
 	}
 	else {
-		$supplier_where = " type='s'";
+		$supplier_where = ' type="s"';
 	}
-	$suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, "{$supplier_where}");
-	$suppliers_selectlist = parse_selectlist('event[spid]', 3, $suppliers,'', 0, '', array('blankstart'=>1,'id' => 'spid'));
+	$suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, $supplier_where);
+	$suppliers_selectlist = parse_selectlist('event[spid]', 3, $suppliers, '', 0, '', array('blankstart' => 1, 'id' => 'spid'));
 
-	
-	$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'));
+	//$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'));
 	$affiliates_selectlist = parse_selectlist('event[restrictto][]', 1, $affiliates, '', 1);
 
 	if($core->usergroup['calendar_canAddPublicEvents'] == 1) {
