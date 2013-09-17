@@ -29,7 +29,7 @@
                                 </div> -->
                 <div  id="budget_year" style="display:block;">
                     <div style="display:inline-block;padding:8px;">{$lang->year}</div>
-                    <div style="display:inline-block;padding:8px; margin-left:20px;"><select name="budget[year]" id="year" >{$budget_year}</select></div>
+                    <div style="display:inline-block;padding:8px; margin-left:20px;"><select name="budget[year]"   title="year" id="year" >{$budget_year}</select></div>
                     <div id="years_Loading" style="display:inline-block;padding:8px;"></div>
                 </div>
                 <div id="budget_currautomatic" style="display:block;">

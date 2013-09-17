@@ -8,11 +8,6 @@
  * Last Update:    @tony.assaad    Aug 13, 2013 | 4:15:18 PM
  */
 
-/**
- * Description of Budgets_class
- *
- * @author tony.assaad
- */
 class Budgets {
 	public function __construct($id = '', $simple = false, $budgetdata = '', $isallbudget = false) {
 		if(isset($id) && !empty($id) || !empty($isallbudget)) {
@@ -109,7 +104,7 @@ class Budgets {
 	public function save_budget($budgetline_data = array(), $budgetdata = array()) {
 		global $db, $core;
 		/* check available budget */
-		if(is_array($budgetdata)) {print_r($budgetline_data);echo '<hr>';
+		if(is_array($budgetdata)) {
 			$this->budget['bid'] = $budgetdata['bid'];
 			if(!$this->budget_exist($budgetdata)) {
 				$budget_data = array('identifier' => substr(uniqid(time()), 0, 10),
@@ -137,7 +132,8 @@ class Budgets {
 	}
 
 	private function save_budgetlines($budgetline_data = array(), $bid) {
-		unset($budgetline_data['customerName']);
+		unset($budgetline_data['customerName']);	
+			echo '<hr>';
 		foreach($budgetline_data as $blid => $data) {
 
 			if(isset($data['blid']) && !empty($data['blid'])) {
@@ -219,9 +215,9 @@ class Budgets {
 			$budget_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets WHERE affid='".$data['affid']."' AND spid='".$data['spid']."' AND year='".$data['year']."'");
 			if($db->num_rows($budget_bydataquery) > 0) {
 				while($budget_bydata = $db->fetch_assoc($budget_bydataquery)) {
-					$budgetline_details = $budget_bydata;
+					$budget_details = $budget_bydata;
 				}
-				return $budgetline_details;
+				return $budget_details;
 			}
 		}
 	}
@@ -232,10 +228,11 @@ class Budgets {
 			if($year == $data['year']) {
 				continue;
 			}
-			$prev_budget_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets WHERE affid='".$data['affid']."' AND spid='".$data['spid']."' AND year='".$year."'");
+			$prev_budget_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets  bd JOIN ".Tprefix."budgeting_budgets_lines bdl ON(bd.bid=bdl.bid) 
+													WHERE affid='".$data['affid']."' AND spid='".$data['spid']."' AND year='".$year."'");
 			if($db->num_rows($prev_budget_bydataquery) > 0) {
 				while($prevbudget_bydata = $db->fetch_assoc($prev_budget_bydataquery)) {
-					$prevbudgetline_details[$prevbudget_bydata['bid']] = $prevbudget_bydata;
+					$prevbudgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['bid']] = $prevbudget_bydata;
 				}
 			}
 		}
@@ -247,9 +244,9 @@ class Budgets {
 		if(empty($bid)) {
 			$bid = $this->budget['bid'];
 		}
-		
+
 		if(isset($bid) && !empty($bid)) {
-			
+
 			$budgetline_queryid = $db->query("SELECT *
 												FROM ".Tprefix."budgeting_budgets_lines
 												WHERE bid in(".$db->escape_string($bid).")");

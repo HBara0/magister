@@ -2,9 +2,10 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->fillsurvey}</title>
         {$headerinc}
-
+   
     </head>
     <body>
+        
         {$header}
     <tr>
         {$menu}
@@ -19,6 +20,8 @@
             <div style="display:block;padding:20px;">
                 <form id="perform_budgeting/fillbudget_Form" name="perform_budgeting/fillbudget_Form" action="index.php?module=budgeting/generatebudget&amp;identifier={$core->input[identifier]}" method="post">
                     <input type="hidden"  name="budgetline[bid]" value="{$core->input[bid]}">
+          <!-- <input type="hidden" name="budgetline[$rowid][affid]" value="{$budgetline[affid]}"/> -->
+        <!--  <input type="hidden" name="budgetline[$rowid][spid]" value="{$budgetline[spid]}"/>-->
                     <input type="hidden" id="identifier" name="identifier" value="{$core->input[identifier]}">
                     <table width="100%" border="0" cellspacing="0" cellpadding="2" style="margin-left: 8px;">
                         <thead>
@@ -27,7 +30,7 @@
                                 <td width="11.6%" rowspan="2" valign="top" align="center" class=" border_right">{$lang->product}</td>
                                 <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->salestype}</td>
                                 <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->quantity}<br /><span class="smalltext"><em>{$lang->mt}</em></span></td>
-                               <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
+                                <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
                                 <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->saleamount}</td>
                                 <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->incomeperc}</td>
                                 <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->income}</td>
@@ -35,7 +38,8 @@
                                 <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->invoice}</td>
                             </tr>
                         </thead>
-                        <tbody id="budgetlines{$rowid}_tbody">
+
+                        <tbody id="budgetlines{$rowid}_tbody" style="width:100%;">
                             {$budgetlinesrows}
                         </tbody> 
 
@@ -65,5 +69,6 @@
         </td>
 
     </tr>
+    
 </body>
 </html>
