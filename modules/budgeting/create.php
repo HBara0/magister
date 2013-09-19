@@ -15,7 +15,7 @@ if(!defined("DIRECT_ACCESS")) {
 if($core->usergroup['canUseBudgeting'] == 0) {
 	error($lang->sectionnopermission);
 }
-
+$sessionidentifier = base64_encode(substr(uniqid(time()), 0, 10));
 if(!$core->input['action']) {
 	if($core->usergroup['canViewAllAff'] == 0) {
 		$inaffiliates = implode(',', $core->user['affiliates']);
@@ -44,21 +44,16 @@ if(!$core->input['action']) {
 		}
 		$budget_year .= "<option value='{$year}'{$year_selected}>{$year}</option>";
 	}
-	$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1);
+	//$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1);
 	$affiliate = new Affiliates($core->user['mainaffiliate']);
 	$affiliate_currency = $affiliate->get_country()->get()['mainCurrency'];
-	$budget_currencylist = parse_selectlist('budget[currency]', 1, $currencies, $affiliate_currency, '', '', array('id' => 'currency'));
-
+	$budget_currencylist = parse_selectlist('budget[currency]', 1, array(), $affiliate_currency, '', '', array('id' => 'currency'));
 
 	eval("\$budgetcreate = \"".$template->get('budgeting_createbudget')."\";");
 	output_page($budgetcreate);
 }
 else {
-	if($core->input['action'] == 'create') {
-		$session->start_phpsession();
-		$session->set_phpsession(array('budgetdata' => serialize($core->input['budget'])));
-	}
-	elseif($core->input['action'] == 'get_supplierslist') {
+	if($core->input['action'] == 'get_supplierslist') {
 		$affid = $db->escape_string($core->input['id']);
 		$affiliate = new Affiliates($affid);
 		$budget_suppliers = $affiliate->get_suppliers();
@@ -88,9 +83,13 @@ else {
 		$budget = new Budgets();
 		$budget_years = $budget->populate_budgetyears(array('affid' => $affid, 'spid' => $spid));
 		if(is_array($budget_years)) {
-			$budget_year .="<option value='0'></option>";
+			//$budget_year .="<option value='0'></option>";
+
 			foreach($budget_years as $year) {
-				$budget_year .="<option value='{$year}'>{$year}</option>";
+				if($year == date("Y") + 1) {
+					$year_selected = "selected=selected";
+				}
+				$budget_year .="<option value='{$year}' ".$year_selected.">{$year}</option>";
 			}
 		}
 

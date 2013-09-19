@@ -11,8 +11,9 @@
 $session->start_phpsession();
 if(!($core->input['action'])) {
 	if($core->input['referrer'] == 'generate') {
-		$identifier = base64_decode($core->input['identifier']);
-		$generate_budget_data = unserialize($session->get_phpsession('generatebudgetdata_'.$identifier));
+		$budgetcache = new Cache();
+//		$identifier = base64_decode($core->input['identifier']);
+//		$generate_budget_data = unserialize($session->get_phpsession('generatebudgetdata_'.$identifier));
 		$budgetsdata = ($core->input['budget']);
 		$aggregate_types = array('affilliates', 'suppliers', 'managers', 'segments', 'years');
 
@@ -29,9 +30,13 @@ if(!($core->input['action'])) {
 			foreach($budgets as $budgetid) {
 				$budget_obj = new Budgets($budgetid);
 				$budget['country'] = $budget_obj->get_affiliate()->get()['name'];
+				$budget['manager'] = $budget_obj->get_CreateUser()->get();
 
+				if(!$budgetcache->iscached('managercache', $budget['manager']['uid'])) {
+					$budgetcache->add('managercache', $budget['manager']['displayName'], $budget['manager']['uid']);
+				}
 				$budget['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
-				$budget['manager'] = $budget_obj->get_CreateUser()->get()['displayName'];
+				$budget['manager'] = $budgetcache->data['managercache'][$budget['manager']['uid']];
 
 				$budgetlines = $budget_obj->get_budgetLines();
 				foreach($budgetlines as $budgetline) {

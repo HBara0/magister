@@ -8,24 +8,16 @@
  * Last Update:    @tony.assaad    Aug 13, 2013 | 4:15:18 PM
  */
 
-/**
- * Description of Budgets_class
- *
- * @author tony.assaad
- */
 class Budgets {
-	public function __construct($id = '', $simple = false, $budgetdata = '', $additionaldata = false) {
-		if(isset($id) && !empty($id)) {
-			$this->budget = $this->read($id, $simple, $additionaldata);
+	public function __construct($id = '', $simple = false, $budgetdata = '', $isallbudget = false) {
+		if(isset($id) && !empty($id) || !empty($isallbudget)) {
+			$this->budget = $this->read($id, $simple, $isallbudget);
 		}
-//		else {
-//			$this->budget = $this->get_budgetbydata($budgetdata);
-//		}
 	}
 
-	private function read($id, $simple = false, $additionaldata = false) {
+	private function read($id, $simple = false, $isallbudget = false) {
 		global $db;
-		if(empty($id)) {
+		if(empty($id) && empty($isallbudget)) {
 			return false;
 		}
 
@@ -33,10 +25,15 @@ class Budgets {
 		if($simple == true) {
 			$query_select = 'year, description';
 		}
-		if($additionaldata == true) {
-			return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."budgeting_budgets  bd
-									JOIN ".Tprefix."budgeting_budgets_lines bdl ON(bd.bid=bdl.bid)
-									WHERE bid=".$db->escape_string($id)), 'budgetproducts');
+		if($isallbudget == true) {
+			$queryall = $db->query("SELECT DISTINCT(year) ,bid,identifier,description,affid,spid,currency,isLocked,isFinalized,finalizedBy,status,createdOn,createdBy,modifiedBy 
+									FROM ".Tprefix."budgeting_budgets GROUP BY year ORDER BY year DESC  ");
+			if($db->num_rows($queryall) > 0) {
+				while($budget = $db->fetch_assoc($queryall)) {
+					$allbudgets[] = $budget;
+				}
+			}
+			return $allbudgets;
 		}
 		else {
 			return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."budgeting_budgets WHERE bid=".$db->escape_string($id)));
@@ -135,7 +132,8 @@ class Budgets {
 	}
 
 	private function save_budgetlines($budgetline_data = array(), $bid) {
-		unset($budgetline_data['customerName']);
+		unset($budgetline_data['customerName']);	
+			echo '<hr>';
 		foreach($budgetline_data as $blid => $data) {
 
 			if(isset($data['blid']) && !empty($data['blid'])) {
@@ -213,16 +211,32 @@ class Budgets {
 
 	public function get_budgetbydata($data) {
 		global $db;
-
 		if(is_array($data)) {
 			$budget_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets WHERE affid='".$data['affid']."' AND spid='".$data['spid']."' AND year='".$data['year']."'");
 			if($db->num_rows($budget_bydataquery) > 0) {
 				while($budget_bydata = $db->fetch_assoc($budget_bydataquery)) {
-					$budgetline_details = $budget_bydata;
+					$budget_details = $budget_bydata;
 				}
-				return $budgetline_details;
+				return $budget_details;
 			}
 		}
+	}
+
+	public function read_prev_budgetbydata($data) {
+		global $db;
+		for($year = $data['year']; $year >= ($data['year'] - 2); $year--) {
+			if($year == $data['year']) {
+				continue;
+			}
+			$prev_budget_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets  bd JOIN ".Tprefix."budgeting_budgets_lines bdl ON(bd.bid=bdl.bid) 
+													WHERE affid='".$data['affid']."' AND spid='".$data['spid']."' AND year='".$year."'");
+			if($db->num_rows($prev_budget_bydataquery) > 0) {
+				while($prevbudget_bydata = $db->fetch_assoc($prev_budget_bydataquery)) {
+					$prevbudgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['bid']] = $prevbudget_bydata;
+				}
+			}
+		}
+		return $prevbudgetline_details;
 	}
 
 	public function get_budgetLines($bid = '') {
@@ -230,13 +244,14 @@ class Budgets {
 		if(empty($bid)) {
 			$bid = $this->budget['bid'];
 		}
+
 		if(isset($bid) && !empty($bid)) {
+
 			$budgetline_queryid = $db->query("SELECT *
 												FROM ".Tprefix."budgeting_budgets_lines
 												WHERE bid in(".$db->escape_string($bid).")");
 			if($db->num_rows($budgetline_queryid) > 0) {
 				while($budgetline_data = $db->fetch_assoc($budgetline_queryid)) {
-
 					$budgetline = new BudgetLines($budgetline_data['blid']);
 					$budgetline_details[$budgetline_data['blid']] = $budgetline->get();
 				}
@@ -253,7 +268,6 @@ class Budgets {
 	public function get_affiliate() {
 		return new Affiliates($this->budget['affid']);
 	}
-
 
 	public function get_currency() {
 		return new Currencies($this->budget['originalCurrency']);

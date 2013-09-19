@@ -29,7 +29,7 @@ if(!$core->input['action']) {
 
 	$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, "{$affiliate_where}");
 	$affiliated_budget = parse_selectlist('budget[affilliates][]', 1, $affiliates, $core->user['mainaffiliate'], 1, '', array('id' => 'affid'));
-							
+
 
 	if($core->usergroup['canViewAllSupp'] == 0) {
 		$insupplier = implode(',', $core->user['suppliers']['eid']);
@@ -47,14 +47,25 @@ if(!$core->input['action']) {
 	foreach($user_segments as $segment) {
 		$budget_segment .='<option value='.$segment['psid'].'>'.$segment['title'].'</option>';
 	}
-	$years = array_combine(range(date("Y") + 1, date("Y") - 3), range(date("Y") + 1, date("Y") - 3));
-	foreach($years as $year) {
+
+	$budget_obj = new Budgets('', '', '', true);
+	$allbugets = $budget_obj->get();
+	foreach($allbugets as $id => $budget) {
 		$year_selected = '';
-		if($year == $years[date("Y")]) {
+		if($budget['year'] == date("Y")) {
 			$year_selected = "selected=selected";
 		}
-		$budget_year .= "<option value='{$year}'{$year_selected}>{$year}</option>";
+		$budget_year .= "<option value='{$budget['year']}'{$year_selected}>{$budget['year']}</option>";
 	}
+
+	//$years = array_combine(range(date("Y") + 1, date("Y") - 3), range(date("Y") + 1, date("Y") - 3));
+//	foreach($years as $year) {
+//		$year_selected = '';
+//		if($year == $years[date("Y")]) {
+//			$year_selected = "selected=selected";
+//		}
+//		$budget_year .= "<option value='{$year}'{$year_selected}>{$year}</option>";
+//	}
 	$affiliate = new Affiliates($core->user['mainaffiliate']);
 	$affiliate_currency = $affiliate->get_country()->get()['mainCurrency'];
 	$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1, 'numCode='.$affiliate_currency);
@@ -79,12 +90,9 @@ if(!$core->input['action']) {
 	else {
 		$business_managerslist.="<option value='{$core->user['uid']}'>{$core->user['displayName']}</option>";
 	}
-	
+
 
 	eval("\$budgetgenerate = \"".$template->get('budgeting_generate')."\";");
 	output_page($budgetgenerate);
 }
-
-
-
 ?>

@@ -1,23 +1,65 @@
+
 <tr id="{$rowid}">
-    <td  style="padding: 2px; border-bottom: dashed 1px #CCCCCC;" align="left"><input type="hidden" name="budgetline[$rowid][blid]" value="{$blid}"/><input type='text' id='customer_{$rowid}_QSearch' name="budgetline[$rowid][customerName]" value="{$budgetline[customerName]}" autocomplete='off' {$required}/>
+    <td  style=" vertical-align: top;padding:2px; border-bottom: dashed 1px #CCCCCC;" align="left"> 
+        <input type="hidden" name="budgetline[$rowid][blid]" value="{$blid}"/>
+        <input type='text' id='customer_{$rowid}_QSearch' name="budgetline[$rowid][customerName]" value="{$prevbudgetline[customerName]}" autocomplete='off' {$required}/>
         <input type='text' size='3' id='customer_{$rowid}_id_output' disabled='disabled' value="{$budgetline[cid]}" style="display:none;"/>
         <input type='hidden' value="{$budgetline[cid]}" id='customer_{$rowid}_id' name='budgetline[$rowid][cid]' />
         <a href="index.php?module=contents/addentities&type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a>
         <div id='searchQuickResults_{$rowid}' class='searchQuickResults' style='display:none;'></div>
     </td>
 
-    <td style="padding:2px; border-bottom: dashed 1px #CCCCCC;" align="left">
-        <input type='text' name="budgetline[$rowid][pid]" id="product_1{$rowid}_QSearch" value="{$budgetline[productname]}" autocomplete='off' {$required}/>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;"  align="left">
+        <input type='text' name="budgetline[$rowid][pid]" id="product_1{$rowid}_QSearch" value="{$prevbudgetline[productname]}" autocomplete='off' {$required}/>
         <input type='text' size='2' style="width:35px;display:none;" name='product_1{$rowid}_id_output' id='product_1{$rowid}_id_output' disabled='disabled' value="{$budgetline[pid]}"/>
         <input type='hidden' value='{$budgetline[pid]}' id='product_1{$rowid}_id' name='budgetline[$rowid][pid]' />
-     <a href="index.php?module=contents/addproducts" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a>
-        <div id='searchQuickResults_1{$rowid}' class='searchQuickResults' style='display:none;'></div></td>
+        <table width="1px;"><tr><td><a href="index.php?module=contents/addproducts" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a> </td></tr></table>
 
-    <td style="padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_right">
-        <input name="budgetline[$rowid][Quantity]" type="text" id="Qty_{$rowid}" size="10" accept="numeric" value="{$budgetline[Quantity]}"{$required}  /><span >  <select name="budgetline[$rowid][UoM]" disabled="disabled"> <option value="kg">KG</option></select></span></td>
-
-    <td  style="padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[$rowid][ammount]" type="text" id="ammount_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[ammount]}" autocomplete='off'/></td>
-    <td style="padding:2px; border-bottom:  dashed 1px #CCCCCC;" align="center"><input name="budgetline[$rowid][income]"  value="{$budgetline[income]}" {$required}type="text" id="income_{$rowid}" size="10" accept="numeric" /></td>
-
-    <td style="padding:2px;border-bottom: dashed 1px #CCCCCC;" align="center">{$saletype_selectlist}</td>
+        <div id='searchQuickResults_1{$rowid}' class='searchQuickResults' style='display:none;'></div>
+    </td>
+    <td style="vertical-align:top; padding:2px;border-bottom: dashed 1px #CCCCCC;" align="center">{$saletype_selectlist}</td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_right">
+        <input name="budgetline[$rowid][Quantity]" type="text" id="Qty_{$rowid}" size="10" accept="numeric" value="{$budgetline[Quantity]}"{$required}  />
+        {$previous_yearsqty} </td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">    <select name="budgetline[$rowid][UoM]" disabled="disabled"> <option value="kg">KG</option></select> </td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[$rowid][ammount]" type="text" id="ammount_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[ammount]}" autocomplete='off'/>{$previous_yearsamount}</td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[$rowid][incomeperc]"  placeholder="% of income" type="text" id="ammountper_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[incomeperc]}" autocomplete='off'/></td>
+    <td style="vertical-align:top; padding:2px; border-bottom:  dashed 1px #CCCCCC;" align="center"><input name="budgetline[$rowid][income]"  value="{$budgetline[income]}" {$required}type="text" id="income_{$rowid}" size="10" accept="numeric" />{$previous_yearsincome}</td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"> <select id="currency_{$rowid}" name="budgetline[$rowid][originalCurrency]">{$budget_currencylist}</select><span id="currency_details_{$rowid}"></span></td>
+    <td style="vertical-align:top; padding:2px;border-bottom: dashed 1px #CCCCCC;" align="center">{$invoice_selectlist}</td>
 </tr>
+
+     <script type="text/javascript">
+
+            $(function() {
+                $('input[id^=ammountper_' + $rowid + ']').on('input', function() {
+                    if ($('input[id^=ammount_' + $rowid + ']').val()) {
+                        var incomeper = 0;
+                        var saleamount = 0;
+                        var income = 0;
+                        saleamount = $('input[id^=ammount_' + $rowid + ']').val();
+                        $('input[id^=ammount_' + $rowid + ']').data('saleamount', saleamount);
+                        incomeper = Number(($('input[id^=ammountper_' + $rowid + ']').val()));
+                        income = (saleamount * incomeper) / 100;
+                        $('input[id^=income_' + $rowid + ']').val(income);
+                        $('input[id^=income_' + $rowid + ']').data('income', $('input[id^=income_' + $rowid + ']').val());
+                    }
+                });
+
+                $('input[id^=income_' + $rowid + ']').on('input', function() {
+                    incomeperc = (Number($('input[id^=income_' + $rowid + ']').val()) / $('input[id^=ammount_' + $rowid + ']').data('saleamount')) * 100;
+                    $('input[id^=ammountper_' + $rowid + ']').val(incomeperc);
+                });
+                $('#salestype_' + $rowid).bind('change', function() {
+                    var salestype = $("#salestype_" + $rowid).val();
+                    var myArray = {0:"LBP", 1:"LBP",2:"USD",4:"EURO"};
+                    if (typeof myArray[salestype] != 'undefined') {
+                        $("#currency_" + $rowid).val(myArray[salestype]);
+                    }
+                    if ($('#salestype_' + $rowid).val() == 4) {
+                        $('#invoice_' + $rowid).val('supplier');
+                    }
+                });
+            });
+
+        </script>

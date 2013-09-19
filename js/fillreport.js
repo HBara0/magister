@@ -4,7 +4,7 @@ $(function() {
     var form = $("#affid,#spid,#quarter").closest("form");
     var formname = form.attr("name").split('/')[0];
 
-    $("#year").change(function() {
+    $("#spid").change(function() {
         if ($(this).val() == '0') {
             $("#buttons_row").hide();
         }
@@ -33,11 +33,12 @@ $(function() {
             }
             else if (id == "spid")
             {
-                dataParam += "&affid=" + $("#affid").val();
+                 dataParam += "&affid=" + $("#affid").val() + "&spid=" + $("#spid").val();
                 if (formname == "perform_budgeting") {
-                    get = "currencylist";
-                    loadingIn = "currlist_Loading";
-                    contentIn = "currency";
+                    get = "years";
+                    loadingIn = "years_Loading";
+                    contentIn = "year";
+                     $("#buttons_row").show();
 
                 }
                 else {
@@ -49,13 +50,13 @@ $(function() {
 
             }
 
-            else if (id == "currency") {
-                dataParam += "&affid=" + $("#affid").val() + "&spid=" + $("#spid").val();
-                get = "years";
-                loadingIn = "years_Loading";
-                contentIn = "year";
-                $("#buttons_row").show();
-            }
+//            else if (id == "currency") {
+//                dataParam += "&affid=" + $("#affid").val() + "&spid=" + $("#spid").val();
+//                get = "years";
+//                loadingIn = "years_Loading";
+//                contentIn = "year";
+//                $("#buttons_row").show();
+//            }
             else if (id == "quarter") {
                 dataParam += "&affid=" + $("#affid").val() + "&spid=" + $("#spid").val();
                 get = "years";
