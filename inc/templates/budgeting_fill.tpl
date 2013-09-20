@@ -2,7 +2,42 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->fillsurvey}</title>
         {$headerinc}
-   
+        <script type="text/javascript">
+            $(function() {
+                $('input[id^="amountper_"]').live('input', function() {
+                    var id = $(this).attr("id").split("_");
+                    $('input[id^=income_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id^=amount_' + id[1] + ']').val());
+                });
+
+                $('input[id^="income_"]').live('input', function() {
+                    var id = $(this).attr("id").split("_");
+                    $('input[id^=amountper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id^=amount_' + id[1] + ']').val());
+                });
+
+                $('input[id^="amount_"]').live('input', function() {
+                    var id = $(this).attr("id").split("_");
+                    if ($('input[id^="amountper_' + id[1] + '"]').val().length > 0) {
+                        $('input[id^="amountper_' + id[1] + '"]').trigger('input');
+                    } else {
+
+                        if ($('input[id^="income_' + id[1] + '"]').val().length > 0) {
+                            $('input[id^="income_' + id[1] + '"]').trigger('input');
+                        }
+                    }
+                });
+
+                $('select[id^="salestype_"]').live('change', function() {
+                    var id = $(this).attr("id").split("_");
+                    var salestype = $(this).val();
+                    var myArray = {0:"LBP", 1:"LBP",2:"USD",4:"EUR"};
+                    if (typeof myArray[salestype] != 'undefined') {
+                        $("#currency_" + id[1]).val(myArray[salestype]);
+                    }
+                    if ($(this).val() == 4) {
+                        $('#invoice_' + id[1]).val('supplier');
+                    }
+                });
+            });</script>
     </head>
     <body>
         

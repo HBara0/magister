@@ -29,37 +29,3 @@
     <td style="vertical-align:top; padding:2px;border-bottom: dashed 1px #CCCCCC;" align="center">{$invoice_selectlist}</td>
 </tr>
 
-     <script type="text/javascript">
-
-            $(function() {
-                $('input[id^=ammountper_' + $rowid + ']').on('input', function() {
-                    if ($('input[id^=ammount_' + $rowid + ']').val()) {
-                        var incomeper = 0;
-                        var saleamount = 0;
-                        var income = 0;
-                        saleamount = $('input[id^=ammount_' + $rowid + ']').val();
-                        $('input[id^=ammount_' + $rowid + ']').data('saleamount', saleamount);
-                        incomeper = Number(($('input[id^=ammountper_' + $rowid + ']').val()));
-                        income = (saleamount * incomeper) / 100;
-                        $('input[id^=income_' + $rowid + ']').val(income);
-                        $('input[id^=income_' + $rowid + ']').data('income', $('input[id^=income_' + $rowid + ']').val());
-                    }
-                });
-
-                $('input[id^=income_' + $rowid + ']').on('input', function() {
-                    incomeperc = (Number($('input[id^=income_' + $rowid + ']').val()) / $('input[id^=ammount_' + $rowid + ']').data('saleamount')) * 100;
-                    $('input[id^=ammountper_' + $rowid + ']').val(incomeperc);
-                });
-                $('#salestype_' + $rowid).bind('change', function() {
-                    var salestype = $("#salestype_" + $rowid).val();
-                    var myArray = {0:"LBP", 1:"LBP",2:"USD",4:"EURO"};
-                    if (typeof myArray[salestype] != 'undefined') {
-                        $("#currency_" + $rowid).val(myArray[salestype]);
-                    }
-                    if ($('#salestype_' + $rowid).val() == 4) {
-                        $('#invoice_' + $rowid).val('supplier');
-                    }
-                });
-            });
-
-        </script>
