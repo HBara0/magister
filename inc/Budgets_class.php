@@ -241,7 +241,7 @@ class Budgets {
 													WHERE affid='".$data['affid']."' AND spid='".$data['spid']."' AND year='".$year."'");
 			if($db->num_rows($prev_budget_bydataquery) > 0) {
 				while($prevbudget_bydata = $db->fetch_assoc($prev_budget_bydataquery)) {
-					$prevbudgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['bid']] = $prevbudget_bydata;
+					$prevbudgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['saleType']][$prevbudget_bydata['bid']] = $prevbudget_bydata;
 				}
 			}
 		}
