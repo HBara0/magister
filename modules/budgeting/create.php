@@ -8,8 +8,8 @@
  * Last Update:    @tony.assaad    Aug 13, 2013 | 12:09:50 PM
  */
 
-if(!defined("DIRECT_ACCESS")) {
-	die("Direct initialization of this file is not allowed.");
+if(!defined('DIRECT_ACCESS')) {
+	die('Direct initialization of this file is not allowed.');
 }
 
 if($core->usergroup['canUseBudgeting'] == 0) {
@@ -35,7 +35,7 @@ if(!$core->input['action']) {
 	$suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, "{$supplier_where}");
 	$budget_supplierslist = "<select name=budget[spid] id=spid ><option value='0'>&nbsp;</option></select>";
 
-	$years = array_combine(range(date("Y") + 1, date("Y") + 1), range(date("Y") + 1, date("Y") + 1));
+	$years = array_combine(range(date('Y') + 1, date('Y') + 1), range(date('Y') + 1, date('Y') + 1));
 
 	foreach($years as $year) {
 		$year_selected = '';
@@ -58,12 +58,12 @@ else {
 		$affiliate = new Affiliates($affid);
 		$budget_suppliers = $affiliate->get_suppliers();
 
-		$budget_supplierslist.= "<option value='0'></option>";
+		$budget_supplierslist = '<option value="0"></option>';
 		if(is_array($budget_suppliers)) {
 			foreach($budget_suppliers as $supplier) {
-				$budget_supplierslist.= "<option value='{$supplier[eid]}'>{$supplier[companyName]}</option>";
+				$budget_supplierslist .= '<option value="'.$supplier['eid'].'">'.$supplier['companyName'].'</option>';
 			}
-			echo $budget_supplierslist;
+			output($budget_supplierslist);
 		}
 	}
 	elseif($core->input['action'] == 'get_currencylist') {
@@ -83,13 +83,14 @@ else {
 		$budget = new Budgets();
 		$budget_years = $budget->populate_budgetyears(array('affid' => $affid, 'spid' => $spid));
 		if(is_array($budget_years)) {
-			//$budget_year .="<option value='0'></option>";
-
 			foreach($budget_years as $year) {
-				if($year == date("Y") + 1) {
-					$year_selected = "selected=selected";
+				if($year == date('Y') + 1) {
+					$year_selected = ' selected="selected"';
+				} 
+				else {
+					continue;
 				}
-				$budget_year .="<option value='{$year}' ".$year_selected.">{$year}</option>";
+				$budget_year .="<option value='{$year}'".$year_selected.">{$year}</option>";
 			}
 		}
 
@@ -102,7 +103,7 @@ else {
 //			}
 //			//$budget_year .= "<option value=''>Select the year</option><option value='{$year}'{$year_selected}>{$year}</option>";
 //		}
-		echo $budget_year;
+		output($budget_year);
 	}
 }
 ?>

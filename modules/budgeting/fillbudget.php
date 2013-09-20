@@ -8,13 +8,12 @@
  * Last Update:    @tony.assaad    Aug 22, 2013 | 3:28:10 PM
  * 
  */
-if(!defined("DIRECT_ACCESS")) {
-	die("Direct initialization of this file is not allowed.");
+if(!defined('DIRECT_ACCESS')) {
+	die('Direct initialization of this file is not allowed.');
 }
 if($core->usergroup['canUseBudgeting'] == 0) {
 	error($lang->sectionnopermission);
 }
-$session->start_phpsession();
 
 $session->start_phpsession();
 
@@ -48,12 +47,6 @@ if($core->input['stage'] == 'fillbudgetline') {
 	$allsaletypes = explode(';', $core->settings['saletypes']);
 
 	foreach($allsaletypes as $key => $val) {
-		//$saletypes[$key] = ucfirst($val);
-		//$saletypes = explode(':', $saletypes[$key] );	 
-		//foreach($saletypes as $sale) { print_r($saletypes);
-		//$saletypes[$id] = ucfirst($sale);
-		//}
-
 		$saletypes[$key] = ucfirst($val);
 	}
 	$invoice_types = array('supplier', 'other');
@@ -71,7 +64,7 @@ if($core->input['stage'] == 'fillbudgetline') {
 	if(is_array($budgetlines)) {
 		$core->input['identifier'] = base64_encode($currentbudget['identifier']);
 		$core->input['bid'] = $currentbudget['bid'];
-		$rowid = 0;
+		$rowid = 1;
 		foreach($budgetlines as $blid => $budgetline) {
 			/* Get Products name from object */
 			$rowid++;
@@ -85,13 +78,13 @@ if($core->input['stage'] == 'fillbudgetline') {
 			$budgetline['customerName'] = $customer->get()['companyName'];
 
 			$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType'], '', '', array('id' => 'salestype_'.$rowid));
-			$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_types, $budgetline['invoice'], '', '', array('blankstart' => 1, 'id' => 'invoice_'.$rowid));
+			$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_types, $budgetline['invoice'], '', '', array('id' => 'invoice_'.$rowid));
 			eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
 		}
 	}
 	else {
 		$previous_budget = $budget->read_prev_budgetbydata($budget_data);
-		$rowid = 0;
+		$rowid = 1;
 
 		if(is_array($previous_budget)) {
 			foreach($previous_budget as $cid => $previous_budgetdetials) {
@@ -100,30 +93,20 @@ if($core->input['stage'] == 'fillbudgetline') {
 				$prevbudgetline['customerName'] = $customer->get()['companyName'];
 				foreach($previous_budgetdetials as $pid => $budgetdetials) {
 					$previous_yearsqty = $previous_yearsamount = $previous_yearsincome = '';
-					echo '<hr>';
-
 					/* Get Products name from object */
 					$product = new Products($pid);
 					$prevbudgetline['productname'] = $product->get()['name'];
 					if(isset($budgetline[$rowid]['cid']) && !empty($budgetline[$rowid]['cid'])) {
-						$required = 'required="required"';
+						$required = ' required="required"';
 					}
 					foreach($budgetdetials as $bid => $budgetline) {
-						$session->set_phpsession(array('budgetdata_'.$bid => serialize($budgetline))); /* temporary */
 						$previous_year = $budgetline['year'];
-						print_r($budgetline);
 						$core->input['bid'] = $bid;
 						$blid = $budgetline['blid'];
-						$rowid++;
-						$budgetline_output['Quantity'] = $budgetline['Quantity'];
-						$budgetline_output['ammount'] = $budgetline['ammount'];
-						$budgetline_output['income'] = $budgetline['income'];
-						unset($budgetline['Quantity'], $budgetline['income'], $budgetline['ammount']);
-						$previous_yearsqty .= '<span style="display:block;"> '.$previous_year.' : '.$budgetline_output['Quantity'].'</span>';
-						$previous_yearsamount.= '<span style="display:block;"> '.$previous_year.' : '.$budgetline_output['ammount'].'</span>';
-						$previous_yearsincome .= '<span style="display:block;"> '.$previous_year.' : '.$budgetline_output['income'].'</span>';
-						$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType'], '', '', array('id' => 'salestype_'.$rowid));
-						$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_types, $budgetline['invoice'], '', '', array('blankstart' => 1, 'id' => 'invoice_'.$rowid));
+						///$rowid++;
+						$previous_yearsqty .= '<span style="display:block;"> '.$previous_year.' : '.$budgetline['quantity'].'</span>';
+						$previous_yearsamount .= '<span style="display:block;"> '.$previous_year.' : '.$budgetline['amount'].'</span>';
+						$previous_yearsincome .= '<span style="display:block;"> '.$previous_year.' : '.$budgetline['income'].'</span>';
 					}
 					eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
 				}
@@ -149,19 +132,16 @@ if($core->input['action'] == 'do_perform_fillbudget') {
 		case 0:
 			output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
 			break;
-		case 1:
+		case 2:
 			output_xml('<status>false</status><message>'.$lang->fillrequiredfield.'</message>');
 			break;
-		case 2:
+		case 602:
 			output_xml('<status>false</status><message>'.$lang->budgetexist.'</message>');
-			break;
-		case 3:
-			output_xml('<status>true</status><message>'.$lang->successfullyupdate.'</message>');
 			break;
 	}
 }
 elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
-	$rowid = $db->escape_string($core->input['value']) + 1;
+	$rowid = intval($core->input['value']) + 1;
 	$saletypes = explode(';', $core->settings['saletypes']);
 	foreach($saletypes as $key => $val) {
 		$saletypes[$val] = ucfirst($val);
@@ -175,6 +155,6 @@ elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
 	$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType'], '', '', array('id' => 'salestype_'.$rowid));
 	$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_types, $budgetline['invoice'], '', '', array('blankstart' => 1, 'id' => 'invoice_'.$rowid));
 	eval("\$budgetlinesrows = \"".$template->get('budgeting_fill_lines')."\";");
-	echo $budgetlinesrows;
+	output($budgetlinesrows);
 }
 ?>
