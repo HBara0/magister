@@ -9,6 +9,8 @@
  */
 
 class Budgets {
+	private $budget = array();
+	private $errorcode = 0;
 	public function __construct($id = '', $simple = false, $budgetdata = '', $isallbudget = false) {
 		if(isset($id) && !empty($id) || !empty($isallbudget)) {
 			$this->budget = $this->read($id, $simple, $isallbudget);
@@ -40,25 +42,27 @@ class Budgets {
 		}
 	}
 
-	private function budget_exist($data) {
+	private function budget_exists($id) {
 		global $db;
-		if(value_exists('budgeting_budgets', 'bid', $data['bid'], 'affid='.$data['affid'].' AND spid='.$data['spid'])) {
-			return true;
+		if(!empty($id)) {
+			if(value_exists('budgeting_budgets', 'bid', $data['bid'])) {
+				return true;
+			}
+			return false;
 		}
 		return false;
 	}
 
-	private function available_budget($data) {
+	private function budget_exists_bydata($data) {
 		global $db;
 		if(isset($data['affid'], $data['spid'], $data['year']) && !is_empty($data['affid'], $data['spid'], $data['year'])) {
-			$budget_existquery = $db->query('SELECT bid FROM '.Tprefix.'budgeting_budgets WHERE affid='.$data['affid'].' AND spid='.$data['spid']);
+			$budget_existquery = $db->query('SELECT bid FROM '.Tprefix.'budgeting_budgets WHERE affid='.intval($data['affid']).' AND spid='.intval($data['spid']).' AND year='.intval($data['year']));
 			if($db->num_rows($budget_existquery) > 0) {
 				return true;
 			}
-			else {
-				return false;
-			}
+			return false;
 		}
+		return false;
 	}
 
 	public function populate_budgetyears($data = array()) {
@@ -103,10 +107,15 @@ class Budgets {
 
 	public function save_budget($budgetline_data = array(), $budgetdata = array()) {
 		global $db, $core;
-		/* check available budget */
+
 		if(is_array($budgetdata)) {
-			$this->budget['bid'] = $budgetdata['bid'];
-			if(!$this->budget_exist($budgetdata)) {
+			if(is_empty($budgetdata['year'], $budgetdata['affid'], $budgetdata['spid'])) {
+				$this->errorcode = 2;
+				return false;
+			}
+			/* Check if budget exists, then process accordingly */
+			if(!$this->budget_exists_bydata($budgetdata)) {
+				
 				$budget_data = array('identifier' => substr(uniqid(time()), 0, 10),
 						'year' => $budgetdata['year'],
 						'affid' => $budgetdata['affid'],
@@ -121,19 +130,17 @@ class Budgets {
 					$this->budget['bid'] = $db->last_id();
 					$this->save_budgetlines($budgetline_data, $this->budget['bid']);
 				}
-
-				//$this->errorcode = 2;
-				//return false;
 			}
 			else {
+				$this->budget['bid'] = $budgetdata['bid'];
 				$this->save_budgetlines($budgetline_data, $this->budget['bid']);
 			}
 		}
 	}
 
 	private function save_budgetlines($budgetline_data = array(), $bid) {
-		unset($budgetline_data['customerName']);	
-			echo '<hr>';
+		unset($budgetline_data['customerName']);
+		echo '<hr>';
 		foreach($budgetline_data as $blid => $data) {
 
 			if(isset($data['blid']) && !empty($data['blid'])) {
@@ -154,7 +161,7 @@ class Budgets {
 //			}
 			if(isset($data['blid']) && !empty($data['blid'])) {
 				$budgetline->update($data);
-				$this->errorcode = 3;
+				$this->errorcode = 0;
 			}
 			else {
 				$budgetline->create($data, $bid);
@@ -219,7 +226,9 @@ class Budgets {
 				}
 				return $budget_details;
 			}
+			return false;
 		}
+		return false;
 	}
 
 	public function read_prev_budgetbydata($data) {
