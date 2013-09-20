@@ -11,7 +11,9 @@
 
                 $('input[id^="income_"]').live('input', function() {
                     var id = $(this).attr("id").split("_");
+                     if ($('input[id^="amountper_' + id[1] + '"]').val().length > 0) {
                     $('input[id^=amountper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id^=amount_' + id[1] + ']').val());
+                    }
                 });
 
                 $('input[id^="amount_"]').live('input', function() {
