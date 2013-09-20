@@ -11,6 +11,7 @@
 
 class Currencies {
 	private $base_currency = 'USD';
+	private $currency;
 	private $error_handler = NULL;
 	private $cache = '';
 
@@ -18,7 +19,28 @@ class Currencies {
 		$this->error_handler = new ErrorHandler(true);
 		$this->base_currency = $base_currency;
 
+		if(is_numeric($base_currency)) {
+			$this->read($base_currency);
+		}
+		elseif(is_string($base_currency)) {
+			$this->read_byalphacode($base_currency);
+		}
+
 		$this->cache = new Cache();
+	}
+
+	private function read($id) {
+		global $db;
+		$this->currency = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'currencies WHERE numCode='.intval($id)));
+	}
+
+	private function read_byalphacode($id) {
+		global $db;
+		$this->currency = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'currencies WHERE alphaCode="'.$db->escape_string($id).'"'));
+	}
+
+	public function get() {
+		return $this->currency;
 	}
 
 	public function get_average_fxrate($currency, array $period = array(), array $options = array(), $base_currency = '') {
@@ -161,12 +183,12 @@ class Currencies {
 		}
 
 		for($i = 1; $i <= 12; $i++) {
-			$period['from'] = mktime(0, 0, 0, $i, 1, $year);  /*period from first day of the month of the report year*/
+			$period['from'] = mktime(0, 0, 0, $i, 1, $year);  /* period from first day of the month of the report year */
 			$period['to'] = mktime(23, 59, 59, $i, date('t', $period['from']), $year);
-			
+
 			if(isset($options['monthasname']) && $options['monthasname'] == true) {
 				$rates[date('M', mktime(0, 0, 0, $i))] = $this->get_average_fxrate($currency, $period, $options, $base_currency);
-			} 
+			}
 			else {
 				$rates[$i] = $this->get_average_fxrate($currency, $period, $options, $base_currency);
 			}
@@ -180,13 +202,13 @@ class Currencies {
 		}
 
 		for($year = $fromyear; $year <= $toyear; $year++) {
-			$period['from'] = mktime(0, 0, 0, 1, 1, $year);  /*period from first day of the month of the report year*/
+			$period['from'] = mktime(0, 0, 0, 1, 1, $year);  /* period from first day of the month of the report year */
 			$period['to'] = mktime(23, 59, 59, 12, date('t', $period['from']), $year);
 			$rates[$year] = $this->get_average_fxrate($currency, $period, $options, $base_currency);
 		}
 		return $rates;
 	}
-	
+
 	public function get_yearlast_fxrate($currency, $year, array $options = array(), $base_currency = '') {
 		global $db;
 
