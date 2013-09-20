@@ -33,6 +33,7 @@ if($core->input['stage'] == 'fillbudgetline') {
 	$affiliate_name = $affiliate->get()['name'];
 	$supplier = new Entities($budget_data['spid']);
 	$supplier_name = $supplier->get()['companyName'];
+
 	$budget = new Budgets();
 	$currentbudget = $budget->get_budgetbydata($budget_data);
 	if($currentbudget != false) {
@@ -54,12 +55,14 @@ if($core->input['stage'] == 'fillbudgetline') {
 		$invoice_types[$val] = ucfirst($val);
 		unset($invoice_types[$key]);
 	}
-	$affiliate_currency = $affiliate->get_country()->get()['mainCurrency'];
-	$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1, 'numCode='.$affiliate_currency);
-	if(is_array($currencies)) {
-		array_push($currencies, 'USD', 'EURO');
-		foreach($currencies as $currency) $budget_currencylist.= "<option value='{$currency}'>{$currency}</option>";
+
+	//$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1, 'numCode='.$affiliate_currency);
+	$affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
+	$currencies = array('USD', 'EUR', $affiliate_currency->get()['alphaCode']);
+	foreach($currencies as $currency) {
+		$budget_currencylist.= '<option value="'.$currency.'">'.$currency.'</option>';
 	}
+
 	/* check whether to display existing budget Form or display new one  */
 	if(is_array($budgetlines)) {
 		$core->input['identifier'] = base64_encode($currentbudget['identifier']);
@@ -108,9 +111,17 @@ if($core->input['stage'] == 'fillbudgetline') {
 						$previous_yearsamount .= '<span style="display:block;"> '.$previous_year.' : '.$budgetline['amount'].'</span>';
 						$previous_yearsincome .= '<span style="display:block;"> '.$previous_year.' : '.$budgetline['income'].'</span>';
 					}
+					$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType'], '', '', array('id' => 'salestype_'.$rowid));
+					$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_types, $budgetline['invoice'], '', '', array('id' => 'invoice_'.$rowid));
 					eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
 				}
 			}
+		}
+		else {
+			$rowid = 1;
+			$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, '', '', '', array('id' => 'salestype_'.$rowid));
+			$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_types, '', '', '', array('id' => 'invoice_'.$rowid));
+			eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
 		}
 	}
 	eval("\$fillbudget = \"".$template->get('budgeting_fill')."\";");
@@ -122,10 +133,10 @@ if($core->input['action'] == 'do_perform_fillbudget') {
 	if(is_array($core->input['budgetline'])) {
 		$budget = new Budgets();
 		$currentbudget = $budget->get_budgetbydata($budget_data);
-		if(!is_array($currentbudget) && empty($currentbudget['bid'])) {
-			$budget_data['bid'] = $core->input['budgetline']['bid'];
+		if(is_array($currentbudget) && !empty($currentbudget['bid'])) {
+			$budget_data['bid'] = $currentbudget['bid'];
 		}
-		$budget_data['bid'] = $currentbudget['bid'];
+
 		$budget->save_budget($core->input['budgetline'], $budget_data);
 	}
 	switch($budget->get_errorcode()) {
@@ -154,6 +165,15 @@ elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
 	}
 	$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType'], '', '', array('id' => 'salestype_'.$rowid));
 	$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_types, $budgetline['invoice'], '', '', array('blankstart' => 1, 'id' => 'invoice_'.$rowid));
+
+	/* Get budget data */
+	$affiliate = new Affiliates($budget_data['affid']);
+	$affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
+	$currencies = array('USD', 'EUR', $affiliate_currency->get()['alphaCode']);
+	foreach($currencies as $currency) {
+		$budget_currencylist.= '<option value="'.$currency.'">'.$currency.'</option>';
+	}
+
 	eval("\$budgetlinesrows = \"".$template->get('budgeting_fill_lines')."\";");
 	output($budgetlinesrows);
 }
