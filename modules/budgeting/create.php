@@ -15,7 +15,7 @@ if(!defined("DIRECT_ACCESS")) {
 if($core->usergroup['canUseBudgeting'] == 0) {
 	error($lang->sectionnopermission);
 }
-$sessionidentifier = base64_encode(substr(uniqid(time()), 0, 10));
+
 if(!$core->input['action']) {
 	if($core->usergroup['canViewAllAff'] == 0) {
 		$inaffiliates = implode(',', $core->user['affiliates']);

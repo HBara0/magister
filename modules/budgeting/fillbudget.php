@@ -16,12 +16,19 @@ if($core->usergroup['canUseBudgeting'] == 0) {
 }
 $session->start_phpsession();
 
-//if($core->input['action']) { 
+$session->start_phpsession();
 
 if($core->input['stage'] == 'fillbudgetline') {
-	$session_identifier = $db->escape_string(base64_decode($core->input['budget']['sessionidentifier']));
-	$session->set_phpsession(array('budgetdata_'.$sessionidentifier => serialize($core->input['budget'])));
-	$budget_data = unserialize($session->get_phpsession('budgetdata_'.$session_identifier));
+	if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
+		$sessionidentifier = $core->input['identifier'];
+		$budget_data = unserialize($session->get_phpsession('budgetdata_'.$sessionidentifier));
+	}
+	else {
+		$sessionidentifier = md5(uniqid(microtime()));
+		print_r($core->input['budget']);
+		$session->set_phpsession(array('budgetdata_'.$sessionidentifier => serialize($core->input['budget'])));
+		$budget_data = $core->input['budget'];
+	}
 
 	$affiliate = new Affiliates($budget_data['affid']);
 	$affiliate_name = $affiliate->get()['name'];
@@ -29,8 +36,14 @@ if($core->input['stage'] == 'fillbudgetline') {
 	$supplier_name = $supplier->get()['companyName'];
 	$budget = new Budgets();
 	$currentbudget = $budget->get_budgetbydata($budget_data);
-	$budgetlines = $budget->get_budgetLines($currentbudget['bid']);
-	$session->set_phpsession(array('budgetmetadata_'.$currentbudget['identifier'] => serialize($currentbudget)));
+	if($currentbudget != false) {
+		$budgetlines = $budget->get_budgetLines($currentbudget['bid']);
+		$session->set_phpsession(array('budgetmetadata_'.$currentbudget['identifier'] => serialize($currentbudget)));
+	}
+	else {
+		$budgetlines = null;
+		$session->set_phpsession(array('budgetmetadata_'.$currentbudget['identifier'] => serialize($core->input)));
+	}
 
 	$allsaletypes = explode(';', $core->settings['saletypes']);
 
@@ -122,7 +135,7 @@ if($core->input['stage'] == 'fillbudgetline') {
 }
 
 if($core->input['action'] == 'do_perform_fillbudget') {
-	$budget_data = unserialize($session->get_phpsession('budgetdata_'));
+	$budget_data = unserialize($session->get_phpsession('budgetdata_'.$core->input['identifier']));
 	if(is_array($core->input['budgetline'])) {
 		$budget = new Budgets();
 		$currentbudget = $budget->get_budgetbydata($budget_data);
