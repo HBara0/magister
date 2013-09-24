@@ -56,7 +56,7 @@
         <!-- <input type="hidden" name="budgetline[$rowid][affid]" value="{$budgetline[affid]}"/> -->
                 <input type="hidden" id='spid' name="spid" value="{$core->input[budget][spid]}"/>
                 <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">
-                <input type="hidden"  name="budgetline[bid]" value="{$currentbudget[bid]}">
+                <input type="hidden" name="budget[bid]" value="{$currentbudget[bid]}">
                 <table width="100%" border="0" cellspacing="0" cellpadding="2">
                     <thead>
                         <tr style="vertical-align: top;">
