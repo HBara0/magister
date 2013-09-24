@@ -58,6 +58,8 @@ if($core->input['stage'] == 'fillbudgetline') {
 		$saletypes[$crumb[0]] = ucfirst($crumb[1]);
 	}
 
+	$saletypesmorefields = array(5);
+	$saletypesmorefields = implode(', ', $saletypesmorefields);
 	$invoice_types = array('supplier', 'other');
 	foreach($invoice_types as $key => $val) {
 		$invoice_types[$val] = ucfirst($val);
@@ -72,7 +74,6 @@ if($core->input['stage'] == 'fillbudgetline') {
 	}
 
 	/* check whether to display existing budget Form or display new one  */
-	//$budgetlinesdata['prevbudget'] = $budget->read_prev_budgetbydata($budget_data);
 	$unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income');
 
 	if(is_array($budgetlinesdata)) {
@@ -83,12 +84,9 @@ if($core->input['stage'] == 'fillbudgetline') {
 			/* Get Customer name from object */
 			$customer = new Entities($cid);
 
-
 			foreach($customersdata as $pid => $productsdata) {
-
 				/* Get Products name from object */
 				$product = new Products($pid);
-
 
 //				if(isset($budgetline[$rowid]['cid']) && !empty($budgetline[$rowid]['cid'])) {
 //					$required = ' required="required"';
@@ -134,50 +132,6 @@ if($core->input['stage'] == 'fillbudgetline') {
 		eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
 	}
 
-//	else {
-//		$previous_budget = $budget->read_prev_budgetbydata($budget_data);
-//		$rowid = 1;
-//
-//		if(is_array($previous_budget)) {
-//			foreach($previous_budget as $cid => $previous_budgetdetials) {
-//				/* Get Customer name from object */
-//				$customer = new Entities($cid);
-//				$prevbudgetline['customerName'] = $customer->get()['companyName'];
-//				foreach($previous_budgetdetials as $pid => $budgetdetials) {
-//
-//					foreach($budgetdetials as $saleid => $salestype) {
-//						$previous_yearsqty = $previous_yearsamount = $previous_yearsincome = '';
-//						/* Get Products name from object */
-//						$product = new Products($pid);
-//						$prevbudgetline['productname'] = $product->get()['name'];
-//						if(isset($budgetline[$rowid]['cid']) && !empty($budgetline[$rowid]['cid'])) {
-//							$required = ' required="required"';
-//						}
-//
-//						foreach($salestype as $bid => $budgetline) {
-//							$previous_year = $budgetline['year'];
-//							$core->input['bid'] = $bid;
-//							$blid = $budgetline['blid'];
-//
-//							$previous_yearsqty .= '<span style="display:block;"> '.$previous_year.' : '.$budgetline['Quantity'].'</span>';
-//							$previous_yearsamount .= '<span style="display:block;"> '.$previous_year.' : '.$budgetline['amount'].'</span>';
-//							$previous_yearsincome .= '<span style="display:block;"> '.$previous_year.' : '.$budgetline['income'].'</span>';
-//						}
-//						$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $saleid, '', '', array('id' => 'salestype_'.$rowid));
-//						$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_types, $budgetline['invoice'], '', '', array('id' => 'invoice_'.$rowid));
-//						eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
-//						$rowid++;
-//					}
-//				}
-//			}
-//		}
-//		else {
-//			$rowid = 1;
-//			$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, '', '', '', array('id' => 'salestype_'.$rowid));
-//			$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_types, '', '', '', array('id' => 'invoice_'.$rowid));
-//			eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
-//		}
-//	}
 	eval("\$fillbudget = \"".$template->get('budgeting_fill')."\";");
 	output_page($fillbudget);
 }

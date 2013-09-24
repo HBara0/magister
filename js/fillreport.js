@@ -65,7 +65,7 @@ $(function() {
                 $("#year").empty();
             }
 
-            $("#buttons_row").hide();
+            $("#buttons_row").show();
             if (formname != "perform_budgeting") {
                 var url = "index.php?module=reporting/fillreport&action=get_" + get;
             }

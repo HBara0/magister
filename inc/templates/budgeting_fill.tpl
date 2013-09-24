@@ -11,8 +11,8 @@
 
                 $('input[id^="income_"]').live('input', function() {
                     var id = $(this).attr("id").split("_");
-                     if ($('input[id^="amountper_' + id[1] + '"]').val().length > 0) {
-                    $('input[id^=amountper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id^=amount_' + id[1] + ']').val());
+                    if ($('input[id^="amountper_' + id[1] + '"]').val().length > 0) {
+                        $('input[id^=amountper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id^=amount_' + id[1] + ']').val());
                     }
                 });
 
@@ -31,13 +31,19 @@
                 $('select[id^="salestype_"]').live('change', function() {
                     var id = $(this).attr("id").split("_");
                     var salestype = $(this).val();
-                    var myArray = {0:"LBP", 1:"LBP",2:"USD",4:"EUR"};
+                    var additional_salestype = [{$saletypesmorefields}]; /*get the parsed array from php*/
+             
+
+                    var myArray = {1:"LBP", 2:"LBP",3:"USD",5:"EUR"};
+                      var invoicetypes = {1:"other", 2:"other",3:"other",5:"supplier"};
+                    $('#invoice_' + id[1]).val('other');
                     if (typeof myArray[salestype] != 'undefined') {
                         $("#currency_" + id[1]).val(myArray[salestype]);
                     }
-                    if ($(this).val() == 4) {
-                        $('#invoice_' + id[1]).val('supplier');
+                    if (jQuery.inArray(parseInt($(this).val()), additional_salestype) > -1) {
+                        $('#invoice_' + id[1]).val(invoicetypes[salestype]);
                     }
+
                 });
             });</script>
     </head>
