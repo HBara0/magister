@@ -343,7 +343,7 @@ if($core->input['action']) {
 
 			$profile['position'] = $profile_user->get_positions();
 			if(is_array($profile['position'])) {
-				$profile['position'] = implode(',', $profile_user->get_positions());
+				$profile['position'] = implode(', ', $profile['position']);
 			}
 			/* 	Prepare affiliates list */
 			$main_affiliate = $profile_user->get_mainaffiliate();
