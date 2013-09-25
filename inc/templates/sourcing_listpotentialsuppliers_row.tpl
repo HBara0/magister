@@ -1,4 +1,4 @@
-<tr class='{$rowclass}'>
+<tr class='{$rowclass}' style="vertical-align:top;">
 	<td><a href="index.php?module=sourcing/supplierprofile&amp;id={$potential_supplier[supplier][ssid]}" target="_blank">{$potential_supplier[supplier][companyName]}</a></td>
 	<input id="ssid_{$potential_supplier[ssid]}" type="hidden" value="{$potential_supplier[ssid]}" />
 	<td>{$potential_supplier[supplier][type]}</td>
