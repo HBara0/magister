@@ -81,11 +81,20 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
 				$email_data['message'] .= '['.$alphacode.'] Avg: '.formatit($rates['average']).' ('.trim(formatit(1 / $rates['average'])).') Last: '.trim(formatit($rates['latest']))." (".trim(formatit(1 / $rates['latest'])).") \n";
 			}
 			else {
-				$email_data['message'] .= '['.$alphacode.'] Avg: '.formatit($rates['average']).' Last: '.formatit($rates['latest'])."\n";
+				if(empty($rates['average'])){
+					continue;
+				} 
+				else {
+					if(empty($rates['latest'])) {
+						$rates['latest'] = $rates['average'];
+					}
+				}
+				$email_data['message'] .= '['.$alphacode.'] Avg: '.formatit($rates['average']).' ('.trim(formatit(1 / $rates['average'])).') Last: '.trim(formatit($rates['latest']))." (".trim(formatit(1 / $rates['latest'])).") \n";
 			}
 		}
 
 		$email_data['message'] .= "\nBest Regards,\n</pre>";
+
 		$mail = new Mailer($email_data, 'php');
 		if($mail->get_status() == true) {
 			$log->record($user['name'], 'success');
