@@ -120,21 +120,26 @@ if(!$core->input['action']) {
 																	   WHERE eid='".$db->escape_string($visitreport['cid'])."'"), "customername");
 		$visitreports[$key]['customerName'] = $visitreport['customerdetails']['companyName'];
 
-		foreach($visitreport['spid'] as $k => $v) {
-			$visitreport['comments'][$v]['suppliername'] = $visitreport['suppliername'][] = $db->fetch_field($db->query("SELECT companyName AS suppliername FROM ".Tprefix."entities WHERE eid='".$db->escape_string($v)."'"), 'suppliername');
+		if(is_array($visitreport['spid'])) {
+			foreach($visitreport['spid'] as $k => $v) {
+				$visitreport['comments'][$v]['suppliername'] = $visitreport['suppliername'][] = $db->fetch_field($db->query("SELECT companyName AS suppliername FROM ".Tprefix."entities WHERE eid='".$db->escape_string($v)."'"), 'suppliername');
+			}
 		}
-
+		
 		if(is_array($visitreport['suppliername'])) {
 			$reportsuppliers = implode('<br />', $visitreport['suppliername']);
 		}
 		$visitreport['contactperson'] = $db->fetch_field($db->query("SELECT name AS contactperson FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($visitreport['rpid'])."'"), "contactperson");
 
-
-		foreach($visitreport['productLine'] as $k => $v) {
-			$visitreport['productline'][$v] = $db->fetch_field($db->query("SELECT title AS productline FROM ".Tprefix."productsegments WHERE psid='".$db->escape_string($v)."'"), "productline");
+		if(is_array($visitreport['productLine'])) {
+			foreach($visitreport['productLine'] as $k => $v) {
+				$visitreport['productline'][$v] = $db->fetch_field($db->query("SELECT title AS productline FROM ".Tprefix."productsegments WHERE psid='".$db->escape_string($v)."'"), "productline");
+			}
 		}
-		$reportproductlines = implode('<br />', $visitreport['productline']);
-
+		if(is_array($visitreport['productline'])) {
+			$reportproductlines = implode('<br />', $visitreport['productline']);
+		}
+		
 		$cdetails_rowspan = 6;
 		$accompaniedbyrow = '';
 		if(isset($visitreport['sprpid']) && !empty($visitreport['sprpid'])) {
@@ -199,13 +204,14 @@ if(!$core->input['action']) {
 				eval("\$aggression_box = \"".$template->get('crm_visitreport_aggressionbox')."\";");
 			}
 		}
-
-		foreach($visitreport['spid'] as $spidkey => $spidval) {
-			foreach($visitreport['comments'][$spidval] as $key => $value) {
-				$visitreport['comments'][$spidval][$key] = $core->sanitize_inputs($value, array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
+		
+		if(is_array($visitreport['spid'])) {
+			foreach($visitreport['spid'] as $spidkey => $spidval) {
+				foreach($visitreport['comments'][$spidval] as $key => $value) {
+					$visitreport['comments'][$spidval][$key] = $core->sanitize_inputs($value, array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
+				}
 			}
 		}
-
 		//array_walk_recursive($visitreport, '$core->sanitize_inputs');
 		array_walk_recursive($visitreport, 'fix_newline');
 		array_walk_recursive($visitreport, 'parse_ocode');
