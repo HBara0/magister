@@ -20,6 +20,8 @@ if($core->usergroup['sourcing_canListSuppliers'] == 0) {
 }
 
 if(!$core->input['action']) {
+	$origins = array('anyorigin' => $lang->anyorigin, 'chinese' => $lang->chinese, 'nonchinese' => $lang->nonchinese, 'indian' => $lang->indian, 'nonindian' => $lang->nonindian, 'european' => $lang->european, 'noneuropean' => $lang->noneuropean, 'american' => $lang->american, 'nonamerican' => $lang->nonamerican, 'otherasian' => $lang->otherasian, 'nootherasian' => $lang->nootherasian);
+
 	$potential_supplier = new Sourcing();
 	$sort_url = sort_url();
 	$chemicalrequests = $potential_supplier->get_chemicalrequests();
@@ -34,8 +36,8 @@ if(!$core->input['action']) {
 				$feedback_icon = 'edit.gif';
 				$rowcolor = 'unapproved';
 			}
-
-
+			
+			$chemicalrequest['origin'] = $origins[$chemicalrequest['origin']];
 			$chemicalrequest['timeRequested_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $chemicalrequest['timeRequested']);
 			eval("\$chemcialsrequests_rows .= \"".$template->get('sourcing_listchemcialsrequests_rows')."\";");
 		}
@@ -94,15 +96,15 @@ else {
 
 		switch($potential_supplier->get_status()) {
 			case 10:
-				if($requester_details['isClosed'] == 1) { 
+				if($requester_details['isClosed'] == 1) {
 					header('Content-type: text/xml+javascript');  /* colorate each selected <tr> has applicant id  after successfull update */
 					output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$("#popup_feedback").dialog("close"); $("tr[id^='.$request_id.']").each(function() {$(this).addClass("greenbackground"); $(this).find("img").attr("src","./images/valid.gif") }); </script>]]></message>');
-				
+
 					break;
 				}
-				case 1:
+			case 1:
 				output_xml("<status>false</status><message>{$lang->fieldrequired}</message>");
-				break; 
+				break;
 			case 2:
 				output_xml("<status>false</status><message>{$lang->feedbackexsist}</message>");
 				break;

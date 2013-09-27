@@ -1,4 +1,4 @@
-#!/usr/bin/php -q
+#!/usr/local/bin/php -q
 <?php
 ini_set('memory_limit', '-1');
 $dir = dirname(dirname(__FILE__)).'/';
@@ -231,7 +231,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 		else {
 			if($ignore_subject == true) {
 				if(isset($request['referrer']) && $request['referrer'] == 'email') {
-					error('index.php?module=attendance/listleaves', $lang->youapprovedleave);
+					error($lang->youapprovedleave, 'index.php?module=attendance/listleaves');
 				}
 			}
 		}
@@ -239,7 +239,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 	else {
 		if($ignore_subject == true) {
 			if(isset($request['referrer']) && $request['referrer'] == 'email') {
-				error('index.php?module=attendance/listleaves', $lang->sectionnopermission);
+				error($lang->sectionnopermission, 'index.php?module=attendance/listleaves');
 			}
 		}
 	}

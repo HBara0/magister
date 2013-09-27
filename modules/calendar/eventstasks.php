@@ -7,7 +7,7 @@
  * $module: calendar
  * $id: evenstasks.php
  * Created: 	@zaher.reda 	April 26, 2011 | 11:52 AM
- * Last Update: @zaher.reda 	May 18, 2012 | 09:00 PM
+ * Last Update: @tony.assaad    Sep 6, 2013 | 12:09:56 PM
  */
 
 if(!defined('DIRECT_ACCESS')) {
@@ -51,7 +51,7 @@ else {
 			}
 		}
 		elseif($core->input['type'] == 'event') {
-			if(is_empty($core->input['event']['title'], $core->input['event']['fromDate'], $core->input['event']['toDate'])) {
+			if(is_empty($core->input['event']['title'], $core->input['event']['fromDate'], $core->input['event']['toDate'], $core->input['event']['type'])) {
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				exit;
 			}
@@ -59,9 +59,13 @@ else {
 					'title' => ucwords(strtolower($core->input['event']['title'])),
 					'description' => ucfirst(strtolower($core->input['event']['description'])),
 					'uid' => $core->user['uid'],
+					'affid'=> $core->input['event']['affid'],
+					'spid'=> $core->input['event']['spid'],
 					'isPublic' => $core->input['event']['isPublic'],
 					'place' => $core->input['event']['place'],
-					'type' => $core->input['event']['type']
+					'type' => $core->input['event']['type'],
+					'createdOn' => TIME_NOW,
+					'createdBy' => $core->user['uid']
 			);
 
 			$new_event['fromDate'] = strtotime($core->input['event']['fromDate'].' '.$core->input['event']['fromTime']);

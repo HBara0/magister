@@ -140,4 +140,7 @@ The Following visits have been carried but no visit report has been completed. P
 $lang['visitreport_reminder_subject'] = 'Visit Reports Reminder';
 $lang['yournewpassword'] = 'Your New OCOS Account Password';
 $lang['feedbacknotification_subject'] = 'You have received a feedback on a chemical request from {1}';
+$lang['suppliervisit_subject']='Upcoming visits ';
+$lang['suppliervisit_reminder_message'] = 'Dear {1},<br />
+{2} Is Visiting us .';
 ?>

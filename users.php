@@ -77,7 +77,7 @@ if($core->input['action']) {
 		redirect('users.php?action=login');
 	}
 	elseif($core->input['action'] == 'reset_password') {
-		$lang->load("messages");
+		$lang->load('messages');
 		$email = $db->escape_string($core->input['email']);
 
 		$new_details = $db->fetch_assoc($db->query("SELECT uid, firstName FROM ".Tprefix."users WHERE email='{$email}'"));
@@ -167,13 +167,18 @@ if($core->input['action']) {
 		if($session->uid == 0) {
 			redirect('users.php?action=login');
 		}
-		$old_profilepicture = $db->fetch_field($db->query("SELECT profilePicture FROM ".Tprefix."users WHERE uid=".$core->user['uid']), 'profilePicture');
+
+
+		if(!isset($core->input['uid'])) {
+			$core->input['uid'] = $core->user['uid'];
+		}
+		$old_profilepicture = $db->fetch_field($db->query("SELECT profilePicture FROM ".Tprefix."users WHERE uid=".intval($core->input['uid'])), 'profilePicture');
 		$upload = new Uploader('uploadfile', $_FILES, array('image/jpeg', 'image/png', 'image/gif'), 'putfile', 300000, 0, 1);
 		$upload->set_upload_path($core->settings['profilepicdir']);
 		$upload->process_file();
 		$filename = $upload->get_filename();
 		$upload->resize();
-		$query = $db->update_query('users', array('profilePicture' => $filename), 'uid='.$core->user['uid']);
+		$query = $db->update_query('users', array('profilePicture' => $filename), 'uid='.intval($core->input['uid']));
 		eval("\$headerinc = \"".$template->get('headerinc')."\";");
 		echo $headerinc;
 		?>
@@ -299,6 +304,9 @@ if($core->input['action']) {
 			if(isset($core->input['messagecode']) && $core->input['messagecode'] == 1) {
 				$notification_message = '<div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-bottom:10px; font-weight: bold;">'.$lang->passwordhasexpired.'</div>';
 			}
+
+			$profile['uid'] = $core->user['uid'];
+			eval("\$editprofilepage_profilepicform = \"".$template->get('popup_changeprofilepic')."\";");
 			eval("\$editprofilepage = \"".$template->get('editprofile')."\";");
 			output_page($editprofilepage);
 		}
@@ -321,7 +329,10 @@ if($core->input['action']) {
 			}
 			$profile = $profile_user->get();
 
-			$profile['reportsToName'] = $profile_user->get_reportsto()->get()['displayName'];
+			if($profile_user->get_reportsto() != false) {
+				$profile['reportsToName'] = $profile_user->get_reportsto()->get()['displayName'];
+			}
+
 			$profile['assistantName'] = $profile_user->get_assistant()->get()['displayName'];
 
 			unset($profile['password'], $profile['salt'], $profile['loginKey']);
@@ -330,8 +341,10 @@ if($core->input['action']) {
 				$assistant_details = $lang->assistant.": <a href='users.php?action=profile&amp;uid={$profile[assistant]}'>{$profile[assistantName]}</a><br />";
 			}
 
-			$profile['position'] = implode(',', $profile_user->get_positions());
-
+			$profile['position'] = $profile_user->get_positions();
+			if(is_array($profile['position'])) {
+				$profile['position'] = implode(', ', $profile['position']);
+			}
 			/* 	Prepare affiliates list */
 			$main_affiliate = $profile_user->get_mainaffiliate();
 			$profile['mainaffiliate']['id'] = $main_affiliate->get()['affid'];
@@ -372,7 +385,7 @@ if($core->input['action']) {
 			}
 			/* Prepared segements list */
 
-			/* 	Prepare entities lists */
+			/* Prepare entities lists */
 			$query3 = $db->query("SELECT DISTINCT(e.eid), companyName, type
 									FROM ".Tprefix."entities e LEFT JOIN ".Tprefix."assignedemployees aemp ON (aemp.eid=e.eid)
 									WHERE aemp.uid='{$uid}'
@@ -488,13 +501,12 @@ if($core->input['action']) {
 				}
 			}
 			if($core->usergroup['canAdminCP'] == 1) {
-				eval("\$editprofilepage_popup_profilepic = \"".$template->get('editprofilepage_popup_profilepic')."\";");
-				output_page($editprofilepage_popup_profilepic);
+				eval("\$profile_profilepicform = \"".$template->get('popup_changeprofilepic')."\";");
 
-				$porfile_picture = '<a id="showpopup_changeprofilepic" class="showpopup"><img id="profilePicture" src="'.$core->settings[rootdir].'/'.$core->settings[profilepicdir].'/'.$profile[profilePicture].'" alt="'.$profile['username'].'" border="0" style="cursor:pointer;"/></a>';
+				$profile['picture'] = '<a id="showpopup_changeprofilepic" class="showpopup"><img id="profilePicture" src="'.$core->settings[rootdir].'/'.$core->settings[profilepicdir].'/'.$profile[profilePicture].'" alt="'.$profile['username'].'" border="0" style="cursor:pointer;"/></a>';
 			}
 			else {
-				$porfile_picture = '<img id="profilePicture" src="'.$core->settings[rootdir].'/'.$core->settings[profilepicdir].'/'.$profile[profilePicture].'" alt="'.$profile['username'].'" border="0" />';
+				$profile['picture'] = '<img id="profilePicture" src="'.$core->settings[rootdir].'/'.$core->settings[profilepicdir].'/'.$profile[profilePicture].'" alt="'.$profile['username'].'" border="0" />';
 			}
 			$profile['country'] = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid='{$profile[country]}'"), 'name');
 
@@ -615,144 +627,146 @@ if($core->input['action']) {
 		define('PASSEXPIRE_EXCLUDE', 0);
 		$lang->load('profile');
 
-		$sort_query = 'firstName ASC';
-		if(isset($core->input['sortby'], $core->input['order'])) {
-			$sort_query = $core->input['sortby'].' '.$core->input['order'];
+		if($core->input['view'] == 'thumbnails') {
+			/* Users mosaic view - START */
+			$change_view_icon = 'list_view.gif';
+			$change_view_url = 'users.php?action=userslist&view=list';
+
+			$query = $db->query("SELECT uid
+								FROM ".Tprefix."users
+								WHERE gid!='7' and profilePicture!=''");
+
+			if($db->num_rows($query) > 0) {
+				while($user = $db->fetch_assoc($query)) {
+					$user_obj = new Users($user['uid'], false);
+					$users[$user['uid']] = $user_obj->get();
+				}
+			}
+			shuffle($users);
+			foreach($users as $user) {
+				if(isset($user['profilePicture']) && !empty($user['profilePicture']) && file_exists(($core->settings['profilepicdir'].$user['profilePicture']))) {
+					eval("\$userslistmosaic_pieces .= \"".$template->get('userslist_mosaic_piece')."\";");
+				}
+			}
+			eval("\$userslistmosaic = \"".$template->get('userslist_mosaic')."\";");
+			output_page($userslistmosaic);
+			/*  Users mosaic view - END */
 		}
-		$sort_url = sort_url();
+		else {
+			$change_view_icon = 'thumbnail_view.gif';
+			$change_view_url = 'users.php?action=userslist&view=thumbnails';
 
-		$limit_start = 0;
-		if(isset($core->input['start'])) {
-			$limit_start = $db->escape_string($core->input['start']);
-		}
-		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
-			$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
-		}
+			$sort_query = 'firstName ASC';
+			if(isset($core->input['sortby'], $core->input['order'])) {
+				$sort_query = $core->input['sortby'].' '.$core->input['order'];
+			}
+			$sort_url = sort_url();
 
-		$multipage_where = 'gid!=7';
-		/* Perform inline filtering - START */
-		$filters_config = array(
-				'parse' => array('filters' => array('fullName', 'displayName', 'affid', 'position', 'reportsTo')
-				),
-				'process' => array(
-						'filterKey' => 'uid',
-						'mainTable' => array(
-								'name' => 'users',
-								'filters' => array('displayName' => 'displayName', 'reportsTo' => array('operatorType' => 'multiple', 'name' => 'reportsTo')),
-								'extraSelect' => 'CONCAT(firstName, \' \', lastName) AS fullName',
-								'havingFilters' => array('fullName' => 'fullName')
-						),
-						'secTables' => array(
-								'userspositions' => array(
-										'filters' => array('position' => array('operatorType' => 'multiple', 'name' => 'posid')),
-								),
-								'affiliatedemployees' => array(
-										'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid')),
-										'extraWhere' => 'isMain=1'
-								)
-						)
-				)
-		);
+			$limit_start = 0;
+			if(isset($core->input['start'])) {
+				$limit_start = $db->escape_string($core->input['start']);
+			}
+			if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+				$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+			}
 
-		$filter = new Inlinefilters($filters_config);
-		$filter_where_values = $filter->process_multi_filters();
+			$multipage_where = 'gid!=7';
+			/* Perform inline filtering - START */
+			$filters_config = array(
+					'parse' => array('filters' => array('fullName', 'displayName', 'affid', 'position', 'reportsTo')
+					),
+					'process' => array(
+							'filterKey' => 'uid',
+							'mainTable' => array(
+									'name' => 'users',
+									'filters' => array('displayName' => 'displayName', 'reportsTo' => array('operatorType' => 'multiple', 'name' => 'reportsTo')),
+									'extraSelect' => 'CONCAT(firstName, \' \', lastName) AS fullName',
+									'havingFilters' => array('fullName' => 'fullName')
+							),
+							'secTables' => array(
+									'userspositions' => array(
+											'filters' => array('position' => array('operatorType' => 'multiple', 'name' => 'posid')),
+									),
+									'affiliatedemployees' => array(
+											'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid')),
+											'extraWhere' => 'isMain=1'
+									)
+							)
+					)
+			);
 
-		$filters_row_display = 'show';
-		if(is_array($filter_where_values)) {
-			$filters_row_display = 'hide';
-			$filter_where = 'AND u.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-			$multipage_where .= ' AND u.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-		}
+			$filter = new Inlinefilters($filters_config);
+			$filter_where_values = $filter->process_multi_filters();
 
-		$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
-		/* Perform inline filtering - END */
+			$filters_row_display = 'show';
+			if(is_array($filter_where_values)) {
+				$filters_row_display = 'hide';
+				$filter_where = 'AND u.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+				$multipage_where .= ' AND u.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+			}
 
-		$query = $db->query("SELECT DISTINCT(u.uid), u.*, aff.*, reportsTo AS supervisor, CONCAT(firstName, ' ', lastName) AS name, aff.name AS mainaffiliate, aff.affid
+			$filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+			/* Perform inline filtering - END */
+
+			$query = $db->query("SELECT DISTINCT(u.uid), u.*, aff.*, reportsTo AS supervisor, CONCAT(firstName, ' ', lastName) AS name, aff.name AS mainaffiliate, aff.affid
 							FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) JOIN ".Tprefix."affiliates aff ON (aff.affid=ae.affid)
 							WHERE gid!='7' AND isMain='1'
 							{$filter_where}
 							ORDER BY {$sort_query} 
 							LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
-		$filters_cache = array();
-		if($db->num_rows($query) > 0) {
-			while($user = $db->fetch_assoc($query)) {
-				$class = alt_row($class);
-				/* $user['mainaffiliate'] = $db->fetch_field($db->query("SELECT aff.name as affiliatename 
-				  FROM ".Tprefix."affiliates aff LEFT JOIN ".Tprefix."affiliatedemployees ae ON (ae.affid=aff.affid)
-				  WHERE ae.uid='{$user[uid]}' AND isMain='1'"), 'affiliatename'); */
+			$filters_cache = array();
+			if($db->num_rows($query) > 0) {
+				while($user = $db->fetch_assoc($query)) {
+					$class = alt_row($class);
+					/* $user['mainaffiliate'] = $db->fetch_field($db->query("SELECT aff.name as affiliatename 
+					  FROM ".Tprefix."affiliates aff LEFT JOIN ".Tprefix."affiliatedemployees ae ON (ae.affid=aff.affid)
+					  WHERE ae.uid='{$user[uid]}' AND isMain='1'"), 'affiliatename'); */
 
-				$userpositions = $hiddenpositions = $break = '';
+					$userpositions = $hiddenpositions = $break = '';
 
-				$query2 = $db->query("SELECT p.* FROM ".Tprefix."positions p LEFT JOIN ".Tprefix."userspositions up ON (up.posid=p.posid) WHERE  up.uid='{$user[uid]}' ORDER BY p.name ASC");
-				$positions_counter = 0;
+					$query2 = $db->query("SELECT p.* FROM ".Tprefix."positions p LEFT JOIN ".Tprefix."userspositions up ON (up.posid=p.posid) WHERE  up.uid='{$user[uid]}' ORDER BY p.name ASC");
+					$positions_counter = 0;
 
-				while($position = $db->fetch_assoc($query2)) {
-					if(!empty($lang->{$position['name']})) {
-						$position['title'] = $lang->{$position['name']};
+					while($position = $db->fetch_assoc($query2)) {
+						if(!empty($lang->{$position['name']})) {
+							$position['title'] = $lang->{$position['name']};
+						}
+
+						if(++$positions_counter > 2) {
+							$hidden_positions .= $break.$position['title'];
+						}
+						else {
+							$userpositions .= $break.$position['title'];
+						}
+						$break = '<br />';
 					}
 
-					if(++$positions_counter > 2) {
-						$hidden_positions .= $break.$position['title'];
+					if($positions_counter > 2) {
+						$userpositions = $userpositions.", <a href='#' id='showmore_positions_{$user[uid]}'>...</a> <span style='display:none;' id='positions_{$user[uid]}'>{$hidden_positions}</span>";
 					}
-					else {
-						$userpositions .= $break.$position['title'];
+
+					list($user['reportsToName']) = get_specificdata('users', array('CONCAT(firstName, \' \', lastName) as reportsToName'), '0', 'reportsToName', '', 0, "uid='{$user[reportsTo]}'");
+
+					$skypelink = '';
+					if(isset($user['skype']) && !empty($user['skype'])) {
+						$skypelink = "<a href='skype:{$user[skype]}'><img src='./images/icons/skype.gif' alt='{$lang->skype}' border='0' /></a>";
 					}
-					$break = '<br />';
+					//$tooltip = $lang->extension.':'.$user['extension'].'<br />'.$lang->mobile.':'.$user['mobile'];
+					eval("\$usersrows .= \"".$template->get('userslist_row')."\";");
 				}
 
-				if($positions_counter > 2) {
-					$userpositions = $userpositions.", <a href='#' id='showmore_positions_{$user[uid]}'>...</a> <span style='display:none;' id='positions_{$user[uid]}'>{$hidden_positions}</span>";
-				}
-
-				list($user['reportsToName']) = get_specificdata('users', array('CONCAT(firstName, \' \', lastName) as reportsToName'), '0', 'reportsToName', '', 0, "uid='{$user[reportsTo]}'");
-
-				$skypelink = '';
-				if(isset($user['skype']) && !empty($user['skype'])) {
-					$skypelink = "<a href='skype:{$user[skype]}'><img src='./images/icons/skype.gif' alt='{$lang->skype}' border='0' /></a>";
-				}
-				//$tooltip = $lang->extension.':'.$user['extension'].'<br />'.$lang->mobile.':'.$user['mobile'];
-				eval("\$usersrows .= \"".$template->get('userslist_row')."\";");
+				$multipages = new Multipages('users u JOIN '.Tprefix.'affiliatedemployees ae ON (u.uid=ae.uid) JOIN '.Tprefix.'affiliates aff ON (aff.affid=ae.affid)', $core->settings['itemsperlist'], $multipage_where, 'u.uid');
+				$usersrows .= "<tr><td colspan='6'>".$multipages->parse_multipages()."</td></tr>";
+			}
+			else {
+				$usersrows = "<tr><td colspan='6' style='text-align:center;'>".$lang->nomatchfound."</td></tr>";
 			}
 
-			$multipages = new Multipages('users u JOIN '.Tprefix.'affiliatedemployees ae ON (u.uid=ae.uid) JOIN '.Tprefix.'affiliates aff ON (aff.affid=ae.affid)', $core->settings['itemsperlist'], $multipage_where, 'u.uid');
-			$usersrows .= "<tr><td colspan='6'>".$multipages->parse_multipages()."</td></tr>";
-		}
-		else {
-			$usersrows = "<tr><td colspan='6' style='text-align:center;'>".$lang->nomatchfound."</td></tr>";
-		}
-		eval("\$userslist = \"".$template->get('userslist')."\";");
-		output_page($userslist);
-	}
-
-	/* admindo_changeprofilepic --START */
-	elseif($core->input['action'] == 'admin_do_changeprofilepic') {
-		$profile['uid'] = $core->input['profile']['uid'];
-		$old_profilepicture = $db->fetch_field($db->query("SELECT profilePicture FROM ".Tprefix."users WHERE uid=".$profile['uid']), 'profilePicture');
-		$upload = new Uploader('uploadfile', $_FILES, array('image/jpeg', 'image/png', 'image/gif'), 'putfile', 300000, 0, 1);
-		$upload->set_upload_path($core->settings['profilepicdir']);
-		$upload->process_file();
-		$filename = $upload->get_filename();
-		$upload->resize();
-		$query = $db->update_query('users', array('profilePicture' => $filename), 'uid='.$profile['uid']);
-		eval("\$headerinc = \"".$template->get('headerinc')."\";");
-		echo $headerinc;
-		?>
-		<script language="javascript" type="text/javascript">
-			$(function() {
-				window.top.$("#upload_Result").html("<?php echo $upload->parse_status($upload->get_status());?>");
-			});
-		</script>  
-		<?php
-		if($query) {
-			if(!empty($old_profilepicture)) {
-				unlink('./'.$core->settings['profilepicdir'].'/'.$old_profilepicture);
-			}
+			eval("\$userslist = \"".$template->get('userslist')."\";");
+			output_page($userslist);
 		}
 	}
-	/* admindo_changeprofilepic --END */
-
-	/* Get user job description - START */
 	elseif($core->input['action'] == 'get_popup_loginbox') {
 		eval("\$loginbox = \"".$template->get('popup_loginbox')."\";");
 		echo $loginbox;

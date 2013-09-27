@@ -12,7 +12,6 @@ class Leavetypes {
 	private $leavetype = array();
 
 	public function __construct($ltid = 0, $simple = true) {
-		global $db;
 		if(isset($ltid) && !empty($ltid)) {
 			$this->leavetype = $this->read($ltid, $simple);
 		}

@@ -145,12 +145,14 @@ if(!$core->input['action']) {
 	if(is_array($contacts_history) || $can_seecontactinfo == true) {
 
 		$affiliates = $potential_supplier->get_affiliates_byavailability();
+		if(is_array($affiliates)){
 		foreach($affiliates as $affid => $area) {
 			$selected = '';
 			$affiliates_list .= '<option value = "'.$area['affid'].'"'.$selected.'>'.$area['affiliate'].'</option>';
 		}
+		}
 
-		$origins = array($lang->anyorigin => $lang->anyorigin, $lang->chinese => $lang->chinese, $lang->nonchinese => $lang->nonchinese, $lang->indian => $lang->indian, $lang->nonindian => $lang->nonindian, $lang->european => $lang->european, $lang->noneuropean => $lang->noneuropean, $lang->american => $lang->american, $lang->nonamerican => $lang->nonamerican);
+		$origins = array('anyorigin' => $lang->anyorigin, 'chinese' => $lang->chinese, 'nonchinese' => $lang->nonchinese, 'indian' => $lang->indian, 'nonindian' => $lang->nonindian, 'european' => $lang->european, 'noneuropean' => $lang->noneuropean, 'american' => $lang->american, 'nonamerican' => $lang->nonamerican, 'otherasian' => $lang->otherasian, 'nootherasian' => $lang->nootherasian);
 		$origins_list = parse_selectlist('contacthst[origin]', 8, $origins, '');
 
 		$product_segmentlist = parse_selectlist('contacthst[market]', 9, $supplier['segments'], ''); /* product segments (that the current supplier(loaded from the object) works in) */

@@ -185,6 +185,10 @@ class Leaves {
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."leaves WHERE lid=".$db->escape_string($id)));
 	}
 
+	public function get_requester() {
+		return new Users($this->leave['uid']);
+	}
+	
 	public function get_leavetype() {
 		return new Leavetypes($this->leave['type']);
 	}

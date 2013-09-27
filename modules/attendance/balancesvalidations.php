@@ -222,16 +222,17 @@ else {  //days taken must = actual taken
 				$prevbalance['canTake'] = $prevbalance['daysTaken'] = 0;
 			}
  
-			if($leavestat['remainPrevYear'] < ($prevbalance['canTake'] - $prevbalance['daysTaken'])) { 
+			$leavestat['remainPrevYearAct'] = ($prevbalance['canTake'] - $prevbalance['daysTaken'] + $prevbalance['additionalDays']);
+			if($leavestat['remainPrevYear'] < $leavestat['remainPrevYearAct']) { 
 				$cellstyle['remainPrevYear'] = ' style="color:red;"';
 				if($core->input['fixremainPrevYear'] == 1 && $core->input['tofix'][$leavestat['lsid']] == 1) {
-					$db->update_query('leavesstats', array('remainPrevYear' => ($prevbalance['canTake'] - $prevbalance['daysTaken'])), 'lsid='.$leavestat['lsid']);
+					$db->update_query('leavesstats', array('remainPrevYear' => $leavestat['remainPrevYearAct']), 'lsid='.$leavestat['lsid']);
 				}
 			} 
-			elseif($leavestat['remainPrevYear'] > ($prevbalance['canTake'] - $prevbalance['daysTaken'])) {
+			elseif($leavestat['remainPrevYear'] > $leavestat['remainPrevYearAct']) {
 				$cellstyle['remainPrevYear'] = ' style="color:orange;"';
 				if($core->input['fixremainPrevYear'] == 1 && $core->input['tofix'][$leavestat['lsid']] == 1) {
-					$db->update_query('leavesstats', array('remainPrevYear' => ($prevbalance['canTake'] - $prevbalance['daysTaken'])), 'lsid='.$leavestat['lsid']);
+					$db->update_query('leavesstats', array('remainPrevYear' => $leavestat['remainPrevYearAct']), 'lsid='.$leavestat['lsid']);
 				}
 			}
 
@@ -242,12 +243,17 @@ else {  //days taken must = actual taken
 					$db->update_query('leavesstats', array('canTake' => $leavestat['canTakeAct']), 'lsid='.$leavestat['lsid']);
 				}
 			}
+			elseif($leavestat['canTake'] < $leavestat['canTakeAct']) {
+				$cellstyle['canTake'] = ' style="color:orange;"';
+				if($core->input['fixcanTake'] == 1 && $core->input['tofix'][$leavestat['lsid']] == 1) {
+					$db->update_query('leavesstats', array('canTake' => $leavestat['canTakeAct']), 'lsid='.$leavestat['lsid']);
+				}
+			}
 			
 			if($core->input['action'] != 'fixbalances') {
 				$leavestat['actualTaken'] = $leaves_counts[$leavestat['uid']];
 				$leavestat['balance'] = ($leavestat['canTake'] - $leavestat['daysTaken']);
 				$leavestat['actbalance'] = ($leavestat['canTake'] - $leaves_counts[$leavestat['uid']]);
-				$leavestat['remainPrevYearAct'] = ($prevbalance['canTake'] - $prevbalance['daysTaken']);
 
 				$row_class = alt_row($row_class);
 				$tablerows .= '<tr class="'.$row_class.'">';
