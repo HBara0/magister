@@ -320,16 +320,18 @@ class Sourcing {
 	public function get_applications_product_segment() {
 		global $db, $core;
 
-		$application_query = $db->query("SELECT psa.*  FROM ".Tprefix."productsegements_applications psa
+		$application_query = $db->query("SELECT psa.*, ps.title AS segmentTitle
+										FROM ".Tprefix."productsegements_applications psa
 										JOIN ".Tprefix."employeessegments es ON (es.psid = psa.psid)
+										JOIN ".Tprefix."productsegments ps ON (ps.psid=psa.psid)
 										WHERE es.uid=".$core->user['uid']);
-
 		if($db->num_rows($application_query) > 0) {
 			while($segment_application = $db->fetch_assoc($application_query)) {
 				$segment_applications[$segment_application['psaid']] = $segment_application;
 			}
 			return $segment_applications;
 		}
+		return false;
 	}
 
 	public function get_all_potential_suppliers($filter_where = '') {
@@ -676,11 +678,11 @@ class Sourcing {
 			$see_otherusers = '	WHERE scr.uid='.$core->user['uid'];
 		}
 
-		$chemicalrequests_query = $db->query("SELECT psa.description,scr.*, u.displayName, cs.name AS chemicalname
+		$chemicalrequests_query = $db->query("SELECT psa.title AS application, scr.*, u.displayName, cs.name AS chemicalname
 										FROM ".Tprefix."sourcing_chemicalrequests scr
-										JOIN ".Tprefix."productsegements_applications psa ON (psa.psaid = scr.psaid)
+										LEFT JOIN ".Tprefix."productsegements_applications psa ON (psa.psaid = scr.psaid)
 										JOIN ".Tprefix."users u ON (u.uid = scr.uid)
-										JOIN ".Tprefix."chemicalsubstances cs ON (cs.csid = scr.csid)
+										LEFT JOIN ".Tprefix."chemicalsubstances cs ON (cs.csid = scr.csid)
 										{$see_otherusers} {$sort_query}");
 
 		if($db->num_rows($chemicalrequests_query) > 0) {
