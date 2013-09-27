@@ -15,11 +15,12 @@
 function get_importtemp_data() {
 	global $db;
 
-	$tempquery = $db->query("SELECT id,REPLACE(companyName,\"'\",\"\") AS companyName,country,producerTrader,Email,SUBSTRING_INDEX(phone, '+', -1)as phone ,SUBSTRING_INDEX(cell, '+', -1) AS cell,website,briefing,Historical,Approachvia,
+	$tempquery = $db->query("SELECT id,REPLACE(companyName,\"'\",\"\") AS companyName,country,ProducerTrader,Email,SUBSTRING_INDEX(phone, '+', -1)as phone ,SUBSTRING_INDEX(cell, '+', -1) AS cell,website,briefing,Historical,Approachvia,
 							SourcingAction,Generalcomments,Marketcompetitors,Commentstoshare
-							FROM importtemp
-							WHERE  companyName is not null AND companyNAme <>''");
-	
+							FROM importtemp2
+							WHERE  companyName is not null AND companyNAme <>'' limit 0,20");
+
+
 	while($tempdata = $db->fetch_assoc($tempquery)) {
 		$importtemp[$tempdata['id']]['mainproducts'] = get_mainproducts($tempdata['id']);
 		$importtemp[$tempdata['id']]['mainapplicationscovered'] = get_Mainapplication($tempdata['id']);
@@ -42,7 +43,7 @@ function get_mainproducts($id = '') {
 			$mainproduct_field .=", Mainproducts".$i."";
 		}
 	}
-	$mainproductsquery = $db->query("SELECT ".$mainproduct_field." FROM importtemp
+	$mainproductsquery = $db->query("SELECT ".$mainproduct_field." FROM importtemp2
 										WHERE id= ".$id."");
 
 	while($mainproduct = $db->fetch_assoc($mainproductsquery)) {
@@ -54,7 +55,7 @@ function get_mainproducts($id = '') {
 function get_Contactperson($id = '') {
 	global $db;
 
-	$contact_query = $db->query("SELECT Contactperson,Email,Phone FROM importtemp
+	$contact_query = $db->query("SELECT Contactperson,Email,Phone FROM importtemp2
 											WHERE id= ".$id."");
 	while($contactperson = $db->fetch_assoc($contact_query)) {
 		$contactpersons = preg_split("/[;\/]/", $contactperson['Contactperson']);
@@ -66,14 +67,14 @@ function get_Contactperson($id = '') {
 function get_Contacthistory($id = '') {
 	global $db;
 
-	$contacthistory_query = $db->query("SELECT id,market,product,DestinationCountry,BMname,ClassGrade,Origin,Application,Marketcompetitors,Generalcomments
+	$contacthistory_query = $db->query("SELECT id,market,product,DestinationCountry,REPLACE(BMname,\"'\",\"\") as BMname ,ClassGrade,Origin,Application,Marketcompetitors,Generalcomments
 									FROM importtemp WHERE id= ".$id."");
 	while($contacthistory = $db->fetch_assoc($contacthistory_query)) {
 
 		if(!empty($contacthistory['BMname'])) {
-			$querybname = $db->fetch_assoc($db->query("SELECT uid from users where displayName ='".$contacthistory['BMname']."'"));
+			$querybname = $db->fetch_assoc($db->query("SELECT uid from users where displayName ='".($contacthistory['BMname']."'")));
 			if($querybname) {
-				$contacthistories = $db->fetch_assoc($db->query("SELECT uid from users where displayName ='".$contacthistory['BMname']."'"));
+				$contacthistories = $db->fetch_assoc($db->query("SELECT uid from users where displayName ='".($contacthistory['BMname']."'")));
 			}
 		}
 		if(!empty($contacthistory['DestinationCountry'])) {
@@ -91,13 +92,13 @@ function get_ActivityArea($id = '') {
 	global $db;
 	for($i = 1; $i <= 13; $i++) {
 		if($i == 1) {
-			$activityarea_field .=" ActivitywithOrkila".$i.",AO".$i;
+			$activityarea_field .=" ActivitywithOrkila".$i;
 		}
 		else {
-			$activityarea_field .=", ActivitywithOrkila".$i.",AO".$i;
+			$activityarea_field .=", ActivitywithOrkila".$i;
 		}
 	}
-	$activityarea_query = $db->query("SELECT ".$activityarea_field." FROM importtemp
+	$activityarea_query = $db->query("SELECT ".$activityarea_field." FROM importtemp2
 										 WHERE id= ".$id."");
 	while($activityarea = $db->fetch_assoc($activityarea_query)) {
 		$activityareas = $activityarea;
@@ -108,7 +109,7 @@ function get_ActivityArea($id = '') {
 function get_Mainapplication($id = '') {
 	global $db;
 
-	$mainapplication_query = $db->query("SELECT MainApplicationsCovered FROM importtemp
+	$mainapplication_query = $db->query("SELECT MainApplicationsCovered FROM importtemp2
 											WHERE id= ".$id."");
 	while($mainapplication = $db->fetch_assoc($mainapplication_query)) {
 		$mainapplications = preg_split("/[,&.]/", $mainapplication['MainApplicationsCovered']);
@@ -120,38 +121,44 @@ function get_Mainapplication($id = '') {
 
 
 
-if($core->input['action'] == 'do_import') {	
+if($core->input['action'] == 'do_import') {
 	$alldata = get_importtemp_data();
-	foreach($alldata as $compkey => $company) {  echo  '<pre> *********<strong><div style="background-color:red">NEW COMPANY id = '.$compkey.'</div></strong> <hr>';
-	
-//print_R($alldata);
+	foreach($alldata as $compkey => $company) {
+		array_unique($company['mainproducts'], SORT_STRING);
+		echo '<pre> *********<strong><div style="background-color:red">NEW COMPANY id = '.$compkey.'</div></strong> <hr>';
+
 		/* insert supplier details */
-		foreach($company['supplierdetails'] as $attr => $supplierdetails) {  
-			if(!empty($company['supplierdetails']['country'])){
-				$checkcountry = $db->query("SELECT coid FROM countries WHERE name='".$company['supplierdetails']['country']."'");
-			}
-			if($db->num_rows($checkcountry) > 0) {
-				while($country = $db->fetch_assoc($checkcountry)) {
-					$supplier_data['country'] = $country['coid'];
-				}
-			}
-			else {
-				unset($supplier_data['country']);
-			}
-			$checksupplier = $db->query("SELECT eid, companyName,companyNameAbbr FROM entities WHERE companyName = '".$company['supplierdetails']['companyName']."' AND type='s'");
-			if($db->num_rows($checksupplier) > 0) {
-				while($supplier = $db->fetch_assoc($checksupplier)) {
-					$supplier_data['foreignid'] = $supplier['eid'];
-					$supplier_data['companyabbr'] = $supplier['companyNameAbbr'];
-				}
-			}
-			else {
-				unset($supplier_data['foreignid']);
-				/* insert here */
-			}
+
+		if(!empty($company['supplierdetails']['country'])) {
+			$checkcountry = $db->query("SELECT coid FROM countries WHERE name='".$company['supplierdetails']['country']."'");
+		}
+		if($db->num_rows($checkcountry) > 0) {
+//while($country = $db->fetch_assoc($checkcountry)) {
+			$supplier_data['country'] = $db->fetch_assoc($checkcountry)['coid'];
+//	}
+		}
+		else {
+			unset($supplier_data['country']);
 		}
 
-		$supplier_data = array('eid' => $supplier_data['foreignid'], 'companyName' => $company['supplierdetails']['companyName'], 'companyNameAbbr' => $supplier_data['companyabbr'], 'type' => $company['supplierdetails']['producerTrader'],
+		$checksupplier = $db->query("SELECT eid as foreignid, companyName,companyNameAbbr as companyabbr FROM entities WHERE companyName = '".$company['supplierdetails']['companyName']."' AND type='s'");
+		if($db->num_rows($checksupplier) > 0) {
+//while($supplier = $db->fetch_assoc($checksupplier)) {
+			$supplier_data = $db->fetch_assoc($checksupplier);
+
+//}
+		}
+		else {
+			$supplier_data['foreignid'] = 0;
+			/* insert here */
+		}
+
+		echo '<pre> *********<strong><div style="background-color:red"> END NEW COMPANY id = '.$compkey.'</div></strong> <hr>';
+
+		$allsupplier_data = array('eid' => $supplier_data['foreignid'],
+				'companyName' => $company['supplierdetails']['companyName'],
+				'companyNameAbbr' => $supplier_data['companyabbr'],
+				'type' => $company['supplierdetails']['ProducerTrader'],
 				'country' => $supplier_data['country'],
 				'phone1' => $company['supplierdetails']['phone'],
 				'phone2' => $company['supplierdetails']['cell'],
@@ -166,98 +173,94 @@ if($core->input['action'] == 'do_import') {
 				'productFunction' => $company['supplierdetails']['Generalcomments'],
 				'approchedVia' => $company['supplierdetails']['Approachvia'],
 		);
-		// spliting phone 
-	  //echo'</br> before removing zeroo :';print_r($supplier_data['phone1']); 
-	
-		//$supplier_data['phone1'] = explode(' ',ltrim($supplier_data['phone1'],"0"));
-		
-		if(count($supplier_data['phone1'])== 3) {
-		
+
+// spliting phone 
+//echo'</br> before removing zeroo :';print_r($supplier_data['phone1']); 
+//$supplier_data['phone1'] = explode(' ',ltrim($supplier_data['phone1'],"0"));
+
+		if(count($allsupplier_data['phone1']) == 3) {
+			
 		}
-
-		//$getsupplierid = $db->query("SELECT ssid FROM sourcing_suppliers ");
-		//while($supplierid = $db->fetch_assoc($getsupplierid)) {
-		//$supplier_id[] = $supplierid['ssid'];
-		//}
-
-		if(!value_exists('sourcing_suppliers', 'eid', $supplier_data['eid'], 'companyName="'.$company['supplierdetails']['companyName'].'"', 'ssid='.$ssid)) {
-			$query = $db->insert_query('sourcing_suppliers', $supplier_data);
-			$supplier_id['ssid'] = $db->last_id();
+		if(!value_exists('sourcing_suppliers', 'eid', $allsupplier_data['eid'], 'companyName="'.$company['supplierdetails']['companyName'].'"')) {
+			$query = $db->insert_query('sourcing_suppliers', $allsupplier_data);
+			$supplier_id = $db->last_id();
 		}
-
+		else {
+//record error
+		}
 		/* insert supplier details end */
-	
+
 		/* start mainproducts */
 		if(is_array($company['mainproducts'])) {
 			foreach($company['mainproducts'] as $key => $mainproduct) {
-				if(!empty($mainproduct)){
-					$checkchemical = $db->query("SELECT csid FROM chemicalsubstances WHERE name= '".$mainproduct."'");  echo ("SELECT csid FROM chemicalsubstances WHERE name= '".$mainproduct."'"); 
-
+				if(!empty($mainproduct)) {
+					$checkchemical = $db->query("SELECT csid ,name FROM chemicalsubstances WHERE name= '".$mainproduct."'");
 				}
 				if($db->num_rows($checkchemical) > 0) {
 					while($chemical = $db->fetch_assoc($checkchemical)) {
 						/* record company founded chmeical */
-						$chemical_data['chemicalid']= '';
-						$chemical_data['chemicalid'] = $chemical['csid'];
 						$chemicalsfound['found'][$compkey] = $company['supplierdetails'];
-							echo '<br>chemical found : '.$chemical_data['chemicalid'];
-					}
-				}
-				else {
-					unset($chemical_data['chemicalid']);
-				}
-				/* insert exist csid into  sourcing_suppliers_chemicals */
-			
-				if(is_array($chemical_data)&& !empty($chemical_data['chemicalid'])) {
-					$chemical_data = array('csid' => $chemical_data['chemicalid']);
-					$getsupplierid = $db->query("SELECT ssid FROM sourcing_suppliers ");
-					while($supplierid = $db->fetch_assoc($getsupplierid)) {
-						if(!value_exists('sourcing_suppliers_chemicals', 'csid', $chemical_data['csid'], ' ssid='.$supplierid['ssid'])) {
-							$chemical_data['ssid'] = $supplierid['ssid'];
-							$query = $db->insert_query('sourcing_suppliers_chemicals', $chemical_data);
+						if(!value_exists('sourcing_suppliers_chemicals', 'csid', $chemical['csid'], ' ssid='.$supplier_id)) {
+							$query = $db->insert_query('sourcing_suppliers_chemicals', array('ssid' => $supplier_id, 'csid' => $chemical['csid'], 'supplyType' => $company[supplierdetails]['ProducerTrader']));
 						}
 						else {
 							$datanotfound[$compkey]['chemicalsubstances'][] = $mainproduct;
 						}
+//echo '<br>chemical found  : '.$chemical['csid'].' ---'.$chemical['name'].' for  <span style="background-color:yellow">'.$company['supplierdetails']['companyName'].'</span><br>';
 					}
 				}
-			}/* end mainproducts */
-		}
+
+				/* insert exist csid into  sourcing_suppliers_chemicals */
+			}
+		}/* end mainproducts */
+
 		/* start activityarea */
 
-		foreach($company['activityarea'] as $key => $activityarea) {
-			$checkactivityarea = $db->query("SELECT coid,name FROM countries WHERE name= '".$activityarea."'"); //echo ("SELECT coid,name FROM countries WHERE name= '".$activityarea."'");
-			if($db->num_rows($checkactivityarea) > 0) {
-				while($row_activityarea = $db->fetch_assoc($checkactivityarea)) {
-					$area_data['countryid'] = $row_activityarea['coid'];
-				}
-			}
-			else {
-				unset($area_data['countryid']);
-			}
+		$activityareas = array('lebanon', 'nigeria', 'Tunisia',
+				'Algeria', 'Egypt', 'UAE', 'Iran', 'Syria', 'Jordan', 'Lebanon', 'Morocco', 'Pakistan', 'Nigeria', 'Mauritius', 'Mozambique', 'Namibia', 'Sierra Leone', 'Swaziland', 'Zambia', 'Togo', 'Eritrea', 'Estonia', 'Lesotho', 'Liberia', 'Malawi', 'Bahrein', 'Koweit', 'Angola', 'Benin', 'Botswana', 'Burkina Faso', 'Ghana', 'Oman', 'Yemen', 'Qatar', 'Iraq', 'Ivory Coast', 'Mali', 'Lybia', 'Cyprus', 'Sudan', 'Zimbabwe', 'East Africa', 'Saudi Arabia', 'South Africa', 'Senegal');
 
-			if(is_array($area_data) &&!empty($area_data['countryid'])) {
-				$area_data = array('coid' => $area_data['countryid']);
-				$getsupplierid = $db->query("SELECT ssid FROM sourcing_suppliers ");
-				while($supplierid = $db->fetch_assoc($getsupplierid)) {
-					if(!value_exists('sourcing_suppliers_activityareas', 'coid', $area_data['coid'], ' ssid='.$supplierid['ssid'])) {
-						$area_data['ssid'] = $supplierid['ssid'];
-						$query = $db->insert_query('sourcing_suppliers_activityareas', $area_data);
+		foreach($activityareas as $activityarea) {
+			$checkactivityarea = $db->query("SELECT coid,name FROM countries WHERE name= '".$activityarea."'");
+			if($db->num_rows($checkactivityarea) > 0) {
+				print_r($row_activityarea);
+				while($row_activityarea = $db->fetch_assoc($checkactivityarea)) {
+					if(!value_exists('sourcing_suppliers_activityareas', 'coid', $row_activityarea['coid'], ' ssid='.$supplier_id)) {
+						$query = $db->insert_query('sourcing_suppliers_activityareas', array('ssid' => $supplier_id, 'availability' => $company['supplierdetails'][$activityarea], 'coid' => $row_activityarea['coid']));
 					}
 				}
 			}
-			else {
-				$datanotfound[$compkey]['activityarea'][] = $activityarea;
-			}
-		}/* end activityarea */
-
+		}
+//		if(is_array($company['activityarea'])) {
+//			foreach($company['activityarea'] as $key => $activityarea) {
+//				if(!empty($activityarea)) {
+//					$checkactivityarea = $db->query("SELECT coid,name FROM countries WHERE name= '".$activityarea."'"); //echo ("SELECT coid,name FROM countries WHERE name= '".$activityarea."'");
+//				}echo ("SELECT coid,name FROM countries WHERE name= '".$activityarea."'");
+//				if($db->num_rows($checkactivityarea) > 0) {
+//					while($row_activityarea = $db->fetch_assoc($checkactivityarea)) {
+//						if(!value_exists('sourcing_suppliers_activityareas', 'coid', $row_activityarea['coid'], ' ssid='.$supplier_id)) {
+//							//$query = $db->insert_query('sourcing_suppliers_activityareas', array('ssid' => $supplier_id, 'coid' => $row_activityarea['coid']));
+//						}
+//						//$area_data['countryid'] = $row_activityarea['coid'];
+//					}
+//				}
+//				else {
+//					unset($area_data['countryid']);
+//				}
+//			}/* end activityarea */
+//}
 		/* start productSegments */
 		foreach($company['mainapplicationscovered'] as $key => $productsegments) {
-			//echo '<pre>'; echo ("SELECT psid,title FROM productsegments WHERE title= '".trim($productsegments)."'");
+//echo '<pre>'; echo ("SELECT psid,title FROM productsegments WHERE title= '".trim($productsegments)."'");
 			$checkproductsegments = $db->query("SELECT psid,title FROM productsegments WHERE title= '".trim($productsegments)."'");
 			if($db->num_rows($checkproductsegments) > 0) {
 				while($row_productsegments = $db->fetch_assoc($checkproductsegments)) {
-					$productsegments_data['productid'] = $row_productsegments['psid'];
+					if(!value_exists('sourcing_suppliers_productsegments', 'psid', $row_productsegments['psid'], ' ssid='.$supplier_id)) {
+//$productsegments_data['ssid'] = $supplierid['ssid'];
+						$query = $db->insert_query('sourcing_suppliers_productsegments', array('ssid' => $supplier_id, 'psid' => $row_productsegments['psid']));
+					}
+					else {
+						$datanotfound[$compkey]['productsegment'][] = $productsegments;
+					}
 					/* record company founded segment */
 					$productsegmentsfound['area'][$compkey] = $company['activityarea'];
 					/* insert sourcing_suppliers_segments */
@@ -266,20 +269,20 @@ if($core->input['action'] == 'do_import') {
 			else {
 				unset($productsegments_data['productid']);
 			}
-			if(is_array($productsegments_data)&!empty($productsegments_data['productid'])) {
-				$productsegments_data = array('psid' => $productsegments_data['productid']);
-				$getsupplierid = $db->query("SELECT ssid FROM sourcing_suppliers ");
-				while($supplierid = $db->fetch_assoc($getsupplierid)) {
-					if(!value_exists('sourcing_suppliers_productsegments', 'psid', $productsegments_data['psid'], ' ssid='.$supplierid['ssid'])) {
-						$productsegments_data['ssid'] = $supplierid['ssid'];
-						$query = $db->insert_query('sourcing_suppliers_productsegments', $productsegments_data);
-					}
-					/* if no supplier id exist in the database */
-					else {
-						$datanotfound[$compkey]['productsegment'][] = $productsegments;
-					}
-				}
-			}
+//		if(is_array($productsegments_data) & !empty($productsegments_data['productid'])) {
+//			$productsegments_data = array('psid' => $productsegments_data['productid']);
+//			$getsupplierid = $db->query("SELECT ssid FROM sourcing_suppliers ");
+//			while($supplierid = $db->fetch_assoc($getsupplierid)) {
+//				if(!value_exists('sourcing_suppliers_productsegments', 'psid', $productsegments_data['psid'], ' ssid='.$supplierid['ssid'])) {
+//					$productsegments_data['ssid'] = $supplierid['ssid'];
+//					//$query = $db->insert_query('sourcing_suppliers_productsegments', $productsegments_data);
+//				}
+//				/* if no supplier id exist in the database */
+//				else {
+//					$datanotfound[$compkey]['productsegment'][] = $productsegments;
+//				}
+//			}
+//		}
 		}/* end productSegments */
 
 
@@ -290,6 +293,14 @@ if($core->input['action'] == 'do_import') {
 			if($db->num_rows($checkcontactperson) > 0) {
 				while($row_contactperson = $db->fetch_assoc($checkcontactperson)) {
 					/* record representatives founded chmeical */
+					if(!value_exists('sourcing_suppliers_contactpersons', 'rpid', $row_contactperson['rpid'], ' ssid='.$supplier_id)) {
+						$query = $db->insert_query('sourcing_suppliers_contactpersons', array('ssid' => $supplier_id, 'rpid' => $row_contactperson['rpid']));
+					}
+					/* if no contact id exist in the database */
+					else {
+						$datanotfound[$compkey]['contactperson'][] = $contactperson;
+					}
+
 					$contactperson_data['repid'] = $row_contactperson['rpid'];
 					$contactpersonfound['person'][$compkey] = $company['contactperson'];
 					/* insert sourcing_suppliers_contactpersons */
@@ -298,52 +309,39 @@ if($core->input['action'] == 'do_import') {
 			else {
 				unset($contactperson_data['repid']);
 			}
-
-			$contactperson_data = array('rpid' => $contactperson_data['repid']);
-			$getsupplierid = $db->query("SELECT ssid FROM sourcing_suppliers ");
-			while($supplierid = $db->fetch_assoc($getsupplierid)) {
-				if(!value_exists('sourcing_suppliers_contactpersons', 'rpid', $contactperson_data['rpid'], ' ssid='.$supplierid['ssid'])) {
-					$contactperson_data['ssid'] = $supplierid['ssid'];
-					$query = $db->insert_query('sourcing_suppliers_contactpersons', $contactperson_data);
-				} /* if no contact id exist in the database */
-				else {
-					$datanotfound[$compkey]['contactperson'][] = $contactperson;
-				}
-			}
 		}/* end contactperson */
 
 		/* start contacthistory */
 		if(isset($company['contacthistory'])) {
+
 			foreach($company['contacthistory'] as $contact) {
-				//$contacthistory_data['affid'] = $company['contacthistory']['affid'];
-				//$contacthistory_data['uid'] = $company['contacthistory']['uid'];
-				foreach($company['contacthistory']['contact'] as $contactdetails) {
+//$contacthistory_data['affid'] = $company['contacthistory']['affid'];
+//$contacthistory_data['uid'] = $company['contacthistory']['uid'];
+//foreach($company['contacthistory']['contact'] as $contactdetails) {
+				if(!empty($company['contacthistory']['contact']['market'])) {
+
 					$checkproductsegments = $db->query("SELECT psid,title FROM productsegments WHERE title= '".trim($company['contacthistory']['contact']['market'])."'");
 					if($db->num_rows($checkproductsegments) > 0) {
-						while($row_productsegments = $db->fetch_assoc($checkproductsegments)) {
-							$contacthistory_data['market'] = $row_productsegments['psid'];
-						}
-					}
-					else {
-						unset($contacthistory_data['market']);
-					}
-					$checkchemical = $db->query("SELECT csid FROM chemicalsubstances WHERE name= '".$company['contacthistory']['contact']['product']."'");
-					if($db->num_rows($checkchemical) > 0) {
-						while($chemical = $db->fetch_assoc($checkchemical)) {
-							$contacthistory_data['chemical'] = $chemical['csid']; //chemical id must reset
-						}
-					}
-					else {
-						unset($contacthistory_data['chemical']);
+//while($row_productsegments = $db->fetch_assoc($checkproductsegments)) {
+						$contacthistory_data['market'] = $db->fetch_assoc($checkproductsegments)['psid'];
+//}
 					}
 				}
+				if(!empty($company['contacthistory']['contact']['product'])) {
+					$checkchemical = $db->query("SELECT csid FROM chemicalsubstances WHERE name= '".$company['contacthistory']['contact']['product']."'");
+					if($db->num_rows($checkchemical) > 0) {
+//while($chemical = $db->fetch_assoc($checkchemical)) {
+						$contacthistory_data['chemical'] = $db->fetch_assoc($checkchemical)['csid']; //chemical id must reset
+//}
+					}
+				}
+//}
 			}
-			$contacthistory_data = array('ssid' => $supplier_id['ssid'], 'affid' => $company['contacthistory']['affid'], 'uid' => $company['contacthistory']['uid'], 'market' => $contacthistory_data['market'], 'chemical' => $contacthistory_data['chemical'], 'description' => $company['contacthistory']['contact']['Generalcomments'], 'grade' => $company['contacthistory']['contact']['ClassGrade'], 'competitors' => $company['contacthistory']['contact']['Marketcompetitors'],
+			$contacthistory_data = array('ssid' => $supplier_id, 'affid' => $company['contacthistory']['affid'], 'uid' => $company['contacthistory']['uid'], 'market' => $contacthistory_data['market'], 'chemical' => $contacthistory_data['chemical'], 'description' => $company['contacthistory']['contact']['Generalcomments'], 'grade' => $company['contacthistory']['contact']['ClassGrade'], 'competitors' => $company['contacthistory']['contact']['Marketcompetitors'],
 					'application' => $company['contacthistory']['contact']['Application'], 'date' => TIME_NOW);
-			if(is_array($contacthistory_data) && (!empty($contacthistory_data['market']) && !empty($contacthistory_data['chemical']))) {
+			if(is_array($contacthistory_data)) {
 				$query = $db->insert_query('sourcing_suppliers_contacthist', $contacthistory_data);
 			}
-			
 		}/* end contacthistory */
 	}
 }
