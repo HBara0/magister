@@ -15,7 +15,7 @@
 
         <div id='searchQuickResults_1{$rowid}' class='searchQuickResults' style='display:none;'></div>
     </td>
-    <td style="vertical-align:top; padding:2px;border-bottom: dashed 1px #CCCCCC;" align="center">{$saletype_selectlist}</td>
+    <td style="vertical-align:top; padding:2px;border-bottom: dashed 1px #CCCCCC;" align="center"> <select id="salestype_{$rowid}" name="budgetline[$rowid][saleType]" size="1" tabindex="3">{$saletype_selectlist}</select> </td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_right">
         <input name="budgetline[$rowid][Quantity]" type="text" id="Qty_{$rowid}" size="10" accept="numeric" value="{$budgetline[quantity]}"{$required}  />
         {$previous_yearsqty} </td>

@@ -51,13 +51,13 @@ if($core->input['stage'] == 'fillbudgetline') {
 		$session->set_phpsession(array('budgetmetadata_'.$currentbudget['identifier'] => serialize($core->input)));
 	}
 
-	$allsaletypes = explode(';', $core->settings['saletypes']);
-
-	foreach($allsaletypes as $key => $val) {
-		$crumb = explode(':', $val);
-		$saletypes[$crumb[0]] = ucfirst($crumb[1]);
-	}
-
+//	$allsaletypes = explode(';', $core->settings['saletypes']);
+//
+//	foreach($allsaletypes as $key => $val) {
+//		$crumb = explode(':', $val);
+//		$saletypes[$crumb[0]] = ucfirst($crumb[1]);
+//	}
+	$saletypes = get_specificdata('saletypes', array('stid', 'title'), 'stid', 'title', array('by' => 'stid', 'sort' => 'ASC'));
 	$saletypesmorefields = array(5);
 	$saletypesmorefields = implode(', ', $saletypesmorefields);
 	$invoice_types = array('supplier', 'other');
@@ -72,6 +72,7 @@ if($core->input['stage'] == 'fillbudgetline') {
 	foreach($currencies as $currency) {
 		$budget_currencylist.= '<option value="'.$currency.'">'.$currency.'</option>';
 	}
+
 
 	/* check whether to display existing budget Form or display new one  */
 	$unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income');
@@ -117,7 +118,14 @@ if($core->input['stage'] == 'fillbudgetline') {
 					$budgetline['customerName'] = $customer->get()['companyName'];
 					$budgetline['pid'] = $pid;
 					$budgetline['productName'] = $product->get()['name'];
-					$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $saleid, '', '', array('id' => 'salestype_'.$rowid));
+					foreach($saletypes as $stid => $saletype) {
+						$selected = '';
+						if($saleid == $stid) {
+							$selected = 'selected="selected"';
+						}
+						$saletype_selectlist.= '<option value="'.$stid.'" '.$selected.'>'.$saletype.'</option>';
+					}
+					//$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $saleid, '', '', array('id' => 'salestype_'.$rowid));
 					$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_types, $budgetline['invoice'], '', '', array('id' => 'invoice_'.$rowid));
 					eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
 					$rowid++;
@@ -127,7 +135,9 @@ if($core->input['stage'] == 'fillbudgetline') {
 	}
 	else {
 		$rowid = 1;
-		$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, '', '', '', array('id' => 'salestype_'.$rowid));
+		foreach($saletypes as $stid => $saletype) {
+			$saletype_selectlist.= '<option value="'.$stid.'">'.$saletype.'</option>';
+		}
 		$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_types, '', '', '', array('id' => 'invoice_'.$rowid));
 		eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
 	}
@@ -166,21 +176,26 @@ if($core->input['action'] == 'do_perform_fillbudget') {
 }
 elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
 	$rowid = intval($core->input['value']) + 1;
-	$saletypes_setting = explode(';', $core->settings['saletypes']);
-	foreach($saletypes_setting as $key => $val) {
-		$crumb = explode(':', $val);
-		$saletypes[$crumb[0]] = ucfirst($crumb[1]);
+	$affid = intval($core->input['affiliate']);
+	$budget_data = unserialize($session->get_phpsession('budgetdata_'.$core->input['identifier']));
+	$saletypes = get_specificdata('saletypes', array('stid', 'title'), 'stid', 'title', array('by' => 'stid', 'sort' => 'ASC'));
+//	$saletypes_setting = explode(';', $core->settings['saletypes']);
+//	foreach($saletypes_setting as $key => $val) {
+//		$crumb = explode(':', $val);
+//		$saletypes[$crumb[0]] = ucfirst($crumb[1]);
+//	}
+	foreach($saletypes as $stid => $saletype) {
+		$saletype_selectlist.= '<option value="'.$stid.'" '.$selected.'>'.$saletype.'</option>';
 	}
 	$invoice_types = array('supplier', 'other');
 	foreach($invoice_types as $key => $val) {
 		$invoice_types[$val] = ucfirst($val);
 		unset($invoice_types[$key]);
 	}
-	$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType'], '', '', array('id' => 'salestype_'.$rowid));
 	$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_types, $budgetline['invoice'], '', '', array('blankstart' => 1, 'id' => 'invoice_'.$rowid));
 
 	/* Get budget data */
-	$affiliate = new Affiliates($budget_data['affid']);
+	$affiliate = new Affiliates($affid);
 	$affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
 	$currencies = array('USD', 'EUR', $affiliate_currency->get()['alphaCode']);
 	foreach($currencies as $currency) {

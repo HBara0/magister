@@ -32,10 +32,10 @@
                     var id = $(this).attr("id").split("_");
                     var salestype = $(this).val();
                     var additional_salestype = [{$saletypesmorefields}]; /*get the parsed array from php*/
-             
+
 
                     var myArray = {1:"LBP", 2:"LBP",3:"USD",5:"EUR"};
-                      var invoicetypes = {1:"other", 2:"other",3:"other",5:"supplier"};
+                    var invoicetypes = {1:"other", 2:"other",3:"other",5:"supplier"};
                     $('#invoice_' + id[1]).val('other');
                     if (typeof myArray[salestype] != 'undefined') {
                         $("#currency_" + id[1]).val(myArray[salestype]);
@@ -59,8 +59,7 @@
             </div>
 
             <form id="perform_budgeting/fillbudget_Form" name="perform_budgeting/fillbudget_Form" action="index.php?module=budgeting/generatebudget&amp;identifier={$core->input[identifier]}" method="post">
-        <!-- <input type="hidden" name="budgetline[$rowid][affid]" value="{$budgetline[affid]}"/> -->
-                <input type="hidden" id='spid' name="spid" value="{$core->input[budget][spid]}"/>
+               <input type="hidden" id='spid' name="spid" value="{$core->input[budget][spid]}"/>
                 <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">
                 <input type="hidden" name="budget[bid]" value="{$currentbudget[bid]}">
                 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -80,11 +79,14 @@
                     </thead>
 
                     <tbody id="budgetlines{$rowid}_tbody" style="width:100%;">
+                         
+               
                         {$budgetlinesrows}
                     </tbody> 
 
                     <tr><td valign="top">  
                             <input name="numrows_budgetlines{$rowid}" type="hidden" id="numrows_budgetlines{$rowid}" value="{$rowid}">
+                             <input type="hidden" name="affid_budgetlines{$rowid}" id="affid_budgetlines{$rowid}" value="{$budget_data[affid]}"/> 
                             <img src="./images/add.gif" id="ajaxaddmore_budgeting/fillbudget_budgetlines_{$rowid}" alt="{$lang->add}">
                         </td></tr>
 
