@@ -119,11 +119,10 @@ class Budgets {
 //		}
 //	}
 
-	public function save_budget($budgetline_data = array(), $budgetdata = array()) {
+	public function save_budget($budgetline_data = array(), $budgetdata = array(), $option = '') {
 		global $db, $core;
-
 		if(is_array($budgetdata)) {
-			if(is_empty($budgetdata['year'], $budgetdata['affid'], $budgetdata['spid'])) {
+			if(is_empty($budgetdata['affid'], $budgetdata['spid'])) {
 				$this->errorcode = 2;
 				return false;
 			}
@@ -138,7 +137,7 @@ class Budgets {
 				);
 
 				$insertquery = $db->insert_query('budgeting_budgets', $budget_data);
-				if($insertquery) {
+				if($insertquery && $option != 'import') {
 					$this->budget['bid'] = $db->last_id();
 					$this->save_budgetlines($budgetline_data, $this->budget['bid']);
 				}
@@ -151,41 +150,61 @@ class Budgets {
 	}
 
 	private function save_budgetlines($budgetline_data = array(), $bid) {
-		unset($budgetline_data['customerName']);
-		foreach($budgetline_data as $blid => $data) {
-			if(!isset($data['bid'])) {
-				$data['bid'] = $bid;
-			}
-			if(isset($data['blid']) && !empty($data['blid'])) {
-				$budgetlineobj = new BudgetLines($data['blid']);
-			}
-			else {
-				$budgetline = BudgetLines::get_budgetline_bydata($data);
-				if($budgetline != false) {
-					$budgetlineobj = new BudgetLines($budgetline['blid']);
-					$data['blid'] = $budgetline['blid'];
+		if(isset($budgetline_data['customerName'])) {
+			unset($budgetline_data['customerName']);
+		}
+		if(is_array($budgetline_data)) {
+			foreach($budgetline_data as $blid => $data) {
+				if(!isset($data['bid'])) {
+					$data['bid'] = $bid;
+				}
+				if(isset($data['blid']) && !empty($data['blid'])) {
+					$budgetlineobj = new BudgetLines($data['blid']);
 				}
 				else {
-					$budgetlineobj = new BudgetLines();
+					$budgetline = BudgetLines::get_budgetline_bydata($data);
+					if($budgetline != false) {
+						$budgetlineobj = new BudgetLines($budgetline['blid']);
+						$data['blid'] = $budgetline['blid'];
+					}
+					else {
+						$budgetlineobj = new BudgetLines();
+					}
 				}
-			}
 
-			if(empty($data['pid']) || empty($data['cid'])) {
-				//$this->errorcode = 1;
-				continue;
-			}
+				if(empty($data['pid']) || empty($data['cid'])) {
+					//$this->errorcode = 1;
+					continue;
+				}
 //	
 //			elseif(empty($data['pid']) && empty($data['cid'])) {		
 //				$budgetline->delete();
 //				continue;
 //			}
-			if(isset($data['blid']) && !empty($data['blid'])) {
-				$budgetlineobj->update($data);
-				$this->errorcode = 0;
+				if(isset($data['blid']) && !empty($data['blid'])) {
+					$budgetlineobj->update($data);
+					$this->errorcode = 0;
+				}
+				else {
+					$budgetlineobj->create($data);
+				}
 			}
-			else {
-				$budgetlineobj->create($data);
-			}
+		}
+	}
+
+	public function import_budgetlines($budgetline_data = array()) {
+		global $db, $core;
+		if(is_array($budgetline_data)) {
+			$budgetlineobj = new BudgetLines();
+			$budget_data = array(
+					'pid' => $budgetline_data['pid'],
+					'cid' => $budgetline_data['cid'],
+					'amount' => $budgetline_data['amount'],
+					'income' => $budgetline_data['income'],
+					'saleType' => $budgetline_data['saleType'],
+					'createdBy' => $budgetline_data['createdBy']
+			);
+			$insertquery = $db->insert_query('budgeting_budgets_lines', $budget_data);
 		}
 	}
 

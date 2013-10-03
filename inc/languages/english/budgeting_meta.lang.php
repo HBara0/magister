@@ -17,7 +17,13 @@ $lang['salestype']="Sales Type";
 $lang['generatebudget']="Generate Budget";
 $lang['bm']='Business Manager';
 $lang['invoice']="Invoice";
+$lang['selectbudgetfile']='Select Budgetfile';
 $lang['budgetexist']='Budget Already exist';
+$lang['importbudgetallowedtypes']='Only CSV & Excel files are allowed.';
+$lang['importbudget']='Import Budget';
 $lang['segment']="Segments";
 $lang['uom']='UOM';
+$lang['importpreview']='Budget preview';
+$lang['import']='Import';
+$lang['fieldrepeated']=' Field Repeated';
 ?>
