@@ -31,16 +31,14 @@
                 $('select[id^="salestype_"]').live('change', function() {
                     var id = $(this).attr("id").split("_");
                     var salestype = $(this).val();
-                    var additional_salestype = [{$saletypesmorefields}]; /*get the parsed array from php*/
 
-
-                    var myArray = {1:"LBP", 2:"LBP",3:"USD",5:"EUR"};
-                    var invoicetypes = {1:"other", 2:"other",3:"other",5:"supplier"};
-                    $('#invoice_' + id[1]).val('other');
-                    if (typeof myArray[salestype] != 'undefined') {
-                        $("#currency_" + id[1]).val(myArray[salestype]);
+                    var currencies = {$js_currencies};
+                    var invoicetypes = {$js_saletypesinvoice};
+                    if (typeof currencies[salestype] != 'undefined') {
+                        $("#currency_" + id[1]).val(currencies[salestype]);
                     }
-                    if (jQuery.inArray(parseInt($(this).val()), additional_salestype) > -1) {
+
+                    if (typeof invoicetypes[salestype] != 'undefined') {
                         $('#invoice_' + id[1]).val(invoicetypes[salestype]);
                     }
 
@@ -52,14 +50,13 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->fillbudget}</h3>
-            <div style="display:block;">
-                <div style="display:inline-block; padding:0px;">{$affiliate_name}|</div>
-                <div style="display:inline-block; padding:0px;">{$supplier_name}-{$budget_data[year]}|{$budget_data[currency]}</div>
-            </div>
+            <h3>{$lang->fillbudget}
+                <div style="font-style:italic; font-size:12px; color:#666;">{$budget_data[affiliateName]} | {$budget_data[supplierName]} | {$budget_data[year]}</div>
+            </h3>
 
             <form id="perform_budgeting/fillbudget_Form" name="perform_budgeting/fillbudget_Form" action="index.php?module=budgeting/generatebudget&amp;identifier={$core->input[identifier]}" method="post">
-               <input type="hidden" id='spid' name="spid" value="{$core->input[budget][spid]}"/>
+        <!-- <input type="hidden" name="budgetline[$rowid][affid]" value="{$budgetline[affid]}"/> -->
+                <input type="hidden" id='spid' name="spid" value="{$core->input[budget][spid]}"/>
                 <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">
                 <input type="hidden" name="budget[bid]" value="{$currentbudget[bid]}">
                 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -79,14 +76,11 @@
                     </thead>
 
                     <tbody id="budgetlines{$rowid}_tbody" style="width:100%;">
-                         
-               
                         {$budgetlinesrows}
                     </tbody> 
 
                     <tr><td valign="top">  
                             <input name="numrows_budgetlines{$rowid}" type="hidden" id="numrows_budgetlines{$rowid}" value="{$rowid}">
-                             <input type="hidden" name="affid_budgetlines{$rowid}" id="affid_budgetlines{$rowid}" value="{$budget_data[affid]}"/> 
                             <img src="./images/add.gif" id="ajaxaddmore_budgeting/fillbudget_budgetlines_{$rowid}" alt="{$lang->add}">
                         </td></tr>
 
