@@ -29,7 +29,7 @@ class Budgets {
 			$query_select = 'year, description';
 		}
 		if($isallbudget == true) {
-			$queryall = $db->query("SELECT DISTINCT(year) ,bid,identifier,description,affid,spid,currency,isLocked,isFinalized,finalizedBy,status,createdOn,createdBy,modifiedBy 
+			$queryall = $db->query("SELECT DISTINCT(year),bid,identifier,description,affid,spid,currency,isLocked,isFinalized,finalizedBy,status,createdOn,createdBy,modifiedBy 
 									FROM ".Tprefix."budgeting_budgets GROUP BY year ORDER BY year DESC  ");
 			if($db->num_rows($queryall) > 0) {
 				while($budget = $db->fetch_assoc($queryall)) {
@@ -54,7 +54,7 @@ class Budgets {
 		return false;
 	}
 
-	private function budget_exists_bydata($data) {
+	private static function budget_exists_bydata($data) {
 		global $db;
 		if(isset($data['affid'], $data['spid'], $data['year']) && !is_empty($data['affid'], $data['spid'], $data['year'])) {
 			$budget_existquery = $db->query('SELECT bid FROM '.Tprefix.'budgeting_budgets WHERE affid='.intval($data['affid']).' AND spid='.intval($data['spid']).' AND year='.intval($data['year']));
@@ -119,15 +119,17 @@ class Budgets {
 //		}
 //	}
 
-	public function save_budget($budgetline_data = array(), $budgetdata = array(), $option = '') {
+	public static function save_budget($budgetdata = array(), $budgetline_data = array()) {
 		global $db, $core;
+
 		if(is_array($budgetdata)) {
-			if(is_empty($budgetdata['affid'], $budgetdata['spid'])) {
+			if(is_empty($budgetdata['year'], $budgetdata['affid'], $budgetdata['spid'])) {
 				$this->errorcode = 2;
 				return false;
 			}
+		
 			/* Check if budget exists, then process accordingly */
-			if(!$this->budget_exists_bydata($budgetdata)) {
+			if(!Budgets::budget_exists_bydata($budgetdata)) {
 				$budget_data = array('identifier' => substr(uniqid(time()), 0, 10),
 						'year' => $budgetdata['year'],
 						'affid' => $budgetdata['affid'],
@@ -137,22 +139,40 @@ class Budgets {
 				);
 
 				$insertquery = $db->insert_query('budgeting_budgets', $budget_data);
-				if($insertquery && $option != 'import') {
-					$this->budget['bid'] = $db->last_id();
-					$this->save_budgetlines($budgetline_data, $this->budget['bid']);
+				if($insertquery) {
+					if(isset($this)) {
+						$this->budget['bid'] = $db->last_id();
+						$this->save_budgetlines($budgetline_data, $this->budget['bid']);
+					}
+					else {
+						$budget = new Budgets($db->last_id());
+						$budget->save_budgetlines($budgetline_data);
+					}
 				}
 			}
 			else {
-				$this->budget['bid'] = $budgetdata['bid'];
-				$this->save_budgetlines($budgetline_data, $this->budget['bid']);
+				if(isset($this)) {
+					$this->budget['bid'] = $budgetdata['bid'];
+					$this->save_budgetlines($budgetline_data, $this->budget['bid']);
+				}
+				else {
+					$existing_budget = Budgets::get_budget_bydata($budgetdata);
+					$budget = new Budgets($existing_budget['bid']);
+					$budget->save_budgetlines($budgetline_data);
+				}
 			}
 		}
 	}
 
-	private function save_budgetlines($budgetline_data = array(), $bid) {
+	private function save_budgetlines($budgetline_data = array(), $bid = '') {
 		if(isset($budgetline_data['customerName'])) {
 			unset($budgetline_data['customerName']);
 		}
+
+		if(empty($bid)) {
+			$bid = $this->budget['bid'];
+		}
+
 		if(is_array($budgetline_data)) {
 			foreach($budgetline_data as $blid => $data) {
 				if(!isset($data['bid'])) {
@@ -258,12 +278,9 @@ class Budgets {
 	public static function get_budget_bydata($data) {
 		global $db;
 		if(is_array($data)) {
-			$budget_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets WHERE affid='".$data['affid']."' AND spid='".$data['spid']."' AND year='".$data['year']."'");
-			if($db->num_rows($budget_bydataquery) > 0) {
-				while($budget_bydata = $db->fetch_assoc($budget_bydataquery)) {
-					$budget_details = $budget_bydata;
-				}
-				return $budget_details;
+			$budget = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."budgeting_budgets WHERE affid='".$data['affid']."' AND spid='".$data['spid']."' AND year='".$data['year']."'"));
+			if(is_array($budget)) {
+				return $budget;
 			}
 			return false;
 		}
@@ -381,7 +398,9 @@ class BudgetLines {
 		global $db, $core;
 		if(is_array($budgetline_data)) {
 			//$budgetline_data['bid'] = $bid;
-			$budgetline_data['createdBy'] = $core->user['uid'];
+			if(empty($budgetline_data['createdBy'])) {
+				$budgetline_data['createdBy'] = $core->user['uid'];
+			}
 			unset($budgetline_data['customerName']);
 			$insertquery = $db->insert_query('budgeting_budgets_lines', $budgetline_data);
 			if($insertquery) {
