@@ -77,6 +77,18 @@ class Affiliates {
 		return $suppliers_affiliates;
 	}
 
+	public static function get_affiliate_byname($name) {
+		global $db;
+
+		if(!empty($name)) {
+			$id = $db->fetch_field($db->query('SELECT affid FROM '.Tprefix.'affiliates WHERE name="'.$db->escape_string($name).'"'), 'affid');
+			if(!empty($id)) {
+				return new Affiliates($id);
+			}
+		}
+		return false;
+	}
+
 	public function get() {
 		return $this->affiliate;
 	}

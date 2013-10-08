@@ -566,5 +566,17 @@ class Entities {
 		}
 	}
 
+	public static function get_entity_byname($name) {
+		global $db;
+
+		if(!empty($name)) {
+			$id = $db->fetch_field($db->query('SELECT eid FROM '.Tprefix.'entities WHERE companyName="'.$db->escape_string($name).'"'), 'eid');
+			if(!empty($id)) {
+				return new Entities($id);
+			}
+		}
+		return false;
+	}
+
 }
 ?>

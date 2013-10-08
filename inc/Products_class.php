@@ -19,7 +19,7 @@ class Products {
 
 	private function read($id, $simple) {
 		global $db;
-		
+
 		$query_select = '*';
 		if($simple == true) {
 			$query_select = 'pid, name, spid,gpid';
@@ -46,6 +46,18 @@ class Products {
 
 	public function get_supplier() {
 		return new Entities($this->product['spid'], '', true);
+	}
+
+	public static function get_product_byname($name) {
+		global $db;
+
+		if(!empty($name)) {
+			$id = $db->fetch_field($db->query('SELECT pid FROM '.Tprefix.'products WHERE name="'.$db->escape_string($name).'"'), 'pid');
+			if(!empty($id)) {
+				return new Products($id);
+			}
+		}
+		return false;
 	}
 
 	public function get() {

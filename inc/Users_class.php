@@ -53,7 +53,12 @@ class Users {
 		$this->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->user['uid']}' AND isMain=1"), 'affid');
 	}
 
-	public function get_userbyemail($email) {
+	/* Backward compatibility */
+	public static function get_userbyemail($email) {
+		return $this->get_user_byemail($email);
+	}
+
+	public static function get_user_byemail($email) {
 		global $db, $core;
 
 		$email = $core->sanitize_email($email);
@@ -72,6 +77,18 @@ class Users {
 		else {
 			return false;
 		}
+	}
+
+	public static function get_user_byattr($attr, $value) {
+		global $db;
+
+		if(!is_empty($value, $attr)) {
+			$id = $db->fetch_field($db->query('SELECT uid FROM '.Tprefix.'users WHERE '.$db->escape_string($attr).'="'.$db->escape_string($value).'"'), 'uid');
+			if(!empty($id)) {
+				return new Users($id);
+			}
+		}
+		return false;
 	}
 
 	public function get() {
