@@ -189,7 +189,7 @@ else {
 				$budget_data['bid'] = $currentbudget['bid'];
 			}
 
-			$budget->save_budget($core->input['budgetline'], $budget_data);
+			$budget->save_budget($budget_data, $core->input['budgetline']);
 		}
 		switch($budget->get_errorcode()) {
 			case 0:
@@ -205,8 +205,8 @@ else {
 	}
 	elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
 		$rowid = intval($core->input['value']) + 1;
-		print_r($_SESSION);
-		exit;
+		$budget_data = $core->input['ajaxaddmoredata'];
+		
 		$saletypes_query = $db->query('SELECT * FROM '.Tprefix.'saletypes');
 		while($saletype = $db->fetch_assoc($saletypes_query)) {
 			$saletype_selectlistdata[$saletype['stid']] = $saletype['title'];
@@ -228,7 +228,7 @@ else {
 		else {
 			$invoice_selectlistdata['other'] = $lang->other;
 		}
-		$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletypes, $budgetline['saleType'], '', '', array('id' => 'salestype_'.$rowid));
+		$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, $budgetline['saleType'], '', '', array('id' => 'salestype_'.$rowid));
 		$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('blankstart' => 1, 'id' => 'invoice_'.$rowid));
 
 		/* Get budget data */
