@@ -527,7 +527,7 @@ $(function() {
 
         $.ajax({type: 'post',
             url: rootdir + "index.php?module=" + id[1] + "&action=ajaxaddmore_" + id[2],
-            data: {value: num_rows,affiliate:affid,id: id[id.length - 1]}, 
+            data:  "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + $('input[id^=ajaxaddmoredata_').serialize(), 
             beforeSend: function() {
                 $("body").append("<div id='modal-loading'></div>");
                 $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
