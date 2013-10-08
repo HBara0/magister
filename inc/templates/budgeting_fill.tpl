@@ -9,9 +9,8 @@
                     $('input[id^=income_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id^=amount_' + id[1] + ']').val());
                 });
 
-                $('input[id^="income_"]').live('input', function() {
                     var id = $(this).attr("id").split("_");
-                    if ($('input[id^="amountper_' + id[1] + '"]').val().length > 0) {
+                    if ($('input[id^="amount_' + id[1] + '"]').val().length > 0) {
                         $('input[id^=amountper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id^=amount_' + id[1] + ']').val());
                     }
                 });
@@ -81,6 +80,7 @@
 
                     <tr><td valign="top">  
                             <input name="numrows_budgetlines{$rowid}" type="hidden" id="numrows_budgetlines{$rowid}" value="{$rowid}">
+                            <input type="hidden" name="ajaxaddmoredata[affid]" id="ajaxaddmoredata_affid" value="{$currentbudget[affid]}"/> 
                             <img src="./images/add.gif" id="ajaxaddmore_budgeting/fillbudget_budgetlines_{$rowid}" alt="{$lang->add}">
                         </td></tr>
 

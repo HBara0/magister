@@ -1,19 +1,19 @@
 <tr id="{$rowid}">
     <td style="vertical-align: top; border-bottom: dashed 1px #CCCCCC; text-align: left;"> 
         <input type="hidden" name="budgetline[$rowid][blid]" value="{$budgetline[blid]}"/>
-        <input type='text' id='customer_{$rowid}_QSearch' name="budgetline[$rowid][customerName]" value="{$budgetline[customerName]}" autocomplete='off' {$required}/>
-        <input type='text' size='3' id='customer_{$rowid}_id_output' disabled='disabled' value="{$budgetline[cid]}" style="display:none;"/>
-        <input type='hidden' value="{$budgetline[cid]}" id='customer_{$rowid}_id' name='budgetline[$rowid][cid]' />
+        <input type='text' id='customer_noexception_{$rowid}_QSearch' name="budgetline[$rowid][customerName]" value="{$budgetline[customerName]}" autocomplete='off' {$required}/>
+        <input type='text' size='3' id='customer_noexception_{$rowid}_id_output' disabled='disabled' value="{$budgetline[cid]}" style="display:none;"/>
+        <input type='hidden' value="{$budgetline[cid]}" id='customer_noexception_{$rowid}_id' name='budgetline[$rowid][cid]' />
         <a href="index.php?module=contents/addentities&type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a>
-        <div id='searchQuickResults_{$rowid}' class='searchQuickResults' style='display:none;'></div>
+        <div id='searchQuickResults_customer_{$rowid}' class='searchQuickResults' style='display:none;'></div>
     </td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;"  align="left">
-        <input type='text' name="budgetline[$rowid][pid]" id="product_1{$rowid}_QSearch" value="{$budgetline[productName]}" autocomplete='off' {$required}/>
-        <input type='text' size='2' style="width:35px;display:none;" name='product_1{$rowid}_id_output' id='product_1{$rowid}_id_output' disabled='disabled' value="{$budgetline[pid]}"/>
-        <input type='hidden' value='{$budgetline[pid]}' id='product_1{$rowid}_id' name='budgetline[$rowid][pid]' />
-        <table width="1px;"><tr><td><a href="index.php?module=contents/addproducts" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a> </td></tr></table>
+        <input type='text' name="budgetline[$rowid][pid]" id="product_noexception_{$rowid}_QSearch" value="{$budgetline[productName]}" autocomplete='off' {$required}/>
+        <input type='text' size='2' style="width:35px;display:none;" name='product_{$rowid}_id_output' id='product_noexception_{$rowid}_id_output' disabled='disabled' value="{$budgetline[pid]}"/>
+        <input type='hidden' value='{$budgetline[pid]}' id='product_noexception_{$rowid}_id' name='budgetline[$rowid][pid]' />
+        <a href="index.php?module=contents/addproducts" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a>
 
-        <div id='searchQuickResults_1{$rowid}' class='searchQuickResults' style='display:none;'></div>
+        <div id='searchQuickResults_product_{$rowid}' class='searchQuickResults' style='display:none;'></div>
     </td>
     <td style="vertical-align:top; padding:2px;border-bottom: dashed 1px #CCCCCC;" align="center">{$saletype_selectlist}</td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_right">
