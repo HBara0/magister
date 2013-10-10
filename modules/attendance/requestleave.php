@@ -336,6 +336,12 @@ else {
 				}
 			}
 		}
+		if($leavetype_details['requireReason'] == 1) {
+			if(empty($core->input['reason']) || strlen($core->input['reason']) <= 20) {
+				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+				exit;
+			}
+		}
 		/* Validate required Fields - END */
 		$query = $db->insert_query('leaves', $core->input);
 		if($query) {
