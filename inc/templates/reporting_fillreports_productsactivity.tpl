@@ -25,7 +25,7 @@
             </strong><span class="smalltext"><em>({$lang->purchaseamount})</em><strong><br />
             </strong><em>.K Currency (i.e. 1000=1k)</em></span></td>
             <td width="10%" rowspan="2" valign="top" align="center">&nbsp;</td>
-            <td width="10%" rowspan="2" valign="top" align="center"><strong>{$lang->quantity}<br /></strong><span class="smalltext"><em>{$lang->mt}</em></span></td>
+            <td width="10%" rowspan="2" valign="top" align="center"><strong>{$lang->purchasedqty}<br /></strong><span class="smalltext"><em>{$lang->mt}</em></span></td>
             <td width="14%" rowspan="2" valign="top" align="center"><strong>{$lang->salestype}</strong></div></td>
             <td colspan="2" valign="top" align="center"><strong>{$lang->yearforecasts}/{$core->input[baseCurrency]}</strong></td>
         </tr>
