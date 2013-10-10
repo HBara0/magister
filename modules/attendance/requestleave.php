@@ -386,14 +386,25 @@ else {
 			$toapprove = $toapprove_select = unserialize($leavetype_details['toApprove']); //explode(',', $leavetype_details['toApprove']);
 			if(is_array($toapprove)) {
 				foreach($toapprove as $key => $val) {
-					if($val == 'reportsTo') {
-						list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
-						$approvers['reportsTo'] = $leave_user['reportsTo'];
-						unset($toapprove_select[$key]);
-					}
-					elseif(is_int($val)) {
-						$approvers[$val] = $val;
-						unset($toapprove_select[$key]);
+					switch($val) {
+						case 'reportsTo':
+							list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
+							$approvers['reportsTo'] = $leave_user['reportsTo'];
+							unset($toapprove_select[$key]);
+							break;
+						case 'generalManager':
+							$approvers[$val] = '';
+							break;
+						case 'hrManager':
+							break;
+						case 'supervisor':
+							break;
+						default:
+							if(is_int($val)) {
+								$approvers[$val] = $val;
+								unset($toapprove_select[$key]);
+							}
+							break;
 					}
 				}
 			}
@@ -507,7 +518,7 @@ else {
 
 							$expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].$expense['description'].'<br />';
 						}
-						
+
 						$total = $leaveexpense->get_expensestotal();
 						$expenses_message_ouput = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
 					}
