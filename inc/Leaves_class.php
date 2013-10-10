@@ -85,7 +85,7 @@ class Leaves {
 
 	public function get_expensestotal($id = '', $amounttype = 'expected', $currency = '') {
 		global $db;
-		
+
 		if(!empty($this->leave['lid']) && empty($id)) {
 			$id = $this->leave['lid'];
 		}
@@ -108,7 +108,7 @@ class Leaves {
 		}
 		return false;
 	}
-	
+
 	public function create_expenses($expenses = array()) {
 		global $db, $log;
 
@@ -185,10 +185,22 @@ class Leaves {
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."leaves WHERE lid=".$db->escape_string($id)));
 	}
 
+	public function get_approvers() {
+		global $db;
+		$query = $db->query('SELECT * FROM '.Tprefix.'leavesapproval WHERE isApproved=1 AND lid='.$this->leave['lid']);
+		if($db->num_rows($query) > 0) {
+			while($approver = $db->fetch_assoc($query)) {
+				$approvers[$approver['uid']] = new Users($approver['uid']);
+			}
+			return $approvers;
+		}
+		return false;
+	}
+
 	public function get_requester() {
 		return new Users($this->leave['uid']);
 	}
-	
+
 	public function get_leavetype() {
 		return new Leavetypes($this->leave['type']);
 	}
