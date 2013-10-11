@@ -1,6 +1,6 @@
 <?php
 $module['name'] = 'budgeting';
-$module['title'] = $lang->budget;
+$module['title'] = $lang->budgeting;
 $module['homepage'] = 'create';
 $module['globalpermission'] = 'canUseBudgeting';
 $module['menu'] = array('file' 		  => array('create','generatebudget','importbudget'),
