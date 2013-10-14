@@ -57,13 +57,6 @@ if(!$core->input['action']) {
 			$session->set_phpsession(array('budgetmetadata_'.$currentbudget['identifier'] => serialize($core->input)));
 		}
 
-//	$allsaletypes = explode(';', $core->settings['saletypes']);
-//
-//	foreach($allsaletypes as $key => $val) {
-//		$crumb = explode(':', $val);
-//		$saletypes[$crumb[0]] = ucfirst($crumb[1]);
-//	}
-
 		$saletypes_query = $db->query('SELECT * FROM '.Tprefix.'saletypes');
 		while($saletype = $db->fetch_assoc($saletypes_query)) {
 			$saletype_selectlistdata[$saletype['stid']] = $saletype['title'];
@@ -112,7 +105,7 @@ if(!$core->input['action']) {
 //				if(isset($budgetline[$rowid]['cid']) && !empty($budgetline[$rowid]['cid'])) {
 //					$required = ' required="required"';
 //				}
-					foreach($productsdata as $saleid => $budgetline) {
+					foreach($productsdata as $saleid => $budgetline) { 
 						$previous_yearsqty = $previous_yearsamount = $previous_yearsincome = '';
 						if($is_prevonly === true || isset($budgetline['prevbudget'])) {
 							if($is_prevonly == true) {
@@ -129,6 +122,7 @@ if(!$core->input['action']) {
 										unset($budgetline[$field]);
 									}
 								}
+								$budgetline['alternativecustomer'] .= '<span style="display:block;"> '.ucfirst($prev_budgetline['altCid']).'</span>';
 								$previous_yearsqty .= '<span style="display:block;"> '.$prev_budgetline['year'].': '.$prev_budgetline['quantity'].'</span>';
 								$previous_yearsamount .= '<span style="display:block;"> '.$prev_budgetline['year'].': '.$prev_budgetline['amount'].'</span>';
 								$previous_yearsincome .= '<span style="display:block;"> '.$prev_budgetline['year'].': '.$prev_budgetline['income'].'</span>';
@@ -169,7 +163,6 @@ if(!$core->input['action']) {
 
 		/* Parse values for JS - END */
 
-
 		eval("\$fillbudget = \"".$template->get('budgeting_fill')."\";");
 		output_page($fillbudget);
 	}
@@ -177,7 +170,7 @@ if(!$core->input['action']) {
 else {
 	if($core->input['action'] == 'do_perform_fillbudget') {
 		$budget_data = unserialize($session->get_phpsession('budgetdata_'.$core->input['identifier']));
-		if(is_array($core->input['budgetline'])) {
+		if(is_array($core->input['budgetline'])) {			
 			if(isset($core->input['budget']['bid'])) {
 				$currentbudget = $core->input['budget'];
 				$budget = new Budgets($core->input['budget']['bid']);
@@ -206,7 +199,7 @@ else {
 	elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
 		$rowid = intval($core->input['value']) + 1;
 		$budget_data = $core->input['ajaxaddmoredata'];
-		
+
 		$saletypes_query = $db->query('SELECT * FROM '.Tprefix.'saletypes');
 		while($saletype = $db->fetch_assoc($saletypes_query)) {
 			$saletype_selectlistdata[$saletype['stid']] = $saletype['title'];

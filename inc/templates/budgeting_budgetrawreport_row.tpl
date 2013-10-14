@@ -1,6 +1,7 @@
 <tr id="{$budgetline[blid]}">
     <td>{$budget[manager]}</td>
     <td>{$budgetline[customer]}</td>
+        <td>{$budgetline[altcustomer]}</td>
     <td>{$budgetline[cusomtercountry]}</td>
     <td>{$budget[country]}</td>
     <td>{$budget[supplier]}</td>

@@ -127,7 +127,7 @@ class Budgets {
 				$this->errorcode = 2;
 				return false;
 			}
-		
+
 			/* Check if budget exists, then process accordingly */
 			if(!Budgets::budget_exists_bydata($budgetdata)) {
 				$budget_data = array('identifier' => substr(uniqid(time()), 0, 10),
@@ -165,6 +165,7 @@ class Budgets {
 	}
 
 	private function save_budgetlines($budgetline_data = array(), $bid = '') {
+		global $db;
 		if(isset($budgetline_data['customerName'])) {
 			unset($budgetline_data['customerName']);
 		}
@@ -175,6 +176,7 @@ class Budgets {
 
 		if(is_array($budgetline_data)) {
 			foreach($budgetline_data as $blid => $data) {
+
 				if(!isset($data['bid'])) {
 					$data['bid'] = $bid;
 				}
@@ -192,11 +194,14 @@ class Budgets {
 					}
 				}
 
-				if(empty($data['pid']) || empty($data['cid'])) {
+				if(empty($data['pid']) || (empty($data['cid']) && empty($data['altCid']))) {
 					//$this->errorcode = 1;
 					continue;
 				}
 //	
+				if(!empty($data['cid'])) {
+					$data['altCid'] = 'Null';
+				}
 //			elseif(empty($data['pid']) && empty($data['cid'])) {		
 //				$budgetline->delete();
 //				continue;
