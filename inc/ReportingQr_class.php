@@ -449,7 +449,7 @@ class ReportingQr Extends Reporting {
 						}
 
 						$actual_current_data_querystring = 'uid!='.$core->user['uid'];
-						if(isset($productactivity['paid'])) {
+						if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
 							$actual_current_data_querystring = 'pa.paid!='.$productactivity['paid'];
 						}
 
