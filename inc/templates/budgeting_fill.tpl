@@ -9,6 +9,7 @@
                     $('input[id^=income_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id^=amount_' + id[1] + ']').val());
                 });
 
+                $('input[id^="income_"]').live('input', function() {
                     var id = $(this).attr("id").split("_");
                     if ($('input[id^="amount_' + id[1] + '"]').val().length > 0) {
                         $('input[id^=amountper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id^=amount_' + id[1] + ']').val());
@@ -63,10 +64,10 @@
                         <tr style="vertical-align: top;">
                             <td  width="11.6%" class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->customer}</strong</td>
                             <td width="11.6%" rowspan="2" valign="top" align="center" class=" border_right">{$lang->product}</td>
-                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->salestype}</td>
-                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->quantity}<br /><span class="smalltext"><em>{$lang->mt}</em></span></td>
+                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->saleType}</td>
+                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->Quantity}<br /><span class="smalltext"><em>{$lang->mt}</em></span></td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
-                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->saleamount}</td>
+                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->amount}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->incomeperc}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->income}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->curr}</td>

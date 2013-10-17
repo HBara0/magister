@@ -58,12 +58,12 @@ else {
 	}
 	elseif($core->input['action'] == 'do_perform_importbudget') {
 		$cache = new Cache();
-		$options['runtype'] = 'dry';
+		//$options['runtype'] = 'dry';
 		$options['useAltCid'] = 1;
 		$all_data = unserialize($session->get_phpsession('budgetingimport_'.$core->input['identifier']));
 		$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'country' => 'Country', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'income' => 'Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type');
 		$required_headers_check = $required_headers = array('customerName', 'productName', 'supplierName', 'year', 'saleType');
-		$budgetlines_valid_data = array('pid', 'cid', 'quantity', 'amount', 'income', 'incomePerc', 'saleType', 'originalCurrency');
+		$budgetlines_valid_data = array('pid', 'cid', 'altCid','quantity', 'amount', 'income', 'incomePerc', 'saleType', 'originalCurrency');
 
 		$headers_cache = array();
 		for($i = 0; $i < count($allowed_headers) + 1; $i++) {
@@ -265,15 +265,15 @@ else {
 				}
 			}
 
-			foreach($budgetlines_valid_data as $k) {
-				if($data[$k] != '') {
-					$budgetlines[0][$k] = $data[$k];
+			foreach($budgetlines_valid_data as $valid_attribute) {
+				if($data[$valid_attribute] != '') {
+					$budgetlines[0][$valid_attribute] = $data[$valid_attribute];
 				}
 				else {
-					if($k == 'cid' && (isset($data['altCid']) && !empty($data['altCid']))) {
+					if($valid_attribute == 'cid' && (isset($data['altCid']) && !empty($data['altCid']))) {
 						continue;
 					}
-					$errorhandler->record('incompletedata-'.$k, 'Row: '.$key);
+					$errorhandler->record('incompletedata-'.$valid_attribute, 'Row: '.$key);
 					continue 2;
 				}
 			}
