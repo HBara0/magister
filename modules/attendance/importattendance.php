@@ -125,7 +125,7 @@ else
 			else
 			{ 
 				$split_name = explode(' ', $data_row[$key]['name']);		
-				$uid = $db->fetch_field($db->query("SELECT u.uid FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (ae.uid=u.uid) WHERE isMain=1 AND affid={$core->user[mainaffiliate]} AND firstName='".$db->escape_string($split_name[0])."' AND lastName='".$db->escape_string($split_name[1])."'"), 'uid');
+				$uid = $db->fetch_field($db->query("SELECT u.uid FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (ae.uid=u.uid) WHERE isMain=1 AND affid={$core->user[mainaffiliate]} AND (displayName='".$db->escape_string($data_row[$key]['name'])."' OR (firstName='".$db->escape_string($split_name[0])."' AND lastName='".$db->escape_string($split_name[1])."'))"), 'uid');
 				
 				$users_cache[$uid] = $data_row[$key]['name'];
 			}

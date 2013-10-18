@@ -19,16 +19,16 @@ class ReportingQr Extends Reporting {
 		if(is_array($this->report['products']) && !empty($this->report['products'])) {
 			$query_extrawhere = ' AND pid NOT IN ('.implode(',', array_keys($this->report['products'])).')';
 		}
-		
+
 		$query = $db->query("SELECT pid FROM ".Tprefix."productsactivity WHERE rid=".$this->report['rid'].$query_extrawhere);
 		if($db->num_rows($query) > 0) {
 			while($product = $db->fetch_assoc($query)) {
 				$product_obj = new Products($product['pid']);
 				$this->report['products'][$product['pid']] = $product_obj->get()['name'];
 			}
-		}	
+		}
 	}
-	
+
 	public function read_products_activity($get_prevactivity = false) {
 		global $db;
 		$products_activity_query = $db->query("SELECT pa.*, p.name AS productname, ps.psid, ps.title AS segment
@@ -134,17 +134,24 @@ class ReportingQr Extends Reporting {
 						foreach($productssegments_data as $pid => $products_data) {
 							$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 0;
 							if($products_data != 0) {
-								$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data - $this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid];
+								$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $products_data;
+								for($q = $quarter - 1; $q >= 1; $q--) {
+									$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] -= $this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$q][$affid][$psid][$pid];
+								}
 							}
 
 							$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 0;
 							if($this->report['classifiedpactivity']['purchasedQty']['forecast'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid] != 0) {
-								$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $this->report['classifiedpactivity']['purchasedQty']['forecast'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid] - $this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid];
+								$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = $this->report['classifiedpactivity']['purchasedQty']['forecast'][$this->report['year']][$this->report['quarter']][$affid][$psid][$pid];
+								for($q = $quarter - 1; $q >= 1; $q--) {
+									$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] -= $this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$q][$affid][$psid][$pid];
+								}
 							}
 							if($this->report['quarter'] != 4) {
 								$this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] /= (4 - $this->report['quarter']);
 								$this->report['classifiedpactivity']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] /= (4 - $this->report['quarter']);
 								$this->report['classifiedpactivity_class']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 'mainbox_forecast';
+								$this->report['classifiedpactivity_class']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 'mainbox_forecast';
 								$this->report['forecasteditems']['purchasedQty']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 1;
 								$this->report['forecasteditems']['amount']['actual'][$this->report['year']][$quarter][$affid][$psid][$pid] = 1;
 							}
@@ -361,7 +368,7 @@ class ReportingQr Extends Reporting {
 			WHERE sa.eid=".$this->report['spid'].""));
 	}
 
-	public function check_outliers($method= 'standarddev', $threshold= 3) {
+	public function check_outliers($method = 'standarddev', $threshold = 3) {
 		global $db;
 
 		$this->read_products();
@@ -370,7 +377,7 @@ class ReportingQr Extends Reporting {
 		if(is_array($products)) {
 			foreach($products as $pid => $product) {
 				$pid = intval($pid);
-				if($method=='standarddev') {
+				if($method == 'standarddev') {
 					/* Default $threshold 3 */
 					$query = $db->query('SELECT pa1.quantity, pa1.turnOver
 										FROM productsactivity pa1, 
@@ -384,11 +391,11 @@ class ReportingQr Extends Reporting {
 										FROM productsactivity pa1, 
 										(SELECT AVG(quantity)+'.$threshold.'*STDDEV(quantity) as qtythreshold, AVG(turnover/quantity)+'.$threshold.'*STDDEV(turnover/quantity) as tovthreshold
 										FROM productsactivity WHERE pid='.$pid.' AND (quantity!=0 OR turnOver!=0) AND rid IN (SELECT rid FROM reports WHERE affid="'.$this->report['affid'].'" AND spid="'.$this->report['spid'].'" AND rid!='.$this->report['rid'].')) as pa2
-										WHERE (pa1.quantity !=0 OR pa1.turnOver!=0) AND (pa1.quantity > pa2.qtythreshold OR pa1.turnover > pa2.tovthreshold) AND pa1.pid='.$pid.' AND pa1.rid='.$this->report['rid']);		
+										WHERE (pa1.quantity !=0 OR pa1.turnOver!=0) AND (pa1.quantity > pa2.qtythreshold OR pa1.turnover > pa2.tovthreshold) AND pa1.pid='.$pid.' AND pa1.rid='.$this->report['rid']);
 				}
 				elseif($method == 'quartiles') {
 					/* Default $threshold 0.675 */
-					$query =  $db->query('SELECT pa1.quantity, pa1.turnOver
+					$query = $db->query('SELECT pa1.quantity, pa1.turnOver
 										FROM productsactivity pa1, 
 										(SELECT AVG(quantity) - STD(quantity) AS qtythreshold_minus, (AVG(quantity) + STD(quantity) * '.$threshold.') AS qtythreshold_plus, AVG(turnover/quantity) - STD(turnover/quantity) AS tovthreshold_minus, (AVG(turnover/quantity) + STD(turnover/quantity) * '.$threshold.') AS tovthreshold_plus
 										FROM productsactivity WHERE pid='.$pid.' AND (quantity!=0 OR turnOver!=0) AND rid IN (SELECT rid FROM reports WHERE affid="'.$this->report['affid'].'" AND spid="'.$this->report['spid'].'" AND rid!='.$this->report['rid'].')) as pa2
@@ -407,7 +414,7 @@ class ReportingQr Extends Reporting {
 		}
 		return false;
 	}
-	
+
 	public function validate_forecasts($data, $currencies, $options = array()) {
 		global $db, $core;
 
@@ -442,7 +449,7 @@ class ReportingQr Extends Reporting {
 						}
 
 						$actual_current_data_querystring = 'uid!='.$core->user['uid'];
-						if(isset($productactivity['paid'])) {
+						if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
 							$actual_current_data_querystring = 'pa.paid!='.$productactivity['paid'];
 						}
 
@@ -600,11 +607,11 @@ class ReportingQr Extends Reporting {
 		if(value_exists('reporting_qrrecipients', $type, $id, 'reportIdentifier="'.$db->escape_string($identifier).'"')) {
 			return false;
 		}
-		
+
 		if($type == 'unregisteredRcpts') {
-			$id =  $core->sanitize_email($id);
+			$id = $core->sanitize_email($id);
 		}
-		
+
 		$password = Accounts::generate_password_string(10);
 		$salt = random_string(10);
 		$loginKey = $this->create_loginkey();
@@ -649,7 +656,7 @@ class ReportingQr Extends Reporting {
 		global $db, $core;
 
 		if($type == 'unregisteredRcpts') {
-			$id =  $core->sanitize_email($id);
+			$id = $core->sanitize_email($id);
 			$recipient_query = ("SELECT * FROM ".Tprefix."reporting_qrrecipients WHERE unregisteredRcpts='".$db->escape_string($id)."' AND reportIdentifier='".$db->escape_string($this->report['identifier'])."'");
 		}
 		else {
@@ -665,6 +672,7 @@ class ReportingQr Extends Reporting {
 		}
 		return false;
 	}
+
 }
 /* Market report Class --START */
 

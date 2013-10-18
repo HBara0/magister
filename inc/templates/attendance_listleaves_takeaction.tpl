@@ -11,7 +11,7 @@
                 <strong>{$leave[requester][displayName]}</strong><br />
                 {$lang->fromdate}: {$leave[fromDate_output]}<br />
                 {$lang->todate}: {$leave[toDate_output]}<br />
-                {$lang->leavetype}: {$leave[type_details][title]}<br />
+                {$lang->leavetype}: {$leave[type_details][title]} {$leave[details_crumb]}<br />
                 {$lang->leavereason}: {$leave[reason]}
                 <hr />
     			<p><em>{$lang->sureapproveleavenote}</em></p>

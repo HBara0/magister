@@ -359,9 +359,9 @@ else {
 			}
 
 			/* Parse expense information for message - START */
-			$leaveexpense = new Leaves($leave['lid']);
-			if($leaveexpense->has_expenses()) {
-				$expenses_data = $leaveexpense->get_expensesdetails();
+			$leavee_obj = new Leaves($leave['lid']);
+			if($leavee_obj->has_expenses()) {
+				$expenses_data = $leavee_obj->get_expensesdetails();
 				$total = 0;
 				$expenses_message = '';
 				foreach($expenses_data as $expense) {
@@ -376,6 +376,18 @@ else {
 			$leave['reason'] .= $expenses_message_output;
 			/* Parse expense information for message - END */
 
+			/* Previous approvals - START */
+			$approvers = $leavee_obj->get_approvers();
+			if(is_array($approvers)) {
+				foreach($approvers as $approver) {
+					$leave['approvers'][] = $approver->get()['displayName'];
+				}
+				$leave['approvers'] = implode(', ', $leave['approvers']);
+				unset($approvers);
+				$leave['reason'] .= '<span style="font-weight:bold;">'.$lang->approvedby.': '.$leave['approvers'].'</span>';
+			}
+
+			/* Previous approvals - END */
 			eval("\$takeactionpage = \"".$template->get('attendance_listleaves_takeaction')."\";");
 			output_page($takeactionpage);
 		}
