@@ -19,6 +19,9 @@ if($core->usergroup['crm_canViewVisitReports'] == 0) {
 	exit;
 }
 
+if(!isset($core->input['identifier'])) {
+	$core->input['identifier'] = md5(uniqid(microtime()));
+}
 $session->name_phpsession(COOKIE_PREFIX.'fillvisitreport'.$core->input['identifier']);
 $session->start_phpsession();
 
@@ -105,156 +108,158 @@ if(!$core->input['action']) {
 			$i++;
 		}
 
-		$export_identifier = md5(uniqid(microtime()));
+		$export_identifier = $core->input['identifier'];
 		$tools = "<a href='".$_SERVER['REQUEST_URI']."&amp;action=exportpdf&amp;identifier={$export_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;<a href='".$_SERVER['REQUEST_URI']."&amp;action=print&amp;identifier={$export_identifier}' target='_blank'><img src='images/icons/print.gif' border='0' alt='{$lang->printreport}'/></a>";
 	}
 
-	foreach($visitreports as $key => $visitreport) {
-		if(empty($visitreport)) {
-			unset($visitreports[$key]);
-			continue;
-		}
+	if(is_array($visitreports)) {
 
-		$visitreport['customerdetails'] = $db->fetch_assoc($db->query("SELECT e.*, c.name AS countryname 
+		foreach($visitreports as $key => $visitreport) {
+			if(empty($visitreport)) {
+				unset($visitreports[$key]);
+				continue;
+			}
+
+			$visitreport['customerdetails'] = $db->fetch_assoc($db->query("SELECT e.*, c.name AS countryname 
 																	   FROM ".Tprefix."entities e LEFT JOIN ".Tprefix."countries c ON (c.coid=e.country)
 																	   WHERE eid='".$db->escape_string($visitreport['cid'])."'"), "customername");
-		$visitreports[$key]['customerName'] = $visitreport['customerdetails']['companyName'];
+			$visitreports[$key]['customerName'] = $visitreport['customerdetails']['companyName'];
 
-		if(is_array($visitreport['spid'])) {
-			foreach($visitreport['spid'] as $k => $v) {
-				$visitreport['comments'][$v]['suppliername'] = $visitreport['suppliername'][] = $db->fetch_field($db->query("SELECT companyName AS suppliername FROM ".Tprefix."entities WHERE eid='".$db->escape_string($v)."'"), 'suppliername');
-			}
-		}
-		
-		if(is_array($visitreport['suppliername'])) {
-			$reportsuppliers = implode('<br />', $visitreport['suppliername']);
-		}
-		$visitreport['contactperson'] = $db->fetch_field($db->query("SELECT name AS contactperson FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($visitreport['rpid'])."'"), "contactperson");
-
-		if(is_array($visitreport['productLine'])) {
-			foreach($visitreport['productLine'] as $k => $v) {
-				$visitreport['productline'][$v] = $db->fetch_field($db->query("SELECT title AS productline FROM ".Tprefix."productsegments WHERE psid='".$db->escape_string($v)."'"), "productline");
-			}
-		}
-		if(is_array($visitreport['productline'])) {
-			$reportproductlines = implode('<br />', $visitreport['productline']);
-		}
-		
-		$cdetails_rowspan = 6;
-		$accompaniedbyrow = '';
-		if(isset($visitreport['sprpid']) && !empty($visitreport['sprpid'])) {
-			$visitreport['accompaniedby'] = $db->fetch_field($db->query("SELECT name AS accompaniedby FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($visitreport['sprpid'])."'"), "accompaniedby");
-			$cdetails_rowspan = 7;
-			eval("\$accompaniedbyrow = \"".$template->get('crm_fillvisitreport_accompaniedbyrow')."\";");
-		}
-
-		if($core->input['showLimitedCustDetails'] == 0) {
-			if(!empty($visitreport['customerdetails']['addressLine1'])) {
-				$visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['addressLine1'].', ';
+			if(is_array($visitreport['spid'])) {
+				foreach($visitreport['spid'] as $k => $v) {
+					$visitreport['comments'][$v]['suppliername'] = $visitreport['suppliername'][] = $db->fetch_field($db->query("SELECT companyName AS suppliername FROM ".Tprefix."entities WHERE eid='".$db->escape_string($v)."'"), 'suppliername');
+				}
 			}
 
-			if(!empty($visitreport['customerdetails']['city'])) {
-				$visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['addressLine1'].', ';
+			if(is_array($visitreport['suppliername'])) {
+				$reportsuppliers = implode('<br />', $visitreport['suppliername']);
+			}
+			$visitreport['contactperson'] = $db->fetch_field($db->query("SELECT name AS contactperson FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($visitreport['rpid'])."'"), "contactperson");
+
+			if(is_array($visitreport['productLine'])) {
+				foreach($visitreport['productLine'] as $k => $v) {
+					$visitreport['productline'][$v] = $db->fetch_field($db->query("SELECT title AS productline FROM ".Tprefix."productsegments WHERE psid='".$db->escape_string($v)."'"), "productline");
+				}
+			}
+			if(is_array($visitreport['productline'])) {
+				$reportproductlines = implode('<br />', $visitreport['productline']);
 			}
 
-			if(!empty($visitreport['customerdetails']['phone1'])) {
-				$phone_details = "{$lang->phone}: {$visitreport[customerdetails][phone1]}";
+			$cdetails_rowspan = 6;
+			$accompaniedbyrow = '';
+			if(isset($visitreport['sprpid']) && !empty($visitreport['sprpid'])) {
+				$visitreport['accompaniedby'] = $db->fetch_field($db->query("SELECT name AS accompaniedby FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($visitreport['sprpid'])."'"), "accompaniedby");
+				$cdetails_rowspan = 7;
+				eval("\$accompaniedbyrow = \"".$template->get('crm_fillvisitreport_accompaniedbyrow')."\";");
 			}
-		}
 
-		if(!empty($visitreport['customerdetails']['countryname'])) {
-			$visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['countryname'];
-		}
+			if($core->input['showLimitedCustDetails'] == 0) {
+				if(!empty($visitreport['customerdetails']['addressLine1'])) {
+					$visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['addressLine1'].', ';
+				}
 
-		parse_calltype($visitreport['type']);
-		parse_callpurpose($visitreport['purpose']);
+				if(!empty($visitreport['customerdetails']['city'])) {
+					$visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['addressLine1'].', ';
+				}
 
-		parse_availabilityissues($visitreport['availabilityIssues']);
-		parse_supplystatus($visitreport['supplyStatus']);
+				if(!empty($visitreport['customerdetails']['phone1'])) {
+					$phone_details = "{$lang->phone}: {$visitreport[customerdetails][phone1]}";
+				}
+			}
 
-		if($core->input['incCompetitionDetails'] != 0 || !isset($core->input['incCompetitionDetails'])) {
-			$aggression_box = $competitiondetails_list = '';
-			if(is_array($competitors[$key])) {
-				foreach($competitors[$key] as $v) {
-					$class = alt_row($class);
+			if(!empty($visitreport['customerdetails']['countryname'])) {
+				$visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['countryname'];
+			}
 
-					$v['competitorName'] = ucfirst($v['competitorName']);
+			parse_calltype($visitreport['type']);
+			parse_callpurpose($visitreport['purpose']);
 
-					switch($v['aggressionLevel']) {
-						case '1':
-							$v['aggressionLevel'] = $lang->extremeaggression;
-							break;
-						case '2':
-							$v['aggressionLevel'] = $lang->highaggression;
-							break;
-						case '3':
-							$v['aggressionLevel'] = $lang->mildaggression;
-							break;
-						default: break;
+			parse_availabilityissues($visitreport['availabilityIssues']);
+			parse_supplystatus($visitreport['supplyStatus']);
+
+			if($core->input['incCompetitionDetails'] != 0 || !isset($core->input['incCompetitionDetails'])) {
+				$aggression_box = $competitiondetails_list = '';
+				if(is_array($competitors[$key])) {
+					foreach($competitors[$key] as $v) {
+						$class = alt_row($class);
+
+						$v['competitorName'] = ucfirst($v['competitorName']);
+
+						switch($v['aggressionLevel']) {
+							case '1':
+								$v['aggressionLevel'] = $lang->extremeaggression;
+								break;
+							case '2':
+								$v['aggressionLevel'] = $lang->highaggression;
+								break;
+							case '3':
+								$v['aggressionLevel'] = $lang->mildaggression;
+								break;
+							default: break;
+						}
+
+						$v['productName'] = $db->fetch_field($db->query("SELECT name AS productname FROM ".Tprefix."products WHERE pid='".$db->escape_string($v['pid'])."'"), "productname");
+
+						parse_availabilityissues($v['availabilityIssues']);
+						parse_supplystatus($v['supplyStatus']);
+
+						extract($v);
+						eval("\$competitiondetails_list .= \"".$template->get('crm_visitreport_aggressionbox_row')."\";");
+					}
+					eval("\$aggression_box = \"".$template->get('crm_visitreport_aggressionbox')."\";");
+				}
+			}
+
+			if(is_array($visitreport['spid'])) {
+				foreach($visitreport['spid'] as $spidkey => $spidval) {
+					foreach($visitreport['comments'][$spidval] as $key => $value) {
+						$visitreport['comments'][$spidval][$key] = $core->sanitize_inputs($value, array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
+					}
+				}
+			}
+			//array_walk_recursive($visitreport, '$core->sanitize_inputs');
+			array_walk_recursive($visitreport, 'fix_newline');
+			array_walk_recursive($visitreport, 'parse_ocode');
+
+			if($core->input['incVisitDetails'] != 0 || !isset($core->input['incVisitDetails'])) {
+				$visitdetails = '<div class="subtitle">'.$lang->visitdetails.'</div>';
+				foreach($visitreport['spid'] as $k => $v) {
+					if(empty($v) && $v != 0) {
+						continue;
 					}
 
-					$v['productName'] = $db->fetch_field($db->query("SELECT name AS productname FROM ".Tprefix."products WHERE pid='".$db->escape_string($v['pid'])."'"), "productname");
+					/* if($core->usergroup['canViewAllSupp'] == 0)  {
+					  if(!in_array($k, $core->user['suppliers']['eid'])) {
+					  continue;
+					  }
+					  } */
 
-					parse_availabilityissues($v['availabilityIssues']);
-					parse_supplystatus($v['supplyStatus']);
-
-					extract($v);
-					eval("\$competitiondetails_list .= \"".$template->get('crm_visitreport_aggressionbox_row')."\";");
-				}
-				eval("\$aggression_box = \"".$template->get('crm_visitreport_aggressionbox')."\";");
-			}
-		}
-		
-		if(is_array($visitreport['spid'])) {
-			foreach($visitreport['spid'] as $spidkey => $spidval) {
-				foreach($visitreport['comments'][$spidval] as $key => $value) {
-					$visitreport['comments'][$spidval][$key] = $core->sanitize_inputs($value, array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
+					eval("\$visitdetails .= \"".$template->get('crm_visitreport_visitdetails')."\";");
 				}
 			}
-		}
-		//array_walk_recursive($visitreport, '$core->sanitize_inputs');
-		array_walk_recursive($visitreport, 'fix_newline');
-		array_walk_recursive($visitreport, 'parse_ocode');
 
-		if($core->input['incVisitDetails'] != 0 || !isset($core->input['incVisitDetails'])) {
-			$visitdetails = '<div class="subtitle">'.$lang->visitdetails.'</div>';
-			foreach($visitreport['spid'] as $k => $v) {
-				if(empty($v) && $v != 0) {
-					continue;
+			if($core->input['incCommentsCompetition'] != 0 || !isset($core->input['incCommentsCompetition'])) {
+				$competitioncomments = '<div class="subtitle">'.$lang->commentsoncompetition.'</div>';
+
+				foreach($visitreport['spid'] as $k => $v) {
+					if(empty($v) && $v != 0) {
+						continue;
+					}
+					/* if($core->usergroup['canViewAllSupp'] == 0)  {
+					  if(!in_array($k, $core->user['suppliers']['eid'])) {
+					  continue;
+					  }
+					  } */
+					eval("\$competitioncomments .= \"".$template->get('crm_visitreport_competitioncomments')."\";");
 				}
-
-				/* if($core->usergroup['canViewAllSupp'] == 0)  {
-				  if(!in_array($k, $core->user['suppliers']['eid'])) {
-				  continue;
-				  }
-				  } */
-
-				eval("\$visitdetails .= \"".$template->get('crm_visitreport_visitdetails')."\";");
 			}
-		}
 
-		if($core->input['incCommentsCompetition'] != 0 || !isset($core->input['incCommentsCompetition'])) {
-			$competitioncomments = '<div class="subtitle">'.$lang->commentsoncompetition.'</div>';
-
-			foreach($visitreport['spid'] as $k => $v) {
-				if(empty($v) && $v != 0) {
-					continue;
-				}
-				/* if($core->usergroup['canViewAllSupp'] == 0)  {
-				  if(!in_array($k, $core->user['suppliers']['eid'])) {
-				  continue;
-				  }
-				  } */
-				eval("\$competitioncomments .= \"".$template->get('crm_visitreport_competitioncomments')."\";");
+			eval("\$visitreportspages .= \"".$template->get('crm_visitreport')."\";");
+			if($core->input['referrer'] != 'fill') {
+				$session->set_phpsession(array("visitreports_{$export_identifier}" => $visitreportspages));
 			}
-		}
-
-		eval("\$visitreportspages .= \"".$template->get('crm_visitreport')."\";");
-		if($core->input['referrer'] != 'fill') {
-			$session->set_phpsession(array("visitreports_{$export_identifier}" => $visitreportspages));
 		}
 	}
-
 	if(empty($pagetitle)) {
 		if(count($visitreports) == 1) {
 			$pagetitle = $visitreports[1]['customerName'].' / '.$visitreports[1]['formatteddate'];
@@ -291,8 +296,8 @@ else {
 			$content .= "<script language='javascript' type='text/javascript'>window.print();</script>";
 		}
 		else {
-			$content = "<link href='styles.css' rel='stylesheet' type='text/css' />";
-			$content .= "<link href='report.css' rel='stylesheet' type='text/css' />";
+			$content = "<link href='css/styles.css' rel='stylesheet' type='text/css' />";
+			$content .= "<link href='css/report.css' rel='stylesheet' type='text/css' />";
 		}
 
 		//	$export_id = unserialize(base64_decode($core->input['identifier']));
@@ -304,7 +309,9 @@ else {
 		$html2pdf->pdf->SetTitle("{$report[supplier]}", true);
 		$html2pdf->WriteHTML($content, $show_html);
 		$html2pdf->Output('visitreports_'.$core->input['identifier'].'.pdf');
+		$session->destroy_phpsession();
 	}
+	
 }
 function parse_supplystatus(&$value) {
 	global $lang;
