@@ -385,30 +385,39 @@ else {
 
 			$toapprove = $toapprove_select = unserialize($leavetype_details['toApprove']); //explode(',', $leavetype_details['toApprove']);
 			if(is_array($toapprove)) {
+				$aff_obj = new Affiliates($leave_user['mainaffiliate'], false);
 				foreach($toapprove as $key => $val) {
 					switch($val) {
 						case 'reportsTo':
 							list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
 							$approvers['reportsTo'] = $leave_user['reportsTo'];
-							unset($toapprove_select[$key]);
+
 							break;
+
+						/* get GM ,HR,super,FM by Affiliate */
 						case 'generalManager':
-							$approvers[$val] = '';
+							$approvers['generalManager'] = $aff_obj->get_generalmanager()->get()['uid'];
 							break;
 						case 'hrManager':
+							$approvers['hrManager'] = $aff_obj->get_hrmanager()->get()['uid'];
 							break;
 						case 'supervisor':
+							$approvers['supervisor'] = $aff_obj->get_supervisor()->get()['uid'];
+							break;
+						case 'financialManager':
+							$approvers['financialManager'] = $aff_obj->get_financialemanager()->get()['uid'];
 							break;
 						default:
 							if(is_int($val)) {
 								$approvers[$val] = $val;
-								unset($toapprove_select[$key]);
 							}
 							break;
+							unset($toapprove_select[$key]);
 					}
 				}
 			}
-
+			/* Removing Duplicate from the approvers to avoid sending multiple emails for same person in case he has multiple position eg:(general Manager is the same supervisor for the affilte) */
+			$approvers = array_unique($approvers);
 			if(is_array($toapprove_select) && !empty($toapprove_select)) {
 				$secondapprovers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
 									  FROM ".Tprefix."affiliates
