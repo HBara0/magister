@@ -41,12 +41,16 @@ class Affiliates {
 	}
 
 	public function get_hrmanager() {
-		return new Users($this->affiliate['supervisor']);
+		return new Users($this->affiliate['hrManager']);
+	}
+
+	public function get_financialemanager() {
+		return new Users($this->affiliate['finManager']);
 	}
 
 	public function get_users($options = array()) {
 		global $db;
-		
+
 		if(is_array($options)) {
 			if(isset($options['ismain']) && $options['ismain'] === 1) {
 				$query_where_add = ' AND isMain=1';
