@@ -661,7 +661,7 @@ class Surveys {
 		foreach($this->survey['invitations'] as $uid => $invitee) {
 			if($this->survey['isExternal'] == 0) {
 				$invitations_email = array(
-						'to' => $invitee['email'],
+						'to' => 'tony.assaad@orkila.com', //$invitee['email'],
 						'from_email' => $core->settings['maileremail'],
 						'from' => 'OCOS Mailer'
 				);
@@ -678,7 +678,7 @@ class Surveys {
 				$invitations_email['subject'] = $this->survey['customInvitationSubject'];
 			}
 			else {
-				$invitations_email['subject'] = $lang->sprint($lang->surveys_invitation_subject, $this->survey['subject']);
+				$invitations_email['subject'] = $this->survey['subject'];
 			}
 
 			$surveylink = DOMAIN.'/index.php?module=surveys/fill&amp;identifier='.$this->survey['identifier'];
@@ -706,9 +706,23 @@ class Surveys {
 				}
 				$invitations_email['message'] = $lang->sprint($lang->surveys_invitation_message, $invitee['displayName'], $this->survey['subject'], $this->survey['description'], $surveylink);
 			}
+			$invitations_email['message'] = '<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+    </head>
+    <body>
+	    <div style="display:inline-block;">
+        <div style=" display:inline-block;float:left;padding:8px;"> <a href="http://www.orkila.com"> <img src="'.$core->settings['rootdir'].'/images/Orkila_logo.jpg"/></a></div>
+        <div style="display:inline-block;margin-top:20px;">
+             <strong> '.$invitations_email['subject'].'</strong>
+        </div>
+		</div>
+        <div style="border-bottom-right-radius: 4px;border-bottom-left-radius: 4px;border-top-right-radius: 4px;border-top-left-radius: 4px;background-color: rgb(242, 250, 237);padding-left: 5px; margin-bottom:10px;">
+            <p>'.$invitations_email['message'].'</p>
+        </div>
+    </body>
+</html>';
 
 			$mail = new Mailer($invitations_email, 'php');
-
 			if($mail->get_status() === true) {
 				$log->record('sendinvitations', array('to' => $invitation_data['email']));
 				//return true;
