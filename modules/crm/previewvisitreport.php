@@ -303,6 +303,7 @@ else {
 		//	$export_id = unserialize(base64_decode($core->input['identifier']));
 		$content .= $session->get_phpsession("visitreports_{$core->input[identifier]}");
 
+		ob_end_clean();
 		require_once ROOT.'/'.INC_ROOT.'html2pdf/html2pdf.class.php';
 		$html2pdf = new HTML2PDF('P', 'A4', 'en');
 		$html2pdf->pdf->SetDisplayMode('fullpage');
