@@ -105,8 +105,8 @@ if(!$core->input['action']) {
 //				if(isset($budgetline[$rowid]['cid']) && !empty($budgetline[$rowid]['cid'])) {
 //					$required = ' required="required"';
 //				}
-					foreach($productsdata as $saleid => $budgetline) { 
-						$previous_yearsqty = $previous_yearsamount = $previous_yearsincome = '';
+					foreach($productsdata as $saleid => $budgetline) {
+						$previous_yearsqty = $previous_yearsamount = $previous_yearsincome = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
 						if($is_prevonly === true || isset($budgetline['prevbudget'])) {
 							if($is_prevonly == true) {
 								$prev_budgetlines = $budgetline;
@@ -123,9 +123,9 @@ if(!$core->input['action']) {
 									}
 								}
 								$budgetline['alternativecustomer'] .= '<span style="display:block;"> '.ucfirst($prev_budgetline['altCid']).'</span>';
-								$previous_yearsqty .= '<span style="display:block;"> '.$prev_budgetline['year'].': '.$prev_budgetline['quantity'].'</span>';
-								$previous_yearsamount .= '<span style="display:block;"> '.$prev_budgetline['year'].': '.$prev_budgetline['amount'].'</span>';
-								$previous_yearsincome .= '<span style="display:block;"> '.$prev_budgetline['year'].': '.$prev_budgetline['income'].'</span>';
+								$previous_yearsqty .= '<span class="altrow" style="display:block;"> '.$prev_budgetline['year'].' - '.$lang->budg.': '.$prev_budgetline['Quantity'].'| '.$lang->actual.': '.$prev_budgetline['actualQty'].'</span>';
+								$previous_yearsamount .= '<span class="altrow" style="display:block;"> '.$prev_budgetline['year'].' - '.$lang->budg.': '.$prev_budgetline['amount'].'| '.$lang->actual.': '.$prev_budgetline['actualamount'].'</span>';
+								$previous_yearsincome .= '<span class="altrow" style="display:block;">  '.$prev_budgetline['year'].' - '.$lang->budg.': '.$prev_budgetline['income'].'| '.$lang->actual.': '.$prev_budgetline['actualincome'].'</span>';
 							}
 						}
 						$budgetline['cid'] = $cid;
@@ -170,7 +170,7 @@ if(!$core->input['action']) {
 else {
 	if($core->input['action'] == 'do_perform_fillbudget') {
 		$budget_data = unserialize($session->get_phpsession('budgetdata_'.$core->input['identifier']));
-		if(is_array($core->input['budgetline'])) {			
+		if(is_array($core->input['budgetline'])) {
 			if(isset($core->input['budget']['bid'])) {
 				$currentbudget = $core->input['budget'];
 				$budget = new Budgets($core->input['budget']['bid']);
