@@ -120,9 +120,9 @@ Password: {password}
 <br /><br />
 Best regards, Orkila';
 $lang['sendbymailsubject'] = 'ORKILA {1} Report - {2} - {3}';
-$lang['surveys_invitation_message'] = 'Dear {1},<br />
-You were invited to complete the following survey:<br />
-Subject: {2}<br />
+$lang['surveys_invitation_message'] = 'Dear {1},<br /><br />
+You were invited to complete the following survey:<br /><br />
+Subject: {2}<br /><br />
 Description: {3}<br />
 <br />
 To start filling, please click <a href=\'{4}\'>here</a>.<br />
