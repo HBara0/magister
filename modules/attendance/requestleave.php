@@ -232,7 +232,7 @@ else {
 		echo $lang->sprint($lang->betweenhours, $leave_actual_times['fromHour'], $leave_actual_times['fromMinutes'], $leave_actual_times['toHour'], $leave_actual_times['toMinutes'], $leave_actual_times['workingDays']).$hidden_fields;
 	}
 	elseif($core->input['action'] == 'do_perform_requestleave') {
-		//NO LEAVE IF BEFORE EMPLOYMENT
+		//NO LEAVE IF BEFORE EMPLOYMENT 
 		if(isset($core->input['fromDate']) && !is_empty($core->input['fromDate'], $core->input['fromMinutes'], $core->input['fromHour'])) {
 			$fromdate = explode('-', $core->input['fromDate']);
 			if(checkdate($fromdate[1], $fromdate[0], $fromdate[2])) {
@@ -336,9 +336,10 @@ else {
 				}
 			}
 		}
-		if($leavetype_details['requireReason'] == 1) {
+		if(isset($leavetype_details['reasonIsRequired']) && $leavetype_details['reasonIsRequired'] == 1) {
 			if(empty($core->input['reason']) || strlen($core->input['reason']) <= 20) {
-				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+				header('Content-type: text/xml+javascript');
+				output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'<![CDATA[<script>$("#reason").attr("required",true);</script>]]></message>');
 				exit;
 			}
 		}
