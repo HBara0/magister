@@ -58,12 +58,12 @@ else {
 	}
 	elseif($core->input['action'] == 'do_perform_importbudget') {
 		$cache = new Cache();
-		//$options['runtype'] = 'dry';
+		$options['runtype'] = 'dry';
 		$options['useAltCid'] = 1;
 		$all_data = unserialize($session->get_phpsession('budgetingimport_'.$core->input['identifier']));
-		$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'country' => 'Country', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'actualamount' => 'Actual Amount', 'income' => 'Income', 'actualincome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type');
+		$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'country' => 'Country', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'actualAmount' => 'Actual Amount', 'income' => 'Income', 'actualIncome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type');
 		$required_headers_check = $required_headers = array('customerName', 'productName', 'supplierName', 'year', 'saleType');
-		$budgetlines_valid_data = array('cid', 'altCid', 'customerCountry', 'quantity', 'actualQty', 'amount', 'actualamount', 'income', 'actualincome', 'incomePerc', 'saleType', 'originalCurrency');
+		$budgetlines_valid_data = array('cid', 'altCid', 'customerCountry', 'quantity', 'actualQty', 'amount', 'actualAmount', 'income', 'actualIncome', 'incomePerc', 'saleType', 'originalCurrency');
 
 		$headers_cache = array();
 		for($i = 0; $i < count($allowed_headers) + 1; $i++) {
@@ -261,6 +261,9 @@ else {
 					}
 				}
 			}
+			else {
+				$data['customerCountry'] = $data['customerCountry'];
+			}
 
 			$budget_data = array('identifier' => substr(uniqid(time()), 0, 10),
 					'year' => $data['year'],
@@ -318,7 +321,7 @@ function parse_datapreview($csv_header, $data) {
 
 	$output = "<span class='subtitle'></span><br /><form id='perform_budgeting/importbudget_Form'><table class='datatable'><tr><td colspan='16' class='subtitle' style='text-align:center'>{$lang->importpreview}</td></tr><tr>";
 	//$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'country' => 'Country', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'income' => 'Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type');
-	$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'country' => 'Country', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'actualamount' => 'Actual Amount', 'income' => 'Income', 'actualincome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type');
+	$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'country' => 'Country', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'actualAmount' => 'Actual Amount', 'income' => 'Income', 'actualIncome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type');
 	$abbreviation = array('Ltd.', 'Ltd', 'Llc.', 'Llc', 'Sal.', 'Co.,', 'Co.', 'Co');
 
 	$output .= '<td>#</td>';

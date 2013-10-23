@@ -122,10 +122,10 @@ if(!$core->input['action']) {
 										unset($budgetline[$field]);
 									}
 								}
-								$budgetline['alternativecustomer'] .= '<span style="display:block;"> '.ucfirst($prev_budgetline['altCid']).'</span>';
-								$previous_yearsqty .= '<span class="altrow" style="display:block;"> <strong>'.$prev_budgetline['year'].'</strong> <br> '.$lang->budg.': '.$prev_budgetline['Quantity'].'| '.$lang->actual.': '.$prev_budgetline['actualQty'].'</span>';
-								$previous_yearsamount .= '<span class="altrow" style="display:block;"> <strong>'.$prev_budgetline['year'].'</strong> <br> '.$lang->budg.': '.$prev_budgetline['amount'].'| '.$lang->actual.': '.$prev_budgetline['actualamount'].'</span>';
-								$previous_yearsincome .= '<span class="altrow" style="display:block;">  <strong>'.$prev_budgetline['year'].'</strong> <br> '.$lang->budg.': '.$prev_budgetline['income'].'| '.$lang->actual.': '.$prev_budgetline['actualincome'].'</span>';
+								$budgetline['alternativecustomer'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altCid']).'</span>';
+								$previous_yearsqty .= '<span class="altrow" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budg.': '.$prev_budgetline['Quantity'].' | '.$lang->actual.': '.$prev_budgetline['actualQty'].'</span>';
+								$previous_yearsamount .= '<span class="altrow" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budg.': '.$prev_budgetline['amount'].' | '.$lang->actual.': '.$prev_budgetline['actualamount'].'</span>';
+								$previous_yearsincome .= '<span class="altrow" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budg.': '.$prev_budgetline['income'].' | '.$lang->actual.': '.$prev_budgetline['actualincome'].'</span>';
 							}
 						}
 						$budgetline['cid'] = $cid;
