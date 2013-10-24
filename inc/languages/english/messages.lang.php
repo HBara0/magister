@@ -98,31 +98,26 @@ Your password has been reset following your request<br />
 Your new password is: {2}<br />
 <br />
 For any further assistance please contact the system administrator on {3}.';
-
-$lang['revokeleavenotificationmessage'] = '{1} revoked the {2}{3} between <strong>{4}</strong> and <strong>{5}</strong>.';
+$lang['revokeleavenotificationmessage'] = '{1} revoked the {2} between <strong>{3}</strong> and <strong>{4}</strong>.';
 $lang['revokeleavenotificationmessageuser'] = 'Dear {1},<br />
 <br />
-Your {2}{3} between {4} and {5} was revoked.<br />
+Your {2} between {3} and {4} was revoked.<br />
 <br />
 Regards';
-$lang['revokeleavenotificationsubject'] = '{1} revoked their {2}{3}';
-$lang['revokeleavenotificationsubjectuser'] = 'Your {1}{2} was revoked';
+$lang['revokeleavenotificationsubject'] = '{1} revoked their {2}';
+$lang['revokeleavenotificationsubjectuser'] = 'Your {1} was revoked';
 $lang['sendbymaildefault'] = 'Dear all, <br />
 <br />
-Please find below access details to view the {1} report for Orkila Distribution and Agency activities in the Middle East and African Markets. <br />
+Please find attached the {1} report for Orkila Distribution and Agency activities in the Middle East and African Markets. <br />
 <br />
 Please feel free to provide us with your comments, in order to improve this communication for our mutual business interests. <br />
 <br />
-Access Details:<br />
-Link: {link}
-<br />
-Password: {password}
-<br /><br />
 Best regards, Orkila';
 $lang['sendbymailsubject'] = 'ORKILA {1} Report - {2} - {3}';
-$lang['surveys_invitation_message'] = 'Dear {1},<br /><br />
-You were invited to complete the following survey:<br /><br />
-Subject: {2}<br /><br />
+$lang['surveys_invitation_message'] = 'Hello {1}<br />
+<br />
+You were invited to complete the following survey:<br />
+Subject: {2}<br />
 Description: {3}<br />
 <br />
 To start filling, please click <a href=\'{4}\'>here</a>.<br />
@@ -139,8 +134,4 @@ $lang['visitreport_reminder_message'] = 'Dear {1},<br />
 The Following visits have been carried but no visit report has been completed. Please complete the visit reports mentioned below:';
 $lang['visitreport_reminder_subject'] = 'Visit Reports Reminder';
 $lang['yournewpassword'] = 'Your New OCOS Account Password';
-$lang['feedbacknotification_subject'] = 'You have received a feedback on a chemical request from {1}';
-$lang['suppliervisit_subject']='Upcoming visits ';
-$lang['suppliervisit_reminder_message'] = 'Dear {1},<br />
-{2} Is Visiting us .';
 ?>

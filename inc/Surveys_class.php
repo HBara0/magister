@@ -706,7 +706,7 @@ class Surveys {
 				}
 				$invitations_email['message'] = $lang->sprint($lang->surveys_invitation_message, $invitee['displayName'], $this->survey['subject'], $this->survey['description'], $surveylink);
 			}
-			eval("\$invitations_email['message']= \"".$template->get('surveys_createsurvey_invitationlayout')."\";");
+			eval("\$invitations_email[message] = \"".$template->get('surveys_createsurvey_invitationlayout')."\";");
 			$mail = new Mailer($invitations_email, 'php');
 			if($mail->get_status() === true) {
 				$log->record('sendinvitations', array('to' => $invitation_data['email']));
