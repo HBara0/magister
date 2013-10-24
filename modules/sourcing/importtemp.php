@@ -20,7 +20,7 @@ function get_importtemp_data() {
 							Automotive, `Animal Feed and Agrochemical`, Food, `Home And Personal Care`, `Oil and Metal Treatment`,
 							`Paints and Construction`, Pharmaceuticals, Composites, `Fine chemicals`,`Ceramics & Refractories`, `Tyre and Rubber`, Plastics, Tobacco,`Water Treatment`,  `Pulp & paper`, `Industrial & Institutional`, Textiles
 							FROM importtemp2
-							WHERE  companyName is not null AND companyNAme <>'' ");
+							WHERE  companyName is not null AND companyNAme <>''  limit 0,20");
 
 
 	while($tempdata = $db->fetch_assoc($tempquery)) {
@@ -48,25 +48,33 @@ function get_mainproducts($id = '') {
 	$mainproductsquery = $db->query("SELECT ".$mainproduct_field." FROM importtemp2
 										WHERE id= ".$id."");
 
-	while($mainproduct = $db->fetch_assoc($mainproductsquery)) {
-		$mainproducts = $mainproduct;
-	}
+	$mainproduct = $db->fetch_assoc($mainproductsquery);
+	$mainproducts = $mainproduct;
+
 	return array_unique($mainproducts);
 }
 
 function get_Contactperson($id = '') {
 	global $db;
 
-	$contact_query = $db->query("SELECT Contactperson,Email,Phone FROM importtemp2
+	$contact_query = $db->query("SELECT Contactperson,Notes,Email,Cell FROM importtemp2
 											WHERE id= ".$id."");
-	while($contactperson = $db->fetch_assoc($contact_query)) {
-		$contactpersons = preg_split("/[;\/]/", $contactperson['Contactperson']);
+	$contactperson = $db->fetch_assoc($contact_query);
+
+	$splitted_contactpersons['name'] = preg_split("/[;\/]/", $contactperson['Contactperson']);
+	$splitted_contactpersons['email'] = preg_split("/[;\/]/", $contactperson['Email']);
+	$splitted_contactpersons['notes'] = preg_split("/[;\/]/", $contactperson['Notes']);
+	$splitted_contactpersons['cell'] = preg_split("/[;\/]/", $contactperson['Cell']);
+
+
+	foreach($splitted_contactpersons['name'] as $key => $contactname) {
+		$contactpersons[$key]['name'] = $splitted_contactpersons['name'][$key];
+		$contactpersons[$key]['email'] = $splitted_contactpersons['email'][$key];
+		$contactpersons[$key]['notes'] = $splitted_contactpersons['notes'][$key];
+		$contactpersons[$key]['cell'] = $splitted_contactpersons['cell'][$key];
 	}
-	$contactpersons[]['name'] = '';
-	$contactpersons[]['email'] = '';
-	$contactpersons[]['notes'] = '';
-	$contactpersons[]['cell'] = '';
-	return $contactpersons;
+
+	return ($contactpersons);
 }
 
 function get_Contacthistory($id = '') {
@@ -113,9 +121,9 @@ function get_ActivityArea($id = '') {
 	}
 	$activityarea_query = $db->query("SELECT ".$activityarea_field." FROM importtemp2
 										 WHERE id= ".$id."");
-	while($activityarea = $db->fetch_assoc($activityarea_query)) {
-		$activityareas = $activityarea;
-	}
+	$activityarea = $db->fetch_assoc($activityarea_query);
+	$activityareas = $activityarea;
+
 	return $activityareas;
 }
 
@@ -124,9 +132,9 @@ function get_Mainapplication($id = '') {
 
 	$mainapplication_query = $db->query("SELECT MainApplicationsCovered FROM importtemp2
 											WHERE id= ".$id."");
-	while($mainapplication = $db->fetch_assoc($mainapplication_query)) {
-		$mainapplications = preg_split("/[,&.]/", $mainapplication['MainApplicationsCovered']);
-	}
+	$mainapplication = $db->fetch_assoc($mainapplication_query);
+	$mainapplications = preg_split("/[,&.]/", $mainapplication['MainApplicationsCovered']);
+
 	return $mainapplications;
 }
 
@@ -137,6 +145,8 @@ function get_Mainapplication($id = '') {
 if($core->input['action'] == 'do_import') {
 	$alldata = get_importtemp_data();
 	foreach($alldata as $compkey => $company) {
+
+
 		$company['supplierdetails']['companyName'] = trim($company['supplierdetails']['companyName']);
 		if(empty($company['supplierdetails']['companyName'])) {
 			echo '!!!! Skipped company numer: '.$compkey.' (empty company name)<br />';
@@ -167,7 +177,6 @@ if($core->input['action'] == 'do_import') {
 			$supplier_data['foreignid'] = 0;
 			/* insert here */
 		}
-
 
 
 		$allsupplier_data = array('eid' => $supplier_data['foreignid'],
@@ -294,21 +303,20 @@ if($core->input['action'] == 'do_import') {
 
 		/* start contactperson */
 		foreach($company['contactperson'] as $contactperson) {
-			$checkcontactperson = $db->query("SELECT rpid,name FROM representatives WHERE name= '".trim($contactperson)."'");
+			$checkcontactperson = $db->query("SELECT rpid,name FROM representatives WHERE name =('".$contactperson['name']."')");
 			if($db->num_rows($checkcontactperson) > 0) {
 				$row_contactperson = $db->fetch_assoc($checkcontactperson);
 			}
 			else {
-				$new_rep = array('name' => $contactperson['name'], 'email' => $contactperson['email'], 'phone' => $contactperson['phone']);
-//$query = $db->insert_query('representatives', $new_rep);
-				$row_contactperson = array('rpid' => $query->last_id(), 'notes' => '', 'ssid' => $supplier_id);
+				$new_rep = array('name' => $contactperson['name'], 'email' => $contactperson['email'], 'phone' => $contactperson['cell']);
+				$query = $db->insert_query('representatives', $new_rep);
+				$row_contactperson = array('rpid' => $db->last_id(), 'notes' => '', 'ssid' => $supplier_id, 'notes' => $contactperson['notes']);
 			}
 
 			if(is_array($row_contactperson)) {
-//while($row_contactperson = $db->fetch_assoc($checkcontactperson)) {
 				/* record representatives founded chmeical */
 				if(!value_exists('sourcing_suppliers_contactpersons', 'rpid', $row_contactperson['rpid'], ' ssid='.$supplier_id)) {
-					echo '- Added Contact Person: '.$contactperson.'<br />';
+					echo '- Added Contact Person: '.$contactperson['name'].'<br />';
 //$query = $db->insert_query('sourcing_suppliers_contactpersons', array('ssid' => $supplier_id, 'rpid' => $row_contactperson['rpid']));
 				}
 				/* if no contact id exist in the database */
@@ -320,7 +328,6 @@ if($core->input['action'] == 'do_import') {
 				$contactperson_data['repid'] = $row_contactperson['rpid'];
 				$contactpersonfound['person'][$compkey] = $company['contactperson'];
 				/* insert sourcing_suppliers_contactpersons */
-//}
 			}
 			else {
 				unset($contactperson_data['repid']);
