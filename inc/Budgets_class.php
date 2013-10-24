@@ -200,7 +200,7 @@ class Budgets {
 				}
 //	
 				if(!empty($data['cid'])) {
-					$data['altCid'] = 'Null';
+					$data['altCid'] = Null;
 				}
 //			elseif(empty($data['pid']) && empty($data['cid'])) {		
 //				$budgetline->delete();

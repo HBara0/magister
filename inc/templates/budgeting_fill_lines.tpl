@@ -22,13 +22,11 @@
     </td>
     <td style="vertical-align:top; padding:2px;border-bottom: dashed 1px #CCCCCC;" align="center">{$saletype_selectlist}</td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_right">
-        <input name="budgetline[$rowid][Quantity]" type="text" id="Qty_{$rowid}" size="10" accept="numeric" value="{$budgetline[quantity]}"{$required}  />
-         
-        {$previous_yearsqty}</td>
-
-     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><select name="budgetline[$rowid][UoM]" disabled="disabled"><option value="kg">KG</option></select> </td>
+        <input name="budgetline[$rowid][quantity]" type="text" id="Qty_{$rowid}" size="10" accept="numeric" value="{$budgetline[quantity]}"{$required}  />
+        {$previous_yearsqty}
+    </td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><select name="budgetline[$rowid][UoM]" disabled="disabled"><option value="kg">KG</option></select></td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[$rowid][amount]" type="text" id="amount_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[amount]}" autocomplete='off'/>{$previous_yearsamount}</td>
-
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[$rowid][incomePerc]"  placeholder="% of income" type="text" id="amountper_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[incomePerc]}" autocomplete='off'/></td>
     <td style="vertical-align:top; padding:2px; border-bottom:  dashed 1px #CCCCCC;" align="center"><input name="budgetline[$rowid][income]"  value="{$budgetline[income]}" {$required}type="text" id="income_{$rowid}" size="10" accept="numeric" />{$previous_yearsincome}</td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"> <select id="currency_{$rowid}" name="budgetline[$rowid][originalCurrency]">{$budget_currencylist}</select><span id="currency_details_{$rowid}"></span></td>

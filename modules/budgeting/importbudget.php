@@ -58,7 +58,7 @@ else {
 	}
 	elseif($core->input['action'] == 'do_perform_importbudget') {
 		$cache = new Cache();
-		//$options['runtype'] = 'dry';
+		$options['runtype'] = 'dry';
 		$options['useAltCid'] = 1;
 		$all_data = unserialize($session->get_phpsession('budgetingimport_'.$core->input['identifier']));
 		$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'country' => 'Country', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'actualamount' => 'Actual Amount', 'income' => 'Income', 'actualincome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type','Producer'=>'Producer');
@@ -260,6 +260,9 @@ else {
 						$cache->add('countries', $data['country'], $data['customerCountry']);
 					}
 				}
+			}
+			else {
+				$data['customerCountry'] = $data['customerCountry'];
 			}
 
 			$budget_data = array('identifier' => substr(uniqid(time()), 0, 10),
