@@ -20,7 +20,7 @@ function get_importtemp_data() {
 							Automotive, `Animal Feed and Agrochemical`, Food, `Home And Personal Care`, `Oil and Metal Treatment`,
 							`Paints and Construction`, Pharmaceuticals, Composites, `Fine chemicals`,`Ceramics & Refractories`, `Tyre and Rubber`, Plastics, Tobacco,`Water Treatment`,  `Pulp & paper`, `Industrial & Institutional`, Textiles
 							FROM importtemp2
-							WHERE  companyName is not null AND companyNAme <>''  limit 0,20");
+							WHERE  companyName is not null AND companyNAme <>''");
 
 
 	while($tempdata = $db->fetch_assoc($tempquery)) {
@@ -309,7 +309,8 @@ if($core->input['action'] == 'do_import') {
 			}
 			else {
 				$new_rep = array('name' => $contactperson['name'], 'email' => $contactperson['email'], 'phone' => $contactperson['cell']);
-				$query = $db->insert_query('representatives', $new_rep);
+				//$query = $db->insert_query('representatives', $new_rep);
+				echo '- Created Contact Person: '.$contactperson['name'].'<br />';
 				$row_contactperson = array('rpid' => $db->last_id(), 'notes' => '', 'ssid' => $supplier_id, 'notes' => $contactperson['notes']);
 			}
 
