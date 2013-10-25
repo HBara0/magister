@@ -678,7 +678,7 @@ class Sourcing {
 			$see_otherusers = '	WHERE scr.uid='.$core->user['uid'];
 		}
 
-		$chemicalrequests_query = $db->query("SELECT psa.title AS application, scr.*, u.displayName, cs.name AS chemicalname
+		$chemicalrequests_query = $db->query("SELECT psa.description AS application, scr.*, u.displayName, cs.name AS chemicalname
 										FROM ".Tprefix."sourcing_chemicalrequests scr
 										LEFT JOIN ".Tprefix."productsegements_applications psa ON (psa.psaid = scr.psaid)
 										JOIN ".Tprefix."users u ON (u.uid = scr.uid)
