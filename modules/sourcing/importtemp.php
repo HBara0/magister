@@ -9,18 +9,20 @@
  * Created By: 		@tony.assaad		november 5, 2012 | 12:30 PM
  * Last Update: 	@tony.assaad		november 5, 2012 | 4:13 PM
  */
+exit;
 set_time_limit(0);
 
 /* load temp data START */
 function get_importtemp_data() {
 	global $db;
 
-	$tempquery = $db->query("SELECT id,REPLACE(companyName,\"'\",\"\") AS companyName,country,ProducerTrader,Email,SUBSTRING_INDEX(phone, '+', -1)as phone ,SUBSTRING_INDEX(cell, '+', -1) AS cell,website,briefing,Historical,Approachvia,
+	$tempquery = $db->query("SELECT id,REPLACE(companyName,\"'\",\"\") AS companyName,country,ProducerTrader,Email, Phone , Fax, `Phone 2`, Cell,website,briefing,Historical,Approachvia,
 							SourcingAction,Generalcomments,Marketcompetitors,Commentstoshare ,lebanon, nigeria, Tunisia,Algeria, Egypt, `United Arab Emirates`, `Iran, Islamic Republic of`, Syria, Jordan, Lebanon, Morocco, Pakistan, Nigeria, Mauritius, Mozambique, Namibia, `Sierra Leone`, Swaziland, Zambia, Togo, Eritrea, Estonia, Lesotho, Liberia, Malawi, Bahrain, Kuwait, Angola, Benin, Botswana, `Burkina Faso`, Ghana, Oman, Yemen, Qatar, Iraq, `Cote D'Ivoire`, Mali, Libya, Cyprus, Sudan, Zimbabwe, `Kenya`, `Saudi Arabia`, `South Africa`, Senegal
 							Automotive, `Animal Feed and Agrochemical`, Food, `Home And Personal Care`, `Oil and Metal Treatment`,
 							`Paints and Construction`, Pharmaceuticals, Composites, `Fine chemicals`,`Ceramics & Refractories`, `Tyre and Rubber`, Plastics, Tobacco,`Water Treatment`,  `Pulp & paper`, `Industrial & Institutional`, Textiles
 							FROM importtemp2
-							WHERE  companyName is not null AND companyNAme <>''");
+							WHERE  companyName is not null AND companyNAme <>''
+							LIMIT 200, 2700");
 
 
 	while($tempdata = $db->fetch_assoc($tempquery)) {
@@ -179,14 +181,41 @@ if($core->input['action'] == 'do_import') {
 		}
 
 
+		/* Validate website - END */
+		$company['supplierdetails']['website'] = trim($company['supplierdetails']['website']);
+		if(!empty($company['supplierdetails']['website'])) {
+			if(strstr($company['supplierdetails']['website'], ';')) {
+				$company['supplierdetails']['website'] = explode(';', $company['supplierdetails']['website'])[0];
+			}
+
+			if(!strstr($company['supplierdetails']['website'], 'http://')) {
+				$company['supplierdetails']['website'] = 'http://'.$company['supplierdetails']['website'];
+			}
+		}
+		/* Validate website - END */
+
+		$valid_co_emails = array('info', 'sales', 'admin', 'support', 'export', 'contact');
+		if(strstr($company['supplierdetails']['Email'], ';')) {
+			$company_emails = explode(';', $company['supplierdetails']['Email']);
+			$company['supplierdetails']['Email'] = '';
+			foreach($company_emails as $email) {
+				foreach($valid_co_emails as $term) {
+					if(strpos($email, $term) != false) {
+						$company['supplierdetails']['Email'] = $email;
+						break 2;
+					}
+				}
+			}
+		}
+
 		$allsupplier_data = array('eid' => $supplier_data['foreignid'],
 				'companyName' => $company['supplierdetails']['companyName'],
 				'companyNameAbbr' => trim($supplier_data['companyabbr']),
-				'type' => $company['supplierdetails']['ProducerTrader'],
+				'type' => strtolower($company['supplierdetails']['ProducerTrader']),
 				'country' => $supplier_data['country'],
-				'phone1' => str_replace(array(' ', '+'), array('-', ''), $company['supplierdetails']['phone1']),
-				'phone2' => str_replace(array(' ', '+'), array('-', ''), $company['supplierdetails']['phone2']),
-				'fax' => str_replace(array(' ', '+'), array('-', ''), $company['supplierdetails']['fax']),
+				'phone1' => str_replace(array(' ', '+'), array('-', ''), $company['supplierdetails']['Phone']),
+				'phone2' => str_replace(array(' ', '+'), array('-', ''), $company['supplierdetails']['Phone 2']),
+				'fax' => str_replace(array(' ', '+'), array('-', ''), $company['supplierdetails']['Fax']),
 				'mainEmail' => $company['supplierdetails']['Email'],
 				'website' => $company['supplierdetails']['website'],
 				'dateCreated' => TIME_NOW,
@@ -196,7 +225,8 @@ if($core->input['action'] == 'do_import') {
 				'historical' => $company['supplierdetails']['Historical'],
 				'sourcingRecords' => $company['supplierdetails']['SourcingAction'],
 				'productFunction' => $company['supplierdetails']['Generalcomments'],
-				'approchedVia' => $company['supplierdetails']['Approachvia'],
+				'relationMaturity' => 1
+				//'approchedVia' => $company['supplierdetails']['Approachvia'],
 		);
 
 // spliting phone 
@@ -206,11 +236,13 @@ if($core->input['action'] == 'do_import') {
 
 		if(!value_exists("sourcing_suppliers", "companyName", trim($company['supplierdetails']['companyName']))) {
 			echo 'Added: '.$allsupplier_data['companyName'].'<br />';
-//$query = $db->insert_query('sourcing_suppliers', $allsupplier_data);
+			$query = $db->insert_query('sourcing_suppliers', $allsupplier_data);
 			$supplier_id = $db->last_id();
 		}
 		else {
 			echo '!!! Skipped '.$allsupplier_data['companyName'].'<br />';
+
+			$supplier_id = $db->fetch_field($db->query('SELECT ssid FROM sourcing_suppliers WHERE companyName="'.trim($company['supplierdetails']['companyName']).'"'), 'ssid');
 		}
 		/* insert supplier details end */
 
@@ -225,11 +257,11 @@ if($core->input['action'] == 'do_import') {
 //while($row_activityarea = $db->fetch_assoc($checkactivityarea)) {
 				$row_activityarea = $db->fetch_assoc($checkactivityarea);
 				if(!value_exists('sourcing_suppliers_activityareas', 'coid', $row_activityarea['coid'], ' ssid='.$supplier_id)) {
-					if(empty($company['supplierdetails'][$activityarea])) {
+					if(empty($company['supplierdetails'][$activityarea]) && $company['supplierdetails'][$activityarea] != 0) {
 						$company['supplierdetails'][$activityarea] = 1;
 					}
 					echo '- Added: '.$activityarea.' with availablity : '.$company['supplierdetails'][$activityarea].'<br />';
-//$query = $db->insert_query('sourcing_suppliers_activityareas', array('ssid' => $supplier_id, 'availability' => $company['supplierdetails'][$activityarea], 'coid' => $row_activityarea['coid']));
+					$query = $db->insert_query('sourcing_suppliers_activityareas', array('ssid' => $supplier_id, 'availability' => $company['supplierdetails'][$activityarea], 'coid' => $row_activityarea['coid']));
 				}
 //}
 			}
@@ -252,7 +284,7 @@ if($core->input['action'] == 'do_import') {
 						if(!value_exists('sourcing_suppliers_chemicals', 'csid', $chemical['csid'], ' ssid='.$supplier_id)) {
 
 							echo '- Added chemcial: '.$mainproduct.'<br />';
-//$query = $db->insert_query('sourcing_suppliers_chemicals', array('ssid' => $supplier_id, 'csid' => $chemical['csid'], 'supplyType' => $company[supplierdetails]['ProducerTrader']));
+							$query = $db->insert_query('sourcing_suppliers_chemicals', array('ssid' => $supplier_id, 'csid' => $chemical['csid'], 'supplyType' => strtolower($company[supplierdetails]['ProducerTrader'])));
 						}
 						else {
 							echo '- Could not find: '.$mainproduct.'<br />';
@@ -283,7 +315,7 @@ if($core->input['action'] == 'do_import') {
 				if(!value_exists('sourcing_suppliers_productsegments', 'psid', $rowsegment['psid'], ' ssid='.$supplier_id)) {
 					if($company['supplierdetails'][$segment] == 1) {
 						echo '- Added segment: '.$segment.'<br />';
-//$query = $db->insert_query('sourcing_suppliers_productsegments', array('ssid' => $supplier_id, 'psid' => $rowsegment['psid']));
+						$query = $db->insert_query('sourcing_suppliers_productsegments', array('ssid' => $supplier_id, 'psid' => $rowsegment['psid']));
 					}
 //}
 				}
@@ -296,20 +328,20 @@ if($core->input['action'] == 'do_import') {
 		if($foundonesegment == false) {
 			echo '- Added segment: Others<br />';
 			;
-//$query = $db->insert_query('sourcing_suppliers_productsegments', array('ssid' => $supplier_id, 'psid' => 20));
+			$query = $db->insert_query('sourcing_suppliers_productsegments', array('ssid' => $supplier_id, 'psid' => 20));
 		}
 		/* end productSegments */
 
 
 		/* start contactperson */
 		foreach($company['contactperson'] as $contactperson) {
-			$checkcontactperson = $db->query("SELECT rpid,name FROM representatives WHERE name =('".$contactperson['name']."')");
+			$checkcontactperson = $db->query("SELECT rpid, name FROM representatives WHERE name='".trim($contactperson['name'])."'");
 			if($db->num_rows($checkcontactperson) > 0) {
 				$row_contactperson = $db->fetch_assoc($checkcontactperson);
 			}
 			else {
-				$new_rep = array('name' => $contactperson['name'], 'email' => $contactperson['email'], 'phone' => $contactperson['cell']);
-				//$query = $db->insert_query('representatives', $new_rep);
+				$new_rep = array('name' => trim($contactperson['name']), 'email' => $contactperson['email'], 'phone' => $contactperson['cell']);
+				$query = $db->insert_query('representatives', $new_rep);
 				echo '- Created Contact Person: '.$contactperson['name'].'<br />';
 				$row_contactperson = array('rpid' => $db->last_id(), 'notes' => '', 'ssid' => $supplier_id, 'notes' => $contactperson['notes']);
 			}
@@ -318,12 +350,12 @@ if($core->input['action'] == 'do_import') {
 				/* record representatives founded chmeical */
 				if(!value_exists('sourcing_suppliers_contactpersons', 'rpid', $row_contactperson['rpid'], ' ssid='.$supplier_id)) {
 					echo '- Added Contact Person: '.$contactperson['name'].'<br />';
-//$query = $db->insert_query('sourcing_suppliers_contactpersons', array('ssid' => $supplier_id, 'rpid' => $row_contactperson['rpid']));
+					$query = $db->insert_query('sourcing_suppliers_contactpersons', array('ssid' => $supplier_id, 'rpid' => $row_contactperson['rpid']));
 				}
 				/* if no contact id exist in the database */
 				else {
-					echo '- Counld not find Contact Person: '.$contactperson.'<br />';
-					$datanotfound[$compkey]['contactperson'][] = $contactperson;
+					echo '- Skipped Contact Person: '.$contactperson['name'].'<br />';
+					$datanotfound[$compkey]['contactperson'][] = $contactperson['name'];
 				}
 
 				$contactperson_data['repid'] = $row_contactperson['rpid'];
@@ -363,7 +395,7 @@ if($core->input['action'] == 'do_import') {
 					echo 'Added contact history:';
 					print_r($contacthistory_data);
 					echo ' <br />';
-//$query = $db->insert_query('sourcing_suppliers_contacthist', $contacthistory_data);
+					$query = $db->insert_query('sourcing_suppliers_contacthist', $contacthistory_data);
 				}
 			}
 		}/* end contacthistory */
