@@ -19,7 +19,6 @@ class Users {
 		if(empty($uid)) {
 			$this->user = $core->user;
 			$this->user['uid'] = $db->escape_string($this->user['uid']);
-			$this->user['legalAffid'] = $db->fetch_field($db->query('SELECT legalAffid FROM '.Tprefix.'userhrinformation WHERE uid='.$this->user['uid']), 'legalAffid');
 		}
 		else {
 			$this->read_user($uid, $simple);
