@@ -345,9 +345,8 @@ else {
 							case 'reportsTo':
 								list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
 								$approvers['reportsTo'] = $leave_user['reportsTo'];
+								unset($toapprove_select[$key]);
 								break;
-
-							/* get GM ,HR,super,FM by Affiliate */
 							case 'generalManager':
 								$approvers['generalManager'] = $aff_obj->get_generalmanager()->get()['uid'];
 								break;
@@ -364,17 +363,13 @@ else {
 								if(is_int($val)) {
 									$approvers[$val] = $val;
 								}
-								break;
 								unset($toapprove_select[$key]);
+								break;
 						}
 					}
 				}
-				/* Removing Duplicate from the approvers to avoid sending multiple emails for same person in case he has multiple position eg:(general Manager is the same supervisor for the affilte) */
+				/* Make list of approvers unique */
 				$approvers = array_unique($approvers);
-//					elseif(is_int($val)) {
-//						$approvers[$val] = $val;
-//						unset($toapprove_select[$key]);
-//					}
 			}
 
 			if(is_array($toapprove_select) && !empty($toapprove_select)) {
