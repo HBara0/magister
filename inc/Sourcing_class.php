@@ -568,7 +568,7 @@ class Sourcing {
 		$contact_query = $db->query("SELECT aff.name AS affiliate, aff.affid, ssch.*, ps.title AS market,u.displayName, u.uid
 										FROM ".Tprefix."sourcing_suppliers_contacthist  ssch
 										JOIN ".Tprefix."affiliates aff ON (aff.affid = ssch.affid)
-										JOIN ".Tprefix."productsegments ps ON (ps.psid = ssch.market)
+										LEFT JOIN ".Tprefix."productsegments ps ON (ps.psid = ssch.market)
 										JOIN ".Tprefix."users u ON (u.uid = ssch.uid)
 										WHERE ssch.ssid = ".$db->escape_string($supplier_id)."
 										ORDER BY ssch.date DESC"); // There is no user limitation
