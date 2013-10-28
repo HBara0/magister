@@ -117,8 +117,8 @@ $lang['sendbymailsubject'] = 'ORKILA {1} Report - {2} - {3}';
 $lang['surveys_invitation_message'] = 'Hello {1}<br />
 <br />
 You were invited to complete the following survey:<br />
-Subject: {2}<br />
-Description: {3}<br />
+<strong>{2}</strong><br />
+ {3}<br />
 <br />
 To start filling, please click <a href=\'{4}\'>here</a>.<br />
 <br />
