@@ -342,6 +342,7 @@ else {
 				output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'<![CDATA[<script>$("#reason").attr("required",true);</script>]]></message>');
 				exit;
 			}
+		
 		}
 		/* Validate required Fields - END */
 		$query = $db->insert_query('leaves', $core->input);
