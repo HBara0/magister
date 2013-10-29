@@ -2,7 +2,9 @@ $(function() {
     $("#affid,#spid,#quarter,#currency").change(getMoreData);
     //get parent form name
     var form = $("#affid,#spid,#quarter").closest("form");
-    var formname = form.attr("name").split('/')[0];
+    if (form.attr("name") !== undefined) {
+        var formname = form.attr("name").split('/')[0];
+    }
 
     $("#spid").change(function() {
         if ($(this).val() == '0') {
@@ -33,12 +35,12 @@ $(function() {
             }
             else if (id == "spid")
             {
-                 dataParam += "&affid=" + $("#affid").val() + "&spid=" + $("#spid").val();
+                dataParam += "&affid=" + $("#affid").val() + "&spid=" + $("#spid").val();
                 if (formname == "perform_budgeting") {
                     get = "years";
                     loadingIn = "years_Loading";
                     contentIn = "year";
-                     $("#buttons_row").show();
+                    $("#buttons_row").show();
 
                 }
                 else {

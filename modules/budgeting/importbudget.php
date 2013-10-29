@@ -58,7 +58,8 @@ else {
 	}
 	elseif($core->input['action'] == 'do_perform_importbudget') {
 		$cache = new Cache();
-		$options['runtype'] = 'dry';
+		//$options['runtype'] = 'dry';
+		$options = $core->input['options'];
 		$options['useAltCid'] = 1;
 		$all_data = unserialize($session->get_phpsession('budgetingimport_'.$core->input['identifier']));
 		$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'country' => 'Country', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'actualamount' => 'Actual Amount', 'income' => 'Income', 'actualincome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type','Producer'=>'Producer');
@@ -88,6 +89,7 @@ else {
 		}
 
 		foreach($all_data['budget'] as $key => $budgetrow) {
+			$data = array();
 			$count_input = 0;
 			foreach($budgetrow as $header => $value) {
 				if(empty($value)) {
@@ -134,7 +136,7 @@ else {
 						$data['pid'] = $product_obj->get()['pid'];
 					}
 					if(empty($data['pid'])) {
-						$data['pid'] = $db->fetch_field($db->query('SELECT localId FROM '.Tprefix.'integration_mediation_products WHERE foreignName="'.$db->escape_string($data['productName']).'" AND affid="'.$db->escape_string($data['affid']).'"'), 'localId');
+						$data['pid'] = $db->fetch_field($db->query('SELECT localId FROM '.Tprefix.'integration_mediation_products WHERE foreignName="'.$db->escape_string($data['productName']).'" AND (affid="'.$db->escape_string($data['affid']).'" OR affid=0)'), 'localId');
 						if(empty($data['pid'])) {
 							$errorhandler->record('productnomatch', ucwords($data['productName'].' - '.$data['supplierName']));
 							continue;
@@ -146,9 +148,9 @@ else {
 				}
 			}
 			else {
-				$data['pid'] = $data['product'];
+				$data['pid'] = $data['productName'];
 			}
-
+			
 			if(empty($options['resolvesupplierbyproduct']) || true) {
 				if($options['resolvesuppliername'] == 1 || true) {
 					if($cache->incache('suppliers', $data['supplierName'])) {
@@ -160,7 +162,7 @@ else {
 							$data['spid'] = $data['spid']->get()['eid'];
 						}
 						if(empty($data['spid'])) {
-							$data['spid'] = $db->fetch_field($db->query('SELECT localId FROM '.Tprefix.'integration_mediation_entities WHERE foreignName="'.$db->escape_string($data['supplierName']).'" AND affid="'.$db->escape_string($data['affid']).'" AND entityType="s"'), 'localId');
+							$data['spid'] = $db->fetch_field($db->query('SELECT localId FROM '.Tprefix.'integration_mediation_entities WHERE foreignName="'.$db->escape_string($data['supplierName']).'" AND (affid="'.$db->escape_string($data['affid']).'" OR affid=0) AND entityType="s"'), 'localId');
 							if(empty($data['spid'])) {
 								$errorhandler->record('suppliernomatch', $data['supplierName']);
 								continue;
@@ -309,7 +311,7 @@ else {
 		$import_errors = $errorhandler->get_errors_inline();
 		$log->record();
 		if(isset($import_errors) && !empty($import_errors)) {
-			output_xml("<status>false</status><message>{$lang->resulterror}<![CDATA[<br />{$import_errors}]]></message>");
+			output_xml("<status>false</status><message>{$lang->resulterror}<![CDATA[<br /> {$import_errors}]]></message>");
 		}
 		else {
 			output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
@@ -366,7 +368,7 @@ function parse_datapreview($csv_header, $data) {
 
 	$identifier = md5(uniqid(microtime()));
 	$session->set_phpsession(array('budgetingimport_'.$identifier => serialize($data)));
-	$output .= '<tr><input type="button" value="'.$lang->import.'" class="button" id="perform_budgeting/importbudget_Button" name="perform_budgeting/importbudget_Button"/><input type="hidden" name="identifier" id="identifier" value="'.$identifier.'"/><input type="hidden" name="multivalueseperator" id="multivalueseperator" value="'.$core->input['multivalueseperator'].'"/></table></form><div id="perform_budgeting/importbudget_Results"></div>';
+	$output .= '<tr><input type="checkbox" name="options[runtype]" value="dry" checked="checked" /> Dry Run <br /> <input type="button" value="'.$lang->import.'" class="button" id="perform_budgeting/importbudget_Button" name="perform_budgeting/importbudget_Button"/><input type="hidden" name="identifier" id="identifier" value="'.$identifier.'"/><input type="hidden" name="multivalueseperator" id="multivalueseperator" value="'.$core->input['multivalueseperator'].'"/></table></form><div id="perform_budgeting/importbudget_Results"></div>';
 	return $output;
 }
 
