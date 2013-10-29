@@ -177,6 +177,7 @@ class Budgets {
 		if(is_array($budgetline_data)) {
 			foreach($budgetline_data as $blid => $data) {
 
+
 				if(!isset($data['bid'])) {
 					$data['bid'] = $bid;
 				}
@@ -193,19 +194,19 @@ class Budgets {
 						$budgetlineobj = new BudgetLines();
 					}
 				}
-
+				if($data['unspecified'] == 1 && empty($data['cid'])) {
+					$data['altCid'] = 'Unspecified Csutomer';
+				}
 				if(empty($data['pid']) || (empty($data['cid']) && empty($data['altCid']))) {
 					//$this->errorcode = 1;
 					continue;
 				}
-//	
-				if(!empty($data['cid'])) {
+
+				if(!empty($data['cid']) && $data['unspecified'] != 1) {
 					$data['altCid'] = Null;
 				}
-//			elseif(empty($data['pid']) && empty($data['cid'])) {		
-//				$budgetline->delete();
-//				continue;
-//			}
+
+				unset($data['unspecified']);
 				if(isset($data['blid']) && !empty($data['blid'])) {
 					$budgetlineobj->update($data);
 					$this->errorcode = 0;
@@ -336,6 +337,16 @@ class Budgets {
 				return $budgetline_details;
 			}
 		}
+	}
+
+	public function get_actual_meditaiondata($data = array()) {
+		global $db;
+//		if(is_array($data)) {
+//			$db->query("SELECT ime.localid,ime.foreignname,ime.entityType,bl.cid,ims.amount,ims.quantity  FROM ".Tprefix."integration_mediation_entities ime
+//					JOIN ".Tprefix."budgeting_budgets_lines bl ON (bl.cid = ime.localid)
+//					JOIN  ".Tprefix."integration_mediation_stockpurchases  ims ON (ims.pid=bl.pid) 
+//					WHERE ims.saleType =".$data['saleType']." AND ime.entityType='e'");
+//		}
 	}
 
 	/* function return object Type --START */
