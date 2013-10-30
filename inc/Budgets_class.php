@@ -176,8 +176,6 @@ class Budgets {
 
 		if(is_array($budgetline_data)) {
 			foreach($budgetline_data as $blid => $data) {
-
-
 				if(!isset($data['bid'])) {
 					$data['bid'] = $bid;
 				}
@@ -194,19 +192,19 @@ class Budgets {
 						$budgetlineobj = new BudgetLines();
 					}
 				}
-				if($data['unspecified'] == 1 && empty($data['cid'])) {
-					$data['altCid'] = 'Unspecified Csutomer';
+				if($data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
+					$data['altCid'] = 'Unspecified Customer';
 				}
 				if(empty($data['pid']) || (empty($data['cid']) && empty($data['altCid']))) {
 					//$this->errorcode = 1;
 					continue;
 				}
 
-				if(!empty($data['cid']) && $data['unspecified'] != 1) {
+				if(!empty($data['cid']) && $data['unspecifiedCustomer'] != 1) {
 					$data['altCid'] = Null;
 				}
 
-				unset($data['unspecified']);
+				unset($data['unspecifiedCustomer']);
 				if(isset($data['blid']) && !empty($data['blid'])) {
 					$budgetlineobj->update($data);
 					$this->errorcode = 0;

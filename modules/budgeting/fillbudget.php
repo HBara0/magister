@@ -48,15 +48,15 @@ if(!$core->input['action']) {
 				$budgetlinesdata = $budgetobj->read_prev_budgetbydata();
 				$is_prevonly = true;
 			}
-			$session->set_phpsession(array('budgetmetadata_'.$currentbudget['identifier'] => serialize($currentbudget)));
+			$session->set_phpsession(array('budgetmetadata_'.$sessionidentifier => serialize($currentbudget)));
 		}
 		else {
 			$budgetobj = new Budgets();
 			$budgetlinesdata = $budgetobj->read_prev_budgetbydata($budget_data);
 			$is_prevonly = true;
-			$session->set_phpsession(array('budgetmetadata_'.$currentbudget['identifier'] => serialize($core->input)));
+			$session->set_phpsession(array('budgetmetadata_'.$sessionidentifier => serialize($core->input)));
 		}
-
+	
 		$saletypes_query = $db->query('SELECT * FROM '.Tprefix.'saletypes');
 		while($saletype = $db->fetch_assoc($saletypes_query)) {
 			$saletype_selectlistdata[$saletype['stid']] = $saletype['title'];
@@ -91,7 +91,6 @@ if(!$core->input['action']) {
 		$unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income');
 
 		if(is_array($budgetlinesdata)) {
-			$core->input['identifier'] = base64_encode($currentbudget['identifier']);
 			$rowid = 1;
 
 			foreach($budgetlinesdata as $cid => $customersdata) {
@@ -222,7 +221,7 @@ else {
 			$invoice_selectlistdata['other'] = $lang->other;
 		}
 		$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, $budgetline['saleType'], '', '', array('id' => 'salestype_'.$rowid));
-		$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('blankstart' => 1, 'id' => 'invoice_'.$rowid));
+		$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('blankstart' => 0, 'id' => 'invoice_'.$rowid));
 
 		/* Get budget data */
 		$affiliate = new Affiliates($budget_data['affid']);
