@@ -93,7 +93,10 @@ else {
 				$budget_year .="<option value='{$year}'".$year_selected.">{$year}</option>";
 			}
 		}
-
+		else {
+			$next_year = date('Y') + 1;
+			$budget_year .= "<option value='{$next_year}'>{$next_year}</option>";
+		}
 		//$budget_year .="<option value=''>Select the year</option><option value='{$year}'>{$year}</option>";
 //		$years = array_combine(range(date("Y") + 1, date("Y") + 1), range(date("Y") + 1, date("Y") + 1));
 //		foreach($years as $year) {
