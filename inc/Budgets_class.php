@@ -234,6 +234,13 @@ class Budgets {
 		}
 	}
 
+	public static function get_saletype($abbrv) {
+		global $db;
+		if(!empty($abbrv)) {
+			return $db->fetch_field($db->query("SELECT stid FROM ".Tprefix."saletypes WHERE abbreviation='".$db->escape_string($abbrv)."'"), 'stid');
+		}
+	}
+
 //	public function get_budgetbyspecificdata($data) {
 //		global $db;
 //
@@ -445,9 +452,9 @@ class BudgetLines {
 		return new Products($this->budgetline['pid']);
 	}
 
-	public function get_saletype() {
-		return $this->budgetline['saletype'];
-	}
+//	public function get_saletype() {
+//		return $this->budgetline['saletype'];
+//	}
 
 	public function get_CreateUser() {
 		return new Users($this->budgetline['createdBy']);
