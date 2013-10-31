@@ -506,7 +506,7 @@ class Entities {
 	}
 
 	public function get_eid() {
-		return $this->eid;
+		return $this->data['eid'];
 	}
 
 	public function get_status() {
