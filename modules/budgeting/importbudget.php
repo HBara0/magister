@@ -103,22 +103,6 @@ else {
 				$count_input++;
 			}
 
-
-			/* Get saletype id by abbreviation */
-			if($cache->incache('salesType', $data['saleType'])) {
-				$data['saleType'] = array_search($data['saleType'], $cache->data['salesType']);
-			}
-			else {
-				$data['saleType'] = Budgets::get_saletype($data['saleType']);
-			}
-			if(empty($data['saleType'])) {
-				$errorhandler->record('saletypenotmatch', $data['saleType']);
-				continue;
-			}
-			else {
-				$cache->add('salesType', $data['saleType'], $data['saleType']);
-			}
-
 			/* Resolve names if IDs are not provided - START */
 			if($options['resolveaffiliatename'] == 1 || true) {
 				if($cache->incache('affiliates', $data['affiliate'])) {
@@ -283,6 +267,23 @@ else {
 				$data['customerCountry'] = $data['customerCountry'];
 			}
 
+
+			/* Get saletype id by abbreviation */
+			$data['saleTypeName'] = $data['saleType'];
+			if($cache->incache('salesType', $data['saleTypeName'])) {
+				$data['saleType'] = array_search($data['saleTypeName'], $cache->data['salesType']);
+			}
+			else {
+				$data['saleType'] = Budgets::parse_saletype($data['saleTypeName']);
+			}
+			if(empty($data['saleType'])) {
+				$errorhandler->record('saletypenotmatch', $data['saleTypeName']);
+				continue;
+			}
+			else {
+				$cache->add('salesType', $data['saleTypeName'], $data['saleType']);
+			}
+			
 			$budget_data = array('identifier' => substr(uniqid(time()), 0, 10),
 					'year' => $data['year'],
 					'affid' => $data['affid'],
