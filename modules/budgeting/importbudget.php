@@ -261,28 +261,29 @@ else {
 			}
 			/* Resolve names if IDs are not provided - END */
 			/* Resolve customercountry */
-			if($options['resolvecountry'] == 1 || true) {
-				if($cache->incache('countries', $data['country'])) {
-					$data['customerCountry'] = array_search($data['country'], $cache->data['countries']);
-				}
-				else {
-					$data['customerCountry'] = Countries::get_country_byname($data['country']);
-					if($data['customerCountry'] != false) {
-						$data['customerCountry'] = $data['customerCountry']->get()['coid'];
-					}
-					if(empty($data['customerCountry'])) {
-						$errorhandler->record('countrynotmatch', $data['country']);
-						continue;
+			if(isset($data['country'])) {
+				if($options['resolvecountry'] == 1 || true) {
+					if($cache->incache('countries', $data['country'])) {
+						$data['customerCountry'] = array_search($data['country'], $cache->data['countries']);
 					}
 					else {
-						$cache->add('countries', $data['country'], $data['customerCountry']);
+						$data['customerCountry'] = Countries::get_country_byname($data['country']);
+						if($data['customerCountry'] != false) {
+							$data['customerCountry'] = $data['customerCountry']->get()['coid'];
+						}
+						if(empty($data['customerCountry'])) {
+							$errorhandler->record('countrynotmatch', $data['country']);
+							continue;
+						}
+						else {
+							$cache->add('countries', $data['country'], $data['customerCountry']);
+						}
 					}
 				}
+				else {
+					$data['customerCountry'] = $data['customerCountry'];
+				}
 			}
-			else {
-				$data['customerCountry'] = $data['customerCountry'];
-			}
-
 			$budget_data = array('identifier' => substr(uniqid(time()), 0, 10),
 					'year' => $data['year'],
 					'affid' => $data['affid'],
