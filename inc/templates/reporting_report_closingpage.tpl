@@ -1,65 +1,48 @@
 <page>
-<div style="page-break-before:always;"></div>
-<div class="paperContainer">
-<a name="closingpage"></a>
-<div class="logo">&nbsp;</div>
-<div align='left' style='margin-top:20px;'>
-<div class="subtitle">The New Quarterly Report</div>
-<p>Starting this quarter we are providing a completely redesigned quarterly report to improve clarify and maximize the usability and quality of the provided data.</p>
+    <div style="page-break-before:always;"></div>
+    <div class="paperContainer">
+        <a name="closingpage"></a>
+        <div class="logo">&nbsp;</div>
+        <div align='left' style='margin-top:20px;'>
+            <h3>Orkila News</h3>
+            <div class="subtitle">Operations in Orkila Ghana</div>
+            <p>We are pleased to inform you that Orkila Ghana team is now complete, fully operational, and stock is available in our warehouse in Accra.</p>
+            <p>
+            <div class="subtitle">Orkila Sells its Pakistan Operation</div>
+            As part of the Groups’s strategy to focus on the markets of the Middle East and Africa, ORKILA announced today the sale of its Pakistan affiliate, Orkila Pakistan (Pvt) Ltd. 
+            </p>
+            <p>
+                The sale, to the Emirati company EMAA Holding FZE, will be concluded on September 30th 2013.
+            </p>
+            <p>The Pakistan company will be renamed EMAA Pakistan (Pvt) Ltd.</p>
+            <p>Although EMAA Pakistan (Pvt) Ltd will cease to be an affiliate of the Orkila Group, it will continue its current activities under the same management teams, both in Karachi and Lahore; thus guaranteeing a seamless transition for suppliers and customers alike throughout Pakistan.</p>
+            <p>EMAA Pakistan (Pvt) Ltd will remain closely associated with the Orkila Group and will be the designated distributor for the Group in Pakistan.</p>
 
-The data is now always illustrated per affiliate, per segment, and per product. In each of these categories the data is classified per amount, purchases quantity, and sold quantity, and is further detailed per year, per quarter.
-We are also providing quantitative and qualitative summary, in addition to clearly illustrated over-years progression.
-<p>We hope that the new format will meet your expectations, be useful, and help us strengthen our relations together.</p>
-<h3>Orkila News</h3>
-<p>
-    <div class="subtitle">Orkila Strengthens its Presence in Saudi Arabia</div>
-   The Orkila Group is pleased to announce the opening of new offices in the Kingdom of Saudi Arabia
-(KSA). Orkila’s offices and warehouse will be located in Al Khobar, within the premises of the
-ZAMIL GROUP.
-</p>
-<p>
-Since its creation in 2005, Orkila has recognized the need for a local presence to assist its
-customers and to improve service levels. Orkila KSA will provide the platform upon which the
-Group can achieve these goals in this strategic market. This initiative further highlights Orkila’s
-sustained dedication to improve performance and to extend its reach throughout the Middle East.
-<p>
-<div class="subtitle">Orkila Opens New Office in East Nigeria</div>
-Following past year’s reinforcement of its West African network, ORKILA CHEMICALS LTD (Nigeria)
-is pleased to announce the opening of its new office and warehouse in Onitsha, southeastern
-Nigeria.
-</p>
-<p>
-Onitsha is a strategic gateway for trade between the former eastern and western regions. The
-Nigerian economy has developed impressively and it is against this background that ORKILA
-CHEMICALS LTD will offer, to customers and suppliers alike, a solid foundation for the growth and
-development of their interests.
-</p>
-<p>
-With this latest move, Orkila reinforces its established position as the leading chemical distributor
-in Africa & the Middle East supplying multiple industrial sectors through its network of affiliates
-based in the key markets of the region, including Morocco, Egypt, Algeria, Tunisia, Kenya, South
-Africa, Senegal, Ivory Coast, Ghana, Iran, Iraq, U.A.E, Jordan, Lebanon & Syria.
-</p>
-<p>
-We would like to take this opportunity to thank all our business partners, together with those
-working for Orkila affiliates throughout the region, for their continued support; and to invite
-anyone connected with the chemical industry to visit our web site at <a href="http://www.orkila.com" target="_blank">www.orkila.com</a>
-</p>
-
-<h3>Orkila Events</h3>
-<div class="subtitle">
-AGRENA 2013 - FEED 6 - 8 June 2013 – Cairo, EGYPT
-</div>
-<p>VISIT ORKILA STAND A1 Hall 1 at Agrena 2013<br />
-Orkila exhibits for the 6th consecutive year at the 15th International Exhibition for the Management and Production of Poultry & Livestock and integrate our wide range of products in your challenging projects; our service will accompany your throughout the process.
-Its local affiliate is Orkila Egypt Chemicals SAE
-</p>
-
-<div class="subtitle">AVIANA 2013 - FEED       
-13 - 14 June 2013 – Mombasa, KENYA</div>
-<p>Orkila visits Aviana 2013, the livestock and poultry exposition in Kenya. Its local affiliate is Orkila East Africa Ltd.
-</p>
-
-</div>
-</div>
+            <h3>Orkila Events</h3>
+            <p>
+            <div class="subtitle">FI/CPhI South AFrica 2013 – PHARMACEUTICALS. FOOD INGREDIENTS  6 - 8 August 2013 – Sao Paolo, BRAZIL </div>
+            Orkila visited the CPhI & FI South America where pharmaceutical / food industry professionals gather to find new business opportunities in the fast growing South American market.
+            </p>
+            <p>
+            <div class="subtitle">SPACE 2013 - FEED  10 - 13 September 2013 – Rennes, FRANCE</div>
+            The Feed sector is in continuous growth in MEA zone. Orkila visited the Int'L Livestock Trade Fair in Rennes to bring innovative solutions to the local market players.
+            </p>
+            <p>
+            <div class="subtitle">K-2013 - PLASTICS  16 - 23 October 2013 – Dusseldorf, GERMANY</div>
+            Orkila visits the K-2013, Number 1 Int'l Trade Fair for Plastics and Rubber Worldwide
+            </p>
+            <p>
+            <div class="subtitle">CPhI EUROPE - PHARMACEUTICALS  22- 24 October 2013 – Frankfurt, GERMANY</div>
+            In the pharmaceutical industry innovation is a key for success. Orkila visits every year the world's leading pharmaceutical networking event. 
+            </p>
+            <p>
+            <div class="subtitle">FI EUROPE – FOOD INGREDIENTS –  19-21 November 2013 – Frankfurt, GERMANY</div>
+            Orkila visits the Food and the Natural Ingredients Exhibition, which offers innovative ingredients with a truly global audience from the world’s leading food and beverage suppliers, R&D, production and marketing specialists.
+            </p>
+            <p>
+            <div class="subtitle">DAWAJINE - FEED –  26-28 November 2013 – Casablanca, MOROCCO</div>
+            Orkila is present with its partner Adisseo at the 16th edition of Dawajine, the major poultry event in North and West Africa. Orkila local affiliate is Orkila Maroc.
+            </p>
+        </div>
+    </div>
 </page>
