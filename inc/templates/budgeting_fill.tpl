@@ -15,17 +15,43 @@
                         $('input[id^=amountper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id^=amount_' + id[1] + ']').val());
                     }
                 });
+                $('input[id^="unitprice_"]').live('input', function() {
+                    var id = $(this).attr("id").split("_");
+                    if ($('input[id^="Qty_' + id[1] + '"]').val().length > 0) {
+                        $('input[id^=amount_' + id[1] + ']').val((Number($('input[id^=Qty_' + id[1] + ']').val() * $('input[id^=unitprice_' + id[1] + ']').val()))).trigger("input");
+
+                    }
+
+                });
 
                 $('input[id^="amount_"]').live('input', function() {
                     var id = $(this).attr("id").split("_");
                     if ($('input[id^="amountper_' + id[1] + '"]').val().length > 0) {
                         $('input[id^="amountper_' + id[1] + '"]').trigger('input');
-                    } else {
 
+                    } else {
                         if ($('input[id^="income_' + id[1] + '"]').val().length > 0) {
                             $('input[id^="income_' + id[1] + '"]').trigger('input');
                         }
                     }
+                    if ($('input[id^="Qty_' + id[1] + '"]').val().length > 0) {
+                        $('input[id^=unitprice_' + id[1] + ']').val(Number($('input[id^=amount_' + id[1] + ']').val() / $('input[id^=Qty_' + id[1] + ']').val()));
+                    }
+ 
+                });
+
+
+                $('input[id^="s1perc_"]').live('input', function() {
+                 var id = $(this).attr("id").split("_");
+                  if ($(this).val().length > 0) {
+                     $('input[id^="s2perc_' + id[1] + '"]').val(Number( 100-$(this).val() ));
+                  }
+                });
+   $('input[id^="s2perc_"]').live('input', function() {
+                 var id = $(this).attr("id").split("_");
+                  if ($(this).val().length > 0) {
+                     $('input[id^="s1perc_' + id[1] + '"]').val(Number( 100-$(this).val() ));
+                  }
                 });
 
                 $('select[id^="salestype_"]').live('change', function() {
@@ -65,11 +91,14 @@
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->saleType}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->Quantity}<br /><span class="smalltext"><em>{$lang->mt}</em></span></td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
+                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->unitprice}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->amount}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->incomeperc}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->income}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->curr}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->invoice}</td>
+                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->q1perc}</td>
+                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->q2perc}</td>
                         </tr>
                     </thead>
                     <tbody id="budgetlines{$rowid}_tbody" style="width:100%;">
