@@ -300,9 +300,9 @@ class Budgets {
 	public function read_prev_budgetbydata($data = array()) {
 		global $db;
 		if(empty($data)) {
-			$data['affid'] = $this->budget[affid];
-			$data['spid'] = $this->budget[spid];
-			$data['year'] = $this->budget[year];
+			$data['affid'] = $this->budget['affid'];
+			$data['spid'] = $this->budget['spid'];
+			$data['year'] = $this->budget['year'];
 		}
 
 		for($year = $data['year']; $year >= ($data['year'] - 2); $year--) {
@@ -310,11 +310,14 @@ class Budgets {
 				continue;
 			}
 			$prev_budget_bydataquery = $db->query("SELECT * 
-					FROM ".Tprefix."budgeting_budgets 
-					bd JOIN ".Tprefix."budgeting_budgets_lines bdl ON (bd.bid=bdl.bid) 
+					FROM ".Tprefix."budgeting_budgets bd 
+					JOIN ".Tprefix."budgeting_budgets_lines bdl ON (bd.bid=bdl.bid) 
 					WHERE affid='".$data['affid']."' AND spid='".$data['spid']."' AND year='".$year."'");
 			if($db->num_rows($prev_budget_bydataquery) > 0) {
 				while($prevbudget_bydata = $db->fetch_assoc($prev_budget_bydataquery)) {
+					if($prevbudget_bydata['cid'] == 0) {
+						$prevbudget_bydata['cid'] = md5($prevbudget_bydata['altCid']);
+					}
 					$budgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['saleType']][] = $prevbudget_bydata;
 				}
 			}
@@ -465,7 +468,7 @@ class BudgetLines {
 	public static function get_budgetline_bydata($data) {
 		global $db;
 		if(is_array($data)) {
-			$budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."'");
+			$budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$data['altCid']."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."'");
 			if($db->num_rows($budgetline_bydataquery) > 0) {
 				return $db->fetch_assoc($budgetline_bydataquery);
 			}

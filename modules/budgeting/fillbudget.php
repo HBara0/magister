@@ -43,6 +43,7 @@ if(!$core->input['action']) {
 		$currentbudget = Budgets::get_budget_bydata($budget_data);
 		if($currentbudget != false) {
 			$budgetobj = new Budgets($currentbudget['bid']);
+			$budget_data['bid'] = $currentbudget['bid'];
 			$budgetlinesdata = $budgetobj->get_budgetLines();
 			if(!is_array($budgetlinesdata) || empty($budgetlinesdata)) {
 				$budgetlinesdata = $budgetobj->read_prev_budgetbydata();
@@ -105,7 +106,6 @@ if(!$core->input['action']) {
 //					$required = ' required="required"';
 //				}
 					foreach($productsdata as $saleid => $budgetline) {
-
 						$previous_yearsqty = $previous_yearsamount = $previous_yearsincome = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
 						if($is_prevonly === true || isset($budgetline['prevbudget'])) {
 							if($is_prevonly == true) {
@@ -116,18 +116,21 @@ if(!$core->input['action']) {
 							}
 
 							foreach($prev_budgetlines as $prev_budgetline) {
-
+								if(!isset($budgetline['invoice'])) {
+									$budgetline['invoice'] = $prev_budgetline['invoice'];
+								}
 								if($is_prevonly == true) {
 									foreach($unsetable_fields as $field) {
 										unset($budgetline[$field]);
 									}
 								}
 								$budgetline['alternativecustomer'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altCid']).'</span>';
-								$previous_yearsqty .= '<span class="altrow" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budg.': '.$prev_budgetline['Quantity'].' | '.$lang->actual.': '.$prev_budgetline['actualQty'].'</span>';
-								$previous_yearsamount .= '<span class="altrow" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budg.': '.$prev_budgetline['amount'].' | '.$lang->actual.': '.$prev_budgetline['actualamount'].'</span>';
-								$previous_yearsincome .= '<span class="altrow" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budg.': '.$prev_budgetline['income'].' | '.$lang->actual.': '.$prev_budgetline['actualincome'].'</span>';
+								$previous_yearsqty .= '<span class="altrow" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budg.': '.$prev_budgetline['quantity'].' | '.$lang->actual.': '.$prev_budgetline['actualQty'].'</span>';
+								$previous_yearsamount .= '<span class="altrow" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budg.': '.$prev_budgetline['amount'].' | '.$lang->actual.': '.$prev_budgetline['actualAmount'].'</span>';
+								$previous_yearsincome .= '<span class="altrow" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budg.': '.$prev_budgetline['income'].' | '.$lang->actual.': '.$prev_budgetline['actualIncome'].'</span>';
 							}
 						}
+		
 						$budgetline['cid'] = $cid;
 						$budgetline['customerName'] = $customer->get()['companyName'];
 						$budgetline['pid'] = $pid;
@@ -135,7 +138,7 @@ if(!$core->input['action']) {
 						$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, $saleid, '', '', array('id' => 'salestype_'.$rowid));
 						$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('id' => 'invoice_'.$rowid));
 						/* Get Actual data from mediation tables --START */
-						if(empty($budgetline[actualQty]) || empty($budgetline[actualincome]) || empty($budgetline[actualamount])) {
+						if(empty($budgetline['actualQty']) || empty($budgetline['actualincome']) || empty($budgetline['actualamount'])) {
 							$budgetobj->get_actual_meditaiondata();
 						}
 

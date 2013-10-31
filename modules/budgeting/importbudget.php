@@ -61,10 +61,12 @@ else {
 		//$options['runtype'] = 'dry';
 		$options = $core->input['options'];
 		$options['useAltCid'] = 1;
+		$options['resolvesupplierbyproduct'] = 1;
 		$all_data = unserialize($session->get_phpsession('budgetingimport_'.$core->input['identifier']));
-		$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'invoice' => 'invoice', 'country' => 'Country', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'actualamount' => 'Actual Amount', 'income' => 'Income', 'actualincome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type', 'Producer' => 'Producer');
+		$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'invoice' => 'invoice', 'country' => 'Country', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'actualAmount' => 'Actual Amount', 'income' => 'Income', 'actualIncome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type', 'Producer' => 'Producer');
 		$required_headers_check = $required_headers = array('customerName', 'productName', 'supplierName', 'year', 'saleType');
-		$budgetlines_valid_data = array('cid', 'altCid', 'customerCountry', 'saleType', 'originalCurrency');
+		$budgetlines_valid_data = array('cid', 'pid', 'altCid', 'customerCountry', 'amount', 'actualAmount', 'income', 'actualIncome', 'incomePerc', 'quantity', 'actualQty', 'saleType', 'originalCurrency', 'invoice');
+		$budgetlines_required_data = array('cid', 'pid', 'altCid', 'saleType', 'originalCurrency', 'invoice');
 
 		$headers_cache = array();
 		for($i = 0; $i < count($allowed_headers) + 1; $i++) {
@@ -151,7 +153,7 @@ else {
 				$data['pid'] = $data['productName'];
 			}
 
-			if(empty($options['resolvesupplierbyproduct']) || true) {
+			if(empty($options['resolvesupplierbyproduct'])) {
 				if($options['resolvesuppliername'] == 1 || true) {
 					if($cache->incache('suppliers', $data['supplierName'])) {
 						$data['spid'] = array_search($data['supplierName'], $cache->data['suppliers']);
@@ -179,16 +181,17 @@ else {
 			}
 			else {
 				if($product_obj != false) {
-					$data['spid'] = $product_obj->get_supplier()->get_eid();
+					$data['spid'] = $product_obj->get_supplier()->get()['eid'];
 				}
 				elseif(!empty($data['pid'])) {
 					$product_obj = new Products($data['pid']);
-					$data['spid'] = $product_obj->get_supplier()->get_eid();
+					$data['spid'] = $product_obj->get_supplier()->get()['eid'];
 				}
 				else {
-					$errorhandler->record('suppliernomatch', $data['supplierName']);
+					$errorhandler->record('suppliernomatch', '---'.$data['supplierName']);
 					continue;
 				}
+				unset($product_obj);
 			}
 
 			if($options['resolvecustomername'] == 1 || true) {
@@ -265,7 +268,7 @@ else {
 					}
 				}
 				else {
-					$data['customerCountry'] = $data['customerCountry'];
+					$data['customerCountry'] = $data['country'];
 				}
 			}
 
@@ -284,7 +287,7 @@ else {
 			else {
 				$cache->add('salesType', $data['saleTypeName'], $data['saleType']);
 			}
-			
+
 			$budget_data = array('identifier' => substr(uniqid(time()), 0, 10),
 					'year' => $data['year'],
 					'affid' => $data['affid'],
@@ -306,23 +309,30 @@ else {
 					$data['income'] = $data['amount'] * ($data['incomePerc'] / 100);
 				}
 			}
-
+			$budgetlines = array();
 			foreach($budgetlines_valid_data as $valid_attribute) {
 				if($data[$valid_attribute] != '') {
 					$budgetlines[0][$valid_attribute] = $data[$valid_attribute];
 				}
 				else {
-					if($valid_attribute == 'cid' && (isset($data['altCid']) && !empty($data['altCid']))) {
-						continue;
+					if(in_array($valid_attribute, $budgetlines_required_data)) {
+						if($valid_attribute == 'cid' && (isset($data['altCid']) && !empty($data['altCid']))) {
+							continue;
+						}
+
+						if(empty($data['altCid']) && !empty($data['cid'])) {
+							continue;
+						}
+
+						$errorhandler->record('incompletedata-'.$valid_attribute, 'Row: '.$key);
+						continue 2;
 					}
-					$errorhandler->record('incompletedata-'.$valid_attribute, 'Row: '.$key);
-					continue 2;
 				}
 			}
 			if($options['runtype'] != 'dry') {
 				Budgets::save_budget($budget_data, $budgetlines);
 			}
-			unset($data);
+			unset($data, $budgetlines, $budget_data);
 		}
 
 		$import_errors = $errorhandler->get_errors_inline();
@@ -339,8 +349,8 @@ function parse_datapreview($csv_header, $data) {
 	global $session, $lang, $core, $cache;
 
 	$output = "<span class='subtitle'></span><br /><form id='perform_budgeting/importbudget_Form'><table class='datatable'><tr><td colspan='16' class='subtitle' style='text-align:center'>{$lang->importpreview}</td></tr><tr>";
-	$budgetlines_valid_data = array('affiliate', 'Sales Manager', 'Customer Name', 'country', 'SupplierID', 'Supplier Name', 'productID', 'Product Name', 'Year', 'quantity', 'actualQty', 'Unit of Measure', 'Sales amount', 'invoice', 'actualamount', 'Income', 'actualincome', 'incomePerc', 'originalCurrency', 'Market Segment', 'Sale Type', 'Producer');
-	$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'country' => 'Country', 'invoice' => 'invoice', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'actualamount' => 'Actual Amount', 'income' => 'Income', 'actualincome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type', 'Producer' => 'Producer');
+	$budgetlines_valid_data = array('affiliate', 'Sales Manager', 'Customer Name', 'country', 'SupplierID', 'Supplier Name', 'productID', 'Product Name', 'Year', 'quantity', 'actualQty', 'Unit of Measure', 'Sales amount', 'invoice', 'actualAmount', 'Income', 'actualIncome', 'incomePerc', 'originalCurrency', 'Market Segment', 'Sale Type', 'Producer');
+	$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'country' => 'Country', 'invoice' => 'invoice', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'actualAmount' => 'Actual Amount', 'income' => 'Income', 'actualIncome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type', 'Producer' => 'Producer');
 	$abbreviation = array('Ltd.', 'Ltd', 'Llc.', 'Llc', 'Sal.', 'Co.,', 'Co.', 'Co');
 
 	$output .= '<td>#</td>';
