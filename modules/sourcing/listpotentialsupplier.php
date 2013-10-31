@@ -92,8 +92,9 @@ if(!$core->input['action']) {
 	$db->free_result($chemicals_query);
 
 	$generic_products = get_specificdata('genericproducts', array('gpid', 'title'), 'gpid', 'title', 'title');
-	$genericproducts_selectlist = parse_selectlist('filters[genericproduct]', '20', $generic_products, $core->input['filters']['genericproduct'], 0, '$("#tablefilters").show();', array('blankstart' => true));
-
+	if(is_array($generic_products)) {
+		$genericproducts_selectlist = parse_selectlist('filters[genericproduct]', '20', $generic_products, $core->input['filters']['genericproduct'], 0, '$("#tablefilters").show();', array('blankstart' => true));
+	}
 	$filters_row_display = 'hide';
 	if(is_array($filter_where_values)) {
 		$filters_row_display = 'show';
