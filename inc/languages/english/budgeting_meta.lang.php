@@ -22,6 +22,7 @@ $lang['saleType']="Sales Type";
 $lang['generatebudget']="Generate Budget";
 $lang['manager']='Business Manager';
 $lang['invoice']="Invoice";
+$lang['unspecifiedcust']="Unspecified Customer";
 $lang['selectbudgetfile']='Select Budgetfile';
 $lang['budgetexist']='Budget Already exist';
 $lang['importbudgetallowedtypes']='Only CSV & Excel files are allowed.';

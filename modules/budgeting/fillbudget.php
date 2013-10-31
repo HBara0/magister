@@ -106,6 +106,7 @@ if(!$core->input['action']) {
 //					$required = ' required="required"';
 //				}
 					foreach($productsdata as $saleid => $budgetline) {
+
 						$previous_yearsqty = $previous_yearsamount = $previous_yearsincome = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
 						if($is_prevonly === true || isset($budgetline['prevbudget'])) {
 							if($is_prevonly == true) {
@@ -134,6 +135,12 @@ if(!$core->input['action']) {
 						$budgetline['productName'] = $product->get()['name'];
 						$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, $saleid, '', '', array('id' => 'salestype_'.$rowid));
 						$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('id' => 'invoice_'.$rowid));
+						/* Get Actual data from mediation tables --START */
+						if(empty($budgetline[actualQty]) || empty($budgetline[actualincome]) || empty($budgetline[actualamount])) {
+							$budgetobj->get_actual_meditaiondata();
+						}
+
+						/* Get Actual data from mediation tables --END */
 						eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
 						$rowid++;
 					}
