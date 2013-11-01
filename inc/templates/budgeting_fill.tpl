@@ -37,21 +37,21 @@
                     if ($('input[id^="Qty_' + id[1] + '"]').val().length > 0) {
                         $('input[id^=unitprice_' + id[1] + ']').val(Number($('input[id^=amount_' + id[1] + ']').val() / $('input[id^=Qty_' + id[1] + ']').val()));
                     }
- 
-                });
 
+                });
 
                 $('input[id^="s1perc_"]').live('input', function() {
-                 var id = $(this).attr("id").split("_");
-                  if ($(this).val().length > 0) {
-                     $('input[id^="s2perc_' + id[1] + '"]').val(Number( 100-$(this).val() ));
-                  }
+                    var id = $(this).attr("id").split("_");
+                    if ($(this).val().length > 0) {
+                        $('input[id^="s2perc_' + id[1] + '"]').val(Number(100 - $(this).val()));
+                    }
                 });
-   $('input[id^="s2perc_"]').live('input', function() {
-                 var id = $(this).attr("id").split("_");
-                  if ($(this).val().length > 0) {
-                     $('input[id^="s1perc_' + id[1] + '"]').val(Number( 100-$(this).val() ));
-                  }
+                
+                $('input[id^="s2perc_"]').live('input', function() {
+                    var id = $(this).attr("id").split("_");
+                    if ($(this).val().length > 0) {
+                        $('input[id^="s1perc_' + id[1] + '"]').val(Number(100 - $(this).val()));
+                    }
                 });
 
                 $('select[id^="salestype_"]').live('change', function() {
@@ -86,8 +86,8 @@
                 <table width="100%" border="0" cellspacing="0" cellpadding="2">
                     <thead>
                         <tr style="vertical-align: top;">
-                            <td  width="11.6%" class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->customer}</strong</td>
-                            <td width="11.6%" rowspan="2" valign="top" align="center" class=" border_right">{$lang->product}</td>
+                            <td  width="11.6%" class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->customer} <a href="index.php?module=contents/addentities&type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
+                            <td width="11.6%" rowspan="2" valign="top" align="center" class=" border_right">{$lang->product}  <a href="index.php?module=contents/addproducts" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->saleType}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->Quantity}<br /><span class="smalltext"><em>{$lang->mt}</em></span></td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
@@ -97,8 +97,8 @@
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->income}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->curr}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->invoice}</td>
-                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->q1perc}</td>
-                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->q2perc}</td>
+                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->s1perc}</td>
+                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->s2perc}</td>
                         </tr>
                     </thead>
                     <tbody id="budgetlines{$rowid}_tbody" style="width:100%;">
