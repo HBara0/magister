@@ -65,8 +65,8 @@ else {
 		$all_data = unserialize($session->get_phpsession('budgetingimport_'.$core->input['identifier']));
 		$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'invoice' => 'invoice', 'country' => 'Country', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'actualAmount' => 'Actual Amount', 'income' => 'Income', 'actualIncome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type', 'Producer' => 'Producer');
 		$required_headers_check = $required_headers = array('customerName', 'productName', 'supplierName', 'year', 'saleType');
-		$budgetlines_valid_data = array('cid', 'pid', 'altCid', 'customerCountry', 'amount', 'actualAmount', 'income', 'actualIncome', 'incomePerc', 'quantity', 'actualQty', 'saleType', 'originalCurrency', 'invoice');
-		$budgetlines_required_data = array('cid', 'pid', 'altCid', 'saleType', 'originalCurrency', 'invoice');
+		$budgetlines_valid_data = array('cid', 'pid', 'altCid', 'customerCountry', 'amount', 'actualAmount', 'income', 'actualIncome', 'incomePerc', 'quantity', 'businessMgr', 'actualQty', 'saleType', 'originalCurrency', 'invoice');
+		$budgetlines_required_data = array('cid', 'pid', 'altCid', 'saleType', 'originalCurrency', 'businessMgr', 'invoice');
 
 		$headers_cache = array();
 		for($i = 0; $i < count($allowed_headers) + 1; $i++) {
@@ -227,24 +227,24 @@ else {
 
 			if($options['resolvebmname'] == 1 || true) {
 				if($cache->incache('employees', $data['salesManager'])) {
-					$data['uid'] = array_search($data['salesManager'], $cache->data['employees']);
+					$data['businessMgr'] = array_search($data['salesManager'], $cache->data['employees']);
 				}
 				else {
-					$data['uid'] = Users::get_user_byattr('displayName', $data['salesManager']);
-					if($data['uid'] != false) {
-						$data['uid'] = $data['uid']->get()['uid'];
+					$data['businessMgr'] = Users::get_user_byattr('displayName', $data['salesManager']);
+					if($data['businessMgr'] != false) {
+						$data['businessMgr'] = $data['businessMgr']->get()['uid'];
 					}
-					if(empty($data['uid'])) {
+					if(empty($data['businessMgr'])) {
 						$errorhandler->record('bmnomatch', $data['salesManager']);
 						continue;
 					}
 					else {
-						$cache->add('employees', $data['salesManager'], $data['uid']);
+						$cache->add('employees', $data['salesManager'], $data['businessMgr']);
 					}
 				}
 			}
 			else {
-				$data['uid'] = $data['salesManager'];
+				$data['businessMgr'] = $data['salesManager'];
 			}
 			/* Resolve names if IDs are not provided - END */
 			/* Resolve customercountry */
@@ -395,7 +395,8 @@ function parse_datapreview($csv_header, $data) {
 
 	$identifier = md5(uniqid(microtime()));
 	$session->set_phpsession(array('budgetingimport_'.$identifier => serialize($data)));
-	$output .= '<tr><input type="checkbox" name="options[runtype]" value="dry" checked="checked" /> Dry Run <br /> <input type="button" value="'.$lang->import.'" class="button" id="perform_budgeting/importbudget_Button" name="perform_budgeting/importbudget_Button"/><input type="hidden" name="identifier" id="identifier" value="'.$identifier.'"/><input type="hidden" name="multivalueseperator" id="multivalueseperator" value="'.$core->input['multivalueseperator'].'"/></table></form><div id="perform_budgeting/importbudget_Results"></div>';
+	$output .= '<tr><input type="checkbox" name="options[runtype]" value="dry" checked="checked" /> Dry Run <br /> <input type="hidden" name="identifier" id="identifier" value="'.$identifier.'"/><input type="hidden" name="multivalueseperator" id="multivalueseperator" value="'.$core->input['multivalueseperator'].'"/></table></form>';
+	$output .= '<div><input type="button" value="'.$lang->import.'" class="button" id="perform_budgeting/importbudget_Button" name="perform_budgeting/importbudget_Button"/></div><div id="perform_budgeting/importbudget_Results"></div>';
 	return $output;
 }
 
