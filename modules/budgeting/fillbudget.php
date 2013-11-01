@@ -90,14 +90,16 @@ if(!$core->input['action']) {
 
 		/* check whether to display existing budget Form or display new one  */
 		$unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income');
-
 		if(is_array($budgetlinesdata)) {
 			$rowid = 1;
 
 			foreach($budgetlinesdata as $cid => $customersdata) {
 				/* Get Customer name from object */
+				if(!is_int($cid)) {
+					$cid = 0;
+				}
 				$customer = new Entities($cid);
-
+				
 				foreach($customersdata as $pid => $productsdata) {
 					/* Get Products name from object */
 					$product = new Products($pid);
@@ -106,7 +108,7 @@ if(!$core->input['action']) {
 //					$required = ' required="required"';
 //				}
 					foreach($productsdata as $saleid => $budgetline) {
-						$previous_yearsqty = $previous_yearsamount = $previous_yearsincome =  $prevyear_incomeperc = $prevyear_unitprice = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
+						$previous_yearsqty = $previous_yearsamount = $previous_yearsincome = $prevyear_incomeperc = $prevyear_unitprice = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
 						if($is_prevonly === true || isset($budgetline['prevbudget'])) {
 							if($is_prevonly == true) {
 								$prev_budgetlines = $budgetline;
@@ -128,13 +130,13 @@ if(!$core->input['action']) {
 								$previous_yearsqty .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['quantity'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualQty'].'</span>';
 								$previous_yearsamount .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['amount'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualAmount'].'</span>';
 								$previous_yearsincome .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['income'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncome'].'</span>';
-								
+
 								$prev_budgetline['actualIncomePerc'] = 0;
 								if(!empty($prev_budgetline['actualAmount'])) {
 									$prev_budgetline['actualIncomePerc'] = round(($prev_budgetline['actualIncome'] * 100) / $prev_budgetline['actualAmount'], 2);
 								}
 								$prevyear_incomeperc .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['incomePerc'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncomePerc'].'</span>';
-								
+
 								$prev_budgetline['actualUnitPrice'] = 0;
 								if(!empty($prev_budgetline['actualQty'])) {
 									$prev_budgetline['actualUnitPrice'] = round($prev_budgetline['actualAmount'] / $prev_budgetline['actualQty'], 2);
