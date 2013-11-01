@@ -151,12 +151,12 @@ class Budgets {
 				}
 			}
 			else {
+				$existing_budget = Budgets::get_budget_bydata($budgetdata);
 				if(isset($this)) {
-					$this->budget['bid'] = $budgetdata['bid'];
+					$this->budget['bid'] = $existing_budget['bid'];
 					$this->save_budgetlines($budgetline_data, $this->budget['bid']);
 				}
 				else {
-					$existing_budget = Budgets::get_budget_bydata($budgetdata);
 					$budget = new Budgets($existing_budget['bid']);
 					$budget->save_budgetlines($budgetline_data);
 				}
