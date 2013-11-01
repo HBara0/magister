@@ -32,7 +32,7 @@
 
                 <div style="display:block; padding:8px;"> 
                     <div style="display:inline-block;padding:10px;vertical-align:top;">{$lang->segment}</div>
-                    <div style="display:inline-block;padding:10px;">  <select name="budget[segments][]" multiple="multiple" tabindex="4"> {$budget_segment}</select> </div>
+                    <div style="display:inline-block;padding:10px;">{$budget_segment}</div>
                     <div style="display:inline-block;padding:10px;vertical-align:top;">{$lang->year}</div>
                     <div style="display:inline-block;padding:10px;vertical-align:top;"><select name="budget[years][]" id="year" multiple="multiple" tabindex="5" >{$budget_year}</select></div>
                 </div>
