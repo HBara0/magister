@@ -1,6 +1,8 @@
 <?php
 $lang['create'] = 'Create';
 $lang['budg'] = 'Budg';
+$lang['budgetabbr'] = 'B';
+$lang['actualabbr'] = 'A';
 $lang['fillbudget'] = 'Fill';
 $lang['createbudget'] = 'Create Budget';
 $lang['automaticusdrate'] = 'Automatic USD Fx Rate';
@@ -11,12 +13,11 @@ $lang['actualQuantity'] = "Actual Quantity";
 $lang['actualincome'] = "Actual income";
 $lang['actualamount'] = "Actual amount";
 $lang['unitprice'] = "Unit Price";
-$lang['q1perc'] = "S1 Perc";
-$lang['q2perc'] = "S2 Perc";
-$lang['q3perc'] = "q3 Perc";
-$lang['q4perc'] = "q4 Perc";
-$lang['amount'] = "Sale Ammount";
+$lang['s1perc'] = "S1 Perc";
+$lang['s2perc'] = "S2 Perc";
+$lang['amount'] = "Sale Amount";
 $lang['actual'] = "Act";
+$lang['income'] = 'Income';
 $lang['incomeperc'] = 'Income %';
 $lang['saleType'] = "Sales Type";
 $lang['generatebudget'] = "Generate Budget";
