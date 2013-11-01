@@ -13,7 +13,7 @@ class Budgets {
 	private $errorcode = 0;
 
 	public function __construct($id = '', $simple = false, $budgetdata = '', $isallbudget = false) {
-		if(isset($id) && !empty($id) || !empty($isallbudget)) {
+		if(isset($id) && !empty($id)) {
 			$this->budget = $this->read($id, $simple, $isallbudget);
 		}
 	}
@@ -29,7 +29,7 @@ class Budgets {
 			$query_select = 'year, description';
 		}
 		if($isallbudget == true) {
-			$queryall = $db->query("SELECT DISTINCT(year),bid,identifier,description,affid,spid,currency,isLocked,isFinalized,finalizedBy,status,createdOn,createdBy,modifiedBy 
+			$queryall = $db->query("SELECT DISTINCT(year), bid, identifier, description, affid, spid, currency,isLocked,isFinalized,finalizedBy,status,createdOn,createdBy,modifiedBy 
 									FROM ".Tprefix."budgeting_budgets GROUP BY year ORDER BY year DESC  ");
 			if($db->num_rows($queryall) > 0) {
 				while($budget = $db->fetch_assoc($queryall)) {
@@ -127,7 +127,6 @@ class Budgets {
 				$this->errorcode = 2;
 				return false;
 			}
-
 			/* Check if budget exists, then process accordingly */
 			if(!Budgets::budget_exists_bydata($budgetdata)) {
 				$budget_data = array('identifier' => substr(uniqid(time()), 0, 10),
@@ -140,7 +139,7 @@ class Budgets {
 
 				$insertquery = $db->insert_query('budgeting_budgets', $budget_data);
 				if($insertquery) {
-					if(isset($this)) {
+					if(is_object($this)) {
 						$this->budget['bid'] = $db->last_id();
 						$this->save_budgetlines($budgetline_data, $this->budget['bid']);
 					}
@@ -420,12 +419,14 @@ class BudgetLines {
 
 	public function create($budgetline_data = array()) {
 		global $db, $core;
+
 		if(is_array($budgetline_data)) {
 			//$budgetline_data['bid'] = $bid;
 			if(empty($budgetline_data['createdBy'])) {
 				$budgetline_data['createdBy'] = $core->user['uid'];
 			}
-			unset($budgetline_data['customerName']);
+			unset($budgetline_data['customerName'], $budgetline_data['blid']);
+							
 			$insertquery = $db->insert_query('budgeting_budgets_lines', $budgetline_data);
 			if($insertquery) {
 				$this->errorcode = 0;
@@ -437,7 +438,7 @@ class BudgetLines {
 		global $db, $core;
 		unset($budgetline_data['customerName']);
 		$budgetline_data['modifiedBy'] = $core->user['uid'];
-		$db->update_query('budgeting_budgets_lines', $budgetline_data, 'blid='.$this->budgetline['blid']);
+		$db->update_query('budgeting_budgets_lines', $budgetline_data, 'blid='.$budgetline_data['blid']);
 	}
 
 	public function delete() {
@@ -468,6 +469,9 @@ class BudgetLines {
 	public static function get_budgetline_bydata($data) {
 		global $db;
 		if(is_array($data)) {
+			if(!isset($data['bid']) || empty($data['bid'])) {
+				return false;
+			}
 			$budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$data['altCid']."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."'");
 			if($db->num_rows($budgetline_bydataquery) > 0) {
 				return $db->fetch_assoc($budgetline_bydataquery);
