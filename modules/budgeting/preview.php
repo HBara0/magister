@@ -50,6 +50,7 @@ if(!($core->input['action'])) {
 
 								$budgetline[altcustomer] = $budgetline['altCid'];
 								$budgetline['uom'] = 'Kg';
+								$budgetline['saleType'] = Budgets::get_saletype_byid($saleid);
 								$budgetline['cusomtercountry'] = $countries->get()['name'];
 								if(isset($budgetline['genericproduct']) && !empty($budgetline['genericproduct'])) {
 									$budgetline['genericproduct'] = $budgetline_obj->get_product()->get_generic_product();
@@ -67,7 +68,7 @@ if(!($core->input['action'])) {
 			}
 		}
 		else {
-			$budget_report_row = '<tr><td>'.$lang->na.'</td></tr>';
+			$budgeting_budgetrawreport = '<tr><td>'.$lang->na.'</td></tr>';
 		}
 		eval("\$budgeting_budgetrawreport = \"".$template->get('budgeting_budgetrawreport')."\";");
 	}
@@ -85,34 +86,43 @@ elseif($core->input['action'] == 'exportexcel') {
 	if(!$budgetcache->iscached('managercache', $firstbudgetline['manager']['uid'])) {
 		$budgetcache->add('managercache', $firstbudgetline['manager']['displayName'], $firstbudgetline['manager']['uid']);
 	}
-	$firstbudgetline['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
 	$firstbudgetline['manager'] = $budgetcache->data['managercache'][$firstbudgetline['manager']['uid']];
+	$firstbudgetline['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
 	$counter = 1;
 
-	$headers_data = array('altCid', 'amount', 'income', 'Quantity', 'saleType', 'uom', 'cusomtercountry', 'segment', 'customer', 'product', 'affiliate', 'manager', 'supplier', 'income');
-	foreach($budget_metadata as $cid => $customersdata) {
-		foreach($customersdata as $pid => $productsdata) {
-			foreach($productsdata as $saleid => $budgetline[$counter]) {
-				$budgetline_obj = new BudgetLines($budgetline[$counter]['blid']);
-				$countries = new Countries($budgetline_obj->get_customer($cid)->get()['country']);
+	$headers_data = array('altCid', 'unitPrice', 'amount', 'income', 'Quantity', 'saleType', 's1Perc', 's2Perc', 'uom', 'segment', 'customer', 'product', 'affiliate', 'manager', 'supplier');
+	if(is_array($budget_metadata)) {
+		foreach($budget_metadata as $cid => $customersdata) {
+			foreach($customersdata as $pid => $productsdata) {
+				foreach($productsdata as $saleid => $budgetline[$counter]) {
+					$budgetline_obj = new BudgetLines($budgetline[$counter]['blid']);
+					$countries = new Countries($budgetline_obj->get_customer($cid)->get()['country']);
 
-				$budgetline[$counter]['uom'] = 'Kg';
-				$budgetline[$counter]['cusomtercountry'] = $countries->get()['name'];
-				if(isset($budgetline['genericproduct']) && !empty($budgetline['genericproduct'])) {
-					$budgetline[$counter]['genericproduct'] = $budgetline_obj->get_product()->get_generic_product();
-				}
-				$budgetline[$counter]['segment'] = $budgetline_obj->get_product($pid)->get_segment()['title'];
+					$budgetline[$counter]['cusomtercountry'] = $countries->get()['name'];
+					$budgetline[$counter]['unitPrice'] = $budgetline[$counter]['unitPrice'];
+//					$budgetline[$counter]['amount'] = $budgetline[$counter]['amount'];
+//					$budgetline[$counter]['income'] = $budgetline[$counter]['income'];
+//					$budgetline[$counter]['Quantity'] = $budgetline[$counter]['Quantity'];
+					$budgetline[$counter]['saleType'] = Budgets::get_saletype_byid($saleid);
+					$budgetline[$counter]['s1Perc'] = $budgetline[$counter]['s1Perc'];
+					$budgetline[$counter]['s2Perc'] = $budgetline[$counter]['s2Perc'];
+					$budgetline[$counter]['uom'] = 'Kg';
+					$budgetline[$counter]['segment'] = $budgetline_obj->get_product($pid)->get_segment()['title'];
+					$budgetline[$counter]['customer'] = $budgetline_obj->get_customer($cid)->get()['companyName'];
+					$budgetline[$counter]['product'] = $budgetline_obj->get_product($pid)->get()['name'];
 
-				$budgetline[$counter]['customer'] = $budgetline_obj->get_customer($cid)->get()['companyName'];
-				$budgetline[$counter]['product'] = $budgetline_obj->get_product($pid)->get()['name'];
-
-				foreach($budgetline[$counter] as $key => $val) {
-					if(!in_array($key, $headers_data)) {
-						unset($budgetline[$counter][$key]);
+//					if(isset($budgetline['genericproduct']) && !empty($budgetline['genericproduct'])) {
+//						$budgetline[$counter]['genericproduct'] = $budgetline_obj->get_product()->get_generic_product();
+//					}
+//				
+					foreach($budgetline[$counter] as $key => $val) {
+						if(!in_array($key, $headers_data)) {
+							unset($budgetline[$counter][$key]);
+						}
+						$budgetline[$counter] +=$firstbudgetline;
 					}
-					$budgetline[$counter] +=$firstbudgetline;
+					$counter++;
 				}
-				$counter++;
 			}
 		}
 	}

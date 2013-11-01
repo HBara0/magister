@@ -44,10 +44,16 @@ if(!$core->input['action']) {
 	$user = new Users($core->user['uid']);
 	$user_segments = $user->get_segments();
 	$reporting_touser = $user->get_reportingto();
-	foreach($user_segments as $segment) {
-		$budget_segment .='<option value='.$segment['psid'].'>'.$segment['title'].'</option>';
+	if(is_array($user_segments)) {
+		$budget_segment.='<select name="budget[segments][]" multiple="multiple" tabindex="4">';
+		foreach($user_segments as $segment) {
+			$budget_segment .='<option value='.$segment['psid'].'>'.$segment['title'].'</option>';
+		}
+		$budget_segment.='</select>';
 	}
-
+	else {
+		$budget_segment.=$lang->na;
+	}
 	$budget_obj = new Budgets('', '', '', true);
 	$allbugets = $budget_obj->get();
 	foreach($allbugets as $id => $budget) {
@@ -90,7 +96,6 @@ if(!$core->input['action']) {
 	else {
 		$business_managerslist.="<option value='{$core->user['uid']}'>{$core->user['displayName']}</option>";
 	}
-
 
 	eval("\$budgetgenerate = \"".$template->get('budgeting_generate')."\";");
 	output_page($budgetgenerate);
