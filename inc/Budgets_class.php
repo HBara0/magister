@@ -363,6 +363,18 @@ class Budgets {
 //		}
 	}
 
+	public static function get_availableyears() {
+		global $db;
+		$query = $db->query('SELECT DISTINCT(year) FROM '.Tprefix.'budgeting_budgets');
+		if($db->num_rows($query) > 0) {
+			while($year = $db->fetch_assoc($query)) {
+				$years[$year['year']] = $year['year'];
+			}
+			return $years;
+		}
+		return false;
+	}
+
 	/* function return object Type --START */
 	public function get_supplier() {
 		return new Entities($this->budget['spid']);
@@ -433,7 +445,7 @@ class BudgetLines {
 				$budgetline_data['createdBy'] = $core->user['uid'];
 			}
 			unset($budgetline_data['customerName'], $budgetline_data['blid']);
-							
+
 			$insertquery = $db->insert_query('budgeting_budgets_lines', $budgetline_data);
 			if($insertquery) {
 				$this->errorcode = 0;

@@ -54,16 +54,9 @@ if(!$core->input['action']) {
 	else {
 		$budget_segment.=$lang->na;
 	}
-	$budget_obj = new Budgets('', '', '', true);
-	$allbugets = $budget_obj->get();
-	foreach($allbugets as $id => $budget) {
-		$year_selected = '';
-		if($budget['year'] == date("Y")) {
-			$year_selected = "selected=selected";
-		}
-		$budget_year .= "<option value='{$budget['year']}'{$year_selected}>{$budget['year']}</option>";
-	}
-
+	$years = Budgets::get_availableyears();
+	
+	$budget_year_selectlist = parse_selectlist('budget[years][]', 4, $years, date('Y'), 1, '', array('id' => 'year'));
 	//$years = array_combine(range(date("Y") + 1, date("Y") - 3), range(date("Y") + 1, date("Y") - 3));
 //	foreach($years as $year) {
 //		$year_selected = '';
