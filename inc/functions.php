@@ -1097,7 +1097,12 @@ function getquery_entities_viewpermissions() {
 						}
 					}
 				}
-				$query_attribute = $attribute_prefix.'spid';
+				if(!empty($arguments[5])) {
+					$query_attribute = $arguments[5];
+				} else {
+					$query_attribute = 'spid';
+				}
+				$query_attribute = $attribute_prefix.$query_attribute;
 			}
 		}
 		else {

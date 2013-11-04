@@ -65,7 +65,7 @@ class Affiliates {
 
 	public function get_suppliers() {
 		global $db;
-		$additional_where = getquery_entities_viewpermissions('suppliersbyaffid', $this->affiliate['affid']);
+		$additional_where = getquery_entities_viewpermissions('suppliersbyaffid', $this->affiliate['affid'], '', 0, 'ae', 'eid');
 		$query = $db->query("SELECT DISTINCT(e.eid) 
 					FROM ".Tprefix."entities e 
 					LEFT JOIN ".Tprefix."affiliatedentities ae ON (ae.eid=e.eid) 
