@@ -34,7 +34,7 @@
                     <div style="display:inline-block;padding:10px;vertical-align:top;">{$lang->segment}</div>
                     <div style="display:inline-block;padding:10px;">{$budget_segment}</div>
                     <div style="display:inline-block;padding:10px;vertical-align:top;">{$lang->year}</div>
-                    <div style="display:inline-block;padding:10px;vertical-align:top;"><select name="budget[years][]" id="year" multiple="multiple" tabindex="5" >{$budget_year}</select></div>
+                    <div style="display:inline-block;padding:10px;vertical-align:top;">{$budget_year_selectlist}</div>
                 </div>
                 <div style="display:block; padding:15px;">
                     <div style="display:inline-block;padding:10px;">{$lang->curr}</div>
