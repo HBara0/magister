@@ -19,7 +19,6 @@ class Users {
 		if(empty($uid)) {
 			$this->user = $core->user;
 			$this->user['uid'] = $db->escape_string($this->user['uid']);
-			$this->user['legalAffid'] = $db->fetch_field($db->query('SELECT legalAffid FROM '.Tprefix.'userhrinformation WHERE uid='.$this->user['uid']), 'legalAffid');
 		}
 		else {
 			$this->read_user($uid, $simple);
@@ -55,6 +54,9 @@ class Users {
 
 	/* Backward compatibility */
 	public static function get_userbyemail($email) {
+		if(!is_object($this)) {
+			return Users::get_user_byemail($email);
+		} 
 		return $this->get_user_byemail($email);
 	}
 
@@ -96,6 +98,9 @@ class Users {
 	}
 
 	public function get_reportsto() {
+		if(empty($this->user['reportsTo'])) {
+			return false;
+		}
 		return new Users($this->user['reportsTo']);
 	}
 
