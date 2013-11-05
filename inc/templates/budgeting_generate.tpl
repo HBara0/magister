@@ -10,13 +10,11 @@
                 });
             });
         </script>
-
     </head>
     <body>
         {$header}
     <tr>
         {$menu}
-
         <td class="contentContainer">
             <h3>{$lang->generatebudget}</h3>
             <form name="perform_budgeting/generate_Form" id="perform_budgeting/generate_Form" method="post" action="index.php?module=budgeting/preview&amp;referrer=generate">

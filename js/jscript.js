@@ -572,6 +572,7 @@ $(function() {
                     }
                 },
                 success: function(returnedData) {
+            alert(returnedData);
                     if (datatype == 'xml') {
                         if ($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -585,8 +586,8 @@ $(function() {
                     {
                         $("#" + contentId).html($.trim(returnedData));
                     }
-                },
-                dataType: datatype
+                }//,
+               // dataType: datatype
             });
         }
         function checkSession() {
