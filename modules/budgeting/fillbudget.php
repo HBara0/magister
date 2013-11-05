@@ -99,7 +99,7 @@ if(!$core->input['action']) {
 					$cid = 0;
 				}
 				$customer = new Entities($cid);
-				
+
 				foreach($customersdata as $pid => $productsdata) {
 					/* Get Products name from object */
 					$product = new Products($pid);
@@ -126,6 +126,18 @@ if(!$core->input['action']) {
 										unset($budgetline[$field]);
 									}
 								}
+
+								/* Get Actual data from mediation tables --START */
+
+								if(empty($budgetline['actualQty']) || empty($budgetline['actualincome']) || empty($budgetline['actualamount'])) {
+									$mediation_actual = $budgetobj->get_actual_meditaiondata(array('pid' => $prev_budgetline['pid'], 'cid' => $prev_budgetline['cid'], 'saleType' => $prev_budgetline['saleType']));
+									print_r($mediation_actual);
+
+									$budgetLines['actualQty'] = $mediation_actual['quantity'];
+									$actualqty = '<input type="hidden" name='.$budgetline['quantity'].' value='.$budgetLines['actualQty'].' />';
+									$budgetLines['actualamount'] = $mediation_actual['cost'];
+									$budgetLines['actualincome'] = $mediation_actual['price'];
+								}
 								$budgetline['alternativecustomer'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altCid']).'</span>';
 								$previous_yearsqty .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['quantity'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualQty'].'</span>';
 								$previous_yearsamount .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['amount'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualAmount'].'</span>';
@@ -151,10 +163,7 @@ if(!$core->input['action']) {
 						$budgetline['productName'] = $product->get()['name'];
 						$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, $saleid, '', '', array('id' => 'salestype_'.$rowid));
 						$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('id' => 'invoice_'.$rowid));
-						/* Get Actual data from mediation tables --START */
-						if(empty($budgetline['actualQty']) || empty($budgetline['actualincome']) || empty($budgetline['actualamount'])) {
-							$budgetobj->get_actual_meditaiondata();
-						}
+
 
 						/* Get Actual data from mediation tables --END */
 						eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
