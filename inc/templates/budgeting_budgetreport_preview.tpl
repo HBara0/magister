@@ -18,7 +18,7 @@
                 {$budgetreport_coverpage}
                 {$budgeting_budgetrawreport}
                 <input type="hidden" name="budgetid" value="{$budgetid}"/>
-                <div align="right"><a href="index.php?module=budgeting/preview&action=exportexcel&bid={$budgetid}" target="_blank"><img src="././images/icons/xls.gif"/>{$lang->generateexcel}</a></div>
+                <div align="right"  title="{$lang->generate}" style=" float:right;padding:10px;width:10px;"><a href="index.php?module=budgeting/preview&action=exportexcel&bid={$budgetid}" target="_blank"><img src="././images/icons/xls.gif"/>{$lang->generateexcel}</a></div>
             </form>
         </td>
     </tr> 

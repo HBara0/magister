@@ -245,29 +245,6 @@ class Budgets {
 		}
 	}
 
-//	public function get_budgetbyspecificdata($data) {
-//		global $db;
-//
-//		if(is_array($data)) {
-//			if(isset($data['affilliates']) && !empty($data['affilliates'])) {
-//				$where = ' WHERE affid in('.implode(',', $data['affilliates']).')';
-//			}
-//
-//			if(isset($data['affilliates'], $data['suppliers'], $data['managers'], $data['segments'], $data['years']) && !is_empty($data['affilliates'], $data['suppliers'], $data['managers'], $data['segments'], $data['years'])) {
-//				return $this->get_budget_byinfo($data);
-//			}
-//
-//			$budget_bydataquery = $db->query("SELECT bid FROM ".Tprefix."budgeting_budgets ".$where);
-//			if($db->num_rows($budget_bydataquery) > 0) {
-//				while($budget_bydata = $db->fetch_assoc($budget_bydataquery)) {
-//					$this->get_budgetLines($budget_bydata['bid']);
-////$budget_report[$budget_bydata['bid']] = $budget_bydata;
-//				}
-//				//return $budget_report;
-//			}
-//		}
-//	}
-
 	public function get_budgets_byinfo($data = array()) {
 		global $db;
 
@@ -283,7 +260,7 @@ class Budgets {
 														  WHERE  year in(".$db->escape_string(implode(',', $data['years'])).") 
 														  AND affid in(".$db->escape_string(implode(',', $data['affilliates'])).") 
 														  AND spid in(".$db->escape_string(implode(',', $data['suppliers'])).") 
-														  AND createdBy in(".$db->escape_string(implode(',', $data['managers'])).")");
+														  AND businessMgr in(".$db->escape_string(implode(',', $data['managers'])).")");
 		}
 
 		while($budget_reportids = $db->fetch_assoc($budget_reportquery)) {
@@ -355,12 +332,23 @@ class Budgets {
 
 	public function get_actual_meditaiondata($data = array()) {
 		global $db;
-//		if(is_array($data)) {
-//			$db->query("SELECT ime.localid,ime.foreignname,ime.entityType,bl.cid,ims.amount,ims.quantity  FROM ".Tprefix."integration_mediation_entities ime
-//					JOIN ".Tprefix."budgeting_budgets_lines bl ON (bl.cid = ime.localid)
-//					JOIN  ".Tprefix."integration_mediation_stockpurchases  ims ON (ims.pid=bl.pid) 
-//					WHERE ims.saleType =".$data['saleType']." AND ime.entityType='e'");
-//		}
+		if(is_array($data)) {
+			if(!empty($data['pid'])) {
+				$where = "ms.pid =".$data['pid']."";
+			}
+
+			$mediation_result = $db->query("SELECT ime.imspid,ime.localid,ime.foreignname,ime.entityType,bl.cid, ims.quantity ,ims.price,ims.cost FROM ".Tprefix." integration_mediation_entities ime
+					JOIN ".Tprefix."budgeting_budgets_lines bl ON (bl.cid = ime.localid)
+					JOIN  ".Tprefix."integration_mediation_salesorderlines  ims ON (ims.pid=bl.pid) 
+					WHERE ims.pid =".$data['pid']."  AND  ime.localid =".$data['cid']." AND ims.saleType =".$data['saleType']." AND ime.entityType='e'");
+
+			if($db->num_rows($mediation_result) > 0) {
+				while($rowmediationdata = $db->fetch_assoc($mediation_result)) {
+					$actual_mediationdata[$rowmediationdata['imspid']] = $rowmediationdata;
+				}
+				return $actual_mediationdata;
+			}
+		}
 	}
 
 	public static function get_availableyears() {
@@ -390,6 +378,10 @@ class Budgets {
 
 	public function get_CreateUser() {
 		return new Users($this->budget['createdBy']);
+	}
+
+	public function get_businessMgr() {
+		return new Users($this->budget['businessMgr']);
 	}
 
 	public function get_ModifyUser() {

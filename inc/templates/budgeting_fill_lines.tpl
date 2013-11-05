@@ -19,7 +19,7 @@
     <td style="vertical-align:top; padding:2px;border-bottom: dashed 1px #CCCCCC;" align="center">{$saletype_selectlist}</td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_right">
         <input name="budgetline[$rowid][quantity]" type="text" id="Qty_{$rowid}" size="10" accept="numeric" value="{$budgetline[quantity]}"{$required}  />
-        {$previous_yearsqty}
+        {$previous_yearsqty}  
     </td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><select name="budgetline[$rowid][UoM]" disabled="disabled"><option value="kg">KG</option></select></td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[$rowid][unitPrice]" type="text" id="unitprice_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[unitPrice]}" autocomplete='off'/>{$prevyear_unitprice}</td>
