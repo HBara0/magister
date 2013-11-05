@@ -41,6 +41,7 @@ if(!$core->input['action']) {
 		$budget_data['supplierName'] = $supplier->get()['companyName'];
 
 		$currentbudget = Budgets::get_budget_bydata($budget_data);
+	
 		if($currentbudget != false) {
 			$budgetobj = new Budgets($currentbudget['bid']);
 			$budget_data['bid'] = $currentbudget['bid'];
@@ -204,8 +205,12 @@ else {
 			if(is_array($currentbudget) && !empty($currentbudget['bid'])) {
 				$budget_data['bid'] = $currentbudget['bid'];
 			}
-
-			$budget->save_budget($budget_data, $core->input['budgetline']);
+			if(is_object($budget)) {
+				$budget->save_budget($budget_data, $core->input['budgetline']);
+			}
+			else {
+				Budgets::save_budget($budget_data, $core->input['budgetline']);
+			}
 		}
 		switch($budget->get_errorcode()) {
 			case 0:
