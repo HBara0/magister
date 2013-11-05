@@ -20,7 +20,6 @@ if(!($core->input['action'])) {
 		$aggregate_types = array('affilliates', 'suppliers', 'managers', 'segments', 'years');
 
 		eval("\$budgetreport_coverpage = \"".$template->get('budgeting_budgetreport_coverpage')."\";");
-			
 
 		$budget_genobj = new Budgets();
 		$budgets = $budget_genobj->get_budgets_byinfo($budgetsdata);
@@ -28,14 +27,7 @@ if(!($core->input['action'])) {
 			foreach($budgets as $budgetid) {
 				$budget_obj = new Budgets($budgetid);
 				$budget['country'] = $budget_obj->get_affiliate()->get()['name'];
-				$budget['manager'] = $budget_obj->get_businessMgr()->get();
-				$budget['managerid'] = $budget_obj->get_businessMgr()->get()['uid'];
 
-				if(!$budgetcache->iscached('managercache', $budget['manager']['uid'])) {
-					$budgetcache->add('managercache', $budget['manager']['displayName'], $budget['manager']['uid']);
-				}
-				$budget['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
-				$budget['manager'] = $budgetcache->data['managercache'][$budget['manager']['uid']];
 
 				$firstbudgetline = $budget_obj->get_budgetLines();
 				if(is_array($firstbudgetline)) {
@@ -46,6 +38,16 @@ if(!($core->input['action'])) {
 							foreach($productsdata as $saleid => $budgetline) {
 								$rowclass = alt_row($rowclass);
 								$budgetline_obj = new BudgetLines($budgetline['blid']);
+
+								$budget['manager'] = $budgetline_obj->get_businessMgr()->get();
+								$budget['managerid'] = $budgetline_obj->get_businessMgr()->get()['uid'];
+
+								if(!$budgetcache->iscached('managercache', $budget['manager']['uid'])) {
+									$budgetcache->add('managercache', $budget['manager']['displayName'], $budget['manager']['uid']);
+								}
+								$budget['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
+								$budget['manager'] = $budgetcache->data['managercache'][$budget['manager']['uid']];
+
 								$countries = new Countries($budgetline_obj->get_customer($budgetline['cid'])->get()['country']);
 
 								$budgetline['uom'] = 'Kg';
@@ -92,16 +94,16 @@ elseif($core->input['action'] == 'exportexcel') {
 	$budget_obj = new Budgets($core->input['bid']);
 	$budgetcache = new Cache();
 	$firstbudgetline['affiliate'] = $budget_obj->get_affiliate()->get()['name'];
-	$firstbudgetline['manager'] = $budget_obj->get_businessMgr()->get();
-
-	if(!$budgetcache->iscached('managercache', $firstbudgetline['manager']['uid'])) {
-		$budgetcache->add('managercache', $firstbudgetline['manager']['displayName'], $firstbudgetline['manager']['uid']);
-	}
-	$firstbudgetline['manager'] = $budgetcache->data['managercache'][$firstbudgetline['manager']['uid']];
+//	$firstbudgetline['manager'] = $budget_obj->get_businessMgr()->get();
+//
+//	if(!$budgetcache->iscached('managercache', $firstbudgetline['manager']['uid'])) {
+//		$budgetcache->add('managercache', $firstbudgetline['manager']['displayName'], $firstbudgetline['manager']['uid']);
+//	}
+//	$firstbudgetline['manager'] = $budgetcache->data['managercache'][$firstbudgetline['manager']['uid']];
 	$firstbudgetline['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
 	$counter = 1;
 
-	$headers_data = array('unitPrice', 'amount', 'income', 'Quantity', 'saleType', 's1Perc', 's2Perc', 'uom', 'segment', 'customer', 'product', 'cusomtercountry', 'affiliate', 'manager', 'supplier');
+	$headers_data = array('unitPrice', 'amount', 'income', 'Quantity', 'saleType', 's1Perc', 's2Perc', 'uom', 'segment', 'customer', 'product', 'cusomtercountry', 'affiliate', 'supplier', 'manager');
 	if(is_array($budget_metadata)) {
 		foreach($budget_metadata as $cid => $customersdata) {
 			foreach($customersdata as $pid => $productsdata) {
@@ -109,6 +111,8 @@ elseif($core->input['action'] == 'exportexcel') {
 
 					$budgetline_obj = new BudgetLines($budgetline[$counter]['blid']);
 					$countries = new Countries($budgetline_obj->get_customer($cid)->get()['country']);
+					$firstbudgetline['manager'] = $budgetline_obj->get_businessMgr()->get()['displayName'];
+
 					$budgetline[$counter]['unitPrice'] = $budgetline[$counter]['unitPrice'];
 					$budgetline[$counter]['saleType'] = Budgets::get_saletype_byid($saleid);
 					$budgetline[$counter]['s1Perc'] = $budgetline[$counter]['s1Perc'];

@@ -260,7 +260,7 @@ class Budgets {
 														  WHERE  year in(".$db->escape_string(implode(',', $data['years'])).") 
 														  AND affid in(".$db->escape_string(implode(',', $data['affilliates'])).") 
 														  AND spid in(".$db->escape_string(implode(',', $data['suppliers'])).") 
-														  AND businessMgr in(".$db->escape_string(implode(',', $data['managers'])).")");
+														  AND createdBy in(".$db->escape_string(implode(',', $data['managers'])).")");
 		}
 
 		while($budget_reportids = $db->fetch_assoc($budget_reportquery)) {
@@ -380,10 +380,6 @@ class Budgets {
 		return new Users($this->budget['createdBy']);
 	}
 
-	public function get_businessMgr() {
-		return new Users($this->budget['businessMgr']);
-	}
-
 	public function get_ModifyUser() {
 		return new Users($this->budget['modifiedBy']);
 	}
@@ -471,6 +467,10 @@ class BudgetLines {
 
 	public function get_createuser() {
 		return new Users($this->budgetline['createdBy']);
+	}
+
+	public function get_businessMgr() {
+		return new Users($this->budgetline['businessMgr']);
 	}
 
 	public function get_modifyuser() {
