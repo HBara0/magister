@@ -1,11 +1,11 @@
 <tr id="{$rowid}">
     <td style="vertical-align: top; border-bottom: dashed 1px #CCCCCC; text-align: left;">
-        <input type="hidden" name="budgetline[$rowid][blid]" value="{$prev_budgetline[blid]}"/>
+        <input type="hidden" name="budgetline[$rowid][blid]" value="{$budgetline[blid]}"/>
         <input type='text' id='customer_noexception_{$rowid}_QSearch' name="budgetline[$rowid][customerName]" value="{$budgetline[customerName]}" autocomplete='off' {$required}/>
         <input type='text' size='3' id='customer_noexception_{$rowid}_id_output' disabled='disabled' value="{$budgetline[cid]}" style="display:none;"/>
         <input type='hidden' value="{$budgetline[cid]}" id='customer_noexception_{$rowid}_id' name='budgetline[$rowid][cid]' />
         <input type='hidden' value="{$budgetline[altCid]}" id='altCid' name='budgetline[$rowid][altCid]' />
-        <input type="hidden"  id="budgetline[altCid]" name="budgetline[altCid]" value="{$prev_budgetline[altCid]}"/>
+        <input type="hidden" id="budgetline_{$rowid}_altCid" name="budgetline[$rowid][altCid]" value="{$prev_budgetline[altCid]}"/>
             {$budgetline[alternativecustomer]}
         <span style="padding:8px;"><br /><input type="checkbox" name="budgetline[$rowid][unspecifiedCustomer]" title="{$lang->unspecifiedcust}" value="1"/>{$lang->unspecifiedcust}</span>
         <div id='searchQuickResults_customer_{$rowid}' class='searchQuickResults' style='display:none;'></div>
