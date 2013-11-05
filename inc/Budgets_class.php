@@ -351,6 +351,18 @@ class Budgets {
 		}
 	}
 
+	public static function get_availableyears() {
+		global $db;
+		$query = $db->query('SELECT DISTINCT(year) FROM '.Tprefix.'budgeting_budgets');
+		if($db->num_rows($query) > 0) {
+			while($year = $db->fetch_assoc($query)) {
+				$years[$year['year']] = $year['year'];
+			}
+			return $years;
+		}
+		return false;
+	}
+
 	/* function return object Type --START */
 	public function get_supplier() {
 		return new Entities($this->budget['spid']);
