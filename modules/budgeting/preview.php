@@ -78,6 +78,7 @@ if(!($core->input['action'])) {
 					}
 				}
 			}
+			$toolgenerate = '<div align="right"  title="'.$lang->generate.'" style=" float:right;padding:10px;width:10px;"><a href="index.php?module=budgeting/preview&action=exportexcel&bid='.$budgetid.'" target="_blank"><img src="././images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
 		}
 		else {
 			$budgeting_budgetrawreport = '<tr><td>'.$lang->na.'</td></tr>';
@@ -128,14 +129,13 @@ elseif($core->input['action'] == 'exportexcel') {
 					if(empty($budgetline[$counter]['cusomtercountry'])) {
 						$budgetline[$counter]['cusomtercountry'] = $lang->na;
 					}
-
 					foreach($budgetline[$counter] as $key => $val) {
 						if(!in_array($key, $headers_data)) {
 							unset($budgetline[$counter][$key]);
 						}
 						$budgetline[$counter] +=$firstbudgetline;
 					}
-					
+
 					//array_multisort($budgetline[$counter], SORT_ASC, $headers_data);
 					$counter++;
 				}
