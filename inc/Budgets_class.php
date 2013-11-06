@@ -287,6 +287,7 @@ class Budgets {
 			if($year == $data['year']) {
 				continue;
 			}
+
 			$prev_budget_bydataquery = $db->query("SELECT * 
 					FROM ".Tprefix."budgeting_budgets bd 
 					JOIN ".Tprefix."budgeting_budgets_lines bdl ON (bd.bid=bdl.bid) 
@@ -300,6 +301,7 @@ class Budgets {
 				}
 			}
 		}
+
 		return $budgetline_details;
 	}
 
@@ -321,8 +323,10 @@ class Budgets {
 			if($db->num_rows($budgetline_queryid) > 0) {
 				while($budgetline_data = $db->fetch_assoc($budgetline_queryid)) {
 					$budgetline = new BudgetLines($budgetline_data['blid']);
+					$prevbudgetline = new BudgetLines($budgetline_data['prevblid']);
+
 					$budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']] = $budgetline->get();
-					$budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]['prevbudget'] = $prevbudgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']];
+					$budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]['prevbudget'][] = $prevbudgetline->get();
 				}
 				return $budgetline_details;
 			}
@@ -332,6 +336,9 @@ class Budgets {
 	public function get_actual_meditaiondata($data = array()) {
 		global $db;
 		if(is_array($data)) {
+			if(empty($data['cid'])) {
+				return false;
+			}
 			if(!empty($data['pid'])) {
 				$where = "ms.pid =".$data['pid']."";
 			}
@@ -339,7 +346,7 @@ class Budgets {
 			$mediation_result = $db->query("SELECT ime.imspid,ime.localid,ime.foreignname,ime.entityType,bl.cid, ims.quantity ,ims.price,ims.cost FROM ".Tprefix." integration_mediation_entities ime
 					JOIN ".Tprefix."budgeting_budgets_lines bl ON (bl.cid = ime.localid)
 					JOIN  ".Tprefix."integration_mediation_salesorderlines  ims ON (ims.pid=bl.pid) 
-					WHERE ims.pid =".$data['pid']."  AND  ime.localid =".$data['cid']." AND ims.saleType =".$data['saleType']." AND ime.entityType='e'");
+					WHERE ims.pid =".$data['pid']."  AND  ime.localid ='".$data['cid']."' AND ims.saleType =".$data['saleType']." AND ime.entityType='e'");
 
 			if($db->num_rows($mediation_result) > 0) {
 				while($rowmediationdata = $db->fetch_assoc($mediation_result)) {

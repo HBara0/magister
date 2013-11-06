@@ -17,14 +17,14 @@
                 });
                 $('input[id^="unitprice_"]').live('input', function() {
                     var id = $(this).attr("id").split("_");
-                    if ($('input[id^="Qty_' + id[1] + '"]').val().length > 0) {
+                    if ($('input[id^="Qty_' + id[1] + '"]').val().length > 0   ) {
                         $('input[id^=amount_' + id[1] + ']').val((Number($('input[id^=Qty_' + id[1] + ']').val() * $('input[id^=unitprice_' + id[1] + ']').val()))).trigger("input");
 
                     }
 
                 });
 
-                $('input[id^="amount_"]').live('input', function() {
+                $('input[id^="amount_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
                     if ($('input[id^="amountper_' + id[1] + '"]').val().length > 0) {
                         $('input[id^="amountper_' + id[1] + '"]').trigger('input');
@@ -34,8 +34,9 @@
                             $('input[id^="income_' + id[1] + '"]').trigger('input');
                         }
                     }
-                    if ($('input[id^="Qty_' + id[1] + '"]').val().length > 0) {
-                        $('input[id^=unitprice_' + id[1] + ']').val(Number($('input[id^=amount_' + id[1] + ']').val() / $('input[id^=Qty_' + id[1] + ']').val()));
+
+                    if ($('input[id^="Qty_' + id[1] + '"]').val().length > 0  && (isNaN($('input[id^=unitprice_' + id[1] + ']')))) {
+                        $('input[id^=unitprice_' + id[1] + ']').val(($('input[id^=amount_' + id[1] + ']').val() / $('input[id^=Qty_' + id[1] + ']').val()));
                     }
 
                 });
@@ -121,7 +122,7 @@
                                 <table width="100%">
                                     <tr> <td><input type="button" value="{$lang->prevcaps}" class="button" onClick="goToURL('index.php?module=budgeting/create&amp;identifier={$sessionidentifier}');"/></td>
                                         <td><input type="button" id="perform_budgeting/fillbudget_Button" value="{$lang->savecaps}" class="button"/></td>
-                                        <td> <input type="submit" value="{$lang->nextcaps}" onClick='$("form:first").unbind("submit").trigger("submit");'class="button"/>     </td></tr>
+                                        <!--<td> <input type="submit" value="{$lang->nextcaps}" onClick='$("form:first").unbind("submit").trigger("submit");'class="button"/>     </td>--> </tr>
                                 </table>
                             </td>
                         </tr>

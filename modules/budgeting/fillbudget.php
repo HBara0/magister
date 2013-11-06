@@ -41,7 +41,7 @@ if(!$core->input['action']) {
 		$budget_data['supplierName'] = $supplier->get()['companyName'];
 
 		$currentbudget = Budgets::get_budget_bydata($budget_data);
-	
+
 		if($currentbudget != false) {
 			$budgetobj = new Budgets($currentbudget['bid']);
 			$budget_data['bid'] = $currentbudget['bid'];
@@ -108,6 +108,7 @@ if(!$core->input['action']) {
 //				if(isset($budgetline[$rowid]['cid']) && !empty($budgetline[$rowid]['cid'])) {
 //					$required = ' required="required"';
 //				}
+
 					foreach($productsdata as $saleid => $budgetline) {
 						$previous_yearsqty = $previous_yearsamount = $previous_yearsincome = $prevyear_incomeperc = $prevyear_unitprice = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
 						if($is_prevonly === true || isset($budgetline['prevbudget'])) {
@@ -132,7 +133,6 @@ if(!$core->input['action']) {
 
 								if(empty($budgetline['actualQty']) || empty($budgetline['actualincome']) || empty($budgetline['actualamount'])) {
 									$mediation_actual = $budgetobj->get_actual_meditaiondata(array('pid' => $prev_budgetline['pid'], 'cid' => $prev_budgetline['cid'], 'saleType' => $prev_budgetline['saleType']));
-									print_r($mediation_actual);
 
 									$budgetLines['actualQty'] = $mediation_actual['quantity'];
 									$actualqty = '<input type="hidden" name='.$budgetline['quantity'].' value='.$budgetLines['actualQty'].' />';
@@ -140,6 +140,7 @@ if(!$core->input['action']) {
 									$budgetLines['actualincome'] = $mediation_actual['price'];
 								}
 								$budgetline['alternativecustomer'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altCid']).'</span>';
+								$previous_blid = '<input type="hidden" name="budgetline['.$rowid.'][prevblid]" value="'.$prev_budgetline['blid'].'" />';
 								$previous_yearsqty .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['quantity'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualQty'].'</span>';
 								$previous_yearsamount .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['amount'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualAmount'].'</span>';
 								$previous_yearsincome .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['income'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncome'].'</span>';
