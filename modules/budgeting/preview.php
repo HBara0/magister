@@ -22,14 +22,13 @@ if(!($core->input['action'])) {
 		eval("\$budgetreport_coverpage = \"".$template->get('budgeting_budgetreport_coverpage')."\";");
 
 		$budget_genobj = new Budgets();
-		$budgets = $budget_genobj->get_budgets_byinfo($budgetsdata);
+		$budgets = $budget_genobj->get_budgets_bydata($budgetsdata);
 		if(is_array($budgets)) {
 			foreach($budgets as $budgetid) {
 				$budget_obj = new Budgets($budgetid);
 				$budget['country'] = $budget_obj->get_affiliate()->get()['name'];
 
-
-				$firstbudgetline = $budget_obj->get_budgetLines();
+				$firstbudgetline = $budget_obj->get_budgetLines(0, array('filters' => array('businessMgr' => $budgetsdata['managers'])));
 				if(is_array($firstbudgetline)) {
 					$session->set_phpsession(array('budgetmetadata_' => serialize($firstbudgetline)));
 					foreach($firstbudgetline as $cid => $customersdata) {
@@ -56,9 +55,9 @@ if(!($core->input['action'])) {
 								if(empty($budgetline['cusomtercountry'])) {
 									$budgetline['cusomtercountry'] = $lang->na;
 								}
-								if(isset($budgetline['genericproduct']) && !empty($budgetline['genericproduct'])) {
-									$budgetline['genericproduct'] = $budgetline_obj->get_product()->get_generic_product();
-								}
+//								if(isset($budgetline['genericproduct']) && !empty($budgetline['genericproduct'])) {
+//									$budgetline['genericproduct'] = $budgetline_obj->get_product()->get_generic_product();
+//								}
 								if(isset($budgetline['pid']) && !empty($budgetline['pid'])) {
 									$budgetline['segment'] = $budgetline_obj->get_product()->get_segment()['title'];
 								}
@@ -103,7 +102,7 @@ elseif($core->input['action'] == 'exportexcel') {
 	$firstbudgetline['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
 	$counter = 1;
 
-	$headers_data = array('unitPrice', 'amount', 'income', 'Quantity', 'saleType', 's1Perc', 's2Perc', 'uom', 'segment', 'customer', 'product', 'cusomtercountry', 'affiliate', 'supplier', 'manager');
+	$headers_data = array('unitPrice', 'amount', 'income', 'quantity', 'saleType', 's1Perc', 's2Perc', 'uom', 'segment', 'customer', 'product', 'cusomtercountry', 'affiliate', 'supplier', 'manager');
 	if(is_array($budget_metadata)) {
 		foreach($budget_metadata as $cid => $customersdata) {
 			foreach($customersdata as $pid => $productsdata) {
@@ -136,6 +135,8 @@ elseif($core->input['action'] == 'exportexcel') {
 						}
 						$budgetline[$counter] +=$firstbudgetline;
 					}
+					
+					//array_multisort($budgetline[$counter], SORT_ASC, $headers_data);
 					$counter++;
 				}
 			}

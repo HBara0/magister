@@ -245,22 +245,21 @@ class Budgets {
 		}
 	}
 
-	public function get_budgets_byinfo($data = array()) {
+	public static function get_budgets_bydata($data = array()) {
 		global $db;
 
 		if(isset($data['affilliates'], $data['suppliers'], $data['years']) && !is_empty($data['affilliates'], $data['suppliers'], $data['years'])) {
 			$budget_reportquery = $db->query("SELECT bid FROM ".Tprefix."budgeting_budgets 
-														  WHERE  year in(".$db->escape_string(implode(',', $data['years'])).") 
+														  WHERE year in(".$db->escape_string(implode(',', $data['years'])).") 
 														  AND affid in(".$db->escape_string(implode(',', $data['affilliates'])).") 
 														  AND spid in(".$db->escape_string(implode(',', $data['suppliers'])).")");
 		}
 
 		if(isset($data['affilliates'], $data['suppliers'], $data['managers'], $data['segments'], $data['years']) && !empty($data['affilliates']) && !empty($data['suppliers']) && !empty($data['managers']) && !empty($data['years'])) {
 			$budget_reportquery = $db->query("SELECT bid FROM ".Tprefix."budgeting_budgets 
-														  WHERE  year in(".$db->escape_string(implode(',', $data['years'])).") 
+														  WHERE year in(".$db->escape_string(implode(',', $data['years'])).") 
 														  AND affid in(".$db->escape_string(implode(',', $data['affilliates'])).") 
-														  AND spid in(".$db->escape_string(implode(',', $data['suppliers'])).") 
-														  AND createdBy in(".$db->escape_string(implode(',', $data['managers'])).")");
+														  AND spid in(".$db->escape_string(implode(',', $data['suppliers'])).")");
 		}
 
 		while($budget_reportids = $db->fetch_assoc($budget_reportquery)) {
@@ -308,16 +307,20 @@ class Budgets {
 		return $budgetline_details;
 	}
 
-	public function get_budgetLines($bid = '') {
+	public function get_budgetLines($bid = '', $options = array()) {
 		global $db;
 		if(empty($bid)) {
 			$bid = $this->budget['bid'];
 		}
 
+		if(isset($options['filter']['businessMgr']) && is_array($options['filter']['businessMgr'])) {
+			$budgetline_query_where = ' AND businessMgr IN ('.$db->escape_string(implode(',', $options['filter']['businessMgr'])).')';
+		}
+		
 		if(isset($bid) && !empty($bid)) {
 			$prevbudgetline_details = $this->read_prev_budgetbydata();
 			$budgetline_queryid = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines
-											  WHERE bid IN (".$db->escape_string($bid).")");
+											  WHERE bid IN (".$db->escape_string($bid).")".$budgetline_query_where);
 
 			if($db->num_rows($budgetline_queryid) > 0) {
 				while($budgetline_data = $db->fetch_assoc($budgetline_queryid)) {
