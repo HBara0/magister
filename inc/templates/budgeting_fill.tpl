@@ -4,20 +4,30 @@
         {$headerinc}
         <script type="text/javascript">
             $(function() {
-                $('input[id^="amountper_"]').live('input', function() {
+                $('input[id^="amountper_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
+                    if (!jQuery.isNumeric($('input[id^=amountper_' + id[1] + ']').val())) {
+                        return;
+                    }
                     $('input[id^=income_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id^=amount_' + id[1] + ']').val());
                 });
 
-                $('input[id^="income_"]').live('input', function() {
+                $('input[id^="income_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
+                    if (!jQuery.isNumeric($('input[id^=income_' + id[1] + ']').val())) {
+                        return;
+                    }
                     if ($('input[id^="amount_' + id[1] + '"]').val().length > 0) {
                         $('input[id^=amountper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id^=amount_' + id[1] + ']').val());
                     }
                 });
-                $('input[id^="unitprice_"]').live('input', function() {
+
+                $('input[id^="unitprice_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
-                    if ($('input[id^="Qty_' + id[1] + '"]').val().length > 0   ) {
+                    if (!jQuery.isNumeric($('input[id^=unitprice_' + id[1] + ']').val())) {
+                        return;
+                    }
+                    if ($('input[id^="Qty_' + id[1] + '"]').val().length > 0) {
                         $('input[id^=amount_' + id[1] + ']').val((Number($('input[id^=Qty_' + id[1] + ']').val() * $('input[id^=unitprice_' + id[1] + ']').val()))).trigger("input");
 
                     }
@@ -26,6 +36,9 @@
 
                 $('input[id^="amount_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
+                    if (!jQuery.isNumeric($('input[id^=amount_' + id[1] + ']').val())) {
+                        return;
+                    }
                     if ($('input[id^="amountper_' + id[1] + '"]').val().length > 0) {
                         $('input[id^="amountper_' + id[1] + '"]').trigger('input');
 
@@ -35,13 +48,13 @@
                         }
                     }
 
-                    if ($('input[id^="Qty_' + id[1] + '"]').val().length > 0  && (isNaN($('input[id^=unitprice_' + id[1] + ']')))) {
+                    if ($('input[id^="Qty_' + id[1] + '"]').val().length > 0) {
                         $('input[id^=unitprice_' + id[1] + ']').val(($('input[id^=amount_' + id[1] + ']').val() / $('input[id^=Qty_' + id[1] + ']').val()));
                     }
 
                 });
 
-                $('input[id^="s1perc_"]').live('input', function(e) {
+                $('input[id^="s1perc_"]').live('keyup', function(e) {
                     var id = $(this).attr("id").split("_");
                     if ($(this).val() > 100) {
                         e.preventDefault();
@@ -51,7 +64,7 @@
                     }
                 });
 
-                $('input[id^="s2perc_"]').live('input', function(e) {
+                $('input[id^="s2perc_"]').live('keyup', function(e) {
                     var id = $(this).attr("id").split("_");
                     if ($(this).val() > 100) {
                         e.preventDefault();
@@ -74,7 +87,6 @@
                     if (typeof invoicetypes[salestype] != 'undefined') {
                         $('#invoice_' + id[1]).val(invoicetypes[salestype]);
                     }
-
                 });
             });</script>
     </head>
