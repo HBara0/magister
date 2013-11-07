@@ -55,8 +55,10 @@ if(!$core->input['action']) {
 		$budget_segment.=$lang->na;
 	}
 	$years = Budgets::get_availableyears();
-	
+
 	$budget_year_selectlist = parse_selectlist('budget[years][]', 4, $years, date('Y'), 1, '', array('id' => 'year'));
+
+
 	//$years = array_combine(range(date("Y") + 1, date("Y") - 3), range(date("Y") + 1, date("Y") - 3));
 //	foreach($years as $year) {
 //		$year_selected = '';
