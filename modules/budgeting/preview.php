@@ -103,7 +103,8 @@ elseif($core->input['action'] == 'exportexcel') {
 	$firstbudgetline['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
 	$counter = 1;
 
-	$headers_data = array('unitPrice', 'amount', 'income', 'quantity', 'saleType', 's1Perc', 's2Perc', 'uom', 'segment', 'customer', 'product', 'cusomtercountry', 'affiliate', 'supplier', 'manager');
+	//$headers_data = array('unitPrice', 'amount', 'income', 'quantity', 'saleType', 's1Perc', 's2Perc', 'uom', 'segment', 'customer', 'product', 'cusomtercountry', 'affiliate', 'supplier', 'manager');
+	$headers_data = array('manager', 'customer', 'cusomtercountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saleType', 'amount', 'income', 's1Perc', 's2Perc');
 	if(is_array($budget_metadata)) {
 		foreach($budget_metadata as $cid => $customersdata) {
 			foreach($customersdata as $pid => $productsdata) {
@@ -113,28 +114,40 @@ elseif($core->input['action'] == 'exportexcel') {
 					$countries = new Countries($budgetline_obj->get_customer($cid)->get()['country']);
 					$firstbudgetline['manager'] = $budgetline_obj->get_businessMgr()->get()['displayName'];
 
-					$budgetline[$counter]['unitPrice'] = $budgetline[$counter]['unitPrice'];
-					$budgetline[$counter]['saleType'] = Budgets::get_saletype_byid($saleid);
-					$budgetline[$counter]['s1Perc'] = $budgetline[$counter]['s1Perc'];
-					$budgetline[$counter]['s2Perc'] = $budgetline[$counter]['s2Perc'];
-					$budgetline[$counter]['uom'] = 'Kg';
-					$budgetline[$counter]['segment'] = $budgetline_obj->get_product($pid)->get_segment()['title'];
 					$budgetline[$counter]['customer'] = $budgetline_obj->get_customer($cid)->get()['companyName'];
 					if(empty($budgetline[$counter]['customer'])) {
 						$budgetline[$counter]['customer'] = $budgetline[$counter]['altCid'];
 					}
-					$budgetline[$counter]['product'] = $budgetline_obj->get_product($pid)->get()['name'];
-
 					$budgetline[$counter]['cusomtercountry'] = $countries->get()['name'];
 					if(empty($budgetline[$counter]['cusomtercountry'])) {
 						$budgetline[$counter]['cusomtercountry'] = $lang->na;
 					}
-					foreach($budgetline[$counter] as $key => $val) {
-						if(!in_array($key, $headers_data)) {
-							unset($budgetline[$counter][$key]);
+					$budgetline[$counter]['segment'] = $budgetline_obj->get_product($pid)->get_segment()['title'];
+
+					$budgetline[$counter]['product'] = $budgetline_obj->get_product($pid)->get()['name'];
+					$budgetline[$counter]['quantity'] = $budgetline[$counter]['quantity'];
+					$budgetline[$counter]['uom'] = 'Kg';
+
+					$budgetline[$counter]['unitPrice'] = $budgetline[$counter]['unitPrice'];
+					$budgetline[$counter]['saleType'] = Budgets::get_saletype_byid($saleid);
+					$budgetline[$counter]['amount'] = $budgetline[$counter]['amount'];
+					$budgetline[$counter]['income'] = $budgetline[$counter]['income'];
+					$budgetline[$counter]['s1Perc'] = $budgetline[$counter]['s1Perc'];
+					$budgetline[$counter]['s2Perc'] = $budgetline[$counter]['s2Perc'];
+
+
+
+					foreach($headers_data as $headerkey) {
+						foreach($budgetline[$counter] as $key => $val) {
+							if(!in_array($key, $headers_data)) {
+								unset($budgetline[$counter][$key]);
+							}
+							$budgetline[$counter] +=$firstbudgetline;
+							unset($budgetline[$counter]['prevbudget']);
 						}
-						$budgetline[$counter] +=$firstbudgetline;
+						//$budgetline[$counter][$val] = $budgetline[$counter][$headerkey];
 					}
+
 
 					//array_multisort($budgetline[$counter], SORT_ASC, $headers_data);
 					$counter++;
@@ -145,6 +158,7 @@ elseif($core->input['action'] == 'exportexcel') {
 	foreach($headers_data as $val) {
 		$budgetline[0][$val] = $lang->$val;
 	}
+
 	//unset($budgetline['bid'], $budgetline['blid'], $budgetline['pid'], $budgetline['cid'], $budgetline['incomePerc'], $budgetline['invoice'], $budgetline['createdBy'], $budgetline['modifiedBy'], $budgetline['originalCurrency'], $budgetline['prevbudget'], $budgetline['cusomtercountry']);
 	$excelfile = new Excel('array', $budgetline);
 }
