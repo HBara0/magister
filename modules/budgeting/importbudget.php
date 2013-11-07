@@ -61,12 +61,12 @@ else {
 		//$options['runtype'] = 'dry';
 		$options = $core->input['options'];
 		$options['useAltCid'] = 1;
-		$options['resolvesupplierbyproduct'] = 1;
+		$options['resolvesupplierbyproduct'] = 0;
 		$all_data = unserialize($session->get_phpsession('budgetingimport_'.$core->input['identifier']));
 		$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'invoice' => 'invoice', 'country' => 'Country', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'actualAmount' => 'Actual Amount', 'income' => 'Income', 'actualIncome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type', 'Producer' => 'Producer');
 		$required_headers_check = $required_headers = array('customerName', 'productName', 'supplierName', 'year', 'saleType');
-		$budgetlines_valid_data = array('cid', 'pid', 'altCid', 'customerCountry', 'amount', 'actualAmount', 'income', 'actualIncome', 'incomePerc', 'quantity', 'businessMgr', 'actualQty', 'saleType', 'originalCurrency', 'invoice');
-		$budgetlines_required_data = array('cid', 'pid', 'altCid', 'saleType', 'originalCurrency', 'businessMgr', 'invoice');
+		$budgetlines_valid_data = array('cid', 'pid', 'altCid', 'customerCountry', 'amount', 'actualAmount', 'income', 'actualIncome', 'incomePerc', 'quantity', 'unitPrice', 'businessMgr', 'actualQty', 'saleType', 'originalCurrency', 'invoice');
+		$budgetlines_required_data = array('cid', 'pid', 'altCid', 'saleType', 'unitPrice', 'originalCurrency', 'businessMgr', 'invoice');
 
 		$headers_cache = array();
 		for($i = 0; $i < count($allowed_headers) + 1; $i++) {
@@ -128,7 +128,7 @@ else {
 				$data['affid'] = $data['affiliate'];
 			}
 
-			if($options['resolveproductname'] == 1 || true) {
+			if($options['resolveproductname'] == 1) {
 				if($cache->incache('products', $data['productName'])) {
 					$data['pid'] = array_search($data['productName'], $cache->data['products']);
 				}
@@ -309,6 +309,17 @@ else {
 					$data['income'] = $data['amount'] * ($data['incomePerc'] / 100);
 				}
 			}
+
+			//parsing unit price
+
+			if(($data['quantity'] > 0 && $data['amount'] > 0) && (empty($data['unitPrice']))) {
+				$data['unitPrice'] = ($data['amount'] / $data['quantity']);
+			}
+			if(($data['quantity'] > 0 && $data['unitPrice'] > 0) && (empty($data['amount']))) {
+				$data['amount'] = ($data['quantity'] * $data['unitPrice']);
+			}
+
+
 			$budgetlines = array();
 			foreach($budgetlines_valid_data as $valid_attribute) {
 				if($data[$valid_attribute] != '') {
@@ -329,6 +340,7 @@ else {
 					}
 				}
 			}
+
 			if($options['runtype'] != 'dry') {
 				Budgets::save_budget($budget_data, $budgetlines);
 			}
@@ -345,15 +357,24 @@ else {
 		}
 	}
 }
+//$all = parse_datapreview($csv_header, $data);
+//print_r($all);
 function parse_datapreview($csv_header, $data) {
 	global $session, $lang, $core, $cache;
 
 	$output = "<span class='subtitle'></span><br /><form id='perform_budgeting/importbudget_Form'><table class='datatable'><tr><td colspan='16' class='subtitle' style='text-align:center'>{$lang->importpreview}</td></tr><tr>";
 	$budgetlines_valid_data = array('affiliate', 'Sales Manager', 'Customer Name', 'country', 'SupplierID', 'Supplier Name', 'productID', 'Product Name', 'Year', 'quantity', 'actualQty', 'Unit of Measure', 'Sales amount', 'invoice', 'actualAmount', 'Income', 'actualIncome', 'incomePerc', 'originalCurrency', 'Market Segment', 'Sale Type', 'Producer');
-	$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'country' => 'Country', 'invoice' => 'invoice', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'actualAmount' => 'Actual Amount', 'income' => 'Income', 'actualIncome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type', 'Producer' => 'Producer');
+	$allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'country' => 'Country', 'invoice' => 'invoice', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'unitPrice' => 'unitPrice', 'actualAmount' => 'Actual Amount', 'income' => 'Income', 'actualIncome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type', 'Producer' => 'Producer');
 	$abbreviation = array('Ltd.', 'Ltd', 'Llc.', 'Llc', 'Sal.', 'Co.,', 'Co.', 'Co');
-
 	$output .= '<td>#</td>';
+
+	if(!isset($csv_header['budget']['unitPrice'])) {
+		$csv_header['budget']['unitPrice'] = 'unitPrice';
+	}
+	else {
+		unset($csv_header['budget']['unitPrice']);
+	}
+
 	foreach($csv_header['budget'] as $header_key => $header_val) {
 
 		$output .= '<td style="width:20px;"><select name="selectheader_'.$header_key.'" id="selectheader_'.$header_key.'">';
@@ -375,16 +396,26 @@ function parse_datapreview($csv_header, $data) {
 	}
 
 	foreach($data['budget'] as $key => $val) {
-		$output .= '<tr>';
-		$val['companyName'] = ucwords($val['companyName']);
-		$name = explode(' ', $val['companyName']);
+		$altrow = alt_row($altrow);
+		$output .= '<tr class="'.$altrow.'">';
+		if(isset($val['companyName']) && !empty($val['companyName'])) {
+			$val['companyName'] = ucwords($val['companyName']);
+			$name = explode(' ', $val['companyName']);
 
-		foreach($abbreviation as $abb) {
-			$search = array_search($abb, $name);
-			if($search)
-				$name[$search] = strtoupper($name[$search]);
+			foreach($abbreviation as $abb) {
+				$search = array_search($abb, $name);
+				if($search)
+					$name[$search] = strtoupper($name[$search]);
+			}
+			$val['companyName'] = implode(' ', $name);
 		}
-		$val['companyName'] = implode(' ', $name);
+		if(($val['Quantity'] > 0 && $val['Sales amount'] > 0) && (empty($val['unitPrice']))) {
+			$val['unitPrice'] = ($val['Sales amount'] / $val['Quantity']);
+		}
+		if(($val['Quantity'] > 0 && $val['unitPrice'] > 0) && (empty($val['Sales amount']))) {
+			$val['Sales amount'] = ($val['Quantity'] * $val['unitPrice']);
+		}
+
 		$output .= '<td>'.$key.'</td>';
 		foreach($val as $id => $value) {
 			$output .= '<td id="'.$id.'"valign="top" style="width:20px;">'.utf8_encode($value).'</td>';
