@@ -252,8 +252,10 @@ class Sourcing {
 		  } */
 
 		/* Check whether the communications section has  been validated  completed */
-		if(isset($data['commercialoffer']) && !empty($data['commercialoffer']) || (isset($data['sourcingnotPossibleDesc']) && !empty($data['sourcingnotPossibleDesc']))) {
-			$data['isCompleted'] = 1;
+		if(isset($data['isOrderPassed']) && isset($data['commercialoffer']) && !empty($data['commercialoffer']) || (isset($data['sourcingnotPossibleDesc']) && !empty($data['sourcingnotPossibleDesc']))) {
+			if($data['isOrderPassed'] == 1 || $data['isOrderPassed'] == 0) {
+				$data['isCompleted'] = 1;
+			}
 		}
 		$this->orderpassed = $data['orderpassed'];
 		unset($data['orderpassed'], $data['commercialoffer']);
