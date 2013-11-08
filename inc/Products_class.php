@@ -22,8 +22,9 @@ class Products {
 
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'pid, name, spid,gpid';
+			$query_select = 'pid, name, spid, gpid';
 		}
+
 		$this->product = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'products WHERE pid='.intval($id)));
 	}
 
@@ -37,7 +38,7 @@ class Products {
 
 	public function get_segment() {
 		global $db;
-		return $this->product['productsegment'] = $db->fetch_assoc($db->query("SELECT gp.psid, ps.title 
+		return $this->product['productsegment'] = $db->fetch_assoc($db->query("SELECT gp.psid, ps.title, ps.titleAbbr
 								FROM ".Tprefix."genericproducts gp 
 								JOIN ".Tprefix."products p ON (p.gpid=gp.gpid)
 								JOIN ".Tprefix."productsegments ps ON (gp.psid=ps.psid) 
