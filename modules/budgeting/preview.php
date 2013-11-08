@@ -27,7 +27,7 @@ if(!($core->input['action'])) {
 			foreach($budgets as $budgetid) {
 				$budget_obj = new Budgets($budgetid);
 				$budget['country'] = $budget_obj->get_affiliate()->get()['name'];
-
+				$budget['affiliate'] = $budget_obj->get_affiliate()->get()['name'];
 				$firstbudgetline = $budget_obj->get_budgetLines(0, array('filters' => array('businessMgr' => $budgetsdata['managers'])));
 				if(is_array($firstbudgetline)) {
 					$session->set_phpsession(array('budgetmetadata_' => serialize($firstbudgetline)));
@@ -49,20 +49,16 @@ if(!($core->input['action'])) {
 									$budget['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
 								}
 								$budget['manager'] = $budgetcache->data['managercache'][$budget['manager']['uid']];
+								$countries = new Countries($budgetline_obj->get_customer($cid)->get()['country']);
 
-								if(!empty($budgetline['customerCountry'])) {
-									$country = new Countries($budgetline['customerCountry']);
+								$budgetline['cusomtercountry'] = $countries->get()['name'];
+								if(empty($budgetline['cusomtercountry'])) {
+									$budgetline['cusomtercountry'] = $lang->na;
 								}
-								else {
-									$country = new Countries($budgetline_obj->get_customer($budgetline['cid'])->get()['country']);
-								}
+
 								$budgetline['uom'] = 'Kg';
 								$budgetline['saleType'] = Budgets::get_saletype_byid($saleid);
-								$budgetline['customerCountry'] = $country->get()['name'];
 
-								if(empty($budgetline['customerCountry'])) {
-									$budgetline['customerCountry'] = $lang->na;
-								}
 //								if(isset($budgetline['genericproduct']) && !empty($budgetline['genericproduct'])) {
 //									$budgetline['genericproduct'] = $budgetline_obj->get_product()->get_generic_product();
 //								}
@@ -79,7 +75,6 @@ if(!($core->input['action'])) {
 								}
 
 								$budgetline['product'] = $budgetline_obj->get_product($budgetline['pid'])->get()['name'];
-
 								eval("\$budget_report_row .= \"".$template->get('budgeting_budgetrawreport_row')."\";");
 							}
 						}
@@ -133,16 +128,10 @@ elseif($core->input['action'] == 'exportexcel') {
 					$budgetline[$counter]['segment'] = $budgetline_obj->get_product($pid)->get_segment()['title'];
 
 					$budgetline[$counter]['product'] = $budgetline_obj->get_product($pid)->get()['name'];
-					$budgetline[$counter]['quantity'] = $budgetline[$counter]['quantity'];
 					$budgetline[$counter]['uom'] = 'Kg';
 
 					$budgetline[$counter]['unitPrice'] = $budgetline[$counter]['unitPrice'];
 					$budgetline[$counter]['saleType'] = Budgets::get_saletype_byid($saleid);
-					$budgetline[$counter]['amount'] = $budgetline[$counter]['amount'];
-					$budgetline[$counter]['income'] = $budgetline[$counter]['income'];
-					$budgetline[$counter]['s1Perc'] = $budgetline[$counter]['s1Perc'];
-					$budgetline[$counter]['s2Perc'] = $budgetline[$counter]['s2Perc'];
-
 
 
 					foreach($headers_data as $headerkey) {
@@ -163,8 +152,13 @@ elseif($core->input['action'] == 'exportexcel') {
 			}
 		}
 	}
+	$budgetline2 = $budgetline;
+	unset($budgetline);
 	foreach($headers_data as $val) {
 		$budgetline[0][$val] = $lang->$val;
+		foreach($budgetline2 as $counter => $value) {
+			$budgetline[$counter][$val] = $value[$val];
+		}
 	}
 
 	//unset($budgetline['bid'], $budgetline['blid'], $budgetline['pid'], $budgetline['cid'], $budgetline['incomePerc'], $budgetline['invoice'], $budgetline['createdBy'], $budgetline['modifiedBy'], $budgetline['originalCurrency'], $budgetline['prevbudget'], $budgetline['cusomtercountry']);
