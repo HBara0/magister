@@ -316,7 +316,7 @@ class Budgets {
 		}
 
 		if(isset($bid) && !empty($bid)) {
-			$prevbudgetline_details = $this->read_prev_budgetbydata();
+			//$prevbudgetline_details = $this->read_prev_budgetbydata();
 			$budgetline_queryid = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines
 											  WHERE bid IN (".$db->escape_string($bid).")".$budgetline_query_where);
 

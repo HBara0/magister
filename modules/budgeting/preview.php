@@ -44,22 +44,30 @@ if(!($core->input['action'])) {
 								if(!$budgetcache->iscached('managercache', $budget['manager']['uid'])) {
 									$budgetcache->add('managercache', $budget['manager']['displayName'], $budget['manager']['uid']);
 								}
-								$budget['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
+								$budget['supplier'] = $budget_obj->get_supplier()->get()['companyNameShort'];
+								if(empty($budget['supplier'])) {
+									$budget['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
+								}
 								$budget['manager'] = $budgetcache->data['managercache'][$budget['manager']['uid']];
 
-								$countries = new Countries($budgetline_obj->get_customer($budgetline['cid'])->get()['country']);
-
+								if(!empty($budgetline['customerCountry'])) {
+									$country = new Countries($budgetline['customerCountry']);
+								}
+								else {
+									$country = new Countries($budgetline_obj->get_customer($budgetline['cid'])->get()['country']);
+								}
 								$budgetline['uom'] = 'Kg';
 								$budgetline['saleType'] = Budgets::get_saletype_byid($saleid);
-								$budgetline['cusomtercountry'] = $countries->get()['name'];
-								if(empty($budgetline['cusomtercountry'])) {
-									$budgetline['cusomtercountry'] = $lang->na;
+								$budgetline['customerCountry'] = $country->get()['name'];
+
+								if(empty($budgetline['customerCountry'])) {
+									$budgetline['customerCountry'] = $lang->na;
 								}
 //								if(isset($budgetline['genericproduct']) && !empty($budgetline['genericproduct'])) {
 //									$budgetline['genericproduct'] = $budgetline_obj->get_product()->get_generic_product();
 //								}
 								if(isset($budgetline['pid']) && !empty($budgetline['pid'])) {
-									$budgetline['segment'] = $budgetline_obj->get_product()->get_segment()['title'];
+									$budgetline['segment'] = $budgetline_obj->get_product()->get_segment()['titleAbbr'];
 								}
 								if((empty($budgetline['cid']) && !empty($budgetline['altCid']))) {
 									$customername = $budgetline['altCid'];
