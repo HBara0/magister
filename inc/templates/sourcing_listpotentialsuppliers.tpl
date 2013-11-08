@@ -30,7 +30,7 @@
 
                 </table>
                 <div align="right">
-                    {$lang->chemicalsearch} <input id="filters_chemical" name="filters[chemicalsubstance]" type="text" size="35" onkeyup="$('#tablefilters').show();" />
+                    {$lang->chemicalsearch} <input id="filters_chemical" value="{$core->input[filters][chemicalsubstance]}" name="filters[chemicalsubstance]" type="text" size="35" onkeyup="$('#tablefilters').show();" />
                 </div>
                 <div align="right" style="clear:left; padding: 5px;">
                     {$lang->genericproductsearch}{$genericproducts_selectlist}
