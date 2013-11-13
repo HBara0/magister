@@ -131,14 +131,14 @@ if(!$core->input['action']) {
 
 								/* Get Actual data from mediation tables --START */
 
-								if(empty($budgetline['actualQty']) || empty($budgetline['actualincome']) || empty($budgetline['actualamount'])) {
-									$mediation_actual = $budgetobj->get_actual_meditaiondata(array('pid' => $prev_budgetline['pid'], 'cid' => $prev_budgetline['cid'], 'saleType' => $prev_budgetline['saleType']));
-
-									$budgetLines['actualQty'] = $mediation_actual['quantity'];
-									$actualqty = '<input type="hidden" name='.$budgetline['quantity'].' value='.$budgetLines['actualQty'].' />';
-									$budgetLines['actualamount'] = $mediation_actual['cost'];
-									$budgetLines['actualincome'] = $mediation_actual['price'];
-								}
+//								if(empty($budgetline['actualQty']) || empty($budgetline['actualincome']) || empty($budgetline['actualamount'])) {
+//									$mediation_actual = $budgetobj->get_actual_meditaiondata(array('pid' => $prev_budgetline['pid'], 'cid' => $prev_budgetline['cid'], 'saleType' => $prev_budgetline['saleType']));
+//
+//									$budgetLines['actualQty'] = $mediation_actual['quantity'];
+//									$actualqty = '<input type="hidden" name='.$budgetline['quantity'].' value='.$budgetLines['actualQty'].' />';
+//									$budgetLines['actualamount'] = $mediation_actual['cost'];
+//									$budgetLines['actualincome'] = $mediation_actual['price'];
+//								}
 								$budgetline['alternativecustomer'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altCid']).'</span>';
 								$previous_blid = '<input type="hidden" name="budgetline['.$rowid.'][prevblid]" value="'.$prev_budgetline['blid'].'" />';
 								$previous_yearsqty .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['quantity'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualQty'].'</span>';
