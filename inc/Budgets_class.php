@@ -200,9 +200,9 @@ class Budgets {
 				}
 
 				if(!empty($data['cid']) && $data['unspecifiedCustomer'] != 1) {
-					$data['altCid'] = $data['customerCountry'] = Null;
+					$data['altCid'] = NULL;
+					$data['customerCountry'] = 0;
 				}
-
 				unset($data['unspecifiedCustomer']);
 				if(isset($data['blid']) && !empty($data['blid'])) {
 					$budgetlineobj->update($data);
