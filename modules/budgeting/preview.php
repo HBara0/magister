@@ -7,9 +7,6 @@
  * Created:        @tony.assaad    Aug 22, 2013 | 4:17:09 PM
  * Last Update:    @tony.assaad    Aug 22, 2013 | 4:17:09 PM
  */
-$session->start_phpsession();
-$sessionidentifier = md5(uniqid(microtime()));
-$session->name_phpsession(COOKIE_PREFIX.'generatebudget'.$sessionidentifier);
 
 if(!($core->input['action'])) {
 	if($core->input['referrer'] == 'generate') {
@@ -21,8 +18,8 @@ if(!($core->input['action'])) {
 
 		eval("\$budgetreport_coverpage = \"".$template->get('budgeting_budgetreport_coverpage')."\";");
 
-		$budget_genobj = new Budgets();
-		$budgets = $budget_genobj->get_budgets_bydata($budgetsdata);
+		$export_identifier = base64_encode(serialize($budgetsdata));
+		$budgets = Budgets::get_budgets_bydata($budgetsdata);
 		if(is_array($budgets)) {
 			foreach($budgets as $budgetid) {
 				$budget_obj = new Budgets($budgetid);
@@ -30,10 +27,8 @@ if(!($core->input['action'])) {
 				$budget['affiliate'] = $budget_obj->get_affiliate()->get()['name'];
 				$firstbudgetline = $budget_obj->get_budgetLines(0, array('filters' => array('businessMgr' => $budgetsdata['managers'])));
 				if(is_array($firstbudgetline)) {
-					$session->set_phpsession(array('budgetmetadata_' => serialize($firstbudgetline)));
 					foreach($firstbudgetline as $cid => $customersdata) {
 						foreach($customersdata as $pid => $productsdata) {
-
 							foreach($productsdata as $saleid => $budgetline) {
 								$rowclass = alt_row($rowclass);
 								$budgetline_obj = new BudgetLines($budgetline['blid']);
@@ -49,12 +44,8 @@ if(!($core->input['action'])) {
 									$budget['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
 								}
 								$budget['manager'] = $budgetcache->data['managercache'][$budget['manager']['uid']];
-								$countries = new Countries($budgetline_obj->get_customer($cid)->get()['country']);
 
-								$budgetline['cusomtercountry'] = $countries->get()['name'];
-								if(empty($budgetline['cusomtercountry'])) {
-									$budgetline['cusomtercountry'] = $lang->na;
-								}
+								$budgetline['customerCountry'] = $budgetline_obj->parse_country();
 
 								$budgetline['uom'] = 'Kg';
 								$budgetline['saleType'] = Budgets::get_saletype_byid($saleid);
@@ -69,8 +60,8 @@ if(!($core->input['action'])) {
 									$customername = $budgetline['altCid'];
 								}
 								else {
-									$budget['customerid'] = $budgetline_obj->get_customer($budgetline['cid'])->get()['eid'];
-									$budgetline['customer'] = $budgetline_obj->get_customer($budgetline['cid'])->get()['companyName'];
+									$budget['customerid'] = $budgetline_obj->get_customer()->get()['eid'];
+									$budgetline['customer'] = $budgetline_obj->get_customer()->get()['companyName'];
 									$customername = '<a href="index.php?module=profiles/entityprofile&eid='.$budget['customerid'].'" target="_blank">'.$budgetline['customer'].'</a>';
 								}
 
@@ -81,7 +72,7 @@ if(!($core->input['action'])) {
 					}
 				}
 			}
-			$toolgenerate = '<div align="right"  title="'.$lang->generate.'" style=" float:right;padding:10px;width:10px;"><a href="index.php?module=budgeting/preview&action=exportexcel&bid='.$budgetid.'" target="_blank"><img src="././images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
+			$toolgenerate = '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a href="index.php?module=budgeting/preview&identifier='.$export_identifier.'&action=exportexcel" target="_blank"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
 		}
 		else {
 			$budgeting_budgetrawreport = '<tr><td>'.$lang->na.'</td></tr>';
@@ -93,74 +84,71 @@ if(!($core->input['action'])) {
 	output_page($budgetingpreview);
 }
 elseif($core->input['action'] == 'exportexcel') {
-	$budget_metadata = unserialize($session->get_phpsession('budgetmetadata_'));
-	$budget_obj = new Budgets($core->input['bid']);
-	$budgetcache = new Cache();
-	$firstbudgetline['affiliate'] = $budget_obj->get_affiliate()->get()['name'];
-//	$firstbudgetline['manager'] = $budget_obj->get_businessMgr()->get();
-//
-//	if(!$budgetcache->iscached('managercache', $firstbudgetline['manager']['uid'])) {
-//		$budgetcache->add('managercache', $firstbudgetline['manager']['displayName'], $firstbudgetline['manager']['uid']);
-//	}
-//	$firstbudgetline['manager'] = $budgetcache->data['managercache'][$firstbudgetline['manager']['uid']];
-	$firstbudgetline['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
+	if(!isset($core->input['identifier'])) {
+		error($lang->fillallrequirefields);
+	}
+	$budgetsdata = unserialize(base64_decode($core->input['identifier']));
+	$budgets = Budgets::get_budgets_bydata($budgetsdata);
+
+	$headers_data = array('manager', 'customer', 'customerCountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saleType', 'amount', 'income', 's1Perc', 's2Perc');
 	$counter = 1;
+	if(is_array($budgets)) {
+		foreach($budgets as $budgetid) {
+			$budget_obj = new Budgets($budgetid);
+			$budget['affiliate'] = $budget_obj->get_affiliate()->get()['name'];
+			$budget['supplier'] = $budget_obj->get_supplier()->get()['companyNameShort'];
+			if(empty($budget['supplier'])) {
+				$budget['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
+			}
 
-	//$headers_data = array('unitPrice', 'amount', 'income', 'quantity', 'saleType', 's1Perc', 's2Perc', 'uom', 'segment', 'customer', 'product', 'cusomtercountry', 'affiliate', 'supplier', 'manager');
-	$headers_data = array('manager', 'customer', 'cusomtercountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saleType', 'amount', 'income', 's1Perc', 's2Perc');
-	if(is_array($budget_metadata)) {
-		foreach($budget_metadata as $cid => $customersdata) {
-			foreach($customersdata as $pid => $productsdata) {
-				foreach($productsdata as $saleid => $budgetline[$counter]) {
+			$budget['year'] = $budget_obj->get()['year'];
+			$firstbudgetline = $budget_obj->get_budgetLines(0, array('filters' => array('businessMgr' => $budgetsdata['managers'])));
+			foreach($firstbudgetline as $cid => $customersdata) {
+				foreach($customersdata as $pid => $productsdata) {
+					foreach($productsdata as $saleid => $budgetline[$counter]) {
+						$budgetline_obj = new BudgetLines($budgetline[$counter]['blid']);
+						$countries = new Countries($budgetline_obj->get_customer($cid)->get()['country']);
+						$budgetline[$counter]['manager'] = $budgetline_obj->get_businessMgr()->get()['displayName'];
 
-					$budgetline_obj = new BudgetLines($budgetline[$counter]['blid']);
-					$countries = new Countries($budgetline_obj->get_customer($cid)->get()['country']);
-					$firstbudgetline['manager'] = $budgetline_obj->get_businessMgr()->get()['displayName'];
+						$budgetline[$counter]['customerCountry'] = $budgetline_obj->parse_country();
 
-					$budgetline[$counter]['customer'] = $budgetline_obj->get_customer($cid)->get()['companyName'];
-					if(empty($budgetline[$counter]['customer'])) {
-						$budgetline[$counter]['customer'] = $budgetline[$counter]['altCid'];
-					}
-					$budgetline[$counter]['cusomtercountry'] = $countries->get()['name'];
-					if(empty($budgetline[$counter]['cusomtercountry'])) {
-						$budgetline[$counter]['cusomtercountry'] = $lang->na;
-					}
-					$budgetline[$counter]['segment'] = $budgetline_obj->get_product($pid)->get_segment()['title'];
-
-					$budgetline[$counter]['product'] = $budgetline_obj->get_product($pid)->get()['name'];
-					$budgetline[$counter]['uom'] = 'Kg';
-
-					$budgetline[$counter]['unitPrice'] = $budgetline[$counter]['unitPrice'];
-					$budgetline[$counter]['saleType'] = Budgets::get_saletype_byid($saleid);
+						$budgetline[$counter]['segment'] = $budgetline_obj->get_product($pid)->get_segment()['title'];
+						$budgetline[$counter]['product'] = $budgetline_obj->get_product($pid)->get()['name'];
+						$budgetline[$counter]['uom'] = 'Kg';
+						$budgetline[$counter]['unitPrice'] = $budgetline[$counter]['unitPrice'];
+						$budgetline[$counter]['saleType'] = Budgets::get_saletype_byid($saleid);
 
 
-					foreach($headers_data as $headerkey) {
+						if((empty($budgetline[$counter]['cid']) && !empty($budgetline[$counter]['altCid']))) {
+							$budgetline[$counter]['customer'] = $budgetline[$counter]['altCid'];
+						}
+						else {
+							$budgetline[$counter]['customer'] = $budgetline_obj->get_customer()->get()['companyName'];
+						}
+						
 						foreach($budgetline[$counter] as $key => $val) {
 							if(!in_array($key, $headers_data)) {
 								unset($budgetline[$counter][$key]);
 							}
-							$budgetline[$counter] +=$firstbudgetline;
+							$budgetline[$counter] += $budget;
 							unset($budgetline[$counter]['prevbudget']);
 						}
-						//$budgetline[$counter][$val] = $budgetline[$counter][$headerkey];
+						$counter++;
 					}
-
-
-					//array_multisort($budgetline[$counter], SORT_ASC, $headers_data);
-					$counter++;
 				}
 			}
 		}
 	}
-	$budgetline2 = $budgetline;
+
+	$budgetline_temp = $budgetline;
 	unset($budgetline);
 	foreach($headers_data as $val) {
 		$budgetline[0][$val] = $lang->$val;
-		foreach($budgetline2 as $counter => $value) {
+		foreach($budgetline_temp as $counter => $value) {
 			$budgetline[$counter][$val] = $value[$val];
 		}
 	}
-
+	unset($budgetline_temp);
 	//unset($budgetline['bid'], $budgetline['blid'], $budgetline['pid'], $budgetline['cid'], $budgetline['incomePerc'], $budgetline['invoice'], $budgetline['createdBy'], $budgetline['modifiedBy'], $budgetline['originalCurrency'], $budgetline['prevbudget'], $budgetline['cusomtercountry']);
 	$excelfile = new Excel('array', $budgetline);
 }

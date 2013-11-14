@@ -3,7 +3,6 @@
         <title>{$core->settings[systemtitle]} | {$report[title]}</title>
         {$headerinc}
         <link href="./css/report.css" rel="stylesheet" type="text/css" />
-
         <script type="text/javascript">
 
         </script>
@@ -22,8 +21,6 @@
             </form>
         </td>
     </tr> 
-
-
     {$footer}
 </body>
 </html>

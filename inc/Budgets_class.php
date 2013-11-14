@@ -483,6 +483,25 @@ class BudgetLines {
 		return new Users($this->budgetline['modifiedBy']);
 	}
 
+	public function parse_country() {
+		global $lang;
+		
+		if(!empty($this->budgetline['customerCountry'])) {
+			$country = new Countries($this->budgetline['customerCountry']);
+		}
+		else {
+			$country = new Countries($this->budgetline->get_customer($this->budgetline['cid'])->get()['country']);
+		}
+
+		$country_name = $country->get()['name'];
+		if(empty($country_name)) {
+			return $lang->na;
+		} 
+		else {
+			return $country_name;
+		}
+	}
+
 	public static function get_budgetline_bydata($data) {
 		global $db;
 		if(is_array($data)) {
