@@ -64,7 +64,7 @@ class Excel {
 			$row = "<Row>";
 			if(is_array($this->data[$i])) {
 				foreach($this->data[$i] as $key => $val) {
-					if(empty($val)) {
+					if(empty($val) && $val !=0) {
 						$val = "<Cell><Data ss:Type='String'>&nbsp;</Data></Cell>\n";
 					}
 					else {
