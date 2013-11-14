@@ -23,7 +23,7 @@ else {
 }
 
 $session->name_phpsession(COOKIE_PREFIX.'fillbudget'.$sessionidentifier);
-$session->start_phpsession();
+$session->start_phpsession(480);
 
 if(!$core->input['action']) {
 	if($core->input['stage'] == 'fillbudgetline') {
@@ -141,7 +141,7 @@ if(!$core->input['action']) {
 //								}
 								$budgetline['alternativecustomer'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altCid']).'</span>';
 								$previous_blid = '<input type="hidden" name="budgetline['.$rowid.'][prevblid]" value="'.$prev_budgetline['blid'].'" />';
-								$previous_customercountry='<input type="hidden" name="budgetline['.$rowid.'][customerCountry]" value="'.$prev_budgetline['customerCountry'].'" />';
+								$previous_customercountry = '<input type="hidden" name="budgetline['.$rowid.'][customerCountry]" value="'.$prev_budgetline['customerCountry'].'" />';
 								$previous_yearsqty .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['quantity'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualQty'].'</span>';
 								$previous_yearsamount .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['amount'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualAmount'].'</span>';
 								$previous_yearsincome .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['income'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncome'].'</span>';
@@ -167,7 +167,9 @@ if(!$core->input['action']) {
 						$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, $saleid, '', '', array('id' => 'salestype_'.$rowid));
 						$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('id' => 'invoice_'.$rowid));
 
-
+						if(empty($budgetline['cid']) && $budgetline['altCid'] == 'Unspecified Customer') {
+							$checked_checkboxes[$rowid]['unspecifiedCustomer'] = ' checked="checked"';
+						}
 						/* Get Actual data from mediation tables --END */
 						eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
 						$rowid++;
@@ -181,7 +183,7 @@ if(!$core->input['action']) {
 			$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, '', '', '', array('id' => 'invoice_'.$rowid));
 			eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
 		}
-		unset($saletype_selectlistdata);
+		unset($saletype_selectlistdata, $checked_checkboxes);
 
 		/* Parse values for JS - START */
 		foreach($saletypes as $stid => $saletype) {
