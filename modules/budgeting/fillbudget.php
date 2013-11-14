@@ -42,19 +42,21 @@ if(!$core->input['action']) {
 
 		$currentbudget = Budgets::get_budget_bydata($budget_data);
 
+		$filter = array('filters'=> array('businessMgr' => array($core->user['uid'])));
+		
 		if($currentbudget != false) {
 			$budgetobj = new Budgets($currentbudget['bid']);
 			$budget_data['bid'] = $currentbudget['bid'];
-			$budgetlinesdata = $budgetobj->get_budgetLines();
+			$budgetlinesdata = $budgetobj->get_budgetLines('', $filter);
 			if(!is_array($budgetlinesdata) || empty($budgetlinesdata)) {
-				$budgetlinesdata = $budgetobj->read_prev_budgetbydata();
+				$budgetlinesdata = $budgetobj->read_prev_budgetbydata('', $filter);
 				$is_prevonly = true;
 			}
 			$session->set_phpsession(array('budgetmetadata_'.$sessionidentifier => serialize($currentbudget)));
 		}
 		else {
 			$budgetobj = new Budgets();
-			$budgetlinesdata = $budgetobj->read_prev_budgetbydata($budget_data);
+			$budgetlinesdata = $budgetobj->read_prev_budgetbydata($budget_data, $filter);
 			$is_prevonly = true;
 			$session->set_phpsession(array('budgetmetadata_'.$sessionidentifier => serialize($core->input)));
 		}
