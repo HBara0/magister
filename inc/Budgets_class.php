@@ -490,7 +490,7 @@ class BudgetLines {
 			$country = new Countries($this->budgetline['customerCountry']);
 		}
 		else {
-			$country = new Countries($this->budgetline->get_customer($this->budgetline['cid'])->get()['country']);
+			$country = new Countries($this->get_customer()->get()['country']);
 		}
 
 		$country_name = $country->get()['name'];
