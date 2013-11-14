@@ -191,10 +191,14 @@ class Sessions {
 		return session_regenerate_id($delete_old);
 	}
 
-	public function start_phpsession() {
+	public function start_phpsession($ttl = '') {
 		global $core;
 
-		session_set_cookie_params((TIME_NOW + (60 * $core->settings['idletime'])), COOKIE_PATH, COOKIE_DOMAIN);
+		if(empty($ttl)){
+			$ttl = $core->settings['idletime'];
+		}
+		
+		session_set_cookie_params((TIME_NOW + (60 * $ttl)), COOKIE_PATH, COOKIE_DOMAIN);
 		session_start();
 	}
 
