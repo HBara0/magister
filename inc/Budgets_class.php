@@ -203,6 +203,11 @@ class Budgets {
 					$data['altCid'] = NULL;
 					$data['customerCountry'] = 0;
 				}
+
+				if(empty($data['s1Perc']) && empty($data['s2Perc'])) {
+					$data['s1Perc'] = $data['s2Perc'] = 50;
+				}
+				
 				unset($data['unspecifiedCustomer']);
 				if(isset($data['blid']) && !empty($data['blid'])) {
 					$budgetlineobj->update($data);
@@ -311,6 +316,8 @@ class Budgets {
 			$bid = $this->budget['bid'];
 		}
 
+		$options['order_by'] = ' ORDER BY pid ASC';
+		
 		if(isset($options['filters']['businessMgr']) && is_array($options['filters']['businessMgr'])) {
 			$budgetline_query_where = ' AND businessMgr IN ('.$db->escape_string(implode(',', $options['filters']['businessMgr'])).')';
 		}
@@ -318,7 +325,7 @@ class Budgets {
 		if(isset($bid) && !empty($bid)) {
 			//$prevbudgetline_details = $this->read_prev_budgetbydata();
 			$budgetline_queryid = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines
-											  WHERE bid IN (".$db->escape_string($bid).")".$budgetline_query_where);
+											  WHERE bid IN (".$db->escape_string($bid).")".$budgetline_query_where.$options['order_by']);
 
 			if($db->num_rows($budgetline_queryid) > 0) {
 				while($budgetline_data = $db->fetch_assoc($budgetline_queryid)) {
@@ -437,6 +444,9 @@ class BudgetLines {
 			//$budgetline_data['bid'] = $bid;
 			if(empty($budgetline_data['createdBy'])) {
 				$budgetline_data['createdBy'] = $core->user['uid'];
+			}
+			if(empty($budgetline_data['businessMgr'])) {
+				$budgetline_data['businessMgr'] = $core->user['uid'];
 			}
 			unset($budgetline_data['customerName'], $budgetline_data['blid']);
 
