@@ -47,11 +47,11 @@ class Meetings {
 				return false;
 			}
 
-			if(empty($meeting_data['title']) || empty($meeting_data['fromDate']) || empty($meeting_data['toDate']) || empty($meeting_data['fromTime']) || empty($meeting_data['toTime'])) {
-				$this->errorcode = 1;
-				//return false;
-			}
 
+			if(is_empty($this->metting['title'], $this->metting['fromDate'], $this->metting['toDate'], $this->metting['fromTime'], $this->metting['toTime'])) {
+				$this->errorcode = 1;
+				return false;
+			}
 
 			if(value_exists('meetings', 'title', $this->metting['title'])) {
 				$this->errorcode = 2;
