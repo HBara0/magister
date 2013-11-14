@@ -207,7 +207,7 @@ class Budgets {
 				if(empty($data['s1Perc']) && empty($data['s2Perc'])) {
 					$data['s1Perc'] = $data['s2Perc'] = 50;
 				}
-				
+
 				unset($data['unspecifiedCustomer']);
 				if(isset($data['blid']) && !empty($data['blid'])) {
 					$budgetlineobj->update($data);
@@ -280,7 +280,7 @@ class Budgets {
 		}
 	}
 
-	public function read_prev_budgetbydata($data = array()) {
+	public function read_prev_budgetbydata($data = array(), $options = array()) {
 		global $db;
 		if(empty($data)) {
 			$data['affid'] = $this->budget['affid'];
@@ -288,6 +288,10 @@ class Budgets {
 			$data['year'] = $this->budget['year'];
 		}
 
+		if(isset($options['filters']['businessMgr']) && is_array($options['filters']['businessMgr'])) {
+			$budgetline_query_where = ' AND businessMgr IN ('.$db->escape_string(implode(',', $options['filters']['businessMgr'])).')';
+		}
+		
 		for($year = $data['year']; $year >= ($data['year'] - 2); $year--) {
 			if($year == $data['year']) {
 				continue;
@@ -296,7 +300,7 @@ class Budgets {
 			$prev_budget_bydataquery = $db->query("SELECT * 
 					FROM ".Tprefix."budgeting_budgets bd 
 					JOIN ".Tprefix."budgeting_budgets_lines bdl ON (bd.bid=bdl.bid) 
-					WHERE affid='".$data['affid']."' AND spid='".$data['spid']."' AND year='".$year."'");
+					WHERE affid='".$data['affid']."' AND spid='".$data['spid']."' AND year='".$year."'".$budgetline_query_where);
 			if($db->num_rows($prev_budget_bydataquery) > 0) {
 				while($prevbudget_bydata = $db->fetch_assoc($prev_budget_bydataquery)) {
 					if($prevbudget_bydata['cid'] == 0) {
@@ -317,7 +321,7 @@ class Budgets {
 		}
 
 		$options['order_by'] = ' ORDER BY pid ASC';
-		
+
 		if(isset($options['filters']['businessMgr']) && is_array($options['filters']['businessMgr'])) {
 			$budgetline_query_where = ' AND businessMgr IN ('.$db->escape_string(implode(',', $options['filters']['businessMgr'])).')';
 		}
