@@ -27,11 +27,18 @@
                     if (!jQuery.isNumeric($('input[id^=unitprice_' + id[1] + ']').val())) {
                         return;
                     }
+
                     if ($('input[id^="Qty_' + id[1] + '"]').val().length > 0) {
                         $('input[id^=amount_' + id[1] + ']').val((Number($('input[id^=Qty_' + id[1] + ']').val() * $('input[id^=unitprice_' + id[1] + ']').val()))).trigger("input");
-
+                        $('input[id^="amountper_' + id[1] + '"]').trigger('keyup');
                     }
 
+                });
+
+                $('input[id^="Qty_"]').live('keyup', function() {
+                    var id = $(this).attr("id").split("_");
+                    $('input[id^="unitprice_' + id[1] + '"]').trigger('keyup');
+                    $('input[id^="amountper_' + id[1] + '"]').trigger('keyup');
                 });
 
                 $('input[id^="amount_"]').live('keyup', function() {
@@ -40,11 +47,13 @@
                         return;
                     }
                     if ($('input[id^="amountper_' + id[1] + '"]').val().length > 0) {
-                        $('input[id^="amountper_' + id[1] + '"]').trigger('input');
+
+                        alert('in;');
+                        $('input[id^="amountper_' + id[1] + '"]').trigger('keyup');
 
                     } else {
                         if ($('input[id^="income_' + id[1] + '"]').val().length > 0) {
-                            $('input[id^="income_' + id[1] + '"]').trigger('input');
+                            $('input[id^="income_' + id[1] + '"]').trigger('keyup');
                         }
                     }
 
@@ -107,8 +116,8 @@
                         <tr style="vertical-align: top;">
                             <td  width="11.6%" class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->customer} <a href="index.php?module=contents/addentities&type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
                             <td width="11.6%" rowspan="2" valign="top" align="center" class=" border_right">{$lang->product}  <a href="index.php?module=contents/addproducts" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
-                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->saleType}</td>
-                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->Quantity}<br /><span class="smalltext"><em>{$lang->mt}</em></span></td>
+                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->saletype}</td>
+                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->quantity}<br /><span class="smalltext"><em>{$lang->mt}</em></span></td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->unitPrice}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->amount}</td>
@@ -116,8 +125,8 @@
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->income}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->curr}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->invoice}</td>
-                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->s1Perc}</td>
-                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->s2Perc}</td>
+                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->s1perc}</td>
+                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->s2perc}</td>
                         </tr>
                     </thead>
                     <tbody id="budgetlines{$rowid}_tbody" style="width:100%;">
