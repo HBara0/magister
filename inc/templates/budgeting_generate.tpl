@@ -34,10 +34,10 @@
                     <div style="display:inline-block;padding:10px;vertical-align:top;">{$lang->year}</div>
                     <div style="display:inline-block;padding:10px;vertical-align:top;">{$budget_year_selectlist}</div>
                 </div>
-                <div style="display:block; padding:15px;">
+               <!-- <div style="display:block; padding:15px;">
                     <div style="display:inline-block;padding:10px;">{$lang->curr}</div>
                     <div style="display:inline-block;padding:10px;">{$budget_currencylist}</div>
-                </div>
+                </div> -->
                 <div id="budget_currautomatic" style="display:block;">
                     <div style="display:inline-block;padding:8px; margin-left:65px;"><input  id="autofxrate"  type="radio" value=1 checked name="fxrate"/></div>
                     <div style="display:inline-block;padding:8px;">{$lang->automaticusdrate}</div>
