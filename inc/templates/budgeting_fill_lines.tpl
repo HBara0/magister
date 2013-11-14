@@ -9,6 +9,7 @@
         {$budgetline[alternativecustomer]} {$previous_blid}
         <span style="padding:8px;"><br /><input type="checkbox" name="budgetline[$rowid][unspecifiedCustomer]" title="{$lang->unspecifiedcust}" value="1"/>{$lang->unspecifiedcust}</span>
         <div id='searchQuickResults_customer_{$rowid}' class='searchQuickResults' style='display:none;'></div>
+        {$previous_customercountry}
     </td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;"  align="left">
         <input type='text' name="budgetline[$rowid][pid]" id="product_noexception_{$rowid}_QSearch" value="{$budgetline[productName]}" autocomplete='off' {$required}/>

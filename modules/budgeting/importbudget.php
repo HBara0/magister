@@ -99,7 +99,7 @@ else {
 					continue;
 				}
 				if(!empty($core->input['selectheader_'.$count_input])) {
-					$data[$core->input['selectheader_'.$count_input]] = $db->escape_string(utf8_encode(trim(strtolower($value))));
+					$data[$core->input['selectheader_'.$count_input]] = (utf8_encode(trim(strtolower($value))));
 				}
 
 				$count_input++;

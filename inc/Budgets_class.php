@@ -200,7 +200,7 @@ class Budgets {
 				}
 
 				if(!empty($data['cid']) && $data['unspecifiedCustomer'] != 1) {
-					$data['altCid'] = Null;
+					$data['altCid'] = $data['customerCountry'] = Null;
 				}
 
 				unset($data['unspecifiedCustomer']);
@@ -485,7 +485,7 @@ class BudgetLines {
 
 	public function parse_country() {
 		global $lang;
-		
+
 		if(!empty($this->budgetline['customerCountry'])) {
 			$country = new Countries($this->budgetline['customerCountry']);
 		}
@@ -496,7 +496,7 @@ class BudgetLines {
 		$country_name = $country->get()['name'];
 		if(empty($country_name)) {
 			return $lang->na;
-		} 
+		}
 		else {
 			return $country_name;
 		}
