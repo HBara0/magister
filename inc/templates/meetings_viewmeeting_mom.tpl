@@ -1,15 +1,8 @@
-<div class="thead">{$lang->mof}</div>
-<div style="display:block;padding:8px;">
-    <div style="display:inline-block"><b>{$lang->meetingdesc}:</b></div>
-    <div style="display:inline-block;white-space: nowrap;">{$minutes_meetings[meetingDetails]}</div>
-</div>
-
-<div style="display:block;padding:8px;">
-    <div style="display:inline-block"><b>{$lang->followup}:</b></div>
-    <div style="display:inline-block">{$minutes_meetings[followup]}</div>
-</div>
-
-<div style="display:block;padding:8px;">
-
-    <div style="display:inline-block" class="smalltext">{$minutes_meetings[created_outputdate]}</div>
+<div class="subtitle">{$lang->minsofmeeting}</div>
+<div style="font-weight: bold; padding: 5px;" class="altrow">{$lang->discussiondetails}:</div>
+<div style="word-wrap: break-word;">{$minsofmeeting[meetingDetails]}</div>
+<div style="font-weight: bold; padding: 5px;" class="altrow">{$lang->followup}:</div>
+<div style="word-wrap: break-word;">{$minsofmeeting[followup]}</div>
+<div style="padding:8px;">
+    <div class="smalltext">{$minsofmeeting[createdOn_output]}{$minsofmeeting[modifiedOn_output]}</div>
 </div>

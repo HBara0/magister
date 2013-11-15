@@ -11,9 +11,11 @@
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
+
 if($core->usergroup['meetings_canCreateMeeting'] == 0) {
 	error($lang->sectionnopermission);
 }
+
 if(!$core->input['action']) {
 	if(isset($core->input['mtid']) && !empty($core->input['mtid'])) {
 		$mtid = $db->escape_string = $core->input['mtid'];
@@ -35,17 +37,16 @@ if(!$core->input['action']) {
 	else {
 		$action = 'create';
 	}
+	
 	$employees_affiliate = Meetings::get_affiliateemployees();
-
 	$employees_list = parse_selectlist('meeting[attendees][uid]', 5, $employees_affiliate, $meeting['attendees']['attr']);
 
 	eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
 	output_page($createmeeting);
 }
-elseif($core->input['action'] == "do_createmeeting") {
+elseif($core->input['action'] == 'do_createmeeting') {
 	$meeting_obj = new Meetings();
 	$meeting_obj->create($core->input['meeting']);
-
 
 	switch($meeting_obj->get_errorcode()) {
 		case 0:
@@ -59,7 +60,7 @@ elseif($core->input['action'] == "do_createmeeting") {
 			break;
 	}
 }
-elseif($core->input['action'] == "do_editmeeting") {
+elseif($core->input['action'] == 'do_editmeeting') {
 	$mtid = $db->escape_string($core->input['mtid']);
 
 	$meeting_obj = new Meetings($mtid);

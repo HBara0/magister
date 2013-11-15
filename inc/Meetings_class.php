@@ -30,98 +30,103 @@ class Meetings {
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."meetings WHERE mtid=".$db->escape_string($id)));
 	}
 
-	public function create($metting_data = array()) {
+	public function create($meeting_data = array()) {
 		global $db, $core, $log;
-		if(is_array($metting_data)) {
-			$this->metting = $metting_data;
-			if(!empty($metting_data['altfromDate'])) {
-				$fromdate = explode('-', $metting_data['altfromDate']);
+		if(is_array($meeting_data)) {
+			$this->meeting = $meeting_data;
+			if(!empty($meeting_data['altfromDate'])) {
+				$fromdate = explode('-', $meeting_data['altfromDate']);
 
 				if(checkdate($fromdate[1], $fromdate[0], $fromdate[2])) {
-					$this->metting['fromDate'] = strtotime($this->metting['altfromDate'].' '.$this->metting['fromTime']);
-					$this->metting['toDate'] = strtotime($this->metting['alttoDate'].' '.$this->metting['toTime']);
+					$this->meeting['fromDate'] = strtotime($this->meeting['altfromDate'].' '.$this->meeting['fromTime']);
+					$this->meeting['toDate'] = strtotime($this->meeting['alttoDate'].' '.$this->meeting['toTime']);
 				}
 			}
-			if($metting_data['fromDate'] > $metting_data['toDate']) {
+			if($meeting_data['fromDate'] > $meeting_data['toDate']) {
 				$this->errorcode = 3;
 				return false;
 			}
 
 
-			if(is_empty($this->metting['title'], $this->metting['fromDate'], $this->metting['toDate'], $this->metting['fromTime'], $this->metting['toTime'])) {
+			if(is_empty($this->meeting['title'], $this->meeting['fromDate'], $this->meeting['toDate'], $this->meeting['fromTime'], $this->meeting['toTime'])) {
 				$this->errorcode = 1;
 				return false;
 			}
 
-			if(value_exists('meetings', 'title', $this->metting['title'])) {
+			if(value_exists('meetings', 'title', $this->meeting['title'])) {
 				$this->errorcode = 2;
 				return false;
 			}
 
-			$this->metting['title'] = ucwords(strtolower($this->metting['title']));
+			$this->meeting['title'] = ucwords(strtolower($this->meeting['title']));
 
 			$sanitize_fields = array('title', 'fromDate', 'toDate', 'description');
 			foreach($sanitize_fields as $val) {
-				$this->metting[$val] = $core->sanitize_inputs($this->metting[$val], array('removetags' => true));
+				$this->meeting[$val] = $core->sanitize_inputs($this->meeting[$val], array('removetags' => true));
 			}
 
 			$meeting_data = array(
-					'title' => $this->metting['title'],
+					'title' => $this->meeting['title'],
 					'identifier' => substr(md5(uniqid(microtime())), 1, 10),
-					'fromDate' => $this->metting['fromDate'],
-					'toDate' => $this->metting['toDate'],
-					'description' => $this->metting['description'],
-					'location' => $this->metting['location'],
+					'fromDate' => $this->meeting['fromDate'],
+					'toDate' => $this->meeting['toDate'],
+					'description' => $this->meeting['description'],
+					'location' => $this->meeting['location'],
 					'createdBy' => $core->user['uid'],
 					'createdOn' => TIME_NOW
 			);
 			$insertquery = $db->insert_query('meetings', $meeting_data);
 			if($insertquery) {
 				$this->errorcode = 0;
-				$mtid = $db->last_id();
+				$this->meeting['mtid'] = $mtid = $db->last_id();
 
-				$log->record($mtid);
+				$log->record('addedmeeting', $mtid);
 				/* insert meetings Attendees */
-				if(isset($this->metting['attendees'])) {
-					$this->set_attendees($mtid);
+				if(!isset($this->meeting['attendees'])) {
+					$this->meeting['attendees'] = array(array('idAttr' => 'uid', 'mtid' => $mtid, 'attendees' => $core->user['uid']));
 				}
+				$this->set_attendees();
 				return true;
 			}
 		}
 	}
 
-	public function set_attendees($mtid) {
+	private function set_attendees() {
 		global $db, $core;
 
-		if(!empty($this->metting['attendees'])) {
-			foreach($this->metting['attendees'] as $key => $val) {
+		if(!empty($this->meeting['attendees'])) {
+			foreach($this->meeting['attendees'] as $key => $val) {
 				if(empty($val)) {
 					continue;
 				}
-				$new_association['mtid'] = $mtid;
-				$new_association['idAttr'] = $key;
-				$new_association['attendees'] = $core->sanitize_inputs($val);
-				$db->insert_query('meetings_attendees', $new_association);
+				$new_attendee['mtid'] = $this->meeting['mtid'];
+				$new_attendee['idAttr'] = $key;
+				$new_attendee['attendee'] = $core->sanitize_inputs($val);
+				$db->insert_query('meetings_attendees', $new_attendee);
 			}
 		}
 	}
 
 	public function update($meeting_data = array()) {
-		global $db, $core, $log;
+		global $db, $log;
 		unset($meeting_data['attendees']);
+
+		/* Needs validation for time */
+		/* Needs update for attendees */
 		$meeting_data['fromDate'] = strtotime($meeting_data['fromDate'].' '.$meeting_data['fromTime']);
 		$meeting_data['toDate'] = strtotime($meeting_data['toDate'].' '.$meeting_data['toTime']);
 		unset($meeting_data['fromTime'], $meeting_data['toTime'], $meeting_data['altfromDate'], $meeting_data['alttoDate']);
-		$query = $db->update_query('meetings', $meeting_data, ' mtid='.$db->escape_string($this->meeting['mtid']));
+		$query = $db->update_query('meetings', $meeting_data, 'mtid='.$db->escape_string($this->meeting['mtid']));
 		if($query) {
 			$this->errorcode = 2;
+			$log->record('updatedmeeting', $this->meeting['mtid']);
 		}
 	}
 
 	public static function get_multiplemeetings($id = '', array $order = array(), array $option = array()) {
 		global $db, $core;
 
-		$sort_query = ' createdOn';
+		$sort_query = 'fromDate DESC';
 		if(isset($order['sortby'], $order['order']) && !is_empty($order['sortby'], $order['order'])) {
 			$sort_query = $order['sortby'].' '.$order['order'];
 		}
@@ -132,7 +137,7 @@ class Meetings {
 			$where_hasMOM = ' WHERE hasMOM <>1 AND title IS NOT NULL';
 		}
 
-		$meetingsquery = $db->query("SELECT * FROM ".Tprefix."meetings {$where_hasMOM} AND createdBy= {$core->user['uid']} ORDER BY {$sort_query} ");
+		$meetingsquery = $db->query("SELECT * FROM ".Tprefix."meetings {$where_hasMOM} AND createdBy={$core->user['uid']} ORDER BY {$sort_query}");
 
 		if($db->num_rows($meetingsquery) > 0) {
 			while($rowmeetings = $db->fetch_assoc($meetingsquery)) {
@@ -142,40 +147,57 @@ class Meetings {
 		return $meeting;
 	}
 
-	public function get_attendees(
-	$mtid = '') {
+	public function get_attendees() {
 		global $db;
 
-		return $attendee = $db->fetch_assoc($db->query("SELECT ma.mtid, ma.attendees AS attr, ma.idAttr FROM ".Tprefix."meetings me JOIN ".Tprefix."meetings_attendees ma ON (me.mtid = ma.mtid) WHERE ma.mtid = ".$db->escape_string($this->meeting['mtid'])), 'attendee');
+		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_attendees WHERE mtid='.intval($this->meeting['mtid']));
+		if($db->num_rows($query)) {
+			while($attendee = $db->fetch_assoc($query)) {
+				if($attendee['idAttr'] == 'uid') {
+					$attendees[$attendee['attendee']] = new Users($attendee['attendee']);
+				}
+			}
+
+			return $attendees;
+		}
+		return false;
 	}
 
-	public static function get_affiliateemployees() {
-		global
-		$db, $core;
-		$query = $db->query("SELECT u.uid, u.displayName
-				FROM ".Tprefix."affiliatedemployees ae
-				JOIN ".Tprefix."affiliates aff ON (aff.affid = ae.affid)
-				JOIN ".Tprefix."users u ON (u.uid = ae.uid)
-				WHERE u.gid!=7 AND (u.uid IN (SELECT uid FROM ".Tprefix."users WHERE reportsTo = {$core->user[uid]})
-				OR ae.affid IN (SELECT affid FROM ".Tprefix."affiliatedemployees WHERE (canAudit = 1 OR canHR = 1) AND uid = {$core->user[uid]}))
-				ORDER BY displayName ASC");
-		$employees_affiliate[0] = '';
-		while($employee_affiliate = $db->fetch_assoc($query)) {
-			$employees_affiliate[$employee_affiliate['uid']] = $employee_affiliate['displayName'];
+	public function parse_attendees($displayas = 'line') {
+		$attendees_objs = $this->get_attendees();
+		if(is_array($attendees_objs)) {
+			foreach($attendees_objs as $id => $attendee) {
+				$attendees[] = $attendee->get()['displayName'];
+			}
+
+			if($displayas == 'list') {
+				return '<ul><li>'.implode('</li><li>', $attendees).'</li></ul>';
+			}
+			else {
+				return implode(', ', $attendees);
+			}
 		}
-		return $employees_affiliate;
+		return false;
+	}
+
+	public function get_createdby() {
+		return new Users($this->meeting['createdBy']);
+	}
+
+	public function get_modifiedby() {
+		return new Users($this->meeting['modifiedBy']);
+	}
+
+	public function get_mom() {
+		return MeetingsMOM::get_mom_bymeeting($this->meeting['mtid']);
 	}
 
 	public function get_errorcode() {
-		return
-				$this->errorcode;
+		return $this->errorcode;
 	}
 
 	public function get() {
-		return
-				$this->meeting
-
-		;
+		return $this->meeting;
 	}
 
 }
@@ -185,62 +207,6 @@ class MeetingAttendees {
 		if(isset($id) && !empty($id)) {
 			$this->attenddees = $this->read($id, $simple);
 		}
-	}
-
-}
-
-class MeetingsMOM {
-	public function __construct($mtid = '') {
-		if(isset($mtid) && !empty($mtid)) {
-			$this->mom = $this->read($mtid);
-		}
-	}
-
-	private function read($mtid = '') {
-		global $db;
-		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meetings_minsofmeeting WHERE mtid = ".$db->escape_string($mtid)));
-	}
-
-	public function save($mom_data = array()) {
-		global $db, $core;
-
-		if(empty($mom_data['mtid']) || empty($mom_data['meetingDetails'])) {
-			$this->errorcode = 1;
-			return false;
-		}
-		$mom_data['meetingDetails'] = $core->sanitize_inputs($mom_data['meetingDetails'], array('removetags' => true));
-		$mom_data['followup'] = $core->sanitize_inputs($mom_data['followup'], array('removetags' => true));
-		$query = $db->insert_query('meetings_minsofmeeting', array('mtid' => $mom_data['mtid'], 'meetingDetails' => $mom_data['meetingDetails'], 'followup' => $mom_data['followup'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
-		if($query) {
-			$db->update_query('meetings', array('hasMOM' => 1), ' mtid='.$mom_data['mtid']);
-			$this->errorcode = 0;
-		}
-	}
-
-	public function update($mom_data = array()) {
-		global $db, $core, $log;
-		$mom_data['modifiedBy'] = $core->user['uid'];
-		$mom_data['modifiedOn'] = TIME_NOW;
-
-		$query = $db->update_query('meetings_minsofmeeting', array('meetingDetails' => $mom_data['meetingDetails'], 'followup' => $mom_data['followup'], 'modifiedBy' => $mom_data['modifiedBy'], 'modifiedOn' => $mom_data['modifiedOn']), ' mtid='.$db->escape_string($this->mom['mtid']).'');
-		if($query) {
-			$this->errorcode = 2;
-		}
-	}
-
-	public function get_errorcode() {
-		return $this->errorcode;
-	}
-
-	public function get() {
-		return $this->mom
-
-
-
-
-
-
-		;
 	}
 
 }
