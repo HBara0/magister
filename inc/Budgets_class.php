@@ -289,9 +289,9 @@ class Budgets {
 		}
 
 		if(isset($options['filters']['businessMgr']) && is_array($options['filters']['businessMgr'])) {
-			$budgetline_query_where = ' AND businessMgr IN ('.$db->escape_string(implode(',', $options['filters']['businessMgr'])).')';
+			$budgetline_query_where = ' AND bdl.businessMgr IN ('.$db->escape_string(implode(',', $options['filters']['businessMgr'])).')';
 		}
-		
+
 		for($year = $data['year']; $year >= ($data['year'] - 2); $year--) {
 			if($year == $data['year']) {
 				continue;
@@ -333,9 +333,8 @@ class Budgets {
 
 			if($db->num_rows($budgetline_queryid) > 0) {
 				while($budgetline_data = $db->fetch_assoc($budgetline_queryid)) {
-					$budgetline = new BudgetLines($budgetline_data['blid']);
-					$prevbudgetline = new BudgetLines($budgetline_data['prevblid']);
-
+					$budgetline = new BudgetLines($budgetline_data['blid'], $options['filters']);
+					$prevbudgetline = new BudgetLines($budgetline_data['prevblid'], $options['filters']);
 					$budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']] = $budgetline->get();
 					$budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]['prevbudget'][] = $prevbudgetline->get();
 				}
@@ -424,20 +423,24 @@ class Budgets {
 class BudgetLines {
 	private $budgetline;
 
-	public function __construct($budgetlineid = '') {
+	public function __construct($budgetlineid = '', $options = array()) {
 		if(!empty($budgetlineid)) {
-			$this->budgetline = $this->read($budgetlineid);
+			$this->budgetline = $this->read($budgetlineid, $options);
 			$this->budgetlineid = $budgetlineid;
 		}
 	}
 
-	private function read($budgetlineid) {
+	private function read($budgetlineid, $options) {
 		global $db;
 		if(isset($budgetlineid) && !empty($budgetlineid)) {
+			if(isset($options['businessMgr']) && is_array($options['businessMgr'])) {
+				$budgetline_query_where = '  AND bdl.businessMgr IN ('.$db->escape_string(implode(',', $options['businessMgr'])).')';
+			}
+		
 			return $db->fetch_assoc($db->query("SELECT bdl.*, bd.bid
 														FROM ".Tprefix."budgeting_budgets bd
 														JOIN ".Tprefix."budgeting_budgets_lines bdl ON (bd.bid=bdl.bid)
-														WHERE bdl.blid='".$db->escape_string($budgetlineid)."'"));
+														WHERE bdl.blid='".$db->escape_string($budgetlineid)."' {$budgetline_query_where}"));
 		}
 	}
 

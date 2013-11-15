@@ -25,7 +25,13 @@ if(!($core->input['action'])) {
 				$budget_obj = new Budgets($budgetid);
 				$budget['country'] = $budget_obj->get_affiliate()->get()['name'];
 				$budget['affiliate'] = $budget_obj->get_affiliate()->get()['name'];
-				$firstbudgetline = $budget_obj->get_budgetLines(0, array('filters' => array('businessMgr' => $budgetsdata['managers'])));
+
+				$filter_auditor = parse_userentities_data($core->user['uid']);
+				if(!in_array(implode(',', $budgetsdata['suppliers']), $filter_auditor['auditfor'])) {
+					$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+				}
+				
+				$firstbudgetline = $budget_obj->get_budgetLines(0, $filter);
 				if(is_array($firstbudgetline)) {
 					foreach($firstbudgetline as $cid => $customersdata) {
 						foreach($customersdata as $pid => $productsdata) {
@@ -90,7 +96,7 @@ elseif($core->input['action'] == 'exportexcel') {
 	$budgetsdata = unserialize(base64_decode($core->input['identifier']));
 	$budgets = Budgets::get_budgets_bydata($budgetsdata);
 
-	$headers_data = array('manager', 'customer', 'customerCountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saleType', 'amount', 'income', 's1Perc', 's2Perc');
+	$headers_data = array('manager', 'customer', 'cusomtercountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saletype', 'amount', 'income', 's1Perc', 's2Perc');
 	$counter = 1;
 	if(is_array($budgets)) {
 		foreach($budgets as $budgetid) {
@@ -102,7 +108,11 @@ elseif($core->input['action'] == 'exportexcel') {
 			}
 
 			$budget['year'] = $budget_obj->get()['year'];
-			$firstbudgetline = $budget_obj->get_budgetLines(0, array('filters' => array('businessMgr' => $budgetsdata['managers'])));
+			$filter_auditor = parse_userentities_data($core->user['uid']);
+			if(!in_array(implode(',', $budgetsdata['suppliers']), $filter_auditor['auditfor'])) {
+				$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+			}
+			$firstbudgetline = $budget_obj->get_budgetLines(0, $filter);
 			foreach($firstbudgetline as $cid => $customersdata) {
 				foreach($customersdata as $pid => $productsdata) {
 					foreach($productsdata as $saleid => $budgetline[$counter]) {
@@ -125,7 +135,7 @@ elseif($core->input['action'] == 'exportexcel') {
 						else {
 							$budgetline[$counter]['customer'] = $budgetline_obj->get_customer()->get()['companyName'];
 						}
-						
+
 						foreach($budgetline[$counter] as $key => $val) {
 							if(!in_array($key, $headers_data)) {
 								unset($budgetline[$counter][$key]);
@@ -149,6 +159,7 @@ elseif($core->input['action'] == 'exportexcel') {
 		}
 	}
 	unset($budgetline_temp);
+
 	//unset($budgetline['bid'], $budgetline['blid'], $budgetline['pid'], $budgetline['cid'], $budgetline['incomePerc'], $budgetline['invoice'], $budgetline['createdBy'], $budgetline['modifiedBy'], $budgetline['originalCurrency'], $budgetline['prevbudget'], $budgetline['cusomtercountry']);
 	$excelfile = new Excel('array', $budgetline);
 }

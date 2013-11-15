@@ -42,8 +42,12 @@ if(!$core->input['action']) {
 
 		$currentbudget = Budgets::get_budget_bydata($budget_data);
 
-		$filter = array('filters'=> array('businessMgr' => array($core->user['uid'])));
-		
+
+		$filter_auditor = parse_userentities_data($core->user['uid']);
+		if(in_array($budget_data['spid'], $filter_auditor['auditfor'])) {
+			$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+		}
+
 		if($currentbudget != false) {
 			$budgetobj = new Budgets($currentbudget['bid']);
 			$budget_data['bid'] = $currentbudget['bid'];
@@ -90,12 +94,10 @@ if(!$core->input['action']) {
 		foreach($currencies as $currency) {
 			$budget_currencylist.= '<option value="'.$currency.'">'.$currency.'</option>';
 		}
-
 		/* check whether to display existing budget Form or display new one  */
 		$unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income');
 		if(is_array($budgetlinesdata)) {
 			$rowid = 1;
-
 			foreach($budgetlinesdata as $cid => $customersdata) {
 				/* Get Customer name from object */
 				if(!is_int($cid)) {
