@@ -41,13 +41,19 @@ if(!$core->input['action']) {
 		$budget_data['supplierName'] = $supplier->get()['companyName'];
 
 		$currentbudget = Budgets::get_budget_bydata($budget_data);
-
-
-		$filter_auditor = parse_userentities_data($core->user['uid']);
-		if(in_array($budget_data['spid'], $filter_auditor['auditfor'])) {
-			$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+		/* Validate Permissions - START */
+		if(!$core->usergroup['canViewAllSupp'] == 1 && !$core->usergroup['canViewAllAff'] == 1) {
+			if(!in_array($budget_data['spid'], $core->user['auditfor']) && !in_array($budget_data['affid'], $core->user['auditedaffids'])) {
+				if(in_array($budget_data['affid'], $core->user['suppliers']['affid'][$budget_data['spid']])) {
+					$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+				}
+				else {
+					redirect('index.php?module=budgeting/create');
+				}
+			}
 		}
-
+		/* Validate Permissions - END */
+		
 		if($currentbudget != false) {
 			$budgetobj = new Budgets($currentbudget['bid']);
 			$budget_data['bid'] = $currentbudget['bid'];
