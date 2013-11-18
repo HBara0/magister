@@ -23,9 +23,9 @@ class Sessions {
 		}
 
 		if($this->uid != 0) {
-			$user = new Users($this->uid, FALSE);
-			if($user) {
-				$core->user = $user->get();
+			$core->user_obj = new Users($this->uid, FALSE);
+			if($core->user_obj) {
+				$core->user = $core->user_obj->get();
 				unset($core->user['password'], $core->user['salt']);
 				
 				$query2 = $db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid='".$core->user['gid']."'");
@@ -81,7 +81,7 @@ class Sessions {
 				$core->user += get_user_business_assignments($this->uid); //parse_userentities_data($this->uid);
 
 				if(!isset($core->user['mainaffiliate'])) {
-					$core->user['mainaffiliate'] = $user->get_mainaffiliate()->get()['affid'];
+					$core->user['mainaffiliate'] = $core->user_obj->get_mainaffiliate()->get()['affid'];
 				}
 			}
 		}
