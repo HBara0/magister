@@ -42,18 +42,22 @@ if(!$core->input['action']) {
 
 		$currentbudget = Budgets::get_budget_bydata($budget_data);
 		/* Validate Permissions - START */
-		if(!$core->usergroup['canViewAllSupp'] == 1 && !$core->usergroup['canViewAllAff'] == 1) {
-			if(!in_array($budget_data['spid'], $core->user['auditfor']) && !in_array($budget_data['affid'], $core->user['auditedaffids'])) {
-				if(in_array($budget_data['affid'], $core->user['suppliers']['affid'][$budget_data['spid']])) {
-					$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
-				}
-				else {
-					redirect('index.php?module=budgeting/create');
+		if(!$core->usergroup['canViewAllSupp'] == 0 && !$core->usergroup['canViewAllAff'] == 0) {
+			if(isset($core->user['auditfor']) || isset($core->user['auditedaffids'])) {
+				if(!in_array($budget_data['spid'], $core->user['auditfor']) && !in_array($budget_data['affid'], $core->user['auditedaffids'])) {
+					if(isset($core->user['suppliers']['affid'][$budget_data['spid']])) {
+						if(in_array($budget_data['affid'], $core->user['suppliers']['affid'][$budget_data['spid']])) {
+							$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+						}
+						else {
+							redirect('index.php?module=budgeting/create');
+						}
+					}
 				}
 			}
 		}
 		/* Validate Permissions - END */
-		
+
 		if($currentbudget != false) {
 			$budgetobj = new Budgets($currentbudget['bid']);
 			$budget_data['bid'] = $currentbudget['bid'];
@@ -174,7 +178,7 @@ if(!$core->input['action']) {
 						$budgetline['customerName'] = $customer->get()['companyName'];
 						$budgetline['pid'] = $pid;
 						$budgetline['productName'] = $product->get()['name'];
-						$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, $saleid, '', '', array('id' => 'salestype_'.$rowid));
+						$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saletype]', 0, $saletype_selectlistdata, $saleid, '', '', array('id' => 'salestype_'.$rowid));
 						$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('id' => 'invoice_'.$rowid));
 
 						if(empty($budgetline['cid']) && $budgetline['altCid'] == 'Unspecified Customer') {
@@ -189,7 +193,7 @@ if(!$core->input['action']) {
 		}
 		else {
 			$rowid = 1;
-			$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, '', '', '', array('id' => 'salestype_'.$rowid));
+			$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saletype]', 0, $saletype_selectlistdata, '', '', '', array('id' => 'salestype_'.$rowid));
 			$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, '', '', '', array('id' => 'invoice_'.$rowid));
 			eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
 		}
@@ -246,6 +250,7 @@ else {
 				output_xml('<status>false</status><message>'.$lang->budgetexist.'</message>');
 				break;
 		}
+		$session->destroy_phpsession();
 	}
 	elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
 		$rowid = intval($core->input['value']) + 1;
@@ -272,7 +277,7 @@ else {
 		else {
 			$invoice_selectlistdata['other'] = $lang->other;
 		}
-		$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, $budgetline['saleType'], '', '', array('id' => 'salestype_'.$rowid));
+		$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saletype]', 0, $saletype_selectlistdata, $budgetline['saletype'], '', '', array('id' => 'salestype_'.$rowid));
 		$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('blankstart' => 0, 'id' => 'invoice_'.$rowid));
 
 		/* Get budget data */

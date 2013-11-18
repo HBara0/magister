@@ -26,11 +26,26 @@ if(!($core->input['action'])) {
 				$budget['country'] = $budget_obj->get_affiliate()->get()['name'];
 				$budget['affiliate'] = $budget_obj->get_affiliate()->get()['name'];
 
-				$filter_auditor = parse_userentities_data($core->user['uid']);
-				if(!in_array(implode(',', $budgetsdata['suppliers']), $filter_auditor['auditfor'])) {
-					$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+//				$filter_auditor = parse_userentities_data($core->user['uid']);
+//				if(!in_array(implode(',', $budgetsdata['suppliers']), $filter_auditor['auditfor'])) {
+//					$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+//				}
+				/* Validate Permissions - START */
+				if(!$core->usergroup['canViewAllSupp'] == 1 && !$core->usergroup['canViewAllAff'] == 1) {
+					if(isset($core->user['auditfor']) || isset($core->user['auditedaffids'])) {
+						if(!in_array($budgetsdata['spid'], $core->user['auditfor']) && !in_array($budgetsdata['affid'], $core->user['auditedaffids'])) {
+							if(isset($core->user['suppliers']['affid'][$budgetsdata['spid']])) {
+								if(in_array($budgetsdata['affid'], $core->user['suppliers']['affid'][$budgetsdata['spid']])) {
+									$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+								}
+								else {
+									redirect('index.php?module=budgeting/generate');
+								}
+							}
+						}
+					}
 				}
-				
+				/* Validate Permissions - END */
 				$firstbudgetline = $budget_obj->get_budgetLines(0, $filter);
 				if(is_array($firstbudgetline)) {
 					foreach($firstbudgetline as $cid => $customersdata) {
@@ -51,11 +66,10 @@ if(!($core->input['action'])) {
 								}
 								$budget['manager'] = $budgetcache->data['managercache'][$budget['manager']['uid']];
 
-								$budgetline['customerCountry'] = $budgetline_obj->parse_country();
 
 								$budgetline['uom'] = 'Kg';
-								$budgetline['saleType'] = Budgets::get_saletype_byid($saleid);
-
+								$budgetline['saletype'] = Budgets::get_saletype_byid($saleid);
+ 
 //								if(isset($budgetline['genericproduct']) && !empty($budgetline['genericproduct'])) {
 //									$budgetline['genericproduct'] = $budgetline_obj->get_product()->get_generic_product();
 //								}
@@ -70,7 +84,7 @@ if(!($core->input['action'])) {
 									$budgetline['customer'] = $budgetline_obj->get_customer()->get()['companyName'];
 									$customername = '<a href="index.php?module=profiles/entityprofile&eid='.$budget['customerid'].'" target="_blank">'.$budgetline['customer'].'</a>';
 								}
-
+						
 								$budgetline['product'] = $budgetline_obj->get_product($budgetline['pid'])->get()['name'];
 								eval("\$budget_report_row .= \"".$template->get('budgeting_budgetrawreport_row')."\";");
 							}
@@ -96,7 +110,7 @@ elseif($core->input['action'] == 'exportexcel') {
 	$budgetsdata = unserialize(base64_decode($core->input['identifier']));
 	$budgets = Budgets::get_budgets_bydata($budgetsdata);
 
-	$headers_data = array('manager', 'customer', 'cusomtercountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saletype', 'amount', 'income', 's1Perc', 's2Perc');
+	$headers_data = array('manager', 'customer', 'cusomtercountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saletype', 'amount', 'income', 's1perc', 's2perc');
 	$counter = 1;
 	if(is_array($budgets)) {
 		foreach($budgets as $budgetid) {
@@ -108,10 +122,7 @@ elseif($core->input['action'] == 'exportexcel') {
 			}
 
 			$budget['year'] = $budget_obj->get()['year'];
-			$filter_auditor = parse_userentities_data($core->user['uid']);
-			if(!in_array(implode(',', $budgetsdata['suppliers']), $filter_auditor['auditfor'])) {
-				$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
-			}
+		
 			$firstbudgetline = $budget_obj->get_budgetLines(0, $filter);
 			foreach($firstbudgetline as $cid => $customersdata) {
 				foreach($customersdata as $pid => $productsdata) {
@@ -126,7 +137,7 @@ elseif($core->input['action'] == 'exportexcel') {
 						$budgetline[$counter]['product'] = $budgetline_obj->get_product($pid)->get()['name'];
 						$budgetline[$counter]['uom'] = 'Kg';
 						$budgetline[$counter]['unitPrice'] = $budgetline[$counter]['unitPrice'];
-						$budgetline[$counter]['saleType'] = Budgets::get_saletype_byid($saleid);
+						$budgetline[$counter]['saletype'] = Budgets::get_saletype_byid($saleid);
 
 
 						if((empty($budgetline[$counter]['cid']) && !empty($budgetline[$counter]['altCid']))) {
