@@ -21,8 +21,8 @@ if(!$core->input['action']) {
 		$meeting_obj = new Meetings($core->input['mtid'], false);
 		$meeting = $meeting_obj->get();
 		$meeting_list = '<input type="hidden" value="'.$meeting['mtid'].'" name="mof[mtid]" /><strong><a href="index.php?module=meetings/viewmeeting&mtid='.$meeting['mtid'].'" target="_blank">'.$meeting['title'].' | '.$meeting['location'].'</a></strong>';
-
-		if($meeting['hasMOM'] == 1) {
+	
+		if($meeting['hasMoM'] == 1) {
 			$action = 'edit';
 		}
 		else {

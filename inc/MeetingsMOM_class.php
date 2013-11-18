@@ -24,8 +24,8 @@ class MeetingsMOM {
 		global $db, $core, $log;
 
 		if(empty($mom_data['mtid']) || empty($mom_data['meetingDetails'])) {
-			$this->errorcode = 1;
-			return false;
+			//$this->errorcode = 1;
+			//return false;
 		}
 		$mom_data['meetingDetails'] = $core->sanitize_inputs($mom_data['meetingDetails'], array('removetags' => true));
 		$mom_data['followup'] = $core->sanitize_inputs($mom_data['followup'], array('removetags' => true));

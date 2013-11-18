@@ -26,19 +26,20 @@ if(!$core->input['action']) {
 		$meeting = $meeting_obj->get();
 		if(!empty($meeting['fromDate'])) {
 			$meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
-			$meeting['fromTime_output'] = date($core->settings['timeformat'], $meeting['fromDate']);
+			$meeting['fromTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['timeformat'], $meeting['fromDate'])));
 		}
 		if(!empty($meeting['toDate'])) {
 			$meeting['toDate_output'] = date($core->settings['dateformat'], $meeting['toDate']);
-			$meeting['toTime_output'] = date($core->settings['timeformat'], $meeting['toDate']);
+			$meeting['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['timeformat'], $meeting['toDate'])));
 		}
 		$meeting['attendees'] = $meeting_obj->get_attendees();
 	}
 	else {
 		$action = 'create';
 	}
-	
-	$employees_affiliate = Meetings::get_affiliateemployees();
+	$aff_obj = new Affiliates($core->user['affiliates']);
+	$employees_affiliate = $aff_obj->get_users();
+
 	$employees_list = parse_selectlist('meeting[attendees][uid]', 5, $employees_affiliate, $meeting['attendees']['attr']);
 
 	eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
