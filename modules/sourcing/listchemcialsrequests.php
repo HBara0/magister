@@ -83,14 +83,15 @@ else {
 			$email_data = array(
 					'to' => $requester_details['email'],
 					'from_email' => 'sourcing@orkila.com',
-					'from' => 'OCOS Mailer',
+					'from' => 'Orkila Sourcing',
+					'cc' => 'sourcing@orkila.com',
 					'subject' => $lang->sprint($lang->feedbacknotification_subject, $sourcingagent_name['agentname']),
 					'message' => $core->input['feedback']['feedback']
 			);
 
 			$mail = new Mailer($email_data, 'php');
 			if($mail->get_status() === true) {
-				$log->record('sourcingchemicalrequests', array('to' => $requester_details['email']));
+				$log->record('sourcingchemicalreqsfeedback', array('to' => $requester_details['email']));
 			}
 		}
 

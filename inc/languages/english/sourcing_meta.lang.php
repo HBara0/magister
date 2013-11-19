@@ -147,5 +147,12 @@ $lang['noneuropean'] = 'Non European';
 $lang['american'] = 'American';
 $lang['nonamerican'] = 'Non American';
 $lang['otherasian'] = 'Other Asian';
-$lang['nootherasian'] = 'Other Non-Asian ';
+$lang['nootherasian'] = 'Other Non-Asian';
+$lang['chemreqnotification_subject'] = 'New chemcial request from {1}';
+$lang['chemreqnotification_message'] = 'There is a new chemcial request:<br />
+From {1} - ({2})<br />
+Description {3}
+<br />
+<br />
+For more details, <a href="{4}">Click here</a>.';
 ?>
