@@ -69,8 +69,8 @@ class Budgets {
 	private function budgetline_exists_bydata($data) {
 		global $db;
 		if(!empty($data)) {
-			if(isset($data['pid'], $data['cid'], $data['saletype'])) {
-				if(value_exists('budgeting_budgets_lines', 'bid', $this->budget['bid'], 'pid='.intval($data['pid']).' AND cid='.intval($data['cid']).' AND saletype='.intval($data['saletype']))) {
+			if(isset($data['pid'], $data['cid'], $data['saleType'])) {
+				if(value_exists('budgeting_budgets_lines', 'bid', $this->budget['bid'], 'pid='.intval($data['pid']).' AND cid='.intval($data['cid']).' AND saleType='.intval($data['saleType']))) {
 					return true;
 				}
 			}
@@ -229,7 +229,7 @@ class Budgets {
 					'cid' => $budgetline_data['cid'],
 					'amount' => $budgetline_data['amount'],
 					'income' => $budgetline_data['income'],
-					'saletype' => $budgetline_data['saletype'],
+					'saleType' => $budgetline_data['saleType'],
 					'createdBy' => $budgetline_data['createdBy']
 			);
 			$insertquery = $db->insert_query('budgeting_budgets_lines', $budget_data);
@@ -306,7 +306,7 @@ class Budgets {
 					if($prevbudget_bydata['cid'] == 0) {
 						$prevbudget_bydata['cid'] = md5($prevbudget_bydata['altCid']);
 					}
-					$budgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['saletype']][] = $prevbudget_bydata;
+					$budgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['saleType']][] = $prevbudget_bydata;
 				}
 			}
 		}
@@ -335,8 +335,8 @@ class Budgets {
 				while($budgetline_data = $db->fetch_assoc($budgetline_queryid)) {
 					$budgetline = new BudgetLines($budgetline_data['blid']);
 					$prevbudgetline = new BudgetLines($budgetline_data['prevblid']);
-					$budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saletype']] = $budgetline->get();
-					$budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saletype']]['prevbudget'][] = $prevbudgetline->get();
+					$budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']] = $budgetline->get();
+					$budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]['prevbudget'][] = $prevbudgetline->get();
 				}
 				return $budgetline_details;
 			}
@@ -356,7 +356,7 @@ class Budgets {
 			$mediation_result = $db->query("SELECT ime.imspid,ime.localid,ime.foreignname,ime.entityType,bl.cid, ims.quantity ,ims.price,ims.cost FROM ".Tprefix." integration_mediation_entities ime
 					JOIN ".Tprefix."budgeting_budgets_lines bl ON (bl.cid = ime.localid)
 					JOIN  ".Tprefix."integration_mediation_salesorderlines  ims ON (ims.pid=bl.pid) 
-					WHERE ims.pid =".$data['pid']."  AND  ime.localid ='".$data['cid']."' AND ims.saletype =".$data['saletype']." AND ime.entityType='e'");
+					WHERE ims.pid =".$data['pid']."  AND  ime.localid ='".$data['cid']."' AND ims.saleType=".$data['saleType']." AND ime.entityType='e'");
 
 			if($db->num_rows($mediation_result) > 0) {
 				while($rowmediationdata = $db->fetch_assoc($mediation_result)) {
@@ -480,7 +480,7 @@ class BudgetLines {
 	}
 
 	public function get_saletype() {
-		return $this->budgetline['saletype'];
+		return $this->budgetline['saleType'];
 	}
 
 	public function get_createuser() {
@@ -520,7 +520,7 @@ class BudgetLines {
 			if(!isset($data['bid']) || empty($data['bid'])) {
 				return false;
 			}
-			$budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$data['altCid']."' AND saletype='".$data['saletype']."' AND bid='".$data['bid']."'");
+			$budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$data['altCid']."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."'");
 			if($db->num_rows($budgetline_bydataquery) > 0) {
 				return $db->fetch_assoc($budgetline_bydataquery);
 			}

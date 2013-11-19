@@ -178,7 +178,7 @@ if(!$core->input['action']) {
 						$budgetline['customerName'] = $customer->get()['companyName'];
 						$budgetline['pid'] = $pid;
 						$budgetline['productName'] = $product->get()['name'];
-						$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saletype]', 0, $saletype_selectlistdata, $saleid, '', '', array('id' => 'salestype_'.$rowid));
+						$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, $saleid, '', '', array('id' => 'salestype_'.$rowid));
 						$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('id' => 'invoice_'.$rowid));
 
 						if(empty($budgetline['cid']) && $budgetline['altCid'] == 'Unspecified Customer') {
@@ -193,7 +193,7 @@ if(!$core->input['action']) {
 		}
 		else {
 			$rowid = 1;
-			$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saletype]', 0, $saletype_selectlistdata, '', '', '', array('id' => 'salestype_'.$rowid));
+			$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, '', '', '', array('id' => 'salestype_'.$rowid));
 			$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, '', '', '', array('id' => 'invoice_'.$rowid));
 			eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
 		}
@@ -250,7 +250,6 @@ else {
 				output_xml('<status>false</status><message>'.$lang->budgetexist.'</message>');
 				break;
 		}
-		$session->destroy_phpsession();
 	}
 	elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
 		$rowid = intval($core->input['value']) + 1;
@@ -277,7 +276,7 @@ else {
 		else {
 			$invoice_selectlistdata['other'] = $lang->other;
 		}
-		$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saletype]', 0, $saletype_selectlistdata, $budgetline['saletype'], '', '', array('id' => 'salestype_'.$rowid));
+		$saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, $budgetline['saleType'], '', '', array('id' => 'salestype_'.$rowid));
 		$invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('blankstart' => 0, 'id' => 'invoice_'.$rowid));
 
 		/* Get budget data */

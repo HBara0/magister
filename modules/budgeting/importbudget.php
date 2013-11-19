@@ -376,12 +376,10 @@ function parse_datapreview($csv_header, $data) {
 	}
 
 	foreach($csv_header['budget'] as $header_key => $header_val) {
-
 		$output .= '<td style="width:20px;"><select name="selectheader_'.$header_key.'" id="selectheader_'.$header_key.'">';
 		$output .= '<option value="">&nbsp;</option>';
 
 		foreach($allowed_headers as $allowed_header_key => $allowed_header_val) {
-
 			if($header_val == $allowed_header_key || $header_val == $allowed_header_val) {
 				$selected_header = ' selected="selected"';
 			}

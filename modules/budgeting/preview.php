@@ -68,7 +68,7 @@ if(!($core->input['action'])) {
 
 
 								$budgetline['uom'] = 'Kg';
-								$budgetline['saletype'] = Budgets::get_saletype_byid($saleid);
+								$budgetline['saleType'] = Budgets::get_saletype_byid($saleid);
  
 //								if(isset($budgetline['genericproduct']) && !empty($budgetline['genericproduct'])) {
 //									$budgetline['genericproduct'] = $budgetline_obj->get_product()->get_generic_product();
@@ -110,7 +110,7 @@ elseif($core->input['action'] == 'exportexcel') {
 	$budgetsdata = unserialize(base64_decode($core->input['identifier']));
 	$budgets = Budgets::get_budgets_bydata($budgetsdata);
 
-	$headers_data = array('manager', 'customer', 'cusomtercountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saletype', 'amount', 'income', 's1perc', 's2perc');
+	$headers_data = array('manager', 'customer', 'cusomtercountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saleType', 'amount', 'income', 's1perc', 's2perc');
 	$counter = 1;
 	if(is_array($budgets)) {
 		foreach($budgets as $budgetid) {
@@ -137,7 +137,7 @@ elseif($core->input['action'] == 'exportexcel') {
 						$budgetline[$counter]['product'] = $budgetline_obj->get_product($pid)->get()['name'];
 						$budgetline[$counter]['uom'] = 'Kg';
 						$budgetline[$counter]['unitPrice'] = $budgetline[$counter]['unitPrice'];
-						$budgetline[$counter]['saletype'] = Budgets::get_saletype_byid($saleid);
+						$budgetline[$counter]['saleType'] = Budgets::get_saletype_byid($saleid);
 
 
 						if((empty($budgetline[$counter]['cid']) && !empty($budgetline[$counter]['altCid']))) {
