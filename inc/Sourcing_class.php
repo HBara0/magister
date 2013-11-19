@@ -655,7 +655,7 @@ class Sourcing {
 				$scrid = $db->last_id();
 				$this->status = 0;
 				$email_data = array(
-						'to' => 'zaher.reda@l-probook4530-1.orkilalb.local',
+						'to' => 'sourcing@orkila.com',
 						'from_email' => $core->settings['maileremail'],
 						'from' => 'OCOS Mailer',
 						'subject' => $lang->sprint($lang->chemreqnotification_subject, $core->user['displayName']),
