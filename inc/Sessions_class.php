@@ -19,7 +19,7 @@ class Sessions {
 			$this->create();
 		}
 		else {
-			$this->update(); 
+			$this->update();
 		}
 
 		if($this->uid != 0) {
@@ -27,7 +27,7 @@ class Sessions {
 			if($core->user_obj) {
 				$core->user = $core->user_obj->get();
 				unset($core->user['password'], $core->user['salt']);
-				
+
 				$query2 = $db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid='".$core->user['gid']."'");
 				$core->usergroup = $db->fetch_assoc($query2);
 
@@ -180,6 +180,9 @@ class Sessions {
 	}
 
 	public function name_phpsession($name = '') {
+		if(empty($name)) {
+			$name = COOKIE_PREFIX.'session_'.substr(md5(uniqid(microtime())), 1, 10);
+		}
 		return session_name($name);
 	}
 
@@ -191,10 +194,14 @@ class Sessions {
 		return session_regenerate_id($delete_old);
 	}
 
-	public function start_phpsession() {
+	public function start_phpsession($ttl = '') {
 		global $core;
 
-		session_set_cookie_params((TIME_NOW + (60 * $core->settings['idletime'])), COOKIE_PATH, COOKIE_DOMAIN);
+		if(empty($ttl)) {
+			$ttl = $core->settings['idletime'];
+		}
+
+		session_set_cookie_params((TIME_NOW + (60 * $ttl)), COOKIE_PATH, COOKIE_DOMAIN);
 		session_start();
 	}
 
