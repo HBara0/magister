@@ -2,6 +2,11 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->employeeslist}</title>
         {$headerinc}
+        <script>
+            $("#associationssection").on('click', function() {
+                alert($(this.val()));
+            });
+        </script>
     </head>
     <body>
         {$header}
@@ -25,19 +30,7 @@
                         <td>{$lang->todate}</td>
                         <td><input type="text" tabindex="4" id="pickDate_to" autocomplete="off" tabindex="1" name="meeting[toDate]"  value="{$meeting[toDate_output]}" required="required"/><input type="hidden" name="meeting[alttoDate]" id="altpickDate_to" value="{$meeting[toDate]}" /> <input type="time" name="meeting[toTime]" tabindex="5" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="17:00" value="{$meeting[toTime_output]}" required="required"></td>
                     </tr>
-                    <!--<tr>
-                    <td  colspan="5" class="thead">    
-                    {$lang->attendees}
-                </td>
-            </tr>
-            <tr>
-                <td>{$lang->employee}</td>
-                <td> {$employees_list}</td>
-                <td> {$lang->supplier}</td>
-                <td><input type='text'id='supplier_1_QSearch'  value="{$meeting[attendees][suppliername]}" autocomplete='off' size='40px'/>
-                    <input type='hidden' id='supplier_1_id' name='meeting[attendees][spid]' value="{$meeting[attendees][spid]}" /> 
-                    <div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div>  </td>
-            </tr>-->
+
                     <tr>
                         <td>{$lang->description}</td>
                         <td><textarea class="texteditormin" tabindex="6" name="meeting[description]" cols="20" rows="5">{$meeting[description]}</textarea> </td>
@@ -46,7 +39,8 @@
                         <td>{$lang->location}</td>
                         <td><input type="text" name="meeting[location]" size="50" tabindex="7" value="{$meeting[location]}"/></td>
                     </tr>
-
+                    <tr><td class="thead" colspan="3"> {$lang->associations}<a title="{$lang->associations}" href="#associationssection" onClick="$('#associationssection').fadeToggle();">...</a></td></tr>
+                    {$createmeeting_assosiations}
                     <tr>
                         <td colspan="2">
                             <hr /><input type="submit" class="button" value="{$lang->savecaps}" id="perform_meetings/create_Button" /> <input type="reset" class="button" value="{$lang->reset}"/>

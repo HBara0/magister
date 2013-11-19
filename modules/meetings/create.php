@@ -37,10 +37,22 @@ if(!$core->input['action']) {
 	else {
 		$action = 'create';
 	}
-	$aff_obj = new Affiliates($core->user['affiliates']);
-	$employees_affiliate = $aff_obj->get_users();
 
-	$employees_list = parse_selectlist('meeting[attendees][uid]', 5, $employees_affiliate, $meeting['attendees']['attr']);
+	$afiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, 'affid IN ('.implode(',', $core->user['affiliates']).')');
+	$afiliates[0] = '';
+	asort($afiliates);
+	$affiliates_list = parse_selectlist('meeting[attendees][affid]', 5, $afiliates, $meeting['attendees']['affid']);
+
+
+	$aff_events = Events::get_affiliatedevents($core->user['affiliates']);
+	foreach($aff_events as $eventid => $events) {
+		$event_list .= '<option value="'.$eventid.'">'.$events['title'].'</option>';
+	}
+
+	$business_leaves = get_specificdata('leavetypes', array('ltid', 'name'), 'ltid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, 'isBusiness=1');
+	$business_leaves_list = parse_selectlist('meeting[attendees][leave]', 5, $business_leaves, $meeting['attendees']['leave']);
+	eval("\$createmeeting_assosiations = \"".$template->get('meeting_create_associations')."\";");
+
 
 	eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
 	output_page($createmeeting);

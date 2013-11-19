@@ -27,4 +27,8 @@ $lang['minsofmeeting'] = 'Minutes of Meeting';
 $lang['meetingdetails'] = 'Meeting Details';
 $lang['nomeetingavailable'] = 'No meeting available';
 $lang['discussiondetails'] = 'Discussion Details';
+$lang['event'] = 'Event';
+$lang['businessleave'] = 'Business leave';
+$lang['customer']='Customers';
+$lang['associations']='Associations';
 ?>
