@@ -35,9 +35,7 @@ if(!$core->input['action']) {
 	}
 	else {
 		$readonlyratings = true;
-		$header_ratingjs = '';
 	}
-
 
 	$maxstars = 5;
 	$sort_url = sort_url();
@@ -47,15 +45,16 @@ if(!$core->input['action']) {
 	/* Perform inline filtering - START */
 	$filters_config = array(
 			'parse' => array('filters' => array('companyName', 'type', 'segment', 'country', 'opportunity', 'chemicalsubstance', 'genericproduct'),
-					'overwriteField' => array('opportunity' => parse_selectlist('filters[opportunity]', 5, array_combine($opportunity_scale, $opportunity_scale), $core->input['filters']['opportunity']),
-							'type' => parse_selectlist('filters[type]', 2, array('' => '', 'b' => $lang->both, 't' => $lang->trader, 'p' => $lang->producer), $core->input['filters']['type']))
+					'overwriteField' => array('opportunity' => parse_selectlist('filters[opportunity][]', 5, array_combine($opportunity_scale, $opportunity_scale), $core->input['filters']['opportunity'], 1),
+							'type' => parse_selectlist('filters[type]', 2, array('' => '', 'b' => $lang->both, 't' => $lang->trader, 'p' => $lang->producer), $core->input['filters']['type']),
+					)
 			/* get the busieness potential and parse them in select list to pass to the filter array */
 			),
 			'process' => array(
 					'filterKey' => 'ssid',
 					'mainTable' => array(
 							'name' => 'sourcing_suppliers',
-							'filters' => array('companyName' => 'companyName', 'type' => 'type', 'opportunity' => 'businessPotential'),
+							'filters' => array('companyName' => 'companyName', 'type' => 'type', 'opportunity' => array('operatorType' => 'multiple', 'name' => 'businessPotential')),
 					),
 					'secTables' => array(
 							'sourcing_suppliers_productsegments' => array(
@@ -175,11 +174,11 @@ if(!$core->input['action']) {
 				$criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
 
 				if($readonlyratings == true) {
-					$criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$potential_supplier['supplier']['businessPotential'].'"></div>';
+					$criteriaandstars .= '<div class="rateit" id="rateit10b" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$potential_supplier['supplier']['businessPotential'].'"></div>';
 				}
 				else {
-					$criteriaandstars .= '<input type="range" min="0" max="'.$maxstars.'" value="'.$potential_supplier['supplier']['businessPotential'].'" step="1" id="rating_'.$potential_supplier['supplier']['ssid'].'" class="ratingscale">';
-					$criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$potential_supplier['supplier']['ssid'].'" data-rateit-value="'.$potential_supplier['supplier']['businessPotential'].'"></div>';
+					$criteriaandstars .= '<input type="range"  min="0" max="'.$maxstars.'" value="'.$potential_supplier['supplier']['businessPotential'].'" step="1" id="rating_'.$potential_supplier['supplier']['ssid'].'" class="ratingscale">';
+					$criteriaandstars .= '<div class="rateit" id="rating_'.$potential_supplier['supplier']['ssid'].'" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$potential_supplier['supplier']['ssid'].'" data-rateit-value="'.$potential_supplier['supplier']['businessPotential'].'"></div>';
 				}
 				$criteriaandstars .= '</div></div>';
 

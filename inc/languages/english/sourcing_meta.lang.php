@@ -89,7 +89,7 @@ $lang['customerdocumentdate'] = 'Customer Document Date';
 $lang['readfeedback'] = 'Read Feedback';
 $lang['replyfeedback'] = 'Reply Feedback';
 $lang['feedbackexsist'] = 'Feedback Exists';
-
+$lang['genericdproductsearch'] = 'Generic Product';
 $lang['price'] = 'Price are suitable';
 $lang['payment'] = 'Approved payment terms';
 $lang['customerdocument'] = 'Customer provided wtith technical documentation for approval';
