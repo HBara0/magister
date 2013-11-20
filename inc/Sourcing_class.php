@@ -252,8 +252,10 @@ class Sourcing {
 		  } */
 
 		/* Check whether the communications section has  been validated  completed */
-		if(isset($data['commercialoffer']) && !empty($data['commercialoffer']) || (isset($data['sourcingnotPossibleDesc']) && !empty($data['sourcingnotPossibleDesc']))) {
-			$data['isCompleted'] = 1;
+		if(isset($data['isOrderPassed']) && isset($data['commercialoffer']) && !empty($data['commercialoffer']) || (isset($data['sourcingnotPossibleDesc']) && !empty($data['sourcingnotPossibleDesc']))) {
+			if($data['isOrderPassed'] == 1 || $data['isOrderPassed'] == 0) {
+				$data['isCompleted'] = 1;
+			}
 		}
 		$this->orderpassed = $data['orderpassed'];
 		unset($data['orderpassed'], $data['commercialoffer']);
@@ -627,7 +629,7 @@ class Sourcing {
 	}
 
 	public function request_chemical($data) {
-		global $db, $core;
+		global $db, $core, $log, $lang;
 
 		if(is_empty($data['requestDescription'])) {
 			$this->status = 1;
@@ -650,7 +652,20 @@ class Sourcing {
 			);
 			$query = $db->insert_query('sourcing_chemicalrequests', $chemicalrequest_data);
 			if($query) {
+				$scrid = $db->last_id();
 				$this->status = 0;
+				$email_data = array(
+						'to' => 'sourcing@orkila.com',
+						'from_email' => $core->settings['maileremail'],
+						'from' => 'OCOS Mailer',
+						'subject' => $lang->sprint($lang->chemreqnotification_subject, $core->user['displayName']),
+						'message' => $lang->sprint($lang->chemreqnotification_message, $core->user['displayName'], $core->user['email'], $chemicalrequest_data['requestDescription'], $core->settings['rootdir'].'/index.php?module=sourcing/listchemcialsrequests#'.$scrid)
+				);
+
+				$mail = new Mailer($email_data, 'php');
+				if($mail->get_status() === true) {
+					$log->record('sourcingchemicalrequests', $scrid);
+				}
 				return true;
 			}
 		}
@@ -678,7 +693,7 @@ class Sourcing {
 			$see_otherusers = '	WHERE scr.uid='.$core->user['uid'];
 		}
 
-		$chemicalrequests_query = $db->query("SELECT psa.description AS application, scr.*, u.displayName, cs.name AS chemicalname
+		$chemicalrequests_query = $db->query("SELECT psa.title AS application, scr.*, u.displayName, cs.name AS chemicalname
 										FROM ".Tprefix."sourcing_chemicalrequests scr
 										LEFT JOIN ".Tprefix."productsegements_applications psa ON (psa.psaid = scr.psaid)
 										JOIN ".Tprefix."users u ON (u.uid = scr.uid)

@@ -157,9 +157,9 @@ if(!$core->input['action']) {
 				}
 			}
 			$edit_link = $revoke_link = '';
-			$user_obj = new Users($core->user['uid']);
-			$reports_to = $user_obj->get_reportsto()->get()[uid];
-			if($core->usergroup['attenance_canApproveAllLeaves'] == 1 || ($core->usergroup['hr_canHrAllAffiliates'] == 1 && $reports_to == $core->user['uid'] && TIME_NOW < ($leave['toDate'] + (60 * 60 * 24 * $core->settings['attendance_caneditleaveafter'])) || (TIME_NOW > $leave['toDate'] && $status['approved'] != array_sum($status)))) {
+			$user_obj = new Users($leave['uid']);
+			$reports_to = $user_obj->get_reportsto()->get()['uid'];
+			if($core->usergroup['attenance_canApproveAllLeaves'] == 1 || (($core->usergroup['hr_canHrAllAffiliates'] == 1 || $reports_to == $core->user['uid'] || $leave['uid'] == $core->user['uid']) && TIME_NOW < ($leave['toDate'] + (60 * 60 * 24 * $core->settings['attendance_caneditleaveafter'])) || (TIME_NOW > $leave['toDate'] && $status['approved'] != array_sum($status)))) {
 				$edit_link = "<a href='index.php?module=attendance/editleave&amp;lid={$leave[lid]}'><img src='{$core->settings[rootdir]}/images/icons/edit.gif' border='0' alt='{$lang->modifyleave}' /></a>";
 				$revoke_link = "<a href='#{$leave[lid]}' id='revokeleave_{$leave[lid]}_attendance/listleaves_icon'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->revokeleave}' /></a>";
 			}
@@ -185,26 +185,25 @@ else {
 	if($core->input['action'] == 'perform_revokeleave') {
 		$lid = $db->escape_string($core->input['torevoke']);
 		$user_obj = new Users($core->user['uid']);
-		$reports_to = $user_obj->get_reportsto()->get()[uid];
 
-
-		$leave = $db->fetch_assoc($db->query("SELECT l.*, u.firstName, u.lastName, u.email FROM ".Tprefix."leaves l JOIN ".Tprefix."users u ON (u.uid=l.uid) WHERE l.lid='{$lid}'"));
-
-		if($core->usergroup['attenance_canApproveAllLeaves'] == 1 || ($core->usergroup['hr_canHrAllAffiliates'] == 1 && $reports_to == $core->user['uid'] && TIME_NOW < ($leave['toDate'] + (60 * 60 * 24 * $core->settings['attendance_caneditleaveafter'])) || (TIME_NOW > $leave['toDate']))) {
+		$leave_obj = new Leaves($lid, false);
+		$leave = $leave_obj->get();
+		$leave_type = $leave_obj->get_leavetype(false)->get();
+		$leave_user = $leave_obj->get_requester()->get();
+		$reports_to = $leave_obj->get_requester()->get_reportsto()->get()['uid'];
+		if(!$core->usergroup['attenance_canApproveAllLeaves'] == 1 && (($core->usergroup['hr_canHrAllAffiliates'] != 1 && $reports_to != $core->user['uid'] && $leave_user['uid'] != $core->user['uid']) && !TIME_NOW < ($leave['toDate'] + (60 * 60 * 24 * $core->settings['attendance_caneditleaveafter'])) && !(TIME_NOW > $leave['toDate']))) {
 			output_xml("<status>false</status><message>{$lang->errorrevoking}</message>");
 			exit;
 		}
+
 		if(value_exists('users', 'reportsTo', $core->user['uid'], "uid='{$leave[uid]}'")) {
 			$on_behalf = true;
 		}
 
-		$addtitonal_fields = unserialize($db->fetch_field($db->query("SELECT additionalFields FROM ".Tprefix."leavetypes WHERE ltid='".$leave['type']."'"), 'additionalFields'));
-		if(is_array($addtitonal_fields)) {
-			foreach($addtitonal_fields as $key => $field) {
-				$leave_additionalinfo = $db->fetch_assoc($db->query("SELECT ".$field[table].".".$field[value_attribute]." FROM ".Tprefix.$field[table]." JOIN ".Tprefix."leaves l ON (l.".$field[key_attribute]."=".$field[table].".".$field[key_attribute].") WHERE l.".$field[key_attribute]."='{$leave[$field[key_attribute]]}'"));
-			}
+		$leave['additionalInfo'] = parse_additionaldata($leave, $leave_type['additionalFields']);
+		if(is_array($leave['additionalInfo']) && !empty($leave['additionalInfo'])) {
+			$leave['additionalInfo'] = ' ('.implode(' ', $leave['additionalInfo']).')';
 		}
-
 
 		$query = $db->query("SELECT isApproved, COUNT(*) AS counter FROM ".Tprefix."leavesapproval WHERE lid='{$lid}' GROUP BY isApproved");
 		while($approval = $db->fetch_assoc($query)) {
@@ -212,9 +211,8 @@ else {
 			$leave_approval['total'] += $approval['counter'];
 		}
 
+		$leavetype_details = $leave_type;
 		if($leave_approval['total'] == $leave_approval[1]) { //1 = isApproved
-			$leavetype_details = $db->fetch_assoc($db->query("SELECT isBusiness, noNotification FROM ".Tprefix."leavetypes WHERE ltid='".$leave['type']."'"));
-
 			$to_inform = unserialize($leave['affToInform']);
 			if(is_array($to_inform)) {
 				$mailingLists_attr = 'altMailingList';
@@ -237,7 +235,6 @@ else {
 
 		$query = $db->delete_query('leaves', "lid='{$lid}'");
 		if($query && $db->affected_rows() > 0) {
-			$leavetype_details = parse_type($leave['type']);
 			//Reset Leave Balance - Start
 			if(!value_exists('leavesapproval', 'isApproved', 0, 'lid='.$lid)) {
 				$workingdays = count_workingdays($leave['uid'], $leave['fromDate'], $leave['toDate'], $leavetype_details['isWholeDay']);
@@ -254,8 +251,7 @@ else {
 
 			$query2 = $db->delete_query('leavesapproval', "lid='{$lid}'");
 			if($query2 && $db->affected_rows() > 0) {
-				$lang->load('messages');
-
+				$lang->load('attendance_messages');
 				//$to_inform = unserialize($leave['affToInform']);
 				//$mailingLists = get_specificdata('affiliates', 'mailingList', 'affid', 'mailingList', '', 0, 'affid IN ('.implode(',', $to_inform).') AND mailingList != ""');
 				if(date($core->settings['dateformat'], $leave['fromDate']) != date($core->settings['dateformat'], $leave['toDate'])) {
@@ -265,14 +261,10 @@ else {
 					$todate_format = $core->settings['timeformat'];
 				}
 
-				//$leavetype_details = $db->fetch_assoc($db->query("SELECT name, title FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($leave['type'])."'"));
 				if(!empty($lang->{$leavetype_details['name']})) {
 					$leavetype_details['title'] = $lang->{$leavetype_details['name']};
 				}
 				$leave['type_output'] = $leavetype_details['title'];
-				if(!empty($leave_additionalinfo['name'])) {
-					$leave['additionalInfo'] = ' ('.$leave_additionalinfo['name'].')';
-				}
 
 				$email_data = array(
 						'from_email' => 'attendance@ocos.orkila.com',
@@ -283,11 +275,11 @@ else {
 					$email_data['to'] = $leave['email'];
 					if($leave_approval[1] == 0) {
 						$email_data['subject'] = $lang->sprint($lang->declineleavenotificationsubject, strtolower($leave['type_output']));
-						$email_data['message'] = $lang->sprint($lang->declineleavenotificationmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($todate_format, $leave['toDate']));
+						$email_data['message'] = $lang->sprint($lang->declineleavenotificationmessage, $leave_user['displayName'], strtolower($leave['type_output']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($todate_format, $leave['toDate']));
 					}
 					else {
 						$email_data['subject'] = $lang->sprint($lang->revokeleavenotificationsubjectuser, strtolower($leave['type_output']), $leave['additionalInfo']);
-						$email_data['message'] = $lang->sprint($lang->revokeleavenotificationmessageuser, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']), $leave['additionalInfo'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($todate_format, $leave['toDate']));
+						$email_data['message'] = $lang->sprint($lang->revokeleavenotificationmessageuser, $leave_user['displayName'], strtolower($leave['type_output']), $leave['additionalInfo'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($todate_format, $leave['toDate']));
 					}
 					$mail = new Mailer($email_data, 'php');
 					if($mail->get_status() === true) {
@@ -296,9 +288,8 @@ else {
 				}
 
 				$email_data['to'] = $to_notify;
-				$email_data['subject'] = $lang->sprint($lang->revokeleavenotificationsubject, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']), strtolower($leave['affiliate']));
-				$email_data['message'] = $lang->sprint($lang->revokeleavenotificationmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_output']), strtolower($leave['affiliate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($todate_format, $leave['toDate']));
-
+				$email_data['subject'] = $lang->sprint($lang->revokeleavenotificationsubject, $leave_user['displayName'], strtolower($leave['type_output']), $leave['additionalInfo']);
+				$email_data['message'] = $lang->sprint($lang->revokeleavenotificationmessage, $leave_user['displayName'], strtolower($leave['type_output']), $leave['additionalInfo'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($todate_format, $leave['toDate']));
 
 				$mail = new Mailer($email_data, 'php');
 

@@ -25,6 +25,6 @@ $currencies = array(
 );
 
 foreach($currencies as $numcode => $alphacode) {
-	$currency->save_fx_rate_fromsource('http://www.google.com/ig/calculator?hl=en&q=1USD=?'.$alphacode, 840, $numcode);
+	$currency->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from=USD&to='.$alphacode, 840, $numcode);
 }
 ?>

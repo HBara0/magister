@@ -100,22 +100,21 @@ $lang['reqquantity'] = 'Requested Quantity';
 $lang['reqdocuments'] = 'Requested Documents';
 $lang['recquantity'] = 'Received Quantity';
 $lang['recdocuments'] = 'Received Documents';
-$lang['samplerequest'] = 'Supplier simple request ';
+$lang['samplerequest'] = 'Supplier sample request ';
 $lang['updateprevious'] = 'Update previous';
 $lang['dateon'] = 'on';
 $lang['provideddocuments'] = 'Provided Documents';
 $lang['providedquantity'] = 'Provided Quantity';
-$lang['cutomeranswer'] = 'Cutomer Answer';
+$lang['customeranswer'] = 'Cutomer Answer';
 $lang['compliantspec'] = 'Compliant with Specs?';
 $lang['previouscommunication'] = 'Previous Communication';
 $lang['desciption'] = 'Explanation';
 $lang['description'] = 'Description';
 $lang['sourcingnotpossible'] = 'Sourcing not Possible';
-
+$lang['productdevelopment'] = 'Product Development';
 $lang['sampleaccepted'] = 'Sample Accepted ';
 $lang['customersample'] = 'Customer provided with sample';
 $lang['trialresult'] = 'Trial Result';
-$lang['customerAnswer'] = 'Customer Answer';
 $lang['approvedterms'] = 'Approved payment Terms';
 $lang['industrialquantity'] = 'Quantity';
 $lang['provisiondate'] = 'Provision Date';
@@ -148,5 +147,12 @@ $lang['noneuropean'] = 'Non European';
 $lang['american'] = 'American';
 $lang['nonamerican'] = 'Non American';
 $lang['otherasian'] = 'Other Asian';
-$lang['nootherasian'] = 'Other Non-Asian ';
+$lang['nootherasian'] = 'Other Non-Asian';
+$lang['chemreqnotification_subject'] = 'New chemcial request from {1}';
+$lang['chemreqnotification_message'] = 'There is a new chemcial request:<br />
+From {1} - ({2})<br />
+Description {3}
+<br />
+<br />
+For more details, <a href="{4}">Click here</a>.';
 ?>

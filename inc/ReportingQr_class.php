@@ -70,6 +70,11 @@ class ReportingQr Extends Reporting {
 				$this->read_next_products_activity();
 			}
 		}
+		else {
+			if($get_prevactivity == true) {
+				$this->read_prev_products_activity();
+			}
+		}
 		return false;
 	}
 
@@ -189,19 +194,32 @@ class ReportingQr Extends Reporting {
 				$newreport->read_products_activity(false);
 				$prev_products = $newreport->get_products();
 				if(!empty($prev_products)) {
-					$this->report['products'] += $prev_products;
+					if(is_array($this->report['products'])) {
+						$this->report['products'] += $prev_products;
+					}
+					else {
+						$this->report['products'] = $prev_products;
+					}
 				}
 
 				$prev_productsactivity = $newreport->get_products_activity();
 				if(isset($this->report['productsactivity']) && !empty($prev_productsactivity)) {
 					$this->report['productsactivity'] += $prev_productsactivity;
 				}
-
-				$prev_productssegments = $newreport->get_productssegments();
-				if(isset($this->report['productssegments']) && !empty($prev_productssegments)) {
-					$this->report['productssegments'] += $prev_productssegments;
+				else {
+					$this->report['productsactivity'] = $prev_productsactivity;
 				}
 
+				$prev_productssegments = $newreport->get_productssegments();
+				if(!empty($prev_productssegments)) {
+					if(isset($this->report['productssegments']) && is_array($this->report['productssegments'])) {
+						$this->report['productssegments'] += $prev_productssegments;
+					}
+					else {
+						$this->report['productssegments'] = $prev_productssegments;
+					}
+				}
+				
 				$reportdetails = $newreport->get_classified_productsactivity();
 				if(is_array($reportdetails)) {
 					foreach($reportdetails as $category => $catitem) { /* amount or  quantity */

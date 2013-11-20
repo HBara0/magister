@@ -13,7 +13,7 @@
         </style>
         <script src="{$core->settings[rootdir]}/js/jquery.rateit.min.js" type="text/javascript"></script>
         <script>
-            $(function(){
+            $(function() {
             {$header_blurjs}
             $("input[type='radio'][id=approved_type]").attr('disabled', true);
                     $(".priceok").live('change', function() {
@@ -32,10 +32,11 @@
                     var obj = $(this).parent().parent().parent().nextAll().has(":checkbox").first().find(":checkbox").removeAttr("disabled").prop("checked", true);
                     var nextdiv = $("div[id^='" + obj.val() + "']");
                     $("div[id^='sourcingnotpossible_body']").hide()
-                    if (nextdiv.length){
+                    if (nextdiv.length) {
             //	$("html, body").animate({ scrollTop: $('#'+nextdiv.attr('id')).offset().top }, 1000)
             //$("html, body").scrollTo ('#'+nextdiv.attr('id'));  /* scrolling to a specified next div.*/
-            };
+            }
+            ;
                     $("div[id^='" + obj.val() + "']").show(); /* obj.val() Get the value of the checkbox in the next div (that has calss main) */
 
             });
@@ -43,7 +44,7 @@
             /*disable and rehide subsequent stage textarea and text*/
             $(this).parent().parent().parent().next().first().hide().find("textarea,:text").attr("disabled", true);
                     $(this).parent().parent().parent().nextAll().has(":checkbox").first().find(":checkbox").attr('disabled', true);
-                    $("html, body").animate({ scrollTop: $(document).height() - 450 }, 1000); /*scroll down to the end of body */
+                    $("html, body").animate({scrollTop: $(document).height() - 450}, 1000); /*scroll down to the end of body */
                     $("div[id^='sourcingnotpossible_body']").show().find("textarea").focus();
             });
                     /*expand/collapse report section START*/
@@ -51,76 +52,70 @@
                     $("input[type='checkbox'][id$='_check']").live('change', function() {
             var id = $(this).attr("id");
                     $("div[id^='" + $(this).val() + "']").slideToggle("slow");
-                    });
+            });
             {$hide_productsection}
 
-            $("span[id^='contactpersondata_']").each(function(){
+            $("span[id^='contactpersondata_']").each(function() {
 
             var id = $(this).attr('id').split('_');
-                    // We make use of the .each() loop to gain access to each element via the "this" keyword...
-                    $(this).qtip(
-                                        {
-                                            content: {
-                                            text: '<img class="throbber" src="images/loading.gif" alt="Loading..." />',
-                                                    ajax: {
-                                    url: 'index.php?module=sourcing/supplierprofile&action=preview&sid=' + id[2] + '&rpid=' + id        [1],
-                                                    data: {}, // Data to pass along with your request
-
-                                                    success: function(data, returnedData) {
-			
-                                                this.set( 'content.text', data);
-                                                }
-                                        },
-                                        title: {
-                                                text:  'Contact details', // Give the tooltip a title using each elements text
-                                                button: true
-                                                }
-                                },
-                                position: {
-                                        viewport: $(window), // Keep the tooltip on-screen at all times
-                                },
-                                show: {
-                                        event: 'mouseover',
-                                        solo: true // Only show one tooltip at a time
-                                },
-                                hide: 'unfocus',
-                                style: {
-                                        classes: ' ui-tooltip-light ui-tooltip-shadow'
+                    $(this).qtip({
+            content: {
+            text: '<img class="throbber" src="images/loading.gif" alt="Loading..." />',
+                    ajax: {url: 'index.php?module=sourcing/supplierprofile&action=preview&sid=' + id[2] + '&rpid=' + id[1],
+                               data: {}, // Data to pass along with your request
+                               success: function(data, returnedData) {
+                                    this.set( 'content.text', data);
+                               }
+                       },
+                        title: {
+                                text:  'Contact details',
+                                button: true
                                 }
+                    },
+                    position: {
+                            viewport: $(window),
+                    },
+                    show: {
+                            event: 'mouseover',
+                            solo: true
+                    },
+                    hide: 'unfocus',
+                    style: {
+                            classes: ' ui-tooltip-light ui-tooltip-shadow'
+                    }
                         });		
-
-
                 });
             });
         </script>
-    </head><body>
-        {$header}
+    </head>
+    <body>
+            {$header}
     <tr> {$menu}
         <td class="contentContainer">
             <div style="margin-bottom: 10px;">
                 <h3 style="margin-bottom: 5px;">{$supplier[maindetails][companyName]} {$supplier[maindetails][businessPotential_output]}</h3>
-                {$supplier[maindetails][relationMaturity_output]}
+            {$supplier[maindetails][relationMaturity_output]}
             </div>
             <div style='display:inline-block; width:50%; padding:5px; vertical-align:top;'>
                 <div class="subtitle border_right"><strong>{$lang->contactdtails}</strong></div>
                 <div class="border_right">{$lang->fulladress}: <span class="contactsvalue">{$supplier[contactdetails][fulladress]}</span><br />
-                    {$lang->pobox}: <span class="contactsvalue">{$supplier[contactdetails][poBox]}</span><br />
-                    {$lang->telephone}: <span class="contactsvalue">{$supplier[contactdetails][phones]}</span><br />
-                    {$lang->fax}: <span class="contactsvalue">{$supplier[contactdetails][fax]}</span><br />
-                    {$lang->email}: <span class="contactsvalue"> <a href="mailto:{$supplier[contactdetails][mainEmail]}">{$supplier[contactdetails][mainEmail]}</a></span><br />
-                    {$lang->website}: <span class="contactsvalue"><a href="{$supplier[contactdetails][website]}"  target="_blank">{$supplier[contactdetails][website]}</a></span><br />
+            {$lang->pobox}: <span class="contactsvalue">{$supplier[contactdetails][poBox]}</span><br />
+            {$lang->telephone}: <span class="contactsvalue">{$supplier[contactdetails][phones]}</span><br />
+            {$lang->fax}: <span class="contactsvalue">{$supplier[contactdetails][fax]}</span><br />
+            {$lang->email}: <span class="contactsvalue"> <a href="mailto:{$supplier[contactdetails][mainEmail]}">{$supplier[contactdetails][mainEmail]}</a></span><br />
+            {$lang->website}: <span class="contactsvalue"><a href="{$supplier[contactdetails][website]}"  target="_blank">{$supplier[contactdetails][website]}</a></span><br />
                 </div>
                 <div class="border_right">{$contactsupplier_button}</div>
             </div>
             <div style='display:inline-block; width:45%; padding:5px; vertical-align:top;'>
                 <div class="subtitle"><strong>{$lang->contactperson}</strong></div>
-                {$contactpersons_output}</div>
+            {$contactpersons_output}</div>
             <div style='display:inline-block; width:50%; padding:5px; margin-top:10px; vertical-align:top;' class="border_right"><strong>{$lang->segments}</strong><br />
-                {$segments_output}</div>
+            {$segments_output}</div>
             <div style='display:inline-block; width:45%; padding:5px; margin-top:10px; vertical-align:top;'><strong>{$lang->activityarea}</strong><br />
-                {$activityarea_output}</div>
+            {$activityarea_output}</div>
             <div style="width:100%; max-height: 200px; overflow:auto; display:inline-block; vertical-align:top; margin-top: 10px;">
-                <table class="datatable" width="100%">
+                <table class="datatable" width="100%" style="table-layout:fixed;">
                     <thead>
                         <tr>
                             <td class="thead">{$lang->casnum}</td>
@@ -129,7 +124,7 @@
                             <td class="thead">{$lang->synonyms}</td>
                         </tr>
                     </thead>
-                    {$chemicalslist_section}
+            {$chemicalslist_section}
                 </table>
                 <hr /> 
             </div>
@@ -140,7 +135,7 @@
                             <td class="thead">{$lang->genericproducts}</td>
                         </tr>
                     </thead>
-                    {$genericproductlist_section}
+            {$genericproductlist_section}
                 </table>
                 <hr /> 
             </div>
@@ -159,10 +154,12 @@
                 <div>
                     <hr />
                     <div class="subtitle">{$lang->contacthistory}</div>
-                    {$contacthistory_section}
-                    {$reportcommunication_section} </div>
+            {$contacthistory_section}
+                    <br />
+                    <hr />
+            {$reportcommunication_section} </div>
             </div></td>
     </tr>
-    {$footer}
+            {$footer}
 </body>
 </html>

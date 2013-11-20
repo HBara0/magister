@@ -23,7 +23,7 @@
                 <div style="display:inline-block; margin-left:5px;">{$lang->date}</div>
                 <div style="display:inline-block; padding:5px;">
                     <input class="rounded"  name="contacthst[date]" type="text"  value="{$contact_history[date_output]}" id="{$datepicker_id['date']}" size="30" >
-                </div>
+                </div >
             </div>
         </div>
         <fieldset class="altrow2">
@@ -64,26 +64,26 @@
                 </div>
             </div>
         </fieldset>
-
         <!--Expanded Reporting START-->
-        <div class="subtitle" style="margin-top: 10px;">{$lang->productdevelopment}Product Development</div>
+        <div class="subtitle" style="margin-top: 10px;">{$lang->productdevelopment}</div>
         <div class='main'>
             <div class="content">{$lang->price}</div>
             <div class="content">
-                <input  name="contacthst[ispriceapproved]"  class="priceok" id="price_type"  type="radio" value="1">
+                <input  name="contacthst[isPriceApproved]" class="priceok" id="price_type" type="radio" value="1"{$radiobuttons_check[isPriceApproved][1]}>
                 {$lang->yes}
-                <input class="pricenotOk"   name="contacthst[ispriceapproved]"   id="price_type" type="radio" value="0">
+                <input class="pricenotOk" name="contacthst[isPriceApproved]" id="price_type" type="radio" value="0"{$radiobuttons_check[isPriceApproved][0]}>
                 {$lang->no} </div>
         </div>
         <div class='main'>
             <div class='title'><span>
-                    <input id="paymentterms_check" name="" type="checkbox" value="paymentterms" disabled>
+                    <input id="paymentterms_check_{$identifier}" name="" type="checkbox" value="paymentterms"{$disabled_checkboxes[paymentterms]}{$checked_checkboxes[paymentterms]}>
                 </span>{$lang->paymenttermstitle}</div>
             <div id="paymentterms_body_{$identifier}" style="display:none;" class="{$ch_productsection}">
                 <div class='content'>
                     <div class='content'>{$lang->paymentterms}</div>
                     <div class='content'>
                         <select name="contacthst[paymentTerms]">
+                            <option value="0">0 {$lang->days}</option>
                             <option value="30">30 {$lang->days}</option>
                             <option value="45">45 {$lang->days}</option>
                             <option value="60">60 {$lang->days}</option>
@@ -96,19 +96,19 @@
                 <div class='content'>
                     <div class='content' style="vertical-align:middle;">{$lang->discussion}</div>
                     <div class='content'>
-                        <textarea name="contacthst[Discussion]" cols="25" rows="5">{$contact_history[Discussion]}</textarea>
+                        <textarea name="contacthst[Discussion]" cols="25" rows="5">{$contact_history[discussion]}</textarea>
                     </div>
                 </div>
                 <div class='question'>{$lang->approvedterms}
-                    <input name="contacthst[isPaymentApproved]" class="stageapproved"  type="radio" value="1" disabled>
+                    <input name="contacthst[isPaymentApproved]" class="stageapproved"  type="radio" value="1"{$radiobuttons_check[isPaymentApproved][1]}>
                     {$lang->yes}
-                    <input  name="contacthst[isPaymentApproved]" class="stagenotapproved"  type="radio" value="0">
+                    <input  name="contacthst[isPaymentApproved]" class="stagenotapproved"  type="radio" value="0"{$radiobuttons_check[isPaymentApproved][0]}>
                     {$lang->no}</div>
             </div>
         </div>
         <div class='main'>
             <div class='title'><span>
-                    <input id="customerdocument_check" name="" type="checkbox" value="customerdocument" disabled>
+                    <input id="customerdocument_check" name="" type="checkbox" value="customerdocument"{$disabled_checkboxes[customerdocument]}{$checked_checkboxes[customerdocument]}>
                 </span>{$lang->customerdocument}</div>
             <div id="customerdocument_body_{$identifier}" style="display:none;">
                 <div class='content'>
@@ -124,15 +124,15 @@
                     </div>
                 </div>
                 <div class='question'>{$lang->specapproved}
-                    <input id="customerdocument_yes" name="contacthst[isCustomerdocumentApproved]" class="stageapproved" type="radio" value="1">
+                    <input id="customerdocument_yes" name="contacthst[isCustomerdocumentApproved]" class="stageapproved" type="radio" value="1"{$radiobuttons_check[isCustomerdocumentApproved][1]}>
                     {$lang->yes}
-                    <input name="contacthst[isCustomerdocumentApproved]"  class="stagenotapproved"id="customerdocument_yes" type="radio" value="0">
+                    <input name="contacthst[isCustomerdocumentApproved]"  class="stagenotapproved"id="customerdocument_yes" type="radio" value="0"{$radiobuttons_check[isCustomerdocumentApproved][0]}>
                     {$lang->no}</div>
             </div>
         </div>
         <div class='main'>
             <div class='title'><span>
-                    <input id="samplerequest_check" type="checkbox" value="samplerequest" disabled>
+                    <input id="samplerequest_check" type="checkbox" value="samplerequest"{$disabled_checkboxes[samplerequest]}{$checked_checkboxes[samplerequest]}>
                 </span>{$lang->samplerequest}</div>
             <div id="samplerequest_body_{$identifier}" style="display:none;">
                 <div class='content'>
@@ -162,17 +162,17 @@
                     </div>
                 </div>
                 <div class='question'>{$lang->sampleaccepted}
-                    <input   name="contacthst[isSampleAccepted]"class="stageapproved" type="radio" value="1">
+                    <input   name="contacthst[isSampleAccepted]"class="stageapproved" type="radio" value="1"{$radiobuttons_check[isSampleAccepted][1]}>
                     {$lang->yes}
-                    <input  name="contacthst[isSampleAccepted]" class="stagenotapproved"  type="radio" value="0">
+                    <input  name="contacthst[isSampleAccepted]" class="stagenotapproved"  type="radio" value="0"{$radiobuttons_check[isSampleAccepted][0]}>
                     {$lang->no}
-                    <input   name="contacthst[isSampleAccepted]" class="notapplocable"  type="radio" value="0">
+                    <input   name="contacthst[isSampleAccepted]" class="notapplocable"  type="radio" value="2"{$radiobuttons_check[isSampleAccepted][2]}>
                     {$lang->na}</div>
             </div>
         </div>
         <div class='main'>
             <div class='title'><span>
-                    <input id="customersample_check" name="" type="checkbox" value="customersample" disabled>
+                    <input id="customersample_check" name="" type="checkbox" value="customersample"{$disabled_checkboxes[customersample]}{$checked_checkboxes[customersample]}>
                 </span>{$lang->customersample}</div>
             <div id="customersample_body_{$identifier}" style="display:none;">
                 <div class='content'>
@@ -187,7 +187,7 @@
                     <div class='content'>
                         <input name="contacthst[providedDocuments]" type="text"  size="25" value="{$contact_history[providedDocuments]}">
                     </div>
-                    <div class='content'>{$lang->customerAnswer}</div>
+                    <div class='content'>{$lang->customeranswer}</div>
                     <div class='content'>
                         <textarea name="contacthst[customerAnswer]" cols="20" rows="5">{$contact_history[customerAnswer]}</textarea>
                     </div>
@@ -195,29 +195,29 @@
                 <div class='content'>
                     <div class='content'  style="text-align:center;">{$lang->dateon}</div>
                     <div class='content'>
-                        <input name="contacthst[receivedQuantityDate]" id="{$datepicker_id['receivedQuantityDate']}" type="text" value="{$contact_history[receivedQuantityDate_output]}">
+                        <input name="contacthst[receivedQuantityDate]" id="{$datepicker_id[receivedQuantityDate]}" type="text" value="{$contact_history[receivedQuantityDate_output]}">
                     </div>
                     <div class='content' style="text-align:center;">{$lang->dateon}</div>
                     <div class='content'>
-                        <input name="contacthst[providedDocumentsDate]" id="{$datepicker_id['providedDocumentsDate']}" type="text" value="{$contact_history[providedDocumentsDate_output]}">
+                        <input name="contacthst[providedDocumentsDate]" id="{$datepicker_id[providedDocumentsDate]}" type="text" value="{$contact_history[providedDocumentsDate_output]}">
                     </div>
                     <div class='content' style="text-align:center;">{$lang->dateon}</div>
                     <div class='content'>
-                        <input name="contacthst[customerAnswerDate]" id="{$datepicker_id['customerAnswerDate']}" type="text" value="{$contact_history[customerAnswerDate_output]}">
+                        <input name="contacthst[customerAnswerDate]" id="{$datepicker_id[customerAnswerDate]}" type="text" value="{$contact_history[customerAnswerDate_output]}">
                     </div>
                 </div>
                 <div class='question'>{$lang->compliantspec}
-                    <input name="contacthst[isCompliantSpec]"  class="stageapproved"  type="radio" value="1">
+                    <input name="contacthst[isCompliantSpec]"  class="stageapproved"  type="radio" value="1"{$radiobuttons_check[isCompliantSpec][1]}>
                     {$lang->yes}
-                    <input  name="contacthst[isCompliantSpec]"  class="stagenotapproved"  type="radio" value="0">
+                    <input  name="contacthst[isCompliantSpec]"  class="stagenotapproved"  type="radio" value="0"{$radiobuttons_check[isCompliantSpec][0]}>
                     {$lang->no}
-                    <input   name="contacthst[isCompliantSpec]"  class="notapplocable"  type="radio" value="0">
+                    <input   name="contacthst[isCompliantSpec]"  class="notapplocable"  type="radio" value="0"{$radiobuttons_check[isCompliantSpec][2]}>
                     {$lang->na}</div>
             </div>
         </div>
         <div class='main'>
             <div class='title'><span>
-                    <input id="industrial_check" name="" type="checkbox" value="industrial" disabled>
+                    <input id="industrial_check" name="" type="checkbox" value="industrial"{$disabled_checkboxes[industrial]}{$checked_checkboxes[industrial]}>
                     {$lang->industrialtrial}</span></div>
             <div id="industrial_body_{$identifier}" style="display:none;">
                 <div class='content'>
@@ -242,17 +242,17 @@
                     </div>
                 </div>
                 <div class='question'>{$lang->productapproved}
-                    <input  name="contacthst[isProductApproved]" class="stageapproved" type="radio" value="1">
+                    <input  name="contacthst[isProductApproved]" class="stageapproved" type="radio" value="1"{$radiobuttons_check[isProductApproved][1]}>
                     {$lang->yes}
-                    <input   class="stagenotapproved" name="contacthst[isProductApproved]" type="radio" value="0">
+                    <input   class="stagenotapproved" name="contacthst[isProductApproved]" type="radio" value="0"{$radiobuttons_check[isProductApproved][0]}>
                     {$lang->no}
-                    <input   name="contacthst[isProductApproved]" class="notapplocable" type="radio" value="0">
+                    <input   name="contacthst[isProductApproved]" class="notapplocable" type="radio" value="2"{$radiobuttons_check[isProductApproved][2]}>
                     {$lang->na}</div>
             </div>
         </div>
         <div class='main'>
             <div class='title'>
-                <input id="commercialoffer_check" name="contacthst[commercialoffer]" type="checkbox" value="commercialoffer" disabled>
+                <input id="commercialoffer_check" name="contacthst[commercialoffer]" type="checkbox" value="commercialoffer"{$disabled_checkboxes[commercialoffer]}{$checked_checkboxes[commercialoffer]}>
                 {$lang->offertitle}</div>
             <div id="commercialoffer_body_{$identifier}" style="display:none;">
                 <div class='content' style="width:50%;">
@@ -264,7 +264,7 @@
                 <div class='content' style="width:40%; float: right;">
                     <div class='content' style="text-align:center;">{$lang->offerdate}</div>
                     <div class='content'>
-                        <input  value="{$contact_history[offerDate_output]}" name="contacthst[offerDate]" id="{$datepicker_id['offerDate']}" type="text">
+                        <input  value="{$contact_history[offerDate_output]}" name="contacthst[offerDate]" id="{$datepicker_id[offerDate]}" type="text">
                     </div>
                 </div>
                 <div class="content" style="width:50%;">
@@ -280,13 +280,13 @@
                     </div>
                 </div>
                 <div class='question'>{$lang->orderpassed}
-                    <input name="contacthst[isOrderPassed]" class="stageapproved" type="radio" value="1">
+                    <input name="contacthst[isOrderPassed]" class="stageapproved" type="radio" value="1"{$radiobuttons_check[isOrderPassed][1]}>
                     {$lang->yes}
-                    <input name="contacthst[isOrderPassed]" class="stagenotapproved"  type="radio" value="0">
+                    <input name="contacthst[isOrderPassed]" class="stagenotapproved"  type="radio" value="0"{$radiobuttons_check[isOrderPassed][0]}>
                     {$lang->no} </div>
             </div>
         </div>
-        <div class="main unapproved" id="sourcingnotpossible_body" style="display:none;">
+        <div class="main unapproved" id="sourcingnotpossible_body_{$identifier}" style="display:none;">
             <div class="title" style="font-weight:bold;">{$lang->sourcingnotpossible}</div>
             <div>
                 <div class="content">

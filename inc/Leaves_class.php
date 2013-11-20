@@ -201,8 +201,8 @@ class Leaves {
 		return new Users($this->leave['uid']);
 	}
 
-	public function get_leavetype() {
-		return new Leavetypes($this->leave['type']);
+	public function get_leavetype($simple=true) {
+		return new Leavetypes($this->leave['type'], $simple);
 	}
 
 	public function get() {

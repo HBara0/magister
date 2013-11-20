@@ -348,15 +348,15 @@ class Currencies {
 		$data = curl_exec($ch);
 		curl_close($ch);
 
-		$data = str_replace('rhs:', '"rhs":', $data);
-		$data = str_replace('lhs:', '"lhs":', $data);
-		$data = str_replace('error:', '"error":', $data);
-		$data = str_replace('icc:', '"icc":', $data);
+//		$data = str_replace('rhs:', '"rhs":', $data);
+//		$data = str_replace('lhs:', '"lhs":', $data);
+//		$data = str_replace('error:', '"error":', $data);
+//		$data = str_replace('icc:', '"icc":', $data);
 
 		$data = json_decode($data, true);
-		$rate = explode(' ', $data['rhs']);
+		//$rate = explode(' ', $data['rhs']);
 
-		$this->set_fx_rate($basecurrency, $currency, $rate[0]);
+		$this->set_fx_rate($basecurrency, $currency, $data['rate']);
 	}
 
 	private function load_fx_rates($source) {

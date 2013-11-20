@@ -139,6 +139,19 @@ class Users {
 		return $this->user['positions'];
 	}
 
+	public function get_auditedaffiliates() {
+		global $db;
+
+		$query = $db->query('SELECT * FROM '.Tprefix.'affiliatedemployees WHERE uid='.$this->user['uid'].' AND canAudit=1');
+		if($db->num_rows($query) > 0) {
+			while($affiliate = $db->fetch_assoc($query)) {
+				$affiliates[$affiliate['affid']] = new Affiliates($affiliate['affid']);
+			}
+			return $affiliates;
+		}
+		return false;
+	}
+
 	public function get_mainaffiliate() {
 		if(!isset($this->user['mainaffiliate']) || empty($this->user['mainaffiliate'])) {
 			$this->read_mainaffiliate();

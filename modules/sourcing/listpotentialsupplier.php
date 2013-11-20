@@ -207,7 +207,8 @@ if(!$core->input['action']) {
 			$productsegment_applications .= '<option value='.$productsegements_application['psaid'].'>'.$productsegements_application['segmentTitle'].' - '.$productsegements_application['title'].'</option>';
 		}
 	}
-
+	
+	$core->settings['itemsperlist'] = 100;
 	eval("\$listpotentialsupplier = \"".$template->get('sourcing_listpotentialsuppliers')."\";");
 	output_page($listpotentialsupplier);
 }
