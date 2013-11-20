@@ -30,7 +30,6 @@ if(!$core->input['action']) {
 	$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, "{$affiliate_where}");
 	$affiliated_budget = parse_selectlist('budget[affilliates][]', 1, $affiliates, $core->user['mainaffiliate'], 1, '', array('id' => 'affid'));
 
-
 	if($core->usergroup['canViewAllSupp'] == 0) {
 		$insupplier = implode(',', $core->user['suppliers']['eid']);
 		$supplier_where = " eid IN ({$insupplier})";
@@ -58,7 +57,6 @@ if(!$core->input['action']) {
 
 	$budget_year_selectlist = parse_selectlist('budget[years][]', 4, $years, date('Y'), 1, '', array('id' => 'year'));
 
-
 	//$years = array_combine(range(date("Y") + 1, date("Y") - 3), range(date("Y") + 1, date("Y") - 3));
 //	foreach($years as $year) {
 //		$year_selected = '';
@@ -79,17 +77,17 @@ if(!$core->input['action']) {
 		$business_managers = $user->get_affiliateuser();
 		//get budget users for businesmanager join with usres where uid in $business_managers
 		foreach($business_managers as $business_manager) {
-			$business_managerslist.="<option value='{$business_manager['uid']}'>{$business_manager['displayName']}</option>";
+			$business_managerslist.= "<option value='{$business_manager['uid']}'>{$business_manager['displayName']}</option>";
 		}
 	}
 	elseif($core->usergroup['canViewusersBudget'] == 1) {
 		foreach($reporting_touser as $user) {
-			$business_managerslist.="<option value='{$user['uid']}'>{$user['displayName']}</option>";
+			$business_managerslist .= "<option value='{$user['uid']}'>{$user['displayName']}</option>";
 		}
 	}
 	/* Generate his own Budget */
 	else {
-		$business_managerslist.="<option value='{$core->user['uid']}'>{$core->user['displayName']}</option>";
+		$business_managerslist .= "<option value='{$core->user['uid']}'>{$core->user['displayName']}</option>";
 	}
 
 	eval("\$budgetgenerate = \"".$template->get('budgeting_generate')."\";");

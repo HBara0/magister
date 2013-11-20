@@ -31,18 +31,31 @@ if(!($core->input['action'])) {
 //					$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
 //				}
 				/* Validate Permissions - START */
-				if(!$core->usergroup['canViewAllSupp'] == 1 && !$core->usergroup['canViewAllAff'] == 1) {
-					if(isset($core->user['auditfor']) || isset($core->user['auditedaffids'])) {
-						if(!in_array($budgetsdata['spid'], $core->user['auditfor']) && !in_array($budgetsdata['affid'], $core->user['auditedaffids'])) {
-							if(isset($core->user['suppliers']['affid'][$budgetsdata['spid']])) {
-								if(in_array($budgetsdata['affid'], $core->user['suppliers']['affid'][$budgetsdata['spid']])) {
-									$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
-								}
-								else {
-									redirect('index.php?module=budgeting/generate');
+				if($core->usergroup['canViewAllSupp'] == 0 && $core->usergroup['canViewAllAff'] == 0) {
+					if(is_array($core->user['auditfor'])) {
+						if(!in_array($budget_data['spid'], $core->user['auditfor'])) {
+							if(is_array($core->user['auditedaffids'])) {
+								if(!in_array($budget_data['affid'], $core->user['auditedaffids'])) {
+									if(is_array($core->user['suppliers']['affid'][$budget_data['spid']])) {
+										if(in_array($budget_data['affid'], $core->user['suppliers']['affid'][$budget_data['spid']])) {
+											$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+										}
+										else {
+											redirect('index.php?module=budgeting/create');
+										}
+									}
+									else {
+										$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+									}
 								}
 							}
+							else {
+								$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+							}
 						}
+					}
+					else {
+						$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
 					}
 				}
 				/* Validate Permissions - END */
@@ -66,10 +79,11 @@ if(!($core->input['action'])) {
 								}
 								$budget['manager'] = $budgetcache->data['managercache'][$budget['manager']['uid']];
 
+								$budgetline['customerCountry'] = $budgetline_obj->parse_country();
 
 								$budgetline['uom'] = 'Kg';
 								$budgetline['saleType'] = Budgets::get_saletype_byid($saleid);
- 
+
 //								if(isset($budgetline['genericproduct']) && !empty($budgetline['genericproduct'])) {
 //									$budgetline['genericproduct'] = $budgetline_obj->get_product()->get_generic_product();
 //								}
@@ -84,7 +98,7 @@ if(!($core->input['action'])) {
 									$budgetline['customer'] = $budgetline_obj->get_customer()->get()['companyName'];
 									$customername = '<a href="index.php?module=profiles/entityprofile&eid='.$budget['customerid'].'" target="_blank">'.$budgetline['customer'].'</a>';
 								}
-						
+
 								$budgetline['product'] = $budgetline_obj->get_product($budgetline['pid'])->get()['name'];
 								eval("\$budget_report_row .= \"".$template->get('budgeting_budgetrawreport_row')."\";");
 							}
@@ -110,7 +124,7 @@ elseif($core->input['action'] == 'exportexcel') {
 	$budgetsdata = unserialize(base64_decode($core->input['identifier']));
 	$budgets = Budgets::get_budgets_bydata($budgetsdata);
 
-	$headers_data = array('manager', 'customer', 'cusomtercountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saleType', 'amount', 'income', 's1perc', 's2perc');
+	$headers_data = array('manager', 'customer', 'cusomterCountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saleType', 'amount', 'income', 's1perc', 's2perc');
 	$counter = 1;
 	if(is_array($budgets)) {
 		foreach($budgets as $budgetid) {
@@ -122,7 +136,7 @@ elseif($core->input['action'] == 'exportexcel') {
 			}
 
 			$budget['year'] = $budget_obj->get()['year'];
-		
+
 			$firstbudgetline = $budget_obj->get_budgetLines(0, $filter);
 			foreach($firstbudgetline as $cid => $customersdata) {
 				foreach($customersdata as $pid => $productsdata) {

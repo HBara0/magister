@@ -42,18 +42,31 @@ if(!$core->input['action']) {
 
 		$currentbudget = Budgets::get_budget_bydata($budget_data);
 		/* Validate Permissions - START */
-		if(!$core->usergroup['canViewAllSupp'] == 0 && !$core->usergroup['canViewAllAff'] == 0) {
-			if(isset($core->user['auditfor']) || isset($core->user['auditedaffids'])) {
-				if(!in_array($budget_data['spid'], $core->user['auditfor']) && !in_array($budget_data['affid'], $core->user['auditedaffids'])) {
-					if(isset($core->user['suppliers']['affid'][$budget_data['spid']])) {
-						if(in_array($budget_data['affid'], $core->user['suppliers']['affid'][$budget_data['spid']])) {
-							$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
-						}
-						else {
-							redirect('index.php?module=budgeting/create');
+		if($core->usergroup['canViewAllSupp'] == 0 && $core->usergroup['canViewAllAff'] == 0) {
+			if(is_array($core->user['auditfor'])) {
+				if(!in_array($budget_data['spid'], $core->user['auditfor'])) {
+					if(is_array($core->user['auditedaffids'])) {
+						if(!in_array($budget_data['affid'], $core->user['auditedaffids'])) {
+							if(is_array($core->user['suppliers']['affid'][$budget_data['spid']])) {
+								if(in_array($budget_data['affid'], $core->user['suppliers']['affid'][$budget_data['spid']])) {
+									$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+								}
+								else {
+									redirect('index.php?module=budgeting/create');
+								}
+							}
+							else {
+								$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+							}
 						}
 					}
+					else {
+						$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+					}
 				}
+			}
+			else {
+				$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
 			}
 		}
 		/* Validate Permissions - END */
