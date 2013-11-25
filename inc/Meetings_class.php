@@ -86,8 +86,24 @@ class Meetings {
 					$this->meeting['attendees'] = array(array('idAttr' => 'uid', 'mtid' => $mtid, 'attendees' => $core->user['uid']));
 				}
 				$this->get_meetingassociations($this->meeting['mtid'])->set_attendees($this->meeting['attendees']);
-
+				$this->set_attendees();
 				return true;
+			}
+		}
+	}
+
+	private function set_attendees() {
+		global $db, $core;
+
+		if(!empty($this->meeting['attendees'])) {
+			foreach($this->meeting['attendees'] as $key => $val) {
+				if(empty($val)) {
+					continue;
+				}
+				$new_attendee['mtid'] = $this->meeting['mtid'];
+				$new_attendee['idAttr'] = $key;
+				$new_attendee['attendee'] = $core->sanitize_inputs($val);
+				$db->insert_query('meetings_attendees', $new_attendee);
 			}
 		}
 	}
@@ -132,21 +148,21 @@ class Meetings {
 		return $meeting;
 	}
 
-//	public function get_attendees() {
-//		global $db;
-//
-//		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_attendees WHERE mtid='.intval($this->meeting['mtid']));
-//		if($db->num_rows($query)) {
-//			while($attendee = $db->fetch_assoc($query)) {
-//				if($attendee['idAttr'] == 'uid') {
-//					$attendees[$attendee['attendee']] = new Users($attendee['attendee']);
-//				}
-//			}
-//
-//			return $attendees;
-//		}
-//		return false;
-//	}
+	public function get_attendees() {
+		global $db;
+
+		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_attendees WHERE mtid='.intval($this->meeting['mtid']));
+		if($db->num_rows($query)) {
+			while($attendee = $db->fetch_assoc($query)) {
+				if($attendee['idAttr'] == 'uid') {
+					$attendees[$attendee['attendee']] = new Users($attendee['attendee']);
+				}
+			}
+
+			return $attendees;
+		}
+		return false;
+	}
 
 	public function parse_attendees($displayas = 'line') {
 		$attendees_objs = $this->get_attendees();

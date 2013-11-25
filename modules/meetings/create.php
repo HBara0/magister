@@ -32,7 +32,8 @@ if(!$core->input['action']) {
 			$meeting['toDate_output'] = date($core->settings['dateformat'], $meeting['toDate']);
 			$meeting['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['timeformat'], $meeting['toDate'])));
 		}
-		$meeting['attendees'] = $meeting_obj->get_attendees();
+		$meeting[attendees][cutomername]='s';
+		//$meeting['attendees'] = $meeting_obj->get_attendees();
 	}
 	else {
 		$action = 'create';
@@ -50,7 +51,7 @@ if(!$core->input['action']) {
 	}
 
 	$business_leaves = get_specificdata('leavetypes', array('ltid', 'name'), 'ltid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, 'isBusiness=1');
-	$business_leaves_list = parse_selectlist('meeting[attendees][leave]', 5, $business_leaves, $meeting['attendees']['leave']);
+	$business_leaves_list = parse_selectlist('meeting[attendees][lid]', 5, $business_leaves, $meeting['attendees']['leave']);
 	eval("\$createmeeting_assosiations = \"".$template->get('meeting_create_associations')."\";");
 
 
