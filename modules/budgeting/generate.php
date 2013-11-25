@@ -73,22 +73,38 @@ if(!$core->input['action']) {
 		$budget_currencylist = parse_selectlist('budget[currency]', 6, $currencies, $affiliate_currency, '', '', array('id' => 'currency'));
 	}
 	/* Can Generate users of the affiliates he belongs to */
-	if($core->usergroup['canViewaffBudget'] == 1) {
-		$business_managers = $user->get_affiliateuser();
-		//get budget users for businesmanager join with usres where uid in $business_managers
-		foreach($business_managers as $business_manager) {
-			$business_managerslist.= "<option value='{$business_manager['uid']}'>{$business_manager['displayName']}</option>";
+
+
+	if(is_array($core->user['auditedaffids'])) {
+		foreach($core->user['auditedaffids'] as $auditaffid) {
+			$aff_obj = new Affiliates($auditaffid);
+			$business_managers = $aff_obj->get_users();
+			print_r($business_managers);
+			foreach($business_managers as $business_manager) {
+				$business_managerslist.= "<option value='{$business_manager['uid']}'>{$business_manager['displayName']}</option>";
+			}
 		}
 	}
-	elseif($core->usergroup['canViewusersBudget'] == 1) {
-		foreach($reporting_touser as $user) {
-			$business_managerslist .= "<option value='{$user['uid']}'>{$user['displayName']}</option>";
-		}
-	}
-	/* Generate his own Budget */
 	else {
 		$business_managerslist .= "<option value='{$core->user['uid']}'>{$core->user['displayName']}</option>";
 	}
+
+//	if($core->usergroup['canViewaffBudget'] == 1) {
+//		$business_managers = $user->get_affiliateuser();
+//		//get budget users for businesmanager join with usres where uid in $business_managers
+//		foreach($business_managers as $business_manager) {
+//			$business_managerslist.= "<option value='{$business_manager['uid']}'>{$business_manager['displayName']}</option>";
+//		}
+//	}
+//	elseif($core->usergroup['canViewusersBudget'] == 1) {
+//		foreach($reporting_touser as $user) {
+//			$business_managerslist .= "<option value='{$user['uid']}'>{$user['displayName']}</option>";
+//		}
+//	}
+	/* Generate his own Budget */
+//	else {
+//		$business_managerslist .= "<option value='{$core->user['uid']}'>{$core->user['displayName']}</option>";
+//	}
 
 	eval("\$budgetgenerate = \"".$template->get('budgeting_generate')."\";");
 	output_page($budgetgenerate);
