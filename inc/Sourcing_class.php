@@ -663,7 +663,7 @@ class Sourcing {
 								'name' => $origin,
 								'origin' => $lang->$origin
 						);
-						$db->insert_query('sourcing_origins', array('scrid'=>$scrid,'name'=>$origin,'origin'=>$lang->$origin));
+						$db->insert_query('sourcing_chemrequest_org', array('scrid'=>$scrid,'name'=>$origin,'origin'=>$lang->$origin));
 					}
 				}
 				$email_data = array(
