@@ -124,7 +124,7 @@ elseif($core->input['action'] == 'exportexcel') {
 	$budgetsdata = unserialize(base64_decode($core->input['identifier']));
 	$budgets = Budgets::get_budgets_bydata($budgetsdata);
 
-	$headers_data = array('manager', 'customer', 'cusomterCountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saleType', 'amount', 'income', 's1perc', 's2perc');
+	$headers_data = array('manager', 'customer', 'customerCountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saleType', 'amount', 'income', 's1Perc', 's2Perc');
 	$counter = 1;
 	if(is_array($budgets)) {
 		foreach($budgets as $budgetid) {
@@ -178,7 +178,7 @@ elseif($core->input['action'] == 'exportexcel') {
 	$budgetline_temp = $budgetline;
 	unset($budgetline);
 	foreach($headers_data as $val) {
-		$budgetline[0][$val] = $lang->$val;
+		$budgetline[0][$val] = $lang->{strtolower($val)};
 		foreach($budgetline_temp as $counter => $value) {
 			$budgetline[$counter][$val] = $value[$val];
 		}
