@@ -44,12 +44,15 @@ if(!$core->input['action']) {
 
 		$entity_obj = new Entities($associatons['cid']);
 		$meeting['associations']['cutomername'] = $entity_obj->get()['companyName'];
+		$meeting['associations']['spid'] = $associatons['cid'];
 		$entity_obj = new Entities($associatons['spid']);
 		$meeting['associations']['suppliername'] = $entity_obj->get()['companyName'];
+		$meeting['associations']['spid'] = $associatons['spid'];
 
 		//$meeting['attendees'] = $meeting_obj->get_attendees();
 	}
 	else {
+		$sectionsvisibility['associationssection'] = ' display:none;';
 		$action = 'create';
 	}
 
@@ -70,7 +73,7 @@ if(!$core->input['action']) {
 //	foreach($business_leaves as $leaveid => $leave) {
 //		$business_leaves_list .='<option  value="'.$leaveid.'">'.$leave['title'].'</option>';
 //	}
-	eval("\$createmeeting_assosiations = \"".$template->get('meeting_create_associations')."\";");
+	eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
 
 	eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
 	output_page($createmeeting);
