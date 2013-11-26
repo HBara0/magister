@@ -645,7 +645,6 @@ class Sourcing {
 			$chemicalrequest_data = array(
 					'csid' => $data['product'],
 					'psaid' => $data['segmentapplication'],
-					'origin' => $data['origin'],
 					'uid' => $core->user['uid'],
 					'timeRequested' => TIME_NOW,
 					'requestDescription' => $core->sanitize_inputs($data['requestDescription'], array('removetags' => true))
@@ -654,6 +653,19 @@ class Sourcing {
 			if($query) {
 				$scrid = $db->last_id();
 				$this->status = 0;
+				if(is_array($data['origin'])) {
+					foreach($data['origin'] as $originid => $origin) {
+						if(empty($origin)) {
+							continue;
+						}
+						$origins_data = array(
+								'scrid' => $scrid,
+								'name' => $origin,
+								'origin' => $lang->$origin
+						);
+						$db->insert_query('sourcing_origins', array('scrid'=>$scrid,'name'=>$origin,'origin'=>$lang->$origin));
+					}
+				}
 				$email_data = array(
 						'to' => 'sourcing@orkila.com',
 						'from_email' => $core->settings['maileremail'],
@@ -693,7 +705,7 @@ class Sourcing {
 			$see_otherusers = '	WHERE scr.uid='.$core->user['uid'];
 		}
 
-		$chemicalrequests_query = $db->query("SELECT psa.title AS application, scr.*, u.displayName, cs.name AS chemicalname
+		$chemicalrequests_query = $db->query("SELECT psa.description AS application, scr.*, u.displayName, cs.name AS chemicalname
 										FROM ".Tprefix."sourcing_chemicalrequests scr
 										LEFT JOIN ".Tprefix."productsegements_applications psa ON (psa.psaid = scr.psaid)
 										JOIN ".Tprefix."users u ON (u.uid = scr.uid)

@@ -155,4 +155,5 @@ Description {3}
 <br />
 <br />
 For more details, <a href="{4}">Click here</a>.';
+$lang['nocontinue']='No, but continue anyway';
 ?>

@@ -199,7 +199,10 @@ if(!$core->input['action']) {
 		$sourcing_listpotentialsupplier_rows .= '<tr><td colspan="5"><a href="#" id="showpopup_requestchemical" class="showpopup"><img alt="'.$lang->requestchemical.'" src="./images/addnew.png" border="0" /> '.$lang->requestchemical.'</a></td></tr>';
 	}
 	$origins = array('anyorigin' => $lang->anyorigin, 'chinese' => $lang->chinese, 'nonchinese' => $lang->nonchinese, 'indian' => $lang->indian, 'nonindian' => $lang->nonindian, 'european' => $lang->european, 'noneuropean' => $lang->noneuropean, 'american' => $lang->american, 'nonamerican' => $lang->nonamerican, 'otherasian' => $lang->otherasian, 'nootherasian' => $lang->nootherasian);
-	$origins_list = parse_selectlist('request[origin]', 8, $origins, '');
+	foreach($origins as $name => $origin) {
+		$origins[$name] = $origin;
+	}
+	$origins_list = parse_selectlist('request[origin][]', 8, $origins, '', 1);
 
 	$productsegements_applications = $sourcing->get_applications_product_segment();
 	if(is_array($productsegements_applications)) {
@@ -207,7 +210,7 @@ if(!$core->input['action']) {
 			$productsegment_applications .= '<option value='.$productsegements_application['psaid'].'>'.$productsegements_application['segmentTitle'].' - '.$productsegements_application['title'].'</option>';
 		}
 	}
-	
+
 	$core->settings['itemsperlist'] = 100;
 	eval("\$listpotentialsupplier = \"".$template->get('sourcing_listpotentialsuppliers')."\";");
 	output_page($listpotentialsupplier);

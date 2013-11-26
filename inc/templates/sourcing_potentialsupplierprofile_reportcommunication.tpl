@@ -72,7 +72,10 @@
                 <input  name="contacthst[isPriceApproved]" class="priceok" id="price_type" type="radio" value="1"{$radiobuttons_check[isPriceApproved][1]}>
                 {$lang->yes}
                 <input class="pricenotOk" name="contacthst[isPriceApproved]" id="price_type" type="radio" value="0"{$radiobuttons_check[isPriceApproved][0]}>
-                {$lang->no} </div>
+                {$lang->no}
+                <input class="priceok" name="contacthst[isPriceApproved]" id="price_type" type="radio" value="0"{$radiobuttons_check[isPriceApproved][0]}>
+                {$lang->nocontinue}
+            </div>
         </div>
         <div class='main'>
             <div class='title'><span>
@@ -103,7 +106,10 @@
                     <input name="contacthst[isPaymentApproved]" class="stageapproved"  type="radio" value="1"{$radiobuttons_check[isPaymentApproved][1]}>
                     {$lang->yes}
                     <input  name="contacthst[isPaymentApproved]" class="stagenotapproved"  type="radio" value="0"{$radiobuttons_check[isPaymentApproved][0]}>
-                    {$lang->no}</div>
+                    {$lang->no}
+                    <input name="contacthst[isPaymentApproved]" class="stageapproved" type="radio" value="0"{$radiobuttons_check[isPaymentApproved][0]}>
+                    {$lang->nocontinue}
+                </div>
             </div>
         </div>
         <div class='main'>
@@ -127,7 +133,10 @@
                     <input id="customerdocument_yes" name="contacthst[isCustomerdocumentApproved]" class="stageapproved" type="radio" value="1"{$radiobuttons_check[isCustomerdocumentApproved][1]}>
                     {$lang->yes}
                     <input name="contacthst[isCustomerdocumentApproved]"  class="stagenotapproved"id="customerdocument_yes" type="radio" value="0"{$radiobuttons_check[isCustomerdocumentApproved][0]}>
-                    {$lang->no}</div>
+                    {$lang->no}
+                    <input name="contacthst[isCustomerdocumentApproved]" class="stageapproved" type="radio" value="0"{$radiobuttons_check[isCustomerdocumentApproved][0]}>
+                    {$lang->nocontinue}
+                </div>
             </div>
         </div>
         <div class='main'>
@@ -167,7 +176,10 @@
                     <input  name="contacthst[isSampleAccepted]" class="stagenotapproved"  type="radio" value="0"{$radiobuttons_check[isSampleAccepted][0]}>
                     {$lang->no}
                     <input   name="contacthst[isSampleAccepted]" class="notapplocable"  type="radio" value="2"{$radiobuttons_check[isSampleAccepted][2]}>
-                    {$lang->na}</div>
+                    {$lang->na}
+                    <input name="contacthst[isSampleAccepted]" class="stageapproved" type="radio" value="0"{$radiobuttons_check[isSampleAccepted][0]}>
+                    {$lang->nocontinue}
+                </div>
             </div>
         </div>
         <div class='main'>
@@ -212,7 +224,10 @@
                     <input  name="contacthst[isCompliantSpec]"  class="stagenotapproved"  type="radio" value="0"{$radiobuttons_check[isCompliantSpec][0]}>
                     {$lang->no}
                     <input   name="contacthst[isCompliantSpec]"  class="notapplocable"  type="radio" value="0"{$radiobuttons_check[isCompliantSpec][2]}>
-                    {$lang->na}</div>
+                    {$lang->na}
+                    <input name="contacthst[isCompliantSpec]" class="stageapproved" type="radio" value="0"{$radiobuttons_check[isCompliantSpec][0]}>
+                    {$lang->nocontinue}
+                </div>
             </div>
         </div>
         <div class='main'>
@@ -247,7 +262,10 @@
                     <input   class="stagenotapproved" name="contacthst[isProductApproved]" type="radio" value="0"{$radiobuttons_check[isProductApproved][0]}>
                     {$lang->no}
                     <input   name="contacthst[isProductApproved]" class="notapplocable" type="radio" value="2"{$radiobuttons_check[isProductApproved][2]}>
-                    {$lang->na}</div>
+                    {$lang->na}
+                           <input name="contacthst[isProductApproved]" class="stageapproved" type="radio" value="0"{$radiobuttons_check[isProductApproved][0]}>
+                    {$lang->nocontinue}
+                </div>
             </div>
         </div>
         <div class='main'>
