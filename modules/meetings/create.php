@@ -32,7 +32,31 @@ if(!$core->input['action']) {
 			$meeting['toDate_output'] = date($core->settings['dateformat'], $meeting['toDate']);
 			$meeting['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['timeformat'], $meeting['toDate'])));
 		}
-		$meeting[attendees][cutomername]='s';
+
+		$meeting_assoc = $meeting_obj->get_meetingassociations();
+		foreach($meeting_assoc as $key => $associatons) {
+			switch($associatons['idAttr']) {
+				case 'cid':
+					$cid = $associatons[id];
+					break;
+				case 'spid':
+					$spid = $associatons[id];
+					break;
+				case 'affid':
+					$affid = $associatons[id];
+					break;
+				case 'eventid':
+					$eventid = $associatons[id];
+					break;
+			}
+		}
+
+
+		$entity_obj = new Entities($cid);
+		$meeting['attendees']['cutomername'] = $entity_obj->get()['companyName'];
+		$entity_obj = new Entities($spid);
+		$meeting['attendees']['suppliername'] = $entity_obj->get()['companyName'];
+
 		//$meeting['attendees'] = $meeting_obj->get_attendees();
 	}
 	else {
@@ -42,16 +66,22 @@ if(!$core->input['action']) {
 	$afiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, 'affid IN ('.implode(',', $core->user['affiliates']).')');
 	$afiliates[0] = '';
 	asort($afiliates);
-	$affiliates_list = parse_selectlist('meeting[attendees][affid]', 5, $afiliates, $meeting['attendees']['affid']);
+	$affiliates_list = parse_selectlist('meeting[attendees][affid]', 5, $afiliates, $affid);
 
 
 	$aff_events = Events::get_affiliatedevents($core->user['affiliates']);
-	foreach($aff_events as $eventid => $events) {
-		$event_list .= '<option value="'.$eventid.'">'.$events['title'].'</option>';
+	foreach($aff_events as $eid => $events) {
+		if($eventid = $eid) {
+			$selected = 'selected="selected"';
+		}
+		$event_list .= '<option value="'.$eid.'" "'.$selected.'">'.$events['title'].'</option>';
 	}
+	$user_obj = new Users($core->user['uid']);
+	$business_leaves = $user_obj->get_leaves();
 
-	$business_leaves = get_specificdata('leavetypes', array('ltid', 'name'), 'ltid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, 'isBusiness=1');
-	$business_leaves_list = parse_selectlist('meeting[attendees][lid]', 5, $business_leaves, $meeting['attendees']['leave']);
+	foreach($business_leaves as $leaveid => $leave) {
+		$business_leaves_list.='<option  value="'.$leaveid.'">'.$leave['title'].'</option>';
+	}
 	eval("\$createmeeting_assosiations = \"".$template->get('meeting_create_associations')."\";");
 
 

@@ -62,8 +62,7 @@ class Events {
 		}
 		$events_aff = $db->query("SELECT ce.* FROM ".Tprefix."calendar_events ce
 								JOIN ".Tprefix."affiliatedemployees a ON (a.affid=ce.affid) 
-								JOIN ".Tprefix."users u  ON (a.uid=u.uid) 
-								WHERE u.uid=".$core->user['uid']." AND a.affid in (".(implode(',', $affiliates)).") ".$query_where_add." AND u.gid!=7");
+								WHERE a.uid=".$core->user['uid']." AND a.affid in (".(implode(',', $affiliates)).") ".$query_where_add." ");
 
 		while($aff_events = $db->fetch_assoc($events_aff)) {
 			$affiliate_events[$aff_events['ceid']] = $aff_events;

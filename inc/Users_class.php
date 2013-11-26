@@ -139,6 +139,20 @@ class Users {
 		return $this->user['positions'];
 	}
 
+	public function get_leaves() {
+		global $db;
+		$query = $db->query("SELECT l.lid,l.uid FROM ".Tprefix."leaves l
+							JOIN ".Tprefix."leavetypes lt ON(lt.ltid=l.type) 
+							JOIN ".Tprefix."leavesapproval lap ON(l.lid=lap.lid) WHERE lap.isApproved=1
+							AND lt.description='Business' AND l.uid={$this->user[uid]}");
+		while($leaves = $db->fetch_assoc($query)) {
+			$leav_obj = new Leaves(array('lid' => $leaves['lid']), false);
+			$user_leaves[$leaves['lid']] = $leav_obj->get_leavetype()->get();
+			$this->user['leaves'] = $user_leaves;
+		}
+		return $this->user['leaves'];
+	}
+
 	public function get_mainaffiliate() {
 		if(!isset($this->user['mainaffiliate']) || empty($this->user['mainaffiliate'])) {
 			$this->read_mainaffiliate();

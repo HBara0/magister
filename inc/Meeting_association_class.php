@@ -20,17 +20,15 @@ class Meeting_association {
 		if(isset($id) && !empty($id)) {
 			$this->meeting = $id;
 			$this->meetingassoc = $this->read($id, $simple);
-			print_r($this->meetingassoc);
 		}
 	}
 
 	private function read($id, $simple = false) {
 		global $db;
-
-		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meeting_associations WHERE mtid=".$db->escape_string($id)));
+		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meeting_associations WHERE matid=".$db->escape_string($id)));
 	}
 
-	public function set_attendees($attendees = array()) {
+	public function set_associations($attendees = array()) {
 		global $db, $core;
 		if(is_array($attendees)) {
 			foreach($attendees as $key => $val) {
@@ -39,7 +37,7 @@ class Meeting_association {
 				}
 				$new_attendee['mtid'] = $this->meeting;
 				$new_attendee['idAttr'] = $key;
-				$new_attendee['attendees'] = $core->sanitize_inputs($val);
+				$new_attendee['id'] = $core->sanitize_inputs($val);
 				$db->insert_query('meeting_associations', $new_attendee);
 			}
 		}

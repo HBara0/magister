@@ -85,7 +85,7 @@ class Meetings {
 				if(!isset($this->meeting['attendees'])) {
 					$this->meeting['attendees'] = array(array('idAttr' => 'uid', 'mtid' => $mtid, 'attendees' => $core->user['uid']));
 				}
-				$this->get_meetingassociations($this->meeting['mtid'])->set_attendees($this->meeting['attendees']);
+				$this->get_meetingassociations($this->meeting['mtid'])->set_associations($this->meeting['attendees']);
 				$this->set_attendees();
 				return true;
 			}
@@ -198,7 +198,16 @@ class Meetings {
 	}
 
 	public function get_meetingassociations() {
-		return new Meeting_association($this->meeting['mtid']);
+		global $db;
+		/* Get all associatiosn related to this meeting */
+		$query = $db->query('SELECT * FROM '.Tprefix.'meeting_associations WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
+		if($db->num_rows($query)) {
+			while($meeting_assoc = $db->fetch_assoc($query)) {
+				$meeting_associsations[$meeting_assoc['matid']] = new Meeting_association($meeting_assoc['matid']);
+				$meeting_associsations[$meeting_assoc['matid']] = $meeting_associsations[$meeting_assoc['matid']]->get();
+			}
+			return $meeting_associsations;
+		}
 	}
 
 	public function get() {
