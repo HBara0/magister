@@ -3,28 +3,28 @@
         <table class="datatable" border="0"  width="100%" cellspacing="1" cellpadding="1">
             <tr>
                 <td>{$lang->customer}</td>
-                <td> <input type='text'id='customer_1_QSearch'  value="{$meeting[attendees][cutomername]}" autocomplete='off' size='40px'/>
-                    <input type='hidden' id='customer_1_id' name='meeting[attendees][cid]' value="{$meeting[attendees][cid]}" /> 
+                <td> <input type='text'id='customer_1_QSearch' value="{$meeting[associations][cutomername]}" autocomplete='off' size='40px'/>
+                    <input type='hidden' id='customer_1_id' name='meeting[associations][cid]' value="{$meeting[associations][cid]}" /> 
                     <div id='searchQuickResults_customer_1' class='searchQuickResults' style='display:none;'></div> </select></td>
-            <input type='hidden'  name='cid' value="{$meeting[attendees][cid]}" /> 
+            <input type='hidden'  name='cid' value="{$meeting[associations][cid]}" /> 
 
             <td>{$lang->supplier}</td>
-            <td><input type='text'id='supplier_1_QSearch'  value="{$meeting[attendees][suppliername]}" autocomplete='off' size='40px'/>
-                <input type='hidden' id='supplier_1_id' name='meeting[attendees][spid]' value="{$meeting[attendees][spid]}" /> 
-                <div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div>  </td>
+            <td><input type='text'id='supplier_1_QSearch'  value="{$meeting[attendees][associations]}" autocomplete='off' size='40px'/>
+                <input type='hidden' id='supplier_1_id' name='meeting[associations][spid]' value="{$meeting[associations][spid]}" /> 
+                <div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div>
+            </td>
 </tr>
 <tr>
     <td>{$lang->affiliate}</td> 
     <td>{$affiliates_list}</td>
     <td >{$lang->event}</td>
     <td>
-        <select name="meeting[attendees][eventid]">{$event_list}</select> 
+        <!--<select name="meeting[associations][ceid]">{$events_list}-->{$lang->na}</select> 
     </td>
 </tr>
 <tr>
     <td>{$lang->businessleave}</td>
-    <td><select name="meeting[attendees][lid]">{$business_leaves_list}</select></td>
-
+    <td><!--<select name="meeting[associations][lid]">{$business_leaves_list}</select>-->{$lang->na}</td>
 </tr>
 <tr>
     <td>{$lang->country}</td>
