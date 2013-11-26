@@ -79,7 +79,6 @@ if(!$core->input['action']) {
 		foreach($core->user['auditedaffids'] as $auditaffid) {
 			$aff_obj = new Affiliates($auditaffid);
 			$business_managers = $aff_obj->get_users();
-			print_r($business_managers);
 			foreach($business_managers as $business_manager) {
 				$business_managerslist.= "<option value='{$business_manager['uid']}'>{$business_manager['displayName']}</option>";
 			}
