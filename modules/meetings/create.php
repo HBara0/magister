@@ -34,28 +34,18 @@ if(!$core->input['action']) {
 		}
 
 		$meeting_assoc = $meeting_obj->get_meetingassociations();
-		foreach($meeting_assoc as $key => $associatons) {
-			switch($associatons['idAttr']) {
-				case 'cid':
-					$cid = $associatons[id];
-					break;
-				case 'spid':
-					$spid = $associatons[id];
-					break;
-				case 'affid':
-					$affid = $associatons[id];
-					break;
-				case 'eventid':
-					$eventid = $associatons[id];
-					break;
+		if(is_array($meeting_assoc)) {
+			foreach($meeting_assoc as $mtaid => $associaton) {
+				$associaton_temp = $associaton->get();
+				$associatons[$associaton_temp['idAttr']] = $associaton_temp['id'];
 			}
+			unset($associaton_temp);
 		}
 
-
-		$entity_obj = new Entities($cid);
-		$meeting['attendees']['cutomername'] = $entity_obj->get()['companyName'];
-		$entity_obj = new Entities($spid);
-		$meeting['attendees']['suppliername'] = $entity_obj->get()['companyName'];
+		$entity_obj = new Entities($associatons['cid']);
+		$meeting['associations']['cutomername'] = $entity_obj->get()['companyName'];
+		$entity_obj = new Entities($associatons['spid']);
+		$meeting['associations']['suppliername'] = $entity_obj->get()['companyName'];
 
 		//$meeting['attendees'] = $meeting_obj->get_attendees();
 	}
@@ -66,24 +56,21 @@ if(!$core->input['action']) {
 	$afiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, 'affid IN ('.implode(',', $core->user['affiliates']).')');
 	$afiliates[0] = '';
 	asort($afiliates);
-	$affiliates_list = parse_selectlist('meeting[attendees][affid]', 5, $afiliates, $affid);
-
+	$affiliates_list = parse_selectlist('meeting[associations][affid]', 5, $afiliates, $associatons['affid']);
 
 	$aff_events = Events::get_affiliatedevents($core->user['affiliates']);
-	foreach($aff_events as $eid => $events) {
-		if($eventid = $eid) {
-			$selected = 'selected="selected"';
+	foreach($aff_events as $ceid => $event) {
+		if($associatons['ceid'] == $ceid) {
+			$selected = ' selected="selected"';
 		}
-		$event_list .= '<option value="'.$eid.'" "'.$selected.'">'.$events['title'].'</option>';
+		$events_list .= '<option value="'.$ceid.'" "'.$selected.'">'.$event['title'].'</option>';
 	}
-	$user_obj = new Users($core->user['uid']);
-	$business_leaves = $user_obj->get_leaves();
-
-	foreach($business_leaves as $leaveid => $leave) {
-		$business_leaves_list.='<option  value="'.$leaveid.'">'.$leave['title'].'</option>';
-	}
+	//$user_obj = new Users($core->user['uid']);
+	//$business_leaves = $user_obj->get_leaves();
+//	foreach($business_leaves as $leaveid => $leave) {
+//		$business_leaves_list .='<option  value="'.$leaveid.'">'.$leave['title'].'</option>';
+//	}
 	eval("\$createmeeting_assosiations = \"".$template->get('meeting_create_associations')."\";");
-
 
 	eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
 	output_page($createmeeting);
@@ -98,6 +85,9 @@ elseif($core->input['action'] == 'do_createmeeting') {
 			break;
 		case 1:
 			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+			break;
+		case 2:
+			output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
 			break;
 		case 3:
 			output_xml('<status>false</status><message>'.$lang->invaliddate.'</message>');

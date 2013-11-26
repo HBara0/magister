@@ -53,10 +53,13 @@ class Meetings {
 				return false;
 			}
 
-			if(value_exists('meetings', 'title', $this->meeting['title'])) {
+			if(value_exists('meetings', 'title', $this->meeting['title'], 'createdBy='.$core->user['uid'])) { /* ADD TIME CHECK, OTHERWISE OKAY */
 				$this->errorcode = 2;
 				return false;
 			}
+
+			/* Check if meeting intersects with another for the same user - START */
+			/* Check if meeting intersects with another for the same user - END */
 
 			$this->meeting['title'] = ucwords(strtolower($this->meeting['title']));
 
@@ -75,17 +78,19 @@ class Meetings {
 					'createdBy' => $core->user['uid'],
 					'createdOn' => TIME_NOW
 			);
+
 			$insertquery = $db->insert_query('meetings', $meeting_data);
 			if($insertquery) {
 				$this->errorcode = 0;
 				$this->meeting['mtid'] = $mtid = $db->last_id();
 
 				$log->record('addedmeeting', $mtid);
+				//$this->get_meetingassociations($this->meeting['mtid'])->set_associations($this->meeting['associations']);
+				$this->set_associations($this->meeting['associations']);
 				/* insert meetings Attendees */
 				if(!isset($this->meeting['attendees'])) {
-					$this->meeting['attendees'] = array(array('idAttr' => 'uid', 'mtid' => $mtid, 'attendees' => $core->user['uid']));
+					$this->meeting['attendees'] = array(array('idAttr' => 'uid', 'mtid' => $mtid, 'attendee' => $core->user['uid']));
 				}
-				$this->get_meetingassociations($this->meeting['mtid'])->set_associations($this->meeting['attendees']);
 				$this->set_attendees();
 				return true;
 			}
@@ -93,17 +98,32 @@ class Meetings {
 	}
 
 	private function set_attendees() {
-		global $db, $core;
+		global $db;
 
 		if(!empty($this->meeting['attendees'])) {
-			foreach($this->meeting['attendees'] as $key => $val) {
-				if(empty($val)) {
+			foreach($this->meeting['attendees'] as $attendee) {
+				if(empty($attendee)) {
 					continue;
 				}
 				$new_attendee['mtid'] = $this->meeting['mtid'];
-				$new_attendee['idAttr'] = $key;
-				$new_attendee['attendee'] = $core->sanitize_inputs($val);
-				$db->insert_query('meetings_attendees', $new_attendee);
+				$new_attendee['idAttr'] = $attendee['idAttr'];
+				$new_attendee['attendee'] = $attendee['attendee'];
+				MeetingsAttendees::set_attendee($new_attendee);
+			}
+		}
+	}
+
+	private function set_associations($associations) {
+		if(is_array($associations)) {
+			foreach($associations as $key => $val) {
+				if(empty($val)) {
+					continue;
+				}
+				$new_association['mtid'] = $this->meeting['mtid'];
+				$new_association['idAttr'] = $key;
+				$new_association['id'] = $val;
+
+				MeetingsAssociations::set_association($new_association);
 			}
 		}
 	}
@@ -203,11 +223,12 @@ class Meetings {
 		$query = $db->query('SELECT * FROM '.Tprefix.'meeting_associations WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
 		if($db->num_rows($query)) {
 			while($meeting_assoc = $db->fetch_assoc($query)) {
-				$meeting_associsations[$meeting_assoc['matid']] = new Meeting_association($meeting_assoc['matid']);
-				$meeting_associsations[$meeting_assoc['matid']] = $meeting_associsations[$meeting_assoc['matid']]->get();
+				$meeting_associsations[$meeting_assoc['mtaid']] = new MeetingsAssociations($meeting_assoc['mtaid']);
+				//$meeting_associsations[$meeting_assoc['matid']] = $meeting_associsations[$meeting_assoc['matid']]->get();
 			}
 			return $meeting_associsations;
 		}
+		return false;
 	}
 
 	public function get() {
@@ -216,11 +237,44 @@ class Meetings {
 
 }
 
-class MeetingAttendees {
-	public function __construct($meeting_id = '', $simple = false) {
+class MeetingsAttendees {
+	private $attendee = array();
+
+	public function __construct($id = '', $simple = false) {
 		if(isset($id) && !empty($id)) {
-			$this->attenddees = $this->read($id, $simple);
+			$this->attendee = $this->read($id, $simple);
 		}
+	}
+
+	private function read($id, $simple = false) {
+		global $db;
+		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meetings_attendees WHERE mtatid=".$db->escape_string($id)));
+	}
+
+	public static function set_attendee($attendee = array()) {
+		global $db;
+		if(is_array($attendee)) {
+			$db->insert_query('meetings_attendees', $attendee);
+		}
+	}
+
+	public function get_attendee() {
+		switch($this->attendee['idAttr']) {
+			case 'uid':
+				return new Users($this->attendee['attendee']);
+				break;
+			case 'spid':
+				return new Entities($this->attendee['attendee']);
+				break;
+		}
+	}
+	
+	public function get_meeting() {
+		return new Meetings($this->attendee['mtid']);
+	}
+
+	public function get() {
+		return $this->attendee;
 	}
 
 }

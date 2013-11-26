@@ -2,11 +2,6 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->employeeslist}</title>
         {$headerinc}
-        <script>
-            $("#associationssection").on('click', function() {
-                alert($(this.val()));
-            });
-        </script>
     </head>
     <body>
         {$header}
@@ -39,7 +34,7 @@
                         <td>{$lang->location}</td>
                         <td><input type="text" name="meeting[location]" size="50" tabindex="7" value="{$meeting[location]}"/></td>
                     </tr>
-                    <tr><td class="thead" colspan="3"> {$lang->associations}<a title="{$lang->associations}" href="#associationssection" onClick="$('#associationssection').fadeToggle();">...</a></td></tr>
+                    <tr><td class="thead" colspan="3">{$lang->associations}<a title="{$lang->associations}" href="#associationssection" onClick="$('#associationssection').fadeToggle();">...</a></td></tr>
                     {$createmeeting_assosiations}
                     <tr>
                         <td colspan="2">
