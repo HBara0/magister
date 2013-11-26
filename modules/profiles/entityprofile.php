@@ -388,7 +388,33 @@ if(!$core->input['action']) {
 			$reports_list = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_reports.'</ul>';
 		}
 	}
+	/* parse Minites Of Meetings --START */
+	$lang->load('meetings_meta');
 
+	$entity_obj = new Entities($eid);
+	$minsofmeeting_details = $entity_obj->get_mom();
+
+	if(is_array($minsofmeeting_details)) {
+		foreach($minsofmeeting_details as $minsofmeeting) {
+
+			$meeting_obj = new Meetings($minsofmeeting['mtid']);
+			$meeting = $meeting_obj->get();
+			if(!empty($meeting['fromDate'])) {
+				$meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
+				$meeting['fromTime_output'] = date($core->settings['timeformat'], $meeting['fromDate']);
+			}
+			if(!empty($meeting['toDate'])) {
+				$meeting['toDate_output'] = date($core->settings['dateformat'], $meeting['toDate']);
+				$meeting['toTime_output'] = date($core->settings['timeformat'], $meeting['toDate']);
+			}
+
+			$meeting['createdby'] = $meeting_obj->get_createdby()->get()['displayName'];
+			eval("\$mom_details .= \"".$template->get('profiles_entityprofile_mom_row')."\";");
+		}
+		eval("\$mom_section = \"".$template->get('profiles_entityprofile_MOM')."\";");
+	}
+
+	/* parse Minites Of Meetings --END */
 	eval("\$profilepage = \"".$template->get('profiles_entityprofile')."\";");
 	output_page($profilepage);
 }

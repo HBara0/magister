@@ -601,5 +601,21 @@ class Entities {
 		return false;
 	}
 
+	public function get_mom() {
+		global $db;
+		$query = $db->query("SELECT mom.momid,mom.mtid,ma.idAttr,ma.id FROM ".Tprefix."meeting_associations  ma 
+							JOIN ".Tprefix."meetings_minsofmeeting  mom ON(mom.mtid=ma.mtid)
+							where ma.idAttr='spid' and ma.id='".$db->escape_string($this->data['eid'])."'");
+
+		if($db->num_rows($query) > 0) {
+			while($momdata = $db->fetch_assoc($query)) {
+				$mom_obj = new MeetingsMOM($momdata['momid']);
+				$entity_mom[] = $mom_obj->get();
+			}
+			return $entity_mom;
+		}
+		return false;
+	}
+
 }
 ?>
