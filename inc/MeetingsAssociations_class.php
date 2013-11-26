@@ -13,42 +13,33 @@
  *
  * @author tony.assaad
  */
-class Meeting_association {
-	private $meeting = array();
+class MeetingsAssociations {
+	private $meetingassociation = array();
 
 	public function __construct($id = '', $simple = false) {
 		if(isset($id) && !empty($id)) {
-			$this->meeting = $id;
-			$this->meetingassoc = $this->read($id, $simple);
+			$this->meetingassociation = $this->read($id, $simple);
 		}
 	}
 
 	private function read($id, $simple = false) {
 		global $db;
-		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meeting_associations WHERE matid=".$db->escape_string($id)));
+		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meetings_associations WHERE mtaid=".$db->escape_string($id)));
 	}
 
-	public function set_associations($attendees = array()) {
-		global $db, $core;
-		if(is_array($attendees)) {
-			foreach($attendees as $key => $val) {
-				if(empty($val)) {
-					continue;
-				}
-				$new_attendee['mtid'] = $this->meeting;
-				$new_attendee['idAttr'] = $key;
-				$new_attendee['id'] = $core->sanitize_inputs($val);
-				$db->insert_query('meeting_associations', $new_attendee);
-			}
+	public static function set_association($association = array()) {
+		global $db;
+		if(is_array($association)) {
+			$db->insert_query('meetings_associations', $association);
 		}
 	}
 
 	public function get_meeting() {
-		return new Meetings($this->meeting);
+		return new Meetings($this->association['mtid']);
 	}
 
 	public function get() {
-		return $this->meetingassoc;
+		return $this->meetingassociation;
 	}
 
 }
