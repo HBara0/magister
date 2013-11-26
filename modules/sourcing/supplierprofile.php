@@ -197,11 +197,11 @@ if(!$core->input['action']) {
 					$chemical_div_result = '<div id="searchQuickResults_chemicalproducts_'.$contact_history['identifier'].'" class="searchQuickResults" style="display:none;"></div>';
 
 					/* open the product section if the stage is approved */
-					foreach($question_section as $key => $section) {
+					foreach($question_section as $key => $section) { echo $contact_history[$key];
 						$radiobuttons_check[$key][$contact_history[$key]] = ' checked="checked"';
 						$disabled_checkboxes[$section] = ' disabled';
-						$checked_checkboxes[$section] = '';
-						if($contact_history[$key] == 1) {
+						$checked_checkboxes[$section] = ''; 
+						if($contact_history[$key] == 1 || $contact_history[$key] == 3) { 
 							$hide_productsection .= '$("div[id^='.$section.'_body_'.$contact_history['identifier'].']").show();'."\n";
 							$disabled_checkboxes[$section] = '';
 							$checked_checkboxes[$section] = ' checked="checked"';

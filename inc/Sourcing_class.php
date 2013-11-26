@@ -663,7 +663,7 @@ class Sourcing {
 								'name' => $origin,
 								'origin' => $lang->$origin
 						);
-						$db->insert_query('sourcing_chemrequest_org', array('scrid'=>$scrid,'name'=>$origin,'origin'=>$lang->$origin));
+						$db->insert_query('sourcing_chemrequest_org', array('scrid' => $scrid, 'name' => $origin, 'origin' => $lang->$origin));
 					}
 				}
 				$email_data = array(
@@ -705,9 +705,10 @@ class Sourcing {
 			$see_otherusers = '	WHERE scr.uid='.$core->user['uid'];
 		}
 
-		$chemicalrequests_query = $db->query("SELECT psa.description AS application, scr.*, u.displayName, cs.name AS chemicalname
+		$chemicalrequests_query = $db->query("SELECT psa.description AS application, scr.*, u.displayName, cs.name AS chemicalname,scro.origin AS origins
 										FROM ".Tprefix."sourcing_chemicalrequests scr
 										LEFT JOIN ".Tprefix."productsegements_applications psa ON (psa.psaid = scr.psaid)
+										LEFT JOIN ".Tprefix."sourcing_chemrequest_org  scro ON (scro.scrid  = scr.scrid)
 										JOIN ".Tprefix."users u ON (u.uid = scr.uid)
 										LEFT JOIN ".Tprefix."chemicalsubstances cs ON (cs.csid = scr.csid)
 										{$see_otherusers} {$sort_query}");
@@ -715,9 +716,21 @@ class Sourcing {
 		if($db->num_rows($chemicalrequests_query) > 0) {
 			while($chemicalrequest = $db->fetch_assoc($chemicalrequests_query)) {
 				$chemicalrequests[$chemicalrequest['scrid']] = $chemicalrequest;
+				$chemicalrequests[$chemicalrequest['scrid']]['origins'] = $this->get_chemicalrequests_org($chemicalrequest['scrid']);
 			}
-
 			return $chemicalrequests;
+		}
+		return false;
+	}
+
+	private function get_chemicalrequests_org($id = '') {
+		global $db;
+		$chemicalorgquery = $db->query("SELECT * FROM ".Tprefix."sourcing_chemrequest_org WHERE scrid=".$db->escape_string($id)."");
+		if($db->num_rows($chemicalorgquery) > 0) {
+			while($chemical_org = $db->fetch_assoc($chemicalorgquery)) {
+				$chemicalrequests_org[$chemical_org['socrid']] = $chemical_org;
+			}
+			return $chemicalrequests_org;
 		}
 		return false;
 	}
