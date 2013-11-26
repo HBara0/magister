@@ -13,7 +13,7 @@ $lang['quantity'] = "Quantity";
 $lang['actualquantity'] = "Actual Quantity";
 $lang['actualincome'] = "Actual income";
 $lang['actualamount'] = "Actual amount";
-$lang['unitPrice'] = "Unit Price";
+$lang['unitprice'] = "Unit Price";
 $lang['s1perc'] = "S1 Perc";
 $lang['generate']="Generate";
 $lang['s2perc'] = "S2 Perc";
@@ -36,6 +36,6 @@ $lang['importpreview'] = 'Budget preview';
 $lang['import'] = 'Import';
 $lang['fieldrepeated'] = 'Field Repeated';
 $lang['altCid'] = 'Alternative Customer';
-$lang['cusomtercountry'] = 'country';
+$lang['customercountry'] = 'country';
 $lang['unspecifiedcust'] = 'Unspecified Customer';
 ?>
