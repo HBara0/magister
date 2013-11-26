@@ -290,7 +290,7 @@ if(!$core->input['action']) {
 										FROM ".Tprefix."leaves l 
 										JOIN ".Tprefix."leavetypes t ON (l.type=t.ltid)  
 										WHERE l.uid = {$uid} AND ((l.fromDate BETWEEN {$timelinestart} AND {$timelineend}) OR (l.toDate BETWEEN {$timelinestart} AND {$timelineend})) 
-										AND l.ltid NOT IN (".implode(', ', $timeline_excludedtypes).")
+										AND l.type NOT IN (".implode(', ', $timeline_excludedtypes).")
 										GROUP BY l.lid
 										ORDER BY l.fromDate DESC");
 
@@ -483,19 +483,19 @@ if(!$core->input['action']) {
 		}
 
 		//if($supid == 3 || $supid == 1) {
-		//echo $message_output;
-		//print_r($email_data);
-		$mail = new Mailer($email_data, 'php');
+			//echo $message_output;
+			//print_r($email_data);
+			$mail = new Mailer($email_data, 'php');
 
-		if($mail->get_status() === true) {
-			$log->record($lang->monthlyleavesoverview, $email_data['to']);
-			//$result['successfully'][]= $supid;
-		}
-		else {
-			//$result['error'][] = $supid;
-		}
+			if($mail->get_status() === true) {
+				$log->record($lang->monthlyleavesoverview, $email_data['to']);
+				//$result['successfully'][]= $supid;
+			}
+			else {
+				//$result['error'][] = $supid;
+			}
 
-		//echo '<hr />';
+			//echo '<hr />';
 		//}
 	}
 }
