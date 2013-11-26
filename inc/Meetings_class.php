@@ -86,22 +86,24 @@ class Meetings {
 
 				$log->record('addedmeeting', $mtid);
 				//$this->get_meetingassociations($this->meeting['mtid'])->set_associations($this->meeting['associations']);
-				$this->set_associations($this->meeting['associations']);
+				$this->set_associations();
 				/* insert meetings Attendees */
-				if(!isset($this->meeting['attendees'])) {
-					$this->meeting['attendees'] = array(array('idAttr' => 'uid', 'mtid' => $mtid, 'attendee' => $core->user['uid']));
-				}
 				$this->set_attendees();
 				return true;
 			}
 		}
 	}
 
-	private function set_attendees() {
-		global $db;
+	private function set_attendees($attendees = '') {
+		if(empty($attendees)) {
+			$attendees = $this->meeting['attendees'];
+		}
+		if(!isset($attendees)) {
+			$attendees = array(array('idAttr' => 'uid', 'mtid' => $mtid, 'attendee' => $core->user['uid']));
+		}
 
-		if(!empty($this->meeting['attendees'])) {
-			foreach($this->meeting['attendees'] as $attendee) {
+		if(!empty($attendees)) {
+			foreach($attendees as $attendee) {
 				if(empty($attendee)) {
 					continue;
 				}
@@ -113,7 +115,10 @@ class Meetings {
 		}
 	}
 
-	private function set_associations($associations) {
+	private function set_associations($associations = '') {
+		if(empty($associations)) {
+			$associations = $this->meeting['associations'];
+		}
 		if(is_array($associations)) {
 			foreach($associations as $key => $val) {
 				if(empty($val)) {
@@ -130,10 +135,11 @@ class Meetings {
 
 	public function update($meeting_data = array()) {
 		global $db, $log;
-		unset($meeting_data['attendees']);
+		$associations = $meeting_data['associations'];
+		$attendees = $meeting_data['attendees'];
+		unset($meeting_data['attendees'], $meeting_data['associations']);
 
 		/* Needs validation for time */
-		/* Needs update for attendees */
 		$meeting_data['fromDate'] = strtotime($meeting_data['fromDate'].' '.$meeting_data['fromTime']);
 		$meeting_data['toDate'] = strtotime($meeting_data['toDate'].' '.$meeting_data['toTime']);
 		unset($meeting_data['fromTime'], $meeting_data['toTime'], $meeting_data['altfromDate'], $meeting_data['alttoDate']);
@@ -141,6 +147,11 @@ class Meetings {
 		if($query) {
 			$this->errorcode = 2;
 			$log->record('updatedmeeting', $this->meeting['mtid']);
+
+			$db->delete_query('meetings_attendees', 'mtid='.intval($this->meeting['mtid']));
+			$this->set_attendees($attendees);
+			$db->delete_query('meetings_associations', 'mtid='.intval($this->meeting['mtid']));
+			$this->set_associations($associations);
 		}
 	}
 
@@ -220,11 +231,10 @@ class Meetings {
 	public function get_meetingassociations() {
 		global $db;
 		/* Get all associatiosn related to this meeting */
-		$query = $db->query('SELECT * FROM '.Tprefix.'meeting_associations WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
+		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_associations WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
 		if($db->num_rows($query)) {
 			while($meeting_assoc = $db->fetch_assoc($query)) {
 				$meeting_associsations[$meeting_assoc['mtaid']] = new MeetingsAssociations($meeting_assoc['mtaid']);
-				//$meeting_associsations[$meeting_assoc['matid']] = $meeting_associsations[$meeting_assoc['matid']]->get();
 			}
 			return $meeting_associsations;
 		}
@@ -268,7 +278,7 @@ class MeetingsAttendees {
 				break;
 		}
 	}
-	
+
 	public function get_meeting() {
 		return new Meetings($this->attendee['mtid']);
 	}

@@ -35,7 +35,7 @@
                         <td><input type="text" name="meeting[location]" size="50" tabindex="7" value="{$meeting[location]}"/></td>
                     </tr>
                     <tr><td class="thead" colspan="3">{$lang->associations}<a title="{$lang->associations}" href="#associationssection" onClick="$('#associationssection').fadeToggle();">...</a></td></tr>
-                    {$createmeeting_assosiations}
+                    {$createmeeting_associations}
                     <tr>
                         <td colspan="2">
                             <hr /><input type="submit" class="button" value="{$lang->savecaps}" id="perform_meetings/create_Button" /> <input type="reset" class="button" value="{$lang->reset}"/>
