@@ -76,6 +76,8 @@ span.listitem:hover { border-bottom: #CCCCCC solid thin; }
 		{$products_section}
         {$reports_section}
         {$entityprofile_private}
+        {$mom_section}
+    
   </table>
 </td></tr>
 {$footer}

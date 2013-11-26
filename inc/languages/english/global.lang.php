@@ -45,6 +45,7 @@ $lang['fillreport'] = 'Fill Report';
 $lang['fillrequiredfields'] = 'Please make sure to fill all required fields';
 $lang['filter'] = 'Filter';
 $lang['firstvisit'] = 'This is your first visit';
+$lang['for'] = ' For';
 $lang['forgotyourpassword'] = 'Forgot your Password?';
 $lang['fromdate'] = 'From';
 $lang['generatereport'] = 'Generate Report';
