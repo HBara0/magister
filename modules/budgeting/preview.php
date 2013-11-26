@@ -205,6 +205,7 @@ elseif($core->input['action'] == 'exportexcel') {
 					}
 				}
 			}
+		
 		}
 	}
 
