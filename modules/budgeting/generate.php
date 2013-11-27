@@ -78,19 +78,16 @@ if(!$core->input['action']) {
 	if(is_array($core->user['auditedaffids'])) {
 		foreach($core->user['auditedaffids'] as $auditaffid) {
 			$aff_obj = new Affiliates($auditaffid);
-			$business_managers = $aff_obj->get_users();
-			foreach($business_managers as $business_manager) {
-
-				$selected_user = '';
-				if($business_manager['uid'] == $core->user['uid']) {
-					$selected_user = " selected='selected'";
-				}
-				$business_managerslist.= "<option value='{$business_manager['uid']}' {$selected_user}>{$business_manager['displayName']}</option>";
+			$affiliate_users = $aff_obj->get_users();
+			foreach($affiliate_users as $aff_businessmgr) {
+				$business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['displayName'];
 			}
 		}
+		$business_managerslist = parse_selectlist('budget[managers][]', 7, $business_managers, $core->user['uid'], 1, '', '');
 	}
 	else {
-		$business_managerslist = "<option value='{$core->user['uid']}'>{$core->user['displayName']}</option>";
+		$business_managers[$core->user['uid']] = $core->user['displayName'];
+		$business_managerslist = parse_selectlist('budget[managers][]', 7, $business_managers, $core->user['uid'], 1, '', '');
 	}
 
 //	if($core->usergroup['canViewaffBudget'] == 1) {
