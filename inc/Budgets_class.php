@@ -374,7 +374,7 @@ class Budgets {
 
 	public static function get_availableyears() {
 		global $db;
-		$query = $db->query('SELECT DISTINCT(year) FROM '.Tprefix.'budgeting_budgets');
+		$query = $db->query('SELECT DISTINCT(year) FROM '.Tprefix.'budgeting_budgets ORDER BY year DESC');
 		if($db->num_rows($query) > 0) {
 			while($year = $db->fetch_assoc($query)) {
 				$years[$year['year']] = $year['year'];
