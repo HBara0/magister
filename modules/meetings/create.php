@@ -95,6 +95,9 @@ elseif($core->input['action'] == 'do_createmeeting') {
 		case 3:
 			output_xml('<status>false</status><message>'.$lang->invaliddate.'</message>');
 			break;
+		case 4:
+			output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
+			break;
 	}
 }
 elseif($core->input['action'] == 'do_editmeeting') {
@@ -109,6 +112,9 @@ elseif($core->input['action'] == 'do_editmeeting') {
 			break;
 		case 1:
 			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+			break;
+		case 3:
+			output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
 			break;
 	}
 }

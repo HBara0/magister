@@ -15,6 +15,7 @@ $lang['edit'] = 'Edit Meeting';
 $lang['fromtime'] = 'From Time';
 $lang['totime'] = 'To Time';
 $lang['setmof'] = 'Set Minutes Of Meetings';
+$lang['meetingintersect'] = 'Meeting Intersect with another meeting';
 $lang['meetingdesc'] = 'Minutes Of Meetings';
 $lang['followup'] = 'Follow up';
 $lang['invaliddate'] = 'From Date might be less or equal to Date';
@@ -29,6 +30,6 @@ $lang['nomeetingavailable'] = 'No meeting available';
 $lang['discussiondetails'] = 'Discussion Details';
 $lang['event'] = 'Event';
 $lang['businessleave'] = 'Business leave';
-$lang['customer']='Customers';
-$lang['associations']='Associations';
+$lang['customer'] = 'Customers';
+$lang['associations'] = 'Associations';
 ?>

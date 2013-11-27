@@ -392,13 +392,11 @@ if(!$core->input['action']) {
 	$lang->load('meetings_meta');
 
 	$entity_obj = new Entities($eid);
-	$minsofmeeting_details = $entity_obj->get_mom();
+	$meeting_details = $entity_obj->get_meeting();
 
-	if(is_array($minsofmeeting_details)) {
-		foreach($minsofmeeting_details as $minsofmeeting) {
-
-			$meeting_obj = new Meetings($minsofmeeting['mtid']);
-			$meeting = $meeting_obj->get();
+	if(is_array($meeting_details)) {
+		foreach($meeting_details as $mtid => $meeting) {
+			$meeting['title'] = ucwords($meeting['title']);
 			if(!empty($meeting['fromDate'])) {
 				$meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
 				$meeting['fromTime_output'] = date($core->settings['timeformat'], $meeting['fromDate']);
@@ -407,11 +405,9 @@ if(!$core->input['action']) {
 				$meeting['toDate_output'] = date($core->settings['dateformat'], $meeting['toDate']);
 				$meeting['toTime_output'] = date($core->settings['timeformat'], $meeting['toDate']);
 			}
-
-			$meeting['createdby'] = $meeting_obj->get_createdby()->get()['displayName'];
-			eval("\$mom_details .= \"".$template->get('profiles_entityprofile_mom_row')."\";");
+			eval("\$mom_section .= \"".$template->get('profiles_entityprofile_mom_row')."\";");
 		}
-		eval("\$mom_section = \"".$template->get('profiles_entityprofile_MOM')."\";");
+		eval("\$mom_mainsection  = \"".$template->get('profiles_entityprofile_mom')."\";");
 	}
 
 	/* parse Minites Of Meetings --END */

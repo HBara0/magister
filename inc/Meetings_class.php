@@ -34,6 +34,10 @@ class Meetings {
 		global $db, $core, $log;
 		if(is_array($meeting_data)) {
 			$this->meeting = $meeting_data;
+			if(value_exists('meetings', 'title', $this->meeting['title'], ' createdBy='.$core->user['uid'].'')) {
+				$this->errorcode = 4;
+				return false;
+			}
 			if(!empty($meeting_data['altfromDate'])) {
 				$fromdate = explode('-', $meeting_data['altfromDate']);
 
@@ -134,11 +138,14 @@ class Meetings {
 	}
 
 	public function update($meeting_data = array()) {
-		global $db, $log;
+		global $db, $log,$core;
 		$associations = $meeting_data['associations'];
 		$attendees = $meeting_data['attendees'];
 		unset($meeting_data['attendees'], $meeting_data['associations']);
-
+		if(value_exists('meetings', 'title', $this->meeting['title'], ' createdBy='.$core->user['uid'].'')) {
+			$this->errorcode = 3;
+			return false;
+		}
 		/* Needs validation for time */
 		$meeting_data['fromDate'] = strtotime($meeting_data['fromDate'].' '.$meeting_data['fromTime']);
 		$meeting_data['toDate'] = strtotime($meeting_data['toDate'].' '.$meeting_data['toTime']);

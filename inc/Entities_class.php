@@ -601,16 +601,16 @@ class Entities {
 		return false;
 	}
 
-	public function get_mom() {
+	public function get_meeting() {
 		global $db;
-		$query = $db->query("SELECT mom.momid,mom.mtid,ma.idAttr,ma.id FROM ".Tprefix."meeting_associations  ma 
-							JOIN ".Tprefix."meetings_minsofmeeting  mom ON(mom.mtid=ma.mtid)
-							where ma.idAttr='spid' and ma.id='".$db->escape_string($this->data['eid'])."'");
-
+		$query = $db->query("SELECT me.mtid,ma.idAttr,ma.id FROM ".Tprefix."meetings_associations  ma 
+							JOIN ".Tprefix."meetings  me ON(me.mtid=ma.mtid)
+							WHERE ma.idAttr='spid' AND ma.id='".$db->escape_string($this->data['eid'])."'");
 		if($db->num_rows($query) > 0) {
-			while($momdata = $db->fetch_assoc($query)) {
-				$mom_obj = new MeetingsMOM($momdata['momid']);
-				$entity_mom[] = $mom_obj->get();
+			while($metting = $db->fetch_assoc($query)) {
+				$metting_obj = new Meetings($metting['mtid']);
+				$entity_mom[$metting['mtid']] = $metting_obj->get();
+				$entity_mom[$metting['mtid']]['businesMgr'] = $metting_obj->get_createdby()->get()['displayName'];  /*Get the user object  createdBy */
 			}
 			return $entity_mom;
 		}
