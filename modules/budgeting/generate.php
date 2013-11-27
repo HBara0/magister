@@ -55,7 +55,7 @@ if(!$core->input['action']) {
 	}
 	$years = Budgets::get_availableyears();
 
-	$budget_year_selectlist = parse_selectlist('budget[years][]', 4, $years, date('Y')+1, 1, '', array('id' => 'year'));
+	$budget_year_selectlist = parse_selectlist('budget[years][]', 4, $years, date('Y') + 1, 1, '', array('id' => 'year'));
 
 	//$years = array_combine(range(date("Y") + 1, date("Y") - 3), range(date("Y") + 1, date("Y") - 3));
 //	foreach($years as $year) {
@@ -65,13 +65,13 @@ if(!$core->input['action']) {
 //		}
 //		$budget_year .= "<option value='{$year}'{$year_selected}>{$year}</option>";
 //	}
-	$affiliate = new Affiliates($core->user['mainaffiliate']);
-	$affiliate_currency = $affiliate->get_country()->get()['mainCurrency'];
-	$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1, 'numCode='.$affiliate_currency);
-
-	if(is_array($currencies)) {
-		$budget_currencylist = parse_selectlist('budget[currency]', 6, $currencies, $affiliate_currency, '', '', array('id' => 'currency'));
-	}
+//	$affiliate = new Affiliates($core->user['mainaffiliate']);
+//	$affiliate_currency = $affiliate->get_country()->get()['mainCurrency'];
+//	$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1, 'numCode='.$affiliate_currency);
+//
+//	if(is_array($currencies)) {
+//		$budget_currencylist = parse_selectlist('budget[currency]', 6, $currencies, $affiliate_currency, '', '', array('id' => 'currency'));
+//	}
 	/* Can Generate users of the affiliates he belongs to */
 
 
@@ -80,12 +80,17 @@ if(!$core->input['action']) {
 			$aff_obj = new Affiliates($auditaffid);
 			$business_managers = $aff_obj->get_users();
 			foreach($business_managers as $business_manager) {
-				$business_managerslist.= "<option value='{$business_manager['uid']}'>{$business_manager['displayName']}</option>";
+
+				$selected_user = '';
+				if($business_manager['uid'] == $core->user['uid']) {
+					$selected_user = " selected='selected'";
+				}
+				$business_managerslist.= "<option value='{$business_manager['uid']}' {$selected_user}>{$business_manager['displayName']}</option>";
 			}
 		}
 	}
 	else {
-		$business_managerslist .= "<option value='{$core->user['uid']}'>{$core->user['displayName']}</option>";
+		$business_managerslist = "<option value='{$core->user['uid']}'>{$core->user['displayName']}</option>";
 	}
 
 //	if($core->usergroup['canViewaffBudget'] == 1) {

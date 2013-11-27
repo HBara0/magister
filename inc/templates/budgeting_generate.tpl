@@ -36,17 +36,17 @@
                 </div>
                <!-- <div style="display:block; padding:15px;">
                     <div style="display:inline-block;padding:10px;">{$lang->curr}</div>
-                    <div style="display:inline-block;padding:10px;">{$budget_currencylist}</div>
+                    <div style="display:inline-block;padding:10px;"></div>
                 </div> -->
-                <div id="budget_currautomatic" style="display:block;">
+                 <!--<div id="budget_currautomatic" style="display:block;">
                     <div style="display:inline-block;padding:8px; margin-left:65px;"><input  id="autofxrate"  type="radio" value=1 checked name="fxrate"/></div>
                     <div style="display:inline-block;padding:8px;">{$lang->automaticusdrate}</div>
                 </div>
-                <div  id="budget_currspecify"style="display:block;">
+               <div  id="budget_currspecify"style="display:block;">
                     <div style="display:inline-block;padding:8px; margin-left:65px;"><input  id="specifyfxrate" type="radio" value=2 name="fxrate"/></div>
                     <div style="display:inline-block;padding:8px;"> {$lang->specifyusdrate}<span id="fxrateinput" style="display:none;"><input type="texr" size="8" name="budgetgenerate[fxrate]"/></span> 
 
-                    </div>
+                    </div>-->
                 </div>
                 <div  id="budget_currspecify"style="display:block;">
                     <input type="submit" value="{$lang->generate}" class="button"> <input type="reset" value="{$lang->reset}" class="button">
