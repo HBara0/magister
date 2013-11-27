@@ -46,6 +46,19 @@ function output_page($template) {
 	echo $template;
 }
 
+function output($output) {
+	global $core;
+	if($core->settings['enablecompression'] == 1) {
+		if(version_compare(PHP_VERSION, '4.2.0', '>=')) {
+			$output = gzip_compression($output, $core->settings['gziplevel']);
+		}
+		else {
+			$output = gzip_compression($output);
+		}
+	}
+	echo $output;
+}
+
 /* GZIP cotents to a certain level
  * @param  String		$contents 	Contents to be zipped
  * @param  int			$level	 	Level of compression
@@ -637,9 +650,9 @@ function currentquarter_info($real = false) {
 		if($time_now >= $quarter_start && $time_now <= $quarter_end) {
 			$current_quarter = $i;
 			if($real === false) {
-				$current_quarter = $i - 1; 
+				$current_quarter = $i - 1;
 				if($current_quarter == 0) {
-					$current_quarter = 4;  
+					$current_quarter = 4;
 					$current_year -= 1;
 				}
 			}
@@ -1087,7 +1100,12 @@ function getquery_entities_viewpermissions() {
 						}
 					}
 				}
-				$query_attribute = $attribute_prefix.'spid';
+				if(!empty($arguments[5])) {
+					$query_attribute = $arguments[5];
+				} else {
+					$query_attribute = 'spid';
+				}
+				$query_attribute = $attribute_prefix.$query_attribute;
 			}
 		}
 		else {

@@ -106,7 +106,7 @@ $(function() {
 					complete: function () { $("#" + loadingIn).empty();},
 					success: function(returnedData) {
 						$("#" + contentIn).html(returnedData);
-						
+				
 						if(contentIn == 'affid') {
 							if($("input[name='generateType']:checked").val() == 1) {
 								$("#affid option").each(function(){

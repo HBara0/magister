@@ -52,7 +52,15 @@ class Users {
 		$this->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->user['uid']}' AND isMain=1"), 'affid');
 	}
 
-	public function get_userbyemail($email) {
+	/* Backward compatibility */
+	public static function get_userbyemail($email) {
+		if(!is_object($this)) {
+			return Users::get_user_byemail($email);
+		} 
+		return $this->get_user_byemail($email);
+	}
+
+	public static function get_user_byemail($email) {
 		global $db, $core;
 
 		$email = $core->sanitize_email($email);
@@ -71,6 +79,18 @@ class Users {
 		else {
 			return false;
 		}
+	}
+
+	public static function get_user_byattr($attr, $value) {
+		global $db;
+
+		if(!is_empty($value, $attr)) {
+			$id = $db->fetch_field($db->query('SELECT uid FROM '.Tprefix.'users WHERE '.$db->escape_string($attr).'="'.$db->escape_string($value).'"'), 'uid');
+			if(!empty($id)) {
+				return new Users($id);
+			}
+		}
+		return false;
 	}
 
 	public function get() {
@@ -126,6 +146,19 @@ class Users {
 		return new Users($this->user['assistant']);
 	}
 
+	public function get_affiliateuser() {
+		global $db;
+		$affemployee_query = $db->query("SELECT affe.aeid,u.displayName,u.uid,u.username FROM affiliatedemployees affe 
+										JOIN ".Tprefix."users u ON (u.uid=affe.uid)
+										JOIN ".Tprefix."affiliates aff ON(aff.affid=affe.affid) WHERE affe.affid in('".$this->get_mainaffiliate()->get()['affid']."')");
+		if($db->num_rows($affemployee_query) > 0) {
+			while($affiliate_user = $db->fetch_assoc($affemployee_query)) {
+				$affiliate_users[$affiliate_user['aeid']] = $affiliate_user;
+			}
+			return $affiliate_users;
+		}
+	}
+
 	public function get_positions() {
 		global $db, $lang;
 
@@ -157,6 +190,19 @@ class Users {
 			$this->read_mainaffiliate();
 		}
 		return new Affiliates($this->user['mainaffiliate'], FALSE);
+	}
+
+	public function get_segments() {
+		global $db;
+		$segment_query = $db->query("SELECT ps.psid,ps.title,em.emsid,em.uid FROM employeessegments em 
+									JOIN ".Tprefix."users u on u.uid=em.uid
+									JOIN ".Tprefix."productsegments ps ON (ps.psid=em.psid) WHERE u.uid=".$this->user['uid']);
+		if($db->num_rows($segment_query) > 0) {
+			while($segments = $db->fetch_assoc($segment_query)) {
+				$segment[$segments['emsid']] = $segments;
+			}
+			return $segment;
+		}
 	}
 
 	public function get_hrinfo($simple = true) {

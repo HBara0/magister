@@ -19,11 +19,12 @@ class Products {
 
 	private function read($id, $simple) {
 		global $db;
-		
+
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'pid, name, spid';
+			$query_select = 'pid, name, spid, gpid';
 		}
+
 		$this->product = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'products WHERE pid='.intval($id)));
 	}
 
@@ -37,7 +38,7 @@ class Products {
 
 	public function get_segment() {
 		global $db;
-		return $this->product['productsegment'] = $db->fetch_assoc($db->query("SELECT gp.psid, ps.title 
+		return $this->product['productsegment'] = $db->fetch_assoc($db->query("SELECT gp.psid, ps.title, ps.titleAbbr
 								FROM ".Tprefix."genericproducts gp 
 								JOIN ".Tprefix."products p ON (p.gpid=gp.gpid)
 								JOIN ".Tprefix."productsegments ps ON (gp.psid=ps.psid) 
@@ -46,6 +47,18 @@ class Products {
 
 	public function get_supplier() {
 		return new Entities($this->product['spid'], '', true);
+	}
+
+	public static function get_product_byname($name) {
+		global $db;
+
+		if(!empty($name)) {
+			$id = $db->fetch_field($db->query('SELECT pid FROM '.Tprefix.'products WHERE name="'.$db->escape_string($name).'"'), 'pid');
+			if(!empty($id)) {
+				return new Products($id);
+			}
+		}
+		return false;
 	}
 
 	public function get() {
