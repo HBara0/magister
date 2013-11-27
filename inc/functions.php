@@ -346,14 +346,16 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
 	if($config['blankstart'] == true) {
 		$list .= '<option></option>';
 	}
+
 	foreach($options as $key => $val) {
 		if($multiple_selected == true) {
+			$selected_options = array_filter($selected_options, 'strlen');
 			if(in_array($key, $selected_options)) {
 				$attributes = ' selected="selected"';
 			}
 		}
 		else {
-			if($selected_options == $key) {
+			if($selected_options == $key && $selected_options != null) {
 				$attributes = ' selected="selected"';
 			}
 		}
@@ -366,6 +368,7 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
 		$attributes = '';
 	}
 	$list .= '</select>';
+
 	return $list;
 }
 
