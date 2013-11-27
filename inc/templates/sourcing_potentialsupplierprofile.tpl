@@ -14,44 +14,49 @@
         <script src="{$core->settings[rootdir]}/js/jquery.rateit.min.js" type="text/javascript"></script>
         <script>
             $(function() {
+            var tooltipvalues = ["{$lang->verylowopp}", "{$lang->lowopp}", "{$lang->mediumopp}", "{$lang->highopp}", "{$lang->veryhighopp}"];
+            $("#ratingdiv").live("over", function(event, value) {
+                $(this).attr("title", tooltipvalues[value - 1]);
+            });
             {$header_blurjs}
+
             $("input[type='radio'][id=approved_type]").attr('disabled', true);
-                    $(".priceok").live('change', function() {
-            var val = $(this).val();
-                    /* find the first checkbox in the next parent div after each input with class approved*/
-                    var obj = $(this).parent().parent().nextAll().has(":checkbox").first().find(":checkbox").removeAttr("disabled").prop("checked", true);
-                    $("div[id^='" + obj.val() + "']").show(); /* obj.val() Get the value of the checkbox in the next div (that has calss main) */
-                    $(".stageapproved,.stagenotapproved,.notapplocable").removeAttr("disabled");
+            $(".priceok").live('change', function() {
+                var val = $(this).val();
+                /* find the first checkbox in the next parent div after each input with class approved*/
+                var obj = $(this).parent().parent().nextAll().has(":checkbox").first().find(":checkbox").removeAttr("disabled").prop("checked", true);
+                $("div[id^='" + obj.val() + "']").show(); /* obj.val() Get the value of the checkbox in the next div (that has calss main) */
+                $(".stageapproved,.stagenotapproved,.notapplocable").removeAttr("disabled");
             });
-                    $(".pricenotOk").live('change', function() {
-            $(".stageapproved,.stagenotapproved,.notapplocable").attr('disabled', true);
+            $(".pricenotOk").live('change', function() {
+                $(".stageapproved,.stagenotapproved,.notapplocable").attr('disabled', true);
             });
-                    $(".stageapproved,.notapplocable").live('change', function() {
-            $(this).parent().parent().parent().next().show().find("textarea,:text").removeAttr("disabled");
-                    /* find the first checkbox in the next parent div after each radio checked with class stageapproved after the main Div*/
-                    var obj = $(this).parent().parent().parent().nextAll().has(":checkbox").first().find(":checkbox").removeAttr("disabled").prop("checked", true);
-                    var nextdiv = $("div[id^='" + obj.val() + "']");
-                    $("div[id^='sourcingnotpossible_body']").hide()
-                    if (nextdiv.length) {
-            //	$("html, body").animate({ scrollTop: $('#'+nextdiv.attr('id')).offset().top }, 1000)
-            //$("html, body").scrollTo ('#'+nextdiv.attr('id'));  /* scrolling to a specified next div.*/
-            }
-            ;
-                    $("div[id^='" + obj.val() + "']").show(); /* obj.val() Get the value of the checkbox in the next div (that has calss main) */
+            $(".stageapproved,.notapplocable").live('change', function() {
+                $(this).parent().parent().parent().next().show().find("textarea,:text").removeAttr("disabled");
+                /* find the first checkbox in the next parent div after each radio checked with class stageapproved after the main Div*/
+                var obj = $(this).parent().parent().parent().nextAll().has(":checkbox").first().find(":checkbox").removeAttr("disabled").prop("checked", true);
+                var nextdiv = $("div[id^='" + obj.val() + "']");
+                $("div[id^='sourcingnotpossible_body']").hide()
+                if (nextdiv.length) {
+                    //	$("html, body").animate({ scrollTop: $('#'+nextdiv.attr('id')).offset().top }, 1000)
+                    //$("html, body").scrollTo ('#'+nextdiv.attr('id'));  /* scrolling to a specified next div.*/
+                }
+                ;
+                $("div[id^='" + obj.val() + "']").show(); /* obj.val() Get the value of the checkbox in the next div (that has calss main) */
 
             });
-                    $(".stagenotapproved,.pricenotOk").live('change', function() {
-            /*disable and rehide subsequent stage textarea and text*/
-            $(this).parent().parent().parent().next().first().hide().find("textarea,:text").attr("disabled", true);
-                    $(this).parent().parent().parent().nextAll().has(":checkbox").first().find(":checkbox").attr('disabled', true);
-                    $("html, body").animate({scrollTop: $(document).height() - 450}, 1000); /*scroll down to the end of body */
-                    $("div[id^='sourcingnotpossible_body']").show().find("textarea").focus();
+            $(".stagenotapproved,.pricenotOk").live('change', function() {
+                /*disable and rehide subsequent stage textarea and text*/
+                $(this).parent().parent().parent().next().first().hide().find("textarea,:text").attr("disabled", true);
+                $(this).parent().parent().parent().nextAll().has(":checkbox").first().find(":checkbox").attr('disabled', true);
+                $("html, body").animate({scrollTop: $(document).height() - 450}, 1000); /*scroll down to the end of body */
+                $("div[id^='sourcingnotpossible_body']").show().find("textarea").focus();
             });
-                    /*expand/collapse report section START*/
+            /*expand/collapse report section START*/
 
-                    $("input[type='checkbox'][id$='_check']").live('change', function() {
-            var id = $(this).attr("id");
-                    $("div[id^='" + $(this).val() + "']").slideToggle("slow");
+            $("input[type='checkbox'][id$='_check']").live('change', function() {
+                var id = $(this).attr("id");
+                $("div[id^='" + $(this).val() + "']").slideToggle("slow");
             });
             {$hide_productsection}
 

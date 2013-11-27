@@ -155,5 +155,10 @@ Description {3}
 <br />
 <br />
 For more details, <a href="{4}">Click here</a>.';
-$lang['nocontinue']='No, but continue anyway';
+$lang['nobutcontinue'] = 'No, but continue anyway';
+$lang['verylowopp'] = 'Very Low Opporunity';
+$lang['lowopp'] = 'Low Opportunity';
+$lang['mediumopp'] = 'Medium Opportunity';
+$lang['highopp'] = 'High Opportunity';
+$lang['veryhighopp'] = 'Very High Opportunity';
 ?>

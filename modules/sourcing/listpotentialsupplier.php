@@ -31,7 +31,10 @@ if(!$core->input['action']) {
 				ssid= $(this).parent().parent().attr("name");
 				rateid = $("#rating_"+ssid).val();				
 				sharedFunctions.requestAjax("post", "index.php?module=sourcing/listpotentialsupplier&action=do_ratepotential", "value="+rateid+"&ssid="+ssid, "html");
-			});';
+			});
+			 var tooltipvalues = ["'.$lang->verylowopp.'", "'.$lang->lowopp.'", "'.$lang->mediumopp.'", "'.$lang->highopp.'", "'.$lang->veryhighopp.'"];
+			 $("div[id^=ratingdiv_]").live("over", function(event, value) {$(this).attr("title", tooltipvalues[value-1]); });
+			';
 	}
 	else {
 		$readonlyratings = true;
@@ -174,11 +177,11 @@ if(!$core->input['action']) {
 				$criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
 
 				if($readonlyratings == true) {
-					$criteriaandstars .= '<div class="rateit" id="rateit10b" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$potential_supplier['supplier']['businessPotential'].'"></div>';
+					$criteriaandstars .= '<div class="rateit" id="ratingdiv_'.$potential_supplier['supplier']['ssid'].'" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$potential_supplier['supplier']['businessPotential'].'"></div>';
 				}
 				else {
-					$criteriaandstars .= '<input type="range"  min="0" max="'.$maxstars.'" value="'.$potential_supplier['supplier']['businessPotential'].'" step="1" id="rating_'.$potential_supplier['supplier']['ssid'].'" class="ratingscale">';
-					$criteriaandstars .= '<div class="rateit" id="rating_'.$potential_supplier['supplier']['ssid'].'" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$potential_supplier['supplier']['ssid'].'" data-rateit-value="'.$potential_supplier['supplier']['businessPotential'].'"></div>';
+					$criteriaandstars .= '<input type="range" min="0" max="'.$maxstars.'" value="'.$potential_supplier['supplier']['businessPotential'].'" step="1" id="rating_'.$potential_supplier['supplier']['ssid'].'" class="ratingscale">';
+					$criteriaandstars .= '<div class="rateit" id="ratingdiv_'.$potential_supplier['supplier']['ssid'].'" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$potential_supplier['supplier']['ssid'].'" data-rateit-value="'.$potential_supplier['supplier']['businessPotential'].'"></div>';
 				}
 				$criteriaandstars .= '</div></div>';
 
@@ -199,10 +202,7 @@ if(!$core->input['action']) {
 		$sourcing_listpotentialsupplier_rows .= '<tr><td colspan="5"><a href="#" id="showpopup_requestchemical" class="showpopup"><img alt="'.$lang->requestchemical.'" src="./images/addnew.png" border="0" /> '.$lang->requestchemical.'</a></td></tr>';
 	}
 	$origins = array('anyorigin' => $lang->anyorigin, 'chinese' => $lang->chinese, 'nonchinese' => $lang->nonchinese, 'indian' => $lang->indian, 'nonindian' => $lang->nonindian, 'european' => $lang->european, 'noneuropean' => $lang->noneuropean, 'american' => $lang->american, 'nonamerican' => $lang->nonamerican, 'otherasian' => $lang->otherasian, 'nootherasian' => $lang->nootherasian);
-	foreach($origins as $name => $origin) {
-		$origins[$name] = $origin;
-	}
-	$origins_list = parse_selectlist('request[origin][]', 8, $origins, '', 1);
+	$origins_list = parse_selectlist('request[origins][]', 8, $origins, '', 1);
 
 	$productsegements_applications = $sourcing->get_applications_product_segment();
 	if(is_array($productsegements_applications)) {
@@ -230,7 +230,7 @@ else {
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				break;
 			case 2:
-				output_xml("<status>false</status><message>{$lang->descriptionalreadyexsist}</message>");
+				output_xml("<status>false</status><message>{$lang->entryexists}</message>");
 				break;
 			case 0:
 				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");

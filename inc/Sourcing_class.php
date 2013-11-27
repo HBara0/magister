@@ -636,7 +636,7 @@ class Sourcing {
 			return false;
 		}
 
-		if(value_exists('sourcing_chemicalrequests', 'requestDescription', $data['requestDescription'])) {
+		if(value_exists('sourcing_chemicalrequests', 'requestDescription', $data['requestDescription'], 'psaid='.intval($data['segmentapplication']))) {
 			$this->status = 2;
 			return false;
 		}
@@ -653,17 +653,17 @@ class Sourcing {
 			if($query) {
 				$scrid = $db->last_id();
 				$this->status = 0;
-				if(is_array($data['origin'])) {
-					foreach($data['origin'] as $originid => $origin) {
+
+				if(is_array($data['origins'])) {
+					foreach($data['origins'] as $origin) {
 						if(empty($origin)) {
 							continue;
 						}
 						$origins_data = array(
 								'scrid' => $scrid,
-								'name' => $origin,
-								'origin' => $lang->$origin
+								'origin' => $origin
 						);
-						$db->insert_query('sourcing_chemrequest_org', array('scrid' => $scrid, 'name' => $origin, 'origin' => $lang->$origin));
+						$db->insert_query('sourcing_chemreqs_origins', $origins_data);
 					}
 				}
 				$email_data = array(
@@ -687,7 +687,7 @@ class Sourcing {
 	public function get_chemicalrequests() {
 		global $db, $core;
 
-		$sort_query = 'ORDER BY cs.name ASC, scr.timeRequested DESC';
+		$sort_query = 'ORDER BY scr.timeRequested DESC';
 		if(isset($core->input['sortby'], $core->input['order'])) {
 			$sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
 		}
@@ -705,10 +705,9 @@ class Sourcing {
 			$see_otherusers = '	WHERE scr.uid='.$core->user['uid'];
 		}
 
-		$chemicalrequests_query = $db->query("SELECT psa.description AS application, scr.*, u.displayName, cs.name AS chemicalname,scro.origin AS origins
+		$chemicalrequests_query = $db->query("SELECT psa.title AS application, scr.*, u.displayName, cs.name AS chemicalname
 										FROM ".Tprefix."sourcing_chemicalrequests scr
 										LEFT JOIN ".Tprefix."productsegements_applications psa ON (psa.psaid = scr.psaid)
-										LEFT JOIN ".Tprefix."sourcing_chemrequest_org  scro ON (scro.scrid  = scr.scrid)
 										JOIN ".Tprefix."users u ON (u.uid = scr.uid)
 										LEFT JOIN ".Tprefix."chemicalsubstances cs ON (cs.csid = scr.csid)
 										{$see_otherusers} {$sort_query}");
@@ -724,11 +723,13 @@ class Sourcing {
 	}
 
 	private function get_chemicalrequests_org($id = '') {
-		global $db;
-		$chemicalorgquery = $db->query("SELECT * FROM ".Tprefix."sourcing_chemrequest_org WHERE scrid=".$db->escape_string($id)."");
+		global $db, $lang;
+		
+		$chemicalorgquery = $db->query("SELECT * FROM ".Tprefix."sourcing_chemreqs_origins WHERE scrid=".$db->escape_string($id)."");
 		if($db->num_rows($chemicalorgquery) > 0) {
-			while($chemical_org = $db->fetch_assoc($chemicalorgquery)) {
-				$chemicalrequests_org[$chemical_org['socrid']] = $chemical_org;
+			while($chem_origin = $db->fetch_assoc($chemicalorgquery)) {
+				$chemicalrequests_org[$chem_origin['scroid']] = $chem_origin;
+				$chemicalrequests_org[$chem_origin['scroid']]['title'] = $lang->{$chem_origin['origin']};
 			}
 			return $chemicalrequests_org;
 		}

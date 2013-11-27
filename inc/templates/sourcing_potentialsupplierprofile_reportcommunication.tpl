@@ -74,7 +74,7 @@
                 <input class="pricenotOk" name="contacthst[isPriceApproved]" id="price_type" type="radio" value="0"{$radiobuttons_check[isPriceApproved][0]}>
                 {$lang->no}
                 <input class="priceok" name="contacthst[isPriceApproved]" id="price_type" type="radio" value="3"{$radiobuttons_check[isPriceApproved][3]}>
-                {$lang->nocontinue}
+                {$lang->nobutcontinue}
             </div>
         </div>
         <div class='main'>
@@ -86,13 +86,13 @@
                     <div class='content'>{$lang->paymentterms}</div>
                     <div class='content'>
                         <select name="contacthst[paymentTerms]">
-                            <option value="0">0 {$lang->days}</option>
-                            <option value="30">30 {$lang->days}</option>
-                            <option value="45">45 {$lang->days}</option>
-                            <option value="60">60 {$lang->days}</option>
-                            <option value="90">90 {$lang->days}</option>
-                            <option value="120">120 {$lang->days}</option>
-                            <option value="180">180 {$lang->days}</option>
+                            <option value="0"{$selected_selectitems[payementTerms][0]}>0 {$lang->days}</option>
+                            <option value="30"{$selected_selectitems[payementTerms][30]}>30 {$lang->days}</option>
+                            <option value="45"{$selected_selectitems[payementTerms][45]}>45 {$lang->days}</option>
+                            <option value="60"{$selected_selectitems[payementTerms][60]}>60 {$lang->days}</option>
+                            <option value="90"{$selected_selectitems[payementTerms][90]}>90 {$lang->days}</option>
+                            <option value="120"{$selected_selectitems[payementTerms][120]}>120 {$lang->days}</option>
+                            <option value="180"{$selected_selectitems[payementTerms][180]}>180 {$lang->days}</option>
                         </select>
                     </div>
                 </div>
@@ -108,7 +108,7 @@
                     <input  name="contacthst[isPaymentApproved]" class="stagenotapproved"  type="radio" value="0"{$radiobuttons_check[isPaymentApproved][0]}>
                     {$lang->no}
                     <input name="contacthst[isPaymentApproved]" class="stageapproved" type="radio" value="3"{$radiobuttons_check[isPaymentApproved][3]}>
-                    {$lang->nocontinue}
+                    {$lang->nobutcontinue}
                 </div>
             </div>
         </div>
@@ -135,7 +135,7 @@
                     <input name="contacthst[isCustomerdocumentApproved]"  class="stagenotapproved"id="customerdocument_yes" type="radio" value="0"{$radiobuttons_check[isCustomerdocumentApproved][0]}>
                     {$lang->no}
                     <input name="contacthst[isCustomerdocumentApproved]" class="stageapproved" type="radio" value="3"{$radiobuttons_check[isCustomerdocumentApproved][3]}>
-                    {$lang->nocontinue}
+                    {$lang->nobutcontinue}
                 </div>
             </div>
         </div>
@@ -178,7 +178,7 @@
                     <input   name="contacthst[isSampleAccepted]" class="notapplocable"  type="radio" value="2"{$radiobuttons_check[isSampleAccepted][2]}>
                     {$lang->na}
                     <input name="contacthst[isSampleAccepted]" class="stageapproved" type="radio" value="3"{$radiobuttons_check[isSampleAccepted][3]}>
-                    {$lang->nocontinue}
+                    {$lang->nobutcontinue}
                 </div>
             </div>
         </div>
@@ -226,7 +226,7 @@
                     <input   name="contacthst[isCompliantSpec]"  class="notapplocable"  type="radio" value="0"{$radiobuttons_check[isCompliantSpec][2]}>
                     {$lang->na}
                     <input name="contacthst[isCompliantSpec]" class="stageapproved" type="radio" value="3"{$radiobuttons_check[isCompliantSpec][3]}>
-                    {$lang->nocontinue}
+                    {$lang->nobutcontinue}
                 </div>
             </div>
         </div>
@@ -264,7 +264,7 @@
                     <input   name="contacthst[isProductApproved]" class="notapplocable" type="radio" value="2"{$radiobuttons_check[isProductApproved][2]}>
                     {$lang->na}
                            <input name="contacthst[isProductApproved]" class="stageapproved" type="radio" value="3"{$radiobuttons_check[isProductApproved][3]}>
-                    {$lang->nocontinue}
+                    {$lang->nobutcontinue}
                 </div>
             </div>
         </div>

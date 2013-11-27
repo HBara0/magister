@@ -27,8 +27,7 @@ if(!$core->input['action']) {
 	$chemicalrequests = $potential_supplier->get_chemicalrequests();
 	if(is_array($chemicalrequests)) {
 		foreach($chemicalrequests as $chemicalrequest) {
-			$origin_counter = 0;
-			$chemicalrequest[origin] = $hidden_orirings = $show_origins = '';
+			$comma = '';
 			/* colorate Satisfied request */
 			if($chemicalrequest['isClosed'] == 1) {
 				$feedback_icon = 'valid.gif';
@@ -40,29 +39,12 @@ if(!$core->input['action']) {
 			}
 
 			if(is_array($chemicalrequest['origins'])) {
-				foreach($chemicalrequest['origins'] as $originid => $origins) {
-
-					if(++$origin_counter > 2) {
-						$hidden_orirings .= $origins['origin'].'<br />';
-					}
-					elseif($origin_counter == 2) {
-						$show_origins .= $origins['origin'];
-					}
-					else {
-						$show_origins .= $origins['origin'].'<br />';
-					}
-					if($origin_counter > 2) {
-						$chemicalorigins = $show_origins.", <a href='#origin' id='showmore_origin_{$chemicalrequest[scrid]}'>...</a><br /> <span style='display:none;' id='origin_{$chemicalrequest[scrid]}'>{$hidden_orirings}</span>";
-					}
-					else {
-						$chemicalorigins = $show_origins;
-					}
+				foreach($chemicalrequest['origins'] as $origin) {
+					$chemicalrequest['origins_output'] .= $comma.$origin['title'];
+					$comma = ', ';
 				}
-
-				$chemicalrequest[origin].=$chemicalorigins;
 			}
 
-			//$chemicalrequest['origin'] = $origins[$chemicalrequest['origin']];
 			$chemicalrequest['timeRequested_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $chemicalrequest['timeRequested']);
 			eval("\$chemcialsrequests_rows .= \"".$template->get('sourcing_listchemcialsrequests_rows')."\";");
 		}

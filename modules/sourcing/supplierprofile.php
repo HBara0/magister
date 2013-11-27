@@ -92,7 +92,7 @@ if(!$core->input['action']) {
 		$supplier['maindetails']['companyName'] .= ' ('.$supplier['maindetails']['companyNameAbbr'].')';
 	}
 
-	$supplier['maindetails']['businessPotential_output'].= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$supplier['maindetails']['businessPotential'].'"></div>';
+	$supplier['maindetails']['businessPotential_output'].= '<div class="rateit" id="ratingdiv" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$supplier['maindetails']['businessPotential'].'"></div>';
 	$supplier['maindetails']['relationMaturity_output'] = $potential_supplier->parse_rmlbar();
 
 
@@ -158,19 +158,19 @@ if(!$core->input['action']) {
 		$origins = array('anyorigin' => $lang->anyorigin, 'chinese' => $lang->chinese, 'nonchinese' => $lang->nonchinese, 'indian' => $lang->indian, 'nonindian' => $lang->nonindian, 'european' => $lang->european, 'noneuropean' => $lang->noneuropean, 'american' => $lang->american, 'nonamerican' => $lang->nonamerican, 'otherasian' => $lang->otherasian, 'nootherasian' => $lang->nootherasian);
 		$origins_list = parse_selectlist('contacthst[origin]', 8, $origins, '');
 
-		$product_segmentlist = parse_selectlist('contacthst[market]', 9, $supplier['segments'], ''); /* product segments (that the current supplier(loaded from the object) works in) */
+		$product_segmentlist = parse_selectlist('contacthst[market]', 9, $supplier['segments'], '', 0, '', array('blankstart' => true)); /* product segments (that the current supplier(loaded from the object) works in) */
 		$unit_measure = get_specificdata('uom', array('uomid', 'symbol'), 'uomid', 'symbol', '');
 		$newsupplierid = $core->input['id'];
 		foreach($unit_measure as $key => $unit) {
 			$selected = '';
 			if($key == 4) {
-				$selected = ' selected = "selected"';
+				$selected = ' selected="selected"';
 			}
 			$uom .= '<option value = "'.$key.'"'.$selected.'>'.$unit.'</option>';
 		}
 
 		if(is_array($contacts_history)) {
-			foreach($contacts_history as $historyid => $contact_history) {
+			foreach($contacts_history as $historyid => $contact_history) {		
 				$contact_history['chemical'] = $potential_supplier->get_chemicalsubstance_byid($contact_history['chemical']);
 				$array_converteddate = array('date', 'customerDocumentDate', 'receivedQuantityDate', 'providedDocumentsDate', 'customerAnswerDate', 'provisionDate', 'offerDate', 'OfferAnswerDate');
 				foreach($array_converteddate as $key => $value) {
@@ -179,7 +179,9 @@ if(!$core->input['action']) {
 						$contact_history[$value.'_output'] = date($core->settings['dateformat'], $contact_history[$value]);
 					}
 				}
-
+				
+				$selected_selectitems['payementTerms'][$contact_history['paymentTerms']] = ' selected="selected"';
+				
 				if($contact_history['isCompleted'] == 0) {
 					$communication_title = $lang->previouscommunication;
 					$action = 'do_updateprevcommunication';
@@ -197,11 +199,11 @@ if(!$core->input['action']) {
 					$chemical_div_result = '<div id="searchQuickResults_chemicalproducts_'.$contact_history['identifier'].'" class="searchQuickResults" style="display:none;"></div>';
 
 					/* open the product section if the stage is approved */
-					foreach($question_section as $key => $section) { echo $contact_history[$key];
+					foreach($question_section as $key => $section) {
 						$radiobuttons_check[$key][$contact_history[$key]] = ' checked="checked"';
 						$disabled_checkboxes[$section] = ' disabled';
-						$checked_checkboxes[$section] = ''; 
-						if($contact_history[$key] == 1 || $contact_history[$key] == 3) { 
+						$checked_checkboxes[$section] = '';
+						if($contact_history[$key] == 1 || $contact_history[$key] == 3) {
 							$hide_productsection .= '$("div[id^='.$section.'_body_'.$contact_history['identifier'].']").show();'."\n";
 							$disabled_checkboxes[$section] = '';
 							$checked_checkboxes[$section] = ' checked="checked"';
@@ -215,7 +217,6 @@ if(!$core->input['action']) {
 					unset($datepicker_id);
 				}
 				elseif($contact_history['isCompleted'] == 1) {
-
 					$contact_history['chemical'] = $potential_supplier->get_chemicalsubstance_byid($contact_history['chemical']);
 					$communications_fields = array(
 							'paymenttermstitle' => array('paymentterms' => 'paymentTerms', 'discussion' => 'Discussion'),
@@ -226,7 +227,6 @@ if(!$core->input['action']) {
 							'offertitle' => array('offer' => 'offerMade', 'offerdate' => 'offerDate_output', 'customerAnswer' => 'customerOfferAnswer', 'answerdate' => 'OfferAnswerDate_output')
 					);
 					foreach($communications_fields as $key => $section) {
-
 						$maindivsection .= '<div class="ch_communicationsection altrow" style="width:100%;">';
 						$maindivsection .= '<div class="ch_communicationsection_entryhead">'.$lang->$key.'</div>';
 						foreach($section as $label => $val) {

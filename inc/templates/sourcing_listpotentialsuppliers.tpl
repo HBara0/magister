@@ -6,21 +6,15 @@
         <script src="{$core->settings[rootdir]}/js/jquery.rateit.min.js" type="text/javascript"></script>
         <script>
             {$header_ratingjs}
-            var tooltipvalues = ["very low opportunity", "low opportunity", "medium opportunit", "high opportunity", "very high opportunity"];
-            $("div[id^=rating_]").live("over", function(event, value) {
-                // var id = $("input[id^=rating_]").attr("id").split("_");
-                $(this).attr("title", tooltipvalues[value - 1]);
-            });
         </script>
     </head><body>
         {$header}
     <tr> {$menu}
         <td class="contentContainer">
-
-            <div style="display:inline-block;"><h3>{$lang->listpotentialsupplier}</h3></div>
-            <div style="display:inline-block;float:right; z-index:2;">  {$lang->chemicalsearch} <input id="filters_chemical" name="filters[chemicalsubstance]" type="text" size="35" onkeyup="$('#tablefilters').show();" />
-                <div style="display:inline-block;">{$lang->genericdproductsearch}</div><div style="display:inline-block;">{$genericproducts_selectlist}</div></div>
             <form action='$_SERVER[REQUEST_URI]' method="post">
+                <div style="display:inline-block;"><h3>{$lang->listpotentialsupplier}</h3></div>
+                <div style="display:inline-block;float:right; z-index:2;">  {$lang->chemicalsearch} <input id="filters_chemical" name="filters[chemicalsubstance]" type="text" size="35" onkeyup="$('#tablefilters').show();" />
+                <div style="display:inline-block;">{$lang->genericdproductsearch}</div><div style="display:inline-block;">{$genericproducts_selectlist}</div></div>
                 <table class="datatable" width="100%">
                     <thead>
                         <tr>
