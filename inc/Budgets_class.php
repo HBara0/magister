@@ -191,9 +191,14 @@ class Budgets {
 						$budgetlineobj = new BudgetLines();
 					}
 				}
+				
 				if($data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
 					$data['altCid'] = 'Unspecified Customer';
+					if(empty($data['customerCountry'])) {
+						$data['customerCountry'] = $this->get_affiliate()->get_country()->get()['name'];
+					}
 				}
+				
 				if(empty($data['pid']) || (empty($data['cid']) && empty($data['altCid']))) {
 					//$this->errorcode = 1;
 					continue;

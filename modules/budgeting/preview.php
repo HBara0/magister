@@ -30,6 +30,7 @@ if(!($core->input['action'])) {
 //				if(!in_array(implode(',', $budgetsdata['suppliers']), $filter_auditor['auditfor'])) {
 //					$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
 //				}
+				$budget_data = $budget_obj->get();
 				/* Validate Permissions - START */
 				if($core->usergroup['canViewAllSupp'] == 0 && $core->usergroup['canViewAllAff'] == 0) {
 					if(is_array($core->user['auditfor'])) {
@@ -134,7 +135,37 @@ elseif($core->input['action'] == 'exportexcel') {
 			if(empty($budget['supplier'])) {
 				$budget['supplier'] = $budget_obj->get_supplier()->get()['companyName'];
 			}
+			$budget_data = $budget_obj->get();
 
+			/* Validate Permissions - START */
+			if($core->usergroup['canViewAllSupp'] == 0 && $core->usergroup['canViewAllAff'] == 0) {
+				if(is_array($core->user['auditfor'])) {
+					if(!in_array($budget_data['spid'], $core->user['auditfor'])) {
+						if(is_array($core->user['auditedaffids'])) {
+							if(!in_array($budget_data['affid'], $core->user['auditedaffids'])) {
+								if(is_array($core->user['suppliers']['affid'][$budget_data['spid']])) {
+									if(in_array($budget_data['affid'], $core->user['suppliers']['affid'][$budget_data['spid']])) {
+										$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+									}
+									else {
+										redirect('index.php?module=budgeting/create');
+									}
+								}
+								else {
+									$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+								}
+							}
+						}
+						else {
+							$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+						}
+					}
+				}
+				else {
+					$filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+				}
+			}
+			/* Validate Permissions - END */
 			$budget['year'] = $budget_obj->get()['year'];
 
 			$firstbudgetline = $budget_obj->get_budgetLines(0, $filter);
