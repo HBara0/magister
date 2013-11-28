@@ -20,8 +20,9 @@ if(!$core->input['action']) {
 	}
 
 	$eid = $db->escape_string($core->input['eid']);
-
-	$profile = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid={$eid}"));
+	$entity_obj = new Entities($eid, '', false);
+	$profile = $entity_obj->get();
+	//$profile = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid={$eid}"));
 	if(!empty($profile['building'])) {
 		$profile['fulladdress'] .= $profile['building'].' - ';
 	}
@@ -389,27 +390,23 @@ if(!$core->input['action']) {
 		}
 	}
 	/* parse Minites Of Meetings --START */
-	$lang->load('meetings_meta');
+	if($core->usergroup['canUseMeetings'] == 1) {
+		$lang->load('meetings_meta');
 
-	$entity_obj = new Entities($eid);
-	$meeting_details = $entity_obj->get_meeting();
-
-	if(is_array($meeting_details)) {
-		foreach($meeting_details as $mtid => $meeting) {
-			$meeting['title'] = ucwords($meeting['title']);
-			if(!empty($meeting['fromDate'])) {
-				$meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
-				$meeting['fromTime_output'] = date($core->settings['timeformat'], $meeting['fromDate']);
+		$meetings = $entity_obj->get_meetings();
+		if(is_array($meetings)) {
+			foreach($meetings as $mtid => $meeting_obj) {
+				$meeting = $meeting_obj->get();
+				$meeting['businessMgr'] = $meeting_obj->get_createdby()->get()['displayName'];
+				$meeting['title'] = ucwords($meeting['title']);
+				if(!empty($meeting['fromDate'])) {
+					$meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
+				}
+				eval("\$meetingslist .= \"".$template->get('profiles_entityprofile_meetings_row')."\";");
 			}
-			if(!empty($meeting['toDate'])) {
-				$meeting['toDate_output'] = date($core->settings['dateformat'], $meeting['toDate']);
-				$meeting['toTime_output'] = date($core->settings['timeformat'], $meeting['toDate']);
-			}
-			eval("\$mom_section .= \"".$template->get('profiles_entityprofile_mom_row')."\";");
+			eval("\$meetings_section  = \"".$template->get('profiles_entityprofile_meetings')."\";");
 		}
-		eval("\$mom_mainsection  = \"".$template->get('profiles_entityprofile_mom')."\";");
 	}
-
 	/* parse Minites Of Meetings --END */
 	eval("\$profilepage = \"".$template->get('profiles_entityprofile')."\";");
 	output_page($profilepage);

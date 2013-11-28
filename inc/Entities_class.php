@@ -603,9 +603,14 @@ class Entities {
 
 	public function get_meetings() {
 		global $db;
+
+		$filters = ' AND idAttr="spid"';
+		if($this->data['type'] == 'c') {
+			$filters = ' AND idAttr="cid"';
+		}
 		$query = $db->query("SELECT mtid 
 							FROM ".Tprefix."meetings_associations
-							WHERE idAttr='spid' AND id='".$db->escape_string($this->data['eid'])."'");
+							WHERE id='".$db->escape_string($this->data['eid'])."'".$filters);
 		if($db->num_rows($query) > 0) {
 			while($meeting = $db->fetch_assoc($query)) {
 				//$metting_obj = new Meetings($metting['mtid']);

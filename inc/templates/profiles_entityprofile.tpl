@@ -74,10 +74,9 @@
                     </td>
                 </tr>
                 {$products_section}
+                {$meetings_section}
                 {$reports_section}
                 {$entityprofile_private}
-                {$mom_mainsection}
-                {$mom_section}
 
             </table>
         </td></tr>
