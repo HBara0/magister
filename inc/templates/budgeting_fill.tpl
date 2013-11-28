@@ -6,59 +6,57 @@
             $(function() {
                 $('input[id^="amountper_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
-                    if (!jQuery.isNumeric($('input[id^=amountper_' + id[1] + ']').val())) {
+                    if (!jQuery.isNumeric($('input[id=amountper_' + id[1] + ']').val())) {
                         return;
                     }
-                    $('input[id^=income_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id^=amount_' + id[1] + ']').val());
+                    $('input[id=income_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id=amount_' + id[1] + ']').val());
                 });
 
                 $('input[id^="income_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
-                    if (!jQuery.isNumeric($('input[id^=income_' + id[1] + ']').val())) {
+                    if (!jQuery.isNumeric($('input[id=income_' + id[1] + ']').val())) {
                         return;
                     }
-                    if ($('input[id^="amount_' + id[1] + '"]').val().length > 0) {
-                        $('input[id^=amountper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id^=amount_' + id[1] + ']').val());
+                    if ($('input[id="amount_' + id[1] + '"]').val().length > 0) {
+                        $('input[id=amountper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id=amount_' + id[1] + ']').val());
                     }
                 });
 
                 $('input[id^="unitprice_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
-                    if (!jQuery.isNumeric($('input[id^=unitprice_' + id[1] + ']').val())) {
+                    if (!jQuery.isNumeric($('input[id=unitprice_' + id[1] + ']').val())) {
                         return;
                     }
 
-                    if ($('input[id^="Qty_' + id[1] + '"]').val().length > 0) {
-                        $('input[id^=amount_' + id[1] + ']').val((Number($('input[id^=Qty_' + id[1] + ']').val() * $('input[id^=unitprice_' + id[1] + ']').val()))).trigger("input");
-                        $('input[id^="amountper_' + id[1] + '"]').trigger('keyup');
+                    if ($('input[id="Qty_' + id[1] + '"]').val().length > 0) {
+                        $('input[id=amount_' + id[1] + ']').val((Number($('input[id=Qty_' + id[1] + ']').val() * $('input[id=unitprice_' + id[1] + ']').val()))).trigger("input");
+                        $('input[id="amountper_' + id[1] + '"]').trigger('keyup');
                     }
 
                 });
 
                 $('input[id^="Qty_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
-                    $('input[id^="unitprice_' + id[1] + '"]').trigger('keyup');
-                    $('input[id^="amountper_' + id[1] + '"]').trigger('keyup');
+                    $('input[id="unitprice_' + id[1] + '"]').trigger('keyup');
+                    $('input[id="amountper_' + id[1] + '"]').trigger('keyup');
                 });
 
                 $('input[id^="amount_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
-                    if (!jQuery.isNumeric($('input[id^=amount_' + id[1] + ']').val())) {
+                    if (!jQuery.isNumeric($('input[id=amount_' + id[1] + ']').val())) {
                         return;
                     }
-                    if ($('input[id^="amountper_' + id[1] + '"]').val().length > 0) {
-
-                        alert('in;');
-                        $('input[id^="amountper_' + id[1] + '"]').trigger('keyup');
+                    if ($('input[id="amountper_' + id[1] + '"]').val().length > 0) {
+                        $('input[id="amountper_' + id[1] + '"]').trigger('keyup');
 
                     } else {
-                        if ($('input[id^="income_' + id[1] + '"]').val().length > 0) {
-                            $('input[id^="income_' + id[1] + '"]').trigger('keyup');
+                        if ($('input[id="income_' + id[1] + '"]').val().length > 0) {
+                            $('input[id="income_' + id[1] + '"]').trigger('keyup');
                         }
                     }
 
-                    if ($('input[id^="Qty_' + id[1] + '"]').val().length > 0) {
-                        $('input[id^=unitprice_' + id[1] + ']').val(($('input[id^=amount_' + id[1] + ']').val() / $('input[id^=Qty_' + id[1] + ']').val()));
+                    if ($('input[id="Qty_' + id[1] + '"]').val().length > 0) {
+                        $('input[id=unitprice_' + id[1] + ']').val(($('input[id=amount_' + id[1] + ']').val() / $('input[id=Qty_' + id[1] + ']').val()));
                     }
 
                 });
@@ -69,7 +67,7 @@
                         e.preventDefault();
                     }
                     else if ($(this).val().length > 0 && $(this).val() <= 100) {
-                        $('input[id^="s2perc_' + id[1] + '"]').val(Number(100 - $(this).val()));
+                        $('input[id="s2perc_' + id[1] + '"]').val(Number(100 - $(this).val()));
                     }
                 });
 
@@ -79,7 +77,7 @@
                         e.preventDefault();
                     }
                     else if ($(this).val().length > 0 && $(this).val() <= 100) {
-                        $('input[id^="s1perc_' + id[1] + '"]').val(Number(100 - $(this).val()));
+                        $('input[id="s1perc_' + id[1] + '"]').val(Number(100 - $(this).val()));
                     }
                 });
 
