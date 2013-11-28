@@ -25,7 +25,7 @@
                     <div style="display:inline-block;padding:10px;vertical-align:top;">{$lang->supplier}</div>
                     <div style="display:inline-block;padding:10px;vertical-align:central;">{$budget_supplierslist}</div>
                     <div style="display:inline-block;padding:10px;vertical-align:top;">{$lang->bm}</div>
-                    <div style="display:inline-block;padding:10px;vertical-align:top;"> <select name="budget[managers][]"  size="6" multiple="multiple" tabindex="3"> {$business_managerslist}</select></div>
+                    <div style="display:inline-block;padding:10px;vertical-align:top;"> {$business_managerslist}</div>
                 </div>
 
                 <div style="display:block; padding:8px;"> 
