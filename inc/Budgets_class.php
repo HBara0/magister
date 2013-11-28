@@ -204,6 +204,9 @@ class Budgets {
 				}
 
 				if(empty($data['pid']) || (empty($data['cid']) && empty($data['altCid']))) {
+					if(!empty($data['blid'])) {
+						$removed_lines[] = $data['blid'];
+					}
 					continue;
 				}
 
@@ -223,6 +226,12 @@ class Budgets {
 				}
 				else {
 					$budgetlineobj->create($data);
+				}
+			}
+			if(is_array($removed_lines)) {
+				foreach($removed_lines as $removedblid) {
+					$budgetlineobj = new BudgetLines($removedblid);
+					$budgetlineobj->delete();
 				}
 			}
 		}
