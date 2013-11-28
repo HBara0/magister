@@ -87,7 +87,7 @@ class Budgets {
 				$budget_years[] = $budget_year['year'];
 			}
 		}
-		//get next year and return budget
+//get next year and return budget
 		$next_budgetyear = date('Y', strtotime('+1 year'));
 		$budget_nextyearquery = $db->query('SELECT bid,year,isLocked FROM '.Tprefix.'budgeting_budgets WHERE spid='.$data['spid'].' 
 												AND affid='.$data['affid'].' AND year='.$next_budgetyear.' ORDER BY year DESC');
@@ -120,7 +120,7 @@ class Budgets {
 //	}
 
 	public static function save_budget($budgetdata = array(), $budgetline_data = array()) {
-		global $db, $core;
+		global $db, $core, $log;
 
 		if(is_array($budgetdata)) {
 			if(is_empty($budgetdata['year'], $budgetdata['affid'], $budgetdata['spid'])) {
@@ -141,10 +141,13 @@ class Budgets {
 				if($insertquery) {
 					if(is_object($this)) {
 						$this->budget['bid'] = $db->last_id();
+						$log->record('savenewbudget', $this->budget['bid']);
 						$this->save_budgetlines($budgetline_data, $this->budget['bid']);
 					}
 					else {
-						$budget = new Budgets($db->last_id());
+						$bid = $db->last_id();
+						$budget = new Budgets($bid);
+						$log->record('savenewbudget', $bid);
 						$budget->save_budgetlines($budgetline_data);
 					}
 				}
@@ -159,6 +162,7 @@ class Budgets {
 					$budget = new Budgets($existing_budget['bid']);
 					$budget->save_budgetlines($budgetline_data);
 				}
+				$log->record('updatedbudget', $existing_budget['bid']);
 			}
 		}
 	}
@@ -191,16 +195,15 @@ class Budgets {
 						$budgetlineobj = new BudgetLines();
 					}
 				}
-				
+
 				if($data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
 					$data['altCid'] = 'Unspecified Customer';
 					if(empty($data['customerCountry'])) {
 						$data['customerCountry'] = $this->get_affiliate()->get_country()->get()['name'];
 					}
 				}
-				
+
 				if(empty($data['pid']) || (empty($data['cid']) && empty($data['altCid']))) {
-					//$this->errorcode = 1;
 					continue;
 				}
 
@@ -250,7 +253,7 @@ class Budgets {
 
 	public static function get_saletype_byid($sitd) {
 		global $db;
-		if(!empty($sitd)) { 
+		if(!empty($sitd)) {
 			return $db->fetch_field($db->query("SELECT title FROM ".Tprefix."saletypes WHERE stid='".$db->escape_string($sitd)."'"), 'title');
 		}
 	}
@@ -309,7 +312,7 @@ class Budgets {
 			if($db->num_rows($prev_budget_bydataquery) > 0) {
 				while($prevbudget_bydata = $db->fetch_assoc($prev_budget_bydataquery)) {
 					if($prevbudget_bydata['cid'] == 0) {
-						$prevbudget_bydata['cid'] = md5($prevbudget_bydata['altCid']);
+						$prevbudget_bydata['cid'] = md5($prevbudget_bydata['altCid'].$prevbudget_bydata['saltType'].$prevbudget_bydata['pid']);
 					}
 					$budgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['saleType']][] = $prevbudget_bydata;
 				}
@@ -332,12 +335,15 @@ class Budgets {
 		}
 
 		if(isset($bid) && !empty($bid)) {
-			//$prevbudgetline_details = $this->read_prev_budgetbydata();
+//$prevbudgetline_details = $this->read_prev_budgetbydata();
 			$budgetline_queryid = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines
 											  WHERE bid IN (".$db->escape_string($bid).")".$budgetline_query_where.$options['order_by']);
 
 			if($db->num_rows($budgetline_queryid) > 0) {
 				while($budgetline_data = $db->fetch_assoc($budgetline_queryid)) {
+					if($budgetline_data['cid'] == 0) {
+						$budgetline_data['cid'] = md5($budgetline_data['altCid'].$budgetline_data['saltType'].$budgetline_data['pid']);
+					}
 					$budgetline = new BudgetLines($budgetline_data['blid']);
 					$prevbudgetline = new BudgetLines($budgetline_data['prevblid']);
 					$budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']] = $budgetline->get();
@@ -448,7 +454,7 @@ class BudgetLines {
 		global $db, $core;
 
 		if(is_array($budgetline_data)) {
-			//$budgetline_data['bid'] = $bid;
+//$budgetline_data['bid'] = $bid;
 			if(empty($budgetline_data['createdBy'])) {
 				$budgetline_data['createdBy'] = $core->user['uid'];
 			}
