@@ -24,31 +24,37 @@ if(!$core->input['action']) {
 
 		$meeting_obj = new Meetings($mtid);
 		$meeting = $meeting_obj->get();
-		if(!empty($meeting['fromDate'])) {
-			$meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
-			$meeting['fromTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['timeformat'], $meeting['fromDate'])));
-		}
-		if(!empty($meeting['toDate'])) {
-			$meeting['toDate_output'] = date($core->settings['dateformat'], $meeting['toDate']);
-			$meeting['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['timeformat'], $meeting['toDate'])));
-		}
-
-		$meeting_assoc = $meeting_obj->get_meetingassociations();
-		if(is_array($meeting_assoc)) {
-			foreach($meeting_assoc as $mtaid => $associaton) {
-				$associaton_temp = $associaton->get();
-				$associatons[$associaton_temp['idAttr']] = $associaton_temp['id'];
+		if(is_array($meeting)) {
+			if(!empty($meeting['fromDate'])) {
+				$meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
+				$meeting['fromTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['timeformat'], $meeting['fromDate'])));
 			}
-			unset($associaton_temp);
+			if(!empty($meeting['toDate'])) {
+				$meeting['toDate_output'] = date($core->settings['dateformat'], $meeting['toDate']);
+				$meeting['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['timeformat'], $meeting['toDate'])));
+			}
+			if($meeting['isPublic'] == 1) {
+				$checkboxmeeting['isPublic'] = ' checked="checked"';
+			}
+			$meeting_assoc = $meeting_obj->get_meetingassociations();
+			if(is_array($meeting_assoc)) {
+				foreach($meeting_assoc as $mtaid => $associaton) {
+					$associaton_temp = $associaton->get();
+					$associatons[$associaton_temp['idAttr']] = $associaton_temp['id'];
+				}
+				unset($associaton_temp);
+			}
+
+			$entity_obj = new Entities($associatons['cid']);
+			$meeting['associations']['cutomername'] = $entity_obj->get()['companyName'];
+			$meeting['associations']['spid'] = $associatons['cid'];
+			$entity_obj = new Entities($associatons['spid']);
+			$meeting['associations']['suppliername'] = $entity_obj->get()['companyName'];
+			$meeting['associations']['spid'] = $associatons['spid'];
 		}
-
-		$entity_obj = new Entities($associatons['cid']);
-		$meeting['associations']['cutomername'] = $entity_obj->get()['companyName'];
-		$meeting['associations']['spid'] = $associatons['cid'];
-		$entity_obj = new Entities($associatons['spid']);
-		$meeting['associations']['suppliername'] = $entity_obj->get()['companyName'];
-		$meeting['associations']['spid'] = $associatons['spid'];
-
+		else{
+			redirect('index.php?module=meetings/list');
+		}
 		//$meeting['attendees'] = $meeting_obj->get_attendees();
 	}
 	else {

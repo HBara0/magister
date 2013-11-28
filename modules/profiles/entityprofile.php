@@ -393,12 +393,16 @@ if(!$core->input['action']) {
 	if($core->usergroup['canUseMeetings'] == 1) {
 		$lang->load('meetings_meta');
 
-		$meetings = $entity_obj->get_meetings();
+		$meetings = $entity_obj->get_meetings($options);
 		if(is_array($meetings)) {
 			foreach($meetings as $mtid => $meeting_obj) {
 				$meeting = $meeting_obj->get();
 				$meeting['businessMgr'] = $meeting_obj->get_createdby()->get()['displayName'];
 				$meeting['title'] = ucwords($meeting['title']);
+				if(($core->usergroup['canViewAllSupp'] == 0 && $meeting['isPublic'] == 0) && $meeting['createdBy'] != $core->user['uid']) {
+					continue;
+				}
+
 				if(!empty($meeting['fromDate'])) {
 					$meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
 				}
