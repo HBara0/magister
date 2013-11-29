@@ -98,7 +98,7 @@ class Meetings {
 				$this->meeting['mtid'] = $mtid = $db->last_id();
 
 				$log->record('addedmeeting', $mtid);
-//$this->get_meetingassociations($this->meeting['mtid'])->set_associations($this->meeting['associations']);
+				//$this->get_meetingassociations($this->meeting['mtid'])->set_associations($this->meeting['associations']);
 				$this->set_associations();
 				/* insert meetings Attendees */
 				$this->set_attendees();
@@ -172,12 +172,12 @@ class Meetings {
 		}
 	}
 
-	public static function get_multiplemeetings(array $options = array()) {
+	public static function get_multiplemeetings($id = '', array $order = array(), array $options = array()) {
 		global $db, $core;
 
 		$sort_query = 'fromDate DESC';
-		if(isset($options['order']['sortby'], $options['order']['order']) && !is_empty($options['order']['sortby'], $options['order']['order'])) {
-			$sort_query = $options['order']['sortby'].' '.$options['order']['order'];
+		if(isset($order['sortby'], $order['order']) && !is_empty($order['sortby'], $order['order'])) {
+			$sort_query = $order['sortby'].' '.$order['order'];
 		}
 
 		$query_where_and = ' AND ';
@@ -192,16 +192,11 @@ class Meetings {
 			$query_where .= $query_where_and.$options['filter_where'];
 		}
 
-		if($core->usergroup['meetings_canViewAllMeetings'] == 0) {
-			$query_where .= $query_where_and.'(createdBy='.$core->user['uid'].' OR isPublic=1';
-			$meetings_sharedwith = Meetings::get_meetingsshares_byuser();
-			if(is_array($meetings_sharedwith)) {
-				$query_where .= ' OR mtid IN ('.implode(', ', array_keys($meetings_sharedwith)).')';
-			}
-			$query_where .= ')';
-		}
-
+<<<<<<< HEAD
 		$meetingsquery = $db->query("SELECT * FROM ".Tprefix."meetings{$query_where} ORDER BY {$sort_query}");
+=======
+		$meetingsquery = $db->query("SELECT * FROM ".Tprefix."meetings {$where_hasMOM}  ORDER BY {$sort_query}");
+>>>>>>> 3aa52d92b5d05a8a5b1829dbc31ad1aefc595f23
 
 		if($db->num_rows($meetingsquery) > 0) {
 			while($rowmeetings = $db->fetch_assoc($meetingsquery)) {
@@ -211,26 +206,10 @@ class Meetings {
 		return $meeting;
 	}
 
-	public static function get_meetingsshares_byuser($uid = '') {
-		global $core, $db;
-		if(empty($uid)) {
-			$uid = $core->user['uid'];
-		}
-
-		$query = $db->query('SELECT mtid FROM '.Tprefix.'meetings_sharedwith WHERE uid='.intval($uid));
-		if($db->num_rows($query) > 0) {
-			while($share = $db->fetch_assoc($query)) {
-				$shares[$share['mtid']] = new Meetings($share['mtid']);
-			}
-			return $shares;
-		}
-		return false;
-	}
-
 	public function get_attendees() {
 		global $db;
 
-		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_attendees WHERE mtid = '.intval($this->meeting['mtid']));
+		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_attendees WHERE mtid='.intval($this->meeting['mtid']));
 		if($db->num_rows($query)) {
 			while($attendee = $db->fetch_assoc($query)) {
 				if($attendee['idAttr'] == 'uid') {
@@ -281,38 +260,6 @@ class Meetings {
 		}
 	}
 
-	public function share($meeting_data = array()) {
-		global $db, $core;
-		if(is_array($meeting_data)) {
-			foreach($meeting_data as $key => $val) {
-				if(empty($val)) {
-					continue;
-				}
-				$meeting_shares['mtid'] = $this->meeting['mtid'];
-				$meeting_shares['createdBy'] = $core->user['uid'];
-				$meeting_shares['createdOn'] = TIME_NOW;
-				$meeting_shares['uid'] = $core->sanitize_inputs($val);
-				if(!value_exists('meetings_sharedwith', 'uid', $val, 'mtid='.$this->meeting['mtid'])) {
-					$db->insert_query(' meetings_sharedwith', $meeting_shares);
-					$this->errorcode = 0;
-				}
-			}
-		}
-	}
-
-	public function get_shared_users() {
-		global $db;
-		
-		$query = $db->query('SELECT uid FROM '.Tprefix.'meetings_sharedwith WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
-		if($db->num_rows($query)) {
-			while($user = $db->fetch_assoc($query)) {
-				$users[$user['uid']] = new Users($user['uid']);
-			}
-			return $users;
-		}
-		return false;
-	}
-
 	public function get_createdby() {
 		return new Users($this->meeting['createdBy']);
 	}
@@ -332,12 +279,12 @@ class Meetings {
 	public function get_meetingassociations() {
 		global $db;
 		/* Get all associatiosn related to this meeting */
-		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_associations WHERE mtid = '.$db->escape_string($this->meeting['mtid'].''));
+		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_associations WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
 		if($db->num_rows($query)) {
 			while($meeting_assoc = $db->fetch_assoc($query)) {
-				$meeting_associations[$meeting_assoc['mtaid']] = new MeetingsAssociations($meeting_assoc['mtaid']);
+				$meeting_associsations[$meeting_assoc['mtaid']] = new MeetingsAssociations($meeting_assoc['mtaid']);
 			}
-			return $meeting_associations;
+			return $meeting_associsations;
 		}
 		return false;
 	}
