@@ -138,7 +138,7 @@ class Meetings {
 	}
 
 	public function update($meeting_data = array()) {
-		global $db, $log,$core;
+		global $db, $log, $core;
 		$associations = $meeting_data['associations'];
 		$attendees = $meeting_data['attendees'];
 		unset($meeting_data['attendees'], $meeting_data['associations']);
@@ -176,7 +176,7 @@ class Meetings {
 			$where_hasMOM = ' WHERE hasMOM <>1 AND title IS NOT NULL';
 		}
 
-		$meetingsquery = $db->query("SELECT * FROM ".Tprefix."meetings {$where_hasMOM} AND createdBy={$core->user['uid']} ORDER BY {$sort_query}");
+		$meetingsquery = $db->query("SELECT * FROM ".Tprefix."meetings {$where_hasMOM}  ORDER BY {$sort_query}");
 
 		if($db->num_rows($meetingsquery) > 0) {
 			while($rowmeetings = $db->fetch_assoc($meetingsquery)) {
@@ -217,6 +217,27 @@ class Meetings {
 			}
 		}
 		return false;
+	}
+
+	public function can_viewmeeting() {
+		global $core;
+
+		if($core->usergroup['meetings_canViewAllMeetings'] == 0) {
+			if($this->meeting['isPublic'] == 0) {
+				if($this->meeting['createdBy'] != $core->user['uid']) {
+					return false;
+				}
+				else {
+					return true;
+				}
+			}
+			else {
+				return true;
+			}
+		}
+		else {
+			return true;
+		}
 	}
 
 	public function get_createdby() {
