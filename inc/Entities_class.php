@@ -614,21 +614,28 @@ class Entities {
 	}
 
 	public function get_meetings() {
-		global $db;
+		global $db, $core;
 
 		$filters = ' AND idAttr="spid"';
 		if($this->data['type'] == 'c') {
 			$filters = ' AND idAttr="cid"';
 		}
+
+		if($core->usergroup['meetings_canViewAllMeetings'] == 0) {
+			$meetings_sharedwith = Meetings::get_meetingsshares_byuser();
+			$filters .= ' AND (mtid IN (SELECT mtid FROM '.Tprefix.'meetings WHERE isPublic=1 OR createdBy='.$core->user['uid'].')';
+			if(is_array($meetings_sharedwith)) {
+				$filters .= ' OR (mtid IN ('.implode(', ', array_keys($meetings_sharedwith)).')';
+			}
+			$filters .= ')';
+		}
+
 		$query = $db->query("SELECT mtid 
 							FROM ".Tprefix."meetings_associations
 							WHERE id='".$db->escape_string($this->data['eid'])."'".$filters);
 		if($db->num_rows($query) > 0) {
 			while($meeting = $db->fetch_assoc($query)) {
-				//$metting_obj = new Meetings($metting['mtid']);
 				$meetings[$meeting['mtid']] = new Meetings($meeting['mtid']);
-				//$entity_mom[$metting['mtid']] = $metting_obj->get();
-				//$entity_mom[$metting['mtid']]['businesMgr'] = $metting_obj->get_createdby()->get()['displayName'];  /* Get the user object  createdBy */
 			}
 			return $meetings;
 		}

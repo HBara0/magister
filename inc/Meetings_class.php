@@ -14,6 +14,9 @@
  * @author tony.assaad
  */
 class Meetings {
+	private $meeting = array();
+	private $errorcode = 0;
+
 	public function __construct($id = '', $simple = false) {
 		if(isset($id) && !empty($id)) {
 			$this->meeting = $this->read($id, $simple);
@@ -34,6 +37,12 @@ class Meetings {
 		global $db, $core, $log;
 		if(is_array($meeting_data)) {
 			$this->meeting = $meeting_data;
+
+			if(empty($this->meeting['title'])) {
+				$this->errorcode = 1;
+				return false;
+			}
+
 			if(value_exists('meetings', 'title', $this->meeting['title'], ' createdBy='.$core->user['uid'].'')) {
 				$this->errorcode = 4;
 				return false;
@@ -89,7 +98,7 @@ class Meetings {
 				$this->meeting['mtid'] = $mtid = $db->last_id();
 
 				$log->record('addedmeeting', $mtid);
-				//$this->get_meetingassociations($this->meeting['mtid'])->set_associations($this->meeting['associations']);
+//$this->get_meetingassociations($this->meeting['mtid'])->set_associations($this->meeting['associations']);
 				$this->set_associations();
 				/* insert meetings Attendees */
 				$this->set_attendees();
@@ -99,11 +108,12 @@ class Meetings {
 	}
 
 	private function set_attendees($attendees = '') {
+		global $core;
 		if(empty($attendees)) {
 			$attendees = $this->meeting['attendees'];
 		}
 		if(!isset($attendees)) {
-			$attendees = array(array('idAttr' => 'uid', 'mtid' => $mtid, 'attendee' => $core->user['uid']));
+			$attendees = array(array('idAttr' => 'uid', 'mtid' => $this->meeting['mtid'], 'attendee' => $core->user['uid']));
 		}
 
 		if(!empty($attendees)) {
@@ -162,21 +172,36 @@ class Meetings {
 		}
 	}
 
-	public static function get_multiplemeetings($id = '', array $order = array(), array $option = array()) {
+	public static function get_multiplemeetings(array $options = array()) {
 		global $db, $core;
 
 		$sort_query = 'fromDate DESC';
-		if(isset($order['sortby'], $order['order']) && !is_empty($order['sortby'], $order['order'])) {
-			$sort_query = $order['sortby'].' '.$order['order'];
-		}
-		if($option['hasmom'] == 1) {
-			$where_hasMOM = ' WHERE title IS NOT NULL ';
-		}
-		else {
-			$where_hasMOM = ' WHERE hasMOM <>1 AND title IS NOT NULL';
+		if(isset($options['order']['sortby'], $options['order']['order']) && !is_empty($options['order']['sortby'], $options['order']['order'])) {
+			$sort_query = $options['order']['sortby'].' '.$options['order']['order'];
 		}
 
-		$meetingsquery = $db->query("SELECT * FROM ".Tprefix."meetings {$where_hasMOM}  ORDER BY {$sort_query}");
+		$query_where_and = ' AND ';
+		if(isset($options['hasmom'])) {
+			$query_where = ' WHERE hasMOM='.intval($options['hasmom']);
+		}
+		else {
+			$query_where_and = ' WHERE ';
+		}
+
+		if($options['filter_where']) {
+			$query_where .= $query_where_and.$options['filter_where'];
+		}
+
+		if($core->usergroup['meetings_canViewAllMeetings'] == 0) {
+			$query_where .= $query_where_and.'(createdBy='.$core->user['uid'].' OR isPublic=1';
+			$meetings_sharedwith = $this->get_meetingsshares_byuser();
+			if(is_array($meetings_sharedwith)) {
+				$query_where .= ' OR mtid IN ('.implode(', ', array_keys($meetings_sharedwith)).')';
+			}
+			$query_where .= ')';
+		}
+
+		$meetingsquery = $db->query("SELECT * FROM ".Tprefix."meetings{$query_where} ORDER BY {$sort_query}");
 
 		if($db->num_rows($meetingsquery) > 0) {
 			while($rowmeetings = $db->fetch_assoc($meetingsquery)) {
@@ -186,10 +211,26 @@ class Meetings {
 		return $meeting;
 	}
 
+	public static function get_meetingsshares_byuser($uid = '') {
+		global $core, $db;
+		if(empty($uid)) {
+			$uid = $core->user['uid'];
+		}
+
+		$query = $db->query('SELECT mtid FROM '.Tprefix.'meetings_sharedwith WHERE uid='.intval($uid));
+		if($db->num_rows($query) > 0) {
+			while($share = $db->fetch_assoc($query)) {
+				$shares[$share['mtid']] = new Meetings($share['mtid']);
+			}
+			return $shares;
+		}
+		return false;
+	}
+
 	public function get_attendees() {
 		global $db;
 
-		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_attendees WHERE mtid='.intval($this->meeting['mtid']));
+		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_attendees WHERE mtid = '.intval($this->meeting['mtid']));
 		if($db->num_rows($query)) {
 			while($attendee = $db->fetch_assoc($query)) {
 				if($attendee['idAttr'] == 'uid') {
@@ -302,6 +343,7 @@ class Meetings {
 		return $this->errorcode;
 	}
 
+		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_associations WHERE mtid = '.$db->escape_string($this->meeting['mtid'].''));
 	public function get() {
 		return $this->meeting;
 	}

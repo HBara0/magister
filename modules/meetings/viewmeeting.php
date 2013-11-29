@@ -18,6 +18,9 @@ if($core->usergroup['meetings_canCreateMeeting'] == 0) {
 
 if(!$core->input['action']) {
 	$meeting_obj = new Meetings($core->input['mtid']);
+	if(!$meeting_obj->can_viewmeeting()) {
+		error($lang->sectionnopermission);
+	}
 	$meeting = $meeting_obj->get();
 
 	if(!empty($meeting['fromDate'])) {
@@ -44,12 +47,12 @@ if(!$core->input['action']) {
 			$minsofmeeting['modifiedOn_time_output'] = date($core->settings['timeformat'], $minsofmeeting['modifiedOn']);
 			$minsofmeeting['modifiedOn_output'] = ' | '.$lang->sprint($lang->modifiedon, $minsofmeeting['modifiedOn_date_output'], $minsofmeeting['modifiedOn_time_output']);
 		}
-		
+
 		eval("\$meetings_viewmeeting_mom = \"".$template->get('meetings_viewmeeting_mom')."\";");
 	}
 
 	$meeting['attendees_output'] = $meeting_obj->parse_attendees();
-	
+
 	eval("\$meeting_viewmeeting = \"".$template->get('meetings_viewmeeting')."\";");
 	output_page($meeting_viewmeeting);
 }

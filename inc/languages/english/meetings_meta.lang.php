@@ -1,6 +1,6 @@
 <?php
 $lang['meeting'] = 'Meeting';
-$lang['create'] = 'Create Meeting';
+$lang['createmeeting'] = 'Create Meeting';
 $lang['edit'] = 'Edit Meeting';
 $lang['remove'] = 'remove Meeting';
 $lang['attendees'] = 'Meeting Attendees';

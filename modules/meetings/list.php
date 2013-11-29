@@ -17,13 +17,10 @@ if($core->usergroup['meetings_canCreateMeeting'] == 0) {
 }
 if(!$core->input['action']) {
 	$sort_url = sort_url();
-	$multiple_meetings = Meetings::get_multiplemeetings('', array('sortby' => $core->input['sortby'], 'order' => $core->input['order']), array('hasmom' => 1));
+	$multiple_meetings = Meetings::get_multiplemeetings(array('order' => array('sortby' => $core->input['sortby'], 'order' => $core->input['order'])));
 	if(is_array($multiple_meetings)) {
 		foreach($multiple_meetings as $mid => $meeting) {
 			$meeting_obj = new Meetings($mid);
-			if(!$meeting_obj->can_viewmeeting()) {
-				continue;
-			}
 			$row_tools = '';
 			if($meeting['hasMoM'] == 1) {
 				$action = '&do=edit';
@@ -48,7 +45,6 @@ if(!$core->input['action']) {
 	eval("\$meeting_list = \"".$template->get('meeting_list')."\";");
 	output_page($meeting_list);
 }
-else {
 	if($core->input['action'] == 'get_sharemeeting') {
 		$mtid = $db->escape_string($core->input['id']);
 		$aff_obj = new Affiliates($core->user['mainaffiliate']);
@@ -88,6 +84,4 @@ else {
 		else {
 			output_xml('<status>false</status><message>'.$lang->requireduser.'</message>');
 		}
-	}
-}
 ?>

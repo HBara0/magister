@@ -52,7 +52,7 @@ if(!$core->input['action']) {
 			$meeting['associations']['suppliername'] = $entity_obj->get()['companyName'];
 			$meeting['associations']['spid'] = $associatons['spid'];
 		}
-		else{
+		else {
 			redirect('index.php?module=meetings/list');
 		}
 		//$meeting['attendees'] = $meeting_obj->get_attendees();
@@ -103,6 +103,9 @@ elseif($core->input['action'] == 'do_createmeeting') {
 			break;
 		case 4:
 			output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
+			break;
+		default:
+			output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
 			break;
 	}
 }

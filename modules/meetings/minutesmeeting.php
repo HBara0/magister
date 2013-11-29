@@ -20,8 +20,11 @@ if(!$core->input['action']) {
 	if(isset($core->input['mtid']) && !empty($core->input['mtid'])) {
 		$meeting_obj = new Meetings($core->input['mtid'], false);
 		$meeting = $meeting_obj->get();
+		if($meeting['createdBy'] != $core->user['uid']) {
+			error($lang->sectionnopermission);
+		}
 		$meeting_list = '<input type="hidden" value="'.$meeting['mtid'].'" name="mof[mtid]" /><strong><a href="index.php?module=meetings/viewmeeting&mtid='.$meeting['mtid'].'" target="_blank">'.$meeting['title'].' | '.$meeting['location'].'</a></strong>';
-	
+
 		if($meeting['hasMoM'] == 1) {
 			$action = 'edit';
 		}
@@ -37,13 +40,13 @@ if(!$core->input['action']) {
 		$mof = $mom_obj->get();
 	}
 	else {
-		$multiple_meetings = Meetings::get_multiplemeetings('', array(), array('hasmom' => 0));
+		$multiple_meetings = Meetings::get_multiplemeetings(array('hasmom' => 0));
 		if(is_array($multiple_meetings)) {
 			if(empty($meeting_list)) {
 				$meeting_list = '<select name="mof[mtid]">';
 				foreach($multiple_meetings as $mid => $meeting) {
 					if(!empty($meeting['title'])) {
-						$meeting_list .='<option value="'.$meeting['mtid'].'"> '.$meeting['title'].'</option>';
+						$meeting_list .='<option value="'.$meeting['mtid'].'"> '.$meeting['title'].' | '.$meeting['location'].'</option>';
 					}
 				}
 				$meeting_list .= '</select>';
@@ -60,8 +63,13 @@ elseif($core->input['action'] == 'do_add' || $core->input['action'] == 'do_edit'
 	if(empty($core->input['mof']['momid'])) {
 		if(!empty($core->input['mof']['mtid'])) {
 			$meeting_obj = new Meetings($core->input['mof']['mtid']);
+			if($meeting_obj->get_createdby()->get()['uid'] != $core->user['uid']) {
+				output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+				exit;
+			}
 			$mom_obj = $meeting_obj->get_mom();
 			if($mom_obj == false) {
+				$mom_obj = new MeetingsMOM();
 				$action = 'add';
 			}
 			else {
@@ -81,7 +89,7 @@ elseif($core->input['action'] == 'do_add' || $core->input['action'] == 'do_edit'
 		$mom_obj->update($core->input['mof']);
 	}
 	elseif($action == 'add') {
-		MeetingsMOM::create($core->input['mof']);
+		$mom_obj->create($core->input['mof']);
 	}
 	else {
 		output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
@@ -94,6 +102,9 @@ elseif($core->input['action'] == 'do_add' || $core->input['action'] == 'do_edit'
 			break;
 		case 1:
 			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+			break;
+		default:
+			output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
 			break;
 	}
 }
