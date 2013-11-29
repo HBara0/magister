@@ -613,5 +613,27 @@ class Entities {
 		return false;
 	}
 
+	public function get_meetings() {
+		global $db;
+
+		$filters = ' AND idAttr="spid"';
+		if($this->data['type'] == 'c') {
+			$filters = ' AND idAttr="cid"';
+		}
+		$query = $db->query("SELECT mtid 
+							FROM ".Tprefix."meetings_associations
+							WHERE id='".$db->escape_string($this->data['eid'])."'".$filters);
+		if($db->num_rows($query) > 0) {
+			while($meeting = $db->fetch_assoc($query)) {
+				//$metting_obj = new Meetings($metting['mtid']);
+				$meetings[$meeting['mtid']] = new Meetings($meeting['mtid']);
+				//$entity_mom[$metting['mtid']] = $metting_obj->get();
+				//$entity_mom[$metting['mtid']]['businesMgr'] = $metting_obj->get_createdby()->get()['displayName'];  /* Get the user object  createdBy */
+			}
+			return $meetings;
+		}
+		return false;
+	}
+
 }
 ?>

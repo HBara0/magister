@@ -1,0 +1,36 @@
+<?php
+$lang['meeting'] = 'Meeting';
+$lang['create'] = 'Create Meeting';
+$lang['edit'] = 'Edit Meeting';
+$lang['remove'] = 'remove Meeting';
+$lang['attendees'] = 'Meeting Attendees';
+$lang['title'] = 'Title';
+$lang['fromdate'] = 'From';
+$lang['todate'] = 'To';
+$lang['description'] = 'Description';
+$lang['location'] = 'Location';
+$lang['listmeeting'] = 'List Meetings';
+$lang['mof'] = 'Minutes Of Meetings';
+$lang['edit'] = 'Edit Meeting';
+$lang['fromtime'] = 'From Time';
+$lang['totime'] = 'To Time';
+$lang['setmof'] = 'Set Minutes Of Meetings';
+$lang['meetingintersect'] = 'Meeting Intersect with another meeting';
+$lang['meetingdesc'] = 'Minutes Of Meetings';
+$lang['followup'] = 'Follow up';
+$lang['invaliddate'] = 'From Date might be less or equal to Date';
+$lang['attendees'] = 'Attendees';
+$lang['view'] = 'View Meeting';
+$lang['createdby'] = "Created By";
+$lang['ispublic'] = "Is Public";
+$lang['createdon'] = 'Created On  {1} at {2}';
+$lang['modifiedon'] = 'Modified On  {1} at {2}';
+$lang['minsofmeeting'] = 'Minutes of Meeting';
+$lang['meetingdetails'] = 'Meeting Details';
+$lang['nomeetingavailable'] = 'No meeting available';
+$lang['discussiondetails'] = 'Discussion Details';
+$lang['event'] = 'Event';
+$lang['businessleave'] = 'Business leave';
+$lang['customer'] = 'Customers';
+$lang['associations'] = 'Associations';
+?>
