@@ -17,7 +17,7 @@ if($core->usergroup['meetings_canCreateMeeting'] == 0) {
 }
 if(!$core->input['action']) {
 	$sort_url = sort_url();
-	$multiple_meetings = Meetings::get_multiplemeetings('', array('sortby' => $core->input['sortby'], 'order' => $core->input['order']), array('hasmom' => 1));
+	$multiple_meetings = Meetings::get_multiplemeetings('', array('sortby' => $core->input['sortby'], 'order' => $core->input['order']));
 	if(is_array($multiple_meetings)) {
 		foreach($multiple_meetings as $mid => $meeting) {
 			$row_tools = '';
@@ -26,7 +26,7 @@ if(!$core->input['action']) {
 					$action = '&do=edit';
 				}
 				$row_tools = '<a href=index.php?module=meetings/create&mtid='.$meeting['mtid'].' title="'.$lang->edit.'"><img src=./images/icons/edit.gif border=0 alt='.$lang->edit.'/></a>';
-				$row_tools .= ' <a href=index.php?module=meetings/minutesmeeting'.$action.'&referrer=list&mtid='.$meeting['mtid'].' title="'.$lang->setmof.'" rel="setmof_'.$meeting['mtid'].'"><img src="'.$core->settings['rootdir'].'/images/icons/mof.png" alt="'.$lang->delete.'" border="0"></a>';
+				$row_tools .= ' <a href=index.php?module=meetings/minutesmeeting'.$action.'&referrer=list&mtid='.$meeting['mtid'].' title="'.$lang->setmof.'" rel="setmom_'.$meeting['mtid'].'"><img src="'.$core->settings['rootdir'].'/images/icons/boundreport.gif" alt="'.$lang->mom.'" border="0"></a>';
 			}
 
 			$meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
@@ -41,10 +41,5 @@ if(!$core->input['action']) {
 
 	eval("\$meeting_list = \"".$template->get('meeting_list')."\";");
 	output_page($meeting_list);
-}
-else {
-	if($core->input['action'] == 'get_mof') {
-		
-	}
 }
 ?>

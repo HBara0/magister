@@ -14,6 +14,9 @@
  * @author tony.assaad
  */
 class Meetings {
+	private $meeting = array();
+	private $errorcode = 0;
+
 	public function __construct($id = '', $simple = false) {
 		if(isset($id) && !empty($id)) {
 			$this->meeting = $this->read($id, $simple);
@@ -34,6 +37,12 @@ class Meetings {
 		global $db, $core, $log;
 		if(is_array($meeting_data)) {
 			$this->meeting = $meeting_data;
+
+			if(empty($this->meeting['title'])) {
+				$this->errorcode = 1;
+				return false;
+			}
+
 			if(value_exists('meetings', 'title', $this->meeting['title'], ' createdBy='.$core->user['uid'].'')) {
 				$this->errorcode = 4;
 				return false;
@@ -99,11 +108,12 @@ class Meetings {
 	}
 
 	private function set_attendees($attendees = '') {
+		global $core;
 		if(empty($attendees)) {
 			$attendees = $this->meeting['attendees'];
 		}
 		if(!isset($attendees)) {
-			$attendees = array(array('idAttr' => 'uid', 'mtid' => $mtid, 'attendee' => $core->user['uid']));
+			$attendees = array(array('idAttr' => 'uid', 'mtid' => $this->meeting['mtid'], 'attendee' => $core->user['uid']));
 		}
 
 		if(!empty($attendees)) {
@@ -138,7 +148,7 @@ class Meetings {
 	}
 
 	public function update($meeting_data = array()) {
-		global $db, $log,$core;
+		global $db, $log, $core;
 		$associations = $meeting_data['associations'];
 		$attendees = $meeting_data['attendees'];
 		unset($meeting_data['attendees'], $meeting_data['associations']);
@@ -162,21 +172,27 @@ class Meetings {
 		}
 	}
 
-	public static function get_multiplemeetings($id = '', array $order = array(), array $option = array()) {
+	public static function get_multiplemeetings($id = '', array $order = array(), array $options = array()) {
 		global $db, $core;
 
 		$sort_query = 'fromDate DESC';
 		if(isset($order['sortby'], $order['order']) && !is_empty($order['sortby'], $order['order'])) {
 			$sort_query = $order['sortby'].' '.$order['order'];
 		}
-		if($option['hasmom'] == 1) {
-			$where_hasMOM = ' WHERE title IS NOT NULL ';
+
+		$query_where_and = ' AND ';
+		if(isset($options['hasmom'])) {
+			$query_where = ' WHERE hasMOM='.intval($options['hasmom']);
 		}
 		else {
-			$where_hasMOM = ' WHERE hasMOM <>1 AND title IS NOT NULL';
+			$query_where_and = ' WHERE ';
 		}
 
-		$meetingsquery = $db->query("SELECT * FROM ".Tprefix."meetings {$where_hasMOM} AND createdBy={$core->user['uid']} ORDER BY {$sort_query}");
+		if($options['filter_where']) {
+			$query_where .= $query_where_and.$options['filter_where'];
+		}
+
+		$meetingsquery = $db->query("SELECT * FROM ".Tprefix."meetings{$query_where} ORDER BY {$sort_query}");
 
 		if($db->num_rows($meetingsquery) > 0) {
 			while($rowmeetings = $db->fetch_assoc($meetingsquery)) {

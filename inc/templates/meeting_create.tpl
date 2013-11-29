@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->employeeslist}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->createmeeting}</title>
         {$headerinc}
     </head>
     <body>
@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->create}</h3>
+            <h3>{$lang->createmeeting}</h3>
             <form name="perform_meetings/create_Form" action="#" method="post" id="perform_meetings/create_Form" >
                 <input type="hidden" value="do_{$action}meeting" name="action" id="action" />
                 <input type="hidden" value="{$core->input[mtid]}" name="mtid"  />
@@ -43,7 +43,7 @@
                     <tr>
                         <td colspan="2">
                             <hr /><input type="submit" class="button" value="{$lang->savecaps}" id="perform_meetings/create_Button" /> <input type="reset" class="button" value="{$lang->reset}"/>
-                            <div style="display:table-cell;"id="perform_meetings/create_Results"></div>
+                            <div id="perform_meetings/create_Results"></div>
                         </td>
                     </tr>
                 </table>

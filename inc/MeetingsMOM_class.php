@@ -9,6 +9,9 @@
  */
 
 class MeetingsMOM {
+	private $mom = array();
+	private $errorcode = 0;
+
 	public function __construct($momid = '') {
 		if(isset($momid) && !empty($momid)) {
 			$this->mom = $this->read($momid);
@@ -20,12 +23,12 @@ class MeetingsMOM {
 		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meetings_minsofmeeting WHERE momid=".$db->escape_string($momid)));
 	}
 
-	public static function create($mom_data = array()) {
+	public function create($mom_data = array()) {
 		global $db, $core, $log;
 
 		if(empty($mom_data['mtid']) || empty($mom_data['meetingDetails'])) {
-			//$this->errorcode = 1;
-			//return false;
+			$this->errorcode = 1;
+			return false;
 		}
 		$mom_data['meetingDetails'] = $core->sanitize_inputs($mom_data['meetingDetails'], array('removetags' => true));
 		$mom_data['followup'] = $core->sanitize_inputs($mom_data['followup'], array('removetags' => true));

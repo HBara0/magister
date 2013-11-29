@@ -2,8 +2,8 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$profile[companyName]}</title>
         {$headerinc}
-        <link href="{$core->settings[rootdir]}/css/rateit.css" rel="stylesheet" type="text/css">
-        <link href="{$core->settings[rootdir]}/css/rml.css" rel="stylesheet" type="text/css">
+        <link href="{$core->settings[rootdir]}/css/rateit.min.css" rel="stylesheet" type="text/css">
+        <link href="{$core->settings[rootdir]}/css/rml.min.css" rel="stylesheet" type="text/css">
         <style type="text/css">
             span.listitem:hover { border-bottom: #CCCCCC solid thin; }
         </style>
