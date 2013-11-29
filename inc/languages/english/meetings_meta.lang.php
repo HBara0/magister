@@ -21,6 +21,7 @@ $lang['followup'] = 'Follow up';
 $lang['invaliddate'] = 'From Date might be less or equal to Date';
 $lang['attendees'] = 'Attendees';
 $lang['view'] = 'View Meeting';
+$lang['sharewith'] = 'Share With';
 $lang['createdby'] = "Created By";
 $lang['ispublic'] = "Is Public";
 $lang['createdon'] = 'Created On  {1} at {2}';
@@ -33,4 +34,7 @@ $lang['event'] = 'Event';
 $lang['businessleave'] = 'Business leave';
 $lang['customer'] = 'Customers';
 $lang['associations'] = 'Associations';
+$lang['close'] = 'Close';
+$lang['employees'] = 'Employees';
+$lang['requireduser'] = 'you must select at least one user';
 ?>

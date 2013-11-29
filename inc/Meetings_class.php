@@ -240,6 +240,52 @@ class Meetings {
 		}
 	}
 
+	public function get_meetingassociations() {
+		global $db;
+		/* Get all associatiosn related to this meeting */
+		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_associations WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
+		if($db->num_rows($query)) {
+			while($meeting_assoc = $db->fetch_assoc($query)) {
+				$meeting_associsations[$meeting_assoc['mtaid']] = new MeetingsAssociations($meeting_assoc['mtaid']);
+			}
+			return $meeting_associsations;
+		}
+		return false;
+	}
+
+	public function share($meeting_data = array()) {
+		global $db, $core;
+		print_r($meeting_data);
+
+		if(is_array($meeting_data)) {
+			foreach($meeting_data as $key => $val) {
+				if(empty($val)) {
+					continue;
+				}
+				$meeting_shares['mtid'] = $this->meeting['mtid'];
+				$meeting_shares['createdBy'] = $core->user['uid'];
+				$meeting_shares['createdOn'] = TIME_NOW;
+				$meeting_shares['uid'] = $core->sanitize_inputs($val);
+				if(!value_exists('meetings_sharedwith', 'uid', $val, ' mtid='.$this->meeting['mtid'].'')) {
+					$db->insert_query(' meetings_sharedwith', $meeting_shares);
+					$this->errorcode = 0;
+				}
+			}
+		}
+	}
+
+	public function get_shared_users() {
+		global $db;
+		$query = $db->query('SELECT mswid, uid FROM '.Tprefix.'meetings_sharedwith WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
+		if($db->num_rows($query)) {
+			while($shared_uersrows = $db->fetch_assoc($query)) {
+				$shared_uers[$shared_uersrows['mswid']] = $shared_uersrows;
+			}
+			return $shared_uers;
+		}
+		return false;
+	}
+
 	public function get_createdby() {
 		return new Users($this->meeting['createdBy']);
 	}
@@ -254,19 +300,6 @@ class Meetings {
 
 	public function get_errorcode() {
 		return $this->errorcode;
-	}
-
-	public function get_meetingassociations() {
-		global $db;
-		/* Get all associatiosn related to this meeting */
-		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_associations WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
-		if($db->num_rows($query)) {
-			while($meeting_assoc = $db->fetch_assoc($query)) {
-				$meeting_associsations[$meeting_assoc['mtaid']] = new MeetingsAssociations($meeting_assoc['mtaid']);
-			}
-			return $meeting_associsations;
-		}
-		return false;
 	}
 
 	public function get() {
