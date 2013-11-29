@@ -34,7 +34,7 @@ if(!$core->input['action']) {
 				$meeting['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['timeformat'], $meeting['toDate'])));
 			}
 			if($meeting['isPublic'] == 1) {
-				$checkboxmeeting['isPublic'] = ' checked="checked"';
+				$checked_checkboxes['isPublic'] = ' checked="checked"';
 			}
 			$meeting_assoc = $meeting_obj->get_meetingassociations();
 			if(is_array($meeting_assoc)) {

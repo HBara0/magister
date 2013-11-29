@@ -36,7 +36,7 @@
                     </tr>
                     <tr>
                         <td>{$lang->ispublic}</td>
-                        <td><input type="checkbox" name="meeting[isPublic]"   tabindex="8" value="1" {$checkboxmeeting[isPublic]}/></td>
+                        <td><input type="checkbox" name="meeting[isPublic]" tabindex="8" value="1"{$checked_checkboxes[isPublic]}/></td>
                     </tr>
                     <tr><td class="thead" colspan="3">{$lang->associations}<a title="{$lang->associations}" href="#associationssection" onClick="$('#associationssection').fadeToggle();">...</a></td></tr>
                     {$createmeeting_associations}
