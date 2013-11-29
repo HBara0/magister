@@ -194,7 +194,7 @@ class Meetings {
 
 		if($core->usergroup['meetings_canViewAllMeetings'] == 0) {
 			$query_where .= $query_where_and.'(createdBy='.$core->user['uid'].' OR isPublic=1';
-			$meetings_sharedwith = $this->get_meetingsshares_byuser();
+			$meetings_sharedwith = Meetings::get_meetingsshares_byuser();
 			if(is_array($meetings_sharedwith)) {
 				$query_where .= ' OR mtid IN ('.implode(', ', array_keys($meetings_sharedwith)).')';
 			}
@@ -281,19 +281,6 @@ class Meetings {
 		}
 	}
 
-	public function get_meetingassociations() {
-		global $db;
-		/* Get all associatiosn related to this meeting */
-		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_associations WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
-		if($db->num_rows($query)) {
-			while($meeting_assoc = $db->fetch_assoc($query)) {
-				$meeting_associsations[$meeting_assoc['mtaid']] = new MeetingsAssociations($meeting_assoc['mtaid']);
-			}
-			return $meeting_associsations;
-		}
-		return false;
-	}
-
 	public function share($meeting_data = array()) {
 		global $db, $core;
 		print_r($meeting_data);
@@ -343,7 +330,19 @@ class Meetings {
 		return $this->errorcode;
 	}
 
+	public function get_meetingassociations() {
+		global $db;
+		/* Get all associatiosn related to this meeting */
 		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_associations WHERE mtid = '.$db->escape_string($this->meeting['mtid'].''));
+		if($db->num_rows($query)) {
+			while($meeting_assoc = $db->fetch_assoc($query)) {
+				$meeting_associsations[$meeting_assoc['mtaid']] = new MeetingsAssociations($meeting_assoc['mtaid']);
+			}
+			return $meeting_associsations;
+		}
+		return false;
+	}
+
 	public function get() {
 		return $this->meeting;
 	}
