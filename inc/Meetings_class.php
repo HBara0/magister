@@ -235,6 +235,27 @@ class Meetings {
 		return false;
 	}
 
+	public function can_viewmeeting() {
+		global $core;
+
+		if($core->usergroup['meetings_canViewAllMeetings'] == 0) {
+			if($this->meeting['isPublic'] == 0) {
+				if($this->meeting['createdBy'] != $core->user['uid']) {
+					return false;
+				}
+				else {
+					return true;
+				}
+			}
+			else {
+				return true;
+			}
+		}
+		else {
+			return true;
+		}
+	}
+
 	public function get_createdby() {
 		return new Users($this->meeting['createdBy']);
 	}

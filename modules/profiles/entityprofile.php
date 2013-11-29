@@ -392,10 +392,12 @@ if(!$core->input['action']) {
 	/* parse Minites Of Meetings --START */
 	if($core->usergroup['canUseMeetings'] == 1) {
 		$lang->load('meetings_meta');
-
-		$meetings = $entity_obj->get_meetings($options);
+		$meetings = $entity_obj->get_meetings();
 		if(is_array($meetings)) {
 			foreach($meetings as $mtid => $meeting_obj) {
+				if(!$meeting_obj->can_viewmeeting()) {
+					continue;
+				}
 				$meeting = $meeting_obj->get();
 				$meeting['businessMgr'] = $meeting_obj->get_createdby()->get()['displayName'];
 				$meeting['title'] = ucwords($meeting['title']);

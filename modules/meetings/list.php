@@ -20,6 +20,11 @@ if(!$core->input['action']) {
 	$multiple_meetings = Meetings::get_multiplemeetings('', array('sortby' => $core->input['sortby'], 'order' => $core->input['order']));
 	if(is_array($multiple_meetings)) {
 		foreach($multiple_meetings as $mid => $meeting) {
+			$meeting_obj = new Meetings($mid);
+			if(!$meeting_obj->can_viewmeeting()) {
+				continue;
+			}
+
 			$row_tools = '';
 			if($meeting['createdBy'] == $core->user['uid']) {
 				if($meeting['hasMoM'] == 1) {
