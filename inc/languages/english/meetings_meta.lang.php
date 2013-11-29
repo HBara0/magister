@@ -22,6 +22,7 @@ $lang['invaliddate'] = 'From Date might be less or equal to Date';
 $lang['attendees'] = 'Attendees';
 $lang['view'] = 'View Meeting';
 $lang['createdby'] = "Created By";
+$lang['ispublic'] = "Is Public";
 $lang['createdon'] = 'Created On  {1} at {2}';
 $lang['modifiedon'] = 'Modified On  {1} at {2}';
 $lang['minsofmeeting'] = 'Minutes of Meeting';
