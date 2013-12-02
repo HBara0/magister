@@ -260,13 +260,25 @@ class Meetings {
 		return false;
 	}
 
+	public function is_meetingshared() {
+		global $db, $core;
+		if(value_exists('meetings_sharedwith', 'mtid', $this->meeting['mtid'], 'uid='.$core->user['uid'])) {
+			return true;
+		}
+		return false;
+	}
+
 	public function can_viewmeeting() {
 		global $core;
-
 		if($core->usergroup['meetings_canViewAllMeetings'] == 0) {
 			if($this->meeting['isPublic'] == 0) {
 				if($this->meeting['createdBy'] != $core->user['uid']) {
-					return false;
+					if(!$this->is_meetingshared()) {
+						return false;
+					}
+					else {
+						return true;
+					}
 				}
 				else {
 					return true;
@@ -288,11 +300,22 @@ class Meetings {
 				if(empty($val)) {
 					continue;
 				}
+				/* get exist users for the current meeting */
+				if(is_array($this->get_shared_users())) {
+					$removed_users = array_keys($this->get_shared_users());
+				}
+				/* get the difference between the exist users and the slected users */
+				if(is_array($removed_users)) {
+					$user_toremove = array_diff($removed_users, $meeting_data);
+					if(!empty($user_toremove)) {
+						$db->delete_query('meetings_sharedwith', 'uid IN('.implode(',', $user_toremove).') AND mtid='.$this->meeting['mtid']);
+					}
+				}
 				$meeting_shares['mtid'] = $this->meeting['mtid'];
 				$meeting_shares['createdBy'] = $core->user['uid'];
 				$meeting_shares['createdOn'] = TIME_NOW;
 				$meeting_shares['uid'] = $core->sanitize_inputs($val);
-				if(!value_exists('meetings_sharedwith', 'uid', $val, 'mtid='.$this->meeting['mtid'])) {
+				if(!value_exists('meetings_sharedwith', 'uid', $val, ' mtid='.$this->meeting['mtid'])) {
 					$db->insert_query(' meetings_sharedwith', $meeting_shares);
 					$this->errorcode = 0;
 				}
@@ -302,7 +325,7 @@ class Meetings {
 
 	public function get_shared_users() {
 		global $db;
-		
+		echo ('SELECT uid FROM '.Tprefix.'meetings_sharedwith WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
 		$query = $db->query('SELECT uid FROM '.Tprefix.'meetings_sharedwith WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
 		if($db->num_rows($query)) {
 			while($user = $db->fetch_assoc($query)) {
