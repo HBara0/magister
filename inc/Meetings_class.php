@@ -260,20 +260,12 @@ class Meetings {
 		return false;
 	}
 
-	public function is_meetingshared() {
-		global $db, $core;
-		if(value_exists('meetings_sharedwith', 'mtid', $this->meeting['mtid'], 'uid='.$core->user['uid'])) {
-			return true;
-		}
-		return false;
-	}
-
 	public function can_viewmeeting() {
 		global $core;
 		if($core->usergroup['meetings_canViewAllMeetings'] == 0) {
 			if($this->meeting['isPublic'] == 0) {
 				if($this->meeting['createdBy'] != $core->user['uid']) {
-					if(!$this->is_meetingshared()) {
+					if(!value_exists('meetings_sharedwith', 'mtid', $this->meeting['mtid'], 'uid='.$core->user['uid'])) {
 						return false;
 					}
 					else {
@@ -301,14 +293,13 @@ class Meetings {
 					continue;
 				}
 				/* get exist users for the current meeting */
-				if(is_array($this->get_shared_users())) {
-					$removed_users = array_keys($this->get_shared_users());
-				}
+				$existing_users = $this->get_shared_users();
 				/* get the difference between the exist users and the slected users */
-				if(is_array($removed_users)) {
-					$user_toremove = array_diff($removed_users, $meeting_data);
-					if(!empty($user_toremove)) {
-						$db->delete_query('meetings_sharedwith', 'uid IN('.implode(',', $user_toremove).') AND mtid='.$this->meeting['mtid']);
+				if(is_array($existing_users)) {
+					$existing_users = array_keys($existing_users);
+					$users_toremove = array_diff($existing_users, $meeting_data);
+					if(!empty($users_toremove)) {
+						$db->delete_query('meetings_sharedwith', 'uid IN ('.$db->escape_string(implode(',', $users_toremove)).') AND mtid='.$this->meeting['mtid']);
 					}
 				}
 				$meeting_shares['mtid'] = $this->meeting['mtid'];
@@ -325,7 +316,7 @@ class Meetings {
 
 	public function get_shared_users() {
 		global $db;
-		echo ('SELECT uid FROM '.Tprefix.'meetings_sharedwith WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
+		
 		$query = $db->query('SELECT uid FROM '.Tprefix.'meetings_sharedwith WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
 		if($db->num_rows($query)) {
 			while($user = $db->fetch_assoc($query)) {
