@@ -10,8 +10,11 @@
     </head><body>
         {$header}
     <tr> {$menu}
-        <td class="contentContainer"><h3>{$lang->listpotentialsupplier}</h3>
+        <td class="contentContainer">
             <form action='$_SERVER[REQUEST_URI]' method="post">
+                <div style="display:inline-block;"><h3>{$lang->listpotentialsupplier}</h3></div>
+                <div style="display:inline-block;float:right; z-index:2;">  {$lang->chemicalsearch} <input id="filters_chemical" name="filters[chemicalsubstance]" type="text" size="35" onkeyup="$('#tablefilters').show();" />
+                <div style="display:inline-block;">{$lang->genericdproductsearch}</div><div style="display:inline-block;">{$genericproducts_selectlist}</div></div>
                 <table class="datatable" width="100%">
                     <thead>
                         <tr>
@@ -22,19 +25,16 @@
                             <th width="19%">{$lang->opportunity} <a href="{$sort_url}&amp;sortby=businessPotential&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=businessPotential&amp;order=DESC"><img src="./images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
                             <th width="1%">&nbsp;</th>
                         </tr>
+
                         {$filters_row}
+
                     </thead>
                     <tbody>
                         {$sourcing_listpotentialsupplier_rows}
                     </tbody>
 
                 </table>
-                <div align="right">
-                    {$lang->chemicalsearch} <input id="filters_chemical" name="filters[chemicalsubstance]" type="text" size="35" onkeyup="$('#tablefilters').show();" />
-                </div>
-                <div align="right" style="clear:left; padding: 5px;">
-                    {$lang->genericproductsearch}{$genericproducts_selectlist}
-                </div>
+
             </form>
             <div style="width:40%; float:left; margin-top:0px;">
                 <form method='post' action='$_SERVER[REQUEST_URI]'>

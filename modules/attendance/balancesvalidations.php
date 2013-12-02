@@ -19,8 +19,8 @@ else {
 	$identifier = $core->input['identifier'];
 }
 
-$session->name_phpsession(COOKIE_PREFIX.'fillvisitreport'.$identifier);
-$session->start_phpsession();
+$session->name_phpsession(COOKIE_PREFIX.'balanceval_'.$identifier);
+$session->start_phpsession(60);
 
 if(!$core->input['action']) {
 	if(!isset($core->input['affid']) || empty($core->input['affid'])) {
@@ -271,7 +271,7 @@ else {  //days taken must = actual taken
 		
 		if($core->input['action'] == 'fixbalances') { 
 			$session->destroy_phpsession();
-			redirect('index.php?module=attendance/balancesvalidations', 5, $lang->successfullyupdate);
+			redirect('index.php?module=attendance/balancesvalidations', 5, $lang->successfullyupdated);
 		}
 	}
 

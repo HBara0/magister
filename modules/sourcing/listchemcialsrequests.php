@@ -27,6 +27,7 @@ if(!$core->input['action']) {
 	$chemicalrequests = $potential_supplier->get_chemicalrequests();
 	if(is_array($chemicalrequests)) {
 		foreach($chemicalrequests as $chemicalrequest) {
+			$comma = '';
 			/* colorate Satisfied request */
 			if($chemicalrequest['isClosed'] == 1) {
 				$feedback_icon = 'valid.gif';
@@ -36,8 +37,14 @@ if(!$core->input['action']) {
 				$feedback_icon = 'edit.gif';
 				$rowcolor = 'unapproved';
 			}
-			
-			$chemicalrequest['origin'] = $origins[$chemicalrequest['origin']];
+
+			if(is_array($chemicalrequest['origins'])) {
+				foreach($chemicalrequest['origins'] as $origin) {
+					$chemicalrequest['origins_output'] .= $comma.$origin['title'];
+					$comma = ', ';
+				}
+			}
+
 			$chemicalrequest['timeRequested_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $chemicalrequest['timeRequested']);
 			eval("\$chemcialsrequests_rows .= \"".$template->get('sourcing_listchemcialsrequests_rows')."\";");
 		}
@@ -83,14 +90,15 @@ else {
 			$email_data = array(
 					'to' => $requester_details['email'],
 					'from_email' => 'sourcing@orkila.com',
-					'from' => 'OCOS Mailer',
+					'from' => 'Orkila Sourcing',
+					'cc' => 'sourcing@orkila.com',
 					'subject' => $lang->sprint($lang->feedbacknotification_subject, $sourcingagent_name['agentname']),
 					'message' => $core->input['feedback']['feedback']
 			);
 
 			$mail = new Mailer($email_data, 'php');
 			if($mail->get_status() === true) {
-				$log->record('sourcingchemicalrequests', array('to' => $requester_details['email']));
+				$log->record('sourcingchemicalreqsfeedback', array('to' => $requester_details['email']));
 			}
 		}
 

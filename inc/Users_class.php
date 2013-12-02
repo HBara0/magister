@@ -19,7 +19,6 @@ class Users {
 		if(empty($uid)) {
 			$this->user = $core->user;
 			$this->user['uid'] = $db->escape_string($this->user['uid']);
-			$this->user['legalAffid'] = $db->fetch_field($db->query('SELECT legalAffid FROM '.Tprefix.'userhrinformation WHERE uid='.$this->user['uid']), 'legalAffid');
 		}
 		else {
 			$this->read_user($uid, $simple);
@@ -53,7 +52,15 @@ class Users {
 		$this->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->user['uid']}' AND isMain=1"), 'affid');
 	}
 
-	public function get_userbyemail($email) {
+	/* Backward compatibility */
+	public static function get_userbyemail($email) {
+		if(!is_object($this)) {
+			return Users::get_user_byemail($email);
+		} 
+		return $this->get_user_byemail($email);
+	}
+
+	public static function get_user_byemail($email) {
 		global $db, $core;
 
 		$email = $core->sanitize_email($email);
@@ -72,6 +79,18 @@ class Users {
 		else {
 			return false;
 		}
+	}
+
+	public static function get_user_byattr($attr, $value) {
+		global $db;
+
+		if(!is_empty($value, $attr)) {
+			$id = $db->fetch_field($db->query('SELECT uid FROM '.Tprefix.'users WHERE '.$db->escape_string($attr).'="'.$db->escape_string($value).'"'), 'uid');
+			if(!empty($id)) {
+				return new Users($id);
+			}
+		}
+		return false;
 	}
 
 	public function get() {
@@ -127,6 +146,19 @@ class Users {
 		return new Users($this->user['assistant']);
 	}
 
+	public function get_affiliateuser() {
+		global $db;
+		$affemployee_query = $db->query("SELECT affe.aeid,u.displayName,u.uid,u.username FROM affiliatedemployees affe 
+										JOIN ".Tprefix."users u ON (u.uid=affe.uid)
+										JOIN ".Tprefix."affiliates aff ON(aff.affid=affe.affid) WHERE affe.affid in('".$this->get_mainaffiliate()->get()['affid']."')");
+		if($db->num_rows($affemployee_query) > 0) {
+			while($affiliate_user = $db->fetch_assoc($affemployee_query)) {
+				$affiliate_users[$affiliate_user['aeid']] = $affiliate_user;
+			}
+			return $affiliate_users;
+		}
+	}
+
 	public function get_positions() {
 		global $db, $lang;
 
@@ -140,11 +172,52 @@ class Users {
 		return $this->user['positions'];
 	}
 
+	public function get_auditedaffiliates() {
+		global $db;
+
+		$query = $db->query('SELECT * FROM '.Tprefix.'affiliatedemployees WHERE uid='.$this->user['uid'].' AND canAudit=1');
+		if($db->num_rows($query) > 0) {
+			while($affiliate = $db->fetch_assoc($query)) {
+				$affiliates[$affiliate['affid']] = new Affiliates($affiliate['affid']);
+			}
+			return $affiliates;
+		}
+		return false;
+	}
+
+public function get_leaves() {
+		global $db;
+		$query = $db->query("SELECT l.lid,l.uid FROM ".Tprefix."leaves l
+							JOIN ".Tprefix."leavetypes lt ON(lt.ltid=l.type) 
+							JOIN ".Tprefix."leavesapproval lap ON(l.lid=lap.lid) WHERE lap.isApproved=1
+							AND lt.isBusiness=1 AND l.uid={$this->user[uid]}");
+		while($leaves = $db->fetch_assoc($query)) {
+			$leav_obj = new Leaves(array('lid' => $leaves['lid']), false);
+			$user_leaves[$leaves['lid']] = $leav_obj->get_leavetype()->get();
+			$this->user['leaves'] = $user_leaves;
+		}
+		return $this->user['leaves'];
+	}
+
+
 	public function get_mainaffiliate() {
 		if(!isset($this->user['mainaffiliate']) || empty($this->user['mainaffiliate'])) {
 			$this->read_mainaffiliate();
 		}
 		return new Affiliates($this->user['mainaffiliate'], FALSE);
+	}
+
+	public function get_segments() {
+		global $db;
+		$segment_query = $db->query("SELECT ps.psid,ps.title,em.emsid,em.uid FROM employeessegments em 
+									JOIN ".Tprefix."users u on u.uid=em.uid
+									JOIN ".Tprefix."productsegments ps ON (ps.psid=em.psid) WHERE u.uid=".$this->user['uid']);
+		if($db->num_rows($segment_query) > 0) {
+			while($segments = $db->fetch_assoc($segment_query)) {
+				$segment[$segments['emsid']] = $segments;
+			}
+			return $segment;
+		}
 	}
 
 	public function get_hrinfo($simple = true) {

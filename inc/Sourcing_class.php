@@ -252,8 +252,10 @@ class Sourcing {
 		  } */
 
 		/* Check whether the communications section has  been validated  completed */
-		if(isset($data['commercialoffer']) && !empty($data['commercialoffer']) || (isset($data['sourcingnotPossibleDesc']) && !empty($data['sourcingnotPossibleDesc']))) {
-			$data['isCompleted'] = 1;
+		if(isset($data['isOrderPassed']) && isset($data['commercialoffer']) && !empty($data['commercialoffer']) || (isset($data['sourcingnotPossibleDesc']) && !empty($data['sourcingnotPossibleDesc']))) {
+			if($data['isOrderPassed'] == 1 || $data['isOrderPassed'] == 0) {
+				$data['isCompleted'] = 1;
+			}
 		}
 		$this->orderpassed = $data['orderpassed'];
 		unset($data['orderpassed'], $data['commercialoffer']);
@@ -568,7 +570,7 @@ class Sourcing {
 		$contact_query = $db->query("SELECT aff.name AS affiliate, aff.affid, ssch.*, ps.title AS market,u.displayName, u.uid
 										FROM ".Tprefix."sourcing_suppliers_contacthist  ssch
 										JOIN ".Tprefix."affiliates aff ON (aff.affid = ssch.affid)
-										JOIN ".Tprefix."productsegments ps ON (ps.psid = ssch.market)
+										LEFT JOIN ".Tprefix."productsegments ps ON (ps.psid = ssch.market)
 										JOIN ".Tprefix."users u ON (u.uid = ssch.uid)
 										WHERE ssch.ssid = ".$db->escape_string($supplier_id)."
 										ORDER BY ssch.date DESC"); // There is no user limitation
@@ -627,14 +629,14 @@ class Sourcing {
 	}
 
 	public function request_chemical($data) {
-		global $db, $core;
+		global $db, $core, $log, $lang;
 
 		if(is_empty($data['requestDescription'])) {
 			$this->status = 1;
 			return false;
 		}
 
-		if(value_exists('sourcing_chemicalrequests', 'requestDescription', $data['requestDescription'])) {
+		if(value_exists('sourcing_chemicalrequests', 'requestDescription', $data['requestDescription'], 'psaid='.intval($data['segmentapplication']))) {
 			$this->status = 2;
 			return false;
 		}
@@ -643,14 +645,39 @@ class Sourcing {
 			$chemicalrequest_data = array(
 					'csid' => $data['product'],
 					'psaid' => $data['segmentapplication'],
-					'origin' => $data['origin'],
 					'uid' => $core->user['uid'],
 					'timeRequested' => TIME_NOW,
 					'requestDescription' => $core->sanitize_inputs($data['requestDescription'], array('removetags' => true))
 			);
 			$query = $db->insert_query('sourcing_chemicalrequests', $chemicalrequest_data);
 			if($query) {
+				$scrid = $db->last_id();
 				$this->status = 0;
+
+				if(is_array($data['origins'])) {
+					foreach($data['origins'] as $origin) {
+						if(empty($origin)) {
+							continue;
+						}
+						$origins_data = array(
+								'scrid' => $scrid,
+								'origin' => $origin
+						);
+						$db->insert_query('sourcing_chemreqs_origins', $origins_data);
+					}
+				}
+				$email_data = array(
+						'to' => 'sourcing@orkila.com',
+						'from_email' => $core->settings['maileremail'],
+						'from' => 'OCOS Mailer',
+						'subject' => $lang->sprint($lang->chemreqnotification_subject, $core->user['displayName']),
+						'message' => $lang->sprint($lang->chemreqnotification_message, $core->user['displayName'], $core->user['email'], $chemicalrequest_data['requestDescription'], $core->settings['rootdir'].'/index.php?module=sourcing/listchemcialsrequests#'.$scrid)
+				);
+
+				$mail = new Mailer($email_data, 'php');
+				if($mail->get_status() === true) {
+					$log->record('sourcingchemicalrequests', $scrid);
+				}
 				return true;
 			}
 		}
@@ -660,7 +687,7 @@ class Sourcing {
 	public function get_chemicalrequests() {
 		global $db, $core;
 
-		$sort_query = 'ORDER BY cs.name ASC, scr.timeRequested DESC';
+		$sort_query = 'ORDER BY scr.timeRequested DESC';
 		if(isset($core->input['sortby'], $core->input['order'])) {
 			$sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
 		}
@@ -688,9 +715,23 @@ class Sourcing {
 		if($db->num_rows($chemicalrequests_query) > 0) {
 			while($chemicalrequest = $db->fetch_assoc($chemicalrequests_query)) {
 				$chemicalrequests[$chemicalrequest['scrid']] = $chemicalrequest;
+				$chemicalrequests[$chemicalrequest['scrid']]['origins'] = $this->get_chemicalrequests_org($chemicalrequest['scrid']);
 			}
-
 			return $chemicalrequests;
+		}
+		return false;
+	}
+
+	private function get_chemicalrequests_org($id = '') {
+		global $db, $lang;
+		
+		$chemicalorgquery = $db->query("SELECT * FROM ".Tprefix."sourcing_chemreqs_origins WHERE scrid=".$db->escape_string($id)."");
+		if($db->num_rows($chemicalorgquery) > 0) {
+			while($chem_origin = $db->fetch_assoc($chemicalorgquery)) {
+				$chemicalrequests_org[$chem_origin['scroid']] = $chem_origin;
+				$chemicalrequests_org[$chem_origin['scroid']]['title'] = $lang->{$chem_origin['origin']};
+			}
+			return $chemicalrequests_org;
 		}
 		return false;
 	}

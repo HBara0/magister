@@ -31,13 +31,14 @@ if(!$core->input['action']) {
 				ssid= $(this).parent().parent().attr("name");
 				rateid = $("#rating_"+ssid).val();				
 				sharedFunctions.requestAjax("post", "index.php?module=sourcing/listpotentialsupplier&action=do_ratepotential", "value="+rateid+"&ssid="+ssid, "html");
-			});';
+			});
+			 var tooltipvalues = ["'.$lang->verylowopp.'", "'.$lang->lowopp.'", "'.$lang->mediumopp.'", "'.$lang->highopp.'", "'.$lang->veryhighopp.'"];
+			 $("div[id^=ratingdiv_]").live("over", function(event, value) {$(this).attr("title", tooltipvalues[value-1]); });
+			';
 	}
 	else {
 		$readonlyratings = true;
-		$header_ratingjs = '';
 	}
-
 
 	$maxstars = 5;
 	$sort_url = sort_url();
@@ -47,15 +48,16 @@ if(!$core->input['action']) {
 	/* Perform inline filtering - START */
 	$filters_config = array(
 			'parse' => array('filters' => array('companyName', 'type', 'segment', 'country', 'opportunity', 'chemicalsubstance', 'genericproduct'),
-					'overwriteField' => array('opportunity' => parse_selectlist('filters[opportunity]', 5, array_combine($opportunity_scale, $opportunity_scale), $core->input['filters']['opportunity']),
-							'type' => parse_selectlist('filters[type]', 2, array('' => '', 'b' => $lang->both, 't' => $lang->trader, 'p' => $lang->producer), $core->input['filters']['type']))
+					'overwriteField' => array('opportunity' => parse_selectlist('filters[opportunity][]', 5, array_combine($opportunity_scale, $opportunity_scale), $core->input['filters']['opportunity'], 1),
+							'type' => parse_selectlist('filters[type]', 2, array('' => '', 'b' => $lang->both, 't' => $lang->trader, 'p' => $lang->producer), $core->input['filters']['type']),
+					)
 			/* get the busieness potential and parse them in select list to pass to the filter array */
 			),
 			'process' => array(
 					'filterKey' => 'ssid',
 					'mainTable' => array(
 							'name' => 'sourcing_suppliers',
-							'filters' => array('companyName' => 'companyName', 'type' => 'type', 'opportunity' => 'businessPotential'),
+							'filters' => array('companyName' => 'companyName', 'type' => 'type', 'opportunity' => array('operatorType' => 'multiple', 'name' => 'businessPotential')),
 					),
 					'secTables' => array(
 							'sourcing_suppliers_productsegments' => array(
@@ -92,8 +94,9 @@ if(!$core->input['action']) {
 	$db->free_result($chemicals_query);
 
 	$generic_products = get_specificdata('genericproducts', array('gpid', 'title'), 'gpid', 'title', 'title');
-	$genericproducts_selectlist = parse_selectlist('filters[genericproduct]', '20', $generic_products, $core->input['filters']['genericproduct'], 0, '$("#tablefilters").show();', array('blankstart' => true));
-
+	if(is_array($generic_products)) {
+		$genericproducts_selectlist = parse_selectlist('filters[genericproduct]', '20', $generic_products, $core->input['filters']['genericproduct'], 0, '$("#tablefilters").show();', array('blankstart' => true));
+	}
 	$filters_row_display = 'hide';
 	if(is_array($filter_where_values)) {
 		$filters_row_display = 'show';
@@ -174,11 +177,11 @@ if(!$core->input['action']) {
 				$criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
 
 				if($readonlyratings == true) {
-					$criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$potential_supplier['supplier']['businessPotential'].'"></div>';
+					$criteriaandstars .= '<div class="rateit" id="ratingdiv_'.$potential_supplier['supplier']['ssid'].'" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$potential_supplier['supplier']['businessPotential'].'"></div>';
 				}
 				else {
 					$criteriaandstars .= '<input type="range" min="0" max="'.$maxstars.'" value="'.$potential_supplier['supplier']['businessPotential'].'" step="1" id="rating_'.$potential_supplier['supplier']['ssid'].'" class="ratingscale">';
-					$criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$potential_supplier['supplier']['ssid'].'" data-rateit-value="'.$potential_supplier['supplier']['businessPotential'].'"></div>';
+					$criteriaandstars .= '<div class="rateit" id="ratingdiv_'.$potential_supplier['supplier']['ssid'].'" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$potential_supplier['supplier']['ssid'].'" data-rateit-value="'.$potential_supplier['supplier']['businessPotential'].'"></div>';
 				}
 				$criteriaandstars .= '</div></div>';
 
@@ -199,7 +202,7 @@ if(!$core->input['action']) {
 		$sourcing_listpotentialsupplier_rows .= '<tr><td colspan="5"><a href="#" id="showpopup_requestchemical" class="showpopup"><img alt="'.$lang->requestchemical.'" src="./images/addnew.png" border="0" /> '.$lang->requestchemical.'</a></td></tr>';
 	}
 	$origins = array('anyorigin' => $lang->anyorigin, 'chinese' => $lang->chinese, 'nonchinese' => $lang->nonchinese, 'indian' => $lang->indian, 'nonindian' => $lang->nonindian, 'european' => $lang->european, 'noneuropean' => $lang->noneuropean, 'american' => $lang->american, 'nonamerican' => $lang->nonamerican, 'otherasian' => $lang->otherasian, 'nootherasian' => $lang->nootherasian);
-	$origins_list = parse_selectlist('request[origin]', 8, $origins, '');
+	$origins_list = parse_selectlist('request[origins][]', 8, $origins, '', 1);
 
 	$productsegements_applications = $sourcing->get_applications_product_segment();
 	if(is_array($productsegements_applications)) {
@@ -208,6 +211,7 @@ if(!$core->input['action']) {
 		}
 	}
 
+	$core->settings['itemsperlist'] = 100;
 	eval("\$listpotentialsupplier = \"".$template->get('sourcing_listpotentialsuppliers')."\";");
 	output_page($listpotentialsupplier);
 }
@@ -226,7 +230,7 @@ else {
 				output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
 				break;
 			case 2:
-				output_xml("<status>false</status><message>{$lang->descriptionalreadyexsist}</message>");
+				output_xml("<status>false</status><message>{$lang->entryexists}</message>");
 				break;
 			case 0:
 				output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
