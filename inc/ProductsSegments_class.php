@@ -17,14 +17,15 @@ class ProductsSegments {
 		}
 	}
 
-	private function read($id, $simple) {
+	private function read($id, $simple ) {
 		global $db;
 
 		$query_select = '*';
 		if($simple == true) {
 			$query_select = 'psid, title';
 		}
-		$this->product = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'productssegments WHERE psid='.intval($id)));
+
+		$this->segment = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'productsegments WHERE psid='.intval($id)));
 	}
 
 	public static function get_segment_byname($name) {
@@ -39,6 +40,21 @@ class ProductsSegments {
 		return false;
 	}
 
+	public static function get_segments() {
+		global $db;
+		$query = $db->query('SELECT psid  FROM '.Tprefix.'productsegments');
+		if($db->num_rows($query) > 0) {
+			while($rowsegment = $db->fetch_assoc($query)) {
+				$segments[$rowsegment['psid']] = new ProductsSegments($rowsegment['psid']);
+			}
+			return $segments;
+		}
+		else {
+			return false;
+		}
+	}
+
+//get coordinators as obj
 	public function get() {
 		return $this->segment;
 	}

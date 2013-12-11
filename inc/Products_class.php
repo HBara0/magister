@@ -61,6 +61,22 @@ class Products {
 		return false;
 	}
 
+	public function get_chemfunctionproducts() {
+		global $db, $core;
+		$query = $db->query("SELECT cfpid  FROM ".Tprefix."chemfunctionproducts  WHERE pid=".$db->escape_string($this->product['pid']));
+		if($db->num_rows($query) > 0) {
+			while($rowschecmfun = $db->fetch_assoc($query)) {
+				$chemfunctionproducts[$rowschecmfun['cfpid']] = new Chemfunctionproducts($rowschecmfun['cfpid']);
+			}
+			return $chemfunctionproducts;
+		}
+		return false;
+	}
+
+	public function get_defaultchemfunction() {
+		return new Chemfunctionproducts($this->product['defaultFunction']);
+	}
+
 	public function get() {
 		return $this->product;
 	}

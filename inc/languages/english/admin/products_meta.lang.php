@@ -2,6 +2,10 @@
 $lang['product'] = "Product";
 $lang['segment'] = "Segment";
 $lang['generic'] = "Generic";
+$lang['applications'] = "Applications";
+$lang['functions'] = "Functions";
+
+$lang['manageapplications'] = "Manage Applications";
 $lang['name'] = "Name";
 $lang['title'] = "Title";
 
@@ -9,7 +13,8 @@ $lang['listavailableproducts'] = "List of Available Products";
 $lang['addaproduct'] = "Add a Product";
 $lang['productadded'] = "Product {1} was added successfully";
 $lang['erroraddingproduct'] = "An error occurred while adding the product";
-
+$lang['funcapplrequired']='Select At Least One Function';
+$lang['isdefault']='Is Default';
 $lang['editproductwithname'] = "Edit {1}";
 $lang['productedited'] = "Product {1} was successfully modified";
 $lang['erroreditingproduct'] = "An error occurred while editing the product";
