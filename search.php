@@ -96,6 +96,15 @@ if($core->input['type'] == 'quick') {
 			$select_attributes = array('name');
 			$order = array('by' => 'name', 'sort' => 'ASC');
 		}
+		elseif($core->input['for'] == 'chemfunctionproducts') {
+		
+			$table = 'products';
+			$flagtable = 'chemfunctionproducts';
+			$attributes = array('name');
+			$key_attribute = 'pid';
+			$select_attributes = array('name');
+			$order = array('by' => 'name', 'sort' => 'ASC');
+		}
 		elseif($core->input['for'] == 'representative' || $core->input['for'] == 'supprepresentative') {
 			if(IN_AREA == 'user') {
 				if($core->input['for'] == 'supprepresentative') {
@@ -159,7 +168,7 @@ if($core->input['type'] == 'quick') {
 			}
 		}
 
-		$results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, $order, $extra_where);
+		$results_list = quick_search($table, $flagtable, $attributes, $core->input['value'], $select_attributes, $key_attribute, $order, $extra_where);
 		$referrer = explode('&', $_SERVER['HTTP_REFERER']);
 		$module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);
 		if($core->input['for'] == 'supplier') {
