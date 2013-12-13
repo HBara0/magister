@@ -15,7 +15,7 @@
  */
 function output_page($template) {
 	global $core, $lang, $timer;
-
+	
 	$template = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n".$template;
 	$template = str_replace("<html", "<html xmlns=\"http://www.w3.org/1999/xhtml\"", $template);
 
@@ -113,7 +113,7 @@ function gzip_compression($contents, $level = 1) {
  */
 function output_xml($xml) {
 	global $lang;
-
+	ob_clean();
 	//header('Content-type: text/xml');
 	echo "<?xml version='1.0' encoding='{$lang->settings[charset]}'?>";
 	echo "<xml>{$xml}</xml>";
@@ -932,7 +932,6 @@ function getquery_business_assignments() {
 	else {
 		if($usergroup['canViewAllSupp'] == 0) {
 			$where['extra'] = $and.'(';
-			print_r($user['suppliers']['eid']);
 			foreach($user['suppliers']['eid'] as $val) {
 				$inaffiliates_query = '';
 				if($usergroup['canViewAllAff'] == 0) {
@@ -1102,7 +1101,8 @@ function getquery_entities_viewpermissions() {
 				}
 				if(!empty($arguments[5])) {
 					$query_attribute = $arguments[5];
-				} else {
+				}
+				else {
 					$query_attribute = 'spid';
 				}
 				$query_attribute = $attribute_prefix.$query_attribute;
