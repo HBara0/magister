@@ -56,7 +56,7 @@ class Users {
 	public static function get_userbyemail($email) {
 		if(!is_object($this)) {
 			return Users::get_user_byemail($email);
-		} 
+		}
 		return $this->get_user_byemail($email);
 	}
 
@@ -185,7 +185,7 @@ class Users {
 		return false;
 	}
 
-public function get_leaves() {
+	public function get_leaves() {
 		global $db;
 		$query = $db->query("SELECT l.lid,l.uid FROM ".Tprefix."leaves l
 							JOIN ".Tprefix."leavetypes lt ON(lt.ltid=l.type) 
@@ -198,7 +198,6 @@ public function get_leaves() {
 		}
 		return $this->user['leaves'];
 	}
-
 
 	public function get_mainaffiliate() {
 		if(!isset($this->user['mainaffiliate']) || empty($this->user['mainaffiliate'])) {
@@ -439,6 +438,17 @@ public function get_leaves() {
 			$signature .= '+'.$this->user['mainaffiliate_details']['phone1'].$this->user['internalExtension'];
 		}
 		return $signature;
+	}
+
+	public static function get_allusers() {
+		global $db;
+		$allusers_query = $db->query("SELECT  * ".Tprefix."FROM users ORDER BY displayName ASC");
+		if($db->num_rows($allusers_query) > 0) {
+			while($allusers = $db->fetch_assoc($allusers_query)) {
+				$users[$allusers['uid']] = new Users($allusers['uid']);
+			}
+			return $users;
+		}
 	}
 
 	public function get_errorcode() {
