@@ -388,6 +388,10 @@ public function get_leaves() {
 			if(!empty($this->user['internalExtension'])) {
 				$this->user['internalExtension'] = ' ext: '.$this->user['internalExtension'];
 			}
+			else {
+				$this->user['internalExtension'] = '';
+			}
+			
 			$this->user['mainaffiliate_details']['phone1'] = str_replace('-', ' ', $this->user['mainaffiliate_details']['phone1']);
 			imagefttext($im, 8, 0, 49 + 8, (36 / 1.8) + 13, $colors['salmon'], $fonts['arial']['regular'], '+'.$this->user['mainaffiliate_details']['phone1'].$this->user['internalExtension']);
 		}
