@@ -34,11 +34,12 @@ while($supervisor = $db->fetch_assoc($supervisors_query)) {
 }
 
 while($report = $db->fetch_array($query)) {
-	$query2 = $db->query("SELECT u.uid, u.firstName, u.lastName, u.email, afe.affid, afe.isMain
-						  FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees afe ON (u.uid=afe.uid) JOIN ".Tprefix."assignedemployees ase ON (u.uid=ase.uid)
-						  WHERE ase.eid='{$report[spid]}' AND afe.affid='{$report[affid]}' AND ase.affid='{$report[affid]}' AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$report[rid]}' AND isDone='1') AND u.gid NOT IN (7, 11)");
+	$query2 = $db->query("SELECT u.uid, u.firstName, u.lastName, u.email, ase.affid
+						  FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ase ON (u.uid=ase.uid)
+						  WHERE ase.eid='{$report[spid]}' AND ase.affid='{$report[affid]}' AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$report[rid]}' AND isDone='1') AND u.gid NOT IN (7, 11)");
 	while($user = $db->fetch_assoc($query2)) {
 		if(is_array($user)) {
+			$user_obj = new Users($user['uid']);
 			if(!array_key_exists($user['uid'], $users)) {
 				foreach($user as $key => $val) {
 					if($key == 'isMain' || $key == 'affid') {
@@ -48,9 +49,9 @@ while($report = $db->fetch_array($query)) {
 				}
 			}		
 			
-			if($user['isMain'] == 1) {
-				$users[$user['uid']]['mainAffiliate'] = $user['affid'];
-			}
+			//if($user['isMain'] == 1) {
+				$users[$user['uid']]['mainAffiliate'] = $user_obj->get_mainaffiliate()->get()['affid'];;
+			//}
 			
 			$report_status = $report_status_comma = '';
 			if($report['prActivityAvailable'] == 0) {
@@ -145,7 +146,6 @@ while($report = $db->fetch_array($query)) {
 			{
 				unset($email_data['cc']);
 			}
-			//print_r($email_data);
 
 			//echo $email_message.'<hr />';
 			$mail = new Mailer($email_data, 'php');
