@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->createmeeting}</title>
+        <title>{$core->settings[systemtitle]} | {$pagetitle}</title>
         {$headerinc}
     </head>
     <body>
@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->createmeeting}</h3>
+            <h3>{$pagetitle}</h3>
             <form name="perform_meetings/create_Form" action="#" method="post" id="perform_meetings/create_Form" >
                 <input type="hidden" value="do_{$action}meeting" name="action" id="action" />
                 <input type="hidden" value="{$core->input[mtid]}" name="mtid"  />

@@ -442,13 +442,15 @@ class Users {
 
 	public static function get_allusers() {
 		global $db;
-		$allusers_query = $db->query("SELECT  * ".Tprefix."FROM users ORDER BY displayName ASC");
+		
+		$allusers_query = $db->query("SELECT uid ".Tprefix."FROM users WHERE gid!=7 ORDER BY displayName ASC");
 		if($db->num_rows($allusers_query) > 0) {
-			while($allusers = $db->fetch_assoc($allusers_query)) {
-				$users[$allusers['uid']] = new Users($allusers['uid']);
+			while($user = $db->fetch_assoc($allusers_query)) {
+				$users[$user['uid']] = new Users($user['uid']);
 			}
 			return $users;
 		}
+		return false;
 	}
 
 	public function get_errorcode() {
