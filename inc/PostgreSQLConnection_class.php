@@ -12,9 +12,9 @@ class PostgreSQLConnection {
 	protected $link;
 	private $db_encoding = 'utf8';
 	private $db = array('hostname' => 'localhost');
-	
-	public function __construct($db, $hostname='localhost', $username='root', $password='', $prefix='') {
-		if(!empty($hostname)) { 
+
+	public function __construct($db, $hostname = 'localhost', $username = 'root', $password = '', $prefix = '') {
+		if(!empty($hostname)) {
 			$this->db['hostname'] = $hostname;
 		}
 		$this->db['username'] = $username;
@@ -23,9 +23,9 @@ class PostgreSQLConnection {
 		$this->db['prefix'] = $prefix;
 		$this->connect();
 	}
-	
+
 	private function connect() {
-		$this->link = pg_connect('host='.$this->db['hostname'].' port=5432 dbname='.$this->db['db'].' user='.$this->db['username'].' password='.$this->db['password']) or $this->pgerror();;
+		$this->link = pg_connect('host='.$this->db['hostname'].' port=5432 dbname='.$this->db['db'].' user='.$this->db['username'].' password='.$this->db['password']) or $this->pgerror();
 		$this->query('SET NAMES \''.$this->db_encoding.'\'');
 	}
 
@@ -37,19 +37,18 @@ class PostgreSQLConnection {
 		}
 		return $query;
 	}
-	
+
 	public function insert_query($table, $data) {
 		if(is_array($data)) {
 			$query_data = $this->prepare_insertstatement_data($data, $options);
 
 			return $this->query('INSERT INTO '.$this->db['prefix'].$table.' ('.$query_data['index'].') VALUES ('.$query_data['value'].')');
 		}
-		else
-		{
+		else {
 			return false;
 		}
 	}
-	
+
 	private function prepare_insertstatement_data(array $data) {
 		$comma = '';
 		if(!empty($data)) {
@@ -62,60 +61,77 @@ class PostgreSQLConnection {
 		}
 		return false;
 	}
-	
+
+	public function update_query($table, $data, $where = '') {
+		$comma = $query_string = '';
+		if(is_array($data)) {
+			foreach($data as $key => $val) {
+				$query_string .= "{$comma}{$key}='".$this->escape_string($val)."'";
+				$comma = ', ';
+			}
+
+			if(!empty($where)) {
+				$where = ' WHERE '.$where;
+			}
+
+			return $this->query("UPDATE {$this->db['prefix']}{$table} SET {$query_string}{$where}");
+		}
+		else {
+			return false;
+		}
+	}
+
 	public function fetch_array($query, $type = PGSQL_BOTH) {
 		return pg_fetch_array($query, $type);
 	}
-	
+
 	public function fetch_assoc($query) {
 		return pg_fetch_assoc($query);
 	}
-	
-	public function fetch_field($query, $field, $row=NULL) {
+
+	public function fetch_field($query, $field, $row = NULL) {
 		return pg_fetch_result($query, $row, $field);
 	}
-	
+
 	public function free_result($query) {
 		return pg_free_result($query);
 	}
-	
+
 	public function close() {
 		@pg_close($this->link);
 	}
-	
-	public function num_rows($query){
+
+	public function num_rows($query) {
 		return pg_num_rows($query);
 	}
-	
+
 	protected function error() {
 		if($this->link) {
 			return pg_last_error($this->link);
 		}
-		else
-		{
+		else {
 			return pg_last_error();
 		}
 	}
-	
-	public function set_charset($charset='') {
+
+	public function set_charset($charset = '') {
 		if(empty($charset)) {
 			$charset = $this->db_encoding;
 		}
 
 		pg_set_client_encoding($this->link, $charset);
 	}
-	
+
 	public function escape_string($string) {
 		if(function_exists('pg_escape_string') && $this->link) {
 			return pg_escape_string($this->link, $string);
 		}
-		else
- 		{
+		else {
 			return addslashes($string);
 		}
 	}
-	
-	protected function pgerror($string='') {
+
+	protected function pgerror($string = '') {
 		global $errorhandler;
 
 		if(!is_object($errorhandler)) {
@@ -123,12 +139,12 @@ class PostgreSQLConnection {
 		}
 
 		$error = array(
-			'error' => $this->error(),
-			'query' => $string
+				'error' => $this->error(),
+				'query' => $string
 		);
 		$errorhandler->trigger($error, '', SQL_ERROR);
 	}
-	
+
 	public function __sleep() {
 		return array('hostname', 'username', 'password', 'db');
 	}
@@ -136,5 +152,6 @@ class PostgreSQLConnection {
 	public function __wakeup() {
 		$this->connect();
 	}
+
 }
 ?>
