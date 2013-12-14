@@ -5,6 +5,7 @@ $lang['lname'] = "Last name";
 $lang['displayname'] = "Display name";
 
 $lang['usergroup'] = "User group";
+$lang['addusergroups'] = "Additional user groups";
 $lang['lastvisit'] = "Last Visit";
 $lang['affiliates'] = "Affiliates";
 $lang['nousers'] = "There are no users";

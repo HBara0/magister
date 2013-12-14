@@ -32,8 +32,9 @@ if(!$core->input['action']) {
 	if($core->user['gid'] != 1) {
 		unset($usergroups[1]);
 	}
-	$usergroups_list = parse_selectlist('gid', 5, $usergroups, 3);	
-		
+	$usergroups_list = parse_selectlist('maingid', 5, $usergroups, 3);	
+	$addusergroups_list = parse_selectlist('addgids[]', 5, $usergroups, '', 1);	
+	
 	$affiliates_attributes = array('affid', 'name');
 	$countries_attributes = array('coid', 'name');
 	$countries_order = array(
