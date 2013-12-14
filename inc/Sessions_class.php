@@ -27,7 +27,7 @@ class Sessions {
 			if($core->user_obj) {
 				$core->user = $core->user_obj->get();
 				unset($core->user['password'], $core->user['salt']);
-				$user->read_usergroupsperm();
+				$core->user_obj->read_usergroupsperm();
 				/* $auditing = $db->query("SELECT eid FROM ".Tprefix."suppliersaudits WHERE uid='".$this->uid."'");
 				  if($db->num_rows($auditing) > 0) {
 				  while($auditfor = $db->fetch_assoc($auditing)) {
