@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: Chemicalfunctionproduct.php
  * Created:        @tony.assaad    Dec 3, 2013 | 4:34:44 PM
@@ -39,7 +39,6 @@ class Chemicalfunctions {
 		}
 
 		if(is_array($data)) {
-			print_r($data);
 			if(value_exists('chemicalfunctions', 'title', $data['title'])) {
 				$errorcode = 2;
 				return false;
@@ -93,7 +92,7 @@ class Chemicalfunctions {
 		if(isset($core->input['start'])) {
 			$limit_start = $db->escape_string($core->input['start']);
 		}
-		$query = $db->query('SELECT cfid  FROM '.Tprefix.'chemicalfunctions');
+		$query = $db->query("SELECT cfid  FROM ".Tprefix."chemicalfunctions  {$sort_query} LIMIT  {$limit_start},{$core->settings['itemsperlist']}");
 		if($db->num_rows($query) > 0) {
 			while($rowchecmical = $db->fetch_assoc($query)) {
 				$checmical_functions[$rowchecmical['cfid']] = new Chemicalfunctions($rowchecmical['cfid']);

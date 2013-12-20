@@ -42,26 +42,45 @@ if(!$core->input['action']) {
 
 		eval("\$admin_products_addedit_segmentsapplicationsfunctions_rows .= \"".$template->get("admin_products_addedit_segmentsapplicationsfunctions_rows")."\";");
 	}
+
+
+	/* Chemical List - START */
+	$chemsubstances_objs = Chemicalsubstances::get_chemicalsubstances();
+	$chemicalslist_section = '';
+	if(is_array($chemsubstances_objs)) {
+		foreach($chemsubstances_objs as $chemsubstances_obj) {
+			$rowclass = alt_row($rowclass);
+			$chemical = $chemsubstances_obj->get();
+			$chemicalslist_section .= '<tr class="'.$rowclass.'" style="vertical-align:top;"><td width="1%"><input type="checkbox" value="'.$chemical['csid'].'" name="chemsubstances[csid][]"/></td><td width="33%">'.$chemical['casNum'].'</td><td align="left" width="33%">'.$chemical['name'].'</td><td width="33%">'.$chemical['synonyms'].'</td></tr>';
+		}
+	}
+	else {
+		$chemicalslist_section = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
+	}
+	/* Chemical List - END */
+	eval("\$chemicalsubstances = \"".$template->get("admin_products_chemicalsubstances")."\";");
 	eval("\$addproductspage = \"".$template->get("admin_products_addedit")."\";");
 	output_page($addproductspage);
 }
 else {
 	if($core->input['action'] == "do_perform_add") {
+
 		if(empty($core->input['spid']) || empty($core->input['gpid']) || empty($core->input['name'])) {
 			output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
 			exit;
 		}
 
 		if(value_exists("products", "name", $core->input['name'])) {
-			output_xml("<status>false</status><message>{$lang->productalreadyexists}</message>");
-			exit;
+			//output_xml("<status>false</status><message>{$lang->productalreadyexists}</message>");
+			//exit;
 		}
 		if(empty($core->input['applicationfunction']) && !isset($core->input['applicationfunction'])) {
 			output_xml("<status>false</status><message>{$lang->funcapplrequired}</message>");
 			exit;
 		}
 		$chemicalfunctionsproducts = $core->input['applicationfunction'];
-		unset($core->input['action'], $core->input['module'], $core->input['applicationfunction']);
+		$productschemsubstances = $core->input['chemsubstances'];
+		unset($core->input['action'], $core->input['module'], $core->input['applicationfunction'], $core->input['chemsubstances']);
 		//Temporary hardcode
 		$core->input['defaultCurrency'] = "USD";
 		$query = $db->insert_query("products", $core->input);
@@ -71,6 +90,19 @@ else {
 			$entity->auto_assignsegment($core->input['gpid']);
 
 			/* insert chemical functions produts */
+			if(isset($productschemsubstances)) {
+				foreach($productschemsubstances as $productschemsubstance) {
+					foreach($productschemsubstance as $csid) {
+						$chemsubstances_arary = array('pid' => $pid,
+								'csid' => $csid,
+								'createdBy' => $core->user['uid'],
+								'createdOn' => TIME_NOW
+						);
+						$db->insert_query("productschemsubstances", $chemsubstances_arary);
+					}
+				}
+			}
+			/* insert products chemical substances */
 			if(isset($chemicalfunctionsproducts)) {
 				foreach($chemicalfunctionsproducts as $chemicalfunctions) {
 					foreach($chemicalfunctions as $safid) {
@@ -88,11 +120,9 @@ else {
 							$cfpid = $db->last_id();
 						}
 						$db->update_query('products', array('defaultFunction' => $cfpid), 'pid='.$pid);
-	
 					}
 				}
 			}
-
 			$log->record($core->input['name']);
 
 			$lang->productadded = $lang->sprint($lang->productadded, htmlspecialchars($core->input['name']));
@@ -102,5 +132,9 @@ else {
 			output_xml("<status>false</status><message>{$lang->erroraddingproduct}</message>");
 		}
 	}
+	
+else if ($core->input['action']=='getmorechem')	{
+}
+	
 }
 ?>

@@ -16,7 +16,7 @@
 class Chemicalsubstances {
 	private $chemicalsubstances = array();
 
-	public function __construct($id, $simple = true) {
+	public function __construct($id, $simple = false) {
 		if(isset($id)) {
 			$this->read($id, $simple);
 		}
@@ -39,6 +39,18 @@ class Chemicalsubstances {
 				return new Chemicalsubstances($id);
 			}
 		}
+	}
+
+	public static function get_chemicalsubstances() {
+		global $db;
+		$query = $db->query("SELECT csid  FROM ".Tprefix."chemicalsubstances LIMIT 0,5");
+		if($db->num_rows($query) > 0) {
+			while($rowschcmicals = $db->fetch_assoc($query)) {
+				$chemical_substances[$rowschcmicals['csid']] = new Chemicalsubstances($rowschcmicals['csid']);
+			}
+			return $chemical_substances;
+		}
+		return false;
 	}
 
 	public function get() {

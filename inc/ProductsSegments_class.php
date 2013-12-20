@@ -11,13 +11,13 @@
 class ProductsSegments {
 	private $segment = array();
 
-	public function __construct($id, $simple = true) {
+	public function __construct($id='', $simple = true) {
 		if(isset($id)) {
 			$this->read($id, $simple);
 		}
 	}
 
-	private function read($id, $simple ) {
+	private function read($id, $simple) {
 		global $db;
 
 		$query_select = '*';
@@ -54,7 +54,83 @@ class ProductsSegments {
 		}
 	}
 
-//get coordinators as obj
+	public function get_applications() {
+		global $db;
+		$query = $db->query('SELECT psaid  FROM '.Tprefix.'segmentapplications WHERE psid="'.$this->segment['psid'].'"');
+		if($db->num_rows($query) > 0) {
+			while($rowsegmentapp = $db->fetch_assoc($query)) {
+				$segmentsapp[$rowsegmentapp['psaid']] = new Segmentapplications($rowsegmentapp['psaid']);
+			}
+			return $segmentsapp;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public function get_coordinators() {
+		global $db;
+		$query = $db->query('SELECT pscid  FROM '.Tprefix.'productsegmentcoordinators WHERE psid="'.$this->segment['psid'].'"');
+		if($db->num_rows($query) > 0) {
+			while($rowsegmentcoord = $db->fetch_assoc($query)) {
+				$segmentscoord[$rowsegmentcoord['pscid']] = new Productsegcoord($rowsegmentcoord['pscid']);
+			}
+			return $segmentscoord;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public function get_assignedemployees() {
+		global $db;
+		$query = $db->query('SELECT uid,emsid  FROM '.Tprefix.'employeessegments WHERE psid='.intval($this->segment['psid']).'');
+		if($db->num_rows($query) > 0) {
+			while($rowsegmentemployees = $db->fetch_assoc($query)) {
+				$segmentsemployees[$rowsegmentemployees['emsid']] = new users($rowsegmentemployees['uid']);
+			}
+			return $segmentsemployees;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public function get_entities() {
+		global $db;
+
+		$query = $db->query('SELECT e.eid  FROM '.Tprefix.'entities e JOIN '.Tprefix.'entitiessegments es  ON (es.eid=e.eid) 
+							JOIN '.Tprefix.'productsegments p  ON (p.psid=es.psid) WHERE e.type="s" AND p.psid='.intval($this->segment['psid']).'');
+		if($db->num_rows($query) > 0) {
+			while($rowsegmentsuppliers = $db->fetch_assoc($query)) {
+				$segmentsemployees[$rowsegmentsuppliers['esid']] = new Entities($rowsegmentsuppliers['eid']);
+			}
+			return $segmentsemployees;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public function get_customers($filterpermission = '') {
+		global $db;
+		$query = $db->query('SELECT e.eid  FROM '.Tprefix.'entities e
+							JOIN '.Tprefix.'entitiessegments es  ON (es.eid=e.eid) 
+							JOIN '.Tprefix.'affiliatedentities a ON (e.eid=a.eid) 
+							JOIN '.Tprefix.'affiliatedemployees ae ON (a.affid=ae.affid)
+							JOIN '.Tprefix.'assignedemployees ase ON (ase.uid=ae.uid)			
+							JOIN '.Tprefix.'productsegments p  ON (p.psid=es.psid) WHERE e.type="c" '.$filterpermission.' AND p.psid='.intval($this->segment['psid']).'');
+		if($db->num_rows($query) > 0) {
+			while($rowsegmentcustomers = $db->fetch_assoc($query)) {
+				$segmentscustomers[$rowsegmentcustomers['eid']] = new Entities($rowsegmentcustomers['eid']);
+			}
+			return $segmentscustomers;
+		}
+		else {
+			return false;
+		}
+	}
+
 	public function get() {
 		return $this->segment;
 	}

@@ -23,23 +23,26 @@ $lang['errorcreatingentity'] = "Error creating entity";
 $lang['errormodifyingentity'] = "Error modifying entity";
 $lang['entityalreadyexists'] = "An entity with the same name already exists";
 $lang['invalidentityemail'] = "An invalid entity email was provided";
-
+$lang['managebrands'] = 'Manage Brands';
+$lang['endproducttypes'] = 'End Product Types';
 $lang['addnewrepresentative'] = "Add New Representative";
 $lang['specifyrepemail'] = "Specify representative email";
 $lang['specifyrepresentative'] = "Specify at least one represenative";
-$lang['representativeexists']=  "A representative with the same name already exists";
+$lang['representativeexists'] = "A representative with the same name already exists";
 $lang['representativecreated'] = "The representative was successfully created";
-$lang['errorcreatingreprentative'] = "Error creating representative"; 
-
+$lang['errorcreatingreprentative'] = "Error creating representative";
+$lang['name'] = 'name';
 $lang['contractualinformation'] = "Contractual Information";
 $lang['initialcontractsign'] = "Initial contract signature";
 $lang['expirydate'] = "Expiry date";
 $lang['contractevergreen'] = "Contract is evergreen";
 $lang['cancelpriornotice'] = "Cancelation prior notice (Months)";
 $lang['setentitylogo'] = "Set Entity Logo";
-
+$lang['successfullysaved'] = "successfullysaved";
+$lang['fillallrequiredfields'] = "fill all required Field ";
+$lang['itemalreadyexist'] = "Item Already Exist";
 $lang['nosuppliersavailable'] = "No suppliers are available";
 $lang['nocustomersavailable'] = "No customers are available";
-
+$lang['createbrand'] = "Create Brands";
 $lang['approved'] = "Approved";
 ?>

@@ -22,7 +22,7 @@ if(!$core->input['action']) {
 	$query = $db->query("SELECT * FROM ".Tprefix."productsegments ORDER BY title ASC");
 	if($db->num_rows($query) > 0) {
 		while($segment = $db->fetch_array($query)) {
-			$segments_list .= "<tr><td>".$segment['psid']."</td><td>".$segment['title']."</td><td>".$segment['description']."</td></tr>";
+			$segments_list .= "<tr><td>".$segment['psid']."</td><td><a href=index.php?module=products/segmentprofile&id=".$segment['psid']." target='_blank'>".$segment['title']."</a></td><td>".$segment['description']."</td></tr>";
 		}
 	}
 	else {

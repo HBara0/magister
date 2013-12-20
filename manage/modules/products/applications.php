@@ -18,6 +18,7 @@ if($core->usergroup['canManageapllicationsProducts'] == 0) {
 }
 $lang->load('products_applications');
 if(!$core->input['action']) {
+	$sort_url = sort_url();
 	$applications_obj = Segmentapplications::get_segmentsapplications();
 	if(is_array($applications_obj)) {
 		/* loop over the returned objects and get their related data */

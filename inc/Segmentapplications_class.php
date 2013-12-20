@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: Segmentapplications.php
  * Created:        @tony.assaad    Dec 3, 2013 | 3:58:53 PM
@@ -37,9 +37,9 @@ class Segmentapplications {
 			$errorcode = 1;
 			return false;
 		}
-	
+
 		if(is_array($data)) {
-		if(value_exists('segmentapplications', 'title', $data['title'], 'psid='.$data['psid'].'')) {
+			if(value_exists('segmentapplications', 'title', $data['title'], 'psid='.$data['psid'].'')) {
 				$errorcode = 2;
 				return false;
 			}
@@ -84,6 +84,35 @@ class Segmentapplications {
 				$segments_applications[$rowsegapp['psaid']] = new Segmentapplications($rowsegapp['psaid']);
 			}
 			return $segments_applications;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public function get_segappfunctions() {
+		global $db;
+		$query = $db->query('SELECT cfid,safid  FROM '.Tprefix.'segapplicationfunctions WHERE psaid="'.intval($this->segmentapplication['psaid']).'"');
+		if($db->num_rows($query) > 0) {
+			while($rowsegmentappfunc = $db->fetch_assoc($query)) {
+				$segmentsappfunc[$rowsegmentappfunc['safid']] = new Chemicalfunctions($rowsegmentappfunc['cfid']);
+			}
+			return $segmentsappfunc;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public function get_endproduct() {
+		global $db;
+
+		$query = $db->query('SELECT  eptid  FROM '.Tprefix.'endproducttypes WHERE psaid="'.$this->segmentapplication['psaid'].'"');
+		if($db->num_rows($query) > 0) {
+			while($rowsegmentendproducts = $db->fetch_assoc($query)) {
+				$segmentsendproduct[$rowsegmentendproducts['eptid']] = new Endproductypes($rowsegmentendproducts['eptid']);
+			}
+			return $segmentsendproduct;
 		}
 		else {
 			return false;

@@ -13,7 +13,7 @@
  *
  * @author tony.assaad
  */
-class Entbrandsproducts_class {
+class Entbrandsproducts {
 	private $entbrandproducts = array();
 
 	public function __construct($id, $simple = true) {
@@ -34,8 +34,9 @@ class Entbrandsproducts_class {
 	public function get_entitybrand() {
 		return new Entbrands($this->entbrandproducts['abid']);
 	}
-	
-	
+
+
+
 	public function get_endproduct() {
 		return new Endproductypes($this->entbrandproducts['eptid']);
 	}

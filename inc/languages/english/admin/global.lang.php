@@ -10,7 +10,7 @@ $lang['copyright'] = "Copyright &copy; Orkila Holding";
 
 $lang['admincpnopermission'] = "You don't have permissions to access the Admin CP";
 $lang['sectionnopermission'] = "You don't have permissions to access this section";
-
+$lang['managechems'] = "Manage Chemicals";
 $lang['description'] = "Description";
 $lang['id'] = "ID";
 $lang['fillrequiredfields'] = "Please make sure to fill all required fields";
@@ -28,7 +28,6 @@ $lang['next'] = "Next";
 $lang['prev'] = "Prev";
 $lang['cancel'] = "Cancel";
 $lang['savecaps'] = "SAVE";
-
 $lang['home'] = "Home";
 $lang['systemsettings'] = "Settings";
 $lang['modifysettings'] = "Modify Settings";
@@ -61,14 +60,14 @@ $lang['backupdb'] = "Backup DB";
 $lang['backupdatabase'] = "Backup Database";
 $lang['optimizedb'] = "Optimize DB";
 $lang['optimizedatabase'] = "Optimize Database";
-
+$lang['managebrands'] = "Manage Brands";
 $lang['exportexcel'] = "Export to Excel";
 
 $lang['errorrebuildingsettings'] = "Error while rebuilding settings";
 $lang['settingsrebuilt'] = "Settings were updated successfully";
 
 $lang['nomatchfound'] = "No match was found";
-
+$lang['types'] = 'Manage Product Types';
 $lang['username'] = "Username";
 $lang['customer'] = "Customer";
 $lang['supplier'] = "Supplier";
@@ -86,7 +85,7 @@ $lang['pobox'] = "PO Box";
 $lang['fax'] = "Fax";
 $lang['website'] = "Website";
 
-$lang['listofavailablefiles'] =  "List of Available Files";
+$lang['listofavailablefiles'] = "List of Available Files";
 $lang['title'] = "Title";
 $lang['category'] = "Category";
 $lang['relatedto'] = "Related To";

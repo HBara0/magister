@@ -18,6 +18,7 @@ if($core->usergroup['canManageapllicationsProducts'] == 0) {
 }
 $lang->load('products_functions');
 if(!$core->input['action']) {
+	$sort_url = sort_url();
 	$applications_obj = Segmentapplications::get_segmentsapplications();
 	if(is_array($applications_obj)) {
 		foreach($applications_obj as $application_obj) {
@@ -46,7 +47,6 @@ if(!$core->input['action']) {
 			$functions_application = '';
 		}
 	}
-
 
 	eval("\$functionpage = \"".$template->get("admin_products_functions")."\";");
 	output_page($functionpage);

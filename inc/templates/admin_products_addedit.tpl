@@ -5,6 +5,23 @@
     </head>
     <body>
         {$header}
+        <script type='text/javascript'>
+            $(function() {
+                //Keep track of last scroll
+                var lastScroll = 0;
+                $("#chemicalsubstances").scroll(function(event) {
+                    //Sets the current scroll position
+
+                    if ($(this).scrollTop() > $(this).offset().top) {
+                        if (sharedFunctions.checkSession() == false) {
+                            return;
+                        }
+                        sharedFunctions.requestAjax("post", "index.php?module=products/add&action=getmorechem", "uid=" + $('#uid').val(), 'to_inform_fields', 'to_inform_fields', true);
+
+                    }
+                });
+            });
+        </script>
     <tr>
         {$menu}
         <td class="contentContainer">
@@ -25,18 +42,18 @@
                     <tr>    
                         <td><strong>{$lang->supplier}</strong></td><td><input type='text' id='supplier_1_QSearch' value="{$product[suppliername]}"/><input type="text" size="3" id="supplier_1_id_output" value="{$product[spid]}" disabled/><input type='hidden' id='supplier_1_id' name='spid' value="{$product[spid]}" /><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>
-                    
-        <tr>    
-                        <td><strong>{$lang->supplier}</strong></td><td><input type='text' id='chemfunctionproducts_1_QSearch' value=" "/>
+
+                    <tr>    
+                        <td><strong>Products</strong></td><td><input type='text' id='chemfunctionproducts_1_QSearch' value=" "/>
                             <input type="text" size="3" id="chemfunctionproducts_1_id_output" value=" " disabled/>
                             <input type='hidden' id='chemfunctionproducts_1_id' name='spid' value=" " /><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>             
-                    
+
                     <tr class="thead"> <td  colspan="2">Manage applications and Functions..</td></tr>
-                    <tr id="internalinvitations_row">
+                    <tr>
                         <td colspan="2">
                             <table width="100%" cellpadding="0" cellspacing="0">
-                                <tbody id="invitationsgroup_tbody">
+                                <tbody id="segmentsapplications_tbody">
                                     <tr id="1">
                                         <td colspan="2">  
                                             <div style="width:100% ;height:340px; overflow:auto; display:inline-block; vertical-align:top;">
@@ -55,10 +72,37 @@
                                         </td>
                                     </tr>
                                 </tbody>
-                             
+
                             </table>
                         </td>
                     </tr>
+                    <tr class="thead"> <td  colspan="2">{$lang->chemicalsubstances}..</td></tr>
+                    <tr>
+                        <td colspan="2">
+                            <table width="100%" cellpadding="0" cellspacing="0">
+                                <tbody id="chemicalslist_tbody">
+                                    <tr id="1">
+                                        <td colspan="2">  
+                                            <div  id="chemicalsubstances" style="width:100% ;height:140px; overflow:auto; display:inline-block; vertical-align:top;">
+                                                <table class="datatable" width="100%">
+                                                    <tr class="altrow2">
+                                                        <th>&nbsp;</th>
+                                                        <th>{$lang->casnum}</th>
+                                                        <th>{$lang->checmicalproduct}</th>
+                                                        <th>{$lang->synonyms}</th>                                                
+                                                    </tr>
+                                                    {$chemicalslist_section}
+                                                </table>
+                                            </div> 
+                                        </td>
+                                    </tr>
+                                </tbody>
+
+                            </table>
+                        </td>
+                    </tr>
+
+
                     <tr>
 
                         <td>{$lang->description}</td><td><textarea cols="30" rows="5" id="description" name="description" tabindex="5">{$product[description]}</textarea></td>
