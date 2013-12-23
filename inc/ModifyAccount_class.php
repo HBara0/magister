@@ -145,13 +145,18 @@ class ModifyAccount extends Accounts {
 			}
 		}
 
-		array_push($usergroups, $maingid);
-		$data['gid'] = $maingid; /* Required workaround until all queries are updated */
+		if(!is_array($usergroups)) {
+			$usergroups = array();
+		}
+		if(!empty($maingid)) {
+			array_push($usergroups, $maingid);
+			$data['gid'] = $maingid; /* Required workaround until all queries are updated */
+		}
 		$query = $db->update_query('users', $data, "uid='{$uid}'");
 		if($query) {
 			//$main_affiliate_found = false;
 			/* Set Usergroups - START */
-			if(is_array($usergroups)) {
+			if(is_array($usergroups) && !empty($usergroups)) {
 				$db->delete_query('users_usergroups', "gid NOT IN (".$db->escape_string(implode(',', array_values($usergroups))).") AND uid=".$uid);
 				$usergroups = array_unique($usergroups);
 				foreach($usergroups as $group) {

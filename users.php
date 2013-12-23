@@ -512,7 +512,7 @@ if($core->input['action']) {
 
 			$profile['fulladdress'] .= $profile['country'];
 
-			$jobdescription_permissioned = array($profile['uid'], $profile['reportsTo'], $main_affiliate->get_generalmanager(), $main_affiliate->get_hrmanager(), $main_affiliate->get_supervisor());
+			$jobdescription_permissioned = array($profile['uid'], $profile['reportsTo'], $main_affiliate->get_generalmanager(), $main_affiliate->get_hrmanager(), $main_affiliate->get_supervisor(), 65);
 			if(in_array($core->user['uid'], $jobdescription_permissioned)) {
 				$profile['hrinfo'] = $profile_user->get_hrinfo();
 				if(!empty($profile['hrinfo']['jobDescription'])) {

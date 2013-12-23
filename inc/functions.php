@@ -15,7 +15,7 @@
  */
 function output_page($template) {
 	global $core, $lang, $timer;
-	
+
 	$template = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n".$template;
 	$template = str_replace("<html", "<html xmlns=\"http://www.w3.org/1999/xhtml\"", $template);
 
@@ -1133,27 +1133,29 @@ function getquery_entities_viewpermissions() {
 	}
 	else {
 		if($usergroup['canViewAllSupp'] == 0) {
-			$where['extra'] = $and.'(';
-			foreach($user['suppliers']['eid'] as $val) {
-				if(in_array($val, $auditfor)) {
-					$inaffiliates_query = '';
-					if($usergroup['canViewAllAff'] == 0) {
-						$inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['auditedaffiliates'][$val]).')';
+			if(is_array($user['suppliers']['eid'])) {
+				$where['extra'] = $and.'(';
+				foreach($user['suppliers']['eid'] as $val) {
+					if(in_array($val, $auditfor)) {
+						$inaffiliates_query = '';
+						if($usergroup['canViewAllAff'] == 0) {
+							$inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['auditedaffiliates'][$val]).')';
+						}
 					}
-				}
-				else {
-					$inaffiliates_query = '';
-					if($usergroup['canViewAllAff'] == 0) {
-						$inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['suppliers']['affid'][$val]).')';
+					else {
+						$inaffiliates_query = '';
+						if($usergroup['canViewAllAff'] == 0) {
+							$inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['suppliers']['affid'][$val]).')';
+						}
 					}
-				}
-				$where['extra'] .= $query_or.'('.$attribute_prefix.'spid='.$val.$inaffiliates_query.')';
-				$where['multipage'] .= $query_or.'(spid='.$val.$inaffiliates_query.')';
-				$where['byspid'][$val] = $inaffiliates_query;
+					$where['extra'] .= $query_or.'('.$attribute_prefix.'spid='.$val.$inaffiliates_query.')';
+					$where['multipage'] .= $query_or.'(spid='.$val.$inaffiliates_query.')';
+					$where['byspid'][$val] = $inaffiliates_query;
 
-				$query_or = ' OR ';
+					$query_or = ' OR ';
+				}
+				$where['extra'] .= ')';
 			}
-			$where['extra'] .= ')';
 		}
 
 		if($usergroup['canViewAllSupp'] == 1 && $usergroup['canViewAllAff'] == 0) {
