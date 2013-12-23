@@ -211,6 +211,7 @@ else {
 					foreach($data[$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] as $type => $day_data) {
 						$rowclass = '';
 						if($type == 'attendance') {
+							/* Check if leaves exist while attendance exists too & adjust accordingly - START */
 							if(isset($data[$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']]['leaves'])) {
 								foreach($data[$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']]['leaves'] as $leave) {
 									$leavetype_obj = new Leavetypes($leave['type'], false);
@@ -233,6 +234,7 @@ else {
 								}
 							}
 							unset($leaveto, $leavefrom, $leavetype_obj, $leavetype);
+							/* Check if leaves exist while attendance exists too & adjust accordingly - END */
 							foreach($day_data as $attendance) {
 								/* If person has not recorded entry use workshift default - START */
 								if(empty($attendance['timeIn']) || !isset($attendance['timeIn'])) {
