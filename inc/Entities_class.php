@@ -625,7 +625,7 @@ class Entities {
 			$meetings_sharedwith = Meetings::get_meetingsshares_byuser();
 			$filters .= ' AND (mtid IN (SELECT mtid FROM '.Tprefix.'meetings WHERE isPublic=1 OR createdBy='.$core->user['uid'].')';
 			if(is_array($meetings_sharedwith)) {
-				$filters .= ' OR (mtid IN ('.implode(', ', array_keys($meetings_sharedwith)).')';
+				$filters .= ' OR (mtid IN ('.implode(', ', array_keys($meetings_sharedwith)).'))';
 			}
 			$filters .= ')';
 		}
