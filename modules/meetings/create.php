@@ -18,11 +18,13 @@ if($core->usergroup['meetings_canCreateMeeting'] == 0) {
 
 if(!$core->input['action']) {
 	if(isset($core->input['mtid']) && !empty($core->input['mtid'])) {
-		$mtid = $db->escape_string = $core->input['mtid'];
+		$mtid = $core->input['mtid'];
 		$action = 'edit';
+	
 		$lang->create = $lang->edit;
-
+	
 		$meeting_obj = new Meetings($mtid);
+
 		$meeting = $meeting_obj->get();
 		if(is_array($meeting)) {
 			if(!empty($meeting['fromDate'])) {
@@ -62,6 +64,7 @@ if(!$core->input['action']) {
 		$action = 'create';
 	}
 
+	$pagetitle = $lang->{$action.'meeting'};
 	$afiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, 'affid IN ('.implode(',', $core->user['affiliates']).')');
 	$afiliates[0] = '';
 	asort($afiliates);
@@ -82,6 +85,7 @@ if(!$core->input['action']) {
 	eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
 
 	eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
+
 	output_page($createmeeting);
 }
 elseif($core->input['action'] == 'do_createmeeting') {
