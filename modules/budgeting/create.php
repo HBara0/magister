@@ -15,6 +15,9 @@ if(!defined('DIRECT_ACCESS')) {
 if($core->usergroup['canUseBudgeting'] == 0) {
 	error($lang->sectionnopermission);
 }
+$sessionidentifier = md5(uniqid(microtime()));
+$session->name_phpsession(COOKIE_PREFIX.'fillbudget'.$sessionidentifier);
+$session->start_phpsession(480);
 
 if(!$core->input['action']) {
 	if($core->usergroup['canViewAllAff'] == 0) {
@@ -86,7 +89,7 @@ else {
 			foreach($budget_years as $year) {
 				if($year == date('Y') + 1) {
 					$year_selected = ' selected="selected"';
-				} 
+				}
 				else {
 					continue;
 				}

@@ -21,19 +21,18 @@ if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
 else {
 	$sessionidentifier = md5(uniqid(microtime()));
 }
-
 $session->name_phpsession(COOKIE_PREFIX.'fillbudget'.$sessionidentifier);
-$session->start_phpsession(480);
+$session->start_phpsession(3);
 
 if(!$core->input['action']) {
 	if($core->input['stage'] == 'fillbudgetline') {
-		if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
-			$budget_data = unserialize($session->get_phpsession('budgetdata_'.$sessionidentifier));
-		}
-		else {
-			$session->set_phpsession(array('budgetdata_'.$sessionidentifier => serialize($core->input['budget'])));
-			$budget_data = $core->input['budget'];
-		}
+		//if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
+		//$budget_data = unserialize($session->get_phpsession('budgetdata_'.$sessionidentifier));
+		//	}
+		//else {
+		$session->set_phpsession(array('budgetdata_'.$sessionidentifier => serialize($core->input['budget'])));
+		$budget_data = $core->input['budget'];
+		//	}
 
 		$affiliate = new Affiliates($budget_data['affid']);
 		$budget_data['affiliateName'] = $affiliate->get()['name'];
@@ -265,6 +264,7 @@ else {
 		}
 	}
 	elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
+		define('NOPHPSESSION', 1);
 		$rowid = intval($core->input['value']) + 1;
 		$budget_data = $core->input['ajaxaddmoredata'];
 
