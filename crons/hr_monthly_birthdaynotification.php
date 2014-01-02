@@ -17,7 +17,7 @@ $users_query = $db->query("SELECT displayName AS employeeName, u.uid, ae.affid, 
 						   FROM ".Tprefix."users u
 							JOIN ".Tprefix."userhrinformation uh ON (u.uid=uh.uid)
 							JOIN ".Tprefix."affiliatedemployees ae ON (ae.uid=u.uid)
-							WHERE u.gid !=7 AND FROM_UNIXTIME(birthDate, '%c')='{$current_date[mon]}' AND birthDate!=0 AND isMain=1 
+							WHERE u.gid !=7 AND FROM_UNIXTIME(birthDate, '%c')='{$current_date[mon]}' AND (birthDate is NOT NULL) AND isMain=1 
 							GROUP BY u.uid");
 
 if($db->num_rows($users_query) > 0) {
