@@ -99,12 +99,13 @@ else
 		}
 		
 		if(!empty($core->input['pid'])) {
-			$orderline_query_where = ' AND imp.localId IN ('.implode(',', $core->input['pid']).')';
+			$orderline_query_where .= ' AND imp.localId IN ('.implode(',', $core->input['pid']).')';
 		}
 		
 		if(!empty($core->input['cid'])) {
-			$query_where = ' AND ime.localId IN ('.implode(',', $core->input['cid']).')';		
+			$query_where .= ' AND ime.localId IN ('.implode(',', $core->input['cid']).')';		
 		}
+
 		$query = $db->query("SELECT imso.foreignId AS order_id, date, docNum, foreignName AS bpname, cid AS bpid, ime.foreignNameAbbr AS bpname_abv, currency, salesRepLocalId AS salesrep_id, salesRep AS salesrep, imso.paymentTerms AS paymenttermsdays, usdFxrate
 					FROM integration_mediation_salesorders imso 
 					JOIN integration_mediation_entities ime ON (ime.foreignId=imso.cid) 
@@ -146,6 +147,7 @@ else
 					if(!isset($average_fx[$orderline['costCurrency']])) {
 						$average_fx[$orderline['costCurrency']] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $orderline['costCurrency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $order['date']).' 24:00')-(7*24*3600), 'year' => date('Y', $order['date']), 'month' => date('m', $order['date'])), array('precision' => 4));
 					}
+					
 					$fxrates['cost'] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $orderline['costCurrency'], array('from' => strtotime(date('Y-m-d', $order['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $order['date']).' 24:00'), 'year' => date('Y', $order['date']), 'month' => date('m', $order['date'])), array('precision' => 4));
 
 					if(empty($fxrates['cost'])) {
@@ -156,7 +158,7 @@ else
 					if(empty($fxrates['cost'])) {
 						$fxrates['cost'] = $order['usdFxrate'];
 					}
-				
+
 					/* Get Purchase Prices - START */
 					if(empty($orderline['purchasePrice'])) {
 //						$purchase_query = $db->query("SELECT * FROM ".Tprefix."integration_mediation_stockpurchases WHERE pid='{$orderline[pid]}' AND date < {$order[date]}");
@@ -200,7 +202,9 @@ else
 					$orderline['linenetamt'] = $orderline['quantity']*$orderline['price'];
 					//$orderline['price'] = round($orderline['price']*$fxrates['price'], 2);
 					
-					$orderline['cost'] = $orderline['cost']/$fxrates['cost'];
+					if(!empty($fxrates['cost'])) {
+						$orderline['cost'] = $orderline['cost']/$fxrates['cost'];
+					}
 					$orderline['totalcost'] = $orderline['cost'];//*$orderline['quantity'];
 					$orderline['netmargin'] = $orderline['linenetamt']-$orderline['totalcost'];
 					$orderline['grossmargin'] = $orderline['linenetamt']-($orderline['purchasePrice']*$orderline['quantity']);
@@ -375,7 +379,7 @@ else
 		$message = '<html><head></head><body style="font-size:12px; font-family: Tahoma; color: #333333;">'.$report_content.'</body>';
 		
 		$email_data = array(
-			'to'	      => 'zaher.reda@orkila.com',
+			'to'	      => 'chris.sacy@orkila.com',
 			//'cc'			=> 'jalel.elghoul@orkila.tn',
 			'from_email'  => $core->settings['maileremail'],
 			'from'	      => 'OCOS Mailer',

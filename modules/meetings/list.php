@@ -47,8 +47,8 @@ if(!$core->input['action']) {
 }
 if($core->input['action'] == 'get_sharemeeting') {
 	$mtid = $db->escape_string($core->input['id']);
-	//$aff_obj = new Affiliates($core->user['mainaffiliate']);
-	$affiliates_users = users::get_allusers();
+	
+	$affiliates_users = Users::get_allusers();
 	$meeting_obj = new Meetings($mtid);
 	$shared_users = $meeting_obj->get_shared_users();
 	if(is_array($shared_users)) {

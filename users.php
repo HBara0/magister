@@ -512,7 +512,7 @@ if($core->input['action']) {
 
 			$profile['fulladdress'] .= $profile['country'];
 
-			$jobdescription_permissioned = array($profile['uid'], $profile['reportsTo'], $main_affiliate->get_generalmanager(), $main_affiliate->get_hrmanager(), $main_affiliate->get_supervisor());
+			$jobdescription_permissioned = array($profile['uid'], $profile['reportsTo'], $main_affiliate->get_generalmanager(), $main_affiliate->get_hrmanager(), $main_affiliate->get_supervisor(), 65);
 			if(in_array($core->user['uid'], $jobdescription_permissioned)) {
 				$profile['hrinfo'] = $profile_user->get_hrinfo();
 				if(!empty($profile['hrinfo']['jobDescription'])) {
@@ -563,7 +563,7 @@ if($core->input['action']) {
 					$profile['lastVisit'] = $lang->na;
 				}
 
-				$profile_user = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users WHERE uid={$profile[uid]})"));
+				$profile_user = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users_usergroups WHERE isMain=1 AND uid={$profile[uid]})"));
 
 				if($profile_user['canUseReporting'] == 1) {
 					$additional_where = getquery_entities_viewpermissions('', '', $profile['uid']);

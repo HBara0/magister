@@ -40,7 +40,7 @@ class Lists {
 			$limits = explode(", ", $limit);
 			$this->multipage_data['limit'] = $limits[1];
 		}
-		echo $limit_query."<br />";
+		
 		$i = 0;
 		$query = $db->query("SELECT {$fields_query} FROM {$table} {$orderby_query} {$limit_query}");
 		while($fetch = $db->fetch_array($query)) {

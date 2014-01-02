@@ -18,7 +18,10 @@ if(!$core->input['action']) {
 
 	if($core->usergroup['attendance_canViewAffAllLeaves'] == 1) {
 		$employees[$core->user['uid']] = '';
-		$query = $db->query("SELECT u.uid, u.displayName FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE (ae.isMain=1 AND ae.affid='{$core->user[mainaffiliate]}' OR u.reportsTo='{$core->user[uid]}') AND u.gid!=7 AND u.uid!={$core->user[uid]} ORDER BY displayName ASC");
+		if(is_array($core->user['hraffids'])) {
+			$query_extrawhere = 'affid IN ('.implode(', ', $core->user['hraffids']).') OR ';
+		}
+		$query = $db->query("SELECT u.uid, u.displayName FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE (".$query_extrawhere."(canHr=1 AND ae.uid=".$core->user['uid'].") OR (ae.isMain=1 AND ae.affid='{$core->user[mainaffiliate]}') OR u.reportsTo='{$core->user[uid]}') AND u.gid!=7 AND u.uid!={$core->user[uid]} ORDER BY displayName ASC");
 		while($user = $db->fetch_assoc($query)) {
 			$employees[$user['uid']] = $user['displayName'];
 		}

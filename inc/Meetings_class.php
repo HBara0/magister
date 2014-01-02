@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: Meetings.php
  * Created:        @tony.assaad    Nov 7, 2013 | 3:09:17 PM
@@ -13,6 +13,7 @@
  *
  * @author tony.assaad
  */
+
 class Meetings {
 	private $meeting = array();
 	private $errorcode = 0;
@@ -152,7 +153,8 @@ class Meetings {
 		$associations = $meeting_data['associations'];
 		$attendees = $meeting_data['attendees'];
 		unset($meeting_data['attendees'], $meeting_data['associations']);
-		if(value_exists('meetings', 'title', $this->meeting['title'], ' createdBy='.$core->user['uid'].'')) {
+
+		if(value_exists('meetings', 'title', $meeting_data['title'], 'mtid!='.intval($this->meeting['mtid']).' AND createdBy='.$core->user['uid'].'')) {
 			$this->errorcode = 3;
 			return false;
 		}
@@ -316,7 +318,7 @@ class Meetings {
 
 	public function get_shared_users() {
 		global $db;
-		
+
 		$query = $db->query('SELECT uid FROM '.Tprefix.'meetings_sharedwith WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
 		if($db->num_rows($query)) {
 			while($user = $db->fetch_assoc($query)) {
@@ -403,4 +405,4 @@ class MeetingsAttendees {
 	}
 
 }
-?> 
+?>
