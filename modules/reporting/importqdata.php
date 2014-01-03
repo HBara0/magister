@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright © 2012 Orkila International Offshore, All Rights Reserved
+ * Copyright � 2012 Orkila International Offshore, All Rights Reserved
  * 
  * Import Quarter Data
  * $id: balancesvalidations.php
@@ -57,13 +57,13 @@ else {
 
 		if($db->num_rows($po_query) > 0) {
 			while($purchaseorder = $db->fetch_assoc($po_query)) {
-				$pol_query = $db->query("SELECT imsol.*, imp.localId AS localpid, imsol.pid AS foreignpid, p.spid AS localspid, imp.foreignName AS productname
+				$pol_query = $db->query("SELECT DISTINCT(imp.foreignId), imsol.*, imp.localId AS localpid, imsol.pid AS foreignpid, p.spid AS localspid, imp.foreignName AS productname
 										FROM ".Tprefix."integration_mediation_purchaseorderlines imsol 
 										LEFT JOIN integration_mediation_products imp ON (imsol.pid=imp.foreignId) 
 										LEFT JOIN products p ON (p.pid=imp.localId)
 										WHERE foreignOrderId='{$purchaseorder['foreignId']}'
 										AND imp.foreignSystem={$options[foreignSystem]} AND (imp.affid={$affid} OR imp.affid=0)
-										ORDER BY imp.foreignName ASC");// AND imp.localId!=0
+										ORDER BY imp.foreignName ASC"); // AND imp.localId!=0
 				if($db->num_rows($pol_query) > 0) {
 					while($purchaseorderline = $db->fetch_assoc($pol_query)) {
 						if(is_empty($purchaseorderline['localspid'], $purchaseorderline['localpid'])) {
@@ -75,7 +75,7 @@ else {
 							}
 							continue;
 						}
-						
+
 						$temporary_purchasetype = '';
 						/* GET Quarter Information - START */
 						$quarter_info = quarter_info($purchaseorder['date']);
@@ -126,9 +126,8 @@ else {
 								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['turnOverOc'] += ($purchaseorderline['amount'] / $options['turnoverdivision']);
 								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['originalCurrency'] = $purchaseorder['currency'];
 							}
-							else
-							{
-								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['turnOver'] += ($purchaseorderline['amount'] / $options['turnoverdivision']);	
+							else {
+								$newpurchase[$report['rid']][$purchaseorderline['localpid']]['turnOver'] += ($purchaseorderline['amount'] / $options['turnoverdivision']);
 							}
 
 							if(in_array(strtolower($purchaseorder['purchaseType']), array('ski', 'rei'))) {
@@ -177,12 +176,14 @@ else {
 			$sales_query_extrawhere = " AND imsol.pid NOT IN ('".implode('\',\'', $useddata['foreignpid']['sale'])."')";
 		}
 
-		$query = $db->query("SELECT quantity, quantityUnit, imp.localId AS localpid, p.spid AS localspid, imsol.pid AS foreignpid, imp.foreignName AS productname
+		$query = $db->query("SELECT DISTINCT(imp.foreignId), quantity, quantityUnit, imp.localId AS localpid, p.spid AS localspid, imsol.pid AS foreignpid, imp.foreignName AS productname, ims.foreignName AS foreignSupplierName
 								FROM ".Tprefix."integration_mediation_salesorderlines imsol
 								LEFT JOIN ".Tprefix."integration_mediation_products imp ON (imsol.pid=imp.foreignId)
+								LEFT JOIN ".Tprefix."integration_mediation_entities ims ON (imp.foreignSupplier=ims.foreignId)
 								LEFT JOIN ".Tprefix."products p ON (p.pid=imp.localId)
-								WHERE foreignOrderId IN (SELECT foreignId FROM ".Tprefix."integration_mediation_salesorders WHERE foreignSystem={$options[foreignSystem]} AND affid={$affid} AND (date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate'])."))
-								{$sales_query_extrawhere}");
+								WHERE imp.foreignSystem={$options[foreignSystem]} AND (imp.affid={$affid} OR imp.affid=0)
+								AND foreignOrderId IN (SELECT foreignId FROM ".Tprefix."integration_mediation_salesorders WHERE foreignSystem={$options[foreignSystem]} AND affid={$affid} AND (date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate'])."))
+								".$sales_query_extrawhere);
 
 		/* GET Quarter Information - START */
 		$quarter_info = quarter_info(strtotime($options['fromDate']));
@@ -198,7 +199,7 @@ else {
 					}
 					continue;
 				}
-						
+
 				if(isset($reports_cache[$affid][$sale['localspid']][$quarter_info['year']][$quarter_info['quarter']])) {
 					$report = $reports_cache[$affid][$sale['localspid']][$quarter_info['year']][$quarter_info['quarter']];
 				}
@@ -247,21 +248,26 @@ else {
 		//						WHERE imso.foreignSystem={$options[foreignSystem]} AND imso.affid={$affid} AND imp.localId!=0 AND (imso.date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).")");
 		//}
 
+		echo '<h3>'.$options['quarter'].' '.$options['year'].'</h3>';
 		if(is_array($newpurchase)) {
 			foreach($newpurchase as $rid => $products) {
 				foreach($products as $pid => $activity) {
 					if(empty($activity)) {
 						continue;
 					}
-					
-						if(value_exists('productsactivity', 'rid', $rid, 'pid='.$pid.' AND uid=0')) {
-							if($options['runtype'] != 'dry' || $options['operation'] != 'addonly') {
-								echo 'Updated: ';
-								$db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.' AND uid=0');
-							}
-							else {
-								echo 'Skipped Update: ';
-							}
+
+					if(value_exists('productsactivity', 'rid', $rid, 'pid='.$pid.' AND uid=0')) {
+						if($options['runtype'] == 'dry' || $options['operation'] == 'addonly') {
+							echo 'Skipped Update: ';
+						}
+						else {
+							echo 'Updated: ';
+							$db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.' AND uid=0');
+						}
+					}
+					else {
+						if($options['runtype'] == 'dry' || $options['operation'] == 'updateonly') {
+							echo 'Skipped Add: ';
 						}
 						else {
 							echo 'Added: ';
@@ -269,15 +275,15 @@ else {
 								$db->insert_query('productsactivity', $activity);
 							}
 						}
-					
-					echo $activity['rid'].' '.print_r($activity).'<hr />';
-					echo "Done<br />";
+
+						echo $activity['rid'].' '.print_r($activity).'<hr />';
+						echo "Done<br />";
+					}
 				}
 				if($options['runtype'] != 'dry') {
 					$db->update_query('reports', array('prActivityAvailable' => 1), 'rid='.$rid);
 				}
 			}
-
 			if(is_array($errors)) {
 				foreach($errors as $key => $val) {
 					echo '-'.$key.':<br />';
