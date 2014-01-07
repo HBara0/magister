@@ -2,7 +2,7 @@ $(function() {
     /*
      Check the browswer support before anything else
      */
-    if(jQuery.support.leadingWhitespace == false) {
+    if (jQuery.support.leadingWhitespace == false) {
         $('head').append('<link rel="stylesheet" href="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.min.css" type="text/css" />');
         $("body").append("<div id='browserversionerror' title='Browser version is too old'>Please upgrade your browser to a newer version.</div>");
         $("#browserversionerror").dialog({
@@ -20,7 +20,7 @@ $(function() {
     $('tr[class*="trowtools"]').hover(function() {
         $(this).toggleClass('altrow2').children('td [id$="_tools"]').find('div').toggle();
     });
-        
+
     $("#login_Button").live("click", login);
     $("#login_Form input").bind('keypress', function(e) {
         if (e.keyCode == 13) {
@@ -444,57 +444,74 @@ $(function() {
             file = rootdir + id;
         }
 
-        $.post(file,
-                {module: module, action: "get_" + template, id: id},
-        function(returnedData) {
-            $(".contentContainer").append(returnedData);
+        /*change ajax call*/
+        $.ajax({type: 'post',
+                url: file + "?module=" + module + "&action=get_" + template,
+                 data:"id=" + id,
+                 
+           beforeSend: function() {
+                $("body").append("<div id='modal-loading'></div>");
+                $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
+           
+                });
+            },
+            complete: function() {
+                $("#modal-loading").dialog("close").remove();
+            },
+            success: function(returnedData) { 
+                $(".contentContainer").append(returnedData);
 
-            $("div[id^='popup_']").dialog({
-                bgiframe: true,
-                closeOnEscape: true,
-                modal: true,
-                width: 460,
-                maxWidth: 460,
-                zIndex: 1000,
-                close: function() {
-                    $(this).find("form").each(function() {
-                        this.reset();
-                    });
-                    $(this).find("span[id$='_Validation']").empty();
-                    $(this).find("span[id$='_Results']").empty();
-                    $(this).remove();
-                }
-            });
-            //$("#popupBox").html(returnedData).show("slow");
-            //$("#popupBox").draggable();
-            //	$("input[id$='_QSearch']").keyup(QSearch);
-            //$("input[id='email']").keyup(validateEmailInline);
-            $("input[id='email']").change(validateEmailInline);
-            /*$("input[id$='_Button']").click(function() {
-             if($.cookie(cookie_prefix + 'uid') == null) {
-             window.location = window.location;
-             }
-             var id =  $(this).attr("id").split("_");
-             
-             var formid = '';
-             for(var i=0;i<id.length-1;i++) {
-             formid += id[i]+ "_";
-             }
-             
-             var formData = $("form[id='" + formid +"Form']").serialize();
-             var url = "index.php?module=" + id[id.length-2];
-             
-             if(!formData.match(/action=[A-Za-z0-9]+/)) {
-             url += "&action=save_" + id[1];
-             }
-             
-             sharedFunctions.requestAjax("post", url, formData, formid + "Results", formid + "Results");
-             });	*/
-            $("input[id='hide_popupBox']").click(function() {
-                $("#popupBox").hide("fast");
-            });
-        }
-        );
+                $("div[id^='popup_']").dialog({
+                    bgiframe: true,
+                    closeOnEscape: true,
+                    modal: true,
+                    width: 460,
+                    maxWidth: 460,
+                    zIndex: 1000,
+                    close: function() {
+                        $(this).find("form").each(function() {
+                            this.reset();
+                        });
+                        $(this).find("span[id$='_Validation']").empty();
+                        $(this).find("span[id$='_Results']").empty();
+                        $(this).remove();
+                    }
+                });
+                //$("#popupBox").html(returnedData).show("slow");
+                //$("#popupBox").draggable();
+                //	$("input[id$='_QSearch']").keyup(QSearch);
+                //$("input[id='email']").keyup(validateEmailInline);
+                $("input[id='email']").change(validateEmailInline);
+                /*$("input[id$='_Button']").click(function() {
+                 if($.cookie(cookie_prefix + 'uid') == null) {
+                 window.location = window.location;
+                 }
+                 var id =  $(this).attr("id").split("_");
+                 
+                 var formid = '';
+                 for(var i=0;i<id.length-1;i++) {
+                 formid += id[i]+ "_";
+                 }
+                 
+                 var formData = $("form[id='" + formid +"Form']").serialize();
+                 var url = "index.php?module=" + id[id.length-2];
+                 
+                 if(!formData.match(/action=[A-Za-z0-9]+/)) {
+                 url += "&action=save_" + id[1];
+                 }
+                 
+                 sharedFunctions.requestAjax("post", url, formData, formid + "Results", formid + "Results");
+                 });	*/
+                $("input[id='hide_popupBox']").click(function() {
+                    $("#popupBox").hide("fast");
+                });
+            }
+
+        });
+        // $.post(file,
+        // {module: module, action: "get_" + template, id: id},
+
+        //);
     }
 
     $("a[href='#'][id^='approve_']").click(function() {
@@ -521,17 +538,17 @@ $(function() {
         if (sharedFunctions.checkSession() == false) {
             return;
         }
-        
+
         var id = $(this).attr('id').split('_');
         var num_rows = 0;
         if ($("#numrows_" + id[id.length - 2] + id[id.length - 1]).length != 0) {
             var num_rows = parseInt($("#numrows_" + id[id.length - 2] + id[id.length - 1]).val());
-            var affid=  parseInt($("#affid_" + id[id.length - 2] + id[id.length - 1]).val()); 
+            var affid = parseInt($("#affid_" + id[id.length - 2] + id[id.length - 1]).val());
         }
 
         $.ajax({type: 'post',
             url: rootdir + "index.php?module=" + id[1] + "&action=ajaxaddmore_" + id[2],
-            data:  "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + $('input[id^=ajaxaddmoredata_]').serialize(), 
+            data: "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + $('input[id^=ajaxaddmoredata_]').serialize(),
             beforeSend: function() {
                 $("body").append("<div id='modal-loading'></div>");
                 $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
@@ -576,7 +593,7 @@ $(function() {
                     }
                 },
                 success: function(returnedData) {
-            alert(returnedData);
+                    alert(returnedData);
                     if (datatype == 'xml') {
                         if ($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -591,7 +608,7 @@ $(function() {
                         $("#" + contentId).html($.trim(returnedData));
                     }
                 }//,
-               // dataType: datatype
+                // dataType: datatype
             });
         }
         function checkSession() {
@@ -615,26 +632,26 @@ $(function() {
 
             var last = $("#" + id[1] + "_tbody > tr:last").attr("id");
 
-			var increment = parseInt(last) + 1;
+            var increment = parseInt(last) + 1;
 
             //var template =  $("#"+ id[1] +"_tbody > tr:last").html();
-		/*	if($.browser.msie) {
-				alert(template);
-				alert(increment);
-                template = template.replace(/name=([a-z]+)_[\d]+_([a-z_]+)/gi, "name='$1_" + increment + "_$2'");
-                template = template.replace(/name=([a-z]+)\[[\d]+\](\[[a-z_]+\])/gi, "name='$1[" + increment + "]$2'");
-				template = template.replace(/name=([A-Za-z]+)_[\d]+/gi, "name='$1_" + increment +"'");
-                template = template.replace(/id=([a-z]+)_[\d]+_([a-z_]+)/gi, "id='$1_" + increment + "_$2'");
-                template = template.replace(/id=([a-z]+)\[[\d]+\](\[[a-z_]+\])/gi, "id='$1[" + increment + "]$2'");
-				template = template.replace(/id=([A-Za-z]+)_[\d]+/gi, "id='$1_" + increment +"'");
-	alert(template);
-                //template = template.replace(/id=([a-z_0-9]+)_id[\d]+_([a-z_]+)/gi, "id='$1_id" + increment + "_$2'");
-                //template = template.replace(/id=([a-z_0-9]+)_id[\d]+/gi, "id='$1_id" + increment + "'");
-            }
-			*/
+            /*	if($.browser.msie) {
+             alert(template);
+             alert(increment);
+             template = template.replace(/name=([a-z]+)_[\d]+_([a-z_]+)/gi, "name='$1_" + increment + "_$2'");
+             template = template.replace(/name=([a-z]+)\[[\d]+\](\[[a-z_]+\])/gi, "name='$1[" + increment + "]$2'");
+             template = template.replace(/name=([A-Za-z]+)_[\d]+/gi, "name='$1_" + increment +"'");
+             template = template.replace(/id=([a-z]+)_[\d]+_([a-z_]+)/gi, "id='$1_" + increment + "_$2'");
+             template = template.replace(/id=([a-z]+)\[[\d]+\](\[[a-z_]+\])/gi, "id='$1[" + increment + "]$2'");
+             template = template.replace(/id=([A-Za-z]+)_[\d]+/gi, "id='$1_" + increment +"'");
+             alert(template);
+             //template = template.replace(/id=([a-z_0-9]+)_id[\d]+_([a-z_]+)/gi, "id='$1_id" + increment + "_$2'");
+             //template = template.replace(/id=([a-z_0-9]+)_id[\d]+/gi, "id='$1_id" + increment + "'");
+             }
+             */
             //$("#"+ id[1] +"_tbody").append("<tr id='" + increment + "'>" + template + "</tr>");
 
-			$("#"+ id[1] +"_tbody > tr:last").clone(true).removeAttr('id').attr('id', increment).appendTo("#"+ id[1] +"_tbody");
+            $("#" + id[1] + "_tbody > tr:last").clone(true).removeAttr('id').attr('id', increment).appendTo("#" + id[1] + "_tbody");
 
             /*if(!$.browser.msie) {
              $("#"+ id[1] +"_tbody > tr[id='" + increment + "']").find("input[name],select[name],div[name],textarea[name],img").each(function() {
