@@ -17,6 +17,7 @@ if($core->usergroup['canManageapllicationsProducts'] == 0) {
 	//exit;
 }
 $lang->load('products_applications');
+$lang->load('global');
 if(!$core->input['action']) {
 	$sort_url = sort_url();
 	$applications_obj = Segmentapplications::get_segmentsapplications();
@@ -53,6 +54,18 @@ if(!$core->input['action']) {
 	output_page($applicationpage);
 }
 elseif($core->input['action'] == 'do_create') {
-	Segmentapplications::create($core->input['segmentapplications']);
+	$segmentapplications_obj = new Segmentapplications();
+	$segmentapplications_obj->create($core->input['segmentapplications']);
+	switch($segmentapplications_obj->get_errorcode()) {
+		case 0:
+			output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+			break;
+		case 1:
+			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+			break;
+		case 2:
+			output_xml('<status>false</status><message>'.$lang->entryexist.'</message>');
+			break;
+	}
 }
 ?>

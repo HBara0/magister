@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: functions.php
  * Created:        @tony.assaad    Dec 6, 2013 | 11:25:34 AM
@@ -23,8 +23,11 @@ if(!$core->input['action']) {
 	if(is_array($applications_obj)) {
 		foreach($applications_obj as $application_obj) {
 			$applications = $application_obj->get();
+			$segments_objs = $application_obj->get_segment();
+			$segment = $segments_objs->get()['title'];
+
 			if(is_array($applications)) {
-				$applications_list.='<option value='.$applications['psaid'].'>'.$applications['title'].'</option>';
+				$applications_list.='<option value='.$applications['psaid'].'>'.$applications['title'].' ->> '.$segment.'</option>';
 			}
 		}
 	}
@@ -39,21 +42,27 @@ if(!$core->input['action']) {
 			if(is_array($functionsappseg_objs)) {
 				foreach($functionsappseg_objs as $functionsappseg_obj) {
 					$functions_applications = $functionsappseg_obj->get();
+					if(empty($functions_applications)) {
+						$functions_application = $lang->na;
+					}
 					$functions_application .=$functions_applications['title'].' - '.$functionsappseg_obj->get_segment()->get()['title'].'</br>';
 				}
+			}
+			else {
+				$functions_application = $lang->na;
 			}
 
 			eval("\$productsapplicationsfunctions_list .= \"".$template->get("admin_products_functions_rows")."\";");
 			$functions_application = '';
 		}
 	}
-
+	eval("\$popup_createfunction = \"".$template->get("admin_products_popup_createfunction")."\";");
 	eval("\$functionpage = \"".$template->get("admin_products_functions")."\";");
 	output_page($functionpage);
 }
 elseif($core->input['action'] == 'do_create') {
-	Chemicalfunctions::create($core->input['chemicalfunctions']);
 	$function_obj = new Chemicalfunctions();
+	$function_obj->create($core->input['chemicalfunctions']);
 	switch($function_obj->get_errorcode()) {
 		case 0:
 			output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
@@ -62,7 +71,7 @@ elseif($core->input['action'] == 'do_create') {
 			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
 			break;
 		case 2:
-			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+			output_xml('<status>false</status><message>'.$lang->entryexist.'</message>');
 			break;
 	}
 }

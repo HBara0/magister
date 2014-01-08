@@ -39,9 +39,7 @@ if(!$core->input['action']) {
 }
 elseif($core->input['action'] == 'do_create') {
 	$entitybrand_obj = new Entbrands();
-
 	$entitybrand_obj->create($core->input['entitybrand']);
-
 	switch($entitybrand_obj->get_errorcode()) {
 		case 0:
 			output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
