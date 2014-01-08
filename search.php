@@ -44,13 +44,31 @@ if($core->input['type'] == 'quick') {
 	}
 
 	if(isset($core->input['for'])) {
-		if($core->input['for'] == 'supplier' || $core->input['for'] == 'customer') {
+
+		if($core->input['for'] == 'potentialsupplier' || $core->input['for'] == 'potentialcustomer') {
+
+			if($core->input['for'] == 'potentialcustomer') {
+				$type = 'pc';
+			}
+			$table = 'entities';
+			$attributes = array('companyName', 'companyNameAbbr');
+			$key_attribute = 'eid';
+			$select_attributes = array('companyName');
+			$order = array('by' => 'companyName', 'sort' => 'ASC');
+			if(!empty($ispotential)) {
+				$extra_where .= '  type="'.$type.'" AND isPotential="'.$ispotential.'"';
+			}
+		}
+		if($core->input['for'] == 'supplier' || $core->input['for'] == 'customer' || $core->input['for'] == 'competitorsupp') {
 			if($core->input['for'] == 'supplier') {
 				$type = 's';
 				if($core->usergroup['canViewAllSupp'] == 0) {
 					$inentities = implode(',', $core->user['suppliers']['eid']);
 					$extra_where = 'eid IN ('.$inentities.')';
 				}
+			}
+			elseif($core->input['for'] == 'competitorsupp') {
+				$type = 'cs';
 			}
 			else {
 				$type = 'c';
@@ -85,7 +103,12 @@ if($core->input['type'] == 'quick') {
 			if(isset($core->input['rid']) && !empty($core->input['rid'])) {
 				$extra_where .= 'spid = "'.$report_data['spid'].'"';
 			}
-
+			if($core->usergroup['canViewAllsupp'] == 0) {
+				$supplier_filter = "spid IN('".implode(',', $core->user['suppliers']['eid'])."')";
+			}
+//			if(isset($core->input['userproducts'])) {
+//				$supplier_filter = "spid IN('".implode(',', $core->user['suppliers']['eid'])."')";
+//			}
 			if(!empty($supplier_filter)) {
 				$extra_where .= $supplier_filter;
 			}
@@ -97,14 +120,19 @@ if($core->input['type'] == 'quick') {
 			$order = array('by' => 'name', 'sort' => 'ASC');
 		}
 		elseif($core->input['for'] == 'chemfunctionproducts') {
-		
+			if($core->usergroup['canViewAllsupp'] == 0) {
+				$supplier_filter = "spid IN('".implode(',', $core->user['suppliers']['eid'])."')";
+			}
+			if(!empty($supplier_filter)) {
+				//$extra_where = $supplier_filter;
+			}
 			$table = 'products';
 			$flagtable = 'chemfunctionproducts';
 			$attributes = array('name');
 			$key_attribute = 'pid';
 			$select_attributes = array('name');
 			$order = array('by' => 'name', 'sort' => 'ASC');
-		}
+		} 
 		elseif($core->input['for'] == 'representative' || $core->input['for'] == 'supprepresentative') {
 			if(IN_AREA == 'user') {
 				if($core->input['for'] == 'supprepresentative') {
