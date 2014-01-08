@@ -31,24 +31,25 @@ class Chemicalfunctions {
 		$this->chemfunction = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemicalfunctions WHERE cfid='.intval($id)));
 	}
 
-	public static function create($data = array()) {
+	public  function create($data = array()) {
 		global $db, $core, $log;
 		if(empty($data['title'])) {
-			$errorcode = 1;
+			$this->errorcode = 1;
 			return false;
 		}
 
 		if(is_array($data)) {
 			if(value_exists('chemicalfunctions', 'title', $data['title'])) {
-				$errorcode = 2;
+				$this->errorcode = 2;
 				return false;
 			}
 			$data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true));
-			if(empty($data['name'])) {
+			if(empty($data['name']) && !isset($data['name'])) {
 				$data['name'] = $data['title'];
 			}
 			$chemicalfunctions_data = array('name' => $data['name'],
 					'title' => $data['title'],
+					'name' => $data['name'],
 					'createdBy' => $core->user['uid']
 			);
 			$query = $db->insert_query('chemicalfunctions', $chemicalfunctions_data);
@@ -63,7 +64,7 @@ class Chemicalfunctions {
 					}
 				}
 				$log->record('createchemicalfunctions', $data['cfid']);
-				$errorcode = 0;
+				$this->errorcode = 0;
 				return true;
 			}
 		}

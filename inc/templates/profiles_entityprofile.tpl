@@ -38,7 +38,7 @@
         <td class="contentContainer">
             <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
-                    <td colspan="2"><h3>{$profile[companyName]}</h3> <input type="hidden" name="eid" id="eid" value="{$profile[eid]}" /></td>
+                    <td colspan="2"><h3>{$profile[companyName]}</h3> <input type="hidden" name="eid" id="eid" value="{$profile[eid]}" />{$addmarketdata_link}</td>
                 </tr>
                 <tr>
                     <td valign="top" style="width:45%; text-align:center;"><img id="logo" src="{$profile[logo]}" alt="{$profile[companyName]}" border="0" /> <hr /></td>
@@ -48,9 +48,9 @@
                         {$lang->pobox}: {$profile[poBox]}<br />
                         {$lang->telephone}: {$phone}<br />
                         {$lang->fax}: {$fax}<br />
-                        {$lang->email}: <a href="mailto:{$profile[mainEmail]}">{$profile[mainEmail]}</a><br />  
-                        {$profile[website]} 
-                    </td>      
+                        {$lang->email}: <a href="mailto:{$profile[mainEmail]}">{$profile[mainEmail]}</a><br />
+                        {$profile[website]}
+                    </td>
                 </tr>
                 <tr>
                     <td>
@@ -77,9 +77,36 @@
                 {$meetings_section}
                 {$reports_section}
                 {$entityprofile_private}
+                <tr class="thead"><td colspan="2">{$lang->Brandsendproducts}...</td>  </tr>
+                <tr>
+                    <td colspan="2">
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                            <tbody>
+                                <tr id="1">
+                                    <td colspan="2">
+                                        <div style="width:100% ;height:180px; overflow:auto; display:inline-block; vertical-align:top;">
+                                            <table class="datatable" width="100%">
+                                                <tr class="altrow2">
+                                                    <th>{$lang->brand}</th>
+                                                    <th>{$lang->endproduct}</th>
 
+                                                </tr>
+                                                {$brandsendproducts}
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+
+                    </td>
+                </tr>
+                <tr ><td class="thead" colspan="2">{$lang->detlmrktbox}</td></tr>
+                <tr><td>  <table width="100%" class="datatable">{$detailmarketbox}</table></td></tr>
             </table>
         </td></tr>
         {$footer}
 </body>
 </html>
+{$popup_marketdata}

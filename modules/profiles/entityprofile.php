@@ -22,6 +22,54 @@ if(!$core->input['action']) {
 	$eid = $db->escape_string($core->input['eid']);
 	$entity_obj = new Entities($eid, '', false);
 	$profile = $entity_obj->get();
+	/* Market Data --START */
+	if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
+		$addmarketdata_link = '<div style="float:right;margin:-10px;" title="'.$lang->addmarket.'" ><a href="#"id="showpopup_marketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/marketintelligence.png" width="44px;" height="44px;"/></a></div>';
+		$field = '<input type="text" required="required" size="25" name="marketdata[cfpid]" id="chemfunctionproducts_1_QSearch" size="100"  autocomplete="off"/>
+                  <input type="hidden"  id="chemfunctionproducts_1_id" name="marketdata[cfpid]" /> 
+				  <input type="hidden" value="1" id="userproducts" name="userproducts" /> 
+				<div id="searchQuickResults_1" class="searchQuickResults" style="display:none;"></div>';
+		$array_data = array('module' => 'profiles', 'elemtentid' => $eid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
+		/* to be replacing the below variables */
+		$module = 'profiles';
+		$elemtentid = $eid;
+		$elementname = 'marketdata[cid]';
+		$lang->fieldlabel = $lang->product;
+		$action = 'do_addmartkerdata';
+		$modulefile = 'entityprofile';
+
+		$entbrandsproducts_objs = Entbrandsproducts::get_entbrandsproducts();
+		foreach($entbrandsproducts_objs as $entbrandsproducts_obj) {
+			$entbrandsproducts = $entbrandsproducts_obj->get();
+			/* get endproduct types */
+			$endproduct_types = $entbrandsproducts_obj->get_endproduct($entbrandsproducts['eptid'])->get()['name'];
+			/* get Brands */
+			$entitybrand = $entbrandsproducts_obj->get_entitybrand($entbrandsproducts['eptid'])->get()['name'];
+			$entitiesbrandsproducts_list .= '<option value="'.$entbrandsproducts['ebpid'].'">'.$endproduct_types.'-'.$entitybrand.' </option>';
+		}
+		/* View detailed market intelligence box --START */
+
+		$maktintl_objs = Marketintelligence::get_marketintelligence();
+		if(is_array($maktintl_objs)) {
+			$round_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice');
+			foreach($maktintl_objs as $maktintl_obj) {
+				$altrow_class = alt_row($altrow_class);
+				$mktintldata = $maktintl_obj->get();
+				foreach($round_fields as $round_field) {
+					$mktintldata[$round_field] = round($mktintldata[$round_field]);
+				}
+
+				$mktintldata['product'] = $maktintl_obj->get_chemfunctionproducts($mktintldata['cfpid'])->get_produt()->get()['name'];  //get product from cfpid
+				eval("\$detailmarketbox .= \"".$template->get('profiles_entityprofile_viewmarketbox')."\";");
+			}
+		}
+
+		/* View detailed market intelligence box --END */
+	}
+	$rowid = intval($core->input['value']) + 2;
+
+	/* Market Data--END */
+
 	//$profile = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid={$eid}"));
 	if(!empty($profile['building'])) {
 		$profile['fulladdress'] .= $profile['building'].' - ';
@@ -75,7 +123,9 @@ if(!$core->input['action']) {
 		$profile['logo'] = $core->settings['rootdir'].'/'.$core->settings['entitylogodir'].'/'.$profile['logo'];
 	}
 
-	$profile['country'] = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid='{$profile[country]}'"), 'name');
+	$profile['country'] = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid=' {
+			$profile[country]
+		}'"), 'name');
 
 	$profile['fulladdress'] .= $profile['country'];
 
@@ -86,7 +136,7 @@ if(!$core->input['action']) {
 	}
 
 	if(!empty($profile['website'])) {
-		$profile['website'] = '<a href="'.$profile['website'].'" target="_blank">'.$profile['website'].'</a>';
+		$profile['website'] = '<a href = "'.$profile['website'].'" target = "_blank">'.$profile['website'].'</a>';
 	}
 	else {
 		$profile['website'] = '';
@@ -96,7 +146,7 @@ if(!$core->input['action']) {
 										FROM ".Tprefix."representatives r JOIN ".Tprefix."entitiesrepresentatives er ON (er.rpid=r.rpid)
 										WHERE er.eid={$eid}");
 	while($representative = $db->fetch_assoc($representative_query)) {
-		$representativelist .= '<a href="#" id="contactpersoninformation_'.base64_encode($representative['rpid']).'_profiles/entityprofile_loadpopupbyid">'.$representative['name'].'</a> - <a href="mailto:'.$representative['email'].'">'.$representative['email'].'</a><br />';
+		$representativelist .= '<a href = "#" id = "contactpersoninformation_'.base64_encode($representative['rpid']).'_profiles/entityprofile_loadpopupbyid">'.$representative['name'].'</a> - <a href = "mailto:'.$representative['email'].'">'.$representative['email'].'</a><br />';
 	}
 
 	$segment_query = $db->query("SELECT * FROM ".Tprefix."entitiessegments es JOIN ".Tprefix." productsegments ps ON (es.psid=ps.psid) WHERE es.eid={$eid}");
@@ -109,7 +159,7 @@ if(!$core->input['action']) {
 								   WHERE ae.eid={$eid}
 								   ORDER BY a.name ASC");
 	while($affiliate = $db->fetch_array($affiliate_query)) {
-		$listitem['link'] = 'index.php?module=profiles/affiliateprofile&affid='.$affiliate['affid'];
+		$listitem['link'] = 'index.php?module = profiles/affiliateprofile&affid = '.$affiliate['affid'];
 		$listitem['title'] = $affiliate['name'];
 		$listitem['divhref'] = 'affiliate';
 		$listitem['loadiconid'] = 'loadentityusers_'.$affiliate['affid'].'_'.$eid;
@@ -126,18 +176,27 @@ if(!$core->input['action']) {
 
 	while($entityusers = $db->fetch_array($entityusers_query)) {
 		if(++$entityusers_counter > $core->settings['itemsperlist']) {
-			$hidden_entityusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a></li>";
+			$hidden_entityusers .= "<li><a href='./users.php?action = profile&uid = {
+			$entityusers[uid]
+		}' target='_blank'>{$entityusers['fullname']}</a></li>";
 		}
 		elseif($entityusers_counter == $core->settings['itemsperlist']) {
-			$shown_entityallusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a>";
+			$shown_entityallusers .= "<li><a href='./users.php?action = profile&uid = {
+			$entityusers[uid]
+		}' target='_blank'>{$entityusers['fullname']}</a>";
 		}
 		else {
-			$shown_entityallusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a></li>";
+			$shown_entityallusers .= "<li><a href='./users.php?action = profile&uid = {
+			$entityusers[uid]
+		}' target='_blank'>{$entityusers['fullname']}</a></li>";
 		}
 	}
 
 	if($entityusers_counter > $core->settings['itemsperlist']) {
-		$entityallusers = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_entityallusers.", <a href='#entityusers' id='showmore_entityusers_{$entityusers[uid]}' class='smalltext'>read more</a></li> <span style='display:none;' id='entityusers_{$entityusers[uid]}'>{$hidden_entityusers}</span></ul>";
+		$entityallusers = "<ul style='list-style:none;
+		padding:2px;
+		margin-top:0px;
+		'>".$shown_entityallusers.", <a href='#entityusers' id='showmore_entityusers_{$entityusers[uid]}' class='smalltext'>read more</a></li> <span style='display:none;' id='entityusers_{$entityusers[uid]}'>{$hidden_entityusers}</span></ul>";
 	}
 	else {
 		$entityallusers = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_entityallusers.'</ul>';
@@ -414,6 +473,27 @@ if(!$core->input['action']) {
 		}
 	}
 	/* parse Minites Of Meetings --END */
+
+
+	$entity_brand_objs = Entbrands::get_entitybrand_byid($eid);
+	if(is_array($entity_brand_objs)) {
+		foreach($entity_brand_objs as $entity_brand_obj) {
+			$rowclass = alt_row($rowclass);
+			$entity_brands = $entity_brand_obj->get();
+			//getentitiesbrandsproducts
+			$endproductstypes_objs = Entbrandsproducts::get_endproducts($entity_brands['ebid']);
+			if(is_array($endproductstypes_objs)) {
+				foreach($endproductstypes_objs as $endproductstypes_obj) {
+					$entity_endproducts = $endproductstypes_obj->get();
+					eval("\$brandsendproducts .= \"".$template->get('profiles_entityprofile_brandsproducts')."\";");
+				}
+			}
+		}
+	}
+	else {
+		$brandsendproducts = '<tr><td>'.$lang->na.'</td></tr>';
+	}
+	eval("\$popup_marketdata= \"".$template->get("popup_marketdata")."\";");
 	eval("\$profilepage = \"".$template->get('profiles_entityprofile')."\";");
 	output_page($profilepage);
 }
@@ -471,6 +551,35 @@ else {
 	elseif($core->input['action'] == 'do_updaterml') {
 		savematuritylevel($core->input['target'], $core->input['eid']);
 		echo get_rml_bar($core->input['eid']);
+	}
+	elseif($core->input['action'] == 'do_addmartkerdata') {
+		$marketin_obj = new Marketintelligence();
+		$marketin_obj->create($core->input[marketdata]);
+		switch($marketin_obj->get_errorcode()) {
+			case 0:
+				output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+				break;
+			case 1:
+				output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+				break;
+			case 2:
+				output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+				break;
+		}
+	}
+	elseif($core->input['action'] == 'get_mktintldetails') {
+		$mibdid = $db->escape_string($core->input['id']);
+		$mrktint_obj = new Marketintelligence($mibdid);
+		$mrktintl_detials = $mrktint_obj->get();
+		$round_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice');
+		foreach($round_fields as $round_field) {
+			$mrktintl_detials[$round_field] = round($mrktintl_detials[$round_field]);
+		}
+
+		$mrktintl_detials['brand'] = $mrktint_obj->get_entitiesbrandsproducts()->get_entitybrand()->get()['name'];
+		$mrktintl_detials['endproduct'] = $mrktint_obj->get_entitiesbrandsproducts()->get_endproduct()->get()['name'];
+		eval("\$marketintelligencedetail = \"".$template->get('popup_marketintelligencedetails')."\";");
+		output($marketintelligencedetail);
 	}
 }
 function parse_calltype(&$value) {

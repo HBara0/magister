@@ -34,15 +34,16 @@ class Entbrands {
 	public function create($data = array()) {
 		global $db, $core;
 		if(is_array($data)) {
+			$this->data = $data;
 			if(empty($this->data['title'])) {
 				$this->errorcode = 1;
 				return false;
 			}
-			if(value_exists('entitiesbrands', 'title', $this->data['title'])) {
+			if(value_exists('entitiesbrands', 'name', $this->data['title'])) {
 				$this->errorcode = 2;
 				return false;
 			}
-			$this->data = $data;
+
 			/* insert entity Brands */
 
 			$enttitbrand_data = array('name' => $this->data['title'],
@@ -50,6 +51,7 @@ class Entbrands {
 					'createdBy' => $core->user['uid'],
 					'createdOn' => TIME_NOW
 			);
+			print_r($enttitbrand_data);
 			$query = $db->insert_query('entitiesbrands', $enttitbrand_data);
 			if($query) {
 				$this->ebid = $db->last_id();
@@ -64,6 +66,7 @@ class Entbrands {
 					}
 				}
 				$this->errorcode = 0;
+				return true;
 			}
 		}
 	}
@@ -80,14 +83,15 @@ class Entbrands {
 		return new Users($this->entitiesbrands['modifiedBy']);
 	}
 
-	public static function get_entity_byname($name) {
+	public static function get_entitybrand_byid($id) {
 		global $db;
 
-		if(!empty($name)) {
-			$id = $db->fetch_field($db->query('SELECT ebid FROM '.Tprefix.'entitiesbrands WHERE name="'.$db->escape_string($name).'"'), 'ebid');
-			if(!empty($id)) {
-				return new Entbrands($id);
+		if(!empty($id)) {
+			$query = $db->query('SELECT ebid  FROM '.Tprefix.'entitiesbrands  WHERE eid="'.$db->escape_string($id).'"');
+			while($ebidrow = $db->fetch_assoc($query)) {
+				$entiy_brands[$ebidrow['ebid']] = new Entbrands($ebidrow['ebid']);
 			}
+			return $entiy_brands;
 		}
 		return false;
 	}
