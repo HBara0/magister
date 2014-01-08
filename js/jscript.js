@@ -450,8 +450,8 @@ $(function() {
                  data:"id=" + id,
                  
            beforeSend: function() {
-                $("body").append("<div id='modal-loading'></div>");
-                $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
+                $("body").append("<div id='modal-loading'><span  style='display:block; width:100px; height: 100%; margin: 0 auto;'><img  src='./images/loader.gif'/></span></div>");
+                $("#modal-loading").dialog({height: 150, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
            
                 });
             },
