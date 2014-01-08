@@ -6,6 +6,7 @@ $lang['applications'] = "Applications";
 $lang['functions'] = "Functions";
 $lang['chemicalsubstances'] = 'Chemical Substances';
 $lang['manageapplications'] = "Manage Applications";
+$lang['manageapplicationsfunc'] = "Manage Applications And Functions";
 $lang['name'] = "Name";
 $lang['title'] = "Title";
 $lang['managechems'] = "Manage Chemicals";

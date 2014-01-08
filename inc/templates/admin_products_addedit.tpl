@@ -43,13 +43,9 @@
                         <td><strong>{$lang->supplier}</strong></td><td><input type='text' id='supplier_1_QSearch' value="{$product[suppliername]}"/><input type="text" size="3" id="supplier_1_id_output" value="{$product[spid]}" disabled/><input type='hidden' id='supplier_1_id' name='spid' value="{$product[spid]}" /><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>
 
-                    <tr>    
-                        <td><strong>Products</strong></td><td><input type='text' id='chemfunctionproducts_1_QSearch' value=" "/>
-                            <input type="text" size="3" id="chemfunctionproducts_1_id_output" value=" " disabled/>
-                            <input type='hidden' id='chemfunctionproducts_1_id' name='spid' value=" " /><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
-                    </tr>             
 
-                    <tr class="thead"> <td  colspan="2">Manage applications and Functions..</td></tr>
+
+                    <tr class="thead"> <td  colspan="2">{$lang->manageapplicationsfunc}..</td></tr>
                     <tr>
                         <td colspan="2">
                             <table width="100%" cellpadding="0" cellspacing="0">
@@ -59,10 +55,10 @@
                                             <div style="width:100% ;height:340px; overflow:auto; display:inline-block; vertical-align:top;">
                                                 <table class="datatable" width="100%">
                                                     <tr class="altrow2">
+                                                        <th>{$lang->isdefault}</th>
                                                         <th>&nbsp;</th>
                                                         <th>{$lang->functions}</th>
-                                                        <th>{$lang->isdefault}</th>
-                                                        <th>{$lang->applications}</th>                                                
+                                                        <th>{$lang->applications}</th>    
                                                         <th>{$lang->segment}</th>
                                                     </tr>
                                                     {$admin_products_addedit_segmentsapplicationsfunctions_rows} 

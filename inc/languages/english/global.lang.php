@@ -120,4 +120,5 @@ $lang['successfullydeleted']='Successfully Deleted';
 $lang['successfullydeactivated']='Successfully Deactivated';
 $lang['actionnopermission'] = 'You do not have permissions to perform this operation';
 $lang['entryexists'] = 'Entry with same information already exists';
+$lang['close']='Close';
 ?>

@@ -16,7 +16,7 @@
 class Segmentapplications {
 	private $segmentapplication = array();
 
-	public function __construct($id, $simple = true) {
+	public function __construct($id = '', $simple = true) {
 		if(isset($id)) {
 			$this->read($id, $simple);
 		}
@@ -31,21 +31,25 @@ class Segmentapplications {
 		$this->segmentapplication = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'segmentapplications WHERE psaid='.intval($id)));
 	}
 
-	public static function create($data = array()) {
+	public function create($data = array()) {
 		global $db, $core, $log;
-		if(empty($data['title'])) {
-			$errorcode = 1;
-			return false;
-		}
 
 		if(is_array($data)) {
-			if(value_exists('segmentapplications', 'title', $data['title'], 'psid='.$data['psid'].'')) {
-				$errorcode = 2;
+			if(empty($data['title'])) {
+				$this->errorcode = 1;
 				return false;
+			}
+			if(value_exists('segmentapplications', 'title', $data['title'], 'psid='.$data['psid'].'')) {
+				$this->errorcode = 2;
+				return false;
+			}
+			if(empty($data['name']) && !isset($data['name'])) {
+				$data['name'] = $data['title'];
 			}
 			$data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true));
 			$segapplication_data = array('psid' => $data['psid'],
-					'title' => $data['title']
+					'title' => $data['title'],
+					'name' => $data['name']
 			);
 			$query = $db->insert_query('segmentapplications', $segapplication_data);
 			if($query) {
@@ -58,6 +62,9 @@ class Segmentapplications {
 						}
 					}
 				}
+				$log->record('createsegappfunctions', $data['psaid']);
+				$this->errorcode = 0;
+				return true;
 			}
 		}
 	}
@@ -125,6 +132,15 @@ class Segmentapplications {
 
 	public function get() {
 		return $this->segmentapplication;
+	}
+
+	public function get_errorcode() {
+		if(is_object($this)) {
+			return $this->errorcode;
+		}
+		else {
+			return $errorcode;
+		}
 	}
 
 }

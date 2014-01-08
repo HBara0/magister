@@ -97,5 +97,8 @@ $lang['modifyfileinformation'] = "Modify File Information";
 $lang['changes'] = "Changes";
 $lang['filenameexists'] = "A file with the same name already exists";
 $lang['fileinfomodifiedsuccessfully'] = "File information were successfully modified";
+$lang['successfullysaved'] = "Successfully Saved";
+$lang['fillallrequiredfields'] = "Fill All Required Fields";
+$lang['entryexist'] = "Entry Already Exist";
 $lang['newversionuploaded'] = "New version successfully uploaded";
 ?>

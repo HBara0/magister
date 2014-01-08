@@ -10,7 +10,7 @@
         <td class="contentContainer">
             <h3>{$lang->listavailableapplication}</h3> 
             <table class="datatable">
-                <div style="float:right;" class="subtitle"> <a href="#" id="showpopup_creteapplication" class="showpopup"><img  src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->createbrand}</a></div>
+                <div style="float:right;" class="subtitle"> <a href="#" id="showpopup_creteapplication" class="showpopup"><img  src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->create}</a></div>
                 <thead>
                     <tr>   
                         <th>{$lang->name}<a href="{$sort_url}&amp;sortby=name&amp;order=ASC"><img src="../images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=name&amp;order=DESC"><img src="../images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
