@@ -26,39 +26,46 @@ class Entbrandsproducts {
 		global $db;
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'ebpid,ebid,eptid';
+			$query_select = 'ebpid, ebid, eptid';
 		}
 		$this->entbrandproducts = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'entitiesbrandsproducts WHERE ebpid='.intval($id)));
 	}
-
-	public static function get_endproducts($id) {
+	
+	public static function get_producttypes_bybrand($id) {
 		global $db;
 
 		if(!empty($id)) {
-			$query = $db->query('SELECT eptid  FROM '.Tprefix.'entitiesbrandsproducts  WHERE ebid="'.$db->escape_string($id).'"');
-			while($rows = $db->fetch_assoc($query)) {
-				$endproducts[$rows['eptid']] = new Endproductypes($rows['eptid']);
+			$query = $db->query('SELECT eptid FROM '.Tprefix.'entitiesbrandsproducts WHERE ebid="'.$db->escape_string($id).'"');
+			while($endproduct = $db->fetch_assoc($query)) {
+				$endproducts[$endproduct['eptid']] = new Endproductypes($endproduct['eptid']);
 			}
 			return $endproducts;
 		}
 		return false;
 	}
 
-	public static function get_entitiesbrandsproducts_Bybrand($id) {
+	public static function get_entitiesbrandsproducts_bybrand($id) {
 		global $db;
 
 		if(!empty($id)) {
-			$query = $db->query('SELECT ebpid  FROM '.Tprefix.'entitiesbrandsproducts  WHERE ebid="'.$db->escape_string($id).'"');
-			while($rows = $db->fetch_assoc($query)) {
-				$entbrandsproducts[$rows['ebpid']] = new Entbrandsproducts($rows['ebpid']);
+			$query = $db->query('SELECT ebpid FROM '.Tprefix.'entitiesbrandsproducts WHERE ebid="'.$db->escape_string($id).'"');
+			while($brandproduct = $db->fetch_assoc($query)) {
+				$brandproducts[$brandproduct['ebpid']] = new Entbrandsproducts($brandproduct['ebpid']);
 			}
-			return $entbrandsproducts;
+			return $brandproducts;
 		}
 		return false;
 	}
 
 	public static function get_entbrandsproducts() {
 		global $db;
+		
+		/* Need to put order, filter, and limit 
+		 * Need to put order, filter, and limit 
+		 * Need to put order, filter, and limit 
+		 * Need to put order, filter, and limit 
+		 */
+		
 		$query = $db->query('SELECT * FROM '.Tprefix.'entitiesbrandsproducts');
 		while($rows = $db->fetch_assoc($query)) {
 			$entbrandsproducts[$rows['ebpid']] = new Entbrandsproducts($rows['ebpid']);

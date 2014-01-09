@@ -642,5 +642,18 @@ class Entities {
 		return false;
 	}
 
+	public function get_brands() {
+		global $db;
+
+		if(!empty($id)) {
+			$query = $db->query('SELECT ebid FROM '.Tprefix.'entitiesbrands WHERE eid="'.$db->escape_string($this->data['eid']).'"');
+			while($brand = $db->fetch_assoc($query)) {
+				$brands[$brand['ebid']] = new EntitiesBrands($brand['ebid']);
+			}
+			return $brands;
+		}
+		return false;
+	}
+
 }
 ?>

@@ -13,7 +13,7 @@
  *
  * @author tony.assaad
  */
-class Entbrands {
+class EntitiesBrands {
 	private $entitiesbrands = array();
 
 	public function __construct($id = '', $simple = false) {
@@ -26,7 +26,7 @@ class Entbrands {
 		global $db;
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'ebid,name';
+			$query_select = 'ebid, name';
 		}
 		$this->entitiesbrands = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'entitiesbrands WHERE ebid='.intval($id)));
 	}
@@ -39,25 +39,26 @@ class Entbrands {
 				$this->errorcode = 1;
 				return false;
 			}
+
 			if(value_exists('entitiesbrands', 'name', $this->data['title'])) {
 				$this->errorcode = 2;
 				return false;
 			}
 
-			/* insert entity Brands */
-
-			$enttitbrand_data = array('name' => $this->data['title'],
+			$enttitbrand_data = array(
+					'name' => $this->data['title'],
 					'eid' => $this->data['eid'],
 					'createdBy' => $core->user['uid'],
 					'createdOn' => TIME_NOW
 			);
-			print_r($enttitbrand_data);
+
 			$query = $db->insert_query('entitiesbrands', $enttitbrand_data);
 			if($query) {
 				$this->ebid = $db->last_id();
 				if(is_array($this->data['endproducttypes'])) {
 					foreach($this->data['endproducttypes'] as $eptid) {
-						$entitiesbrandsproducts_data = array('ebid' => $this->ebid,
+						$entitiesbrandsproducts_data = array(
+								'ebid' => $this->ebid,
 								'eptid' => $eptid,
 								'createdBy' => $core->user['uid'],
 								'createdOn' => TIME_NOW
@@ -83,15 +84,15 @@ class Entbrands {
 		return new Users($this->entitiesbrands['modifiedBy']);
 	}
 
-	public static function get_entitybrand_byid($id) {
+	public static function get_entitybrands_byeid($id) {
 		global $db;
 
 		if(!empty($id)) {
-			$query = $db->query('SELECT ebid  FROM '.Tprefix.'entitiesbrands  WHERE eid="'.$db->escape_string($id).'"');
-			while($ebidrow = $db->fetch_assoc($query)) {
-				$entiy_brands[$ebidrow['ebid']] = new Entbrands($ebidrow['ebid']);
+			$query = $db->query('SELECT ebid FROM '.Tprefix.'entitiesbrands WHERE eid="'.$db->escape_string($id).'"');
+			while($brand = $db->fetch_assoc($query)) {
+				$brands[$brand['ebid']] = new EntitiesBrands($brand['ebid']);
 			}
-			return $entiy_brands;
+			return $brands;
 		}
 		return false;
 	}
@@ -99,9 +100,9 @@ class Entbrands {
 	public static function get_entitybrands() {
 		global $db, $core;
 
-		$sort_query = 'ORDER BY  title  ASC';
+		$sort_query = ' ORDER BY  title  ASC';
 		if(isset($core->input['sortby'], $core->input['order'])) {
-			$sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
+			$sort_query = ' ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
 		}
 
 		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
@@ -112,16 +113,36 @@ class Entbrands {
 		if(isset($core->input['start'])) {
 			$limit_start = $db->escape_string($core->input['start']);
 		}
-		$query = $db->query('SELECT ebid  FROM '.Tprefix.'entitiesbrands');
+		$query = $db->query('SELECT ebid FROM '.Tprefix.'entitiesbrands'.$sort_query.' LIMIT '.$limit_start.', '.$core->settings['itemsperlist']);
 		if($db->num_rows($query) > 0) {
-			while($entitybrow = $db->fetch_assoc($query)) {
-				$entiy_brands[$entitybrow['ebid']] = new Entbrands($entitybrow['ebid']);
+			while($brand = $db->fetch_assoc($query)) {
+				$brands[$brand['ebid']] = new Entbrands($brand['ebid']);
 			}
-			return $entiy_brands;
+			return $brands;
 		}
 		else {
 			return false;
 		}
+	}
+
+	public static function get_brandproducts() {
+		global $db;
+
+		$query = $db->query('SELECT ebpid  FROM '.Tprefix.'entitiesbrandsproducts WHERE ebid="'.intval($this->entitiesbrands['ebid']).'"');
+		while($brandproduct = $db->fetch_assoc($query)) {
+			$brandproducts[$brandproduct['ebpid']] = new Entbrandsproducts($brandproduct['ebpid']);
+		}
+		return $brandproducts;
+	}
+
+	public static function get_producttypes() {
+		global $db;
+
+		$query = $db->query('SELECT eptid FROM '.Tprefix.'entitiesbrandsproducts WHERE ebid="'.intval($this->entitiesbrands['ebid']).'"');
+		while($endproduct = $db->fetch_assoc($query)) {
+			$endproducts[$endproduct['eptid']] = new Endproductypes($endproduct['eptid']);
+		}
+		return $endproducts;
 	}
 
 	public function get_errorcode() {

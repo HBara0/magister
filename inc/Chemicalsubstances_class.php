@@ -26,7 +26,7 @@ class Chemicalsubstances {
 		global $db;
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'csid,casNum';
+			$query_select = 'csid, casNum';
 		}
 		$this->chemicalsubstances = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemicalsubstances WHERE csid='.intval($id)));
 	}
@@ -39,16 +39,32 @@ class Chemicalsubstances {
 				return new Chemicalsubstances($id);
 			}
 		}
+		return false;
 	}
 
 	public static function get_chemicalsubstances() {
-		global $db;
-		$query = $db->query("SELECT csid  FROM ".Tprefix."chemicalsubstances LIMIT 0,5");
+		global $db, $core;
+		
+		$sort_query = ' ORDER BY  title  ASC';
+		if(isset($core->input['sortby'], $core->input['order'])) {
+			$sort_query = ' ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
+		}
+
+		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+			$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+		}
+
+		$limit_start = 0;
+		if(isset($core->input['start'])) {
+			$limit_start = $db->escape_string($core->input['start']);
+		}
+
+		$query = $db->query("SELECT csid  FROM ".Tprefix."chemicalsubstances{$sort_query} LIMIT {$limit_start}, ".$core->settings['itemsperlist']);
 		if($db->num_rows($query) > 0) {
-			while($rowschcmicals = $db->fetch_assoc($query)) {
-				$chemical_substances[$rowschcmicals['csid']] = new Chemicalsubstances($rowschcmicals['csid']);
+			while($chemicalsubstance = $db->fetch_assoc($query)) {
+				$chemicalsubstances[$chemicalsubstance['csid']] = new Chemicalsubstances($chemicalsubstance['csid']);
 			}
-			return $chemical_substances;
+			return $chemicalsubstances;
 		}
 		return false;
 	}

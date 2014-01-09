@@ -13,8 +13,8 @@
  *
  * @author tony.assaad
  */
-class Productsegcoord {
-	private $productsegcoord = array();
+class ProdSegCoordinators {
+	private $prodsegcoordinator = array();
 
 	public function __construct($id, $simple = true) {
 		if(isset($id)) {
@@ -26,29 +26,29 @@ class Productsegcoord {
 		global $db;
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'pscid,psid,uid';
+			$query_select = 'pscid, psid, uid';
 		}
-		$this->productsegcoord = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'productsegmentcoordinators WHERE pscid='.intval($id)));
+		$this->prodsegcoordinator = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'productsegmentcoordinators WHERE pscid='.intval($id)));
 	}
-
 	
 	public function get_segment(){
-		return new ProductsSegments($this->productsegcoord['psid']);
+		return new ProductsSegments($this->prodsegcoordinator['psid']);
 	}
+	
 	public function get_coordinator() {
-		return new Users($this->productsegcoord['uid']);
+		return new Users($this->prodsegcoordinator['uid']);
 	}
 
 	public function get_createdby() {
-		return new Users($this->productsegcoord['createdBy']);
+		return new Users($this->prodsegcoordinator['createdBy']);
 	}
 
 	public function get_modifiedby() {
-		return new Users($this->productsegcoord['modifiedBy']);
+		return new Users($this->prodsegcoordinator['modifiedBy']);
 	}
 
 	public function get() {
-		return $this->productsegcoord;
+		return $this->prodsegcoordinator;
 	}
 
 }

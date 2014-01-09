@@ -13,7 +13,7 @@
  *
  * @author tony.assaad
  */
-class Endproductypes {
+class EndproducTypes {
 	private $endproduct = array();
 
 	public function __construct($id = '', $simple = false) {
@@ -26,7 +26,7 @@ class Endproductypes {
 		global $db;
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'eptid,name,title';
+			$query_select = 'eptid, name, title';
 		}
 		$this->endproduct = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'endproducttypes WHERE eptid='.intval($id)));
 	}
@@ -41,19 +41,22 @@ class Endproductypes {
 			$this->errorcode = 2;
 			return false;
 		}
+		
 		$data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true));
 		if(empty($data['name'])) {
-			$data['name'] = $data['title'];
+			$data['name'] = strtolower($data['title']);
+			$data['name'] = preg_replace('/\s+/', '', $data['name']);
 		}
 
-		$endproducttypes_data = array('name' => $data['name'],
+		$endproducttypes_data = array(
+				'name' => $data['name'],
 				'title' => $data['title'],
 				'psaid' => $data['segapplications'],
 				'createdBy' => $core->user['uid'],
 				'createdOn' => TIME_NOW
 		);
 		$query = $db->insert_query('endproducttypes', $endproducttypes_data);
-		$log->record('endproducttypes');
+		$log->record('addendproducttypes');
 	}
 
 	public function get_application() {
@@ -81,9 +84,9 @@ class Endproductypes {
 
 	public static function get_endproductypes() {
 		global $db, $core;
-		$sort_query = 'ORDER BY  title  ASC';
+		$sort_query = ' ORDER BY  title  ASC';
 		if(isset($core->input['sortby'], $core->input['order'])) {
-			$sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
+			$sort_query = ' ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
 		}
 
 		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
@@ -94,12 +97,12 @@ class Endproductypes {
 		if(isset($core->input['start'])) {
 			$limit_start = $db->escape_string($core->input['start']);
 		}
-		$query = $db->query("SELECT eptid  FROM ".Tprefix."endproducttypes {$sort_query} LIMIT  {$limit_start},{$core->settings['itemsperlist']} ");
+		$query = $db->query("SELECT eptid FROM ".Tprefix."endproducttypes{$sort_query} LIMIT {$limit_start}, {$core->settings['itemsperlist']} ");
 		if($db->num_rows($query) > 0) {
-			while($productypes = $db->fetch_assoc($query)) {
-				$entiy_productypes[$productypes['eptid']] = new Endproductypes($productypes['eptid']);
+			while($producttype = $db->fetch_assoc($query)) {
+				$producttypes[$producttype['eptid']] = new Endproductypes($producttype['eptid']);
 			}
-			return $entiy_productypes;
+			return $producttypes;
 		}
 		else {
 			return false;

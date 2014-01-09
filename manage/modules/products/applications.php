@@ -16,6 +16,7 @@ if($core->usergroup['canManageapllicationsProducts'] == 0) {
 	//error($lang->sectionnopermission);
 	//exit;
 }
+
 $lang->load('products_applications');
 $lang->load('global');
 if(!$core->input['action']) {
@@ -36,7 +37,7 @@ if(!$core->input['action']) {
 		/* for best preformance loop over the returned segments objects and get their related data */
 		foreach($segments_obj as $segment_obj) {
 			$segment = $segment_obj->get();
-			$segments_list.='<option value='.$segment['psid'].'>'.$segment['title'].'</option>';
+			$segments_list .= '<option value='.$segment['psid'].'>'.$segment['title'].'</option>';
 		}
 	}
 	$chemicals_obj = Chemicalfunctions::get_functions();
@@ -45,7 +46,7 @@ if(!$core->input['action']) {
 		$checmicalfunctions_list = '<option value="" selected="selected" > </option>';
 		foreach($chemicals_obj as $chemical_obj) {
 			$chemical = $chemical_obj->get();
-			$checmicalfunctions_list.='<option value='.$chemical['cfid'].'>'.$chemical['title'].'</option>';
+			$checmicalfunctions_list .= '<option value='.$chemical['cfid'].'>'.$chemical['title'].'</option>';
 		}
 	}
 	$multipages = new Multipages("segmentapplications", $core->settings['itemsperlist']);
@@ -53,19 +54,21 @@ if(!$core->input['action']) {
 	eval("\$applicationpage = \"".$template->get("admin_products_applications")."\";");
 	output_page($applicationpage);
 }
-elseif($core->input['action'] == 'do_create') {
-	$segmentapplications_obj = new Segmentapplications();
-	$segmentapplications_obj->create($core->input['segmentapplications']);
-	switch($segmentapplications_obj->get_errorcode()) {
-		case 0:
-			output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
-			break;
-		case 1:
-			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
-			break;
-		case 2:
-			output_xml('<status>false</status><message>'.$lang->entryexist.'</message>');
-			break;
+else {
+	if($core->input['action'] == 'do_create') {
+		$segmentapplications_obj = new Segmentapplications();
+		$segmentapplications_obj->create($core->input['segmentapplications']);
+		switch($segmentapplications_obj->get_errorcode()) {
+			case 0:
+				output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+				break;
+			case 1:
+				output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+				break;
+			case 2:
+				output_xml('<status>false</status><message>'.$lang->entryexist.'</message>');
+				break;
+		}
 	}
 }
 ?>

@@ -26,7 +26,7 @@ class Segapplicationfunctions {
 		global $db;
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'safid, cfid,psaid';
+			$query_select = 'safid, cfid, psaid';
 		}
 		$this->segapplicationfunction = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'segapplicationfunctions WHERE safid='.intval($id)));
 	}
@@ -42,7 +42,12 @@ class Segapplicationfunctions {
 	public static function get_segmentsapplicationsfunctions() {
 		global $db, $core;
 
-		$query = $db->query("SELECT safid  FROM ".Tprefix."segapplicationfunctions ");
+		/* Need to put order, filter, and limit 
+		 * Need to put order, filter, and limit 
+		 * Need to put order, filter, and limit 
+		 * Need to put order, filter, and limit 
+		 */
+		$query = $db->query("SELECT safid  FROM ".Tprefix."segapplicationfunctions");
 		if($db->num_rows($query) > 0) {
 			while($rowsegappfunc = $db->fetch_assoc($query)) {
 				$segments_applicationsfunctions[$rowsegappfunc['safid']] = new Segapplicationfunctions($rowsegappfunc['safid']);
@@ -56,7 +61,6 @@ class Segapplicationfunctions {
 	public function get_segment() {
 		return $this->get_application()->get_segment();
 	}
-
 
 	public function get_createdby() {
 		return new Users($this->segapplicationfunction['createdBy']);

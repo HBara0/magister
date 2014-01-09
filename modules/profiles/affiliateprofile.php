@@ -256,17 +256,19 @@ else {
 	}
 	elseif($core->input['action'] == 'inlineCheck') {
 		$eid = $db->escape_string($core->input['value']);
-		$entbrandsproducts_objs = Entbrands::get_entitybrand_byid($eid);
+		$entity_obj = new Entities($eid, '', false);
+		$entbrandsproducts_objs = $entity_obj->get_brands();
 		if(is_array($entbrandsproducts_objs)) {
 			foreach($entbrandsproducts_objs as $entbrandsproducts_obj) {
 				$entbrandsproducts = $entbrandsproducts_obj->get();
 				//get entitiesbrandsproducts
-				$entitiesbrandsproducts_objs = Entbrandsproducts::get_entitiesbrandsproducts_Bybrand($entbrandsproducts['ebid']);
+				$entitiesbrandsproducts_objs = $entbrandsproducts_obj->get_entitybrands();
+
 				foreach($entitiesbrandsproducts_objs as $entitiesbrandsproducts_obj) {
 					$entbrandsproducts['ebpid'] = $entitiesbrandsproducts_obj->get()['ebpid'];
 
 					/* get endproduct types */
-					$endproducts_objs = Entbrandsproducts::get_endproducts($entbrandsproducts['ebid']);
+					$endproducts_objs = $entbrandsproducts_obj->get_producttypes();//Entbrandsproducts::get_endproducts($entbrandsproducts['ebid']);
 					foreach($endproducts_objs as $endproducts_obj) {
 						$endproduct_types = '';
 						$endproduct_types = $endproducts_obj->get()['name'];

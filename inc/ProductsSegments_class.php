@@ -42,6 +42,12 @@ class ProductsSegments {
 
 	public static function get_segments() {
 		global $db;
+		
+		/* Need to put order, filter, and limit 
+		 * Need to put order, filter, and limit 
+		 * Need to put order, filter, and limit 
+		 * Need to put order, filter, and limit 
+		 */
 		$query = $db->query('SELECT psid  FROM '.Tprefix.'productsegments');
 		if($db->num_rows($query) > 0) {
 			while($rowsegment = $db->fetch_assoc($query)) {
@@ -70,12 +76,12 @@ class ProductsSegments {
 
 	public function get_coordinators() {
 		global $db;
-		$query = $db->query('SELECT pscid  FROM '.Tprefix.'productsegmentcoordinators WHERE psid="'.$this->segment['psid'].'"');
+		$query = $db->query('SELECT pscid FROM '.Tprefix.'productsegmentcoordinators WHERE psid="'.$this->segment['psid'].'"');
 		if($db->num_rows($query) > 0) {
-			while($rowsegmentcoord = $db->fetch_assoc($query)) {
-				$segmentscoord[$rowsegmentcoord['pscid']] = new Productsegcoord($rowsegmentcoord['pscid']);
+			while($segmentcoordinator = $db->fetch_assoc($query)) {
+				$segmentcoordinators[$segmentcoordinator['pscid']] = new ProdSegCoordinators($segmentcoordinator['pscid']);
 			}
-			return $segmentscoord;
+			return $segmentcoordinators;
 		}
 		else {
 			return false;

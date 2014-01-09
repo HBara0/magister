@@ -26,12 +26,12 @@ class Chemicalfunctions {
 		global $db;
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'cfid, name,title';
+			$query_select = 'cfid, name, title';
 		}
 		$this->chemfunction = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemicalfunctions WHERE cfid='.intval($id)));
 	}
 
-	public  function create($data = array()) {
+	public function create($data = array()) {
 		global $db, $core, $log;
 		if(empty($data['title'])) {
 			$this->errorcode = 1;
@@ -43,21 +43,25 @@ class Chemicalfunctions {
 				$this->errorcode = 2;
 				return false;
 			}
+			
 			$data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true));
 			if(empty($data['name']) && !isset($data['name'])) {
-				$data['name'] = $data['title'];
+				$data['name'] = strtolower($data['title']);
+				$data['name'] = preg_replace('/\s+/', '', $data['name']);
 			}
-			$chemicalfunctions_data = array('name' => $data['name'],
-					'title' => $data['title'],
+			
+			$chemicalfunctions_data = array(
 					'name' => $data['name'],
-					'createdBy' => $core->user['uid']
+					'title' => $data['title'],
+					'createdBy' => $core->user['uid'],
+					'createdOn' => TIME_NOW
 			);
 			$query = $db->insert_query('chemicalfunctions', $chemicalfunctions_data);
 			if($query) {
 				$data['cfid'] = $db->last_id();
 				if(!empty($data['segapplications']) && isset($data['segapplications'])) {
 					foreach($data['segapplications'] as $psaid) {
-						$segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $data['cfid'], 'psaid' => $psaid, 'createdBy' => $core->user['uid']));
+						$segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $data['cfid'], 'psaid' => $psaid, 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
 						if($segappfuncquery) {
 							$data['safid'] = $db->last_id();
 						}
@@ -73,16 +77,20 @@ class Chemicalfunctions {
 	public static function get_chemfunction_byname($name) {
 		global $db;
 		if(!empty($name)) {
-			return $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'chemicalfunctions WHERE name="'.$name.'"'));
+			$id = $db->fetch_fetch($db->query('SELECT * FROM '.Tprefix.'chemicalfunctions WHERE name="'.$db->escape_string($name).'"'), 'cfid');
+			if(!empty($id)) {
+				return new Chemicalfunctions($id);
+			}
 		}
+		return false;
 	}
 
 	public static function get_functions() {
 		global $db, $core;
 
-		$sort_query = 'ORDER BY  title  ASC';
+		$sort_query = ' ORDER BY  title  ASC';
 		if(isset($core->input['sortby'], $core->input['order'])) {
-			$sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
+			$sort_query = ' ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
 		}
 
 		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
@@ -93,12 +101,12 @@ class Chemicalfunctions {
 		if(isset($core->input['start'])) {
 			$limit_start = $db->escape_string($core->input['start']);
 		}
-		$query = $db->query("SELECT cfid  FROM ".Tprefix."chemicalfunctions  {$sort_query} LIMIT  {$limit_start},{$core->settings['itemsperlist']}");
+		$query = $db->query("SELECT cfid FROM ".Tprefix."chemicalfunctions{$sort_query} LIMIT {$limit_start}, {$core->settings['itemsperlist']}");
 		if($db->num_rows($query) > 0) {
-			while($rowchecmical = $db->fetch_assoc($query)) {
-				$checmical_functions[$rowchecmical['cfid']] = new Chemicalfunctions($rowchecmical['cfid']);
+			while($chemicalfunction = $db->fetch_assoc($query)) {
+				$chemicalfunctions[$chemicalfunction['cfid']] = new Chemicalfunctions($chemicalfunction['cfid']);
 			}
-			return $checmical_functions;
+			return $chemicalfunctions;
 		}
 		else {
 			return false;
@@ -108,12 +116,12 @@ class Chemicalfunctions {
 	/* return multilples Segmentapplications object for the current chemicalfunction */
 	public function get_applications() {
 		global $db;
-		$query = $db->query('SELECT safid ,psaid FROM '.Tprefix.'segapplicationfunctions WHERE cfid='.$this->chemfunction['cfid'].'');
+		$query = $db->query('SELECT safid, psaid FROM '.Tprefix.'segapplicationfunctions WHERE cfid='.$this->chemfunction['cfid']);
 		if($db->num_rows($query) > 0) {
-			while($rowchecmapplications = $db->fetch_assoc($query)) {
-				$checm_applicationsfunctions[$rowchecmapplications['safid']] = new Segmentapplications($rowchecmapplications['psaid']);
+			while($application = $db->fetch_assoc($query)) {
+				$applications[$application['safid']] = new Segmentapplications($application['psaid']);
 			}
-			return $checm_applicationsfunctions;
+			return $applications;
 		}
 		else {
 			return false;

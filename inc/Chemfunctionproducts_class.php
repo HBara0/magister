@@ -27,7 +27,7 @@ class Chemfunctionproducts {
 		global $db;
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'cfpid,pid,safid';
+			$query_select = 'cfpid, pid, safid';
 		}
 		$this->chemfuntionproducts = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemfunctionproducts WHERE cfpid='.intval($id)));
 	}
@@ -54,7 +54,6 @@ class Chemfunctionproducts {
 			return $this->get_segapplicationfunction()->get_function();
 		}
 	}
-
 
 	public function get_segment() {
 		return $this->get_segmentapplication()->get_segment();

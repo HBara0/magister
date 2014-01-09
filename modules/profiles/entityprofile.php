@@ -38,15 +38,15 @@ if(!$core->input['action']) {
 		$action = 'do_addmartkerdata';
 		$modulefile = 'entityprofile';
 
-		$entbrandsproducts_objs = Entbrandsproducts::get_entbrandsproducts();
-		foreach($entbrandsproducts_objs as $entbrandsproducts_obj) {
-			$entbrandsproducts = $entbrandsproducts_obj->get();
-			/* get endproduct types */
-			$endproduct_types = $entbrandsproducts_obj->get_endproduct($entbrandsproducts['eptid'])->get()['name'];
-			/* get Brands */
-			$entitybrand = $entbrandsproducts_obj->get_entitybrand($entbrandsproducts['eptid'])->get()['name'];
-			$entitiesbrandsproducts_list .= '<option value="'.$entbrandsproducts['ebpid'].'">'.$endproduct_types.'-'.$entitybrand.' </option>';
-		}
+//		$entbrandsproducts_objs = $entity_obj->get_brands();//Entbrandsproducts::get_entbrandsproducts();
+//		foreach($entbrandsproducts_objs as $entbrandsproducts_obj) {
+//			$entbrandsproducts = $entbrandsproducts_obj->get();
+//			/* get endproduct types */
+//			$endproduct_types = $entbrandsproducts_obj->get_endproduct($entbrandsproducts['eptid'])->get()['name'];
+//			/* get Brands */
+//			$entitybrand = $entbrandsproducts_obj->get_entitybrand($entbrandsproducts['eptid'])->get()['name'];
+//			$entitiesbrandsproducts_list .= '<option value="'.$entbrandsproducts['ebpid'].'">'.$endproduct_types.'-'.$entitybrand.' </option>';
+//		}
 		/* View detailed market intelligence box --START */
 
 		$maktintl_mainobj = new Marketintelligence();
@@ -474,14 +474,13 @@ if(!$core->input['action']) {
 	}
 	/* parse Minites Of Meetings --END */
 
-
-	$entity_brand_objs = Entbrands::get_entitybrand_byid($eid);
+	$entity_brand_objs = $entity_obj->get_brands();
 	if(is_array($entity_brand_objs)) {
 		foreach($entity_brand_objs as $entity_brand_obj) {
 			$rowclass = alt_row($rowclass);
 			$entity_brands = $entity_brand_obj->get();
 			//getentitiesbrandsproducts
-			$endproductstypes_objs = Entbrandsproducts::get_endproducts($entity_brands['ebid']);
+			$endproductstypes_objs = $entity_brand_obj->get_producttypes();//Entbrandsproducts::get_endproducts($entity_brands['ebid']);
 			if(is_array($endproductstypes_objs)) {
 				foreach($endproductstypes_objs as $endproductstypes_obj) {
 					$entity_endproducts = $endproductstypes_obj->get();

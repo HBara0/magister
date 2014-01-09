@@ -27,7 +27,7 @@ class Chemfunctionchemcials {
 		global $db;
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'cfcid,safid,csid';
+			$query_select = 'cfcid, safid, csid';
 		}
 		$this->chemfuntionchemical = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemfunctionchemcials WHERE cfcid='.intval($id)));
 	}
