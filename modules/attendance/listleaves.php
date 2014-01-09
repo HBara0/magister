@@ -159,7 +159,10 @@ if(!$core->input['action']) {
 			$edit_link = $revoke_link = '';
 			$user_obj = new Users($leave['uid']);
 			if(is_object($user_obj)) {
-				$reports_to = $user_obj->get_reportsto()->get()['uid'];
+				$user_reportsto_obj = $user_obj->get_reportsto();
+			}
+			if(is_object($user_reportsto_obj)) { /* Incase the user doese not Reprot TO any other user */
+				$reports_to = $user_reportsto_obj->get()['uid'];
 			}
 			if($core->usergroup['attenance_canApproveAllLeaves'] == 1 || (($core->usergroup['hr_canHrAllAffiliates'] == 1 || $reports_to == $core->user['uid'] || $leave['uid'] == $core->user['uid']) && TIME_NOW < ($leave['toDate'] + (60 * 60 * 24 * $core->settings['attendance_caneditleaveafter'])) || (TIME_NOW > $leave['toDate'] && $status['approved'] != array_sum($status)))) {
 				$edit_link = "<a href='index.php?module=attendance/editleave&amp;lid={$leave[lid]}'><img src='{$core->settings[rootdir]}/images/icons/edit.gif' border='0' alt='{$lang->modifyleave}' /></a>";
