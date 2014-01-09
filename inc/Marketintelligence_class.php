@@ -72,15 +72,24 @@ class Marketintelligence {
 		}
 	}
 
-	public static function get_marketintelligence() {
+	public function get_marketintelligence_ByEntity($id) {
 		global $db;
-		$query = $db->query('SELECT mibdid  FROM '.Tprefix.'marketintelligence_basicdata');
+		$query = $db->query('SELECT mibdid  FROM '.Tprefix.'marketintelligence_basicdata WHERE cid='.$id.'');
 		while($rows = $db->fetch_assoc($query)) {
 			$marketintelligence[$rows['mibdid']] = new Marketintelligence($rows['mibdid']);
 		}
 		return $marketintelligence;
 
 		return false;
+	}
+
+	public function get_competitors() {
+		global $db;
+		$query = $db->query('SELECT micid  FROM '.Tprefix.'marketintelligence_competitors WHERE mibdid='.$this->marketintelligence['mibdid'].'');
+		while($rows = $db->fetch_assoc($query)) {
+			$marketcomp[$rows['micid']] = new Marketintelligencecompetitors($rows['micid']);
+		}
+		return $marketcomp;
 	}
 
 	public function get_customer() {
@@ -132,7 +141,7 @@ class Marketintelligencecompetitors {
 		if($simple == true) {
 			$query_select = 'micid,mibdid';
 		}
-		$this->marketintelligence = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'marketintelligence_competitors WHERE micid='.intval($id)));
+		$this->mrktintelcompetitors = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'marketintelligence_competitors WHERE micid='.intval($id)));
 	}
 
 	public static function save($data = array()) {
@@ -168,12 +177,22 @@ class Marketintelligencecompetitors {
 		}
 	}
 
-	public function get_product() {
-		return new Products($this->mrktintelcompetitors['pid']);
+	public function get_products() {
+		global $db;
+		$query = $db->query('SELECT pid  FROM '.Tprefix.'marketintelligence_competitors WHERE micid='.$this->mrktintelcompetitors['micid'].'');
+		while($rows = $db->fetch_assoc($query)) {
+			$marketcompproducts[$rows['pid']] = new Products($rows['pid']);
+		}
+		return $marketcompproducts;
 	}
 
-	public function get_entity() {
-		return new Entities($this->mrktintelcompetitors['eid']);
+	public function get_entities() {
+		global $db;
+		$query = $db->query('SELECT eid  FROM '.Tprefix.'marketintelligence_competitors WHERE micid='.$this->mrktintelcompetitors['micid'].'');
+		while($rows = $db->fetch_assoc($query)) {
+			$marketcompsupp[$rows['eid']] = new Entities($rows['eid']);
+		}
+		return $marketcompsupp;
 	}
 
 	public function get() {

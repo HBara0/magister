@@ -51,7 +51,6 @@ class Products {
 
 	public static function get_product_byname($name) {
 		global $db;
-
 		if(!empty($name)) {
 			$id = $db->fetch_field($db->query('SELECT pid FROM '.Tprefix.'products WHERE name="'.$db->escape_string($name).'"'), 'pid');
 			if(!empty($id)) {

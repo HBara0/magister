@@ -1,4 +1,4 @@
-<tr class="{$altrow_class}" id="{$mktintldata[mibdid]}"><td><div id="chemfuncproducts_{$mktintldata[cfpid]}">{$mktintldata[product]}</div></td>
+<tr class="{$altrow_class}" id="markettimeline_{$mktintldata[mibdid]}"><td><div id="chemfuncproducts_{$mktintldata[cfpid]}">{$mktintldata[product]}</div><div style="display: none;">Timeline data history here</div></td>
     <td><div id="potential_{$mktintldata[mibdid]}">{$mktintldata[potential]} </div></td>
     <td><div id="mktSharePerc_{$mktintldata[mibdid]}"> {$mktintldata[mktSharePerc]} %</div> </td>
     <td>{$mktintldata[mktShareQty]}</td>

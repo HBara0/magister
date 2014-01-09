@@ -24,6 +24,8 @@
             <td><strong>{$lang->price}</strong></td>
             <td>{$mrktintl_detials[unitPrice]}</td>
         </tr> 
+
     </table>
-    <div style="padding:8px;"><input class="button" value="{$lang->close}" id="hide_popupBox" type="button" onclick="$('#popup_mktintldetails').dialog('close')"></div>
+              <table>{$marketintelligencedetail_competitors}</table>  
+            <div style="padding:8px;"><input class="button" value="{$lang->close}" id="hide_popupBox" type="button" onclick="$('#popup_mktintldetails').dialog('close')"></div>
 </div>

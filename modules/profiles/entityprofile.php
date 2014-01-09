@@ -49,7 +49,8 @@ if(!$core->input['action']) {
 		}
 		/* View detailed market intelligence box --START */
 
-		$maktintl_objs = Marketintelligence::get_marketintelligence();
+		$maktintl_mainobj = new Marketintelligence();
+		$maktintl_objs = $maktintl_mainobj->get_marketintelligence_ByEntity($eid);
 		if(is_array($maktintl_objs)) {
 			$round_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice');
 			foreach($maktintl_objs as $maktintl_obj) {
@@ -58,7 +59,6 @@ if(!$core->input['action']) {
 				foreach($round_fields as $round_field) {
 					$mktintldata[$round_field] = round($mktintldata[$round_field]);
 				}
-
 				$mktintldata['product'] = $maktintl_obj->get_chemfunctionproducts($mktintldata['cfpid'])->get_produt()->get()['name'];  //get product from cfpid
 				eval("\$detailmarketbox .= \"".$template->get('profiles_entityprofile_viewmarketbox')."\";");
 			}
@@ -578,6 +578,35 @@ else {
 
 		$mrktintl_detials['brand'] = $mrktint_obj->get_entitiesbrandsproducts()->get_entitybrand()->get()['name'];
 		$mrktintl_detials['endproduct'] = $mrktint_obj->get_entitiesbrandsproducts()->get_endproduct()->get()['name'];
+
+		/* Parse competitors related market Data */
+		$mrktcompetitor_objs = $mrktint_obj->get_competitors();
+		if(is_array($mrktcompetitor_objs)) {
+			foreach($mrktcompetitor_objs as $mrktcompetitor_obj) {
+				$mrktintl_detials['competitors'] = $mrktcompetitor_obj->get();
+				if(is_array($mrktintl_detials['competitors'])) {
+					$marketintelligencedetail_competitors = ' <div class="thead">'.$lang->competitor.'</div>';
+					$mrktintl_detials['competitors']['unitPrice'] = round($mrktintl_detials['competitors']['unitPrice']);
+
+					/* Get competitor suppliers objects */
+					$competitorsentities_objs = $mrktcompetitor_obj->get_entities();
+					if(is_array($competitorsentities_objs)) {
+						foreach($competitorsentities_objs as $competitorsentities_obj) {
+							$mrktintl_detials_competitorsuppliers .= '<li>'.$competitorsentities_obj->get()['companyName'].'</li>';
+						}
+					}
+					/* Get competitor suppliers prodcuts */
+					$competitorsproducts_objs = $mrktcompetitor_obj->get_products();
+					if(is_array($competitorsproducts_objs)) {
+						foreach($competitorsproducts_objs as $competitorsproducts_obj) {
+							$mrktintl_detials_competitorproducts.= '<li>'.$competitorsproducts_obj->get()['name'].'</li>';
+						}
+					}
+				}
+			}
+		}
+
+		eval("\$marketintelligencedetail_competitors .= \"".$template->get('profiles_entityprofile_marketintelligence_competitors')."\";");
 		eval("\$marketintelligencedetail = \"".$template->get('popup_marketintelligencedetails')."\";");
 		output($marketintelligencedetail);
 	}
