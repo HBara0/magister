@@ -116,7 +116,7 @@ class EntitiesBrands {
 		$query = $db->query('SELECT ebid FROM '.Tprefix.'entitiesbrands'.$sort_query.' LIMIT '.$limit_start.', '.$core->settings['itemsperlist']);
 		if($db->num_rows($query) > 0) {
 			while($brand = $db->fetch_assoc($query)) {
-				$brands[$brand['ebid']] = new Entbrands($brand['ebid']);
+				$brands[$brand['ebid']] = new EntitiesBrands($brand['ebid']);
 			}
 			return $brands;
 		}
@@ -125,17 +125,17 @@ class EntitiesBrands {
 		}
 	}
 
-	public static function get_brandproducts() {
+	public  function get_entbrandproducts() {
 		global $db;
 
 		$query = $db->query('SELECT ebpid  FROM '.Tprefix.'entitiesbrandsproducts WHERE ebid="'.intval($this->entitiesbrands['ebid']).'"');
-		while($brandproduct = $db->fetch_assoc($query)) {
-			$brandproducts[$brandproduct['ebpid']] = new Entbrandsproducts($brandproduct['ebpid']);
+		while($entbrandproduct = $db->fetch_assoc($query)) {
+			$entbrandproducts[$entbrandproduct['ebpid']] = new Entbrandsproducts($entbrandproduct['ebpid']);
 		}
-		return $brandproducts;
+		return $entbrandproducts;
 	}
 
-	public static function get_producttypes() {
+	public function get_producttypes() {
 		global $db;
 
 		$query = $db->query('SELECT eptid FROM '.Tprefix.'entitiesbrandsproducts WHERE ebid="'.intval($this->entitiesbrands['ebid']).'"');

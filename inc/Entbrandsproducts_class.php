@@ -30,7 +30,7 @@ class Entbrandsproducts {
 		}
 		$this->entbrandproducts = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'entitiesbrandsproducts WHERE ebpid='.intval($id)));
 	}
-	
+
 	public static function get_producttypes_bybrand($id) {
 		global $db;
 
@@ -57,16 +57,16 @@ class Entbrandsproducts {
 		return false;
 	}
 
-	public static function get_entbrandsproducts() {
+	public static function get_entbrandsproducts($filter_where = '') {
 		global $db;
-		
+
 		/* Need to put order, filter, and limit 
 		 * Need to put order, filter, and limit 
 		 * Need to put order, filter, and limit 
 		 * Need to put order, filter, and limit 
 		 */
 		
-		$query = $db->query('SELECT * FROM '.Tprefix.'entitiesbrandsproducts');
+		$query = $db->query('SELECT * FROM '.Tprefix.'entitiesbrandsproducts '.$filter_where.'');
 		while($rows = $db->fetch_assoc($query)) {
 			$entbrandsproducts[$rows['ebpid']] = new Entbrandsproducts($rows['ebpid']);
 		}
@@ -74,7 +74,7 @@ class Entbrandsproducts {
 	}
 
 	public function get_entitybrand() {
-		return new Entbrands($this->entbrandproducts['ebid']);
+		return new EntitiesBrands($this->entbrandproducts['ebid']);
 	}
 
 	public function get_endproduct() {

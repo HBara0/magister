@@ -20,7 +20,7 @@ if($core->usergroup['canManageapllicationsProducts'] == 0) {
 }
 
 if(!$core->input['action']) {
-	$entitybrand_objs = Entbrands::get_entitybrands();
+	$entitybrand_objs = EntitiesBrands::get_entitybrands();
 	foreach($entitybrand_objs as $entitybrand_obj) {
 		$entitybrands = $entitybrand_obj->get();
 		$entities = $entitybrand_obj->get_entity();
@@ -38,7 +38,7 @@ if(!$core->input['action']) {
 	output_page($brandspage);
 }
 elseif($core->input['action'] == 'do_create') {
-	$entitybrand_obj = new Entbrands();
+	$entitybrand_obj = new EntitiesBrands();
 	$entitybrand_obj->create($core->input['entitybrand']);
 	switch($entitybrand_obj->get_errorcode()) {
 		case 0:
