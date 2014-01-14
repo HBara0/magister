@@ -100,7 +100,7 @@ class EntitiesBrands {
 	public static function get_entitybrands() {
 		global $db, $core;
 
-		$sort_query = ' ORDER BY  title  ASC';
+		$sort_query = ' ORDER BY name ASC';
 		if(isset($core->input['sortby'], $core->input['order'])) {
 			$sort_query = ' ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
 		}

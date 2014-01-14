@@ -55,8 +55,8 @@ $lang['nocustomersavailable'] = "No customers are available";
 $lang['createbrand'] = "Create Brands";
 $lang['approved'] = "Approved";
 $lang['presence'] = "Presence";
-$lang['regional'] = "regional";
-$lang['local'] = "local";
-$lang['multinational'] = "multinational ";
+$lang['regional'] = "Regional";
+$lang['local'] = "Local";
+$lang['multinational'] = "Multinational";
 
 ?>

@@ -45,11 +45,13 @@ if(!$core->input['action']) {
 		$types['potentialsupplier'] = $lang->potentialsupplier;
 		$types['cs'] = $lang->cs;
 	}
-	$presence = array('regional' => $lang->regional, 'local' => $lang->local, 'multinational' => $lang->multinational);
-	$supptypes = array('trader' => $lang->trader, 'producer' => $lang->producer, 'both' => $lang->both);
+	
 	$types_list = parse_selectlist('type', 1, $types, $selected_type);
+	$supptypes = array('trader' => $lang->trader, 'producer' => $lang->producer, 'both' => $lang->both);
 	$supptypes_list = parse_selectlist('supplierType', 1, $supptypes, '', '', '', array('blankstart' => 1));
-
+	$presence = array('regional' => $lang->regional, 'local' => $lang->local, 'multinational' => $lang->multinational);
+	$presence_list = parse_selectlist('presence', 2, $presence, $entity['presence']);
+	
 	$segments_list = parse_selectlist("psid[]", 3, get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', 'title'), '', 1);
 
 	$affiliates_attributes = array('affid', 'name');
@@ -116,12 +118,12 @@ else {
 				$current_quarter = currentquarter_info();
 				foreach($core->input['affid'] as $key => $val) {
 					$newreport = array(
-							"quarter" => $current_quarter['quarter'],
-							"year" => $current_quarter['year'],
-							"affid" => $val,
-							"spid" => $entity->get_eid(),
-							"initDate" => time(),
-							"status" => 0
+							'quarter' => $current_quarter['quarter'],
+							'year' => $current_quarter['year'],
+							'affid' => $val,
+							'spid' => $entity->get_eid(),
+							'initDate' => time(),
+							'status' => 0
 					);
 					$db->insert_query('reports', $newreport);
 				}

@@ -24,7 +24,14 @@ if(!$core->input['action']) {
 	}
 
 	$eid = $db->escape_string($core->input['eid']);
-	$entity = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid='{$eid}'"));
+	//$entity = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid='{$eid}'"));
+
+	$entity_obj = new Entities($core->input['eid'], '', false);
+	$entity = $entity_obj->get();
+	$entity['parent_obj'] = $entity_obj->get_parent();
+	if(is_object($entity['parent_obj'])) {
+		$entity['parent_companyName'] = $entity['parent_obj']->get()['companyName'];
+	}
 
 	if($entity['type'] == 'c' && $core->usergroup['canManageCustomers'] == 0) {
 		redirect('index.php?module=home/index');
@@ -39,14 +46,13 @@ if(!$core->input['action']) {
 	elseif($entity['isPotential'] == 1 && $entity[type] == 'c') {
 		$entity['type'] = 'potentialcusotmer';
 	}
-	$presence = array('regional' => $lang->regional, 'local' => $lang->local, 'multinational' => $lang->multinational);
-
-	$radiobuttons_check['presence'][$entity['presence']] = ' checked="checked"';
 
 	$types_list = parse_selectlist('type', 1, array('c' => $lang->customer, 's' => $lang->supplier, 'potentialcusotmer' => $lang->potentialcusotmer, 'potentialsupplier' => $lang->potentialsupplier), $entity['type']);
 	$supptypes = array('trader' => $lang->trader, 'producer' => $lang->producer, 'both' => $lang->both);
 	$supptypes_list = parse_selectlist('supplierType', 1, $supptypes, $entity['supplierType']);
-
+	$presence = array('regional' => $lang->regional, 'local' => $lang->local, 'multinational' => $lang->multinational);
+	$presence_list = parse_selectlist('presence', 2, $presence, $entity['presence']);
+	
 	$query = $db->query("SELECT psid FROM ".Tprefix."entitiessegments WHERE eid='{$eid}'");
 	while($segment = $db->fetch_assoc($query)) {
 		$entity_segments[$segment['psid']] = $segment['psid'];
@@ -66,7 +72,7 @@ if(!$core->input['action']) {
 	while($user = $db->fetch_assoc($query)) {
 		$entity_users[$user['uid']] = $user['uid'];
 	}
-	$users_list = parse_selectlist("uids[]", 5, get_specificdata('users', array('uid', 'Concat(firstName, \' \', lastName) AS fullName'), 'uid', 'fullName', 'firstName'), $entity_users, 1);
+	$users_list = parse_selectlist('uids[]', 5, get_specificdata('users', array('uid', 'Concat(firstName, \' \', lastName) AS fullName'), 'uid', 'fullName', 'firstName'), $entity_users, 1);
 
 	$query = $db->query("SELECT * FROM ".Tprefix."affiliatedentities WHERE eid='{$eid}'");
 	while($affiliate = $db->fetch_array($query)) {

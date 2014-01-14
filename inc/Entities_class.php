@@ -642,6 +642,13 @@ class Entities {
 		return false;
 	}
 
+	public function get_parent() {
+		if(isset($this->data['parent']) && !empty($this->data['parent'])) {
+			return new Entities($this->data['parent']);
+		}
+		return false;
+	}
+	
 	public function get_brands() {
 		global $db;
 

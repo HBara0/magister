@@ -5,40 +5,31 @@
         <script language="javascript" type="text/javascript">
             $(function() {
                 if ($("select[id='type']").val() != 's') {
-                    $("tr[id^='contractsection_']").hide();
-
+                    $("tr[id^='contractsection_'],tr[id='supplierType']").hide();
                 }
 
                 $("select[id='type']").change(function() {
                     if ($(this).val() == 's') {
-                        $("#createReports").removeAttr("disabled");
-                        $("#noQReportReq").removeAttr("disabled");
-                        $("#noQReportSend").removeAttr("disabled");
-                        $("tr[id^='contractsection_']").show();
-                        $("tr[id='supplierType']").show();
+                        $("#createReports,#noQReportReq,#noQReportSend").removeAttr("disabled");
+                        $("tr[id^='contractsection_'],tr[id='supplierType']").show();
                     }
                     else
-                                {
-                                                $("#createReports").attr("disabled", "true");
-                                                $("#noQReportReq").attr("disabled", "true");
-                                                $("#noQReportSend").attr("disabled", "true");
-                                                $("tr[id^='contractsection_']").hide();
-                                                $("tr[id='supplierType']").hide();
-                                            }
-                                        });
+                    {
+                        $("#createReports,#noQReportReq,#noQReportSend").attr("disabled", "true");
+                        $("tr[id^='contractsection_'],tr[id='supplierType").hide();
+                    }
+                });
 
-                                        $("#noQReportReq").change(function() {
-                                            if ($(this).is(":checked")) {
-                                                $("#createReports").attr("disabled", "true");
-                                                $("#noQReportSend").attr("disabled", "true");
-                                            }
-                                            else
-                                {
-                                                $("#createReports").removeAttr("disabled");
-                                                $("#noQReportSend").removeAttr("disabled");
-                                            }
-                                        });
-                                    });
+                $("#noQReportReq").change(function() {
+                    if ($(this).is(":checked")) {
+                        $("#createReports,#noQReportSend").attr("disabled", "true");
+                    }
+                    else
+                    {
+                        $("#createReports,#noQReportSend").removeAttr("disabled");
+                    }
+                });
+            });
         </script>
     </head>
     <body>
@@ -52,14 +43,15 @@
                 <table width="100%" border="0" cellpadding="0" cellspacing="2">
                     <tr>
                         <td width="10%"><strong>{$lang->entitytype}</strong></td><td>{$types_list} </td>
-
                     </tr>
                     <tr id="supplierType">
                         <td ><strong>{$lang->supptype}</strong></td><td >{$supptypes_list} </td>
-
                     </tr>
                     <tr>
-                        <td width="20%" valign="top"><strong>{$lang->parentcompany}</strong></td><td><input type='text' id='supplier_1_QSearch'  autocomplete="off" value="{$entity[parent]}"/><input type="text" size="3" id="supplier_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='supplier_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div></td>
+                        <td ><strong>{$lang->presence}</strong></td><td >{$presence_list} </td>
+                    </tr>
+                    <tr>
+                        <td width="20%" valign="top">{$lang->parentcompany}</td><td><input type='text' id='supplier_1_QSearch' autocomplete="off" value="{$entity[parent]}"/><input type="text" size="3" id="supplier_1_id_output" value="{$entity[parent_companyName]}" disabled/><input type='hidden' id='supplier_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>
                     <tr>
                         <td width="20%" valign="top"><strong>{$lang->companyname}</strong></td><td><input type="text" id="companyName" name="companyName" value="{$entity[companyName]}"/> {$lang->abbreviation} <input type="text" id="companyNameAbbr" name="companyNameAbbr" value="{$entity[companyNameAbbr]}" size="10"/> <input type="hidden" id="logo" name="logo" value="{$entity[logo]}"> <a id="showpopup_setentitylogo" class="showpopup"><img src="../images/icons/photo.gif" border="0" alt="Add Logo"></a><div id="entitylogo_placeholder">{$entity[logo_output]}</div></td>
@@ -117,22 +109,6 @@
                         <td><input type="text" id="website" name="website" value="{$entity[website]}" /></td>
                     </tr>
                     <tr><td colspan="2"><hr /></td><tr>
-                    <tr>
-                        <td colspan="2" class="subtitle">{$lang->presence}</td>
-                    </tr>
-                    <tr> 
-                        <td>
-                            <table width="100%">
-                                <tr><td>{$presence[regional]}</td>
-                                    <td><input type="radio" name="presence"  value="{$presence[regional]}"{$radiobuttons_check[presence][regional]}/></td>
-                                    <td>{$presence[local]}</td>
-                                    <td><input type="radio" name="presence" value="{$presence[local]}"{$radiobuttons_check[presence][local]}/></td>
-                                    <td>{$presence[multinational]}</td>
-                                    <td><input type="radio" name="presence" value="{$presence[multinational]}"{$radiobuttons_check[presence][multinational]}/></td>
-                            </table>
-
-                        </td>
-                    </tr>
                     <tr>
                         <td colspan="2" class="subtitle">{$lang->assignedemployee}</td>
                     </tr>

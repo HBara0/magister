@@ -8,10 +8,8 @@
  * Last Update:    @tony.assaad    Dec 17, 2013 | 12:55:16 PM
  */
 
-
-
-if(!defined("DIRECT_ACCESS")) {
-	die("Direct initialization of this file is not allowed.");
+if(!defined('DIRECT_ACCESS')) {
+	die('Direct initialization of this file is not allowed.');
 }
 
 if($core->usergroup['canManageapllicationsProducts'] == 0) {
@@ -21,20 +19,25 @@ if($core->usergroup['canManageapllicationsProducts'] == 0) {
 
 if(!$core->input['action']) {
 	$entitybrand_objs = EntitiesBrands::get_entitybrands();
-	foreach($entitybrand_objs as $entitybrand_obj) {
-		$entitybrands = $entitybrand_obj->get();
-		$entities = $entitybrand_obj->get_entity();
-		$entitybrands['supplier'] = $entities->get()[companyName];
-		eval("\$entitybrands_list .= \"".$template->get("admin_entities_brands_rows")."\";");
+	if(is_array($entitybrand_objs)) {
+		foreach($entitybrand_objs as $entitybrand_obj) {
+			$entitybrands = $entitybrand_obj->get();
+			$entities = $entitybrand_obj->get_entity();
+			$entitybrands['supplier'] = $entities->get()['companyName'];
+			eval("\$entitybrands_list .= \"".$template->get('admin_entities_brands_rows')."\";");
+		}
+	}
+	else {
+		$entitybrands_list = '<tr><td colspan="3">'.$lang->na.'</td></tr>';
 	}
 	$productypes_objs = Endproductypes::get_endproductypes();
 	foreach($productypes_objs as $productypes_obj) {
 		$endproduct_types = $productypes_obj->get();
-		$endproducttypes_list .=' <div style="display:table-cell;clear:left">'.$endproduct_types[name].'</div>            
+		$endproducttypes_list .= ' <div style="display:table-cell;clear:left">'.$endproduct_types[name].'</div>            
 								  <div style="display:table-cell;clear:left"><input type="checkbox" value="'.$endproduct_types['eptid'].'" name="entitybrand[endproducttypes][]" /></div>';
 	}
 
-	eval("\$brandspage = \"".$template->get("admin_entities_brands")."\";");
+	eval("\$brandspage = \"".$template->get('admin_entities_brands')."\";");
 	output_page($brandspage);
 }
 elseif($core->input['action'] == 'do_create') {
