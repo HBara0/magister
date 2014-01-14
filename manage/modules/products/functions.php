@@ -45,19 +45,22 @@ if(!$core->input['action']) {
 					if(empty($functions_applications)) {
 						$functions_application = $lang->na;
 					}
-					$functions_application .=$functions_applications['title'].' - '.$functionsappseg_obj->get_segment()->get()['title'].'</br>';
+					$functions_application .= $functions_applications['title'].' - '.$functionsappseg_obj->get_segment()->get()['title'].'</br>';
 				}
 			}
 			else {
 				$functions_application = $lang->na;
 			}
 
-			eval("\$productsapplicationsfunctions_list .= \"".$template->get("admin_products_functions_rows")."\";");
+			eval("\$productsapplicationsfunctions_list .= \"".$template->get('admin_products_functions_rows')."\";");
 			$functions_application = '';
 		}
 	}
-	eval("\$popup_createfunction = \"".$template->get("admin_products_popup_createfunction")."\";");
-	eval("\$functionpage = \"".$template->get("admin_products_functions")."\";");
+	else {
+		$productsapplicationsfunctions_list = '<tr><td colspan="3">'.$lang->na.'</td></tr>';
+	}
+	eval("\$popup_createfunction = \"".$template->get('admin_products_popup_createfunction')."\";");
+	eval("\$functionpage = \"".$template->get('admin_products_functions')."\";");
 	output_page($functionpage);
 }
 elseif($core->input['action'] == 'do_create') {

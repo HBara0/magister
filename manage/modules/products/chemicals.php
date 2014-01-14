@@ -9,8 +9,8 @@
  */
 
 
-if(!defined("DIRECT_ACCESS")) {
-	die("Direct initialization of this file is not allowed.");
+if(!defined('DIRECT_ACCESS')) {
+	die('Direct initialization of this file is not allowed.');
 }
 
 if($core->usergroup['canManageapllicationsProducts'] == 0) {
@@ -19,8 +19,6 @@ if($core->usergroup['canManageapllicationsProducts'] == 0) {
 }
 $lang->load('products_chemicals');
 if(!$core->input['action']) {
-
-
 	/* Chemical List - START */
 	$chemsubstances_objs = Chemicalsubstances::get_chemicalsubstances();
 	$chemicalslist_section = '';
@@ -28,7 +26,7 @@ if(!$core->input['action']) {
 		foreach($chemsubstances_objs as $chemsubstances_obj) {
 			$rowclass = alt_row($rowclass);
 			$chemical = $chemsubstances_obj->get();
-			$chemicalslist_section .= '<tr class="'.$rowclass.'" style="vertical-align:top;"><td width="1%"><input type="checkbox" value="'.$chemical['csid'].'" name="chemical"/></td><td width="33%">'.$chemical['casNum'].'</td><td align="left" width="33%">'.$chemical['name'].'</td><td width="33%">'.$chemical['synonyms'].'</td></tr>';
+			$chemicalslist_section .= '<tr class="'.$rowclass.'" style="vertical-align:top;"><td width="33%">'.$chemical['casNum'].'</td><td align="left" width="33%">'.$chemical['name'].'</td><td width="33%">'.$chemical['synonyms'].'</td></tr>';
 		}
 	}
 	else {

@@ -8,8 +8,8 @@
  * Last Update:    @tony.assaad    Dec 19, 2013 | 10:48:26 AM
  */
 
-if(!defined("DIRECT_ACCESS")) {
-	die("Direct initialization of this file is not allowed.");
+if(!defined('DIRECT_ACCESS')) {
+	die('Direct initialization of this file is not allowed.');
 }
 if($core->usergroup['canAddProducts'] == 0) {
 	error($lang->sectionnopermission);
@@ -19,25 +19,31 @@ $lang->load('products_types');
 if(!$core->input['action']) {
 	$sort_url = sort_url();
 	$endprod_objs = Endproductypes::get_endproductypes();
-	foreach($endprod_objs as $endprod_obj) {
-		$altrow_class = alt_row($altrow_class);
-		$productypes = $endprod_obj->get();
-		$productypes['application'] = $endprod_obj->get_application()->get()['title'];
+	if(is_array($endprod_objs)) {
+		foreach($endprod_objs as $endprod_obj) {
+			$altrow_class = alt_row($altrow_class);
+			$productypes = $endprod_obj->get();
+			$productypes['application'] = $endprod_obj->get_application()->get()['title'];
 
-		eval("\$productstypes_list .= \"".$template->get("admin_productstypes_rows")."\";");
+			eval("\$productstypes_list .= \"".$template->get('admin_productstypes_rows')."\";");
+		}
 	}
+	else {
+		$productstypes_list = '<tr><td colspan="3">'.$lang->na.'</td></tr>';
+	}
+
+	/* Parse list for the Create Product Lists popup */
 	$applications_obj = Segmentapplications::get_segmentsapplications();
 	if(is_array($applications_obj)) {
 		foreach($applications_obj as $application_obj) {
 			$applications = $application_obj->get();
 			if(is_array($applications)) {
-				$applications_list.='<option value='.$applications['psaid'].'>'.$applications['title'].'</option>';
+				$applications_list .= '<option value='.$applications['psaid'].'>'.$applications['title'].'</option>';
 			}
 		}
 	}
 
-
-	eval("\$addproductstypes = \"".$template->get("admin_productstypes")."\";");
+	eval("\$addproductstypes = \"".$template->get('admin_productstypes')."\";");
 	output_page($addproductstypes);
 }
 elseif($core->input['action'] == 'do_create') {

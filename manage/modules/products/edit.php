@@ -49,7 +49,7 @@ if(!$core->input['action']) {
 		$rowclass = alt_row($rowclass);
 		/* call the associatives objects */
 		$segmentapp_data['segappfuncs'] = $segappfunc_obj->get();
-		$cfpid = $db->fetch_field($db->query("SELECT cfpid  FROM ".Tprefix."chemfunctionproducts 
+		$cfpid = $db->fetch_field($db->query("SELECT cfpid FROM ".Tprefix."chemfunctionproducts 
 											WHERE safid=".$segmentapp_data['segappfuncs']['safid']." AND pid='{$pid}'"), 'cfpid');
 		/* check the default */
 		if(($cfpid == $product['defaultFunction'])) {
@@ -67,7 +67,7 @@ if(!$core->input['action']) {
 		$segmentapp_data['segment'] = $segappfunc_obj->get_segment()->get()['title'];
 		$segmentapp_data['application'] = $segappfunc_obj->get_application()->get()['title'];
 
-		eval("\$admin_products_addedit_segmentsapplicationsfunctions_rows .= \"".$template->get("admin_products_addedit_segmentsapplicationsfunctions_rows")."\";");
+		eval("\$admin_products_addedit_segmentsapplicationsfunctions_rows .= \"".$template->get('admin_products_addedit_segmentsapplicationsfunctions_rows')."\";");
 		$defaultfunctionchecked[$segmentapp_data['segappfuncs']['safid']] = '';
 	}
 	/* Chemical List - START */
@@ -78,7 +78,7 @@ if(!$core->input['action']) {
 			$rowclass = alt_row($rowclass);
 			$chemical = $chemsubstances_obj->get();
 			if(value_exists('productschemsubstances', 'csid', $chemical['csid'], 'pid='.$pid)) {
-				$chemsubstanceschecked[$chemical['csid']]['csid'] = " checked='checked'";
+				$chemsubstanceschecked[$chemical['csid']]['csid'] = ' checked="checked"';
 			}
 			$chemicalslist_section .= '<tr class="'.$rowclass.'" style="vertical-align:top;"><td width="1%"><input type="checkbox" '.$chemsubstanceschecked[$chemical['csid']][csid].' value="'.$chemical['csid'].'" name="chemsubstances[]"/></td><td width="33%">'.$chemical['casNum'].'</td><td align="left" width="33%">'.$chemical['name'].'</td><td width="33%">'.$chemical['synonyms'].'</td></tr>';
 		}

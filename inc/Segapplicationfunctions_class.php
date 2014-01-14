@@ -42,12 +42,21 @@ class Segapplicationfunctions {
 	public static function get_segmentsapplicationsfunctions() {
 		global $db, $core;
 
-		/* Need to put order, filter, and limit 
-		 * Need to put order, filter, and limit 
-		 * Need to put order, filter, and limit 
-		 * Need to put order, filter, and limit 
-		 */
-		$query = $db->query("SELECT safid  FROM ".Tprefix."segapplicationfunctions");
+		$sort_query = ' ORDER BY psaid ASC';
+		if(isset($core->input['sortby'], $core->input['order'])) {
+			$sort_query = ' ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
+		}
+
+		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+			$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+		}
+
+		$limit_start = 0;
+		if(isset($core->input['start'])) {
+			$limit_start = $db->escape_string($core->input['start']);
+		}
+		
+		$query = $db->query('SELECT safid FROM '.Tprefix.'segapplicationfunctions'.$sort_query.' LIMIT '.$limit_start.', '.$core->settings['itemsperlist']);
 		if($db->num_rows($query) > 0) {
 			while($rowsegappfunc = $db->fetch_assoc($query)) {
 				$segments_applicationsfunctions[$rowsegappfunc['safid']] = new Segapplicationfunctions($rowsegappfunc['safid']);

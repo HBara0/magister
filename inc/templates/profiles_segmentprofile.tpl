@@ -5,10 +5,7 @@
         <style type="text/css">
             span.listitem:hover { border-bottom: #CCCCCC solid thin; }
         </style>
-
     </head>
-
-
     <body>
         {$header}
     <tr>
@@ -28,9 +25,7 @@
                         {$endproduct_types}
                         <hr />
                     </td>
-
                 </tr>
-
                 <tr>
                     <td  valign="top" style="padding:4px;"><span class="subtitle">{$lang->coordinator}</span>
                         {$segment_coordinators}
@@ -52,7 +47,6 @@
                         <hr />
                     </td>
                 </tr>
-
             </table>
         </td></tr>
         {$footer}

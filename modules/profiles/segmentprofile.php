@@ -8,15 +8,11 @@
  * Last Update:    @tony.assaad    Dec 12, 2013 | 10:30:30 AM
  */
 
-if(!defined("DIRECT_ACCESS")) {
-	die("Direct initialization of this file is not allowed.");
+if(!defined('DIRECT_ACCESS')) {
+	die('Direct initialization of this file is not allowed.');
 }
 
-if($core->usergroup['canManageSegments'] == 0) {
-	error($lang->sectionnopermission);
-	exit;
-}
-$lang->load("products_segments");
+//$lang->load('products_segments');
 if(!$core->input['action']) {
 	$psid = $db->escape_string($core->input['id']);
 	$segment_obj = new ProductsSegments($psid);
@@ -74,7 +70,6 @@ if(!$core->input['action']) {
 		$segment_suppliers = ' <div style="display:block;padding:5px; vertical-align: left;"> <ul>';
 		foreach($segmentsuppliers_objs as $segmentsuppliers_obj) {
 			$segment_suppliers.='<li> <a href="'.$core->settings['rootdir'].'/index.php?module=profiles/entityprofile&eid='.$segmentsuppliers_obj->get()['eid'].'" target="_blank">'.$segmentsuppliers_obj->get()['companyName'].'</a></li> ';
-			print_r($segmentemployees_obj);
 		}
 		$segment_suppliers .='</ul></div>';
 	}
@@ -100,7 +95,7 @@ if(!$core->input['action']) {
 //		$segment_endproduct .='</ul></div>';
 //	}
 
-	eval("\$segmentsprofilepage = \"".$template->get("admin_products_segmentprofile")."\";");
+	eval("\$segmentsprofilepage = \"".$template->get('profiles_segmentprofile')."\";");
 	output_page($segmentsprofilepage);
 }
 ?>
