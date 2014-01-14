@@ -49,7 +49,15 @@ else {
 		if($core->input['turnoverink'] == 1) {
 			$options['turnoverdivision'] = 1;
 		}
-
+		if(isset($options['emptyreports'])) {
+			if($options['emptyreports'] == 1) {
+				$report_querywhere = ' AND NOT EXISTS (SELECT pa.* FROM productsactivity pa where r.rid=pa.rid)';
+			}
+			elseif($options['emptyreports'] == 0) {
+				$report_querywhere = ' AND EXISTS (SELECT pa.* FROM productsactivity pa where r.rid=pa.rid)';
+			}
+		}
+		
 		$po_query = $db->query("SELECT imso.*, ims.localId AS localspid, ims.foreignName AS foreignSupplierName
 						FROM ".Tprefix."integration_mediation_purchaseorders imso 
 						LEFT JOIN ".Tprefix."integration_mediation_entities ims ON (imso.spid=ims.foreignId)
@@ -89,7 +97,7 @@ else {
 							$report = $reports_cache[$affid][$purchaseorderline['localspid']][$quarter_info['year']][$quarter_info['quarter']];
 						}
 						else {
-							$report = $db->fetch_assoc($db->query("SELECT * FROM reports WHERE affid='{$affid}' AND quarter='{$quarter_info[quarter]}' AND year='{$quarter_info[year]}' AND spid='{$purchaseorderline[localspid]}' AND type='q'"));
+							$report = $db->fetch_assoc($db->query("SELECT r.* FROM reports r WHERE r.affid='{$affid}' AND r.quarter='{$quarter_info[quarter]}' AND r.year='{$quarter_info[year]}' AND r.spid='{$purchaseorderline[localspid]}' AND r.type='q'".$report_querywhere));
 							$reports_cache[$affid][$purchaseorderline['localspid']][$quarter_info['year']][$quarter_info['quarter']] = $report;
 						}
 
@@ -170,6 +178,20 @@ else {
 				}
 			}
 		}
+// AND imsol.foreignOrderId IN (SELECT imso.foreignId FROM '.Tprefix.'integration_mediation_salesorders imso WHERE imso.foreignSystem='.$options['foreignSystem'].' AND imso.affid='.$affid.' AND (imso.date BETWEEN '.strtotime($options['fromDate']).' AND '.strtotime($options['toDate']).'))
+		$query = $db->query('SELECT imsol.pid AS foreignpid, imsol.foreignId FROM '.Tprefix.'integration_mediation_salesorderlines imsol WHERE NOT EXISTS (SELECT imp.foreignId FROM '.Tprefix.'integration_mediation_products imp WHERE imsol.pid=imp.foreignId AND imp.foreignSystem='.$options['foreignSystem'].' AND (imp.affid='.$affid.' OR imp.affid=0)) AND imsol.affid='.$affid.' AND imsol.foreignOrderId IN (SELECT imso.foreignId FROM '.Tprefix.'integration_mediation_salesorders imso WHERE imso.foreignSystem='.$options['foreignSystem'].' AND imso.affid='.$affid.' AND (imso.date BETWEEN '.strtotime($options['fromDate']).' AND '.strtotime($options['toDate']).'))');
+		if($db->num_rows($query) > 0) {
+			while($missing = $db->fetch_assoc($query)) {
+				$errors['productnotexist'][] = $missing['foreignpid'].' | '.$missing['foreignId'];
+			}
+		}
+
+		$query = $db->query('SELECT imsol.pid AS foreignpid, imsol.foreignId FROM '.Tprefix.'integration_mediation_purchaseorderlines imsol WHERE NOT EXISTS (SELECT imp.foreignId FROM '.Tprefix.'integration_mediation_products imp WHERE imsol.pid=imp.foreignId AND imp.foreignSystem='.$options['foreignSystem'].' AND (imp.affid='.$affid.' OR imp.affid=0)) AND imsol.affid='.$affid.' AND imsol.foreignOrderId IN (SELECT imso.foreignId FROM '.Tprefix.'integration_mediation_purchaseorders imso WHERE imso.foreignSystem='.$options['foreignSystem'].' AND imso.affid='.$affid.' AND (imso.date BETWEEN '.strtotime($options['fromDate']).' AND '.strtotime($options['toDate']).'))');
+		if($db->num_rows($query) > 0) {
+			while($missing = $db->fetch_assoc($query)) {
+				$errors['productnotexist'][] = $missing['foreignpid'].' | '.$missing['foreignId'];
+			}
+		}
 
 		if(is_array($useddata['foreignpid']['sale'])) {
 			//$useddata['foreignpid']['sale'] = array();
@@ -204,7 +226,7 @@ else {
 					$report = $reports_cache[$affid][$sale['localspid']][$quarter_info['year']][$quarter_info['quarter']];
 				}
 				else {
-					$report = $db->fetch_assoc($db->query("SELECT * FROM reports WHERE affid='{$affid}' AND quarter='{$quarter_info[quarter]}' AND year='{$quarter_info[year]}' AND spid='{$sale[localspid]}' AND type='q'"));
+					$report = $db->fetch_assoc($db->query("SELECT r.* FROM reports r WHERE r.affid='{$affid}' AND r.quarter='{$quarter_info[quarter]}' AND r.year='{$quarter_info[year]}' AND r.spid='{$sale[localspid]}' AND r.type='q'".$report_querywhere));
 					$reports_cache[$affid][$sale['localspid']][$quarter_info['year']][$quarter_info['quarter']] = $report;
 				}
 
@@ -256,13 +278,28 @@ else {
 						continue;
 					}
 
-					if(value_exists('productsactivity', 'rid', $rid, 'pid='.$pid.' AND uid=0')) {
-						if($options['runtype'] == 'dry' || $options['operation'] == 'addonly') {
-							echo 'Skipped Update: ';
+					if($options['operation'] != 'replace') {
+						$pacheck_querywhere = ' AND uid=0';
+					}
+
+					if(value_exists('productsactivity', 'rid', $rid, 'pid='.$pid.$pacheck_querywhere)) {
+						if($options['runtype'] == 'dry' || $options['operation'] == 'addonly' || $options['operation'] == 'replace') {
+							if($options['operation'] == 'replace') {
+								echo 'Skipped Replace: ';
+							}
+							else {
+								echo 'Skipped Update: ';
+							}
 						}
 						else {
-							echo 'Updated: ';
-							$db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.' AND uid=0');
+							if($options['operation'] == 'replace') {
+								echo 'Replaced: ';
+							}
+							else {
+								echo 'Updated: ';
+								$paupdate_querywhere = ' AND uid=0';
+							}
+							$db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.$paupdate_querywhere);
 						}
 					}
 					else {
@@ -275,10 +312,9 @@ else {
 								$db->insert_query('productsactivity', $activity);
 							}
 						}
-
-						echo $activity['rid'].' '.print_r($activity).'<hr />';
-						echo "Done<br />";
 					}
+					echo $activity['rid'].' '.print_r($activity).'<hr />';
+					echo "Done<br />";
 				}
 				if($options['runtype'] != 'dry') {
 					$db->update_query('reports', array('prActivityAvailable' => 1), 'rid='.$rid);
