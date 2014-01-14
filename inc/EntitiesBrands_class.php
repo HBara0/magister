@@ -125,7 +125,7 @@ class EntitiesBrands {
 		}
 	}
 
-	public  function get_entbrandproducts() {
+	public function get_entbrandproducts() {
 		global $db;
 
 		$query = $db->query('SELECT ebpid  FROM '.Tprefix.'entitiesbrandsproducts WHERE ebid="'.intval($this->entitiesbrands['ebid']).'"');
