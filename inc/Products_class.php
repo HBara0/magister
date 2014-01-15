@@ -72,6 +72,18 @@ class Products {
 		return false;
 	}
 
+	public function get_chemicalsubstance() {
+		global $db;
+		$query = $db->query("SELECT csid  FROM ".Tprefix."productschemsubstances WHERE pid=".$db->escape_string($this->product['pid']));
+		if($db->num_rows($query) > 0) {
+			while($rowprodchemsubstance = $db->fetch_assoc($query)) {
+				$productschemsubstances[$rowprodchemsubstance['csid']] = new Chemicalsubstances($rowprodchemsubstance['csid']);
+			}
+			return $productschemsubstances;
+		}
+		return false;
+	}
+
 	public function get_defaultchemfunction() {
 		return new Chemfunctionproducts($this->product['defaultFunction']);
 	}

@@ -22,8 +22,8 @@
                 if (cid.length == 0) {
                     return;
                 }
-                var data = "&action=inlineCheck&attr=" + $(this).attr("name") + "&value=" + cid;
-                sharedFunctions.requestAjax("post", "index.php?module=" + "{$module}/{$modulefile}", data, 'entitiesbrandsproducts_inlineCheckResult', 'entitiesbrandsproducts_inlineCheckResult', 'html');
+                var data = "&action=get_entityendproduct&attr=" + $(this).attr("name") + "&value=" + cid;
+                sharedFunctions.requestAjax("post", "index.php?module=" + "{$module}/{$modulefile}", data, 'entitiesbrandsproducts_endproductResult', 'entitiesbrandsproducts_endproductResult', 'html');
             });
         });
     </script>
@@ -54,7 +54,7 @@
                             <td> <input type="text" size="12" name="marketdata[unitPrice]" accept="numeric"  autocomplete="off"/></td>
                             <td>{$lang->usd}</td>
                         </tr>
-                        <tr><td>{$lang->endproduct}</td><td><div id="entitiesbrandsproducts_inlineCheckResult"></div> <select {$hideselect} name="marketdata[ebpid]">{$entitiesbrandsproducts_list}</select></td></tr>
+                        <tr><td>{$lang->endproduct}</td><td><div id="entitiesbrandsproducts_endproductResult"></div> <select {$hideselect} name="marketdata[ebpid]">{$entitiesbrandsproducts_list}</select></td></tr>
                     </table></td>
             </tr>
             <tr><td>

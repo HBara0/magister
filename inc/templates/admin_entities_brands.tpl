@@ -51,12 +51,11 @@
             </div>
             <div style="display:table;">
                 <div style="display:table-row;">
-                    <div style="display:table-cell;">{$lang->endproducttypes} </div>
-                </div>
-                <div style="display:table-row;">
-                    <div style="width:100% ;height:200px; overflow:auto; display:inline-block; vertical-align:top;">
-                        {$endproducttypes_list}
+                    <div style="display:table-cell;padding:8px;">{$lang->endproducttypes} </div>
+                      <div style="display:table-cell;padding:8px;">
+                        <select name="entitybrand[endproducttypes][]">{$endproducttypes_list}</select>
                     </div>
+                </div>
 
                     <div style="display:table-row;">
                         <div style="display:table-cell;"> <input type='button' id='perform_entities/managebrands_Button' value='{$lang->savecaps}' class='button'/></div>

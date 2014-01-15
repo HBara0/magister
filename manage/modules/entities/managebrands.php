@@ -33,8 +33,7 @@ if(!$core->input['action']) {
 	$productypes_objs = Endproductypes::get_endproductypes();
 	foreach($productypes_objs as $productypes_obj) {
 		$endproduct_types = $productypes_obj->get();
-		$endproducttypes_list .= ' <div style="display:table-cell;clear:left">'.$endproduct_types[name].'</div>            
-								  <div style="display:table-cell;clear:left"><input type="checkbox" value="'.$endproduct_types['eptid'].'" name="entitybrand[endproducttypes][]" /></div>';
+		$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types[name].'</option>';
 	}
 
 	eval("\$brandspage = \"".$template->get('admin_entities_brands')."\";");
