@@ -15,11 +15,12 @@ if(!defined('DIRECT_ACCESS')) {
 if($core->usergroup['canUseBudgeting'] == 0) {
 	error($lang->sectionnopermission);
 }
-$sessionidentifier = md5(uniqid(microtime()));
-$session->name_phpsession(COOKIE_PREFIX.'fillbudget'.$sessionidentifier);
-$session->start_phpsession(480);
 
 if(!$core->input['action']) {
+	$sessionidentifier = md5(uniqid(microtime()));
+	$session->name_phpsession(COOKIE_PREFIX.'fillbudget'.$sessionidentifier);
+	$session->start_phpsession(480);
+
 	if($core->usergroup['canViewAllAff'] == 0) {
 		$inaffiliates = implode(',', $core->user['affiliates']);
 		$affiliate_where = " affid IN ({$inaffiliates})";
@@ -93,22 +94,14 @@ else {
 				else {
 					continue;
 				}
-				$budget_year .="<option value='{$year}'".$year_selected.">{$year}</option>";
+				$budget_year .= "<option value='{$year}'".$year_selected.">{$year}</option>";
 			}
 		}
 		else {
 			$next_year = date('Y') + 1;
 			$budget_year .= "<option value='{$next_year}'>{$next_year}</option>";
 		}
-		//$budget_year .="<option value=''>Select the year</option><option value='{$year}'>{$year}</option>";
-//		$years = array_combine(range(date("Y") + 1, date("Y") + 1), range(date("Y") + 1, date("Y") + 1));
-//		foreach($years as $year) {
-//			$year_selected = '';
-//			if($year == $years[date("Y")] + 1) {
-//				$year_selected = "selected=selected";
-//			}
-//			//$budget_year .= "<option value=''>Select the year</option><option value='{$year}'{$year_selected}>{$year}</option>";
-//		}
+
 		output($budget_year);
 	}
 }
