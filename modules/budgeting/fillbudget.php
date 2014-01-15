@@ -27,13 +27,8 @@ $session->start_phpsession(480);
 
 if(!$core->input['action']) {
 	if($core->input['stage'] == 'fillbudgetline') {
-		if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
-			$budget_data = unserialize($session->get_phpsession('budgetdata_'.$sessionidentifier));
-		}
-		else {
-			$session->set_phpsession(array('budgetdata_'.$sessionidentifier => serialize($core->input['budget'])));
-			$budget_data = $core->input['budget'];
-		}
+		$session->set_phpsession(array('budgetdata_'.$sessionidentifier => serialize($core->input['budget'])));
+		$budget_data = $core->input['budget'];
 
 		$affiliate = new Affiliates($budget_data['affid']);
 		$budget_data['affiliateName'] = $affiliate->get()['name'];
@@ -234,6 +229,7 @@ if(!$core->input['action']) {
 else {
 	if($core->input['action'] == 'do_perform_fillbudget') {
 		$budget_data = unserialize($session->get_phpsession('budgetdata_'.$core->input['identifier']));
+
 		if(is_array($core->input['budgetline'])) {
 			if(isset($core->input['budget']['bid'])) {
 				$currentbudget = $core->input['budget'];
