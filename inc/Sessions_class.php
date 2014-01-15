@@ -135,7 +135,7 @@ class Sessions {
 			  } */
 
 			if((TIME_NOW - $session_information['time']) > (60 * 5)) {
-				$db->update_query("users", array('lastVisit' => TIME_NOW), "uid='".$this->uid."'");
+				$db->update_query('users', array('lastVisit' => TIME_NOW), "uid='".$this->uid."'");
 				$db->update_query('sessions', array('time' => TIME_NOW), "sid='".$this->sid."'");
 				$this->create_cookie('sid', $this->sid, (TIME_NOW + (60 * $core->settings['idletime']))); //60*SESSION_EXPIRE
 				$this->create_cookie('uid', $this->uid, (TIME_NOW + (60 * $core->settings['idletime'])));
@@ -201,7 +201,7 @@ class Sessions {
 			$ttl = $core->settings['idletime'];
 		}
 
-		session_set_cookie_params((TIME_NOW + (60 * $ttl)), COOKIE_PATH, COOKIE_DOMAIN);
+		session_set_cookie_params((60 * $ttl), COOKIE_PATH, COOKIE_DOMAIN);
 		session_start();
 	}
 
