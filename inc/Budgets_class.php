@@ -79,6 +79,11 @@ class Budgets {
 		return false;
 	}
 
+	/*
+	 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	 * The below function needs improvement
+	 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	 */
 	public function populate_budgetyears($data = array()) {
 		global $db;
 		$budget_yearquery = $db->query('SELECT bid,year FROM '.Tprefix.'budgeting_budgets WHERE spid='.$data['spid'].' AND affid='.$data['affid'].' AND isLocked=0 ORDER BY year DESC');
