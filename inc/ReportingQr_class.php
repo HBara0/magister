@@ -532,6 +532,7 @@ class ReportingQr Extends Reporting {
 							$update_query_where = 'paid='.$db->escape_string($productdata['paid']);
 						}
 						else {
+							unset($productdata['paid']);
 							$update_query_where = 'rid='.$this->report['rid'].' AND pid='.$db->escape_string($productdata['pid']);
 						}
 
