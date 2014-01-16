@@ -446,19 +446,18 @@ $(function() {
 
         /*change ajax call*/
         $.ajax({type: 'post',
-                url: file + "?module=" + module + "&action=get_" + template,
-                 data:"id=" + id,
-                 
-           beforeSend: function() {
+            url: file + "?module=" + module + "&action=get_" + template,
+            data: "id=" + id,
+            beforeSend: function() {
                 $("body").append("<div id='modal-loading'><span  style='display:block; width:100px; height: 100%; margin: 0 auto;'><img  src='./images/loader.gif'/></span></div>");
                 $("#modal-loading").dialog({height: 150, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
-           
+
                 });
             },
             complete: function() {
                 $("#modal-loading").dialog("close").remove();
             },
-            success: function(returnedData) { 
+            success: function(returnedData) {
                 $(".contentContainer").append(returnedData);
 
                 $("div[id^='popup_']").dialog({
@@ -571,7 +570,7 @@ $(function() {
     });
 
     window.sharedFunctions = function() {
-        function requestAjax(methodParam, urlParam, dataParam, loadingId, contentId, datatype) {
+        function requestAjax(methodParam, urlParam, dataParam, loadingId, contentId, datatype, options) {
             //var datatype = 'html';
             /* Check if value = 1 just to ensure background compatibility with previous code */
             if (datatype == 1) {
@@ -593,7 +592,7 @@ $(function() {
                     }
                 },
                 success: function(returnedData) {
-                    alert(returnedData);
+                    //alert(returnedData);
                     if (datatype == 'xml') {
                         if ($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -602,13 +601,24 @@ $(function() {
                         }
 
                         $("div[id='" + contentId + "'],a[id='" + contentId + "'],span[id='" + contentId + "']").html("<span class='" + spanClass + "'><img src='" + imagespath + "/" + $(returnedData).find('status').text() + ".gif' border='0' />&nbsp;" + $(returnedData).find('message').text() + "</span>");
+
                     }
                     else
-                    {
-                        $("#" + contentId).html($.trim(returnedData));
+                    {  $("#" + contentId).html($.trim(returnedData));
+                        if (options != "undefined") {
+                            if (options == 'animate') {
+                                $("#" + contentId).slideDown({
+                                    duration: 500,
+                                    easing: 'easeOutQuad',
+                                   });
+                            }
+                        }
+
+                      
+
                     }
-                }//,
-                // dataType: datatype
+                },
+                 dataType: datatype
             });
         }
         function checkSession() {

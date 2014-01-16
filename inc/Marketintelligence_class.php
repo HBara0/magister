@@ -74,13 +74,22 @@ class Marketintelligence {
 
 	public function get_marketintelligence_ByEntity($id) {
 		global $db;
-		$query = $db->query('SELECT mibdid  FROM '.Tprefix.'marketintelligence_basicdata WHERE cid='.$id.'');
+		$query = $db->query('SELECT mibdid  FROM '.Tprefix.'marketintelligence_basicdata WHERE  YEAR(CURDATE()) <= FROM_UNIXTIME(createdOn, "%Y") AND cid='.$id.' ORDER BY cfpid,createdOn DESC');
 		while($rows = $db->fetch_assoc($query)) {
 			$marketintelligence[$rows['mibdid']] = new Marketintelligence($rows['mibdid']);
 		}
 		return $marketintelligence;
+	}
 
-		return false;
+	public function get_previousmarketintelligence($id) {
+		global $db;
+		if(!empty($id)) {
+			$query = $db->query('SELECT mibdid ,createdOn FROM '.Tprefix.'marketintelligence_basicdata WHERE cfpid="'.$id.'" AND YEAR(CURDATE()) > FROM_UNIXTIME(createdOn, "%Y")  ORDER BY cfpid,createdOn DESC');
+			while($rows = $db->fetch_assoc($query)) {
+				$prevmarketintelligence[$rows['mibdid']] = new Marketintelligence($rows['mibdid']);
+			}
+			return $prevmarketintelligence;
+		}
 	}
 
 	public function get_competitors() {
@@ -94,10 +103,6 @@ class Marketintelligence {
 
 	public function get_customer() {
 		return new Entities($this->marketintelligence['cid']);
-	}
-
-	public function get_product() {
-		//	return new Products($this->marketintelligence['cid']);
 	}
 
 	public function get_chemfunctionproducts() {
@@ -122,6 +127,22 @@ class Marketintelligence {
 
 	public function get() {
 		return $this->marketintelligence;
+	}
+
+	public function apriori() {
+		global $db, $core;
+		//get cfpid chemical product
+		$chemproducts = $this->get_chemfunctionproducts()->get_produt()->get();
+
+//		SELECT DISTINCT store_type FROM stores s1
+//		WHERE   EXISTS (
+//		SELECT * FROM cities WHERE NOT EXISTS (
+//		SELECT * FROM cities_stores
+//		WHERE cities_stores.city = cities.city
+//		AND cities_stores.store_type = stores.store_type));
+//		
+		//$query = $db->query('SELECT *  FROM '.Tprefix.'marketintelligence_competitors WHERE cid='.$this->marketintelligence['cid'].'');
+		return 'pid '.$chemproducts['pid'].' : '.'<br>';
 	}
 
 }

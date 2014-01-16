@@ -63,6 +63,8 @@ if(!$core->input['action']) {
 		$maktintl_mainobj = new Marketintelligence();
 		$maktintl_objs = $maktintl_mainobj->get_marketintelligence_ByEntity($eid);
 		if(is_array($maktintl_objs)) {
+			$timedepth = 40;
+			$height=40;
 			$round_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice');
 			foreach($maktintl_objs as $maktintl_obj) {
 				$altrow_class = alt_row($altrow_class);
@@ -70,10 +72,16 @@ if(!$core->input['action']) {
 				foreach($round_fields as $round_field) {
 					$mktintldata[$round_field] = round($mktintldata[$round_field]);
 				}
+				$mktintldata['previoustimeline'] = date($core->settings['dateformat'], $maktintl_obj->get()['createdOn']);
+				$mktintldata['chemfunction'] = $maktintl_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_function()->get()['title'];
+				$mktintldata['application'] = $maktintl_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_application()->get()['title'];
+				$mktintldata['segment'] = $maktintl_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_segment()->get()['title'];
 				$mktintldata['product'] = $maktintl_obj->get_chemfunctionproducts($mktintldata['cfpid'])->get_produt()->get()['name'];  //get product from cfpid
+
 				eval("\$detailmarketbox .= \"".$template->get('profiles_entityprofile_viewmarketbox')."\";");
 			}
 		}
+
 
 		/* View detailed market intelligence box --END */
 	}
@@ -619,6 +627,21 @@ else {
 		eval("\$marketintelligencedetail_competitors .= \"".$template->get('profiles_entityprofile_marketintelligence_competitors')."\";");
 		eval("\$marketintelligencedetail = \"".$template->get('popup_marketintelligencedetails')."\";");
 		output($marketintelligencedetail);
+	}
+	elseif($core->input['action'] == 'parse_previoustimeline') {
+		$cfpid = $db->escape_string($core->input['cfpid']);
+		$mrktint_obj = new Marketintelligence($mibdid);
+		$mrkt_objs = $mrktint_obj->get_previousmarketintelligence($cfpid);
+		if(is_array($mrkt_objs)) {
+			foreach($mrkt_objs as $mrkt_obj) {
+				$prevmktintldata = $mrkt_obj->get();
+				$prevmktintldata['previoustimeline'] = date($core->settings['dateformat'], $mrkt_obj->get()['createdOn']);
+				$previoustimelinerows .= '<div><span class="previoustimelineyear">'.$prevmktintldata['previoustimeline'].'</span>
+				<span class="previoustimelinedata">'.$prevmktintldata['potential'].'</span>
+				<span class="previoustimelinedata">'.$prevmktintldata['mktShareQty'].'</span> </div>';
+			}
+			echo $previoustimelinerows;
+		}
 	}
 }
 function parse_calltype(&$value) {

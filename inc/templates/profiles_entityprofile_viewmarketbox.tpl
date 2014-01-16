@@ -1,8 +1,15 @@
-<tr class="{$altrow_class}" id="markettimeline_{$mktintldata[mibdid]}"><td><div id="chemfuncproducts_{$mktintldata[cfpid]}">{$mktintldata[product]}</div><div style="display: none;">Timeline data history here</div></td>
-    <td><div id="potential_{$mktintldata[mibdid]}">{$mktintldata[potential]} </div></td>
-    <td><div id="mktSharePerc_{$mktintldata[mibdid]}"> {$mktintldata[mktSharePerc]} %</div> </td>
-    <td>{$mktintldata[mktShareQty]}</td>
-    <td><a  style="cursor: pointer;" title="{$lang->viewmrktbox}" id="mktintldetails_{$mktintldata[mibdid]}_profiles/entityprofile_loadpopupbyid" rel="mktdetail_{$mktintldata[mibdid]}"><img  src="{$core->settings[rootdir]}/images/icons/search.gif"/></a></td>
-</tr>
-
+<div class="timelinedetails"> 
+    <div class="circle" id="markettimeline_{$mktintldata[cfpid]}" style="top:30%;left:-25px; height:{$height}px; width:{$timedepth}px;"> </div>
+    <div style="margin-bottom:30px;">
+    <div class="timelineitem">{$mktintldata[product]} <div>{$mktintldata[chemfunction]}</span>-<span>{$mktintldata[application]}</span> - <span>{$mktintldata[segment]}</div></div>  
+    <div class="timelineitem" >{$mktintldata[potential]}</div>
+    <div class="timelineitem"> {$mktintldata[mktShareQty]}</div>  
+    <div class="timelineitem"><a  style="cursor: pointer;" title="{$lang->viewmrktbox}" id="mktintldetails_{$mktintldata[mibdid]}_profiles/entityprofile_loadpopupbyid" rel="mktdetail_{$mktintldata[mibdid]}"><img  src="{$core->settings[rootdir]}/images/icons/search.gif"/></a></div>
+ 
+    </div>
+    <div class="previoustimeline" id="previoustimelinecontainer_{$mktintldata[cfpid]}">
+        {$previoustimelinerows}
+     
+    </div>
+</div>
 

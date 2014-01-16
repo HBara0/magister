@@ -28,6 +28,14 @@
                                         });
             {$header_rmljs}
             {$header_ratingjs}
+
+                                        $('div[id^="markettimeline_"]').click(function() {
+                                            var id = $(this).attr("id").split('_');
+                                            sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=parse_previoustimeline", "cfpid=" + id[1], 'previoustimelinecontainer_'+ id[1]+'', 'previoustimelinecontainer_'+ id[1]+'', true,'animate');
+
+                                        
+                                        });
+
                                     });
         </script>
     </head>
@@ -103,7 +111,11 @@
                     </td>
                 </tr>
                 <tr ><td class="thead" colspan="2">{$lang->detlmrktbox}</td></tr>
-                <tr><td>  <table width="100%" class="datatable">{$detailmarketbox}</table></td></tr>
+                <tr><td colspan="2"> <div class="timelinebox">
+                            {$detailmarketbox}
+                        </div> 
+                    </td>
+                </tr>
             </table>
         </td></tr>
         {$footer}
