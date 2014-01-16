@@ -20,23 +20,20 @@
                         var action = 'getentityusers';
                     }
                     else
-                                {
-                                                var action = 'getallusers';
-                                            }
+                    {
+                                    var action = 'getallusers';
+                                }
 
-                                            sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=" + action, "affid=" + ids[1] + '&eid=' + ids[2], 'entityusers', 'entityusers', true);
-                                        });
+                                sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=" + action, "affid=" + ids[1] + '&eid=' + ids[2], 'entityusers', 'entityusers', true);
+                            });
             {$header_rmljs}
             {$header_ratingjs}
 
-                                        $('div[id^="markettimeline_"]').click(function() {
-                                            var id = $(this).attr("id").split('_');
-                                            sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=parse_previoustimeline", "cfpid=" + id[1], 'previoustimelinecontainer_'+ id[1]+'', 'previoustimelinecontainer_'+ id[1]+'', true,'animate');
-
-                                        
-                                        });
-
-                                    });
+                            $('div[id^="markettimeline_"]').click(function() {
+                                var id = $(this).attr("id").split('_');
+                                sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=parse_previoustimeline", "cfpid=" + id[1], 'previoustimelinecontainer_' + id[1] + '', 'previoustimelinecontainer_' + id[1] + '', true, 'animate');
+                            });
+                        });
         </script>
     </head>
     <body>
@@ -83,9 +80,7 @@
                 </tr>
                 {$products_section}
                 {$meetings_section}
-                {$reports_section}
-                {$entityprofile_private}
-                <tr class="thead"><td colspan="2">{$lang->Brandsendproducts}...</td>  </tr>
+                <tr><td colspan="2" class="thead">{$lang->Brandsendproducts}...</td></tr>
                 <tr>
                     <td colspan="2">
                         <table width="100%" cellpadding="0" cellspacing="0">
@@ -97,7 +92,6 @@
                                                 <tr class="altrow2">
                                                     <th>{$lang->brand}</th>
                                                     <th>{$lang->endproduct}</th>
-
                                                 </tr>
                                                 {$brandsendproducts}
                                             </table>
@@ -110,12 +104,24 @@
 
                     </td>
                 </tr>
-                <tr ><td class="thead" colspan="2">{$lang->detlmrktbox}</td></tr>
-                <tr><td colspan="2"> <div class="timelinebox">
+                <tr><td class="thead" colspan="2">{$lang->detlmrktbox}</td></tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="timeline_container">
+                            <div class="timeline_entry"> 
+                                <div>
+                                    <div class="timeline_column timeline_column_heading">Item</div>  
+                                    <div class="timeline_column timeline_column_heading">Potential</div>
+                                    <div class="timeline_column timeline_column_heading">Market Share</div>  
+                                    <div class="timeline_column timeline_column_heading"></div>
+                                </div>
+                            </div>
                             {$detailmarketbox}
                         </div> 
                     </td>
                 </tr>
+                {$reports_section}
+                {$entityprofile_private}
             </table>
         </td></tr>
         {$footer}

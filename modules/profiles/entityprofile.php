@@ -22,7 +22,32 @@ if(!$core->input['action']) {
 	$eid = $db->escape_string($core->input['eid']);
 	$entity_obj = new Entities($eid, '', false);
 	$profile = $entity_obj->get();
+
+	/* Get/parse brands - START */
+	$entbrandsproducts_objs = $entity_obj->get_brands($filter_where);
+	if(is_array($entbrandsproducts_objs)) {
+		foreach($entbrandsproducts_objs as $entbrandsproducts_obj) {
+			$entbrandsproducts = $entbrandsproducts_obj->get();
+			$entitybrand = $entbrandsproducts['name']; /* Loop over the brandobjcts and get their current brands */
+			$endproduct_types_objs = $entbrandsproducts_obj->get_producttypes();
+			$entbrandproducts_objs = $entbrandsproducts_obj->get_entbrandproducts();
+			if(is_array($entbrandproducts_objs)) {
+				foreach($entbrandproducts_objs as $entbrandproducts_obj) {
+					$entbrandsproductsids = $entbrandproducts_obj->get()['ebpid'];
+				}
+			}
+			if(is_array($endproduct_types_objs)) {
+				foreach($endproduct_types_objs as $endproduct_types_obj) { /* Loop over the products types of the current entitiy object */
+					$endproduct_types = $endproduct_types_obj->get()['name'];
+				}
+			}
+			$entitiesbrandsproducts_list .= '<option value="'.$entbrandsproductsids.'">'.$endproduct_types.'-'.$entitybrand.' </option>';
+		}
+	}
+	/* Get/parse brands - END */
+
 	/* Market Data --START */
+	$filter_where = 'eid IN ('.$eid.')';
 	if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
 		$addmarketdata_link = '<div style="float:right;margin:-10px;" title="'.$lang->addmarket.'" ><a href="#"id="showpopup_marketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/marketintelligence.png" width="44px;" height="44px;"/></a></div>';
 		$field = '<input type="text" required="required" size="25" name="marketdata[cfpid]" id="chemfunctionproducts_1_QSearch" size="100"  autocomplete="off"/>
@@ -37,34 +62,13 @@ if(!$core->input['action']) {
 		$lang->fieldlabel = $lang->product;
 		$action = 'do_addmartkerdata';
 		$modulefile = 'entityprofile';
-		$filter_where = 'eid IN ('.$eid.')';
-		$entbrandsproducts_objs = $entity_obj->get_brands($filter_where);
-		if(is_array($entbrandsproducts_objs)) {
-			foreach($entbrandsproducts_objs as $entbrandsproducts_obj) {
-				$entbrandsproducts = $entbrandsproducts_obj->get();
-				$entitybrand = $entbrandsproducts['name']; /* Loop over the brandobjcts and get their current brands */
-				$endproduct_types_objs = $entbrandsproducts_obj->get_producttypes();
-				$entbrandproducts_objs = $entbrandsproducts_obj->get_entbrandproducts();
-				if(is_array($entbrandproducts_objs)) {
-					foreach($entbrandproducts_objs as $entbrandproducts_obj) {
-						$entbrandsproductsids = $entbrandproducts_obj->get()['ebpid'];
-					}
-				}
-				if(is_array($endproduct_types_objs)) {
-					foreach($endproduct_types_objs as $endproduct_types_obj) { /* Loop over the products types of the current entitiy object */
-						$endproduct_types = $endproduct_types_obj->get()['name'];
-					}
-				}
-				$entitiesbrandsproducts_list .= '<option value="'.$entbrandsproductsids.'">'.$endproduct_types.'-'.$entitybrand.' </option>';
-			}
-		}
-		/* View detailed market intelligence box --START */
 
+		/* View detailed market intelligence box --START */
 		$maktintl_mainobj = new Marketintelligence();
-		$maktintl_objs = $maktintl_mainobj->get_marketintelligence_ByEntity($eid);
+		$maktintl_objs = $maktintl_mainobj->get_marketintelligence_byentity($eid);
 		if(is_array($maktintl_objs)) {
-			$timedepth = 40;
-			$height=40;
+			$timedepth = 25;
+			$height = 25;
 			$round_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice');
 			foreach($maktintl_objs as $maktintl_obj) {
 				$altrow_class = alt_row($altrow_class);
@@ -76,12 +80,13 @@ if(!$core->input['action']) {
 				$mktintldata['chemfunction'] = $maktintl_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_function()->get()['title'];
 				$mktintldata['application'] = $maktintl_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_application()->get()['title'];
 				$mktintldata['segment'] = $maktintl_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_segment()->get()['title'];
-				$mktintldata['product'] = $maktintl_obj->get_chemfunctionproducts($mktintldata['cfpid'])->get_produt()->get()['name'];  //get product from cfpid
-
-				eval("\$detailmarketbox .= \"".$template->get('profiles_entityprofile_viewmarketbox')."\";");
+				$mktintldata['product'] = $maktintl_obj->get_chemfunctionproducts()->get_produt()->get()['name'];  //get product from cfpid
+				if(empty($mktintldata['product'])) {
+					continue;
+				}
+				eval("\$detailmarketbox .= \"".$template->get('profiles_entityprofile_mientry')."\";");
 			}
 		}
-
 
 		/* View detailed market intelligence box --END */
 	}
@@ -509,7 +514,7 @@ if(!$core->input['action']) {
 		}
 	}
 	else {
-		$brandsendproducts = '<tr><td>'.$lang->na.'</td></tr>';
+		$brandsendproducts = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
 	}
 	eval("\$popup_marketdata= \"".$template->get("popup_marketdata")."\";");
 	eval("\$profilepage = \"".$template->get('profiles_entityprofile')."\";");
@@ -630,15 +635,21 @@ else {
 	}
 	elseif($core->input['action'] == 'parse_previoustimeline') {
 		$cfpid = $db->escape_string($core->input['cfpid']);
-		$mrktint_obj = new Marketintelligence($mibdid);
+		$mrktint_obj = new Marketintelligence();
 		$mrkt_objs = $mrktint_obj->get_previousmarketintelligence($cfpid);
 		if(is_array($mrkt_objs)) {
 			foreach($mrkt_objs as $mrkt_obj) {
 				$prevmktintldata = $mrkt_obj->get();
 				$prevmktintldata['previoustimeline'] = date($core->settings['dateformat'], $mrkt_obj->get()['createdOn']);
-				$previoustimelinerows .= '<div><span class="previoustimelineyear">'.$prevmktintldata['previoustimeline'].'</span>
-				<span class="previoustimelinedata">'.$prevmktintldata['potential'].'</span>
-				<span class="previoustimelinedata">'.$prevmktintldata['mktShareQty'].'</span> </div>';
+				$previoustimelinerows .= '
+				<div class="timeline_entry timeline_entry_dependent">
+					<div class="circle" style="top:50%; left:-9px; height:15px; width:15px;"></div>
+					<div>
+					<div class="timeline_column smalltext">'.$prevmktintldata['previoustimeline'].'</div>
+					<div class="timeline_column">'.$prevmktintldata['potential'].'</div>
+					<div class="timeline_column">'.$prevmktintldata['mktShareQty'].'</div>
+						</div>
+				</div>';
 			}
 			echo $previoustimelinerows;
 		}

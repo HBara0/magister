@@ -592,7 +592,7 @@ $(function() {
                     }
                 },
                 success: function(returnedData) {
-                    //alert(returnedData);
+                    alert(returnedData);
                     if (datatype == 'xml') {
                         if ($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -604,21 +604,16 @@ $(function() {
 
                     }
                     else
-                    {  $("#" + contentId).html($.trim(returnedData));
+                    {  
+                        $("#" + contentId).html($.trim(returnedData));
                         if (options != "undefined") {
                             if (options == 'animate') {
-                                $("#" + contentId).slideDown({
-                                    duration: 500,
-                                    easing: 'easeOutQuad',
-                                   });
+                                $("#" + contentId).slideDown({duration: 500, easing: 'easeOutQuad'});
                             }
                         }
-
-                      
-
                     }
-                },
-                 dataType: datatype
+                }//,
+                 //dataType: datatype
             });
         }
         function checkSession() {

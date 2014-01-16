@@ -513,80 +513,61 @@ tr.dummytrow td, tr.dummytrow th {
     display: inline-block;
 }
 
-.timelinebox {
-    margin: 20px 0px 20px 40px;
-    padding-left: 20px;
-
+.timeline_container {
+    margin-left: 20px;
     height: 100%;
+    width: 100%;
+    vertical-align: top;
 }
-.timelinedetails {
+
+.timeline_entry {
     position: relative;
     display: block;
-    padding-left: 30px;
-    margin-top: 40px; /*dynamic margin*/
     width:100%;
     height:100%;
-    border-left: 2px solid #333 ;
+    vertical-align: top;
 }
-.timelinedetails .timelineitem {
+
+.timeline_entry_dependent {
+    border-left: 1px solid #333;
+    margin-left: -17px;
+    border-color:#333;
+}
+
+.timeline_entry .timeline_column {
     display: inline-block;
-    /*    padding:10px;
-        margin: 5px;*/
-    width:20% !important;
+    width: 20% !important;
+    padding: 10px 0px 0px 30px;
 }
-div.previoustimeline {
-    display: none;
-    margin-top: -10px;
-    top: 80%;
-    float:left;
-    left: 0px;
-    width:100%;
-    hieght:100%;
 
+.timeline_column_heading {
+    font-weight: bold;
 }
-div.previoustimeline  span.previoustimelineyear{
-    display: inline-block;
-    top: 80%;
-    left: -7%;
-    padding: 5px;
-    margin: 5px;
-    width:100px;
-    background-color:yellow;
-    font-size: 5px;
+.timeline_entry_dependent > .timeline_column {
+    padding-left: -30px !important;
 }
-div.previoustimeline  span.previoustimelinedata {
-    display: inline;   
-    top: 80%;
-    left: -7%;
-    padding: 5px;
-    margin:15px;
-    width:85px;
 
-}
-.timelineitem > span{
-    padding: 40px;
-}
-.timelineitem > div.itemproperties{
-    float:left;
-}
-div.itemproperties span{
-    font-family:  inherit;
-    font-size: 8px;
-    display:inline;
-
-}
-div.timelinedetails .circle {
+.timeline_entry .circle {
     position: absolute;
     -webkit-border-radius: 100%;
     -moz-border-radius: 100%;
     border-radius: 100%;
     display: block;
-    margin-top: -10px;
     top: 0%;
     left: 0px;
     width: 40px;
     height: 40px;
     border: 1px solid  #333;
-    cursor: pointer;
+    background-color: #FFF;
+    z-index: 10;
+    vertical-align: top;
+    border-color:#87a938;
 }
 
+.timeline_entry .circle:hover {
+    border-color:#aecd78; 
+}
+
+.timeline_entry .circle_clickable {
+    cursor: pointer;
+}

@@ -72,9 +72,10 @@ class Marketintelligence {
 		}
 	}
 
-	public function get_marketintelligence_ByEntity($id) {
+	public function get_marketintelligence_byentity($id) {
 		global $db;
 		$query = $db->query('SELECT mibdid  FROM '.Tprefix.'marketintelligence_basicdata WHERE  YEAR(CURDATE()) <= FROM_UNIXTIME(createdOn, "%Y") AND cid='.$id.' ORDER BY cfpid,createdOn DESC');
+		
 		while($rows = $db->fetch_assoc($query)) {
 			$marketintelligence[$rows['mibdid']] = new Marketintelligence($rows['mibdid']);
 		}
