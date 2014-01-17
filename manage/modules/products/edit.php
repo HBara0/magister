@@ -108,12 +108,12 @@ if(!$core->input['action']) {
 else {
 	if($core->input['action'] == 'do_perform_edit') {
 		if(empty($core->input['spid']) || empty($core->input['gpid']) || empty($core->input['name'])) {
-			//output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
-			//exit;
+			output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+			exit;
 		}
 		if(empty($core->input['applicationfunction']) && !isset($core->input['applicationfunction'])) {
-			//output_xml("<status>false</status><message>selsect one app</message>");
-			//exit;
+			output_xml("<status>false</status><message>selsect one app</message>");
+			exit;
 		}
 		$check_query = $db->query("SELECT pid, name FROM ".Tprefix."products WHERE name='{$core->input[name]}' LIMIT 0,1");
 		if($db->num_rows($check_query) > 0) {
@@ -124,9 +124,8 @@ else {
 				exit;
 			}
 		}
-		print_r($core->input['chemsubstances']);
-		exit;
-		log_action($core->input['name']);
+
+		$log->record($core->input['name']);
 		$chemicalfunctionsproducts = $core->input['applicationfunction'];
 		$productschemsubstances = $core->input['chemsubstances'];
 		unset($core->input['action'], $core->input['module'], $core->input['applicationfunction'], $core->input['chemsubstances']);
