@@ -111,9 +111,11 @@
                             <div class="timeline_entry"> 
                                 <div>
                                     <div class="timeline_column timeline_column_heading">Item</div> 
-                                    <div class="timeline_column timeline_column_heading"> {$lang->endproduct}</div> 
+                                    <div class="timeline_column timeline_column_heading">{$lang->endproduct}</div> 
                                     <div class="timeline_column timeline_column_heading">Potential</div>
-                                    <div class="timeline_column timeline_column_heading">Market Share</div>  
+                                      <div class="timeline_column timeline_column_heading">{$lang->price}</div>
+                                             <div class="timeline_column timeline_column_heading">{$lang->marketshare}</div>
+                                    <div class="timeline_column timeline_column_heading">{$lang->marketshareqty}</div>  
                                     <div class="timeline_column timeline_column_heading"></div>
                                 </div>
                             </div>
