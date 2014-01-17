@@ -72,10 +72,23 @@ class Marketintelligence {
 		}
 	}
 
-	public function get_marketintelligence_byentity($id) {
+	public function get_marketintelligence_timeline($id, $options = array()) {
 		global $db;
-		$query = $db->query('SELECT mibdid  FROM '.Tprefix.'marketintelligence_basicdata WHERE  YEAR(CURDATE()) <= FROM_UNIXTIME(createdOn, "%Y") AND cid='.$id.' ORDER BY cfpid,createdOn DESC');
-		
+		if(isset($options['currentyear']) && $options['currentyear'] == 1) {
+			$where_year = ' AND YEAR(CURDATE()) <= FROM_UNIXTIME(createdOn, "%Y")';
+		}
+		elseif(isset($options['prevyear']) && $options['prevyear'] == 1) {
+			$where_year = ' AND YEAR(CURDATE()) > FROM_UNIXTIME(createdOn, "%Y")';
+		}
+		if(isset($options['customer']) && $options['customer'] == 1) {
+			$wichid = 'cid';
+		}
+		elseif(isset($options['cfpid']) && $options['cfpid'] == 1) {
+			$wichid = 'cfpid';
+		}
+
+		$query = $db->query('SELECT mibdid FROM '.Tprefix.'marketintelligence_basicdata WHERE  createdOn!=0 '.$where_year.' AND '.$wichid.'='.$id.' ORDER BY cfpid,createdOn DESC');
+
 		while($rows = $db->fetch_assoc($query)) {
 			$marketintelligence[$rows['mibdid']] = new Marketintelligence($rows['mibdid']);
 		}
@@ -85,12 +98,16 @@ class Marketintelligence {
 	public function get_previousmarketintelligence($id) {
 		global $db;
 		if(!empty($id)) {
-			$query = $db->query('SELECT mibdid ,createdOn FROM '.Tprefix.'marketintelligence_basicdata WHERE cfpid="'.$id.'" AND YEAR(CURDATE()) > FROM_UNIXTIME(createdOn, "%Y")  ORDER BY cfpid,createdOn DESC');
+			$query = $db->query('SELECT mibdid ,createdOn FROM '.Tprefix.'marketintelligence_basicdata WHERE cfpid="'.$id.'" AND createdOn!=0 AND YEAR(CURDATE()) > FROM_UNIXTIME(createdOn, "%Y")  ORDER BY cfpid,createdOn DESC');
 			while($rows = $db->fetch_assoc($query)) {
 				$prevmarketintelligence[$rows['mibdid']] = new Marketintelligence($rows['mibdid']);
 			}
 			return $prevmarketintelligence;
 		}
+	}
+
+	public function get_marketendproducts($id) {
+		return new EndproducTypes($id);
 	}
 
 	public function get_competitors() {
@@ -134,14 +151,6 @@ class Marketintelligence {
 		global $db, $core;
 		//get cfpid chemical product
 		$chemproducts = $this->get_chemfunctionproducts()->get_produt()->get();
-
-//		SELECT DISTINCT store_type FROM stores s1
-//		WHERE   EXISTS (
-//		SELECT * FROM cities WHERE NOT EXISTS (
-//		SELECT * FROM cities_stores
-//		WHERE cities_stores.city = cities.city
-//		AND cities_stores.store_type = stores.store_type));
-//		
 		//$query = $db->query('SELECT *  FROM '.Tprefix.'marketintelligence_competitors WHERE cid='.$this->marketintelligence['cid'].'');
 		return 'pid '.$chemproducts['pid'].' : '.'<br>';
 	}

@@ -1,7 +1,8 @@
-<div class="timeline_entry"> 
+<div class="timeline_entry">
     <div class="circle circle_clickable" id="markettimeline_{$mktintldata[cfpid]}" style="top:11px; left:-1%; height:{$height}px; width:{$timedepth}px;"></div>
     <div style="margin-top:10px;">
         <div class="timeline_column">{$mktintldata[product]}<div class="smalltext">{$mktintldata[chemfunction]} - {$mktintldata[application]} - {$mktintldata[segment]}</div></div>  
+          <div class="timeline_column"> {$entity_mrktendproducts}</div>
         <div class="timeline_column">{$mktintldata[potential]}</div>
         <div class="timeline_column"> {$mktintldata[mktShareQty]}</div>  
         <div class="timeline_column"><a style="cursor: pointer;" title="{$lang->viewmrktbox}" id="mktintldetails_{$mktintldata[mibdid]}_profiles/entityprofile_loadpopupbyid" rel="mktdetail_{$mktintldata[mibdid]}"><img src="{$core->settings[rootdir]}/images/icons/search.gif"/></a></div>

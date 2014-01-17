@@ -44,6 +44,7 @@ if(!$core->input['action']) {
 			$entitiesbrandsproducts_list .= '<option value="'.$entbrandsproductsids.'">'.$endproduct_types.'-'.$entitybrand.' </option>';
 		}
 	}
+
 	/* Get/parse brands - END */
 
 	/* Market Data --START */
@@ -65,7 +66,7 @@ if(!$core->input['action']) {
 
 		/* View detailed market intelligence box --START */
 		$maktintl_mainobj = new Marketintelligence();
-		$maktintl_objs = $maktintl_mainobj->get_marketintelligence_byentity($eid);
+		$maktintl_objs = $maktintl_mainobj->get_marketintelligence_timeline($eid, array('currentyear' => 1,'customer'=>1));
 		if(is_array($maktintl_objs)) {
 			$timedepth = 25;
 			$height = 25;
@@ -76,6 +77,12 @@ if(!$core->input['action']) {
 				foreach($round_fields as $round_field) {
 					$mktintldata[$round_field] = round($mktintldata[$round_field]);
 				}
+				$entity_brdprd_objs = $maktintl_obj->get_entitiesbrandsproducts();
+				$entity_brandproducts = $entity_brdprd_objs->get();
+
+				$entity_mrktendproducts_objs = $maktintl_obj->get_marketendproducts($entity_brandproducts['eptid']);
+				$entity_mrktendproducts = $entity_mrktendproducts_objs->get()['title'];
+
 				$mktintldata['previoustimeline'] = date($core->settings['dateformat'], $maktintl_obj->get()['createdOn']);
 				$mktintldata['chemfunction'] = $maktintl_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_function()->get()['title'];
 				$mktintldata['application'] = $maktintl_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_application()->get()['title'];
@@ -87,13 +94,11 @@ if(!$core->input['action']) {
 				eval("\$detailmarketbox .= \"".$template->get('profiles_entityprofile_mientry')."\";");
 			}
 		}
-
 		/* View detailed market intelligence box --END */
 	}
 	$rowid = intval($core->input['value']) + 2;
 
 	/* Market Data--END */
-
 	//$profile = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid={$eid}"));
 	if(!empty($profile['building'])) {
 		$profile['fulladdress'] .= $profile['building'].' - ';
@@ -598,7 +603,6 @@ else {
 		foreach($round_fields as $round_field) {
 			$mrktintl_detials[$round_field] = round($mrktintl_detials[$round_field]);
 		}
-
 		$mrktintl_detials['brand'] = $mrktint_obj->get_entitiesbrandsproducts()->get_entitybrand()->get()['name'];
 		$mrktintl_detials['endproduct'] = $mrktint_obj->get_entitiesbrandsproducts()->get_endproduct()->get()['name'];
 
@@ -636,16 +640,22 @@ else {
 	elseif($core->input['action'] == 'parse_previoustimeline') {
 		$cfpid = $db->escape_string($core->input['cfpid']);
 		$mrktint_obj = new Marketintelligence();
-		$mrkt_objs = $mrktint_obj->get_previousmarketintelligence($cfpid);
+		$mrkt_objs = $mrktint_obj->get_marketintelligence_timeline($cfpid, array('prevyear' => 1,'cfpid'=>1));
 		if(is_array($mrkt_objs)) {
 			foreach($mrkt_objs as $mrkt_obj) {
 				$prevmktintldata = $mrkt_obj->get();
 				$prevmktintldata['previoustimeline'] = date($core->settings['dateformat'], $mrkt_obj->get()['createdOn']);
+				$entity_brdprd_objs = $mrkt_obj->get_entitiesbrandsproducts();
+				$entity_brandproducts = $entity_brdprd_objs->get();
+
+				$entity_mrktendproducts_objs = $mrkt_obj->get_marketendproducts($entity_brandproducts['eptid']);
+				$entity_mrktendproducts = $entity_mrktendproducts_objs->get()['title'];
 				$previoustimelinerows .= '
 				<div class="timeline_entry timeline_entry_dependent">
 					<div class="circle" style="top:50%; left:-9px; height:15px; width:15px;"></div>
 					<div>
 					<div class="timeline_column smalltext">'.$prevmktintldata['previoustimeline'].'</div>
+								<div class="timeline_column">'.$entity_mrktendproducts_objs->get()['name'].'</div>
 					<div class="timeline_column">'.$prevmktintldata['potential'].'</div>
 					<div class="timeline_column">'.$prevmktintldata['mktShareQty'].'</div>
 						</div>

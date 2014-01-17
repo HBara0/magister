@@ -31,7 +31,7 @@
 
                             $('div[id^="markettimeline_"]').click(function() {
                                 var id = $(this).attr("id").split('_');
-                                sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=parse_previoustimeline", "cfpid=" + id[1], 'previoustimelinecontainer_' + id[1] + '', 'previoustimelinecontainer_' + id[1] + '', true, 'animate');
+                                sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=parse_previoustimeline", "cfpid=" + id[1], 'markettimeline_' + id[1] + '', 'previoustimelinecontainer_' + id[1] + '', true, 'animate');
                             });
                         });
         </script>
@@ -110,7 +110,8 @@
                         <div class="timeline_container">
                             <div class="timeline_entry"> 
                                 <div>
-                                    <div class="timeline_column timeline_column_heading">Item</div>  
+                                    <div class="timeline_column timeline_column_heading">Item</div> 
+                                    <div class="timeline_column timeline_column_heading"> {$lang->endproduct}</div> 
                                     <div class="timeline_column timeline_column_heading">Potential</div>
                                     <div class="timeline_column timeline_column_heading">Market Share</div>  
                                     <div class="timeline_column timeline_column_heading"></div>

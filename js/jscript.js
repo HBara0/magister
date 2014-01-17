@@ -579,12 +579,16 @@ $(function() {
             if (typeof datatype == "undefined") {
                 datatype = 'xml'
             }
+            var image_name = 'loading-bar.gif';
+            if (options == 'animate') {
+                var image_name = 'ajax-loader.gif';
+            }
 
             $.ajax({type: methodParam,
                 url: urlParam,
                 data: dataParam,
                 beforeSend: function() {
-                    $("div[id='" + loadingId + "'],span[id='" + loadingId + "']").html("<img style='padding: 5px;' src='" + imagespath + "/loading-bar.gif' alt='" + loading_text + "' border='0' />");
+                    $("div[id='" + loadingId + "'],span[id='" + loadingId + "']").html("<img style='padding: 5px;' src='" + imagespath + "/" + image_name + "'' alt='" + loading_text + "' border='0' />");
                 },
                 complete: function() {
                     if (loadingId != contentId) {
@@ -592,7 +596,7 @@ $(function() {
                     }
                 },
                 success: function(returnedData) {
-                    alert(returnedData);
+                   
                     if (datatype == 'xml') {
                         if ($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -604,16 +608,18 @@ $(function() {
 
                     }
                     else
-                    {  
+                    {
                         $("#" + contentId).html($.trim(returnedData));
-                        if (options != "undefined") {
-                            if (options == 'animate') {
-                                $("#" + contentId).slideDown({duration: 500, easing: 'easeOutQuad'});
-                            }
-                        }
+//                        if (!returnedData) {
+//                            if (options != "undefined") {
+//                                if (options == 'animate') {
+//                                    $("#" + contentId).slideUp({duration: 500, easing: 'easeOutQuad'});
+//                                }
+//                            }
+//                        }
                     }
                 }//,
-                 //dataType: datatype
+                //dataType: datatype
             });
         }
         function checkSession() {
