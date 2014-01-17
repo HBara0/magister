@@ -81,13 +81,13 @@ class Marketintelligence {
 			$where_year = ' AND YEAR(CURDATE()) > FROM_UNIXTIME(createdOn, "%Y")';
 		}
 		if(isset($options['customer']) && $options['customer'] == 1) {
-			$wichid = 'cid';
+			$filterid = 'cid';
 		}
-		elseif(isset($options['cfpid']) && $options['cfpid'] == 1) {
-			$wichid = 'cfpid';
+		elseif(isset($options['filterchemfunctprod']) && $options['filterchemfunctprod'] == 1) {
+			$filterid = 'cfpid';
 		}
 
-		$query = $db->query('SELECT mibdid FROM '.Tprefix.'marketintelligence_basicdata WHERE  createdOn!=0 '.$where_year.' AND '.$wichid.'='.$id.' ORDER BY cfpid,createdOn DESC');
+		$query = $db->query('SELECT mibdid FROM '.Tprefix.'marketintelligence_basicdata WHERE  createdOn!=0 '.$where_year.' AND '.$filterid.'='.$id.' ORDER BY cfpid,createdOn DESC');
 
 		while($rows = $db->fetch_assoc($query)) {
 			$marketintelligence[$rows['mibdid']] = new Marketintelligence($rows['mibdid']);

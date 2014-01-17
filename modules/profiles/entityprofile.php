@@ -66,7 +66,7 @@ if(!$core->input['action']) {
 
 		/* View detailed market intelligence box --START */
 		$maktintl_mainobj = new Marketintelligence();
-		$maktintl_objs = $maktintl_mainobj->get_marketintelligence_timeline($eid, array('currentyear' => 1,'customer'=>1));
+		$maktintl_objs = $maktintl_mainobj->get_marketintelligence_timeline($eid, array('currentyear' => 1, 'customer' => 1));
 		if(is_array($maktintl_objs)) {
 			$timedepth = 25;
 			$height = 25;
@@ -640,7 +640,7 @@ else {
 	elseif($core->input['action'] == 'parse_previoustimeline') {
 		$cfpid = $db->escape_string($core->input['cfpid']);
 		$mrktint_obj = new Marketintelligence();
-		$mrkt_objs = $mrktint_obj->get_marketintelligence_timeline($cfpid, array('prevyear' => 1,'cfpid'=>1));
+		$mrkt_objs = $mrktint_obj->get_marketintelligence_timeline($cfpid, array('prevyear' => 1, 'filterchemfunctprod' => 1));
 		if(is_array($mrkt_objs)) {
 			foreach($mrkt_objs as $mrkt_obj) {
 				$prevmktintldata = $mrkt_obj->get();
