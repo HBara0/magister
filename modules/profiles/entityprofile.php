@@ -87,8 +87,8 @@ if(!$core->input['action']) {
 				$mktintldata['chemfunction'] = $maktintl_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_function()->get()['title'];
 				$mktintldata['application'] = $maktintl_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_application()->get()['title'];
 				$mktintldata['segment'] = $maktintl_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_segment()->get()['title'];
-				$mktintldata['product'] = $maktintl_obj->get_chemfunctionproducts()->get_produt()->get()['name'];  //get product from cfpid
-				if(empty($mktintldata['product'])) {
+				$mktintldata['entity'] = $maktintl_obj->get_chemfunctionproducts()->get_produt()->get()['name'];  //get product from cfpid
+				if(empty($mktintldata['entity'])) {
 					continue;
 				}
 				eval("\$detailmarketbox .= \"".$template->get('profiles_entityprofile_mientry')."\";");
@@ -654,11 +654,17 @@ else {
 				<div class="timeline_entry timeline_entry_dependent">
 					<div class="circle" style="top:50%; left:-9px; height:15px; width:15px;"></div>
 					<div>
-					<div class="timeline_column smalltext">'.$prevmktintldata['previoustimeline'].'</div>
-								<div class="timeline_column">'.$entity_mrktendproducts_objs->get()['name'].'</div>
+					<div class="timeline_column smalltext" style="width:20%;">'.$prevmktintldata['previoustimeline'].'</div>
+					<div class="timeline_column">'.$entity_mrktendproducts_objs->get()['name'].'</div>
 					<div class="timeline_column">'.$prevmktintldata['potential'].'</div>
+					<div class="timeline_column">'.$prevmktintldata['unitPrice'].'</div>
+					<div class="timeline_column">'.$prevmktintldata['mktSharePerc'].'</div>
 					<div class="timeline_column">'.$prevmktintldata['mktShareQty'].'</div>
-						</div>
+					<div class="timeline_column" style="width:1%;"><span style="margin-left:-45px;"><a style="cursor:pointer;" title="'.$lang->viewmrktbox.' '.$prevmktintldata['previoustimeline'].'" id="mktintldetails_'.$prevmktintldata['mibdid'].'_profiles/entityprofile_loadpopupbyid" rel="mktdetail_'.$prevmktintldata['mibdid'].'"><img src="'.$core->settings['rootdir'].'/images/icons/search.gif"/></a></span></div>
+					</div>
+		
+        
+			  </div>
 				</div>';
 			}
 			echo $previoustimelinerows;

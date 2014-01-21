@@ -31,6 +31,13 @@
 
                             $('div[id^="markettimeline_"]').click(function() {
                                 var id = $(this).attr("id").split('_');
+                                var link = $('div[id^="previoustimelinecontainer_' + id[1] + '"]');
+                                // Exit and stop ajax request  if the data is loaded already
+                                if (link.data('dataloaded') === true) {
+                                    $('div[id^="previoustimelinecontainer_' + id[1] + '"]').slideToggle("slow");
+                                    return false;
+                                }
+
                                 sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=parse_previoustimeline", "cfpid=" + id[1], 'markettimeline_' + id[1] + '', 'previoustimelinecontainer_' + id[1] + '', true, 'animate');
                             });
                         });
@@ -106,17 +113,17 @@
                 </tr>
                 <tr><td class="thead" colspan="2">{$lang->detlmrktbox}</td></tr>
                 <tr>
-                    <td colspan="2">
+                    <td colspan="3">
                         <div class="timeline_container">
                             <div class="timeline_entry"> 
                                 <div>
-                                    <div class="timeline_column timeline_column_heading">Item</div> 
-                                    <div class="timeline_column timeline_column_heading">{$lang->endproduct}</div> 
-                                    <div class="timeline_column timeline_column_heading">Potential</div>
-                                      <div class="timeline_column timeline_column_heading">{$lang->price}</div>
-                                             <div class="timeline_column timeline_column_heading">{$lang->marketshare}</div>
-                                    <div class="timeline_column timeline_column_heading">{$lang->marketshareqty}</div>  
-                                    <div class="timeline_column timeline_column_heading"></div>
+                                    <div class="timeline_column timeline_column_heading" style="width:20%;">{$lang->item}</div> 
+                                    <div class="timeline_column timeline_column_heading" style="width:10%;">{$lang->endproduct}</div> 
+                                    <div class="timeline_column timeline_column_heading" style="width:10%;">{$lang->annualpotential}</div>
+                                    <div class="timeline_column timeline_column_heading" style="width:10%;">{$lang->price}</div>
+                                    <div class="timeline_column timeline_column_heading" style="width:10%;">{$lang->marketshare}</div>
+                                    <div class="timeline_column timeline_column_heading" style="width:10%;">{$lang->marketshareqty}</div>  
+
                                 </div>
                             </div>
                             {$detailmarketbox}

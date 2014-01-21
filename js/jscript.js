@@ -376,7 +376,7 @@ $(function() {
                 );
     }
 
-    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").click(function() {
+    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click',function() {
         var id = $(this).attr("id").split("_");
         popUp(id[2], id[0], id[1]);
     });
@@ -596,7 +596,6 @@ $(function() {
                     }
                 },
                 success: function(returnedData) {
-                   
                     if (datatype == 'xml') {
                         if ($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -610,16 +609,16 @@ $(function() {
                     else
                     {
                         $("#" + contentId).html($.trim(returnedData));
-//                        if (!returnedData) {
-//                            if (options != "undefined") {
-//                                if (options == 'animate') {
-//                                    $("#" + contentId).slideUp({duration: 500, easing: 'easeOutQuad'});
-//                                }
-//                            }
-//                        }
+                        if (options != "undefined") {
+                            if (options == 'animate') {
+                                $("#" + contentId).slideDown("slow");
+                                // If successful, bind 'loaded' in the data
+                                $("#" + contentId).data('dataloaded', true)
+                            }
+                        }
                     }
                 }//,
-                //dataType: datatype
+               // dataType: datatype
             });
         }
         function checkSession() {

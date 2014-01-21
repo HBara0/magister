@@ -43,6 +43,7 @@ $lang['addmarket'] = 'Add Market Data';
 $lang['endproduct'] = 'End Product Type';
 
 $lang['annualpotential'] = 'Annual Potential';
+$lang['item'] = 'Item';
 $lang['marketshare'] = 'Market Share %';
 $lang['marketshareqty'] = 'Market Share Qty';
 $lang['price'] = 'Unit Price';

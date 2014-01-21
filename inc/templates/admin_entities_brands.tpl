@@ -33,7 +33,7 @@
             </table>
         </td>
     </tr>
-    <div id="popup_createbrand"  title="{$lang->createbrand}">
+    <div id="popup_createbrand" title="{$lang->createbrand}">
         <form action="#" method="post" id="perform_entities/managebrands_Form" name="perform_entities/managebrands_Form">
             <input type="hidden" name="action" value="do_create" />
             <div style="display:block;">
@@ -43,10 +43,10 @@
                 </div>      
             </div>  
             <div style="display:block;">
-                <div style="display: inline-block;padding:8px;"><strong>{$lang->supplier}</strong></div>
-                <div style="display: inline-block;"><input type='text' id='supplier_1_QSearch'/>
-                    <input type="text" size="3" id="supplier_1_id_output" value="{$entitybrand[spid]}" disabled/>
-                    <input type='hidden' id='supplier_1_id' name='entitybrand[eid]' value="{$entitybrand[eid]}" />
+                <div style="display: inline-block;padding:8px;"><strong>{$lang->customer}</strong></div>
+                <div style="display: inline-block;"><input type='text' id='customer_1_QSearch'/>
+                    <input type="text" size="3" id="customer_1_id_output" value="{$entitybrand[spid]}" disabled/>
+                    <input type='hidden' id='customer_1_id' name='entitybrand[eid]' value="{$entitybrand[eid]}" />
                     <div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div> </div>
             </div>
             <div style="display:table;">
