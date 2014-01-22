@@ -50,7 +50,7 @@
         <td class="contentContainer">
             <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
-                    <td colspan="2"><h3>{$profile[companyName]}</h3> <input type="hidden" name="eid" id="eid" value="{$profile[eid]}" />{$addmarketdata_link}</td>
+                    <td colspan="2"><h3>{$profile[companyName]}</h3> <input type="hidden" name="eid" id="eid" value="{$profile[eid]}" /></td>
                 </tr>
                 <tr>
                     <td valign="top" style="width:45%; text-align:center;"><img id="logo" src="{$profile[logo]}" alt="{$profile[companyName]}" border="0" /> <hr /></td>
@@ -94,7 +94,7 @@
                             <tbody>
                                 <tr id="1">
                                     <td colspan="2">
-                                        <div style="width:100% ;height:180px; overflow:auto; display:inline-block; vertical-align:top;">
+                                        <div style="width:100%; height:100px; overflow:auto; display:inline-block; vertical-align:top;">
                                             <table class="datatable" width="100%">
                                                 <tr class="altrow2">
                                                     <th>{$lang->brand}</th>
@@ -111,19 +111,19 @@
 
                     </td>
                 </tr>
-                <tr><td class="thead" colspan="2">{$lang->detlmrktbox}</td></tr>
+                <tr><td class="thead" colspan="2">{$lang->detlmrktbox} {$addmarketdata_link}</td></tr>
                 <tr>
                     <td colspan="3">
                         <div class="timeline_container">
                             <div class="timeline_entry"> 
                                 <div>
-                                    <div class="timeline_column timeline_column_heading" style="width:20%;">{$lang->item}</div> 
-                                    <div class="timeline_column timeline_column_heading" style="width:10%;">{$lang->endproduct}</div> 
-                                    <div class="timeline_column timeline_column_heading" style="width:10%;">{$lang->annualpotential}</div>
-                                    <div class="timeline_column timeline_column_heading" style="width:10%;">{$lang->price}</div>
-                                    <div class="timeline_column timeline_column_heading" style="width:10%;">{$lang->marketshare}</div>
-                                    <div class="timeline_column timeline_column_heading" style="width:10%;">{$lang->marketshareqty}</div>  
-
+                                    <div class="timeline_column timeline_column_heading" style="width:15%;">{$lang->item}</div> 
+                                    <div class="timeline_column timeline_column_heading" style="width:15%;">{$lang->endproduct}</div> 
+                                    <div class="timeline_column timeline_column_heading">{$lang->annualpotential}</div>
+                                    <div class="timeline_column timeline_column_heading">{$lang->price}</div>
+                                    <div class="timeline_column timeline_column_heading">{$lang->marketshare}</div>
+                                    <div class="timeline_column timeline_column_heading">{$lang->marketshareqty}</div>
+                                    <div class="timeline_column timeline_column_heading" style="width:1%;"></div> 
                                 </div>
                             </div>
                             {$detailmarketbox}

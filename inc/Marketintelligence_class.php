@@ -87,7 +87,7 @@ class Marketintelligence {
 			$filterid = 'cfpid';
 		}
 
-		$query = $db->query('SELECT mibdid FROM '.Tprefix.'marketintelligence_basicdata WHERE  createdOn!=0 '.$where_year.' AND '.$filterid.'='.$id.' ORDER BY cfpid,createdOn DESC');
+		$query = $db->query('SELECT mibdid FROM '.Tprefix.'marketintelligence_basicdata WHERE createdOn!=0 '.$where_year.' AND '.$filterid.'='.$id.' ORDER BY cfpid,createdOn DESC');
 
 		while($rows = $db->fetch_assoc($query)) {
 			$marketintelligence[$rows['mibdid']] = new Marketintelligence($rows['mibdid']);

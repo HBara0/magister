@@ -21,7 +21,7 @@ if(!$core->input['action']) {
 
 	$affid = $db->escape_string($core->input['affid']);
 	if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
-		$addmarketdata_link = '<div style="float:right;margin:-10px;" title="'.$lang->addmarket.'" ><a href="#"id="showpopup_marketdata" class="showpopup"><img  alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/marketintelligence.png" width="44px;" height="44px;"/></a></div>';
+		$addmarketdata_link = '<div style="float:right;margin:-10px;" title="'.$lang->addmarket.'" ><a href="#" id="showpopup_profilesmarketdata" class="showpopup"><img  alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/marketintelligence.png" width="44px;" height="44px;"/></a></div>';
 		$field = '<input type="text" required="required" name="eid" id="customer_0_QSearch" value="" autocomplete="off"/>
                     <input type="hidden"  id="customer_0_id" name="marketdata[cid]" />
 					<div id="searchQuickResults_0" class="searchQuickResults" style="display:none;"></div>';
@@ -224,7 +224,7 @@ if(!$core->input['action']) {
 			}
 			eval("\$private_section = \"".$template->get('profiles_affiliateprofile_privatesection')."\";");
 		}
-		eval("\$popup_marketdata= \"".$template->get("popup_marketdata")."\";");
+		eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
 		eval("\$profilepage = \"".$template->get('profiles_affiliateprofile')."\";");
 	}
 

@@ -1,8 +1,8 @@
 <div class="timeline_entry">
     <div class="circle circle_clickable" id="markettimeline_{$mktintldata[cfpid]}" style="top:11px; left:-1%; height:{$height}px; width:{$timedepth}px;"></div>
     <div style="margin-top:10px;">
-        <div class="timeline_column" style="width:20%;">{$mktintldata[entity]}<div class="smalltext">{$mktintldata[chemfunction]} - {$mktintldata[application]} - {$mktintldata[segment]}</div></div>
-        <div class="timeline_column"> {$entity_mrktendproducts}</div>
+        <div class="timeline_column" style="width:15%;">{$mktintldata[entity]}<div class="smalltext">{$mktintldata[chemfunction]} - {$mktintldata[application]} - {$mktintldata[segment]}</div></div>
+        <div class="timeline_column" style="width:15%;"> {$entity_mrktendproducts}</div>
         <div class="timeline_column">{$mktintldata[potential]}</div>
         <div class="timeline_column">{$mktintldata[unitPrice]}</div>
         <div class="timeline_column">{$mktintldata[mktSharePerc]}</div>

@@ -541,6 +541,7 @@ tr.dummytrow td, tr.dummytrow th {
     display: inline-block;
     width: 10% ;
     padding: 10px 0px 0px 30px;
+    vertical-align: top;
 }
 
 .timeline_column_heading {

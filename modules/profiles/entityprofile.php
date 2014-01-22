@@ -38,10 +38,10 @@ if(!$core->input['action']) {
 			}
 			if(is_array($endproduct_types_objs)) {
 				foreach($endproduct_types_objs as $endproduct_types_obj) { /* Loop over the products types of the current entitiy object */
-					$endproduct_types = $endproduct_types_obj->get()['name'];
+					$endproduct_types = $endproduct_types_obj->get()['title'];
 				}
 			}
-			$entitiesbrandsproducts_list .= '<option value="'.$entbrandsproductsids.'">'.$endproduct_types.'-'.$entitybrand.' </option>';
+			$entitiesbrandsproducts_list .= '<option value="'.$entbrandsproductsids.'">'.$endproduct_types.' - '.$entitybrand.' </option>';
 		}
 	}
 
@@ -50,7 +50,7 @@ if(!$core->input['action']) {
 	/* Market Data --START */
 	$filter_where = 'eid IN ('.$eid.')';
 	if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
-		$addmarketdata_link = '<div style="float:right;margin:-10px;" title="'.$lang->addmarket.'" ><a href="#"id="showpopup_marketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/marketintelligence.png" width="44px;" height="44px;"/></a></div>';
+		$addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarket.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
 		$field = '<input type="text" required="required" size="25" name="marketdata[cfpid]" id="chemfunctionproducts_1_QSearch" size="100"  autocomplete="off"/>
                   <input type="hidden"  id="chemfunctionproducts_1_id" name="marketdata[cfpid]" />
 				  <input type="hidden" value="1" id="userproducts" name="userproducts" />
@@ -521,7 +521,7 @@ if(!$core->input['action']) {
 	else {
 		$brandsendproducts = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
 	}
-	eval("\$popup_marketdata= \"".$template->get("popup_marketdata")."\";");
+	eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
 	eval("\$profilepage = \"".$template->get('profiles_entityprofile')."\";");
 	output_page($profilepage);
 }
@@ -604,7 +604,7 @@ else {
 			$mrktintl_detials[$round_field] = round($mrktintl_detials[$round_field]);
 		}
 		$mrktintl_detials['brand'] = $mrktint_obj->get_entitiesbrandsproducts()->get_entitybrand()->get()['name'];
-		$mrktintl_detials['endproduct'] = $mrktint_obj->get_entitiesbrandsproducts()->get_endproduct()->get()['name'];
+		$mrktintl_detials['endproduct'] = $mrktint_obj->get_entitiesbrandsproducts()->get_endproduct()->get()['title'];
 
 		/* Parse competitors related market Data */
 		$mrktcompetitor_objs = $mrktint_obj->get_competitors();
@@ -654,16 +654,14 @@ else {
 				<div class="timeline_entry timeline_entry_dependent">
 					<div class="circle" style="top:50%; left:-9px; height:15px; width:15px;"></div>
 					<div>
-					<div class="timeline_column smalltext" style="width:20%;">'.$prevmktintldata['previoustimeline'].'</div>
-					<div class="timeline_column">'.$entity_mrktendproducts_objs->get()['name'].'</div>
+					<div class="timeline_column smalltext" style="width:15%;">'.$prevmktintldata['previoustimeline'].'</div>
+					<div class="timeline_column"  style="width:15%;">'.$entity_mrktendproducts_objs->get()['title'].'</div>
 					<div class="timeline_column">'.$prevmktintldata['potential'].'</div>
 					<div class="timeline_column">'.$prevmktintldata['unitPrice'].'</div>
 					<div class="timeline_column">'.$prevmktintldata['mktSharePerc'].'</div>
 					<div class="timeline_column">'.$prevmktintldata['mktShareQty'].'</div>
-					<div class="timeline_column" style="width:1%;"><span style="margin-left:-45px;"><a style="cursor:pointer;" title="'.$lang->viewmrktbox.' '.$prevmktintldata['previoustimeline'].'" id="mktintldetails_'.$prevmktintldata['mibdid'].'_profiles/entityprofile_loadpopupbyid" rel="mktdetail_'.$prevmktintldata['mibdid'].'"><img src="'.$core->settings['rootdir'].'/images/icons/search.gif"/></a></span></div>
+					<div class="timeline_column" style="width:1%;"><a style="cursor:pointer;" title="'.$lang->viewmrktbox.' '.$prevmktintldata['previoustimeline'].'" id="mktintldetails_'.$prevmktintldata['mibdid'].'_profiles/entityprofile_loadpopupbyid" rel="mktdetail_'.$prevmktintldata['mibdid'].'"><img src="'.$core->settings['rootdir'].'/images/icons/search.gif"/></a></div>
 					</div>
-		
-        
 			  </div>
 				</div>';
 			}
