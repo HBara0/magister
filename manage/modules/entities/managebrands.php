@@ -30,28 +30,31 @@ if(!$core->input['action']) {
 	else {
 		$entitybrands_list = '<tr><td colspan="3">'.$lang->na.'</td></tr>';
 	}
+
 	$productypes_objs = Endproductypes::get_endproductypes();
 	foreach($productypes_objs as $productypes_obj) {
 		$endproduct_types = $productypes_obj->get();
-		$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types[name].'</option>';
+		$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
 	}
 
 	eval("\$brandspage = \"".$template->get('admin_entities_brands')."\";");
 	output_page($brandspage);
 }
-elseif($core->input['action'] == 'do_create') {
-	$entitybrand_obj = new EntitiesBrands();
-	$entitybrand_obj->create($core->input['entitybrand']);
-	switch($entitybrand_obj->get_errorcode()) {
-		case 0:
-			output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
-			break;
-		case 1:
-			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
-			break;
-		case 2:
-			output_xml('<status>false</status><message>eeee'.$lang->itemalreadyexist.'</message>');
-			break;
+else {
+	if($core->input['action'] == 'do_create') {
+		$entitybrand_obj = new EntitiesBrands();
+		$entitybrand_obj->create($core->input['entitybrand']);
+		switch($entitybrand_obj->get_errorcode()) {
+			case 0:
+				output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+				break;
+			case 1:
+				output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+				break;
+			case 2:
+				output_xml('<status>false</status><message>eeee'.$lang->itemalreadyexist.'</message>');
+				break;
+		}
 	}
 }
 ?>
