@@ -662,8 +662,8 @@ else {
 					<div class="timeline_column">'.$prevmktintldata['mktShareQty'].'</div>
 					<div class="timeline_column" style="width:1%;"><span style="margin-left:-45px;"><a style="cursor:pointer;" title="'.$lang->viewmrktbox.' '.$prevmktintldata['previoustimeline'].'" id="mktintldetails_'.$prevmktintldata['mibdid'].'_profiles/entityprofile_loadpopupbyid" rel="mktdetail_'.$prevmktintldata['mibdid'].'"><img src="'.$core->settings['rootdir'].'/images/icons/search.gif"/></a></span></div>
 					</div>
-		
-        
+					<div class="timeline_entrydepth">Cusomter 1
+					<div class="depthcircle circle_clickable"></div>
 			  </div>
 				</div>';
 			}

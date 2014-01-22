@@ -27,8 +27,8 @@ if(!$core->input['action']) {
 					<div id="searchQuickResults_0" class="searchQuickResults" style="display:none;"></div>';
 		$product_field = '<tr><td>'.$lang->product.'</td>
                 <td><input type="text" required="required" size="25" name="marketdata[cfpid]" id="chemfunctionproducts_1_QSearch" size="100"  autocomplete="off"/>
-                    <input type="hidden"  id="chemfunctionproducts_1_id" name="marketdata[cfpid]" /> 
-                    <input type="hidden" value="1" id="userproducts" name="userproducts" /> 
+                    <input type="hidden"  id="chemfunctionproducts_1_id" name="marketdata[cfpid]" />
+                    <input type="hidden" value="1" id="userproducts" name="userproducts" />
                     <div id="searchQuickResults_1" class="searchQuickResults" style="display:none;"></div></td></tr>';
 		$module = 'profiles';
 		$hideselect = ' style="display:none;"';
@@ -254,9 +254,9 @@ else {
 		$entityusers_list_output = "<ul style='list-style:none; padding:2px; margin-top: 0px;'>{$entityusers_list}</ul> ";
 		echo $entityusers_list_output;
 	}
-	elseif($core->input['action'] == 'inlineCheck') {
+	elseif($core->input['action'] == 'get_entityendproduct') {
 		$eid = $db->escape_string($core->input['value']);
-		$entity_obj = new Entities($eid, '', false);
+	$entity_obj = new Entities($eid, '', false);
 		$entbrandsproducts_objs = $entity_obj->get_brands();
 		if(is_array($entbrandsproducts_objs)) {
 			foreach($entbrandsproducts_objs as $entbrandsproducts_obj) {
@@ -268,7 +268,7 @@ else {
 					$entbrandsproducts['ebpid'] = $entitiesbrandsproducts_obj->get()['ebpid'];
 
 					/* get endproduct types */
-					$endproducts_objs = $entbrandsproducts_obj->get_producttypes();//Entbrandsproducts::get_endproducts($entbrandsproducts['ebid']);
+					$endproducts_objs = $entbrandsproducts_obj->get_producttypes(); //Entbrandsproducts::get_endproducts($entbrandsproducts['ebid']);
 					foreach($endproducts_objs as $endproducts_obj) {
 						$endproduct_types = '';
 						$endproduct_types = $endproducts_obj->get()['name'];
