@@ -478,7 +478,7 @@ class ReportingQr Extends Reporting {
 
 						if(round($actual_forecast, 4) > round($actual_current_forecast, 4) || ($this->report['quarter'] == 4 && round($actual_forecast, 4) < round($actual_current_forecast, 4))) {
 							$forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
-							$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.number_format($actual_forecast, 4);
+							$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.round($actual_forecast, 4);
 						}
 					}
 				}
@@ -491,9 +491,9 @@ class ReportingQr Extends Reporting {
 							}
 						}
 
-						if($productactivity[$validation_key.'Forecast'] < $actual_forecast || ($this->report['quarter'] == 4 && round($productactivity[$validation_key.'Forecast'], 4) > $actual_forecast)) {
+						if($productactivity[$validation_key.'Forecast'] < round($actual_forecast, 4) || ($this->report['quarter'] == 4 && round($productactivity[$validation_key.'Forecast'], 4) > round($actual_forecast, 4))) {
 							$forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
-							$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.number_format($actual_forecast, 4);
+							$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.round($actual_forecast, 4);
 						}
 					}
 				}
@@ -532,6 +532,7 @@ class ReportingQr Extends Reporting {
 							$update_query_where = 'paid='.$db->escape_string($productdata['paid']);
 						}
 						else {
+							unset($productdata['paid']);
 							$update_query_where = 'rid='.$this->report['rid'].' AND pid='.$db->escape_string($productdata['pid']);
 						}
 

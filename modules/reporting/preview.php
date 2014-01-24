@@ -818,7 +818,7 @@ if(!$core->input['action']) {
 		// Add below to class
 		$missing_employees_query1 = $db->query("SELECT DISTINCT(u.uid), displayName
 												FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid)
-												WHERE ae.affid='{$report[affid]}' AND ae.eid='{$report[spid]}' AND u.gid NOT IN (SELECT gid FROM usergroups WHERE canUseReporting=0) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$report[rid]}' AND isDone=1) AND u.uid!={$core->user[uid]}"); // AND rc.rid='{$report[rid]}'
+												WHERE ae.affid='{$report[affid]}' AND ae.eid='{$report[spid]}' AND u.gid NOT IN (SELECT gid FROM usergroups WHERE canUseReporting=0 OR canFillReports=0) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$report[rid]}' AND isDone=1) AND u.uid!={$core->user[uid]}"); // AND rc.rid='{$report[rid]}'
 		while($assigned_employee = $db->fetch_assoc($missing_employees_query1)) {
 			$missing_employees['name'][] = $assigned_employee['displayName'];
 			$missing_employees['uid'][] = $assigned_employee['uid'];
