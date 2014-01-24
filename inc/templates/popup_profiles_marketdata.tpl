@@ -16,8 +16,8 @@
                 }
             });
             /*parse end product type*/
-            $("input[id='customer_0_QSearch']").live('blur', function() {
-                var cid = $('input[id="customer_0_id"]').val();
+            $("input[id='customer_1_QSearch']").live('blur', function() {
+                var cid = $('input[id="customer_1_id"]').val();
                 if (cid.length == 0) {
                     return;
                 }
@@ -29,15 +29,17 @@
     <form name="perform_{$module}/{$modulefile}_Form" id="perform_{$module}/{$modulefile}_Form">
         <input type="hidden" name="action" value="{$action}"/>
         <input type="hidden" name="{$elementname}" value="{$elemtentid}"/>
-        <div style="width: 30%; display: inline-block;">{$lang->fieldlabel}</div><div style="width: 60%; display: inline-block;">{$field}</div>
-        {$product_field}
+        {$profiles_entityprofile_micustomerentry}
+        {$profiles_michemfuncproductentry}
         <div style="width: 30%; display: inline-block;">{$lang->annualpotential}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="potential" name="marketdata[potential]" accept="numeric"  required="required"  autocomplete="off"/></div>
         <div style="width: 30%; display: inline-block;">{$lang->marketshare}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="mktshareperc" name="marketdata[mktSharePerc]" accept="numeric" required="required"  autocomplete="off"/></div>
         <div style="width: 30%; display: inline-block;">{$lang->marketshareqty}</div><div style="width: 60%; display: inline-block;"><input type="number" size="12" step="any" id="mktshareqty" name="marketdata[mktShareQty]" accept="numeric" required="required"  autocomplete="off"/></div>
-        <div style="width: 30%; display: inline-block;">{$lang->price}</div><div style="width: 60%; display: inline-block;"><input type="number" size="12" name="marketdata[unitPrice]" accept="numeric"  autocomplete="off"/> {$lang->usd}</div>
+        <div style="width: 30%; display: inline-block;">{$lang->price}</div><div style="width: 60%; display: inline-block;"><input type="number" size="12" name="marketdata[unitPrice]" accept="numeric"  autocomplete="off"/> {$lang->usd} {$lang->cif}</div>
         <div style="width: 30%; display: inline-block;">{$lang->endproduct}</div><div style="width: 60%; display: inline-block;"><div id="entitiesbrandsproducts_endproductResult"></div> <select {$hideselect} name="marketdata[ebpid]">{$entitiesbrandsproducts_list}</select></div>
+
         <div>{$lang->comment}</div>
         <div><textarea cols="60" rows="5" name="marketdata[comments]"></textarea></div>
+        <div style="width: 50%; padding:5px;display: inline-block;" class="subtitle"> <a href="createbrand" id="showpopup_createbrand" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->createbrand}</a></div>
         <hr />
         <table cellpadding="0" cellspacing="0" width="100%"> 
             <tr> <td> <strong>{$lang->competition}</strong></td></tr></table>
@@ -51,20 +53,30 @@
                             <td> <input type='text'id='competitorsupp_{$rowid}_QSearch' autocomplete='off' size='40px'/>
                                 <input type='hidden' id='competitorsupp_{$rowid}_id' name='marketdata[competitor][{$rowid}][eid]' value="" />
                                 <div id='searchQuickResults_competitorsupp_{$rowid}' class='searchQuickResults' style='display:none;'></div></td> </tr>
+
+                        <tr>
+                            <td> <strong>{$lang->competitortrader}</strong></td>
+                            <td> <input type='text'id='competitortradersupp_{$rowid}_QSearch' autocomplete='off' size='40px'/>
+                                <input type='hidden' id='competitortradersupp_{$rowid}_id' name='marketdata[competitor][{$rowid}][trader]' value="" />
+                                <div id='searchQuickResults_competitortradersupp_{$rowid}' class='searchQuickResults' style='display:none;'></div></td> </tr>
+                        <tr>
+                            <td> <strong>{$lang->competitorprod}</strong></td>
+                            <td> <input type='text'id='competitorproducerrsupp_{$rowid}_QSearch' autocomplete='off' size='40px'/>
+                                <input type='hidden' id='competitorproducerrsupp_{$rowid}_id' name='marketdata[competitor][{$rowid}][producer]' value="" />
+                                <div id='searchQuickResults_competitorproducerrsupp_{$rowid}' class='searchQuickResults' style='display:none;'></div></td> </tr>
                         <tr><td>{$lang->price}</td>
-                            <td> <input type="text" size="8" name="marketdata[competitor][{$rowid}][unitPrice]" accept="numeric" autocomplete="off"/></td>
+                            <td> <input type="text" size="8" name="marketdata[competitor][{$rowid}][unitPrice]" accept="numeric" autocomplete="off"/>{$lang->usd}</td> 
                         </tr>
                         <tr><td>{$lang->product}</td>
                             <td> <input type="text"  name="marketdata[competitor][{$rowid}][pid]" id="product_{$rowid}_QSearch"  size="40" autocomplete="off"/>
                                 <input type="hidden" id="product_{$rowid}_id" name="marketdata[competitor][{$rowid}][pid]" />
                                 <div id="searchQuickResults_{$rowid}" class="searchQuickResults" style="display:none;"></div></td>
                         </tr>
-
                     </table>
                 </td> 
             </tr>
         </tbody>
-        <tr><td><img id="addmore_competitor" src="{$core->settings[rootdir]}/images/add.gif" /><table><tr><td><input class="button" value="{$lang->add}" id="perform_{$module}/{$modulefile}_Button" type="submit"></td><td> <input class="button" value="{$lang->close}" id="hide_popupBox" type="button" onclick="$('#popup_marketdata').dialog('close')"></td> </tr></table></td></tr>
+        <tr><td><img id="addmore_competitor" src="{$core->settings[rootdir]}/images/add.gif" /><table><tr><td><input class="button" value="{$lang->add}" id="perform_{$module}/{$modulefile}_Button" type="submit"></td><td> <input class="button" value="{$lang->close}" id="hide_popupBox" type="button" onclick="$('#popup_profilesmarketdata').dialog('close')"></td> </tr></table></td></tr>
         <tr><td><div id="perform_{$module}/{$modulefile}_Results" type="button"></div></td></tr>
         </table>
     </form>

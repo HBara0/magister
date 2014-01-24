@@ -13,7 +13,6 @@
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
-
 if(!$core->input['action']) {
 	if(!isset($core->input['eid']) || empty($core->input['eid'])) {
 		redirect($_SERVER['HTTP_REFERER']);
@@ -51,18 +50,14 @@ if(!$core->input['action']) {
 	$filter_where = 'eid IN ('.$eid.')';
 	if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
 		$addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarket.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
-		$field = '<input type="text" required="required" size="25" name="marketdata[cfpid]" id="chemfunctionproducts_1_QSearch" size="100"  autocomplete="off"/>
-                  <input type="hidden"  id="chemfunctionproducts_1_id" name="marketdata[cfpid]" />
-				  <input type="hidden" value="1" id="userproducts" name="userproducts" />
-				<div id="searchQuickResults_1" class="searchQuickResults" style="display:none;"></div>';
 		$array_data = array('module' => 'profiles', 'elemtentid' => $eid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
 		/* to be replacing the below variables */
 		$module = 'profiles';
 		$elemtentid = $eid;
 		$elementname = 'marketdata[cid]';
-		$lang->fieldlabel = $lang->product;
 		$action = 'do_addmartkerdata';
 		$modulefile = 'entityprofile';
+		eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
 
 		/* View detailed market intelligence box --START */
 		$maktintl_mainobj = new Marketintelligence();
@@ -521,7 +516,13 @@ if(!$core->input['action']) {
 	else {
 		$brandsendproducts = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
 	}
+	$productypes_objs = Endproductypes::get_endproductypes();
+	foreach($productypes_objs as $productypes_obj) {
+		$endproduct_types = $productypes_obj->get();
+		$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
+	}
 	eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
+	eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
 	eval("\$profilepage = \"".$template->get('profiles_entityprofile')."\";");
 	output_page($profilepage);
 }
@@ -592,6 +593,21 @@ else {
 				break;
 			case 2:
 				output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+				break;
+		}
+	}
+	elseif($core->input['action'] == 'do_addbrand') {
+		$entitybrand_obj = new EntitiesBrands();
+		$entitybrand_obj->create($core->input['entitybrand']);
+		switch($entitybrand_obj->get_errorcode()) {
+			case 0:
+				output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+				break;
+			case 1:
+				output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+				break;
+			case 2:
+				output_xml('<status>false</status><message>eeee'.$lang->itemalreadyexist.'</message>');
 				break;
 		}
 	}

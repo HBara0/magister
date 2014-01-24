@@ -33,32 +33,7 @@
             </table>
         </td>
     </tr>
-    <div id="popup_createbrand" title="{$lang->createbrand}">
-        <form action="#" method="post" id="perform_entities/managebrands_Form" name="perform_entities/managebrands_Form">
-            <input type="hidden" name="action" value="do_create" />
-            <div>
-                <div style="display:inline-block; width: 30%;"><strong>{$lang->name}</strong></div>
-                <div style="display:inline-block; width: 60%;"><input name="entitybrand[title]" type="text"/></div>      
-            </div>  
-            <div>
-                <div style="display: inline-block; width: 30%;"><strong>{$lang->customer}</strong></div>
-                <div style="display: inline-block; width: 60%;">
-                    <input type='text' id='customer_1_QSearch'/>
-                    <input type="text" size="3" id="customer_1_id_output" value="{$entitybrand[eid]}" disabled/>
-                    <input type='hidden' id='customer_1_id' name='entitybrand[eid]' value="{$entitybrand[eid]}" />
-                    <div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div> </div>
-            </div>
-            <div>
-                <div style="display:inline-block; width: 30%;">{$lang->endproducttypes} </div>
-                <div style="display:inline-block; width: 60%;">
-                    <select name="entitybrand[endproducttypes][]">{$endproducttypes_list}</select>
-                </div>
-            </div>
-            <div>
-                <div><input type='button' id='perform_entities/managebrands_Button' value='{$lang->savecaps}' class='button'/></div>
-                <div style="display:table-row;"> <div style="display:table-cell;"> <div id="perform_entities/managebrands_Results"></div></div></div>
-            </div>
-        </form>
-    </div>
+    {$popup_createbrand}
+
 </body>
 </html>

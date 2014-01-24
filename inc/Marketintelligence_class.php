@@ -191,6 +191,8 @@ class Marketintelligencecompetitors {
 				}
 				$market_competitors_data = array('mibdid' => $market_competitors[mibdid],
 						'eid' => $market_competitor['eid'],
+						'trader' => $market_competitor['trader'],
+						'producer' => $market_competitor['producer'],
 						'unitPrice' => $market_competitor['unitPrice'],
 						'pid' => $market_competitor['pid'],
 						'createdBy' => $core->user['uid'],

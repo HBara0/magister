@@ -22,20 +22,16 @@ if(!$core->input['action']) {
 	$affid = $db->escape_string($core->input['affid']);
 	if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
 		$addmarketdata_link = '<div style="float:right;margin:-10px;" title="'.$lang->addmarket.'" ><a href="#" id="showpopup_profilesmarketdata" class="showpopup"><img  alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/marketintelligence.png" width="44px;" height="44px;"/></a></div>';
-		$field = '<input type="text" required="required" name="eid" id="customer_0_QSearch" value="" autocomplete="off"/>
-                    <input type="hidden"  id="customer_0_id" name="marketdata[cid]" />
-					<div id="searchQuickResults_0" class="searchQuickResults" style="display:none;"></div>';
-		$product_field = '<tr><td>'.$lang->product.'</td>
-                <td><input type="text" required="required" size="25" name="marketdata[cfpid]" id="chemfunctionproducts_1_QSearch" size="100"  autocomplete="off"/>
-                    <input type="hidden"  id="chemfunctionproducts_1_id" name="marketdata[cfpid]" />
-                    <input type="hidden" value="1" id="userproducts" name="userproducts" />
-                    <div id="searchQuickResults_1" class="searchQuickResults" style="display:none;"></div></td></tr>';
+//		$field = '<input type="text" required="required" name="eid" id="customer_0_QSearch" value="" autocomplete="off"/>
+//                    <input type="hidden"  id="customer_0_id" name="marketdata[cid]" />
+//					<div id="searchQuickResults_0" class="searchQuickResults" style="display:none;"></div>';
+		//eval("\$profiles_affiliateprofile_micustomerentry = \"".$template->get('profiles_affiliateprofile_micustomerentry')."\";");
 		$module = 'profiles';
 		$hideselect = ' style="display:none;"';
 		$elemtentid = $affid;
-		$lang->fieldlabel = $lang->customer;
 		$action = 'do_addmartkerdata';
 		$modulefile = 'affiliateprofile';
+		eval("\$profiles_entityprofile_micustomerentry = \"".$template->get('profiles_micustomerentry')."\";");
 	}
 	$rowid = intval($core->input['value']) + 2;
 	$query = $db->query("SELECT * FROM ".Tprefix."affiliates a LEFT JOIN ".Tprefix."workshifts ws ON (a.defaultWorkshift=ws.wsid) WHERE affid={$affid}");
@@ -256,7 +252,7 @@ else {
 	}
 	elseif($core->input['action'] == 'get_entityendproduct') {
 		$eid = $db->escape_string($core->input['value']);
-	$entity_obj = new Entities($eid, '', false);
+		$entity_obj = new Entities($eid, '', false);
 		$entbrandsproducts_objs = $entity_obj->get_brands();
 		if(is_array($entbrandsproducts_objs)) {
 			foreach($entbrandsproducts_objs as $entbrandsproducts_obj) {

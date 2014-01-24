@@ -137,4 +137,5 @@
         {$footer}
 </body>
 </html>
+{$popup_createbrand}
 {$popup_marketdata}

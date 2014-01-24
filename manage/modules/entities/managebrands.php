@@ -36,12 +36,14 @@ if(!$core->input['action']) {
 		$endproduct_types = $productypes_obj->get();
 		$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
 	}
-
+	$module='entities';
+	$modulefile='managebrands';
+	eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
 	eval("\$brandspage = \"".$template->get('admin_entities_brands')."\";");
 	output_page($brandspage);
 }
 else {
-	if($core->input['action'] == 'do_create') {
+	if($core->input['action'] == 'do_addbrand') {
 		$entitybrand_obj = new EntitiesBrands();
 		$entitybrand_obj->create($core->input['entitybrand']);
 		switch($entitybrand_obj->get_errorcode()) {
