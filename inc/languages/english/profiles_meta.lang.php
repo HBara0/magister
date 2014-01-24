@@ -25,6 +25,7 @@ $lang['lastfiles'] = 'Last Files';
 $lang['lastfinalized'] = 'Last finalized reports';
 $lang['lastvisited'] = 'Last visited reports';
 $lang['management'] = 'Management';
+$lang['createbrand']='Create Brand';
 $lang['name'] = 'Name';
 $lang['pobox'] = 'P.O. Box';
 $lang['position'] = 'Position';
@@ -41,7 +42,7 @@ $lang['workshift'] = 'Work Shift';
 $lang['brand'] = 'Brand';
 $lang['addmarket'] = 'Add Market Data';
 $lang['endproduct'] = 'End Product Type';
-
+$lang['fillallrequiredfields'] = 'fillallrequiredfields';
 $lang['annualpotential'] = 'Annual Potential';
 $lang['item'] = 'Item';
 $lang['marketshare'] = 'Market Share %';
@@ -66,6 +67,9 @@ $lang['coordinator'] = "Coordinators";
 $lang['employees'] = "Employees";
 $lang['segmentprofile'] = "Segment Profile";
 $lang['productypes'] = "Product Types";
+$lang['competitorprod'] = "Competitor Producer";
+$lang['cif'] = " CIF";
+$lang['competitortrader']='Competitor Trader';
 $lang['customers'] = "Customers";
 $lang['segmentalreadyexists'] = "A segment with the same name already exists";
 ?>

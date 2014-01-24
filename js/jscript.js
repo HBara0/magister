@@ -318,7 +318,7 @@ $(function() {
         return true
     });
 
-    $("a[id='resetpassword']").click(function() {
+    $("a[id='resetpassword']").live('click', function() {
         $("#logincontent").hide();
         $("#resetpasswordcontent").show();
     });
@@ -595,7 +595,7 @@ $(function() {
                         $("#" + loadingId).empty();
                     }
                 },
-                success: function(returnedData) {
+                success: function(returnedData) { alert(returnedData);
                     if (datatype == 'xml') {
                         if ($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
