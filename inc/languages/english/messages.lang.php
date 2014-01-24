@@ -134,4 +134,6 @@ $lang['visitreport_reminder_message'] = 'Dear {1},<br />
 The Following visits have been carried but no visit report has been completed. Please complete the visit reports mentioned below:';
 $lang['visitreport_reminder_subject'] = 'Visit Reports Reminder';
 $lang['yournewpassword'] = 'Your New OCOS Account Password';
+$lang['unmetchemicalsubject']='You have unmet chemcial requests ';
+$lang['unmetchemicalbody']='The following chemical requests have not been completely responded to: ';
 ?>
