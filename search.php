@@ -59,7 +59,7 @@ if($core->input['type'] == 'quick') {
 				$extra_where .= '  type="'.$type.'" AND isPotential="'.$ispotential.'"';
 			}
 		}
-		if($core->input['for'] == 'supplier' || $core->input['for'] == 'customer' || $core->input['for'] == 'competitorsupp') {
+		if($core->input['for'] == 'supplier' || $core->input['for'] == 'customer' || $core->input['for'] == 'competitorsupp' || $core->input['for'] == 'competitortradersupp' || $core->input['for'] == 'competitorproducerrsupp') {
 			if($core->input['for'] == 'supplier') {
 				$type = 's';
 				if($core->usergroup['canViewAllSupp'] == 0) {
@@ -69,15 +69,27 @@ if($core->input['type'] == 'quick') {
 			}
 			elseif($core->input['for'] == 'competitorsupp') {
 				$type = 'cs';
+				$extra_where = 'supplierType="trader" OR  supplierType="producer"  OR  supplierType="" ';
+			}
+			elseif($core->input['for'] == 'competitortradersupp') {
+				$type = 'cs';
+				$extra_where = 'supplierType="trader"';
+			}
+			elseif($core->input['for'] == 'competitorproducerrsupp') {
+				$type = 'cs';
+				$extra_where = 'supplierType="producer"';
 			}
 			else {
 				$type = 'c';
-				if($core->usergroup['canViewAllCust'] == 0) {
+				if($core->usergroup['canViewAllCust'] == 1) {
 					$inentities = implode(',', $core->user['customers']);
 					$extra_where = 'eid IN ('.$inentities.')';
+					$extra_where = 'eid IN (SELECT affe.eid FROM  affiliatedentities  affe
+									join entities e on (e.eid=affe.eid) 
+									join affiliates aff on (aff.affid=affe.affid) where aff.affid in('.implode(',', $core->user['affiliates']).') and e.type="'.$type.'")';
 				}
 			}
-
+ECHO $extra_where;
 			$table = 'entities';
 			$attributes = array('companyName', 'companyNameAbbr');
 			$key_attribute = 'eid';
@@ -132,7 +144,7 @@ if($core->input['type'] == 'quick') {
 			$key_attribute = 'pid';
 			$select_attributes = array('name');
 			$order = array('by' => 'name', 'sort' => 'ASC');
-		} 
+		}
 		elseif($core->input['for'] == 'representative' || $core->input['for'] == 'supprepresentative') {
 			if(IN_AREA == 'user') {
 				if($core->input['for'] == 'supprepresentative') {
