@@ -300,8 +300,7 @@ if($core->input['authCode'] == AUTHCODE) {
 				$email_data['to'][] = $adduser->get()['email'];
 			}
 		}
-print_r($email_data);
-continue;
+
 		//$email_data['to'] = array();
 		//$email_data['to'][] = 'zaher.reda@orkila.com';
 		//$email_data['to'][] = 'christophe.sacy@orkila.com';
