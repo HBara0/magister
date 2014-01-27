@@ -224,6 +224,15 @@ else {
 		}
 		$leavetype_details = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['type'])."'"));
 
+		if(isset($leavetype_details['reasonIsRequired']) && $leavetype_details['reasonIsRequired'] == 1) {
+			if(empty($core->input['reason']) || strlen($core->input['reason']) <= 20) {
+				header('Content-type: text/xml+javascript');
+				output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'<![CDATA[<script>$("#reason").attr("required",true);</script>]]></message>');
+				exit;
+			}
+			
+		}
+
 		$leavetype_coexist = unserialize($leavetype_details['coexistWith']);
 		if(is_array($leavetype_coexist)) {
 			$coexistwhere = " AND type NOT IN (".implode(',', $leavetype_coexist).")";
@@ -338,24 +347,45 @@ else {
 			if($approve_immediately == false && $notification_required == true) {
 				$toapprove = $toapprove_select = unserialize($leavetype_details['toApprove']); //explode(',', $leavetype_details['toApprove']);
 
-				foreach($toapprove as $key => $val) {
-					if($val == 'reportsTo') {
-						list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
-						$approvers['reportsTo'] = $leave_user['reportsTo'];
-						unset($toapprove_select[$key]);
-					}
-					elseif(is_int($val)) {
-						$approvers[$val] = $val;
-						unset($toapprove_select[$key]);
+				if(is_array($toapprove)) {
+					$aff_obj = new Affiliates($leave_user['mainaffiliate'], false);
+					foreach($toapprove as $key => $val) {
+						switch($val) {
+							case 'reportsTo':
+								list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
+								$approvers['reportsTo'] = $leave_user['reportsTo'];
+								unset($toapprove_select[$key]);
+								break;
+							case 'generalManager':
+								$approvers['generalManager'] = $aff_obj->get_generalmanager()->get()['uid'];
+								break;
+							case 'hrManager':
+								$approvers['hrManager'] = $aff_obj->get_hrmanager()->get()['uid'];
+								break;
+							case 'supervisor':
+								$approvers['supervisor'] = $aff_obj->get_supervisor()->get()['uid'];
+								break;
+							case 'financialManager':
+								$approvers['financialManager'] = $aff_obj->get_financialemanager()->get()['uid'];
+								break;
+							default:
+								if(is_int($val)) {
+									$approvers[$val] = $val;
+								}
+								unset($toapprove_select[$key]);
+								break;
+						}
 					}
 				}
+				/* Make list of approvers unique */
+				$approvers = array_unique($approvers);
 			}
 
-			if(is_array($toapprove_select) && !empty($toapprove_select)) {
-				$secondapprovers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
-									  FROM ".Tprefix."affiliates 
-									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
-			}
+//			if(is_array($toapprove_select) && !empty($toapprove_select)) {
+//				$secondapprovers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
+//									  FROM ".Tprefix."affiliates 
+//									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
+//			}
 
 			if($approve_immediately == true) {
 				$query = $db->query("SELECT la.uid, u.email FROM ".Tprefix."leavesapproval la JOIN ".Tprefix."users u ON (u.uid=la.uid) WHERE lid='{$lid}' ORDER BY sequence ASC");
@@ -365,9 +395,9 @@ else {
 				}
 			}
 
-			if(is_array($secondapprovers)) {
-				$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
-			}
+//			if(is_array($secondapprovers)) {
+//				$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
+//			}
 			if(is_array($approvers)) {
 				foreach($approvers as $key => $val) {
 					if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
@@ -457,7 +487,7 @@ else {
 						if(!empty($lang->{$expense['name']})) {
 							$expense['title'] = $lang->{$expense['name']};
 						}
-						
+
 						if(isset($expense['description']) && !empty($expense['description'])) {
 							$expense['description'] = ' ('.$expense['description'].')';
 						}
