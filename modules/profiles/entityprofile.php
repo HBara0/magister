@@ -20,8 +20,9 @@ if(!$core->input['action']) {
 	}
 
 	$eid = $db->escape_string($core->input['eid']);
-
-	$profile = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid={$eid}"));
+	$entity_obj = new Entities($eid, '', false);
+	$profile = $entity_obj->get();
+	//$profile = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid={$eid}"));
 	if(!empty($profile['building'])) {
 		$profile['fulladdress'] .= $profile['building'].' - ';
 	}
@@ -388,7 +389,31 @@ if(!$core->input['action']) {
 			$reports_list = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_reports.'</ul>';
 		}
 	}
+	/* parse Minites Of Meetings --START */
+	if($core->usergroup['canUseMeetings'] == 1) {
+		$lang->load('meetings_meta');
+		$meetings = $entity_obj->get_meetings();
+		if(is_array($meetings)) {
+			foreach($meetings as $mtid => $meeting_obj) {
+				if(!$meeting_obj->can_viewmeeting()) {
+					continue;
+				}
+				$meeting = $meeting_obj->get();
+				$meeting['businessMgr'] = $meeting_obj->get_createdby()->get()['displayName'];
+				$meeting['title'] = ucwords($meeting['title']);
+				if(($core->usergroup['canViewAllSupp'] == 0 && $meeting['isPublic'] == 0) && $meeting['createdBy'] != $core->user['uid']) {
+					continue;
+				}
 
+				if(!empty($meeting['fromDate'])) {
+					$meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
+				}
+				eval("\$meetingslist .= \"".$template->get('profiles_entityprofile_meetings_row')."\";");
+			}
+			eval("\$meetings_section  = \"".$template->get('profiles_entityprofile_meetings')."\";");
+		}
+	}
+	/* parse Minites Of Meetings --END */
 	eval("\$profilepage = \"".$template->get('profiles_entityprofile')."\";");
 	output_page($profilepage);
 }

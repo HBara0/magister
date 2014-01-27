@@ -506,7 +506,7 @@ class Entities {
 	}
 
 	public function get_eid() {
-		return $this->eid;
+		return $this->data['eid'];
 	}
 
 	public function get_status() {
@@ -539,7 +539,7 @@ class Entities {
 		if(!empty($id)) {
 			$query_select = '*';
 			if($simple == true) {
-				$query_select = 'eid, companyName, companyNameAbbr, logo';
+				$query_select = 'eid, companyName, companyNameAbbr, companyNameShort, logo';
 			}
 			return $db->fetch_assoc($db->query("SELECT ".$query_select." FROM ".Tprefix."entities WHERE eid='".$db->escape_string($id)."'"));
 		}
@@ -564,6 +564,18 @@ class Entities {
 		if(!value_exists('entitiessegments', 'psid', $psid, 'eid='.$this->data['eid'].'')) {
 			$db->insert_query('entitiessegments', array('psid' => $psid, 'eid' => $this->data['eid']));
 		}
+	}
+
+	public static function get_entity_byname($name) {
+		global $db;
+
+		if(!empty($name)) {
+			$id = $db->fetch_field($db->query('SELECT eid FROM '.Tprefix.'entities WHERE companyName="'.$db->escape_string($name).'"'), 'eid');
+			if(!empty($id)) {
+				return new Entities($id);
+			}
+		}
+		return false;
 	}
 
 	public function get_assignedusers(array $affiliates = array()) {
@@ -597,6 +609,35 @@ class Entities {
 					WHERE eid='.$this->data['eid'].' AND uid NOT IN (SELECT uid FROM '.Tprefix.'users WHERE gid=7)'.$query_extrawhere);
 		if($db->num_rows($query) > 0) {
 			return true;
+		}
+		return false;
+	}
+
+	public function get_meetings() {
+		global $db, $core;
+
+		$filters = ' AND idAttr="spid"';
+		if($this->data['type'] == 'c') {
+			$filters = ' AND idAttr="cid"';
+		}
+
+		if($core->usergroup['meetings_canViewAllMeetings'] == 0) {
+			$meetings_sharedwith = Meetings::get_meetingsshares_byuser();
+			$filters .= ' AND (mtid IN (SELECT mtid FROM '.Tprefix.'meetings WHERE isPublic=1 OR createdBy='.$core->user['uid'].')';
+			if(is_array($meetings_sharedwith)) {
+				$filters .= ' OR (mtid IN ('.implode(', ', array_keys($meetings_sharedwith)).'))';
+			}
+			$filters .= ')';
+		}
+
+		$query = $db->query("SELECT mtid 
+							FROM ".Tprefix."meetings_associations
+							WHERE id='".$db->escape_string($this->data['eid'])."'".$filters);
+		if($db->num_rows($query) > 0) {
+			while($meeting = $db->fetch_assoc($query)) {
+				$meetings[$meeting['mtid']] = new Meetings($meeting['mtid']);
+			}
+			return $meetings;
 		}
 		return false;
 	}

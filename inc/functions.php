@@ -46,6 +46,19 @@ function output_page($template) {
 	echo $template;
 }
 
+function output($output) {
+	global $core;
+	if($core->settings['enablecompression'] == 1) {
+		if(version_compare(PHP_VERSION, '4.2.0', '>=')) {
+			$output = gzip_compression($output, $core->settings['gziplevel']);
+		}
+		else {
+			$output = gzip_compression($output);
+		}
+	}
+	echo $output;
+}
+
 /* GZIP cotents to a certain level
  * @param  String		$contents 	Contents to be zipped
  * @param  int			$level	 	Level of compression
@@ -100,7 +113,7 @@ function gzip_compression($contents, $level = 1) {
  */
 function output_xml($xml) {
 	global $lang;
-
+	ob_clean();
 	//header('Content-type: text/xml');
 	echo "<?xml version='1.0' encoding='{$lang->settings[charset]}'?>";
 	echo "<xml>{$xml}</xml>";
@@ -346,14 +359,16 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
 	if($config['blankstart'] == true) {
 		$list .= '<option></option>';
 	}
+
 	foreach($options as $key => $val) {
 		if($multiple_selected == true) {
+			$selected_options = array_filter($selected_options, 'strlen');
 			if(in_array($key, $selected_options)) {
 				$attributes = ' selected="selected"';
 			}
 		}
 		else {
-			if($selected_options == $key) {
+			if($selected_options == $key && $selected_options != null) {
 				$attributes = ' selected="selected"';
 			}
 		}
@@ -366,6 +381,7 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
 		$attributes = '';
 	}
 	$list .= '</select>';
+
 	return $list;
 }
 
@@ -634,9 +650,9 @@ function currentquarter_info($real = false) {
 		if($time_now >= $quarter_start && $time_now <= $quarter_end) {
 			$current_quarter = $i;
 			if($real === false) {
-				$current_quarter = $i - 1; 
+				$current_quarter = $i - 1;
 				if($current_quarter == 0) {
-					$current_quarter = 4;  
+					$current_quarter = 4;
 					$current_year -= 1;
 				}
 			}
@@ -759,7 +775,7 @@ function get_user_business_assignments($uid) {
 		$usergroup = $core->usergroup;
 	}
 	else {
-		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users WHERE uid={$uid})"));
+		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users_usergroups WHERE isMain=1 AND uid={$uid})"));
 	}
 
 	$data = array();
@@ -867,7 +883,7 @@ function getquery_business_assignments() {
 
 	if(!empty($arguments[2])) {
 		$user = get_user_business_assignments($arguments[2]);
-		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users WHERE uid={$arguments[2]})"));
+		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users_usergroups WHERE isMain=1 AND uid={$arguments[2]})"));
 	}
 	else {
 		$user = $core->user;
@@ -916,7 +932,6 @@ function getquery_business_assignments() {
 	else {
 		if($usergroup['canViewAllSupp'] == 0) {
 			$where['extra'] = $and.'(';
-			print_r($user['suppliers']['eid']);
 			foreach($user['suppliers']['eid'] as $val) {
 				$inaffiliates_query = '';
 				if($usergroup['canViewAllAff'] == 0) {
@@ -953,7 +968,7 @@ function parse_userentities_data($uid) {
 		$usergroup = $core->usergroup;
 	}
 	else {
-		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users WHERE uid={$uid})"));
+		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users_usergroups WHERE isMain=1 AND uid={$uid})"));
 	}
 
 	$data = array();
@@ -1045,7 +1060,7 @@ function getquery_entities_viewpermissions() {
 
 	if(!empty($arguments[2])) {
 		$user = parse_userentities_data($arguments[2]);
-		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users WHERE uid={$arguments[2]})"));
+		$usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users_usergroups WHERE isMain=1 AND uid={$arguments[2]})"));
 	}
 	else {
 		$user = $core->user;
@@ -1084,7 +1099,13 @@ function getquery_entities_viewpermissions() {
 						}
 					}
 				}
-				$query_attribute = $attribute_prefix.'spid';
+				if(!empty($arguments[5])) {
+					$query_attribute = $arguments[5];
+				}
+				else {
+					$query_attribute = 'spid';
+				}
+				$query_attribute = $attribute_prefix.$query_attribute;
 			}
 		}
 		else {
@@ -1112,27 +1133,29 @@ function getquery_entities_viewpermissions() {
 	}
 	else {
 		if($usergroup['canViewAllSupp'] == 0) {
-			$where['extra'] = $and.'(';
-			foreach($user['suppliers']['eid'] as $val) {
-				if(in_array($val, $auditfor)) {
-					$inaffiliates_query = '';
-					if($usergroup['canViewAllAff'] == 0) {
-						$inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['auditedaffiliates'][$val]).')';
+			if(is_array($user['suppliers']['eid'])) {
+				$where['extra'] = $and.'(';
+				foreach($user['suppliers']['eid'] as $val) {
+					if(in_array($val, $auditfor)) {
+						$inaffiliates_query = '';
+						if($usergroup['canViewAllAff'] == 0) {
+							$inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['auditedaffiliates'][$val]).')';
+						}
 					}
-				}
-				else {
-					$inaffiliates_query = '';
-					if($usergroup['canViewAllAff'] == 0) {
-						$inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['suppliers']['affid'][$val]).')';
+					else {
+						$inaffiliates_query = '';
+						if($usergroup['canViewAllAff'] == 0) {
+							$inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['suppliers']['affid'][$val]).')';
+						}
 					}
-				}
-				$where['extra'] .= $query_or.'('.$attribute_prefix.'spid='.$val.$inaffiliates_query.')';
-				$where['multipage'] .= $query_or.'(spid='.$val.$inaffiliates_query.')';
-				$where['byspid'][$val] = $inaffiliates_query;
+					$where['extra'] .= $query_or.'('.$attribute_prefix.'spid='.$val.$inaffiliates_query.')';
+					$where['multipage'] .= $query_or.'(spid='.$val.$inaffiliates_query.')';
+					$where['byspid'][$val] = $inaffiliates_query;
 
-				$query_or = ' OR ';
+					$query_or = ' OR ';
+				}
+				$where['extra'] .= ')';
 			}
-			$where['extra'] .= ')';
 		}
 
 		if($usergroup['canViewAllSupp'] == 1 && $usergroup['canViewAllAff'] == 0) {

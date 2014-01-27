@@ -151,7 +151,7 @@ class IntegrationOB extends Integration {
 			else {
 				$query2 = $db->insert_query('integration_mediation_salesorders', $document_newdata);
 			}
-	
+
 			if($query2) {
 				if(value_exists('integration_mediation_salesorderlines', 'foreignOrderId', $document['doc_id'])) {
 					$db->delete_query('integration_mediation_salesorderlines', 'foreignOrderId="'.$document['doc_id'].'"');
@@ -178,7 +178,7 @@ class IntegrationOB extends Integration {
 													LEFT JOIN m_product_po ppo ON (p.m_product_id=ppo.m_product_id)
 													WHERE c_invoice_id=\''.$document['doc_id'].'\' AND il.m_product_id NOT IN (\''.implode('\',\'', $exclude['products']).'\')
 												'); // AND iscostcalculated=\'Y\'
-					}
+				}
 
 				$documentline_newdata = array();
 				while($documentline = $this->f_db->fetch_assoc($documentline_query)) {
@@ -413,6 +413,72 @@ class IntegrationOB extends Integration {
 		return new IntegrationOBCostingAlgorithm($id, $this->f_db);
 	}
 
+	public function get_fifoinputs(array $organisations, array $options) {
+		if(isset($options['hasqty']) && $options['hasqty'] == true) {
+			$query_extrawhere = ' AND remaining_qty !=0';
+		}
+
+		$query = $this->f_db->query("SELECT *
+									FROM obwfa_input_stack 
+									WHERE ad_org_id IN ('".implode('\',\'', $organisations)."') 
+									AND trxdate BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."'{$query_extrawhere}
+									ORDER BY trxdate ASC, m_product_id ASC");
+		if($this->f_db->num_rows($query) > 0) {
+			while($transcation = $this->f_db->fetch_assoc($query)) {
+				$stack = new IntegrationOBInputStack($transcation['obwfa_input_stack_id'], $this->f_db);
+				$inputs[$transcation['obwfa_input_stack_id']]['stack'] = $stack->get();
+				if(is_null($stack->get_transcation()->get_inoutline())) {
+					$movement = $stack->get_transcation()->get_movementline();
+					if(is_object($movement)) {
+						$movement->get_output_transaction()->get_outputstack()->get_inputstack()->get_daysinstock();
+					}
+					else {
+						$inputs[$transcation['obwfa_input_stack_id']]['stack']['daysinstock'] = $stack->get_daysinstock();
+					}
+				}
+				else {
+					$inputs[$transcation['obwfa_input_stack_id']]['stack']['daysinstock'] = $stack->get_daysinstock();
+				}
+
+				$inputs[$transcation['obwfa_input_stack_id']]['product'] = $stack->get_product()->get();
+				$inputs[$transcation['obwfa_input_stack_id']]['product']['category'] = $stack->get_product()->get_category()->get();
+				$inputs[$transcation['obwfa_input_stack_id']]['category'] = &$inputs[$transcation['obwfa_input_stack_id']]['product']['category'];
+				$inputs[$transcation['obwfa_input_stack_id']]['product']['uom'] = $stack->get_product()->get_uom()->get();
+				$supplier = $stack->get_supplier();
+				if(!empty($supplier)) {
+					$inputs[$transcation['obwfa_input_stack_id']]['supplier'] = $supplier->get();
+				}
+				$inputs[$transcation['obwfa_input_stack_id']]['transaction'] = $stack->get_transcation()->get();
+				$inputs[$transcation['obwfa_input_stack_id']]['transaction']['attributes'] = $stack->get_transcation()->get_attributesetinstance()->get();
+				$inputs[$transcation['obwfa_input_stack_id']]['transaction']['attributes']['daystoexpire'] = $stack->get_transcation()->get_attributesetinstance()->get_daystoexpire();
+				if($inputs[$transcation['obwfa_input_stack_id']]['transaction']['attributes']['daystoexpire'] < 0) {
+					$inputs[$transcation['obwfa_input_stack_id']]['transaction']['attributes']['daystoexpire'] = '<span style="color:red;font-weight:bold;">Expired</span>';
+				}
+				$inputs[$transcation['obwfa_input_stack_id']]['transaction']['attributes']['packaging'] = $stack->get_transcation()->get_packaging();
+				$inputs[$transcation['obwfa_input_stack_id']]['warehouse'] = $stack->get_warehouse()->get();
+
+				$outputs = $stack->get_outputstacks();
+				if(is_array($outputs)) {
+					foreach($outputs as $output) {
+						$inputs[$transcation['obwfa_input_stack_id']]['stack']['soldqty'] += $output->get()['qty'];
+					}
+				}
+				else {
+					$inputs[$transcation['obwfa_input_stack_id']]['stack']['soldqty'] = 0;
+				}
+			}
+			return $inputs;
+		}
+		return false;
+	}
+
+	public function get_productsstock() {
+		$query = $this->f_db->query("SELECT *
+									FROM m_transcations
+									WHERE movementdate < 
+					");
+	}
+
 	private function get_fifoinput($id) {
 		return new IntegrationOBInputStack($id, $this->f_db);
 	}
@@ -492,8 +558,167 @@ class IntegrationOBTransaction {
 		return new IntegrationOBInOutLine($this->transaction['m_inoutline_id'], $this->f_db);
 	}
 
+	public function get_movementline() {
+		if(empty($this->transaction['m_movementline_id'])) {
+			return null;
+		}
+		return new IntegrationOBMovementLine($this->transaction['m_movementline_id'], $this->f_db);
+	}
+
+	public function get_outputstack() {
+		$query = $this->f_db->query('SELECT obwfa_output_stack_id
+									FROM obwfa_output_stack
+									WHERE m_transaction_id=\''.$this->transaction['m_transaction_id'].'\'');
+		if($this->f_db->num_rows($query) > 0) {
+			$stack = $this->f_db->fetch_assoc($query);
+			return new IntegrationOBOutputStack($stack['obwfa_output_stack_id'], $this->f_db);
+		}
+	}
+
+	public function get_inputstack() {
+		$query = $this->f_db->query('SELECT obwfa_input_stack_id
+									FROM obwfa_input_stack
+									WHERE m_transaction_id=\''.$this->transaction['m_transaction_id'].'\'');
+		if($this->f_db->num_rows($query) > 0) {
+			$stack = $this->f_db->fetch_assoc($query);
+			return new IntegrationOBInputStack($stack['obwfa_intput_stack_id'], $this->f_db);
+		}
+		return false;
+	}
+
+	public function get_attributesetinstance() {
+		return new IntegrationOBAttributeSetInstance($this->transaction['m_attributesetinstance_id'], $this->f_db);
+	}
+
+	public function get_packaging() {
+		$filters = array('attributename' => array('id' => 'm_attribute_id', 'table' => 'm_attribute', 'attribute' => 'name', 'value' => 'Packaging'));
+
+		$instance = $this->get_attributesetinstance()->get_attributeinstances($filters);
+		if(is_array($instance)) {
+			$instance = current($instance);
+		}
+		
+		if(!empty($instance)) {
+			return $instance->get_attributevalue($this->f_db)->get()['value'];
+		}
+		else {
+			return false;
+		}
+	}
+
+	public function get_supplier() {
+		return $this->get_inoutline()->get_inout()->get_bpartner();
+	}
+
 	public function get() {
 		return $this->transaction;
+	}
+
+}
+
+class IntegrationOBMovement {
+	private $movement;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+			//Open connections
+		}
+
+		if(empty($id)) {
+			return null;
+		}
+
+		$this->read($id);
+	}
+
+	private function read($id) {
+		$this->movement = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM m_movement
+						WHERE m_movement_id='".$this->f_db->escape_string($id)."'"));
+	}
+
+	public function get_id() {
+		return $this->movement['m_movement_id'];
+	}
+
+	public function get() {
+		return $this->movement;
+	}
+
+}
+
+class IntegrationOBMovementLine {
+	private $movementline;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+			//Open connections
+		}
+
+		if(empty($id)) {
+			return null;
+		}
+
+		$this->read($id);
+	}
+
+	private function read($id) {
+		$this->movementline = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM m_movementline 
+						WHERE m_movementline_id='".$this->f_db->escape_string($id)."'"));
+	}
+
+	public function get_attributesetinstance() {
+		return new IntegrationOBAttributeSetInstance($this->movementline['m_attributesetinstance_id'], $this->f_db);
+	}
+
+	public function get_movement() {
+		return new IntegrationOBMovement($this->movementline['m_movement_id']);
+	}
+
+	public function get_product() {
+		return new IntegrationOBProduct($this->movementline['m_product_id']);
+	}
+
+	public function get_fromlocator() {
+		return new IntegrationOBLocator($this->movementline['m_locator_id']);
+	}
+
+	public function get_tolocator() {
+		return new IntegrationOBLocator($this->movementline['m_locatorto_id']);
+	}
+
+	public function get_output_transaction() {
+		$query = $this->f_db->query('SELECT t.m_transaction_id
+								FROM m_transaction t 
+								JOIN obwfa_output_stack os ON (os.m_transaction_id=t.m_transaction_id)
+								WHERE t.m_movementline_id=\''.$this->movementline['m_movementline_id'].'\'');
+		if($this->f_db->num_rows($query) > 0) {
+			$transaction = $this->f_db->fetch_assoc($query);
+			return new IntegrationOBTransaction($transaction['m_transaction_id'], $this->f_db);
+		}
+
+		return false;
+	}
+
+	public function get_input_transcation() {
+		
+	}
+
+	public function get_id() {
+		return $this->movementline['m_movementline_id'];
+	}
+
+	public function get() {
+		return $this->movementline;
 	}
 
 }
@@ -536,6 +761,10 @@ class IntegrationOBInOutLine {
 		return $invoiceline->get_byinoutline($this->inoutline['m_inoutline_id']);
 	}
 
+	public function get_attributesetinstance() {
+		return new IntegrationOBAttributeSetInstance($this->inoutline['m_attributesetinstance_id'], $this->f_db);
+	}
+
 	public function get_id() {
 		return $this->inoutline['m_inoutline_id'];
 	}
@@ -568,6 +797,10 @@ class IntegrationOBInOut {
 
 	public function get_invoice() {
 		return new IntegrationOBInvoice($this->inout['c_invoice_id'], $this->f_db);
+	}
+
+	public function get_bpartner() {
+		return new IntegrationOBBPartner($this->inout['c_bpartner_id'], $this->f_db);
 	}
 
 	public function get_id() {
@@ -806,12 +1039,138 @@ class IntegrationOBInputStack {
 						WHERE obwfa_input_stack_id='".$this->f_db->escape_string($id)."'"));
 	}
 
+	public function get_daysinstock($relativeto = 'now') {
+		if(strstr($this->inputstack['trxdate'], '.')) {
+			$input_date = DateTime::createFromFormat('Y-m-d G:i:s.u', $this->inputstack['trxdate']);
+		}
+		else {
+			$input_date = DateTime::createFromFormat('Y-m-d G:i:s', $this->inputstack['trxdate']);
+		}
+
+		$end_date = new DateTime();
+		if($relativeto == 'now') {
+			$end_date->setTimestamp(TIME_NOW);
+		}
+		else {
+			/* To be implemented later */
+			return false;
+		}
+
+		if($input_date === false) {
+			return false;
+		}
+
+		$diff = $end_date->diff($input_date);
+		$days = $diff->format('%a');
+
+		return $days;
+	}
+
+	public function get_transcation() {
+		return new IntegrationOBTransaction($this->inputstack['m_transaction_id'], $this->f_db);
+	}
+
+	public function get_product() {
+		return new IntegrationOBProduct($this->inputstack['m_product_id'], $this->f_db);
+	}
+
+	public function get_locator() {
+		return new IntegrationOBLocator($this->get_transcation()->get()['m_locator_id'], $this->f_db);
+	}
+
+	public function get_warehouse() {
+		return new IntegrationOBWarehouse($this->get_locator()->get()['m_warehouse_id'], $this->f_db);
+	}
+
+	public function get_currency() {
+		return new IntegrationOBCurrency($this->inputstack['c_currency_id'], $this->f_db);
+	}
+
+	public function get_outputstacks() {
+		$query = $this->f_db->query("SELECT *
+						FROM obwfa_output_stack
+						WHERE obwfa_input_stack_id='".$this->inputstack['obwfa_input_stack_id']."'");
+		if($this->f_db->num_rows($query) > 0) {
+			while($output = $this->f_db->fetch_assoc($query)) {
+				$outputs[$output['obwfa_output_stack_id']] = new IntegrationOBOutputStack($output['obwfa_output_stack_id'], $this->f_db);
+			}
+			return $outputs;
+		}
+		return false;
+	}
+
+	public function get_supplier() {
+		$inoutline = $this->get_transcation()->get_inoutline();
+		if(!empty($inoutline)) {
+			return $inoutline->get_inout()->get_bpartner();
+		}
+		return false;
+	}
+
 	public function get_id() {
 		return $this->inputstack['obwfa_input_stack_id'];
 	}
 
 	public function get() {
 		return $this->inputstack;
+	}
+
+}
+
+class IntegrationOBOutputStack {
+	private $outputstack;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+			//Open connections
+		}
+		$this->read($id);
+	}
+
+	private function read($id) {
+		$this->outputstack = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM obwfa_output_stack
+						WHERE obwfa_output_stack_id='".$this->f_db->escape_string($id)."'"));
+	}
+
+	public function get_transcation() {
+		return new IntegrationOBTransaction($this->outputstack['m_transaction_id'], $this->f_db);
+	}
+
+	public function get_product() {
+		return new IntegrationOBProduct($this->outputstack['m_product_id'], $this->f_db);
+	}
+
+	public function get_warehouse() {
+		return new IntegrationOBWarehouse($this->outputstack['m_warehouse_id'], $this->f_db);
+	}
+
+	public function get_currency() {
+		return new IntegrationOBCurrency($this->outputstack['c_currency_id'], $this->f_db);
+	}
+
+	public function get_customer() {
+		$inoutline = $this->get_transcation()->get_inoutline();
+		if(!empty($inoutline)) {
+			return $inoutline->get_inout()->get_bpartner();
+		}
+		return false;
+	}
+
+	public function get_inputstack() {
+		return new IntegrationOBInputStack($this->outputstack['obwfa_input_stack_id'], $this->f_db);
+	}
+
+	public function get_id() {
+		return $this->outputstack['obwfa_output_stack_id'];
+	}
+
+	public function get() {
+		return $this->outputstack;
 	}
 
 }
@@ -859,26 +1218,388 @@ class IntegrationOBLandedCosts {
 		}
 		$this->read($id);
 	}
-	
+
 	private function read($id) {
 		$this->currency = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_landedcosts
 						WHERE m_landedcosts_id='".$this->f_db->escape_string($id)."'"));
 	}
-	
+
 	public function get_id() {
 		return $this->landedcost['m_landedcosts_id'];
 	}
-	
+
 	public function is_intercompany() {
 		if($this->landedcost['isinterco']) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	public function get() {
 		return $this->landedcost;
 	}
+
+}
+
+class IntegrationOBProduct {
+	private $product;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+			//Open connections
+		}
+		$this->read($id);
+	}
+
+	private function read($id) {
+		$this->product = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM m_product
+						WHERE m_product_id='".$this->f_db->escape_string($id)."'"));
+	}
+
+	public function get_category() {
+		return new IntegrationOBProductCategory($this->product['m_product_category_id'], $this->f_db);
+	}
+
+	public function get_uom() {
+		return new IntegrationOBUom($this->product['c_uom_id'], $this->f_db);
+	}
+
+	public function get_id() {
+		return $this->product['m_product_id'];
+	}
+
+	public function get() {
+		return $this->product;
+	}
+
+}
+
+class IntegrationOBProductCategory {
+	private $productcategory;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+			//Open connections
+		}
+		$this->read($id);
+	}
+
+	private function read($id) {
+		$this->productcategory = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM m_product_category
+						WHERE m_product_category_id='".$this->f_db->escape_string($id)."'"));
+	}
+
+	public function get_id() {
+		return $this->productcategory['m_product_category_id'];
+	}
+
+	public function get() {
+		return $this->productcategory;
+	}
+
+}
+
+class IntegrationOBLocator {
+	private $locator;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+			//Open connections
+		}
+		$this->read($id);
+	}
+
+	private function read($id) {
+		$this->locator = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM m_locator
+						WHERE m_locator_id='".$this->f_db->escape_string($id)."'"));
+	}
+
+	public function get_id() {
+		return $this->locator['m_locator_id'];
+	}
+
+	public function get() {
+		return $this->locator;
+	}
+
+}
+
+class IntegrationOBWarehouse {
+	private $warehouse;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+			//Open connections
+		}
+		$this->read($id);
+	}
+
+	private function read($id) {
+		$this->warehouse = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM m_warehouse
+						WHERE m_warehouse_id='".$this->f_db->escape_string($id)."'"));
+	}
+
+	public function get_id() {
+		return $this->warehouse['m_warehouse_id'];
+	}
+
+	public function get() {
+		return $this->warehouse;
+	}
+
+}
+
+class IntegrationOBBPartner {
+	private $bpartner;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+			//Open connections
+		}
+		$this->read($id);
+	}
+
+	private function read($id) {
+		$this->bpartner = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM c_bpartner
+						WHERE c_bpartner_id='".$this->f_db->escape_string($id)."'"));
+	}
+
+	public function get_id() {
+		return $this->bpartner['c_bpartner_id'];
+	}
+
+	public function get() {
+		return $this->bpartner;
+	}
+
+}
+
+class IntegrationOBAttributeSetInstance {
+	private $setinstance;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+			//Open connections
+		}
+		$this->read($id);
+	}
+
+	private function read($id) {
+		$this->setinstance = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM m_attributesetinstance
+						WHERE m_attributesetinstance_id='".$this->f_db->escape_string($id)."'"));
+	}
+
+	public function get_daystoexpire() {
+		if(!empty($this->setinstance['guaranteedate'])) {
+			if(strstr($this->setinstance['guaranteedate'], '.')) {
+				$expiry_date = DateTime::createFromFormat('Y-m-d G:i:s.u', $this->setinstance['guaranteedate']);
+			}
+			else {
+				$expiry_date = DateTime::createFromFormat('Y-m-d G:i:s', $this->setinstance['guaranteedate']);
+			}
+
+			if($expiry_date === false) {
+				return false;
+			}
+
+			$end_date = new DateTime();
+			$end_date->setTimestamp(TIME_NOW);
+
+			$diff = $end_date->diff($expiry_date);
+			$days = $diff->format('%r%a');
+
+			return $days;
+		}
+		return false;
+	}
+
+	public function get_attributeinstances($filters = array()) {
+		if(!empty($filters) && is_array($filters)) {
+			foreach($filters as $filter) {
+				$extra_where .= ' AND '.$filter['id'].' IN (SELECT '.$filter['id'].' FROM '.$filter['table'].' WHERE '.$filter['attribute'].'=\''.$filter['value'].'\')';
+			}
+		}
+		$query = $this->f_db->query("SELECT m_attributeinstance_id
+						FROM m_attributeinstance
+						WHERE m_attributesetinstance_id='".$this->setinstance['m_attributesetinstance_id']."'".$extra_where);
+		if($this->f_db->num_rows($query) > 0) {
+			while($instance = $this->f_db->fetch_assoc($query)) {
+				$instances[$instance['m_attributeinstance_id']] = new IntegrationOBAttributeInstance($instance['m_attributeinstance_id'], $this->f_db);
+			}
+			return $instances;
+		}
+		return false;
+	}
+
+	public function get_id() {
+		return $this->setinstance['m_attributesetinstance_id'];
+	}
+
+	public function get() {
+		return $this->setinstance;
+	}
+
+}
+
+class IntegrationOBAttributeInstance {
+	private $instance;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+			//Open connections
+		}
+		$this->read($id);
+	}
+
+	private function read($id) {
+		$this->instance = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM m_attributeinstance
+						WHERE m_attributeinstance_id='".$this->f_db->escape_string($id)."'"));
+	}
+
+	public function get_attribute() {
+		return new IntegrationOBAttribute($this->instance['m_attribute_id'], $this->f_db);
+	}
+
+	public function get_attributevalue($f_db = null) {
+		if(is_null($f_db)) {
+			$f_db = $this->f_db;
+		}
+		return new IntegrationOBAttributeValue($this->instance['m_attributevalue_id'], $f_db);
+	}
+
+	public function get_id() {
+		return $this->instance['m_attributeinstance_id'];
+	}
+
+	public function get() {
+		return $this->instance;
+	}
+
+}
+
+class IntegrationOBAttribute {
+	private $attribute;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+			//Open connections
+		}
+		$this->read($id);
+	}
+
+	private function read($id) {
+		$this->attribute = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM m_attribute
+						WHERE m_attribute_id='".$this->f_db->escape_string($id)."'"));
+	}
+
+	public function get_id() {
+		return $this->attribute['m_attribute_id'];
+	}
+
+	public function get() {
+		return $this->attribute;
+	}
+
+}
+
+class IntegrationOBAttributeValue {
+	private $attributevalue;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+			//Open connections
+		}
+		$this->read($id);
+	}
+
+	private function read($id) {
+		$this->attributevalue = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM m_attributevalue
+						WHERE m_attributevalue_id='".$this->f_db->escape_string($id)."'"));
+	}
+
+	public function get_id() {
+		return $this->attributevalue['m_attributevalue_id'];
+	}
+
+	public function get() {
+		return $this->attributevalue;
+	}
+
+}
+
+class IntegrationOBUom {
+	private $uom;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+			//Open connections
+		}
+		$this->read($id);
+	}
+
+	private function read($id) {
+		$this->uom = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM c_uom
+						WHERE c_uom_id='".$this->f_db->escape_string($id)."'"));
+	}
+
+	public function get_id() {
+		return $this->uom['c_uom_id'];
+	}
+
+	public function get() {
+		return $this->uom;
+	}
+
 }
 ?>

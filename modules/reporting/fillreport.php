@@ -491,6 +491,7 @@ else {
 					$update_query_where = 'paid='.$db->escape_string($productactivity['paid']);
 				}
 				else {
+					unset($productactivity['paid']);
 					$update_query_where = 'rid='.$rid.' AND pid='.$db->escape_string($productactivity['pid']).$existingentries_query_string;
 				}
 				unset($productactivity['productname'], $productactivity['fxrate']);

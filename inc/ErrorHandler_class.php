@@ -65,7 +65,7 @@ class ErrorHandler {
 		/* Record error to log file */
 		if($type != 'CUSTOM_INLINE_ERROR') {
 			if(is_array($message)) {
-				error_log(implode(' ', $message['content'])."\n", 0);
+				error_log(implode(' ', $message)."\n", 0);
 			}
 			else {
 				error_log($message."\n", 0);
@@ -181,7 +181,7 @@ class ErrorHandler {
 		global $lang;
 		
 		foreach($data as $type => $content) {
-			if(!empty($lang->$type)) {
+			if(empty($lang->$type)) {
 				$lang->$type = $type;
 			}
 			if($is_recursive == false) {

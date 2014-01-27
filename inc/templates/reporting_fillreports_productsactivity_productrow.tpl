@@ -10,6 +10,6 @@
  	<td style="border-bottom: dashed 1px #CCCCCC;" align="center">{$currencyfx_selectlist}</td>
   <td style="border-bottom: dashed 1px #CCCCCC;" align="center"><input name="productactivity[$rowid][quantity]" type="text" id="quantity_{$rowid}" size="10" accept="numeric"  value="{$productactivity[quantity]}" autocomplete='off'/></td>
   <td style="border-bottom: dashed 1px #CCCCCC;" align="center">{$saletype_selectlist}</td>
-  <td style="border-bottom: dashed 1px #CCCCCC;" align="center"><input name="productactivity[$rowid][salesForecast]" type="text" id="salesForecast_{$rowid}" size="10" accept="numeric" value="{$productactivity[salesForecast]}" autocomplete='off'/></td>
-  <td style="border-bottom: dashed 1px #CCCCCC;" align="center"><input name="productactivity[$rowid][quantityForecast]" type="number" id="quantityForecast_{$rowid}" size="10"  accept="numeric" value="{$productactivity[quantityForecast]}" autocomplete='off'/></td>
+  <td style="border-bottom: dashed 1px #CCCCCC;" align="center"><input name="productactivity[$rowid][salesForecast]" type="number" step="any" id="salesForecast_{$rowid}" size="10" accept="numeric" value="{$productactivity[salesForecast]}" autocomplete='off'/></td>
+  <td style="border-bottom: dashed 1px #CCCCCC;" align="center"><input name="productactivity[$rowid][quantityForecast]" type="number" step="any" id="quantityForecast_{$rowid}" size="10" accept="numeric" value="{$productactivity[quantityForecast]}" autocomplete='off'/></td>
 </tr>

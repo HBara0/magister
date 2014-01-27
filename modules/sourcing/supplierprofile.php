@@ -34,6 +34,9 @@ if(!$core->input['action']) {
 		redirect(DOMAIN."/index.php?module=sourcing/listpotentialsupplier");
 	}
 
+	$question_section = array('isPriceApproved' => 'paymentterms', 'isPaymentApproved' => 'customerdocument', 'isCustomerdocumentApproved' => 'samplerequest', 'isSampleAccepted' => 'customersample', 'isCompliantSpec' => 'industrial', 'isProductApproved' => 'commercialoffer');
+	$array_converteddate = array('date', 'customerDocumentDate', 'receivedQuantityDate', 'providedDocumentsDate', 'customerAnswerDate', 'provisionDate', 'offerDate', 'OfferAnswerDate');
+
 	$supplier['maindetails'] = $potential_supplier->get_supplier();
 	$supplier['contactdetails'] = $potential_supplier->get_supplier_contactdetails();
 	$supplier['segments'] = $potential_supplier->get_supplier_segments();
@@ -64,7 +67,7 @@ if(!$core->input['action']) {
 	if(is_array($supplier['chemicalsubstances'])) {
 		foreach($supplier['chemicalsubstances'] as $chemical) {
 			$rowclass = alt_row($rowclass);
-			$chemicalslist_section .= '<tr class="'.$rowclass.'" style="vertical-align:top;"><td width="10%">'.$chemical['casNum'].'</td><td align="left">'.$chemical['name'].'</td><td>'.$chemical['supplyType_output'].'</td><td width="50%">'.$chemical['synonyms'].'</td></tr>';
+			$chemicalslist_section .= '<tr class="'.$rowclass.'" style="vertical-align:top;"><td width="10%">'.$chemical['casNum'].'</td><td align="left" width="15%">'.$chemical['name'].'</td><td width="5%">'.$chemical['supplyType_output'].'</td><td width="60%">'.$chemical['synonyms'].'</td></tr>';
 		}
 	}
 	else {
@@ -89,7 +92,7 @@ if(!$core->input['action']) {
 		$supplier['maindetails']['companyName'] .= ' ('.$supplier['maindetails']['companyNameAbbr'].')';
 	}
 
-	$supplier['maindetails']['businessPotential_output'].= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$supplier['maindetails']['businessPotential'].'"></div>';
+	$supplier['maindetails']['businessPotential_output'].= '<div class="rateit" id="ratingdiv" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$supplier['maindetails']['businessPotential'].'"></div>';
 	$supplier['maindetails']['relationMaturity_output'] = $potential_supplier->parse_rmlbar();
 
 
@@ -145,29 +148,29 @@ if(!$core->input['action']) {
 	if(is_array($contacts_history) || $can_seecontactinfo == true) {
 
 		$affiliates = $potential_supplier->get_affiliates_byavailability();
-		if(is_array($affiliates)){
-		foreach($affiliates as $affid => $area) {
-			$selected = '';
-			$affiliates_list .= '<option value = "'.$area['affid'].'"'.$selected.'>'.$area['affiliate'].'</option>';
-		}
+		if(is_array($affiliates)) {
+			foreach($affiliates as $affid => $area) {
+				$selected = '';
+				$affiliates_list .= '<option value = "'.$area['affid'].'"'.$selected.'>'.$area['affiliate'].'</option>';
+			}
 		}
 
 		$origins = array('anyorigin' => $lang->anyorigin, 'chinese' => $lang->chinese, 'nonchinese' => $lang->nonchinese, 'indian' => $lang->indian, 'nonindian' => $lang->nonindian, 'european' => $lang->european, 'noneuropean' => $lang->noneuropean, 'american' => $lang->american, 'nonamerican' => $lang->nonamerican, 'otherasian' => $lang->otherasian, 'nootherasian' => $lang->nootherasian);
 		$origins_list = parse_selectlist('contacthst[origin]', 8, $origins, '');
 
-		$product_segmentlist = parse_selectlist('contacthst[market]', 9, $supplier['segments'], ''); /* product segments (that the current supplier(loaded from the object) works in) */
+		$product_segmentlist = parse_selectlist('contacthst[market]', 9, $supplier['segments'], '', 0, '', array('blankstart' => true)); /* product segments (that the current supplier(loaded from the object) works in) */
 		$unit_measure = get_specificdata('uom', array('uomid', 'symbol'), 'uomid', 'symbol', '');
 		$newsupplierid = $core->input['id'];
 		foreach($unit_measure as $key => $unit) {
 			$selected = '';
 			if($key == 4) {
-				$selected = ' selected = "selected"';
+				$selected = ' selected="selected"';
 			}
 			$uom .= '<option value = "'.$key.'"'.$selected.'>'.$unit.'</option>';
 		}
 
 		if(is_array($contacts_history)) {
-			foreach($contacts_history as $historyid => $contact_history) {
+			foreach($contacts_history as $historyid => $contact_history) {		
 				$contact_history['chemical'] = $potential_supplier->get_chemicalsubstance_byid($contact_history['chemical']);
 				$array_converteddate = array('date', 'customerDocumentDate', 'receivedQuantityDate', 'providedDocumentsDate', 'customerAnswerDate', 'provisionDate', 'offerDate', 'OfferAnswerDate');
 				foreach($array_converteddate as $key => $value) {
@@ -176,7 +179,9 @@ if(!$core->input['action']) {
 						$contact_history[$value.'_output'] = date($core->settings['dateformat'], $contact_history[$value]);
 					}
 				}
-
+				
+				$selected_selectitems['payementTerms'][$contact_history['paymentTerms']] = ' selected="selected"';
+				
 				if($contact_history['isCompleted'] == 0) {
 					$communication_title = $lang->previouscommunication;
 					$action = 'do_updateprevcommunication';
@@ -194,19 +199,24 @@ if(!$core->input['action']) {
 					$chemical_div_result = '<div id="searchQuickResults_chemicalproducts_'.$contact_history['identifier'].'" class="searchQuickResults" style="display:none;"></div>';
 
 					/* open the product section if the stage is approved */
-					$question_section = array('ispriceapproved' => 'paymentterms_body', 'isPaymentApproved' => 'customerdocument_body', 'isCustomerdocumentApproved' => 'samplerequest_body', 'isSampleAccepted' => 'customersample_body', 'isCompliantSpec' => 'industrial_body', 'isProductApproved' => 'commercialoffer_body');
 					foreach($question_section as $key => $section) {
-						if($contact_history[$key] == 1) {
-							$hide_productsection .= '$("div[id^='.$section.'_'.$contact_history['identifier'].']").show();';
+						$radiobuttons_check[$key][$contact_history[$key]] = ' checked="checked"';
+						$disabled_checkboxes[$section] = ' disabled';
+						$checked_checkboxes[$section] = '';
+						if($contact_history[$key] == 1 || $contact_history[$key] == 3) {
+							$hide_productsection .= '$("div[id^='.$section.'_body_'.$contact_history['identifier'].']").show();'."\n";
+							$disabled_checkboxes[$section] = '';
+							$checked_checkboxes[$section] = ' checked="checked"';
 						}
 					}
-
+					foreach($array_converteddate as $key => $value) {
+						$datepicker_id[$value] = 'pickDate_'.uniqid();
+					}
 					/* load previous communication */
 					eval("\$reportcommunication_filled_section = \"".$template->get('sourcing_potentialsupplierprofile_reportcommunication')."\";");
 					unset($datepicker_id);
 				}
 				elseif($contact_history['isCompleted'] == 1) {
-
 					$contact_history['chemical'] = $potential_supplier->get_chemicalsubstance_byid($contact_history['chemical']);
 					$communications_fields = array(
 							'paymenttermstitle' => array('paymentterms' => 'paymentTerms', 'discussion' => 'Discussion'),
@@ -217,7 +227,6 @@ if(!$core->input['action']) {
 							'offertitle' => array('offer' => 'offerMade', 'offerdate' => 'offerDate_output', 'customerAnswer' => 'customerOfferAnswer', 'answerdate' => 'OfferAnswerDate_output')
 					);
 					foreach($communications_fields as $key => $section) {
-
 						$maindivsection .= '<div class="ch_communicationsection altrow" style="width:100%;">';
 						$maindivsection .= '<div class="ch_communicationsection_entryhead">'.$lang->$key.'</div>';
 						foreach($section as $label => $val) {
@@ -234,6 +243,7 @@ if(!$core->input['action']) {
 					eval("\$reportcommunication_filled_section = \"".$template->get('sourcing_potentialsupplierprofile_displaycontacthistory')."\";");
 				}
 				$altrow_class = alt_row($altrow_class);
+
 				eval("\$contacthistory_section .= \"".$template->get('sourcing_potentialsupplierprofile_contacthistory')."\";");
 				$maindivsection = '';
 			}
@@ -246,6 +256,7 @@ if(!$core->input['action']) {
 
 	/* New Communication Report after the user has initiated contact - START */
 	if($can_seecontactinfo == true) {
+		unset($radiobuttons_check, $disabled_checkboxes);
 		$contactsupplier_button = '';
 		$identifier = substr(md5(uniqid(microtime())), 1, 10);
 		$supplierid = $core->input['supplierid'];
@@ -255,7 +266,6 @@ if(!$core->input['action']) {
 		$communication_id = 'reportcommunication';
 		$button_label = $lang->save;
 		$class = "border_left border_right altrow";
-		$array_converteddate = array('date', 'customerDocumentDate', 'receivedQuantityDate', 'providedDocumentsDate', 'customerAnswerDate', 'provisionDate', 'offerDate', 'OfferAnswerDate');
 		foreach($array_converteddate as $key => $value) {
 			$datepicker_id[$value] = 'pickDate_'.uniqid();
 		}
@@ -263,6 +273,11 @@ if(!$core->input['action']) {
 		$chemical_hidden_field = ' <input type="hidden" id="chemicalproducts_1_id" name="contacthst[chemical]" value="'.$contacthst['chemical'].'"/>';
 		$chemical_div_result = '<div id="searchQuickResults_chemicalproducts_1" class="searchQuickResults" style="display:none;"></div>';
 
+
+		foreach($question_section as $key => $section) {
+			$disabled_checkboxes[$section] = ' disabled';
+			$checked_checkboxes[$section] = '';
+		}
 		eval("\$reportcommunication_section = \"".$template->get('sourcing_potentialsupplierprofile_reportcommunication')."\";");
 	}
 	/* New  Communication Report after the user has initiated contact - END */
@@ -275,8 +290,7 @@ else {
 		$supplier_id = $db->escape_string($core->input['supplierid']);
 		$potential_supplier->contact_supplier($supplier_id);
 
-		redirect(DOMAIN.'/index.php?module = sourcing/supplierprofile&amp;
-			id = '.$supplier_id);
+		redirect(DOMAIN.'/index.php?module=sourcing/supplierprofile&amp;id='.$supplier_id);
 	}
 	elseif($core->input['action'] == 'do_savecommunication' || $core->input['action'] == 'do_updateprevcommunication') {
 

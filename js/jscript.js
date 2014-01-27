@@ -526,11 +526,12 @@ $(function() {
         var num_rows = 0;
         if ($("#numrows_" + id[id.length - 2] + id[id.length - 1]).length != 0) {
             var num_rows = parseInt($("#numrows_" + id[id.length - 2] + id[id.length - 1]).val());
+            var affid=  parseInt($("#affid_" + id[id.length - 2] + id[id.length - 1]).val()); 
         }
 
         $.ajax({type: 'post',
             url: rootdir + "index.php?module=" + id[1] + "&action=ajaxaddmore_" + id[2],
-            data: {value: num_rows, id: id[id.length - 1]},
+            data:  "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + $('input[id^=ajaxaddmoredata_]').serialize(), 
             beforeSend: function() {
                 $("body").append("<div id='modal-loading'></div>");
                 $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0

@@ -72,6 +72,32 @@ class Affiliates {
 		return $users_affiliates;
 	}
 
+	public function get_suppliers() {
+		global $db;
+		$additional_where = getquery_entities_viewpermissions('suppliersbyaffid', $this->affiliate['affid'], '', 0, 'ae', 'eid');
+		$query = $db->query("SELECT DISTINCT(e.eid) 
+					FROM ".Tprefix."entities e 
+					LEFT JOIN ".Tprefix."affiliatedentities ae ON (ae.eid=e.eid) 
+					WHERE ae.affid={$this->affiliate['affid']} AND type='s'".$additional_where[extra]." ORDER BY companyName ASC");
+		while($supplier = $db->fetch_assoc($query)) {
+			$suppliers = new Entities($supplier['eid']);
+			$suppliers_affiliates[$supplier['eid']] = $suppliers->get();
+		}
+		return $suppliers_affiliates;
+	}
+
+	public static function get_affiliate_byname($name) {
+		global $db;
+
+		if(!empty($name)) {
+			$id = $db->fetch_field($db->query('SELECT affid FROM '.Tprefix.'affiliates WHERE name="'.$db->escape_string($name).'"'), 'affid');
+			if(!empty($id)) {
+				return new Affiliates($id);
+			}
+		}
+		return false;
+	}
+
 	public function get() {
 		return $this->affiliate;
 	}

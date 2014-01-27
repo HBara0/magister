@@ -7,6 +7,7 @@
 $lang['addrepresentative_note'] = 'Les représentants sont les personnes avec lesquels vous traitez dans l’entreprise  et non pas vous.<br />
 <br />
 Indiquez toujours le nom complet, sans titre.';
+$lang['meetings'] = 'Réunions';
 $lang['monday'] = 'Lundi';
 $lang['telephone'] = 'Téléphone';
 ?>

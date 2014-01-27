@@ -77,7 +77,7 @@ else
 	}
 	elseif($core->input['action'] == 'perform_mergeanddelete') {
 		$oldid = $db->escape_string($core->input['todelete']);
-		$products_tables = array('productsactivity' => 'pid', ' integration_mediation_products' => 'localId');
+		$products_tables = array('productsactivity' => 'pid', ' integration_mediation_products' => 'localId', 'budgeting_budgets_lines' => 'pid');
 		if(!empty($core->input['mergepid'])) {
 			$newid = $db->escape_string($core->input['mergepid']);
 			foreach($products_tables as $table => $attr) {

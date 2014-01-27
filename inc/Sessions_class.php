@@ -19,18 +19,15 @@ class Sessions {
 			$this->create();
 		}
 		else {
-			$this->update(); 
+			$this->update();
 		}
 
 		if($this->uid != 0) {
-			$user = new Users($this->uid, FALSE);
-			if($user) {
-				$core->user = $user->get();
+			$core->user_obj = new Users($this->uid, FALSE);
+			if($core->user_obj) {
+				$core->user = $core->user_obj->get();
 				unset($core->user['password'], $core->user['salt']);
-				
-				$query2 = $db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid='".$core->user['gid']."'");
-				$core->usergroup = $db->fetch_assoc($query2);
-
+				$core->user_obj->read_usergroupsperm();
 				/* $auditing = $db->query("SELECT eid FROM ".Tprefix."suppliersaudits WHERE uid='".$this->uid."'");
 				  if($db->num_rows($auditing) > 0) {
 				  while($auditfor = $db->fetch_assoc($auditing)) {
@@ -81,7 +78,7 @@ class Sessions {
 				$core->user += get_user_business_assignments($this->uid); //parse_userentities_data($this->uid);
 
 				if(!isset($core->user['mainaffiliate'])) {
-					$core->user['mainaffiliate'] = $user->get_mainaffiliate()->get()['affid'];
+					$core->user['mainaffiliate'] = $core->user_obj->get_mainaffiliate()->get()['affid'];
 				}
 			}
 		}
@@ -180,6 +177,9 @@ class Sessions {
 	}
 
 	public function name_phpsession($name = '') {
+		if(empty($name)) {
+			$name = COOKIE_PREFIX.'session_'.substr(md5(uniqid(microtime())), 1, 10);
+		}
 		return session_name($name);
 	}
 
@@ -191,10 +191,14 @@ class Sessions {
 		return session_regenerate_id($delete_old);
 	}
 
-	public function start_phpsession() {
+	public function start_phpsession($ttl = '') {
 		global $core;
 
-		session_set_cookie_params((TIME_NOW + (60 * $core->settings['idletime'])), COOKIE_PATH, COOKIE_DOMAIN);
+		if(empty($ttl)) {
+			$ttl = $core->settings['idletime'];
+		}
+
+		session_set_cookie_params((TIME_NOW + (60 * $ttl)), COOKIE_PATH, COOKIE_DOMAIN);
 		session_start();
 	}
 

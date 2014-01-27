@@ -70,6 +70,11 @@ class ReportingQr Extends Reporting {
 				$this->read_next_products_activity();
 			}
 		}
+		else {
+			if($get_prevactivity == true) {
+				$this->read_prev_products_activity();
+			}
+		}
 		return false;
 	}
 
@@ -189,19 +194,32 @@ class ReportingQr Extends Reporting {
 				$newreport->read_products_activity(false);
 				$prev_products = $newreport->get_products();
 				if(!empty($prev_products)) {
-					$this->report['products'] += $prev_products;
+					if(is_array($this->report['products'])) {
+						$this->report['products'] += $prev_products;
+					}
+					else {
+						$this->report['products'] = $prev_products;
+					}
 				}
 
 				$prev_productsactivity = $newreport->get_products_activity();
 				if(isset($this->report['productsactivity']) && !empty($prev_productsactivity)) {
 					$this->report['productsactivity'] += $prev_productsactivity;
 				}
-
-				$prev_productssegments = $newreport->get_productssegments();
-				if(isset($this->report['productssegments']) && !empty($prev_productssegments)) {
-					$this->report['productssegments'] += $prev_productssegments;
+				else {
+					$this->report['productsactivity'] = $prev_productsactivity;
 				}
 
+				$prev_productssegments = $newreport->get_productssegments();
+				if(!empty($prev_productssegments)) {
+					if(isset($this->report['productssegments']) && is_array($this->report['productssegments'])) {
+						$this->report['productssegments'] += $prev_productssegments;
+					}
+					else {
+						$this->report['productssegments'] = $prev_productssegments;
+					}
+				}
+				
 				$reportdetails = $newreport->get_classified_productsactivity();
 				if(is_array($reportdetails)) {
 					foreach($reportdetails as $category => $catitem) { /* amount or  quantity */
@@ -449,7 +467,7 @@ class ReportingQr Extends Reporting {
 						}
 
 						$actual_current_data_querystring = 'uid!='.$core->user['uid'];
-						if(isset($productactivity['paid'])) {
+						if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
 							$actual_current_data_querystring = 'pa.paid!='.$productactivity['paid'];
 						}
 
@@ -460,7 +478,7 @@ class ReportingQr Extends Reporting {
 
 						if(round($actual_forecast, 4) > round($actual_current_forecast, 4) || ($this->report['quarter'] == 4 && round($actual_forecast, 4) < round($actual_current_forecast, 4))) {
 							$forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
-							$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.number_format($actual_forecast, 4);
+							$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.round($actual_forecast, 4);
 						}
 					}
 				}
@@ -473,9 +491,9 @@ class ReportingQr Extends Reporting {
 							}
 						}
 
-						if($productactivity[$validation_key.'Forecast'] < $actual_forecast || ($this->report['quarter'] == 4 && round($productactivity[$validation_key.'Forecast'], 4) > $actual_forecast)) {
+						if($productactivity[$validation_key.'Forecast'] < round($actual_forecast, 4) || ($this->report['quarter'] == 4 && round($productactivity[$validation_key.'Forecast'], 4) > round($actual_forecast, 4))) {
 							$forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
-							$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.number_format($actual_forecast, 4);
+							$forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.round($actual_forecast, 4);
 						}
 					}
 				}
@@ -514,6 +532,7 @@ class ReportingQr Extends Reporting {
 							$update_query_where = 'paid='.$db->escape_string($productdata['paid']);
 						}
 						else {
+							unset($productdata['paid']);
 							$update_query_where = 'rid='.$this->report['rid'].' AND pid='.$db->escape_string($productdata['pid']);
 						}
 
