@@ -33,13 +33,13 @@ if(!$core->input['action']) {
 	$multipage_where = 'affid='.$core->user[mainaffiliate].' AND (year='.$current_year.' OR isOnce=0) AND hid NOT IN (SELECT hid FROM '.Tprefix.'holidaysexceptions WHERE uid='.$core->user['uid'].')';
 
 	$query = $db->query("SELECT * FROM ".Tprefix."holidays
-						WHERE affid={$core->user[mainaffiliate]} AND (year={$current_year} OR isOnce=0)
-						AND hid NOT IN (SELECT hid FROM ".Tprefix."holidaysexceptions WHERE uid=".$core->user['uid'].")
-						AND ((validFrom = 0 OR ({$current_year} >= FROM_UNIXTIME(validFrom, '%Y') AND month >= FROM_UNIXTIME(validFrom, '%m') AND day >= FROM_UNIXTIME(validFrom, '%d'))) 
-						AND (validTo=0 OR ({$current_year} <= FROM_UNIXTIME(validTo, '%Y') AND month <= FROM_UNIXTIME(validTo, '%m') AND day <= FROM_UNIXTIME(validTo, '%d'))))
+						WHERE affid='".$core->user[mainaffiliate]."' AND (year='".$current_year."' OR isOnce='0')
+						AND hid NOT IN (SELECT hid FROM ".Tprefix."holidaysexceptions WHERE uid='".$core->user['uid']."')
+						AND ((validFrom = 0 OR ( '".$current_year."' >= FROM_UNIXTIME(validFrom, '%Y') AND month >= FROM_UNIXTIME(validFrom, '%m') AND day >= FROM_UNIXTIME(validFrom, '%d'))) 
+						AND (validTo=0 OR ( '".$current_year."' <= FROM_UNIXTIME(validTo, '%Y') AND month <= FROM_UNIXTIME(validTo, '%m') AND day <= FROM_UNIXTIME(validTo, '%d'))))
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
- 
+
 	if($db->num_rows($query) > 0) {
 		while($holiday = $db->fetch_assoc($query)) {
 			$holidays_list .= "<tr><td align='center'>{$holiday[title]}</td><td align='center'>".$lang->{strtolower(date("F", mktime(0, 0, 0, $holiday['month'], 1, 0)))}."</td><td align='center'>{$holiday[day]}</td><td align='center'>{$holiday[numDays]}</td></tr>";

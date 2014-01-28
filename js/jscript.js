@@ -318,7 +318,7 @@ $(function() {
         return true
     });
 
-    $("a[id='resetpassword']").click(function() {
+   $("a[id='resetpassword']").live('click', function() {
         $("#logincontent").hide();
         $("#resetpasswordcontent").show();
     });
