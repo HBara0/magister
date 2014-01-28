@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Manage Supplier
  *  $module: Sourcing
- * $id: Managesupplier.php	
+ * $id: Managesupplier.php
  * Created By: 		@tony.assaad		October 8, 2012 | 12:30 PM
  * Last Update: 	@tony.assaad		November 30, 2012 | 11:13 PM
  */
@@ -36,30 +36,33 @@ if(!$core->input['action']) {
 				$checkedboxes = ' checked="checked"';
 			}
 		}
-
+		$chemicalp_rowid = 0;
+		eval("\$chemicalproducts_rows = \"".$template->get('sourcing_managesupplier_chemicalrow')."\";");
 		if(is_array($supplier['chemicalsubstances'])) {
-			$chemicalp_rowid = 1;
 			foreach($supplier['chemicalsubstances'] as $key => $chemicalproduct) {
+				$chemicalp_rowid++;
 				$selecteditems['supplyType'][$key][$chemicalproduct['supplyType']] = ' selected="selected"';
 				eval("\$chemicalproducts_rows .= \"".$template->get('sourcing_managesupplier_chemicalrow')."\";");
-				$chemicalp_rowid++;
 			}
 			unset($selecteditems);
 		}
-		
+
+		$genericproduct_rowid = 0;
+		$generic_product_list = parse_selectlist('supplier[genericproducts]['.$genericproduct_rowid.'][gpid]', 9, get_specificdata('genericproducts', array('gpid', 'title'), 'gpid', 'title', 'title'), '', 0, '', array('blankstart' => 1));
+		eval("\$genericproducts_rows = \"".$template->get('sourcing_managesupplier_genericproductrow')."\";");
+
 		if(is_array($supplier['genericproducts'])) {
-			$genericproduct_rowid = 1;
 			foreach($supplier['genericproducts'] as $key => $genericproducts) {
+				$genericproduct_rowid++;
 				$selecteditems['supplyType'][$key][$genericproducts['supplyType']] = ' selected="selected"';
 				$generic_product_list = parse_selectlist('supplier[genericproducts]['.$genericproduct_rowid.'][gpid]', 9, get_specificdata('genericproducts', array('gpid', 'title'), 'gpid', 'title', 'title'), $genericproducts['gpid'], 0);
-				eval("\$genericproducts_rows .= \"".$template->get('sourcing_managesupplier_genericproductrow')."\";");
-				$genericproduct_rowid++;
+				eval("\$genericproducts_rows  .= \"".$template->get('sourcing_managesupplier_genericproductrow')."\";");
+				unset($selecteditems);
 			}
-			unset($selecteditems);
 		}
-		
+		$contactp_rowid = 0;
+		eval("\$contactpersons_rows = \"".$template->get('sourcing_managesupplier_contactprow')."\";");
 		if(is_array($supplier['contactpersons'])) {
-			$contactp_rowid = 1;
 			foreach($supplier['contactpersons'] as $contactperson) {
 				eval("\$contactpersons_rows .= \"".$template->get('sourcing_managesupplier_contactprow')."\";");
 				$contactp_rowid++;
@@ -74,14 +77,14 @@ if(!$core->input['action']) {
 	}
 	else {
 		$actiontype = 'add';
-		
+
 		$chemicalp_rowid = 1;
 		eval("\$chemicalproducts_rows .= \"".$template->get('sourcing_managesupplier_chemicalrow')."\";");
-		
+
 		$genericproduct_rowid = 1;
 		$generic_product_list = parse_selectlist('supplier[genericproducts]['.$genericproduct_rowid.'][gpid]', 9, get_specificdata('genericproducts', array('gpid', 'title'), 'gpid', 'title', 'title'), 'gpid', 0, '', array('blankstart' => 1));
 		eval("\$genericproducts_rows .= \"".$template->get('sourcing_managesupplier_genericproductrow')."\";");
-		
+
 		$contactp_rowid = 1;
 		eval("\$contactpersons_rows .= \"".$template->get('sourcing_managesupplier_contactprow')."\";");
 	}
