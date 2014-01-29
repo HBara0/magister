@@ -40,6 +40,36 @@ if(!$core->input['action']) {
 	$actiontype = "edit";
 	$pagetitle = $lang->sprint($lang->editproductwithname, $product['name']);
 	
+
+	$chemsubstance_objs = $product_obj->get_chemicalsubstance();
+	if(is_array($chemsubstance_objs))
+		foreach($chemsubstance_objs as $key => $chemsubstance_obj) {
+			$chemicalp_rowid = $key;
+			$product['chemicalsubstances'][$key] = $chemsubstance_obj->get();
+			$chemrows .='<tr id='.$chemicalp_rowid.'> <td colspan="2">'.$lang->chemicalsubstances.'</td><td> <input type="text" value="'.$product['chemicalsubstances'][$key]['name'].'" id=chemicalproducts_'.$chemicalp_rowid.'_QSearch autocomplete="off" size="40px"/> 
+				  <input type="hidden" id="chemicalproducts_'.$chemicalp_rowid.'_id" name="chemsubstances['.$chemicalp_rowid.'][csid]"  value="'.$product['chemicalsubstances'][$key]['csid'].'"/>
+					   <div id="searchQuickResults_chemicalproducts_'.$chemicalp_rowid.'" class="searchQuickResults" style="display:none;"></div> </td>
+				    <td><a class="showpopup" id="showpopup_createchemical"><img src="../images/addnew.png" border="0" alt="'.$lang->add.'"/></a> </td>
+			</tr>';
+		}
+
+	/* Chemical List - START */
+//	$chemsubstances_objs = Chemicalsubstances::get_chemicalsubstances();
+//	$chemicalslist_section = '';
+//	if(is_array($chemsubstances_objs)) {
+//		foreach($chemsubstances_objs as $chemsubstances_obj) {
+//			$rowclass = alt_row($rowclass);
+//			$chemical = $chemsubstances_obj->get();
+//			if(value_exists('productschemsubstances', 'csid', $chemical['csid'], 'pid='.$pid)) {
+//				$chemsubstanceschecked[$chemical['csid']]['csid'] = ' checked="checked"';
+//			}
+//			$chemicalslist_section .= '<tr class="'.$rowclass.'" style="vertical-align:top;"><td width="1%"><input type="checkbox" '.$chemsubstanceschecked[$chemical['csid']][csid].' value="'.$chemical['csid'].'" name="chemsubstances[]"/></td><td width="33%">'.$chemical['casNum'].'</td><td align="left" width="33%">'.$chemical['name'].'</td><td width="33%">'.$chemical['synonyms'].'</td></tr>';
+//		}
+//	}
+//	else {
+//		$chemicalslist_section = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
+//	}
+//	$chemsubstanceschecked['csid'] = '';
 	$pidfield = "<input type='hidden' value='{$pid}' name='pid'>";
 	eval("\$editpage = \"".$template->get("admin_products_addedit")."\";");
 	output_page($editpage);
@@ -52,6 +82,8 @@ else
 			exit;
 		}
 		
+			output_xml("<status>false</status><message>selsect one app</message>");
+			exit;
 		$check_query = $db->query("SELECT pid, name FROM ".Tprefix."products WHERE name='{$core->input[name]}' LIMIT 0,1");
 		if($db->num_rows($check_query) > 0) {
 			$existing = $db->fetch_array($check_query);
@@ -62,9 +94,16 @@ else
 			}
 		}
 		
-		log_action($core->input['name']);
+		$log->record($core->input['name']);
 		unset($core->input['action'], $core->input['module']);
 
+
+				$chemsubstances_arary = array('pid' => $core->input['pid'],
+						'csid' => $csid,
+						'modifiedBy' => $core->user['uid'],
+						'modifiedOn' => TIME_NOW
+				);
+				$db->insert_query("productschemsubstances", $chemsubstances_arary);
 		$query = $db->update_query('products', $core->input, "pid='".$db->escape_string($core->input['pid'])."'");
 		if($query) {
 			$lang->productedited = $lang->sprint($lang->productedited, $core->input['name']);

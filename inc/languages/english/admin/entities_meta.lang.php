@@ -31,13 +31,13 @@ $lang['representativeexists']=  "A representative with the same name already exi
 $lang['representativecreated'] = "The representative was successfully created";
 $lang['errorcreatingreprentative'] = "Error creating representative"; 
 
+$lang['potentialcusotmer'] = 'Potential Customer';
 $lang['contractualinformation'] = "Contractual Information";
 $lang['initialcontractsign'] = "Initial contract signature";
 $lang['expirydate'] = "Expiry date";
 $lang['contractevergreen'] = "Contract is evergreen";
 $lang['cancelpriornotice'] = "Cancelation prior notice (Months)";
 $lang['setentitylogo'] = "Set Entity Logo";
-
 $lang['nosuppliersavailable'] = "No suppliers are available";
 $lang['nocustomersavailable'] = "No customers are available";
 

@@ -21,6 +21,7 @@ if(!$core->input['action']) {
 
 	$affid = $db->escape_string($core->input['affid']);
 
+		$addmarketdata_link = '<div style="float:right;margin:-10px;" title="'.$lang->addmarket.'" ><a href="#" id="showpopup_profilesmarketdata" class="showpopup"><img  alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/marketintelligence.png" width="44px;" height="44px;"/></a></div>';
 	$query = $db->query("SELECT * FROM ".Tprefix."affiliates a LEFT JOIN ".Tprefix."workshifts ws ON (a.defaultWorkshift=ws.wsid) WHERE affid={$affid}");
 
 	while($profile = $db->fetch_assoc($query)) {
@@ -209,6 +210,7 @@ if(!$core->input['action']) {
 			}
 			eval("\$private_section = \"".$template->get('profiles_affiliateprofile_privatesection')."\";");
 		}
+		eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
 		eval("\$profilepage = \"".$template->get('profiles_affiliateprofile')."\";");
 	}
 	output_page($profilepage);

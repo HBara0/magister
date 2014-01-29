@@ -20,15 +20,27 @@
                         var action = 'getentityusers';
                     }
                     else
-                                {
-                                                var action = 'getallusers';
-                                            }
+                    {
+                                    var action = 'getallusers';
+                                }
 
-                                            sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=" + action, "affid=" + ids[1] + '&eid=' + ids[2], 'entityusers', 'entityusers', true);
-                                        });
+                                sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=" + action, "affid=" + ids[1] + '&eid=' + ids[2], 'entityusers', 'entityusers', true);
+                            });
             {$header_rmljs}
             {$header_ratingjs}
-                                    });
+
+                            $('div[id^="markettimeline_"]').click(function() {
+                                var id = $(this).attr("id").split('_');
+                                var link = $('div[id^="previoustimelinecontainer_' + id[1] + '"]');
+                                // Exit and stop ajax request  if the data is loaded already
+                                if (link.data('dataloaded') === true) {
+                                    $('div[id^="previoustimelinecontainer_' + id[1] + '"]').slideToggle("slow");
+                                    return false;
+                                }
+
+                                sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=parse_previoustimeline", "cfpid=" + id[1], 'markettimeline_' + id[1] + '', 'previoustimelinecontainer_' + id[1] + '', true, 'animate');
+                            });
+                        });
         </script>
     </head>
     <body>
@@ -75,10 +87,31 @@
                 </tr>
                 {$products_section}
                 {$meetings_section}
-                {$reports_section}
-                {$entityprofile_private}
+                <tr><td colspan="2" class="thead">{$lang->Brandsendproducts}...</td></tr>
+                                        <div style="width:100%; height:100px; overflow:auto; display:inline-block; vertical-align:top;">
 
             </table>
+                <tr><td class="thead" colspan="2">{$lang->detlmrktbox} {$addmarketdata_link}</td></tr>
+                <tr>
+                    <td colspan="3">
+                        <div class="timeline_container">
+                            <div class="timeline_entry"> 
+                                <div>
+                                    <div class="timeline_column timeline_column_heading" style="width:15%;">{$lang->item}</div> 
+                                    <div class="timeline_column timeline_column_heading" style="width:15%;">{$lang->endproduct}</div> 
+                                    <div class="timeline_column timeline_column_heading">{$lang->annualpotential}</div>
+                                    <div class="timeline_column timeline_column_heading">{$lang->price}</div>
+                                    <div class="timeline_column timeline_column_heading">{$lang->marketshare}</div>
+                                    <div class="timeline_column timeline_column_heading">{$lang->marketshareqty}</div>
+                                    <div class="timeline_column timeline_column_heading" style="width:1%;"></div> 
+                                </div>
+                            </div>
+                            {$detailmarketbox}
+                        </div> 
+                    </td>
+                </tr>
+                {$reports_section}
+                {$entityprofile_private}
         </td></tr>
         {$footer}
 </body>
