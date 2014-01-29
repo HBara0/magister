@@ -415,7 +415,7 @@ $(function() {
 
     $('input[title],a[title],div[title]').qtip({style: {classes: 'ui-tooltip-green ui-tooltip-shadow'}, show: {event: 'focus mouseenter', solo: true}, hide: 'unfocus mouseleave', position: {viewport: $(window)}});
 
-    function popUp(module, template, id) {
+ function popUp(module, template, id) {
         if (id != 'users.php') {
             if (sharedFunctions.checkSession() == false) {
                 return;
@@ -444,61 +444,73 @@ $(function() {
             file = rootdir + id;
         }
 
-        $.post(file,
-                {module: module, action: "get_" + template, id: id},
+        /*change ajax call*/
+        $.ajax({type: 'post',
             url: file + "?module=" + module + "&action=get_" + template,
             data: "id=" + id,
             beforeSend: function() {
+                $("body").append("<div id='modal-loading'><span  style='display:block; width:100px; height: 100%; margin: 0 auto;'><img  src='./images/loader.gif'/></span></div>");
+                $("#modal-loading").dialog({height: 150, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
 
+                });
+            },
+            complete: function() {
+                $("#modal-loading").dialog("close").remove();
+            },
             success: function(returnedData) {
-            $(".contentContainer").append(returnedData);
+                $(".contentContainer").append(returnedData);
 
-            $("div[id^='popup_']").dialog({
-                bgiframe: true,
-                closeOnEscape: true,
-                modal: true,
-                width: 460,
-                maxWidth: 460,
-                zIndex: 1000,
-                close: function() {
-                    $(this).find("form").each(function() {
-                        this.reset();
-                    });
-                    $(this).find("span[id$='_Validation']").empty();
-                    $(this).find("span[id$='_Results']").empty();
-                    $(this).remove();
-                }
-            });
-            //$("#popupBox").html(returnedData).show("slow");
-            //$("#popupBox").draggable();
-            //	$("input[id$='_QSearch']").keyup(QSearch);
-            //$("input[id='email']").keyup(validateEmailInline);
-            $("input[id='email']").change(validateEmailInline);
-            /*$("input[id$='_Button']").click(function() {
-             if($.cookie(cookie_prefix + 'uid') == null) {
-             window.location = window.location;
-             }
-             var id =  $(this).attr("id").split("_");
-             
-             var formid = '';
-             for(var i=0;i<id.length-1;i++) {
-             formid += id[i]+ "_";
-             }
-             
-             var formData = $("form[id='" + formid +"Form']").serialize();
-             var url = "index.php?module=" + id[id.length-2];
-             
-             if(!formData.match(/action=[A-Za-z0-9]+/)) {
-             url += "&action=save_" + id[1];
-             }
-             
-             sharedFunctions.requestAjax("post", url, formData, formid + "Results", formid + "Results");
-             });	*/
-            $("input[id='hide_popupBox']").click(function() {
-                $("#popupBox").hide("fast");
-            });
-        }
-        );
+                $("div[id^='popup_']").dialog({
+                    bgiframe: true,
+                    closeOnEscape: true,
+                    modal: true,
+                    width: 460,
+                    maxWidth: 460,
+                    zIndex: 1000,
+                    close: function() {
+                        $(this).find("form").each(function() {
+                            this.reset();
+                        });
+                        $(this).find("span[id$='_Validation']").empty();
+                        $(this).find("span[id$='_Results']").empty();
+                        $(this).remove();
+                    }
+                });
+                //$("#popupBox").html(returnedData).show("slow");
+                //$("#popupBox").draggable();
+                //	$("input[id$='_QSearch']").keyup(QSearch);
+                //$("input[id='email']").keyup(validateEmailInline);
+                $("input[id='email']").change(validateEmailInline);
+                /*$("input[id$='_Button']").click(function() {
+                 if($.cookie(cookie_prefix + 'uid') == null) {
+                 window.location = window.location;
+                 }
+                 var id =  $(this).attr("id").split("_");
+                 
+                 var formid = '';
+                 for(var i=0;i<id.length-1;i++) {
+                 formid += id[i]+ "_";
+                 }
+                 
+                 var formData = $("form[id='" + formid +"Form']").serialize();
+                 var url = "index.php?module=" + id[id.length-2];
+                 
+                 if(!formData.match(/action=[A-Za-z0-9]+/)) {
+                 url += "&action=save_" + id[1];
+                 }
+                 
+                 sharedFunctions.requestAjax("post", url, formData, formid + "Results", formid + "Results");
+                 });	*/
+                $("input[id='hide_popupBox']").click(function() {
+                    $("#popupBox").hide("fast");
+                });
+            }
+
+        });
+        // $.post(file,
+        // {module: module, action: "get_" + template, id: id},
+
+        //);
     }
 
     $("a[href='#'][id^='approve_']").click(function() {
