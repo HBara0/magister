@@ -19,7 +19,7 @@ if($_REQUEST['authkey'] == 'ac43bghy!h4k23jh4k2_3h4k23jh') {
 		}
 		if(is_array($unmet_chemrequests)) {
 			$email_data = array(
-					'to' => 'tony.assaad@orkila.com',
+					'to' => 'sourcing@orkila.co',
 					'from_email' => $core->settings['maileremail'],
 					'from' => 'OCOS Mailer',
 					'subject' => $lang->unmetchemicalsubject,

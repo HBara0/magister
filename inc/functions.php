@@ -1472,5 +1472,13 @@ function encapsulate_in_fieldset($html, $legend = "+", $boolStartClosed = false)
   ";
 	return $rtn;
 }
+function formatit($number) {
+	if(isset($number)) {
+		return str_pad(round(number_format($number, 6, '.', ''), 6), 11, ' ', STR_PAD_LEFT);
+	}
+	else {
+		return str_pad('-', 11, ' ', STR_PAD_LEFT);
+	}
+}
 
 ?>
