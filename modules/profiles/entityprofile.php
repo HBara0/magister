@@ -49,24 +49,29 @@ if(!$core->input['action']) {
 	/* Market Data --START */
 	$filter_where = 'eid IN ('.$eid.')';
 	if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
-		$addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarket.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
-		$field = '<input type="text" required="required" size="25" name="marketdata[cfpid]" id="chemfunctionproducts_1_QSearch" size="100"  autocomplete="off"/>
-                  <input type="hidden"  id="chemfunctionproducts_1_id" name="marketdata[cfpid]" />
-				  <input type="hidden" value="1" id="userproducts" name="userproducts" />
-				<div id="searchQuickResults_1" class="searchQuickResults" style="display:none;"></div>';
+			$addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarket.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
 		$array_data = array('module' => 'profiles', 'elemtentid' => $eid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
 		/* to be replacing the below variables */
 		$module = 'profiles';
 		$elemtentid = $eid;
 		$elementname = 'marketdata[cid]';
-		$lang->fieldlabel = $lang->product;
 		$action = 'do_addmartkerdata';
 		$modulefile = 'entityprofile';
+		eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
 
 		/* View detailed market intelligence box --START */
+		$maktintl_mainobj = new Marketintelligence();
 		$maktintl_objs = $maktintl_mainobj->get_marketintelligence_timeline($eid, array('currentyear' => 1, 'customer' => 1));
+		if(is_array($maktintl_objs)) {
 			$timedepth = 25;
 			$height = 25;
+			$round_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice');
+			foreach($maktintl_objs as $maktintl_obj) {
+				$altrow_class = alt_row($altrow_class);
+				$mktintldata = $maktintl_obj->get();
+				foreach($round_fields as $round_field) {
+					$mktintldata[$round_field] = round($mktintldata[$round_field]);
+				}
 				$entity_brdprd_objs = $maktintl_obj->get_entitiesbrandsproducts();
 				$entity_brandproducts = $entity_brdprd_objs->get();
 
@@ -82,7 +87,10 @@ if(!$core->input['action']) {
 					continue;
 				}
 				eval("\$detailmarketbox .= \"".$template->get('profiles_entityprofile_mientry')."\";");
-	//$profile = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid={$eid}"));
+			}
+		}
+		/* View detailed market intelligence box --END */
+	}
 	if(!empty($profile['building'])) {
 		$profile['fulladdress'] .= $profile['building'].' - ';
 	}
@@ -536,8 +544,8 @@ else {
 	}
 		$mrktintl_detials['endproduct'] = $mrktint_obj->get_entitiesbrandsproducts()->get_endproduct()->get()['title'];
 	}
-}
-	elseif($core->input['action'] == 'parse_previoustimeline') {
+		
+	 if($core->input['action'] == 'parse_previoustimeline') {
 		$cfpid = $db->escape_string($core->input['cfpid']);
 		$mrktint_obj = new Marketintelligence();
 		$mrkt_objs = $mrktint_obj->get_marketintelligence_timeline($cfpid, array('prevyear' => 1, 'filterchemfunctprod' => 1));
