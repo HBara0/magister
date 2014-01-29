@@ -536,6 +536,7 @@ else {
 	}
 		$mrktintl_detials['endproduct'] = $mrktint_obj->get_entitiesbrandsproducts()->get_endproduct()->get()['title'];
 	}
+}
 	elseif($core->input['action'] == 'parse_previoustimeline') {
 		$cfpid = $db->escape_string($core->input['cfpid']);
 		$mrktint_obj = new Marketintelligence();
