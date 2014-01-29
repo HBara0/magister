@@ -422,16 +422,16 @@ else {
 				$approvers = array_unique($approvers);
 			}
 
-			if(is_array($toapprove_select) && !empty($toapprove_select)) {
-				$secondapprovers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
-									  FROM ".Tprefix."affiliates
-									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
-			}
+//			if(is_array($toapprove_select) && !empty($toapprove_select)) {
+//				$secondapprovers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
+//									  FROM ".Tprefix."affiliates
+//									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
+//			}
 
-			if(is_array($secondapprovers)) {
-				$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
-				unset($secondapprovers);
-			}
+//			if(is_array($secondapprovers)) {
+//				$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
+//				unset($secondapprovers);
+//			}
 
 			if(is_array($approvers)) {
 				foreach($approvers as $key => $val) {

@@ -203,7 +203,7 @@ else {
 		}
 
 		$notification_required = false;
-		$current_leave_info = $db->fetch_assoc($db->query("SELECT fromDate, toDate, type, requestKey, affid, limitedEmail, affid, spid, cid, coid, ceid FROM ".Tprefix."leaves WHERE lid='{$lid}'"));
+		$current_leave_info = $db->fetch_assoc($db->query("SELECT fromDate, toDate, type, requestKey, affid, limitedEmail, affid, spid, cid, coid, ceid, kiid FROM ".Tprefix."leaves WHERE lid='{$lid}'"));
 		foreach($current_leave_info as $key => $val) {
 			$old_leave_info[$key] = $val;
 			if(!empty($core->input[$key])) {
