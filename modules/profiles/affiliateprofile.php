@@ -21,6 +21,13 @@ if(!$core->input['action']) {
 
 	$affid = $db->escape_string($core->input['affid']);
 
+	if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
+		$addmarketdata_link = '<div style="float:right;margin:-10px;" title="'.$lang->addmarket.'" ><a href="#" id="showpopup_profilesmarketdata" class="showpopup"><img  alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/marketintelligence.png" width="44px;" height="44px;"/></a></div>';
+//		$field = '<input type="text" required="required" name="eid" id="customer_0_QSearch" value="" autocomplete="off"/>
+//                    <input type="hidden"  id="customer_0_id" name="marketdata[cid]" />
+//					<div id="searchQuickResults_0" class="searchQuickResults" style="display:none;"></div>';
+		//eval("\$profiles_affiliateprofile_micustomerentry = \"".$template->get('profiles_affiliateprofile_micustomerentry')."\";");
+		eval("\$profiles_entityprofile_micustomerentry = \"".$template->get('profiles_micustomerentry')."\";");
 	$query = $db->query("SELECT * FROM ".Tprefix."affiliates a LEFT JOIN ".Tprefix."workshifts ws ON (a.defaultWorkshift=ws.wsid) WHERE affid={$affid}");
 
 	while($profile = $db->fetch_assoc($query)) {
@@ -209,6 +216,7 @@ if(!$core->input['action']) {
 			}
 			eval("\$private_section = \"".$template->get('profiles_affiliateprofile_privatesection')."\";");
 		}
+		eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
 		eval("\$profilepage = \"".$template->get('profiles_affiliateprofile')."\";");
 	}
 	output_page($profilepage);
@@ -237,5 +245,7 @@ else {
 		$entityusers_list_output = "<ul style='list-style:none; padding:2px; margin-top: 0px;'>{$entityusers_list}</ul> ";
 		echo $entityusers_list_output;
 	}
+	elseif($core->input['action'] == 'get_entityendproduct') {
+					$endproducts_objs = $entbrandsproducts_obj->get_producttypes(); //Entbrandsproducts::get_endproducts($entbrandsproducts['ebid']);
 }
 ?>

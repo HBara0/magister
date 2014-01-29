@@ -318,7 +318,7 @@ $(function() {
         return true
     });
 
-   $("a[id='resetpassword']").live('click', function() {
+    $("a[id='resetpassword']").live('click', function() {
         $("#logincontent").hide();
         $("#resetpasswordcontent").show();
     });
@@ -376,7 +376,7 @@ $(function() {
                 );
     }
 
-    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").click(function() {
+    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click',function() {
         var id = $(this).attr("id").split("_");
         popUp(id[2], id[0], id[1]);
     });
@@ -444,9 +444,13 @@ $(function() {
             file = rootdir + id;
         }
 
-        $.post(file,
-                {module: module, action: "get_" + template, id: id},
-        function(returnedData) {
+        /*change ajax call*/
+        $.ajax({type: 'post',
+            url: file + "?module=" + module + "&action=get_" + template,
+            data: "id=" + id,
+            beforeSend: function() {
+
+            success: function(returnedData) {
             $(".contentContainer").append(returnedData);
 
             $("div[id^='popup_']").dialog({
@@ -554,7 +558,7 @@ $(function() {
     });
 
     window.sharedFunctions = function() {
-        function requestAjax(methodParam, urlParam, dataParam, loadingId, contentId, datatype) {
+        function requestAjax(methodParam, urlParam, dataParam, loadingId, contentId, datatype, options) {
             //var datatype = 'html';
             /* Check if value = 1 just to ensure background compatibility with previous code */
             if (datatype == 1) {
@@ -563,20 +567,23 @@ $(function() {
             if (typeof datatype == "undefined") {
                 datatype = 'xml'
             }
+            var image_name = 'loading-bar.gif';
+            if (options == 'animate') {
+                var image_name = 'ajax-loader.gif';
+            }
 
             $.ajax({type: methodParam,
                 url: urlParam,
                 data: dataParam,
                 beforeSend: function() {
-                    $("div[id='" + loadingId + "'],span[id='" + loadingId + "']").html("<img style='padding: 5px;' src='" + imagespath + "/loading-bar.gif' alt='" + loading_text + "' border='0' />");
+                    $("div[id='" + loadingId + "'],span[id='" + loadingId + "']").html("<img style='padding: 5px;' src='" + imagespath + "/" + image_name + "'' alt='" + loading_text + "' border='0' />");
                 },
                 complete: function() {
                     if (loadingId != contentId) {
                         $("#" + loadingId).empty();
                     }
                 },
-                success: function(returnedData) {
-            alert(returnedData);
+                success: function(returnedData) { alert(returnedData);
                     if (datatype == 'xml') {
                         if ($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -585,10 +592,18 @@ $(function() {
                         }
 
                         $("div[id='" + contentId + "'],a[id='" + contentId + "'],span[id='" + contentId + "']").html("<span class='" + spanClass + "'><img src='" + imagespath + "/" + $(returnedData).find('status').text() + ".gif' border='0' />&nbsp;" + $(returnedData).find('message').text() + "</span>");
+
                     }
                     else
                     {
                         $("#" + contentId).html($.trim(returnedData));
+                        if (options != "undefined") {
+                            if (options == 'animate') {
+                                $("#" + contentId).slideDown("slow");
+                                // If successful, bind 'loaded' in the data
+                                $("#" + contentId).data('dataloaded', true)
+                            }
+                        }
                     }
                 }//,
                // dataType: datatype
