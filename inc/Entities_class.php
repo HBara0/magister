@@ -642,5 +642,24 @@ class Entities {
 		return false;
 	}
 
+	public function get_parent() {
+		if(isset($this->data['parent']) && !empty($this->data['parent'])) {
+			return new Entities($this->data['parent']);
+		}
+		return false;
+	}
+	
+	public function get_brands() {
+		global $db;
+
+		$query = $db->query('SELECT ebid FROM '.Tprefix.'entitiesbrands WHERE eid="'.$db->escape_string($this->data['eid']).'"');
+		while($brand = $db->fetch_assoc($query)) {
+			$brands[$brand['ebid']] = new EntitiesBrands($brand['ebid']);
+		}
+		return $brands;
+
+		return false;
+	}
+
 }
 ?>
