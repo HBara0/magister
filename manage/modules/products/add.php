@@ -43,7 +43,7 @@ if(!$core->input['action']) {
 		eval("\$admin_products_addedit_segmentsapplicationsfunctions_rows .= \"".$template->get("admin_products_addedit_segmentsapplicationsfunctions_rows")."\";");
 	}
 
-	$chemicalp_rowid = ($core->input['val'] + 1); echo $chemicalp_rowid;
+	$chemicalp_rowid = ($core->input['val'] + 1);
 	$chemrows = '<tr id='.$chemicalp_rowid.'> <td colspan="2">'.$lang->chemicalsubstances.'</td><td> <input type="text" value="'.$product['chemicalsubstances'][$key]['name'].'" id=chemicalproducts_'.$chemicalp_rowid.'_QSearch autocomplete="off" size="40px"/> 
 				  <input type="hidden" id="chemicalproducts_'.$chemicalp_rowid.'_id" name="chemsubstances['.$chemicalp_rowid.'][csid]"  value="'.$product['chemicalsubstances'][$key]['csid'].'"/>
 					   <div id="searchQuickResults_chemicalproducts_'.$chemicalp_rowid.'" class="searchQuickResults" style="display:none;"></div> </td>

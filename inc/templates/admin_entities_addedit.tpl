@@ -5,18 +5,20 @@
         <script language="javascript" type="text/javascript">
             $(function() {
                 if ($("select[id='type']").val() != 's') {
-                    $("tr[id^='contractsection_'],tr[id='supplierType']").hide();
+                    $("tr[id^='contractsection_']").hide();
+                    $("tr[id='supplierType']").hide();
                 }
 
                 $("select[id='type']").change(function() {
-                    if ($(this).val() == 's') {
+                    if ($(this).val() == 's' || $(this).val() == 'cs' || $(this).val() == 'potentialsupplier') {
                         $("#createReports,#noQReportReq,#noQReportSend").removeAttr("disabled");
-                        $("tr[id^='contractsection_'],tr[id='supplierType']").show();
+                        $("tr[id^='contractsection_']").show();
+                        $("tr[id='supplierType']").show();
                     }
-                    else
-                    {
+                    else {
                         $("#createReports,#noQReportReq,#noQReportSend").attr("disabled", "true");
-                        $("tr[id^='contractsection_'],tr[id='supplierType").hide();
+                        $("tr[id^='contractsection_']").hide();
+                        $("tr[id='supplierType").hide();
                     }
                 });
 
@@ -25,11 +27,11 @@
                         $("#createReports,#noQReportSend").attr("disabled", "true");
                     }
                     else
-                    {
-                        $("#createReports,#noQReportSend").removeAttr("disabled");
-                    }
-                });
-            });
+                     {
+                                     $("#createReports,#noQReportSend").removeAttr("disabled");
+                                 }
+                             });
+                         });
         </script>
     </head>
     <body>

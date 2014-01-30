@@ -59,7 +59,7 @@ if($core->input['type'] == 'quick') {
 				$extra_where .= '  type="'.$type.'" AND isPotential="'.$ispotential.'"';
 			}
 		}
-		if($core->input['for'] == 'supplier' || $core->input['for'] == 'customer' || $core->input['for'] == 'competitorsupp' || $core->input['for'] == 'competitortradersupp' || $core->input['for'] == 'competitorproducerrsupp') {
+		if($core->input['for'] == 'supplier' || $core->input['for'] == 'customer' || $core->input['for'] == 'competitorsupp' || $core->input['for'] == 'competitortradersupp' || $core->input['for'] == 'competitorproducersupp') {
 			if($core->input['for'] == 'supplier') {
 				$type = 's';
 				if($core->usergroup['canViewAllSupp'] == 0) {
@@ -75,9 +75,10 @@ if($core->input['type'] == 'quick') {
 				$type = 'cs';
 				$extra_where = 'supplierType="trader"';
 			}
-			elseif($core->input['for'] == 'competitorproducerrsupp') {
+			elseif($core->input['for'] == 'competitorproducersupp') {
 				$type = 'cs';
 				$extra_where = 'supplierType="producer"';
+			
 			}
 			else {
 				$type = 'c';
@@ -89,7 +90,6 @@ if($core->input['type'] == 'quick') {
 									join affiliates aff on (aff.affid=affe.affid) where aff.affid in('.implode(',', $core->user['affiliates']).') and e.type="'.$type.'")';
 				}
 			}
-ECHO $extra_where;
 			$table = 'entities';
 			$attributes = array('companyName', 'companyNameAbbr');
 			$key_attribute = 'eid';

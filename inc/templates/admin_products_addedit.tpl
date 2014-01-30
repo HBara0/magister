@@ -58,7 +58,7 @@
                                 <tody id="chemicalslist_tbody">
                                     <tr id="1">
                                         <td colspan="0">  
-                                            <div  id="chemicalsubstances" style="width:100% ;height:200px; overflow:auto; display:inline-block; vertical-align:top;">
+                                            <div  id="chemicalsubstances" style="width:100% ;height:120px; overflow:auto; display:inline-block; vertical-align:top;">
                                                 <table class="datatable" width="100%">
 
                                                     <tbody id="chemicalproduct_tbody" >
