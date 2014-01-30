@@ -625,7 +625,7 @@ class Entities {
 			$meetings_sharedwith = Meetings::get_meetingsshares_byuser();
 			$filters .= ' AND (mtid IN (SELECT mtid FROM '.Tprefix.'meetings WHERE isPublic=1 OR createdBy='.$core->user['uid'].')';
 			if(is_array($meetings_sharedwith)) {
-				$filters .= ' OR (mtid IN ('.implode(', ', array_keys($meetings_sharedwith)).'))';
+				$filters .= ' OR (mtid IN ('.implode(', ', array_keys($meetings_sharedwith)).')';
 			}
 			$filters .= ')';
 		}
@@ -639,6 +639,25 @@ class Entities {
 			}
 			return $meetings;
 		}
+		return false;
+	}
+
+	public function get_parent() {
+		if(isset($this->data['parent']) && !empty($this->data['parent'])) {
+			return new Entities($this->data['parent']);
+		}
+		return false;
+	}
+	
+	public function get_brands() {
+		global $db;
+
+		$query = $db->query('SELECT ebid FROM '.Tprefix.'entitiesbrands WHERE eid="'.$db->escape_string($this->data['eid']).'"');
+		while($brand = $db->fetch_assoc($query)) {
+			$brands[$brand['ebid']] = new EntitiesBrands($brand['ebid']);
+		}
+		return $brands;
+
 		return false;
 	}
 

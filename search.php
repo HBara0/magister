@@ -44,7 +44,22 @@ if($core->input['type'] == 'quick') {
 	}
 
 	if(isset($core->input['for'])) {
-		if($core->input['for'] == 'supplier' || $core->input['for'] == 'customer') {
+
+		if($core->input['for'] == 'potentialsupplier' || $core->input['for'] == 'potentialcustomer') {
+
+			if($core->input['for'] == 'potentialcustomer') {
+				$type = 'pc';
+			}
+			$table = 'entities';
+			$attributes = array('companyName', 'companyNameAbbr');
+			$key_attribute = 'eid';
+			$select_attributes = array('companyName');
+			$order = array('by' => 'companyName', 'sort' => 'ASC');
+			if(!empty($ispotential)) {
+				$extra_where .= '  type="'.$type.'" AND isPotential="'.$ispotential.'"';
+			}
+		}
+		if($core->input['for'] == 'supplier' || $core->input['for'] == 'customer' || $core->input['for'] == 'competitorsupp' || $core->input['for'] == 'competitortradersupp' || $core->input['for'] == 'competitorproducerrsupp') {
 			if($core->input['for'] == 'supplier') {
 				$type = 's';
 				if($core->usergroup['canViewAllSupp'] == 0) {
@@ -52,14 +67,29 @@ if($core->input['type'] == 'quick') {
 					$extra_where = 'eid IN ('.$inentities.')';
 				}
 			}
+			elseif($core->input['for'] == 'competitorsupp') {
+				$type = 'cs';
+				$extra_where = 'supplierType="trader" OR  supplierType="producer"  OR  supplierType="" ';
+			}
+			elseif($core->input['for'] == 'competitortradersupp') {
+				$type = 'cs';
+				$extra_where = 'supplierType="trader"';
+			}
+			elseif($core->input['for'] == 'competitorproducerrsupp') {
+				$type = 'cs';
+				$extra_where = 'supplierType="producer"';
+			}
 			else {
 				$type = 'c';
-				if($core->usergroup['canViewAllCust'] == 0) {
+				if($core->usergroup['canViewAllCust'] == 1) {
 					$inentities = implode(',', $core->user['customers']);
 					$extra_where = 'eid IN ('.$inentities.')';
+					$extra_where = 'eid IN (SELECT affe.eid FROM  affiliatedentities  affe
+									join entities e on (e.eid=affe.eid) 
+									join affiliates aff on (aff.affid=affe.affid) where aff.affid in('.implode(',', $core->user['affiliates']).') and e.type="'.$type.'")';
 				}
 			}
-
+ECHO $extra_where;
 			$table = 'entities';
 			$attributes = array('companyName', 'companyNameAbbr');
 			$key_attribute = 'eid';
@@ -85,12 +115,31 @@ if($core->input['type'] == 'quick') {
 			if(isset($core->input['rid']) && !empty($core->input['rid'])) {
 				$extra_where .= 'spid = "'.$report_data['spid'].'"';
 			}
-
+			if($core->usergroup['canViewAllsupp'] == 0) {
+				$supplier_filter = "spid IN('".implode(',', $core->user['suppliers']['eid'])."')";
+			}
+//			if(isset($core->input['userproducts'])) {
+//				$supplier_filter = "spid IN('".implode(',', $core->user['suppliers']['eid'])."')";
+//			}
 			if(!empty($supplier_filter)) {
 				$extra_where .= $supplier_filter;
 			}
 
 			$table = 'products';
+			$attributes = array('name');
+			$key_attribute = 'pid';
+			$select_attributes = array('name');
+			$order = array('by' => 'name', 'sort' => 'ASC');
+		}
+		elseif($core->input['for'] == 'chemfunctionproducts') {
+			if($core->usergroup['canViewAllsupp'] == 0) {
+				$supplier_filter = "spid IN('".implode(',', $core->user['suppliers']['eid'])."')";
+			}
+			if(!empty($supplier_filter)) {
+				//$extra_where = $supplier_filter;
+			}
+			$table = 'products';
+			$flagtable = 'chemfunctionproducts';
 			$attributes = array('name');
 			$key_attribute = 'pid';
 			$select_attributes = array('name');
@@ -159,7 +208,7 @@ if($core->input['type'] == 'quick') {
 			}
 		}
 
-		$results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, $order, $extra_where);
+		$results_list = quick_search($table, $flagtable, $attributes, $core->input['value'], $select_attributes, $key_attribute, $order, $extra_where);
 		$referrer = explode('&', $_SERVER['HTTP_REFERER']);
 		$module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);
 		if($core->input['for'] == 'supplier') {

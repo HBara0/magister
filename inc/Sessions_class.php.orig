@@ -27,7 +27,14 @@ class Sessions {
 			if($core->user_obj) {
 				$core->user = $core->user_obj->get();
 				unset($core->user['password'], $core->user['salt']);
-				$core->user_obj->read_usergroupsperm();
+<<<<<<< HEAD
+
+				$query2 = $db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid='".$core->user['gid']."'");
+				$core->usergroup = $db->fetch_assoc($query2);
+
+=======
+				$user->read_usergroupsperm();
+>>>>>>> feature-advusergroups
 				/* $auditing = $db->query("SELECT eid FROM ".Tprefix."suppliersaudits WHERE uid='".$this->uid."'");
 				  if($db->num_rows($auditing) > 0) {
 				  while($auditfor = $db->fetch_assoc($auditing)) {
@@ -132,7 +139,7 @@ class Sessions {
 			  } */
 
 			if((TIME_NOW - $session_information['time']) > (60 * 5)) {
-				$db->update_query('users', array('lastVisit' => TIME_NOW), "uid='".$this->uid."'");
+				$db->update_query("users", array('lastVisit' => TIME_NOW), "uid='".$this->uid."'");
 				$db->update_query('sessions', array('time' => TIME_NOW), "sid='".$this->sid."'");
 				$this->create_cookie('sid', $this->sid, (TIME_NOW + (60 * $core->settings['idletime']))); //60*SESSION_EXPIRE
 				$this->create_cookie('uid', $this->uid, (TIME_NOW + (60 * $core->settings['idletime'])));
@@ -198,7 +205,7 @@ class Sessions {
 			$ttl = $core->settings['idletime'];
 		}
 
-		session_set_cookie_params((60 * $ttl), COOKIE_PATH, COOKIE_DOMAIN);
+		session_set_cookie_params((TIME_NOW + (60 * $ttl)), COOKIE_PATH, COOKIE_DOMAIN);
 		session_start();
 	}
 

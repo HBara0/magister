@@ -14,9 +14,13 @@ $lang['editproductwithname'] = "Edit {1}";
 $lang['productedited'] = "Product {1} was successfully modified";
 $lang['erroreditingproduct'] = "An error occurred while editing the product";
 
+$lang['addnewchem']='Add New Chemical';
+$lang['createchemical'] = 'Create Chemical Substances';
 $lang['productalreadyexists'] = "A product with the same name already exists";
 $lang['noproductsavailable'] = "No products are yet available";
-
+$lang['chemicalname'] = 'Chemical Name';
+$lang['chemicalsynonym'] = 'Chemical Synonymes';
+$lang['createchemical_notes'] = 'Make sure to use a complete, valid, and existing chemical product name along to its CAS Number. <br />Always verify your chemcial names/CAS Numbers through specialized chemical databases before creating them.';
 $lang['standard'] = "Standard";
 $lang['itemweightmt'] = "Item Weight (MT)";
 $lang['package'] = "Package";
