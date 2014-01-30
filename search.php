@@ -69,7 +69,7 @@ if($core->input['type'] == 'quick') {
 			}
 			elseif($core->input['for'] == 'competitorsupp') {
 				$type = 'cs';
-				$extra_where = 'supplierType="trader" OR  supplierType="producer"  OR  supplierType="" ';
+				$extra_where = 'supplierType="trader" OR supplierType="producer" OR supplierType="" ';
 			}
 			elseif($core->input['for'] == 'competitortradersupp') {
 				$type = 'cs';
@@ -78,11 +78,10 @@ if($core->input['type'] == 'quick') {
 			elseif($core->input['for'] == 'competitorproducersupp') {
 				$type = 'cs';
 				$extra_where = 'supplierType="producer"';
-			
 			}
 			else {
 				$type = 'c';
-				if($core->usergroup['canViewAllCust'] == 1) {
+				if($core->usergroup['canViewAllCust'] == 0) {
 					$inentities = implode(',', $core->user['customers']);
 					$extra_where = 'eid IN ('.$inentities.')';
 					$extra_where = 'eid IN (SELECT affe.eid FROM  affiliatedentities  affe
