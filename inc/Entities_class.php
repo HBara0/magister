@@ -661,5 +661,17 @@ class Entities {
 		return false;
 	}
 
+	public function parse_link($attributes_param=array('target' => '_blank')) {
+		if(!empty($this->data['companyName'])) {
+			$this->data['companyName'] .= ' ('.$this->data['companyNameAbbr'].')';
+		}
+		
+		if(is_array($attributes_param)) {
+			foreach($attributes_param as $attr => $val) {
+				$attributes .= $attr.' "'.$val.'"';
+			}
+		}
+		return '<a href="index.php?module=profiles/entityprofile&eid='.$this->data['eid'].'" '.$attributes.'>'.$this->data['companyName'].'</a>';
+	}
 }
 ?>
