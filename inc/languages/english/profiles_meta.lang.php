@@ -45,6 +45,8 @@ $lang['endproduct'] = 'End Product Type';
 
 $lang['annualpotential'] = 'Annual Potential';
 $lang['item'] = 'Item';
+$lang['competitortrader'] = 'Competitor Trader';
+$lang['competitorprod'] = 'Competitor Producer';
 $lang['marketshare'] = 'Market Share %';
 $lang['marketshareqty'] = 'Market Share Qty';
 $lang['price'] = 'Unit Price';
