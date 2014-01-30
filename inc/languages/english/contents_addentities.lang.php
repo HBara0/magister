@@ -8,7 +8,7 @@ $lang['repname_title'] = 'Full name without title (i.e. without Mr., Ms etc...)'
 $lang['entitytype'] = "Entity type";
 $lang['listavailablesuppliers'] = "List of Available Suppliers";
 $lang['listavailablecustomers'] = "List of Available Customers";
-
+$lang['ispotential']='Is Potential';
 $lang['alsocreatecurrentreports'] = "Also create corresponding current quarter's reports";
 $lang['specifycompanyname'] = "Please specify a company name";
 $lang['specifyanaffiliate'] = "Please specify an affiliate";
@@ -21,7 +21,8 @@ $lang['invalidentityemail'] = "An invalid entity email was provided";
 
 $lang['companyname_title'] = 'Provide complete commercial name as the company name.';
 $lang['companynameabbr_title'] = 'Use <em>Abbr.</em> for abbreviation or short name.';
-
+$lang['potentialcusotmer'] = 'Potential Cusotmer';
+$lang['potentialsupplier'] = 'Potential Supplier';
 $lang['addnewrepresentative'] = "Add New Representative";
 $lang['specifyrepemail'] = "Specify representative email";
 $lang['specifyrepresentative'] = "Specify at least one represenative";
@@ -51,4 +52,16 @@ $lang['website'] = "Website";
 $lang['fax'] = "Fax";
 $lang['geolocation'] = "Geographic Location";
 $lang['longlattidue'] = "Longitude Latitude [space in between]";
+$lang['supptype']='Supplier Type';
+$lang['approved'] = "Approved";
+$lang['presence'] = "Presence";
+$lang['regional'] = "regional";
+$lang['local'] = "local";
+$lang['multinational'] = "multinational ";
+$lang['trader'] = 'Trader';
+$lang['producer'] = 'Producer';
+$lang['both'] = 'Both';
+$lang['cs'] = 'Competitor Supplier';
+$lang['parentcompany'] = 'Parent';
+$lang['companyshortname'] = 'Company Short Name';
 ?>

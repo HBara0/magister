@@ -38,11 +38,17 @@ if(!$core->input['action']) {
 
 	if($core->usergroup['canAddCustomers'] == 1) {
 		$types['c'] = $lang->customer;
+		$types['potentialcusotmer'] = $lang->potentialcusotmer;
 	}
 
 	if($core->usergroup['canAddSuppliers'] == 1) {
 		$types['s'] = $lang->supplier;
+		$types['potentialsupplier'] = $lang->potentialsupplier;
+		$types['cs'] = $lang->cs;
 	}
+	$supptypes = array('trader' => $lang->trader, 'producer' => $lang->producer, 'both' => $lang->both);
+	$presence = array('regional' => $lang->regional, 'local' => $lang->local, 'multinational' => $lang->multinational);
+	$supptypes_list = parse_selectlist('supplierType', 1, $supptypes, '', '', '', array('blankstart' => 1));
 	$types_list = parse_selectlist('type', 1, $types, $selected_type, '', '', array('required' => 'required'));
 	$segments_list = parse_selectlist("psid[]", 3, get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', 'title'), '', 1, '', array('required' => 'required'));
 
@@ -77,7 +83,17 @@ else {
 
 		$entity_data = $core->input;
 		unset($entity_data['module'], $entity_data['action'], $entity_data['createReports']);
-
+		if($entity_data['type'] == 'potentialcusotmer') {
+			$entity_data['isPotential'] = 1;
+			$entity_data['type'] = 'c';
+		}
+		elseif($entity_data['type'] == 'potentialsupplier') {
+			$entity_data['isPotential'] = 1;
+			$entity_data['type'] = 's';
+		}
+		else {
+			$entity_data['isPotential'] = 0;
+		}
 		$entity_data['approved'] = 1;
 		if($entity_data['type'] == 's') {
 			if($core->usergroup['canManageSuppliers'] == 0) {
@@ -85,7 +101,6 @@ else {
 			}
 		}
 		$entity_data['companyName'] = ucwords(strtolower($entity_data['companyName']));
-
 		$entity = new Entities($entity_data);
 		if($entity->get_status() === true) {
 			log_action($entity->get_eid());
@@ -187,7 +202,7 @@ else {
 		$representative = new Entities($core->input, 'add_representative');
 
 		if($representative->get_status() === true) {
-			header('Content-type: text/xml+javascript'); 
+			header('Content-type: text/xml+javascript');
 			output_xml('<status>true</status><message>{$lang->representativecreated}<![CDATA[<script>$("#popup_addrepresentative").dialog("close");</script>]]></message>');
 			//output_xml("<status>true</status><message>{$lang->representativecreated}</message>");
 			exit;
