@@ -41,7 +41,11 @@ class Affiliates {
 	}
 
 	public function get_hrmanager() {
-		return new Users($this->affiliate['supervisor']);
+		return new Users($this->affiliate['hrManager']);
+	}
+
+	public function get_financialemanager() {
+		return new Users($this->affiliate['finManager']);
 	}
 
 	public function get_users($options = array()) {

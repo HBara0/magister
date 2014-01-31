@@ -318,7 +318,7 @@ $(function() {
         return true
     });
 
-    $("a[id='resetpassword']").click(function() {
+    $("a[id='resetpassword']").live('click', function() {
         $("#logincontent").hide();
         $("#resetpasswordcontent").show();
     });
@@ -376,7 +376,7 @@ $(function() {
                 );
     }
 
-    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").click(function() {
+    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click',function() {
         var id = $(this).attr("id").split("_");
         popUp(id[2], id[0], id[1]);
     });
@@ -413,9 +413,9 @@ $(function() {
         popUp(id[1], id[0] + "_" + id[2]);
     });
 
-    $('input[title],a[title],div[title]').qtip({style: {classes: 'ui-tooltip-green ui-tooltip-shadow'}, show: {event: 'focus mouseenter', solo: true}, hide: 'unfocus mouseleave', position: {viewport: $(window)}});
+    $('input[title],a[title],div[title],span[title]').qtip({style: {classes: 'ui-tooltip-green ui-tooltip-shadow'}, show: {event: 'focus mouseenter', solo: true}, hide: 'unfocus mouseleave', position: {viewport: $(window)}});
 
-    function popUp(module, template, id) {
+function popUp(module, template, id) {
         if (id != 'users.php') {
             if (sharedFunctions.checkSession() == false) {
                 return;
@@ -444,57 +444,73 @@ $(function() {
             file = rootdir + id;
         }
 
-        $.post(file,
-                {module: module, action: "get_" + template, id: id},
-        function(returnedData) {
-            $(".contentContainer").append(returnedData);
+        /*change ajax call*/
+        $.ajax({type: 'post',
+            url: file + "?module=" + module + "&action=get_" + template,
+            data: "id=" + id,
+            beforeSend: function() {
+                $("body").append("<div id='modal-loading'><span  style='display:block; width:100px; height: 100%; margin: 0 auto;'><img  src='./images/loader.gif'/></span></div>");
+                $("#modal-loading").dialog({height: 150, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
 
-            $("div[id^='popup_']").dialog({
-                bgiframe: true,
-                closeOnEscape: true,
-                modal: true,
-                width: 460,
-                maxWidth: 460,
-                zIndex: 1000,
-                close: function() {
-                    $(this).find("form").each(function() {
-                        this.reset();
-                    });
-                    $(this).find("span[id$='_Validation']").empty();
-                    $(this).find("span[id$='_Results']").empty();
-                    $(this).remove();
-                }
-            });
-            //$("#popupBox").html(returnedData).show("slow");
-            //$("#popupBox").draggable();
-            //	$("input[id$='_QSearch']").keyup(QSearch);
-            //$("input[id='email']").keyup(validateEmailInline);
-            $("input[id='email']").change(validateEmailInline);
-            /*$("input[id$='_Button']").click(function() {
-             if($.cookie(cookie_prefix + 'uid') == null) {
-             window.location = window.location;
-             }
-             var id =  $(this).attr("id").split("_");
-             
-             var formid = '';
-             for(var i=0;i<id.length-1;i++) {
-             formid += id[i]+ "_";
-             }
-             
-             var formData = $("form[id='" + formid +"Form']").serialize();
-             var url = "index.php?module=" + id[id.length-2];
-             
-             if(!formData.match(/action=[A-Za-z0-9]+/)) {
-             url += "&action=save_" + id[1];
-             }
-             
-             sharedFunctions.requestAjax("post", url, formData, formid + "Results", formid + "Results");
-             });	*/
-            $("input[id='hide_popupBox']").click(function() {
-                $("#popupBox").hide("fast");
-            });
-        }
-        );
+                });
+            },
+            complete: function() {
+                $("#modal-loading").dialog("close").remove();
+            },
+            success: function(returnedData) {
+                $(".contentContainer").append(returnedData);
+
+                $("div[id^='popup_']").dialog({
+                    bgiframe: true,
+                    closeOnEscape: true,
+                    modal: true,
+                    width: 460,
+                    maxWidth: 460,
+                    zIndex: 1000,
+                    close: function() {
+                        $(this).find("form").each(function() {
+                            this.reset();
+                        });
+                        $(this).find("span[id$='_Validation']").empty();
+                        $(this).find("span[id$='_Results']").empty();
+                        $(this).remove();
+                    }
+                });
+                //$("#popupBox").html(returnedData).show("slow");
+                //$("#popupBox").draggable();
+                //	$("input[id$='_QSearch']").keyup(QSearch);
+                //$("input[id='email']").keyup(validateEmailInline);
+                $("input[id='email']").change(validateEmailInline);
+                /*$("input[id$='_Button']").click(function() {
+                 if($.cookie(cookie_prefix + 'uid') == null) {
+                 window.location = window.location;
+                 }
+                 var id =  $(this).attr("id").split("_");
+                 
+                 var formid = '';
+                 for(var i=0;i<id.length-1;i++) {
+                 formid += id[i]+ "_";
+                 }
+                 
+                 var formData = $("form[id='" + formid +"Form']").serialize();
+                 var url = "index.php?module=" + id[id.length-2];
+                 
+                 if(!formData.match(/action=[A-Za-z0-9]+/)) {
+                 url += "&action=save_" + id[1];
+                 }
+                 
+                 sharedFunctions.requestAjax("post", url, formData, formid + "Results", formid + "Results");
+                 });	*/
+                $("input[id='hide_popupBox']").click(function() {
+                    $("#popupBox").hide("fast");
+                });
+            }
+
+        });
+        // $.post(file,
+        // {module: module, action: "get_" + template, id: id},
+
+        //);
     }
 
     $("a[href='#'][id^='approve_']").click(function() {
@@ -554,7 +570,7 @@ $(function() {
     });
 
     window.sharedFunctions = function() {
-        function requestAjax(methodParam, urlParam, dataParam, loadingId, contentId, datatype) {
+        function requestAjax(methodParam, urlParam, dataParam, loadingId, contentId, datatype, options) {
             //var datatype = 'html';
             /* Check if value = 1 just to ensure background compatibility with previous code */
             if (datatype == 1) {
@@ -563,12 +579,16 @@ $(function() {
             if (typeof datatype == "undefined") {
                 datatype = 'xml'
             }
+            var image_name = 'loading-bar.gif';
+            if (options == 'animate') {
+                var image_name = 'ajax-loader.gif';
+            }
 
             $.ajax({type: methodParam,
                 url: urlParam,
                 data: dataParam,
                 beforeSend: function() {
-                    $("div[id='" + loadingId + "'],span[id='" + loadingId + "']").html("<img style='padding: 5px;' src='" + imagespath + "/loading-bar.gif' alt='" + loading_text + "' border='0' />");
+                    $("div[id='" + loadingId + "'],span[id='" + loadingId + "']").html("<img style='padding: 5px;' src='" + imagespath + "/" + image_name + "'' alt='" + loading_text + "' border='0' />");
                 },
                 complete: function() {
                     if (loadingId != contentId) {
@@ -576,7 +596,6 @@ $(function() {
                     }
                 },
                 success: function(returnedData) {
-            alert(returnedData);
                     if (datatype == 'xml') {
                         if ($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -585,13 +604,21 @@ $(function() {
                         }
 
                         $("div[id='" + contentId + "'],a[id='" + contentId + "'],span[id='" + contentId + "']").html("<span class='" + spanClass + "'><img src='" + imagespath + "/" + $(returnedData).find('status').text() + ".gif' border='0' />&nbsp;" + $(returnedData).find('message').text() + "</span>");
+
                     }
                     else
                     {
                         $("#" + contentId).html($.trim(returnedData));
+                        if (options != "undefined") {
+                            if (options == 'animate') {
+                                $("#" + contentId).slideDown("slow");
+                                // If successful, bind 'loaded' in the data
+                                $("#" + contentId).data('dataloaded', true)
+                            }
+                        }
                     }
-                }//,
-               // dataType: datatype
+                },
+                dataType: datatype
             });
         }
         function checkSession() {

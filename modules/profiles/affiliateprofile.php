@@ -21,197 +21,206 @@ if(!$core->input['action']) {
 
 	$affid = $db->escape_string($core->input['affid']);
 
-	$query = $db->query("SELECT * FROM ".Tprefix."affiliates a LEFT JOIN ".Tprefix."workshifts ws ON (a.defaultWorkshift=ws.wsid) WHERE affid={$affid}");
+	if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
+		$addmarketdata_link = '<div style="float:right;margin:-10px;" title="'.$lang->addmarket.'" ><a href="#" id="showpopup_profilesmarketdata" class="showpopup"><img  alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/marketintelligence.png" width="44px;" height="44px;"/></a></div>';
+//		$field = '<input type="text" required="required" name="eid" id="customer_0_QSearch" value="" autocomplete="off"/>
+//                    <input type="hidden"  id="customer_0_id" name="marketdata[cid]" />
+//					<div id="searchQuickResults_0" class="searchQuickResults" style="display:none;"></div>';
+		//eval("\$profiles_affiliateprofile_micustomerentry = \"".$template->get('profiles_affiliateprofile_micustomerentry')."\";");
+		eval("\$profiles_entityprofile_micustomerentry = \"".$template->get('profiles_micustomerentry')."\";");
+		$query = $db->query("SELECT * FROM ".Tprefix."affiliates a LEFT JOIN ".Tprefix."workshifts ws ON (a.defaultWorkshift=ws.wsid) WHERE affid={$affid}");
 
-	while($profile = $db->fetch_assoc($query)) {
-		if(!empty($profile['addressLine1'])) {
-			$profile['fulladdress'] .= $profile['addressLine1'].' ';
-		}
+		while($profile = $db->fetch_assoc($query)) {
+			if(!empty($profile['addressLine1'])) {
+				$profile['fulladdress'] .= $profile['addressLine1'].' ';
+			}
 
-		if(!empty($profile['addressLine2'])) {
-			$profile['fulladdress'] .= $profile['addressLine2'].', ';
-		}
+			if(!empty($profile['addressLine2'])) {
+				$profile['fulladdress'] .= $profile['addressLine2'].', ';
+			}
 
-		if(!empty($profile['city'])) {
-			$profile['fulladdress'] .= $profile['city'].' - ';
-		}
+			if(!empty($profile['city'])) {
+				$profile['fulladdress'] .= $profile['city'].' - ';
+			}
 
-		$profile['fax'] = '+'.$profile['fax'];
-		$profile['phone1'] = '+'.$profile['phone1'];
-		if(isset($profile['phone2']) && !empty($profile['phone2'])) {
-			$profile['phone2'] = '/+'.$profile['phone2'];
-		}
+			$profile['fax'] = '+'.$profile['fax'];
+			$profile['phone1'] = '+'.$profile['phone1'];
+			if(isset($profile['phone2']) && !empty($profile['phone2'])) {
+				$profile['phone2'] = '/+'.$profile['phone2'];
+			}
 
-		$management_query = $db->query("SELECT uid, CONCAT(firstName, ' ', lastName) AS generalManager FROM ".Tprefix."users WHERE uid IN ({$profile['supervisor']},{$profile['generalManager']},{$profile['hrManager']})");
-		while($management = $db->fetch_array($management_query)) {
-			$managers[$management['uid']] = $management['generalManager'];
-		}
+			$management_query = $db->query("SELECT uid, CONCAT(firstName, ' ', lastName) AS generalManager FROM ".Tprefix."users WHERE uid IN ({$profile['supervisor']},{$profile['generalManager']},{$profile['hrManager']})");
+			while($management = $db->fetch_array($management_query)) {
+				$managers[$management['uid']] = $management['generalManager'];
+			}
 
-		if($profile['generalManager'] == 0) {
-			$gm = $lang->na;
-		}
-		else {
-			$gm = "<a href='./users.php?action=profile&uid={$profile['generalManager']}' target='_blank'>".$managers[$profile['generalManager']]."</a>";
-		}
+			if($profile['generalManager'] == 0) {
+				$gm = $lang->na;
+			}
+			else {
+				$gm = "<a href='./users.php?action=profile&uid={$profile['generalManager']}' target='_blank'>".$managers[$profile['generalManager']]."</a>";
+			}
 
-		if($profile['supervisor'] == 0) {
-			$supervisor = $lang->na;
-		}
-		else {
-			$supervisor = "<a href='./users.php?action=profile&uid={$profile['supervisor']}' target='_blank'>".$managers[$profile['supervisor']]."</a>";
-		}
+			if($profile['supervisor'] == 0) {
+				$supervisor = $lang->na;
+			}
+			else {
+				$supervisor = "<a href='./users.php?action=profile&uid={$profile['supervisor']}' target='_blank'>".$managers[$profile['supervisor']]."</a>";
+			}
 
-		if($profile['hrManager'] == 0) {
-			$hr = $lang->na;
-		}
-		else {
-			$hr = "<a href='./users.php?action=profile&uid={$profile['hrManager']}' target='_blank'>".$managers[$profile['hrManager']]."</a>";
-		}
+			if($profile['hrManager'] == 0) {
+				$hr = $lang->na;
+			}
+			else {
+				$hr = "<a href='./users.php?action=profile&uid={$profile['hrManager']}' target='_blank'>".$managers[$profile['hrManager']]."</a>";
+			}
 
-		/* Parse default workshift - START */
-		if(!empty($profile['weekDays'])) {
-			$profile['weekDays'] = unserialize($profile['weekDays']);
-			if(is_array($profile['weekDays'])) {
-				foreach($profile['weekDays'] as $day) {
-					$profile['weekDays_output'] .= $comma.get_day_name($day, 'letters');
-					$comma = ', ';
+			/* Parse default workshift - START */
+			if(!empty($profile['weekDays'])) {
+				$profile['weekDays'] = unserialize($profile['weekDays']);
+				if(is_array($profile['weekDays'])) {
+					foreach($profile['weekDays'] as $day) {
+						$profile['weekDays_output'] .= $comma.get_day_name($day, 'letters');
+						$comma = ', ';
+					}
+					$profile['workshift'] = $profile['onDutyHour'].':'.$profile['onDutyMinutes'].' - '.$profile['offDutyHour'].':'.$profile['offDutyMinutes'].' ('.$profile['weekDays_output'].')';
 				}
-				$profile['workshift'] = $profile['onDutyHour'].':'.$profile['onDutyMinutes'].' - '.$profile['offDutyHour'].':'.$profile['offDutyMinutes'].' ('.$profile['weekDays_output'].')';
 			}
-		}
-		/* Parse default workshift - END */
+			/* Parse default workshift - END */
 
-		foreach($profile as $key => $val) {
-			if(empty($val)) {
-				$profile[$key] = $lang->na;
+			foreach($profile as $key => $val) {
+				if(empty($val)) {
+					$profile[$key] = $lang->na;
+				}
 			}
-		}
 
-		$countries_query = $db->query("SELECT coid, name FROM ".Tprefix."countries WHERE affid={$affid} ORDER BY name");
-		while($countries = $db->fetch_array($countries_query)) {
-			$countrieslist[$countries['coid']] = $countries['name'];
-		}
-		$profile['fulladdress'] .= $countrieslist[$profile['country']];
-		if(is_array($countrieslist)) {
-			$countries_list = implode(', ', $countrieslist);
-		}
-		
-		$suppliers_query = $db->query(" SELECT *
+			$countries_query = $db->query("SELECT coid, name FROM ".Tprefix."countries WHERE affid={$affid} ORDER BY name");
+			while($countries = $db->fetch_array($countries_query)) {
+				$countrieslist[$countries['coid']] = $countries['name'];
+			}
+			$profile['fulladdress'] .= $countrieslist[$profile['country']];
+			if(is_array($countrieslist)) {
+				$countries_list = implode(', ', $countrieslist);
+			}
+
+			$suppliers_query = $db->query(" SELECT *
 							FROM ".Tprefix."affiliatedentities a LEFT JOIN ".Tprefix."entities e ON (a.eid=e.eid)
 							WHERE a.affid={$affid} AND e.type='s'
 							ORDER BY e.companyName ASC");
 
-		$suppliers_counter = $customers_counter = $affiliateemployees_counter = 0;
-		$user_mainaff = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid={$core->user['uid']} AND isMain=1"), 'affid');
+			$suppliers_counter = $customers_counter = $affiliateemployees_counter = 0;
+			$user_mainaff = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid={$core->user['uid']} AND isMain=1"), 'affid');
 
-		while($supplier = $db->fetch_array($suppliers_query)) {
-			$listitem['link'] = 'index.php?module=profiles/entityprofile&eid='.$supplier['eid'];
-			$listitem['title'] = $supplier['companyName'];
-			$listitem['divhref'] = 'supplier';
-			$listitem['loadiconid'] = 'loadentityusers_'.$supplier['eid'].'_'.$affid;
+			while($supplier = $db->fetch_array($suppliers_query)) {
+				$listitem['link'] = 'index.php?module=profiles/entityprofile&eid='.$supplier['eid'];
+				$listitem['title'] = $supplier['companyName'];
+				$listitem['divhref'] = 'supplier';
+				$listitem['loadiconid'] = 'loadentityusers_'.$supplier['eid'].'_'.$affid;
 
-			if(++$suppliers_counter > 3) {
-				eval("\$hidden_suppliers .= \"".$template->get('profiles_affliatesentities_inlinelistitem')."\";");
+				if(++$suppliers_counter > 3) {
+					eval("\$hidden_suppliers .= \"".$template->get('profiles_affliatesentities_inlinelistitem')."\";");
+				}
+				else {
+					eval("\$shown_suppliers .= \"".$template->get('profiles_affliatesentities_inlinelistitem')."\";");
+				}
+			}
+
+			if($suppliers_counter > 3) {
+				$supplierslist = $shown_suppliers." <a href='#suppliers' id='showmore_suppliers_{$supplier[eid]}' class='smalltext'><img src='{$core->settings[rootdir]}/images/add.gif' alt='{$lang->edit}' border='0' /></a> <br /><span style='display:none;' id='suppliers_{$supplier[eid]}'>{$hidden_suppliers}</span>";
 			}
 			else {
-				eval("\$shown_suppliers .= \"".$template->get('profiles_affliatesentities_inlinelistitem')."\";");
+				$supplierslist = "<ul style='list-style:none; padding:2px;'>".$shown_suppliers."</ul>";
 			}
-		}
 
-		if($suppliers_counter > 3) {
-			$supplierslist = $shown_suppliers." <a href='#suppliers' id='showmore_suppliers_{$supplier[eid]}' class='smalltext'><img src='{$core->settings[rootdir]}/images/add.gif' alt='{$lang->edit}' border='0' /></a> <br /><span style='display:none;' id='suppliers_{$supplier[eid]}'>{$hidden_suppliers}</span>";
-		}
-		else {
-			$supplierslist = "<ul style='list-style:none; padding:2px;'>".$shown_suppliers."</ul>";
-		}
-
-		$affiliateemployees_query = $db->query("SELECT *, CONCAT(firstName, ' ', lastName) AS fullname
+			$affiliateemployees_query = $db->query("SELECT *, CONCAT(firstName, ' ', lastName) AS fullname
 							FROM ".Tprefix."assignedemployees e RIGHT JOIN ".Tprefix."users u ON (e.uid=u.uid) JOIN ".Tprefix."affiliatedemployees ae ON (ae.uid=u.uid)
 							WHERE ae.affid={$affid} AND u.gid!=7 AND ae.isMain=1
 							GROUP BY u.username
 							ORDER BY u.firstName ASC");
-		while($affililateemployees = $db->fetch_array($affiliateemployees_query)) {
-			if(++$affiliateemployees_counter > 100) {
-				$hidden_affililateemployees .= "<li><a href='./users.php?action=profile&uid={$affililateemployees[uid]}' target='_blank'>{$affililateemployees[fullname]}</a></li>";
+			while($affililateemployees = $db->fetch_array($affiliateemployees_query)) {
+				if(++$affiliateemployees_counter > 100) {
+					$hidden_affililateemployees .= "<li><a href='./users.php?action=profile&uid={$affililateemployees[uid]}' target='_blank'>{$affililateemployees[fullname]}</a></li>";
+				}
+				elseif($affiliateemployees_counter == 100) {
+					$shown_affililateemployees .= "<li><a href='./users.php?action=profile&uid={$affililateemployees[uid]}' target='_blank'>{$affililateemployees[fullname]}</a>";
+				}
+				else {
+					$shown_affililateemployees .= "<li><a href='./users.php?action=profile&uid={$affililateemployees[uid]}' target='_blank'>{$affililateemployees[fullname]}</a></li>";
+				}
+
+				if(!empty($affililateemployees['internalExtension'])) {
+					$rowclass = alt_row($rowclass);
+					$extensions.= '<tr class="'.$rowclass.'"><td>'.$affililateemployees['fullname'].'</td><td>'.$affililateemployees['internalExtension'].'</td></tr>';
+				}
 			}
-			elseif($affiliateemployees_counter == 100) {
-				$shown_affililateemployees .= "<li><a href='./users.php?action=profile&uid={$affililateemployees[uid]}' target='_blank'>{$affililateemployees[fullname]}</a>";
+
+			if($affiliateemployees_counter > 100) {
+				$supplierallusers = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_affililateemployees.", <a href='#affililateemployees' id='showmore_affililateemployees_{$affililateemployees[uid]}' class='smalltext'>read more</a></li> <span style='display:none;' id='affililateemployees_{$affililateemployees[uid]}'>{$hidden_affililateemployees}</span></ul>";
 			}
 			else {
-				$shown_affililateemployees .= "<li><a href='./users.php?action=profile&uid={$affililateemployees[uid]}' target='_blank'>{$affililateemployees[fullname]}</a></li>";
+				$supplierallusers = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_affililateemployees."</li></ul>";
 			}
 
-			if(!empty($affililateemployees['internalExtension'])) {
-				$rowclass = alt_row($rowclass);
-				$extensions.= '<tr class="'.$rowclass.'"><td>'.$affililateemployees['fullname'].'</td><td>'.$affililateemployees['internalExtension'].'</td></tr>';
-			}
-		}
-
-		if($affiliateemployees_counter > 100) {
-			$supplierallusers = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_affililateemployees.", <a href='#affililateemployees' id='showmore_affililateemployees_{$affililateemployees[uid]}' class='smalltext'>read more</a></li> <span style='display:none;' id='affililateemployees_{$affililateemployees[uid]}'>{$hidden_affililateemployees}</span></ul>";
-		}
-		else {
-			$supplierallusers = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_affililateemployees."</li></ul>";
-		}
-
-		if($user_mainaff == $affid) {
-			$customers_query = $db->query("SELECT *
+			if($user_mainaff == $affid) {
+				$customers_query = $db->query("SELECT *
 								FROM ".Tprefix."affiliatedentities a LEFT  JOIN ".Tprefix."entities e ON (a.eid=e.eid) JOIN ".Tprefix."assignedemployees ae ON (ae.eid=a.eid)
 								WHERE a.affid={$affid} AND e.type='c' AND ae.uid={$core->user['uid']}
 								GROUP BY e.companyName
 								ORDER BY e.companyName ASC");
-			if($db->num_rows($customers_query) > 0) {
-				while($customer = $db->fetch_array($customers_query)) {
-					if(++$customers_counter > 3) {
-						$hidden_customers .= "<li><a href='index.php?module=profiles/entityprofile&eid={$customer[eid]}' target='_blank'>{$customer['companyName']}</a></li>";
+				if($db->num_rows($customers_query) > 0) {
+					while($customer = $db->fetch_array($customers_query)) {
+						if(++$customers_counter > 3) {
+							$hidden_customers .= "<li><a href='index.php?module=profiles/entityprofile&eid={$customer[eid]}' target='_blank'>{$customer['companyName']}</a></li>";
+						}
+						elseif($customers_counter == 3) {
+							$shown_customers .= "<li><a href='index.php?module=profiles/entityprofile&eid={$customer[eid]}' target='_blank'>{$customer['companyName']}</a>";
+						}
+						else {
+							$shown_customers .= "<li><a href='index.php?module=profiles/entityprofile&eid={$customer[eid]}' target='_blank'>{$customer['companyName']}</a></li>";
+						}
 					}
-					elseif($customers_counter == 3) {
-						$shown_customers .= "<li><a href='index.php?module=profiles/entityprofile&eid={$customer[eid]}' target='_blank'>{$customer['companyName']}</a>";
+
+					if($customers_counter > 3) {
+						$customerslist = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_customers.", <a href='#customers' id='showmore_customers_{$customer[eid]}' class='smalltext'>read more</a> </li><span style='display:none;' id='customers_{$customer[eid]}'>{$hidden_customers}</span></ul>";
 					}
 					else {
-						$shown_customers .= "<li><a href='index.php?module=profiles/entityprofile&eid={$customer[eid]}' target='_blank'>{$customer['companyName']}</a></li>";
+						$customerslist = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_customers.'</ul>';
 					}
 				}
 
-				if($customers_counter > 3) {
-					$customerslist = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_customers.", <a href='#customers' id='showmore_customers_{$customer[eid]}' class='smalltext'>read more</a> </li><span style='display:none;' id='customers_{$customer[eid]}'>{$hidden_customers}</span></ul>";
-				}
-				else {
-					$customerslist = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_customers.'</ul>';
-				}
-			}
-
-			$report_query = $db->query("SELECT *, e.companyName AS supplier_name 
+				$report_query = $db->query("SELECT *, e.companyName AS supplier_name 
 										FROM ".Tprefix." reports r LEFT JOIN ".Tprefix."entities e ON (r.spid=e.eid) JOIN ".Tprefix."assignedemployees ae ON (ae.eid=r.spid)  
 										WHERE r.affid={$affid} AND r.type='q' 
 										GROUP BY r.rid 
 										ORDER BY finishDate DESC
 										LIMIT 0, 4");
 
-			$reports_counter = 0;
-			while($reports = $db->fetch_array($report_query)) {
-				if(++$reports_counter < 3) {
-					$shown_reports .= "<li><a href='index.php?module=reporting/preview&referrer=list&rid={$reports[rid]}' target='_blank'> Q{$reports['quarter']} / {$reports['year']} - {$reports['supplier_name']}</a></li>";
+				$reports_counter = 0;
+				while($reports = $db->fetch_array($report_query)) {
+					if(++$reports_counter < 3) {
+						$shown_reports .= "<li><a href='index.php?module=reporting/preview&referrer=list&rid={$reports[rid]}' target='_blank'> Q{$reports['quarter']} / {$reports['year']} - {$reports['supplier_name']}</a></li>";
+					}
+					elseif($reports_counter == 3) {
+						$shown_reports .= "<li><a href='index.php?module=reporting/preview&referrer=list&rid={$reports[rid]}' target='_blank'> Q{$reports['quarter']} / {$reports['year']} - {$reports['supplier_name']}</a>";
+					}
+					else {
+						break;
+					}
 				}
-				elseif($reports_counter == 3) {
-					$shown_reports .= "<li><a href='index.php?module=reporting/preview&referrer=list&rid={$reports[rid]}' target='_blank'> Q{$reports['quarter']} / {$reports['year']} - {$reports['supplier_name']}</a>";
+
+				if($reports_counter > 3) {
+					$reports_list = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_reports.", <a href='index.php?module=reporting/list&filterby=affid&filtervalue={$affid}' target='_blank' class='smalltext'>read more</a></li></ul>";
 				}
 				else {
-					break;
+					$reports_list = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_reports."</li></ul>";
 				}
+				eval("\$private_section = \"".$template->get('profiles_affiliateprofile_privatesection')."\";");
 			}
-
-			if($reports_counter > 3) {
-				$reports_list = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_reports.", <a href='index.php?module=reporting/list&filterby=affid&filtervalue={$affid}' target='_blank' class='smalltext'>read more</a></li></ul>";
-			}
-			else {
-				$reports_list = "<ul style='list-style:none; padding:2px;margin-top:0px;'>".$shown_reports."</li></ul>";
-			}
-			eval("\$private_section = \"".$template->get('profiles_affiliateprofile_privatesection')."\";");
+			eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
+			eval("\$profilepage = \"".$template->get('profiles_affiliateprofile')."\";");
 		}
-		eval("\$profilepage = \"".$template->get('profiles_affiliateprofile')."\";");
+		output_page($profilepage);
 	}
-	output_page($profilepage);
 }
 else {
 	if($core->input['action'] == 'getentityusers' || $core->input['action'] == 'getallusers') {
@@ -236,6 +245,9 @@ else {
 		}
 		$entityusers_list_output = "<ul style='list-style:none; padding:2px; margin-top: 0px;'>{$entityusers_list}</ul> ";
 		echo $entityusers_list_output;
+	}
+	elseif($core->input['action'] == 'get_entityendproduct') {
+		$endproducts_objs = $entbrandsproducts_obj->get_producttypes(); //Entbrandsproducts::get_endproducts($entbrandsproducts['ebid']);
 	}
 }
 ?>

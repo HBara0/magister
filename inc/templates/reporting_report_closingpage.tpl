@@ -5,44 +5,30 @@
         <div class="logo">&nbsp;</div>
         <div align='left' style='margin-top:20px;'>
             <h3>Orkila News</h3>
+            <div class="subtitle">Orkila Nigeria Awarded Best Anaesthetics Product of the Year 2013</div>
+            <p>Orkila Group is proud to announce a great achievement of its affiliate Orkila Nigeria, was awarded Best Anesthetics Product of the year 2013 for Halothane Brand (POM) supplied by Piramal Critical Care at the African Product Awards 2013 in Lagos.</p>
+            <p>Halothane is a time-tested Inhalational Anaesthetic and is the gold standard for cost-effective induction and maintenance of Anaesthesia.</p>
+            <p>The organizer of the award, The Institute for Government Research and Leadership Technology, presented the award certificate to the Orkila Nigeria Team on December 13th, 2013.</p>
             <div class="subtitle">Operations in Orkila Ghana</div>
             <p>We are pleased to inform you that Orkila Ghana team is now complete, fully operational, and stock is available in our warehouse in Accra.</p>
             <p>
-            <div class="subtitle">Orkila Sells its Pakistan Operation</div>
-            As part of the Groups’s strategy to focus on the markets of the Middle East and Africa, ORKILA announced today the sale of its Pakistan affiliate, Orkila Pakistan (Pvt) Ltd. 
-            </p>
-            <p>
-                The sale, to the Emirati company EMAA Holding FZE, will be concluded on September 30th 2013.
-            </p>
-            <p>The Pakistan company will be renamed EMAA Pakistan (Pvt) Ltd.</p>
-            <p>Although EMAA Pakistan (Pvt) Ltd will cease to be an affiliate of the Orkila Group, it will continue its current activities under the same management teams, both in Karachi and Lahore; thus guaranteeing a seamless transition for suppliers and customers alike throughout Pakistan.</p>
-            <p>EMAA Pakistan (Pvt) Ltd will remain closely associated with the Orkila Group and will be the designated distributor for the Group in Pakistan.</p>
-
             <h3>Orkila Events</h3>
             <p>
-            <div class="subtitle">FI/CPhI South AFrica 2013 – PHARMACEUTICALS. FOOD INGREDIENTS  6 - 8 August 2013 – Sao Paolo, BRAZIL </div>
-            Orkila visited the CPhI & FI South America where pharmaceutical / food industry professionals gather to find new business opportunities in the fast growing South American market.
+            <div class="subtitle">International Water Summit 2014, 20 - 22 January 2014 – Abu Dhabi, UAE</div>
+            Orkila will visit The International Water Summit (IWS), a unique global platform for promoting water sustainability in arid regions.
             </p>
             <p>
-            <div class="subtitle">SPACE 2013 - FEED  10 - 13 September 2013 – Rennes, FRANCE</div>
-            The Feed sector is in continuous growth in MEA zone. Orkila visited the Int'L Livestock Trade Fair in Rennes to bring innovative solutions to the local market players.
+            <div class="subtitle">Gulfood 2014, 23 - 27 February 2014 – Dubai, UAE</div>
+            Orkila will visit Gulfood to meet traditional & new customers. Local affiliate Orkila FZE, Dubai Established over 25 years as the region largest annual food trade show, Gulfood will in future focus in the retail, hospitality, trade and foodservice industries.
+            </p>
+            <div class="subtitle">Paperworld Middle East, 04 - 06 March 2014 – Dubai, UAE</div>
+            Dubai Paperworld Middle East, gateway to the Middle East, Africa and the Indian sub-continent represents the full line of paper products, office supplies and stationery. Orkila will visit the show through its local affiliate Orkila FZE.
             </p>
             <p>
-            <div class="subtitle">K-2013 - PLASTICS  16 - 23 October 2013 – Dusseldorf, GERMANY</div>
-            Orkila visits the K-2013, Number 1 Int'l Trade Fair for Plastics and Rubber Worldwide
+            <div class="subtitle">MECS 2014 - Coatings, 10 - 12 March, 2014 – Dubai, UAE</div>
+            Orkila will exhibit at MECS 2014 with its main partners. Come and visit us at booth B11a. The MECS, only dedicated coatings event in the Middle East and Gulf region promotes the latest paint and coatings technologies for the region's environmental, manufacturing and industrial needs.
             </p>
             <p>
-            <div class="subtitle">CPhI EUROPE - PHARMACEUTICALS  22- 24 October 2013 – Frankfurt, GERMANY</div>
-            In the pharmaceutical industry innovation is a key for success. Orkila visits every year the world's leading pharmaceutical networking event. 
-            </p>
-            <p>
-            <div class="subtitle">FI EUROPE – FOOD INGREDIENTS –  19-21 November 2013 – Frankfurt, GERMANY</div>
-            Orkila visits the Food and the Natural Ingredients Exhibition, which offers innovative ingredients with a truly global audience from the world’s leading food and beverage suppliers, R&D, production and marketing specialists.
-            </p>
-            <p>
-            <div class="subtitle">DAWAJINE - FEED –  26-28 November 2013 – Casablanca, MOROCCO</div>
-            Orkila is present with its partner Adisseo at the 16th edition of Dawajine, the major poultry event in North and West Africa. Orkila local affiliate is Orkila Maroc.
-            </p>
         </div>
     </div>
 </page>

@@ -42,7 +42,7 @@ if($core->input['authCode'] == AUTHCODE) {
 
 	$output_fields = array(
 //			'manager' => 'Business Manager',
-			'segment' => array('source' => array('product', 'category'), 'attribute' => 'value', 'title' => 'Segment'),
+			'category' => array('source' => array('product', 'category'), 'attribute' => 'value', 'title' => 'Segment'),
 			'supplier' => array('source' => 'supplier', 'attribute' => 'value', 'title' => 'Supplier'),
 			'product' => array('source' => 'product', 'attribute' => 'name', 'title' => 'Product'),
 			'warehouse' => array('source' => 'warehouse', 'attribute' => 'value', 'title' => 'Warehouse'),
@@ -52,19 +52,23 @@ if($core->input['authCode'] == AUTHCODE) {
 			'quantitysold' => array('source' => 'stack', 'attribute' => 'soldqty', 'title' => 'Sold Qty', 'numformat' => true),
 			'quantity' => array('source' => 'stack', 'attribute' => 'remaining_qty', 'title' => 'Stock Qty', 'numformat' => true),
 			'uom' => array('source' => array('product', 'uom'), 'attribute' => 'uomsymbol', 'title' => 'UoM'),
-			'unitcost' => 'Unit Cost',
+			'unitcost' => array('source' => null, 'title' => 'Unit Cost', 'numformat' => true),
 			'cost' => array('source' => 'stack', 'attribute' => 'remaining_cost', 'title' => 'Cost', 'numformat' => true),
-			'costusd' => 'Cost (USD)',
+			'costusd' => array('source' => null, 'title' => 'Cost (USD)', 'numformat' => true),
 			'inputdate' => array('source' => 'transaction', 'attribute' => 'movementdate', 'title' => 'Entry Date', 'isdate' => true),
 			'daysinstock' => array('source' => 'stack', 'attribute' => 'daysinstock', 'title' => 'In Stock<br />(Days)', 'styles' => array(150 => 'background-color: #F1594A; text-align: center;', 120 => 'background-color: #F8C830; text-align: center;', 90 => 'background-color: #F2EB80; text-align: center;', 0 => 'background-color: #ABD25E; text-align: center;')),
 			'expirydate' => array('source' => array('transaction', 'attributes'), 'attribute' => 'guaranteedate', 'title' => 'Expiry Date', 'isdate' => true),
 			'daystoexpire' => array('source' => array('transaction', 'attributes'), 'attribute' => 'daystoexpire', 'title' => 'Days to Expire', 'styles' => array(0 => 'background-color: #F1594A; text-align: center;', 90 => 'background-color: #F8C830; text-align: center;', 180 => 'background-color: #F2EB80; text-align: center;', 270 => 'background-color: #ABD25E; text-align: center;'))
 	);
 
+	$summary_categories = array('category' => 'm_product_category_id', 'warehouse' => 'm_warehouse_id', 'product' => 'm_product_id', 'supplier' => 'c_bpartner_id');
+	$summary_reqinfo = array('quantity', 'cost', 'costusd');
+	$summary_order_attr = 'costusd';
+
 	$total_types = array('quantitysold', 'quantity', 'cost', 'costusd');
 	foreach($affiliates_index as $orgid => $affid) {
 		$output = '';
-		$totals = array();
+		$totals = $summaries = array();
 		$affiliateobj = new Affiliates($affid, false);
 		$affiliate = $affiliateobj->get();
 		$affiliate['currency'] = $affiliateobj->get_country()->get_maincurrency()->get()['alphaCode'];
@@ -86,7 +90,7 @@ if($core->input['authCode'] == AUTHCODE) {
 				$output .= '<tr>';
 				foreach($output_fields as $field => $configs) {
 					$output_td_style = '';
-					if(is_array($configs)) {
+					if(is_array($configs) && $configs['source'] != null) {
 						if(is_array($configs['source'])) {
 							$source_data = '';
 							foreach($configs['source'] as $source) {
@@ -105,10 +109,27 @@ if($core->input['authCode'] == AUTHCODE) {
 
 						if(empty($output_value) || strstr($output_value, 'Orkila')) {
 							if($field == 'supplier') {
-								$product = new Products($db->fetch_field($db->query('SELECT pid FROM products WHERE name="'.$input['product']['name'].'"'), 'pid'));
+								$product = new Products($db->fetch_field($db->query('SELECT localId FROM integration_mediation_products WHERE foreignSystem=3 AND foreignName="'.$input['product']['name'].'"'), 'localId'));
+								if(!is_object($product)) {
+									$product = new Products($db->fetch_field($db->query('SELECT pid FROM products WHERE name="'.$input['product']['name'].'"'), 'pid'));
+								}
 								$output_value = $product->get_supplier()->get()['companyNameShort'];
 								if(empty($output_value)) {
 									$output_value = $product->get_supplier()->get()['companyName'];
+								}
+								$input['supplier']['name'] = $input['supplier']['value'] = $output_value;
+								$input['supplier']['c_bpartner_id'] = md5($output_value);
+							}
+						}
+
+						if(in_array($field, $summary_reqinfo)) {
+							foreach($summary_categories as $category => $attribute) {
+								$summaries[$category][$input[$category][$attribute]]['name'] = $input[$category]['value'];
+								if($field == 'quantity') {
+									$summaries[$category][$input[$category][$attribute]][$field][$input['product']['uom']['uomsymbol']] += $output_value;
+								}
+								else {
+									$summaries[$category][$input[$category][$attribute]][$field] += $output_value;
 								}
 							}
 						}
@@ -140,6 +161,7 @@ if($core->input['authCode'] == AUTHCODE) {
 								}
 							}
 						}
+
 						$output .= '<td style="border: 1px solid #CCC; '.$output_td_style.'">'.$output_value.'</td>';
 						unset($output_value);
 					}
@@ -150,7 +172,13 @@ if($core->input['authCode'] == AUTHCODE) {
 								break;
 							case 'costusd':
 								$rate = $currency_obj->get_average_fxrate($affiliate['currency'], array());
-								$output .= '<td style="border: 1px solid #CCC; text-align: right;">'.number_format($input['stack']['remaining_cost'] / $rate, $report_options['roundto'], '.', ' ').'</td>';
+								$output_value = $input['stack']['remaining_cost'] / $rate;
+								if(in_array($field, $summary_reqinfo)) {
+									foreach($summary_categories as $category => $attribute) {
+										$summaries[$category][$input[$category][$attribute]][$field] += $output_value;
+									}
+								}
+								$output .= '<td style="border: 1px solid #CCC; text-align: right;">'.number_format($output_value, $report_options['roundto'], '.', ' ').'</td>';
 
 								$date_value = $input[$output_fields['inputdate']['source']][$output_fields['inputdate']['attribute']];
 								if(strstr($date_value, '.')) {
@@ -173,6 +201,56 @@ if($core->input['authCode'] == AUTHCODE) {
 		}
 		$output .= '</table>';
 
+		/* Parse Summaries - Start */
+		if(is_array($summaries)) {
+			foreach($summaries as $category => $category_data) {
+				$output .= '<h3>'.$output_fields[$category]['title'].' Summary</h3>';
+				$output .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
+				$output .= '<tr><th style="background: #91b64f;">'.$output_fields[$category]['title'].'</th>';
+				foreach($summary_reqinfo as $reqinfo) {
+					$output .= '<th style="background: #91b64f;">'.$output_fields[$reqinfo]['title'].'</th>';
+				}
+				unset($out_field_title);
+				$output .= '</tr>';
+
+				${$summary_order_attr} = array();
+				foreach($category_data as $cat_data_key => $cat_data_row) {
+					${$summary_order_attr}[$cat_data_key] = $cat_data_row[$summary_order_attr];
+				}
+				array_multisort(${$summary_order_attr}, SORT_DESC, $category_data);
+
+				foreach($category_data as $cat_data_row) {
+					$output .= '<tr>';
+					foreach($cat_data_row as $output_key => $output_value) {
+						$output_td_style = '';
+						if(is_array($output_value)) {
+							$output_values = $output_value;
+							$output_value = '';
+							foreach($output_values as $output_key_temp => $output_value_temp) {
+								if($output_fields[$output_key]['numformat'] == true) {
+									$output_value_temp = number_format($output_value_temp, $report_options['roundto'], '.', ' ');
+									$output_td_style = ' text-align: right;';
+								}
+								$output_value .= $output_value_temp.' '.$output_key_temp.'<br />';
+							}
+						}
+						else {
+							if($output_fields[$output_key]['numformat']) {
+								if($output_fields[$output_key]['numformat'] == true) {
+									$output_value = number_format($output_value, $report_options['roundto'], '.', ' ');
+									$output_td_style = ' text-align: right;';
+								}
+							}
+						}
+						$output .= '<td style="border: 1px solid #CCC; width: 25%;'.$output_td_style.'">'.$output_value.'</td>';
+					}
+					$output .= '</tr>';
+				}
+				$output .= '</table>';
+			}
+		}
+
+		/* Parse Summaries - END */
 //		$summarytables_headers = '';
 //		for($month = 1; $month <= 12; $month++) {
 //			$summarytables_headers .= '<th style="background: #91b64f;">'.$month.'</th>';
@@ -212,7 +290,7 @@ if($core->input['authCode'] == AUTHCODE) {
 				'subject' => 'Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'],
 				'message' => $message
 		);
-
+		
 		$email_data['to'][] = $affiliateobj->get_generalmanager()->get()['email'];
 		$email_data['to'][] = $affiliateobj->get_supervisor()->get()['email'];
 
@@ -222,6 +300,10 @@ if($core->input['authCode'] == AUTHCODE) {
 				$email_data['to'][] = $adduser->get()['email'];
 			}
 		}
+
+		//$email_data['to'] = array();
+		//$email_data['to'][] = 'zaher.reda@orkila.com';
+		//$email_data['to'][] = 'christophe.sacy@orkila.com';
 		//unset($email_data['to']);
 		///print_r($email_data);
 		//$email_data['to'][] = 'zaher.reda@orkila.com';

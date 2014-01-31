@@ -442,6 +442,7 @@ class IntegrationOB extends Integration {
 
 				$inputs[$transcation['obwfa_input_stack_id']]['product'] = $stack->get_product()->get();
 				$inputs[$transcation['obwfa_input_stack_id']]['product']['category'] = $stack->get_product()->get_category()->get();
+				$inputs[$transcation['obwfa_input_stack_id']]['category'] = &$inputs[$transcation['obwfa_input_stack_id']]['product']['category'];
 				$inputs[$transcation['obwfa_input_stack_id']]['product']['uom'] = $stack->get_product()->get_uom()->get();
 				$supplier = $stack->get_supplier();
 				if(!empty($supplier)) {
@@ -567,20 +568,20 @@ class IntegrationOBTransaction {
 	public function get_outputstack() {
 		$query = $this->f_db->query('SELECT obwfa_output_stack_id
 									FROM obwfa_output_stack
-									WHERE m_transaction_id="'.$this->transaction['m_transaction_id'].'"');
+									WHERE m_transaction_id=\''.$this->transaction['m_transaction_id'].'\'');
 		if($this->f_db->num_rows($query) > 0) {
 			$stack = $this->f_db->fetch_assoc($query);
-			return new IntegrationOBOutputStack($stack['obwfa_output_stack_id']);
+			return new IntegrationOBOutputStack($stack['obwfa_output_stack_id'], $this->f_db);
 		}
 	}
 
 	public function get_inputstack() {
 		$query = $this->f_db->query('SELECT obwfa_input_stack_id
 									FROM obwfa_input_stack
-									WHERE m_transaction_id="'.$this->transaction['m_transaction_id'].'"');
+									WHERE m_transaction_id=\''.$this->transaction['m_transaction_id'].'\'');
 		if($this->f_db->num_rows($query) > 0) {
 			$stack = $this->f_db->fetch_assoc($query);
-			return new IntegrationOBInputStack($stack['obwfa_intput_stack_id']);
+			return new IntegrationOBInputStack($stack['obwfa_intput_stack_id'], $this->f_db);
 		}
 		return false;
 	}
@@ -696,13 +697,13 @@ class IntegrationOBMovementLine {
 	}
 
 	public function get_output_transaction() {
-		$query = $this->f_db->query('SELECT m_transactions_id
-								FROM m_transactions t 
+		$query = $this->f_db->query('SELECT t.m_transaction_id
+								FROM m_transaction t 
 								JOIN obwfa_output_stack os ON (os.m_transaction_id=t.m_transaction_id)
-								WHERE t.m_movementline_id="'.$this->movementline['m_movementline_id'].'"');
-		if($this->f_d->num_rows($query) > 0) {
-			$transaction = $this->f_d->fetch_assoc($query);
-			return new IntegrationOBTransaction($transaction['m_transactions_id']);
+								WHERE t.m_movementline_id=\''.$this->movementline['m_movementline_id'].'\'');
+		if($this->f_db->num_rows($query) > 0) {
+			$transaction = $this->f_db->fetch_assoc($query);
+			return new IntegrationOBTransaction($transaction['m_transaction_id'], $this->f_db);
 		}
 
 		return false;
@@ -1161,7 +1162,7 @@ class IntegrationOBOutputStack {
 	}
 
 	public function get_inputstack() {
-		return new IntegrationOBInputStack($this->outputstack['obwfa_input_stack_id']);
+		return new IntegrationOBInputStack($this->outputstack['obwfa_input_stack_id'], $this->f_db);
 	}
 
 	public function get_id() {

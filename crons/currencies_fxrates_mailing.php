@@ -107,13 +107,4 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
 else {
 	die('Unauthorized Access');
 }
-function formatit($number) {
-	if(isset($number)) {
-		return str_pad(round(number_format($number, 6, '.', ''), 6), 11, ' ', STR_PAD_LEFT);
-	}
-	else {
-		return str_pad('-', 11, ' ', STR_PAD_LEFT);
-	}
-}
-
 ?>

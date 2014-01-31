@@ -235,7 +235,7 @@ else {
 		echo $lang->sprint($lang->betweenhours, $leave_actual_times['fromHour'], $leave_actual_times['fromMinutes'], $leave_actual_times['toHour'], $leave_actual_times['toMinutes'], $leave_actual_times['workingDays']).$hidden_fields;
 	}
 	elseif($core->input['action'] == 'do_perform_requestleave') {
-		//NO LEAVE IF BEFORE EMPLOYMENT
+		//NO LEAVE IF BEFORE EMPLOYMENT 
 		if(isset($core->input['fromDate']) && !is_empty($core->input['fromDate'], $core->input['fromMinutes'], $core->input['fromHour'])) {
 			$fromdate = explode('-', $core->input['fromDate']);
 			if(checkdate($fromdate[1], $fromdate[0], $fromdate[2])) {
@@ -339,6 +339,14 @@ else {
 				}
 			}
 		}
+		if(isset($leavetype_details['reasonIsRequired']) && $leavetype_details['reasonIsRequired'] == 1) {
+			if(empty($core->input['reason']) || strlen($core->input['reason']) <= 20) {
+				header('Content-type: text/xml+javascript');
+				output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'<![CDATA[<script>$("#reason").attr("required",true);</script>]]></message>');
+				exit;
+			}
+		
+		}
 		/* Validate required Fields - END */
 		$query = $db->insert_query('leaves', $core->input);
 		if($query) {
@@ -382,29 +390,48 @@ else {
 
 			$toapprove = $toapprove_select = unserialize($leavetype_details['toApprove']); //explode(',', $leavetype_details['toApprove']);
 			if(is_array($toapprove)) {
+				$aff_obj = new Affiliates($leave_user['mainaffiliate'], false);
 				foreach($toapprove as $key => $val) {
-					if($val == 'reportsTo') {
-						list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
-						$approvers['reportsTo'] = $leave_user['reportsTo'];
-						unset($toapprove_select[$key]);
-					}
-					elseif(is_int($val)) {
-						$approvers[$val] = $val;
-						unset($toapprove_select[$key]);
+					switch($val) {
+						case 'reportsTo':
+							list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
+							$approvers['reportsTo'] = $leave_user['reportsTo'];
+							unset($toapprove_select[$key]);
+							break;
+						case 'generalManager':
+							$approvers['generalManager'] = $aff_obj->get_generalmanager()->get()['uid'];
+							break;
+						case 'hrManager':
+							$approvers['hrManager'] = $aff_obj->get_hrmanager()->get()['uid'];
+							break;
+						case 'supervisor':
+							$approvers['supervisor'] = $aff_obj->get_supervisor()->get()['uid'];
+							break;
+						case 'financialManager':
+							$approvers['financialManager'] = $aff_obj->get_financialemanager()->get()['uid'];
+							break;
+						default:
+							if(is_int($val)) {
+								$approvers[$val] = $val;
+							}
+							unset($toapprove_select[$key]);
+							break;
 					}
 				}
+				/* Make list of approvers unique */
+				$approvers = array_unique($approvers);
 			}
 
-			if(is_array($toapprove_select) && !empty($toapprove_select)) {
-				$secondapprovers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
-									  FROM ".Tprefix."affiliates
-									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
-			}
+//			if(is_array($toapprove_select) && !empty($toapprove_select)) {
+//				$secondapprovers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
+//									  FROM ".Tprefix."affiliates
+//									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
+//			}
 
-			if(is_array($secondapprovers)) {
-				$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
-				unset($secondapprovers);
-			}
+//			if(is_array($secondapprovers)) {
+//				$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
+//				unset($secondapprovers);
+//			}
 
 			if(is_array($approvers)) {
 				foreach($approvers as $key => $val) {
@@ -504,7 +531,7 @@ else {
 
 							$expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].$expense['description'].'<br />';
 						}
-						
+
 						$total = $leaveexpense->get_expensestotal();
 						$expenses_message_ouput = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
 					}

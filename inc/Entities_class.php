@@ -642,5 +642,38 @@ class Entities {
 		return false;
 	}
 
+	public function get_parent() {
+		if(isset($this->data['parent']) && !empty($this->data['parent'])) {
+			return new Entities($this->data['parent']);
+		}
+		return false;
+	}
+
+	public function get_brands() {
+		global $db;
+
+		$query = $db->query('SELECT ebid FROM '.Tprefix.'entitiesbrands WHERE eid="'.$db->escape_string($this->data['eid']).'"');
+		if($db->num_rows($query) > 0) {
+			while($brand = $db->fetch_assoc($query)) {
+				$brands[$brand['ebid']] = new EntitiesBrands($brand['ebid']);
+			}
+			return $brands;
+		}
+		return false;
+	}
+
+	public function parse_link($attributes_param = array('target' => '_blank')) {
+		if(!empty($this->data['companyName'])) {
+			$this->data['companyName'] .= ' ('.$this->data['companyNameAbbr'].')';
+		}
+
+		if(is_array($attributes_param)) {
+			foreach($attributes_param as $attr => $val) {
+				$attributes .= $attr.' "'.$val.'"';
+			}
+		}
+		return '<a href="index.php?module=profiles/entityprofile&eid='.$this->data['eid'].'" '.$attributes.'>'.$this->data['companyName'].'</a>';
+	}
+
 }
 ?>

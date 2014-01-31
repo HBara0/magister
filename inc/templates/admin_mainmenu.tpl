@@ -1,46 +1,51 @@
- <td class="menuContainer"><ul id="mainmenu">
-    	<li><span id="home/index"><a href='index.php?module=home/index'>{$lang->home}</a></span></li>
+<td class="menuContainer"><ul id="mainmenu">
+        <li><span id="home/index"><a href='index.php?module=home/index'>{$lang->home}</a></span></li>
         <li><span id="config/settings"><a href='index.php?module=config/settings'>{$lang->systemsettings}</a></span></li>
         <li class="expandable"><span id="users">{$lang->manageusers}</span>
-       		<div id="users_children_container" style="display: none;">
+            <div id="users_children_container" style="display: none;">
                 <ul id="users_children">
                     <li><span id="users/view"><a href='index.php?module=users/view'>{$lang->viewusers}</a></span></li>
                     <li><span id="users/add"><a href='index.php?module=users/add'>{$lang->addusers}</a></span></li>
                 </ul>
-			</div>
+            </div>
         </li>
-          <li class="expandable"><span id="regions">{$lang->regionaldistribution}</span>
-       		<div id="regions_children_container" style="display: none;">
+        <li class="expandable"><span id="regions">{$lang->regionaldistribution}</span>
+            <div id="regions_children_container" style="display: none;">
                 <ul id="regions_children">
                     <li><span id="regions/affiliates"><a href='index.php?module=regions/affiliates'>{$lang->affiliates}</a></span></li>
                     <li><span id="regions/countries"><a href='index.php?module=regions/countries'>{$lang->countries}</a></span></li>
                 </ul>
-			</div>
+            </div>
         </li>
-         <li class="expandable"><span id="entities">{$lang->manageentities}</span>
-        	<div id="entities_children_container" style="display: none;">
+        <li class="expandable"><span id="entities">{$lang->manageentities}</span>
+            <div id="entities_children_container" style="display: none;">
                 <ul id="entities_children">
                     <li><span id="entities/viewsuppliers"><a href='index.php?module=entities/viewsuppliers'>{$lang->viewsuppliers}</a></span></li>
                     <li><span id="entities/viewcustomers"><a href='index.php?module=entities/viewcustomers'>{$lang->viewcustomers}</a></span></li>
                     <li><span id="entities/add"><a href='index.php?module=entities/add'>{$lang->addentities}</a></span></li>
                     <li><span id="entities/manageentitiesfiles"><a href='index.php?module=entities/manageentitiesfiles'>{$lang->managefiles}</a></span></li>
+                    <li><span id="entities/managebrands"><a href='index.php?module=entities/managebrands'>{$lang->managebrands}</a></span></li>
                 </ul>
-             </div>
+            </div>
         </li>
         <li class="expandable"><span id="products">{$lang->manageproducts}</span>
-        	<div id="products_children_container" style="display: none;">
+            <div id="products_children_container" style="display: none;">
                 <ul id="products_children">
                     <li><span id="products/segments"><a href='index.php?module=products/segments'>{$lang->segments}</a></span></li>
                     <li><span id="products/generics"><a href='index.php?module=products/generics'>{$lang->generics}</a></span></li>
                     <li><span id="products/add"><a href='index.php?module=products/add'>{$lang->addproducts}</a></span></li>
                     <li><span id="products/view"><a href='index.php?module=products/view'>{$lang->listproducts}</a></span></li>
+                    <li><span id="products/applications"><a href='index.php?module=products/applications'>{$lang->applications}</a></span></li>
+                    <li><span id="products/functions"><a href='index.php?module=products/functions'>{$lang->functions}</a></span> </li>
+                    <li><span id="products/types"><a href='index.php?module=products/types'>{$lang->types}</a></span> </li>
+
                 </ul>
-             </div>
+            </div>
         </li>
         <li><span id="integration/matchdata"><a href='index.php?module=integration/matchdata'>{$lang->integration}</a></span></li>
         <li><span id="languages/list"><a href='index.php?module=languages/list'>{$lang->languages}</a></span></li>
         <li class="expandable"><span id="maintenance">{$lang->maintenance}</span>
-        	<div id="maintenance_children_container" style="display: none;">
+            <div id="maintenance_children_container" style="display: none;">
                 <ul id="maintenance_children">
                     <li><span id="maintenance/overview"><a href='index.php?module=maintenance/overview'>{$lang->overview}</a></span></li>
                     <li><span id="maintenance/logs"><a href='index.php?module=maintenance/logs'>{$lang->readlogs}</a></span></li>
@@ -48,6 +53,6 @@
                     <li><span id="maintenance/optimizedb"><a href='index.php?module=maintenance/optimizedb'>{$lang->optimizedb}</a></span></li>
                     <li><span id="maintenance/phpinfo"><a href='index.php?module=maintenance/phpinfo'>{$lang->phpinfo}</a></span></li>
                 </ul>
-			</div>
+            </div>
         </li>
     </ul></td>

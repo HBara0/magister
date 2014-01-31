@@ -13,7 +13,7 @@ class Accounts {
 		}
 		return $string;
 	}
-	
+
 	protected static function create_crypt_password($password, $salt, $workload = 12) {
 		return crypt($password, "$2a$".$workload."$".$salt);
 	}
@@ -52,8 +52,12 @@ class Accounts {
 		}
 	}
 
-	protected static function random_string($length) {
-		$keys = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345679@#$%_^&*';
+	protected static function random_string($length, $simple = false) {
+		$keys = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345679';
+		if($simple == false) {
+			$keys .= '@#$%_^&*';
+		}
+
 		$max = strlen($keys) - 1;
 
 		for($i = 0; $i < $length; $i++) {
@@ -74,7 +78,7 @@ class Accounts {
 			return false;
 		}
 	}
-	
+
 	protected static function in_passwordarhive($password, $uid) {
 		if(value_exists('users_passwordarchive', 'password', md5($password), 'uid='.intval($uid))) {
 			return true;
@@ -88,14 +92,15 @@ class Accounts {
 		if(empty($country_code)) {
 			return false;
 		}
-		
+
 		$random_num = substr(mt_rand(mt_rand(), mt_getrandmax()), 0, 4);
-		
+
 		$employeenum = $country_code.$random_num;
 		if(value_exists('userhrinformation', 'employeeNum', $employeenum)) {
 			$employeenum = Accounts::generate_employeenumber($affiliate);
 		}
 		return $employeenum;
 	}
+
 }
 ?>
