@@ -91,7 +91,8 @@ $lang['quarterly'] = 'Quarterly';
 $lang['reachedmaxattempts'] = 'You have reached the max allowed failed login attempts,<br />
 you may login after {1} minutes';
 $lang['reachedthreeatempts'] = 'You have reached 3 allowed failed login attempts,<br />
-you may login after {1} minutes. How about you try to';
+you may login after {1} minutes.';
+$lang['tryresetpassword'] = 'How about you try to <a href="#" id="resetpassword">reset your password</a>?';
 $lang['readmore'] = 'Read more';
 $lang['reporting'] = 'Reporting';
 $lang['reputation'] = 'Reputation';
