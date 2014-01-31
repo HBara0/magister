@@ -18,6 +18,7 @@ if($core->usergroup['canManageapllicationsProducts'] == 0) {
 }
 
 if(!$core->input['action']) {
+	$sort_url = sort_url();
 	$entitybrand_objs = EntitiesBrands::get_entitybrands();
 	if(is_array($entitybrand_objs)) {
 		foreach($entitybrand_objs as $entitybrand_obj) {
