@@ -52,7 +52,7 @@ if(!$core->input['action']) {
 				$functions_application = $lang->na;
 			}
 
-			eval("\$productsapplicationsfunctions_list .= \"".$template->get('admin_products_functions_row')."\";");
+			eval("\$productsapplicationsfunctions_list .= \"".$template->get('admin_products_functions_rows')."\";");
 			$functions_application = '';
 		}
 	}

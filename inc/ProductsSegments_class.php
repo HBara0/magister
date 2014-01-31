@@ -90,11 +90,7 @@ class ProductsSegments {
 
 	public function get_assignedemployees() {
 		global $db;
-		$query = $db->query('SELECT es.uid, es.emsid 
-			FROM '.Tprefix.'employeessegments es
-			JOIN '.Tprefix.'users u ON (u.uid=es.uid)
-			WHERE u.gid!=7 AND psid='.intval($this->segment['psid']).'
-			ORDER BY displayName ASC');
+		$query = $db->query('SELECT uid,emsid  FROM '.Tprefix.'employeessegments WHERE psid='.intval($this->segment['psid']).'');
 		if($db->num_rows($query) > 0) {
 			while($rowsegmentemployees = $db->fetch_assoc($query)) {
 				$segmentsemployees[$rowsegmentemployees['emsid']] = new users($rowsegmentemployees['uid']);
@@ -106,24 +102,14 @@ class ProductsSegments {
 		}
 	}
 
-	public function get_suppliers() {
-		return $this->get_entities('s');
-	}
-	
-	public function get_entities($type='') {
+	public function get_entities() {
 		global $db;
 
-		if(!empty($type)) {
-			$query_where = ' AND e.type="'.$db->escape_string($type).'"';
-		}
-		$query = $db->query('SELECT e.eid 
-							FROM '.Tprefix.'entities e 
-							JOIN '.Tprefix.'entitiessegments es ON (es.eid=e.eid) 
-							JOIN '.Tprefix.'productsegments p ON (p.psid=es.psid) 
-							WHERE p.psid='.intval($this->segment['psid']).''.$query_where);
+		$query = $db->query('SELECT e.eid  FROM '.Tprefix.'entities e JOIN '.Tprefix.'entitiessegments es  ON (es.eid=e.eid) 
+							JOIN '.Tprefix.'productsegments p  ON (p.psid=es.psid) WHERE e.type="s" AND p.psid='.intval($this->segment['psid']).'');
 		if($db->num_rows($query) > 0) {
-			while($entity = $db->fetch_assoc($query)) {
-				$segmentsemployees[$entity['eid']] = new Entities($entity['eid']);
+			while($rowsegmentsuppliers = $db->fetch_assoc($query)) {
+				$segmentsemployees[$rowsegmentsuppliers['esid']] = new Entities($rowsegmentsuppliers['eid']);
 			}
 			return $segmentsemployees;
 		}

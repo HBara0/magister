@@ -19,7 +19,7 @@ $currencies = array(
 		368 => 'IQD',
 		364 => 'IRR',
 		586 => 'PKR',
-		12 => 'DZD',
+		012 => 'DZD',
 		682 => 'SAR',
 		936 => 'GHS'
 );

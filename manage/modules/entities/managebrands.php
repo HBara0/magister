@@ -18,7 +18,6 @@ if($core->usergroup['canManageapllicationsProducts'] == 0) {
 }
 
 if(!$core->input['action']) {
-	$sort_url = sort_url();
 	$entitybrand_objs = EntitiesBrands::get_entitybrands();
 	if(is_array($entitybrand_objs)) {
 		foreach($entitybrand_objs as $entitybrand_obj) {
@@ -32,15 +31,13 @@ if(!$core->input['action']) {
 		$entitybrands_list = '<tr><td colspan="3">'.$lang->na.'</td></tr>';
 	}
 
-	$productypes_objs = EndproducTypes::get_endproductypes();
-	if(is_array($productypes_objs)) {
-		foreach($productypes_objs as $productypes_obj) {
-			$endproduct_types = $productypes_obj->get();
-			$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
-		}
+	$productypes_objs = Endproductypes::get_endproductypes();
+	foreach($productypes_objs as $productypes_obj) {
+		$endproduct_types = $productypes_obj->get();
+		$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
 	}
-	$module = 'entities';
-	$modulefile = 'managebrands';
+	$module='entities';
+	$modulefile='managebrands';
 	eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
 	eval("\$brandspage = \"".$template->get('admin_entities_brands')."\";");
 	output_page($brandspage);
@@ -54,7 +51,7 @@ else {
 				output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
 				break;
 			case 1:
-				output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+				output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
 				break;
 			case 2:
 				output_xml('<status>false</status><message>eeee'.$lang->itemalreadyexist.'</message>');

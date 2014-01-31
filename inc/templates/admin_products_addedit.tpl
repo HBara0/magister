@@ -55,7 +55,7 @@
                     <tr>
                         <td colspan="2">
                             <table width="100%" cellpadding="0" cellspacing="0">
-                                <tody id="chemicalslist_tbody">
+                                <tbody id="chemicalslist_tbody">
                                     <tr id="1">
                                         <td colspan="0">  
                                             <div  id="chemicalsubstances" style="width:100% ;height:120px; overflow:auto; display:inline-block; vertical-align:top;">
