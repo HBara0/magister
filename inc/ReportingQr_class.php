@@ -631,7 +631,7 @@ class ReportingQr Extends Reporting {
 			$id = $core->sanitize_email($id);
 		}
 
-		$password = Accounts::generate_password_string(10);
+		$password = Accounts::random_string(10, true);
 		$salt = random_string(10);
 		$loginKey = $this->create_loginkey();
 		$token = md5(uniqid(microtime(), true));

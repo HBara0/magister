@@ -40,9 +40,7 @@
                 </div>
                 <div>
                     <ul>
-                        <li>{$lang->timegmt}</li>
-                        <li>{$lang->timecity}</li>
-                        <li>{$lang->timecity2}</li>
+                {$timezones_list}
                     </ul>
                 </div>
             </div>
@@ -71,7 +69,7 @@
                 {$lang->mainmessage}
 
                 <p>
-                    <strong>Go to:</strong><br /> 
+        <strong>{$lang->goto}:</strong><br /> 
                 <div>
                     {$portalicons}
                     <span style="display:inline-block; width: 100px; height:100px; text-align:center; vertical-align:top;">

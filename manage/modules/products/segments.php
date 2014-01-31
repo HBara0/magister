@@ -31,7 +31,7 @@ if(!$core->input['action']) {
 
 	$aff_obj = new Affiliates($core->user['mainaffiliate']);
 	$affiliates_users = $aff_obj->get_users();
-	$coordinator_list = '<option value="" selected="selected"></option>';
+	//$coordinator_list = '<option value="" selected="selected"></option>';
 	if(is_array($affiliates_users)) {
 		foreach($affiliates_users as $uid => $user) {
 			$users_counter = 1;
@@ -72,17 +72,18 @@ else {
 
 				$coordinators['fromDate'] = strtotime($coordinators['fromDate']);
 				$segment_coordinators = array(
-						"psid" => $psid,
-						"uid" => $coordinators['uid'],
-						"fromDate" => $coordinators['fromDate'],
-						"createdBy" => $core->user['uid'],
-						"createdOn" => TIME_NOW
+						'psid' => $psid,
+						'uid' => $coordinators['uid'],
+						'fromDate' => $coordinators['fromDate'],
+						'createdBy' => $core->user['uid'],
+						'createdOn' => TIME_NOW
 				);
-				print_r($segment_coordinators);
-				$query = $db->insert_query("productsegmentcoordinators", $segment_coordinators);
+
+				$query = $db->insert_query('productsegmentcoordinators', $segment_coordinators);
 			}
+			
 			output_xml("<status>true</status><message>{$lang->segmentadded}</message>");
-			log_action($core->input['title']);
+			$log->record($core->input['title']);
 		}
 		else {
 			output_xml("<status>false</status><message>{$lang->segmentadderror}</message>");

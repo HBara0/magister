@@ -22,12 +22,12 @@ if(!$core->input['action']) {
 	$applications_obj = Segmentapplications::get_segmentsapplications();
 	if(is_array($applications_obj)) {
 		foreach($applications_obj as $application_obj) {
-			$applications = $application_obj->get();
-			$segments_objs = $application_obj->get_segment();
-			$segment = $segments_objs->get()['title'];
+			$application = $application_obj->get();
+			$application['segment'] = $application_obj->get_segment()->get()['title'];
 
-			if(is_array($applications)) {
-				$applications_list.='<option value='.$applications['psaid'].'>'.$applications['title'].' ->> '.$segment.'</option>';
+			if(is_array($application)) {
+				$applications_list .= '<option value='.$application['psaid'].'>'.$application['segment'].' - '.$application['title'].'</option>';
+				unset($application);
 			}
 		}
 	}

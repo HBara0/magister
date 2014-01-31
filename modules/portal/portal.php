@@ -15,7 +15,7 @@ if(!defined('DIRECT_ACCESS')) {
 
 $lang->load('portal');
 require_once INC_ROOT.'attendance_functions.php';
-require_once INC_ROOT.'currency_functions.php';
+//require_once INC_ROOT.'currency_functions.php';
 
 if(!$core->input['action']) {
 	/* Attendance box - Start */
@@ -118,19 +118,24 @@ if(!$core->input['action']) {
 	/* We're here to help box - End */
 
 	/* World time box - Start */
-	$gmttime = gmmktime(gmdate('h'), gmdate('i'), gmdate('s'), gmdate('n'), gmdate('d'), gmdate('Y'));
-	$gmtdate = gmdate($core->settings['timeformat']);
+	$gmttime = gmmktime(gmdate('H'), gmdate('i'), gmdate('s'), gmdate('n'), gmdate('d'), gmdate('Y'));
+	$gmtdate = gmdate('H:i');
 
-	$lang->timegmt = $lang->sprint($lang->timegmt, $gmtdate);
+	$tz_cities = array('Africa/Casablanca', 'Africa/Dakar', 'Africa/Abidjan', 'Europe/Paris', 'Africa/Lagos', 'Africa/Algiers', 'Africa/Tunis', 'Africa/Cairo', 'Asia/Beirut', 'Asia/Amman', 'Africa/Nairobi', 'Asia/Riyadh', 'Asia/Tehran', 'Asia/Dubai', 'Asia/Hong_Kong');
+	$timezones_list = '<li>'.$lang->sprint($lang->timegmt, $gmtdate).'</li>';
+	foreach($tz_cities as $timezone) {
+		$timezone_obj = new DateTimeZone($timezone);
+		$time_obj = new DateTime('now', $timezone_obj);
+		$timezone_city = str_replace('_', ' ', explode('/', $timezone));
 
-	$timezones['city1'] = new DateTime(null, new DateTimeZone('asia/beirut'));
-	$timezones['city2'] = new DateTime(null, new DateTimeZone('asia/dubai'));
-	$lang->timecity = $lang->sprint($lang->timecity, gmdate($core->settings['timeformat'], ($gmttime + $timezones['city1']->getOffset())), 'Beirut'); //Make timezone/city a setting/user setting
-	$lang->timecity2 = $lang->sprint($lang->timecity2, gmdate($core->settings['timeformat'], $gmttime + $timezones['city2']->getOffset()), 'Dubai');
+		$timezones_list .= '<li>'.$lang->sprint($lang->timecity, date('H:i', $gmttime + $timezone_obj->getOffset($time_obj)), ucwords($timezone_city[1])).'</li>';
+	}
 	/* World time box - End */
 
 	/* Portal Icons Section - Start */
 	$portalicons_options = array(
+			array('img' => 'portal-sourcing.png', 'title' => 'sourcing', 'link' => 'index.php?module=sourcing/listpotentialsupplier', 'permission' => 'canUseSourcing'),
+			array('img' => 'portal-surveys.png', 'title' => 'surveys', 'link' => 'index.php?module=surveys/list', 'permission' => 'canUseSurveys'),
 			array('img' => 'portal-reporting.png', 'title' => 'reporting', 'link' => 'index.php?module=reporting/home', 'permission' => 'canUseReporting'),
 			array('img' => 'portal-attendance.png', 'title' => 'attendance', 'link' => 'index.php?module=attendance/requestleave', 'permission' => 'canUseAttendance'),
 			array('img' => 'portal-crm.png', 'title' => 'crm', 'link' => 'index.php?module=crm/fillvisitreport', 'permission' => 'crm_canFillVisitReports'),
