@@ -49,9 +49,9 @@ if(!$core->input['action']) {
 	/* segment coordinators */
 	$segmentcoord_objs = $segment_obj->get_coordinators();
 	if(is_array($segmentcoord_objs)) {
-		$segment_coordinators = ' <div style="display:block;padding:5px; vertical-align: left;"> <ul>';
-		foreach($segmentcoord_objs as $segmentcoord_obj) { /* get the coordinators detials from the user object through get_coordinator() function */
-			$segment_coordinators.='<li> <a href="'.$core->settings['rootdir'].'/users.php?action=profile&uid='.$segmentcoord_obj->get_coordinator()->get()['uid'].'" target="_blank">'.$segmentcoord_obj->get_coordinator()->get()['displayName'].'</a></li> ';
+		$segment_coordinators = '<div><ul>';
+		foreach($segmentcoord_objs as $segmentcoord_obj) {
+			$segment_coordinators.='<li><a href="'.$core->settings['rootdir'].'/users.php?action=profile&uid='.$segmentcoord_obj->get_coordinator()->get()['uid'].'" target="_blank">'.$segmentcoord_obj->get_coordinator()->get()['displayName'].'</a></li> ';
 		}
 		$segment_coordinators .='</ul></div>';
 	}
@@ -59,40 +59,32 @@ if(!$core->input['action']) {
 	$segmentemployees_objs = $segment_obj->get_assignedemployees();
 	if(is_array($segmentemployees_objs)) {
  
-		$segment_employees = ' <div style="display:block;padding:5px; vertical-align: left;"> <ul>';
+		$segment_employees = ' <div> <ul>';
 		foreach($segmentemployees_objs as $assignedemployee) {
 			$segment_employees.='<li> <a href="'.$core->settings['rootdir'].'/users.php?action=profile&uid='.$assignedemployee->get()['uid'].'" target="_blank">'.$assignedemployee->get()['displayName'].'</a></li> ';
 		}
 		$segment_employees .='</ul></div>';
 	}
-	$segmentsuppliers_objs = $segment_obj->get_entities();
+	
+	$segmentsuppliers_objs = $segment_obj->get_suppliers();
 	if(is_array($segmentsuppliers_objs)) {
-		$segment_suppliers = ' <div style="display:block;padding:5px; vertical-align: left;"> <ul>';
+		$segment_suppliers = '<div><ul>';
 		foreach($segmentsuppliers_objs as $segmentsuppliers_obj) {
-			$segment_suppliers.='<li> <a href="'.$core->settings['rootdir'].'/index.php?module=profiles/entityprofile&eid='.$segmentsuppliers_obj->get()['eid'].'" target="_blank">'.$segmentsuppliers_obj->get()['companyName'].'</a></li> ';
+			$segment_suppliers .= '<li> <a href="'.$core->settings['rootdir'].'/index.php?module=profiles/entityprofile&eid='.$segmentsuppliers_obj->get()['eid'].'" target="_blank">'.$segmentsuppliers_obj->get()['companyName'].'</a></li> ';
 		}
 		$segment_suppliers .='</ul></div>';
 	}
 
-	if($core->usergroup['canViewAllCust'] == 0) {
-		$filter = ' AND ase.uid='.$core->user['uid'];
-	}
-	$segmentcustomer_objs = $segment_obj->get_customers($filter);
-	if(is_array($segmentcustomer_objs)) {
-		$segment_customers = ' <div style="display:block;padding:5px; vertical-align: left;"> <ul>';
-		foreach($segmentcustomer_objs as $segmentcustomer_obj) {
-			$segment_customers.='<li> <a href="'.$core->settings['rootdir'].'/index.php?module=profiles/entityprofile&eid='.$segmentcustomer_obj->get()['eid'].'" target="_blank">'.$segmentcustomer_obj->get()['companyName'].'</a></li> ';
-		}
-		$segment_customers .='</ul></div>';
-	}
-
-//	$segmentendproduct_objs = $segment_obj->get_endproduct();
-//	if(is_array($segmentendproduct_objs)) {		
+//	if($core->usergroup['canViewAllCust'] == 0) {
+//		$filter = ' AND ase.uid='.$core->user['uid'];
+//	}
+//	$segmentcustomer_objs = $segment_obj->get_customers($filter);
+//	if(is_array($segmentcustomer_objs)) {
 //		$segment_customers = ' <div style="display:block;padding:5px; vertical-align: left;"> <ul>';
-//		foreach($segmentendproduct_objs as $segmentendproduct_obj) {
-//			$segment_endproduct.='<li> '.$segmentendproduct_obj->get()['title'].'</a></li> ';
+//		foreach($segmentcustomer_objs as $segmentcustomer_obj) {
+//			$segment_customers.='<li> <a href="'.$core->settings['rootdir'].'/index.php?module=profiles/entityprofile&eid='.$segmentcustomer_obj->get()['eid'].'" target="_blank">'.$segmentcustomer_obj->get()['companyName'].'</a></li> ';
 //		}
-//		$segment_endproduct .='</ul></div>';
+//		$segment_customers .='</ul></div>';
 //	}
 
 	eval("\$segmentsprofilepage = \"".$template->get('profiles_segmentprofile')."\";");
