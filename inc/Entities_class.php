@@ -625,7 +625,7 @@ class Entities {
 			$meetings_sharedwith = Meetings::get_meetingsshares_byuser();
 			$filters .= ' AND (mtid IN (SELECT mtid FROM '.Tprefix.'meetings WHERE isPublic=1 OR createdBy='.$core->user['uid'].')';
 			if(is_array($meetings_sharedwith)) {
-				$filters .= ' OR (mtid IN ('.implode(', ', array_keys($meetings_sharedwith)).')';
+				$filters .= ' OR (mtid IN ('.implode(', ', array_keys($meetings_sharedwith)).'))';
 			}
 			$filters .= ')';
 		}
@@ -648,24 +648,25 @@ class Entities {
 		}
 		return false;
 	}
-	
+
 	public function get_brands() {
 		global $db;
 
 		$query = $db->query('SELECT ebid FROM '.Tprefix.'entitiesbrands WHERE eid="'.$db->escape_string($this->data['eid']).'"');
-		while($brand = $db->fetch_assoc($query)) {
-			$brands[$brand['ebid']] = new EntitiesBrands($brand['ebid']);
+		if($db->num_rows($query) > 0) {
+			while($brand = $db->fetch_assoc($query)) {
+				$brands[$brand['ebid']] = new EntitiesBrands($brand['ebid']);
+			}
+			return $brands;
 		}
-		return $brands;
-
 		return false;
 	}
 
-	public function parse_link($attributes_param=array('target' => '_blank')) {
+	public function parse_link($attributes_param = array('target' => '_blank')) {
 		if(!empty($this->data['companyName'])) {
 			$this->data['companyName'] .= ' ('.$this->data['companyNameAbbr'].')';
 		}
-		
+
 		if(is_array($attributes_param)) {
 			foreach($attributes_param as $attr => $val) {
 				$attributes .= $attr.' "'.$val.'"';
@@ -673,5 +674,6 @@ class Entities {
 		}
 		return '<a href="index.php?module=profiles/entityprofile&eid='.$this->data['eid'].'" '.$attributes.'>'.$this->data['companyName'].'</a>';
 	}
+
 }
 ?>
