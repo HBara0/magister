@@ -1,3 +1,8 @@
-<tr> <td><b>{$lang->competitorsuppliers} :</b> <ul>{$mrktintl_detials_competitorsuppliers}</ul> </td> </tr> 
-<tr> <td><b>{$lang->competitorproducts} :</b> <ul>{$mrktintl_detials_competitorproducts}</ul> </td> </tr> 
-<tr><td>{$lang->price}</td> <td>{$mrktintl_detials[competitors][unitPrice]}</td></tr>
+<div class="thead">{$lang->competitor}</div>
+<tr>
+    <th style="width:25%;"> {$lang->competitortype}</th>
+    <th style="width:25%;">{$lang->competitorname}</th>
+    <th style="width:25%;">{$lang->competitorproducts}</th>
+    <th style="width:25%;">{$lang->price}</th>
+</tr>
+{$mrktintl_detials_competitors_rows}

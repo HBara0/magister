@@ -30,6 +30,6 @@
         </tr>  
 
     </table>
-              <table>{$marketintelligencedetail_competitors}</table>  
+              <table width="100%">{$marketintelligencedetail_competitors}</table>  
             <div style="padding:8px;"><input class="button" value="{$lang->close}" id="hide_popupBox" type="button" onclick="$('#popup_mktintldetails').dialog('close')"></div>
 </div>

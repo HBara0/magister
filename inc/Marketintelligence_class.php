@@ -228,6 +228,22 @@ class Marketintelligencecompetitors {
 		return $marketcompsupp;
 	}
 
+	public function get_entityproducer() {
+		global $db;
+		$query = $db->query('SELECT producer  FROM '.Tprefix.'marketintelligence_competitors WHERE micid='.$this->mrktintelcompetitors['micid'].'');
+		while($rows = $db->fetch_assoc($query)) {
+			$marketcomproducer[$rows['producer']] = new Entities($rows['producer']);
+		}
+		return $marketcomproducer;
+	}
+		public function get_entitytrader() {
+		global $db;
+		$query = $db->query('SELECT trader  FROM '.Tprefix.'marketintelligence_competitors WHERE micid='.$this->mrktintelcompetitors['micid'].'');
+		while($rows = $db->fetch_assoc($query)) {
+			$marketcomptrader[$rows['trader']] = new Entities($rows['trader']);
+		}
+		return $marketcomptrader;
+	}
 	public function get() {
 		return $this->mrktintelcompetitors;
 	}
