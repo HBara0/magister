@@ -34,6 +34,5 @@
         </td>
     </tr>
     {$popup_createbrand}
-
 </body>
 </html>

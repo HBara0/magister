@@ -24,12 +24,12 @@
             <td><strong>{$lang->price}</strong></td>
             <td>{$mrktintl_detials[unitPrice]}</td>
         </tr> 
-    <tr>
+        <tr>
             <td><strong>{$lang->comment}</strong></td>
             <td> <div style="width:300px;overflow:auto;height:80px;line-height:20px;">{$mrktintl_detials[comments]}  </div></td>
         </tr>  
 
     </table>
-              <table>{$marketintelligencedetail_competitors}</table>  
-            <div style="padding:8px;"><input class="button" value="{$lang->close}" id="hide_popupBox" type="button" onclick="$('#popup_mktintldetails').dialog('close')"></div>
+    <table>{$marketintelligencedetail_competitors}</table>  
+    <div style="padding:8px;"><input class="button" value="{$lang->close}" id="hide_popupBox" type="button" onclick="$('#popup_mktintldetails').dialog('close')"></div>
 </div>
