@@ -595,7 +595,7 @@ function popUp(module, template, id) {
                         $("#" + loadingId).empty();
                     }
                 },
-                success: function(returnedData) { alert(returnedData);
+                success: function(returnedData) {
                     if (datatype == 'xml') {
                         if ($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -617,8 +617,8 @@ function popUp(module, template, id) {
                             }
                         }
                     }
-                }//,
-               // dataType: datatype
+                },
+                dataType: datatype
             });
         }
         function checkSession() {
