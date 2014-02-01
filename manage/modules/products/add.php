@@ -32,17 +32,21 @@ if(!$core->input['action']) {
 
 	/* Parse all  segapplicationfunctions and get the associatives functions and segment  */
 	$segappfunc_objs = Segapplicationfunctions::get_segmentsapplicationsfunctions();
-	foreach($segappfunc_objs as $segappfunc_obj) {
-		$rowclass = alt_row($rowclass);
-		/* call the associatives objects */
-		$segmentapp_data['segappfuncs'] = $segappfunc_obj->get();
-		$segmentapp_data['chemicalfunction'] = $segappfunc_obj->get_function()->get();
-		$segmentapp_data['segment'] = $segappfunc_obj->get_segment()->get()['title'];
-		$segmentapp_data['application'] = $segappfunc_obj->get_application()->get()['title'];
+	if(is_array($segappfunc_objs)) {
+		foreach($segappfunc_objs as $segappfunc_obj) {
+			$rowclass = alt_row($rowclass);
+			/* call the associatives objects */
+			$segmentapp_data['segappfuncs'] = $segappfunc_obj->get();
+			$segmentapp_data['chemicalfunction'] = $segappfunc_obj->get_function()->get();
+			$segmentapp_data['segment'] = $segappfunc_obj->get_segment()->get()['title'];
+			$segmentapp_data['application'] = $segappfunc_obj->get_application()->get()['title'];
 
-		eval("\$admin_products_addedit_segappfunc_rows .= \"".$template->get('\admin_products_addedit_segappfunc_row')."\";");
+			eval("\$admin_products_addedit_segappfunc_rows .= \"".$template->get('\admin_products_addedit_segappfunc_row')."\";");
+		}
 	}
-
+	else {
+		$admin_products_addedit_segappfunc_rows = $lang->na;
+	}
 	$chemicalp_rowid = 1;
 	eval("\$chemrows .= \"".$template->get('admin_products_addedit_chemicalsubstances_rows')."\";");
 	/* Chemical List - END */
@@ -138,7 +142,7 @@ else {
 	}
 	elseif($core->input['action'] == 'get_addnew_chemical') {
 		eval("\$createchemical= \"".$template->get('popup_admin_product_createchemical')."\";");
-		output_page($createchemical);
+		output($createchemical);
 	}
 }
 ?>

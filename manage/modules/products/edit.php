@@ -57,32 +57,36 @@ if(!$core->input['action']) {
 		$segappfunc_objs_where = 'psaid IN ('.implode(',', $segmentapplications).')';
 	}
 	$segappfunc_objs = Segapplicationfunctions::get_segmentsapplicationsfunctions($segappfunc_objs_where);
-	foreach($segappfunc_objs as $segappfunc_obj) {
-		$rowclass = alt_row($rowclass);
-		/* call the associatives objects */
-		$segmentapp_data['segappfuncs'] = $segappfunc_obj->get();
-		$cfpid = $db->fetch_field($db->query("SELECT cfpid 
+	if(is_array($segappfunc_objs)) {
+		foreach($segappfunc_objs as $segappfunc_obj) {
+			$rowclass = alt_row($rowclass);
+			/* call the associatives objects */
+			$segmentapp_data['segappfuncs'] = $segappfunc_obj->get();
+			$cfpid = $db->fetch_field($db->query("SELECT cfpid 
 											FROM ".Tprefix."chemfunctionproducts 
 											WHERE safid=".$segmentapp_data['segappfuncs']['safid']." AND pid='{$pid}'"), 'cfpid');
-		/* check the default */
-		if($cfpid == $product['defaultFunction']) {
-			$defaultfunctionchecked[$cfpid] = " checked='checked'";
-		}
-		$segmentapp_data['chemicalfunction'] = $segappfunc_obj->get_function()->get();
-		$segmentapp_data['existingprodfunctionids'] = $segmentapp_data['chemicalfunction']['cfid'];
+			/* check the default */
+			if($cfpid == $product['defaultFunction']) {
+				$defaultfunctionchecked[$cfpid] = " checked='checked'";
+			}
+			$segmentapp_data['chemicalfunction'] = $segappfunc_obj->get_function()->get();
+			$segmentapp_data['existingprodfunctionids'] = $segmentapp_data['chemicalfunction']['cfid'];
 
-		$chemfunc_obj = new Chemicalfunctions($segmentapp_data['existingprodfunctionids']);
-		//$chemicalfunc_id = $chemfunc_obj->get()['cfid'];
-		if(value_exists('chemfunctionproducts', 'safid', $segmentapp_data['segappfuncs']['safid'], 'pid='.$pid)) {
-			$defaultfunctionchecked[$segmentapp_data['segappfuncs']['safid']] = " checked='checked'";
-		}
-		$segmentapp_data['segment'] = $segappfunc_obj->get_segment()->get()['title'];
-		$segmentapp_data['application'] = $segappfunc_obj->get_application()->get()['title'];
+			$chemfunc_obj = new Chemicalfunctions($segmentapp_data['existingprodfunctionids']);
+			//$chemicalfunc_id = $chemfunc_obj->get()['cfid'];
+			if(value_exists('chemfunctionproducts', 'safid', $segmentapp_data['segappfuncs']['safid'], 'pid='.$pid)) {
+				$defaultfunctionchecked[$segmentapp_data['segappfuncs']['safid']] = " checked='checked'";
+			}
+			$segmentapp_data['segment'] = $segappfunc_obj->get_segment()->get()['title'];
+			$segmentapp_data['application'] = $segappfunc_obj->get_application()->get()['title'];
 
-		eval("\$admin_products_addedit_segappfunc_rows .= \"".$template->get('\admin_products_addedit_segappfunc_row')."\";");
-		$defaultfunctionchecked[$segmentapp_data['segappfuncs']['safid']] = '';
+			eval("\$admin_products_addedit_segappfunc_rows .= \"".$template->get('\admin_products_addedit_segappfunc_row')."\";");
+			$defaultfunctionchecked[$segmentapp_data['segappfuncs']['safid']] = '';
+		}
 	}
-
+	else {
+		$admin_products_addedit_segappfunc_rows = $lang->na;
+	}
 	$chemsubstance_objs = $product_obj->get_chemicalsubstance();
 	if(is_array($chemsubstance_objs)) {
 		foreach($chemsubstance_objs as $key => $chemsubstance_obj) {
@@ -100,14 +104,13 @@ if(!$core->input['action']) {
 	output_page($editpage);
 }
 else {
-	echo 'aaa';
 	if($core->input['action'] == 'do_perform_edit') {
 		if(empty($core->input['spid']) || empty($core->input['gpid']) || empty($core->input['name'])) {
 			output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
 			exit;
 		}
 		if(empty($core->input['applicationfunction']) && !isset($core->input['applicationfunction'])) {
-			output_xml("<status>false</status><message>selsect one app</message>");
+			output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
 			exit;
 		}
 		$check_query = $db->query("SELECT pid, name FROM ".Tprefix."products WHERE name='{$core->input[name]}' LIMIT 0,1");

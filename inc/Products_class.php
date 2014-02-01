@@ -62,7 +62,7 @@ class Products {
 
 	public function get_chemfunctionproducts() {
 		global $db;
-		$query = $db->query("SELECT cfpid  FROM ".Tprefix."chemfunctionproducts WHERE pid=".$db->escape_string($this->product['pid']));
+		$query = $db->query("SELECT cfpid FROM ".Tprefix."chemfunctionproducts WHERE pid=".$db->escape_string($this->product['pid']));
 		if($db->num_rows($query) > 0) {
 			while($chemfunctionproduct = $db->fetch_assoc($query)) {
 				$chemfunctionproducts[$chemfunctionproduct['cfpid']] = new Chemfunctionproducts($chemfunctionproduct['cfpid']);
@@ -74,7 +74,7 @@ class Products {
 
 	public function get_chemicalsubstance() {
 		global $db;
-		$query = $db->query("SELECT csid  FROM ".Tprefix."productschemsubstances WHERE pid=".$db->escape_string($this->product['pid']));
+		$query = $db->query("SELECT csid FROM ".Tprefix."productschemsubstances WHERE pid=".$db->escape_string($this->product['pid']));
 		if($db->num_rows($query) > 0) {
 			while($rowprodchemsubstance = $db->fetch_assoc($query)) {
 				$productschemsubstances[$rowprodchemsubstance['csid']] = new Chemicalsubstances($rowprodchemsubstance['csid']);

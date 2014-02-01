@@ -51,11 +51,13 @@
                                     <tbody id="chemicalproduct_tbody" >
                                         {$chemrows}
                                     </tbody>
+                                    <tfoot>
                                     <tr>
                                         <td colspan="2">
                                             <img src="../images/add.gif" id="addmore_chemicalproduct" alt="{$lang->add}" title="{$lang->add}" />
                                         </td>
                                     </tr>
+                                    </tfoot>
                                 </table>
                             </div> 
                         </td>
