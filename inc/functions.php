@@ -603,7 +603,7 @@ function quick_search($table, $flagtable, $attributes, $value, $select_attribute
 						$application = $application_obj->get_application()->get()['title'];
 						$segment = $application_obj->get_segment()->get()['title'];
 						$chemicalfuntion = $chemfuncprod_obj->get_chemicalfunction()->get()['title'];
-						$details = '</br><span class="smalltext" >'.$chemicalfuntion.' - '.$application.'-'.$segment.'</span>';
+						$details = '</br><span class="smalltext" >'.$chemicalfuntion.' - '.$application.' - '.$segment.'</span>';
 						$results_list .= '<li id="'.$cfpid.'">'.$val.$details.'</li>';
 					}
 				}
@@ -616,7 +616,7 @@ function quick_search($table, $flagtable, $attributes, $value, $select_attribute
 							$application = $application_obj->get_application()->get()['title'];
 							$segment = $application_obj->get_segment()->get()['title'];
 							$chemicalfuntion = $chemfuncprod_obj->get_chemicalfunction()->get()['title'];
-							$details = '</br><span class="smalltext" >'.$chemicalfuntion.' - '.$application.'-'.$segment.'</span>';
+							$details = '</br><span class="smalltext" >'.$chemicalfuntion.' - '.$application.' - '.$segment.'</span>';
 							$results_list .= '<li id="'.$cfpid.'">'.$val.$details.'</li>';
 						}
 					}

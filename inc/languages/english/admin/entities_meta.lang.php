@@ -38,7 +38,7 @@ $lang['specifyrepresentative'] = "Specify at least one represenative";
 $lang['representativeexists'] = "A representative with the same name already exists";
 $lang['representativecreated'] = "The representative was successfully created";
 $lang['errorcreatingreprentative'] = "Error creating representative";
-$lang['name'] = 'name';
+$lang['name'] = 'Name';
 $lang['potentialcusotmer'] = 'Potential Customer';
 $lang['potentialsupplier'] = 'Potential Supplier';
 $lang['contractualinformation'] = "Contractual Information";
@@ -56,5 +56,5 @@ $lang['presence'] = "Presence";
 $lang['regional'] = "Regional";
 $lang['local'] = "Local";
 $lang['multinational'] = "Multinational";
-
+$lang['entity'] = "Entity";
 ?>

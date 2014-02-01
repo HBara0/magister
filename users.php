@@ -47,21 +47,14 @@ if($core->input['action']) {
 			}
 			else {
 				$db->update_query('users', array('failedLoginAttempts' => $validation->get_real_failed_attempts() + 1, 'lastAttemptTime' => TIME_NOW), "uid='{$user_details[uid]}'");
-					if($validation->get_real_failed_attempts() == 3) {
-					if($validation->get_error_message()) {
-						$fail_message = $validation->get_error_message();
-					}
-					else {
-						$login_after = round($core->settings['failedlogintime'] - ((TIME_NOW - $user_details['lastAttemptTime']) / 60), 0);
-						$resetpasslink = '<a href="#" id="resetpassword">'.$lang->resetpassword.' </a>';
-						$fail_message = $lang->sprint($lang->reachedthreeatempts, $login_after);
-						output_xml("<status>false</status><message>{$fail_message}<![CDATA[{$resetpasslink}]]></message>");
-					}
+				if($validation->get_real_failed_attempts() >= 3) {
+					$lang->tryresetpassword = '<![CDATA[<br />'.$lang->tryresetpassword.']]>';
 				}
-				else {
-					$log->record($core->input['username'], 0);
-					output_xml("<status>false</status><message>{$lang->invalidlogin}</message>");
+				else { 
+					$lang->tryresetpassword = '';
 				}
+				$log->record($core->input['username'], 0);
+				output_xml("<status>false</status><message>{$lang->invalidlogin}{$lang->tryresetpassword}</message>");
 			}
 		}
 		else {

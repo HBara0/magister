@@ -413,7 +413,7 @@ $(function() {
         popUp(id[1], id[0] + "_" + id[2]);
     });
 
-    $('input[title],a[title],div[title]').qtip({style: {classes: 'ui-tooltip-green ui-tooltip-shadow'}, show: {event: 'focus mouseenter', solo: true}, hide: 'unfocus mouseleave', position: {viewport: $(window)}});
+    $('input[title],a[title],div[title],span[title]').qtip({style: {classes: 'ui-tooltip-green ui-tooltip-shadow'}, show: {event: 'focus mouseenter', solo: true}, hide: 'unfocus mouseleave', position: {viewport: $(window)}});
 
 function popUp(module, template, id) {
         if (id != 'users.php') {
@@ -595,7 +595,7 @@ function popUp(module, template, id) {
                         $("#" + loadingId).empty();
                     }
                 },
-                success: function(returnedData) { alert(returnedData);
+                success: function(returnedData) {
                     if (datatype == 'xml') {
                         if ($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -617,8 +617,8 @@ function popUp(module, template, id) {
                             }
                         }
                     }
-                }//,
-               // dataType: datatype
+                },
+                dataType: datatype
             });
         }
         function checkSession() {
