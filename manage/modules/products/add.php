@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright � 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright © 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Add products
  * $module: admin/products
@@ -43,14 +43,8 @@ if(!$core->input['action']) {
 		eval("\$admin_products_addedit_segappfunc_rows .= \"".$template->get('\admin_products_addedit_segappfunc_row')."\";");
 	}
 
-	$chemicalp_rowid = ($core->input['val'] + 1);
-	$chemrows = '<tr id='.$chemicalp_rowid.'>
-			<td colspan="2">'.$lang->chemicalsubstances.'</td><td><input type="text" value="'.$product['chemicalsubstances'][$key]['name'].'" id=chemicalproducts_'.$chemicalp_rowid.'_QSearch autocomplete="off" size="40px"/> 
-				  <input type="hidden" id="chemicalproducts_'.$chemicalp_rowid.'_id" name="chemsubstances['.$chemicalp_rowid.'][csid]"  value="'.$product['chemicalsubstances'][$key]['csid'].'"/>
-					   <div id="searchQuickResults_chemicalproducts_'.$chemicalp_rowid.'" class="searchQuickResults" style="display:none;"></div></td>
-				   <td><a class="showpopup" id="showpopup_createchemical"><img src="../images/addnew.png" border="0" alt="'.$lang->add.'"/></a></td>
-			</tr>';
-
+	$chemicalp_rowid = 1;
+	eval("\$chemrows .= \"".$template->get('admin_products_addedit_chemicalsubstances_rows')."\";");
 	/* Chemical List - END */
 	eval("\$chemicalsubstances = \"".$template->get('admin_products_chemicalsubstances')."\";");
 	eval("\$addproductspage = \"".$template->get('admin_products_addedit')."\";");
@@ -100,22 +94,23 @@ else {
 			if(isset($chemicalfunctionsproducts)) {
 				foreach($chemicalfunctionsproducts as $chemicalfunctions) {
 					foreach($chemicalfunctions as $safid) {
-						$chemfunctionproducts_arary = array('pid' => $pid,
+						$chemfunctionproducts_array = array('pid' => $pid,
 								'safid' => $safid,
 								'createdBy' => $core->user['uid'],
 								'createdOn' => TIME_NOW
 						);
-						$chemfunctionquery = $db->insert_query("chemfunctionproducts", $chemfunctionproducts_arary);
-						/* In case a default function is not selected, system would automatically pick the first checked checkbox */
-						if(empty($core->input['defaultFunction']) && !isset($core->input['defaultFunction'])) {
-							$cfpid = array_shift(array_values($chemicalfunctions)); /* shift the array and get the first element value */
+						$db->insert_query('chemfunctionproducts', $chemfunctionproducts_array);
+						if($safid == $core->input['defaultFunction']) {
+							$defaultfunction = $db->last_id();
 						}
-						else if($chemfunctionquery && isset($core->input['defaultFunction'])) {
-							$cfpid = $db->last_id();
-						}
-						$db->update_query('products', array('defaultFunction' => $cfpid), 'pid='.$pid);
 					}
 				}
+
+				if(empty($defaultfunction)) {
+					$defaultfunction = array_shift(array_values($chemicalfunctions)); /* shift the array and get the first element value */
+				}
+
+				$db->update_query('products', array('defaultFunction' => $defaultfunction), 'pid='.$pid);
 			}
 			$log->record($core->input['name']);
 

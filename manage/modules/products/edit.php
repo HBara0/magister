@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright � 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright © 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Edit products
  * $module: admin/products
@@ -23,9 +23,11 @@ if(!$core->input['action']) {
 	}
 
 	$pid = $db->escape_string($core->input['pid']);
-	$product = $db->fetch_array($db->query("SELECT p.*, s.companyName AS suppliername 
-											FROM ".Tprefix."products p LEFT JOIN ".Tprefix."entities s ON (p.spid=s.eid)
-											WHERE p.pid='{$pid}'"));
+	$product_obj = new Products($core->input['pid'], false);
+	$product = $product_obj->get();
+	$pid = $product['pid']; // Backward compatibility
+	$product['supplier_obj'] = $product_obj->get_supplier();
+	$product['suppliername'] = $product['supplier_obj']->get()['companyName'];
 
 	$generic_attributes = array('gpid', 'title');
 	$generic_order = array(
@@ -36,23 +38,34 @@ if(!$core->input['action']) {
 	$generics = get_specificdata('genericproducts', $generic_attributes, 'gpid', 'title', $generic_order);
 	$generics_list = parse_selectlist("gpid", 3, $generics, $product['gpid']);
 
-	$actiontype = "edit";
+	$actiontype = 'edit';
 	$pagetitle = $lang->sprint($lang->editproductwithname, $product['name']);
-	$product_obj = new Products($core->input['pid'], false);
 	//$checmicalfuncprod = $product_obj->get_defaultchemfunction();
 	//$checmicalfuncprod_ids = $checmicalfuncprod->get();
 
-
 	/* Parse all  segapplicationfunctions and get the associatives functions and segment  */
-	$segappfunc_objs = Segapplicationfunctions::get_segmentsapplicationsfunctions();
+	$supplier['segments'] = $product['supplier_obj']->get_segments();
+	$segment_applications = array();
+	foreach($supplier['segments'] as $segment_obj) {
+		$segmentapplications_obj = $segment_obj->get_applications();
+		if(is_array($segmentapplications_obj)) {
+			$segmentapplications = $segment_applications + array_keys($segmentapplications_obj);
+		}
+	}
+
+	if(!empty($segmentapplications)) {
+		$segappfunc_objs_where = 'psaid IN ('.implode(',', $segmentapplications).')';
+	}
+	$segappfunc_objs = Segapplicationfunctions::get_segmentsapplicationsfunctions($segappfunc_objs_where);
 	foreach($segappfunc_objs as $segappfunc_obj) {
 		$rowclass = alt_row($rowclass);
 		/* call the associatives objects */
 		$segmentapp_data['segappfuncs'] = $segappfunc_obj->get();
-		$cfpid = $db->fetch_field($db->query("SELECT cfpid FROM ".Tprefix."chemfunctionproducts 
+		$cfpid = $db->fetch_field($db->query("SELECT cfpid 
+											FROM ".Tprefix."chemfunctionproducts 
 											WHERE safid=".$segmentapp_data['segappfuncs']['safid']." AND pid='{$pid}'"), 'cfpid');
 		/* check the default */
-		if(($cfpid == $product['defaultFunction'])) {
+		if($cfpid == $product['defaultFunction']) {
 			$defaultfunctionchecked[$cfpid] = " checked='checked'";
 		}
 		$segmentapp_data['chemicalfunction'] = $segappfunc_obj->get_function()->get();
@@ -66,43 +79,28 @@ if(!$core->input['action']) {
 		$segmentapp_data['segment'] = $segappfunc_obj->get_segment()->get()['title'];
 		$segmentapp_data['application'] = $segappfunc_obj->get_application()->get()['title'];
 
-		eval("\$admin_products_addedit_segmentsapplicationsfunctions_rows .= \"".$template->get('admin_products_addedit_segmentsapplicationsfunctions_rows')."\";");
+		eval("\$admin_products_addedit_segappfunc_rows .= \"".$template->get('\admin_products_addedit_segappfunc_row')."\";");
 		$defaultfunctionchecked[$segmentapp_data['segappfuncs']['safid']] = '';
 	}
 
 	$chemsubstance_objs = $product_obj->get_chemicalsubstance();
-	$chemicalp_rowid = 0;
-	eval("\$chemrows = \"".$template->get('admin_products_addedit_chemicalsubstances_rows')."\";");
-	if(is_array($chemsubstance_objs))
+	if(is_array($chemsubstance_objs)) {
 		foreach($chemsubstance_objs as $key => $chemsubstance_obj) {
 			$chemicalp_rowid = $key;
 			$product['chemicalsubstances'][$key] = $chemsubstance_obj->get();
 			eval("\$chemrows .= \"".$template->get('admin_products_addedit_chemicalsubstances_rows')."\";");
 		}
-
-	/* Chemical List - START */
-//	$chemsubstances_objs = Chemicalsubstances::get_chemicalsubstances();
-//	$chemicalslist_section = '';
-//	if(is_array($chemsubstances_objs)) {
-//		foreach($chemsubstances_objs as $chemsubstances_obj) {
-//			$rowclass = alt_row($rowclass);
-//			$chemical = $chemsubstances_obj->get();
-//			if(value_exists('productschemsubstances', 'csid', $chemical['csid'], 'pid='.$pid)) {
-//				$chemsubstanceschecked[$chemical['csid']]['csid'] = ' checked="checked"';
-//			}
-//			$chemicalslist_section .= '<tr class="'.$rowclass.'" style="vertical-align:top;"><td width="1%"><input type="checkbox" '.$chemsubstanceschecked[$chemical['csid']][csid].' value="'.$chemical['csid'].'" name="chemsubstances[]"/></td><td width="33%">'.$chemical['casNum'].'</td><td align="left" width="33%">'.$chemical['name'].'</td><td width="33%">'.$chemical['synonyms'].'</td></tr>';
-//		}
-//	}
-//	else {
-//		$chemicalslist_section = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
-//	}
-//	$chemsubstanceschecked['csid'] = '';
-	/* Chemical List - END */
+	}
+	else {
+		$chemicalp_rowid = 1;
+		eval("\$chemrows = \"".$template->get('admin_products_addedit_chemicalsubstances_rows')."\";");
+	}
 	$pidfield = "<input type='hidden' value='{$pid}' name='pid'>";
 	eval("\$editpage = \"".$template->get("admin_products_addedit")."\";");
 	output_page($editpage);
 }
 else {
+	echo 'aaa';
 	if($core->input['action'] == 'do_perform_edit') {
 		if(empty($core->input['spid']) || empty($core->input['gpid']) || empty($core->input['name'])) {
 			output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
@@ -127,36 +125,44 @@ else {
 		$productschemsubstances = $core->input['chemsubstances'];
 		unset($core->input['action'], $core->input['module'], $core->input['applicationfunction'], $core->input['chemsubstances']);
 
-		if(isset($chemicalfunctionsproducts)) {
-			$db->delete_query('chemfunctionproducts', 'pid='.$db->escape_string($core->input['pid']));
-			foreach($chemicalfunctionsproducts as $chemicalfunctions) {
-				foreach($chemicalfunctions as $safid) {
-					$chemfunctionproducts_arary = array('pid' => $core->input['pid'],
-							'safid' => $safid,
+		$query = $db->update_query('products', $core->input, "pid='".$db->escape_string($core->input['pid'])."'");
+		if($query) {
+			if(isset($chemicalfunctionsproducts)) {
+				$db->delete_query('chemfunctionproducts', 'pid='.$db->escape_string($core->input['pid']));
+				foreach($chemicalfunctionsproducts as $chemicalfunctions) {
+					foreach($chemicalfunctions as $safid) {
+						$chemfunctionproducts_arary = array('pid' => $core->input['pid'],
+								'safid' => $safid,
+								'modifiedBy' => $core->user['uid'],
+								'modifiedOn' => TIME_NOW
+						);
+						$db->insert_query('chemfunctionproducts', $chemfunctionproducts_arary);
+						if($safid == $core->input['defaultFunction']) {
+							$defaultfunction = $db->last_id();
+						}
+					}
+				}
+
+				if(empty($defaultfunction)) {
+					$defaultfunction = array_shift(array_values($chemicalfunctions)); /* shift the array and get the first element value */
+				}
+
+				$db->update_query('products', array('defaultFunction' => $defaultfunction), 'pid='.$db->escape_string($core->input['pid']));
+			}
+
+			/* insert chemical functions produts */
+			if(isset($productschemsubstances)) {
+				$db->delete_query('productschemsubstances', 'pid='.$db->escape_string($core->input['pid']));
+				foreach($productschemsubstances as $productschemsubstances) {
+					$chemsubstances_array = array('pid' => $core->input['pid'],
+							'csid' => $productschemsubstances['csid'],
 							'modifiedBy' => $core->user['uid'],
 							'modifiedOn' => TIME_NOW
 					);
-					$db->insert_query('chemfunctionproducts', $chemfunctionproducts_arary);
+
+					$db->insert_query('productschemsubstances', $chemsubstances_array);
 				}
 			}
-		}
-
-		/* insert chemical functions produts */
-		if(isset($productschemsubstances)) {
-
-			$db->delete_query('productschemsubstances', 'pid='.$db->escape_string($core->input['pid']));
-			foreach($productschemsubstances as $productschemsubstances) {
-				$chemsubstances_arary = array('pid' => $core->input['pid'],
-						'csid' => $productschemsubstances['csid'],
-						'modifiedBy' => $core->user['uid'],
-						'modifiedOn' => TIME_NOW
-				);
-
-				$db->insert_query("productschemsubstances", $chemsubstances_arary);
-			}
-		}
-		$query = $db->update_query('products', $core->input, "pid='".$db->escape_string($core->input['pid'])."'");
-		if($query) {
 			$lang->productedited = $lang->sprint($lang->productedited, $core->input['name']);
 			output_xml("<status>true</status><message>{$lang->productedited}</message>");
 		}
@@ -185,7 +191,7 @@ else {
 	}
 	elseif($core->input['action'] == 'get_mergeanddelete') {
 		eval("\$mergeanddeletebox = \"".$template->get("popup_mergeanddelete")."\";");
-		echo $mergeanddeletebox;
+		output($mergeanddeletebox);
 	}
 }
 ?>
