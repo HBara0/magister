@@ -1,4 +1,5 @@
-<td class="menuContainer"><ul id="mainmenu">
+<td class="menuContainer">
+    <ul id="mainmenu">
         <li><span id="home/index"><a href='index.php?module=home/index'>{$lang->home}</a></span></li>
         <li><span id="config/settings"><a href='index.php?module=config/settings'>{$lang->systemsettings}</a></span></li>
         <li class="expandable"><span id="users">{$lang->manageusers}</span>
@@ -55,4 +56,5 @@
                 </ul>
             </div>
         </li>
-    </ul></td>
+    </ul>
+</td>

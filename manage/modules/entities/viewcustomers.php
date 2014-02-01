@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright ï¿½ 2009 Orkila International Offshore, All Rights Reserved
  * 
  * View customers
  * $module: admin/entities
@@ -78,7 +78,7 @@ else
 	elseif($core->input['action'] == "perform_mergeanddelete") 
 	{
 		if(empty($core->input['todelete'])) {
-			output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+			output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
 			exit;
 		}
 		$error_handler = new ErrorHandler(true);

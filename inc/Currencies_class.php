@@ -235,6 +235,40 @@ class Currencies {
 					LIMIT 0, 1"), 'rate');
 	}
 
+	public function get_latest_fxrate($currency, $options = array(), $base_currency = '') {
+		global $db;
+
+		if(empty($base_currency)) {
+			$base_currency = $this->base_currency;
+		}
+
+		if($currency == $base_currency) {
+			return 1;
+		}
+
+		if($this->cache->iscached('fxrates', $currency.'-latest-'.$base_currency)) {
+			return $this->cache->data['fxrates'][$currency.'-latest-'.$base_currency];
+		}
+
+		if(isset($options['incDate']) && $options['incDate'] == 1) {
+			$query_select = ', date';
+			return $this->cache->data['fxrates'][$currency.'-latest-'.$base_currency] = $db->fetch_assoc($db->query("SELECT rate".$query_select."
+				FROM ".Tprefix."currencies_fxrates
+				WHERE baseCurrency=(SELECT numCode FROM ".Tprefix."currencies WHERE alphaCode='".$db->escape_string($base_currency)."')
+				AND currency=(SELECT numCode FROM ".Tprefix."currencies WHERE alphaCode='".$db->escape_string($currency)."')
+				ORDER BY date DESC
+				LIMIT 0, 1"));
+		}
+		else {
+			return $this->cache->data['fxrates'][$currency.'-latest-'.$base_currency] = $db->fetch_field($db->query("SELECT rate".$query_select."
+				FROM ".Tprefix."currencies_fxrates
+				WHERE baseCurrency=(SELECT numCode FROM ".Tprefix."currencies WHERE alphaCode='".$db->escape_string($base_currency)."')
+				AND currency=(SELECT numCode FROM ".Tprefix."currencies WHERE alphaCode='".$db->escape_string($currency)."')
+				ORDER BY date DESC
+				LIMIT 0, 1"), 'rate');
+		}
+	}
+
 	public function get_lastmonth_fxrate($currency, $period, array $options = array(), $base_currency = '') {
 		global $db;
 
@@ -365,7 +399,8 @@ class Currencies {
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $source);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
 		$data = curl_exec($ch);
 		curl_close($ch);

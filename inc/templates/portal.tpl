@@ -23,6 +23,25 @@
             </div>
             <div class="portalbox">
                 <div class="portalbox_header">
+                    {$lang->worldtime}
+                </div>
+                <div>
+                    <ul>
+                        {$timezones_list}
+                    </ul>
+                </div>
+            </div>
+            <!-- <div class="portalbox">
+                 <div class="portalbox_header">
+            {$lang->currencyconvertor}
+        </div>
+        <div>
+            {$lang->from} {$currencyfrom_selectlist} {$lang->to} {$currencyto_selectlist}<br />
+            <span id="currencyconvert_Results"></span>
+        </div>
+    </div>-->
+            <div class="portalbox">
+                <div class="portalbox_header">
                     {$lang->usefulshortcuts}
                 </div>
                 <div>
@@ -34,34 +53,6 @@
                     </ul>
                 </div>
             </div>
-            <div class="portalbox">
-                <div class="portalbox_header">
-                    {$lang->worldtime}
-                </div>
-                <div>
-                    <ul>
-                {$timezones_list}
-                    </ul>
-                </div>
-            </div>
-            <div class="portalbox">
-                <div class="portalbox_header">
-                    {$lang->currencyconvertor}
-                </div>
-                <div>
-                    {$lang->from} {$currencyfrom_selectlist} {$lang->to} {$currencyto_selectlist}<br />
-                    <span id="currencyconvert_Results"></span>
-                </div>
-            </div>
-            <div class="portalbox">
-                <div class="portalbox_header">{$lang->todayfxrates}</div>
-                <div>{$lang->usdfxrates} <ul>
-                    {$currencies_rates}
-                    {$currencies_eurorates}
-                    {$currencies_gbprates}
-                </ul></div
-            
-            </div>
         </td>
         <td class="contentContainer">
             <div style="width: 63%; float:left;">
@@ -69,7 +60,7 @@
                 {$lang->mainmessage}
 
                 <p>
-        <strong>{$lang->goto}:</strong><br /> 
+                    <strong>{$lang->goto}:</strong><br /> 
                 <div>
                     {$portalicons}
                     <span style="display:inline-block; width: 100px; height:100px; text-align:center; vertical-align:top;">
@@ -89,17 +80,7 @@
                 </div>
             </p>
             <p><hr /></p>
-
         <span class="subtitle">{$lang->systemnews}</span>
-        <ul>
-            <li>Request leaves through OCOS is now available for Orkila Lebanon, Orkila Jordan, Orkila Syria, Orkila Egypt, Orkila Senegal, and Orkila Nigeria.</li>
-            <li>Orkila Employees directory is now available; get connected with your co-workers.</li>
-            <li>Update your profile with your latest contact info; and select a profile picture too!.</li>
-            <li>Tick "I have finished my part" in the last stage of a quarter report being prepared by multiple employees, save, and enjoy reminders-free days.</li>
-            <li>OCOS has a new portal style homepage.</li>
-            <li>You can now create your monthly reports.</li>
-            <li>Visit reports are available for you to record your visits.</li>
-        </ul>
         {$portal_news}
     </div>
     <div style="width:200px; float:right; margin:10px;">
@@ -123,6 +104,13 @@
                     <li>{$total_leaves} {$lang->leavestotal}</li>
                     <li>{$leaves_approved} {$lang->leavesapproved}</li>
                     <li>{$lang->leavescurrentmonth}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="portalbox">
+            <div class="portalbox_header">{$lang->latestfxrates}</div>
+            <div>{$lang->usdfxrate}<ul>
+                    {$currencysrates_list}
                 </ul>
             </div>
         </div>
