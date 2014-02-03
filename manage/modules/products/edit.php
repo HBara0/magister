@@ -85,19 +85,19 @@ if(!$core->input['action']) {
 		}
 	}
 	else {
-		$admin_products_addedit_segappfunc_rows = $lang->na;
+		$admin_products_addedit_segappfunc_rows = '<tr><td colspan=3>'.$lang->na.'</td></tr>';
 	}
 	$chemsubstance_objs = $product_obj->get_chemicalsubstance();
 	if(is_array($chemsubstance_objs)) {
 		foreach($chemsubstance_objs as $key => $chemsubstance_obj) {
 			$chemicalp_rowid = $key;
 			$product['chemicalsubstances'][$key] = $chemsubstance_obj->get();
-			eval("\$chemrows .= \"".$template->get('admin_products_addedit_chemicalsubstances_rows')."\";");
+			eval("\$chemrows .= \"".$template->get('admin_products_addedit_chemsubstances_row')."\";");
 		}
 	}
 	else {
 		$chemicalp_rowid = 1;
-		eval("\$chemrows = \"".$template->get('admin_products_addedit_chemicalsubstances_rows')."\";");
+		eval("\$chemrows = \"".$template->get('admin_products_addedit_chemsubstances_row')."\";");
 	}
 	$pidfield = "<input type='hidden' value='{$pid}' name='pid'>";
 	eval("\$editpage = \"".$template->get("admin_products_addedit")."\";");

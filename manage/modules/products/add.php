@@ -45,10 +45,10 @@ if(!$core->input['action']) {
 		}
 	}
 	else {
-		$admin_products_addedit_segappfunc_rows = $lang->na;
+		$admin_products_addedit_segappfunc_rows = '<tr><td colspan=3>'.$lang->na.'</td></tr>';
 	}
 	$chemicalp_rowid = 1;
-	eval("\$chemrows .= \"".$template->get('admin_products_addedit_chemicalsubstances_rows')."\";");
+	eval("\$chemrows .= \"".$template->get('admin_products_addedit_chemsubstances_row')."\";");
 	/* Chemical List - END */
 	eval("\$chemicalsubstances = \"".$template->get('admin_products_chemicalsubstances')."\";");
 	eval("\$addproductspage = \"".$template->get('admin_products_addedit')."\";");
