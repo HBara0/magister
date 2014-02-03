@@ -171,12 +171,7 @@ if(!$core->input['action']) {
 	$fxrates['GBP'] = $currency_obj->get_latest_fxrate('GBP', array('incDate' => 1));
 	$affiliates_currencies['EUR']['name'] = array('alphaCode' => 'EUR', 'name' => 'EUR');
 	$affiliates_currencies['GBP']['name'] = array('alphaCode' => 'GBP', 'name' => 'GBP');
-	}
-	
-	$affiliatecurrenciesquery = $db->query('SELECT affid, cur.alphaCode, cur.name 
-											FROM '.Tprefix.'countries c
-											ORDER BY cur.alphaCode');
-
+ 
 	$affiliatecurrenciesquery = $db->query('SELECT affid, cur.alphaCode, cur.name 
 											FROM '.Tprefix.'countries c
 											JOIN '.Tprefix.'currencies cur ON (c.mainCurrency=cur.numCode)
