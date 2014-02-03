@@ -164,23 +164,24 @@ if(!$core->input['action']) {
 
 	/* Portal Currencies Section - Start */
 	$currency_obj = new Currencies('USD');
-
 	$fxrates['EUR'] = $currency_obj->get_latest_fxrate('EUR', array('incDate' => 1));
 	if(!empty($fxrates['EUR'])) {
 		$currencysrates_list = '<li>EUR '.$fxrates['EUR']['rate'].'  <span class="smalltext" style="color:#CCC;">'.date($core->settings['dateformat'], $fxrates['EUR']['date']).'</span></li>';
 	}
-
 	$fxrates['GBP'] = $currency_obj->get_latest_fxrate('GBP', array('incDate' => 1));
-	if(!empty($fxrates['GBP'])) {
-		$currencysrates_list .= '<li>GBP '.$fxrates['GBP']['rate'].' <span class="smalltext" style="color:#CCC;">'.date($core->settings['dateformat'], $fxrates['GBP']['date']).'</span></li>';
+	$affiliates_currencies['EUR']['name'] = array('alphaCode' => 'EUR', 'name' => 'EUR');
+	$affiliates_currencies['GBP']['name'] = array('alphaCode' => 'GBP', 'name' => 'GBP');
 	}
 	
+	$affiliatecurrenciesquery = $db->query('SELECT affid, cur.alphaCode, cur.name 
+											FROM '.Tprefix.'countries c
+											ORDER BY cur.alphaCode');
+
 	$affiliatecurrenciesquery = $db->query('SELECT affid, cur.alphaCode, cur.name 
 											FROM '.Tprefix.'countries c
 											JOIN '.Tprefix.'currencies cur ON (c.mainCurrency=cur.numCode)
 											WHERE affid IN('.implode(',', $core->user['affiliates']).')
 											ORDER BY cur.alphaCode');
-
 	while($country_currency = $db->fetch_assoc($affiliatecurrenciesquery)) {
 		$affiliates_currencies[$country_currency['alphaCode']]['name'] = $country_currency;
 	}
@@ -190,7 +191,7 @@ if(!$core->input['action']) {
 		$fxrates[$currency['alphaCode']] = $currency_obj->get_latest_fxrate($currency['alphaCode'], array('incDate' => 1));
 
 		if(!empty($fxrates[$currency['alphaCode']]['rate'])) {
-			$currencysrates_list .= '<li>'.$currency['alphaCode'].' '.$fxrates[$currency['alphaCode']]['rate'].' <span class="smalltext" style="color:#CCC;">'.date($core->settings['dateformat'], $fxrates[$currency['alphaCode']]['date']).'</span></li>';
+			$currencysrates_list .= '<li><span title="'.round(1 / $fxrates[$currency['alphaCode']]['rate'], 4).'">'.$currency['alphaCode'].' '.$fxrates[$currency['alphaCode']]['rate'].'</span> <span class="smalltext" style="color:#CCC;">'.date($core->settings['dateformat'], $fxrates[$currency['alphaCode']]['date']).'</span></li>';
 		}
 	}
 

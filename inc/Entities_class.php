@@ -662,6 +662,19 @@ class Entities {
 		return false;
 	}
 
+	public function get_segments() {
+		global $db;
+
+		$query = $db->query('SELECT psid FROM '.Tprefix.'entitiessegments WHERE eid='.intval($this->data['eid']));
+		if($db->num_rows($query) > 0) {
+			while($segment = $db->fetch_assoc($query)) {
+				$segments[$segment['psid']] = new ProductsSegments($segment['psid']);
+			}
+			return $segments;
+		}
+		return false;
+	}
+
 	public function parse_link($attributes_param = array('target' => '_blank')) {
 		if(!empty($this->data['companyName'])) {
 			$this->data['companyName'] .= ' ('.$this->data['companyNameAbbr'].')';

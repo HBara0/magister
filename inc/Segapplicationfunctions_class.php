@@ -39,7 +39,7 @@ class Segapplicationfunctions {
 		return new Segmentapplications($this->segapplicationfunction['psaid']);
 	}
 
-	public static function get_segmentsapplicationsfunctions() {
+	public static function get_segmentsapplicationsfunctions($filter_where = '') {
 		global $db, $core;
 
 		$sort_query = ' ORDER BY psaid ASC';
@@ -55,8 +55,12 @@ class Segapplicationfunctions {
 		if(isset($core->input['start'])) {
 			$limit_start = $db->escape_string($core->input['start']);
 		}
-		
-		$query = $db->query('SELECT safid FROM '.Tprefix.'segapplicationfunctions'.$sort_query.' LIMIT '.$limit_start.', '.$core->settings['itemsperlist']);
+
+		if(!empty($filter_where) && isset($filter_where)) {
+			$filter_where = ' WHERE '.$filter_where;
+		}
+
+		$query = $db->query('SELECT safid FROM '.Tprefix.'segapplicationfunctions'.$filter_where.$sort_query.' LIMIT '.$limit_start.', '.$core->settings['itemsperlist']);
 		if($db->num_rows($query) > 0) {
 			while($rowsegappfunc = $db->fetch_assoc($query)) {
 				$segments_applicationsfunctions[$rowsegappfunc['safid']] = new Segapplicationfunctions($rowsegappfunc['safid']);
