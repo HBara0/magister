@@ -66,7 +66,7 @@ if(!$core->input['action']) {
 		$segmentapp_data['segment'] = $segappfunc_obj->get_segment()->get()['title'];
 		$segmentapp_data['application'] = $segappfunc_obj->get_application()->get()['title'];
 
-		eval("\$admin_products_addedit_segmentsapplicationsfunctions_rows .= \"".$template->get('admin_products_addedit_segmentsapplicationsfunctions_rows')."\";");
+		eval("\$admin_products_addedit_segappfunc_rows .= \"".$template->get('\admin_products_addedit_segappfunc_row')."\";");
 		$defaultfunctionchecked[$segmentapp_data['segappfuncs']['safid']] = '';
 	}
 
@@ -80,23 +80,6 @@ if(!$core->input['action']) {
 			eval("\$chemrows .= \"".$template->get('admin_products_addedit_chemicalsubstances_rows')."\";");
 		}
 
-	/* Chemical List - START */
-//	$chemsubstances_objs = Chemicalsubstances::get_chemicalsubstances();
-//	$chemicalslist_section = '';
-//	if(is_array($chemsubstances_objs)) {
-//		foreach($chemsubstances_objs as $chemsubstances_obj) {
-//			$rowclass = alt_row($rowclass);
-//			$chemical = $chemsubstances_obj->get();
-//			if(value_exists('productschemsubstances', 'csid', $chemical['csid'], 'pid='.$pid)) {
-//				$chemsubstanceschecked[$chemical['csid']]['csid'] = ' checked="checked"';
-//			}
-//			$chemicalslist_section .= '<tr class="'.$rowclass.'" style="vertical-align:top;"><td width="1%"><input type="checkbox" '.$chemsubstanceschecked[$chemical['csid']][csid].' value="'.$chemical['csid'].'" name="chemsubstances[]"/></td><td width="33%">'.$chemical['casNum'].'</td><td align="left" width="33%">'.$chemical['name'].'</td><td width="33%">'.$chemical['synonyms'].'</td></tr>';
-//		}
-//	}
-//	else {
-//		$chemicalslist_section = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
-//	}
-//	$chemsubstanceschecked['csid'] = '';
 	/* Chemical List - END */
 	$pidfield = "<input type='hidden' value='{$pid}' name='pid'>";
 	eval("\$editpage = \"".$template->get("admin_products_addedit")."\";");

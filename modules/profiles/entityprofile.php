@@ -175,7 +175,7 @@ if(!$core->input['action']) {
 
 	$segment_query = $db->query("SELECT * FROM ".Tprefix."entitiessegments es JOIN ".Tprefix." productsegments ps ON (es.psid=ps.psid) WHERE es.eid={$eid}");
 	while($segment = $db->fetch_assoc($segment_query)) {
-		$segmentlist .= $segment['title'].'<br />';
+		$segmentlist .= '<a href="index.php?module=profiles/segmentprofile&id='.$segment['psid'].'" target="_blank">'.$segment['title'].'<br />';
 	}
 
 	$affiliate_query = $db->query("SELECT *

@@ -37,7 +37,7 @@ if(!$core->input['action']) {
 		$segmentapp_data['chemicalfunction'] = $segappfunc_obj->get_function()->get();
 		$segmentapp_data['segment'] = $segappfunc_obj->get_segment()->get()['title'];
 		$segmentapp_data['application'] = $segappfunc_obj->get_application()->get()['title'];
-		eval("\$contents_products_add_segmentsapplicationsfunctions .= \"".$template->get("contents_products_add_segmentsapplicationsfunctions_rows")."\";");
+		eval("\$contents_products_add_segappfunc_rows .= \"".$template->get('contents_products_add_segappfunc_row')."\";");
 	}
 	eval("\$addproductspage = \"".$template->get('contents_products_add')."\";");
 	output_page($addproductspage);

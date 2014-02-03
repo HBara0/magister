@@ -163,36 +163,37 @@ if(!$core->input['action']) {
 	/* Portal Calendar Section - End */
 
 	/* Portal Currencies Section - Start */
-
-
 	$currency_obj = new Currencies('USD');
-	$affiliatecurrenciesquery = $db->query('SELECT affid, cur.alphaCode, cur.name FROM '.Tprefix.'countries c
-											JOIN '.Tprefix.'currencies cur ON (c.mainCurrency = cur.numCode)
-											WHERE affid IN('.implode(',', $core->user['affiliates']).')');
 
-	$from = strtotime('today 00:00:00');
-	$to = strtotime('today 23:59:59');
+	$fxrates['EUR'] = $currency_obj->get_latest_fxrate('EUR', array('incDate' => 1));
+	if(!empty($fxrates['EUR'])) {
+		$currencysrates_list = '<li>EUR '.$fxrates['EUR']['rate'].'  <span class="smalltext" style="color:#CCC;">'.date($core->settings['dateformat'], $fxrates['EUR']['date']).'</span></li>';
+	}
+
+	$fxrates['GBP'] = $currency_obj->get_latest_fxrate('GBP', array('incDate' => 1));
+	if(!empty($fxrates['GBP'])) {
+		$currencysrates_list .= '<li>GBP '.$fxrates['GBP']['rate'].' <span class="smalltext" style="color:#CCC;">'.date($core->settings['dateformat'], $fxrates['GBP']['date']).'</span></li>';
+	}
+	
+	$affiliatecurrenciesquery = $db->query('SELECT affid, cur.alphaCode, cur.name 
+											FROM '.Tprefix.'countries c
+											JOIN '.Tprefix.'currencies cur ON (c.mainCurrency=cur.numCode)
+											WHERE affid IN('.implode(',', $core->user['affiliates']).')
+											ORDER BY cur.alphaCode');
+
 	while($country_currency = $db->fetch_assoc($affiliatecurrenciesquery)) {
-		$affiliates_currencies[$country_currency['alphaCode']]['name'] = $country_currency['name'];
+		$affiliates_currencies[$country_currency['alphaCode']]['name'] = $country_currency;
 	}
+
 	foreach($affiliates_currencies as $code => $cname) {
-		$currencies = $currency_obj->get_currency_by_alphacode($code);
-		$fxrates[$currencies['alphaCode']] = $currency_obj->get_average_fxrate($currencies['alphaCode'], array('from' => $from, 'to' => $to));
-		$fxrates['EUR'] = $currency_obj->get_average_fxrate($currencies['alphaCode'], array('from' => $from, 'to' => $to, '', 'EUR'));
-		$fxrates['GBP'] = $currency_obj->get_average_fxrate($currencies['alphaCode'], array('from' => $from, 'to' => $to, '', 'GBP'));
-		if(!empty($fxrates[$currencies['alphaCode']]['date'])) {
-			$fxrates_date = date($core->settings['dateformat'], $fxrates[$currencies['alphaCode']]['date']);
-		}
-		if(!empty($fxrates['EUR'])) {
-			$currencies_eurorates = '<li>EUR '.formatit($fxrates['EUR']).' ('.trim(formatit(1 / $fxrates['EUR'])).' <span class = "smalltext">'.$fxrates_date.'</span></li>';
-		}
-		if(!empty($fxrates['GBP'])) {
-			$currencies_gbprates = '<li>GBP '.formatit($fxrates['GBP']).' ('.trim(formatit(1 / $fxrates['GBP'])).' <span class = "smalltext">'.$fxrates_date.'</span></li>';
-		}
-		if(!empty($fxrates[$currencies['alphaCode']]['rate'])) {
-			$currencies_rates.='<li>'.$cname['name'].' '.$fxrates[$currencies['alphaCode']]['rate'].' <span class = "smalltext">'.$fxrates_date.'</span></li>';
+		$currency = $currency_obj->get_currency_by_alphacode($code);
+		$fxrates[$currency['alphaCode']] = $currency_obj->get_latest_fxrate($currency['alphaCode'], array('incDate' => 1));
+
+		if(!empty($fxrates[$currency['alphaCode']]['rate'])) {
+			$currencysrates_list .= '<li>'.$currency['alphaCode'].' '.$fxrates[$currency['alphaCode']]['rate'].' <span class="smalltext" style="color:#CCC;">'.date($core->settings['dateformat'], $fxrates[$currency['alphaCode']]['date']).'</span></li>';
 		}
 	}
+
 	//$curreny = new Currencies('USD');
 	//$curreny->set_fx_rates('http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml');
 	//$currencies =  get_specificdata('currencies ', array('alphaCode', 'alphaCode'), 'alphaCode', 'alphaCode', 'alphaCode', 0);
