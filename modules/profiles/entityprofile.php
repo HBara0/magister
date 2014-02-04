@@ -48,7 +48,7 @@ if(!$core->input['action']) {
 
 	/* Market Data --START */
 	$filter_where = 'eid IN ('.$eid.')';
-	if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
+	if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
 		$addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarket.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
 		$array_data = array('module' => 'profiles', 'elemtentid' => $eid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
 		/* to be replacing the below variables */
@@ -517,9 +517,11 @@ if(!$core->input['action']) {
 		$brandsendproducts = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
 	}
 	$productypes_objs = Endproductypes::get_endproductypes();
-	foreach($productypes_objs as $productypes_obj) {
-		$endproduct_types = $productypes_obj->get();
-		$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
+	if(is_array($productypes_objs)) {
+		foreach($productypes_objs as $productypes_obj) {
+			$endproduct_types = $productypes_obj->get();
+			$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
+		}
 	}
 	eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
 	eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
