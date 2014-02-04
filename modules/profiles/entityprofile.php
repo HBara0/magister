@@ -48,7 +48,7 @@ if(!$core->input['action']) {
 
 	/* Market Data --START */
 	$filter_where = 'eid IN ('.$eid.')';
-	if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
+	if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
 		$addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarket.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
 		$array_data = array('module' => 'profiles', 'elemtentid' => $eid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
 		/* to be replacing the below variables */
