@@ -508,9 +508,11 @@ if(!$core->input['action']) {
 		$brandsendproducts = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
 	}
 	$productypes_objs = Endproductypes::get_endproductypes();
-	foreach($productypes_objs as $productypes_obj) {
-		$endproduct_types = $productypes_obj->get();
-		$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
+	if(is_array($productypes_objs)) {
+		foreach($productypes_objs as $productypes_obj) {
+			$endproduct_types = $productypes_obj->get();
+			$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
+		}
 	}
 	eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
 	eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");

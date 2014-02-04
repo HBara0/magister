@@ -12,7 +12,7 @@
                     $("tr[id='supplierType']").hide();
                 }
             {$showhideparent_customer}
-    {$showhideparent_company}
+            {$showhideparent_company}
                 $("select[id='type']").change(function() {
 
                     if ($(this).val() == 's' || $(this).val() == 'cs' || $(this).val() == 'potentialsupplier') {
