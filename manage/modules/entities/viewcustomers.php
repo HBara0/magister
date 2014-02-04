@@ -51,7 +51,7 @@ if(!$core->input['action']) {
 			//}
 
 			$entities_list .= '<tr class="'.$class.'"><td>'.$customer['eid'].'</td><td>'.$customer['companyName'].'</td><td>'.$affiliates.'</td><td>'.$customer['country'].'</td>';
-			$entities_list .= '<td><a href="index.php?module=entities/edit&amp;eid='.$customer['eid'].'"><img src="'.$core->settings['rootdir'].'/images/edit.gif" alt="'.$lang->edit.'" border="0" /></a>'.$mergedelete_icon.'</tr>';
+			$entities_list .= '<td><a href="index.php?module=entities/edit&amp;eid='.$customer['eid'].'&type=customer"><img src="'.$core->settings['rootdir'].'/images/edit.gif" alt="'.$lang->edit.'" border="0" /></a>'.$mergedelete_icon.'</tr>';
 		}
 		$multipages = new Multipages("entities", $core->settings['itemsperlist'], "type='c'");
 		$entities_list .= "<tr><td colspan='4'>".$multipages->parse_multipages()."</td><td style='text-align: right;'><a href='".$_SERVER['REQUEST_URI']."&amp;action=exportexcel'><img src='../images/xls.gif' alt='{$lang->exportexcel}' border='0' /></a></td></tr>";

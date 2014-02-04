@@ -22,7 +22,17 @@ if(!$core->input['action']) {
 	if(!isset($core->input['eid']) || empty($core->input['eid'])) {
 		redirect('index.php?module=home/index');
 	}
-
+	if(isset($core->input['type'])) {
+		if($core->input['type'] == 'supplier') {
+			$selected_type = 's';
+			$showhideparent_customer = '$("tr[id=parentcustomer]").hide()';
+		}
+		else {
+			$selected_type = 'customer';
+			$showhideparent_company = '$("tr[id=parentcompany]").hide()';
+			$noqreportsend_disabled = $noqreportreq_disabled = $createreports_disabled = ' disabled';
+		}
+	}
 	$eid = $db->escape_string($core->input['eid']);
 	//$entity = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid='{$eid}'"));
 

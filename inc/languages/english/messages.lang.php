@@ -136,4 +136,6 @@ $lang['visitreport_reminder_subject'] = 'Visit Reports Reminder';
 $lang['yournewpassword'] = 'Your New OCOS Account Password';
 $lang['unmetchemicalsubject']='You have unmet chemcial requests ';
 $lang['unmetchemicalbody']='The following chemical requests have not been completely responded to: ';
+$lang['report_notviewdsubject']='Not viewed reports Notifications';
+$lang['report_notviewdmessage']='The following QR have not been viewed by any of the recipients: '
 ?>

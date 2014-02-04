@@ -57,4 +57,5 @@ $lang['regional'] = "Regional";
 $lang['local'] = "Local";
 $lang['multinational'] = "Multinational";
 $lang['entity'] = "Entity";
+$lang['parentcustomer']='Parent Customer';
 ?>
