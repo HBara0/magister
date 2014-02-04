@@ -147,9 +147,7 @@ if(!$core->input['action']) {
 		$profile['logo'] = $core->settings['rootdir'].'/'.$core->settings['entitylogodir'].'/'.$profile['logo'];
 	}
 
-	$profile['country'] = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid=' {
-			$profile[country]
-		}'"), 'name');
+	$profile['country'] = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid='{$profile[country]}'"), 'name');
 
 	$profile['fulladdress'] .= $profile['country'];
 
@@ -205,22 +203,15 @@ if(!$core->input['action']) {
 		}' target='_blank'>{$entityusers['fullname']}</a></li>";
 		}
 		elseif($entityusers_counter == $core->settings['itemsperlist']) {
-			$shown_entityallusers .= "<li><a href='./users.php?action = profile&uid = {
-			$entityusers[uid]
-		}' target='_blank'>{$entityusers['fullname']}</a>";
+			$shown_entityallusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a>";
 		}
 		else {
-			$shown_entityallusers .= "<li><a href='./users.php?action = profile&uid = {
-			$entityusers[uid]
-		}' target='_blank'>{$entityusers['fullname']}</a></li>";
+			$shown_entityallusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a></li>";
 		}
 	}
 
 	if($entityusers_counter > $core->settings['itemsperlist']) {
-		$entityallusers = "<ul style='list-style:none;
-		padding:2px;
-		margin-top:0px;
-		'>".$shown_entityallusers.", <a href='#entityusers' id='showmore_entityusers_{$entityusers[uid]}' class='smalltext'>read more</a></li> <span style='display:none;' id='entityusers_{$entityusers[uid]}'>{$hidden_entityusers}</span></ul>";
+		$entityallusers = "<ul style='list-style:none; padding:2px; margin-top:0px;'>".$shown_entityallusers.", <a href='#entityusers' id='showmore_entityusers_{$entityusers[uid]}' class='smalltext'>read more</a></li> <span style='display:none;' id='entityusers_{$entityusers[uid]}'>{$hidden_entityusers}</span></ul>";
 	}
 	else {
 		$entityallusers = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_entityallusers.'</ul>';
