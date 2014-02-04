@@ -22,16 +22,17 @@ if(!$core->input['action']) {
 	if(isset($core->input['type'])) {
 		if($core->input['type'] == 'supplier') {
 			$selected_type = 's';
+			$showhideparent_customer = '$("tr[id=parentcustomer]").hide()';
 		}
 		else {
 			$selected_type = 'c';
+			$showhideparent_company ='$("tr[id=parentcompany]").hide()';
 			$createreports_disabled = ' disabled';
 		}
 	}
 	else {
 		$createreports_disabled = ' disabled';
 	}
-
 	if($core->usergroup['canCreateReports'] == 0) {
 		$createreports_disabled = ' disabled';
 	}

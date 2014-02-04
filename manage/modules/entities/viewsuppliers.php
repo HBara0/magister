@@ -1,7 +1,7 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright ï¿½ 2009 Orkila International Offshore, All Rights Reserved
  * 
  * View customers
  * $module: admin/entities
@@ -57,7 +57,7 @@ if(!$core->input['action']) {
 				$class = alt_row($class);
 			}
 			$entities_list .= "<tr class='{$class}'><td>{$supplier[eid]}</td><td><a href='../index.php?module=profiles/entityprofile&amp;eid={$supplier[eid]}'>{$supplier[companyName]}</a></td><td>{$affiliates}</td><td>{$supplier[cname]}</td>";
-			$entities_list .= "<td style='text-align: right;'>{$approve_icon}<a href='index.php?module=entities/edit&amp;eid={$supplier[eid]}'><img src='{$core->settings[rootdir]}/images/edit.gif' alt='{$lang->edit}' border='0' /></a></tr>";
+			$entities_list .= "<td style='text-align: right;'>{$approve_icon}<a href='index.php?module=entities/edit&amp;eid={$supplier[eid]}&type=supplier'><img src='{$core->settings[rootdir]}/images/edit.gif' alt='{$lang->edit}' border='0' /></a></tr>";
 		}
 		$multipages = new Multipages('entities', $core->settings['itemsperlist'], "type='s'");
 		$entities_list .= "<tr><td colspan='4'>".$multipages->parse_multipages()."</td><td style='text-align: right;'><a href='".$_SERVER['REQUEST_URI']."&amp;action=exportexcel'><img src='../images/xls.gif' alt='{$lang->exportexcel}' border='0' /></a></td></tr>";

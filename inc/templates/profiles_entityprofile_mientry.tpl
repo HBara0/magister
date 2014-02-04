@@ -10,9 +10,7 @@
         <div class="timeline_column" style="width:2%;"><a style="cursor: pointer;" title="{$lang->viewmrktbox}" id="mktintldetails_{$mktintldata[mibdid]}_profiles/entityprofile_loadpopupbyid" rel="mktdetail_{$mktintldata[mibdid]}"><img src="{$core->settings[rootdir]}/images/icons/search.gif"/></a></div>
 
     </div>
-    
     <div class="timeline_container" id="previoustimelinecontainer_{$mktintldata[cfpid]}">
         {$previoustimelinerows}
     </div>
-
 </div>
