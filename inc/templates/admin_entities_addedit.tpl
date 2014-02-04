@@ -8,8 +8,7 @@
                     $("tr[id^='contractsection_']").hide();
                     $("tr[id='supplierType']").hide();
                 }
-            {$showhideparent_customer}
-            {$showhideparent_company}
+
                 $("select[id='type']").change(function() {
                     if ($(this).val() == 's' || $(this).val() == 'cs' || $(this).val() == 'potentialsupplier') {
                         $("#createReports,#noQReportReq,#noQReportSend").removeAttr("disabled");
@@ -31,12 +30,11 @@
                     if ($(this).is(":checked")) {
                         $("#createReports,#noQReportSend").attr("disabled", "true");
                     }
-                    else
-                     {
-                                     $("#createReports,#noQReportSend").removeAttr("disabled");
-                                 }
-                             });
-                         });
+                    else {
+                        $("#createReports,#noQReportSend").removeAttr("disabled");
+                    }
+                });
+            });
         </script>
     </head>
     <body>
