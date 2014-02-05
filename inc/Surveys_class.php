@@ -258,10 +258,10 @@ class Surveys {
 										else {
 											$question_choices_values[0] = $choice;
 										}
-
 										if(empty($question_choices_values[0])) {
 											continue;
 										}
+
 										if(empty($question_choices_values[1])) {
 											$question_choices_values[1] = $question_choices_values[0];
 										}
@@ -270,7 +270,7 @@ class Surveys {
 											$question_choices_values[1] = $question_choices_values[0];
 										}
 
-										if(!empty($question_choices_values[0]) && (!empty($question_choices_values[1]) && $question_choices_values[1] != 0)) {
+										if(!empty($question_choices_values[0]) && (!empty($question_choices_values[1]))) {
 											$newsurveys_questions_choices = array('stqid' => $stqid, 'choice' => trim($question_choices_values[0]), 'value' => trim($question_choices_values[1]));
 											$query_choice = $db->insert_query('surveys_templates_questions_choices', $newsurveys_questions_choices);
 										}
@@ -283,8 +283,8 @@ class Surveys {
 				}
 			}
 			$log->record('createsurveytemplate', $stid);
-			$this->status = 0;
-			return true;
+			//$this->status = 0;
+			//return true;
 		}
 		else {
 			$this->status = 3;
