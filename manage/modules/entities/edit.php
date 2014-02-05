@@ -22,17 +22,7 @@ if(!$core->input['action']) {
 	if(!isset($core->input['eid']) || empty($core->input['eid'])) {
 		redirect('index.php?module=home/index');
 	}
-	if(isset($core->input['type'])) {
-		if($core->input['type'] == 'supplier') {
-			$selected_type = 's';
-			$showhideparent_customer = '$("tr[id=parentcustomer]").hide()';
-		}
-		else {
-			$selected_type = 'customer';
-			$showhideparent_company = '$("tr[id=parentcompany]").hide()';
-			$noqreportsend_disabled = $noqreportreq_disabled = $createreports_disabled = ' disabled';
-		}
-	}
+
 	$eid = $db->escape_string($core->input['eid']);
 	//$entity = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid='{$eid}'"));
 
@@ -50,6 +40,7 @@ if(!$core->input['action']) {
 	if($entity['type'] == 's' && $core->usergroup['canManageSuppliers'] == 0) {
 		redirect('index.php?module=home/index');
 	}
+
 	if($entity['isPotential'] == 1 && $entity[type] == 's') {
 		$entity['type'] = 'potentialsupplier';
 	}
@@ -62,13 +53,12 @@ if(!$core->input['action']) {
 	$supptypes_list = parse_selectlist('supplierType', 1, $supptypes, $entity['supplierType']);
 	$presence = array('regional' => $lang->regional, 'local' => $lang->local, 'multinational' => $lang->multinational);
 	$presence_list = parse_selectlist('presence', 2, $presence, $entity['presence']);
-	
+
 	$query = $db->query("SELECT psid FROM ".Tprefix."entitiessegments WHERE eid='{$eid}'");
 	while($segment = $db->fetch_assoc($query)) {
 		$entity_segments[$segment['psid']] = $segment['psid'];
 	}
 	$segments_list = parse_selectlist("psid[]", 3, get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', 'title'), $entity_segments, 1);
-
 
 	$affiliates_attributes = array('affid', 'name');
 	$affiliates_order = array(
