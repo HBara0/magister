@@ -32,7 +32,7 @@ $main_calendar = new Calendar($view_type, array('year' => $core->input['year'], 
 $calendar_title = $main_calendar->get_title();
 
 if($view_type == 'week') {
-	$main_calendar->read_leaves(false, '', array(8));
+	$main_calendar->read_leaves(false, '', array(10));
 	$calendar = $main_calendar->get_calendar_weekview();
 
 	$previous_period = $main_calendar->get_prev_period();
@@ -71,15 +71,15 @@ else {
 	$eventaffiliates_selectlist = parse_selectlist('event[affid]', 2, $affiliates, '', '', '', array('blankstart' => 1));
 
 	$suppliers_selectlist = '-';
-	if(is_array($core->user['suppliers']['eid'])) {
-		if($core->usergroup['canViewAllSupp'] == 0) {
 
+	if($core->usergroup['canViewAllSupp'] == 0) {
+		if(is_array($core->user['suppliers']['eid'])) {
 			$insupplier = implode(',', $core->user['suppliers']['eid']);
 			$supplier_where = ' eid IN ('.$insupplier.')';
 		}
-		else {
-			$supplier_where = ' type="s"';
-		}
+	}
+	else {
+		$supplier_where = ' type="s"';
 		$suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, $supplier_where);
 		$suppliers_selectlist = parse_selectlist('event[spid]', 3, $suppliers, '', 0, '', array('blankstart' => 1, 'id' => 'spid'));
 	}
