@@ -70,7 +70,11 @@ if(!$core->input['action']) {
 	if(is_array($segmentsuppliers_objs)) {
 		$segment_suppliers = '<div><ul>';
 		foreach($segmentsuppliers_objs as $segmentsuppliers_obj) {
-			$segment_suppliers .= '<li> <a href="'.$core->settings['rootdir'].'/index.php?module=profiles/entityprofile&eid='.$segmentsuppliers_obj->get()['eid'].'" target="_blank">'.$segmentsuppliers_obj->get()['companyName'].'</a></li> ';
+			if($segmentsuppliers_obj->requires_qr()) {
+				$segment_suppliers_entrysuffix = ' <img src="./images/icons/star_transp.png" title="'.$lang->receivesqr.'"/>';
+			}
+			$segment_suppliers .= '<li><a href="'.$core->settings['rootdir'].'/index.php?module=profiles/entityprofile&eid='.$segmentsuppliers_obj->get()['eid'].'" target="_blank">'.$segmentsuppliers_obj->get()['companyName'].'</a>'.$segment_suppliers_entrysuffix.'</li> ';
+			$segment_suppliers_entrysuffix = '';
 		}
 		$segment_suppliers .='</ul></div>';
 	}
