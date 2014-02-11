@@ -224,13 +224,17 @@ else {
 		}
 		$leavetype_details = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['type'])."'"));
 
+		if($leavetype_details['isSick'] == 1 && $core->input['uid'] == $core->user['uid']) {
+			output_xml("<status>false</status><message>{$lang->cannotrequestthistype}</message>");
+			exit;
+		}
+
 		if(isset($leavetype_details['reasonIsRequired']) && $leavetype_details['reasonIsRequired'] == 1) {
 			if(empty($core->input['reason']) || strlen($core->input['reason']) <= 20) {
 				header('Content-type: text/xml+javascript');
 				output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'<![CDATA[<script>$("#reason").attr("required",true);</script>]]></message>');
 				exit;
 			}
-			
 		}
 
 		$leavetype_coexist = unserialize($leavetype_details['coexistWith']);

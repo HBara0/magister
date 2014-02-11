@@ -110,7 +110,7 @@ else {
 	if($core->input['action'] == 'getaffiliates') {
 		$leavetype_details = $db->fetch_assoc($db->query("SELECT isBusiness, noNotification FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['ltid'])."'"));
 
-		echo parse_toinform_list($core->input['uid'], '', $leavetype_details);
+		output(parse_toinform_list($core->input['uid'], '', $leavetype_details));
 	}
 	elseif($core->input['action'] == 'getadditionalfields') {
 		$additional_fields = unserialize($db->fetch_field($db->query("SELECT additionalFields FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['ltid'])."'"), 'additionalFields'));
@@ -118,7 +118,7 @@ else {
 			foreach($additional_fields as $key => $val) {
 				$fields .= parse_additonalfield($key, $val).'<br />';
 			}
-			echo $fields;
+			output($fields);
 		}
 	}
 	elseif($core->input['action'] == 'getleavetime') {
@@ -232,7 +232,7 @@ else {
 			$hidden_fields = '<br />'.$lang->customizeit.':'.$hidden_fields;
 		}
 
-		echo $lang->sprint($lang->betweenhours, $leave_actual_times['fromHour'], $leave_actual_times['fromMinutes'], $leave_actual_times['toHour'], $leave_actual_times['toMinutes'], $leave_actual_times['workingDays']).$hidden_fields;
+		output($lang->sprint($lang->betweenhours, $leave_actual_times['fromHour'], $leave_actual_times['fromMinutes'], $leave_actual_times['toHour'], $leave_actual_times['toMinutes'], $leave_actual_times['workingDays']).$hidden_fields);
 	}
 	elseif($core->input['action'] == 'do_perform_requestleave') {
 		//NO LEAVE IF BEFORE EMPLOYMENT 
@@ -284,6 +284,11 @@ else {
 		}
 
 		$leavetype_details = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['type'])."'"));
+		if($leavetype_details['isSick'] == 1 && $core->input['uid'] == $core->user['uid']) {
+			output_xml("<status>false</status><message>{$lang->cannotrequestthistype}</message>");
+			exit;
+		}
+
 		if(!empty($lang->{$leavetype_details['name']})) {
 			$leavetype_details['title'] = $lang->{$leavetype_details['name']};
 		}
@@ -339,13 +344,13 @@ else {
 				}
 			}
 		}
+
 		if(isset($leavetype_details['reasonIsRequired']) && $leavetype_details['reasonIsRequired'] == 1) {
 			if(empty($core->input['reason']) || strlen($core->input['reason']) <= 20) {
 				header('Content-type: text/xml+javascript');
 				output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'<![CDATA[<script>$("#reason").attr("required",true);</script>]]></message>');
 				exit;
 			}
-		
 		}
 		/* Validate required Fields - END */
 		$query = $db->insert_query('leaves', $core->input);
@@ -427,7 +432,6 @@ else {
 //									  FROM ".Tprefix."affiliates
 //									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
 //			}
-
 //			if(is_array($secondapprovers)) {
 //				$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
 //				unset($secondapprovers);
@@ -481,6 +485,7 @@ else {
 				update_leavestats_periods($core->input, $leavetype_details['isWholeDay'], $approve_immediately);
 			}
 			/* Generate Leaves Balances - END */
+
 			if($approve_immediately == false) {
 				//$approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=perform_approveleave&toapprove='.base64_encode($core->input['requestKey']).'&referrer=email';
 				$approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($core->input['requestKey']).'&id='.base64_encode($lid);
@@ -493,6 +498,29 @@ else {
 				$lang->leavenotificationmessage_days = $lang->sprint($lang->leavenotificationmessage_days, $leave['workingdays']);
 
 				$lang->requestleavesubject = $lang->sprint($lang->requestleavesubject, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']), $core->input['requestKey']);
+
+				/* Parse expense information for message - START */
+				if($leaveexpense->has_expenses()) {
+					$expenses_data = $leaveexpense->get_expensesdetails();
+					$expenses_message = '';
+					foreach($expenses_data as $expense) {
+						if(!empty($lang->{$expense['name']})) {
+							$expense['title'] = $lang->{$expense['name']};
+						}
+
+						if(isset($expense['description']) && !empty($expense['description'])) {
+							$expense['description'] = ' ('.$expense['description'].')';
+						}
+
+						$expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].$expense['description'].'<br />';
+					}
+
+					$total = $leaveexpense->get_expensestotal();
+					$expenses_message_ouput = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
+				}
+				/* Parse expense information for message - END */
+
+				$core->input['reason'] .= $expenses_message_ouput;
 				if($already_approved == true) {
 					$lang->requestleavemessage = $lang->sprint($lang->requestleavemessagesupervisor, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($todate_format, $core->input['toDate']), $core->input['reason'], $core->user['firstName'].' '.$core->user['lastName'], $approve_link);
 				}
@@ -508,36 +536,11 @@ else {
 						  ($leavestats['canTake'] - $leavestats['daysTaken']),
 						  ($leavestats['canTake'] - $leavestats['daysTaken']) - $leave['workingdays']); */
 
-						$lang->requestleavemessage_stats = $lang->sprint($lang->requestleavemessage_stats, ($leavestats['canTake'] - $leavestats['daysTaken']) + $leavestats['additionalDays'], (($leavestats['canTake'] - $leavestats['daysTaken']) + $leavestats['additionalDays']) - $leave['workingdays']
-						);
+						$lang->requestleavemessage_stats = $lang->sprint($lang->requestleavemessage_stats, ($leavestats['canTake'] - $leavestats['daysTaken']) + $leavestats['additionalDays'], (($leavestats['canTake'] - $leavestats['daysTaken']) + $leavestats['additionalDays']) - $leave['workingdays']);
 					}
 					else {
 						$lang->requestleavemessage_stats = '';
 					}
-
-					/* Parse expense information for message - START */
-					if($leaveexpense->has_expenses()) {
-						$expenses_data = $leaveexpense->get_expensesdetails();
-						$expenses_message = '';
-						foreach($expenses_data as $expense) {
-
-							if(!empty($lang->{$expense['name']})) {
-								$expense['title'] = $lang->{$expense['name']};
-							}
-
-							if(isset($expense['description']) && !empty($expense['description'])) {
-								$expense['description'] = ' ('.$expense['description'].')';
-							}
-
-							$expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].$expense['description'].'<br />';
-						}
-
-						$total = $leaveexpense->get_expensestotal();
-						$expenses_message_ouput = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
-					}
-					/* Parse expense information for message - END */
-
-					$core->input['reason'] .= $expenses_message_ouput;
 
 					if(!empty($leave['details_crumb'])) {
 						$leave['details_crumb'] = ' - '.$leave['details_crumb'];
@@ -646,7 +649,7 @@ else {
 				$expences_fields .= $leavetype->parse_expensesfield($val);
 			}
 			eval("\$expsection = \"".$template->get('attendance_requestleave_expsection')."\";");
-			echo $expsection;
+			output($expsection);
 		}
 	}
 }
