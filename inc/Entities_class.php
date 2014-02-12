@@ -688,7 +688,7 @@ class Entities {
 	}
 
 	public function parse_link($attributes_param = array('target' => '_blank')) {
-		if(!empty($this->data['companyName'])) {
+		if(!empty($this->data['companyNameAbbr'])) {
 			$this->data['companyName'] .= ' ('.$this->data['companyNameAbbr'].')';
 		}
 
