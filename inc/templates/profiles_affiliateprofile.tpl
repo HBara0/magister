@@ -46,10 +46,11 @@ span.listitem:hover { border-bottom: #CCCCCC solid thin; }
 		 </td> 
 		 <td valign="top" style="width:50%;padding:10px;">
 		   <div class="subtitle" style="margin-bottom:5px;">{$lang->management}</div>
-		   <span style="font-weight:bold;">{$lang->gm}</span>: {$gm}<br />
-		   <span style="font-weight:bold;">{$lang->supervisor}</span>: {$supervisor}
-		   <br /><span style="font-weight:bold;">{$lang->hrmanager}</span>: {$hr}<br /><br />
-           {$lang->workshift}: {$profile[workshift]}
+		   <span style="font-weight:bold;">{$lang->gm}</span>: {$profile[generalManager_output]}<br />
+		   <span style="font-weight:bold;">{$lang->supervisor}</span>: {$profile[supervisor_output]}<br />
+                   <span style="font-weight:bold;">{$lang->finmanager}</span>: {$profile[finManager_output]}<br />
+		   <span style="font-weight:bold;">{$lang->hrmanager}</span>: {$profile[hrManager_output]}<br /><br />
+                    {$lang->workshift}: {$profile[workshift]}
 		</td> 
 	 </tr>
 	 <tr>
