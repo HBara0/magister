@@ -59,8 +59,8 @@ else {
 					'title' => ucwords(strtolower($core->input['event']['title'])),
 					'description' => ucfirst(strtolower($core->input['event']['description'])),
 					'uid' => $core->user['uid'],
-					'affid'=> $core->input['event']['affid'],
-					'spid'=> $core->input['event']['spid'],
+					'affid' => $core->input['event']['affid'],
+					'spid' => $core->input['event']['spid'],
 					'isPublic' => $core->input['event']['isPublic'],
 					'place' => $core->input['event']['place'],
 					'type' => $core->input['event']['type'],
@@ -77,16 +77,6 @@ else {
 			}
 
 			$query = $db->insert_query('calendar_events', $new_event);
-			if($query) {
-				$log->record($core->input['type'], $last_id);
-				header('Content-type: text/xml+javascript');
-				output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>>'); //<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>
-				exit;
-			}
-			else {
-				output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
-				exit;
-			}
 			$last_id = $db->last_id();
 
 			if($core->input['event']['isPublic'] == 1 && $core->usergroup['calendar_canAddPublicEvents'] == 1) {
@@ -95,7 +85,7 @@ else {
 						foreach($core->input['event']['restrictto'] as $affid) {
 							$db->insert_query('calendar_events_restrictions', array('affid' => $affid, 'ceid' => $last_id));
 						}
-
+		
 						if(isset($core->input['event']['notify']) && $core->input['event']['notify'] == 1) {
 							/* Send the event notification - START */
 							$notification_mails = get_specificdata('affiliates', array('affid', 'mailingList'), 'affid', 'mailingList', '', 0, 'mailingList != "" AND affid IN('.implode(',', $core->input['event']['restrictto']).')');
@@ -115,9 +105,8 @@ else {
 							$email_data['message'] .= ')<br />';
 							$email_data['message'] .= $core->input['event']['place'].'<br />';
 							$email_data['message'] .= str_replace("\n", '<br />', $core->input['event']['description']);
-
+							
 							$mail = new Mailer($email_data, 'php');
-
 							if($mail->get_status() === true) {
 								$log->record($notification_mails, $last_id);
 							}
@@ -129,6 +118,16 @@ else {
 						}
 					}
 				}
+			}
+			if($query) {
+				$log->record($core->input['type'], $last_id);
+				header('Content-type: text/xml+javascript');
+				output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>>'); //<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>
+				exit;
+			}
+			else {
+				output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+				exit;
 			}
 		}
 		else {
@@ -247,7 +246,7 @@ else {
 
 					$mail = new Mailer($notification, 'php');
 				}
-				header('Content-type: text/xml+javascript'); 
+				header('Content-type: text/xml+javascript');
 				output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[<script>$('#note').val(''); $('#calendar_task_notes').prepend('<div id=\'note_1\' style=\'padding: 5px 0px 5px 10px;\' class=\'altrow2\'>".$db->escape_string($core->input['note']).". <span class=\'smalltext\' style=\'font-style:italic;\'>".date($core->settings['dateformat'], TIME_NOW)." by <a href=\'users.php?action=profile&uid=".$core->user['uid']."\' target=\'_blank\'>".$core->user['displayName']."</a></span></div>');</script>]]></message>");
 				exit;
 			case 1:
