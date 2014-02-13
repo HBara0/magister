@@ -24,7 +24,7 @@ class MeetingsAssociations {
 
 	private function read($id, $simple = false) {
 		global $db;
-		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meetings_associations WHERE mtaid=".$db->escape_string($id)));
+		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meetings_associations WHERE matid=".$db->escape_string($id)));
 	}
 
 	public static function set_association($association = array()) {

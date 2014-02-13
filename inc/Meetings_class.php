@@ -13,7 +13,6 @@
  *
  * @author tony.assaad
  */
-
 class Meetings {
 	private $meeting = array();
 	private $errorcode = 0;
@@ -38,7 +37,6 @@ class Meetings {
 		global $db, $core, $log;
 		if(is_array($meeting_data)) {
 			$this->meeting = $meeting_data;
-
 			if(empty($this->meeting['title'])) {
 				$this->errorcode = 1;
 				return false;
@@ -92,24 +90,41 @@ class Meetings {
 					'createdBy' => $core->user['uid'],
 					'createdOn' => TIME_NOW
 			);
-
 			$insertquery = $db->insert_query('meetings', $meeting_data);
 			if($insertquery) {
 				$this->errorcode = 0;
 				$this->meeting['mtid'] = $mtid = $db->last_id();
 
 				$log->record('addedmeeting', $mtid);
-//$this->get_meetingassociations($this->meeting['mtid'])->set_associations($this->meeting['associations']);
-				$this->set_associations();
+				//$this->get_meetingassociations($this->meeting['mtid'])->set_associations($this->meeting['associations']);
+				$this->set_associations($this->meeting['associations']);
 				/* insert meetings Attendees */
-				$this->set_attendees();
+				$this->set_attendees($this->meeting['attendees']);
+				if(isset($this->meeting['attendees']['notifyuser']) && ($this->meeting['attendees']['notifyuser'] == 1)) {
+					$this->meeting['attendees']['mtid'] = $this->meeting['mtid'];
+					$this->notify_usersattendee($this->meeting['attendees']);
+				}
+				if(isset($this->meeting['attendees']['notifyrep']) && ($this->meeting['attendees']['notifyrep'] == 1)) {
+					$this->meeting['attendees']['mtid'] = $this->meeting['mtid'];
+					$this->notify_repattendee($this->meeting['attendees']);
+				}
 				return true;
 			}
 		}
 	}
 
-	private function set_attendees($attendees = '') {
+	private function notify_usersattendee($notificationsdata) {
+		MeetingsAttendees::notify_attendees($notificationsdata);
+	}
+
+	private function notify_repattendee($notificationsdata) {
+		//unset($notificationsdata[notifyuser], $notificationsdata[notifyrep]);
+		MeetingsAttendees::notify_attendees($notificationsdata);
+	}
+
+	private function set_attendees(array $attendees) {
 		global $core;
+		unset($attendees['notifyuser'], $attendees['notifyrep']);
 		if(empty($attendees)) {
 			$attendees = $this->meeting['attendees'];
 		}
@@ -119,13 +134,15 @@ class Meetings {
 
 		if(!empty($attendees)) {
 			foreach($attendees as $attendee) {
-				if(empty($attendee)) {
-					continue;
+				foreach($attendee as $key => $val) {
+					if(empty($val)) {
+						continue;
+					}
+					$new_attendee['mtid'] = $this->meeting['mtid'];
+					$new_attendee['idAttr'] = $key;
+					$new_attendee['attendee'] = $core->sanitize_inputs($val);
+					MeetingsAttendees::set_attendee($new_attendee);
 				}
-				$new_attendee['mtid'] = $this->meeting['mtid'];
-				$new_attendee['idAttr'] = $attendee['idAttr'];
-				$new_attendee['attendee'] = $attendee['attendee'];
-				MeetingsAttendees::set_attendee($new_attendee);
 			}
 		}
 	}
@@ -152,8 +169,9 @@ class Meetings {
 		global $db, $log, $core;
 		$associations = $meeting_data['associations'];
 		$attendees = $meeting_data['attendees'];
-		unset($meeting_data['attendees'], $meeting_data['associations']);
-
+		$notifyuser = $attendees['notifyuser'];
+		$notifyrep = $attendees['notifyrep'];
+		unset($meeting_data['attendees'], $meeting_data['associations'], $attendees['notifyuser'], $attendees['notifyrep']);
 		if(value_exists('meetings', 'title', $meeting_data['title'], 'mtid!='.intval($this->meeting['mtid']).' AND createdBy='.$core->user['uid'].'')) {
 			$this->errorcode = 3;
 			return false;
@@ -166,11 +184,24 @@ class Meetings {
 		if($query) {
 			$this->errorcode = 2;
 			$log->record('updatedmeeting', $this->meeting['mtid']);
-
-			$db->delete_query('meetings_attendees', 'mtid='.intval($this->meeting['mtid']));
-			$this->set_attendees($attendees);
+			if(is_array($attendees)) {
+				foreach($attendees as $meeetingattendees) {
+					$meetingatt_obj = new MeetingsAttendees($meeetingattendees['matid']);
+					$meetingatt_obj->update_attendees($meeetingattendees);
+				}
+			}
 			$db->delete_query('meetings_associations', 'mtid='.intval($this->meeting['mtid']));
 			$this->set_associations($associations);
+		}
+
+		if(isset($notifyuser) && $notifyuser == 1) {
+			$attendees['notifyuser'] = 1;
+			$attendees['mtid'] = $this->meeting['mtid'];
+			$this->notify_usersattendee($attendees);
+		}
+		if(isset($notifyrep) && ($notifyrep == 1)) {
+			$attendees['notifyrep'] = 1;
+			$this->notify_repattendee($attendees);
 		}
 	}
 
@@ -229,17 +260,20 @@ class Meetings {
 		return false;
 	}
 
-	public function get_attendees() {
+	public function get_attendees($filters = array()) {
 		global $db;
 
-		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_attendees WHERE mtid = '.intval($this->meeting['mtid']));
+		if(is_array($filters['atttypes'])) {
+			$filter_where = ' WHERE idAttr IN("'.implode('","', $filters[atttypes]).'") AND mtid='.intval($this->meeting['mtid']).'';
+		}
+		else {
+			$filter_where = ' WHERE mtid='.intval($this->meeting['mtid']).'';
+		}
+		$query = $db->query('SELECT matid FROM '.Tprefix.'meetings_attendees '.$filter_where.'');
 		if($db->num_rows($query)) {
-			while($attendee = $db->fetch_assoc($query)) {
-				if($attendee['idAttr'] == 'uid') {
-					$attendees[$attendee['attendee']] = new Users($attendee['attendee']);
-				}
+			while($rowattendee = $db->fetch_assoc($query)) {
+				$attendees[$rowattendee['matid']] = new MeetingsAttendees($rowattendee['matid']);
 			}
-
 			return $attendees;
 		}
 		return false;
@@ -367,15 +401,15 @@ class Meetings {
 class MeetingsAttendees {
 	private $attendee = array();
 
-	public function __construct($id = '', $simple = false) {
+	public function __construct($id = '', $simple = true) {
 		if(isset($id) && !empty($id)) {
-			$this->attendee = $this->read($id, $simple);
+			$this->read($id, $simple);
 		}
 	}
 
-	private function read($id, $simple = false) {
+	private function read($id, $simple = true) {
 		global $db;
-		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meetings_attendees WHERE mtatid=".$db->escape_string($id)));
+		$this->attendee = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meetings_attendees WHERE matid=".$db->escape_string($id)));
 	}
 
 	public static function set_attendee($attendee = array()) {
@@ -385,15 +419,174 @@ class MeetingsAttendees {
 		}
 	}
 
-	public function get_attendee() {
+	public function switch_attendee($idAttr = '') { /* filter the type of ATTRid */
+		if(!empty($idAttr)) {
+			$this->attendee['idAttr'] = $idAttr;
+		}
 		switch($this->attendee['idAttr']) {
 			case 'uid':
 				return new Users($this->attendee['attendee']);
 				break;
-			case 'spid':
-				return new Entities($this->attendee['attendee']);
+			case 'repid':
+				return new representatives($this->attendee['attendee']);
 				break;
 		}
+	}
+
+	public static function notify_user(array $notificationsdata) {
+		global $db;
+		if(is_array($notificationsdata)) {
+			$meeting_obj = new MeetingsAttendees();
+			if(!empty($notificationsdata['notifyuser']) && ($notificationsdata['notifyuser'] == 1)) {
+				//unset($notificationsdata['notifyuser'], $notificationsdata['notifyrep']);
+				$appointmentdata['meeting'] = $notificationsdata['mtid'];  //add $notificationsdata[attendees]
+				foreach($notificationsdata as $tonotify) {
+					if(empty($tonotify[uid])) {
+						continue;
+					}
+					unset($tonotify['repid']);
+					/* Get User object */
+					$user_obj = new Users($tonotify['uid']);
+					$attendees_details = $user_obj->get();
+					$appointmentdata['to'] = $attendees_details['email'];
+					$meeting_obj->send_appointment($notificationsdata);
+				}
+			}
+		}
+	}
+
+	public function notify_rep(array $notificationsdata) {
+		global $db;
+		if(is_array($notificationsdata)) {
+			$meeting_obj = new MeetingsAttendees();
+			if(!empty($notificationsdata['notifyrep']) && ($notificationsdata['notifyrep'] == 1)) {
+				unset($notificationsdata['notifyuser'], $notificationsdata['notifyrep']);
+				foreach($notificationsdata as $tonotify) {
+					if(empty($tonotify['repid'])) {
+						continue;
+					}
+					unset($tonotify['uid']);
+					/* Get User object */
+					$attendees_details = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid='".$tonotify['repid']."'"));
+					$appointmentdata_email['to'] = $attendees_details['email'];
+					if(empty($appointmentdata_email['to'])) {
+						continue;
+					}
+					$meeting_obj->send_appointment($appointmentdata_email);
+				}
+			}
+		}
+	}
+
+	public static function notify_attendees($appointment_data) {
+		global $core, $log;
+		if(is_array($appointment_data)) {
+			/* Get meeting details for these attenddees */
+			$meeting_obj = new Meetings($appointment_data['mtid']);
+			$appointment_data['meeting'] = $meeting_obj->get();
+
+			/* exclude repre or user if notify <>1 */
+			if(!empty($appointment_data['notifyuser']) && ($appointment_data['notifyuser'] == 1)) {
+				$filters[] = 'uid';
+			}
+			if(!empty($appointment_data['notifyrep']) && ($appointment_data['notifyrep'] == 1)) {
+				$filters[] = 'repid';
+			}
+			$attendes_objs = $meeting_obj->get_attendees(array('atttypes' => $filters));
+
+			foreach($attendes_objs as $attendes_obj) {
+				if($attendes_obj->is_representative()) {
+					$receipient_attendees[] = $attendes_obj->get_rep()->get();
+				}
+				else {
+					$receipient_attendees[] = $attendes_obj->get_user()->get();
+				}
+			}
+			/* Loop over the receients and send them notifications email */
+			if(is_array($receipient_attendees)) {
+				foreach($receipient_attendees as $receipient_attendee) {
+					$receipient_attendee = array_unique($receipient_attendee);
+					/* call ics object then write (to disk)  */
+					$ical_obj = new Icalendar();  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+					$ical_obj->set_datestart($appointment_data['meeting']['fromDate']);
+
+					$ical_obj->set_datend($appointment_data['meeting']['toDate']);
+					$ical_obj->set_location($appointment_data['meeting']['Location']);
+					$ical_obj->set_summary($appointment_data['meeting']['title']);
+					$ical_obj->set_categories('Appointment');
+					$ical_obj->set_organizer();
+					$ical_obj->set_icalattendees($receipient_attendees);
+					$ical_obj->set_description($appointment_data['meeting']['description']);
+					$ical_obj->endical();
+					$ical_obj->save();
+					/* Prepare the Email data */
+					$email_data = array(
+							'to' => $receipient_attendee['email'],
+							'from_email' => $core->settings['maileremail'],
+							'from' => 'OCOS Mailer',
+							'subject' => $appointment_data['meeting']['title'],
+							'message' => $appointment_data['meeting']['description'],
+					);
+					$email_data['attachments'] = array('./tmp/'.$ical_obj->get()['summary'].'.ics');
+
+					$mail = new Mailer($email_data, 'php');
+				}
+			}
+		}
+
+		//$mail = new Mailer($email_data, 'php');
+		/* Get attendees for this meeting  and set their invitation a Sent upon receiving the appointment */
+		//	if($mail->get_status() === true) {
+		$log->record('meetings_appointment', array('to' => $email_data['to']));
+//		$attendees_objs = $meeting_obj->get_attendees();
+//		foreach($attendees_objs as $attendees_obj) {
+//			$attendees = $attendees_obj->get();
+//			$attendees_obj->setinvitaion_sent();
+//		}
+		//}
+	}
+
+	public function update_attendees($attendees_data) {
+		print_R($attendees_data);
+		global $db;
+		if(isset($attendees_data['uid']) && empty($attendees_data['uid']) || isset($attendees_data['repid']) && empty($attendees_data['repid'])) {
+			$db->delete_query('meetings_attendees', 'matid='.intval($this->attendee['matid']));
+		}
+		else if(isset($attendees_data['uid']) && !empty($attendees_data['uid'])) {
+			$meetingattendees_data['attendee'] = $attendees_data['uid'];
+		}
+		if(isset($attendees_data['repid']) && !empty($attendees_data['repid'])) {
+			$meetingattendees_data['attendee'] = $attendees_data['repid'];
+		}
+		if(!empty($this->attendee['matid'])) {
+			$query = $db->update_query('meetings_attendees', $meetingattendees_data, 'matid='.$db->escape_string($this->attendee['matid']));
+		}
+	}
+
+	public function get_user() {
+		if($this->attendee['idAttr'] == 'uid' && !empty($this->attendee['attendee'])) {
+			return new Users($this->attendee['attendee']);
+		}
+		return false;
+	}
+
+	public function is_representative() {
+		if($this->attendee['idAttr'] == 'repid') {
+			return true;
+		}
+		return false;
+	}
+
+	public function get_rep() {
+		if($this->attendee['idAttr'] == 'repid' && !empty($this->attendee['attendee'])) {
+			return new representatives($this->attendee['attendee']);
+		}
+		return false;
+	}
+
+	private function setinvitaion_sent() {
+		global $db;
+		$query = $db->update_query('meetings_attendees', array('invitationSent' => 1, 'sentOn' => TIME_NOW), 'matid='.$db->escape_string($this->attendee['matid']));
 	}
 
 	public function get_meeting() {

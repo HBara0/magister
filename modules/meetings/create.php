@@ -20,9 +20,9 @@ if(!$core->input['action']) {
 	if(isset($core->input['mtid']) && !empty($core->input['mtid'])) {
 		$mtid = $core->input['mtid'];
 		$action = 'edit';
-	
+
 		$lang->create = $lang->edit;
-	
+
 		$meeting_obj = new Meetings($mtid);
 
 		$meeting = $meeting_obj->get();
@@ -46,6 +46,30 @@ if(!$core->input['action']) {
 				}
 				unset($associaton_temp);
 			}
+			$rowid = 1;
+			//eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendees')."\";");
+
+			$meeting_attednobjs = $meeting_obj->get_attendees();
+			if(is_array($meeting_attednobjs)) {
+				foreach($meeting_attednobjs as $matid => $meeting_attednobj) {
+					//$meeting['attendees'] = $meeting_attednobj->get();
+					//switch users Attendees
+					$attendees_objs = $meeting_attednobj->switch_attendee();
+					$meeting['attendees']['entityattendee'] = $attendees_objs->get();
+					if(isset($meeting['attendees']['entityattendee']['uid'])) {
+						$meeting['attendees']['user'] = $meeting['attendees']['entityattendee']['displayName'];
+						$rowid = $meeting['attendees']['uid'] = $meeting['attendees']['entityattendee']['uid'];
+						eval("\$createmeeting_userattendees .= \"".$template->get('meeting_create_userattendees')."\";");
+					}
+					//switch represtnetatives
+					if(isset($meeting['attendees']['entityattendee']['rpid'])) {
+						$meeting['attendees']['rep'] = $meeting['attendees']['entityattendee']['name'];
+						$reprowid = $meeting['attendees']['repid'] = $meeting['attendees']['entityattendee']['rpid'];
+						//$reprowid = $meeting['attendees']['repid'];
+						eval("\$createmeeting_repattendees .= \"".$template->get('meeting_create_repattendees')."\";");
+					}
+				}
+			}
 
 			$entity_obj = new Entities($associatons['cid']);
 			$meeting['associations']['cutomername'] = $entity_obj->get()['companyName'];
@@ -60,10 +84,15 @@ if(!$core->input['action']) {
 		//$meeting['attendees'] = $meeting_obj->get_attendees();
 	}
 	else {
+		$rowid = 0;
+		$rowid = intval($core->input['value']) + 1;
+		$reprowid = 0;
+		$reprowid = intval($core->input['value']) + 1;
+		eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendees')."\";");
+		eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendees')."\";");
 		$sectionsvisibility['associationssection'] = ' display:none;';
 		$action = 'create';
 	}
-
 	$pagetitle = $lang->{$action.'meeting'};
 	$afiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, 'affid IN ('.implode(',', $core->user['affiliates']).')');
 	$afiliates[0] = '';
@@ -77,11 +106,7 @@ if(!$core->input['action']) {
 		}
 		$events_list .= '<option value="'.$ceid.'" "'.$selected.'">'.$event['title'].'</option>';
 	}
-	//$user_obj = new Users($core->user['uid']);
-	//$business_leaves = $user_obj->get_leaves();
-//	foreach($business_leaves as $leaveid => $leave) {
-//		$business_leaves_list .='<option  value="'.$leaveid.'">'.$leave['title'].'</option>';
-//	}
+
 	eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
 
 	eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
@@ -90,6 +115,7 @@ if(!$core->input['action']) {
 }
 elseif($core->input['action'] == 'do_createmeeting') {
 	$meeting_obj = new Meetings();
+	$meetingatt_obj = new MeetingsAttendees();
 	$meeting_obj->create($core->input['meeting']);
 
 	switch($meeting_obj->get_errorcode()) {
@@ -115,13 +141,11 @@ elseif($core->input['action'] == 'do_createmeeting') {
 }
 elseif($core->input['action'] == 'do_editmeeting') {
 	$mtid = $db->escape_string($core->input['mtid']);
-
 	$meeting_obj = new Meetings($mtid);
 	$meeting_obj->update($core->input['meeting']);
-
 	switch($meeting_obj->get_errorcode()) {
 		case 2:
-			output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+			output_xml('<status>true</status><message>'.$lang->successfullysaved.' </message>');
 			break;
 		case 1:
 			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
