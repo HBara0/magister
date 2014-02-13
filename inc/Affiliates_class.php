@@ -48,6 +48,13 @@ class Affiliates {
 		return new Users($this->affiliate['finManager']);
 	}
 
+	public function get_defaultworkshift() {
+		if(!empty($this->affiliate['defaultWorkshift'])) {
+			return new Workshifts($this->affiliate['defaultWorkshift']);
+		}
+		return false;
+	}
+
 	public function get_users($options = array()) {
 		global $db;
 

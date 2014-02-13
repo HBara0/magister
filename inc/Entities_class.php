@@ -613,6 +613,18 @@ class Entities {
 		return false;
 	}
 
+	public function requires_qr() {
+		global $db;
+		if(!isset($this->data['noQReportReq'])) {
+			$this->data['noQReportReq'] = $db->fetch_field($db->query('SELECT noQReportReq FROM '.Tprefix.'entities WHERE eid='.intval($this->data['eid'])), 'noQReportReq');
+		}
+
+		if($this->data['noQReportReq'] == 0) {
+			return true;
+		}
+		return false;
+	}
+
 	public function get_meetings() {
 		global $db, $core;
 
@@ -676,7 +688,7 @@ class Entities {
 	}
 
 	public function parse_link($attributes_param = array('target' => '_blank')) {
-		if(!empty($this->data['companyName'])) {
+		if(!empty($this->data['companyNameAbbr'])) {
 			$this->data['companyName'] .= ' ('.$this->data['companyNameAbbr'].')';
 		}
 

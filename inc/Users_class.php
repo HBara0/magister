@@ -51,14 +51,14 @@ class Users {
 		global $db;
 		$this->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->user['uid']}' AND isMain=1"), 'affid');
 	}
-	
+
 	public function read_usergroupsperm($mainonly = false) {
 		global $db, $core;
-		
+
 		if($mainonly == true) {
 			$query_extrawhere = ' AND isMain=1';
 		}
-		
+
 		$query = $db->query('SELECT * 
 							FROM '.Tprefix.'users_usergroups uug
 							JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid) 
@@ -72,7 +72,7 @@ class Users {
 				$core->usergroup = $usergroup;
 				$core->user['gid'] = $usergroup['gid'];
 			}
-			
+
 			foreach($usergroup as $permission => $value) {
 				if($core->usergroup[$permission] == 0 && $value == 1) {
 					$core->usergroup[$permission] = 1;
@@ -80,10 +80,10 @@ class Users {
 			}
 		}
 	}
-	
+
 	public function get_usergroups($config = array()) {
 		global $db;
-		
+
 		$query = $db->query('SELECT uug.gid, uug.isMain, ug.title 
 					FROM '.Tprefix.'users_usergroups uug
 					JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid) 
@@ -102,10 +102,10 @@ class Users {
 				$usergroups[$usergroup['gid']] = $usergroup;
 			}
 		}
-		
+
 		return $usergroups;
 	}
-	
+
 	/* Backward compatibility */
 	public static function get_userbyemail($email) {
 		if(!is_object($this)) {
@@ -113,7 +113,7 @@ class Users {
 		}
 		return $this->get_user_byemail($email);
 	}
-	
+
 	public static function get_user_byemail($email) {
 		global $db, $core;
 
@@ -195,7 +195,7 @@ class Users {
 			return false;
 		}
 	}
-	
+
 	public function get_assistant() {
 		return new Users($this->user['assistant']);
 	}
@@ -444,7 +444,7 @@ class Users {
 			else {
 				$this->user['internalExtension'] = '';
 			}
-			
+
 			$this->user['mainaffiliate_details']['phone1'] = str_replace('-', ' ', $this->user['mainaffiliate_details']['phone1']);
 			imagefttext($im, 8, 0, 49 + 8, (36 / 1.8) + 13, $colors['salmon'], $fonts['arial']['regular'], '+'.$this->user['mainaffiliate_details']['phone1'].$this->user['internalExtension']);
 		}
@@ -496,7 +496,7 @@ class Users {
 
 	public static function get_allusers() {
 		global $db;
-		
+
 		$allusers_query = $db->query("SELECT uid ".Tprefix."FROM users WHERE gid!=7 ORDER BY displayName ASC");
 		if($db->num_rows($allusers_query) > 0) {
 			while($user = $db->fetch_assoc($allusers_query)) {
@@ -509,6 +509,20 @@ class Users {
 
 	public function get_errorcode() {
 		return $this->errorcode;
+	}
+
+	public function parse_link($attributes_param = array('target' => '_blank'), $options = array()) {
+		if(is_array($attributes_param)) {
+			foreach($attributes_param as $attr => $val) {
+				$attributes .= $attr.' "'.$val.'"';
+			}
+		}
+		
+		if(!isset($options['outputvar'])) {
+			$options['outputvar'] = 'displayName';
+		}
+		
+		return '<a href="users.php?action=profile&uid='.$this->user['uid'].'" '.$attributes.'>'.$this->user[$options['outputvar']].'</a>';
 	}
 
 }
