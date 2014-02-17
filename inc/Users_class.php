@@ -207,7 +207,7 @@ class Users {
 										JOIN ".Tprefix."affiliates aff ON(aff.affid=affe.affid) WHERE affe.affid in('".$this->get_mainaffiliate()->get()['affid']."')");
 		if($db->num_rows($affemployee_query) > 0) {
 			while($affiliate_user = $db->fetch_assoc($affemployee_query)) {
-				$affiliate_users[$affiliate_user['aeid']] = $affiliate_user;
+				$affiliate_users[$affiliate_user['uid']] = $affiliate_user;
 			}
 			return $affiliate_users;
 		}

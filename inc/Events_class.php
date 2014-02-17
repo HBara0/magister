@@ -17,7 +17,7 @@ class Events {
 	protected $status = 0;
 	private $event = array();
 
-	public function __consturct($id = '', $simple = true, $options = array()) {
+	public function __construct($id = '', $simple = true, $options = array()) {
 		if(isset($id) && !empty($id)) {
 			$this->event = $this->read($id, $simple);
 		}
@@ -38,7 +38,7 @@ class Events {
 		if($options['privateonly'] == true) {
 			$query_where = ' AND isPublic=0';
 		}
-		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."calendar_events WHERE ceid=".$db->escape_string($id).$query_where));
+		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."calendar_events WHERE ceid=".$db->escape_string($id)));
 	}
 
 	public function get_eventbypriority($attributes = array()) {
@@ -79,6 +79,19 @@ class Events {
 		return $this->events = $db->fetch_assoc($db->query("SELECT  ce.*,ce.title AS eventtitle FROM ".Tprefix."calendar_events ce
 								JOIN ".Tprefix."calendar_eventtypes cet ON(cet.cetid=ce.type)
 								WHERE cet.name=".$db->escape_string($type).""));
+	}
+
+	public function get_invited_users() {
+		global $db;
+		$invitess_query = $db->query("SELECT ceiid, uid FROM ".Tprefix."calendar_events_invitees cei
+										WHERE ceid =".$db->escape_string($this->event['ceid'])." ");
+		if($db->num_rows($invitess_query) > 0) {
+			while($rowinvitees = $db->fetch_assoc($invitess_query)) {
+				$events_invitees[$rowinvitees['ceiid']] = new Users($rowinvitees['uid']);
+			}
+			return $events_invitees;
+		}
+		return false;
 	}
 
 	public function get() {

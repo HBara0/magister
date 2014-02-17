@@ -30,6 +30,7 @@ else {
 			$task->create_task($core->input['task']);
 			//$core->input['task']['icaldueDate']=  strtotime($core->input['task']['dueDate']);
 
+
 			switch($task->get_status()) {
 				case 0:
 					if($core->input['task']['notify']) {
@@ -78,7 +79,54 @@ else {
 
 			$query = $db->insert_query('calendar_events', $new_event);
 			$last_id = $db->last_id();
+			$event_obj = new Events($last_id, false);
+			/* Add event Invitee */
+			if(is_array($core->input['event']['invitee'])) {
+				foreach($core->input['event'][invitee] as $invitee) {
+					if(empty($invitee)) {
+						continue;
+					}
+					$new_event_invitee_data = array('ceid' => $last_id,
+							'uid' => $invitee,
+							'createdOn' => TIME_NOW,
+							'createdBy' => $core->user['uid']
+					);
+					$inviteequery = $db->insert_query('calendar_events_invitees', $new_event_invitee_data);
+				}
+			}
 
+			/* Get invitess by user */
+			$events_details = $event_obj->get();
+
+			$event_users_objs = $event_obj->get_invited_users();
+			if(is_array($event_users_objs)) {
+				foreach($event_users_objs as $event_users_obj) {
+					$event_users = $event_users_obj->get();
+					/* iCal event to the users */
+					$ical_obj = new Icalendar();  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+					$ical_obj->set_datestart($events_details['fromDate']);
+					$ical_obj->set_datend($events_details['toDate']);
+					$ical_obj->set_location($events_details['place']);
+					$ical_obj->set_summary($events_details['title']);
+					$ical_obj->set_categories('Event');
+					$ical_obj->set_organizer();
+					$ical_obj->set_icalattendees($event_users['uid']);
+					$ical_obj->set_description($events_details['description']);
+					$ical_obj->endical();
+					$ical = $ical_obj->geticalendar();
+					$email_data = array(
+							'to' => $event_users['email'],
+							'from_email' => $core->settings['maileremail'],
+							'from' => 'OCOS Mailer',
+							'subject' => $events_details['title'],
+							'message' => $ical,
+					);
+
+					$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'meetingrequest'));
+				}
+			}
+
+			exit;
 			if($core->input['event']['isPublic'] == 1 && $core->usergroup['calendar_canAddPublicEvents'] == 1) {
 				if(isset($core->input['event']['restrictto'])) {
 					if(is_array($core->input['event']['restrictto'])) {
@@ -119,6 +167,7 @@ else {
 					}
 				}
 			}
+
 			if($query) {
 				$log->record($core->input['type'], $last_id);
 				header('Content-type: text/xml+javascript');

@@ -526,7 +526,6 @@ class MeetingsAttendees {
 							'subject' => $appointment_data['meeting']['title'],
 							'message' => $ical_obj->geticalendar()
 					);
-
 					$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'appointment', 'method' => 'REQUEST'));
 				}
 			}
