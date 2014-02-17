@@ -10,15 +10,7 @@
 
 class Mailer {
 	public $status = false;
-	private $content_classes = array(
-		'appointment' => 'urn:content-classes:appointment',
-		'task'		=> 'urn:content-classes:task',
-		'meetingrequest' => 'urn:content-classes:calendarmessage',
-		'calendarmessage'  => 'urn:content-classes:calendarmessage',
-		'taskrequest' =>  'urn:content-classes:calendarmessage',
-		'note' => 'urn:content-classes:note'
-	);
-	
+
 	public function __construct(array $mail, $type, $only_send = true, array $smtp_options = array(), array $config = array()) {
 		$class_name = 'Mailer_'.$type;
 		$mailer = new $class_name($mail, $type, $only_send, null, $config);
@@ -110,6 +102,16 @@ class Mailer_functions {
 }
 
 class Mailer_php extends Mailer_functions {
+	private $content_classes = array(
+			'appointment' => 'urn:content-classes:appointment',
+			'task' => 'urn:content-classes:task',
+			'meetingrequest' => 'urn:content-classes:calendarmessage',
+			'calendarmessage' => 'urn:content-classes:calendarmessage',
+			'taskrequest' => 'urn:content-classes:calendarmessage',
+			'note' => 'urn:content-classes:note',
+			'item' =>  'urn:content-classes:item'
+	);
+
 	public function __construct(array $mail, $type, $only_send = true) {
 		$this->only_send = $only_send;
 		$this->set_mail_data($mail);
@@ -252,14 +254,16 @@ class Mailer_php extends Mailer_functions {
 		}
 		else {
 			if((isset($config['content-class']) && !empty($config['content-class'])) && isset($this->content_classes[$config['content-class']])) {
-				$this->mail_data['header'] .= "MIME-version: 1.0\r\n
-											  Content-class: ".$this->content_classes[$config['content-class']]."\r\n
-											  Content-type: text/calendar; method=REQUEST; charset=UTF-8\r\n";
+				$this->mail_data['header'] .= "MIME-version: 1.0\r\n";
+				$this->mail_data['header'] .= "Content-class: ".$this->content_classes[$config['content-class']]."\r\n";
+				$this->mail_data['header'] .= "Content-type: text/calendar; method=REQUEST; charset=UTF-8; name=\"{$config[filename]}\"\r\n";
+				//$this->mail_data['header'] .= "Content-Transfer-Encoding: 8bit\n\n";
 			}
 			else {
 				$this->mail_data['header'] .= "Content-type: text/html; charset=utf-8;\n";
 			}
 		}
+
 		$this->mail_data['message'] = $this->fix_endofline($this->mail_data['message']);
 		if($includes_attachment === true) {
 			$send = @mail($this->mail_data['to'], wordwrap($this->clean_header($this->mail_data['subject']), 70), $this->mail_data['message'], $this->mail_data['header'], $this->mail_data['add_param']);
