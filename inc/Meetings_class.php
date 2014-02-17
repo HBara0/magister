@@ -509,7 +509,6 @@ class MeetingsAttendees {
 					/* call ics object then write (to disk)  */
 					$ical_obj = new Icalendar();  /* pass identifer to outlook to avoid creation of multiple file with the same date */
 					$ical_obj->set_datestart($appointment_data['meeting']['fromDate']);
-
 					$ical_obj->set_datend($appointment_data['meeting']['toDate']);
 					$ical_obj->set_location($appointment_data['meeting']['Location']);
 					$ical_obj->set_summary($appointment_data['meeting']['title']);
@@ -528,7 +527,6 @@ class MeetingsAttendees {
 							'message' => $appointment_data['meeting']['description'],
 					);
 					$email_data['attachments'] = array('./tmp/'.$ical_obj->get()['summary'].'.ics');
-
 					$mail = new Mailer($email_data, 'php');
 				}
 			}
