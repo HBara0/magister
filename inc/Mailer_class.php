@@ -10,11 +10,18 @@
 
 class Mailer {
 	public $status = false;
-
-	public function __construct(array $mail, $type, array $config = array(), $only_send = true, array $smtp_options = array()) {
+	private $content_classes = array(
+		'appointment' => 'urn:content-classes:appointment',
+		'task'		=> 'urn:content-classes:task',
+		'meetingrequest' => 'urn:content-classes:calendarmessage',
+		'calendarmessage'  => 'urn:content-classes:calendarmessage',
+		'taskrequest' =>  'urn:content-classes:calendarmessage',
+		'note' => 'urn:content-classes:note'
+	);
+	
+	public function __construct(array $mail, $type, $only_send = true, array $smtp_options = array(), array $config = array()) {
 		$class_name = 'Mailer_'.$type;
-		$config = $config;
-		$mailer = new $class_name($mail, $type, $config, $only_send);
+		$mailer = new $class_name($mail, $type, $only_send, null, $config);
 		if($mailer->send($config)) {
 			$this->set_status(true);
 		}
@@ -244,9 +251,9 @@ class Mailer_php extends Mailer_functions {
 			$this->mail_data['message'] = $this->mail_data['att_message'];
 		}
 		else {
-			if(isset($config['header']) && $config['header'] == 'calendarmessage') {
-				$this->mail_data['header'].=" MIME-version: 1.0\r\n
-											  Content-class: urn:content-classes:calendarmessage\r\n
+			if((isset($config['content-class']) && !empty($config['content-class'])) && isset($this->content_classes[$config['content-class']])) {
+				$this->mail_data['header'] .= "MIME-version: 1.0\r\n
+											  Content-class: ".$this->content_classes[$config['content-class']]."\r\n
 											  Content-type: text/calendar; method=REQUEST; charset=UTF-8\r\n";
 			}
 			else {
