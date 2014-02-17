@@ -27,11 +27,14 @@ else {
 		if($core->input['type'] == 'task') {
 
 			$task = new Tasks();
-			$task->create_task($core->input['task']);		
-			$core->input['task']['icaldueDate']=  strtotime($core->input['task']['dueDate']);
-		
+			$task->create_task($core->input['task']);
+			//$core->input['task']['icaldueDate']=  strtotime($core->input['task']['dueDate']);
+
 			switch($task->get_status()) {
 				case 0:
+					if($core->input['task']['notify']) {
+						$task->notify_task();
+					}
 					header('Content-type: text/xml+javascript');
 					//output_xml('<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>');
 					output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
@@ -45,10 +48,6 @@ else {
 				case 3:
 					output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
 					exit;
-			}
-
-			if($core->input['task']['notify']) {
-				$task->notify_task();
 			}
 		}
 		elseif($core->input['type'] == 'event') {
