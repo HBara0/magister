@@ -510,24 +510,23 @@ class MeetingsAttendees {
 					$ical_obj = new Icalendar();  /* pass identifer to outlook to avoid creation of multiple file with the same date */
 					$ical_obj->set_datestart($appointment_data['meeting']['fromDate']);
 					$ical_obj->set_datend($appointment_data['meeting']['toDate']);
-					$ical_obj->set_location($appointment_data['meeting']['Location']);
+					$ical_obj->set_location($appointment_data['meeting']['location']);
 					$ical_obj->set_summary($appointment_data['meeting']['title']);
 					$ical_obj->set_categories('Appointment');
 					$ical_obj->set_organizer();
 					$ical_obj->set_icalattendees($receipient_attendees);
 					$ical_obj->set_description($appointment_data['meeting']['description']);
 					$ical_obj->endical();
-					$ical_obj->save();
+	
 					/* Prepare the Email data */
 					$email_data = array(
 							'to' => $receipient_attendee['email'],
 							'from_email' => $core->settings['maileremail'],
 							'from' => 'OCOS Mailer',
 							'subject' => $appointment_data['meeting']['title'],
-							'message' => $appointment_data['meeting']['description'],
+							'message' => $ical_obj->geticalendar()
 					);
-					$email_data['attachments'] = array('./tmp/'.$ical_obj->get()['summary'].'.ics');
-					$mail = new Mailer($email_data, 'php');
+					$mail = new Mailer($email_data, 'php', true, array(),  array('content-class' => 'appointment'));
 				}
 			}
 		}

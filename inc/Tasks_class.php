@@ -123,34 +123,39 @@ class Tasks {
 		  catch(Exception $e) { */
 		if($this->task['uid'] != $core->user['uid']) {
 			fix_newline($this->task['description']);
-
-
-			$email_data['to'] = $db->fetch_field($db->query("SELECT email FROM ".Tprefix."users WHERE uid=".$db->escape_string($this->task['uid']).""), 'email');
+			
+			
 			/* prepare send  that in icalender format START--- */
-			$ical_obj = new Icalendar(array('component' => 'VTODO'));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+			$ical_obj = new Icalendar(array('component' => 'task'));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
 			$ical_obj->set_summary($this->task['subject']);
+			$ical_obj->set_name();
 			$ical_obj->set_description($this->task['description']);
 			$ical_obj->set_duedate($this->task['dueDate']);
-			$ical_obj->set_priority($this->task['priority']);
-			$ical_obj->set_icalattendees($this->task['uid']);
-			$ical_obj->sentby();
-			$ical_obj->set_percentcomplete($this->task['percCompleted']);
-			$ical_obj->set_categories('CalendarTask');
+			//$ical_obj->set_priority($this->task['priority']);
+			//$ical_obj->set_icalattendees($this->task['uid']);
+			//$ical_obj->sentby();
+			//$ical_obj->set_percentcomplete($this->task['percCompleted']);
+			//$ical_obj->set_categories('CalendarTask');
 			$ical_obj->endical();
 			$icaltask = $ical_obj->geticalendar();
-			$ical_obj->save();
+			//$ical_obj->save();
 
 			$email_data = array(
 					'from_email' => $core->user['email'],
 					'from' => $core->user['displayName'],
 					'subject' => $lang->task.': '.$this->task['subject'],
-					'message' => $lang->sprint($lang->assigntaskmessage, $this->parse_status(), date($core->settings['dateformat'], $this->task['dueDate']), $this->task['description']),
-					'replyby' => $this->task['dueDate'],
-					'flag' => 'Follow up'
+					//'message' => $lang->sprint($lang->assigntaskmessage, $this->parse_status(), date($core->settings['dateformat'], $this->task['dueDate']), $this->task['description']),
+					'message' => $icaltask,
+					//'replyby' => $this->task['dueDate'],
+					//'flag' => 'Follow up'
 			);
-			$email_data['attachments'] = array('./tmp/'.$ical_obj->get()['summary'].'.ics');
+	
+			$email_data['to'] = $db->fetch_field($db->query("SELECT email FROM ".Tprefix."users WHERE uid=".$db->escape_string($this->task['uid']).""), 'email');
+			
+			//$email_data['attachments'] = array('./tmp/'.$ical_obj->get()['summary'].'.ics');
 			/* prepare send  that in icalender format END=-- */
-			$mail = new Mailer($email_data, 'php');
+			$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'task', 'filename' => $this->task['subject'].'.ics'));
+			//$ical_obj->delete();
 			if($mail->get_status() === false) {
 				return false; //output_xml("<status>false</status><message>{$lang->errorsendingemail}</message>");
 			}
