@@ -507,7 +507,7 @@ class MeetingsAttendees {
 				foreach($receipient_attendees as $receipient_attendee) {
 					$receipient_attendee = array_unique($receipient_attendee);
 					/* call ics object then write (to disk)  */
-					$ical_obj = new Icalendar();  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+					$ical_obj = new Icalendar(array('component' => 'event', 'method' => 'REQUEST'));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
 					$ical_obj->set_datestart($appointment_data['meeting']['fromDate']);
 					$ical_obj->set_datend($appointment_data['meeting']['toDate']);
 					$ical_obj->set_location($appointment_data['meeting']['location']);
@@ -517,7 +517,7 @@ class MeetingsAttendees {
 					$ical_obj->set_icalattendees($receipient_attendees);
 					$ical_obj->set_description($appointment_data['meeting']['description']);
 					$ical_obj->endical();
-	
+
 					/* Prepare the Email data */
 					$email_data = array(
 							'to' => $receipient_attendee['email'],
@@ -527,7 +527,7 @@ class MeetingsAttendees {
 							'message' => $ical_obj->geticalendar()
 					);
 
-					$mail = new Mailer($email_data, 'php', true, array(),  array('content-class' => 'appointment'));
+					$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'appointment', 'method' => 'REQUEST'));
 				}
 			}
 		}

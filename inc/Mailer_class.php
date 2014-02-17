@@ -256,8 +256,12 @@ class Mailer_php extends Mailer_functions {
 			if((isset($config['content-class']) && !empty($config['content-class'])) && isset($this->content_classes[$config['content-class']])) {
 				$this->mail_data['header'] .= "MIME-version: 1.0\r\n";
 				$this->mail_data['header'] .= "Content-class: ".$this->content_classes[$config['content-class']]."\r\n";
-				$this->mail_data['header'] .= "Content-type: text/calendar; method=REQUEST; charset=UTF-8; name=\"{$config[filename]}\"\r\n";
-				//$this->mail_data['header'] .= "Content-Transfer-Encoding: 8bit\n\n";
+				
+				if(!isset($config['method'])) {
+					$config['method'] = 'PUBLISH';
+				}
+				$this->mail_data['header'] .= "Content-type: text/calendar; charset=UTF-8; method={$config[method]}; name=\"{$config[filename]}\"\r\n"; //method=REQUEST;
+				$this->mail_data['header'] .= "Content-Transfer-Encoding: 8bit\n\n";
 			}
 			else {
 				$this->mail_data['header'] .= "Content-type: text/html; charset=utf-8;\n";
