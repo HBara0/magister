@@ -27,8 +27,9 @@ else {
 		if($core->input['type'] == 'task') {
 
 			$task = new Tasks();
-			$task->create_task($core->input['task']);
-
+			$task->create_task($core->input['task']);		
+			$core->input['task']['icaldueDate']=  strtotime($core->input['task']['dueDate']);
+		
 			switch($task->get_status()) {
 				case 0:
 					header('Content-type: text/xml+javascript');
@@ -85,7 +86,7 @@ else {
 						foreach($core->input['event']['restrictto'] as $affid) {
 							$db->insert_query('calendar_events_restrictions', array('affid' => $affid, 'ceid' => $last_id));
 						}
-		
+
 						if(isset($core->input['event']['notify']) && $core->input['event']['notify'] == 1) {
 							/* Send the event notification - START */
 							$notification_mails = get_specificdata('affiliates', array('affid', 'mailingList'), 'affid', 'mailingList', '', 0, 'mailingList != "" AND affid IN('.implode(',', $core->input['event']['restrictto']).')');
@@ -105,7 +106,7 @@ else {
 							$email_data['message'] .= ')<br />';
 							$email_data['message'] .= $core->input['event']['place'].'<br />';
 							$email_data['message'] .= str_replace("\n", '<br />', $core->input['event']['description']);
-							
+
 							$mail = new Mailer($email_data, 'php');
 							if($mail->get_status() === true) {
 								$log->record($notification_mails, $last_id);

@@ -77,6 +77,17 @@ class Icalendar {
 		$this->icalendarfile.="PRIORITY.{$priority}\n";
 	}
 
+	public function sentby(Users $organizer = null) {
+		global $core;
+		if(is_object($organizer)) {
+			$organizer = $organizer;
+		}
+		else {
+			$organizer = $core->user_obj;
+		}
+		$this->icalendarfile.="ORGANIZER;SENT-BY: MAILTO:{$organizer->get()['email']}\n";
+	}
+
 	public function set_status($status) {
 		$this->icalendarfile.="STATUS.{$status}\n";
 	}
@@ -92,10 +103,19 @@ class Icalendar {
 		$this->icalendarfile.="ORGANIZER;CN={$organizer->get()['displayName']}:MAILTO:{$organizer->get()['email']}\n";
 	}
 
-	public function set_icalattendees($attendees = array()) {
+	public function set_icalattendees($attendees) {
 		/* loop over the attendees of the meetings object and   defines teh  "Attendee" within the calendar component. */
-		foreach($attendees as $attendee) {
-			$this->icalattendees.="ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE;CN={$attendee['displayName']}
+		if(is_array($attendees)) {
+			foreach($attendees as $attendee) {
+				$this->icalattendees.="ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE;CN={$attendee['displayName']}
+			:MAILTO:{$attendee['email']}\n";
+			}
+		}
+		//if single attendee
+		else {
+			$user_object = new Users($attendees);
+			$attendee = $user_object->get();
+			$this->icalattendees = "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE;CN={$attendee['displayName']}
 			:MAILTO:{$attendee['email']}\n";
 		}
 		$this->icalendarfile.=$this->icalattendees;
@@ -103,6 +123,15 @@ class Icalendar {
 
 	public function set_description($description) {
 		$this->icalendarfile.="DESCRIPTION: {$description}\n";
+	}
+
+	public function set_recurrence($recur) {
+		switch($recur){
+			case 86400:
+			$recurfreq="DAILY";
+			break;
+		}	$recurfreq="DAILY";
+		$this->icalendarfile.="RECUR=FREQ={$recurfreq};\n";
 	}
 
 	public function endical() {
