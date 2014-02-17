@@ -40,6 +40,17 @@
                     </tr>
                     <tr><td class="thead" colspan="3">{$lang->associations}<a title="{$lang->associations}" href="#associationssection" onClick="$('#associationssection').fadeToggle();">...</a></td></tr>
                     {$createmeeting_associations}
+                    <tr><td class="thead" colspan="3">{$lang->attendees}</td>  </tr>
+                </table>
+                <table width="100%">
+                    <tr> <th>{$lang->notify_user}<input type="checkbox" id='notify_user' name='meeting[attendees][notifyuser]' value="1"  title="{$lang->notify_user}"></th>
+                        <th>{$lang->notifyrep}<input type="checkbox"{$checked} id='notify_representative' name='meeting[attendees][notifyrep]' value="1"  title="{$lang->notifyrep}"></th> </tr>
+                    <tr>
+                        <td><div style="display: inline-block;">{$createmeeting_userattendees}</div> </td> 
+                        <td>  <div style="display: inline-block;"> {$createmeeting_repattendees}</div></td> 
+                    </tr>
+                    <tr>  <td><img src="images/add.gif" id="addmore_attendees" alt="Add"></td>  <td><img src="images/add.gif" id="addmore_rep" alt="Add" title="{$lang->addmorerows}"></td></tr>
+
                     <tr>
                         <td colspan="2">
                             <hr /><input type="submit" class="button" value="{$lang->savecaps}" id="perform_meetings/create_Button" /> <input type="reset" class="button" value="{$lang->reset}"/>
