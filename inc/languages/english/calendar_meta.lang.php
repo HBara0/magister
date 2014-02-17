@@ -63,4 +63,5 @@ $lang['telephonecall'] = 'Telephone call';
 $lang['title'] = 'Title';
 $lang['type'] = 'Type';
 $lang['week'] = 'Week';
+$lang['invitemployees']='Invite Employees';
 ?>
