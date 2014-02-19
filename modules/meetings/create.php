@@ -100,13 +100,14 @@ if(!$core->input['action']) {
 	$affiliates_list = parse_selectlist('meeting[associations][affid]', 5, $afiliates, $associatons['affid']);
 
 	$aff_events = Events::get_affiliatedevents($core->user['affiliates']);
-	foreach($aff_events as $ceid => $event) {
-		if($associatons['ceid'] == $ceid) {
-			$selected = ' selected="selected"';
+	if(is_array($aff_events)) {
+		foreach($aff_events as $ceid => $event) {
+			if($associatons['ceid'] == $ceid) {
+				$selected = ' selected="selected"';
+			}
+			$events_list .= '<option value="'.$ceid.'" "'.$selected.'">'.$event['title'].'</option>';
 		}
-		$events_list .= '<option value="'.$ceid.'" "'.$selected.'">'.$event['title'].'</option>';
 	}
-
 	eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
 
 	eval("\$createmeeting = \"".$template->get('meeting_create')."\";");

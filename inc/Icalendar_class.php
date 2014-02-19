@@ -5,7 +5,7 @@
  * [Provide Short Descption Here]
  * $id: Icalendar_class.php
  * Created:        @tony.assaad    Feb 6, 2014 | 5:15:00 PM
- * Last Update:    @tony.assaad    Feb 6, 2014 | 5:15:00 PM
+ * Last Update:    @tony.assaad    Feb 18, 2014 | 5:15:00 PM
  */
 
 /**
@@ -31,7 +31,7 @@ class Icalendar {
 		$this->set_type($config['component']);
 		$this->icalendarfile .= "BEGIN:{$this->icalendar[type]}\r\n";
 		$this->set_sequence();
-		$this->set_identifier($config['identifier']);
+		$this->set_identifier($config['identifier'], $config['uidate']);
 
 		$this->icalendarfile .= $this->set_datestamp();
 	}
@@ -59,12 +59,14 @@ class Icalendar {
 		$this->icalendarfile .= 'METHOD:'.$method."\r\n";
 	}
 
-	private function set_identifier($identifier = '') {
+	private function set_identifier($identifier = '', $uidate) {
 		if(empty($identifier)) {
 			$identifier = substr(md5(uniqid(microtime())), 1, 10);
 		}
 		$this->icalendar['uid'] = $identifier;
-		$this->icalendarfile .= 'UID:'.date('Ymd').'T'.date('His')."-".$identifier."-@orkila.com\r\n";
+		// $this->icalendarfile .="UID:1392735681-961846949c-@orkila.com\r\n"; 
+
+		$this->icalendarfile .= 'UID:'.$uidate."-".$identifier."-@orkila.com\r\n";
 	}
 
 	private function set_datestamp() {

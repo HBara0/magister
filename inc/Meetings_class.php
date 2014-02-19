@@ -27,7 +27,7 @@ class Meetings {
 		global $db;
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'mtid, title, description';
+			$query_select = 'mtid, title,identifier ,description';
 		}
 
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."meetings WHERE mtid=".$db->escape_string($id)));
@@ -507,7 +507,7 @@ class MeetingsAttendees {
 				foreach($receipient_attendees as $receipient_attendee) {
 					$receipient_attendee = array_unique($receipient_attendee);
 					/* call ics object then write (to disk)  */
-					$ical_obj = new Icalendar(array('component' => 'event', 'method' => 'REQUEST'));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+					$ical_obj = new Icalendar(array('identifier'=>$appointment_data['meeting']['identifier'], 'uidate' => $appointment_data['meeting']['createdOn'], 'component' => 'event', 'method' => 'REQUEST'));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
 					$ical_obj->set_datestart($appointment_data['meeting']['fromDate']);
 					$ical_obj->set_datend($appointment_data['meeting']['toDate']);
 					$ical_obj->set_location($appointment_data['meeting']['location']);
@@ -517,8 +517,7 @@ class MeetingsAttendees {
 					$ical_obj->set_icalattendees($receipient_attendees);
 					$ical_obj->set_description($appointment_data['meeting']['description']);
 					$ical_obj->endical();
-
-					/* Prepare the Email data */
+					/* Prepare the Email data */ 
 					$email_data = array(
 							'to' => $receipient_attendee['email'],
 							'from_email' => $core->settings['maileremail'],
@@ -526,6 +525,7 @@ class MeetingsAttendees {
 							'subject' => $appointment_data['meeting']['title'],
 							'message' => $ical_obj->geticalendar()
 					);
+					//$email_data['attachments'] = array('./tmp/'.$ical_obj->get()['summary'].'.ics');
 					$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'appointment', 'method' => 'REQUEST'));
 				}
 			}
@@ -544,7 +544,6 @@ class MeetingsAttendees {
 	}
 
 	public function update_attendees($attendees_data) {
-		print_R($attendees_data);
 		global $db;
 		if(isset($attendees_data['uid']) && empty($attendees_data['uid']) || isset($attendees_data['repid']) && empty($attendees_data['repid'])) {
 			$db->delete_query('meetings_attendees', 'matid='.intval($this->attendee['matid']));
