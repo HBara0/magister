@@ -22,6 +22,9 @@ if($core->input['authCode'] == AUTHCODE) {
 			'0B366EFAE0524FDAA97A1322A57373BB' => 22, //Orkila East Africa
 			'DA0CE0FED12C4424AA9B51D492AE96D2' => 11, //Orkila Nigeria
 			'F2347759780B43B1A743BEE40BA213AD' => 23, //Orkila Ghana
+			'BD9DC2F7883B4E11A90B02A9A47991DC' => 1, //Orkila Lebanon
+			//'933EC892369245E485E922731D46FCB1' => 20, //Orkila Senegal
+			'51FB1280AB104EFCBBB982D50B3B7693' => 21 //Orkila CI
 	);
 
 	$affiliates_addrecpt = array(
@@ -74,6 +77,7 @@ if($core->input['authCode'] == AUTHCODE) {
 		$affiliate['currency'] = $affiliateobj->get_country()->get_maincurrency()->get()['alphaCode'];
 		$output = '<h3>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].')</h3>';
 		$inputs = $integration->get_fifoinputs(array($orgid), array('hasqty' => true));
+
 		$output .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
 		$output .= '<tr>';
 		foreach($output_fields as $field => $configs) {
@@ -172,6 +176,9 @@ if($core->input['authCode'] == AUTHCODE) {
 								break;
 							case 'costusd':
 								$rate = $currency_obj->get_average_fxrate($affiliate['currency'], array());
+								if(empty($rate)) {
+									$rate = $currency_obj->get_latest_fxrate($affiliate['currency']);
+								}
 								$output_value = $input['stack']['remaining_cost'] / $rate;
 								if(in_array($field, $summary_reqinfo)) {
 									foreach($summary_categories as $category => $attribute) {
@@ -305,7 +312,7 @@ if($core->input['authCode'] == AUTHCODE) {
 		//$email_data['to'][] = 'zaher.reda@orkila.com';
 		//$email_data['to'][] = 'christophe.sacy@orkila.com';
 		//unset($email_data['to']);
-		///print_r($email_data);
+		//print_r($email_data);
 		//$email_data['to'][] = 'zaher.reda@orkila.com';
 		$mail = new Mailer($email_data, 'php');
 		unset($message);
