@@ -109,7 +109,7 @@ class Mailer_php extends Mailer_functions {
 			'calendarmessage' => 'urn:content-classes:calendarmessage',
 			'taskrequest' => 'urn:content-classes:calendarmessage',
 			'note' => 'urn:content-classes:note',
-			'item' =>  'urn:content-classes:item'
+			'item' => 'urn:content-classes:item'
 	);
 
 	public function __construct(array $mail, $type, $only_send = true) {
@@ -155,7 +155,7 @@ class Mailer_php extends Mailer_functions {
 			exit;
 		}
 
-		@ini_set("sendmail_from", $this->mail_data['from_email']);
+		@ini_set('sendmail_from', $this->mail_data['from_email']);
 
 		$this->mail_data['header'] = 'FROM:'.$this->clean_header($this->mail_data['from']).'<'.$this->clean_header($this->mail_data['from_email']).">\n";
 		$this->mail_data['header'] .= 'Reply-To: <'.$this->clean_header($this->mail_data['from_email']).">\n";
@@ -209,16 +209,16 @@ class Mailer_php extends Mailer_functions {
 
 		if(isset($this->mail_data['attachments']) && is_array($this->mail_data['attachments'])) {
 			$includes_attachment = true;
-			$boundary_id = md5(uniqid(time()));
+			$boundary_id = md5(uniqid(TIME_NOW));
 			$boundary[1] = 'b1_'.$boundary_id;
 			$boundary[2] = 'b2_'.$boundary_id;
 
 			$this->mail_data['header'] .= "MIME-Version: 1.0\n";
-			$this->mail_data['header'] .= "Content-Type: multipart/related;\n\ttype=\"text/html\";\n\tboundary=\"".$boundary[1]."\"\n";
+			$this->mail_data['header'] .= "Content-Type: multipart/mixed;\n\tboundary=\"".$boundary[1]."\"\n"; //\n\ttype=\"text/html\";
 
 			$this->mail_data['att_message'] .= "--".$boundary[1]."\n";
 
-			$this->mail_data['att_message'] .= "Content-Type: multipart/alternative;\n boundary=\"".$boundary[2]."\"\n\n";
+			$this->mail_data['att_message'] .= "Content-Type: multipart/alternative; boundary=\"".$boundary[2]."\"\n\n";
 			$this->mail_data['att_message'] .= "--".$boundary[2]."\n";
 			$this->mail_data['att_message'] .= "Content-type: text/plain; charset=\"utf-8\"\n";
 			$this->mail_data['att_message'] .= "Content-Transfer-Encoding: 8bit\n\n";
@@ -235,6 +235,7 @@ class Mailer_php extends Mailer_functions {
 
 			foreach($this->mail_data['attachments'] as $key => $attachment) {
 				$this->mail_data['att_message'] .= "--".$boundary[1]."\n";
+
 				$attachment_size = filesize($attachment);
 				$handle = fopen($attachment, 'r');
 				$attachment_content = fread($handle, $attachment_size);
@@ -243,24 +244,34 @@ class Mailer_php extends Mailer_functions {
 				$attachment_content = chunk_split(base64_encode($attachment_content));
 				$filename = basename($attachment);
 
-				$this->mail_data['att_message'] .= "Content-Type: application/octet-stream; name=\"".$filename."\"\n";
+				if(isset($this->mail_data['attachments_types'][$key])) {
+					$this->mail_data['att_message'] .= "Content-Type: ".$this->mail_data['attachments_types'][$key]."; name=\"".$filename."\"\n";
+				}
+				else {
+					$this->mail_data['att_message'] .= "Content-Type: application/octet-stream; name=\"".$filename."\"\n";
+				}
 				$this->mail_data['att_message'] .= "Content-Transfer-Encoding: base64\n";
 				$this->mail_data['att_message'] .= "Content-Disposition: attachment; filename=\"".$filename."\"\n\n";
 				$this->mail_data['att_message'] .= $attachment_content."\n";
 			}
 
-			$this->mail_data['att_message'] .= "--".$boundary[1]."--\n";
+			$this->mail_data['att_message'] .= '--'.$boundary[1]."--\n";
 			$this->mail_data['message'] = $this->mail_data['att_message'];
 		}
 		else {
 			if((isset($config['content-class']) && !empty($config['content-class'])) && isset($this->content_classes[$config['content-class']])) {
 				$this->mail_data['header'] .= "MIME-version: 1.0\r\n";
 				$this->mail_data['header'] .= "Content-class: ".$this->content_classes[$config['content-class']]."\r\n";
-				
+
 				if(!isset($config['method'])) {
 					$config['method'] = 'PUBLISH';
 				}
 				$this->mail_data['header'] .= "Content-type: text/calendar; charset=UTF-8; method={$config[method]}; name=\"{$config[filename]}\"\r\n"; //method=REQUEST;
+				$this->mail_data['header'] .= "Content-Transfer-Encoding: 8bit\n\n";
+			}
+			elseif(isset($config['mixedcontent']) && $config['mixedcontent'] == true) {
+				$this->mail_data['header'] .= "MIME-version: 1.0\r\n";
+				$this->mail_data['header'] .= "Content-Type: multipart/mixed;\n\tboundary=\"".$config['boundary']."\"\n";
 				$this->mail_data['header'] .= "Content-Transfer-Encoding: 8bit\n\n";
 			}
 			else {
