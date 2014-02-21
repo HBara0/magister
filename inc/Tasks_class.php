@@ -113,22 +113,39 @@ class Tasks {
 			$ical_obj->set_percentcomplete($this->task['percCompleted']);
 			//$ical_obj->set_categories('CalendarTask');
 			$ical_obj->endical();
-			$icaltask = $ical_obj->geticalendar();
+			$ical_obj->save();
 
 			$email_data = array(
 					'from_email' => $core->user['email'],
 					'from' => $core->user['displayName'],
 					'subject' => $lang->task.': '.$this->task['subject'],
-					//'message' => $lang->sprint($lang->assigntaskmessage, $this->parse_status(), date($core->settings['dateformat'], $this->task['dueDate']), $this->task['description']),
-					'message' => $icaltask,
-					//'replyby' => $this->task['dueDate'],
+					'message' => $lang->sprint($lang->assigntaskmessage, $this->parse_status(), date($core->settings['dateformat'], $this->task['dueDate']), $this->task['description']),
+					//'message' => $ical_obj->geticalendar(),
+					'replyby' => $this->task['dueDate'],
+					'attachments' => array($ical_obj->get_filepath()),
+					'attachments_types' => array('text/calendar')
 					//'flag' => 'Follow up'
 			);
 
 			$email_data['to'] = $db->fetch_field($db->query("SELECT email FROM ".Tprefix."users WHERE uid=".$db->escape_string($this->task['uid']).""), 'email');
 
+//			$boundary = md5(uniqid(TIME_NOW));
+//			$email_data['message'] = "\n--".$boundary."\n";
+//			$email_data['message'] .= "Content-type: text/html; charset=UTF-8\n"; //method=REQUEST;
+//			$email_data['message'] .= "Content-Transfer-Encoding: 8bit\n\n";
+//			$email_data['message'] .= $lang->sprint($lang->assigntaskmessage, $this->parse_status(), date($core->settings['dateformat'], $this->task['dueDate']), $this->task['description']);
+//
+//			$email_data['message'] .= "\n\n--".$boundary."\n";
+//			//$email_data['message'] .= "Content-class: ".$this->content_classes[$config['content-class']]."\r\n";
+//			$email_data['message'] .= "Content-type: text/calendar; name=\"{$this->task[subject]}.ics\"\r\n"; //method=REQUEST;
+//			$email_data['message'] .= "Content-Transfer-Encoding: 8bit\n";
+//			$email_data['message'] .= 'Content-Disposition: attachment; filename="'.$this->task[subject].'.ics"'."\n\n";
+//			$email_data['message'] .= $ical_obj->geticalendar()."\n";
+//			$email_data['message'] .= "\n--".$boundary."--\n";
 			/* prepare send  that in icalender format - END */
-			$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'task', 'filename' => $this->task['subject'].'.ics'));
+			//$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'task', 'filename' => $this->task['subject'].'.ics'));
+			$mail = new Mailer($email_data, 'php');
+			$ical_obj->delete();
 			if($mail->get_status() === false) {
 				return false; //output_xml("<status>false</status><message>{$lang->errorsendingemail}</message>");
 			}
