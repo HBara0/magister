@@ -158,7 +158,9 @@ class Icalendar {
 	}
 
 	public function set_description($description) {
-		$this->icalendarfile .= "DESCRIPTION: {$description}\r\n";
+		global $core;
+		
+		$this->icalendarfile .= 'DESCRIPTION: '.$core->sanitize_inputs($description, array('removetags' => true))."\r\n";
 	}
 
 	public function set_recurrence($recur) {
@@ -193,7 +195,12 @@ class Icalendar {
 		fwrite($fp, $this->icalendarfile);
 		fclose($fp);
 	}
-
+	
+	public function get_filepath() {
+		global $core;
+		return $core->sanitize_path('./tmp/'.$this->icalendar['name'].'.ics');
+	}
+	
 	public function set_name($name = '') {
 		global $core;
 
