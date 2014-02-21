@@ -65,12 +65,12 @@ class Events {
 		$events_aff = $db->query("SELECT ce.* FROM ".Tprefix."calendar_events ce
 								JOIN ".Tprefix."affiliatedemployees a ON (a.affid=ce.affid) 
 								WHERE a.uid=".$core->user['uid']." AND a.affid in (".(implode(',', $affiliates)).") ".$query_where_add." ");
-
-		while($aff_events = $db->fetch_assoc($events_aff)) {
-			$affiliate_events[$aff_events['ceid']] = $aff_events;
+		if($db->num_rows($events_aff) > 0) {
+			while($aff_events = $db->fetch_assoc($events_aff)) {
+				$affiliate_events[$aff_events['ceid']] = $aff_events;
+			}
+			return $affiliate_events;
 		}
-
-		return $affiliate_events;
 	}
 
 	public static function get_events_bytype($type) {
