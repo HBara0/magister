@@ -27,7 +27,7 @@ class Meetings {
 		global $db;
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'mtid, title,identifier ,description';
+			$query_select = 'mtid, title, identifier, description';
 		}
 
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."meetings WHERE mtid=".$db->escape_string($id)));
@@ -507,7 +507,7 @@ class MeetingsAttendees {
 				foreach($receipient_attendees as $receipient_attendee) {
 					$receipient_attendee = array_unique($receipient_attendee);
 					/* call ics object then write (to disk)  */
-					$ical_obj = new Icalendar(array('identifier'=>$appointment_data['meeting']['identifier'], 'uidate' => $appointment_data['meeting']['createdOn'], 'component' => 'event', 'method' => 'REQUEST'));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+					$ical_obj = new iCalendar(array('identifier'=>$appointment_data['meeting']['identifier'], 'uidtimestamp' => $appointment_data['meeting']['createdOn'], 'component' => 'event', 'method' => 'REQUEST'));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
 					$ical_obj->set_datestart($appointment_data['meeting']['fromDate']);
 					$ical_obj->set_datend($appointment_data['meeting']['toDate']);
 					$ical_obj->set_location($appointment_data['meeting']['location']);

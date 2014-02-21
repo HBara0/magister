@@ -110,18 +110,16 @@ else {
 	$reminderinterval_selectlist = parse_selectlist('task[reminderInterval]', 1, array('' => '', '86400' => $lang->eveyday, '172800' => $lang->evey2day, '604800' => $lang->everyweek, '1209600' => $lang->every2weeks, '2592000' => $lang->everymonth, '31104000' => $lang->everyyear), '');
 	$current_date = $main_calendar->get_currentdate();
 
-	/* parse invitees --START */
-
-	$affiliates_usersobj = new Users($core->user['uid']);
-	$affiliates_users = $affiliates_usersobj->get_affiliateuser();
-
-	if(is_array($affiliates_users)) {
-		$affiliates_usersid = array_keys($affiliates_users);
+	/* parse invitees - START */
+	$affiliates_users = array();
+	foreach($core->user['affiliates'] as $affid) {
+		$affiliate_obj = new Affiliates($affid);
+		$affiliates_users = $affiliates_users + $affiliate_obj->get_users(array('returnobjects' => true));
 	}
 
-	foreach($affiliates_users as $uid => $user) {
-		$checked = '';
-		$altrow = alt_row($altrow); 
+	foreach($affiliates_users as $uid => $user_obj) {
+		//$checked = '';
+		$altrow = alt_row($altrow);
 		if($uid == $core->user['uid']) {
 			continue;
 		}
@@ -131,10 +129,12 @@ else {
 //				$checked = ' checked="checked"';
 //			}
 //		}
-
+		$user = $user_obj->get();
+		$user['affiliate'] = $user_obj->get_mainaffiliate()->get()['name'];
 		eval("\$invitees_rows .= \"".$template->get('calendar_events_invitees_rows')."\";");
 	}
-	/* parse invitees --END */
+	unset($affiliates_users);
+	/* parse invitees - END */
 	eval("\$addeventtask_popup = \"".$template->get('popup_calendar_createeventtask')."\";");
 	/* Parse events/tasks popup - End */
 }

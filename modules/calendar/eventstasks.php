@@ -25,11 +25,8 @@ if(!$core->input['action']) {
 else {
 	if($core->input['action'] == 'do_createeventtask') {
 		if($core->input['type'] == 'task') {
-
 			$task = new Tasks();
 			$task->create_task($core->input['task']);
-			//$core->input['task']['icaldueDate']=  strtotime($core->input['task']['dueDate']);
-
 
 			switch($task->get_status()) {
 				case 0:
@@ -80,30 +77,30 @@ else {
 			$query = $db->insert_query('calendar_events', $new_event);
 			$last_id = $db->last_id();
 			$event_obj = new Events($last_id, false);
+			$events_details = $event_obj->get();
 			/* Add event Invitee */
 			if(is_array($core->input['event']['invitee'])) {
-				foreach($core->input['event'][invitee] as $invitee) {
+				foreach($core->input['event']['invitee'] as $invitee) {
 					if(empty($invitee)) {
 						continue;
 					}
-					$new_event_invitee_data = array('ceid' => $last_id,
+					$new_event_invitee_data = array(
+							'ceid' => $last_id,
 							'uid' => $invitee,
 							'createdOn' => TIME_NOW,
 							'createdBy' => $core->user['uid']
 					);
-					$inviteequery = $db->insert_query('calendar_events_invitees', $new_event_invitee_data);
+					$db->insert_query('calendar_events_invitees', $new_event_invitee_data);
 				}
 			}
-
+			
 			/* Get invitess by user */
-			$events_details = $event_obj->get();
-
 			$event_users_objs = $event_obj->get_invited_users();
 			if(is_array($event_users_objs)) {
 				foreach($event_users_objs as $event_users_obj) {
 					$event_users = $event_users_obj->get();
 					/* iCal event to the users */
-					$ical_obj = new Icalendar();  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+					$ical_obj = new iCalendar();  /* pass identifer to outlook to avoid creation of multiple file with the same date */
 					$ical_obj->set_datestart($events_details['fromDate']);
 					$ical_obj->set_datend($events_details['toDate']);
 					$ical_obj->set_location($events_details['place']);
@@ -113,20 +110,19 @@ else {
 					$ical_obj->set_icalattendees($event_users['uid']);
 					$ical_obj->set_description($events_details['description']);
 					$ical_obj->endical();
-					$ical = $ical_obj->geticalendar();
+	
 					$email_data = array(
 							'to' => $event_users['email'],
 							'from_email' => $core->settings['maileremail'],
 							'from' => 'OCOS Mailer',
 							'subject' => $events_details['title'],
-							'message' => $ical,
+							'message' => $ical_obj->geticalendar(),
 					);
 
 					$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'meetingrequest'));
 				}
 			}
 
-			exit;
 			if($core->input['event']['isPublic'] == 1 && $core->usergroup['calendar_canAddPublicEvents'] == 1) {
 				if(isset($core->input['event']['restrictto'])) {
 					if(is_array($core->input['event']['restrictto'])) {
@@ -219,8 +215,8 @@ else {
 			if(!empty($event['place'])) {
 				$event['place_output'] = $event['place'].' <a href="http://maps.google.com/maps?hl=en&q='.$event['place'].'" target="_blank"><img src="./images/icons/map.png" border="0" alt="'.$lang->map.'"></a>';
 			}
-			eval("\$eventdetailsbox = \"".$template->get("popup_calendar_eventdetails")."\";");
-			echo $eventdetailsbox;
+			eval("\$eventdetailsbox = \"".$template->get('popup_calendar_eventdetails')."\";");
+			output($eventdetailsbox);
 		}
 	}
 	elseif($core->input['action'] == 'get_taskdetails') {
@@ -263,8 +259,8 @@ else {
 					$task_notes_output .= '<div class="'.$rowclass.'" style="padding: 5px 0px 5px 10px;">'.$note['note'].'. <span class="smalltext" style="font-style:italic;">'.$note['dateAdded_output'].' by <a href="users.php?action=profile&uid='.$note['uid'].'" target="_blank">'.$note['displayName'].'</a></span></div>';
 				}
 			}
-			eval("\$eventdetailsbox = \"".$template->get("popup_calendar_taskdetails")."\";");
-			echo $eventdetailsbox;
+			eval("\$eventdetailsbox = \"".$template->get('popup_calendar_taskdetails')."\";");
+			output($eventdetailsbox);
 		}
 	}
 	elseif($core->input['action'] == 'save_tasknote') {
@@ -321,12 +317,12 @@ else {
 				else {
 					$output_js = '$("#ctid_'.$core->input['ctid'].'").css("text-decoration", "none");';
 				}
-				echo $output_js;
+				output($output_js);
 				break;
 			case 1:
 			case 2:
 			case 3:
-				output_xml("<status>false</status><message></message>");
+				output_xml('<status>false</status><message></message>');
 				break;
 		}
 	}

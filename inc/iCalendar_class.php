@@ -31,7 +31,7 @@ class Icalendar {
 		$this->set_type($config['component']);
 		$this->icalendarfile .= "BEGIN:{$this->icalendar[type]}\r\n";
 		$this->set_sequence();
-		$this->set_identifier($config['identifier'], $config['uidate']);
+		$this->set_identifier($config['identifier'], $config['uidtimestamp']);
 
 		$this->icalendarfile .= $this->set_datestamp();
 	}
@@ -59,14 +59,17 @@ class Icalendar {
 		$this->icalendarfile .= 'METHOD:'.$method."\r\n";
 	}
 
-	private function set_identifier($identifier = '', $uidate) {
+	private function set_identifier($identifier = '', $timestamp = '') {
 		if(empty($identifier)) {
 			$identifier = substr(md5(uniqid(microtime())), 1, 10);
 		}
 		$this->icalendar['uid'] = $identifier;
-		// $this->icalendarfile .="UID:1392735681-961846949c-@orkila.com\r\n"; 
 
-		$this->icalendarfile .= 'UID:'.$uidate."-".$identifier."-@orkila.com\r\n";
+		if(empty($timestamp)) {
+			$timestamp = TIME_NOW;
+		}
+		
+		$this->icalendarfile .= 'UID:'.date('Ymd', $timestamp).'T'.date('His', $timestamp).'-'.$identifier."-@orkila.com\r\n";
 	}
 
 	private function set_datestamp() {
@@ -93,7 +96,7 @@ class Icalendar {
 		$this->icalendarfile .= 'COMPLETED:'.date('Ymd\THis', $completedate)."\r\n";
 	}
 
-	public function set_percentcomplete($percent) { /* APPOINTMENT,EDUCATION MEETING */
+	public function set_percentcomplete($percent) {
 		$this->icalendarfile .= "PERCENT-COMPLETE:{$percent}\r\n";
 	}
 
@@ -180,12 +183,13 @@ class Icalendar {
 	}
 
 	public function save() {
+		global $core;
 		if(empty($this->icalendar['name'])) {
 			$this->set_name();
 		}
 
 		$filename = $this->icalendar['name'].'.ics';
-		$fp = fopen("./tmp/{$filename}", 'wr');
+		$fp = fopen($core->sanitize_path("./tmp/{$filename}"), 'wr');
 		fwrite($fp, $this->icalendarfile);
 		fclose($fp);
 	}
@@ -204,7 +208,8 @@ class Icalendar {
 	}
 
 	public function delete() {
-		@unlink('./tmp/'.$this->icalendar['name'].'.ics');
+		global $core;
+		@unlink($core->sanitize_path('./tmp/'.$this->icalendar['name'].'.ics'));
 	}
 
 	public function geticalendar() {
