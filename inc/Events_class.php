@@ -38,7 +38,7 @@ class Events {
 		if($options['privateonly'] == true) {
 			$query_where = ' AND isPublic=0';
 		}
-		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."calendar_events WHERE ceid=".$db->escape_string($id)));
+		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."calendar_events WHERE ceid=".$db->escape_string($id).$query_where));
 	}
 
 	public function get_eventbypriority($attributes = array()) {
@@ -83,13 +83,12 @@ class Events {
 
 	public function get_invited_users() {
 		global $db;
-		$invitess_query = $db->query("SELECT ceiid, uid FROM ".Tprefix."calendar_events_invitees cei
-										WHERE ceid =".$db->escape_string($this->event['ceid'])." ");
+		$invitess_query = $db->query("SELECT ceiid, uid FROM ".Tprefix."calendar_events_invitees cei WHERE ceid=".$db->escape_string($this->event['ceid']));
 		if($db->num_rows($invitess_query) > 0) {
-			while($rowinvitees = $db->fetch_assoc($invitess_query)) {
-				$events_invitees[$rowinvitees['ceiid']] = new Users($rowinvitees['uid']);
+			while($invitee = $db->fetch_assoc($invitess_query)) {
+				$invitees[$invitee['ceiid']] = new Users($invitee['uid']);
 			}
-			return $events_invitees;
+			return $invitees;
 		}
 		return false;
 	}
