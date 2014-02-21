@@ -201,10 +201,18 @@ class Leaves {
 		return new Users($this->leave['uid']);
 	}
 
-	public function get_leavetype($simple=true) {
+	public function get_type($simple = true) {
+		return $this->get_leavetype($simple);
+	}
+
+	public function get_leavetype($simple = true) {
 		return new Leavetypes($this->leave['type'], $simple);
 	}
 
+	public function get_workingdays() {
+		return count_workingdays($this->leave['uid'], $this->leave['fromDate'], $this->leave['toDate'], $this->get_type()['isWholeDay']);
+	}
+	
 	public function get() {
 		return $this->leave;
 	}

@@ -22,6 +22,10 @@ if($core->input['authCode'] == AUTHCODE) {
 			'0B366EFAE0524FDAA97A1322A57373BB' => 22, //Orkila East Africa
 			'DA0CE0FED12C4424AA9B51D492AE96D2' => 11, //Orkila Nigeria
 			'F2347759780B43B1A743BEE40BA213AD' => 23, //Orkila Ghana
+			'BD9DC2F7883B4E11A90B02A9A47991DC' => 1, //Orkila Lebanon			
+			//'933EC892369245E485E922731D46FCB1' => 20, //Orkila Senegal
+			'51FB1280AB104EFCBBB982D50B3B7693' => 21 //Orkila CI
+			
 	);
 
 	$affiliates_addrecpt = array(
@@ -322,9 +326,6 @@ if($core->input['authCode'] == AUTHCODE) {
 			}
 		}
 		
-		
-		$email_data['to'] = array();
-		$email_data['to'][] = 'christophe.sacy@orkila.com';
 		//print_r($email_data);
 		$mail = new Mailer($email_data, 'php');
 		unset($message);

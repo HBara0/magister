@@ -4,10 +4,8 @@
         <input type="hidden" id="type" name="type" value="event" />
         <div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-bottom: 10px;">{$lang->create}: <a href="#popup_createeventtask" onClick="$('#createevent_fields').show();
                 $('#createtask_fields').hide();
-                $('#invitemployess').show();
                 $('#type').val('event');">{$lang->event}</a> | <a href="#popup_createeventtask" onClick="$('#createtask_fields').show();
                 $('#createevent_fields').hide();
-                $('#invitemployess').hide();
                 $('#type').val('task');">{$lang->task}</a></div>
         <div id="createtask_fields" style="display:none;">
             <div class="subtitle">{$lang->taskdetails}</div>
@@ -58,17 +56,17 @@
                 <input type="text" value="{$affiliate_address}" name="event[place]" maxlength="300" required='required' size="50"/>
             </div><br />
             <div style="width:20%; margin-bottom: 20px; display:inline-block; vertical-align:top;">{$lang->description}</div><div style="width:70%; display:inline-block;"><textarea cols="50" rows="10" name="event[description]"></textarea></div><br />
-                {$ispublic_checkbox}
-                {$restriction_selectlist}
-                {$notifyevent_checkbox}
-                {$publishonwebsite_checkbox}
-        </div>
-
-                <div id="invitemployess" style=" margin-bottom:8px;" > <a onClick="$('#eventemployess').fadeToggle();" ><span style="cursor: pointer;"  class="subtitle" title="{$lang->invitemployees}">{$lang->invitemployees}...</span></a>
-            <div  style="width:100%; height:150px; overflow:auto;transition: background-color 0.5s ease; background-color:#ffffff;  display:none;padding:5px; z-index:2;" id="eventemployess">
+            <div class="subtitle" style="cursor: pointer;"><a onClick="$('#eventemployess').fadeToggle();">{$lang->invitemployees}...</a></div>
+            <div style="width:100%; height:100px; overflow:auto; transition: background-color 0.5s ease; display:none; padding:5px; z-index:2;" id="eventemployess">
                 {$invitees_rows}
             </div>
-
+            <br />
+            <div class="subtitle">{$lang->announceoptions}</div>
+            {$ispublic_checkbox}
+            {$restriction_selectlist}
+            {$notifyevent_checkbox}
+            <div class="subtitle">{$lang->publishoptions}</div>
+            {$publishonwebsite_checkbox}
         </div>
         <input type='submit' class='button' value='{$lang->create}' id='perform_calendar/eventstasks_Button' />
     </form>
