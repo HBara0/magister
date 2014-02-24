@@ -170,12 +170,15 @@ class Meetings {
 		}
 
 		//if(!isset($attendees)) {
-			$attendees['uid'][] = array(array('idAttr' => 'uid', 'mtid' => $this->meeting['mtid'], 'attendee' => $core->user['uid']));
+			$attendees['uid'][] = array(array('idAttr' => 'uid', 'mtid' => $this->meeting['mtid'], 'id' => $core->user['uid']));
 		//}
 
 		if(!empty($attendees)) {
 			foreach($attendees as $type => $type_attendees) {
 				foreach($type_attendees as $key => $attendee) {
+					if(empty($attendee['id'])) {
+						continue;
+					}
 					$new_attendee['mtid'] = $this->meeting['mtid'];
 					$new_attendee['idAttr'] = $type;
 					$new_attendee['attendee'] = intval($attendee['id']);
