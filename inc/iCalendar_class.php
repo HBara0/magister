@@ -145,22 +145,23 @@ class Icalendar {
 		/* loop over the attendees of the meetings object and   defines teh  "Attendee" within the calendar component. */
 		if(is_array($attendees)) {
 			foreach($attendees as $attendee) {
-				$this->icalattendees .= "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE;CN={$attendee['displayName']}:MAILTO:{$attendee['email']}\r\n";
+				$this->icalattendees .= "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE;CN={$attendee['name']}:MAILTO:{$attendee['email']}\r\n";
 			}
 		}
 		//if single attendee
 		else {
 			$user_object = new Users($attendees);
 			$attendee = $user_object->get();
-			$this->icalattendees = "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE;CN={$attendee['displayName']}:MAILTO:{$attendee['email']}\r\n";
+			$this->icalattendees = "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE;CN={$attendee['displayName']};RSVP=TRUE:MAILTO:{$attendee['email']}\r\n";
 		}
 		$this->icalendarfile .= $this->icalattendees;
 	}
 
 	public function set_description($description) {
 		global $core;
-		
+
 		$this->icalendarfile .= 'DESCRIPTION: '.$core->sanitize_inputs($description, array('removetags' => true))."\r\n";
+		$this->icalendarfile .= 'X-ALT-DESC;FMTTYPE=text/html:<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">\n<html>\n<body>\n'.$description.'\n</body>\n</html>'."\r\n";		
 	}
 
 	public function set_recurrence($recur) {

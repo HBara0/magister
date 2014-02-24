@@ -35,11 +35,9 @@ $lang['businessleave'] = 'Business leave';
 $lang['customer'] = 'Customers';
 $lang['associations'] = 'Associations';
 $lang['close'] = 'Close';
-$lang['representative']='Representative';
-$lang['employees'] = 'Employees';
+$lang['representative'] = 'Representative';
+$lang['employee'] = 'Employee';
 $lang['requireduser'] = 'you must select at least one user';
-$lang['notifyrep']='Notify Representative';
-$lang['notifyuser']='Notify Employee';
-$lang['notify_user']='Notify user';
-$lang['notifyrep']='Notify Representative';
+$lang['notifyreps'] = 'Notify Representatives';
+$lang['notifyusers'] = 'Notify Employees';
 ?>

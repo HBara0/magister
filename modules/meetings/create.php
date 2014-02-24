@@ -46,31 +46,36 @@ if(!$core->input['action']) {
 				}
 				unset($associaton_temp);
 			}
-			$rowid = 1;
-			//eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendees')."\";");
 
+			$rowid = $reprowid = 1;
 			$meeting_attednobjs = $meeting_obj->get_attendees();
 			if(is_array($meeting_attednobjs)) {
 				foreach($meeting_attednobjs as $matid => $meeting_attednobj) {
-					//$meeting['attendees'] = $meeting_attednobj->get();
-					//switch users Attendees
-					$attendees_objs = $meeting_attednobj->switch_attendee();
-					$meeting['attendees']['entityattendee'] = $attendees_objs->get();
-					if(isset($meeting['attendees']['entityattendee']['uid'])) {
-						$meeting['attendees']['user'] = $meeting['attendees']['entityattendee']['displayName'];
-						$rowid = $meeting['attendees']['uid'] = $meeting['attendees']['entityattendee']['uid'];
-						eval("\$createmeeting_userattendees .= \"".$template->get('meeting_create_userattendees')."\";");
+					$attendees_objs = $meeting_attednobj->get_attendee();
+					$meeting['attendees'][$matid] = $attendees_objs->get();
+					if(isset($meeting['attendees'][$matid]['uid'])) {
+						$meeting['attendees'][$matid]['name'] = $meeting['attendees'][$matid]['displayName'];
+						$meeting['attendees'][$matid]['id'] = $meeting['attendees'][$matid]['uid'];
+						eval("\$createmeeting_userattendees .= \"".$template->get('meeting_create_userattendee')."\";");
+						$rowid++;
 					}
-					//switch represtnetatives
-					if(isset($meeting['attendees']['entityattendee']['rpid'])) {
-						$meeting['attendees']['rep'] = $meeting['attendees']['entityattendee']['name'];
-						$reprowid = $meeting['attendees']['repid'] = $meeting['attendees']['entityattendee']['rpid'];
-						//$reprowid = $meeting['attendees']['repid'];
-						eval("\$createmeeting_repattendees .= \"".$template->get('meeting_create_repattendees')."\";");
+					if(isset($meeting['attendees'][$matid]['rpid'])) {
+						$meeting['attendees'][$matid]['id'] = $meeting['attendees'][$matid]['rpid'];
+						eval("\$createmeeting_repattendees .= \"".$template->get('meeting_create_repattendee')."\";");
+						$reprowid++;
 					}
 				}
+				unset($meeting['attendees'], $matid);
 			}
-
+			
+			if(empty($createmeeting_userattendees)) {
+				eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendee')."\";");
+			}
+			
+			if(empty($createmeeting_repattendees)) {
+				eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");	
+			}
+			
 			$entity_obj = new Entities($associatons['cid']);
 			$meeting['associations']['cutomername'] = $entity_obj->get()['companyName'];
 			$meeting['associations']['spid'] = $associatons['cid'];
@@ -84,12 +89,10 @@ if(!$core->input['action']) {
 		//$meeting['attendees'] = $meeting_obj->get_attendees();
 	}
 	else {
-		$rowid = 0;
-		$rowid = intval($core->input['value']) + 1;
-		$reprowid = 0;
-		$reprowid = intval($core->input['value']) + 1;
-		eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendees')."\";");
-		eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendees')."\";");
+		$rowid = 1;
+		$reprowid = 1;
+		eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendee')."\";");
+		eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");
 		$sectionsvisibility['associationssection'] = ' display:none;';
 		$action = 'create';
 	}
@@ -116,7 +119,6 @@ if(!$core->input['action']) {
 }
 elseif($core->input['action'] == 'do_createmeeting') {
 	$meeting_obj = new Meetings();
-	$meetingatt_obj = new MeetingsAttendees();
 	$meeting_obj->create($core->input['meeting']);
 
 	switch($meeting_obj->get_errorcode()) {
@@ -146,7 +148,7 @@ elseif($core->input['action'] == 'do_editmeeting') {
 	$meeting_obj->update($core->input['meeting']);
 	switch($meeting_obj->get_errorcode()) {
 		case 2:
-			output_xml('<status>true</status><message>'.$lang->successfullysaved.' </message>');
+			output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
 			break;
 		case 1:
 			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');

@@ -13,8 +13,8 @@
  *
  * @author tony.assaad
  */
-class representatives {
-	private $representatives = array();
+class Representatives {
+	private $representative = array();
 	private $errorcode = 0;
 
 	public function __construct($id = '', $simple = false) {
@@ -25,8 +25,13 @@ class representatives {
 
 	private function read($id, $simple) {
 		global $db;
+		
+		$query_select = '*';
+		if($simple == true) {
+			$query_select = 'rpid, name, email';
+		}
 		if(!empty($id)) {
-			return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
+			return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
 		}
 	}
 
