@@ -25,7 +25,7 @@ class Requirements {
 
 		$query_select = 'dr1.*, dr2.title AS parentTitle';
 		if($simple == true) {
-			$query_select = 'dr1.drid, dr1.title';
+			$query_select = 'dr1.drid, refWord, dr1.title';
 		}
 
 		$query = $db->query("SELECT {$query_select} 
@@ -61,14 +61,14 @@ class Requirements {
 
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'drid, title';
+			$query_select = 'drid, refWord, refKey, title';
 		}
 
 		$query = $db->query("SELECT {$query_select} FROM ".Tprefix."development_requirements WHERE parent=".$db->escape_string($id).' ORDER BY refWord ASC, refKey ASC');
 		if($db->num_rows($query) > 0) {
 			while($requirement = $db->fetch_assoc($query)) {
 				$requirements[$requirement['drid']] = $requirement;
-				$requirements[$requirement['drid']]['children'] = $this->read_requirement_children($requirement['drid']);
+				$requirements[$requirement['drid']]['children'] = $this->read_requirement_children($requirement['drid'], $simple);
 			}
 			return $requirements;
 		}
@@ -104,7 +104,7 @@ class Requirements {
 
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'drid, title';
+			$query_select = 'drid, refWord, refKey, title';
 		}
 
 		$query = $db->query("SELECT {$query_select} FROM ".Tprefix."development_requirements WHERE (assignedTo=0 OR assignedTo=".$core->user['uid'].' OR createdBy='.$core->user['uid'].') AND parent=0 ORDER BY refWord ASC, refKey ASC');
@@ -141,7 +141,7 @@ class Requirements {
 		return $db->fetch_field($db->query('SELECT refKey FROM '.Tprefix.'development_requirements_changes WHERE drid='.intval($this->requirement['drid']).' ORDER BY refKey DESC LIMIT 0, 1'), 'refKey');
 	}
 
-	public function parse_requirements_list(array $requirements = array(), $highlevel = true, $ref = '', $parsetype = 'list') {
+	public function parse_requirements_list(array $requirements = array(), $highlevel = true, $ref = '', $parsetype = 'list', $config = array()) {
 		if(empty($requirements)) {
 			if(!isset($this->requirement)) {
 				return false;
@@ -159,9 +159,9 @@ class Requirements {
 			if($parsetype == 'list') {
 				$requirements_list = '<ul>';
 			}
-//			else {
-//				$requirements_list .= '<select name="development[parent] >';
-//			}
+			else {
+				$requirements_list = '<select name="'.$config['name'].'" id="'.$config['id'].'">';
+			}
 		}
 
 		$ref_param = $ref;
@@ -200,11 +200,9 @@ class Requirements {
 					$requirements_list .= '</ul>';
 				}
 				else {
-					//$requirements_list .= '.';
 					$requirements_list .= $this->parse_requirements_list($values['children'], false, $ref, 'select');
 				}
 			}
-
 
 			if($highlevel == true) {
 				$ref = '';
@@ -215,9 +213,9 @@ class Requirements {
 			if($parsetype == 'list') {
 				$requirements_list .= '</ul>';
 			}
-//			else {
-//				$requirements_list .= '</select>';
-//			}
+			else {
+				$requirements_list .= '</select>';
+			}
 		}
 
 
