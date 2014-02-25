@@ -22,7 +22,7 @@ if(!$core->input['action']) {
 	foreach($allusers as $user) {
 		$requestedby_list .='<option value="'.$user['uid'].'"> '.$user['displayName'].' </option>';
 	}
-	$assignedto_list='<option value="" selected="selected"> </option>';
+	$assignedto_list = '<option value="" selected="selected"> </option>';
 	foreach($reports_to as $assignedto) {
 		$assignedto_list.='<option value="'.$assignedto['uid'].'"> '.$assignedto['displayName'].' </option>';
 	}
@@ -40,11 +40,16 @@ elseif($core->input['action'] == 'do_add') {
 	$modulesplit = substr($core->input['development']['parent'], 0, 5);
 	$titlesplit = substr($core->input['development']['title'], 0, 3);
 	$core->input['development']['refWord'] = $modulesplit.'/'.$titlesplit;
+
+	$refKey = $db->fetch_field($db->query("SELECT (refKey)+0.1 as refKey  FROM ".Tprefix."development_requirements WHERE parent=".$db->escape_string($core->input['development']['parent'])." ORDER BY refKey DESC"), 'refKey');
+	if(empty($refKey)) {
+		$refKey+=1;
+	}
 	$requi_array = Array
 			(
 			'module' => $core->input['development']['modulefield'],
 			'title' => $core->input['development']['title'],
-			'refKey' => $core->input['development']['refKey'],
+			'refKey' => $refKey,
 			'parent' => $core->input['development']['parent'],
 			'description' => $core->input['development']['description'],
 			'userInterface' => $core->input['development']['userInterface'],
