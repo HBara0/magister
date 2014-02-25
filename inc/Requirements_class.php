@@ -135,6 +135,12 @@ class Requirements {
 		return new Requirements($this->requirement['parent']);
 	}
 
+	public function get_lastchangekey() {
+		global $db;
+
+		return $db->fetch_field($db->query('SELECT refKey FROM '.Tprefix.'development_requirements_changes WHERE drid='.intval($this->requirement['drid']).' ORDER BY refKey DESC LIMIT 0, 1'), 'refKey');
+	}
+
 	public function parse_requirements_list(array $requirements = array(), $highlevel = true, $ref = '', $parsetype = 'list') {
 		if(empty($requirements)) {
 			if(!isset($this->requirement)) {
@@ -154,7 +160,7 @@ class Requirements {
 				$requirements_list = '<ul>';
 			}
 			else {
-				//$requirements_list .= '<select  name="development[parent] >';
+				$requirements_list .= '<select name="development[parent] >';
 			}
 		}
 
@@ -176,15 +182,16 @@ class Requirements {
 				elseif(!empty($values['isCompleted']) && is_array($values['children'])) {
 					$requirements_list .= ' &#10003;';
 				}
+
 				if(is_array($values['children']) && !empty($values['children'])) {
 					$requirements_list .= ' <a href="#requirement_'.$values['drid'].'" id="showmore_requirementchildren_'.$values['drid'].'">&raquo;</a>';
 				}
+
 				$requirements_list .= '</li>';
 			}
 			else {
 				$requirements_list .= '<option value="'.$values['drid'].'">'.$ref.' '.$values['title'].'</option>';
 			}
-
 
 			if(is_array($values['children']) && !empty($values['children'])) {
 				if($parsetype == 'list') {
@@ -193,7 +200,7 @@ class Requirements {
 					$requirements_list .= '</ul>';
 				}
 				else {
-					$requirements_list .= '.'; 
+					//$requirements_list .= '.';
 					$requirements_list .= $this->parse_requirements_list($values['children'], false, $ref, 'select');
 				}
 			}
@@ -203,11 +210,16 @@ class Requirements {
 				$ref = '';
 			}
 		}
-		if($parsetype == 'list') {
-			if($highlevel == true) {
+
+		if($highlevel == true) {
+			if($parsetype == 'list') {
 				$requirements_list .= '</ul>';
 			}
+			else {
+				$requirements_list .= '</select>';
+			}
 		}
+
 
 		return $requirements_list;
 	}
