@@ -12,7 +12,7 @@ if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
 if(!$core->input['action']) {
-
+	$requirements_obj = new Requirements();
 	$user_obj = new Users();
 	$allusers_objs = $user_obj->get_allusers();
 	$reports_to = $user_obj->get_reportingto();
@@ -26,13 +26,15 @@ if(!$core->input['action']) {
 	foreach($reports_to as $assignedto) {
 		$assignedto_list.='<option value="'.$assignedto['uid'].'"> '.$assignedto['displayName'].' </option>';
 	}
-	$query = $db->query("SELECT  * FROM ".Tprefix."development_requirements ");
-	while($rowparent = $db->fetch_assoc($query)) {
+	$query = $db->query("SELECT  * FROM ".Tprefix."development_requirements  ORDER BY refWord ASC, refKey ASC");
+
+	while($requirement = $db->fetch_assoc($query)) {
+		$requirements[$requirement['drid']] = $requirement;
 		$ref = $rowparent['refWord'].' '.$rowparent['refKey'];
-		$parent_list .='<option value="'.$rowparent['drid'].'">'.$ref.' &raquo; '.$rowparent['title'].' </option>';
+		//$parent_list .='<option value="'.$rowparent['drid'].'">'.$ref.' &raquo; '.$rowparent['title'].' </option>';
 	}
-
-
+	$parent_list = $requirements_obj->parse_requirements_list($requirements,'','','select');
+print_R($parent_list);
 	eval("\$createrequirment = \"".$template->get('development_createrequirment')."\";");
 	output($createrequirment);
 }
