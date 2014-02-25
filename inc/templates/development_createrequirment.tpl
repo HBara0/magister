@@ -41,7 +41,7 @@
 
                 <div style="display:block; padding:5px;" >
                     <div style="display:inline-block;width:10%"> parent </div>
-                    <div style="display:inline-block;width:55%">  {$parent_list} </div>
+                    <div style="display:inline-block;width:55%"> <select name="development[parent]">{$parent_list}</select> </div>
                 </div>
                 <div style="display:block; padding:5px">
                     <div style="display:inline-block;width:10%; vertical-align: top;">description</div>

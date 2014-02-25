@@ -159,9 +159,9 @@ class Requirements {
 			if($parsetype == 'list') {
 				$requirements_list = '<ul>';
 			}
-			else {
-				$requirements_list .= '<select name="development[parent] >';
-			}
+//			else {
+//				$requirements_list .= '<select name="development[parent] >';
+//			}
 		}
 
 		$ref_param = $ref;
@@ -215,9 +215,9 @@ class Requirements {
 			if($parsetype == 'list') {
 				$requirements_list .= '</ul>';
 			}
-			else {
-				$requirements_list .= '</select>';
-			}
+//			else {
+//				$requirements_list .= '</select>';
+//			}
 		}
 
 
