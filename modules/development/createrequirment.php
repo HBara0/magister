@@ -37,8 +37,11 @@ if(!$core->input['action']) {
 	output($createrequirment);
 }
 elseif($core->input['action'] == 'do_add') {
-	$modulesplit = substr($core->input['development']['parent'], 0, 5);
-	$titlesplit = substr($core->input['development']['title'], 0, 3);
+	if(is_empty($core->input['development']['modulefield'], $core->input['development']['title'])) {
+		output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+		exit;
+	}
+	 
 
 	$refKey = $db->fetch_field($db->query("SELECT (refKey)+1 as refKey FROM ".Tprefix."development_requirements WHERE parent=".intval($core->input['development']['parent'])." AND refWord='".$db->escape_string($core->input['development']['refWord'])."' ORDER BY refKey DESC LIMIT 0, 1"), 'refKey');
 
@@ -61,6 +64,8 @@ elseif($core->input['action'] == 'do_add') {
 			'dateCreated' => TIME_NOW
 	);
 
-	$db->insert_query('development_requirements', $requi_array);
+	if($db->insert_query('development_requirements', $requi_array)) {
+		output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+	}
 }
 ?>
