@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Logs Class
  * $id: Tasks_class.php
  * Created:		@zaher.reda		April 20, 2012 | 10:53 AM
@@ -38,13 +38,13 @@ class Tasks {
 
 		$query_select = 'ct.*, u.displayName AS assignedTo';
 		if($simple == true) {
-			$query_select = 'ctid, pimAppId';
+			$query_select = 'ctid,identifier, pimAppId';
 		}
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."calendar_tasks ct JOIN ".Tprefix."users u ON (u.uid=ct.uid) WHERE ctid=".$db->escape_string($id)));
 	}
 
 	/* Creates the task in the DB
-	 * @param  	Array			$data 		Array containing the input	
+	 * @param  	Array			$data 		Array containing the input
 	 * @return  Boolean						0=No errors;1=Subject missing;2=Entry exists
 	 */
 	public function create_task(array $data) {
@@ -64,6 +64,7 @@ class Tasks {
 
 		$new_task = array(
 				'uid' => $data['uid'],
+				'identifier' => substr(md5(uniqid(microtime())), 1, 10),
 				'subject' => ucwords(strtolower($core->sanitize_inputs($data['subject']))),
 				'priority' => $data['priority'],
 				'percCompleted' => $data['percCompleted'],
@@ -102,7 +103,7 @@ class Tasks {
 			fix_newline($this->task['description']);
 
 			/* prepare send  that in icalender format - START */
-			$ical_obj = new iCalendar(array('component' => 'task'));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+			$ical_obj = new iCalendar(array('identifier' => $this->task['identifier'], 'uidtimestamp' => $this->task['createdOn'], 'component' => 'task'));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
 			$ical_obj->set_summary($this->task['subject']);
 			$ical_obj->set_name();
 			$ical_obj->set_description($this->task['description']);
@@ -111,7 +112,7 @@ class Tasks {
 			//$ical_obj->set_icalattendees($this->task['uid']);
 			$ical_obj->sentby();
 			$ical_obj->set_percentcomplete($this->task['percCompleted']);
-			//$ical_obj->set_categories('CalendarTask');
+			//$ical_obj->set_categories('CalendarTask');		
 			$ical_obj->endical();
 			$ical_obj->save();
 
@@ -258,10 +259,10 @@ class Tasks {
 	public function get_notes() {
 		global $db, $core;
 
-		$query = $db->query("SELECT ctn.*, u.displayName 
+		$query = $db->query("SELECT ctn.*, u.displayName
 							FROM ".Tprefix." calendar_tasks_notes ctn
-							JOIN ".Tprefix."users u ON (u.uid=ctn.uid) 
-							WHERE ctn.ctid=".$this->task['ctid']." 
+							JOIN ".Tprefix."users u ON (u.uid=ctn.uid)
+							WHERE ctn.ctid=".$this->task['ctid']."
 							ORDER BY dateAdded DESC");
 		if($db->num_rows($query) > 0) {
 			while($tasks_note = $db->fetch_assoc($query)) {
