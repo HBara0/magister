@@ -156,7 +156,12 @@ class Requirements {
 		}
 
 		if($highlevel == true) {
-			$requirements_list = '<ul>';
+			if($parsetype == 'list') {
+				$requirements_list = '<ul>';
+			}
+			else {
+				//$requirements_list .= '<select  name="development[parent] >';
+			}
 		}
 
 		$ref_param = $ref;
@@ -168,34 +173,48 @@ class Requirements {
 			else {
 				$ref = $ref_param.'.'.$values['refKey'];
 			}
-			$requirements_list .= '<li><a href="index.php?module=development/viewrequirement&id='.$values['drid'].'" target="_blank">'.$ref.' '.$values['title'].'</a>';
+			if($parsetype == 'list') {
+				$requirements_list .= '<li><a href="index.php?module=development/viewrequirement&id='.$values['drid'].'" target="_blank">'.$ref.' '.$values['title'].'</a>';
 
-			if(!empty($values['isCompleted']) && !is_array($values['children'])) {
-				$requirements_list .= ' &#10004;';
-			}
+				if(!empty($values['isCompleted']) && !is_array($values['children'])) {
+					$requirements_list .= ' &#10004;';
+				}
 			elseif(!empty($values['isCompleted']) && is_array($values['children'])) {
-				$requirements_list .= ' &#10003;';
+					$requirements_list .= ' &#10003;';
+				}
+
+				if(is_array($values['children']) && !empty($values['children'])) {
+					$requirements_list .= ' <a href="#requirement_'.$values['drid'].'" id="showmore_requirementchildren_'.$values['drid'].'">&raquo;</a>';
+				}
+
+				$requirements_list .= '</li>';
 			}
+			else {
+				$requirements_list .= '<option value="'.$values['drid'].'">'.$ref.' '.$values['title'].'</option>';
+			}
+
 
 			if(is_array($values['children']) && !empty($values['children'])) {
-				$requirements_list .= ' <a href="#requirement_'.$values['drid'].'" id="showmore_requirementchildren_'.$values['drid'].'">&raquo;</a>';
+				if($parsetype == 'list') {
+					$requirements_list .= '<ul id="requirementchildren_'.$values['drid'].'" style="display:none;">';
+					$requirements_list .= $this->parse_requirements_list($values['children'], false, $ref);
+					$requirements_list .= '</ul>';
+				}
+				else {
+					$requirements_list .= '.';
+					$requirements_list .= $this->parse_requirements_list($values['children'], false, $ref, 'select');
+				}
 			}
 
-			$requirements_list .= '</li>';
-
-			if(is_array($values['children']) && !empty($values['children'])) {
-				$requirements_list .= '<ul id="requirementchildren_'.$values['drid'].'" style="display:none;">';
-				$requirements_list .= $this->parse_requirements_list($values['children'], false, $ref);
-				$requirements_list .= '</ul>';
-			}
 
 			if($highlevel == true) {
 				$ref = '';
 			}
 		}
-
-		if($highlevel == true) {
-			$requirements_list .= '</ul>';
+		if($parsetype == 'list') {
+			if($highlevel == true) {
+				$requirements_list .= '</ul>';
+			}
 		}
 
 		return $requirements_list;
