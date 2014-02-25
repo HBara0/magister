@@ -39,12 +39,9 @@ if(!$core->input['action']) {
 elseif($core->input['action'] == 'do_add') {
 	$modulesplit = substr($core->input['development']['parent'], 0, 5);
 	$titlesplit = substr($core->input['development']['title'], 0, 3);
-	$core->input['development']['refWord'] = $modulesplit.'/'.$titlesplit;
 
-	$refKey = $db->fetch_field($db->query("SELECT (refKey)+0.1 as refKey  FROM ".Tprefix."development_requirements WHERE parent=".$db->escape_string($core->input['development']['parent'])." ORDER BY refKey DESC"), 'refKey');
-	if(empty($refKey)) {
-		$refKey+=1;
-	}
+	$refKey = $db->fetch_field($db->query("SELECT (refKey)+1 as refKey FROM ".Tprefix."development_requirements WHERE parent=".intval($core->input['development']['parent'])." AND refWord='".$db->escape_string($core->input['development']['refWord'])."' ORDER BY refKey DESC LIMIT 0, 1"), 'refKey');
+
 	$requi_array = Array
 			(
 			'module' => $core->input['development']['modulefield'],
@@ -65,6 +62,5 @@ elseif($core->input['action'] == 'do_add') {
 	);
 
 	$db->insert_query('development_requirements', $requi_array);
-	print_R($requi_array);
 }
 ?>
