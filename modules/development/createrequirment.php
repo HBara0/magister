@@ -28,8 +28,8 @@ if(!$core->input['action']) {
 	}
 	$query = $db->query("SELECT  * FROM ".Tprefix."development_requirements ");
 	while($rowparent = $db->fetch_assoc($query)) {
-
-		$parent_list .='<option value="'.$rowparent['drid'].'"> '.$rowparent['title'].' </option>';
+		$ref = $rowparent['refWord'].' '.$rowparent['refKey'];
+		$parent_list .='<option value="'.$rowparent['drid'].'">'.$ref.' &raquo; '.$rowparent['title'].' </option>';
 	}
 
 
@@ -41,7 +41,7 @@ elseif($core->input['action'] == 'do_add') {
 		output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
 		exit;
 	}
-	 
+
 
 	$refKey = $db->fetch_field($db->query("SELECT (refKey)+1 as refKey FROM ".Tprefix."development_requirements WHERE parent=".intval($core->input['development']['parent'])." AND refWord='".$db->escape_string($core->input['development']['refWord'])."' ORDER BY refKey DESC LIMIT 0, 1"), 'refKey');
 
@@ -66,6 +66,11 @@ elseif($core->input['action'] == 'do_add') {
 
 	if($db->insert_query('development_requirements', $requi_array)) {
 		output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+		exit;
+	}
+	else {
+		output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+		exit;
 	}
 }
 ?>
