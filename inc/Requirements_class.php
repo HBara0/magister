@@ -56,7 +56,7 @@ class Requirements {
 		return $requirements;
 	}
 
-	private function read_requirement_children($id, $simple = false) {
+	public function read_requirement_children($id, $simple = false) {
 		global $db;
 
 		$query_select = '*';
@@ -193,7 +193,7 @@ class Requirements {
 					$requirements_list .= '</ul>';
 				}
 				else {
-					$requirements_list .= '.';
+					$requirements_list .= '.'; 
 					$requirements_list .= $this->parse_requirements_list($values['children'], false, $ref, 'select');
 				}
 			}

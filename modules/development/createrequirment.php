@@ -26,15 +26,12 @@ if(!$core->input['action']) {
 	foreach($reports_to as $assignedto) {
 		$assignedto_list.='<option value="'.$assignedto['uid'].'"> '.$assignedto['displayName'].' </option>';
 	}
-	$query = $db->query("SELECT  * FROM ".Tprefix."development_requirements  ORDER BY refWord ASC, refKey ASC");
+	$requirements = $requirements_obj->read_user_requirements();
 
-	while($requirement = $db->fetch_assoc($query)) {
-		$requirements[$requirement['drid']] = $requirement;
-		$ref = $rowparent['refWord'].' '.$rowparent['refKey'];
-		//$parent_list .='<option value="'.$rowparent['drid'].'">'.$ref.' &raquo; '.$rowparent['title'].' </option>';
+	if(is_array($requirements)) {
+		$parent_list = $requirements_obj->parse_requirements_list($requirements, '', '', 'select');
 	}
-	$parent_list = $requirements_obj->parse_requirements_list($requirements,'','','select');
-print_R($parent_list);
+
 	eval("\$createrequirment = \"".$template->get('development_createrequirment')."\";");
 	output($createrequirment);
 }
