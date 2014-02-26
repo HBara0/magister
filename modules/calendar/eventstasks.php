@@ -93,7 +93,7 @@ else {
 					$db->insert_query('calendar_events_invitees', $new_event_invitee_data);
 				}
 			}
-			
+
 			/* Get invitess by user */
 			$event_users_objs = $event_obj->get_invited_users();
 			if(is_array($event_users_objs)) {
@@ -110,7 +110,7 @@ else {
 					$ical_obj->set_icalattendees($event_users['uid']);
 					$ical_obj->set_description($events_details['description']);
 					$ical_obj->endical();
-	
+
 					$email_data = array(
 							'to' => $event_users['email'],
 							'from_email' => $core->settings['maileremail'],
@@ -140,17 +140,30 @@ else {
 									'to' => $notification_mails,
 									'subject' => $core->input['event']['title']
 							);
-							$email_data['message'] = '<strong>'.$core->input['event']['title'].'</strong> (';
+//							$email_data['message'] = '<strong>'.$core->input['event']['title'].'</strong> (';
+//
+//							$email_data['message'] .= date($core->settings['dateformat'], $new_event['fromDate']);
+//							if($new_event['toDate'] != $new_event['fromDate']) {
+//								$email_data['message'] .= ' - '.date($core->settings['dateformat'], $new_event['toDate']);
+//							}
+//							$email_data['message'] .= ')<br />';
+//							$email_data['message'] .= $core->input['event']['place'].'<br />';
+//							$email_data['message'] .= str_replace("\n", '<br />', $core->input['event']['description']);
 
-							$email_data['message'] .= date($core->settings['dateformat'], $new_event['fromDate']);
-							if($new_event['toDate'] != $new_event['fromDate']) {
-								$email_data['message'] .= ' - '.date($core->settings['dateformat'], $new_event['toDate']);
-							}
-							$email_data['message'] .= ')<br />';
-							$email_data['message'] .= $core->input['event']['place'].'<br />';
-							$email_data['message'] .= str_replace("\n", '<br />', $core->input['event']['description']);
-
-							$mail = new Mailer($email_data, 'php');
+							$ical_obj = new iCalendar(array('method' => 'REQUEST'));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+							$ical_obj->set_datestart($events_details['fromDate']);
+							$ical_obj->set_datend($events_details['toDate']);
+							$ical_obj->set_location($events_details['place']);
+							$ical_obj->set_summary($events_details['title']);
+							$ical_obj->set_name();
+							$ical_obj->set_status();
+							$ical_obj->set_transparency();
+							$ical_obj->set_icalattendees($notification_mails);
+							$ical_obj->set_description($events_details['description']);
+							$ical_obj->endical();
+							$email_data['message'] = $ical_obj->geticalendar();
+							$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'meetingrequest', 'method' => 'REQUEST', 'filename' => $events_details['title'].'.ics'));
+//$mail = new Mailer($email_data, 'php');
 							if($mail->get_status() === true) {
 								$log->record($notification_mails, $last_id);
 							}
