@@ -199,6 +199,15 @@ class Surveys {
 								$this->status = 1;
 								return false;
 							}
+							else { /* Validate choices if meet the pattern and  has value  before insert */
+								if(strstr(trim($question['choices']), ';')) {
+									$question_choices_values = preg_split("/;+/", trim($question['choices']));
+								}
+								if(empty($question_choices_values[1])) {
+									$this->status = 6;
+									return false;
+								}
+							}
 						}
 					}
 				}
@@ -253,21 +262,13 @@ class Surveys {
 								if(is_array($question_choices_choice)) {
 									foreach($question_choices_choice as $key => $choice) {
 										if(strstr($choice, ';')) {
-											$question_choices_values = preg_split("/;+/", $choice);
+											$question_choices_values = preg_split("/;+/", trim($choice));
 										}
-										else {
-											$question_choices_values[0] = $choice;
-										}
-										if(empty($question_choices_values[0])) {
-											continue;
-										}
-
+										echo strlen($question_choices_values[1]);
 										if(empty($question_choices_values[1])) {
-											$question_choices_values[1] = $question_choices_values[0];
-										}
-
-										if(empty($question_choices_values[1]) && $question_choices_values[1] != 0) {
-											$question_choices_values[1] = $question_choices_values[0];
+											echo 'alertt';
+											$this->status = 6;
+											return false;
 										}
 
 										if(!empty($question_choices_values[0]) && (!empty($question_choices_values[1]))) {
@@ -276,15 +277,15 @@ class Surveys {
 										}
 									}
 								}
-							}
+							}exit;
 						}
 						$sequence++;
 					}
 				}
 			}
 			$log->record('createsurveytemplate', $stid);
-			//$this->status = 0;
-			//return true;
+			$this->status = 0;
+			return true;
 		}
 		else {
 			$this->status = 3;

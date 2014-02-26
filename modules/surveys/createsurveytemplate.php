@@ -14,8 +14,8 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if($core->usergroup['surveys_canCreateSurvey'] == 0) {
-  error($lang->sectionnopermission);
-  exit;
+	error($lang->sectionnopermission);
+	exit;
 }
 
 $lang->load('surveys_createtemplate');
@@ -44,7 +44,7 @@ if(!$core->input['action']) {
 
 	$surveycategories = get_specificdata('surveys_categories', array('scid', 'title'), 'scid', 'title', 'title');
 	$surveycategories_list = parse_selectlist('category', 5, $surveycategories, $survey_template['category']);
-	
+
 	$altrow_class = alt_row($altrow_class);
 
 	eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
@@ -79,19 +79,22 @@ else {
 			case 5:
 				output_xml("<status>false</status><message>{$lang->duplicationquestionname}</message>");
 				break;
+			case 6:
+				output_xml("<status>false</status><message>chocie miis{$lang->duplicationquestionnsame}</message>");
+				break;
 		}
 	}
-	elseif($core->input['action'] == 'parsetype') {	
+	elseif($core->input['action'] == 'parsetype') {
 		/* Get validation of the question - START */
 		$section_id = $core->input['sectionid'];
 		$question_id = $core->input['questionid'];
 		$query = $db->query("SELECT * FROM ".Tprefix."surveys_questiontypes sqt
 						WHERE sqt.sqtid = ".$db->escape_string($core->input['questiontype'])."");
 
-		$questiontypes = $db->fetch_assoc($query); 
+		$questiontypes = $db->fetch_assoc($query);
 
 		header('Content-type: text/javascript');
-		if($questiontypes['isSizable'] == 1) { 
+		if($questiontypes['isSizable'] == 1) {
 			echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'[fieldSize_container]\']").css("display","table-row");';
 		}
 		else {
@@ -137,7 +140,7 @@ else {
 		$sequence = $db->escape_string($core->input['value']) + 1;
 		$fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 0);
 		$desctype = get_specificdata('surveys_questiontypes', array('sqtid', 'description'), 'sqtid', 'description', '', 0);
-		$question_types_options="<option value=''></option>";
+		$question_types_options = "<option value=''></option>";
 		foreach($fieldtype as $key => $formatvalue) {
 			$fieldtype[$key] = $formatvalue;
 			if(!empty($desctype[$key])) {
