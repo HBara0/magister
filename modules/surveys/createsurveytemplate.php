@@ -80,7 +80,7 @@ else {
 				output_xml("<status>false</status><message>{$lang->duplicationquestionname}</message>");
 				break;
 			case 6:
-				output_xml("<status>false</status><message>chocie miis{$lang->duplicationquestionnsame}</message>");
+				output_xml("<status>false</status><message>{$lang->choicempty}</message>");
 				break;
 		}
 	}

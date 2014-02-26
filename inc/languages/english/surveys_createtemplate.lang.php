@@ -25,4 +25,5 @@ $lang['surveytemplateexists'] = 'A template with the same name already exsits';
 $lang['surveytemplatetitle'] = 'Title';
 $lang['validationcriterion'] = 'Validation Criterion';
 $lang['validationtype'] = 'Validation Type';
+$lang['choicempty']='You have to  assign value for the choice, and separate it with semi-column'
 ?>
