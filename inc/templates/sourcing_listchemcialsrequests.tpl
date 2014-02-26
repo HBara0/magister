@@ -11,7 +11,7 @@
                     <thead>
                         <tr>
                             <th style="width: 10%;">{$lang->user} <a href="{$sort_url}&amp;sortby=displayName&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=displayName&amp;order=DESC"><img src="./images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
-                            <th style="width: 15%;">{$lang->chemicalname} <a href="{$sort_url}&amp;sortby=name&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=name&amp;order=DESC"><img src="./images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
+                            <th style="width: 15%;">{$lang->chemicalname} <a href="{$sort_url}&amp;sortby=chemicalname&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=chemicalname&amp;order=DESC"><img src="./images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
                             <th style="width: 25%;">{$lang->requestdescription}</th>
                             <th style="width: 15%;">{$lang->application} <a href="{$sort_url}&amp;sortby=application&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=application&amp;order=DESC"><img src="./images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
                             <th style="width: 15%;">{$lang->origin}</th>
