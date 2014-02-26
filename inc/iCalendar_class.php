@@ -126,7 +126,10 @@ class Icalendar {
 		$this->icalendarfile .= "ORGANIZER;SENT-BY: MAILTO:{$organizer->get()['email']}\r\n";
 	}
 
-	public function set_status($status) {
+	public function set_status($status = '') {
+		if(empty($status)) {
+			$status = 'CONFIRMED';
+		}
 		$this->icalendarfile .= "STATUS.{$status}\r\n";
 	}
 
@@ -145,7 +148,13 @@ class Icalendar {
 		/* loop over the attendees of the meetings object and   defines teh  "Attendee" within the calendar component. */
 		if(is_array($attendees)) {
 			foreach($attendees as $attendee) {
-				$this->icalattendees .= "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE;CN={$attendee['name']}:MAILTO:{$attendee['email']}\r\n";
+				if(empty($attendee['email'])) {
+					continue;
+				}
+				if(empty($attendee['name'])) {
+					$attendee['name'] = $attendee['email'];
+				}
+				$this->icalattendees .= "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE;CN={$attendee['name']};RSVP=TRUE:MAILTO:{$attendee['email']}\r\n";
 			}
 		}
 		//if single attendee
@@ -164,6 +173,13 @@ class Icalendar {
 		$this->icalendarfile .= 'X-ALT-DESC;FMTTYPE=text/html:<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">\n<html>\n<body>\n'.$description.'\n</body>\n</html>'."\r\n";		
 	}
 
+	public function set_transparency($trasp = 'PUBLIC') {
+		if(empty($trasp)) {
+			$trasp = 'TRANSPARENT';
+		}
+		$this->icalendarfile .= "TRANSP=".$trasp."\r\n";
+	}
+	
 	public function set_recurrence($recur) {
 		switch($recur) {
 			case 86400:
