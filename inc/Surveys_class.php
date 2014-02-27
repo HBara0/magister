@@ -200,12 +200,20 @@ class Surveys {
 								return false;
 							}
 							else { /* Validate choices if meet the pattern and  has value  before insert */
-								if(strstr(trim($question['choices']), ';')) {
-									$question_choices_values = preg_split("/;+/", trim($question['choices']));
-								}
-								if(empty($question_choices_values[1])) {
-									$this->status = 6;
-									return false;
+								$question_choices_choice = preg_split('/\n+/', $question['choices']);
+
+								/* Split the choices value by ";" */
+								if(is_array($question_choices_choice)) {
+									foreach($question_choices_choice as $key => $choice) {
+										if(strstr($question['choices'], ';')) {
+											$question_choices_values = preg_split("/;+/", trim($choice));
+										}
+
+										if(empty($question_choices_values[1])) {
+											$this->status = 6;
+											return false;
+										}
+									}
 								}
 							}
 						}
@@ -264,9 +272,7 @@ class Surveys {
 										if(strstr($choice, ';')) {
 											$question_choices_values = preg_split("/;+/", trim($choice));
 										}
-										echo strlen($question_choices_values[1]);
 										if(empty($question_choices_values[1])) {
-											echo 'alertt';
 											$this->status = 6;
 											return false;
 										}
@@ -277,7 +283,7 @@ class Surveys {
 										}
 									}
 								}
-							}exit;
+							}
 						}
 						$sequence++;
 					}

@@ -49,13 +49,21 @@ if(!$core->input['action']) {
 			}
 		}
 
-		eval("\$changes_section .= \"".$template->get('development_requirementdetails_addchange')."\";");
+		if($core->usergroup['development_canCreateReq'] == 1) {
+			eval("\$changes_section .= \"".$template->get('development_requirementdetails_addchange')."\";");
+		}
+		
 		eval("\$requirementdetails = \"".$template->get('development_requirementdetails')."\";");
 		output_page($requirementdetails);
 	}
 }
 else {
 	if($core->input['action'] == 'createreqchange') {
+		if($core->usergroup['development_canCreateReq'] == 0) {
+			output_xml('<status>false</status><message>'.$lang->sectionnopermission.'</message>');
+			exit;
+		}
+
 		$reqchange_obj = new RequirementsChanges();
 		$reqchange_obj->create($core->input);
 

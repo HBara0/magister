@@ -69,23 +69,23 @@ class Icalendar {
 			$timestamp = TIME_NOW;
 		}
 		
-		$this->icalendarfile .= 'UID:'.date('Ymd', $timestamp).'T'.date('His', $timestamp).'-'.$identifier."-@orkila.com\r\n";
+		$this->icalendarfile .= 'UID:'.$this->parse_datestamp($timestamp).'-'.$identifier."-@orkila.com\r\n";
 	}
 
 	private function set_datestamp() {
-		$this->icalendarfile .= 'DTSTAMP:'.date('Ymd').'T'.date('His')."\r\n";
+		$this->icalendarfile .= 'DTSTAMP:'.$this->parse_datestamp(TIME_NOW)."\r\n";
 	}
 
 	public function set_datestart($datestart) {
-		$this->icalendarfile .= 'DTSTART:'.date('Ymd\THis', $datestart)."\r\n";
+		$this->icalendarfile .= 'DTSTART:'.$this->parse_datestamp($datestart)."\r\n";
 	}
 
 	public function set_datend($datend) {
-		$this->icalendarfile .= 'DTEND:'.date('Ymd\THis', $datend)."\r\n";
+		$this->icalendarfile .= 'DTEND:'.$this->parse_datestamp($datend)."\r\n";
 	}
 
 	public function set_duedate($duedate) {
-		$this->icalendarfile .= 'DUE:'.date('Ymd\THis', $duedate)."\r\n";
+		$this->icalendarfile .= 'DUE:'.$this->parse_datestamp($duedate)."\r\n";
 	}
 
 	public function set_categories($categories) {
@@ -195,6 +195,10 @@ class Icalendar {
 		$this->icalendarfile .= "END:VCALENDAR\r\n";
 	}
 
+	public function parse_datestamp($timestamp) {
+		return date('Ymd', $timestamp).'T'.date('His', $timestamp).'Z';
+	}
+	
 	public function download() {
 		header('Content-Type: text/Calendar');
 		header('Content-Disposition: inline; filename='.$this->icalendar['name'].'.ics');
@@ -216,6 +220,10 @@ class Icalendar {
 	public function get_filepath() {
 		global $core;
 		return $core->sanitize_path('./tmp/'.$this->icalendar['name'].'.ics');
+	}
+	
+	public function set_relatedto($relatedto) {
+		$this->icalendarfile .= 'RELATED-TO:<'.$relatedto.'>'."\r\n";	
 	}
 	
 	public function set_name($name = '') {

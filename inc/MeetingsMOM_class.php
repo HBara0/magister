@@ -30,14 +30,14 @@ class MeetingsMOM {
 			$this->errorcode = 1;
 			return false;
 		}
-		$mom_data['meetingDetails'] = $core->sanitize_inputs($mom_data['meetingDetails'], array('removetags' => true));
-		$mom_data['followup'] = $core->sanitize_inputs($mom_data['followup'], array('removetags' => true));
+		$mom_data['meetingDetails'] = $core->sanitize_inputs($mom_data['meetingDetails'], array('removetags' => false));
+		$mom_data['followup'] = $core->sanitize_inputs($mom_data['followup'], array('removetags' => false));
 
 		if(!value_exists('meetings_minsofmeeting', 'mtid', $mom_data['mtid'])) {
 			$query = $db->insert_query('meetings_minsofmeeting', array('mtid' => $mom_data['mtid'], 'meetingDetails' => $mom_data['meetingDetails'], 'followup' => $mom_data['followup'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
 			if($query) {
 				$db->update_query('meetings', array('hasMOM' => 1), 'mtid='.$mom_data['mtid']);
-				//$this->errorcode = 0;
+				$this->errorcode = 0;
 				$log->record('addedmom', $this->mom_data['mtid']);
 			}
 		}

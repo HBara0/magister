@@ -41,11 +41,11 @@ class Meetings {
 				$this->errorcode = 1;
 				return false;
 			}
-
-			if(value_exists('meetings', 'title', $this->meeting['title'], ' createdBy='.$core->user['uid'].'')) {
-				$this->errorcode = 4;
-				return false;
-			}
+//
+//			if(value_exists('meetings', 'title', $this->meeting['title'], ' createdBy='.$core->user['uid'].'')) {
+//				$this->errorcode = 4;
+//				return false;
+//			}
 			if(!empty($meeting_data['altfromDate'])) {
 				$fromdate = explode('-', $meeting_data['altfromDate']);
 
@@ -137,7 +137,7 @@ class Meetings {
 						$email_data['to'][] = $receipient_attendees[$key]['email'];
 					}
 				}
-				
+
 				if(is_array($receipient_attendees)) {
 					$ical_obj = new iCalendar(array('identifier' => $this->meeting['identifier'], 'uidtimestamp' => $this->meeting['createdOn'], 'component' => 'event', 'method' => 'REQUEST'));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
 					$ical_obj->set_datestart($this->meeting['fromDate']);
@@ -170,7 +170,7 @@ class Meetings {
 		}
 
 		//if(!isset($attendees)) {
-			$attendees['uid'][] = array(array('idAttr' => 'uid', 'mtid' => $this->meeting['mtid'], 'id' => $core->user['uid']));
+		$attendees['uid'][] = array(array('idAttr' => 'uid', 'mtid' => $this->meeting['mtid'], 'id' => $core->user['uid']));
 		//}
 
 		if(!empty($attendees)) {
@@ -402,6 +402,39 @@ class Meetings {
 					$this->errorcode = 0;
 				}
 			}
+
+			$this->send_mom();
+		}
+	}
+
+	public function send_mom($type = 'regular') {
+		global $core;
+		$mom = $this->get_mom();
+
+		$email_data = array(
+				'from_email' => $core->settings['maileremail'],
+				'from' => 'OCOS Mailer',
+				'subject' => $this->meeting['title']
+		);
+
+		$users = $this->get_shared_users();
+		foreach($users as $user) {
+			$email_data['to'][] = $user->get()['email'];
+		}
+
+		if($type == 'ical') {
+			$ical_obj = new iCalendar(array('identifier' => $this->meeting['identifier'].'mom', 'uidtimestamp' => $this->meeting['createdOn'], 'component' => 'journal'));
+			$ical_obj->set_summary($this->meeting['title']);
+			$ical_obj->set_description($this->meeting['description']);
+			$ical_obj->set_relatedto($ical_obj->parse_datestamp($this->meeting['createdOn']).'-'.$this->meeting['identifier'].'-@orkila.com');
+			$ical_obj->endical();
+
+			$email_data['message'] = $ical_obj->geticalendar();
+			$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'appointment'));
+		}
+		else {
+			$email_data['message'] = '';
+			$mail = new Mailer($email_data, 'php');
 		}
 	}
 
