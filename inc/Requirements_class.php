@@ -43,9 +43,9 @@ class Requirements {
 					$requirement['dateCreated_output'] = date($core->settings['dateformat'], $requirement['dateCreated']);
 
 					foreach($text_fields as $field) {
-						$requirement[$field] = htmlentities($requirement[$field]);
+						//$requirement[$field] = htmlentities($requirement[$field]);
 						fix_newline($requirement[$field]);
-						parse_ocode($requirement[$field]);
+						//parse_ocode($requirement[$field]);
 					}
 				}
 				$requirements = $requirement;
