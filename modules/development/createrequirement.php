@@ -11,6 +11,12 @@
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
+
+if($core->usergroup['development_canCreateReq'] == 0) {
+	error($lang->sectionnopermission);
+	exit;
+}
+
 if(!$core->input['action']) {
 	$requirements_obj = new Requirements();
 	$user_obj = new Users();
@@ -26,15 +32,15 @@ if(!$core->input['action']) {
 	foreach($reports_to as $assignedto) {
 		$assignedto_list.='<option value="'.$assignedto['uid'].'"> '.$assignedto['displayName'].' </option>';
 	}
-	
+
 	$requirements[0] = array('title' => '', 'refWord' => '');
-	$requirements =  $requirements + $requirements_obj->read_user_requirements(true);
-	
+	$requirements = $requirements + $requirements_obj->read_user_requirements(true);
+
 	if(is_array($requirements)) {
 		$parent_list = $requirements_obj->parse_requirements_list($requirements, true, '', 'select', array('id' => 'development[parent]', 'name' => 'development[parent]'));
 	}
 
-	eval("\$createrequirment = \"".$template->get('development_createrequirment')."\";");
+	eval("\$createrequirment = \"".$template->get('development_createrequirement')."\";");
 	output($createrequirment);
 }
 else {
@@ -46,7 +52,9 @@ else {
 
 
 		$refKey = $db->fetch_field($db->query("SELECT (refKey)+1 as refKey FROM ".Tprefix."development_requirements WHERE parent=".intval($core->input['development']['parent'])." AND refWord='".$db->escape_string($core->input['development']['refWord'])."' ORDER BY refKey DESC LIMIT 0, 1"), 'refKey');
-
+		if(empty($refKey)) {
+			$refKey = 1;
+		}
 		$requi_array = Array
 				(
 				'module' => $core->input['development']['modulefield'],
