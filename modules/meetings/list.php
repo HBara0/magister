@@ -45,48 +45,50 @@ if(!$core->input['action']) {
 	eval("\$meeting_list = \"".$template->get('meeting_list')."\";");
 	output_page($meeting_list);
 }
-if($core->input['action'] == 'get_sharemeeting') {
-	$mtid = $db->escape_string($core->input['id']);
-	
-	$affiliates_users = Users::get_allusers();
-	$meeting_obj = new Meetings($mtid);
-	$shared_users = $meeting_obj->get_shared_users();
-	if(is_array($shared_users)) {
-		$shared_users = array_keys($shared_users);
-	}
+else {
+	if($core->input['action'] == 'get_sharemeeting') {
+		$mtid = $db->escape_string($core->input['id']);
 
-	foreach($affiliates_users as $uid => $user) {
-		$user = $user->get();
-		$checked = '';
-		if($uid == $core->user['uid']) {
-			continue;
+		$affiliates_users = Users::get_allusers();
+		$meeting_obj = new Meetings($mtid);
+		$shared_users = $meeting_obj->get_shared_users();
+		if(is_array($shared_users)) {
+			$shared_users = array_keys($shared_users);
 		}
 
-		if(is_array($shared_users)) {
-			if(in_array($uid, $shared_users)) {
-				$checked = ' checked="checked"';
+		foreach($affiliates_users as $uid => $user) {
+			$user = $user->get();
+			$checked = '';
+			if($uid == $core->user['uid']) {
+				continue;
+			}
+
+			if(is_array($shared_users)) {
+				if(in_array($uid, $shared_users)) {
+					$checked = ' checked="checked"';
+				}
+			}
+
+			eval("\$sharewith_rows .= \"".$template->get('popup_meetings_sharewith_rows')."\";");
+		}
+		eval("\$share_meeting = \"".$template->get('popup_meetings_share')."\";");
+		output($share_meeting);
+	}
+	elseif($core->input['action'] == 'do_share') {
+		$mtid = $db->escape_string($core->input['mtid']);
+		if(is_array($core->input['sharemeeting'])) {
+			$meeting_obj = new Meetings($mtid);
+			$meeting_obj->share($core->input['sharemeeting']);
+
+			switch($meeting_obj->get_errorcode()) {
+				case 0:
+					output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+					break;
 			}
 		}
-
-		eval("\$sharewith_rows .= \"".$template->get('popup_meetings_sharewith_rows')."\";");
-	}
-	eval("\$share_meeting = \"".$template->get('popup_meetings_share')."\";");
-	output($share_meeting);
-}
-elseif($core->input['action'] == 'do_share') {
-	$mtid = $db->escape_string($core->input['mtid']);
-	if(is_array($core->input['sharemeeting'])) {
-		$meeting_obj = new Meetings($mtid);
-		$meeting_obj->share($core->input['sharemeeting']);
-
-		switch($meeting_obj->get_errorcode()) {
-			case 0:
-				output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
-				break;
+		else {
+			output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
 		}
-	}
-	else {
-		output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
 	}
 }
 ?>

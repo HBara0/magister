@@ -97,7 +97,7 @@ elseif($core->input['action'] == 'do_add' || $core->input['action'] == 'do_edit'
 	}
 
 	switch($mom_obj->get_errorcode()) {
-		case 2:
+		case 0:
 			output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
 			break;
 		case 1:
