@@ -10,6 +10,10 @@
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
+
+if($core->usergroup['sourcing_canViewKPI'] == 30) {
+	error($lang->sectionnopermission);
+}
 $potential_supplier = new Sourcing();
 $period['beginingcurrentmonth'] = strtotime(date('01-m-Y'));  /* first day of the current month */
 $period['currentmonth'] = TIME_NOW;
@@ -18,33 +22,42 @@ $period['endlastmonth'] = strtotime(date('01-m-Y').'-1 second'); /* end day of t
 $period['thisdaythismonth'] = strtotime('this day this month');
 $period['thisdaylastmonth'] = strtotime('this day last month');
 
+$kpidata = array('name' => 'Prequalification Performance', 'kpitarget' => 90);
 $kpidatacrrent = $potential_supplier->get_periods(array('kpifor' => 'isProductApproved', 'fromDate' => $period['beginingcurrentmonth'], 'toDate' => $period['currentmonth']));
 
 $kpidataprev = $potential_supplier->get_periods(array('fromDate' => $period['beginingcurrentmonth'], 'toDate' => $period['currentmonth']));
 $kpipercentage['current'] = round(($kpidatacrrent / $kpidataprev) * 100, 0).'%';
 
-
-$kpidataprev = $potential_supplier->get_periods(array('fromDate' => $period['begininglastmonth'], 'toDate' => $period['endlastmonth']));
-
 $kpidataprevmonth = $potential_supplier->get_periods(array('kpifor' => 'isProductApproved', 'fromDate' => $period['begininglastmonth'], 'toDate' => $period['endlastmonth']));
 
+$kpidataprev = $potential_supplier->get_periods(array('fromDate' => $period['begininglastmonth'], 'toDate' => $period['endlastmonth']));
 $kpipercentage['last'] = round(($kpidataprevmonth / $kpidataprev) * 100, 0).'%';
-echo $kpidataprevmonth.'  '.$kpidataprev;
+
+if($kpipercentage['last'] < $kpidata['kpitarget']) {
+	$kpibelowtarget = " kpibelow";
+}
+if($kpipercentage['last'] > $kpidata['kpitarget']) {
+	$kpiabovetarget = " kpiabove";
+}
+else {
+	$kpiabovetarget = " kpiabove";
+}
+echo $kpidataprevmonth.' '.$kpidataprev;
 
 // equiivalent to $period['currentmonth'] but  im previous month
 $kpitodayequivapprove = $potential_supplier->get_periods(array('kpifor' => 'isProductApproved', 'fromDate' => $period['begininglastmonth'], 'toDate' => $period['thisdaylastmonth']));
 $kpi['trend'] = $kpidatacrrent - $kpitodayequivapprove;
-if($kpi['trend'] < 0) {
-	$trend_output = '<div title="current: '.$kpidatacrrent.' | prev: '.$kpitodayequivapprove.'">&#8595;</span>';
+if($kpi['trend'] < $kpidata['kpitarget']) {
+	$kpibelowtarget = " kpibelow";
+	$trend_output = '<span class="arrow-down" style="width:0px;height:0px; border-left-width:35px; border-right-width:35px ; border-top-width:35px ;border-top-color:#ff0000 " title = "current: '.$kpidatacrrent.' | prev: '.$kpitodayequivapprove.'" ;</span>';
 }
 elseif($kpi['trend'] == 0) {
-	$trend_output = '<span title="current: '.$kpidatacrrent.' | prev: '.$kpitodayequivapprove.'">=</span>';
+	$trend_output = '<span title="current: '.$kpidatacrrent.' | prev: '.$kpitodayequivapprove.'" >=</span>';
 }
 else {
-
-	$trend_output = '<span title="current: '.$kpidatacrrent.' | prev: '.$kpitodayequivapprove.'">&#8593;</span>';
+	$kpiabovetarget = " kpiabove";
+	$trend_output = '<span title="current: '.$kpidatacrrent.' | prev: '.$kpitodayequivapprove.'" class="arrow-down">&#8593;</span>';
 }
-
 
 eval("\$sourcing_workspace = \"".$template->get('sourcing_workspace')."\";");
 output($sourcing_workspace);
