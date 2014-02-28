@@ -38,7 +38,7 @@ class Tasks {
 
 		$query_select = 'ct.*, u.displayName AS assignedTo';
 		if($simple == true) {
-			$query_select = 'ctid,identifier, pimAppId';
+			$query_select = 'ctid, identifier, pimAppId';
 		}
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."calendar_tasks ct JOIN ".Tprefix."users u ON (u.uid=ct.uid) WHERE ctid=".$db->escape_string($id)));
 	}
