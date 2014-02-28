@@ -31,6 +31,7 @@ if(!$core->input['action']) {
 		}
 	}
 	else {
+		$showhideparent_company ='$("tr[id=parentcompany]").hide()';
 		$createreports_disabled = ' disabled';
 	}
 	if($core->usergroup['canCreateReports'] == 0) {

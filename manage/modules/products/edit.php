@@ -45,19 +45,20 @@ if(!$core->input['action']) {
 
 	/* Parse all  segapplicationfunctions and get the associatives functions and segment  */
 	$supplier['segments'] = $product['supplier_obj']->get_segments();
+
 	$segment_applications = array();
 	if(is_array($supplier['segments'])) {
 		foreach($supplier['segments'] as $segment_obj) {
 			$segmentapplications_obj = $segment_obj->get_applications();
 			if(is_array($segmentapplications_obj)) {
-				$segmentapplications = $segment_applications + array_keys($segmentapplications_obj);
+				$segment_applications = $segment_applications + array_keys($segmentapplications_obj);
 			}
 		}
 	}
-	if(!empty($segmentapplications)) {
-		$segappfunc_objs_where = 'psaid IN ('.implode(',', $segmentapplications).')';
+	if(!empty($segment_applications)) {
+		$segappfunc_objs_where = 'psaid IN ('.implode(',', $segment_applications).')';
 	}
-	$segappfunc_objs = Segapplicationfunctions::get_segmentsapplicationsfunctions($segappfunc_objs_where);
+	$segappfunc_objs = Segapplicationfunctions::get_segmentsapplicationsfunctions(array('filterwhere'=>$segappfunc_objs_where));
 	if(is_array($segappfunc_objs)) {
 		foreach($segappfunc_objs as $segappfunc_obj) {
 			$rowclass = alt_row($rowclass);
@@ -80,7 +81,6 @@ if(!$core->input['action']) {
 			}
 			$segmentapp_data['segment'] = $segappfunc_obj->get_segment()->get()['title'];
 			$segmentapp_data['application'] = $segappfunc_obj->get_application()->get()['title'];
-
 			eval("\$admin_products_addedit_segappfunc_rows .= \"".$template->get('admin_products_addedit_segappfunc_row')."\";");
 			$defaultfunctionchecked[$segmentapp_data['segappfuncs']['safid']] = '';
 		}
