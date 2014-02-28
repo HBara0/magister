@@ -29,7 +29,7 @@ class Events {
 			return false;
 		}
 
-		$query_select = 'ceid, title, description, type';
+		$query_select = 'ceid, title, identifier,description, type';
 		if($simple == false) {
 			$query_select = '*';
 		}

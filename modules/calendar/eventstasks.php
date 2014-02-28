@@ -55,6 +55,7 @@ else {
 			}
 			$new_event = array(
 					'title' => ucwords(strtolower($core->input['event']['title'])),
+					'identifier' => substr(md5(uniqid(microtime())), 0, 10),
 					'description' => ucfirst(strtolower($core->input['event']['description'])),
 					'uid' => $core->user['uid'],
 					'affid' => $core->input['event']['affid'],
@@ -100,7 +101,7 @@ else {
 				foreach($event_users_objs as $event_users_obj) {
 					$event_users = $event_users_obj->get();
 					/* iCal event to the users */
-					$ical_obj = new iCalendar();  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+					$ical_obj = new iCalendar(array('identifier' => $events_details['identifier'], 'uidtimestamp' => $events_details['createdOn']));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
 					$ical_obj->set_datestart($events_details['fromDate']);
 					$ical_obj->set_datend($events_details['toDate']);
 					$ical_obj->set_location($events_details['place']);
@@ -149,8 +150,7 @@ else {
 //							$email_data['message'] .= ')<br />';
 //							$email_data['message'] .= $core->input['event']['place'].'<br />';
 //							$email_data['message'] .= str_replace("\n", '<br />', $core->input['event']['description']);
-
-							$ical_obj = new iCalendar(array('method' => 'REQUEST'));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+							$ical_obj = new iCalendar(array('identifier' => $events_details['identifier'], 'uidtimestamp' => $events_details['createdOn']));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
 							$ical_obj->set_datestart($events_details['fromDate']);
 							$ical_obj->set_datend($events_details['toDate']);
 							$ical_obj->set_location($events_details['place']);
