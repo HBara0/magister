@@ -39,24 +39,23 @@ class Segapplicationfunctions {
 		return new Segmentapplications($this->segapplicationfunction['psaid']);
 	}
 
-	public static function get_segmentsapplicationsfunctions($filter_where = '') {
+	public static function get_segmentsapplicationsfunctions(array $filters = array('filterwhere', 'hasitemperlist')) {
 		global $db, $core;
-
 		$sort_query = ' ORDER BY psaid ASC';
 		if(isset($core->input['sortby'], $core->input['order'])) {
 			$sort_query = ' ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
 		}
-
-		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
-			$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+		if(!empty($filters['hasitemperlist']) && ($filters['hasitemperlist'] == 1) && isset($filters['hasitemperlist'])) {
+			if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+				$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+			}
 		}
-
 		$limit_start = 0;
 		if(isset($core->input['start'])) {
 			$limit_start = $db->escape_string($core->input['start']);
 		}
 
-		if(!empty($filter_where) && isset($filter_where)) {
+		if(!empty($filters['filterwhere']) && isset($filters['filterwhere'])) {
 			$filter_where = ' WHERE '.$filter_where;
 		}
 
