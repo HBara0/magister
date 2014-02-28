@@ -12,7 +12,7 @@
  * Description of Marketintelligence_class
  *
  * @author tony.assaad
- */
+ */ 
 class Marketintelligence {
 	private $marketintelligence = array();
 
