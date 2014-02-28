@@ -23,15 +23,16 @@ if($core->input['authCode'] == AUTHCODE) {
 			'DA0CE0FED12C4424AA9B51D492AE96D2' => 11, //Orkila Nigeria
 			'F2347759780B43B1A743BEE40BA213AD' => 23, //Orkila Ghana
 			'BD9DC2F7883B4E11A90B02A9A47991DC' => 1, //Orkila Lebanon			
-			//'933EC892369245E485E922731D46FCB1' => 20, //Orkila Senegal
+			'933EC892369245E485E922731D46FCB1' => 20, //Orkila Senegal
 			'51FB1280AB104EFCBBB982D50B3B7693' => 21 //Orkila CI
-			
 	);
 
 	$affiliates_addrecpt = array(
 			19 => array(244),
 			22 => array(248, 246, 287, 270),
-			23 => array(285, 322, 321)
+			23 => array(285, 322, 321),
+			1 => array(12, 333, 182, 43),
+			21 => array(63)
 	);
 
 	$integration = new IntegrationOB($db_info, 'C08F137534222BD001345B7B2E8F182D', $affiliates_index, 3, array('from' => 'last year'));
@@ -56,24 +57,26 @@ if($core->input['authCode'] == AUTHCODE) {
 			'uom' => array('source' => array('product', 'uom'), 'attribute' => 'uomsymbol', 'title' => 'UoM'),
 			//'cost' => 'Cost',
 			'cost' => array('source' => null, 'title' => 'Cost', 'numformat' => true),
-			'range1cost' => array('source' => array('entries', 'cost'), 'attribute' => 1, 'title' => '0-29<br />Amt', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
-			'range1qty' => array('source' => array('entries', 'qty'), 'attribute' => 1, 'title' => '0-29<br />Qty', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
-			'range2cost' => array('source' => array('entries', 'cost'), 'attribute' => 2, 'title' => '30-59<br />Amt', 'numformat' => true, 'styles' => 'background-color: #B8E1F2;'),
-			'range2qty' => array('source' => array('entries', 'qty'), 'attribute' => 2, 'title' => '30-59<br />Qty', 'numformat' => true, 'styles' => 'background-color: #B8E1F2;'),
-			'range3cost' => array('source' => array('entries', 'cost'), 'attribute' => 3, 'title' => '60-89<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F2EB80;'),
-			'range3qty' => array('source' => array('entries', 'qty'), 'attribute' => 3, 'title' => '60-89<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F2EB80;'),
-			'range4cost' => array('source' => array('entries', 'cost'), 'attribute' => 4, 'title' => '90-119<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
-			'range4qty' => array('source' => array('entries', 'qty'), 'attribute' => 4, 'title' => '90-119<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
-			'range5cost' => array('source' => array('entries', 'cost'), 'attribute' => 5, 'title' => '> 120<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F1594A;'),
-			'range5qty' => array('source' => array('entries', 'qty'), 'attribute' => 5, 'title' => '> 120<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F1594A;')
+			'range1cost' => array('source' => array('entries', 'cost'), 'attribute' => 1, 'title' => '0-90<br />Amt', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
+			'range1costusd' => array('source' => null, 'attribute' => 1, 'title' => '0-90<br />Amt USD', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
+			'range1qty' => array('source' => array('entries', 'qty'), 'attribute' => 1, 'title' => '0-90<br />Qty', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
+			//'range2cost' => array('source' => array('entries', 'cost'), 'attribute' => 2, 'title' => '30-59<br />Amt', 'numformat' => true, 'styles' => 'background-color: #B8E1F2;'),
+			//'range2qty' => array('source' => array('entries', 'qty'), 'attribute' => 2, 'title' => '30-59<br />Qty', 'numformat' => true, 'styles' => 'background-color: #B8E1F2;'),
+			//'range3cost' => array('source' => array('entries', 'cost'), 'attribute' => 3, 'title' => '60-89<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F2EB80;'),
+			//'range3qty' => array('source' => array('entries', 'qty'), 'attribute' => 3, 'title' => '60-89<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F2EB80;'),
+			'range4cost' => array('source' => array('entries', 'cost'), 'attribute' => 4, 'title' => '90-180<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
+			'range4costusd' => array('source' => null, 'attribute' => 4, 'title' => '90-180<br />Amt USD', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
+			'range4qty' => array('source' => array('entries', 'qty'), 'attribute' => 4, 'title' => '90-180<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
+			'range5cost' => array('source' => array('entries', 'cost'), 'attribute' => 5, 'title' => '> 180<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F1594A;'),
+			'range5qty' => array('source' => array('entries', 'qty'), 'attribute' => 5, 'title' => '> 180<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F1594A;')
 	);
 
 	$summary_categories = array('category' => 'm_product_category_id', 'warehouse' => 'm_warehouse_id', 'supplier' => 'c_bpartner_id');
-	$summary_reqinfo = array('quantity', 'cost', 'range1cost', 'range1qty', 'range2cost', 'range2qty', 'range3cost', 'range3qty', 'range4cost', 'range4qty', 'range5cost', 'range5qty');
+	$summary_reqinfo = array('quantity', 'cost', 'range1cost', 'range1qty', /* 'range2cost', 'range2qty', 'range3cost', 'range3qty', */ 'range4cost', 'range4qty', 'range5cost', 'range5qty');
 	$summary_order_attr = 'cost';
 	$maintable_hiddencols = array('supplier', 'warehouse', 'category');
 
-	$total_types = array('quantity', 'cost', 'range1cost', 'range1qty', 'range2cost', 'range2qty', 'range3cost', 'range3qty', 'range4cost', 'range4qty', 'range5cost', 'range5qty');
+	$total_types = array('quantity', 'cost', 'range1cost', 'range1qty', /* 'range2cost', 'range2qty', 'range3cost', 'range3qty', */ 'range4cost', 'range4qty', 'range5cost', 'range5qty');
 	foreach($affiliates_index as $orgid => $affid) {
 		$output = '';
 		$inputs = array();
@@ -91,12 +94,12 @@ if($core->input['authCode'] == AUTHCODE) {
 				$range = 1;
 			}
 			elseif($input['stack']['daysinstock'] < 59) {
-				$range = 2;
+				$range = 1;
 			}
-			elseif($input['stack']['daysinstock'] < 89) {
-				$range = 3;
+			elseif($input['stack']['daysinstock'] < 90) {
+				$range = 1;
 			}
-			elseif($input['stack']['daysinstock'] < 119) {
+			elseif($input['stack']['daysinstock'] < 180) {
 				$range = 4;
 			}
 			else {
@@ -152,6 +155,9 @@ if($core->input['authCode'] == AUTHCODE) {
 							$output_value = $product->get_supplier()->get()['companyNameShort'];
 							if(empty($output_value)) {
 								$output_value = $product->get_supplier()->get()['companyName'];
+								if(empty($output_value)) {
+									$output_value = 'Information Unavailable';
+								}
 							}
 							$input['supplier']['name'] = $input['supplier']['value'] = $output_value;
 							$input['supplier']['c_bpartner_id'] = md5($output_value);
@@ -234,6 +240,29 @@ if($core->input['authCode'] == AUTHCODE) {
 								$totals[$field] += $output_value;
 							}
 							$output .= '<td style="border: 1px solid #CCC; text-align: right;">'.number_format($output_value, $report_options['roundto'], '.', ' ').'</td>';
+							break;
+						case preg_match('/^range(0-9)+costusd/i', $field):
+//						case 'range1costusd':
+//						case 'range2costusd':
+//						case 'range3costusd':
+//						case 'range4costusd':
+//						case 'range5costusd':
+							$rate = $currency_obj->get_average_fxrate($affiliate['currency'], array());
+							if(empty($rate)) {
+								$rate = $currency_obj->get_latest_fxrate($affiliate['currency']);
+							}
+							$output_value = $input['entries']['cost'][$configs['attribute']] / $rate;
+							if(in_array($field, $summary_reqinfo)) {
+								foreach($summary_categories as $category => $attribute) {
+									$summaries[$category][$input[$category][$attribute]][$field] += $output_value;
+								}
+							}
+							$output .= '<td style="border: 1px solid #CCC; text-align: right;">'.number_format($output_value, $report_options['roundto'], '.', ' ').'</td>';
+
+							if(in_array($field, $total_types)) {
+								$totals[$field] += $output_value;
+							}
+							//$totals['costusd'][$date_valueobj->format('Y')][$date_valueobj->format('n')] += $input['stack']['remaining_cost'] / $rate;
 							break;
 					}
 				}
@@ -325,9 +354,9 @@ if($core->input['authCode'] == AUTHCODE) {
 				$email_data['to'][] = $adduser->get()['email'];
 			}
 		}
-		
 		//print_r($email_data);
-		$mail = new Mailer($email_data, 'php');
+		//print_r($email_data);
+		//$mail = new Mailer($email_data, 'php');
 		unset($message);
 	}
 }
