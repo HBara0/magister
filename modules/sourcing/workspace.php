@@ -24,6 +24,7 @@ $period['thisdaylastmonth'] = strtotime('this day last month');
 
 $kpidata = array('name' => 'Prequalification Performance', 'kpitarget' => 90);
 $kpidatacrrent = $potential_supplier->get_periods(array('kpifor' => 'isProductApproved', 'fromDate' => $period['beginingcurrentmonth'], 'toDate' => $period['currentmonth']));
+$kpidatacrrent_dateoutput= ' Up To '.date('M,d',$period['beginingcurrentmonth']);
 
 $kpidataprev = $potential_supplier->get_periods(array('fromDate' => $period['beginingcurrentmonth'], 'toDate' => $period['currentmonth']));
 $kpipercentage['current'] = round(($kpidatacrrent / $kpidataprev) * 100, 0).'%';
@@ -46,10 +47,12 @@ echo $kpidataprevmonth.' '.$kpidataprev;
 
 // equiivalent to $period['currentmonth'] but  im previous month
 $kpitodayequivapprove = $potential_supplier->get_periods(array('kpifor' => 'isProductApproved', 'fromDate' => $period['begininglastmonth'], 'toDate' => $period['thisdaylastmonth']));
+$kpitodayequivapprove_dateoutput= ' Up To '.date('M,d',$period['begininglastmonth']);
+
 $kpi['trend'] = $kpidatacrrent - $kpitodayequivapprove;
 if($kpi['trend'] < $kpidata['kpitarget']) {
 	$kpibelowtarget = " kpibelow";
-	$trend_output = '<span class="arrow-down" style="width:0px;height:0px; border-left-width:35px; border-right-width:35px ; border-top-width:35px ;border-top-color:#ff0000 " title = "current: '.$kpidatacrrent.' | prev: '.$kpitodayequivapprove.'" ;</span>';
+	$trend_output = '<span class="arrow-down" style="width:0px;height:0px; border-left-width:27px; border-right-width:27px ; border-top-width:27px ;border-top-color:#ff0000 " title = " current: '.$kpidatacrrent.' '.$kpidatacrrent_dateoutput.' | prev: '.$kpitodayequivapprove.' '.$kpitodayequivapprove_dateoutput.'  " ;</span>';
 }
 elseif($kpi['trend'] == 0) {
 	$trend_output = '<span title="current: '.$kpidatacrrent.' | prev: '.$kpitodayequivapprove.'" >=</span>';
