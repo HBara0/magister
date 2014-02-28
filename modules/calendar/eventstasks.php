@@ -120,7 +120,7 @@ else {
 							'message' => $ical_obj->geticalendar(),
 					);
 
-					$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'meetingrequest'));
+					$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'meetingrequest', 'method' => 'REQUEST'));
 				}
 			}
 
@@ -150,7 +150,7 @@ else {
 //							$email_data['message'] .= ')<br />';
 //							$email_data['message'] .= $core->input['event']['place'].'<br />';
 //							$email_data['message'] .= str_replace("\n", '<br />', $core->input['event']['description']);
-							$ical_obj = new iCalendar(array('identifier' => $events_details['identifier'], 'uidtimestamp' => $events_details['createdOn']));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+							$ical_obj = new iCalendar(array('identifier' => $events_details['identifier'].'all', 'uidtimestamp' => $events_details['createdOn']));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
 							$ical_obj->set_datestart($events_details['fromDate']);
 							$ical_obj->set_datend($events_details['toDate']);
 							$ical_obj->set_location($events_details['place']);
