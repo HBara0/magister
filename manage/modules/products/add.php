@@ -65,10 +65,10 @@ else {
 			output_xml("<status>false</status><message>{$lang->productalreadyexists}</message>");
 			exit;
 		}
-		if(empty($core->input['applicationfunction']) && !isset($core->input['applicationfunction'])) {
-			output_xml("<status>false</status><message>{$lang->funcapplrequired}</message>");
-			exit;
-		}
+//		if(empty($core->input['applicationfunction']) && !isset($core->input['applicationfunction'])) {
+//			output_xml("<status>false</status><message>{$lang->funcapplrequired}</message>");
+//			exit;
+//		}
 		$chemicalfunctionsproducts = $core->input['applicationfunction'];
 		$productschemsubstances = $core->input['chemsubstances'];
 		unset($core->input['action'], $core->input['module'], $core->input['applicationfunction'], $core->input['chemsubstances']);
