@@ -208,6 +208,18 @@ class Surveys {
 										if(strstr($question['choices'], ';')) {
 											$question_choices_values = preg_split("/;+/", trim($choice));
 										}
+										else {
+											$question_choices_values[0] = $choice;
+										}
+
+										if(empty($question_choices_values[0])) {
+											$this->status = 6;
+											return false;
+										}
+
+										if(!isset($question_choices_values[1]) || (empty($question_choices_values[1]) && $question_choices_values[1] != 0)) {
+											$question_choices_values[1] = $question_choices_values[0];
+										}
 
 										if(empty($question_choices_values[1])) {
 											$this->status = 6;
@@ -272,12 +284,15 @@ class Surveys {
 										if(strstr($choice, ';')) {
 											$question_choices_values = preg_split("/;+/", trim($choice));
 										}
-										if(empty($question_choices_values[1])) {
-											$this->status = 6;
-											return false;
+										else {
+											$question_choices_values[0] = $choice;
 										}
 
-										if(!empty($question_choices_values[0]) && (!empty($question_choices_values[1]))) {
+										if(!isset($question_choices_values[1]) || (empty($question_choices_values[1]) && $question_choices_values[1] != 0)) {
+											$question_choices_values[1] = $question_choices_values[0];
+										}
+
+										if(!empty($question_choices_values[0]) && (!empty($question_choices_values[1]) && $question_choices_values[1] != 0)) {
 											$newsurveys_questions_choices = array('stqid' => $stqid, 'choice' => trim($question_choices_values[0]), 'value' => trim($question_choices_values[1]));
 											$query_choice = $db->insert_query('surveys_templates_questions_choices', $newsurveys_questions_choices);
 										}
