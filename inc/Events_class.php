@@ -29,14 +29,16 @@ class Events {
 			return false;
 		}
 
-		$query_select = 'ceid, title, identifier,description, type';
+		$query_select = 'ceid, title, identifier, description, type';
 		if($simple == false) {
 			$query_select = '*';
 		}
 
-		$query_where = ' AND isPublic=1';
-		if($options['privateonly'] == true) {
-			$query_where = ' AND isPublic=0';
+		if(isset($options['privateonly'])) {
+			$query_where = ' AND isPublic=1';
+			if($options['privateonly'] == true) {
+				$query_where = ' AND isPublic=0';
+			}
 		}
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."calendar_events WHERE ceid=".$db->escape_string($id).$query_where));
 	}
@@ -83,7 +85,7 @@ class Events {
 
 	public function get_invited_users() {
 		global $db;
-		$invitess_query = $db->query("SELECT ceiid, uid FROM ".Tprefix."calendar_events_invitees cei WHERE ceid=".$db->escape_string($this->event['ceid']));
+		$invitess_query = $db->query("SELECT ceiid, uid FROM ".Tprefix."calendar_events_invitees WHERE ceid=".$db->escape_string($this->event['ceid']));
 		if($db->num_rows($invitess_query) > 0) {
 			while($invitee = $db->fetch_assoc($invitess_query)) {
 				$invitees[$invitee['ceiid']] = new Users($invitee['uid']);
