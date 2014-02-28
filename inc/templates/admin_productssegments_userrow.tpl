@@ -7,4 +7,3 @@
     </td>
     <td> <td><input type="text" id="pickDate_{$users_counter}_from" autocomplete="off" tabindex="1" value=""/><input type="hidden" name="coordinators[{$users_counter}][fromDate]" id="altpickDate_{$users_counter}_from" value="" /></td>
 </tr>
-

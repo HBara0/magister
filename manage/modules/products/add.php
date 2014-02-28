@@ -1,15 +1,15 @@
 <?php
 /*
  * Orkila Central Online System (OCOS)
- * Copyright � 2009 Orkila International Offshore, All Rights Reserved
+ * Copyright © 2009 Orkila International Offshore, All Rights Reserved
  * 
  * Add products
  * $module: admin/products
  * $id: add.php	
  * Last Update: @zaher.reda 	Apr 23, 2009 | 01:38 PM
  */
-if(!defined("DIRECT_ACCESS")) {
-	die("Direct initialization of this file is not allowed.");
+if(!defined('DIRECT_ACCESS')) {
+	die('Direct initialization of this file is not allowed.');
 }
 if($core->usergroup['canAddProducts'] == 0) {
 	error($lang->sectionnopermission);
@@ -17,79 +17,64 @@ if($core->usergroup['canAddProducts'] == 0) {
 }
 
 if(!$core->input['action']) {
-	$generic_attributes = array("gpid", "title");
+	$generic_attributes = array('gpid', 'title');
 
 	$generic_order = array(
-			"by" => "title",
-			"sort" => "ASC"
+			'by' => 'title',
+			'sort' => 'ASC'
 	);
 
-	$generics = get_specificdata("genericproducts", $generic_attributes, "gpid", "title", $generic_order, 1);
-	$generics_list = parse_selectlist("gpid", 3, $generics, "");
+	$generics = get_specificdata('genericproducts', $generic_attributes, 'gpid', 'title', $generic_order, 1);
+	$generics_list = parse_selectlist('gpid', 3, $generics, '');
 
-	$actiontype = "add";
+	$actiontype = 'add';
 	$pagetitle = $lang->addaproduct;
 
 	/* Parse all  segapplicationfunctions and get the associatives functions and segment  */
 	$segappfunc_objs = Segapplicationfunctions::get_segmentsapplicationsfunctions();
-	foreach($segappfunc_objs as $segappfunc_obj) {
-		$rowclass = alt_row($rowclass);
-		/* call the associatives objects */
-		$segmentapp_data['segappfuncs'] = $segappfunc_obj->get();
-		$segmentapp_data['chemicalfunction'] = $segappfunc_obj->get_function()->get();
-		$segmentapp_data['segment'] = $segappfunc_obj->get_segment()->get()['title'];
-		$segmentapp_data['application'] = $segappfunc_obj->get_application()->get()['title'];
+	if(is_array($segappfunc_objs)) {
+		foreach($segappfunc_objs as $segappfunc_obj) {
+			$rowclass = alt_row($rowclass);
+			/* call the associatives objects */
+			$segmentapp_data['segappfuncs'] = $segappfunc_obj->get();
+			$segmentapp_data['chemicalfunction'] = $segappfunc_obj->get_function()->get();
+			$segmentapp_data['segment'] = $segappfunc_obj->get_segment()->get()['title'];
+			$segmentapp_data['application'] = $segappfunc_obj->get_application()->get()['title'];
 
-		eval("\$admin_products_addedit_segmentsapplicationsfunctions_rows .= \"".$template->get("admin_products_addedit_segmentsapplicationsfunctions_rows")."\";");
+			eval("\$admin_products_addedit_segappfunc_rows .= \"".$template->get('\admin_products_addedit_segappfunc_row')."\";");
+		}
 	}
-
-	$chemicalp_rowid = ($core->input['val'] + 1);
-	$chemrows = '<tr id='.$chemicalp_rowid.'> <td colspan="2">'.$lang->chemicalsubstances.'</td><td> <input type="text" value="'.$product['chemicalsubstances'][$key]['name'].'" id=chemicalproducts_'.$chemicalp_rowid.'_QSearch autocomplete="off" size="40px"/> 
-				  <input type="hidden" id="chemicalproducts_'.$chemicalp_rowid.'_id" name="chemsubstances['.$chemicalp_rowid.'][csid]"  value="'.$product['chemicalsubstances'][$key]['csid'].'"/>
-					   <div id="searchQuickResults_chemicalproducts_'.$chemicalp_rowid.'" class="searchQuickResults" style="display:none;"></div> </td>
-				   <td><a class="showpopup" id="showpopup_createchemical"><img src="../images/addnew.png" border="0" alt="'.$lang->add.'"/></a> </td>
-			</tr>';
-	/* Chemical List - START */
-//	$chemsubstances_objs = Chemicalsubstances::get_chemicalsubstances();
-//	$chemicalslist_section = '';
-//	if(is_array($chemsubstances_objs)) {
-//		foreach($chemsubstances_objs as $chemsubstances_obj) {
-//			$rowclass = alt_row($rowclass);
-//			$chemical = $chemsubstances_obj->get();
-//			//$chemicalslist_section .= '<tr class="'.$rowclass.'" style="vertical-align:top;"><td width="1%"><input type="checkbox" value="'.$chemical['csid'].'" name="chemsubstances[][csid]"/></td><td width="33%">'.$chemical['casNum'].'</td><td align="left" width="33%">'.$chemical['name'].'</td><td width="33%">'.$chemical['synonyms'].'</td></tr>';
-//		}
-//	}
-//	else {
-//		$chemicalslist_section = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
-//	}
-
+	else {
+		$admin_products_addedit_segappfunc_rows = '<tr><td colspan=3>'.$lang->na.'</td></tr>';
+	}
+	$chemicalp_rowid = 1;
+	eval("\$chemrows .= \"".$template->get('admin_products_addedit_chemsubstances_row')."\";");
 	/* Chemical List - END */
-	eval("\$chemicalsubstances = \"".$template->get("admin_products_chemicalsubstances")."\";");
-	eval("\$addproductspage = \"".$template->get("admin_products_addedit")."\";");
+	eval("\$chemicalsubstances = \"".$template->get('admin_products_chemicalsubstances')."\";");
+	eval("\$addproductspage = \"".$template->get('admin_products_addedit')."\";");
 	output_page($addproductspage);
 }
 else {
-	if($core->input['action'] == "do_perform_add") {
-
+	if($core->input['action'] == 'do_perform_add') {
 		if(empty($core->input['spid']) || empty($core->input['gpid']) || empty($core->input['name'])) {
 			output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
 			exit;
 		}
 
-		if(value_exists("products", "name", $core->input['name'])) {
+		if(value_exists('products', 'name', $core->input['name'])) {
 			output_xml("<status>false</status><message>{$lang->productalreadyexists}</message>");
 			exit;
 		}
-		if(empty($core->input['applicationfunction']) && !isset($core->input['applicationfunction'])) {
-			output_xml("<status>false</status><message>{$lang->funcapplrequired}</message>");
-			exit;
-		}
+//		if(empty($core->input['applicationfunction']) && !isset($core->input['applicationfunction'])) {
+//			output_xml("<status>false</status><message>{$lang->funcapplrequired}</message>");
+//			exit;
+//		}
 		$chemicalfunctionsproducts = $core->input['applicationfunction'];
 		$productschemsubstances = $core->input['chemsubstances'];
 		unset($core->input['action'], $core->input['module'], $core->input['applicationfunction'], $core->input['chemsubstances']);
 		//Temporary hardcode
-		$core->input['defaultCurrency'] = "USD";
-		$query = $db->insert_query("products", $core->input);
+		$core->input['defaultCurrency'] = 'USD';
+		$query = $db->insert_query('products', $core->input);
 		if($query) {
 			$pid = $db->last_id();
 			$entity = new Entities($core->input['spid']);
@@ -99,12 +84,13 @@ else {
 			if(isset($productschemsubstances)) {
 				foreach($productschemsubstances as $productschemsubstance) {
 					foreach($productschemsubstance as $csid) {
-						$chemsubstances_arary = array('pid' => $pid,
+						$chemsubstances_array = array(
+								'pid' => $pid,
 								'csid' => $csid,
 								'createdBy' => $core->user['uid'],
 								'createdOn' => TIME_NOW
 						);
-						$db->insert_query("productschemsubstances", $chemsubstances_arary);
+						$db->insert_query('productschemsubstances', $chemsubstances_array);
 					}
 				}
 			}
@@ -112,22 +98,23 @@ else {
 			if(isset($chemicalfunctionsproducts)) {
 				foreach($chemicalfunctionsproducts as $chemicalfunctions) {
 					foreach($chemicalfunctions as $safid) {
-						$chemfunctionproducts_arary = array('pid' => $pid,
+						$chemfunctionproducts_array = array('pid' => $pid,
 								'safid' => $safid,
 								'createdBy' => $core->user['uid'],
 								'createdOn' => TIME_NOW
 						);
-						$chemfunctionquery = $db->insert_query("chemfunctionproducts", $chemfunctionproducts_arary);
-						/* In case a default function is not selected, system would automatically pick the first checked checkbox */
-						if(empty($core->input['defaultFunction']) && !isset($core->input['defaultFunction'])) {
-							$cfpid = array_shift(array_values($chemicalfunctions)); /* shift the array and get the first element value */
+						$db->insert_query('chemfunctionproducts', $chemfunctionproducts_array);
+						if($safid == $core->input['defaultFunction']) {
+							$defaultfunction = $db->last_id();
 						}
-						else if($chemfunctionquery && isset($core->input['defaultFunction'])) {
-							$cfpid = $db->last_id();
-						}
-						$db->update_query('products', array('defaultFunction' => $cfpid), 'pid='.$pid);
 					}
 				}
+
+				if(empty($defaultfunction)) {
+					$defaultfunction = array_shift(array_values($chemicalfunctions)); /* shift the array and get the first element value */
+				}
+
+				$db->update_query('products', array('defaultFunction' => $defaultfunction), 'pid='.$pid);
 			}
 			$log->record($core->input['name']);
 
@@ -155,7 +142,7 @@ else {
 	}
 	elseif($core->input['action'] == 'get_addnew_chemical') {
 		eval("\$createchemical= \"".$template->get('popup_admin_product_createchemical')."\";");
-		output_page($createchemical);
+		output($createchemical);
 	}
 }
 ?>

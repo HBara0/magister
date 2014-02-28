@@ -25,12 +25,14 @@ if(!$core->input['action']) {
 else {
 	if($core->input['action'] == 'do_createeventtask') {
 		if($core->input['type'] == 'task') {
-
 			$task = new Tasks();
 			$task->create_task($core->input['task']);
 
 			switch($task->get_status()) {
 				case 0:
+					if($core->input['task']['notify']) {
+						$task->notify_task();
+					}
 					header('Content-type: text/xml+javascript');
 					//output_xml('<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>');
 					output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
@@ -45,10 +47,6 @@ else {
 					output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
 					exit;
 			}
-
-			if($core->input['task']['notify']) {
-				$task->notify_task();
-			}
 		}
 		elseif($core->input['type'] == 'event') {
 			if(is_empty($core->input['event']['title'], $core->input['event']['fromDate'], $core->input['event']['toDate'], $core->input['event']['type'])) {
@@ -57,10 +55,11 @@ else {
 			}
 			$new_event = array(
 					'title' => ucwords(strtolower($core->input['event']['title'])),
+					'identifier' => substr(md5(uniqid(microtime())), 0, 10),
 					'description' => ucfirst(strtolower($core->input['event']['description'])),
 					'uid' => $core->user['uid'],
-					'affid'=> $core->input['event']['affid'],
-					'spid'=> $core->input['event']['spid'],
+					'affid' => $core->input['event']['affid'],
+					'spid' => $core->input['event']['spid'],
 					'isPublic' => $core->input['event']['isPublic'],
 					'place' => $core->input['event']['place'],
 					'type' => $core->input['event']['type'],
@@ -77,17 +76,53 @@ else {
 			}
 
 			$query = $db->insert_query('calendar_events', $new_event);
-			if($query) {
-				$log->record($core->input['type'], $last_id);
-				header('Content-type: text/xml+javascript');
-				output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>>'); //<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>
-				exit;
-			}
-			else {
-				output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
-				exit;
-			}
 			$last_id = $db->last_id();
+			$event_obj = new Events($last_id, false);
+			$events_details = $event_obj->get();
+			/* Add event Invitee */
+			if(is_array($core->input['event']['invitee'])) {
+				foreach($core->input['event']['invitee'] as $invitee) {
+					if(empty($invitee)) {
+						continue;
+					}
+					$new_event_invitee_data = array(
+							'ceid' => $last_id,
+							'uid' => $invitee,
+							'createdOn' => TIME_NOW,
+							'createdBy' => $core->user['uid']
+					);
+					$db->insert_query('calendar_events_invitees', $new_event_invitee_data);
+				}
+			}
+
+			/* Get invitess by user */
+			$event_users_objs = $event_obj->get_invited_users();
+			if(is_array($event_users_objs)) {
+				foreach($event_users_objs as $event_users_obj) {
+					$event_users = $event_users_obj->get();
+					/* iCal event to the users */
+					$ical_obj = new iCalendar(array('identifier' => $events_details['identifier'], 'uidtimestamp' => $events_details['createdOn']));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+					$ical_obj->set_datestart($events_details['fromDate']);
+					$ical_obj->set_datend($events_details['toDate']);
+					$ical_obj->set_location($events_details['place']);
+					$ical_obj->set_summary($events_details['title']);
+					$ical_obj->set_categories('Event');
+					$ical_obj->set_organizer();
+					$ical_obj->set_icalattendees($event_users['uid']);
+					$ical_obj->set_description($events_details['description']);
+					$ical_obj->endical();
+
+					$email_data = array(
+							'to' => $event_users['email'],
+							'from_email' => $core->settings['maileremail'],
+							'from' => 'OCOS Mailer',
+							'subject' => $events_details['title'],
+							'message' => $ical_obj->geticalendar(),
+					);
+
+					$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'meetingrequest', 'method' => 'REQUEST'));
+				}
+			}
 
 			if($core->input['event']['isPublic'] == 1 && $core->usergroup['calendar_canAddPublicEvents'] == 1) {
 				if(isset($core->input['event']['restrictto'])) {
@@ -106,18 +141,29 @@ else {
 									'to' => $notification_mails,
 									'subject' => $core->input['event']['title']
 							);
-							$email_data['message'] = '<strong>'.$core->input['event']['title'].'</strong> (';
-
-							$email_data['message'] .= date($core->settings['dateformat'], $new_event['fromDate']);
-							if($new_event['toDate'] != $new_event['fromDate']) {
-								$email_data['message'] .= ' - '.date($core->settings['dateformat'], $new_event['toDate']);
-							}
-							$email_data['message'] .= ')<br />';
-							$email_data['message'] .= $core->input['event']['place'].'<br />';
-							$email_data['message'] .= str_replace("\n", '<br />', $core->input['event']['description']);
-
-							$mail = new Mailer($email_data, 'php');
-
+//							$email_data['message'] = '<strong>'.$core->input['event']['title'].'</strong> (';
+//
+//							$email_data['message'] .= date($core->settings['dateformat'], $new_event['fromDate']);
+//							if($new_event['toDate'] != $new_event['fromDate']) {
+//								$email_data['message'] .= ' - '.date($core->settings['dateformat'], $new_event['toDate']);
+//							}
+//							$email_data['message'] .= ')<br />';
+//							$email_data['message'] .= $core->input['event']['place'].'<br />';
+//							$email_data['message'] .= str_replace("\n", '<br />', $core->input['event']['description']);
+							$ical_obj = new iCalendar(array('identifier' => $events_details['identifier'].'all', 'uidtimestamp' => $events_details['createdOn']));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+							$ical_obj->set_datestart($events_details['fromDate']);
+							$ical_obj->set_datend($events_details['toDate']);
+							$ical_obj->set_location($events_details['place']);
+							$ical_obj->set_summary($events_details['title']);
+							$ical_obj->set_name();
+							$ical_obj->set_status();
+							$ical_obj->set_transparency();
+							$ical_obj->set_icalattendees($notification_mails);
+							$ical_obj->set_description($events_details['description']);
+							$ical_obj->endical();
+							$email_data['message'] = $ical_obj->geticalendar();
+							$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'meetingrequest', 'method' => 'REQUEST', 'filename' => $events_details['title'].'.ics'));
+//$mail = new Mailer($email_data, 'php');
 							if($mail->get_status() === true) {
 								$log->record($notification_mails, $last_id);
 							}
@@ -129,6 +175,17 @@ else {
 						}
 					}
 				}
+			}
+
+			if($query) {
+				$log->record($core->input['type'], $last_id);
+				header('Content-type: text/xml+javascript');
+				output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>>'); //<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>
+				exit;
+			}
+			else {
+				output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+				exit;
 			}
 		}
 		else {
@@ -171,8 +228,8 @@ else {
 			if(!empty($event['place'])) {
 				$event['place_output'] = $event['place'].' <a href="http://maps.google.com/maps?hl=en&q='.$event['place'].'" target="_blank"><img src="./images/icons/map.png" border="0" alt="'.$lang->map.'"></a>';
 			}
-			eval("\$eventdetailsbox = \"".$template->get("popup_calendar_eventdetails")."\";");
-			echo $eventdetailsbox;
+			eval("\$eventdetailsbox = \"".$template->get('popup_calendar_eventdetails')."\";");
+			output($eventdetailsbox);
 		}
 	}
 	elseif($core->input['action'] == 'get_taskdetails') {
@@ -215,8 +272,8 @@ else {
 					$task_notes_output .= '<div class="'.$rowclass.'" style="padding: 5px 0px 5px 10px;">'.$note['note'].'. <span class="smalltext" style="font-style:italic;">'.$note['dateAdded_output'].' by <a href="users.php?action=profile&uid='.$note['uid'].'" target="_blank">'.$note['displayName'].'</a></span></div>';
 				}
 			}
-			eval("\$eventdetailsbox = \"".$template->get("popup_calendar_taskdetails")."\";");
-			echo $eventdetailsbox;
+			eval("\$eventdetailsbox = \"".$template->get('popup_calendar_taskdetails')."\";");
+			output($eventdetailsbox);
 		}
 	}
 	elseif($core->input['action'] == 'save_tasknote') {
@@ -247,7 +304,7 @@ else {
 
 					$mail = new Mailer($notification, 'php');
 				}
-				header('Content-type: text/xml+javascript'); 
+				header('Content-type: text/xml+javascript');
 				output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[<script>$('#note').val(''); $('#calendar_task_notes').prepend('<div id=\'note_1\' style=\'padding: 5px 0px 5px 10px;\' class=\'altrow2\'>".$db->escape_string($core->input['note']).". <span class=\'smalltext\' style=\'font-style:italic;\'>".date($core->settings['dateformat'], TIME_NOW)." by <a href=\'users.php?action=profile&uid=".$core->user['uid']."\' target=\'_blank\'>".$core->user['displayName']."</a></span></div>');</script>]]></message>");
 				exit;
 			case 1:
@@ -273,12 +330,12 @@ else {
 				else {
 					$output_js = '$("#ctid_'.$core->input['ctid'].'").css("text-decoration", "none");';
 				}
-				echo $output_js;
+				output($output_js);
 				break;
 			case 1:
 			case 2:
 			case 3:
-				output_xml("<status>false</status><message></message>");
+				output_xml('<status>false</status><message></message>');
 				break;
 		}
 	}

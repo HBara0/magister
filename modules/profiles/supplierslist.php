@@ -104,18 +104,18 @@ if(!$core->input['action']) {
 				}		
 			}
 	
-			$query3 = $db->query("SELECT title,es.psid FROM ".Tprefix."productsegments p JOIN ".Tprefix."entitiessegments es ON (es.psid=p.psid) WHERE es.eid='$supplier[eid]'");
+			$query3 = $db->query("SELECT title, es.psid FROM ".Tprefix."productsegments p JOIN ".Tprefix."entitiessegments es ON (es.psid=p.psid) WHERE es.eid='$supplier[eid]'");
 			while($segment = $db->fetch_assoc($query3)) {
 				if(++$segments_counter > 2) {
-					$hidden_segments .= $segment['title'].'<br />';
+					$hidden_segments .= '<a href="index.php?module=profiles/segmentprofile&id='.$segment['psid'].'" target="_blank">'.$segment['title'].'</a><br />';
 				}
 				elseif($segments_counter == 2)
 				{
-					$show_segments .= $segment['title'];
+					$show_segments .= '<a href="index.php?module=profiles/segmentprofile&id='.$segment['psid'].'" target="_blank">'.$segment['title'].'</a>';
 				}
 				else
 				{
-					$show_segments .= $segment['title'].'<br />';
+					$show_segments .= '<a href="index.php?module=profiles/segmentprofile&id='.$segment['psid'].'" target="_blank">'.$segment['title'].'</a><br />';
 				}
 				
 				if($segments_counter > 2) {

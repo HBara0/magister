@@ -430,7 +430,7 @@ class IntegrationOB extends Integration {
 				if(is_null($stack->get_transcation()->get_inoutline())) {
 					$movement = $stack->get_transcation()->get_movementline();
 					if(is_object($movement)) {
-						$movement->get_output_transaction()->get_outputstack()->get_inputstack()->get_daysinstock();
+						$inputs[$transcation['obwfa_input_stack_id']]['stack']['daysinstock'] = $movement->get_output_transaction()->get_outputstack()->get_inputstack()->get_daysinstock();
 					}
 					else {
 						$inputs[$transcation['obwfa_input_stack_id']]['stack']['daysinstock'] = $stack->get_daysinstock();

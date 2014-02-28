@@ -13,7 +13,6 @@
  *
  * @author tony.assaad
  */
-
 class Meetings {
 	private $meeting = array();
 	private $errorcode = 0;
@@ -28,7 +27,7 @@ class Meetings {
 		global $db;
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'mtid, title, description';
+			$query_select = 'mtid, title, identifier, description';
 		}
 
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."meetings WHERE mtid=".$db->escape_string($id)));
@@ -38,16 +37,15 @@ class Meetings {
 		global $db, $core, $log;
 		if(is_array($meeting_data)) {
 			$this->meeting = $meeting_data;
-
 			if(empty($this->meeting['title'])) {
 				$this->errorcode = 1;
 				return false;
 			}
-
-			if(value_exists('meetings', 'title', $this->meeting['title'], ' createdBy='.$core->user['uid'].'')) {
-				$this->errorcode = 4;
-				return false;
-			}
+//
+//			if(value_exists('meetings', 'title', $this->meeting['title'], ' createdBy='.$core->user['uid'].'')) {
+//				$this->errorcode = 4;
+//				return false;
+//			}
 			if(!empty($meeting_data['altfromDate'])) {
 				$fromdate = explode('-', $meeting_data['altfromDate']);
 
@@ -60,7 +58,6 @@ class Meetings {
 				$this->errorcode = 3;
 				return false;
 			}
-
 
 			if(is_empty($this->meeting['title'], $this->meeting['fromDate'], $this->meeting['toDate'], $this->meeting['fromTime'], $this->meeting['toTime'])) {
 				$this->errorcode = 1;
@@ -77,7 +74,7 @@ class Meetings {
 
 			$this->meeting['title'] = ucwords(strtolower($this->meeting['title']));
 
-			$sanitize_fields = array('title', 'fromDate', 'toDate', 'description');
+			$sanitize_fields = array('title', 'fromDate', 'toDate');
 			foreach($sanitize_fields as $val) {
 				$this->meeting[$val] = $core->sanitize_inputs($this->meeting[$val], array('removetags' => true));
 			}
@@ -96,36 +93,97 @@ class Meetings {
 			$insertquery = $db->insert_query('meetings', $meeting_data);
 			if($insertquery) {
 				$this->errorcode = 0;
-				$this->meeting['mtid'] = $mtid = $db->last_id();
-
-				$log->record('addedmeeting', $mtid);
-//$this->get_meetingassociations($this->meeting['mtid'])->set_associations($this->meeting['associations']);
-				$this->set_associations();
+				$this->meeting['mtid'] = $db->last_id();
+				$this->meeting['identifier'] = $meeting_data['identifier'];
+				$log->record('addedmeeting', $this->meeting['mtid']);
+				//$this->get_meetingassociations($this->meeting['mtid'])->set_associations($this->meeting['associations']);
+				$this->set_associations($this->meeting['associations']);
 				/* insert meetings Attendees */
-				$this->set_attendees();
+				$this->set_attendees($this->meeting['attendees']);
+
+				$this->send_invitations();
 				return true;
 			}
 		}
 	}
 
-	private function set_attendees($attendees = '') {
+	public function send_invitations() {
+		global $core, $log;
+
+		if($this->meeting['notifyuser'] == 1) {
+			$filters[] = 'uid';
+		}
+		if($this->meeting['notifyrep'] == 1) {
+			$filters[] = 'rpid';
+		}
+
+		if(!empty($filters)) {
+			$attendes_objs = $this->get_attendees(array('atttypes' => $filters));
+			if(is_array($attendes_objs)) {
+				$email_data = array(
+						'from_email' => $core->settings['maileremail'],
+						'from' => 'OCOS Mailer',
+						'subject' => $this->meeting['title'],
+				);
+
+				foreach($attendes_objs as $key => $attendes_obj) {
+					if($attendes_obj->is_representative()) {
+						$receipient_attendees[$key] = $attendes_obj->get_rep()->get();
+						$email_data['to'][] = $receipient_attendees[$key]['email'];
+					}
+					else {
+						$receipient_attendees[$key] = $attendes_obj->get_user()->get();
+						$receipient_attendees[$key]['name'] = $receipient_attendees[$key]['displayName'];
+						$email_data['to'][] = $receipient_attendees[$key]['email'];
+					}
+				}
+
+				if(is_array($receipient_attendees)) {
+					$ical_obj = new iCalendar(array('identifier' => $this->meeting['identifier'], 'uidtimestamp' => $this->meeting['createdOn'], 'component' => 'event', 'method' => 'REQUEST'));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+					$ical_obj->set_datestart($this->meeting['fromDate']);
+					$ical_obj->set_datend($this->meeting['toDate']);
+					$ical_obj->set_location($this->meeting['location']);
+					$ical_obj->set_summary($this->meeting['title']);
+					$ical_obj->set_categories('Appointment');
+					$ical_obj->set_organizer();
+					$ical_obj->set_icalattendees($receipient_attendees);
+					$ical_obj->set_description($this->meeting['description']);
+					$ical_obj->endical();
+
+					$email_data['message'] = $ical_obj->geticalendar();
+
+					$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'appointment', 'method' => 'REQUEST'));
+				}
+				$log->record('meetings_appointment', array('to' => $receipient_attendees));
+				unset($receipient_attendees);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private function set_attendees(array $attendees) {
 		global $core;
+		unset($attendees['notifyuser'], $attendees['notifyrep']);
 		if(empty($attendees)) {
 			$attendees = $this->meeting['attendees'];
 		}
-		if(!isset($attendees)) {
-			$attendees = array(array('idAttr' => 'uid', 'mtid' => $this->meeting['mtid'], 'attendee' => $core->user['uid']));
-		}
+
+		//if(!isset($attendees)) {
+		$attendees['uid'][] = array(array('idAttr' => 'uid', 'mtid' => $this->meeting['mtid'], 'id' => $core->user['uid']));
+		//}
 
 		if(!empty($attendees)) {
-			foreach($attendees as $attendee) {
-				if(empty($attendee)) {
-					continue;
+			foreach($attendees as $type => $type_attendees) {
+				foreach($type_attendees as $key => $attendee) {
+					if(empty($attendee['id'])) {
+						continue;
+					}
+					$new_attendee['mtid'] = $this->meeting['mtid'];
+					$new_attendee['idAttr'] = $type;
+					$new_attendee['attendee'] = intval($attendee['id']);
+					MeetingsAttendees::set_attendee($new_attendee);
 				}
-				$new_attendee['mtid'] = $this->meeting['mtid'];
-				$new_attendee['idAttr'] = $attendee['idAttr'];
-				$new_attendee['attendee'] = $attendee['attendee'];
-				MeetingsAttendees::set_attendee($new_attendee);
 			}
 		}
 	}
@@ -150,10 +208,13 @@ class Meetings {
 
 	public function update($meeting_data = array()) {
 		global $db, $log, $core;
+
+		$this->meeting['notifyuser'] = $meeting_data['notifyuser'];
+		$this->meeting['notifyrep'] = $meeting_data['notifyrep'];
 		$associations = $meeting_data['associations'];
 		$attendees = $meeting_data['attendees'];
-		unset($meeting_data['attendees'], $meeting_data['associations']);
 
+		unset($meeting_data['attendees'], $meeting_data['associations'], $meeting_data['notifyuser'], $meeting_data['notifyrep']);
 		if(value_exists('meetings', 'title', $meeting_data['title'], 'mtid!='.intval($this->meeting['mtid']).' AND createdBy='.$core->user['uid'].'')) {
 			$this->errorcode = 3;
 			return false;
@@ -165,12 +226,32 @@ class Meetings {
 		$query = $db->update_query('meetings', $meeting_data, 'mtid='.$db->escape_string($this->meeting['mtid']));
 		if($query) {
 			$this->errorcode = 2;
-			$log->record('updatedmeeting', $this->meeting['mtid']);
+			if(is_array($attendees)) {
+				foreach($attendees as $type => $type_attendees) {
+					foreach($type_attendees as $attendee) {
+						if(!empty($attendee['matid'])) {
+							$meetingatt_obj = new MeetingsAttendees($attendee['matid']);
+							if(isset($attendee['id']) && empty($attendee['id'])) {
+								$meetingatt_obj->delete();
+							}
+							else {
+								$meetingatt_obj->update($attendee);
+							}
+						}
+						else {
+							$new_attendee['mtid'] = $this->meeting['mtid'];
+							$new_attendee['idAttr'] = $type;
+							$new_attendee['attendee'] = intval($attendee['id']);
+							MeetingsAttendees::set_attendee($new_attendee);
+						}
+					}
+				}
+				$this->send_invitations();
+			}
 
-			$db->delete_query('meetings_attendees', 'mtid='.intval($this->meeting['mtid']));
-			$this->set_attendees($attendees);
 			$db->delete_query('meetings_associations', 'mtid='.intval($this->meeting['mtid']));
 			$this->set_associations($associations);
+			$log->record('updatedmeeting', $this->meeting['mtid']);
 		}
 	}
 
@@ -229,17 +310,20 @@ class Meetings {
 		return false;
 	}
 
-	public function get_attendees() {
+	public function get_attendees($filters = array()) {
 		global $db;
 
-		$query = $db->query('SELECT * FROM '.Tprefix.'meetings_attendees WHERE mtid = '.intval($this->meeting['mtid']));
+		if(is_array($filters['atttypes'])) {
+			$filter_where = ' WHERE idAttr IN("'.implode('","', $filters[atttypes]).'") AND mtid='.intval($this->meeting['mtid']).'';
+		}
+		else {
+			$filter_where = ' WHERE mtid='.intval($this->meeting['mtid']).'';
+		}
+		$query = $db->query('SELECT matid FROM '.Tprefix.'meetings_attendees '.$filter_where.'');
 		if($db->num_rows($query)) {
-			while($attendee = $db->fetch_assoc($query)) {
-				if($attendee['idAttr'] == 'uid') {
-					$attendees[$attendee['attendee']] = new Users($attendee['attendee']);
-				}
+			while($rowattendee = $db->fetch_assoc($query)) {
+				$attendees[$rowattendee['matid']] = new MeetingsAttendees($rowattendee['matid']);
 			}
-
 			return $attendees;
 		}
 		return false;
@@ -249,7 +333,12 @@ class Meetings {
 		$attendees_objs = $this->get_attendees();
 		if(is_array($attendees_objs)) {
 			foreach($attendees_objs as $id => $attendee) {
-				$attendees[] = $attendee->get()['displayName'];
+				if($attendee->is_representative()) {
+					$attendees[] = $attendee->get_attendee()->get()['name'];
+				}
+				else {
+					$attendees[] = $attendee->get_attendee()->get()['displayName'];
+				}
 			}
 
 			if($displayas == 'list') {
@@ -313,6 +402,39 @@ class Meetings {
 					$this->errorcode = 0;
 				}
 			}
+
+			$this->send_mom();
+		}
+	}
+
+	public function send_mom($type = 'regular') {
+		global $core;
+		$mom = $this->get_mom();
+
+		$email_data = array(
+				'from_email' => $core->settings['maileremail'],
+				'from' => 'OCOS Mailer',
+				'subject' => $this->meeting['title']
+		);
+
+		$users = $this->get_shared_users();
+		foreach($users as $user) {
+			$email_data['to'][] = $user->get()['email'];
+		}
+
+		if($type == 'ical') {
+			$ical_obj = new iCalendar(array('identifier' => $this->meeting['identifier'].'mom', 'uidtimestamp' => $this->meeting['createdOn'], 'component' => 'journal'));
+			$ical_obj->set_summary($this->meeting['title']);
+			$ical_obj->set_description($this->meeting['description']);
+			$ical_obj->set_relatedto($ical_obj->parse_datestamp($this->meeting['createdOn']).'-'.$this->meeting['identifier'].'-@orkila.com');
+			$ical_obj->endical();
+
+			$email_data['message'] = $ical_obj->geticalendar();
+			$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'appointment'));
+		}
+		else {
+			$email_data['message'] = '';
+			$mail = new Mailer($email_data, 'php');
 		}
 	}
 
@@ -367,22 +489,27 @@ class Meetings {
 class MeetingsAttendees {
 	private $attendee = array();
 
-	public function __construct($id = '', $simple = false) {
+	public function __construct($id = '', $simple = true) {
 		if(isset($id) && !empty($id)) {
-			$this->attendee = $this->read($id, $simple);
+			$this->read($id, $simple);
 		}
 	}
 
-	private function read($id, $simple = false) {
+	private function read($id, $simple = true) {
 		global $db;
-		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meetings_attendees WHERE mtatid=".$db->escape_string($id)));
+		$this->attendee = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meetings_attendees WHERE matid=".$db->escape_string($id)));
 	}
 
 	public static function set_attendee($attendee = array()) {
 		global $db;
 		if(is_array($attendee)) {
-			$db->insert_query('meetings_attendees', $attendee);
+			if(!value_exists('meetings_attendees', 'attendee', $attendee['attendee'], 'idAttr="'.$db->escape_string($attendee['idAttr']).'" AND mtid='.intval($attendee['mtid']))) {
+				$db->insert_query('meetings_attendees', $attendee);
+				return true;
+			}
+			return false;
 		}
+		return false;
 	}
 
 	public function get_attendee() {
@@ -390,10 +517,53 @@ class MeetingsAttendees {
 			case 'uid':
 				return new Users($this->attendee['attendee']);
 				break;
-			case 'spid':
-				return new Entities($this->attendee['attendee']);
+			case 'rpid':
+				return new Representatives($this->attendee['attendee']);
 				break;
 		}
+	}
+
+	public function update($attendee_data) {
+		global $db;
+
+		$attendee_data['attendee'] = intval($attendee_data['id']);
+		unset($attendee_data['id']);
+
+		if(!empty($this->attendee['matid'])) {
+			$db->update_query('meetings_attendees', $attendee_data, 'matid='.intval($this->attendee['matid']));
+		}
+	}
+
+	public function delete() {
+		global $db;
+
+		$db->delete_query('meetings_attendees', 'matid='.intval($this->attendee['matid']));
+	}
+
+	public function get_user() {
+		if($this->attendee['idAttr'] == 'uid' && !empty($this->attendee['attendee'])) {
+			return new Users($this->attendee['attendee']);
+		}
+		return false;
+	}
+
+	public function is_representative() {
+		if($this->attendee['idAttr'] == 'rpid') {
+			return true;
+		}
+		return false;
+	}
+
+	public function get_rep() {
+		if($this->attendee['idAttr'] == 'rpid' && !empty($this->attendee['attendee'])) {
+			return new representatives($this->attendee['attendee']);
+		}
+		return false;
+	}
+
+	private function setinvitaion_sent() {
+		global $db;
+		$query = $db->update_query('meetings_attendees', array('invitationSent' => 1, 'sentOn' => TIME_NOW), 'matid='.$db->escape_string($this->attendee['matid']));
 	}
 
 	public function get_meeting() {

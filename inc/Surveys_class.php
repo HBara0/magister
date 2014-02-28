@@ -199,6 +199,35 @@ class Surveys {
 								$this->status = 1;
 								return false;
 							}
+							else { /* Validate choices if meet the pattern and  has value  before insert */
+								$question_choices_choice = preg_split('/\n+/', $question['choices']);
+
+								/* Split the choices value by ";" */
+								if(is_array($question_choices_choice)) {
+									foreach($question_choices_choice as $key => $choice) {
+										if(strstr($question['choices'], ';')) {
+											$question_choices_values = preg_split("/;+/", trim($choice));
+										}
+										else {
+											$question_choices_values[0] = $choice;
+										}
+
+										if(empty($question_choices_values[0])) {
+											$this->status = 6;
+											return false;
+										}
+
+										if(!isset($question_choices_values[1]) || (empty($question_choices_values[1]) && $question_choices_values[1] != 0)) {
+											$question_choices_values[1] = $question_choices_values[0];
+										}
+
+										if(empty($question_choices_values[1])) {
+											$this->status = 6;
+											return false;
+										}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -253,20 +282,13 @@ class Surveys {
 								if(is_array($question_choices_choice)) {
 									foreach($question_choices_choice as $key => $choice) {
 										if(strstr($choice, ';')) {
-											$question_choices_values = preg_split("/;+/", $choice);
+											$question_choices_values = preg_split("/;+/", trim($choice));
 										}
 										else {
 											$question_choices_values[0] = $choice;
 										}
 
-										if(empty($question_choices_values[0])) {
-											continue;
-										}
-										if(empty($question_choices_values[1])) {
-											$question_choices_values[1] = $question_choices_values[0];
-										}
-
-										if(empty($question_choices_values[1]) && $question_choices_values[1] != 0) {
+										if(!isset($question_choices_values[1]) || (empty($question_choices_values[1]) && $question_choices_values[1] != 0)) {
 											$question_choices_values[1] = $question_choices_values[0];
 										}
 

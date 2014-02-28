@@ -120,4 +120,5 @@ $lang['viewbalances'] = 'Leaves Balances';
 $lang['weekends'] = 'Weekends';
 $lang['youapprovedleave'] = 'You have already approved this leave';
 $lang['yoursonly'] = 'Yours only';
+$lang['cannotrequestthistype'] = 'You cannot request this type of leave for yourself';
 ?>

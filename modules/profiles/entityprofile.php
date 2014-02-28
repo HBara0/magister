@@ -147,9 +147,7 @@ if(!$core->input['action']) {
 		$profile['logo'] = $core->settings['rootdir'].'/'.$core->settings['entitylogodir'].'/'.$profile['logo'];
 	}
 
-	$profile['country'] = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid=' {
-			$profile[country]
-		}'"), 'name');
+	$profile['country'] = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid='{$profile[country]}'"), 'name');
 
 	$profile['fulladdress'] .= $profile['country'];
 
@@ -175,7 +173,7 @@ if(!$core->input['action']) {
 
 	$segment_query = $db->query("SELECT * FROM ".Tprefix."entitiessegments es JOIN ".Tprefix." productsegments ps ON (es.psid=ps.psid) WHERE es.eid={$eid}");
 	while($segment = $db->fetch_assoc($segment_query)) {
-		$segmentlist .= $segment['title'].'<br />';
+		$segmentlist .= '<a href="index.php?module=profiles/segmentprofile&id='.$segment['psid'].'" target="_blank">'.$segment['title'].'<br />';
 	}
 
 	$affiliate_query = $db->query("SELECT *
@@ -205,22 +203,15 @@ if(!$core->input['action']) {
 		}' target='_blank'>{$entityusers['fullname']}</a></li>";
 		}
 		elseif($entityusers_counter == $core->settings['itemsperlist']) {
-			$shown_entityallusers .= "<li><a href='./users.php?action = profile&uid = {
-			$entityusers[uid]
-		}' target='_blank'>{$entityusers['fullname']}</a>";
+			$shown_entityallusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a>";
 		}
 		else {
-			$shown_entityallusers .= "<li><a href='./users.php?action = profile&uid = {
-			$entityusers[uid]
-		}' target='_blank'>{$entityusers['fullname']}</a></li>";
+			$shown_entityallusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a></li>";
 		}
 	}
 
 	if($entityusers_counter > $core->settings['itemsperlist']) {
-		$entityallusers = "<ul style='list-style:none;
-		padding:2px;
-		margin-top:0px;
-		'>".$shown_entityallusers.", <a href='#entityusers' id='showmore_entityusers_{$entityusers[uid]}' class='smalltext'>read more</a></li> <span style='display:none;' id='entityusers_{$entityusers[uid]}'>{$hidden_entityusers}</span></ul>";
+		$entityallusers = "<ul style='list-style:none; padding:2px; margin-top:0px;'>".$shown_entityallusers.", <a href='#entityusers' id='showmore_entityusers_{$entityusers[uid]}' class='smalltext'>read more</a></li> <span style='display:none;' id='entityusers_{$entityusers[uid]}'>{$hidden_entityusers}</span></ul>";
 	}
 	else {
 		$entityallusers = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_entityallusers.'</ul>';
@@ -517,9 +508,11 @@ if(!$core->input['action']) {
 		$brandsendproducts = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
 	}
 	$productypes_objs = Endproductypes::get_endproductypes();
-	foreach($productypes_objs as $productypes_obj) {
-		$endproduct_types = $productypes_obj->get();
-		$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
+	if(is_array($productypes_objs)) {
+		foreach($productypes_objs as $productypes_obj) {
+			$endproduct_types = $productypes_obj->get();
+			$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
+		}
 	}
 	eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
 	eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
@@ -626,33 +619,30 @@ else {
 		$mrktcompetitor_objs = $mrktint_obj->get_competitors();
 		if(is_array($mrktcompetitor_objs)) {
 			foreach($mrktcompetitor_objs as $mrktcompetitor_obj) {
-
-				//get competitor  trader
-				$entityproducer_objs = $mrktcompetitor_obj->get_entityproducer();
-				$lang->competitorsuppliers = 'Competitor producer';
-				foreach($entityproducer_objs as $entityproducer_obj) {
-					$marketintelligencedetail_entityproducers = '<li>'.$entityproducer_obj->get()['companyName'].'</li>';
-				}
-				$entitytrader_objs = $mrktcompetitor_obj->get_entitytrader();
-				$lang->competitortradersuppliers = 'Competitor trader';
-				foreach($entitytrader_objs as $entitytrader_obj) {
-					$marketintelligencedetail_entitytraders = '<li>'.$entitytrader_obj->get()['companyName'].'</li>';
-				}
 				$mrktintl_detials['competitors'] = $mrktcompetitor_obj->get();
 				if(is_array($mrktintl_detials['competitors'])) {
+					$marketintelligencedetail_competitors = ' <div class="thead">'.$lang->competitor.'</div>';
+					$mrktintl_detials['competitors']['unitPrice'] = round($mrktintl_detials['competitors']['unitPrice']);
+
+					/* Get competitor suppliers objects */
+					$competitorsentities_objs = $mrktcompetitor_obj->get_entities();
+					if(is_array($competitorsentities_objs)) {
+						foreach($competitorsentities_objs as $competitorsentities_obj) {
+							$mrktintl_detials_competitorsuppliers .= '<li>'.$competitorsentities_obj->get()['companyName'].'</li>';
+						}
+					}
 					/* Get competitor suppliers prodcuts */
 					$competitorsproducts_objs = $mrktcompetitor_obj->get_products();
 					if(is_array($competitorsproducts_objs)) {
 						foreach($competitorsproducts_objs as $competitorsproducts_obj) {
-							$mrktintl_detials_competitorproducts = $competitorsproducts_obj->get()['name'];
+							$mrktintl_detials_competitorproducts.= '<li>'.$competitorsproducts_obj->get()['name'].'</li>';
 						}
 					}
 				}
-				eval("\$mrktintl_detials_competitors_rows  .= \"".$template->get('profiles_entityprofile_marketintelligence_competitors_rows')."\";");
 			}
 		}
 
-		eval("\$marketintelligencedetail_competitors  = \"".$template->get('profiles_entityprofile_marketintelligence_competitors')."\";");
+		eval("\$marketintelligencedetail_competitors .= \"".$template->get('profiles_entityprofile_marketintelligence_competitors')."\";");
 		eval("\$marketintelligencedetail = \"".$template->get('popup_marketintelligencedetails')."\";");
 		output($marketintelligencedetail);
 	}

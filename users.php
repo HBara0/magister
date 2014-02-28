@@ -227,20 +227,36 @@ if($core->input['action']) {
 		$signature['textmin'] = $user->generate_text_sign(true);
 		$signature['textmin'] = preg_replace("/<br \/>/i", "\n", $signature['textmin']);
 
-		$zip->addFromString('Readme.txt', $lang->signatureguideline);
-		$zip->addFromString($signature['name'].'.txt', $signature['text']);
-		$zip->addFromString($signature['name'].'_compact.txt', $signature['textmin']);
-
+		$zip->addEmptyDir('Outlook');
+		$zip->addFromString('Outlook/Readme.txt', $lang->signatureguideline);
+		$zip->addFromString('Outlook/'.$signature['name'].'.txt', $signature['text']);
+		$zip->addFromString('Outlook/'.$signature['name'].'_compact.txt', $signature['textmin']);
+		
+		$signature['alt'] = $signature['name'];
+		
+		$signature['imagepath'] = $signature['name'].'_files/'.$signature['name'].'.png';
 		eval("\$signaturehtm = \"".$template->get('editprofile_downloadsignature_htm')."\";");
-		$zip->addFromString($signature['name'].'.htm', $signaturehtm);
+		$zip->addFromString('Outlook/'.$signature['name'].'.htm', $signaturehtm);
 
+		$signature['imagepath'] = $signature['name'].'_files/'.$signature['name'].'_compact.png';
 		eval("\$signatureminhtm = \"".$template->get('editprofile_downloadsignaturemin_htm')."\";");
-		$zip->addFromString($signature['name'].'_compact.htm', $signatureminhtm);
+		$zip->addFromString('Outlook/'.$signature['name'].'_compact.htm', $signatureminhtm);
 
-		$zip->addEmptyDir($signature['name'].'_files');
-		$zip->addFile($image_location, $signature['name'].'_files/'.$signature['name'].'.png');
-		$zip->addFile($imagemin_location, $signature['name'].'_files/'.$signature['name'].'_compact.png');
+		$zip->addEmptyDir('Outlook/'.$signature['name'].'_files');
+		$zip->addFile($image_location, 'Outlook/'.$signature['name'].'_files/'.$signature['name'].'.png');
+		$zip->addFile($imagemin_location, 'Outlook/'.$signature['name'].'_files/'.$signature['name'].'_compact.png');
 
+		$zip->addEmptyDir('Other');
+		$signature['alt'] = $signature['text'];
+		$signature['imagepath'] = 'data:image/jpg;base64,'.base64_encode(file_get_contents($image_location));
+		eval("\$signaturehtm = \"".$template->get('editprofile_downloadsignature_htm')."\";");
+		$zip->addFromString('Other/'.$signature['name'].'.htm', $signaturehtm);
+		
+		$signature['alt'] = $signature['textmin'];
+		$signature['imagepath'] = 'data:image/jpg;base64,'.base64_encode(file_get_contents($imagemin_location));
+		eval("\$signatureminhtm = \"".$template->get('editprofile_downloadsignaturemin_htm')."\";");
+		$zip->addFromString('Other/'.$signature['name'].'_compact.htm', $signatureminhtm);
+		
 		$zip->close();
 
 		unlink(realpath($image_location));
@@ -312,6 +328,7 @@ if($core->input['action']) {
 			}
 
 			$profile['uid'] = $core->user['uid'];
+			
 			eval("\$editprofilepage_profilepicform = \"".$template->get('popup_changeprofilepic')."\";");
 			eval("\$editprofilepage = \"".$template->get('editprofile')."\";");
 			output_page($editprofilepage);

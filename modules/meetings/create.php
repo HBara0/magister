@@ -20,9 +20,9 @@ if(!$core->input['action']) {
 	if(isset($core->input['mtid']) && !empty($core->input['mtid'])) {
 		$mtid = $core->input['mtid'];
 		$action = 'edit';
-	
+
 		$lang->create = $lang->edit;
-	
+
 		$meeting_obj = new Meetings($mtid);
 
 		$meeting = $meeting_obj->get();
@@ -47,6 +47,35 @@ if(!$core->input['action']) {
 				unset($associaton_temp);
 			}
 
+			$rowid = $reprowid = 1;
+			$meeting_attednobjs = $meeting_obj->get_attendees();
+			if(is_array($meeting_attednobjs)) {
+				foreach($meeting_attednobjs as $matid => $meeting_attednobj) {
+					$attendees_objs = $meeting_attednobj->get_attendee();
+					$meeting['attendees'][$matid] = $attendees_objs->get();
+					if(isset($meeting['attendees'][$matid]['uid'])) {
+						$meeting['attendees'][$matid]['name'] = $meeting['attendees'][$matid]['displayName'];
+						$meeting['attendees'][$matid]['id'] = $meeting['attendees'][$matid]['uid'];
+						eval("\$createmeeting_userattendees .= \"".$template->get('meeting_create_userattendee')."\";");
+						$rowid++;
+					}
+					if(isset($meeting['attendees'][$matid]['rpid'])) {
+						$meeting['attendees'][$matid]['id'] = $meeting['attendees'][$matid]['rpid'];
+						eval("\$createmeeting_repattendees .= \"".$template->get('meeting_create_repattendee')."\";");
+						$reprowid++;
+					}
+				}
+				unset($meeting['attendees'], $matid);
+			}
+			
+			if(empty($createmeeting_userattendees)) {
+				eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendee')."\";");
+			}
+			
+			if(empty($createmeeting_repattendees)) {
+				eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");	
+			}
+			
 			$entity_obj = new Entities($associatons['cid']);
 			$meeting['associations']['cutomername'] = $entity_obj->get()['companyName'];
 			$meeting['associations']['spid'] = $associatons['cid'];
@@ -60,10 +89,13 @@ if(!$core->input['action']) {
 		//$meeting['attendees'] = $meeting_obj->get_attendees();
 	}
 	else {
+		$rowid = 1;
+		$reprowid = 1;
+		eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendee')."\";");
+		eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");
 		$sectionsvisibility['associationssection'] = ' display:none;';
 		$action = 'create';
 	}
-
 	$pagetitle = $lang->{$action.'meeting'};
 	$afiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, 'affid IN ('.implode(',', $core->user['affiliates']).')');
 	$afiliates[0] = '';
@@ -71,17 +103,14 @@ if(!$core->input['action']) {
 	$affiliates_list = parse_selectlist('meeting[associations][affid]', 5, $afiliates, $associatons['affid']);
 
 	$aff_events = Events::get_affiliatedevents($core->user['affiliates']);
-	foreach($aff_events as $ceid => $event) {
-		if($associatons['ceid'] == $ceid) {
-			$selected = ' selected="selected"';
+	if(is_array($aff_events)) {
+		foreach($aff_events as $ceid => $event) {
+			if($associatons['ceid'] == $ceid) {
+				$selected = ' selected="selected"';
+			}
+			$events_list .= '<option value="'.$ceid.'" "'.$selected.'">'.$event['title'].'</option>';
 		}
-		$events_list .= '<option value="'.$ceid.'" "'.$selected.'">'.$event['title'].'</option>';
 	}
-	//$user_obj = new Users($core->user['uid']);
-	//$business_leaves = $user_obj->get_leaves();
-//	foreach($business_leaves as $leaveid => $leave) {
-//		$business_leaves_list .='<option  value="'.$leaveid.'">'.$leave['title'].'</option>';
-//	}
 	eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
 
 	eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
@@ -115,10 +144,8 @@ elseif($core->input['action'] == 'do_createmeeting') {
 }
 elseif($core->input['action'] == 'do_editmeeting') {
 	$mtid = $db->escape_string($core->input['mtid']);
-
 	$meeting_obj = new Meetings($mtid);
 	$meeting_obj->update($core->input['meeting']);
-
 	switch($meeting_obj->get_errorcode()) {
 		case 2:
 			output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');

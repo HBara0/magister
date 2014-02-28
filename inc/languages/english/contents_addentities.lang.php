@@ -64,4 +64,5 @@ $lang['both'] = 'Both';
 $lang['cs'] = 'Competitor Supplier';
 $lang['parentcompany'] = 'Parent';
 $lang['companyshortname'] = 'Company Short Name';
+$lang['parentcustomer']='Parent Customer';
 ?>

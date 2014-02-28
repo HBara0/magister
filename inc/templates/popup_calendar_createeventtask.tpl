@@ -55,11 +55,18 @@
             <div style="width:20%; display:inline-block;"><strong>{$lang->location}</strong></div><div style="width:70%; display:inline-block;">
                 <input type="text" value="{$affiliate_address}" name="event[place]" maxlength="300" required='required' size="50"/>
             </div><br />
-            <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->description}</div><div style="width:70%; display:inline-block;"><textarea cols="50" rows="10" name="event[description]"></textarea></div><br />
-                {$ispublic_checkbox}
-                {$restriction_selectlist}
-                {$notifyevent_checkbox}
-                {$publishonwebsite_checkbox}
+            <div style="width:20%; margin-bottom: 20px; display:inline-block; vertical-align:top;">{$lang->description}</div><div style="width:70%; display:inline-block;"><textarea cols="50" rows="10" name="event[description]"></textarea></div><br />
+            <div class="subtitle" style="cursor: pointer;"><a onClick="$('#eventemployess').fadeToggle();">{$lang->invitemployees}...</a></div>
+            <div style="width:100%; height:100px; overflow:auto; transition: background-color 0.5s ease; display:none; padding:5px; z-index:2;" id="eventemployess">
+                {$invitees_rows}
+            </div>
+            <br />
+            <div class="subtitle">{$lang->announceoptions}</div>
+            {$ispublic_checkbox}
+            {$restriction_selectlist}
+            {$notifyevent_checkbox}
+            <div class="subtitle">{$lang->publishoptions}</div>
+            {$publishonwebsite_checkbox}
         </div>
         <input type='submit' class='button' value='{$lang->create}' id='perform_calendar/eventstasks_Button' />
     </form>

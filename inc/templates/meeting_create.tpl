@@ -9,10 +9,10 @@
         {$menu}
         <td class="contentContainer">
             <h3>{$pagetitle}</h3>
-            <form name="perform_meetings/create_Form" action="#" method="post" id="perform_meetings/create_Form" >
+            <form name="perform_meetings/create_Form" action="#" method="post" id="perform_meetings/create_Form">
                 <input type="hidden" value="do_{$action}meeting" name="action" id="action" />
                 <input type="hidden" value="{$core->input[mtid]}" name="mtid"  />
-                <table  cellpadding="1" cellspacing="1" width="100%" >
+                <table cellpadding="1" cellspacing="1" width="100%">
                     <tr>
                         <td>{$lang->title}</td>
                         <td><input type="text" tabindex="1" name="meeting[title]" size="40" required="required" value="{$meeting[title]}"/></td>
@@ -37,6 +37,37 @@
                     <tr>
                         <td>{$lang->ispublic}</td>
                         <td><input type="checkbox" name="meeting[isPublic]" tabindex="8" value="1"{$checked_checkboxes[isPublic]}/></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" id="intivationssection">
+                            <table border="0" width="100%" cellspacing="1" cellpadding="1">
+                                <tr><td class="thead" colspan="3">{$lang->attendees}</td></tr>
+                                <tr>
+                                    <td><input type="checkbox" id='notify_user' name='meeting[notifyuser]' value="1"> {$lang->notifyusers}</td>
+                                    <td><input type="checkbox"{$checked} id='notify_representative' name='meeting[notifyrep]' value="1"> {$lang->notifyreps}</td> 
+                                </tr>
+                                <tr>
+                                    <td style="vertical-align: top;">
+                                        <div style="display: inline-block;">
+                                            <table border="0" width="50%" cellspacing="1" cellpadding="1">
+                                                <tbody id="attendees_tbody">
+                                                    {$createmeeting_userattendees}
+                                                </tbody>  
+                                            </table>
+                                        </div>
+                                    </td> 
+                                    <td style="vertical-align: top;">
+                                        <div style="display: inline-block;">
+                                            <table border="0" width="50%" cellspacing="1" cellpadding="1">
+                                                <tbody id="rep_tbody">
+                                                    {$createmeeting_repattendees}
+                                                </tbody>
+                                            </table>
+                                        </div></td> 
+                                </tr>
+                                <tr><td><img src="images/add.gif" id="addmore_attendees" alt='{$lang->add}'></td><td><img src="images/add.gif" id="addmore_rep" alt='{$lang->add}' title="{$lang->addmorerows}"></td></tr>
+                            </table>
+                        </td>
                     </tr>
                     <tr><td class="thead" colspan="3">{$lang->associations}<a title="{$lang->associations}" href="#associationssection" onClick="$('#associationssection').fadeToggle();">...</a></td></tr>
                     {$createmeeting_associations}

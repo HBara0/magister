@@ -596,7 +596,7 @@ class Sourcing {
 		/* If user is not a sourcing agent, check his/her segements - START */
 		if($core->usergroup['sourcing_canManageEntries'] == 1) {
 			/* check country if availabilty is no */
-			$activityarea_query = $db->query("SELECT ssaa.ssaid 
+			$activityarea_query = $db->query("SELECT ssaa.ssaid
 												FROM ".Tprefix."sourcing_suppliers_activityareas ssaa
 												JOIN ".Tprefix."countries co ON (co.coid=ssaa.coid)
 												JOIN ".Tprefix."affiliates aff ON (aff.affid=co.affid)
@@ -724,7 +724,7 @@ class Sourcing {
 
 	private function get_chemicalrequests_org($id = '') {
 		global $db, $lang;
-		
+
 		$chemicalorgquery = $db->query("SELECT * FROM ".Tprefix."sourcing_chemreqs_origins WHERE scrid=".$db->escape_string($id)."");
 		if($db->num_rows($chemicalorgquery) > 0) {
 			while($chem_origin = $db->fetch_assoc($chemicalorgquery)) {
@@ -970,9 +970,9 @@ class Sourcing {
 			$supplier_id = $this->supplier['ssid'];
 		}
 		$availabilityquery = $db->query("SELECT ssa.ssaid,aff.name AS affiliate, aff.affid
-										FROM ".Tprefix."sourcing_suppliers_activityareas ssa 
+										FROM ".Tprefix."sourcing_suppliers_activityareas ssa
 										JOIN ".Tprefix."countries c ON (c.coid=ssa.coid)
-										JOIN ".Tprefix."affiliates aff ON (aff.affid=c.affid)  
+										JOIN ".Tprefix."affiliates aff ON (aff.affid=c.affid)
 										WHERE ssa.availability<>0 AND ssa.ssid=".intval($supplier_id));
 		if($db->num_rows($availabilityquery) > 0) {
 			while($availableaffiliates = $db->fetch_assoc($availabilityquery)) {
@@ -996,6 +996,20 @@ class Sourcing {
 
 	public function get_status() {
 		return $this->status;
+	}
+
+	public function get_periods(array $config) {
+		global $db;
+
+		if((!isset($config['fromDate']) && empty($config['fromDate']) || !isset($config['toDate']) && empty($config['toDate']))) {
+			$config['fromDate'] = strtotime(date('01-m-Y'));
+			$config['toDate'] = TIME_NOW;
+		}
+		if(isset($config['kpifor']) && $config['kpifor'] == 'isProductApproved') {
+			$where = ' AND isProductApproved <> 0 ';
+		}
+		//echo ("SELECT COUNT(*) AS totalcount  FROM ".Tprefix."sourcing_suppliers_contacthist WHERE  (date BETWEEN ".$config['fromDate']."  AND ".$config['toDate'].") {$where}");
+		return $db->fetch_field($db->query("SELECT COUNT(*) AS totalcount  FROM ".Tprefix."sourcing_suppliers_contacthist WHERE  (date BETWEEN ".$config['fromDate']."  AND ".$config['toDate'].") {$where}"), 'totalcount');
 	}
 
 }

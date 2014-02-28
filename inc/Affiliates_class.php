@@ -48,6 +48,13 @@ class Affiliates {
 		return new Users($this->affiliate['finManager']);
 	}
 
+	public function get_defaultworkshift() {
+		if(!empty($this->affiliate['defaultWorkshift'])) {
+			return new Workshifts($this->affiliate['defaultWorkshift']);
+		}
+		return false;
+	}
+
 	public function get_users($options = array()) {
 		global $db;
 
@@ -59,11 +66,15 @@ class Affiliates {
 		$query = $db->query("SELECT DISTINCT(u.uid) 
 					FROM ".Tprefix."users u 
 					JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid) 
-					WHERE a.affid={$this->affiliate['affid']}".$query_where_add." AND u.gid!=7");
+					WHERE a.affid={$this->affiliate['affid']}".$query_where_add." AND u.gid!=7
+					ORDER BY displayName ASC");
 		while($user = $db->fetch_assoc($query)) {
 			$users = new Users($user['uid']);
 			if($options['displaynameonly']) {
 				$users_affiliates[$user['uid']] = $users->get()['displayName'];
+			}
+			elseif($options['returnobjects'] == true) {
+				$users_affiliates[$user['uid']] = $users;
 			}
 			else {
 				$users_affiliates[$user['uid']] = $users->get();

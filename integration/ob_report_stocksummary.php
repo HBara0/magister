@@ -22,12 +22,17 @@ if($core->input['authCode'] == AUTHCODE) {
 			'0B366EFAE0524FDAA97A1322A57373BB' => 22, //Orkila East Africa
 			'DA0CE0FED12C4424AA9B51D492AE96D2' => 11, //Orkila Nigeria
 			'F2347759780B43B1A743BEE40BA213AD' => 23, //Orkila Ghana
+			'BD9DC2F7883B4E11A90B02A9A47991DC' => 1, //Orkila Lebanon
+			'933EC892369245E485E922731D46FCB1' => 20, //Orkila Senegal
+			'51FB1280AB104EFCBBB982D50B3B7693' => 21 //Orkila CI
 	);
 
 	$affiliates_addrecpt = array(
 			19 => array(244),
 			22 => array(248, 246, 287, 270),
-			23 => array(285, 322, 321)
+			23 => array(322, 321, 329, 336),
+			1 => array(12, 333, 182, 43),
+			21 => array(63)
 	);
 
 	$integration = new IntegrationOB($db_info, 'C08F137534222BD001345B7B2E8F182D', $affiliates_index, 3, array('from' => 'last year'));
@@ -65,7 +70,8 @@ if($core->input['authCode'] == AUTHCODE) {
 	$summary_reqinfo = array('quantity', 'cost', 'costusd');
 	$summary_order_attr = 'costusd';
 
-	$total_types = array('quantitysold', 'quantity', 'cost', 'costusd');
+	$maintable_hiddencols = array('supplier', 'warehouse', 'category', 'product', 'packaging', 'uom', 'unitcost', 'inputdate', 'expirydate', 'daystoexpire');
+	$total_types = array('initialquantity', 'quantitysold', 'quantity', 'cost', 'costusd');
 	foreach($affiliates_index as $orgid => $affid) {
 		$output = '';
 		$totals = $summaries = array();
@@ -74,6 +80,7 @@ if($core->input['authCode'] == AUTHCODE) {
 		$affiliate['currency'] = $affiliateobj->get_country()->get_maincurrency()->get()['alphaCode'];
 		$output = '<h3>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].')</h3>';
 		$inputs = $integration->get_fifoinputs(array($orgid), array('hasqty' => true));
+
 		$output .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
 		$output .= '<tr>';
 		foreach($output_fields as $field => $configs) {
@@ -116,6 +123,9 @@ if($core->input['authCode'] == AUTHCODE) {
 								$output_value = $product->get_supplier()->get()['companyNameShort'];
 								if(empty($output_value)) {
 									$output_value = $product->get_supplier()->get()['companyName'];
+									if(empty($output_value)) {
+										$output_value = 'Information Unavailable';
+									}
 								}
 								$input['supplier']['name'] = $input['supplier']['value'] = $output_value;
 								$input['supplier']['c_bpartner_id'] = md5($output_value);
@@ -132,6 +142,10 @@ if($core->input['authCode'] == AUTHCODE) {
 									$summaries[$category][$input[$category][$attribute]][$field] += $output_value;
 								}
 							}
+						}
+
+						if(in_array($field, $total_types)) {
+							$totals[$field] += $output_value;
 						}
 
 						if($configs['numformat'] == true) {
@@ -168,10 +182,17 @@ if($core->input['authCode'] == AUTHCODE) {
 					else {
 						switch($field) {
 							case 'unitcost':
+								if(in_array($field, $total_types)) {
+									$totals[$field] += $output_value;
+								}
+
 								$output .= '<td style="border: 1px solid #CCC; text-align: right;">'.number_format($input['stack']['remaining_cost'] / $input['stack']['remaining_qty'], $report_options['roundto'], '.', ' ').'</td>';
 								break;
 							case 'costusd':
 								$rate = $currency_obj->get_average_fxrate($affiliate['currency'], array());
+								if(empty($rate)) {
+									$rate = $currency_obj->get_latest_fxrate($affiliate['currency']);
+								}
 								$output_value = $input['stack']['remaining_cost'] / $rate;
 								if(in_array($field, $summary_reqinfo)) {
 									foreach($summary_categories as $category => $attribute) {
@@ -188,7 +209,10 @@ if($core->input['authCode'] == AUTHCODE) {
 									$date_valueobj = DateTime::createFromFormat('Y-m-d G:i:s', $date_value);
 								}
 
-								$totals['costusd'][$date_valueobj->format('Y')][$date_valueobj->format('n')] += $input['stack']['remaining_cost'] / $rate;
+								if(in_array($field, $total_types)) {
+									$totals[$field] += $output_value;
+								}
+								//$totals['costusd'][$date_valueobj->format('Y')][$date_valueobj->format('n')] += $input['stack']['remaining_cost'] / $rate;
 								break;
 						}
 					}
@@ -199,11 +223,27 @@ if($core->input['authCode'] == AUTHCODE) {
 		else {
 			$output .= '<tr><td colspan="16">N/A</td></tr>';
 		}
+		/* Output main table totals row - START */
+		$output .= '<tr>';
+		foreach($output_fields as $field => $configs) {
+			if(in_array($field, $maintable_hiddencols)) {
+				$output .= '<td style="border: 1px solid #CCC;"></td>';
+				continue;
+			}
+			$output_value = $totals[$field];
+			if(is_numeric($output_value)) {
+				$output_value = number_format($output_value, $report_options['roundto'], '.', ' ');
+			}
+			$output .= '<td style="border: 1px solid #CCC; font-weight: bold; text-align: right;">'.$output_value.'</td>';
+		}
+		$output .= '</tr>';
+		/* Output main table totals row - END */
 		$output .= '</table>';
 
 		/* Parse Summaries - Start */
 		if(is_array($summaries)) {
 			foreach($summaries as $category => $category_data) {
+				$totals = array();
 				$output .= '<h3>'.$output_fields[$category]['title'].' Summary</h3>';
 				$output .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
 				$output .= '<tr><th style="background: #91b64f;">'.$output_fields[$category]['title'].'</th>';
@@ -227,6 +267,10 @@ if($core->input['authCode'] == AUTHCODE) {
 							$output_values = $output_value;
 							$output_value = '';
 							foreach($output_values as $output_key_temp => $output_value_temp) {
+								if(in_array($output_key, $total_types)) {
+									$totals[$output_key][$output_key_temp] += $output_value_temp;
+								}
+
 								if($output_fields[$output_key]['numformat'] == true) {
 									$output_value_temp = number_format($output_value_temp, $report_options['roundto'], '.', ' ');
 									$output_td_style = ' text-align: right;';
@@ -236,6 +280,9 @@ if($core->input['authCode'] == AUTHCODE) {
 						}
 						else {
 							if($output_fields[$output_key]['numformat']) {
+								if(in_array($output_key, $total_types)) {
+									$totals[$output_key] += $output_value;
+								}
 								if($output_fields[$output_key]['numformat'] == true) {
 									$output_value = number_format($output_value, $report_options['roundto'], '.', ' ');
 									$output_td_style = ' text-align: right;';
@@ -246,6 +293,29 @@ if($core->input['authCode'] == AUTHCODE) {
 					}
 					$output .= '</tr>';
 				}
+				/* Output main table totals row - START */
+				$output .= '<tr>';
+				$output .= '<td style="border: 1px solid #CCC;"></td>';
+				$output_value = null;
+				foreach($summary_reqinfo as $field) {
+					if(is_array($totals[$field])) {
+						foreach($totals[$field] as $key => $output_value_temp) {
+							if(is_numeric($output_value_temp)) {
+								$output_value .= number_format($output_value_temp, $report_options['roundto'], '.', ' ').' '.$key.'<br />';
+							}
+						}
+					}
+					else {
+						$output_value = $totals[$field];
+						if(is_numeric($output_value)) {
+							$output_value = number_format($output_value, $report_options['roundto'], '.', ' ');
+						}
+					}
+					$output .= '<td style="border: 1px solid #CCC; font-weight: bold; text-align: right;">'.$output_value.'</td>';
+					$output_value = '';
+				}
+				$output .= '</tr>';
+				/* Output main table totals row - END */
 				$output .= '</table>';
 			}
 		}
@@ -290,7 +360,7 @@ if($core->input['authCode'] == AUTHCODE) {
 				'subject' => 'Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'],
 				'message' => $message
 		);
-		
+
 		$email_data['to'][] = $affiliateobj->get_generalmanager()->get()['email'];
 		$email_data['to'][] = $affiliateobj->get_supervisor()->get()['email'];
 
@@ -305,7 +375,7 @@ if($core->input['authCode'] == AUTHCODE) {
 		//$email_data['to'][] = 'zaher.reda@orkila.com';
 		//$email_data['to'][] = 'christophe.sacy@orkila.com';
 		//unset($email_data['to']);
-		///print_r($email_data);
+		//print_r($email_data);
 		//$email_data['to'][] = 'zaher.reda@orkila.com';
 		$mail = new Mailer($email_data, 'php');
 		unset($message);

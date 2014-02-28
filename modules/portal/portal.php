@@ -166,7 +166,7 @@ if(!$core->input['action']) {
 	$currency_obj = new Currencies('USD');
 	$affiliates_currencies['EUR']['name'] = array('alphaCode' => 'EUR', 'name' => 'EUR');
 	$affiliates_currencies['GBP']['name'] = array('alphaCode' => 'GBP', 'name' => 'GBP');
-
+ 
 	$affiliatecurrenciesquery = $db->query('SELECT affid, cur.alphaCode, cur.name 
 											FROM '.Tprefix.'countries c
 											JOIN '.Tprefix.'currencies cur ON (c.mainCurrency=cur.numCode)

@@ -52,7 +52,7 @@ class Accounts {
 		}
 	}
 
-	protected static function random_string($length, $simple = false) {
+	public static function random_string($length, $simple = false) {
 		$keys = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345679';
 		if($simple == false) {
 			$keys .= '@#$%_^&*';

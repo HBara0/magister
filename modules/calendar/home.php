@@ -27,12 +27,12 @@ if($core->input['view'] == 'week' || !empty($core->input['week']) || $view_type 
 	$headerinc .= '<script src="./js/calendar_weekview.min.js" type="text/javascript"></script>';
 }
 
-$main_calendar = new Calendar($view_type, array('year' => $core->input['year'], 'week' => $core->input['week'], 'month' => $core->input['month']));
+$main_calendar = new Calendar($view_type, array('year' => $core->input['year'], 'week' => $core->input['week'], 'day' => $core->input['day'], 'month' => $core->input['month']));
 
 $calendar_title = $main_calendar->get_title();
 
 if($view_type == 'week') {
-	$main_calendar->read_leaves(false, '', array(8));
+	$main_calendar->read_leaves(false, '', array(10));
 	$calendar = $main_calendar->get_calendar_weekview();
 
 	$previous_period = $main_calendar->get_prev_period();
@@ -71,15 +71,15 @@ else {
 	$eventaffiliates_selectlist = parse_selectlist('event[affid]', 2, $affiliates, '', '', '', array('blankstart' => 1));
 
 	$suppliers_selectlist = '-';
-	if(is_array($core->user['suppliers']['eid'])) {
-		if($core->usergroup['canViewAllSupp'] == 0) {
 
+	if($core->usergroup['canViewAllSupp'] == 0) {
+		if(is_array($core->user['suppliers']['eid'])) {
 			$insupplier = implode(',', $core->user['suppliers']['eid']);
 			$supplier_where = ' eid IN ('.$insupplier.')';
 		}
-		else {
-			$supplier_where = ' type="s"';
-		}
+	}
+	else {
+		$supplier_where = ' type="s"';
 		$suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, $supplier_where);
 		$suppliers_selectlist = parse_selectlist('event[spid]', 3, $suppliers, '', 0, '', array('blankstart' => 1, 'id' => 'spid'));
 	}
@@ -110,6 +110,31 @@ else {
 	$reminderinterval_selectlist = parse_selectlist('task[reminderInterval]', 1, array('' => '', '86400' => $lang->eveyday, '172800' => $lang->evey2day, '604800' => $lang->everyweek, '1209600' => $lang->every2weeks, '2592000' => $lang->everymonth, '31104000' => $lang->everyyear), '');
 	$current_date = $main_calendar->get_currentdate();
 
+	/* parse invitees - START */
+	$affiliates_users = array();
+	foreach($core->user['affiliates'] as $affid) {
+		$affiliate_obj = new Affiliates($affid);
+		$affiliates_users = $affiliates_users + $affiliate_obj->get_users(array('returnobjects' => true));
+	}
+
+	foreach($affiliates_users as $uid => $user_obj) {
+		//$checked = '';
+		$altrow = alt_row($altrow);
+		if($uid == $core->user['uid']) {
+			continue;
+		}
+
+//		if(is_array($affiliates_users)) {
+//			if(in_array($uid, $affiliates_usersid)) {
+//				$checked = ' checked="checked"';
+//			}
+//		}
+		$user = $user_obj->get();
+		$user['affiliate'] = $user_obj->get_mainaffiliate()->get()['name'];
+		eval("\$invitees_rows .= \"".$template->get('calendar_events_invitees_rows')."\";");
+	}
+	unset($affiliates_users);
+	/* parse invitees - END */
 	eval("\$addeventtask_popup = \"".$template->get('popup_calendar_createeventtask')."\";");
 	/* Parse events/tasks popup - End */
 }

@@ -5,6 +5,33 @@
     </head>
     <body>
         {$header}
+        <script language="javascript" type="text/javascript">
+            $(function() {
+                if ($("select[id='type']").val() != 's' || $(this).val() == 'cs' || $(this).val() == 'potentialsupplier') {
+                    $("tr[id^='contractsection_']").hide();
+                    $("tr[id='supplierType']").hide();
+                }
+            {$showhideparent_customer}
+            {$showhideparent_company}
+                $("select[id='type']").change(function() {
+
+                    if ($(this).val() == 's' || $(this).val() == 'cs' || $(this).val() == 'potentialsupplier') {
+                        $("#createReports,#noQReportReq,#noQReportSend").removeAttr("disabled");
+                        $("tr[id^='contractsection_']").show();
+                        $("tr[id='supplierType']").show();
+                        $("tr[id='parentcompany']").show();
+                        $("tr[id='parentcustomer']").hide();
+                    }
+                    else {
+                        $("#createReports,#noQReportReq,#noQReportSend").attr("disabled", "true");
+                        $("tr[id^='contractsection_']").hide();
+                        $("tr[id='supplierType']").hide();
+                        $("tr[id='parentcompany']").hide();
+                        $("tr[id='parentcustomer']").show();
+                    }
+                });
+            });
+        </script>
     <tr>
         {$menu}
         <td class="contentContainer">
@@ -15,7 +42,7 @@
                     <tr>
                         <td width="20%"><strong>{$lang->entitytype}</strong></td><td colspan="2">{$types_list}</td>
                     </tr>
-                    <tr  id="supptype">
+                    <tr  id="supplierType">
                         <td><strong>{$lang->supptype}</strong></td><td >{$supptypes_list} </td>
 
                     </tr>
@@ -25,10 +52,13 @@
                             <input type="text" id="companyNameAbbr" name="companyNameAbbr" size='5' title="{$lang->companynameabbr_title}"/></td>
                         <td width="50%" rowspan="3" valign="top"><span id="companyName_inlineCheckResult"></span></td>
                     </tr>
-                    <tr>
-                        <td width="20%" valign="top"><strong>{$lang->parentcompany}</strong></td><td><input type='text' id='supplier_1_QSearch' value="{$entity[parent]}"/><input type="text" size="3" id="supplier_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='supplier_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div></td>
+                    <tr id="parentcompany">
+                        <td valign="top" ><strong>{$lang->parentcompany}</strong></td><td ><input type='text' id='supplier_1_QSearch' value="{$entity[parent]}"/><input type="hidden" size="3" id="supplier_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='supplier_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>
-                     <tr>
+                    <tr id="parentcustomer">
+                        <td  valign="top"><strong>{$lang->parentcustomer}</strong></td><td><input type='text' id='customer_1_QSearch' value="{$entity[parent]}"/><input type="hidden" size="3" id="customer_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='customer_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_customer_1' class='searchQuickResults' style='display:none;'></div></td>
+                    </tr>
+                    <tr>
                         <td width="20%" valign="top"><strong>{$lang->companyshortname}</strong></td><td><input type="text" id="companyNameShort" name="companyNameShort" value="{$entity[companyNameShort]}"/></td>
                     </tr>
                     <tr>
@@ -80,7 +110,7 @@
                         <td>{$lang->website}</td>
                         <td><input type="url" id="website" name="website" placeholder="http://www.example.com" /></td>
                     </tr>
-                     <tr>
+                    <tr>
                         <td colspan="2" class="subtitle">{$lang->presence}</td>
                     </tr>
                     <tr> 

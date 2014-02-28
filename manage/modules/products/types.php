@@ -18,7 +18,7 @@ if($core->usergroup['canAddProducts'] == 0) {
 $lang->load('products_types');
 if(!$core->input['action']) {
 	$sort_url = sort_url();
-	$endprod_objs = Endproductypes::get_endproductypes();
+	$endprod_objs = EndproducTypes::get_endproductypes();
 	if(is_array($endprod_objs)) {
 		foreach($endprod_objs as $endprod_obj) {
 			$altrow_class = alt_row($altrow_class);

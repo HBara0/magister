@@ -46,7 +46,7 @@ if(!$core->input['action']) {
 					$questions_list .= $survey->parse_question($question);
 				}
 			}
-			
+
 			fix_newline($survey_details['description']);
 			eval("\$fillreportpage = \"".$template->get('surveys_fillsurvey')."\";");
 			output_page($fillreportpage);
@@ -62,9 +62,9 @@ if(!$core->input['action']) {
 else {
 	if($core->input['action'] == 'do_perform_fill') {
 		$survey = new Surveys($core->input['identifier']);
-
-		$survey->save_responses($core->input['answer']);
-
+		if(is_array($core->input['answer'])) {
+			$survey->save_responses($core->input['answer']);
+		}
 		switch($survey->get_status()) {
 			case 0:
 				header('Content-type: text/xml+javascript');
