@@ -40,7 +40,7 @@
                     <td>{$lang->description}</td><td><textarea cols="30" rows="5" id="description" name="description"></textarea></td>
                 </tr>
                 <tr>
-                    <td colspan="2"><input type="button" id="add_products/segments_Button" value="{$lang->add}" /><input type="reset" value="{$lang->reset}" />
+                    <td colspan="2"><input type="button" id="add_products/segments_Button" value="{$lang->add}" class="button" /><input type="reset" value="{$lang->reset}" class="button" />
                         <div id="add_products/segments_Results"></div>
                     </td>
                 </tr>
