@@ -1,4 +1,4 @@
-<tr> <td style="width:25%;"> <b>{$lang->competitorprodsuppliers} :</b></td> 
+<tr>  
     <td  style="width:25%;"><ul>{$marketintelligencedetail_entityproducers}</ul> </td>
     <td  style="width:25%;">{$mrktintl_detials_competitorproducts}  </td>
     <td>{$mrktintl_detials[competitors][unitPrice]}</td>

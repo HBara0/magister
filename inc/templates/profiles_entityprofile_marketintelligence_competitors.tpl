@@ -1,4 +1,3 @@
-<div class="thead">{$lang->competitor}</div>
 <tr>
     <th style="width:25%;"> {$lang->competitortype}</th>
     <th style="width:25%;">{$lang->competitorname}</th>
