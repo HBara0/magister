@@ -68,7 +68,7 @@ class Icalendar {
 		if(empty($timestamp)) {
 			$timestamp = TIME_NOW;
 		}
-		
+
 		$this->icalendarfile .= 'UID:'.$this->parse_datestamp($timestamp).'-'.$identifier."-@orkila.com\r\n";
 	}
 
@@ -76,23 +76,32 @@ class Icalendar {
 		$this->icalendarfile .= 'DTSTAMP:'.$this->parse_datestamp(TIME_NOW)."\r\n";
 	}
 
-	public function set_datestart($datestart) {
-		$this->icalendarfile .= 'DTSTART:'.$this->parse_datestamp($datestart)."\r\n";
+	public function set_datestart($datestart, $timezone = '') {
+		if(empty($timezone)) {
+			$timezone = date('e');
+		}
+		$this->icalendarfile .= 'DTSTART;TZID='.$timezone.':'.$this->parse_datestamp($datestart)."\r\n";
 	}
 
-	public function set_datend($datend) {
-		$this->icalendarfile .= 'DTEND:'.$this->parse_datestamp($datend)."\r\n";
+	public function set_datend($datend, $timezone = '') {
+		if(empty($timezone)) {
+			$timezone = date('e');
+		}
+		$this->icalendarfile .= 'DTEND;TZID='.$timezone.':'.$this->parse_datestamp($datend)."\r\n";
 	}
 
-	public function set_duedate($duedate) {
-		$this->icalendarfile .= 'DUE:'.$this->parse_datestamp($duedate)."\r\n";
+	public function set_duedate($duedate, $timezone = '') {
+		if(empty($timezone)) {
+			$timezone = date('e');
+		}
+		$this->icalendarfile .= 'DUE;TZID='.$timezone.':'.$this->parse_datestamp($duedate)."\r\n";
 	}
 
 	public function set_categories($categories) {
 		$this->icalendarfile .= "CATEGORIES:{$categories}\r\n";
 	}
 
-	public function set_completed($completedate) {
+	public function set_completed($completedate, $timezone = '') {
 		$this->icalendarfile .= 'COMPLETED:'.date('Ymd\THis', $completedate)."\r\n";
 	}
 
@@ -170,7 +179,7 @@ class Icalendar {
 		global $core;
 
 		$this->icalendarfile .= 'DESCRIPTION: '.$core->sanitize_inputs($description, array('removetags' => true))."\r\n";
-		$this->icalendarfile .= 'X-ALT-DESC;FMTTYPE=text/html:<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">\n<html>\n<body>\n'.$description.'\n</body>\n</html>'."\r\n";		
+		$this->icalendarfile .= 'X-ALT-DESC;FMTTYPE=text/html:<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">\n<html>\n<body>\n'.$description.'\n</body>\n</html>'."\r\n";
 	}
 
 	public function set_transparency($trasp = 'PUBLIC') {
@@ -179,7 +188,7 @@ class Icalendar {
 		}
 		$this->icalendarfile .= "TRANSP=".$trasp."\r\n";
 	}
-	
+
 	public function set_recurrence($recur) {
 		switch($recur) {
 			case 86400:
@@ -195,10 +204,13 @@ class Icalendar {
 		$this->icalendarfile .= "END:VCALENDAR\r\n";
 	}
 
-	public function parse_datestamp($timestamp) {
-		return date('Ymd', $timestamp).'T'.date('His', $timestamp).'Z';
+	public function parse_datestamp($timestamp, $utc = false) {
+		if($utc == true) {
+			$utc = 'Z';
+		}
+		return date('Ymd', $timestamp).'T'.date('His', $timestamp).$utc;
 	}
-	
+
 	public function download() {
 		header('Content-Type: text/Calendar');
 		header('Content-Disposition: inline; filename='.$this->icalendar['name'].'.ics');
@@ -216,16 +228,16 @@ class Icalendar {
 		fwrite($fp, $this->icalendarfile);
 		fclose($fp);
 	}
-	
+
 	public function get_filepath() {
 		global $core;
 		return $core->sanitize_path('./tmp/'.$this->icalendar['name'].'.ics');
 	}
-	
+
 	public function set_relatedto($relatedto) {
-		$this->icalendarfile .= 'RELATED-TO:<'.$relatedto.'>'."\r\n";	
+		$this->icalendarfile .= 'RELATED-TO:<'.$relatedto.'>'."\r\n";
 	}
-	
+
 	public function set_name($name = '') {
 		global $core;
 
