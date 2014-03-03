@@ -293,8 +293,8 @@ class iCalendar_TimeZone {
 	}
 
 	private function set_tzid() {
-		$this->vtimezone .= 'TZID: '.$this->timezone->getName()."\r\n";
-		$this->vtimezone .= 'X-LIC-LOCATION: '.$this->timezone->getName()."\r\n";
+		$this->vtimezone .= 'TZID:'.$this->timezone->getName()."\r\n";
+		$this->vtimezone .= 'X-LIC-LOCATION:'.$this->timezone->getName()."\r\n";
 	}
 
 	private function set_offsetfrom($offset = null) {
@@ -303,6 +303,14 @@ class iCalendar_TimeZone {
 		}
 
 		$this->vtimezone .= 'TZOFFSETFROM:'.$offset."\r\n";
+	}
+
+	private function set_offsetto($offset = null) {
+		if(empty($offset)) {
+			$offset = $this->timenow->format('O');
+		}
+
+		$this->vtimezone .= 'TZOFFSETTO:'.$offset."\r\n";
 	}
 
 	private function set_transitions() {
@@ -318,18 +326,18 @@ class iCalendar_TimeZone {
 
 			if($this->timenow->format('I') == 1 && $transitions[$i]['isdst'] == 1) {
 				$this->set_offsetfrom();
+				$offset_to = $this->parse_offset($transitions[$i+1]['offset']);
+				$this->set_offsetto($offset_to);
 			}
 			else {
-				$tz_sign = '+';
-				if($transitions[$i]['offset'] < 0) {
-					$tz_sign = '-';
-				}
-				$offset = $tz_sign.sprintf('%02d%02d', floor($transitions[$i]['offset'] / 60 / 60), abs($transitions[$i]['offset'] % 60));
-				$this->set_offsetfrom($offset);
+				$offset_from = $this->parse_offset($transitions[$i]['offset']);
+				$offset_to = $this->parse_offset($transitions[$i+1]['offset']);
+				$this->set_offsetfrom($offset_from);
+				$this->set_offsetto($offset_to);
 			}
-			
+
 			$this->set_tzname();
-			$this->vtimezone .= 'DTSTART: '.str_replace(array('-', ':', '+0000'), '', $transitions[$i]['time'])."\r\n";
+			$this->vtimezone .= 'DTSTART:'.str_replace(array('-', ':', '+0000'), '', $transitions[$i]['time'])."\r\n";
 
 			if(empty($transitions[$i]['isdst'])) {
 				$this->vtimezone .= 'END:STANDARD'."\r\n";
@@ -340,8 +348,16 @@ class iCalendar_TimeZone {
 		}
 	}
 
+	private function parse_offset($offset) {
+		$tz_sign = '+';
+		if($offset < 0) {
+			$tz_sign = '-';
+		}
+		return $tz_sign.sprintf('%02d%02d', floor($offset / 60 / 60), abs($offset % 60));
+	}
+
 	private function set_tzname() {
-		$this->vtimezone .= 'TZNAME: '.$this->timenow->format('T')."\r\n";
+		$this->vtimezone .= 'TZNAME:'.$this->timenow->format('T')."\r\n";
 	}
 
 	public function get_name() {
