@@ -279,8 +279,9 @@ class iCalendar_TimeZone {
 	private $timezone = null;
 
 	public function __construct($timezone = '') {
+		global $core;
 		if(empty($timezone)) {
-			$timezone = date('e');
+			$timezone = DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $core->user_obj->get_mainaffiliate()->get_country()->get()['acronym'])[0];
 		}
 		$this->timezone = new DateTimeZone($timezone);
 		$this->vtimezone = 'BEGIN:VTIMEZONE'."\r\n";
@@ -301,7 +302,7 @@ class iCalendar_TimeZone {
 			$offset = $this->timenow->format('O');
 		}
 
-		$this->vtimezone .= 'TZOFFSETFROM: '.$offset."\r\n";
+		$this->vtimezone .= 'TZOFFSETFROM:'.$offset."\r\n";
 	}
 
 	private function set_transitions() {
@@ -328,7 +329,7 @@ class iCalendar_TimeZone {
 			}
 			
 			$this->set_tzname();
-			$this->vtimezone .= 'DTSTART: '.$transitions[$i]['time']."\r\n";
+			$this->vtimezone .= 'DTSTART: '.str_replace(array('-', ':', '+0000'), '', $transitions[$i]['time'])."\r\n";
 
 			if(empty($transitions[$i]['isdst'])) {
 				$this->vtimezone .= 'END:STANDARD'."\r\n";
