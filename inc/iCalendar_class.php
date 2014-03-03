@@ -326,12 +326,12 @@ class iCalendar_TimeZone {
 
 			if($this->timenow->format('I') == 1 && $transitions[$i]['isdst'] == 1) {
 				$this->set_offsetfrom();
-				$offset_to = $this->parse_offset($transitions[$i+1]['offset']);
+				$offset_to = $this->parse_offset($transitions[$i]['offset']);
 				$this->set_offsetto($offset_to);
 			}
 			else {
-				$offset_from = $this->parse_offset($transitions[$i]['offset']);
-				$offset_to = $this->parse_offset($transitions[$i+1]['offset']);
+				$offset_from = $this->parse_offset($transitions[$i+1]['offset']);
+				$offset_to = $this->parse_offset($transitions[$i]['offset']);
 				$this->set_offsetfrom($offset_from);
 				$this->set_offsetto($offset_to);
 			}
