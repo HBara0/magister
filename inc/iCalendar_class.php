@@ -22,12 +22,20 @@ class Icalendar {
 			'todo' => 'VTODO',
 			'journal' => 'VJOURNAL'
 	);
+	private $icalendar_tz = null;
 
 	public function __construct(array $config = array('component' => 'event')) {
 		$this->icalendarfile = "BEGIN:VCALENDAR\r\n";
 		$this->icalendarfile .= "VERSION:2.0\r\n";
 		$this->icalendarfile .= "PRODID:-//Orkila//OCalendar//EN\r\n";
 		$this->set_method($config['method']);
+
+		/* Set Timezone - START */
+		$this->icalendar_tz = new iCalendar_TimeZone();
+		$this->icalendarfile .= $this->icalendar_tz->get();
+		/* Set Timezone - END */
+
+
 		$this->set_type($config['component']);
 		$this->icalendarfile .= "BEGIN:{$this->icalendar[type]}\r\n";
 		$this->set_sequence();
@@ -78,21 +86,21 @@ class Icalendar {
 
 	public function set_datestart($datestart, $timezone = '') {
 		if(empty($timezone)) {
-			$timezone = date('e');
+			$timezone = $this->icalendar_tz->get_name();
 		}
 		$this->icalendarfile .= 'DTSTART;TZID='.$timezone.':'.$this->parse_datestamp($datestart)."\r\n";
 	}
 
 	public function set_datend($datend, $timezone = '') {
 		if(empty($timezone)) {
-			$timezone = date('e');
+			$timezone = $this->icalendar_tz->get_name();
 		}
 		$this->icalendarfile .= 'DTEND;TZID='.$timezone.':'.$this->parse_datestamp($datend)."\r\n";
 	}
 
 	public function set_duedate($duedate, $timezone = '') {
 		if(empty($timezone)) {
-			$timezone = date('e');
+			$timezone = $this->icalendar_tz->get_name();
 		}
 		$this->icalendarfile .= 'DUE;TZID='.$timezone.':'.$this->parse_datestamp($duedate)."\r\n";
 	}
@@ -262,6 +270,85 @@ class Icalendar {
 
 	public function get() {
 		return $this->icalendar;
+	}
+
+}
+
+class iCalendar_TimeZone {
+	private $vtimezone = '';
+	private $timezone = null;
+
+	public function __construct($timezone = '') {
+		if(empty($timezone)) {
+			$timezone = date('e');
+		}
+		$this->timezone = new DateTimeZone($timezone);
+		$this->vtimezone = 'BEGIN:VTIMEZONE'."\r\n";
+		$this->timenow = new DateTime();
+		$this->timenow->setTimezone($this->timezone);
+		$this->set_tzid();
+		$this->set_transitions();
+		$this->vtimezone .= 'END:VTIMEZONE'."\r\n";
+	}
+
+	private function set_tzid() {
+		$this->vtimezone .= 'TZID: '.$this->timezone->getName()."\r\n";
+		$this->vtimezone .= 'X-LIC-LOCATION: '.$this->timezone->getName()."\r\n";
+	}
+
+	private function set_offsetfrom($offset = null) {
+		if(empty($offset)) {
+			$offset = $this->timenow->format('O');
+		}
+
+		$this->vtimezone .= 'TZOFFSETFROM: '.$offset."\r\n";
+	}
+
+	private function set_transitions() {
+		$transitions = $this->timezone->getTransitions(strtotime($this->timenow->format('Y').'-01-01'));
+
+		for($i = 0; $i < 2; $i++) {
+			if(empty($transitions[$i]['isdst'])) {
+				$this->vtimezone .= 'BEGIN:STANDARD'."\r\n";
+			}
+			else {
+				$this->vtimezone .= 'BEGIN:DAYLIGHT'."\r\n";
+			}
+
+			if($this->timenow->format('I') == 1 && $transitions[$i]['isdst'] == 1) {
+				$this->set_offsetfrom();
+			}
+			else {
+				$tz_sign = '+';
+				if($transitions[$i]['offset'] < 0) {
+					$tz_sign = '-';
+				}
+				$offset = $tz_sign.sprintf('%02d%02d', floor($transitions[$i]['offset'] / 60 / 60), abs($transitions[$i]['offset'] % 60));
+				$this->set_offsetfrom($offset);
+			}
+			
+			$this->set_tzname();
+			$this->vtimezone .= 'DTSTART: '.$transitions[$i]['time']."\r\n";
+
+			if(empty($transitions[$i]['isdst'])) {
+				$this->vtimezone .= 'END:STANDARD'."\r\n";
+			}
+			else {
+				$this->vtimezone .= 'END:DAYLIGHT'."\r\n";
+			}
+		}
+	}
+
+	private function set_tzname() {
+		$this->vtimezone .= 'TZNAME: '.$this->timenow->format('T')."\r\n";
+	}
+
+	public function get_name() {
+		return $this->timezone->getName();
+	}
+
+	public function get() {
+		return $this->vtimezone;
 	}
 
 }
