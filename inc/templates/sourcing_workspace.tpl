@@ -1,27 +1,32 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->requestleave}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->workspace}</title>
         {$headerinc}
-
         <style type="text/css">
-            .kpibelow{
-                color:red;
-                font-size:50px;
+            .currentkpi, .lastkpi {
+                padding: 0px !important;
+                width: 49%;
             }
-            .kpiabove{
-                color:#91b64f;
-                font-size:25px; 
-                margin-left:30px!important;
+
+            .currentkpi {
+                font-size:18px;
             }
-            .kiptitle{
-                font-size:14px;
-                font-weight:bold;
+
+            .currentkpi_value {
+                font-size: 40px;
             }
-            .kpiperiod{
-             font-weight:lighter;
-             font-size:13px;
-             font-family:cursive;
-           
+
+            .lastkpi {
+                font-size:15px;
+                font-weight:lighter;
+            }
+
+            .lastkpi_value {
+                font-size:25px;
+            }
+
+            .kpititle {
+                font-size:20px;
             }
 
         </style>
@@ -32,20 +37,20 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3> Workspace</h3> 
-
-            <div class="portalbox" style="width:50%; height:50%; border: 1px solid #000;">
-
-                <div class="kiptitle">{$kpidata[name]}</div>
-                <div style="display: block;margin-left:23px;">
-                    <div style="display:inline-block; padding:15px;" class="kpiperiod">Current Period </div>
-                    <div style="display:inline-block;" class="{$kpibelowtarget}">{$kpipercentage[current]} {$trend_output}</div>
+            <h3>Workspace</h3> 
+            <div style="width:50%; height:50%;" class="border_bottom border_right">
+                <div class="kpititle">{$kpi_config[name]}</div>
+                <div style="display: block; margin-left:23px; padding: 0px;">
+                    <div style="display:inline-block;" class="currentkpi">Current Period</div>
+                    <div style="display:inline-block; text-align: right;" class="currentkpi_value currentkpi {$kpi_class[current]}">{$kpis[1][current]}% {$trend_output}</div>
                 </div>
-
-                <div style="display: block; width:50%;margin-left:23px;">
-                    <div style="display:inline-block;padding:15px;" class="kpiperiod">Previous Month </div>
-                    <div style="display:inline-block;" class="{$kpiabovetarget}" >{$kpipercentage[last]}</div>
+                <div style="display: block; margin-left:23px; padding: 0px;">
+                    <div style="display:inline-block;" class="lastkpi">Previous Month</div>
+                    <div style="display:inline-block; text-align: right; margin-right: 15px; width: 40%;" class="lastkpi_value lastkpi {$kpi_class[lastmonth]}">{$kpis[1][lastmonth]}%</div>
                 </div>
             </div>
-        </body>
+        </td>
+    </tr>
+    {$footer}
+</body>
 </html>
