@@ -29,10 +29,11 @@ class MeetingsMOM {
 		if(empty($mom_data['mtid']) || empty($mom_data['meetingDetails'])) {
 			$this->errorcode = 1;
 			return false;
-		}
-		$mom_data['meetingDetails'] = $core->sanitize_inputs($mom_data['meetingDetails'], array('removetags' => false));
-		$mom_data['followup'] = $core->sanitize_inputs($mom_data['followup'], array('removetags' => false));
-
+		} 
+ 	$mom_data['meetingDetails']= $core->sanitize_inputs($mom_data['meetingDetails'] , array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags'=> true));
+ 	$mom_data['followup']= $core->sanitize_inputs($mom_data['followup'] , array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags'=> true));
+	 
+ 
 		if(!value_exists('meetings_minsofmeeting', 'mtid', $mom_data['mtid'])) {
 			$query = $db->insert_query('meetings_minsofmeeting', array('mtid' => $mom_data['mtid'], 'meetingDetails' => $mom_data['meetingDetails'], 'followup' => $mom_data['followup'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
 			if($query) {
