@@ -221,7 +221,16 @@ class Sourcing {
                 return false;
             }
         }
-        $db->insert_query('sourcing_suppliers_contacthist', array('ssid' => $supplier_id, 'uid' => $core->user['uid']));
+
+        $contact_data = array(
+                'ssid' => $supplier_id,
+                'uid' => $core->user['uid'],
+                'identifier' => substr(md5(uniqid(microtime())), 1, 10),
+                'affid' => $core->user_obj->get_mainaffiliate()->get()['affid'],
+                'date' => TIME_NOW
+        );
+
+        $db->insert_query('sourcing_suppliers_contacthist', $contact_data);
     }
 
     public function save_communication_report($data, $supplier_id = '', $identifier = '', $options = array()) {
