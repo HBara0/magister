@@ -43,8 +43,7 @@ if($_REQUEST['authkey'] == 'ac43bghy!h4k23jh4k2_3h4k23jh') {
 					'subject' => $lang->uncompletedsubject,
 					'message' => $lang->sprint($lang->uncompletedcommunication.'<strong>'.$souring_supplier['companyName'].'</strong> ', $invitationdetails['displayName']).'Made on '.date('M d  Y ', $invitationdetails['date']).'  communication Details :</br><ul>'.$body_message.'</ul>'
 			);
-			//$email_data['cc'] = 'sourcing@orkila.com';
-			print_r($email_data);
+			$email_data['cc'] = 'sourcing@orkila.com';
 
 			$mail = new Mailer($email_data, 'php');
 			if($mail->get_status() === true) {
