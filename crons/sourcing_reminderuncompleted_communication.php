@@ -28,20 +28,22 @@ if($_REQUEST['authkey'] == 'ac43bghy!h4k23jh4k2_3h4k23jh') {
 			foreach($uncompleted_communications[$uid] as $invitationdetails) {
 				$body_message .= '<li> '.$invitationdetails['description'].'</li>';
 				$body_message .= '<li> '.$invitationdetails['application'].'</li>';
+				$entity_obj = new Entities($invitationdetails['ssid']);
+				$souring_supplier = $entity_obj->get();
 			}
 			if(empty($body_message)) {
 				continue;
 			}
+
 			/* Prepare the email_data array to pass the argument to the mail object */
 			$email_data = array(
 					'to' => $invitationdetails['email'],
 					'from_email' => $core->settings['maileremail'],
 					'from' => 'OCOS Mailer',
-					'subject' => 'Uncompleted sourcing communication ',
-					'message' => $lang->sprint('You Have Not completed Your communication With The supplier ', $invitationdetails['displayName']).'Made on '.date('M d  Y ', $invitationdetails['date']).'  communication Details :</br><ul>'.$body_message.'</ul>'
+					'subject' => $lang->uncompletedsubject,
+					'message' => $lang->sprint($lang->uncompletedcommunication.'<strong>'.$souring_supplier['companyName'].'</strong> ', $invitationdetails['displayName']).'Made on '.date('M d  Y ', $invitationdetails['date']).'  communication Details :</br><ul>'.$body_message.'</ul>'
 			);
 			$email_data['cc'] = 'sourcing@orkila.com';
-			print_r($email_data);
 
 			$mail = new Mailer($email_data, 'php');
 			if($mail->get_status() === true) {
