@@ -570,7 +570,7 @@ tr.dummytrow td, tr.dummytrow th {
 
 .timeline_entrydepth {
     margin-left: 45px;
-        padding:5px;
+    padding:5px;
     border-color:red;
 }
 .timeline_entry .depthcircle {
@@ -596,4 +596,12 @@ tr.dummytrow td, tr.dummytrow th {
 
 .timeline_entry .circle_clickable {
     cursor: pointer;
+}
+.requiredfield{
+    border: 2px solid #FF142;
+    border-radius: 4px;
+}
+.requiredfield:focus{
+    -webkit-box-shadow: 0 1px 2px 2px #FF142C;
+    box-shadow: 0 1px 2px 1px #FF142C;
 }
