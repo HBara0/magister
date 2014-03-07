@@ -19,6 +19,7 @@ $lang['approveleave'] = 'Approve Leave';
 $lang['arrival'] = 'Arrival';
 $lang['attendancelist'] = 'Attendance List';
 $lang['attendancereport'] = 'Attendance Report';
+$lang['minimumcharacter']='Reason Must be Minimum Of 20 characters';
 $lang['average'] = 'Average hours/Day';
 $lang['balance'] = 'Balance';
 $lang['balanceprevyear'] = 'Prev Balance';
@@ -121,4 +122,5 @@ $lang['weekends'] = 'Weekends';
 $lang['youapprovedleave'] = 'You have already approved this leave';
 $lang['yoursonly'] = 'Yours only';
 $lang['cannotrequestthistype'] = 'You cannot request this type of leave for yourself';
+$lang['expensestotal']='Expences Total';
 ?>

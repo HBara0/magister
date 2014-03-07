@@ -348,7 +348,7 @@ else {
 		if(isset($leavetype_details['reasonIsRequired']) && $leavetype_details['reasonIsRequired'] == 1) {
 			if(empty($core->input['reason']) || strlen($core->input['reason']) <= 20) {
 				header('Content-type: text/xml+javascript');
-				output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'<![CDATA[<script>$("#reason").attr("required",true);</script>]]></message>');
+				output_xml('<status>false</status><message>'.$lang->minimumcharacter.'<![CDATA[<script>$("#reason").focus().effect("highlight", {color: "#e59299"}, 12500);</script>]]></message>');
 				exit;
 			}
 		}
