@@ -134,10 +134,10 @@ $lang['visitreport_reminder_message'] = 'Dear {1},<br />
 The Following visits have been carried but no visit report has been completed. Please complete the visit reports mentioned below:';
 $lang['visitreport_reminder_subject'] = 'Visit Reports Reminder';
 $lang['yournewpassword'] = 'Your New OCOS Account Password';
-$lang['unmetchemicalsubject'] = 'You have unmet chemcial requests ';
-$lang['unmetchemicalbody'] = 'The following chemical requests have not been completely responded to: ';
+$lang['pendingchemrequestssubject'] = 'You have pending chemcial requests';
+$lang['pendingchemrequestsbody'] = 'The following chemical requests are still pending:';
 $lang['report_notviewdsubject'] = 'Not viewed reports Notifications';
-$lang['report_notviewdmessage'] = 'The following QR have not been viewed by any of the recipients: ';
+$lang['report_notviewdmessage'] = 'The following QR have not been viewed by any of the recipients: '
 $lang['uncompletedcommunication'] = ' You Have Not completed Your communication With ';
 $lang['uncompletedsubject'] = 'Uncompleted Sourcing Communication ';
 ?>
