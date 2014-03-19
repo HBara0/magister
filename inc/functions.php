@@ -509,7 +509,6 @@ function get_specificdata($table, $attributes, $key_attribute, $value_attribute,
 	}
 }
 
- 
 function quick_search($table, $flagtable, $attributes, $value, $select_attributes, $key_attribute, $order, $extra_where = '', $andor_param = 'OR') {
 	global $db, $lang;
 	$foreign_table = false;
@@ -546,7 +545,6 @@ function quick_search($table, $flagtable, $attributes, $value, $select_attribute
 	if(!empty($extra_where)) {
 		$extra_where_string = ' AND '.$extra_where;
 	}
-
 	$query = $db->query("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$where_string}){$extra_where_string} {$order}");
 
 	$clean_key_attribute = $key_attribute;
@@ -634,6 +632,7 @@ function quick_search($table, $flagtable, $attributes, $value, $select_attribute
 
 	return $results_list;
 }
+
 function log_action() {
 	global $db, $core;
 
@@ -1507,12 +1506,111 @@ function encapsulate_in_fieldset($html, $legend = "+", $boolStartClosed = false)
   ";
 	return $rtn;
 }
+
 function formatit($number) {
 	if(isset($number)) {
 		return str_pad(round(number_format($number, 6, '.', ''), 6), 11, ' ', STR_PAD_LEFT);
 	}
 	else {
 		return str_pad('-', 11, ' ', STR_PAD_LEFT);
+	}
+}
+
+function array_merge_recursive_replace() {
+	$arrays = func_get_args();
+	$base = array_shift($arrays);
+	foreach($arrays as $array) {
+		reset($base);
+		while(list($key, $value) = @each($array)) { //return the current key and  value pair from an array
+			if(is_array($value) && @is_array($base[$key])) {
+				$base[$key] = array_merge_recursive_replace($base[$key], $value);
+			}
+			else {
+				$base[$key] = $value;
+			}
+		}
+	}
+	return $base;
+}
+
+function build_dimentionalize_data($raw_datas, $dimensions, $required_fileds) {
+	$temp_rawdata = array();
+	$data = array();
+	$data = $temp_rawdata;
+	foreach($raw_datas as $key => $raw_data) {
+		foreach($required_fileds as $field) {
+			$temp_data = $data;
+			$aid = &$temp_rawdata[$field];
+			foreach($dimensions as $dim) {
+				$aid[$raw_data[$dim]] = array();
+				$aid = &$aid[$raw_data[$dim]];
+			}
+			$aid[$key] = $raw_data[$field];
+			$data = array_merge_recursive_replace($temp_data, $temp_rawdata);
+		}
+	}
+	return $data;
+}
+
+function parse_dimensionaldata($data, $depth = 1, $previds = '', $total, $dimensions, $required_fileds) {
+	global $template;
+	$mireport_output_firstdimension = '';
+	foreach($data as $key => $val) {
+//		print_R($val);
+//		echo '<hr>';
+		$altrow = alt_row('trow');
+		if(!empty($previds)) {
+			$previds .= '-'.$key;
+		}
+		else {
+			$previds = $key;
+		}
+
+		if($depth <= count($dimensions)) {
+
+			if(isset($dimensions[$depth]) && !empty($dimensions[$depth]) && (isset($key) && !empty($key))) {
+				$class = get_object($dimensions[$depth], $key);
+				//echo str_repeat('--', $depth).$class->get()['name'];
+				$parsed_dimensionname = str_repeat('<span style="margin-left:20px;">', $depth).$class->get()['name'].'</span>';
+			}
+			//$parsed_dimensionname =$dimension_name;
+			foreach($required_fileds as $field) {
+			  //echo $dimensions[$depth].' : '.$field.'-'.$previds .':  '.$total[$dimensions[$depth]][$field.'-'.$previds].'<hr>';
+				$parsed_dimensionname .='<td>'.$total[$dimensions[$depth]][$field.'-'.$previds].'</td>';
+			}
+			eval("\$mireport_output_firstdimension .= \"".$template->get('crm_marketintelligence_report_outputfirstdimension')."\";");
+
+			if(is_array($val)) {
+				$depth = $depth + 1;
+				if($depth == 0) {
+					$key = '';
+				}
+				$mireport_output_firstdimension .= parse_dimensionaldata($val, $depth, $previds, $total, $dimensions, $required_fileds);  /* include the function in the recurison */
+			}
+		}
+		$depth -= 1;
+		if($depth == 1) {
+			$previds = '';
+		}
+		else {
+			$previds = preg_replace('/-([0-9]+)$/', '', $previds); // $ Remove last portion of previd
+		}
+	}
+	return $mireport_output_firstdimension;
+}
+
+function get_object($dim, $id) {
+	switch($dim) {
+		case 'affid':
+			return new Affiliates($id);
+			break;
+		case 'cid':
+		case 'spid':
+			return new Entities($id);
+			break;
+		case 'pid':
+			return new Products($id);
+			break;
 	}
 }
 

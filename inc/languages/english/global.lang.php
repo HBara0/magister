@@ -14,6 +14,7 @@ $lang['addrepresentative_note'] = 'Representatives (contact persons) are not you
 <br />
 Always provide complete name, without title.';
 $lang['addsuppliers'] = 'Add Suppliers';
+$lang['generate']='Generate';
 $lang['affiliate'] = 'Affiliate';
 $lang['affiliateslist'] = 'Affiliates List';
 $lang['april'] = 'April';

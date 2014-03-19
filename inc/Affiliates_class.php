@@ -97,6 +97,20 @@ class Affiliates {
 		return $suppliers_affiliates;
 	}
 
+	public function get_customers() {
+		global $db;  
+		$query = $db->query("SELECT DISTINCT(e.eid) 
+					FROM ".Tprefix."entities e 
+					LEFT JOIN ".Tprefix."affiliatedentities ae ON (ae.eid=e.eid) 
+					WHERE ae.affid={$this->affiliate['affid']} AND type='c'".$additional_where[extra]." ORDER BY companyName ASC");
+		while($customer = $db->fetch_assoc($query)) {
+			$customers = new Entities($customer['eid']);
+			$customers_affiliates[$customer['eid']] = $customers->get();
+		}
+	
+		return $customers_affiliates;
+	}
+
 	public static function get_affiliate_byname($name) {
 		global $db;
 

@@ -1,0 +1,101 @@
+<?php
+/*
+ * Copyright © 2014 Orkila International Offshore, All Rights Reserved
+ *
+ * [Provide Short Descption Here]
+ * $id: marketintelligence_report_preview.php
+ * Created:        @tony.assaad    Mar 11, 2014 | 11:07:54 AM
+ * Last Update:    @tony.assaad    Mar 11, 2014 | 11:07:54 AM
+ */
+if(!defined('DIRECT_ACCESS')) {
+	die('Direct initialization of this file is not allowed.');
+}
+if($core->usergroup['crm_canGenerateMIRep'] == 0) {
+	error($lang->sectionpermision);
+}
+if(!($core->input['action'])) {
+	if($core->input['referrer'] == 'generate') {
+		$mireportdata = ($core->input['mireport']);
+
+		/* split the dimension and explode them into chuck of array */
+		$mireportdata['dimension'] = explode(',', $mireportdata['dimension'][0]);
+		/* to create array using existing values (using array_values()) and range() to create a new range from 1 to the size of the  dimension array */
+		$mireportdata['dimension'] = array_combine(range(1, count($mireportdata['dimension'])), array_values($mireportdata['dimension']));
+
+		$marketdata_indexes = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice');
+		/* get Market intellgence baisc Data  --START */
+
+		/* Get cfpid of segment ----START */
+		foreach($mireportdata['filter']['spid'] as $eid) {
+			$entiy = new Entities($eid);
+			if(is_array($entiy->get_segments())) {
+				$entity_segmentobjs = $entiy->get_segments();
+			}
+			//$cfpid = $entiy->get_segments()->get_applications()->get_segmentsapplications()->get();
+		}
+		/* Get cfpid of segment  ----END */
+
+		$marketin_objs = Marketintelligence::get_marketdata($mireportdata['filter']);
+		if(is_array($marketin_objs)) {
+			foreach($marketin_objs as $marketin_obj) {
+				$market_data[$marketin_obj->get()['mibdid']] = $marketin_obj->get();
+			}
+			if(is_array($market_data)) {
+				$multidimension_data = build_dimentionalize_data($market_data, $mireportdata['dimension'], $marketdata_indexes);
+			}
+			$totals = array();
+			dosumimensionaldata($multidimension_data, $mireportdata['dimension'], $totals);
+			$parsed_dimension = parse_dimensionaldata($multidimension_data['potential'], 1, '', $totals, $mireportdata['dimension'], $marketdata_indexes);
+			//print_r($totals);
+			foreach($totals['gtotal'] as $report_header => $header_data) {
+				$dimension_head.= '<th>'.$report_header.'</th> ';
+			}
+		}
+		/* get Market intellgence baisc Data  --END */
+	}
+
+	eval("\$mireport_output = \"".$template->get('crm_marketintelligence_report_output')."\";");
+	output($mireport_output);
+}
+function dosumimensionaldata($data, $dimensions, &$totals, $depth = 0, $previds = '') {
+	foreach($data as $key => $val) {
+		if(!empty($previds)) {
+			$previds .= '-'.$key;
+		}
+		else {
+			$previds = $key;
+		}
+
+		if($depth < count($dimensions)) {
+			$dim_value = $dimensions[$depth];
+			if($depth === 0) {
+				$dim_value = 'gtotal';
+			}
+
+			$totals[$dim_value][$previds] = array_sum_recursive($val);
+
+			if(is_array($val)) {
+				$depth = $depth + 1;
+				dosumimensionaldata($val, $dimensions, $totals, $depth, $previds);
+			}
+		}
+		else {
+			if(is_array($val)) { 
+				$totals[$dimensions[$depth]][$previds] = array_sum($val);
+				  print_r($previds);
+			}
+			else {
+				$totals[$dimensions[$depth]][$previds] = $val;
+			}
+		}
+		$depth -= 1;
+		if($depth == 0) {
+			$previds = '';
+		}
+		else {
+			$previds = preg_replace('/-([0-9]+)$/', '', $previds); //Remove last portion of
+		}
+	}
+}
+
+?>
