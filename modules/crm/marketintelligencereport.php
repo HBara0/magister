@@ -12,9 +12,9 @@
 if(!defined('DIRECT_ACCESS')) {
 	die('Direct initialization of this file is not allowed.');
 }
-if($core->usergroup['crm_canGenerateMIRep'] == 0) {
-	error($lang->sectionpermision);
-}
+//if($core->usergroup['crm_canGenerateMIRep'] == 0) {
+//	error($lang->sectionpermision);
+//}
 if(!$core->input['action']) {
 	$identifier = substr(md5(microtime(uniqid())), 0, 10);
 	// Here we get affiliate for user assigned to, or he can audit
@@ -73,7 +73,7 @@ if(!$core->input['action']) {
 	// Get User  segments the user is assigned to, assigned to supervise, or is coordinator for
 	$user = new Users($core->user['uid']);
 	$userassigned_segments = $user->get_segments();
-	$user_coordinator_segments = $user->get_coordinatesegments();
+	//$user_coordinator_segments = $user->get_coordinatesegments();
 	//Get segment cooridnator
 	if(is_array($userassigned_segments) && is_array($user_coordinator_segments)) {
 		$user_segments = array_merge($userassigned_segments, $user_coordinator_segments);
