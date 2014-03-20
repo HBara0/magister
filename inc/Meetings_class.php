@@ -121,8 +121,8 @@ class Meetings {
 			$attendes_objs = $this->get_attendees(array('atttypes' => $filters));
 			if(is_array($attendes_objs)) {
 				$email_data = array(
-						'from_email' => $core->settings['maileremail'],
-						'from' => 'OCOS Mailer',
+						'from_email'=>$core->user['email'],
+						'from' => $core->user['displayName'],
 						'subject' => $this->meeting['title'],
 				);
 
@@ -150,10 +150,9 @@ class Meetings {
 					$ical_obj->set_description($this->meeting['description']);
 					$ical_obj->endical();
 
-					$email_data['message'] = $ical_obj->geticalendar();
-
 					$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'appointment', 'method' => 'REQUEST'));
 				}
+			
 				$log->record('meetings_appointment', array('to' => $receipient_attendees));
 				unset($receipient_attendees);
 				return true;
