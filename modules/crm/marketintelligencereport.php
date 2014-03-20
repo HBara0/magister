@@ -59,13 +59,15 @@ if(!$core->input['action']) {
 	$users_customers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, "{$customer_where}");
 
 	foreach($affiliatesaudit_objs as $affid => $affiliatesaudit_obj) {
-		$affiliatesaudit_customers = $affiliatesaudit_obj->get_customers();
-		if(in_array($affiliatesaudit_customers['eid'], $core->user['customers'])) {
-			$selected = " selected='selected'";
-		}
-		foreach($affiliatesaudit_customers as $affiliatesaudit_customer) {
-
-			$customers_list.='<option value='.$affiliatesaudit_customer['eid'].' '.$selected.'>'.$affiliatesaudit_customer['companyName'].'</option>';
+		$affiliatesaudit_customersobjs = $affiliatesaudit_obj->get_customers();
+		if(is_array($affiliatesaudit_customersobjs)) {
+			foreach($affiliatesaudit_customersobjs as $affiliatesaudit_customersobj) {
+				$affiliatesaudit_customer = $affiliatesaudit_customersobj->get();
+				if(in_array($affiliatesaudit_customer['eid'], $core->user['customers'])) {
+					$selected = " selected='selected'";
+				}
+				$customers_list.='<option value='.$affiliatesaudit_customer['eid'].' '.$selected.'>'.$affiliatesaudit_customer['companyName'].'</option>';
+			}
 		}
 	}
 

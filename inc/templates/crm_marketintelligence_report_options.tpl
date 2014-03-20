@@ -30,6 +30,10 @@
             #dimensionfrom li:hover, #dimensionto li:hover{
                 cursor:move;
             }
+            .sortable-placeholder {
+                opacity: 0.6;
+            }
+
         </style>
         <script>
             $(function() {
@@ -39,7 +43,9 @@
                     revert: true, //revert to their new positions using a smooth animation.
                     cursor: "wait",
                     tolerance: "intersect", //overlaps the item being moved to the other item by 50%.
-                    placeholder: "sortable-placeholder",
+                    over: function() {
+                        $('.sortable-placeholder').hide();
+                    },
                     dropOnEmpty: true, //Prevent all items in a list from being dropped into a separate, empty list
                     start: function() {        /*  return back the Color of the  element to tis origin Upon remove of the item */
                         $("#dimensionto li").animate({
@@ -84,18 +90,18 @@
                 </div>
                 <div class="thead" style="margin:10px;">{$lang->dimensions}</div>
                 <div style="display:block; ">
-                    <div style="display:inline-block;width:50%;  vertical-align:top;">
+                    <div style="display:inline-block;width:40%;  vertical-align:top;">
                         <ul id="dimensionfrom"   class="connectedSortable">
                             {$dimension_item}
                         </ul>
                     </div>
-                    <div style="display:inline-block;width:49%; vertical-align:top;">
+                    <div style="display:inline-block;width:40%; vertical-align:top;">
 
                         <ul id="dimensionto" class="connectedSortable">
-
+                            <li class="sortable-placeholder" style="background:none;">{$lang->drophere}</li>
                         </ul>
 
-                        <input type='text' id='field' name="mireport[dimension][]" value=''>
+                        <input type='hidden' id='field' name="mireport[dimension][]" value=''>
                     </div>
                 </div>
 
