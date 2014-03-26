@@ -102,8 +102,16 @@ class Meetings {
 				$this->set_attendees($this->meeting['attendees']);
 
 				$this->send_invitations();
+				$this->add_attachments($this->meeting['attachments']);
+
 				return true;
 			}
+		}
+	}
+
+	public function add_attachments($attachments) {
+		if(is_array($attachments)) {
+			MeetingsAttachments::add($this->meeting['attachments'], $this->meeting['mtid']);
 		}
 	}
 
@@ -121,7 +129,7 @@ class Meetings {
 			$attendes_objs = $this->get_attendees(array('atttypes' => $filters));
 			if(is_array($attendes_objs)) {
 				$email_data = array(
-						'from_email'=>$core->user['email'],
+						'from_email' => $core->user['email'],
 						'from' => $core->user['displayName'],
 						'subject' => $this->meeting['title'],
 				);
@@ -152,7 +160,7 @@ class Meetings {
 
 					$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'appointment', 'method' => 'REQUEST'));
 				}
-			
+
 				$log->record('meetings_appointment', array('to' => $receipient_attendees));
 				unset($receipient_attendees);
 				return true;
@@ -446,6 +454,18 @@ class Meetings {
 				$users[$user['uid']] = new Users($user['uid']);
 			}
 			return $users;
+		}
+		return false;
+	}
+
+	public function get_attachments() {
+		global $db;
+		$query = $db->query('SELECT mattid FROM '.Tprefix.'meetings_attachments  WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
+		if($db->num_rows($query)) {
+			while($rowmeeting = $db->fetch_assoc($query)) {
+				$attachments[$rowmeeting['mattid']] = new MeetingsAttachments($rowmeeting['mattid']);
+			}
+			return $attachments;
 		}
 		return false;
 	}
