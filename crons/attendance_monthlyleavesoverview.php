@@ -49,7 +49,7 @@ if(!$core->input['action']) {
 		$month_names .= '<td style="width:6%; padding:5px;">'.$lang->{strtolower(date("F", mktime(0, 0, 0, $i, 1, 0)))}.'</td>';
 	}
 
-	$hrgm_query = $db->query("SELECT affid, generalManager, supervisor, hrManager FROM ".Tprefix."affiliates ORDER by name ASC");
+	$hrgm_query = $db->query("SELECT affid, generalManager, supervisor, hrManager, finManager FROM ".Tprefix."affiliates ORDER by name ASC");
 
 	while($hrgm = $db->fetch_assoc($hrgm_query)) {
 		if($hrgm['generalManager'] != 0) {
@@ -64,6 +64,10 @@ if(!$core->input['action']) {
 			$mgt_affid[$hrgm['hrManager']][$hrgm['affid']] = $hrgm['affid'];
 			$mgt[$hrgm['hrManager']] = $hrgm['hrManager'];
 		}
+		if($hrgm['finManager'] != 0) {
+			$mgt_affid[$hrgm['finManager']][$hrgm['affid']] = $hrgm['affid'];
+			$mgt[$hrgm['finManager']] = $hrgm['finManager'];
+		}
 	}
 
 	$supervisors_query = $db->query("SELECT DISTINCT(reportsTo) FROM ".Tprefix."users WHERE gid!=7 AND reportsTo!=0");
@@ -73,15 +77,16 @@ if(!$core->input['action']) {
 
 	foreach($supervisors as $id) {
 		$users_reportsto_query = $db->query("SELECT u.uid, displayName AS name, ae.affid, a.name as affname
-											FROM ".Tprefix."users u
-											JOIN ".Tprefix."affiliatedemployees ae ON (ae.uid = u.uid)
-											JOIN ".Tprefix."affiliates a ON (ae.affid = a.affid)
-											WHERE gid!=7 AND reportsTo={$id} AND isMain='1'
-											ORDER by name ASC");
+                                            FROM ".Tprefix."users u
+                                            JOIN ".Tprefix."affiliatedemployees ae ON (ae.uid = u.uid)
+                                            JOIN ".Tprefix."affiliates a ON (ae.affid = a.affid)
+                                            WHERE gid!=7 AND reportsTo={$id} AND isMain='1'
+                                            ORDER by name ASC");
 		while($users_reportsto = $db->fetch_assoc($users_reportsto_query)) {
 			$users_supervisors[$id][$users_reportsto['uid']]['uid'] = $users_reportsto['uid'];
 			$users_supervisors[$id][$users_reportsto['uid']]['name'] = $users_reportsto['name'];
 			$users_info[$users_reportsto['uid']] = $users_reportsto;
+			$supervisor_affids[$id][$users_reportsto['affid']] = $users_reportsto['affid'];
 			if(!isset($cache['affiliates'][$users_reportsto['affid']])) {
 				$cache['affiliates'][$users_reportsto['affid']] = $users_reportsto['affname'];
 			}
@@ -91,16 +96,17 @@ if(!$core->input['action']) {
 	foreach($mgt_affid as $mgtuid => $affiliate) {
 		foreach($affiliate as $affid => $val) {
 			$users_affid_query = $db->query("SELECT u.uid, displayName AS name, ae.affid, a.name as affname, u.reportsTo 
-											FROM ".Tprefix."users u
-											JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid)
-											JOIN ".Tprefix."affiliates a ON (ae.affid = a.affid)
-											WHERE gid!=7 AND isMain='1' AND ae.affid = {$affid}
-											ORDER BY name ASC");
+                                            FROM ".Tprefix."users u
+                                            JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid)
+                                            JOIN ".Tprefix."affiliates a ON (ae.affid = a.affid)
+                                            WHERE gid!=7 AND isMain='1' AND ae.affid = {$affid}
+                                            ORDER BY name ASC");
 
 			while($users = $db->fetch_assoc($users_affid_query)) {
 				//if(!isset($users_supervisors[$users['reportsTo']][$users['uid']])) {
 				$users_supervisors[$mgtuid][$users['uid']]['uid'] = $users['uid'];
 				$users_supervisors[$mgtuid][$users['uid']]['name'] = $users['name'];
+				$supervisor_affids[$mgtuid][$users['affid']] = $users['affid'];
 				if(!isset($users_info[$users['uid']])) {
 					$users_info[$users['uid']] = $users;
 				}
@@ -124,6 +130,7 @@ if(!$core->input['action']) {
 
 	/* Get leaves - START */
 	$interestedleaves = array(1, 3);
+	$skipbalance_types = array(3);
 
 	foreach($interestedleaves as $key => $ltid) {
 		$types = array();
@@ -140,14 +147,14 @@ if(!$core->input['action']) {
 
 		foreach($users_info as $uid => $val) {
 			$query = $db->query("SELECT l.*, t.isWholeDay
-								FROM ".Tprefix."leaves l 
-								JOIN ".Tprefix."leavetypes t ON (l.type=t.ltid)  
-								WHERE l.uid = {$uid} AND l.type IN (".implode(',', $types).") AND ((l.fromDate BETWEEN {$startdate} AND {$enddate}) OR (l.toDate BETWEEN {$startdate} AND {$enddate}))");
+                                FROM ".Tprefix."leaves l 
+                                JOIN ".Tprefix."leavetypes t ON (l.type=t.ltid)  
+                                WHERE l.uid = {$uid} AND l.type IN (".implode(',', $types).") AND ((l.fromDate BETWEEN {$startdate} AND {$enddate}) OR (l.toDate BETWEEN {$startdate} AND {$enddate}))");
 
 			if($db->num_rows($query) > 0) {
 				$workshift_query = $db->query("SELECT uid, fromDate, toDate
-											   FROM ".Tprefix."employeesshifts
-											   WHERE uid = {$uid} AND (({$startdate} BETWEEN fromDate AND toDate) OR ( {$enddate} BETWEEN fromDate AND toDate))");
+                                                FROM ".Tprefix."employeesshifts
+                                                WHERE uid = {$uid} AND (({$startdate} BETWEEN fromDate AND toDate) OR ( {$enddate} BETWEEN fromDate AND toDate))");
 				$array_shift = array();
 				if($db->num_rows($workshift_query) > 0) {
 					while($shift = $db->fetch_assoc($workshift_query)) {
@@ -237,8 +244,8 @@ if(!$core->input['action']) {
 				}
 
 				$balance_query = $db->query("SELECT canTake, additionalDays 
-											FROM ".Tprefix."leavesstats 
-											WHERE uid = {$uid} AND ltid = {$ltid} AND (((periodStart BETWEEN {$startdate} AND {$enddate}) OR (periodEnd  BETWEEN {$startdate} AND {$enddate})))");
+                                            FROM ".Tprefix."leavesstats 
+                                            WHERE uid = {$uid} AND ltid = {$ltid} AND (((periodStart BETWEEN {$startdate} AND {$enddate}) OR (periodEnd  BETWEEN {$startdate} AND {$enddate})))");
 
 				while($stats = $db->fetch_assoc($balance_query)) {
 					$balance[$ltid][$uid] = $stats['canTake'] + $stats['additionalDays']; //$subbalance[$ltid][$uid];
@@ -255,31 +262,34 @@ if(!$core->input['action']) {
 					$rowcolor = '#F7FAFD';
 				}
 
-				$output[$ltid][$val['affid']][$uid] = '<tr style="border-bottom: 1px dashed #CCCCCC; background-color:'.$rowcolor.'"><td><a href="'.DOMAIN.'/users.php?action=profile&uid='.$uid.'" target="_blank">'.$users_info[$uid]['name'].'</a></td>';
+				$output[$val['affid']][$ltid][$uid] = '<tr style="border-bottom: 1px dashed #CCCCCC; background-color:'.$rowcolor.'"><td><a href="'.DOMAIN.'/users.php?action=profile&uid='.$uid.'" target="_blank">'.$users_info[$uid]['name'].'</a></td>';
 
 				for($i = 1; $i <= 12; $i++) {
 					if(isset($total[$ltid][$uid][$i]) && !empty($total[$ltid][$uid][$i])) {
 						$fromdate = mktime(0, 0, 0, $i, 1, date('Y', TIME_NOW));
 						$todate = mktime(23, 59, 0, $i, 31, date('Y', TIME_NOW));
-						$output[$ltid][$val['affid']][$uid] .= '<td><a href="'.DOMAIN.'/index.php?module=attendance/listleaves&uid='.$uid.'&fromdate='.$fromdate.'&todate='.$todate.'" target="_blank">'.$total[$ltid][$uid][$i].'</a></td>';
+						$output[$val['affid']][$ltid][$uid] .= '<td><a href="'.DOMAIN.'/index.php?module=attendance/listleaves&uid='.$uid.'&fromdate='.$fromdate.'&todate='.$todate.'" target="_blank">'.$total[$ltid][$uid][$i].'</a></td>';
 					}
 					else {
-						$output[$ltid][$val['affid']][$uid] .= '<td>0</td>';
+						$output[$val['affid']][$ltid][$uid] .= '<td>0</td>';
 					}
 				}
 
 				if(is_array($total[$ltid][$uid])) {
-					$output[$ltid][$val['affid']][$uid] .= '<td style="font-style:italic;">'.array_sum($total[$ltid][$uid]).'</td>';
+					$output[$val['affid']][$ltid][$uid] .= '<td style="font-style:italic;">'.array_sum($total[$ltid][$uid]).'</td>';
 				}
-				if(isset($balance[$ltid][$uid])) {
-					$output_style = '';
-					if($balance[$ltid][$uid] < 0) {
-						$output_style = ' color: red;';
+
+				if(!in_array($ltid, $skipbalance_types)) {
+					if(isset($balance[$ltid][$uid])) {
+						$output_style = '';
+						if($balance[$ltid][$uid] < 0) {
+							$output_style = ' color: red;';
+						}
+						$output[$val['affid']][$ltid][$uid] .= '<td style="font-weight:bold;'.$output_style.'">'.$balance[$ltid][$uid].'</td></tr>';
 					}
-					$output[$ltid][$val['affid']][$uid] .= '<td style="font-weight:bold;'.$output_style.'">'.$balance[$ltid][$uid].'</td></tr>';
-				}
-				else {
-					$output[$ltid][$val['affid']][$uid] .= '<td style="font-weight:bold;">0</td></tr>';
+					else {
+						$output[$val['affid']][$ltid][$uid] .= '<td style="font-weight:bold;">0</td></tr>';
+					}
 				}
 			}
 			/* Get leaves - END */
@@ -287,12 +297,12 @@ if(!$core->input['action']) {
 			/* Parse Timeline - START */
 			$timeline_excludedtypes = array(10);
 			$timeline_query = $db->query("SELECT l.*, t.* 
-										FROM ".Tprefix."leaves l 
-										JOIN ".Tprefix."leavetypes t ON (l.type=t.ltid)  
-										WHERE l.uid = {$uid} AND ((l.fromDate BETWEEN {$timelinestart} AND {$timelineend}) OR (l.toDate BETWEEN {$timelinestart} AND {$timelineend})) 
-										AND l.type NOT IN (".implode(', ', $timeline_excludedtypes).")
-										GROUP BY l.lid
-										ORDER BY l.fromDate DESC");
+                                        FROM ".Tprefix."leaves l 
+                                        JOIN ".Tprefix."leavetypes t ON (l.type=t.ltid)  
+                                        WHERE l.uid = {$uid} AND ((l.fromDate BETWEEN {$timelinestart} AND {$timelineend}) OR (l.toDate BETWEEN {$timelinestart} AND {$timelineend})) 
+                                        AND l.type NOT IN (".implode(', ', $timeline_excludedtypes).")
+                                        GROUP BY l.lid
+                                        ORDER BY l.fromDate DESC");
 
 			if($db->num_rows($timeline_query) > 0) {
 				while($timeline_leave = $db->fetch_assoc($timeline_query)) {
@@ -344,10 +354,10 @@ if(!$core->input['action']) {
 			}
 
 			$additionalleave_query = $db->query("SELECT ad.*, CONCAT(firstName, ' ', lastName) AS addedByName 
-												FROM ".Tprefix."attendance_additionalleaves ad 
-												JOIN ".Tprefix."users u ON (u.uid=ad.addedBy)
-												WHERE ad.uid = {$uid} AND (date BETWEEN {$timelinestart} AND {$timelineend}) 
-												ORDER BY date DESC");
+                                                FROM ".Tprefix."attendance_additionalleaves ad 
+                                                JOIN ".Tprefix."users u ON (u.uid=ad.addedBy)
+                                                WHERE ad.uid = {$uid} AND (date BETWEEN {$timelinestart} AND {$timelineend}) 
+                                                ORDER BY date DESC");
 
 			if($db->num_rows($additionalleave_query) > 0) {
 				while($additionalleave = $db->fetch_assoc($additionalleave_query)) {
@@ -431,72 +441,124 @@ if(!$core->input['action']) {
 			}
 		}
 
-		foreach($output as $ltid => $data) {
-			$message_rows = '';
-			foreach($data as $affid => $affiliate_data) {
-				$affiliate_parsed = false;
-
-				uasort($val, 'sortusers');
-				foreach($val as $key => $uid) {
-					if(sizeof($data) > 1 && $affiliate_parsed == false && isset($output[$ltid][$affid][$key])) {
-						$message_rows .= '<td colspan="15" style="font-weight:bold; background-color:#D6EAAC; border-bottom: dashed 1px #666666;">'.$cache['affiliates'][$affid].'</td>';
-						$affiliate_parsed = true;
-					}
-					$message_rows .= $output[$ltid][$affid][$key];
-				}
-			}
-			if(empty($message_rows)) {
+		foreach($supervisor_affids[$supid] as $affid) {
+			$message = '';
+			if(sizeof($output[$affid]) < 1) {
 				continue;
 			}
-			else {
-				$content_exist = true;
-				$message .= '<div style="margin-top: 10px;font-weight: bold; color:#669900; border-bottom: 1px solid #F2F2F2;">'.$typename[$ltid].'</div>';
-				$message .= '<table border="0" width="100%" style="border: 0px; width: 100%; border-spacing: 0px; border-collapse:collapse; padding:0px;">';
-				$message .= '<tr style="background-color:#92D050; font-weight: bold; font-size: 12px; border-bottom: dashed 1px #666666; text-align: left; padding: 4px;">';
-				$message .= '<td style="width:20%;">'.$lang->employee.'</td>'.$month_names.'<td width="4%">'.$lang->daystaken.'</td><td width="4%">'.$lang->balance.'</td></tr>';
-				$message .= $message_rows.'</table>';
+			$message .= '<div style="margin-top: 10px;font-weight: bold; color:#669900; border-bottom: 1px solid #F2F2F2;">'.$cache['affiliates'][$affid].'</div>';
+
+			$message .= '<table border="0" width="100%" style="border: 0px; width: 100%; border-spacing: 0px; border-collapse:collapse; padding:0px;">';
+			$message .= '<tr style="background-color:#92D050; font-weight: bold; font-size: 12px; border-bottom: dashed 1px #666666; text-align: left; padding: 4px;">';
+			$message .= '<td style="width:20%;">'.$lang->employee.'</td>'.$month_names.'<td width="4%">'.$lang->daystaken.'</td>';
+			// if(!in_array($ltid, $skipbalance_types)) {
+			$message .= '<td width="4%">'.$lang->balance.'</td>';
+			// }
+			$message .= '</tr>';
+
+			foreach($output[$affid] as $ltid => $affiliate_data) {
+				uasort($val, 'sortusers');
+				$message .= '<td colspan="15" style="font-weight:bold; background-color:#D6EAAC; border-bottom: dashed 1px #666666;">'.$typename[$ltid].'</td>';
+
+				foreach($val as $key => $uid) {
+					if($users_info[$key]['affid'] != $affid) {
+						continue;
+					}
+
+					if(isset($output[$affid][$ltid][$key])) {
+						$message .= $output[$affid][$ltid][$key];
+					}
+					else {
+						if($rowcolor == '#F7FAFD') {
+							$rowcolor = '#FFF';
+						}
+						else {
+							$rowcolor = '#F7FAFD';
+						}
+						$message .= '<tr style="border-bottom: 1px dashed #CCCCCC; background-color:'.$rowcolor.'"><td><a href="'.DOMAIN.'/users.php?action=profile&uid='.$uid.'" target="_blank">'.$users_info[$key]['name'].'</a></td>';
+						$message .= str_repeat('<td>0</td>', 12);
+						$message .= '<td>0</td><td></td></tr>';
+					}
+				}
 			}
-		}
 
-		if(empty($message)) {
-			continue;
-		}
-		if(empty($timeline_message)) {
-			$timeline_output = '';
-		}
-		else {
-			$timeline_output = '<h2 style="margin-bottom:10px;">Timeline</h2>'.$timeline_message;
-		}
-		$message_output = '<html><head><title>Monthly Leaves Overview</title></head><h2>Monthly Leaves Overview</h2><body>'.$message.'<br />'.$timeline_output.'</body></html>';
+			$message .= '</table>';
 
-		$email_data = array(
-				'from_email' => $core->settings['maileremail'],
-				'from' => 'OCOS Mailer',
-				'subject' => 'Monthly Leaves Overview',
-				'message' => $message_output
-		);
+//        foreach($output as $ltid => $data) {
+//            $message_rows = '';
+//
+//            foreach($data as $affid => $affiliate_data) {
+//                $affiliate_parsed = false;
+//
+//                uasort($val, 'sortusers');
+//                foreach($val as $key => $uid) {
+//                    if(sizeof($data) > 1 && $affiliate_parsed == false && isset($output[$ltid][$affid][$key])) {
+//                        $message_rows .= '<td colspan="15" style="font-weight:bold; background-color:#D6EAAC; border-bottom: dashed 1px #666666;">'.$cache['affiliates'][$affid].'</td>';
+//                        $affiliate_parsed = true;
+//                    }
+//                    $message_rows .= $output[$ltid][$affid][$key];
+//                }
+//            }
+//
+//            if(empty($message_rows)) {
+//                continue;
+//            }
+//            else {
+//                $content_exist = true;
+//                $message .= '<div style="margin-top: 10px;font-weight: bold; color:#669900; border-bottom: 1px solid #F2F2F2;">'.$typename[$ltid].'</div>';
+//                $message .= '<table border="0" width="100%" style="border: 0px; width: 100%; border-spacing: 0px; border-collapse:collapse; padding:0px;">';
+//                $message .= '<tr style="background-color:#92D050; font-weight: bold; font-size: 12px; border-bottom: dashed 1px #666666; text-align: left; padding: 4px;">';
+//                $message .= '<td style="width:20%;">'.$lang->employee.'</td>'.$month_names.'<td width="4%">'.$lang->daystaken.'</td>';
+//                if(!in_array($ltid, $skipbalance_types)) {
+//                    $message .= '<td width="4%">'.$lang->balance.'</td>';
+//                }
+//                $message .= '</tr>';
+//                $message .= $message_rows.'</table>';
+//            }
+//        }
 
-		$email_data['to'] = $db->fetch_field($db->query("SELECT email FROM ".Tprefix."users WHERE uid='".$supid."'"), 'email');
 
-		if(empty($email_data['to'])) {
-			continue;
-		}
+			if(empty($message)) {
+				continue;
+			}
+			if(empty($timeline_message)) {
+				$timeline_output = '';
+			}
+			else {
+				//	$timeline_output = '<h2 style="margin-bottom:10px;">Timeline</h2>'.$timeline_message[$affid];
+			}
+			$message_output = '<html><head><title>Monthly Leaves Overview</title></head><h2>Monthly Leaves Overview</h2><body>'.$message.'<br />'.$timeline_output.'</body></html>';
 
-		//if($supid == 3 || $supid == 1) {
-			//echo $message_output;
-			//print_r($email_data);
+			$email_data = array(
+					'from_email' => $core->settings['maileremail'],
+					'from' => 'OCOS Mailer',
+					'subject' => 'Monthly Leaves Overview - '.$cache['affiliates'][$affid],
+					'message' => $message_output
+			);
+
+			$email_data['to'] = $db->fetch_field($db->query("SELECT email FROM ".Tprefix."users WHERE uid='".$supid."'"), 'email');
+
+			if(empty($email_data['to'])) {
+				continue;
+			}
+
+//            //echo $message_output;
+//            print_r($email_data);
+//            echo '<hr />';
 			$mail = new Mailer($email_data, 'php');
 
 			if($mail->get_status() === true) {
 				$log->record($lang->monthlyleavesoverview, $email_data['to']);
-				//$result['successfully'][]= $supid;
+//					//$result['successfully'][]= $supid;
 			}
 			else {
 				//$result['error'][] = $supid;
 			}
-
 			//echo '<hr />';
-		//}
+
+
+			$timeline_output = $message = $message_rows = '';
+		}
 	}
 }
 function get_workshift($item, $fromdate, $secondarray) {
