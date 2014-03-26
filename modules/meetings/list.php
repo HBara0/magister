@@ -36,7 +36,7 @@ if(!$core->input['action']) {
 			$meeting['toDate_output'] = date($core->settings['dateformat'], $meeting['toDate']);
 
 			if(strlen($meeting['description']) > 50) {
-				$meeting['description'] = substr($meeting['description'], 0, 50).'...';
+				$meeting['description'] = $core->sanitize_inputs(substr($meeting['description'], 0, 50), array('removetags' => true)).'...';
 			}
 			eval("\$meeting_list_row .= \"".$template->get('meeting_list_row')."\";");
 		}
