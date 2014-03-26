@@ -41,11 +41,12 @@ class Meetings {
 				$this->errorcode = 1;
 				return false;
 			}
-//
-//			if(value_exists('meetings', 'title', $this->meeting['title'], ' createdBy='.$core->user['uid'].'')) {
-//				$this->errorcode = 4;
-//				return false;
-//			}
+
+			if(value_exists('meetings', 'title', $this->meeting['title'], ' createdBy='.$core->user['uid'].'')) { // Add date filter
+				$this->errorcode = 4;
+				return false;
+			}
+                        
 			if(!empty($meeting_data['altfromDate'])) {
 				$fromdate = explode('-', $meeting_data['altfromDate']);
 
@@ -150,6 +151,8 @@ class Meetings {
 					$ical_obj->set_description($this->meeting['description']);
 					$ical_obj->endical();
 
+                                        $email_data['message'] = $ical_obj->geticalendar();
+                                        
 					$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'appointment', 'method' => 'REQUEST'));
 				}
 			
@@ -402,7 +405,7 @@ class Meetings {
 				}
 			}
 
-			$this->send_mom();
+			//$this->send_mom();
 		}
 	}
 
