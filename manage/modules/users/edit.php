@@ -29,7 +29,10 @@ if(!$core->input['action']) {
 	$userobj = new Users($uid, false);
 	$user = $userobj->get();
 	
-	$user['reportsToName'] = $userobj->get_reportsto()->get()['displayName'];
+        if(!empty($user['reportsTo'])) {
+            $user['reportsToName'] = $userobj->get_reportsto()->get()['displayName'];
+        }
+	
 	if(!empty($user['assistant'])) {
 		$user['assistantName'] = $userobj->get_assistant()->get()['displayName'];
 	}
