@@ -46,7 +46,7 @@ class Meetings {
 				$this->errorcode = 4;
 				return false;
 			}
-                        
+
 			if(!empty($meeting_data['altfromDate'])) {
 				$fromdate = explode('-', $meeting_data['altfromDate']);
 
@@ -93,7 +93,7 @@ class Meetings {
 
 			$insertquery = $db->insert_query('meetings', $meeting_data);
 			if($insertquery) {
-				$this->errorcode = 0;
+
 				$this->meeting['mtid'] = $db->last_id();
 				$this->meeting['identifier'] = $meeting_data['identifier'];
 				$log->record('addedmeeting', $this->meeting['mtid']);
@@ -101,10 +101,10 @@ class Meetings {
 				$this->set_associations($this->meeting['associations']);
 				/* insert meetings Attendees */
 				$this->set_attendees($this->meeting['attendees']);
-
-				$this->send_invitations();
 				$this->add_attachments($this->meeting['attachments']);
+				$this->send_invitations();
 
+				$this->errorcode = 0;
 				return true;
 			}
 		}
@@ -112,7 +112,11 @@ class Meetings {
 
 	public function add_attachments($attachments) {
 		if(is_array($attachments)) {
-			MeetingsAttachments::add($this->meeting['attachments'], $this->meeting['mtid']);
+			$MeetingsAttachments_obj = new MeetingsAttachments();
+			if($MeetingsAttachments_obj->add($attachments, $this->meeting['mtid'])) {
+				$this->errorcode = 0;
+				//return true;
+			}
 		}
 	}
 
@@ -129,11 +133,7 @@ class Meetings {
 		if(!empty($filters)) {
 			$attendes_objs = $this->get_attendees(array('atttypes' => $filters));
 			if(is_array($attendes_objs)) {
-				$email_data = array(
-						'from_email' => $core->user['email'],
-						'from' => $core->user['displayName'],
-						'subject' => $this->meeting['title'],
-				);
+
 
 				foreach($attendes_objs as $key => $attendes_obj) {
 					if($attendes_obj->is_representative()) {
@@ -159,9 +159,30 @@ class Meetings {
 					$ical_obj->set_description($this->meeting['description']);
 					$ical_obj->endical();
 
-                                        $email_data['message'] = $ical_obj->geticalendar();
-                                        
-					$mail = new Mailer($email_data, 'php', true, array(), array('content-class' => 'appointment', 'method' => 'REQUEST'));
+					//$email_data['message'] = $ical_obj->geticalendar();
+
+
+					$mailer = new Mailer();
+					$mailer = $mailer->get_mailerobj();
+					$mailer->set_type('ical', array('content-class' => 'appointment', 'method' => 'REQUEST'));
+					$mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
+					$mailer->set_subject($this->meeting['title']);
+					$mailer->set_message($ical_obj->geticalendar());
+					$mailer->set_to($email_data['to']);
+
+					/* Add multiple Attachments */
+					$meeting_attachobjs = $this->get_attachments();
+					if(is_array($meeting_attachobjs)) {
+						$attachments_path = './uploads/meetings';
+						foreach($meeting_attachobjs as $meeting_attachobj) {
+							$attachments = $meeting_attachobj->get();
+							print_R($attachments);
+							if(is_array($attachments) && !empty($attachments['name'])) {
+								$mailer->add_attachment($attachments_path.'/'.$attachments['name']);
+							}
+						}
+					}
+					$mailer->send();
 				}
 
 				$log->record('meetings_appointment', array('to' => $receipient_attendees));

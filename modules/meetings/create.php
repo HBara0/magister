@@ -47,7 +47,7 @@ if(!$core->input['action']) {
 				unset($associaton_temp);
 			}
 
-			$rowid = $reprowid = 1;
+			$rowid = $reprowid = $rowattachmentid = 1;
 			$meeting_attednobjs = $meeting_obj->get_attendees();
 			if(is_array($meeting_attednobjs)) {
 				foreach($meeting_attednobjs as $matid => $meeting_attednobj) {
@@ -67,21 +67,34 @@ if(!$core->input['action']) {
 				}
 				unset($meeting['attendees'], $matid);
 			}
-			
+
 			if(empty($createmeeting_userattendees)) {
 				eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendee')."\";");
 			}
-			
+
 			if(empty($createmeeting_repattendees)) {
-				eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");	
+				eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");
 			}
-			
+
 			$entity_obj = new Entities($associatons['cid']);
 			$meeting['associations']['cutomername'] = $entity_obj->get()['companyName'];
 			$meeting['associations']['spid'] = $associatons['cid'];
 			$entity_obj = new Entities($associatons['spid']);
 			$meeting['associations']['suppliername'] = $entity_obj->get()['companyName'];
 			$meeting['associations']['spid'] = $associatons['spid'];
+			/* parse Attachments ---START */
+			$attachmentrow = 0;
+			$meeting_attachobjs = $meeting_obj->get_attachments();
+			foreach($meeting_attachobjs as $meeting_attachobj) {
+				$altrow = alt_row('trow');
+				$attachmentrow++;
+				$meeting_attachments = $meeting_attachobj->get();
+				if(is_array($meeting_attachments)) {
+					eval("\$createmeeting_edit_attachmentsfiles .= \"".$template->get('meeting_edit_attachments_files')."\";");
+				}
+			}
+
+			/* parse Attachments ---END */
 		}
 		else {
 			redirect('index.php?module=meetings/list');
@@ -111,19 +124,44 @@ if(!$core->input['action']) {
 			$events_list .= '<option value="'.$ceid.'" "'.$selected.'">'.$event['title'].'</option>';
 		}
 	}
+	eval("\$createmeeting_attachmentsfiles  = \"".$template->get('meeting_create_attachments')."\";");
 	eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
-
+	eval("\$createmeeting_attachements = \"".$template->get('meeting_edit_attachements')."\";");
 	eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
 
-	output_page($createmeeting);
+	output($createmeeting);
+}
+elseif($core->input['action'] == 'deletefile') {
+	$mattid = $db->escape_string($core->input[mattid]);
+	if(!empty($mattid)) {
+		$meetingattach_obj = new MeetingsAttachments($mattid);
+		$deleted = $meetingattach_obj->delete();
+		header('Content-type: text/javascript');
+		if($deleted) {
+			echo '$("tr[id=\'file_'.$mattid.'\']").css("display","none");';
+		}
+	}
 }
 elseif($core->input['action'] == 'do_createmeeting') {
+	echo $headerinc;
+	$core->input['meeting']['attachments'] = $_FILES;
 	$meeting_obj = new Meetings();
 	$meeting_obj->create($core->input['meeting']);
+	$meetingattach_obj = new MeetingsAttachments();
+	if(is_array($core->input['meeting']['attachments'])) {
+		//$meeting_obj->add_attachments($core->input['meeting']['attachments']);
+		$meetingattach_obj->upload($core->input['meeting']['attachments']);
+	}
 
 	switch($meeting_obj->get_errorcode()) {
 		case 0:
-			output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+			?>
+			<script language="javascript" type="text/javascript">
+				$(function() {
+					window.top.$("#upload_Result").html("<span class='red_text'><?php $lang->successfullysaved;?></span>");
+				});
+			</script>   
+			<?php
 			break;
 		case 1:
 			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
@@ -137,6 +175,7 @@ elseif($core->input['action'] == 'do_createmeeting') {
 		case 4:
 			output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
 			break;
+
 		default:
 			output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
 			break;
@@ -144,6 +183,8 @@ elseif($core->input['action'] == 'do_createmeeting') {
 }
 elseif($core->input['action'] == 'do_editmeeting') {
 	$mtid = $db->escape_string($core->input['mtid']);
+	$core->input['meeting']['attachments'] = $_FILES;
+
 	$meeting_obj = new Meetings($mtid);
 	$meeting_obj->update($core->input['meeting']);
 	switch($meeting_obj->get_errorcode()) {

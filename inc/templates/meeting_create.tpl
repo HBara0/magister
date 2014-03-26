@@ -5,11 +5,28 @@
     </head>
     <body>
         {$header}
+
+
+        <script>
+            $(function() {
+            $('a[id^=deletefile_]').live('click', function() {
+                    if (sharedFunctions.checkSession() == false) {
+                        return;
+                    }
+                    var id = $(this).attr('id').split("_");
+                  sharedFunctions.requestAjax("post", "index.php?module=meetings/create&action=deletefile", "mattid=" + id[1], 'deletecontainer_'+id[1], 'deletecontainer_'+id[1], true);
+
+                });
+
+            });
+        </script>
     <tr>
         {$menu}
         <td class="contentContainer">
             <h3>{$pagetitle}</h3>
-            <form name="perform_meetings/create_Form" action="#" method="post" id="perform_meetings/create_Form">
+            <iframe id='uploadFrame'  name='uploadFrame' style="display:none;" ></iframe>
+            <form method="post" enctype="multipart/form-data" action="index.php?module=meetings/create" target="uploadFrame">      
+
                 <input type="hidden" value="do_{$action}meeting" name="action" id="action" />
                 <input type="hidden" value="{$core->input[mtid]}" name="mtid"  />
                 <table cellpadding="1" cellspacing="1" width="100%">
@@ -19,7 +36,8 @@
                     </tr>
                     <tr>
                         <td>{$lang->fromdate}</td>
-                        <td><input type="text" tabindex="2" id="pickDate_from" autocomplete="off" tabindex="1"  name="meeting[fromDate]" value="{$meeting[fromDate_output]}" required="required"/><input type="hidden" name="meeting[altfromDate]" id="altpickDate_from" value="{$meeting[fromDate]}" /> <input type="time" tabindex="3" name="meeting[fromTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="08:00" value="{$meeting[fromTime_output]}" required="required"></td>
+                        <td><input type="text" tabindex="2" id="pickDate_from" autocomplete="off" tabindex="1"  name="meeting[fromDate]" value="{$meeting[fromDate_output]}" required="required"/>
+                            <input type="hidden" name="meeting[altfromDate]" id="altpickDate_from" value="{$meeting[fromDate]}" /> <input type="time" tabindex="3" name="meeting[fromTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="08:00" value="{$meeting[fromTime_output]}" required="required"></td>
                     </tr>
                     <tr>
                         <td>{$lang->todate}</td>
@@ -71,15 +89,24 @@
                     </tr>
                     <tr><td class="thead" colspan="3">{$lang->associations}<a title="{$lang->associations}" href="#associationssection" onClick="$('#associationssection').fadeToggle();">...</a></td></tr>
                     {$createmeeting_associations}
+                    <tr><td>&nbsp;</td></tr>
+                    <tr><td class="thead" colspan="3">{$lang->attachements}</td></tr> 
+
+                    {$createmeeting_attachements}
+                    {$createmeeting_attachmentsfiles}
                     <tr>
                         <td colspan="2">
-                            <hr /><input type="submit" class="button" value="{$lang->savecaps}" id="perform_meetings/create_Button" /> <input type="reset" class="button" value="{$lang->reset}"/>
-                            <div id="perform_meetings/create_Results"></div>
+
+                            <input type="submit" class="button" value="{$lang->savecaps}" id="meetings_create" onclick="$('#upload_Result').show()"  />
+                            <input type="reset" class="button" value="{$lang->reset}"/>
+                            <hr />
+                            <div id="upload_Result" style="display:none;"><img src="{$core->settings[rootdir]}/images/loading.gif" /> {$lang->uploadinprogress}</div>
                         </td>
                     </tr>
                 </table>
             </form>
         </td>
     </tr>
+    {$createmeeting_deletefile}
 </body>
 </html>
