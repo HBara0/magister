@@ -4,3 +4,4 @@
   <tr>
     <td>{$marketreport[markTrendCompetition]}</td>
   </tr>
+  

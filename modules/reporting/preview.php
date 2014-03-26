@@ -211,7 +211,7 @@ if(!$core->input['action']) {
 
 		$report['quartername'] = 'Q'.$report['quarter'].' '.$report['year'];
 		$item = array();
-		if(!$core->usergroup['reporting_canViewComptInfo'] == 1) {
+		if($core->usergroup['reporting_canViewComptInfo'] == 1 && $core->usergroup['canUseReporting'] == 1 && $core->usergroup['canFillReports'] == 1) {
 
 			if(is_array($report['items'])) {
 				foreach($aggregate_types as $aggregate_type) {
@@ -454,7 +454,8 @@ if(!$core->input['action']) {
 		$item = array();
 
 		$keycustomersbox = $keycustomers = '';
-		if(($core->usergroup['reporting_canViewComptInfo'] == 0) || $core->usergroup['canUseReporting'] == 1 && $core->usergroup['canFillReports'] == 1 && $core->usergroup['reporting_canTransFillReports'] == 1 && $core->usergroup['reporting_canSendReportsEmail'] == 1) {		if(is_array($report['keycustomers'])) {
+		if($core->usergroup['reporting_canViewComptInfo'] == 1 && $core->usergroup['canUseReporting'] == 1 && $core->usergroup['canFillReports'] == 1) {
+			if(is_array($report['keycustomers'])) {
 				$keycust_count = 0;
 				foreach($report['keycustomers'] as $keycust => $customer) {
 					/* Limit to 5 customers */
@@ -494,14 +495,15 @@ if(!$core->input['action']) {
 					}
 				}
 
-					if(($core->usergroup['reporting_canViewComptInfo'] == 1) || $core->usergroup['canUseReporting'] == 1 && $core->usergroup['canFillReports'] == 1 && $core->usergroup['reporting_canTransFillReports'] == 1 && $core->usergroup['reporting_canSendReportsEmail'] == 1) {
+				if(($core->usergroup['reporting_canViewComptInfo'] == 1) || ($core->usergroup['canUseReporting'] == 1 && $core->usergroup['canFillReports'] == 1)) {
 					eval("\$marketreportbox_competition = \"".$template->get('new_reporting_report_marketreportbox_competition')."\";");
 					//$marketreportbox_other = '';
 				}
-			
-				if($core->usergroup['reporting_canViewComptInfo'] == 0 && $core->usergroup['canUseReporting'] == 1 && $core->usergroup['canFillReports'] == 1 && $core->usergroup['reporting_canTransFillReports'] == 1 && $core->usergroup['reporting_canSendReportsEmail'] == 1) {
+
+				if($core->usergroup['reporting_canViewComptInfo'] == 1 && $core->usergroup['canUseReporting'] == 1 && $core->usergroup['canFillReports'] == 1) {
 					eval("\$marketreportbox_other = \"".$template->get('new_reporting_report_marketreportbox_other')."\";");
 				}
+
 				array_walk($marketreport, 'fix_newline');
 				array_walk($marketreport, 'parse_ocode');
 
@@ -815,7 +817,7 @@ if(!$core->input['action']) {
 		foreach($toc_data as $sequence => $entry) {
 			$toc_entries .= '<div><a class="scrolldown" href=#'.key($entry).'>'.$entry[key($entry)]['title'].'</a></div>';
 		}
-		if($core->usergroup['reporting_canViewComptInfo'] == 0 && $core->usergroup['canUseReporting'] == 1 && $core->usergroup['canFillReports'] == 1 && $core->usergroup['reporting_canTransFillReports'] == 1 && $core->usergroup['reporting_canSendReportsEmail'] == 1) {
+		if($core->usergroup['reporting_canViewComptInfo'] == 1 && $core->usergroup['canUseReporting'] == 1 && $core->usergroup['canFillReports'] == 1) {
 			eval("\$tablecontent = \"".$template->get('new_reporting_report_tableofcontents')."\";");
 		}
 		/* Display Warining Notifications - START */
