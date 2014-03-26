@@ -103,7 +103,7 @@ class Icalendar {
             $timezone = $this->icalendar_tz->get_name();
         }
         if($use_utc == true) {
-            $datestart = $this->convert_toutc($datend, $timezone);
+            $datend = $this->convert_toutc($datend, $timezone);
             $this->icalendarfile .= 'DTEND:'.$this->parse_datestamp($datend, true)."\r\n";
         }
         else {
@@ -116,7 +116,7 @@ class Icalendar {
             $timezone = $this->icalendar_tz->get_name();
         }
         if($use_utc == true) {
-            $datestart = $this->convert_toutc($duedate, $timezone);
+            $duedate = $this->convert_toutc($duedate, $timezone);
             $this->icalendarfile .= 'DUE:'.$this->parse_datestamp($duedate, true)."\r\n";
         }
         else {
@@ -284,8 +284,6 @@ class Icalendar {
     }
 
     private function convert_toutc($timestamp, $timezone) {
-        date_default_timezone_set($timezone);
-        
         $timezone = new DateTimeZone($timezone);
         $time = new DateTime('@'.$timestamp);
         $time->setTimezone($timezone);
