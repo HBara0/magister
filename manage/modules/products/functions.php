@@ -12,10 +12,11 @@ if(!defined("DIRECT_ACCESS")) {
 	die("Direct initialization of this file is not allowed.");
 }
 
-if($core->usergroup['canManageapllicationsProducts'] == 0) {
-	//error($lang->sectionnopermission);
-	//exit;
+if($core->usergroup['canAddProducts'] == 0) {
+    error($lang->sectionnopermission);
+    exit;
 }
+
 $lang->load('products_functions');
 if(!$core->input['action']) {
 	$sort_url = sort_url();

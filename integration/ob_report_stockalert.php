@@ -25,16 +25,20 @@ if($core->input['authCode'] == AUTHCODE) {
 			'F2347759780B43B1A743BEE40BA213AD' => 23, //Orkila Ghana
 			'BD9DC2F7883B4E11A90B02A9A47991DC' => 1, //Orkila Lebanon
 			'933EC892369245E485E922731D46FCB1' => 20, //Orkila Senegal
-			'51FB1280AB104EFCBBB982D50B3B7693' => 21 //Orkila CI
+			'51FB1280AB104EFCBBB982D50B3B7693' => 21, //Orkila CI
+			'7AD08388D369403A9DF4B8240E3AD7FF' => 27 //Orkila International
 	);
 
 	$affiliates_addrecpt = array(
-			19 => array(244),
-			22 => array(248, 246, 287, 270),
-			23 => array(285, 322, 321),
-			1 => array(12, 333, 182, 43, 68),
-			21 => array(63, 158),
-			20 => array(183, 221)
+			19 => array(244, 'audrey.sacy'),
+			22 => array(248, 246, 287, 270, 'audrey.sacy'),
+			23 => array('zadok.oppong-boahene', 'courage.dzandu', 322, 321, 'audrey.sacy'),
+			1 => array(12, 333, 182, 43, 68, 'audrey.sacy'),
+			21 => array(63, 158, 'audrey.sacy'),
+			20 => array(183, 221, 'audrey.sacy'),
+			27 => array(12, 333, 68, 67, 'audrey.sacy'),
+			20 => array('michel.mbengue', 'abdoulaye.lo', 'audrey.sacy'),
+			11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 'audrey.sacy')
 	);
 
 	$integration = new IntegrationOB($db_info, 'C08F137534222BD001345B7B2E8F182D', $affiliates_index, 3, array('from' => 'last year'));
@@ -58,6 +62,7 @@ if($core->input['authCode'] == AUTHCODE) {
 			'initialquantity' => array('source' => 'stack', 'attribute' => 'qty', 'title' => 'Qty Received', 'numformat' => true),
 			'quantity' => array('source' => 'stack', 'attribute' => 'remaining_qty', 'title' => 'Stock Qty', 'numformat' => true),
 			'uom' => array('source' => array('product', 'uom'), 'attribute' => 'uomsymbol', 'title' => 'UoM'),
+			'cost' => array('source' => 'stack', 'attribute' => 'remaining_cost', 'title' => 'Cost', 'numformat' => true),
 			'inputdate' => array('source' => 'transaction', 'attribute' => 'movementdate', 'title' => 'Entry Date', 'isdate' => true),
 			'daysinstock' => array('source' => 'stack', 'attribute' => 'daysinstock', 'title' => 'In Stock<br />(Days)', 'styles' => array(150 => 'background-color: #F1594A; text-align: center;', 120 => 'background-color: #F8C830; text-align: center;', 90 => 'background-color: #F2EB80; text-align: center;', 0 => 'background-color: #ABD25E; text-align: center;')),
 			'expirydate' => array('source' => array('transaction', 'attributes'), 'attribute' => 'guaranteedate', 'title' => 'Expiry Date', 'isdate' => true),
@@ -73,7 +78,7 @@ if($core->input['authCode'] == AUTHCODE) {
 		$output = '<h3>Stock Alert Report - '.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].')</h3>';
 		$inputs = $integration->get_fifoinputs(array($orgid), array('hasqty' => true));
 
-		$output .= '<strong>The following products have expired or are expiring soon!</strong><br /><table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
+		$output .= '<div style="font-weight: bold; color: red; font-size:18pt;">The following products have expired or are expiring soon!</div><br /><table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
 		$output .= '<tr>';
 		foreach($output_fields as $field => $configs) {
 			if(is_array($configs)) {
@@ -85,8 +90,16 @@ if($core->input['authCode'] == AUTHCODE) {
 		}
 		$output .= '</tr>';
 		if(is_array($inputs)) {
+			$order_attr = 'remaining_cost';
+			${$order_attr} = array();
+			foreach($inputs as $data_key => $data_row) {
+				${$order_attr}[$data_key] = $data_row['stack'][$order_attr];
+			}
+			array_multisort(${$order_attr}, SORT_DESC, $inputs);
+
 			foreach($inputs as $id => $input) {
 				if($input['transaction']['attributes']['daystoexpire'] > 90 || $input['transaction']['attributes']['daystoexpire'] == '') {
+					unset($inputs[$id]);
 					continue;
 				}
 				$found_one = true;
@@ -181,16 +194,24 @@ if($core->input['authCode'] == AUTHCODE) {
 
 			$email_data['to'][] = $affiliateobj->get_generalmanager()->get()['email'];
 			$email_data['to'][] = $affiliateobj->get_financialemanager()->get()['email'];
+			$email_data['to'][] = $affiliateobj->get_supervisor()->get()['email'];
 
 			if(isset($affiliates_addrecpt[$affid])) {
 				foreach($affiliates_addrecpt[$affid] as $uid) {
-					$adduser = new Users($uid);
+					if(!is_numeric($uid)) {
+						$adduser = Users::get_user_byattr('username', $uid);
+					}
+					else {
+						$adduser = new Users($uid);
+					}
 					$email_data['to'][] = $adduser->get()['email'];
 				}
 			}
-			$email_data['to'] = array();
-			$email_data['to'][] = 'christophe.sacy@orkila.com';
 
+			array_unique($email_data['to']);
+			//$email_data['to'] = array();
+			//$email_data['to'][] = 'christophe.sacy@orkila.com';
+			//print_r($email_data);
 			$mail = new Mailer($email_data, 'php');
 			unset($message);
 		}

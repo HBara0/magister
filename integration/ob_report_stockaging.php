@@ -24,15 +24,19 @@ if($core->input['authCode'] == AUTHCODE) {
 			'F2347759780B43B1A743BEE40BA213AD' => 23, //Orkila Ghana
 			'BD9DC2F7883B4E11A90B02A9A47991DC' => 1, //Orkila Lebanon			
 			'933EC892369245E485E922731D46FCB1' => 20, //Orkila Senegal
-			'51FB1280AB104EFCBBB982D50B3B7693' => 21 //Orkila CI
+			'51FB1280AB104EFCBBB982D50B3B7693' => 21, //Orkila CI
+			'7AD08388D369403A9DF4B8240E3AD7FF' => 27 //Orkila International
 	);
 
 	$affiliates_addrecpt = array(
-			19 => array(244),
-			22 => array(248, 246, 287, 270),
-			23 => array(285, 322, 321),
-			1 => array(12, 333, 182, 43),
-			21 => array(63)
+			19 => array(244, 'audrey.sacy'),
+			22 => array(248, 246, 287, 270, 'audrey.sacy'),
+			23 => array('zadok.oppong-boahene', 'courage.dzandu', 322, 321, 'audrey.sacy'),
+			1 => array(12, 333, 182, 43, 'audrey.sacy'),
+			21 => array(63, 158, 'audrey.sacy'),
+			27 => array(12, 333, 68, 67, 'audrey.sacy'),
+			20 => array('michel.mbengue', 'abdoulaye.lo', 'audrey.sacy'),
+			11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 'audrey.sacy')
 	);
 
 	$integration = new IntegrationOB($db_info, 'C08F137534222BD001345B7B2E8F182D', $affiliates_index, 3, array('from' => 'last year'));
@@ -56,18 +60,20 @@ if($core->input['authCode'] == AUTHCODE) {
 			'quantity' => array('source' => null, 'title' => 'Stock Qty', 'numformat' => true),
 			'uom' => array('source' => array('product', 'uom'), 'attribute' => 'uomsymbol', 'title' => 'UoM'),
 			//'cost' => 'Cost',
-			'cost' => array('source' => null, 'title' => 'Cost', 'numformat' => true),
-			'range1cost' => array('source' => array('entries', 'cost'), 'attribute' => 1, 'title' => '0-90<br />Amt', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
+			'cost' => array('source' => 'entries', 'attribute' => 'cost', 'title' => 'Cost', 'numformat' => true),
+			'costusd' => array('source' => null, 'title' => 'Cost (USD)', 'numformat' => true),
+			'range1cost' => array('source' => array('entries', 'costs'), 'attribute' => 1, 'title' => '0-90<br />Amt', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
 			'range1costusd' => array('source' => null, 'attribute' => 1, 'title' => '0-90<br />Amt USD', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
 			'range1qty' => array('source' => array('entries', 'qty'), 'attribute' => 1, 'title' => '0-90<br />Qty', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
 			//'range2cost' => array('source' => array('entries', 'cost'), 'attribute' => 2, 'title' => '30-59<br />Amt', 'numformat' => true, 'styles' => 'background-color: #B8E1F2;'),
 			//'range2qty' => array('source' => array('entries', 'qty'), 'attribute' => 2, 'title' => '30-59<br />Qty', 'numformat' => true, 'styles' => 'background-color: #B8E1F2;'),
 			//'range3cost' => array('source' => array('entries', 'cost'), 'attribute' => 3, 'title' => '60-89<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F2EB80;'),
 			//'range3qty' => array('source' => array('entries', 'qty'), 'attribute' => 3, 'title' => '60-89<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F2EB80;'),
-			'range4cost' => array('source' => array('entries', 'cost'), 'attribute' => 4, 'title' => '90-180<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
+			'range4cost' => array('source' => array('entries', 'costs'), 'attribute' => 4, 'title' => '90-180<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
 			'range4costusd' => array('source' => null, 'attribute' => 4, 'title' => '90-180<br />Amt USD', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
 			'range4qty' => array('source' => array('entries', 'qty'), 'attribute' => 4, 'title' => '90-180<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
-			'range5cost' => array('source' => array('entries', 'cost'), 'attribute' => 5, 'title' => '> 180<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F1594A;'),
+			'range5cost' => array('source' => array('entries', 'costs'), 'attribute' => 5, 'title' => '> 180<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F1594A;'),
+			'range5costusd' => array('source' => null, 'attribute' => 5, 'title' => '> 180<br />Amt USD', 'numformat' => true, 'styles' => 'background-color: #F1594A;'),
 			'range5qty' => array('source' => array('entries', 'qty'), 'attribute' => 5, 'title' => '> 180<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F1594A;')
 	);
 
@@ -76,7 +82,7 @@ if($core->input['authCode'] == AUTHCODE) {
 	$summary_order_attr = 'cost';
 	$maintable_hiddencols = array('supplier', 'warehouse', 'category');
 
-	$total_types = array('quantity', 'cost', 'range1cost', 'range1qty', /* 'range2cost', 'range2qty', 'range3cost', 'range3qty', */ 'range4cost', 'range4qty', 'range5cost', 'range5qty');
+	$total_types = array('quantity', 'cost', 'costusd', 'range1cost', 'range1qty', 'range1costusd', /* 'range2cost', 'range2qty', 'range3cost', 'range3qty', */ 'range4cost', 'range4qty', 'range5cost', 'range5qty');
 	foreach($affiliates_index as $orgid => $affid) {
 		$output = '';
 		$inputs = array();
@@ -84,9 +90,11 @@ if($core->input['authCode'] == AUTHCODE) {
 		$affiliateobj = new Affiliates($affid, false);
 		$affiliate = $affiliateobj->get();
 		$affiliate['currency'] = $affiliateobj->get_country()->get_maincurrency()->get()['alphaCode'];
-		$output = '<h3>'.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].')</h3>';
-		$rawinputs = $integration->get_fifoinputs(array($orgid), array('hasqty' => true));
 
+		$rawinputs = $integration->get_fifoinputs(array($orgid), array('hasqty' => true));
+		$fxrates['usd'] = $currency_obj->get_latest_fxrate($affiliate['currency']);
+
+		$output = '<h3>'.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')</h3>';
 		foreach($rawinputs as $key => $input) {
 			//$inputs[$input['product']['m_product_id']]['product'] = $input['product'];
 
@@ -106,8 +114,17 @@ if($core->input['authCode'] == AUTHCODE) {
 				$range = 5;
 			}
 			$rawinputs[$key]['entries']['qty'][$range] += $input['stack']['remaining_qty'];
-			$rawinputs[$key]['entries']['cost'][$range] += $input['stack']['remaining_cost'];
+			$rawinputs[$key]['entries']['costs'][$range] += $input['stack']['remaining_cost'];
+
+			$rawinputs[$key]['entries']['cost'] += $input['stack']['remaining_cost'];
 		}
+
+		$order_attr = 'cost';
+		${$order_attr} = array();
+		foreach($rawinputs as $data_key => $data_row) {
+			${$order_attr}[$data_key] = $data_row['entries'][$order_attr];
+		}
+		array_multisort(${$order_attr}, SORT_DESC, $rawinputs);
 
 		$output .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
 		$output .= '<tr>';
@@ -214,19 +231,33 @@ if($core->input['authCode'] == AUTHCODE) {
 				}
 				else {
 					switch($field) {
-						case 'cost':
-							$output_value = array_sum($input['entries']['cost']);
+//                        case 'cost':
+//                            $output_value = array_sum($input['entries']['cost']);
+//                            if(in_array($field, $summary_reqinfo)) {
+//                                foreach($summary_categories as $category => $attribute) {
+//                                    $summaries[$category][$input[$category][$attribute]][$field] += $output_value;
+//                                }
+//                            }
+//
+//                            if(in_array($field, $total_types)) {
+//                                $totals[$field] += $output_value;
+//                            }
+//
+//                            $output .= '<td style="border: 1px solid #CCC; text-align: right;">'.number_format($output_value, $report_options['roundto'], '.', ' ').'</td>';
+//                            break;
+
+						case 'costusd':
+							$output_value = $input['stack']['remaining_cost'] / $fxrates['usd'];
 							if(in_array($field, $summary_reqinfo)) {
 								foreach($summary_categories as $category => $attribute) {
 									$summaries[$category][$input[$category][$attribute]][$field] += $output_value;
 								}
 							}
+							$output .= '<td style="border: 1px solid #CCC; text-align: right;">'.number_format($output_value, $report_options['roundto'], '.', ' ').'</td>';
 
 							if(in_array($field, $total_types)) {
 								$totals[$field] += $output_value;
 							}
-
-							$output .= '<td style="border: 1px solid #CCC; text-align: right;">'.number_format($output_value, $report_options['roundto'], '.', ' ').'</td>';
 							break;
 						case 'quantity':
 							$output_value = array_sum($input['entries']['qty']);
@@ -242,27 +273,21 @@ if($core->input['authCode'] == AUTHCODE) {
 							$output .= '<td style="border: 1px solid #CCC; text-align: right;">'.number_format($output_value, $report_options['roundto'], '.', ' ').'</td>';
 							break;
 						case preg_match('/^range(0-9)+costusd/i', $field):
-//						case 'range1costusd':
-//						case 'range2costusd':
-//						case 'range3costusd':
-//						case 'range4costusd':
-//						case 'range5costusd':
-							$rate = $currency_obj->get_average_fxrate($affiliate['currency'], array());
-							if(empty($rate)) {
-								$rate = $currency_obj->get_latest_fxrate($affiliate['currency']);
-							}
-							$output_value = $input['entries']['cost'][$configs['attribute']] / $rate;
+							$output_value = $input['entries']['costs'][$configs['attribute']] / $fxrates['usd'];
 							if(in_array($field, $summary_reqinfo)) {
 								foreach($summary_categories as $category => $attribute) {
 									$summaries[$category][$input[$category][$attribute]][$field] += $output_value;
 								}
 							}
-							$output .= '<td style="border: 1px solid #CCC; text-align: right;">'.number_format($output_value, $report_options['roundto'], '.', ' ').'</td>';
+
+							if(isset($configs['styles'])) {
+								$output_td_style .= $configs['styles'];
+							}
+							$output .= '<td style="border: 1px solid #CCC; text-align: right; '.$output_td_style.'">'.number_format($output_value, $report_options['roundto'], '.', ' ').'</td>';
 
 							if(in_array($field, $total_types)) {
 								$totals[$field] += $output_value;
 							}
-							//$totals['costusd'][$date_valueobj->format('Y')][$date_valueobj->format('n')] += $input['stack']['remaining_cost'] / $rate;
 							break;
 					}
 				}
@@ -278,13 +303,14 @@ if($core->input['authCode'] == AUTHCODE) {
 			if(is_numeric($output_value)) {
 				$output_value = number_format($output_value, $report_options['roundto'], '.', ' ');
 			}
-			$output .= '<td style="border: 1px solid #CCC; font-weight: bold; text-align: right;">'.$output_value.'</td>';
+			$output .= '<td style="border: 1px solid #CCC; font-weight: bold; text-align: right; text-decoration:underline">'.$output_value.'</td>';
 		}
 		$output .= '</tr>';
 		$output .= '</table>';
 		/* Parse Summaries - Start */
 		if(is_array($summaries)) {
 			foreach($summaries as $category => $category_data) {
+				$totals = array();
 				$output .= '<h3>'.$output_fields[$category]['title'].' Summary</h3>';
 				$output .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
 				$output .= '<tr><th style="background: #91b64f;">'.$output_fields[$category]['title'].'</th>';
@@ -308,6 +334,9 @@ if($core->input['authCode'] == AUTHCODE) {
 							$output_values = $output_value;
 							$output_value = '';
 							foreach($output_values as $output_key_temp => $output_value_temp) {
+								if(in_array($output_key, $total_types)) {
+									$totals[$output_key][$output_key_temp] += $output_value_temp;
+								}
 								if($output_fields[$output_key]['numformat'] == true) {
 									$output_value_temp = number_format($output_value_temp, $report_options['roundto'], '.', ' ');
 									$output_td_style = ' text-align: right;';
@@ -317,6 +346,9 @@ if($core->input['authCode'] == AUTHCODE) {
 						}
 						else {
 							if($output_fields[$output_key]['numformat']) {
+								if(in_array($output_key, $total_types)) {
+									$totals[$output_key] += $output_value;
+								}
 								if($output_fields[$output_key]['numformat'] == true) {
 									$output_value = number_format($output_value, $report_options['roundto'], '.', ' ');
 									$output_td_style = ' text-align: right;';
@@ -331,6 +363,30 @@ if($core->input['authCode'] == AUTHCODE) {
 					}
 					$output .= '</tr>';
 				}
+
+				/* Output summary table totals row - START */
+				$output .= '<tr>';
+				$output .= '<td style="border: 1px solid #CCC;"></td>';
+				$output_value = null;
+				foreach($summary_reqinfo as $field) {
+					if(is_array($totals[$field])) {
+						foreach($totals[$field] as $key => $output_value_temp) {
+							if(is_numeric($output_value_temp)) {
+								$output_value .= number_format($output_value_temp, $report_options['roundto'], '.', ' ').' '.$key.'<br />';
+							}
+						}
+					}
+					else {
+						$output_value = $totals[$field];
+						if(is_numeric($output_value)) {
+							$output_value = number_format($output_value, $report_options['roundto'], '.', ' ');
+						}
+					}
+					$output .= '<td style="border: 1px solid #CCC; font-weight: bold; text-align: right; text-decoration:underline">'.$output_value.'</td>';
+					$output_value = '';
+				}
+				$output .= '</tr>';
+				/* Output summary table totals row - END */
 				$output .= '</table>';
 			}
 		}
@@ -350,13 +406,21 @@ if($core->input['authCode'] == AUTHCODE) {
 
 		if(isset($affiliates_addrecpt[$affid])) {
 			foreach($affiliates_addrecpt[$affid] as $uid) {
-				$adduser = new Users($uid);
+				if(!is_numeric($uid)) {
+					$adduser = Users::get_user_byattr('username', $uid);
+				}
+				else {
+					$adduser = new Users($uid);
+				}
+
 				$email_data['to'][] = $adduser->get()['email'];
 			}
 		}
+
 		//print_r($email_data);
 		//print_r($email_data);
-		//$mail = new Mailer($email_data, 'php');
+		//print_r($email_data);
+		$mail = new Mailer($email_data, 'php');
 		unset($message);
 	}
 }
