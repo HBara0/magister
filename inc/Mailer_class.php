@@ -269,7 +269,7 @@ class Mailer_oophp extends Mailer_functions {
 		return $header;
 	}
 
-	public function add_attachment($attachment, $type = '') {
+	public function add_attachment($attachment, $type = '', $config = array()) {
 		if(!isset($this->mail_data['attachments'])) {
 			$this->mail_data['attachments'] = array();
 		}
@@ -280,8 +280,13 @@ class Mailer_oophp extends Mailer_functions {
 		fclose($handle);
 
 		$attachment_content = chunk_split(base64_encode($attachment_content));
-		$filename = basename($attachment);
-
+		if(isset($config['filename']) && !empty($config['filename'])) {
+			$filename = $config['filename'];
+		}
+		else {
+			$filename = basename($attachment);
+		}
+		
 		$this->mail_data['attachments'][$attachment_id] = "--".$this->boundaries[1]."\n";
 		if(isset($type) && !empty($type)) {
 			$this->mail_data['attachments'][$attachment_id] .= "Content-Type: ".$type."; name=\"".$filename."\"\n";
@@ -381,6 +386,10 @@ class Mailer_oophp extends Mailer_functions {
 
 	public function get_status() {
 		return $this->status;
+	}
+
+	public function debug_info() {
+		return $this->mail_data;
 	}
 
 }
