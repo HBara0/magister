@@ -356,10 +356,15 @@ class ReportingQr Extends Reporting {
 		return $this->reportdetails['finalizer'] = $report_finalizer->get();
 	}
 
-	public function get_report_supplier() {
+	public function get_report_supplier($return_object = false) {
 		global $db;
 		$report_supplier = new Entities($this->report['spid'], '', false);
-		return $this->reportdetails['supplier'] = $report_supplier->get();
+		if($return_object == true) {
+			return $report_supplier;
+		}
+		else {
+			return $this->reportdetails['supplier'] = $report_supplier->get();
+		}
 	}
 
 	public function get_classified_productsactivity() {
@@ -376,14 +381,6 @@ class ReportingQr Extends Reporting {
 
 	public function get_status() {
 		return $this->status;
-	}
-
-	public function get_report_supplier_audits() {
-		global $db;
-		return $db->fetch_assoc($db->query("SELECT u.uid,displayName AS employeeName, u.email
-			FROM ".Tprefix."users u
-			JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid)
-			WHERE sa.eid=".$this->report['spid'].""));
 	}
 
 	public function check_outliers($method = 'standarddev', $threshold = 3) {
@@ -675,9 +672,14 @@ class ReportingQr Extends Reporting {
 		}
 	}
 
-	public static function get_reports() {
+	public static function get_reports(array $options = array()) {
 		global $db;
-		$reports_query = $db->query("SELECT rid FROM ".Tprefix."reports");
+
+		if($options['filter_where']) {
+			$query_where = ' WHERE '.$options['filter_where'];
+		}
+
+		$reports_query = $db->query("SELECT rid FROM ".Tprefix.'reports'.$query_where);
 		while($allreports = $db->fetch_assoc($reports_query)) {
 			$allqrreports[$allreports['rid']] = new ReportingQr(array('rid' => $allreports['rid']));
 		}
