@@ -621,28 +621,35 @@ else {
 			foreach($mrktcompetitor_objs as $mrktcompetitor_obj) {
 				$mrktintl_detials['competitors'] = $mrktcompetitor_obj->get();
 				if(is_array($mrktintl_detials['competitors'])) {
-					$marketintelligencedetail_competitors = ' <div class="thead">'.$lang->competitor.'</div>';
+					//$marketintelligencedetail_competitors = ' <div class="thead">'.$lang->competitor.'</div>';
 					$mrktintl_detials['competitors']['unitPrice'] = round($mrktintl_detials['competitors']['unitPrice']);
 
 					/* Get competitor suppliers objects */
-					$competitorsentities_objs = $mrktcompetitor_obj->get_entities();
+					$competitorsentities_objs = $mrktcompetitor_obj->get_entityproducer();
 					if(is_array($competitorsentities_objs)) {
 						foreach($competitorsentities_objs as $competitorsentities_obj) {
-							$mrktintl_detials_competitorsuppliers .= '<li>'.$competitorsentities_obj->get()['companyName'].'</li>';
+							$marketintelligencedetail_entityproducers .= '<div>'.$competitorsentities_obj->get()['companyName'].'</div>';
+						}
+					}
+					$competitorsentitiestrader_objs = $mrktcompetitor_obj->get_entitytrader();
+					if(is_array($competitorsentitiestrader_objs)) {
+						foreach($competitorsentitiestrader_objs as $competitorsentitiestrader_obj) {
+							$marketintelligencedetail_entitytraders .= '<div>'.$competitorsentitiestrader_obj->get()['companyName'].'</div>';
 						}
 					}
 					/* Get competitor suppliers prodcuts */
 					$competitorsproducts_objs = $mrktcompetitor_obj->get_products();
 					if(is_array($competitorsproducts_objs)) {
 						foreach($competitorsproducts_objs as $competitorsproducts_obj) {
-							$mrktintl_detials_competitorproducts.= '<li>'.$competitorsproducts_obj->get()['name'].'</li>';
+							$mrktintl_detials_competitorproducts.= '<span style="padding:5px;">'.$competitorsproducts_obj->get()['name'].'</span>';
 						}
 					}
 				}
+				eval("\$mrktintl_detials_competitors_rows  = \"".$template->get('profiles_entityprofile_marketintelligence_competitors_rows')."\";");
 			}
 		}
 
-		eval("\$marketintelligencedetail_competitors .= \"".$template->get('profiles_entityprofile_marketintelligence_competitors')."\";");
+		eval("\$marketintelligencedetail_competitors  = \"".$template->get('profiles_entityprofile_marketintelligence_competitors')."\";");
 		eval("\$marketintelligencedetail = \"".$template->get('popup_marketintelligencedetails')."\";");
 		output($marketintelligencedetail);
 	}
