@@ -158,7 +158,7 @@ if(!$core->input['action']) {
 	}
 
 	if(!empty($profile['website'])) {
-		$profile['website'] = '<a href = "'.$profile['website'].'" target = "_blank">'.$profile['website'].'</a>';
+		$profile['website'] = '<a href="'.$profile['website'].'" target="_blank">'.$profile['website'].'</a>';
 	}
 	else {
 		$profile['website'] = '';
@@ -168,7 +168,7 @@ if(!$core->input['action']) {
 										FROM ".Tprefix."representatives r JOIN ".Tprefix."entitiesrepresentatives er ON (er.rpid=r.rpid)
 										WHERE er.eid={$eid}");
 	while($representative = $db->fetch_assoc($representative_query)) {
-		$representativelist .= '<a href = "#" id = "contactpersoninformation_'.base64_encode($representative['rpid']).'_profiles/entityprofile_loadpopupbyid">'.$representative['name'].'</a> - <a href = "mailto:'.$representative['email'].'">'.$representative['email'].'</a><br />';
+		$representativelist .= '<a href="#" id="contactpersoninformation_'.base64_encode($representative['rpid']).'_profiles/entityprofile_loadpopupbyid">'.$representative['name'].'</a> - <a href = "mailto:'.$representative['email'].'">'.$representative['email'].'</a><br />';
 	}
 
 	$segment_query = $db->query("SELECT * FROM ".Tprefix."entitiessegments es JOIN ".Tprefix." productsegments ps ON (es.psid=ps.psid) WHERE es.eid={$eid}");
@@ -181,7 +181,7 @@ if(!$core->input['action']) {
 								   WHERE ae.eid={$eid}
 								   ORDER BY a.name ASC");
 	while($affiliate = $db->fetch_array($affiliate_query)) {
-		$listitem['link'] = 'index.php?module = profiles/affiliateprofile&affid = '.$affiliate['affid'];
+		$listitem['link'] = 'index.php?module=profiles/affiliateprofile&affid='.$affiliate['affid'];
 		$listitem['title'] = $affiliate['name'];
 		$listitem['divhref'] = 'affiliate';
 		$listitem['loadiconid'] = 'loadentityusers_'.$affiliate['affid'].'_'.$eid;
@@ -198,9 +198,7 @@ if(!$core->input['action']) {
 
 	while($entityusers = $db->fetch_array($entityusers_query)) {
 		if(++$entityusers_counter > $core->settings['itemsperlist']) {
-			$hidden_entityusers .= "<li><a href='./users.php?action = profile&uid = {
-			$entityusers[uid]
-		}' target='_blank'>{$entityusers['fullname']}</a></li>";
+			$hidden_entityusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a></li>";
 		}
 		elseif($entityusers_counter == $core->settings['itemsperlist']) {
 			$shown_entityallusers .= "<li><a href='./users.php?action=profile&uid={$entityusers[uid]}' target='_blank'>{$entityusers['fullname']}</a>";

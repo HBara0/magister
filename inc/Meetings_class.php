@@ -101,7 +101,9 @@ class Meetings {
 				$this->set_associations($this->meeting['associations']);
 				/* insert meetings Attendees */
 				$this->set_attendees($this->meeting['attendees']);
-				$this->add_attachments($this->meeting['attachments']);
+				if(isset($this->meeting['attachments']) && !empty($this->meeting['attachments'])) {
+					$this->add_attachments($this->meeting['attachments']);
+				}
 				$this->send_invitations();
 
 				$this->errorcode = 0;
@@ -111,11 +113,20 @@ class Meetings {
 	}
 
 	public function add_attachments($attachments) {
-		if(is_array($attachments)) {
-			$MeetingsAttachments_obj = new MeetingsAttachments();
-			if($MeetingsAttachments_obj->add($attachments, $this->meeting['mtid'])) {
-				$this->errorcode = 0;
-				//return true;
+		foreach($attachments['attachments'] as $field => $items) {
+			foreach($items as $id => $item) {
+				$transposed_attachments[$id][$field] = $item;
+			}
+		}
+
+		if(is_array($transposed_attachments)) {
+			foreach($transposed_attachments as $attachmentraw) {
+				$meetingsattachments_obj = new MeetingsAttachments();
+
+				foreach($attachmentraw as $key => $val) {
+					$attachment[$key][0] = $val;
+				}
+				$meetingsattachments_obj->add($attachment, $this->meeting['mtid']);
 			}
 		}
 	}
@@ -175,13 +186,11 @@ class Meetings {
 					if(is_array($meeting_attachobjs)) {
 						$attachments_path = './uploads/meetings';
 						foreach($meeting_attachobjs as $meeting_attachobj) {
-							$attachments = $meeting_attachobj->get();
-							print_R($attachments);
-							if(is_array($attachments) && !empty($attachments['name'])) {
-								$mailer->add_attachment($attachments_path.'/'.$attachments['name']);
-							}
+							$attachment = $meeting_attachobj->get();
+							$mailer->add_attachment($attachments_path.'/'.$attachment['filename'], $attachment['type'], array('filename' => $attachment['title']));
 						}
 					}
+
 					$mailer->send();
 				}
 
@@ -484,10 +493,10 @@ class Meetings {
 
 	public function get_attachments() {
 		global $db;
-		$query = $db->query('SELECT mattid FROM '.Tprefix.'meetings_attachments  WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
+		$query = $db->query('SELECT mattid FROM '.Tprefix.'meetings_attachments WHERE mtid='.$db->escape_string($this->meeting['mtid'].''));
 		if($db->num_rows($query)) {
-			while($rowmeeting = $db->fetch_assoc($query)) {
-				$attachments[$rowmeeting['mattid']] = new MeetingsAttachments($rowmeeting['mattid']);
+			while($attachment = $db->fetch_assoc($query)) {
+				$attachments[$attachment['mattid']] = new MeetingsAttachments($attachment['mattid']);
 			}
 			return $attachments;
 		}
