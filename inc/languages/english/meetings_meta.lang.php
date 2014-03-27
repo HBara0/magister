@@ -40,5 +40,5 @@ $lang['employee'] = 'Employee';
 $lang['requireduser'] = 'you must select at least one user';
 $lang['notifyreps'] = 'Notify Representatives';
 $lang['notifyusers'] = 'Notify Employees';
-$lang['attachements']='Attachements';
+$lang['attachements'] = 'Attachements';
 ?>
