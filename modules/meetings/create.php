@@ -95,6 +95,8 @@ if(!$core->input['action']) {
 			}
 
 			/* parse Attachments ---END */
+
+			eval("\$meeting_attachments = \"".$template->get('meeting_edit_attachements')."\";");
 		}
 		else {
 			redirect('index.php?module=meetings/list');
@@ -106,6 +108,7 @@ if(!$core->input['action']) {
 		$reprowid = 1;
 		eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendee')."\";");
 		eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");
+		eval("\$meeting_attachments = \"".$template->get('meeting_create_attachments')."\";");
 		$sectionsvisibility['associationssection'] = ' display:none;';
 		$action = 'create';
 	}
@@ -124,9 +127,9 @@ if(!$core->input['action']) {
 			$events_list .= '<option value="'.$ceid.'" "'.$selected.'">'.$event['title'].'</option>';
 		}
 	}
-	eval("\$createmeeting_attachmentsfiles  = \"".$template->get('meeting_create_attachments')."\";");
+
 	eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
-	eval("\$createmeeting_attachements = \"".$template->get('meeting_edit_attachements')."\";");
+
 	eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
 
 	output($createmeeting);
