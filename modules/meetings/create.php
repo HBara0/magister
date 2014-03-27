@@ -143,43 +143,50 @@ elseif($core->input['action'] == 'deletefile') {
 	}
 }
 elseif($core->input['action'] == 'do_createmeeting') {
-	echo $headerinc;
 	$core->input['meeting']['attachments'] = $_FILES;
 	$meeting_obj = new Meetings();
 	$meeting_obj->create($core->input['meeting']);
-	$meetingattach_obj = new MeetingsAttachments();
-	if(is_array($core->input['meeting']['attachments'])) {
-		//$meeting_obj->add_attachments($core->input['meeting']['attachments']);
-		$meetingattach_obj->upload($core->input['meeting']['attachments']);
-	}
 
+	echo $headerinc;
 	switch($meeting_obj->get_errorcode()) {
 		case 0:
-			?>
-			<script language="javascript" type="text/javascript">
-				$(function() {
-					window.top.$("#upload_Result").html("<span class='red_text'><?php $lang->successfullysaved;?></span>");
-				});
-			</script>   
-			<?php
+			$output_class = 'green_text';
+			$output_message = $lang->successfullysaved;
 			break;
 		case 1:
-			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+			$output_class = 'red_text';
+			$output_message = $lang->fillallrequiredfields;
+			//output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
 			break;
 		case 2:
-			output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+			$output_class = 'red_text';
+			$output_message = $lang->errorsaving;
+			//output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
 			break;
 		case 3:
-			output_xml('<status>false</status><message>'.$lang->invaliddate.'</message>');
+			$output_class = 'red_text';
+			$output_message = $lang->invaliddate;
+			//output_xml('<status>false</status><message>'.$lang->invaliddate.'</message>');
 			break;
 		case 4:
-			output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
+			$output_class = 'red_text';
+			$output_message = $lang->meetingintersect;
+			//output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
 			break;
 
 		default:
-			output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+			$output_class = 'red_text';
+			$output_message = $lang->errorsaving;
+			//output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
 			break;
 	}
+	?>
+	<script language="javascript" type="text/javascript">
+		$(function() {
+			top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
+		});
+	</script>   
+	<?php
 }
 elseif($core->input['action'] == 'do_editmeeting') {
 	$mtid = $db->escape_string($core->input['mtid']);

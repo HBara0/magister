@@ -14,12 +14,13 @@
  * @author tony.assaad
  */
 class MeetingsAttachments {
-	private $meetingattachments = array();
+	private $attachment = array();
 	private $errorcode = 0;
+	private $attachment_upload = null;
 
 	public function __construct($id = '', $simple = false) {
 		if(isset($id) && !empty($id)) {
-			$this->attachments = $this->read($id, $simple);
+			$this->attachment = $this->read($id, $simple);
 		}
 	}
 
@@ -27,63 +28,56 @@ class MeetingsAttachments {
 		global $db;
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'mattid, title, filename';
+			$query_select = 'mattid, title, filename, type, size';
 		}
 
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."meetings_attachments WHERE mattid=".$db->escape_string($id)));
 	}
 
-	public function add($attachments, $mtid) {
+	public function add($attachment, $mtid) {
 		global $db, $core;
-		if(is_array($attachments)) {
-			$sanitize_fields = array('title', 'filename', 'filesize', 'filetype');
-			foreach($sanitize_fields as $val) {
-				$attachment[$val] = $core->sanitize_inputs($attachment[$val], array('removetags' => true));
-			}
 
-			foreach($attachments as $key => $attachment) {
-				unset($attachment['tmp_name'], $attachment['error']);
+		$sanitize_fields = array('title', 'filename', 'filesize', 'filetype');
+		foreach($sanitize_fields as $val) {
+			$attachment[$val] = $core->sanitize_inputs($attachment[$val], array('removetags' => true));
+		}
 
-				foreach($attachment as $field => $attachmentval) {
-					foreach($attachmentval as $id => $val) {
-						$attachements_data[$id][$field] = $val;
-					}
-				}
-			}
-			if(is_array($attachements_data)) {
-				foreach($attachements_data as $value) {
-					$value['mtid'] = $mtid;
-					$value['createdBy'] = $core->user['uid'];
-					$value['createdOn'] = TIME_NOW;
-					$query = $db->insert_query('meetings_attachments', $value);
-				}
-			}
-			if($query) {
-				$this->errorcode = 0;
-				return TRUE;
-			}
+		$attachment_upload['attachments'] = $attachment;
+		$upload_status = $this->upload($attachment_upload);
+		if($upload_status != 4) {
+			return false;
+		}
+		$attachment = $this->attachment_upload[0];
+		$attachment['filename'] = $attachment['name'];
+		$attachment['title'] = $attachment['originalname'];
+		$attachment['mtid'] = $mtid;
+		$attachment['createdBy'] = $core->user['uid'];
+		$attachment['createdOn'] = TIME_NOW;
+		unset($attachment['tmp_name'], $attachment['error'], $attachment['originalname'], $attachment['name'], $attachment['extension']);
+		$query = $db->insert_query('meetings_attachments', $attachment);
+
+		if($query) {
+			$this->errorcode = 0;
+			return true;
 		}
 	}
 
-	public function upload($attachements) {
+	public function upload($attachement) {
 		$upload_param['upload_allowed_types'] = array('image/jpeg', 'image/gif', 'image/png', 'application/zip', 'application/pdf', 'application/x-pdf', 'application/msword', 'application/vnd.ms-powerpoint', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
-		$upload_obj = new Uploader('attachments', $attachements, $upload_param['upload_allowed_types'], 'putfile', 5242880, 1, 1); //5242880 bytes = 5 MB (1024);
+		$upload_obj = new Uploader('attachments', $attachement, $upload_param['upload_allowed_types'], 'putfile', 5242880, 1, 1); //5242880 bytes = 5 MB (1024);
 
 		$attachments_path = './uploads/meetings';
 		$upload_obj->set_upload_path($attachments_path);
 		$upload_obj->process_file();
-		$attachments = $upload_obj->get_filesinfo();
+		$this->attachment_upload = $upload_obj->get_filesinfo();
 
-		if($upload_obj->get_status() != 4) {
-			$this->uploadstatus = $upload_obj->parse_status($upload_obj->get_status());
-		}
-		return $this->uploadstatus;
+		return $upload_obj->get_status();
 	}
 
 	public function delete() {
 		global $db;
-		if(!empty($this->attachments['mattid'])) {
-			$query = $db->delete_query('meetings_attachments', 'mattid='.$this->attachments['mattid']);
+		if(!empty($this->attachment['mattid'])) {
+			$query = $db->delete_query('meetings_attachments', 'mattid='.$this->attachment['mattid']);
 			if($query) {
 				return true;
 			}
@@ -91,11 +85,11 @@ class MeetingsAttachments {
 	}
 
 	public function get_createdby() {
-		return new Users($this->attachments['createdBy']);
+		return new Users($this->attachment['createdBy']);
 	}
 
 	public function get_modifiedby() {
-		return new Users($this->attachments['modifiedBy']);
+		return new Users($this->attachment['modifiedBy']);
 	}
 
 	public function get_errorcode() {
@@ -103,7 +97,7 @@ class MeetingsAttachments {
 	}
 
 	public function get() {
-		return $this->attachments;
+		return $this->attachment;
 	}
 
 }
