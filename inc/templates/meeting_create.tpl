@@ -9,12 +9,12 @@
 
         <script>
             $(function() {
-            $('a[id^=deletefile_]').live('click', function() {
+                $('a[id^=deletefile_]').live('click', function() {
                     if (sharedFunctions.checkSession() == false) {
                         return;
                     }
                     var id = $(this).attr('id').split("_");
-                  sharedFunctions.requestAjax("post", "index.php?module=meetings/create&action=deletefile", "mattid=" + id[1], 'deletecontainer_'+id[1], 'deletecontainer_'+id[1], true);
+                    sharedFunctions.requestAjax("post", "index.php?module=meetings/create&action=deletefile", "mattid=" + id[1], 'deletecontainer_' + id[1], 'deletecontainer_' + id[1], true);
 
                 });
 
@@ -91,9 +91,7 @@
                     {$createmeeting_associations}
                     <tr><td>&nbsp;</td></tr>
                     <tr><td class="thead" colspan="3">{$lang->attachements}</td></tr> 
-
-                    {$createmeeting_attachements}
-                    {$createmeeting_attachmentsfiles}
+                        {$meeting_attachments}
                     <tr>
                         <td colspan="2">
 
