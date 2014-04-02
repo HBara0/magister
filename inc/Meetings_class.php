@@ -445,14 +445,12 @@ class Meetings {
                 $meeting_shares['createdBy'] = $core->user['uid'];
                 $meeting_shares['createdOn'] = TIME_NOW;
                 $meeting_shares['uid'] = $core->sanitize_inputs($val);
-                if (value_exists('meetings_sharedwith', 'uid', $val, ' mtid=' . $this->meeting['mtid'])) {
+                if (!value_exists('meetings_sharedwith', 'uid', $val, ' mtid=' . $this->meeting['mtid'])) {
                     $db->insert_query('meetings_sharedwith', $meeting_shares);
-
                     $this->notify_sharedusers($meeting_shares[uid]);
-
                     $this->errorcode = 0;
                 }
-            } 
+            }
 
             //$this->send_mom();
         }
