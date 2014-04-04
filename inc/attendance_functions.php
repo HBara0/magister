@@ -343,14 +343,14 @@ function count_workingdays($uid, $check_dates_start, $check_dates_end, $is_whole
 	return $count_working_days;
 }
 
-function count_holidays($uid, $check_dates_start, $check_dates_end, $reoccurring_only = false, $specificyear_only = false) {
+function counst_holidays($uid, $check_dates_start, $check_dates_end, $reoccurring_only = false, $specificyear_only = false) {
 	global $db;
 
 	$user = $db->fetch_assoc($db->query("SELECT ae.affid 
 										FROM ".Tprefix."affiliatedemployees ae
 										WHERE ae.isMain=1 AND ae.uid='".$db->escape_string($uid)."'"));
 
-	$date_info['start'] = getdate($check_dates_start);
+	$date_info['start'] = getdate($check_dates_start); 
 	$date_info['end'] = getdate($check_dates_end);
 	$weekends = get_weekends($uid, $check_dates_start, $check_dates_end);
 	$holidays_count = 0;
@@ -390,11 +390,14 @@ function count_holidays($uid, $check_dates_start, $check_dates_end, $reoccurring
 				$month_check++;
 			}
 		}
+		if(!empty($day_querystring)) {
+			$day_querystring.= ' AND ('.$day_querystring.')';
+		}
 		$query = $db->query("SELECT * FROM ".Tprefix."holidays 
 					WHERE affid='{$user[affid]}' AND ((validFrom = 0 OR ({$date_info[start][year]} >= FROM_UNIXTIME(validFrom, '%Y') AND month >= FROM_UNIXTIME(validFrom, '%m') AND day >= FROM_UNIXTIME(validFrom, '%d'))) AND (validTo=0 OR ({$date_info[end][year]} <= FROM_UNIXTIME(validTo, '%Y') AND month <= FROM_UNIXTIME(validTo, '%m') AND day <= FROM_UNIXTIME(validTo, '%d'))))
-					AND (month BETWEEN {$date_info[start][mon]} AND {$date_info[end][mon]}) AND hid NOT IN (SELECT hid FROM ".Tprefix."holidaysexceptions WHERE uid=".intval($uid).") AND ({$day_querystring}){$year_querystring}");
+					AND (month BETWEEN {$date_info[start][mon]} AND {$date_info[end][mon]}) AND hid NOT IN (SELECT hid FROM ".Tprefix."holidaysexceptions WHERE uid=".intval($uid).") {$day_querystring} {$year_querystring}");
 		while($holiday = $db->fetch_assoc($query)) {
-			if($holiday['year'] == 0) { 
+			if($holiday['year'] == 0) {
 				$holiday['year'] = $date_info['start']['year'];
 			}
 			if(!isset($weekends[$holiday['year']][$holiday['month']][$holiday['day']])) {
