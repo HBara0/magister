@@ -26,6 +26,7 @@ class DimentionalData {
 	}
 
 	public function set_dimensions($dimensions) {
+		$dimensions = array_filter($dimensions);
 		$this->dimensions = $dimensions;
 	}
 
@@ -129,8 +130,8 @@ class DimentionalData {
 		$this->sum_dimensions($this->totals);
 		return $this->parse($options);
 	}
-
-	private function parse($options = array(), $data = null, $depth = 1, $previds = null, $total = null, $dimensions = null) {
+	
+	private function parse($options = array(), $data = null, $depth = 1, $previds = '', $total = null, $dimensions = null) {
 		global $template;
 
 		if(empty($data) || !isset($data)) {
@@ -140,7 +141,7 @@ class DimentionalData {
 		if(empty($dimensions) || !isset($dimensions)) {
 			$dimensions = $this->dimensions;
 		}
-
+		
 		if(empty($total) || !isset($total)) {
 			$total = $this->totals;
 		}
@@ -159,8 +160,8 @@ class DimentionalData {
 
 		$rowcolor = $this->generate_hexcolor($rowcolor, $depth);
 		$fontsize = $this->generate_fontsize($fontsize, $depth);
-		if(is_array($data)) {
-			foreach($data as $key => $val) {
+		if(is_array($data[$this->requiredfields[0]])) {
+			foreach($data[$this->requiredfields[0]] as $key => $val) {
 				$altrow = alt_row('trow');
 				if(!empty($previds)) {
 					$previds .= '-'.$key;
@@ -172,11 +173,12 @@ class DimentionalData {
 				if($depth <= count($dimensions)) {
 					if(isset($dimensions[$depth]) && !empty($dimensions[$depth]) && (isset($key) && !empty($key))) {
 						$class = get_object_bytype($dimensions[$depth], $key);
+						
 						if($options['outputtype'] == 'div') {
 							$columns = '<div style="display: inline-block; margin-left:'.(($depth - 1) * 20).'px;">'.$class->get()['name'].'</div>';
 						}
 						else {
-							$columns = '<td style="margin-left:'.(($depth - 1) * 20).'px;">zzzz'.$class->get()['name'].'</td>';
+							$columns = '<td style="margin-left:'.(($depth - 1) * 20).'px;">'.$class->get()['name'].'</td>';
 						}
 					}
 
@@ -185,7 +187,7 @@ class DimentionalData {
 							$columns .= '<div style="display: inline-block; font-size:'.$fontsize.'">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</div>';
 						}
 						else {
-							$columns .= '<td style="font-size:'.$fontsize.'">x'.$total[$dimensions[$depth]][$field.'-'.$previds].'</td>';
+							$columns .= '<td style="font-size:'.$fontsize.'">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</td>';
 						}
 					}
 
