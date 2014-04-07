@@ -26,8 +26,8 @@ if(!$core->input['action']) {
 		$sort_query = $core->input['sortby'].' '.$core->input['order'];
 	}
 	$sort_url = sort_url();
-
 	$limit_start = 0;
+
 	if(isset($core->input['start'])) {
 		$limit_start = $db->escape_string($core->input['start']);
 	}
@@ -82,8 +82,7 @@ if(!$core->input['action']) {
 						 JOIN ".Tprefix."users u ON (u.uid=vr.uid) 
 						 JOIN ".Tprefix."entities e ON (vr.cid=e.eid)
 						 WHERE isDraft=0{$query_where}{$filter_where}
-						 ORDER BY {$sort_query}
-						 LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
+						 ORDER BY {$sort_query}");
 
 	if($db->num_rows($query) > 0) {
 		while($visitreport = $db->fetch_assoc($query)) {

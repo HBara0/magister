@@ -29,11 +29,11 @@ if(!$core->input['action']) {
 		if(is_array($meeting)) {
 			if(!empty($meeting['fromDate'])) {
 				$meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
-				$meeting['fromTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['timeformat'], $meeting['fromDate'])));
+				$meeting['fromTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['24hourtimeformat'], $meeting['fromDate'])));
 			}
 			if(!empty($meeting['toDate'])) {
 				$meeting['toDate_output'] = date($core->settings['dateformat'], $meeting['toDate']);
-				$meeting['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['timeformat'], $meeting['toDate'])));
+				$meeting['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['24hourtimeformat'], $meeting['toDate'])));
 			}
 			if($meeting['isPublic'] == 1) {
 				$checked_checkboxes['isPublic'] = ' checked="checked"';
@@ -85,15 +85,18 @@ if(!$core->input['action']) {
 			/* parse Attachments ---START */
 			$attachmentrow = 0;
 			$meeting_attachobjs = $meeting_obj->get_attachments();
-			foreach($meeting_attachobjs as $meeting_attachobj) {
-				$altrow = alt_row('trow');
-				$attachmentrow++;
-				$meeting_attachments = $meeting_attachobj->get();
-				if(is_array($meeting_attachments)) {
-					eval("\$createmeeting_edit_attachmentsfiles .= \"".$template->get('meeting_edit_attachments_files')."\";");
+			if(is_array($meeting_attachobjs)) {
+
+				foreach($meeting_attachobjs as $meeting_attachobj) {
+					$altrow = alt_row('trow');
+					$attachmentrow++;
+					$meeting_attachments = $meeting_attachobj->get();
+					/* Limit permission to view meeting attachments */
+					if(is_array($meeting_attachments) && $meeting_obj->can_viewmeeting()) {
+						eval("\$createmeeting_edit_attachmentsfiles .= \"".$template->get('meeting_edit_attachments_files')."\";");
+					}
 				}
 			}
-
 			/* parse Attachments ---END */
 
 			eval("\$meeting_attachments = \"".$template->get('meeting_edit_attachements')."\";");
@@ -141,7 +144,8 @@ elseif($core->input['action'] == 'deletefile') {
 		$deleted = $meetingattach_obj->delete();
 		header('Content-type: text/javascript');
 		if($deleted) {
-			echo '$("tr[id=\'file_'.$mattid.'\']").css("display","none");';
+			echo '$("div[id=\'file_'.$mattid.'\']").css("display","none");';
+			exit;
 		}
 	}
 }
@@ -183,30 +187,45 @@ elseif($core->input['action'] == 'do_createmeeting') {
 			//output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
 			break;
 	}
-	?>
-	<script language="javascript" type="text/javascript">
-		$(function() {
-			top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
-		});
-	</script>   
-	<?php
 }
 elseif($core->input['action'] == 'do_editmeeting') {
 	$mtid = $db->escape_string($core->input['mtid']);
 	$core->input['meeting']['attachments'] = $_FILES;
-
 	$meeting_obj = new Meetings($mtid);
 	$meeting_obj->update($core->input['meeting']);
+	echo $headerinc;
 	switch($meeting_obj->get_errorcode()) {
-		case 2:
-			output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+		case 0:
+			$output_class = 'green_text';
+			$output_message = $lang->successfullysaved;
 			break;
 		case 1:
-			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+			$output_class = 'red_text';
+			$output_message = $lang->fillallrequiredfields;
+			//output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
 			break;
+
 		case 3:
-			output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
+			$output_class = 'red_text';
+			$output_message = $lang->invaliddate;
+			//output_xml('<status>false</status><message>'.$lang->invaliddate.'</message>');
+			break;
+		case 4:
+			$output_class = 'red_text';
+			$output_message = $lang->meetingintersect;
+			//output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
+			break;
+
+		default:
+			$output_class = 'red_text';
+			$output_message = $lang->errorsaving;
+			//output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
 			break;
 	}
 }
 ?>
+<script language="javascript" type="text/javascript">
+	$(function() {
+		top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
+	});
+</script>   

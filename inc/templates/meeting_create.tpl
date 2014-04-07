@@ -87,10 +87,10 @@
                             </table>
                         </td>
                     </tr>
-                    <tr><td class="thead" colspan="3">{$lang->associations}<a title="{$lang->associations}" href="#associationssection" onClick="$('#associationssection').fadeToggle();">...</a></td></tr>
+                    <tr><td class="thead" colspan="2">{$lang->associations}<a title="{$lang->associations}" href="#associationssection" onClick="$('#associationssection').fadeToggle();">...</a></td></tr>
                     {$createmeeting_associations}
                     <tr><td>&nbsp;</td></tr>
-                    <tr><td class="thead" colspan="3">{$lang->attachements}</td></tr> 
+                    <tr><td class="thead" colspan="2">{$lang->attachements}</td></tr> 
                         {$meeting_attachments}
                     <tr>
                         <td colspan="2">
