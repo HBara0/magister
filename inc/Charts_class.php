@@ -191,7 +191,9 @@ class Charts {
 		if(count($this->data['x']) == 1) {
 			$this->data['x'][0] = '';
 		}
-		ksort($this->data['x']);
+		if(!isset($this->options['nosort']) || $this->options['nosort'] == false) {
+			ksort($this->data['x']);
+		}
 		$this->DataSet->addPoints($this->data['x'], 'x');
 		$this->DataSet->setSerieDescription('x', $this->options['xaxisname']);
 		$this->DataSet->setAbscissa('x');
@@ -216,12 +218,24 @@ class Charts {
 		$this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 8));
 
 		/* Define the chart area */
-		$this->chart->setGraphArea(70, 30, $this->options['width'] - 20, $this->options['height'] - 20);
+
+		if(!isset($this->options['graphareax2margin'])) {
+			$this->options['graphareax2margin'] = 20;
+		}
+
+		if(!isset($this->options['graphareay2margin'])) {
+			$this->options['graphareay2margin'] = 20;
+		}
+
+		$this->chart->setGraphArea(70, 30, $this->options['width'] - $this->options['graphareax2margin'], $this->options['height'] - $this->options['graphareay2margin']);
 
 		/* Draw the scale */
 		$scaleSettings = array('XMargin' => 10, 'YMargin' => 10, 'Floating' => TRUE, 'GridR' => 150, 'GridG' => 150, 'GridB' => 150, 'DrawSubTicks' => TRUE, 'CycleBackground' => TRUE);
 		if(is_array($this->options['fixedscale']) && !empty($this->options['fixedscale'])) {
 			$scaleSettings['ManualScale'] = array(0 => array('Min' => $this->options['fixedscale']['min'], 'Max' => $this->options['fixedscale']['max']));
+		}
+		if(isset($this->options['labelrotationangle'])) {
+			$scaleSettings['LabelRotation'] = $this->options['labelrotationangle'];
 		}
 		$this->chart->drawScale($scaleSettings);
 
@@ -256,6 +270,10 @@ class Charts {
 		/* Write the chart legend */
 		$this->chart->drawLegend(75, 20, array('Style' => LEGEND_NOBORDER, 'Mode' => LEGEND_HORIZONTAL));
 
+
+		if(isset($this->options['path'])) {
+			$this->set_path($this->options['path']);
+		}
 		$this->imagename = $this->path.'chart_'.uniqid(rand(0, time())).'.png';
 
 		/* Render the picture (choose the best way) */
@@ -386,6 +404,16 @@ class Charts {
 		}
 
 		return $new_array;
+	}
+
+	public function set_path($path) {
+		global $core;
+		$this->path = $path;
+		//$this->path = $core->sanitize_path($path);
+	}
+
+	public function delete_chartfile() {
+		@unlink($this->imagename);
 	}
 
 	private function remove_values_spaces() {
