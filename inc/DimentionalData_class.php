@@ -10,7 +10,9 @@
 
 class DimentionalData {
 	private $data = null;
+	private $raw_data = null;
 	private $dimensions = null;
+	private $requiredfields = null;
 	private $totals = array();
 
 	function __construct($data = null, $dimensions = null) {
@@ -27,11 +29,47 @@ class DimentionalData {
 		$this->dimensions = $dimensions;
 	}
 
-	public function set_data($data) {
-		$this->data = $data;
+	public function set_data($data, $requiredfields = '') {
+		$this->raw_data = $data;
+		$this->data = $this->dimensionalize($requiredfields);
 	}
 
-	private function dimensionalize(&$totals, $data = '', $dimensions = '', $depth = 0, $previds = '') {
+	public function set_requiredfields($fields) {
+		$this->requiredfields = $fields;
+	}
+
+	private function dimensionalize($requiredfields = '', $raw_datas = '', $dimensions = '') {
+		if(empty($raw_data) || !isset($raw_data)) {
+			$raw_datas = $this->raw_data;
+		}
+
+		if(empty($dimensions) || !isset($dimensions)) {
+			$dimensions = $this->dimensions;
+		}
+
+		if(empty($requiredfields) || !isset($requiredfields)) {
+			$requiredfields = $this->requiredfields;
+		}
+
+		$temp_rawdata = array();
+		$data = array();
+		$data = $temp_rawdata;
+		foreach($raw_datas as $key => $raw_data) {
+			foreach($requiredfields as $field) {		
+				$temp_data = $data;
+				$aid = &$temp_rawdata[$field];
+				foreach($dimensions as $dim) {
+					$aid[$raw_data[$dim]] = array();
+					$aid = &$aid[$raw_data[$dim]];
+				}
+				$aid[$key] = $raw_data[$field];
+				$data = array_merge_recursive_replace($temp_data, $temp_rawdata);
+			}
+		}
+		return $data;
+	}
+
+	private function sum_dimensions(&$totals, $data = '', $dimensions = '', $depth = 0, $previds = '') {
 		if(empty($data) || !isset($data)) {
 			$data = $this->data;
 		}
@@ -57,7 +95,7 @@ class DimentionalData {
 
 				if(is_array($val)) {
 					$depth = $depth + 1;
-					$this->dimensionalize($totals, $val, $dimensions, $depth, $previds);
+					$this->sum_dimensions($totals, $val, $dimensions, $depth, $previds);
 				}
 			}
 			else {
@@ -82,14 +120,13 @@ class DimentionalData {
 	}
 
 	public function get_data() {
-		$this->dimensionalize($this->totals);
+		$this->sum_dimensions($this->totals);
 
 		return $this->totals;
 	}
 
-	public function get_output($options) {
-		$totals=  array();
-		$this->dimensionalize($totals, $options['data']);
+	public function get_output($options = '') {
+		$this->sum_dimensions($this->totals);
 		return $this->parse($options);
 	}
 
@@ -108,6 +145,10 @@ class DimentionalData {
 			$total = $this->totals;
 		}
 
+		if(empty($options['requiredfields'])) {
+			$options['requiredfields'] = $this->requiredfields;
+		}
+		
 		$output = '';
 		if(empty($rowcolor)) {
 			$rowcolor = 'b1c984';
@@ -130,7 +171,7 @@ class DimentionalData {
 
 				if($depth <= count($dimensions)) {
 					if(isset($dimensions[$depth]) && !empty($dimensions[$depth]) && (isset($key) && !empty($key))) {
-						$class = get_object_type($dimensions[$depth], $key);
+						$class = get_object_bytype($dimensions[$depth], $key);
 						if($options['outputtype'] == 'div') {
 							$columns = '<div style="display: inline-block; margin-left:'.(($depth - 1) * 20).'px;">'.$class->get()['name'].'</div>';
 						}
