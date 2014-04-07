@@ -1533,29 +1533,6 @@ function array_merge_recursive_replace() {
 	return $base;
 }
 
-function dimentionalize_data($raw_datas, $dimensions, $required_fileds) {
-	$temp_rawdata = array();
-	$data = array();
-	$data = $temp_rawdata;
-	foreach($raw_datas as $key => $raw_data) {
-		foreach($required_fileds as $field) {
-			$temp_data = $data;
-			$aid = &$temp_rawdata[$field];
-			foreach($dimensions as $dim) {
-				$aid[$raw_data[$dim]] = array();
-				$aid = &$aid[$raw_data[$dim]];
-			}
-			$aid[$key] = $raw_data[$field];
-			$data = array_merge_recursive_replace($temp_data, $temp_rawdata);
-		}
-	}
-	return $data;
-}
-
-function get_object_type($dim, $id) {
-	return get_object_bytype($dim, $id);
-}
-
 function get_object_bytype($dim, $id) {
 	switch($dim) {
 		case 'affid':
