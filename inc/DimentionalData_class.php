@@ -135,7 +135,7 @@ class DimentionalData {
 		global $template;
 
 		if(empty($data) || !isset($data)) {
-			$data = $this->data;
+			$data = $this->data[$this->requiredfields[0]];
 		}
 
 		if(empty($dimensions) || !isset($dimensions)) {
@@ -160,8 +160,8 @@ class DimentionalData {
 
 		$rowcolor = $this->generate_hexcolor($rowcolor, $depth);
 		$fontsize = $this->generate_fontsize($fontsize, $depth);
-		if(is_array($data[$this->requiredfields[0]])) {
-			foreach($data[$this->requiredfields[0]] as $key => $val) {
+		if(is_array($data)) {
+			foreach($data as $key => $val) {
 				$altrow = alt_row('trow');
 				if(!empty($previds)) {
 					$previds .= '-'.$key;
@@ -175,10 +175,10 @@ class DimentionalData {
 						$class = get_object_bytype($dimensions[$depth], $key);
 						
 						if($options['outputtype'] == 'div') {
-							$columns = '<div style="display: inline-block; margin-left:'.(($depth - 1) * 20).'px;">'.$class->get()['name'].'</div>';
+							$columns = '<div style="display: inline-block; padding-left:'.(($depth - 1) * 20).'px;">'.$class->get()['name'].'</div>';
 						}
 						else {
-							$columns = '<td style="margin-left:'.(($depth - 1) * 20).'px;">'.$class->get()['name'].'</td>';
+							$columns = '<td style="padding-left:'.(($depth - 1) * 20).'px;">'.$class->get()['name'].'</td>';
 						}
 					}
 
@@ -202,12 +202,13 @@ class DimentionalData {
 							$output .= '<tr style="background-color:'.$rowcolor.'" id="dimension_'.$previds.'">'.$columns.'</tr>';
 						}
 					}
-					$columns = '';
+					
 					if(is_array($val)) {
 						$depth = $depth + 1;
 						if($depth == 0) {
 							$key = '';
 						}
+
 						$output .= $this->parse($options, $val, $depth, $previds, $total, $dimensions);  /* include the function in the recurison */
 					}
 				}
