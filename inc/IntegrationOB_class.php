@@ -472,11 +472,83 @@ class IntegrationOB extends Integration {
 		return false;
 	}
 
+	public function get_firsttransaction($organisations) {
+		$query = $this->f_db->query("SELECT m_transaction_id
+				FROM m_transaction
+				WHERE ad_org_id IN ('".implode('\',\'', $organisations)."')
+				ORDER BY trxprocessdate ASC");
+		if($this->f_db->num_rows($query) > 0) {
+			$transcation = $this->f_db->fetch_assoc($query);
+
+			return new IntegrationOBTransaction($transcation['m_transaction_id'], $this->f_db);
+		}
+		return false;
+	}
+
+	public function get_totalvalue_bydate($date, $organisations) {
+		$aging_scale = array(0, 90, 120);
+		$aging_scale = array_combine(range(1, count($aging_scale)), $aging_scale);
+
+		$query = $this->f_db->query("SELECT trx.M_PRODUCT_ID, trx.MOVEMENTQTY AS QTY, CASE WHEN trx.MOVEMENTQTY < 0 THEN- tc.trxcost ELSE tc.trxcost END AS trxcost, 
+					                   trx.C_UOM_ID, trx.AD_CLIENT_ID, trx.iscostcalculated, tc.c_currency_id, coalesce(io.dateacct,trx.movementdate) as movementdate, trx.M_TRANSACTION_ID
+					                    FROM M_TRANSACTION trx 
+					                      LEFT JOIN M_INOUTLINE iol ON trx.M_INOUTLINE_ID = iol.M_INOUTLINE_ID
+					                      LEFT JOIN M_INOUT io ON iol.M_INOUT_ID = io.M_INOUT_ID
+					                      LEFT JOIN (SELECT sum(cost) AS trxcost, m_transaction_id, c_currency_id
+					                                 FROM M_TRANSACTION_COST
+					                                 WHERE costdate < to_date( '".$date."' , 'yyyy-mm-dd')
+					                                 GROUP BY m_transaction_id, c_currency_id) tc ON trx.m_transaction_id = tc.m_transaction_id
+					                    WHERE trx.MOVEMENTDATE < to_date(  '".$date."' , 'yyyy-mm-dd')
+											AND trx.ad_org_id IN ('".implode('\',\'', $organisations)."')");
+		if($this->f_db->num_rows($query) > 0) {
+			$stock = array();
+			while($transcation = $this->f_db->fetch_assoc($query)) {
+				$transaction_obj = new IntegrationOBTransaction($transcation['m_transaction_id'], $this->f_db);
+				$fifo_input = $transaction_obj->get_inputstack();
+
+				if(is_object($fifo_input)) {
+					if(is_null($fifo_input->get_transcation()->get_inoutline())) {
+						$movement = $fifo_input->get_transcation()->get_movementline();
+						if(is_object($movement)) {
+							$transcation['daysinstock'] = $movement->get_output_transaction()->get_outputstack()->get_inputstack()->get_daysinstock();
+						}
+						else {
+							$transcation['daysinstock'] = $fifo_input->get_daysinstock();
+						}
+					}
+					else {
+						$transcation['daysinstock'] = $fifo_input->get_daysinstock();
+					}
+				}
+				$stock['info'][$transcation['m_product_id']] = $transcation;
+				$stock['value'][$transcation['m_product_id']] += $transcation['trxcost'];
+				$stock['qty'][$transcation['c_uom_id']][$transcation['m_product_id']] += $transcation['qty'];
+
+				end($aging_scale);
+				$last_aging_key = key($aging_scale);
+				reset($aging_scale);
+				foreach($aging_scale as $key => $age) {
+					if($transcation['daysinstock'] < $age || $key == $last_aging_key) {
+						$stock['aging'][$key]['value'][$transcation['m_product_id']] += $transcation['trxcost'];
+						$stock['aging'][$key]['qty'][$transcation['c_uom_id']][$transcation['m_product_id']] += $transcation['qty'];
+						break;
+					}
+					else {
+						continue;
+					}
+				}
+			}
+
+			$this->f_db->free_result($query);
+		}
+
+		return $stock;
+	}
+
 	public function get_productsstock() {
 		$query = $this->f_db->query("SELECT *
 									FROM m_transcations
-									WHERE movementdate < 
-					");
+									WHERE movementdate < ");
 	}
 
 	private function get_fifoinput($id) {
@@ -514,7 +586,7 @@ class IntegrationOBTransaction {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 
 		if(!empty($id)) {
@@ -581,7 +653,7 @@ class IntegrationOBTransaction {
 									WHERE m_transaction_id=\''.$this->transaction['m_transaction_id'].'\'');
 		if($this->f_db->num_rows($query) > 0) {
 			$stack = $this->f_db->fetch_assoc($query);
-			return new IntegrationOBInputStack($stack['obwfa_intput_stack_id'], $this->f_db);
+			return new IntegrationOBInputStack($stack['obwfa_input_stack_id'], $this->f_db);
 		}
 		return false;
 	}
@@ -597,7 +669,7 @@ class IntegrationOBTransaction {
 		if(is_array($instance)) {
 			$instance = current($instance);
 		}
-		
+
 		if(!empty($instance)) {
 			return $instance->get_attributevalue($this->f_db)->get()['value'];
 		}
@@ -625,7 +697,7 @@ class IntegrationOBMovement {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 
 		if(empty($id)) {
@@ -660,7 +732,7 @@ class IntegrationOBMovementLine {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 
 		if(empty($id)) {
@@ -732,7 +804,7 @@ class IntegrationOBInOutLine {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 
 		if(empty($id)) {
@@ -784,7 +856,7 @@ class IntegrationOBInOut {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -826,7 +898,7 @@ class IntegrationOBInvoice {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -860,7 +932,7 @@ class IntegrationOBInvoiceLine {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 
 		if(!empty($id)) {
@@ -911,7 +983,7 @@ class IntegrationOBOrder {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -945,7 +1017,7 @@ class IntegrationOBOrderLine {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -983,7 +1055,7 @@ class IntegrationOBCostingAlgorithm {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -1028,7 +1100,7 @@ class IntegrationOBInputStack {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -1052,8 +1124,7 @@ class IntegrationOBInputStack {
 			$end_date->setTimestamp(TIME_NOW);
 		}
 		else {
-			/* To be implemented later */
-			return false;
+			$end_date->setTimestamp(strtotime($relativeto));
 		}
 
 		if($input_date === false) {
@@ -1126,7 +1197,7 @@ class IntegrationOBOutputStack {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -1184,7 +1255,7 @@ class IntegrationOBCurrency {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -1214,7 +1285,7 @@ class IntegrationOBLandedCosts {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -1251,7 +1322,7 @@ class IntegrationOBProduct {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -1289,7 +1360,7 @@ class IntegrationOBProductCategory {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -1319,7 +1390,7 @@ class IntegrationOBLocator {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -1349,7 +1420,7 @@ class IntegrationOBWarehouse {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -1379,7 +1450,7 @@ class IntegrationOBBPartner {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -1409,7 +1480,7 @@ class IntegrationOBAttributeSetInstance {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -1481,7 +1552,7 @@ class IntegrationOBAttributeInstance {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -1522,7 +1593,7 @@ class IntegrationOBAttribute {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -1552,7 +1623,7 @@ class IntegrationOBAttributeValue {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}
@@ -1582,7 +1653,7 @@ class IntegrationOBUom {
 			$this->f_db = $f_db;
 		}
 		else {
-			//Open connections
+//Open connections
 		}
 		$this->read($id);
 	}

@@ -2,7 +2,7 @@
 /*
  * Copyright © 2014 Orkila International Offshore, All Rights Reserved
  * 
- * Class to dimentionalize data
+ * Class to dimensionalize data
  * $id: DimentionalData_class.php
  * Created:        @zaher.reda    Apr 6, 2014 | 7:23:52 PM
  * Last Update:    @zaher.reda    Apr 6, 2014 | 7:23:52 PM
@@ -31,7 +31,7 @@ class DimentionalData {
 		$this->data = $data;
 	}
 
-	private function dimentionalize(&$totals, $data = '', $dimensions = '', $depth = 0, $previds = '') {
+	private function dimensionalize(&$totals, $data = '', $dimensions = '', $depth = 0, $previds = '') {
 		if(empty($data) || !isset($data)) {
 			$data = $this->data;
 		}
@@ -58,7 +58,7 @@ class DimentionalData {
 
 				if(is_array($val)) {
 					$depth = $depth + 1;
-					$this->dimentionalize($totals, $val, $dimensions, $depth, $previds);
+					$this->dimensionalize($totals, $val, $dimensions, $depth, $previds);
 				}
 			}
 			else {
@@ -83,13 +83,13 @@ class DimentionalData {
 	}
 
 	public function get_data() {
-		$this->dimentionalize($this->totals);
+		$this->dimensionalize($this->totals);
 
 		return $this->totals;
 	}
 
 	public function get_output($options) {
-		$this->dimentionalize($this->totals);
+		$this->dimensionalize($this->totals);
 
 		return $this->parse($options);
 	}
