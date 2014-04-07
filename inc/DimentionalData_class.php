@@ -35,7 +35,6 @@ class DimentionalData {
 		if(empty($data) || !isset($data)) {
 			$data = $this->data;
 		}
-
 		if(empty($dimensions) || !isset($dimensions)) {
 			$dimensions = $this->dimensions;
 		}
@@ -89,8 +88,8 @@ class DimentionalData {
 	}
 
 	public function get_output($options) {
-		$this->dimensionalize($this->totals);
-
+		$totals=  array();
+		$this->dimensionalize($totals, $options['data']);
 		return $this->parse($options);
 	}
 
@@ -110,72 +109,74 @@ class DimentionalData {
 		}
 
 		$output = '';
-		if(empty($marketreport_dimensioncolor)) {
-			$marketreport_dimensioncolor = 'b1c984';
+		if(empty($rowcolor)) {
+			$rowcolor = 'b1c984';
 		}
-		if(empty($marketreport_fontsize)) {
-			$marketreport_fontsize = 18;
+		if(empty($fontsize)) {
+			$fontsize = 18;
 		}
 
 		$rowcolor = $this->generate_hexcolor($rowcolor, $depth);
-		$marketreport_fontsize = $this->generate_fontsize($marketreport_fontsize, $depth);
-		foreach($data as $key => $val) {
-			$altrow = alt_row('trow');
-			if(!empty($previds)) {
-				$previds .= '-'.$key;
-			}
-			else {
-				$previds = $key;
-			}
-
-			if($depth <= count($dimensions)) {
-				if(isset($dimensions[$depth]) && !empty($dimensions[$depth]) && (isset($key) && !empty($key))) {
-					$class = get_object_type($dimensions[$depth], $key);
-					if($options['outputtype'] == 'div') {
-						$columns = '<div style="display: inline-block; margin-left:'.(($depth - 1) * 20).'px;">'.$class->get()['name'].'</div>';
-					}
-					else {
-						$columns = '<td style="margin-left:'.(($depth - 1) * 20).'px;">'.$class->get()['name'].'</td>';
-					}
-				}
-
-				foreach($options['requiredfields'] as $field) {
-					if($options['outputtype'] == 'div') {
-						$columns .= '<div style="display: inline-block; font-size:'.$marketreport_fontsize.'">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</div>';
-					}
-					else {
-						$columns .= '<td style="font-size:'.$marketreport_fontsize.'">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</td>';
-					}
-				}
-
-				if(isset($options['template']) && !empty($options['template'])) {
-					eval("\$output .= \"".$template->get($options['template'])."\";");
+		$fontsize = $this->generate_fontsize($fontsize, $depth);
+		if(is_array($data)) {
+			foreach($data as $key => $val) {
+				$altrow = alt_row('trow');
+				if(!empty($previds)) {
+					$previds .= '-'.$key;
 				}
 				else {
-					if($options['outputtype'] == 'div') {
-						$output .= '<div style="background-color:'.$rowcolor.'" id="dimension_'.$previds.'">'.$columns.'</div>';
+					$previds = $key;
+				}
+
+				if($depth <= count($dimensions)) {
+					if(isset($dimensions[$depth]) && !empty($dimensions[$depth]) && (isset($key) && !empty($key))) {
+						$class = get_object_type($dimensions[$depth], $key);
+						if($options['outputtype'] == 'div') {
+							$columns = '<div style="display: inline-block; margin-left:'.(($depth - 1) * 20).'px;">'.$class->get()['name'].'</div>';
+						}
+						else {
+							$columns = '<td style="margin-left:'.(($depth - 1) * 20).'px;">zzzz'.$class->get()['name'].'</td>';
+						}
+					}
+
+					foreach($options['requiredfields'] as $field) {
+						if($options['outputtype'] == 'div') {
+							$columns .= '<div style="display: inline-block; font-size:'.$fontsize.'">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</div>';
+						}
+						else {
+							$columns .= '<td style="font-size:'.$fontsize.'">x'.$total[$dimensions[$depth]][$field.'-'.$previds].'</td>';
+						}
+					}
+
+					if(isset($options['template']) && !empty($options['template'])) {
+						eval("\$output .= \"".$template->get($options['template'])."\";");
 					}
 					else {
-						$output .= '<tr style="background-color:'.$rowcolor.'" id="dimension_'.$previds.'">'.$columns.'</tr>';
+						if($options['outputtype'] == 'div') {
+							$output .= '<div style="background-color:'.$rowcolor.'" id="dimension_'.$previds.'">'.$columns.'</div>';
+						}
+						else {
+							$output .= '<tr style="background-color:'.$rowcolor.'" id="dimension_'.$previds.'">'.$columns.'</tr>';
+						}
+					}
+					$columns = '';
+					if(is_array($val)) {
+						$depth = $depth + 1;
+						if($depth == 0) {
+							$key = '';
+						}
+						$output .= $this->parse($options, $val, $depth, $previds, $total, $dimensions);  /* include the function in the recurison */
 					}
 				}
-				if(is_array($val)) {
-					$depth = $depth + 1;
-					if($depth == 0) {
-						$key = '';
-					}
-					$output .= $this->parse($val, $depth, $previds, $total, $dimensions, $options);  /* include the function in the recurison */
+				$depth -= 1;
+				if($depth == 1) {
+					$previds = '';
 				}
-			}
-			$depth -= 1;
-			if($depth == 1) {
-				$previds = '';
-			}
-			else {
-				$previds = preg_replace('/-([0-9]+)$/', '', $previds); // $ Remove last portion of previd
+				else {
+					$previds = preg_replace('/-([0-9]+)$/', '', $previds); // $ Remove last portion of previd
+				}
 			}
 		}
-
 		if($options['noenclosingtags'] == false) {
 			if($options['outputtype'] == 'table') {
 				$output = '<table>'.$output.'</table>';

@@ -64,7 +64,7 @@
         {$menu}
         <td class="contentContainer">
             <h3>{$lang->mireport}</h3>
-            <form action="index.php?module=crm/marketintelligence_report_preview&amp;referrer=generate&amp;identifier={$identifier}" method="post" id="perform_crm\/marketintelligencereport_Form" name="perform_crm/marketintelligencereport_Form">
+            <form action="index.php?module=crm/marketintelligence_report_preview_obj&amp;referrer=generate&amp;identifier={$identifier}" method="post" id="perform_crm\/marketintelligencereport_Form" name="perform_crm/marketintelligencereport_Form">
                 <div class="thead" style="margin:10px;">{$lang->filters}</div>
                 <div style="display:block;width:100%;">
                     <div style="display:inline-block; padding:15px; margin:20px;vertical-align: top;">{$lang->affiliate}</div>
