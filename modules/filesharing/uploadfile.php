@@ -20,7 +20,11 @@ if($core->usergroup['filesharing_canUploadFile'] == 0) {
 }
 
 if(!$core->input['action']) {
+
 	$categories_query = get_specificdata('filescategories', array('fcid','title'), 'fcid', 'title', array('by' => 'title', 'sort' => 'ASC'), 0, 'isPublic=1');	
+		$categories_query=array(1=>'Misc',
+			2=>'Photos',
+			3=>'Success Stories');
 	$categories_list = parse_selectlist('category', 1, $categories_query, '', '', '', array('required'=>'required', 'blankstart' => true));
 	
 	if($core->usergroup['filesharing_canViewAllFilesfolder'] == 0) {
@@ -75,7 +79,7 @@ elseif($core->input['action'] == 'do_uploadfile')
 		
 	}
 
-	$allowed_types = array('application/excel', 'application/x-excel' ,'application/vnd.ms-excel', 'application/vnd.msexcel', 'image/jpeg', 'image/gif', 'image/png', 'application/zip', 'application/pdf', 'application/x-pdf', 'application/msword','application/vnd.ms-powerpoint', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/vnd.openxmlformats-officedocument.presentationml.presentation');
+	$allowed_types = array('application/excel','application/kset', 'application/kswps',  'application/octet-stream', 'application/x-excel' ,'application/vnd.ms-excel', 'application/vnd.msexcel', 'image/jpeg', 'image/gif', 'image/png', 'application/zip', 'application/pdf', 'application/x-pdf', 'application/msword','application/vnd.ms-powerpoint', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/vnd.openxmlformats-officedocument.presentationml.presentation');
 
 	$upload = new Uploader('uploadfile', $_FILES, $allowed_types, 'putfile', 5242880, 1, 1); //5242880 bytes = 5 MB (1024)
 
@@ -85,7 +89,6 @@ elseif($core->input['action'] == 'do_uploadfile')
 	//$upload->resize(200);
 	
 	$file_data = $upload->get_filesinfo();
-	
 	$multiple_files = false;
 	if(count($file_data) > 1) {
 		$multiple_files = true;
