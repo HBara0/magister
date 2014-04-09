@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright Â© 2014 Orkila International Offshore, All Rights Reserved
+ * Copyright © 2014 Orkila International Offshore, All Rights Reserved
  * 
  * Class to dimensionalize data
  * $id: DimentionalData_class.php
@@ -56,7 +56,7 @@ class DimentionalData {
 		$data = array();
 		$data = $temp_rawdata;
 		foreach($raw_datas as $key => $raw_data) {
-			foreach($requiredfields as $field) {		
+			foreach($requiredfields as $field) {
 				$temp_data = $data;
 				$aid = &$temp_rawdata[$field];
 				foreach($dimensions as $dim) {
@@ -110,6 +110,7 @@ class DimentionalData {
 					$totals[$dimensions[$depth]][$previds] = $val;
 				}
 			}
+
 			$depth -= 1;
 			if($depth == 0) {
 				$previds = '';
@@ -130,7 +131,7 @@ class DimentionalData {
 		$this->sum_dimensions($this->totals);
 		return $this->parse($options);
 	}
-	
+
 	private function parse($options = array(), $data = null, $depth = 1, $previds = '', $total = null, $dimensions = null) {
 		global $template;
 
@@ -141,7 +142,7 @@ class DimentionalData {
 		if(empty($dimensions) || !isset($dimensions)) {
 			$dimensions = $this->dimensions;
 		}
-		
+
 		if(empty($total) || !isset($total)) {
 			$total = $this->totals;
 		}
@@ -149,7 +150,7 @@ class DimentionalData {
 		if(empty($options['requiredfields'])) {
 			$options['requiredfields'] = $this->requiredfields;
 		}
-		
+
 		$output = '';
 		if(empty($rowcolor)) {
 			$rowcolor = 'b1c984';
@@ -173,7 +174,7 @@ class DimentionalData {
 				if($depth <= count($dimensions)) {
 					if(isset($dimensions[$depth]) && !empty($dimensions[$depth]) && (isset($key) && !empty($key))) {
 						$class = get_object_bytype($dimensions[$depth], $key);
-						
+
 						if($options['outputtype'] == 'div') {
 							$columns = '<div style="display: inline-block; padding-left:'.(($depth - 1) * 20).'px;">'.$class->get()['name'].'</div>';
 						}
@@ -184,25 +185,26 @@ class DimentionalData {
 
 					foreach($options['requiredfields'] as $field) {
 						if($options['outputtype'] == 'div') {
-							$columns .= '<div style="display: inline-block; font-size:'.$fontsize.'">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</div>';
+							$columns .= '<div style="display: inline-block; font-size:'.$fontsize.'px">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</div>';
 						}
 						else {
-							$columns .= '<td style="font-size:'.$fontsize.'">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</td>';
+							$columns .= '<td style="font-size:'.$fontsize.'px">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</td>';
 						}
 					}
+
 
 					if(isset($options['template']) && !empty($options['template'])) {
 						eval("\$output .= \"".$template->get($options['template'])."\";");
 					}
 					else {
 						if($options['outputtype'] == 'div') {
-							$output .= '<div style="background-color:'.$rowcolor.'" id="dimension_'.$previds.'">'.$columns.'</div>';
+							$output .= '<div style="background-color:#'.$rowcolor.'" id="dimension_'.$previds.'">'.$columns.'</div>';
 						}
 						else {
-							$output .= '<tr style="background-color:'.$rowcolor.'" id="dimension_'.$previds.'">'.$columns.'</tr>';
+							$output .= '<tr style="background-color:#'.$rowcolor.'" id="dimension_'.$previds.'">'.$columns.'</tr>';
 						}
 					}
-					
+
 					if(is_array($val)) {
 						$depth = $depth + 1;
 						if($depth == 0) {
@@ -227,6 +229,13 @@ class DimentionalData {
 			}
 		}
 		return $output;
+	}
+
+	public static function construct_dimensions($dimensions, $delimiter = ',') {
+		$dimensions = explode($delimiter, $dimensions[0]);
+		$dimensions = array_filter($dimensions);
+
+		return array_combine(range(1, count($dimensions)), array_values($dimensions));
 	}
 
 	private function generate_hexcolor($hex = '', $depth, $threshold = 2) {

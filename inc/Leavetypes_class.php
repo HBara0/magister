@@ -60,7 +60,7 @@ class Leavetypes {
 		if($expensestype['isRequired'] == 1) {
 			$expenses_output_required = '<span class="red_text">*</span>';
 			$expenses_output_requiredattr = ' required="required"';
-		} 
+		}
 		/* parsing comments fields */
 		if(isset($lang->{$expensestype['commentsTitleLangVar']})) {
 			$expensestype['commentsTitle'] = $lang->{$expensestype['commentsTitleLangVar']};
@@ -90,8 +90,40 @@ class Leavetypes {
 		$query_select = '*';
 		if($simple == true) {
 			$query_select = 'ltid, name, title, description, toApprove';
-		}
+		} 
 		return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'leavetypes WHERE ltid='.$db->escape_string($id)));
+	}
+
+	public static function get_allleavetypes() {
+		global $db;
+		$leavetypes_query = $db->query('SELECT ltid FROM '.Tprefix.'leavetypes');
+
+		if($db->num_rows($leavetypes_query) > 0) {
+			while($leavetypesrows = $db->fetch_assoc($leavetypes_query)) {
+				$leavetypes[$leavetypesrows['ltid']] = new Leavetypes($leavetypesrows['ltid']);
+			}
+			if(is_array($leavetypes)) {
+				return $leavetypes;
+			}
+			return false;
+		}
+		return false;
+	}
+
+	public static function get_allleaveexptypes() {
+		global $db;
+		$expencestypes_query = $db->query('SELECT * FROM '.Tprefix.'attendance_leaveexptypes');
+
+		if($db->num_rows($expencestypes_query) > 0) {
+			while($expencestypes_rows = $db->fetch_assoc($expencestypes_query)) {
+				$leavexpences_types[$expencestypes_rows['aletid']] = $expencestypes_rows;
+			}
+			if(is_array($leavexpences_types)) {
+				return $leavexpences_types;
+			}
+			return false;
+		}
+		return false;
 	}
 
 	public function get() {

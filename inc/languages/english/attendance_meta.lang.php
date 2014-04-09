@@ -123,4 +123,14 @@ $lang['youapprovedleave'] = 'You have already approved this leave';
 $lang['yoursonly'] = 'Yours only';
 $lang['cannotrequestthistype'] = 'You cannot request this type of leave for yourself';
 $lang['expensestotal']='Expences Total';
+$lang['generatexpensesreport']='Generate Expenses Report';
+$lang['expensesreport']='Expenses Report';
+$lang['filters']='Filters';
+$lang['leaveexptype']='Leave Expences Type';
+$lang['affiliate']='affiliate';
+$lang['supplier']='Supplier';
+$lang['customer']='Customer';
+$lang['segment']='Segment';
+$lang['bm']='Business Manager';
+$lang['dimensions']='Dimensions';
 ?>

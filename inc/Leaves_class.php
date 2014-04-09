@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright Â© 2013 Orkila International Offshore, All Rights Reserved
+ * Copyright © 2013 Orkila International Offshore, All Rights Reserved
  * 
  * Leaves Class
  * $id: Leave.php
@@ -197,6 +197,39 @@ class Leaves {
 		return false;
 	}
 
+	public static function get_leaves_expencesdata($data_filter = array()) {
+		global $db;
+
+		if(isset($data_filter['affids']) && (!empty($data_filter['affids']))) {
+			$where = " 	WHERE l.affid IN (".implode(',', $data_filter['affids']).") ";
+		}
+		if(isset($data_filter['employees']) && (!empty($data_filter['employees']))) {
+			$where .= " AND l.uid IN (".implode(',', $data_filter['employees']).") ";
+		}
+		if(isset($data_filter['leavetype']) && (!empty($data_filter['leavetype']))) {
+			$where .= "  AND l.type IN (".implode(',', $data_filter['leavetype']).") ";
+		}
+		if(isset($data_filter['leaveexptype']) && (!empty($data_filter['leaveexptype']))) {
+			$where .= "  AND  lextt.aletid IN (".implode(',', $data_filter['leaveexptype']).") ";
+		}
+		//if(isset($data_filter['affids'], $data_filter['employees'], $data_filter['leavetype'], $data_filter['leaveexptype']) && !is_empty($data_filter['affids'], $data_filter['employees'], $data_filter['leavetype'], $data_filter['leaveexptype'])) {
+
+		$query = $db->query("SELECT l.lid, l.uid,l.affid,l.spid,l.cid,lt.title,lt.ltid,lextt.aletid,lext.aleid,lext.alteid,lext.expectedAmt ,lext.actualAmt   FROM ".Tprefix."leaves  l
+								JOIN ".Tprefix." leavetypes lt ON(l.type=lt.ltid)
+								JOIN ".Tprefix." attendance_leaves_expenses lext ON(lext.lid=l.lid)
+								 JOIN ".Tprefix."attendance_leavetypes_expenses letexp ON(letexp.alteid=lext.alteid)
+								JOIN ".Tprefix."attendance_leaveexptypes lextt ON(lextt.aletid=letexp.aletid)
+								{$where}");
+
+		if($db->num_rows($query) > 0) {
+			while($rowsdata = $db->fetch_assoc($query)) {
+				$leavexpencesdata[$rowsdata['aleid']] = $rowsdata;
+			}
+			return $leavexpencesdata;
+		}
+		//}
+	}
+
 	public function get_requester() {
 		return new Users($this->leave['uid']);
 	}
@@ -212,7 +245,7 @@ class Leaves {
 	public function get_workingdays() {
 		return count_workingdays($this->leave['uid'], $this->leave['fromDate'], $this->leave['toDate'], $this->get_type()['isWholeDay']);
 	}
-	
+
 	public function get() {
 		return $this->leave;
 	}
