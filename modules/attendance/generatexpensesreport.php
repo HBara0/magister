@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright © 2014 Orkila International Offshore, All Rights Reserved
+ * Copyright � 2014 Orkila International Offshore, All Rights Reserved
  * 
  * [Provide Short Descption Here]
  * $id: generatexpensesreport.php
@@ -18,9 +18,10 @@ if($core->usergroup['attendance_canGenerateExpreport'] == 0) {
 	exit;
 }
 if(!$core->input['action']) {
-	/* Preparing USers sectio --START */
+	$identifier = substr(md5(microtime(uniqid())), 0, 10);
+	/* Preparing USers section --START */
 	if($core->usergroup['attendance_canViewExpenses'] == 1) {
-		$identifier = substr(md5(microtime(uniqid())), 0, 10);
+
 		$aff_obj = new Affiliates($core->user['affiliates']);
 		$employees = $aff_obj->get_users();
 		foreach($employees as $employee) {
@@ -84,5 +85,35 @@ if(!$core->input['action']) {
 	}
 	eval("\$expencesreport_options = \"".$template->get('attendance_expencesreport_options')."\";");
 	output($expencesreport_options);
+}
+elseif($core->input['action'] == 'preview') {
+	if($core->input['referrer'] == 'generate') {
+		$dimensionalize_ob = new DimentionalData();
+		$expencesreport_data = ($core->input['expencesreport']);
+		/* split the dimension and explode them into chuck of array */
+		$expencesreport_data['dimension'] = $dimensionalize_ob->construct_dimensions($expencesreport_data['dimension']);
+
+		$expences_indexes = array('expectedAmt', 'actualAmt');
+		$leave_expencesdata = Leaves::get_leaves_expencesdata($expencesreport_data['filter']);
+
+
+		if(is_array($leave_expencesdata)) {
+
+
+			$expencesreport_data['dimension'] = $dimensionalize_ob->set_dimensions($expencesreport_data['dimension']);
+			$dimensionalize_ob->set_requiredfields($expences_indexes);
+			$dimensionalize_ob->set_data($leave_expencesdata);
+
+			$parsed_dimension = $dimensionalize_ob->get_output(array('outputtype' => 'table', 'noenclosingtags' => true));
+			$headers_title = $dimensionalize_ob->parse_header();
+
+			foreach($headers_title as $report_header => $header_data) {
+				$dimension_head.= '<th>'.ucfirst($header_data).'</th>';
+			}
+		}
+
+		eval("\$expencesreport_output = \"".$template->get('attendance_expencesreport_output')."\";");
+		output($expencesreport_output);
+	}
 }
 ?>

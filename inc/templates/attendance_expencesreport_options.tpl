@@ -69,7 +69,7 @@
         <td class="contentContainer">
             <h3>{$lang->expensesreport}</h3>
 
-            <form action="index.php?module=attendance/leavexpensesreport&amp;referrer=generate&amp;identifier={$identifier}" method="post" id="attendance\/leavexpensesreport_Form" name="attendance\/leavexpensesreport_Form">
+            <form action="index.php?module=attendance/generatexpensesreport&amp;action=preview&amp;referrer=generate&amp;identifier={$identifier}" method="post" id="attendance\/leavexpensesreport_Form" name="attendance\/leavexpensesreport_Form">
                 <div class="thead" style="margin:10px;">{$lang->filters}</div>
                 <div style="display:block; border:">
                     <div style="display:inline-block;vertical-align:top; padding:15px; margin:20px;">{$lang->affiliate}</div>

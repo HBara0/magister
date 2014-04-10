@@ -92,5 +92,19 @@ class Products {
 		return $this->product;
 	}
 
+	public function parse_link($attributes_param = array('target' => '_blank'), $options = array()) {
+		if(is_array($attributes_param)) {
+			foreach($attributes_param as $attr => $val) {
+				$attributes .= $attr.' "'.$val.'"';
+			}
+		}
+
+		if(!isset($options['outputvar'])) {
+			$options['outputvar'] = 'displayName';
+		}
+
+		return 0;
+	}
+
 }
 ?>

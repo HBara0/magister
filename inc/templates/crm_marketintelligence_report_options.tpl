@@ -2,10 +2,7 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->fillmontlyreport}</title>
         {$headerinc}
-    </head>
-    <body>
-        {$header}
-        <style>
+              <style>
             #dimensionfrom, #dimensionto {
                 list-style-type: none;
                 margin: 10;
@@ -35,6 +32,10 @@
             }
 
         </style>
+    </head>
+    <body>
+        {$header}
+  
         <script>
             $(function() {
                 $("#dimensionfrom, #dimensionto")

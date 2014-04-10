@@ -12,7 +12,7 @@
             $(function() {
 
                 $('tr[id^="dimension_"]').mouseover(function() {
-                    $(this).toggleClass('mainmenuitem_hover') 
+                   // $(this).toggleClass('mainmenuitem_hover') 
                 });
 
             });
@@ -27,6 +27,7 @@
             <h3>{$lang->mireport}</h3>
             <table width="100%" class="datatable">
                 <tr>
+                    <th>{$lang->dimensions}</th>
                     {$dimension_head}
                 </tr>
                 {$parsed_dimension} 

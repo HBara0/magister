@@ -32,7 +32,7 @@ class Users {
 			$uid = $this->user['uid'];
 		}
 
-		$query_select = 'uid, username, reportsTo, firstName, middleName, lastName, displayName, email';
+		$query_select = 'uid, username, reportsTo, firstName, middleName, lastName, displayName, displayName AS name, email';
 		if($simple == false) {
 			$query_select = '*';
 		}
@@ -270,6 +270,20 @@ class Users {
 				$segment[$segments['emsid']] = $segments;
 			}
 			return $segment;
+		}
+	}
+
+	public function get_coordinatesegments() {
+		global $db;
+
+		$segment_query = $db->query("SELECT psc.pscid,ps.psid,ps.title FROM  ".Tprefix."productsegmentcoordinators psc
+									JOIN ".Tprefix."users u on u.uid=psc.uid
+									JOIN ".Tprefix."productsegments ps ON (ps.psid=psc.psid) WHERE u.uid=".$this->user['uid']);
+		if($db->num_rows($segment_query) > 0) {
+			while($segmentcoord = $db->fetch_assoc($segment_query)) {
+				$segmentcoords[$segmentcoord['pscid']] = $segmentcoord;
+			}
+			return $segmentcoords;
 		}
 	}
 
@@ -517,11 +531,11 @@ class Users {
 				$attributes .= $attr.' "'.$val.'"';
 			}
 		}
-		
+
 		if(!isset($options['outputvar'])) {
 			$options['outputvar'] = 'displayName';
 		}
-		
+
 		return '<a href="users.php?action=profile&uid='.$this->user['uid'].'" '.$attributes.'>'.$this->user[$options['outputvar']].'</a>';
 	}
 

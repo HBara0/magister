@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright © 2014 Orkila International Offshore, All Rights Reserved
+ * Copyright ï¿½ 2014 Orkila International Offshore, All Rights Reserved
  * 
  * Class to dimensionalize data
  * $id: DimentionalData_class.php
@@ -153,7 +153,7 @@ class DimentionalData {
 
 		$output = '';
 		if(empty($rowcolor)) {
-			$rowcolor = 'b1c984';
+			$rowcolor = ' 101c64c';
 		}
 		if(empty($fontsize)) {
 			$fontsize = 18;
@@ -174,12 +174,18 @@ class DimentionalData {
 				if($depth <= count($dimensions)) {
 					if(isset($dimensions[$depth]) && !empty($dimensions[$depth]) && (isset($key) && !empty($key))) {
 						$class = get_object_bytype($dimensions[$depth], $key);
-
-						if($options['outputtype'] == 'div') {
-							$columns = '<div style="display: inline-block; padding-left:'.(($depth - 1) * 20).'px;">'.$class->get()['name'].'</div>';
+						/*Checks if the class method exists */
+						if(method_exists($class, 'parse_link')) {
+							$this->dimensions['link'] = $class->parse_link();
 						}
 						else {
-							$columns = '<td style="padding-left:'.(($depth - 1) * 20).'px;">'.$class->get()['name'].'</td>';
+							$this->dimensions['link'] = $class->get()['name'];
+						}
+						if($options['outputtype'] == 'div') {
+							$columns = '<div style="display: inline-block; padding-left:'.(($depth - 1) * 20).'px; font-size:'.$fontsize.'px;">'.$this->dimensions['link'].'</div>';
+						}
+						else {
+							$columns = '<td style="padding-left:'.(($depth - 1) * 20).'px; font-size:'.$fontsize.'px;">'.$this->dimensions['link'].'</td>';
 						}
 					}
 
@@ -229,6 +235,11 @@ class DimentionalData {
 			}
 		}
 		return $output;
+	}
+
+	public function parse_header() {
+
+		return $this->requiredfields;
 	}
 
 	public static function construct_dimensions($dimensions, $delimiter = ',') {

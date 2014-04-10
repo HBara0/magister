@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright © 2013 Orkila International Offshore, All Rights Reserved
+ * Copyright � 2013 Orkila International Offshore, All Rights Reserved
  *
  * Leave Types Class
  * $id: Leavetypes_class.php
@@ -89,8 +89,8 @@ class Leavetypes {
 		}
 		$query_select = '*';
 		if($simple == true) {
-			$query_select = 'ltid, name, title, description, toApprove';
-		} 
+			$query_select = 'ltid, name, title,title AS name ,description, toApprove';
+		}
 		return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'leavetypes WHERE ltid='.$db->escape_string($id)));
 	}
 
@@ -129,6 +129,18 @@ class Leavetypes {
 	public function get() {
 		return $this->leavetype;
 	}
+	public function parse_link($attributes_param = array('target' => '_blank'), $options = array()) {
+		if(is_array($attributes_param)) {
+			foreach($attributes_param as $attr => $val) {
+				$attributes .= $attr.' "'.$val.'"';
+			}
+		}
 
+		if(!isset($options['outputvar'])) {
+			$options['outputvar'] = 'name';
+		}
+
+		return '<a href="index.php?module=attendance/listleaves" '.$attributes.'>'.$this->leavetype[$options['outputvar']].'</a>';
+	}
 }
 ?>
