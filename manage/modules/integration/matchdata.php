@@ -81,7 +81,6 @@ else
 				$matching_entries = $extra_info = '';
 				$integration_entries .= '<tr>';
 				if(isset($entrytomatch['foreignSupplier']) && !empty($entrytomatch['foreignSupplier'])) {
-					
 					$extra_info = $db->fetch_field($db->query('SELECT foreignName FROM '.$check_query_parameters['suppliers']['mediationtable'].' WHERE foreignId="'.$db->escape_string($entrytomatch['foreignSupplier']).'"'), 'foreignName');
 					if(!empty($extra_info)) {
 						$extra_info = '<div class="font-size:9px">'.$extra_info.'</div>';
@@ -99,11 +98,12 @@ else
 				}
 				else
 				{
-					$foreignname_parts = explode(' ', $entrytomatch['foreignName']);
+					//$foreignname_parts = explode(' ', $entrytomatch['foreignName']);
+					$foreignname_parts = preg_split('/[\s(),]+/', $entrytomatch['foreignName']);
 					$furthercheck_query_extra = '';
 					if(is_array($foreignname_parts)) {
 						foreach($foreignname_parts as $part) {
-							if(strlen($part) > 4 && is_string($part)) {
+							if(strlen($part) >= 4 && is_string($part)) {
 								$furthercheck_query_extra .= ' OR '.$check_query_parameters[$core->input['matchitem']]['checkAttr'].' LIKE "%'.$part.'%"';
 							}
 						}
