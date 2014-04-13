@@ -11,6 +11,7 @@
 class IntegrationOB extends Integration {
 	private $client;
 	private $status = 0;
+	private $organisations = array();
 
 	public function __construct(array $database_info, $client_id, $affiliates_ids, $foreign_system = 3, array $sync_period = array()) {
 		if(parent::__construct($foreign_system, $database_info)) {
@@ -22,6 +23,10 @@ class IntegrationOB extends Integration {
 			$this->status = 701;
 			return false;
 		}
+	}
+
+	public function set_organisations($organisations) {
+		$this->organisations = $organisations;
 	}
 
 	public function sync_products($exclude = array()) {
@@ -123,7 +128,7 @@ class IntegrationOB extends Integration {
 					FROM c_invoice i 
 					JOIN c_bpartner bp ON (bp.c_bpartner_id=i.c_bpartner_id)
 					JOIN c_currency c ON (c.c_currency_id=i.c_currency_id)
-					JOIN ad_user u ON (u.ad_user_id=i.salesrep_id)
+					LEFT JOIN ad_user u ON (u.ad_user_id=i.salesrep_id)
 					JOIN c_paymentterm pt ON (i.c_paymentterm_id=pt.c_paymentterm_id)
 					WHERE i.ad_org_id IN ('".implode('\',\'', $organisations)."') AND docstatus NOT IN ('VO', 'CL') AND issotrx='Y' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."')
 					ORDER by dateinvoiced ASC");
@@ -485,11 +490,50 @@ class IntegrationOB extends Integration {
 		return false;
 	}
 
-	public function get_totalvalue_bydate($date, $organisations) {
+	public function get_totalvalue_bydate($date, $options = array(), $organisations = null) {
+		if(empty($organisations)) {
+			$organisations = $this->organisations;
+		}
+
 		$aging_scale = array(0, 90, 120);
 		$aging_scale = array_combine(range(1, count($aging_scale)), $aging_scale);
 
-		$query = $this->f_db->query("SELECT trx.M_PRODUCT_ID, trx.MOVEMENTQTY AS QTY, CASE WHEN trx.MOVEMENTQTY < 0 THEN- tc.trxcost ELSE tc.trxcost END AS trxcost, 
+		if($options['method'] == 'fifo') {
+			$query = $this->f_db->query("SELECT *
+									FROM obwfa_input_stack 
+									WHERE ad_org_id IN ('".implode('\',\'', $organisations)."') 
+									AND trxdate < '".date('Y-m-d 00:00:00', strtotime($date))."'
+									ORDER BY trxdate ASC, m_product_id ASC");
+			if($this->f_db->num_rows($query) > 0) {
+				while($transcation = $this->f_db->fetch_assoc($query)) {
+					$stock['value'][$transcation['m_product_id']] += $transcation['cost'];
+					$stock['qty'][$transcation['m_product_id']] += $transcation['qty'];
+
+					$stack_obj = new IntegrationOBInputStack($transcation['obwfa_input_stack_id'], $this->f_db);
+					$outputs = $stack_obj->get_outputstacks('trxdate < \''.date('Y-m-d 00:00:00', strtotime($date)).'\'');
+
+					if(is_array($outputs)) {
+						foreach($outputs as $output_obj) {
+							$output = $output_obj->get();
+							$stock['value'][$transcation['m_product_id']] -= $output['cost'];
+							$stock['qty'][$transcation['m_product_id']] -= $output['qty'];
+									
+							//$age = $stack_obj->get_daysinstock($output['trxdate']);
+							$age = $stack_obj->get_daysinstock($date);
+							$this->classify_data_byage($age, $aging_scale, $stock['aging']['value'], 0 - $output['cost']);	
+						}
+					}
+					$age = $stack_obj->get_daysinstock($date);
+					$this->classify_data_byage($age, $aging_scale, $stock['aging']['value'], $transcation['cost']);
+				}
+			}
+		}
+		else {
+			if(isset($options['costingalgorithm'])) {
+				$query_where = ' AND trx.m_costing_algorithm_id=\''.$this->f_db->escape_string($options['costingalgorithm']).'\'';
+			}
+
+			$query = $this->f_db->query("SELECT trx.M_PRODUCT_ID, trx.MOVEMENTQTY AS QTY, CASE WHEN trx.MOVEMENTQTY < 0 THEN- tc.trxcost ELSE tc.trxcost END AS trxcost, 
 					                   trx.C_UOM_ID, trx.AD_CLIENT_ID, trx.iscostcalculated, tc.c_currency_id, coalesce(io.dateacct,trx.movementdate) as movementdate, trx.M_TRANSACTION_ID
 					                    FROM M_TRANSACTION trx 
 					                      LEFT JOIN M_INOUTLINE iol ON trx.M_INOUTLINE_ID = iol.M_INOUTLINE_ID
@@ -499,50 +543,94 @@ class IntegrationOB extends Integration {
 					                                 WHERE costdate < to_date( '".$date."' , 'yyyy-mm-dd')
 					                                 GROUP BY m_transaction_id, c_currency_id) tc ON trx.m_transaction_id = tc.m_transaction_id
 					                    WHERE trx.MOVEMENTDATE < to_date(  '".$date."' , 'yyyy-mm-dd')
+											{$query_where}
 											AND trx.ad_org_id IN ('".implode('\',\'', $organisations)."')");
-		if($this->f_db->num_rows($query) > 0) {
-			$stock = array();
-			while($transcation = $this->f_db->fetch_assoc($query)) {
-				$transaction_obj = new IntegrationOBTransaction($transcation['m_transaction_id'], $this->f_db);
-				$fifo_input = $transaction_obj->get_inputstack();
+			if($this->f_db->num_rows($query) > 0) {
+				$stock = array();
+				while($transcation = $this->f_db->fetch_assoc($query)) {
+					$transaction_obj = new IntegrationOBTransaction($transcation['m_transaction_id'], $this->f_db);
+					$fifo_input = $transaction_obj->get_inputstack();
 
-				if(is_object($fifo_input)) {
-					if(is_null($fifo_input->get_transcation()->get_inoutline())) {
-						$movement = $fifo_input->get_transcation()->get_movementline();
-						if(is_object($movement)) {
-							$transcation['daysinstock'] = $movement->get_output_transaction()->get_outputstack()->get_inputstack()->get_daysinstock();
+					if(is_object($fifo_input)) {
+						if(is_null($fifo_input->get_transcation()->get_inoutline())) {
+							$movement = $fifo_input->get_transcation()->get_movementline();
+							if(is_object($movement)) {
+								$transcation['daysinstock'] = $movement->get_output_transaction()->get_outputstack()->get_inputstack()->get_daysinstock();
+							}
+							else {
+								$transcation['daysinstock'] = $fifo_input->get_daysinstock();
+							}
 						}
 						else {
 							$transcation['daysinstock'] = $fifo_input->get_daysinstock();
 						}
 					}
-					else {
-						$transcation['daysinstock'] = $fifo_input->get_daysinstock();
-					}
-				}
-				$stock['info'][$transcation['m_product_id']] = $transcation;
-				$stock['value'][$transcation['m_product_id']] += $transcation['trxcost'];
-				$stock['qty'][$transcation['c_uom_id']][$transcation['m_product_id']] += $transcation['qty'];
+					$stock['info'][$transcation['m_product_id']] = $transcation;
+					$stock['value'][$transcation['m_product_id']] += $transcation['trxcost'];
+					$stock['qty'][$transcation['c_uom_id']][$transcation['m_product_id']] += $transcation['qty'];
 
-				end($aging_scale);
-				$last_aging_key = key($aging_scale);
-				reset($aging_scale);
-				foreach($aging_scale as $key => $age) {
-					if($transcation['daysinstock'] < $age || $key == $last_aging_key) {
-						$stock['aging'][$key]['value'][$transcation['m_product_id']] += $transcation['trxcost'];
-						$stock['aging'][$key]['qty'][$transcation['c_uom_id']][$transcation['m_product_id']] += $transcation['qty'];
-						break;
-					}
-					else {
-						continue;
+					end($aging_scale);
+					$last_aging_key = key($aging_scale);
+					reset($aging_scale);
+					foreach($aging_scale as $key => $age) {
+						if($transcation['daysinstock'] < $age || $key == $last_aging_key) {
+							$stock['aging'][$key]['value'][$transcation['m_product_id']] += $transcation['trxcost'];
+							$stock['aging'][$key]['qty'][$transcation['c_uom_id']][$transcation['m_product_id']] += $transcation['qty'];
+							break;
+						}
+						else {
+							continue;
+						}
 					}
 				}
+
+				$this->f_db->free_result($query);
 			}
+		}
+		return $stock;
+	}
 
-			$this->f_db->free_result($query);
+	private function classify_data_byage($check_age, $aging_scale, &$variable, $value) {
+		end($aging_scale);
+		$last_aging_key = key($aging_scale);
+		reset($aging_scale);
+		foreach($aging_scale as $key => $age) {
+			if(($check_age > $age && $check_age < $aging_scale[$key+1]) || $key == $last_aging_key) {
+				$variable[$key] += $value;
+				break;
+			}
+			else {
+				continue;
+			}
+		}
+	}
+
+	public function get_currcostingrule($organisation = '') {
+		if(empty($organisation)) {
+			$organisation = $this->organisations;
+		}
+		$query = $this->f_db->query("SELECT m_costing_rule_id, ad_org_id
+				FROM m_costing_rule 
+				WHERE ad_org_id='".$this->f_db->escape_string(implode('\',\'', $organisation))."'
+				AND isvalidated='Y' AND isvalidated='Y'
+				ORDER BY datefrom DESC
+				LIMIT 1 OFFSET 0");
+
+		$rows_count = $this->f_db->num_rows($query);
+		if($rows_count == 0) {
+			return false;
 		}
 
-		return $stock;
+		if($rows_count > 1) {
+			while($rule = $this->f_db->fetch_assoc($query)) {
+				$rules[$rule['ad_org_id']] = new IntegrationCostingRule($rule['m_costing_rule_id'], $this->f_db);
+			}
+			return $rules;
+		}
+		else {
+			$rule = $this->f_db->fetch_assoc($query);
+			return new IntegrationCostingRule($rule['m_costing_rule_id'], $this->f_db);
+		}
 	}
 
 	public function get_productsstock() {
@@ -1157,10 +1245,15 @@ class IntegrationOBInputStack {
 		return new IntegrationOBCurrency($this->inputstack['c_currency_id'], $this->f_db);
 	}
 
-	public function get_outputstacks() {
+	public function get_outputstacks($filters = '') {
+		if(!empty($filters)) {
+			$query_where = ' AND '.$filters;
+		}
+
 		$query = $this->f_db->query("SELECT *
 						FROM obwfa_output_stack
-						WHERE obwfa_input_stack_id='".$this->inputstack['obwfa_input_stack_id']."'");
+						WHERE obwfa_input_stack_id='".$this->inputstack['obwfa_input_stack_id']."'".$query_where);
+
 		if($this->f_db->num_rows($query) > 0) {
 			while($output = $this->f_db->fetch_assoc($query)) {
 				$outputs[$output['obwfa_output_stack_id']] = new IntegrationOBOutputStack($output['obwfa_output_stack_id'], $this->f_db);
@@ -1670,6 +1763,70 @@ class IntegrationOBUom {
 
 	public function get() {
 		return $this->uom;
+	}
+
+}
+
+class IntegrationCostingRule {
+	private $rule;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+//Open connections
+		}
+		$this->read($id);
+	}
+
+	private function read($id) {
+		$this->rule = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM m_costing_rule
+						WHERE m_costing_rule_id='".$this->f_db->escape_string($id)."'"));
+	}
+
+	public function get_costingalgorithm() {
+		return new IntegrationCostingAlgorithm($this->rule['m_costing_algorithm_id'], $this->f_db);
+	}
+
+	public function get_id() {
+		return $this->rule['m_costing_rule_id'];
+	}
+
+	public function get() {
+		return $this->rule;
+	}
+
+}
+
+class IntegrationCostingAlgorithm {
+	private $algorithm;
+	private $f_db;
+
+	public function __construct($id, $f_db = NULL) {
+		if(!empty($f_db)) {
+			$this->f_db = $f_db;
+		}
+		else {
+//Open connections
+		}
+		$this->read($id);
+	}
+
+	private function read($id) {
+		$this->algorithm = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM m_costing_algorithm
+						WHERE m_costing_algorithm_id='".$this->f_db->escape_string($id)."'"));
+	}
+
+	public function get_id() {
+		return $this->algorithm['m_costing_algorithm_id'];
+	}
+
+	public function get() {
+		return $this->algorithm;
 	}
 
 }
