@@ -8,13 +8,15 @@
  * Created:		@zaher.reda		June 01, 2010 | 10:53 AM
  * Last Update: @zaher.reda		June 01, 2010 | 10:53 AM
  */
- 
+
 class Pipe {
 	var $content = '';
 	var $maildata = array();
-	
+
 	public function __construct() {
-		$data = fopen("php://stdin", "r");
+		//$data = fopen("php://stdin", "r");
+		 $data = fopen("emailbody.txt", "r");
+
 		while(!feof($data)) {
 			$this->content .= fread($data, 4096);
 		}
@@ -22,55 +24,55 @@ class Pipe {
 
 		$this->process_pipe();
 	}
-	
+
 	private function process_pipe() {
 		global $core;
 		$lines = explode("\n", $this->content);
-		
-		$is_headerline = true;
-		foreach($lines as $var) {			
+
+		$is_headerline = false;
+		foreach($lines as $var) {
 			if($is_headerline == true) {
-				if (preg_match("/^From: (.*)/", $var, $matches)) {
+				if(preg_match("/^From: (.*)/", $var, $matches)) {
 					preg_match("/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/", $matches[1], $email);
 					$this->maildata['from'] = $core->validate_email($core->sanitize_email($email[1]));
 				}
-				
-				if (preg_match("/^To: (.*)/", $var, $matches)) {
+
+				if(preg_match("/^To: (.*)/", $var, $matches)) {
 					preg_match("/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/", $matches[1], $email);
 					$this->maildata['to'] = $core->validate_email($core->sanitize_email($email[1]));
 				}
-				
-				if (preg_match("/^Subject: (.*)/", $var, $matches)) {
+
+				if(preg_match("/^Subject: (.*)/", $var, $matches)) {
 					$this->maildata['subject'] = $matches[1];
 				}
-				
-				if (preg_match("/^Content-Transfer-Encoding: (.*)/", $var, $matches)) {
+
+				if(preg_match("/^Content-Transfer-Encoding: (.*)/", $var, $matches)) {
 					$this->maildata['encoding'] = trim($matches[1]);
 				}
 			}
-			else
-			{
+			else {
 				$this->maildata['message'] .= $var.'\n';
 			}
-			
+
 			if(trim($var) == '') {
 				$is_headerline = false;
 			}
-		 }
-		 
-		 $this->decode_message();
+		}
+
+		$this->decode_message();
 	}
-	
+
 	private function decode_message() {
 		switch(strtolower($this->maildata['encoding'])) {
-			case 'base64': $this->maildata['message'] = base64_decode($this->maildata['message']); 
-						   break;
+			case 'base64': $this->maildata['message'] = base64_decode($this->maildata['message']);
+				break;
 			default: break;
 		}
 	}
-	
+
 	public function get_data() {
 		return $this->maildata;
 	}
+
 }
 ?>

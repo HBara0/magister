@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright © 2013 Orkila International Offshore, All Rights Reserved
+ * Copyright ï¿½ 2013 Orkila International Offshore, All Rights Reserved
  * 
  * Leaves Class
  * $id: Leave.php
@@ -185,9 +185,15 @@ class Leaves {
 		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."leaves WHERE lid=".$db->escape_string($id)));
 	}
 
-	public function get_approvers() {
+	public function get_approvers($isapproved = 0) {
 		global $db;
-		$query = $db->query('SELECT * FROM '.Tprefix.'leavesapproval WHERE isApproved=1 AND lid='.$this->leave['lid']);
+		if($isapproved == 1) {
+			$where_isapproved = ' WHERE isApproved=1';
+		}
+		else {
+			$where_isapproved = ' WHERE isApproved=0';
+		}
+		$query = $db->query('SELECT * FROM '.Tprefix.'leavesapproval  '.$where_isapproved.' AND lid='.$this->leave['lid']);
 		if($db->num_rows($query) > 0) {
 			while($approver = $db->fetch_assoc($query)) {
 				$approvers[$approver['uid']] = new Users($approver['uid']);
@@ -230,8 +236,20 @@ class Leaves {
 		//}
 	}
 
+	public function get_leavemessages() {
+		
+	}
+
 	public function get_requester() {
 		return new Users($this->leave['uid']);
+	}
+
+	public function is_leaverequester() {
+		global $core;
+		if(value_exists('leaves', 'uid', $this->leave['uid'], ' lid='.$this->leave['lid'])) {
+			return true;
+		}
+		return false;
 	}
 
 	public function get_type($simple = true) {
