@@ -556,6 +556,11 @@ else {
 		$identifier = $db->escape_string($core->input['identifier']);
 		$numrows = intval($core->input['numrows']);
 
+                if(!is_array($core->input['keycustomers']) || empty($core->input['keycustomers'])) {
+                    output_xml("<status>false</status><message>{$lang->fillatleastonecustomerrow}</message>");
+                    exit;
+                }
+                
 		$oldentries = get_specificdata('keycustomers', array('kcid'), 'kcid', 'kcid', '', 0, "rid='{$rid}'");
 		foreach($core->input['keycustomers'] as $i => $keycustomer) {
 			if(empty($keycustomer['cid'])) {
@@ -808,6 +813,7 @@ else {
 						$update_query_where = 'paid='.$db->escape_string($newdata['paid']);
 					}
 					else {
+                                                unset($newdata['paid']);
 						$update_query_where = 'rid='.$report_meta['rid'].' AND pid='.$newdata['pid'].$products_deletequery_string;
 					}
 
