@@ -251,7 +251,6 @@ class Meetings {
         global $db, $log, $core;
         $this->meeting['mtid'] = $this->meeting['mtid'];
 
-
         $this->meeting['notifyuser'] = $meeting_data['notifyuser'];
 
         $this->meeting['notifyrep'] = $meeting_data['notifyrep'];
@@ -269,13 +268,17 @@ class Meetings {
             return false;
         }
 
-        unset($meeting_data['attendees'], $meeting_data[attachments], $meeting_data['associations'], $meeting_data['notifyuser'], $meeting_data['notifyrep']);
+        unset($meeting_data['attendees'], $meeting_data['attachments'], $meeting_data['associations'], $meeting_data['notifyuser'], $meeting_data['notifyrep']);
 
 
         /* Needs validation for time */
         $meeting_data['fromDate'] = strtotime($meeting_data['fromDate'] . ' ' . $meeting_data['fromTime']);
         $meeting_data['toDate'] = strtotime($meeting_data['toDate'] . ' ' . $meeting_data['toTime']);
         unset($meeting_data['fromTime'], $meeting_data['toTime'], $meeting_data['altfromDate'], $meeting_data['alttoDate']);
+		if(!isset($meeting_data['isPublic'])){
+			$meeting_data['isPublic']=0;
+		}
+
         $query = $db->update_query('meetings', $meeting_data, 'mtid=' . $db->escape_string($this->meeting['mtid']));
         if ($query) {
             if (isset($this->meeting['attachments']) && !empty($this->meeting['attachments'])) {
