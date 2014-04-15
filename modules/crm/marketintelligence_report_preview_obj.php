@@ -19,6 +19,8 @@ if(!($core->input['action'])) {
 
 		/* split the dimension and explode them into chuck of array */
 		$mireportdata['dimension'] = explode(',', $mireportdata['dimension'][0]);
+		$mireportdata['dimension'] = array_filter($mireportdata['dimension']);
+
 		/* to create array using existing values (using array_values()) and range() to create a new range from 1 to the size of the  dimension array */
 		$mireportdata['dimension'] = array_combine(range(1, count($mireportdata['dimension'])), array_values($mireportdata['dimension']));
 
@@ -41,12 +43,14 @@ if(!($core->input['action'])) {
 			foreach($marketin_objs as $marketin_obj) {
 				$market_data[$marketin_obj->get()['mibdid']] = $marketin_obj->get();
 			}
+ print_r($market_data);
+			$dimensionalize_ob = new DimentionalData();
+			$mireportdata['dimension'] = $dimensionalize_ob->set_dimensions($mireportdata['dimension']);
 
-			$dimensionalize_ob = new DimentionalData($market_data);
-			$mireportdata['dimension'] = $dimensionalize_ob->set_dimensions(Array(1 => 'affid', 2 => 'cid'));
-
-			$parsed_dimension = $dimensionalize_ob->get_output(array('data' => $market_data, 'outputtype' => 'table', 'requiredfields' => $marketdata_indexes));
-
+			$dimensionalize_ob->set_requiredfields($marketdata_indexes);
+			$dimensionalize_ob->set_data($market_data);
+			$parsed_dimension = $dimensionalize_ob->get_output(array('outputtype' => 'table', 'noenclosingtags' => true));
+			 
 			//foreach($totals['gtotal'] as $report_header => $header_data) {
 			$dimension_head.= '<th>'.$report_header.'</th>';
 			//}

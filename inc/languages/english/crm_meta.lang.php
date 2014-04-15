@@ -25,5 +25,5 @@ $lang['bm']='Business Manager';
 $lang['filters']='Filter  By';
 $lang['dimensions']='Select Dimensions';
 $lang['customercountry']='Customer Country';
-
+$lang['drophere']='Drop Here';
 ?>

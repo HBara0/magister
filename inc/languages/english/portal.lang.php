@@ -37,4 +37,6 @@ $lang['usefulshortcuts'] = 'Userful shortcuts';
 $lang['weheretohelp'] = ' We\'re here to help';
 $lang['welcometoocos'] = 'Welcome to OCOS!';
 $lang['worldtime'] = 'World \\\"time';
+$lang['todayfxrates']='Today\'s FX Rates';
+$lang['usdfxrates']='USD Exchnage Rates ';
 ?>
