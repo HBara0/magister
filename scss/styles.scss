@@ -1,5 +1,5 @@
 @charset "utf-8";
-@import "_constants.scss";
+@import "constants";
 
 html, body {
     height:100%;
@@ -29,12 +29,7 @@ h3 {
     color:#669900;
     border-bottom: 1px solid #F2F2F2;
 }
-span.subtitle {
-    font-weight:bold;
-    font-size: 15px;
-    color: #669900;
-    text-transform: uppercase;
-}
+
 .smalltext {
     font-size: 9px;
 }
@@ -68,10 +63,11 @@ a, a:visited {
     height: 100px;
     vertical-align: top;
     text-align: center;
-    padding: 0px 0px 0px 2px;
+    padding: 0px;
 }
 
 .sideDesign {
+    display: none;
     vertical-align: top;
     padding: 0px;
     margin: 0px;
@@ -111,17 +107,18 @@ a, a:visited {
     padding: 0px;
     border-spacing: 0px;
     border-collapse:collapse;
-}
-.datatable th, .datatable td{
-    text-align: left;
-    padding: 5px;
+
+    td {
+        border-bottom: 1px dashed #CCCCCC;  
+    }
+
+    th, td {
+        text-align: left;
+        padding: 5px;
+    }
 }
 
 td { padding: 2px; }
-
-.datatable td {
-    border-bottom: 1px dashed #CCCCCC;
-}
 
 .thead {
     background-color:#92D050;
@@ -160,7 +157,7 @@ td { padding: 2px; }
 }
 
 .menuContainer {
-    padding: 20px 0px 20px 5px;
+    padding: 20px 0px 20px 0px;
     color: #acacac;
     vertical-align: top;
     font-size: 13px;
@@ -172,8 +169,10 @@ td { padding: 2px; }
     margin-left: 1px;
 }
 
-#mainmenu a, #mainmenu a:visited {
-    color: #acacac;
+#mainmenu {
+    a, a:visited {
+        color: #acacac;
+    }
 }
 
 .menuContainer ul li {
@@ -287,7 +286,7 @@ td { padding: 2px; }
 
 .portalbox_header {
     font-weight: bold;
-    background: repeat-x top left url(images/bheader.gif) scroll;
+    background: repeat-x top left url(../images/bheader.gif) scroll;
     border-bottom: 1px solid #CCCCCC;
     height: 1%;
 }
@@ -297,7 +296,7 @@ td { padding: 2px; }
 }
 
 .portalbox_calendar {
-    background: repeat-x top left url(images/calendar-background.png) scroll #aecd78;
+    background: repeat-x top left url(../images/calendar-background.png) scroll #aecd78;
     color:#FFFFFF;
     font-size:14px;
     border-top: 0px solid #FFFFFF;
@@ -369,17 +368,22 @@ input.button {
     font-size:14px;
     text-align: center;
     cursor:pointer;
+    border-bottom: 1px solid $color_grey;
+
+    div > a:hover {
+        font-weight:600;
+    }
 }
 
 .currentmodule_name_hover {
-    background:url(images/sort_desc.gif) no-repeat 90% 90%;
+    background: url(../images/sort_desc.gif) no-repeat 90% 90%;
 }
 
 .moduleslist_container {
     display: none;
     text-align: left;
     width: 150px;
-    margin-left: 40px;
+    margin-left: 5px;
     left: 40px;
     position:absolute;
     border-left: 1px solid $color_green;
@@ -462,9 +466,7 @@ table.sectionbox td {
     border-top: 1px solid #CCC !important;
 }
 .tablefilters_row  {
-    -moz-box-shadow: inset 0px 5px 10px #EEF4FB;
-    -webkit-box-shadow:inset 0px 5px 10px #EEF4FB;
-    box-shadow:inset 0px 5px 10px #EEF4FB;
+    @include box-shadow-inset(0px, 5px, 10px, 5px, #EEF4FB);
 }
 .tablefilters_row_toggle td {
     padding: 0px !important;
@@ -609,8 +611,7 @@ tr.dummytrow td, tr.dummytrow th {
     @include border-radius(4px);
 }
 .requiredfield:focus{
-    -webkit-box-shadow: 0 1px 2px 2px #FF142C;
-    box-shadow: 0 1px 2px 1px #FF142C;
+    @include box-shadow(0px, 1px, 2px, 1px, #FF142C);
 }
 
 .sortable {

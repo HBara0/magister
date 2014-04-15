@@ -21,8 +21,14 @@ $color_grey: #F2F2F2;
     border-radius: $radius;
 }
 
-@mixin box-shadow($h-shadow, $v-shadow, $blur, $spread, $color, $inset) {
-    -moz-box-shadow: $inset $h-shadow $v-shadow $blur $spread $color;
-    -webkit-box-shadow: $inset $h-shadow $v-shadow $blur $spread $color;
-    box-shadow: $inset $h-shadow $v-shadow $blur $spread $color;
+@mixin box-shadow($h-shadow, $v-shadow, $blur, $spread, $color) {
+    -moz-box-shadow: $h-shadow $v-shadow $blur $spread $color;
+    -webkit-box-shadow: $h-shadow $v-shadow $blur $spread $color;
+    box-shadow: $h-shadow $v-shadow $blur $spread $color;
+}
+
+@mixin box-shadow-inset($h-shadow, $v-shadow, $blur, $spread, $color) {
+    -moz-box-shadow: inset $h-shadow $v-shadow $blur $spread $color;
+    -webkit-box-shadow: inset $h-shadow $v-shadow $blur $spread $color;
+    box-shadow: inset $h-shadow $v-shadow $blur $spread $color;
 }

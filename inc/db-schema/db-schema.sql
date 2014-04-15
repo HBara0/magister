@@ -2002,8 +2002,8 @@ CREATE TABLE `products` (
   `taxRate` float DEFAULT NULL,
   `package` varchar(220) NOT NULL,
   `standard` varchar(220) DEFAULT NULL,
-  `shelfLife` int(4) NOT NULL,
-  `itemWeight` float NOT NULL,
+  `shelfLife` int(4) DEFAULT NULL,
+  `itemWeight` float DEFAULT NULL,
   PRIMARY KEY (`pid`),
   KEY `spid` (`spid`,`gpid`,`name`,`code`),
   KEY `defaultFunction` (`defaultFunction`)
