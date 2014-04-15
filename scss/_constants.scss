@@ -11,7 +11,8 @@ Last Update:    @zaher.reda    Apr 13, 2014 | 10:04:22 PM
     Author     : zaher.reda
 */
 
-$green: #91b64f;
+$color_green: #91b64f;
+$color_grey: #F2F2F2;
 
 @mixin border-radius($radius) {
     -webkit-border-radius: $radius;

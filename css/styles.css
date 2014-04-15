@@ -554,3 +554,29 @@ tr.dummytrow td, tr.dummytrow th {
 .requiredfield:focus {
   -webkit-box-shadow: 0 1px 2px 2px #FF142C;
   box-shadow: 0 1px 2px 1px #FF142C; }
+
+.sortable {
+  list-style-type: none;
+  margin: 10px;
+  float: left;
+  -webkit-border-radius: 1px;
+  -moz-border-radius: 1px;
+  -ms-border-radius: 1px;
+  border-radius: 1px;
+  border: 1px dashed #CCC;
+  background: #fefefe;
+  padding: 5px;
+  width: 50%; }
+  .sortable li {
+    margin: 5px;
+    padding: 5px;
+    background: #f2f2f2;
+    font-size: 13px;
+    width: 70%;
+    text-align: left; }
+  .sortable li:hover {
+    cursor: move; }
+  .sortable .ui-state-highlight {
+    background: #f2f2f2 !important;
+    height: 1.2em;
+    line-height: 1.2em; }

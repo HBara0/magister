@@ -9,262 +9,267 @@
  */
 
 class DimentionalData {
-	private $data = null;
-	private $raw_data = null;
-	private $dimensions = null;
-	private $requiredfields = null;
-	private $totals = array();
+    private $data = null;
+    private $raw_data = null;
+    private $dimensions = null;
+    private $requiredfields = null;
+    private $totals = array();
+    private $initfontsize = 14;
 
-	function __construct($data = null, $dimensions = null) {
-		if(!is_null($data)) {
-			$this->set_data($data);
-		}
+    function __construct($data = null, $dimensions = null) {
+        if(!is_null($data)) {
+            $this->set_data($data);
+        }
 
-		if(!is_null($dimensions)) {
-			$this->set_dimensions($dimensions);
-		}
-	}
+        if(!is_null($dimensions)) {
+            $this->set_dimensions($dimensions);
+        }
+    }
 
-	public function set_dimensions($dimensions) {
-		$dimensions = array_filter($dimensions);
-		$this->dimensions = $dimensions;
-	}
+    public function set_dimensions($dimensions) {
+        $dimensions = array_filter($dimensions);
+        $this->dimensions = $dimensions;
+    }
 
-	public function set_data($data, $requiredfields = '') {
-		$this->raw_data = $data;
-		$this->data = $this->dimensionalize($requiredfields);
-	}
+    public function set_data($data, $requiredfields = '') {
+        $this->raw_data = $data;
+        $this->data = $this->dimensionalize($requiredfields);
+    }
 
-	public function set_requiredfields($fields) {
-		$this->requiredfields = $fields;
-	}
+    public function set_requiredfields($fields) {
+        $this->requiredfields = $fields;
+    }
 
-	private function dimensionalize($requiredfields = '', $raw_datas = '', $dimensions = '') {
-		if(empty($raw_data) || !isset($raw_data)) {
-			$raw_datas = $this->raw_data;
-		}
+    public function set_initfontsize($fontsize) {
+        $this->initfontsize = intval($fontsize);
+    }
 
-		if(empty($dimensions) || !isset($dimensions)) {
-			$dimensions = $this->dimensions;
-		}
+    private function dimensionalize($requiredfields = '', $raw_datas = '', $dimensions = '') {
+        if(empty($raw_data) || !isset($raw_data)) {
+            $raw_datas = $this->raw_data;
+        }
 
-		if(empty($requiredfields) || !isset($requiredfields)) {
-			$requiredfields = $this->requiredfields;
-		}
+        if(empty($dimensions) || !isset($dimensions)) {
+            $dimensions = $this->dimensions;
+        }
 
-		$temp_rawdata = array();
-		$data = array();
-		$data = $temp_rawdata;
-		foreach($raw_datas as $key => $raw_data) {
-			foreach($requiredfields as $field) {
-				$temp_data = $data;
-				$aid = &$temp_rawdata[$field];
-				foreach($dimensions as $dim) {
-					$aid[$raw_data[$dim]] = array();
-					$aid = &$aid[$raw_data[$dim]];
-				}
-				$aid[$key] = $raw_data[$field];
-				$data = array_merge_recursive_replace($temp_data, $temp_rawdata);
-			}
-		}
-		return $data;
-	}
+        if(empty($requiredfields) || !isset($requiredfields)) {
+            $requiredfields = $this->requiredfields;
+        }
 
-	private function sum_dimensions(&$totals, $data = '', $dimensions = '', $depth = 0, $previds = '') {
-		if(empty($data) || !isset($data)) {
-			$data = $this->data;
-		}
-		if(empty($dimensions) || !isset($dimensions)) {
-			$dimensions = $this->dimensions;
-		}
+        $temp_rawdata = array();
+        $data = array();
+        $data = $temp_rawdata;
+        foreach($raw_datas as $key => $raw_data) {
+            foreach($requiredfields as $field) {
+                $temp_data = $data;
+                $aid = &$temp_rawdata[$field];
+                foreach($dimensions as $dim) {
+                    $aid[$raw_data[$dim]] = array();
+                    $aid = &$aid[$raw_data[$dim]];
+                }
+                $aid[$key] = $raw_data[$field];
+                $data = array_merge_recursive_replace($temp_data, $temp_rawdata);
+            }
+        }
+        return $data;
+    }
 
-		foreach($data as $key => $val) {
-			if(!empty($previds)) {
-				$previds .= '-'.$key;
-			}
-			else {
-				$previds = $key;
-			}
+    private function sum_dimensions(&$totals, $data = '', $dimensions = '', $depth = 0, $previds = '') {
+        if(empty($data) || !isset($data)) {
+            $data = $this->data;
+        }
+        if(empty($dimensions) || !isset($dimensions)) {
+            $dimensions = $this->dimensions;
+        }
 
-			if($depth <= count($dimensions)) {
-				$dim_value = $dimensions[$depth];
-				if($depth === 0) {
-					$dim_value = 'gtotal';
-				}
+        foreach($data as $key => $val) {
+            if(!empty($previds)) {
+                $previds .= '-'.$key;
+            }
+            else {
+                $previds = $key;
+            }
 
-				$totals[$dim_value][$previds] = array_sum_recursive($val);
+            if($depth <= count($dimensions)) {
+                $dim_value = $dimensions[$depth];
+                if($depth === 0) {
+                    $dim_value = 'gtotal';
+                }
 
-				if(is_array($val)) {
-					$depth = $depth + 1;
-					$this->sum_dimensions($totals, $val, $dimensions, $depth, $previds);
-				}
-			}
-			else {
-				if(empty($dimensions[$depth])) {
-					continue;
-				}
-				if(is_array($val)) {
-					$totals[$dimensions[$depth]][$previds] = array_sum($val);
-				}
-				else {
-					$totals[$dimensions[$depth]][$previds] = $val;
-				}
-			}
+                $totals[$dim_value][$previds] = array_sum_recursive($val);
 
-			$depth -= 1;
-			if($depth == 0) {
-				$previds = '';
-			}
-			else {
-				$previds = preg_replace('/-([0-9]+)$/', '', $previds); //Remove last portion of
-			}
-		}
-	}
+                if(is_array($val)) {
+                    $depth = $depth + 1;
+                    $this->sum_dimensions($totals, $val, $dimensions, $depth, $previds);
+                }
+            }
+            else {
+                if(empty($dimensions[$depth])) {
+                    continue;
+                }
+                if(is_array($val)) {
+                    $totals[$dimensions[$depth]][$previds] = array_sum($val);
+                }
+                else {
+                    $totals[$dimensions[$depth]][$previds] = $val;
+                }
+            }
 
-	public function get_data() {
-		$this->sum_dimensions($this->totals);
+            $depth -= 1;
+            if($depth == 0) {
+                $previds = '';
+            }
+            else {
+                $previds = preg_replace('/-([0-9]+)$/', '', $previds); //Remove last portion of
+            }
+        }
+    }
 
-		return $this->totals;
-	}
+    public function get_data() {
+        $this->sum_dimensions($this->totals);
 
-	public function get_output($options = '') {
-		$this->sum_dimensions($this->totals);
-		return $this->parse($options);
-	}
+        return $this->totals;
+    }
 
-	private function parse($options = array(), $data = null, $depth = 1, $previds = '', $total = null, $dimensions = null) {
-		global $template;
+    public function get_output($options = '') {
+        $this->sum_dimensions($this->totals);
+        return $this->parse($options);
+    }
 
-		if(empty($data) || !isset($data)) {
-			$data = $this->data[$this->requiredfields[0]];
-		}
+    private function parse($options = array(), $data = null, $depth = 1, $previds = '', $total = null, $dimensions = null) {
+        global $template;
 
-		if(empty($dimensions) || !isset($dimensions)) {
-			$dimensions = $this->dimensions;
-		}
+        if(empty($data) || !isset($data)) {
+            $data = $this->data[$this->requiredfields[0]];
+        }
 
-		if(empty($total) || !isset($total)) {
-			$total = $this->totals;
-		}
+        if(empty($dimensions) || !isset($dimensions)) {
+            $dimensions = $this->dimensions;
+        }
 
-		if(empty($options['requiredfields'])) {
-			$options['requiredfields'] = $this->requiredfields;
-		}
+        if(empty($total) || !isset($total)) {
+            $total = $this->totals;
+        }
 
-		$output = '';
-		if(empty($rowcolor)) {
-			$rowcolor = ' 101c64c';
-		}
-		if(empty($fontsize)) {
-			$fontsize = 18;
-		}
+        if(empty($options['requiredfields'])) {
+            $options['requiredfields'] = $this->requiredfields;
+        }
 
-		$rowcolor = $this->generate_hexcolor($rowcolor, $depth);
-		$fontsize = $this->generate_fontsize($fontsize, $depth);
-		if(is_array($data)) {
-			foreach($data as $key => $val) {
-				$altrow = alt_row('trow');
-				if(!empty($previds)) {
-					$previds .= '-'.$key;
-				}
-				else {
-					$previds = $key;
-				}
+        $output = '';
+        if(empty($rowcolor)) {
+            $rowcolor = '101c64c';
+        }
 
-				if($depth <= count($dimensions)) {
-					if(isset($dimensions[$depth]) && !empty($dimensions[$depth]) && (isset($key) && !empty($key))) {
-						$class = get_object_bytype($dimensions[$depth], $key);
-						/*Checks if the class method exists */
-						if(method_exists($class, 'parse_link')) {
-							$this->dimensions['link'] = $class->parse_link();
-						}
-						else {
-							$this->dimensions['link'] = $class->get()['name'];
-						}
-						if($options['outputtype'] == 'div') {
-							$columns = '<div style="display: inline-block; padding-left:'.(($depth - 1) * 20).'px; font-size:'.$fontsize.'px;">'.$this->dimensions['link'].'</div>';
-						}
-						else {
-							$columns = '<td style="padding-left:'.(($depth - 1) * 20).'px; font-size:'.$fontsize.'px;">'.$this->dimensions['link'].'</td>';
-						}
-					}
+        if(empty($fontsize)) {
+            $fontsize = $this->initfontsize;
+        }
 
-					foreach($options['requiredfields'] as $field) {
-						if($options['outputtype'] == 'div') {
-							$columns .= '<div style="display: inline-block; font-size:'.$fontsize.'px">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</div>';
-						}
-						else {
-							$columns .= '<td style="font-size:'.$fontsize.'px">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</td>';
-						}
-					}
+        $rowcolor = $this->generate_hexcolor($rowcolor, $depth);
+        $fontsize = $this->generate_fontsize($fontsize, $depth);
+        if(is_array($data)) {
+            foreach($data as $key => $val) {
+                $altrow = alt_row('trow');
+                if(!empty($previds)) {
+                    $previds .= '-'.$key;
+                }
+                else {
+                    $previds = $key;
+                }
+
+                if($depth <= count($dimensions)) {
+                    if(isset($dimensions[$depth]) && !empty($dimensions[$depth]) && (isset($key) && !empty($key))) {
+                        $class = get_object_bytype($dimensions[$depth], $key);
+                        /* Checks if the class method exists */
+                        if(method_exists($class, 'parse_link')) {
+                            $this->dimensions['link'] = $class->parse_link();
+                        }
+                        else {
+                            $this->dimensions['link'] = $class->get()['name'];
+                        }
+                        if($options['outputtype'] == 'div') {
+                            $columns = '<div style="display: inline-block; padding-left:'.(($depth - 1) * 20).'px; font-size:'.$fontsize.'px;">'.$this->dimensions['link'].'</div>';
+                        }
+                        else {
+                            $columns = '<td style="padding-left:'.(($depth - 1) * 20).'px; font-size:'.$fontsize.'px;">'.$this->dimensions['link'].'</td>';
+                        }
+                    }
+
+                    foreach($options['requiredfields'] as $field) {
+                        if($options['outputtype'] == 'div') {
+                            $columns .= '<div style="display: inline-block; font-size:'.$fontsize.'px">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</div>';
+                        }
+                        else {
+                            $columns .= '<td style="font-size:'.$fontsize.'px">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</td>';
+                        }
+                    }
 
 
-					if(isset($options['template']) && !empty($options['template'])) {
-						eval("\$output .= \"".$template->get($options['template'])."\";");
-					}
-					else {
-						if($options['outputtype'] == 'div') {
-							$output .= '<div style="background-color:#'.$rowcolor.'" id="dimension_'.$previds.'">'.$columns.'</div>';
-						}
-						else {
-							$output .= '<tr style="background-color:#'.$rowcolor.'" id="dimension_'.$previds.'">'.$columns.'</tr>';
-						}
-					}
+                    if(isset($options['template']) && !empty($options['template'])) {
+                        eval("\$output .= \"".$template->get($options['template'])."\";");
+                    }
+                    else {
+                        if($options['outputtype'] == 'div') {
+                            $output .= '<div style="background-color:#'.$rowcolor.'" id="dimension_'.$previds.'">'.$columns.'</div>';
+                        }
+                        else {
+                            $output .= '<tr style="background-color:#'.$rowcolor.'" id="dimension_'.$previds.'">'.$columns.'</tr>';
+                        }
+                    }
 
-					if(is_array($val)) {
-						$depth = $depth + 1;
-						if($depth == 0) {
-							$key = '';
-						}
+                    if(is_array($val)) {
+                        $depth = $depth + 1;
+                        if($depth == 0) {
+                            $key = '';
+                        }
 
-						$output .= $this->parse($options, $val, $depth, $previds, $total, $dimensions);  /* include the function in the recurison */
-					}
-				}
-				$depth -= 1;
-				if($depth == 1) {
-					$previds = '';
-				}
-				else {
-					$previds = preg_replace('/-([0-9]+)$/', '', $previds); // $ Remove last portion of previd
-				}
-			}
-		}
-		if($options['noenclosingtags'] == false) {
-			if($options['outputtype'] == 'table') {
-				$output = '<table>'.$output.'</table>';
-			}
-		}
-		return $output;
-	}
+                        $output .= $this->parse($options, $val, $depth, $previds, $total, $dimensions);  /* include the function in the recurison */
+                    }
+                }
+                $depth -= 1;
+                if($depth == 1) {
+                    $previds = '';
+                }
+                else {
+                    $previds = preg_replace('/-([0-9]+)$/', '', $previds); // $ Remove last portion of previd
+                }
+            }
+        }
+        if($options['noenclosingtags'] == false) {
+            if($options['outputtype'] == 'table') {
+                $output = '<table>'.$output.'</table>';
+            }
+        }
+        return $output;
+    }
 
-	public function parse_header() {
+    public function get_requiredfields() {
+        return $this->requiredfields;
+    }
 
-		return $this->requiredfields;
-	}
+    public static function construct_dimensions($dimensions, $delimiter = ',') {
+        $dimensions = explode($delimiter, $dimensions[0]);
+        $dimensions = array_filter($dimensions);
 
-	public static function construct_dimensions($dimensions, $delimiter = ',') {
-		$dimensions = explode($delimiter, $dimensions[0]);
-		$dimensions = array_filter($dimensions);
+        return array_combine(range(1, count($dimensions)), array_values($dimensions));
+    }
 
-		return array_combine(range(1, count($dimensions)), array_values($dimensions));
-	}
+    private function generate_hexcolor($hex = '', $depth, $threshold = 2) {
+        $hex_array = str_split($hex, $threshold);
+        $hex = '';
+        foreach($hex_array as $h) {
+            $dec = hexdec($h);
+            $hex .= dechex($dec + ($depth * $threshold));
+        }
+        return $hex;
+    }
 
-	private function generate_hexcolor($hex = '', $depth, $threshold = 2) {
-		$hex_array = str_split($hex, $threshold);
-		$hex = '';
-		foreach($hex_array as $h) {
-			$dec = hexdec($h);
-			$hex .= dechex($dec + ($depth * $threshold));
-		}
-		return $hex;
-	}
-
-	private function generate_fontsize($size = '', $depth, $min_size = 8) {
-		$size = ($size - ($depth));
-		if($size <= $min_size) {
-			$size = $min_size;
-		}
-		return $size;
-	}
+    private function generate_fontsize($size = '', $depth, $min_size = 8) {
+        $size = ($size - ($depth));
+        if($size <= $min_size) {
+            $size = $min_size;
+        }
+        return $size;
+    }
 
 }

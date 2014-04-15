@@ -27,7 +27,12 @@ h3 {
     color:#669900;
     border-bottom: 1px solid #F2F2F2;
 }
-
+span.subtitle {
+    font-weight:bold;
+    font-size: 15px;
+    color:#669900;  
+    text-transform: uppercase;
+} 
 .smalltext {
     font-size: 9px;
 }
