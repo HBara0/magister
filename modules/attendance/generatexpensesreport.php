@@ -13,8 +13,8 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if($core->usergroup['attendance_canGenerateExpReport'] == 0) {
-    error($lang->sectionnopermission);
-    exit;
+//    error($lang->sectionnopermission);
+//    exit;
 }
 
 if(!$core->input['action']) {
@@ -50,6 +50,7 @@ if(!$core->input['action']) {
 
     // Here we get affiliate for user assigned to, or he can audit
     $afffiliates_users = $core->user['affiliates'] + $core->user['auditfor'];
+    
     foreach($afffiliates_users as $affid => $affiliates) {
         $selected = '';
         $affiliate_obj = new Affiliates($affiliates);
@@ -90,7 +91,7 @@ elseif($core->input['action'] == 'preview') {
     $expencesreport_data['dimension'] = $dimensionalize_ob->construct_dimensions($expencesreport_data['dimension']);
 
     $expences_indexes = array('expectedAmt', 'actualAmt');
-    $leave_expencesdata = Leaves::get_leaves_expencesdata();
+    $leave_expencesdata = Leaves::get_leaves_expencesdata($expencesreport_data[filter]);
 
     if(is_array($leave_expencesdata)) {
         $expencesreport_data['dimension'] = $dimensionalize_ob->set_dimensions($expencesreport_data['dimension']);

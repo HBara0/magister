@@ -200,8 +200,8 @@ class Leaves {
     public static function get_leaves_expencesdata($data_filter = array()) {
         global $db;
 
-        if(isset($data_filter['affids']) && (!empty($data_filter['affids']))) {
-            $where = " 	WHERE l.affid IN (".implode(',', $data_filter['affids']).") ";
+        if(isset($data_filter['useraffids']) && (!empty($data_filter['useraffids']))) {
+            $where = " WHERE useraffid IN (".implode(',', $data_filter['useraffids']).") ";
         }
         if(isset($data_filter['employees']) && (!empty($data_filter['employees']))) {
             $where .= " AND l.uid IN (".implode(',', $data_filter['employees']).") ";
@@ -213,13 +213,14 @@ class Leaves {
             $where .= "  AND lextt.aletid IN (".implode(',', $data_filter['leaveexptype']).") ";
         }
 
-        $query = $db->query("SELECT l.lid, l.uid, l.affid, l.spid, l.cid, lt.title, lt.ltid, lextt.aletid, lext.aleid, lext.alteid, lext.expectedAmt, lext.actualAmt
+        $query = $db->query("SELECT l.lid, l.uid, l.affid, a.affid as useraffid, l.spid, l.cid, lt.title, lt.ltid, lextt.aletid, lext.aleid, lext.alteid, lext.expectedAmt, lext.actualAmt
                             FROM ".Tprefix."leaves  l
                             JOIN ".Tprefix."leavetypes lt ON (l.type=lt.ltid)
                             JOIN ".Tprefix."attendance_leaves_expenses lext ON (lext.lid=l.lid)
                             JOIN ".Tprefix."attendance_leavetypes_expenses letexp ON (letexp.alteid=lext.alteid)
                             JOIN ".Tprefix."attendance_leaveexptypes lextt ON (lextt.aletid=letexp.aletid)
-                            {$where}");
+                            JOIN ".Tprefix."affiliatedemployees a ON (a.uid=l.uid) 
+                            {$where} AND l.lid  IN (SELECT lid FROM ".Tprefix."leavesapproval  WHERE isApproved=1 )");
         if($db->num_rows($query) > 0) {
             while($rowsdata = $db->fetch_assoc($query)) {
                 $leavexpencesdata[$rowsdata['aleid']] = $rowsdata;

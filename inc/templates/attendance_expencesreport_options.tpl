@@ -30,7 +30,7 @@
                 <div class="subtitle">{$lang->filters}</div>
                 <div style="display:block; padding: 10px;">
                     <div style="display:inline-block; vertical-align:top; width: 20%;">{$lang->affiliate}</div>
-                    <div style="display:inline-block; width: 20%; vertical-align:top; "><select name="expencesreport[filter][affids][]" multiple="multiple">{$affiliates_list}</select></div>
+                    <div style="display:inline-block; width: 20%; vertical-align:top; "><select name="expencesreport[filter][useraffids][]" multiple="multiple">{$affiliates_list}</select></div>
                     <div style="display:inline-block; vertical-align:top; width: 20%;">{$lang->leavetype}</div>
                     <div style="display:inline-block; width: 20%; vertical-align:top;">{$leavetype_list}</div>
                 </div>
