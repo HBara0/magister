@@ -6,7 +6,7 @@
 <script src="{$core->settings[rootdir]}/js/jquery.cookie.min.js" type="text/javascript"></script>
 <script src="{$core->settings[rootdir]}/js/jquery.qtip.min.js" type="text/javascript"></script>
 <script src="{$core->settings[rootdir]}/js/jscript.js" type="text/javascript"></script>
-<link href="{$core->settings[rootdir]}/styles.css" rel="stylesheet" type="text/css" />
+<link href="{$core->settings[rootdir]}/css/styles.css" rel="stylesheet" type="text/css" />
 <link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-current.custom.min.css' rel='stylesheet' type='text/css' />
 <link href='{$core->settings[rootdir]}/css/jquery.qtip.min.css' rel='stylesheet' type='text/css' />
 <script type="text/javascript">

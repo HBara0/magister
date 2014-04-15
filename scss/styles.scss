@@ -1,4 +1,6 @@
 @charset "utf-8";
+@import "_constants.scss";
+
 html, body {
     height:100%;
 }
@@ -18,7 +20,7 @@ h2, h3 {
 
 h3 {
     font-size: 24px;
-    color: #91b64f;
+    color: $color_green;
     font-weight:100;
 }
 
@@ -30,9 +32,9 @@ h3 {
 span.subtitle {
     font-weight:bold;
     font-size: 15px;
-    color:#669900;  
+    color: #669900;
     text-transform: uppercase;
-} 
+}
 .smalltext {
     font-size: 9px;
 }
@@ -42,7 +44,7 @@ hr {
     width: 80%;
     height: 1px;
     border: 0px;
-    color: #91b64f;
+    color: $color_green;
     margin-top: 10px;
     margin-bottom: 5px;
 }
@@ -52,12 +54,14 @@ a, a:visited {
     text-decoration: none;
 }
 
-.green_text { color: #91b64f; }
+.green_text { color: $color_green; }
 .red_text { color:#CA0703; }
 
-#welcome_message a, #welcome_message a:visited {
-    text-decoration: none;
-    color: #acacac;
+#welcome_message {
+    a, a:visited {
+        text-decoration: none;
+        color: #acacac;
+    }
 }
 
 .ocosLogo {
@@ -95,8 +99,10 @@ a, a:visited {
     font-size: 13px;
 }
 
-.contentContainer table {
-    font-size: 13px;
+.contentContainer {
+    table {
+        font-size: 13px;
+    }
 }
 
 .datatable {
@@ -185,7 +191,7 @@ td { padding: 2px; }
 
 .mainmenuitem_hover {
     color: #696969 !important;
-    background-color: #91b64f;
+    background-color: $color_green;
 }
 
 .mainmenuitem_hover a {
@@ -332,7 +338,7 @@ td { padding: 2px; }
     color: #E6ECF2;
     text-align: right;
     padding: 5px;
-    background-color: #91b64f;
+    background-color: $color_green;
     border-top: 1px solid #999999;
     border-bottom: 1px solid #666666;
 }
@@ -353,7 +359,7 @@ td { padding: 2px; }
 input.button {
     border: 1px solid #CCCCCC;
     color:#FFFFFF;
-    background:#91b64f;
+    background: $color_green;
     /*width: 60px;*/
     font-weight: bold;
     padding: 3px;
@@ -376,7 +382,7 @@ input.button {
     margin-left: 40px;
     left: 40px;
     position:absolute;
-    border-left: 1px solid #91b64f;
+    border-left: 1px solid $color_green;
     border-right: 1px solid #E8E8E8;
     border-bottom: 1px solid #E8E8E8;
     padding: 5px;
@@ -456,7 +462,7 @@ table.sectionbox td {
     border-top: 1px solid #CCC !important;
 }
 .tablefilters_row  {
-    -moz-box-shadow:inset 0px 5px 10px #EEF4FB;
+    -moz-box-shadow: inset 0px 5px 10px #EEF4FB;
     -webkit-box-shadow:inset 0px 5px 10px #EEF4FB;
     box-shadow:inset 0px 5px 10px #EEF4FB;
 }
@@ -558,9 +564,7 @@ tr.dummytrow td, tr.dummytrow th {
 
 .timeline_entry .circle {
     position: absolute;
-    -webkit-border-radius: 100%;
-    -moz-border-radius: 100%;
-    border-radius: 100%;
+    @include border-radius(100%);
     display: block;
     top: 0%;
     left: 0px;
@@ -580,9 +584,7 @@ tr.dummytrow td, tr.dummytrow th {
 }
 .timeline_entry .depthcircle {
     position: absolute;
-    -webkit-border-radius: 100%;
-    -moz-border-radius: 100%;
-    border-radius: 100%;
+    @include border-radius(100%);
     display: block;
     top: 75%;
     left: 20px;
@@ -596,7 +598,7 @@ tr.dummytrow td, tr.dummytrow th {
 }
 
 .timeline_entry .circle:hover {
-    border-color:#aecd78; 
+    border-color:#aecd78;
 }
 
 .timeline_entry .circle_clickable {
@@ -604,9 +606,39 @@ tr.dummytrow td, tr.dummytrow th {
 }
 .requiredfield{
     border: 2px solid #FF142;
-    border-radius: 4px;
+    @include border-radius(4px);
 }
 .requiredfield:focus{
     -webkit-box-shadow: 0 1px 2px 2px #FF142C;
     box-shadow: 0 1px 2px 1px #FF142C;
+}
+
+.sortable {
+    list-style-type: none;
+    margin: 10px;
+    float: left;
+    @include border-radius(1px);
+    border: 1px dashed #CCC;
+    background:#fefefe;
+    padding: 5px;
+    width: 50%;
+
+    li {
+        margin:5px;
+        padding: 5px;
+        background: $color_grey;
+        font-size: 13px;
+        width: 70%;
+        text-align: left;
+    }
+
+    li:hover {
+        cursor:move;
+    }
+
+    .ui-state-highlight {
+        background: $color_grey !important;
+        height: 1.2em;
+        line-height: 1.2em;
+    }
 }

@@ -517,11 +517,10 @@ class ReportingQr Extends Reporting {
 		global $db, $core, $log;
 
 		/* Check if audit - START */
-		if($options[isauditor] != '1') {
+		if($options['isauditor'] != '1') {
 			$existingentries_query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
 		}
 		/* Check if audit - END */
-
 		if(is_array($data)) {
 			foreach($data as $productdata) {
 //$currencies = $this->get_currency_Byrate(array('fxrate' => $productdata['fxrate']));
@@ -560,19 +559,21 @@ class ReportingQr Extends Reporting {
 						$cache['usedpaid'][] = $productdata['paid'];
 					}
 				}
-				if($processed_once === true) {
-					if(is_array($cache['usedpaid'])) {
-//$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).')';
-					}
+			}
 
-					$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid=".$this->report['rid']." AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
-					$update_status = $db->update_query('reports', array('prActivityAvailable' => 1), 'rid='.$this->report['rid'].'');
+			if($processed_once === true) {
+				if(is_array($cache['usedpaid'])) {
+					//$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).')';
 				}
+
+				$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid=".$this->report['rid']." AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
+				$update_status = $db->update_query('reports', array('prActivityAvailable' => 1), 'rid='.$this->report['rid'].'');
 			}
 			/* Data to be passed */
 			if($options['transFill'] != '1') {
 				record_contribution($this->report['rid']);
 			}
+
 			$log->record($this->report['rid']);
 		}
 	}
