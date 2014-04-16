@@ -137,7 +137,7 @@ $lang['yournewpassword'] = 'Your New OCOS Account Password';
 $lang['pendingchemrequestssubject'] = 'You have pending chemcial requests';
 $lang['pendingchemrequestsbody'] = 'The following chemical requests are still pending:';
 $lang['report_notviewdsubject'] = 'Not viewed reports Notifications';
-$lang['report_notviewdmessage'] = 'The following QR have not been viewed by any of the recipients: '
+$lang['report_notviewdmessage'] = 'The following QR have not been viewed by any of the recipients: ';
 $lang['uncompletedcommunication'] = ' You Have Not completed Your communication With ';
 $lang['uncompletedsubject'] = 'Uncompleted Sourcing Communication ';
 ?>
