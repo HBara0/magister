@@ -177,7 +177,7 @@ class DimentionalData {
                     $previds = $key;
                 }
 
-                if($depth <= count($dimensions)) {
+                if($depth <= count($dimensions) && $depth >= 0) {
                     if(isset($dimensions[$depth]) && !empty($dimensions[$depth]) && (isset($key) && !empty($key))) {
                         $class = get_object_bytype($dimensions[$depth], $key);
                         /* Checks if the class method exists */
@@ -187,6 +187,7 @@ class DimentionalData {
                         else {
                             $this->dimensions['link'] = $class->get()['name'];
                         }
+
                         if($options['outputtype'] == 'div') {
                             $columns = '<div style="display: inline-block; padding-left:'.(($depth - 1) * 20).'px; font-size:'.$fontsize.'px;">'.$this->dimensions['link'].'</div>';
                         }
@@ -222,8 +223,9 @@ class DimentionalData {
                         if($depth == 0) {
                             $key = '';
                         }
-
-                        $output .= $this->parse($options, $val, $depth, $previds, $total, $dimensions);  /* include the function in the recurison */
+                        if($depth <= count($dimensions)) {
+                            $output .= $this->parse($options, $val, $depth, $previds, $total, $dimensions);  /* include the function in the recurison */
+                        }
                     }
                 }
                 $depth -= 1;
