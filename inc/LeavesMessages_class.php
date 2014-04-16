@@ -70,20 +70,37 @@ class LeavesMessages {
     }
 
 //if permsiion private  get uid  of sendgin mesage 
-    public function create_message($data = array()) {
-        global $db;
-        print_R($data);
-        //read emai header 
-//		$message_data = array('lid' => $leaveid,
-//		'uid' =>,
-//		'inRepyTo' =>,
-//		'inReplyToMsgId'=>
-//		'message' =>,
-//		'viewPermission' =>,
-//		'createdOn' => TIME_NOW);
+    public function create_message($data = array(), $leaveid) {
+        global $db, $core;
 
-        echo 'create messaage';
-        //$db->insert_query($table, $message_data, $options);
+        if(!empty($data)) {
+            $this->messagedata = $data;
+        }
+        if(preg_match("/Message-ID: (.*)/", $this->messagedata, $matches)) {
+            preg_match("/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/", $matches[1], $messageid);
+            $this->leavemessage_data['inReplyToMsgId'] = $messageid[1];
+        }
+        if(preg_match("/In-Reply-To: (.*)/", $this->messagedata, $matches)) {
+            preg_match("/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/", $matches[1], $replyto);
+            $this->leavemessage_data['inReplyTo'] = $replyto[1];
+        }
+
+
+        $message_data = array('lid' => $leaveid,
+                'uid' => $core->user['uid'],
+                'inReplyTo' => $this->leavemessage_data['lmid'],
+                'inReplyToMsgId' => $this->leavemessage_data['inReplyTo'],
+                'message' => $this->leavemessage_data['message'],
+                'viewPermission' => $this->leavemessage_data['persmission'],
+                'createdOn' => TIME_NOW);
+        print_R($message_data);
+
+        $db->insert_query('leaves_messages', $message_data);
+
+        $lastid = $db->last_id();  
+        $this->leavemessage_data['lmid'] = $db->fetch_field($db->query("SELECT  max(lmid) as lmid  FROM ".Tprefix."leaves_messages WHERE lmid <>".$db->escape_string($lastid)),'lmid');
+
+        print_r($this->leavemessage_data['lmid'] );
     }
 
     public function read_message() {
