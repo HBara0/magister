@@ -2,22 +2,6 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->fillmontlyreport}</title>
         {$headerinc}
-        <style>
-            .marketreport_dimension {
-                background-color: red;  
-
-            } 
-        </style>
-        <script>
-            $(function() {
-
-                $('tr[id^="dimension_"]').mouseover(function() {
-                   // $(this).toggleClass('mainmenuitem_hover') 
-                });
-
-            });
-
-        </script>
     </head>
     <body>
         {$header}
@@ -28,15 +12,12 @@
             <table width="100%" class="datatable">
                 <tr>
                     <th>{$lang->dimensions}</th>
-                    {$dimension_head}
+                        {$dimension_head}
                 </tr>
                 {$parsed_dimension} 
-
             </table>
-
         </td>
-    </tr>        
+    </tr>
+    {$footer}
 </body>
-
 </html>
-
