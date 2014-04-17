@@ -36,11 +36,11 @@ if(!$core->input['action']) {
             $generate_by = $core->input['affid'];
         }
         else {
+            $generate_by = $core->input['spid'];
             if($core->input['referrer'] == 'list') {
                 $core->input['incMarketReport'] = $core->input['incKeyCustomers'] = $core->input['incKeyProducts'] = $core->input['genByProduct'] = 1;
-                $report_suppliers = array($core->input['spid']);
+                $generate_by = array($core->input['spid']);
             }
-            $generate_by = $report_suppliers;
         }
     }
     elseif($core->input['referrer'] == 'direct') {
