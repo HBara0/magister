@@ -1536,6 +1536,7 @@ function array_merge_recursive_replace() {
 function get_object_bytype($dim, $id) {
     switch($dim) {
         case 'affid':
+        case 'useraffid':
             return new Affiliates($id);
             break;
         case 'cid':
@@ -1552,10 +1553,13 @@ function get_object_bytype($dim, $id) {
             return new Users($id);
             break;
         case 'ltid':
-            return new Leavetypes($id);
+            return new LeaveTypes($id);
             break;
         case 'aletid':
-            return new Leaveexpensetypes($id);
+            return new LeaveExpenseTypes($id);
+            break;
+        case 'lid':
+            return new Leaves($id);
             break;
     }
 }

@@ -243,10 +243,19 @@ class Leaves {
         return new Leavetypes($this->leave['type'], $simple);
     }
 
-    public function get_workingdays() {
+    public function count_workingdays() {
         return count_workingdays($this->leave['uid'], $this->leave['fromDate'], $this->leave['toDate'], $this->get_type()['isWholeDay']);
     }
 
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        global $core;
+        /* Late there will be a page for each leave
+         * For now the function returns a info that identify a leave 
+         */
+        
+        return '<a href="#'.$this->leave['lid'].'">'.date($core->settings['dateformat'], $this->leave['fromDate']).' - '.date($core->settings['dateformat'], $this->leave['toDate']).'</a>';
+    }
+    
     public function get() {
         return $this->leave;
     }

@@ -13,8 +13,8 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if($core->usergroup['attendance_canGenerateExpReport'] == 0) {
-//    error($lang->sectionnopermission);
-//    exit;
+    error($lang->sectionnopermission);
+    exit;
 }
 
 if(!$core->input['action']) {
@@ -50,7 +50,7 @@ if(!$core->input['action']) {
 
     // Here we get affiliate for user assigned to, or he can audit
     $afffiliates_users = $core->user['affiliates'] + $core->user['auditfor'];
-    
+
     foreach($afffiliates_users as $affid => $affiliates) {
         $selected = '';
         $affiliate_obj = new Affiliates($affiliates);
@@ -61,7 +61,7 @@ if(!$core->input['action']) {
         $affiliates_list .= '<option value='.$affiliates_data['affid'].' '.$selected.'>'.$affiliates_data['name'].'</option>';
     }
 
-    $leavetype_objs = Leavetypes::get_leavetypes();
+    $leavetype_objs = LeaveTypes::get_leavetypes('isBusiness=1');
     foreach($leavetype_objs as $leavetype_obj) {
         $leavetypes = $leavetype_obj->get();
         $leaves_types[$leavetypes['ltid']] = $leavetypes['title'];
@@ -76,37 +76,39 @@ if(!$core->input['action']) {
     }
 
     $leave_expencestypes_list = parse_selectlist('expencesreport[filter][leaveexptype][]', 1, $leave_expencestypes, '', 1, '', '');
-
-    $dimensions = array('affid' => $lang->affiliate, 'uid' => $lang->employee, 'ltid' => $lang->leavetype, 'aletid' => $lang->leaveexptype, 'lid' => $lang->leaves);
+/*'useraffid' => $lang->affiliate*/
+    $dimensions = array('uid' => $lang->employee, 'ltid' => $lang->leavetype, 'aletid' => $lang->leaveexptype, 'lid' => $lang->leave);
     foreach($dimensions as $dimensionid => $dimension) {
         $dimension_item .= '<li class="ui-state-default" id='.$dimensionid.' title="Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
     }
     eval("\$expencesreport_options = \"".$template->get('attendance_expencesreport_options')."\";");
     output($expencesreport_options);
 }
-elseif($core->input['action'] == 'preview') {
-    $dimensionalize_ob = new DimentionalData();
-    $expencesreport_data = ($core->input['expencesreport']);
-    /* split the dimension and explode them into chuck of array */
-    $expencesreport_data['dimension'] = $dimensionalize_ob->construct_dimensions($expencesreport_data['dimension']);
+else {
+    if($core->input['action'] == 'preview') {
+        $dimensionalize_ob = new DimentionalData();
+        $expencesreport_data = ($core->input['expencesreport']);
+        /* split the dimension and explode them into chuck of array */
+        $expencesreport_data['dimension'] = $dimensionalize_ob->construct_dimensions($expencesreport_data['dimension']);
 
-    $expences_indexes = array('expectedAmt', 'actualAmt');
-    $leave_expencesdata = Leaves::get_leaves_expencesdata($expencesreport_data[filter]);
+        $expences_indexes = array('expectedAmt', 'actualAmt');
+        $leave_expencesdata = Leaves::get_leaves_expencesdata($expencesreport_data[filter]);
 
-    if(is_array($leave_expencesdata)) {
-        $expencesreport_data['dimension'] = $dimensionalize_ob->set_dimensions($expencesreport_data['dimension']);
-        $dimensionalize_ob->set_requiredfields($expences_indexes);
-        $dimensionalize_ob->set_data($leave_expencesdata);
+        if(is_array($leave_expencesdata)) {
+            $expencesreport_data['dimension'] = $dimensionalize_ob->set_dimensions($expencesreport_data['dimension']);
+            $dimensionalize_ob->set_requiredfields($expences_indexes);
+            $dimensionalize_ob->set_data($leave_expencesdata);
 
-        $parsed_dimension = $dimensionalize_ob->get_output(array('outputtype' => 'table', 'noenclosingtags' => true));
-        $headers_title = $dimensionalize_ob->get_requiredfields();
+            $parsed_dimension = $dimensionalize_ob->get_output(array('outputtype' => 'table', 'noenclosingtags' => true));
+            $headers_title = $dimensionalize_ob->get_requiredfields();
 
-        foreach($headers_title as $report_header => $header_data) {
-            $dimension_head.= '<th>'.ucfirst($header_data).'</th>';
+            foreach($headers_title as $report_header => $header_data) {
+                $dimension_head.= '<th>'.ucfirst($header_data).'</th>';
+            }
         }
-    }
 
-    eval("\$expencesreport_output = \"".$template->get('attendance_expencesreport_output')."\";");
-    output($expencesreport_output);
+        eval("\$expencesreport_output = \"".$template->get('attendance_expencesreport_output')."\";");
+        output($expencesreport_output);
+    }
 }
 ?>

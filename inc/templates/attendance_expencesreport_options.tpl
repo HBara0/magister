@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->fillmontlyreport}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->expensesreport}</title>
         {$headerinc}
         <script>
             $(function() {
@@ -43,13 +43,13 @@
                 <div class="subtitle" style="margin:10px;">{$lang->dimensions}<input type='text' id='dimensions' name="expencesreport[dimension][]" value='' style='display:none;'></div>
                 <div style="display:block; text-align: center;">
                     <div style="display:inline-block; width:45%; vertical-align:top;">
-                        {$lang->availabledimensions}Available Dimensions<br />
+                        {$lang->availabledimensions}<br />
                         <ul id="dimensionfrom" class="sortable">
                             {$dimension_item}
                         </ul>
                     </div>
                     <div style="display:inline-block; width:45%; vertical-align:top;">
-                        {$lang->selectdimensions}Select Dimensions<br />
+                        {$lang->selecteddimensions}<br />
                         <ul id="dimensionto" class="sortable">
                         </ul>
                     </div>

@@ -94,10 +94,13 @@ class Leavetypes {
         return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'leavetypes WHERE ltid='.$db->escape_string($id)));
     }
 
-    public static function get_leavetypes($filters = array()) {
+    public static function get_leavetypes($filters = '') {
         global $db;
         
-        $query = $db->query('SELECT ltid FROM '.Tprefix.'leavetypes');
+        if(!empty($filters)) {
+            $query_where = ' WHERE '.$db->escape_string($filters);
+        }
+        $query = $db->query('SELECT ltid FROM '.Tprefix.'leavetypes'.$query_where);
         if($db->num_rows($query) > 0) {
             while($leavetype = $db->fetch_assoc($query)) {
                 $leavetypes[$leavetype['ltid']] = new Leavetypes($leavetype['ltid']);
