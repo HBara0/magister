@@ -21,11 +21,18 @@ if(!$core->input['action']) {
     $identifier = substr(md5(microtime(uniqid())), 0, 10);
     /* Preparing Users section - START */
     if($core->usergroup['attendance_canViewExpenses'] == 1) {
-        $aff_obj = new Affiliates($core->user['affiliates']);
-        $employees = $aff_obj->get_users();
-        foreach($employees as $employee) {
-            $business_managers[$employee['uid']] = $employee['displayName'];
+
+        foreach($core->user['affiliates'] as $affid) {
+            $aff_obj = new Affiliates($affid);
+            $employees = $aff_obj->get_users();
+            if(is_array($employees)) {
+                foreach($employees as $employee) {
+                    $business_managers[$employee['uid']] = $employee['displayName'];
+                }
+            }
         }
+
+
         $employees_list = parse_selectlist('expencesreport[filter][employees][]', 1, $business_managers, $core->user['uid'], 1, '', '');
     }
     elseif($core->usergroup['attendace_canViewAllAffExpenses'] == 1) {
@@ -38,12 +45,17 @@ if(!$core->input['action']) {
         $employees_list = parse_selectlist('expencesreport[filter][employees][]', 1, $business_managers, $core->user['uid'], 1, '', '');
     }
     else {
-        $aff_obj = new Affiliates($core->user['hraffids']);
-        $employees = $aff_obj->get_users();
+        foreach($core->user['hraffids'] as $hraffid) {
+            $aff_obj = new Affiliates($hraffid);
 
-        foreach($employees as $employee) {
-            $business_managers[$employee['uid']] = $employee['displayName'];
+            $employees = $aff_obj->get_users();
+            if(is_array($employees)) {
+                foreach($employees as $employee) {
+                    $business_managers[$employee['uid']] = $employee['displayName'];
+                }
+            }
         }
+
         $employees_list = parse_selectlist('expencesreport[filter][employees][]', 1, $business_managers, $core->user['uid'], 1, '', '');
     }
     /* Preparing USers section - END */
@@ -76,7 +88,7 @@ if(!$core->input['action']) {
     }
 
     $leave_expencestypes_list = parse_selectlist('expencesreport[filter][leaveexptype][]', 1, $leave_expencestypes, '', 1, '', '');
-/*'useraffid' => $lang->affiliate*/
+    /* 'useraffid' => $lang->affiliate */
     $dimensions = array('uid' => $lang->employee, 'ltid' => $lang->leavetype, 'aletid' => $lang->leaveexptype, 'lid' => $lang->leave);
     foreach($dimensions as $dimensionid => $dimension) {
         $dimension_item .= '<li class="ui-state-default" id='.$dimensionid.' title="Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
