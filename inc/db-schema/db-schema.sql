@@ -264,7 +264,7 @@ CREATE TABLE `attendance_leaves_expenses` (
   `description` text COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`aleid`),
   KEY `alteid` (`alteid`,`lid`)
-) ENGINE=MyISAM AUTO_INCREMENT=112 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=114 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `attendance_leavetypes_expenses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1677,7 +1677,7 @@ CREATE TABLE `leaves` (
   KEY `affid` (`affid`,`spid`,`cid`),
   KEY `coid` (`coid`),
   KEY `kiid` (`kiid`)
-) ENGINE=MyISAM AUTO_INCREMENT=556 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=558 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `leaves_messages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1705,7 +1705,7 @@ CREATE TABLE `leavesapproval` (
   `timeApproved` bigint(30) NOT NULL,
   `sequence` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`laid`,`lid`,`uid`)
-) ENGINE=MyISAM AUTO_INCREMENT=581 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=589 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `leavesstats`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1765,7 +1765,7 @@ CREATE TABLE `logs` (
   `data` text NOT NULL,
   PRIMARY KEY (`lid`),
   KEY `uid` (`uid`)
-) ENGINE=MyISAM AUTO_INCREMENT=8162 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=8201 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `marketintelligence_basicdata`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1822,7 +1822,7 @@ CREATE TABLE `marketreport` (
   PRIMARY KEY (`mrid`),
   KEY `rid` (`rid`),
   KEY `psid` (`psid`)
-) ENGINE=MyISAM AUTO_INCREMENT=6086 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=6088 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `marketreport_authors`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2007,7 +2007,7 @@ CREATE TABLE `products` (
   PRIMARY KEY (`pid`),
   KEY `spid` (`spid`,`gpid`,`name`,`code`),
   KEY `defaultFunction` (`defaultFunction`)
-) ENGINE=MyISAM AUTO_INCREMENT=2068 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=2073 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `productsactivity`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2028,7 +2028,7 @@ CREATE TABLE `productsactivity` (
   PRIMARY KEY (`paid`),
   KEY `pid` (`pid`,`rid`),
   KEY `uid` (`uid`)
-) ENGINE=MyISAM AUTO_INCREMENT=66174 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=66180 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `productschemsubstances`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2092,7 +2092,7 @@ CREATE TABLE `reportcontributors` (
   `timeDone` bigint(30) DEFAULT NULL,
   PRIMARY KEY (`rcid`),
   KEY `uid` (`uid`,`rid`)
-) ENGINE=MyISAM AUTO_INCREMENT=6490 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=6492 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `reporting_qrmarketingmatls`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2175,7 +2175,7 @@ CREATE TABLE `reports` (
   PRIMARY KEY (`rid`),
   KEY `affid` (`affid`,`spid`),
   KEY `summary` (`summary`)
-) ENGINE=MyISAM AUTO_INCREMENT=6866 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=6869 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `representatives`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2903,6 +2903,8 @@ CREATE TABLE `usergroups` (
   `attendance_canImport` int(1) NOT NULL DEFAULT '0',
   `attendance_canGenerateReport` int(1) NOT NULL DEFAULT '0',
   `attendance_canEditAttendance` int(1) NOT NULL DEFAULT '0',
+  `attendance_canGenerateExpReport` tinyint(1) NOT NULL DEFAULT '0',
+  `attendace_canViewAllAffExpenses` tinyint(1) NOT NULL DEFAULT '0',
   `canUseHR` int(1) NOT NULL DEFAULT '0',
   `hr_canHrAllAffiliates` int(1) NOT NULL DEFAULT '0',
   `hr_canEditEmployee` int(1) NOT NULL DEFAULT '0',
