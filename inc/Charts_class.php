@@ -195,9 +195,13 @@ class Charts {
 			ksort($this->data['x']);
 		}
 		$this->DataSet->addPoints($this->data['x'], 'x');
+                if(!isset($this->options['serieweight'])) {
+                    $this->options['serieweight'] = 2;
+                }
+                $this->DataSet->setSerieWeight('x', $this->options['serieweight']);
 		$this->DataSet->setSerieDescription('x', $this->options['xaxisname']);
 		$this->DataSet->setAbscissa('x');
-
+                
 		/* Create the pChart object */
 		if(!isset($this->options['width']) || empty($this->options['width'])) {
 			$this->options['width'] = 700;
@@ -236,6 +240,19 @@ class Charts {
 		}
 		if(isset($this->options['labelrotationangle'])) {
 			$scaleSettings['LabelRotation'] = $this->options['labelrotationangle'];
+		}
+                
+                if(isset($this->options['scale']) && !empty($this->options['scale'])) {
+			switch($this->options['scale']) {
+				case SCALE_START0: $this->options['scale'] = SCALE_MODE_START0;
+					break;
+				case SCALE_ADDALL: $this->options['scale'] = SCALE_MODE_ADDALL;
+					break;
+				case SCALE_NORMAL: $this->options['scale'] = SCALE_MODE_FLOATING;
+					break;
+				default: break;
+			}
+			$scaleSettings['Mode'] = $this->options['scale'];
 		}
 		$this->chart->drawScale($scaleSettings);
 
