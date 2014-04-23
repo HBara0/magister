@@ -46,7 +46,7 @@ if(!$core->input['action']) {
             $business_managers[$employees['uid']] = $employees['displayName'];
         }
 
-        $employees_list = parse_selectlist('expencesreport[filter][employees][]', 1, $business_managers, $core->user['uid'], 1, '', '');
+        $employees_list = parse_selectlist('expencesreport[filter][uid][]', 1, $business_managers, $core->user['uid'], 1, '', '');
     }
     else {
         foreach($core->user['hraffids'] as $hraffid) {
@@ -60,7 +60,7 @@ if(!$core->input['action']) {
             }
         }
 
-        $employees_list = parse_selectlist('expencesreport[filter][employees][]', 1, $business_managers, $core->user['uid'], 1, '', '');
+        $employees_list = parse_selectlist('expencesreport[filter][uid][]', 1, $business_managers, $core->user['uid'], 1, '', '');
     }
     /* Preparing USers section - END */
 
@@ -82,7 +82,7 @@ if(!$core->input['action']) {
         $leavetypes = $leavetype_obj->get();
         $leaves_types[$leavetypes['ltid']] = $leavetypes['title'];
     }
-    $leavetype_list = parse_selectlist('expencesreport[filter][leavetype][]', 1, $leaves_types, '', 1, '', '');
+    $leavetype_list = parse_selectlist('expencesreport[filter][type][]', 1, $leaves_types, '', 1, '', '');
 
     /* Leave Expences type */
     $leave_expencestypes = LeaveExpenseTypes::get_leaveexpensetypes();
@@ -91,7 +91,7 @@ if(!$core->input['action']) {
         $leave_expencestypes[$leave_expencestype['aletid']] = $leave_expencestype['title'];
     }
 
-    $leave_expencestypes_list = parse_selectlist('expencesreport[filter][leaveexptype][]', 1, $leave_expencestypes, '', 1, '', '');
+    $leave_expencestypes_list = parse_selectlist('expencesreport[filter][aletid][]', 1, $leave_expencestypes, '', 1, '', '');
     /* 'useraffid' => $lang->affiliate */
     $dimensions = array('uid' => $lang->employee, 'ltid' => $lang->leavetype, 'aletid' => $lang->leaveexptype, 'lid' => $lang->leave);
     foreach($dimensions as $dimensionid => $dimension) {
@@ -108,7 +108,7 @@ else {
         $expencesreport_data['dimension'] = $dimensionalize_ob->construct_dimensions($expencesreport_data['dimension']);
 
         $expences_indexes = array('expectedAmt', 'actualAmt');
-        $leave_expencesdata = Leaves::get_leaves_expencesdata($expencesreport_data[filter]);
+        $leave_expencesdata = Leaves::get_leaves_expencesdata($expencesreport_data[filter],array('maintablealias'=>'l'));
 
         if(is_array($leave_expencesdata)) {
             $expencesreport_data['dimension'] = $dimensionalize_ob->set_dimensions($expencesreport_data['dimension']);

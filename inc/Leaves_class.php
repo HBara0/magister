@@ -197,31 +197,34 @@ class Leaves {
         return false;
     }
 
-    public static function get_leaves_expencesdata($data_filter = array()) {
-        global $db, $core,$lang;
+    public static function get_leaves_expencesdata($data_filter = array(), array $config = array()) {
+        global $db, $core, $lang;
 
         if(empty($data_filter['fromDate']) || empty($data_filter['toDate'])) {
             return false;
         }
-
+    
         if($data_filter['toDate'] < $data_filter['fromDate']) {
             redirect('index.php?module=attendance/generatexpensesreport&messagecode=1');
-            
         }
-        $data_filter['fromDate'] = strtotime($data_filter['fromDate']);
-        $data_filter['toDate'] = strtotime($data_filter['toDate']);
+        $fromDate = strtotime($data_filter['fromDate']);
+        $toDate = strtotime($data_filter['toDate']);
 
-        if(isset($data_filter['employees']) && (!empty($data_filter['employees']))) {
-            $where .= " WHERE l.uid IN (".implode(',', $data_filter['employees']).") ";
-        }
-        if(isset($data_filter['leavetype']) && (!empty($data_filter['leavetype']))) {
-            $where .= "  AND l.type IN (".implode(',', $data_filter['leavetype']).") ";
-        }
-        if(isset($data_filter['leaveexptype']) && (!empty($data_filter['leaveexptype']))) {
-            $where .= "  AND lextt.aletid IN (".implode(',', $data_filter['leaveexptype']).") ";
-        }
         if(isset($data_filter['useraffids']) && (!empty($data_filter['useraffids']))) {
-            // $where = " HAVING useraffid IN (".implode(',', $data_filter['useraffids']).") ";
+            $having_querystring = " HAVING useraffid IN (".implode(',', $data_filter['useraffids']).") ";
+        }
+        unset($data_filter['toDate'], $data_filter['fromDate'], $data_filter['useraffids']);
+
+        $querysting_where = ' WHERE ';
+        foreach($data_filter as $filterkey => $filter) {
+
+            if($filterkey == 'aletid') {
+                $querysting .= ' AND lextt.aletid IN ('.implode(',', $filter).')';
+            }
+            else {
+                $querysting .= $querysting_where.$config['maintablealias'].'.'.$filterkey.' IN ('.implode(',', $filter).')';
+            }
+            $querysting_where = ' AND ';
         }
 
         $query = $db->query("SELECT l.lid, l.uid, l.affid, a.affid as useraffid, l.spid, l.cid, lt.title, lt.ltid, lextt.aletid, lext.aleid, lext.alteid, lext.expectedAmt, lext.actualAmt
@@ -231,7 +234,7 @@ class Leaves {
                             JOIN ".Tprefix."attendance_leavetypes_expenses letexp ON (letexp.alteid=lext.alteid)
                             JOIN ".Tprefix."attendance_leaveexptypes lextt ON (lextt.aletid=letexp.aletid)
                             JOIN ".Tprefix."affiliatedemployees a ON (a.uid=l.uid) 
-                            {$where}  AND ((".$data_filter['fromDate']." BETWEEN l.fromDate AND l.toDate)  OR (".$data_filter['toDate']." BETWEEN l.fromDate AND l.toDate)) "); //
+                            {$querysting}  AND ((".$fromDate." BETWEEN l.fromDate AND l.toDate)  OR (".$toDate." BETWEEN l.fromDate AND l.toDate)) ".$having_querystring); //
 // AND l.lid  IN (SELECT lid FROM ".Tprefix."leavesapproval  WHERE isApproved= 1 AND lid=  ".$this->leave[lid].")
         if($db->num_rows($query) > 0) {
             while($rowsdata = $db->fetch_assoc($query)) {
