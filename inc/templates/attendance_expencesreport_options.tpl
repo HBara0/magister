@@ -28,6 +28,19 @@
             <h3>{$lang->expensesreport}</h3>
             <form action="index.php?module=attendance/generatexpensesreport&amp;action=preview&amp;identifier={$identifier}" method="post" id="attendance\/leavexpensesreport_Form" name="attendance\/leavexpensesreport_Form">
                 <div class="subtitle">{$lang->filters}</div>
+
+                {$notification_message}
+
+                <div style="display:block; padding: 10px;">
+                    <div style="display:inline-block; vertical-align:top; width: 20%;"> {$lang->fromdate}  </div>
+                    <div style="display:inline-block; vertical-align:top; width: 20%;"> <input type="text" id="pickDate_from" autocomplete="off" tabindex="1" value="" required="required"/>
+                        <input type="hidden" name="expencesreport[filter][fromDate]" id="altpickDate_from" value="" /></div>
+                </div>
+                <div style="display:block; padding: 10px;">
+                    <div style="display:inline-block; vertical-align:top; width: 20%;"> {$lang->todate}  </div>
+                    <div style="display:inline-block; vertical-align:top; width: 20%;">  <input type="text" id="pickDate_to" autocomplete="off" tabindex="2" value="{$leave[toDate_output]}" required="required" />
+                        <input type="hidden" name="expencesreport[filter][toDate]" id="altpickDate_to" value=""/></div>
+                </div>
                 <div style="display:block; padding: 10px;">
                     <div style="display:inline-block; vertical-align:top; width: 20%;">{$lang->affiliate}</div>
                     <div style="display:inline-block; width: 20%; vertical-align:top; "><select name="expencesreport[filter][useraffids][]" multiple="multiple">{$affiliates_list}</select></div>

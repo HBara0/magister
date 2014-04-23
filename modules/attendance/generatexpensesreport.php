@@ -18,6 +18,10 @@ if($core->usergroup['attendance_canGenerateExpReport'] == 0) {
 }
 
 if(!$core->input['action']) {
+    if(isset($core->input['messagecode']) && $core->input['messagecode'] == 1) {
+        $notification_message = '<div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-bottom:10px; font-weight: bold;">'.$lang->invalidatemessage.'</div>';
+    }
+
     $identifier = substr(md5(microtime(uniqid())), 0, 10);
     /* Preparing Users section - START */
     if($core->usergroup['attendance_canViewExpenses'] == 1) {
