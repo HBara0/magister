@@ -12,7 +12,7 @@ class Leaves {
     private $errorcode = 0; //0=No errors;1=Subject missing;2=Entry exists;3=Error saving;4=validation violation
     private $leave = array();
 
-    public function __construct($leavedata = array(), $simple = false) {
+    public function __construct($leavedata = array(), $simple = true) {
         global $db;
         if(!is_array($leavedata) && !empty($leavedata)) {
             $this->leave = $this->read($leavedata, $simple);
@@ -22,20 +22,6 @@ class Leaves {
                 $this->leave = $this->read($leavedata['lid'], $simple);
             }
         }
-    }
-
-    private function read($id, $simple = false) {
-        global $db;
-
-        if(empty($id)) {
-            return false;
-        }
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'lid, uid, type, fromDate, toDate';
-        }
-
-        return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."leaves WHERE lid=".$db->escape_string($id)));
     }
 
     public function has_expenses($id = '') {
@@ -185,15 +171,23 @@ class Leaves {
         }
     }
 
-    public function get_approvers($isapproved = 0) {
+    private function read($id, $simple = true) {
         global $db;
-        if($isapproved == 1) {
-            $where_isapproved = ' WHERE isApproved=1';
+
+        if(empty($id)) {
+            return false;
         }
-        else {
-            $where_isapproved = ' WHERE isApproved=0';
+        $query_select = '*';
+        if($simple == true) {
+            $query_select = 'lid, uid, type, fromDate, toDate';
         }
-        $query = $db->query('SELECT * FROM '.Tprefix.'leavesapproval  '.$where_isapproved.' AND lid='.$this->leave['lid']);
+
+        return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."leaves WHERE lid=".$db->escape_string($id)));
+    }
+
+    public function get_approvers() {
+        global $db;
+        $query = $db->query('SELECT * FROM '.Tprefix.'leavesapproval WHERE isApproved=1 AND lid='.$this->leave['lid']);
         if($db->num_rows($query) > 0) {
             while($approver = $db->fetch_assoc($query)) {
                 $approvers[$approver['uid']] = new Users($approver['uid']);
@@ -206,8 +200,8 @@ class Leaves {
     public static function get_leaves_expencesdata($data_filter = array()) {
         global $db;
 
-        if(isset($data_filter['affids']) && (!empty($data_filter['affids']))) {
-            $where = " 	WHERE l.affid IN (".implode(',', $data_filter['affids']).") ";
+        if(isset($data_filter['useraffids']) && (!empty($data_filter['useraffids']))) {
+            $where = " WHERE a.affid IN (".implode(',', $data_filter['useraffids']).") ";
         }
         if(isset($data_filter['employees']) && (!empty($data_filter['employees']))) {
             $where .= " AND l.uid IN (".implode(',', $data_filter['employees']).") ";
@@ -216,49 +210,33 @@ class Leaves {
             $where .= "  AND l.type IN (".implode(',', $data_filter['leavetype']).") ";
         }
         if(isset($data_filter['leaveexptype']) && (!empty($data_filter['leaveexptype']))) {
-            $where .= "  AND  lextt.aletid IN (".implode(',', $data_filter['leaveexptype']).") ";
+            $where .= "  AND lextt.aletid IN (".implode(',', $data_filter['leaveexptype']).") ";
         }
-        //if(isset($data_filter['affids'], $data_filter['employees'], $data_filter['leavetype'], $data_filter['leaveexptype']) && !is_empty($data_filter['affids'], $data_filter['employees'], $data_filter['leavetype'], $data_filter['leaveexptype'])) {
-
-        $query = $db->query("SELECT l.lid, l.uid,l.affid,l.spid,l.cid,lt.title,lt.ltid,lextt.aletid,lext.aleid,lext.alteid,lext.expectedAmt ,lext.actualAmt   FROM ".Tprefix."leaves  l
-								JOIN ".Tprefix." leavetypes lt ON(l.type=lt.ltid)
-								JOIN ".Tprefix." attendance_leaves_expenses lext ON(lext.lid=l.lid)
-								 JOIN ".Tprefix."attendance_leavetypes_expenses letexp ON(letexp.alteid=lext.alteid)
-								JOIN ".Tprefix."attendance_leaveexptypes lextt ON(lextt.aletid=letexp.aletid)
-								{$where}");
-
+  
+        $query = $db->query("SELECT l.lid, l.uid, l.affid, a.affid as useraffid, l.spid, l.cid, lt.title, lt.ltid, lextt.aletid, lext.aleid, lext.alteid, lext.expectedAmt, lext.actualAmt
+                            FROM ".Tprefix."leaves  l
+                            JOIN ".Tprefix."leavetypes lt ON (l.type=lt.ltid)
+                            JOIN ".Tprefix."attendance_leaves_expenses lext ON (lext.lid=l.lid)
+                            JOIN ".Tprefix."attendance_leavetypes_expenses letexp ON (letexp.alteid=lext.alteid)
+                            JOIN ".Tprefix."attendance_leaveexptypes lextt ON (lextt.aletid=letexp.aletid)
+                            JOIN ".Tprefix."affiliatedemployees a ON (a.uid=l.uid) 
+<<<<<<< HEAD
+                            {$where}  "); //AND l.lid  IN (SELECT lid FROM ".Tprefix."leavesapproval  WHERE isApproved= 1)
+=======
+                            {$where}");
+>>>>>>> b5b2ae17188863ccb616c92ff4d79a2d9b733e2a
         if($db->num_rows($query) > 0) {
             while($rowsdata = $db->fetch_assoc($query)) {
                 $leavexpencesdata[$rowsdata['aleid']] = $rowsdata;
             }
+            $db->free_result($query);
+            unset($rowsdata);
             return $leavexpencesdata;
         }
-        //}
-    }
-
-    public function get_leavemessages() {
-        global $db;
-        /* apply view permission */
-        $query = $db->query("SELECT lmid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."'");
-        if($db->num_rows($query) > 0) {
-            while($leavemessage = $db->fetch_assoc($query)) {
-                $leavemessages[$leavemessage['lmid']] = new LeavesMessages($leavemessage['lmid']);
-            }
-            return $leavemessages;
-        }
-        return false;
     }
 
     public function get_requester() {
         return new Users($this->leave['uid']);
-    }
-
-    public function is_leaverequester() {
-        global $core;
-        if(value_exists('leaves', 'uid', $this->leave['uid'], ' lid='.$this->leave['lid'])) {
-            return true;
-        }
-        return false;
     }
 
     public function get_type($simple = true) {
@@ -269,10 +247,19 @@ class Leaves {
         return new Leavetypes($this->leave['type'], $simple);
     }
 
-    public function get_workingdays() {
+    public function count_workingdays() {
         return count_workingdays($this->leave['uid'], $this->leave['fromDate'], $this->leave['toDate'], $this->get_type()['isWholeDay']);
     }
 
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        global $core;
+        /* Late there will be a page for each leave
+         * For now the function returns a info that identify a leave 
+         */
+        
+        return '<a href="#'.$this->leave['lid'].'">'.date($core->settings['dateformat'], $this->leave['fromDate']).' - '.date($core->settings['dateformat'], $this->leave['toDate']).'</a>';
+    }
+    
     public function get() {
         return $this->leave;
     }

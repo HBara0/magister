@@ -261,9 +261,7 @@ switch($reply_message) {
         $leave = $db->fetch_assoc($db->query("SELECT l.*, u.firstName, u.lastName, email FROM ".Tprefix."leaves l LEFT JOIN ".Tprefix."users u ON (u.uid=l.uid) WHERE l.requestKey='{$request_key}'"));
 
         $leave_obj = new Leaves(array('lid' => $leave['lid']));
-
-        $query = $db->query("SELECT DISTINCT(u.uid), Concat(firstName, ' ', lastName) AS employeename FROM ".Tprefix."users u  "
-                ."LEFT JOIN ".Tprefix."usersemails ue ON (ue.uid=u.uid) WHERE u.email='".$db->escape_string($data['from'])."' OR ue.email='".$db->escape_string($data['from'])."'");
+        $query = $db->query("SELECT DISTINCT(u.uid), Concat(firstName, ' ', lastName) AS employeename FROM ".Tprefix."users u  "."LEFT JOIN ".Tprefix."usersemails ue ON (ue.uid=u.uid) WHERE u.email='".$db->escape_string($data['from'])."' OR ue.email='".$db->escape_string($data['from'])."'");
         if($db->num_rows($query) > 0) {
             //$approver = $db->fetch_assoc($query);
         }
@@ -276,12 +274,25 @@ switch($reply_message) {
                 echo 'end script';
                 exit;
             }
-        } 
-  
+        }
         $leavemessage_obj = new LeavesMessages();
-        $leavemessage_obj->create_message($data['message'],$leave['lid']);
-        $leavemessage_obj->get_viewpermissions();
+        $leavemessage_obj->create_message(array('message' => $data['message'], 'permission' => 'public'), $leave['lid']);
         /* Approval conversation messages ---END */
+        break;
+
+    case 'limited':
+        $leavemessage_obj = new LeavesMessages();
+        $leavemessage_obj->create_message(array('message' => $data['message'], 'permission' => 'limited'), $leave['lid']);
+
+        break;
+    case 'private':
+        $leavemessage_obj = new LeavesMessages();
+        $leavemessage_obj->create_message(array('message' => $data['message'], 'permission' => 'private'), $leave['lid']);
+
+        break;
+    case 'revoke':
+
+        /* revoke leave here */
         break;
 }
 function get_replymessage($messagedata) {
