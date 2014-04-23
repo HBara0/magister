@@ -198,19 +198,30 @@ class Leaves {
     }
 
     public static function get_leaves_expencesdata($data_filter = array()) {
-        global $db;
+        global $db, $core,$lang;
 
-        if(isset($data_filter['useraffids']) && (!empty($data_filter['useraffids']))) {
-            $where = " WHERE useraffid IN (".implode(',', $data_filter['useraffids']).") ";
+        if(empty($data_filter['fromDate']) || empty($data_filter['toDate'])) {
+            return false;
         }
+
+        if($data_filter['toDate'] < $data_filter['fromDate']) {
+            redirect('index.php?module=attendance/generatexpensesreport&messagecode=1');
+            
+        }
+        $data_filter['fromDate'] = strtotime($data_filter['fromDate']);
+        $data_filter['toDate'] = strtotime($data_filter['toDate']);
+
         if(isset($data_filter['employees']) && (!empty($data_filter['employees']))) {
-            $where .= " AND l.uid IN (".implode(',', $data_filter['employees']).") ";
+            $where .= " WHERE l.uid IN (".implode(',', $data_filter['employees']).") ";
         }
         if(isset($data_filter['leavetype']) && (!empty($data_filter['leavetype']))) {
             $where .= "  AND l.type IN (".implode(',', $data_filter['leavetype']).") ";
         }
         if(isset($data_filter['leaveexptype']) && (!empty($data_filter['leaveexptype']))) {
             $where .= "  AND lextt.aletid IN (".implode(',', $data_filter['leaveexptype']).") ";
+        }
+        if(isset($data_filter['useraffids']) && (!empty($data_filter['useraffids']))) {
+            // $where = " HAVING useraffid IN (".implode(',', $data_filter['useraffids']).") ";
         }
 
         $query = $db->query("SELECT l.lid, l.uid, l.affid, a.affid as useraffid, l.spid, l.cid, lt.title, lt.ltid, lextt.aletid, lext.aleid, lext.alteid, lext.expectedAmt, lext.actualAmt
@@ -220,7 +231,8 @@ class Leaves {
                             JOIN ".Tprefix."attendance_leavetypes_expenses letexp ON (letexp.alteid=lext.alteid)
                             JOIN ".Tprefix."attendance_leaveexptypes lextt ON (lextt.aletid=letexp.aletid)
                             JOIN ".Tprefix."affiliatedemployees a ON (a.uid=l.uid) 
-                            {$where}");
+                            {$where}  AND ((".$data_filter['fromDate']." BETWEEN l.fromDate AND l.toDate)  OR (".$data_filter['toDate']." BETWEEN l.fromDate AND l.toDate)) "); //
+// AND l.lid  IN (SELECT lid FROM ".Tprefix."leavesapproval  WHERE isApproved= 1 AND lid=  ".$this->leave[lid].")
         if($db->num_rows($query) > 0) {
             while($rowsdata = $db->fetch_assoc($query)) {
                 $leavexpencesdata[$rowsdata['aleid']] = $rowsdata;
@@ -252,10 +264,10 @@ class Leaves {
         /* Late there will be a page for each leave
          * For now the function returns a info that identify a leave 
          */
-        
+
         return '<a href="#'.$this->leave['lid'].'">'.date($core->settings['dateformat'], $this->leave['fromDate']).' - '.date($core->settings['dateformat'], $this->leave['toDate']).'</a>';
     }
-    
+
     public function get() {
         return $this->leave;
     }

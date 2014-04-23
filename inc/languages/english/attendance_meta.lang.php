@@ -133,4 +133,5 @@ $lang['customer']='Customer';
 $lang['segment']='Segment';
 $lang['bm']='Business Manager';
 $lang['dimensions']='Dimensions';
+$lang['invalidatemessage']='You Have Specified wrong to date range please select To Date Greater than From Date ';
 ?>

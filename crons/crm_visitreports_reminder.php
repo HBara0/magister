@@ -21,37 +21,37 @@ $leaves_query = $db->query("SELECT l.lid,vr.lid, vr.identifier, vr.finishDate, v
 							WHERE (vr.isDraft = 1 AND ".TIME_NOW.">=(vr.date + 604800)) AND u.gid!=7");  // send  after 2 days from the visit report creation.		
 
 if($db->num_rows($leaves_query) > 0) {
-	while($user_leaves = $db->fetch_assoc($leaves_query)) {
-		$leaves[$user_leaves['uid']][$user_leaves['lid']] = $user_leaves;
-	}
+    while($user_leaves = $db->fetch_assoc($leaves_query)) {
+        $leaves[$user_leaves['uid']][$user_leaves['lid']] = $user_leaves;
+    }
 
-	foreach($leaves as $leaveuid => $leavesdata) {
-		$body_message = '';
-		foreach($leaves[$leaveuid] as $leavesdetails) {
-			$body_message .= '<li><a href='.DOMAIN.'/index.php?module=crm/fillvisitreport&amp;identifier='.$leavesdetails['identifier'].' target="_blank">'.$leavesdetails['customer'].'</a>,  '.date($core->settings['dateformat'], $leavesdetails['date']).'.</li>';
-		}
+    foreach($leaves as $leaveuid => $leavesdata) {
+        $body_message = '';
+        foreach($leaves[$leaveuid] as $leavesdetails) {
+            $body_message .= '<li><a href='.DOMAIN.'/index.php?module=crm/fillvisitreport&amp;identifier='.$leavesdetails['identifier'].' target="_blank">'.$leavesdetails['customer'].'</a>,  '.date($core->settings['dateformat'], $leavesdetails['date']).'.</li>';
+        }
 
-		if(empty($body_message)) {
-			continue;
-		}
-		/* Prepare the email_data array to pass the argument to the mail object */
-		$email_data = array(
-				'to' => $leavesdetails['email'],
-				'from_email' => $core->settings['maileremail'],
-				'from' => 'OCOS Mailer',
-				'subject' => $lang->visitreport_reminder_subject,
-				'message' => $lang->sprint($lang->visitreport_reminder_message, $leavesdetails['displayName']).'<ul>'.$body_message.'</ul>'
-		);
+        if(empty($body_message)) {
+            continue;
+        }
+        /* Prepare the email_data array to pass the argument to the mail object */
+        $email_data = array(
+                'to' => $leavesdetails['email'],
+                'from_email' => $core->settings['maileremail'],
+                'from' => 'OCOS Mailer',
+                'subject' => $lang->visitreport_reminder_subject,
+                'message' => $lang->sprint($lang->visitreport_reminder_message, $leavesdetails['displayName']).'<ul>'.$body_message.'</ul>'
+        );
 
-		/* If the visit is more than 2 weeks ago, include employee supervisor */
-		if((TIME_NOW >= ($user_leaves['date'] + 1209600) && !empty($leavesdetails['reportsTo']))) {
-			$email_data['cc'] = $db->fetch_field($db->query("SELECT email FROM ".Tprefix."users WHERE uid={$leavesdetails[reportsTo]}"), 'email');
-		}
-		$mail = new Mailer($email_data, 'php');
+        /* If the visit is more than 2 weeks ago, include employee supervisor */
+        if((TIME_NOW >= ($user_leaves['date'] + 1209600) && !empty($leavesdetails['reportsTo']))) {
+            $email_data['cc'] = $db->fetch_field($db->query("SELECT email FROM ".Tprefix."users WHERE uid={$leavesdetails[reportsTo]}"), 'email');
+        }
+        $mail = new Mailer($email_data, 'php');
 
-		if($mail->get_status() === true) {
-			$log->record('crmvisitreportreminder', array('to' => $leavesdetails['email']));
-		}
-	}
+        if($mail->get_status() === true) {
+            $log->record('crmvisitreportreminder', array('to' => $leavesdetails['email']));
+        }
+    }
 }
 ?>
