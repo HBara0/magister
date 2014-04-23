@@ -108,7 +108,7 @@ else {
         $expencesreport_data['dimension'] = $dimensionalize_ob->construct_dimensions($expencesreport_data['dimension']);
 
         $expences_indexes = array('expectedAmt', 'actualAmt');
-        $leave_expencesdata = Leaves::get_leaves_expencesdata($expencesreport_data[filter],array('maintablealias'=>'l'));
+        $leave_expencesdata = Leaves::get_leaves_expencesdata($expencesreport_data[filter],array('userfilter'=>$expencesreport_data[filter][uid],'leavetypefilter'=>$expencesreport_data[filter][type],'exptypefilter'=>$expencesreport_data[filter][aletid],'maintablealias'=>'l'));
 
         if(is_array($leave_expencesdata)) {
             $expencesreport_data['dimension'] = $dimensionalize_ob->set_dimensions($expencesreport_data['dimension']);

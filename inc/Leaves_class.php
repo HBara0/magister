@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright � 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Leaves Class
  * $id: Leave.php
  * Created:        @tony.assaad    May 29, 2013 | 2:17:27 PM
@@ -200,10 +200,24 @@ class Leaves {
     public static function get_leaves_expencesdata($data_filter = array(), array $config = array()) {
         global $db, $core, $lang;
 
+//        foreach($data_filter as $filterkey => $filterval) {
+//
+//           $filters[$filterkey] = array_intersect($data_filter[$filterkey], $config[$filterkey]);
+//        }
+        if(is_array($data_filter['uid'])) {
+            $filters['uid'] = array_intersect($data_filter['uid'], $config['userfilter']);
+        }
+        if(is_array($data_filter['type'])) {
+            $filters['type'] = array_intersect($data_filter['type'], $config['leavetypefilter']);
+        }
+        if(is_array($data_filter['aletid'])) {
+            $filters['aletid'] = array_intersect($data_filter['aletid'], $config['exptypefilter']);
+        }
+
         if(empty($data_filter['fromDate']) || empty($data_filter['toDate'])) {
             return false;
         }
-    
+
         if($data_filter['toDate'] < $data_filter['fromDate']) {
             redirect('index.php?module=attendance/generatexpensesreport&messagecode=1');
         }
@@ -216,15 +230,16 @@ class Leaves {
         unset($data_filter['toDate'], $data_filter['fromDate'], $data_filter['useraffids']);
 
         $querysting_where = ' WHERE ';
-        foreach($data_filter as $filterkey => $filter) {
-
-            if($filterkey == 'aletid') {
-                $querysting .= ' AND lextt.aletid IN ('.implode(',', $filter).')';
+        if(is_array($filters)) {
+            foreach($filters as $filterkey => $filter) {
+                if($filterkey == 'aletid') {
+                    $querysting .= ' AND lextt.aletid IN ('.implode(',', $filter).')';
+                }
+                else {
+                    $querysting .= $querysting_where.$config['maintablealias'].'.'.$filterkey.' IN ('.implode(',', $filter).')';
+                }
+                $querysting_where = ' AND ';
             }
-            else {
-                $querysting .= $querysting_where.$config['maintablealias'].'.'.$filterkey.' IN ('.implode(',', $filter).')';
-            }
-            $querysting_where = ' AND ';
         }
 
         $query = $db->query("SELECT l.lid, l.uid, l.affid, a.affid as useraffid, l.spid, l.cid, lt.title, lt.ltid, lextt.aletid, lext.aleid, lext.alteid, lext.expectedAmt, lext.actualAmt
@@ -233,8 +248,8 @@ class Leaves {
                             JOIN ".Tprefix."attendance_leaves_expenses lext ON (lext.lid=l.lid)
                             JOIN ".Tprefix."attendance_leavetypes_expenses letexp ON (letexp.alteid=lext.alteid)
                             JOIN ".Tprefix."attendance_leaveexptypes lextt ON (lextt.aletid=letexp.aletid)
-                            JOIN ".Tprefix."affiliatedemployees a ON (a.uid=l.uid) 
-                            {$querysting}  AND ((".$fromDate." BETWEEN l.fromDate AND l.toDate)  OR (".$toDate." BETWEEN l.fromDate AND l.toDate)) ".$having_querystring); //
+                            JOIN ".Tprefix."affiliatedemployees a ON (a.uid=l.uid)
+                            {$querysting} AND ((".$fromDate." BETWEEN l.fromDate AND l.toDate)  OR (".$toDate." BETWEEN l.fromDate AND l.toDate)) ".$having_querystring); //
 // AND l.lid  IN (SELECT lid FROM ".Tprefix."leavesapproval  WHERE isApproved= 1 AND lid=  ".$this->leave[lid].")
         if($db->num_rows($query) > 0) {
             while($rowsdata = $db->fetch_assoc($query)) {
@@ -265,7 +280,7 @@ class Leaves {
     public function parse_link($attributes_param = array('target' => '_blank')) {
         global $core;
         /* Late there will be a page for each leave
-         * For now the function returns a info that identify a leave 
+         * For now the function returns a info that identify a leave
          */
 
         return '<a href="#'.$this->leave['lid'].'">'.date($core->settings['dateformat'], $this->leave['fromDate']).' - '.date($core->settings['dateformat'], $this->leave['toDate']).'</a>';
