@@ -22,6 +22,9 @@ else {
 
     $ignore_subject = false;
 }
+$msg = LeavesMessages::extract_message($data['message'], false);
+
+echo $msg;
 
 $reply_message = get_replymessage($data['message']);
 echo $reply_message;

@@ -11,15 +11,15 @@
  * @author tony.assaad
  */
 class LeavesMessages {
-    //put your code here 
+    //put your code here
 
     private $errorcode = 0; //0=No errors;1=Subject missing;2=Entry exists;3=Error saving;4=validation violation
     private $leavemessage = array();
 
-    public function __construct($leavemessage = array(), $simple = true) {
+    public function __construct($id = '', $simple = true) {
         global $db;
-        if(isset($leavemessage['lmid']) && !empty($leavemessage['lmid'])) {
-            $this->leavemessage = $this->read($leavemessage['lmid'], $simple);
+        if(isset($id) && !empty($id)) {
+            $this->leavemessage = $this->read($id, $simple);
         }
     }
 
@@ -46,7 +46,7 @@ class LeavesMessages {
         switch($this->leavemessage['viewPermission']) {
             case'private':
                 $inreply_obj = $this->Get_Inreplyto();
-                if(is_object($inreply_obj)) {  //requester 
+                if(is_object($inreply_obj)) {  //requester
                     $users_permission['Inreplyto'] = $this->Get_Inreplyto()->get_user()[uid];
                 }
                 //print_r($users_permission);
@@ -67,19 +67,45 @@ class LeavesMessages {
                     $approvers = $approvers_user->get();
                 }
 
-                $query3 = $db->query("SELECT l.* FROM ".Tprefix."leavesapproval l   
+                $query3 = $db->query("SELECT l.* FROM ".Tprefix."leavesapproval l
 				WHERE l.isApproved='0' AND l.lid='{$this->leavemessage['lid']}' AND sequence >= (SELECT sequence FROM ".Tprefix."leavesapproval WHERE uid='{$approvers[uid]}' AND lid='{$this->leavemessage['lid']}' AND isApproved=1)
                                 ORDER BY sequence ASC
                                 LIMIT 0, 1");
-                print_r($approvers[uid]);
-                //starting user > =2 ( to sequence >= audery )  
+                //starting user > =2 ( to sequence >= audery )
 
 
                 break;
         }
     }
 
-//if permsiion private  get uid  of sendgin message 
+    public static function extract_message($message, $removecommand = false) {
+
+        $commands = array('#approve', '#revoke', '#public', '#message', '#private', '#limited');
+        foreach($commands as $command) {
+            $position = strpos($message, $command);
+            if($position != false) {
+                break;
+            }
+        }
+        if($position == false) {
+            return $message;
+        }
+
+        $message = substr($message, $position);
+
+        $position = strpos($message, "\n");
+        if($position != false) {
+            $message = substr($message, 0, $position);
+        }
+        if($removecommand == true) {
+            $message = str_replace($commands, '', $message);
+        }
+        $message = trim($message);
+
+        return $message;
+    }
+
+//if permsiion private  get uid  of sendgin message
     public function create_message(array $data = array(), $leaveid) {
         global $db, $core;
 
@@ -93,27 +119,30 @@ class LeavesMessages {
         }
         if(preg_match("/Message-ID: (.*)/", $this->messagedata['message'], $matches)) {
             preg_match("/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/", $matches[1], $messageid);
-            $this->leavemessage_data['inReplyToMsgId'] = $messageid[1];
+            $this->leavemessage_data['msgId'] = $messageid[1];
         }
         if(preg_match("/In-Reply-To: (.*)/", $this->messagedata['message'], $matches)) {
             preg_match("/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/", $matches[1], $replyto);
-            $this->leavemessage_data['inReplyTo'] = $replyto[1];
+            $this->leavemessage_data['inReplyToMsgId'] = $replyto[1];
         }
 
-        $this->leavemessage_data['lmid'] = $db->fetch_field($db->query("SELECT  max(lmid)  as lmid  FROM ".Tprefix."leaves_messages "), 'lmid');
+        if(isset($this->leavemessage_data['inReplyToMsgId'])) {
+            $this->leavemessage_data['inReplyTo'] = $db->fetch_field($db->query("SELECT  lmid  FROM ".Tprefix."leaves_messages WHERE msgId =".$db->escape_string($this->leavemessage_data['inReplyToMsgId'])." "), 'lmid');
+        }
         $this->leavemessage_data['message'] = 'message body  ';
         // $this->leavemessage_data['persmission'] = 'limited';
         $message_data = array('lid' => $leaveid,
                 'uid' => $core->user['uid'],
+                'msgId' => $this->leavemessage_data['msgId'],
                 'inReplyTo' => $this->leavemessage_data['lmid'],
                 'inReplyToMsgId' => $this->leavemessage_data['inReplyTo'],
                 'message' => $this->leavemessage_data['message'],
                 'viewPermission' => $this->messagedata['permission'],
                 'createdOn' => TIME_NOW);
+        print_R($message_data);
         $db->insert_query('leaves_messages', $message_data);
         $this->send_message();
         $this->errorcode = 0;
-
         return true;
     }
 

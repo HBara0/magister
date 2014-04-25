@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright � 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Leaves Class
  * $id: Leave.php
  * Created:        @tony.assaad    May 29, 2013 | 2:17:27 PM
@@ -236,13 +236,13 @@ class Leaves {
         //}
     }
 
-    public function get_leavemessages() {
+    public function get_conversation() {
         global $db;
         /* apply view permission */
         $query = $db->query("SELECT lmid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."'");
         if($db->num_rows($query) > 0) {
-            while($leavemessage = $db->fetch_assoc($query)) {
-                $leavemessages[$leavemessage['lmid']] = new LeavesMessages($leavemessage['lmid']);
+            while($leavemessagerow = $db->fetch_assoc($query)) {
+                $leavemessages[$leavemessagerow['lmid']] = new LeavesMessages($leavemessagerow['lmid'],false);
             }
             return $leavemessages;
         }
