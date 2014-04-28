@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright � 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Leaves Class
  * $id: Leave.php
  * Created:        @tony.assaad    May 29, 2013 | 2:17:27 PM
@@ -200,42 +200,52 @@ class Leaves {
     public static function get_leaves_expencesdata($data_filter = array(), array $config = array()) {
         global $db, $core, $lang;
 
-        if(empty($data_filter['fromDate']) || empty($data_filter['toDate'])) {
-            return false;
-        }
-    
-        if($data_filter['toDate'] < $data_filter['fromDate']) {
-            redirect('index.php?module=attendance/generatexpensesreport&messagecode=1');
-        }
+        /*
+         *  Empowering  the security filter  for the query to only  get the filtererd IDs  whose values exists in  the IDs  returned from the viewbale functions
+         *
+         *  */
+
+        $allowed_filters['uid'] = array_keys(LeaveExpenseTypes::get_viewablemanagers());
+        $allowed_filters['useraffids'] = array_keys(LeaveExpenseTypes::get_viewableuseraffiliates());
+
+        /* Only Get the ids  in data_filter Var whose values exists in the allowed_filters  */
+        $allowed_filters['useraffids'] = array_intersect($data_filter['useraffids'], $allowed_filters['useraffids']);
+
         $fromDate = strtotime($data_filter['fromDate']);
         $toDate = strtotime($data_filter['toDate']);
 
-        if(isset($data_filter['useraffids']) && (!empty($data_filter['useraffids']))) {
-            $having_querystring = " HAVING useraffid IN (".implode(',', $data_filter['useraffids']).") ";
+        if(isset($allowed_filters['useraffids']) && (!empty($allowed_filters['useraffids']))) {
+            $having_querystring = " HAVING useraffid IN (".implode(',', $allowed_filters['useraffids']).") ";
         }
-        unset($data_filter['toDate'], $data_filter['fromDate'], $data_filter['useraffids']);
+        unset($data_filter['toDate'], $data_filter['fromDate'], $allowed_filters['useraffids']);
 
         $querysting_where = ' WHERE ';
-        foreach($data_filter as $filterkey => $filter) {
+        if(is_array($allowed_filters)) {
+            foreach($allowed_filters as $filterkey => $filter) {
 
-            if($filterkey == 'aletid') {
-                $querysting .= ' AND lextt.aletid IN ('.implode(',', $filter).')';
+                /* Only Get the ids  in data_filter Var whose values exists in the allowed_filters  */
+                if(isset($allowed_filters[$filterkey])) {
+                    $filter = array_intersect($data_filter[$filterkey], $allowed_filters[$filterkey]);
+                }
+                if($filterkey == 'aletid') {
+                    $querysting .= ' AND lextt.aletid IN ('.implode(',', $filter).')';
+                }
+                else {
+                    $querysting .= $querysting_where.$config['maintablealias'].'.'.$filterkey.' IN ('.implode(',', $filter).')';
+                }
+                $querysting_where = ' AND ';
             }
-            else {
-                $querysting .= $querysting_where.$config['maintablealias'].'.'.$filterkey.' IN ('.implode(',', $filter).')';
-            }
-            $querysting_where = ' AND ';
         }
 
-        $query = $db->query("SELECT l.lid, l.uid, l.affid, a.affid as useraffid, l.spid, l.cid, lt.title, lt.ltid, lextt.aletid, lext.aleid, lext.alteid, lext.expectedAmt, lext.actualAmt
+        $query = $db->query("SELECT DISTINCT(l.lid), l.uid, l.affid, a.affid as useraffid, l.spid, l.cid, lt.title, lt.ltid, lextt.aletid, lext.aleid, lext.alteid, lext.expectedAmt, lext.actualAmt
                             FROM ".Tprefix."leaves  l
                             JOIN ".Tprefix."leavetypes lt ON (l.type=lt.ltid)
                             JOIN ".Tprefix."attendance_leaves_expenses lext ON (lext.lid=l.lid)
                             JOIN ".Tprefix."attendance_leavetypes_expenses letexp ON (letexp.alteid=lext.alteid)
                             JOIN ".Tprefix."attendance_leaveexptypes lextt ON (lextt.aletid=letexp.aletid)
-                            JOIN ".Tprefix."affiliatedemployees a ON (a.uid=l.uid) 
-                            {$querysting}  AND ((".$fromDate." BETWEEN l.fromDate AND l.toDate)  OR (".$toDate." BETWEEN l.fromDate AND l.toDate)) ".$having_querystring); //
-// AND l.lid  IN (SELECT lid FROM ".Tprefix."leavesapproval  WHERE isApproved= 1 AND lid=  ".$this->leave[lid].")
+                            JOIN ".Tprefix."affiliatedemployees a ON (a.uid=l.uid)
+                            {$querysting}  AND  EXISTS (SELECT la.lid FROM ".Tprefix."leavesapproval la  WHERE la.isApproved= 1 AND la.lid=l.lid) AND ((".$fromDate." BETWEEN l.fromDate AND l.toDate)  OR (".$toDate." BETWEEN l.fromDate AND l.toDate)) ".$having_querystring); //
+
         if($db->num_rows($query) > 0) {
             while($rowsdata = $db->fetch_assoc($query)) {
                 $leavexpencesdata[$rowsdata['aleid']] = $rowsdata;
@@ -265,7 +275,7 @@ class Leaves {
     public function parse_link($attributes_param = array('target' => '_blank')) {
         global $core;
         /* Late there will be a page for each leave
-         * For now the function returns a info that identify a leave 
+         * For now the function returns a info that identify a leave
          */
 
         return '<a href="#'.$this->leave['lid'].'">'.date($core->settings['dateformat'], $this->leave['fromDate']).' - '.date($core->settings['dateformat'], $this->leave['toDate']).'</a>';
