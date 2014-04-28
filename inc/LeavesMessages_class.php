@@ -92,8 +92,10 @@ class LeavesMessages {
         }
 
         $message = substr($message, $position);
+        
+        $message = str_replace(array("\r\n\r\n", "\n\r\n\r", "\r\\n\r\\n", "\\n\r\\n\r"), '------@@NEWSECTION@@------', $message);
+        $position = strpos($message, '------@@NEWSECTION@@------');
 
-        $position = strpos($message, "\n");
         if($position != false) {
             $message = substr($message, 0, $position);
         }
@@ -104,7 +106,7 @@ class LeavesMessages {
 
         return $message;
     }
-
+     
 //if permsiion private  get uid  of sendgin message
     public function create_message(array $data = array(), $leaveid) {
         global $db, $core;
