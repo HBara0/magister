@@ -655,11 +655,9 @@ else {
         $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
         foreach($marketreport_data as $val) {
-            $val['markTrendCompetition'] = $core->sanitize_inputs($val['markTrendCompetition'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
-            $val['quarterlyHighlights'] = $core->sanitize_inputs($val['quarterlyHighlights'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
-            $val['devProjectsNewOp'] = $core->sanitize_inputs($val['devProjectsNewOp'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
-            $val['issues'] = $core->sanitize_inputs($val['issues'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
-            $val['actionPlan'] = $core->sanitize_inputs($val['actionPlan'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
+            foreach($val as $k => $v) {
+                $val[$k] = $core->sanitize_inputs($v, array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
+            }
 
             if(value_exists('marketreport', 'rid', $rid, 'psid="'.$val['psid'].'"')) {
                 $query = $db->update_query('marketreport', $val, "rid='{$rid}' AND psid='{$val[psid]}'");
@@ -906,8 +904,11 @@ else {
                 if($val['exclude']) {
                     continue;
                 }
-
+            
                 unset($val['segmenttitle'], $val['exclude']);
+                foreach($val as $k => $v) {
+                    $val[$k] = $core->sanitize_inputs($v, array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
+                }
                 $val['psid'] = $psid;
 
                 if(value_exists('marketreport', 'rid', $report_meta['rid'], 'psid="'.$val['psid'].'"')) {
