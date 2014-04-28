@@ -3,23 +3,11 @@
 <title>{$core->settings[systemtitle]} | {$lang->marketreport} - Q{$report_meta[quarter]} {$report_meta[year]} / {$report_meta[supplier]} - {$report_meta[affiliate]}</title>
 {$headerinc}
 <script src="{$core->settings[rootdir]}/js/fillreport.js" type="text/javascript"></script>
-   <script type="text/javascript">
-            $(document).ready(function() {
-                $('.texteditor').redactor({
-                    buttons: ['html', '|', 'formatting', '|', 'bold', 'italic', 'deleted', '|',
-                        'unorderedlist', 'orderedlist', 'outdent', 'indent', '|',
-                        'table', '|', 'alignment', '|', 'horizontalrule'],
-                    fullpage: true
-                });
-            });
-        </script>
-    <style>
-        .redactor_editor {
-            width:550px;
-            height:70px;
-        }
-    </style>
-
+<style>
+     .redactor_editor {
+        width:550px;
+     }
+</style>
 </head>
 <body>
 {$header}
@@ -27,7 +15,7 @@
 {$menu}
 <td class="contentContainer">
 <h3>{$lang->marketreport}<br /><div style="font-style:italic; font-size:12px; color:#888;">Q{$report_meta[quarter]} {$report_meta[year]} / {$report_meta[supplier]} - {$report_meta[affiliate]}</div></h3>
-<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p><strong>Notice:</strong> If you don't have anything to fill under a specific segment, please use the "<em>Exclude this segment</em>" checkbox on the top right side of each section.</p><p><p><strong>Reminder:</strong> Don't forget you can use OCODE to style your text <strong>[b]bold[/b]</strong>, <em>[i]italic[/i]</em>, and <span style="text-decoration:underline;">[u]underline[/u]</span>.</p></div>
+<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p><strong>Notice:</strong> If you don't have anything to fill under a specific segment, please use the "<em>Exclude this segment</em>" checkbox on the top right side of each section.</p></div>
 <form id="save_marketreport_reporting/fillreport_Form" name="save_marketreport_reporting/fillreport_Form" action="index.php?module=reporting/preview" method="post">
 <input type="hidden" name="rid" value="{$core->input[rid]}">
 <input type="hidden" id="identifier" name="identifier" value="{$core->input[identifier]}">

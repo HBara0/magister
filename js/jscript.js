@@ -73,7 +73,11 @@ $(function() {
         //if($('link[id="' + rootdir + 'js/redactor.min.js"') == 'undefined') {
         $('head').append('<script src="' + rootdir + 'js/redactor.min.js" type="text/javascript"></script>');
         $('head').append('<link rel="stylesheet" href="' + rootdir + 'css/redactor.css" type="text/css" />');
-
+        
+        if ($(".texteditor").length > 0) {
+            $('.texteditor').redactor({ buttons: ['html', '|', 'formatting', '|', 'bold', 'italic', 'deleted', '|','unorderedlist', 'orderedlist', 'outdent', 'indent', '|','table', '|', 'alignment', '|', 'horizontalrule']});
+        }
+        
         if ($(".texteditormin").length > 0) {
             $('.texteditormin').redactor({
                 air: true,
