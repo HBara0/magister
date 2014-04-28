@@ -3,6 +3,23 @@
 <title>{$core->settings[systemtitle]} | {$lang->marketreport} - Q{$report_meta[quarter]} {$report_meta[year]} / {$report_meta[supplier]} - {$report_meta[affiliate]}</title>
 {$headerinc}
 <script src="{$core->settings[rootdir]}/js/fillreport.js" type="text/javascript"></script>
+   <script type="text/javascript">
+            $(document).ready(function() {
+                $('.texteditor').redactor({
+                    buttons: ['html', '|', 'formatting', '|', 'bold', 'italic', 'deleted', '|',
+                        'unorderedlist', 'orderedlist', 'outdent', 'indent', '|',
+                        'table', '|', 'alignment', '|', 'horizontalrule'],
+                    fullpage: true
+                });
+            });
+        </script>
+    <style>
+        .redactor_editor {
+            width:550px;
+            height:70px;
+        }
+    </style>
+
 </head>
 <body>
 {$header}
