@@ -11,7 +11,7 @@
  * @author tony.assaad
  */
 class LeavesMessages {
-    //put your code here
+//put your code here
 
     private $errorcode = 0; //0=No errors;1=Subject missing;2=Entry exists;3=Error saving;4=validation violation
     private $leavemessage = array();
@@ -31,14 +31,28 @@ class LeavesMessages {
         }
         $query_select = '*';
         if($simple == true) {
-            $query_select = 'lmid, lid,uid,inReplyto,message';
+            $query_select = 'lmid, lid,uid,inReplyTo,message';
         }
 
         return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."leaves_messages WHERE lmid=".$db->escape_string($id)));
     }
 
+//get replies to this lmid
+
+    public function get_replies() {
+        global $db;
+
+        $replies_query = $db->query("SELECT lmid FROM ".Tprefix."leaves_messages WHERE inReplyTo='".$this->leavemessage['lmid']."'");
+        if($db->num_rows($replies_query) > 0) {
+            while($repliesrow = $db->fetch_assoc($replies_query)) {
+                $replies_messages[$repliesrow['lmid']] = new LeavesMessages($repliesrow['lmid'], false);
+            }
+            return $replies_messages;
+        }
+    }
+
     public function Get_Inreplyto() {
-        return new LeavesMessages($this->leavemessage['inReplyto']);  /* Get the reply messaage id  of the current message object */
+        return new LeavesMessages($this->leavemessage['inReplyTo']);  /* Get the reply messaage id  of the current message object */
     }
 
     public function can_seemessage() {
@@ -47,14 +61,14 @@ class LeavesMessages {
             case'private':
                 $inreply_obj = $this->Get_Inreplyto();
                 if(is_object($inreply_obj)) {  //requester
-                    $users_permission['Inreplyto'] = $this->Get_Inreplyto()->get_user()[uid];
+                    $users_permission['Inreplyto'] = $this->Get_Inreplyto()->get_user()->get()[uid]; // 79
                 }
-                //print_r($users_permission);
-                $users_permission['requester'] = $this->leavemessage['uid'];
-                if($core->user[uid] == $users_permission['Inreplyto']) {
+                if(($core->user['uid'] == $users_permission['Inreplyto']) || ($this->leavemessage['uid'] == $core->user['uid'])) {
                     return true;
                 }
-                //requester and the person setting the message can it
+                else {
+                    return false;
+                }
 
                 break;
             case'public':
@@ -71,15 +85,12 @@ class LeavesMessages {
 				WHERE l.isApproved='0' AND l.lid='{$this->leavemessage['lid']}' AND sequence >= (SELECT sequence FROM ".Tprefix."leavesapproval WHERE uid='{$approvers[uid]}' AND lid='{$this->leavemessage['lid']}' AND isApproved=1)
                                 ORDER BY sequence ASC
                                 LIMIT 0, 1");
-                //starting user > =2 ( to sequence >= audery )
-
-
+//starting user > =2 ( to sequence >= audery )
                 break;
         }
     }
 
     public static function extract_message($message, $removecommand = false) {
-
         $commands = array('#approve', '#revoke', '#public', '#message', '#private', '#limited');
         foreach($commands as $command) {
             $position = strpos($message, $command);
@@ -92,7 +103,7 @@ class LeavesMessages {
         }
 
         $message = substr($message, $position);
-        
+
         $message = str_replace(array("\r\n\r\n", "\n\r\n\r", "\r\\n\r\\n", "\\n\r\\n\r"), '------@@NEWSECTION@@------', $message);
         $position = strpos($message, '------@@NEWSECTION@@------');
 
@@ -106,9 +117,9 @@ class LeavesMessages {
 
         return $message;
     }
-     
+
 //if permsiion private  get uid  of sendgin message
-    public function create_message(array $data = array(), $leaveid) {
+    public function create_message(array $data = array(), $leaveid, array $config = array()) {
         global $db, $core;
 
         $this->can_seemessage();
@@ -129,10 +140,13 @@ class LeavesMessages {
         }
 
         if(isset($this->leavemessage_data['inReplyToMsgId'])) {
-            $this->leavemessage_data['inReplyTo'] = $db->fetch_field($db->query("SELECT  lmid  FROM ".Tprefix."leaves_messages WHERE msgId =".$db->escape_string($this->leavemessage_data['inReplyToMsgId'])." "), 'lmid');
+            $this->leavemessage_data['lmid'] = $db->fetch_field($db->query("SELECT  lmid  FROM ".Tprefix."leaves_messages WHERE msgId ='".$db->escape_string($this->leavemessage_data['inReplyToMsgId'])."' "), 'lmid');
         }
-        $this->leavemessage_data['message'] = 'message body  ';
-        // $this->leavemessage_data['persmission'] = 'limited';
+        /* Extract only the content after the # command */
+        $this->leavemessage_data['message'] = self::extract_message($data['message'], true);
+// $this->leavemessage_data['persmission'] = 'limited';
+
+
         $message_data = array('lid' => $leaveid,
                 'uid' => $core->user['uid'],
                 'msgId' => $this->leavemessage_data['msgId'],
@@ -141,7 +155,11 @@ class LeavesMessages {
                 'message' => $this->leavemessage_data['message'],
                 'viewPermission' => $this->messagedata['permission'],
                 'createdOn' => TIME_NOW);
-        print_R($message_data);
+
+        if(isset($config['source']) && $config['source'] == 'emaillink') {
+            $message_data['inReplyTo'] = $data['inReplyTo'];
+            $message_data['inReplyToMsgId'] = $data['msgId'];
+        }
         $db->insert_query('leaves_messages', $message_data);
         $this->send_message();
         $this->errorcode = 0;
@@ -158,15 +176,15 @@ class LeavesMessages {
     public function send_message() {
         global $core;
         $this->leavemessage['thread'] = $this->read_message();
-        $email_data['to'] = '';
+        $email_data['to'] = $this->get_user($message['uid'])->get()['email'];
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
-        // $mailer->set_subject($this->get_leave()->get());
         $mailer->set_subject('Conversation message');
         $mailer->set_message($this->leavemessage['thread']);
-        $mailer->set_to('tony.assaad@orkila.com');
-        //   print_r($mailer->debug_info());
+        $mailer->set_to($email_data['to']);
+        print_r($mailer->debug_info());
+
     }
 
     public function get_leave() {
@@ -175,6 +193,11 @@ class LeavesMessages {
 
     public function get_user() {
         return new Users($this->leavemessage['uid']);
+    }
+
+    public function get_permission() {
+        print_R($this->leavemessage['viewPermission']);
+        return $this->leavemessage['viewPermission'];
     }
 
     public function get() {

@@ -24,10 +24,9 @@ else {
 }
 $msg = LeavesMessages::extract_message($data['message'], false);
 
-echo $msg;
-
-$reply_message = get_replymessage($data['message']);
+$reply_message = get_replymessage($msg);
 echo $reply_message;
+
 switch($reply_message) {
     case 'approve':
 
@@ -256,7 +255,7 @@ switch($reply_message) {
             }
         }
         break;
-    case "message":
+    case "public":
         /* Approval conversation messages ---START */
         /* check if the user in the approval chain */
 
@@ -298,24 +297,43 @@ switch($reply_message) {
         /* revoke leave here */
         break;
 }
-function get_replymessage($messagedata) {
-    if(strpos($messagedata, '#approve')) {
-        return 'approve';
+function get_replymessage2($messagedata) {
+
+    if(strpos($messagedata, '#private') !== false) {
+        $permsission = 'private';
     }
-    elseif(strpos($messagedata, '#reject')) {
-        return 'revoke';
+    elseif(strpos($messagedata, '#public') !== false) {
+        $permsission = 'public';
     }
-    elseif(strpos($messagedata, '#message')) {
-        return 'message';
+    elseif(strpos($messagedata, '#approve') !== false) {
+        $permsission = 'approve';
     }
-    elseif(strpos($messagedata, '#private')) {
-        return 'private';
+    elseif(strpos($messagedata, '#reject') !== false) {
+        $permsission = 'revoke';
     }
-    elseif(strpos($messagedata, '#limited')) {
-        return 'limited';
+    elseif(strpos($messagedata, '#message') !== false) {
+        $permsission = 'message';
+    }
+    elseif(strpos($messagedata, '#limited') !== false) {
+        $permsission = 'limited';
     }
     else {
-        return 'message';
+        $permsission = 'message';
+    }
+    echo $permsission;
+    exit;
+    return $permsission;
+}
+
+function get_replymessage($message) {
+    $commands = array('#approve', '#revoke', '#public', '#message', '#private', '#limited');
+    foreach($commands as $command) {
+        $position = strpos($message, $command);
+
+        if($position !== false) {
+            $command = ltrim($command, '#');
+            return $command;
+        }
     }
 }
 ?>
