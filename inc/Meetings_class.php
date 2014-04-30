@@ -459,7 +459,7 @@ class Meetings {
                 $meeting_shares['uid'] = $core->sanitize_inputs($val);
                 if(!value_exists('meetings_sharedwith', 'uid', $val, ' mtid='.$this->meeting['mtid'])) {
                     $db->insert_query('meetings_sharedwith', $meeting_shares);
-                    $this->notify_sharedusers($meeting_shares[uid]);
+                    $this->notify_shareduser($meeting_shares['uid']);
                     $this->errorcode = 0;
                 }
             }
@@ -468,18 +468,22 @@ class Meetings {
         }
     }
 
-    private function notify_sharedusers($uid) {
+    private function notify_shareduser($uid) {
         global $core, $lang;
 
-        $user_obj = new users($uid);
-        $share_users = $user_obj->get();
-        $meetinglink = '<a href="'.DOMAIN.'/index.php?module=meetings/viewmeeting&amp;referrer=list&amp;mtid='.$this->meeting['mtid'].'"> '.DOMAIN.'/index.php?module=meetings/viewmeeting/'.$this->meeting['title'].' </a>';
+        $user_obj = new Users($uid);
+        if(!is_object($user_obj)) {
+            return false;
+        }
+        $share_user = $user_obj->get();
+        
+        $meetinglink = '<a href="'.DOMAIN.'/index.php?module=meetings/viewmeeting&amp;referrer=list&amp;mtid='.$this->meeting['mtid'].'">'.$this->meeting['title'].'</a>';
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_subject($lang->sprint($lang->sharedmeetingsubject, $this->meeting['title']));
-        $mailer->set_message($lang->sprint($lang->sharedmeetingmessage, $share_users['displayName'], $meetinglink));
+        $mailer->set_message($lang->sprint($lang->sharedmeetingmessage, $share_user['displayName'], $this->meeting['title'], $meetinglink));
         $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
-        $mailer->set_to($share_users['email']);
+        $mailer->set_to($share_user['email']);
         $mailer->send();
     }
 

@@ -19,19 +19,19 @@ if($core->usergroup['attendance_canGenerateExpReport'] == 0) {
 
 if(!$core->input['action']) {
     if(isset($core->input['messagecode']) && $core->input['messagecode'] == 1) {
-        $notification_message = '<div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-bottom:10px; font-weight: bold;">'.$lang->invalidatemessage.'</div>';
+        $notification_message = '<div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-bottom:10px; font-weight: bold;">'.$lang->invaliddaterange.'</div>';
     }
 
     $identifier = substr(md5(microtime(uniqid())), 0, 10);
     /* Preparing Users section - START */
-    $business_managers = LeaveExpenseTypes::get_viewablemanagers();
-    $employees_list = parse_selectlist('expencesreport[filter][uid][]', 1, $business_managers, $core->user['uid'], 1, '', '');
+    $business_managers = LeavesExpenses::get_viewableusers();
+    $employees_list = parse_selectlist('expencesreport[filter][uid][]', 1, $business_managers, $core->user['uid'], 1, '', array('width' => '200px'));
 
     /* Preparing USers section - END */
 
     /* Here we get affiliate for user assigned to, or he can audit */
-    $user_affiliates = LeaveExpenseTypes::get_viewableuseraffiliates();
-    $affiliates_list = parse_selectlist('expencesreport[filter][useraffids][]', 1, $user_affiliates, $core->user['mainaffiliate'], 1, '', '');
+    $user_affiliates = Leaves::get_viewableuseraffiliates();
+    $affiliates_list = parse_selectlist('expencesreport[filter][useraffids][]', 1, $user_affiliates, $core->user['mainaffiliate'], 1, '', array('width' => '200px'));
 
 
     $leavetype_objs = LeaveTypes::get_leavetypes('isBusiness=1');
@@ -39,7 +39,7 @@ if(!$core->input['action']) {
         $leavetypes = $leavetype_obj->get();
         $leaves_types[$leavetypes['ltid']] = $leavetypes['title'];
     }
-    $leavetype_list = parse_selectlist('expencesreport[filter][type][]', 1, $leaves_types, '', 1, '', '');
+    $leavetype_list = parse_selectlist('expencesreport[filter][type][]', 1, $leaves_types, '', 1, '', array('width' => '200px'));
 
     /* Leave Expences type */
     $leave_expencestypes = LeaveExpenseTypes::get_leaveexpensetypes();
@@ -48,7 +48,7 @@ if(!$core->input['action']) {
         $leave_expencestypes[$leave_expencestype['aletid']] = $leave_expencestype['title'];
     }
 
-    $leave_expencestypes_list = parse_selectlist('expencesreport[filter][aletid][]', 1, $leave_expencestypes, '', 1, '', '');
+    $leave_expencestypes_list = parse_selectlist('expencesreport[filter][aletid][]', 1, $leave_expencestypes, '', 1, '', array('width' => '200px'));
     /* 'useraffid' => $lang->affiliate */
     $dimensions = array('uid' => $lang->employee, 'ltid' => $lang->leavetype, 'aletid' => $lang->leaveexptype, 'lid' => $lang->leave);
 
@@ -60,8 +60,8 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'preview') {
-        $expencesreport_data = ($core->input['expencesreport']);
-        if($expencesreport_data[filter]['toDate'] < $expencesreport_data[filter]['fromDate']) {
+        $expencesreport_data = $core->input['expencesreport'];
+        if($expencesreport_data['filter']['toDate'] < $expencesreport_data['filter']['fromDate']) {
             redirect('index.php?module=attendance/generatexpensesreport&messagecode=1');
         }
 
@@ -82,7 +82,8 @@ else {
             $headers_title = $dimensionalize_ob->get_requiredfields();
 
             foreach($headers_title as $report_header => $header_data) {
-                $dimension_head.= '<th>'.ucfirst($header_data).'</th>';
+                $header_data = strtolower($header_data);
+                $dimension_head.= '<th>'.$lang->{$header_data}.'</th>';
             }
         }
 
