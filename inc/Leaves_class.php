@@ -198,53 +198,77 @@ class Leaves {
     }
 
     public static function get_leaves_expencesdata($data_filter = array(), array $config = array()) {
-        global $db, $core, $lang;
-
-        /*
-         *  Empowering  the security filter  for the query to only  get the filtererd IDs  whose values exists in  the IDs  returned from the viewbale functions
-         *
-         *  */
-
-        $allowed_filters['uid'] = array_keys(LeaveExpenseTypes::get_viewablemanagers());
-        $allowed_filters['useraffids'] = array_keys(LeaveExpenseTypes::get_viewableuseraffiliates());
-
-        /* Only Get the ids  in data_filter Var whose values exists in the allowed_filters  */
-        $allowed_filters['useraffids'] = array_intersect($data_filter['useraffids'], $allowed_filters['useraffids']);
-
+        global $db;
+;
+        $tables_alias = array('aletid' => 'lextt');
+        
         $fromDate = strtotime($data_filter['fromDate']);
         $toDate = strtotime($data_filter['toDate']);
-
-        if(isset($allowed_filters['useraffids']) && (!empty($allowed_filters['useraffids']))) {
-            $having_querystring = " HAVING useraffid IN (".implode(',', $allowed_filters['useraffids']).") ";
+        if($fromDate > $toDate) {
+            return false;
         }
-        unset($data_filter['toDate'], $data_filter['fromDate'], $allowed_filters['useraffids']);
+        
+        $allowed_filters = array('uid', 'type', 'aletid', 'useraffid', 'fromDate', 'toDate');
+        foreach($data_filter as $filter => $data) {
+            if(in_array($filter, $allowed_filters)) {
+                unset($data_filter['filter']);
+            }
+        }
+        /*
+         * Empowering  the security filter  for the query to only  get the filtererd IDs  
+         * whose values exists in  the IDs  returned from the viewbale functions
+         */
+        $allowed_filtersdata['uid'] = array_keys(LeavesExpenses::get_viewableusers());
+        $allowed_filtersdata['useraffids'] = array_keys(Leaves::get_viewableuseraffiliates());
+
+        /* Only Get the ids in data_filter Var whose values exists in the allowed_filters  */
+        if(isset($data_filter['useraffids'])) {
+            $allowed_filtersdata['useraffids'] = array_intersect($data_filter['useraffids'], $allowed_filtersdata['useraffids']);   
+        }
+        
+        if(isset($allowed_filtersdata['useraffids']) && (!empty($allowed_filtersdata['useraffids']))) {
+            $having_querystring = ' HAVING useraffid IN ('.$db->escape_string(implode(',', $allowed_filtersdata['useraffids'])).') ';
+        }
+        unset($data_filter['toDate'], $data_filter['fromDate'], $allowed_filtersdata['useraffids']);
 
         $querysting_where = ' WHERE ';
-        if(is_array($allowed_filters)) {
-            foreach($allowed_filters as $filterkey => $filter) {
-
-                /* Only Get the ids  in data_filter Var whose values exists in the allowed_filters  */
-                if(isset($allowed_filters[$filterkey])) {
-                    $filter = array_intersect($data_filter[$filterkey], $allowed_filters[$filterkey]);
-                }
-                if($filterkey == 'aletid') {
-                    $querysting .= ' AND lextt.aletid IN ('.implode(',', $filter).')';
+        foreach($allowed_filters as $filterkey) {
+            $filter = array();
+            if(!isset($data_filter[$filterkey])) {
+                if(isset($allowed_filtersdata[$filterkey])) {
+                    $filter = $allowed_filtersdata[$filterkey];
                 }
                 else {
-                    $querysting .= $querysting_where.$config['maintablealias'].'.'.$filterkey.' IN ('.implode(',', $filter).')';
+                    continue;
                 }
-                $querysting_where = ' AND ';
             }
+            else {
+                /* Only Get the ids  in data_filter Var whose values exists in the allowed_filters  */
+                if(isset($allowed_filtersdata[$filterkey])) {
+                    $filter = array_intersect($data_filter[$filterkey], $allowed_filtersdata[$filterkey]);
+                }
+                else {
+                   $filter =  $data_filter[$filterkey];
+                }
+            }
+
+            if(!isset($tables_alias[$filterkey])) {
+               $tables_alias[$filterkey] = 'l';
+            }
+
+            $querysting .= $querysting_where.$tables_alias[$filterkey].'.'.$db->escape_string($filterkey).' IN ('.$db->escape_string(implode(',', $filter)).')';
+
+            $querysting_where = ' AND ';
         }
 
         $query = $db->query("SELECT DISTINCT(l.lid), l.uid, l.affid, a.affid as useraffid, l.spid, l.cid, lt.title, lt.ltid, lextt.aletid, lext.aleid, lext.alteid, lext.expectedAmt, lext.actualAmt
-                            FROM ".Tprefix."leaves  l
+                            FROM ".Tprefix."leaves l
                             JOIN ".Tprefix."leavetypes lt ON (l.type=lt.ltid)
                             JOIN ".Tprefix."attendance_leaves_expenses lext ON (lext.lid=l.lid)
                             JOIN ".Tprefix."attendance_leavetypes_expenses letexp ON (letexp.alteid=lext.alteid)
                             JOIN ".Tprefix."attendance_leaveexptypes lextt ON (lextt.aletid=letexp.aletid)
                             JOIN ".Tprefix."affiliatedemployees a ON (a.uid=l.uid)
-                            {$querysting}  AND  EXISTS (SELECT la.lid FROM ".Tprefix."leavesapproval la  WHERE la.isApproved= 1 AND la.lid=l.lid) AND ((".$fromDate." BETWEEN l.fromDate AND l.toDate)  OR (".$toDate." BETWEEN l.fromDate AND l.toDate)) ".$having_querystring); //
+                            {$querysting} AND NOT EXISTS (SELECT la.lid FROM ".Tprefix."leavesapproval la WHERE la.isApproved=0 AND la.lid=l.lid) AND ((l.fromDate BETWEEN ".$fromDate." AND ".$toDate.") OR (l.toDate BETWEEN ".$fromDate." AND ".$toDate."))".$having_querystring); //
 
         if($db->num_rows($query) > 0) {
             while($rowsdata = $db->fetch_assoc($query)) {
@@ -281,6 +305,25 @@ class Leaves {
         return '<a href="#'.$this->leave['lid'].'">'.date($core->settings['dateformat'], $this->leave['fromDate']).' - '.date($core->settings['dateformat'], $this->leave['toDate']).'</a>';
     }
 
+    /*
+     * Get  Affiliates  that he can  HR and he is working with
+     * @param	int		$core->user['affiliates']
+     * @return  Array
+     */
+    public static function get_viewableuseraffiliates() {
+        global $db, $core;
+
+        $afffiliates_users = $core->user['affiliates'] + $core->user['hraffids'];
+        if(is_array($afffiliates_users)) {
+            foreach($afffiliates_users as $affiliate) {
+                $affiliate_obj = new Affiliates($affiliate);
+                $affiliates_data = $affiliate_obj->get();
+                $affiliates[$affiliates_data['affid']] = $affiliates_data['name'];
+            }
+            return $affiliates;
+        }
+    }
+    
     public function get() {
         return $this->leave;
     }
