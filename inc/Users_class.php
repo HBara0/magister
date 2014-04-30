@@ -199,19 +199,19 @@ class Users {
 	public function get_assistant() {
 		return new Users($this->user['assistant']);
 	}
-
-	public function get_affiliateuser() {
-		global $db;
-		$affemployee_query = $db->query("SELECT affe.aeid,u.displayName,u.uid,u.username FROM affiliatedemployees affe 
-										JOIN ".Tprefix."users u ON (u.uid=affe.uid)
-										JOIN ".Tprefix."affiliates aff ON(aff.affid=affe.affid) WHERE affe.affid in('".$this->get_mainaffiliate()->get()['affid']."')");
-		if($db->num_rows($affemployee_query) > 0) {
-			while($affiliate_user = $db->fetch_assoc($affemployee_query)) {
-				$affiliate_users[$affiliate_user['uid']] = $affiliate_user;
-			}
-			return $affiliate_users;
-		}
-	}
+// The below has to be in the Affiliates Class
+//	public function get_affiliateuser() {
+//		global $db;
+//		$affemployee_query = $db->query("SELECT affe.aeid,u.displayName,u.uid,u.username FROM affiliatedemployees affe 
+//										JOIN ".Tprefix."users u ON (u.uid=affe.uid)
+//										JOIN ".Tprefix."affiliates aff ON(aff.affid=affe.affid) WHERE affe.affid in('".$this->get_mainaffiliate()->get()['affid']."')");
+//		if($db->num_rows($affemployee_query) > 0) {
+//			while($affiliate_user = $db->fetch_assoc($affemployee_query)) {
+//				$affiliate_users[$affiliate_user['uid']] = $affiliate_user;
+//			}
+//			return $affiliate_users;
+//		}
+//	}
 
 	public function get_positions() {
 		global $db, $lang;
@@ -260,6 +260,11 @@ class Users {
 		return new Affiliates($this->user['mainaffiliate'], FALSE);
 	}
 
+        /* CORRECTIONS NEEDED: 
+         *  The below should return objects of Segments 
+         *  There is no need for the join being made 
+         * Should return false if nothing       
+         */
 	public function get_segments() {
 		global $db;
 		$segment_query = $db->query("SELECT ps.psid,ps.title,em.emsid,em.uid FROM employeessegments em 
@@ -272,7 +277,12 @@ class Users {
 			return $segment;
 		}
 	}
-
+        /* CORRECTIONS NEEDED: 
+         * The below should return objects of Segments 
+         * There is no need for the join being made 
+         * Should be renamed to get_coordinatedsegments
+         * Should return false if nothing        
+         */
 	public function get_coordinatesegments() {
 		global $db;
 
@@ -388,18 +398,35 @@ class Users {
 	}
 
 	public function generate_image_sign($saved = false, $width = 350, $height = 190, $is_compact = false) {
+            global $core;
 		$fonts['arial']['regular'] = './inc/fonts/arial.ttf';
 		$fonts['arial']['bold'] = './inc/fonts/arialbd.ttf';
 		$fonts['arial']['bolditalic'] = './inc/fonts/arialbi.ttf';
 
 		if($is_compact == false) {
 			$details = $this->prepare_sign_info();
-
 			/* Check if addresses text is wider than specified width, and resize accordingly */
 			$details['values_bbox'] = imagettfbbox(8.5, 0, $fonts['arial']['regular'], $details['values']);
 			if($details['values_bbox'][4] > $width) {
 				$width = $details['values_bbox'][4];
 			}
+
+                        /* Check if banners are to be added */
+                        $banners_dir_path = './images/signaturebanners/'.$this->get_mainaffiliate()->get()['affid'].'/';
+                        if(file_exists($banners_dir_path)) {
+                            $banners_dir = opendir($core->sanitize_path($banners_dir_path));
+                            while(false !== ($file = readdir($banners_dir))) {
+                                $bannerfile_info = pathinfo($banners_dir_path.$file); 
+                                if($file != '.' && $file != '..' && in_array($bannerfile_info['extension'], array('jpg', 'png'))) {
+                                    list($bannerwidth, $bannerheight) = getimagesize($banners_dir_path.$file);
+                                    $height += $bannerheight;
+                                    $total_bannersheight += $bannerheight;
+                                    if($width < $bannerwidth) {
+                                        $width += ($bannerwidth-$width);
+                                    }
+                                }
+                            }
+                        }
 		}
 		else {
 			$details['values_bbox'] = imagettfbbox(11, 0, $fonts['arial']['bold'], $this->user['displayName']);
@@ -462,6 +489,25 @@ class Users {
 			$this->user['mainaffiliate_details']['phone1'] = str_replace('-', ' ', $this->user['mainaffiliate_details']['phone1']);
 			imagefttext($im, 8, 0, 49 + 8, (36 / 1.8) + 13, $colors['salmon'], $fonts['arial']['regular'], '+'.$this->user['mainaffiliate_details']['phone1'].$this->user['internalExtension']);
 		}
+
+                /* Check if banners exist & add them */
+                if($is_compact == false) {
+                     $banners_dir_path = './images/signaturebanners/'.$this->get_mainaffiliate()->get()['affid'].'/';
+                      if(file_exists($banners_dir_path)) {
+                            $banners_dir = opendir($core->sanitize_path($banners_dir_path));
+                            $prevbannerheight = 0;
+                            while(false !== ($file = readdir($banners_dir))) {
+                                $langfile_info = pathinfo($banners_dir_path.$file);
+                                if($file != '.' && $file != '..' && in_array($langfile_info['extension'], array('jpg', 'png'))) {
+                                      list($bannerwidth, $bannerheight) = getimagesize($banners_dir_path.$file);
+                                    $banner = imagecreatefromjpeg(DOMAIN.$banners_dir_path.$file);
+                                    imagecopy($im, $banner, 1, $height-$total_bannersheight+$prevbannerheight, 0, 0, $bannerwidth, $bannerheight);
+                                    $prevbannerheight = $bannerheight;
+                                }
+                            }
+                            unset($banner);
+                      }
+                }
 
 		if($saved == true) {
 			$image = './tmp/'.substr(md5(uniqid(microtime())), 1, 5).'.png';

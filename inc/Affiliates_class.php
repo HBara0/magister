@@ -31,20 +31,41 @@ class Affiliates {
 	public function get_country() {
 		return new Countries($this->affiliate['country']);
 	}
+        
+        public function get_city() {
+            if(is_numeric($this->affiliate['city'])) {
+                return new Cities($this->affiliate['city']);
+            }
+            else {
+                return Cities::get_city_byname($this->affiliate['city']);
+            }
+        }
 
 	public function get_supervisor() {
+                if(empty($this->affiliate['supervisor'])) {
+                    return false;
+                }
 		return new Users($this->affiliate['supervisor']);
 	}
 
 	public function get_generalmanager() {
+                if(empty($this->affiliate['generalManager'])) {
+                    return false;
+                }
 		return new Users($this->affiliate['generalManager']);
 	}
 
 	public function get_hrmanager() {
+                if(empty($this->affiliate['hrManager'])) {
+                    return false;
+                }
 		return new Users($this->affiliate['hrManager']);
 	}
 
 	public function get_financialemanager() {
+                if(empty($this->affiliate['finManager'])) {
+                    return false;
+                }
 		return new Users($this->affiliate['finManager']);
 	}
 

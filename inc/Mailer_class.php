@@ -122,6 +122,7 @@ class Mailer_oophp extends Mailer_functions {
 	protected $mail_data = array();
 	private $boundaries = array();
 	private $status = false;
+        private $configs = array();
 
 	public function __construct() {
 		$this->boundaries['id'] = md5(uniqid(TIME_NOW));
@@ -289,12 +290,18 @@ class Mailer_oophp extends Mailer_functions {
 		
 		$this->mail_data['attachments'][$attachment_id] = "--".$this->boundaries[1]."\n";
 		if(isset($type) && !empty($type)) {
-			$this->mail_data['attachments'][$attachment_id] .= "Content-Type: ".$type."; name=\"".$filename."\"\n";
+			$this->mail_data['attachments'][$attachment_id] .= "Content-Type: ".$type."; charset=utf-8; name=\"".$filename."\"\n";
 		}
 		else {
-			$this->mail_data['attachments'][$attachment_id] .= "Content-Type: application/octet-stream; name=\"".$filename."\"\n";
+			$this->mail_data['attachments'][$attachment_id] .= "Content-Type: application/octet-stream; charset=utf-8; name=\"".$filename."\"\n";
 		}
 
+                $content_id = $attachment_id;
+                if(isset($config['contentid']) && !empty($config['contentid'])) {
+                    $content_id = $config['contentid'];
+                }
+                $this->mail_data['attachments'][$attachment_id] .= "Content-Id: <".$content_id.">\n";
+                unset($content_id);
 		$this->mail_data['attachments'][$attachment_id] .= "Content-Transfer-Encoding: base64\n";
 		$this->mail_data['attachments'][$attachment_id] .= "Content-Disposition: attachment; filename=\"".$filename."\"\n\n";
 		$this->mail_data['attachments'][$attachment_id] .= $attachment_content."\n";
@@ -314,6 +321,9 @@ class Mailer_oophp extends Mailer_functions {
 		$this->mail_data['originalmessage'] = $message;
 		if($this->mail_data['multiparted'] == true) {
 			$content_types = array('plain', 'html');
+                        if(!empty($this->configs['requiredcontenttypes']) && is_array($this->configs['requiredcontenttypes'])) {
+                            $content_types = $this->configs['requiredcontenttypes'];
+                        }
 			if($this->mail_data['type'] == 'ical') {
 				$content_types = array('ical');
 				$content_types_config['ical'] = $this->mail_data['type_config'];
@@ -347,6 +357,10 @@ class Mailer_oophp extends Mailer_functions {
 		$this->mail_data['multiparted'] = $is_multiparted;
 	}
 
+        public function set_required_contenttypes(array $requiredcontenttypes = array('plain', 'html')) {
+            $this->configs['requiredcontenttypes'] = $requiredcontenttypes;
+        }
+        
 	public function send() {
 		if(!$this->validate_data($this->mail_data)) {
 			output_xml('<status>false</status><message>Security violation detected</message>');
