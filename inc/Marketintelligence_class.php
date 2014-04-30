@@ -48,6 +48,7 @@ class Marketintelligence {
 
 			$marketintelligence_data = array('cid' => $this->marketdata['cid'],
 					'cfpid' => $this->marketdata['cfpid'],
+					'affid' => $this->marketdata['affid'],
 					'ebpid' => $this->marketdata['ebpid'],
 					'potential' => $this->marketdata['potential'],
 					'mktSharePerc' => $this->marketdata['mktSharePerc'],
@@ -80,19 +81,26 @@ class Marketintelligence {
 		elseif(isset($options['prevyear']) && $options['prevyear'] == 1) {
 			$where_year = ' AND YEAR(CURDATE()) > FROM_UNIXTIME(createdOn, "%Y")';
 		}
-		if(isset($options['customer']) && $options['customer'] == 1) {
-			$filterid = 'cid';
-		}
-		elseif(isset($options['filterchemfunctprod']) && $options['filterchemfunctprod'] == 1) {
-			$filterid = 'cfpid';
-		}
-
-		$query = $db->query('SELECT mibdid FROM '.Tprefix.'marketintelligence_basicdata WHERE createdOn!=0 '.$where_year.' AND '.$filterid.'='.$id.' ORDER BY cfpid,createdOn DESC');
+ 
+		$query = $db->query('SELECT mibdid FROM '.Tprefix.'marketintelligence_basicdata WHERE createdOn!=0 '.$where_year.' AND '.$this->gefilter_entityid($options).'='.$id.' ORDER BY cfpid,createdOn DESC');
 
 		while($rows = $db->fetch_assoc($query)) {
 			$marketintelligence[$rows['mibdid']] = new Marketintelligence($rows['mibdid']);
 		}
 		return $marketintelligence;
+	}
+
+	private  function gefilter_entityid($options) {
+		if(isset($options['customer']) && $options['customer'] == 1) {
+			$filterid = 'cid';
+		}
+		if(isset($options['affid']) && $options['affid'] == 1) {
+			$filterid = 'affid';
+		}
+		elseif(isset($options['filterchemfunctprod']) && $options['filterchemfunctprod'] == 1) {
+			$filterid = 'cfpid';
+		}
+		return $filterid;
 	}
 
 	public function get_previousmarketintelligence($id) {
@@ -236,7 +244,8 @@ class Marketintelligencecompetitors {
 		}
 		return $marketcomproducer;
 	}
-		public function get_entitytrader() {
+
+	public function get_entitytrader() {
 		global $db;
 		$query = $db->query('SELECT trader  FROM '.Tprefix.'marketintelligence_competitors WHERE micid='.$this->mrktintelcompetitors['micid'].'');
 		while($rows = $db->fetch_assoc($query)) {
@@ -244,6 +253,7 @@ class Marketintelligencecompetitors {
 		}
 		return $marketcomptrader;
 	}
+
 	public function get() {
 		return $this->mrktintelcompetitors;
 	}

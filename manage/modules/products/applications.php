@@ -12,9 +12,9 @@ if(!defined("DIRECT_ACCESS")) {
 	die("Direct initialization of this file is not allowed.");
 }
 
-if($core->usergroup['canManageapllicationsProducts'] == 0) {
-	//error($lang->sectionnopermission);
-	//exit;
+if($core->usergroup['canManageSegments'] == 0) {
+    error($lang->sectionnopermission);
+    exit;
 }
 
 $lang->load('products_applications');
@@ -42,7 +42,7 @@ if(!$core->input['action']) {
 	}
 	$chemicals_obj = Chemicalfunctions::get_functions();
 	if(is_array($chemicals_obj)) {
-		/* for best preformance loop over the returned segments objects and get their related data */
+		/* for best preformance loop over the returned Chemicalfunctions objects and get their related data */
 		$checmicalfunctions_list = '<option value="" selected="selected" > </option>';
 		foreach($chemicals_obj as $chemical_obj) {
 			$chemical = $chemical_obj->get();

@@ -36,7 +36,12 @@ if(!$core->input['action']) {
 	if($entity['type'] == 'c' && $core->usergroup['canManageCustomers'] == 0) {
 		redirect('index.php?module=home/index');
 	}
-
+	if($entity['type'] == 'c') {
+		$showhideparent_company = '$("tr[id=parentcompany]").hide()';
+	}
+	elseif($entity['type'] == 's') {
+		$showhideparent_customer = '$("tr[id=parentcustomer]").hide()';
+	}
 	if($entity['type'] == 's' && $core->usergroup['canManageSuppliers'] == 0) {
 		redirect('index.php?module=home/index');
 	}

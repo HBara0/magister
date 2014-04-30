@@ -120,9 +120,9 @@ else {
 	foreach($affiliates_users as $uid => $user_obj) {
 		//$checked = '';
 		$altrow = alt_row($altrow);
-		if($uid == $core->user['uid']) {
-			continue;
-		}
+//		if($uid == $core->user['uid']) {
+//			continue;
+//		}
 
 //		if(is_array($affiliates_users)) {
 //			if(in_array($uid, $affiliates_usersid)) {

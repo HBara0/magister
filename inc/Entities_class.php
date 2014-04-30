@@ -327,6 +327,19 @@ class Entities {
 		}
 	}
 
+	public function get_products() {
+		global $db;
+
+		$query = $db->query('SELECT pid FROM '.Tprefix.'products WHERE spid="'.$db->escape_string($this->data['eid']).'"');
+		if($db->num_rows($query) > 0) {
+			while($poduct = $db->fetch_assoc($query)) {
+				$poducts[$poduct['pid']] = new Products($poduct['pid']);
+			}
+			return $poducts;
+		}
+		return false;
+	}
+
 	private function create_representative() {
 		global $core, $db, $lang;
 
@@ -539,7 +552,7 @@ class Entities {
 		if(!empty($id)) {
 			$query_select = '*';
 			if($simple == true) {
-				$query_select = 'eid, companyName, companyNameAbbr, companyNameShort, logo';
+				$query_select = 'eid, companyName, companyName AS name, companyNameAbbr, companyNameShort, logo';
 			}
 			return $db->fetch_assoc($db->query("SELECT ".$query_select." FROM ".Tprefix."entities WHERE eid='".$db->escape_string($id)."'"));
 		}

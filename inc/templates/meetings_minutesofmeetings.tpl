@@ -28,9 +28,9 @@
                 <input type="hidden" name="mof[momid]" id="momid" value="{$mof[momid]}" />
                 <input type="hidden" value="do_{$action}" name="action" id="action" />
                 <div>{$lang->meeting}: {$meeting_list}</div>
-                <div class="subtitle" style="margin-top: 10px;">{$lang->discussiondetails}</div>
+                <div class="subtitle" style="margin-top:10px;">{$lang->discussiondetails}</div>
                 <div><textarea class="texteditor" id="meetingdetails" name="mof[meetingDetails]" cols="90" rows="25">{$mof[meetingDetails]}</textarea></div>
-                <div class="subtitle" style="margin-top: 10px;">{$lang->followup}</div>
+                <div class="subtitle" style="margin-top:10px;">{$lang->followup}</div>
                 <div><textarea name="mof[followup]" id="followup" class="texteditor" cols="90" rows="25">{$mof[followup]}</textarea></div>
                 <div>
                     <hr />

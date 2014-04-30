@@ -10,7 +10,7 @@
 {$menu}
 <td class="contentContainer">
 <h3>{$lang->selectareport}</h3>
-<form method="post" action="index.php?module=reporting/fillreport&amp;stage=productsactivity">
+<form method="post" name="fillreport" action="index.php?module=reporting/fillreport&amp;stage=productsactivity">
 <table width="100%">
     <tr>
    	 	<td width="50%" style="padding: 15px; border-right: 1px dashed #E2EFDC;"><div style="text-align:left; float:right; font-weight: bold;">{$lang->affiliate}</div></td>

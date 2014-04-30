@@ -33,11 +33,14 @@ $lang['discussiondetails'] = 'Discussion Details';
 $lang['event'] = 'Event';
 $lang['businessleave'] = 'Business leave';
 $lang['customer'] = 'Customers';
+$lang['delete']='Delete';
 $lang['associations'] = 'Associations';
 $lang['close'] = 'Close';
 $lang['representative'] = 'Representative';
+$lang['successfullyshared']='Meeting Successfully Shared';
 $lang['employee'] = 'Employee';
 $lang['requireduser'] = 'you must select at least one user';
 $lang['notifyreps'] = 'Notify Representatives';
 $lang['notifyusers'] = 'Notify Employees';
+$lang['attachements'] = 'Attachements';
 ?>

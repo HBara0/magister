@@ -52,7 +52,7 @@
             </tr>
             <tr id="section[{$section_rowid}][questions][{$question_rowid}][choices_container]" style="display:none;">
                 <td>{$lang->choices}</td>
-                <td><textarea name="section[{$section_rowid}][questions][{$question_rowid}][choices]" title="{$lang->choices_tip}" cols="33" rows="5"></textarea></td>
+                <td><textarea id="questions_choices" name="section[{$section_rowid}][questions][{$question_rowid}][choices]" title="{$lang->choices_tip}" cols="33" rows="5"></textarea></td>
             </tr>
         </table>
     </td>

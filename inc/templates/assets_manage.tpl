@@ -38,7 +38,7 @@
                 </div>
                 <div style="display:table-row;">
                     <div style="display: table-cell; width:20%;">
-                        <input type="submit" class="button" value="{$lang->$actiontype}" id="perform_assets/manageassets_Button" />
+                        <input type="submit" class="button" value="{$lang->actiontype}" id="perform_assets/manageassets_Button" />
                         <input type="reset" class="button" value="{$lang->reset}"/>
                     </div>
                 </div>

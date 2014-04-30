@@ -29,7 +29,7 @@ if(!$core->input['action']) {
 			$noqreportsend_disabled = $noqreportreq_disabled = $createreports_disabled = ' disabled';
 		}
 	}
-	else {
+	else {	$showhideparent_company = '$("tr[id=parentcompany]").hide()';
 		$noqreportsend_disabled = $noqreportreq_disabled = $createreports_disabled = ' disabled';
 	}
 

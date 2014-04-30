@@ -21,52 +21,52 @@ $users_query = $db->query("SELECT displayName AS employeeName, u.uid, ae.affid, 
 							GROUP BY u.uid");
 
 if($db->num_rows($users_query) > 0) {
-	while($users_birthdays = $db->fetch_assoc($users_query)) {
-		/* create array and withh affid key and in each affiliate add array with  userid key => containing  the sql result value. */
-		$birthday_affid[$users_birthdays['affid']][$users_birthdays['uid']] = $users_birthdays;
-	}
+    while($users_birthdays = $db->fetch_assoc($users_query)) {
+        /* create array and withh affid key and in each affiliate add array with  userid key => containing  the sql result value. */
+        $birthday_affid[$users_birthdays['affid']][$users_birthdays['uid']] = $users_birthdays;
+    }
 
-	$hraffliate_query = $db->query("SELECT affid, name, hrManager, generalManager FROM ".Tprefix."affiliates");
-	if($db->num_rows($hraffliate_query) > 0) {
-		while($hr_affiliates = $db->fetch_assoc($hraffliate_query)) {
-			if(empty($hr_affiliates['hrManager'])) {
-				$hr_affiliates['hrManager'] = $hr_affiliates['generalManager'];
-			}
+    $hraffliate_query = $db->query("SELECT affid, name, hrManager, generalManager FROM ".Tprefix."affiliates");
+    if($db->num_rows($hraffliate_query) > 0) {
+        while($hr_affiliates = $db->fetch_assoc($hraffliate_query)) {
+            if(empty($hr_affiliates['hrManager'])) {
+                $hr_affiliates['hrManager'] = $hr_affiliates['generalManager'];
+            }
 
-			$recepient_details = $db->fetch_assoc($db->query("SELECT uid, displayName, email FROM ".Tprefix."users WHERE uid={$hr_affiliates[hrManager]}"));
-			$hr_affid[$recepient_details['uid']][$hr_affiliates['affid']] = $recepient_details;
-		}
-	}
+            $recepient_details = $db->fetch_assoc($db->query("SELECT uid, displayName, email FROM ".Tprefix."users WHERE uid={$hr_affiliates[hrManager]}"));
+            $hr_affid[$recepient_details['uid']][$hr_affiliates['affid']] = $recepient_details;
+        }
+    }
 
-	foreach($hr_affid as $affuid => $recepient_details) {
-		$body_message = '';
-		foreach($hr_affid[$affuid] as $affid => $recepient_details) {
-			if(is_array($birthday_affid[$affid]) && !empty($birthday_affid[$affid])) {
-				foreach($birthday_affid[$affid] as $uid => $user) {
-					$body_message .= '<li>'.$user['employeeName'].',  '.date('l jS', mktime(0, 0, 0, $current_date['mon'], $user['birthDay'], $current_date['year'])).' ('.($current_date['year'] - $user['birthYear']).' years old)</li>';
-				}
-			}
-		}
-		if(empty($body_message)) {
-			continue;
-		}
+    foreach($hr_affid as $affuid => $recepient_details) {
+        $body_message = '';
+        foreach($hr_affid[$affuid] as $affid => $recepient_details) {
+            if(is_array($birthday_affid[$affid]) && !empty($birthday_affid[$affid])) {
+                foreach($birthday_affid[$affid] as $uid => $user) {
+                    $body_message .= '<li>'.$user['employeeName'].',  '.date('l jS', mktime(0, 0, 0, $current_date['mon'], $user['birthDay'], $current_date['year'])).' ('.($current_date['year'] - $user['birthYear']).' years old)</li>';
+                }
+            }
+        }
+        if(empty($body_message)) {
+            continue;
+        }
 
-		/* build the email_data array to pass the argument to the mail object */
-		$email_data = array(
-				'to' => $recepient_details['email'],
-				'from_email' => $core->settings['maileremail'],
-				'from' => 'OCOS Mailer',
-				'subject' => 'Employee birthdays during '.$current_date['month'],
-				'message' => 'Hello '.$recepient_details['displayName'].',<br />The Following birthdays are taking during '.$current_date['month'].'</br></br />'.$body_message
-		);
+        /* build the email_data array to pass the argument to the mail object */
+        $email_data = array(
+                'to' => $recepient_details['email'],
+                'from_email' => $core->settings['maileremail'],
+                'from' => 'OCOS Mailer',
+                'subject' => 'Employee birthdays during '.$current_date['month'],
+                'message' => 'Hello '.$recepient_details['displayName'].',<br />The Following birthdays are taking during '.$current_date['month'].'</br></br />'.$body_message
+        );
 
-		$mail = new Mailer($email_data, 'php');
-		if($mail->get_status() === true) {
-			$log->record('hrbirthdaynotification', array('to' => $recepient_details['email']), 'emailsent');
-		}
-		else {
-			$log->record('hrbirthdaynotification', array('to' => $recepient_details['email']), 'emailnotsent');
-		}
-	}
+        $mail = new Mailer($email_data, 'php');
+        if($mail->get_status() === true) {
+            $log->record('hrbirthdaynotification', array('to' => $recepient_details['email']), 'emailsent');
+        }
+        else {
+            $log->record('hrbirthdaynotification', array('to' => $recepient_details['email']), 'emailnotsent');
+        }
+    }
 }
 ?>

@@ -29,11 +29,11 @@ if(!$core->input['action']) {
 		if(is_array($meeting)) {
 			if(!empty($meeting['fromDate'])) {
 				$meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
-				$meeting['fromTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['timeformat'], $meeting['fromDate'])));
+				$meeting['fromTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['24hourtimeformat'], $meeting['fromDate'])));
 			}
 			if(!empty($meeting['toDate'])) {
 				$meeting['toDate_output'] = date($core->settings['dateformat'], $meeting['toDate']);
-				$meeting['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['timeformat'], $meeting['toDate'])));
+				$meeting['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['24hourtimeformat'], $meeting['toDate'])));
 			}
 			if($meeting['isPublic'] == 1) {
 				$checked_checkboxes['isPublic'] = ' checked="checked"';
@@ -47,7 +47,7 @@ if(!$core->input['action']) {
 				unset($associaton_temp);
 			}
 
-			$rowid = $reprowid = 1;
+			$rowid = $reprowid = $rowattachmentid = 1;
 			$meeting_attednobjs = $meeting_obj->get_attendees();
 			if(is_array($meeting_attednobjs)) {
 				foreach($meeting_attednobjs as $matid => $meeting_attednobj) {
@@ -67,21 +67,39 @@ if(!$core->input['action']) {
 				}
 				unset($meeting['attendees'], $matid);
 			}
-			
+
 			if(empty($createmeeting_userattendees)) {
 				eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendee')."\";");
 			}
-			
+
 			if(empty($createmeeting_repattendees)) {
-				eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");	
+				eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");
 			}
-			
+
 			$entity_obj = new Entities($associatons['cid']);
 			$meeting['associations']['cutomername'] = $entity_obj->get()['companyName'];
 			$meeting['associations']['spid'] = $associatons['cid'];
 			$entity_obj = new Entities($associatons['spid']);
 			$meeting['associations']['suppliername'] = $entity_obj->get()['companyName'];
 			$meeting['associations']['spid'] = $associatons['spid'];
+			/* parse Attachments ---START */
+			$attachmentrow = 0;
+			$meeting_attachobjs = $meeting_obj->get_attachments();
+			if(is_array($meeting_attachobjs)) {
+
+				foreach($meeting_attachobjs as $meeting_attachobj) {
+					$altrow = alt_row('trow');
+					$attachmentrow++;
+					$meeting_attachments = $meeting_attachobj->get();
+					/* Limit permission to view meeting attachments */
+					if(is_array($meeting_attachments) && $meeting_obj->can_viewmeeting()) {
+						eval("\$createmeeting_edit_attachmentsfiles .= \"".$template->get('meeting_edit_attachments_files')."\";");
+					}
+				}
+			}
+			/* parse Attachments ---END */
+
+			eval("\$meeting_attachments = \"".$template->get('meeting_edit_attachements')."\";");
 		}
 		else {
 			redirect('index.php?module=meetings/list');
@@ -93,6 +111,7 @@ if(!$core->input['action']) {
 		$reprowid = 1;
 		eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendee')."\";");
 		eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");
+		eval("\$meeting_attachments = \"".$template->get('meeting_create_attachments')."\";");
 		$sectionsvisibility['associationssection'] = ' display:none;';
 		$action = 'create';
 	}
@@ -111,51 +130,102 @@ if(!$core->input['action']) {
 			$events_list .= '<option value="'.$ceid.'" "'.$selected.'">'.$event['title'].'</option>';
 		}
 	}
+
 	eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
 
 	eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
 
-	output_page($createmeeting);
+	output($createmeeting);
+}
+elseif($core->input['action'] == 'deletefile') {
+	$mattid = $db->escape_string($core->input[mattid]);
+	if(!empty($mattid)) {
+		$meetingattach_obj = new MeetingsAttachments($mattid);
+		$deleted = $meetingattach_obj->delete();
+		header('Content-type: text/javascript');
+		if($deleted) {
+			echo '$("div[id=\'file_'.$mattid.'\']").css("display","none");';
+			exit;
+		}
+	}
 }
 elseif($core->input['action'] == 'do_createmeeting') {
+	$core->input['meeting']['attachments'] = $_FILES;
 	$meeting_obj = new Meetings();
 	$meeting_obj->create($core->input['meeting']);
 
+	echo $headerinc;
 	switch($meeting_obj->get_errorcode()) {
 		case 0:
-			output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+			$output_class = 'green_text';
+			$output_message = $lang->successfullysaved;
 			break;
 		case 1:
-			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+			$output_class = 'red_text';
+			$output_message = $lang->fillallrequiredfields;
+			//output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
 			break;
 		case 2:
-			output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+			$output_class = 'red_text';
+			$output_message = $lang->errorsaving;
+			//output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
 			break;
 		case 3:
-			output_xml('<status>false</status><message>'.$lang->invaliddate.'</message>');
+			$output_class = 'red_text';
+			$output_message = $lang->invaliddate;
+			//output_xml('<status>false</status><message>'.$lang->invaliddate.'</message>');
 			break;
 		case 4:
-			output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
+			$output_class = 'red_text';
+			$output_message = $lang->meetingintersect;
+			//output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
 			break;
+
 		default:
-			output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+			$output_class = 'red_text';
+			$output_message = $lang->errorsaving;
+			//output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
 			break;
 	}
 }
 elseif($core->input['action'] == 'do_editmeeting') {
 	$mtid = $db->escape_string($core->input['mtid']);
+	$core->input['meeting']['attachments'] = $_FILES;
 	$meeting_obj = new Meetings($mtid);
 	$meeting_obj->update($core->input['meeting']);
+	echo $headerinc;
 	switch($meeting_obj->get_errorcode()) {
-		case 2:
-			output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+		case 0:
+			$output_class = 'green_text';
+			$output_message = $lang->successfullysaved;
 			break;
 		case 1:
-			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+			$output_class = 'red_text';
+			$output_message = $lang->fillallrequiredfields;
+			//output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
 			break;
+
 		case 3:
-			output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
+			$output_class = 'red_text';
+			$output_message = $lang->invaliddate;
+			//output_xml('<status>false</status><message>'.$lang->invaliddate.'</message>');
+			break;
+		case 4:
+			$output_class = 'red_text';
+			$output_message = $lang->meetingintersect;
+			//output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
+			break;
+
+		default:
+			$output_class = 'red_text';
+			$output_message = $lang->errorsaving;
+			//output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
 			break;
 	}
 }
 ?>
+<script language="javascript" type="text/javascript">
+	$(function() {
+		top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
+	});
+</script>   

@@ -9,6 +9,6 @@ $module['globalpermission'] = 'canUseReporting';
 						);*/
 $module['menu'] = array('file' 		  => array('home', 'quarterly' => array('fillreport', 'generatereport', 'list', 'createreports'), 'monthly' => array('fillmreport', 'listmreports')),
 						'title'		 => array('home', 'quarterly' => array('fillreport', 'generatereport', 'listreports', 'createreports'), 'monthly' => array('fillreport', 'listreports')),
-						'permission'	=> array('canUseReporting', array('canUseReporting', 'canFillReports', 'canGenerateReports', 'canGenerateReports', 'canCreateReports'), array('canUseReporting', 'canFillReports', 'canGenerateReports')),
+						'permission'	=> array('canUseReporting', array('canUseReporting', 'canFillReports', 'canGenerateReports', 'canUseReporting', 'canCreateReports'), array('canUseReporting', 'canFillReports', 'canGenerateReports')),
 						);					
 ?>

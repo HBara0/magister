@@ -27,7 +27,12 @@ h3 {
     color:#669900;
     border-bottom: 1px solid #F2F2F2;
 }
-
+span.subtitle {
+    font-weight:bold;
+    font-size: 15px;
+    color:#669900;  
+    text-transform: uppercase;
+} 
 .smalltext {
     font-size: 9px;
 }
@@ -48,7 +53,7 @@ a, a:visited {
 }
 
 .green_text { color: #91b64f; }
-.red_text { color:#993300; }
+.red_text { color:#CA0703; }
 
 #welcome_message a, #welcome_message a:visited {
     text-decoration: none;
@@ -570,7 +575,7 @@ tr.dummytrow td, tr.dummytrow th {
 
 .timeline_entrydepth {
     margin-left: 45px;
-        padding:5px;
+    padding:5px;
     border-color:red;
 }
 .timeline_entry .depthcircle {
@@ -596,4 +601,12 @@ tr.dummytrow td, tr.dummytrow th {
 
 .timeline_entry .circle_clickable {
     cursor: pointer;
+}
+.requiredfield{
+    border: 2px solid #FF142;
+    border-radius: 4px;
+}
+.requiredfield:focus{
+    -webkit-box-shadow: 0 1px 2px 2px #FF142C;
+    box-shadow: 0 1px 2px 1px #FF142C;
 }

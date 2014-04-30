@@ -31,20 +31,41 @@ class Affiliates {
 	public function get_country() {
 		return new Countries($this->affiliate['country']);
 	}
+        
+        public function get_city() {
+            if(is_numeric($this->affiliate['city'])) {
+                return new Cities($this->affiliate['city']);
+            }
+            else {
+                return Cities::get_city_byname($this->affiliate['city']);
+            }
+        }
 
 	public function get_supervisor() {
+                if(empty($this->affiliate['supervisor'])) {
+                    return false;
+                }
 		return new Users($this->affiliate['supervisor']);
 	}
 
 	public function get_generalmanager() {
+                if(empty($this->affiliate['generalManager'])) {
+                    return false;
+                }
 		return new Users($this->affiliate['generalManager']);
 	}
 
 	public function get_hrmanager() {
+                if(empty($this->affiliate['hrManager'])) {
+                    return false;
+                }
 		return new Users($this->affiliate['hrManager']);
 	}
 
 	public function get_financialemanager() {
+                if(empty($this->affiliate['finManager'])) {
+                    return false;
+                }
 		return new Users($this->affiliate['finManager']);
 	}
 
@@ -97,6 +118,18 @@ class Affiliates {
 		return $suppliers_affiliates;
 	}
 
+	public function get_customers() {
+		global $db;
+		$query = $db->query("SELECT DISTINCT(e.eid) 
+                            FROM ".Tprefix."entities e 
+                            LEFT JOIN ".Tprefix."affiliatedentities ae ON (ae.eid=e.eid) 
+                            WHERE ae.affid={$this->affiliate['affid']} AND type='c'".$additional_where[extra]." ORDER BY companyName ASC");
+		while($customer = $db->fetch_assoc($query)) {
+			$customers[$customer['eid']] = new Entities($customer['eid']);
+		} 
+		return $customers;
+	}
+
 	public static function get_affiliate_byname($name) {
 		global $db;
 
@@ -111,6 +144,19 @@ class Affiliates {
 
 	public function get() {
 		return $this->affiliate;
+	}
+		public function parse_link($attributes_param = array('target' => '_blank'), $options = array()) {
+		if(is_array($attributes_param)) {
+			foreach($attributes_param as $attr => $val) {
+				$attributes .= $attr.' "'.$val.'"';
+			}
+		}
+
+		if(!isset($options['outputvar'])) {
+			$options['outputvar'] = 'name';
+		}
+
+		return '<a href="index.php?module=profiles/affiliateprofile&affid='.$this->affiliate['affid'].'" '.$attributes.'>'.$this->affiliate[$options['outputvar']].'</a>';
 	}
 
 }

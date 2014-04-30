@@ -10,20 +10,28 @@
 
 class Mailer {
 	public $status = false;
+	private $class_name = null;
 
-	public function __construct(array $mail, $type, $only_send = true, array $smtp_options = array(), array $config = array()) {
-		$class_name = 'Mailer_'.$type;
-		$mailer = new $class_name($mail, $type, $only_send, null, $config);
-		if($mailer->send($config)) {
-			$this->set_status(true);
-		}
-		else {
-			$this->set_status(false);
+	public function __construct($mail = null, $type = 'oophp', $only_send = true, array $smtp_options = array(), array $config = array()) {
+		$this->class_name = 'Mailer_'.$type;
+
+		if($this->class_name != 'Mailer_oophp') {
+			$mailer = new $this->class_name($mail, $type, $only_send, null, $config);
+			if($mailer->send($config)) {
+				$this->set_status(true);
+			}
+			else {
+				$this->set_status(false);
+			}
 		}
 	}
 
 	protected function set_status($status) {
 		$this->status = $status;
+	}
+
+	public function get_mailerobj() {
+		return new $this->class_name;
 	}
 
 	public function get_status() {
@@ -97,6 +105,305 @@ class Mailer_functions {
 		$text = str_replace("\r\n", "\n", $text);
 		$text = str_replace("\r", "\n", $text);
 		return $text;
+	}
+
+}
+
+class Mailer_oophp extends Mailer_functions {
+	private $content_classes = array(
+			'appointment' => 'urn:content-classes:appointment',
+			'task' => 'urn:content-classes:task',
+			'meetingrequest' => 'urn:content-classes:calendarmessage',
+			'calendarmessage' => 'urn:content-classes:calendarmessage',
+			'taskrequest' => 'urn:content-classes:calendarmessage',
+			'note' => 'urn:content-classes:note',
+			'item' => 'urn:content-classes:item'
+	);
+	protected $mail_data = array();
+	private $boundaries = array();
+	private $status = false;
+        private $configs = array();
+
+	public function __construct() {
+		$this->boundaries['id'] = md5(uniqid(TIME_NOW));
+		$this->boundaries[1] = 'b1_'.$this->boundaries['id'];
+		$this->boundaries[2] = 'b2_'.$this->boundaries['id'];
+		$this->mail_data['header'] = "X-Mailer: Orkila Mailer\n";
+		$this->mail_data['header'] .= "MIME-version: 1.0\r\n";
+		$this->set_type();
+	}
+
+	public function set_to($addresses) {
+		$this->mail_data['to'] = $addresses;
+		if(is_array($this->mail_data['to'])) {
+			foreach($this->mail_data['to'] as $key => $val) {
+				if(!$this->isvalid_email($val)) {
+					unset($this->mail_data['to'][$key]);
+				}
+			}
+
+			$this->mail_data['to'] = implode(', ', $this->mail_data['to']);
+		}
+		else {
+			if(!$this->isvalid_email($this->mail_data['to'])) {
+				unset($this->mail_data['to']);
+				return false;
+			}
+		}
+	}
+
+	public function set_cc($addresses) {
+		if(isset($addresses)) {
+			$this->mail_data['cc'] = $addresses;
+			if(is_array($this->mail_data['cc'])) {
+				foreach($this->mail_data['cc'] as $key => $val) {
+					if(!$this->isvalid_email($val)) {
+						unset($this->mail_data['cc'][$key]);
+					}
+				}
+
+				$this->mail_data['cc'] = implode(', ', $this->mail_data['cc']);
+			}
+
+			$this->mail_data['header'] .= "CC:".$this->clean_header($this->mail_data['cc'])."\n";
+		}
+	}
+
+	public function set_bcc($addresses) {
+		if(isset($addresses)) {
+			$this->mail_data['bcc'] = $addresses;
+
+			if(is_array($this->mail_data['bcc'])) {
+				foreach($this->mail_data['bcc'] as $key => $val) {
+					if(!$this->isvalid_email($val)) {
+						unset($this->mail_data['bcc'][$key]);
+					}
+				}
+
+				$this->mail_data['bcc'] = implode(', ', $this->mail_data['bcc']);
+			}
+
+			$this->mail_data['header'] .= 'BCC:'.$this->clean_header($this->mail_data['bcc'])."\n";
+		}
+	}
+
+	public function set_from($sender) {
+		if(is_array($sender)) {
+			$this->mail_data['from_email'] = $sender['email'];
+			$this->mail_data['from'] = $sender['name'];
+		}
+		else {
+			$this->mail_data['from_email'] = $sender;
+		}
+		if(function_exists('isvalid_email')) {
+			$is_valid = isvalid_email($this->mail_data['from_email']);
+		}
+		else {
+			$is_valid = $this->isvalid_email($this->mail_data['from_email']);
+		}
+
+		if($is_valid === false) {
+			output_xml('<status>false</status><message>Invalid email</message>');
+			exit;
+		}
+
+		$this->mail_data['header'] .= 'FROM:'.$this->clean_header($this->mail_data['from']).'<'.$this->clean_header($this->mail_data['from_email']).">\n";
+		$this->mail_data['header'] .= 'Reply-To: <'.$this->clean_header($this->mail_data['from_email']).">\n";
+		$this->mail_data['header'] .= 'Return-Path: <'.$this->clean_header($this->mail_data['from_email']).">\n";
+		$this->mail_data['add_param'] = '-f'.$this->clean_header($this->mail_data['from_email']).' -r'.$this->clean_header($this->mail_data['from_email']);
+	}
+
+	public function set_flag($flag) {
+		if(isset($flag) && !empty($flag)) {
+			$this->mail_data['flag'] = $flag;
+			$this->mail_data['header'] .= "X-Message-Flag:".$this->clean_header($this->mail_data['flag'])."\n";
+		}
+	}
+
+	public function set_replyby($date) {
+		if(isset($date) && !empty($date)) {
+			$this->mail_data['replyby'] = $date;
+			$this->mail_data['header'] .= "Reply-By:".date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->mail_data['replyby'])."\n";
+		}
+	}
+
+	public function set_headeritem($header, $value) {
+		if(!empty($header) && !empty($value)) {
+			$this->mail_data['header'] .= $this->clean_header($header).':'.$this->clean_header($value)."\n";
+		}
+	}
+
+	public function set_type($type = 'normal', $config = array()) {
+		$this->mail_data['type'] = $type;
+		$this->mail_data['type_config'] = $config;
+		$this->mail_data['type_header'] = $this->parse_headertype($type, $config);
+	}
+
+	private function parse_headertype($type = 'normal', $config = array()) {
+		if($type == 'ical') {
+			if((isset($config['content-class']) && !empty($config['content-class'])) && isset($this->content_classes[$config['content-class']])) {
+				$header = "Content-class: ".$this->content_classes[$config['content-class']]."\r\n";
+
+				if(!isset($config['method'])) {
+					$config['method'] = 'PUBLISH';
+				}
+				$header .= "Content-type: text/calendar; charset=UTF-8; method={$config[method]}; name=\"{$config[filename]}\"\r\n"; //method=REQUEST;
+				$header .= "Content-Transfer-Encoding: 8bit\n\n";
+			}
+		}
+		elseif($type == 'mixed') {
+			if(!isset($config['boundary'])) {
+				$config['boundary'] = $this->boundaries[1];
+			}
+
+			$header = "Content-Type: multipart/mixed;\n\tboundary=\"".$config['boundary']."\"\n";
+			$header .= "Content-Transfer-Encoding: 8bit\n\n";
+		}
+		elseif($type == 'plain') {
+			$header = "Content-type: text/plain; charset=utf-8;\n";
+			$header .= "Content-Transfer-Encoding: 8bit\n\n";
+		}
+		else {
+			$header = "Content-type: text/html; charset=utf-8;\n";
+			$header .= "Content-Transfer-Encoding: 8bit\n\n";
+		}
+		return $header;
+	}
+
+	public function add_attachment($attachment, $type = '', $config = array()) {
+		if(!isset($this->mail_data['attachments'])) {
+			$this->mail_data['attachments'] = array();
+		}
+		$attachment_id = md5(uniqid(TIME_NOW));
+		$attachment_size = filesize($attachment);
+		$handle = fopen($attachment, 'r');
+		$attachment_content = fread($handle, $attachment_size);
+		fclose($handle);
+
+		$attachment_content = chunk_split(base64_encode($attachment_content));
+		if(isset($config['filename']) && !empty($config['filename'])) {
+			$filename = $config['filename'];
+		}
+		else {
+			$filename = basename($attachment);
+		}
+		
+		$this->mail_data['attachments'][$attachment_id] = "--".$this->boundaries[1]."\n";
+		if(isset($type) && !empty($type)) {
+			$this->mail_data['attachments'][$attachment_id] .= "Content-Type: ".$type."; charset=utf-8; name=\"".$filename."\"\n";
+		}
+		else {
+			$this->mail_data['attachments'][$attachment_id] .= "Content-Type: application/octet-stream; charset=utf-8; name=\"".$filename."\"\n";
+		}
+
+                $content_id = $attachment_id;
+                if(isset($config['contentid']) && !empty($config['contentid'])) {
+                    $content_id = $config['contentid'];
+                }
+                $this->mail_data['attachments'][$attachment_id] .= "Content-Id: <".$content_id.">\n";
+                unset($content_id);
+		$this->mail_data['attachments'][$attachment_id] .= "Content-Transfer-Encoding: base64\n";
+		$this->mail_data['attachments'][$attachment_id] .= "Content-Disposition: attachment; filename=\"".$filename."\"\n\n";
+		$this->mail_data['attachments'][$attachment_id] .= $attachment_content."\n";
+
+		if($this->mail_data['multiparted'] == false) {
+			$this->set_multiparted(true);
+			$this->set_message($this->mail_data['originalmessage']);
+			$this->set_type('mixed');
+		}
+	}
+
+	public function set_subject($subject) {
+		$this->mail_data['subject'] = wordwrap($subject, 70);
+	}
+
+	public function set_message($message) {
+		$this->mail_data['originalmessage'] = $message;
+		if($this->mail_data['multiparted'] == true) {
+			$content_types = array('plain', 'html');
+                        if(!empty($this->configs['requiredcontenttypes']) && is_array($this->configs['requiredcontenttypes'])) {
+                            $content_types = $this->configs['requiredcontenttypes'];
+                        }
+			if($this->mail_data['type'] == 'ical') {
+				$content_types = array('ical');
+				$content_types_config['ical'] = $this->mail_data['type_config'];
+			}
+
+			$this->mail_data['message'] = "Content-Type: multipart/alternative; boundary=\"".$this->boundaries[2]."\"\n\n";
+			foreach($content_types as $type) {
+				$this->mail_data['message'] .= $this->parse_message_part($message, $type, $content_types_config[$type]);
+			}
+
+			$this->mail_data['message'] .= "\n--".$this->boundaries[2]."--\n";
+		}
+		else {
+			$this->mail_data['message'] = $this->fix_endofline($message);
+		}
+	}
+
+	private function parse_message_part($message, $type, $config = array()) {
+		global $core;
+		$message_part = "--".$this->boundaries[2]."\n";
+		$message_part .= $this->parse_headertype($type, $config);
+		if($type == 'plain') {
+			$message = $core->sanitize_inputs(str_replace('<br />', "\n", $message), array('removetags' => true));
+		}
+
+		$message_part .= $this->fix_endofline($message)."\n";
+		return $message_part;
+	}
+
+	private function set_multiparted($is_multiparted = false) {
+		$this->mail_data['multiparted'] = $is_multiparted;
+	}
+
+        public function set_required_contenttypes(array $requiredcontenttypes = array('plain', 'html')) {
+            $this->configs['requiredcontenttypes'] = $requiredcontenttypes;
+        }
+        
+	public function send() {
+		if(!$this->validate_data($this->mail_data)) {
+			output_xml('<status>false</status><message>Security violation detected</message>');
+			exit;
+		}
+
+		@ini_set('sendmail_from', $this->mail_data['from_email']);
+		$this->mail_data['header'] .= $this->mail_data['type_header'];
+
+		if(isset($this->mail_data['attachments']) && !empty($this->mail_data['attachments'])) {
+			$this->mail_data['message'] = "--".$this->boundaries[1]."\n".$this->mail_data['message'];
+
+			foreach($this->mail_data['attachments'] as $id => $content) {
+				$this->mail_data['message'] .= $content;
+			}
+			$this->mail_data['message'] .= '--'.$this->boundaries[1]."--\n";
+			$send = @mail($this->mail_data['to'], $this->clean_header($this->mail_data['subject']), $this->mail_data['message'], $this->mail_data['header'], $this->mail_data['add_param']);
+		}
+		else {
+			if(function_exists('mb_send_mail')) {
+				$send = @mb_send_mail($this->mail_data['to'], $this->mail_data['subject'], $this->mail_data['message'], $this->mail_data['header'], $this->mail_data['add_param']);
+			}
+			else {
+				$send = @mail($this->mail_data['to'], $this->clean_header($this->mail_data['subject']), $this->mail_data['message'], $this->mail_data['header'], $this->mail_data['add_param']);
+			}
+		}
+
+		if($send) {
+			$this->set_status(true);
+		}
+		$this->set_status(false);
+	}
+
+	private function set_status($status) {
+		$this->status = $status;
+	}
+
+	public function get_status() {
+		return $this->status;
+	}
+
+	public function debug_info() {
+		return $this->mail_data;
 	}
 
 }
