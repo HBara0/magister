@@ -158,14 +158,14 @@ class DimentionalData {
 
         $output = '';
         if(empty($rowcolor)) {
-            $rowcolor = '101c64c';
+            $rowcolor = 'CCF2A6';
         }
 
         if(empty($fontsize)) {
             $fontsize = $this->initfontsize;
         }
 
-        $rowcolor = $this->generate_hexcolor($rowcolor, $depth);
+        $rowcolor = $this->generate_hexcolor($rowcolor, $depth, 4);
         $fontsize = $this->generate_fontsize($fontsize, $depth);
         if(is_array($data)) {
             foreach($data as $key => $val) {
@@ -257,7 +257,7 @@ class DimentionalData {
     }
 
     private function generate_hexcolor($hex = '', $depth, $threshold = 2) {
-        $hex_array = str_split($hex, $threshold);
+        $hex_array = str_split($hex, 2);
         $hex = '';
         foreach($hex_array as $h) {
             $dec = hexdec($h);
