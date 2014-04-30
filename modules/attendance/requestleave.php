@@ -276,11 +276,14 @@ else {
 		if(!isset($core->input['uid']) || empty($core->input['uid']) || $core->input['uid'] == $core->user['uid']) {
 			$core->input['uid'] = $core->user['uid'];
 			$leave_user = $core->user;
+                        $leave_user_obj = $core->user_obj;
 			$is_onbehalf = false;
 		}
 		else {
-			$leave_user = $db->fetch_assoc($db->query("SELECT uid, firstName, lastName, reportsTo FROM ".Tprefix."users WHERE uid='".$db->escape_string($core->input['uid'])."'"));
-			$is_onbehalf = true;
+			//$leave_user = $db->fetch_assoc($db->query("SELECT uid, firstName, lastName, reportsTo FROM ".Tprefix."users WHERE uid='".$db->escape_string($core->input['uid'])."'"));
+			$leave_user_obj = new Users($core->input['uid']);
+                        $leave_user = $leave_user_obj->get();
+                        $is_onbehalf = true;
 		}
 
 		$leavetype_details = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['type'])."'"));
@@ -352,6 +355,7 @@ else {
 				exit;
 			}
 		}
+                
 		/* Validate required Fields - END */
 		$query = $db->insert_query('leaves', $core->input);
 		if($query) {
@@ -395,7 +399,7 @@ else {
 
 			$toapprove = $toapprove_select = unserialize($leavetype_details['toApprove']); //explode(',', $leavetype_details['toApprove']);
 			if(is_array($toapprove)) {
-				$aff_obj = new Affiliates($leave_user['mainaffiliate'], false);
+				$aff_obj = new Affiliates($leave_user_obj->get_mainaffiliate()->get()['affid'], false);
 				foreach($toapprove as $key => $val) {
 					switch($val) {
 						case 'reportsTo':
@@ -423,6 +427,7 @@ else {
 							break;
 					}
 				}
+
 				/* Make list of approvers unique */
 				$approvers = array_unique($approvers);
 			}
@@ -438,15 +443,19 @@ else {
 //			}
 
 			if(is_array($approvers)) {
+                                $approve_immediately = false;
 				foreach($approvers as $key => $val) {
 					if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
 						continue;
 					}
 
 					$approve_status = $timeapproved = 0;
-					if($approve_immediately == true && $key == 'reportsTo') {
-						$approve_status = 1;
-						$timeapproved = TIME_NOW;
+					if(($val == $core->user['uid'] && $approve_immediately == true) || ($approve_immediately == true && $key == 'reportsTo' && $core->user['uid'] == $leave_user['reportsTo'])) {
+                                            if($val == $core->user['uid']) {
+                                                $approve_immediately = true;
+                                            }
+                                            $approve_status = 1;
+                                            $timeapproved = TIME_NOW;
 					}
 
 					$sequence = 1;
@@ -456,6 +465,7 @@ else {
 					$db->insert_query('leavesapproval', array('lid' => $lid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
 				}
 			}
+
 			if(count($approvers) > 1 && $approve_immediately == true) {
 				foreach($approvers as $key => $val) {
 					if($key != 'reportsTo' && $val == $approvers['reportsTo']) {

@@ -215,13 +215,17 @@ else {
 		}
 
 		if($core->input['uid'] != $core->user['uid']) {
-			$leave_user = $db->fetch_assoc($db->query("SELECT uid, firstName, lastName, reportsTo FROM ".Tprefix."users WHERE uid='".$db->escape_string($core->input['uid'])."'"));
-			$is_onbehalf = true;
+			//$leave_user = $db->fetch_assoc($db->query("SELECT uid, firstName, lastName, reportsTo FROM ".Tprefix."users WHERE uid='".$db->escape_string($core->input['uid'])."'"));
+                        $leave_user_obj = new Users($core->input['uid']);
+                        $leave_user = $leave_user_obj->get();
+                        $is_onbehalf = true;
 		}
 		else {
+                        $leave_user_obj = $core->user_obj;
 			$leave_user = $core->user;
 			$is_onbehalf = false;
 		}
+                
 		$leavetype_details = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['type'])."'"));
 
 		if($leavetype_details['isSick'] == 1 && $core->input['uid'] == $core->user['uid']) {
@@ -352,7 +356,7 @@ else {
 				$toapprove = $toapprove_select = unserialize($leavetype_details['toApprove']); //explode(',', $leavetype_details['toApprove']);
 
 				if(is_array($toapprove)) {
-					$aff_obj = new Affiliates($leave_user['mainaffiliate'], false);
+					$aff_obj = new Affiliates($leave_user_obj->get_mainaffiliate()->get()['affid'], false);
 					foreach($toapprove as $key => $val) {
 						switch($val) {
 							case 'reportsTo':
@@ -409,9 +413,12 @@ else {
 					}
 
 					$approve_status = $timeapproved = 0;
-					if($approve_immediately == true && $key == 'reportsTo') {
-						$approve_status = 1;
-						$timeapproved = TIME_NOW;
+					if(($val == $core->user['uid'] && $approve_immediately == true) || ($approve_immediately == true && $key == 'reportsTo' && $core->user['uid'] == $leave_user['reportsTo'])) {
+                                            if($val == $core->user['uid']) {
+                                                $approve_immediately = true;
+                                            }
+                                            $approve_status = 1;
+                                            $timeapproved = TIME_NOW;
 					}
 
 					$sequence = 1;
