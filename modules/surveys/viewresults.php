@@ -205,7 +205,7 @@ else {
 							'to' => $invitee['invitee'],
 							'from_email' => $core->user['email'],
 							'from' => $core->user['displayName'],
-							'subject' => $lang->remindersubject
+							'subject' => $lang->survey_reminder_subject
 					);
 				}
 				else {
@@ -213,11 +213,11 @@ else {
 							'to' => $invitee['email'],
 							'from_email' => $core->settings['maileremail'],
 							'from' => 'OCOS Mailer',
-							'subject' => $lang->remindersubject
+							'subject' => $lang->survey_reminder_subject
 					);
 				}
 
-				$email_data['message'] = $lang->sprint($lang->survey_reminder_message, $invitee['displayName']).'<br />'.$lang->sprint($lang->accesssurveylink, $surveylink);
+				$email_data['message'] = $lang->sprint($lang->survey_reminder_message, $invitee['displayName'], $survey['subject'], $surveylink);
 				$mail = new Mailer($email_data, 'php');
 			}
 		}

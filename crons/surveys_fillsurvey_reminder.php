@@ -40,7 +40,7 @@ if($db->num_rows($invitations_query) > 0) {
                 'from_email' => $core->settings['maileremail'],
                 'from' => 'OCOS Mailer',
                 'subject' => $lang->survey_reminder_subject,
-                'message' => $lang->sprint($lang->survey_reminder_message, $invitationdetails['displayName']).'<ul>'.$body_message.'</ul>'
+                'message' => $lang->sprint($lang->surveys_reminder_message, $invitationdetails['displayName']).'<ul>'.$body_message.'</ul>'
         );
 
         $mail = new Mailer($email_data, 'php');
