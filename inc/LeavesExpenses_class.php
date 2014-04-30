@@ -34,6 +34,7 @@ class LeavesExpenses {
     public function get_currency() {
         return new Currencies($this->expense['currency']);
     }
+
     /*
      * Get  Users for affililates that he can  HR and he is working with
      * @return  Array
@@ -61,23 +62,29 @@ class LeavesExpenses {
             }
         }
         else {
-            foreach($core->user['hraffids'] as $hraffid) {
-                $aff_obj = new Affiliates($hraffid);
+            if(is_array($core->user['hraffids'])) { /* if the user  HR any affiliate */
+                foreach($core->user['hraffids'] as $hraffid) {
+                    $aff_obj = new Affiliates($hraffid);
 
-                $employees = $aff_obj->get_users();
-                if(is_array($employees)) {
-                    foreach($employees as $employee) {
-                        $users[$employee['uid']] = $employee['displayName'];
+                    $employees = $aff_obj->get_users();
+                    if(is_array($employees)) {
+                        foreach($employees as $employee) {
+                            $users[$employee['uid']] = $employee['displayName'];
+                        }
                     }
                 }
             }
+            else {
+                $user_obj = new Users();
+                $user = $user_obj->get();
+                $users[$user['uid']] = $user['displayName'];
+            }
         }
-
         return $users;
     }
 
     public function get() {
-       return $this->expense;
+        return $this->expense;
     }
 
 }
