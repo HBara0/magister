@@ -10,7 +10,6 @@ $lang['basictemplateinfo'] = 'Basic Template Information';
 $lang['category'] = 'Category';
 $lang['choices'] = 'Choices';
 $lang['closingdate'] = 'Auto-close on';
-$lang['sendreminder']='Send Reminder';
 $lang['closingdate_tip'] = 'After this date, invitees will not be able to respond anymore.';
 $lang['collectexternalresponses'] = 'External Responses';
 $lang['country'] = 'Country';
@@ -24,7 +23,6 @@ $lang['errorsaving'] = 'Error saving';
 $lang['fillallrequiredfields'] = 'Please fill all required fields';
 $lang['fillsurvey'] = 'Fill Survey';
 $lang['invitationbody'] = 'Body';
-$lang['remindersubject']='We would like to remind you of the following survey';
 $lang['invitationgroup'] = 'Invitation Group';
 $lang['invitations'] = 'Invitations';
 $lang['invitationsubject'] = 'Subject';
@@ -48,6 +46,7 @@ $lang['respondant'] = 'Respondant';
 $lang['responses'] = 'Responses';
 $lang['responsetime'] = 'Response Time';
 $lang['segment'] = 'Segment';
+$lang['sendreminders'] = 'Send Reminders';
 $lang['subject'] = 'Subject';
 $lang['survey'] = 'Survey';
 $lang['surveydate'] = 'Date';
@@ -56,10 +55,16 @@ $lang['surveyexpired'] = 'Survey has expired';
 $lang['surveyquestions'] = 'Survey Questions';
 $lang['surveysassociations'] = 'Associates with';
 $lang['surveysinvitation'] = 'Invitations';
+$lang['surveys_reminder_message'] = 'Dear {1},
+
+You have been invited to the following survey(s), but you have not responded yet:';
+$lang['survey_reminder_message'] = 'Dear {1},<br />
+<br />
+You have been invited to the survey: {2}, but you have not responded yet.<br />
+<br />
+To access the survey, please click the following: {3}';
+$lang['survey_reminder_subject'] = 'Survey(s) Reminder';
 $lang['template'] = 'Template';
 $lang['sendreminders'] = 'Send Reminders';
 $lang['violation'] = 'One or more inputs you made violate the requirements';
-$lang['survey_reminder_message'] = 'Dear {1},<br />
-You have been invited to the follow survey(s), but you haven\'t responded yet:';
-$lang['remindersent']='Reminder Sent Successfully';
 ?>

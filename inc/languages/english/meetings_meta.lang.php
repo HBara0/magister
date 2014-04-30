@@ -43,7 +43,4 @@ $lang['requireduser'] = 'you must select at least one user';
 $lang['notifyreps'] = 'Notify Representatives';
 $lang['notifyusers'] = 'Notify Employees';
 $lang['attachements'] = 'Attachements';
-$lang['sharedmeetingmessage'] = 'Dear {1} </br> You have been shared  To View the meeting, please click the following:</br> {2}';
-$lang['sharedmeetingsubject'] = 'Notification For  {1} ';
-
 ?>

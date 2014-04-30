@@ -330,6 +330,9 @@ class Surveys {
         return $this->survey;
     }
 
+        public function get() {
+            return $this->survey;
+        }
     /*
      * Get all surveys that a user can view
      * @return	array	$surveys	Array containing sid & identifier for each

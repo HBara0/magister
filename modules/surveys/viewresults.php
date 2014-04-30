@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Survey List
  * $module: attendance
- * $id: surveysList.php	
+ * $id: surveysList.php
  * Created: 		@tony.assaad	May 8, 2012 | 12:00 PM
  * Last updated:	@zaher.reda		July 17, 2012 | 10:17 AM
  */
@@ -83,7 +83,7 @@ if(!$core->input['action']) {
 				$responses = ' <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom: 10px;"><p>'.$lang->noresponses.'</p></div>';
 			}
 			/* END resposne list - START */
-			
+
 			/* Parse Invitations Section - START */
 			$query = $db->query("SELECT DISTINCT(u.uid), u.*, aff.*, displayName, aff.name AS mainaffiliate, aff.affid
 							FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) JOIN ".Tprefix."affiliates aff ON (aff.affid=ae.affid)
@@ -118,9 +118,9 @@ if(!$core->input['action']) {
 					}
 
 					/* Get User Segments - START */
-					$user_segments_query = $db->query("SELECT es.*, u.uid ,u.username, ps.title, ps.psid 
+					$user_segments_query = $db->query("SELECT es.*, u.uid ,u.username, ps.title, ps.psid
 												FROM ".Tprefix."employeessegments es
-												JOIN ".Tprefix."users u ON (es.uid=u.uid) 
+												JOIN ".Tprefix."users u ON (es.uid=u.uid)
 												JOIN ".Tprefix."productsegments ps ON (ps.psid=es.psid)
 												WHERE es.uid='{$user[uid]}'
 												ORDER BY title ASC");
@@ -186,11 +186,11 @@ else {
 		$survey_identifier = $db->escape_string($core->input['identifier']);
 		$newsurvey = new Surveys($survey_identifier);
 		$survey = $newsurvey->get_survey();
-		
+
 		if($survey['createdBy'] != $core->user['uid']) {
 			exit;
 		}
-		
+
 		$survey['invitations'] = $newsurvey->get_invitations();
 
 		foreach($survey['invitations'] as $invitee) {
@@ -200,12 +200,12 @@ else {
 				if($survey['isExternal'] == 1) {
 					$surveylink = 'http://www.orkila.com/surveys/'.$survey_identifier.'/'.$invitee['identifier'];
 					$invitee['displayName'] = split('@', $invitee['invitee'])[0];
-					
+
 					$email_data = array(
 							'to' => $invitee['invitee'],
 							'from_email' => $core->user['email'],
 							'from' => $core->user['displayName'],
-							'subject' => $lang->remindersubject
+							'subject' => $lang->survey_reminder_subject
 					);
 				}
 				else {
@@ -213,11 +213,11 @@ else {
 							'to' => $invitee['email'],
 							'from_email' => $core->settings['maileremail'],
 							'from' => 'OCOS Mailer',
-							'subject' => $lang->remindersubject
+							'subject' => $lang->survey_reminder_subject
 					);
 				}
 
-				$email_data['message'] = $lang->sprint($lang->survey_reminder_message, $invitee['displayName']).'<br />'.$lang->sprint($lang->accesssurveylink, $surveylink);
+				$email_data['message'] = $lang->sprint($lang->survey_reminder_message, $invitee['displayName'], $survey['subject'], $surveylink);
 				$mail = new Mailer($email_data, 'php');
 			}
 		}
