@@ -355,7 +355,11 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
         $config['size'] = 1;
     }
 
-    $list .= '<select id="'.$id.'" name="'.$name.'" size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
+    if(isset($config['width'])) {
+        $list_style = 'width: '.$config['width'].';';
+    }
+
+    $list .= '<select style="'.$list_style.'" id="'.$id.'" name="'.$name.'" size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
     if($config['blankstart'] == true) {
         $list .= '<option></option>';
     }
