@@ -37,8 +37,7 @@ class LeavesMessages {
         return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."leaves_messages WHERE lmid=".$db->escape_string($id)));
     }
 
-//get replies to this lmid
-
+    /* This Function will get replies for the current message object */
     public function get_replies() {
         global $db;
 
@@ -184,7 +183,6 @@ class LeavesMessages {
         $mailer->set_message($this->leavemessage['thread']);
         $mailer->set_to($email_data['to']);
         print_r($mailer->debug_info());
-
     }
 
     public function get_leave() {
