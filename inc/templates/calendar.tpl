@@ -5,7 +5,7 @@
         <link href="./css/calendar.min.css" rel="stylesheet" type="text/css" />
         <script src="./js/redactor.min.js" type="text/javascript"></script>
 
-              <link href="./css/redactor.css" rel="stylesheet" type="text/css" />
+        <link href="./css/redactor.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript">
             $(function() {
                 $(".showpopup[id^='createeventtask_']").live("click", function() {

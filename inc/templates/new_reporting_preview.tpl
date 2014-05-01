@@ -25,19 +25,19 @@
     <body>
         {$header}
     <tr>
-    {$menu}
-    <td class="contentContainer">
-        <form id="save_report_reporting/fillreport_Button" name="save_report_reporting/fillreport_Button" action="#" method="post">
-            <input type="hidden" name="reportdata" value="{$reportrawdata}">
-        </form>
-        <div align="center">
-            {$reports}
-        </div>
-        <div align="center">{$reportingeditsummary}</div>
-        <div align="right">{$tools}</div>
-        <span><a href="#tableofcontent" class="scrollup" title="{$lang->clicktoscroll}"></a></span>
-    </td>
-</tr>
-{$footer}
+        {$menu}
+        <td class="contentContainer">
+            <form id="save_report_reporting/fillreport_Button" name="save_report_reporting/fillreport_Button" action="#" method="post">
+                <input type="hidden" name="reportdata" value="{$reportrawdata}">
+            </form>
+            <div align="center">
+                {$reports}
+            </div>
+            <div align="center">{$reportingeditsummary}</div>
+            <div align="right">{$tools}</div>
+            <span><a href="#tableofcontent" class="scrollup" title="{$lang->clicktoscroll}"></a></span>
+        </td>
+    </tr>
+    {$footer}
 </body>
 </html>

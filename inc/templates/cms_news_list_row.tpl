@@ -5,6 +5,6 @@
     <td width="6%">{$isfeatured_icon}</td>
     <td width="12%">{$news[creator]}</td>
     <td width="12%">{$news[dateCreated_output]}</td>
-   	<td width="6%">{$news[lang]}</td>
+    <td width="6%">{$news[lang]}</td>
     <td width="6%">{$news[hits]}</td>
 </tr>

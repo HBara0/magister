@@ -9,55 +9,55 @@
  */
 
 if(!defined("DIRECT_ACCESS")) {
-	die("Direct initialization of this file is not allowed.");
+    die("Direct initialization of this file is not allowed.");
 }
 
 if($core->usergroup['canUseBudgeting'] == 0) {
-	error($lang->sectionnopermission);
+    error($lang->sectionnopermission);
 }
 
 $session->start_phpsession();
 
 if(!$core->input['action']) {
-	$identifier = base64_decode($core->input['identifier']);
-	$budget_data = unserialize($session->get_phpsession('budgetmetadata_'.$identifier));
+    $identifier = base64_decode($core->input['identifier']);
+    $budget_data = unserialize($session->get_phpsession('budgetmetadata_'.$identifier));
 
-	if($core->usergroup['canViewAllAff'] == 0) {
-		$inaffiliates = implode(',', $core->user['affiliates']);
-		$affiliate_where = " affid IN ({$inaffiliates})";
-	}
+    if($core->usergroup['canViewAllAff'] == 0) {
+        $inaffiliates = implode(',', $core->user['affiliates']);
+        $affiliate_where = " affid IN ({$inaffiliates})";
+    }
 
-	$affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, "{$affiliate_where}");
-	$affiliated_budget = parse_selectlist('budget[affilliates][]', 1, $affiliates, $core->user['mainaffiliate'], 1, '', array('id' => 'affid'));
+    $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, "{$affiliate_where}");
+    $affiliated_budget = parse_selectlist('budget[affilliates][]', 1, $affiliates, $core->user['mainaffiliate'], 1, '', array('id' => 'affid'));
 
-	if($core->usergroup['canViewAllSupp'] == 0) {
-		$insupplier = implode(',', $core->user['suppliers']['eid']);
-		$supplier_where = " eid IN ({$insupplier})";
-	}
-	else {
-		$supplier_where = " type='s'";
-	}
-	$suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, "{$supplier_where}");
-	$budget_supplierslist = parse_selectlist('budget[suppliers][]', 2, $suppliers, $core->user['suppliers']['eid'], 1, '', array('id' => 'spid'));
+    if($core->usergroup['canViewAllSupp'] == 0) {
+        $insupplier = implode(',', $core->user['suppliers']['eid']);
+        $supplier_where = " eid IN ({$insupplier})";
+    }
+    else {
+        $supplier_where = " type='s'";
+    }
+    $suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, "{$supplier_where}");
+    $budget_supplierslist = parse_selectlist('budget[suppliers][]', 2, $suppliers, $core->user['suppliers']['eid'], 1, '', array('id' => 'spid'));
 
-	$user = new Users($core->user['uid']);
-	$user_segments = $user->get_segments();
-	$reporting_touser = $user->get_reportingto();
-	if(is_array($user_segments)) {
-		$budget_segment.='<select name="budget[segments][]" multiple="multiple" tabindex="4">';
-		foreach($user_segments as $segment) {
-			$budget_segment .='<option value='.$segment['psid'].'>'.$segment['title'].'</option>';
-		}
-		$budget_segment.='</select>';
-	}
-	else {
-		$budget_segment.=$lang->na;
-	}
-	$years = Budgets::get_availableyears();
+    $user = new Users($core->user['uid']);
+    $user_segments = $user->get_segments();
+    $reporting_touser = $user->get_reportingto();
+    if(is_array($user_segments)) {
+        $budget_segment.='<select name="budget[segments][]" multiple="multiple" tabindex="4">';
+        foreach($user_segments as $segment) {
+            $budget_segment .='<option value='.$segment['psid'].'>'.$segment['title'].'</option>';
+        }
+        $budget_segment.='</select>';
+    }
+    else {
+        $budget_segment.=$lang->na;
+    }
+    $years = Budgets::get_availableyears();
 
-	$budget_year_selectlist = parse_selectlist('budget[years][]', 4, $years, date('Y') + 1, 1, '', array('id' => 'year'));
+    $budget_year_selectlist = parse_selectlist('budget[years][]', 4, $years, date('Y') + 1, 1, '', array('id' => 'year'));
 
-	//$years = array_combine(range(date("Y") + 1, date("Y") - 3), range(date("Y") + 1, date("Y") - 3));
+    //$years = array_combine(range(date("Y") + 1, date("Y") - 3), range(date("Y") + 1, date("Y") - 3));
 //	foreach($years as $year) {
 //		$year_selected = '';
 //		if($year == $years[date("Y")]) {
@@ -72,23 +72,23 @@ if(!$core->input['action']) {
 //	if(is_array($currencies)) {
 //		$budget_currencylist = parse_selectlist('budget[currency]', 6, $currencies, $affiliate_currency, '', '', array('id' => 'currency'));
 //	}
-	/* Can Generate users of the affiliates he belongs to */
+    /* Can Generate users of the affiliates he belongs to */
 
 
-	if(is_array($core->user['auditedaffids'])) {
-		foreach($core->user['auditedaffids'] as $auditaffid) {
-			$aff_obj = new Affiliates($auditaffid);
-			$affiliate_users = $aff_obj->get_users();
-			foreach($affiliate_users as $aff_businessmgr) {
-				$business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['displayName'];
-			}
-		}
-		$business_managerslist = parse_selectlist('budget[managers][]', 7, $business_managers, $core->user['uid'], 1, '', '');
-	}
-	else {
-		$business_managers[$core->user['uid']] = $core->user['displayName'];
-		$business_managerslist = parse_selectlist('budget[managers][]', 7, $business_managers, $core->user['uid'], 1, '', '');
-	}
+    if(is_array($core->user['auditedaffids'])) {
+        foreach($core->user['auditedaffids'] as $auditaffid) {
+            $aff_obj = new Affiliates($auditaffid);
+            $affiliate_users = $aff_obj->get_users();
+            foreach($affiliate_users as $aff_businessmgr) {
+                $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['displayName'];
+            }
+        }
+        $business_managerslist = parse_selectlist('budget[managers][]', 7, $business_managers, $core->user['uid'], 1, '', '');
+    }
+    else {
+        $business_managers[$core->user['uid']] = $core->user['displayName'];
+        $business_managerslist = parse_selectlist('budget[managers][]', 7, $business_managers, $core->user['uid'], 1, '', '');
+    }
 
 //	if($core->usergroup['canViewaffBudget'] == 1) {
 //		$business_managers = $user->get_affiliateuser();
@@ -102,12 +102,12 @@ if(!$core->input['action']) {
 //			$business_managerslist .= "<option value='{$user['uid']}'>{$user['displayName']}</option>";
 //		}
 //	}
-	/* Generate his own Budget */
+    /* Generate his own Budget */
 //	else {
 //		$business_managerslist .= "<option value='{$core->user['uid']}'>{$core->user['displayName']}</option>";
 //	}
 
-	eval("\$budgetgenerate = \"".$template->get('budgeting_generate')."\";");
-	output_page($budgetgenerate);
+    eval("\$budgetgenerate = \"".$template->get('budgeting_generate')."\";");
+    output_page($budgetgenerate);
 }
 ?>

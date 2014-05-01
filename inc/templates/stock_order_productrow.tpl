@@ -8,5 +8,5 @@
     <td><input type="text" name="products[{$product_rowid}][clearingFees]" id="clearingFees[{$product_rowid}]"accept="numeric" size="5" autocomplete='off' value="{$stockorder_data[clearingFees][$key]}"/></td> 
     <td><input type="text" name="products[{$product_rowid}][lcFees]" id="lcFees[{$product_rowid}]" accept="numeric" size="5" autocomplete='off' value="{$stockorder_data[lcFees][$key]}"/></td> 
     <td><span id="purchaseAmount_{$product_rowid}_output">0</span><input type="hidden" name="products[{$product_rowid}][purchaseAmount]" id="purchaseAmount_{$product_rowid}" accept="numeric" size="5" autocomplete='off' value="{$stockorder_data[purchaseAmount][$key]}"/></td>
-	<td><span id="sellingAmount_{$product_rowid}_output">0</span><input type="hidden" name="products[{$product_rowid}][sellingAmount]" id="sellingAmount_{$product_rowid}" accept="numeric" size="5" autocomplete='off' value="{$stockorder_data[sellingAmount][$key]}"/></td>
+    <td><span id="sellingAmount_{$product_rowid}_output">0</span><input type="hidden" name="products[{$product_rowid}][sellingAmount]" id="sellingAmount_{$product_rowid}" accept="numeric" size="5" autocomplete='off' value="{$stockorder_data[sellingAmount][$key]}"/></td>
 </tr>

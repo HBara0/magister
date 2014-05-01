@@ -43,4 +43,5 @@ class SourcingSuppContactHist {
     public function get() {
         return $this->contacthist;
     }
+
 }

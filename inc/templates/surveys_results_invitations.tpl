@@ -12,7 +12,7 @@
             </tr>
         </thead>	
         <tbody>
-           {$invitations_row}
+            {$invitations_row}
         </tbody>
     </table>
 </div>

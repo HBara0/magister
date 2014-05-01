@@ -63,10 +63,10 @@
 .ch_communicationsection{
     border-bottom: thin solid #CCC;
     margin-bottom: 4px;
-	border-right: thin solid #E8E8E8;
-	border-left: thin solid #E8E8E8;
-	border-top: thin solid #F0F0F0;
-	padding-top:0px; 
+    border-right: thin solid #E8E8E8;
+    border-left: thin solid #E8E8E8;
+    border-top: thin solid #F0F0F0;
+    padding-top:0px; 
 }	
 
 .ch_productsection {
@@ -78,6 +78,6 @@
     width: 100%;
     padding: 2px;
     font-weight:bold;
-	background-color: #F2FAED;
+    background-color: #F2FAED;
     border-bottom: 1px solid #F2F2F2;
 }

@@ -9,56 +9,56 @@
  */
 
 if(!defined('DIRECT_ACCESS')) {
-	die('Direct initialization of this file is not allowed.');
+    die('Direct initialization of this file is not allowed.');
 }
 if($core->usergroup['canAddProducts'] == 0) {
-	error($lang->sectionnopermission);
-	exit;
+    error($lang->sectionnopermission);
+    exit;
 }
 $lang->load('products_types');
 if(!$core->input['action']) {
-	$sort_url = sort_url();
-	$endprod_objs = EndproducTypes::get_endproductypes();
-	if(is_array($endprod_objs)) {
-		foreach($endprod_objs as $endprod_obj) {
-			$altrow_class = alt_row($altrow_class);
-			$productypes = $endprod_obj->get();
-			$productypes['application'] = $endprod_obj->get_application()->get()['title'];
+    $sort_url = sort_url();
+    $endprod_objs = EndproducTypes::get_endproductypes();
+    if(is_array($endprod_objs)) {
+        foreach($endprod_objs as $endprod_obj) {
+            $altrow_class = alt_row($altrow_class);
+            $productypes = $endprod_obj->get();
+            $productypes['application'] = $endprod_obj->get_application()->get()['title'];
 
-			eval("\$productstypes_list .= \"".$template->get('admin_productstypes_rows')."\";");
-		}
-	}
-	else {
-		$productstypes_list = '<tr><td colspan="3">'.$lang->na.'</td></tr>';
-	}
+            eval("\$productstypes_list .= \"".$template->get('admin_productstypes_rows')."\";");
+        }
+    }
+    else {
+        $productstypes_list = '<tr><td colspan="3">'.$lang->na.'</td></tr>';
+    }
 
-	/* Parse list for the Create Product Lists popup */
-	$applications_obj = Segmentapplications::get_segmentsapplications();
-	if(is_array($applications_obj)) {
-		foreach($applications_obj as $application_obj) {
-			$applications = $application_obj->get();
-			if(is_array($applications)) {
-				$applications_list .= '<option value='.$applications['psaid'].'>'.$applications['title'].'</option>';
-			}
-		}
-	}
+    /* Parse list for the Create Product Lists popup */
+    $applications_obj = Segmentapplications::get_segmentsapplications();
+    if(is_array($applications_obj)) {
+        foreach($applications_obj as $application_obj) {
+            $applications = $application_obj->get();
+            if(is_array($applications)) {
+                $applications_list .= '<option value='.$applications['psaid'].'>'.$applications['title'].'</option>';
+            }
+        }
+    }
 
-	eval("\$addproductstypes = \"".$template->get('admin_productstypes')."\";");
-	output_page($addproductstypes);
+    eval("\$addproductstypes = \"".$template->get('admin_productstypes')."\";");
+    output_page($addproductstypes);
 }
 elseif($core->input['action'] == 'do_create') {
-	$endprod_objs = new Endproductypes();
-	$endprod_objs->create($core->input['productypes']);
-	switch($endprod_objs->get_errorcode()) {
-		case 0:
-			output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
-			break;
-		case 1:
-			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
-			break;
-		case 2:
-			output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
-			break;
-	}
+    $endprod_objs = new Endproductypes();
+    $endprod_objs->create($core->input['productypes']);
+    switch($endprod_objs->get_errorcode()) {
+        case 0:
+            output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+            break;
+        case 1:
+            output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+            break;
+        case 2:
+            output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+            break;
+    }
 }
 ?>

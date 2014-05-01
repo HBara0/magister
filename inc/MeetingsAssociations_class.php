@@ -14,33 +14,33 @@
  * @author tony.assaad
  */
 class MeetingsAssociations {
-	private $meetingassociation = array();
+    private $meetingassociation = array();
 
-	public function __construct($id = '', $simple = false) {
-		if(isset($id) && !empty($id)) {
-			$this->meetingassociation = $this->read($id, $simple);
-		}
-	}
+    public function __construct($id = '', $simple = false) {
+        if(isset($id) && !empty($id)) {
+            $this->meetingassociation = $this->read($id, $simple);
+        }
+    }
 
-	private function read($id, $simple = false) {
-		global $db;
-		return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meetings_associations WHERE matid=".$db->escape_string($id)));
-	}
+    private function read($id, $simple = false) {
+        global $db;
+        return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meetings_associations WHERE matid=".$db->escape_string($id)));
+    }
 
-	public static function set_association($association = array()) {
-		global $db;
-		if(is_array($association)) {
-			$db->insert_query('meetings_associations', $association);
-		}
-	}
+    public static function set_association($association = array()) {
+        global $db;
+        if(is_array($association)) {
+            $db->insert_query('meetings_associations', $association);
+        }
+    }
 
-	public function get_meeting() {
-		return new Meetings($this->association['mtid']);
-	}
+    public function get_meeting() {
+        return new Meetings($this->association['mtid']);
+    }
 
-	public function get() {
-		return $this->meetingassociation;
-	}
+    public function get() {
+        return $this->meetingassociation;
+    }
 
 }
 ?>

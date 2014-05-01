@@ -31,71 +31,71 @@ echo ' Server is now listening...'."\n";
 //$fh = fopen('socketdata.txt', 'w');
 $fh = fopen('socketdata-2.txt', 'w');
 while(true) {
-	$read = array();
-	$read[0] = $socket;
-	for($i = 0; $i < $config['max_clients']; $i++) {
-		if($client[$i]['socket'] != null) {
-			$read[$i + 1] = $client[$i]['socket'];
-		}
-	}
+    $read = array();
+    $read[0] = $socket;
+    for($i = 0; $i < $config['max_clients']; $i++) {
+        if($client[$i]['socket'] != null) {
+            $read[$i + 1] = $client[$i]['socket'];
+        }
+    }
 
-	$ready = socket_select($read, $write, $except, null);
+    $ready = socket_select($read, $write, $except, null);
 
-	if(in_array($socket, $read)) {
-		for($i = 0; $i < $config['max_clients']; $i++) {
-			if($client[$i]['socket'] == null) {
-				$client[$i]['socket'] = socket_accept($socket);
-				break;
-			}
-			elseif($i == $config['max_clients'] - 1) {
-				echo 'Error: too many clients';
-			}
-		}
-		if(--$ready <= 0) {
-			continue;
-		}
-	}
+    if(in_array($socket, $read)) {
+        for($i = 0; $i < $config['max_clients']; $i++) {
+            if($client[$i]['socket'] == null) {
+                $client[$i]['socket'] = socket_accept($socket);
+                break;
+            }
+            elseif($i == $config['max_clients'] - 1) {
+                echo 'Error: too many clients';
+            }
+        }
+        if(--$ready <= 0) {
+            continue;
+        }
+    }
 
-	for($i = 0; $i < $config['max_clients']; $i++) {
-		if(in_array($client[$i]['socket'], $read)) {
-			$input = socket_read($client[$i]['socket'], 1024);
+    for($i = 0; $i < $config['max_clients']; $i++) {
+        if(in_array($client[$i]['socket'], $read)) {
+            $input = socket_read($client[$i]['socket'], 1024);
 
-			if($input == null) {
-				//socket_close($client[$i]['socket']);
-				unset($client[$i]['socket']);
-				continue;
-			}
+            if($input == null) {
+                //socket_close($client[$i]['socket']);
+                unset($client[$i]['socket']);
+                continue;
+            }
 
-			$data = trim($input);
-			if($data == 'exit') {
-				/* If device sends 'exit' command, close connection */
-				socket_close($client[$i]['socket']);
-				unset($client[$i]['socket']);
-			}
-			else {
-				if($client[$i]['socket'] != null) {
-					if(!empty($data)) {
-						fwrite($fh, $data."\n");
-						/* Convert incoming binary into Hex */
-						fwrite($fh, print_r(unpack("cchars/nint", $data), true)."\n");
-						fwrite($fh, bin2hex($data)."\n");
-						fwrite($fh, base_convert(bin2hex($data), 16, 2)."\n");
-						fwrite($fh, bindec($data)."\n");
-						fwrite($fh, "\n --------- \n");
-						$hex_input = str_split(bin2hex($data), 2);
-						/* Respond to the request with handshake reply */
-						socket_write($client[$i]['socket'], hex2bin('2929210005'.$hex_input[10].$hex_input[2].'000D'));
-					}
-				}
-			}
-		}
-		else {
-			if($client[$i]['socket'] != null) {
-				socket_close($client[$i]['socket']);
-				unset($client[$i]['socket']);
-			}
-		}
-	}
+            $data = trim($input);
+            if($data == 'exit') {
+                /* If device sends 'exit' command, close connection */
+                socket_close($client[$i]['socket']);
+                unset($client[$i]['socket']);
+            }
+            else {
+                if($client[$i]['socket'] != null) {
+                    if(!empty($data)) {
+                        fwrite($fh, $data."\n");
+                        /* Convert incoming binary into Hex */
+                        fwrite($fh, print_r(unpack("cchars/nint", $data), true)."\n");
+                        fwrite($fh, bin2hex($data)."\n");
+                        fwrite($fh, base_convert(bin2hex($data), 16, 2)."\n");
+                        fwrite($fh, bindec($data)."\n");
+                        fwrite($fh, "\n --------- \n");
+                        $hex_input = str_split(bin2hex($data), 2);
+                        /* Respond to the request with handshake reply */
+                        socket_write($client[$i]['socket'], hex2bin('2929210005'.$hex_input[10].$hex_input[2].'000D'));
+                    }
+                }
+            }
+        }
+        else {
+            if($client[$i]['socket'] != null) {
+                socket_close($client[$i]['socket']);
+                unset($client[$i]['socket']);
+            }
+        }
+    }
 }
 fclose($fh);
 socket_close($socket);

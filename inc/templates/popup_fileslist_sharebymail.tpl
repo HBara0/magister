@@ -1,5 +1,5 @@
 <div id="popup_sharebymail" title="{$lang->sharebymail}">
-	{$lang->youaretoshare} $file[name] <i class="smalltext">($file[size])</i>
+    {$lang->youaretoshare} $file[name] <i class="smalltext">($file[size])</i>
     <form name='change_filesharing/fileslist_Form' id="change_filesharing/fileslist_Form" method="post">
         <input type="hidden" id="action" name="action" value="do_sendbymail" />
         <input type="hidden" id="id" name="id" value="{$core->input[id]}" />
@@ -9,7 +9,7 @@
         {$lang->affiliates}<br />
         {$affiliates_list}<br /><a href="#customizemessage" onClick="$('#customizemessage').show();" class="smalltext"><img src="images/edit.gif" border="0" alt="{$lang->customizemessage}">{$lang->customizemessage}</a><br />
         <div id="customizemessage" style="display:none;">
-        	<hr />
+            <hr />
             <strong>{$lang->subject}:</strong> <input type="text" size="50" maxlength="70" name="subject" id="subject" value="{$lang->filesharing_sharesubject}"/><br />
             <strong>{$lang->message}:</strong><br />
             <textarea cols="50" rows="10" name="message" id="message">{$lang->filesharing_sharemessage}</textarea>

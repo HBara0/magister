@@ -26,7 +26,7 @@ class Cities {
     public function get_country() {
         return new Countries($this->city['coid']);
     }
-    
+
     public static function get_city_byname($name) {
         global $db;
 
@@ -42,12 +42,12 @@ class Cities {
     public function get_defaultairport() {
         
     }
-    
+
     public static function get_cities($filters = '') {
         global $db;
-        
+
         $cities = array();
-        
+
         if(!empty($filters)) {
             $filters = ' WHERE '.$db->escape_string($filters);
         }
@@ -58,7 +58,7 @@ class Cities {
         $db->free_result($query);
         return $cities;
     }
-    
+
     public function get() {
         return $this->city;
     }

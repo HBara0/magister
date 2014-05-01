@@ -263,7 +263,7 @@
                     {$lang->no}
                     <input   name="contacthst[isProductApproved]" class="notapplocable" type="radio" value="2"{$radiobuttons_check[isProductApproved][2]}>
                     {$lang->na}
-                           <input name="contacthst[isProductApproved]" class="stageapproved" type="radio" value="3"{$radiobuttons_check[isProductApproved][3]}>
+                    <input name="contacthst[isProductApproved]" class="stageapproved" type="radio" value="3"{$radiobuttons_check[isProductApproved][3]}>
                     {$lang->nobutcontinue}
                 </div>
             </div>

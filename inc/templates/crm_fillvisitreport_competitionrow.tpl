@@ -15,11 +15,11 @@
             <option value="3"{$competitiondetails_supplyStatus_selected[$rownumber][3]}>{$lang->usedto}</option>
             <option value="4"{$competitiondetails_supplyStatus_selected[$rownumber][4]}>{$lang->never}</option>
         </select>
-   </td>
-   <td><select name="availabilityIssues_{$rownumber}" id="availabilityIssues_{$rownumber}">
+    </td>
+    <td><select name="availabilityIssues_{$rownumber}" id="availabilityIssues_{$rownumber}">
             <option value="1"{$competitiondetails_availabilityIssues_selected[$rownumber][1]}>{$lang->available}</option>
             <option value="2"{$competitiondetails_availabilityIssues_selected[$rownumber][2]}>{$lang->underspotshortage}</option>
             <option value="3"{$competitiondetails_availabilityIssues_selected[$rownumber][3]}>{$lang->usuallyundershortage}</option>
         </select>
-   </td>
+    </td>
 </tr> 

@@ -14,30 +14,30 @@
  * @author tony.assaad
  */
 class Representatives {
-	private $representative = array();
-	private $errorcode = 0;
+    private $representative = array();
+    private $errorcode = 0;
 
-	public function __construct($id = '', $simple = false) {
-		if(isset($id) && !empty($id)) {
-			$this->representative = $this->read($id, $simple);
-		}
-	}
+    public function __construct($id = '', $simple = false) {
+        if(isset($id) && !empty($id)) {
+            $this->representative = $this->read($id, $simple);
+        }
+    }
 
-	private function read($id, $simple) {
-		global $db;
-		
-		$query_select = '*';
-		if($simple == true) {
-			$query_select = 'rpid, name, email';
-		}
-		if(!empty($id)) {
-			return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
-		}
-	}
+    private function read($id, $simple) {
+        global $db;
 
-	public function get() {
-		return $this->representative;
-	}
+        $query_select = '*';
+        if($simple == true) {
+            $query_select = 'rpid, name, email';
+        }
+        if(!empty($id)) {
+            return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
+        }
+    }
+
+    public function get() {
+        return $this->representative;
+    }
 
 }
 ?>

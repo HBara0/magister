@@ -13,7 +13,7 @@
             <h3>{$matchinproducts}</h3>
 
             <form name="perform_sourcing/matchproducts_Form" action="{$_SERVER[QUERY_STRING]}" method="post"  id="perform_sourcing/matchproducts_Form">
-    <input class="rounded" type="hidden" value="do_match" name="action" id="action" />
+                <input class="rounded" type="hidden" value="do_match" name="action" id="action" />
                 <div align="center">
                     <table width="100%" class="datatable">
                         <thead>
@@ -26,7 +26,7 @@
                     </table>
 
                 </div>
-            
+
                 <input type="button" class="button" value="import" id="perform_sourcing/matchproducts_Button" />
                 <div style="display:table-row">
                     <div style="display:table-cell;"id="perform_sourcing/matchproducts_Results"></div>

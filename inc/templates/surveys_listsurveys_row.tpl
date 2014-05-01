@@ -1,5 +1,5 @@
 <tr class='{$rowclass}'>
-	<td>{$survey[identifier]}</td>
+    <td>{$survey[identifier]}</td>
     <td><a href='{$fillsurvey_link}' target="_blank">{$survey[subject]}</a></td>
     <td>{$survey[description]}</td>
     <td>{$survey[categorytitle]}</td>

@@ -96,7 +96,7 @@ class Leavetypes {
 
     public static function get_leavetypes($filters = '') {
         global $db;
-        
+
         if(!empty($filters)) {
             $query_where = ' WHERE '.$db->escape_string($filters);
         }

@@ -21,26 +21,26 @@
                     }
                     else
                     {
-                                    var action = 'getallusers';
-                                }
+                        var action = 'getallusers';
+                    }
 
-                                sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=" + action, "affid=" + ids[1] + '&eid=' + ids[2], 'entityusers', 'entityusers', true);
-                            });
+                    sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=" + action, "affid=" + ids[1] + '&eid=' + ids[2], 'entityusers', 'entityusers', true);
+                });
             {$header_rmljs}
             {$header_ratingjs}
 
-                            $('div[id^="markettimeline_"]').click(function() {
-                                var id = $(this).attr("id").split('_');
-                                var link = $('div[id^="previoustimelinecontainer_' + id[1] + '"]');
-                                // Exit and stop ajax request  if the data is loaded already
-                                if (link.data('dataloaded') === true) {
-                                    $('div[id^="previoustimelinecontainer_' + id[1] + '"]').slideToggle("slow");
-                                    return false;
-                                }
+                $('div[id^="markettimeline_"]').click(function() {
+                    var id = $(this).attr("id").split('_');
+                    var link = $('div[id^="previoustimelinecontainer_' + id[1] + '"]');
+                    // Exit and stop ajax request  if the data is loaded already
+                    if (link.data('dataloaded') === true) {
+                        $('div[id^="previoustimelinecontainer_' + id[1] + '"]').slideToggle("slow");
+                        return false;
+                    }
 
-                                sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=parse_previoustimeline", "cfpid=" + id[1], 'markettimeline_' + id[1] + '', 'previoustimelinecontainer_' + id[1] + '', true, 'animate');
-                            });
-                        });
+                    sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=parse_previoustimeline", "cfpid=" + id[1], 'markettimeline_' + id[1] + '', 'previoustimelinecontainer_' + id[1] + '', true, 'animate');
+                });
+            });
         </script>
     </head>
     <body>

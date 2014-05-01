@@ -7,7 +7,7 @@
         </table>
         <div style="height: 200px; width: 100%; overflow:auto;">
             <table class="datatable">
-            {$productslist}
+                {$productslist}
             </table>
         </div>
     </td>

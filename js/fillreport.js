@@ -2,12 +2,12 @@ $(function() {
     $("#affid,#spid,#quarter,#currency").change(getMoreData);
     //get parent form name
     var form = $("#affid,#spid,#quarter").closest("form");
-    if (form.attr("name") !== undefined) {
+    if(form.attr("name") !== undefined) {
         var formname = form.attr("name").split('/')[0];
     }
 
     $("#spid").change(function() {
-        if ($(this).val() == '0') {
+        if($(this).val() == '0') {
             $("#buttons_row").hide();
         }
         else
@@ -16,27 +16,27 @@ $(function() {
         }
     });
     function getMoreData() {
-        if (sharedFunctions.checkSession() == false) {
+        if(sharedFunctions.checkSession() == false) {
             return;
         }
 
         var value = $(this).val();
 
-        if (value != '0') {
+        if(value != '0') {
             var id = $(this).attr("id");
             var dataParam = "id=" + value;
             var get = "";
 
-            if (id == "affid") {
+            if(id == "affid") {
                 get = "supplierslist";
                 loadingIn = "supplierslist_Loading";
                 contentIn = "spid";
                 $("#spid,#quarter,#year").empty();
             }
-            else if (id == "spid")
+            else if(id == "spid")
             {
                 dataParam += "&affid=" + $("#affid").val() + "&spid=" + $("#spid").val();
-                if (formname == "perform_budgeting") {
+                if(formname == "perform_budgeting") {
                     get = "years";
                     loadingIn = "years_Loading";
                     contentIn = "year";
@@ -59,7 +59,7 @@ $(function() {
 //                contentIn = "year";
 //                $("#buttons_row").show();
 //            }
-            else if (id == "quarter") {
+            else if(id == "quarter") {
                 dataParam += "&affid=" + $("#affid").val() + "&spid=" + $("#spid").val();
                 get = "years";
                 loadingIn = "years_Loading";
@@ -68,10 +68,10 @@ $(function() {
             }
 
             $("#buttons_row").show();
-            if (formname != "perform_budgeting") {
+            if(formname != "perform_budgeting") {
                 var url = "index.php?module=reporting/fillreport&action=get_" + get;
             }
-            else if (formname == "perform_budgeting") {
+            else if(formname == "perform_budgeting") {
                 var url = "index.php?module=budgeting/create&action=get_" + get;
             }
 
@@ -109,7 +109,7 @@ $(function() {
             var evaluationType = "smaller";
             var evaluationConversion = 1;
 
-            switch (id[0]) {
+            switch(id[0]) {
                 case "turnOver":
                     toEvaluate = "salesForecast";
                     evaluationConversion = parseFloat($('#fxrate_' + id[1] + ' option:selected').val());
@@ -128,22 +128,22 @@ $(function() {
                     break;
             }
 
-            if ($("#" + toEvaluate + "_" + id[1]).val() != '') {
-                if (evaluationType == "smaller") {
-                    if ((parseFloat($(this).val()) / evaluationConversion) > parseFloat($("#" + toEvaluate + "_" + id[1]).val())) {
+            if($("#" + toEvaluate + "_" + id[1]).val() != '') {
+                if(evaluationType == "smaller") {
+                    if((parseFloat($(this).val()) / evaluationConversion) > parseFloat($("#" + toEvaluate + "_" + id[1]).val())) {
                         $(this).val(($("#" + toEvaluate + "_" + id[1]).val() * evaluationConversion).toFixed(4));
                     }
                 }
                 else
                 {
-                    if (parseFloat($(this).val()) < (parseFloat($("#" + toEvaluate + "_" + id[1]).val()) / evaluationConversion)) {
+                    if(parseFloat($(this).val()) < (parseFloat($("#" + toEvaluate + "_" + id[1]).val()) / evaluationConversion)) {
                         $(this).val(($("#" + toEvaluate + "_" + id[1]).val() / evaluationConversion).toFixed(4));
                     }
                 }
             }
         });
         $(this).change(function() {
-            if ($(this).val() > 1000) {
+            if($(this).val() > 1000) {
                 $('#numbernotificationbox').remove();
                 $(".contentContainer").append('<div id="numbernotificationbox">Are you sure that this number is correct?<p><strong>Please review it.</strong></p></div>');
                 $("div[id='numbernotificationbox']").dialog({
@@ -172,36 +172,36 @@ $(function() {
         var isEmpty = false;
         $("#" + bodyName + "_tbody").find("tr").each(function() {
             var row_id = $(this).attr("id");
-            if ($(this).find("input:eq(2)").val() != '') {
+            if($(this).find("input:eq(2)").val() != '') {
                 $(this).find("input").each(function() {
-                    if ($(this).val() == '' && $(this).attr('id').search(/paid_/gi) == -1) {
+                    if($(this).val() == '' && $(this).attr('id').search(/paid_/gi) == -1) {
                         $(this).attr('required', 'required');
                         isEmpty = true;
                         return false;
                     }
                 });
 
-                if (isEmpty === true) {
+                if(isEmpty === true) {
                     return false;
                 }
             }
         });
-        if (isEmpty == true) {
+        if(isEmpty == true) {
             return false;
         }
         return true;
     }
 
-    if ($("form[id='save_marketreport_reporting/fillreport_Form']").length > 0) {
+    if($("form[id='save_marketreport_reporting/fillreport_Form']").length > 0) {
         setInterval(function() {
-            if (sharedFunctions.checkSession() == false) {
+            if(sharedFunctions.checkSession() == false) {
                 return;
             }
 
             var id = "save_marketreport_reporting/fillreport_Form".split("_");
             var found_one = false;
 
-            if ($("form[id='" + id[0] + "_" + id[1] + "_" + id[2] + "_Form']").find("textarea:enabled[value!='']").length > 0) {
+            if($("form[id='" + id[0] + "_" + id[1] + "_" + id[2] + "_Form']").find("textarea:enabled[value!='']").length > 0) {
                 var formData = $("form[id='" + id[0] + "_" + id[1] + "_" + id[2] + "_Form']").serialize();
                 sharedFunctions.requestAjax("post", "index.php?module=" + id[2] + "&action=save_" + id[1], formData, id[0] + "_" + id[1] + "_" + id[2] + "_Results", id[0] + "_" + id[1] + "_" + id[2] + "_Results");
             }
@@ -210,18 +210,18 @@ $(function() {
     }
 
     $("input[id^='save_'][id$='_Button']").click(function() {
-        if (sharedFunctions.checkSession() == false) {
+        if(sharedFunctions.checkSession() == false) {
             return;
         }
         var id = $(this).attr("id").split("_");
 
-        if (validateEmpty(id[1]) == true) {
+        if(validateEmpty(id[1]) == true) {
             var formData = $("form[id='" + id[0] + "_" + id[1] + "_" + id[2] + "_Form']").serialize();
             $("form[id='" + id[0] + "_" + id[1] + "_" + id[2] + "_Form']").submit(function(e) {
                 e.preventDefault();
             });
             formData = formData.replace(/[^=&]+=(&|$)/g, '');
-            if (formData == '') {
+            if(formData == '') {
                 formData = "dummy=";
             }
 

@@ -1,40 +1,40 @@
 <html>
-<head>
-<title>{$core->settings[systemtitle]} | {$lang->selectareport}</title>
-{$headerinc}
-<script src="{$core->settings[rootdir]}/js/fillreport.js" type="text/javascript"></script>
-</head>
-<body>
-{$header}
-<tr>
-{$menu}
-<td class="contentContainer">
-<h3>{$lang->selectareport}</h3>
-<form method="post" name="fillreport" action="index.php?module=reporting/fillreport&amp;stage=productsactivity">
-<table width="100%">
+    <head>
+        <title>{$core->settings[systemtitle]} | {$lang->selectareport}</title>
+        {$headerinc}
+        <script src="{$core->settings[rootdir]}/js/fillreport.js" type="text/javascript"></script>
+    </head>
+    <body>
+        {$header}
     <tr>
-   	 	<td width="50%" style="padding: 15px; border-right: 1px dashed #E2EFDC;"><div style="text-align:left; float:right; font-weight: bold;">{$lang->affiliate}</div></td>
-    	<td align="left" style="padding: 15px;">{$affiliates_list}</td>
-    </tr>
-    <tr id="suppliers_row">
-   	 	<td width="50%"  style="padding: 15px; border-right: 1px dashed #E2EFDC;"><div style="text-align:left; float:right; font-weight: bold;">{$lang->supplier}</div></td>
-    	<td align="left" style="padding: 15px;"><select id="spid" name="spid" tabindex="2"></select>&nbsp;<span id="supplierslist_Loading"></span></td>
-    </tr>
-     <tr id="quarters_row">
-   	 	<td width="50%" style="padding: 15px; border-right: 1px dashed #E2EFDC;"><div style="text-align:left; float:right; font-weight: bold;">{$lang->quarter}</div></td>
-    	<td align="left" style="padding: 15px;"><select id="quarter" name="quarter" tabindex="3"></select>&nbsp;<span id="quarters_Loading"></span> | <select id="year" name="year" tabindex="4"></select>&nbsp;<span id="years_Loading"></span></td>
-    </tr>
-     <tr><td colspan="2" align="center"><hr /></td></tr>
-    <tr style="display:none;" id="buttons_row">
-    	<td colspan="2" align="center">
-        	<input type="submit" value="{$lang->begincaps}" class="button">
-           {$transfill_checkbox}
+        {$menu}
+        <td class="contentContainer">
+            <h3>{$lang->selectareport}</h3>
+            <form method="post" name="fillreport" action="index.php?module=reporting/fillreport&amp;stage=productsactivity">
+                <table width="100%">
+                    <tr>
+                        <td width="50%" style="padding: 15px; border-right: 1px dashed #E2EFDC;"><div style="text-align:left; float:right; font-weight: bold;">{$lang->affiliate}</div></td>
+                        <td align="left" style="padding: 15px;">{$affiliates_list}</td>
+                    </tr>
+                    <tr id="suppliers_row">
+                        <td width="50%"  style="padding: 15px; border-right: 1px dashed #E2EFDC;"><div style="text-align:left; float:right; font-weight: bold;">{$lang->supplier}</div></td>
+                        <td align="left" style="padding: 15px;"><select id="spid" name="spid" tabindex="2"></select>&nbsp;<span id="supplierslist_Loading"></span></td>
+                    </tr>
+                    <tr id="quarters_row">
+                        <td width="50%" style="padding: 15px; border-right: 1px dashed #E2EFDC;"><div style="text-align:left; float:right; font-weight: bold;">{$lang->quarter}</div></td>
+                        <td align="left" style="padding: 15px;"><select id="quarter" name="quarter" tabindex="3"></select>&nbsp;<span id="quarters_Loading"></span> | <select id="year" name="year" tabindex="4"></select>&nbsp;<span id="years_Loading"></span></td>
+                    </tr>
+                    <tr><td colspan="2" align="center"><hr /></td></tr>
+                    <tr style="display:none;" id="buttons_row">
+                        <td colspan="2" align="center">
+                            <input type="submit" value="{$lang->begincaps}" class="button">
+                            {$transfill_checkbox}
+                        </td>
+                    </tr>
+                </table>
+            </form>
         </td>
     </tr>
-</table>
-</form>
-</td>
-</tr>
-{$footer}
+    {$footer}
 </body>
 </html>

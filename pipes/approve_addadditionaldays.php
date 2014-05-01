@@ -11,7 +11,7 @@
 
 $dir = dirname(dirname(__FILE__)).'/';
 if(!$dir) {
-	$dir = '..';
+    $dir = '..';
 }
 require_once $dir.'/inc/init.php';
 
@@ -22,18 +22,18 @@ $lang = new Language('english');
 $lang->load('attendance_messages');
 
 if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject)) {
-	/* Check if reply is possibly auto-responder */
-	if(strstr(strtolower($data['subject']), 'auto')) {
-		exit;
-	}
+    /* Check if reply is possibly auto-responder */
+    if(strstr(strtolower($data['subject']), 'auto')) {
+        exit;
+    }
 
-	$request_key = $db->escape_string($subject[1]);
-	$attendanceadddays = new AttendanceAddDays(array('identifier' => $request_key));
+    $request_key = $db->escape_string($subject[1]);
+    $attendanceadddays = new AttendanceAddDays(array('identifier' => $request_key));
 
-	$attendanceadddays->approve($data['from']);
+    $attendanceadddays->approve($data['from']);
 
-	//notify approve user
-	$attendanceadddays->update_leavestats();
-	$attendanceadddays->notifyapprove();
+    //notify approve user
+    $attendanceadddays->update_leavestats();
+    $attendanceadddays->notifyapprove();
 }
 ?>

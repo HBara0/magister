@@ -14,108 +14,108 @@
  * @author tony.assaad
  */
 class EndproducTypes {
-	private $endproduct = array();
+    private $endproduct = array();
 
-	public function __construct($id = '', $simple = false) {
-		if(isset($id)) {
-			$this->read($id, $simple);
-		}
-	}
+    public function __construct($id = '', $simple = false) {
+        if(isset($id)) {
+            $this->read($id, $simple);
+        }
+    }
 
-	private function read($id, $simple) {
-		global $db;
-		$query_select = '*';
-		if($simple == true) {
-			$query_select = 'eptid, name, title';
-		}
-		$this->endproduct = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'endproducttypes WHERE eptid='.intval($id)));
-	}
+    private function read($id, $simple) {
+        global $db;
+        $query_select = '*';
+        if($simple == true) {
+            $query_select = 'eptid, name, title';
+        }
+        $this->endproduct = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'endproducttypes WHERE eptid='.intval($id)));
+    }
 
-	public function create($data = array()) {
-		global $db, $core, $log;
-		if(empty($data['title'])) {
-			$this->errorcode = 1;
-			return false;
-		}
-		if(value_exists('endproducttypes', 'title', $data['title'])) {
-			$this->errorcode = 2;
-			return false;
-		}
-		
-		$data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true));
-		if(empty($data['name'])) {
-			$data['name'] = strtolower($data['title']);
-			$data['name'] = preg_replace('/\s+/', '', $data['name']);
-		}
+    public function create($data = array()) {
+        global $db, $core, $log;
+        if(empty($data['title'])) {
+            $this->errorcode = 1;
+            return false;
+        }
+        if(value_exists('endproducttypes', 'title', $data['title'])) {
+            $this->errorcode = 2;
+            return false;
+        }
 
-		$endproducttypes_data = array(
-				'name' => $data['name'],
-				'title' => $data['title'],
-				'psaid' => $data['segapplications'],
-				'createdBy' => $core->user['uid'],
-				'createdOn' => TIME_NOW
-		);
-		$query = $db->insert_query('endproducttypes', $endproducttypes_data);
-		$log->record('addendproducttypes');
-	}
+        $data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true));
+        if(empty($data['name'])) {
+            $data['name'] = strtolower($data['title']);
+            $data['name'] = preg_replace('/\s+/', '', $data['name']);
+        }
 
-	public function get_application() {
-		return new Segmentapplications($this->endproduct['psaid']);
-	}
+        $endproducttypes_data = array(
+                'name' => $data['name'],
+                'title' => $data['title'],
+                'psaid' => $data['segapplications'],
+                'createdBy' => $core->user['uid'],
+                'createdOn' => TIME_NOW
+        );
+        $query = $db->insert_query('endproducttypes', $endproducttypes_data);
+        $log->record('addendproducttypes');
+    }
 
-	public function get_createdby() {
-		return new Users($this->endproduct['createdBy']);
-	}
+    public function get_application() {
+        return new Segmentapplications($this->endproduct['psaid']);
+    }
 
-	public function get_modifiedby() {
-		return new Users($this->endproduct['modifiedBy']);
-	}
+    public function get_createdby() {
+        return new Users($this->endproduct['createdBy']);
+    }
 
-	public static function get_producttype_byname($name) {
-		global $db;
-		if(!empty($name)) {
-			$id = $db->fetch_field($db->query('SELECT eptid FROM '.Tprefix.'endproducttypes WHERE name="'.$db->escape_string($name).'"'), 'eptid');
-			if(!empty($id)) {
-				return new Endproductypes($id);
-			}
-		}
-		return false;
-	}
+    public function get_modifiedby() {
+        return new Users($this->endproduct['modifiedBy']);
+    }
 
-	public static function get_endproductypes() {
-		global $db, $core;
-		$sort_query = ' ORDER BY  title  ASC';
-		if(isset($core->input['sortby'], $core->input['order'])) {
-			$sort_query = ' ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
-		}
+    public static function get_producttype_byname($name) {
+        global $db;
+        if(!empty($name)) {
+            $id = $db->fetch_field($db->query('SELECT eptid FROM '.Tprefix.'endproducttypes WHERE name="'.$db->escape_string($name).'"'), 'eptid');
+            if(!empty($id)) {
+                return new Endproductypes($id);
+            }
+        }
+        return false;
+    }
 
-		if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
-			$core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
-		}
+    public static function get_endproductypes() {
+        global $db, $core;
+        $sort_query = ' ORDER BY  title  ASC';
+        if(isset($core->input['sortby'], $core->input['order'])) {
+            $sort_query = ' ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
+        }
 
-		$limit_start = 0;
-		if(isset($core->input['start'])) {
-			$limit_start = $db->escape_string($core->input['start']);
-		}
-		$query = $db->query("SELECT eptid FROM ".Tprefix."endproducttypes{$sort_query} LIMIT {$limit_start}, {$core->settings['itemsperlist']} ");
-		if($db->num_rows($query) > 0) {
-			while($producttype = $db->fetch_assoc($query)) {
-				$producttypes[$producttype['eptid']] = new Endproductypes($producttype['eptid']);
-			}
-			return $producttypes;
-		}
-		else {
-			return false;
-		}
-	}
+        if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+            $core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+        }
 
-	public function get() {
-		return $this->endproduct;
-	}
+        $limit_start = 0;
+        if(isset($core->input['start'])) {
+            $limit_start = $db->escape_string($core->input['start']);
+        }
+        $query = $db->query("SELECT eptid FROM ".Tprefix."endproducttypes{$sort_query} LIMIT {$limit_start}, {$core->settings['itemsperlist']} ");
+        if($db->num_rows($query) > 0) {
+            while($producttype = $db->fetch_assoc($query)) {
+                $producttypes[$producttype['eptid']] = new Endproductypes($producttype['eptid']);
+            }
+            return $producttypes;
+        }
+        else {
+            return false;
+        }
+    }
 
-	public function get_errorcode() {
-		return $this->errorcode;
-	}
+    public function get() {
+        return $this->endproduct;
+    }
+
+    public function get_errorcode() {
+        return $this->errorcode;
+    }
 
 }
 ?>

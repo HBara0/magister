@@ -63,16 +63,16 @@
                                     <input type="time" name="fromTime" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" title="{$lang->hoursfrom}" value="{$holiday[fromTime]}" placeholder="00:00">
                                 </div>
                                 </div>
-                           </td>
+                            </td>
                         </tr>
-                         <tr>
-                               <td colspan="5">
+                        <tr>
+                            <td colspan="5">
                                 <div style='display:inline-block; width:15%;'>{$lang->todate}</div>
                                 <div style='display:inline-block; width:75%;'>
                                     <input type="text" id="pickDate_holidaytodate" name="validTo" autocomplete="off" tabindex="2"value="{$holiday[validToOutput]}" />
                                     <input type="time" name="toTime" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})"  title="{$lang->hoursto}" value="{$holiday[toTime]}" placeholder="23:59" >
                                 </div>
-                             </td>
+                            </td>
                         </tr>
                     </tbody>
                     <tr>

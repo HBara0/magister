@@ -5,7 +5,7 @@
     <table style="width:100%;">
         <tr><td colspan="2" class="thead">{$lang->reportsummary}</td></tr>
         <tr><td><textarea name="summary" cols="50" rows="30" class="texteditormin" required="required">{$report[summary][summary]}</textarea></td></tr>
-         <tr><td>{$fillsummary_msg}</td></tr>
+        <tr><td>{$fillsummary_msg}</td></tr>
         <tr>
             <td>  
                 <input type="submit" value="{$lang->save}" class="button"> <input type="reset" value="{$lang->reset}" class="button">           

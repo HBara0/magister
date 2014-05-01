@@ -904,7 +904,7 @@ else {
                 if($val['exclude']) {
                     continue;
                 }
-            
+
                 unset($val['segmenttitle'], $val['exclude']);
                 foreach($val as $k => $v) {
                     $val[$k] = $core->sanitize_inputs($v, array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><h1><h2><h3><h4><h5><h6>', 'removetags' => true));

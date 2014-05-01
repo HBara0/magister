@@ -16,7 +16,7 @@
 class SourcingSuppliers {
     private $supplier = array();
 
-    public function __construct($id, $simple=true) {
+    public function __construct($id, $simple = true) {
         if(empty($id)) {
             return false;
         }

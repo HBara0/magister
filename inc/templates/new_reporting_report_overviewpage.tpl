@@ -14,9 +14,9 @@
     <div class="paperContainer">
         <div class="logo" style="width:100%;">&nbsp;</div>
         <div>
-        <a name="progressionbysegments"></a>
-        {$reporting_report_newtotaloverviewbox[segments][amount]}
-        {$reporting_report_newtotaloverviewbox[segments][purchasedQty]}
+            <a name="progressionbysegments"></a>
+            {$reporting_report_newtotaloverviewbox[segments][amount]}
+            {$reporting_report_newtotaloverviewbox[segments][purchasedQty]}
         </div>
     </div>
 </page>

@@ -199,7 +199,7 @@ class Leaves {
 
     public static function get_leaves_expencesdata($data_filter = array(), array $config = array()) {
         global $db;
-;
+        ;
         $tables_alias = array('aletid' => 'lextt');
 
         $fromDate = strtotime($data_filter['fromDate']);
@@ -248,12 +248,12 @@ class Leaves {
                     $filter = array_intersect($data_filter[$filterkey], $allowed_filtersdata[$filterkey]);
                 }
                 else {
-                   $filter =  $data_filter[$filterkey];
+                    $filter = $data_filter[$filterkey];
                 }
             }
 
             if(!isset($tables_alias[$filterkey])) {
-               $tables_alias[$filterkey] = 'l';
+                $tables_alias[$filterkey] = 'l';
             }
 
             $querysting .= $querysting_where.$tables_alias[$filterkey].'.'.$db->escape_string($filterkey).' IN ('.$db->escape_string(implode(',', $filter)).')';
@@ -315,7 +315,7 @@ class Leaves {
 
         $afffiliates_users = $core->user['affiliates'];
         if(is_array($core->user['hraffids'])) {
-             $afffiliates_users += $core->user['hraffids'];
+            $afffiliates_users += $core->user['hraffids'];
         }
         if(is_array($afffiliates_users)) {
             foreach($afffiliates_users as $affiliate) {

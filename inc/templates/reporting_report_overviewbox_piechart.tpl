@@ -1,9 +1,9 @@
 <table style="width: 100%;">
     <tr>
         <td valign="top" style="width: 35%;">
-        	<table class="reportbox" style="width: 100%;">
-            	<tr>
-                	<td colspan="2" class="thead" style="width: 45%;">&nbsp;</td>
+            <table class="reportbox" style="width: 100%;">
+                <tr>
+                    <td colspan="2" class="thead" style="width: 45%;">&nbsp;</td>
                     <td colspan="2" class="thead" style="width: 55%;">{$lang->uptoq}{$current_quarter} {$current_year}</td>
                 </tr>
                 {$piechart_section_tablerows}

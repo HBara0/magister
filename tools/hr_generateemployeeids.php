@@ -18,19 +18,19 @@ $query = $db->query('SELECT u.uid, affid, displayName
 	ORDER BY affid ASC');
 
 while($user = $db->fetch_assoc($query)) {
-	$number = Accounts::generate_employeenumber($user['affid']);
+    $number = Accounts::generate_employeenumber($user['affid']);
 
-	if(value_exists('userhrinformation', 'uid', $user['uid'])) {
-		if($core->input['runtype'] != 'dry') {
-			$db->update_query('userhrinformation', array('employeeNum' => $number), 'uid='.$user['uid']);
-		}
-		echo $user['displayName'].' - '.$number.'<br />';
-	}
-	else {
-		if($core->input['runtype'] != 'dry') {
-			$db->insert_query('userhrinformation', array('employeeNum' => $number, 'uid' => $user['uid']));
-		}
-		echo $user['displayName'].' - '.$number.'<br />';
-	}
+    if(value_exists('userhrinformation', 'uid', $user['uid'])) {
+        if($core->input['runtype'] != 'dry') {
+            $db->update_query('userhrinformation', array('employeeNum' => $number), 'uid='.$user['uid']);
+        }
+        echo $user['displayName'].' - '.$number.'<br />';
+    }
+    else {
+        if($core->input['runtype'] != 'dry') {
+            $db->insert_query('userhrinformation', array('employeeNum' => $number, 'uid' => $user['uid']));
+        }
+        echo $user['displayName'].' - '.$number.'<br />';
+    }
 }
 ?>

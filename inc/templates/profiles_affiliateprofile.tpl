@@ -18,12 +18,12 @@
                         var action = 'getentityusers';
                     }
                     else
-                                {
-                                                var action = 'getallusers';
-                                            }
-                                            sharedFunctions.requestAjax("post", "index.php?module=profiles/affiliateprofile&action=" + action, "eid=" + ids[1] + '&affid=' + ids[2], 'entityusers', 'entityusers', true);
-                                        });
-                                    });
+                    {
+                        var action = 'getallusers';
+                    }
+                    sharedFunctions.requestAjax("post", "index.php?module=profiles/affiliateprofile&action=" + action, "eid=" + ids[1] + '&affid=' + ids[2], 'entityusers', 'entityusers', true);
+                });
+            });
         </script>
     </head>
     <body>

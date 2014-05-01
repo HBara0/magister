@@ -10,8 +10,8 @@
 <link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-current.custom.min.css' rel='stylesheet' type='text/css' />
 <link href='{$core->settings[rootdir]}/css/jquery.qtip.min.css' rel='stylesheet' type='text/css' />
 <script type="text/javascript">
-	var loading_text = "{$lang->loading}";
-	var imagespath = "{$core->settings[rootdir]}/images/";
-	var rootdir = "{$core->settings[rootdir]}/";
-	var cookie_prefix = "{$core->settings[cookie_prefix]}";
+    var loading_text = "{$lang->loading}";
+    var imagespath = "{$core->settings[rootdir]}/images/";
+    var rootdir = "{$core->settings[rootdir]}/";
+    var cookie_prefix = "{$core->settings[cookie_prefix]}";
 </script>{$additional_inc}

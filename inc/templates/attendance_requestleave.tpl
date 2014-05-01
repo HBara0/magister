@@ -21,25 +21,25 @@
                         sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getleavetime", "ltid=" + $('#type').val() + "&uid=" + $("#uid").val() + "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val(), 'leavetime_details', 'leavetime_details', true);
                     }
                     else
-                        {
-                                        sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getleavetime", "ltid=" + $('#type').val() + "&uid=" + $("#uid").val(), 'leavetime_details', 'leavetime_details', true);
-                                    }
+                    {
+                        sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getleavetime", "ltid=" + $('#type').val() + "&uid=" + $("#uid").val(), 'leavetime_details', 'leavetime_details', true);
+                    }
 
-                                    sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getadditionalfields", "ltid=" + $('#type').val() + "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val() + "&uid=" + $("#uid").val(), 'additionalfields_output', 'additionalfields_output', true);
-                                });
+                    sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getadditionalfields", "ltid=" + $('#type').val() + "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val() + "&uid=" + $("#uid").val(), 'additionalfields_output', 'additionalfields_output', true);
+                });
 
-                                $("#type").live('change', function() {
-                                    sharedFunctions.requestAjax("post", "index.php?module=attendance/{$action}&action=parseexpenses", "ltid=" + $('#type').val() + "&lid=" + $('input[id=lid]').val(), 'leaveexpenses_container', 'leaveexpenses_container', true);
-                                });
+                $("#type").live('change', function() {
+                    sharedFunctions.requestAjax("post", "index.php?module=attendance/{$action}&action=parseexpenses", "ltid=" + $('#type').val() + "&lid=" + $('input[id=lid]').val(), 'leaveexpenses_container', 'leaveexpenses_container', true);
+                });
 
-                                $('input[id^=expenses_]').live('blur', function() {
-                                    var sum = 0;
-                                    $('input[id^=expenses_]').each(function() {
-                                        sum += Number($(this).val());
-                                    });
-                                    $('#expensestotal').val(sum);
-                                });
-                            });
+                $('input[id^=expenses_]').live('blur', function() {
+                    var sum = 0;
+                    $('input[id^=expenses_]').each(function() {
+                        sum += Number($(this).val());
+                    });
+                    $('#expensestotal').val(sum);
+                });
+            });
         </script>
     </head>
     <body>
@@ -61,7 +61,7 @@
                     <tr>
                         <td>{$lang->todate}</td>
                         <td><input type="text" id="pickDate_to" autocomplete="off" tabindex="2" value="{$leave[toDate_output]}" required="required" />
-                            
+
                             <input type="hidden" name="toDate" id="altpickDate_to" value="{$leave[toDate_formatted]}"/></td>
                     </tr>
                     <tr><td>&nbsp;</td><td style="font-style:italic;"><span id="leavetime_details">{$lang->betweenhours}</span></td></tr>

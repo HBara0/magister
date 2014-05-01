@@ -29,7 +29,7 @@
                 <tr>
                     {$dimension_head}
                 </tr>
-                    {$parsed_dimension} 
+                {$parsed_dimension} 
 
             </table>
 

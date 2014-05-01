@@ -9,79 +9,79 @@
  */
 
 class RequirementsChanges {
-	private $reqchange = array();
-	private $errorcode = 0;
-	
-	public function __construct($id = '', $simple = false) {
-		if(isset($id) && !empty($id)) {
-			$this->reqchange = $this->read($id, $simple);
-		}
-	}
+    private $reqchange = array();
+    private $errorcode = 0;
 
-	private function read($id, $simple = false) {
-		global $db;
-		$query_select = '*';
-		if($simple == true) {
-			$query_select = 'drid, title';
-		}
+    public function __construct($id = '', $simple = false) {
+        if(isset($id) && !empty($id)) {
+            $this->reqchange = $this->read($id, $simple);
+        }
+    }
 
-		return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."development_requirements_changes WHERE drcid=".$db->escape_string($id)));
-	}
+    private function read($id, $simple = false) {
+        global $db;
+        $query_select = '*';
+        if($simple == true) {
+            $query_select = 'drid, title';
+        }
 
-	public function create($reqchange) {
-		global $core, $db;
-		/* To expand checks */
-		$required_data = array('drid', 'title', 'description');
-		foreach($required_data as $attr) {
-			if(empty($reqchange[$attr])) {
-				$this->errorcode = 2;
-				return false;
-			}
-		}
+        return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."development_requirements_changes WHERE drcid=".$db->escape_string($id)));
+    }
 
-		if(value_exists('development_requirements_changes', 'title', $reqchange['title'], 'drid='.intval($reqchange['drid']))) {
-			$this->errorcode = 602;
-			return false;
-		}
-		
-		unset($reqchange['action'], $reqchange['module']);
-		$requirement_obj = new Requirements($reqchange['drid']);
-		$reqchange['refKey'] = $requirement_obj->get_lastchangekey() + 1;
-		
-		$reqchange['dateRequested'] = strtotime($reqchange['dateRequested']);
-		$reqchange['approvedBy'] = $reqchange['createdBy'] = $core->user['uid'];
-		$reqchange['dateCreated'] = TIME_NOW;
-		$query = $db->insert_query('development_requirements_changes', $reqchange);
-		unset($requirement_obj, $reqchange);
-		if($query) {
-			$this->errorcode = 0;
-			return true;
-		}
-		$this->errorcode = 601;
-		return false;
-	}
+    public function create($reqchange) {
+        global $core, $db;
+        /* To expand checks */
+        $required_data = array('drid', 'title', 'description');
+        foreach($required_data as $attr) {
+            if(empty($reqchange[$attr])) {
+                $this->errorcode = 2;
+                return false;
+            }
+        }
 
-	public function get_creator() {
-		if(empty($this->reqchange['createdBy'])) {
-			return false;
-		}
-		return new Users($this->reqchange['createdBy']);
-	}
+        if(value_exists('development_requirements_changes', 'title', $reqchange['title'], 'drid='.intval($reqchange['drid']))) {
+            $this->errorcode = 602;
+            return false;
+        }
 
-	public function get_requester() {
-		if(empty($this->reqchange['requestedBy'])) {
-			return false;
-		}
-		return new Users($this->reqchange['requestedBy']);
-	}
+        unset($reqchange['action'], $reqchange['module']);
+        $requirement_obj = new Requirements($reqchange['drid']);
+        $reqchange['refKey'] = $requirement_obj->get_lastchangekey() + 1;
 
-	public function get_errorcode() {
-		return $this->errorcode;
-	}
-	
-	public function get() {
-		return $this->reqchange;
-	}
+        $reqchange['dateRequested'] = strtotime($reqchange['dateRequested']);
+        $reqchange['approvedBy'] = $reqchange['createdBy'] = $core->user['uid'];
+        $reqchange['dateCreated'] = TIME_NOW;
+        $query = $db->insert_query('development_requirements_changes', $reqchange);
+        unset($requirement_obj, $reqchange);
+        if($query) {
+            $this->errorcode = 0;
+            return true;
+        }
+        $this->errorcode = 601;
+        return false;
+    }
+
+    public function get_creator() {
+        if(empty($this->reqchange['createdBy'])) {
+            return false;
+        }
+        return new Users($this->reqchange['createdBy']);
+    }
+
+    public function get_requester() {
+        if(empty($this->reqchange['requestedBy'])) {
+            return false;
+        }
+        return new Users($this->reqchange['requestedBy']);
+    }
+
+    public function get_errorcode() {
+        return $this->errorcode;
+    }
+
+    public function get() {
+        return $this->reqchange;
+    }
 
 }
 ?>

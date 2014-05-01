@@ -32,11 +32,11 @@
                         $("#createReports,#noQReportSend").attr("disabled", "true");
                     }
                     else
-                     {
-                                     $("#createReports,#noQReportSend").removeAttr("disabled");
-                                 }
-                             });
-                         });
+                    {
+                        $("#createReports,#noQReportSend").removeAttr("disabled");
+                    }
+                });
+            });
         </script>
     </head>
     <body>

@@ -7,7 +7,7 @@
 <link href="{$core->settings[rootdir]}/css/styles.css" rel="stylesheet" type="text/css" />
 <link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-current.custom.css' rel='stylesheet' type='text/css' />
 <script type="text/javascript">
-	var loading_text = "{$lang->loading}";
-	var imagespath = "{$core->settings[rootdir]}/images/";
-	var rootdir = "{$core->settings[rootdir]}/";
+    var loading_text = "{$lang->loading}";
+    var imagespath = "{$core->settings[rootdir]}/images/";
+    var rootdir = "{$core->settings[rootdir]}/";
 </script>{$additional_inc}

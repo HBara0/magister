@@ -23,8 +23,8 @@
                 }
                 var data = "&action=get_entityendproduct&attr=" + $(this).attr("name") + "&value=" + cid;
                 sharedFunctions.requestAjax("post", "index.php?module=" + "{$module}/{$modulefile}", data, 'entitiesbrandsproducts_endproductResult', 'entitiesbrandsproducts_endproductResult', 'html');
-            });
-        });
+                        });
+                    });
     </script>
     <form name="perform_{$module}/{$modulefile}_Form" id="perform_{$module}/{$modulefile}_Form">
         <input type="hidden" name="action" value="{$action}"/>
@@ -48,7 +48,7 @@
 
                 <tr id="2">
                     <td>
-     
+
                         <div style="width:60%; display:block;"> 
                             <div style="width:40%; display: inline-block;"> {$lang->competitortrader}</div>
                             <div style="width:40%; display: inline-block;"><input type='text'id='competitortradersupp_{$rowid}_QSearch' autocomplete='off' size='40px'/>

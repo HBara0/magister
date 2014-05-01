@@ -1,3 +1,3 @@
 <tr>
-	<td colspan="15" align="center"><hr /></td>
+    <td colspan="15" align="center"><hr /></td>
 </tr>

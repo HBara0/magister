@@ -1,5 +1,5 @@
 <td class="menuContainer">
-{$modules_list}
+    {$modules_list}
     <ul id="mainmenu">
         {$menu_items}
     </ul>

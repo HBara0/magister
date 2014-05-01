@@ -274,9 +274,9 @@ class Meetings {
         $meeting_data['fromDate'] = strtotime($meeting_data['fromDate'].' '.$meeting_data['fromTime']);
         $meeting_data['toDate'] = strtotime($meeting_data['toDate'].' '.$meeting_data['toTime']);
         unset($meeting_data['fromTime'], $meeting_data['toTime'], $meeting_data['altfromDate'], $meeting_data['alttoDate']);
-		if(!isset($meeting_data['isPublic'])){
-			$meeting_data['isPublic']=0;
-		}
+        if(!isset($meeting_data['isPublic'])) {
+            $meeting_data['isPublic'] = 0;
+        }
 
         $query = $db->update_query('meetings', $meeting_data, 'mtid='.$db->escape_string($this->meeting['mtid']));
         if($query) {

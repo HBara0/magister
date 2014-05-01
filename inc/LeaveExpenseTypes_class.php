@@ -51,4 +51,5 @@ class LeaveExpenseTypes {
     public function get() {
         return $this->expencetype;
     }
+
 }
