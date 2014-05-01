@@ -75,9 +75,7 @@ class LeavesExpenses {
                 }
             }
             else {
-                $user_obj = new Users();
-                $user = $user_obj->get();
-                $users[$user['uid']] = $user['displayName'];
+                $users[$core->user['uid']] = $core->user['displayName'];
             }
         }
         return $users;

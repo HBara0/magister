@@ -313,26 +313,10 @@ class Leaves {
     public static function get_viewableuseraffiliates() {
         global $db, $core;
 
-        $afffiliates_users = $core->user['affiliates'] + $core->user['hraffids'];
-        if(is_array($afffiliates_users)) {
-            foreach($afffiliates_users as $affiliate) {
-                $affiliate_obj = new Affiliates($affiliate);
-                $affiliates_data = $affiliate_obj->get();
-                $affiliates[$affiliates_data['affid']] = $affiliates_data['name'];
-            }
-            return $affiliates;
+        $afffiliates_users = $core->user['affiliates'];
+        if(is_array($core->user['hraffids'])) {
+             $afffiliates_users += $core->user['hraffids'];
         }
-    }
-
-    /*
-     * Get  Affiliates  that he can  HR and he is working with
-     * @param	int		$core->user['affiliates']
-     * @return  Array
-     */
-    public static function get_viewableuseraffiliates() {
-        global $db, $core;
-
-        $afffiliates_users = $core->user['affiliates'] + $core->user['hraffids'];
         if(is_array($afffiliates_users)) {
             foreach($afffiliates_users as $affiliate) {
                 $affiliate_obj = new Affiliates($affiliate);
