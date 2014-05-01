@@ -455,7 +455,12 @@ if(!$core->input['action']) {
 					}
 				}
 
-                                array_walk($marketreport, 'fix_newline');
+                                foreach($marketreport as $key => $val) {
+                                    if(!is_numeric($val) && !is_array($val)) {
+                                        $marketreport[$key] = nl2br($val);
+                                    }
+                                }
+                               
 				array_walk($marketreport, 'parse_ocode');
 				if(($core->usergroup['reporting_canViewComptInfo'] == 1) || ($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1)) {
 					eval("\$marketreportbox_competition = \"".$template->get('new_reporting_report_marketreportbox_competition')."\";");
