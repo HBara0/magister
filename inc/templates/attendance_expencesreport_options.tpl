@@ -32,12 +32,12 @@
                 <div style="display:inline-block; width: 43%; padding: 10px;">
                     <div style="display:inline-block; vertical-align:top; width: 45%; font-weight: bold;">{$lang->fromdate}</div>
                     <div style="display:inline-block; vertical-align:top; width: 20%;"><input type="text" id="pickDate_from" autocomplete="off" tabindex="1" value="" required="required"/>
-                    <input type="hidden" name="expencesreport[filter][fromDate]" id="altpickDate_from" value="" /></div>
+                        <input type="hidden" name="expencesreport[filter][fromDate]" id="altpickDate_from" value="" /></div>
                 </div>
                 <div style="display:inline-block; width: 40%;">
                     <div style="display:inline-block; vertical-align:top; width: 50%; font-weight: bold;">{$lang->todate}</div>
                     <div style="display:inline-block; vertical-align:top; width: 20%;"><input type="text" id="pickDate_to" autocomplete="off" tabindex="2" value="{$leave[toDate_output]}" required="required" />
-                    <input type="hidden" name="expencesreport[filter][toDate]" id="altpickDate_to" value=""/></div>
+                        <input type="hidden" name="expencesreport[filter][toDate]" id="altpickDate_to" value=""/></div>
                 </div>
                 <div style="display:block; padding: 10px;">
                     <div style="display:inline-block; vertical-align:top; width: 20%;">{$lang->affiliate}</div>
@@ -54,15 +54,18 @@
                 <div class="subtitle" style="margin:10px;">{$lang->dimensions}<input type='text' id='dimensions' name="expencesreport[dimension][]" value='' style='display:none;'></div>
                 <div style="display:block; text-align: center;">
                     <div style="display:inline-block; width:45%; vertical-align:top;">
-                        {$lang->availabledimensions}<br />
-                        <ul id="dimensionfrom" class="sortable">
-                            {$dimension_item}
-                        </ul>
+                        <div style="text-align: left;">
+                            {$lang->availabledimensions}<br />
+                            <ul id="dimensionfrom" class="sortable">
+                                {$dimension_item}
+                            </ul>
+                        </div>
                     </div>
                     <div style="display:inline-block; width:45%; vertical-align:top;">
-                        {$lang->selecteddimensions}<br />
-                        <ul id="dimensionto" class="sortable">
-                        </ul>
+                        <div style="text-align: left;">
+                            {$lang->selecteddimensions}<br />
+                            <ul id="dimensionto" class="sortable"></ul>
+                        </div>
                     </div>
                 </div>
                 <div style="display:block;">
