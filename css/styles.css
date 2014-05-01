@@ -106,6 +106,8 @@ a, a:visited {
   .datatable th, .datatable td {
     text-align: left;
     padding: 5px; }
+  .datatable tbody > tr:nth-child(even) > td {
+    background-color: #f7fafd; }
 
 td {
   padding: 2px; }
@@ -125,7 +127,7 @@ td {
         border-bottom: 1px dashed #CCCCCC;
 }*/
 .altrow {
-  background-color: #F7FAFD; }
+  background-color: #f7fafd; }
 
 .unapproved {
   background-color: #F9D0D0; }

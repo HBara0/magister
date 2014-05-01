@@ -116,6 +116,10 @@ a, a:visited {
         text-align: left;
         padding: 5px;
     }
+    
+    tbody>tr:nth-child(even) > td {
+	background-color: $color_polar;
+    }
 }
 
 td { padding: 2px; }
@@ -137,7 +141,7 @@ td { padding: 2px; }
         border-bottom: 1px dashed #CCCCCC;
 }*/
 .altrow {
-    background-color:#F7FAFD;
+    background-color: $color_polar;
 }
 
 .unapproved {
