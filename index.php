@@ -19,7 +19,7 @@ if($core->input['module'] && $current_module[0]) {
     $run_module = $current_module[0];
 }
 else {
-    $defaultmodule = $db->fetch_field($db->query("SELECT defaultModule FROM ".Tprefix."users WHERE uid='{$core->user[uid]}'"), 'defaultModule');
+    $defaultmodule = $core->user_obj->get()['defaultModule'];
     $run_module = $defaultmodule;
     if(!isset($defaultmodule) || empty($defaultmodule)) {
         $run_module = $core->usergroup['defaultModule'];
