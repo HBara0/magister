@@ -368,7 +368,7 @@ else {
             /* Parse expense information for message - END */
 
             /* Previous approvals - START */
-            $approvers = $leavee_obj->get_approvers();
+            $approvers = $leavee_obj->get_approvals();
             if(is_array($approvers)) {
                 foreach($approvers as $approver) {
                     $leave['approvers'][] = $approver->get()['displayName'];
@@ -400,7 +400,6 @@ else {
     elseif($core->input['action'] == 'perform_sendmessage') {
         $leavemessage_obj = new LeavesMessages();
         $leavemessage_obj->create_message($core->input['leavemessage'], 105);
-
     }
     elseif($core->input['action'] == 'get_revokeleave') {
         eval("\$revokeleavebox = \"".$template->get("popup_revokeleave")."\";");

@@ -185,7 +185,19 @@ class Leaves {
         }
     }
 
-    public function get_approvers($isapproved = 0) {
+    public function get_approval_byappover($approver) {
+        return AttLeavesApproval::get_approvals('lid='.$this->leave['lid'].' AND uid='.intval($approver));
+    }
+
+    public function get_toapprove() {
+        return $this->get_approvers();
+    }
+
+    public function get_approvers() {
+        return AttLeavesApproval::get_approvals_byattr('lid', $this->leave['lid']);
+    }
+
+    public function get_approvals($isapproved = 1) {
         global $db;
         if($isapproved == 1) {
             $where_isapproved = ' WHERE isApproved=1';
@@ -193,7 +205,7 @@ class Leaves {
         else {
             $where_isapproved = ' WHERE isApproved=0';
         }
-        $query = $db->query('SELECT * FROM '.Tprefix.'leavesapproval  '.$where_isapproved.' AND lid='.$this->leave['lid']);
+        $query = $db->query('SELECT * FROM '.Tprefix.'leavesapproval '.$where_isapproved.' AND lid='.$this->leave['lid']);
         if($db->num_rows($query) > 0) {
             while($approver = $db->fetch_assoc($query)) {
                 $approvers[$approver['uid']] = new Users($approver['uid']);
@@ -239,12 +251,12 @@ class Leaves {
     public function get_conversation() {
         global $db;
         /* apply view permission */
-        $query = $db->query("SELECT lmid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."'");
+        $query = $db->query('SELECT lmid FROM '.Tprefix.'leaves_messages WHERE lid='.$this->leave['lid']);
         if($db->num_rows($query) > 0) {
-            while($leavemessagerow = $db->fetch_assoc($query)) {
-                $leavemessages[$leavemessagerow['lmid']] = new LeavesMessages($leavemessagerow['lmid'],false);
+            while($message = $db->fetch_assoc($query)) {
+                $messages[$message['lmid']] = new LeavesMessages($message['lmid'], false);
             }
-            return $leavemessages;
+            return $messages;
         }
         return false;
     }
@@ -254,7 +266,6 @@ class Leaves {
     }
 
     public function is_leaverequester() {
-        global $core;
         if(value_exists('leaves', 'uid', $this->leave['uid'], ' lid='.$this->leave['lid'])) {
             return true;
         }
