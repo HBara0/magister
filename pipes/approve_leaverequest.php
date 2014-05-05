@@ -267,7 +267,7 @@ switch($reply_message) {
         if($db->num_rows($query) > 0) {
             //$approver = $db->fetch_assoc($query);
         }
-        $approvers_objs = $leave_obj->get_approvers();
+        $approvers_objs = $leave_obj->get_approvals();
         foreach($approvers_objs as $approvers_user) {
             $approvers = $approvers_user->get();
         }
