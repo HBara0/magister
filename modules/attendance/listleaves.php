@@ -368,7 +368,7 @@ else {
             /* Parse expense information for message - END */
 
             /* Previous approvals - START */
-            $approvers = $leavee_obj->get_approvals();
+            $approvers = $leavee_obj->get_approvers();
             if(is_array($approvers)) {
                 foreach($approvers as $approver) {
                     $leave['approvers'][] = $approver->get()['displayName'];
@@ -381,16 +381,8 @@ else {
             /* Previous approvals - END */
 
             /* Conversation message --START */
-            $leavemessasge_objs = $leavee_obj->get_conversation();
-            if(is_array($leavemessasge_objs)) {
-                foreach($leavemessasge_objs as $leavemessasge_obj) {
-                    $leave['message_threads'] = $leavemessasge_obj->get();
-                    asort($leave['message_threads']);
-                    $leave['message_threads']['user'] = $leavemessasge_obj->get_user($leave['message_threads']['uid'])->get();
-                    $leave['message_threads']['message_dates'] = date($core->settings['dateformat'], $leave['message_threads']['createdOn']);
-                    eval("\$takeactionpage_conversations .= \"".$template->get('attendance_listleaves_takeaction_conversations')."\";");
-                }
-            }
+            $leaemessag_obj = new LeavesMessages();
+            $takeactionpage_conversations = $leavee_obj->parse_messages();
 
             /* Conversation  message --END */
             eval("\$takeactionpage = \"".$template->get('attendance_listleaves_takeaction')."\";");
@@ -399,7 +391,7 @@ else {
     }
     elseif($core->input['action'] == 'perform_sendmessage') {
         $leavemessage_obj = new LeavesMessages();
-        $leavemessage_obj->create_message($core->input['leavemessage'], 105);
+        $leavemessage_obj->create_message($core->input['leavemessage'], 105, array('source' => 'emaillink'));
     }
     elseif($core->input['action'] == 'get_revokeleave') {
         eval("\$revokeleavebox = \"".$template->get("popup_revokeleave")."\";");

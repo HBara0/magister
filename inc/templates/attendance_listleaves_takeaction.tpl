@@ -4,11 +4,14 @@
         {$headerinc}
         <script>
             $(function() {
-                $('img[id^="replyto_"]').bind('click', function(evt) {
+                $('img[id^="replyto_"]').bind('click', function() {
                     var id = $(this).attr("id").split("_");
                     $("html, body").animate({scrollTop: $('#messagetoreply').offset().top}, 500);
                     $("#inreplyto").val(id[1]);
-                    $('#message').focus();
+                    var permission = id[2];
+                    $('input[id$="_' + permission + '"]').prop('checked', true);
+                    // $('input').not('[id$="_' + permission + '"]').prop('disabled',true);
+                    $('#message').effect("highlight", {color: '#D6EAAC'}, 1500).focus();
                 });
             });
 
@@ -49,13 +52,14 @@
                             <input type="hidden" value="" id="inreplyto" name="leavemessage[inReplyTo]"/>
                             <div id="messagetoreply" style="display:block; padding: 8px;"><textarea id="message" cols="40" rows="5" name="leavemessage[message]"></textarea>
                                 <div id="messagetoreply" style="display:block; padding:5px;">
-                                    <span><input type="radio" name="leavemessage[permission]" title="{$lang->publictitle}"  value="public" checked="checked">{$lang->public}</span>
-                                    <span><input type="radio" name="leavemessage[permission]" title="{$lang->privatetitle}"  value="private">{$lang->private}</span>
-                                    <span><input type="radio" name="leavemessage[permission]" title="{$lang->limitedtitle}" value="limited">{$lang->limited}</span>
+                                    <span><input type="radio" id="permission_public"  name="leavemessage[permission]" title="{$lang->publictitle}"  value="public" checked="checked"  >{$lang->public}</span>
+                                    <span><input type="radio" id="permission_private" name="leavemessage[permission]" title="{$lang->privatetitle}"  value="private">{$lang->private}</span>
+                                    <span><input type="radio" id="permission_limited" name="leavemessage[permission]" title="{$lang->limitedtitle}" value="limited">{$lang->limited}</span>
 
                                 </div>
-                                <div style="display:block; padding: 8px;">{$takeactionpage_conversations}</div>
-                                <input type='submit' value={$lang->send}  class='button'/>
+                                <div><input type='submit' value={$lang->send}  class='button'/></div>
+                                <div style="display:block;">{$takeactionpage_conversations}</div>
+
                         </form>
                     </td>
                 </tr>
