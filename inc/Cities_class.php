@@ -11,6 +11,9 @@
 class Cities {
     private $city = array();
 
+    const PRIMARY_KEY = 'ciid';
+    const TABLE_NAME = 'cities';
+
     public function __construct($id) {
         if(empty($id)) {
             return false;
@@ -20,7 +23,7 @@ class Cities {
 
     private function read($id) {
         global $db;
-        $this->city = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'cities WHERE ciid='.intval($id)));
+        $this->city = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
 
     public function get_country() {
@@ -28,12 +31,27 @@ class Cities {
     }
 
     public static function get_city_byname($name) {
+        return $this->get_city_byattr('name', $name);
+    }
+
+    public static function get_city_byattr($attr, $value) {
         global $db;
 
-        if(!empty($name)) {
-            $id = $db->fetch_field($db->query('SELECT ciid FROM '.Tprefix.'cities WHERE name="'.$db->escape_string($name).'"'), 'ciid');
-            if(!empty($id)) {
-                return new Cities($id);
+        if(!empty($value) && !empty($attr)) {
+            $query = $db->query('SELECT '.self::PRIMARY_KEY.' FROM '.Tprefix.self::TABLE_NAME.' WHERE '.$db->escape_string($attr).'="'.$db->escape_string($value).'"');
+            if($db->num_rows($query) > 1) {
+                $items = array();
+                while($item = $db->fetch_assoc($query)) {
+                    $items[$item[self::PRIMARY_KEY]] = new self($item[self::PRIMARY_KEY]);
+                }
+                $db->free_result($query);
+                return $items;
+            }
+            else {
+                if($db->num_rows($query) == 1) {
+                    return new self($db->fetch_field($query, self::PRIMARY_KEY));
+                }
+                return false;
             }
         }
         return false;
@@ -51,9 +69,9 @@ class Cities {
         if(!empty($filters)) {
             $filters = ' WHERE '.$db->escape_string($filters);
         }
-        $query = $db->query('SELECT ciid FROM '.Tprefix.'cities'.$filters);
+        $query = $db->query('SELECT '.self::PRIMARY_KEY.' FROM '.Tprefix.self::TABLE_NAME.$filters);
         while($city = $db->fetch_assoc($query)) {
-            $cities[$city['ciid']] = new Cities($city['ciid']);
+            $cities[$city[self::PRIMARY_KEY]] = new Cities($city[self::PRIMARY_KEY]);
         }
         $db->free_result($query);
         return $cities;

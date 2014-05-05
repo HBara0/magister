@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2014 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: TravelManagerAirports_class.php
  * Created:        @zaher.reda    Apr 29, 2014 | 3:01:50 PM
@@ -10,6 +10,9 @@
 
 class TravelManagerAirports {
     private $airport = array();
+
+    const PRIMARY_KEY = 'apid';
+    const TABLE_NAME = 'travelmanager_airports';
 
     public function __construct($id) {
         if(empty($id)) {
@@ -20,7 +23,7 @@ class TravelManagerAirports {
 
     private function read($id) {
         global $db;
-        $this->airport = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'travelmanager_airports WHERE apid='.intval($id)));
+        $this->airport = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
 
     public function get_country() {
@@ -43,18 +46,18 @@ class TravelManagerAirports {
         global $db;
 
         if(!empty($value) && !empty($attr)) {
-            $query = $db->query('SELECT apid FROM '.Tprefix.'travelmanager_airports WHERE '.$db->escape_string($attr).'="'.$db->escape_string($value).'"');
+            $query = $db->query('SELECT '.self::PRIMARY_KEY.' FROM '.Tprefix.self::TABLE_NAME.' WHERE '.$db->escape_string($attr).'="'.$db->escape_string($value).'"');
             if($db->num_rows($query) > 1) {
-                $airports = array();
-                while($airport = $db->fetch_assoc($query)) {
-                    $airports[$airport['apid']] = new TravelManagerAirports($airport['apid']);
+                $items = array();
+                while($item = $db->fetch_assoc($query)) {
+                    $items[$item[self::PRIMARY_KEY]] = new self($item[self::PRIMARY_KEY]);
                 }
                 $db->free_result($query);
-                return $airports;
+                return $items;
             }
             else {
                 if($db->num_rows($query) == 1) {
-                    return new TravelManagerAirports($db->fetch_field($query, 'apid'));
+                    return new self($db->fetch_field($query, self::PRIMARY_KEY));
                 }
                 return false;
             }
