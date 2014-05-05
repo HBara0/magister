@@ -31,7 +31,7 @@ class Cities {
     }
 
     public static function get_city_byname($name) {
-        return $this->get_city_byattr('name', $name);
+        return Cities::get_city_byattr('name', $name);
     }
 
     public static function get_city_byattr($attr, $value) {

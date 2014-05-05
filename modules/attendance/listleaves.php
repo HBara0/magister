@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * List Leaves
  * $module: attendance
- * $id: listleaves.php	
+ * $id: listleaves.php
  * Last Update: @zaher.reda 	January 3, 2011 | 10:00 AM
  */
 
@@ -94,9 +94,9 @@ if(!$core->input['action']) {
         $multipage_where = $multipage_filter_where;
     }
 
-    $query = $db->query("SELECT l.*, l.fromDate AS fromdate, l.toDate AS till, l.requestTime AS daterequested, Concat(u.firstName, ' ', u.lastName) AS employeename 
-						FROM ".Tprefix."leaves l 
-						JOIN ".Tprefix."users u ON (u.uid=l.uid) 
+    $query = $db->query("SELECT l.*, l.fromDate AS fromdate, l.toDate AS till, l.requestTime AS daterequested, Concat(u.firstName, ' ', u.lastName) AS employeename
+						FROM ".Tprefix."leaves l
+						JOIN ".Tprefix."users u ON (u.uid=l.uid)
 						{$where}{$uid_where}{$filter_where}
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
@@ -350,9 +350,9 @@ else {
             }
 
             /* Parse expense information for message - START */
-            $leavee_obj = new Leaves($leave['lid']);
-            if($leavee_obj->has_expenses()) {
-                $expenses_data = $leavee_obj->get_expensesdetails();
+            $leave_obj = new Leaves($leave['lid']);
+            if($leave_obj->has_expenses()) {
+                $expenses_data = $leave_obj->get_expensesdetails();
                 $total = 0;
                 $expenses_message = '';
                 foreach($expenses_data as $expense) {
@@ -360,7 +360,13 @@ else {
                         $expense['title'] = $lang->{$expense['name']};
                     }
                     $total += $expense['expectedAmt'];
-                    $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
+
+                    $exptype_obj = LeaveExpenseTypes::get_exptype_byattr('title', $expense['title'], false);
+                    if(is_object($exptype_obj)) {
+                        $agency_link = $exptype_obj->parse_agencylink($leave_obj);
+                    }
+                    $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].' '.$agency_link.'<br>';
+                    unset($agency_link);
                 }
                 $expenses_message_output = '<br /><p>'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD</p>';
             }
@@ -368,7 +374,7 @@ else {
             /* Parse expense information for message - END */
 
             /* Previous approvals - START */
-            $approvers = $leavee_obj->get_approvers();
+            $approvers = $leave_obj->get_approvers();
             if(is_array($approvers)) {
                 foreach($approvers as $approver) {
                     $leave['approvers'][] = $approver->get()['displayName'];

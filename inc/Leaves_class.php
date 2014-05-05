@@ -327,6 +327,41 @@ class Leaves {
         }
     }
 
+    public function get_sourcecity() {
+        /* To be expanded later depending on
+         * 1. User selection
+         * 2. Current location
+         */
+        return $this->get_requester()->get_mainaffiliate()->get_city();
+    }
+
+    public function get_destinationcity() {
+        $attributes = array('coid', 'affid', 'spid', 'cid');
+        $alt_functions = array('coid' => 'get_capitalcity');
+
+        foreach($attributes as $attribute) {
+            if(!empty($this->leave[$attribute])) {
+                $destination['type'] = $attribute;
+                $destination['id'] = $this->leave[$attribute];
+                break;
+            }
+        }
+
+        $object = get_object_bytype($destination['type'], $destination['id']);
+        if(is_object($object)) {
+            if(array_key_exists($destination['type'], $alt_functions)) {
+                return $object->$alt_functions[$destination['type']]();
+            }
+            else {
+                if(method_exists($object, 'get_city')) {
+                    return $object->get_city();
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
     public function get() {
         return $this->leave;
     }

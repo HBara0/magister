@@ -47,7 +47,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
             $query3 = $db->query("SELECT l.uid, u.email
 				FROM ".Tprefix."leavesapproval l LEFT JOIN ".Tprefix."users u ON (u.uid=l.uid)
 				WHERE l.isApproved='0' AND l.lid='{$leave[lid]}' AND sequence>(SELECT sequence FROM ".Tprefix."leavesapproval WHERE lid='{$leave[lid]}' AND uid='{$user[uid]}' AND isApproved=1)
-                                ORDER BY sequence ASC                                
+                                ORDER BY sequence ASC
                                 LIMIT 0, 1");
             if($db->num_rows($query3) > 0) {
                 $approver = $db->fetch_assoc($query3);
@@ -63,9 +63,9 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                 $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($core->input['requestKey']).'&id='.base64_encode($leave['lid']);
 
                 /* Parse expense information for message - START */
-                $leaveexpense = new Leaves(array('lid' => $leave['lid']));
-                if($leaveexpense->has_expenses()) {
-                    $expenses_data = $leaveexpense->get_expensesdetails();
+                $leave_obj = new Leaves(array('lid' => $leave['lid']));
+                if($leave_obj->has_expenses()) {
+                    $expenses_data = $leave_obj->get_expensesdetails();
                     $total = 0;
                     $expenses_message = '';
                     foreach($expenses_data as $expense) {
@@ -73,7 +73,13 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                             $expense['title'] = $lang->{$expense['name']};
                         }
                         $total += $expense['expectedAmt'];
-                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
+
+                        $exptype_obj = LeaveExpenseTypes::get_exptype_byattr('title', $expense['title'], false);
+                        if(is_object($exptype_obj)) {
+                            $agency_link = $exptype_obj->parse_agencylink($leave_obj);
+                        }
+                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].' '.$agency_link.'<br>';
+                        unset($agency_link);
                     }
                     $expenses_message_output = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
                 }
@@ -125,7 +131,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                     if($leave['type_details']['isBusiness'] == 1) {
                         $mailinglists_attr = 'mailingList';
                     }
-                    $mailinglists = get_specificdata('affiliates', array('affid', $mailinglists_attr), 'affid', $mailinglists_attr, '', 0, 'affid IN ('.implode(',', $to_inform).')');
+                    $mailinglists = get_specificdata('affiliates', array('affid', $mailinglists_attr), 'affid', $mailinglists_attr, '', 0, 'affid IN ('.implode(', ', $to_inform).')');
                     //$mailingList = $db->fetch_field($db->query("SELECT aff.mailingList FROM ".Tprefix."affiliates aff LEFT JOIN ".Tprefix."affiliatedemployees ae ON (ae.affid=aff.affid) WHERE ae.isMain='1' AND ae.uid='{$leave[uid]}'"), 'mailingList');
                 }
 
@@ -140,7 +146,9 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                     }
 
                     /* if($leave['type_details']['isWholeDay'] == 1) {
-                      //$employeeshift = $db->fetch_assoc($db->query("SELECT ws.* FROM ".Tprefix."employeesshifts es JOIN ".Tprefix."workshifts ws ON (ws.wsid=es.wsid) WHERE es.uid='{$leave[uid]}'"));
+                      //$employeeshift = $db->fetch_assoc($db->query("SELECT ws.* FROM ".Tprefix."employeesshifts es JOIN ".Tprefix."workshifts ws ON (ws.wsid=es.wsid) WHERE es.uid=' {
+                      $leave[uid]
+                      }'"));
                       //$employeeshift['weekDays'] = unserialize($employeeshift['weekDays']);
 
                       $lang->leavenotificationmessage_days = $lang->sprint($lang->leavenotificationmessage_days, count_workingdays($leave['uid'], $leave['fromDate'], $leave['toDate']));
@@ -214,14 +222,15 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 
             if($ignore_subject == true) {
                 if(isset($request['referrer']) && $request['referrer'] == 'email') {
-                    redirect('index.php?module=attendance/listleaves', 3, $lang->leavesuccessfullyapproved);
+                    redirect('index.php?module = attendance/listleaves', 3, $lang->leavesuccessfullyapproved);
                 }
                 else {
                     ?>
                     <script language="javascript" type="text/javascript">
-                        window.top.$('tr[id="leave_<?php echo $leave['lid'];?>"]').attr('class', 'greenbackground');
+                        window.top.$('tr[id = "leave_<?php echo $leave['lid'];?>"]').attr('class', 'greenbackground');
                         window.top.$("#approveimg_<?php echo $leave['lid'];?>").remove();
-                        window.top.$("#approveleave_Result").html("<?php echo '<span class=\'green_text\'>'.$lang->leavesuccessfullyapproved.'</span>';?>");
+                        window.top.$("#approveleave_Result").html("<?php echo '<span class = \'green_text\'>'.$lang->leavesuccessfullyapproved.'</span>';
+                    ?>");
                         window.top.$("#popup_approveleave").remove();
                     </script>
                     <?php
