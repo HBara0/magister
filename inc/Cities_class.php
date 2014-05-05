@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2014 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: Cities_class.php
  * Created:        @zaher.reda    Apr 29, 2014 | 2:45:11 PM
@@ -58,7 +58,10 @@ class Cities {
     }
 
     public function get_defaultairport() {
-        
+        if(empty($this->city['defaultAirport'])) {
+            return false;
+        }
+        return new TravelManagerAirports($this->city['defaultAirport']);
     }
 
     public static function get_cities($filters = '') {

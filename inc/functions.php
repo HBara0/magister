@@ -1565,6 +1565,9 @@ function get_object_bytype($dim, $id) {
         case 'lid':
             return new Leaves($id);
             break;
+        case 'coid':
+            return new Countries($id);
+            break;
     }
 }
 
