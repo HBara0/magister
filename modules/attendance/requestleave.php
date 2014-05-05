@@ -17,7 +17,7 @@ if(!$core->input['action']) {
     $action = 'requestleave';
 
     if($core->usergroup['attendance_canViewAffAllLeaves'] == 1) {
-        $employees[$core->user['uid']] = '';
+        $employees[$core->user['uid']] = $core->user['displayName'];
         if(is_array($core->user['hraffids'])) {
             $query_extrawhere = 'affid IN ('.implode(', ', $core->user['hraffids']).') OR ';
         }
@@ -31,7 +31,7 @@ if(!$core->input['action']) {
     else {
         if(value_exists('users', 'reportsTo', $core->user['uid'])) {
             $employees = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', '', 0, "reportsTo='{$core->user[uid]}' AND gid!=7");
-            $employees[$core->user['uid']] = '';
+            $employees[$core->user['uid']] = $core->user['displayName'];
             asort($employees);
             $show_onbehalf = true;
         }
@@ -235,7 +235,7 @@ else {
         output($lang->sprint($lang->betweenhours, $leave_actual_times['fromHour'], $leave_actual_times['fromMinutes'], $leave_actual_times['toHour'], $leave_actual_times['toMinutes'], $leave_actual_times['workingDays']).$hidden_fields);
     }
     elseif($core->input['action'] == 'do_perform_requestleave') {
-        //NO LEAVE IF BEFORE EMPLOYMENT 
+        //NO LEAVE IF BEFORE EMPLOYMENT
         if(isset($core->input['fromDate']) && !is_empty($core->input['fromDate'], $core->input['fromMinutes'], $core->input['fromHour'])) {
             $fromdate = explode('-', $core->input['fromDate']);
             if(checkdate($fromdate[1], $fromdate[0], $fromdate[2])) {
