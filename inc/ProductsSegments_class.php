@@ -40,7 +40,7 @@ class ProductsSegments {
         return false;
     }
 
-    public static function get_segments() {
+    public static function get_segments($filters = '') {
         global $db;
 
         /* Need to put order, filter, and limit
@@ -48,10 +48,13 @@ class ProductsSegments {
          * Need to put order, filter, and limit
          * Need to put order, filter, and limit
          */
-        $query = $db->query('SELECT psid  FROM '.Tprefix.'productsegments');
+        if(!empty($filters)) {
+            $filters = ' WHERE '.$db->escape_string($filters);
+        }
+        $query = $db->query('SELECT psid  FROM '.Tprefix.'productsegments'.$filters);
         if($db->num_rows($query) > 0) {
             while($rowsegment = $db->fetch_assoc($query)) {
-                $segments[$rowsegment['psid']] = new ProductsSegments($rowsegment['psid']);
+                $segments[$rowsegment['psid']] = new self($rowsegment['psid']);
             }
             return $segments;
         }
