@@ -24,6 +24,15 @@ class Leaves {
         }
     }
 
+    public function get_segment() {
+        if(!empty($this->leave['psid'])) {
+            return new ProductsSegments($this->leave['psid']);
+        }
+        else {
+            return false;
+        }
+    }
+
     public function has_expenses($id = '') {
         global $db;
 
