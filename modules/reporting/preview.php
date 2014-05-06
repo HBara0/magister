@@ -335,7 +335,7 @@ if(!$core->input['action']) {
 //									$boxes_totals_merged = $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter];
 //								}
 //								elseif($year == $report['year'] && $quarter > 1) {
-//									
+//
 //								}
                                     /* Store stacked bar chart data */
                                     $report_charts_data[$aggregate_type][$category]['actual']['y']['Q'.$quarter][$year] = $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter];
@@ -457,7 +457,7 @@ if(!$core->input['action']) {
 
                 foreach($marketreport as $key => $val) {
                     if(!is_numeric($val) && !is_array($val)) {
-                        $marketreport[$key] = nl2br($val);
+                        //  $marketreport[$key] = nl2br($val);
                     }
                 }
 
@@ -524,7 +524,7 @@ if(!$core->input['action']) {
                                         $item['perc'][$yearval] = 100;
                                     }
                                     else {
-                                        $item['perc'][$yearval] = round((($item[$yearval + 1] / $item['data'][$yearval]) * 100) - 100);  /* Divide the next year total ammount with the ammount of previous year */
+                                        $item['perc'][$yearval] = round((($item[$yearval + 1] / $item['data'][$yearval] ) * 100 ) - 100);  /* Divide the next year total ammount with the ammount of previous year */
                                     }
                                 }
 
@@ -545,7 +545,7 @@ if(!$core->input['action']) {
                                 $item_rounding = $default_rounding;
                             }
                             $item['data'][$yearval] = number_format($item[$yearval], $item_rounding, '.', ' ');
-                            //$item['data'][$yearval] = round($item[$yearval]);
+//$item['data'][$yearval] = round($item[$yearval]);
                             /* Store stacked bar chart data */
 
                             $report_charts_data[$aggregate_type][$category]['actual']['y'][1][$yearval] = $progression_totals['data'][$yearval];
@@ -567,7 +567,7 @@ if(!$core->input['action']) {
                                 if(!empty($progression_totals['data'][$year]) && !empty($progression_totals['data'][$year + 1])) {
                                     $next_progression_totals = $progression_totals['data'][$year + 1];
                                     $prev_progression_totals = $progression_totals['data'][$year];
-                                    $progression_totals['perc'][$year] = round((($next_progression_totals / $prev_progression_totals) * 100) - 100);
+                                    $progression_totals['perc'][$year] = round((($next_progression_totals / $prev_progression_totals ) * 100 ) - 100);
                                 }
                             }
                         }
@@ -594,11 +594,11 @@ if(!$core->input['action']) {
                     /* Generate Chart */
                     if($aggregate_type == 'segments') {
                         $progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_charts_data[$aggregate_type][$category]['actual']['y']), 'stackedbar', array('seriesnames' => array(1 => $item['name'])));
-                        //$reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
+//$reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
                     }
                     if($aggregate_type == 'affiliates') {
                         $progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_affiliate_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar', array('seriesnames' => array(1 => $item['name'])));
-                        //$reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
+//$reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
                     }
 
                     eval("\$reporting_report_newtotaloverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
@@ -622,12 +622,12 @@ if(!$core->input['action']) {
 
                 if(is_array($report['representatives'])) {
                     foreach($report['representatives'] as $representative) {
-                        //$representatives_list .= "<div style='width: 35%; text-align: left; display: inline-block;margin: 0px auto;'>{$representative[name]}</div><div style='width: 35%; text-align: left; display: inline-block;margin: 0px auto;'>{$representative[email]}</div>";
+//$representatives_list .= "<div style='width: 35%; text-align: left; display: inline-block;margin: 0px auto;'>{$representative[name]}</div><div style='width: 35%; text-align: left; display: inline-block;margin: 0px auto;'>{$representative[email]}</div>";
                         $representatives_list .= $representative['name'].' - '.$representative['email'].'<br />';
                     }
                 }
 
-                //Use Cache class where appropriate below
+//Use Cache class where appropriate below
                 if(is_array($mkauthors_overview)) {
                     $authors_overview_entries = '';
                     foreach($mkauthors_overview as $affid => $mkauthors) {
@@ -731,9 +731,9 @@ if(!$core->input['action']) {
                 }
                 /* Parse Currencies Table - END */
 
-                //if(is_array($report['productsactivity'])){
+//if(is_array($report['productsactivity'])){
                 eval("\$overviewpage .= \"".$template->get('new_reporting_report_overviewpage')."\";");
-                //}
+//}
             }
 
             if($core->input['referrer'] == 'direct') {
@@ -768,7 +768,7 @@ if(!$core->input['action']) {
             }
 
             $tool_print = "<span id='printreport_span'><a href='index.php?".http_build_query($core->input, '', '&amp;')."&amp;media=print' target='_blank'><img src='images/icons/print.gif' border='0' alt='{$lang->printreport}'/></a></span>";
-            //$tools = $tools_approve.$tools_send."<a href='index.php?module=reporting/preview&amp;action=exportpdf&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;".$tool_print;
+//$tools = $tools_approve.$tools_send."<a href='index.php?module=reporting/preview&amp;action=exportpdf&amp;identifier={$session_identifier}' target='_blank'><img src='images/icons/pdf.gif' border='0' alt='{$lang->downloadpdf}'/></a>&nbsp;".$tool_print;
             $tools = $tools_approve.$tools_send.$tool_print;
             ksort($toc_data);
             foreach($toc_data as $sequence => $entry) {
@@ -790,7 +790,7 @@ if(!$core->input['action']) {
         $session->set_phpsession(array('reports_'.$session_identifier => $reports));
     }
     else {
-        // Add below to class
+// Add below to class
         $missing_employees_query1 = $db->query("SELECT DISTINCT(u.uid), displayName
 												FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid)
 												WHERE ae.affid='{$report[affid]}' AND ae.eid='{$report[spid]}' AND u.gid NOT IN (SELECT gid FROM usergroups WHERE canUseReporting=0 OR canFillReports=0) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$report[rid]}' AND isDone=1) AND u.uid!={$core->user[uid]}"); // AND rc.rid='{$report[rid]}'
@@ -803,7 +803,7 @@ if(!$core->input['action']) {
             $missing_employees_notification = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; font-weight:bold;">'.$lang->employeesnotfillpart.' <ul><li>'.implode('</li><li>', $missing_employees['name']).'</li></ul></div><br />';
         }
 
-        if(($report_meta['auditor'] == 1 && is_array($missing_employees)) || !is_array($missing_employees)) {
+        if(($report_meta['auditor'] == 1 && is_array($missing_employees) ) || !is_array($missing_employees)) {
             $reporting_preview_tools_finalize_button = $lang->suretofinalizebody.' <p align="center"><input type="button" id="save_report_reporting/fillreport_Button" value="'.$lang->yes.'" class="button" onclick="$(\'#popup_finalizereportconfirmation\').dialog(\'close\')"/></p>';
             $reporting_preview_tools_finalize_type = 'finalize';
         }
@@ -876,8 +876,8 @@ else {
         $html2pdf = new HTML2PDF('P', 'B4', 'en', TRUE, 'UTF-8');
         $html2pdf->pdf->SetDisplayMode('fullpage');
         $html2pdf->pdf->SetTitle($suppliername, true);
-        //$content = html_entity_decode($content, ENT_XHTML, 'ISO-8859-1');
-        //$content = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $content);
+//$content = html_entity_decode($content, ENT_XHTML, 'ISO-8859-1');
+//$content = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $content);
         $content = str_replace(array('&uarr;', '&darr;'), array('^', '<sub>v</sub>'), $content);
 
         if($core->input['action'] == 'saveandsend') {
@@ -920,7 +920,7 @@ else {
 
                     $quarter = $report['quarter'];
 
-                    //list($quarter, $year, $affiliate_name, $supplier_name) = $db->fetch_array($query);
+//list($quarter, $year, $affiliate_name, $supplier_name) = $db->fetch_array($query);
                     $email_data = array(
                             'from_email' => 'no-reply@ocos.orkila.com',
                             'from' => 'OCOS Mailer',
@@ -953,7 +953,7 @@ function msort($array, $key, $sort_flags = SORT_REGULAR) {
                     $sort_key = $v[$key];
                 }
                 else {
-                    // @TODO This should be fixed, now it will be sorted as string
+// @TODO This should be fixed, now it will be sorted as string
                     foreach($key as $key_key) {
                         $sort_key .= $v[$key_key];
                     }
