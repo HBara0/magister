@@ -264,13 +264,12 @@ class Users {
     public function get_segments() {
         global $db;
 
-        $segment_query = $db->query("SELECT em.emsid ,em.psid  FROM employeessegments em WHERE em.uid=".$this->user['uid']);
-
-        if($db->num_rows($segment_query) > 0) {
-            while($segments = $db->fetch_assoc($segment_query)) {
-                $segment[$segments['emsid']] = new ProductsSegments($segments['psid']);
+        $query = $db->query("SELECT psid FROM employeessegments WHERE uid=".$this->user['uid']);
+        if($db->num_rows($query) > 0) {
+            while($segment = $db->fetch_assoc($query)) {
+                $segments[$segment['psid']] = new ProductsSegments($segment['psid']);
             }
-            return $segment;
+            return $segments;
         }
         return false;
     }

@@ -377,8 +377,8 @@ else {
             $log->record($lid);
 
             /* Create leave expenses - START */
-            $leaveexpense = new Leaves(array('lid' => $lid));
-            $leaveexpense->create_expenses($expenses_data);
+            $leave_obj = new Leaves(array('lid' => $lid));
+            $leave_obj->create_expenses($expenses_data);
 
             $lang->load('attendance_messages');
 
@@ -433,20 +433,14 @@ else {
                             $approvers['supervisor'] = $aff_obj->get_supervisor()->get()['uid'];
                             break;
                         case 'segmentCoordinator':
-                            $leave_obj = new Leaves($lid, false);
                             /* If leave has segment selected */
                             if(is_object($leave_obj->get_segment())) {
                                 $leave_segmobjs = $leave_obj->get_segment();
                                 $leave_segment_coordinatorobjs = $leave_segmobjs->get_coordinators();
-                                /* If segment  has coordinator selected */
                                 if(is_array($leave_segment_coordinatorobjs)) {
-                                    if(is_array($leave_segment_coordinatorobjs)) {
-                                        foreach($leave_segment_coordinatorobjs as $id => $leave_segment_coordinatorobj) {
-                                            $segment_coordinators[$id] = $leave_segment_coordinatorobj->get_coordinator()->get()['uid'];
-                                        }
-                                    }
+                                    $leave_segment_coordinatorobj = $leave_segment_coordinatorobjs[array_rand($leave_segment_coordinatorobjs, 1)];
+                                    $approvers['segmentCoordinator'] = $leave_segment_coordinatorobj->get_coordinator()->get()['uid'];
                                 }
-                                $approvers['segmentCoordinator'] = implode(',', $segment_coordinators);
                             }
                             break;
                         case 'financialManager':
@@ -543,8 +537,8 @@ else {
                 $lang->requestleavesubject = $lang->sprint($lang->requestleavesubject, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']), $core->input['requestKey']);
 
                 /* Parse expense information for message - START */
-                if($leaveexpense->has_expenses()) {
-                    $expenses_data = $leaveexpense->get_expensesdetails();
+                if($leave_obj->has_expenses()) {
+                    $expenses_data = $leave_obj->get_expensesdetails();
                     $expenses_message = '';
                     foreach($expenses_data as $expense) {
                         if(!empty($lang->{$expense['name']})) {
@@ -558,7 +552,7 @@ else {
                         $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].$expense['description'].'<br />';
                     }
 
-                    $total = $leaveexpense->get_expensestotal();
+                    $total = $leave_obj->get_expensestotal();
                     $expenses_message_ouput = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
                 }
                 /* Parse expense information for message - END */
@@ -856,4 +850,5 @@ function draw_available($start_from, $num_days, $start_date_info, $week_num_days
 
     return $message;
 }
+
 ?>

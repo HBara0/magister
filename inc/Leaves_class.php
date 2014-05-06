@@ -28,9 +28,7 @@ class Leaves {
         if(!empty($this->leave['psid'])) {
             return new ProductsSegments($this->leave['psid']);
         }
-        else {
-            return false;
-        }
+        return false;
     }
 
     public function has_expenses($id = '') {
