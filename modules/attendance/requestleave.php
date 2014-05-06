@@ -113,13 +113,26 @@ else {
         output(parse_toinform_list($core->input['uid'], '', $leavetype_details));
     }
     elseif($core->input['action'] == 'getadditionalfields') {
-        $additional_fields = unserialize($db->fetch_field($db->query("SELECT additionalFields FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['ltid'])."'"), 'additionalFields'));
-        if(is_array($additional_fields)) {
-            foreach($additional_fields as $key => $val) {
-                $fields .= parse_additonalfield($key, $val).'<br />';
-            }
-            output($fields);
+        if(!isset($core->input['uid']) || empty($core->input['uid']) || $core->input['uid'] == $core->user['uid']) {
+            $core->input['uid'] = $core->user['uid'];
+            $leave_user = $core->user;
+            $leave_user_obj = $core->user_obj;
         }
+        else {
+            $leave_user = $db->fetch_assoc($db->query("SELECT uid, firstName, lastName, reportsTo FROM ".Tprefix."users WHERE uid='".$db->escape_string($core->input['uid'])."'"));
+            $leave_user_obj = new Users($core->input['uid']);
+        }
+        $leavetype_obj = new Leavetypes($core->input['ltid']);
+
+        $fields = $leavetype_obj->parse_additonalfields();
+        output($fields);
+//        $additional_fields = unserialize($db->fetch_field($db->query("SELECT additionalFields FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['ltid'])."'"), 'additionalFields'));
+//        if(is_array($additional_fields)) {
+//            foreach($additional_fields as $key => $val) {
+//                $fields .= parse_additonalfield($key, $val).'<br />';
+//            }
+//            output($fields);
+//        }
     }
     elseif($core->input['action'] == 'getleavetime') {
         $ltid = $db->escape_string($core->input['ltid']);
@@ -823,5 +836,4 @@ function draw_available($start_from, $num_days, $start_date_info, $week_num_days
 
     return $message;
 }
-
 ?>
