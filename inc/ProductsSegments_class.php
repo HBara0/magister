@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Products Segments Class
  * $id: ProductsSegments.php
  * Created:        @zaher.reda    Oct 7, 2013 | 3:47:19 PM
@@ -43,10 +43,10 @@ class ProductsSegments {
     public static function get_segments() {
         global $db;
 
-        /* Need to put order, filter, and limit 
-         * Need to put order, filter, and limit 
-         * Need to put order, filter, and limit 
-         * Need to put order, filter, and limit 
+        /* Need to put order, filter, and limit
+         * Need to put order, filter, and limit
+         * Need to put order, filter, and limit
+         * Need to put order, filter, and limit
          */
         $query = $db->query('SELECT psid  FROM '.Tprefix.'productsegments');
         if($db->num_rows($query) > 0) {
@@ -90,7 +90,7 @@ class ProductsSegments {
 
     public function get_assignedemployees() {
         global $db;
-        $query = $db->query('SELECT es.uid, es.emsid 
+        $query = $db->query('SELECT es.uid, es.emsid
 			FROM '.Tprefix.'employeessegments es
 			JOIN '.Tprefix.'users u ON (u.uid=es.uid)
 			WHERE u.gid!=7 AND psid='.intval($this->segment['psid']).'
@@ -116,10 +116,10 @@ class ProductsSegments {
         if(!empty($type)) {
             $query_where = ' AND e.type="'.$db->escape_string($type).'"';
         }
-        $query = $db->query('SELECT e.eid 
-							FROM '.Tprefix.'entities e 
-							JOIN '.Tprefix.'entitiessegments es ON (es.eid=e.eid) 
-							JOIN '.Tprefix.'productsegments p ON (p.psid=es.psid) 
+        $query = $db->query('SELECT e.eid
+							FROM '.Tprefix.'entities e
+							JOIN '.Tprefix.'entitiessegments es ON (es.eid=e.eid)
+							JOIN '.Tprefix.'productsegments p ON (p.psid=es.psid)
 							WHERE p.psid='.intval($this->segment['psid']).''.$query_where);
         if($db->num_rows($query) > 0) {
             while($entity = $db->fetch_assoc($query)) {
@@ -135,10 +135,10 @@ class ProductsSegments {
     public function get_customers($filterpermission = '') {
         global $db;
         $query = $db->query('SELECT e.eid  FROM '.Tprefix.'entities e
-							JOIN '.Tprefix.'entitiessegments es  ON (es.eid=e.eid) 
-							JOIN '.Tprefix.'affiliatedentities a ON (e.eid=a.eid) 
+							JOIN '.Tprefix.'entitiessegments es  ON (es.eid=e.eid)
+							JOIN '.Tprefix.'affiliatedentities a ON (e.eid=a.eid)
 							JOIN '.Tprefix.'affiliatedemployees ae ON (a.affid=ae.affid)
-							JOIN '.Tprefix.'assignedemployees ase ON (ase.uid=ae.uid)			
+							JOIN '.Tprefix.'assignedemployees ase ON (ase.uid=ae.uid)
 							JOIN '.Tprefix.'productsegments p  ON (p.psid=es.psid) WHERE e.type="c" '.$filterpermission.' AND p.psid='.intval($this->segment['psid']).'');
         if($db->num_rows($query) > 0) {
             while($rowsegmentcustomers = $db->fetch_assoc($query)) {

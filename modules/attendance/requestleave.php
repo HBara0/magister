@@ -248,6 +248,7 @@ else {
         output($lang->sprint($lang->betweenhours, $leave_actual_times['fromHour'], $leave_actual_times['fromMinutes'], $leave_actual_times['toHour'], $leave_actual_times['toMinutes'], $leave_actual_times['workingDays']).$hidden_fields);
     }
     elseif($core->input['action'] == 'do_perform_requestleave') {
+
         //NO LEAVE IF BEFORE EMPLOYMENT
         if(isset($core->input['fromDate']) && !is_empty($core->input['fromDate'], $core->input['fromMinutes'], $core->input['fromHour'])) {
             $fromdate = explode('-', $core->input['fromDate']);
@@ -411,6 +412,8 @@ else {
             //update_leavestats_periods($core->input, $leavetype_details['isWholeDay']);
 
             $toapprove = $toapprove_select = unserialize($leavetype_details['toApprove']); //explode(',', $leavetype_details['toApprove']);
+
+
             if(is_array($toapprove)) {
                 $aff_obj = new Affiliates($leave_user_obj->get_mainaffiliate()->get()['affid'], false);
                 foreach($toapprove as $key => $val) {
@@ -428,6 +431,23 @@ else {
                             break;
                         case 'supervisor':
                             $approvers['supervisor'] = $aff_obj->get_supervisor()->get()['uid'];
+                            break;
+                        case 'segmentCoordinator':
+                            $leave_obj = new Leaves($lid, false);
+                            /* If leave has segment selected */
+                            if(is_object($leave_obj->get_segment())) {
+                                $leave_segmobjs = $leave_obj->get_segment();
+                                $leave_segment_coordinatorobjs = $leave_segmobjs->get_coordinators();
+                                /* If segment  has coordinator selected */
+                                if(is_array($leave_segment_coordinatorobjs)) {
+                                    if(is_array($leave_segment_coordinatorobjs)) {
+                                        foreach($leave_segment_coordinatorobjs as $id => $leave_segment_coordinatorobj) {
+                                            $segment_coordinators[$id] = $leave_segment_coordinatorobj->get_coordinator()->get()['uid'];
+                                        }
+                                    }
+                                }
+                                $approvers['segmentCoordinator'] = implode(',', $segment_coordinators);
+                            }
                             break;
                         case 'financialManager':
                             $approvers['financialManager'] = $aff_obj->get_financialemanager()->get()['uid'];
@@ -568,7 +588,7 @@ else {
                     if(!empty($leave['details_crumb'])) {
                         $leave['details_crumb'] = ' - '.$leave['details_crumb'];
                     }
-                    $lang->requestleavemessage = $lang->sprint($lang->requestleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']).' ('.$leavetype_details['description'].')'.$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $core->input['reason'], $lang->requestleavemessage_stats, $approve_link);
+                    $lang->requestleavemessage = $lang->sprint($lang->requestleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']).' ('.$leavetype_details['description'].')'.$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $core->input['reason'], $lang->requestleavemessage_stats, $approve_link, 'segment coord');
 
                     /* Parse Calendar - Start */
                     $lang->requestleavemessage .= get_calendar(array('fromDate' => $core->input['fromDate'], 'affid' => $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$leave_user[uid]}'"), 'affid')));

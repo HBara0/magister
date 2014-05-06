@@ -74,7 +74,14 @@ if(!$core->input['action']) {
 
     // Get User  segments the user is assigned to, assigned to supervise, or is coordinator for
     $user = new Users($core->user['uid']);
-    $userassigned_segments = $user->get_segments();
+    $user_segmentsobjs = $user->get_segments();
+    if(is_array($user_segmentsobjs)) {
+        foreach($user_segmentsobjs as $key => $user_segmentsobj) {
+
+            $userassigned_segments[$user_segmentsobj->get()['psid']] = $user_segmentsobj->get()['title'];
+        }
+    }
+    //$userassigned_segments = $user->get_segments();
     //$user_coordinator_segments = $user->get_coordinatesegments();
     //Get segment cooridnator
     if(is_array($userassigned_segments) && is_array($user_coordinator_segments)) {
