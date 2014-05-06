@@ -261,16 +261,8 @@ class Users {
         return new Affiliates($this->user['mainaffiliate'], FALSE);
     }
 
-    /* CORRECTIONS NEEDED:
-     *  The below should return objects of Segments
-     *  There is no need for the join being made
-     * Should return false if nothing
-     */
     public function get_segments() {
         global $db;
-//        $segment_query = $db->query("SELECT ps.psid,ps.title,em.emsid,em.uid FROM employeessegments em
-//									JOIN ".Tprefix."users u on u.uid=em.uid
-//									JOIN ".Tprefix."productsegments ps ON (ps.psid=em.psid) WHERE u.uid=".$this->user['uid']);
 
         $segment_query = $db->query("SELECT em.emsid ,em.psid  FROM employeessegments em WHERE em.uid=".$this->user['uid']);
 
@@ -292,15 +284,14 @@ class Users {
     public function get_coordinatesegments() {
         global $db;
 
-        $segment_query = $db->query("SELECT psc.pscid,ps.psid,ps.title FROM  ".Tprefix."productsegmentcoordinators psc
-									JOIN ".Tprefix."users u on u.uid=psc.uid
-									JOIN ".Tprefix."productsegments ps ON (ps.psid=psc.psid) WHERE u.uid=".$this->user['uid']);
+        $segment_query = $db->query("SELECT psc.pscid FROM  ".Tprefix."productsegmentcoordinators psc WHERE psc.uid=".$this->user['uid']);
         if($db->num_rows($segment_query) > 0) {
             while($segmentcoord = $db->fetch_assoc($segment_query)) {
                 $segmentcoords[$segmentcoord['pscid']] = $segmentcoord;
             }
             return $segmentcoords;
         }
+        return false;
     }
 
     public function get_hrinfo($simple = true) {

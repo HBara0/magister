@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: generate.php
  * Created:        @tony.assaad    Aug 13, 2013 | 12:09:56 PM
@@ -41,7 +41,12 @@ if(!$core->input['action']) {
     $budget_supplierslist = parse_selectlist('budget[suppliers][]', 2, $suppliers, $core->user['suppliers']['eid'], 1, '', array('id' => 'spid'));
 
     $user = new Users($core->user['uid']);
-    $user_segments = $user->get_segments();
+    $user_segments_objs = $user->get_segments();
+    if(is_array($user_segments_objs)) {
+        foreach($user_segments_objs as $user_segments_obj) {
+            $user_segments[$user_segments_obj->get()['psid']] = $user_segments_obj->get();
+        }
+    }
     $reporting_touser = $user->get_reportingto();
     if(is_array($user_segments)) {
         $budget_segment.='<select name="budget[segments][]" multiple="multiple" tabindex="4">';
