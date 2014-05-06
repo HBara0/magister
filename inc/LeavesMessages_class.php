@@ -14,6 +14,9 @@ class LeavesMessages {
     private $errorcode = 0;
     private $leavemessage = array();
 
+    const PRIMARY_KEY = 'lmid';
+    const TABLE_NAME = 'leaves_messages';
+
     public function __construct($id = '', $simple = true) {
         if(isset($id) && !empty($id)) {
             $this->read($id, $simple);
@@ -31,7 +34,7 @@ class LeavesMessages {
             $query_select = 'lmid, lid, uid, inReplyto, message';
         }
 
-        $this->leavemessage = $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix.'leaves_messages WHERE lmid='.intval($id)));
+        $this->leavemessage = $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
 
     public function get_inreplyto() {
@@ -145,7 +148,7 @@ class LeavesMessages {
                 'viewPermission' => $this->messagedata['permission'],
                 'createdOn' => TIME_NOW);
 
-        $query = $db->insert_query('leaves_messages', $message_data);
+        $query = $db->insert_query(self::TABLE_NAME, $message_data);
         // $this->send_message();
         $this->errorcode = 0;
         return true;
@@ -178,18 +181,18 @@ class LeavesMessages {
         global $db;
 
         if(!empty($value) && !empty($attr)) {
-            $query = $db->query('SELECT lmid FROM '.Tprefix.'leaves_messages WHERE '.$db->escape_string($attr).'="'.$db->escape_string($value).'"');
+            $query = $db->query('SELECT '.self::PRIMARY_KEY.' FROM '.Tprefix.self::TABLE_NAME.' WHERE '.$db->escape_string($attr).'="'.$db->escape_string($value).'"');
             if($db->num_rows($query) > 1) {
                 $messages = array();
                 while($message = $db->fetch_assoc($query)) {
-                    $messages[$message['lmid']] = new LeavesMessages($message['lmid']);
+                    $messages[$message[self::PRIMARY_KEY]] = new self($message[self::PRIMARY_KEY]);
                 }
                 $db->free_result($query);
                 return $messages;
             }
             else {
                 if($db->num_rows($query) == 1) {
-                    return new LeavesMessages($db->fetch_field($query, 'lmid'));
+                    return new LeavesMessages($db->fetch_field($query, self::PRIMARY_KEY));
                 }
                 return false;
             }
