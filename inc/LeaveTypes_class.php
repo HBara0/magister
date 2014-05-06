@@ -39,7 +39,7 @@ class Leavetypes {
             $id = $this->leavetype['ltid'];
         }
 
-        $leavetypeexp_query = $db->query('SELECT * 
+        $leavetypeexp_query = $db->query('SELECT *
                                         FROM '.Tprefix.'attendance_leavetypes_expenses alte
                                         JOIN '.Tprefix.'attendance_leaveexptypes alet ON (alet.aletid=alte.aletid)
                                         WHERE ltid='.$db->escape_string($id).' ORDER BY hasComments DESC');
@@ -89,7 +89,7 @@ class Leavetypes {
         }
         $query_select = '*';
         if($simple == true) {
-            $query_select = 'ltid, name, title,title AS name ,description, toApprove';
+            $query_select = 'ltid, name, title,title AS name ,description,additionalFields,isBusiness,toApprove';
         }
         return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'leavetypes WHERE ltid='.$db->escape_string($id)));
     }
@@ -109,6 +109,109 @@ class Leavetypes {
             return $leavetypes;
         }
         return false;
+    }
+
+    public function get_additonalfields() {
+        global $db;
+        return unserialize($this->leavetype['additionalFields']);
+    }
+
+    public function parse_additonalfields(array $additional_settings = array()) {
+
+        $this->additional_fields = $this->get_additonalfields();
+        if(is_array($this->additional_fields)) {
+            foreach($this->additional_fields as $key => $field) {
+                $this->parsed_fields .= $this->parse_additonalfield($key, $field);
+            }
+            return $this->parsed_fields;
+        }
+    }
+
+    private function parse_additonalfield($attribute, $field_settings, array $additional_settings = array()) {
+        global $db, $core, $lang, $leave;
+        $field = '';
+
+        switch($field_settings['type']) {
+            case 'inline-search':
+                $identifier = uniqid(TIME_NOW);
+
+                if($attribute == 'cid') {
+                    $search_for = 'customer';
+                }
+                elseif($attribute == 'spid') {
+                    $search_for = 'supplier';
+                }
+                $field = '<input type="text" id="'.$search_for.'_'.$identifier.'_QSearch" value="'.$field_settings['value_attribute_value'].'" required="required"/><input type="text" size="3" id="'.$search_for.'_'.$identifier.'_id_output" value="'.$field_settings['key_attribute_value'].'" disabled /><input type="hidden" value="'.$field_settings['key_attribute_value'].'" id="'.$search_for.'_'.$identifier.'_id" name="'.$attribute.'" /><div id="searchQuickResults_'.$identifier.'" class="searchQuickResults" style="display:none;"></div>';
+
+                break;
+            case 'select':
+                if($field_settings['datasource'] == 'db') {
+                    if(isset($field_settings['table'], $field_settings['attributes'])) {
+                        if(isset($field_settings['where'])) {
+                            if($field_settings['affid_validation'] == true) {
+                                if(empty($field_settings['uid'])) {
+                                    $field_settings['uid'] = $core->input['uid'];
+                                }
+                                $field_settings['affids'] = implode(', ', get_specificdata('affiliatedemployees', array('affid'), 'affid', 'affid', '', 0, 'uid='.$db->escape_string($field_settings['uid'])));
+                            }
+
+                            if(isset($leave['fromDate_formatted'])) {
+                                $leave['fromDate'] = $leave['fromDate_output'];
+                            }
+                            $leave['fromDate'] = strtotime($leave['fromDate']);
+                            if(isset($leave['toDate_formatted'])) {
+                                $leave['toDate'] = $leave['toDate_output'];
+                            }
+                            $leave['toDate'] = strtotime($leave['toDate']);
+                            eval("\$field_settings[where] = \"".$field_settings['where']."\";");
+                        }
+
+                        $data = get_specificdata($field_settings['table'], $field_settings['attributes'], $field_settings['key_attribute'], $field_settings['value_attribute'], array('by' => $field_settings['value_attribute'], 'sort' => 'ASC'), 0, $field_settings['where']);
+                        if(is_array($data)) {
+                            $field = parse_selectlist($attribute, 0, $data, $field_settings['key_attribute_value'], $field_settings['mulitpleselect'], '', array('required' => true));
+                        }
+                        else {
+                            $field = '<span class="red_text">'.$lang->{$field_settings['errorlang_nodata']}.'</span>';
+                        }
+                    }
+                    else {
+                        break;
+                    }
+                }
+                /*  This option will call the parse segment
+                 * function based on the funcntion name passed from the
+                 * configuration array
+                 *
+                 * */
+                elseif($field_settings['datasource'] == 'function') {
+                    unset($field_settings['key_attribute_value'], $field_settings['type'], $field_settings['table'], $field_settings['attributes']);
+                    $data = $this->{$field_settings['functionname']}();
+                    if(is_array($data)) {
+                        $field = parse_selectlist($attribute, 0, $data, '', $field_settings['mulitpleselect'], '', array('required' => false));
+                    }
+                }
+                break;
+            default: break;
+        }
+
+        return $field;
+    }
+
+    private function parse_segment(Users $user = null) {
+        global $core;
+        if($this->leavetype['isBusiness'] == 1) {
+            if(!is_object($user)) {
+                $user_obj = new Users();
+            }
+            $user_segmentsobjs = $user_obj->get_segments();
+            if(is_array($user_segmentsobjs)) {
+                foreach($user_segmentsobjs as $key => $user_segmentsobj) {
+
+                    $usersegment_data[$user_segmentsobj->get()['psid']] = $user_segmentsobj->get()['title'];
+                }
+            }
+            return $usersegment_data;
+        }
     }
 
     public function get() {
