@@ -61,7 +61,7 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'preview') {
         $expencesreport_data = $core->input['expencesreport'];
-        if($expencesreport_data['filter']['toDate'] < $expencesreport_data['filter']['fromDate']) {
+        if(strtotime($expencesreport_data['filter']['toDate']) < strtotime($expencesreport_data['filter']['fromDate'])) {
             redirect('index.php?module=attendance/generatexpensesreport&messagecode=1');
         }
 
