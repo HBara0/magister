@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Class to Integrate OCOS with Openbravo
  * $id: IntegrationOB_class.php
  * Created:        @zaher.reda    Feb 18, 2013 | 12:45:36 PM
@@ -32,8 +32,8 @@ class IntegrationOB extends Integration {
     public function sync_products($exclude = array()) {
         global $db, $log;
 
-        $query = $this->f_db->query("SELECT * 
-					FROM m_product 
+        $query = $this->f_db->query("SELECT *
+					FROM m_product
 					WHERE ad_client_id='".$this->client."'
 					AND (updated BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."')");
 
@@ -69,8 +69,8 @@ class IntegrationOB extends Integration {
     public function sync_businesspartners() {
         global $db, $log;
 
-        $query = $this->f_db->query("SELECT * 
-					FROM c_bpartner 
+        $query = $this->f_db->query("SELECT *
+					FROM c_bpartner
 					WHERE ad_client_id='".$this->client."' AND (iscustomer='Y' OR isvendor='Y')
 					AND (updated BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."')");
 
@@ -116,7 +116,7 @@ class IntegrationOB extends Integration {
         if($doc_type == 'order') {
             return false;
 //			$query = $this->f_db->query("SELECT o.ad_org_id, o.c_order_id, o.dateordered, o.documentNo, bp.name AS bpname, bp.c_bpartner_id AS bpid, bp.value AS bpname_abv, c.iso_code AS currency, o.salesrep_id, u.username, u.name AS salesrep, pt.netdays AS paymenttermsdays
-//						FROM c_order o JOIN c_bpartner bp ON (bp.c_bpartner_id=o.c_bpartner_id) 
+//						FROM c_order o JOIN c_bpartner bp ON (bp.c_bpartner_id=o.c_bpartner_id)
 //						JOIN c_currency c ON (c.c_currency_id=o.c_currency_id)
 //						JOIN ad_user u ON (u.ad_user_id=o.salesrep_id)
 //						JOIN c_paymentterm pt ON (o.c_paymentterm_id=pt.c_paymentterm_id)
@@ -125,7 +125,7 @@ class IntegrationOB extends Integration {
         }
         elseif($doc_type == 'invoice') {
             $query = $this->f_db->query("SELECT i.ad_org_id, i.c_invoice_id AS doc_id, i.dateinvoiced AS doc_date, i.documentno, bp.name AS bpname, bp.c_bpartner_id AS bpid, bp.value AS bpname_abv, c.iso_code AS currency, i.salesrep_id, u.username, u.name AS salesrep, pt.netdays AS paymenttermsdays
-					FROM c_invoice i 
+					FROM c_invoice i
 					JOIN c_bpartner bp ON (bp.c_bpartner_id=i.c_bpartner_id)
 					JOIN c_currency c ON (c.c_currency_id=i.c_currency_id)
 					LEFT JOIN ad_user u ON (u.ad_user_id=i.salesrep_id)
@@ -163,14 +163,14 @@ class IntegrationOB extends Integration {
                 }
 
                 if($doc_type == 'order') {
-//					$documentline_query = $this->f_db->query("SELECT ol.*, ct.cost, ppo.c_bpartner_id, u.x12de355 AS uom, c.iso_code AS costcurrency 
-//							FROM c_orderline ol 
-//							JOIN m_product p ON (p.m_product_id=ol.m_product_id) 
+//					$documentline_query = $this->f_db->query("SELECT ol.*, ct.cost, ppo.c_bpartner_id, u.x12de355 AS uom, c.iso_code AS costcurrency
+//							FROM c_orderline ol
+//							JOIN m_product p ON (p.m_product_id=ol.m_product_id)
 //							JOIN c_uom u ON (u.c_uom_id=ol.c_uom_id)
 //							LEFT JOIN m_costing ct ON (ct.m_product_id=p.m_product_id)
 //							LEFT JOIN c_currency c ON (c.c_currency_id=ct.c_currency_id)
 //							LEFT JOIN m_product_po ppo ON (p.m_product_id=ppo.m_product_id)
-//							LEFT JOIN c_bpartner bp ON (bp.c_bpartner_id=ppo.c_bpartner_id) 
+//							LEFT JOIN c_bpartner bp ON (bp.c_bpartner_id=ppo.c_bpartner_id)
 //							WHERE c_order_id='{$document[c_order_id]}' AND ('".$document['dateordered']."' BETWEEN ct.datefrom AND ct.dateto) AND ol.m_product_id NOT IN ('".implode('\',\'', $exclude['products'])."')");
                 }
                 else {
@@ -249,7 +249,7 @@ class IntegrationOB extends Integration {
 
         if($doc_type == 'order') {
             $query = $this->f_db->query("SELECT o.c_order_id AS documentid, o.ad_org_id, o.documentno, o.dateordered AS documentdate, bp.name AS bpname, bp.c_bpartner_id AS bpid, c.iso_code AS currency, pt.netdays AS paymenttermsdays
-							FROM c_order o JOIN c_bpartner bp ON (bp.c_bpartner_id=o.c_bpartner_id) 
+							FROM c_order o JOIN c_bpartner bp ON (bp.c_bpartner_id=o.c_bpartner_id)
 							JOIN c_currency c ON (c.c_currency_id=o.c_currency_id)
 							JOIN c_paymentterm pt ON (o.c_paymentterm_id=pt.c_paymentterm_id)
 							WHERE o.ad_org_id IN ('".implode('\',\'', $organisations)."') AND issotrx='N' AND docstatus = 'CO' AND ((dateordered BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."') OR (o.updated BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."'))");
@@ -297,8 +297,8 @@ class IntegrationOB extends Integration {
 
                 if($doc_type == 'order') {
                     $documentline_query = $this->f_db->query('SELECT ol.*, c_orderline_id AS documentlineid, ol.qtyordered AS quantity, p.name AS productname, u.x12de355 AS uom
-										FROM c_orderline ol JOIN m_product p ON (p.m_product_id=ol.m_product_id) 
-										JOIN c_uom u ON (u.c_uom_id=p.c_uom_id) 
+										FROM c_orderline ol JOIN m_product p ON (p.m_product_id=ol.m_product_id)
+										JOIN c_uom u ON (u.c_uom_id=p.c_uom_id)
 										WHERE c_order_id=\''.$document['documentid'].'\'');
                 }
                 else {
@@ -424,8 +424,8 @@ class IntegrationOB extends Integration {
         }
 
         $query = $this->f_db->query("SELECT *
-									FROM obwfa_input_stack 
-									WHERE ad_org_id IN ('".implode('\',\'', $organisations)."') 
+									FROM obwfa_input_stack
+									WHERE ad_org_id IN ('".implode('\',\'', $organisations)."')
 									AND trxdate BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."'{$query_extrawhere}
 									ORDER BY trxdate ASC, m_product_id ASC");
         if($this->f_db->num_rows($query) > 0) {
@@ -495,13 +495,13 @@ class IntegrationOB extends Integration {
             $organisations = $this->organisations;
         }
 
-        $aging_scale = array(0, 90, 120);
+        $aging_scale = array(0, 120, 180);
         $aging_scale = array_combine(range(1, count($aging_scale)), $aging_scale);
 
         if($options['method'] == 'fifo') {
             $query = $this->f_db->query("SELECT *
-									FROM obwfa_input_stack 
-									WHERE ad_org_id IN ('".implode('\',\'', $organisations)."') 
+									FROM obwfa_input_stack
+									WHERE ad_org_id IN ('".implode('\',\'', $organisations)."')
 									AND trxdate < '".date('Y-m-d 00:00:00', strtotime($date))."'
 									ORDER BY trxdate ASC, m_product_id ASC");
             if($this->f_db->num_rows($query) > 0) {
@@ -533,9 +533,9 @@ class IntegrationOB extends Integration {
                 $query_where = ' AND trx.m_costing_algorithm_id=\''.$this->f_db->escape_string($options['costingalgorithm']).'\'';
             }
 
-            $query = $this->f_db->query("SELECT trx.M_PRODUCT_ID, trx.MOVEMENTQTY AS QTY, CASE WHEN trx.MOVEMENTQTY < 0 THEN- tc.trxcost ELSE tc.trxcost END AS trxcost, 
+            $query = $this->f_db->query("SELECT trx.M_PRODUCT_ID, trx.MOVEMENTQTY AS QTY, CASE WHEN trx.MOVEMENTQTY < 0 THEN- tc.trxcost ELSE tc.trxcost END AS trxcost,
 					                   trx.C_UOM_ID, trx.AD_CLIENT_ID, trx.iscostcalculated, tc.c_currency_id, coalesce(io.dateacct,trx.movementdate) as movementdate, trx.M_TRANSACTION_ID
-					                    FROM M_TRANSACTION trx 
+					                    FROM M_TRANSACTION trx
 					                      LEFT JOIN M_INOUTLINE iol ON trx.M_INOUTLINE_ID = iol.M_INOUTLINE_ID
 					                      LEFT JOIN M_INOUT io ON iol.M_INOUT_ID = io.M_INOUT_ID
 					                      LEFT JOIN (SELECT sum(cost) AS trxcost, m_transaction_id, c_currency_id
@@ -610,7 +610,7 @@ class IntegrationOB extends Integration {
             $organisation = $this->organisations;
         }
         $query = $this->f_db->query("SELECT m_costing_rule_id, ad_org_id
-				FROM m_costing_rule 
+				FROM m_costing_rule
 				WHERE ad_org_id='".$this->f_db->escape_string(implode('\',\'', $organisation))."'
 				AND isvalidated='Y' AND isvalidated='Y'
 				ORDER BY datefrom DESC
@@ -645,13 +645,13 @@ class IntegrationOB extends Integration {
 
     private function get_fifoinput_bytransacction($transaction) {
         return $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-			FROM obwfa_input_stack 
+			FROM obwfa_input_stack
 			WHERE m_transaction_id='".$this->f_db->escape_string($transaction)."'"));
     }
 
     private function get_fifoutput_bytransacction($transaction) {
         return $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-			FROM obwfa_output_stack 
+			FROM obwfa_output_stack
 			WHERE m_transaction_id='".$this->f_db->escape_string($transaction)."'"));
     }
 
@@ -684,13 +684,13 @@ class IntegrationOBTransaction {
 
     private function read($id) {
         $this->transaction = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM m_transaction 
+						FROM m_transaction
 						WHERE m_transaction_id='".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_lasttranscation_bydate($product, $date) {
         $query = $this->f_db->query("SELECT m_transaction_id
-						FROM m_transaction 
+						FROM m_transaction
 						WHERE movementtype IN ('I+', 'V+') AND movementdate < '".$this->f_db->escape_string($date)."'
 						AND m_product_id = '".$this->f_db->escape_string($product)."'
 						ORDER BY movementdate DESC
@@ -832,7 +832,7 @@ class IntegrationOBMovementLine {
 
     private function read($id) {
         $this->movementline = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM m_movementline 
+						FROM m_movementline
 						WHERE m_movementline_id='".$this->f_db->escape_string($id)."'"));
     }
 
@@ -858,7 +858,7 @@ class IntegrationOBMovementLine {
 
     public function get_output_transaction() {
         $query = $this->f_db->query('SELECT t.m_transaction_id
-								FROM m_transaction t 
+								FROM m_transaction t
 								JOIN obwfa_output_stack os ON (os.m_transaction_id=t.m_transaction_id)
 								WHERE t.m_movementline_id=\''.$this->movementline['m_movementline_id'].'\'');
         if($this->f_db->num_rows($query) > 0) {
@@ -870,7 +870,7 @@ class IntegrationOBMovementLine {
     }
 
     public function get_input_transcation() {
-        
+
     }
 
     public function get_id() {
@@ -904,7 +904,7 @@ class IntegrationOBInOutLine {
 
     private function read($id) {
         $this->inoutline = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM m_inoutline 
+						FROM m_inoutline
 						WHERE m_inoutline_id='".$this->f_db->escape_string($id)."'"));
     }
 
