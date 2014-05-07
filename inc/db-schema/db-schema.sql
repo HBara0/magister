@@ -199,6 +199,8 @@ CREATE TABLE `attendance_leaveexptypes` (
   `aletid` mediumint(10) NOT NULL AUTO_INCREMENT,
   `name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `title` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `isAirFare` tinyint(1) NOT NULL DEFAULT '0',
+  `isAccommodation` tinyint(1) NOT NULL DEFAULT '0',
   `createdBy` int(10) NOT NULL,
   `dateCreated` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
@@ -220,7 +222,7 @@ CREATE TABLE `attendance_leaves_expenses` (
   `description` text COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`aleid`),
   KEY `alteid` (`alteid`,`lid`)
-) ENGINE=MyISAM AUTO_INCREMENT=811 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `attendance_leavetypes_expenses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -492,11 +494,11 @@ DROP TABLE IF EXISTS `cities`;
 CREATE TABLE `cities` (
   `ciid` int(10) NOT NULL AUTO_INCREMENT,
   `coid` smallint(5) NOT NULL,
-  `country` varchar(10) NOT NULL,
-  `unlocode` varchar(4) NOT NULL,
-  `oudeloc` varchar(5) DEFAULT NULL,
-  `name` varchar(220) NOT NULL,
-  `geoLocationText` varchar(50) DEFAULT NULL,
+  `country` varchar(10) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `unlocode` varchar(4) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `oudeloc` varchar(5) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `name` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `geoLocationText` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `geoLocation` point DEFAULT NULL,
   `defaultAirport` int(10) DEFAULT NULL,
   PRIMARY KEY (`ciid`),
@@ -511,10 +513,13 @@ CREATE TABLE `countries` (
   `coid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `affid` smallint(5) unsigned NOT NULL,
   `name` varchar(220) NOT NULL,
+  `altName` varchar(200) DEFAULT NULL,
   `acronym` varchar(10) NOT NULL,
+  `capitalCity` int(10) DEFAULT NULL,
   `mainCurrency` int(3) DEFAULT NULL,
   PRIMARY KEY (`coid`),
-  KEY `affid` (`affid`)
+  KEY `affid` (`affid`),
+  KEY `capitalCity` (`capitalCity`)
 ) ENGINE=MyISAM AUTO_INCREMENT=244 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `currencies`;
@@ -951,24 +956,6 @@ CREATE TABLE `holidaysexceptions` (
   KEY `hid` (`hid`,`uid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=332 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `integration_mediation_allproducts`;
-/*!50001 DROP VIEW IF EXISTS `integration_mediation_allproducts`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE TABLE `integration_mediation_allproducts` (
-  `pid` tinyint NOT NULL,
-  `name` tinyint NOT NULL
-) ENGINE=MyISAM */;
-SET character_set_client = @saved_cs_client;
-DROP TABLE IF EXISTS `integration_mediation_allsuppliers`;
-/*!50001 DROP VIEW IF EXISTS `integration_mediation_allsuppliers`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE TABLE `integration_mediation_allsuppliers` (
-  `eid` tinyint NOT NULL,
-  `companyName` tinyint NOT NULL
-) ENGINE=MyISAM */;
-SET character_set_client = @saved_cs_client;
 DROP TABLE IF EXISTS `integration_mediation_entities`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1180,7 +1167,24 @@ CREATE TABLE `leaves` (
   KEY `contactPerson` (`contactPerson`),
   KEY `coid` (`coid`),
   KEY `kiid` (`kiid`)
-) ENGINE=MyISAM AUTO_INCREMENT=11555 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=11587 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `leaves_messages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `leaves_messages` (
+  `lmid` int(10) NOT NULL AUTO_INCREMENT,
+  `uid` int(10) NOT NULL,
+  `lid` int(10) DEFAULT NULL,
+  `msgId` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `inReplyTo` int(10) NOT NULL,
+  `inReplyToMsgId` varchar(220) COLLATE utf8_unicode_ci NOT NULL,
+  `message` text COLLATE utf8_unicode_ci NOT NULL,
+  `viewPermission` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`lmid`),
+  KEY `uid` (`uid`,`inReplyTo`)
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `leavesapproval`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1193,7 +1197,7 @@ CREATE TABLE `leavesapproval` (
   `timeApproved` bigint(30) NOT NULL,
   `sequence` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`laid`,`lid`,`uid`)
-) ENGINE=MyISAM AUTO_INCREMENT=11805 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=11901 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `leavesstats`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1251,7 +1255,7 @@ CREATE TABLE `logs` (
   `data` text NOT NULL,
   PRIMARY KEY (`lid`),
   KEY `uid` (`uid`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=71 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `marketintelligence_basicdata`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1605,44 +1609,6 @@ CREATE TABLE `productsegments_mailinglists` (
   PRIMARY KEY (`psmid`,`affid`,`psid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `qr_missingforecast`;
-/*!50001 DROP VIEW IF EXISTS `qr_missingforecast`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE TABLE `qr_missingforecast` (
-  `rid` tinyint NOT NULL,
-  `identifier` tinyint NOT NULL,
-  `year` tinyint NOT NULL,
-  `affid` tinyint NOT NULL,
-  `spid` tinyint NOT NULL,
-  `initDate` tinyint NOT NULL,
-  `uidFinish` tinyint NOT NULL,
-  `finishDate` tinyint NOT NULL,
-  `isLocked` tinyint NOT NULL,
-  `isSent` tinyint NOT NULL,
-  `type` tinyint NOT NULL,
-  `month` tinyint NOT NULL,
-  `quarter` tinyint NOT NULL,
-  `status` tinyint NOT NULL,
-  `prActivityAvailable` tinyint NOT NULL,
-  `keyCustAvailable` tinyint NOT NULL,
-  `mktReportAvailable` tinyint NOT NULL,
-  `isApproved` tinyint NOT NULL,
-  `summary` tinyint NOT NULL
-) ENGINE=MyISAM */;
-SET character_set_client = @saved_cs_client;
-DROP TABLE IF EXISTS `qr_redablereports`;
-/*!50001 DROP VIEW IF EXISTS `qr_redablereports`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE TABLE `qr_redablereports` (
-  `rid` tinyint NOT NULL,
-  `Supplier` tinyint NOT NULL,
-  `Affiliate` tinyint NOT NULL,
-  `quarter` tinyint NOT NULL,
-  `year` tinyint NOT NULL
-) ENGINE=MyISAM */;
-SET character_set_client = @saved_cs_client;
 DROP TABLE IF EXISTS `reportcontributors`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -2450,6 +2416,7 @@ CREATE TABLE `travelmanager_airports` (
   `iatacode` varchar(3) COLLATE utf8_unicode_ci NOT NULL,
   `name` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
   `ciid` int(10) NOT NULL,
+  `city` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   `coid` int(10) NOT NULL,
   `isCityCode` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`apid`),
@@ -2486,27 +2453,6 @@ CREATE TABLE `travelmanager_flightrates` (
   KEY `aflid` (`aflid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `unspecifiedsegment_marketreport`;
-/*!50001 DROP VIEW IF EXISTS `unspecifiedsegment_marketreport`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE TABLE `unspecifiedsegment_marketreport` (
-  `displayName` tinyint NOT NULL,
-  `quarter` tinyint NOT NULL,
-  `year` tinyint NOT NULL,
-  `companyName` tinyint NOT NULL,
-  `affid` tinyint NOT NULL,
-  `mrid` tinyint NOT NULL,
-  `rid` tinyint NOT NULL,
-  `psid` tinyint NOT NULL,
-  `markTrendCompetition` tinyint NOT NULL,
-  `quarterlyHighlights` tinyint NOT NULL,
-  `devProjectsNewOp` tinyint NOT NULL,
-  `issues` tinyint NOT NULL,
-  `actionPlan` tinyint NOT NULL,
-  `remarks` tinyint NOT NULL
-) ENGINE=MyISAM */;
-SET character_set_client = @saved_cs_client;
 DROP TABLE IF EXISTS `uom`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -2847,76 +2793,6 @@ CREATE TABLE `workshifts` (
   PRIMARY KEY (`wsid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=33 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-/*!50001 DROP TABLE IF EXISTS `integration_mediation_allproducts`*/;
-/*!50001 DROP VIEW IF EXISTS `integration_mediation_allproducts`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `integration_mediation_allproducts` AS select `products`.`pid` AS `pid`,`products`.`name` AS `name` from `products` */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-/*!50001 DROP TABLE IF EXISTS `integration_mediation_allsuppliers`*/;
-/*!50001 DROP VIEW IF EXISTS `integration_mediation_allsuppliers`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `integration_mediation_allsuppliers` AS select `entities`.`eid` AS `eid`,`entities`.`companyName` AS `companyName` from `entities` where (`entities`.`type` = _utf8's') */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-/*!50001 DROP TABLE IF EXISTS `qr_missingforecast`*/;
-/*!50001 DROP VIEW IF EXISTS `qr_missingforecast`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `qr_missingforecast` AS select `reports`.`rid` AS `rid`,`reports`.`identifier` AS `identifier`,`reports`.`year` AS `year`,`reports`.`affid` AS `affid`,`reports`.`spid` AS `spid`,`reports`.`initDate` AS `initDate`,`reports`.`uidFinish` AS `uidFinish`,`reports`.`finishDate` AS `finishDate`,`reports`.`isLocked` AS `isLocked`,`reports`.`isSent` AS `isSent`,`reports`.`type` AS `type`,`reports`.`month` AS `month`,`reports`.`quarter` AS `quarter`,`reports`.`status` AS `status`,`reports`.`prActivityAvailable` AS `prActivityAvailable`,`reports`.`keyCustAvailable` AS `keyCustAvailable`,`reports`.`mktReportAvailable` AS `mktReportAvailable`,`reports`.`isApproved` AS `isApproved`,`reports`.`summary` AS `summary` from `reports` where ((`reports`.`quarter` = 3) and (`reports`.`year` = 2013) and (`reports`.`status` = 1) and `reports`.`rid` in (select `productsactivity`.`rid` AS `rid` from `productsactivity` where (((`productsactivity`.`quantityForecast` = 0) or (`productsactivity`.`salesForecast` = 0)) and ((`productsactivity`.`quantity` <> 0) or (`productsactivity`.`turnOver` <> 0)) and `productsactivity`.`rid` in (select `reports`.`rid` AS `rid` from `reports` where ((`reports`.`quarter` = 3) and (`reports`.`year` = 2013) and (`reports`.`status` = 1)))))) */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-/*!50001 DROP TABLE IF EXISTS `qr_redablereports`*/;
-/*!50001 DROP VIEW IF EXISTS `qr_redablereports`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `qr_redablereports` AS select `r`.`rid` AS `rid`,`s`.`companyName` AS `Supplier`,`a`.`name` AS `Affiliate`,`r`.`quarter` AS `quarter`,`r`.`year` AS `year` from ((`reports` `r` join `affiliates` `a` on((`a`.`affid` = `r`.`affid`))) join `entities` `s` on((`s`.`eid` = `r`.`spid`))) */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-/*!50001 DROP TABLE IF EXISTS `unspecifiedsegment_marketreport`*/;
-/*!50001 DROP VIEW IF EXISTS `unspecifiedsegment_marketreport`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `unspecifiedsegment_marketreport` AS select `u`.`displayName` AS `displayName`,`r`.`quarter` AS `quarter`,`r`.`year` AS `year`,`e`.`companyName` AS `companyName`,`r`.`affid` AS `affid`,`mkr`.`mrid` AS `mrid`,`mkr`.`rid` AS `rid`,`mkr`.`psid` AS `psid`,`mkr`.`markTrendCompetition` AS `markTrendCompetition`,`mkr`.`quarterlyHighlights` AS `quarterlyHighlights`,`mkr`.`devProjectsNewOp` AS `devProjectsNewOp`,`mkr`.`issues` AS `issues`,`mkr`.`actionPlan` AS `actionPlan`,`mkr`.`remarks` AS `remarks` from ((((`marketreport` `mkr` join `marketreport_authors` `mka` on((`mkr`.`mrid` = `mka`.`mrid`))) join `users` `u` on((`u`.`uid` = `mka`.`uid`))) join `reports` `r` on((`r`.`rid` = `mkr`.`rid`))) join `entities` `e` on((`r`.`spid` = `e`.`eid`))) where (`mkr`.`psid` < 1) order by `mkr`.`mrid` desc */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -2926,3 +2802,4 @@ CREATE TABLE `workshifts` (
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
