@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2014 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: MeetingsAttachments.php
  * Created:        @tony.assaad    Mar 24, 2014 | 2:23:50 PM
@@ -17,6 +17,8 @@ class MeetingsAttachments {
     private $attachment = array();
     private $errorcode = 0;
     private $attachment_upload = null;
+
+    const attachments_path = './uploads/meetings';
 
     public function __construct($id = '', $simple = false) {
         if(isset($id) && !empty($id)) {
@@ -66,8 +68,7 @@ class MeetingsAttachments {
         $upload_param['upload_allowed_types'] = array('image/jpeg', 'image/gif', 'image/png', 'application/zip', 'application/pdf', 'application/x-pdf', 'application/msword', 'application/vnd.ms-powerpoint', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
         $upload_obj = new Uploader('attachments', $attachement, $upload_param['upload_allowed_types'], 'putfile', 5242880, 1, 1); //5242880 bytes = 5 MB (1024);
 
-        $attachments_path = './uploads/meetings';
-        $upload_obj->set_upload_path($attachments_path);
+        $upload_obj->set_upload_path(self::attachments_path);
         $upload_obj->process_file();
         $this->attachment_upload = $upload_obj->get_filesinfo();
 
@@ -82,6 +83,10 @@ class MeetingsAttachments {
                 return true;
             }
         }
+    }
+
+    public function download() {
+        return new Download('meetings_attachments', 'filename', array('mattid' => $this->attachment['mattid']), self::attachments_path);
     }
 
     public function get_createdby() {
