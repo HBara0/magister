@@ -41,7 +41,7 @@ class AttLeavesApproval {
         if(!empty($filters)) {
             $filters = ' WHERE '.$db->escape_string($filters);
         }
-        $query = $db->query('SELECT laid FROM '.Tprefix.'leavesapprova'.$filters);
+        $query = $db->query('SELECT laid FROM '.Tprefix.'leavesapproval'.$filters);
         $rows_counts = $db->num_rows($query);
         if($rows_counts > 0) {
             if($rows_counts > 1) {
