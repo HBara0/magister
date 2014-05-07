@@ -389,10 +389,31 @@ else {
         }
     }
     elseif($core->input['action'] == 'perform_sendmessage') {
+        echo $headerinc;
         $leavemessage_obj = new LeavesMessages();
         $leavemessage_obj->create_message($core->input['leavemessage'], $core->input['lid'], array('source' => 'emaillink'));
         /* Errors Should be handled Here */
-        $leavemessage_obj->send();
+        switch($leavemessage_obj->get_errorcode()) {
+            case 0:
+                $output_class = 'green_text';
+                $output_message = $lang->successfullysaved;
+                $leavemessage_obj->send();
+                break;
+            case 1:
+                $output_class = 'red_text';
+                $output_message = $lang->fillallrequiredfields;
+                break;
+            case 2:
+                $output_class = 'red_text';
+                $output_message = $lang->messagerequired;
+                break;
+            case 3:
+                $output_class = 'red_text';
+                $output_message = $lang->messageexist;
+                break;
+        }
+
+
         /* Need to have feedback message */
     }
     elseif($core->input['action'] == 'get_revokeleave') {
@@ -405,3 +426,9 @@ else {
     }
 }
 ?>
+
+<script language="javascript" type="text/javascript">
+    $(function() {
+        top.$("#status_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
+    });
+</script>

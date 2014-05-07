@@ -266,7 +266,7 @@ class Leaves {
         }
     }
 
-    public function parse_messages() {
+    public function parse_messages($option = '') {
         global $template, $core;
 
         $initialmsg = $this->get_initalmessage();
@@ -276,6 +276,7 @@ class Leaves {
         }
 
         $message = $initialmsg->get();
+
         if($initialmsg->can_seemessage() == false) {
             return false;
         }
@@ -285,6 +286,9 @@ class Leaves {
         eval("\$takeactionpage_conversation = \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
 
         $replies_objs = $initialmsg->get_replies();
+        if(!empty($option) && $option == 'textonly') {
+            return $replies_objs;
+        }
         if(is_array($replies_objs)) {
             $takeactionpage_conversation .= $this->parse_replies($replies_objs);
         }

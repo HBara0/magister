@@ -58,10 +58,9 @@ class LeavesMessages {
     public function can_seemessage($check_user = '') {
         global $core;
 
-        if(!isset($check_user)) {
+        if(empty($check_user)) {
             $check_user = $core->user['uid'];
         }
-
         if($this->leavemessage['uid'] == $check_user) {
             return true;
         }
@@ -87,7 +86,6 @@ class LeavesMessages {
                 break;
             case 'limited':
                 $leave_obj = new Leaves($this->leavemessage['lid']);
-
                 $sender_approval_seq = $leave_obj->get_approval_byappover($this->leavemessage['uid'])->get()['sequence'];
                 $user_approval_seq = $leave_obj->get_approval_byappover($check_user)->get()['sequence'];
 
@@ -130,6 +128,7 @@ class LeavesMessages {
     public function create_message(array $data, $lid, array $config = array()) {
         global $db, $core;
 
+
         $valid_fields = array('uid', 'lid', 'msgId', 'inReplyTo', 'inReplyToMsgId', 'message', 'viewPermission', 'createdOn');
         if(!empty($data)) {
             $this->leavemessage = $data;
@@ -139,6 +138,14 @@ class LeavesMessages {
             return false;
         }
 
+        if(empty($this->leavemessage['message'])) {
+            $this->errorcode = 2;
+            return false;
+        }
+        if(value_exists('leaves_messages', 'message', $this->leavemessage['message'], ' uid='.$core->user['uid'].'')) { // Add date filter
+            $this->errorcode = 3;
+            return false;
+        }
         if(preg_match("/Message-ID: (.*)/", $this->leavemessage['message'], $matches)) {
             preg_match("/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/", $matches[1], $messageid);
             $this->leavemessage['msgId'] = $messageid[1];
@@ -156,10 +163,7 @@ class LeavesMessages {
             $this->leavemessage['message'] = self::extract_message($data['message'], true);
         }
 
-        if(empty($this->leavemessage['message'])) {
-            $this->errorcode = 1;
-            return false;
-        }
+
         $this->leavemessage['lid'] = $lid;
         $this->leavemessage['uid'] = $core->user['uid'];
         $this->leavemessage['createdOn'] = TIME_NOW;
@@ -193,16 +197,51 @@ class LeavesMessages {
         /* SET TO LAND VAR */
         $mailer->set_subject('New message to leave request.'.$this->get_leave()->get()['requestKey']);
 
+
         /* ATTENTION
          * SHOW LEAVE DETAILS TWO SPACES AFTER THE REPLY MESSAGE
-         * SHOW THE FULL CONVERSATION ALONG TO THE DETAILS
+         * SHOW THE FULL CONVERSATIONo ALONG TO THE DETAILS
          * NEED TO BE DEVELOPED
          */
-        $mailer->set_message($this->leavemessage['message']);
+        $leavemessage_conversationobjs = $this->get_leave()->parse_messages($option = 'textonly');
+
+        if(is_array($leavemessage_conversationobjs)) {
+
+            foreach($leavemessage_conversationobjs as $leavemessage_conversationobj) {
+                $leave_converstaionreplies = $leavemessage_conversationobj->get();
+                $leave_converstaionreplies['replydate'] = date($core->settings['dateformat'], $leavemessage_conversationobj->get()['createdOn']);
+                $mailmessage .= '<div style="display:block;"><p><strong>'.$leave_converstaionreplies['message'].'</strong></p>';
+                $mailmessage .= '<span> inReplyTo '.$this->get_inreplyto()->get()['message'].'</span>';
+                $mailmessage .= '<span> On '.$leave_converstaionreplies['replydate'].'</span>';
+            }
+            $leave_details['leavetype'] = $this->get_leave()->get_leavetype()->get()['title'];
+            $leave_details['fromtime'] = date($core->settings['dateformat'], $this->get_leave()->get()['fromDate']);
+            $leave_details['totime'] = date($core->settings['dateformat'], $this->get_leave()->get()['toDate']);
+
+            $leave_details['requester'] = $this->get_leave()->get_requester()->get()['displayName'];
+            $mailmessage.=' <div><br/><strong>Leave Details</strong></div>';
+            $mailmessage.=' <div><br>'.$leave_details['leavetype'].'</div>';
+            $mailmessage.=' <div><br>'.$leave_details['fromtime'].' TO '.$leave_details['totime'].'</div>';
+            $mailmessage.=' <div><br>'.$leave_details['requester'].'</div>';
+            $mailmessage.='</div>';
+
+            print_r($mailmessage);
+        }
+
+        $mailer->set_message($mailmessage);
 
         /* NEED TO SET PROPER TO DEPENDING ON PERMISSION */
+        $repliers_objs = $this->get_user($this->leavemessage['uid']);
+        if(is_object($repliers_objs)) {
+
+            foreach($repliers_objs as $repliers_obj) {
+                $email_data['to'][] = $repliers_obj->get()['email'];
+            }
+        }
+        print_r($email_data['to']);
         $mailer->set_to('tony.assaad@orkila.com');
         $mailer->send();
+        //  print_r($mailer->debug_info());
     }
 
     public static function get_message_byattr($attr, $value, $simple = true) {
@@ -250,6 +289,10 @@ class LeavesMessages {
 
     public function get_user() {
         return new Users($this->leavemessage['uid']);
+    }
+
+    public function get_errorcode() {
+        return $this->errorcode;
     }
 
     public function get() {
