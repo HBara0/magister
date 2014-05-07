@@ -29,6 +29,7 @@ class LeavesMessages {
         if(empty($id)) {
             return false;
         }
+
         $query_select = '*';
         if($simple == true) {
             $query_select = 'lmid, lid, uid, inReplyto, message';
@@ -44,6 +45,16 @@ class LeavesMessages {
         return new LeavesMessages($this->leavemessage['inReplyTo']);  /* Get the reply messaage id  of the current message object */
     }
 
+    public function get_replies() {
+        global $db;
+
+        $replies = LeavesMessages::get_messages('inReplyTo='.$this->leavemessage['lmid'], false);
+        if(is_array($replies)) {
+            return $replies;
+        }
+        return false;
+    }
+
     public function can_seemessage($check_user = '') {
         global $core;
 
@@ -52,6 +63,10 @@ class LeavesMessages {
         }
 
         if($this->leavemessage['uid'] == $check_user) {
+            return true;
+        }
+
+        if($this->leavemessage['viewPermission'] == 'public') {
             return true;
         }
 
@@ -69,9 +84,6 @@ class LeavesMessages {
                     return true;
                 }
                 return false;
-                break;
-            case 'public':
-                return true;
                 break;
             case 'limited':
                 $leave_obj = new Leaves($this->leavemessage['lid']);
@@ -115,41 +127,51 @@ class LeavesMessages {
         return $message;
     }
 
-    public function create_message(array $data = array(), $leaveid) {
+    public function create_message(array $data, $lid, array $config = array()) {
         global $db, $core;
 
+        $valid_fields = array('uid', 'lid', 'msgId', 'inReplyTo', 'inReplyToMsgId', 'message', 'viewPermission', 'createdOn');
         if(!empty($data)) {
-            $this->messagedata = $data;
+            $this->leavemessage = $data;
         }
         else {
             $this->errorcode = 1;
             return false;
         }
-        if(preg_match("/Message-ID: (.*)/", $this->messagedata['message'], $matches)) {
+
+        if(preg_match("/Message-ID: (.*)/", $this->leavemessage['message'], $matches)) {
             preg_match("/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/", $matches[1], $messageid);
-            $this->leavemessage_data['msgId'] = $messageid[1];
+            $this->leavemessage['msgId'] = $messageid[1];
         }
-        if(preg_match("/In-Reply-To: (.*)/", $this->messagedata['message'], $matches)) {
+        if(preg_match("/In-Reply-To: (.*)/", $this->leavemessage['message'], $matches)) {
             preg_match("/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/", $matches[1], $replyto);
-            $this->leavemessage_data['inReplyToMsgId'] = $replyto[1];
+            $this->leavemessage['inReplyToMsgId'] = $replyto[1];
         }
 
-        if(isset($this->leavemessage_data['inReplyToMsgId'])) {
-            $this->leavemessage_data['inReplyTo'] = LeavesMessages::get_message_byattr('msgId', $this->leavemessage_data['inReplyToMsgId']);
+        if(isset($this->leavemessage['inReplyToMsgId'])) {
+            $this->leavemessage['inReplyTo'] = self::get_message_byattr('msgId', $this->leavemessage_data['inReplyToMsgId'])->get()['lmid'];
         }
-        $this->leavemessage_data['message'] = 'message body  ';
 
-        $message_data = array('lid' => $leaveid,
-                'uid' => $core->user['uid'],
-                'msgId' => $this->leavemessage_data['msgId'],
-                'inReplyTo' => $this->leavemessage_data['lmid'],
-                'inReplyToMsgId' => $this->leavemessage_data['inReplyTo'],
-                'message' => $this->leavemessage_data['message'],
-                'viewPermission' => $this->messagedata['permission'],
-                'createdOn' => TIME_NOW);
+        if($config['source'] != 'emaillink') {
+            $this->leavemessage['message'] = self::extract_message($data['message'], true);
+        }
 
-        $query = $db->insert_query(self::TABLE_NAME, $message_data);
-        // $this->send_message();
+        if(empty($this->leavemessage['message'])) {
+            $this->errorcode = 1;
+            return false;
+        }
+        $this->leavemessage['lid'] = $lid;
+        $this->leavemessage['uid'] = $core->user['uid'];
+        $this->leavemessage['createdOn'] = TIME_NOW;
+
+        foreach($this->leavemessage as $attr => $val) {
+            if(!in_array($attr, $valid_fields)) {
+                unset($this->leavemessage[$attr]);
+            }
+        }
+
+        $query = $db->insert_query(self::TABLE_NAME, $this->leavemessage);
+        $this->leavemessage['lmid'] = $db->last_id();
         $this->errorcode = 0;
         return true;
     }
@@ -161,23 +183,29 @@ class LeavesMessages {
 //        return $lastmessage;
 //    }
 
-    public function send_message(LeavesMessages $message) {
+    public function send() {
         global $core;
-        //$this->leavemessage['thread'] = $this->read_message();
-
-        /* We need to show the full conversation below */
 
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
-        $mailer->set_subject('Conversation message');
-        $mailer->set_message($message->get()['message']);
-        $mailer->set_to('tony.assaad@orkila.com');
 
-        //$mailer->send();
+        /* SET TO LAND VAR */
+        $mailer->set_subject('New message to leave request.'.$this->get_leave()->get()['requestKey']);
+
+        /* ATTENTION
+         * SHOW LEAVE DETAILS TWO SPACES AFTER THE REPLY MESSAGE
+         * SHOW THE FULL CONVERSATION ALONG TO THE DETAILS
+         * NEED TO BE DEVELOPED
+         */
+        $mailer->set_message($this->leavemessage['message']);
+
+        /* NEED TO SET PROPER TO DEPENDING ON PERMISSION */
+        $mailer->set_to('tony.assaad@orkila.com');
+        $mailer->send();
     }
 
-    public static function get_message_byattr($attr, $value) {
+    public static function get_message_byattr($attr, $value, $simple = true) {
         global $db;
 
         if(!empty($value) && !empty($attr)) {
@@ -185,19 +213,35 @@ class LeavesMessages {
             if($db->num_rows($query) > 1) {
                 $messages = array();
                 while($message = $db->fetch_assoc($query)) {
-                    $messages[$message[self::PRIMARY_KEY]] = new self($message[self::PRIMARY_KEY]);
+                    $messages[$message[self::PRIMARY_KEY]] = new self($message[self::PRIMARY_KEY], $simple);
                 }
                 $db->free_result($query);
                 return $messages;
             }
             else {
                 if($db->num_rows($query) == 1) {
-                    return new LeavesMessages($db->fetch_field($query, self::PRIMARY_KEY));
+                    return new self($db->fetch_field($query, self::PRIMARY_KEY), $simple);
                 }
                 return false;
             }
         }
         return false;
+    }
+
+    public static function get_messages($filters = '', $simple = true) {
+        global $db;
+
+        $items = array();
+
+        if(!empty($filters)) {
+            $filters = ' WHERE '.$db->escape_string($filters);
+        }
+        $query = $db->query('SELECT '.self::PRIMARY_KEY.' FROM '.Tprefix.self::TABLE_NAME.$filters);
+        while($item = $db->fetch_assoc($query)) {
+            $items[$item[self::PRIMARY_KEY]] = new self($item[self::PRIMARY_KEY], $simple);
+        }
+        $db->free_result($query);
+        return $items;
     }
 
     public function get_leave() {

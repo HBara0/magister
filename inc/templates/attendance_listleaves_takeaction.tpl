@@ -6,18 +6,13 @@
             $(function() {
                 $('img[id^="replyto_"]').bind('click', function() {
                     var id = $(this).attr("id").split("_");
-                    $("html, body").animate({scrollTop: $('#messagetoreply').offset().top}, 500);
                     $("#inreplyto").val(id[1]);
                     var permission = id[2];
                     $('input[id$="_' + permission + '"]').prop('checked', true);
-                    // $('input').not('[id$="_' + permission + '"]').prop('disabled',true);
-                    $('#message').effect("highlight", {color: '#D6EAAC'}, 1500).focus();
+                    $('#message').focus();
                 });
             });
-
         </script>
-
-
     </head>
     <body style="color:#000000;">
         <div align="center">
@@ -45,21 +40,20 @@
                             <input type="hidden" id="referrer" name="referrer" value="email" />
                             <input type='submit' value='{$lang->revokeleave}' class='button'/>
                         </form>
-
-                        <p><em>{$lang->coversationthreadnote}</em></p>
+                        <hr />
+                        <div class='subtitle'>{$lang->coversationthreadnote}</div>
                         <form action="index.php?module=attendance/listleaves" method="post">
                             <input type="hidden" name="action" value="perform_sendmessage" />
                             <input type="hidden" value="" id="inreplyto" name="leavemessage[inReplyTo]"/>
+                            <input type="hidden" value="{$core->input[id]}" id="inreplyto" name="lid"/>
                             <div id="messagetoreply" style="display:block; padding: 8px;"><textarea id="message" cols="40" rows="5" name="leavemessage[message]"></textarea>
                                 <div id="messagetoreply" style="display:block; padding:5px;">
-                                    <span><input type="radio" id="permission_public"  name="leavemessage[permission]" title="{$lang->publictitle}"  value="public" checked="checked"  >{$lang->public}</span>
-                                    <span><input type="radio" id="permission_private" name="leavemessage[permission]" title="{$lang->privatetitle}"  value="private">{$lang->private}</span>
-                                    <span><input type="radio" id="permission_limited" name="leavemessage[permission]" title="{$lang->limitedtitle}" value="limited">{$lang->limited}</span>
-
+                                    <span><input type="radio" id="permission_public" name="leavemessage[viewPermission]" title="{$lang->publictitle}" value="public" checked="checked">{$lang->public}</span>
+                                    <span><input type="radio" id="permission_private" name="leavemessage[viewPermission]" title="{$lang->privatetitle}" value="private">{$lang->private}</span>
+                                    <span><input type="radio" id="permission_limited" name="leavemessage[viewPermission]" title="{$lang->limitedtitle}" value="limited">{$lang->limited}</span>
                                 </div>
-                                <div><input type='submit' value={$lang->send}  class='button'/></div>
-                                <div style="display:block;">{$takeactionpage_conversations}</div>
-
+                                <div><input type='submit' value="{$lang->send}" class='button'/></div>
+                                <div style="display:block;">{$takeactionpage_conversation}</div>
                         </form>
                     </td>
                 </tr>

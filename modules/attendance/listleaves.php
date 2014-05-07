@@ -327,16 +327,16 @@ else {
 
         $request['requestkey'] = base64_decode($request_key);
 
-        include "./pipes/approve_leaverequest.php";
+        include './pipes/approve_leaverequest.php';
     }
     elseif($core->input['action'] == 'takeactionpage') {
         if(isset($core->input['id'], $core->input['requestKey'])) {
             $core->input['id'] = base64_decode($core->input['id']);
-            $leaveobj = new Leaves($core->input['id'], false);
-            $leave = $leaveobj->get();
-            $leave['requester'] = $leaveobj->get_requester()->get();
-            $leavetype = new Leavetypes($leave['type'], false);
-            $leave['type_details'] = $leavetype->get();
+            $leave_obj = new Leaves($core->input['id'], false);
+            $leave = $leave_obj->get();
+            $leave['requester'] = $leave_obj->get_requester()->get();
+
+            $leave['type_details'] = $leave_obj->get_type(false)->get();
 
             $leave['fromDate_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']);
             $leave['toDate_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']);
@@ -350,9 +350,8 @@ else {
             }
 
             /* Parse expense information for message - START */
-            $leavee_obj = new Leaves(105);  //restore to leaveid
-            if($leavee_obj->has_expenses()) {
-                $expenses_data = $leavee_obj->get_expensesdetails();
+            if($leave_obj->has_expenses()) {
+                $expenses_data = $leave_obj->get_expensesdetails();
                 $total = 0;
                 $expenses_message = '';
                 foreach($expenses_data as $expense) {
@@ -368,7 +367,7 @@ else {
             /* Parse expense information for message - END */
 
             /* Previous approvals - START */
-            $approvers = $leavee_obj->get_approvers();
+            $approvers = $leave_obj->get_approvers();
             if(is_array($approvers)) {
                 foreach($approvers as $approver) {
                     $leave['approvers'][] = $approver->get()['displayName'];
@@ -382,7 +381,7 @@ else {
 
             /* Conversation message --START */
             $leaemessag_obj = new LeavesMessages();
-            $takeactionpage_conversations = $leavee_obj->parse_messages();
+            $takeactionpage_conversation = $leave_obj->parse_messages();
 
             /* Conversation  message --END */
             eval("\$takeactionpage = \"".$template->get('attendance_listleaves_takeaction')."\";");
@@ -391,7 +390,10 @@ else {
     }
     elseif($core->input['action'] == 'perform_sendmessage') {
         $leavemessage_obj = new LeavesMessages();
-        $leavemessage_obj->create_message($core->input['leavemessage'], 105, array('source' => 'emaillink'));
+        $leavemessage_obj->create_message($core->input['leavemessage'], $core->input['lid'], array('source' => 'emaillink'));
+        /* Errors Should be handled Here */
+        $leavemessage_obj->send();
+        /* Need to have feedback message */
     }
     elseif($core->input['action'] == 'get_revokeleave') {
         eval("\$revokeleavebox = \"".$template->get("popup_revokeleave")."\";");
