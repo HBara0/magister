@@ -22,14 +22,6 @@ if(!$core->input['action']) {
         error($lang->sectionnopermission);
     }
     $meeting = $meeting_obj->get();
-    $meeting_attachmentobjs = $meeting_obj->get_attachments();
-    $meetingid = $core->input['mtid'];
-    if(is_array($meeting_attachmentobjs)) {
-        foreach($meeting_attachmentobjs as $meeting_attachmentobj) {
-            $meeting_attachment = $meeting_attachmentobj->get();
-            eval("\$meeting_viewmeeting_attach .= \"".$template->get('meetings_viewmeeting_attachments')."\";");
-        }
-    }
 
     if(!empty($meeting['fromDate'])) {
         $meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
@@ -41,6 +33,20 @@ if(!$core->input['action']) {
     }
 
     $meeting['createdby'] = $meeting_obj->get_createdby()->get()['displayName'];
+
+    /* Parse Attachments - START */
+    $meeting_attachmentobjs = $meeting_obj->get_attachments();
+    if(is_array($meeting_attachmentobjs)) {
+        foreach($meeting_attachmentobjs as $meeting_attachmentobj) {
+            $meeting_attachment = $meeting_attachmentobj->get();
+
+            $meeting_attachment['size_output'] = format_size($meeting_attachment['size']);
+            eval("\$meeting_attachments .= \"".$template->get('meetings_viewmeeting_attachment')."\";");
+        }
+        eval("\$meeting_attachmentssection = \"".$template->get('meetings_viewmeeting_attachments')."\";");
+        unset($meeting_attachments);
+    }
+    /* Parse Attachments - END */
 
     if($meeting['hasMoM'] == 1) {
         $minsofmeeting = $meeting_obj->get_mom()->get();
@@ -65,16 +71,15 @@ if(!$core->input['action']) {
     output_page($meeting_viewmeeting);
 }
 elseif($core->input['action'] == 'download') {
-    if($core->usergroup['meetings_canCreateMeeting'] == 0) {
+    $meeting_obj = new Meetings($core->input['mtid']);
+    if(!$meeting_obj->can_viewmeeting()) {
         error($lang->sectionnopermission);
     }
-    $meetingid = $db->escape_string($core->input['mtid']);
-    $attachid = $db->escape_string($core->input['mattid']);
-    if(!isset($attachid) || empty($attachid)) {
+
+    if(!isset($core->input['mattid']) || empty($core->input['mattid'])) {
         redirect($_SERVER['HTTP_REFERER']);
     }
-    $meeting_attachmentobj = new MeetingsAttachments($attachid);
-    $download_objs = $meeting_attachmentobj->download()->download_file();
-    $log->record($attachid);
+    $meeting_attachmentobj = new MeetingsAttachments($core->input['mattid']);
+    $download_objs = $meeting_attachmentobj->download();
 }
 ?>

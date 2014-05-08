@@ -1,4 +1,6 @@
-<div style="  margin-bottom:10px; word-wrap: break-word;">
-    <div style=" width: 49%;display:inline-block; padding: 5px; ">  <a href="index.php?module=meetings/viewmeeting&referrer=list&action=download&mtid={$meetingid}&mattid={$meeting_attachment[mattid]}" target="_blank">{$meeting_attachment[title]}</a></div>
-    <div  style=" width: 48%; display:inline-block;padding: 5px; ">  {$meeting_attachment[size]}</div>
+<div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-bottom:10px;">
+    <div class="subtitle">{$lang->attachements}</div>
+    <ul>
+        {$meeting_attachments}
+    </ul>
 </div>
