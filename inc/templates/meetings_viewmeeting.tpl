@@ -22,8 +22,8 @@
                 {$meetings_viewmeeting_mom}
             </div>
             <div class="thead">{$lang->attachements}</div>
-            <div style='padding: 2px; display:inline-block; width:10%; font-weight: bold;'>{$lang->filename}</div>
-            <div style='padding: 2px; display:inline-block; width:10%; font-weight: bold;'>{$lang->filesize}</div>
+            <div style='padding: 2px; display:inline-block; width: 49%; font-weight: bold;'>{$lang->filename}</div>
+            <div style='padding: 2px; display:inline-block; width: 49%;; font-weight: bold;'>{$lang->filesize}</div>
             <div>{$meeting_viewmeeting_attach}</div>
         </td>
     </tr>

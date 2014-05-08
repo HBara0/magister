@@ -74,6 +74,7 @@ elseif($core->input['action'] == 'download') {
         redirect($_SERVER['HTTP_REFERER']);
     }
     $meeting_attachmentobj = new MeetingsAttachments($attachid);
-    $download_objs = $meeting_attachmentobj->download();
+    $download_objs = $meeting_attachmentobj->download()->download_file();
+    $log->record($attachid);
 }
 ?>
