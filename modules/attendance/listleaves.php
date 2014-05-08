@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * List Leaves
  * $module: attendance
- * $id: listleaves.php	
+ * $id: listleaves.php
  * Last Update: @zaher.reda 	January 3, 2011 | 10:00 AM
  */
 
@@ -38,7 +38,12 @@ if(!$core->input['action']) {
         $where = ' WHERE ';
         $uid_where = ' (l.uid="'.$core->user['uid'].'"';
         if($core->usergroup['attendance_canViewAffAllLeaves'] == 1) {
-            $query = $db->query("SELECT u.uid FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE isMain=1 AND affid='{$core->user[mainaffiliate]}'");
+            if(is_array($core->user['hraffids'])) {
+                $query_extrawhere = 'affid IN ('.implode(', ', $core->user['hraffids']).') OR ';
+            }
+            $query = $db->query("SELECT u.uid, u.displayName FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE (".$query_extrawhere."(canHr=1 AND ae.uid=".$core->user['uid'].") OR (ae.isMain=1 AND ae.affid='{$core->user[mainaffiliate]}') OR u.reportsTo='{$core->user[uid]}') AND u.gid!=7 AND u.uid!={$core->user[uid]} ORDER BY displayName ASC");
+
+            //$query = $db->query("SELECT u.uid FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE isMain=1 AND affid='{$core->user[mainaffiliate]}'");
             if($db->num_rows($query) > 1) {
                 while($user = $db->fetch_assoc($query)) {
                     $users[] = $user['uid'];
@@ -94,9 +99,9 @@ if(!$core->input['action']) {
         $multipage_where = $multipage_filter_where;
     }
 
-    $query = $db->query("SELECT l.*, l.fromDate AS fromdate, l.toDate AS till, l.requestTime AS daterequested, Concat(u.firstName, ' ', u.lastName) AS employeename 
-						FROM ".Tprefix."leaves l 
-						JOIN ".Tprefix."users u ON (u.uid=l.uid) 
+    $query = $db->query("SELECT l.*, l.fromDate AS fromdate, l.toDate AS till, l.requestTime AS daterequested, Concat(u.firstName, ' ', u.lastName) AS employeename
+						FROM ".Tprefix."leaves l
+						JOIN ".Tprefix."users u ON (u.uid=l.uid)
 						{$where}{$uid_where}{$filter_where}
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
