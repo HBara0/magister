@@ -146,4 +146,5 @@ $lang['limitedtitle'] = 'users in the approval chain from the person putting the
 $lang['successfullysaved'] = 'Successfully Sent';
 $lang['messagerequired'] = 'Message Required';
 $lang['messageexist'] = 'Message reply exist please change your message description';
+$lang['messagesent'] = 'your message was successfully sent';
 ?>

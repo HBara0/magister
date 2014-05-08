@@ -187,16 +187,15 @@ class LeavesMessages {
 //        return $lastmessage;
 //    }
 
-    public function send() {
-        global $core;
+    public function send_message() {
+        global $lang, $core;
 
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
 
         /* SET TO LAND VAR */
-        $mailer->set_subject('New message to leave request.'.$this->get_leave()->get()['requestKey']);
-
+        $mailer->set_subject($lang->leavemessagesubject.$this->get_leave()->get()['requestKey']);
 
         /* ATTENTION
          * SHOW LEAVE DETAILS TWO SPACES AFTER THE REPLY MESSAGE
@@ -206,7 +205,6 @@ class LeavesMessages {
         $leavemessage_conversationobjs = $this->get_leave()->parse_messages($option = 'textonly');
 
         if(is_array($leavemessage_conversationobjs)) {
-
             foreach($leavemessage_conversationobjs as $leavemessage_conversationobj) {
                 $leave_converstaionreplies = $leavemessage_conversationobj->get();
                 $leave_converstaionreplies['replydate'] = date($core->settings['dateformat'], $leavemessage_conversationobj->get()['createdOn']);
@@ -220,28 +218,61 @@ class LeavesMessages {
 
             $leave_details['requester'] = $this->get_leave()->get_requester()->get()['displayName'];
             $mailmessage.=' <div><br/><strong>Leave Details</strong></div>';
-            $mailmessage.=' <div><br>'.$leave_details['leavetype'].'</div>';
-            $mailmessage.=' <div><br>'.$leave_details['fromtime'].' TO '.$leave_details['totime'].'</div>';
-            $mailmessage.=' <div><br>'.$leave_details['requester'].'</div>';
+            $lang->leavedetail = $lang->sprint($lang->leavedetail, $leave_details['requester'], $leave_details['leavetype'], $leave_details['fromtime'], $leave_details['totime']);
+            $mailmessage.=' <div><br>'.$lang->leavedetail.'</div>';
             $mailmessage.='</div>';
-
-            print_r($mailmessage);
         }
 
         $mailer->set_message($mailmessage);
-
         /* NEED TO SET PROPER TO DEPENDING ON PERMISSION */
-        $repliers_objs = $this->get_user($this->leavemessage['uid']);
-        if(is_object($repliers_objs)) {
-
-            foreach($repliers_objs as $repliers_obj) {
-                $email_data['to'][] = $repliers_obj->get()['email'];
-            }
+        /* SEND EMAIL TO EACH  INDIVIDUAL RECEIVER */
+        $emailreceivers = $this->parse_receiver()['receivers'];
+        foreach($emailreceivers as $key => $emailreceiver) {
+            $mailer->set_to($emailreceiver);
+            $mailer->send();
         }
-        print_r($email_data['to']);
-        $mailer->set_to('tony.assaad@orkila.com');
-        $mailer->send();
-        //  print_r($mailer->debug_info());
+        if($mailer->get_status() == true) {
+            $this->mailestatus = 5;
+        }
+    }
+
+    private function parse_receiver() {
+        global $core;
+        switch($this->leavemessage['viewPermission']) {
+            case 'public':
+                $leave_obj = new Leaves($this->leavemessage['lid']);
+                $sender_approvals_objs = $leave_obj->get_toapprove();
+                if(is_array($sender_approvals_objs)) {
+                    foreach($sender_approvals_objs as $sender_approvals_obj) {
+                        $users_receiver['receivers'][] = $sender_approvals_obj->get_user()->get()['email'];
+                    }
+                    array_push($users_receiver['receivers'], $core->user['email']);
+                }
+
+                break;
+            case 'private':
+                $inreply_obj = $this->get_inreplyto();   /* Get the user whos in  the relplyTo this message */
+                if(is_object($inreply_obj)) {
+                    $users_receiver['emailrepliedto'][] = $inreply_obj->get_user()->get()['email'];
+                }
+                $users_receiver['requester'][] = $core->user['email'];
+                $users_receiver['receivers'] = array_merge($users_receiver['emailrepliedto'], $users_receiver['requester']);
+                break;
+            case'limited':
+                /* users in the approval chain from the person putting the message and higher
+                 * Get the leave object and then get their  approvers chain
+                 * foreach of the approvers get their user related email
+                 *   */ $leave_obj = new Leaves($this->leavemessage['lid']);
+                $sender_approvals_objs = $leave_obj->get_toapprove();
+                if(is_array($sender_approvals_objs)) {
+                    foreach($sender_approvals_objs as $sender_approvals_obj) {
+                        $users_receiver['receivers'][] = $sender_approvals_obj->get_user()->get()['email'];
+                    }
+                }
+                break;
+        }
+
+        return $users_receiver;
     }
 
     public static function get_message_byattr($attr, $value, $simple = true) {
@@ -263,8 +294,7 @@ class LeavesMessages {
                 }
                 return false;
             }
-        }
-        return false;
+        } return false;
     }
 
     public static function get_messages($filters = '', $simple = true) {
@@ -293,6 +323,10 @@ class LeavesMessages {
 
     public function get_errorcode() {
         return $this->errorcode;
+    }
+
+    public function get_mailestatus() {
+        return $this->mailestatus;
     }
 
     public function get() {

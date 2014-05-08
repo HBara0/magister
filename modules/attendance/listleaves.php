@@ -397,7 +397,7 @@ else {
             case 0:
                 $output_class = 'green_text';
                 $output_message = $lang->successfullysaved;
-                $leavemessage_obj->send();
+                $leavemessage_obj->send_message();
                 break;
             case 1:
                 $output_class = 'red_text';
@@ -413,7 +413,12 @@ else {
                 break;
         }
 
-
+        switch($leavemessage_obj->get_mailestatus()) {
+            case 5:
+                $output_class = 'green_text';
+                $output_message = $lang->messagesent;
+                break;
+        }
         /* Need to have feedback message */
     }
     elseif($core->input['action'] == 'get_revokeleave') {
