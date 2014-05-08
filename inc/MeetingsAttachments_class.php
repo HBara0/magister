@@ -85,8 +85,19 @@ class MeetingsAttachments {
         }
     }
 
-    public function download() {
-        return new Download('meetings_attachments', 'filename', array('mattid' => $this->attachment['mattid']), self::attachments_path);
+    public function download($method = 'stream') {
+        global $log;
+
+        $download = new Download('meetings_attachments', 'filename', array('mattid' => $this->attachment['mattid']), self::attachments_path, array('titleattr' => 'title'));
+
+        if($method == 'download') {
+            $download->download_file();
+        }
+        else {
+            $download->stream_file();
+        }
+
+        $log->record($this->attachment['mattid']);
     }
 
     public function get_createdby() {
