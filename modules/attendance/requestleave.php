@@ -122,7 +122,7 @@ else {
             $leave_user = $db->fetch_assoc($db->query("SELECT uid, firstName, lastName, reportsTo FROM ".Tprefix."users WHERE uid='".$db->escape_string($core->input['uid'])."'"));
             $leave_user_obj = new Users($core->input['uid']);
         }
-        $leavetype_obj = new Leavetypes($core->input['ltid']);
+        $leavetype_obj = new Leavetypes($core->input['ltid'], false);
 
         $fields = $leavetype_obj->parse_additonalfields();
         output($fields);
