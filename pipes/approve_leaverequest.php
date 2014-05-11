@@ -15,7 +15,6 @@ else {
     $lang = new Language('english');
     $lang->load('messages');
 
-
     $pipe = new Pipe();
     $data = $pipe->get_data();
     $ignore_subject = false;
@@ -222,15 +221,14 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 
             if($ignore_subject == true) {
                 if(isset($request['referrer']) && $request['referrer'] == 'email') {
-                    redirect('index.php?module = attendance/listleaves', 3, $lang->leavesuccessfullyapproved);
+                    redirect('index.php?module=attendance/listleaves', 3, $lang->leavesuccessfullyapproved);
                 }
                 else {
                     ?>
                     <script language="javascript" type="text/javascript">
-                        window.top.$('tr[id = "leave_<?php echo $leave['lid'];?>"]').attr('class', 'greenbackground');
+                        window.top.$('tr[id="leave_<?php echo $leave['lid'];?>"]').attr('class', 'greenbackground');
                         window.top.$("#approveimg_<?php echo $leave['lid'];?>").remove();
-                        window.top.$("#approveleave_Result").html("<?php echo '<span class = \'green_text\'>'.$lang->leavesuccessfullyapproved.'</span>';
-                    ?>");
+                        window.top.$("#approveleave_Result").html("<?php echo '<span class = \'green_text\'>'.$lang->leavesuccessfullyapproved.'</span>';?>");
                         window.top.$("#popup_approveleave").remove();
                     </script>
                     <?php
