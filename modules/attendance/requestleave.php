@@ -470,7 +470,9 @@ else {
 //			}
 
             if(is_array($approvers)) {
-                $approve_immediately = false;
+                if($leavetype->get()['isBusiness'] == 1) {
+                    $approve_immediately = false;
+                }
                 foreach($approvers as $key => $val) {
                     if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
                         continue;
