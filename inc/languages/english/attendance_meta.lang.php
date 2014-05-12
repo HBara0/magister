@@ -102,6 +102,9 @@ $lang['requestleave'] = 'Request Leave';
 $lang['requireddays'] = 'Required Days';
 $lang['resulterror'] = 'All data is imported except for users:';
 $lang['revokeleave'] = 'Revoke leave';
+$lang['from'] = ' From ';
+$lang['to'] = ' To ';
+
 $lang['selectattfile'] = 'Select attendance file';
 $lang['sickleave'] = 'Sick leave';
 $lang['state'] = 'Checking in/out';

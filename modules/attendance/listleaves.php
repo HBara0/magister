@@ -330,6 +330,7 @@ else {
         include './pipes/approve_leaverequest.php';
     }
     elseif($core->input['action'] == 'takeactionpage') {
+
         if(isset($core->input['id'], $core->input['requestKey'])) {
             $core->input['id'] = base64_decode($core->input['id']);
             $leave_obj = new Leaves($core->input['id'], false);
@@ -381,8 +382,7 @@ else {
 
             /* Conversation message --START */
             $leaemessag_obj = new LeavesMessages();
-            $takeactionpage_conversation = $leave_obj->parse_messages();
-
+            $takeactionpage_conversation = $leave_obj->parse_messages(array('uid' => $core->user[uid]));
             /* Conversation  message --END */
             eval("\$takeactionpage = \"".$template->get('attendance_listleaves_takeaction')."\";");
             output_page($takeactionpage);

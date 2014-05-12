@@ -37,7 +37,7 @@ class AttLeavesApproval {
         return new Leaves($this->approval['lid']);
     }
 
-    public function get_approvals($filters = '') {
+    public static function get_approvals($filters = '') {
         global $db;
         if(!empty($filters)) {
             $filters = ' WHERE '.$db->escape_string($filters);

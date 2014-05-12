@@ -260,15 +260,16 @@ class Leaves {
     public function get_initalmessage() {
         global $db;
 
-        $initalmessage['lmid'] = $db->fetch_field($db->query("SELECT lmid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."' AND inReplyTo=0 ORDER BY lmid ASC"), 'lmid');
+        $initalmessage['lmid'] = $db->fetch_field($db->query("SELECT lmid ,uid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."' AND inReplyTo=0 ORDER BY lmid ASC"), 'lmid');
         if(isset($initalmessage['lmid']) && !empty($initalmessage['lmid'])) {
             return new LeavesMessages($initalmessage['lmid'], false);
         }
     }
 
-    public function parse_messages($option = '') {
+    public function parse_messages(array $options = array()) {
         global $template, $core;
 
+        /* Load the first conversation message */
         $initialmsg = $this->get_initalmessage();
 
         if(!is_object($initialmsg)) {
@@ -276,32 +277,40 @@ class Leaves {
         }
 
         $message = $initialmsg->get();
-
-        if($initialmsg->can_seemessage() == false) {
+        /*  SET  WHO CAN SEE  MESSAGE DEPENDING ON PERMISSION */
+        if(empty($options['uid'])) { /**/
+            $options['uid'] = $initialmsg->get_user()->get()['uid'];
+        }
+        if($initialmsg->can_seemessage($options['uid'])) {
             return false;
         }
 
-        $message['user'] = $initialmsg->get_user($message['uid'])->get();
+        $message['user'] = $initialmsg->get_user($message['uid'])->get();  /* Get the user of  who set the message conversation */
         $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
-        eval("\$takeactionpage_conversation = \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
+
+        if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
+            $takeactionpage_conversation .= '<div style="display:block;"><p><strong>'.$message['message'].'</strong></p>';
+            $takeactionpage_conversation .= '<span> '.$message['user']['displayName'].'</span>';
+            $takeactionpage_conversation .= '<span> On '.$message['message_date'].'</span>';
+        }
+        else {
+            eval("\$takeactionpage_conversation = \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
+        }
 
         $replies_objs = $initialmsg->get_replies();
-        if(!empty($option) && $option == 'textonly') {
-            return $replies_objs;
-        }
         if(is_array($replies_objs)) {
-            $takeactionpage_conversation .= $this->parse_replies($replies_objs);
-        }
 
+            $takeactionpage_conversation .= $this->parse_replies($replies_objs, 1, $options);
+        }
         return $takeactionpage_conversation;
     }
 
-    private function parse_replies($replies, $depth = 1) {
+    private function parse_replies($replies, $depth = 1, array $options = array()) {
         global $template, $core;
 
         if(is_array($replies)) {
             foreach($replies as $reply) {
-                if($reply->can_seemessage() == false) {
+                if($reply->can_seemessage($options['uid'])) {
                     continue;
                 }
                 $bgcolor = alt_row($bgcolor);
@@ -309,10 +318,18 @@ class Leaves {
                 $message = $reply->get();
                 $message['user'] = $reply->get_user($message['uid'])->get();
                 $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
-                eval("\$takeactionpage_conversation .= \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
+
+                if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
+                    $takeactionpage_conversation .= '<div style="display:block;"><p><strong>'.$message['message'].'</strong></p>';
+                    $takeactionpage_conversation .= '<span> '.$message['user']['displayName'].'</span>';
+                    $takeactionpage_conversation .= '<span> On '.$message['message_date'].'</span>';
+                }
+                else {
+                    eval("\$takeactionpage_conversation .= \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
+                }
                 $reply_replies = $reply->get_replies();
                 if(is_array($reply_replies)) {
-                    $takeactionpage_conversation .= $this->parse_replies($reply_replies, $depth + 1);
+                    $takeactionpage_conversation .= $this->parse_replies($reply_replies, $depth + 1, $options);
                 }
             }
             return $takeactionpage_conversation;
