@@ -699,8 +699,10 @@ if($core->input['authCode'] == AUTHCODE) {
         $message .= '<h3>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')</h3>';
         $message .= $stockevolution_output.$alerts.$summaries_ouput.$output.$fxratesoverview_output;
 
+        $email_data = array();
         $email_data['to'][] = $affiliateobj->get_generalmanager()->get()['email'];
-        $email_data['to'][] = $affiliateobj->get_supervisor()->get()['email'];
+
+        //$email_data['to'][] = $affiliateobj->get_supervisor()->get()['email'];
 
         if(isset($affiliates_addrecpt[$affid])) {
             foreach($affiliates_addrecpt[$affid] as $uid) {
@@ -714,8 +716,8 @@ if($core->input['authCode'] == AUTHCODE) {
             }
         }
 
-        $email_data['to'] = array();
-        $email_data['to'][] = 'christophe.sacy@orkila.com';
+        //$email_data['to'] = array();
+        // $email_data['to'][] = 'christophe.sacy@orkila.com';
         //$email_data['to'][] = 'christophe.sacy@orkila.com';
         //unset($email_data['to']);
         //print_r($email_data);
