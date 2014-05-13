@@ -3,7 +3,7 @@
         <title>{$core->settings[systemtitle]}</title>
         {$headerinc}
     </head>
-    <body style="color:#FFFFFF;">
+    <body style="color:#ffffff;">
         <div align="center">
             <table width="100%" border="0" cellpadding="0" cellspacing="0" id="errorbox">
                 <tr>
@@ -13,6 +13,8 @@
                         {$lang->todate}: {$leave[toDate_output]}<br />
                         {$lang->leavetype}: {$leave[type_details][title]} {$leave[details_crumb]}<br />
                         {$lang->leavereason}: {$leave[reason]}
+                        {$lang->purpose}: {$leave[purpose]}<br />
+                        {$lang->segment}: {$leave[segment]}
                         <hr />
                         <p><em>{$lang->sureapproveleavenote}</em></p>
                         <form action="index.php?module=attendance/listleaves" method="post">

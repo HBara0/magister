@@ -311,7 +311,7 @@ class Leaves {
     }
 
     public function get_purpose() {
-        return new leave_purpose($this->leave['ltpid']);
+        return new LeaveTypesPurposes($this->leave['ltpid']);
     }
 
     public function get_type($simple = true) {

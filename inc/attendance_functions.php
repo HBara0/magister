@@ -588,9 +588,9 @@ function parse_additionaldata($leave, $field_settings) {
                  * */
                 elseif($val['datasource'] == 'function') {
                     unset($val['key_attribute_value'], $val['type'], $val['table']);
-                    if(function_exists('"'.$val['functionname'].'"')) {
-                        $data = $val['functionname']();
-                    }
+                    // if(function_exists('"'.$val['functionname'].'"')) {
+                    $data = $val['functionname']();
+                    // }
                     if(is_array($data)) {
                         $additionaldata = parse_selectlist($val['attributes'], 0, $data, '', $val['mulitpleselect'], '', array('required' => false));
                     }

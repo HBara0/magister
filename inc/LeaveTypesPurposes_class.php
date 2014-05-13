@@ -13,11 +13,11 @@
  *
  * @author tony.assaad
  */
-class leave_purpose {
+class LeaveTypesPurposes {
     private $purpose = array();
 
-    const primarykey = 'ltpid';
-    const table = 'leavetypes_purposes';
+    const PRIMARY_KEY = 'ltpid';
+    const TABLE_NAME = 'leavetypes_purposes';
 
     public function __construct($id = 0, $simple = true) {
         if(isset($id) && !empty($id)) {
@@ -32,9 +32,9 @@ class leave_purpose {
         }
         $query_select = '*';
         if($simple == true) {
-            $query_select = self::primarykey.', name, purpose';
+            $query_select = self::PRIMARY_KEY.', name, purpose';
         }
-        return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.self::table.' WHERE '.self::primarykey.'='.$db->escape_string($id)));
+        return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.$db->escape_string($id)));
     }
 
     public function get() {
