@@ -13,6 +13,7 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 
+
 if(!$core->input['action']) {
     $action = 'requestleave';
 
@@ -127,6 +128,7 @@ else {
         $fields = $leavetype_obj->parse_additonalfields();
         output($fields);
 //        $additional_fields = unserialize($db->fetch_field($db->query("SELECT additionalFields FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['ltid'])."'"), 'additionalFields'));
+//        print_R($additional_fields);
 //        if(is_array($additional_fields)) {
 //            foreach($additional_fields as $key => $val) {
 //                $fields .= parse_additonalfield($key, $val).'<br />';
@@ -592,7 +594,7 @@ else {
                     }
                     $leave_purpose = $leave_obj->get_purpose()->get()['purpose'];
 
-                    $lang->requestleavemessage = $lang->sprint($lang->requestleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']).' ('.$leavetype_details['description'].')'.$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $core->input['reason'], $lang->requestleavemessage_stats, $leave_segment, $leave_purpose, $approve_link);
+                    $lang->requestleavemessage = $lang->sprint($lang->requestleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']).' ('.$leavetype_details['description'].')'.$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $core->input['reason'], $lang->requestleavemessage_stats, $approve_link);
 
                     /* Parse Calendar - Start */
                     $lang->requestleavemessage .= get_calendar(array('fromDate' => $core->input['fromDate'], 'affid' => $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$leave_user[uid]}'"), 'affid')));
@@ -800,7 +802,7 @@ function get_calendar($arguments) {
     $message .= draw_available(1, $month['numdays'], $current_date, $week_num_days, $leaves, $days_tohighlight);
 
     $message .= '</table>';
-    //$message .= '</body></html>';
+//$message .= '</body></html>';
 
     return $message;
 }

@@ -62,9 +62,7 @@ Start date: {3}<br />
 End date: {4} {5} <br />
 Reason: {6}<br />
 {7}<br />
-Segment :{8}<br /><br />
-Purpose :{9}<br /><br />
-To approve simply reply to this message, or click <a href=\'{10}\'>here</a>.';
+To approve simply reply to this message, or click <a href=\'{9}\'>here</a>.';
 $lang['requestleavemessagesupervisor'] = '{1} requested a leave as follows:<br />
 Type: {2}<br />
 Start date: {3}<br />

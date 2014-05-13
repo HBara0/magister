@@ -588,12 +588,8 @@ function parse_additionaldata($leave, $field_settings) {
                  * */
                 elseif($val['datasource'] == 'function') {
                     unset($val['key_attribute_value'], $val['type'], $val['table']);
-                    // if(function_exists('"'.$val['functionname'].'"')) {
-                    $data = $val['functionname']();
-                    // }
-                    if(is_array($data)) {
-                        $additionaldata = parse_selectlist($val['attributes'], 0, $data, '', $val['mulitpleselect'], '', array('required' => false));
-                    }
+                    $object = get_object_bytype($key, $leave[$key]);
+                    $additionaldata[] = $object->get()[$val['value_attribute']];
                 }
             }
         }
