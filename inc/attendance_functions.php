@@ -588,7 +588,7 @@ function parse_additionaldata($leave, $field_settings) {
                  * */
                 elseif($val['datasource'] == 'function') {
                     unset($val['key_attribute_value'], $val['type'], $val['table']);
-                    if(!empty($val['functionname'])) {
+                    if(function_exists('"'.$val['functionname'].'"')) {
                         $data = $val['functionname']();
                     }
                     if(is_array($data)) {

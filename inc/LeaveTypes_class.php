@@ -178,8 +178,7 @@ class Leavetypes {
                 }
                 elseif($field_settings['datasource'] == 'function') {
                     unset($field_settings['key_attribute_value'], $field_settings['type'], $field_settings['table'], $field_settings['attributes']);
-
-                    if(!empty($field_settings['functionname'])) {
+                    if(function_exists('"'.$val['functionname'].'"')) {
                         $data = $this->{$field_settings['functionname']}();
                     }
 
