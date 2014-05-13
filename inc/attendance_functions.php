@@ -2,11 +2,11 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Attendance Modules Functions File
  * $id: attendance_functions.php
  * Created: 	@zaher.reda		September 17, 2010 | 09:03 AM
- * Created: 	@zaher.reda		November 28, 2012 | 01:15 PM		
+ * Created: 	@zaher.reda		November 28, 2012 | 01:15 PM
  */
 
 /*
@@ -17,7 +17,7 @@
 function update_leavestats_periods($leave, $is_wholeday = true, $countdays = true) {
     global $db, $core;
 
-    $leave_user = $db->fetch_assoc($db->query("SELECT hr.joinDate, hr.firstJobDate, ae.affid 
+    $leave_user = $db->fetch_assoc($db->query("SELECT hr.joinDate, hr.firstJobDate, ae.affid
 												FROM ".Tprefix."users u LEFT JOIN ".Tprefix."userhrinformation hr ON (u.uid=hr.uid) JOIN ".Tprefix."affiliatedemployees ae ON (ae.uid=hr.uid)
 												WHERE ae.isMain=1 AND u.uid='".$db->escape_string($leave['uid'])."'"));
     if(empty($leave_user['joinDate'])) {
@@ -40,8 +40,8 @@ function update_leavestats_periods($leave, $is_wholeday = true, $countdays = tru
         $leave['policy_ltid'] = $db->escape_string($leave['type']);
     }
 
-    $query = $db->query("SELECT * 
-						FROM ".Tprefix."leavesstats 
+    $query = $db->query("SELECT *
+						FROM ".Tprefix."leavesstats
 						WHERE uid='".$db->escape_string($leave['uid'])."' AND ltid='".$db->escape_string($leave['policy_ltid'])."' AND ((".$db->escape_string($leave['fromDate'])." BETWEEN periodStart AND periodEnd) OR (".$db->escape_string($leave['toDate'])." BETWEEN periodStart AND periodEnd))");
 
     if($db->num_rows($query) > 1) {
@@ -73,7 +73,7 @@ function update_leavestats_periods($leave, $is_wholeday = true, $countdays = tru
         $affiliate_policy = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."affiliatesleavespolicies WHERE ltid='{$leave[policy_ltid]}' AND affid='{$leave_user[affid]}'"));
         if(empty($affiliate_policy)) {
             return false;
-            error('No policiy specified'); //Temp	
+            error('No policiy specified'); //Temp
         }
 
         if($affiliate_policy['useFirstJobDate'] == 1 && !empty($leave_user['firstJobDate'])) {
@@ -346,7 +346,7 @@ function count_workingdays($uid, $check_dates_start, $check_dates_end, $is_whole
 function count_holidays($uid, $check_dates_start, $check_dates_end, $reoccurring_only = false, $specificyear_only = false) {
     global $db;
 
-    $user = $db->fetch_assoc($db->query("SELECT ae.affid 
+    $user = $db->fetch_assoc($db->query("SELECT ae.affid
 										FROM ".Tprefix."affiliatedemployees ae
 										WHERE ae.isMain=1 AND ae.uid='".$db->escape_string($uid)."'"));
 
@@ -391,7 +391,7 @@ function count_holidays($uid, $check_dates_start, $check_dates_end, $reoccurring
             }
         }
 
-        $query = $db->query("SELECT * FROM ".Tprefix."holidays 
+        $query = $db->query("SELECT * FROM ".Tprefix."holidays
 					WHERE affid='{$user[affid]}' AND ((validFrom = 0 OR ({$date_info[start][year]} >= FROM_UNIXTIME(validFrom, '%Y') AND month >= FROM_UNIXTIME(validFrom, '%m') AND day >= FROM_UNIXTIME(validFrom, '%d'))) AND (validTo=0 OR ({$date_info[end][year]} <= FROM_UNIXTIME(validTo, '%Y') AND month <= FROM_UNIXTIME(validTo, '%m') AND day <= FROM_UNIXTIME(validTo, '%d'))))
 					AND (month BETWEEN {$date_info[start][mon]} AND {$date_info[end][mon]}) AND hid NOT IN (SELECT hid FROM ".Tprefix."holidaysexceptions WHERE uid=".intval($uid).") AND {$day_querystring} {$year_querystring}");
         while($holiday = $db->fetch_assoc($query)) {
@@ -580,6 +580,20 @@ function parse_additionaldata($leave, $field_settings) {
                         return false;
                     }
                     $additionaldata[] = $db->fetch_field($db->query("SELECT ".$db->escape_string($val['value_attribute'])." FROM ".Tprefix.$db->escape_string($val['table'])." WHERE {$val[key_attribute_prefix]}{$key_attribute}='{$leave[$key]}'"), $val['value_attribute']);
+                }
+                /*  This option will call the parse segment
+                 * function based on the funcntion name passed from the
+                 * configuration array
+                 *
+                 * */
+                elseif($val['datasource'] == 'function') {
+                    unset($val['key_attribute_value'], $val['type'], $val['table']);
+                    if(!empty($val['functionname'])) {
+                        $data = $val['functionname']();
+                    }
+                    if(is_array($data)) {
+                        $additionaldata = parse_selectlist($val['attributes'], 0, $data, '', $val['mulitpleselect'], '', array('required' => false));
+                    }
                 }
             }
         }
