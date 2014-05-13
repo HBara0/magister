@@ -186,9 +186,10 @@ class Leavetypes {
                 elseif($field_settings['datasource'] == 'function') {
                     unset($field_settings['key_attribute_value'], $field_settings['type'], $field_settings['table'], $field_settings['attributes']);
 
-                    if(($field_settings['functionname'])) {
+                    if(!empty($field_settings['functionname'])) {
                         $data = $this->{$field_settings['functionname']}();
                     }
+
                     if(is_array($data)) {
                         $field = parse_selectlist($attribute, 0, $data, '', $field_settings['mulitpleselect'], '', array('required' => false));
                     }
