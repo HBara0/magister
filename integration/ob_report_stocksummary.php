@@ -31,11 +31,11 @@ if($core->input['authCode'] == AUTHCODE) {
     $affiliates_addrecpt = array(
             19 => array(244, 'audrey.sacy'),
             22 => array(248, 246, 287, 270, 'audrey.sacy'),
-            23 => array('zadok.oppong-boahene', 'courage.dzandu', 322, 321, 'audrey.sacy'),
+            23 => array('zadok.oppong-boahene', 'courage.dzandu', 322, 321, 'audrey.sacy', 'tarek.chalhoub', 63),
             1 => array(12, 333, 182, 43, 'audrey.sacy'),
-            21 => array(63, 158, 'audrey.sacy'),
+            21 => array(63, 158, 'audrey.sacy', 'bamou.diop', 'annick.kouame', 'abel.laho', 'boulongo.diata'),
             27 => array(12, 333, 68, 67, 'audrey.sacy', 342, 30),
-            20 => array('michel.mbengue', 'abdoulaye.lo', 'audrey.sacy'),
+            20 => array('michel.mbengue', 'abdoulaye.lo', 'audrey.sacy', 'ansou.dabo', 'fatimatou.diallo'),
             11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 'audrey.sacy')
     );
 
@@ -585,7 +585,7 @@ if($core->input['authCode'] == AUTHCODE) {
 
 
         /* Parse Stock Evolution Report - START */
-        $aging_scale = array(2 => '90-179', 3 => '>=180');
+        $aging_scale = array(2 => '90-179', 3 => '180-359', 4 => '>=360');
         $stockevolution_output = '<h3>Stock Evolution</h3>';
         $stockevolution_output .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
         $stockevolution_output .= '<tr><th style="background: #91b64f;">Month</td><th style="background: #91b64f;">Value K.USD</td>';
@@ -699,8 +699,10 @@ if($core->input['authCode'] == AUTHCODE) {
         $message .= '<h3>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')</h3>';
         $message .= $stockevolution_output.$alerts.$summaries_ouput.$output.$fxratesoverview_output;
 
+        $email_data = array();
         $email_data['to'][] = $affiliateobj->get_generalmanager()->get()['email'];
-        $email_data['to'][] = $affiliateobj->get_supervisor()->get()['email'];
+
+        //$email_data['to'][] = $affiliateobj->get_supervisor()->get()['email'];
 
         if(isset($affiliates_addrecpt[$affid])) {
             foreach($affiliates_addrecpt[$affid] as $uid) {
@@ -714,8 +716,8 @@ if($core->input['authCode'] == AUTHCODE) {
             }
         }
 
-        $email_data['to'] = array();
-        $email_data['to'][] = 'christophe.sacy@orkila.com';
+        //$email_data['to'] = array();
+        // $email_data['to'][] = 'christophe.sacy@orkila.com';
         //$email_data['to'][] = 'christophe.sacy@orkila.com';
         //unset($email_data['to']);
         //print_r($email_data);

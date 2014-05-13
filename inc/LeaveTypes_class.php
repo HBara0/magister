@@ -89,7 +89,7 @@ class Leavetypes {
         }
         $query_select = '*';
         if($simple == true) {
-            $query_select = 'ltid, name, title,title AS name ,description,additionalFields,isBusiness,toApprove';
+            $query_select = 'ltid, name, title';
         }
         return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'leavetypes WHERE ltid='.$db->escape_string($id)));
     }
@@ -112,18 +112,16 @@ class Leavetypes {
     }
 
     public function get_additonalfields() {
-        global $db;
         return unserialize($this->leavetype['additionalFields']);
     }
 
     public function parse_additonalfields(array $additional_settings = array()) {
-
-        $this->additional_fields = $this->get_additonalfields();
-        if(is_array($this->additional_fields)) {
-            foreach($this->additional_fields as $key => $field) {
-                $this->parsed_fields .= $this->parse_additonalfield($key, $field);
+        $additional_fields = $this->get_additonalfields();
+        if(is_array($additional_fields)) {
+            foreach($additional_fields as $key => $field) {
+                $parsed_fields .= $this->parse_additonalfield($key, $field);
             }
-            return $this->parsed_fields;
+            return $parsed_fields;
         }
     }
 
@@ -178,11 +176,6 @@ class Leavetypes {
                         break;
                     }
                 }
-                /*  This option will call the parse segment
-                 * function based on the funcntion name passed from the
-                 * configuration array
-                 *
-                 * */
                 elseif($field_settings['datasource'] == 'function') {
                     unset($field_settings['key_attribute_value'], $field_settings['type'], $field_settings['table'], $field_settings['attributes']);
 
@@ -198,6 +191,11 @@ class Leavetypes {
             default: break;
         }
 
+        if(!empty($field)) {
+            if(isset($field_settings['titlelangvar'])) {
+                $field = $lang->{$field_settings['titlelangvar']}.' '.$field;
+            }
+        }
         return $field;
     }
 
@@ -211,12 +209,12 @@ class Leavetypes {
             $user_segmentsobjs = $user_obj->get_segments();
             if(is_array($user_segmentsobjs)) {
                 foreach($user_segmentsobjs as $key => $user_segmentsobj) {
-
                     $usersegment_data[$user_segmentsobj->get()['psid']] = $user_segmentsobj->get()['title'];
                 }
             }
             return $usersegment_data;
         }
+        return false;
     }
 
     public function get() {

@@ -495,7 +495,11 @@ class IntegrationOB extends Integration {
             $organisations = $this->organisations;
         }
 
-        $aging_scale = array(0, 120, 180);
+        $aging_scale = array(0, 120, 180, 360);
+        if(is_array($options['aging_scale'])) {
+            $aging_scale = $options['aging_scale'];
+        }
+
         $aging_scale = array_combine(range(1, count($aging_scale)), $aging_scale);
 
         if($options['method'] == 'fifo') {
