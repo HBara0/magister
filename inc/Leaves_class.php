@@ -310,6 +310,10 @@ class Leaves {
         return new Users($this->leave['uid']);
     }
 
+    public function get_purpose() {
+        return new leave_purpose($this->leave['ltpid']);
+    }
+
     public function get_type($simple = true) {
         return $this->get_leavetype($simple);
     }

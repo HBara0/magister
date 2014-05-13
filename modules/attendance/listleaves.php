@@ -339,9 +339,13 @@ else {
             $core->input['id'] = base64_decode($core->input['id']);
             $leaveobj = new Leaves($core->input['id'], false);
             $leave = $leaveobj->get();
+            $leave['purpose'] = $leaveobj->get_purpose()->get()['purpose'];
+
+            $leave['segment'] = $leaveobj->get_segment()->get()['title'];
             $leave['requester'] = $leaveobj->get_requester()->get();
             $leavetype = new Leavetypes($leave['type'], false);
             $leave['type_details'] = $leavetype->get();
+
 
             $leave['fromDate_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']);
             $leave['toDate_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']);
@@ -350,6 +354,7 @@ else {
             }
 
             $leave['details_crumb'] = parse_additionaldata($leave, $leave['type_details']['additionalFields']);
+
             if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
                 $leave['details_crumb'] = ' - '.implode(' ', $leave['details_crumb']);
             }
