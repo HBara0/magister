@@ -192,7 +192,7 @@ class Leavetypes {
 
         if(!empty($field)) {
             if(isset($field_settings['titlelangvar'])) {
-                $field = $lang->{$field_settings['titlelangvar']}.' '.$field;
+                $field = '<br />'.$lang->{$field_settings['titlelangvar']}.' '.$field;
             }
         }
         return $field;
