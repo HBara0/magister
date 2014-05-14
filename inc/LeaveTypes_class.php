@@ -203,7 +203,7 @@ class Leavetypes {
         if($this->leavetype['isBusiness'] == 1) {
             /* only we get the segments of  selected user (core user) */
             if(!is_object($user)) {
-                $user_obj = new Users($core->input['uid']);
+                $user_obj = new Users($core->user['uid']);
             }
             $user_segmentsobjs = $user_obj->get_segments();
             if(is_array($user_segmentsobjs)) {
