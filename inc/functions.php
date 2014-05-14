@@ -513,13 +513,13 @@ function get_specificdata($table, $attributes, $key_attribute, $value_attribute,
     }
 }
 
-function quick_search($table, $flagtable, $attributes, $value, $select_attributes, $key_attribute, $order, $extra_where = '', $andor_param = 'OR') {
+function quick_search($table, $attributes, $value, $select_attributes, $key_attribute, $order, $extra_where = '', $andor_param = 'OR') {
     global $db, $lang;
-    $foreign_table = false;
+//    $foreign_table = false;
     $value = $db->escape_string($value);
-    if(isset($flagtable) && $flagtable != $table) {
-        $foreign_table = true;
-    }
+//    if(isset($flagtable) && $flagtable != $table) {
+//        $foreign_table = true;
+//    }
     if(is_array($select_attributes)) {
         foreach($select_attributes as $key => $val) {
             $select_attributes_string .= $comma.$val;
@@ -594,10 +594,23 @@ function quick_search($table, $flagtable, $attributes, $value, $select_attribute
         $results_list .= '<ul id="searchResultsList">';
 
         foreach($results as $key => $val) {
-            if($foreign_table == 1) {
-                /* Get chemicalfuntions  applications  segments for the searched product */
-                $product_obj = new Products($key);
-                $chemfuncprod_objs = $product_obj->get_chemfunctionproducts();
+            //if($foreign_table == 1) {
+            /* Get chemicalfuntions  applications  segments for the searched product */
+            $product_obj = new Products($key);
+            $chemfuncprod_objs = $product_obj->get_chemfunctionproducts();
+            if(is_array($chemfuncprod_objs)) {
+                foreach($chemfuncprod_objs as $chemfuncprod_obj) {
+                    $cfpid = $chemfuncprod_obj->get()['cfpid'];
+                    $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
+                    $application = $application_obj->get_application()->get()['title'];
+                    $segment = $application_obj->get_segment()->get()['title'];
+                    $chemicalfuntion = $chemfuncprod_obj->get_chemicalfunction()->get()['title'];
+                    $details = '</br><span class="smalltext" >'.$chemicalfuntion.' - '.$application.' - '.$segment.'</span>';
+                    $results_list .= '<li id="'.$cfpid.'">'.$val.$details.'</li>';
+                }
+            }
+            else { /* get Defaultfunction of the product */
+                $chemfuncprod_objs = $product_obj->get_defaultchemfunction();
                 if(is_array($chemfuncprod_objs)) {
                     foreach($chemfuncprod_objs as $chemfuncprod_obj) {
                         $cfpid = $chemfuncprod_obj->get()['cfpid'];
@@ -609,24 +622,11 @@ function quick_search($table, $flagtable, $attributes, $value, $select_attribute
                         $results_list .= '<li id="'.$cfpid.'">'.$val.$details.'</li>';
                     }
                 }
-                else { /* get Defaultfunction of the product */
-                    $chemfuncprod_objs = $product_obj->get_defaultchemfunction();
-                    if(is_array($chemfuncprod_objs)) {
-                        foreach($chemfuncprod_objs as $chemfuncprod_obj) {
-                            $cfpid = $chemfuncprod_obj->get()['cfpid'];
-                            $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
-                            $application = $application_obj->get_application()->get()['title'];
-                            $segment = $application_obj->get_segment()->get()['title'];
-                            $chemicalfuntion = $chemfuncprod_obj->get_chemicalfunction()->get()['title'];
-                            $details = '</br><span class="smalltext" >'.$chemicalfuntion.' - '.$application.' - '.$segment.'</span>';
-                            $results_list .= '<li id="'.$cfpid.'">'.$val.$details.'</li>';
-                        }
-                    }
-                }
             }
-            else {
-                $results_list .= '<li id="'.$key.'">'.$val.'</li>';
-            }
+            //}
+            // else {
+            //    $results_list .= '<li id="'.$key.'">'.$val.'</li>';
+            ///}
         }
         $results_list .= '</ul>';
     }
