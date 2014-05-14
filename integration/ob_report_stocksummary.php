@@ -654,9 +654,9 @@ if($core->input['authCode'] == AUTHCODE) {
         $index2 = count($overyears_rates) - 1;
         $fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 USD' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$date_info['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholddata' => array('firstindex' => $index1, 'secondindex' => $index2), 'hasthreshold' => 1, 'width' => 700, 'height' => 200, 'scale' => SCALE_START0, 'path' => '../tmp/charts/', 'writelabel' => true));
 
-        $fxratesoverview_output = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($fxrates_linechart->get_chart())).'" />';
-        //$fxratesoverview_output = '<h3>FX Rates Evolution</h3>';
-        // $fxratesoverview_output .= '<img src="cid:fxratesoverview" />';
+        //$fxratesoverview_output = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($fxrates_linechart->get_chart())).'" />';
+        $fxratesoverview_output = '<h3>FX Rates Evolution</h3>';
+        $fxratesoverview_output .= '<img src="cid:fxratesoverview" />';
 
         /* Parse FX Rates Chart - END */
 
