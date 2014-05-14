@@ -90,6 +90,13 @@ class Download {
       @param	$also_delete	Boolean		Whether to delete original file after download or not (useful for temp files)
      */
     public function stream_file($also_delete = false) {
+        if(empty($this->config['options']['titleattr'])) {
+            $this->config['options']['titleattr'] = $this->config['options']['fileattr'];
+        }
+
+        if(empty($this->file[$this->config['options']['titleattr']])) {
+            $this->file[$this->config['options']['titleattr']] = basename($this->file_url);
+        }
         header('Content-type: application/x-msdownload');
         header('Pragma: no-cache');
         header('Expires: 0');
