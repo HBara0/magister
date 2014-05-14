@@ -13,8 +13,6 @@
                         {$lang->todate}: {$leave[toDate_output]}<br />
                         {$lang->leavetype}: {$leave[type_details][title]} {$leave[details_crumb]}<br />
                         {$lang->leavereason}: {$leave[reason]}
-                        {$lang->purpose}: {$leave[purpose]}<br />
-                        {$lang->segment}: {$leave[segment]}
                         <hr />
                         <p><em>{$lang->sureapproveleavenote}</em></p>
                         <form action="index.php?module=attendance/listleaves" method="post">
