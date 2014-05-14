@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Edit Leave
  * $module: attendance
- * $id: editleave.php	
+ * $id: editleave.php
  * Last Update: @zaher.reda 	August 28, 2012 | 05:12 PM
  */
 
@@ -323,7 +323,8 @@ else {
             //Reset Leave Balance - End
 
             $log->record($lid);
-
+            /* Create leave expenses - START */
+            $leave_obj = new Leaves(array('lid' => $lid), false);
             if($core->usergroup['attenance_canApproveAllLeaves'] == 0) {
                 $db->update_query('leavesapproval', array('isApproved' => 0, 'timeApproved' => 0), "lid='{$lid}'");
                 $affected_rows = $db->affected_rows();
@@ -373,6 +374,18 @@ else {
                             case 'supervisor':
                                 $approvers['supervisor'] = $aff_obj->get_supervisor()->get()['uid'];
                                 break;
+                            case 'segmentCoordinator':
+                                /* If leave has segment selected  get  the related segment */
+                                if(is_object($leave_obj->get_segment())) {
+                                    $leave_segmobjs = $leave_obj->get_segment();
+                                    /* For the related segment objet   get  their related coordinators */
+                                    $leave_segment_coordinatorobjs = $leave_segmobjs->get_coordinators();
+                                    if(is_array($leave_segment_coordinatorobjs)) {
+                                        $leave_segment_coordinatorobj = $leave_segment_coordinatorobjs[array_rand($leave_segment_coordinatorobjs, 1)];
+                                        $approvers['segmentCoordinator'] = $leave_segment_coordinatorobj->get_coordinator()->get()['uid'];
+                                    }
+                                }
+                                break;
                             case 'financialManager':
                                 $approvers['financialManager'] = $aff_obj->get_financialemanager()->get()['uid'];
                                 break;
@@ -391,7 +404,7 @@ else {
 
 //			if(is_array($toapprove_select) && !empty($toapprove_select)) {
 //				$secondapprovers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
-//									  FROM ".Tprefix."affiliates 
+//									  FROM ".Tprefix."affiliates
 //									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
 //			}
 
@@ -468,11 +481,11 @@ else {
                 $lang->leavenotificationmessage_days = $lang->sprint($lang->leavenotificationmessage_days, $leave['workingdays']);
 
                 if($leavetype_details['isBusiness'] == 0) {
-                    $leavestats = $db->fetch_assoc($db->query("SELECT * 
-								FROM ".Tprefix."leavesstats 
+                    $leavestats = $db->fetch_assoc($db->query("SELECT *
+								FROM ".Tprefix."leavesstats
 								WHERE uid='".$db->escape_string($leave_user['uid'])."' AND (ltid='".$db->escape_string($core->input['type'])."' OR ltid = (SELECT countWith FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['type'])."' AND countWith!=0)) AND (".$db->escape_string($core->input['fromDate'])." BETWEEN periodStart AND periodEnd)"));
 
-                    /* 				$lang->modifyleavemessage_stats = $lang->sprint($lang->modifyleavemessage_stats, 
+                    /* 				$lang->modifyleavemessage_stats = $lang->sprint($lang->modifyleavemessage_stats,
                       $leavestats['canTake'],
                       $leavestats['entitledFor'],
                       $leavestats['additionalDays'],
@@ -490,9 +503,9 @@ else {
                 //$lang->modifyleavemessage = $lang->sprint($lang->modifyleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($todate_format, $core->input['toDate']), $core->input['reason'], $approve_link);
 
                 /* Parse expense information for message - START */
-                $leaveexpense = new Leaves(array('lid' => $lid));
-                if($leaveexpense->has_expenses()) {
-                    $expenses_data = $leaveexpense->get_expensesdetails();
+
+                if($leave_obj->has_expenses()) {
+                    $expenses_data = $leave_obj->get_expensesdetails();
                     $expenses_message = '';
                     foreach($expenses_data as $expense) {
                         if(!empty($lang->{$expense['name']})) {
@@ -505,7 +518,7 @@ else {
 
                         $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].$expense['description'].'<br />';
                     }
-                    $total = $leaveexpense->get_expensestotal();
+                    $total = $leave_obj->get_expensestotal();
 
                     $expenses_message_ouput = '<br />'.$expenses_message.'<br />Total: '.$total.' USD<br />';
                 }
@@ -566,7 +579,7 @@ else {
 
             if(!empty($leave['details_crumb'])) {
                 //$leave['details_crumb'] = implode(' ', parse_additionaldata($core->input, $leavetype_details['additionalFields']));
-                //$lang->leavenotificationmessage_typedetails .= ' ('.$core->input['details_crumb'].')';	
+                //$lang->leavenotificationmessage_typedetails .= ' ('.$core->input['details_crumb'].')';
                 $lang->leavenotificationmessage_typedetails = $leave['details_crumb'];
             }
             else {
