@@ -138,10 +138,12 @@ if($core->input['type'] == 'quick') {
                 //$extra_where = $supplier_filter;
             }
             $table = 'products';
-            $flagtable = 'chemfunctionproducts';
+            // $flagtable = 'chemfunctionproducts';
+            $extra_info = array('table' => 'countries');
             $attributes = array('name');
             $key_attribute = 'pid';
             $select_attributes = array('name');
+            $extra_info = array('table' => 'chemfunctionproducts');
             $order = array('by' => 'name', 'sort' => 'ASC');
         }
         elseif($core->input['for'] == 'representative' || $core->input['for'] == 'supprepresentative') {
@@ -206,8 +208,22 @@ if($core->input['type'] == 'quick') {
                 $extra_where .= " AND {$key_attribute} NOT IN ({$core->input[exclude]})";
             }
         }
-
-        $results_list = quick_search($table, $flagtable, $attributes, $core->input['value'], $select_attributes, $key_attribute, $order, $extra_where);
+        elseif($core->input['for'] == 'cities') {
+            $table = 'cities';
+            $attributes = array('name');
+            $key_attribute = 'ciid';
+            $select_attributes = array('name');
+            $extra_info = array('table' => 'countries');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+        }
+        elseif($core->input['for'] == 'countries') {
+            $table = 'countries';
+            $attributes = array('name');
+            $key_attribute = 'coid';
+            $select_attributes = array('name');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+        }
+        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, $order, $extra_where, '', $extra_info);
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);
         $module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);
         if($core->input['for'] == 'supplier') {
