@@ -563,7 +563,7 @@ else {
                     $lang->requestleavemessage = $lang->sprint($lang->requestleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']).' ('.$leavetype_details['description'].')'.$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $core->input['reason'], $lang->requestleavemessage_stats, $approve_link);
 
                     /* Parse Calendar - Start */
-                    $lang->requestleavemessage .= get_calendar(array('fromDate' => $core->input['fromDate'], 'affid' => $db->fetch_field($db->query("SELECT affid FROM ".Tprefix." affiliatedemployees WHERE uid='{$leave_user[uid]}'"), 'affid')));
+                    $lang->requestleavemessage .= get_calendar(array('fromDate' => $core->input['fromDate'], 'affid' => $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$leave_user[uid]}'"), 'affid')));
                     /* Parse Calendar - End */
                 }
             }
@@ -681,7 +681,7 @@ function get_calendar($arguments) {
     }
     /* GET RELATED LEAVES - START */
     $approved_lids = $unapproved_lids = array();
-    $query = $db->query("SELECT l.lid, la.isApproved FROM ".Tprefix."leaves l JOIN ".Tprefix."leavesapproval la ON (l.lid=la.lid) WHERE ((".$month['firstday']." BETWEEN l.fromDate AND l.toDate) OR (l.fromDate > ".$month ['firstday'].")) AND l.uid IN (".implode(', ', $affiliate_users).")");
+    $query = $db->query("SELECT l.lid, la.isApproved FROM ".Tprefix."leaves l JOIN ".Tprefix."leavesapproval la ON (l.lid=la.lid) WHERE ((".$month['firstday']." BETWEEN l.fromDate AND l.toDate) OR (l.fromDate > ".$month['firstday'].")) AND l.uid IN (".implode(', ', $affiliate_users).")");
 
     if($db->num_rows($query) > 0) {
         while($leave = $db->fetch_assoc($query)) {
@@ -705,7 +705,7 @@ function get_calendar($arguments) {
 
         if($db->num_rows($query) > 0) {
             while($more_leaves = $db->fetch_assoc($query)) {
-                $num_days_off = (($more_leaves ['toDate'] - $more_leaves['fromDate']) / 24 / 60 / 60);
+                $num_days_off = (($more_leaves['toDate'] - $more_leaves['fromDate']) / 24 / 60 / 60);
 
                 $leave_type_details = parse_type($more_leaves['type']);
                 $more_leaves['type'] = $leave_type_details;
@@ -784,7 +784,7 @@ function draw_available($start_from, $num_days, $start_date_info, $week_num_days
         }
         else {
             $calendar_cell_highlight = '';
-            if(is_array($days_tohighlight[$start_date_info ['mon']])) {
+            if(is_array($days_tohighlight[$start_date_info['mon']])) {
                 if(in_array($day, $days_tohighlight[$start_date_info['mon']])) {
                     $calendar_cell_highlight = 'background: #D5F2BF; ';
                 }

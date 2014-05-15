@@ -69,15 +69,41 @@ class Cities {
 
         $cities = array();
 
+        /* Filters to be improved */
         if(!empty($filters)) {
-            $filters = ' WHERE '.$db->escape_string($filters);
+            if(is_array($filters)) {
+                $andor = ' WHERE ';
+                foreach($filters as $attr => $value) {
+                    if(is_numeric($value)) {
+                        $value = intval($value);
+                    }
+                    else {
+                        $value = '"'.$db->escape_string($value).'"';
+                    }
+                    $filters_querystring .= $andor.$attr.'='.$value;
+                    $andor = ' AND ';
+                }
+            }
+            else {
+                $filters_querystring = ' WHERE '.$db->escape_string($filters);
+            }
         }
-        $query = $db->query('SELECT '.self::PRIMARY_KEY.' FROM '.Tprefix.self::TABLE_NAME.$filters);
-        while($city = $db->fetch_assoc($query)) {
-            $cities[$city[self::PRIMARY_KEY]] = new Cities($city[self::PRIMARY_KEY]);
+        $query = $db->query('SELECT '.self::PRIMARY_KEY.' FROM '.Tprefix.self::TABLE_NAME.$filters_querystring);
+        if($db->num_rows($query) > 1) {
+            while($city = $db->fetch_assoc($query)) {
+                $cities[$city[self::PRIMARY_KEY]] = new Cities($city[self::PRIMARY_KEY]);
+            }
+            $db->free_result($query);
+            return $cities;
         }
-        $db->free_result($query);
-        return $cities;
+        else {
+            if($db->num_rows($query) == 1) {
+                return new self($db->fetch_field($query, self::PRIMARY_KEY));
+            }
+            return false;
+        }
+
+        return false;
     }
 
     public function get() {

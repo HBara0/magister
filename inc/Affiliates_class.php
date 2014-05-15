@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Affiliates Class
  * $id: Affiliates_class.php
  * Created:        @zaher.reda    Mar 8, 2013 | 4:51:09 PM
@@ -33,11 +33,12 @@ class Affiliates {
     }
 
     public function get_city() {
+
         if(is_numeric($this->affiliate['city'])) {
             return new Cities($this->affiliate['city']);
         }
         else {
-            return Cities::get_city_byname($this->affiliate['city']);
+            return Cities::get_cities(array('name' => $this->affiliate['city'], 'coid' => $this->affiliate['country']));
         }
     }
 
@@ -84,9 +85,9 @@ class Affiliates {
                 $query_where_add = ' AND isMain=1';
             }
         }
-        $query = $db->query("SELECT DISTINCT(u.uid) 
-					FROM ".Tprefix."users u 
-					JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid) 
+        $query = $db->query("SELECT DISTINCT(u.uid)
+					FROM ".Tprefix."users u
+					JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid)
 					WHERE a.affid={$this->affiliate['affid']}".$query_where_add." AND u.gid!=7
 					ORDER BY displayName ASC");
         while($user = $db->fetch_assoc($query)) {
@@ -107,9 +108,9 @@ class Affiliates {
     public function get_suppliers() {
         global $db;
         $additional_where = getquery_entities_viewpermissions('suppliersbyaffid', $this->affiliate['affid'], '', 0, 'ae', 'eid');
-        $query = $db->query("SELECT DISTINCT(e.eid) 
-					FROM ".Tprefix."entities e 
-					LEFT JOIN ".Tprefix."affiliatedentities ae ON (ae.eid=e.eid) 
+        $query = $db->query("SELECT DISTINCT(e.eid)
+					FROM ".Tprefix."entities e
+					LEFT JOIN ".Tprefix."affiliatedentities ae ON (ae.eid=e.eid)
 					WHERE ae.affid={$this->affiliate['affid']} AND type='s'".$additional_where[extra]." ORDER BY companyName ASC");
         while($supplier = $db->fetch_assoc($query)) {
             $suppliers = new Entities($supplier['eid']);
@@ -120,9 +121,9 @@ class Affiliates {
 
     public function get_customers() {
         global $db;
-        $query = $db->query("SELECT DISTINCT(e.eid) 
-                            FROM ".Tprefix."entities e 
-                            LEFT JOIN ".Tprefix."affiliatedentities ae ON (ae.eid=e.eid) 
+        $query = $db->query("SELECT DISTINCT(e.eid)
+                            FROM ".Tprefix."entities e
+                            LEFT JOIN ".Tprefix."affiliatedentities ae ON (ae.eid=e.eid)
                             WHERE ae.affid={$this->affiliate['affid']} AND type='c'".$additional_where[extra]." ORDER BY companyName ASC");
         while($customer = $db->fetch_assoc($query)) {
             $customers[$customer['eid']] = new Entities($customer['eid']);

@@ -59,9 +59,9 @@ class Users {
             $query_extrawhere = ' AND isMain=1';
         }
 
-        $query = $db->query('SELECT * 
+        $query = $db->query('SELECT *
 							FROM '.Tprefix.'users_usergroups uug
-							JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid) 
+							JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid)
 							WHERE uid='.$this->user['uid'].$query_extrawhere.'
 							ORDER BY isMain DESC');
         while($usergroup = $db->fetch_assoc($query)) {
@@ -84,9 +84,9 @@ class Users {
     public function get_usergroups($config = array()) {
         global $db;
 
-        $query = $db->query('SELECT uug.gid, uug.isMain, ug.title 
+        $query = $db->query('SELECT uug.gid, uug.isMain, ug.title
 					FROM '.Tprefix.'users_usergroups uug
-					JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid) 
+					JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid)
 					WHERE uid='.$this->user['uid'].'
 					ORDER BY isMain DESC');
         while($usergroup = $db->fetch_assoc($query)) {
@@ -123,8 +123,8 @@ class Users {
         }
 
         $query = $db->query("SELECT DISTINCT(u.uid)
-							FROM ".Tprefix."users u 
-							LEFT JOIN ".Tprefix."usersemails ue ON (ue.uid=u.uid) 
+							FROM ".Tprefix."users u
+							LEFT JOIN ".Tprefix."usersemails ue ON (ue.uid=u.uid)
 							WHERE u.email='".$db->escape_string($email)."' OR ue.email='".$db->escape_string($email)."'");
         if($db->num_rows($query) > 0) {
             $uid = $db->fetch_field($query, 'uid');
@@ -203,7 +203,7 @@ class Users {
 // The below has to be in the Affiliates Class
 //	public function get_affiliateuser() {
 //		global $db;
-//		$affemployee_query = $db->query("SELECT affe.aeid,u.displayName,u.uid,u.username FROM affiliatedemployees affe 
+//		$affemployee_query = $db->query("SELECT affe.aeid,u.displayName,u.uid,u.username FROM affiliatedemployees affe
 //										JOIN ".Tprefix."users u ON (u.uid=affe.uid)
 //										JOIN ".Tprefix."affiliates aff ON(aff.affid=affe.affid) WHERE affe.affid in('".$this->get_mainaffiliate()->get()['affid']."')");
 //		if($db->num_rows($affemployee_query) > 0) {
@@ -243,7 +243,7 @@ class Users {
     public function get_leaves() {
         global $db;
         $query = $db->query("SELECT l.lid,l.uid FROM ".Tprefix."leaves l
-							JOIN ".Tprefix."leavetypes lt ON(lt.ltid=l.type) 
+							JOIN ".Tprefix."leavetypes lt ON(lt.ltid=l.type)
 							JOIN ".Tprefix."leavesapproval lap ON(l.lid=lap.lid) WHERE lap.isApproved=1
 							AND lt.isBusiness=1 AND l.uid={$this->user[uid]}");
         while($leaves = $db->fetch_assoc($query)) {
@@ -261,14 +261,14 @@ class Users {
         return new Affiliates($this->user['mainaffiliate'], FALSE);
     }
 
-    /* CORRECTIONS NEEDED: 
-     *  The below should return objects of Segments 
-     *  There is no need for the join being made 
-     * Should return false if nothing       
+    /* CORRECTIONS NEEDED:
+     *  The below should return objects of Segments
+     *  There is no need for the join being made
+     * Should return false if nothing
      */
     public function get_segments() {
         global $db;
-        $segment_query = $db->query("SELECT ps.psid,ps.title,em.emsid,em.uid FROM employeessegments em 
+        $segment_query = $db->query("SELECT ps.psid,ps.title,em.emsid,em.uid FROM employeessegments em
 									JOIN ".Tprefix."users u on u.uid=em.uid
 									JOIN ".Tprefix."productsegments ps ON (ps.psid=em.psid) WHERE u.uid=".$this->user['uid']);
         if($db->num_rows($segment_query) > 0) {
@@ -279,11 +279,11 @@ class Users {
         }
     }
 
-    /* CORRECTIONS NEEDED: 
-     * The below should return objects of Segments 
-     * There is no need for the join being made 
+    /* CORRECTIONS NEEDED:
+     * The below should return objects of Segments
+     * There is no need for the join being made
      * Should be renamed to get_coordinatedsegments
-     * Should return false if nothing        
+     * Should return false if nothing
      */
     public function get_coordinatesegments() {
         global $db;
@@ -336,7 +336,7 @@ class Users {
         }
 
         if(!empty($this->user['mainaffiliate_details']['city'])) {
-            $info['address'] .= ucfirst($this->user['mainaffiliate_details']['city']).' - ';
+            $info['address'] .= $mainaffiliate->get_city()->get()['name'].' - '; //ucfirst($this->user['mainaffiliate_details']['city']).' - ';
         }
 
         $info['address'] .= ucfirst($this->user['mainaffiliate_details']['countryname']);

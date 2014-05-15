@@ -350,7 +350,7 @@ else {
             }
 
             /* Parse expense information for message - START */
-            $leave_obj = new Leaves($leave['lid']);
+            $leave_obj = new Leaves($leave['lid'], false);
             if($leave_obj->has_expenses()) {
                 $expenses_data = $leave_obj->get_expensesdetails();
                 $total = 0;
