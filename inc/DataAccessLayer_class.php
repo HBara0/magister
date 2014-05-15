@@ -14,24 +14,22 @@
  * @author zaher.reda
  */
 class DataAccessLayer {
-    const PRIMARY_KEY = null;
-    const TABLE_NAME = null;
-
+    private $primary_key = null;
+    private $table_name = null;
     private $class = null;
     private $data = array();
 
     public function __construct($class, $table, $primary_key) {
-        DEFINE(self::PRIMARY_KEY, $primary_key);
-        DEFINE(self::TABLE_NAME, $table);
-
+        $this->table_name = $table;
+        $this->primary_key = $primary_key;
         $this->class = $class;
     }
 
-    public static function get_objects($filters = null, array $configs = array()) {
+    public function get_objects($filters = null, array $configs = array()) {
         global $db;
 
         $items = array();
-        $sql = 'SELECT '.self::PRIMARY_KEY.' FROM '.Tprefix.self::TABLE_NAME;
+        $sql = 'SELECT '.$this->primary_key.' FROM '.Tprefix.$this->table_name;
 
         $sql .= $this->construct_whereclause($filters);
         $sql .= $this->construct_orderclause($configs['order']);
@@ -40,17 +38,40 @@ class DataAccessLayer {
         $query = $db->query($sql);
         if($db->num_rows($query) > 1) {
             while($item = $db->fetch_assoc($query)) {
-                $items[$item[self::PRIMARY_KEY]] = new $this->class($item[self::PRIMARY_KEY]);
+                $items[$item[$this->primary_key]] = new $this->class($item[$this->primary_key]);
             }
             $db->free_result($query);
             return $items;
         }
         else {
             if($db->num_rows($query) == 1) {
-                return new $this->class($db->fetch_field($query, self::PRIMARY_KEY));
+                return new $this->class($db->fetch_field($query, $this->primary_key));
             }
             return false;
         }
+    }
+
+    public function get_objects_byattr($attr, $value) {
+        global $db;
+
+        if(!empty($value) && !empty($attr)) {
+            $query = $db->query('SELECT '.$this->primary_key.' FROM '.Tprefix.$this->table_name.' WHERE '.$db->escape_string($attr).'="'.$db->escape_string($value).'"');
+            if($db->num_rows($query) > 1) {
+                $items = array();
+                while($item = $db->fetch_assoc($query)) {
+                    $items[$item[$this->primary_key]] = new $this->class($item[$this->primary_key]);
+                }
+                $db->free_result($query);
+                return $items;
+            }
+            else {
+                if($db->num_rows($query) == 1) {
+                    return new $this->class($db->fetch_field($query, $this->primary_key));
+                }
+                return false;
+            }
+        }
+        return false;
     }
 
     private function construct_havingclause($having) {
@@ -93,7 +114,7 @@ class DataAccessLayer {
     private function construct_whereclause($filters) {
         global $db;
 
-        if(is_array($filters)) {
+        if(is_array($filters) && !empty($filters)) {
             $andor = ' WHERE ';
             foreach($filters as $attr => $value) {
                 if(is_numeric($value)) {
@@ -107,7 +128,9 @@ class DataAccessLayer {
             }
         }
         else {
-            $filters_querystring = ' WHERE '.$db->escape_string($filters);
+            if(!empty($filters)) {
+                $filters_querystring = ' WHERE '.$db->escape_string($filters);
+            }
         }
         return $filters_querystring;
     }
