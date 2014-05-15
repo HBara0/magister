@@ -293,9 +293,9 @@ else {
         /* Validate required Fields --END */
         $query = $db->update_query('leaves', $core->input, "lid='{$lid}'");
         /* Update leave expenses - START */
-        $leaveobject = new Leaves(array('lid' => $lid));
+        $leave_obj = new Leaves(array('lid' => $lid), false);
         if(is_array($expenses_data) && !empty($expenses_data)) {
-            $leaveobject->update_leaveexpenses($expenses_data);
+            $leave_obj->update_leaveexpenses($expenses_data);
         }
         /* Update leave expenses - END */
         if($query) {
@@ -324,7 +324,6 @@ else {
 
             $log->record($lid);
             /* Create leave expenses - START */
-            $leave_obj = new Leaves(array('lid' => $lid), false);
             if($core->usergroup['attenance_canApproveAllLeaves'] == 0) {
                 $db->update_query('leavesapproval', array('isApproved' => 0, 'timeApproved' => 0), "lid='{$lid}'");
                 $affected_rows = $db->affected_rows();

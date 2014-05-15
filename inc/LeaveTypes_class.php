@@ -152,7 +152,7 @@ class Leavetypes {
                                 }
                                 $field_settings['affids'] = implode(', ', get_specificdata('affiliatedemployees', array('affid'), 'affid', 'affid', '', 0, 'uid='.$db->escape_string($field_settings['uid'])));
                             }
-
+                            /* The below might not function */
                             if(isset($leave['fromDate_formatted'])) {
                                 $leave['fromDate'] = $leave['fromDate_output'];
                             }
@@ -161,6 +161,7 @@ class Leavetypes {
                                 $leave['toDate'] = $leave['toDate_output'];
                             }
                             $leave['toDate'] = strtotime($leave['toDate']);
+                            /* The above might not function */
                             eval("\$field_settings[where] = \"".$field_settings['where']."\";");
                         }
 
@@ -193,7 +194,7 @@ class Leavetypes {
 
         if(!empty($field)) {
             if(isset($field_settings['titlelangvar'])) {
-                $field = '<br />'.$lang->{$field_settings['titlelangvar']}.' '.$field;
+                $field = '<br /><div style="display:inline-block; width:10%;">'.$lang->{$field_settings['titlelangvar']}.'</div><div style="display:inline-block; width:75%;">'.$field.'</div>';
             }
         }
         return $field;
@@ -205,15 +206,16 @@ class Leavetypes {
         if($this->leavetype['isBusiness'] == 1) {
             /* only we get the segments of  selected user (core user) */
             if(!is_object($user_obj)) {
-                $user_obj = new Users($core->user['uid']);
+                $user_obj = $core->user_obj;
             }
-            $user_segmentsobjs = $user_obj->get_segments();
-            if(is_array($user_segmentsobjs)) {
-                foreach($user_segmentsobjs as $key => $user_segmentsobj) {
-                    $usersegment_data[$user_segmentsobj->get()['psid']] = $user_segmentsobj->get()['title'];
+            $segments = $user_obj->get_segments();
+            if(is_array($segments)) {
+                foreach($segments as $key => $segment) {
+                    $usersegment_data[$segment->get()['psid']] = $segment->get()['title'];
                 }
+                return $usersegment_data;
             }
-            return $usersegment_data;
+            return false;
         }
         return false;
     }

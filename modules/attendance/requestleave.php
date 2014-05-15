@@ -13,7 +13,6 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 
-
 if(!$core->input['action']) {
     $action = 'requestleave';
 
@@ -114,16 +113,14 @@ else {
         output(parse_toinform_list($core->input['uid'], '', $leavetype_details));
     }
     elseif($core->input['action'] == 'getadditionalfields') {
-        if(!isset($core->input['uid']) || empty($core->input['uid']) || $core->input['uid'] == $core->user['uid']) {
+        if(empty($core->input['uid']) || $core->input['uid'] == $core->user['uid']) {
             $core->input['uid'] = $core->user['uid'];
-            $leave_user = $core->user;
             $leave_user_obj = $core->user_obj;
         }
         else {
-            $leave_user = $db->fetch_assoc($db->query("SELECT uid, firstName, lastName, reportsTo FROM ".Tprefix."users WHERE uid='".$db->escape_string($core->input['uid'])."'"));
             $leave_user_obj = new Users($core->input['uid']);
         }
-        $leavetype_obj = new Leavetypes($core->input['ltid'], false);
+        $leavetype_obj = new LeaveTypes($core->input['ltid'], false);
 
         $fields = $leavetype_obj->parse_additonalfields();
         output($fields);
@@ -586,13 +583,6 @@ else {
                     if(!empty($leave['details_crumb'])) {
                         $leave['details_crumb'] = ' - '.$leave['details_crumb'];
                     }
-                    /* Get segment related to the business  leave */
-                    if(isset($core->input['psid']) && !empty($core->input['psid'])) {
-
-                        $produt_segment_obj = new ProductsSegments($core->input['psid']);
-                        $leave_segment = $produt_segment_obj->get()[title];
-                    }
-                    $leave_purpose = $leave_obj->get_purpose()->get()['purpose'];
 
                     $lang->requestleavemessage = $lang->sprint($lang->requestleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']).' ('.$leavetype_details['description'].')'.$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $core->input['reason'], $lang->requestleavemessage_stats, $approve_link);
 
