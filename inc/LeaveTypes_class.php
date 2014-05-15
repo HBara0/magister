@@ -179,7 +179,8 @@ class Leavetypes {
                 elseif($field_settings['datasource'] == 'function') {
                     unset($field_settings['key_attribute_value'], $field_settings['type'], $field_settings['table'], $field_settings['attributes']);
                     if(method_exists($this, $field_settings['functionname'])) {
-                        $data = $this->{$field_settings['functionname']}();
+                        /* call the sgment function to get  the segment for the on behalf user */
+                        $data = $this->{$field_settings['functionname']}(new Users($core->input['uid']));
                     }
 
                     if(is_array($data)) {
@@ -198,11 +199,12 @@ class Leavetypes {
         return $field;
     }
 
-    private function parse_segments_byuser(Users $user = null) {
+    private function parse_segments_byuser(Users $user_obj = null) {
         global $core;
+
         if($this->leavetype['isBusiness'] == 1) {
             /* only we get the segments of  selected user (core user) */
-            if(!is_object($user)) {
+            if(!is_object($user_obj)) {
                 $user_obj = new Users($core->user['uid']);
             }
             $user_segmentsobjs = $user_obj->get_segments();

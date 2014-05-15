@@ -138,7 +138,7 @@ if($core->input['type'] == 'quick') {
                 //$extra_where = $supplier_filter;
             }
             $table = 'products';
-            $flagtable = 'chemfunctionproducts';
+            //$flagtable = 'chemfunctionproducts';
             $attributes = array('name');
             $key_attribute = 'pid';
             $select_attributes = array('name');
@@ -207,7 +207,7 @@ if($core->input['type'] == 'quick') {
             }
         }
 
-        $results_list = quick_search($table, $flagtable, $attributes, $core->input['value'], $select_attributes, $key_attribute, $order, $extra_where);
+        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, $order, $extra_where);
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);
         $module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);
         if($core->input['for'] == 'supplier') {
