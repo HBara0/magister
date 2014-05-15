@@ -588,6 +588,7 @@ function quick_search($table, $flagtable, $attributes, $value, $select_attribute
             $results[$result2[$key_attribute]] = $output;
             $output = '';
         }
+        $db->free_result($query2);
     }
 
     if(is_array($results)) {
