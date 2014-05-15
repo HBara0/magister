@@ -2443,7 +2443,12 @@ DROP TABLE IF EXISTS `travelmanager_airlines`;
 CREATE TABLE `travelmanager_airlines` (
   `alid` int(10) NOT NULL AUTO_INCREMENT,
   `name` varchar(220) NOT NULL,
-  `contracted` tinyint(1) NOT NULL DEFAULT '0',
+  `alias` varchar(220) DEFAULT NULL,
+  `iatacode` varchar(4) DEFAULT NULL,
+  `icaocode` varchar(4) DEFAULT NULL,
+  `callSign` varchar(100) DEFAULT NULL,
+  `coid` int(10) NOT NULL,
+  `country` varchar(100) NOT NULL,
   PRIMARY KEY (`alid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
