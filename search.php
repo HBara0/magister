@@ -223,6 +223,21 @@ if($core->input['type'] == 'quick') {
             $select_attributes = array('name');
             $order = array('by' => 'name', 'sort' => 'ASC');
         }
+        elseif($core->input['for'] == 'airports') {
+            $table = 'travelmanager_airports';
+            $attributes = array('name');
+            $key_attribute = 'apid';
+            $select_attributes = array('name');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+        }
+        elseif($core->input['for'] == 'hotels') {
+            $table = 'travelmanager_hotels';
+            $attributes = array('name');
+            $key_attribute = 'tmhid';
+            $select_attributes = array('name');
+            //$extra_info = array('table' => 'hotelcountries');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+        }
         $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, $order, $extra_where, '', $extra_info);
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);
         $module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);

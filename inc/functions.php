@@ -595,24 +595,35 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 
     if(is_array($results)) {
         $results_list .= '<ul id="searchResultsList">';
-
         foreach($results as $key => $val) {
-            if(is_array($extra_info)) {
-                if(isset($extra_info['table']) && !empty($extra_info['table'])) {
-                    switch($extra_info['table']) {
-                        case 'countries':
-                            $cities_obj = new Cities($key);
-                            $city_id = $cities_obj->get()['ciid'];
-                            $city_country = $cities_obj->get_country()->get()['name'];
-                            $detailscity = '</br><span class="smalltext" >'.$city_country.'</span>';
-                            $results_list .= '<li id="'.$city_id.'">'.$val.' - '.$detailscity.'</li>';
-                            break;
-                            $val = '';
+            if(is_array($extra_info) && ( isset($extra_info['table']) && !empty($extra_info['table']) )) {
+                switch($extra_info['table']) {
+                    case 'countries':
+                        $cities_obj = new Cities($key);
+                        $city_id = $cities_obj->get()['ciid'];
+                        $city_country = $cities_obj->get_country()->get()['name'];
+                        $detailscity = '</br><span class="smalltext" >'.$city_country.'</span>';
+                        $results_list .= '<li id="'.$city_id.'">'.$val.' - '.$detailscity.'</li>';
+                        break;
+                        $val = '';
+                    /* Get chemicalfuntions  applications  segments for the searched product */
+                    case 'chemfunctionproducts':
                         /* Get chemicalfuntions  applications  segments for the searched product */
-                        case 'chemfunctionproducts':
-                            /* Get chemicalfuntions  applications  segments for the searched product */
-                            $product_obj = new Products($key);
-                            $chemfuncprod_objs = $product_obj->get_chemfunctionproducts();
+                        $product_obj = new Products($key);
+                        $chemfuncprod_objs = $product_obj->get_chemfunctionproducts();
+                        if(is_array($chemfuncprod_objs)) {
+                            foreach($chemfuncprod_objs as $chemfuncprod_obj) {
+                                $cfpid = $chemfuncprod_obj->get()['cfpid'];
+                                $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
+                                $application = $application_obj->get_application()->get()['title'];
+                                $segment = $application_obj->get_segment()->get()['title'];
+                                $chemicalfuntion = $chemfuncprod_obj->get_chemicalfunction()->get()['title'];
+                                $details = '</br><span class="smalltext" >'.$chemicalfuntion.' - '.$application.' - '.$segment.'</span>';
+                                $results_list .= '<li id="'.$cfpid.'">'.$val.$details.'</li>';
+                            }
+                        }
+                        else { /* get Defaultfunction of the product */
+                            $chemfuncprod_objs = $product_obj->get_defaultchemfunction();
                             if(is_array($chemfuncprod_objs)) {
                                 foreach($chemfuncprod_objs as $chemfuncprod_obj) {
                                     $cfpid = $chemfuncprod_obj->get()['cfpid'];
@@ -624,25 +635,12 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                     $results_list .= '<li id="'.$cfpid.'">'.$val.$details.'</li>';
                                 }
                             }
-                            else { /* get Defaultfunction of the product */
-                                $chemfuncprod_objs = $product_obj->get_defaultchemfunction();
-                                if(is_array($chemfuncprod_objs)) {
-                                    foreach($chemfuncprod_objs as $chemfuncprod_obj) {
-                                        $cfpid = $chemfuncprod_obj->get()['cfpid'];
-                                        $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
-                                        $application = $application_obj->get_application()->get()['title'];
-                                        $segment = $application_obj->get_segment()->get()['title'];
-                                        $chemicalfuntion = $chemfuncprod_obj->get_chemicalfunction()->get()['title'];
-                                        $details = '</br><span class="smalltext" >'.$chemicalfuntion.' - '.$application.' - '.$segment.'</span>';
-                                        $results_list .= '<li id="'.$cfpid.'">'.$val.$details.'</li>';
-                                    }
-                                }
-                            }
-                            break;
-                    }
+                        }
+                        break;
                 }
             }
             else {
+
                 $results_list .= '<li id="'.$key.'">'.$val.'</li>';
             }
         }
