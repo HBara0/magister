@@ -42,27 +42,14 @@ class TravelManagerAirports {
         return $this->get_airport_byattr('name', $name);
     }
 
-    public static function get_airport_byattr($attr, $value) {
-        global $db;
+    public static function get_airports($filters = null, array $configs = array()) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
+    }
 
-        if(!empty($value) && !empty($attr)) {
-            $query = $db->query('SELECT '.self::PRIMARY_KEY.' FROM '.Tprefix.self::TABLE_NAME.' WHERE '.$db->escape_string($attr).'="'.$db->escape_string($value).'"');
-            if($db->num_rows($query) > 1) {
-                $items = array();
-                while($item = $db->fetch_assoc($query)) {
-                    $items[$item[self::PRIMARY_KEY]] = new self($item[self::PRIMARY_KEY]);
-                }
-                $db->free_result($query);
-                return $items;
-            }
-            else {
-                if($db->num_rows($query) == 1) {
-                    return new self($db->fetch_field($query, self::PRIMARY_KEY));
-                }
-                return false;
-            }
-        }
-        return false;
+    public static function get_airport_byattr($attr, $value) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects_byattr($attr, $value);
     }
 
     public function get() {
