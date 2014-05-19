@@ -13,6 +13,7 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 
+
 if(!$core->input['action']) {
     $action = 'requestleave';
 
@@ -113,13 +114,17 @@ else {
         output(parse_toinform_list($core->input['uid'], '', $leavetype_details));
     }
     elseif($core->input['action'] == 'getadditionalfields') {
-        $additional_fields = unserialize($db->fetch_field($db->query("SELECT additionalFields FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['ltid'])."'"), 'additionalFields'));
-        if(is_array($additional_fields)) {
-            foreach($additional_fields as $key => $val) {
-                $fields .= parse_additonalfield($key, $val).'<br />';
-            }
-            output($fields);
+        if(empty($core->input['uid']) || $core->input['uid'] == $core->user['uid']) {
+            $core->input['uid'] = $core->user['uid'];
+            $leave_user_obj = $core->user_obj;
         }
+        else {
+            $leave_user_obj = new Users($core->input['uid']);
+        }
+        $leavetype_obj = new LeaveTypes($core->input['ltid'], false);
+
+        $fields = $leavetype_obj->parse_additonalfields();
+        output($fields);
     }
     elseif($core->input['action'] == 'getleavetime') {
         $ltid = $db->escape_string($core->input['ltid']);
@@ -309,6 +314,7 @@ else {
         }
 
         if(!empty($leavetype_details['additionalFields'])) {
+
             $leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields']);
             if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
                 $leave['details_crumb'] = implode(' ', $leave['details_crumb']);

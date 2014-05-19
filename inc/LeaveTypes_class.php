@@ -39,7 +39,7 @@ class Leavetypes {
             $id = $this->leavetype['ltid'];
         }
 
-        $leavetypeexp_query = $db->query('SELECT * 
+        $leavetypeexp_query = $db->query('SELECT *
                                         FROM '.Tprefix.'attendance_leavetypes_expenses alte
                                         JOIN '.Tprefix.'attendance_leaveexptypes alet ON (alet.aletid=alte.aletid)
                                         WHERE ltid='.$db->escape_string($id).' ORDER BY hasComments DESC');
@@ -89,7 +89,7 @@ class Leavetypes {
         }
         $query_select = '*';
         if($simple == true) {
-            $query_select = 'ltid, name, title,title AS name ,description, toApprove';
+            $query_select = 'ltid, name, title,title AS name ,description, additionalFields,toApprove';
         }
         return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'leavetypes WHERE ltid='.$db->escape_string($id)));
     }
@@ -109,6 +109,109 @@ class Leavetypes {
             return $leavetypes;
         }
         return false;
+    }
+
+    public function get_additonalfields() {
+        return unserialize($this->leavetype['additionalFields']);
+    }
+
+    public function parse_additonalfields(array $additional_settings = array()) {
+        $additional_fields = $this->get_additonalfields();
+        if(is_array($additional_fields)) {
+            foreach($additional_fields as $key => $field) {
+                $parsed_fields .= $this->parse_additonalfield($key, $field);
+            }
+            return $parsed_fields;
+        }
+    }
+
+    private function parse_additonalfield($attribute, $field_settings, array $additional_settings = array()) {
+        global $db, $core, $lang, $leave;
+        $field = '';
+
+        switch($field_settings['type']) {
+            case 'inline-search':
+                $identifier = uniqid(TIME_NOW);
+
+                if($attribute == 'cid') {
+                    $search_for = 'customer';
+                }
+                elseif($attribute == 'ciid') {
+                    $search_for = 'cities';
+                }
+                elseif($attribute == 'ciid') {
+                    $search_for = 'cities';
+                }
+                elseif($attribute == 'spid') {
+                    $search_for = 'supplier';
+                }
+
+                $field = '<input type = "text" id = "'.$search_for.'_'.$identifier.'_QSearch" value = "'.$field_settings['value_attribute_value'].'" required = "required"/><input type = "text" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value = "'.$field_settings['key_attribute_value'].'" id = "'.$search_for.'_'.$identifier.'_id" name = "'.$attribute.'" /><div id = "searchQuickResults_'.$identifier.'" class = "searchQuickResults" style = "display:none;"></div>';
+
+                break;
+            case 'select':
+                if($field_settings['datasource'] == 'db') {
+                    if(isset($field_settings['table '], $field_settings['attributes'])) {
+                        if(isset($field_settings['where'])) {
+                            if($field_settings['affid_validation'] == true) {
+                                if(empty($field_settings['uid'])) {
+                                    $field_settings['uid'] = $core->input['uid'];
+                                }
+                                $field_settings['affids'] = implode(', ', get_specificdata('affiliatedemployees ', array('affid'), 'affid', 'affid', '', 0, 'uid = '.$db->escape_string($field_settings['uid'])));
+                            }
+                            /* The below might not function */
+                            if(isset($leave['fromDate_formatted'])) {
+                                $leave['fromDate'] = $leave['fromDate_output'];
+                            }
+                            $leave['fromDate'] = strtotime($leave['fromDate']);
+                            if(isset($leave['toDate_formatted'])) {
+                                $leave['toDate'] = $leave['toDate_output'];
+                            }
+                            $leave['toDate'] = strtotime($leave['toDate']);
+                            /* The above might not function */
+                            eval("\$field_settings[where] = \"".$field_settings['where']."\";");
+                        }
+
+                        $data = get_specificdata($field_settings['table'], $field_settings['attributes'], $field_settings['key_attribute'], $field_settings['value_attribute'], array('by' => $field_settings['value_attribute'], 'sort' => 'ASC'), 0, $field_settings['where']);
+                        if(is_array($data)) {
+                            $field = parse_selectlist($attribute, 0, $data, $field_settings['key_attribute_value'], $field_settings['mulitpleselect'], '', array('required' => true));
+                        }
+                        else {
+                            $field = '<span class = "red_text">'.$lang->{$field_settings['errorlang_nodata']}.'</span>';
+                        }
+                    }
+                    else {
+                        break;
+                    }
+                }
+                elseif($field_settings['datasource'] == 'function') {
+                    unset($field_settings['key_attribute_value'], $field_settings['type'], $field_settings['table'], $field_settings['attributes']);
+                    if(method_exists($this, $field_settings['functionname'])) {
+                        /* call the sgment function to get  the segment for the on behalf user */
+                        $data = $this->{$field_settings['functionname']}(new Users($core->input['uid']));
+                    }
+
+                    if(is_array($data)) {
+                        $field = parse_selectlist($attribute, 0, $data, '', $field_settings['mulitpleselect'], '', array('required' => false));
+                    }
+                }
+                break;
+            default: break;
+        }
+
+        if(!empty($field)) {
+            if(isset($field_settings['titlelangvar'])) {
+                $field = '<br /><div style = "display:inline-block; width:10%;">'.$lang->{$field_settings['titlelangvar']}.'</div><div style = "display:inline-block; width:75%;">'.$field.'</div>
+
+            ';
+            }
+        }
+        return $field;
+    }
+
+    public function get_addfunction($args = array()) {
+
+        return $args;
     }
 
     public function get() {

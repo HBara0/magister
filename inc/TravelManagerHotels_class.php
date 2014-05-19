@@ -28,7 +28,7 @@ class TravelManagerHotels {
 
     private function read($id) {
         global $db;
-        $this->airlines = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
+        $this->hotels = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
 
     public function get_country() {
@@ -39,7 +39,7 @@ class TravelManagerHotels {
         return new Cities($this->hotels['ciid']);
     }
 
-    public static function get_airlines_byattr($attr, $value) {
+    public static function get_hotels_byattr($attr, $value) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects_byattr($attr, $value);
     }
@@ -50,7 +50,7 @@ class TravelManagerHotels {
     }
 
     public function get() {
-        //return $this->airlines;
+        return $this->hotels;
     }
 
 }

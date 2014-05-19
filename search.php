@@ -209,6 +209,9 @@ if($core->input['type'] == 'quick') {
             }
         }
         elseif($core->input['for'] == 'cities') {
+            if(strlen($core->input['value']) < 3) {
+                exit;
+            }
             $table = 'cities';
             $attributes = array('name');
             $key_attribute = 'ciid';
@@ -224,6 +227,9 @@ if($core->input['type'] == 'quick') {
             $order = array('by' => 'name', 'sort' => 'ASC');
         }
         elseif($core->input['for'] == 'airports') {
+            if(strlen($core->input['value']) < 3) {
+                exit;
+            }
             $table = 'travelmanager_airports';
             $attributes = array('name');
             $key_attribute = 'apid';
