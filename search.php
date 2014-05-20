@@ -248,7 +248,7 @@ if($core->input['type'] == 'quick') {
             //$extra_info = array('table' => 'hotelcountries');
             $order = array('by' => 'name', 'sort' => 'ASC');
         }
-        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, $order, $extra_where, '', $extra_info);
+        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, $order, $extra_where, 'OR', array('returnType' => $core->input['returnType']));
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);
         $module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);
         if($core->input['for'] == 'supplier') {
