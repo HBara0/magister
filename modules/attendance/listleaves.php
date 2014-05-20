@@ -38,7 +38,12 @@ if(!$core->input['action']) {
         $where = ' WHERE ';
         $uid_where = ' (l.uid="'.$core->user['uid'].'"';
         if($core->usergroup['attendance_canViewAffAllLeaves'] == 1) {
-            $query = $db->query("SELECT u.uid FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE isMain=1 AND affid='{$core->user[mainaffiliate]}'");
+            if(is_array($core->user['hraffids'])) {
+                $query_extrawhere = 'affid IN ('.implode(', ', $core->user['hraffids']).') OR ';
+            }
+            $query = $db->query("SELECT u.uid, u.displayName FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE (".$query_extrawhere."(canHr=1 AND ae.uid=".$core->user['uid'].") OR (ae.isMain=1 AND ae.affid='{$core->user[mainaffiliate]}') OR u.reportsTo='{$core->user[uid]}') AND u.gid!=7 AND u.uid!={$core->user[uid]} ORDER BY displayName ASC");
+
+            //$query = $db->query("SELECT u.uid FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE isMain=1 AND affid='{$core->user[mainaffiliate]}'");
             if($db->num_rows($query) > 1) {
                 while($user = $db->fetch_assoc($query)) {
                     $users[] = $user['uid'];
@@ -334,9 +339,13 @@ else {
             $core->input['id'] = base64_decode($core->input['id']);
             $leaveobj = new Leaves($core->input['id'], false);
             $leave = $leaveobj->get();
+            $leave['purpose'] = $leaveobj->get_purpose()->get()['purpose'];
+
+            $leave['segment'] = $leaveobj->get_segment()->get()['title'];
             $leave['requester'] = $leaveobj->get_requester()->get();
             $leavetype = new Leavetypes($leave['type'], false);
             $leave['type_details'] = $leavetype->get();
+
 
             $leave['fromDate_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']);
             $leave['toDate_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']);
@@ -345,6 +354,7 @@ else {
             }
 
             $leave['details_crumb'] = parse_additionaldata($leave, $leave['type_details']['additionalFields']);
+
             if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
                 $leave['details_crumb'] = ' - '.implode(' ', $leave['details_crumb']);
             }

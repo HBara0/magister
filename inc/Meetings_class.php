@@ -93,7 +93,6 @@ class Meetings {
 
             $insertquery = $db->insert_query('meetings', $meeting_data);
             if($insertquery) {
-
                 $this->meeting['mtid'] = $db->last_id();
                 $this->meeting['identifier'] = $meeting_data['identifier'];
                 $log->record('addedmeeting', $this->meeting['mtid']);
@@ -477,11 +476,12 @@ class Meetings {
         }
         $share_user = $user_obj->get();
 
+        $lang->load('messages');
         $meetinglink = '<a href="'.DOMAIN.'/index.php?module=meetings/viewmeeting&amp;referrer=list&amp;mtid='.$this->meeting['mtid'].'">'.$this->meeting['title'].'</a>';
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
-        $mailer->set_subject($lang->sprint($lang->sharedmeetingsubject, $this->meeting['title']));
-        $mailer->set_message($lang->sprint($lang->sharedmeetingmessage, $share_user['displayName'], $this->meeting['title'], $meetinglink));
+        $mailer->set_subject($lang->sprint($lang->meetings_sharemeeting_subject, $this->meeting['title']));
+        $mailer->set_message($lang->sprint($lang->meetings_sharemeeting_message, $share_user['displayName'], $meetinglink));
         $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
         $mailer->set_to($share_user['email']);
         $mailer->send();

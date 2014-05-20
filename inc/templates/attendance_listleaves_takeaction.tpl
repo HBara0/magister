@@ -3,7 +3,7 @@
         <title>{$core->settings[systemtitle]}</title>
         {$headerinc}
     </head>
-    <body style="color:#FFFFFF;">
+    <body style="color:#ffffff;">
         <div align="center">
             <table width="100%" border="0" cellpadding="0" cellspacing="0" id="errorbox">
                 <tr>

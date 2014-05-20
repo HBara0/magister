@@ -24,6 +24,13 @@ class Leaves {
         }
     }
 
+    public function get_segment() {
+        if(!empty($this->leave['psid'])) {
+            return new ProductsSegments($this->leave['psid']);
+        }
+        return false;
+    }
+
     public function has_expenses($id = '') {
         global $db;
 
@@ -199,7 +206,7 @@ class Leaves {
 
     public static function get_leaves_expencesdata($data_filter = array(), array $config = array()) {
         global $db;
-        ;
+
         $tables_alias = array('aletid' => 'lextt');
 
         $fromDate = strtotime($data_filter['fromDate']);
@@ -208,7 +215,8 @@ class Leaves {
             return false;
         }
 
-        $allowed_filters = array('uid', 'type', 'aletid', 'useraffid', 'fromDate', 'toDate');
+        $allowed_filters = array('uid', 'type', 'aletid', 'useraffid', 'fromDate', 'toDate', 'requestTime');
+        $allowed_filters_configs = array('requestTime' => array('convertTo' => 'timestamp', 'operator' => '>='));
         foreach($data_filter as $filter => $data) {
             if(in_array($filter, $allowed_filters)) {
                 unset($data_filter['filter']);
@@ -256,8 +264,26 @@ class Leaves {
                 $tables_alias[$filterkey] = 'l';
             }
 
-            $querysting .= $querysting_where.$tables_alias[$filterkey].'.'.$db->escape_string($filterkey).' IN ('.$db->escape_string(implode(',', $filter)).')';
+            if(is_array($filter)) {
+                $querysting .= $querysting_where.$tables_alias[$filterkey].'.'.$db->escape_string($filterkey).' IN ('.$db->escape_string(implode(',', $filter)).')';
+            }
+            else {
+                if(isset($allowed_filters_configs[$filterkey]['convertTo'])) {
+                    if($allowed_filters_configs[$filterkey]['convertTo'] == 'timestamp') {
+                        $filter = strtotime($filter.' midnight');
+                    }
+                }
 
+                $operator = '=';
+                if(!empty($allowed_filters_configs[$filterkey]['operator'])) {
+                    $operator = $db->escape_string($allowed_filters_configs[$filterkey]['operator']);
+                }
+
+                if(is_string($filter)) {
+                    $filter = '"'.$filter.'"';
+                }
+                $querysting .= $querysting_where.$tables_alias[$filterkey].'.'.$db->escape_string($filterkey).' '.$operator.' '.$db->escape_string($filter).'';
+            }
             $querysting_where = ' AND ';
         }
 
@@ -268,7 +294,7 @@ class Leaves {
                             JOIN ".Tprefix."attendance_leavetypes_expenses letexp ON (letexp.alteid=lext.alteid)
                             JOIN ".Tprefix."attendance_leaveexptypes lextt ON (lextt.aletid=letexp.aletid)
                             JOIN ".Tprefix."affiliatedemployees a ON (a.uid=l.uid)
-                            {$querysting} AND NOT EXISTS (SELECT la.lid FROM ".Tprefix."leavesapproval la WHERE la.isApproved=0 AND la.lid=l.lid) AND ((l.fromDate BETWEEN ".$fromDate." AND ".$toDate.") OR (l.toDate BETWEEN ".$fromDate." AND ".$toDate."))".$having_querystring); //
+                            {$querysting} AND NOT EXISTS (SELECT la.lid FROM ".Tprefix."leavesapproval la WHERE la.isApproved=0 AND la.lid=l.lid) AND ((l.fromDate BETWEEN ".$fromDate." AND ".$toDate.") OR (l.toDate BETWEEN ".$fromDate." AND ".$toDate."))".$having_querystring);
 
         if($db->num_rows($query) > 0) {
             while($rowsdata = $db->fetch_assoc($query)) {
@@ -282,6 +308,10 @@ class Leaves {
 
     public function get_requester() {
         return new Users($this->leave['uid']);
+    }
+
+    public function get_purpose() {
+        return new LeaveTypesPurposes($this->leave['ltpid']);
     }
 
     public function get_type($simple = true) {

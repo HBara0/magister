@@ -51,6 +51,13 @@
                     <div style="display:inline-block; width: 20%; vertical-align:top;">{$lang->leaveexptype}</div>
                     <div style="display:inline-block; width: 25%; vertical-align:top;">{$leave_expencestypes_list}</div>
                 </div>
+                <div style="display:block; padding: 10px;">
+                    <div style="display:inline-block; vertical-align:top; width: 20%; font-weight: bold;">{$lang->daterequested} &ge;</div>
+                    <div style="display:inline-block; vertical-align:top; width: 25%;"><input type="text" id="pickDate_requestTime" autocomplete="off" tabindex="1" value=""/>
+                        <input type="hidden" name="expencesreport[filter][requestTime]" id="altpickDate_requestTime" value="" /></div>
+                    <div style="display:inline-block; width: 20%; vertical-align:top;">&nbsp;</div>
+                    <div style="display:inline-block; width: 25%; vertical-align:top;"></div>
+                </div>
                 <div class="subtitle" style="margin:10px;">{$lang->dimensions}<input type='text' id='dimensions' name="expencesreport[dimension][]" value='' style='display:none;'></div>
                 <div style="display:block; text-align: center;">
                     <div style="display:inline-block; width:45%; vertical-align:top;">

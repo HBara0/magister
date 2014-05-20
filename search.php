@@ -8,6 +8,7 @@
  * Created: 		@zaher.reda			Mar 21, 2009 | 11:40 AM
  * Last Update: 	@zaher.reda			February 28, 2013 | 08:56 AM
  */
+
 require_once 'global.php';
 
 if($core->input['type'] == 'quick') {
@@ -114,13 +115,16 @@ if($core->input['type'] == 'quick') {
             if(isset($core->input['rid']) && !empty($core->input['rid'])) {
                 $extra_where .= 'spid = "'.$report_data['spid'].'"';
             }
-            if($core->usergroup['canViewAllsupp'] == 0) {
+            if($core->usergroup['canViewAllsupp'] == 0 && !isset($core->input['rid'])) {
                 $supplier_filter = "spid IN('".implode(',', $core->user['suppliers']['eid'])."')";
             }
 //			if(isset($core->input['userproducts'])) {
 //				$supplier_filter = "spid IN('".implode(',', $core->user['suppliers']['eid'])."')";
 //			}
             if(!empty($supplier_filter)) {
+                if(!empty($extra_where)) {
+                    $supplier_filter = ' AND '.$supplier_filter;
+                }
                 $extra_where .= $supplier_filter;
             }
 
@@ -138,7 +142,7 @@ if($core->input['type'] == 'quick') {
                 //$extra_where = $supplier_filter;
             }
             $table = 'products';
-            // $flagtable = 'chemfunctionproducts';
+            //$flagtable = 'chemfunctionproducts';
             $extra_info = array('table' => 'countries');
             $attributes = array('name');
             $key_attribute = 'pid';
@@ -259,7 +263,7 @@ if($core->input['type'] == 'quick') {
           {
           $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='#' id='addnew_{$module}_".$core->input['for']."'>{$lang->add}</a></p>";
           } */
-        output_page($results_list);
+        output($results_list);
     }
 }
 ?>

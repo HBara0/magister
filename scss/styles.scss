@@ -109,7 +109,7 @@ a, a:visited {
     border-collapse:collapse;
 
     td {
-        border-bottom: 1px dashed #CCCCCC;  
+        border-bottom: 1px dashed #CCCCCC;
     }
 
     th, td {
@@ -646,4 +646,8 @@ tr.dummytrow td, tr.dummytrow th {
         height: 1.2em;
         line-height: 1.2em;
     }
+}
+
+.ui-autocomplete-loading {
+    background: white url('../images/loading.gif') right center no-repeat;
 }

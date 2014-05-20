@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Core Class
  * $id: Core_class.php
  * Created:		@zaher.reda		October 05, 2010 | 10:30 AM
@@ -11,6 +11,8 @@
 
 class Download {
     private $file_url = '';
+    private $file = array();
+    private $config = array();
 
     /*
       Class conctruct function
@@ -22,6 +24,11 @@ class Download {
      */
     public function __construct($tablename = '', $fileattr = '', array $mainid = array(), $file_real_path = '', array $options = array()) {
         if(!empty($mainid)) {
+            $this->config = array('tablename' => $tablename, 'fileattr' => $fileattr, 'options' => $options);
+
+            if(!isset($this->config['options']['titleattr'])) {
+                $this->config['options']['titleattr'] = $fileattr;
+            }
             $this->set_from_db($tablename, $fileattr, $mainid, $file_real_path, $options);
         }
     }
@@ -38,18 +45,21 @@ class Download {
             exit;
         }
 
-        $query = $db->query("SELECT ".$db->escape_string($fileattr)." FROM ".Tprefix."".$db->escape_string($tablename)." WHERE ".$db->escape_string($key)."=".$db->escape_string($val)." LIMIT 0, 1");
+        if(isset($this->config['options']['titleattr']) && $this->config['options']['titleattr'] != $fileattr) {
+            $query_select = ', '.$this->config['options']['titleattr'];
+        }
+        $query = $db->query("SELECT ".$db->escape_string($fileattr).$query_select." FROM ".Tprefix."".$db->escape_string($tablename)." WHERE ".$db->escape_string($key)."=".$db->escape_string($val)." LIMIT 0, 1");
         if($db->num_rows($query) > 0) {
-            $file = $db->fetch_assoc($query);
+            $this->file = $db->fetch_assoc($query);
 
             $slash = '/';
             if(preg_match("/\/\z/i", $file_real_path)) {
                 $slash = '';
             }
-            $this->file_url = $file_real_path.$slash.$options['nameprefix'].$file[$fileattr];
+            $this->file_url = $file_real_path.$slash.$options['nameprefix'].$this->file[$fileattr];
         }
         else {
-            error('File doesn\'t exist');
+            error('File does not exist');
             exit;
         }
     }
@@ -80,11 +90,18 @@ class Download {
       @param	$also_delete	Boolean		Whether to delete original file after download or not (useful for temp files)
      */
     public function stream_file($also_delete = false) {
+        if(empty($this->config['options']['titleattr'])) {
+            $this->config['options']['titleattr'] = $this->config['options']['fileattr'];
+        }
+
+        if(empty($this->file[$this->config['options']['titleattr']])) {
+            $this->file[$this->config['options']['titleattr']] = basename($this->file_url);
+        }
         header('Content-type: application/x-msdownload');
         header('Pragma: no-cache');
         header('Expires: 0');
         header("Content-Length: ".(string)(filesize($this->file_url)));
-        header('Content-Disposition: attachment; filename="'.basename($this->file_url).'"');
+        header('Content-Disposition: attachment; filename="'.$this->file[$this->config['options']['titleattr']].'"');
         header("Content-Transfer-Encoding: binary\n");
 
         readfile($this->file_url);

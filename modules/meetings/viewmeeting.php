@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: viewmeeting.php
  * Created:        @tony.assaad    Nov 13, 2013 | 12:42:10 PM
@@ -34,6 +34,20 @@ if(!$core->input['action']) {
 
     $meeting['createdby'] = $meeting_obj->get_createdby()->get()['displayName'];
 
+    /* Parse Attachments - START */
+    $meeting_attachmentobjs = $meeting_obj->get_attachments();
+    if(is_array($meeting_attachmentobjs)) {
+        foreach($meeting_attachmentobjs as $meeting_attachmentobj) {
+            $meeting_attachment = $meeting_attachmentobj->get();
+
+            $meeting_attachment['size_output'] = format_size($meeting_attachment['size']);
+            eval("\$meeting_attachments .= \"".$template->get('meetings_viewmeeting_attachment')."\";");
+        }
+        eval("\$meeting_attachmentssection = \"".$template->get('meetings_viewmeeting_attachments')."\";");
+        unset($meeting_attachments);
+    }
+    /* Parse Attachments - END */
+
     if($meeting['hasMoM'] == 1) {
         $minsofmeeting = $meeting_obj->get_mom()->get();
         if(!empty($minsofmeeting['createdOn'])) {
@@ -55,5 +69,17 @@ if(!$core->input['action']) {
 
     eval("\$meeting_viewmeeting = \"".$template->get('meetings_viewmeeting')."\";");
     output_page($meeting_viewmeeting);
+}
+elseif($core->input['action'] == 'download') {
+    $meeting_obj = new Meetings($core->input['mtid']);
+    if(!$meeting_obj->can_viewmeeting()) {
+        error($lang->sectionnopermission);
+    }
+
+    if(!isset($core->input['mattid']) || empty($core->input['mattid'])) {
+        redirect($_SERVER['HTTP_REFERER']);
+    }
+    $meeting_attachmentobj = new MeetingsAttachments($core->input['mattid']);
+    $download_objs = $meeting_attachmentobj->download();
 }
 ?>

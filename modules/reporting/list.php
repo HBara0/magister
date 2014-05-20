@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Lists available reports
  * $module: reporting
- * $id: listreports.php	
+ * $id: listreports.php
  * Last Update: @zaher.reda		January 30, 2013 | 03:59 PM
  */
 
@@ -142,6 +142,7 @@ if(!$core->input['action']) {
             if($core->usergroup['reporting_canApproveReports'] == 1) {
                 $moderationtools .= "<option value='approveunapprove'>{$lang->approveunapprove}</option>";
                 $moderationtools .= "<option value='finalize'>Finalize</option>";
+                $moderationtools .= "<option value='marknotsent'>Mark not Sent</option>";
             }
 
             $moderationtools .= "</select></td></tr>";
@@ -242,6 +243,17 @@ else {
                     $db->update_query('reports', array('status' => 1, 'isLocked' => 1), "rid='{$rid}'");
                 }
                 output_xml("<status>true</status><message>{$lang->reportsapproved}</message>");
+                $log->record($core->input['listCheckbox'], $core->input['moderationtool']);
+            }
+        }
+        elseif($core->input['moderationtool'] == 'marknotsent') {
+            if(count($core->input['listCheckbox']) > 0) {
+                foreach($core->input['listCheckbox'] as $key => $val) {
+                    $rid = intval($val);
+
+                    $db->update_query('reports', array('isSent' => 0), "rid='{$rid}'");
+                }
+                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
                 $log->record($core->input['listCheckbox'], $core->input['moderationtool']);
             }
         }

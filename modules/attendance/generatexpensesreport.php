@@ -61,7 +61,7 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'preview') {
         $expencesreport_data = $core->input['expencesreport'];
-        if($expencesreport_data['filter']['toDate'] < $expencesreport_data['filter']['fromDate']) {
+        if(strtotime($expencesreport_data['filter']['toDate']) < strtotime($expencesreport_data['filter']['fromDate'])) {
             redirect('index.php?module=attendance/generatexpensesreport&messagecode=1');
         }
 
@@ -71,7 +71,7 @@ else {
         $expencesreport_data['dimension'] = $dimensionalize_ob->construct_dimensions($expencesreport_data['dimension']);
 
         $expences_indexes = array('expectedAmt', 'actualAmt');
-        $leave_expencesdata = Leaves::get_leaves_expencesdata($expencesreport_data[filter], array('maintablealias' => 'l'));
+        $leave_expencesdata = Leaves::get_leaves_expencesdata($expencesreport_data['filter'], array('maintablealias' => 'l'));
 
         if(is_array($leave_expencesdata)) {
             $expencesreport_data['dimension'] = $dimensionalize_ob->set_dimensions($expencesreport_data['dimension']);

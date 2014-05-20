@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: create.php
  * Created:        @tony.assaad    Nov 7, 2013 | 3:17:03 PM
@@ -29,11 +29,11 @@ if(!$core->input['action']) {
         if(is_array($meeting)) {
             if(!empty($meeting['fromDate'])) {
                 $meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
-                $meeting['fromTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['24hourtimeformat'], $meeting['fromDate'])));
+                $meeting['fromTime_output'] = trim(preg_replace('/(AM|PM)/', '', date('H:i', $meeting['fromDate'])));
             }
             if(!empty($meeting['toDate'])) {
                 $meeting['toDate_output'] = date($core->settings['dateformat'], $meeting['toDate']);
-                $meeting['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date($core->settings['24hourtimeformat'], $meeting['toDate'])));
+                $meeting['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date('H:i', $meeting['toDate'])));
             }
             if($meeting['isPublic'] == 1) {
                 $checked_checkboxes['isPublic'] = ' checked="checked"';
@@ -86,20 +86,19 @@ if(!$core->input['action']) {
             $attachmentrow = 0;
             $meeting_attachobjs = $meeting_obj->get_attachments();
             if(is_array($meeting_attachobjs)) {
-
                 foreach($meeting_attachobjs as $meeting_attachobj) {
                     $altrow = alt_row('trow');
                     $attachmentrow++;
                     $meeting_attachments = $meeting_attachobj->get();
                     /* Limit permission to view meeting attachments */
                     if(is_array($meeting_attachments) && $meeting_obj->can_viewmeeting()) {
-                        eval("\$createmeeting_edit_attachmentsfiles .= \"".$template->get('meeting_edit_attachments_files')."\";");
+                        eval("\$createmeeting_edit_attachmentsfiles .= \"".$template->get('meetings_edit_attachments_files')."\";");
                     }
                 }
             }
             /* parse Attachments ---END */
 
-            eval("\$meeting_attachments = \"".$template->get('meeting_edit_attachements')."\";");
+            eval("\$meeting_attachments = \"".$template->get('meetings_edit_attachments')."\";");
         }
         else {
             redirect('index.php?module=meetings/list');
@@ -137,95 +136,99 @@ if(!$core->input['action']) {
 
     output($createmeeting);
 }
-elseif($core->input['action'] == 'deletefile') {
-    $mattid = $db->escape_string($core->input[mattid]);
-    if(!empty($mattid)) {
-        $meetingattach_obj = new MeetingsAttachments($mattid);
-        $deleted = $meetingattach_obj->delete();
-        header('Content-type: text/javascript');
-        if($deleted) {
-            echo '$("div[id=\'file_'.$mattid.'\']").css("display","none");';
-            exit;
+else {
+    if($core->input['action'] == 'deletefile') {
+        $mattid = $db->escape_string($core->input[mattid]);
+        if(!empty($mattid)) {
+            $meetingattach_obj = new MeetingsAttachments($mattid);
+            $deleted = $meetingattach_obj->delete();
+            header('Content-type: text/javascript');
+            if($deleted) {
+                echo '$("div[id=\'file_'.$mattid.'\']").css("display","none");';
+                exit;
+            }
         }
     }
-}
-elseif($core->input['action'] == 'do_createmeeting') {
-    $core->input['meeting']['attachments'] = $_FILES;
-    $meeting_obj = new Meetings();
-    $meeting_obj->create($core->input['meeting']);
+    elseif($core->input['action'] == 'do_createmeeting') {
+        $core->input['meeting']['attachments'] = $_FILES;
+        $meeting_obj = new Meetings();
+        $meeting_obj->create($core->input['meeting']);
 
-    echo $headerinc;
-    switch($meeting_obj->get_errorcode()) {
-        case 0:
-            $output_class = 'green_text';
-            $output_message = $lang->successfullysaved;
-            break;
-        case 1:
-            $output_class = 'red_text';
-            $output_message = $lang->fillallrequiredfields;
-            //output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
-            break;
-        case 2:
-            $output_class = 'red_text';
-            $output_message = $lang->errorsaving;
-            //output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
-            break;
-        case 3:
-            $output_class = 'red_text';
-            $output_message = $lang->invaliddate;
-            //output_xml('<status>false</status><message>'.$lang->invaliddate.'</message>');
-            break;
-        case 4:
-            $output_class = 'red_text';
-            $output_message = $lang->meetingintersect;
-            //output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
-            break;
+        echo $headerinc;
+        switch($meeting_obj->get_errorcode()) {
+            case 0:
+                $output_class = 'green_text';
+                $output_message = $lang->successfullysaved;
+                break;
+            case 1:
+                $output_class = 'red_text';
+                $output_message = $lang->fillallrequiredfields;
+                //output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+                break;
+            case 2:
+                $output_class = 'red_text';
+                $output_message = $lang->errorsaving;
+                //output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+                break;
+            case 3:
+                $output_class = 'red_text';
+                $output_message = $lang->invaliddate;
+                //output_xml('<status>false</status><message>'.$lang->invaliddate.'</message>');
+                break;
+            case 4:
+                $output_class = 'red_text';
+                $output_message = $lang->meetingintersect;
+                //output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
+                break;
 
-        default:
-            $output_class = 'red_text';
-            $output_message = $lang->errorsaving;
-            //output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
-            break;
+            default:
+                $output_class = 'red_text';
+                $output_message = $lang->errorsaving;
+                //output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+                break;
+        }
     }
-}
-elseif($core->input['action'] == 'do_editmeeting') {
-    $mtid = $db->escape_string($core->input['mtid']);
-    $core->input['meeting']['attachments'] = $_FILES;
-    $meeting_obj = new Meetings($mtid);
-    $meeting_obj->update($core->input['meeting']);
-    echo $headerinc;
-    switch($meeting_obj->get_errorcode()) {
-        case 0:
-            $output_class = 'green_text';
-            $output_message = $lang->successfullysaved;
-            break;
-        case 1:
-            $output_class = 'red_text';
-            $output_message = $lang->fillallrequiredfields;
-            //output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
-            break;
+    elseif($core->input['action'] == 'do_editmeeting') {
+        $mtid = $db->escape_string($core->input['mtid']);
+        $core->input['meeting']['attachments'] = $_FILES;
+        $meeting_obj = new Meetings($mtid);
+        $meeting_obj->update($core->input['meeting']);
+        echo $headerinc;
+        switch($meeting_obj->get_errorcode()) {
+            case 0:
+                $output_class = 'green_text';
+                $output_message = $lang->successfullysaved;
+                break;
+            case 1:
+                $output_class = 'red_text';
+                $output_message = $lang->fillallrequiredfields;
+                //output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+                break;
 
-        case 3:
-            $output_class = 'red_text';
-            $output_message = $lang->invaliddate;
-            //output_xml('<status>false</status><message>'.$lang->invaliddate.'</message>');
-            break;
-        case 4:
-            $output_class = 'red_text';
-            $output_message = $lang->meetingintersect;
-            //output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
-            break;
+            case 3:
+                $output_class = 'red_text';
+                $output_message = $lang->invaliddate;
+                //output_xml('<status>false</status><message>'.$lang->invaliddate.'</message>');
+                break;
+            case 4:
+                $output_class = 'red_text';
+                $output_message = $lang->meetingintersect;
+                //output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
+                break;
 
-        default:
-            $output_class = 'red_text';
-            $output_message = $lang->errorsaving;
-            //output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
-            break;
+            default:
+                $output_class = 'red_text';
+                $output_message = $lang->errorsaving;
+                //output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+                break;
+        }
     }
+    ?>
+    <script language="javascript" type="text/javascript">
+        $(function() {
+            top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
+        });
+    </script>
+    <?php
 }
 ?>
-<script language="javascript" type="text/javascript">
-    $(function() {
-        top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
-    });
-</script>   

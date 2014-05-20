@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Edit products
  * $module: admin/products
- * $id: edit.php	
+ * $id: edit.php
  * Last Update: @zaher.reda 	Feb 24, 2009 | 04:05 AM
  */
 if(!defined('DIRECT_ACCESS')) {
@@ -64,8 +64,8 @@ if(!$core->input['action']) {
             $rowclass = alt_row($rowclass);
             /* call the associatives objects */
             $segmentapp_data['segappfuncs'] = $segappfunc_obj->get();
-            $cfpid = $db->fetch_field($db->query("SELECT cfpid 
-											FROM ".Tprefix."chemfunctionproducts 
+            $cfpid = $db->fetch_field($db->query("SELECT cfpid
+											FROM ".Tprefix."chemfunctionproducts
 											WHERE safid=".$segmentapp_data['segappfuncs']['safid']." AND pid='{$pid}'"), 'cfpid');
             /* check the default */
             if($cfpid == $product['defaultFunction']) {
