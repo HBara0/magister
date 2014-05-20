@@ -513,7 +513,7 @@ function get_specificdata($table, $attributes, $key_attribute, $value_attribute,
     }
 }
 
-function quick_search($table, $attributes, $value, $select_attributes, $key_attribute, $order, $extra_where = '', $andor_param = 'OR') {
+function quick_search($table, $attributes, $value, $select_attributes, $key_attribute, $order, $extra_where = '', $andor_param = 'OR', $configs = array()) {
     global $db, $lang;
 //    $foreign_table = false;
     $value = $db->escape_string($value);
@@ -589,49 +589,64 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
             $output = '';
         }
     }
-
     if(is_array($results)) {
-        $results_list .= '<ul id="searchResultsList">';
-
-        foreach($results as $key => $val) {
-            //if($foreign_table == 1) {
-            /* Get chemicalfuntions  applications  segments for the searched product */
-            $product_obj = new Products($key);
-            $chemfuncprod_objs = $product_obj->get_chemfunctionproducts();
-            if(is_array($chemfuncprod_objs)) {
-                foreach($chemfuncprod_objs as $chemfuncprod_obj) {
-                    $cfpid = $chemfuncprod_obj->get()['cfpid'];
-                    $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
-                    $application = $application_obj->get_application()->get()['title'];
-                    $segment = $application_obj->get_segment()->get()['title'];
-                    $chemicalfuntion = $chemfuncprod_obj->get_chemicalfunction()->get()['title'];
-                    $details = '</br><span class="smalltext" >'.$chemicalfuntion.' - '.$application.' - '.$segment.'</span>';
-                    $results_list .= '<li id="'.$cfpid.'">'.$val.$details.'</li>';
-                }
+        if($configs['returnType'] == 'json') {
+            foreach($results as $key => $val) {
+                $results_list[$key]['id'] = $key;
+                $results_list[$key]['value'] = $val;
             }
-            else { /* get Defaultfunction of the product */
-                $chemfuncprod_objs = $product_obj->get_defaultchemfunction();
-                if(is_array($chemfuncprod_objs)) {
-                    foreach($chemfuncprod_objs as $chemfuncprod_obj) {
-                        $cfpid = $chemfuncprod_obj->get()['cfpid'];
-                        $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
-                        $application = $application_obj->get_application()->get()['title'];
-                        $segment = $application_obj->get_segment()->get()['title'];
-                        $chemicalfuntion = $chemfuncprod_obj->get_chemicalfunction()->get()['title'];
-                        $details = '</br><span class="smalltext" >'.$chemicalfuntion.' - '.$application.' - '.$segment.'</span>';
-                        $results_list .= '<li id="'.$cfpid.'">'.$val.$details.'</li>';
+            $results_list = json_encode($results_list);
+        }
+        else {
+            $results_list .= '<ul id="searchResultsList">';
+
+            foreach($results as $key => $val) {
+                /* Get chemicalfuntions  applications  segments for the searched product */
+                if($configs['displayextrainfo'] == true) {
+                    if($table == 'products') {
+                        $product_obj = new Products($key);
+                        $chemfuncprod_objs = $product_obj->get_chemfunctionproducts();
+                        if(is_array($chemfuncprod_objs)) {
+                            foreach($chemfuncprod_objs as $chemfuncprod_obj) {
+                                $cfpid = $chemfuncprod_obj->get()['cfpid'];
+                                $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
+                                $application = $application_obj->get_application()->get()['title'];
+                                $segment = $application_obj->get_segment()->get()['title'];
+                                $chemicalfuntion = $chemfuncprod_obj->get_chemicalfunction()->get()['title'];
+                                $details = '</br><span class="smalltext" >'.$chemicalfuntion.' - '.$application.' - '.$segment.'</span>';
+                                $results_list .= '<li id="'.$cfpid.'">'.$val.$details.'</li>';
+                            }
+                        }
+                        else { /* get Defaultfunction of the product */
+                            $chemfuncprod_objs = $product_obj->get_defaultchemfunction();
+                            if(is_array($chemfuncprod_objs)) {
+                                foreach($chemfuncprod_objs as $chemfuncprod_obj) {
+                                    $cfpid = $chemfuncprod_obj->get()['cfpid'];
+                                    $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
+                                    $application = $application_obj->get_application()->get()['title'];
+                                    $segment = $application_obj->get_segment()->get()['title'];
+                                    $chemicalfuntion = $chemfuncprod_obj->get_chemicalfunction()->get()['title'];
+                                    $details = '</br><span class="smalltext" >'.$chemicalfuntion.' - '.$application.' - '.$segment.'</span>';
+                                    $results_list .= '<li id="'.$cfpid.'">'.$val.$details.'</li>';
+                                }
+                            }
+                            else {
+                                $results_list .= '<li id="'.$key.'">'.$val.'</li>';
+                            }
+                        }
                     }
                 }
+                else {
+                    $results_list .= '<li id="'.$key.'">'.$val.'</li>';
+                }
             }
-            //}
-            // else {
-            //    $results_list .= '<li id="'.$key.'">'.$val.'</li>';
-            ///}
+            $results_list .= '</ul>';
         }
-        $results_list .= '</ul>';
     }
     else {
-        $results_list = '<span class="red_text">'.$lang->nomatchfound.'</span>';
+        if($configs['returnType'] != 'json') {
+            $results_list = '<span class="red_text">'.$lang->nomatchfound.'</span>';
+        }
     }
 
     return $results_list;

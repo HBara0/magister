@@ -1,13 +1,13 @@
 @charset "UTF-8";
 /*
-Copyright ┬® 2014 Orkila International Offshore, All Rights Reserved
+Copyright ┬⌐ 2014 Orkila International Offshore, All Rights Reserved
 
 [Provide Short Descption Here]
 $id: _constants.scss
 Created:        @zaher.reda    Apr 13, 2014 | 10:04:22 PM
 Last Update:    @zaher.reda    Apr 13, 2014 | 10:04:22 PM
 */
-/*
+/* 
     Created on : Apr 13, 2014, 10:04:22 PM
     Author     : zaher.reda
 */
@@ -580,4 +580,5 @@ tr.dummytrow td, tr.dummytrow th {
     height: 1.2em;
     line-height: 1.2em; }
 
-/*# sourceMappingURL=styles.css.map */
+.ui-autocomplete-loading {
+  background: white url("../images/loading.gif") right center no-repeat; }

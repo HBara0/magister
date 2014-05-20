@@ -207,7 +207,7 @@ if($core->input['type'] == 'quick') {
             }
         }
 
-        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, $order, $extra_where);
+        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, $order, $extra_where, 'OR', array('returnType' => $core->input['returnType']));
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);
         $module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);
         if($core->input['for'] == 'supplier') {
@@ -222,7 +222,7 @@ if($core->input['type'] == 'quick') {
           {
           $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='#' id='addnew_{$module}_".$core->input['for']."'>{$lang->add}</a></p>";
           } */
-        output_page($results_list);
+        output($results_list);
     }
 }
 ?>
