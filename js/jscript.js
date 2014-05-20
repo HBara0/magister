@@ -107,19 +107,20 @@ $(function() {
 
     });
 
+    var accache = {};
     $("input[id$='_autocomplete']").bind("keydown", function() {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
         var id = $(this).attr("id").split("_");
+
         $(this).autocomplete({
             source: function(request, response) {
-                var cache = {};
                 var term = request.term;
 
-                if(id[id.length - 1] === 'cache') {
-                    if(term in cache) {
-                        response(cache[ term ]);
+                if(id[id.length - 2] == 'cache') {
+                    if(term in accache) {
+                        response(accache[ term ]);
                         return;
                     }
                 }
@@ -161,16 +162,14 @@ $(function() {
                 $.getJSON("../search.php?type=quick&returnType=json&for=" + id[0] + "&exclude=" + exclude + filtersQuery, {
                     value: term
                 }, function(data, status, xhr) {
-                    console.log(data);
-                    if(id[id.length - 1] === 'cache') {
-                        cache[ term ] = data;
+                    if(id[id.length - 2] == 'cache') {
+                        accache[ term ] = data;
                     }
                     response(data);
                 });
             },
             minLength: 2,
             select: function(event, ui) {
-                console.log(ui);
                 if($("#" + id[0] + "_" + id[id.length - 3] + "_" + id[id.length - 2] + "_id").length > 0) {
                     var valueIn = "#" + id[0] + "_" + id[id.length - 3] + "_" + id[id.length - 2] + "_id";
                 }
@@ -181,7 +180,6 @@ $(function() {
                 else {
                     var valueIn = "#" + id[0] + "_id";
                 }
-                alert(valueIn);
                 $(valueIn).val(ui.item.id);
                 $(valueIn + "_output").val(ui.item.id);
             }
