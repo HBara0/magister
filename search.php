@@ -208,7 +208,7 @@ if($core->input['type'] == 'quick') {
                 $extra_where .= " AND {$key_attribute} NOT IN ({$core->input[exclude]})";
             }
         }
-        elseif($core->input['for'] == 'cities') {
+        elseif($core->input['for'] == 'cities' || $core->input['for'] == 'sourcecity' || $core->input['for'] == 'destinationcity') {
             if(strlen($core->input['value']) < 3) {
                 exit;
             }

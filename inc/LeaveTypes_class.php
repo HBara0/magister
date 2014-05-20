@@ -136,8 +136,11 @@ class Leavetypes {
                 if($attribute == 'cid') {
                     $search_for = 'customer';
                 }
-                elseif($attribute == 'ciid' || $attribute == 'destinationcity') {
-                    $search_for = 'cities';
+                elseif($attribute == 'destinationcity') {
+                    $search_for = 'destinationcity';
+                }
+                elseif($attribute == 'sourcecity') {
+                    $search_for = 'sourcecity';
                 }
                 elseif($attribute == 'spid') {
                     $search_for = 'supplier';
