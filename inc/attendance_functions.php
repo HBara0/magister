@@ -569,7 +569,9 @@ function parse_additionaldata($leave, $field_settings, $ismain = 0) {
     $field_settings = unserialize($field_settings);
     if(is_array($field_settings)) {
         foreach($field_settings as $key => $val) {
-
+            if($ismain == 1 && (!isset($val['isMain']) || empty($val['isMain']))) {
+                continue;
+            }
             if(isset($leave[$key])) {
                 if($val['datasource'] == 'db') {
                     $key_attribute = $key;
@@ -579,9 +581,8 @@ function parse_additionaldata($leave, $field_settings, $ismain = 0) {
                     if(empty($leave[$key])) {
                         return false;
                     }
-                    if($ismain == 1 && (isset($val['isMain']) && $val['isMain'] == 1)) {
-                        $output = $db->fetch_field($db->query("SELECT ".$db->escape_string($val['value_attribute'])." FROM ".Tprefix.$db->escape_string($val['table'])." WHERE {$val[key_attribute_prefix]}{$key_attribute}='{$leave[$key]}'"), $val['value_attribute']);
-                    }
+
+                    $output = $db->fetch_field($db->query("SELECT ".$db->escape_string($val['value_attribute'])." FROM ".Tprefix.$db->escape_string($val['table'])." WHERE {$val[key_attribute_prefix]}{$key_attribute}='{$leave[$key]}'"), $val['value_attribute']);
                 }
                 /*  This option will call the parse segment
                  * function based on the funcntion name passed from the
@@ -590,10 +591,8 @@ function parse_additionaldata($leave, $field_settings, $ismain = 0) {
                  * */
                 elseif($val['datasource'] == 'function') {
                     unset($val['key_attribute_value'], $val['type'], $val['table']);
-                    if($ismain == 1 && (isset($val['isMain']) && $val['isMain'] == 1)) {
-                        $object = get_object_bytype($key, $leave[$key]);
-                        $output = $object->get()[$val['value_attribute']];
-                    }
+                    $object = get_object_bytype($key, $leave[$key]);
+                    $output = $object->get()[$val['value_attribute']];
                 }
 
                 if(!empty($output)) {

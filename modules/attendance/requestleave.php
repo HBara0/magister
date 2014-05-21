@@ -322,7 +322,7 @@ else {
         }
 
         if(!empty($leavetype_details['additionalFields'])) {
-            $leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields'], 1);
+            $leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields']);
 
             if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
                 $leave['details_crumb'] = implode(' ', $leave['details_crumb']);
@@ -579,6 +579,7 @@ else {
                         $lang->requestleavemessage_stats = $lang->sprint($lang->requestleavemessage_stats, ($leavestats['canTake'] - $leavestats['daysTaken']) + $leavestats['additionalDays'], (($leavestats['canTake'] - $leavestats['daysTaken']) + $leavestats['additionalDays']) - $leave['workingdays']);
                     }
                     else {
+
                         $lang->requestleavemessage_stats = '';
                     }
 
@@ -625,6 +626,7 @@ else {
                     }
                 }
 
+                $leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields'], 1);
                 if(!empty($leave['details_crumb'])) {
                     /* 					$core->input['details_crumb'] = implode(' ', parse_additionaldata($core->input, $leavetype_details['additionalFields']));
                       //$lang->leavenotificationmessage_typedetails .= ' ('.$core->input['details_crumb'].')'; */
@@ -646,6 +648,7 @@ else {
                         'subject' => $lang->requestleavesubject,
                         'message' => $lang->requestleavemessage
                 );
+                print_r($email_data);
             }
             else {
                 $to_inform = unserialize($core->input['affToInform']);
