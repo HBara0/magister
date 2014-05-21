@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * List of Holidays
  * $module: hr
- * $id: holidayslist.php	
+ * $id: holidayslist.php
  * Created:			@najwa.kassem		October 28, 2010 | 13:30 AM
  * Last Update:		@zaher.reda		  	October 25, 2012 | 10:29 AM
  */
@@ -173,13 +173,14 @@ else {
             }
         }
 
-        $affiliate = $db->fetch_assoc($db->query("SELECT affid, name, mailingList FROM ".Tprefix."affiliates WHERE affid='".$db->escape_string($core->input['affidtoinform'])."'"));
-        if(empty($affiliate['mailingList'])) {
-            output_xml("<status>false</status><message>{$lang->errorsendingemail}</message>");
-            exit;
-        }
+        $affiliate_obj = new Affiliates($core->input['affidtoinform']);
+        $affiliate = $affiliate_obj->get();
+//        if(empty($affiliate['mailingList'])) {
+//            output_xml("<status>false</status><message>{$lang->errorsendingemail}</message>");
+//            exit;
+//        }
 
-        $message['recepient'] = $affiliate['mailingList'];
+        $message['recepient'] = $core->settings['globalmailinglist']; //$affiliate['mailingList'];
         if(!isset($core->input['id'])) {
             $query = $db->query("SELECT * FROM ".Tprefix."holidays  WHERE ((validFrom = 0 OR ({$current_year} >= FROM_UNIXTIME(validFrom, '%Y') AND month >= FROM_UNIXTIME(validFrom, '%m') AND day >= FROM_UNIXTIME(validFrom, '%d')))
 								AND (validTo=0 OR ({$current_year} <= FROM_UNIXTIME(validTo, '%Y') AND month <= FROM_UNIXTIME(validTo, '%m') AND day <= FROM_UNIXTIME(validTo, '%d'))))

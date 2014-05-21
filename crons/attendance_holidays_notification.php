@@ -25,7 +25,7 @@ while($holiday = $db->fetch_assoc($query)) {
     /* if(date('W', TIME_NOW) != date('W', mktime(1,0,0, $holiday['month'], $holiday['day'], $holiday['year']))) {
       continue;
       } */
-    if(((mktime($time_details['hours'], $time_details['minutes'], $time_details['seconds'], $holiday['month'], $holiday['day'], $holiday['year']) - TIME_NOW) / 60 / 60 / 24) == 5) {
+    if(((mktime($time_details['hours'], $time_details['minutes'], $time_details['seconds'], $holiday['month'], $holiday['day'], $holiday['year']) - TIME_NOW) / 60 / 60 / 24) == 4) {
         $holidays[$holiday['affid']][$holiday['hid']] = $holiday;
     }
 
@@ -62,10 +62,10 @@ while($affiliate = $db->fetch_assoc($query)) {
 
 foreach($holidays as $affid => $holidayslist) {
     $email_data = array(
-            'to' => $mailinglists[$affid]['email'],
+            'to' => $core->settings['globalmailinglist'], //$mailinglists[$affid]['email'],
             'from_email' => $core->settings['adminemail'],
             'from' => 'OCOS Mailer',
-            'subject' => 'Your upcoming holidays'
+            'subject' => 'Upcoming holidays'
     );
 
     if(is_array($mailinglists[$affid]['email'])) {
@@ -75,7 +75,7 @@ foreach($holidays as $affid => $holidayslist) {
                 $email_data['to'] = array_unique($mailinglists[$affid]['email'][$hid]);
             }
             else {
-                $email_data['to'] = $db->fetch_field($db->query("SELECT mailingList FROM ".Tprefix."affiliates WHERE affid=".$affid), 'mailingList');
+                $email_data['to'] = $core->settings['globalmailinglist']; //$db->fetch_field($db->query("SELECT mailingList FROM ".Tprefix."affiliates WHERE affid=".$affid), 'mailingList');
             }
 
             if(empty($email_data['to'])) {
@@ -98,7 +98,6 @@ foreach($holidays as $affid => $holidayslist) {
             $email_data['message'] .= '<li>'.date('l, F j', mktime(0, 0, 0, $val['month'], $val['day'], $val['year'])).' - '.$val['title'].', '.$val['numDays'].' day(s).</li>';
         }
         $email_data['message'] .= '</ul>';
-
         $mail = new Mailer($email_data, 'php');
     }
 }
