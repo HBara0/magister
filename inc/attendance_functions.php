@@ -564,9 +564,8 @@ function parse_additonalfield($attribute, $field_settings) {
     return $field;
 }
 
-function parse_additionaldata($leave, $field_settings) {
+function parse_additionaldata($leave, $field_settings, $ismain = 0) {
     global $db, $lang;
-
     $field_settings = unserialize($field_settings);
     if(is_array($field_settings)) {
         foreach($field_settings as $key => $val) {
@@ -580,7 +579,9 @@ function parse_additionaldata($leave, $field_settings) {
                     if(empty($leave[$key])) {
                         return false;
                     }
-                    $output = $db->fetch_field($db->query("SELECT ".$db->escape_string($val['value_attribute'])." FROM ".Tprefix.$db->escape_string($val['table'])." WHERE {$val[key_attribute_prefix]}{$key_attribute}='{$leave[$key]}'"), $val['value_attribute']);
+                    if($ismain == 1 && (isset($val['isMain']) && $val['isMain'] == 1)) {
+                        $output = $db->fetch_field($db->query("SELECT ".$db->escape_string($val['value_attribute'])." FROM ".Tprefix.$db->escape_string($val['table'])." WHERE {$val[key_attribute_prefix]}{$key_attribute}='{$leave[$key]}'"), $val['value_attribute']);
+                    }
                 }
                 /*  This option will call the parse segment
                  * function based on the funcntion name passed from the
@@ -589,16 +590,15 @@ function parse_additionaldata($leave, $field_settings) {
                  * */
                 elseif($val['datasource'] == 'function') {
                     unset($val['key_attribute_value'], $val['type'], $val['table']);
-                    $object = get_object_bytype($key, $leave[$key]);
-                    $output = $object->get()[$val['value_attribute']];
+                    if($ismain == 1 && (isset($val['isMain']) && $val['isMain'] == 1)) {
+                        $object = get_object_bytype($key, $leave[$key]);
+                        $output = $object->get()[$val['value_attribute']];
+                    }
                 }
 
                 if(!empty($output)) {
                     if(isset($val['titlelangvar'])) {
-                        /* Only parse the Main arary passed from the configuration array */
-                        if(isset($val['isMain']) && $val['isMain'] == 1) {
-                            $output = '<br />'.$lang->{$val['titlelangvar']}.': '.$output;
-                        }
+                        $output = '<br />'.$lang->{$val['titlelangvar']}.': '.$output;
                     }
                 }
                 $additionaldata[] = $output;
