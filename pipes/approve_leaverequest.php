@@ -15,7 +15,6 @@ else {
     $lang = new Language('english');
     $lang->load('messages');
 
-
     $pipe = new Pipe();
     $data = $pipe->get_data();
     $ignore_subject = false;
@@ -47,7 +46,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
             $query3 = $db->query("SELECT l.uid, u.email
 				FROM ".Tprefix."leavesapproval l LEFT JOIN ".Tprefix."users u ON (u.uid=l.uid)
 				WHERE l.isApproved='0' AND l.lid='{$leave[lid]}' AND sequence>(SELECT sequence FROM ".Tprefix."leavesapproval WHERE lid='{$leave[lid]}' AND uid='{$user[uid]}' AND isApproved=1)
-                                ORDER BY sequence ASC                                
+                                ORDER BY sequence ASC
                                 LIMIT 0, 1");
             if($db->num_rows($query3) > 0) {
                 $approver = $db->fetch_assoc($query3);
@@ -63,9 +62,9 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                 $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($core->input['requestKey']).'&id='.base64_encode($leave['lid']);
 
                 /* Parse expense information for message - START */
-                $leaveexpense = new Leaves(array('lid' => $leave['lid']));
-                if($leaveexpense->has_expenses()) {
-                    $expenses_data = $leaveexpense->get_expensesdetails();
+                $leave_obj = new Leaves(array('lid' => $leave['lid']));
+                if($leave_obj->has_expenses()) {
+                    $expenses_data = $leave_obj->get_expensesdetails();
                     $total = 0;
                     $expenses_message = '';
                     foreach($expenses_data as $expense) {
@@ -81,7 +80,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                 /* Parse expense information for message - END */
 
                 $lang->requestleavesubject = $lang->sprint($lang->requestleavesubject, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), $request_key);
-                $lang->requestleavemessagesupervisor = $lang->sprint($lang->requestleavemessagesupervisor, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']).$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']), $leave['reason'], $user['employeename'], '', $approve_link);
+                $lang->requestleavemessagesupervisor = $lang->sprint($lang->requestleavemessagesupervisor, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']).$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']), $leave['reason'], $user['employeename'], $approve_link);
 
                 $email_data = array(
                         'from_email' => 'approve_leaverequest@ocos.orkila.com',
