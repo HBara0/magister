@@ -570,6 +570,7 @@ function parse_additionaldata($leave, $field_settings) {
     $field_settings = unserialize($field_settings);
     if(is_array($field_settings)) {
         foreach($field_settings as $key => $val) {
+
             if(isset($leave[$key])) {
                 if($val['datasource'] == 'db') {
                     $key_attribute = $key;
@@ -594,14 +595,16 @@ function parse_additionaldata($leave, $field_settings) {
 
                 if(!empty($output)) {
                     if(isset($val['titlelangvar'])) {
-                        $output = '<br />'.$lang->{$val['titlelangvar']}.': '.$output;
+                        /* Only parse the Main arary passed from the configuration array */
+                        if(isset($val['isMain']) && $val['isMain'] == 1) {
+                            $output = '<br />'.$lang->{$val['titlelangvar']}.': '.$output;
+                        }
                     }
                 }
                 $additionaldata[] = $output;
                 unset($output);
             }
         }
-
         return $additionaldata;
     }
     return false;
