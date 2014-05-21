@@ -641,8 +641,8 @@ if($core->input['authCode'] == AUTHCODE) {
 
         $stockevolution_output .= '</table>';
         $stockevolution_chart = new Charts(array('x' => $chart_data['x'], 'y' => $chart_data['y']), 'line', array('path' => '../tmp/charts/', 'labelrotationangle' => 90, 'height' => 400, 'width' => 900, 'yaxisname' => 'K. USD', 'graphareay2margin' => 50, 'scale' => SCALE_START0, 'serieweight' => 100, 'nosort' => true));
-        $stockevolution_output = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($stockevolution_chart->get_chart())).'" />'.$stockevolution_output;
-        // $stockevolution_output = '<img src="cid:stockevolutionchart" />'.$stockevolution_output;
+        //$stockevolution_output = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($stockevolution_chart->get_chart())).'" />'.$stockevolution_output;
+        $stockevolution_output = '<img src="cid:stockevolutionchart" />'.$stockevolution_output;
         /* Parse FX Rates Chart - START */
         $currency_rates_year = $currency_obj->get_yearaverage_fxrate_monthbased($affiliate['currency'], $date_info['year'], array('distinct_by' => 'alphaCode', 'precision' => 4, 'monthasname' => true), 'USD'); /* GET the fxrate of previous quarter year */
         $currency_rates_year = array_slice($currency_rates_year, 0, date('n', TIME_NOW));
@@ -701,8 +701,7 @@ if($core->input['authCode'] == AUTHCODE) {
 
         $email_data = array();
         $email_data['to'][] = $affiliateobj->get_generalmanager()->get()['email'];
-
-        //$email_data['to'][] = $affiliateobj->get_supervisor()->get()['email'];
+        $email_data['to'][] = $affiliateobj->get_supervisor()->get()['email'];
 
         if(isset($affiliates_addrecpt[$affid])) {
             foreach($affiliates_addrecpt[$affid] as $uid) {
