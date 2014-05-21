@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Add/Edit holidays
  * $module: hr
- * $id: manageholidays.php	
+ * $id: manageholidays.php
  * Created:		@najwa.kassem	October 29, 2010 | 9:30 AM
  * Last Update:	@zaher.reda		November 06, 2011 | 01:11 PM
  */
@@ -41,8 +41,8 @@ if(!$core->input['action']) {
         $days[$i] = $i;
     }
 
-    $employees_query = $db->query("SELECT u.uid, CONCAT(firstName, ' ', lastName) as fullname 
-									FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid) 
+    $employees_query = $db->query("SELECT u.uid, CONCAT(firstName, ' ', lastName) as fullname
+									FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid)
 									WHERE a.affid ={$core->user[mainaffiliate]} AND isMain=1 AND u.gid!=7");
 
     while($employee = $db->fetch_array($employees_query)) {
@@ -75,7 +75,7 @@ if(!$core->input['action']) {
             $affid_field = '<input type="hidden" id="affid" name="affid" value="'.$holiday['affid'].'" />';
             $hid_field = '<input type="hidden" id="hid" name="hid" value="'.$core->input['id'].'" />';
 
-            $exception_query = $db->query('SELECT uid FROM '.Tprefix.'holidaysexceptions 
+            $exception_query = $db->query('SELECT uid FROM '.Tprefix.'holidaysexceptions
 											WHERE hid='.$db->escape_string($core->input['id']));
 
             while($exception = $db->fetch_assoc($exception_query)) {
@@ -212,7 +212,7 @@ else {
                 $hid = $core->input['hid'];
             }
 
-            if(isset($exceptions)) {
+            if(is_array($exceptions) && !empty($exceptions)) {
                 foreach($exceptions as $key => $uid) {
                     $db->insert_query('holidaysexceptions', array('hid' => $hid, 'uid' => $uid));
                 }
@@ -225,8 +225,8 @@ else {
         }
     }
     elseif($core->input['action'] == 'get_affiliateemployees') {
-        $employees_query = $db->query("SELECT u.uid, CONCAT(firstName, ' ', lastName) as fullname 
-								FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid) 
+        $employees_query = $db->query("SELECT u.uid, CONCAT(firstName, ' ', lastName) as fullname
+								FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid)
 								WHERE a.affid='".$db->escape_string($core->input['affid'])."' AND isMain=1 AND u.gid!=7");
 
         while($employee = $db->fetch_array($employees_query)) {
