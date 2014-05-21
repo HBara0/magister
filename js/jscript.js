@@ -108,7 +108,7 @@ $(function() {
     });
 
     var accache = {};
-    $("input[id$='_autocomplete']").bind("keydown", function() {
+    $("input[id$='_autocomplete']").live("keydown", function() {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
@@ -159,7 +159,7 @@ $(function() {
                     filtersQuery += "&filter=1";
                 }
 
-                $.getJSON("../search.php?type=quick&returnType=json&for=" + id[0] + "&exclude=" + exclude + filtersQuery, {
+                $.getJSON(rootdir + "search.php?type=quick&returnType=json&for=" + id[0] + "&exclude=" + exclude + filtersQuery, {
                     value: term
                 }, function(data, status, xhr) {
                     if(id[id.length - 2] == 'cache') {
