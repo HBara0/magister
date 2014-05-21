@@ -563,12 +563,14 @@ function parse_additonalfield($attribute, $field_settings) {
     return $field;
 }
 
-function parse_additionaldata($leave, $field_settings) {
+function parse_additionaldata($leave, $field_settings, $ismain = 0) {
     global $db, $lang;
-
     $field_settings = unserialize($field_settings);
     if(is_array($field_settings)) {
         foreach($field_settings as $key => $val) {
+            if($ismain == 1 && (!isset($val['isMain']) || empty($val['isMain']))) {
+                continue;
+            }
             if(isset($leave[$key])) {
                 if($val['datasource'] == 'db') {
                     $key_attribute = $key;
@@ -578,6 +580,7 @@ function parse_additionaldata($leave, $field_settings) {
                     if(empty($leave[$key])) {
                         return false;
                     }
+
                     $output = $db->fetch_field($db->query("SELECT ".$db->escape_string($val['value_attribute'])." FROM ".Tprefix.$db->escape_string($val['table'])." WHERE {$val[key_attribute_prefix]}{$key_attribute}='{$leave[$key]}'"), $val['value_attribute']);
                 }
                 /*  This option will call the parse segment
@@ -600,7 +603,6 @@ function parse_additionaldata($leave, $field_settings) {
                 unset($output);
             }
         }
-
         return $additionaldata;
     }
     return false;

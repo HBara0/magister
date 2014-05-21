@@ -39,7 +39,7 @@ if(!$core->input['action']) {
 
     if($show_onbehalf == true) {
         $is_supervisor = true;
-        $employees_list = parse_selectlist('uid', 1, $employees, '');
+        $employees_list = parse_selectlist('uid', 1, $employees, $core->user['uid']);
         $requestonbehalf_field = '<tr><td width="18%">'.$lang->reqleaveonbehalf.'</td><td>'.$employees_list.'</td></tr>';
     }
     $employeeshift = $db->fetch_assoc($db->query("SELECT ws.* FROM ".Tprefix."employeesshifts es JOIN ".Tprefix."workshifts ws ON (ws.wsid=es.wsid) WHERE es.uid='{$core->user[uid]}' AND ((".TIME_NOW." BETWEEN es.fromDate AND es.toDate) OR es.fromDate IS NULL)"));
@@ -323,8 +323,10 @@ else {
 
         if(!empty($leavetype_details['additionalFields'])) {
             $leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields']);
+
             if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
                 $leave['details_crumb'] = implode(' ', $leave['details_crumb']);
+                $leave['details_crumb'] = $core->sanitize_inputs($leave['details_crumb'], array('method' => 'striponly', 'removetags' => true));
             }
             else {
                 output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
@@ -577,6 +579,7 @@ else {
                         $lang->requestleavemessage_stats = $lang->sprint($lang->requestleavemessage_stats, ($leavestats['canTake'] - $leavestats['daysTaken']) + $leavestats['additionalDays'], (($leavestats['canTake'] - $leavestats['daysTaken']) + $leavestats['additionalDays']) - $leave['workingdays']);
                     }
                     else {
+
                         $lang->requestleavemessage_stats = '';
                     }
 
@@ -623,6 +626,7 @@ else {
                     }
                 }
 
+                $leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields'], 1);
                 if(!empty($leave['details_crumb'])) {
                     /* 					$core->input['details_crumb'] = implode(' ', parse_additionaldata($core->input, $leavetype_details['additionalFields']));
                       //$lang->leavenotificationmessage_typedetails .= ' ('.$core->input['details_crumb'].')'; */
@@ -644,6 +648,7 @@ else {
                         'subject' => $lang->requestleavesubject,
                         'message' => $lang->requestleavemessage
                 );
+                print_r($email_data);
             }
             else {
                 $to_inform = unserialize($core->input['affToInform']);
