@@ -142,11 +142,15 @@ class Leavetypes {
                 elseif($attribute == 'sourcecity') {
                     $search_for = 'sourcecity';
                 }
+                elseif($attribute == 'city') {
+                    $search_for = 'cities';
+                }
                 elseif($attribute == 'spid') {
                     $search_for = 'supplier';
                 }
 
-                $field = '<input type = "text" id = "'.$search_for.'_'.$identifier.'_QSearch" value = "'.$field_settings['value_attribute_value'].'" required = "required"/><input type = "text" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value = "'.$field_settings['key_attribute_value'].'" id = "'.$search_for.'_'.$identifier.'_id" name = "'.$attribute.'" /><div id = "searchQuickResults_'.$identifier.'" class = "searchQuickResults" style = "display:none;"></div>';
+                //$field = '<input type = "text" id = "'.$search_for.'_'.$identifier.'_QSearch" value = "'.$field_settings['value_attribute_value'].'" required = "required"/><input type = "text" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value = "'.$field_settings['key_attribute_value'].'" id = "'.$search_for.'_'.$identifier.'_id" name = "'.$attribute.'" /><div id = "searchQuickResults_'.$identifier.'" class = "searchQuickResults" style = "display:none;"></div>';
+                $field = '<input type = "text" id = "'.$search_for.'_'.$identifier.'_cache_autocomplete" value = "'.$field_settings['value_attribute_value'].'" required = "required"/><input type = "text" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value = "'.$field_settings['key_attribute_value'].'" id = "'.$search_for.'_'.$identifier.'_id" name = "'.$attribute.'" />';
 
                 break;
             case 'select':

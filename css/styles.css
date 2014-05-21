@@ -1,6 +1,6 @@
 @charset "UTF-8";
 /*
-Copyright ┬⌐ 2014 Orkila International Offshore, All Rights Reserved
+Copyright ┬® 2014 Orkila International Offshore, All Rights Reserved
 
 [Provide Short Descption Here]
 $id: _constants.scss
@@ -582,3 +582,5 @@ tr.dummytrow td, tr.dummytrow th {
 
 .ui-autocomplete-loading {
   background: white url("../images/loading.gif") right center no-repeat; }
+
+/*# sourceMappingURL=styles.css.map */
