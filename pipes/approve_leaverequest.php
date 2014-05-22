@@ -52,10 +52,9 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 
                 $leave['type_details'] = parse_type($leave['type']);
 
-                $leave['details_crumb'] = parse_additionaldata($leave, $leave['type_details']['additionalFields'], 1);
+                $leave['details_crumb'] = parse_additionaldata($leave, $leave['type_details']['additionalFields']);
                 if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
                     $leave['details_crumb'] = ' - '.implode(' ', $leave['details_crumb']);
-                    $leave['details_crumb'] = $core->sanitize_inputs($leave['details_crumb'], array('method' => 'striponly', 'removetags' => true));
                 }
 
                 //$approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=perform_approveleave&toapprove='.base64_encode($core->input['requestKey']).'&referrer=email';

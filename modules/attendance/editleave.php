@@ -18,7 +18,8 @@ if(!$core->input['action']) {
     $lid = $db->escape_string($core->input['lid']);
     $action = 'editleave';
     $lidfield = '<input type="hidden" value="'.$lid.'" name="lid" id="lid">';
-
+    $leave_obj = new Leaves($core->input['lid']);
+    $leavetype_obj = $leave_obj->get_type(false);
     $leave = $db->fetch_assoc($db->query("SELECT l.*, displayName AS contactPersonName FROM ".Tprefix."leaves l LEFT JOIN ".Tprefix."users u ON (u.uid=l.contactPerson) WHERE lid='{$lid}'"));
 
     if($leave['uid'] != $core->user['uid']) {
@@ -102,12 +103,14 @@ if(!$core->input['action']) {
 
     $additional_fields = unserialize($leavetype_details['additionalFields']);
     $additional_fields_output = '';
+    $core->input['uid'] = $leave['uid'];
     if(is_array($additional_fields)) {
         foreach($additional_fields as $key => $val) {
             $val['key_attribute_value'] = $leave[$key];
-            $val['value_attribute_value'] = implode('', parse_additionaldata($leave, serialize($additional_fields)));
+            $val['value_attribute_value'] = implode('', parse_additionaldata($leave, serialize(array($key => $val))));
             $val['uid'] = $leave['uid'];
-            $additional_fields_output .= parse_additonalfield($key, $val).'<br />';
+            $additional_fields_output .= $leavetype_obj->parse_additonalfield($key, $val);
+            //$additional_fields_output .= parse_additonalfield($key, $val).'<br />';
         }
     }
 
@@ -260,7 +263,6 @@ else {
             $leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields']);
             if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
                 $leave['details_crumb'] = implode(' ', $leave['details_crumb']);
-                $leave['details_crumb'] = $core->sanitize_inputs($leave['details_crumb'], array('method' => 'striponly', 'removetags' => true));
             }
             else {
                 output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
@@ -577,6 +579,7 @@ else {
                 }
             }
             $leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields'], 1);
+            $leave['details_crumb'] = $core->sanitize_inputs($leave['details_crumb'], array('method' => 'striponly', 'removetags' => true));
             if(!empty($leave['details_crumb'])) {
                 //$leave['details_crumb'] = implode(' ', parse_additionaldata($core->input, $leavetype_details['additionalFields']));
                 //$lang->leavenotificationmessage_typedetails .= ' ('.$core->input['details_crumb'].')';

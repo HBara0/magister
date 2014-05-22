@@ -326,7 +326,6 @@ else {
 
             if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
                 $leave['details_crumb'] = implode(' ', $leave['details_crumb']);
-                $leave['details_crumb'] = $core->sanitize_inputs($leave['details_crumb'], array('method' => 'striponly', 'removetags' => true));
             }
             else {
                 output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
@@ -627,6 +626,7 @@ else {
                 }
 
                 $leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields'], 1);
+                $leave['details_crumb'] = $core->sanitize_inputs($leave['details_crumb'], array('method' => 'striponly', 'removetags' => true));
                 if(!empty($leave['details_crumb'])) {
                     /* 					$core->input['details_crumb'] = implode(' ', parse_additionaldata($core->input, $leavetype_details['additionalFields']));
                       //$lang->leavenotificationmessage_typedetails .= ' ('.$core->input['details_crumb'].')'; */
@@ -648,7 +648,6 @@ else {
                         'subject' => $lang->requestleavesubject,
                         'message' => $lang->requestleavemessage
                 );
-                print_r($email_data);
             }
             else {
                 $to_inform = unserialize($core->input['affToInform']);

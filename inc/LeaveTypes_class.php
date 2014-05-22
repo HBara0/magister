@@ -125,7 +125,7 @@ class Leavetypes {
         }
     }
 
-    private function parse_additonalfield($attribute, $field_settings, array $additional_settings = array()) {
+    public function parse_additonalfield($attribute, $field_settings, array $additional_settings = array()) {
         global $db, $core, $lang, $leave;
         $field = '';
 
@@ -178,14 +178,14 @@ class Leavetypes {
                     }
                 }
                 elseif($field_settings['datasource'] == 'function') {
-                    unset($field_settings['key_attribute_value'], $field_settings['type'], $field_settings['table'], $field_settings['attributes']);
+                    unset($field_settings['type'], $field_settings['table'], $field_settings['attributes']);
                     if(method_exists($this, $field_settings['functionname'])) {
                         /* call the sgment function to get  the segment for the on behalf user */
                         $data = $this->{$field_settings['functionname']}(new Users($core->input['uid']));
                     }
 
                     if(is_array($data)) {
-                        $field = parse_selectlist($attribute, 0, $data, '', $field_settings['mulitpleselect'], '', array('required' => false));
+                        $field = parse_selectlist($attribute, 0, $data, $field_settings['key_attribute_value'], $field_settings['mulitpleselect'], '', array('required' => false));
                     }
                 }
                 break;

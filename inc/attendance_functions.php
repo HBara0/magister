@@ -563,12 +563,12 @@ function parse_additonalfield($attribute, $field_settings) {
     return $field;
 }
 
-function parse_additionaldata($leave, $field_settings, $ismain = 0) {
+function parse_additionaldata($leave, $field_settings, $mainonly = 0) {
     global $db, $lang;
     $field_settings = unserialize($field_settings);
     if(is_array($field_settings)) {
         foreach($field_settings as $key => $val) {
-            if($ismain == 1 && (!isset($val['isMain']) || empty($val['isMain']))) {
+            if($mainonly == 1 && (!isset($val['isMain']) || empty($val['isMain']))) {
                 continue;
             }
             if(isset($leave[$key])) {

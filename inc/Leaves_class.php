@@ -319,7 +319,7 @@ class Leaves {
     }
 
     public function get_leavetype($simple = true) {
-        return new Leavetypes($this->leave['type'], $simple);
+        return new LeaveTypes($this->leave['type'], $simple);
     }
 
     public function count_workingdays() {
