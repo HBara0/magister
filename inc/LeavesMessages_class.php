@@ -210,13 +210,13 @@ class LeavesMessages {
         $leave_details['requester'] = $this->get_leave()->get_requester()->get()['displayName'];
         $mailmessage.=' <div><br/><strong>'.$lang->leavedetail.'</strong></div>';
         //$lang->leavedetail = $lang->sprint($leave_details['requester'], $leave_details['leavetype'], $leave_details['fromtime'], $leave_details['totime']);
-        $mailmessage.=' <div><strong>'.$leave_details['requester'].'</strong> <br/>'.$leave_details['leavetype'].' <br/>'.$lang->from.' '.$leave_details['fromtime'].'<br/>'.$lang->to.'  '.$leave_details['totime'].'</br> </div>';
-
+        $reply_links = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.($core->input['messagerequestkey']).'&inreplyTo='.$this->leavemessage['inReplyTo'].'&id='.base64_encode($this->get_leave()->get()[lid]);
+        $lang->leavemessagereplylink = $lang->sprint($lang->leavemessagereply, $reply_links);
+        $mailmessage.=' <div>  <strong>'.$leave_details['requester'].' : </strong>  '.$this->leavemessage['message'].' <br/>'.$leave_details['leavetype'].' <br/>'.$lang->from.' '.$leave_details['fromtime'].'<br/>'.$lang->to.'  '.$leave_details['totime'].'</br> '.$lang->leavemessagereplylink.'</div>';
 
         /* SEND EMAIL TO EACH  INDIVIDUAL RECEIVER */
         $emailreceivers = $this->parse_receiver();
         /* Loop over the  users  parse, and send individuall */
-
         foreach($emailreceivers as $uid => $emailreceiver) {
             /* SHOW THE FULL CONVERSATIONo ALONG TO THE DETAILS  * */
             $mailmessage .= $this->get_leave()->parse_messages(array('viewmode' => 'textonly', 'uid' => $uid));
@@ -225,7 +225,6 @@ class LeavesMessages {
             $mailer->set_to($emailreceiver);
             $mailer->send();
             $mailmessage = '';
-
             //sprint_R($mailer->debug_info());
         }
         if($mailer->get_status() == true) {

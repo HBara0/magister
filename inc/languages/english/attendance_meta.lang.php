@@ -150,4 +150,6 @@ $lang['successfullysaved'] = 'Successfully Sent';
 $lang['messagerequired'] = 'Message Required';
 $lang['messageexist'] = 'Message reply exist please change your message description';
 $lang['messagesent'] = 'your message was successfully sent';
+$lang['leavemessagesubject'] = 'New message to leave request';
+$lang['leavemessagereply'] = 'To Reply to this message simply click  <a href=\'{1}\'>here</a>';
 ?>

@@ -50,6 +50,7 @@
                         <form method="post"  action="index.php?module=attendance/listleaves" target="result">
                             <input type="hidden" name="action" value="perform_sendmessage" />
                             <input type="hidden" value="" id="inreplyto" name="leavemessage[inReplyTo]"/>
+                            <input type="hidden" id="messagerequestkey" name="messagerequestkey" value="{$core->input[requestKey]}" />
                             <input type="hidden" value="{$core->input[id]}" id="inreplyto" name="lid"/>
                             <div id="messagetoreply" style="display:block; padding: 8px;"><textarea id="message" cols="40" rows="5" name="leavemessage[message]"></textarea>
                                 <div id="messagetoreply" style="display:block; padding:5px;">
