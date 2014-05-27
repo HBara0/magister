@@ -149,7 +149,7 @@ class Leaves {
                 );
                 $query = $db->insert_query('attendance_leaves_expenses', $expenses_data);
                 if(!$query) {
-                    //Record Error
+//Record Error
                 }
             }
             $log->record($this->leave['lid'], 'addedexpenses');
@@ -230,7 +230,7 @@ class Leaves {
         if(isset($data_filter['leaveexptype']) && (!empty($data_filter['leaveexptype']))) {
             $where .= "  AND  lextt.aletid IN (".implode(',', $data_filter['leaveexptype']).") ";
         }
-        //if(isset($data_filter['affids'], $data_filter['employees'], $data_filter['leavetype'], $data_filter['leaveexptype']) && !is_empty($data_filter['affids'], $data_filter['employees'], $data_filter['leavetype'], $data_filter['leaveexptype'])) {
+//if(isset($data_filter['affids'], $data_filter['employees'], $data_filter['leavetype'], $data_filter['leaveexptype']) && !is_empty($data_filter['affids'], $data_filter['employees'], $data_filter['leavetype'], $data_filter['leaveexptype'])) {
 
         $query = $db->query("SELECT l.lid, l.uid,l.affid,l.spid,l.cid,lt.title,lt.ltid,lextt.aletid,lext.aleid,lext.alteid,lext.expectedAmt ,lext.actualAmt   FROM ".Tprefix."leaves  l
 								JOIN ".Tprefix." leavetypes lt ON(l.type=lt.ltid)
@@ -245,7 +245,7 @@ class Leaves {
             }
             return $leavexpencesdata;
         }
-        //}
+//}
     }
 
     public function get_conversation() {
@@ -259,8 +259,16 @@ class Leaves {
 
     public function get_initalmessage() {
         global $db;
+        $initalmessage['lmid'] = $db->fetch_field($db->query("SELECT lmid, uid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."' AND inReplyTo=0 ORDER BY lmid ASC LIMIT 0,1"), 'lmid');
+        if(isset($initalmessage['lmid']) && !empty($initalmessage['lmid'])) {
+            return new LeavesMessages($initalmessage['lmid'], false);
+        }
+    }
 
-        $initalmessage['lmid'] = $db->fetch_field($db->query("SELECT lmid ,uid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."' AND inReplyTo=0 ORDER BY lmid ASC"), 'lmid');
+    public function get_initalvisiblemessage() {
+        global $db;
+
+        $initalmessage['lmid'] = $db->fetch_field($db->query("SELECT lmid, uid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."' AND viewPermission='public' AND inReplyTo=0 ORDER BY createdOn  DESC"), 'lmid');
         if(isset($initalmessage['lmid']) && !empty($initalmessage['lmid'])) {
             return new LeavesMessages($initalmessage['lmid'], false);
         }
@@ -268,39 +276,45 @@ class Leaves {
 
     public function parse_messages(array $options = array()) {
         global $template, $core;
-
-        /* Load the first conversation message */
-        $initialmsg = $this->get_initalmessage();
-
-        if(!is_object($initialmsg)) {
+        $takeactionpage_conversation = null;
+        $initialmsgs = LeavesMessages::get_messages('lid='.$this->leave['lid'].' AND inReplyTo=0');  /**/
+        if(!is_array($initialmsgs)) {
             return false;
         }
+        foreach($initialmsgs as $initialmsg) {
 
-        $message = $initialmsg->get();
-        /*  SET  WHO CAN SEE  MESSAGE DEPENDING ON PERMISSION */
-        if(empty($options['uid'])) { /**/
-            $options['uid'] = $initialmsg->get_user()->get()['uid'];
-        }
-        if($initialmsg->can_seemessage($options['uid'])) {
-            return false;
-        }
+            /* Load the first conversation message */
+// $initialmsg = $this->get_initalmessage();
+            if(!is_object($initialmsg)) {
+//                $initialmsg = $this->get_initalvisiblemessage();   /* see the next initial message of public permission */
+//                if(!is_object($initialmsg)) {
+                continue;
+//                }
+            }
 
-        $message['user'] = $initialmsg->get_user($message['uid'])->get();  /* Get the user of  who set the message conversation */
-        $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
+            if(empty($options['uid'])) { /**/
+                $options['uid'] = $core->user['uid'];
+            }
+            /*  SET  WHO CAN SEE  MESSAGE DEPENDING ON PERMISSION */
+            if(!$initialmsg->can_seemessage($options['uid'])) {
+                continue;
+            }
+            $message = $initialmsg->get();
+            $message['user'] = $initialmsg->get_user($message['uid'])->get();  /* Get the user of  who set the message conversation */
+            $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
 
-        if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
-            $takeactionpage_conversation .= '<div style="display:block;"><p><strong>'.$message['message'].'</strong></p>';
-            $takeactionpage_conversation .= '<span> '.$message['user']['displayName'].'</span>';
-            $takeactionpage_conversation .= '<span> On '.$message['message_date'].'</span>';
-        }
-        else {
-            eval("\$takeactionpage_conversation = \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
-        }
+            if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
+                $takeactionpage_conversation .= '<br/><span style="font-weight:bold;"> '.$message['user']['displayName'].':</span>';
+                $takeactionpage_conversation .= '<div style = "display:block;"><p>'.$message['message'].' </p><span>'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span>';
+            }
+            else {
+                eval("\$takeactionpage_conversation .= \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
+            }
 
-        $replies_objs = $initialmsg->get_replies();
-        if(is_array($replies_objs)) {
-
-            $takeactionpage_conversation .= $this->parse_replies($replies_objs, 1, $options);
+            $replies_objs = $initialmsg->get_replies();
+            if(is_array($replies_objs)) {
+                $takeactionpage_conversation .= $this->parse_replies($replies_objs, 1, $options);
+            }
         }
         return $takeactionpage_conversation;
     }
@@ -310,19 +324,19 @@ class Leaves {
 
         if(is_array($replies)) {
             foreach($replies as $reply) {
-                if($reply->can_seemessage($options['uid'])) {
+                if(!$reply->can_seemessage($options['uid'])) {
                     continue;
                 }
                 $bgcolor = alt_row($bgcolor);
-                $inline_style = 'margin-left:'.($depth * 8).'px; ';
+                $inline_style = 'margin-left:'.($depth * 8).'px;';
                 $message = $reply->get();
                 $message['user'] = $reply->get_user($message['uid'])->get();
                 $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
 
+
                 if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
-                    $takeactionpage_conversation .= '<div style="display:block;"><p><strong>'.$message['message'].'</strong></p>';
-                    $takeactionpage_conversation .= '<span> '.$message['user']['displayName'].'</span>';
-                    $takeactionpage_conversation .= '<span> On '.$message['message_date'].'</span>';
+                    $takeactionpage_conversation .= '<br/><span style="font-weight:bold;"> '.$message['user']['displayName'].':</span>';
+                    $takeactionpage_conversation .= '<div style = "display:block;"><p>'.$message['message'].' <span style="font-size:13px;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span></p></div>';
                 }
                 else {
                     eval("\$takeactionpage_conversation .= \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
@@ -341,7 +355,7 @@ class Leaves {
     }
 
     public function is_leaverequester() {
-        if(value_exists('leaves', 'uid', $this->leave['uid'], ' lid='.$this->leave['lid'])) {
+        if(value_exists('leaves', 'uid', $this->leave['uid'], ' lid = '.$this->leave['lid'])) {
             return true;
         }
         return false;

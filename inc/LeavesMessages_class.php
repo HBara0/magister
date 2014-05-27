@@ -32,7 +32,7 @@ class LeavesMessages {
 
         $query_select = '*';
         if($simple == true) {
-            $query_select = 'lmid, lid, uid, inReplyto, message';
+            $query_select = 'lmid, lid, uid, inReplyto, message, viewPermission';
         }
 
         $this->leavemessage = $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
@@ -71,10 +71,12 @@ class LeavesMessages {
 
         switch($this->leavemessage['viewPermission']) {
             case'private':
+                if($this->leavemessage['inReplyTo'] == 0 && $check_user == $this->get_leave()->get_requester()->get()['uid']) {
+                    return true;
+                }
                 $inreply_obj = $this->get_inreplyto();
                 if(is_object($inreply_obj)) {
                     $users_permission['inreplyto'] = $inreply_obj->get_user()->get()['uid'];
-                    echo $users_permission['inreplyto'];
                 }
                 else {
                     return false;
@@ -196,7 +198,7 @@ class LeavesMessages {
         $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
 
         /* SET TO LAND VAR */
-        $mailer->set_subject($lang->leavemessagesubject.$this->get_leave()->get()['requestKey']);
+        $mailer->set_subject($lang->leavemessagesubject.'['.$this->get_leave()->get()['requestKey'].']');
 
         /* ATTENTION
          * SHOW LEAVE DETAILS TWO SPACES AFTER THE REPLY MESSAGE
@@ -207,25 +209,26 @@ class LeavesMessages {
         $leave_details['fromtime'] = date($core->settings['dateformat'], $this->get_leave()->get()['fromDate']);
         $leave_details['totime'] = date($core->settings['dateformat'], $this->get_leave()->get()['toDate']);
 
-        $leave_details['requester'] = $this->get_leave()->get_requester()->get()['displayName'];
+        $leave_details['requester'] = $this->get_user()->get()['displayName'];
         $mailmessage.=' <div><br/><strong>'.$lang->leavedetail.'</strong></div>';
         //$lang->leavedetail = $lang->sprint($leave_details['requester'], $leave_details['leavetype'], $leave_details['fromtime'], $leave_details['totime']);
         $reply_links = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.($core->input['messagerequestkey']).'&inreplyTo='.$this->leavemessage['inReplyTo'].'&id='.base64_encode($this->get_leave()->get()[lid]);
         $lang->leavemessagereplylink = $lang->sprint($lang->leavemessagereply, $reply_links);
-        $mailmessage.=' <div>  <strong>'.$leave_details['requester'].' : </strong>  '.$this->leavemessage['message'].' <br/>'.$leave_details['leavetype'].' <br/>'.$lang->from.' '.$leave_details['fromtime'].'<br/>'.$lang->to.'  '.$leave_details['totime'].'</br> '.$lang->leavemessagereplylink.'</div>';
+        $mailmessage.=' <div>  <strong>'.$leave_details['requester'].' Says : </strong>  '.$this->leavemessage['message'].' <br/>'.$leave_details['leavetype'].' <br/>'.$lang->from.' '.$leave_details['fromtime'].'<br/>'.$lang->to.'  '.$leave_details['totime'].'</br> '.$lang->leavemessagereplylink.' On <span style="font-size: 9px;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->leavemessage['createdOn']).'</span></div>';
 
         /* SEND EMAIL TO EACH  INDIVIDUAL RECEIVER */
         $emailreceivers = $this->parse_receiver();
         /* Loop over the  users  parse, and send individuall */
+
         foreach($emailreceivers as $uid => $emailreceiver) {
             /* SHOW THE FULL CONVERSATIONo ALONG TO THE DETAILS  * */
             $mailmessage .= $this->get_leave()->parse_messages(array('viewmode' => 'textonly', 'uid' => $uid));
-            $mailer->set_message($mailmessage);
-            //  echo $uid.'can see.'.$this->leavemessage['message'].'<br>';
-            $mailer->set_to($emailreceiver);
-            $mailer->send();
+            if(!empty($mailmessage)) {
+                $mailer->set_message($mailmessage);
+                $mailer->set_to($emailreceiver);
+                $mailer->send();
+            }
             $mailmessage = '';
-            //sprint_R($mailer->debug_info());
         }
         if($mailer->get_status() == true) {
             $this->mailestatus = 5;
@@ -242,7 +245,8 @@ class LeavesMessages {
                     foreach($sender_approvals_objs as $sender_approvals_obj) {
                         $users_receiver[$sender_approvals_obj->get_user()->get()['uid']] = $sender_approvals_obj->get_user()->get()['email'];
                     }
-                    $users_receiver[] = $core->user['email'];
+                    $requester = $this->get_leave()->get_requester();
+                    $users_receiver[$requester->get()['uid']] = $requester->get()['email'];
                 }
 
                 break;
@@ -251,8 +255,8 @@ class LeavesMessages {
                 if(is_object($inreply_obj)) {
                     $users_receiver[$inreply_obj->get_user()->get()['uid']] = $inreply_obj->get_user()->get()['email'];
                 }
-                $users_receiver[] = $core->user['email'];
-
+                $requester = $this->get_leave()->get_requester();
+                $users_receiver[$requester->get()['uid']] = $requester->get()['email'];
                 break;
             case'limited':
                 /* users in the approval chain from the person putting the message and higher
@@ -271,7 +275,7 @@ class LeavesMessages {
                 }
                 break;
         }
-
+        unset($users_receiver[$core->user['uid']]);   /* avoid send  threads  to the user who is setting the message thread */
         return $users_receiver;
     }
 
