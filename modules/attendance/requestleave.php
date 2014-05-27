@@ -103,7 +103,20 @@ if(!$core->input['action']) {
 
     $limitedemail_radiobutton = parse_yesno('limitedEmail', 11, 1);
     $to_inform = parse_toinform_list();
-
+    /* Parse user own leave to plan */
+    $user_leaveobjs = TravelManagerPlan::get_unplannedleaves();   // get only approved business leave
+    if(is_array($user_leaveobjs)) {
+        foreach($user_leaveobjs as $user_leaveobj) {
+            $userleave = $user_leaveobj->get();
+            $userleave['from'] = date($core->settings['dateformat'], $userleave['fromDate']);
+            $userleave['to'] = date($core->settings['dateformat'], $userleave['toDate']);
+            $userleave['origincity'] = $user_leaveobj->get_sourcecity()->get()[name];
+            $userleave['destinationcity'] = $user_leaveobj->get_destinationcity();
+            $userleave['leavetype'] = $user_leaveobj->get_leavetype($userleave['type'])->get()['title'];
+            $userown_leaves.='<option value="'.$userleave['lid'].'">'.$userleave['leavetype'].' - '.$userleave['origincity'].' - '.$userleave['from'].'-'.$userleave['to'].' </option>';
+            print_R($userleave);
+        }
+    }
     eval("\$requestleavepage = \"".$template->get('attendance_requestleave')."\";");
     output_page($requestleavepage);
 }

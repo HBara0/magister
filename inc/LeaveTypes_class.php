@@ -218,6 +218,11 @@ class Leavetypes {
         return $args;
     }
 
+    public function get_businessleaves() {
+        global $db;
+        $query = $db->query('SELECT type,lid FROM '.Tprefix.' leaves l JOIN leavetypes lt ON ( l.type = lt.ltid )WHERE lt.isBusiness=1');
+    }
+
     public function get() {
         return $this->leavetype;
     }

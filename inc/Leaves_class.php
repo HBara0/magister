@@ -12,6 +12,9 @@ class Leaves {
     private $errorcode = 0; //0=No errors;1=Subject missing;2=Entry exists;3=Error saving;4=validation violation
     private $leave = array();
 
+    const TABLE_NAME = 'leaves';
+    const PRIMARY_KEY = 'lid';
+
     public function __construct($leavedata = array(), $simple = true) {
         global $db;
         if(!is_array($leavedata) && !empty($leavedata)) {
@@ -322,6 +325,10 @@ class Leaves {
         return new Leavetypes($this->leave['type'], $simple);
     }
 
+    public function get_businessleave() {
+        return $this->get_leavetype()->get_businessleaves();
+    }
+
     public function count_workingdays() {
         return count_workingdays($this->leave['uid'], $this->leave['fromDate'], $this->leave['toDate'], $this->get_type()['isWholeDay']);
     }
@@ -390,6 +397,16 @@ class Leaves {
             return false;
         }
         return false;
+    }
+
+    public static function get_leave_byattr($attr, $value) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects_byattr($attr, $value);
+    }
+
+    public static function get_leaves($filters = null, array $configs = array()) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
     }
 
     public function get() {

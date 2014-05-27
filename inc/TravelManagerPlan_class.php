@@ -41,6 +41,19 @@ class TravelManagerPlan {
         return $data->get_objects($filters, $configs);
     }
 
+    public function get_unplannedleaves() {
+        global $core, $db;
+
+        $query = $db->query('SELECT *  FROM '.Tprefix.' leaves WHERE  uid='.$core->user[uid].' AND NOT EXISTS(SELECT lid  FROM '.Tprefix.' travelmanager_plan WHERE lid='.$this->leave['lid'].' ) AND EXISTS (SELECT lid FROM leavesapproval WHERE lid='.$this->leave['lid'].' AND isApproved=1) ');
+        if($db->num_rows($query) > 0) {
+            while($rowsdata = $db->fetch_assoc($query)) {
+                $uplannedleaves[$rowsdata['lid']] = new Leaves($rowsdata['lid']);
+            }
+            return $uplannedleaves;
+        }
+        return false;
+    }
+
     public function get() {
         return $this->plan;
     }
