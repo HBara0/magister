@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Fill up a visit report
  * $module: CRM
- * $id: weekviewoperations.php	
+ * $id: weekviewoperations.php
  * Created: 	@tony.assaad 	May 28, 2012 | 11:21 AM
  * Last Update: @zaher.reda 	Julu 17, 2012 | 5:30 PM
  */
@@ -58,8 +58,8 @@ elseif($core->input['action'] == 'delete_visit') {
     if(!empty($core->input['lid'])) {
         $id = $db->escape_string($core->input['lid']);
         $visit = $db->fetch_assoc($db->query('SELECT l.uid, l.lid, l.requestTime
-				FROM '.Tprefix.'leaves l  
-				JOIN '.Tprefix.'users u ON (u.uid = l.uid) 
+				FROM '.Tprefix.'leaves l
+				JOIN '.Tprefix.'users u ON (u.uid = l.uid)
 				WHERE l.lid='.$db->escape_string($id)));
         /* Check if the visit request time is  more than 1 hour ago */
         if(TIME_NOW <= ($visit['requestTime'] + ($core->settings['weeklyplan_deletehours'] * 3600)) && ($visit['uid'] == $core->user['uid'] || value_exists('users', 'reportsTo', $core->user['uid'], "uid={$visit[uid]}"))) {
@@ -81,14 +81,14 @@ elseif($core->input['action'] == 'suggest_customervisits') {
     if(empty($core->input['cid'])) {
         exit;
     }
-    $visits_query = $db->query('SELECT e.eid, e.companyName AS customer, vr.date 
-						FROM '.Tprefix.'visitreports vr 
-						JOIN '.Tprefix.'entities e ON (e.eid = vr.cid) 
+    $visits_query = $db->query('SELECT e.eid, e.companyName AS customer, vr.date
+						FROM '.Tprefix.'visitreports vr
+						JOIN '.Tprefix.'entities e ON (e.eid = vr.cid)
 						WHERE (date < '.strtotime('-1 month').')
 						AND e.eid IN (SELECT ase.eid
 							FROM '.Tprefix.'assignedemployees ase JOIN '.Tprefix.'users u ON (u.uid=ase.uid) JOIN '.Tprefix.'entities e ON (e.eid=ase.eid)
-							WHERE e.type = "c" AND ase.uid = '.$core->input['uid'].') 
-						AND e.eid != '.$core->input['cid'].' 
+							WHERE e.type = "c" AND ase.uid = '.$core->input['uid'].')
+						AND e.eid != '.$core->input['cid'].'
 						ORDER BY date DESC limit 0, 5');
     $cache['eid'] = array(0);
     while($suggestion = $db->fetch_assoc($visits_query)) {
@@ -98,13 +98,13 @@ elseif($core->input['action'] == 'suggest_customervisits') {
     /* Check leaves older than 1 month - START */
     $visits_count = $db->num_rows($visits_query);
     if($visits_count < 5) {
-        $leaves_query = $db->query('SELECT e.companyName AS customer, l.fromDate AS date 
-						FROM '.Tprefix.'leaves l 
-						JOIN '.Tprefix.'entities e ON (e.eid = l.cid) 
+        $leaves_query = $db->query('SELECT e.companyName AS customer, l.fromDate AS date
+						FROM '.Tprefix.'leaves l
+						JOIN '.Tprefix.'entities e ON (e.eid = l.cid)
 						WHERE (l.fromDate < '.strtotime('-1 month').')
 						AND e.eid IN (SELECT ase.eid
 						FROM '.Tprefix.'assignedemployees ase JOIN '.Tprefix.'users u ON (u.uid=ase.uid) JOIN '.Tprefix.'entities e ON (e.eid=ase.eid)
-						WHERE e.type = "c" AND ase.uid = '.$core->input['uid'].') 
+						WHERE e.type = "c" AND ase.uid = '.$core->input['uid'].')
 						AND e.eid != '.$core->input['cid'].' AND e.eid NOT IN ('.implode(',', $cache['eid']).')
 						ORDER BY date DESC limit 0, '.(5 - $visits_count));
         if($db->num_rows($leaves_query) > 0) {
@@ -121,9 +121,9 @@ elseif($core->input['action'] == 'suggest_customervisits') {
 }
 elseif($core->input['action'] == 'get_popup_calendar_custvisitsdetails') {
     $visit = $db->fetch_assoc($db->query('SELECT l.*, u.displayName AS employeename, vr.vrid, vr.type, vr.purpose, vr.identifier, vr.affid, e.eid, e.companyName AS customername, finishDate
-						FROM '.Tprefix.'leaves l  
-						JOIN '.Tprefix.'users u ON (u.uid = l.uid) 
-						JOIN '.Tprefix.'visitreports vr ON (l.lid = vr.lid) 
+						FROM '.Tprefix.'leaves l
+						JOIN '.Tprefix.'users u ON (u.uid = l.uid)
+						JOIN '.Tprefix.'visitreports vr ON (l.lid = vr.lid)
 						JOIN '.Tprefix.'entities e ON (e.eid = vr.cid)
 						WHERE vr.lid='.$db->escape_string($core->input['id'])));
 
@@ -214,7 +214,7 @@ elseif($core->input['action'] == 'do_perform_weekviewoperations') {
             'fromDate' => $fromdate,
             'toDate' => $todate,
             "requestKey" => substr(md5(uniqid(microtime())), 1, 10),
-            'type' => 8, //customer visit	
+            'type' => 10, //customer visit
             'contactPerson' => $leave_user['assistant'],
             'addressWhileAbsent' => $customer['addressLine1'],
             'phoneWhileAbsent' => $leave_user['mobile'],
@@ -226,7 +226,7 @@ elseif($core->input['action'] == 'do_perform_weekviewoperations') {
     if($query) {
         $lid = $db->last_id();
         $log->record($lid);
-
+        $sequence = 1;
         $db->insert_query('leavesapproval', array('lid' => $lid, 'uid' => $uid, 'isApproved' => 1, 'timeApproved' => TIME_NOW, 'sequence' => $sequence));
 
         /* insert visitor reports --START */

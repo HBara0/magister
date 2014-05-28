@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Calendar Class
  * $id: Calendar_class.php
  * Created:		@zaher.reda		May 14, 2012 | 10:11 PM
@@ -190,9 +190,9 @@ class Calendar {
                     continue;
                 }
 
-                $query = $db->query("SELECT l.lid, la.isApproved 
-									FROM ".Tprefix."leaves l JOIN ".Tprefix."leavesapproval la ON (l.lid=la.lid) 
-									WHERE {$type_querystring}(((l.fromDate BETWEEN ".$this->period['firstday']." AND ".$this->period['lastday'].") OR (l.toDate BETWEEN ".$this->period['firstday']." AND ".$this->period['lastday'].")) OR ((".$this->period['firstday']." BETWEEN l.fromDate AND l.toDate) OR (".$this->period['lastday']." BETWEEN l.fromDate AND l.toDate))) AND l.uid IN (".implode(', ', $affiliate_users).")");
+                $query = $db->query("SELECT l.lid, la.isApproved
+                                    FROM ".Tprefix."leaves l JOIN ".Tprefix."leavesapproval la ON (l.lid=la.lid)
+                                    WHERE {$type_querystring}(((l.fromDate BETWEEN ".$this->period['firstday']." AND ".$this->period['lastday'].") OR (l.toDate BETWEEN ".$this->period['firstday']." AND ".$this->period['lastday'].")) OR ((".$this->period['firstday']." BETWEEN l.fromDate AND l.toDate) OR (".$this->period['lastday']." BETWEEN l.fromDate AND l.toDate))) AND l.uid IN (".implode(', ', $affiliate_users).")");
                 if($db->num_rows($query) > 0) {
                     while($leave = $db->fetch_assoc($query)) {
                         if($leave['isApproved'] == 0) {
@@ -210,9 +210,8 @@ class Calendar {
 
             if(!empty($approved_lids)) {
                 $query = $db->query("SELECT l.*, l.uid AS requester, Concat(u.firstName, ' ', u.lastName) AS employeename
-						FROM ".Tprefix."leaves l JOIN ".Tprefix."users u ON (l.uid=u.uid) 
+						FROM ".Tprefix."leaves l JOIN ".Tprefix."users u ON (l.uid=u.uid)
 						WHERE l.lid IN (".implode(',', $approved_lids).") ORDER BY l.fromDate ASC, (l.toDate-l.fromDate) DESC");
-
                 if($db->num_rows($query) > 0) {
                     while($more_leaves = $db->fetch_assoc($query)) {
                         $num_days_off = ($more_leaves['toDate'] - $more_leaves['fromDate']) / 24 / 60 / 60; //(date('z', $more_leaves['toDate'])-date('z', $more_leaves['fromDate']))+1;
@@ -254,8 +253,8 @@ class Calendar {
             }
 
             $holidays_query = $db->query("SELECT aff.name AS affiliatename, h.*, c.acronym AS country
-											FROM ".Tprefix."holidays h 
-											JOIN ".Tprefix."affiliates aff ON (aff.affid=h.affid) 
+											FROM ".Tprefix."holidays h
+											JOIN ".Tprefix."affiliates aff ON (aff.affid=h.affid)
 											LEFT JOIN countries c ON (aff.country=c.coid)
 											WHERE ((validFrom = 0 OR ({$this->dates[current][year]} >= FROM_UNIXTIME(validFrom, '%Y') AND month >= FROM_UNIXTIME(validFrom, '%m') AND day >= FROM_UNIXTIME(validFrom, '%d'))) AND (validTo=0 OR ({$this->dates[current][year]} <= FROM_UNIXTIME(validTo, '%Y') AND month <= FROM_UNIXTIME(validTo, '%m') AND day <= FROM_UNIXTIME(validTo, '%d'))))
 											AND (year=0 OR year={$this->dates[current][year]}) AND month={$this->dates[current][mon]}{$holidays_querystring}"); // AND h.affid IN (".implode(",',$affiliates['affid']).")
@@ -440,8 +439,8 @@ class Calendar {
 
                             /* Get the customer details for the current leave - START */
                             $visit = $db->fetch_assoc($db->query('SELECT l.uid, vr.type, vr.purpose, vr.identifier, vr.affid, e.companyName AS customername, e.companyNameAbbr, finishDate
-											  FROM '.Tprefix.'leaves l 
-											  JOIN '.Tprefix.'visitreports vr ON (l.lid = vr.lid) 
+											  FROM '.Tprefix.'leaves l
+											  JOIN '.Tprefix.'visitreports vr ON (l.lid = vr.lid)
 											  JOIN '.Tprefix.'entities e ON (e.eid = vr.cid)
 											  WHERE vr.lid='.$value['lid']));
 
@@ -630,7 +629,7 @@ class Calendar {
             $hours['to'] = strtotime('today 23:59:59');
         }
         if(empty($depth)) {
-            $depth = 1800; //seconds	
+            $depth = 1800; //seconds
             $this->options['depth'] = 1800;
         }
         $depth = intval($depth);
