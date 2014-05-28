@@ -80,6 +80,7 @@ if(!$core->input['action']) {
             $newreport = new ReportingQr(array('year' => $core->input['year'], 'spid' => $report_param['spid'], 'affid' => $report_param['affid'], 'quarter' => $core->input['quarter']));
             $report = $newreport->get();
             $session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report)));
+            $report['affiliates'] = $newreport->get_report_affiliate();
             if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
                 $newreport->read_products_activity(true);
                 $report['forecasteditems'] = $newreport->get_forecasted_items();
@@ -105,11 +106,11 @@ if(!$core->input['action']) {
                 if(is_array($report['outliers'])) {
                     $report['hasinconsistency'] = true;
 
-                    $reportsissues['inconsistent'][$report['affid']] = $report['affiliates']['name'];
+                    $reportsissues['inconsistent'][$report['affid']] = '<a href="#qr-'.$report['affid'].'-'.$report['spid'].'">'.$report['affiliates']['name'].'</a>';
                     $reportsissues['inconsistent'][$report['affid']] .= '<ul>';
                     foreach($report['outliers'] as $pid => $outlier) {
                         $product = new Products($pid);
-                        $reportsissues['inconsistent'][$report['affid']] .= '<li>'.$product->get()['name'].'</li>';
+                        $reportsissues['inconsistent'][$report['affid']] .= '<li>'.$product->get()['name'].' | '.$lang->qty.': '.$outlier['quantity'].' | '.$lang->turnover.': '.$outlier['turnOver'].'</li>';
                     }
                     $reportsissues['inconsistent'][$report['affid']] .= '</ul>';
 
@@ -121,7 +122,6 @@ if(!$core->input['action']) {
 
             $report['contributors'] = $newreport->get_report_contributors();
             $report['finializer'] = $newreport->get_report_finalizer();
-            $report['affiliates'] = $newreport->get_report_affiliate();
             $report['supplier'] = $newreport->get_report_supplier();
             if($core->input['incMarketReport'] == 1) {
                 $report['marketreports'] = $newreport->get_market_reports();
