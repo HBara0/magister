@@ -287,7 +287,7 @@ else {
         if($leavetype->has_expenses()) {
             $expensesfield_type = $leavetype->get_expenses();
             foreach($expensesfield_type as $alteid => $expensesfield) {
-                if(($expensesfield['isRequired'] == 1 && empty($expenses_data[$alteid]['expectedAmt'])) || (($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description'])))) {
+                if(($expensesfield['isRequired'] == 1 && (empty($expenses_data[$alteid]['expectedAmt']) && $expenses_data[$alteid]['expectedAmt'] != 0)) || ($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description']))) {
                     output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
                     exit;
                 }
@@ -422,6 +422,7 @@ else {
 //				$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
 //			}
             if(is_array($approvers)) {
+                $db->delete_query('leavesapproval', 'lid', $lid);
                 foreach($approvers as $key => $val) {
                     if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
                         continue;

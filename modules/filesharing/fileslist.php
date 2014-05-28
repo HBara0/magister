@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Upload a Shared File
  * $module: filesharing
  * $id: uploadfile.php
@@ -101,7 +101,7 @@ if(!$core->input['action']) {
     }
 
     $query = $db->query("SELECT *, c.title as category, f.title as filetitle, fv.*
-						FROM ".Tprefix."files f JOIN ".Tprefix."fileversions fv ON (f.fid=fv.fid) 
+						FROM ".Tprefix."files f JOIN ".Tprefix."fileversions fv ON (f.fid=fv.fid)
 						JOIN ".Tprefix."filescategories c ON (c.fcid=f.category)
 						WHERE f.isShared = 1 AND f.ffid = {$ffid}{$filter_where}{$file_query_where}
 						ORDER BY {$sort_query}
