@@ -259,7 +259,7 @@ class Leaves {
 
     public function get_initalmessage() {
         global $db;
-        $initalmessage['lmid'] = $db->fetch_field($db->query("SELECT lmid, uid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."' AND inReplyTo=0 ORDER BY lmid ASC LIMIT 0,1"), 'lmid');
+        $initalmessage['lmid'] = $db->fetch_field($db->query("SELECT lmid, uid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."' AND inReplyTo=0 ORDER BY lmid ASC LIMIT 0, 1"), 'lmid');
         if(isset($initalmessage['lmid']) && !empty($initalmessage['lmid'])) {
             return new LeavesMessages($initalmessage['lmid'], false);
         }
@@ -268,7 +268,7 @@ class Leaves {
     public function get_initalvisiblemessage() {
         global $db;
 
-        $initalmessage['lmid'] = $db->fetch_field($db->query("SELECT lmid, uid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."' AND viewPermission='public' AND inReplyTo=0 ORDER BY createdOn  DESC"), 'lmid');
+        $initalmessage['lmid'] = $db->fetch_field($db->query("SELECT lmid, uid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."' AND viewPermission='public' AND inReplyTo=0 ORDER BY createdOn DESC"), 'lmid');
         if(isset($initalmessage['lmid']) && !empty($initalmessage['lmid'])) {
             return new LeavesMessages($initalmessage['lmid'], false);
         }
@@ -277,25 +277,21 @@ class Leaves {
     public function parse_messages(array $options = array()) {
         global $template, $core;
         $takeactionpage_conversation = null;
-        $initialmsgs = LeavesMessages::get_messages('lid='.$this->leave['lid'].' AND inReplyTo=0');  /**/
+        $initialmsgs = LeavesMessages::get_messages('lid='.$this->leave['lid'].' AND inReplyTo=0');
         if(!is_array($initialmsgs)) {
             return false;
         }
+
+        if(empty($options['uid'])) {
+            $options['uid'] = $core->user['uid'];
+        }
+
         foreach($initialmsgs as $initialmsg) {
-
-            /* Load the first conversation message */
-// $initialmsg = $this->get_initalmessage();
             if(!is_object($initialmsg)) {
-//                $initialmsg = $this->get_initalvisiblemessage();   /* see the next initial message of public permission */
-//                if(!is_object($initialmsg)) {
                 continue;
-//                }
             }
 
-            if(empty($options['uid'])) { /**/
-                $options['uid'] = $core->user['uid'];
-            }
-            /*  SET  WHO CAN SEE  MESSAGE DEPENDING ON PERMISSION */
+            /*  Check if user is allowed to see the message */
             if(!$initialmsg->can_seemessage($options['uid'])) {
                 continue;
             }
@@ -304,7 +300,7 @@ class Leaves {
             $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
 
             if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
-                $takeactionpage_conversation .= '<br/><span style="font-weight:bold;"> '.$message['user']['displayName'].':</span>';
+                $takeactionpage_conversation .= '<br/><span style="font-weight: bold;"> '.$message['user']['displayName'].':</span>';
                 $takeactionpage_conversation .= '<div style = "display:block;"><p>'.$message['message'].' </p><span>'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span>';
             }
             else {
@@ -335,8 +331,8 @@ class Leaves {
 
 
                 if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
-                    $takeactionpage_conversation .= '<br/><span style="font-weight:bold;"> '.$message['user']['displayName'].':</span>';
-                    $takeactionpage_conversation .= '<div style = "display:block;"><p>'.$message['message'].' <span style="font-size:13px;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span></p></div>';
+                    $takeactionpage_conversation .= '<br/><span style="font-weight:bold;">'.$message['user']['displayName'].':</span>';
+                    $takeactionpage_conversation .= '<div style="display:block;"><p>'.$message['message'].' <span style="font-size:13px;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span></p></div>';
                 }
                 else {
                     eval("\$takeactionpage_conversation .= \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
@@ -355,7 +351,7 @@ class Leaves {
     }
 
     public function is_leaverequester() {
-        if(value_exists('leaves', 'uid', $this->leave['uid'], ' lid = '.$this->leave['lid'])) {
+        if(value_exists('leaves', 'uid', $this->leave['uid'], 'lid='.intval($this->leave['lid']))) {
             return true;
         }
         return false;
@@ -371,6 +367,13 @@ class Leaves {
 
     public function get_workingdays() {
         return count_workingdays($this->leave['uid'], $this->leave['fromDate'], $this->leave['toDate'], $this->get_type()['isWholeDay']);
+    }
+
+    public function __get($attr) {
+        if(isset($this->leave[$attr])) {
+            return $this->leave[$attr];
+        }
+        return false;
     }
 
     public function get() {
