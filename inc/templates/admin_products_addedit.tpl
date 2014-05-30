@@ -14,7 +14,6 @@
                 <table cellpadding="0" cellspacing="0" width="100%">
                     <tr>
                         <td>{$lang->code}</td><td><input type="text" name="code" id="code" tabindex="1" value="{$product[code]}"/></td>
-
                     </tr>
                     <tr>
                         <td><strong>{$lang->name}</strong></td><td><input type="text" name="name" id="name" tabindex="2" value="{$product[name]}"/></td>
@@ -22,7 +21,7 @@
                     <tr>
                         <td><strong>{$lang->generic}</strong></td><td>{$generics_list}</td>
                     </tr>
-                    <tr>    
+                    <tr>
                         <td><strong>{$lang->supplier}</strong></td><td><input type='text' id='supplier_1_QSearch' value="{$product[suppliername]}"/><input type="text" size="3" id="supplier_1_id_output" value="{$product[spid]}" disabled/><input type='hidden' id='supplier_1_id' name='spid' value="{$product[spid]}" /><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>
                     <tr class="thead"><td colspan="2">{$lang->applications}</td></tr>
@@ -30,16 +29,20 @@
                         <td colspan="2">
                             <div style="width:100%; height:200px; overflow:auto; vertical-align:top;">
                                 <table class="datatable" width="100%">
-                                    <tr class="altrow2">
-                                        <th>&nbsp;</th>
-                                        <th>{$lang->isdefault}</th>
-                                        <th>{$lang->functions}</th>
-                                        <th>{$lang->applications}</th>    
-                                        <th>{$lang->segment}</th>
-                                    </tr>
-                                    {$admin_products_addedit_segappfunc_rows}
+                                    <thead>
+                                        <tr class="altrow2">
+                                            <th>{$lang->isdefault}</th>
+                                            <th>&nbsp;</th>
+                                            <th>{$lang->functions}</th>
+                                            <th>{$lang->applications}</th>
+                                            <th>{$lang->segment}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {$admin_products_addedit_segappfunc_rows}
+                                    </tbody>
                                 </table>
-                            </div> 
+                            </div>
 
                         </td>
                     </tr>
@@ -59,7 +62,7 @@
                                         </tr>
                                     </tfoot>
                                 </table>
-                            </div> 
+                            </div>
                         </td>
                     </tr>
                     <tr>

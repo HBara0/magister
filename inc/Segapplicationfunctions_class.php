@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: Segapplicationfunctions.php
  * Created:        @tony.assaad    Dec 3, 2013 | 4:57:25 PM
@@ -39,7 +39,7 @@ class Segapplicationfunctions {
         return new Segmentapplications($this->segapplicationfunction['psaid']);
     }
 
-    public static function get_segmentsapplicationsfunctions(array $filters = array('filterwhere', 'hasitemperlist')) {
+    public static function get_segmentsapplicationsfunctions(array $filters = array('filterwhere', 'hasitemperlist'), array $configs = array()) {
         global $db, $core;
         $sort_query = ' ORDER BY psaid ASC';
         if(isset($core->input['sortby'], $core->input['order'])) {
@@ -51,15 +51,19 @@ class Segapplicationfunctions {
             }
         }
         $limit_start = 0;
-        if(isset($core->input['start'])) {
-            $limit_start = $db->escape_string($core->input['start']);
+        if(isset($configs['limit'])) {
+            $limit_start = intval($configs['limit']);
+        }
+        $limit_offset = $core->settings['itemsperlist'];
+        if(isset($configs['offset'])) {
+            $limit_offset = intval($configs['offset']);
         }
 
         if(!empty($filters['filterwhere']) && isset($filters['filterwhere'])) {
-            $filter_where = ' WHERE '.$filter_where;
+            $filter_where = ' WHERE '.$filters['filterwhere'];
         }
 
-        $query = $db->query('SELECT safid FROM '.Tprefix.'segapplicationfunctions'.$filter_where.$sort_query.' LIMIT '.$limit_start.', '.$core->settings['itemsperlist']);
+        $query = $db->query('SELECT safid FROM '.Tprefix.'segapplicationfunctions'.$filter_where.$sort_query.' LIMIT '.$limit_start.', '.$limit_offset);
         if($db->num_rows($query) > 0) {
             while($rowsegappfunc = $db->fetch_assoc($query)) {
                 $segments_applicationsfunctions[$rowsegappfunc['safid']] = new Segapplicationfunctions($rowsegappfunc['safid']);

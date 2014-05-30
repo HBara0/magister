@@ -57,36 +57,39 @@ if(!$core->input['action']) {
     }
     if(!empty($segment_applications)) {
         $segappfunc_objs_where = 'psaid IN ('.implode(',', $segment_applications).')';
-    }
-    $segappfunc_objs = Segapplicationfunctions::get_segmentsapplicationsfunctions(array('filterwhere' => $segappfunc_objs_where));
-    if(is_array($segappfunc_objs)) {
-        foreach($segappfunc_objs as $segappfunc_obj) {
-            $rowclass = alt_row($rowclass);
-            /* call the associatives objects */
-            $segmentapp_data['segappfuncs'] = $segappfunc_obj->get();
-            $cfpid = $db->fetch_field($db->query("SELECT cfpid
-											FROM ".Tprefix."chemfunctionproducts
-											WHERE safid=".$segmentapp_data['segappfuncs']['safid']." AND pid='{$pid}'"), 'cfpid');
-            /* check the default */
-            if($cfpid == $product['defaultFunction']) {
-                $defaultfunctionchecked[$cfpid] = " checked='checked'";
-            }
-            $segmentapp_data['chemicalfunction'] = $segappfunc_obj->get_function()->get();
-            $segmentapp_data['existingprodfunctionids'] = $segmentapp_data['chemicalfunction']['cfid'];
 
-            $chemfunc_obj = new Chemicalfunctions($segmentapp_data['existingprodfunctionids']);
-            //$chemicalfunc_id = $chemfunc_obj->get()['cfid'];
-            if(value_exists('chemfunctionproducts', 'safid', $segmentapp_data['segappfuncs']['safid'], 'pid='.$pid)) {
-                $defaultfunctionchecked[$segmentapp_data['segappfuncs']['safid']] = " checked='checked'";
+        $segappfunc_objs = Segapplicationfunctions::get_segmentsapplicationsfunctions(array('filterwhere' => $segappfunc_objs_where), array('limit' => 0, 'offset' => 100000));
+        if(is_array($segappfunc_objs)) {
+            foreach($segappfunc_objs as $segappfunc_obj) {
+                /* call the associatives objects */
+                $segmentapp_data['segappfuncs'] = $segappfunc_obj->get();
+                $cfpid = $db->fetch_field($db->query("SELECT cfpid
+                                            FROM ".Tprefix."chemfunctionproducts
+                                            WHERE safid=".$segmentapp_data['segappfuncs']['safid']." AND pid='{$pid}'"), 'cfpid');
+                /* check the default */
+                if($cfpid == $product['defaultFunction']) {
+                    $defaultfunctionchecked[$cfpid] = " checked='checked'";
+                }
+                $segmentapp_data['chemicalfunction'] = $segappfunc_obj->get_function()->get();
+                $segmentapp_data['existingprodfunctionids'] = $segmentapp_data['chemicalfunction']['cfid'];
+
+                $chemfunc_obj = new Chemicalfunctions($segmentapp_data['existingprodfunctionids']);
+                //$chemicalfunc_id = $chemfunc_obj->get()['cfid'];
+                if(value_exists('chemfunctionproducts', 'safid', $segmentapp_data['segappfuncs']['safid'], 'pid='.$pid)) {
+                    $defaultfunctionchecked[$segmentapp_data['segappfuncs']['safid']] = " checked='checked'";
+                }
+                $segmentapp_data['segment'] = $segappfunc_obj->get_segment()->get()['title'];
+                $segmentapp_data['application'] = $segappfunc_obj->get_application()->get()['title'];
+                eval("\$admin_products_addedit_segappfunc_rows .= \"".$template->get('admin_products_addedit_segappfunc_row')."\";");
+                $defaultfunctionchecked[$segmentapp_data['segappfuncs']['safid']] = '';
             }
-            $segmentapp_data['segment'] = $segappfunc_obj->get_segment()->get()['title'];
-            $segmentapp_data['application'] = $segappfunc_obj->get_application()->get()['title'];
-            eval("\$admin_products_addedit_segappfunc_rows .= \"".$template->get('admin_products_addedit_segappfunc_row')."\";");
-            $defaultfunctionchecked[$segmentapp_data['segappfuncs']['safid']] = '';
+        }
+        else {
+            $admin_products_addedit_segappfunc_rows = '<tr><td colspan=5>'.$lang->na.'</td></tr>';
         }
     }
     else {
-        $admin_products_addedit_segappfunc_rows = '<tr><td colspan=3>'.$lang->na.'</td></tr>';
+        $admin_products_addedit_segappfunc_rows = '<tr><td colspan=5>'.$lang->na.'</td></tr>';
     }
     $chemsubstance_objs = $product_obj->get_chemicalsubstance();
     if(is_array($chemsubstance_objs)) {
