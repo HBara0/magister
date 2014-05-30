@@ -16,6 +16,9 @@
 class Segmentapplications {
     private $segmentapplication = array();
 
+    const PRIMARY_KEY = 'psaid';
+    const TABLE_NAME = 'segmentapplications';
+
     public function __construct($id = '', $simple = true) {
         if(isset($id)) {
             $this->read($id, $simple);
@@ -60,16 +63,17 @@ class Segmentapplications {
             );
             $query = $db->insert_query('segmentapplications', $segapplication_data);
             if($query) {
-                $data['psaid'] = $db->last_id();
+                $this->segmentapplication[self::PRIMARY_KEY] = $db->last_id();
                 if(!empty($data['segappfunctions']) && isset($data['segappfunctions'])) {
                     foreach($data['segappfunctions'] as $cfid) {
-                        $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $cfid, 'psaid' => $data['psaid'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
+                        $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $cfid, 'psaid' => $this->segmentapplication[self::PRIMARY_KEY], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
                         if($segappfuncquery) {
                             $data['safid'] = $db->last_id();
                         }
                     }
                 }
-                $log->record('createsegappfunctions', $data['psaid']);
+
+                $log->record('createsegappfunctions', $this->segmentapplication[self::PRIMARY_KEY]);
                 $this->errorcode = 0;
                 return true;
             }
@@ -113,7 +117,7 @@ class Segmentapplications {
 
     public function get_segappfunctions() {
         global $db;
-        $query = $db->query('SELECT cfid,safid  FROM '.Tprefix.'segapplicationfunctions WHERE psaid="'.intval($this->segmentapplication['psaid']).'"');
+        $query = $db->query('SELECT cfid, safid FROM '.Tprefix.'segapplicationfunctions WHERE psaid="'.intval($this->segmentapplication['psaid']).'"');
         if($db->num_rows($query) > 0) {
             while($rowsegmentappfunc = $db->fetch_assoc($query)) {
                 $segmentsappfunc[$rowsegmentappfunc['safid']] = new Chemicalfunctions($rowsegmentappfunc['cfid']);
@@ -144,8 +148,35 @@ class Segmentapplications {
         return new ProductsSegments($this->segmentapplication['psid']);
     }
 
+    public static function get_application_byattr($attr, $value) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects_byattr($attr, $value);
+    }
+
+    public function save(array $data = array()) {
+        if(value_exists(self::TABLE_NAME, self::PRIMARY_KEY, $this->segmentapplication[self::PRIMARY_KEY])) {
+            //Update
+        }
+        else {
+            if(empty($data)) {
+                $data = $this->segmentapplication;
+            }
+            $this->create($data);
+        }
+    }
+
     public function get() {
         return $this->segmentapplication;
+    }
+
+    public function set(array $data) {
+        foreach($data as $name => $value) {
+            $this->segmentapplication[$name] = $value;
+        }
+    }
+
+    public function __set($name, $value) {
+        $this->segmentapplication[$name] = $value;
     }
 
     public function get_errorcode() {

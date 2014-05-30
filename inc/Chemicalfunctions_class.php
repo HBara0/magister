@@ -16,6 +16,9 @@
 class Chemicalfunctions {
     private $chemfunction = array();
 
+    const PRIMARY_KEY = 'cfid';
+    const TABLE_NAME = 'chemicalfunctions';
+
     public function __construct($id = '', $simple = true) {
         if(isset($id)) {
             $this->read($id, $simple);
@@ -58,7 +61,7 @@ class Chemicalfunctions {
             );
             $query = $db->insert_query('chemicalfunctions', $chemicalfunctions_data);
             if($query) {
-                $data['cfid'] = $db->last_id();
+                $this->chemfunction[self::PRIMARY_KEY] = $data['cfid'] = $db->last_id();
                 if(!empty($data['segapplications']) && isset($data['segapplications'])) {
                     foreach($data['segapplications'] as $psaid) {
                         $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $data['cfid'], 'psaid' => $psaid, 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
@@ -74,10 +77,15 @@ class Chemicalfunctions {
         }
     }
 
+    public static function get_chemfunction_byattr($attr, $value) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects_byattr($attr, $value);
+    }
+
     public static function get_chemfunction_byname($name) {
         global $db;
         if(!empty($name)) {
-            $id = $db->fetch_fetch($db->query('SELECT * FROM '.Tprefix.'chemicalfunctions WHERE name="'.$db->escape_string($name).'"'), 'cfid');
+            $id = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'chemicalfunctions WHERE name="'.$db->escape_string($name).'"'), 'cfid');
             if(!empty($id)) {
                 return new Chemicalfunctions($id);
             }
@@ -85,7 +93,7 @@ class Chemicalfunctions {
         return false;
     }
 
-    public static function get_functions() {
+    public static function get_functions($filters = '') {
         global $db, $core;
 
         $sort_query = ' ORDER BY  title  ASC';
@@ -138,6 +146,28 @@ class Chemicalfunctions {
 
     public function get() {
         return $this->chemfunction;
+    }
+
+    public function save(array $data = array()) {
+        if(value_exists(self::TABLE_NAME, self::PRIMARY_KEY, $this->segmentapplication[self::PRIMARY_KEY])) {
+            //Update
+        }
+        else {
+            if(empty($data)) {
+                $data = $this->chemfunction;
+            }
+            $this->create($data);
+        }
+    }
+
+    public function set(array $data) {
+        foreach($data as $name => $value) {
+            $this->chemfunction[$name] = $value;
+        }
+    }
+
+    public function __set($name, $value) {
+        $this->chemfunction[$name] = $value;
     }
 
     public function get_errorcode() {
