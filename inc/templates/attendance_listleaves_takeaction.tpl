@@ -53,7 +53,7 @@
                                     <span><input type="radio" disabled="disabled" id="permission_private" name="leavemessage[viewPermission]" title="{$lang->privatetitle}" value="private">{$lang->private}</span>
                                     <span><input type="radio" disabled="disabled" id="permission_limited" name="leavemessage[viewPermission]" title="{$lang->limitedtitle}" value="limited">{$lang->limited}</span>
                                 </div>
-                                <div><input type='submit' id="perform_attendance/listleaves_Button" value="{$lang->savecaps}" class='button' /></div>
+                                <div><input type='submit' id="perform_attendance/listleaves_Button" value="&#x21b6; {$lang->reply}" class='button' /></div>
                                 <div id="perform_attendance/listleaves_Results"></div>
                                 <div style="display:block;">{$takeactionpage_conversation}</div>
                             </div>

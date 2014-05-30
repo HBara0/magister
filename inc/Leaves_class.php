@@ -359,7 +359,7 @@ class Leaves {
         global $template, $core;
         $takeactionpage_conversation = null;
 
-        $initialmsgs = LeavesMessages::get_messages('lid='.$this->leave['lid'].' AND inReplyTo=0', array('simple' => false));
+        $initialmsgs = LeavesMessages::get_messages('lid='.$this->leave['lid'].' AND inReplyTo=0', array('simple' => false, 'returnarray' => true));
         if(!is_array($initialmsgs)) {
             return false;
         }
