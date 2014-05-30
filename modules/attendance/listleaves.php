@@ -163,7 +163,12 @@ if(!$core->input['action']) {
             }
             $edit_link = $revoke_link = '';
             $user_obj = new Users($leave['uid']);
-            $reports_to = $user_obj->get_reportsto()->get()['uid'];
+            if(is_object($user_obj)) {
+                $user_reportsto_obj = $user_obj->get_reportsto();
+            }
+            if(is_object($user_reportsto_obj)) { /* Incase the user doese not Reprot TO any other user */
+                $reports_to = $user_reportsto_obj->get()['uid'];
+            }
             if($core->usergroup['attenance_canApproveAllLeaves'] == 1 || (($core->usergroup['hr_canHrAllAffiliates'] == 1 || $reports_to == $core->user['uid'] || $leave['uid'] == $core->user['uid']) && TIME_NOW < ($leave['toDate'] + (60 * 60 * 24 * $core->settings['attendance_caneditleaveafter'])) || (TIME_NOW > $leave['toDate'] && $status['approved'] != array_sum($status)))) {
                 $edit_link = "<a href='index.php?module=attendance/editleave&amp;lid={$leave[lid]}'><img src='{$core->settings[rootdir]}/images/icons/edit.gif' border='0' alt='{$lang->modifyleave}' /></a>";
                 $revoke_link = "<a href='#{$leave[lid]}' id='revokeleave_{$leave[lid]}_attendance/listleaves_icon'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->revokeleave}' /></a>";
@@ -341,9 +346,7 @@ else {
             $leave_obj = new Leaves($core->input['id'], false);
             $leave = $leave_obj->get();
             $leave['requester'] = $leave_obj->get_requester()->get();
-
             $leave['type_details'] = $leave_obj->get_type(false)->get();
-
 
             $leave['fromDate_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']);
             $leave['toDate_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']);
@@ -357,35 +360,8 @@ else {
                 $leave['details_crumb'] = ' - '.implode(' ', $leave['details_crumb']);
             }
 
-            /* Parse expense information for message - START */
-//            if($leave_obj->has_expenses()) {
-//                $expenses_data = $leave_obj->get_expensesdetails();
-//                $total = 0;
-//                $expenses_message = '';
-//                foreach($expenses_data as $expense) {
-//                    if(!empty($lang->{$expense['name']})) {
-//                        $expense['title'] = $lang->{$expense['name']};
-//                    }
-//                    $total += $expense['expectedAmt'];
-//                    $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
-//                }
-//                $expenses_message_output = '<br /><p>'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD</p>';
-//            }
-            $leave['reason'] .= $leave_obj->parse_expenses(); //$expenses_message_output;
-            /* Parse expense information for message - END */
-
-            /* Previous approvals - START */
-//            $approvers = $leave_obj->get_approvers();
-//            if(is_array($approvers)) {
-//                foreach($approvers as $approver) {
-//                    $leave['approvers'][] = $approver->get()['displayName'];
-//                }
-//                $leave['approvers'] = implode(', ', $leave['approvers']);
-//                unset($approvers);
-//                $leave['reason'] .= '<span style="font-weight:bold;">'.$lang->approvedby.': '.$leave['approvers'].'</span>';
-//            }
+            $leave['reason'] .= $leave_obj->parse_expenses();
             $leave['reason'] .= $leave_obj->parse_approvalsapprovers(array('parselabel' => true));
-            /* Previous approvals - END */
 
             /* Conversation message --START */
             $leaemessag_obj = new LeavesMessages();
@@ -403,11 +379,11 @@ else {
             case 0:
                 $leavemessage_obj->send_message();
                 switch($leavemessage_obj->get_errorcode()) {
-                    case 5:
+                    case 0:
                         output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
                         break;
-                    default:
-                        output_xml("<status>false</status><message>{$lang->successfullysaved} - {$lang->errorsendingemail}</message>");
+                    case 5:
+                        output_xml("<status>false</status><message>{$lang->successfullysaved} - {$lang->errorsendingemail}".$leavemessage_obj->get_errorcode()."</message>");
                         break;
                 }
                 break;

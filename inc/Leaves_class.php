@@ -23,6 +23,7 @@ class Leaves {
             }
         }
     }
+
     public function get_segment() {
         if(!empty($this->leave['psid'])) {
             return new ProductsSegments($this->leave['psid']);
@@ -326,7 +327,7 @@ class Leaves {
 
     public function get_conversation() {
         /* apply view permission */
-        $messages = LeavesMessages::get_messages('lid='.$this->leave['lid'], false);
+        $messages = LeavesMessages::get_messages('lid='.$this->leave['lid'], array('simple' => false));
         if(is_array($messages)) {
             return $messages;
         }
@@ -350,10 +351,15 @@ class Leaves {
         }
     }
 
+    public function get_latestmsg() {
+        return LeavesMessages::get_messages('lid='.$this->leave['lid'], array('simple' => false, 'limit' => '0, 1', 'order' => array('by' => 'createdOn', 'sort' => 'DESC')));
+    }
+
     public function parse_messages(array $options = array()) {
         global $template, $core;
         $takeactionpage_conversation = null;
-        $initialmsgs = LeavesMessages::get_messages('lid='.$this->leave['lid'].' AND inReplyTo=0', false);
+
+        $initialmsgs = LeavesMessages::get_messages('lid='.$this->leave['lid'].' AND inReplyTo=0', array('simple' => false));
         if(!is_array($initialmsgs)) {
             return false;
         }
@@ -371,13 +377,14 @@ class Leaves {
             if(!$initialmsg->can_seemessage($options['uid'])) {
                 continue;
             }
+
             $message = $initialmsg->get();
             $message['user'] = $initialmsg->get_user($message['uid'])->get();  /* Get the user of  who set the message conversation */
             $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
 
             if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
-                $takeactionpage_conversation .= '<span style="font-weight: bold;"> '.$message['user']['displayName'].':</span>';
-                $takeactionpage_conversation .= '<div>'.$message['message'].' <span style="font-style: italic;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span></div><br />';
+                $takeactionpage_conversation .= '<span style="font-weight: bold;"> '.$message['user']['displayName'].'</span> <span style="font-size: 9px;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span>:';
+                $takeactionpage_conversation .= '<div>'.$message['message'].'</div><br />';
             }
             else {
                 eval("\$takeactionpage_conversation .= \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
@@ -406,8 +413,8 @@ class Leaves {
                 $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
 
                 if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
-                    $takeactionpage_conversation .= '<span style="font-weight:bold;">'.$message['user']['displayName'].':</span>';
-                    $takeactionpage_conversation .= '<div>'.$message['message'].' <span style="font-style: italic;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span></div><br />';
+                    $takeactionpage_conversation .= '<span style="font-weight: bold;"> '.$message['user']['displayName'].'</span> <span style="font-size: 9px;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span>:';
+                    $takeactionpage_conversation .= '<div>'.$message['message'].'</div><br />';
                 }
                 else {
                     eval("\$takeactionpage_conversation .= \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
@@ -433,7 +440,15 @@ class Leaves {
                     $expense['title'] = $lang->{$expense['name']};
                 }
                 $total += $expense['expectedAmt'];
-                $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
+
+                $exptype_obj = LeaveExpenseTypes::get_exptype_byattr('title', $expense['title'], false);
+                if(is_object($exptype_obj)) {
+                    if(method_exists($exptype_obj, 'parse_agencylink')) {
+                        $agency_link = $exptype_obj->parse_agencylink($this);
+                    }
+                }
+                $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].' '.$agency_link.'<br>';
+                unset($agency_link);
             }
             return '<br /><p>'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD</p>';
         }
@@ -475,7 +490,6 @@ class Leaves {
         return new LeaveTypesPurposes($this->leave['ltpid']);
     }
 
-
     public function get_type($simple = true) {
         return $this->get_leavetype($simple);
     }
@@ -496,6 +510,7 @@ class Leaves {
 
         return '<a href="#'.$this->leave['lid'].'">'.date($core->settings['dateformat'], $this->leave['fromDate']).' - '.date($core->settings['dateformat'], $this->leave['toDate']).'</a>';
     }
+
     public function __get($attr) {
         if(isset($this->leave[$attr])) {
             return $this->leave[$attr];
