@@ -84,5 +84,5 @@ Regards';
 $lang['revokeleavenotificationsubject'] = '{1} revoked their {2}{3}';
 $lang['revokeleavenotificationsubjectuser'] = 'Your {1}{2} was revoked';
 $lang['leavedetail'] = 'Leave Details <br/>{1} took {2} between <strong>{3}</strong> and <strong>{4}</strong><br />';
-$lang['leavemessagesubject'] = 'New message to leave request';
+$lang['newleavemsgsubject'] = 'New message to leave request';
 ?>

@@ -31,7 +31,7 @@ class Leaves {
         return false;
     }
 
-    private function read($id, $simple = false) {
+    private function read($id, $simple = true) {
         global $db;
 
         if(empty($id)) {
@@ -359,7 +359,7 @@ class Leaves {
         global $template, $core;
         $takeactionpage_conversation = null;
 
-        $initialmsgs = LeavesMessages::get_messages('lid='.$this->leave['lid'].' AND inReplyTo=0', array('simple' => false));
+        $initialmsgs = LeavesMessages::get_messages('lid='.$this->leave['lid'].' AND inReplyTo=0', array('simple' => false, 'returnarray' => true));
         if(!is_array($initialmsgs)) {
             return false;
         }
@@ -475,8 +475,8 @@ class Leaves {
         return false;
     }
 
-    public function get_requester() {
-        return new Users($this->leave['uid']);
+    public function get_requester($simple = true) {
+        return new Users($this->leave['uid'], $simple);
     }
 
     public function is_leaverequester() {

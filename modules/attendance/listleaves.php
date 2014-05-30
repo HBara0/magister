@@ -365,7 +365,7 @@ else {
 
             /* Conversation message --START */
             $leaemessag_obj = new LeavesMessages();
-            $takeactionpage_conversation = $leave_obj->parse_messages(array('uid' => $core->user[uid]));
+            $takeactionpage_conversation = $leave_obj->parse_messages(array('uid' => $core->user['uid']));
             /* Conversation  message --END */
             eval("\$takeactionpage = \"".$template->get('attendance_listleaves_takeaction')."\";");
             output_page($takeactionpage);
@@ -391,10 +391,10 @@ else {
                 output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
                 break;
             case 2:
-                output_xml("<status>false</status><message>{$lang->messagerequired}</message>");
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
                 break;
             case 3:
-                output_xml("<status>false</status><message>{$lang->messageexist}</message>");
+                output_xml("<status>false</status><message>{$lang->entryexists}</message>");
                 break;
         }
         /* Need to have feedback message */

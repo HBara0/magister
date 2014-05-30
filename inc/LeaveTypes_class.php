@@ -221,8 +221,8 @@ class Leavetypes {
     }
 
     public function __get($attr) {
-        if(isset($this->leave[$attr])) {
-            return $this->leave[$attr];
+        if(isset($this->leavetype[$attr])) {
+            return $this->leavetype[$attr];
         }
         return false;
     }

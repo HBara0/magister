@@ -131,7 +131,6 @@ class LeavesMessages {
     public function create_message(array $data, $lid, array $config = array()) {
         global $db, $core;
 
-
         $valid_fields = array('uid', 'lid', 'msgId', 'inReplyTo', 'inReplyToMsgId', 'message', 'viewPermission', 'createdOn');
         if(!empty($data)) {
             $this->leavemessage = $data;
@@ -210,18 +209,18 @@ class LeavesMessages {
         $leave_details['fromDate'] = date($core->settings['dateformat'], $leave->get()['fromDate']);
         $leave_details['toDate'] = date($core->settings['dateformat'], $leave->get()['toDate']);
 
-        $leave_details['requester'] = $this->get_user()->get()['displayName'];
+        $leave_details['requester'] = $leave->get_requester()->get()['displayName'];
         $reply_links = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave->get()['messagerequestkey']).'&inreplyTo='.$this->leavemessage['inReplyTo'].'&id='.base64_encode($leave->get()['lid']);
 
         $leave->reason .= $leave->parse_expenses();
         $approvals = $leave->parse_approvalsapprovers();
 
-        $mailer->set_subject($lang->leavemessagesubject.' ['.$leave->requestKey.']');
-        $leave_details = $lang->sprint($lang->requestleavemessagesupervisor, $leave_details['requester'], strtolower($leavetype->title).$leave->details_crumb, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave->get()['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave->get()['toDate']), $leave->reason, $approvals, $reply_links);
+        $mailer->set_subject($lang->newleavemsgsubject.' ['.$leave->requestKey.']');
+        $leave_details = $lang->sprint($lang->requestleavemessagesupervisor, $leave_details['requester'], strtolower($leavetype->title).$leave->details_crumb, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave->toDate), $leave->reason, $approvals, $reply_links);
 
         $emailreceivers = $this->get_emailreceivers();
         foreach($emailreceivers as $uid => $emailreceiver) {
-            $message = '<p>'.$this->leavemessage['message'].'</p>';
+            $message = '<p>'.$this->leavemessage['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a></p>';
             $message .= '<h3>'.$lang->conversation.'</h3>'.$leave->parse_messages(array('viewmode' => 'textonly', 'uid' => $uid));
             $message .= '<div><br />'.$leave_details.'</div>';
             if(!empty($message)) {
@@ -248,10 +247,14 @@ class LeavesMessages {
                     foreach($sender_approvals_objs as $sender_approvals_obj) {
                         $users_receiver[$sender_approvals_obj->get_user()->get()['uid']] = $sender_approvals_obj->get_user()->get()['email'];
                     }
-                    $requester = $this->get_leave()->get_requester();
-                    $users_receiver[$requester->get()['uid']] = $requester->get()['email'];
                 }
-
+                else {
+                    if(is_object($sender_approvals_objs)) {
+                        $users_receiver[$sender_approvals_objs->get_user()->get()['uid']] = $sender_approvals_objs->get_user()->get()['email'];
+                    }
+                }
+                $requester = $this->get_leave()->get_requester();
+                $users_receiver[$requester->get()['uid']] = $requester->get()['email'];
                 break;
             case 'private':
                 $inreply_obj = $this->get_inreplyto();   /* Get the user whos in  the relplyTo this message */
@@ -310,8 +313,7 @@ class LeavesMessages {
     }
 
     public function get_leave($simple = true) {
-        $this->leave = new Leaves($this->leavemessage['lid'], $simple);
-        return $this->leave;
+        return new Leaves($this->leavemessage['lid'], $simple);
     }
 
     public function get_user() {
