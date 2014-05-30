@@ -38,14 +38,18 @@ class DataAccessLayer {
         $query = $db->query($sql);
         if($db->num_rows($query) > 1) {
             while($item = $db->fetch_assoc($query)) {
-                $items[$item[$this->primary_key]] = new $this->class($item[$this->primary_key]);
+                $items[$item[$this->primary_key]] = new $this->class($item[$this->primary_key], $configs['simple']);
             }
             $db->free_result($query);
             return $items;
         }
         else {
-            if($db->num_rows($query) == 1) {
-                return new $this->class($db->fetch_field($query, $this->primary_key));
+            if($db->num_rows($query) == 1 && $configs['returnarray'] == true) {
+                $pk = $db->fetch_field($query, $this->primary_key);
+                return array($pk => new $this->class($pk, $configs['simple']));
+            }
+            else {
+                return new $this->class($db->fetch_field($query, $this->primary_key), $configs['simple']);
             }
             return false;
         }
@@ -80,16 +84,17 @@ class DataAccessLayer {
 
     private function construct_orderclause($order) {
         global $db;
+
         /* Improve to have multiple orders */
         if(is_array($order)) {
             if(!isset($order['sort']) || empty($order['sort'])) {
                 $order['sort'] = 'ASC';
             }
-            $query_order = 'ORDER BY '.$db->escape_string($order['by']).' '.$db->escape_string($order['sort']);
+            return ' ORDER BY '.$db->escape_string($order['by']).' '.$db->escape_string($order['sort']);
         }
         else {
             if(!empty($order)) {
-                $query_order = 'ORDER BY '.$db->escape_string($order).' ASC';
+                return ' ORDER BY '.$db->escape_string($order).' ASC';
             }
         }
         return false;
