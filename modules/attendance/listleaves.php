@@ -332,19 +332,17 @@ else {
 
         $request['requestkey'] = base64_decode($request_key);
 
-        include "./pipes/approve_leaverequest.php";
+        include './pipes/approve_leaverequest.php';
     }
     elseif($core->input['action'] == 'takeactionpage') {
+
         if(isset($core->input['id'], $core->input['requestKey'])) {
             $core->input['id'] = base64_decode($core->input['id']);
-            $leaveobj = new Leaves($core->input['id'], false);
-            $leave = $leaveobj->get();
-            $leave['purpose'] = $leaveobj->get_purpose()->get()['purpose'];
+            $leave_obj = new Leaves($core->input['id'], false);
+            $leave = $leave_obj->get();
+            $leave['requester'] = $leave_obj->get_requester()->get();
 
-            $leave['segment'] = $leaveobj->get_segment()->get()['title'];
-            $leave['requester'] = $leaveobj->get_requester()->get();
-            $leavetype = new Leavetypes($leave['type'], false);
-            $leave['type_details'] = $leavetype->get();
+            $leave['type_details'] = $leave_obj->get_type(false)->get();
 
 
             $leave['fromDate_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']);
@@ -360,46 +358,78 @@ else {
             }
 
             /* Parse expense information for message - START */
-            $leavee_obj = new Leaves($leave['lid']);
-            if($leavee_obj->has_expenses()) {
-                $expenses_data = $leavee_obj->get_expensesdetails();
-                $total = 0;
-                $expenses_message = '';
-                foreach($expenses_data as $expense) {
-                    if(!empty($lang->{$expense['name']})) {
-                        $expense['title'] = $lang->{$expense['name']};
-                    }
-                    $total += $expense['expectedAmt'];
-                    $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
-                }
-                $expenses_message_output = '<br /><p>'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD</p>';
-            }
-            $leave['reason'] .= $expenses_message_output;
+//            if($leave_obj->has_expenses()) {
+//                $expenses_data = $leave_obj->get_expensesdetails();
+//                $total = 0;
+//                $expenses_message = '';
+//                foreach($expenses_data as $expense) {
+//                    if(!empty($lang->{$expense['name']})) {
+//                        $expense['title'] = $lang->{$expense['name']};
+//                    }
+//                    $total += $expense['expectedAmt'];
+//                    $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
+//                }
+//                $expenses_message_output = '<br /><p>'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD</p>';
+//            }
+            $leave['reason'] .= $leave_obj->parse_expenses(); //$expenses_message_output;
             /* Parse expense information for message - END */
 
             /* Previous approvals - START */
-            $approvers = $leavee_obj->get_approvers();
-            if(is_array($approvers)) {
-                foreach($approvers as $approver) {
-                    $leave['approvers'][] = $approver->get()['displayName'];
-                }
-                $leave['approvers'] = implode(', ', $leave['approvers']);
-                unset($approvers);
-                $leave['reason'] .= '<span style="font-weight:bold;">'.$lang->approvedby.': '.$leave['approvers'].'</span>';
-            }
-
+//            $approvers = $leave_obj->get_approvers();
+//            if(is_array($approvers)) {
+//                foreach($approvers as $approver) {
+//                    $leave['approvers'][] = $approver->get()['displayName'];
+//                }
+//                $leave['approvers'] = implode(', ', $leave['approvers']);
+//                unset($approvers);
+//                $leave['reason'] .= '<span style="font-weight:bold;">'.$lang->approvedby.': '.$leave['approvers'].'</span>';
+//            }
+            $leave['reason'] .= $leave_obj->parse_approvalsapprovers(array('parselabel' => true));
             /* Previous approvals - END */
+
+            /* Conversation message --START */
+            $leaemessag_obj = new LeavesMessages();
+            $takeactionpage_conversation = $leave_obj->parse_messages(array('uid' => $core->user[uid]));
+            /* Conversation  message --END */
             eval("\$takeactionpage = \"".$template->get('attendance_listleaves_takeaction')."\";");
             output_page($takeactionpage);
         }
     }
+    elseif($core->input['action'] == 'perform_sendmessage') {
+        $leavemessage_obj = new LeavesMessages();
+        $leavemessage_obj->create_message($core->input['leavemessage'], $core->input['lid'], array('source' => 'emaillink'));
+        /* Errors Should be handled Here */
+        switch($leavemessage_obj->get_errorcode()) {
+            case 0:
+                $leavemessage_obj->send_message();
+                switch($leavemessage_obj->get_errorcode()) {
+                    case 5:
+                        output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                        break;
+                    default:
+                        output_xml("<status>false</status><message>{$lang->successfullysaved} - {$lang->errorsendingemail}</message>");
+                        break;
+                }
+                break;
+            case 1:
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                break;
+            case 2:
+                output_xml("<status>false</status><message>{$lang->messagerequired}</message>");
+                break;
+            case 3:
+                output_xml("<status>false</status><message>{$lang->messageexist}</message>");
+                break;
+        }
+        /* Need to have feedback message */
+    }
     elseif($core->input['action'] == 'get_revokeleave') {
-        eval("\$revokeleavebox = \"".$template->get("popup_revokeleave")."\";");
-        echo $revokeleavebox;
+        eval("\$revokeleavebox = \"".$template->get('popup_revokeleave')."\";");
+        output($revokeleavebox);
     }
     elseif($core->input['action'] == 'get_approveleave') {
-        eval("\$approveleavebox = \"".$template->get("popup_approveleave")."\";");
-        echo $approveleavebox;
+        eval("\$approveleavebox = \"".$template->get('popup_approveleave')."\";");
+        output($approveleavebox);
     }
 }
 ?>

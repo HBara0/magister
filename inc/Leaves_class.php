@@ -23,12 +23,26 @@ class Leaves {
             }
         }
     }
-
     public function get_segment() {
         if(!empty($this->leave['psid'])) {
             return new ProductsSegments($this->leave['psid']);
         }
         return false;
+    }
+
+    private function read($id, $simple = false) {
+        global $db;
+
+        if(empty($id)) {
+            return false;
+        }
+        $query_select = '*';
+
+        if($simple == true) {
+            $query_select = 'lid, uid, type, requestKey, fromDate, toDate';
+        }
+
+        return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."leaves WHERE lid=".$db->escape_string($id)));
     }
 
     public function has_expenses($id = '') {
@@ -178,23 +192,27 @@ class Leaves {
         }
     }
 
-    private function read($id, $simple = true) {
-        global $db;
+    public function get_approval_byappover($approver) {
+        return AttLeavesApproval::get_approvals('lid='.$this->leave['lid'].' AND uid='.intval($approver));
+    }
 
-        if(empty($id)) {
-            return false;
-        }
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'lid, uid, type, fromDate, toDate';
-        }
-
-        return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."leaves WHERE lid=".$db->escape_string($id)));
+    public function get_toapprove() {
+        return $this->get_approvers();
     }
 
     public function get_approvers() {
+        return AttLeavesApproval::get_approvals_byattr('lid', $this->leave['lid']);
+    }
+
+    public function get_approvals($isapproved = 1) {
         global $db;
-        $query = $db->query('SELECT * FROM '.Tprefix.'leavesapproval WHERE isApproved=1 AND lid='.$this->leave['lid']);
+        if($isapproved == 1) {
+            $where_isapproved = ' WHERE isApproved=1';
+        }
+        else {
+            $where_isapproved = ' WHERE isApproved=0';
+        }
+        $query = $db->query('SELECT * FROM '.Tprefix.'leavesapproval '.$where_isapproved.' AND lid='.$this->leave['lid']);
         if($db->num_rows($query) > 0) {
             while($approver = $db->fetch_assoc($query)) {
                 $approvers[$approver['uid']] = new Users($approver['uid']);
@@ -306,13 +324,157 @@ class Leaves {
         }
     }
 
+    public function get_conversation() {
+        /* apply view permission */
+        $messages = LeavesMessages::get_messages('lid='.$this->leave['lid'], false);
+        if(is_array($messages)) {
+            return $messages;
+        }
+        return false;
+    }
+
+    public function get_initalmessage() {
+        global $db;
+        $initalmessage['lmid'] = $db->fetch_field($db->query("SELECT lmid, uid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."' AND inReplyTo=0 ORDER BY lmid ASC LIMIT 0, 1"), 'lmid');
+        if(isset($initalmessage['lmid']) && !empty($initalmessage['lmid'])) {
+            return new LeavesMessages($initalmessage['lmid'], false);
+        }
+    }
+
+    public function get_initalvisiblemessage() {
+        global $db;
+
+        $initalmessage['lmid'] = $db->fetch_field($db->query("SELECT lmid, uid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."' AND viewPermission='public' AND inReplyTo=0 ORDER BY createdOn DESC"), 'lmid');
+        if(isset($initalmessage['lmid']) && !empty($initalmessage['lmid'])) {
+            return new LeavesMessages($initalmessage['lmid'], false);
+        }
+    }
+
+    public function parse_messages(array $options = array()) {
+        global $template, $core;
+        $takeactionpage_conversation = null;
+        $initialmsgs = LeavesMessages::get_messages('lid='.$this->leave['lid'].' AND inReplyTo=0', false);
+        if(!is_array($initialmsgs)) {
+            return false;
+        }
+
+        if(empty($options['uid'])) {
+            $options['uid'] = $core->user['uid'];
+        }
+
+        foreach($initialmsgs as $initialmsg) {
+            if(!is_object($initialmsg)) {
+                continue;
+            }
+
+            /*  Check if user is allowed to see the message */
+            if(!$initialmsg->can_seemessage($options['uid'])) {
+                continue;
+            }
+            $message = $initialmsg->get();
+            $message['user'] = $initialmsg->get_user($message['uid'])->get();  /* Get the user of  who set the message conversation */
+            $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
+
+            if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
+                $takeactionpage_conversation .= '<span style="font-weight: bold;"> '.$message['user']['displayName'].':</span>';
+                $takeactionpage_conversation .= '<div>'.$message['message'].' <span style="font-style: italic;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span></div><br />';
+            }
+            else {
+                eval("\$takeactionpage_conversation .= \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
+            }
+
+            $replies_objs = $initialmsg->get_replies();
+            if(is_array($replies_objs)) {
+                $takeactionpage_conversation .= $this->parse_replies($replies_objs, 1, $options);
+            }
+        }
+        return $takeactionpage_conversation;
+    }
+
+    private function parse_replies($replies, $depth = 1, array $options = array()) {
+        global $template, $core;
+
+        if(is_array($replies)) {
+            foreach($replies as $reply) {
+                if(!$reply->can_seemessage($options['uid'])) {
+                    continue;
+                }
+                $bgcolor = alt_row($bgcolor);
+                $inline_style = 'margin-left:'.($depth * 8).'px;';
+                $message = $reply->get();
+                $message['user'] = $reply->get_user($message['uid'])->get();
+                $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
+
+                if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
+                    $takeactionpage_conversation .= '<span style="font-weight:bold;">'.$message['user']['displayName'].':</span>';
+                    $takeactionpage_conversation .= '<div>'.$message['message'].' <span style="font-style: italic;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span></div><br />';
+                }
+                else {
+                    eval("\$takeactionpage_conversation .= \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
+                }
+                $reply_replies = $reply->get_replies();
+                if(is_array($reply_replies)) {
+                    $takeactionpage_conversation .= $this->parse_replies($reply_replies, $depth + 1, $options);
+                }
+            }
+            return $takeactionpage_conversation;
+        }
+    }
+
+    public function parse_expenses() {
+        global $lang;
+
+        if($this->has_expenses()) {
+            $expenses_data = $this->get_expensesdetails();
+            $total = 0;
+            $expenses_message = '';
+            foreach($expenses_data as $expense) {
+                if(!empty($lang->{$expense['name']})) {
+                    $expense['title'] = $lang->{$expense['name']};
+                }
+                $total += $expense['expectedAmt'];
+                $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
+            }
+            return '<br /><p>'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD</p>';
+        }
+        return false;
+    }
+
+    public function parse_approvalsapprovers($configs = array()) {
+        global $lang;
+
+        $approvers = $this->get_approvals();
+        if(is_array($approvers)) {
+            foreach($approvers as $approver) {
+                $leave['approvers'][] = $approver->get()['displayName'];
+            }
+            $leave['approvers'] = implode(', ', $leave['approvers']);
+            unset($approvers);
+            if($configs['parselabel'] == true) {
+                return '<span style="font-weight:bold;">'.$lang->approvedby.': '.$leave['approvers'].'</span>';
+            }
+            else {
+                return $leave['approvers'];
+            }
+        }
+        return false;
+    }
+
     public function get_requester() {
         return new Users($this->leave['uid']);
+    }
+
+    public function is_leaverequester() {
+        if(value_exists('leaves', 'uid', $this->leave['uid'], 'lid='.intval($this->leave['lid']))) {
+            return true;
+        }
+        return false;
     }
 
     public function get_purpose() {
         return new LeaveTypesPurposes($this->leave['ltpid']);
     }
+
 
     public function get_type($simple = true) {
         return $this->get_leavetype($simple);
@@ -333,6 +495,12 @@ class Leaves {
          */
 
         return '<a href="#'.$this->leave['lid'].'">'.date($core->settings['dateformat'], $this->leave['fromDate']).' - '.date($core->settings['dateformat'], $this->leave['toDate']).'</a>';
+    }
+    public function __get($attr) {
+        if(isset($this->leave[$attr])) {
+            return $this->leave[$attr];
+        }
+        return false;
     }
 
     /*
