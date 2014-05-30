@@ -16,6 +16,9 @@
 class LeaveExpenseTypes {
     private $expencetype = array();
 
+    const PRIMARY_KEY = 'aletid';
+    const TABLE_NAME = 'attendance_leaveexptypes';
+
     public function __construct($id = '', $simple = true) {
         if(isset($id) && !empty($id)) {
             $this->expencetype = $this->read($id, $simple);
@@ -44,6 +47,29 @@ class LeaveExpenseTypes {
             }
 
             return $expensetypes;
+        }
+        return false;
+    }
+
+    public static function get_exptype_byattr($attr, $value, $simple = true) {
+        global $db;
+
+        if(!empty($value) && !empty($attr)) {
+            $query = $db->query('SELECT '.self::PRIMARY_KEY.' FROM '.Tprefix.self::TABLE_NAME.' WHERE '.$db->escape_string($attr).'="'.$db->escape_string($value).'"');
+            if($db->num_rows($query) > 1) {
+                $items = array();
+                while($item = $db->fetch_assoc($query)) {
+                    $items[$item[self::PRIMARY_KEY]] = new self($item[self::PRIMARY_KEY], $simple);
+                }
+                $db->free_result($query);
+                return $items;
+            }
+            else {
+                if($db->num_rows($query) == 1) {
+                    return new self($db->fetch_field($query, self::PRIMARY_KEY), $simple);
+                }
+                return false;
+            }
         }
         return false;
     }
