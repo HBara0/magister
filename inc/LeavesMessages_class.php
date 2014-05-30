@@ -171,7 +171,7 @@ class LeavesMessages {
         $this->leavemessage['lid'] = $lid;
         $this->leavemessage['uid'] = $core->user['uid'];
         $this->leavemessage['createdOn'] = TIME_NOW;
-
+        $this->leavemessage['viewPermission'] = 'public'; //Temporary overwrite as per management request
         foreach($this->leavemessage as $attr => $val) {
             if(!in_array($attr, $valid_fields)) {
                 unset($this->leavemessage[$attr]);
@@ -194,13 +194,14 @@ class LeavesMessages {
     public function send_message() {
         global $lang, $core;
 
+        $lang->load('attendance_messages');
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
 
-        $leave = $this->get_leave();
+        $leave = $this->get_leave(false);
         /* SET TO LAND VAR */
-        $mailer->set_subject($lang->leavemessagesubject.' ['.$leave->get('requestKey').']');
+        $mailer->set_subject($lang->leavemessagesubject.' ['.$leave->requestKey.']');
 
         /* ATTENTION
          * SHOW LEAVE DETAILS TWO SPACES AFTER THE REPLY MESSAGE
@@ -212,38 +213,38 @@ class LeavesMessages {
         $leave_details['toDate'] = date($core->settings['dateformat'], $leave->get()['toDate']);
 
         $leave_details['requester'] = $this->get_user()->get()['displayName'];
-        $mailmessage.=' <div><br/><strong>'.$lang->leavedetail.'</strong></div>';
+        //$mailmessage.=' <div><br/><strong>'.$lang->leavedetail.'</strong></div>';
         //$lang->leavedetail = $lang->sprint($leave_details['requester'], $leave_details['leavetype'], $leave_details['fromtime'], $leave_details['totime']);
-        $reply_links = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.($core->input['messagerequestkey']).'&inreplyTo='.$this->leavemessage['inReplyTo'].'&id='.base64_encode($leave->get()['lid']);
+        $reply_links = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave->get()['messagerequestkey']).'&inreplyTo='.$this->leavemessage['inReplyTo'].'&id='.base64_encode($leave->get()['lid']);
 
+        $leave->reason .= $leave->parse_expenses();
+        $approvals = $leave->parse_approvalsapprovers();
+        $leave_details = $lang->sprint($lang->requestleavemessagesupervisor, $leave_details['requester'], strtolower($leave->get_leavetype()->get()['title']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave->get()['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave->get()['toDate']), $leave->reason, $approvals, $reply_links);
 
-        $lang->requestleavemessage = $lang->sprint($lang->requestleavemessagesupervisor, $leave_details['requester'], strtolower($leave->get_leavetype()->get()['title']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave->get()['fromDate']), date($todate_format, $leave->get()['toDate']), $core->input['reason'], $core->user['firstName'].' '.$core->user['lastName'], $approve_link);
-
-
-
-        $lang->leavemessagereplylink = $lang->sprint($lang->leavemessagereply, $reply_links);
-        $mailmessage.= '<div><strong>'.$leave_details['requester'].':</strong> '.$this->leavemessage['message'].'<br/>'.$leave_details['leavetype'].' <br/>'.$lang->from.' '.$leave_details['fromtime'].'<br/>'.$lang->to.'  '.$leave_details['totime'].'</br> '.$lang->leavemessagereplylink.' On <span style="font-size: 9px;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->leavemessage['createdOn']).'</span></div>';
+        //$lang->leavemessagereplylink = $lang->sprint($lang->leavemessagereply, $reply_links);
+        //$mailmessage.= '<div><strong>'.$leave_details['requester'].':</strong> '.$this->leavemessage['message'].'<br/>'.$leave_details['leavetype'].' <br/>'.$lang->from.' '.$leave_details['fromtime'].'<br/>'.$lang->to.'  '.$leave_details['totime'].'</br> '.$lang->leavemessagereplylink.' On <span style="font-size: 9px;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->leavemessage['createdOn']).'</span></div>';
 
         /* SEND EMAIL TO EACH  INDIVIDUAL RECEIVER */
-        $emailreceivers = $this->parse_receiver();
+        $emailreceivers = $this->get_emailreceivers();
         /* Loop over the  users  parse, and send individuall */
 
         foreach($emailreceivers as $uid => $emailreceiver) {
             /* SHOW THE FULL CONVERSATIONo ALONG TO THE DETAILS  * */
-            $mailmessage .= $leave->parse_messages(array('viewmode' => 'textonly', 'uid' => $uid));
-            if(!empty($mailmessage)) {
-                $mailer->set_message($mailmessage);
+            $message = $leave->parse_messages(array('viewmode' => 'textonly', 'uid' => $uid));
+            $message .= '<div><br />'.$leave_details.'</div>';
+            if(!empty($message)) {
+                $mailer->set_message($message);
                 $mailer->set_to($emailreceiver);
                 $mailer->send();
             }
-            $mailmessage = '';
+            $message = '';
         }
         if($mailer->get_status() == true) {
-            $this->mailestatus = 5;
+            $this->errorcode = 5;
         }
     }
 
-    private function parse_receiver() {
+    private function get_emailreceivers() {
         global $core;
         switch($this->leavemessage['viewPermission']) {
             case 'public':
@@ -325,8 +326,8 @@ class LeavesMessages {
         return $items;
     }
 
-    public function get_leave() {
-        $this->leave = new Leaves($this->leavemessage['lid']);
+    public function get_leave($simple = true) {
+        $this->leave = new Leaves($this->leavemessage['lid'], $simple);
         return $this->leave;
     }
 
@@ -336,10 +337,6 @@ class LeavesMessages {
 
     public function get_errorcode() {
         return $this->errorcode;
-    }
-
-    public function get_mailestatus() {
-        return $this->mailestatus;
     }
 
     public function get() {

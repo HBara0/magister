@@ -32,7 +32,7 @@ class Leaves {
         }
         $query_select = '*';
         if($simple == true) {
-            $query_select = 'lid, uid, type, fromDate, toDate';
+            $query_select = 'lid, uid, type, requestKey, fromDate, toDate';
         }
 
         return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."leaves WHERE lid=".$db->escape_string($id)));
@@ -277,7 +277,7 @@ class Leaves {
     public function parse_messages(array $options = array()) {
         global $template, $core;
         $takeactionpage_conversation = null;
-        $initialmsgs = LeavesMessages::get_messages('lid='.$this->leave['lid'].' AND inReplyTo=0');
+        $initialmsgs = LeavesMessages::get_messages('lid='.$this->leave['lid'].' AND inReplyTo=0', false);
         if(!is_array($initialmsgs)) {
             return false;
         }
@@ -300,8 +300,8 @@ class Leaves {
             $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
 
             if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
-                $takeactionpage_conversation .= '<br/><span style="font-weight: bold;"> '.$message['user']['displayName'].':</span>';
-                $takeactionpage_conversation .= '<div style = "display:block;"><p>'.$message['message'].' </p><span>'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span>';
+                $takeactionpage_conversation .= '<span style="font-weight: bold;"> '.$message['user']['displayName'].':</span>';
+                $takeactionpage_conversation .= '<div>'.$message['message'].' <span style="font-style: italic;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span></div><br />';
             }
             else {
                 eval("\$takeactionpage_conversation .= \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
@@ -329,10 +329,9 @@ class Leaves {
                 $message['user'] = $reply->get_user($message['uid'])->get();
                 $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
 
-
                 if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
-                    $takeactionpage_conversation .= '<br/><span style="font-weight:bold;">'.$message['user']['displayName'].':</span>';
-                    $takeactionpage_conversation .= '<div style="display:block;"><p>'.$message['message'].' <span style="font-size:13px;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span></p></div>';
+                    $takeactionpage_conversation .= '<span style="font-weight:bold;">'.$message['user']['displayName'].':</span>';
+                    $takeactionpage_conversation .= '<div>'.$message['message'].' <span style="font-style: italic;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span></div><br />';
                 }
                 else {
                     eval("\$takeactionpage_conversation .= \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
@@ -344,6 +343,45 @@ class Leaves {
             }
             return $takeactionpage_conversation;
         }
+    }
+
+    public function parse_expenses() {
+        global $lang;
+
+        if($this->has_expenses()) {
+            $expenses_data = $this->get_expensesdetails();
+            $total = 0;
+            $expenses_message = '';
+            foreach($expenses_data as $expense) {
+                if(!empty($lang->{$expense['name']})) {
+                    $expense['title'] = $lang->{$expense['name']};
+                }
+                $total += $expense['expectedAmt'];
+                $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
+            }
+            return '<br /><p>'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD</p>';
+        }
+        return false;
+    }
+
+    public function parse_approvalsapprovers($configs = array()) {
+        global $lang;
+
+        $approvers = $this->get_approvals();
+        if(is_array($approvers)) {
+            foreach($approvers as $approver) {
+                $leave['approvers'][] = $approver->get()['displayName'];
+            }
+            $leave['approvers'] = implode(', ', $leave['approvers']);
+            unset($approvers);
+            if($configs['parselabel'] == true) {
+                return '<span style="font-weight:bold;">'.$lang->approvedby.': '.$leave['approvers'].'</span>';
+            }
+            else {
+                return $leave['approvers'];
+            }
+        }
+        return false;
     }
 
     public function get_requester() {

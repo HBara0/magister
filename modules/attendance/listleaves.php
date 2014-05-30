@@ -351,33 +351,33 @@ else {
             }
 
             /* Parse expense information for message - START */
-            if($leave_obj->has_expenses()) {
-                $expenses_data = $leave_obj->get_expensesdetails();
-                $total = 0;
-                $expenses_message = '';
-                foreach($expenses_data as $expense) {
-                    if(!empty($lang->{$expense['name']})) {
-                        $expense['title'] = $lang->{$expense['name']};
-                    }
-                    $total += $expense['expectedAmt'];
-                    $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
-                }
-                $expenses_message_output = '<br /><p>'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD</p>';
-            }
-            $leave['reason'] .= $expenses_message_output;
+//            if($leave_obj->has_expenses()) {
+//                $expenses_data = $leave_obj->get_expensesdetails();
+//                $total = 0;
+//                $expenses_message = '';
+//                foreach($expenses_data as $expense) {
+//                    if(!empty($lang->{$expense['name']})) {
+//                        $expense['title'] = $lang->{$expense['name']};
+//                    }
+//                    $total += $expense['expectedAmt'];
+//                    $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
+//                }
+//                $expenses_message_output = '<br /><p>'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD</p>';
+//            }
+            $leave['reason'] .= $leave_obj->parse_expenses(); //$expenses_message_output;
             /* Parse expense information for message - END */
 
             /* Previous approvals - START */
-            $approvers = $leave_obj->get_approvers();
-            if(is_array($approvers)) {
-                foreach($approvers as $approver) {
-                    $leave['approvers'][] = $approver->get()['displayName'];
-                }
-                $leave['approvers'] = implode(', ', $leave['approvers']);
-                unset($approvers);
-                $leave['reason'] .= '<span style="font-weight:bold;">'.$lang->approvedby.': '.$leave['approvers'].'</span>';
-            }
-
+//            $approvers = $leave_obj->get_approvers();
+//            if(is_array($approvers)) {
+//                foreach($approvers as $approver) {
+//                    $leave['approvers'][] = $approver->get()['displayName'];
+//                }
+//                $leave['approvers'] = implode(', ', $leave['approvers']);
+//                unset($approvers);
+//                $leave['reason'] .= '<span style="font-weight:bold;">'.$lang->approvedby.': '.$leave['approvers'].'</span>';
+//            }
+            $leave['reason'] .= $leave_obj->parse_approvalsapprovers(array('parselabel' => true));
             /* Previous approvals - END */
 
             /* Conversation message --START */
@@ -389,51 +389,40 @@ else {
         }
     }
     elseif($core->input['action'] == 'perform_sendmessage') {
-        echo $headerinc;
         $leavemessage_obj = new LeavesMessages();
         $leavemessage_obj->create_message($core->input['leavemessage'], $core->input['lid'], array('source' => 'emaillink'));
         /* Errors Should be handled Here */
         switch($leavemessage_obj->get_errorcode()) {
             case 0:
-                $output_class = 'green_text';
-                $output_message = $lang->successfullysaved;
                 $leavemessage_obj->send_message();
+                switch($leavemessage_obj->get_errorcode()) {
+                    case 5:
+                        output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                        break;
+                    default:
+                        output_xml("<status>false</status><message>{$lang->successfullysaved} - {$lang->errorsendingemail}</message>");
+                        break;
+                }
                 break;
             case 1:
-                $output_class = 'red_text';
-                $output_message = $lang->fillallrequiredfields;
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
                 break;
             case 2:
-                $output_class = 'red_text';
-                $output_message = $lang->messagerequired;
+                output_xml("<status>false</status><message>{$lang->messagerequired}</message>");
                 break;
             case 3:
-                $output_class = 'red_text';
-                $output_message = $lang->messageexist;
-                break;
-        }
-
-        switch($leavemessage_obj->get_mailestatus()) {
-            case 5:
-                $output_class = 'green_text';
-                $output_message = $lang->messagesent;
+                output_xml("<status>false</status><message>{$lang->messageexist}</message>");
                 break;
         }
         /* Need to have feedback message */
     }
     elseif($core->input['action'] == 'get_revokeleave') {
-        eval("\$revokeleavebox = \"".$template->get("popup_revokeleave")."\";");
-        echo $revokeleavebox;
+        eval("\$revokeleavebox = \"".$template->get('popup_revokeleave')."\";");
+        output($revokeleavebox);
     }
     elseif($core->input['action'] == 'get_approveleave') {
-        eval("\$approveleavebox = \"".$template->get("popup_approveleave")."\";");
-        echo $approveleavebox;
+        eval("\$approveleavebox = \"".$template->get('popup_approveleave')."\";");
+        output($approveleavebox);
     }
 }
 ?>
-
-<script language="javascript" type="text/javascript">
-    $(function() {
-        top.$("#status_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
-    });
-</script>

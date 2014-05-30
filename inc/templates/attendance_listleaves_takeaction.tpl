@@ -44,22 +44,19 @@
                         </form>
                         <hr />
                         <div class='subtitle'>{$lang->coversationthreadnote}</div>
-                        <iframe id='uploadFrame'  name='uploadFrame' style="display:none;" ></iframe>
-
-                        <iframe id="result" style="display:block;" name="result"></iframe>
-                        <form method="post"  action="index.php?module=attendance/listleaves" target="result">
+                        <form name="perform_attendance/listleaves_Form" id="perform_attendance/listleaves_Form" action="#" method="post">
                             <input type="hidden" name="action" value="perform_sendmessage" />
                             <input type="hidden" value="" id="inreplyto" name="leavemessage[inReplyTo]"/>
                             <input type="hidden" id="messagerequestkey" name="messagerequestkey" value="{$core->input[requestKey]}" />
                             <input type="hidden" value="{$core->input[id]}" id="inreplyto" name="lid"/>
                             <div id="messagetoreply" style="display:block; padding: 8px;"><textarea id="message" cols="40" rows="5" name="leavemessage[message]"></textarea>
-                                <div id="messagetoreply" style="display:block; padding:5px;">
+                                <div id="messagetoreply" style="display:none; padding:5px;">
                                     <span><input type="radio" id="permission_public" name="leavemessage[viewPermission]" title="{$lang->publictitle}" value="public" checked="checked">{$lang->public}</span>
-                                    <span><input type="radio" id="permission_private" name="leavemessage[viewPermission]" title="{$lang->privatetitle}" value="private">{$lang->private}</span>
-                                    <span><input type="radio" id="permission_limited" name="leavemessage[viewPermission]" title="{$lang->limitedtitle}" value="limited">{$lang->limited}</span>
+                                    <span><input type="radio" disabled="disabled" id="permission_private" name="leavemessage[viewPermission]" title="{$lang->privatetitle}" value="private">{$lang->private}</span>
+                                    <span><input type="radio" disabled="disabled" id="permission_limited" name="leavemessage[viewPermission]" title="{$lang->limitedtitle}" value="limited">{$lang->limited}</span>
                                 </div>
-                                <div><input type='submit' value="{$lang->send}" class='button' onclick="$('#status_Result').show()"/></div>
-                                <div id="status_Result" style="display:none;"><img src="{$core->settings[rootdir]}/images/loading.gif" /> </div>
+                                <div><input type='submit' id="perform_attendance/listleaves_Button" value="{$lang->send}" class='button' /></div>
+                                <div id="perform_attendance/listleaves_Results"></div>
                                 <div style="display:block;">{$takeactionpage_conversation}</div>
                             </div>
                         </form>
