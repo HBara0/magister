@@ -391,10 +391,10 @@ else {
                 output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
                 break;
             case 2:
-                output_xml("<status>false</status><message>{$lang->messagerequired}</message>");
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
                 break;
             case 3:
-                output_xml("<status>false</status><message>{$lang->messageexist}</message>");
+                output_xml("<status>false</status><message>{$lang->entryexists}</message>");
                 break;
         }
         /* Need to have feedback message */

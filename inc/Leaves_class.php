@@ -31,7 +31,7 @@ class Leaves {
         return false;
     }
 
-    private function read($id, $simple = false) {
+    private function read($id, $simple = true) {
         global $db;
 
         if(empty($id)) {
@@ -475,8 +475,8 @@ class Leaves {
         return false;
     }
 
-    public function get_requester() {
-        return new Users($this->leave['uid']);
+    public function get_requester($simple = true) {
+        return new Users($this->leave['uid'], $simple);
     }
 
     public function is_leaverequester() {
