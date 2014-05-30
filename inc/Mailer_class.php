@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Mailer Class
  * $id: Mailer_class.php
  * Last Update: @zaher.reda 	Septmeber 16, 2011 | 11:25 AM
@@ -390,8 +390,10 @@ class Mailer_oophp extends Mailer_functions {
 
         if($send) {
             $this->set_status(true);
+            return true;
         }
         $this->set_status(false);
+        return false;
     }
 
     private function set_status($status) {
