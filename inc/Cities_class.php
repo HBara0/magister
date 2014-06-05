@@ -64,6 +64,37 @@ class Cities {
         return new TravelManagerAirports($this->city['defaultAirport']);
     }
 
+    public function get_approvedhotels() {
+        global $db;
+
+        $query = $db->query('SELECT tmhid FROM '.Tprefix.'travelmanager_hotels  WHERE  isApproved=1 AND city ="'.$db->escape_string($this->city['ciid']).'"');
+        if($db->num_rows($query) >= 1) {
+            while($item = $db->fetch_assoc($query)) {
+                $items[$item['tmhid']] = new TravelManagerHotels($item['tmhid']);
+            }
+        }
+        return $items;
+    }
+
+    public function get_reviews() {
+        global $db;
+
+        $query = $db->query('SELECT tmcrid FROM '.Tprefix.'travelmanager_cityreviews  WHERE ciid ="'.$db->escape_string($this->city['ciid']).'"');
+        if($db->num_rows($query) >= 1) {
+
+            while($item = $db->fetch_assoc($query)) {
+                $reviewitems[$item['tmcrid']] = new TravelManagerCityReviews($item['tmcrid']);
+            }
+        }
+        return $reviewitems;
+    }
+
+    public function get_latestbriefing() {
+        global $db;
+
+        return TravelManagerCityBriefings::get_citybriefings('ciid='.$db->escape_string($this->city['ciid']), array('ORDER' => array('by' => 'createdOn', 'sort' => 'DESC'), 'limit' => '0,1'));
+    }
+
     public static function get_cities($filters = '') {
         global $db;
 

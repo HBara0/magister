@@ -129,21 +129,25 @@ $(function() {
                 var comma = "";
                 var count = 1;
 
-                if(id[1] != 'noexception') {
-                    var inputselection_extra = '';
-                    if(id[1] == 'sectionexception') {
-                        inputselection_extra = "[id*='" + id[2] + "']";
-                    }
-
-                    $("input[id^='" + id[0] + "']" + inputselection_extra + "[id$='_id']").each(function() {
-                        if($(this).val().length > 0) {
-                            exclude += comma + $(this).val();
-                            if(++count != 1) {
-                                comma = ",";
-                            }
-                        }
-                    });
-                }
+//                if(id[1] != 'noexception') {
+//                    var inputselection_extra = '';
+//
+//                    if(id[1] == 'sectionexception') {
+//                        inputselection_extra = "[id*='" + id[2] + "']";
+//                    }
+//
+//                    $("input[id^='" + id[0] + "']" + inputselection_extra + "[id$='_id']").each(function() {
+//                        if($(this).val().length > 0) {
+//
+//                            exclude += comma + $(this).val();
+//
+//                            if(++count != 1) {
+//                                comma = ",";
+//                                console.log(exclude)
+//                            }
+//                        }
+//                    });
+//                }
 
                 filtersQuery = "";
                 var filters = new Array("rid", "spid", "cid", "spid[]");
@@ -170,18 +174,25 @@ $(function() {
             },
             minLength: 2,
             select: function(event, ui) {
-                if($("#" + id[0] + "_" + id[id.length - 3] + "_" + id[id.length - 2] + "_id").length > 0) {
-                    var valueIn = "#" + id[0] + "_" + id[id.length - 3] + "_" + id[id.length - 2] + "_id";
-                }
-                else if($("#" + id[0] + "_" + id[id.length - 2] + "_id").length > 0) {
 
-                    var valueIn = "#" + id[0] + "_" + id[id.length - 2] + "_id";
-                }
-                else {
-                    var valueIn = "#" + id[0] + "_id";
-                }
+                var valueIn = '#' + $(this).attr("id").replace("_autocomplete", "_id");
+//                if($("#" + id[0] + "_" + id[id.length - 3] + "_" + id[id.length - 2] + "_id").length > 0) {
+//                    var valueIn = "#" + id[0] + "_" + id[id.length - 3] + "_" + id[id.length - 2] + "_id";
+//
+//                }
+//                else if($("#" + id[0] + "_" + id[id.length - 2] + "_id").length > 0) {
+//
+//                    var valueIn = "#" + id[0] + "_" + id[id.length - 2] + "_id";
+//
+//                }
+//                else {
+//                    var valueIn = "#" + id[0] + "_id";
+//                }
+
                 $(valueIn).val(ui.item.id);
-                $(valueIn + "_output").val(ui.item.id);
+                if($(valueIn + "_output").length > 0) {
+                    $(valueIn + "_output").val(ui.item.id);
+                }
             }
         });
     });
@@ -665,7 +676,6 @@ $(function() {
             if(options == 'animate') {
                 var image_name = 'ajax-loader.gif';
             }
-
             $.ajax({type: methodParam,
                 url: urlParam,
                 data: dataParam,
@@ -674,11 +684,13 @@ $(function() {
                 },
                 complete: function() {
                     if(loadingId != contentId) {
+
                         $("#" + loadingId).empty();
                     }
                 },
                 success: function(returnedData) {
                     console.log(returnedData);
+                    //alert(returnedData);
                     if(datatype == 'xml') {
                         if($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -701,7 +713,7 @@ $(function() {
                         }
                     }
                 },
-                dataType: datatype
+                // dataType: datatype
             });
         }
         function checkSession() {

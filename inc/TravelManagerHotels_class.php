@@ -49,6 +49,11 @@ class TravelManagerHotels {
         return $data->get_objects($filters, $configs);
     }
 
+    public function get_review() {
+        global $db;
+        return TravelManagerAccomodationsReview::get_accoreviews('tmhid='.$db->escape_string($this->hotels['tmhid']), array('ORDER' => array('by' => 'createdOn', 'sort' => 'DESC'), 'limit' => '0,1'));
+    }
+
     public function get() {
         return $this->hotels;
     }
