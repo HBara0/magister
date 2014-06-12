@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Core Class
  * $id: Core_class.php
  * Created:		@zaher.reda
@@ -14,6 +14,7 @@ class Core {
     public $input = array();
     public $cookies = array();
     public $user = array();
+    public $user_obj = null;
     public $usergroup = array();
     protected $magicquotes = 0;
     protected $request_method = '';
@@ -144,7 +145,7 @@ class Core {
             $string = strip_tags($string, $options['allowable_tags']);
         }
 
-        /* 	IMPORTANT!! 
+        /* 	IMPORTANT!!
          * 	NEVER remove the charset from the htmlentities and htmlspecialchars to ensure charset consistency
          */
         if($options['method'] == 'convert') {

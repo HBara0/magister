@@ -70,9 +70,7 @@ if(!$core->input['action']) {
     );
 
     $countries = get_specificdata('countries', $countries_attributes, 'coid', 'name', $countries_order);
-    $countries_list = parse_selectlist('country', 8, $countries, '', '', '', array('required' => 'required', 'blankstart' => true));
-
-    //$headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
+    $countries_list = parse_selectlist('country', 8, $countries, $core->user_obj->get_mainaffiliate()->get_country()->coid, '', '', array('required' => 'required', 'blankstart' => true));
 
     eval("\$addpage = \"".$template->get('contents_entities_add')."\";");
     output_page($addpage);
