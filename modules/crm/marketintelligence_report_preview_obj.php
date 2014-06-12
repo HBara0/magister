@@ -38,7 +38,7 @@ if(!($core->input['action'])) {
         }
         /* Get cfpid of segment  ----END */
 
-        $marketin_objs = Marketintelligence::get_marketdata($mireportdata['filter']);
+        $marketin_objs = MarketIntelligence::get_marketdata($mireportdata['filter']);
         if(is_array($marketin_objs)) {
             foreach($marketin_objs as $marketin_obj) {
                 $market_data[$marketin_obj->get()['mibdid']] = $marketin_obj->get();

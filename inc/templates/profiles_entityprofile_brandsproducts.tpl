@@ -1,4 +1,4 @@
 <tr class='{$rowclass}'>
-    <td>{$entity_brands[name]}</td>
-    <td>{$entity_endproducts[title]}</td>
+    <td>{$brandproduct_brand->name}</td>
+    <td>{$brandproduct_productype->title}</td>
 <tr>

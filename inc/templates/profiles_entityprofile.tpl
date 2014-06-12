@@ -11,12 +11,12 @@
         <script type="text/javascript">
             $(function() {
                 $("a[id^='loadentityusers_'],a[id^='loadallusers_']").click(function() {
-                    if (sharedFunctions.checkSession() == false) {
+                    if(sharedFunctions.checkSession() == false) {
                         return;
                     }
                     var ids = $(this).attr("id").split('_');
 
-                    if (ids[0] == 'loadentityusers') {
+                    if(ids[0] == 'loadentityusers') {
                         var action = 'getentityusers';
                     }
                     else
@@ -104,19 +104,19 @@
                 <tr>
                     <td colspan="3">
                         <div class="timeline_container">
-                            <div class="timeline_entry"> 
+                            <div class="timeline_entry">
                                 <div>
-                                    <div class="timeline_column timeline_column_heading" style="width:15%;">{$lang->item}</div> 
-                                    <div class="timeline_column timeline_column_heading" style="width:15%;">{$lang->endproduct}</div> 
+                                    <div class="timeline_column timeline_column_heading" style="width:15%;">{$lang->item}</div>
+                                    <div class="timeline_column timeline_column_heading" style="width:15%;">{$lang->endproduct}</div>
                                     <div class="timeline_column timeline_column_heading">{$lang->annualpotential}</div>
                                     <div class="timeline_column timeline_column_heading">{$lang->price}</div>
                                     <div class="timeline_column timeline_column_heading">{$lang->marketshare}</div>
                                     <div class="timeline_column timeline_column_heading">{$lang->marketshareqty}</div>
-                                    <div class="timeline_column timeline_column_heading" style="width:1%;"></div> 
+                                    <div class="timeline_column timeline_column_heading" style="width:1%;"></div>
                                 </div>
                             </div>
                             {$detailmarketbox}
-                        </div> 
+                        </div>
                     </td>
                 </tr>
                 {$reports_section}

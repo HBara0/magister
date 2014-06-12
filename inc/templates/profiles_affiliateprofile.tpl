@@ -8,13 +8,13 @@
         <script type="text/javascript">
             $(function() {
                 $("a[id^='loadentityusers_'],a[id^='loadallusers_']").click(function() {
-                    if (sharedFunctions.checkSession() == false) {
+                    if(sharedFunctions.checkSession() == false) {
                         return;
                     }
 
                     var ids = $(this).attr("id").split('_');
 
-                    if (ids[0] == 'loadentityusers') {
+                    if(ids[0] == 'loadentityusers') {
                         var action = 'getentityusers';
                     }
                     else
@@ -37,7 +37,7 @@
                     <td colspan="2"><h3>{$profile[name]}</h3></td>
                 </tr>
                 <tr>
-                    <td valign="top" style="width:50%;padding:10px;">
+                    <td valign="top" style="width:50%; padding:10px;">
                         <div class="subtitle" style="margin-bottom:5px;">{$lang->contactdetails}</div>
                         {$lang->fulladdress}: {$profile[fulladdress]}<br />
                         {$lang->pobox}: {$profile[poBox]}<br />
@@ -45,7 +45,7 @@
                         {$lang->fax}: {$profile['fax']}<br /><br />
                         {$lang->infomail}: {$profile[mainEmail]}<br />
                     </td>
-                    <td valign="top" style="width:50%;padding:10px;">
+                    <td valign="top" style="width:50%; padding:10px;">
                         <div class="subtitle" style="margin-bottom:5px;">{$lang->management}</div>
                         <span style="font-weight:bold;">{$lang->gm}</span>: {$profile[generalManager_output]}<br />
                         <span style="font-weight:bold;">{$lang->supervisor}</span>: {$profile[supervisor_output]}<br />
@@ -69,24 +69,23 @@
                     <td valign="top">{$supplierslist}</td><td valign="top"><div id='entityusers'>{$supplierallusers}</div></td>
                 </tr>
                 {$private_section}
-
                 <tr><td class="thead" colspan="2">{$lang->detlmrktbox} {$addmarketdata_link}</td></tr>
                 <tr>
                     <td colspan="3">
                         <div class="timeline_container">
-                            <div class="timeline_entry"> 
+                            <div class="timeline_entry">
                                 <div>
-                                    <div class="timeline_column timeline_column_heading" style="width:15%;">{$lang->item}</div> 
-                                    <div class="timeline_column timeline_column_heading" style="width:15%;">{$lang->endproduct}</div> 
+                                    <div class="timeline_column timeline_column_heading" style="width:15%;">{$lang->item}</div>
+                                    <div class="timeline_column timeline_column_heading" style="width:15%;">{$lang->endproduct}</div>
                                     <div class="timeline_column timeline_column_heading">{$lang->annualpotential}</div>
                                     <div class="timeline_column timeline_column_heading">{$lang->price}</div>
                                     <div class="timeline_column timeline_column_heading">{$lang->marketshare}</div>
                                     <div class="timeline_column timeline_column_heading">{$lang->marketshareqty}</div>
-                                    <div class="timeline_column timeline_column_heading" style="width:1%;"></div> 
+                                    <div class="timeline_column timeline_column_heading" style="width:1%;"></div>
                                 </div>
                             </div>
                             {$detailmarketbox}
-                        </div> 
+                        </div>
                     </td>
                 </tr>
             </table>

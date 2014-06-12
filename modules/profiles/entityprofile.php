@@ -22,30 +22,6 @@ if(!$core->input['action']) {
     $entity_obj = new Entities($eid, '', false);
     $profile = $entity_obj->get();
 
-    /* Get/parse brands - START */
-    $entbrandsproducts_objs = $entity_obj->get_brands($filter_where);
-    if(is_array($entbrandsproducts_objs)) {
-        foreach($entbrandsproducts_objs as $entbrandsproducts_obj) {
-            $entbrandsproducts = $entbrandsproducts_obj->get();
-            $entitybrand = $entbrandsproducts['name']; /* Loop over the brandobjcts and get their current brands */
-            $endproduct_types_objs = $entbrandsproducts_obj->get_producttypes();
-            $entbrandproducts_objs = $entbrandsproducts_obj->get_entbrandproducts();
-            if(is_array($entbrandproducts_objs)) {
-                foreach($entbrandproducts_objs as $entbrandproducts_obj) {
-                    $entbrandsproductsids = $entbrandproducts_obj->get()['ebpid'];
-                }
-            }
-            if(is_array($endproduct_types_objs)) {
-                foreach($endproduct_types_objs as $endproduct_types_obj) { /* Loop over the products types of the current entitiy object */
-                    $endproduct_types = $endproduct_types_obj->get()['title'];
-                }
-            }
-            $entitiesbrandsproducts_list .= '<option value="'.$entbrandsproductsids.'">'.$endproduct_types.' - '.$entitybrand.' </option>';
-        }
-    }
-
-    /* Get/parse brands - END */
-
     /* Market Data --START */
     $filter_where = 'eid IN ('.$eid.')';
     if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
@@ -60,33 +36,17 @@ if(!$core->input['action']) {
         eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
 
         /* View detailed market intelligence box --START */
-        $maktintl_mainobj = new Marketintelligence();
-        $maktintl_objs = $maktintl_mainobj->get_marketintelligence_timeline($eid, array('currentyear' => 1, 'customer' => 1));
+        $maktintl_mainobj = new MarketIntelligence();
+
+        $miprofile = $maktintl_mainobj->get_miprofconfig_byname('latestcustomersumbyproduct');
+        $miprofile['next_miprofile'] = 'allprevious';
+
+        $maktintl_objs = $maktintl_mainobj->get_marketintelligence_timeline(array('cid' => $eid), $miprofile);
         if(is_array($maktintl_objs)) {
-            $timedepth = 25;
-            $height = 25;
-            $round_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice');
-            foreach($maktintl_objs as $maktintl_obj) {
-                $altrow_class = alt_row($altrow_class);
-                $mktintldata = $maktintl_obj->get();
-                foreach($round_fields as $round_field) {
-                    $mktintldata[$round_field] = round($mktintldata[$round_field]);
-                }
-                $entity_brdprd_objs = $maktintl_obj->get_entitiesbrandsproducts();
-                $entity_brandproducts = $entity_brdprd_objs->get();
-
-                $entity_mrktendproducts_objs = $maktintl_obj->get_marketendproducts($entity_brandproducts['eptid']);
-                $entity_mrktendproducts = $entity_mrktendproducts_objs->get()['title'];
-
-                $mktintldata['previoustimeline'] = date($core->settings['dateformat'], $maktintl_obj->get()['createdOn']);
-                $mktintldata['chemfunction'] = $maktintl_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_function()->get()['title'];
-                $mktintldata['application'] = $maktintl_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_application()->get()['title'];
-                $mktintldata['segment'] = $maktintl_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_segment()->get()['title'];
-                $mktintldata['entity'] = $maktintl_obj->get_chemfunctionproducts()->get_produt()->get()['name'];  //get product from cfpid
-                if(empty($mktintldata['entity'])) {
-                    continue;
-                }
-                eval("\$detailmarketbox .= \"".$template->get('profiles_entityprofile_mientry')."\";");
+            foreach($maktintl_objs as $mktintldata) {
+                $mktintldata['tlidentifier']['id'] = 'tlrelation-'.$eid;
+                $mktintldata['tlidentifier']['value'] = array('cid' => $eid);
+                $detailmarketbox .= $maktintl_mainobj->parse_timeline_entry($mktintldata, $miprofile);
             }
         }
         /* View detailed market intelligence box --END */
@@ -147,7 +107,7 @@ if(!$core->input['action']) {
         $profile['logo'] = $core->settings['rootdir'].'/'.$core->settings['entitylogodir'].'/'.$profile['logo'];
     }
 
-    $profile['country'] = $db->fetch_field($db->query("SELECT name FROM ".Tprefix."countries WHERE coid='{$profile[country]}'"), 'name');
+    $profile['country'] = $entity_obj->get_country()->name;
 
     $profile['fulladdress'] .= $profile['country'];
 
@@ -165,8 +125,8 @@ if(!$core->input['action']) {
     }
 
     $representative_query = $db->query("SELECT *
-										FROM ".Tprefix."representatives r JOIN ".Tprefix."entitiesrepresentatives er ON (er.rpid=r.rpid)
-										WHERE er.eid={$eid}");
+                                        FROM ".Tprefix."representatives r JOIN ".Tprefix."entitiesrepresentatives er ON (er.rpid=r.rpid)
+                                        WHERE er.eid={$eid}");
     while($representative = $db->fetch_assoc($representative_query)) {
         $representativelist .= '<a href="#" id="contactpersoninformation_'.base64_encode($representative['rpid']).'_profiles/entityprofile_loadpopupbyid">'.$representative['name'].'</a> - <a href = "mailto:'.$representative['email'].'">'.$representative['email'].'</a><br />';
     }
@@ -177,9 +137,9 @@ if(!$core->input['action']) {
     }
 
     $affiliate_query = $db->query("SELECT *
-								   FROM ".Tprefix."affiliates a LEFT JOIN ".Tprefix."affiliatedentities ae ON (ae.affid=a.affid)
-								   WHERE ae.eid={$eid}
-								   ORDER BY a.name ASC");
+                                    FROM ".Tprefix."affiliates a LEFT JOIN ".Tprefix."affiliatedentities ae ON (ae.affid=a.affid)
+                                    WHERE ae.eid={$eid}
+                                    ORDER BY a.name ASC");
     while($affiliate = $db->fetch_array($affiliate_query)) {
         $listitem['link'] = 'index.php?module=profiles/affiliateprofile&affid='.$affiliate['affid'];
         $listitem['title'] = $affiliate['name'];
@@ -219,10 +179,10 @@ if(!$core->input['action']) {
         /* Load supplier's quarterly reports - Start */
         $report_lang = $lang->lastfinalized;
         $report_query = $db->query("SELECT *, a.name AS affiliate_name FROM ".Tprefix."reports r
-									LEFT JOIN ".Tprefix."affiliates a ON (a.affid=r.affid)
-									WHERE r.spid={$eid} AND r.type='q' AND status = 1
-									ORDER BY r.finishDate DESC
-									LIMIT 0, 4");
+                                    LEFT JOIN ".Tprefix."affiliates a ON (a.affid=r.affid)
+                                    WHERE r.spid={$eid} AND r.type='q' AND status = 1
+                                    ORDER BY r.finishDate DESC
+                                    LIMIT 0, 4");
 
         $reports_counter = 0;
         $finalized_reports = '';
@@ -273,45 +233,21 @@ if(!$core->input['action']) {
         /* Load supplier's quarterly reports - End */
 
         /* Load supplier's products list - Start */
-        $products_query = $db->query("SELECT p.pid, p.name, gp.title AS genericname FROM ".Tprefix."products p JOIN ".Tprefix."genericproducts gp ON (gp.gpid=p.gpid) WHERE p.spid={$eid}");
-
-        //$products_counter = 0;
-        $productslist = '';
-        if($db->num_rows($products_query) > 0) {
-            while($product = $db->fetch_assoc($products_query)) {
-                $row_class = alt_row($row_class);
-                $productslist .= '<tr class="'.$row_class.'"><td style="width:50%;">'.$product['name'].'</td><td>'.$product['genericname'].'</td></tr>';
+        $products = $entity_obj->get_products();
+        if(is_array($products)) {
+            foreach($products as $pid => $product) {
+                $defaultchemfunc = $product->get_defaultchemfunction();
+                if(is_object($defaultchemfunc)) {
+                    $defaultchemfunc_output = $defaultchemfunc->get_chemicalfunction()->title.' - '.$defaultchemfunc->get_segmentapplication()->title.' - '.$defaultchemfunc->get_segment()->title;
+                }
+                else {
+                    $defaultchemfunc_output = $product->get_generic_product()['title'];
+                }
+                $productslist .= '<tr><td style="width:50%;">'.$product->name.'</td><td>'.$defaultchemfunc_output.'</td></tr>';
+                unset($defaultchemfunc_output);
             }
             eval("\$products_section = \"".$template->get('profiles_entityprofile_products')."\";");
         }
-
-        /* if(++$products_counter > $core->settings['itemsperlist'])  {
-          $hidden_products .= '<li>'.$products['name'].'</li>';
-          }
-          elseif($products_counter == $core->settings['itemsperlist'])
-          {
-          $shown_products .= '<li>'.$products['name'].'</a>';
-          }
-          else
-          {
-          $shown_products .= '<li>'.$products['name'].'</li>';
-          }
-
-          }
-
-          if($products_counter != 0) {
-          if($products_counter > $core->settings['itemsperlist']) {
-          $productslist = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_products.', <a href="#products" id="showmore_products_'.$products['pid'].'" class="smalltext">read more</a></li> <span style="display:none;" id="products_'.$products['pid'].'">'.$hidden_products.'</span></ul>';
-          }
-          else
-          {
-          $productslist .= '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$shown_products.'</ul>';
-          }
-          }
-          else
-          {
-          $productslist = ' - ';
-          } */
         /* Load supplier's products list - End */
 
         /* Prepare the private part of the profile - Start */
@@ -435,10 +371,10 @@ if(!$core->input['action']) {
     elseif($profile['type'] == 'c') {
         $report_lang = $lang->lastvisited;
         $visitreport_query = $db->query("SELECT *, CONCAT(firstName, ' ', lastName) AS employeename
-										FROM ".Tprefix." visitreports r JOIN ".Tprefix."users u ON (u.uid=r.uid)
-										WHERE r.cid={$eid}
-										ORDER BY r.date DESC
-										LIMIT 0, 4");
+                                        FROM ".Tprefix." visitreports r JOIN ".Tprefix."users u ON (u.uid=r.uid)
+                                        WHERE r.cid={$eid}
+                                        ORDER BY r.date DESC
+                                        LIMIT 0, 4");
 
         $reports_counter = 0;
         while($report = $db->fetch_array($visitreport_query)) {
@@ -487,33 +423,23 @@ if(!$core->input['action']) {
     }
     /* parse Minites Of Meetings --END */
 
-    $entity_brand_objs = $entity_obj->get_brands();
-    if(is_array($entity_brand_objs)) {
-        foreach($entity_brand_objs as $entity_brand_obj) {
-            $rowclass = alt_row($rowclass);
-            $entity_brands = $entity_brand_obj->get();
-            //getentitiesbrandsproducts
-            $endproductstypes_objs = $entity_brand_obj->get_producttypes(); //Entbrandsproducts::get_endproducts($entity_brands['ebid']);
-            if(is_array($endproductstypes_objs)) {
-                foreach($endproductstypes_objs as $endproductstypes_obj) {
-                    $entity_endproducts = $endproductstypes_obj->get();
-                    eval("\$brandsendproducts .= \"".$template->get('profiles_entityprofile_brandsproducts')."\";");
-                }
+    if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
+        $brandsproducts = $entity_obj->get_brandsproducts();
+        $output = '';
+        if(is_array($brandsproducts)) {
+            foreach($brandsproducts as $brandproduct) {
+                $brandproduct_brand = $brandproduct->get_entitybrand();
+                $brandproduct_productype = $brandproduct->get_endproduct();
+                $options[$brandproduct->ebpid] = $brandproduct_brand->name.' - '.$brandproduct_productype->title;
+                eval("\$brandsendproducts .= \"".$template->get('profiles_entityprofile_brandsproducts')."\";");
+                $endproducttypes_list .= '<option value="'.$brandproduct_productype->eptid.'">'.$brandproduct_productype->title.' - '.$brandproduct_productype->get_application()->title.'</option>';
             }
+
+            $entitiesbrandsproducts_list = parse_selectlist('marketdata[ebpid]', 7, $options, '');
         }
+        eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
+        eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
     }
-    else {
-        $brandsendproducts = '<tr><td colspan="2">'.$lang->na.'</td></tr>';
-    }
-    $productypes_objs = Endproductypes::get_endproductypes();
-    if(is_array($productypes_objs)) {
-        foreach($productypes_objs as $productypes_obj) {
-            $endproduct_types = $productypes_obj->get();
-            $endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
-        }
-    }
-    eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
-    eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
     eval("\$profilepage = \"".$template->get('profiles_entityprofile')."\";");
     output_page($profilepage);
 }
@@ -573,8 +499,8 @@ else {
         echo get_rml_bar($core->input['eid']);
     }
     elseif($core->input['action'] == 'do_addmartkerdata') {
-        $marketin_obj = new Marketintelligence();
-        $marketin_obj->create($core->input[marketdata]);
+        $marketin_obj = new MarketIntelligence();
+        $marketin_obj->create($core->input['marketdata']);
         switch($marketin_obj->get_errorcode()) {
             case 0:
                 output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
@@ -603,18 +529,22 @@ else {
         }
     }
     elseif($core->input['action'] == 'get_mktintldetails') {
-        $mibdid = $db->escape_string($core->input['id']);
-        $mrktint_obj = new Marketintelligence($mibdid);
-        $mrktintl_detials = $mrktint_obj->get();
+        if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
+            exit;
+        }
+
+        $mkintentry = new MarketIntelligence($core->input['id']);
         $round_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice');
         foreach($round_fields as $round_field) {
-            $mrktintl_detials[$round_field] = round($mrktintl_detials[$round_field]);
+            $mkintentry->{$round_field} = round($mkintentry->{$round_field});
         }
-        $mrktintl_detials['brand'] = $mrktint_obj->get_entitiesbrandsproducts()->get_entitybrand()->get()['name'];
-        $mrktintl_detials['endproduct'] = $mrktint_obj->get_entitiesbrandsproducts()->get_endproduct()->get()['title'];
+
+        $mkintentry_customer = $mkintentry->get_customer();
+        $mkintentry_brand = $mkintentry->get_entitiesbrandsproducts()->get_entitybrand();
+        $mkintentry_endproducttype = $mkintentry->get_entitiesbrandsproducts()->get_endproduct();
 
         /* Parse competitors related market Data */
-        $mrktcompetitor_objs = $mrktint_obj->get_competitors();
+        $mrktcompetitor_objs = $mkintentry->get_competitors();
         if(is_array($mrktcompetitor_objs)) {
             foreach($mrktcompetitor_objs as $mrktcompetitor_obj) {
                 $mrktintl_detials['competitors'] = $mrktcompetitor_obj->get();
@@ -645,42 +575,40 @@ else {
                 }
                 eval("\$mrktintl_detials_competitors_rows  = \"".$template->get('profiles_entityprofile_marketintelligence_competitors_rows')."\";");
             }
+            eval("\$marketintelligencedetail_competitors  = \"".$template->get('profiles_entityprofile_marketintelligence_competitors')."\";");
         }
 
-        eval("\$marketintelligencedetail_competitors  = \"".$template->get('profiles_entityprofile_marketintelligence_competitors')."\";");
         eval("\$marketintelligencedetail = \"".$template->get('popup_marketintelligencedetails')."\";");
         output($marketintelligencedetail);
     }
     elseif($core->input['action'] == 'parse_previoustimeline') {
-        $cfpid = $db->escape_string($core->input['cfpid']);
-        $mrktint_obj = new Marketintelligence();
-        $mrkt_objs = $mrktint_obj->get_marketintelligence_timeline($cfpid, array('prevyear' => 1, 'filterchemfunctprod' => 1));
-        if(is_array($mrkt_objs)) {
-            foreach($mrkt_objs as $mrkt_obj) {
-                $prevmktintldata = $mrkt_obj->get();
-                $prevmktintldata['previoustimeline'] = date($core->settings['dateformat'], $mrkt_obj->get()['createdOn']);
-                $entity_brdprd_objs = $mrkt_obj->get_entitiesbrandsproducts();
-                $entity_brandproducts = $entity_brdprd_objs->get();
-
-                $entity_mrktendproducts_objs = $mrkt_obj->get_marketendproducts($entity_brandproducts['eptid']);
-                $entity_mrktendproducts = $entity_mrktendproducts_objs->get()['title'];
-                $previoustimelinerows .= '
-				<div class="timeline_entry timeline_entry_dependent">
-					<div class="circle" style="top:50%; left:-9px; height:15px; width:15px;"></div>
-					<div>
-					<div class="timeline_column smalltext" style="width:15%;">'.$prevmktintldata['previoustimeline'].'</div>
-					<div class="timeline_column"  style="width:15%;">'.$entity_mrktendproducts_objs->get()['title'].'</div>
-					<div class="timeline_column">'.$prevmktintldata['potential'].'</div>
-					<div class="timeline_column">'.$prevmktintldata['unitPrice'].'</div>
-					<div class="timeline_column">'.$prevmktintldata['mktSharePerc'].'</div>
-					<div class="timeline_column">'.$prevmktintldata['mktShareQty'].'</div>
-					<div class="timeline_column" style="width:1%;"><a style="cursor:pointer;" title="'.$lang->viewmrktbox.' '.$prevmktintldata['previoustimeline'].'" id="mktintldetails_'.$prevmktintldata['mibdid'].'_profiles/entityprofile_loadpopupbyid" rel="mktdetail_'.$prevmktintldata['mibdid'].'"><img src="'.$core->settings['rootdir'].'/images/icons/search.gif"/></a></div>
-					</div>
-			  </div>
-				</div>';
-            }
-            echo $previoustimelinerows;
+        if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
+            exit;
         }
+        $next_profiles = array('latestaggregatecustomersumbyproduct' => 'allprevious', 'allprevious' => null);
+        $filter = unserialize($core->input['tlrelation']);
+
+        $mrktint_obj = new MarketIntelligence();
+
+        $miprofile = $mrktint_obj->get_miprofconfig_byname($core->input['miprofile']);
+        $miprofile['next_miprofile'] = $next_profiles[$core->input['miprofile']];
+        $mrkt_objs = $mrktint_obj->get_marketintelligence_timeline($filter, $miprofile);
+        //$mrkt_objs = $mrktint_obj->get_marketintelligence_timeline('customer', 'cfpid', $cfpid, array('time' => 'allprevious', 'filterchemfunctprod' => 1));
+
+        $is_last = false;
+        if(empty($miprofile['next_miprofile'])) {
+            $is_last = true;
+        }
+        $depth = count($filter) - 1;
+        $previoustimelinerows = '';
+        if(is_array($mrkt_objs)) {
+            foreach($mrkt_objs as $mktintldata) {
+                $mktintldata['tlidentifier']['id'] = 'tlrelation-'.implode('-', $filter);
+                $mktintldata['tlidentifier']['value'] = $filter;
+                $previoustimelinerows .= $mrktint_obj->parse_timeline_entry($mktintldata, $miprofile, $depth, $is_last);
+            }
+        }
+        output($previoustimelinerows);
     }
 }
 function parse_calltype(&$value) {
@@ -742,12 +670,12 @@ function log_rating($criterion, $eid, $value, $uid = '') {
     }
 
     $active_rating = $db->fetch_field($db->query('SELECT erid
-                                    FROM '.Tprefix.'entities_ratings
-                                    WHERE ercid="'.$new_rating['ercid'].'" AND uid="'.$new_rating['uid'].'" AND eid="'.$new_rating['eid'].'" AND dateTime>"'.strtotime('last week').'"
-									ORDER BY dateTime DESC
-									LIMIT 0, 1'), 'erid');
+                FROM '.Tprefix.'entities_ratings
+                WHERE ercid = "'.$new_rating['ercid'].'" AND uid = "'.$new_rating['uid'].'" AND eid = "'.$new_rating['eid'].'" AND dateTime>"'.strtotime('last week').'"
+                ORDER BY dateTime DESC
+                LIMIT 0, 1'), 'erid');
     if(isset($active_rating) && !empty($active_rating)) {
-        $query = $db->update_query('entities_ratings', array('rating' => $new_rating['rating']), 'erid="'.$active_rating.'"');
+        $query = $db->update_query('entities_ratings', array('rating' => $new_rating['rating']), 'erid = "'.$active_rating.'"');
         $log->record($active_rating);
     }
     else {
@@ -766,9 +694,9 @@ function get_current_rating($eid, $ercid) {
     global $db;
 
     $getratings_query = $db->query('SELECT DISTINCT(uid), rating
-                                    FROM '.Tprefix.'entities_ratings
-                                    WHERE eid='.intval($eid).' AND ercid='.intval($ercid).'
-									ORDER BY dateTime DESC');
+                FROM '.Tprefix.'entities_ratings
+                WHERE eid = '.intval($eid).' AND ercid = '.intval($ercid).'
+                ORDER BY dateTime DESC');
     $returnvalue = $counter = 0;
 
     if($db->num_rows($getratings_query) > 0) {
@@ -800,7 +728,7 @@ function savematuritylevel($level, $eid) {
         return false;
     }
 
-    $query = $db->update_query('entities', array('relationMaturity' => $level), 'eid='.intval($eid));
+    $query = $db->update_query('entities', array('relationMaturity' => $level), 'eid = '.intval($eid));
     if($query) {
         $log->record($eid, $level);
     }
@@ -809,7 +737,7 @@ function savematuritylevel($level, $eid) {
 function get_rml_bar($eid) {
     global $core, $db;
 
-    //$multicolored = true;
+//$multicolored = true;
     $maturity_bars = '';
     $readonlymaturity = true;
 
@@ -821,8 +749,8 @@ function get_rml_bar($eid) {
     $levels_counter = 0;
 
     $rmllevels_query = $db->query('SELECT ermlid, er.title, er.category, erc.title AS categoryTitle
-								FROM '.Tprefix.'entities_rmlevels er JOIN '.Tprefix.'entities_rmlevels_categories erc ON (erc.ercid=er.category)
-								ORDER BY sequence');
+                FROM '.Tprefix.'entities_rmlevels er JOIN '.Tprefix.'entities_rmlevels_categories erc ON (erc.ercid = er.category)
+                ORDER BY sequence');
     if($db->num_rows($rmllevels_query) > 0) {
         while($maturitylevelrow = $db->fetch_assoc($rmllevels_query)) {
             $rmllist[$maturitylevelrow['category']][$maturitylevelrow['ermlid']] = $maturitylevelrow['title'].' ('.$maturitylevelrow['categoryTitle'].')';
@@ -834,9 +762,9 @@ function get_rml_bar($eid) {
     }
 
 
-    $rmlcurrentlevel['id'] = $db->fetch_field($db->query('SELECT relationMaturity FROM '.Tprefix.'entities WHERE eid='.intval($eid)), 'relationMaturity');
+    $rmlcurrentlevel['id'] = $db->fetch_field($db->query('SELECT relationMaturity FROM '.Tprefix.'entities WHERE eid = '.intval($eid)), 'relationMaturity');
 
-    $maturity_bars .= '<div id="rml_bars" style="text-align:left;">';
+    $maturity_bars .= '<div id = "rml_bars" style = "text-align:left;">';
     $divclassactive = (!$readonlymaturity) ? 'rmlselectable rmlactive' : 'rmlactive';
     $divclassinactive = (!$readonlymaturity) ? 'rmlselectable rmlinactive' : 'rmlinactive';
     $parse_counter = 1;
@@ -872,10 +800,10 @@ function get_rml_bar($eid) {
             }
 
             if($is_coloredlevel) {
-                $maturity_bars .= '<div id="'.$ermlid.'" class="'.$divclassactive.$positionclass.'" title="'.($lang->{$name} ? $lang->{$name} : $name).'">&nbsp;</div>';
+                $maturity_bars .= '<div id = "'.$ermlid.'" class = "'.$divclassactive.$positionclass.'" title = "'.($lang->{$name} ? $lang->{$name} : $name).'">&nbsp;</div>';
             }
             else {
-                $maturity_bars .= '<div id="'.$ermlid.'" class="'.$divclassinactive.$positionclass.'" title="'.($lang->{$name} ? $lang->{$name} : $name).'">&nbsp;</div>';
+                $maturity_bars .= '<div id = "'.$ermlid.'" class = "'.$divclassinactive.$positionclass.'" title = "'.($lang->{$name} ? $lang->{$name} : $name).'">&nbsp;</div>';
             }
 
             if($is_lastactiveitem) {
@@ -888,7 +816,7 @@ function get_rml_bar($eid) {
             $maturity_bars .= '&nbsp;&nbsp;';
         }
     }
-    $maturity_bars .= '<br /><span class="smalltext" style="color:#999; font-style:italic;">'.$rmlcurrentlevel['title'].'</span></div>';
+    $maturity_bars .= '<br /><span class = "smalltext" style = "color:#999; font-style:italic;">'.$rmlcurrentlevel['title'].'</span></div>';
 
     return $maturity_bars;
 }

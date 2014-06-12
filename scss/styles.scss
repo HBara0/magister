@@ -109,7 +109,7 @@ a, a:visited {
     border-collapse:collapse;
 
     td {
-        border-bottom: 1px dashed #CCCCCC;  
+        border-bottom: 1px dashed #CCCCCC;
     }
 
     th, td {
@@ -531,10 +531,11 @@ tr.dummytrow td, tr.dummytrow th {
 }
 
 .timeline_container {
-    margin-left: 20px;
+    margin-left: 1%;
     height: 100%;
     width: 100%;
     vertical-align: top;
+    margin-top: -0.5%;
 }
 
 .timeline_entry {
@@ -550,7 +551,7 @@ tr.dummytrow td, tr.dummytrow th {
     width: 100%;
     vertical-align: top;
     border-left: 1px solid #333;
-    margin-left: -17px;
+    margin-left: -1%;
     border-color:#333;
 }
 
@@ -559,6 +560,7 @@ tr.dummytrow td, tr.dummytrow th {
     width: 10% ;
     padding: 10px 0px 0px 30px;
     vertical-align: top;
+    text-align: left;
 }
 
 .timeline_column_heading {

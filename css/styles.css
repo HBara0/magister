@@ -1,13 +1,13 @@
 @charset "UTF-8";
 /*
-Copyright ┬® 2014 Orkila International Offshore, All Rights Reserved
+Copyright ┬⌐ 2014 Orkila International Offshore, All Rights Reserved
 
 [Provide Short Descption Here]
 $id: _constants.scss
 Created:        @zaher.reda    Apr 13, 2014 | 10:04:22 PM
 Last Update:    @zaher.reda    Apr 13, 2014 | 10:04:22 PM
 */
-/*
+/* 
     Created on : Apr 13, 2014, 10:04:22 PM
     Author     : zaher.reda
 */
@@ -465,10 +465,11 @@ tr.dummytrow td, tr.dummytrow th {
   display: inline-block; }
 
 .timeline_container {
-  margin-left: 20px;
+  margin-left: 1%;
   height: 100%;
   width: 100%;
-  vertical-align: top; }
+  vertical-align: top;
+  margin-top: -0.5%; }
 
 .timeline_entry {
   position: relative;
@@ -482,14 +483,15 @@ tr.dummytrow td, tr.dummytrow th {
   width: 100%;
   vertical-align: top;
   border-left: 1px solid #333;
-  margin-left: -17px;
+  margin-left: -1%;
   border-color: #333; }
 
 .timeline_entry .timeline_column {
   display: inline-block;
   width: 10%;
   padding: 10px 0px 0px 30px;
-  vertical-align: top; }
+  vertical-align: top;
+  text-align: left; }
 
 .timeline_column_heading {
   font-weight: bold; }
@@ -579,5 +581,3 @@ tr.dummytrow td, tr.dummytrow th {
     background: #f2f2f2 !important;
     height: 1.2em;
     line-height: 1.2em; }
-
-/*# sourceMappingURL=styles.css.map */
