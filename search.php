@@ -44,9 +44,7 @@ if($core->input['type'] == 'quick') {
     }
 
     if(isset($core->input['for'])) {
-
         if($core->input['for'] == 'potentialsupplier' || $core->input['for'] == 'potentialcustomer') {
-
             if($core->input['for'] == 'potentialcustomer') {
                 $type = 'pc';
             }
@@ -135,14 +133,14 @@ if($core->input['type'] == 'quick') {
                 $supplier_filter = "spid IN('".implode(',', $core->user['suppliers']['eid'])."')";
             }
             if(!empty($supplier_filter)) {
-                //$extra_where = $supplier_filter;
+//$extra_where = $supplier_filter;
             }
             $table = 'products';
-            //$flagtable = 'chemfunctionproducts';
             $attributes = array('name');
             $key_attribute = 'pid';
             $select_attributes = array('name');
             $order = array('by' => 'name', 'sort' => 'ASC');
+            $descinfo = 'productsegment';
         }
         elseif($core->input['for'] == 'representative' || $core->input['for'] == 'supprepresentative') {
             if(IN_AREA == 'user') {
@@ -194,7 +192,7 @@ if($core->input['type'] == 'quick') {
             $table = 'users';
             $attributes = array('firstName', 'lastName', 'displayName');
             $key_attribute = 'uid';
-            $select_attributes = array('displayName'); //array('Concat(firstName, \' \', lastName) AS employeename');
+            $select_attributes = array('displayName');
             $order = array('by' => 'firstName', 'sort' => 'ASC');
         }
 
@@ -207,7 +205,7 @@ if($core->input['type'] == 'quick') {
             }
         }
 
-        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, $order, $extra_where);
+        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, array('order' => $order, 'extra_where' => $extra_where, 'descinfo' => $descinfo));
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);
         $module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);
         if($core->input['for'] == 'supplier') {

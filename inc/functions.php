@@ -513,7 +513,7 @@ function get_specificdata($table, $attributes, $key_attribute, $value_attribute,
     }
 }
 
-function quick_search($table, $attributes, $value, $select_attributes, $key_attribute, $order, $extra_where = '', $andor_param = 'OR', $extra_info = array()) {
+function quick_search($table, $attributes, $value, $select_attributes, $key_attribute, $options = array(), $andor_param = 'OR') {
     global $db, $lang;
     $foreign_table = false;
     $value = $db->escape_string($value);
@@ -542,13 +542,12 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
         return false;
     }
 
-    if(is_array($order)) {
-        $order = 'ORDER BY '.$order['by'].' '.$order['sort'];
+    if(is_array($options['order'])) {
+        $order = $db->escape_string('ORDER BY '.$options['order']['by'].' '.$options['order']['sort']);
     }
 
-
-    if(!empty($extra_where)) {
-        $extra_where_string = ' AND '.$extra_where;
+    if(!empty($options['extra_where'])) {
+        $extra_where_string = ' AND '.$options['extra_where'];
     }
     $query = $db->query("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$where_string}){$extra_where_string} {$order}");
 
@@ -592,55 +591,45 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
         $db->free_result($query2);
     }
 
-
     if(is_array($results)) {
         $results_list .= '<ul id="searchResultsList">';
         foreach($results as $key => $val) {
-            if(is_array($extra_info) && ( isset($extra_info['table']) && !empty($extra_info['table']) )) {
-                switch($extra_info['table']) {
-                    case 'countries':
-                        $cities_obj = new Cities($key);
-                        $city_id = $cities_obj->get()['ciid'];
-                        $city_country = $cities_obj->get_country()->get()['name'];
-                        $detailscity = '</br><span class="smalltext" >'.$city_country.'</span>';
-                        $results_list .= '<li id="'.$city_id.'">'.$val.' - '.$detailscity.'</li>';
+            if(isset($options['descinfo']) && !empty($options['descinfo'])) {
+                switch($options['descinfo']) {
+                    case 'citycountry':
+                        $city = new Cities($key);
+                        $details = '<br /><span class="smalltext" >'.$city->get_country()->name.'</span>';
+                        $results_list .= '<li id="'.$city->ciid.'">'.$val.$details.'</li>';
+                        unset($details);
                         break;
-                        $val = '';
-                    /* Get chemicalfuntions  applications  segments for the searched product */
-                    case 'chemfunctionproducts':
-                        /* Get chemicalfuntions  applications  segments for the searched product */
-                        $product_obj = new Products($key);
-                        $chemfuncprod_objs = $product_obj->get_chemfunctionproducts();
+                    case 'productsegment':
+                        $product = new Products($key);
+                        $chemfuncprod_objs = $product->get_chemfunctionproducts();
                         if(is_array($chemfuncprod_objs)) {
                             foreach($chemfuncprod_objs as $chemfuncprod_obj) {
-                                $cfpid = $chemfuncprod_obj->get()['cfpid'];
                                 $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
-                                $application = $application_obj->get_application()->get()['title'];
-                                $segment = $application_obj->get_segment()->get()['title'];
-                                $chemicalfuntion = $chemfuncprod_obj->get_chemicalfunction()->get()['title'];
-                                $details = '</br><span class="smalltext" >'.$chemicalfuntion.' - '.$application.' - '.$segment.'</span>';
-                                $results_list .= '<li id="'.$cfpid.'">'.$val.$details.'</li>';
+                                $details = '<br /><span class="smalltext" >'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
+                                $results_list .= '<li id="'.$chemfuncprod_obj->cfpid.'">'.$val.$details.'</li>';
                             }
                         }
                         else { /* get Defaultfunction of the product */
-                            $chemfuncprod_objs = $product_obj->get_defaultchemfunction();
+                            $chemfuncprod_objs = $product->get_defaultchemfunction();
                             if(is_array($chemfuncprod_objs)) {
                                 foreach($chemfuncprod_objs as $chemfuncprod_obj) {
-                                    $cfpid = $chemfuncprod_obj->get()['cfpid'];
                                     $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
-                                    $application = $application_obj->get_application()->get()['title'];
-                                    $segment = $application_obj->get_segment()->get()['title'];
-                                    $chemicalfuntion = $chemfuncprod_obj->get_chemicalfunction()->get()['title'];
-                                    $details = '</br><span class="smalltext" >'.$chemicalfuntion.' - '.$application.' - '.$segment.'</span>';
-                                    $results_list .= '<li id="'.$cfpid.'">'.$val.$details.'</li>';
+                                    $details = '<br /><span class="smalltext" >'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
+                                    $results_list .= '<li id="'.$chemfuncprod_obj->cfpid.'">'.$val.$details.'</li>';
                                 }
                             }
                         }
+                        unset($details);
+                        break;
+                    default:
+                        $results_list .= '<li id="'.$key.'">'.$val.'</li>';
                         break;
                 }
             }
             else {
-
                 $results_list .= '<li id="'.$key.'">'.$val.'</li>';
             }
         }
