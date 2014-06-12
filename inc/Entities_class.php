@@ -5,6 +5,10 @@ class Entities {
     protected $status = false;
     protected $data = array();
 
+    const PRIMARY_KEY = 'eid';
+    const TABLE_NAME = 'entities';
+    const DISPLAY_NAME = 'companyName';
+
     public function __construct($data, $action = '', $simple = true) {
         if(is_array($data)) {
             $this->data = $data;
@@ -543,11 +547,22 @@ class Entities {
         }
     }
 
+    public function get_country() {
+        return new Countries($this->data['country']);
+    }
+
+    public function __get($name) {
+        if(isset($this->data[$name])) {
+            return $this->data[$name];
+        }
+        return false;
+    }
+
     public function get() {
         return $this->data;
     }
 
-    private function read($id, $simple) {
+    protected function read($id, $simple) {
         global $db;
         if(!empty($id)) {
             $query_select = '*';
@@ -598,8 +613,8 @@ class Entities {
             $query_extrawhere .= ' AND affid IN ('.implode(', ', $affiliates).')';
         }
 
-        $query = $db->query('SELECT * 
-						FROM '.Tprefix.'assignedemployees 
+        $query = $db->query('SELECT *
+						FROM '.Tprefix.'assignedemployees
 						WHERE eid='.$this->data['eid'].' AND uid NOT IN (SELECT uid FROM '.Tprefix.'users WHERE gid=7)'.$query_extrawhere);
         if($db->num_rows($query) > 0) {
             while($assigned = $db->fetch_assoc($query)) {
@@ -617,8 +632,8 @@ class Entities {
             $query_extrawhere .= ' AND affid IN ('.implode(', ', $affiliates).')';
         }
 
-        $query = $db->query('SELECT * 
-					FROM '.Tprefix.'assignedemployees 
+        $query = $db->query('SELECT *
+					FROM '.Tprefix.'assignedemployees
 					WHERE eid='.$this->data['eid'].' AND uid NOT IN (SELECT uid FROM '.Tprefix.'users WHERE gid=7)'.$query_extrawhere);
         if($db->num_rows($query) > 0) {
             return true;
@@ -655,7 +670,7 @@ class Entities {
             $filters .= ')';
         }
 
-        $query = $db->query("SELECT mtid 
+        $query = $db->query("SELECT mtid
 							FROM ".Tprefix."meetings_associations
 							WHERE id='".$db->escape_string($this->data['eid'])."'".$filters);
         if($db->num_rows($query) > 0) {
@@ -677,7 +692,7 @@ class Entities {
     public function get_brands() {
         global $db;
 
-        $query = $db->query('SELECT ebid FROM '.Tprefix.'entitiesbrands WHERE eid="'.$db->escape_string($this->data['eid']).'"');
+        $query = $db->query('SELECT ebid FROM '.Tprefix.'entitiesbrands WHERE eid="'.intval($this->data['eid']).'"');
         if($db->num_rows($query) > 0) {
             while($brand = $db->fetch_assoc($query)) {
                 $brands[$brand['ebid']] = new EntitiesBrands($brand['ebid']);
@@ -698,6 +713,10 @@ class Entities {
             return $segments;
         }
         return false;
+    }
+
+    public function get_displayname() {
+        return $this->data[self::DISPLAY_NAME];
     }
 
     public function parse_link($attributes_param = array('target' => '_blank')) {

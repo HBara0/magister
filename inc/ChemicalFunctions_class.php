@@ -13,11 +13,12 @@
  *
  * @author tony.assaad
  */
-class Chemicalfunctions {
+class ChemicalFunctions {
     private $chemfunction = array();
 
     const PRIMARY_KEY = 'cfid';
     const TABLE_NAME = 'chemicalfunctions';
+    const DISPLAY_NAME = 'title';
 
     public function __construct($id = '', $simple = true) {
         if(isset($id)) {
@@ -47,7 +48,7 @@ class Chemicalfunctions {
                 return false;
             }
 
-            $data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true));
+            $data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true, 'method' => 'striponly'));
             if(empty($data['name']) && !isset($data['name'])) {
                 $data['name'] = strtolower($data['title']);
                 $data['name'] = preg_replace('/\s+/', '', $data['name']);
@@ -87,7 +88,7 @@ class Chemicalfunctions {
         if(!empty($name)) {
             $id = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'chemicalfunctions WHERE name="'.$db->escape_string($name).'"'), 'cfid');
             if(!empty($id)) {
-                return new Chemicalfunctions($id);
+                return new self($id);
             }
         }
         return false;
@@ -112,7 +113,7 @@ class Chemicalfunctions {
         $query = $db->query("SELECT cfid FROM ".Tprefix."chemicalfunctions{$sort_query} LIMIT {$limit_start}, {$core->settings['itemsperlist']}");
         if($db->num_rows($query) > 0) {
             while($chemicalfunction = $db->fetch_assoc($query)) {
-                $chemicalfunctions[$chemicalfunction['cfid']] = new Chemicalfunctions($chemicalfunction['cfid']);
+                $chemicalfunctions[$chemicalfunction['cfid']] = new self($chemicalfunction['cfid']);
             }
             return $chemicalfunctions;
         }
@@ -121,13 +122,13 @@ class Chemicalfunctions {
         }
     }
 
-    /* return multilples Segmentapplications object for the current chemicalfunction */
+    /* return multilples SegmentApplications object for the current chemicalfunction */
     public function get_applications() {
         global $db;
         $query = $db->query('SELECT safid, psaid FROM '.Tprefix.'segapplicationfunctions WHERE cfid='.$this->chemfunction['cfid']);
         if($db->num_rows($query) > 0) {
             while($application = $db->fetch_assoc($query)) {
-                $applications[$application['safid']] = new Segmentapplications($application['psaid']);
+                $applications[$application['safid']] = new SegmentApplications($application['psaid']);
             }
             return $applications;
         }
@@ -166,8 +167,15 @@ class Chemicalfunctions {
         }
     }
 
-    public function __set($name, $value) {
-        $this->chemfunction[$name] = $value;
+    public function __get($name) {
+        if(isset($this->chemfunction[$name])) {
+            return $this->chemfunction[$name];
+        }
+        return false;
+    }
+
+    public function get_displayname() {
+        return $this->chemfunction[self::DISPLAY_NAME];
     }
 
     public function get_errorcode() {

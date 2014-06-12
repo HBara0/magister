@@ -13,11 +13,12 @@
  *
  * @author tony.assaad
  */
-class Segmentapplications {
+class SegmentApplications {
     private $segmentapplication = array();
 
     const PRIMARY_KEY = 'psaid';
     const TABLE_NAME = 'segmentapplications';
+    const DISPLAY_NAME = 'title';
 
     public function __construct($id = '', $simple = true) {
         if(isset($id)) {
@@ -53,7 +54,7 @@ class Segmentapplications {
                 $data['name'] = preg_replace('/\s+/', '', $data['name']);
             }
 
-            $data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true));
+            $data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true, 'method' => 'striponly'));
             $segapplication_data = array(
                     'psid' => $data['psid'],
                     'title' => $data['title'],
@@ -106,7 +107,7 @@ class Segmentapplications {
         $query = $db->query("SELECT psaid FROM ".Tprefix."segmentapplications{$sort_query} LIMIT {$limit_start}, {$core->settings['itemsperlist']}");
         if($db->num_rows($query) > 0) {
             while($rowsegapp = $db->fetch_assoc($query)) {
-                $segments_applications[$rowsegapp['psaid']] = new Segmentapplications($rowsegapp['psaid']);
+                $segments_applications[$rowsegapp['psaid']] = new self($rowsegapp['psaid']);
             }
             return $segments_applications;
         }
@@ -165,8 +166,19 @@ class Segmentapplications {
         }
     }
 
+    public function __get($attr) {
+        if(isset($this->segmentapplication[$attr])) {
+            return $this->segmentapplication[$attr];
+        }
+        return false;
+    }
+
     public function get() {
         return $this->segmentapplication;
+    }
+
+    public function get_displayname() {
+        return $this->segmentapplication[self::DISPLAY_NAME];
     }
 
     public function set(array $data) {

@@ -13,7 +13,7 @@
  *
  * @author tony.assaad
  */
-class Segapplicationfunctions {
+class SegApplicationFunctions {
     private $segapplicationfunction = array();
 
     public function __construct($id, $simple = true) {
@@ -66,7 +66,7 @@ class Segapplicationfunctions {
         $query = $db->query('SELECT safid FROM '.Tprefix.'segapplicationfunctions'.$filter_where.$sort_query.' LIMIT '.$limit_start.', '.$limit_offset);
         if($db->num_rows($query) > 0) {
             while($rowsegappfunc = $db->fetch_assoc($query)) {
-                $segments_applicationsfunctions[$rowsegappfunc['safid']] = new Segapplicationfunctions($rowsegappfunc['safid']);
+                $segments_applicationsfunctions[$rowsegappfunc['safid']] = new self($rowsegappfunc['safid']);
             }
             return $segments_applicationsfunctions;
         }
@@ -84,6 +84,13 @@ class Segapplicationfunctions {
 
     public function get_modifiedby() {
         return new Users($this->segapplicationfunction['modifiedBy']);
+    }
+
+    public function __get($attr) {
+        if(isset($this->segapplicationfunction[$attr])) {
+            return $this->segapplicationfunction[$attr];
+        }
+        return false;
     }
 
     public function get() {

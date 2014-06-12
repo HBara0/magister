@@ -151,6 +151,13 @@ class Marketintelligence {
         return $this->errorcode;
     }
 
+    public function __get($name) {
+        if(isset($this->marketintelligence[$name])) {
+            return $this->marketintelligence[$name];
+        }
+        return false;
+    }
+
     public function get() {
         return $this->marketintelligence;
     }
@@ -252,6 +259,13 @@ class Marketintelligencecompetitors {
             $marketcomptrader[$rows['trader']] = new Entities($rows['trader']);
         }
         return $marketcomptrader;
+    }
+
+    public function __get($name) {
+        if(isset($this->mrktintelcompetitors[$name])) {
+            return $this->mrktintelcompetitors[$name];
+        }
+        return false;
     }
 
     public function get() {

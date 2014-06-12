@@ -13,7 +13,7 @@
  *
  * @author tony.assaad
  */
-class Entbrandsproducts {
+class EntBrandsProducts {
     private $entbrandproducts = array();
 
     public function __construct($id, $simple = true) {
@@ -60,10 +60,10 @@ class Entbrandsproducts {
     public static function get_entbrandsproducts($filter_where = '') {
         global $db;
 
-        /* Need to put order, filter, and limit 
-         * Need to put order, filter, and limit 
-         * Need to put order, filter, and limit 
-         * Need to put order, filter, and limit 
+        /* Need to put order, filter, and limit
+         * Need to put order, filter, and limit
+         * Need to put order, filter, and limit
+         * Need to put order, filter, and limit
          */
 
         $query = $db->query('SELECT * FROM '.Tprefix.'entitiesbrandsproducts '.$filter_where.'');
@@ -87,6 +87,13 @@ class Entbrandsproducts {
 
     public function get_modifiedby() {
         return new Users($this->entbrandproducts['modifiedBy']);
+    }
+
+    public function __get($name) {
+        if(isset($this->entbrandproducts[$name])) {
+            return $this->entbrandproducts[$name];
+        }
+        return false;
     }
 
     public function get() {

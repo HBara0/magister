@@ -13,6 +13,7 @@ class ProductsSegments {
 
     const PRIMARY_KEY = 'psid';
     const TABLE_NAME = 'productsegments';
+    const DISPLAY_NAME = 'title';
 
     public function __construct($id = '', $simple = true) {
         if(isset($id)) {
@@ -141,14 +142,24 @@ class ProductsSegments {
         JOIN '.Tprefix.'productsegments p ON (p.psid = es.psid) WHERE e.type = "c" '.$filterpermission.' AND p.psid = '.intval($this->segment['psid']).'');
         if($db->num_rows($query) > 0) {
             while($rowsegmentcustomers = $db->fetch_assoc($query)) {
-                $segmentscustomers[$rowsegmentcustomers['eid']] = new Entities($rowsegmentcustomers['eid
-        ']);
+                $segmentscustomers[$rowsegmentcustomers['eid']] = new Entities($rowsegmentcustomers['eid']);
             }
             return $segmentscustomers;
         }
         else {
             return false;
         }
+    }
+
+    public function __get($attr) {
+        if(isset($this->segment[$attr])) {
+            return $this->segment[$attr];
+        }
+        return false;
+    }
+
+    public function get_displayname() {
+        return $this->segment[self::DISPLAY_NAME];
     }
 
     public function get() {

@@ -16,6 +16,10 @@
 class EndproducTypes {
     private $endproduct = array();
 
+    const PRIMARY_KEY = 'eptid';
+    const TABLE_NAME = 'endproducttypes';
+    const DISPLAY_NAME = 'title';
+
     public function __construct($id = '', $simple = false) {
         if(isset($id)) {
             $this->read($id, $simple);
@@ -84,18 +88,18 @@ class EndproducTypes {
 
     public static function get_endproductypes() {
         global $db, $core;
-        $sort_query = ' ORDER BY  title  ASC';
+        $sort_query = ' ORDER BY title ASC';
         if(isset($core->input['sortby'], $core->input['order'])) {
-            $sort_query = ' ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
+            $sort_query = $db->escape_string(' ORDER BY '.$core->input['sortby'].' '.$core->input['order']);
         }
 
         if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
-            $core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+            $core->settings['itemsperlist'] = intval($core->input['perpage']);
         }
 
         $limit_start = 0;
         if(isset($core->input['start'])) {
-            $limit_start = $db->escape_string($core->input['start']);
+            $limit_start = intval($core->input['start']);
         }
         $query = $db->query("SELECT eptid FROM ".Tprefix."endproducttypes{$sort_query} LIMIT {$limit_start}, {$core->settings['itemsperlist']} ");
         if($db->num_rows($query) > 0) {
@@ -104,9 +108,18 @@ class EndproducTypes {
             }
             return $producttypes;
         }
-        else {
-            return false;
+        return false;
+    }
+
+    public function __get($name) {
+        if(isset($this->endproduct[$name])) {
+            return $this->endproduct[$name];
         }
+        return false;
+    }
+
+    public function get_displayname() {
+        return $this->endproduct[self::DISPLAY_NAME];
     }
 
     public function get() {

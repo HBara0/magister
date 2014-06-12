@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: Chemfunctionproducts_class.php
  * Created:        @tony.assaad    Dec 3, 2013 | 5:09:33 PM
@@ -13,9 +13,12 @@
  *
  * @author tony.assaad
  */
-class Chemfunctionproducts {
+class ChemFunctionProducts {
     private $chemfuntionproducts = array();
     private $segmentapplicationfunction = null;
+
+    const PRIMARY_KEY = 'cfpid';
+    const TABLE_NAME = 'chemfunctionproducts';
 
     public function __construct($id, $simple = true) {
         if(isset($id)) {

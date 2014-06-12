@@ -16,6 +16,10 @@
 class EntitiesBrands {
     private $entitiesbrands = array();
 
+    const PRIMARY_KEY = 'ebid';
+    const TABLE_NAME = 'entitiesbrands';
+    const DISPLAY_NAME = 'name';
+
     public function __construct($id = '', $simple = false) {
         if(isset($id)) {
             $this->read($id, $simple);
@@ -147,6 +151,17 @@ class EntitiesBrands {
 
     public function get_errorcode() {
         return $this->errorcode;
+    }
+
+    public function __get($name) {
+        if(isset($this->entitiesbrands[$name])) {
+            return $this->entitiesbrands[$name];
+        }
+        return false;
+    }
+
+    public function get_displayname() {
+        return $this->entitiesbrands[self::DISPLAY_NAME];
     }
 
     public function get() {

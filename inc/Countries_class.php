@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Countries Class
  * $id: Countries_class.php
  * Created:        @zaher.reda    Mar 8, 2013 | 4:56:25 PM
@@ -10,6 +10,10 @@
 
 class Countries {
     private $country = array();
+
+    const PRIMARY_KEY = 'coid';
+    const TABLE_NAME = 'countries';
+    const DISPLAY_NAME = 'name';
 
     public function __construct($id) {
         if(empty($id)) {
@@ -39,6 +43,13 @@ class Countries {
             if(!empty($id)) {
                 return new Countries($id);
             }
+        }
+        return false;
+    }
+
+    public function __get($name) {
+        if(isset($this->country[$name])) {
+            return $this->country[$name];
         }
         return false;
     }
