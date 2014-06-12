@@ -63,6 +63,13 @@ class Entities {
                 unset($this->data['representative'], $this->data['rep_numrows']);
             }
 
+            $representatives = array_filter(array_map('array_filter', $representatives));
+            if(empty($representatives)) {
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                $this->status = false;
+                exit;
+            }
+
             $affiliates = $this->data['affid'];
             unset($this->data['affid']);
 
