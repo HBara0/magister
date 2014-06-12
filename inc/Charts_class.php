@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright � 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Charts Class
  * $id: Charts_class.php
  * Last Update: @zaher.reda 	July 11, 2012 | 09:53 AM
@@ -175,6 +175,10 @@ class Charts {
     private function build_linechart() {
         $this->DataSet = new pData();
 
+        if(!isset($this->options['seriesweight'])) {
+            $this->options['seriesweight'] = 4;
+        }
+
         foreach($this->data['y'] as $legend => $line) {
             if(count($line) == 1) {
                 $line[0] = 0;
@@ -182,6 +186,10 @@ class Charts {
 
             //ksort($line);
             $this->DataSet->addPoints($line, $legend);
+            $this->DataSet->setSerieWeight($legend, $this->options['seriesweight']);
+            if(isset($this->options['linescolors'][$legend]) && is_array($this->options['linescolors'][$legend])) {
+                $this->DataSet->setPalette($legend, $this->options['linescolors'][$legend]);
+            }
         }
 
         $this->DataSet->setAxisName(0, $this->options['yaxisname']);
@@ -195,10 +203,6 @@ class Charts {
             ksort($this->data['x']);
         }
         $this->DataSet->addPoints($this->data['x'], 'x');
-        if(!isset($this->options['serieweight'])) {
-            $this->options['serieweight'] = 2;
-        }
-        $this->DataSet->setSerieWeight('x', $this->options['serieweight']);
         $this->DataSet->setSerieDescription('x', $this->options['xaxisname']);
         $this->DataSet->setAbscissa('x');
 
