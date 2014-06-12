@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: list.php
  * Created:        @tony.assaad    Nov 8, 2013 | 4:54:21 PM
@@ -53,19 +53,25 @@ else {
         $meeting_obj = new Meetings($mtid);
         $shared_users = $meeting_obj->get_shared_users();
         if(is_array($shared_users)) {
-            $shared_users = array_keys($shared_users);
+            foreach($shared_users as $uid => $user) {
+                $user = $user->get();
+                $checked = ' checked="checked"';
+                $rowclass = 'greenbackground';
+
+                eval("\$sharewith_rows .= \"".$template->get('popup_meetings_sharewith_rows')."\";");
+            }
         }
 
         foreach($affiliates_users as $uid => $user) {
             $user = $user->get();
-            $checked = '';
+            $checked = $rowclass = '';
             if($uid == $core->user['uid']) {
                 continue;
             }
 
             if(is_array($shared_users)) {
-                if(in_array($uid, $shared_users)) {
-                    $checked = ' checked="checked"';
+                if(array_key_exists($uid, $shared_users)) {
+                    continue;
                 }
             }
 
