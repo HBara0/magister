@@ -25,6 +25,7 @@
                 });
             });
         </script>
+        <script src="{$core->settings[rootdir]}/js/profiles_marketintelligence.js" type="text/javascript"></script>
     </head>
     <body>
         {$header}

@@ -28,20 +28,9 @@
                 });
             {$header_rmljs}
             {$header_ratingjs}
-
-                $('div[id^="markettimeline_"]').click(function() {
-                    var id = $(this).attr("id").split('_');
-                    var link = $('div[id^="previoustimelinecontainer_' + id[1] + '"]');
-                    // Exit and stop ajax request  if the data is loaded already
-                    if (link.data('dataloaded') === true) {
-                        $('div[id^="previoustimelinecontainer_' + id[1] + '"]').slideToggle("slow");
-                        return false;
-                    }
-
-                    sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=parse_previoustimeline", "cfpid=" + id[1], 'markettimeline_' + id[1] + '', 'previoustimelinecontainer_' + id[1] + '', true, 'animate');
-                });
             });
         </script>
+        <script src="{$core->settings[rootdir]}/js/profiles_marketintelligence.js" type="text/javascript"></script>
     </head>
     <body>
         {$header}
