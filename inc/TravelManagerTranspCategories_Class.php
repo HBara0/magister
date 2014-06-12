@@ -31,9 +31,9 @@ class TravelManagerTranspCategories {
         $this->transpcategories = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
 
-    public static function get_categories_byattr($attr, $value) {
+    public static function get_categories_byattr($attr, $value, $options = null) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
-        return $data->get_objects_byattr($attr, $value);
+        return $data->get_objects_byattr($attr, $value, $options);
     }
 
     public static function get_categories($filters = null, array $configs = array()) {

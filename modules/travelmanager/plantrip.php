@@ -16,7 +16,7 @@ if(!$core->input['action']) {
     $leaveid = 10982;
     $sequence = 1;
 
-    $tools_addnewtab = '<a id="createtab" class="showpopup" href="#"><img border="0" alt="Create New Tab" src="images/addnew.png"></img> </a>';
+    $tools_addnewtab = '<a id="createtab" class="showpopup" href="#" title="'.$lang->addsegment.'"><img border="0"  alt="Create New Tab" src="images/addnew.png"></img> </a>';
 
     $segments = null;
     if(!empty($segments)) {
@@ -26,15 +26,14 @@ if(!$core->input['action']) {
         /* Popuplate basic information from the leave based on the lid passed via ajax */
         $leave_obj = new Leaves(array('lid' => $leaveid), false);
         $leave = $leave_obj->get();
-
+        $segment['countryleave'] = $leave['coid'];
         $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], $leave['fromDate']);
-        $segment[$sequence]['fromDate_formatted'] = $leave['fromDate'];
+        $segment[$sequence]['fromDate_formatted'] = date('d-m-Y', $leave['fromDate']);
         $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], $leave['toDate']);
-
         $segment[$sequence]['toDate_formatted'] = date('d-m-Y', $leave['toDate']);
-        print_r($segment);
-        $fromDate = new DateTime($segment[$sequence][$leave['fromDate_output']]);
-        $todate = new DateTime($segment[$sequence][$leave['toDate_output']]);
+        $leave[$sequence][toDate] = $leave['toDate'];
+        $fromDate = new DateTime($segment[$sequence]['fromDate_output']);
+        $todate = new DateTime($segment[$sequence]['toDate_output']);
 
         $segment[$sequence]['numberdays'] = $fromDate->diff($todate)->format(' %d days');
 
@@ -61,36 +60,45 @@ if(!$core->input['action']) {
     output($plantrip);
 }
 elseif($core->input['action'] == 'add_segment') {
-    $querystring = array('leaveid' => $core->input['lid'], 'sequence' => $core->input['sequence'], 'toDate' => $core->input['toDate'], 'destcity' => $core->input['destcity']);
+
+    $querystring = array('leaveid' => $core->input['lid'], 'sequence' => $core->input['sequence'], 'toDate' => $core->input['toDate'], 'leavetoDatetime' => $core->input['leavetoDatetime'], 'destcity' => $core->input['destcity']);
 
     foreach($querystring as $key => $val) {
         $$key = $db->escape_string($val);
     }
 
-//    $leaveid = $db->escape_string($core->input['lid']);
-//    $sequence = $db->escape_string($core->input['sequence']);
-//    $todate = $db->escape_string($core->input['todate']);
-//    $destcity = $db->escape_string($core->input['destcity']);
-
-    /* get prev city name */
-    $city_obj = new Cities($core->input['destcity']);
-    $descitydata = $city_obj->get();
-    /* origin city of the new  segment is destination of previous segment */
-    $segment[$sequence]['origincity']['name'] = $descitydata['name'];
-    $segment[$sequence]['origincity']['ciid'] = $descitydata['ciid'];
-    /* Overwrite from date of next segment with  TOdate of prev segment */
-
-    $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
-
-    $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
-
-
-    /* Popuplate basic information from the leave based on the lid passed via ajax */
     $leave_obj = new Leaves(array('lid' => $leaveid), false);
+    $leave = $leave_obj->get();
+    /* prevent adding new segment if to date  greater than original  leave end date */
+    $leave[$sequence]['toDate'] = $leave['toDate'];
+    $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 00:00:00', $leave[$sequence]['toDate']));
+    if(strtotime($core->input['toDate']) >= $leave[$sequence]['toDate']) {
+
+        output_xml("<message>sssss{$lang->dateexceeded}</message>");
+        exit;
+    }
+    else {
+        /* get prev city name */
+        $city_obj = new Cities($core->input['destcity']);
+        $descitydata = $city_obj->get();
+        /* origin city of the new  segment is destination of previous segment */
+        $segment[$sequence]['origincity']['name'] = $descitydata['name'];
+        $segment[$sequence]['origincity']['ciid'] = $descitydata['ciid'];
+        /* Overwrite from date of next segment with  TOdate of prev segment */
+        $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ($leave[$sequence]['toDate']));
+        $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ($leave[$sequence]['toDate'])); // leave to date
+        $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
+        $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
+
+        /* Popuplate basic information from the leave based on the lid passed via ajax */
+
+        $segment['countryleave'] = $leave['coid'];
+        //if($core->input['toDate']) > leavedate
 // from date todate origin city loaded via js from the prevsegment
-    $disabled = '';
-    eval("\$plantrip_createsegment= \"".$template->get('travelmanager_plantrip_createsegment')."\";");
-    output($plantrip_createsegment);
+        $disabled = '';
+        eval("\$plantrip_createsegment= \"".$template->get('travelmanager_plantrip_createsegment')."\";");
+        output($plantrip_createsegment);
+    }
 }
 elseif($core->input['action'] == 'populatecontent') {
     $origincityid = $db->escape_string($core->input['origincity']);
@@ -109,15 +117,28 @@ elseif($core->input['action'] == 'populatecontent') {
     $origintcity['name'] = $origincitydata[name];
     $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
     $directionapi = TravelManagerPlan::get_availablecitytransp(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']));  /* Get available tranportaion mode for the city proposed by google API */
+    $transpmode_googledirections = ' https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 
-    $drivingmode['url'] = $directionapi->routes[0]->legs[0]->steps[0]->transit_details->line->url;
-    $drivingmode['vehiclename'] = $directionapi->routes[0]->legs[0]->steps[0]->transit_details->line->vehicle->name;
-    $drivingmode['vehicletype'] = $directionapi->routes[0]->legs[0]->steps[0]->transit_details->line->vehicle->type;
+    for($i = 0; $i < count($directionapi->routes[0]->legs[0]->steps); $i++) {
+        if(!empty($directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->url)) {
+            $transitmode['url'] = $directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->url;
+        }
+        if(!empty($directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->name)) {
+            $transitmode['vehiclename'] = $directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->name;
+        }
+        if(!empty($directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->type)) {
+            $transitmode['vehicletype'] = $directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->type;
+        }
 
-    $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation($drivingmode, $sequence);
+        $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation($transitmode, array('origincity' => $origintcity, 'destcity' => $destcity), $sequence);
+//  $parsed_drivingmode = '<span>'.$drivingmode['transpcat'].'</span>';
+        eval("\$transsegments_output  .= \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
+        unset($transitmode);
+    }
+
     /* Load proposed transproration */
 
-    eval("\$transsegments_output = \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
+
     /* load approved hotels */
 
     $approved_hotelsobjs = $descity_obj->get_approvedhotels();
@@ -127,7 +148,7 @@ elseif($core->input['action'] == 'populatecontent') {
             $hotelname = array($approved_hotels['tmhid'] => $approved_hotels['name']);
             $review_tools .= ' <a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
             $hotelssegments_output .= '    <div style="display:block;">'.parse_radiobutton('segment['.$sequence.'][tmhid]', $hotelname, '', true, '&nbsp;&nbsp;', array('required' => $approved_hotels['isRequired'])).'<span>'.$review_tools.'</span></div>';
-            //eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
+//eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
             $review_tools = '';
         }
     }
@@ -182,10 +203,9 @@ elseif($core->input['action'] == 'parsedetailstransp') {
 }
 elseif($core->input['action'] == 'do_perform_plantrip') {
     $travelplan_obj = new TravelManagerPlan();
-    if(is_array($core->input[segment])) {
-        $travelplan_obj->create($core->input[segment]);
+    if(is_array($core->input['segment'])) {
+        $travelplan_obj->create($core->input['segment']);
     }
-    exit;
     switch($travelplan_obj->get_errorcode()) {
         case 0:
             output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
@@ -194,10 +214,23 @@ elseif($core->input['action'] == 'do_perform_plantrip') {
             output_xml("<status>false</status><message>{$lang->planexist}</message>");
             exit;
         case 2:
-            output_xml("<status>false</status><message>{$lang->planexist}</message>");
+            output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
             exit;
         case 3:
-            output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+            output_xml("<status>false</status><message>{$lang->dateexceeded}</message>");
+            exit;
+        case 4:
+            output_xml("<status>false</status><message>{$lang->segmenexist}</message>");
+            exit;
+
+        case 5:
+            output_xml("<status>false</status><message>{$lang->oppositedate}</message>");
+            exit;
+        case 6:
+            output_xml("<status>false</status><message> {$lang->errorcity}</message>");
+            exit;
+        case 7:
+            output_xml("<status>false</status><message> {$lang->errordate} </message>");
             exit;
     }
 }

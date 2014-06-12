@@ -99,12 +99,25 @@ $(function() {
             }
         });
     }
+//    $("input[id^='pickDate']").datepicker({maxDate: "+1d"});
+//    $(this).datepicker("option", "maxDate", "+1d ");
+
+
+    $("input[id^='pickDate']").each(function() {
+        initalisedatepicker(this);
+    })
+
+
+    function initalisedatepicker(object) {
+        $(object).datepicker({altField: "#alt" + $(object).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown'});
+        $("#ui-datepicker-div").css("z-index", $(object).parents(".ui-dialog").css("z-index") + 1);
+    }
 
     $("input[id^='pickDate']").live('click', function() {
-        //$(this).removeClass('hasDatepicker');
-        $(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown'}).focus();
-        $("#ui-datepicker-div").css("z-index", $(this).parents(".ui-dialog").css("z-index") + 1);
-
+        if(!$(this).hasClass('hasDatepicker')) {
+            initalisedatepicker(this);
+            $(this).focus();
+        }
     });
 
     var accache = {};
@@ -113,6 +126,7 @@ $(function() {
             return;
         }
         var id = $(this).attr("id").split("_");
+        var restrictcountry = $("input[id='restrictcountry']").val();
 
         $(this).autocomplete({
             source: function(request, response) {
@@ -150,7 +164,7 @@ $(function() {
 //                }
 
                 filtersQuery = "";
-                var filters = new Array("rid", "spid", "cid", "spid[]");
+                var filters = new Array("rid", "spid", "cid", "spid[]", "coid");
                 for(var i = 0; i < filters.length; i++) {
                     if($("input[name='" + filters[i] + "']").length > 0) {
                         if($("input[name='" + filters[i] + "']").val() != '') {
@@ -169,6 +183,7 @@ $(function() {
                     if(id[id.length - 2] == 'cache') {
                         accache[ term ] = data;
                     }
+
                     response(data);
                 });
             },
@@ -689,8 +704,8 @@ $(function() {
                     }
                 },
                 success: function(returnedData) {
-                    console.log(returnedData);
-                    //alert(returnedData);
+                    //  console.log(returnedData);
+                    alert(returnedData);
                     if(datatype == 'xml') {
                         if($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -712,8 +727,13 @@ $(function() {
                             }
                         }
                     }
-                },
-                // dataType: datatype
+
+//                    if(onSuccessExecute.length > 0) {
+//
+//                        eval(onSuccessExecute);
+//                    }
+                }//,
+                //dataType: datatype
             });
         }
         function checkSession() {
@@ -800,6 +820,11 @@ $(function() {
 
                     if($(this).is("span")) {
                         $(this).html("");
+                    }
+
+
+                    if($(this).hasClass('hasDatepicker')) {
+                        $(this).removeClass('hasDatepicker');
                     }
                 });
             });

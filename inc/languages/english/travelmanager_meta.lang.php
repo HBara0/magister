@@ -14,8 +14,16 @@ $lang['conflicatingdestination'] = "The destination is conflicting with the plac
 $lang['createtab'] = 'Create Tab';
 $lang['origincity'] = 'Origin City';
 $lang['planexist'] = 'The Plan is Already exist';
+$lang['addsegment'] = 'Add new Segment';
 $lang['continue'] = 'Continue';
 $lang['reviewdby'] = 'Reviewd By :';
 $lang['readhotelreview'] = 'Read Hotel Review';
+$lang['dateexceeded'] = 'The segment from and to date cannot exceed the leave date ';
 $lang['destinationcity'] = 'Destination City';
+$lang['planexist'] = 'The plan already exist';
+$lang['segmenexist'] = 'Segment Already exist';
+$lang['errordate'] = 'itinerary exceed leave time frame';
+$lang['errorcity'] = 'The segment city must be the same of the previous city ';
+
+$lang['oppositedate'] = 'Segment from date cannot be greater than to date';
 ?>
