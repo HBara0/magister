@@ -617,9 +617,6 @@ $(function() {
             }
 
             var image_name = 'loading-bar.gif';
-            if (options == 'animate') {
-                var image_name = 'ajax-loader.gif';
-            }
 
             $.ajax({type: methodParam,
                 url: urlParam,
@@ -649,8 +646,6 @@ $(function() {
                         if(options != "undefined") {
                             if(options == 'animate') {
                                 $("#" + contentId).slideDown("slow");
-                                // If successful, bind 'loaded' in the data
-                                $("#" + contentId).data('dataloaded', true)
                             }
                         }
                     }
