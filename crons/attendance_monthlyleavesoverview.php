@@ -95,7 +95,7 @@ if(!$core->input['action']) {
 
     foreach($mgt_affid as $mgtuid => $affiliate) {
         foreach($affiliate as $affid => $val) {
-            $users_affid_query = $db->query("SELECT u.uid, displayName AS name, ae.affid, a.name as affname, u.reportsTo 
+            $users_affid_query = $db->query("SELECT u.uid, displayName AS name, ae.affid, a.name as affname, u.reportsTo
                                             FROM ".Tprefix."users u
                                             JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid)
                                             JOIN ".Tprefix."affiliates a ON (ae.affid = a.affid)
@@ -147,14 +147,14 @@ if(!$core->input['action']) {
 
         foreach($users_info as $uid => $val) {
             $query = $db->query("SELECT l.*, t.isWholeDay
-                                FROM ".Tprefix."leaves l 
-                                JOIN ".Tprefix."leavetypes t ON (l.type=t.ltid)  
+                                FROM ".Tprefix."leaves l
+                                JOIN ".Tprefix."leavetypes t ON (l.type=t.ltid)
                                 WHERE l.uid = {$uid} AND l.type IN (".implode(',', $types).") AND ((l.fromDate BETWEEN {$startdate} AND {$enddate}) OR (l.toDate BETWEEN {$startdate} AND {$enddate}))");
 
             if($db->num_rows($query) > 0) {
                 $workshift_query = $db->query("SELECT uid, fromDate, toDate
                                                 FROM ".Tprefix."employeesshifts
-                                                WHERE uid = {$uid} AND (({$startdate} BETWEEN fromDate AND toDate) OR ( {$enddate} BETWEEN fromDate AND toDate))");
+                                                WHERE uid = {$uid} AND (({$startdate} BETWEEN fromDate AND toDate) OR ({$enddate} BETWEEN fromDate AND toDate))");
                 $array_shift = array();
                 if($db->num_rows($workshift_query) > 0) {
                     while($shift = $db->fetch_assoc($workshift_query)) {
@@ -243,8 +243,8 @@ if(!$core->input['action']) {
                     }
                 }
 
-                $balance_query = $db->query("SELECT canTake, additionalDays 
-                                            FROM ".Tprefix."leavesstats 
+                $balance_query = $db->query("SELECT canTake, additionalDays
+                                            FROM ".Tprefix."leavesstats
                                             WHERE uid = {$uid} AND ltid = {$ltid} AND (((periodStart BETWEEN {$startdate} AND {$enddate}) OR (periodEnd  BETWEEN {$startdate} AND {$enddate})))");
 
                 while($stats = $db->fetch_assoc($balance_query)) {
@@ -278,6 +278,9 @@ if(!$core->input['action']) {
                 if(is_array($total[$ltid][$uid])) {
                     $output[$val['affid']][$ltid][$uid] .= '<td style="font-style:italic;">'.array_sum($total[$ltid][$uid]).'</td>';
                 }
+                else {
+                    $output[$val['affid']][$ltid][$uid] .= '<td style="font-style:italic;">0</td>';
+                }
 
                 if(!in_array($ltid, $skipbalance_types)) {
                     if(isset($balance[$ltid][$uid])) {
@@ -291,15 +294,18 @@ if(!$core->input['action']) {
                         $output[$val['affid']][$ltid][$uid] .= '<td style="font-weight:bold;">0</td></tr>';
                     }
                 }
+                else {
+                    $output[$val['affid']][$ltid][$uid] .= '<td style="font-weight:bold;"></td></tr>';
+                }
             }
             /* Get leaves - END */
 
             /* Parse Timeline - START */
             $timeline_excludedtypes = array(10);
-            $timeline_query = $db->query("SELECT l.*, t.* 
-                                        FROM ".Tprefix."leaves l 
-                                        JOIN ".Tprefix."leavetypes t ON (l.type=t.ltid)  
-                                        WHERE l.uid = {$uid} AND ((l.fromDate BETWEEN {$timelinestart} AND {$timelineend}) OR (l.toDate BETWEEN {$timelinestart} AND {$timelineend})) 
+            $timeline_query = $db->query("SELECT l.*, t.*
+                                        FROM ".Tprefix."leaves l
+                                        JOIN ".Tprefix."leavetypes t ON (l.type=t.ltid)
+                                        WHERE l.uid = {$uid} AND ((l.fromDate BETWEEN {$timelinestart} AND {$timelineend}) OR (l.toDate BETWEEN {$timelinestart} AND {$timelineend}))
                                         AND l.type NOT IN (".implode(', ', $timeline_excludedtypes).")
                                         GROUP BY l.lid
                                         ORDER BY l.fromDate DESC");
@@ -353,10 +359,10 @@ if(!$core->input['action']) {
                 }
             }
 
-            $additionalleave_query = $db->query("SELECT ad.*, CONCAT(firstName, ' ', lastName) AS addedByName 
-                                                FROM ".Tprefix."attendance_additionalleaves ad 
+            $additionalleave_query = $db->query("SELECT ad.*, CONCAT(firstName, ' ', lastName) AS addedByName
+                                                FROM ".Tprefix."attendance_additionalleaves ad
                                                 JOIN ".Tprefix."users u ON (u.uid=ad.addedBy)
-                                                WHERE ad.uid = {$uid} AND (date BETWEEN {$timelinestart} AND {$timelineend}) 
+                                                WHERE ad.uid = {$uid} AND (date BETWEEN {$timelinestart} AND {$timelineend})
                                                 ORDER BY date DESC");
 
             if($db->num_rows($additionalleave_query) > 0) {
@@ -542,17 +548,16 @@ if(!$core->input['action']) {
                 continue;
             }
 
-//            //echo $message_output;
+            //echo $message_output;
 //            print_r($email_data);
-//            echo '<hr />';
+            echo '<hr />';
             $mail = new Mailer($email_data, 'php');
-
             if($mail->get_status() === true) {
                 $log->record($lang->monthlyleavesoverview, $email_data['to']);
 //					//$result['successfully'][]= $supid;
             }
             else {
-                //$result['error'][] = $supid;
+                $result['error'][] = $supid;
             }
             //echo '<hr />';
 
