@@ -28,6 +28,9 @@ class DataAccessLayer {
     public function get_objects($filters = null, array $configs = array()) {
         global $db;
 
+        if(!isset($configs['simple'])) {
+            $configs['simple'] = true;
+        }
         $items = array();
         $sql = 'SELECT '.$this->primary_key.' FROM '.Tprefix.$this->table_name;
 
@@ -122,13 +125,42 @@ class DataAccessLayer {
         if(is_array($filters) && !empty($filters)) {
             $andor = ' WHERE ';
             foreach($filters as $attr => $value) {
-                if(is_numeric($value)) {
-                    $value = intval($value);
+                if(!isset($operators[$attr]) || empty($operators[$attr])) {
+                    $operators['attr'] = '=';
+                }
+
+                if(is_array($value)) {
+                    if($operators[$attr] == 'like') {
+
+                    }
+                    else {
+                        $value_numerichk = array_filter($value, 'is_numeric');
+                        if($value_numerichk == $value) {
+                            $value = array_map(intval, $value);
+                            $filters_querystring .= $andor.$attr.' IN ('.implode(',', $value).')';
+                        }
+                        else {
+                            $value = array_map($db->escape_string, $value);
+                            $filters_querystring .= $andor.$attr.' IN ('.implode(',', $value).')';
+                        }
+                    }
                 }
                 else {
-                    $value = '"'.$db->escape_string($value).'"';
+                    if(is_numeric($value)) {
+                        $operators[$attr] = '=';
+                        $value = intval($value);
+                    }
+                    else {
+                        if($operators[$attr] == 'like') {
+                            $value = '"%'.$db->escape_string($value).'%"';
+                        }
+                        else {
+                            $operators[$attr] = '=';
+                            $value = '"'.$db->escape_string($value).'"';
+                        }
+                    }
+                    $filters_querystring .= $andor.$attr.$operators[$attr].$value;
                 }
-                $filters_querystring .= $andor.$attr.'='.$value;
                 $andor = ' AND ';
             }
         }
