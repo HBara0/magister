@@ -15,6 +15,9 @@ if($core->input['type'] == 'quick') {
     $dofilter = false;
     if(isset($core->input['filter'])) {
         $dofilter = true;
+        if(isset($core->input['coid']) && !empty($core->input['coid'])) {
+            $restrictcountry_filter = "coid ='".$db->escape_string($core->input['coid'])."'";
+        }
         if(isset($core->input['rid']) && !empty($core->input['rid'])) {
             $report_data = $db->fetch_array($db->query("SELECT affid, spid FROM ".Tprefix."reports WHERE rid='".$db->escape_string($core->input['rid'])."'"));
         }
@@ -216,6 +219,10 @@ if($core->input['type'] == 'quick') {
             if(strlen($core->input['value']) < 3) {
                 exit;
             }
+            if(!empty($restrictcountry_filter)) {
+                $extra_where = $restrictcountry_filter;
+            }
+
             $table = 'cities';
             $attributes = array('name');
             $key_attribute = 'ciid';
