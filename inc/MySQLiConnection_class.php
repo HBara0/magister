@@ -189,10 +189,10 @@ class MySQLiConnection {
     }
 
     public function escape_string($string) {
-        if(function_exists('mysql_real_escape_string') && $this->link) {
+        if(function_exists('mysqli_real_escape_string') && $this->link) {
             return mysqli_real_escape_string($this->link, $string);
         }
-        elseif(function_exists('mysql_escape_string')) {
+        elseif(function_exists('mysqli_escape_string')) {
             return mysqli_escape_string($this->link, $string);
         }
         else {
