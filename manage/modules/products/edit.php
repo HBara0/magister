@@ -51,16 +51,19 @@ if(!$core->input['action']) {
         foreach($supplier['segments'] as $segment_obj) {
             $segmentapplications_obj = $segment_obj->get_applications();
             if(is_array($segmentapplications_obj)) {
-                $segment_applications = $segment_applications + array_keys($segmentapplications_obj);
+
+                $segment_applications = array_merge($segment_applications, array_keys($segmentapplications_obj)); //$segment_applications + array_keys($segmentapplications_obj);
             }
         }
     }
+
     if(!empty($segment_applications)) {
         $segappfunc_objs_where = 'psaid IN ('.implode(',', $segment_applications).')';
 
         $segappfunc_objs = SegApplicationFunctions::get_segmentsapplicationsfunctions(array('filterwhere' => $segappfunc_objs_where), array('limit' => 0, 'offset' => 100000));
         if(is_array($segappfunc_objs)) {
             foreach($segappfunc_objs as $segappfunc_obj) {
+                $rowclass = '';
                 /* call the associatives objects */
                 $segmentapp_data['segappfuncs'] = $segappfunc_obj->get();
                 $cfpid = $db->fetch_field($db->query("SELECT cfpid
@@ -77,6 +80,7 @@ if(!$core->input['action']) {
                 //$chemicalfunc_id = $chemfunc_obj->get()['cfid'];
                 if(value_exists('chemfunctionproducts', 'safid', $segmentapp_data['segappfuncs']['safid'], 'pid='.$pid)) {
                     $defaultfunctionchecked[$segmentapp_data['segappfuncs']['safid']] = " checked='checked'";
+                    $rowclass = 'greenbackground';
                 }
                 $segmentapp_data['segment'] = $segappfunc_obj->get_segment()->get()['title'];
                 $segmentapp_data['application'] = $segappfunc_obj->get_application()->get()['title'];
