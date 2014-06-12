@@ -702,6 +702,15 @@ class Entities {
         return false;
     }
 
+    public function get_brandsproducts() {
+        $data = new DataAccessLayer(EntBrandsProducts, 'entitiesbrandsproducts', 'ebpid');
+        $brands = $this->get_brands();
+        if(is_array($brands)) {
+            return $data->get_objects(array('ebid' => array_keys($brands)), array('returnarray' => true));
+        }
+        return false;
+    }
+
     public function get_segments() {
         global $db;
 
