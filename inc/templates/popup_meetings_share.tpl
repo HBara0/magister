@@ -4,9 +4,15 @@
         <input type="hidden" value="do_share" name="action" id="action" />
         <div style="width:100%; height:250px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
             <table class="datatable" width="100%">
-                {$sharewith_rows} 
+                <thead>
+                <th></th>
+                <th><input class='inlinefilterfield' type='text' style="width: 95%" placeholder="{$lang->employee}"/></th>
+                </thead>
+                <tbody>
+                    {$sharewith_rows}
+                </tbody>
             </table>
-        </div> 
+        </div>
         <div style="display:table; border-collapse:collapse; width:100%;">
             <div style="display:table-row;">
                 <div style="display: table-cell; width:35%;">
