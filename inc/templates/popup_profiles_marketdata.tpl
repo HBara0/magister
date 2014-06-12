@@ -1,31 +1,4 @@
 <div id="popup_profilesmarketdata" title="{$lang->addmarketdata}">
-    <script type="text/javascript">
-        $(function() {
-            $('input[id="mktshareperc"]').live('keyup', function() {
-                if (!jQuery.isNumeric($('input[id="mktshareperc"]').val())) {
-                    return;
-                }
-                if ($(this).val().length > 0 && $('input[id=potential]').val().length > 0) {
-                    $('input[id="mktshareqty"]').val(Number($('input[id="potential"]').val()) * $(this).val() / 100);
-                }
-            });
-            $('input[id="mktshareqty"]').live('keyup', function() {
-                if ($('input[id="potential"]').val().length > 0) {
-                    $('input[id="mktshareperc"]').val($(this).val() / ($('input[id="potential"]').val()) * 100);
-                    //$('input[id="mktshareperc"]').trigger('keyup');
-                }
-            });
-            /*parse end product type*/
-            $("input[id='customer_1_QSearch']").live('blur', function() {
-                var cid = $('input[id="customer_1_id"]').val();
-                if (cid.length == 0) {
-                    return;
-                }
-                var data = "&action=get_entityendproduct&attr=" + $(this).attr("name") + "&value=" + cid;
-                sharedFunctions.requestAjax("post", "index.php?module=" + "{$module}/{$modulefile}", data, 'entitiesbrandsproducts_endproductResult', 'entitiesbrandsproducts_endproductResult', 'html');
-                        });
-                    });
-    </script>
     <form name="perform_{$module}/{$modulefile}_Form" id="perform_{$module}/{$modulefile}_Form">
         <input type="hidden" name="action" value="{$action}"/>
         <input type="hidden" name="{$elementname}" value="{$elemtentid}"/>
