@@ -104,7 +104,7 @@ if(!$core->input['action']) {
     $limitedemail_radiobutton = parse_yesno('limitedEmail', 11, 1);
     $to_inform = parse_toinform_list();
     /* Parse user own leave to plan */
-    $user_leaveobjs = TravelManagerPlan::get_unplannedleaves();   // get only approved business leave
+    //d $user_leaveobjs = TravelManagerPlan::get_unplannedleaves();   // get only approved business leave
     if(is_array($user_leaveobjs)) {
         foreach($user_leaveobjs as $user_leaveobj) {
             $userleave = $user_leaveobj->get();
