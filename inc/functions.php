@@ -428,7 +428,7 @@ function parse_radiobutton($name, $items, $checked_option = '', $display_title =
     return false;
 }
 
-function parse_checkboxes($name, $items, $selected_options = array(), $display_title = true, $seperator = '') {
+function parse_checkboxes($name, $items, $selected_options = array(), $display_title = true, $title, $seperator = '') {
     if(is_array($items)) {
         foreach($items as $key => $val) {
             $checked = '';
@@ -441,7 +441,7 @@ function parse_checkboxes($name, $items, $selected_options = array(), $display_t
                     $checked = ' checked="checked"';
                 }
             }
-            $checkbox .= '<input name="'.$name.'['.$key.']" id="'.$name.'_'.$key.'" type="checkbox" value="'.$key.'"'.$checked.'/>'.$val.$seperator;
+            $checkbox .= '<input name="'.$name.'['.$key.']" id="'.$name.'_'.$key.'" type="checkbox"  title="'.$title.'" value="'.$key.'"'.$checked.'/>'.$val.$seperator;
         }
         return $checkbox;
     }
@@ -455,7 +455,6 @@ function value_exists($table, $attribute, $value, $extra_where = '') {
         $extra_where = ' AND '.$extra_where;
     }
     $attribute = $db->escape_string($attribute);
-
     $query = $db->query("SELECT {$attribute} FROM ".Tprefix."{$table} WHERE {$attribute}='".$db->escape_string($value)."'{$extra_where}");
     if($db->num_rows($query) > 0) {
         return true;
