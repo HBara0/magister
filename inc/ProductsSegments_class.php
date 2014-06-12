@@ -65,7 +65,7 @@ class ProductsSegments {
         $query = $db->query('SELECT psaid FROM '.Tprefix.'segmentapplications WHERE psid="'.$this->segment['psid'].'"');
         if($db->num_rows($query) > 0) {
             while($rowsegmentapp = $db->fetch_assoc($query)) {
-                $segmentsapp[$rowsegmentapp['psaid']] = new Segmentapplications($rowsegmentapp['psaid']);
+                $segmentsapp[$rowsegmentapp['psaid']] = new SegmentApplications($rowsegmentapp['psaid']);
             }
             return $segmentsapp;
         }

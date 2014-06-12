@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: manageapplication.php
  * Created:        @tony.assaad    Dec 5, 2013 | 11:50:21 AM
@@ -42,7 +42,7 @@ if(!$core->input['action']) {
     }
     $chemicals_obj = Chemicalfunctions::get_functions();
     if(is_array($chemicals_obj)) {
-        /* for best preformance loop over the returned Chemicalfunctions objects and get their related data */
+        /* for best preformance loop over the returned ChemicalFunctions objects and get their related data */
         $checmicalfunctions_list = '<option value="" selected="selected" > </option>';
         foreach($chemicals_obj as $chemical_obj) {
             $chemical = $chemical_obj->get();

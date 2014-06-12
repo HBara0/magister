@@ -3,17 +3,17 @@
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
  *
  * [Provide Short Descption Here]
- * $id: Marketintelligence_class.php
+ * $id: MarketIntelligence_class.php
  * Created:        @tony.assaad    Dec 27, 2013 | 3:24:47 PM
  * Last Update:    @tony.assaad    Dec 27, 2013 | 3:24:47 PM
  */
 
 /**
- * Description of Marketintelligence_class
+ * Description of MarketIntelligence_class
  *
  * @author tony.assaad
  */
-class Marketintelligence {
+class MarketIntelligence {
     private $marketintelligence = array();
 
     public function __construct($id = '', $simple = false) {

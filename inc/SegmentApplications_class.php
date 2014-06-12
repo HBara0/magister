@@ -121,7 +121,7 @@ class SegmentApplications {
         $query = $db->query('SELECT cfid, safid FROM '.Tprefix.'segapplicationfunctions WHERE psaid="'.intval($this->segmentapplication['psaid']).'"');
         if($db->num_rows($query) > 0) {
             while($rowsegmentappfunc = $db->fetch_assoc($query)) {
-                $segmentsappfunc[$rowsegmentappfunc['safid']] = new Chemicalfunctions($rowsegmentappfunc['cfid']);
+                $segmentsappfunc[$rowsegmentappfunc['safid']] = new ChemicalFunctions($rowsegmentappfunc['cfid']);
             }
             return $segmentsappfunc;
         }

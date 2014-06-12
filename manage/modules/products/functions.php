@@ -33,7 +33,7 @@ if(!$core->input['action']) {
         }
     }
 
-    $functions_obj = Chemicalfunctions::get_functions();
+    $functions_obj = ChemicalFunctions::get_functions();
     if(is_array($functions_obj)) {
         /* loop over the returned objects and get their related data */
         foreach($functions_obj as $function_obj) {
@@ -65,7 +65,7 @@ if(!$core->input['action']) {
     output_page($functionpage);
 }
 elseif($core->input['action'] == 'do_create') {
-    $function_obj = new Chemicalfunctions();
+    $function_obj = new ChemicalFunctions();
     $function_obj->create($core->input['chemicalfunctions']);
     switch($function_obj->get_errorcode()) {
         case 0:

@@ -36,7 +36,7 @@ class ChemFunctionProducts {
     }
 
     public function get_segapplicationfunction() {
-        $this->segmentapplicationfunction = new Segapplicationfunctions($this->chemfuntionproducts['safid']);  /* we store object in the var to avoid multiple instantiation thus will avoid multiple queries */
+        $this->segmentapplicationfunction = new SegApplicationFunctions($this->chemfuntionproducts['safid']);  /* we store object in the var to avoid multiple instantiation thus will avoid multiple queries */
         return $this->segmentapplicationfunction;
     }
 

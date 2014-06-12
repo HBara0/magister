@@ -58,7 +58,7 @@ if(!$core->input['action']) {
     if(!empty($segment_applications)) {
         $segappfunc_objs_where = 'psaid IN ('.implode(',', $segment_applications).')';
 
-        $segappfunc_objs = Segapplicationfunctions::get_segmentsapplicationsfunctions(array('filterwhere' => $segappfunc_objs_where), array('limit' => 0, 'offset' => 100000));
+        $segappfunc_objs = SegApplicationFunctions::get_segmentsapplicationsfunctions(array('filterwhere' => $segappfunc_objs_where), array('limit' => 0, 'offset' => 100000));
         if(is_array($segappfunc_objs)) {
             foreach($segappfunc_objs as $segappfunc_obj) {
                 /* call the associatives objects */
@@ -73,7 +73,7 @@ if(!$core->input['action']) {
                 $segmentapp_data['chemicalfunction'] = $segappfunc_obj->get_function()->get();
                 $segmentapp_data['existingprodfunctionids'] = $segmentapp_data['chemicalfunction']['cfid'];
 
-                $chemfunc_obj = new Chemicalfunctions($segmentapp_data['existingprodfunctionids']);
+                $chemfunc_obj = new ChemicalFunctions($segmentapp_data['existingprodfunctionids']);
                 //$chemicalfunc_id = $chemfunc_obj->get()['cfid'];
                 if(value_exists('chemfunctionproducts', 'safid', $segmentapp_data['segappfuncs']['safid'], 'pid='.$pid)) {
                     $defaultfunctionchecked[$segmentapp_data['segappfuncs']['safid']] = " checked='checked'";

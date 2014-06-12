@@ -74,7 +74,7 @@ class Products {
         $query = $db->query("SELECT cfpid FROM ".Tprefix."chemfunctionproducts WHERE pid=".$db->escape_string($this->product['pid']));
         if($db->num_rows($query) > 0) {
             while($chemfunctionproduct = $db->fetch_assoc($query)) {
-                $chemfunctionproducts[$chemfunctionproduct['cfpid']] = new Chemfunctionproducts($chemfunctionproduct['cfpid']);
+                $chemfunctionproducts[$chemfunctionproduct['cfpid']] = new ChemFunctionProducts($chemfunctionproduct['cfpid']);
             }
             return $chemfunctionproducts;
         }

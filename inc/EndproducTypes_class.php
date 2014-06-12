@@ -64,7 +64,7 @@ class EndproducTypes {
     }
 
     public function get_application() {
-        return new Segmentapplications($this->endproduct['psaid']);
+        return new SegmentApplications($this->endproduct['psaid']);
     }
 
     public function get_createdby() {

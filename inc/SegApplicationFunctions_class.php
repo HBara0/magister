@@ -32,11 +32,11 @@ class SegApplicationFunctions {
     }
 
     public function get_function() {
-        return new Chemicalfunctions($this->segapplicationfunction['cfid']);
+        return new ChemicalFunctions($this->segapplicationfunction['cfid']);
     }
 
     public function get_application() {
-        return new Segmentapplications($this->segapplicationfunction['psaid']);
+        return new SegmentApplications($this->segapplicationfunction['psaid']);
     }
 
     public static function get_segmentsapplicationsfunctions(array $filters = array('filterwhere', 'hasitemperlist'), array $configs = array()) {

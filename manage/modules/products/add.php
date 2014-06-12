@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Add products
  * $module: admin/products
- * $id: add.php	
+ * $id: add.php
  * Last Update: @zaher.reda 	Apr 23, 2009 | 01:38 PM
  */
 if(!defined('DIRECT_ACCESS')) {
@@ -31,7 +31,7 @@ if(!$core->input['action']) {
     $pagetitle = $lang->addaproduct;
 
     /* Parse all  segapplicationfunctions and get the associatives functions and segment  */
-    $segappfunc_objs = Segapplicationfunctions::get_segmentsapplicationsfunctions();
+    $segappfunc_objs = SegApplicationFunctions::get_segmentsapplicationsfunctions();
     if(is_array($segappfunc_objs)) {
         foreach($segappfunc_objs as $segappfunc_obj) {
             $rowclass = alt_row($rowclass);

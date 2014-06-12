@@ -134,7 +134,7 @@ class EntitiesBrands {
 
         $query = $db->query('SELECT ebpid  FROM '.Tprefix.'entitiesbrandsproducts WHERE ebid="'.intval($this->entitiesbrands['ebid']).'"');
         while($entbrandproduct = $db->fetch_assoc($query)) {
-            $entbrandproducts[$entbrandproduct['ebpid']] = new Entbrandsproducts($entbrandproduct['ebpid']);
+            $entbrandproducts[$entbrandproduct['ebpid']] = new EntBrandsProducts($entbrandproduct['ebpid']);
         }
         return $entbrandproducts;
     }

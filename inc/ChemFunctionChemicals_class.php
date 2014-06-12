@@ -1,19 +1,19 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
- * $id: Chemfunctionchemcials_class.php
+ * $id: ChemFunctionchemicals_class.php
  * Created:        @tony.assaad    Dec 4, 2013 | 11:17:50 AM
  * Last Update:    @tony.assaad    Dec 4, 2013 | 11:17:50 AM
  */
 
 /**
- * Description of Chemfunctionchemcials_class
+ * Description of ChemFunctionchemicals_class
  *
  * @author tony.assaad
  */
-class Chemfunctionchemcials {
+class ChemFunctionChemicals {
     private $chemfuntionchemical = array();
     private $segmentapplicationfunction = null;
 
@@ -34,7 +34,7 @@ class Chemfunctionchemcials {
 
     /* return segmentapplication object */
     public function get_segapplicationfunction() {
-        $this->segmentapplicationfunction = new Segapplicationfunctions($this->chemfuntionchemical['safid']);  /* we store object in the var to avoid multiple instantiation thus will avoid multiple queries */
+        $this->segmentapplicationfunction = new SegApplicationFunctions($this->chemfuntionchemical['safid']);  /* we store object in the var to avoid multiple instantiation thus will avoid multiple queries */
         return $this->segmentapplicationfunction;
     }
 
