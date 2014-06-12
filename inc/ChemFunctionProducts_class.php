@@ -74,6 +74,13 @@ class ChemFunctionProducts {
         return new Users($this->chemfuntionproducts['modifiedBy']);
     }
 
+    public function __get($attr) {
+        if(isset($this->chemfuntionproducts[$attr])) {
+            return $this->chemfuntionproducts[$attr];
+        }
+        return false;
+    }
+
     public function get() {
         return $this->chemfuntionproducts;
     }

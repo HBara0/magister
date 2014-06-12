@@ -65,7 +65,7 @@ class MarketIntelligence {
             if($query) {
                 $this->marketdata['competitor']['mibdid'] = $db->last_id();
                 if(is_array($this->marketdata['competitor'])) {
-                    Marketintelligencecompetitors::save($this->marketdata['competitor']);
+                    MarketIntelligenceCompetitors::save($this->marketdata['competitor']);
                 }
                 $this->errorcode = 0;
                 return true;
@@ -108,7 +108,7 @@ class MarketIntelligence {
         if(!empty($id)) {
             $query = $db->query('SELECT mibdid ,createdOn FROM '.Tprefix.'marketintelligence_basicdata WHERE cfpid="'.$id.'" AND createdOn!=0 AND YEAR(CURDATE()) > FROM_UNIXTIME(createdOn, "%Y")  ORDER BY cfpid,createdOn DESC');
             while($rows = $db->fetch_assoc($query)) {
-                $prevmarketintelligence[$rows['mibdid']] = new Marketintelligence($rows['mibdid']);
+                $prevmarketintelligence[$rows['mibdid']] = new self($rows['mibdid']);
             }
             return $prevmarketintelligence;
         }
@@ -122,7 +122,7 @@ class MarketIntelligence {
         global $db;
         $query = $db->query('SELECT micid  FROM '.Tprefix.'marketintelligence_competitors WHERE mibdid='.$this->marketintelligence['mibdid'].'');
         while($rows = $db->fetch_assoc($query)) {
-            $marketcomp[$rows['micid']] = new Marketintelligencecompetitors($rows['micid']);
+            $marketcomp[$rows['micid']] = new MarketIntelligenceCompetitors($rows['micid']);
         }
         return $marketcomp;
     }
@@ -132,11 +132,11 @@ class MarketIntelligence {
     }
 
     public function get_chemfunctionproducts() {
-        return new Chemfunctionproducts($this->marketintelligence['cfpid']);
+        return new ChemFunctionProducts($this->marketintelligence['cfpid']);
     }
 
     public function get_entitiesbrandsproducts() {
-        return new Entbrandsproducts($this->marketintelligence['ebpid']);
+        return new EntBrandsProducts($this->marketintelligence['ebpid']);
     }
 
     public function get_createdby() {
@@ -172,7 +172,7 @@ class MarketIntelligence {
 
 }
 
-class Marketintelligencecompetitors {
+class MarketIntelligenceCompetitors {
     private $mrktintelcompetitors = array();
 
     public function __construct($id = '', $simple = false) {
