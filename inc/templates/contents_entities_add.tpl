@@ -2,36 +2,34 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->addentity}</title>
         {$headerinc}
-    </head>
-    <body>
-        {$header}
         <script language="javascript" type="text/javascript">
             $(function() {
-                if ($("select[id='type']").val() != 's' || $(this).val() == 'cs' || $(this).val() == 'potentialsupplier') {
-                    $("tr[id^='contractsection_']").hide();
-                    $("tr[id='supplierType']").hide();
+                if($("select[id='type']").val() == 's' || $(this).val() == 'cs') {
+                    $("tr[id='supplierType'], #parentcompany").show();
+                    $("#parentcustomer").hide();
                 }
-            {$showhideparent_customer}
-            {$showhideparent_company}
-                $("select[id='type']").change(function() {
+                else {
+                    $("tr[id='supplierType'], #parentcompany").hide();
+                    $("#parentcustomer").show();
+                }
 
-                    if ($(this).val() == 's' || $(this).val() == 'cs' || $(this).val() == 'potentialsupplier') {
+                $("select[id='type']").change(function() {
+                    if($(this).val() == 's' || $(this).val() == 'cs') {
                         $("#createReports,#noQReportReq,#noQReportSend").removeAttr("disabled");
-                        $("tr[id^='contractsection_']").show();
-                        $("tr[id='supplierType']").show();
-                        $("tr[id='parentcompany']").show();
+                        $("tr[id='supplierType'], tr[id='parentcompany']").show();
                         $("tr[id='parentcustomer']").hide();
                     }
                     else {
                         $("#createReports,#noQReportReq,#noQReportSend").attr("disabled", "true");
-                        $("tr[id^='contractsection_']").hide();
-                        $("tr[id='supplierType']").hide();
-                        $("tr[id='parentcompany']").hide();
+                        $("tr[id='supplierType'], tr[id='parentcompany']").hide();
                         $("tr[id='parentcustomer']").show();
                     }
                 });
             });
         </script>
+    </head>
+    <body>
+        {$header}
     <tr>
         {$menu}
         <td class="contentContainer">
@@ -42,24 +40,26 @@
                     <tr>
                         <td width="20%"><strong>{$lang->entitytype}</strong></td><td colspan="2">{$types_list}</td>
                     </tr>
-                    <tr  id="supplierType">
-                        <td><strong>{$lang->supptype}</strong></td><td >{$supptypes_list} </td>
-
+                    <tr id="supplierType">
+                        <td><strong>{$lang->supptype}</strong></td><td>{$supptypes_list}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>{$lang->presence}</strong></td><td>{$presence_list}</td>
                     </tr>
                     <tr>
                         <td><strong>{$lang->companyname}</strong></td><td width="30%">
-                            <input type="text" id="companyName" name="companyName" required="required" class="inlineCheck" title="{$lang->companyname_title}"/> {$lang->abbreviation} 
+                            <input type="text" id="companyName" name="companyName" required="required" class="inlineCheck" title="{$lang->companyname_title}"/> {$lang->abbreviation}
                             <input type="text" id="companyNameAbbr" name="companyNameAbbr" size='5' title="{$lang->companynameabbr_title}"/></td>
                         <td width="50%" rowspan="3" valign="top"><span id="companyName_inlineCheckResult"></span></td>
                     </tr>
+                    <tr>
+                        <td width="20%" valign="top"><strong>{$lang->companyshortname}</strong></td><td><input type="text" id="companyNameShort" required="required" name="companyNameShort" value="{$entity[companyNameShort]}"/></td>
+                    </tr>
                     <tr id="parentcompany">
-                        <td valign="top" ><strong>{$lang->parentcompany}</strong></td><td ><input type='text' id='supplier_1_QSearch' value="{$entity[parent]}"/><input type="hidden" size="3" id="supplier_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='supplier_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div></td>
+                        <td valign="top">{$lang->parentcompany}</td><td ><input type='text' id='supplier_1_QSearch' value="{$entity[parent]}"/><input type="hidden" size="3" id="supplier_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='supplier_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>
                     <tr id="parentcustomer">
-                        <td  valign="top"><strong>{$lang->parentcustomer}</strong></td><td><input type='text' id='customer_1_QSearch' value="{$entity[parent]}"/><input type="hidden" size="3" id="customer_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='customer_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_customer_1' class='searchQuickResults' style='display:none;'></div></td>
-                    </tr>
-                    <tr>
-                        <td width="20%" valign="top"><strong>{$lang->companyshortname}</strong></td><td><input type="text" id="companyNameShort" name="companyNameShort" value="{$entity[companyNameShort]}"/></td>
+                        <td valign="top">{$lang->parentcompany}</td><td><input type='text' id='customer_1_QSearch' value="{$entity[parent]}"/><input type="hidden" size="3" id="customer_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='customer_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_customer_1' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>
                     <tr>
                         <td><strong>{$lang->segments}</strong></td><td>{$segments_list}</td>
@@ -110,22 +110,6 @@
                         <td>{$lang->website}</td>
                         <td><input type="url" id="website" name="website" placeholder="http://www.example.com" /></td>
                     </tr>
-                    <tr>
-                        <td colspan="2" class="subtitle">{$lang->presence}</td>
-                    </tr>
-                    <tr> 
-                        <td>
-                            <table width="100%">
-                                <tr><td>{$presence[regional]}</td>
-                                    <td><input type="radio" name="presence"  value="{$presence[regional]}"{$radiobuttons_check[presence][regional]}/></td>
-                                    <td>{$presence[local]}</td>
-                                    <td><input type="radio" name="presence" value="{$presence[local]}"{$radiobuttons_check[presence][local]}/></td>
-                                    <td>{$presence[multinational]}</td>
-                                    <td><input type="radio" name="presence" value="{$presence[multinational]}"{$radiobuttons_check[presence][multinational]}/></td>
-                            </table>
-
-                        </td>
-                    </tr>
                     <tr><td colspan="3"><hr /></td><tr>
                         <td colspan="3" class="subtitle">{$lang->representatives}</td>
                     </tr>
@@ -133,11 +117,12 @@
                         <td colspan="3">
                             <table width="100%">
                                 <tbody id="representatives_tbody">
-                                    <tr id='1'><td><input type='text' id='representative_1_QSearch' autocomplete='off' size='40px'/>
-                                            <input type='hidden' id='representative_1_id' name='representative[1][rpid]'/><a href='#representative_1_id' id='addnew_contents/addentities_representative'><img src='images/addnew.png' border='0' alt='{$lang->add}'></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></tr>   
+                                    <tr id='1'><td><input type='text' id='representative_1_QSearch' autocomplete='off' size='40px' required="required" />
+                                            <input type='hidden' id='representative_1_id' name='representative[1][rpid]'/><a href='#representative_1_id' id='addnew_contents/addentities_representative'><img src='images/addnew.png' border='0' alt='{$lang->add}'></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></tr>
                                 </tbody>
                                 <tr><td colspan="2"><img src="images/add.gif" id="addmore_representatives" alt="{$lang->add}"><input type="hidden" name="rep_numrows" id="numrows" value="1"></td><tr>
-                            </table>            </td>
+                            </table>
+                        </td>
                     </tr>
                     <tr><td colspan="3"><hr /></td>
                     <tr>
@@ -147,7 +132,8 @@
                     <tr>
                         <td colspan="3" align="left">
                             <input type="submit" value="{$lang->add}" id="perform_contents/addentities_Button" /> <input type="reset" value="{$lang->reset}"/>
-                            <div id="perform_contents/addentities_Results"></div>            </td>
+                            <div id="perform_contents/addentities_Results"></div>
+                        </td>
                     </tr>
                 </table>
             </form>

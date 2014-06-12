@@ -4,31 +4,30 @@
         {$headerinc}
         <script language="javascript" type="text/javascript">
             $(function() {
-                if ($("select[id='type']").val() != 's') {
-                    $("tr[id^='contractsection_']").hide();
-                    $("tr[id='supplierType']").hide();
+                if($("select[id='type']").val() == 's' || $(this).val() == 'cs') {
+                    $("tr[id='supplierType'], #parentcompany").show();
+                    $("#parentcustomer").hide();
                 }
-            {$showhideparent_customer}
-            {$showhideparent_company}
+                else {
+                    $("tr[id='supplierType'], #parentcompany").hide();
+                    $("#parentcustomer").show();
+                }
+
                 $("select[id='type']").change(function() {
-                    if ($(this).val() == 's' || $(this).val() == 'cs' || $(this).val() == 'potentialsupplier') {
+                    if($(this).val() == 's' || $(this).val() == 'cs') {
                         $("#createReports,#noQReportReq,#noQReportSend").removeAttr("disabled");
-                        $("tr[id^='contractsection_']").show();
-                        $("tr[id='supplierType']").show();
-                        $("tr[id='parentcompany']").show();
+                        $("tr[id='supplierType'], tr[id='parentcompany']").show();
                         $("tr[id='parentcustomer']").hide();
                     }
                     else {
                         $("#createReports,#noQReportReq,#noQReportSend").attr("disabled", "true");
-                        $("tr[id^='contractsection_']").hide();
-                        $("tr[id='supplierType']").hide();
-                        $("tr[id='parentcompany']").hide();
+                        $("tr[id='supplierType'], tr[id='parentcompany']").hide();
                         $("tr[id='parentcustomer']").show();
                     }
                 });
 
                 $("#noQReportReq").change(function() {
-                    if ($(this).is(":checked")) {
+                    if($(this).is(":checked")) {
                         $("#createReports,#noQReportSend").attr("disabled", "true");
                     }
                     else
@@ -57,20 +56,18 @@
                     <tr>
                         <td ><strong>{$lang->presence}</strong></td><td >{$presence_list} </td>
                     </tr>
+                    <tr>
+                        <td width="20%" valign="top"><strong>{$lang->companyname}</strong></td><td><input type="text" id="companyName" name="companyName" value="{$entity[companyName]}"/> {$lang->abbreviation} <input type="text" id="companyNameAbbr" name="companyNameAbbr" value="{$entity[companyNameAbbr]}" size="10"/> <input type="hidden" id="logo" name="logo" value="{$entity[logo]}"> <a id="showpopup_setentitylogo" class="showpopup"><img src="../images/icons/photo.gif" border="0" alt="Add Logo"></a></td>
+                    </tr>
+                    <tr>
+                        <td width="20%" valign="top"><strong>{$lang->companyshortname}</strong></td><td><input type="text" id="companyNameShort" name="companyNameShort" value="{$entity[companyNameShort]}"/><div id="entitylogo_placeholder">{$entity[logo_output]}</div></td>
+                    </tr>
                     <tr id="parentcompany">
-                        <td width="20%" valign="top">{$lang->parentcompany}</td><td><input type='text' id='supplier_1_QSearch' autocomplete="off" value="{$entity[parent]}"/><input type="text" size="3" id="supplier_1_id_output" value="{$entity[parent_companyName]}" disabled/><input type='hidden' id='supplier_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div></td>
+                        <td width="20%" valign="top">{$lang->parentcompany}</td><td><input type='text' id='supplier_1_QSearch' autocomplete="off" value="{$entity[parent_companyName]}"/><input type="text" size="3" id="supplier_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='supplier_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>
                     <tr id="parentcustomer">
-                        <td  valign="top"><strong>{$lang->parentcustomer}</strong></td><td><input type='text' id='customer_1_QSearch' value="{$entity[parent]}"/><input type="hidden" size="3" id="customer_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='customer_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_customer_1' class='searchQuickResults' style='display:none;'></div></td>
+                        <td valign="top">{$lang->parentcompany}</td><td><input type='text' id='customer_1_QSearch' value="{$entity[parent_companyName]}"/><input type="hidden" size="3" id="customer_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='customer_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_customer_1' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>
-                    <tr>
-                        <td width="20%" valign="top"><strong>{$lang->companyname}</strong></td><td><input type="text" id="companyName" name="companyName" value="{$entity[companyName]}"/> {$lang->abbreviation} <input type="text" id="companyNameAbbr" name="companyNameAbbr" value="{$entity[companyNameAbbr]}" size="10"/> <input type="hidden" id="logo" name="logo" value="{$entity[logo]}"> <a id="showpopup_setentitylogo" class="showpopup"><img src="../images/icons/photo.gif" border="0" alt="Add Logo"></a><div id="entitylogo_placeholder">{$entity[logo_output]}</div></td>
-                    </tr>
-
-                    <tr>
-                        <td width="20%" valign="top"><strong>{$lang->companyshortname}</strong></td><td><input type="text" id="companyNameShort" name="companyNameShort" value="{$entity[companyNameShort]}"/></td>
-                    </tr>
-
                     <tr>
                         <td><strong>{$lang->segments}</strong></td><td>{$segments_list}</td>
                     </tr>

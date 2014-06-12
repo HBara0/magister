@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright � 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Add entities
  * $module: admin/entities
- * $id: add.php	
+ * $id: add.php
  * Last Update: @zaher.reda 	July 19, 2010 | 03:49 PM
  */
 if(!defined("DIRECT_ACCESS")) {
@@ -21,16 +21,13 @@ if(!$core->input['action']) {
     if(isset($core->input['type'])) {
         if($core->input['type'] == 'supplier') {
             $selected_type = 's';
-            $showhideparent_customer = '$("tr[id=parentcustomer]").hide()';
         }
         else {
             $selected_type = 'c';
-            $showhideparent_company = '$("tr[id=parentcompany]").hide()';
             $noqreportsend_disabled = $noqreportreq_disabled = $createreports_disabled = ' disabled';
         }
     }
     else {
-        $showhideparent_company = '$("tr[id=parentcompany]").hide()';
         $noqreportsend_disabled = $noqreportreq_disabled = $createreports_disabled = ' disabled';
     }
 
@@ -40,22 +37,21 @@ if(!$core->input['action']) {
 
     if($core->usergroup['canAddCustomers'] == 1) {
         $types['c'] = $lang->customer;
-        $types['potentialcusotmer'] = $lang->potentialcusotmer;
+        $types['pc'] = $lang->potentialcustomer;
     }
 
     if($core->usergroup['canAddSuppliers'] == 1) {
         $types['s'] = $lang->supplier;
-        $types['potentialsupplier'] = $lang->potentialsupplier;
-        $types['cs'] = $lang->cs;
+        $types['cs'] = $lang->competitorsupplier;
     }
 
     $types_list = parse_selectlist('type', 1, $types, $selected_type);
-    $supptypes = array('trader' => $lang->trader, 'producer' => $lang->producer, 'both' => $lang->both);
+    $supptypes = array('t' => $lang->trader, 'p' => $lang->producer, 'b' => $lang->both);
     $supptypes_list = parse_selectlist('supplierType', 1, $supptypes, '', '', '', array('blankstart' => 1));
     $presence = array('regional' => $lang->regional, 'local' => $lang->local, 'multinational' => $lang->multinational);
     $presence_list = parse_selectlist('presence', 2, $presence, $entity['presence']);
 
-    $segments_list = parse_selectlist("psid[]", 3, get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', 'title'), '', 1);
+    $segments_list = parse_selectlist('psid[]', 3, get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', 'title'), '', 1);
 
     $affiliates_attributes = array('affid', 'name');
     $affiliates_order = array(
@@ -90,7 +86,7 @@ if(!$core->input['action']) {
 
     $headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
 
-    eval("\$addpage = \"".$template->get("admin_entities_addedit")."\";");
+    eval("\$addpage = \"".$template->get('admin_entities_addedit')."\";");
     output_page($addpage);
 }
 else {
@@ -101,17 +97,6 @@ else {
 
         $entity_data = $core->input;
         unset($entity_data['module'], $entity_data['action'], $entity_data['createReports']);
-        if($entity_data['type'] == 'potentialcusotmer') {
-            $entity_data['isPotential'] = 1;
-            $entity_data['type'] = 'c';
-        }
-        elseif($entity_data['type'] == 'potentialsupplier') {
-            $entity_data['isPotential'] = 1;
-            $entity_data['type'] = 's';
-        }
-        else {
-            $entity_data['isPotential'] = 0;
-        }
 
         $entity_data['approved'] = 1;
         $entity = new Entities($entity_data);
@@ -125,7 +110,7 @@ else {
                             'year' => $current_quarter['year'],
                             'affid' => $val,
                             'spid' => $entity->get_eid(),
-                            'initDate' => time(),
+                            'initDate' => TIME_NOW,
                             'status' => 0
                     );
                     $db->insert_query('reports', $newreport);

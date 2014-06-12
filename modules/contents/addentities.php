@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Add entities
  * $module: contents
- * $id: addentities.php	
+ * $id: addentities.php
  * Last Update: @zaher.reda 	February 15, 2012 | 10:05 AM
  */
 if(!defined('DIRECT_ACCESS')) {
@@ -22,16 +22,13 @@ if(!$core->input['action']) {
     if(isset($core->input['type'])) {
         if($core->input['type'] == 'supplier') {
             $selected_type = 's';
-            $showhideparent_customer = '$("tr[id=parentcustomer]").hide()';
         }
         else {
             $selected_type = 'c';
-            $showhideparent_company = '$("tr[id=parentcompany]").hide()';
             $createreports_disabled = ' disabled';
         }
     }
     else {
-        $showhideparent_company = '$("tr[id=parentcompany]").hide()';
         $createreports_disabled = ' disabled';
     }
     if($core->usergroup['canCreateReports'] == 0) {
@@ -40,19 +37,20 @@ if(!$core->input['action']) {
 
     if($core->usergroup['canAddCustomers'] == 1) {
         $types['c'] = $lang->customer;
-        $types['potentialcusotmer'] = $lang->potentialcusotmer;
+        $types['pc'] = $lang->potentialcustomer;
     }
 
     if($core->usergroup['canAddSuppliers'] == 1) {
         $types['s'] = $lang->supplier;
-        $types['potentialsupplier'] = $lang->potentialsupplier;
-        $types['cs'] = $lang->cs;
+        $types['cs'] = $lang->competitorsupplier;
     }
-    $supptypes = array('trader' => $lang->trader, 'producer' => $lang->producer, 'both' => $lang->both);
-    $presence = array('regional' => $lang->regional, 'local' => $lang->local, 'multinational' => $lang->multinational);
-    $supptypes_list = parse_selectlist('supplierType', 1, $supptypes, '', '', '', array('blankstart' => 1));
+    $supptypes = array('t' => $lang->trader, 'p' => $lang->producer, 'b' => $lang->both);
+    $presence = array('local' => $lang->local, 'regional' => $lang->regional, 'multinational' => $lang->multinational);
+
+    $supptypes_list = parse_selectlist('supplierType', 1, $supptypes, '', '', '');
+    $presence_list = parse_selectlist('presence', 2, $presence, '');
     $types_list = parse_selectlist('type', 1, $types, $selected_type, '', '', array('required' => 'required'));
-    $segments_list = parse_selectlist("psid[]", 3, get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', 'title'), '', 1, '', array('required' => 'required'));
+    $segments_list = parse_selectlist('psid[]', 3, get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', 'title'), '', 1, '', array('required' => 'required'));
 
     $affiliates_attributes = array('affid', 'name');
     $affiliates_order = array(
@@ -61,7 +59,7 @@ if(!$core->input['action']) {
     );
 
     $affiliates = get_specificdata('affiliates', $affiliates_attributes, 'affid', 'name', $affiliates_order);
-    $affiliates_list = parse_selectlist("affid[]", 4, $affiliates, '', 1, '', array('required' => 'required'));
+    $affiliates_list = parse_selectlist('affid[]', 4, $affiliates, '', 1, '', array('required' => 'required'));
 
     $countries_attributes = array('coid', 'name');
     $countries_order = array(
@@ -83,23 +81,17 @@ else {
 
         $entity_data = $core->input;
         unset($entity_data['module'], $entity_data['action'], $entity_data['createReports']);
-        if($entity_data['type'] == 'potentialcusotmer') {
-            $entity_data['isPotential'] = 1;
-            $entity_data['type'] = 'c';
+        if($entity_data['type'] == 'pc') {
+            //$entity_data['isPotential'] = 1;
         }
-        elseif($entity_data['type'] == 'potentialsupplier') {
-            $entity_data['isPotential'] = 1;
-            $entity_data['type'] = 's';
-        }
-        else {
-            $entity_data['isPotential'] = 0;
-        }
+
         $entity_data['approved'] = 1;
         if($entity_data['type'] == 's') {
             if($core->usergroup['canManageSuppliers'] == 0) {
                 $entity_data['approved'] = 0;
             }
         }
+
         $entity_data['companyName'] = ucwords(strtolower($entity_data['companyName']));
         $entity = new Entities($entity_data);
         if($entity->get_status() === true) {
@@ -152,8 +144,8 @@ else {
             }
             else {
                 $query = $db->query("SELECT eid, companyName
-									FROM ".Tprefix."entities 
-									WHERE SOUNDEX(".$db->escape_string($core->input['attr']).") = SOUNDEX('".$db->escape_string($core->input['value'])."') 
+									FROM ".Tprefix."entities
+									WHERE SOUNDEX(".$db->escape_string($core->input['attr']).") = SOUNDEX('".$db->escape_string($core->input['value'])."')
 									OR ".$db->escape_string($core->input['attr'])." LIKE '%".$db->escape_string($core->input['value'])."%'");
                 if($db->num_rows($query) > 0) {
                     while($entity = $db->fetch_assoc($query)) {

@@ -24,8 +24,6 @@ if(!$core->input['action']) {
     }
 
     $eid = $db->escape_string($core->input['eid']);
-    //$entity = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid='{$eid}'"));
-
     $entity_obj = new Entities($core->input['eid'], '', false);
     $entity = $entity_obj->get();
     $entity['parent_obj'] = $entity_obj->get_parent();
@@ -36,25 +34,13 @@ if(!$core->input['action']) {
     if($entity['type'] == 'c' && $core->usergroup['canManageCustomers'] == 0) {
         redirect('index.php?module=home/index');
     }
-    if($entity['type'] == 'c') {
-        $showhideparent_company = '$("tr[id=parentcompany]").hide()';
-    }
-    elseif($entity['type'] == 's') {
-        $showhideparent_customer = '$("tr[id=parentcustomer]").hide()';
-    }
+
     if($entity['type'] == 's' && $core->usergroup['canManageSuppliers'] == 0) {
         redirect('index.php?module=home/index');
     }
 
-    if($entity['isPotential'] == 1 && $entity[type] == 's') {
-        $entity['type'] = 'potentialsupplier';
-    }
-    elseif($entity['isPotential'] == 1 && $entity[type] == 'c') {
-        $entity['type'] = 'potentialcusotmer';
-    }
-
-    $types_list = parse_selectlist('type', 1, array('c' => $lang->customer, 's' => $lang->supplier, 'potentialcusotmer' => $lang->potentialcusotmer, 'potentialsupplier' => $lang->potentialsupplier), $entity['type']);
-    $supptypes = array('trader' => $lang->trader, 'producer' => $lang->producer, 'both' => $lang->both);
+    $types_list = parse_selectlist('type', 1, array('c' => $lang->customer, 's' => $lang->supplier, 'pc' => $lang->potentialcustomer, 'cs' => $lang->competitorsupplier), $entity['type']);
+    $supptypes = array('t' => $lang->trader, 'p' => $lang->producer, 'b' => $lang->both);
     $supptypes_list = parse_selectlist('supplierType', 1, $supptypes, $entity['supplierType']);
     $presence = array('regional' => $lang->regional, 'local' => $lang->local, 'multinational' => $lang->multinational);
     $presence_list = parse_selectlist('presence', 2, $presence, $entity['presence']);
@@ -186,21 +172,10 @@ else {
     if($core->input['action'] == 'do_perform_edit') {
         $entity_data = $core->input;
         unset($entity_data['module'], $entity_data['action'], $entity_data['createReports']);
-        if($entity_data['type'] == 'potentialcusotmer') {
-            $entity_data['isPotential'] = 1;
-            $entity_data['type'] = 'c';
-        }
-        elseif($entity_data['type'] == 'potentialsupplier') {
-            $entity_data['isPotential'] = 1;
-            $entity_data['type'] = 's';
-        }
-        else {
-            $entity_data['isPotential'] = 0;
-        }
 
         $entity = new Entities($entity_data, 'edit');
         if($entity->get_status() === true) {
-            log_action($entity->get_eid());
+            $log->record($entity->get_eid());
         }
     }
     elseif($core->input['action'] == 'do_approve') {
