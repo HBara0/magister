@@ -19,7 +19,7 @@
                         <td><strong>{$lang->name}</strong></td><td><input type="text" name="name" id="name" tabindex="2" value="{$product[name]}"/></td>
                     </tr>
                     <tr>
-                        <td><strong>{$lang->generic}</strong></td><td>{$generics_list}</td>
+                        <td><strong>{$lang->generic}</strong></td><td>{$generics_list} <span class="ui-state-highlight ui-corner-all" style="padding: 5px;">Legacy approach; do not change.</span></td>
                     </tr>
                     <tr>
                         <td><strong>{$lang->supplier}</strong></td><td><input type='text' id='supplier_1_QSearch' value="{$product[suppliername]}"/><input type="text" size="3" id="supplier_1_id_output" value="{$product[spid]}" disabled/><input type='hidden' id='supplier_1_id' name='spid' value="{$product[spid]}" /><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
@@ -31,11 +31,17 @@
                                 <table class="datatable" width="100%">
                                     <thead>
                                         <tr class="altrow2">
-                                            <th>{$lang->isdefault}</th>
-                                            <th>&nbsp;</th>
+                                            <th colspan='2'>{$lang->isdefault}</th>
                                             <th>{$lang->functions}</th>
                                             <th>{$lang->applications}</th>
                                             <th>{$lang->segment}</th>
+                                        </tr>
+                                        <tr class="altrow2">
+                                            <th></th>
+                                            <th></th>
+                                            <th><input class='inlinefilterfield' type='text' style="width: 95%"/></th>
+                                            <th><input class='inlinefilterfield' type='text' style="width: 95%"/></th>
+                                            <th><input class='inlinefilterfield' type='text' style="width: 95%"/></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -43,7 +49,6 @@
                                     </tbody>
                                 </table>
                             </div>
-
                         </td>
                     </tr>
                     <tr class="thead"><td colspan="2">{$lang->chemicalsubstances}..</td></tr>
