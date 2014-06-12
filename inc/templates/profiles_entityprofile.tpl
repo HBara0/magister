@@ -124,7 +124,7 @@
             </table>
         </td></tr>
         {$footer}
+        {$popup_createbrand}
+        {$popup_marketdata}
 </body>
 </html>
-{$popup_createbrand}
-{$popup_marketdata}

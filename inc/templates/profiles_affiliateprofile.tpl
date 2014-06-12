@@ -95,12 +95,10 @@
                     {$extensions}
                 </table>
             </div>
-
-
-        </td></tr>
-        {$footer}
+        </td>
+    </tr>
+    {$footer}
+    {$popup_createbrand}
+    {$popup_marketdata}
 </body>
-{$popup_createbrand}
-{$popup_marketdata}
-
 </html>
