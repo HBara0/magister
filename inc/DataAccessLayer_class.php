@@ -51,7 +51,7 @@ class DataAccessLayer {
                 $pk = $db->fetch_field($query, $this->primary_key);
                 return array($pk => new $this->class($pk, $configs['simple']));
             }
-            else {
+            elseif($db->num_rows($query) == 1) {
                 return new $this->class($db->fetch_field($query, $this->primary_key), $configs['simple']);
             }
             return false;
