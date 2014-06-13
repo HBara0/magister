@@ -57,5 +57,10 @@ $lang['regional'] = "Regional";
 $lang['local'] = "Local";
 $lang['multinational'] = "Multinational";
 $lang['entity'] = "Entity";
-$lang['parentcustomer']='Parent Customer';
+$lang['companyshortname'] = 'Company Short Name';
+$lang['competitorsupplier'] = 'Competitor Supplier';
+$lang['potentialcustomer'] = 'Potential Customer';
+$lang['trader'] = 'Trader';
+$lang['producer'] = 'Producer';
+$lang['both'] = 'Both';
 ?>
