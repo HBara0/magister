@@ -64,7 +64,7 @@ if($session->uid > 0) {
     elseif(IN_AREA == 'admin') {
         eval("\$mainpageslink = \"".$template->get('header_mainpageslink')."\";");
     }
-    $lang->welcomeuser = $lang->sprint($lang->welcomeuser, '<strong>'.$core->user['username'].'</strong>');
+    $lang->welcomeuser = $lang->sprint($lang->welcomeuser, '<strong>'.$core->user['displayName'].'</strong>');
     if($core->user['lastVisit'] == 0) {
         $lang->lastvisit = $lang->firstvisit;
     }
