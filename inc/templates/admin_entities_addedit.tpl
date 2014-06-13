@@ -164,10 +164,8 @@
                                     <thead>
                                     <th></th>
                                     <th><input class='inlinefilterfield' type='text' style="width:100%" placeholder="{$lang->coveredcountries}"/></th>
-
-
-                                    <th>isExclusive</th>
-                                    <th>selectiveProducts </th>
+                                    <th>{$lang->isexclusive}</th>
+                                    <th>{$lang->selectiveproducts}</th>
                                     </thead>
                                     <tbody>
                                         {$coveredcountries_rows}

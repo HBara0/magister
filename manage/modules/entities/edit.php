@@ -170,8 +170,6 @@ if(!$core->input['action']) {
     /* object contractedcountires  for the current supplier */
 
     foreach($contracted_objs as $eccid => $contracted_obj) {
-        print_R($contracted_obj->eccid);
-
         $contracted_country = $contracted_obj->get_country();
         $contracted_countries[$contracted_country->coid] = $contracted_obj;    // set the  contracted_obj for the  current country object
     }
