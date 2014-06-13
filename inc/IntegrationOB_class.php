@@ -504,10 +504,11 @@ class IntegrationOB extends Integration {
 
         if($options['method'] == 'fifo') {
             $query = $this->f_db->query("SELECT *
-									FROM obwfa_input_stack
-									WHERE ad_org_id IN ('".implode('\',\'', $organisations)."')
-									AND trxdate < '".date('Y-m-d 00:00:00', strtotime($date))."'
-									ORDER BY trxdate ASC, m_product_id ASC");
+                                        FROM obwfa_input_stack
+                                        WHERE ad_org_id IN ('".implode('\',\'', $organisations)."')
+                                        AND trxdate < '".date('Y-m-d 00:00:00', strtotime($date))."'
+                                        ORDER BY trxdate ASC, m_product_id ASC");
+
             if($this->f_db->num_rows($query) > 0) {
                 while($transcation = $this->f_db->fetch_assoc($query)) {
                     $stock['value'][$transcation['m_product_id']] += $transcation['cost'];
@@ -599,7 +600,7 @@ class IntegrationOB extends Integration {
         $last_aging_key = key($aging_scale);
         reset($aging_scale);
         foreach($aging_scale as $key => $age) {
-            if(($check_age > $age && $check_age < $aging_scale[$key + 1]) || $key == $last_aging_key) {
+            if($check_age == $age || ($check_age > $age && $check_age < $aging_scale[$key + 1]) || $key == $last_aging_key) {
                 $variable[$key] += $value;
                 break;
             }
