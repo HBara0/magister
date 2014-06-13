@@ -698,6 +698,20 @@ CREATE TABLE `entities` (
   `loyalty` int(2) DEFAULT NULL,
   PRIMARY KEY (`eid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3908 DEFAULT CHARSET=utf8;
+CREATE TABLE `entities_contractcountries` (
+  `eccid` int(10) NOT NULL AUTO_INCREMENT,
+  `eid` int(10) NOT NULL,
+  `coid` int(10) NOT NULL,
+  `isExclusive` tinyint(1) NOT NULL,
+  `selectiveProducts` tinyint(1) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`eccid`),
+  UNIQUE KEY `eccid` (`eccid`),
+  KEY `eccid_2` (`eccid`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `entities_ratingcriteria`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
