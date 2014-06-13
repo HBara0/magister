@@ -119,6 +119,11 @@
                         </div>
                     </td>
                 </tr>
+
+                {$contractsection}
+                <tr>
+                    {$profilepage_contractual}
+                </tr>
                 {$reports_section}
                 {$entityprofile_private}
             </table>

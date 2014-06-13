@@ -440,6 +440,30 @@ if(!$core->input['action']) {
         eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
     }
+
+
+    if($core->usergroup['profiles_canViewContractInfo'] == 1) {
+        $contracted_objs = $entity_obj->get_contractedcountires();
+        $contractsection = ' <tr id="contractsection_title"><td colspan="2" class="subtitle">'.$lang->contractualinformation.'</td></tr>';
+
+        foreach($contracted_objs as $eccid => $contracted_obj) {
+
+            $contracted_data = $contracted_obj->get();
+            $selectiveProducts = $isExclusive = '<img src="images/false.gif" border="0">';
+            $countryname = $contracted_obj->get_country()->get_displayname();
+            if($contracted_data['isExclusive'] == 1) {
+                $isExclusive = '<img src="images/true.gif" border="0">';
+            }
+            if($contracted_data['selectiveProducts'] == 1) {
+                $selectiveProducts = '<img src="images/false.gif" border="0">';
+            }
+
+            eval("\$profilepage_contractual_rows .= \"".$template->get('profiles_entityprofile_contractualinformations')."\";");
+        }
+        eval("\$profilepage_contractual = \"".$template->get('profiles_entityprofile_contractual')."\";");
+    }
+
+
     eval("\$profilepage = \"".$template->get('profiles_entityprofile')."\";");
     output_page($profilepage);
 }
@@ -549,7 +573,7 @@ else {
             foreach($mrktcompetitor_objs as $mrktcompetitor_obj) {
                 $mrktintl_detials['competitors'] = $mrktcompetitor_obj->get();
                 if(is_array($mrktintl_detials['competitors'])) {
-                    //$marketintelligencedetail_competitors = ' <div class="thead">'.$lang->competitor.'</div>';
+//$marketintelligencedetail_competitors = ' <div class="thead">'.$lang->competitor.'</div>';
                     $mrktintl_detials['competitors']['unitPrice'] = round($mrktintl_detials['competitors']['unitPrice']);
 
                     /* Get competitor suppliers objects */
@@ -593,7 +617,7 @@ else {
         $miprofile = $mrktint_obj->get_miprofconfig_byname($core->input['miprofile']);
         $miprofile['next_miprofile'] = $next_profiles[$core->input['miprofile']];
         $mrkt_objs = $mrktint_obj->get_marketintelligence_timeline($filter, $miprofile);
-        //$mrkt_objs = $mrktint_obj->get_marketintelligence_timeline('customer', 'cfpid', $cfpid, array('time' => 'allprevious', 'filterchemfunctprod' => 1));
+//$mrkt_objs = $mrktint_obj->get_marketintelligence_timeline('customer', 'cfpid', $cfpid, array('time' => 'allprevious', 'filterchemfunctprod' => 1));
 
         $is_last = false;
         if(empty($miprofile['next_miprofile'])) {
