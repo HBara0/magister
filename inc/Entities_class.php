@@ -137,6 +137,8 @@ class Entities {
                 $this->data['noQReportReq'] = 1; //By default no QR is required
             }
 
+            $coveredcountries = $this->data['coveredcountry'];
+            unset($this->data['coveredcountry']);
             $query = $db->insert_query('entities', $this->data);
             if($query) {
                 $this->eid = $db->last_id();
@@ -161,6 +163,12 @@ class Entities {
                 }
                 //}
 
+                foreach($coveredcountries as $coveredcountry) {
+                    $coveredcountry['eid'] = $this->eid;
+                    $countract_countryobj = new EntitiesContractCountries();
+                    /* set the object by the core input data and save the same object */
+                    $countract_countryobj->set($coveredcountry)->save();
+                }
                 $lang->entitycreated = $lang->sprint($lang->entitycreated, htmlspecialchars($this->data['companyName']));
                 output_xml("<status>true</status><message>{$lang->entitycreated}</message>");
                 $this->status = true;
@@ -301,8 +309,10 @@ class Entities {
                     }
                 }
                 /* Set value for unchecked checkboxes - END */
-
+                $coveredcountries = $this->data['coveredcountry'];
+                unset($this->data['coveredcountry']);
                 $query = $db->update_query('entities', $this->data, "eid='".$this->eid."'");
+
                 if($query) {
                     $db->delete_query('affiliatedentities', "eid='".$this->eid."'");
                     $this->insert_affiliatedentities($affiliates);
@@ -313,6 +323,12 @@ class Entities {
                         $this->insert_entitysegments($segments);
                     }
 
+                    foreach($coveredcountries as $coveredcountry) {
+                        $coveredcountry['eid'] = $this->eid;
+                        $countract_countryobj = new EntitiesContractCountries();
+                        /* set the object by the core input data and save the same object */
+                        $countract_countryobj->set($coveredcountry)->save();
+                    }
                     if(IN_AREA == 'admin') {
                         /* $query = $db->query("SELECT uid FROM ".Tprefix."assignedemployees WHERE isValidator='1' AND eid='".$this->eid."'");
                           $validators = array();
@@ -729,6 +745,10 @@ class Entities {
             return $segments;
         }
         return false;
+    }
+
+    public function get_contractedcountires() { /* for this supplier */
+        return EntitiesContractCountries::get_contractcountries('eid='.intval($this->data['eid']));
     }
 
     public function get_displayname() {

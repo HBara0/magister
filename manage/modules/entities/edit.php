@@ -25,6 +25,7 @@ if(!$core->input['action']) {
 
     $eid = $db->escape_string($core->input['eid']);
     $entity_obj = new Entities($core->input['eid'], '', false);
+
     $entity = $entity_obj->get();
     $entity['parent_obj'] = $entity_obj->get_parent();
     if(is_object($entity['parent_obj'])) {
@@ -163,6 +164,38 @@ if(!$core->input['action']) {
     $eidfield = "<input type='hidden' value='{$eid}' name='eid'>";
     $headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
 
+    /* coverd countires section */
+
+    $contracted_objs = $entity_obj->get_contractedcountires();
+    /* object contractedcountires  for the current supplier */
+
+    foreach($contracted_objs as $eccid => $contracted_obj) {
+        print_R($contracted_obj->eccid);
+
+        $contracted_country = $contracted_obj->get_country();
+        $contracted_countries[$contracted_country->coid] = $contracted_obj;    // set the  contracted_obj for the  current country object
+    }
+
+    $countries_objs = Countries::get_coveredcountries();
+    if(is_array($countries_objs)) {
+        foreach($countries_objs as $country) {
+            $countryname = $country->get_displayname();
+            if(is_array($contracted_countries)) {
+                if(array_key_exists($country->coid, $contracted_countries)) {
+                    $checked[coid] = " checked='checked'";
+                }
+                if($contracted_countries[$country->coid]->isExclusive == 1) {
+                    $checked['isExclusive'] = " checked='checked'";
+                }
+                if($contracted_countries[$country->coid]->selectiveProducts == 1) {
+
+                    $checked['selectiveProducts'] = " checked='checked'";
+                }
+            }
+            eval("\$coveredcountries_rows .= \"".$template->get('admin_entities_addedit_coveredcountries')."\";");
+            unset($checked);
+        }
+    }
 
     $entity['logo_output'] = '<img src="../uploads/entitieslogos/'.$entity['logo'].'" width="200" />';
     eval("\$editpage = \"".$template->get('admin_entities_addedit')."\";");

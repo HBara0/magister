@@ -11,6 +11,7 @@ $lang['entitytype'] = "Entity type";
 $lang['parentcompany'] = 'Parent';
 $lang['supptype'] = 'Supplier Type';
 $lang['trader'] = 'Trader';
+$lang['coveredcountries'] = 'Search Covered Countries';
 $lang['producer'] = 'Producer';
 $lang['both'] = 'Both';
 $lang['cs'] = 'Competitor Supplier';
@@ -57,5 +58,5 @@ $lang['regional'] = "Regional";
 $lang['local'] = "Local";
 $lang['multinational'] = "Multinational";
 $lang['entity'] = "Entity";
-$lang['parentcustomer']='Parent Customer';
+$lang['parentcustomer'] = 'Parent Customer';
 ?>

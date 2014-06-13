@@ -31,6 +31,15 @@ class Countries {
         return new Currencies($this->country['mainCurrency']);
     }
 
+    public static function get_coveredcountries() {
+        return self::get_countries('affid !=0');
+    }
+
+    public static function get_countries($filters = '', $configs = array()) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
+    }
+
     public function get_affiliate() {
         return new Affiliates($this->country['affid']);
     }
@@ -45,6 +54,10 @@ class Countries {
             }
         }
         return false;
+    }
+
+    public function get_displayname() {
+        return $this->country[self::DISPLAY_NAME];
     }
 
     public function __get($name) {

@@ -157,6 +157,26 @@
                     </tr>
                     <tr><td colspan="2"><hr /></td></tr>
                     <tr id="contractsection_title"><td colspan="2" class="subtitle">{$lang->contractualinformation}</td></tr>
+                    <tr>
+                        <td  colspan="2">
+                            <div style="width:100%; height:200px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
+                                <table class="datatable" width="100%">
+                                    <thead>
+                                    <th></th>
+                                    <th><input class='inlinefilterfield' type='text' style="width:100%" placeholder="{$lang->coveredcountries}"/></th>
+
+
+                                    <th>isExclusive</th>
+                                    <th>selectiveProducts </th>
+                                    </thead>
+                                    <tbody>
+                                        {$coveredcountries_rows}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+
                     <tr id="contractsection_firstsigndate">
                         <td>{$lang->initialcontractsign}</td><td><input type="text" id="pickDate_firstsigndate" autocomplete="off" tabindex="2" value="{$entity[contractFirstSigDate_output]}" /><input type="hidden" name="contractFirstSigDate" id="altpickDate_firstsigndate" value="{$entity[contractFirstSigDate]}"/></td>
                     </tr>

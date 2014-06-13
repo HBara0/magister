@@ -86,6 +86,18 @@ if(!$core->input['action']) {
 
     $headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
 
+
+
+    /* coverd countires section */
+    $countries_objs = Countries::get_coveredcountries();
+
+    if(is_array($countries_objs)) {
+        foreach($countries_objs as $country) {
+            $countryname = $country->get_displayname();
+            //print_R($countries);
+            eval("\$coveredcountries_rows .= \"".$template->get('admin_entities_addedit_coveredcountries')."\";");
+        }
+    }
     eval("\$addpage = \"".$template->get('admin_entities_addedit')."\";");
     output_page($addpage);
 }

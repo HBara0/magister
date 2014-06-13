@@ -30,9 +30,9 @@ h3 {
 span.subtitle {
     font-weight:bold;
     font-size: 15px;
-    color:#669900;  
+    color:#669900;
     text-transform: uppercase;
-} 
+}
 .smalltext {
     font-size: 9px;
 }
@@ -104,12 +104,14 @@ a, a:visited {
     width: 100%;
     padding: 0px;
     border-spacing: 0px;
-    border-collapse:collapse;
-}
-.datatable th, .datatable td{
+    border-collapse: collapse; }
+.datatable td {
+    border-bottom: 1px dashed #CCCCCC; }
+.datatable th, .datatable td {
     text-align: left;
-    padding: 5px;
-}
+    padding: 5px; }
+.datatable tbody > tr:nth-child(even) > td {
+    background-color: #f7fafd; }
 
 td { padding: 2px; }
 
@@ -596,7 +598,7 @@ tr.dummytrow td, tr.dummytrow th {
 }
 
 .timeline_entry .circle:hover {
-    border-color:#aecd78; 
+    border-color:#aecd78;
 }
 
 .timeline_entry .circle_clickable {
