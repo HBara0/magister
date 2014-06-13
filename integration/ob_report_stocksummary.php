@@ -29,14 +29,14 @@ if($core->input['authCode'] == AUTHCODE) {
     );
 
     $affiliates_addrecpt = array(
-            19 => array(244, 'audrey.sacy'),
-            22 => array(248, 246, 287, 270, 'audrey.sacy'),
-            23 => array('zadok.oppong-boahene', 'courage.dzandu', 322, 321, 'audrey.sacy', 'tarek.chalhoub', 63),
-            1 => array(12, 333, 182, 43, 'audrey.sacy'),
-            21 => array(63, 158, 'audrey.sacy', 'bamou.diop', 'annick.kouame', 'abel.laho', 'boulongo.diata'),
-            27 => array(12, 333, 68, 67, 'audrey.sacy', 342, 30),
-            20 => array('michel.mbengue', 'abdoulaye.lo', 'audrey.sacy', 'ansou.dabo', 'fatimatou.diallo'),
-            11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 'audrey.sacy')
+            19 => array(244, 'audrey.sacy', 356),
+            22 => array(248, 246, 287, 270, 'audrey.sacy', 356),
+            23 => array('zadok.oppong-boahene', 'courage.dzandu', 322, 321, 'audrey.sacy', 'tarek.chalhoub', 63, 356),
+            1 => array(12, 333, 182, 43, 'audrey.sacy', 356),
+            21 => array(63, 158, 'audrey.sacy', 'bamou.diop', 'annick.kouame', 'abel.laho', 'boulongo.diata', 356),
+            27 => array(12, 333, 68, 67, 'audrey.sacy', 342, 30, 356),
+            20 => array('michel.mbengue', 'abdoulaye.lo', 'audrey.sacy', 'ansou.dabo', 'fatimatou.diallo', 356),
+            11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 'audrey.sacy', 356)
     );
 
     $integration = new IntegrationOB($db_info, 'C08F137534222BD001345B7B2E8F182D', $affiliates_index, 3, array('from' => 'last year'));
@@ -99,13 +99,13 @@ if($core->input['authCode'] == AUTHCODE) {
             'uom' => array('source' => array('product', 'uom'), 'attribute' => 'uomsymbol', 'title' => 'UoM'),
             'cost' => array('source' => 'entries', 'attribute' => 'cost', 'title' => 'Cost', 'numformat' => true),
             'costusd' => array('source' => null, 'title' => 'Cost (USD)', 'numformat' => true),
-            'range1cost' => array('source' => array('entries', 'costs'), 'attribute' => 1, 'title' => '0-90<br />Amt', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
+            'range1cost' => array('source' => array('entries', 'costs'), 'attribute' => 1, 'title' => '0-90<br />Amt', 'numformat' => true, 'styles' => 'background-color: #ABD25E;', 'chartlinecolor' => array('R' => 171, 'G' => 210, 'B' => 94)),
             'range1costusd' => array('source' => null, 'attribute' => 1, 'title' => '0-90<br />Amt USD', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
             'range1qty' => array('source' => array('entries', 'qty'), 'attribute' => 1, 'title' => '0-90<br />Qty', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
-            'range4cost' => array('source' => array('entries', 'costs'), 'attribute' => 4, 'title' => '90-180<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
+            'range4cost' => array('source' => array('entries', 'costs'), 'attribute' => 4, 'title' => '90-180<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F8C830;', 'chartlinecolor' => array('R' => 248, 'G' => 200, 'B' => 48)),
             'range4costusd' => array('source' => null, 'attribute' => 4, 'title' => '90-180<br />Amt USD', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
             'range4qty' => array('source' => array('entries', 'qty'), 'attribute' => 4, 'title' => '90-180<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
-            'range5cost' => array('source' => array('entries', 'costs'), 'attribute' => 5, 'title' => '> 180<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F1594A;'),
+            'range5cost' => array('source' => array('entries', 'costs'), 'attribute' => 5, 'title' => '> 180<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F1594A;', 'chartlinecolor' => array('R' => 241, 'G' => 89, 'B' => 74)),
             'range5costusd' => array('source' => null, 'attribute' => 5, 'title' => '> 180<br />Amt USD', 'numformat' => true, 'styles' => 'background-color: #F1594A;'),
             'range5qty' => array('source' => array('entries', 'qty'), 'attribute' => 5, 'title' => '> 180<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F1594A;')
     );
@@ -266,7 +266,14 @@ if($core->input['authCode'] == AUTHCODE) {
                                     }
                                 }
                                 else {
-                                    $output_td_style .= $field_configs['styles'];
+                                    if(preg_match('/^range[(0-9)]/i', $field)) {
+                                        if(!empty($output_value)) {
+                                            $output_td_style .= $field_configs['styles'];
+                                        }
+                                    }
+                                    else {
+                                        $output_td_style .= $field_configs['styles'];
+                                    }
                                 }
                             }
 
@@ -345,7 +352,9 @@ if($core->input['authCode'] == AUTHCODE) {
                                     }
 
                                     if(isset($field_configs['styles'])) {
-                                        $output_td_style .= $field_configs['styles'];
+                                        if(!empty($output_value)) {
+                                            $output_td_style .= $field_configs['styles'];
+                                        }
                                     }
                                     $output .= '<td style="border: 1px solid #CCC; text-align: right; '.$output_td_style.'">'.number_format($output_value, $report_options['roundto'], '.', ' ').'</td>';
 
@@ -435,7 +444,7 @@ if($core->input['authCode'] == AUTHCODE) {
                             if(isset($config['output_fields'][$output_key]['styles'])) {
                                 $output_td_style .= $config['output_fields'][$output_key]['styles'];
                             }
-                            $summaries_ouput .= '<td style="border: 1px solid #CCC; width: '.(100 / (count($config['summary_reqinfo']) + 1)).'%; '.$output_td_style.'">'.$output_value.'</td>';
+                            $summaries_ouput .= '<td style="border: 1px solid #CCC; width: '.(100 / ( count($config['summary_reqinfo']) + 1 ) ).'%; '.$output_td_style.'">'.$output_value.'</td>';
                         }
                         $summaries_ouput .= '</tr>';
                     }
@@ -586,6 +595,7 @@ if($core->input['authCode'] == AUTHCODE) {
 
         /* Parse Stock Evolution Report - START */
         $aging_scale = array(2 => '90-179', 3 => '180-359', 4 => '>=360');
+        $aging_scale_config = array(0, 90, 180, 360);
         $stockevolution_output = '<h3>Stock Evolution</h3>';
         $stockevolution_output .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
         $stockevolution_output .= '<tr><th style="background: #91b64f;">Month</td><th style="background: #91b64f;">Value K.USD</td>';
@@ -595,20 +605,20 @@ if($core->input['authCode'] == AUTHCODE) {
         $stockevolution_output .= '</tr>';
 
         $first_transaction = $integration->get_firsttransaction(array($orgid));
-        if(TIME_NOW - strtotime($first_transaction->get()['trxprocessdate']) > (60 * 60 * 24 * 365)) {
-            $date_from = strtotime((date('Y', TIME_NOW) - 1).'-01-31');
+        if(TIME_NOW - strtotime($first_transaction->get()['trxprocessdate']) > ( 60 * 60 * 24 * 365 )) {
+            $date_from = strtotime((date('Y', TIME_NOW) - 1 ).'-01-31');
         }
         else {
-            $date_from = strtotime($first_transaction->get()['trxprocessdate']);
+            $date_from = strtotime('last day of this month', strtotime($first_transaction->get()['trxprocessdate']));
         }
         $date_to = strtotime('tomorrow -1 second');
         while($date_from < $date_to) {
             $date = getdate_custom($date_from);
 
             $costingrule_obj = $integration->get_currcostingrule();
-            //$stockevolution_data = $integration->get_totalvalue_bydate(date('Y-m-d', $date_from), array('costingalgorithm' => $costingrule_obj->get()['m_costing_algorithm_id']), array($orgid));
+//$stockevolution_data = $integration->get_totalvalue_bydate(date('Y-m-d', $date_from), array('costingalgorithm' => $costingrule_obj->get()['m_costing_algorithm_id']), array($orgid));
 
-            $stockevolution_data = $integration->get_totalvalue_bydate(date('Y-m-d', $date_from), array('method' => 'fifo'));
+            $stockevolution_data = $integration->get_totalvalue_bydate(date('Y-m-d', $date_from), array('method' => 'fifo', 'aging_scale' => $aging_scale_config));
             $chart_data['x'][$date['mon'].$date['year']] = $date['mon'].'-'.$date['year'];
             $chart_data['y']['Total'][$date['mon'].$date['year']] = 0;
             if(is_array($stockevolution_data['value'])) {
@@ -620,8 +630,8 @@ if($core->input['authCode'] == AUTHCODE) {
                 /* Parse Aging Info */
                 foreach($aging_scale as $key => $age) {
                     if(isset($stockevolution_data['aging']['value'][$key])) {
-                        //$stockevolution_output .= '<td style="border: 1px solid #CCC;">-</td>';
-                        $value = (($stockevolution_data['aging']['value'][$key] / $fxrates['usd']) / 1000);
+//$stockevolution_output .= '<td style="border: 1px solid #CCC;">-</td>';
+                        $value = (($stockevolution_data['aging']['value'][$key] / $fxrates['usd']) / 1000 );
                         $stockevolution_output .= '<td style="border: 1px solid #CCC; text-align:right;">'.round($value).'</td>';
                         $chart_data['y'][$age][$date['mon'].$date['year']] = $value;
                         unset($value);
@@ -640,7 +650,12 @@ if($core->input['authCode'] == AUTHCODE) {
         }
 
         $stockevolution_output .= '</table>';
-        $stockevolution_chart = new Charts(array('x' => $chart_data['x'], 'y' => $chart_data['y']), 'line', array('path' => '../tmp/charts/', 'labelrotationangle' => 90, 'height' => 400, 'width' => 900, 'yaxisname' => 'K. USD', 'graphareay2margin' => 50, 'scale' => SCALE_START0, 'serieweight' => 100, 'nosort' => true));
+
+        foreach($aging_scale as $key => $age) {
+            $stockevolution_chart_linecolors[$age] = $configs['aging']['output_fields']['range'.$key.'cost']['chartlinecolor'];
+        }
+
+        $stockevolution_chart = new Charts(array('x' => $chart_data['x'], 'y' => $chart_data['y']), 'line', array('path' => '../tmp/charts/', 'labelrotationangle' => 90, 'height' => 400, 'width' => 900, 'yaxisname' => 'K. USD', 'graphareay2margin' => 50, 'scale' => SCALE_START0, 'seriesweight' => 2, 'nosort' => true, 'linescolors' => $stockevolution_chart_linecolors));
         //$stockevolution_output = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($stockevolution_chart->get_chart())).'" />'.$stockevolution_output;
         $stockevolution_output = '<img src="cid:stockevolutionchart" />'.$stockevolution_output;
         /* Parse FX Rates Chart - START */
@@ -654,8 +669,8 @@ if($core->input['authCode'] == AUTHCODE) {
         $index2 = count($overyears_rates) - 1;
         $fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 USD' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$date_info['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholddata' => array('firstindex' => $index1, 'secondindex' => $index2), 'hasthreshold' => 1, 'width' => 700, 'height' => 200, 'scale' => SCALE_START0, 'path' => '../tmp/charts/', 'writelabel' => true));
 
-        //$fxratesoverview_output = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($fxrates_linechart->get_chart())).'" />';
         $fxratesoverview_output = '<h3>FX Rates Evolution</h3>';
+        // $fxratesoverview_output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($fxrates_linechart->get_chart())).'" />';
         $fxratesoverview_output .= '<img src="cid:fxratesoverview" />';
 
         /* Parse FX Rates Chart - END */
@@ -715,15 +730,6 @@ if($core->input['authCode'] == AUTHCODE) {
             }
         }
 
-        //$email_data['to'] = array();
-        // $email_data['to'][] = 'christophe.sacy@orkila.com';
-        //$email_data['to'][] = 'christophe.sacy@orkila.com';
-        //unset($email_data['to']);
-        //print_r($email_data);
-        // $email_data['to'][] = 'zaher.reda@orkila.com';
-        //$mail = new Mailer($email_data, 'php');
-
-
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_required_contenttypes(array('html'));
@@ -740,7 +746,7 @@ if($core->input['authCode'] == AUTHCODE) {
         unset($stockevolution_chart, $chart_data, $stockevolution_chart, $overyears_rates);
         $mailer->set_to($email_data['to']);
 
-        //print_r($mailer->debug_info());
+        //  print_r($mailer->debug_info());
         $mailer->send();
         unset($message);
     }

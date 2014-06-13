@@ -47,7 +47,7 @@ if(!$core->input['action']) {
 
     $types_list = parse_selectlist('type', 1, $types, $selected_type);
     $supptypes = array('t' => $lang->trader, 'p' => $lang->producer, 'b' => $lang->both);
-    $supptypes_list = parse_selectlist('supplierType', 1, $supptypes, '', '', '', array('blankstart' => 1));
+    $supptypes_list = parse_selectlist('supplierType', 1, $supptypes, '', '', '');
     $presence = array('regional' => $lang->regional, 'local' => $lang->local, 'multinational' => $lang->multinational);
     $presence_list = parse_selectlist('presence', 2, $presence, $entity['presence']);
 
