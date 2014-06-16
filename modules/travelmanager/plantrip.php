@@ -74,7 +74,7 @@ elseif($core->input['action'] == 'add_segment') {
     $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 00:00:00', $leave[$sequence]['toDate']));
     if(strtotime($core->input['toDate']) >= $leave[$sequence]['toDate']) {
 
-        output_xml("<message>sssss{$lang->dateexceeded}</message>");
+        output_xml("<message>{$lang->dateexceeded}</message>");
         exit;
     }
     else {
@@ -85,8 +85,8 @@ elseif($core->input['action'] == 'add_segment') {
         $segment[$sequence]['origincity']['name'] = $descitydata['name'];
         $segment[$sequence]['origincity']['ciid'] = $descitydata['ciid'];
         /* Overwrite from date of next segment with  TOdate of prev segment */
-        $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ($leave[$sequence]['toDate']));
-        $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ($leave[$sequence]['toDate'])); // leave to date
+        $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ( $leave[$sequence]['toDate']));
+        $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ( $leave[$sequence]['toDate'])); // leave to date
         $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
         $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
 
@@ -131,7 +131,7 @@ elseif($core->input['action'] == 'populatecontent') {
         }
 
         $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation($transitmode, array('origincity' => $origintcity, 'destcity' => $destcity), $sequence);
-//  $parsed_drivingmode = '<span>'.$drivingmode['transpcat'].'</span>';
+
         eval("\$transsegments_output  .= \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
         unset($transitmode);
     }
@@ -195,10 +195,14 @@ elseif($core->input['action'] == 'populatecityprofile') {
 elseif($core->input['action'] == 'parsedetailstransp') {
     $catid = $db->escape_string($core->input['catid']);
     $sequence = $db->escape_string($core->input['sequence']);
+    $categoryid = $db->escape_string($core->input['categoryid']);
 
     $transp_category_fields = TravelManagerPlan::parse_transportaionfields($catid, $sequence);
+    print_R($transp_category_fields);
 
     eval("\$transsegments_output = \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
+
+
     output($transsegments_output);
 }
 elseif($core->input['action'] == 'do_perform_plantrip') {

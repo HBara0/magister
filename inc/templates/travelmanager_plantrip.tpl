@@ -61,8 +61,9 @@
                 $('input[id*=transp_]').live('click', function() {
                     var id = $(this).attr('id').split("_");
                     var sequence = id[1];
+                    var categoryid = id[3];
                     /*ajax call to parse transpfields*/
-                    // sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=parsedetailstransp", "&sequence=" + sequence + "&catid=" + id[2], 'cat_detailsloader', 'cat_content', true);
+                    sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=parsedetailstransp", "&categoryid=" + categoryid + "&sequence=" + sequence + "&catid=" + id[2], 'cat_detailsloader_' + categoryid + '', 'cat_content_' + categoryid + '', true);
                 });
                 $('input[id*=pickDate_to_]').live('change', function() {
                     if(sharedFunctions.checkSession() == false) {

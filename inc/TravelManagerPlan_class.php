@@ -83,10 +83,10 @@ class TravelManagerPlan {
     public static function parse_transportaionfields($category, $sequence) {
         if(!empty($category)) {
             switch($category) {
-                case'bus':
+                case'taxi':
                     $transportaion_fields = 'Approxmita fare'.parse_textfield('segment['.$sequence.'][tmtcid]', 'text', '');
                     break;
-                case'Train':
+                case'train':
                     $availabe_arilinersobjs = TravelManagerAirlines::get_airlines('', array('contracted' => '1'));
                     if(is_array($availabe_arilinersobjs)) {
                         foreach($availabe_arilinersobjs as $availabe_arilinersobj) {
