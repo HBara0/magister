@@ -14,7 +14,7 @@
                 <span class="subtitle">{$lang->coordinators}</span>
                 {$segment_coordinators}
                 <br />
-                <span class="subtitle">{$lang->productypes}</span>
+                <span class="subtitle">{$lang->endproduct}</span>
                 {$endproduct_types}
             </div>
             <hr />
@@ -23,9 +23,6 @@
             <div style="display:inline-block; width: 45%; vertical-align: top;"><span class="subtitle">{$lang->suppliers}</span>
                 {$segment_suppliers}</div>
             <hr />
-
-  <!-- <div style="display:inline-block; width: 45%; vertical-align: top;"><span class="subtitle" >{$lang->customers}</span> 
-            {$segment_customers}</div>-->
         </td>
     </tr>
     {$footer}
