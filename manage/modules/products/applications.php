@@ -21,7 +21,7 @@ $lang->load('products_applications');
 $lang->load('global');
 if(!$core->input['action']) {
     $sort_url = sort_url();
-    $applications_obj = Segmentapplications::get_segmentsapplications();
+    $applications_obj = SegmentApplications::get_segmentsapplications();
     if(is_array($applications_obj)) {
         /* loop over the returned objects and get their related data */
         foreach($applications_obj as $application_obj) {
@@ -40,7 +40,7 @@ if(!$core->input['action']) {
             $segments_list .= '<option value='.$segment['psid'].'>'.$segment['title'].'</option>';
         }
     }
-    $chemicals_obj = Chemicalfunctions::get_functions();
+    $chemicals_obj = ChemicalFunctions::get_functions();
     if(is_array($chemicals_obj)) {
         /* for best preformance loop over the returned ChemicalFunctions objects and get their related data */
         $checmicalfunctions_list = '<option value="" selected="selected" > </option>';
@@ -56,7 +56,7 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'do_create') {
-        $segmentapplications_obj = new Segmentapplications();
+        $segmentapplications_obj = new SegmentApplications();
         $segmentapplications_obj->create($core->input['segmentapplications']);
         switch($segmentapplications_obj->get_errorcode()) {
             case 0:

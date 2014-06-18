@@ -41,7 +41,7 @@ if(!$core->input['action']) {
             $segmentapp_data['segment'] = $segappfunc_obj->get_segment()->get()['title'];
             $segmentapp_data['application'] = $segappfunc_obj->get_application()->get()['title'];
 
-            eval("\$admin_products_addedit_segappfunc_rows .= \"".$template->get('\admin_products_addedit_segappfunc_row')."\";");
+            eval("\$admin_products_addedit_segappfunc_rows .= \"".$template->get('admin_products_addedit_segappfunc_row')."\";");
         }
     }
     else {

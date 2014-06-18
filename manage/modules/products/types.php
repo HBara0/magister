@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: productypes.php
  * Created:        @tony.assaad    Dec 19, 2013 | 10:48:26 AM
@@ -18,7 +18,7 @@ if($core->usergroup['canAddProducts'] == 0) {
 $lang->load('products_types');
 if(!$core->input['action']) {
     $sort_url = sort_url();
-    $endprod_objs = EndproducTypes::get_endproductypes();
+    $endprod_objs = EndProducTypes::get_endproductypes();
     if(is_array($endprod_objs)) {
         foreach($endprod_objs as $endprod_obj) {
             $altrow_class = alt_row($altrow_class);
@@ -47,7 +47,7 @@ if(!$core->input['action']) {
     output_page($addproductstypes);
 }
 elseif($core->input['action'] == 'do_create') {
-    $endprod_objs = new Endproductypes();
+    $endprod_objs = new EndProducTypes();
     $endprod_objs->create($core->input['productypes']);
     switch($endprod_objs->get_errorcode()) {
         case 0:
