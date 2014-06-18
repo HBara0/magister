@@ -122,7 +122,7 @@ class Products {
 
         if(is_array($attributes_param)) {
             foreach($attributes_param as $attr => $val) {
-                $attributes .= $attr.' = "'.$val.'"';
+                $attributes .= $attr.'="'.$val.'"';
             }
         }
         return '<a href="manage/index.php?module=products/edit&'.self::PRIMARY_KEY.'='.$this->product[self::PRIMARY_KEY].'" '.$attributes.'>'.$this->product[self::DISPLAY_NAME].'</a>';

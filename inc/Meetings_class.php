@@ -572,6 +572,13 @@ class Meetings {
         return false;
     }
 
+    public function __get($name) {
+        if(isset($this->meeting[$name])) {
+            return $this->meeting[$name];
+        }
+        return false;
+    }
+
     public function get() {
         return $this->meeting;
     }
