@@ -75,6 +75,7 @@
                     </td>
                 </tr>
                 {$products_section}
+                {$contractinfo_section}
                 {$meetings_section}
                 <tr><td colspan="2" class="thead">{$lang->Brandsendproducts}...</td></tr>
                 <tr>
@@ -95,9 +96,7 @@
                                     </td>
                                 </tr>
                             </tbody>
-
                         </table>
-
                     </td>
                 </tr>
                 <tr><td class="thead" colspan="2">{$lang->detlmrktbox} {$addmarketdata_link}</td></tr>
@@ -118,11 +117,6 @@
                             {$detailmarketbox}
                         </div>
                     </td>
-                </tr>
-
-                {$contractsection}
-                <tr>
-                    {$profilepage_contractual}
                 </tr>
                 {$reports_section}
                 {$entityprofile_private}
