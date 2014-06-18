@@ -165,36 +165,37 @@ if(!$core->input['action']) {
     $headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
 
     /* coverd countires section */
-
-    $contracted_objs = $entity_obj->get_contractedcountires();
-    /* object contractedcountires  for the current supplier */
-
-    foreach($contracted_objs as $eccid => $contracted_obj) {
-        $contracted_country = $contracted_obj->get_country();
-        $contracted_countries[$contracted_country->coid] = $contracted_obj;    // set the  contracted_obj for the  current country object
-    }
-
-    $countries_objs = Countries::get_coveredcountries();
-    if(is_array($countries_objs)) {
-        foreach($countries_objs as $country) {
-            $countryname = $country->get_displayname();
-            if(is_array($contracted_countries)) {
-                if(array_key_exists($country->coid, $contracted_countries)) {
-                    $checked[coid] = " checked='checked'";
-                }
-                if($contracted_countries[$country->coid]->isExclusive == 1) {
-                    $checked['isExclusive'] = " checked='checked'";
-                }
-                if($contracted_countries[$country->coid]->selectiveProducts == 1) {
-
-                    $checked['selectiveProducts'] = " checked='checked'";
-                }
+    if($entity['type'] == 's') {
+        $contracted_objs = $entity_obj->get_contractedcountires();
+        /* object contractedcountires  for the current supplier */
+        if(is_array($contracted_objs)) {
+            foreach($contracted_objs as $eccid => $contracted_obj) {
+                $contracted_country = $contracted_obj->get_country();
+                $contracted_countries[$contracted_country->coid] = $contracted_obj;    // set the  contracted_obj for the  current country object
             }
-            eval("\$coveredcountries_rows .= \"".$template->get('admin_entities_addedit_coveredcountries')."\";");
-            unset($checked);
         }
+        $countries_objs = Countries::get_coveredcountries();
+        if(is_array($countries_objs)) {
+            $checkbox_fields = array('isExclusive', 'selectiveProducts');
+            foreach($countries_objs as $country) {
+                $country->displayname = $country->get_displayname();
+                if(is_array($contracted_countries)) {
+                    if(array_key_exists($country->coid, $contracted_countries)) {
+                        $checked['coid'] = " checked='checked'";
+                    }
+                    foreach($checkbox_fields as $checkbox_field) {
+                        if($contracted_countries[$country->coid]->{$checkbox_field} == 1) {
+                            $checked[$checkbox_field] = " checked='checked'";
+                        }
+                    }
+                }
+                eval("\$coveredcountries_rows .= \"".$template->get('admin_entities_addedit_contractinfo_ctryrow')."\";");
+                unset($checked);
+            }
+        }
+        eval("\$contractinfo_section = \"".$template->get('admin_entities_addedit_contractinfo')."\";");
+        unset($coveredcountries_rows);
     }
-
     $entity['logo_output'] = '<img src="../uploads/entitieslogos/'.$entity['logo'].'" width="200" />';
     eval("\$editpage = \"".$template->get('admin_entities_addedit')."\";");
     output_page($editpage);

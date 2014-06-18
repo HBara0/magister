@@ -32,7 +32,7 @@ if(!$core->input['action']) {
         $entitybrands_list = '<tr><td colspan="3">'.$lang->na.'</td></tr>';
     }
 
-    $productypes_objs = EndproducTypes::get_endproductypes();
+    $productypes_objs = EndProducTypes::get_endproductypes();
     if(is_array($productypes_objs)) {
         foreach($productypes_objs as $productypes_obj) {
             $endproduct_types = $productypes_obj->get();
