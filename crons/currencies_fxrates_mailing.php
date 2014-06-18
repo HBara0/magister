@@ -49,7 +49,7 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
 
     // get affiliates currencies
     $affiliatecurrenciesquery = $db->query('SELECT affid, cur.alphaCode, cur.name
-				FROM '.Tprefix.'countries c 
+				FROM '.Tprefix.'countries c
 				INNER JOIN '.Tprefix.'currencies cur ON (c.mainCurrency = cur.numCode)
 				WHERE affid<>0');
 
@@ -65,11 +65,13 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
 
     foreach($finmanagers as $uid => $user) {
         $email_data['to'] = $user['email'];
-        $email_data['message'] = '<pre>Dear '.$user['name'].",\n\n";
-        $email_data['message'] .= "Please find below the average USD exchange rates for the past month\n\n";
+        $email_data['message'] = '<pre style="font-size: 13px">Dear '.$user['name'].",\n\n";
+        $email_data['message'] .= "Please find below the average USD exchange rates for the past month.\n\n<strong><u>Please use the last rate for all your monthly reports</u></strong>\r\n\r\n";
         foreach($user['affiliates'] as $affid => $name) {
-            foreach($affiliates_currencies[$affid] as $code => $cname) {
-                $user['currencies'][$code] = $fxrates[$code];
+            if(isset($affiliates_currencies[$affid])) {
+                foreach($affiliates_currencies[$affid] as $code => $cname) {
+                    $user['currencies'][$code] = $fxrates[$code];
+                }
             }
         }
         $email_data['message'] .= '[EUR] Avg: '.formatit($fxrates['EUR']['average']).' ('.trim(formatit(1 / $fxrates['EUR']['average'])).') Last: '.trim(formatit($fxrates['EUR']['latest']))." (".trim(formatit(1 / $fxrates['EUR']['latest'])).")\n";
