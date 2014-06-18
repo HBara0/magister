@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Error Hanlder Class
  * $id: ErrorHandler_class.php
  * Created: @zaher.reda 		September 08, 2011 | 09:57 AM
@@ -65,6 +65,12 @@ class ErrorHandler {
             }
             else {
                 error_log($message."\n", 0);
+            }
+
+            if(class_exists('DevelopmentBugs')) {
+                $bug = new DevelopmentBugs();
+                $bug_details = array('description' => $message, 'stackTrace' => serialize(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)), 'file' => $file, 'line' => $line);
+                $bug->set($bug_details)->save()->send();
             }
         }
 

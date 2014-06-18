@@ -540,6 +540,38 @@ CREATE TABLE `currencies_fxrates` (
   KEY `baseCurrency` (`baseCurrency`,`currency`)
 ) ENGINE=MyISAM AUTO_INCREMENT=86724 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `development_bugs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `development_bugs` (
+  `dbid` int(10) NOT NULL AUTO_INCREMENT,
+  `category` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `summary` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
+  `description` text COLLATE utf8_unicode_ci NOT NULL,
+  `file` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
+  `line` smallint(10) unsigned NOT NULL,
+  `module` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `moduleFile` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `stackTrace` text COLLATE utf8_unicode_ci,
+  `reportedOn` int(11) NOT NULL,
+  `reportedBy` int(11) NOT NULL DEFAULT '0',
+  `sessionUser` int(11) DEFAULT NULL,
+  `severity` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `priority` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `status` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `isCompleted` tinyint(1) NOT NULL DEFAULT '0',
+  `assignedTo` int(10) NOT NULL,
+  `affectedVersion` float NOT NULL,
+  `fixedVersion` float NOT NULL,
+  `relatedRequirement` int(10) NOT NULL,
+  `assignedOn` int(11) NOT NULL,
+  `commitHash` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
+  `commitMsg` text COLLATE utf8_unicode_ci NOT NULL,
+  `modifiedOn` int(11) NOT NULL,
+  `modifiedBy` int(11) NOT NULL,
+  PRIMARY KEY (`dbid`),
+  KEY `assignedTo` (`assignedTo`)
+) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 DROP TABLE IF EXISTS `development_requirements`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
