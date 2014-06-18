@@ -144,7 +144,7 @@ class EntitiesBrands {
 
         $query = $db->query('SELECT eptid FROM '.Tprefix.'entitiesbrandsproducts WHERE ebid="'.intval($this->entitiesbrands['ebid']).'"');
         while($endproduct = $db->fetch_assoc($query)) {
-            $endproducts[$endproduct['eptid']] = new Endproductypes($endproduct['eptid']);
+            $endproducts[$endproduct['eptid']] = new EndProducTypes($endproduct['eptid']);
         }
         return $endproducts;
     }

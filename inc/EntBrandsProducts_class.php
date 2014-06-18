@@ -37,7 +37,7 @@ class EntBrandsProducts {
         if(!empty($id)) {
             $query = $db->query('SELECT eptid FROM '.Tprefix.'entitiesbrandsproducts WHERE ebid="'.$db->escape_string($id).'"');
             while($endproduct = $db->fetch_assoc($query)) {
-                $endproducts[$endproduct['eptid']] = new Endproductypes($endproduct['eptid']);
+                $endproducts[$endproduct['eptid']] = new EndProducTypes($endproduct['eptid']);
             }
             return $endproducts;
         }
@@ -78,7 +78,7 @@ class EntBrandsProducts {
     }
 
     public function get_endproduct() {
-        return new Endproductypes($this->entbrandproducts['eptid']);
+        return new EndProducTypes($this->entbrandproducts['eptid']);
     }
 
     public function get_createdby() {
