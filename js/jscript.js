@@ -399,7 +399,7 @@ $(function() {
                 var spanClass = 'red_text';
             }
 
-            $("#login_Results").html("<span class='" + spanClass + "'>" + $("message", returnedData).text() + "</span>");
+            $("#login_Results").html("<span class='" + spanClass + "'>" + $("message", returnedData).text() + "</span>").show();
 
             if($("#noredirect").val() != '1') {
                 if($("status", returnedData).text() == "true") {
