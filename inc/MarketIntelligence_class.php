@@ -14,6 +14,9 @@
  * @author tony.assaad
  */
 class MarketIntelligence {
+    const TABLE_NAME = 'marketintelligence_basicdata';
+    const PRIMARY_KEY = 'mibdid';
+
     private $marketintelligence = array();
     private $customer = null;
     private $brand = null;
@@ -103,6 +106,21 @@ class MarketIntelligence {
                 return true;
             }
         }
+    }
+
+    // convert to dal
+    public static function get_marketdata_dal($filters, $configs = array()) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
+    }
+
+    public static function get_marketdata() {
+        global $db;
+        $query = $db->query('SELECT mibdid  FROM '.Tprefix.'marketintelligence_basicdata');
+        while($rows = $db->fetch_assoc($query)) {
+            $marketintelligence[$rows['mibdid']] = new Marketintelligence($rows['mibdid']);
+        }
+        return $marketintelligence;
     }
 
     public function get_timelineentry_item($id, $type) {

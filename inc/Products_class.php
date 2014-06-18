@@ -115,18 +115,17 @@ class Products {
         return false;
     }
 
-    public function parse_link($attributes_param = array('target' => '_blank'), $options = array()) {
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(!empty($this->data['companyNameAbbr'])) {
+            $this->data['companyName'] .= ' ('.$this->data['companyNameAbbr'].')';
+        }
+
         if(is_array($attributes_param)) {
             foreach($attributes_param as $attr => $val) {
-                $attributes .= $attr.' "'.$val.'"';
+                $attributes .= $attr.' = "'.$val.'"';
             }
         }
-
-        if(!isset($options['outputvar'])) {
-            $options['outputvar'] = 'displayName';
-        }
-
-        return 0;
+        return '<a href="manage/index.php?module=products/edit&'.self::PRIMARY_KEY.'='.$this->product[self::PRIMARY_KEY].'" '.$attributes.'>'.$this->product[self::DISPLAY_NAME].'</a>';
     }
 
 }

@@ -27,14 +27,13 @@ class DataAccessLayer {
 
     public function get_objects($filters = null, array $configs = array()) {
         global $db;
-
         if(!isset($configs['simple'])) {
             $configs['simple'] = true;
         }
         $items = array();
         $sql = 'SELECT '.$this->primary_key.' FROM '.Tprefix.$this->table_name;
 
-        $sql .= $this->construct_whereclause($filters);
+        $sql .= $this->construct_whereclause($filters, $configs['operators']);
         $sql .= $this->construct_orderclause($configs['order']);
         $sql .= $this->construct_limitclause($configs['limit']);
 
@@ -51,18 +50,24 @@ class DataAccessLayer {
                 $pk = $db->fetch_field($query, $this->primary_key);
                 return array($pk => new $this->class($pk, $configs['simple']));
             }
-            elseif($db->num_rows($query) == 1) {
+            else {
                 return new $this->class($db->fetch_field($query, $this->primary_key), $configs['simple']);
             }
             return false;
         }
     }
 
-    public function get_objects_byattr($attr, $value) {
+    public function get_objects_byattr($attr, $value, $options = array()) {
         global $db;
 
-        if(!empty($value) && !empty($attr)) {
-            $query = $db->query('SELECT '.$this->primary_key.' FROM '.Tprefix.$this->table_name.' WHERE '.$db->escape_string($attr).'="'.$db->escape_string($value).'"');
+//if(!empty($value) && !empty($attr)) {
+        if(is_array($options)) {
+//$sql = 'SELECT '.$this->primary_key.' FROM '.Tprefix.$this->table_name.' WHERE '.$db->escape_string($attr).'="'.$db->escape_string($value).'"';
+            $sql = 'SELECT '.$this->primary_key.' FROM '.Tprefix.$this->table_name;
+
+            $filters = array($attr => $value);
+            $sql .= $this->construct_whereclause($filters, array($attr => $options['operator']));
+            $query = $db->query($sql);
             if($db->num_rows($query) > 1) {
                 $items = array();
                 while($item = $db->fetch_assoc($query)) {
@@ -119,7 +124,7 @@ class DataAccessLayer {
         return false;
     }
 
-    private function construct_whereclause($filters) {
+    private function construct_whereclause($filters, $operators = array()) {
         global $db;
 
         if(is_array($filters) && !empty($filters)) {
@@ -154,13 +159,18 @@ class DataAccessLayer {
                         if($operators[$attr] == 'like') {
                             $value = '"%'.$db->escape_string($value).'%"';
                         }
+                        elseif($operators[$attr] == 'IN') {
+                            $value = '('.$db->escape_string($value).')';
+                        }
                         else {
                             $operators[$attr] = '=';
                             $value = '"'.$db->escape_string($value).'"';
                         }
                     }
-                    $filters_querystring .= $andor.$attr.$operators[$attr].$value;
+                    $filters_querystring .= $andor.$attr.' '.$operators[$attr].$value;
+                    unset($value);
                 }
+
                 $andor = ' AND ';
             }
         }
