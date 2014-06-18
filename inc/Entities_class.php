@@ -762,10 +762,10 @@ class Entities {
 
         if(is_array($attributes_param)) {
             foreach($attributes_param as $attr => $val) {
-                $attributes .= $attr.' = "'.$val.'"';
+                $attributes .= $attr.'="'.$val.'"';
             }
         }
-        return '<a href="index.php?module=profiles/entityprofile&eid='.$this->affiliate['eid'].'" '.$attributes.'>'.$this->data['companyName'].'</a>';
+        return '<a href="index.php?module=profiles/entityprofile&eid='.$this->data['eid'].'" '.$attributes.'>'.$this->data['companyName'].'</a>';
     }
 
 }
