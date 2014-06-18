@@ -121,23 +121,19 @@ else {
             output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
             exit;
         }
-        $check_query = $db->query("SELECT pid, name FROM ".Tprefix."products WHERE name='{$core->input[name]}' LIMIT 0,1");
-        if($db->num_rows($check_query) > 0) {
-            $existing = $db->fetch_array($check_query);
 
-            if($existing['pid'] != $core->input['pid']) {
-                output_xml("<status>false</status><message>{$lang->productalreadyexists}</message>");
-                exit;
-            }
+        if(value_exists('products', 'name', $core->input['name'], 'pid!='.intval($core->input['pid']))) {
+            output_xml("<status>false</status><message>{$lang->productalreadyexists}</message>");
+            exit;
         }
 
-        $log->record($core->input['name']);
         $chemicalfunctionsproducts = $core->input['applicationfunction'];
         $productschemsubstances = $core->input['chemsubstances'];
         unset($core->input['action'], $core->input['module'], $core->input['applicationfunction'], $core->input['chemsubstances']);
 
         $query = $db->update_query('products', $core->input, "pid='".$db->escape_string($core->input['pid'])."'");
         if($query) {
+            $log->record($core->input['name']);
             if(isset($chemicalfunctionsproducts)) {
                 $db->delete_query('chemfunctionproducts', 'pid='.$db->escape_string($core->input['pid']));
                 foreach($chemicalfunctionsproducts as $chemicalfunctions) {
@@ -197,7 +193,7 @@ else {
 
         $query = $db->delete_query('products', "pid='{$oldid}'");
         if($query) {
-            log_action($oldid, $newid);
+            $log->record($oldid, $newid);
             output_xml("<status>true</status><message>{$lang->successdeletemerge}</message>");
         }
         else {
@@ -205,7 +201,7 @@ else {
         }
     }
     elseif($core->input['action'] == 'get_mergeanddelete') {
-        eval("\$mergeanddeletebox = \"".$template->get("popup_mergeanddelete")."\";");
+        eval("\$mergeanddeletebox = \"".$template->get('popup_mergeanddelete')."\";");
         output($mergeanddeletebox);
     }
 }
