@@ -171,7 +171,11 @@ class Affiliates {
         if(!isset($options['outputvar'])) {
             $options['outputvar'] = 'name';
         }
-
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.' = "'.$val.'"';
+            }
+        }
         return '<a href="index.php?module=profiles/affiliateprofile&affid='.$this->affiliate['affid'].'" '.$attributes.'>'.$this->affiliate[$options['outputvar']].'</a>';
     }
 

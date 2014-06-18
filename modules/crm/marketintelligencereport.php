@@ -53,7 +53,7 @@ if(!$core->input['action']) {
             }
         }
     }
-    //Here we get  customer that the user is assigned to or work with an affiliate that he can audit
+    //Here we get customer that the user is assigned to or work with an affiliate that he can audit
     $incusomters = implode(',', $core->user['customers']);
     $customer_where = " eid IN ({$incusomters})";
 
@@ -72,8 +72,15 @@ if(!$core->input['action']) {
             }
         }
     }
+    /* customer types */
+    $potential_custobjs = Customers::get_customers(array('type' => 'c', 'supplierType' => 'pc'));
 
-
+    if(is_array($potential_custobjs)) {
+        foreach($potential_custobjs as $potential_custobj) {
+            $potential_customername = $potential_custobj->companyName;
+            $potential_customerlist.='<option value='.$potential_custobj->eid.' '.$selected.'>'.$potential_custobj->companyName.'</option>';
+        }
+    }
     // Get User  segments the user is assigned to, assigned to supervise, or is coordinator for
     $user = new Users($core->user['uid']);
     $user_segmentsobjs = $user->get_segments();
@@ -118,8 +125,9 @@ if(!$core->input['action']) {
         $business_managerslist = parse_selectlist('mireport[filter][managers][]', 5, $business_managers, $core->user['uid'], 1, '', '');
     }
 
-    //customer country
-    $dimensions = array('affid' => $lang->affiliate, 'spid' => $lang->supplier, 'cid' => $lang->customer, 'psid' => $lang->segment, 'affid' => $lang->affiliate, 'spid' => $lang->supplier, 'cid' => $lang->customer, 'psid' => $lang->segment, 'coid' => $lang->customercountry);
+
+    //, 'spid' => $lang->supplier,'spid' => $lang->supplier, 'cid' => $lang->customer, 'psid' => $lang->segment, 'coid' => $lang->customercountry
+    $dimensions = array('affid' => $lang->affiliate, 'eptid' => $lang->endproductype, 'pid' => $lang->product, 'cid' => $lang->customer, 'spid' => $lang->supplier, 'psid' => $lang->segment, 'affid' => $lang->affiliate);
 
     foreach($dimensions as $dimensionid => $dimension) {
         $dimension_item.='<li class="ui-state-default" id='.$dimensionid.' title="Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';

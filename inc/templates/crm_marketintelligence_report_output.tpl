@@ -4,15 +4,15 @@
         {$headerinc}
         <style>
             .marketreport_dimension {
-                background-color: red;  
+                background-color: red;
 
-            } 
+            }
         </style>
         <script>
             $(function() {
 
                 $('tr[id^="dimension_"]').mouseover(function() {
-                    // $(this).toggleClass('mainmenuitem_hover') 
+                    // $(this).toggleClass('mainmenuitem_hover')
                 });
 
             });
@@ -26,15 +26,14 @@
         <td class="contentContainer">
             <h3>{$lang->mireport}</h3>
             <table width="100%" class="datatable">
-                <tr>
-                    {$dimension_head}
+                <tr class="thead">
+                    <th>{$lang->dimension}</th>
+                        {$dimension_head}
                 </tr>
-                {$parsed_dimension} 
-
+                {$parsed_dimension}
             </table>
-
         </td>
-    </tr>        
+    </tr>
 </body>
 
 </html>

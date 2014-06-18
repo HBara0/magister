@@ -180,9 +180,13 @@ class DimentionalData {
                 if($depth <= count($dimensions) && $depth >= 0) {
                     if(isset($dimensions[$depth]) && !empty($dimensions[$depth]) && (isset($key) && !empty($key))) {
                         $class = get_object_bytype($dimensions[$depth], $key);
+
                         /* Checks if the class method exists */
                         if(method_exists($class, 'parse_link')) {
                             $this->dimensions['link'] = $class->parse_link();
+                        }
+                        elseif(method_exists($class, 'get_displayname')) {
+                            $this->dimensions['link'] = $class->get_displayname();
                         }
                         else {
                             $this->dimensions['link'] = $class->get()['name'];
