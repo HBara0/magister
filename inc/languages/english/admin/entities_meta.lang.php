@@ -64,4 +64,6 @@ $lang['potentialcustomer'] = 'Potential Customer';
 $lang['trader'] = 'Trader';
 $lang['producer'] = 'Producer';
 $lang['both'] = 'Both';
+$lang['isexclusive'] = 'Is Exclusive';
+$lang['selectiveproducts'] = 'Selective';
 ?>
