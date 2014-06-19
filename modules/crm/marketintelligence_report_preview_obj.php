@@ -43,6 +43,8 @@ if(!($core->input['action'])) {
         if(isset($mireportdata['filter']['ctype'])) {
             $mireportdata['filter']['ctype'] = array_map($db->escape_string, $mireportdata['filter']['ctype']);  /* apply the call bak function dbescapestring to the the value */
             $mireportdata['filter']['cid'] = 'SELECT eid FROM '.Tprefix.'entities WHERE type IN  (\''.implode('\',\'', $mireportdata['filter']['ctype']).'\')';
+            //  $customer_obj= new Customers()
+            //  $mireportdata['filter']['cid']=
         }
 
         unset($mireportdata['filter']['coid'], $mireportdata['filter']['spid'], $mireportdata['filter']['psid'], $mireportdata['filter']['ctype']);
@@ -53,8 +55,11 @@ if(!($core->input['action'])) {
         /* START presentiation layer */
         if(is_array($marketin_objs)) {
             foreach($marketin_objs as $marketin_obj) {
-                /* Get the id related to the chemfunctionproducts  from the object and send them to the   */
+
+                /* Get the id related to the chemfunctionproducts  from the object and send them to the dimensional data class   */
                 $market_data[$marketin_obj->get()['mibdid']] = $marketin_obj->get();
+                $customer_obj = new Customers($market_data[$marketin_obj->get()['mibdid']]['cid'], '', false);
+                $market_data[$marketin_obj->get()['mibdid']]['ctype'] = $customer_obj->get()['type'];
                 $market_data[$marketin_obj->get()['mibdid']]['spid'] = $marketin_obj->get_chemfunctionproducts()->get_produt()->get_supplier()->get()['eid'];
                 $market_data[$marketin_obj->get()['mibdid']]['pid'] = $marketin_obj->get_chemfunctionproducts()->get_produt()->pid;
                 $market_data[$marketin_obj->get()['mibdid']]['psid'] = $marketin_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_segment()->psid;

@@ -194,6 +194,12 @@ class DimentionalData {
                                 $this->dimensions['link'] = $class->get()['name'];
                             }
                         }
+                        else {
+                            if($key == 'pc') {
+                                $key = 'Potential Customer';  //  later to be stand alone function
+                            }
+                            $this->dimensions['link'] = $key;
+                        }
 
                         if($options['outputtype'] == 'div') {
                             $columns = '<div style="display: inline-block; padding-left:'.(($depth - 1) * 20).'px; font-size:'.$fontsize.'px;">'.$this->dimensions['link'].'</div>';
