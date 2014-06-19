@@ -12,7 +12,7 @@
             $(function() {
 
                 $('tr[id^="dimension_"]').mouseover(function() {
-                    // $(this).toggleClass('mainmenuitem_hover')
+                    //     $(this).toggleClass('mainmenuitem_hover')
                 });
 
             });
@@ -34,6 +34,7 @@
             </table>
         </td>
     </tr>
+    {$footer}
 </body>
 
 </html>
