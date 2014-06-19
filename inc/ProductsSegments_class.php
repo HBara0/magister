@@ -32,7 +32,7 @@ class ProductsSegments {
         $this->segment = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'productsegments WHERE psid='.intval($id)));
     }
 
-    public static function get_segment($filters, $configs = array()) {
+    public static function get_segments($filters, $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);
     }
@@ -42,7 +42,7 @@ class ProductsSegments {
         return $data->get_objects_byattr('title', $value);
     }
 
-    public static function get_segments($filters = '') {
+    public static function get_segments_legacy($filters = '') {
         global $db;
 
         /* Need to put order, filter, and limit

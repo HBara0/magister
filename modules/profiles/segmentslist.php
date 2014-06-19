@@ -13,22 +13,24 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!($core->input['action'])) {
-    $segment_obs = ProductsSegments::get_segment($filters);
-    if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
-        $core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
-    }
+    $segment_obs = ProductsSegments::get_segments($filters);
     if(is_array($segment_obs)) {
         foreach($segment_obs as $segment_ob) {
             $segcoord_objs = $segment_ob->get_coordinators();
-            $segment_coordinator = '';
+            $seg_coordinators_output = '';
             if(is_array($segcoord_objs)) {
                 foreach($segcoord_objs as $segcoord_obj) {
-                    $segment_coordinator .= $segcoord_obj->get_coordinator()->get_displayname();
+                    $segment_coordinators[] = $segcoord_obj->get_coordinator()->parse_link();
                 }
+                $seg_coordinators_output = implode(', ', $segment_coordinators);
+                unset($segment_coordinators, $segcoord_objs);
             }
 
-            $segment_list.='<tr><td><a href="index.php?module=profiles/segmentprofile&id='.$segment_ob->psid.'" target="_blank">'.$segment_ob->get_displayname().'</a></td><td><a href="users.php?action=profile&uid='.$segcoord_obj->get_coordinator()->uid.'" target="_blank">'.$segment_coordinator.'</a></td></tr>';
+            $segments_rows .= '<tr><td><a href="index.php?module=profiles/segmentprofile&id='.$segment_ob->psid.'" target="_blank">'.$segment_ob->get_displayname().'</a></td><td>'.$seg_coordinators_output.'</td></tr>';
         }
+    }
+    else {
+        $segments_rows .= '<tr><td colspan="2">'.$lang->na.'</tr>';
     }
     eval("\$segmentslist = \"".$template->get('profiles_segmentslist')."\";");
     output_page($segmentslist);
