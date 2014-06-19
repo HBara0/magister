@@ -173,7 +173,6 @@ elseif($core->input['action'] == 'populatecityprofile') {
                     <div class="smalltext"><a href="'.$core->settings['rootdir'].'/users.php?action=profile&uid='.$destcityreview['user']['uid'].'"  target="_blank">'.$destcityreview['reviewdby'].'</a></div>
                         </div>';
         }
-        output($cityprofile_output);
     }
     else {
         $destcityreview['review'] = $lang->na;
@@ -191,6 +190,7 @@ elseif($core->input['action'] == 'populatecityprofile') {
     else {
         $destcitybriefing['briefing'] = $lang->na;
     }
+    output($citybriefings_output.$cityprofile_output);
 }
 elseif($core->input['action'] == 'parsedetailstransp') {
     $catid = $db->escape_string($core->input['catid']);
