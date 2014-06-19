@@ -162,12 +162,13 @@ class Entities {
                     $this->insert_assignedemployee($employees);
                 }
                 //}
-
-                foreach($coveredcountries as $coveredcountry) {
-                    $coveredcountry['eid'] = $this->eid;
-                    $countract_countryobj = new EntitiesContractCountries();
-                    /* set the object by the core input data and save the same object */
-                    $countract_countryobj->set($coveredcountry)->save();
+                if(is_array($coveredcountries)) {
+                    foreach($coveredcountries as $coveredcountry) {
+                        $coveredcountry['eid'] = $this->eid;
+                        $countract_countryobj = new EntitiesContractCountries();
+                        /* set the object by the core input data and save the same object */
+                        $countract_countryobj->set($coveredcountry)->save();
+                    }
                 }
                 $lang->entitycreated = $lang->sprint($lang->entitycreated, htmlspecialchars($this->data['companyName']));
                 output_xml("<status>true</status><message>{$lang->entitycreated}</message>");
@@ -323,11 +324,13 @@ class Entities {
                         $this->insert_entitysegments($segments);
                     }
 
-                    foreach($coveredcountries as $coveredcountry) {
-                        $coveredcountry['eid'] = $this->eid;
-                        $countract_countryobj = new EntitiesContractCountries();
-                        /* set the object by the core input data and save the same object */
-                        $countract_countryobj->set($coveredcountry)->save();
+                    if(is_array($coveredcountries)) {
+                        foreach($coveredcountries as $coveredcountry) {
+                            $coveredcountry['eid'] = $this->eid;
+                            $countract_countryobj = new EntitiesContractCountries();
+                            /* set the object by the core input data and save the same object */
+                            $countract_countryobj->set($coveredcountry)->save();
+                        }
                     }
                     if(IN_AREA == 'admin') {
                         /* $query = $db->query("SELECT uid FROM ".Tprefix."assignedemployees WHERE isValidator='1' AND eid='".$this->eid."'");
