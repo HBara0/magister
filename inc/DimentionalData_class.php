@@ -140,6 +140,8 @@ class DimentionalData {
     private function parse($options = array(), $data = null, $depth = 1, $previds = '', $total = null, $dimensions = null) {
         global $template;
 
+        /* Temporary option for testing purposes */
+        $options['overwritecalculation']['mktSharePerc'] = array('fields' => array('divider' => 'mktShareQty', 'divideby' => 'potential'), 'operation' => '/');
         if(empty($data) || !isset($data)) {
             $data = $this->data[$this->requiredfields[0]];
         }
@@ -202,6 +204,10 @@ class DimentionalData {
                     }
 
                     foreach($options['requiredfields'] as $field) {
+                        if(isset($options['overwritecalculation'][$field])) {
+                            $total[$dimensions[$depth]][$field.'-'.$previds] = recalculate_dimvalue($field, $total[$dimensions[$depth]], $previds, $options['overwritecalculation'][$field]);
+                        }
+
                         if($options['outputtype'] == 'div') {
                             $columns .= '<div style="display: inline-block; font-size:'.$fontsize.'px">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</div>';
                         }
@@ -209,7 +215,6 @@ class DimentionalData {
                             $columns .= '<td style="font-size:'.$fontsize.'px">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</td>';
                         }
                     }
-
 
                     if(isset($options['template']) && !empty($options['template'])) {
                         eval("\$output .= \"".$template->get($options['template'])."\";");
@@ -248,6 +253,25 @@ class DimentionalData {
             }
         }
         return $output;
+    }
+
+    public function recalculate_dimvalue($field, $totals, $previds, $options) {
+        if(!isset($options['operation'])) {
+            return $totals[$field.'-'.$previds];
+        }
+        switch($options['operation']) {
+            case '/':
+            case 'divide':
+                if(empty($total[[$options['fields']['dividedby'].'-'.$previds]])) {
+                    return $totals[$field.'-'.$previds];
+                }
+                return ($total[[$options['fields']['divider'].'-'.$previds]]) / ($total[[$options['fields']['dividedby'].'-'.$previds]]);
+
+                break;
+            default:
+                return $totals[$field.'-'.$previds];
+                break;
+        }
     }
 
     public function get_requiredfields() {
