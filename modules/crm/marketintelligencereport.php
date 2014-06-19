@@ -73,8 +73,7 @@ if(!$core->input['action']) {
         }
     }
     /* get object of customers  with filter  by sujpliertypes */
-    $potential_custobjs = Customers::get_customers(array('type' => 'c', 'supplierType' => 'pc'));
-
+    //$potential_custobjs = Customers::get_customers(array('type' => 'c', 'supplierType' => 'pc'));
 //    if(is_array($potential_custobjs)) {
 //        foreach($potential_custobjs as $potential_custobj) {
 //            $potential_customername = $potential_custobj->companyName;
@@ -127,10 +126,10 @@ if(!$core->input['action']) {
 
 
     //, 'spid' => $lang->supplier,'spid' => $lang->supplier, 'cid' => $lang->customer, 'psid' => $lang->segment, 'coid' => $lang->customercountry
-    $dimensions = array('affid' => $lang->affiliate, 'eptid' => $lang->endproductype, 'pid' => $lang->product, 'cid' => $lang->customer, 'spid' => $lang->supplier, 'psid' => $lang->segment, 'affid' => $lang->affiliate, 'psaid' => $lang->application, 'ccoid' => $lang->customercountry);
+    $dimensions = array('affid' => $lang->affiliate, 'eptid' => $lang->endproductype, 'pid' => $lang->product, 'cid' => $lang->customer, 'spid' => $lang->supplier, 'psid' => $lang->segment, 'affid' => $lang->affiliate, 'psaid' => $lang->application, 'ctype' => $lang->customertype);
 
     foreach($dimensions as $dimensionid => $dimension) {
-        $dimension_item.='<li class="ui-state-default" id='.$dimensionid.' title="Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
+        $dimension_item.='<li class = "ui-state-default" id = '.$dimensionid.' title = "Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
     }
     eval("\$mireport_options = \"".$template->get('crm_marketintelligence_report_options')."\";");
     output($mireport_options);

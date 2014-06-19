@@ -141,7 +141,7 @@ class DimentionalData {
         global $template;
 
         /* Temporary option for testing purposes */
-        $options['overwritecalculation']['mktSharePerc'] = array('fields' => array('divider' => 'mktShareQty', 'divideby' => 'potential'), 'operation' => '/');
+        $options['overwritecalculation']['mktSharePerc'] = array('fields' => array('divider' => 'mktShareQty', 'dividedby' => 'potential'), 'operation' => '/');
         if(empty($data) || !isset($data)) {
             $data = $this->data[$this->requiredfields[0]];
         }
@@ -194,6 +194,12 @@ class DimentionalData {
                                 $this->dimensions['link'] = $class->get()['name'];
                             }
                         }
+                        else {
+                            if($key == 'pc') {
+                                $key = 'Potential Customer';  //  later to be stand alone function
+                            }
+                            $this->dimensions['link'] = $key;
+                        }
 
                         if($options['outputtype'] == 'div') {
                             $columns = '<div style="display: inline-block; padding-left:'.(($depth - 1) * 20).'px; font-size:'.$fontsize.'px;">'.$this->dimensions['link'].'</div>';
@@ -205,7 +211,9 @@ class DimentionalData {
 
                     foreach($options['requiredfields'] as $field) {
                         if(isset($options['overwritecalculation'][$field])) {
-                            $total[$dimensions[$depth]][$field.'-'.$previds] = recalculate_dimvalue($field, $total[$dimensions[$depth]], $previds, $options['overwritecalculation'][$field]);
+                            $total[$dimensions[$depth]][$field.'-'.$previds] = $this->recalculate_dimvalue($field, $total[$dimensions[$depth]], $previds, $options['overwritecalculation'][$field]);
+
+                            $total[$dimensions[$depth]][$field.'-'.$previds] = round(($total[$dimensions[$depth]][$field.'-'.$previds] * 100), 2).' %';
                         }
 
                         if($options['outputtype'] == 'div') {
@@ -262,11 +270,11 @@ class DimentionalData {
         switch($options['operation']) {
             case '/':
             case 'divide':
-                if(empty($total[[$options['fields']['dividedby'].'-'.$previds]])) {
+                if(empty($totals[$options['fields']['dividedby'].'-'.$previds])) {
                     return $totals[$field.'-'.$previds];
                 }
-                return ($total[[$options['fields']['divider'].'-'.$previds]]) / ($total[[$options['fields']['dividedby'].'-'.$previds]]);
 
+                return ($totals[$options['fields']['divider'].'-'.$previds]) / ($totals[$options['fields']['dividedby'].'-'.$previds]);
                 break;
             default:
                 return $totals[$field.'-'.$previds];
