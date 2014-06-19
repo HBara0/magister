@@ -5,8 +5,11 @@
   \******************************** */
 
 $lang['businessinfo'] = 'Business Information';
+$lang['contributor'] = 'contributor';
+$lang['businessinfo'] = 'Business Information';
 $lang['businessregions'] = 'Business Regions';
 $lang['companyname'] = 'Company Name';
+$lang['segname'] = 'Name';
 $lang['contactdetails'] = 'Contact Details';
 $lang['contactperson'] = 'Contact Persons';
 $lang['customers'] = 'Customers';
@@ -63,6 +66,7 @@ $lang['competitortradersuppliers'] = 'Competitor trader';
 $lang['competitorprodsuppliers'] = 'Competitor producer';
 $lang['addasegment'] = "Add a Segment";
 $lang['listavailablesegments'] = "List of Available Segments";
+$lang['segmentlist'] = 'Segments List';
 $lang['nosegementsavailable'] = "No segments are yet available";
 $lang['segmentadded'] = "Segment was added successfully";
 $lang['segmentadderror'] = "An error occured while adding the segment";

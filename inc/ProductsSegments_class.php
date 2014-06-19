@@ -32,6 +32,11 @@ class ProductsSegments {
         $this->segment = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'productsegments WHERE psid='.intval($id)));
     }
 
+    public static function get_segment($filters, $configs = array()) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
+    }
+
     public static function get_segment_byname($value) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects_byattr('title', $value);
