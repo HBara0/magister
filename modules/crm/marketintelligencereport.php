@@ -73,8 +73,7 @@ if(!$core->input['action']) {
         }
     }
     /* get object of customers  with filter  by sujpliertypes */
-    $potential_custobjs = Customers::get_customers(array('type' => 'c', 'supplierType' => 'pc'));
-
+    //$potential_custobjs = Customers::get_customers(array('type' => 'c', 'supplierType' => 'pc'));
 //    if(is_array($potential_custobjs)) {
 //        foreach($potential_custobjs as $potential_custobj) {
 //            $potential_customername = $potential_custobj->companyName;

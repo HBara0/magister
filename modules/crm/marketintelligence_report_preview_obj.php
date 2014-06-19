@@ -37,15 +37,14 @@ if(!($core->input['action'])) {
         if(isset($mireportdata['filter']['spid'])) {
             $mireportdata['filter']['cfpid'] = 'SELECT cfpid FROM '.Tprefix.'chemfunctionproducts WHERE pid IN (SELECT pid FROM '.Tprefix.'products WHERE spid IN ('.implode(',', $mireportdata['filter']['spid']).'))';
         }
-        //if(isset($mireportdata['filter']['ccoid'])) {
-        $mireportdata['filter']['coid'] = 'SELECT country FROM '.Tprefix.'entities WHERE eid IN  (\''.implode('\',\'', $mireportdata['filter']['cid']).'\')';
-        //}
+        // if(isset($mireportdata['filter']['ccoid'])) {
+        //   $mireportdata['filter']['coid'] = 'SELECT country FROM '.Tprefix.'entities WHERE eid IN  (\''.implode('\',\'', $mireportdata['filter']['cid']).'\')';
+        // }
         if(isset($mireportdata['filter']['ctype'])) {
             $mireportdata['filter']['ctype'] = array_map($db->escape_string, $mireportdata['filter']['ctype']);  /* apply the call bak function dbescapestring to the the value */
             $mireportdata['filter']['cid'] = 'SELECT eid FROM '.Tprefix.'entities WHERE type IN  (\''.implode('\',\'', $mireportdata['filter']['ctype']).'\')';
         }
         print_R($mireportdata['filter']);
-
 
         unset($mireportdata['filter']['coid'], $mireportdata['filter']['spid'], $mireportdata['filter']['psid'], $mireportdata['filter']['ctype']);
         /* Get cfpid of segment ----END */

@@ -592,13 +592,6 @@ class Users {
         return '<a href="users.php?action=profile&uid='.$this->user['uid'].'" '.$attributes.'>'.$this->user[$options['outputvar']].'</a>';
     }
 
-    public function __get($attr) {
-        if(isset($this->user[$attr])) {
-            return $this->user[$attr];
-        }
-        return false;
-    }
-
     public function get_displayname() {
         return $this->user[self::DISPLAY_NAME];
     }
