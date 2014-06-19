@@ -146,7 +146,7 @@ class DataAccessLayer {
                         }
                         else {
                             $value = array_map($db->escape_string, $value);
-                            $filters_querystring .= $andor.$attr.' IN ('.implode(',', $value).')';
+                            $filters_querystring .= $andor.$attr.' IN ("'.implode('","', $value).')"';
                         }
                     }
                 }
@@ -156,11 +156,12 @@ class DataAccessLayer {
                         $value = intval($value);
                     }
                     else {
+
                         if($operators[$attr] == 'like') {
                             $value = '"%'.$db->escape_string($value).'%"';
                         }
                         elseif($operators[$attr] == 'IN') {
-                            $value = '('.$db->escape_string($value).')';
+                            $value = '('.$value.')';
                         }
                         else {
                             $operators[$attr] = '=';

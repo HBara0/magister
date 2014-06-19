@@ -14,7 +14,7 @@
  * @author tony.assaad
  */
 class SegmentApplications {
-    private $segmentapplication = array();
+    private $data = array();
 
     const PRIMARY_KEY = 'psaid';
     const TABLE_NAME = 'segmentapplications';
@@ -32,7 +32,7 @@ class SegmentApplications {
         if($simple == true) {
             $query_select = 'psaid, name, psid, title';
         }
-        $this->segmentapplication = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'segmentapplications WHERE psaid='.intval($id)));
+        $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'segmentapplications WHERE psaid='.intval($id)));
     }
 
     public function create($data = array()) {
@@ -64,17 +64,17 @@ class SegmentApplications {
             );
             $query = $db->insert_query('segmentapplications', $segapplication_data);
             if($query) {
-                $this->segmentapplication[self::PRIMARY_KEY] = $db->last_id();
+                $this->data[self::PRIMARY_KEY] = $db->last_id();
                 if(!empty($data['segappfunctions']) && isset($data['segappfunctions'])) {
                     foreach($data['segappfunctions'] as $cfid) {
-                        $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $cfid, 'psaid' => $this->segmentapplication[self::PRIMARY_KEY], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
+                        $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $cfid, 'psaid' => $this->data[self::PRIMARY_KEY], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
                         if($segappfuncquery) {
                             $data['safid'] = $db->last_id();
                         }
                     }
                 }
 
-                $log->record('createsegappfunctions', $this->segmentapplication[self::PRIMARY_KEY]);
+                $log->record('createsegappfunctions', $this->data[self::PRIMARY_KEY]);
                 $this->errorcode = 0;
                 return true;
             }
@@ -118,7 +118,7 @@ class SegmentApplications {
 
     public function get_segappfunctions() {
         global $db;
-        $query = $db->query('SELECT cfid, safid FROM '.Tprefix.'segapplicationfunctions WHERE psaid="'.intval($this->segmentapplication['psaid']).'"');
+        $query = $db->query('SELECT cfid, safid FROM '.Tprefix.'segapplicationfunctions WHERE psaid="'.intval($this->data['psaid']).'"');
         if($db->num_rows($query) > 0) {
             while($rowsegmentappfunc = $db->fetch_assoc($query)) {
                 $segmentsappfunc[$rowsegmentappfunc['safid']] = new ChemicalFunctions($rowsegmentappfunc['cfid']);
@@ -133,7 +133,7 @@ class SegmentApplications {
     public function get_endproduct() {
         global $db;
 
-        $query = $db->query('SELECT eptid FROM '.Tprefix.'endproducttypes WHERE psaid="'.$this->segmentapplication['psaid'].'"');
+        $query = $db->query('SELECT eptid FROM '.Tprefix.'endproducttypes WHERE psaid="'.$this->data['psaid'].'"');
         if($db->num_rows($query) > 0) {
             while($endproduct = $db->fetch_assoc($query)) {
                 $endproducts[$endproduct['eptid']] = new Endproductypes($endproduct['eptid']);
@@ -146,7 +146,7 @@ class SegmentApplications {
     }
 
     public function get_segment() {
-        return new ProductsSegments($this->segmentapplication['psid']);
+        return new ProductsSegments($this->data['psid']);
     }
 
     public static function get_application_byattr($attr, $value) {
@@ -155,40 +155,40 @@ class SegmentApplications {
     }
 
     public function save(array $data = array()) {
-        if(value_exists(self::TABLE_NAME, self::PRIMARY_KEY, $this->segmentapplication[self::PRIMARY_KEY])) {
+        if(value_exists(self::TABLE_NAME, self::PRIMARY_KEY, $this->data[self::PRIMARY_KEY])) {
             //Update
         }
         else {
             if(empty($data)) {
-                $data = $this->segmentapplication;
+                $data = $this->data;
             }
             $this->create($data);
         }
     }
 
     public function __get($attr) {
-        if(isset($this->segmentapplication[$attr])) {
-            return $this->segmentapplication[$attr];
+        if(isset($this->data[$attr])) {
+            return $this->data[$attr];
         }
         return false;
     }
 
     public function get() {
-        return $this->segmentapplication;
+        return $this->data;
     }
 
     public function get_displayname() {
-        return $this->segmentapplication[self::DISPLAY_NAME];
+        return $this->data[self::DISPLAY_NAME];
     }
 
     public function set(array $data) {
         foreach($data as $name => $value) {
-            $this->segmentapplication[$name] = $value;
+            $this->data[$name] = $value;
         }
     }
 
     public function __set($name, $value) {
-        $this->segmentapplication[$name] = $value;
+        $this->data[$name] = $value;
     }
 
     public function get_errorcode() {

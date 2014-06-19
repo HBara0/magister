@@ -26,7 +26,7 @@ if(!$core->input['action']) {
         if($affiliates_data['affid'] == $core->user['mainaffiliate']) {
             $selected = " selected='selected'";
         }
-        $affiliates_list.='<option value='.$affiliates_data['affid'].' '.$selected.'>'.$affiliates_data['name'].'</option>';
+        $affiliates_list.='<tr><td><input type="checkbox" name="mireport[filter][affid][]"  value="'.$affiliates_data['affid'].'"/>&nbsp;'.$affiliates_data['name'].'</td></tr>';
     }
 
     // Here we get  suppliers that the user is assigned to or work with an affiliate that he can audit
@@ -49,7 +49,7 @@ if(!$core->input['action']) {
                 if(in_array($affiliatedaudit_supplier['eid'], $core->user['suppliers']['eid'])) {
                     $selected = " selected='selected'";
                 }
-                $suppliers_list.='<option value='.$affiliatedaudit_supplier['eid'].' '.$selected.'>'.$affiliatedaudit_supplier['companyName'].'</option>';
+                $suppliers_list.='<tr><td><input type="checkbox" name="mireport[filter][spid][]"  value="'.$affiliatedaudit_supplier['eid'].'"/>&nbsp;'.$affiliatedaudit_supplier['companyName'].'</td></tr>';
             }
         }
     }
@@ -67,20 +67,20 @@ if(!$core->input['action']) {
                     if(in_array($affiliatesaudit_customer['eid'], $core->user['customers'])) {
                         $selected = " selected='selected'";
                     }
-                    $customers_list.='<option value='.$affiliatesaudit_customer['eid'].' '.$selected.'>'.$affiliatesaudit_customer['companyName'].'</option>';
+                    $customers_list.='<tr><td><input type="checkbox" name="mireport[filter][cid][]"  value="'.$affiliatesaudit_customer['eid'].'"/>&nbsp;'.$affiliatesaudit_customer['companyName'].'</td> </tr>';
                 }
             }
         }
     }
-    /* customer types */
+    /* get object of customers  with filter  by sujpliertypes */
     $potential_custobjs = Customers::get_customers(array('type' => 'c', 'supplierType' => 'pc'));
 
-    if(is_array($potential_custobjs)) {
-        foreach($potential_custobjs as $potential_custobj) {
-            $potential_customername = $potential_custobj->companyName;
-            $potential_customerlist.='<option value='.$potential_custobj->eid.' '.$selected.'>'.$potential_custobj->companyName.'</option>';
-        }
-    }
+//    if(is_array($potential_custobjs)) {
+//        foreach($potential_custobjs as $potential_custobj) {
+//            $potential_customername = $potential_custobj->companyName;
+//            $potential_customerlist .='<tr><td><input type="checkbox" name="mireport[filter][cid][]"  value="'.$potential_custobj->eid.'"/>&nbsp; '.$potential_custobj->companyName.'</td></tr>';
+//        }
+//    }
     // Get User  segments the user is assigned to, assigned to supervise, or is coordinator for
     $user = new Users($core->user['uid']);
     $user_segmentsobjs = $user->get_segments();
@@ -106,7 +106,7 @@ if(!$core->input['action']) {
         if(in_array($psid, $core->user['suppliers']['eid'])) {
             $selected = " selected='selected'";
         }
-        $segmentlist.='<option value='.$psid.' '.$selected.'>'.$user_segment.'</option>';
+        $segmentlist .='<tr><td><input type="checkbox" name="mireport[filter][psid][]"  value="'.$psid.'"/>&nbsp;'.$user_segment.'</td></tr>';
     }
 
     // Get business manager that report to the user or are assigned to a main affiliate that the user is auditing
@@ -127,7 +127,7 @@ if(!$core->input['action']) {
 
 
     //, 'spid' => $lang->supplier,'spid' => $lang->supplier, 'cid' => $lang->customer, 'psid' => $lang->segment, 'coid' => $lang->customercountry
-    $dimensions = array('affid' => $lang->affiliate, 'eptid' => $lang->endproductype, 'pid' => $lang->product, 'cid' => $lang->customer, 'spid' => $lang->supplier, 'psid' => $lang->segment, 'affid' => $lang->affiliate);
+    $dimensions = array('affid' => $lang->affiliate, 'eptid' => $lang->endproductype, 'pid' => $lang->product, 'cid' => $lang->customer, 'spid' => $lang->supplier, 'psid' => $lang->segment, 'affid' => $lang->affiliate, 'psaid' => $lang->application, 'ccoid' => $lang->customercountry);
 
     foreach($dimensions as $dimensionid => $dimension) {
         $dimension_item.='<li class="ui-state-default" id='.$dimensionid.' title="Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';

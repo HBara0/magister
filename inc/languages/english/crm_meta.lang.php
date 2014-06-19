@@ -33,6 +33,15 @@ $lang['customertypes'] = 'Customer Types';
 $lang['selecteddimensions'] = 'Selected Dimensions';
 $lang['potential'] = 'Potential';
 $lang['mktshareperc'] = 'MktShare Perc';
+$lang['application'] = 'Application';
+$lang['customertype'] = 'Customer Type';
+$lang['customercountry'] = 'Customer Country';
+
 $lang['mktshareqty'] = 'MktShare Qty';
 $lang['unitprice'] = 'unit Price';
+$lang['searchaff'] = 'Search Affiliate';
+$lang['searchsupp'] = 'Search Supplier';
+$lang['searchcust'] = 'Search Customer';
+$lang['searchseg'] = 'Search Segment';
+$lang['searchct'] = 'Search Potential Customer';
 ?>

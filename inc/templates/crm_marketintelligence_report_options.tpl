@@ -32,7 +32,6 @@
             }
 
             .sortable {
-
                 list-style-type: none;
                 margin: 10px;
                 float: left;
@@ -61,10 +60,10 @@
                         $('.sortable-placeholder').hide();
                     },
                     dropOnEmpty: true, //Prevent all items in a list from being dropped into a separate, empty list
-                    start: function() {        /*  return back the Color of the  element to tis origin Upon remove of the item */
+                    start: function() {        /*  return back the Color of the  element to its origin Upon remove of the item */
                         $("#dimensionto li").animate({
                             opacity: 2.35,
-                            backgroundColor: "#efefef",
+                            backgroundColor: "#cccccc",
                         });
                     },
                     stop: function(event, ui) {
@@ -80,31 +79,97 @@
             <h3>{$lang->mireport}</h3>
             <form action="index.php?module=crm/marketintelligence_report_preview_obj&amp;referrer=generate&amp;identifier={$identifier}" method="post" id="perform_crm\/marketintelligencereport_Form" name="perform_crm/marketintelligencereport_Form">
                 <div class="thead" >{$lang->filters}</div>
-                <div style="display:block;padding:10px;">
-                    <div style="display:inline-block; width:20%; vertical-align:top; ">{$lang->affiliate}</div>
-                    <div style="display:inline-block;width: 200px;"><select name="mireport[filter][affid][]" multiple="multiple">{$affiliates_list}</select></div>
-                    <div style="display:inline-block; width: 25%; vertical-align:top;">{$lang->supplier}</div>
-                    <div style="display:inline-block;width: 200px;"><select name="mireport[filter][spid][]"  multiple="multiple">{$suppliers_list}</select></div>
+
+                <table width="100%">
+                    <tr>
+                        <td width="50%">
+                            <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
+                                <table class="datatable" width="100%">
+                                    <thead >
+                                        <tr>
+                                            <th>{$lang->affiliate}  <input class='inlinefilterfield' tabindex="1" type='text' style="width:70%" placeholder="{$lang->searchaff}"/></th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {$affiliates_list}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                        <td  width="50%">
+                            <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
+                                <table class="datatable" width="100%">
+                                    <thead >
+                                        <tr>
+                                            <th>{$lang->supplier}  <input class='inlinefilterfield' type='text'tabindex="2" style="width:70%" placeholder="{$lang->searchsupp}"/></th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {$suppliers_list}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td  width="50%">
+                            <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
+                                <table class="datatable" width="100%">
+                                    <thead >
+                                        <tr>
+                                            <th>{$lang->customer}  <input class='inlinefilterfield' type='text' tabindex="3" style="width:70%" placeholder="{$lang->searchcust}"/></th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {$customers_list}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
 
 
-                </div>
+                        <td colspan="2"  width="50%">
+                            <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
+                                <table class="datatable" width="100%">
+                                    <thead >
+                                        <tr>
+                                            <th>{$lang->segment}  <input class='inlinefilterfield' type='text' tabindex="4" style="width:70%" placeholder="{$lang->searchseg}"/></th>
 
-                <div style="display:block;padding:10px;">
-                    <div style="display:inline-block; width: 20%; vertical-align:top; ">{$lang->customer}</div>
-                    <div style="display:inline-block;width:200px;"><select name="mireport[filter][cid][]"  multiple="multiple">{$customers_list}</select></div>
-                    <div style="display:inline-block;width: 25%; vertical-align:top;">{$lang->segment}</div>
-                    <div style="display:inline-block;width: 200px;"><select name="mireport[filter][psid][]" multiple="multiple">{$segmentlist}</select></div>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {$segmentlist}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
 
-                </div>
+                    <tr>
+                        <td colspan="3"  width="50%">
+                            <div style="width:30%; height:70px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
+                                <table class="datatable" width="100%">
+                                    <thead >
+                                        <tr>
+                                            <th>{$lang->customertypes} </th>
 
-                <div style="display:block;padding:10px;">
-                    <div style="display:inline-block; width:20%; vertical-align:top;">{$lang->customertypes}</div>
-                    <div style="display:inline-block;width: 200px;"><select name="mireport[filter][cid][]"  multiple="multiple">{$potential_customerlist}</select></div>
-
-                    <div style="display:inline-block; width:25%; vertical-align:top;">{$lang->bm}</div>
-                    <div style="display:inline-block;width:240px;"> {$business_managerslist}</div>
-
-                </div>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><input type="checkbox" name="mireport[filter][ctype][]"  value="pc"/>{$lang->potential}</td>
+                                            <td><input type="checkbox" name="mireport[filter][ctype][]"  value="c"/>{$lang->customer} </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
                 <div class="thead" style="margin:10px;">{$lang->dimensions}</div>
                 <div style="display:block; ">
                     <div style="display:inline-block;width:40%;  vertical-align:top;">
@@ -134,5 +199,6 @@
 
         </td>
     </tr>
+    {$footer}
 </body>
 </html>

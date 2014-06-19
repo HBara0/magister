@@ -1576,6 +1576,9 @@ function get_object_bytype($dim, $id) {
         case 'eptid':
             return new EndproducTypes($id);
             break;
+        case 'psaid':
+            return new Segmentapplications($id);
+            break;
     }
 }
 
