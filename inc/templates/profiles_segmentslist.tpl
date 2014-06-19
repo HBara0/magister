@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->segmentlist}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->segmentslist}</title>
         {$headerinc}
     </head>
     <body>
@@ -8,25 +8,21 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->segmentlist}</h3>
+            <h3>{$lang->segmentslist}</h3>
             <table class="datatable" style="display:{$datatable_display};">
                 <thead>
                     <tr>
                         <th style="width:50%;">{$lang->segment}
-
-                        <th style="width:50%;">{$lang->coordinator}</th>
-
+                        <th style="width:50%;">{$lang->coordinators}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {$segment_list}
+                    {$segments_rows}
                 </tbody>
-
             </table>
         </div>
     </td>
 </tr>
 {$footer}
 </body>
-
 </html>
