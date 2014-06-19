@@ -155,6 +155,13 @@ class Users {
         return $this->user;
     }
 
+    public function __get($name) {
+        if(isset($this->user[$name])) {
+            return $this->user[$name];
+        }
+        return false;
+    }
+
     public function get_reportsto() {
         if(empty($this->user['reportsTo'])) {
             return false;

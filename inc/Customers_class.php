@@ -14,9 +14,7 @@
  * @author zaher.reda
  */
 class Customers extends Entities {
-    //put your code here
-
-    const PRIMARY_KEY = 'eid';
+    const PRIMARY_KEY = 'cid';
     const TABLE_NAME = 'entities';
     const DISPLAY_NAME = 'companyName';
 
@@ -40,7 +38,13 @@ class Customers extends Entities {
         $this->data[$name] = $value;
     }
 
-    /* call the Magical function  get to acces the private attributes */
+    public function __get($name) {
+        if(isset($this->data[$name])) {
+            return $this->data[$name];
+        }
+        return false;
+    }
+
     public function get() {
         return $this->data;
     }

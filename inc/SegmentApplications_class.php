@@ -136,7 +136,7 @@ class SegmentApplications {
         $query = $db->query('SELECT eptid FROM '.Tprefix.'endproducttypes WHERE psaid="'.$this->data['psaid'].'"');
         if($db->num_rows($query) > 0) {
             while($endproduct = $db->fetch_assoc($query)) {
-                $endproducts[$endproduct['eptid']] = new Endproductypes($endproduct['eptid']);
+                $endproducts[$endproduct['eptid']] = new EndProducTypes($endproduct['eptid']);
             }
             return $endproducts;
         }

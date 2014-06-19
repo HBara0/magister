@@ -41,7 +41,7 @@ class Affiliates {
             return new Cities($this->affiliate['city']);
         }
         else {
-            return Cities::get_city_byname($this->affiliate['city']);
+            return Cities::get_cities(array('name' => $this->affiliate['city'], 'coid' => $this->affiliate['country']));
         }
     }
 

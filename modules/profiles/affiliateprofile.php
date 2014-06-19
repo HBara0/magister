@@ -21,34 +21,6 @@ if(!$core->input['action']) {
 
     $affid = $db->escape_string($core->input['affid']);
     $filter_where = 'affid IN ('.$affid.')';
-    if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
-        $addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarket.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
-        $array_data = array('module' => 'profiles', 'elemtentid' => $affid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
-        eval("\$profiles_entityprofile_micustomerentry = \"".$template->get('profiles_micustomerentry')."\";");
-
-        $module = 'profiles';
-        $elemtentid = $affid;
-        $elementname = 'marketdata[affid]';
-        $action = 'do_addmartkerdata';
-        $modulefile = 'affiliateprofile';
-        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
-        /* View detailed market intelligence box --START */
-        $maktintl_mainobj = new MarketIntelligence();
-        $miprofile = $maktintl_mainobj->get_miprofconfig_byname('latestaggregatebycustomer');
-        $miprofile['next_miprofile'] = 'latestaggregatecustomersumbyproduct';
-        $maktintl_objs = $maktintl_mainobj->get_marketintelligence_timeline(array('affid' => $affid), $miprofile);
-        if(is_array($maktintl_objs)) {
-            foreach($maktintl_objs as $mktintldata) {
-                $mktintldata['tlidentifier']['id'] = 'tlrelation-'.$affid;
-                $mktintldata['tlidentifier']['value'] = array('affid' => $affid);
-                $detailmarketbox .= $maktintl_mainobj->parse_timeline_entry($mktintldata, $miprofile);
-            }
-        }
-        /* View detailed market intelligence box --END */
-        //val("\$profiles_affiliateprofile_micustomerentry = \"".$template->get('profiles_affiliateprofile_micustomerentry')."\";");
-        //eval("\$profiles_entityprofile_micustomerentry = \"".$template->get('profiles_micustomerentry')."\";");
-    }
-
     $rowid = intval($core->input['value']) + 2;
     $affiliate_obj = new Affiliates($affid, false);
     $profile = $affiliate_obj->get();
@@ -246,8 +218,31 @@ if(!$core->input['action']) {
     }
 
     if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
+        $addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarketdata.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
+        $array_data = array('module' => 'profiles', 'elemtentid' => $affid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
+        eval("\$profiles_entityprofile_micustomerentry = \"".$template->get('profiles_micustomerentry')."\";");
+
+        $module = 'profiles';
+        $elemtentid = $affid;
+        $elementname = 'marketdata[affid]';
+        $action = 'do_addmartkerdata';
+        $modulefile = 'affiliateprofile';
+        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        /* View detailed market intelligence box --START */
+        $maktintl_mainobj = new MarketIntelligence();
+        $miprofile = $maktintl_mainobj->get_miprofconfig_byname('latestaggregatebycustomer');
+        $miprofile['next_miprofile'] = 'latestaggregatecustomersumbyproduct';
+        $maktintl_objs = $maktintl_mainobj->get_marketintelligence_timeline(array('affid' => $affid), $miprofile);
+        if(is_array($maktintl_objs)) {
+            foreach($maktintl_objs as $mktintldata) {
+                $mktintldata['tlidentifier']['id'] = 'tlrelation-'.$affid;
+                $mktintldata['tlidentifier']['value'] = array('affid' => $affid);
+                $detailmarketbox .= $maktintl_mainobj->parse_timeline_entry($mktintldata, $miprofile);
+            }
+        }
+
         /* Filter by segments which the entity works in */
-        $productypes_objs = Endproductypes::get_endproductypes();
+        $productypes_objs = EndProducTypes::get_endproductypes();
         if(is_array($productypes_objs)) {
             foreach($productypes_objs as $productype) {
                 $endproducttypes_list .= '<option value="'.$productype->eptid.'">'.$productype->title.' - '.$productype->get_application()->title.'</option>';
@@ -261,6 +256,8 @@ if(!$core->input['action']) {
 
         eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
+
+        eval("\$mkintl_section = \"".$template->get('profiles_mktintelsection')."\";");
     }
     eval("\$profilepage = \"".$template->get('profiles_affiliateprofile')."\";");
 
@@ -424,6 +421,9 @@ else {
             }
 
             $output = parse_selectlist('marketdata[ebpid]', 7, $options, '');
+        }
+        else {
+            $output = $lang->na;
         }
         output($output);
     }

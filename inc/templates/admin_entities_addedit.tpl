@@ -5,23 +5,23 @@
         <script language="javascript" type="text/javascript">
             $(function() {
                 if($("select[id='type']").val() == 's' || $(this).val() == 'cs') {
-                    $("tr[id='supplierType'], #parentcompany").show();
+                    $("tr[id='supplierType'], #parentcompany, #coveredcountries_section").show();
                     $("#parentcustomer").hide();
                 }
                 else {
-                    $("tr[id='supplierType'], #parentcompany").hide();
+                    $("tr[id='supplierType'], #parentcompany, #coveredcountries_section").hide();
                     $("#parentcustomer").show();
                 }
 
                 $("select[id='type']").change(function() {
                     if($(this).val() == 's' || $(this).val() == 'cs') {
                         $("#createReports,#noQReportReq,#noQReportSend").removeAttr("disabled");
-                        $("tr[id='supplierType'], tr[id='parentcompany']").show();
+                        $("tr[id='supplierType'], tr[id='parentcompany'], #coveredcountries_section").show();
                         $("tr[id='parentcustomer']").hide();
                     }
                     else {
                         $("#createReports,#noQReportReq,#noQReportSend").attr("disabled", "true");
-                        $("tr[id='supplierType'], tr[id='parentcompany']").hide();
+                        $("tr[id='supplierType'], tr[id='parentcompany'], #coveredcountries_section").hide();
                         $("tr[id='parentcustomer']").show();
                     }
                 });
@@ -156,34 +156,7 @@
                         <td colspan="2" align="left"><input name="createReports" id="createReports" type="checkbox" value="1"{$createreports_disabled}> {$lang->alsocreatecurrentreports}</td>
                     </tr>
                     <tr><td colspan="2"><hr /></td></tr>
-                    <tr id="contractsection_title"><td colspan="2" class="subtitle">{$lang->contractualinformation}</td></tr>
-                    <tr>
-                        <td  colspan="2">
-                            <div style="width:100%; height:200px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
-                                <table class="datatable" width="100%">
-                                    <thead>
-                                    <th></th>
-                                    <th><input class='inlinefilterfield' type='text' style="width:100%" placeholder="{$lang->coveredcountries}"/></th>
-                                    <th>{$lang->isexclusive}</th>
-                                    <th>{$lang->selectiveproducts}</th>
-                                    </thead>
-                                    <tbody>
-                                        {$coveredcountries_rows}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr id="contractsection_firstsigndate">
-                        <td>{$lang->initialcontractsign}</td><td><input type="text" id="pickDate_firstsigndate" autocomplete="off" tabindex="2" value="{$entity[contractFirstSigDate_output]}" /><input type="hidden" name="contractFirstSigDate" id="altpickDate_firstsigndate" value="{$entity[contractFirstSigDate]}"/></td>
-                    </tr>
-                    <tr id="contractsection_contractexpirydate">
-                        <td>{$lang->expirydate}</td><td><input type="text" id="pickDate_contractexpirydate" autocomplete="off" tabindex="2" value="{$entity[contractExpiryDate_output]}" /><input type="hidden" name="contractExpiryDate" id="altpickDate_contractexpirydate" value="{$entity[contractExpiryDate]}"/> <input type="checkbox" id="contractIsEvergreen" name="contractIsEvergreen" value="1"{$contractIsEvergreen_check}> {$lang->contractevergreen}</td>
-                    </tr>
-                    <tr id="contractsection_priornotice">
-                        <td>{$lang->cancelpriornotice}</td><td><input type="text" id="contractPriorNotice" name="contractPriorNotice" value="{$entity[contractPriorNotice]}"></td>
-                    </tr>
+                            {$contractinfo_section}
                     <tr>
                         <td colspan="2" align="left">
                             <input type="button" value="{$lang->$actiontype}" id="perform_entities/{$actiontype}_Button" /> <input type="reset" value="{$lang->reset}"/>

@@ -367,6 +367,29 @@ if(!$core->input['action']) {
             $rating_section = '<div>'.$criteriaandstars.'</div><hr>';
         }
         /* Parse Rating Section - END */
+
+        if($core->usergroup['profiles_canViewContractInfo'] == 0) {
+            $contracted_objs = $entity_obj->get_contractedcountires();
+            $check_fields = array('isExclusive', 'selectiveProducts');
+            if(is_array($contracted_objs)) {
+                foreach($contracted_objs as $eccid => $contractedcountry) {
+                    $selectiveProducts = $isExclusive = '<img src="images/false.gif" border="0">';
+                    $contractedcountry->displayName = $contractedcountry->get_country()->get_displayname();
+                    foreach($check_fields as $check_field) {
+                        $check_field_output = $check_field.'_output';
+                        $contractedcountry->{$check_field_output} = '<img src="images/invalid.gif" border="0">';
+                        if($contractedcountry->{$check_field} == 1) {
+
+                            $contractedcountry->{$check_field_output} = '<img src="images/valid.gif" border="0">';
+                        }
+                    }
+
+                    eval("\$profilepage_contractual_rows .= \"".$template->get('profiles_entityprofile_contractinfo_row')."\";");
+                }
+
+                eval("\$contractinfo_section = \"".$template->get('profiles_entityprofile_contractinfo')."\";");
+            }
+        }
     }
     elseif($profile['type'] == 'c') {
         $report_lang = $lang->lastvisited;
@@ -440,29 +463,6 @@ if(!$core->input['action']) {
         eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
     }
-
-
-    if($core->usergroup['profiles_canViewContractInfo'] == 1) {
-        $contracted_objs = $entity_obj->get_contractedcountires();
-        $contractsection = ' <tr id="contractsection_title"><td colspan="2" class="subtitle">'.$lang->contractualinformation.'</td></tr>';
-
-        foreach($contracted_objs as $eccid => $contracted_obj) {
-
-            $contracted_data = $contracted_obj->get();
-            $selectiveProducts = $isExclusive = '<img src="images/false.gif" border="0">';
-            $countryname = $contracted_obj->get_country()->get_displayname();
-            if($contracted_data['isExclusive'] == 1) {
-                $isExclusive = '<img src="images/true.gif" border="0">';
-            }
-            if($contracted_data['selectiveProducts'] == 1) {
-                $selectiveProducts = '<img src="images/false.gif" border="0">';
-            }
-
-            eval("\$profilepage_contractual_rows .= \"".$template->get('profiles_entityprofile_contractualinformations')."\";");
-        }
-        eval("\$profilepage_contractual = \"".$template->get('profiles_entityprofile_contractual')."\";");
-    }
-
 
     eval("\$profilepage = \"".$template->get('profiles_entityprofile')."\";");
     output_page($profilepage);

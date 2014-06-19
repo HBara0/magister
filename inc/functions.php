@@ -515,11 +515,8 @@ function get_specificdata($table, $attributes, $key_attribute, $value_attribute,
 
 function quick_search($table, $attributes, $value, $select_attributes, $key_attribute, $options = array(), $andor_param = 'OR') {
     global $db, $lang;
-    $foreign_table = false;
+
     $value = $db->escape_string($value);
-    if(isset($flagtable) && $flagtable != $table) {
-        // $foreign_table = true;
-    }
     if(is_array($select_attributes)) {
         foreach($select_attributes as $key => $val) {
             $select_attributes_string .= $comma.$val;
@@ -1570,11 +1567,14 @@ function get_object_bytype($dim, $id) {
         case 'lid':
             return new Leaves($id);
             break;
+        case 'coid':
+            return new Countries($id);
+            break;
         case 'psid':
             return new ProductsSegments($id);
             break;
         case 'eptid':
-            return new EndproducTypes($id);
+            return new EndProducTypes($id);
             break;
         case 'psaid':
             return new Segmentapplications($id);

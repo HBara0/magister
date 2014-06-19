@@ -13,7 +13,7 @@
  *
  * @author tony.assaad
  */
-class EndproducTypes {
+class EndProducTypes {
     private $endproduct = array();
 
     const PRIMARY_KEY = 'eptid';
@@ -80,7 +80,7 @@ class EndproducTypes {
         if(!empty($name)) {
             $id = $db->fetch_field($db->query('SELECT eptid FROM '.Tprefix.'endproducttypes WHERE name="'.$db->escape_string($name).'"'), 'eptid');
             if(!empty($id)) {
-                return new Endproductypes($id);
+                return new EndProducTypes($id);
             }
         }
         return false;
@@ -104,7 +104,7 @@ class EndproducTypes {
         $query = $db->query("SELECT eptid FROM ".Tprefix."endproducttypes{$sort_query} LIMIT {$limit_start}, {$core->settings['itemsperlist']} ");
         if($db->num_rows($query) > 0) {
             while($producttype = $db->fetch_assoc($query)) {
-                $producttypes[$producttype['eptid']] = new Endproductypes($producttype['eptid']);
+                $producttypes[$producttype['eptid']] = new EndProducTypes($producttype['eptid']);
             }
             return $producttypes;
         }

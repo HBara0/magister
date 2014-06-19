@@ -43,14 +43,14 @@ $lang['territory'] = 'Territory';
 $lang['workshift'] = 'Work Shift';
 
 $lang['brand'] = 'Brand';
-$lang['addmarket'] = 'Add Market Data';
+$lang['addmarketdata'] = 'Add Market Data';
 $lang['endproduct'] = 'End Product Type';
 
 $lang['annualpotential'] = 'Annual Potential';
 $lang['item'] = 'Item';
 $lang['competitortrader'] = 'Competitor Trader';
 $lang['competitorprod'] = 'Competitor Producer';
-$lang['marketshare'] = 'Market Share %';
+$lang['marketshareperc'] = 'Market Share %';
 $lang['marketshareqty'] = 'Market Share Qty';
 $lang['price'] = 'Unit Price';
 $lang['usd'] = 'USD/KG';
@@ -59,7 +59,7 @@ $lang['comment'] = 'Comments';
 $lang['competitor'] = 'Competitors';
 $lang['addmarketdata'] = 'Add Market Data';
 $lang['viewmrktbox'] = 'View Market Box';
-$lang['detlmrktbox'] = 'Detailed Market Intelligence Box';
+$lang['detailmktintelbox'] = 'Detailed Market Intelligence Box';
 $lang['competitorsuppliers'] = 'Competitor Suppliers';
 $lang['competitorproducts'] = 'Products';
 $lang['competitortradersuppliers'] = 'Competitor trader';

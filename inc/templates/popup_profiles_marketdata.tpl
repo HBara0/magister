@@ -5,10 +5,10 @@
         <div>
             {$profiles_entityprofile_micustomerentry}
             {$profiles_michemfuncproductentry}
-            <div style="width: 30%; display: inline-block;">{$lang->annualpotential}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="potential" name="marketdata[potential]" accept="numeric"  required="required"  autocomplete="off"/></div>
-            <div style="width: 30%; display: inline-block;">{$lang->marketshare}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="mktshareperc" name="marketdata[mktSharePerc]" accept="numeric" required="required"  autocomplete="off"/></div>
-            <div style="width: 30%; display: inline-block;">{$lang->marketshareqty}</div><div style="width: 60%; display: inline-block;"><input type="number" size="12" step="any" id="mktshareqty" name="marketdata[mktShareQty]" accept="numeric" required="required"  autocomplete="off"/></div>
-            <div style="width: 30%; display: inline-block;">{$lang->price}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" name="marketdata[unitPrice]" accept="numeric" autocomplete="off"/> {$lang->usd} {$lang->cif}</div>
+            <div style="width: 30%; display: inline-block;">{$lang->annualpotential}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="potential" name="marketdata[potential]" accept="numeric"  required="required" autocomplete="off" min="0"/></div>
+            <div style="width: 30%; display: inline-block;">{$lang->marketshareperc}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="mktshareperc" name="marketdata[mktSharePerc]" accept="numeric" required="required" autocomplete="off" min="0"/></div>
+            <div style="width: 30%; display: inline-block;">{$lang->marketshareqty}</div><div style="width: 60%; display: inline-block;"><input type="number" size="12" step="any" id="mktshareqty" name="marketdata[mktShareQty]" accept="numeric" required="required" autocomplete="off" min="0"/></div>
+            <div style="width: 30%; display: inline-block;">{$lang->price}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" name="marketdata[unitPrice]" accept="numeric" autocomplete="off" min="0"/> USD/KG {$lang->cif}</div>
             <div style="width: 30%; display: inline-block;">{$lang->endproduct}</div><div style="width: 60%; display: inline-block;"><!--<select {$hideselect} name="marketdata[ebpid]">{$entitiesbrandsproducts_list}</select>--> <span id="entitiesbrandsproducts_endproductResult">{$entitiesbrandsproducts_list}</span> | <a href="createbrand" id="showpopup_createbrand" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->createbrand}</a></div>
             <div>{$lang->comment}</div>
             <div><textarea cols="60" rows="5" name="marketdata[comments]"></textarea></div>
@@ -21,25 +21,24 @@
                             <tbody id="competitor_tbody">
                                 <tr id="2">
                                     <td>
-                                        <div style="width:60%; display:block;">
-                                            <div style="width:40%; display: inline-block;">{$lang->competitortrader}</div>
-                                            <div style="width:40%; display: inline-block;"><input type='text'id='competitortradersupp_{$rowid}_QSearch' autocomplete='off' size='40px'/>
+                                        <div style="width:100%; display:block;">
+                                            <div style="width:45%; display: inline-block;">{$lang->competitortrader}</div>
+                                            <div style="width:45%; display: inline-block;"><input type='text'id='competitortradersupp_{$rowid}_QSearch' autocomplete='off' />
                                                 <input type='hidden' id='competitortradersupp_{$rowid}_id' name='marketdata[competitor][{$rowid}][trader]' value="" />
                                                 <div id='searchQuickResults_competitortradersupp_{$rowid}' class='searchQuickResults' style='display:none;'></div></div>
                                         </div>
-                                        <div style="width:60%; display:block;">
-                                            <div style="width:40%; display: inline-block;">{$lang->competitorprod}</div>
-                                            <div style="width:40%; display: inline-block;"><input type='text'id='competitorproducersupp_{$rowid}_QSearch' autocomplete='off' size='40px'/>
+                                        <div style="width:100%; display:block;">
+                                            <div style="width:45%; display: inline-block;">{$lang->competitorprod}</div>
+                                            <div style="width:45%; display: inline-block;"><input type='text'id='competitorproducersupp_{$rowid}_QSearch' autocomplete='off'/>
                                                 <input type='hidden' id='competitorproducersupp_{$rowid}_id' name='marketdata[competitor][{$rowid}][producer]' value="" />
                                                 <div id='searchQuickResults_competitorproducersupp_{$rowid}' class='searchQuickResults' style='display:none;'></div> </div>
                                         </div>
                                         <div style="width:100%; display:block;">
-                                            <div style="width:24%; display: inline-block;">{$lang->price}</div> <div style="width:15%; display: inline-block;"><input type="text" size="8" name="marketdata[competitor][{$rowid}][unitPrice]" accept="numeric" autocomplete="off"/></div>
-                                            <div style="width:33.3%; display: inline-block;">{$lang->usd}</div>
+                                            <div style="width:45%; display: inline-block;">{$lang->price}</div><div style="width:45%; display: inline-block;"><input type="text" size="8" name="marketdata[competitor][{$rowid}][unitPrice]" accept="numeric" autocomplete="off" min="0"/> USD/KG</div>
                                         </div>
-                                        <div style="width:60%; display:block;">
-                                            <div style="width:40%; display: inline-block;">{$lang->product}</div>
-                                            <div style="width:40%; display: inline-block;"><input type="text" name="marketdata[competitor][{$rowid}][pid]" id="product_{$rowid}_QSearch" size="40" autocomplete="off"/>
+                                        <div style="width:100%; display:block;">
+                                            <div style="width:45%; display: inline-block;">{$lang->product}</div>
+                                            <div style="width:45%; display: inline-block;"><input type="text" name="marketdata[competitor][{$rowid}][pid]" id="product_{$rowid}_QSearch"  autocomplete="off"/>
                                                 <input type="hidden" id="product_{$rowid}_id" name="marketdata[competitor][{$rowid}][pid]" />
                                                 <div id="searchQuickResults_{$rowid}" class="searchQuickResults" style="display:none;"></div></div>
                                         </div>
@@ -55,7 +54,7 @@
             </table>
         </div>
         <div>
-            <input class="button" value="{$lang->add}" id="perform_{$module}/{$modulefile}_Button" type="submit"><input class="button" value="{$lang->close}" id="hide_popupBox" type="button" onclick="$('#popup_profilesmarketdata').dialog('close')" />
+            <input class="button" value="{$lang->add}" id="perform_{$module}/{$modulefile}_Button" type="submit">
             <div id="perform_{$module}/{$modulefile}_Results"></div>
         </div>
     </form>

@@ -135,7 +135,12 @@ if($core->input['type'] == 'quick') {
         }
         elseif($core->input['for'] == 'chemfunctionproducts') {
             if($core->usergroup['canViewAllsupp'] == 0) {
-                $supplier_filter = 'spid IN ('.implode(',', $core->user['suppliers']['eid']).')';
+                if(is_array($core->user['suppliers']['eid'])) {
+                    $supplier_filter = 'spid IN ('.implode(',', $core->user['suppliers']['eid']).')';
+                }
+                else {
+                    $supplier_filter = 'spid IN (0)';
+                }
             }
             if(!empty($supplier_filter)) {
 //$extra_where = $supplier_filter;
@@ -202,7 +207,9 @@ if($core->input['type'] == 'quick') {
         }
 
         if(isset($core->input['exclude']) && !empty($core->input['exclude'])) {
-            $core->input[exclude] = array_map(intval, $core->input['exclude']);
+            if(is_array($core->input['exclude'])) {
+                $core->input['exclude'] = array_map(intval, $core->input['exclude']);
+            }
             if(empty($extra_where)) {
                 $extra_where = "{$key_attribute} NOT IN ({$core->input[exclude]})";
             }

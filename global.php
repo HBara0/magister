@@ -17,6 +17,8 @@ if(!$dir) {
 require $dir.'/inc/init.php';
 set_headers();
 
+define('SYSTEMVERSION', 17.6);
+
 if(strpos(strtolower($_SERVER['PHP_SELF']), ADMIN_DIR) !== false) {
     define('IN_AREA', 'admin');
     /* $additional_inc = '<script src="'.$core->settings['rootdir']."/".$config['admindir'].'/jscript/jscript.js" type="text/javascript"></script>';
