@@ -40,6 +40,13 @@ class Countries {
         return $data->get_objects($filters, $configs);
     }
 
+    public function get_capitalcity() {
+        if(!is_empty($this->country['capitalCity'])) {
+            return new Cities($this->country['capitalCity']);
+        }
+        return false;
+    }
+
     public function get_affiliate() {
         return new Affiliates($this->country['affid']);
     }
@@ -65,6 +72,12 @@ class Countries {
             return $this->country[$name];
         }
         return false;
+    }
+
+    public function save() {
+        global $db;
+        /* Add validations */
+        $db->update_query('countries', $this->country, 'coid='.intval($this->country['coid']));
     }
 
     public function get() {
