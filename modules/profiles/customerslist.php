@@ -5,7 +5,7 @@
  *
  * Lists related customers
  * $module: profiles
- * $id: customersslist.php	
+ * $id: customersslist.php
  * Created:	   	@najwa.kassem		October 18, 2010 | 10:28 AM
  * Last Update: 	@zaher.reda		 	May 04, 2012 | 11:12 AM
  */
@@ -67,10 +67,10 @@ if(!$core->input['action']) {
 
     $query = $db->query("SELECT DISTINCT(e.eid), e.companyName AS customername, e.companyNameAbbr
 						FROM ".Tprefix."entities e
-						JOIN ".Tprefix."affiliatedentities a ON (e.eid=a.eid) 
+						JOIN ".Tprefix."affiliatedentities a ON (e.eid=a.eid)
 						JOIN ".Tprefix."affiliatedemployees ae ON (a.affid=ae.affid)
-						JOIN ".Tprefix."assignedemployees ase ON (ase.uid=ae.uid)
-						WHERE e.type='c'{$query_string}{$extra_where}
+						WHERE e.eid IN (".implode(',', $core->user['customers']).")
+						AND e.type='c'{$extra_where}
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
