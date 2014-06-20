@@ -195,12 +195,9 @@ class DimentionalData {
                             }
                         }
                         else {
-                            if($key == 'pc') {
-                                $key = 'Potential Customer';  //  later to be stand alone function
-                            }
+                            $key = $this->parse_attributetype($key);
                             $this->dimensions['link'] = $key;
                         }
-
                         if($options['outputtype'] == 'div') {
                             $columns = '<div style="display: inline-block; padding-left:'.(($depth - 1) * 20).'px; font-size:'.$fontsize.'px;">'.$this->dimensions['link'].'</div>';
                         }
@@ -261,6 +258,21 @@ class DimentionalData {
             }
         }
         return $output;
+    }
+
+    private function parse_attributetype($attr) {
+        echo $attr;
+        if(!empty($attr)) {
+            switch($attr) {
+                case 'pc':
+                    $key = 'Potential Customer';
+                    break;
+                case 'c':
+                    $key = 'Customer';
+                    break;
+            }
+            return $key;
+        }
     }
 
     public function recalculate_dimvalue($field, $totals, $previds, $options) {

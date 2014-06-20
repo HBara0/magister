@@ -49,4 +49,8 @@ class Customers extends Entities {
         return $this->data;
     }
 
+    public function get_displayname() {
+        return $this->data[self::DISPLAY_NAME];
+    }
+
 }

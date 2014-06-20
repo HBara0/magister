@@ -45,7 +45,9 @@ if(!$core->input['action']) {
         foreach($affiliatesaudit_objs as $affid => $affiliatesaudit_obj) {
             $affiliatedaudit_suppliers = $affiliatesaudit_obj->get_suppliers();
             $selected = '';
+            $suppliers_list = '';
             foreach($affiliatedaudit_suppliers as $affiliatedaudit_supplier) {
+
                 if(in_array($affiliatedaudit_supplier['eid'], $core->user['suppliers']['eid'])) {
                     $selected = " selected='selected'";
                 }
@@ -86,7 +88,6 @@ if(!$core->input['action']) {
     if(is_array($user_segmentsobjs)) {
 
         foreach($user_segmentsobjs as $key => $user_segmentsobj) {
-
             $userassigned_segments[$user_segmentsobj->get()['psid']] = $user_segmentsobj->get()['title'];
         }
     }
@@ -94,6 +95,7 @@ if(!$core->input['action']) {
     //$user_coordinator_segments = $user->get_coordinatesegments();
     //Get segment cooridnator
     if(is_array($userassigned_segments) && is_array($user_coordinator_segments)) {
+
         $user_segments = array_merge($userassigned_segments, $user_coordinator_segments);
     }
     else {
@@ -123,7 +125,6 @@ if(!$core->input['action']) {
         }
         $business_managerslist = parse_selectlist('mireport[filter][managers][]', 5, $business_managers, $core->user['uid'], 1, '', '');
     }
-
 
     //, 'spid' => $lang->supplier,'spid' => $lang->supplier, 'cid' => $lang->customer, 'psid' => $lang->segment, 'coid' => $lang->customercountry
     $dimensions = array('affid' => $lang->affiliate, 'eptid' => $lang->endproductype, 'pid' => $lang->product, 'cid' => $lang->customer, 'spid' => $lang->supplier, 'psid' => $lang->segment, 'affid' => $lang->affiliate, 'psaid' => $lang->application, 'ctype' => $lang->customertype);
