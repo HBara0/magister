@@ -36,7 +36,6 @@ if(!($core->input['action'])) {
         /* Get cfpid of segment ----START */
         if(isset($mireportdata['filter']['spid'])) {
             $mireportdata['filter']['cfpid'] = 'SELECT cfpid FROM '.Tprefix.'chemfunctionproducts WHERE pid IN (SELECT pid FROM '.Tprefix.'products WHERE spid IN ('.implode(',', $mireportdata['filter']['spid']).'))';
-            $mireportdata['filter']['eid'] = 'SELECT eid FROM '.Tprefix.'entities WHERE  eid IN  (\''.implode('\',\'', $mireportdata['filter']['spid']).'\')';
         }
 
         if(isset($mireportdata['filter']['psid'])) {
@@ -52,7 +51,7 @@ if(!($core->input['action'])) {
             //  $mireportdata['filter']['cid']=
         }
 
-        unset($mireportdata['filter']['coid'], $mireportdata['filter']['eid'], $mireportdata['filter']['spid'], $mireportdata['filter']['psid'], $mireportdata['filter']['ctype']);
+        unset($mireportdata['filter']['coid'], $mireportdata['filter']['spid'], $mireportdata['filter']['psid'], $mireportdata['filter']['ctype']);
         /* Get cfpid of segment ----END */
 
         $marketin_objs = MarketIntelligence::get_marketdata_dal($mireportdata['filter'], array('simple' => false, 'operators' => array('coid' => 'IN', 'cid' => 'IN', 'cfpid' => 'IN')));
@@ -81,10 +80,13 @@ if(!($core->input['action'])) {
                 $dimension_head .= '<th>'.$lang->{$header_data}.'</th>';
             }
         }
+        else {
+            redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
+        }
         /* get Market intellgence baisc Data  --END */
     }
 
     eval("\$mireport_output = \"".$template->get('crm_marketintelligence_report_output')."\";");
-    output($mireport_output);
+    output_page($mireport_output);
 }
 ?>
