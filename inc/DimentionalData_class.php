@@ -141,7 +141,9 @@ class DimentionalData {
         global $template;
 
         /* Temporary option for testing purposes */
-        $options['overwritecalculation']['mktSharePerc'] = array('fields' => array('divider' => 'mktShareQty', 'dividedby' => 'potential'), 'operation' => '/');
+        //  $options['overwritecalculation']['mktSharePerc'] = array('fields' => array('divider' => 'mktShareQty', 'dividedby' => 'potential'), 'operation' => '/');
+
+
         if(empty($data) || !isset($data)) {
             $data = $this->data[$this->requiredfields[0]];
         }
@@ -285,7 +287,6 @@ class DimentionalData {
                 if(empty($totals[$options['fields']['dividedby'].'-'.$previds])) {
                     return $totals[$field.'-'.$previds];
                 }
-
                 return ($totals[$options['fields']['divider'].'-'.$previds]) / ($totals[$options['fields']['dividedby'].'-'.$previds]);
                 break;
             default:

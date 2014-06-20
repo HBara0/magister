@@ -36,6 +36,11 @@ if(!($core->input['action'])) {
         /* Get cfpid of segment ----START */
         if(isset($mireportdata['filter']['spid'])) {
             $mireportdata['filter']['cfpid'] = 'SELECT cfpid FROM '.Tprefix.'chemfunctionproducts WHERE pid IN (SELECT pid FROM '.Tprefix.'products WHERE spid IN ('.implode(',', $mireportdata['filter']['spid']).'))';
+            $mireportdata['filter']['eid'] = 'SELECT eid FROM '.Tprefix.'entities WHERE  eid IN  (\''.implode('\',\'', $mireportdata['filter']['spid']).'\')';
+        }
+
+        if(isset($mireportdata['filter']['psid'])) {
+            $mireportdata['filter']['psid'] = 'SELECT psid FROM '.Tprefix.'productsegments WHERE  psid IN  (\''.implode('\',\'', $mireportdata['filter']['psid']).'\')';
         }
         // if(isset($mireportdata['filter']['ccoid'])) {
         //   $mireportdata['filter']['coid'] = 'SELECT country FROM '.Tprefix.'entities WHERE eid IN  (\''.implode('\',\'', $mireportdata['filter']['cid']).'\')';
@@ -47,16 +52,15 @@ if(!($core->input['action'])) {
             //  $mireportdata['filter']['cid']=
         }
 
-        unset($mireportdata['filter']['coid'], $mireportdata['filter']['spid'], $mireportdata['filter']['psid'], $mireportdata['filter']['ctype']);
+        unset($mireportdata['filter']['coid'], $mireportdata['filter']['eid'], $mireportdata['filter']['spid'], $mireportdata['filter']['psid'], $mireportdata['filter']['ctype']);
         /* Get cfpid of segment ----END */
 
         $marketin_objs = MarketIntelligence::get_marketdata_dal($mireportdata['filter'], array('simple' => false, 'operators' => array('coid' => 'IN', 'cid' => 'IN', 'cfpid' => 'IN')));
 
         /* START presentiation layer */
+        /* Get the id related to the chemfunctionproducts  from the object and send them to the dimensional data class   */
         if(is_array($marketin_objs)) {
             foreach($marketin_objs as $marketin_obj) {
-
-                /* Get the id related to the chemfunctionproducts  from the object and send them to the dimensional data class   */
                 $market_data[$marketin_obj->get()['mibdid']] = $marketin_obj->get();
                 $customer_obj = new Customers($market_data[$marketin_obj->get()['mibdid']]['cid'], '', false);
                 $market_data[$marketin_obj->get()['mibdid']]['ctype'] = $customer_obj->get()['type'];
@@ -69,8 +73,8 @@ if(!($core->input['action'])) {
             $mireportdata['dimension'] = $dimensionalize_ob->set_dimensions($mireportdata['dimension']);
             $dimensionalize_ob->set_requiredfields($marketdata_indexes);
             $dimensionalize_ob->set_data($market_data);
-            $parsed_dimension = $dimensionalize_ob->get_output(array('outputtype' => 'table', 'noenclosingtags' => true));
 
+            $parsed_dimension = $dimensionalize_ob->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'overwritecalculation' => array('mktSharePerc' => array('fields' => array('divider' => 'mktShareQty', 'dividedby' => 'potential'), 'operation' => '/'))));
             $headers_title = $dimensionalize_ob->get_requiredfields();
             foreach($headers_title as $report_header => $header_data) {
                 $header_data = strtolower($header_data);
