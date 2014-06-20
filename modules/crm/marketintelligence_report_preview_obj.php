@@ -38,10 +38,15 @@ if(!($core->input['action'])) {
             $mireportdata['filter']['cfpid'] = 'SELECT cfpid FROM '.Tprefix.'chemfunctionproducts WHERE pid IN (SELECT pid FROM '.Tprefix.'products WHERE spid IN ('.implode(',', $mireportdata['filter']['spid']).'))';
         }
 
-        if(isset($mireportdata['filter']['psid'])) {
-            $mireportdata['filter']['psid'] = 'SELECT psid FROM '.Tprefix.'productsegments WHERE  psid IN  (\''.implode('\',\'', $mireportdata['filter']['psid']).'\')';
+        print_R($mireportdata['filter']['cfpid']);
+        echo '<br>';
+        if((is_array($mireportdata['filter']['cfpid'])) && isset($mireportdata['filter']['psid'])) {
+            $mireportdata['filter']['cfpid'] = 'SELECT psid  FROM '.Tprefix.'productsegements_applications WHERE psaid  IN (SELECT psaid FROM '.Tprefix.'segapplicationfunctions  WHERE safid IN ( SELECT safid from   chemfunctionproducts WHERE cfpid  IN ('.implode(',', $mireportdata['filter']['cfpid']).'))';
         }
-        // if(isset($mireportdata['filter']['ccoid'])) {
+
+        echo 'SELECT psid  FROM '.Tprefix.'productsegements_applications WHERE psaid  IN (SELECT psaid FROM '.Tprefix.'segapplicationfunctions  WHERE safid IN ( SELECT safid from   chemfunctionproducts WHERE cfpid  IN ('.implode(',', $mireportdata['filter']['cfpid']).'))';
+        exit;
+// if(isset($mireportdata['filter']['ccoid'])) {
         //   $mireportdata['filter']['coid'] = 'SELECT country FROM '.Tprefix.'entities WHERE eid IN  (\''.implode('\',\'', $mireportdata['filter']['cid']).'\')';
         // }
         if(isset($mireportdata['filter']['ctype'])) {
