@@ -44,4 +44,5 @@ $lang['searchsupp'] = 'Search Supplier';
 $lang['searchcust'] = 'Search Customer';
 $lang['searchseg'] = 'Search Segment';
 $lang['searchct'] = 'Search Potential Customer';
+$lang['total'] = 'Total';
 ?>

@@ -111,6 +111,7 @@ class MarketIntelligence {
     // convert to dal
     public static function get_marketdata_dal($filters, $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        $configs['returnarray'] = true;
         return $data->get_objects($filters, $configs);
     }
 

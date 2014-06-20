@@ -134,15 +134,15 @@ class DimentionalData {
 
     public function get_output($options = '') {
         $this->sum_dimensions($this->totals);
-        return $this->parse($options);
+        if(isset($this->totals['gtotal'])) {
+            $output = $this->parse_totalrow($this->totals['gtotal'], $options);
+        }
+        $output .= $this->parse($options);
+        return $output;
     }
 
     private function parse($options = array(), $data = null, $depth = 1, $previds = '', $total = null, $dimensions = null) {
         global $template;
-
-        /* Temporary option for testing purposes */
-        //  $options['overwritecalculation']['mktSharePerc'] = array('fields' => array('divider' => 'mktShareQty', 'dividedby' => 'potential'), 'operation' => '/');
-
 
         if(empty($data) || !isset($data)) {
             $data = $this->data[$this->requiredfields[0]];
@@ -212,7 +212,7 @@ class DimentionalData {
                         if(isset($options['overwritecalculation'][$field])) {
                             $total[$dimensions[$depth]][$field.'-'.$previds] = $this->recalculate_dimvalue($field, $total[$dimensions[$depth]], $previds, $options['overwritecalculation'][$field]);
 
-                            $total[$dimensions[$depth]][$field.'-'.$previds] = round(($total[$dimensions[$depth]][$field.'-'.$previds] * 100), 2).' %';
+                            $total[$dimensions[$depth]][$field.'-'.$previds] = round(($total[$dimensions[$depth]][$field.'-'.$previds] * 100), 2).'%';
                         }
 
                         if($options['outputtype'] == 'div') {
@@ -254,12 +254,54 @@ class DimentionalData {
                 }
             }
         }
+
+
         if($options['noenclosingtags'] == false) {
             if($options['outputtype'] == 'table') {
                 $output = '<table>'.$output.'</table>';
             }
         }
         return $output;
+    }
+
+    private function parse_totalrow($total, $options) {
+        global $lang;
+
+        $previds = '';
+        $fontsize = $this->initfontsize;
+        $style = ' font-weight: bold; background-color: #F1F1F1;';
+        if(empty($options['requiredfields'])) {
+            $options['requiredfields'] = $this->requiredfields;
+        }
+
+        if($options['outputtype'] == 'div') {
+            $columns = '<div style="display: inline-block;'.$style.'">'.$lang->total.'</div>';
+        }
+        else {
+            $columns = '<td style="font-size:'.$fontsize.'px;'.$style.'">'.$lang->total.'</td>';
+        }
+
+        foreach($options['requiredfields'] as $field) {
+            if(isset($options['overwritecalculation'][$field])) {
+                $total[$field] = $this->recalculate_dimvalue($field, $total, $previds, $options['overwritecalculation'][$field]);
+
+                $total[$field] = round(($total[$field] * 100), 2).'%';
+            }
+
+            if($options['outputtype'] == 'div') {
+                $columns .= '<div style="display: inline-block; font-size:'.$fontsize.'px;'.$style.'">'.$total[$field].'</div>';
+            }
+            else {
+                $columns .= '<td style="font-size:'.$fontsize.'px;'.$style.'">'.$total[$field].'</td>';
+            }
+        }
+
+        if($options['outputtype'] == 'div') {
+            return '<div id="dimension_'.$previds.'">'.$columns.'</div>';
+        }
+        else {
+            return '<tr id="dimension_'.$previds.'">'.$columns.'</tr>';
+        }
     }
 
     private function parse_attributetype($attr) {
@@ -278,19 +320,22 @@ class DimentionalData {
     }
 
     public function recalculate_dimvalue($field, $totals, $previds, $options) {
+        if(!empty($previds)) {
+            $previds = '-'.$previds;
+        }
         if(!isset($options['operation'])) {
-            return $totals[$field.'-'.$previds];
+            return $totals[$field.$previds];
         }
         switch($options['operation']) {
             case '/':
             case 'divide':
-                if(empty($totals[$options['fields']['dividedby'].'-'.$previds])) {
-                    return $totals[$field.'-'.$previds];
+                if(empty($totals[$options['fields']['dividedby'].$previds])) {
+                    return $totals[$field.$previds];
                 }
-                return ($totals[$options['fields']['divider'].'-'.$previds]) / ($totals[$options['fields']['dividedby'].'-'.$previds]);
+                return ($totals[$options['fields']['divider'].$previds]) / ($totals[$options['fields']['dividedby'].$previds]);
                 break;
             default:
-                return $totals[$field.'-'.$previds];
+                return $totals[$field.$previds];
                 break;
         }
     }
