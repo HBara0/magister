@@ -15,6 +15,7 @@ if($core->usergroup['crm_canGenerateMIRep'] == 0) {
 }
 if(!($core->input['action'])) {
     if($core->input['referrer'] == 'generate') {
+
         $mireportdata = ($core->input['mireport']);
 
         /* split the dimension and explode them into chuck of array */
@@ -27,8 +28,6 @@ if(!($core->input['action'])) {
         $marketdata_indexes = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice');
         /* get Market intellgence baisc Data  --START */
 
-        //$cfpid = $entiy->get_segments()->get_applications()->get_segmentsapplications()->get();
-
         /* Get cfpid of segment  ----END */
         $dimensionalize_ob = new DimentionalData();
         /* split the dimension and explode them into chuck of array */
@@ -38,25 +37,25 @@ if(!($core->input['action'])) {
             $mireportdata['filter']['cfpid'] = 'SELECT cfpid FROM '.Tprefix.'chemfunctionproducts WHERE pid IN (SELECT pid FROM '.Tprefix.'products WHERE spid IN ('.implode(',', $mireportdata['filter']['spid']).'))';
         }
 
-        print_R($mireportdata['filter']['cfpid']);
-        echo '<br>';
-        if((is_array($mireportdata['filter']['cfpid'])) && isset($mireportdata['filter']['psid'])) {
-            $mireportdata['filter']['cfpid'] = 'SELECT psid  FROM '.Tprefix.'productsegements_applications WHERE psaid  IN (SELECT psaid FROM '.Tprefix.'segapplicationfunctions  WHERE safid IN ( SELECT safid from   chemfunctionproducts WHERE cfpid  IN ('.implode(',', $mireportdata['filter']['cfpid']).'))';
+
+        if(isset($mireportdata['filter']['psid'])) {
+            $mireportdata['filter']['psid'] = array_map(intval, $mireportdata['filter']['psid']);
+            $mireportdata['filter']['cfpid2'] = 'SELECT cfpid FROM '.Tprefix.'chemfunctionproducts WHERE safid IN (SELECT safid FROM '.Tprefix.'segapplicationfunctions WHERE psaid IN (SELECT psaid FROM '.Tprefix.'segmentapplications WHERE psid IN ('.implode(',', $mireportdata['filter']['psid']).')))';
+
+            if(isset($mireportdata['filter']['cfpid'])) {
+                $mireportdata['filter']['cfpid'] .= ' AND cfpid IN ('.$mireportdata['filter']['cfpid2'].')';
+            }
+            else {
+                $mireportdata['filter']['cfpid'] = $mireportdata['filter']['cfpid2'];
+            }
         }
 
-        echo 'SELECT psid  FROM '.Tprefix.'productsegements_applications WHERE psaid  IN (SELECT psaid FROM '.Tprefix.'segapplicationfunctions  WHERE safid IN ( SELECT safid from   chemfunctionproducts WHERE cfpid  IN ('.implode(',', $mireportdata['filter']['cfpid']).'))';
-        exit;
-// if(isset($mireportdata['filter']['ccoid'])) {
-        //   $mireportdata['filter']['coid'] = 'SELECT country FROM '.Tprefix.'entities WHERE eid IN  (\''.implode('\',\'', $mireportdata['filter']['cid']).'\')';
-        // }
         if(isset($mireportdata['filter']['ctype'])) {
             $mireportdata['filter']['ctype'] = array_map($db->escape_string, $mireportdata['filter']['ctype']);  /* apply the call bak function dbescapestring to the the value */
             $mireportdata['filter']['cid'] = 'SELECT eid FROM '.Tprefix.'entities WHERE type IN  (\''.implode('\',\'', $mireportdata['filter']['ctype']).'\')';
-            //  $customer_obj= new Customers()
-            //  $mireportdata['filter']['cid']=
         }
 
-        unset($mireportdata['filter']['coid'], $mireportdata['filter']['spid'], $mireportdata['filter']['psid'], $mireportdata['filter']['ctype']);
+        unset($mireportdata['filter']['coid'], $mireportdata['filter']['cfpid2'], $mireportdata['filter']['spid'], $mireportdata['filter']['psid'], $mireportdata['filter']['ctype']);
         /* Get cfpid of segment ----END */
 
         $marketin_objs = MarketIntelligence::get_marketdata_dal($mireportdata['filter'], array('simple' => false, 'operators' => array('coid' => 'IN', 'cid' => 'IN', 'cfpid' => 'IN')));
