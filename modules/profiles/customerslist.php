@@ -62,15 +62,14 @@ if(!$core->input['action']) {
     $affiliate_filters_cache = $segment_filters_cache = array();
 
     if($core->usergroup['canViewAllCust'] == 0) {
-        $query_string = ' AND ase.uid='.$core->user['uid'];
+        $query_string = ' AND e.eid IN ('.implode(',', $core->user['customers']).')';
     }
 
     $query = $db->query("SELECT DISTINCT(e.eid), e.companyName AS customername, e.companyNameAbbr
 						FROM ".Tprefix."entities e
 						JOIN ".Tprefix."affiliatedentities a ON (e.eid=a.eid)
 						JOIN ".Tprefix."affiliatedemployees ae ON (a.affid=ae.affid)
-						WHERE e.eid IN (".implode(',', $core->user['customers']).")
-						AND e.type='c'{$extra_where}
+						AND e.type='c'{$query_string}{$extra_where}
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
