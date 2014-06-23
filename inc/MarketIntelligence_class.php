@@ -74,7 +74,8 @@ class MarketIntelligence {
                         $this->marketdata['affid'] = $cust_ctry_affiliate->affid;
                     }
                 }
-                else {
+
+                if(empty($this->marketdata['affid'])) {
                     $this->marketdata['affid'] = $core->user['mainaffiliate'];
                 }
                 unset($customer, $customer_country, $cust_ctry_affiliate);
