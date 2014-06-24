@@ -428,7 +428,7 @@ function parse_radiobutton($name, $items, $checked_option = '', $display_title =
     return false;
 }
 
-function parse_checkboxes($name, $items, $selected_options = array(), $display_title = true, $title, $seperator = '') {
+function parse_checkboxes($name, $items, $selected_options = array(), $display_title = true, $title = '', $seperator = '') {
     if(is_array($items)) {
         foreach($items as $key => $val) {
             $checked = '';

@@ -26,6 +26,7 @@ if(!$core->input['action']) {
         /* Popuplate basic information from the leave based on the lid passed via ajax */
         $leave_obj = new Leaves(array('lid' => $leaveid), false);
         $leave = $leave_obj->get();
+
         $segment['countryleave'] = $leave['coid'];
         $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], $leave['fromDate']);
         $segment[$sequence]['fromDate_formatted'] = date('d-m-Y', $leave['fromDate']);
@@ -40,10 +41,30 @@ if(!$core->input['action']) {
         $segment[$sequence]['origincity'] = $leave_obj->get_sourcecity($leave['origincity'])->get();
         $segment[$sequence]['origincity']['name'] = $segment[$sequence]['origincity'] ['name'];
         $segment[$sequence]['origincity']['ciid'] = $segment[$sequence]['origincity']['ciid'];
-        $segment[$sequence]['destinationcity'] = $leave_obj->get_destinationcity()->get();  /* Will get the capital city of the visited country of leave */
+        $segment[$sequence]['destinationcity'] = $leave_obj->get_destinationcity()->get();                 /* Will get the capital city of the visited country of leave */
         $segment[$sequence]['destinationcity']['name'] = $segment[$sequence]['destinationcity']['name'];  /* Will get the capital city of the visited country of leave */
         $segment[$sequence]['destinationcity']['ciid'] = $segment[$sequence]['destinationcity']['ciid'];  /* Will get the capital city of the visited country of leave */
         $disabled = 'disabled="true"';
+
+        $cityprofile_output = $leave_obj->get_destinationcity()->parse_cityreviews();
+        $citybriefings_output = $leave_obj->get_destinationcity()->parse_citybriefing();
+
+        $origincity_obj = $leave_obj->get_sourcecity();
+
+        $origincitydata = $origincity_obj->get();
+        $origintcity['name'] = $origincitydata[name];
+        $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
+
+        $descity_obj = $leave_obj->get_destinationcity();
+        $descitydata = $descity_obj->get();
+        $destcity['name'] = $descitydata['name'];
+        $destcity['country'] = $descity_obj->get_country()->get()['name'];
+        $destcity['drivemode'] = 'transit';
+        $destcity['departuretime'] = $db->escape_string(($leave['fromDate']));
+
+        $transsegments_output = Cities::parse_tranaportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
+
+        $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence);
 
         eval("\$plantrip_createsegment= \"".$template->get('travelmanager_plantrip_createsegment')."\";");
 
@@ -107,8 +128,9 @@ elseif($core->input['action'] == 'populatecontent') {
     $sequence = $db->escape_string($core->input['sequence']); /* get the  sequence to differentiate the content of each */
 
     $descity_obj = new Cities($destcityid);
+
     $descitydata = $descity_obj->get();
-    $destcity['name'] = $descitydata[name];
+    $destcity['name'] = $descitydata['name'];
     $destcity['country'] = $descity_obj->get_country()->get()['name'];
     $destcity['drivemode'] = 'transit';
 
@@ -141,17 +163,17 @@ elseif($core->input['action'] == 'populatecontent') {
 
     /* load approved hotels */
 
-    $approved_hotelsobjs = $descity_obj->get_approvedhotels();
-    if(is_array($approved_hotelsobjs)) {
-        foreach($approved_hotelsobjs as $approved_hotelsobj) {
-            $approved_hotels = $approved_hotelsobj->get();
-            $hotelname = array($approved_hotels['tmhid'] => $approved_hotels['name']);
-            $review_tools .= ' <a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
-            $hotelssegments_output .= '    <div style="display:block;">'.parse_radiobutton('segment['.$sequence.'][tmhid]', $hotelname, '', true, '&nbsp;&nbsp;', array('required' => $approved_hotels['isRequired'])).'<span>'.$review_tools.'</span></div>';
-//eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
-            $review_tools = '';
-        }
-    }
+    $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence);
+//    if(is_array($approved_hotelsobjs)) {
+//        foreach($approved_hotelsobjs as $approved_hotelsobj) {
+//            $approved_hotels = $approved_hotelsobj->get();
+//            $hotelname = array($approved_hotels['tmhid'] => $approved_hotels['name']);
+//            $review_tools .= ' <a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
+//            $hotelssegments_output .= '    <div style="display:block;">'.parse_radiobutton('segment['.$sequence.'][tmhid]', $hotelname, '', true, '&nbsp;&nbsp;', array('required' => $approved_hotels['isRequired'])).'<span>'.$review_tools.'</span></div>';
+////eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
+//            $review_tools = '';
+//        }
+//    }
 
 
     eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
@@ -160,37 +182,13 @@ elseif($core->input['action'] == 'populatecontent') {
 elseif($core->input['action'] == 'populatecityprofile') {
     $destcityid = $db->escape_string($core->input['destcity']);
     $city_obj = new Cities($destcityid);
-    /* Parse ity reviews content */
-    $city_reviewsobjs = $city_obj->get_reviews();
-    if(is_array($city_reviewsobjs)) {
-        $cityprofile_output = '<div> <strong>'.$lang->cityreview.'</strong></div>';
-        foreach($city_reviewsobjs as $city_reviewsobj) {
-            $destcityreview['review'] = $city_reviewsobj->get()['review'];
-            $destcityreview['user'] = $city_reviewsobj->get_createdBy()->get();
-            $destcityreview['reviewdby'] = $destcityreview['user']['displayName'];
-            $cityprofile_output .='<div style="display:block;padding:8px;">
-                <div>'.$destcityreview['review'].'</div>
-                    <div class="smalltext"><a href="'.$core->settings['rootdir'].'/users.php?action=profile&uid='.$destcityreview['user']['uid'].'"  target="_blank">'.$destcityreview['reviewdby'].'</a></div>
-                        </div>';
-        }
-        output($cityprofile_output);
-    }
-    else {
-        $destcityreview['review'] = $lang->na;
-    }
-    $city_briefingsobj = $city_obj->get_latestbriefing();
-    if(is_object($city_briefingsobj)) {
-        $citybriefings_output = ' <div><strong>'.$lang->citybrfg.'</strong></div>';
-        $destcitybriefing['briefing'] = $city_briefingsobj->get()['review'];
-        $destcitybriefing['user'] = $city_briefingsobj->get_createdBy()->get();
-        $destcitybriefing['briefedby'] = $destcitybriefing['user']['displayName'];
-        $citybriefings_output = '<div style="display:block;padding:8px;">
-         <div>'.$destcitybriefing['briefing'].'</div>
-         <div class="smalltext"><a href="'.$core->settings['rootdir'].'/users.php?action=profile&uid='.$destcitybriefing['user']['uid'].' target="_blank">'.$destcitybriefing['briefedby'].'</a></div></div>';
-    }
-    else {
-        $destcitybriefing['briefing'] = $lang->na;
-    }
+
+    /* Parse city reviews content */
+    $cityprofile_output = $city_obj->parse_cityreviews();
+    output($cityprofile_output);
+
+    $citybriefings_output = $city_obj->parse_citybriefing();
+    output($citybriefings_output);
 }
 elseif($core->input['action'] == 'parsedetailstransp') {
     $catid = $db->escape_string($core->input['catid']);
@@ -198,10 +196,8 @@ elseif($core->input['action'] == 'parsedetailstransp') {
     $categoryid = $db->escape_string($core->input['categoryid']);
 
     $transp_category_fields = TravelManagerPlan::parse_transportaionfields($catid, $sequence);
-    print_R($transp_category_fields);
 
     eval("\$transsegments_output = \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
-
 
     output($transsegments_output);
 }

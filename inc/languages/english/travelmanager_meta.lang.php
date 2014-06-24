@@ -24,6 +24,8 @@ $lang['planexist'] = 'The plan already exist';
 $lang['segmenexist'] = 'Segment Already exist';
 $lang['errordate'] = 'itinerary exceed leave time frame';
 $lang['errorcity'] = 'The segment city must be the same of the previous city ';
+$lang['citybrfg'] = 'City Briefing';
+$lang['cityreview'] = 'City Review';
 
 $lang['oppositedate'] = 'Segment from date cannot be greater than to date';
 ?>

@@ -39,4 +39,13 @@
     {$cityprofile_output}
 
     {$citybriefings_output}
+
 </div>
+<div style="display:inline-block;width:25%; vertical-align: top;" id="segment_transportcity_{$sequence}">
+    {$transsegments_output}
+</div>
+
+<div style="display:block;width:25%; vertical-align: top;" id="segment_transportcity_{$sequence}">
+    {$hotelssegments_output}
+</div>
+
