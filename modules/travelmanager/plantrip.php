@@ -190,6 +190,7 @@ elseif($core->input['action'] == 'populatecityprofile') {
     $citybriefings_output = $city_obj->parse_citybriefing();
     output($citybriefings_output);
 }
+    output($citybriefings_output.$cityprofile_output);
 elseif($core->input['action'] == 'parsedetailstransp') {
     $catid = $db->escape_string($core->input['catid']);
     $sequence = $db->escape_string($core->input['sequence']);
