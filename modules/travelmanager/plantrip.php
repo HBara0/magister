@@ -52,7 +52,7 @@ if(!$core->input['action']) {
         $origincity_obj = $leave_obj->get_sourcecity();
 
         $origincitydata = $origincity_obj->get();
-        $origintcity['name'] = $origincitydata[name];
+        $origintcity['name'] = $origincitydata['name'];
         $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
 
         $descity_obj = $leave_obj->get_destinationcity();
@@ -152,29 +152,15 @@ elseif($core->input['action'] == 'populatecontent') {
             $transitmode['vehicletype'] = $directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->type;
         }
 
-        $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation($transitmode, array('origincity' => $origintcity, 'destcity' => $destcity), $sequence);
-
-        eval("\$transsegments_output  .= \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
-        unset($transitmode);
+        // $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation($transitmode, array('origincity' => $origintcity, 'destcity' => $destcity), $sequence);
+        //   eval("\$transsegments_output  .= \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
+        // unset($transitmode);
     }
-
     /* Load proposed transproration */
-
+    $transsegments_output = Cities::parse_tranaportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
 
     /* load approved hotels */
-
     $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence);
-//    if(is_array($approved_hotelsobjs)) {
-//        foreach($approved_hotelsobjs as $approved_hotelsobj) {
-//            $approved_hotels = $approved_hotelsobj->get();
-//            $hotelname = array($approved_hotels['tmhid'] => $approved_hotels['name']);
-//            $review_tools .= ' <a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
-//            $hotelssegments_output .= '    <div style="display:block;">'.parse_radiobutton('segment['.$sequence.'][tmhid]', $hotelname, '', true, '&nbsp;&nbsp;', array('required' => $approved_hotels['isRequired'])).'<span>'.$review_tools.'</span></div>';
-////eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
-//            $review_tools = '';
-//        }
-//    }
-
 
     eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
     output($plansegmentscontent_output);
@@ -190,17 +176,15 @@ elseif($core->input['action'] == 'populatecityprofile') {
     $citybriefings_output = $city_obj->parse_citybriefing();
     output($citybriefings_output);
 }
-    output($citybriefings_output.$cityprofile_output);
 elseif($core->input['action'] == 'parsedetailstransp') {
     $catid = $db->escape_string($core->input['catid']);
     $sequence = $db->escape_string($core->input['sequence']);
     $categoryid = $db->escape_string($core->input['categoryid']);
 
     $transp_category_fields = TravelManagerPlan::parse_transportaionfields($catid, $sequence);
-
     eval("\$transsegments_output = \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
 
-    output($transsegments_output);
+    //output($transsegments_output);
 }
 elseif($core->input['action'] == 'do_perform_plantrip') {
     $travelplan_obj = new TravelManagerPlan();

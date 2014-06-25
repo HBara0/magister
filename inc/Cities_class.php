@@ -104,7 +104,8 @@ class Cities {
                 $approved_hotels = $approved_hotelsobj->get();
                 $hotelname = array($approved_hotels['tmhid'] => $approved_hotels['name']);
                 $review_tools .= ' <a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'./images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
-                $hotelssegments_output .= '    <div style="display:block;">'.parse_radiobutton('segment['.$sequence.'][tmhid]', $hotelname, '', true, '&nbsp;&nbsp;', array('required' => $approved_hotels['isRequired'])).'<span>'.$review_tools.'</span></div>';
+                $hotelssegments_output .= ' <div style="display:block;">'.parse_checkboxes('segment['.$sequence.'][tmhid]', $hotelname, '', true, '&nbsp;&nbsp;').'<span> '.$review_tools.' </span></div>';
+
 //eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
                 $review_tools = '';
             }
@@ -189,7 +190,7 @@ class Cities {
     }
 
     public static function parse_tranaportations($transpdata = array(), $sequence) {  //to be continued later
-        global $template;
+        global $template, $lang;
         $directionapi = TravelManagerPlan::get_availablecitytransp(array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'departuretime' => $transpdata['departuretime']));  /* Get available tranportaion mode for the city proposed by google API */
         $transpmode_googledirections = ' https://www.google.com/maps/dir/'.$transpdata['origincity']['name'].',+'.$transpdata['origincity']['country'].'/'.$transpdata['destcity']['name'].',+'.$transpdata['destcity']['country'].'/';
 
@@ -203,10 +204,13 @@ class Cities {
             if(!empty($directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->type)) {
                 $transitmode['vehicletype'] = $directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->type;
             }
-
+            $urldisplay = (explode('/', $transitmode[url]));
+            $transitmode['url'] = '<a href="'.$transitmode[url].'" target="_blank" >'.$urldisplay[2].'</a>';
             $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation($transitmode, array('origincity' => $origintcity, 'destcity' => $destcity), $sequence);
-            $transsegments_output.='   <div class="subtitle">Approved Transportations</div>';
-            eval("\$transsegments_output  .= \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
+            $transptitle = '<div class="subtitle">Possible Transportations</div>';
+            $transp_category_fields = TravelManagerPlan::parse_transportaionfields($drivingmode['transpcat']['name'], $sequence);
+            eval("\$transcategments_output  .= \"".$template->get('travelmanager_plantrip_segment_catransportation')."\";");
+            eval("\$transsegments_output  = \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
             unset($transitmode);
 
             return $transsegments_output;

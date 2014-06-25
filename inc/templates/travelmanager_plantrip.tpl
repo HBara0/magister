@@ -58,12 +58,20 @@
                     sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_to_' + (sequence - 1)).val(), 'content_detailsloader_' + sequence + '', 'content_details_' + sequence + '', true);
                     sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecityprofile", "&sequence=" + sequence + "&destcity=" + ciid, 'segment_city_loader_' + sequence + '', 'segment_city_' + sequence + '', true);
                 });
+
+                var firstcategoryid = $('input[id*=transp_]').attr('id').split("_")[3];
+
                 $('input[id*=transp_]').live('click', function() {
                     var id = $(this).attr('id').split("_");
                     var sequence = id[1];
                     var categoryid = id[3];
+                    $('div[id=cat_content_' + categoryid + ']').slideToggle("slow");
+
                     /*ajax call to parse transpfields*/
-                    sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=parsedetailstransp", "&categoryid=" + categoryid + "&sequence=" + sequence + "&catid=" + id[2], 'cat_detailsloader_' + categoryid + '', 'cat_content_' + categoryid + '', true);
+                    //  sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=parsedetailstransp", "&categoryid=" + categoryid + "&sequence=" + sequence + "&catid=" + id[2], 'cat_detailsloader_' + categoryid + '', 'transpcat_content' + categoryid + '', true);
+
+
+
                 });
                 $('input[id*=pickDate_to_]').live('change', function() {
                     if(sharedFunctions.checkSession() == false) {

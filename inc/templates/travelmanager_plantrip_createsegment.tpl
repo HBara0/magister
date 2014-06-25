@@ -41,9 +41,12 @@
     {$citybriefings_output}
 
 </div>
-<div style="display:inline-block;width:25%; vertical-align: top;" id="segment_transportcity_{$sequence}">
+
+<div style="  padding: 8px;" id="transpcat_content">
     {$transsegments_output}
+
 </div>
+
 
 <div style="display:block;width:25%; vertical-align: top;" id="segment_transportcity_{$sequence}">
     {$hotelssegments_output}

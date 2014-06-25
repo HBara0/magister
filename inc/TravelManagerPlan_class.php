@@ -66,14 +66,15 @@ class TravelManagerPlan {
     }
 
     public static function parse_transportation($transmode, $directiondata = array(), $sequence) {
-
         /* The proposed transportation categories   are parsed accordingly with the possible available transportation methods proposed by Google */
         $transporcat_obj = TravelManagerTranspCategories::get_categories_byattr('apiVehicleTypes', $transmode['vehicletype'], array('operator' => 'like'));
         if(is_object($transporcat_obj)) {
             $transportaion_cat = $transporcat_obj->get();
             if(is_array($transportaion_cat)) {
                 $categories = array($transportaion_cat['tmtcid'] => $transportaion_cat['name']);
-                $transpcat = parse_checkboxes('segment['.$sequence.'][tmtcid]transp_'.$sequence.'_'.$transportaion_cat['name'].'', $categories, '', true, $transportaion_cat['apiVehicleTypes'], '&nbsp;&nbsp;');
+                $transpcat['type'] = parse_checkboxes('segment['.$sequence.'][tmtcid]transp_'.$sequence.'_'.$transportaion_cat['name'].'', $categories, '', true, $transportaion_cat['apiVehicleTypes'], '&nbsp;&nbsp;');
+                $transpcat['cateid'] = $transportaion_cat['tmtcid'];
+                $transpcat['name'] = $transportaion_cat['name'];
             }
 
             return $transpcat;
@@ -103,7 +104,7 @@ class TravelManagerPlan {
                     $transportaion_fields = 'cars agencies';
             }
 
-// display categry
+            $transportaion_fields .='<div style="display:inline-block;padding:5px;"  id="approximatefare"> Approximate Fare '.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'number', '').'</div>';
             return $transportaion_fields;
         }
     }

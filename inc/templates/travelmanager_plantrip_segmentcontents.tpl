@@ -1,4 +1,3 @@
-
 <div style="display:block;">
     <div class="subtitle">Possible Transportations</div>
     {$transsegments_output}
