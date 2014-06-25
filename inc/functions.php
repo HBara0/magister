@@ -309,7 +309,7 @@ function parse_textfield($id, $type, $value = '', $options = array(), $config = 
         }
     }
 
-    $accepted_types = array('text', 'tel', 'search', 'url', 'email', 'datetime', 'date', 'month', 'week', 'time', 'checkbox', 'image', 'file');
+    $accepted_types = array('text', 'tel', 'number', 'search', 'url', 'email', 'datetime', 'date', 'month', 'week', 'time', 'checkbox', 'image', 'file');
     if(!array($accepted_types, $type)) {
         $type = 'text';
     }
