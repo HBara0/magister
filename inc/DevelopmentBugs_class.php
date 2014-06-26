@@ -17,6 +17,7 @@ class DevelopmentBugs {
     private $data = null;
     private $sendcriterion = 'createonly';
     private $lastoperation = null;
+    private $errorcode = 0;
 
     const PRIMARY_KEY = 'dbid';
     const TABLE_NAME = 'development_bugs';
@@ -34,7 +35,10 @@ class DevelopmentBugs {
 
         $query_select = '*';
         if($simple == true) {
-            $query_select = self::PRIMARY_KEY.', '.self::DISPLAY_NAME.', module, affectedVersion';
+            $query_select = self::PRIMARY_KEY.', '.self::DISPLAY_NAME.', module, moduleFile, affectedVersion, severity, priority, status, isFixed';
+        }
+        elseif(is_string($simple) && !empty($simple)) {
+            $query_select = $db->escape_string($simple);
         }
         $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
@@ -43,12 +47,19 @@ class DevelopmentBugs {
         global $core, $db;
 
         $this->lastoperation = 'update';
-        //$static_fields = array('');
-        //unset($data[self::PRIMARY_KEY]);
-//        /$data['modifiedOn'] = TIME_NOW;
-        //$db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.$this->data[self::PRIMARY_KEY]);
 
-        return $this;
+        if($data['isFixed'] == 1) {
+            $data['status'] = 'resolved';
+        }
+
+        $data['modifiedOn'] = TIME_NOW;
+        $data['modifiedBy'] = $core->user['uid'];
+        $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        if($query) {
+            return $this;
+        }
+        $this->errorcode = 601;
+        return false;
     }
 
     public function create(array $data = array()) {
@@ -61,6 +72,10 @@ class DevelopmentBugs {
 
         if(!isset($data['sessionUser'])) {
             $data['sessionUser'] = $defaults['sessionUser'];
+        }
+
+        if(!isset($data['reportedBy'])) {
+            $data['reportedBy'] = $defaults['sessionUser'];
         }
 
         if(!isset($data['reportedOn'])) {
@@ -93,14 +108,14 @@ class DevelopmentBugs {
             $data = $this->data;
         }
 
-        if(!isset($data['summary']) || empty($data['summary'])) {
-            $this->data['summary'] = $data['summary'] = $this->generate_summary();
-        }
-
         if(value_exists(self::TABLE_NAME, self::PRIMARY_KEY, $this->data[self::PRIMARY_KEY])) {
             return $this->update($data);
         }
         else {
+            if(!isset($data['summary']) || empty($data['summary'])) {
+                $this->data['summary'] = $data['summary'] = $this->generate_summary();
+            }
+
             $bug = self::get_bug_byattr('summary', $data['summary']);
             if(is_object($bug)) {
                 $this->{self::PRIMARY_KEY} = $bug->{self::PRIMARY_KEY};
@@ -114,6 +129,11 @@ class DevelopmentBugs {
     public static function get_bug_byattr($attr, $value) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects_byattr($attr, $value);
+    }
+
+    public static function get_bugs($filters = null, array $configs = array()) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
     }
 
     public function send() {
@@ -190,8 +210,16 @@ class DevelopmentBugs {
         return $this;
     }
 
+    public function get_relatedreq() {
+        return new Requirements($this->data['relatedRequirement']);
+    }
+
     public function get_user() {
-        return new Users($this->data['user']);
+        return new Users($this->data['sessionUser']);
+    }
+
+    public function get_assigneduser() {
+        return new Users($this->data['assignedTo']);
     }
 
     public function __get($name) {
@@ -205,4 +233,18 @@ class DevelopmentBugs {
         return $this->data;
     }
 
+    public function get_errorcode() {
+        return $this->errorcode;
+    }
+
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+        return '<a href="index.php?module=development/viewbug&id='.$this->data[self::PRIMARY_KEY].'" '.$attributes.'>'.$this->data[self::DISPLAY_NAME].'</a>';
+    }
+
 }
+?>
