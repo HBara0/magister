@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
@@ -23,7 +23,7 @@ if(!$core->input['action']) {
 
     $sort_url = sort_url();
     $limit_start = 0;
-    $multipage_where = ' type="c" ';
+    $multipage_where = ' type IN ("c", "pc") ';
     if(isset($core->input['start'])) {
         $limit_start = $db->escape_string($core->input['start']);
     }
@@ -62,15 +62,14 @@ if(!$core->input['action']) {
     $affiliate_filters_cache = $segment_filters_cache = array();
 
     if($core->usergroup['canViewAllCust'] == 0) {
-        $query_string = ' AND ase.uid='.$core->user['uid'];
+        $query_string = ' AND ase.uid='.$core->user['uid'].' AND e.eid IN ('.implode(',', $core->user['customers']).')';
     }
 
-    $query = $db->query("SELECT DISTINCT(e.eid), e.companyName AS customername, e.companyNameAbbr
+    $query = $db->query("SELECT DISTINCT(e.eid), e.companyName AS customername, e.companyNameAbbr, e.type
 						FROM ".Tprefix."entities e
 						JOIN ".Tprefix."affiliatedentities a ON (e.eid=a.eid)
 						JOIN ".Tprefix."affiliatedemployees ae ON (a.affid=ae.affid)
-						WHERE e.eid IN (".implode(',', $core->user['customers']).")
-						AND e.type='c'{$extra_where}
+						WHERE e.type IN ('c', 'pc'){$extra_where}
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
@@ -143,7 +142,7 @@ if(!$core->input['action']) {
                 }
             }
 
-            $customers_list .= "<tr class='{$class}'><td valign='top'><a href='index.php?module=profiles/entityprofile&eid={$customer[eid]}'>{$customer[customername]}</td><td valign='top'>{$affiliates}</td><td valign='top'>{$segments}</td><td>";
+            $customers_list .= "<tr class='{$class}'><td valign='top'><a href='index.php?module=profiles/entityprofile&eid={$customer[eid]}'>{$customer[customername]}</td><td valign='top'>{$affiliates}</td><td valign='top'>{$segments}</td><td>".strtoupper($customer['type'])."</td><td>";
             if($core->usergroup['canAdminCP'] == 1) {
                 $customers_list .= "<a href='{$core->settings[rootdir]}/{$config[admindir]}/index.php?module=entities/edit&amp;eid={$customer[eid]}'><img src='{$core->settings[rootdir]}/images/edit.gif' alt='{$lang->edit}' border='0' /></a>";
             }
