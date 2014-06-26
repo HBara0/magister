@@ -455,11 +455,18 @@ if(!$core->input['action']) {
                 $brandproduct_productype = $brandproduct->get_endproduct();
                 $options[$brandproduct->ebpid] = $brandproduct_brand->name.' - '.$brandproduct_productype->title;
                 eval("\$brandsendproducts .= \"".$template->get('profiles_entityprofile_brandsproducts')."\";");
-                $endproducttypes_list .= '<option value="'.$brandproduct_productype->eptid.'">'.$brandproduct_productype->title.' - '.$brandproduct_productype->get_application()->title.'</option>';
             }
 
             $entitiesbrandsproducts_list = parse_selectlist('marketdata[ebpid]', 7, $options, '');
         }
+
+        $endproducttypes = EndProducTypes::get_endproductypes();
+        if(is_array($endproducttypes)) {
+            foreach($endproducttypes as $endproducttype) {
+                $endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</option>';
+            }
+        }
+        unset($endproducttypes);
         eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
     }
