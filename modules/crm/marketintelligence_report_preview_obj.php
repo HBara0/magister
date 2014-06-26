@@ -25,7 +25,7 @@ if(!($core->input['action'])) {
         /* to create array using existing values (using array_values()) and range() to create a new range from 1 to the size of the  dimension array */
         $mireportdata['dimension'] = array_combine(range(1, count($mireportdata['dimension'])), array_values($mireportdata['dimension']));
 
-        $marketdata_indexes = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice');
+        $marketdata_indexes = array('potential', 'mktSharePerc', 'mktShareQty', 'turnover');
         /* get Market intellgence baisc Data  --START */
 
         /* Get cfpid of segment  ----END */
@@ -49,6 +49,8 @@ if(!($core->input['action'])) {
                 $mireportdata['filter']['cfpid'] = $mireportdata['filter']['cfpid2'];
             }
         }
+        /* Select only the most recent entries */
+        $mireportdata['filter']['createdOn'] = 'SELECT MAX(createdOn) FROM '.Tprefix.'marketintelligence_basicdata GROUP BY cid, cfpid, affid, eptid, ebpid';
 
         if(isset($mireportdata['filter']['ctype'])) {
             $mireportdata['filter']['ctype'] = array_map($db->escape_string, $mireportdata['filter']['ctype']);  /* apply the call bak function dbescapestring to the the value */
@@ -58,7 +60,7 @@ if(!($core->input['action'])) {
         unset($mireportdata['filter']['coid'], $mireportdata['filter']['cfpid2'], $mireportdata['filter']['spid'], $mireportdata['filter']['psid'], $mireportdata['filter']['ctype']);
         /* Get cfpid of segment ----END */
 
-        $marketin_objs = MarketIntelligence::get_marketdata_dal($mireportdata['filter'], array('simple' => false, 'operators' => array('coid' => 'IN', 'cid' => 'IN', 'cfpid' => 'IN')));
+        $marketin_objs = MarketIntelligence::get_marketdata_dal($mireportdata['filter'], array('simple' => false, 'operators' => array('coid' => 'IN', 'createdOn' => 'IN', 'cid' => 'IN', 'cfpid' => 'IN')));
 
         /* START presentiation layer */
         /* Get the id related to the chemfunctionproducts  from the object and send them to the dimensional data class   */
@@ -77,7 +79,12 @@ if(!($core->input['action'])) {
             $dimensionalize_ob->set_requiredfields($marketdata_indexes);
             $dimensionalize_ob->set_data($market_data);
 
-            $parsed_dimension = $dimensionalize_ob->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'overwritecalculation' => array('mktSharePerc' => array('fields' => array('divider' => 'mktShareQty', 'dividedby' => 'potential'), 'operation' => '/'))));
+            $overwrite = array('mktSharePerc' => array('fields' => array('divider' => 'mktShareQty', 'dividedby' => 'potential'), 'operation' => '/'),
+                    'uniPrice' => array('fields' => array('divider' => 'mktShareQty', 'dividedby' => 'potential'), 'operation' => '/'));
+
+            $formats = array('mktSharePerc' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'));
+
+            $parsed_dimension = $dimensionalize_ob->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'formats' => $formats, 'overwritecalculation' => $overwrite));
             $headers_title = $dimensionalize_ob->get_requiredfields();
             foreach($headers_title as $report_header => $header_data) {
                 $header_data = strtolower($header_data);

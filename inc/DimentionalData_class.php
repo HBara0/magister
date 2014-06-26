@@ -212,14 +212,14 @@ class DimentionalData {
                         if(isset($options['overwritecalculation'][$field])) {
                             $total[$dimensions[$depth]][$field.'-'.$previds] = $this->recalculate_dimvalue($field, $total[$dimensions[$depth]], $previds, $options['overwritecalculation'][$field]);
 
-                            $total[$dimensions[$depth]][$field.'-'.$previds] = round(($total[$dimensions[$depth]][$field.'-'.$previds] * 100), 2).'%';
+                            //$total[$dimensions[$depth]][$field.'-'.$previds] = round(($total[$dimensions[$depth]][$field.'-'.$previds] * 100), 2).'%';
                         }
 
                         if($options['outputtype'] == 'div') {
-                            $columns .= '<div style="display: inline-block; font-size:'.$fontsize.'px">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</div>';
+                            $columns .= '<div style="display: inline-block; font-size:'.$fontsize.'px">'.$this->format_number($total[$dimensions[$depth]][$field.'-'.$previds], $options['formats'][$field]).'</div>';
                         }
                         else {
-                            $columns .= '<td style="font-size:'.$fontsize.'px">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</td>';
+                            $columns .= '<td style="font-size:'.$fontsize.'px">'.$this->format_number($total[$dimensions[$depth]][$field.'-'.$previds], $options['formats'][$field]).'</td>';
                         }
                     }
 
@@ -284,15 +284,13 @@ class DimentionalData {
         foreach($options['requiredfields'] as $field) {
             if(isset($options['overwritecalculation'][$field])) {
                 $total[$field] = $this->recalculate_dimvalue($field, $total, $previds, $options['overwritecalculation'][$field]);
-
-                $total[$field] = round(($total[$field] * 100), 2).'%';
             }
 
             if($options['outputtype'] == 'div') {
-                $columns .= '<div style="display: inline-block; font-size:'.$fontsize.'px;'.$style.'">'.$total[$field].'</div>';
+                $columns .= '<div style="display: inline-block; font-size:'.$fontsize.'px;'.$style.'">'.$this->format_number($total[$field], $options['formats'][$field]).'</div>';
             }
             else {
-                $columns .= '<td style="font-size:'.$fontsize.'px;'.$style.'">'.$total[$field].'</td>';
+                $columns .= '<td style="font-size:'.$fontsize.'px;'.$style.'">'.$this->format_number($total[$field], $options['formats'][$field]).'</td>';
             }
         }
 
@@ -302,6 +300,27 @@ class DimentionalData {
         else {
             return '<tr id="dimension_'.$previds.'">'.$columns.'</tr>';
         }
+    }
+
+    private function format_number($number, $format) {
+        global $htmllang;
+
+        if(is_array($format)) {
+            extract($format);
+        }
+        else {
+            $pattern = $format;
+        }
+
+        if(empty($style)) {
+            $style = NumberFormatter::DECIMAL;
+        }
+
+        if(empty($pattern)) {
+            $pattern = '#0.##';
+        }
+        $formatter = new NumberFormatter($htmllang, $style, $pattern);
+        return $formatter->format($number);
     }
 
     private function parse_attributetype($attr) {

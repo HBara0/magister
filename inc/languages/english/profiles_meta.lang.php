@@ -46,12 +46,12 @@ $lang['brand'] = 'Brand';
 $lang['addmarketdata'] = 'Add Market Data';
 $lang['endproduct'] = 'End Product Type';
 
-$lang['annualpotential'] = 'Annual Potential';
+$lang['annualpotential'] = 'Annual Potential (MT)';
 $lang['item'] = 'Item';
 $lang['competitortrader'] = 'Competitor Trader';
 $lang['competitorprod'] = 'Competitor Producer';
 $lang['marketshareperc'] = 'Market Share %';
-$lang['marketshareqty'] = 'Market Share Qty';
+$lang['marketshareqty'] = 'Market Share Qty (MT)';
 $lang['price'] = 'Unit Price';
 $lang['usd'] = 'USD/KG';
 $lang['competition'] = 'Competition Information';
