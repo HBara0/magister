@@ -21,7 +21,7 @@ function update_leavestats_periods($leave, $is_wholeday = true, $countdays = tru
 												FROM ".Tprefix."users u LEFT JOIN ".Tprefix."userhrinformation hr ON (u.uid=hr.uid) JOIN ".Tprefix."affiliatedemployees ae ON (ae.uid=hr.uid)
 												WHERE ae.isMain=1 AND u.uid='".$db->escape_string($leave['uid'])."'"));
     if(empty($leave_user['joinDate'])) {
-        $leave_user['joinDate'] = $leave['from'];
+        $leave_user['joinDate'] = $leave['fromDate'];
     }
 
     if(!isset($leave['workingdays'])) {
