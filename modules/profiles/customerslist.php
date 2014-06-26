@@ -36,10 +36,10 @@ if(!$core->input['action']) {
         $value_accepted = true;
 
         if($core->input['filterby'] == 'affid') {
-            $table = "affiliatedentities";
+            $table = 'affiliatedentities';
         }
         elseif($core->input['filterby'] == 'psid') {
-            $table = "entitiessegments";
+            $table = 'entitiessegments';
         }
         else {
             $value_accepted = false;
