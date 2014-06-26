@@ -704,8 +704,8 @@ $(function() {
                     }
                 },
                 success: function(returnedData) {
-                    //  console.log(returnedData);
-                    alert(returnedData);
+                    console.log(returnedData);
+                    // alert(returnedData);
                     if(datatype == 'xml') {
                         if($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
