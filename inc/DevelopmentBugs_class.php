@@ -161,7 +161,8 @@ class DevelopmentBugs {
             $message .= $lang->{$item}.': '.$this->data[$item]."\r\n<br />";
         }
 
-        $message .= $lang->username.': '.$this->get_user()->displayName;
+        $message .= $lang->username.': '.$this->get_user()->displayName."\r\n<br />";
+        $message .= 'Link: '.$this->parse_link();
         $mailer->set_message($message);
         $mailer->set_to(explode(';', $core->settings['bugnotificationcontacts']));
 

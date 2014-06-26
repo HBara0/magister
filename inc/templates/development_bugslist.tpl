@@ -13,8 +13,8 @@
                 <thead>
                 <th style='width: 2%;'>ID</th>
                 <th>Title</th>
-                <th style='width: 10%;'>Module</th>
-                <th style='width: 10%;'>File</th>
+                <th style='width: 10%;'>Severity</th>
+                <th style='width: 10%;'>priority</th>
             </thead>
             <tbody>
                 {$bugs_list}
