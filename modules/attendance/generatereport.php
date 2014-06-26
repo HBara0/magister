@@ -88,18 +88,12 @@ else {
             $holiday_todate_details = $todate_details;
 
             /* If multiple years, make end month as 12 to include all */
-            if($todate_details['year'] != $fromdate_details['year']) {
-                $holiday_todate_details['mon'] = '12';
-            }
-            /* If multiple month, make end day as 31 to include all */
-            if($todate_details['mon'] != $fromdate_details['mon']) {
-                $holiday_todate_details['mday'] = '31';
-            }
+            $holidays_query_where = parse_holidayswhere($fromdate_details, $todate_details);
 
-            $holiday_query = $db->query("SELECT * 
-										FROM ".Tprefix."holidays
-										WHERE affid = {$core->user[mainaffiliate]} AND (year = 0 OR (year BETWEEN {$fromdate_details[year]} AND {$todate_details[year]})) AND (month BETWEEN {$fromdate_details[mon]} AND {$holiday_todate_details[mon]}) AND (day BETWEEN {$fromdate_details[mday]} AND {$holiday_todate_details[mday]}) 
-										AND hid NOT IN (SELECT hid FROM ".Tprefix."holidaysexceptions WHERE uid={$uid})");
+            $holiday_query = $db->query("SELECT *
+                                        FROM ".Tprefix."holidays
+                                        WHERE affid = {$core->user[mainaffiliate]} AND ({$holidays_query_where})
+                                        AND hid NOT IN (SELECT hid FROM ".Tprefix."holidaysexceptions WHERE uid={$uid})");
 
             while($holiday = $db->fetch_assoc($holiday_query)) {
                 if($holiday['year'] == 0) {
@@ -121,9 +115,9 @@ else {
             /* Check for holidays in period - END */
 
             /* Check for the Worshifts during period - START */
-            $shifts_query = $db->query("SELECT w.*, e.fromDate, e.toDate 
-										FROM ".Tprefix."workshifts w 
-										JOIN ".Tprefix."employeesshifts e ON (w.wsid=e.wsid) 
+            $shifts_query = $db->query("SELECT w.*, e.fromDate, e.toDate
+										FROM ".Tprefix."workshifts w
+										JOIN ".Tprefix."employeesshifts e ON (w.wsid=e.wsid)
 										WHERE e.uid='{$uid}' AND (({$fromdate} BETWEEN e.fromDate AND e.toDate) OR ({$todate} BETWEEN e.fromDate AND e.toDate))");
 
             while($workshift = $db->fetch_assoc($shifts_query)) {
@@ -143,9 +137,9 @@ else {
             /* Check for APPROVED leaves within the period - START */
             $approved_lids = $unapproved_lids = array();
             $leave_query = $db->query("SELECT l.lid, fromDate, toDate, type, title
-										FROM ".Tprefix."leaves l 
-										JOIN ".Tprefix."leavetypes lt ON (lt.ltid = l.type) 
-										WHERE ((l.fromDate BETWEEN {$fromdate} AND {$todate}) OR (l.toDate BETWEEN {$fromdate} AND {$todate})) AND l.uid = {$uid} 
+										FROM ".Tprefix."leaves l
+										JOIN ".Tprefix."leavetypes lt ON (lt.ltid = l.type)
+										WHERE ((l.fromDate BETWEEN {$fromdate} AND {$todate}) OR (l.toDate BETWEEN {$fromdate} AND {$todate})) AND l.uid = {$uid}
 										GROUP BY l.lid");
             while($leave = $db->fetch_assoc($leave_query)) {
                 if(value_exists('leavesapproval', 'isApproved', 0, "(lid={$leave[lid]})")) {
@@ -156,12 +150,17 @@ else {
 
                 if($num_days_off == 1) {
                     $leave_date = getdate_custom($leave['fromDate']);
+                    if($leave_date['week'] == 1 && $leave_date['mon'] == 12) {
+                        $leave_date['week'] = 53;
+                    }
                     $data[$leave_date['year']][$leave_date['mon']][$leave_date['week']][$leave_date['mday']]['leaves'][$leave['lid']] = $leave;
                 }
                 else {
                     for($i = 0; $i < $num_days_off; $i++) {
                         $leave_date = getdate_custom($leave['fromDate'] + (60 * 60 * 24 * $i));
-
+                        if($leave_date['week'] == 1 && $leave_date['mon'] == 12) {
+                            $leave_date['week'] = 53;
+                        }
                         $data[$leave_date['year']][$leave_date['mon']][$leave_date['week']][$leave_date['mday']]['leaves'][$leave['lid']] = $leave;
                     }
                 }
@@ -169,9 +168,8 @@ else {
             /* Check for APPROVED leaves within the period - END */
 
             /* Check for the attendance during the period - START */
-
             $attendance_query = $db->query("SELECT a.*, CONCAT(firstName, ' ', lastName) AS fullname
-											FROM ".Tprefix."attendance a 
+											FROM ".Tprefix."attendance a
 											JOIN ".Tprefix."users u ON (a.uid = u.uid)
 											WHERE (date BETWEEN '{$fromdate}' AND '{$todate}') AND a.uid={$uid}
 											ORDER BY date DESC");
@@ -179,6 +177,10 @@ else {
             if($db->num_rows($attendance_query) > 0) {
                 while($attendance = $db->fetch_assoc($attendance_query)) {
                     $attendance_date = getdate_custom($attendance['date']);
+
+                    if($attendance_date['week'] == 1 && $attendance_date['mon'] == 12) {
+                        $attendance_date['week'] = 53;
+                    }
                     $data[$attendance_date['year']][$attendance_date['mon']][$attendance_date['week']][$attendance_date['mday']]['attendance'][$attendance['aid']] = $attendance;
                 }
             }
@@ -193,7 +195,9 @@ else {
             /* Loop over all days of period - START */
             while($currentdate <= $to) {
                 $curdate = getdate_custom($currentdate);
-
+                if($curdate['week'] == 1 && $curdate['mon'] == 12) {
+                    $curdate['week'] = 53;
+                }
                 /* Loop Through the Worshifts - START */
                 if(is_array($worshifts)) {
                     foreach($worshifts as $key => $workshift) {
@@ -202,7 +206,7 @@ else {
                         if($currentdate >= $workshift['fromDate'] && $currentdate <= $workshift['toDate']) { // && in_array($day, $week_days)
                             $current_worshift = $worshifts[$key];
                             $workshift_output .= $workshift['weekDays'];
-                            break; //Used to be continue		
+                            break; //Used to be continue
                         }
                     }
                 }
@@ -277,7 +281,7 @@ else {
                                 $attendance['hoursday'] = ($attendance['timeOut']) - ( $attendance['timeIn']);
                                 $attendance['arrival'] = $attendance['timeIn'] - (mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
                                 $attendance['departure'] = $attendance['timeOut'] - (mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
-                                ;
+
                                 $attendance['deviation'] = $attendance['departure'] - $attendance['arrival'];
 
                                 $attendance['hoursday_output'] = operation_time_value($attendance['hoursday']);
@@ -343,19 +347,41 @@ else {
                 $nextdate = $currentdate + 86400;
                 $nextdate_details = getdate_custom($nextdate);
                 $prevdate_details = getdate_custom($prevdate);
-                ;
 
                 /* Parse month and week sections - START */
+
+                if($prevdate_details['week'] == 1 && $prevdate_details['mon'] == 12) {
+                    $prevdate_details['week'] = 53;
+                }
+
+                if($nextdate_details['week'] == 1 && $nextdate_details['mon'] == 12) {
+                    $nextdate_details['week'] = 53;
+                }
+
+                if($curdate['week'] == 1 && $curdate['mon'] == 12) {
+                    $curdate['week'] = 53;
+                }
                 if($nextdate_details['week'] != $curdate['week'] && $nextdate_details['mon'] == $curdate['mon']) {
                     $total_outputs['week']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
                     $total_outputs['week']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
 
                     eval("\$attendance_report_user_week .= \"".$template->get('attendance_report_user_week')."\";");
 
+                    if($nextdate >= $to) {
+                        $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
+                        $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
+
+                        eval("\$attendance_report_user_month .= \"".$template->get('attendance_report_user_month')."\";");
+                    }
                     $attendance_report_user_day = '';
                 }
                 elseif($nextdate_details['week'] == $curdate['week'] && $nextdate_details['mon'] != $curdate['mon']) {
-                    $curdate['mon'] == $nextdate_details['mon'];
+                    //$curdate['mon'] = $nextdate_details['mon'];
+
+                    $total_outputs['week']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
+                    $total_outputs['week']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
+
+                    eval("\$attendance_report_user_week .= \"".$template->get('attendance_report_user_week')."\";");
                     $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
                     $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
 
@@ -363,49 +389,54 @@ else {
 
                     eval("\$attendance_report_user_month .= \"".$template->get('attendance_report_user_month')."\";");
                     $attendance_report_user_week = '';
-                }
-                elseif($prevdate_details['week'] == $curdate['week'] && $prevdate_details['mon'] != $curdate['mon']) {
-                    $curdate['mon'] == $prevdate_details['mon'];
-
-                    $attendance_report_user_month .= $prevdate_details['week'].' == '.$curdate['week'].' && '.$prevdate_details['mon'].' != '.$curdate['mon'];
-
-                    $attendance_report_user_month .= '<br />';
-                    $attendance_report_user_month .= implode('--', $prevdate_details);
-                    $attendance_report_user_month .= '<br />';
-                    $attendance_report_user_month .= implode('--', $curdate);
-
-                    $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
-                    $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
-                    eval("\$attendance_report_user_week .= \"".$template->get('attendance_report_user_week')."\";");
-                    eval("\$attendance_report_user_month .= \"".$template->get('attendance_report_user_month')."\";");
                     $attendance_report_user_day = '';
-                    $attendance_report_user_week = '';
                 }
+//                elseif($prevdate_details['week'] == $curdate['week'] && $prevdate_details['mon'] != $curdate['mon']) {
+//                    //$curdate['mon'] = $prevdate_details['mon'];
+//
+//                    $total_outputs['week']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
+//                    $total_outputs['week']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
+//
+//                    eval("\$attendance_report_user_week .= \"".$template->get('attendance_report_user_week')."\";");
+//
+//                    $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
+//                    $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
+//
+//                    eval("\$attendance_report_user_month .= \"".$template->get('attendance_report_user_month')."\";");
+//                    $attendance_report_user_day = '';
+//                    $attendance_report_user_week = '';
+//                }
                 elseif($nextdate_details['week'] != $curdate['week'] && $nextdate_details['mon'] != $curdate['mon']) {
                     $total['week']['actualhours'] = array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']][$curdate['week']]);
                     $total['hoursweek'][$year][$month][$week] = array_sum_recursive($total['hoursday']);
-                    $attendance_report_user_day = '';
+
+                    $total_outputs['week']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
+                    $total_outputs['week']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
+
+                    eval("\$attendance_report_user_week .= \"".$template->get('attendance_report_user_week')."\";");
 
                     $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
                     $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
 
                     eval("\$attendance_report_user_month .= \"".$template->get('attendance_report_user_month')."\";");
                     $attendance_report_user_week = '';
+                    $attendance_report_user_day = '';
                 }
                 elseif($nextdate_details['week'] == $curdate['week'] && $nextdate_details['mon'] == $curdate['mon']) {
-                    if($currentdate + 86400 == $to) {/* FIX HERE  */
+                    if($currentdate >= $to) {/* FIX HERE  */
                         $total_outputs['week']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
                         $total_outputs['week']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
 
                         eval("\$attendance_report_user_week .= \"".$template->get('attendance_report_user_week')."\";");
 
-                        $attendance_report_user_day = '';
+
 
                         $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
                         $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
 
                         eval("\$attendance_report_user_month .= \"".$template->get('attendance_report_user_month')."\";");
                         $attendance_report_user_week = '';
+                        $attendance_report_user_day = '';
                     }
                 }
                 /* Parse month and week sections - END */
@@ -435,10 +466,9 @@ else {
             }
 
             $overall_totals['actualhours'] = operation_time_value($overall_totals['actualhours']);
-
             /* Loop over all days of period - END */
 
-            //$attendance_report = $attendance_report_user_month[$year];	
+            //$attendance_report = $attendance_report_user_month[$year];
             eval("\$attendance_report .= \"".$template->get('attendance_report_user')."\";");
             $attendance_report_user_month = '';
         }
@@ -448,20 +478,86 @@ else {
     }
 }
 function parse_holiday($holiday, &$data) {
+    global $fromdate, $todate;
+
     if(!empty($holiday) && is_array($holiday)) {
         $holiday_timestamp = mktime(0, 0, 0, $holiday['month'], $holiday['day'], $holiday['year']);
-        $holiday['week'] = date('W', $holiday_timestamp);
 
+        if($holiday_timestamp < $fromdate) {
+            return;
+        }
+
+        if($holiday_timestamp > $todate) {
+            return;
+        }
         if($holiday['numDays'] > 1) {
             for($i = 0; $i <= $holiday['numDays']; $i++) {
-                $holiday['day'] = date('d', strtotime($holiday['day'].'+'.$i.' day'));
+                $holiday_timestamp = strtotime($holiday['day'].'+'.$i.' day');
+                $holiday['day'] = date('d', $holiday_timestamp);
+                $holiday['week'] = date('W', $holiday_timestamp);
+
+                if($holiday['week'] == 1 && $holiday['month'] == 12) {
+                    $holiday['week'] = 53;
+                }
+
                 $data[$holiday['year']][$holiday['month']][$holiday['week']][$holiday['day']]['holiday'][$holiday['hid']] = $holiday;
             }
         }
         else {
+            $holiday['week'] = date('W', $holiday_timestamp);
+            if($holiday['week'] == 1 && $holiday['month'] == 12) {
+                $holiday['week'] = 53;
+            }
             $data[$holiday['year']][$holiday['month']][$holiday['week']][$holiday['day']]['holiday'][$holiday['hid']] = $holiday;
         }
     }
+}
+
+function parse_holidayswhere($fromdate_details, $todate_details) {
+    $where = '';
+    if($todate_details['year'] != $fromdate_details['year']) {
+        $year = $fromdate_details['year'];
+        while($year <= $todate_details['year']) {
+            if($year == $fromdate_details['year']) {
+                $month_query = 'month >= '.$fromdate_details['mon'];
+                $day_query = 'day >= '.$fromdate_details['mday'];
+            }
+            elseif($year == $todate_details['year']) {
+                $month_query = 'month <= '.$todate_details['mon'];
+                $day_query = 'day <= '.$todate_details['mday'];
+            }
+            else {
+                $month_query = 'month BETWEEN 1 AND 12';
+                $day_query = 'day BETWEEN 1 AND 31';
+            }
+            $where .= $or.'((year = 0 OR year = '.$year.') AND '.$month_query.' AND '.$day_query.')';
+            $or = ' OR ';
+            $year++;
+        }
+    }
+    else { /* Same year */
+        if($todate_details['mon'] != $fromdate_details['mon']) {
+            $month = $fromdate_details['mon'];
+            while($month <= $todate_details['mon']) {
+                if($month == $fromdate_details['mon']) {
+                    $day_query = 'day >= '.$fromdate_details['mday'];
+                }
+                elseif($month == $todate_details['mon']) {
+                    $day_query = 'day <= '.$todate_details['mday'];
+                }
+                else {
+                    $day_query = 'day BETWEEN 1 AND 31';
+                }
+                $where .= $or.'((year = 0 OR year = '.$fromdate_details['year'].') AND month='.$month.' AND '.$day_query.')';
+                $or = ' OR ';
+                $month++;
+            }
+        }
+        else {
+            $where .= '((year = 0 OR year = '.$fromdate_details['year'].') AND month = '.$fromdate_details['mon'].' AND day BETWEEN 1 AND 31)';
+        }
+    }
+    return $where;
 }
 
 function operation_time_value($seconds) {
