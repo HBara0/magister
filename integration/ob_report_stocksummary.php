@@ -39,7 +39,7 @@ if($core->input['authCode'] == AUTHCODE) {
             11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 'audrey.sacy', 356)
     );
 
-    $integration = new IntegrationOB($db_info, 'C08F137534222BD001345B7B2E8F182D', $affiliates_index, 3, array('from' => 'last year'));
+    $integration = new IntegrationOB($db_info, 'C08F137534222BD001345B7B2E8F182D', $affiliates_index, 3, array('from' => '2010-01-01'));
 
     $status = $integration->get_status();
     if(!empty($status)) {
@@ -367,8 +367,10 @@ if($core->input['authCode'] == AUTHCODE) {
                     }
                     $output .= '</tr>';
 
-                    if((!is_numeric($input['transaction']['attributes']['daystoexpire']) && !empty($input['transaction']['attributes']['daystoexpire'])) || ($input['transaction']['attributes']['daystoexpire'] <= 90) && $input['transaction']['attributes']['daystoexpire'] != '') {
-                        $expired_entries[] = $input;
+                    if($report == 'summary') {
+                        if((!is_numeric($input['transaction']['attributes']['daystoexpire']) && !empty($input['transaction']['attributes']['daystoexpire'])) || ($input['transaction']['attributes']['daystoexpire'] <= 90) && $input['transaction']['attributes']['daystoexpire'] != '') {
+                            $expired_entries[] = $input;
+                        }
                     }
                 }
             }
@@ -477,6 +479,7 @@ if($core->input['authCode'] == AUTHCODE) {
             /* Parse Summaries - END */
         }
         /* Parse Expired Products Table - START */
+
         $alerts = '';
         if(is_array($expired_entries)) {
             $totals = null;
@@ -503,11 +506,13 @@ if($core->input['authCode'] == AUTHCODE) {
                 $alerts .= '<tr>';
                 foreach($configs['summary']['output_fields'] as $field => $field_configs) {
                     $output_td_style = '';
+
                     if(is_array($field_configs) && $field_configs['source'] != null) {
                         if(is_array($field_configs['source'])) {
                             $source_data = '';
                             foreach($field_configs['source'] as $source) {
                                 if(empty($source_data)) {
+
                                     $source_data = $input[$source];
                                 }
                                 else {
@@ -605,7 +610,7 @@ if($core->input['authCode'] == AUTHCODE) {
         $stockevolution_output .= '</tr>';
 
         $first_transaction = $integration->get_firsttransaction(array($orgid));
-        if(TIME_NOW - strtotime($first_transaction->get()['trxprocessdate']) > ( 60 * 60 * 24 * 365 )) {
+        if(TIME_NOW - strtotime($first_transaction->get()['trxprocessdate']) > (60 * 60 * 24 * 365 )) {
             $date_from = strtotime((date('Y', TIME_NOW) - 1 ).'-01-31');
         }
         else {
@@ -656,7 +661,7 @@ if($core->input['authCode'] == AUTHCODE) {
         }
 
         $stockevolution_chart = new Charts(array('x' => $chart_data['x'], 'y' => $chart_data['y']), 'line', array('path' => '../tmp/charts/', 'labelrotationangle' => 90, 'height' => 400, 'width' => 900, 'yaxisname' => 'K. USD', 'graphareay2margin' => 50, 'scale' => SCALE_START0, 'seriesweight' => 2, 'nosort' => true, 'linescolors' => $stockevolution_chart_linecolors));
-        //$stockevolution_output = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($stockevolution_chart->get_chart())).'" />'.$stockevolution_output;
+//$stockevolution_output = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($stockevolution_chart->get_chart())).'" />'.$stockevolution_output;
         $stockevolution_output = '<img src="cid:stockevolutionchart" />'.$stockevolution_output;
         /* Parse FX Rates Chart - START */
         $currency_rates_year = $currency_obj->get_yearaverage_fxrate_monthbased($affiliate['currency'], $date_info['year'], array('distinct_by' => 'alphaCode', 'precision' => 4, 'monthasname' => true), 'USD'); /* GET the fxrate of previous quarter year */
@@ -670,7 +675,7 @@ if($core->input['authCode'] == AUTHCODE) {
         $fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 USD' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$date_info['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholddata' => array('firstindex' => $index1, 'secondindex' => $index2), 'hasthreshold' => 1, 'width' => 700, 'height' => 200, 'scale' => SCALE_START0, 'path' => '../tmp/charts/', 'writelabel' => true));
 
         $fxratesoverview_output = '<h3>FX Rates Evolution</h3>';
-        // $fxratesoverview_output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($fxrates_linechart->get_chart())).'" />';
+// $fxratesoverview_output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($fxrates_linechart->get_chart())).'" />';
         $fxratesoverview_output .= '<img src="cid:fxratesoverview" />';
 
         /* Parse FX Rates Chart - END */
@@ -739,14 +744,12 @@ if($core->input['authCode'] == AUTHCODE) {
 
         $mailer->add_attachment($stockevolution_chart->get_chart(), '', array('contentid' => 'stockevolutionchart'));
         $mailer->add_attachment($fxrates_linechart->get_chart(), '', array('contentid' => 'fxratesoverview'));
-
-
         $stockevolution_chart->delete_chartfile();
         $fxrates_linechart->delete_chartfile();
         unset($stockevolution_chart, $chart_data, $stockevolution_chart, $overyears_rates);
         $mailer->set_to($email_data['to']);
 
-        //  print_r($mailer->debug_info());
+        //print_r($mailer->debug_info());
         $mailer->send();
         unset($message);
     }
