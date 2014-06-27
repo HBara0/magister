@@ -17,6 +17,16 @@ if(!$core->input['action']) {
     if(is_object($bug)) {
         $bug->stackTrace_output = nl2br(var_export(unserialize($bug->stackTrace), true));
 
+        $bug->description_output = @unserialize($bug->description);
+        if($bug->description_output == false) {
+            $bug->description_output = $bug->description;
+        }
+        else {
+            $bug->description_output = nl2br(var_export($bug->description_output, true));
+        }
+
+        $bug->reportedOn_output = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $bug->reportedOn);
+
         $bug->isFixed_output = $lang->no;
         if($bug->isFixed == 1) {
             $bug->isFixed_output = $lang->yes;
