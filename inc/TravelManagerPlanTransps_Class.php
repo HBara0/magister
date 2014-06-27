@@ -76,7 +76,8 @@ class TravelManagerPlanTransps {
         global $db, $core;
 
         $tanspdata_array = array('tmpsid' => $tanspdata['tmpsid'],
-                'tmtcid' => $tanspdata['tmtcid']
+                'tmtcid' => $tanspdata['tmtcid'],
+                'fare' => $tanspdata['fare']
         );
         $db->insert_query('travelmanager_plan_transps', $tanspdata_array);
         $this->data [self::PRIMARY_KEY] = $db->last_id();

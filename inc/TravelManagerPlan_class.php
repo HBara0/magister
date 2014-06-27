@@ -85,23 +85,31 @@ class TravelManagerPlan {
         if(!empty($category)) {
             switch($category) {
                 case'taxi':
-                    $transportaion_fields = 'Approxmita fare'.parse_textfield('segment['.$sequence.'][tmtcid]', 'text', '');
+                    $transportaion_fields = 'Approxmita fare'.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'text', '');
                     break;
-                case'train':
+                case'trasin':
+                    $transportaion_fields = 'Train '.parse_textfield('segment['.$sequence.'][tmtcid][vechicleNumber]', 'text', '');
+                    break;
+                case'train': //airplane
                     $availabe_arilinersobjs = TravelManagerAirlines::get_airlines('', array('contracted' => '1'));
                     if(is_array($availabe_arilinersobjs)) {
                         foreach($availabe_arilinersobjs as $availabe_arilinersobj) {
                             $availabe_ariliners = $availabe_arilinersobj->get();
-                            $ariliners = array($availabe_ariliners['alid'] => $availabe_ariliners['name']);
-                            $arilinersroptions = parse_radiobutton('segment['.$sequence.'][aflid]', $ariliners, '', true, '&nbsp;&nbsp;');
-                            $transportaion_fields .='<div style="display:block;width:100%;"> <div style="display:inline-block;" id="airlinesoptions"> '.$arilinersroptions.' </div>  </div>';
+                            $permitted_ariliners = array($availabe_ariliners['iatacode']);
+                            //$arilinersroptions = parse_radiobutton('segment['.$sequence.'][aflid]', $ariliners, '', true, '&nbsp;&nbsp;');
+                            if(is_array($permitted_ariliners)) {
+                                /* parse request array for the allowed airlines  and encode it as json array */
+                                $request_json = TravelManagerAirlines::build_flightrequestdata(array('origin' => 'BEY', 'destination' => 'PAR', 'maxStops' => 0, 'date' => '2014-06-26', 'permittedCarrier' => $permitted_ariliners));
+                                $flights_record = TravelManagerAirlines::parse_bestflight();
+                            }
+                            //$transportaion_fields .='<div style="display:block;width:100%;"> <div style="display:inline-block;" id="airlinesoptions"> '.$arilinersroptions.' </div>  </div>';
                         }
                     }
                     /* Parse predefined airliners */
                     break;
                 case'car':
                     break;
-                    $transportaion_fields = 'cars agencies';
+                    $transportaion_fields = parse_textfield('segment['.$sequence.'][tmtcid]', 'text', '');
             }
 
             $transportaion_fields .='<div style="display:inline-block;padding:5px;"  id="approximatefare"> Approximate Fare '.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'number', '').'</div>';
