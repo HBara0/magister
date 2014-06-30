@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Cache Class
  * $id: Cache_class.php
  * Created: 	@zaher.reda 	June 04, 2012 | 12:16 AM
@@ -57,6 +57,17 @@ class Cache {
             }
         }
         return false;
+    }
+
+    public function __get($attr) {
+        if(isset($this->data[$attr])) {
+            return $this->data[$attr];
+        }
+        return false;
+    }
+
+    public function __isset($name) {
+        return isset($this->data[$name]);
     }
 
 }
