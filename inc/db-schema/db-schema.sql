@@ -65,6 +65,7 @@ CREATE TABLE `affiliates` (
   `qrAlwaysCopy` text NOT NULL,
   `vrAlwaysNotify` text,
   `defaultWorkshift` smallint(10) NOT NULL,
+  `integrationOBOrgId` varchar(32) DEFAULT NULL,
   PRIMARY KEY (`affid`),
   KEY `name` (`name`),
   KEY `generalManager` (`generalManager`,`supervisor`,`hrManager`),
