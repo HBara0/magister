@@ -54,6 +54,10 @@ class DevelopmentBugs {
 
         $data['modifiedOn'] = TIME_NOW;
         $data['modifiedBy'] = $core->user['uid'];
+        if(is_array($data['description'])) {
+            $data['description'] = serialize($data['description']);
+        }
+
         $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
             return $this;
