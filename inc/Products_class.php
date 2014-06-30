@@ -94,9 +94,9 @@ class Products {
     }
 
     public function get_defaultchemfunction() {
-        if(empty($this->product['defaultFunction'])) {
-            return false;
-        }
+//        if(empty($this->product['defaultFunction'])) {
+//            return false;
+//        }
         return new ChemFunctionProducts($this->product['defaultFunction']);
     }
 
@@ -113,6 +113,10 @@ class Products {
             return $this->product[$attr];
         }
         return false;
+    }
+
+    public function __isset($name) {
+        return isset($this->product[$name]);
     }
 
     public function parse_link($attributes_param = array('target' => '_blank')) {
