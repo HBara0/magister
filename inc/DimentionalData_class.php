@@ -76,6 +76,8 @@ class DimentionalData {
     }
 
     private function sum_dimensions(&$totals, $data = '', $dimensions = '', $depth = 0, $previds = '') {
+        global $cache;
+
         if(empty($data) || !isset($data)) {
             $data = $this->data;
         }
@@ -84,8 +86,12 @@ class DimentionalData {
         }
 
         foreach($data as $key => $val) {
+            $chainkey = $key;
+            if(!is_numeric($key)) {
+                $chainkey = md5($key);
+            }
             if(!empty($previds)) {
-                $previds .= '-'.$key;
+                $previds .= '-'.$chainkey;
             }
             else {
                 $previds = $key;
@@ -96,9 +102,13 @@ class DimentionalData {
                 if($depth === 0) {
                     $dim_value = 'gtotal';
                 }
-
-                $totals[$dim_value][$previds] = array_sum_recursive($val);
-
+                if($cache->iscached('totals', $dim_value.$previds)) {
+                    $totals[$dim_value][$previds] = $cache->totals[$dim_value.$previds];
+                }
+                else {
+                    $totals[$dim_value][$previds] = array_sum_recursive($val);
+                    $cache->add('totals', $totals[$dim_value][$previds], $dim_value.$previds);
+                }
                 if(is_array($val)) {
                     $depth = $depth + 1;
                     $this->sum_dimensions($totals, $val, $dimensions, $depth, $previds);
@@ -121,7 +131,7 @@ class DimentionalData {
                 $previds = '';
             }
             else {
-                $previds = preg_replace('/-([0-9]+)$/', '', $previds); //Remove last portion of
+                $previds = preg_replace('/-([A-Za-z0-9]+)$/', '', $previds); //Remove last portion of
             }
         }
     }
@@ -174,11 +184,16 @@ class DimentionalData {
         if(is_array($data)) {
             foreach($data as $key => $val) {
                 $altrow = alt_row('trow');
+                $chainkey = $key;
+                if(!is_numeric($key)) {
+                    $chainkey = md5($key);
+                }
+
                 if(!empty($previds)) {
-                    $previds .= '-'.$key;
+                    $previds .= '-'.$chainkey;
                 }
                 else {
-                    $previds = $key;
+                    $previds = $chainkey;
                 }
 
                 if($depth <= count($dimensions) && $depth >= 0) {
@@ -250,7 +265,7 @@ class DimentionalData {
                     $previds = '';
                 }
                 else {
-                    $previds = preg_replace('/-([0-9]+)$/', '', $previds); // $ Remove last portion of previd
+                    $previds = preg_replace('/-([A-Za-z0-9]+)$/', '', $previds); // $ Remove last portion of previd
                 }
             }
         }
@@ -324,7 +339,6 @@ class DimentionalData {
     }
 
     private function parse_attributetype($attr) {
-        echo $attr;
         if(!empty($attr)) {
             switch($attr) {
                 case 'pc':
@@ -332,6 +346,9 @@ class DimentionalData {
                     break;
                 case 'c':
                     $key = 'Customer';
+                    break;
+                default:
+                    return $attr;
                     break;
             }
             return $key;
