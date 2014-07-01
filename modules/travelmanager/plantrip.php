@@ -159,6 +159,7 @@ elseif($core->input['action'] == 'populatecontent') {
     /* Load proposed transproration */
     $transsegments_output = Cities::parse_tranaportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
 
+
     /* load approved hotels */
     $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence);
 
@@ -189,6 +190,7 @@ elseif($core->input['action'] == 'parsedetailstransp') {
 elseif($core->input['action'] == 'do_perform_plantrip') {
     $travelplan_obj = new TravelManagerPlan();
     if(is_array($core->input['segment'])) {
+
         $travelplan_obj->create($core->input['segment']);
     }
     switch($travelplan_obj->get_errorcode()) {

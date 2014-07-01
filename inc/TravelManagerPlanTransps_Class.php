@@ -74,12 +74,13 @@ class TravelManagerPlanTransps {
 
     public function create($tanspdata = array()) {
         global $db, $core;
-
+        print_R($transptdata);
         $tanspdata_array = array('tmpsid' => $tanspdata['tmpsid'],
                 'tmtcid' => $tanspdata['tmtcid'],
                 'fare' => $tanspdata['fare']
         );
         $db->insert_query('travelmanager_plan_transps', $tanspdata_array);
+
         $this->data [self::PRIMARY_KEY] = $db->last_id();
     }
 

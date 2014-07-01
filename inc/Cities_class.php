@@ -191,6 +191,7 @@ class Cities {
 
     public static function parse_tranaportations($transpdata = array(), $sequence) {  //to be continued later
         global $template, $lang;
+
         $directionapi = TravelManagerPlan::get_availablecitytransp(array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'departuretime' => $transpdata['departuretime']));  /* Get available tranportaion mode for the city proposed by google API */
         $transpmode_googledirections = ' https://www.google.com/maps/dir/'.$transpdata['origincity']['name'].',+'.$transpdata['origincity']['country'].'/'.$transpdata['destcity']['name'].',+'.$transpdata['destcity']['country'].'/';
 
@@ -208,7 +209,9 @@ class Cities {
             $transitmode['url'] = '<a href="'.$transitmode[url].'" target="_blank" >'.$urldisplay[2].'</a>';
             $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation($transitmode, array('origincity' => $origintcity, 'destcity' => $destcity), $sequence);
             $transptitle = '<div class="subtitle">Possible Transportations</div>';
-            $transp_category_fields = TravelManagerPlan::parse_transportaionfields($drivingmode['transpcat']['name'], $sequence);
+
+            $transp_category_fields = TravelManagerPlan::parse_transportaionfields($drivingmode['transpcat']['name'], array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['departuretime']), $sequence);
+
             eval("\$transcategments_output  .= \"".$template->get('travelmanager_plantrip_segment_catransportation')."\";");
             eval("\$transsegments_output  = \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
             unset($transitmode);

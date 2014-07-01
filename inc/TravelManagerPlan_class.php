@@ -66,6 +66,7 @@ class TravelManagerPlan {
     }
 
     public static function parse_transportation($transmode, $directiondata = array(), $sequence) {
+        global $lang;
         /* The proposed transportation categories   are parsed accordingly with the possible available transportation methods proposed by Google */
         $transporcat_obj = TravelManagerTranspCategories::get_categories_byattr('apiVehicleTypes', $transmode['vehicletype'], array('operator' => 'like'));
         if(is_object($transporcat_obj)) {
@@ -81,7 +82,7 @@ class TravelManagerPlan {
         }
     }
 
-    public static function parse_transportaionfields($category, $sequence) {
+    public static function parse_transportaionfields($category, $cityinfo = array(), $sequence) {
         if(!empty($category)) {
             switch($category) {
                 case'taxi':
@@ -99,8 +100,8 @@ class TravelManagerPlan {
                             //$arilinersroptions = parse_radiobutton('segment['.$sequence.'][aflid]', $ariliners, '', true, '&nbsp;&nbsp;');
                             if(is_array($permitted_ariliners)) {
                                 /* parse request array for the allowed airlines  and encode it as json array */
-                                $request_json = TravelManagerAirlines::build_flightrequestdata(array('origin' => 'BEY', 'destination' => 'PAR', 'maxStops' => 0, 'date' => '2014-06-26', 'permittedCarrier' => $permitted_ariliners));
-                                $flights_record = TravelManagerAirlines::parse_bestflight();
+                                $request_json = TravelManagerAirlines::build_flightrequestdata(array('origin' => $cityinfo['origincity']['unlocode'], 'destination' => $cityinfo['destcity']['unlocode'], 'maxStops' => 0, 'date' => $cityinfo['date'], 'permittedCarrier' => $permitted_ariliners));
+                                $flights_records = TravelManagerAirlines::parse_bestflight($sequence);
                             }
                             //$transportaion_fields .='<div style="display:block;width:100%;"> <div style="display:inline-block;" id="airlinesoptions"> '.$arilinersroptions.' </div>  </div>';
                         }
@@ -113,6 +114,7 @@ class TravelManagerPlan {
             }
 
             $transportaion_fields .='<div style="display:inline-block;padding:5px;"  id="approximatefare"> Approximate Fare '.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'number', '').'</div>';
+            $transportaion_fields.=$flights_records;
             return $transportaion_fields;
         }
     }

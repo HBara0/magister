@@ -51,210 +51,78 @@ class TravelManagerAirlines {
         return $requestdata;
     }
 
-    public static function parse_bestflight() {
-        $json = '{
- "kind": "qpxExpress#tripsSearch",
- "trips": {
-  "kind": "qpxexpress#tripOptions",
-  "requestId": "T0zAmR1vDWqo5s08t0KAtB",
-  "data": {
-   "kind": "qpxexpress#data",
-   "airport": [
-    {
-     "kind": "qpxexpress#airportData",
-     "code": "BEY",
-     "city": "BEY",
-     "name": "Beirut Rafic Hariri International"
-    },
-    {
-     "kind": "qpxexpress#airportData",
-     "code": "CDG",
-     "city": "PAR",
-     "name": "Paris Charles de Gaulle"
+    private function is_roundtrip($slices) {
+        if($slices > 1) {
+            return 1;
+        }
+        else {
+            return;
+        }
     }
-   ],
-   "city": [
-    {
-     "kind": "qpxexpress#cityData",
-     "code": "BEY",
-     "name": "Beirut"
-    },
-    {
-     "kind": "qpxexpress#cityData",
-     "code": "PAR",
-     "name": "Paris"
-    }
-   ],
-   "aircraft": [
-    {
-     "kind": "qpxexpress#aircraftData",
-     "code": "77W",
-     "name": "Boeing 777"
-    }
-   ],
-   "tax": [
-    {
-     "kind": "qpxexpress#taxData",
-     "id": "LB",
-     "name": "Lebanon Embarkation Tax"
-    },
-    {
-     "kind": "qpxexpress#taxData",
-     "id": "VL_001",
-     "name": "Lebanon Departure Tax"
-    },
-    {
-     "kind": "qpxexpress#taxData",
-     "id": "YQ",
-     "name": "ME YQ surcharge"
-    }
-   ],
-   "carrier": [
-    {
-     "kind": "qpxexpress#carrierData",
-     "code": "ME",
-     "name": "Middle East Airlines AirLiban"
-    }
-   ]
-  },
-  "tripOption": [
-   {
-    "kind": "qpxexpress#tripOption",
-    "saleTotal": "LBP790300",
-    "id": "GWuENQQwmu7NwLq2debchG001",
-    "slice": [
-     {
-      "kind": "qpxexpress#sliceInfo",
-      "duration": 280,
-      "segment": [
-       {
-        "kind": "qpxexpress#segmentInfo",
-        "duration": 280,
-        "flight": {
-         "carrier": "ME",
-         "number": "205"
-        },
-        "id": "G8qMbEDJGSJbvhPF",
-        "cabin": "COACH",
-        "bookingCode": "H",
-        "bookingCodeCount": 9,
-        "marriedSegmentGroup": "0",
-        "leg": [
-         {
-          "kind": "qpxexpress#legInfo",
-          "id": "Lj6dL4eDBM4S9DKW",
-          "aircraft": "77W",
-          "arrivalTime": "2014-06-26T19:40+02:00",
-          "departureTime": "2014-06-26T16:00+03:00",
-          "origin": "BEY",
-          "destination": "CDG",
-          "destinationTerminal": "2E",
-          "duration": 280,
-          "operatingDisclosure": "OPERATED BY AIR FRANCE",
-          "mileage": 1979
-         }
-        ]
-       }
-      ]
-     }
-    ],
-    "pricing": [
-     {
-      "kind": "qpxexpress#pricingInfo",
-      "fare": [
-       {
-        "kind": "qpxexpress#fareInfo",
-        "id": "AmlNcHNJUEnThAwwOJ6roEROStLCJATBiHvl+UhA",
-        "carrier": "ME",
-        "origin": "BEY",
-        "destination": "PAR",
-        "basisCode": "HOLB"
-       }
-      ],
-      "segmentPricing": [
-       {
-        "kind": "qpxexpress#segmentPricing",
-        "fareId": "AmlNcHNJUEnThAwwOJ6roEROStLCJATBiHvl+UhA",
-        "segmentId": "G8qMbEDJGSJbvhPF",
-        "freeBaggageOption": [
-         {
-          "kind": "qpxexpress#freeBaggageAllowance",
-          "bagDescriptor": [
-           {
-            "kind": "qpxexpress#bagDescriptor",
-            "commercialName": "UPTO50LB 23KG BAGGAGE",
-            "count": 1,
-            "description": [
-             "Up to 50 lb/23 kg"
-            ],
-            "subcode": "0C3"
-           }
-          ],
-          "pieces": 1
-         }
-        ]
-       }
-      ],
-      "baseFareTotal": "USD402.00",
-      "saleFareTotal": "LBP606900",
-      "saleTaxTotal": "LBP183400",
-      "saleTotal": "LBP790300",
-      "passengers": {
-       "kind": "qpxexpress#passengerCounts",
-       "adultCount": 1
-      },
-      "tax": [
-       {
-        "kind": "qpxexpress#taxInfo",
-        "id": "VL_001",
-        "chargeType": "GOVERNMENT",
-        "code": "VL",
-        "country": "LB",
-        "salePrice": "LBP5000"
-       },
-       {
-        "kind": "qpxexpress#taxInfo",
-        "id": "YQ",
-        "chargeType": "CARRIER_SURCHARGE",
-        "code": "YQ",
-        "salePrice": "LBP128400"
-       },
-       {
-        "kind": "qpxexpress#taxInfo",
-        "id": "LB",
-        "chargeType": "GOVERNMENT",
-        "code": "LB",
-        "country": "LB",
-        "salePrice": "LBP50000"
-       }
-      ],
-      "fareCalculation": "BEY ME PAR 402.00HOLB NUC 402.00 END ROE 1.00 FARE USD 402.00 EQU LBP 606900 XT 50000LB 5000VL 128400YQ",
-      "latestTicketingTime": "2014-06-26T11:21-04:00",
-      "ptc": "ADT"
-     }
-    ]
-   }
-  ]
- }
-}';
+
+    public static function parse_bestflight($sequence) {
+        global $core, $template;
+
+        $json = file_get_contents('./modules/travelmanager/jsonflightdetails_roundtrip.txt');
+
         $response_flightdata = json_decode($json);
-        //  print_r($response_flightdata);
-        foreach($response_flightdata->trips as $trips) {
-            print_r($response_flightdata->trips->tripOption[0]->id);
-            if(!empty($trips->airport)) {
-                $flight['airport'] = $trips->airport;
-            }
+        $flights_records = '<div class="subtitle" style="width:100%;margin:10px; box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px  rgba(0, 0, 0, 0.1) solid;;">Best Flights</div>';
 
-            //   print_R($tripitem);
+        for($tripoptnum = 0; $tripoptnum <= count($response_flightdata->trips->tripOption); $tripoptnum++) {
+            $airportcount = count($trips->airport);
+            if($airportcount >= 0) {
+                for($i = 0; $i <= $airportcount; $i++) {
+                    if(!empty($trips->airport[$i])) {
+                        $flight[$i]['airport'] = $trips->airport[$i]->name;
+                    }
+                }
+            }
+            for($slicenum = 0; $slicenum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice); $slicenum++) {
+                $slices = count($response_flightdata->trips->tripOption[$tripoptnum]->slice);
+
+                $triptype = self::is_roundtrip(count($response_flightdata->trips->tripOption[$tripoptnum]->slice));
+                if($triptype == 1) {
+                    $flight['triptype'] = 'roundtrip';
+                }
+                $flight['carrier'] = $response_flightdata->trips->data->carrier[0]->name;
+
+                for($segmentnum = 0; $segmentnum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment); $segmentnum++) {
+
+                    $departuretime = strtotime($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->departureTime);
+                    $arrivaltime = strtotime($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->arrivalTime);
+                    $flight['departuretime'] = date($core->settings['timeformat'], $departuretime);
+                    $flight['arrivaltime'] = date('h:i A', $arrivaltime);
+
+                    $hours = floor($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->duration / 60);
+                    $minutes = ($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->duration / 60);
+                    $flight['duration'] = sprintf('%2dh %2dm', $hours, $minutes);
+
+                    if(isset($response_flightdata->trips->tripOption[$tripoptnum]->saleTotal) && !empty($response_flightdata->trips->tripOption[$tripoptnum]->saleTotal)) {
+                        $flight['currcode'] = substr($response_flightdata->trips->tripOption[$tripoptnum]->saleTotal, 0, 3);
+                    }
+
+                    $flight['saleTotal'] = substr($response_flightdata->trips->tripOption[$tripoptnum]->saleTotal, 3);
+                    $currency_obj = new Currencies('USD');
+                    $currency = $currency_obj->get_currency_by_alphacode($flight['currcode']);
+                    $fxrates[$currency['alphaCode']] = $currency_obj->get_latest_fxrate($currency['alphaCode'], array('incDate' => 1));
+
+                    $flight['flightnumber'] = $response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->flight->carrier.' '.$response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->flight->number;
+                    $flight['flightid'] = $response_flightdata->trips->tripOption[$tripoptnum]->id;
+                    $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
+                    $flight['flightdetails'] = serialize($flight['flightnumber'].$flight['flightid']);
+
+                    eval("\$flights_records_segments .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails_segments')."\";");
+                }
+
+
+                eval("\$flights_records .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
+                $flights_records_segments = '';
+            }
         }
-        for($i = 0; $i < count($response_flightdata->kind[0]->slice[0]); $i++) {
-            echo $i;
-//            $ai = $response_flightdata->trips[$i]->data;
-        }
+        return $flights_records;
     }
 
-    public
-            function get() {
+    public function get() {
         return $this->airlines;
     }
 
