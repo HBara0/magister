@@ -29,7 +29,7 @@ if(!$core->input['action']) {
     }
 
     if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
-        $core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
+        $core->settings['itemsperlist'] = intval($core->input['perpage']);
     }
 
     if(isset($core->input['filterby'], $core->input['filtervalue'])) {
