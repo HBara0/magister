@@ -2664,11 +2664,15 @@ CREATE TABLE `travelmanager_plan_transps` (
   `tmpsid` int(10) NOT NULL,
   `tmtcid` int(10) NOT NULL,
   `isMAin` tinyint(1) NOT NULL,
+  `fare` decimal(10,0) NOT NULL,
+  `vechicleNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `flightNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `flightDetails` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`tmpltid`,`tmpsid`,`tmtcid`),
   KEY `tmpltid` (`tmpltid`),
   KEY `tmtcid` (`tmtcid`),
   KEY `tmpltid_2` (`tmpltid`)
-) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=30 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `travelmanager_transpcategories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
