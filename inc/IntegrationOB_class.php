@@ -938,6 +938,10 @@ class IntegrationOBInOutLine {
     private $inoutline;
     private $f_db;
 
+    const PRIMARY_KEY = 'm_inoutline_id';
+    const TABLE_NAME = 'm_inoutline';
+    const DISPLAY_NAME = '';
+
     public function __construct($id, $f_db = NULL) {
         if(!empty($f_db)) {
             $this->f_db = $f_db;
@@ -957,6 +961,9 @@ class IntegrationOBInOutLine {
         $this->inoutline = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_inoutline
 						WHERE m_inoutline_id='".$this->f_db->escape_string($id)."'"));
+        if(empty($this->inoutline)) {
+            return null;
+        }
     }
 
     public function get_inout() {
@@ -976,6 +983,28 @@ class IntegrationOBInOutLine {
         return new IntegrationOBAttributeSetInstance($this->inoutline['m_attributesetinstance_id'], $this->f_db);
     }
 
+    public function get_inoutline_byattr($attr, $value, $f_db = null) {
+        if(!empty($f_db)) {
+            $this->f_db = $f_db;
+        }
+        $sql = 'SELECT '.self::PRIMARY_KEY.' FROM '.self::TABLE_NAME.' WHERE '.$this->f_db->escape_string($attr).'=\''.$this->f_db->escape_string($value).'\'';
+        $query = $this->f_db->query($sql);
+        if($this->f_db->num_rows($query) == 1) {
+            $id = $this->f_db->fetch_field($query, self::PRIMARY_KEY);
+            return new self($id, $this->f_db);
+        }
+        else {
+            if($this->f_db->num_rows($query) > 1) {
+                while($item = $this->f_db->fetch_assoc($query)) {
+                    $items[$item[self::PRIMARY_KEY]] = new self($item[self::PRIMARY_KEY], $this->f_db);
+                }
+                return $items;
+            }
+            return new self(null, $this->f_db);
+        }
+        return false;
+    }
+
     public function get_id() {
         return $this->inoutline['m_inoutline_id'];
     }
@@ -985,6 +1014,10 @@ class IntegrationOBInOutLine {
             return $this->inoutline[$name];
         }
         return false;
+    }
+
+    public function __isset($name) {
+        return isset($this->inoutline[$name]);
     }
 
     public function get() {
@@ -1023,6 +1056,13 @@ class IntegrationOBInOut {
 
     public function get_id() {
         return $this->inout['m_inout_id'];
+    }
+
+    public function __get($name) {
+        if(isset($this->inout[$name])) {
+            return $this->inout[$name];
+        }
+        return false;
     }
 
     public function get() {
@@ -1187,16 +1227,39 @@ class IntegrationOBInvoiceLine {
     }
 
     public function get_cost() {
+        //$transaction = $this->get_transaction();
+//        if(is_array($transaction)) {
+//            $cost = 0;
+//            foreach($transaction as $trx) {
+//                $cost += $trx->transactioncost;
+//            }
+//            return $cost;
+//        }
         return $this->get_transaction()->transactioncost;
     }
 
     public function get_transaction() {
         $inoutline = $this->get_inoutline();
-        if(!is_object($inoutline)) {
+        if(!$inoutline->get_id()) {
             $inoutline = $this->get_orderline()->get_inoutline();
+            if(!$inoutline->get_id()) {
+                $iol = new IntegrationOBInOutLine(null, $this->f_db);
+                $inoutline = $iol->get_inoutline_byattr('c_orderline_id', $this->get_orderline()->get_id());
+                unset($iol);
+            }
         }
-
         $transaction = new IntegrationOBTransaction(null, $this->f_db);
+        if(is_array($inoutline)) {
+            //$transactions = array();
+            foreach($inoutline as $iol) {
+                if($iol->get_inout()->docstatus == 'CO') {
+                    return $transaction->get_transaction_byattr('m_inoutline_id', $iol->m_inoutline_id);
+                }
+                //$transactions[] = $transaction->get_transaction_byattr('m_inoutline_id', $iol->m_inoutline_id);
+            }
+            return null;
+            //return $transactions;
+        }
         return $transaction->get_transaction_byattr('m_inoutline_id', $inoutline->m_inoutline_id);
     }
 
@@ -1223,6 +1286,10 @@ class IntegrationOBInvoiceLine {
             return $this->invoiceline[$name];
         }
         return false;
+    }
+
+    public function __isset($name) {
+        return isset($this->invoiceline[$name]);
     }
 
     public function get() {
@@ -1530,6 +1597,13 @@ class IntegrationOBCurrency {
 
     public function get_id() {
         return $this->currency['c_currency_id'];
+    }
+
+    public function __get($name) {
+        if(isset($this->currency[$name])) {
+            return $this->currency[$name];
+        }
+        return false;
     }
 
     public function get() {
