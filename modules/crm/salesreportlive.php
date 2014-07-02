@@ -19,39 +19,8 @@ if($core->usergroup['crm_canGenerateSalesReports'] == 0) {
 
 $lang->load('crm_salesreport');
 if(!$core->input['action']) {
-    $affiliates_query = $db->query("SELECT a.affid, a.name
-						  FROM ".Tprefix."affiliates a LEFT JOIN ".Tprefix."affiliatedemployees ae ON (ae.affid=a.affid)
-						  WHERE ae.uid='{$core->user[uid]}'
-						  ORDER BY a.name ASC");
-
-    while($affiliate = $db->fetch_array($affiliates_query)) {
-        $affiliates[$affiliate['affid']] = $affiliate['name'];
-    }
-
-    $saletypes_list = parse_selectlist('saleType', 2, array('0' => $lang->any, 's-1' => $lang->stock, 'r-1' => $lang->reinvoice), '');
+    $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']));
     $affiliates_list = parse_selectlist('affids[]', 2, $affiliates, '');
-
-    if($core->usergroup['canViewAllSupp'] == 0) {
-        if(!is_array($core->user['suppliers']['eid'])) {
-            error($lang->sectionnopermission);
-        }
-        $suppliers_where = $products_where = ' AND eid IN ('.implode(',', $core->user['suppliers']['eid']).')';
-        $suppliers_where = ' AND '.$suppliers_where;
-    }
-    $suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 0, 'type="s"'.$suppliers_where);
-    $suppliers_list = parse_selectlist('spid[]', 9, $suppliers, '', 1);
-
-    if($core->usergroup['canViewAllCust'] == 0) {
-        if(!is_array($core->user['customers'])) {
-            error($lang->sectionnopermission);
-        }
-        $customers_where = '  AND eid IN ('.implode(',', $core->user['customers']).')';
-    }
-    $customers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 0, 'type="c"'.$customers_where);
-    $customers_list = parse_selectlist('cid[]', 9, $customers, '', 1);
-
-    $products = get_specificdata('products', array('pid', 'name'), 'pid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0, $products_where);
-    $products_list = parse_selectlist('pid[]', 9, $products, '', 1);
 
     $fxtypes_selectlist = parse_selectlist('fxtype', 9, array('lastm' => $lang->lastmonthrate, 'ylast' => $lang->yearlatestrate, 'yavg' => $lang->yearaveragerate, 'mavg' => $lang->monthaveragerate, 'real' => $lang->realrate), '', 0);
     eval("\$generatepage = \"".$template->get('crm_generatesalesreport_live')."\";");
@@ -103,9 +72,8 @@ else {
         $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
 
         $invoices = $integration->get_saleinvoices($filters);
-        $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'grossmargin', 'netmargin', 'marginperc');
+        $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'netmargin', 'netmarginusd', 'marginperc');
         if(is_array($invoices)) {
-            $output = '<table class="datatable">';
             foreach($invoices as $invoice) {
                 $invoice->customername = $invoice->get_customer()->name;
                 $invoicelines = $invoice->get_invoicelines();
@@ -114,13 +82,19 @@ else {
                     $invoice->salesrep = 'Unknown Sales Rep';
                 }
 
-                $invoice->week = 'Week '.date('W-Y', strtotime($invoice->dateinvoiced));
-                $invoice->month = date('M, Y', strtotime($invoice->dateinvoiced));
+                $invoice->dateinvoiceduts = strtotime($invoice->dateinvoiced);
+                $invoice->week = 'Week '.date('W-Y', $invoice->dateinvoiceduts);
+                $invoice->month = date('M, Y', $invoice->dateinvoiceduts);
+                $invoice->currency = $invoice->get_currency()->iso_code;
+                $invoice->usdfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
                 if(!is_array($invoicelines)) {
                     continue;
                 }
                 foreach($invoicelines as $invoiceline) {
-                    $outputstack = $invoiceline->get_transaction()->get_outputstack();
+                    $iltrx = $invoiceline->get_transaction();
+                    if(is_object($iltrx)) {
+                        $outputstack = $iltrx->get_outputstack();
+                    }
                     if(is_object($outputstack)) {
                         $inputstack = $outputstack->get_inputstack();
                     }
@@ -136,11 +110,16 @@ else {
                     }
                     else {
                         $invoiceline->suppliername = $product->get_supplier()->name;
-                        $invoiceline->segment = $product->get_defaultchemfunction()->get_segment()->get_displayname();
+                        $invoiceline->segment = $product->get_defaultchemfunction()->get_segment()->title;
                         if(empty($invoiceline->segment)) { /* Temp legacy fallback */
                             $invoiceline->segment = $product->get_segment()['title'];
                         }
                     }
+
+                    if(empty($invoiceline->segment)) {
+                        $invoiceline->segment = 'Unknown Segment';
+                    }
+
                     $invoiceline->productname = $product->name;
                     if(empty($invoiceline->suppliername)) {
                         $invoiceline->suppliername = 'Unknown Supplier';
@@ -148,6 +127,7 @@ else {
 
                     $invoiceline->uom = $invoiceline->get_uom()->uomsymbol;
                     $invoiceline->costlocal = $invoiceline->get_cost();
+                    $invoiceline->costusd = $invoiceline->costlocal / $invoice->usdfxrate;
 
                     if(is_object($inputstack)) {
                         $input_inoutline = $inputstack->get_transcation()->get_inoutline();
@@ -160,7 +140,9 @@ else {
                     }
 
                     $invoiceline->grossmargin = $invoiceline->linenetamt - ($invoiceline->purchaseprice * $invoiceline->qtyinvoiced);
+                    $invoiceline->grossmarginusd = $invoiceline->grossmargin / $invoice->usdfxrate;
                     $invoiceline->netmargin = $invoiceline->linenetamt - $invoiceline->costlocal;
+                    $invoiceline->netmarginusd = $invoiceline->netmargin / $invoice->usdfxrate;
                     $invoiceline->marginperc = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $invoiceline->netmargin / $invoiceline->linenetamt);
 
                     $output .= '<tr>';
@@ -171,45 +153,66 @@ else {
                         }
 
                         $data[$invoiceline->c_invoiceline_id][$col] = $value;
-                        $output .= '<td>'.$value.'</td>';
                     }
-
-                    $output .= '</tr>';
                 }
             }
-            $output .= '</table>';
         }
         else {
-            //redirect($url, $delay, $redirect_message);
+            redirect($url, $delay, $redirect_message);
         }
 
-        $overwrite = array('marginperc' => array('fields' => array('divider' => 'netmargin', 'dividedby' => 'linenetamt'), 'operation' => '/'),
-                'priceactual' => array('fields' => array('divider' => 'linenetamt', 'dividedby' => 'qtyinvoiced'), 'operation' => '/'));
-        $formats = array('marginperc' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'));
+        if($core->input['type'] == 'analytic') {
+            $overwrite = array('marginperc' => array('fields' => array('divider' => 'netmargin', 'dividedby' => 'linenetamt'), 'operation' => '/'),
+                    'priceactual' => array('fields' => array('divider' => 'linenetamt', 'dividedby' => 'qtyinvoiced'), 'operation' => '/'));
+            $formats = array('marginperc' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'));
 
-        $required_fields = array('qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'grossmargin', 'netmargin', 'marginperc');
-        $required_tables = array('segmentsummary' => array('segment'), 'salesrepsummary' => array('salesrep'), 'suppliersummary' => array('suppliername'), 'customerssummary' => array('customername'), 'detailed' => array('month', 'week', 'salesrep', 'suppliername', 'customername', 'productname'));
+            $required_fields = array('qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'grossmargin', 'netmargin', 'marginperc');
+            $required_tables = array('segmentsummary' => array('segment'), 'salesrepsummary' => array('salesrep'), 'suppliersummary' => array('suppliername'), 'customerssummary' => array('customername'), 'detailed' => array('month', 'week', 'salesrep', 'suppliername', 'customername', 'productname'));
 
-        foreach($required_tables as $dimensions) {
-            $rawdata = $data;
-            $dimensionalreport = new DimentionalData();
-            $dimensionalreport->set_dimensions(array_combine(range(1, count($dimensions)), array_values($dimensions)));
-            $dimensionalreport->set_requiredfields($required_fields);
-            $dimensionalreport->set_data($rawdata);
-            $salesreport .= '<table width="100%" class="datatable">';
-            $salesreport .= '<tr><th></th>';
-            foreach($required_fields as $field) {
-                $salesreport .= '<th>'.$field.'</th>';
+            foreach($required_tables as $dimensions) {
+                $rawdata = $data;
+                $dimensionalreport = new DimentionalData();
+                $dimensionalreport->set_dimensions(array_combine(range(1, count($dimensions)), array_values($dimensions)));
+                $dimensionalreport->set_requiredfields($required_fields);
+                $dimensionalreport->set_data($rawdata);
+                $salesreport .= '<table width="100%" class="datatable">';
+                $salesreport .= '<tr><th></th>';
+                foreach($required_fields as $field) {
+                    $salesreport .= '<th>'.$field.'</th>';
+                }
+                $salesreport .= '</tr>';
+                $salesreport .= $dimensionalreport->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'formats' => $formats, 'overwritecalculation' => $overwrite));
+                $salesreport .= '</table>';
+
+                $chart_data = $dimensionalreport->get_data();
+                //$chart = new Charts(array('x' => array($previous_year => $previous_year, $current_year => $current_year), 'y' => $barchart_quantities_values), 'bar');
+            }
+        }
+        else {
+            $salesreport = '<table class="datatable"><tr>';
+            foreach($cols as $col) {
+                if(!isset($lang->{$col})) {
+                    $lang->{$col} = ucwords($col);
+                }
+                $salesreport .= '<th>'.$lang->{$col}.'</th>';
             }
             $salesreport .= '</tr>';
-            $salesreport .= $dimensionalreport->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'formats' => $formats, 'overwritecalculation' => $overwrite));
-            $salesreport .= '</table>';
 
-            $chart_data = $dimensionalreport->get_data();
-            //$chart = new Charts(array('x' => array($previous_year => $previous_year, $current_year => $current_year), 'y' => $barchart_quantities_values), 'bar');
+            foreach($data as $iol => $row) {
+                $salesreport .= '<tr>';
+                foreach($cols as $col) {
+                    $value = $row[$col];
+                    if(is_numeric($value)) {
+                        $value = numfmt_format(numfmt_create('en_EN', NumberFormatter::DECIMAL), $value);
+                    }
+                    $salesreport .= '<td>'.$value.'</td>';
+                }
+
+                $salesreport .= '</tr>';
+            }
+            $salesreport .= '</table>';
         }
         eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
-        $previewpage .= $output;
         output_page($previewpage);
     }
 }
