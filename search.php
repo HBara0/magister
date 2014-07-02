@@ -118,7 +118,7 @@ if($core->input['type'] == 'quick') {
                 $extra_where .= 'spid = "'.$report_data['spid'].'"';
             }
             if($core->usergroup['canViewAllsupp'] == 0) {
-                $supplier_filter = "spid IN('".implode(',', $core->user['suppliers']['eid'])."')";
+                $supplier_filter = " AND spid IN('".implode(',', $core->user['suppliers']['eid'])."')";
             }
 //			if(isset($core->input['userproducts'])) {
 //				$supplier_filter = "spid IN('".implode(',', $core->user['suppliers']['eid'])."')";
