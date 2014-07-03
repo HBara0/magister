@@ -422,7 +422,7 @@ else {
 //				$approvers = ($approvers + $secondapprovers);   /* merge the 2 arrays in one array */
 //			}
             if(is_array($approvers)) {
-                $db->delete_query('leavesapproval', 'lid', $lid);
+                $db->delete_query('leavesapproval', 'lid='.$lid);
                 foreach($approvers as $key => $val) {
                     if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
                         continue;

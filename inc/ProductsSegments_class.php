@@ -163,6 +163,10 @@ class ProductsSegments {
         return false;
     }
 
+    public function __isset($name) {
+        return isset($this->segment[$name]);
+    }
+
     public function get_displayname() {
         return $this->segment[self::DISPLAY_NAME];
     }

@@ -15,7 +15,7 @@ $lang->load('messages');
 
 $invitations_query = $db->query("SELECT s.identifier, s.subject, s.dateCreated, si.*, u.email, u.displayName
 						FROM ".Tprefix."surveys_invitations si
-						JOIN ".Tprefix."users u ON (u.uid=si.uid)
+						JOIN ".Tprefix."users u ON (u.uid=si.invitee)
 						JOIN ".Tprefix."surveys s ON (s.sid=si.sid)
 						WHERE s.isExternal=0 AND (s.closingDate = 0 OR ".TIME_NOW."<s.closingDate) AND (si.isDone IS NULL OR si.isDone=0)
 						ORDER BY s.dateCreated DESC");

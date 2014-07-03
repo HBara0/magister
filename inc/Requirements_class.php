@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Requirements Class
  * $id: Requirements_class.php
  * Created By: 		@zaher.reda			May 21, 2012 | 09:38 PM
@@ -11,6 +11,10 @@
 
 class Requirements {
     private $requirement = array();
+
+    const PRIMARY_KEY = 'drid';
+    const TABLE_NAME = 'development_requirements';
+    const DISPLAY_NAME = 'title';
 
     public function __construct($id = '', $simple = false) {
         if(isset($id) && !empty($id)) {
@@ -28,7 +32,7 @@ class Requirements {
             $query_select = 'dr1.drid, refWord, dr1.title';
         }
 
-        $query = $db->query("SELECT {$query_select} 
+        $query = $db->query("SELECT {$query_select}
 		FROM ".Tprefix."development_requirements  dr1
 		LEFT JOIN ".Tprefix."development_requirements  dr2 ON (dr1.parent=dr2.drid)
 		WHERE dr1.drid=".$db->escape_string($id));
@@ -220,6 +224,15 @@ class Requirements {
 
 
         return $requirements_list;
+    }
+
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+        return '<a href="index.php?module=development/viewrequirement&id='.$this->requirement[self::PRIMARY_KEY].'" '.$attributes.'>'.$this->requirement[self::DISPLAY_NAME].'</a>';
     }
 
 }

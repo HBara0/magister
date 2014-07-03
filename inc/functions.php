@@ -381,6 +381,9 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
             $attributes .= ' disabled="disabled"';
         }
 
+        if(is_object($val)) {
+            $val = $val->get_displayname();
+        }
         $list .= '<option value="'.$key.'"'.$attributes.'>'.$val.'</option>';
         $attributes = '';
     }

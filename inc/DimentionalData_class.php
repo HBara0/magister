@@ -76,6 +76,8 @@ class DimentionalData {
     }
 
     private function sum_dimensions(&$totals, $data = '', $dimensions = '', $depth = 0, $previds = '') {
+        global $cache;
+
         if(empty($data) || !isset($data)) {
             $data = $this->data;
         }
@@ -84,8 +86,12 @@ class DimentionalData {
         }
 
         foreach($data as $key => $val) {
+            $chainkey = $key;
+            if(!is_numeric($key)) {
+                $chainkey = md5($key);
+            }
             if(!empty($previds)) {
-                $previds .= '-'.$key;
+                $previds .= '-'.$chainkey;
             }
             else {
                 $previds = $key;
@@ -96,9 +102,13 @@ class DimentionalData {
                 if($depth === 0) {
                     $dim_value = 'gtotal';
                 }
-
-                $totals[$dim_value][$previds] = array_sum_recursive($val);
-
+                if($cache->iscached('totals', $dim_value.$previds)) {
+                    $totals[$dim_value][$previds] = $cache->totals[$dim_value.$previds];
+                }
+                else {
+                    $totals[$dim_value][$previds] = array_sum_recursive($val);
+                    $cache->add('totals', $totals[$dim_value][$previds], $dim_value.$previds);
+                }
                 if(is_array($val)) {
                     $depth = $depth + 1;
                     $this->sum_dimensions($totals, $val, $dimensions, $depth, $previds);
@@ -121,7 +131,7 @@ class DimentionalData {
                 $previds = '';
             }
             else {
-                $previds = preg_replace('/-([0-9]+)$/', '', $previds); //Remove last portion of
+                $previds = preg_replace('/-([A-Za-z0-9]+)$/', '', $previds); //Remove last portion of
             }
         }
     }
@@ -174,11 +184,16 @@ class DimentionalData {
         if(is_array($data)) {
             foreach($data as $key => $val) {
                 $altrow = alt_row('trow');
+                $chainkey = $key;
+                if(!is_numeric($key)) {
+                    $chainkey = md5($key);
+                }
+
                 if(!empty($previds)) {
-                    $previds .= '-'.$key;
+                    $previds .= '-'.$chainkey;
                 }
                 else {
-                    $previds = $key;
+                    $previds = $chainkey;
                 }
 
                 if($depth <= count($dimensions) && $depth >= 0) {
@@ -212,14 +227,14 @@ class DimentionalData {
                         if(isset($options['overwritecalculation'][$field])) {
                             $total[$dimensions[$depth]][$field.'-'.$previds] = $this->recalculate_dimvalue($field, $total[$dimensions[$depth]], $previds, $options['overwritecalculation'][$field]);
 
-                            $total[$dimensions[$depth]][$field.'-'.$previds] = round(($total[$dimensions[$depth]][$field.'-'.$previds] * 100), 2).'%';
+                            //$total[$dimensions[$depth]][$field.'-'.$previds] = round(($total[$dimensions[$depth]][$field.'-'.$previds] * 100), 2).'%';
                         }
 
                         if($options['outputtype'] == 'div') {
-                            $columns .= '<div style="display: inline-block; font-size:'.$fontsize.'px">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</div>';
+                            $columns .= '<div style="display: inline-block; font-size:'.$fontsize.'px">'.$this->format_number($total[$dimensions[$depth]][$field.'-'.$previds], $options['formats'][$field]).'</div>';
                         }
                         else {
-                            $columns .= '<td style="font-size:'.$fontsize.'px">'.$total[$dimensions[$depth]][$field.'-'.$previds].'</td>';
+                            $columns .= '<td style="font-size:'.$fontsize.'px">'.$this->format_number($total[$dimensions[$depth]][$field.'-'.$previds], $options['formats'][$field]).'</td>';
                         }
                     }
 
@@ -250,7 +265,7 @@ class DimentionalData {
                     $previds = '';
                 }
                 else {
-                    $previds = preg_replace('/-([0-9]+)$/', '', $previds); // $ Remove last portion of previd
+                    $previds = preg_replace('/-([A-Za-z0-9]+)$/', '', $previds); // $ Remove last portion of previd
                 }
             }
         }
@@ -284,15 +299,13 @@ class DimentionalData {
         foreach($options['requiredfields'] as $field) {
             if(isset($options['overwritecalculation'][$field])) {
                 $total[$field] = $this->recalculate_dimvalue($field, $total, $previds, $options['overwritecalculation'][$field]);
-
-                $total[$field] = round(($total[$field] * 100), 2).'%';
             }
 
             if($options['outputtype'] == 'div') {
-                $columns .= '<div style="display: inline-block; font-size:'.$fontsize.'px;'.$style.'">'.$total[$field].'</div>';
+                $columns .= '<div style="display: inline-block; font-size:'.$fontsize.'px;'.$style.'">'.$this->format_number($total[$field], $options['formats'][$field]).'</div>';
             }
             else {
-                $columns .= '<td style="font-size:'.$fontsize.'px;'.$style.'">'.$total[$field].'</td>';
+                $columns .= '<td style="font-size:'.$fontsize.'px;'.$style.'">'.$this->format_number($total[$field], $options['formats'][$field]).'</td>';
             }
         }
 
@@ -304,8 +317,28 @@ class DimentionalData {
         }
     }
 
+    private function format_number($number, $format) {
+        global $htmllang;
+
+        if(is_array($format)) {
+            extract($format);
+        }
+        else {
+            $pattern = $format;
+        }
+
+        if(empty($style)) {
+            $style = NumberFormatter::DECIMAL;
+        }
+
+        if(empty($pattern)) {
+            $pattern = '#0.##';
+        }
+        $formatter = new NumberFormatter($htmllang, $style, $pattern);
+        return $formatter->format($number);
+    }
+
     private function parse_attributetype($attr) {
-        echo $attr;
         if(!empty($attr)) {
             switch($attr) {
                 case 'pc':
@@ -313,6 +346,9 @@ class DimentionalData {
                     break;
                 case 'c':
                     $key = 'Customer';
+                    break;
+                default:
+                    return $attr;
                     break;
             }
             return $key;

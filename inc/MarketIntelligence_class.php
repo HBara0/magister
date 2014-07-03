@@ -24,7 +24,7 @@ class MarketIntelligence {
     private $miprofiles = array('latestcustomersumbyproduct' => array('groupby' => array('cfpid', 'mibdid'), 'aggregateby' => array('cfpid'), 'displayItem' => ChemFunctionProducts, 'timelevel' => 'latest'), //Main entity profile
             'allprevious' => array('groupby' => array('createdOn', 'eptid', 'mibdid'), 'aggregateby' => array('mibdid'), 'timelevel' => 'allprevious'), //N Level
             'latestaggregatecustomersumbyproduct' => array('groupby' => array('cfpid', 'mibdid'), 'aggregateby' => array('cid', 'cfpid'), 'displayItem' => ChemFunctionProducts, 'timelevel' => 'latest'),
-            'latestaggregatebycustomer' => array('groupby' => array('cid'), 'aggregateby' => array('cid', 'cfpid'), 'displayItem' => Customers, 'timelevel' => 'latest'),
+            'latestaggregatebycustomer' => array('groupby' => array('cid', 'eptid'), 'aggregateby' => array('cid', 'cfpid'), 'displayItem' => Customers, 'timelevel' => 'latest'),
             'latestaggregatebyaffiliate' => array('groupby' => array('affid', 'mibdid'), 'aggregateby' => array('affid', 'cfpid'), 'displayItem' => Affiliates, 'timelevel' => 'latest') //Main affililate profile
     );
 
@@ -94,6 +94,7 @@ class MarketIntelligence {
                     'mktSharePerc' => $this->marketdata['mktSharePerc'],
                     'mktShareQty' => $this->marketdata['mktShareQty'],
                     'unitPrice' => $this->marketdata['unitPrice'],
+                    'turnover' => $this->marketdata['unitPrice'] * ($this->marketdata['mktShareQty'] * 1000),
                     'comments' => $this->marketdata['comments'],
                     'createdBy' => $core->user['uid'],
                     'createdOn' => TIME_NOW
@@ -271,7 +272,7 @@ class MarketIntelligence {
         else {
             $where_query = ' AND createdOn IN ('.$latestentry_query.' GROUP BY '.$db->escape_string(implode(', ', $profile['aggregateby'])).')';
         }
-        $query = $db->query('SELECT *, SUM(potential) AS potential, SUM(mktShareQty) mktShareQty, (mktShareQty/potential*100) AS mktSharePerc, AVG(unitPrice) AS unitPrice FROM '.Tprefix.'marketintelligence_basicdata WHERE createdOn!=0 '.$where_query.' AND '.$filters.' GROUP BY '.$db->escape_string(implode(', ', $profile['groupby'])).' ORDER BY cfpid, createdOn DESC');
+        $query = $db->query('SELECT *, SUM(potential) AS potential, SUM(mktShareQty) mktShareQty, (SUM(mktShareQty)/SUM(potential)*100) AS mktSharePerc, AVG(unitPrice) AS unitPrice FROM '.Tprefix.'marketintelligence_basicdata WHERE createdOn!=0 '.$where_query.' AND '.$filters.' GROUP BY '.$db->escape_string(implode(', ', $profile['groupby'])).' ORDER BY cfpid, createdOn DESC');
         if($db->num_rows($query) > 0) {
             while($rows = $db->fetch_assoc($query)) {
                 if($is_lastlevel == false) {

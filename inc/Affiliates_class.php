@@ -25,7 +25,7 @@ class Affiliates {
     private function read($id, $simple = TRUE) {
         global $db;
 
-        $query_select = 'affid, name, legalName, country';
+        $query_select = 'affid, name, legalName, country, integrationOBOrgId';
         if($simple == false) {
             $query_select = '*';
         }
@@ -134,6 +134,11 @@ class Affiliates {
         return $customers;
     }
 
+    public static function get_affiliates($filters = null, array $configs = array()) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
+    }
+
     public static function get_affiliate_byname($name) {
         global $db;
 
@@ -159,6 +164,10 @@ class Affiliates {
             return $this->affiliate[$name];
         }
         return false;
+    }
+
+    public function __isset($name) {
+        return isset($this->affiliate[$name]);
     }
 
     public function parse_link($attributes_param = array('target' => '_blank'), $options = array()) {

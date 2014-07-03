@@ -32,18 +32,18 @@ $lang['endproductype'] = 'End Product Type';
 $lang['customertypes'] = 'Customer Types';
 $lang['selecteddimensions'] = 'Selected Dimensions';
 $lang['chemicalsubst'] = 'Chemical Substance';
-$lang['potential'] = 'Potential';
-$lang['mktshareperc'] = 'MktShare Perc';
+$lang['mktshareperc'] = 'Mkt Share Perc';
 $lang['application'] = 'Application';
 $lang['customertype'] = 'Customer Type';
 $lang['customercountry'] = 'Customer Country';
 
-$lang['mktshareqty'] = 'MktShare Qty';
-$lang['unitprice'] = 'unit Price';
+$lang['mktshareqty'] = 'Mkt Share Qty (MT)';
+$lang['unitprice'] = 'Unit Price (USD/Kg)';
 $lang['searchaff'] = 'Search Affiliate';
 $lang['searchsupp'] = 'Search Supplier';
 $lang['searchcust'] = 'Search Customer';
 $lang['searchseg'] = 'Search Segment';
 $lang['searchct'] = 'Search Potential Customer';
 $lang['total'] = 'Total';
+$lang['turnover'] = 'Turnover (USD)';
 ?>

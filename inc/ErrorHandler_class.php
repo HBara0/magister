@@ -208,5 +208,25 @@ class ErrorHandler {
         echo $this->get_errors_inline($message);
     }
 
+    public function parse_errorcode($errorcode) {
+        global $lang;
+
+        switch($errorcode) {
+            case 0:
+            case 1:
+                return true;
+            case 2:
+                return $lang->fillallrequiredfields;
+            case 301:
+                return $lang->sectionnopermission;
+            case 601:
+                return $lang->errorsaving;
+            case 602:
+                return $lang->entryexists;
+            default:
+                return $lang->error;
+        }
+    }
+
 }
 ?>

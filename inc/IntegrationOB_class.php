@@ -13,10 +13,12 @@ class IntegrationOB extends Integration {
     private $status = 0;
     private $organisations = array();
 
-    public function __construct(array $database_info, $client_id, $affiliates_ids, $foreign_system = 3, array $sync_period = array()) {
+    public function __construct(array $database_info, $client_id, $affiliates_ids = null, $foreign_system = 3, array $sync_period = array()) {
         if(parent::__construct($foreign_system, $database_info)) {
             parent::set_sync_interval($sync_period);
-            parent::match_affiliates_ids($affiliates_ids);
+            if(!is_null($affiliates_ids)) {
+                parent::match_affiliates_ids($affiliates_ids);
+            }
             $this->set_client_id($client_id);
         }
         else {
@@ -664,6 +666,11 @@ class IntegrationOB extends Integration {
         $this->client = $this->f_db->escape_string($id);
     }
 
+    public function get_saleinvoices($filters = null) {
+        $invoices = new IntegrationOBInvoice(null, $this->f_db);
+        return $invoices->get_saleinvoices($filters);
+    }
+
     public function get_status() {
         return $this->status;
     }
@@ -673,6 +680,10 @@ class IntegrationOB extends Integration {
 class IntegrationOBTransaction {
     private $transaction;
     private $f_db;
+
+    const PRIMARY_KEY = 'm_transaction_id';
+    const TABLE_NAME = 'm_transaction';
+    const DISPLAY_NAME = '';
 
     public function __construct($id = '', $f_db = NULL) {
         if(!empty($f_db)) {
@@ -771,8 +782,43 @@ class IntegrationOBTransaction {
         }
     }
 
+    public function get_transaction_byattr($attr, $value, $f_db = null) {
+        if(!empty($f_db)) {
+            $this->f_db = $f_db;
+        }
+        $query = $this->f_db->query('SELECT '.self::PRIMARY_KEY.' FROM '.self::TABLE_NAME.' WHERE '.$this->f_db->escape_string($attr).'=\''.$this->f_db->escape_string($value).'\'');
+        if($this->f_db->num_rows($query) == 1) {
+            $id = $this->f_db->fetch_field($query, self::PRIMARY_KEY);
+            return new self($id, $this->f_db);
+        }
+        else {
+            // to do
+            return new self(null, $this->f_db);
+        }
+        return false;
+    }
+
+    public function get_product() {
+        return new IntegrationOBProduct($this->transaction['m_product_id']);
+    }
+
+    public function get_product_local() {
+        $product = new Products($db->fetch_field($db->query('SELECT localId FROM integration_mediation_products WHERE foreignSystem=3 AND foreignName="'.$this->get_product()->name.'"'), 'localId'));
+        if(!is_object($product)) {
+            $product = new Products($db->fetch_field($db->query('SELECT pid FROM products WHERE name="'.$this->get_product()->name.'"'), 'pid'));
+        }
+        return $product;
+    }
+
     public function get_supplier() {
         return $this->get_inoutline()->get_inout()->get_bpartner();
+    }
+
+    public function __get($name) {
+        if(isset($this->transaction[$name])) {
+            return $this->transaction[$name];
+        }
+        return false;
     }
 
     public function get() {
@@ -892,6 +938,10 @@ class IntegrationOBInOutLine {
     private $inoutline;
     private $f_db;
 
+    const PRIMARY_KEY = 'm_inoutline_id';
+    const TABLE_NAME = 'm_inoutline';
+    const DISPLAY_NAME = '';
+
     public function __construct($id, $f_db = NULL) {
         if(!empty($f_db)) {
             $this->f_db = $f_db;
@@ -911,6 +961,9 @@ class IntegrationOBInOutLine {
         $this->inoutline = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_inoutline
 						WHERE m_inoutline_id='".$this->f_db->escape_string($id)."'"));
+        if(empty($this->inoutline)) {
+            return null;
+        }
     }
 
     public function get_inout() {
@@ -930,8 +983,41 @@ class IntegrationOBInOutLine {
         return new IntegrationOBAttributeSetInstance($this->inoutline['m_attributesetinstance_id'], $this->f_db);
     }
 
+    public function get_inoutline_byattr($attr, $value, $f_db = null) {
+        if(!empty($f_db)) {
+            $this->f_db = $f_db;
+        }
+        $sql = 'SELECT '.self::PRIMARY_KEY.' FROM '.self::TABLE_NAME.' WHERE '.$this->f_db->escape_string($attr).'=\''.$this->f_db->escape_string($value).'\'';
+        $query = $this->f_db->query($sql);
+        if($this->f_db->num_rows($query) == 1) {
+            $id = $this->f_db->fetch_field($query, self::PRIMARY_KEY);
+            return new self($id, $this->f_db);
+        }
+        else {
+            if($this->f_db->num_rows($query) > 1) {
+                while($item = $this->f_db->fetch_assoc($query)) {
+                    $items[$item[self::PRIMARY_KEY]] = new self($item[self::PRIMARY_KEY], $this->f_db);
+                }
+                return $items;
+            }
+            return new self(null, $this->f_db);
+        }
+        return false;
+    }
+
     public function get_id() {
         return $this->inoutline['m_inoutline_id'];
+    }
+
+    public function __get($name) {
+        if(isset($this->inoutline[$name])) {
+            return $this->inoutline[$name];
+        }
+        return false;
+    }
+
+    public function __isset($name) {
+        return isset($this->inoutline[$name]);
     }
 
     public function get() {
@@ -972,6 +1058,13 @@ class IntegrationOBInOut {
         return $this->inout['m_inout_id'];
     }
 
+    public function __get($name) {
+        if(isset($this->inout[$name])) {
+            return $this->inout[$name];
+        }
+        return false;
+    }
+
     public function get() {
         return $this->inout;
     }
@@ -983,16 +1076,17 @@ class IntegrationOBInvoice {
     private $f_db;
 
     public function __construct($id, $f_db = NULL) {
-        if(empty($id)) {
-            return false;
-        }
-
         if(!empty($f_db)) {
             $this->f_db = $f_db;
         }
         else {
-//Open connections
+            //Open connections
         }
+
+        if(empty($id)) {
+            return false;
+        }
+
         $this->read($id);
     }
 
@@ -1010,6 +1104,55 @@ class IntegrationOBInvoice {
         return $this->invoice['c_invoice_id'];
     }
 
+    public function get_salesrep() {
+        return new IntegrationOBUser($this->invoice['salesrep_id'], $this->f_db);
+    }
+
+    public function get_customer() {
+        return new IntegrationOBBPartner($this->invoice['c_bpartner_id'], $this->f_db);
+    }
+
+    public function get_saleorder() {
+        return new IntegrationOBOrder($this->invoice['c_order_id'], $this->f_db);
+    }
+
+    public function get_paymentterm() {
+        return new IntegrationOBPaymentTerm($this->invoice['c_paymentterm_id'], $this->f_db);
+    }
+
+    public function get_invoicelines() {
+        $lines = new IntegrationOBInvoiceLine(null, $this->f_db);
+        return $lines->get_invoicelines('c_invoice_id=\''.$this->invoice['c_invoice_id'].'\'');
+    }
+
+    public function is_saletrx() {
+        if($this->invoice['issotrx'] == 'Y') {
+            return true;
+        }
+        return false;
+    }
+
+    public function get_saleinvoices($filters = null) {
+        if(!empty($filters)) {
+            $query_where = ' AND '.$filters; //' AND '.$this->f_db->escape_string($filters);
+        }
+        $query = $this->f_db->query("SELECT c_invoice_id FROM c_invoice WHERE issotrx='Y'".$query_where." ORDER by dateinvoiced ASC");
+        if($this->f_db->num_rows($query) > 0) {
+            while($invoice = $this->f_db->fetch_assoc($query)) {
+                $invoices[$invoice['c_invoice_id']] = new self($invoice['c_invoice_id'], $this->f_db);
+            }
+            return $invoices;
+        }
+        return false;
+    }
+
+    public function __get($name) {
+        if(isset($this->invoice[$name])) {
+            return $this->invoice[$name];
+        }
+        return false;
+    }
+
     public function get() {
         return $this->invoice;
     }
@@ -1019,6 +1162,10 @@ class IntegrationOBInvoice {
 class IntegrationOBInvoiceLine {
     private $invoiceline;
     private $f_db;
+
+    const PRIMARY_KEY = 'c_invoiceline_id';
+    const TABLE_NAME = 'c_invoiceline';
+    const DISPLAY_NAME = '';
 
     public function __construct($id = '', $f_db = NULL) {
         if(!empty($f_db)) {
@@ -1053,12 +1200,96 @@ class IntegrationOBInvoiceLine {
         return new IntegrationOBInOutLine($this->invoiceline['m_inoutline_id'], $this->f_db);
     }
 
+    public function get_orderline() {
+        return new IntegrationOBOrderLine($this->invoiceline['c_orderline_id'], $this->f_db);
+    }
+
     public function get_invoice() {
         return new IntegrationOBInvoice($this->invoiceline['c_invoice_id'], $this->f_db);
     }
 
+    public function get_product() {
+        return new IntegrationOBProduct($this->invoiceline['m_product_id'], $this->f_db);
+    }
+
+    public function get_product_local() {
+        global $db;
+
+        $product = new Products($db->fetch_field($db->query('SELECT localId FROM integration_mediation_products WHERE foreignSystem=3 AND foreignName="'.$this->get_product()->name.'"'), 'localId'));
+        if(!is_object($product)) {
+            $product = new Products($db->fetch_field($db->query('SELECT pid FROM products WHERE name="'.$this->get_product()->name.'"'), 'pid'));
+        }
+        return $product;
+    }
+
+    public function get_uom() {
+        return new IntegrationOBUom($this->invoiceline['c_uom_id'], $this->f_db);
+    }
+
+    public function get_cost() {
+        //$transaction = $this->get_transaction();
+//        if(is_array($transaction)) {
+//            $cost = 0;
+//            foreach($transaction as $trx) {
+//                $cost += $trx->transactioncost;
+//            }
+//            return $cost;
+//        }
+        return $this->get_transaction()->transactioncost;
+    }
+
+    public function get_transaction() {
+        $inoutline = $this->get_inoutline();
+        if(!$inoutline->get_id()) {
+            $inoutline = $this->get_orderline()->get_inoutline();
+            if(!$inoutline->get_id()) {
+                $iol = new IntegrationOBInOutLine(null, $this->f_db);
+                $inoutline = $iol->get_inoutline_byattr('c_orderline_id', $this->get_orderline()->get_id());
+                unset($iol);
+            }
+        }
+        $transaction = new IntegrationOBTransaction(null, $this->f_db);
+        if(is_array($inoutline)) {
+            //$transactions = array();
+            foreach($inoutline as $iol) {
+                if($iol->get_inout()->docstatus == 'CO') {
+                    return $transaction->get_transaction_byattr('m_inoutline_id', $iol->m_inoutline_id);
+                }
+                //$transactions[] = $transaction->get_transaction_byattr('m_inoutline_id', $iol->m_inoutline_id);
+            }
+            return null;
+            //return $transactions;
+        }
+        return $transaction->get_transaction_byattr('m_inoutline_id', $inoutline->m_inoutline_id);
+    }
+
+    public function get_invoicelines($filters) {
+        if(!empty($filters)) {
+            $query_where = ' WHERE '.$filters; //' AND '.$this->f_db->escape_string($filters);
+        }
+        $query = $this->f_db->query("SELECT ".self::PRIMARY_KEY." FROM ".self::TABLE_NAME.$query_where);
+        if($this->f_db->num_rows($query) > 0) {
+            while($invoiceline = $this->f_db->fetch_assoc($query)) {
+                $invoicelines[$invoiceline[self::PRIMARY_KEY]] = new self($invoiceline[self::PRIMARY_KEY], $this->f_db);
+            }
+            return $invoicelines;
+        }
+        return false;
+    }
+
     public function get_id() {
         return $this->invoiceline['c_invoiceline_id'];
+    }
+
+    public function __get($name) {
+        if(isset($this->invoiceline[$name])) {
+            return $this->invoiceline[$name];
+        }
+        return false;
+    }
+
+    public function __isset($name) {
+        return isset($this->invoiceline[$name]);
     }
 
     public function get() {
@@ -1368,6 +1599,13 @@ class IntegrationOBCurrency {
         return $this->currency['c_currency_id'];
     }
 
+    public function __get($name) {
+        if(isset($this->currency[$name])) {
+            return $this->currency[$name];
+        }
+        return false;
+    }
+
     public function get() {
         return $this->currency;
     }
@@ -1443,6 +1681,13 @@ class IntegrationOBProduct {
         return $this->product['m_product_id'];
     }
 
+    public function __get($name) {
+        if(isset($this->product[$name])) {
+            return $this->product[$name];
+        }
+        return false;
+    }
+
     public function get() {
         return $this->product;
     }
@@ -1471,6 +1716,17 @@ class IntegrationOBProductCategory {
 
     public function get_id() {
         return $this->productcategory['m_product_category_id'];
+    }
+
+    public function __get($attr) {
+        if(isset($this->productcategory[$attr])) {
+            return $this->productcategory[$attr];
+        }
+        return false;
+    }
+
+    public function __isset($name) {
+        return isset($this->productcategory[$name]);
     }
 
     public function get() {
@@ -1561,6 +1817,13 @@ class IntegrationOBBPartner {
 
     public function get_id() {
         return $this->bpartner['c_bpartner_id'];
+    }
+
+    public function __get($name) {
+        if(isset($this->bpartner[$name])) {
+            return $this->bpartner[$name];
+        }
+        return false;
     }
 
     public function get() {
@@ -1766,6 +2029,13 @@ class IntegrationOBUom {
         return $this->uom['c_uom_id'];
     }
 
+    public function __get($name) {
+        if(isset($this->uom[$name])) {
+            return $this->uom[$name];
+        }
+        return false;
+    }
+
     public function get() {
         return $this->uom;
     }
@@ -1832,6 +2102,88 @@ class IntegrationCostingAlgorithm {
 
     public function get() {
         return $this->algorithm;
+    }
+
+}
+
+class IntegrationOBUser {
+    private $data;
+    private $f_db;
+
+    const PRIMARY_KEY = 'ad_user_id';
+    const TABLE_NAME = 'ad_user';
+    const DISPLAY_NAME = 'name';
+
+    public function __construct($id, $f_db = NULL) {
+        if(!empty($f_db)) {
+            $this->f_db = $f_db;
+        }
+        else {
+//Open connections
+        }
+        $this->read($id);
+    }
+
+    private function read($id) {
+        $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM ".self::TABLE_NAME."
+						WHERE ".self::PRIMARY_KEY."='".$this->f_db->escape_string($id)."'"));
+    }
+
+    public function get_id() {
+        return $this->data[self::PRIMARY_KEY];
+    }
+
+    public function __get($name) {
+        if(isset($this->data[$name])) {
+            return $this->data[$name];
+        }
+        return false;
+    }
+
+    public function get() {
+        return $this->data;
+    }
+
+}
+
+class IntegrationOBPaymentTerm {
+    private $data;
+    private $f_db;
+
+    const PRIMARY_KEY = 'c_paymentterm_id';
+    const TABLE_NAME = 'c_paymentterm';
+    const DISPLAY_NAME = 'name';
+
+    public function __construct($id, $f_db = NULL) {
+        if(!empty($f_db)) {
+            $this->f_db = $f_db;
+        }
+        else {
+//Open connections
+        }
+        $this->read($id);
+    }
+
+    private function read($id) {
+        $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+						FROM ".self::TABLE_NAME."
+						WHERE ".self::PRIMARY_KEY."='".$this->f_db->escape_string($id)."'"));
+    }
+
+    public function get_id() {
+        return $this->data[self::PRIMARY_KEY];
+    }
+
+    public function __get($name) {
+        if(isset($this->data[$name])) {
+            return $this->data[$name];
+        }
+        return false;
+    }
+
+    public function get() {
+        return $this->data;
     }
 
 }

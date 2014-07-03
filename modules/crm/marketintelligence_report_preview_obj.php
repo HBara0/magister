@@ -25,7 +25,7 @@ if(!($core->input['action'])) {
         /* to create array using existing values (using array_values()) and range() to create a new range from 1 to the size of the  dimension array */
         $mireportdata['dimension'] = array_combine(range(1, count($mireportdata['dimension'])), array_values($mireportdata['dimension']));
 
-        $marketdata_indexes = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice');
+        $marketdata_indexes = array('potential', 'mktSharePerc', 'mktShareQty', 'turnover');
         /* get Market intellgence baisc Data  --START */
 
         /* Get cfpid of segment  ----END */
@@ -82,7 +82,12 @@ if(!($core->input['action'])) {
             $dimensionalize_ob->set_requiredfields($marketdata_indexes);
             $dimensionalize_ob->set_data($market_data);
 
-            $parsed_dimension = $dimensionalize_ob->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'overwritecalculation' => array('mktSharePerc' => array('fields' => array('divider' => 'mktShareQty', 'dividedby' => 'potential'), 'operation' => '/'))));
+            $overwrite = array('mktSharePerc' => array('fields' => array('divider' => 'mktShareQty', 'dividedby' => 'potential'), 'operation' => '/'),
+                    'uniPrice' => array('fields' => array('divider' => 'mktShareQty', 'dividedby' => 'potential'), 'operation' => '/'));
+
+            $formats = array('mktSharePerc' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'));
+
+            $parsed_dimension = $dimensionalize_ob->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'formats' => $formats, 'overwritecalculation' => $overwrite));
             $headers_title = $dimensionalize_ob->get_requiredfields();
             foreach($headers_title as $report_header => $header_data) {
                 $header_data = strtolower($header_data);

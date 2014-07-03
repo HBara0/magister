@@ -458,11 +458,11 @@ class Users {
 
         /* Parse Logo - Start */
         if($is_compact == false) {
-            $logo = imagecreatefrompng(DOMAIN.'/images/signlogo.png');
+            $logo = imagecreatefrompng('./images/signlogo.png');
             imagecopy($im, $logo, 1, 18, 0, 0, 98, 71);
         }
         else {
-            $logo = imagecreatefrompng(DOMAIN.'/images/signlogo_min.png');
+            $logo = imagecreatefrompng('./images/signlogo_min.png');
             imagecopy($im, $logo, 1, 4, 0, 0, 49, 36);
         }
         /* Parse Logo - End */
@@ -507,7 +507,7 @@ class Users {
                     $langfile_info = pathinfo($banners_dir_path.$file);
                     if($file != '.' && $file != '..' && in_array($langfile_info['extension'], array('jpg', 'png'))) {
                         list($bannerwidth, $bannerheight) = getimagesize($banners_dir_path.$file);
-                        $banner = imagecreatefromjpeg(DOMAIN.$banners_dir_path.$file);
+                        $banner = imagecreatefromjpeg(ROOT.$banners_dir_path.$file);
                         imagecopy($im, $banner, 1, $height - $total_bannersheight + $prevbannerheight, 0, 0, $bannerwidth, $bannerheight);
                         $prevbannerheight = $bannerheight;
                     }

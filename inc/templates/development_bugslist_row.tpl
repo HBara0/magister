@@ -1,0 +1,1 @@
+<tr class="{$rowclass}"><td>{$bug->dbid}</td><td>{$bug->link}</td><td>{$bug->severity}</td><td>{$bug->priority}</td></tr>

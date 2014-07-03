@@ -14,7 +14,8 @@
                     <tr>
                         <th style="width:32%;">{$lang->companyname} <a href="{$sort_url}&amp;sortby=customername&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=customername&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
                         <th style="width:32%;">{$lang->affiliate}</th>
-                        <th style="width:33%;">{$lang->segment}</th>
+                        <th style="width:30%;">{$lang->segment}</th>
+                        <th>{$lang->type}</th>
                         <th>&nbsp;</th>
                     </tr>
                 </thead>

@@ -5,3 +5,4 @@ inc/init.php
 Thumbs.db
 /tmp/
 inc/init.php
+inc/integration_config.php
