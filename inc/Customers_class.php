@@ -14,7 +14,7 @@
  * @author zaher.reda
  */
 class Customers extends Entities {
-    const PRIMARY_KEY = 'cid';
+    const PRIMARY_KEY = 'eid';
     const TABLE_NAME = 'entities';
     const DISPLAY_NAME = 'companyName';
 
@@ -26,6 +26,19 @@ class Customers extends Entities {
     public static function get_customers($filters = null, array $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);
+    }
+
+    public function get_customertype() {
+
+        switch($this->data['type']) {
+            case'c':
+                $this->type = 'c';
+                break;
+            case'pc':
+                $this->type = 'pc';
+                break;
+        }
+        return $this->type;
     }
 
     public function set(array $data) {

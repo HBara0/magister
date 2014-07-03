@@ -38,7 +38,7 @@ class DataAccessLayer {
         $sql .= $this->construct_limitclause($configs['limit']);
 
         $query = $db->query($sql);
-        if($db->num_rows($query) > 1) {
+        if($db->num_rows($query) >= 1) {
             while($item = $db->fetch_assoc($query)) {
                 $items[$item[$this->primary_key]] = new $this->class($item[$this->primary_key], $configs['simple']);
             }

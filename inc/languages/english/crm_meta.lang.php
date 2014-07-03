@@ -31,6 +31,7 @@ $lang['product'] = 'Product';
 $lang['endproductype'] = 'End Product Type';
 $lang['customertypes'] = 'Customer Types';
 $lang['selecteddimensions'] = 'Selected Dimensions';
+$lang['chemicalsubst'] = 'Chemical Substance';
 $lang['potential'] = 'Potential';
 $lang['mktshareperc'] = 'MktShare Perc';
 $lang['application'] = 'Application';

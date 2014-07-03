@@ -25,6 +25,9 @@ if(!$core->input['action']) {
     /* Market Data --START */
     $filter_where = 'eid IN ('.$eid.')';
     if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
+        $customer_obj = new Customers($eid, '', false);
+        $customer_type = $customer_obj->get_customertype();
+
         $addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarket.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
         $array_data = array('module' => 'profiles', 'elemtentid' => $eid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
         /* to be replacing the below variables */
@@ -33,8 +36,13 @@ if(!$core->input['action']) {
         $elementname = 'marketdata[cid]';
         $action = 'do_addmartkerdata';
         $modulefile = 'entityprofile';
-        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
-
+        if($customer_type == 'pc') {
+            eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+        }
+        else {
+            $profiles_michemfuncproductentry = '';
+            eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        }
         /* View detailed market intelligence box --START */
         $maktintl_mainobj = new MarketIntelligence();
 

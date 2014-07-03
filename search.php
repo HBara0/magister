@@ -152,6 +152,15 @@ if($core->input['type'] == 'quick') {
             $order = array('by' => 'name', 'sort' => 'ASC');
             $descinfo = 'productsegment';
         }
+        elseif($core->input['for'] == 'chemfunctionchecmical') {
+
+            $table = 'chemicalsubstances';
+            $attributes = array('name');
+            $key_attribute = 'csid';
+            $select_attributes = array('name');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+            $descinfo = 'checmicalfunction';
+        }
         elseif($core->input['for'] == 'representative' || $core->input['for'] == 'supprepresentative') {
             if(IN_AREA == 'user') {
                 if($core->input['for'] == 'supprepresentative') {

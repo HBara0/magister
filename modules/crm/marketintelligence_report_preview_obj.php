@@ -37,7 +37,6 @@ if(!($core->input['action'])) {
             $mireportdata['filter']['cfpid'] = 'SELECT cfpid FROM '.Tprefix.'chemfunctionproducts WHERE pid IN (SELECT pid FROM '.Tprefix.'products WHERE spid IN ('.implode(',', $mireportdata['filter']['spid']).'))';
         }
 
-
         if(isset($mireportdata['filter']['psid'])) {
             $mireportdata['filter']['psid'] = array_map(intval, $mireportdata['filter']['psid']);
             $mireportdata['filter']['cfpid2'] = 'SELECT cfpid FROM '.Tprefix.'chemfunctionproducts WHERE safid IN (SELECT safid FROM '.Tprefix.'segapplicationfunctions WHERE psaid IN (SELECT psaid FROM '.Tprefix.'segmentapplications WHERE psid IN ('.implode(',', $mireportdata['filter']['psid']).')))';
@@ -49,6 +48,9 @@ if(!($core->input['action'])) {
                 $mireportdata['filter']['cfpid'] = $mireportdata['filter']['cfpid2'];
             }
         }
+        if(isset($mireportdata['filter']['psid']) && !empty($mireportdata['filter']['cfpid'])) {
+            $mireportdata['filter']['cfcid'] = 'SELECT cfcid FROM '.Tprefix.'chemfunctionchemcials WHERE safid IN (SELECT safid FROM '.Tprefix.'segapplicationfunctions WHERE psaid IN (SELECT psaid FROM '.Tprefix.'segmentapplications WHERE psid IN ('.implode(',', $mireportdata['filter']['psid']).')))';
+        }
 
         if(isset($mireportdata['filter']['ctype'])) {
             $mireportdata['filter']['ctype'] = array_map($db->escape_string, $mireportdata['filter']['ctype']);  /* apply the call bak function dbescapestring to the the value */
@@ -58,7 +60,7 @@ if(!($core->input['action'])) {
         unset($mireportdata['filter']['coid'], $mireportdata['filter']['cfpid2'], $mireportdata['filter']['spid'], $mireportdata['filter']['psid'], $mireportdata['filter']['ctype']);
         /* Get cfpid of segment ----END */
 
-        $marketin_objs = MarketIntelligence::get_marketdata_dal($mireportdata['filter'], array('simple' => false, 'operators' => array('coid' => 'IN', 'cid' => 'IN', 'cfpid' => 'IN')));
+        $marketin_objs = MarketIntelligence::get_marketdata_dal($mireportdata['filter'], array('simple' => false, 'operators' => array('coid' => 'IN', 'cid' => 'IN', 'cfpid' => 'IN', 'cfcid' => 'IN')));
 
         /* START presentiation layer */
         /* Get the id related to the chemfunctionproducts  from the object and send them to the dimensional data class   */
@@ -71,6 +73,9 @@ if(!($core->input['action'])) {
                 $market_data[$marketin_obj->get()['mibdid']]['pid'] = $marketin_obj->get_chemfunctionproducts()->get_produt()->pid;
                 $market_data[$marketin_obj->get()['mibdid']]['psid'] = $marketin_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_segment()->psid;
                 $market_data[$marketin_obj->get()['mibdid']]['psaid'] = $marketin_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_application()->psaid;
+                if(is_object($marketin_obj->get_chemfunctionschemcials())) {
+                    $market_data[$marketin_obj->get()['mibdid']]['csid'] = $marketin_obj->get_chemfunctionschemcials()->get_chemicalsubstance()->csid;
+                }
             }
             $dimensionalize_ob = new DimentionalData();
             $mireportdata['dimension'] = $dimensionalize_ob->set_dimensions($mireportdata['dimension']);

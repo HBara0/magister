@@ -47,9 +47,12 @@ class MarketIntelligence {
         global $db, $core;
         if(is_array($data)) {
             $this->marketdata = $data;
-            if(is_empty($this->marketdata['cfpid'], $this->marketdata['potential'], $this->marketdata['mktSharePerc'], $this->marketdata['mktShareQty'])) {
-                $this->errorcode = 1;
-                return false;
+
+            if(isset($this->marketdata['cfpid'], $this->marketdata['potential'], $this->marketdata['mktSharePerc'], $this->marketdata['mktShareQty'])) {
+                if(is_empty($this->marketdata['cfpid'], $this->marketdata['potential'], $this->marketdata['mktSharePerc'], $this->marketdata['mktShareQty'])) {
+                    $this->errorcode = 1;
+                    return false;
+                }
             }
             /* Santize inputs - START */
             $sanitize_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice', 'ebpid', 'comments');
@@ -84,6 +87,7 @@ class MarketIntelligence {
             $marketintelligence_data = array('cid' => $this->marketdata['cid'],
                     'cfpid' => $this->marketdata['cfpid'],
                     'affid' => $this->marketdata['affid'],
+                    'cfcid' => $this->marketdata['cfcid'],
                     'ebpid' => $this->marketdata['ebpid'],
                     'eptid' => $this->marketdata['eptid'],
                     'potential' => $this->marketdata['potential'],
@@ -325,6 +329,12 @@ class MarketIntelligence {
 
     public function get_chemfunctionproducts() {
         return new ChemFunctionProducts($this->marketintelligence['cfpid']);
+    }
+
+    public function get_chemfunctionschemcials() {
+        if($this->marketintelligence['cfcid'] != 0) {
+            return new ChemicalFunctionChemical($this->marketintelligence['cfcid']);
+        }
     }
 
     public function get_entitiesbrandsproducts() {
