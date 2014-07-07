@@ -381,7 +381,7 @@ if(!$core->input['action']) {
 
         if($core->usergroup['profiles_canViewContractInfo'] == 1) {
             $contracted_objs = $entity_obj->get_contractedcountires();
-            $check_fields = array('isExclusive', 'selectiveProducts');
+            $check_fields = array('isExclusive', 'selectiveProducts', 'isAgent', 'isDistributor');
             if(is_array($contracted_objs)) {
                 foreach($contracted_objs as $eccid => $contractedcountry) {
                     $selectiveProducts = $isExclusive = '<img src="images/false.gif" border="0">';
@@ -389,8 +389,12 @@ if(!$core->input['action']) {
                     foreach($check_fields as $check_field) {
                         $check_field_output = $check_field.'_output';
                         $contractedcountry->{$check_field_output} = '<img src="images/invalid.gif" border="0">';
+                        $contractedcountry->{$check_field_output} = '<img src="images/invalid.gif" border="0">';
+                        $contractedcountry->{$check_field_output} = '<img src="images/invalid.gif" border="0">';
                         if($contractedcountry->{$check_field} == 1) {
 
+                            $contractedcountry->{$check_field_output} = '<img src="images/valid.gif" border="0">';
+                            $contractedcountry->{$check_field_output} = '<img src="images/valid.gif" border="0">';
                             $contractedcountry->{$check_field_output} = '<img src="images/valid.gif" border="0">';
                         }
                     }
