@@ -7,7 +7,7 @@
  * $module: profiles
  * $id: entityprofile.php
  * Created:		@zaher.reda		September 28, 2010 | 11:08 AM
- * Last Update: @zaher.reda 	April 21, 2011 | 03:14 PM
+ * Last Update: @tony.assaad	April 21, 2011 | 03:14 PM
  */
 
 if(!defined('DIRECT_ACCESS')) {
@@ -21,7 +21,13 @@ if(!$core->input['action']) {
     $eid = $db->escape_string($core->input['eid']);
     $entity_obj = new Entities($eid, '', false);
     $profile = $entity_obj->get();
+    $checmicalfunction_objs = EntitiesContractCountries::get_checmicalfunction('eid='.$eid);
 
+    if(is_array($checmicalfunction_objs)) {
+        foreach($checmicalfunction_objs as $checmicalfunction_obj) {
+            $exclusivity .= '<span style="padding:4px;">'.$checmicalfunction_obj->Exclusivity.'</span>';
+        }
+    }
     /* Market Data --START */
     $filter_where = 'eid IN ('.$eid.')';
     if($core->usergroup['profiles_canAddMkIntlData'] == 1) {

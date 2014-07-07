@@ -89,6 +89,9 @@ class EntitiesContractCountries {
                     'eid' => $countrydata['eid'],
                     'coid' => $countrydata['coid'],
                     'isExclusive' => $countrydata['isExclusive'],
+                    'Agent ' => $countrydata['Agent'],
+                    'Distributor' => $countrydata['Distributor'],
+                    'Exclusivity' => $countrydata['Exclusivity'],
                     'selectiveProducts' => $countrydata['selectiveProducts'],
                     'createdBy' => $core->user['uid'],
                     'createdOn' => TIME_NOW
@@ -103,6 +106,11 @@ class EntitiesContractCountries {
     }
 
     public static function get_contractcountries($filters = '', $configs = array()) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
+    }
+
+    public static function get_checmicalfunction($filters = null, array $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);
     }

@@ -178,6 +178,8 @@ if(!$core->input['action']) {
         if(is_array($countries_objs)) {
             $checkbox_fields = array('isExclusive', 'selectiveProducts');
             foreach($countries_objs as $country) {
+
+                $comex_contacts = $country->coid.'$comex_contacts';
                 $country->displayname = $country->get_displayname();
                 if(is_array($contracted_countries)) {
                     if(array_key_exists($country->coid, $contracted_countries)) {

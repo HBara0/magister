@@ -66,4 +66,11 @@ $lang['producer'] = 'Producer';
 $lang['both'] = 'Both';
 $lang['isexclusive'] = 'Is Exclusive';
 $lang['selectiveproducts'] = 'Selective';
+$lang['agent'] = 'Agent';
+$lang['distributor'] = 'Distributor';
+$lang['exclusivity'] = 'Exclusivity';
+$lang['contractual'] = 'Contractual';
+$lang['LOI'] = 'LOI';
+$lang['verbal'] = 'Verbal';
+$lang['selectoption'] = 'Please select an option';
 ?>
