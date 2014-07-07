@@ -11,7 +11,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->purchasereporttitle}</h3>
+            <h1>{$lang->purchasereporttitle}</h1>
             <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
                     <td>

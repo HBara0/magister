@@ -7,7 +7,7 @@
 <tr>
     {$menu}
     <td class="contentContainer">
-        <h3>{$lang->addassets}</h3>
+        <h1>{$lang->addassets}</h1>
         <form name="perform_assets/manageassets_Form" method="post" id="perform_assets/manageassets_Form" >
             <input type="hidden" name="asid" value="{$asid}" />
             <input type="hidden" value="do_{$actiontype}" name="action" id="action" />

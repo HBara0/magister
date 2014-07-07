@@ -76,7 +76,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->mireport}</h3>
+            <h1>{$lang->mireport}</h1>
             <form action="index.php?module=crm/marketintelligence_report_preview_obj&amp;referrer=generate&amp;identifier={$identifier}" method="post" id="perform_crm\/marketintelligencereport_Form" name="perform_crm/marketintelligencereport_Form">
                 <div class="thead" >{$lang->filters}</div>
 

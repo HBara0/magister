@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->modifyemployeeinformation} ($user[employeeNum])</h3>
+            <h1>{$lang->modifyemployeeinformation} ($user[employeeNum])</h1>
             <form action="#" method="post" id="perform_hr/edituser_Form" name="perform_hr/edituser_Form">
                 <input type="hidden" id="uid" name="uid" value="{$user[uid]}">
                 <table width="100%" border="0" cellpadding="0" cellspacing="0">

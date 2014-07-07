@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->attendancereport}</h3>
+            <h1>{$lang->attendancereport}</h1>
             <div align="center">
                 {$attendance_report}
             </div>

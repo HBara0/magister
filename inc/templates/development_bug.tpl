@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$bug->summary}</h3>
+            <h1>{$bug->summary}</h1>
             <table class="datatable">
                 <tr><td style="width: 10%;">Severity</td><td>{$bug->severity}</td>
                     <td style="width: 10%;">Priority</td><td>{$bug->priority}</td></tr>

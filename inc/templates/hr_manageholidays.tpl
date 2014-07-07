@@ -29,7 +29,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$pagetitle}</h3>
+            <h1>{$pagetitle}</h1>
             <form name='change_hr/manageholidays_Form' id="change_hr/manageholidays_Form" method="post"  >
                 <input type="hidden" id="action" name="action" value="{$action}" />
                 {$affid_field}

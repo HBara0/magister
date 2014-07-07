@@ -47,7 +47,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->$action}</h3>
+            <h1>{$lang->$action}</h1>
             <form name="perform_attendance/{$action}_Form" id="perform_attendance/{$action}_Form" action="#" method="post">
                 {$lidfield}
                 {$uidfield}

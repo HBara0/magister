@@ -221,7 +221,7 @@ class LeavesMessages {
         $emailreceivers = $this->get_emailreceivers();
         foreach($emailreceivers as $uid => $emailreceiver) {
             $message = '<p>'.$this->leavemessage['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a></p>';
-            $message .= '<h3>'.$lang->conversation.'</h3>'.$leave->parse_messages(array('viewmode' => 'textonly', 'uid' => $uid));
+            $message .= '<h1>'.$lang->conversation.'</h1>'.$leave->parse_messages(array('viewmode' => 'textonly', 'uid' => $uid));
             $message .= '<div><br />'.$leave_details.'</div>';
             if(!empty($message)) {
                 $mailer->set_message($message);

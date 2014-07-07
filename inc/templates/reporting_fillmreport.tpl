@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->fillmontlyreport}</h3>
+            <h1>{$lang->fillmontlyreport}</h1>
             <form action="index.php?module=reporting/previewmreport&amp;identifier={$identifier}" method="post" id="perform_reporting/fillmreport_Form" name="perform_reporting/fillmreport_Form">
                 <input type="hidden" name="referrer" value="fill" />
                 {$rid_field}

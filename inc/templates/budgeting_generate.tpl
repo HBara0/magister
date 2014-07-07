@@ -16,7 +16,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->generatebudget}</h3>
+            <h1>{$lang->generatebudget}</h1>
             <form name="perform_budgeting/generate_Form" id="perform_budgeting/generate_Form" method="post" action="index.php?module=budgeting/preview&amp;referrer=generate">
                 <input type="hidden" name="identifier" value="{$core->input[identifier]}"/>
                 <div style="display:block; padding:8px;">

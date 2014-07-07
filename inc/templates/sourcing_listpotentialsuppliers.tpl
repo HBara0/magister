@@ -12,7 +12,7 @@
     <tr> {$menu}
         <td class="contentContainer">
             <form action='$_SERVER[REQUEST_URI]' method="post">
-                <div style="display:inline-block;"><h3>{$lang->listpotentialsupplier}</h3></div>
+                <div style="display:inline-block;"><h1>{$lang->listpotentialsupplier}</h1></div>
                 <div style="display:inline-block;float:right; z-index:2;">  {$lang->chemicalsearch} <input id="filters_chemical" name="filters[chemicalsubstance]" type="text" size="35" onkeyup="$('#tablefilters').show();" />
                     <div style="display:inline-block;">{$lang->genericdproductsearch}</div><div style="display:inline-block;">{$genericproducts_selectlist}</div></div>
                 <table class="datatable" width="100%">

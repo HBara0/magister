@@ -39,7 +39,7 @@
         <td class="contentContainer">
             <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
-                    <td colspan="2"><h3>{$profile[companyName]}</h3> <input type="hidden" name="eid" id="eid" value="{$profile[eid]}" /></td>
+                    <td colspan="2"><h1>{$profile[companyName]}</h1> <input type="hidden" name="eid" id="eid" value="{$profile[eid]}" /></td>
                 </tr>
                 <tr>
                     <td valign="top" style="width:45%; text-align:center;"><img id="logo" src="{$profile[logo]}" alt="{$profile[companyName]}" border="0" /> <hr /></td>

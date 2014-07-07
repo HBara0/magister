@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$requirement[title]}</h3>
+            <h1>{$requirement[title]}</h1>
             {$lang->reference}: {$requirement[refWord]} {$parent[refKey]}{$reference_sep}{$requirement[refKey]}<br />
             {$lang->parent}: <a href="index.php?module=development/viewrequirement&id={$requirement[parent]}" target="_blank">{$requirement[parentTitle]}</a><br />
             <p>{$requirement[description]}</p>

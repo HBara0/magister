@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->addleaveslist}</h3>
+            <h1>{$lang->addleaveslist}</h1>
             <table class="datatable">
                 <thead>
                     <tr>

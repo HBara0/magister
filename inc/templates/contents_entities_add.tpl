@@ -33,7 +33,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->addentity}</h3>
+            <h1>{$lang->addentity}</h1>
             <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>{$lang->companyname_title} {$lang->companynameabbr_title}</p></div>
             <form action="#" method="post" id="perform_contents/addentities_Form" name="perform_contents/addentities_Form">
                 <table width="100%" border="0" cellpadding="0" cellspacing="0">

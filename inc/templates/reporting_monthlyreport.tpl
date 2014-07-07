@@ -1,7 +1,7 @@
 <table class="reporttable" width="100%">
     <tr>
         <td rowspan="3" class="logo">&nbsp;</td>
-        <td colspan="2"><h3>{$lang->monthlymarketreport}</h3></td>
+        <td colspan="2"><h1>{$lang->monthlymarketreport}</h1></td>
     </tr>
     <tr>
         <td style="font-weight:bold; width:20%;">{$lang->monthunderreview}</td>

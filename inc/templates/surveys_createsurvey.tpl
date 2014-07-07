@@ -22,7 +22,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->$action}</h3>
+            <h1>{$lang->$action}</h1>
             <form  name="perform_surveys/{$action}_Form" id="perform_surveys/{$action}_Form" action="#" method="post">
                 <table width="100%" cellpadding="0" cellspacing="0">
                     <tr>

@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->stockorder}</h3>
+            <h1>{$lang->stockorder}</h1>
             <form id="do_stock/order_Form" name="do_stock/order_Form" action="index.php?module=stock/order&amp;action=do_stockorder" method="post">
                 <input type="hidden" value="{$identifier}" name="identifier" />
                 <input type='hidden' name='timeLine' id='altpickDate_timeLine' value="{$stockorder_data[timeLine]}"/>

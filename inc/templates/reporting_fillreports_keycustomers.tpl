@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->keycustomers}<div style="font-style:italic; font-size:12px; color:#888;">Q{$report_meta[quarter]} {$report_meta[year]} / {$report_meta[supplier]} - {$report_meta[affiliate]}</div></h3>
+            <h1>{$lang->keycustomers}<div style="font-style:italic; font-size:12px; color:#888;">Q{$report_meta[quarter]} {$report_meta[year]} / {$report_meta[supplier]} - {$report_meta[affiliate]}</div></h1>
             {$excludekeycust_notifymessage}
             <form id="save_keycustomers_reporting/fillreport_Form" name="save_keycustomers_reporting/fillreport_Form" action="index.php?module=reporting/fillreport&amp;stage=marketreport" method="post">
                 <input type="hidden" id="rid" name="rid" value="{$core->input[rid]}">

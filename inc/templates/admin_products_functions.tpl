@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->listavailablefunctions}</h3>
+            <h1>{$lang->listavailablefunctions}</h1>
             <div style="float:right;" class="subtitle"><a href="#" id="showpopup_cretefunction" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->create}</a></div>
             <table class="datatable">
                 <thead>

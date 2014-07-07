@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->lookupflights}</h3>
+            <h1>{$lang->lookupflights}</h1>
             <form name='do_travelmanager/flights_Form' id="do_travelmanager/lookupflights_Form" method="post" action="index.php?module=travelmanager/lookupflights&amp;action=do_lookupflights">
                 <div align="center">
                     <table width="80%">

@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$pagetitle}</h3>
+            <h1>{$pagetitle}</h1>
             {$visitreportspages}  
             <p><hr /></p>
         <p>{$prev_visitreports_list}</p>

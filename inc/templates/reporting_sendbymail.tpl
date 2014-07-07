@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->sendreportsto} {$suppliername}</h3>
+            <h1>{$lang->sendreportsto} {$suppliername}</h1>
             <form id="sendbymail_Form" name="sendbymail_Form" method="post" action="index.php?module=reporting/sendbymail&amp;action=do_sendbymail&amp;identifier={$core->input[identifier]}">
                 <fieldset class="altrow">
                     <legend><strong>{$lang->recipients}:</strong></legend>

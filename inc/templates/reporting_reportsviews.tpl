@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>Q2 2013 Views</h3>
+            <h1>Q2 2013 Views</h1>
             {$views_outputs}
         </td>
     </tr>

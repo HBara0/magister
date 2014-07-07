@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->fillvisitreport}</h3>
+            <h1>{$lang->fillvisitreport}</h1>
             {$draftreports_selectlist}
             <form action="index.php?module=crm/fillvisitreport&amp;stage=visitdetails&amp;identifier={$identifier}" method="post">
                 <input type="hidden" name="referrer" value="fill">

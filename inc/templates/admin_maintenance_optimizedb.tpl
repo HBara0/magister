@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->optimizedatabase}</h3>
+            <h1>{$lang->optimizedatabase}</h1>
             <p>{$lang->selectoptimizetables}:</p>
             <form id="perform_maintenance/optimizedb_Form" name="perform_maintenance/optimizedb_Form" action="#" method="post">
                 {$tables_list}

@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->generatereport}</h3>
+            <h1>{$lang->generatereport}</h1>
             <div style="margin-left: 5px;">
                 <form name="do_attendance/generatereport_Form" id="do_attendance/generatereport_Form" method="post" action="index.php?module=attendance/generatereport&amp;action=do_generatereport">
                     {$lang->employeename}</span><br />

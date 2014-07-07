@@ -14,7 +14,7 @@
             </ul>
         </td>
         <td class="contentContainer">
-            <h3>{$lang->employeeslist}</h3>
+            <h1>{$lang->employeeslist}</h1>
             <form method='post' action='$_SERVER[REQUEST_URI]'>
                 <table class="datatable">
                     <thead>

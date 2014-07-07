@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <div style="width:40%; display:inline-block;"><h3>{$lang->affiliateslist}</h3></div><div style="float:right; display:inline-block; width:40%; text-align:right;"><br /><a href="index.php?module=profiles/affiliateslist&view={$switchview[link]}"><img src="./images/icons/{$switchview[icon]}" alt="{$lang->changeview}" border="0"></a></div>
+            <div style="width:40%; display:inline-block;"><h1>{$lang->affiliateslist}</h1></div><div style="float:right; display:inline-block; width:40%; text-align:right;"><br /><a href="index.php?module=profiles/affiliateslist&view={$switchview[link]}"><img src="./images/icons/{$switchview[icon]}" alt="{$lang->changeview}" border="0"></a></div>
             <table class="datatable" style="display:{$datatable_display};">
                 <thead>
                     <tr>

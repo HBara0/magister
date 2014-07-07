@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->listsurveys}</h3>
+            <h1>{$lang->listsurveys}</h1>
             <table width="100%" class="datatable">
                 <thead>
                     <tr>

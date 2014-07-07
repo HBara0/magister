@@ -285,7 +285,7 @@ else {
                 $salesreport .= '</table>';
             }
             if($core->input['type'] == 'topemployees' || $core->input['type'] == 'topcustomers' || $core->input['type'] == 'topproducts' || $core->input['type'] == 'topsuppliers') {
-                $salesreport = '<h3>'.$lang->{$core->sanitize_inputs($core->input['type'])}.'</h3>';
+                $salesreport = '<h1>'.$lang->{$core->sanitize_inputs($core->input['type'])}.'</h1>';
 
                 $bm_details_headers = array('amounts', 'numorders', 'grossmargin');
                 $details_headers = array('salesrep' => array('amounts', 'numorders', 'grossmargin', 'netmargin'), 'customers' => array('amounts', 'numorders', 'grossmargin', 'netmargin'));
@@ -317,7 +317,7 @@ else {
                 }
 
                 foreach($total_details as $etype => $entity_details) {
-                    //$salesreport .= '<h3 style="text-decoration:underline;">'.$sections_titles[$etype].'</h3>';
+                    //$salesreport .= '<h3 style="text-decoration:underline;">'.$sections_titles[$etype].'</h1>';
                     foreach($entity_details as $type => $entity) {
                         $salesreport .= '<h4>'.$lang->{$type}.'</h4>';
 
@@ -382,7 +382,7 @@ else {
                 'from_email' => $core->settings['maileremail'],
                 'from' => 'OCOS Mailer',
                 'subject' => 'Week '.date('W', TIME_NOW).' '.$current_date['year'].' sales report',
-                'message' => '<h3>Sales '.$current_date['month'].' '.$current_date['year'].' in Orkila Tunisie</h3><br />'.$message
+                'message' => '<h1>Sales '.$current_date['month'].' '.$current_date['year'].' in Orkila Tunisie</h1><br />'.$message
         );
 
         $mail = new Mailer($email_data, 'php');

@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$matchintegrationdata}</h3>
+            <h1>{$matchintegrationdata}</h1>
             <form action="#" method="post" id="perform_integration/matchdata_Form" name="perform_integration/matchdata_Form">
                 <input type="hidden" value="perform_matchdata" name="action" id="action" />
                 <input type="hidden" value="{$core->input[matchitem]}" name="matchitem" id="matchitem" />

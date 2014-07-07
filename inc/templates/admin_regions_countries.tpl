@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->listavailablecountries}</h3>
+            <h1>{$lang->listavailablecountries}</h1>
             <table class="datatable">
                 <thead>
                     <tr>
@@ -20,7 +20,7 @@
                 </tbody>
             </table>
             <hr />
-            <h3>{$lang->addcountry}</h3>
+            <h1>{$lang->addcountry}</h1>
             <form id="add_regions/countries_Form" name="add_regions/countries_Form" action="#" method="post">
                 <table cellpadding="0" cellspacing="0" width="100%">
                     <tr>

@@ -25,7 +25,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->listofleaves}</h3>
+            <h1>{$lang->listofleaves}</h1>
             <form action="#" method="post" id="moderation_attendance/listleaves_Form" name="moderation_attendance/listleaves_Form" style="margin-bottom: 0px;">
                 <table class="datatable">
                     <thead>

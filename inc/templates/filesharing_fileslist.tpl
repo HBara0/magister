@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->sharedfileslist}</h3>
+            <h1>{$lang->sharedfileslist}</h1>
             <table class="datatable">
                 <thead>
                     <tr>

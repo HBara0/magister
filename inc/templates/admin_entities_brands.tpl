@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->managebrands}</h3>
+            <h1>{$lang->managebrands}</h1>
             <table class="datatable">
                 <div style="float:right;" class="subtitle"> <a href="#" id="showpopup_createbrand" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->createbrand}</a></div>
                 <thead>

@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->leavesstats}</h3>
+            <h1>{$lang->leavesstats}</h1>
             <div style="display:inline-block; width: 40%;">{$lang->leavetype}: {$types_list}</div><div style="display:inline-block; width: 40%; float:right; text-align:right;"><a href="index.php?module=attendance/addadditionaldays"><img src="images/addnew.png" border='0' alt="{$lang->additionaldays}"> {$lang->addadditionalbalance}</a></div>
             <table class="datatable">
                 <thead>

@@ -7,7 +7,7 @@
 <tr>
     {$menu}
     <td class="contentContainer">
-        <h3>{$lang->assign}</h3>
+        <h1>{$lang->assign}</h1>
         <form name="perform_assets/assignassets_Form" id="perform_assets/assignassets_Form" enctype="multipart/form-data" method="post">
             <input type="hidden" name="auid" value="{$auid}" />
             <input type="hidden" value="do_{$actiontype}" name="action" id="action" />

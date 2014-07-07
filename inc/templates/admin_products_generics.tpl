@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->listavailablegenerics}</h3>
+            <h1>{$lang->listavailablegenerics}</h1>
             <table class="datatable">
                 <thead>
                     <tr>
@@ -20,7 +20,7 @@
                 </tbody>
             </table>
             <hr />
-            <h3>{$lang->addagenericproduct}</h3>
+            <h1>{$lang->addagenericproduct}</h1>
             <form id="add_products/generics_Form" name="add_products/generics_Form" action="#" method="post">
                 <table cellpadding="0" cellspacing="0" width="100%">
                     <tr>

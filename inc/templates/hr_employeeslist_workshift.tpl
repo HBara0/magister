@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <div style="display:inline-block; width:50%;"><h3>{$lang->workshiftmanagement}</h3></div><div style="float: right; display:inline-block; text-align:right; width:30%; font-weight:bold; border-bottom: #E6E8E8 solid 1px;"><a href="#" id="showpopup_addworkshift" class="showpopup"><img src="images/addnew.png" border="0" alt="{$lang->createworkshift}" /> {$lang->createworkshift}</a></div>
+            <div style="display:inline-block; width:50%;"><h1>{$lang->workshiftmanagement}</h1></div><div style="float: right; display:inline-block; text-align:right; width:30%; font-weight:bold; border-bottom: #E6E8E8 solid 1px;"><a href="#" id="showpopup_addworkshift" class="showpopup"><img src="images/addnew.png" border="0" alt="{$lang->createworkshift}" /> {$lang->createworkshift}</a></div>
             <form name='change_hr/employeeslist_Form' id="change_hr/employeeslist_Form" method="post">
                 <input type="hidden" id="action" name="action" value="do_setworkshifts" />
                 <table class="datatable">

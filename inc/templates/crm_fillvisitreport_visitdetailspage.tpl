@@ -24,7 +24,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->fillvisitreport} - {$lang->visitdetails}</h3>
+            <h1>{$lang->fillvisitreport} - {$lang->visitdetails}</h1>
             <form action="index.php?module=crm/fillvisitreport&stage=competition" method="post" id="save_crm/fillvisitreport_Form">
                 <input type="hidden" name="identifier" value="{$identifier}">
                 {$visitdetails_fields}

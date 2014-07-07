@@ -10,7 +10,7 @@
         {$menu}
         <td class="contentContainer">
             <iframe id='uploadFrame' name='uploadFrame' src='#' style="display:none;"></iframe>
-            <h3>{$lang->shareafile}</h3>
+            <h1>{$lang->shareafile}</h1>
             <form  name='upload_Form' id="upload_Form" action="index.php?module=filesharing/uploadfile&amp;action=do_uploadfile" method="post" enctype="multipart/form-data" target="uploadFrame">
                 <table>
                     <tr>

@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->createbudget}</h3>
+            <h1>{$lang->createbudget}</h1>
             <form name="perform_budgeting/create_Form" id="perform_budgeting/create_Form" action="index.php?module=budgeting/fillbudget&amp;stage=fillbudgetline" method="post">
                 <input type="hidden" name="identifier" value="{$sessionidentifier}"/>
                 <div style="display:block;">

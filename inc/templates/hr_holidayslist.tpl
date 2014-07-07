@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->holidayslist}</h3>
+            <h1>{$lang->holidayslist}</h1>
             <div style="display:inline-block; width: 45%; margin:0;">{$affid_field}</div>
             <div style="display:inline-block; width: 50%; margin:0; text-align:right; float:right;"><div id="perform_hr/holidayslist_Results"><form action="#" method="post" id="perform_hr/holidayslist_Form" name="perform_hr/holidayslist_Form"><input type="hidden" value="{$affid}" name="affidtoinform"><input name="action" value="sendholidays" type="hidden" /><input value="{$lang->sendcurrentholidays}" type="button" id="perform_hr/holidayslist_Button" name="perform_hr/holidayslist_Button" class="button"/></form></div></div>
             <form method='post' action='$_SERVER[REQUEST_URI]'>

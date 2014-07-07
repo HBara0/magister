@@ -36,9 +36,9 @@
             <div style="width: 5%; float:right; text-align:right;"><a href="index.php?module=calendar/preferences"><img src="./images/icons/options.gif" border='0' alt="{$lang->calendarpreferences}"/></a></div>
             <table width="100%" cellspacing="0" cellpadding="0" class="calendar">
                 <tr>
-                    <td colspan="2"><a href="index.php?module=calendar/home{$prevlink_querystring}"><h3 style="margin-bottom: 1px;"> &laquo;</h3></a></td>
-                    <td colspan="4" align="center"><h3 style="margin-bottom: 0px;">{$calendar_title}</h3></td>
-                    <td colspan="3" style="text-align:right;"><a href="index.php?module=calendar/home{$nextlink_querystring}"><h3 style="margin-bottom: 1px;"> &raquo;</h3></a></td>
+                    <td colspan="2"><a href="index.php?module=calendar/home{$prevlink_querystring}"><h3 style="margin-bottom: 1px;"> &laquo;</h1></a></td>
+                    <td colspan="4" align="center"><h3 style="margin-bottom: 0px;">{$calendar_title}</h1></td>
+                    <td colspan="3" style="text-align:right;"><a href="index.php?module=calendar/home{$nextlink_querystring}"><h3 style="margin-bottom: 1px;"> &raquo;</h1></a></td>
                 </tr>
                 {$calendar}
             </table>

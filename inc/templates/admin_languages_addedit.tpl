@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>$lang->managelanguagefile</h3>
+            <h1>$lang->managelanguagefile</h1>
             <form action="#" method="post" id="perform_languages/manage_Form" name="perform_languages/manage_Form">
                 <input type="hidden" value="do_{$actiontype}languages" name="action" id="action" />
                 <table width="100%" class="datatable">

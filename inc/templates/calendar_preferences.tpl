@@ -7,7 +7,7 @@
 <tr>
     {$menu}
     <td class="contentContainer">
-        <h3>{$lang->calendarpreferences}</h3>
+        <h1>{$lang->calendarpreferences}</h1>
         <form name="perform_calendar/preferences_Form" id="perform_calendar/preferences_Form" action="#" method="post">
             <div style="width:20%; display:inline-block; clear:left; float:left;">{$lang->defaultview} Default view</div>
             <div style="width:50%; display:inline-block; clear:right;""><select name="defaultView" id="defaultView">

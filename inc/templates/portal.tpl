@@ -56,11 +56,11 @@
         </td>
         <td class="contentContainer">
             <div style="width: 63%; float:left;">
-                <h3>{$lang->welcometoocos}</h3>
+                <h1>{$lang->welcometoocos}</h1>
                 {$lang->mainmessage}
 
                 <p>
-                    <strong>{$lang->goto}:</strong><br /> 
+                    <strong>{$lang->goto}:</strong><br />
                 <div>
                     {$portalicons}
                     <span style="display:inline-block; width: 100px; height:100px; text-align:center; vertical-align:top;">
@@ -69,7 +69,7 @@
                                 <a href="index.php?module=calendar/home" style="color:#FFF;">{$current_date[weekday]}</a>
                             </div>
                             <div style="font-size:30px;">
-                                <a href="index.php?module=calendar/home" style="color:#FFF;">{$current_date[mday]}</a>     
+                                <a href="index.php?module=calendar/home" style="color:#FFF;">{$current_date[mday]}</a>
                             </div>
                             <div>
                                 <a href="index.php?module=calendar/home" style="color:#FFF;">{$current_date[monthname]} {$current_date[year]}</a>
@@ -89,7 +89,7 @@
                 {$current_date[weekday]}
             </div>
             <div style="font-size:50px;">
-                <a href="index.php?module=calendar/home" style="color:#FFF;">{$current_date[mday]}</a>     
+                <a href="index.php?module=calendar/home" style="color:#FFF;">{$current_date[mday]}</a>
             </div>
             <div>
                 {$current_date[monthname]} {$current_date[year]}

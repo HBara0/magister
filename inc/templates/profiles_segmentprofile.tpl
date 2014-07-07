@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <div><h3>{$segment[title]}</h3></div>
+            <div><h1>{$segment[title]}</h1></div>
             <div style="display:inline-block; width: 45%; vertical-align: top;"><div class="subtitle">{$lang->applications}</div>{$segment_applications}</div>
             <div style="display:inline-block; width: 45%; vertical-align: top;">
                 <span class="subtitle">{$lang->coordinators}</span>

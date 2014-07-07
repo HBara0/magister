@@ -272,7 +272,7 @@ else {
         //						WHERE imso.foreignSystem={$options[foreignSystem]} AND imso.affid={$affid} AND imp.localId!=0 AND (imso.date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).")");
         //}
 
-        echo '<h3>'.$options['quarter'].' '.$options['year'].'</h3>';
+        echo '<h1>'.$options['quarter'].' '.$options['year'].'</h1>';
         if(is_array($newpurchase)) {
             foreach($newpurchase as $rid => $products) {
                 foreach($products as $pid => $activity) {

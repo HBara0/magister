@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->systemoverview}</h3>
+            <h1>{$lang->systemoverview}</h1>
             <div class="subtitle">{$lang->systemstatus}</div>
             <table class="datatable">
                 <tr>

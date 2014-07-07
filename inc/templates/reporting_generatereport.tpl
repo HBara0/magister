@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->generatereport}</h3>
+            <h1>{$lang->generatereport}</h1>
             <div align="center">
                 <span class="subtitle">{$message}</span>
                 <form name="do_reporting/generatereport_Form" id="do_reporting/generatereport_Form" method="post" action="index.php?module=reporting/preview&amp;referrer=generate">

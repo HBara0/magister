@@ -8,8 +8,8 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->preview}</h3>
-            <h3>{$lang->internalform}-{$lang->stockorder}-{$affiliate}</h3>
+            <h1>{$lang->preview}</h1>
+            <h1>{$lang->internalform}-{$lang->stockorder}-{$affiliate}</h1>
             <table cellpadding="0" cellspacing="0" width="990px;">
                 <tr> 
                     <td style="border-bottom: 1px solid #F2F2F2;width:50%;" width="50%">
@@ -65,7 +65,7 @@
                     <td colspan="4" class="tdtop"></td>
                 </tr>
                 <tr>
-                    <td style="border-left:1px solid #F2F2F2; padding-left:20px;border-right:1px solid #F2F2F2;" colspan="4"> <h3>{$supplier}</h3></td>
+                    <td style="border-left:1px solid #F2F2F2; padding-left:20px;border-right:1px solid #F2F2F2;" colspan="4"> <h1>{$supplier}</h1></td>
                 </tr>
                 <tr>
                     <th class="tdleft">{$lang->incoterms}</th>

@@ -75,7 +75,7 @@ if($core->input['authCode'] == AUTHCODE) {
         $affiliateobj = new Affiliates($affid, false);
         $affiliate = $affiliateobj->get();
         $affiliate['currency'] = $affiliateobj->get_country()->get_maincurrency()->get()['alphaCode'];
-        $output = '<h3>Stock Alert Report - '.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].')</h3>';
+        $output = '<h1>Stock Alert Report - '.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].')</h1>';
         $inputs = $integration->get_fifoinputs(array($orgid), array('hasqty' => true));
 
         $output .= '<div style="font-weight: bold; color: red; font-size:18pt;">The following products have expired or are expiring soon!</div><br /><table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';

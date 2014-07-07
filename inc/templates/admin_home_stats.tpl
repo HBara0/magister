@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->welcomeap}</h3> 
+            <h1>{$lang->welcomeap}</h1> 
             {$newsuggestions}
             <strong>{$lang->systemoverview}</strong>
             <ul>

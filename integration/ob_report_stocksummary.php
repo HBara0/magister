@@ -146,7 +146,7 @@ if($core->input['authCode'] == AUTHCODE) {
                     $inputs[$key]['entries']['cost'] += $input['stack']['remaining_cost'];
                 }
             }
-            $output .= '<h3>'.$config['info']['title'].'</h3>';
+            $output .= '<h1>'.$config['info']['title'].'</h1>';
             $output .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
             $output .= '<tr>';
             foreach($config['output_fields'] as $field => $field_configs) {
@@ -398,7 +398,7 @@ if($core->input['authCode'] == AUTHCODE) {
             if(is_array($summaries)) {
                 foreach($summaries as $category => $category_data) {
                     $totals = array();
-                    $summaries_ouput .= '<h3>'.$config['output_fields'][$category]['title'].' Summary</h3>';
+                    $summaries_ouput .= '<h1>'.$config['output_fields'][$category]['title'].' Summary</h1>';
                     $summaries_ouput .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
                     $summaries_ouput .= '<tr><th style="background: #91b64f;">'.$config['output_fields'][$category]['title'].'</th>';
                     foreach($config['summary_reqinfo'] as $reqinfo) {
@@ -601,7 +601,7 @@ if($core->input['authCode'] == AUTHCODE) {
         /* Parse Stock Evolution Report - START */
         $aging_scale = array(2 => '90-179', 3 => '180-359', 4 => '>=360');
         $aging_scale_config = array(0, 90, 180, 360);
-        $stockevolution_output = '<h3>Stock Evolution</h3>';
+        $stockevolution_output = '<h1>Stock Evolution</h1>';
         $stockevolution_output .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
         $stockevolution_output .= '<tr><th style="background: #91b64f;">Month</td><th style="background: #91b64f;">Value K.USD</td>';
         foreach($aging_scale as $key => $age) {
@@ -674,7 +674,7 @@ if($core->input['authCode'] == AUTHCODE) {
         $index2 = count($overyears_rates) - 1;
         $fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 USD' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$date_info['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholddata' => array('firstindex' => $index1, 'secondindex' => $index2), 'hasthreshold' => 1, 'width' => 700, 'height' => 200, 'scale' => SCALE_START0, 'path' => '../tmp/charts/', 'writelabel' => true));
 
-        $fxratesoverview_output = '<h3>FX Rates Evolution</h3>';
+        $fxratesoverview_output = '<h1>FX Rates Evolution</h1>';
 // $fxratesoverview_output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($fxrates_linechart->get_chart())).'" />';
         $fxratesoverview_output .= '<img src="cid:fxratesoverview" />';
 
@@ -716,7 +716,7 @@ if($core->input['authCode'] == AUTHCODE) {
         $message .= '</body></html>';
 
         $message = '<html><head><title>Stock Report</title></head><body>';
-        $message .= '<h3>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')</h3>';
+        $message .= '<h1>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')</h1>';
         $message .= $stockevolution_output.$alerts.$summaries_ouput.$output.$fxratesoverview_output;
 
         $email_data = array();

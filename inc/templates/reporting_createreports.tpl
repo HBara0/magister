@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->createreports}</h3>
+            <h1>{$lang->createreports}</h1>
             <form name="perform_reporting/createreports_Form" id="perform_reporting/createreports_Form" action="#" method="post">
                 {$lang->quarter} <select id="quarter" name="quarter">
                     <option value="1"{$selected[1]}>1</option>

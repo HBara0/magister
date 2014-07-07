@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->phpinfo}</h3>
+            <h1>{$lang->phpinfo}</h1>
             {$php_info}
         </td>
     </tr>

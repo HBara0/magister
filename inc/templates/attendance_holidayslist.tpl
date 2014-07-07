@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->currentholidays}</h3>
+            <h1>{$lang->currentholidays}</h1>
             <table class="datatable">
                 <thead>
                     <tr>

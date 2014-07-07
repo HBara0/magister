@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->listavailabletypes}</h3> 
+            <h1>{$lang->listavailabletypes}</h1> 
             <table class="datatable">
                 <div style="float:right;" class="subtitle"> <a href="#" id="showpopup_createtypes" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->create}</a></div>
                 <thead>

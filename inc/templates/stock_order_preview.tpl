@@ -8,8 +8,8 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->preview}</h3>
-            <h3>{$lang->internalform} - {$lang->stockorder} - {$affiliate}</h3>
+            <h1>{$lang->preview}</h1>
+            <h1>{$lang->internalform} - {$lang->stockorder} - {$affiliate}</h1>
             {$stockorder}
             <br />
             <form id="add_stock/order_Form"  name="add_stock/order_Form" method="post" >

@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->requirementslist}</h3>
+            <h1>{$lang->requirementslist}</h1>
             {$requirements_list}
         </td>
     </tr>
