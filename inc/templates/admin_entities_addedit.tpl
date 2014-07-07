@@ -35,6 +35,10 @@
                         $("#createReports,#noQReportSend").removeAttr("disabled");
                     }
                 });
+
+                $('#iscentralpurchase').change(function() {
+                    $('#purchasenote').toggle();
+                })//ensure visible state matches initially
             });
         </script>
     </head>

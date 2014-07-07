@@ -23,7 +23,6 @@ if(!$core->input['action']) {
     $profile = $entity_obj->get();
 
 
-
     /* Market Data --START */
     $filter_where = 'eid IN ('.$eid.')';
     if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
@@ -68,7 +67,9 @@ if(!$core->input['action']) {
     if(!empty($profile['building'])) {
         $profile['fulladdress'] .= $profile['building'].' - ';
     }
-
+    if($profile['isCentralPurchase'] == 1) {
+        $centralpurshase_icon = '<img src="images/valid.gif" border="0">';
+    }
     //$profile['fulladdress'] = $profile['building'];
     if(!empty($profile['postCode'])) {
         $profile['fulladdress'] .= $profile['postCode'].', ';

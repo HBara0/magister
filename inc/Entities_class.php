@@ -136,6 +136,8 @@ class Entities {
             if(!isset($this->data['noQReportReq'])) {
                 $this->data['noQReportReq'] = 1; //By default no QR is required
             }
+            $this->data['isCentralPurchase'] = $this->data['isCentralPurchase'];
+            $this->data['CentralPurchaseNote'] = $this->data['CentralPurchaseNote'];
 
             $coveredcountries = $this->data['coveredcountry'];
             unset($this->data['coveredcountry']);

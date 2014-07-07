@@ -9,6 +9,14 @@
     <td>{$lang->cancelpriornotice}</td><td><input type="text" id="contractPriorNotice" name="contractPriorNotice" value="{$entity[contractPriorNotice]}"></td>
 </tr>
 <tr>
+    <td>{$lang->centralpurchase}</td><td> <input name="isCentralPurchase" id="iscentralpurchase" type="checkbox"{$isCentralPurchase} value="1"></td>
+</tr>
+
+<tr  id="purchasenote" style="display:none;">
+    <td>{$lang->centralpurchasenote}</td>  <td><textarea name="CentralPurchaseNote"> </textarea></td>
+</tr>
+
+<tr>
     <td  colspan="2">
         <div style="width:100%; height:200px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;" id='coveredcountries_section'>
             <table class="datatable" width="100%">

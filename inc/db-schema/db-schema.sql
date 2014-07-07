@@ -693,6 +693,7 @@ CREATE TABLE `entities` (
   `eid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `companyName` varchar(250) DEFAULT NULL,
   `companyNameShort` varchar(20) DEFAULT NULL,
+  `supplierType` varchar(5) NOT NULL,
   `companyNameAbbr` varchar(10) DEFAULT NULL,
   `logo` varchar(220) DEFAULT NULL,
   `parent` int(10) DEFAULT NULL,
@@ -715,7 +716,7 @@ CREATE TABLE `entities` (
   `approved` smallint(1) unsigned NOT NULL DEFAULT '0',
   `dateAdded` bigint(30) unsigned NOT NULL,
   `notes` text,
-  `type` char(1) NOT NULL,
+  `type` char(2) NOT NULL,
   `contractFirstSigDate` bigint(30) DEFAULT NULL,
   `contractExpiryDate` bigint(30) DEFAULT NULL,
   `contractIsEvergreen` tinyint(1) DEFAULT NULL,
@@ -729,8 +730,9 @@ CREATE TABLE `entities` (
   `noQReportSend` tinyint(1) NOT NULL DEFAULT '0',
   `customerSince` bigint(30) NOT NULL,
   `loyalty` int(2) DEFAULT NULL,
+  `isActive` tinyint(1) NOT NULL,
   PRIMARY KEY (`eid`)
-) ENGINE=MyISAM AUTO_INCREMENT=3908 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=3929 DEFAULT CHARSET=utf8;
 DROP TABLE IF EXISTS `entities_contractcountries`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

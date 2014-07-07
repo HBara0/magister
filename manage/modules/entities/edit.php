@@ -27,6 +27,7 @@ if(!$core->input['action']) {
     $entity_obj = new Entities($core->input['eid'], '', false);
 
     $entity = $entity_obj->get();
+
     $entity['parent_obj'] = $entity_obj->get_parent();
     if(is_object($entity['parent_obj'])) {
         $entity['parent_companyName'] = $entity['parent_obj']->get()['companyName'];
@@ -140,7 +141,9 @@ if(!$core->input['action']) {
     if($entity['noQReportReq'] == 1) {
         $noqreportreq_checkbox = " checked='checked'";
     }
-
+    if($entity['isCentralPurchase'] == 1) {
+        $isCentralPurchase = " checked='checked'";
+    }
     if($entity['noQReportSend'] == 1) {
         $noqreportsend_checkbox = " checked='checked'";
     }

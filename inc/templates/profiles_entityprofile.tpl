@@ -28,6 +28,7 @@
                 });
             {$header_rmljs}
             {$header_ratingjs}
+
             });
         </script>
         <script src="{$core->settings[rootdir]}/js/profiles_marketintelligence.js" type="text/javascript"></script>
@@ -77,6 +78,7 @@
                 </tr>
                 {$products_section}
                 {$contractinfo_section}
+                <tr><td>{$lang->centralpurchase} <span>{$centralpurshase_icon}</span></td><td>{$profile[CentralPurchaseNote]}</td></tr>
                 {$meetings_section}
                 <tr><td colspan="2" class="thead">{$lang->Brandsendproducts}...</td></tr>
                 <tr>
