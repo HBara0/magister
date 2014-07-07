@@ -7,6 +7,9 @@
                     <tr>
                         <th style='width: 50%'><input class='inlinefilterfield' type='text' style="width:100%" placeholder="{$lang->countries}"/></th>
                         <th style="text-align: center;">{$lang->isexclusive}</th>
+                        <th style="text-align: center;">{$lang->exclusivity}</th>
+                        <th style="text-align: center;">{$lang->agent}</th>
+                        <th style="text-align: center;">{$lang->distributor}</th>
                         <th style="text-align: center;">{$lang->selectiveproducts} </th>
                     </tr>
                 </thead>

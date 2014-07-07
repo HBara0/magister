@@ -57,8 +57,7 @@
                     <td>
                         {$maturity_section}
                         {$rating_section}
-                        <span class="subtitle">{$lang->contractualinformation}</span><br />
-                        {$exclusivity}
+
                     </td>
                 </tr>
                 <tr>

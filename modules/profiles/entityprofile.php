@@ -21,13 +21,9 @@ if(!$core->input['action']) {
     $eid = $db->escape_string($core->input['eid']);
     $entity_obj = new Entities($eid, '', false);
     $profile = $entity_obj->get();
-    $checmicalfunction_objs = EntitiesContractCountries::get_checmicalfunction('eid='.$eid);
 
-    if(is_array($checmicalfunction_objs)) {
-        foreach($checmicalfunction_objs as $checmicalfunction_obj) {
-            $exclusivity .= '<span style="padding:4px;">'.$checmicalfunction_obj->Exclusivity.'</span>';
-        }
-    }
+
+
     /* Market Data --START */
     $filter_where = 'eid IN ('.$eid.')';
     if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
@@ -382,7 +378,7 @@ if(!$core->input['action']) {
         }
         /* Parse Rating Section - END */
 
-        if($core->usergroup['profiles_canViewContractInfo'] == 0) {
+        if($core->usergroup['profiles_canViewContractInfo'] == 1) {
             $contracted_objs = $entity_obj->get_contractedcountires();
             $check_fields = array('isExclusive', 'selectiveProducts');
             if(is_array($contracted_objs)) {
