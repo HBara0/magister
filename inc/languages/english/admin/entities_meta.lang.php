@@ -73,4 +73,6 @@ $lang['contractual'] = 'Contractual';
 $lang['LOI'] = 'LOI';
 $lang['verbal'] = 'Verbal';
 $lang['selectoption'] = 'Please select an option';
-?>
+$lang['centralpurchase'] = "Is Central Purchase";
+$lang['centralpurchasenote'] = "Central Purchase Notes";
+?>  
