@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * List Requests for Chemcials
  * $module: Sourcing
- * $id:  listchemcialsrequests.php	
+ * $id:  listchemcialsrequests.php
  * Created By: 		@tony.assaad		November 15, 2012 | 3:30 PM
  * Last Update: 	@tony.assaad		November 19, 2012 | 9:13 AM
  */
@@ -104,12 +104,12 @@ else {
 
         switch($potential_supplier->get_status()) {
             case 10:
-                if($requester_details['isClosed'] == 1) {
-                    header('Content-type: text/xml+javascript');  /* colorate each selected <tr> has applicant id  after successfull update */
-                    output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$("#popup_feedback").dialog("close"); $("tr[id^='.$request_id.']").each(function() {$(this).addClass("greenbackground"); $(this).find("img").attr("src","./images/valid.gif") }); </script>]]></message>');
-
-                    break;
-                }
+                // if($requester_details['isClosed'] == 1) {
+                header('Content-type: text/xml+javascript');  /* colorate each selected <tr> has applicant id  after successfull update */
+                output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$("#popup_feedback").dialog("close"); $("tr[id^='.$request_id.']").each(function() {$(this).addClass("greenbackground"); $(this).find("img").attr("src","./images/valid.gif") }); </script>]]></message>');
+                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                break;
+            //}
             case 1:
                 output_xml("<status>false</status><message>{$lang->fieldrequired}</message>");
                 break;
