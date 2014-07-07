@@ -7,7 +7,7 @@
  * $module: profiles
  * $id: entityprofile.php
  * Created:		@zaher.reda		September 28, 2010 | 11:08 AM
- * Last Update: @zaher.reda 	April 21, 2011 | 03:14 PM
+ * Last Update: @tony.assaad	April 21, 2011 | 03:14 PM
  */
 
 if(!defined('DIRECT_ACCESS')) {
@@ -21,10 +21,19 @@ if(!$core->input['action']) {
     $eid = $db->escape_string($core->input['eid']);
     $entity_obj = new Entities($eid, '', false);
     $profile = $entity_obj->get();
+    $checmicalfunction_objs = EntitiesContractCountries::get_checmicalfunction('eid='.$eid);
 
+    if(is_array($checmicalfunction_objs)) {
+        foreach($checmicalfunction_objs as $checmicalfunction_obj) {
+            $exclusivity .= '<span style="padding:4px;">'.$checmicalfunction_obj->Exclusivity.'</span>';
+        }
+    }
     /* Market Data --START */
     $filter_where = 'eid IN ('.$eid.')';
     if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
+        $customer_obj = new Customers($eid, '', false);
+        $customer_type = $customer_obj->get_customertype();
+
         $addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarket.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
         $array_data = array('module' => 'profiles', 'elemtentid' => $eid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
         /* to be replacing the below variables */
@@ -33,8 +42,13 @@ if(!$core->input['action']) {
         $elementname = 'marketdata[cid]';
         $action = 'do_addmartkerdata';
         $modulefile = 'entityprofile';
-        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
-
+        if($customer_type == 'pc') {
+            eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+        }
+        else {
+            $profiles_michemfuncproductentry = '';
+            eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        }
         /* View detailed market intelligence box --START */
         $maktintl_mainobj = new MarketIntelligence();
 
