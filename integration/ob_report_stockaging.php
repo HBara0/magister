@@ -94,7 +94,7 @@ if($core->input['authCode'] == AUTHCODE) {
         $rawinputs = $integration->get_fifoinputs(array($orgid), array('hasqty' => true));
         $fxrates['usd'] = $currency_obj->get_latest_fxrate($affiliate['currency']);
 
-        $output = '<h3>'.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')</h3>';
+        $output = '<h1>'.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')</h1>';
         foreach($rawinputs as $key => $input) {
             //$inputs[$input['product']['m_product_id']]['product'] = $input['product'];
 
@@ -311,7 +311,7 @@ if($core->input['authCode'] == AUTHCODE) {
         if(is_array($summaries)) {
             foreach($summaries as $category => $category_data) {
                 $totals = array();
-                $output .= '<h3>'.$output_fields[$category]['title'].' Summary</h3>';
+                $output .= '<h1>'.$output_fields[$category]['title'].' Summary</h1>';
                 $output .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
                 $output .= '<tr><th style="background: #91b64f;">'.$output_fields[$category]['title'].'</th>';
                 foreach($summary_reqinfo as $reqinfo) {

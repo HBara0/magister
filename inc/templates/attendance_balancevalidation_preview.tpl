@@ -6,7 +6,7 @@
     <body>
         {$header}
     <tr> {$menu}
-        <td class="contentContainer"><h3>{$lang->validatebalances}</h3>
+        <td class="contentContainer"><h1>{$lang->validatebalances}</h1>
             <form action="index.php?module=attendance/balancesvalidations&amp;action=fixbalances" method="post">
                 <table width="100%" class="datatable">
                     {$tableheader}

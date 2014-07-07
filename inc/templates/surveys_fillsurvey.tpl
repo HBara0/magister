@@ -7,7 +7,7 @@
 <tr>
     {$menu}
     <td class="contentContainer">
-        <h3>{$lang->fillsurvey} - {$survey_details[subject]}</h3>
+        <h1>{$lang->fillsurvey} - {$survey_details[subject]}</h1>
         <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;">
             <p>{$survey_details[description]}</p>
             {$associations_list}

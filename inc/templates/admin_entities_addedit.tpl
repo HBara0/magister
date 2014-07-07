@@ -43,7 +43,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$pagetitle}</h3>
+            <h1>{$pagetitle}</h1>
             <form action="#" method="post" id="perform_entities/{$actiontype}_Form" name="perform_entities/{$actiontype}_Form" enctype="multipart/form-data">
                 {$eidfield}
                 <table width="100%" border="0" cellpadding="0" cellspacing="2">

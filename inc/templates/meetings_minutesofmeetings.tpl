@@ -23,7 +23,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->setmof}</h3>
+            <h1>{$lang->setmof}</h1>
             <form name="perform_meetings/minutesmeeting_Form" id="perform_meetings/minutesmeeting_Form" method="post">
                 <input type="hidden" name="mof[momid]" id="momid" value="{$mof[momid]}" />
                 <input type="hidden" value="do_{$action}" name="action" id="action" />

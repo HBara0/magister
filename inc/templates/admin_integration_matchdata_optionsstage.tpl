@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->matchintegrationdata}</h3>
+            <h1>{$lang->matchintegrationdata}</h1>
             <form action="#" method="post" id="do_integration/matchdata_Form" name="do_integration/matchdata_Form" action="index.php?module=integration/matchdata">
                 <input type="hidden" value="preview_datatomatch" name="action" id="action" />
                 <table width="100%" class="datatable">

@@ -118,12 +118,16 @@ if($core->input['type'] == 'quick') {
                 $extra_where .= 'spid = "'.$report_data['spid'].'"';
             }
             if($core->usergroup['canViewAllsupp'] == 0) {
-                $supplier_filter = " AND spid IN('".implode(',', $core->user['suppliers']['eid'])."')";
+                $core->user['suppliers']['eid'] = array_map(intval, $core->user['suppliers']['eid']);
+                $supplier_filter = " spid IN (".implode(',', $core->user['suppliers']['eid']).")";
             }
 //			if(isset($core->input['userproducts'])) {
 //				$supplier_filter = "spid IN('".implode(',', $core->user['suppliers']['eid'])."')";
 //			}
             if(!empty($supplier_filter)) {
+                if(!empty($extra_where)) {
+                    $extra_where .= ' AND';
+                }
                 $extra_where .= $supplier_filter;
             }
 
@@ -136,6 +140,7 @@ if($core->input['type'] == 'quick') {
         elseif($core->input['for'] == 'chemfunctionproducts') {
             if($core->usergroup['canViewAllsupp'] == 0) {
                 if(is_array($core->user['suppliers']['eid'])) {
+                    $core->user['suppliers']['eid'] = array_map(intval, $core->user['suppliers']['eid']);
                     $supplier_filter = 'spid IN ('.implode(',', $core->user['suppliers']['eid']).')';
                 }
                 else {

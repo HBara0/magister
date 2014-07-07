@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->chemicalsubstances}</h3>
+            <h1>{$lang->chemicalsubstances}</h1>
             <table class="datatable" width="100%" style="table-layout:fixed;">
                 <thead>
                     <tr>

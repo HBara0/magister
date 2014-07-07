@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->reportsoverview}</h3>
+            <h1>{$lang->reportsoverview}</h1>
             <div style="width:45%; float:left">
                 <ul>
                     {$admin_overview}

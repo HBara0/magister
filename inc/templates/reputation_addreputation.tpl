@@ -7,7 +7,7 @@
 <tr>
     {$menu}
     <td class="contentContainer">
-        <h3>{$title}</h3>
+        <h1>{$title}</h1>
         <form name="perform_reputation/{$actiontype}_Form" id="perform_reputation/{$actiontype}_Form" method="post">
             <input type="hidden" id="action" name="action" value="{$action}" />
             <table>

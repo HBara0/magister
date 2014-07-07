@@ -8,7 +8,7 @@
             <table width="100%" border="0" cellpadding="0" cellspacing="0" id="loginbox">
                 <tr>
                     <td class="content" align="center" id="resetpasswordcontent" style="display:none;">
-                        <h3>{$lang->resetpassword}</h3>
+                        <h1>{$lang->resetpassword}</h1>
                         <form id='resetpassword_Form' name='resetpassword_Form' action="#">
                             {$lang->emailtosendpassword}
                             <p><strong>{$lang->email}</strong> <input type='text' id='email' name='email' /> <span id='email_Validation'></span></p>
@@ -20,7 +20,7 @@
                 </tr>
                 <tr>
                     <td class="content" align="center" id="logincontent">
-                        <h3>{$lang->pleaselogin}</h3>
+                        <h1>{$lang->pleaselogin}</h1>
                         <div style="width: 50%;">
                             <form id='login_Form' name='login_Form' action='#' method="post">
                                 <div style='margin-bottom: 10px;'><input type='text' id='username' name='username' placeholder="{$lang->username}" style="width: 100%; padding: 5px 2px;"/></div>

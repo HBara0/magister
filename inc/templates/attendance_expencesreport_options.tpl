@@ -25,7 +25,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->expensesreport}</h3>
+            <h1>{$lang->expensesreport}</h1>
             <form action="index.php?module=attendance/generatexpensesreport&amp;action=preview&amp;identifier={$identifier}" method="post" id="attendance\/leavexpensesreport_Form" name="attendance\/leavexpensesreport_Form">
                 <div class="subtitle">{$lang->filters}</div>
                 {$notification_message}

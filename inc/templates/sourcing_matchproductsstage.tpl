@@ -10,14 +10,14 @@
     <tr>
         <td class="menuContainer"></td>
         <td class="contentContainer">
-            <h3>{$matchinproducts}</h3>
+            <h1>{$matchinproducts}</h1>
 
             <form name="perform_sourcing/matchproducts_Form" action="{$_SERVER[QUERY_STRING]}" method="post"  id="perform_sourcing/matchproducts_Form">
                 <input class="rounded" type="hidden" value="do_match" name="action" id="action" />
                 <div align="center">
                     <table width="100%" class="datatable">
                         <thead>
-                        <th width="40%"> <h3>Matchitem</h3>{$lang->matchitem}</th><th>&nbsp;</th><th width="40%"><h3>Matchwith</h3>{$lang->matchwith}</th>
+                        <th width="40%"> <h1>Matchitem</h1>{$lang->matchitem}</th><th>&nbsp;</th><th width="40%"><h1>Matchwith</h1>{$lang->matchwith}</th>
 
                         </thead>
                         <tbody>

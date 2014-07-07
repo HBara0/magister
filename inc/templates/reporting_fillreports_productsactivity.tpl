@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->productactivitydetails}<div style="font-style:italic; font-size:12px; color:#888;">Q{$core->input[quarter]} {$core->input[year]} / {$core->input[supplier]} - {$core->input[affiliate]}</div></h3>
+            <h1>{$lang->productactivitydetails}<div style="font-style:italic; font-size:12px; color:#888;">Q{$core->input[quarter]} {$core->input[year]} / {$core->input[supplier]} - {$core->input[affiliate]}</div></h1>
             <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p><strong>Important: Do not fill anything in this section until you are informed that data has been imported by the IT. Also, please do not finalize the report.</strong><br /><strong>Updates:</strong> <span class="red_text">It is now possible to use currencies other than USD; OCOS will convert them for you.</span><br /><strong>Notice:</strong> Only input <em>purchases</em> amounts and quantities relative to the report quarter, not up-to values.</p></div>
             <form id="save_productsactivity_reporting/fillreport_Form" name="save_productsactivity_reporting/fillreport_Form" action="index.php?module=reporting/fillreport&amp;stage=keycustomers" method="post">
                 <input type="hidden" id="rid" name="rid" value="{$rid}">

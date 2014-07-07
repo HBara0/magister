@@ -34,7 +34,7 @@
         <td class="contentContainer">
             <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
-                    <td colspan="2"><h3>{$profile[name]}</h3></td>
+                    <td colspan="2"><h1>{$profile[name]}</h1></td>
                 </tr>
                 <tr>
                     <td valign="top" style="width:50%; padding:10px;">

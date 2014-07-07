@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->listavailableaffiliates}</h3>
+            <h1>{$lang->listavailableaffiliates}</h1>
             <table class="datatable">
                 <thead>
                     <tr>
@@ -20,7 +20,7 @@
                 </tbody>
             </table>
             <hr />
-            <h3>{$lang->addaffiliate}</h3>
+            <h1>{$lang->addaffiliate}</h1>
             <form id="add_regions/affiliates_Form" name="add_regions/affiliates_Form" action="#" method="post">
                 <table cellpadding="0" cellspacing="0" width="100%">
                     <tr>

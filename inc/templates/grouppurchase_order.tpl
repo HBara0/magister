@@ -90,7 +90,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->affiliateorder}</h3>
+            <h1>{$lang->affiliateorder}</h1>
             <form id="add_grouppurchase/affiliateorder_Form" name="add_grouppurchase/affiliateorder_Form" action="#" method="post">
                 <table cellpadding="0" cellspacing="0" width="100%">
                     <thead>

@@ -35,7 +35,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->listofreports}</h3>
+            <h1>{$lang->listofreports}</h1>
             <form action="#" method="post" id="moderation_reporting/list_Form" name="moderation_reporting/list_Form" style="margin-bottom: 0px;">
                 <table class="datatable">
                     <thead>

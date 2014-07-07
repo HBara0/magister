@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$pagetitle}</h3>
+            <h1>{$pagetitle}</h1>
             <form id="perform_products/{$actiontype}_Form" name="perform_products/{$actiontype}_Form" action="#" method="post">
                 {$pidfield}
                 <table cellpadding="0" cellspacing="0" width="100%">

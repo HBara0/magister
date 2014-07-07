@@ -13,7 +13,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$actiontype}</h3>
+            <h1>{$actiontype}</h1>
             <iframe id='uploadFrame' name='uploadFrame' src='#' style="display:block;"></iframe>
             <div>
                 <form action="index.php?module=cms/managenews" method="post" enctype="multipart/form-data" name="cms_addnews_Form" id="cms_addnews_Form" target="uploadFrame">

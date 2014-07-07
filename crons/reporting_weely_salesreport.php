@@ -146,7 +146,7 @@ if($db->num_rows($query) > 0) {
     $sales_table .= '</table>';
     echo $sales_table;
     exit;
-    $yearoverview = '<h3>Classifications</h3>';
+    $yearoverview = '<h1>Classifications</h1>';
 
     $bm_details_headers = array('amounts' => 'Amounts', 'numorders' => '# Orders', 'grossmargin' => 'Gross Margin');
     $details_headers = array('salesrep' => array('amounts' => 'Amounts USD', 'numorders' => '# Orders', 'grossmargin' => 'Gross Margin', 'netmargin' => 'Net Margin'), 'customers' => array('amounts' => 'Amounts USD', 'numorders' => '# Orders', 'grossmargin' => 'Gross Margin', 'netmargin' => 'Net Margin'));
@@ -178,7 +178,7 @@ if($db->num_rows($query) > 0) {
     }
 
     foreach($total_details as $etype => $entity_details) {
-        $yearoverview .= '<h3 style="text-decoration:underline;">'.$sections_titles[$etype].'</h3>';
+        $yearoverview .= '<h3 style="text-decoration:underline;">'.$sections_titles[$etype].'</h1>';
         foreach($entity_details as $type => $entity) {
             $yearoverview .= '<h4>'.$details_headers[$etype][$type].'</h4>';
 
@@ -230,7 +230,7 @@ if($db->num_rows($query) > 0) {
             'from_email' => $core->settings['adminemail'],
             'from' => 'OCOS Mailer',
             'subject' => 'Week '.date('W', TIME_NOW).' '.$current_date['year'].' sales report',
-            'message' => '<h3>Sales '.$current_date['month'].' '.$current_date['year'].' in Orkila Tunisie</h3><br />'.$message
+            'message' => '<h1>Sales '.$current_date['month'].' '.$current_date['year'].' in Orkila Tunisie</h1><br />'.$message
     );
 
     $mail = new Mailer($email_data, 'php');

@@ -29,7 +29,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->listofreports}</h3>
+            <h1>{$lang->listofreports}</h1>
             <form action="index.php?module=reporting/previewmreport&amp;referrer=generate" method="post" id="moderation_reporting/listmreports_Form" name="moderation_reporting/listmreports_Form" style="margin-bottom: 0px;">
                 <table class="datatable">
                     <thead>

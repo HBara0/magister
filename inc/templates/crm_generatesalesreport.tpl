@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->generatesalesreport}</h3>
+            <h1>{$lang->generatesalesreport}</h1>
             <div style="margin-left: 5px;">
                 <form name="do_crm/salesreport_Form" id="do_crm/salesreport_Form" method="post" action="index.php?module=crm/salesreport&amp;action=do_generatereport">
                     {$lang->type} <select name="type" id="type">

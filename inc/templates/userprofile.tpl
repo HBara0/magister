@@ -10,7 +10,7 @@
         <td class="contentContainer">
             <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
-                    <td colspan="2"><h3>{$profile[firstName]}, {$profile[middleName]} {$profile[lastName]}  ({$profile[displayName]})</h3></td>
+                    <td colspan="2"><h1>{$profile[firstName]}, {$profile[middleName]} {$profile[lastName]}  ({$profile[displayName]})</h1></td>
                 </tr>
                 <tr>
                     <td valign="top" style="width:35%; text-align:center;">

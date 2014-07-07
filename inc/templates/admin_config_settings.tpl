@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->modifysettings}</h3>
+            <h1>{$lang->modifysettings}</h1>
             <form id="change_config/settings_Form" name="change_config/settings_Form" action="#" method="post">
                 <table class="datatable">
                     {$settingslist}

@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->listavailablesegments}</h3>
+            <h1>{$lang->listavailablesegments}</h1>
             <div style="float:right;" class="subtitle"><a href="#" id="showpopup_addsegment" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->addasegment}</a></div>
             <table class="datatable">
                 <thead>

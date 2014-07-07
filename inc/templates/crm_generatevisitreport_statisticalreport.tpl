@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->generatedstatreport}</h3>
+            <h1>{$lang->generatedstatreport}</h1>
             <span class="subtitle">Report about {$mainsubject}</span>
             <ul type="square">
                 <li>{$lang->numberreportsbetweendates}</li>

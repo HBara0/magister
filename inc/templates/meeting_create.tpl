@@ -23,7 +23,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$pagetitle}</h3>
+            <h1>{$pagetitle}</h1>
             <iframe id='uploadFrame'  name='uploadFrame' style="display:none;" ></iframe>
             <form method="post" enctype="multipart/form-data" action="index.php?module=meetings/create" target="uploadFrame">      
 

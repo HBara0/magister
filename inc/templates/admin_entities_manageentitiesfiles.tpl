@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->listofavailablefiles}</h3>
+            <h1>{$lang->listofavailablefiles}</h1>
             <table class="datatable">
                 <thead>
                     <tr>
@@ -27,7 +27,7 @@
             <form method='post' action='$_SERVER[REQUEST_URI]'> {$lang->perlist}<input type='text' size='4' id='perpage_field' name='perpage' value='{$core->settings[itemsperlist]}' class="smalltext"/></form>
             <div><hr></div>
             <iframe id='uploadFrame' name='uploadFrame' src='#' style="display:none; margin:0px;"></iframe>
-            <h3>{$lang->addnewfile}</h3>
+            <h1>{$lang->addnewfile}</h1>
             <form  action="index.php?module=entities/manageentitiesfiles&amp;action=do_uploadfile" method="post" enctype="multipart/form-data" target="uploadFrame">
                 {$addedit_form}
                 <tr>

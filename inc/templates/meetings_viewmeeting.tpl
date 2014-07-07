@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$meeting[title]}</h3>
+            <h1>{$meeting[title]}</h1>
             <div style="padding: 5px; margin-bottom:20px; word-wrap: break-word;">
                 <div class="subtitle">{$lang->meetingdetails}</div>
                 <div style='padding: 2px; vertical-align: top; display:inline-block; width: 20%; font-weight: bold;'>{$lang->description}</div><div style='padding: 2px; display:inline-block; width: 75%;'>{$meeting[description]}</div>

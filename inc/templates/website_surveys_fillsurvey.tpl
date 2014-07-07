@@ -4,7 +4,7 @@
 </head>
 <body>
     <div class="contentContainer" style="margin:auto; -moz-box-shadow:0px 8px 10px 10px #f5f5f5; -webkit-box-shadow:0px 8px 10px 10px #f5f5f5; box-shadow:0px 8px 10px 10px #f5f5f5;">
-        <h3>{$survey_details[subject]}</h3>
+        <h1>{$survey_details[subject]}</h1>
         <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;">
             <p>{$survey_details[description]}</p>
         </div>

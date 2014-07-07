@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->importqdata}</h3>
+            <h1>{$lang->importqdata}</h1>
             <form name="perform_reporting/importqdata_Form" id="perform_reporting/importqdata_Form" action="#" method="post">
                 <input type='hidden' value="do_import" name="action">
                 {$lang->quarter} <select id="quarter" name="quarter">

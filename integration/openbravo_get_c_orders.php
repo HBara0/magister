@@ -109,7 +109,7 @@ foreach($sales as $month => $weeks) {
 $sales_table .= '<tr><td style="text-align: right; padding: 5px; border-bottom: 1px dashed #CCCCCC;" colspan="11">Up to Total</td><td style="text-align: right; padding: 5px; border-bottom: 1px dashed #CCCCCC;"><strong>'.number_format(array_sum_recursive($totals['linenetamt']), 0, '.', ' ').'</strong></td><td style="text-align: right; padding: 5px; border-bottom: 1px dashed #CCCCCC;"><strong>'.number_format(array_sum_recursive($totals['grossmargin']), 0, '.', ' ').'</strong></td><td colspan="2" style="text-align: right; padding: 5px; border-bottom: 1px dashed #CCCCCC;">&nbsp;</td></tr></tr>';
 $sales_table .= '</table>';
 
-$yearoverview = '<h3>Classifications</h3>';
+$yearoverview = '<h1>Classifications</h1>';
 
 $bm_details_headers = array('amounts' => 'Amounts', 'numorders' => '# Orders', 'grossmargin' => 'Gross Margin');
 $details_headers = array('salesrep' => array('amounts' => 'Amounts USD', 'numorders' => '# Orders', 'grossmargin' => 'Gross Margin'), 'customers' => array('amounts' => 'Amounts USD', 'numorders' => '# Orders', 'grossmargin' => 'Gross Margin'));
@@ -141,7 +141,7 @@ foreach($total_details as $etype => $entity_details) {
 }
 
 foreach($total_details as $etype => $entity_details) {
-    $yearoverview .= '<h3 style="text-decoration:underline;">'.$sections_titles[$etype].'</h3>';
+    $yearoverview .= '<h3 style="text-decoration:underline;">'.$sections_titles[$etype].'</h1>';
     foreach($entity_details as $type => $entity) {
         $yearoverview .= '<h4>'.$details_headers[$etype][$type].'</h4>';
 
@@ -192,7 +192,7 @@ $email_data = array(
         'from_email' => $core->settings['adminemail'],
         'from' => 'OCOS Mailer',
         'subject' => 'Week '.date('W', TIME_NOW).' '.$current_date['year'].' sales report',
-        'message' => '<h3>Sales '.$current_date['month'].' '.$current_date['year'].' in Orkila Tunisie</h3><br />'.$message
+        'message' => '<h1>Sales '.$current_date['month'].' '.$current_date['year'].' in Orkila Tunisie</h1><br />'.$message
 );
 
 $mail = new Mailer($email_data, 'php');

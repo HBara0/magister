@@ -102,9 +102,9 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->fillbudget}
+            <h1>{$lang->fillbudget}
                 <div style="font-style:italic; font-size:12px; color:#666;">{$budget_data[affiliateName]} | {$budget_data[supplierName]} | {$budget_data[year]}</div>
-            </h3>
+            </h1>
             <form id="perform_budgeting/fillbudget_Form" name="perform_budgeting/fillbudget_Form" action="index.php?module=budgeting/generatebudget&amp;identifier={$sessionidentifier}" method="post">
                 <input type="hidden" id='spid' name="spid" value="{$core->input[budget][spid]}"/>
                 <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">

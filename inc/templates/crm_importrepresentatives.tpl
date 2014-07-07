@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->importrepresentatives}</h3>
+            <h1>{$lang->importrepresentatives}</h1>
             <table width="100%">
                 <tr>
                     <td>

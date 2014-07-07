@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->attendancereport}</h3>
+            <h1>{$lang->attendancereport}</h1>
             <form action="#" method="post" id="perform_attendance/view_Form" name="perform_attendance/view_Form" style="margin-bottom: 0px;">
                 <table class="datatable" width="100%">
                     <thead>

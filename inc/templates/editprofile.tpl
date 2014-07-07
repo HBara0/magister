@@ -8,7 +8,7 @@
     <tr>
         <td class="menuContainer" align="right"><span style="margin-right:10px;"><a href="{$_SERVER[HTTP_REFERER]}">&laquo; Go back</a></span></td>
         <td class="contentContainer">
-            <h3>{$lang->edityouraccount}</h3>
+            <h1>{$lang->edityouraccount}</h1>
             {$notification_message}
             <form id="changepassword_Form" name="changepassword_Form" method="post">
                 <table width="100%" border="0" cellspacing="0" cellpadding="0">

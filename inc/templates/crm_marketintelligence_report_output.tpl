@@ -24,7 +24,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->mireport}</h3>
+            <h1>{$lang->mireport}</h1>
             <table width="100%" class="datatable">
                 <tr class="thead">
                     <th>{$lang->dimension}</th>

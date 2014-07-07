@@ -19,7 +19,7 @@
 <tr>
     {$menu}
     <td class="contentContainer">
-        <h3>{$survey[subject]}</h3>
+        <h1>{$survey[subject]}</h1>
         {$questionsstats}
         <div style="display:inline-block; width: 50%; margin:0; text-align:right; float:right;"><div id="perform_surveys/viewresults_Results">
                 <form action="#" method="post" id="perform_surveys/viewresults_Form" name="perform_surveys/viewresults_Form">

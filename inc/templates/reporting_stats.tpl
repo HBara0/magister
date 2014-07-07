@@ -34,7 +34,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->reportsstats} - Q{$core->input[quarter]} {$core->input[year]}</h3>
+            <h1>{$lang->reportsstats} - Q{$core->input[quarter]} {$core->input[year]}</h1>
 
             <div style="font-weight:bold;">{$lang->finalizedstats}</div>
             <table class="datatable">

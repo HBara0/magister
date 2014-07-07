@@ -37,7 +37,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>Workspace</h3> 
+            <h1>Workspace</h1> 
             <div style="width:50%; height:50%;" class="border_bottom border_right">
                 <div class="kpititle">{$kpi_config[name]}</div>
                 <div style="display: block; margin-left:23px; padding: 0px;">

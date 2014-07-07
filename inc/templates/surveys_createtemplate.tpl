@@ -44,7 +44,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->createtemplate}</h3>
+            <h1>{$lang->createtemplate}</h1>
             <form name="perform_surveys/createsurveytemplate_Form" id="perform_surveys/createsurveytemplate_Form" action="#" method="post">
                 <input type="hidden" id="action" name="action" value="{$action}" />
                 <table width="100%" border="0" cellspacing="0" cellpadding="0">

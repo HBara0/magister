@@ -27,7 +27,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->generatevisitsreports}</h3>
+            <h1>{$lang->generatevisitsreports}</h1>
             <form method="post" action="index.php?module=crm/generatevisitreport&amp;action=generate">
                 <table width="100%" cellpadding="0" cellspacing="0">
                     <tr>

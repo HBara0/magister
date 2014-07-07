@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->modifyfileinformation}</h3>
+            <h1>{$lang->modifyfileinformation}</h1>
             <form action="#" method="post"  id="perform_entities/manageentitiesfiles_Form" name="edit_entities/manageentitiesfiles_Form" >
                 <input type="hidden" id="action" name="action" value="do_modifyfileinfo">
                 <input type="hidden" id="fid" name="fid" value="{$core->input['fid']}" />

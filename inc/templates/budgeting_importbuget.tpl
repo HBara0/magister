@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->importbudget}</h3>
+            <h1>{$lang->importbudget}</h1>
             <table width="100%">
                 <tr>
                     <td><iframe id='uploadFrame' name='uploadFrame' src='#' style="display:block;"></iframe>

@@ -7,7 +7,7 @@
 <body>
     {$header}
 <tr> {$menu}
-    <td class="contentContainer"><h3>{$lang->validatebalances}</h3>
+    <td class="contentContainer"><h1>{$lang->validatebalances}</h1>
         <form action="index.php?module=attendance/balancesvalidations&amp;action=preview" method="post">
             <div style="width:15%; display:inline-block; margin: 5px; font-weight:bold;">{$lang->affiliate}</div>
             <div style="width:80%; display:inline-block; margin: 5px;">{$affid_field}</div>

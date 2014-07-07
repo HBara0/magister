@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->addadditionalbalance}</h3>
+            <h1>{$lang->addadditionalbalance}</h1>
             <form name='add_attendance/addadditionaldays_Form' id="add_attendance/addadditionaldays_Form" method="post">
                 <input type="hidden" id="action" name="action" value="do_addadditionaldays" />
                 <table width="100%">

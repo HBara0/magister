@@ -6,7 +6,7 @@
     <body>
         {$header}
     <tr> {$menu}
-        <td class="contentContainer"><h3>{$lang->listassetusers}</h3>
+        <td class="contentContainer"><h1>{$lang->listassetusers}</h1>
             <form action='$_SERVER[REQUEST_URI]' method="post">
                 <table class="datatable">
                     <thead>

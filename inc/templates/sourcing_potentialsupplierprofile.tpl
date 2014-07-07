@@ -98,7 +98,7 @@
     <tr> {$menu}
         <td class="contentContainer">
             <div style="margin-bottom: 10px;">
-                <h3 style="margin-bottom: 5px;">{$supplier[maindetails][companyName]} {$supplier[maindetails][businessPotential_output]}</h3>
+                <h3 style="margin-bottom: 5px;">{$supplier[maindetails][companyName]} {$supplier[maindetails][businessPotential_output]}</h1>
                 {$supplier[maindetails][relationMaturity_output]}
             </div>
             <div style='display:inline-block; width:50%; padding:5px; vertical-align:top;'>

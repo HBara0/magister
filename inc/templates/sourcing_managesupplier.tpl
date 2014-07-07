@@ -6,7 +6,7 @@
     <body>
         {$header}
     <tr>{$menu}
-        <td class="contentContainer"><h3>{$lang->$actiontype}</h3>
+        <td class="contentContainer"><h1>{$lang->$actiontype}</h1>
             <form name="perform_sourcing/managesupplier_Form" action="{$_SERVER[QUERY_STRING]}" method="post" id="perform_sourcing/managesupplier_Form" >
                 <input type="hidden" value="do_{$actiontype}page" name="action" id="action" />
                 <input name="supplier[ssid]" type="hidden" value="{$supplierid}" />

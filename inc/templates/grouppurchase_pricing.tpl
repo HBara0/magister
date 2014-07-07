@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->priceproduct}</h3>
+            <h1>{$lang->priceproduct}</h1>
             <form name='perform_grouppurchase/pricing_Form' id="perform_grouppurchase/pricing_Form" method="post">
                 <table width="100%">
                     <thead>

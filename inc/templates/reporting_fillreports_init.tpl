@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->selectareport}</h3>
+            <h1>{$lang->selectareport}</h1>
             <form method="post" name="fillreport" action="index.php?module=reporting/fillreport&amp;stage=productsactivity">
                 <table width="100%">
                     <tr>
