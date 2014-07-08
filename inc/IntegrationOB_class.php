@@ -319,6 +319,7 @@ class IntegrationOB extends Integration {
                             'spid' => $document['bpid'],
                             'affid' => $this->affiliates_index[$document['ad_org_id']],
                             'price' => $documentline['priceactual'],
+                            'producerPrice' => $documentline['em_ork_producerprice'],
                             'quantity' => $documentline['quantity'],
                             'quantityUnit' => $documentline['uom']
                     );
