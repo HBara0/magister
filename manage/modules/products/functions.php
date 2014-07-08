@@ -20,7 +20,7 @@ if($core->usergroup['canAddProducts'] == 0) {
 $lang->load('products_functions');
 if(!$core->input['action']) {
     $sort_url = sort_url();
-    $applications_obj = Segmentapplications::get_segmentsapplications();
+    $applications_obj = SegmentApplications::get_segmentsapplications();
     if(is_array($applications_obj)) {
         foreach($applications_obj as $application_obj) {
             $application = $application_obj->get();

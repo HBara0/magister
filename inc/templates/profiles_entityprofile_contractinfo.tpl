@@ -1,4 +1,5 @@
 <tr id="contractsection_title"><td colspan="2" class="thead">{$lang->contractualinformation}</td></tr>
+<tr><td>{$lang->centralpurchase} {$entity_isCentralPurchase_output}</td><td>{$entity->centralPurchaseNote}</td></tr>
 <tr>
     <td colspan="2">
         <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">

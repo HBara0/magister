@@ -136,8 +136,6 @@ class Entities {
             if(!isset($this->data['noQReportReq'])) {
                 $this->data['noQReportReq'] = 1; //By default no QR is required
             }
-            $this->data['isCentralPurchase'] = $this->data['isCentralPurchase'];
-            $this->data['CentralPurchaseNote'] = $this->data['CentralPurchaseNote'];
 
             $coveredcountries = $this->data['coveredcountry'];
             unset($this->data['coveredcountry']);
@@ -325,16 +323,34 @@ class Entities {
                         $db->delete_query('entitiessegments', "eid='".$this->eid."'");
                         $this->insert_entitysegments($segments);
                     }
-
-                    if(is_array($coveredcountries)) {
-                        foreach($coveredcountries as $coveredcountry) {
-                            $coveredcountry['eid'] = $this->eid;
-                            $countract_countryobj = new EntitiesContractCountries();
-                            /* set the object by the core input data and save the same object */
-                            $countract_countryobj->set($coveredcountry)->save();
-                        }
-                    }
                     if(IN_AREA == 'admin') {
+                        if(is_array($coveredcountries)) {
+                            foreach($coveredcountries as $coveredcountry) {
+                                if(empty($coveredcountry['coid'])) {
+                                    continue;
+                                }
+                                $coveredcountries_keys[] = $coveredcountry['coid'];
+                                $coveredcountry['eid'] = $this->eid;
+                                $contract_countryobj = new EntitiesContractCountries();
+                                /* set the object by the core input data and save the same object */
+                                $contract_countryobj->set($coveredcountry)->save();
+                            }
+
+                            /* Delete removed entries */
+                            $coveredcountries_keys = array_map('intval', $coveredcountries_keys);
+                            $covctryodelete = EntitiesContractCountries::get_contractcountries('eid='.$this->eid.' AND coid NOT IN ('.implode(', ', $coveredcountries_keys).')', array('returnarray' => true));
+
+                            if(is_array($covctryodelete)) {
+                                foreach($covctryodelete as $covctry) {
+                                    if(!is_object($covctry)) {
+                                        continue;
+                                    }
+                                    $covctry->delete();
+                                }
+                            }
+                            unset($coveredcountries_keys, $covctryodelete);
+                        }
+
                         /* $query = $db->query("SELECT uid FROM ".Tprefix."assignedemployees WHERE isValidator='1' AND eid='".$this->eid."'");
                           $validators = array();
                           while($validator = $db->fetch_assoc($query)) {
@@ -362,7 +378,7 @@ class Entities {
     public function get_products() {
         global $db;
 
-        $query = $db->query('SELECT pid FROM '.Tprefix.'products WHERE spid="'.$db->escape_string($this->data['eid']).'"');
+        $query = $db->query('SELECT pid FROM '.Tprefix.'products WHERE spid = "'.$db->escape_string($this->data['eid']).'"');
         if($db->num_rows($query) > 0) {
             while($poduct = $db->fetch_assoc($query)) {
                 $poducts[$poduct['pid']] = new Products($poduct['pid']);
@@ -586,6 +602,10 @@ class Entities {
         return false;
     }
 
+    public function __isset($name) {
+        return isset($this->affiliate[$name]);
+    }
+
     public function get() {
         return $this->data;
     }
@@ -642,8 +662,8 @@ class Entities {
         }
 
         $query = $db->query('SELECT *
-						FROM '.Tprefix.'assignedemployees
-						WHERE eid='.$this->data['eid'].' AND uid NOT IN (SELECT uid FROM '.Tprefix.'users WHERE gid=7)'.$query_extrawhere);
+                        FROM '.Tprefix.'assignedemployees
+                        WHERE eid='.$this->data['eid'].' AND uid NOT IN (SELECT uid FROM '.Tprefix.'users WHERE gid=7)'.$query_extrawhere);
         if($db->num_rows($query) > 0) {
             while($assigned = $db->fetch_assoc($query)) {
                 $assigns[] = new Users($assigned['uid']);
@@ -661,8 +681,8 @@ class Entities {
         }
 
         $query = $db->query('SELECT *
-					FROM '.Tprefix.'assignedemployees
-					WHERE eid='.$this->data['eid'].' AND uid NOT IN (SELECT uid FROM '.Tprefix.'users WHERE gid=7)'.$query_extrawhere);
+                        FROM '.Tprefix.'assignedemployees
+                        WHERE eid='.$this->data['eid'].' AND uid NOT IN (SELECT uid FROM '.Tprefix.'users WHERE gid=7)'.$query_extrawhere);
         if($db->num_rows($query) > 0) {
             return true;
         }

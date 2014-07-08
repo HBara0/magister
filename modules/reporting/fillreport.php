@@ -498,7 +498,7 @@ else {
                 $update = $db->update_query('productsactivity', $productactivity, $update_query_where);
                 $processed_once = true;
                 if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
-                    $cache['usedpaid'][] = $productactivity['paid'];
+                    $cachearr['usedpaid'][] = $productactivity['paid'];
                 }
             }
             else {
@@ -508,11 +508,11 @@ else {
                 unset($productactivity['productname'], $productactivity['fxrate'], $productactivity['paid']);
                 $insert = $db->insert_query('productsactivity', $productactivity);
 
-                $cache['usedpaid'][] = $db->last_id();
+                $cachearr['usedpaid'][] = $db->last_id();
                 $processed_once = true;
             }
 
-            $cache['usedpids'][] = $productactivity['pid'];
+            $cachearr['usedpids'][] = $productactivity['pid'];
         }
         if($processed_once === true) {
             /* if(is_array($oldentries)) {
@@ -520,10 +520,10 @@ else {
               $db->delete_query('productsactivity', "paid='{$val}'");
               }
               } */
-            if(is_array($cache['usedpaid'])) {
-                //$delete_query_where = ' OR ( paid NOT IN ('.implode(', ', $cache['usedpaid']).') AND pid NOT IN ('.implode(', ', $cache['usedpids']).'))';
+            if(is_array($cachearr['usedpaid'])) {
+                //$delete_query_where = ' OR ( paid NOT IN ('.implode(', ', $cachearr['usedpaid']).') AND pid NOT IN ('.implode(', ', $cachearr['usedpids']).'))';
             }
-            $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rid}' AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
+            $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rid}' AND (pid NOT IN (".implode(', ', $cachearr['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
             $update_status = $db->update_query('reports', array('prActivityAvailable' => 1), "rid='{$rid}'");
             if($update_status) {
                 if($report_meta['transFill'] != '1') {
@@ -765,7 +765,7 @@ else {
         $report = new ReportingQr(array('rid' => $report_meta['rid']));
         $currencies = unserialize($session->get_phpsession('reportcurrencies_'.$identifier));
 
-        $cache = array();
+        $cachearr = array();
         if(empty($report_meta['rid'])) {
             output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
             exit;
@@ -827,17 +827,17 @@ else {
                     $newdata['uid'] = $core->user['uid'];
 
                     $db->insert_query('productsactivity', $newdata);
-                    $cache['usedpaid'][] = $db->last_id();
+                    $cachearr['usedpaid'][] = $db->last_id();
                 }
 
-                $cache['usedpids'][] = $newdata['pid'];
+                $cachearr['usedpids'][] = $newdata['pid'];
                 if(isset($newdata['paid']) && !empty($newdata['paid'])) {
-                    $cache['usedpaid'][] = $newdata['paid'];
+                    $cachearr['usedpaid'][] = $newdata['paid'];
                 }
             }
 
-            if(is_array($cache['usedpaid'])) {
-                $delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).')';
+            if(is_array($cachearr['usedpaid'])) {
+                $delete_query_where = ' OR paid NOT IN ('.implode(', ', $cachearr['usedpaid']).')';
                 $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}' AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$products_deletequery_string}");
             }
         }

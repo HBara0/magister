@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright � 2012 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Import Quarter Data
  * $id: balancesvalidations.php
  * Created:        @zaher.reda    March 14, 2013 | 6:38:41 PM
@@ -60,15 +60,15 @@ else {
 
         if(!isset($options['salesonly']) || $options['salesonly'] != 1) {
             $po_query = $db->query("SELECT imso.*, ims.localId AS localspid, ims.foreignName AS foreignSupplierName
-						FROM ".Tprefix."integration_mediation_purchaseorders imso 
+						FROM ".Tprefix."integration_mediation_purchaseorders imso
 						LEFT JOIN ".Tprefix."integration_mediation_entities ims ON (imso.spid=ims.foreignId)
 						WHERE imso.foreignSystem={$options[foreignSystem]} AND imso.affid={$affid} AND (imso.date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).")");
 
             if($db->num_rows($po_query) > 0) {
                 while($purchaseorder = $db->fetch_assoc($po_query)) {
                     $pol_query = $db->query("SELECT DISTINCT(imp.foreignId), imsol.*, imp.localId AS localpid, imsol.pid AS foreignpid, p.spid AS localspid, imp.foreignName AS productname
-										FROM ".Tprefix."integration_mediation_purchaseorderlines imsol 
-										LEFT JOIN integration_mediation_products imp ON (imsol.pid=imp.foreignId) 
+										FROM ".Tprefix."integration_mediation_purchaseorderlines imsol
+										LEFT JOIN integration_mediation_products imp ON (imsol.pid=imp.foreignId)
 										LEFT JOIN products p ON (p.pid=imp.localId)
 										WHERE foreignOrderId='{$purchaseorder['foreignId']}'
 										AND imp.foreignSystem={$options[foreignSystem]} AND (imp.affid={$affid} OR imp.affid=0)
@@ -103,6 +103,9 @@ else {
                             }
 
                             if(is_array($report)) {
+                                if(!empty($purchaseorderline['producerPrice'])) {
+                                    $purchaseorderline['price'] = $purchaseorderline['producerPrice'];
+                                }
                                 $purchaseorderline['amount'] = $purchaseorderline['quantity'] * $purchaseorderline['price'];
                                 if(strtolower($purchaseorderline['quantityUnit']) == 'kg') {
                                     $purchaseorderline['quantity'] = $purchaseorderline['quantity'] / 1000;
@@ -268,7 +271,7 @@ else {
         //elseif($options['method'] == 'productbase')
         //{
         //	$query = $db->query("SELECT imso.*, imp.localId as localpid, p.spid AS localspid
-        //						FROM integration_mediation_stockpurchases imso JOIN integration_mediation_products imp ON (imso.pid=imp.foreignId) JOIN products p ON (p.pid=imp.localId) 
+        //						FROM integration_mediation_stockpurchases imso JOIN integration_mediation_products imp ON (imso.pid=imp.foreignId) JOIN products p ON (p.pid=imp.localId)
         //						WHERE imso.foreignSystem={$options[foreignSystem]} AND imso.affid={$affid} AND imp.localId!=0 AND (imso.date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).")");
         //}
 
@@ -319,12 +322,13 @@ else {
                     echo "Done<br />";
                 }
                 if($options['runtype'] != 'dry') {
-                    $db->update_query('reports', array('prActivityAvailable' => 1), 'rid='.$rid);
+                    $db->update_query('reports', array('isLocked' => 0, 'status' => 0, 'prActivityAvailable' => 1), 'rid='.$rid);
                 }
             }
             if(is_array($errors)) {
                 foreach($errors as $key => $val) {
                     echo '-'.$key.':<br />';
+                    $val = array_unique($val);
                     foreach($val as $error) {
                         echo $error.'<br />';
                     }
@@ -335,6 +339,7 @@ else {
             if(is_array($errors)) {
                 foreach($errors as $key => $val) {
                     echo '-'.$key.':<br />';
+                    $val = array_unique($val);
                     foreach($val as $error) {
                         echo $error.'<br />';
                     }

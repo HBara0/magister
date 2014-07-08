@@ -3,19 +3,17 @@
     <td>{$lang->initialcontractsign}</td><td><input type="text" id="pickDate_firstsigndate" autocomplete="off" tabindex="2" value="{$entity[contractFirstSigDate_output]}" /><input type="hidden" name="contractFirstSigDate" id="altpickDate_firstsigndate" value="{$entity[contractFirstSigDate]}"/></td>
 </tr>
 <tr id="contractsection_contractexpirydate">
-    <td>{$lang->expirydate}</td><td><input type="text" id="pickDate_contractexpirydate" autocomplete="off" tabindex="2" value="{$entity[contractExpiryDate_output]}" /><input type="hidden" name="contractExpiryDate" id="altpickDate_contractexpirydate" value="{$entity[contractExpiryDate]}"/> <input type="checkbox" id="contractIsEvergreen" name="contractIsEvergreen" value="1"{$contractIsEvergreen_check}> {$lang->contractevergreen}</td>
+    <td>{$lang->expirydate}</td><td><input type="text" id="pickDate_contractexpirydate" autocomplete="off" tabindex="2" value="{$entity[contractExpiryDate_output]}" /><input type="hidden" name="contractExpiryDate" id="altpickDate_contractexpirydate" value="{$entity[contractExpiryDate]}"/> <input type="checkbox" id="contractIsEvergreen" name="contractIsEvergreen" value="1"{$checkedboxes[contractIsEvergreen]}> {$lang->contractevergreen}</td>
 </tr>
 <tr id="contractsection_priornotice">
     <td>{$lang->cancelpriornotice}</td><td><input type="text" id="contractPriorNotice" name="contractPriorNotice" value="{$entity[contractPriorNotice]}"></td>
 </tr>
 <tr>
-    <td>{$lang->centralpurchase}</td><td> <input name="isCentralPurchase" id="iscentralpurchase" type="checkbox"{$isCentralPurchase} value="1"></td>
+    <td>{$lang->centralpurchase}</td><td><input name="isCentralPurchase" id="isCentralPurchase" type="checkbox"{$checkedboxes[isCentralPurchase]} value="1"></td>
 </tr>
-
-<tr  id="purchasenote" style="display:none;">
-    <td>{$lang->centralpurchasenote}</td>  <td><textarea name="CentralPurchaseNote"> </textarea></td>
+<tr id="purchasenote">
+    <td>{$lang->centralpurchasenote}</td><td><textarea name="centralPurchaseNote" cols="50" rows="5"></textarea></td>
 </tr>
-
 <tr>
     <td  colspan="2">
         <div style="width:100%; height:200px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;" id='coveredcountries_section'>
@@ -24,10 +22,9 @@
                 <th><input class='inlinefilterfield' type='text' style="width:100%" placeholder="{$lang->coveredcountries}"/></th>
                 <th>{$lang->isexclusive}</th>
                 <th>{$lang->exclusivity}</th>
-                <th>{$lang->selectiveproducts}</th>
                 <th>{$lang->agent}</th>
                 <th>{$lang->distributor}</th>
-
+                <th>{$lang->selectiveproducts}</th>
                 </thead>
                 <tbody>
                     {$coveredcountries_rows}

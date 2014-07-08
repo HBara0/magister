@@ -37,13 +37,11 @@ class EntitiesContractCountries {
     }
 
     public function save(array $data = array()) {
-        global $core;
-
 //get object of and the id and set data and save
         if(empty($data)) {
             $data = $this->data;
         }
-        if(!empty($this->data['eccid'])) {
+        if(!empty($data['eccid'])) {
             $latest_contractedobjs = EntitiesContractCountries::get_contractcountries(self::PRIMARY_KEY.'='.intval($data['eccid']));
         }
 
@@ -64,6 +62,15 @@ class EntitiesContractCountries {
         }
 
         $this->errorode = 0;
+    }
+
+    public function delete() {
+        global $db;
+
+        if(empty($this->data[self::PRIMARY_KEY])) {
+            return false;
+        }
+        return $db->delete_query(self::TABLE_NAME, self::PRIMARY_KEY.'='.$this->data[self::PRIMARY_KEY]);
     }
 
     private function update($data) {
@@ -89,9 +96,9 @@ class EntitiesContractCountries {
                     'eid' => $countrydata['eid'],
                     'coid' => $countrydata['coid'],
                     'isExclusive' => $countrydata['isExclusive'],
-                    'isAgent ' => $countrydata['Agent'],
-                    'isDistributor' => $countrydata['Distributor'],
-                    'Exclusivity' => $countrydata['Exclusivity'],
+                    'isAgent ' => $countrydata['isAgent'],
+                    'isDistributor' => $countrydata['isDistributor'],
+                    'exclusivity' => $countrydata['exclusivity'],
                     'selectiveProducts' => $countrydata['selectiveProducts'],
                     'createdBy' => $core->user['uid'],
                     'createdOn' => TIME_NOW

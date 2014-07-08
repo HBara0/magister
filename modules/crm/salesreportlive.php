@@ -19,7 +19,7 @@ if($core->usergroup['crm_canGenerateSalesReports'] == 0) {
 
 $lang->load('crm_salesreport');
 if(!$core->input['action']) {
-    $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']));
+    $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('returnarray' => true));
     $affiliates_list = parse_selectlist('affids[]', 2, $affiliates, '');
 
     $fxtypes_selectlist = parse_selectlist('fxtype', 9, array('lastm' => $lang->lastmonthrate, 'ylast' => $lang->yearlatestrate, 'yavg' => $lang->yearaveragerate, 'mavg' => $lang->monthaveragerate, 'real' => $lang->realrate), '', 0);
@@ -86,7 +86,14 @@ else {
                 $invoice->week = 'Week '.date('W-Y', $invoice->dateinvoiceduts);
                 $invoice->month = date('M, Y', $invoice->dateinvoiceduts);
                 $invoice->currency = $invoice->get_currency()->iso_code;
-                $invoice->usdfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+                $invoice->usdfxrate = $core->input['fxrate'];
+                if(empty($core->input['fxrate'])) {
+                    $invoice->usdfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+                }
+
+                if(empty($invoice->usdfxrate)) {
+                    $invoice->usdfxrate = 1;
+                }
                 if(!is_array($invoicelines)) {
                     continue;
                 }
@@ -127,6 +134,9 @@ else {
 
                     $invoiceline->uom = $invoiceline->get_uom()->uomsymbol;
                     $invoiceline->costlocal = $invoiceline->get_cost();
+                    if($invoiceline->qtyinvoiced < 0) {
+                        $invoiceline->costlocal = 0 - $invoiceline->costlocal;
+                    }
                     $invoiceline->costusd = $invoiceline->costlocal / $invoice->usdfxrate;
 
                     if(is_object($inputstack)) {
@@ -143,7 +153,7 @@ else {
                     $invoiceline->grossmarginusd = $invoiceline->grossmargin / $invoice->usdfxrate;
                     $invoiceline->netmargin = $invoiceline->linenetamt - $invoiceline->costlocal;
                     $invoiceline->netmarginusd = $invoiceline->netmargin / $invoice->usdfxrate;
-                    $invoiceline->marginperc = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $invoiceline->netmargin / $invoiceline->linenetamt);
+                    $invoiceline->marginperc = $invoiceline->netmargin / $invoiceline->linenetamt;
 
                     $output .= '<tr>';
                     foreach($cols as $col) {
@@ -153,6 +163,10 @@ else {
                         }
 
                         $data[$invoiceline->c_invoiceline_id][$col] = $value;
+                    }
+
+                    if($invoiceline->marginperc < 0 || $invoiceline->marginperc > 0.5) {
+                        $outliers[$invoiceline->c_invoiceline_id] = $data[$invoiceline->c_invoiceline_id];
                     }
                 }
             }
@@ -189,28 +203,34 @@ else {
             }
         }
         else {
-            $salesreport = '<table class="datatable"><tr>';
-            foreach($cols as $col) {
-                if(!isset($lang->{$col})) {
-                    $lang->{$col} = ucwords($col);
-                }
-                $salesreport .= '<th>'.$lang->{$col}.'</th>';
-            }
-            $salesreport .= '</tr>';
-
-            foreach($data as $iol => $row) {
-                $salesreport .= '<tr>';
+            $required_details = array('outliers', 'data');
+            foreach($required_details as $array) {
+                $salesreport .= '<h3>'.ucwords($array).'</h3><table class="datatable"><tr class="thead">';
                 foreach($cols as $col) {
-                    $value = $row[$col];
-                    if(is_numeric($value)) {
-                        $value = numfmt_format(numfmt_create('en_EN', NumberFormatter::DECIMAL), $value);
+                    if(!isset($lang->{$col})) {
+                        $lang->{$col} = ucwords($col);
                     }
-                    $salesreport .= '<td>'.$value.'</td>';
+                    $salesreport .= '<th>'.$lang->{$col}.'</th>';
                 }
-
                 $salesreport .= '</tr>';
+
+                foreach(${$array} as $iol => $row) {
+                    $salesreport .= '<tr>';
+                    foreach($cols as $col) {
+                        $value = $row[$col];
+                        if(strstr($col, 'perc')) {
+                            $value = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $value);
+                        }
+                        elseif(is_numeric($value) && $col != 'documentno') {
+                            $value = numfmt_format(numfmt_create('en_EN', NumberFormatter::DECIMAL), $value);
+                        }
+                        $salesreport .= '<td>'.$value.'</td>';
+                    }
+
+                    $salesreport .= '</tr>';
+                }
+                $salesreport .= '</table><br />';
             }
-            $salesreport .= '</table>';
         }
         eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
         output_page($previewpage);
