@@ -4,5 +4,46 @@
  PLEASE USE the Admin CP
 \*********************************/
 
+$lang['businessinfo'] = 'Information de Travail';
+$lang['businessregions'] = 'Région de Travail';
+$lang['chemicalsubstance'] = 'Substance Chimique';
+$lang['commercial'] = 'Commercial';
+$lang['companyname'] = 'Nom de l\'Entreprise';
+$lang['contactdetails'] = 'Détails de Contact';
+$lang['contactperson'] = 'Contact';
+$lang['coordinators'] = 'Coordonnateurs';
+$lang['customers'] = 'Clients';
+$lang['editrepresentative'] = 'Modifier le représentant ';
+$lang['employees'] = 'Employés';
+$lang['facetoface'] = 'Face à Face';
+$lang['fax'] = 'Fax';
+$lang['finmanager'] = 'Directeur Financier';
+$lang['fulladdress'] = 'Adresse complète';
+$lang['fullname'] = 'Nom et Prénom';
+$lang['gm'] = 'Directeur Général';
+$lang['hrinfo'] = 'Information de Ressources Humaines';
+$lang['hrmanager'] = 'Responsable des Ressources Humaines';
+$lang['infomail'] = 'Détails de mail ';
+$lang['internalextensions'] = 'Extensions internes';
+$lang['lastfiles'] = 'Derniers Fichiers';
+$lang['lastfinalized'] = 'Derniers Rapport Finalisés';
+$lang['lastvisited'] = 'Derniers rapports visités';
+$lang['management'] = 'Direction';
+$lang['name'] = 'Nom';
+$lang['pobox'] = 'Boite Postale';
+$lang['position'] = 'Poste';
+$lang['productquality'] = 'Qualité de produit';
+$lang['receivesqr'] = 'Reçoit des Rapports Trimestriels';
+$lang['representativeslist'] = 'Liste des représentants';
 $lang['rmlevel'] = 'Niveau de Maturite de la Relation (RML)';
+$lang['schedule'] = 'Délais Prévus';
+$lang['segment'] = 'Secteur';
+$lang['segments'] = 'Secteurs';
+$lang['servicequality'] = 'Qualité de Service';
+$lang['supervisor'] = 'Superviseur';
+$lang['suppliers'] = 'Fournisseurs';
+$lang['telephone'] = 'Téléphone ';
+$lang['telephonecall'] = 'Appels téléphoniques ';
+$lang['territory'] = 'Territoire ';
+$lang['workshift'] = 'Horaire de Travail ';
 ?>

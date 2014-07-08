@@ -54,6 +54,7 @@ if(!$core->input['action']) {
             foreach($maktintl_objs as $mktintldata) {
                 $mktintldata['tlidentifier']['id'] = 'tlrelation-'.$eid;
                 $mktintldata['tlidentifier']['value'] = array('cid' => $eid);
+
                 $detailmarketbox .= $maktintl_mainobj->parse_timeline_entry($mktintldata, $miprofile);
             }
         }
