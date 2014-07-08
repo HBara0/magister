@@ -38,7 +38,8 @@ class DataAccessLayer {
         $sql .= $this->construct_limitclause($configs['limit']);
 
         $query = $db->query($sql);
-        if($db->num_rows($query) >= 1) {
+        $numrows = $db->num_rows($query);
+        if($numrows > 1) {
             while($item = $db->fetch_assoc($query)) {
                 $items[$item[$this->primary_key]] = new $this->class($item[$this->primary_key], $configs['simple']);
             }
@@ -46,11 +47,11 @@ class DataAccessLayer {
             return $items;
         }
         else {
-            if($db->num_rows($query) == 1 && $configs['returnarray'] == true) {
+            if($numrows == 1 && $configs['returnarray'] == true) {
                 $pk = $db->fetch_field($query, $this->primary_key);
                 return array($pk => new $this->class($pk, $configs['simple']));
             }
-            else {
+            elseif($numrows == 1) {
                 return new $this->class($db->fetch_field($query, $this->primary_key), $configs['simple']);
             }
             return false;
@@ -60,29 +61,30 @@ class DataAccessLayer {
     public function get_objects_byattr($attr, $value, $options = array()) {
         global $db;
 
-//if(!empty($value) && !empty($attr)) {
-        if(is_array($options)) {
-//$sql = 'SELECT '.$this->primary_key.' FROM '.Tprefix.$this->table_name.' WHERE '.$db->escape_string($attr).'="'.$db->escape_string($value).'"';
-            $sql = 'SELECT '.$this->primary_key.' FROM '.Tprefix.$this->table_name;
-
-            $filters = array($attr => $value);
-            $sql .= $this->construct_whereclause($filters, array($attr => $options['operator']));
-            $query = $db->query($sql);
-            if($db->num_rows($query) > 1) {
-                $items = array();
-                while($item = $db->fetch_assoc($query)) {
-                    $items[$item[$this->primary_key]] = new $this->class($item[$this->primary_key]);
-                }
-                $db->free_result($query);
-                return $items;
-            }
-            else {
-                if($db->num_rows($query) == 1) {
-                    return new $this->class($db->fetch_field($query, $this->primary_key));
-                }
-                return false;
-            }
+        if(is_empty($value, $attr)) {
+            return false;
         }
+
+        $sql = 'SELECT '.$this->primary_key.' FROM '.Tprefix.$this->table_name;
+
+        $filters = array($attr => $value);
+        $sql .= $this->construct_whereclause($filters, array($attr => $options['operator']));
+        $query = $db->query($sql);
+        if($db->num_rows($query) > 1) {
+            $items = array();
+            while($item = $db->fetch_assoc($query)) {
+                $items[$item[$this->primary_key]] = new $this->class($item[$this->primary_key]);
+            }
+            $db->free_result($query);
+            return $items;
+        }
+        else {
+            if($db->num_rows($query) == 1) {
+                return new $this->class($db->fetch_field($query, $this->primary_key));
+            }
+            return false;
+        }
+
         return false;
     }
 
@@ -156,7 +158,6 @@ class DataAccessLayer {
                         $value = intval($value);
                     }
                     else {
-
                         if($operators[$attr] == 'like') {
                             $value = '"%'.$db->escape_string($value).'%"';
                         }
