@@ -114,7 +114,7 @@ class MarketIntelligence {
         }
     }
 
-    // convert to dal
+// convert to dal
     public static function get_marketdata_dal($filters, $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         $configs['returnarray'] = true;
@@ -136,6 +136,10 @@ class MarketIntelligence {
                 $item = new ChemFunctionProducts($id);
                 return array($item->get_produt(), $item->get_chemicalfunction(), $item->get_segmentapplication(), $item->get_segment());
                 break;
+            case ChemicalFunctionChemical:
+                $item = new ChemicalFunctionChemical($id);
+                return array($item->get_chemicalsubstance());
+                break;
             case Customers:
                 $item = new Customers($id);
                 return $item;
@@ -150,7 +154,6 @@ class MarketIntelligence {
     public function parse_timelineentry_item($id, $type) {
         $displayitem = $this->get_timelineentry_item($id, $type);
         $output = '';
-
         if(is_array($displayitem)) {
             foreach($displayitem as $item) {
                 if(empty($output['displayName'])) {
@@ -202,14 +205,17 @@ class MarketIntelligence {
 
         $entity_mrktendproducts_objs = new EndproducTypes($entity_brandproducts['eptid']); //$maktintl_obj->get_marketendproducts($entity_brandproducts['eptid']);
         $entity_mrktendproducts = $entity_mrktendproducts_objs->get()['title'];
-        if(empty($entity_mrktendproducts)) {
-            $chemfunc_chemobj = new ChemicalFunctionChemical($data['cfcid']);
-            $entity_mrktendproducts = $chemfunc_chemobj->get_chemicalsubstance()->name;
-        }
+
 
         if(!empty($profile['displayItem'])) {
-            $data['timelineItem'] = $this->parse_timelineentry_item($data[$profile['displayItem']::PRIMARY_KEY], $profile['displayItem']);
+            /* Get chemial substance if no cfpid for the cusomter */
+            if(empty($data['cfpid'])) {
+                $chemfunc_chemobj = new ChemicalFunctionChemical($data['cfcid']);
+                $profile['displayItem'] = 'ChemicalFunctionChemical';
+            }
 
+            $data['timelineItem'] = $this->parse_timelineentry_item($data[$profile['displayItem']::PRIMARY_KEY], $profile['displayItem']);
+            print_R($data['timelineItem']);
             $data['timelineItemId'] = $data[$profile['displayItem']::PRIMARY_KEY];
 
             $data['tlidentifier']['value'][$profile['displayItem']::PRIMARY_KEY] = $data['timelineItemId'];
