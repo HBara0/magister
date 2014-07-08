@@ -8,7 +8,7 @@ $timeframe['from'] = strtotime('today');
 $timeframe['to'] = strtotime('tomorrow');
 
 $query = $db->query("SELECT vr.*, u.displayName AS employeename, u.reportsTo, e.companyName as customer, aff.vrAlwaysNotify
-					FROM ".Tprefix."visitreports vr JOIN ".Tprefix."users u ON (u.uid=vr.uid) 
+					FROM ".Tprefix."visitreports vr JOIN ".Tprefix."users u ON (u.uid=vr.uid)
 					JOIN ".Tprefix."entities e ON (e.eid=vr.cid)
 					JOIN ".Tprefix."affiliates aff ON (aff.affid=vr.affid)
 					WHERE finishDate BETWEEN {$timeframe[from]} AND {$timeframe[to]} ORDER BY uid ASC, cid ASC");
@@ -17,10 +17,10 @@ if($db->num_rows($query) > 0) {
     while($report = $db->fetch_assoc($query)) {
         $report['date_output'] = date($core->settings['dateformat'], $report['date']);
 
-        if(!isset($cache['visitreport_type'][$report['type']]) || empty($cache['visitreport_type'][$report['type']])) {
-            $cache['visitreport_type'][$report['type']] = parse_calltype($report['type']);
+        if(!isset($cachearr['visitreport_type'][$report['type']]) || empty($cachearr['visitreport_type'][$report['type']])) {
+            $cachearr['visitreport_type'][$report['type']] = parse_calltype($report['type']);
         }
-        $report['type_output'] = $cache['visitreport_type'][$report['type']];
+        $report['type_output'] = $cachearr['visitreport_type'][$report['type']];
 
         $reports[$report['reportsTo']][$report['uid']][$report['vrid']] = $report;
 

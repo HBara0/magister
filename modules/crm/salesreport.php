@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Sales Report
  * $module: CRM
  * $id: salesreport.php
@@ -105,8 +105,8 @@ else {
         }
 
         $query = $db->query("SELECT imso.foreignId AS order_id, date, docNum, foreignName AS bpname, cid AS bpid, ime.foreignNameAbbr AS bpname_abv, currency, salesRepLocalId AS salesrep_id, salesRep AS salesrep, imso.paymentTerms AS paymenttermsdays, usdFxrate
-					FROM integration_mediation_salesorders imso 
-					JOIN integration_mediation_entities ime ON (ime.foreignId=imso.cid) 
+					FROM integration_mediation_salesorders imso
+					JOIN integration_mediation_entities ime ON (ime.foreignId=imso.cid)
 					WHERE imso.affid IN (".$db->escape_string(implode(',', $core->input['affids'])).") AND (date BETWEEN ".$period['from']." AND ".$period['to']."){$query_where}
 					ORDER by date DESC");
 
@@ -126,12 +126,12 @@ else {
                 }
 
                 $orderline_query = $db->query("SELECT imol.*, imol.foreignId AS orderline_id, imp.foreignName AS productname, imp.foreignNameAbbr AS productnameAbbr, imp.localId AS productLocalId, cost, costCurrency, ime.foreignName AS supplier, ps.titleAbbr AS productcategory
-											FROM integration_mediation_salesorderlines imol 
+											FROM integration_mediation_salesorderlines imol
 											JOIN integration_mediation_products imp ON (imp.foreignId=imol.pid)
 											LEFT JOIN products p ON (imp.localId=p.pid)
 											LEFT JOIN genericproducts gp ON (p.gpid=gp.gpid)
 											LEFT JOIN productsegments ps ON (ps.psid=gp.psid)
-											LEFT JOIN integration_mediation_entities ime ON (ime.foreignId =imol.spid) 
+											LEFT JOIN integration_mediation_entities ime ON (ime.foreignId =imol.spid)
 											WHERE foreignOrderId='{$order[order_id]}'{$orderline_query_where}");
                 $quantity_accuml = 0;
                 while($orderline = $db->fetch_assoc($orderline_query)) {
@@ -223,7 +223,7 @@ else {
 
                     foreach($total_details_items as $cat => $config) {
                         if($core->input['type'] == $config['type']) {
-                            $cache[$cat][${$config['var']}[$config['id']]] = ${$config['var']}[$config['name']]; // $order['bpname_abv'];
+                            $cachearr[$cat][${$config['var']}[$config['id']]] = ${$config['var']}[$config['name']]; // $order['bpname_abv'];
                             $total_details[$cat]['amounts'][${$config['var']}[$config['id']]][$order['month_num']] += $orderline['linenetamt'];
                             $total_details[$cat]['numorders'][${$config['var']}[$config['id']]][$order['month_num']] ++;
                             $total_details[$cat]['grossmargin'][${$config['var']}[$config['id']]][$order['month_num']] += $orderline['grossmargin'];
@@ -296,7 +296,7 @@ else {
                   arsort($salesreps);
                   $bm_sales_table .= '<tr><td style="margin-top: 10px; font-weight: bold; text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC; background-color:#F7FAFD;">BM</td><td style="margin-top: 10px; font-weight: bold; text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC; background-color:#F7FAFD;">'.$bm_details_headers[$type].'</td></tr>';
                   foreach($salesreps as $id => $amount) {
-                  $bm_sales_table .= '<tr><td style="text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC;">'.$cache['salesrep'][$id].'</td><td style="text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC;">'.number_format($amount, 2, '.', ' ').'</td></tr>';
+                  $bm_sales_table .= '<tr><td style="text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC;">'.$cachearr['salesrep'][$id].'</td><td style="text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC;">'.number_format($amount, 2, '.', ' ').'</td></tr>';
                   }
                   }
                   $bm_sales_table .= '</table>';
@@ -337,7 +337,7 @@ else {
 
                             $months_amounts = $entity[$id];
 
-                            $salesreport .= '<tr><td style="text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC;">'.$cache[$etype][$id].'</td>';
+                            $salesreport .= '<tr><td style="text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC;">'.$cachearr[$etype][$id].'</td>';
 
                             for($month = 1; $month <= 12; $month++) {
                                 $salesreport .= '<td style="text-align: right; padding: 5px; border-bottom: 1px dashed #CCCCCC;">'.number_format($months_amounts[$month], 0, '.', ' ').'</td>';
@@ -403,7 +403,7 @@ else {
 //			'subject'     => 'Week '.date('W', TIME_NOW).' '.$current_date['year'].' sales classifications',
 //			'message'     => '<h2>Sales Year '.$current_date['year'].' Overview in Orkila Tunisie</h2>'.$message
 //		);
-//		
+//
 //		$mail = new Mailer($email_data, 'php');
 //		if($mail->get_status() === true) {
 //			//$log->record('hrbirthdaynotification', array('to' => $recepient_details['email']), 'emailsent');

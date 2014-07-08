@@ -22,7 +22,7 @@ if(!$core->input['action']) {
     $lang->thisweek = 'This Week';
     $lang->lastmonth = 'Last Month';
     $lang->lastweek = 'Last Week';
-    $cache = array();
+    $cachearr = array();
 
     if((date('m', TIME_NOW) - 1) == 0) {
         $timelinestart = mktime(0, 0, 0, 12, 1, (date('Y', TIME_NOW) - 1));
@@ -87,8 +87,8 @@ if(!$core->input['action']) {
             $users_supervisors[$id][$users_reportsto['uid']]['name'] = $users_reportsto['name'];
             $users_info[$users_reportsto['uid']] = $users_reportsto;
             $supervisor_affids[$id][$users_reportsto['affid']] = $users_reportsto['affid'];
-            if(!isset($cache['affiliates'][$users_reportsto['affid']])) {
-                $cache['affiliates'][$users_reportsto['affid']] = $users_reportsto['affname'];
+            if(!isset($cachearr['affiliates'][$users_reportsto['affid']])) {
+                $cachearr['affiliates'][$users_reportsto['affid']] = $users_reportsto['affname'];
             }
         }
     }
@@ -110,8 +110,8 @@ if(!$core->input['action']) {
                 if(!isset($users_info[$users['uid']])) {
                     $users_info[$users['uid']] = $users;
                 }
-                if(!isset($cache['affiliates'][$users_reportsto['affid']])) {
-                    $cache['affiliates'][$users_reportsto['affid']] = $users_reportsto['affname'];
+                if(!isset($cachearr['affiliates'][$users_reportsto['affid']])) {
+                    $cachearr['affiliates'][$users_reportsto['affid']] = $users_reportsto['affname'];
                 }
                 //}
             }
@@ -431,7 +431,7 @@ if(!$core->input['action']) {
                             if($found_one_entry == true) {
                                 $found_one_entry_section = true;
                                 if(sizeof($data) > 1) {
-                                    $timeline_message_affiliate .= $linebreak['affiliate'].'<span style="font-style:italic;">'.$cache['affiliates'][$affid].'</span> <br />';
+                                    $timeline_message_affiliate .= $linebreak['affiliate'].'<span style="font-style:italic;">'.$cachearr['affiliates'][$affid].'</span> <br />';
                                     $linebreak['affiliate'] = '<br />';
                                 }
                                 $timeline_message_affiliate .= $timeline_message_details;
@@ -452,7 +452,7 @@ if(!$core->input['action']) {
             if(sizeof($output[$affid]) < 1) {
                 continue;
             }
-            $message .= '<div style="margin-top: 10px;font-weight: bold; color:#669900; border-bottom: 1px solid #F2F2F2;">'.$cache['affiliates'][$affid].'</div>';
+            $message .= '<div style="margin-top: 10px;font-weight: bold; color:#669900; border-bottom: 1px solid #F2F2F2;">'.$cachearr['affiliates'][$affid].'</div>';
 
             $message .= '<table border="0" width="100%" style="border: 0px; width: 100%; border-spacing: 0px; border-collapse:collapse; padding:0px;">';
             $message .= '<tr style="background-color:#92D050; font-weight: bold; font-size: 12px; border-bottom: dashed 1px #666666; text-align: left; padding: 4px;">';
@@ -499,7 +499,7 @@ if(!$core->input['action']) {
 //                uasort($val, 'sortusers');
 //                foreach($val as $key => $uid) {
 //                    if(sizeof($data) > 1 && $affiliate_parsed == false && isset($output[$ltid][$affid][$key])) {
-//                        $message_rows .= '<td colspan="15" style="font-weight:bold; background-color:#D6EAAC; border-bottom: dashed 1px #666666;">'.$cache['affiliates'][$affid].'</td>';
+//                        $message_rows .= '<td colspan="15" style="font-weight:bold; background-color:#D6EAAC; border-bottom: dashed 1px #666666;">'.$cachearr['affiliates'][$affid].'</td>';
 //                        $affiliate_parsed = true;
 //                    }
 //                    $message_rows .= $output[$ltid][$affid][$key];
@@ -538,7 +538,7 @@ if(!$core->input['action']) {
             $email_data = array(
                     'from_email' => $core->settings['maileremail'],
                     'from' => 'OCOS Mailer',
-                    'subject' => 'Monthly Leaves Overview - '.$cache['affiliates'][$affid],
+                    'subject' => 'Monthly Leaves Overview - '.$cachearr['affiliates'][$affid],
                     'message' => $message_output
             );
 
