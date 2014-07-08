@@ -35,10 +35,6 @@
                         $("#createReports,#noQReportSend").removeAttr("disabled");
                     }
                 });
-
-                $('#iscentralpurchase').change(function() {
-                    $('#purchasenote').toggle();
-                })//ensure visible state matches initially
             });
         </script>
     </head>
@@ -151,10 +147,10 @@
                     </tr>
                     <tr><td colspan="2"><hr /></td>
                     <tr>
-                        <td colspan="2" align="left"><input name="noQReportReq" id="noQReportReq" type="checkbox" value="1"{$noqreportreq_checkbox}{$noqreportreq_disabled}> {$lang->noqreportsrequired}</td>
+                        <td colspan="2" align="left"><input name="noQReportReq" id="noQReportReq" type="checkbox" value="1"{$checkedboxes[noQReportReq]}{$noqreportreq_disabled}> {$lang->noqreportsrequired}</td>
                     </tr>
                     <tr>
-                        <td colspan="2" align="left"><input name="noQReportSend" id="noQReportSend" type="checkbox" value="1"{$noqreportsend_checkbox}{$noqreportsend_disabled}> {$lang->noqreportstosend}</td>
+                        <td colspan="2" align="left"><input name="noQReportSend" id="noQReportSend" type="checkbox" value="1"{$checkedboxes[noQReportSend]}{$noqreportsend_disabled}> {$lang->noqreportstosend}</td>
                     </tr>
                     <tr>
                         <td colspan="2" align="left"><input name="createReports" id="createReports" type="checkbox" value="1"{$createreports_disabled}> {$lang->alsocreatecurrentreports}</td>

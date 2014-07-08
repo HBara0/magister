@@ -138,14 +138,11 @@ if(!$core->input['action']) {
         $representative_rows = " <tr id='1'><td><input type='text' id='representative_1_QSearch' autocomplete='off' size='40px'/><input type='hidden' id='representative_1_id' name='representative[1][rpid]'/><a href='#' id='addnew_entities/add_representative'><img src='../images/addnew.png' border='0' alt='{$lang->add}'></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td></tr>";
     }
 
-    if($entity['noQReportReq'] == 1) {
-        $noqreportreq_checkbox = " checked='checked'";
-    }
-    if($entity['isCentralPurchase'] == 1) {
-        $isCentralPurchase = " checked='checked'";
-    }
-    if($entity['noQReportSend'] == 1) {
-        $noqreportsend_checkbox = " checked='checked'";
+    $checkboxes = array('noQReportReq', 'isCentralPurchase', 'noQReportSend', 'contractIsEvergreen');
+    foreach($checkboxes as $checkbox) {
+        if($entity[$checkbox] == 1) {
+            $checkedboxes[$checkbox] = ' checked="checked"';
+        }
     }
 
     if(!empty($entity['contractFirstSigDate'])) {
@@ -157,10 +154,7 @@ if(!$core->input['action']) {
         $entity['contractExpiryDate_output'] = date($core->settings['dateformat'], $entity['contractExpiryDate']);
         $entity['contractExpiryDate'] = date('d-m-Y', $entity['contractExpiryDate']);
     }
-    $contractIsEvergreen_check = '';
-    if($entity['contractIsEvergreen'] == 1) {
-        $contractIsEvergreen_check = ' checked';
-    }
+
     $actiontype = 'edit';
     $pagetitle = $lang->sprint($lang->editentitywithname, $entity['companyName']);
 
@@ -179,7 +173,7 @@ if(!$core->input['action']) {
         }
         $countries_objs = Countries::get_coveredcountries();
         if(is_array($countries_objs)) {
-            $checkbox_fields = array('isExclusive', 'selectiveProducts');
+            $checkbox_fields = array('isExclusive', 'selectiveProducts', 'isAgent', 'isDistributor');
             foreach($countries_objs as $country) {
 
                 $comex_contacts = $country->coid.'$comex_contacts';
@@ -188,6 +182,8 @@ if(!$core->input['action']) {
                     if(array_key_exists($country->coid, $contracted_countries)) {
                         $checked['coid'] = " checked='checked'";
                     }
+                    $selected['exclusivity'][$contracted_countries[$country->coid]->exclusivity] = ' selected="selected"';
+
                     foreach($checkbox_fields as $checkbox_field) {
                         if($contracted_countries[$country->coid]->{$checkbox_field} == 1) {
                             $checked[$checkbox_field] = " checked='checked'";
@@ -195,7 +191,7 @@ if(!$core->input['action']) {
                     }
                 }
                 eval("\$coveredcountries_rows .= \"".$template->get('admin_entities_addedit_contractinfo_ctryrow')."\";");
-                unset($checked);
+                unset($checked, $selected);
             }
         }
         eval("\$contractinfo_section = \"".$template->get('admin_entities_addedit_contractinfo')."\";");
@@ -231,7 +227,7 @@ else {
     }
     elseif($core->input['action'] == 'get_addnew_representative') {
         eval("\$addrepresentativebox = \"".$template->get('popup_addrepresentative')."\";");
-        output_page($addrepresentativebox);
+        output($addrepresentativebox);
     }
 }
 ?>

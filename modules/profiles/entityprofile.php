@@ -19,9 +19,8 @@ if(!$core->input['action']) {
     }
 
     $eid = $db->escape_string($core->input['eid']);
-    $entity_obj = new Entities($eid, '', false);
-    $profile = $entity_obj->get();
-
+    $entity = new Entities($eid, '', false);
+    $profile = $entity->get();
 
     /* Market Data --START */
     $filter_where = 'eid IN ('.$eid.')';
@@ -67,9 +66,7 @@ if(!$core->input['action']) {
     if(!empty($profile['building'])) {
         $profile['fulladdress'] .= $profile['building'].' - ';
     }
-    if($profile['isCentralPurchase'] == 1) {
-        $centralpurshase_icon = '<img src="images/valid.gif" border="0">';
-    }
+
     //$profile['fulladdress'] = $profile['building'];
     if(!empty($profile['postCode'])) {
         $profile['fulladdress'] .= $profile['postCode'].', ';
@@ -118,7 +115,7 @@ if(!$core->input['action']) {
         $profile['logo'] = $core->settings['rootdir'].'/'.$core->settings['entitylogodir'].'/'.$profile['logo'];
     }
 
-    $profile['country'] = $entity_obj->get_country()->name;
+    $profile['country'] = $entity->get_country()->name;
 
     $profile['fulladdress'] .= $profile['country'];
 
@@ -244,7 +241,7 @@ if(!$core->input['action']) {
         /* Load supplier's quarterly reports - End */
 
         /* Load supplier's products list - Start */
-        $products = $entity_obj->get_products();
+        $products = $entity->get_products();
         if(is_array($products)) {
             foreach($products as $pid => $product) {
                 $defaultchemfunc = $product->get_defaultchemfunction();
@@ -380,21 +377,19 @@ if(!$core->input['action']) {
         /* Parse Rating Section - END */
 
         if($core->usergroup['profiles_canViewContractInfo'] == 1) {
-            $contracted_objs = $entity_obj->get_contractedcountires();
+            $entity_isCentralPurchase_output = '<img src="images/invalid.gif" border="0">';
+            if($entity->isCentralPurchase == 1) {
+                $entity_isCentralPurchase_output = '<img src="images/valid.gif" border="0">';
+            }
+            $contracted_objs = $entity->get_contractedcountires();
             $check_fields = array('isExclusive', 'selectiveProducts', 'isAgent', 'isDistributor');
             if(is_array($contracted_objs)) {
                 foreach($contracted_objs as $eccid => $contractedcountry) {
-                    $selectiveProducts = $isExclusive = '<img src="images/false.gif" border="0">';
                     $contractedcountry->displayName = $contractedcountry->get_country()->get_displayname();
                     foreach($check_fields as $check_field) {
                         $check_field_output = $check_field.'_output';
                         $contractedcountry->{$check_field_output} = '<img src="images/invalid.gif" border="0">';
-                        $contractedcountry->{$check_field_output} = '<img src="images/invalid.gif" border="0">';
-                        $contractedcountry->{$check_field_output} = '<img src="images/invalid.gif" border="0">';
                         if($contractedcountry->{$check_field} == 1) {
-
-                            $contractedcountry->{$check_field_output} = '<img src="images/valid.gif" border="0">';
-                            $contractedcountry->{$check_field_output} = '<img src="images/valid.gif" border="0">';
                             $contractedcountry->{$check_field_output} = '<img src="images/valid.gif" border="0">';
                         }
                     }
@@ -438,7 +433,7 @@ if(!$core->input['action']) {
     /* parse Minites Of Meetings --START */
     if($core->usergroup['canUseMeetings'] == 1) {
         $lang->load('meetings_meta');
-        $meetings = $entity_obj->get_meetings();
+        $meetings = $entity->get_meetings();
         if(is_array($meetings)) {
             foreach($meetings as $mtid => $meeting_obj) {
                 if(!$meeting_obj->can_viewmeeting()) {
@@ -462,7 +457,7 @@ if(!$core->input['action']) {
     /* parse Minites Of Meetings --END */
 
     if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
-        $brandsproducts = $entity_obj->get_brandsproducts();
+        $brandsproducts = $entity->get_brandsproducts();
         $output = '';
         if(is_array($brandsproducts)) {
             foreach($brandsproducts as $brandproduct) {
@@ -517,7 +512,7 @@ else {
         }
 
         $entityusers_list_output = '<ul style="list-style:none; padding:2px; margin-top:0px;">'.$entityusers_list.'</ul>';
-        echo $entityusers_list_output;
+        output($entityusers_list_output);
     }
     elseif($core->input['action'] == 'get_contactpersoninformation') {
         $rpid = $db->escape_string(base64_decode($core->input['id']));
