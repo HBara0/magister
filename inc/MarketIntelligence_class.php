@@ -169,7 +169,7 @@ class MarketIntelligence {
     }
 
     public function parse_timeline_entry(array $data, array $profile, $depth = 0, $is_last = false) {
-        global $core, $template;
+        global $core, $template, $lang;
         $timedepth = 25 - ($depth * 5);
         $height = 25 - ($depth * 5);
         $top = 10 + ($depth * 2);
@@ -202,6 +202,10 @@ class MarketIntelligence {
 
         $entity_mrktendproducts_objs = new EndproducTypes($entity_brandproducts['eptid']); //$maktintl_obj->get_marketendproducts($entity_brandproducts['eptid']);
         $entity_mrktendproducts = $entity_mrktendproducts_objs->get()['title'];
+        if(empty($entity_mrktendproducts)) {
+            $chemfunc_chemobj = new ChemicalFunctionChemical($data['cfcid']);
+            $entity_mrktendproducts = $chemfunc_chemobj->get_chemicalsubstance()->name;
+        }
 
         if(!empty($profile['displayItem'])) {
             $data['timelineItem'] = $this->parse_timelineentry_item($data[$profile['displayItem']::PRIMARY_KEY], $profile['displayItem']);
