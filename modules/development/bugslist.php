@@ -17,9 +17,9 @@ if(!$core->input['action']) {
 
     if(is_array($bugs)) {
         foreach($bugs as $bug) {
-            $rowclass = 'unapproved';
+            $rowclass = 'danger';
             if($bug->isFixed) {
-                $rowclass = 'greenbackground';
+                $rowclass = 'success';
             }
 
             $bug->link = $bug->parse_link();

@@ -196,7 +196,6 @@ if(!$core->input['action']) {
         $finalized_reports = '';
         if($db->num_rows($report_query)) {
             while($report = $db->fetch_assoc($report_query)) {
-                $row_class = alt_row($row_class);
                 if($report['status'] == 1) {
                     $icon_locked = '';
                     if($report['isLocked'] == 1) {
@@ -205,7 +204,7 @@ if(!$core->input['action']) {
                     $report_icon = '<a href="index.php?module=reporting/preview&referrer=list&amp;affid='.$report['affid'].'&amp;spid='.$report['spid'].'&amp;quarter='.$report['quarter'].'&amp;year='.$report['year'].'"><img src="images/icons/report'.$icon_locked.'.gif" alt="'.$report['status'].'" border="0"/></a>';
                 }
 
-                $finalized_reports .= '<tr class="'.$row_class.'"><td>'.$report['affiliate_name'].'</td><td>Q'.$report['quarter'].'</td><td>'.$report['year'].'</td><td style="width:1%; text-align:right;">'.$report_icon.'</td></tr>';
+                $finalized_reports .= '<tr><td>'.$report['affiliate_name'].'</td><td>Q'.$report['quarter'].'</td><td>'.$report['year'].'</td><td style="width:1%; text-align:right;">'.$report_icon.'</td></tr>';
             }
             $finalized_reports .= '<tr><td colspan="4"><a href="index.php?module=reporting/list&filterby=spid&filtervalue='.$eid.'">Read more</a></tr></td>';
             eval("\$reports_section = \"".$template->get('profiles_entityprofile_reports')."\";");

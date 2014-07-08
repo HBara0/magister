@@ -20,6 +20,10 @@ h1, h2, h3, h4 {
     font-weight:100;
 }
 
+h3 {
+    font-size: 24px;
+}
+
 .subtitle {
     font-weight: bold;
     color:#669900;
@@ -113,6 +117,24 @@ a, a:visited {
         padding: 5px;
     }
 
+    .success, .selected {
+        background-color: #D6EAAC;
+    }
+
+    .info {
+        background-color: #D9EDF7;
+    }
+
+    .warning {
+        background-color: #FCF8E3;
+    }
+
+    .danger, .error {
+        background-color: #F9D0D0;
+    }
+}
+
+.datatable-striped {
     tbody>tr:nth-child(even) > td {
         background-color: $color_polar;
     }

@@ -7,7 +7,7 @@ $id: _constants.scss
 Created:        @zaher.reda    Apr 13, 2014 | 10:04:22 PM
 Last Update:    @zaher.reda    Apr 13, 2014 | 10:04:22 PM
 */
-/* 
+/*
     Created on : Apr 13, 2014, 10:04:22 PM
     Author     : zaher.reda
 */
@@ -26,6 +26,9 @@ h1, h2, h3, h4 {
   margin-top: 0px;
   color: #91b64f;
   font-weight: 100; }
+
+h3 {
+  font-size: 24px; }
 
 .subtitle {
   font-weight: bold;
@@ -103,8 +106,17 @@ a, a:visited {
   .datatable th, .datatable td {
     text-align: left;
     padding: 5px; }
-  .datatable tbody > tr:nth-child(even) > td {
-    background-color: #f7fafd; }
+  .datatable .success, .datatable .selected {
+    background-color: #D6EAAC; }
+  .datatable .info {
+    background-color: #D9EDF7; }
+  .datatable .warning {
+    background-color: #FCF8E3; }
+  .datatable .danger, .datatable .error {
+    background-color: #F9D0D0; }
+
+.datatable-striped tbody > tr:nth-child(even) > td {
+  background-color: #f7fafd; }
 
 td {
   padding: 2px; }

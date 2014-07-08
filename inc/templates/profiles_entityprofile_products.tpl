@@ -6,7 +6,7 @@
             </thead>
         </table>
         <div style="height: 200px; width: 100%; overflow:auto;">
-            <table class="datatable">
+            <table class="datatable datatable-striped">
                 <thead>
                     <tr class="altrow2">
                         <th><input class='inlinefilterfield' type='text' style="width: 95%"/></th>

@@ -6,8 +6,10 @@
             </thead>
         </table>
         <div style="height: 200px; width: 100%; overflow:auto;">
-            <table class="datatable">
-                {$meetingslist}
+            <table class="datatable datatable-striped">
+                <tbody>
+                    {$meetingslist}
+                </tbody>
             </table>
         </div>
     </td>

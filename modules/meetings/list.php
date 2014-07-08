@@ -56,7 +56,7 @@ else {
             foreach($shared_users as $uid => $user) {
                 $user = $user->get();
                 $checked = ' checked="checked"';
-                $rowclass = 'greenbackground';
+                $rowclass = 'selected';
 
                 eval("\$sharewith_rows .= \"".$template->get('popup_meetings_sharewith_rows')."\";");
             }
