@@ -838,7 +838,7 @@ else {
 
             if(is_array($cachearr['usedpaid'])) {
                 $delete_query_where = ' OR paid NOT IN ('.implode(', ', $cachearr['usedpaid']).')';
-                $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}' AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$products_deletequery_string}");
+                $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}' AND (pid NOT IN (".implode(', ', $cachearr['usedpids'])."){$delete_query_where}){$products_deletequery_string}");
             }
         }
         else {
