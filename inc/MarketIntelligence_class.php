@@ -215,7 +215,6 @@ class MarketIntelligence {
             }
 
             $data['timelineItem'] = $this->parse_timelineentry_item($data[$profile['displayItem']::PRIMARY_KEY], $profile['displayItem']);
-            print_R($data['timelineItem']);
             $data['timelineItemId'] = $data[$profile['displayItem']::PRIMARY_KEY];
 
             $data['tlidentifier']['value'][$profile['displayItem']::PRIMARY_KEY] = $data['timelineItemId'];
