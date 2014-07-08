@@ -55,6 +55,7 @@ if(!$core->input['action']) {
             foreach($maktintl_objs as $mktintldata) {
                 $mktintldata['tlidentifier']['id'] = 'tlrelation-'.$eid;
                 $mktintldata['tlidentifier']['value'] = array('cid' => $eid);
+
                 $detailmarketbox .= $maktintl_mainobj->parse_timeline_entry($mktintldata, $miprofile);
             }
         }
@@ -389,12 +390,8 @@ if(!$core->input['action']) {
                     foreach($check_fields as $check_field) {
                         $check_field_output = $check_field.'_output';
                         $contractedcountry->{$check_field_output} = '<img src="images/invalid.gif" border="0">';
-                        $contractedcountry->{$check_field_output} = '<img src="images/invalid.gif" border="0">';
-                        $contractedcountry->{$check_field_output} = '<img src="images/invalid.gif" border="0">';
                         if($contractedcountry->{$check_field} == 1) {
 
-                            $contractedcountry->{$check_field_output} = '<img src="images/valid.gif" border="0">';
-                            $contractedcountry->{$check_field_output} = '<img src="images/valid.gif" border="0">';
                             $contractedcountry->{$check_field_output} = '<img src="images/valid.gif" border="0">';
                         }
                     }
