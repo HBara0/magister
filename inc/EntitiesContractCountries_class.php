@@ -64,6 +64,15 @@ class EntitiesContractCountries {
         $this->errorode = 0;
     }
 
+    public function delete() {
+        global $db;
+
+        if(empty($this->data[self::PRIMARY_KEY])) {
+            return false;
+        }
+        return $db->delete_query(self::TABLE_NAME, self::PRIMARY_KEY.'='.$this->data[self::PRIMARY_KEY]);
+    }
+
     private function update($data) {
         global $db, $core;
         if(!isset($data['isExclusive'])) {

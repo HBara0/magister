@@ -329,11 +329,28 @@ class Entities {
                                 if(empty($coveredcountry['coid'])) {
                                     continue;
                                 }
+                                $coveredcountries_keys[] = $coveredcountry['coid'];
                                 $coveredcountry['eid'] = $this->eid;
                                 $contract_countryobj = new EntitiesContractCountries();
                                 /* set the object by the core input data and save the same object */
                                 $contract_countryobj->set($coveredcountry)->save();
                             }
+
+                            /* Delete removed entries */
+                            $coveredcountries_keys = array_map('intval', $coveredcountries_keys);
+                            $covctryodelete = EntitiesContractCountries::get_contractcountries('eid='.$this->eid.' AND coid NOT IN ('.implode(', ', $coveredcountries_keys).')', array('returnarray' => true));
+
+                            if(is_array($covctryodelete)) {
+                                foreach($covctryodelete as $covctry) {
+                                    if(!is_object($covctry)) {
+                                        continue;
+                                    }
+                                    $covctry->delete();
+                                }
+                            }
+                            unset($coveredcountries_keys, $covctryodelete);
+                        }
+
                         /* $query = $db->query("SELECT uid FROM ".Tprefix."assignedemployees WHERE isValidator='1' AND eid='".$this->eid."'");
                           $validators = array();
                           while($validator = $db->fetch_assoc($query)) {
