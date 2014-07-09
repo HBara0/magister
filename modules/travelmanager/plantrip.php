@@ -7,13 +7,12 @@
  * Created:        @tony.assaad    May 28, 2014 | 10:03:51 AM
  * Last Update:    @tony.assaad    May 28, 2014 | 10:03:51 AM
  */
-
-
+if(!defined('DIRECT_ACCESS')) {
+    die('Direct initialization of this file is not allowed.');
+}
 
 if(!$core->input['action']) {
-
     $leaveid = $db->escape_string($core->input['lid']);
-    $leaveid = 10982;
     $sequence = 1;
 
     $tools_addnewtab = '<a id="createtab" class="showpopup" href="#" title="'.$lang->addsegment.'"><img border="0"  alt="Create New Tab" src="images/addnew.png"></img> </a>';
