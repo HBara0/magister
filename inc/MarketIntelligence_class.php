@@ -21,11 +21,11 @@ class MarketIntelligence {
     private $customer = null;
     private $brand = null;
     private $endproducttype = null;
-    private $miprofiles = array('latestcustomersumbyproduct' => array('groupby' => array('cfpid', 'mibdid'), 'aggregateby' => array('cfpid'), 'displayItem' => ChemFunctionProducts, 'timelevel' => 'latest'), //Main entity profile
+    private $miprofiles = array('latestcustomersumbyproduct' => array('groupby' => array('cfpid', 'cfcid', 'mibdid'), 'aggregateby' => array('cfpid', 'cfcid'), 'displayItem' => ChemFunctionProducts, 'timelevel' => 'latest'), //Main entity profile
             'allprevious' => array('groupby' => array('createdOn', 'eptid', 'mibdid'), 'aggregateby' => array('mibdid'), 'timelevel' => 'allprevious'), //N Level
-            'latestaggregatecustomersumbyproduct' => array('groupby' => array('cfpid', 'mibdid'), 'aggregateby' => array('cid', 'cfpid'), 'displayItem' => ChemFunctionProducts, 'timelevel' => 'latest'),
-            'latestaggregatebycustomer' => array('groupby' => array('cid', 'eptid'), 'aggregateby' => array('cid', 'cfpid'), 'displayItem' => Customers, 'timelevel' => 'latest'),
-            'latestaggregatebyaffiliate' => array('groupby' => array('affid', 'mibdid'), 'aggregateby' => array('affid', 'cfpid'), 'displayItem' => Affiliates, 'timelevel' => 'latest') //Main affililate profile
+            'latestaggregatecustomersumbyproduct' => array('groupby' => array('cfpid', 'cfcid', 'mibdid'), 'aggregateby' => array('cid', 'cfpid', 'cfcid'), 'displayItem' => ChemFunctionProducts, 'timelevel' => 'latest'),
+            'latestaggregatebycustomer' => array('groupby' => array('cid', 'eptid'), 'aggregateby' => array('cid', 'cfpid', 'cfcid'), 'displayItem' => Customers, 'timelevel' => 'latest'),
+            'latestaggregatebyaffiliate' => array('groupby' => array('affid', 'mibdid'), 'aggregateby' => array('affid', 'cfpid', 'cfcid'), 'displayItem' => Affiliates, 'timelevel' => 'latest') //Main affililate profile
     );
 
     public function __construct($id = '', $simple = false) {
@@ -216,7 +216,6 @@ class MarketIntelligence {
 
             $data['timelineItem'] = $this->parse_timelineentry_item($data[$profile['displayItem']::PRIMARY_KEY], $profile['displayItem']);
             $data['timelineItemId'] = $data[$profile['displayItem']::PRIMARY_KEY];
-
             $data['tlidentifier']['value'][$profile['displayItem']::PRIMARY_KEY] = $data['timelineItemId'];
             $tlidentifier['value'] = serialize($data['tlidentifier']['value']);
 
