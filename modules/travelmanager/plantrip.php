@@ -137,27 +137,10 @@ elseif($core->input['action'] == 'populatecontent') {
     $origincitydata = $origincity_obj->get();
     $origintcity['name'] = $origincitydata[name];
     $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
-    //$directionapi = TravelManagerPlan::get_availablecitytransp(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']));  /* Get available tranportaion mode for the city proposed by google API */
     $transpmode_googledirections = ' https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 
-//    for($i = 0; $i < count($directionapi->routes[0]->legs[0]->steps); $i++) {
-//        if(!empty($directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->url)) {
-//            $transitmode['url'] = $directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->url;
-//        }
-//        if(!empty($directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->name)) {
-//            $transitmode['vehiclename'] = $directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->name;
-//        }
-//        if(!empty($directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->type)) {
-//            $transitmode['vehicletype'] = $directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->type;
-//        }
-    // $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation($transitmode, array('origincity' => $origintcity, 'destcity' => $destcity), $sequence);
-    //   eval("\$transsegments_output  .= \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
-    // unset($transitmode);
-//}
     /* Load proposed transproration */
     $transsegments_output = Cities::parse_tranaportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
-
-
     /* load approved hotels */
     $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence);
 
