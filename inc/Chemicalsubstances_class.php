@@ -16,6 +16,10 @@
 class Chemicalsubstances {
     private $data = array();
 
+    const PRIMARY_KEY = 'csid';
+    const TABLE_NAME = 'chemicalsubstances';
+    const DISPLAY_NAME = 'name';
+
     public function __construct($id = '', $simple = false) {
         if(isset($id)) {
             $this->read($id, $simple);
@@ -112,6 +116,10 @@ class Chemicalsubstances {
 
     public function get() {
         return $this->data;
+    }
+
+    public function get_displayname() {
+        return $this->data[self::DISPLAY_NAME];
     }
 
     public function get_status() {
