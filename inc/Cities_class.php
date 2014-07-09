@@ -212,12 +212,13 @@ class Cities {
 
             $transp_category_fields = TravelManagerPlan::parse_transportaionfields($drivingmode['transpcat']['name'], array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['departuretime']), $sequence);
 
-            eval("\$transcategments_output  .= \"".$template->get('travelmanager_plantrip_segment_catransportation')."\";");
-            eval("\$transsegments_output  = \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
-            unset($transitmode);
+            eval("\$transcategments_output = \"".$template->get('travelmanager_plantrip_segment_catransportation')."\";");
+            eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
 
-            return $transsegments_output;
+            unset($transitmode);
         }
+
+        return $transsegments_output;
     }
 
     public function __set($name, $value) {

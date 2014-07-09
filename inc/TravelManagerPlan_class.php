@@ -88,11 +88,11 @@ class TravelManagerPlan {
                 case'taxi':
                     $transportaion_fields = 'Approxmita fare'.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'text', '');
                     break;
-                case'trasin':
+                case'train':
                     $transportaion_fields = 'Train '.parse_textfield('segment['.$sequence.'][tmtcid][vechicleNumber]', 'text', '');
                     break;
-                case'train': //airplane
-                    $availabe_arilinersobjs = TravelManagerAirlines::get_airlines('', array('contracted' => '1'));
+                case 'airplane':
+                    $availabe_arilinersobjs = TravelManagerAirlines::get_airlines(array('contracted' => '1'));
                     if(is_array($availabe_arilinersobjs)) {
                         foreach($availabe_arilinersobjs as $availabe_arilinersobj) {
                             $availabe_ariliners = $availabe_arilinersobj->get();
@@ -114,7 +114,7 @@ class TravelManagerPlan {
             }
 
             $transportaion_fields .='<div style="display:inline-block;padding:5px;"  id="approximatefare"> Approximate Fare '.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'number', '').'</div>';
-            $transportaion_fields.=$flights_records;
+            $transportaion_fields.= $flights_records;
             return $transportaion_fields;
         }
     }

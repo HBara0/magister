@@ -87,7 +87,6 @@ class TravelManagerAirlines {
                 $flight['carrier'] = $response_flightdata->trips->data->carrier[0]->name;
 
                 for($segmentnum = 0; $segmentnum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment); $segmentnum++) {
-
                     $departuretime = strtotime($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->departureTime);
                     $arrivaltime = strtotime($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->arrivalTime);
                     $flight['departuretime'] = date($core->settings['timeformat'], $departuretime);
@@ -113,7 +112,6 @@ class TravelManagerAirlines {
 
                     eval("\$flights_records_segments .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails_segments')."\";");
                 }
-
 
                 eval("\$flights_records .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
                 $flights_records_segments = '';
