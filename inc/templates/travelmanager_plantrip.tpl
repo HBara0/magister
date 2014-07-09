@@ -59,7 +59,7 @@
                     sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecityprofile", "&sequence=" + sequence + "&destcity=" + ciid, 'segment_city_loader_' + sequence + '', 'segment_city_' + sequence + '', true);
                 });
 
-                var firstcategoryid = $('input[id*=transp_]').attr('id').split("_")[3];
+                /*var firstcategoryid = $('input[id*=transp_]').attr('id').split("_")[3];*/
 
                 $('input[id*=transp_]').live('click', function() {
                     var id = $(this).attr('id').split("_");
@@ -97,7 +97,6 @@
 
             .ui-icon,.ui-icon-close {
                 cursor: pointer;
-                title
             }
         </style>
     </head>
@@ -126,5 +125,4 @@
     </tr>
     {$footer}
 </body>
-
 </html>
