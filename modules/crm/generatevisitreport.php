@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Generate visit reports
  * $module: CRM
- * $id: generatevisitreport.php	
+ * $id: generatevisitreport.php
  * Created: 	@zaher.reda 	August 13, 2009 | 11:23 AM
  * Last Update: @zaher.reda		April 28, 2011 | 06:47 PM
  */
@@ -176,7 +176,7 @@ else {
         }
         elseif($core->input['generateType'] == 2) {
             $query = $db->query("SELECT DISTINCT(vr.vrid)
-							FROM ".Tprefix."visitreports vr JOIN ".Tprefix."visitreports_reportsuppliers vrs ON (vrs.vrid = vr.vrid) JOIN ".Tprefix."entities e ON (vrs.spid = e.eid) 
+							FROM ".Tprefix."visitreports vr JOIN ".Tprefix."visitreports_reportsuppliers vrs ON (vrs.vrid = vr.vrid) JOIN ".Tprefix."entities e ON (vrs.spid = e.eid)
 							WHERE (date BETWEEN {$date_from} AND {$date_to}) AND {$query_attribute_prefix}.{$query_attribute} = '".$db->escape_string($core->input[$query_attribute])."'{$extra_where}");
             if($db->num_rows($query) > 0) {
                 while($report = $db->fetch_array($query)) {
@@ -198,7 +198,7 @@ else {
         //$pie_data =  array();
         if($db->num_rows($query) > 0) {
             //$count = 0;
-            $cache['vrid'] = array();
+            $cachearr['vrid'] = array();
 
             while($visitreport = $db->fetch_assoc($query)) {
                 $rowclass = alt_row($rowclass);
@@ -237,7 +237,7 @@ else {
                 $visits_list .= '<td style="text-align:right;"><a href="index.php?module=crm/previewvisitreport&amp;referrer=list&amp;vrid='.$visitreport['vrid'].'"><img src="images/icons/report'.$icon_locked.'.gif" alt="'.$visitreport['status_text'].'" border="0"/></a></td>';
                 $visits_list .= '</tr>';
 
-                if(!in_array($visitreport['vrid'], $cache['vrid'])) {
+                if(!in_array($visitreport['vrid'], $cachearr['vrid'])) {
                     $date_info = getdate($visitreport['date']);
                     if(isset($days[$date_info['mday'].'_'.$date_info['wday'].'_'.$date_info['mon'].'_'.$date_info['year']])) {
                         $days[$date_info['mday'].'_'.$date_info['wday'].'_'.$date_info['mon'].'_'.$date_info['year']] += 1;
@@ -246,11 +246,11 @@ else {
                         $days[$date_info['mday'].'_'.$date_info['wday'].'_'.$date_info['mon'].'_'.$date_info['year']] = 1;
                     }
                 }
-                $cache['vrid'][$visitreport['vrid']] = $visitreport['vrid'];
+                $cachearr['vrid'][$visitreport['vrid']] = $visitreport['vrid'];
                 //$count++;
             }
 
-            $lang->numberreportsbetweendates = $lang->sprint($lang->numberreportsbetweendates, count($cache['vrid']), date($core->settings['dateformat'], $date_from), date($core->settings['dateformat'], $date_to));
+            $lang->numberreportsbetweendates = $lang->sprint($lang->numberreportsbetweendates, count($cachearr['vrid']), date($core->settings['dateformat'], $date_from), date($core->settings['dateformat'], $date_to));
             if(is_array($days)) {
                 $lang->maxvisistperday = $lang->sprint($lang->maxvisistperday, max($days));
             }

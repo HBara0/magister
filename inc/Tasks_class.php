@@ -14,6 +14,10 @@ class Tasks {
     private $status = 0; //0=No errors;1=Subject missing;2=Entry exists;3=Error saving
     private $date_vars = array('dueDate', 'timeDone');
 
+    const PRIMARY_KEY = 'ctid';
+    const TABLE_NAME = 'calendar_tasks';
+    const DISPLAY_NAME = 'subject';
+
     public function __construct($id = '', $simple = false) {
         global $core;
 
@@ -112,7 +116,7 @@ class Tasks {
             //$ical_obj->set_icalattendees($this->task['uid']);
             $ical_obj->sentby();
             $ical_obj->set_percentcomplete($this->task['percCompleted']);
-            //$ical_obj->set_categories('CalendarTask');		
+            //$ical_obj->set_categories('CalendarTask');
             $ical_obj->endical();
             $ical_obj->save();
 
@@ -168,7 +172,7 @@ class Tasks {
                 }
             }
             catch(Exception $e) {
-                
+
             }
 
             $this->status = 0;
@@ -269,6 +273,44 @@ class Tasks {
     public function get_task() {
         fix_newline($this->task['description']);
         return $this->task;
+    }
+
+    public function get_user() {
+        return new Users($this->task['uid']);
+    }
+
+    public static function get_tasks($filters = null, array $configs = array()) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
+    }
+
+    public function get_displayname() {
+        return $this->task[self::DISPLAY_NAME];
+    }
+
+    public function get() {
+        return $this->task;
+    }
+
+    public function __get($name) {
+        if(isset($this->task[$name])) {
+            return $this->task[$name];
+        }
+        return false;
+    }
+
+    public function __isset($name) {
+        return isset($this->task[$name]);
+    }
+
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.' "'.$val.'"';
+            }
+        }
+
+        return '<a href="index.php?module=calendar/task&id='.$this->task[self::PRIMARY_KEY].'" '.$attributes.'>'.$this->task[self::DISPLAY_NAME].'</a>';
     }
 
     public function parse_status() {

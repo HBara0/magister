@@ -550,23 +550,23 @@ class ReportingQr Extends Reporting {
 
                         unset($productdata['fxrate'], $productdata['productname']);
                         $db->insert_query('productsactivity', $productdata);
-                        $cache['usedpaid'][] = $db->last_id();
+                        $cachearr['usedpaid'][] = $db->last_id();
                         $processed_once = true;
                     }
 
-                    $cache['usedpids'][] = $productdata['pid'];
+                    $cachearr['usedpids'][] = $productdata['pid'];
                     if(isset($productdata['paid']) && !empty($productdata['paid'])) {
-                        $cache['usedpaid'][] = $productdata['paid'];
+                        $cachearr['usedpaid'][] = $productdata['paid'];
                     }
                 }
             }
 
             if($processed_once === true) {
-                if(is_array($cache['usedpaid'])) {
-                    //$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cache['usedpaid']).')';
+                if(is_array($cachearr['usedpaid'])) {
+                    //$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cachearr['usedpaid']).')';
                 }
 
-                $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid=".$this->report['rid']." AND (pid NOT IN (".implode(', ', $cache['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
+                $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid=".$this->report['rid']." AND (pid NOT IN (".implode(', ', $cachearr['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
                 $update_status = $db->update_query('reports', array('prActivityAvailable' => 1), 'rid='.$this->report['rid'].'');
             }
             /* Data to be passed */

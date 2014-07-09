@@ -87,12 +87,12 @@ elseif($core->input['action'] == 'suggest_customervisits') {
 						WHERE (date < '.strtotime('-1 month').')
 						AND e.eid IN (SELECT ase.eid
 							FROM '.Tprefix.'assignedemployees ase JOIN '.Tprefix.'users u ON (u.uid=ase.uid) JOIN '.Tprefix.'entities e ON (e.eid=ase.eid)
-							WHERE e.type = "c" AND ase.uid = '.$core->input['uid'].')
-						AND e.eid != '.$core->input['cid'].'
+							WHERE e.type = "c" AND ase.uid = '.intval($core->input['uid']).')
+						AND e.eid != '.intval($core->input['cid']).'
 						ORDER BY date DESC limit 0, 5');
-    $cache['eid'] = array(0);
+    $cachearr['eid'] = array(0);
     while($suggestion = $db->fetch_assoc($visits_query)) {
-        $cache['eid'][] = $suggestion['eid'];
+        $cachearr['eid'][] = $suggestion['eid'];
         $suggestions_longtime .= '<li>'.$suggestion['customer'].' ('.date($core->settings['dateformat'], $suggestion['date']).')</li>';
     }
     /* Check leaves older than 1 month - START */
@@ -104,8 +104,8 @@ elseif($core->input['action'] == 'suggest_customervisits') {
 						WHERE (l.fromDate < '.strtotime('-1 month').')
 						AND e.eid IN (SELECT ase.eid
 						FROM '.Tprefix.'assignedemployees ase JOIN '.Tprefix.'users u ON (u.uid=ase.uid) JOIN '.Tprefix.'entities e ON (e.eid=ase.eid)
-						WHERE e.type = "c" AND ase.uid = '.$core->input['uid'].')
-						AND e.eid != '.$core->input['cid'].' AND e.eid NOT IN ('.implode(',', $cache['eid']).')
+						WHERE e.type = "c" AND ase.uid = '.intval($core->input['uid']).')
+						AND e.eid != '.intval($core->input['cid']).' AND e.eid NOT IN ('.implode(',', $cachearr['eid']).')
 						ORDER BY date DESC limit 0, '.(5 - $visits_count));
         if($db->num_rows($leaves_query) > 0) {
             while($suggestion = $db->fetch_assoc($leaves_query)) {
@@ -125,7 +125,7 @@ elseif($core->input['action'] == 'get_popup_calendar_custvisitsdetails') {
 						JOIN '.Tprefix.'users u ON (u.uid = l.uid)
 						JOIN '.Tprefix.'visitreports vr ON (l.lid = vr.lid)
 						JOIN '.Tprefix.'entities e ON (e.eid = vr.cid)
-						WHERE vr.lid='.$db->escape_string($core->input['id'])));
+						WHERE vr.lid='.intval($core->input['id'])));
 
     if(!empty($visit)) {
         $visit['fromDate_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $visit['fromDate']);

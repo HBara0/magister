@@ -13,7 +13,7 @@ class Currencies {
     private $base_currency = 'USD';
     private $currency;
     private $error_handler = NULL;
-    private $cache = '';
+    private $cachearr = '';
 
     public function __construct($base_currency) {
         $this->error_handler = new ErrorHandler(true);
@@ -471,11 +471,11 @@ class Currencies {
             $currency_string = strval($rate[$source_settings['currency_attr']]);
             $rate_string = floatval($rate[$source_settings['rate_attr']]);
             $currencies_rates[$currency_string] = $rate_string;
-            $cache['currencies'][] = '"'.$currency_string.'"';
+            $cachearr['currencies'][] = '"'.$currency_string.'"';
         }
 
-        $cache['currencies'][] = '"'.$source_settings['base_currency'].'"';
-        $currencies = $this->get_currencies(array('numCode', 'alphaCode'), array('attribute' => 'alphaCode', 'values' => $cache['currencies']));
+        $cachearr['currencies'][] = '"'.$source_settings['base_currency'].'"';
+        $currencies = $this->get_currencies(array('numCode', 'alphaCode'), array('attribute' => 'alphaCode', 'values' => $cachearr['currencies']));
 
         foreach($currencies_rates as $currency_code => $currency_rate) {
             if($currency_code == $this->base_currency) {

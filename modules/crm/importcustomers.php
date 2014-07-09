@@ -51,11 +51,11 @@ else {
             {
                 return window.top.$("#upload_Result").html("<?php echo addslashes(parse_datapreview($csv_header, $data));?>");
             });
-        </script>   
+        </script>
         <?php
     }
     elseif($core->input['action'] == 'do_perform_importcustomers') {
-        $headers_cache_representative = $cache['countries'] = $cache['cities'] = $cache['affiliates'] = $cache['segments'] = $cache['position'] = array();
+        $headers_cache_representative = $cachearr['countries'] = $cachearr['cities'] = $cachearr['affiliates'] = $cachearr['segments'] = $cachearr['position'] = array();
         $all_data = unserialize($session->get_phpsession('crmimportcustomers_'.$core->input['identifier']));
 
         /* Check Representatives - START */
@@ -119,10 +119,10 @@ else {
                 if(isset($data_row_representative[$key]['position'])) {
                     $positions_array = explode($core->input['multivalueseperator'], $data_row_representative[$key]['position']);
                     foreach($positions_array as $key2 => $val) {
-                        if(!in_array($val, $cache['position'])) {
+                        if(!in_array($val, $cachearr['position'])) {
                             $posid = $db->fetch_field($db->query("SELECT posid FROM ".Tprefix."positions WHERE name='".str_replace(' ', '', strtolower($val))."'"), 'posid');
                             if(!empty($posid)) {
-                                $cache['position'][$posid] = $val;
+                                $cachearr['position'][$posid] = $val;
                                 $representative_positions[$key][] = $posid;
                             }
                             else {
@@ -130,7 +130,7 @@ else {
                             }
                         }
                         else {
-                            $representative_positions[$key][] = array_search($val, $cache['position']);
+                            $representative_positions[$key][] = array_search($val, $cachearr['position']);
                         }
                     }
                     unset($data_row_representative[$key]['position']);
@@ -234,10 +234,10 @@ else {
                 }
             }
             if(isset($data_row[$key]['country'])) {
-                if(!in_array($data_row[$key]['country'], $cache['countries'])) {
+                if(!in_array($data_row[$key]['country'], $cachearr['countries'])) {
                     $coid = $db->fetch_field($db->query("SELECT coid FROM ".Tprefix."countries WHERE name='{$data_row[$key][country]}'"), 'coid');
                     if(!empty($coid)) {
-                        $cache['countries'][$coid] = $data_row[$key]['country'];
+                        $cachearr['countries'][$coid] = $data_row[$key]['country'];
                         $data_row[$key]['country'] = $coid;
                     }
                     else {
@@ -246,14 +246,14 @@ else {
                     }
                 }
                 else {
-                    $data_row[$key]['country'] = array_search($data_row[$key]['country'], $cache['countries']);
+                    $data_row[$key]['country'] = array_search($data_row[$key]['country'], $cachearr['countries']);
                 }
             }
             if(isset($data_row[$key]['city'])) {
-                if(!in_array($data_row[$key]['city'], $cache['cities'])) {
+                if(!in_array($data_row[$key]['city'], $cachearr['cities'])) {
                     $ciid = $db->fetch_field($db->query("SELECT ciid FROM ".Tprefix."cities WHERE LOWER(name)='".trim(strtolower($data_row[$key]['city']))."'"), 'ciid');
                     if(!empty($ciid)) {
-                        $cache['cities'][$ciid] = $data_row[$key]['city'];
+                        $cachearr['cities'][$ciid] = $data_row[$key]['city'];
                         $data_row[$key]['city'] = $ciid;
                     }
                     else {
@@ -262,7 +262,7 @@ else {
                     }
                 }
                 else {
-                    $data_row[$key]['city'] = array_search($data_row[$key]['city'], $cache['cities']);
+                    $data_row[$key]['city'] = array_search($data_row[$key]['city'], $cachearr['cities']);
                 }
             }
             if(strstr($data_row[$key]['segments'], $core->input['multivalueseperator'])) {
@@ -272,8 +272,8 @@ else {
 
             if(is_array($data_row[$key]['segments'])) {
                 foreach($data_row[$key]['segments'] as $key => $seg) {
-                    if(in_array($seg, $cache['segments'])) {
-                        $segments[$key][array_search($seg, $cache['segments'])] = array_search($seg, $cache['segments']);
+                    if(in_array($seg, $cachearr['segments'])) {
+                        $segments[$key][array_search($seg, $cachearr['segments'])] = array_search($seg, $cachearr['segments']);
                         unset($data_row[$key]['segments']);
                     }
                 }
@@ -283,7 +283,7 @@ else {
                         $segments = array();
                         while($segment = $db->fetch_assoc($query)) {
                             $segments[$key][$segment['psid']] = $segment['psid'];
-                            $cache['segments'][$segment['psid']] = $segment['title'];
+                            $cachearr['segments'][$segment['psid']] = $segment['title'];
                         }
                     }
                     else {
@@ -292,19 +292,19 @@ else {
                 }
             }
             else {
-                if(!in_array($data_row[$key]['segments'], $cache['segments'])) {
+                if(!in_array($data_row[$key]['segments'], $cachearr['segments'])) {
                     $query = $db->query("SELECT psid FROM ".Tprefix."productsegments WHERE title = '{$data_row[$key][segments]}'");
                     if($db->num_rows($query) > 0) {
                         $segment = $db->fetch_assoc($query);
                         $segments[$key][$segment['psid']] = $segment['psid'];
-                        $cache['segments'][$segment['psid']] = $data_row[$key]['segments'];
+                        $cachearr['segments'][$segment['psid']] = $data_row[$key]['segments'];
                     }
                     else {
                         $errors['customer'][] = $lang->ignoredsegments.$data_row[$key]['segments'];
                     }
                 }
                 else {
-                    $psid = array_search($data_row[$key]['segments'], $cache['segments']);
+                    $psid = array_search($data_row[$key]['segments'], $cachearr['segments']);
                     $segments[$key][$psid] = $psid;
                 }
             }
@@ -316,8 +316,8 @@ else {
 
             if(is_array($data_row[$key]['affiliates'])) {
                 foreach($data_row[$key]['affiliates'] as $aff) {
-                    if(in_array($aff, $cache['affiliates'])) {
-                        $affiliates[$key][array_search($aff, $cache['affiliates'])] = array_search($aff, $cache['affiliates']);
+                    if(in_array($aff, $cachearr['affiliates'])) {
+                        $affiliates[$key][array_search($aff, $cachearr['affiliates'])] = array_search($aff, $cachearr['affiliates']);
                         unset($data_row[$key]['affiliates']);
                     }
                 }
@@ -327,7 +327,7 @@ else {
                         $affiliates = array();
                         while($affiliate = $db->fetch_assoc($query)) {
                             $affiliates[$key][$affiliate['affid']] = $affiliate['affid'];
-                            $cache['affiliates'][$affiliate['affid']] = $affiliate['name'];
+                            $cachearr['affiliates'][$affiliate['affid']] = $affiliate['name'];
                         }
                     }
                     else {
@@ -336,11 +336,11 @@ else {
                 }
             }
             else {
-                if(!in_array($data_row[$key]['affiliates'], $cache['affiliates'])) {
+                if(!in_array($data_row[$key]['affiliates'], $cachearr['affiliates'])) {
                     $query = $db->query("SELECT affid FROM ".Tprefix."affiliates WHERE LOWER(name) ='".trim(strtolower($data_row[$key]['affiliates']))."'");
                     if($db->num_rows($query) > 0) {
                         $affiliate = $db->fetch_assoc($query);
-                        $cache['affiliates'][$affiliate['affid']] = $data_row[$key]['affiliates'];
+                        $cachearr['affiliates'][$affiliate['affid']] = $data_row[$key]['affiliates'];
                         $affiliates[$key][$affiliate['affid']] = $affiliate['affid'];
                     }
                     else {
@@ -348,7 +348,7 @@ else {
                     }
                 }
                 else {
-                    $affid = array_search($data_row[$key]['affiliates'], $cache['affiliates']);
+                    $affid = array_search($data_row[$key]['affiliates'], $cachearr['affiliates']);
                     $affiliates[$key][$affid] = $affid;
                 }
             }
@@ -381,10 +381,10 @@ else {
                             if(isset($representative['segment'])) {
                                 $segments_array = explode($core->input['multivalueseperator'], $representative['segment']);
                                 foreach($segments_array as $key2 => $val) {
-                                    if(!in_array($val, $cache['segments'])) {
+                                    if(!in_array($val, $cachearr['segments'])) {
                                         $psid = $db->fetch_field($db->query("SELECT psid FROM ".Tprefix."productsegments WHERE LOWER(title)='".trim(strtolower($val))."'"), 'psid');
                                         if(!empty($psid)) {
-                                            $cache['segments'][$psid] = $val;
+                                            $cachearr['segments'][$psid] = $val;
                                             $representative_segments[$key][] = $psid;
                                         }
                                         else {
@@ -392,7 +392,7 @@ else {
                                         }
                                     }
                                     else {
-                                        $representative_segments[$key][] = array_search($val, $cache['segments']);
+                                        $representative_segments[$key][] = array_search($val, $cachearr['segments']);
                                     }
                                 }
                                 unset($data_row_representative[$key]['segments']);
@@ -454,10 +454,10 @@ else {
                             if(isset($representative['segment'])) {
                                 $segments_array = explode($core->input['multivalueseperator'], $representative['segment']);
                                 foreach($segments_array as $key2 => $val) {
-                                    if(!in_array($val, $cache['segments'])) {
+                                    if(!in_array($val, $cachearr['segments'])) {
                                         $psid = $db->fetch_field($db->query("SELECT psid FROM ".Tprefix."productsegments WHERE LOWER(title)='".trim(strtolower($val))."'"), 'psid');
                                         if(!empty($psid)) {
-                                            $cache['segments'][$psid] = $val;
+                                            $cachearr['segments'][$psid] = $val;
                                             $representative_segments[$key][] = $psid;
                                         }
                                         else {
@@ -465,7 +465,7 @@ else {
                                         }
                                     }
                                     else {
-                                        $representative_segments[$key][] = array_search($val, $cache['segments']);
+                                        $representative_segments[$key][] = array_search($val, $cachearr['segments']);
                                     }
                                 }
                                 unset($data_row_representative[$key]['segments']);
@@ -497,7 +497,7 @@ else {
             }
         }
         $log->record();
-        /* if(is_array($errors)) { 
+        /* if(is_array($errors)) {
           if(is_array($errors['customer'])){
           $importerrors .= '<br /><strong>Customer</strong><ol>';
           foreach($errors['customer'] as $key => $details) {
