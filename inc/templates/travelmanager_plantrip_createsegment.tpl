@@ -42,7 +42,8 @@
 
 </div>
 
-<div style="  padding: 8px; width:100%;" id="transpcat_content">
+<div style="padding: 8px; width:100%;" id="transpcat_content">
+
     {$transsegments_output}
 
 </div>

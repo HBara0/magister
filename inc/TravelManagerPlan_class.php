@@ -68,7 +68,7 @@ class TravelManagerPlan {
     public static function parse_transportation($transmode, $directiondata = array(), $sequence) {
         global $lang;
         /* The proposed transportation categories   are parsed accordingly with the possible available transportation methods proposed by Google */
-        $transporcat_obj = TravelManagerTranspCategories::get_categories_byattr('apiVehicleTypes', $transmode['vehicletype'], array('operator' => 'like'));
+        $transporcat_obj = TravelManagerTranspCategories::get_categories_byattr('apiVehicleTypes', $transmode['vehicleType'], array('operator' => 'like'));
         if(is_object($transporcat_obj)) {
             $transportaion_cat = $transporcat_obj->get();
             if(is_array($transportaion_cat)) {
@@ -86,10 +86,11 @@ class TravelManagerPlan {
         if(!empty($category)) {
             switch($category) {
                 case'taxi':
-                    $transportaion_fields = 'Approxmita fare'.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'text', '');
+                    $transportaion_fields = 'Approxmita fare'.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'number', '');
                     break;
                 case'train':
-                    $transportaion_fields = 'Train '.parse_textfield('segment['.$sequence.'][tmtcid][vechicleNumber]', 'text', '');
+                    //.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'text', '');
+                    $transportaion_fields = 'Train Number '.parse_textfield('segment['.$sequence.'][tmtcid][vechicleNumber]', 'number', '');
                     break;
                 case 'airplane':
                     $availabe_arilinersobjs = TravelManagerAirlines::get_airlines(array('contracted' => '1'));
@@ -101,7 +102,7 @@ class TravelManagerPlan {
                             if(is_array($permitted_ariliners)) {
                                 /* parse request array for the allowed airlines  and encode it as json array */
                                 $request_json = TravelManagerAirlines::build_flightrequestdata(array('origin' => $cityinfo['origincity']['unlocode'], 'destination' => $cityinfo['destcity']['unlocode'], 'maxStops' => 0, 'date' => $cityinfo['date'], 'permittedCarrier' => $permitted_ariliners));
-                                $flights_records = TravelManagerAirlines::parse_bestflight($sequence);
+                                $transportaion_fields = TravelManagerAirlines::parse_bestflight($sequence);
                             }
                             //$transportaion_fields .='<div style="display:block;width:100%;"> <div style="display:inline-block;" id="airlinesoptions"> '.$arilinersroptions.' </div>  </div>';
                         }
@@ -113,8 +114,8 @@ class TravelManagerPlan {
                     $transportaion_fields = parse_textfield('segment['.$sequence.'][tmtcid]', 'text', '');
             }
 
-            $transportaion_fields .='<div style="display:inline-block;padding:5px;"  id="approximatefare"> Approximate Fare '.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'number', '').'</div>';
-            $transportaion_fields.= $flights_records;
+            // $transportaion_fields .='<div style="display:inline-block;padding:5px;"  id="approximatefare"> Approximate Fare '.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'number', '').'</div>';
+
             return $transportaion_fields;
         }
     }

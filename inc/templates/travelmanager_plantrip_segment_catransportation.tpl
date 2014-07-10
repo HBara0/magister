@@ -1,8 +1,6 @@
-<div style="display:none; width:100%; " id="cat_content_{$drivingmode[transpcat][cateid]}">
-    <div style="display:inline-block;">
-        {$transp_category_fields}
-    </div>
+<div style="display:none; width:50%;  margin-bottom:20px; " id="cat_content_{$drivingmode[transpcat][cateid]}">
+    <h3>{$drivingmode[transpcat][name]}</h3>
+    {$transp_category_fields}
     <div>{$lang->reservation}<span class="smalllinkgrey">{$transitmode[url]}</span></div>
-
 
 </div>

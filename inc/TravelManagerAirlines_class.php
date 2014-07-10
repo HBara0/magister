@@ -60,14 +60,8 @@ class TravelManagerAirlines {
         }
     }
 
-    public static function parse_bestflight($sequence) {
+    private function parse_responsefilghts($response_flightdata, $sequence) {
         global $core, $template;
-
-        $json = file_get_contents('./modules/travelmanager/jsonflightdetails_roundtrip.txt');
-
-        $response_flightdata = json_decode($json);
-        $flights_records = '<div class="subtitle" style="width:100%;margin:10px; box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px  rgba(0, 0, 0, 0.1) solid;;">Best Flights</div>';
-
         for($tripoptnum = 0; $tripoptnum <= count($response_flightdata->trips->tripOption); $tripoptnum++) {
             $airportcount = count($trips->airport);
             if($airportcount >= 0) {
@@ -81,10 +75,6 @@ class TravelManagerAirlines {
                 $slices = count($response_flightdata->trips->tripOption[$tripoptnum]->slice);
 
                 $triptype = self::is_roundtrip(count($response_flightdata->trips->tripOption[$tripoptnum]->slice));
-                if($triptype == 1) {
-                    $flight['triptype'] = 'roundtrip';
-                }
-                $flight['carrier'] = $response_flightdata->trips->data->carrier[0]->name;
 
                 for($segmentnum = 0; $segmentnum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment); $segmentnum++) {
                     $departuretime = strtotime($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->departureTime);
@@ -105,19 +95,53 @@ class TravelManagerAirlines {
                     $currency = $currency_obj->get_currency_by_alphacode($flight['currcode']);
                     $fxrates[$currency['alphaCode']] = $currency_obj->get_latest_fxrate($currency['alphaCode'], array('incDate' => 1));
 
+                    for($carriernum = 0; $carriernum < count($response_flightdata->trips->data->carrier); $carriernum++) {
+                        if($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->flight->carrier == $flight['carriernum'][$carriernum] = $response_flightdata->trips->data->carrier[$carriernum]->code) {
+                            $flight['carrier'] = $response_flightdata->trips->data->carrier[$carriernum]->name;
+                            break;
+                        }
+                    }
                     $flight['flightnumber'] = $response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->flight->carrier.' '.$response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->flight->number;
+
                     $flight['flightid'] = $response_flightdata->trips->tripOption[$tripoptnum]->id;
                     $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
+
                     $flight['flightdetails'] = serialize($flight['flightnumber'].$flight['flightid']);
 
-                    eval("\$flights_records_segments .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails_segments')."\";");
-                }
+                    if($triptype == 1) {
+                        $flight['triptype'] = 'roundtrip';
+                        $flight['pricing']+= $flight['pricing'];
 
+                        eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails_roundtrip_segments_details')."\";");
+
+                        //eval("\$flights_records_roundtripsegments  = \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails_roundtrip_segments')."\";");
+                    }
+                    // one way trip
+                    else {
+                        eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails_roundtrip_segments_details')."\";");
+                    }
+                }
                 eval("\$flights_records .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
-                $flights_records_segments = '';
+                $flights_records_segments = $flights_records_roundtripsegments = $flights_records_roundtripsegments_details = '';
             }
         }
         return $flights_records;
+    }
+
+    /*
+     * Parse JSON best flight  data  from google trips API
+     * @param	int		$length		Length of the random string
+     * @return  parsed Html	$output
+     */
+    public static function parse_bestflight($sequence) {
+        global $core, $template;
+
+        $json = file_get_contents('./modules/travelmanager/jsonflightdetails_onetrip.txt');
+
+        $response_flightdata = json_decode($json);
+        $flights_records = '<div class="subtitle" style="width:100%;margin:10px; box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px  rgba(0, 0, 0, 0.1) solid;;">Best Flights</div>';
+
+        return self::parse_responsefilghts($response_flightdata, $sequence);
     }
 
     public function get() {
