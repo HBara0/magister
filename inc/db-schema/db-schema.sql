@@ -1315,19 +1315,23 @@ CREATE TABLE `marketintelligence_basicdata` (
   `mibdid` int(10) NOT NULL AUTO_INCREMENT,
   `cid` int(10) NOT NULL,
   `cfpid` int(10) NOT NULL,
+  `cfcid` int(10) DEFAULT '0',
   `ebpid` int(10) NOT NULL,
+  `eptid` int(10) NOT NULL,
+  `affid` smallint(5) NOT NULL,
   `potential` float NOT NULL,
   `mktSharePerc` float NOT NULL,
   `mktShareQty` float NOT NULL,
   `unitPrice` float NOT NULL,
+  `turnover` float NOT NULL,
   `comments` text COLLATE utf8_unicode_ci NOT NULL,
   `createdBy` int(10) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`mibdid`),
-  KEY `cid` (`cid`,`cfpid`,`ebpid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  KEY `cid` (`cid`,`cfpid`,`ebpid`),
+  KEY `affid` (`affid`)
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `marketintelligence_competitors`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
