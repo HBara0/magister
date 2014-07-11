@@ -30,11 +30,11 @@ else {
     if($core->input['action'] == 'do_generatereport') {
         require_once ROOT.INC_ROOT.'integration_config.php';
         if(empty($core->input['affids'])) {
-            redirect('index.php?module=crm/salesreport');
+            redirect('index.php?module=crm/salesreportlive');
         }
 
         if(is_empty($core->input['fromDate'])) {
-            redirect('index.php?module=crm/salesreport');
+            redirect('index.php?module=crm/salesreportlive');
         }
 
         $current_date = getdate(TIME_NOW);
@@ -72,7 +72,7 @@ else {
         $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
 
         $invoices = $integration->get_saleinvoices($filters);
-        $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'netmargin', 'netmarginusd', 'marginperc');
+        $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'unitcostlocal', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'netmargin', 'netmarginusd', 'marginperc');
         if(is_array($invoices)) {
             foreach($invoices as $invoice) {
                 $invoice->customername = $invoice->get_customer()->name;
@@ -137,12 +137,21 @@ else {
                     if($invoiceline->qtyinvoiced < 0) {
                         $invoiceline->costlocal = 0 - $invoiceline->costlocal;
                     }
+
+                    $invoiceline->unitcostlocal = $invoiceline->costlocal / $invoiceline->qtyinvoiced;
                     $invoiceline->costusd = $invoiceline->costlocal / $invoice->usdfxrate;
+                    $invoiceline->unitcostusd = $invoiceline->costusd / $invoiceline->qtyinvoiced;
 
                     if(is_object($inputstack)) {
                         $input_inoutline = $inputstack->get_transcation()->get_inoutline();
                         if(is_object($input_inoutline)) {
-                            $invoiceline->purchaseprice = $input_inoutline->get_invoiceline()->priceactual;
+                            $ioinvoiceline = $input_inoutline->get_invoiceline();
+                            if(is_object($ioinvoiceline)) {
+                                $invoiceline->purchaseprice = $ioinvoiceline->priceactual;
+                                $invoiceline->purchasecurr = $ioinvoiceline->get_invoice()->get_currency()->uomsymbol;
+                                $invoiceline->purchasepriceusd = 0;
+                            }
+                            unset($ioinvoiceline);
                         }
                         else {
                             $invoiceline->purchaseprice = 0;
@@ -205,6 +214,9 @@ else {
         else {
             $required_details = array('outliers', 'data');
             foreach($required_details as $array) {
+                if(!is_array(${$array})) {
+                    continue;
+                }
                 $salesreport .= '<h3>'.ucwords($array).'</h3><table class="datatable"><tr class="thead">';
                 foreach($cols as $col) {
                     if(!isset($lang->{$col})) {
@@ -214,20 +226,22 @@ else {
                 }
                 $salesreport .= '</tr>';
 
-                foreach(${$array} as $iol => $row) {
-                    $salesreport .= '<tr>';
-                    foreach($cols as $col) {
-                        $value = $row[$col];
-                        if(strstr($col, 'perc')) {
-                            $value = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $value);
+                if(is_array(${$array})) {
+                    foreach(${$array} as $iol => $row) {
+                        $salesreport .= '<tr>';
+                        foreach($cols as $col) {
+                            $value = $row[$col];
+                            if(strstr($col, 'perc')) {
+                                $value = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $value);
+                            }
+                            elseif(is_numeric($value) && $col != 'documentno') {
+                                $value = numfmt_format(numfmt_create('en_EN', NumberFormatter::DECIMAL), $value);
+                            }
+                            $salesreport .= '<td>'.$value.'</td>';
                         }
-                        elseif(is_numeric($value) && $col != 'documentno') {
-                            $value = numfmt_format(numfmt_create('en_EN', NumberFormatter::DECIMAL), $value);
-                        }
-                        $salesreport .= '<td>'.$value.'</td>';
-                    }
 
-                    $salesreport .= '</tr>';
+                        $salesreport .= '</tr>';
+                    }
                 }
                 $salesreport .= '</table><br />';
             }
