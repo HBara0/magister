@@ -14,7 +14,7 @@
  * @author zaher.reda
  */
 class Customers extends Entities {
-    const PRIMARY_KEY = 'eid';
+    const PRIMARY_KEY = 'cid';
     const TABLE_NAME = 'entities';
     const DISPLAY_NAME = 'companyName';
 
