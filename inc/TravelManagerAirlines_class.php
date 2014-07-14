@@ -106,7 +106,7 @@ class TravelManagerAirlines {
                     $flight['flightid'] = $response_flightdata->trips->tripOption[$tripoptnum]->id;
                     $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
 
-                    $flight['flightdetails'] = serialize($flight['flightnumber'].$flight['flightid']);
+                    $flight['flightdetails'] = base64_encode(serialize($flight['flightnumber'].$flight['flightid']));
 
                     if($triptype == 1) {
                         $flight['triptype'] = 'roundtrip';

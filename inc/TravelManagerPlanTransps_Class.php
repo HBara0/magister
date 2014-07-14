@@ -72,26 +72,26 @@ class TravelManagerPlanTransps {
         }
     }
 
-    public function create($tanspdata = array()) {
+    public function create($transportdata = array()) {
         global $db, $core;
-        $tanspdata['tmpsid'] = $tanspdata['tmpsid'];
-
-        foreach($tanspdata['tmtcid'] as $tmtcid => $transportdata) {
-
-            //  $transportdata['flightDetails'] = unserialize($transportdata['flightDetails']);
-            $tanspdata_array = array('tmpsid' => $tanspdata['tmpsid'],
-                    'tmtcid' => $tmtcid,
-                    'fare' => $transportdata['fare'],
-                    'vechicleNumber' => $transportdata['vechicleNumber'],
-                    'flightNumber' => $transportdata['flightNumber'],
-                    'flightDetails' => $transportdata['flightDetails'],
-            );
-            print_r($tanspdata_array);
-            $db->insert_query('travelmanager_plan_transps', $tanspdata_array);
+        //$tanspdata['tmpsid'] = $tanspdata['tmpsid'];
+        //  $transportdata['flightDetails'] = unserialize($transportdata['flightDetails']);
+        $transp_details = base64_decode($transportdata['transpDetails'], true);
+        if($transp_details != false) {
+            $transportdata['transpDetails'] = $transp_details;
         }
-        EXIT;
+        $tanspdata_array = array('tmpsid' => $transportdata['tmpsid'],
+                'tmtcid' => $transportdata['tmtcid'],
+                'fare' => $transportdata['fare'],
+                'vechicleNumber' => $transportdata['vechicleNumber'],
+                'flightNumber' => $transportdata['flightNumber'],
+                'transpDetails' => $transportdata['transpDetails'],
+        );
 
-        $this->data [self::PRIMARY_KEY] = $db->last_id();
+        $db->insert_query('travelmanager_plan_transps', $tanspdata_array);
+
+
+        $this->data[self::PRIMARY_KEY] = $db->last_id();
     }
 
     public function get() {

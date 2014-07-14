@@ -62,20 +62,38 @@ class TravelManagerPlanSegments {
         $this->data[self::PRIMARY_KEY] = $db->last_id();
 
         // if(isset($segmentdata['tmtcid'])) {
-        $transptdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
-        $transptdata['tmtcid'] = $segmentdata['tmtcid'];
+        //  $transptdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
+        $transptdata = $segmentdata['tmtcid'];
 
-        $transp_obj = new TravelManagerPlanTransps();
         /* Initialize the object */
-        $transp_obj->set($transptdata);
-        $transp_obj->save();
-        // }
+        if(is_array($transptdata)) {
+            foreach($transptdata as $category => $data) {
+                $chkdata = $data;
+                rsort($chkdata);
+                if(is_array($chkdata[0])) {
+                    foreach($data as $id => $transit) {
+                        $transp_obj = new TravelManagerPlanTransps();
+                        $transit['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                        $transp_obj->set($transit);
+                        $transp_obj->save();
+                    }
+                }
+                else {
+                    $transp_obj = new TravelManagerPlanTransps();
+                    $data['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                    $transp_obj->set($data);
+                    $transp_obj->save();
+                }
+            }
+            unset($chkdata);
+        }
+
         if(isset($segmentdata['tmhid'])) {
             $hoteltdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
             $hoteltdata['tmhid'] = $segmentdata['tmhid'];
 
             $accod_obj = new TravelManagerPlanaccomodations();
-            /**/
+
             $accod_obj->set($hoteltdata);
             $accod_obj->save();
             $this->errorode = 0;
