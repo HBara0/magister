@@ -60,7 +60,7 @@ class TravelManagerAirlines {
         }
     }
 
-    private function parse_responsefilghts($response_flightdata, $sequence) {
+    private function parse_responsefilghts($response_flightdata, $transpcatid, $sequence) {
         global $core, $template;
         for($tripoptnum = 0; $tripoptnum <= count($response_flightdata->trips->tripOption); $tripoptnum++) {
             $airportcount = count($trips->airport);
@@ -70,7 +70,7 @@ class TravelManagerAirlines {
                         $flight[$i]['airport'] = $trips->airport[$i]->name;
                     }
                 }
-            }
+            } print_R($transpcatid);
             for($slicenum = 0; $slicenum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice); $slicenum++) {
                 $slices = count($response_flightdata->trips->tripOption[$tripoptnum]->slice);
 
@@ -133,7 +133,7 @@ class TravelManagerAirlines {
      * @param	int		$length		Length of the random string
      * @return  parsed Html	$output
      */
-    public static function parse_bestflight($sequence) {
+    public static function parse_bestflight(array $transpcat, $sequence) {
         global $core, $template;
 
         $json = file_get_contents('./modules/travelmanager/jsonflightdetails_onetrip.txt');
@@ -141,7 +141,7 @@ class TravelManagerAirlines {
         $response_flightdata = json_decode($json);
         $flights_records = '<div class="subtitle" style="width:100%;margin:10px; box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px  rgba(0, 0, 0, 0.1) solid;;">Best Flights</div>';
 
-        return self::parse_responsefilghts($response_flightdata, $sequence);
+        return self::parse_responsefilghts($response_flightdata, $transpcat['tmtcid'], $sequence);
     }
 
     public function get() {

@@ -60,15 +60,16 @@ class TravelManagerPlanSegments {
 
         $db->insert_query('travelmanager_plan_segments', $segmentdata_array);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
-        if(isset($segmentdata['tmtcid'])) {
-            $transptdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
-            $transptdata['tmtcid'] = $segmentdata['tmtcid'];
 
-            $transp_obj = new TravelManagerPlanTransps();
-            /* Initialize the object */
-            $transp_obj->set($transptdata);
-            $transp_obj->save();
-        }
+        // if(isset($segmentdata['tmtcid'])) {
+        $transptdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
+        $transptdata['tmtcid'] = $segmentdata['tmtcid'];
+
+        $transp_obj = new TravelManagerPlanTransps();
+        /* Initialize the object */
+        $transp_obj->set($transptdata);
+        $transp_obj->save();
+        // }
         if(isset($segmentdata['tmhid'])) {
             $hoteltdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
             $hoteltdata['tmhid'] = $segmentdata['tmhid'];

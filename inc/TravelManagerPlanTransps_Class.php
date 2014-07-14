@@ -61,7 +61,7 @@ class TravelManagerPlanTransps {
 
     public function save(array $data = array()) {
         if(value_exists(self::TABLE_NAME, self::PRIMARY_KEY, $this->data[self::PRIMARY_KEY])) {
-            //Update
+//Update
         }
         else {
             if(empty($data)) {
@@ -74,12 +74,22 @@ class TravelManagerPlanTransps {
 
     public function create($tanspdata = array()) {
         global $db, $core;
-        print_R($transptdata);
-        $tanspdata_array = array('tmpsid' => $tanspdata['tmpsid'],
-                'tmtcid' => $tanspdata['tmtcid'],
-                'fare' => $tanspdata['fare']
-        );
-        $db->insert_query('travelmanager_plan_transps', $tanspdata_array);
+        $tanspdata['tmpsid'] = $tanspdata['tmpsid'];
+
+        foreach($tanspdata['tmtcid'] as $tmtcid => $transportdata) {
+
+            //  $transportdata['flightDetails'] = unserialize($transportdata['flightDetails']);
+            $tanspdata_array = array('tmpsid' => $tanspdata['tmpsid'],
+                    'tmtcid' => $tmtcid,
+                    'fare' => $transportdata['fare'],
+                    'vechicleNumber' => $transportdata['vechicleNumber'],
+                    'flightNumber' => $transportdata['flightNumber'],
+                    'flightDetails' => $transportdata['flightDetails'],
+            );
+            print_r($tanspdata_array);
+            $db->insert_query('travelmanager_plan_transps', $tanspdata_array);
+        }
+        EXIT;
 
         $this->data [self::PRIMARY_KEY] = $db->last_id();
     }

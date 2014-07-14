@@ -122,7 +122,7 @@ class Cities {
                 $destcityreview['review'] = $city_reviewsobj->get()['review'];
                 $destcityreview['user'] = $city_reviewsobj->get_createdBy()->get();
                 $destcityreview['reviewdby'] = $destcityreview['user']['displayName'];
-                $cityprofile_output .='<div style="display:block;padding:8px;">
+                $cityprofile_outparse_transportationput .='<div style="display:block;padding:8px;">
                 <div>'.$destcityreview['review'].'</div>
                     <div class="smalltext"><a href="'.$core->settings['rootdir'].'/users.php?action=profile&uid='.$destcityreview['user']['uid'].'"  target="_blank">'.$destcityreview['reviewdby'].'</a></div>
                         </div>';
@@ -210,7 +210,7 @@ class Cities {
             $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation(array('vehicleType' => $transitmode['vehiclename']), array('origincity' => $transpdata['origincity']['name'], 'destcity' => $transpdata['destcity']['name']), $sequence);
             $transptitle = '<div class="subtitle">Possible Transportations</div>';
 
-            $transp_category_fields = TravelManagerPlan::parse_transportaionfields($drivingmode['transpcat']['name'], array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['departuretime']), $sequence);
+            $transp_category_fields = TravelManagerPlan::parse_transportaionfields(array('name' => $drivingmode['transpcat']['name'], 'tmtcid' => $drivingmode['transpcat']['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['departuretime']), $sequence);
 
             eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_catransportation')."\";");
             eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
@@ -221,7 +221,7 @@ class Cities {
         $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation(array('vehicleType' => 'airplane'), array('origincity' => $transpdata['origincity']['name'], 'destcity' => $transpdata['destcity']['name']), $sequence);
         $transptitle = '<div class="subtitle">Possible Transportations</div>';
 
-        $transp_category_fields = TravelManagerPlan::parse_transportaionfields($drivingmode['transpcat']['name'], array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['departuretime']), $sequence);
+        $transp_category_fields = TravelManagerPlan::parse_transportaionfields(array('name' => $drivingmode['transpcat']['name'], 'tmtcid' => $drivingmode['transpcat']['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['departuretime']), $sequence);
         if(!empty($transp_category_fields)) {
             eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_catransportation')."\";");
             eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");

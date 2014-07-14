@@ -82,15 +82,19 @@ class TravelManagerPlan {
         }
     }
 
-    public static function parse_transportaionfields($category, $cityinfo = array(), $sequence) {
-        if(!empty($category)) {
-            switch($category) {
+    public static function parse_transportaionfields(array $category, $cityinfo = array(), $sequence) {
+        if(!empty($category['name'])) {
+            switch($category['name']) {
                 case'taxi':
-                    $transportaion_fields = 'Approxmita fare'.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'number', '');
+                    $transportaion_fields = 'Approxmita fare'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '');
+                    break;
+                case'bus':
+                    $transportaion_fields = 'Approxmita fare'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '');
                     break;
                 case'train':
                     //.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'text', '');
-                    $transportaion_fields = 'Train Number '.parse_textfield('segment['.$sequence.'][tmtcid][vechicleNumber]', 'number', '');
+                    $transportaion_fields = 'Train Number '.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][vechicleNumber]', 'number', '');
+                    $transportaion_fields.=' Approxmita fare '.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '');
                     break;
                 case 'airplane':
                     $availabe_arilinersobjs = TravelManagerAirlines::get_airlines(array('contracted' => '1'));
@@ -102,7 +106,7 @@ class TravelManagerPlan {
                             if(is_array($permitted_ariliners)) {
                                 /* parse request array for the allowed airlines  and encode it as json array */
                                 $request_json = TravelManagerAirlines::build_flightrequestdata(array('origin' => $cityinfo['origincity']['unlocode'], 'destination' => $cityinfo['destcity']['unlocode'], 'maxStops' => 0, 'date' => $cityinfo['date'], 'permittedCarrier' => $permitted_ariliners));
-                                $transportaion_fields = TravelManagerAirlines::parse_bestflight($sequence);
+                                $transportaion_fields = TravelManagerAirlines::parse_bestflight(array('name' => $category['name'], 'tmtcid' => $category['tmtcid']), $sequence);
                             }
                             //$transportaion_fields .='<div style="display:block;width:100%;"> <div style="display:inline-block;" id="airlinesoptions"> '.$arilinersroptions.' </div>  </div>';
                         }
@@ -111,7 +115,12 @@ class TravelManagerPlan {
                     break;
                 case'car':
                     break;
-                    $transportaion_fields = parse_textfield('segment['.$sequence.'][tmtcid]', 'text', '');
+                    $transportaion_fields = 'Agency Name '.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][agencyName]', 'text', '');
+                    $transportaion_fields .= ' number of days '.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][numDays]', 'number', '');
+                    $transportaion_fields .= ' fee per day '.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fee]', 'number', '');
+                default:
+                    $transportaion_fields = ' fee per day '.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fee]', 'number', '');
+                    $transportaion_fields .= ' transportation type '.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][transpType]', 'text', '');
             }
 
             // $transportaion_fields .='<div style="display:inline-block;padding:5px;"  id="approximatefare"> Approximate Fare '.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'number', '').'</div>';
@@ -206,6 +215,7 @@ class TravelManagerPlan {
                     'createdBy' => $core->user['uid'],
                     'createdOn' => TIME_NOW
             );
+
             $db->insert_query('travelmanager_plan', $plandata);
             $planid = $db->last_id();
             /* create plan */
