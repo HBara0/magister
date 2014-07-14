@@ -561,7 +561,12 @@ class Users {
         return $signature;
     }
 
-    public static function get_allusers() {
+    public static function get_users($filters = null, $configs = array()) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
+    }
+
+    public static function get_activeusers() {
         global $db;
 
         $allusers_query = $db->query("SELECT uid ".Tprefix."FROM users WHERE gid!=7 ORDER BY displayName ASC");
@@ -572,6 +577,10 @@ class Users {
             return $users;
         }
         return false;
+    }
+
+    public static function get_allusers() {
+        return Users::get_activeusers();
     }
 
     public function get_errorcode() {
