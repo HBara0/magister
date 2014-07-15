@@ -28,5 +28,12 @@ $lang['citybrfg'] = 'City Briefing';
 $lang['cityreview'] = 'City Review';
 $lang['reservation'] = 'Possible Reservation Resources :';
 
+$lang['approxfare'] = 'Approxmita fare';
+$lang['traino'] = 'Train Number';
+$lang['agency'] = 'Agency Name ';
+$lang['numberdays'] = 'number of days ';
+$lang['feeday'] = 'Fee Per Day';
+$lang['transptype'] = 'Transportation Type';
+
 $lang['oppositedate'] = 'Segment from date cannot be greater than to date';
 ?>

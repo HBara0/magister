@@ -193,6 +193,7 @@ class Cities {
         global $template, $lang;
 
         $directionapi = TravelManagerPlan::get_availablecitytransp(array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'departuretime' => $transpdata['departuretime']));  /* Get available tranportaion mode for the city proposed by google API */
+//  $directionapi = 'http://maps.googleapis.com/maps/api/directions/json?origin=lyon,+france&destination=paris+,+france&sensor=false&mode=transit&units=metric&departure_time=1405322510';
         $transpmode_googledirections = ' https://www.google.com/maps/dir/'.$transpdata['origincity']['name'].',+'.$transpdata['origincity']['country'].'/'.$transpdata['destcity']['name'].',+'.$transpdata['destcity']['country'].'/';
 
         for($i = 0; $i < count($directionapi->routes[0]->legs[0]->steps); $i++) {
@@ -201,15 +202,18 @@ class Cities {
             }
             if(!empty($directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->name)) {
                 $transitmode['vehiclename'] = $directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->name;
+//  $transitmode['icon'] = $directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->icon;
             }
             if(!empty($directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->type)) {
                 $transitmode['vehicletype'] = $directionapi->routes[0]->legs[0]->steps[$i]->transit_details->line->vehicle->type;
             }
             $urldisplay = (explode('/', $transitmode[url]));
-            $transitmode['url'] = '<a href="'.$transitmode[url].'" target="_blank" >'.$urldisplay[2].'</a>'; //temporary coded
+            if(!empty($urldisplay[2])) {
+                $transitmode['url'] = '<a href="'.$transitmode[url].'" target="_blank" >'.$urldisplay[2].'</a>'; //temporary coded
+                $possible_transportation = '<div>'.$lang->reservation.'<span class="smalllinkgrey"> '.$transitmode[url].'</span></div>';
+            }
             $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation(array('vehicleType' => $transitmode['vehiclename']), array('origincity' => $transpdata['origincity']['name'], 'destcity' => $transpdata['destcity']['name']), $sequence);
             $transptitle = '<div class="subtitle">Possible Transportations</div>';
-
             $transp_category_fields = TravelManagerPlan::parse_transportaionfields(array('name' => $drivingmode['transpcat']['name'], 'tmtcid' => $drivingmode['transpcat']['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['departuretime']), $sequence);
 
             eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_catransportation')."\";");
@@ -217,12 +221,13 @@ class Cities {
 
             unset($transitmode);
         }
-        //temporary coded  loaded from google
+//temporary coded  loaded from google
         $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation(array('vehicleType' => 'airplane'), array('origincity' => $transpdata['origincity']['name'], 'destcity' => $transpdata['destcity']['name']), $sequence);
         $transptitle = '<div class="subtitle">Possible Transportations</div>';
 
         $transp_category_fields = TravelManagerPlan::parse_transportaionfields(array('name' => $drivingmode['transpcat']['name'], 'tmtcid' => $drivingmode['transpcat']['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['departuretime']), $sequence);
         if(!empty($transp_category_fields)) {
+            unset($possible_transportation);
             eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_catransportation')."\";");
             eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
         }

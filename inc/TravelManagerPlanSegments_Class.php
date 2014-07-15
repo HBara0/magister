@@ -34,14 +34,14 @@ class TravelManagerPlanSegments {
     public function create($segmentdata = array()) {
         global $db, $core;
 
-//        if(is_empty($segmentdata['fromDate'], $segmentdata['toDate'], $segmentdata['originCity'], $segmentdata['destinationCity'])) {
-//            $this->errorode = 2;
-//            return false;
-//        }
-//        if(value_exists('travelmanager_plan_segments', 'createdBy', $core->user['uid'], "(fromDate = {$segmentdata['fromDate']}  OR toDate = {$segmentdata['toDate']}) AND sequence=".$segmentdata['sequence'])) {
-//            $this->errorode = 4;
-//            return false;
-//        }
+        if(is_empty($segmentdata['fromDate'], $segmentdata['toDate'], $segmentdata['originCity'], $segmentdata['destinationCity'])) {
+            $this->errorode = 2;
+            return false;
+        }
+        if(value_exists('travelmanager_plan_segments', 'createdBy', $core->user['uid'], "(fromDate = {$segmentdata['fromDate']}  OR toDate = {$segmentdata['toDate']}) AND sequence=".$segmentdata['sequence'])) {
+            $this->errorode = 4;
+            return false;
+        }
 
         $sanitize_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity');
         foreach($sanitize_fields as $val) {
@@ -67,19 +67,24 @@ class TravelManagerPlanSegments {
 
         /* Initialize the object */
         if(is_array($transptdata)) {
+
             foreach($transptdata as $category => $data) {
+
                 $chkdata = $data;
                 rsort($chkdata);
+
                 if(is_array($chkdata[0])) {
                     foreach($data as $id => $transit) {
                         $transp_obj = new TravelManagerPlanTransps();
                         $transit['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                        $transit['tmtcid'] = $category;
                         $transp_obj->set($transit);
                         $transp_obj->save();
                     }
                 }
                 else {
                     $transp_obj = new TravelManagerPlanTransps();
+                    $data['tmtcid'] = $category;
                     $data['tmpsid'] = $this->data[self::PRIMARY_KEY];
                     $transp_obj->set($data);
                     $transp_obj->save();
@@ -130,11 +135,10 @@ class TravelManagerPlanSegments {
             $data = $this->data;
         }//get object of and the id and set data and save
         $latestseg_objs = TravelManagerPlanSegments::get_segments(array('fromDate' => $this->data['fromDate'], 'toDate' => $this->data['toDate'], 'createdBy' => $core->user['uid']));
-        if(is_array($latestseg_objs)) {
+        if(is_object($latestseg_objs)) {
             foreach($latestseg_objs as $latestseg_obj) {
-                $this->data = $latestseg_obj->get();
+                $this->data = $latestseg_obj;
             }
-
             $this->update($this->data);
         }
         else {

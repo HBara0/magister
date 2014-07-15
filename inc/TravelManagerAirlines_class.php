@@ -70,7 +70,7 @@ class TravelManagerAirlines {
                         $flight[$i]['airport'] = $trips->airport[$i]->name;
                     }
                 }
-            } print_R($transpcatid);
+            }
             for($slicenum = 0; $slicenum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice); $slicenum++) {
                 $slices = count($response_flightdata->trips->tripOption[$tripoptnum]->slice);
 
