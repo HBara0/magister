@@ -106,8 +106,8 @@
         {$menu}
         <td class="contentContainer">
             <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" action="#" method="post">
-                <input type="hidden" value="{$leaveid}" id="lid" name="lid"/>{$tools_addnewtab}
-                <input type="hidden" value="{$sequence}" id="lid" name="sequence"/>
+                <input type="hidden" value="{$leaveid}" id="lid" name="segment[{$sequence}][lid]"/>{$tools_addnewtab}
+                <input type="hidden" value="{$sequence}" name="sequence"/>
                 <input type="hidden" value="{$previoussegtodate}" id="todate" name="todate"/>
                 <input type="hidden" value="{$previoussegdestcity}" id="prevdestcity" name="prevdestcity"/>
                 <div id="segmentstabs">

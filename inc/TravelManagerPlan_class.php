@@ -14,7 +14,7 @@
  * @author tony.assaad
  */
 class TravelManagerPlan {
-    private $plan = array();
+    private $data = array();
 
     const PRIMARY_KEY = 'tmpid';
     const TABLE_NAME = 'travelmanager_plan';
@@ -28,7 +28,7 @@ class TravelManagerPlan {
 
     private function read($id = '') {
         global $db;
-        $this->plan = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
+        $this->data = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
 
     public static function get_plan_byattr($attr, $value) {
@@ -36,7 +36,7 @@ class TravelManagerPlan {
         return $data->get_objects_byattr($attr, $value);
     }
 
-    public static function get_plans($filters = null, array $configs = array()) {
+    public static function get_plan($filters = null, array $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);
     }
@@ -47,15 +47,15 @@ class TravelManagerPlan {
         $query = $db->query('SELECT *  FROM '.Tprefix.' leaves WHERE  uid='.$core->user[uid].' AND NOT EXISTS(SELECT lid  FROM '.Tprefix.' travelmanager_plan WHERE lid='.$this->leave['lid'].' ) AND EXISTS (SELECT lid FROM leavesapproval WHERE lid='.$this->leave['lid'].' AND isApproved=1) ');
         if($db->num_rows($query) > 0) {
             while($rowsdata = $db->fetch_assoc($query)) {
-                $uplannedleaves[$rowsdata['lid']] = new Leaves($rowsdata['lid']);
+                $udatanedleaves[$rowsdata['lid']] = new Leaves($rowsdata['lid']);
             }
-            return $uplannedleaves;
+            return $udatanedleaves;
         }
         return false;
     }
 
     public function get() {
-        return $this->plan;
+        return $this->data;
     }
 
     public static function get_availablecitytransp($directiondata = array()) {
@@ -186,6 +186,9 @@ class TravelManagerPlan {
     public function create($data = array()) {
         global $db, $core;
         if(is_array($data)) {
+            echo 'create ';
+            print_r($data);
+
             $this->leaveid = $data['lid'];
             $leave_obj = new Leaves($this->leaveid);
             unset($data['lid']);
@@ -202,12 +205,11 @@ class TravelManagerPlan {
             }
 
             /* Validate first segment and plann */
-            if(value_exists('travelmanager_plan', 'lid', $this->leaveid, 'uid='.$core->user['uid'])) {
-                $db->update_query(self::TABLE_NAME, array('lid' => $this->leaveid, createdOn => TIME_NOW), 'lid='.$db->escape_string($this->leaveid));
-                //$this->errorode = 1;
-                // return false;
-            }
-
+//            if(value_exists('travelmanager_plan', 'lid', $this->leaveid, 'uid='.$core->user['uid'])) {
+//                $db->update_query(self::TABLE_NAME, array('lid' => $this->leaveid, createdOn => TIME_NOW), 'lid='.$db->escape_string($this->leaveid));
+//                $this->errorode = 1;
+//                return false;
+//            }
             $plandata = array('identifier' => substr(md5(uniqid(microtime())), 1, 10),
                     'lid' => $this->leaveid,
                     'title' => $title,
@@ -226,7 +228,6 @@ class TravelManagerPlan {
         foreach($this->segmentdata as $sequence => $segmentdata) {
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
             $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
-
             $segmentdata['tmpid'] = $planid;
             $segmentdata['sequence'] = $sequence;
             $segment_planobj->set($segmentdata);
@@ -236,7 +237,68 @@ class TravelManagerPlan {
         }
     }
 
-// segment to between from an to leave
+    public function save(array $data = array()) {
+        global $core;
+        if(empty($data)) {
+            $data = $this->data;
+        }
+//get object of and the id and set data and save
+        $latestsplan_obj = TravelManagerPlan::get_plan(array('lid' => $this->data['lid'], 'createdBy' => $core->user['uid']));
+        if(is_object($latestsplan_obj)) {
+            $this->data['tmpid'] = $latestsplan_obj->get()['tmpid'];
+            $this->update($this->data);
+        }
+        else {
+            $this->create($data);
+        }
+    }
+
+    public function update($plandata = array()) {
+        global $db;
+
+        $segment_planobj = new TravelManagerPlanSegments();
+        echo 'update ';
+        $this->segmentdata = $plandata;
+        $tmpid = $plandata['tmpid'];
+        unset($plandata['tmpid']);
+        // $db->update_query(self::TABLE_NAME, $plandata, 'tmpid='.$db->escape_string($tmpid));
+        /* /* check if segment exist update otherwise try to create it */
+
+        foreach($this->segmentdata as $sequence => $segmentdata) {
+            if(isset($segmentdata['lid'])) {
+                unset($segmentdata['lid']);
+            }
+            // if(isset($segmentdata['fromDate']) && isset($segmentdata['toDate']) && isset($segmentdata['tmpid']) && isset($segmentdata['sequence'])) {
+            $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
+            $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
+            $segmentdata['tmpid'] = $tmpid;
+            $segmentdata['sequence'] = $sequence;
+            // }
+            $segment_planobj->set($segmentdata);
+            $segment_planobj->save();
+            // $segment_planobj->create($segmentdata);
+            $this->errorode = $segment_planobj->get_errorcode();
+        }
+    }
+
+    public function set(array $data) {
+        foreach($data as $name => $value) {
+            $this->data[$name] = $value;
+        }
+    }
+
+    public function __set($name, $value) {
+        $this->data[$name] = $value;
+    }
+
+    /* call the Magical function  get to acces the private attributes */
+    public function __get($name) {
+        if(array_key_exists($name, $this->data)) {
+            return $this->data[$name];
+        }
+    }
+
+    /* segment toDate  between fromDate an toDate of  leave */
     public function isdate_exceededleave($plandata, $segmentdata) {
         $this->leave_datediff = abs($plandata ['todate'] - $plandata['fromdate']);
         $this->leave_days = floor($this->leave_datediff / (60 * 60 * 24));

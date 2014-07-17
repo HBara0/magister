@@ -107,9 +107,15 @@ class TravelManagerPlanSegments {
 
     public function update($segmentdata = array()) {
         global $db;
+
+        $segmentnewdata['fromDate'] = $segmentdata['fromDate'];
+        $segmentnewdata['toDate'] = $segmentdata['toDate'];
+        $segmentnewdata['originCity'] = $segmentdata['originCity'];
+        $segmentnewdata['destinationCity'] = $segmentdata['destinationCity'];
+
         $tmpsid = $segmentdata['tmpsid'];
         unset($segmentdata['tmpsid']);
-        $db->update_query(self::TABLE_NAME, $segmentdata, 'tmpsid='.$db->escape_string($tmpsid));
+        $db->update_query(self::TABLE_NAME, $segmentnewdata, 'tmpsid='.$db->escape_string($tmpsid));
     }
 
     public function set(array $data) {
@@ -134,11 +140,9 @@ class TravelManagerPlanSegments {
         if(empty($data)) {
             $data = $this->data;
         }//get object of and the id and set data and save
-        $latestseg_objs = TravelManagerPlanSegments::get_segments(array('fromDate' => $this->data['fromDate'], 'toDate' => $this->data['toDate'], 'createdBy' => $core->user['uid']));
-        if(is_object($latestseg_objs)) {
-            foreach($latestseg_objs as $latestseg_obj) {
-                $this->data = $latestseg_obj;
-            }
+        $latestseg_obj = TravelManagerPlanSegments::get_segments(array('fromDate' => $this->data['fromDate'], 'toDate' => $this->data['toDate'], 'createdBy' => $core->user['uid']));
+        if(is_object($latestseg_obj)) {
+            $this->data['tmpsid'] = $latestseg_obj->get()['tmpsid'];
             $this->update($this->data);
         }
         else {

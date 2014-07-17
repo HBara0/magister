@@ -171,8 +171,9 @@ elseif($core->input['action'] == 'parsedetailstransp') {
 elseif($core->input['action'] == 'do_perform_plantrip') {
     $travelplan_obj = new TravelManagerPlan();
     if(is_array($core->input['segment'])) {
-
-        $travelplan_obj->create($core->input['segment']);
+        $travelplan_obj->set($core->input['segment']);
+        $travelplan_obj->save();
+        // $travelplan_obj->create($core->input['segment']);
     }
     switch($travelplan_obj->get_errorcode()) {
         case 0:
