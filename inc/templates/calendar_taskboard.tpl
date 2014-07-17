@@ -22,7 +22,7 @@
                     <th> Completed </th>
                         {$calendar_taskboard_rows}
                     </tbody>
-
+                </table>
             </div>
 
         </td>
