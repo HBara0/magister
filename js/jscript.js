@@ -500,8 +500,9 @@ $(function() {
                     bgiframe: true,
                     closeOnEscape: true,
                     modal: true,
-                    width: 460,
-                    maxWidth: 460,
+                    width: 600,
+                    minWidth: 600,
+                    maxWidth: 800,
                     zIndex: 1000,
                     close: function() {
                         $(this).find("form").each(function() {

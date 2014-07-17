@@ -477,7 +477,7 @@ if(!$core->input['action']) {
             }
         }
         unset($endproducttypes);
-        eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
+        eval("\$popup_marketdata = \"".$template->get('popup_profiles_marketdata')."\";");
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
     }
 
@@ -568,6 +568,55 @@ else {
                 output_xml('<status>false</status><message>eeee'.$lang->itemalreadyexist.'</message>');
                 break;
         }
+    }
+    elseif($core->input['action'] == 'get_updatemktintldtls') {
+        if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
+            exit;
+        }
+
+        $midata = new MarketIntelligence($core->input['id']);
+        $customer = $midata->get_customer();
+
+
+
+        $brandsproducts = $customer->get_brandsproducts();
+        $output = '';
+        if(is_array($brandsproducts)) {
+            foreach($brandsproducts as $brandproduct) {
+                $brandproduct_brand = $brandproduct->get_entitybrand();
+                $brandproduct_productype = $brandproduct->get_endproduct();
+                $options[$brandproduct->ebpid] = $brandproduct_brand->name.' - '.$brandproduct_productype->title;
+                eval("\$brandsendproducts .= \"".$template->get('profiles_entityprofile_brandsproducts')."\";");
+            }
+
+            $entitiesbrandsproducts_list = parse_selectlist('marketdata[ebpid]', 7, $options, $midata->ebpid);
+        }
+
+        $endproducttypes = EndProducTypes::get_endproductypes();
+        if(is_array($endproducttypes)) {
+            foreach($endproducttypes as $endproducttype) {
+                $endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</option>';
+            }
+        }
+        unset($endproducttypes);
+
+        if($customer->type == 'pc') {
+            $chemsubstance = $midata->get_chemfunctionschemcials()->get_chemicalsubstance();
+            eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+        }
+        else {
+            $profiles_michemfuncproductentry = '';
+            $product = $midata->get_chemfunctionproducts()->get_produt();
+            eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        }
+
+        list($module, $modulefile) = explode('/', $core->input['module']);
+        $elementname = 'marketdata[cid]';
+        $action = 'do_addmartkerdata';
+        $elemtentid = $customer->get_eid();
+        eval("\$popup_marketdata = \"".$template->get('popup_profiles_marketdata')."\";");
+
+        output($popup_marketdata);
     }
     elseif($core->input['action'] == 'get_mktintldetails') {
         if($core->usergroup['profiles_canAddMkIntlData'] == 0) {

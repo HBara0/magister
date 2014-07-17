@@ -48,12 +48,11 @@ class MarketIntelligence {
         if(is_array($data)) {
             $this->marketdata = $data;
 
-            if(isset($this->marketdata['cfpid'], $this->marketdata['potential'], $this->marketdata['mktSharePerc'], $this->marketdata['mktShareQty'])) {
-                if(is_empty($this->marketdata['cfpid'], $this->marketdata['potential'], $this->marketdata['mktSharePerc'], $this->marketdata['mktShareQty'])) {
-                    $this->errorcode = 1;
-                    return false;
-                }
+            if((empty($this->marketdata['cfpid']) && empty($this->marketdata['cfcid'])) || is_empty($this->marketdata['potential'], $this->marketdata['mktSharePerc'], $this->marketdata['mktShareQty'])) {
+                $this->errorcode = 1;
+                return false;
             }
+
             /* Santize inputs - START */
             $sanitize_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice', 'ebpid', 'comments');
             foreach($sanitize_fields as $val) {
@@ -209,9 +208,8 @@ class MarketIntelligence {
 
         if(!empty($profile['displayItem'])) {
             /* Get chemial substance if no cfpid for the cusomter */
-            if(empty($data['cfpid'])) {
-                $chemfunc_chemobj = new ChemicalFunctionChemical($data['cfcid']);
-                $profile['displayItem'] = 'ChemicalFunctionChemical';
+            if(empty($data[$profile['displayItem']::PRIMARY_KEY]) && $profile['displayItem'] == ChemFunctionProducts) {
+                $profile['displayItem'] = ChemicalFunctionChemical;
             }
 
             $data['timelineItem'] = $this->parse_timelineentry_item($data[$profile['displayItem']::PRIMARY_KEY], $profile['displayItem']);
@@ -294,29 +292,28 @@ class MarketIntelligence {
         return false;
     }
 
-    private function gefilter_entityid($options) {
-        if(isset($options['customer']) && $options['customer'] == 1) {
-            $filterid = 'cid';
-        }
-        if(isset($options['affid']) && $options['affid'] == 1) {
-            $filterid = 'affid';
-        }
-        elseif(isset($options['filterchemfunctprod']) && $options['filterchemfunctprod'] == 1) {
-            $filterid = 'cfpid';
-        }
-        return $filterid;
-    }
-
-    public function get_previousmarketintelligence($id) {
-        global $db;
-        if(!empty($id)) {
-            $query = $db->query('SELECT mibdid, createdOn FROM '.Tprefix.'marketintelligence_basicdata WHERE cfpid = "'.$id.'" AND createdOn!=0 AND YEAR(CURDATE()) > FROM_UNIXTIME(createdOn, "%Y") ORDER BY cfpid, createdOn DESC');
-            while($rows = $db->fetch_assoc($query)) {
-                $prevmarketintelligence[$rows['mibdid']] = new self($rows['mibdid']);
-            }
-            return $prevmarketintelligence;
-        }
-    }
+//    private function gefilter_entityid($options) {
+//        if(isset($options['customer']) && $options['customer'] == 1) {
+//            $filterid = 'cid';
+//        }
+//        if(isset($options['affid']) && $options['affid'] == 1) {
+//            $filterid = 'affid';
+//        }
+//        elseif(isset($options['filterchemfunctprod']) && $options['filterchemfunctprod'] == 1) {
+//            $filterid = 'cfpid';
+//        }
+//        return $filterid;
+//    }
+//    public function get_previousmarketintelligence($id) {
+//        global $db;
+//        if(!empty($id)) {
+//            $query = $db->query('SELECT mibdid, createdOn FROM '.Tprefix.'marketintelligence_basicdata WHERE cfpid = "'.$id.'" AND createdOn!=0 AND YEAR(CURDATE()) > FROM_UNIXTIME(createdOn, "%Y") ORDER BY cfpid, createdOn DESC');
+//            while($rows = $db->fetch_assoc($query)) {
+//                $prevmarketintelligence[$rows['mibdid']] = new self($rows['mibdid']);
+//            }
+//            return $prevmarketintelligence;
+//        }
+//    }
 
     public function get_marketendproducts($id) {
         return new EndproducTypes($id);

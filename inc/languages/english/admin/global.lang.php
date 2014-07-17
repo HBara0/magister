@@ -34,6 +34,7 @@ $lang['modifysettings'] = "Modify Settings";
 $lang['manageusers'] = "Manage Users";
 $lang['viewusers'] = "View Users";
 $lang['addusers'] = "Add Users";
+$lang['copyassignments'] = 'Copy Assignments';
 $lang['regionaldistribution'] = "Regional Distribution";
 $lang['countries'] = "Countries";
 $lang['affiliates'] = "Affiliates";

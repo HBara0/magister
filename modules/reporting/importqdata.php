@@ -66,7 +66,7 @@ else {
 
             if($db->num_rows($po_query) > 0) {
                 while($purchaseorder = $db->fetch_assoc($po_query)) {
-                    $pol_query = $db->query("SELECT DISTINCT(imp.foreignId), imsol.*, imp.localId AS localpid, imsol.pid AS foreignpid, p.spid AS localspid, imp.foreignName AS productname
+                    $pol_query = $db->query("SELECT DISTINCT(imsol.foreignId), imsol.*, imp.localId AS localpid, imsol.pid AS foreignpid, p.spid AS localspid, imp.foreignName AS productname
 										FROM ".Tprefix."integration_mediation_purchaseorderlines imsol
 										LEFT JOIN integration_mediation_products imp ON (imsol.pid=imp.foreignId)
 										LEFT JOIN products p ON (p.pid=imp.localId)
@@ -203,7 +203,7 @@ else {
             $sales_query_extrawhere = " AND imsol.pid NOT IN ('".implode('\',\'', $useddata['foreignpid']['sale'])."')";
         }
 
-        $query = $db->query("SELECT DISTINCT(imp.foreignId), quantity, quantityUnit, imp.localId AS localpid, p.spid AS localspid, imsol.pid AS foreignpid, imp.foreignName AS productname, ims.foreignName AS foreignSupplierName
+        $query = $db->query("SELECT DISTINCT(imsol.foreignId), quantity, quantityUnit, imp.localId AS localpid, p.spid AS localspid, imsol.pid AS foreignpid, imp.foreignName AS productname, ims.foreignName AS foreignSupplierName
 								FROM ".Tprefix."integration_mediation_salesorderlines imsol
 								LEFT JOIN ".Tprefix."integration_mediation_products imp ON (imsol.pid=imp.foreignId)
 								LEFT JOIN ".Tprefix."integration_mediation_entities ims ON (imp.foreignSupplier=ims.foreignId)

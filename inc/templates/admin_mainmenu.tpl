@@ -7,6 +7,7 @@
                 <ul id="users_children">
                     <li><span id="users/view"><a href='index.php?module=users/view'>{$lang->viewusers}</a></span></li>
                     <li><span id="users/add"><a href='index.php?module=users/add'>{$lang->addusers}</a></span></li>
+                    <li><span id="users/copyassignments"><a href='index.php?module=users/copyassignments'>{$lang->copyassignments}</a></span></li>
                 </ul>
             </div>
         </li>
