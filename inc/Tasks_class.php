@@ -42,7 +42,7 @@ class Tasks {
 
         $query_select = 'ct.*, u.displayName AS assignedTo';
         if($simple == true) {
-            $query_select = 'ctid, identifier, pimAppId';
+            $query_select = 'ctid, subject,priority, dueDate ,isDone,percCompleted , timeDone ,identifier, pimAppId';
         }
         return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."calendar_tasks ct JOIN ".Tprefix."users u ON (u.uid=ct.uid) WHERE ctid=".$db->escape_string($id)));
     }
@@ -51,6 +51,21 @@ class Tasks {
      * @param  	Array			$data 		Array containing the input
      * @return  Boolean						0=No errors;1=Subject missing;2=Entry exists
      */
+    public function parsestatus($status = 0) {
+
+        switch($status) {
+            case 0:
+                $task_status = 'todo';
+                break;
+            case $status >= 1 && $status <= 99:
+                $task_status = 'inprogress';
+                break;
+            default :
+                $task_status = 'completed';
+        }
+        return $task_status;
+    }
+
     public function create_task(array $data) {
         global $db, $log, $core;
         if(is_empty($data['subject'])) {
