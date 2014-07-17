@@ -12,23 +12,22 @@
 
         <td class="contentContainer">
             <h1>{$lang->taskboard}</h1>
-            <div style="height: 200px; width: 100%; overflow:auto;">
-                <table class="datatable datatable-striped">
-                    <tbody>
-                    <th>task</th>
-                    <th>dudate</th>
-                    <th> to do</th>
-                    <th> in progress</th>
-                    <th> Completed </th>
-                        {$calendar_taskboard_rows}
-                    </tbody>
-                </table>
-            </div>
 
-        </td>
-    </tr>
-    {$footer}
-    {$taskdetailsbox}
+            <table class="datatable datatable-striped">
+                <tbody>
+                <th>task</th>
+                <th>dudate</th>
+                <th> to do</th>
+                <th> in progress</th>
+                <th> Completed </th>
+                    {$calendar_taskboard_rows}
+            </tbody>
+        </table>
+
+    </td>
+</tr>
+{$footer}
+{$taskdetailsbox}
 </body>
 
 </htmt>
