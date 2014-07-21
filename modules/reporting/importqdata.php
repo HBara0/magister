@@ -287,7 +287,7 @@ else {
                     }
 
                     if(value_exists('productsactivity', 'rid', $rid, 'pid='.$pid.$pacheck_querywhere)) {
-                        if($options['runtype'] == 'dry' && ($options['operation'] == 'addonly' || $options['operation'] == 'replace')) {
+                        if($options['runtype'] == 'dry' || ($options['operation'] == 'addonly' || $options['operation'] == 'replace')) {
                             if($options['operation'] == 'replace') {
                                 echo 'Skipped Replace: ';
                             }
