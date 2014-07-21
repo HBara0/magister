@@ -11,6 +11,7 @@
 
 class Requirements {
     private $requirement = array();
+    private $errorcode = 0;
 
     const PRIMARY_KEY = 'drid';
     const TABLE_NAME = 'development_requirements';
@@ -145,6 +146,37 @@ class Requirements {
         return $db->fetch_field($db->query('SELECT refKey FROM '.Tprefix.'development_requirements_changes WHERE drid='.intval($this->requirement['drid']).' ORDER BY refKey DESC LIMIT 0, 1'), 'refKey');
     }
 
+    public function update(array $data = array()) {
+        global $core, $db;
+
+        $data['modifiedOn'] = TIME_NOW;
+        $data['modifiedBy'] = $core->user['uid'];
+
+        $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->requirement[self::PRIMARY_KEY]));
+        if($query) {
+            return $this;
+        }
+        $this->errorcode = 601;
+        return false;
+    }
+
+    public function create(array $data = array()) {
+
+    }
+
+    public function save(array $data = array()) {
+        if(empty($data)) {
+            $data = $this->requirement;
+        }
+
+        if(value_exists(self::TABLE_NAME, self::PRIMARY_KEY, $this->requirement[self::PRIMARY_KEY])) {
+            return $this->update($data);
+        }
+        else {
+            return $this->create($data);
+        }
+    }
+
     public function parse_requirements_list(array $requirements = array(), $highlevel = true, $ref = '', $parsetype = 'list', $config = array()) {
         if(empty($requirements)) {
             if(!isset($this->requirement)) {
@@ -224,6 +256,10 @@ class Requirements {
 
 
         return $requirements_list;
+    }
+
+    public function get_errorcode() {
+        return $this->errorcode;
     }
 
     public function parse_link($attributes_param = array('target' => '_blank')) {
