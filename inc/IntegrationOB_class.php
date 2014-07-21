@@ -676,6 +676,10 @@ class IntegrationOB extends Integration {
         return $this->status;
     }
 
+    public function get_dbconn() {
+        return $this->f_db;
+    }
+
 }
 
 class IntegrationOBTransaction {
@@ -1081,7 +1085,7 @@ class IntegrationOBInvoice {
             $this->f_db = $f_db;
         }
         else {
-            //Open connections
+
         }
 
         if(empty($id)) {
@@ -1141,6 +1145,29 @@ class IntegrationOBInvoice {
         if($this->f_db->num_rows($query) > 0) {
             while($invoice = $this->f_db->fetch_assoc($query)) {
                 $invoices[$invoice['c_invoice_id']] = new self($invoice['c_invoice_id'], $this->f_db);
+            }
+            return $invoices;
+        }
+        return false;
+    }
+
+    public static function get_aggregates(array $sums, array $groupby, $filters) {
+        if(!empty($filters)) {
+            $query_where = ' AND '.$filters; //' AND '.$this->f_db->escape_string($filters);
+        }
+
+        foreach($sums as $attr) {
+            $attr = $this->f_db->escape_string($attr);
+            $sum_select .= $comma.'SUM('.$attr.') AS '.$attr;
+            $comma = ', ';
+        }
+
+        $groupby = array_map('$this->f_db->escape_string', $groupby);
+        $groupby_querystring = ' GROUP BY '.implode(', ', $groupby);
+        $query = $this->f_db->query("SELECT c_invoice_id, ".$sum_select." FROM c_invoice WHERE issotrx='Y'".$query_where.$groupby_querystring);
+        if($this->f_db->num_rows($query) > 0) {
+            while($invoice = $this->f_db->fetch_assoc($query)) {
+                $invoices[] = $invoice;
             }
             return $invoices;
         }
@@ -1818,6 +1845,10 @@ class IntegrationOBBPartner {
 
     public function get_id() {
         return $this->bpartner['c_bpartner_id'];
+    }
+
+    public function get_bp_local() {
+        return IntegrationMediationEntities::get_entity_byattr('foreignId', $this->bpartner['c_bpartner_id'])->get_localentity();
     }
 
     public function __get($name) {
