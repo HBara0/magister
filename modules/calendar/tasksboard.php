@@ -69,3 +69,4 @@ elseif($core->input['action'] == 'get_taskdetails') {
         output($taskdetailsbox);
     }
 }
+?>
