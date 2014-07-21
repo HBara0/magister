@@ -24,6 +24,5 @@
     </td>
 </tr>
 {$footer}
-{$taskdetailsbox}
 </body>
 </htmt>
