@@ -386,7 +386,7 @@ td { padding: 2px; }
     vertical-align: middle !important;
 }
 
-input.button {
+input.button, button {
     @include border-radius(4px);
     background: $color_green;
     text-indent:0;

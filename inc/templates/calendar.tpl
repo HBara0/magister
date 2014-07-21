@@ -18,7 +18,7 @@
 
                 $('select[id=event_type]').live('change', function() {
                     var types = [{$etypemorefields}];
-                    if (jQuery.inArray(parseInt($(this).val()), types) > -1) {
+                    if(jQuery.inArray(parseInt($(this).val()), types) > -1) {
                         $('#visittypefields').slideDown();
                     }
                     else {
@@ -33,7 +33,7 @@
         {$header}
     <tr>
         <td colspan="3" class="contentContainer">
-            <div style="width: 5%; float:right; text-align:right;"><a href="index.php?module=calendar/preferences"><img src="./images/icons/options.gif" border='0' alt="{$lang->calendarpreferences}"/></a></div>
+            <div style="width:10%; float:right; text-align:right;"><button onclick="goToURL('index.php?module=calendar/tasksboard')">{$lang->tasksboard}</button> <a href="index.php?module=calendar/preferences"><img src="./images/icons/options.gif" border='0' alt="{$lang->calendarpreferences}"/></a></div>
             <table width="100%" cellspacing="0" cellpadding="0" class="calendar">
                 <tr>
                     <td colspan="2"><a href="index.php?module=calendar/home{$prevlink_querystring}"><h3 style="margin-bottom: 1px;"> &laquo;</h1></a></td>

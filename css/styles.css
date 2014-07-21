@@ -328,7 +328,7 @@ td {
   height: 20px;
   vertical-align: middle !important; }
 
-input.button {
+input.button, button {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   -ms-border-radius: 4px;
