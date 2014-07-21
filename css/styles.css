@@ -338,7 +338,7 @@ input.button {
   text-align: center;
   text-shadow: 1px 1px 0px #689324; }
 
-input.main {
+input[type="submit"].main {
   min-width: 160px; }
 
 input.button:hover {

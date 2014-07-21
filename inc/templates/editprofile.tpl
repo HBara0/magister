@@ -26,7 +26,7 @@
                         <td><input type="password" id="newpassword2" name="newpassword2" required="required" title="{$lang->passwordpattern_tooltip}" pattern="(?=^.{8,}$)(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"/></td>
                     </tr>
                     <tr><td colspan="2">
-                            <input type="submit" id="changepassword_Button"  value="{$lang->change}"/> <input type="reset" value="{$lang->reset}" />
+                            <input type="submit" id="changepassword_Button" class="button main" value="{$lang->change}"/> <input type="reset" value="{$lang->reset}" class="button"/>
                             <div id="changepassword_Results"></div>
                         </td></tr>
                 </table>
@@ -108,7 +108,7 @@
                     </tr>
                     <tr><td colspan="3" class="subtitle">&nbsp;</td></tr>
                     <tr><td colspan="3">
-                            <input type="submit" id="modifyprofile_Button"  value="{$lang->modify}" tabindex="17" class="button"/> <input type="reset" value="{$lang->reset}" class="button"/>
+                            <input type="submit" id="modifyprofile_Button"  value="{$lang->modify}" tabindex="17" class="button main"/> <input type="reset" value="{$lang->reset}" class="button"/>
                             <div id="modifyprofile_Results"></div>
                         </td></tr>
                 </table>
@@ -126,7 +126,7 @@
                 <br />
                 <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px; text-align:center; font-weight:bold;"><a href="users.php?action=profile&amp;action=downloadsignature" title="{$lang->downloadsignature}">{$lang->downloadsignature}</a></div>
             </div>
-            <hr />    
+            <hr />
             <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding-top: 25px; margin-bottom:10px; text-align:center; font-weight:bold; height: 50px; font-size:14px;"><a id="showpopup_getsignature" class="showpopup" href="#popup_getsignature">{$lang->generatesignature}</a></div>
         </td>
     </tr>
