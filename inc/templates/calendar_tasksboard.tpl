@@ -1,33 +1,29 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->addentity}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->tasksboard}</title>
         {$headerinc}
-        <script src="./js/redactor.min.js" type="text/javascript"></script>
-        <link href="./css/redactor.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
         {$header}
     <tr>
         {$menu}
-
         <td class="contentContainer">
-            <h1>{$lang->taskboard}</h1>
-
+            <h1>{$lang->tasksboard}</h1>
             <table class="datatable datatable-striped">
-                <tbody>
-                <th>task</th>
-                <th>dudate</th>
-                <th> to do</th>
-                <th> in progress</th>
-                <th> Completed </th>
-                    {$calendar_taskboard_rows}
+                <thead>
+                <th>Task</th>
+                <th style="width: 10%;">Due Date</th>
+                <th style="width: 15%; text-align: center;">To-Do</th>
+                <th style="width: 15%; text-align: center;">In Progress</th>
+                <th style="width: 15%; text-align: center;">Completed</th>
+            </thead>
+            <tbody>
+                {$calendar_taskboard_rows}
             </tbody>
         </table>
-
     </td>
 </tr>
 {$footer}
 {$taskdetailsbox}
 </body>
-
 </htmt>

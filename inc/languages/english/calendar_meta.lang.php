@@ -67,5 +67,5 @@ $lang['title'] = 'Title';
 $lang['type'] = 'Type';
 $lang['week'] = 'Week';
 $lang['invitemployees'] = 'Invite Employees';
-$lang['taskboard'] = 'Task Board';
+$lang['tasksboard'] = 'Tasks Board';
 ?>
