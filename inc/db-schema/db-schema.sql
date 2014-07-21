@@ -592,6 +592,8 @@ CREATE TABLE `development_requirements` (
   `requestedBy` int(10) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `dateCreated` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL DEFAULT '0',
+  `modifiedOn` bigint(30) NOT NULL DEFAULT '0',
   `assignedTo` int(10) DEFAULT '0',
   PRIMARY KEY (`drid`),
   KEY `parent` (`parent`,`requestedBy`,`createdBy`)
