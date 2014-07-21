@@ -7,7 +7,7 @@ $id: _constants.scss
 Created:        @zaher.reda    Apr 13, 2014 | 10:04:22 PM
 Last Update:    @zaher.reda    Apr 13, 2014 | 10:04:22 PM
 */
-/*
+/* 
     Created on : Apr 13, 2014, 10:04:22 PM
     Author     : zaher.reda
 */
@@ -320,12 +320,29 @@ td {
   vertical-align: middle !important; }
 
 input.button {
-  border: 1px solid #CCCCCC;
-  color: #FFFFFF;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  border-radius: 4px;
   background: #91b64f;
-  /*width: 60px;*/
+  text-indent: 0;
+  border: 1px solid #83c41a;
+  display: inline-block;
+  color: #ffffff;
   font-weight: bold;
-  padding: 3px; }
+  font-style: normal;
+  height: 30px;
+  /*line-height:30px;*/
+  min-width: 80px;
+  text-decoration: none;
+  text-align: center;
+  text-shadow: 1px 1px 0px #689324; }
+
+input.main {
+  min-width: 160px; }
+
+input.button:hover {
+  background-color: #8cb82b; }
 
 #currentmodule_name {
   font-size: 14px;

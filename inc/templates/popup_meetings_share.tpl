@@ -16,7 +16,7 @@
         <div style="display:table; border-collapse:collapse; width:100%;">
             <div style="display:table-row;">
                 <div style="display: table-cell; width:35%;">
-                    <input type="submit" class="button" value="{$lang->savecaps}" id="perform_meetings/list_Button" />
+                    <input type="submit" class="button main" value="{$lang->savecaps}" id="perform_meetings/list_Button" />
                     <input type="reset" class="button" onclick="$('#popup_sharemeeting').dialog('close')"value="{$lang->cancel}"/>
                 </div>
             </div>

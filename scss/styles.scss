@@ -378,12 +378,27 @@ td { padding: 2px; }
 }
 
 input.button {
-    border: 1px solid #CCCCCC;
-    color:#FFFFFF;
+    @include border-radius(4px);
     background: $color_green;
-    /*width: 60px;*/
-    font-weight: bold;
-    padding: 3px;
+    text-indent:0;
+    border:1px solid #83c41a;
+    display:inline-block;
+    color:#ffffff;
+    font-weight:bold;
+    font-style:normal;
+    height:30px;
+    /*line-height:30px;*/
+    min-width:80px;
+    text-decoration:none;
+    text-align:center;
+    text-shadow:1px 1px 0px #689324;
+}
+input.main {
+    min-width: 160px;
+}
+
+input.button:hover {
+    background-color: #8cb82b;
 }
 
 #currentmodule_name {

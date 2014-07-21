@@ -144,7 +144,7 @@
                     <div style="display:table-row;">
                         <div class="thead" style="display:table-cell;">{$lang->genericproducts}</div>
                         <div class="thead" style="display:table-cell;"></div>
-                    </div> 
+                    </div>
                     <div style="display:table-row; vertical-align:top;">
                         <div style="display: table-cell; padding:5px;">{$lang->selectgenericproducts}</div>
                         <div style="display: table-cell; padding:5px;">
@@ -230,8 +230,10 @@
                     <div style="display:table-row;">{$mark_blacklist} </div>
                     <div  style="margin-bottom: 0.9em;"></div>
                     <div style="display:table-row;">
-                        <div style="display: table-cell; width:10px;">
-                            <input type="button" class="button" value="{$lang->savecaps}" id="perform_sourcing/managesupplier_Button" />
+                        <div style="display: table-cell;">
+                            <input type="button" class="button main" value="{$lang->savecaps}" id="perform_sourcing/managesupplier_Button" />
+                        </div>
+                        <div style="display: table-cell;">
                             <input type="reset" class="button" value="{$lang->reset}"/>
                         </div>
                     </div>
