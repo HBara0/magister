@@ -476,6 +476,19 @@ if(!$core->input['action']) {
                 $endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</option>';
             }
         }
+
+        /* parse visit report */
+        $visitreport_objs = VisitReport::get_visitreports(array('uid' => $core->user['uid'], 'cid' => $eid, 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
+        if(is_array($visitreport_objs)) {
+            foreach($visitreport_objs as $visitreport) {
+                $customer_name = $visitreport->get_customer($visitreport->cid)->companyName;
+                $customervisit_list.='<option value="'.$visitreport->vrid.'">'.$customer_name.' - '.date($core->settings['dateformat'], $visitreport->date).'</option>';
+            }
+        }
+        else {
+            $customervisit_list = $lang->na;
+        }
+
         unset($endproducttypes);
         eval("\$popup_marketdata = \"".$template->get('popup_profiles_marketdata')."\";");
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
@@ -632,7 +645,14 @@ else {
         $mkintentry_customer = $mkintentry->get_customer();
         $mkintentry_brand = $mkintentry->get_entitiesbrandsproducts()->get_entitybrand();
         $mkintentry_endproducttype = $mkintentry->get_entitiesbrandsproducts()->get_endproduct();
+        $mkint_visitreportobj = $mkintentry->get_visitreport();
 
+        if(is_object($mkint_visitreportobj)) {
+            $mkintentry_visitreport = $mkint_visitreportobj->parse_link();
+        }
+        if(empty($mkint_visitreportobj->parse_link())) {
+            $mkintentry_visitreport = $lang->na;
+        }
         /* Parse competitors related market Data */
         $mrktcompetitor_objs = $mkintentry->get_competitors();
         if(is_array($mrktcompetitor_objs)) {

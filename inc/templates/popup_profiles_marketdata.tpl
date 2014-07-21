@@ -10,7 +10,12 @@
             <div style="width: 30%; display: inline-block;">{$lang->marketshareperc}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="mktshareperc" name="marketdata[mktSharePerc]" accept="numeric" required="required" autocomplete="off" min="0" value="{$midata->mktSharePerc}"/></div>
             <div style="width: 30%; display: inline-block;">{$lang->marketshareqty}</div><div style="width: 60%; display: inline-block;"><input type="number" size="12" step="any" id="mktshareqty" name="marketdata[mktShareQty]" accept="numeric" required="required" autocomplete="off" min="0" value="{$midata->mktShareQty}"/></div>
             <div style="width: 30%; display: inline-block;">{$lang->price}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" name="marketdata[unitPrice]" accept="numeric" autocomplete="off" min="0" value="{$midata->unitPrice}"/> USD/KG {$lang->cif}</div>
-            <div style="width: 30%; display: inline-block;">{$lang->endproduct}</div><div style="width: 60%; display: inline-block;"><!--<select {$hideselect} name="marketdata[ebpid]">{$entitiesbrandsproducts_list}</select>--> <span id="entitiesbrandsproducts_endproductResult">{$entitiesbrandsproducts_list}</span> | <a href="createbrand" id="showpopup_createbrand" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->createbrand}</a></div>
+            <div style="width: 30%; display: inline-block;">{$lang->endproduct}</div>
+            <div style="width: 60%; display: inline-block;"><!--<select {$hideselect} name="marketdata[ebpid]">{$entitiesbrandsproducts_list}</select>--> <span id="entitiesbrandsproducts_endproductResult">{$entitiesbrandsproducts_list}</span> | <a href="createbrand" id="showpopup_createbrand" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->createbrand}</a></div>
+
+            <div style="width: 30%; display: inline-block;">{$lang->visitreport}</div><div style="width: 60%; display: inline-block;"><select name="marketdata[vrid]">{$customervisit_list}</select>
+
+                <input type="hidden" name="marketdata[lid]" value="{$visitreport->lid}"/></div>
             <div>{$lang->comment}</div>
             <div><textarea cols="60" rows="5" name="marketdata[comments]">{$midata->comments}</textarea></div>
             <hr />

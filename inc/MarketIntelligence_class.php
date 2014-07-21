@@ -49,8 +49,8 @@ class MarketIntelligence {
             $this->marketdata = $data;
 
             if((empty($this->marketdata['cfpid']) && empty($this->marketdata['cfcid'])) || is_empty($this->marketdata['potential'], $this->marketdata['mktSharePerc'], $this->marketdata['mktShareQty'])) {
-                $this->errorcode = 1;
-                return false;
+                // $this->errorcode = 1;
+                // return false;
             }
 
             /* Santize inputs - START */
@@ -89,6 +89,8 @@ class MarketIntelligence {
                     'cfcid' => $this->marketdata['cfcid'],
                     'ebpid' => $this->marketdata['ebpid'],
                     'eptid' => $this->marketdata['eptid'],
+                    'vrid' => $this->marketdata['vrid'],
+                    'lid' => $this->marketdata['lid'],
                     'potential' => $this->marketdata['potential'],
                     'mktSharePerc' => $this->marketdata['mktSharePerc'],
                     'mktShareQty' => $this->marketdata['mktShareQty'],
@@ -292,29 +294,6 @@ class MarketIntelligence {
         return false;
     }
 
-//    private function gefilter_entityid($options) {
-//        if(isset($options['customer']) && $options['customer'] == 1) {
-//            $filterid = 'cid';
-//        }
-//        if(isset($options['affid']) && $options['affid'] == 1) {
-//            $filterid = 'affid';
-//        }
-//        elseif(isset($options['filterchemfunctprod']) && $options['filterchemfunctprod'] == 1) {
-//            $filterid = 'cfpid';
-//        }
-//        return $filterid;
-//    }
-//    public function get_previousmarketintelligence($id) {
-//        global $db;
-//        if(!empty($id)) {
-//            $query = $db->query('SELECT mibdid, createdOn FROM '.Tprefix.'marketintelligence_basicdata WHERE cfpid = "'.$id.'" AND createdOn!=0 AND YEAR(CURDATE()) > FROM_UNIXTIME(createdOn, "%Y") ORDER BY cfpid, createdOn DESC');
-//            while($rows = $db->fetch_assoc($query)) {
-//                $prevmarketintelligence[$rows['mibdid']] = new self($rows['mibdid']);
-//            }
-//            return $prevmarketintelligence;
-//        }
-//    }
-
     public function get_marketendproducts($id) {
         return new EndproducTypes($id);
     }
@@ -327,6 +306,10 @@ class MarketIntelligence {
             $marketcomp[$rows['micid']] = new MarketIntelligenceCompetitors($rows['micid']);
         }
         return $marketcomp;
+    }
+
+    public function get_visitreport() {
+        return new VisitReport($this->marketintelligence['vrid']);
     }
 
     public function get_customer() {
