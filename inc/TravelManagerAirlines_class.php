@@ -144,6 +144,17 @@ class TravelManagerAirlines {
         return self::parse_responsefilghts($response_flightdata, $transpcat['tmtcid'], $sequence);
     }
 
+    public static function get_flights($request, $apikey = null) {
+        $ch = curl_init('https://www.googleapis.com/qpxExpress/v1/trips/search?key=AIzaSyDXUgYSlAux8xlE8mA38T0-_HviEPiM5dU');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
+
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return $result;
+    }
     public function get() {
         return $this->airlines;
     }
