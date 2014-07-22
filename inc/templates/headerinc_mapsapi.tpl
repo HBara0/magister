@@ -1,4 +1,4 @@
-<script src="http://maps.googleapis.com/maps/api/js?key={$this->api_key}&amp;sensor=false" type="text/javascript"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={$this->api_key}&amp;sensor=false" type="text/javascript"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         //var places = new Array();
@@ -15,7 +15,7 @@
             map = new google.maps.Map(document.getElementById("{$this->options[canvas_name]}"), myOptions);
             infoWindow = new google.maps.InfoWindow();
 
-            if (overlayType == '') {
+            if(overlayType == '') {
                 overlayType = parseMarkers;
             }
             google.maps.event.addListenerOnce(map, 'tilesloaded', overlayType);
@@ -35,7 +35,7 @@
                 }
             });
 
-            if (place.hasInfoWindow == 1) {
+            if(place.hasInfoWindow == 1) {
                 google.maps.event.addListener(marker, 'click', function() {
                     infoWindow.setContent('<div align="left"><a href="' + place.link + '" target="_blank"><strong>' + place.title + '</strong></a><br />' + place.otherinfo + '</div>');
                     infoWindow.open(map, marker);
@@ -44,10 +44,10 @@
         }
 
         function parseMarkers() {
-            for (var key in places) {
-                for (var key2 in places[key]) {
-                    if (typeof places[key][key2].id == 'undefined') {
-                        for (var key3 in places[key][key2]) {
+            for(var key in places) {
+                for(var key2 in places[key]) {
+                    if(typeof places[key][key2].id == 'undefined') {
+                        for(var key3 in places[key][key2]) {
                             createMarker(map, places[key][key2][key3]);
                         }
                     }
@@ -73,13 +73,13 @@
         function parsePolylines() {
             var poly = new Array();
 
-            for (var key in places) {
+            for(var key in places) {
                 poly[key] = new google.maps.Polyline({strokeColor: '#993300', strokeOpacity: 0.5, strokeWeight: 3});
                 poly[key].setMap(map);
 
-                for (var key2 in places[key]) {
-                    if (typeof places[key][key2].id == 'undefined') {
-                        for (var key3 in places[key][key2]) {
+                for(var key2 in places[key]) {
+                    if(typeof places[key][key2].id == 'undefined') {
+                        for(var key3 in places[key][key2]) {
                             createPolyline(map, places[key][key2][key3], poly[key]);
                         }
                     }
@@ -94,7 +94,7 @@
         /* Get location if browswer supports that - START */
         var current_lat = '';
         var current_lng = '';
-        if (typeof navigator.geolocation != "undefined") {
+        if(typeof navigator.geolocation != "undefined") {
             function showLocation(position) {
                 current_lat = position.coords.latitude;
                 current_lng = position.coords.longitude;

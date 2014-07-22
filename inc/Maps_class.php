@@ -10,7 +10,7 @@
  */
 
 class Maps {
-    private $api_key = 'AIzaSyDwLmEN86FYPso64IjwgCkWfmMErM-QvGQ';
+    private $api_key = 'AIzaSyDXUgYSlAux8xlE8mA38T0-_HviEPiM5dU';
     private $places = array();
     private $options = array();
 
