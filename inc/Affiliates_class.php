@@ -32,10 +32,10 @@ class Affiliates {
         return new Countries($this->affiliate['country']);
     }
 
-    public function get_city() {
+    public function get_city($simple = true) {
 
         if(is_numeric($this->affiliate['city'])) {
-            return new Cities($this->affiliate['city']);
+            return new Cities($this->affiliate['city'], $simple);
         }
         else {
             return Cities::get_cities(array('name' => $this->affiliate['city'], 'coid' => $this->affiliate['country']));

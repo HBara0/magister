@@ -48,15 +48,13 @@ if(!$core->input['action']) {
         $cityprofile_output = $leave_obj->get_destinationcity()->parse_cityreviews();
         $citybriefings_output = $leave_obj->get_destinationcity()->parse_citybriefing();
 
-        $origincity_obj = $leave_obj->get_sourcecity();
+        $origincity_obj = $leave_obj->get_sourcecity(false);
 
-        $origincitydata = $origincity_obj->get();
-        $origintcity['name'] = $origincitydata['name'];
+        $origintcity = $origincity_obj->get();
         $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
 
-        $descity_obj = $leave_obj->get_destinationcity();
-        $descitydata = $descity_obj->get();
-        $destcity['name'] = $descitydata['name'];
+        $descity_obj = $leave_obj->get_destinationcity($false);
+        $destcity = $descity_obj->get();
         $destcity['country'] = $descity_obj->get_country()->get()['name'];
         $destcity['drivemode'] = 'transit';
         $destcity['departuretime'] = $db->escape_string(($leave['fromDate']));
@@ -77,7 +75,7 @@ if(!$core->input['action']) {
         echo 'continue';
     }
     eval("\$plantrip = \"".$template->get('travelmanager_plantrip')."\";");
-    output($plantrip);
+    output_page($plantrip);
 }
 elseif($core->input['action'] == 'add_segment') {
 
@@ -93,7 +91,6 @@ elseif($core->input['action'] == 'add_segment') {
     $leave[$sequence]['toDate'] = $leave['toDate'];
     $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 00:00:00', $leave[$sequence]['toDate']));
     if(strtotime($core->input['toDate']) >= $leave[$sequence]['toDate']) {
-
         output_xml("<message>{$lang->dateexceeded}</message>");
         exit;
     }
@@ -123,19 +120,16 @@ elseif($core->input['action'] == 'add_segment') {
 elseif($core->input['action'] == 'populatecontent') {
     $origincityid = $db->escape_string($core->input['origincity']);
     $destcityid = $db->escape_string($core->input['destcity']);
-    $destcity['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
     $sequence = $db->escape_string($core->input['sequence']); /* get the  sequence to differentiate the content of each */
 
     $descity_obj = new Cities($destcityid);
-
-    $descitydata = $descity_obj->get();
-    $destcity['name'] = $descitydata['name'];
+    $destcity = $descity_obj->get();
     $destcity['country'] = $descity_obj->get_country()->get()['name'];
     $destcity['drivemode'] = 'transit';
+    $destcity['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
 
     $origincity_obj = new Cities($origincityid);
-    $origincitydata = $origincity_obj->get();
-    $origintcity['name'] = $origincitydata[name];
+    $origintcity = $origincity_obj->get();
     $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
     $transpmode_googledirections = ' https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 

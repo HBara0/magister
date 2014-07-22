@@ -52,12 +52,10 @@ class TravelManagerAirlines {
     }
 
     private function is_roundtrip($slices) {
-        if($slices > 1) {
-            return 1;
+        if(count($slices) > 1) {
+            return true;
         }
-        else {
-            return;
-        }
+        return false;
     }
 
     private function parse_responsefilghts($response_flightdata, $transpcatid, $sequence) {
@@ -74,13 +72,16 @@ class TravelManagerAirlines {
             for($slicenum = 0; $slicenum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice); $slicenum++) {
                 $slices = count($response_flightdata->trips->tripOption[$tripoptnum]->slice);
 
-                $triptype = self::is_roundtrip(count($response_flightdata->trips->tripOption[$tripoptnum]->slice));
+                $triptype = self::is_roundtrip($response_flightdata->trips->tripOption[$tripoptnum]->slice);
 
                 for($segmentnum = 0; $segmentnum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment); $segmentnum++) {
                     $departuretime = strtotime($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->departureTime);
                     $arrivaltime = strtotime($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->arrivalTime);
                     $flight['departuretime'] = date($core->settings['timeformat'], $departuretime);
                     $flight['arrivaltime'] = date('h:i A', $arrivaltime);
+
+                    $flight['origin'] = $response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->origin;
+                    $flight['destination'] = $response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->destination;
 
                     $hours = floor($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->duration / 60);
                     $minutes = ($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->duration / 60);
@@ -109,7 +110,7 @@ class TravelManagerAirlines {
                     $flight['flightdetails'] = base64_encode(serialize($flight['flightnumber'].$flight['flightid']));
 
                     if($triptype == 1) {
-                        $flight['triptype'] = 'roundtrip';
+                        $flight['triptype'] = 'Round-Trip';
                         $flight['pricing']+= $flight['pricing'];
 
                         eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails_roundtrip_segments_details')."\";");
@@ -133,13 +134,11 @@ class TravelManagerAirlines {
      * @param	int		$length		Length of the random string
      * @return  parsed Html	$output
      */
-    public static function parse_bestflight(array $transpcat, $sequence) {
-        global $core, $template;
+    public static function parse_bestflight($data, array $transpcat, $sequence) {
+        //$data = file_get_contents('./modules/travelmanager/jsonflightdetails_roundtrip.txt');
 
-        $json = file_get_contents('./modules/travelmanager/jsonflightdetails_onetrip.txt');
-
-        $response_flightdata = json_decode($json);
-        $flights_records = '<div class="subtitle" style="width:100%;margin:10px; box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px  rgba(0, 0, 0, 0.1) solid;;">Best Flights</div>';
+        $response_flightdata = json_decode($data);
+        //$flights_records = '<div class="subtitle" style="width:100%;margin:10px; box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px  rgba(0, 0, 0, 0.1) solid;;">Best Flights</div>';
 
         return self::parse_responsefilghts($response_flightdata, $transpcat['tmtcid'], $sequence);
     }
@@ -155,6 +154,13 @@ class TravelManagerAirlines {
         curl_close($ch);
         return $result;
     }
+
+    public function __get($name) {
+        if(array_key_exists($name, $this->airlines)) {
+            return $this->airlines[$name];
+        }
+    }
+
     public function get() {
         return $this->airlines;
     }

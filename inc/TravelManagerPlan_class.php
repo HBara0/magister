@@ -100,27 +100,32 @@ class TravelManagerPlan {
                     $availabe_arilinersobjs = TravelManagerAirlines::get_airlines(array('contracted' => '1'));
                     if(is_array($availabe_arilinersobjs)) {
                         foreach($availabe_arilinersobjs as $availabe_arilinersobj) {
-                            $availabe_ariliners = $availabe_arilinersobj->get();
-                            $permitted_ariliners = array($availabe_ariliners['iatacode']);
-                            //$arilinersroptions = parse_radiobutton('segment['.$sequence.'][aflid]', $ariliners, '', true, '&nbsp;&nbsp;');
-                            if(is_array($permitted_ariliners)) {
-                                /* parse request array for the allowed airlines  and encode it as json array */
-                                $request_json = TravelManagerAirlines::build_flightrequestdata(array('origin' => $cityinfo['origincity']['unlocode'], 'destination' => $cityinfo['destcity']['unlocode'], 'maxStops' => 0, 'date' => $cityinfo['date'], 'permittedCarrier' => $permitted_ariliners));
-                                $transportaion_fields = TravelManagerAirlines::parse_bestflight(array('name' => $category['name'], 'tmtcid' => $category['tmtcid']), $sequence);
-                            }
-                            //$transportaion_fields .='<div style="display:block;width:100%;"> <div style="display:inline-block;" id="airlinesoptions"> '.$arilinersroptions.' </div>  </div>';
+                            $permitted_ariliners[] = $availabe_arilinersobj->iatacode;
                         }
                     }
+                    //$availabe_ariliners = $availabe_arilinersobj->get();
+                    //$permitted_ariliners = array($availabe_ariliners['iatacode']);
+                    //$arilinersroptions = parse_radiobutton('segment['.$sequence.'][aflid]', $ariliners, '', true, '&nbsp;&nbsp;');
+                    //if(is_array($permitted_ariliners)) {
+                    /* parse request array for the allowed airlines  and encode it as json array */
+
+                    $flights = TravelManagerAirlines::get_flights(TravelManagerAirlines::build_flightrequestdata(array('origin' => $cityinfo['origincity']['unlocode'], 'destination' => $cityinfo['destcity']['unlocode'], 'maxStops' => 0, 'date' => $cityinfo['date'], 'permittedCarrier' => $permitted_ariliners)));
+                    $transportaion_fields = TravelManagerAirlines::parse_bestflight($flights, array('name' => $category['name'], 'tmtcid' => $category['tmtcid']), $sequence);
+                    //}
+                    //$transportaion_fields .='<div style="display:block;width:100%;"> <div style="display:inline-block;" id="airlinesoptions"> '.$arilinersroptions.' </div>  </div>';
+                    //}
+
                     /* Parse predefined airliners */
                     break;
                 case'car':
-                    break;
                     $transportaion_fields = '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->agency.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][agencyName]', 'text', '').'</div>';
                     $transportaion_fields .= '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->numberdays.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][numDays]', 'number', '').'</div>';
                     $transportaion_fields .= '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->feeday.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '').'</div>';
+                    break;
                 default:
                     $transportaion_fields = '<div style="padding:3px; display: inline-block; width:50%;">'.$lang->feeday.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '').'</div>';
                     $transportaion_fields .= '<div style="padding:3px; display: inline-block; width:45%;">'.$lang->transptype.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][transpType]', 'text', '').'</div>';
+                    break;
             }
             // $transportaion_fields .='<div style="display:inline-block;padding:5px;"  id="approximatefare"> Approximate Fare '.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'number', '').'</div>';
 
@@ -148,17 +153,18 @@ class TravelManagerPlan {
             $lastsegment_todate = strtotime($this->segmentdata[key($this->segmentdata)]['toDate']);
 
             /* check if itinerary exceed leave time frame (leave from date != segment 1 from date   or leave to date != last segment to date) */
-            $leavetimeframe['leavefromdate'] = strtotime(date('Y-m-d 00:00:00', $leavetimeframe['leavefromdate']));
+            $leavetimeframe ['leavefromdate'] = strtotime(date('Y-m-d 00:00:00', $leavetimeframe['leavefromdate']));
             $firstsegment_fromdate = strtotime(date('Y-m-d 00:00:00', $firstsegment_fromdate));
 
             $leavetimeframe['leavetodate'] = strtotime(date('Y-m-d 23:59:59', $leavetimeframe['leavetodate']));
             $lastsegment_todate = strtotime(date('Y-m-d 23:59:59', $lastsegment_todate));
 
-            if(($leavetimeframe['leavefromdate'] != $firstsegment_fromdate || $leavetimeframe['leavetodate'] != $lastsegment_todate)) {
+            if(($leavetimeframe ['leavefromdate'] != $firstsegment_fromdate || $leavetimeframe['leavetodate'] != $lastsegment_todate)) {
                 //echo '   leavefromdate '.$leavetimeframe['leavefromdate'].' firstsegfrom  '.$firstsegment_fromdate.' leavetodate '.$leavetimeframe['leavetodate'].' $lastsegment_todate '.$lastsegment_todate;
                 $this->errorode = 7;
                 //return false;
             }
+
             foreach($this->segmentdata as $sequence => $segmentdata) {
                 /* if origin city = to "to city" of previous segment n for each segment */
                 if(!empty($this->segmentdata [$sequence - 1]['destinationCity'])) {
@@ -217,7 +223,6 @@ class TravelManagerPlan {
                     'createdBy' => $core->user['uid'],
                     'createdOn' => TIME_NOW
             );
-
             $db->insert_query('travelmanager_plan', $plandata);
             $planid = $db->last_id();
             /* create plan */
@@ -257,12 +262,13 @@ class TravelManagerPlan {
         global $db;
 
         $segment_planobj = new TravelManagerPlanSegments();
-        echo 'update ';
+
         $this->segmentdata = $plandata;
         $tmpid = $plandata['tmpid'];
         unset($plandata['tmpid']);
         // $db->update_query(self::TABLE_NAME, $plandata, 'tmpid='.$db->escape_string($tmpid));
-        /* /* check if segment exist update otherwise try to create it */
+        /* /* check if segment exist update otherwise try to c reate it */
+
 
         foreach($this->segmentdata as $sequence => $segmentdata) {
             if(isset($segmentdata['lid'])) {
@@ -301,7 +307,7 @@ class TravelManagerPlan {
     /* segment toDate  between fromDate an toDate of  leave */
     public function isdate_exceededleave($plandata, $segmentdata) {
         $this->leave_datediff = abs($plandata ['todate'] - $plandata['fromdate']);
-        $this->leave_days = floor($this->leave_datediff / (60 * 60 * 24));
+        $this->leave_days = floor($this->leave_datediff / (60 * 60 * 24 ));
 
         if(!empty($segmentdata['fromDate']) && !empty($segmentdata['toDate'])) {
             $this->segment_datediff = abs($segmentdata ['toDate'] - $segmentdata['fromDate']);
@@ -309,12 +315,14 @@ class TravelManagerPlan {
         }
 
         /* no save if segment days greater than leave  dates interval */
-        if($this->segment_days > $this->leave_days) {
+        if($this->egment_days > $this->
+                leave_days) {
             return true;
         }
     }
 
-    public function get_errorcode() {
+    public function
+    get_errorcode() {
         return $this->errorode;
     }
 
@@ -327,6 +335,7 @@ class TravelManagerPlan {
     }
 
     public function get_createdBy() {
+
         return new Users($this->plan['createdBy']);
     }
 

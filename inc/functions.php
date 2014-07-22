@@ -1551,7 +1551,7 @@ function array_merge_recursive_replace() {
     return $base;
 }
 
-function get_object_bytype($dim, $id) {
+function get_object_bytype($dim, $id, $simple = true) {
     switch($dim) {
         case 'affid':
         case 'useraffid':
@@ -1578,9 +1578,6 @@ function get_object_bytype($dim, $id) {
             break;
         case 'lid':
             return new Leaves($id);
-            break;
-        case 'coid':
-            return new Countries($id);
             break;
         case 'psid':
             return new ProductsSegments($id);
