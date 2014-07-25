@@ -65,17 +65,18 @@ class TravelManagerPlan {
         return $data;
     }
 
-    public static function parse_transportation($transmode, $directiondata = array(), $sequence) {
+    public static function parse_transportation($transmode, $sequence) {
         global $lang;
         /* The proposed transportation categories   are parsed accordingly with the possible available transportation methods proposed by Google */
         $transporcat_obj = TravelManagerTranspCategories::get_categories_byattr('apiVehicleTypes', $transmode['vehicleType'], array('operator' => 'like'));
         if(is_object($transporcat_obj)) {
             $transportaion_cat = $transporcat_obj->get();
             if(is_array($transportaion_cat)) {
-                $categories = array($transportaion_cat['tmtcid'] => $transportaion_cat['name']);
-                $transpcat['type'] = parse_checkboxes('segment['.$sequence.'][tmtcid]transp_'.$sequence.'_'.$transportaion_cat['name'].'', $categories, '', true, $transportaion_cat['apiVehicleTypes'], '&nbsp;&nbsp;');
+                $categories = array($transportaion_cat['tmtcid'] => $transportaion_cat['title']);
+                $transpcat['type'] = parse_checkboxes('segment['.$sequence.'][tmtcid]transp_'.$sequence.'_'.$transportaion_cat['name'].'', $categories, '', true, $transportaion_cat['description'], '&nbsp;&nbsp;');
                 $transpcat['cateid'] = $transportaion_cat['tmtcid'];
                 $transpcat['name'] = $transportaion_cat['name'];
+                $transpcat['title'] = $transportaion_cat['title'];
             }
 
             return $transpcat;
@@ -86,14 +87,15 @@ class TravelManagerPlan {
         global $lang;
         if(!empty($category['name'])) {
             switch($category['name']) {
-                case'taxi':
+                case 'taxi':
                     $transportaion_fields = '<div style="padding:3px; display: inline-block; width:50%;">'.$lang->approxfare.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '').'</div>';
                     break;
-                case'bus':
+                case 'bus':
                     $transportaion_fields = '<div style="padding:2px; display: inline-block; width:50%;">'.$lang->approxfare.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '').'</div>';
                     break;
-                case'train':
-                    $transportaion_fields = '<div style="padding:2px; display: inline-block; width:50%;">'.$lang->traino.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][vechicleNumber]', 'number', '').'</div>';
+                case 'train':
+                case 'lightrail':
+                    $transportaion_fields = '<div style="padding:2px; display: inline-block; width:50%;">'.$lang->traino.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][vehicleNumber]', 'number', '').'</div>';
                     $transportaion_fields.=' <div style="padding:2px; display: inline-block; width:45%;">'.$lang->approxfare.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '').'</div>';
                     break;
                 case 'airplane':
@@ -117,7 +119,7 @@ class TravelManagerPlan {
 
                     /* Parse predefined airliners */
                     break;
-                case'car':
+                case 'car':
                     $transportaion_fields = '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->agency.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][agencyName]', 'text', '').'</div>';
                     $transportaion_fields .= '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->numberdays.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][numDays]', 'number', '').'</div>';
                     $transportaion_fields .= '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->feeday.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '').'</div>';

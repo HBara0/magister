@@ -1,6 +1,6 @@
 @charset "UTF-8";
 /*
-Copyright ┬® 2014 Orkila International Offshore, All Rights Reserved
+Copyright ┬⌐ 2014 Orkila International Offshore, All Rights Reserved
 
 [Provide Short Descption Here]
 $id: _constants.scss
@@ -196,6 +196,9 @@ td {
 
 .border_bottom {
   border-bottom: 1px solid #F2F2F2; }
+
+.border_top {
+  border-top: 1px solid #F2F2F2; }
 
 .searchQuickResults {
   width: 200px;
@@ -582,5 +585,3 @@ tr.dummytrow td, tr.dummytrow th {
 
 .ui-autocomplete-loading {
   background: white url("../images/loading.gif") right center no-repeat; }
-
-/*# sourceMappingURL=styles.css.map */

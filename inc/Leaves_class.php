@@ -409,6 +409,12 @@ class Leaves {
         return $data->get_objects($filters, $configs);
     }
 
+    public function __get($name) {
+        if(array_key_exists($name, $this->leave)) {
+            return $this->leave[$name];
+        }
+    }
+
     public function get() {
         return $this->leave;
     }

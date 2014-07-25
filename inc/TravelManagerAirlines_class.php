@@ -59,8 +59,10 @@ class TravelManagerAirlines {
     }
 
     private function parse_responsefilghts($response_flightdata, $transpcatid, $sequence) {
-        global $core, $template;
-        for($tripoptnum = 0; $tripoptnum <= count($response_flightdata->trips->tripOption); $tripoptnum++) {
+        global $core, $template, $lang;
+        foreach($response_flightdata->trips->tripOption as $tripoptnum => $tripoption) {
+//for($tripoptnum = 0; $tripoptnum <= count($response_flightdata->trips->tripOption); $tripoptnum++) {
+//$tripoption = $response_flightdata->trips->tripOption[$tripoptnum];
             $airportcount = count($trips->airport);
             if($airportcount >= 0) {
                 for($i = 0; $i <= $airportcount; $i++) {
@@ -69,29 +71,34 @@ class TravelManagerAirlines {
                     }
                 }
             }
-            for($slicenum = 0; $slicenum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice); $slicenum++) {
-                $slices = count($response_flightdata->trips->tripOption[$tripoptnum]->slice);
 
-                $triptype = self::is_roundtrip($response_flightdata->trips->tripOption[$tripoptnum]->slice);
-
-                for($segmentnum = 0; $segmentnum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment); $segmentnum++) {
-                    $departuretime = strtotime($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->departureTime);
-                    $arrivaltime = strtotime($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->arrivalTime);
+            $is_roundtrip = self::is_roundtrip($tripoption->slice);
+            foreach($tripoption->slice as $slicenum => $slice) {
+// for($slicenum = 0; $slicenum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice); $slicenum++) {
+                foreach($slice->segment as $segmentnum => $segment) {
+//  for($segmentnum = 0; $segmentnum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment); $segmentnum++) {
+                    $departuretime = strtotime($segment->leg[0]->departureTime);
+                    $arrivaltime = strtotime($segment->leg[0]->arrivalTime);
+                    $flight['departuredate'] = date($core->settings['dateformat'], $departuretime);
                     $flight['departuretime'] = date($core->settings['timeformat'], $departuretime);
-                    $flight['arrivaltime'] = date('h:i A', $arrivaltime);
+                    $flight['arrivaldate'] = date($core->settings['dateformat'], $arrivaltime);
+                    $flight['arrivaltime'] = date($core->settings['timeformat'], $arrivaltime);
 
-                    $flight['origin'] = $response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->origin;
-                    $flight['destination'] = $response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->destination;
+                    $flight['origin'] = $segment->leg[0]->origin;
+                    $flight['destination'] = $segment->leg[0]->destination;
 
-                    $hours = floor($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->duration / 60);
-                    $minutes = ($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->leg[0]->duration / 60);
-                    $flight['duration'] = sprintf('%2dh %2dm', $hours, $minutes);
+                    $flight['duration'] = sprintf('%2dh %2dm', floor($segment->leg[0]->duration / 60), ($segment->leg[0]->duration % 60));
 
-                    if(isset($response_flightdata->trips->tripOption[$tripoptnum]->saleTotal) && !empty($response_flightdata->trips->tripOption[$tripoptnum]->saleTotal)) {
-                        $flight['currcode'] = substr($response_flightdata->trips->tripOption[$tripoptnum]->saleTotal, 0, 3);
+                    if(isset($segment->connectionDuration)) {
+                        $flight['connectionDuration'] = sprintf('%2dh %2dm', floor($segment->connectionDuration / 60), ($segment->connectionDuration % 60));
+                        $connectionduration = '<div class="border_top border_bottom" style="padding: 10px; font-style: italic;">Connection: '.$flight['connectionDuration'].'</div>';
                     }
 
-                    $flight['saleTotal'] = substr($response_flightdata->trips->tripOption[$tripoptnum]->saleTotal, 3);
+                    if(isset($tripoption->saleTotal) && !empty($tripoption->saleTotal)) {
+                        $flight['currcode'] = substr($tripoption->saleTotal, 0, 3);
+                    }
+
+                    $flight['saleTotal'] = substr($tripoption->saleTotal, 3);
                     $currency_obj = new Currencies('USD');
                     $currency = $currency_obj->get_currency_by_alphacode($flight['currcode']);
                     $fxrates[$currency['alphaCode']] = $currency_obj->get_latest_fxrate($currency['alphaCode'], array('incDate' => 1));
@@ -102,16 +109,16 @@ class TravelManagerAirlines {
                             break;
                         }
                     }
-                    $flight['flightnumber'] = $response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->flight->carrier.' '.$response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment[$segmentnum]->flight->number;
+                    $flight['flightnumber'] = $segment->flight->carrier.' '.$segment->flight->number;
 
                     $flight['flightid'] = $response_flightdata->trips->tripOption[$tripoptnum]->id;
                     $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
 
                     $flight['flightdetails'] = base64_encode(serialize($flight['flightnumber'].$flight['flightid']));
 
-                    if($triptype == 1) {
-                        $flight['triptype'] = 'Round-Trip';
-                        $flight['pricing']+= $flight['pricing'];
+                    if($is_roundtrip == true) {
+                        $flight['triptype'] = 'Round Trip';
+                        $flight['pricing'] += $flight['pricing'];
 
                         eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails_roundtrip_segments_details')."\";");
 
@@ -121,10 +128,16 @@ class TravelManagerAirlines {
                     else {
                         eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails_roundtrip_segments_details')."\";");
                     }
+
+                    unset($connectionduration, $flight['connectionDuration']);
+                    // }
                 }
-                eval("\$flights_records .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
-                $flights_records_segments = $flights_records_roundtripsegments = $flights_records_roundtripsegments_details = '';
+
+                //}
             }
+            eval("\$flights_records .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
+            $flights_records_segments = $flights_records_roundtripsegments = $flights_records_roundtripsegments_details = '';
+            //}
         }
         return $flights_records;
     }
@@ -135,10 +148,8 @@ class TravelManagerAirlines {
      * @return  parsed Html	$output
      */
     public static function parse_bestflight($data, array $transpcat, $sequence) {
-        //$data = file_get_contents('./modules/travelmanager/jsonflightdetails_roundtrip.txt');
-
         $response_flightdata = json_decode($data);
-        //$flights_records = '<div class="subtitle" style="width:100%;margin:10px; box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px  rgba(0, 0, 0, 0.1) solid;;">Best Flights</div>';
+        //$flights_records = '<div class = "subtitle" style = "width:100%;margin:10px; box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px  rgba(0, 0, 0, 0.1) solid;;">Best Flights</div>';
 
         return self::parse_responsefilghts($response_flightdata, $transpcat['tmtcid'], $sequence);
     }
