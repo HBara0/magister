@@ -33,7 +33,7 @@ if(!$core->input['action']) {
     }
 
     /* Parse list for the Create Product Lists popup */
-    $applications_obj = Segmentapplications::get_segmentsapplications();
+    $applications_obj = SegmentApplications::get_segmentsapplications();
     if(is_array($applications_obj)) {
         foreach($applications_obj as $application_obj) {
             $applications = $application_obj->get();

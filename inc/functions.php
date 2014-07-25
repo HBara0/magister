@@ -1601,7 +1601,7 @@ function get_object_bytype($dim, $id) {
             return new EndProducTypes($id);
             break;
         case 'psaid':
-            return new Segmentapplications($id);
+            return new SegmentApplications($id);
             break;
         case 'csid':
             return new Chemicalsubstances($id);
