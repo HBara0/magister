@@ -26,7 +26,7 @@ class TravelManagerPlanSegments {
         $this->read($id);
     }
 
-    private function read($id = '') {
+    private function read($id) {
         global $db;
         $this->data = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
@@ -38,7 +38,8 @@ class TravelManagerPlanSegments {
             $this->errorode = 2;
             return false;
         }
-        if(value_exists('travelmanager_plan_segments', 'createdBy', $core->user['uid'], "(fromDate = {$segmentdata['fromDate']}  OR toDate = {$segmentdata['toDate']}) AND sequence=".$segmentdata['sequence'])) {
+
+        if(value_exists(self::TABLE_NAME, TravelManagerPlan::PRIMARY_KEY, $segmentdata[TravelManagerPlan::PRIMARY_KEY], "(fromDate = {$segmentdata['fromDate']}  OR toDate = {$segmentdata['toDate']}) AND sequence=".$segmentdata['sequence'])) {
             $this->errorode = 4;
             return false;
         }
@@ -58,7 +59,7 @@ class TravelManagerPlanSegments {
                 'createdOn' => TIME_NOW
         );
 
-        $db->insert_query('travelmanager_plan_segments', $segmentdata_array);
+        $db->insert_query(self::TABLE_NAME, $segmentdata_array);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
 
         // if(isset($segmentdata['tmtcid'])) {
@@ -67,16 +68,13 @@ class TravelManagerPlanSegments {
 
         /* Initialize the object */
         if(is_array($transptdata)) {
-
             foreach($transptdata as $category => $data) {
-
                 $chkdata = $data;
                 rsort($chkdata);
-
                 if(is_array($chkdata[0])) {
                     foreach($data as $id => $transit) {
                         $transp_obj = new TravelManagerPlanTransps();
-                        $transit['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                        $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                         $transit['tmtcid'] = $category;
                         $transp_obj->set($transit);
                         $transp_obj->save();
@@ -85,7 +83,7 @@ class TravelManagerPlanSegments {
                 else {
                     $transp_obj = new TravelManagerPlanTransps();
                     $data['tmtcid'] = $category;
-                    $data['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                    $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                     $transp_obj->set($data);
                     $transp_obj->save();
                 }
@@ -105,17 +103,16 @@ class TravelManagerPlanSegments {
         }
     }
 
-    public function update($segmentdata = array()) {
+    public function update(array $segmentdata) {
         global $db;
 
-        $segmentnewdata['fromDate'] = $segmentdata['fromDate'];
-        $segmentnewdata['toDate'] = $segmentdata['toDate'];
-        $segmentnewdata['originCity'] = $segmentdata['originCity'];
-        $segmentnewdata['destinationCity'] = $segmentdata['destinationCity'];
+        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity');
+        /* Consider using array intersection */
+        foreach($valid_fields as $attr) {
+            $segmentnewdata[$attr] = $segmentdata[$attr];
+        }
 
-        $tmpsid = $segmentdata['tmpsid'];
-        unset($segmentdata['tmpsid']);
-        $db->update_query(self::TABLE_NAME, $segmentnewdata, 'tmpsid='.$db->escape_string($tmpsid));
+        $db->update_query(self::TABLE_NAME, $segmentnewdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
     public function set(array $data) {
@@ -140,10 +137,9 @@ class TravelManagerPlanSegments {
         if(empty($data)) {
             $data = $this->data;
         }//get object of and the id and set data and save
-        $latestseg_obj = TravelManagerPlanSegments::get_segments(array('fromDate' => $this->data['fromDate'], 'toDate' => $this->data['toDate'], 'createdBy' => $core->user['uid']));
-        if(is_object($latestseg_obj)) {
-            $this->data['tmpsid'] = $latestseg_obj->get()['tmpsid'];
-            $this->update($this->data);
+        $tmpsegment = TravelManagerPlanSegments::get_segments(array(TravelManagerPlan::PRIMARY_KEY => $data[TravelManagerPlan::PRIMARY_KEY], 'fromDate' => $data['fromDate'], 'toDate' => $data['toDate']));
+        if(is_object($tmpsegment)) {
+            $tmpsegment->update($data);
         }
         else {
             $this->create($data);
@@ -152,19 +148,16 @@ class TravelManagerPlanSegments {
 
     public static function get_segment_byattr($attr, $value, $operator = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
-        return $data->get_objects_byattr($attr, $value, $operator)
-        ;
+        return $data->get_objects_byattr($attr, $value, $operator);
     }
 
     public static function get_segments($filters = null, array $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
-        return $data->get_objects($filters, $configs)
-        ;
+        return $data->get_objects($filters, $configs);
     }
 
     public function get_plan() {
-        return new TravelManagerPlan($this->data['tmpid'])
-        ;
+        return new TravelManagerPlan($this->data['tmpid']);
     }
 
     public function get_origincity() {
@@ -172,23 +165,19 @@ class TravelManagerPlanSegments {
     }
 
     public function get_destinationcity() {
-        return new Cities($this->data['destinationCity'])
-        ;
+        return new Cities($this->data['destinationCity']);
     }
 
     public function get() {
-        return $this->data
-        ;
+        return $this->data;
     }
 
     public function get_createdBy() {
-        return new Users($this->data['createdBy'])
-        ;
+        return new Users($this->data['createdBy']);
     }
 
     public function get_errorcode() {
-        return $this->errorode
-        ;
+        return $this->errorode;
     }
 
     public function get_modifiedBy() {
@@ -196,3 +185,4 @@ class TravelManagerPlanSegments {
     }
 
 }
+?>

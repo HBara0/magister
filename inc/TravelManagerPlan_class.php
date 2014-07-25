@@ -194,21 +194,19 @@ class TravelManagerPlan {
     public function create($data = array()) {
         global $db, $core;
         if(is_array($data)) {
-            echo 'create ';
-            print_r($data);
-
-            $this->leaveid = $data['lid'];
-            $leave_obj = new Leaves($this->leaveid);
+            $this->data['lid'] = $data['lid'];
+            $leave = new Leaves($this->data['lid']);
             unset($data['lid']);
             if($this->check_isemptyfields($data)) {
                 $this->errorode = 2;
                 return false;
             }
-            $planleavedata['fromdate'] = $leave_obj->get()['fromDate'];
-            $planleavedata['todate'] = $leave_obj->get()['toDate'];
+
+            $planleavedata['fromdate'] = $leave->get()['fromDate'];
+            $planleavedata['todate'] = $leave->get()['toDate'];
             /* function to validate fields */
 
-            if(!$this->check_iteneraryconsistency($data, array('leavefromdate' => $leave_obj->get()['fromDate'], 'leavetodate' => $leave_obj->get()['toDate']))) {
+            if(!$this->check_iteneraryconsistency($data, array('leavefromdate' => $leave->get()['fromDate'], 'leavetodate' => $leave->get()['toDate']))) {
                 return false;
             }
 
@@ -219,28 +217,25 @@ class TravelManagerPlan {
 //                return false;
 //            }
             $plandata = array('identifier' => substr(md5(uniqid(microtime())), 1, 10),
-                    'lid' => $this->leaveid,
-                    'title' => $title,
+                    'lid' => $leave->lid,
                     'uid' => $core->user['uid'],
                     'createdBy' => $core->user['uid'],
                     'createdOn' => TIME_NOW
             );
             $db->insert_query('travelmanager_plan', $plandata);
-            $planid = $db->last_id();
-            /* create plan */
+            $this->data[self::PRIMARY_KEY] = $db->last_id();
             $this->segmentdata = $data;
         }
         /* create segment */
-        $segment_planobj = new TravelManagerPlanSegments();
         foreach($this->segmentdata as $sequence => $segmentdata) {
+            $tmpsegment = new TravelManagerPlanSegments();
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
             $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
-            $segmentdata['tmpid'] = $planid;
+            $segmentdata[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
             $segmentdata['sequence'] = $sequence;
-            $segment_planobj->set($segmentdata);
-            $segment_planobj->save();
-            // $segment_planobj->create($segmentdata);
-            $this->errorode = $segment_planobj->get_errorcode();
+            $tmpsegment->set($segmentdata);
+            $tmpsegment->save();
+            $this->errorode = $tmpsegment->get_errorcode();
         }
     }
 
@@ -253,7 +248,7 @@ class TravelManagerPlan {
         $latestsplan_obj = TravelManagerPlan::get_plan(array('lid' => $this->data['lid'], 'createdBy' => $core->user['uid']));
         if(is_object($latestsplan_obj)) {
             $this->data['tmpid'] = $latestsplan_obj->get()['tmpid'];
-            $this->update($this->data);
+            $this->update($data);
         }
         else {
             $this->create($data);
@@ -263,23 +258,19 @@ class TravelManagerPlan {
     public function update($plandata = array()) {
         global $db;
 
-        $segment_planobj = new TravelManagerPlanSegments();
-
         $this->segmentdata = $plandata;
-        $tmpid = $plandata['tmpid'];
         unset($plandata['tmpid']);
-        // $db->update_query(self::TABLE_NAME, $plandata, 'tmpid='.$db->escape_string($tmpid));
-        /* /* check if segment exist update otherwise try to c reate it */
-
+        $db->update_query(self::TABLE_NAME, $plandata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
 
         foreach($this->segmentdata as $sequence => $segmentdata) {
+            $segment_planobj = new TravelManagerPlanSegments();
             if(isset($segmentdata['lid'])) {
                 unset($segmentdata['lid']);
             }
             // if(isset($segmentdata['fromDate']) && isset($segmentdata['toDate']) && isset($segmentdata['tmpid']) && isset($segmentdata['sequence'])) {
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
             $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
-            $segmentdata['tmpid'] = $tmpid;
+            $segmentdata[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
             $segmentdata['sequence'] = $sequence;
             // }
             $segment_planobj->set($segmentdata);
@@ -323,8 +314,7 @@ class TravelManagerPlan {
         }
     }
 
-    public function
-    get_errorcode() {
+    public function get_errorcode() {
         return $this->errorode;
     }
 
