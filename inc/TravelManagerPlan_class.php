@@ -59,6 +59,12 @@ class TravelManagerPlan {
     }
 
     public static function get_availablecitytransp($directiondata = array()) {
+        global $core;
+
+        if($directiondata['destcity']['departuretime'] < TIME_NOW) {
+            $directiondata['destcity']['departuretime'] = TIME_NOW + 3600;
+        }
+        //key='.$core->settings['googleapikey'].'&
         $googledirection_api = 'http://maps.googleapis.com/maps/api/directions/json?origin='.$directiondata['origincity']['name'].',+'.$directiondata['origincity']['country'].'&destination='.$directiondata['destcity']['name'].',+'.$directiondata['destcity']['country'].'&sensor=false&mode='.$directiondata['destcity']['drivemode'].'&units=metric&departure_time='.$directiondata['destcity']['departuretime'];
         $json = file_get_contents($googledirection_api);
         $data = json_decode($json);
