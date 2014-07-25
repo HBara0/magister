@@ -55,11 +55,11 @@
                         <input type='hidden' id='chemicalproducts_1_id' name='request[product]'/>
                         <div id="searchQuickResults_chemicalproducts_1" class="searchQuickResults" style="display:none;"></div>
                     </div>
-                </div>      
+                </div>
                 <div style="display:table-row;">
                     <div style="display:table-cell;width:150px; vertical-align:middle;">{$lang->application}</div>
                     <div style="display:table-cell;">
-                        <select name="request[segmentapplication]"><option></option>{$productsegment_applications}</select>
+                        <select name="request[segmentapplication]" style="width:100%; max-width:90%;"><option></option>{$productsegment_applications}</select>
                     </div>
                 </div>
                 <div style="display:table-row;">
@@ -77,8 +77,7 @@
                 <hr />
                 <div style="display:table-row">
                     <div style="display:table-cell">
-                        <input type="button" id="perform_sourcing/listpotentialsupplier_Button" class="button" value="{$lang->add}"/>
-                        <input type="reset" class="button" value="{$lang->reset}" />
+                        <input type="button" id="perform_sourcing/listpotentialsupplier_Button" class="button main" value="{$lang->add}"/>
                     </div>
                 </div>
             </div>

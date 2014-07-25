@@ -204,7 +204,7 @@ if(!$core->input['action']) {
     $origins = array('anyorigin' => $lang->anyorigin, 'chinese' => $lang->chinese, 'nonchinese' => $lang->nonchinese, 'indian' => $lang->indian, 'nonindian' => $lang->nonindian, 'european' => $lang->european, 'noneuropean' => $lang->noneuropean, 'american' => $lang->american, 'nonamerican' => $lang->nonamerican, 'otherasian' => $lang->otherasian, 'nootherasian' => $lang->nootherasian);
     $origins_list = parse_selectlist('request[origins][]', 8, $origins, '', 1);
 
-    $applications = SegmentApplications::get_segmentsapplications();
+    $applications = SegmentApplications::get_segmentsapplications(null, array('order' => SegmentApplications::DISPLAY_NAME));
     if(is_array($applications)) {
         foreach($applications as $application) {
             $productsegment_applications .= '<option value='.$applications->psaid.'>'.$application->get_displayname().' - '.$application->get_segment()->title.'</option>';
