@@ -15,7 +15,7 @@ $lang['commercial'] = 'Commercial';
 $lang['companyname'] = 'Company Name';
 $lang['competition'] = 'Competition Information';
 $lang['competitorname'] = 'Competitor Name';
-$lang['competitorprod'] = 'Competitor Producer';
+$lang['competitorprod'] = 'Competitoaddmrktboxr Producer';
 $lang['competitorprodsuppliers'] = 'Competitor producer';
 $lang['competitorsuppliers'] = 'Competitor Suppliers';
 $lang['competitortrader'] = 'Competitor Trader';
@@ -71,4 +71,5 @@ $lang['telephonecall'] = 'Telephone Call';
 $lang['territory'] = 'Territory';
 $lang['workshift'] = 'Work Shift';
 $lang['visitreport'] = 'Visit Report';
+$lang['chemsubstfunc'] = 'Chemical Substance';
 ?>

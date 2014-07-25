@@ -100,7 +100,7 @@
                         </table>
                     </td>
                 </tr>
-                <tr><td class="thead" colspan="2">{$lang->detlmrktbox} {$addmarketdata_link}</td></tr>
+                <tr><td class="thead" colspan="2">{$lang->addmarketdata} {$addmarketdata_link}</td></tr>
                 <tr>
                     <td colspan="3">
                         <div class="timeline_container">

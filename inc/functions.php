@@ -627,7 +627,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         break;
                     case'checmicalfunction':
                         // $chemob = new Chemicalsubstances($key);
-                        $chemfunchem_objs = ChemicalFunctionChemical::get_checmicalfunction('csid='.$key);
+                        $chemfunchem_objs = ChemicalFunctionChemical::get_checmicalfunction('csid='.$key, array('returnarray' => 1));
                         if(is_array($chemfunchem_objs)) {
                             foreach($chemfunchem_objs as $chemfunchem_obj) {
                                 $application_obj = $chemfunchem_obj->get_segapplicationfunction();

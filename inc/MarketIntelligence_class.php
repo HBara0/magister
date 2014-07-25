@@ -25,7 +25,8 @@ class MarketIntelligence {
             'allprevious' => array('groupby' => array('createdOn', 'eptid', 'mibdid'), 'aggregateby' => array('mibdid'), 'timelevel' => 'allprevious'), //N Level
             'latestaggregatecustomersumbyproduct' => array('groupby' => array('cfpid', 'cfcid', 'mibdid'), 'aggregateby' => array('cid', 'cfpid', 'cfcid'), 'displayItem' => ChemFunctionProducts, 'timelevel' => 'latest'),
             'latestaggregatebycustomer' => array('groupby' => array('cid', 'eptid'), 'aggregateby' => array('cid', 'cfpid', 'cfcid'), 'displayItem' => Customers, 'timelevel' => 'latest'),
-            'latestaggregatebyaffiliate' => array('groupby' => array('affid', 'mibdid'), 'aggregateby' => array('affid', 'cfpid', 'cfcid'), 'displayItem' => Affiliates, 'timelevel' => 'latest') //Main affililate profile
+            'latestaggregatebyaffiliate' => array('groupby' => array('affid', 'mibdid'), 'aggregateby' => array('affid', 'cfpid', 'cfcid'), 'displayItem' => Affiliates, 'timelevel' => 'latest'), //Main affililate profile
+            'latestvisitreportdate' => array('groupby' => array('vrid', 'mibdid'), 'aggregateby' => array('vrid', 'cfpid', 'cfcid'), 'displayItem' => Customers, 'timelevel' => 'maxvisitreportdate') //Max visit report date
     );
 
     public function __construct($id = '', $simple = false) {
@@ -43,14 +44,19 @@ class MarketIntelligence {
         $this->marketintelligence = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'marketintelligence_basicdata WHERE mibdid='.intval($id)));
     }
 
+    public static function get_marketintelligence_byattr($attr, $value) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects_byattr($attr, $value);
+    }
+
     public function create($data = array()) {
         global $db, $core;
         if(is_array($data)) {
             $this->marketdata = $data;
 
             if((empty($this->marketdata['cfpid']) && empty($this->marketdata['cfcid'])) || is_empty($this->marketdata['potential'], $this->marketdata['mktSharePerc'], $this->marketdata['mktShareQty'])) {
-                // $this->errorcode = 1;
-                // return false;
+                $this->errorcode = 1;
+                return false;
             }
 
             /* Santize inputs - START */
@@ -90,6 +96,7 @@ class MarketIntelligence {
                     'ebpid' => $this->marketdata['ebpid'],
                     'eptid' => $this->marketdata['eptid'],
                     'vrid' => $this->marketdata['vrid'],
+                    'vridentifier' => $this->marketdata['vridentifier'],
                     'lid' => $this->marketdata['lid'],
                     'potential' => $this->marketdata['potential'],
                     'mktSharePerc' => $this->marketdata['mktSharePerc'],
@@ -98,13 +105,18 @@ class MarketIntelligence {
                     'turnover' => $this->marketdata['unitPrice'] * ($this->marketdata['mktShareQty'] * 1000),
                     'comments' => $this->marketdata['comments'],
                     'createdBy' => $core->user['uid'],
-                    'createdOn' => TIME_NOW
+                    'createdOn' => $this->marketdata['visitreportdate']
             );
+            if(empty($this->marketdata['visitreportdate'])) {
+                $marketintelligence_data['createdOn'] = TIME_NOW;
+            }
+
             if(is_array($marketintelligence_data)) {
                 $query = $db->insert_query('marketintelligence_basicdata', $marketintelligence_data);
             }
 
             if($query) {
+                $this->mibdid = $db->last_id();
                 $this->marketdata['competitor']['mibdid'] = $db->last_id();
                 if(is_array($this->marketdata['competitor'])) {
                     MarketIntelligenceCompetitors::save($this->marketdata['competitor']);
@@ -172,7 +184,7 @@ class MarketIntelligence {
         return $output;
     }
 
-    public function parse_timeline_entry(array $data, array $profile, $depth = 0, $is_last = false) {
+    public function parse_timeline_entry(array $data, array $profile, $depth = 0, $is_last = false, $option = '') {
         global $core, $template, $lang;
         $timedepth = 25 - ($depth * 5);
         $height = 25 - ($depth * 5);
@@ -234,7 +246,9 @@ class MarketIntelligence {
         if(empty($data['timelineItem']['addInfo'])) {
             $data['timelineItem']['addInfo'] = date($core->settings['dateformat'], $data['createdOn']);
         }
-
+        if(!empty($option) && $option == 'canupdate') {
+            $updatemktintldtls_icon = '<a style="cursor: pointer;" title="'.$lang->update.'" id="updatemktintldtls_'.$data['mibdid'].'_'.$core->input['module'].'_loadpopupbyid" rel="mktdetail_'.$data[mibdid].'"><img src="'.$core->settings[rootdir].'/images/icons/update.png"/></a>';
+        }
         if(!empty($data['mibdid'])) {
             eval("\$viewdetails_icon = \"".$template->get('profiles_entityprofile_mientry_viewdetails')."\";");
         }
@@ -260,6 +274,12 @@ class MarketIntelligence {
          * Check if user can see the affid, spid, cid etc...
          * Check if user can see the affid, spid, cid etc... */
 
+        //Validate market data is less then or equalthe visit report date when exist
+        if(isset($filterby[date])) {
+            $filterdate = $filterby[date];
+            unset($filterby[date]);
+            $filterss = ' AND (createdOn)<= '.$filterdate;
+        }
         foreach($filterby as $attr => $id) {
             $filters .= $filtersand.$attr.' = '.intval($id);
             $filtersand = ' AND ';
@@ -270,7 +290,9 @@ class MarketIntelligence {
             $is_lastlevel = true;
         }
 
-        $latestentry_query = 'SELECT MAX(createdOn) FROM '.Tprefix.'marketintelligence_basicdata WHERE '.$filters;
+
+        $latestentry_query = 'SELECT MAX(createdOn) FROM '.Tprefix.'marketintelligence_basicdata WHERE '.$filters.$filterss;
+
         if($profile['timelevel'] == 'latest') {
             $where_query = ' AND createdOn IN ('.$latestentry_query.' GROUP BY '.$db->escape_string(implode(', ', $profile['aggregateby'])).')';
         }
