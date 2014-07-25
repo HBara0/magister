@@ -47,7 +47,7 @@ class TravelManagerAirlines {
 
     public static function build_flightrequestdata($requestdata) {
         $requestdata = json_encode(array('request' => array('slice' => array(array('origin' => $requestdata['origin'], 'destination' => $requestdata['destination'], 'date' => $requestdata['date'], 'permittedCarrier' => $requestdata['permittedCarrier'])))));
-        //to send the reqeustdata to google api and return the response array.
+//to send the reqeustdata to google api and return the response array.
         return $requestdata;
     }
 
@@ -160,8 +160,8 @@ class TravelManagerAirlines {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
-
         $result = curl_exec($ch);
+        //$result = file_get_contents('./modules/travelmanager/jsonflightdetails_roundtrip.txt');
         curl_close($ch);
         return $result;
     }
