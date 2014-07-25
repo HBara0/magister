@@ -625,17 +625,15 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
                         unset($details);
                         break;
-                    case'checmicalfunction':
-                        // $chemob = new Chemicalsubstances($key);
+                    case 'checmicalfunction':
                         $chemfunchem_objs = ChemicalFunctionChemical::get_checmicalfunction('csid='.$key);
                         if(is_array($chemfunchem_objs)) {
                             foreach($chemfunchem_objs as $chemfunchem_obj) {
                                 $application_obj = $chemfunchem_obj->get_segapplicationfunction();
-                                $details = ' <br /><span class="smalltext" >'.$chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
+                                $details = '<br /><span class="smalltext" >'.$chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
                                 $results_list .= '<li id="'.$chemfunchem_obj->cfcid.'">'.$val.$details.'</li>';
                             }
                         }
-
                         break;
                     default:
                         $results_list .= '<li id="'.$key.'">'.$val.'</li>';
@@ -1287,17 +1285,6 @@ function is_empty() {
     $arguments = func_get_args();
     foreach($arguments as $key => $val) {
         if(empty($val)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-function is_set() {
-    $arguments = func_get_args();
-    foreach($arguments as $key => $val) {
-        if(isset($arguments[$val])) {
-
             return true;
         }
     }
