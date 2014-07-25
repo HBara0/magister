@@ -32,7 +32,7 @@ class SegmentApplications {
         if($simple == true) {
             $query_select = 'psaid, name, psid, title';
         }
-        $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'segmentapplications WHERE psaid='.intval($id)));
+        $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
 
     public function create($data = array()) {
@@ -44,7 +44,7 @@ class SegmentApplications {
                 return false;
             }
 
-            if(value_exists('segmentapplications', 'title', $data['title'], 'psid='.$data['psid'])) {
+            if(value_exists(self::TABLE_NAME, 'title', $data['title'], 'psid='.$data['psid'])) {
                 $this->errorcode = 2;
                 return false;
             }
@@ -62,7 +62,7 @@ class SegmentApplications {
                     'createdBy' => $core->user['uid'],
                     'createdOn' => TIME_NOW
             );
-            $query = $db->insert_query('segmentapplications', $segapplication_data);
+            $query = $db->insert_query(self::TABLE_NAME, $segapplication_data);
             if($query) {
                 $this->data[self::PRIMARY_KEY] = $db->last_id();
                 if(!empty($data['segappfunctions']) && isset($data['segappfunctions'])) {
@@ -81,7 +81,7 @@ class SegmentApplications {
         }
     }
 
-    public static function get_segmentsapplications() {
+    public static function get_segmentsapplications_legacy() {
         global $db, $core;
 
         /* Need to put filter
@@ -104,7 +104,7 @@ class SegmentApplications {
             $limit_start = $db->escape_string($core->input['start']);
         }
 
-        $query = $db->query("SELECT psaid FROM ".Tprefix."segmentapplications{$sort_query} LIMIT {$limit_start}, {$core->settings['itemsperlist']}");
+        $query = $db->query("SELECT psaid FROM ".Tprefix.self::TABLE_NAME."{$sort_query} LIMIT {$limit_start}, {$core->settings['itemsperlist']}");
         if($db->num_rows($query) > 0) {
             while($rowsegapp = $db->fetch_assoc($query)) {
                 $segments_applications[$rowsegapp['psaid']] = new self($rowsegapp['psaid']);
@@ -114,6 +114,11 @@ class SegmentApplications {
         else {
             return false;
         }
+    }
+
+    public static function get_segmentsapplications($filters = '', $configs = array()) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
     }
 
     public function get_segappfunctions() {
@@ -171,6 +176,10 @@ class SegmentApplications {
             return $this->data[$attr];
         }
         return false;
+    }
+
+    public function __isset($name) {
+        return isset($this->data[$name]);
     }
 
     public function get() {

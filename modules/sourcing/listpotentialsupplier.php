@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * List Potential Supplier
  * $module: Sourcing
- * $id: listpotentialaupplier.php	
+ * $id: listpotentialaupplier.php
  * Created By: 		@tony.assaad		October 10, 2012 | 12:30 PM
  * Last Update: 	@tony.assaad		December 3, 2012 | 04:51 PM
  */
@@ -27,9 +27,9 @@ if(!$core->input['action']) {
         $header_ratingjs = '$(".rateit").live("click",function() {
 				if(sharedFunctions.checkSession() == false) {
 					return;
-				}				
+				}
 				ssid= $(this).parent().parent().attr("name");
-				rateid = $("#rating_"+ssid).val();				
+				rateid = $("#rating_"+ssid).val();
 				sharedFunctions.requestAjax("post", "index.php?module=sourcing/listpotentialsupplier&action=do_ratepotential", "value="+rateid+"&ssid="+ssid, "html");
 			});
 			 var tooltipvalues = ["'.$lang->verylowopp.'", "'.$lang->lowopp.'", "'.$lang->mediumopp.'", "'.$lang->highopp.'", "'.$lang->veryhighopp.'"];
@@ -204,10 +204,10 @@ if(!$core->input['action']) {
     $origins = array('anyorigin' => $lang->anyorigin, 'chinese' => $lang->chinese, 'nonchinese' => $lang->nonchinese, 'indian' => $lang->indian, 'nonindian' => $lang->nonindian, 'european' => $lang->european, 'noneuropean' => $lang->noneuropean, 'american' => $lang->american, 'nonamerican' => $lang->nonamerican, 'otherasian' => $lang->otherasian, 'nootherasian' => $lang->nootherasian);
     $origins_list = parse_selectlist('request[origins][]', 8, $origins, '', 1);
 
-    $productsegements_applications = $sourcing->get_applications_product_segment();
-    if(is_array($productsegements_applications)) {
-        foreach($productsegements_applications as $productsegements_application) {
-            $productsegment_applications .= '<option value='.$productsegements_application['psaid'].'>'.$productsegements_application['segmentTitle'].' - '.$productsegements_application['title'].'</option>';
+    $applications = SegmentApplications::get_segmentsapplications();
+    if(is_array($applications)) {
+        foreach($applications as $application) {
+            $productsegment_applications .= '<option value='.$applications->psaid.'>'.$application->get_displayname().' - '.$application->get_segment()->title.'</option>';
         }
     }
 
