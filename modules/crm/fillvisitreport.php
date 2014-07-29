@@ -34,6 +34,8 @@ if(!$core->input['action']) {
     if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
         $identifier = $db->escape_string($core->input['identifier']);
         if($core->input['stage'] == 'visitdetails') {
+            $rowid = intval($core->input['value']) + 2;
+
             if($session->isset_phpsession('visitreportvisitdetailsdata_'.$identifier)) {
                 $visitdetails = unserialize($session->get_phpsession("visitreportvisitdetailsdata_{$identifier}"));
                 $visitreport_data = unserialize($session->get_phpsession("visitreportdata_{$identifier}"));
@@ -94,7 +96,41 @@ if(!$core->input['action']) {
 
                 $session->set_phpsession(array('visitreportdata_'.$identifier => serialize($core->input)));
             }
+            /* Parse MI Data Section - START */
+            if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
+                $addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarket.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
+                $module = 'profiles';
+                $elemtentid = $visitreport_data['cid'];
+                $elementname = 'marketdata[cid]';
+                $action = 'do_addmartkerdata';
+                $modulefile = 'entityprofile';
+                eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+                eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
+                //get brand related to the customer
+                $entity = new Entities($visitreport_data['cid']);
+                $brandsproducts = $entity->get_brandsproducts();
+                $output = '';
+                if(is_array($brandsproducts)) {
+                    foreach($brandsproducts as $brandproduct) {
+                        $brandproduct_brand = $brandproduct->get_entitybrand();
+                        $brandproduct_productype = $brandproduct->get_endproduct();
+                        $options[$brandproduct->ebpid] = $brandproduct_brand->name.' - '.$brandproduct_productype->title;
+                        eval("\$brandsendproducts .= \"".$template->get('profiles_entityprofile_brandsproducts')."\";");
+                    }
+                    $entitiesbrandsproducts_list = parse_selectlist('marketdata[ebpid]', 7, $options, '');
+                }
+                //Adding   end-product type for the add brand box
+                $endproducttypes = EndProducTypes::get_endproductypes();
+                if(is_array($endproducttypes)) {
+                    foreach($endproducttypes as $endproducttype) {
+                        $endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</option>';
+                    }
+                }
+                eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
 
+                eval("\$popup_marketdata = \"".$template->get('popup_profiles_marketdata')."\";");
+            }
+            /* Parse MI Data Section - END */
             eval("\$fillreportpage = \"".$template->get('crm_fillvisitreport_visitdetailspage')."\";");
         }
         else {
@@ -168,7 +204,7 @@ if(!$core->input['action']) {
     }
 
     if($core->input['stage'] == 'visitdetails') {
-        
+
     }
     elseif($core->input['stage'] == 'competition') {
         if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'stage=visitdetails') !== false) {
@@ -231,10 +267,10 @@ if(!$core->input['action']) {
         $productline_list = parse_selectlist('productLine[]', 3, $productlines, $productLine_selected, 1, '', array('required' => 'required'));
 
         /* Parse draft reports select list - START */
-        $query = $db->query('SELECT vr.identifier, vr.date, companyName AS customerName 
-				FROM '.Tprefix.'visitreports vr 
-				JOIN '.Tprefix.'entities c ON (c.eid=vr.cid) 
-				WHERE uid='.intval($core->user['uid']).' AND isDraft=1 
+        $query = $db->query('SELECT vr.identifier, vr.date, companyName AS customerName
+				FROM '.Tprefix.'visitreports vr
+				JOIN '.Tprefix.'entities c ON (c.eid=vr.cid)
+				WHERE uid='.intval($core->user['uid']).' AND isDraft=1
 				ORDER BY date ASC');
 
         if($db->num_rows($query) > 0) {
@@ -252,10 +288,11 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'do_add_fillvisitreport') {
-        $visitreport = unserialize($session->get_phpsession('visitreportdata_'.$db->escape_string($core->input['identifier'])));
+        $identifier = $db->escape_string($core->input['identifier']);
+        $visitreport = unserialize($session->get_phpsession('visitreportdata_'.($identifier)));
         //$competition = unserialize($session->get_phpsession('visitreportdata_'.$db->escape_string($core->input['identifier']).'_competition'));
-        $visitdetails = unserialize($session->get_phpsession('visitreportvisitdetailsdata_'.$db->escape_string($core->input['identifier'])));
-        $competition = unserialize($session->get_phpsession('visitreportcompetitiondata_'.$db->escape_string($core->input['identifier'])));
+        $visitdetails = unserialize($session->get_phpsession('visitreportvisitdetailsdata_'.($identifier)));
+        $competition = unserialize($session->get_phpsession('visitreportcompetitiondata_'.($identifier)));
 
         if(is_empty($visitreport['cid'], $visitreport['spid'], $visitreport['rpid'], $visitreport['productLine'])) {
             output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
@@ -312,6 +349,8 @@ else {
             else {
                 $vrid = $db->last_id();
             }
+            /* update the visit report id in the  market data based on the temporary videntifer */
+            $db->update_query('marketintelligence_basicdata', array('vrid' => $vrid, 'vridentifier' => null), 'vridentifier ="'.$identifier.'" ');
 
             if(is_array($visitreport['productLine'])) {
                 if($is_new == false) {
@@ -377,6 +416,7 @@ else {
                     }
                 }
             }
+
             $log->record($vrid);
 
             $session->destroy_phpsession();
@@ -414,6 +454,43 @@ else {
           $visitreport_comments[$field['Field']] = $core->sanitize_inputs($visitreport_comments[$field['Field']], array('method'=> 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
           }
           } */
+    }
+    elseif($core->input['action'] == 'parsemitimeline') {
+        $visitreport = unserialize($session->get_phpsession('visitreportdata_'.$db->escape_string($core->input['identifier'])));
+        $visitdetails = unserialize($session->get_phpsession('visitreportvisitdetailsdata_'.$db->escape_string($core->input['identifier'])));
+        /* Add Market Inteligence Data --START */
+        if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
+            $module = 'profiles';
+            $elemtentid = $visitreport['cid'];
+            $elementname = 'marketdata[cid]';
+            $action = 'do_addmartkerdata';
+            $modulefile = 'entityprofile';
+            eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+
+            /* View detailed market intelligence box --START */
+            $maktintl_mainobj = new MarketIntelligence();
+            $miprofile = $maktintl_mainobj->get_miprofconfig_byname('latestcustomersumbyproduct');
+            $miprofile['next_miprofile'] = 'allprevious';
+
+            $maktintl_objs = $maktintl_mainobj->get_marketintelligence_timeline(array('cid' => $elemtentid), $miprofile);
+
+            if(is_array($maktintl_objs)) {
+                foreach($maktintl_objs as $mktintldata) {
+                    $mktintldata['tlidentifier']['id'] = 'tlrelation-'.$elemtentid;
+                    $mktintldata['tlidentifier']['value'] = array('cid' => $elemtentid);
+                    $core->input[module] = 'profiles/entityprofile';  /* overwrite core input module name to pass the same module name  to the popup template  */
+
+                    $detailmarketbox .= $maktintl_mainobj->parse_timeline_entry($mktintldata, $miprofile, '', '');
+                }
+                $latest_mkdataid = max($maktintl_objs)['mibdid'];
+
+                eval("\$visitdetails_fields_mktidata = \"".$template->get('crm_fillvisitreport_visitdetailspage_fields_marketdata')."\";");
+            }
+
+            /* View detailed market intelligence box --END */
+            output($visitdetails_fields_mktidata);
+        }
+        /* Add Market Inteligence Data --END */
     }
 }
 ?>

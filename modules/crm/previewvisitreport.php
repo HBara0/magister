@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Fill up a visit report
  * $module: CRM
- * $id: fillvisitreport.php	
+ * $id: fillvisitreport.php
  * Created: 	@zaher.reda 	June 26, 2009 | 03:35 PM
  * Last Update: @zaher.reda 	Agust 14, 2012 | 02:24 PM
  */
@@ -120,7 +120,7 @@ if(!$core->input['action']) {
                 continue;
             }
 
-            $visitreport['customerdetails'] = $db->fetch_assoc($db->query("SELECT e.*, c.name AS countryname 
+            $visitreport['customerdetails'] = $db->fetch_assoc($db->query("SELECT e.*, c.name AS countryname
 																	   FROM ".Tprefix."entities e LEFT JOIN ".Tprefix."countries c ON (c.coid=e.country)
 																	   WHERE eid='".$db->escape_string($visitreport['cid'])."'"), "customername");
             $visitreports[$key]['customerName'] = $visitreport['customerdetails']['companyName'];
@@ -254,6 +254,25 @@ if(!$core->input['action']) {
                 }
             }
 
+            /* Parse visit report MIdata timeline --START */
+            $maktintl_mainobj = new MarketIntelligence();
+            $miprofile = $maktintl_mainobj->get_miprofconfig_byname('latestcustomersumbyproduct');
+            $miprofile['next_miprofile'] = 'allprevious';
+            $maktintl_objs = $maktintl_mainobj->get_marketintelligence_timeline(array('vrid' => $visitreport['vrid']), $miprofile);
+            if(is_array($maktintl_objs)) {
+                $core->input['module'] = 'profiles/entityprofile';
+                foreach($maktintl_objs as $mktintldata) {
+                    $mktintldata['tlidentifier']['id'] = 'tlrelation-'.$visitreport['cid'];
+                    $mktintldata['tlidentifier']['value'] = array('cid' => $visitreport['cid']);
+
+                    $detailmarketbox .= $maktintl_mainobj->parse_timeline_entry($mktintldata, $miprofile, '', '', array('viewonly' => true));
+                }
+
+                $viewall_button = '<div style="display:block; padding:25px;"> <input type="button" class="button" value="View All Market data" onClick="window.open(\'index.php?module=profiles/entityprofile&amp;eid='.$mktintldata['cid'].'#misection\')" /></div>';
+                eval("\$visitdetails_fields_mktidata = \"".$template->get('crm_fillvisitreport_visitdetailspage_fields_marketdata')."\";");
+            }
+
+            /* Parse visit report MIdata timeline --END */
             eval("\$visitreportspages .= \"".$template->get('crm_visitreport')."\";");
             if($core->input['referrer'] != 'fill') {
                 $session->set_phpsession(array("visitreports_{$export_identifier}" => $visitreportspages));
@@ -271,7 +290,7 @@ if(!$core->input['action']) {
 
     /* Get list of previous reports - START */
     if(count($visitreports) == 1 && $core->input['referrer'] != 'fill') {
-        if($core->usergroup['canViewAllSupp'] == 0) {
+        if($core->usergroup ['canViewAllSupp'] == 0) {
             $prev_reports_query_where = ' AND uid='.$core->user['uid'];
         }
         $prev_reports_query = $db->query("SELECT vrid, date, type FROM ".Tprefix."visitreports WHERE cid='{$visitreports[1][cid]}' AND vrid!={$visitreports[1][vrid]}{$prev_reports_query_where} ORDER BY DATE DESC");
@@ -310,7 +329,8 @@ else {
         $html2pdf->pdf->SetTitle("{$report[supplier]}", true);
         $html2pdf->WriteHTML($content, $show_html);
         $html2pdf->Output('visitreports_'.$core->input['identifier'].'.pdf');
-        $session->destroy_phpsession();
+        $session->
+                destroy_phpsession();
     }
 }
 function parse_supplystatus(&$value) {

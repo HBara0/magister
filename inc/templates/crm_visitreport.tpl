@@ -45,6 +45,11 @@
     <br />
     {$visitdetails}<br />
     {$competitioncomments}
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        {$marketdatatitle}
+        <tr> {$visitdetails_fields_mktidata}</tr>
+    </table>
+
     <p>
         <span style="font-weight:bold;">{$lang->prepareby}:</span> {$visitreport[user]}
     </p>

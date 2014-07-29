@@ -28,8 +28,10 @@ if(!$core->input['action']) {
         $customer_obj = new Customers($eid, '', false);
         $customer_type = $customer_obj->get_customertype();
 
+
         $addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarket.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
         $array_data = array('module' => 'profiles', 'elemtentid' => $eid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
+
         /* to be replacing the below variables */
         $module = 'profiles';
         $elemtentid = $eid;
@@ -55,7 +57,7 @@ if(!$core->input['action']) {
                 $mktintldata['tlidentifier']['id'] = 'tlrelation-'.$eid;
                 $mktintldata['tlidentifier']['value'] = array('cid' => $eid);
 
-                $detailmarketbox .= $maktintl_mainobj->parse_timeline_entry($mktintldata, $miprofile);
+                $detailmarketbox .= $maktintl_mainobj->parse_timeline_entry($mktintldata, $miprofile, '', '');
             }
         }
         /* View detailed market intelligence box --END */
@@ -476,6 +478,15 @@ if(!$core->input['action']) {
                 $endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</option>';
             }
         }
+
+        /* parse visit report --START */
+        $visitreport_objs = VisitReports::get_visitreports(array('uid' => $core->user['uid'], 'cid' => $eid, 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
+        if(is_array($visitreport_objs)) {
+            $profiles_mincustomervisit_title = $lang->visitreport;
+            $profiles_mincustomervisit = parse_selectlist('marketdata[vrid]', 7, $visitreport_objs, '', '', '', array('blankstart' => 1));
+        }
+        /* parse visit report --END */
+
         unset($endproducttypes);
         eval("\$popup_marketdata = \"".$template->get('popup_profiles_marketdata')."\";");
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
@@ -540,8 +551,22 @@ else {
         echo get_rml_bar($core->input['eid']);
     }
     elseif($core->input['action'] == 'do_addmartkerdata') {
+        if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'crm/fillvisitreport') !== false) {
+            parse_str(parse_url($_SERVER['HTTP_REFERER'])[query], $query_string);
+            $identifier = $query_string['identifier'];
+        }
+
+        $session->start_phpsession();
+
         $marketin_obj = new MarketIntelligence();
         $marketin_obj->create($core->input['marketdata']);
+        if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'crm/fillvisitreport') !== false) {
+            if($session->isset_phpsession(('visitreportmidata_'.$identifier))) {
+                $mibdids = unserialize($session->get_phpsession('visitreportmidata_'.$identifier));
+                $mibdids[] = $marketin_obj->mibdid;
+            }
+            $session->set_phpsession(array('visitreportmidata_'.$identifier => serialize($mibdids)));
+        }
         switch($marketin_obj->get_errorcode()) {
             case 0:
                 output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
@@ -577,8 +602,6 @@ else {
         $midata = new MarketIntelligence($core->input['id']);
         $customer = $midata->get_customer();
 
-
-
         $brandsproducts = $customer->get_brandsproducts();
         $output = '';
         if(is_array($brandsproducts)) {
@@ -600,22 +623,32 @@ else {
         }
         unset($endproducttypes);
 
-        if($customer->type == 'pc') {
+        //if($customer->type == 'pc') {
+        if(is_object($midata->get_chemfunctionschemcials())) {
             $chemsubstance = $midata->get_chemfunctionschemcials()->get_chemicalsubstance();
             eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
         }
-        else {
-            $profiles_michemfuncproductentry = '';
-            $product = $midata->get_chemfunctionproducts()->get_produt();
-            eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        // }
+        //else {
+        //$profiles_michemfuncproductentry = '';
+        $product = $midata->get_chemfunctionproducts()->get_produt();
+        if(is_object($midata->get_chemfunctionproducts())) {
+            eval("\$profiles_minproductentry= \"".$template->get('profiles_michemfuncproductentry')."\";");
         }
+        // }
 
         list($module, $modulefile) = explode('/', $core->input['module']);
         $elementname = 'marketdata[cid]';
         $action = 'do_addmartkerdata';
         $elemtentid = $customer->get_eid();
+        /* parse visit report --START */
+        $visitreport_objs = VisitReports::get_visitreports(array('uid' => $core->user['uid'], 'cid' => $elemtentid, 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
+        if(is_array($visitreport_objs)) {
+            $profiles_mincustomervisit_title = $lang->visitreport;
+            $profiles_mincustomervisit = parse_selectlist('marketdata[vrid]', 7, $visitreport_objs, '', '', '', array('blankstart' => 1));
+        }
+        /* parse visit report --END */
         eval("\$popup_marketdata = \"".$template->get('popup_profiles_marketdata')."\";");
-
         output($popup_marketdata);
     }
     elseif($core->input['action'] == 'get_mktintldetails') {
@@ -632,7 +665,14 @@ else {
         $mkintentry_customer = $mkintentry->get_customer();
         $mkintentry_brand = $mkintentry->get_entitiesbrandsproducts()->get_entitybrand();
         $mkintentry_endproducttype = $mkintentry->get_entitiesbrandsproducts()->get_endproduct();
+        $mkint_visitreportobj = $mkintentry->get_visitreport();
 
+        if(is_object($mkint_visitreportobj)) {
+            $mkintentry_visitreport = $mkint_visitreportobj->parse_link();
+        }
+        if(empty($mkint_visitreportobj->parse_link())) {
+            $mkintentry_visitreport = $lang->na;
+        }
         /* Parse competitors related market Data */
         $mrktcompetitor_objs = $mkintentry->get_competitors();
         if(is_array($mrktcompetitor_objs)) {
