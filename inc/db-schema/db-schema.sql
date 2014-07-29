@@ -1319,6 +1319,8 @@ CREATE TABLE `marketintelligence_basicdata` (
   `ebpid` int(10) NOT NULL,
   `eptid` int(10) NOT NULL,
   `affid` smallint(5) NOT NULL,
+  `vrid` int(10) DEFAULT NULL,
+  `vridentifier` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
   `potential` float NOT NULL,
   `mktSharePerc` float NOT NULL,
   `mktShareQty` float NOT NULL,

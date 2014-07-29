@@ -254,32 +254,23 @@ if(!$core->input['action']) {
                 }
             }
 
-
             /* Parse visit report MIdata timeline --START */
-            $market_objs = MarketIntelligence::get_marketintelligence_byattr('vrid', $visitreport['vrid']);
-
-            if(is_array($market_objs)) {
-                foreach($market_objs as $maktintl_mainobj) {
-                    $miprofile = $maktintl_mainobj->get_miprofconfig_byname('latestcustomersumbyproduct');
-                    $miprofile['next_miprofile'] = 'allprevious';
-                    /* Get the marketdata time lien fliterd by  visit report id  vrid */
-                    $maktintl_objs = $maktintl_mainobj->get_marketintelligence_timeline(array('vrid' => $visitreport['vrid'], 'date' => $visitreport['date']), $miprofile);
-                }
-            }
-
+            $maktintl_mainobj = new MarketIntelligence();
+            $miprofile = $maktintl_mainobj->get_miprofconfig_byname('latestcustomersumbyproduct');
+            $miprofile['next_miprofile'] = 'allprevious';
+            $maktintl_objs = $maktintl_mainobj->get_marketintelligence_timeline(array('vrid' => $visitreport['vrid']), $miprofile);
             if(is_array($maktintl_objs)) {
+                $core->input['module'] = 'profiles/entityprofile';
                 foreach($maktintl_objs as $mktintldata) {
                     $mktintldata['tlidentifier']['id'] = 'tlrelation-'.$visitreport['cid'];
                     $mktintldata['tlidentifier']['value'] = array('cid' => $visitreport['cid']);
-                    $core->input[module] = 'profiles/entityprofile';  /* overwrite core input module name to pass the same module name  to the popup template  */
-                    $detailmarketbox .= $maktintl_mainobj->parse_timeline_entry($mktintldata, $miprofile, '', '');
+
+                    $detailmarketbox .= $maktintl_mainobj->parse_timeline_entry($mktintldata, $miprofile, '', '', array('viewonly' => true));
                 }
-                $latest_mkdataid = max($maktintl_objs)['mibdid'];
-                $marketdatatitle = ' <tr> <td class="thead" colspan="2">'.$lang->marketdata.'</td></tr>';
-                $viewall_button = ' <div style="display:block; padding:25px;"> <input type="button" class="button" value="View All Market data" onClick="window.open(\'index.php?module=profiles/entityprofile&amp;eid='.$mktintldata[cid].'\')" /></div>';
+
+                $viewall_button = '<div style="display:block; padding:25px;"> <input type="button" class="button" value="View All Market data" onClick="window.open(\'index.php?module=profiles/entityprofile&amp;eid='.$mktintldata['cid'].'#misection\')" /></div>';
                 eval("\$visitdetails_fields_mktidata = \"".$template->get('crm_fillvisitreport_visitdetailspage_fields_marketdata')."\";");
             }
-
 
             /* Parse visit report MIdata timeline --END */
             eval("\$visitreportspages .= \"".$template->get('crm_visitreport')."\";");

@@ -252,7 +252,7 @@ if(!$core->input['action']) {
             $endproducttypes_list = '<option value="0">'.$lang->na.'</option>';
         }
         /* parse visit report */
-        $visitreport_objs = VisitReport::get_visitreports(array('uid' => $core->user['uid'], 'affid' => $elemtentid, 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
+        $visitreport_objs = VisitReports::get_visitreports(array('uid' => $core->user['uid'], 'affid' => $elemtentid, 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
         if(is_array($visitreport_objs)) {
             foreach($visitreport_objs as $visitreport) {
                 $customer_name = $visitreport->get_customer($visitreport->cid)->companyName;

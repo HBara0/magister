@@ -13,7 +13,7 @@
  *
  * @author tony.assaad
  */
-class VisitReport {
+class VisitReports {
     const TABLE_NAME = 'visitreports';
     const PRIMARY_KEY = 'vrid';
 

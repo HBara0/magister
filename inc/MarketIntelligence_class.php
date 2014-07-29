@@ -97,7 +97,6 @@ class MarketIntelligence {
                     'eptid' => $this->marketdata['eptid'],
                     'vrid' => $this->marketdata['vrid'],
                     'vridentifier' => $this->marketdata['vridentifier'],
-                    'lid' => $this->marketdata['lid'],
                     'potential' => $this->marketdata['potential'],
                     'mktSharePerc' => $this->marketdata['mktSharePerc'],
                     'mktShareQty' => $this->marketdata['mktShareQty'],
@@ -184,7 +183,7 @@ class MarketIntelligence {
         return $output;
     }
 
-    public function parse_timeline_entry(array $data, array $profile, $depth = 0, $is_last = false, $option = '') {
+    public function parse_timeline_entry(array $data, array $profile, $depth = 0, $is_last = false, $options = array()) {
         global $core, $template, $lang;
         $timedepth = 25 - ($depth * 5);
         $height = 25 - ($depth * 5);
@@ -246,9 +245,11 @@ class MarketIntelligence {
         if(empty($data['timelineItem']['addInfo'])) {
             $data['timelineItem']['addInfo'] = date($core->settings['dateformat'], $data['createdOn']);
         }
-        if(!empty($option) && $option == 'canupdate') {
+
+        if($options['viewonly'] == false) {
             $updatemktintldtls_icon = '<a style="cursor: pointer;" title="'.$lang->update.'" id="updatemktintldtls_'.$data['mibdid'].'_'.$core->input['module'].'_loadpopupbyid" rel="mktdetail_'.$data[mibdid].'"><img src="'.$core->settings[rootdir].'/images/icons/update.png"/></a>';
         }
+
         if(!empty($data['mibdid'])) {
             eval("\$viewdetails_icon = \"".$template->get('profiles_entityprofile_mientry_viewdetails')."\";");
         }
@@ -331,7 +332,7 @@ class MarketIntelligence {
     }
 
     public function get_visitreport() {
-        return new VisitReport($this->marketintelligence['vrid']);
+        return new VisitReports($this->marketintelligence['vrid']);
     }
 
     public function get_customer() {

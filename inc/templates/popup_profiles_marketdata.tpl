@@ -3,6 +3,8 @@
         <input type="hidden" name="action" value="{$action}"/>
         <input type="hidden" name="{$elementname}" value="{$elemtentid}"/>
         <input type="hidden" name="{$elementname}" value="{$elemtentid}"/>
+        <input type="hidden" name="marketdata[visitreportdate]" value="{$visitreport['date']}"/>
+        <input type="hidden" name="marketdata[vridentifier]" value="{$core->input[identifier]}"/>
         <div>
             {$profiles_entityprofile_micustomerentry}
             {$profiles_michemfuncproductentry}
@@ -17,57 +19,53 @@
             <div style="width: 30%; display: inline-block;"> {$profiles_mincustomervisit_title}</div>
             <div style="width: 30%; display: inline-block;">
                 {$profiles_mincustomervisit}
-
             </div>
-            <input type="hidden" name="marketdata[visitreportdate]" value="{$visitreport->date}"/>
-            <input type="hidden" name="marketdata[vridentifier]" value="{$core->input[identifier]}"/>
-            <input type="hidden" name="marketdata[lid]" value="{$visitreport->lid}"/></div>
-        <div>{$lang->comment}</div>
-        <div><textarea cols="60" rows="5" name="marketdata[comments]">{$midata->comments}</textarea></div>
-        <hr />
-        <table cellpadding="0" cellspacing="0" width="100%">
-            <tr><td><strong>{$lang->competition}</strong></td></tr>
-            <tr>
-                <td>
-                    <table class="datatable" width="100%">
-                        <tbody id="competitor_tbody">
-                            <tr id="2">
-                                <td>
-                                    <div style="width:100%; display:block;">
-                                        <div style="width:45%; display: inline-block;">{$lang->competitortrader}</div>
-                                        <div style="width:45%; display: inline-block;"><input type='text'id='competitortradersupp_{$rowid}_QSearch' autocomplete='off' />
-                                            <input type='hidden' id='competitortradersupp_{$rowid}_id' name='marketdata[competitor][{$rowid}][trader]' value="" /> <a href="index.php?module=contents/addentities&type=supplier" target="_blank" title="{$lang->add}"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0"></a>
-                                            <div id='searchQuickResults_competitortradersupp_{$rowid}' class='searchQuickResults' style='display:none;'></div></div>
-                                    </div>
-                                    <div style="width:100%; display:block;">
-                                        <div style="width:45%; display: inline-block;">{$lang->competitorprod}</div>
-                                        <div style="width:45%; display: inline-block;"><input type='text'id='competitorproducersupp_{$rowid}_QSearch' autocomplete='off'/> <a href="index.php?module=contents/addentities&type=supplier" target="_blank" title="{$lang->add}"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0"></a>
-                                            <input type='hidden' id='competitorproducersupp_{$rowid}_id' name='marketdata[competitor][{$rowid}][producer]' value="" />
-                                            <div id='searchQuickResults_competitorproducersupp_{$rowid}' class='searchQuickResults' style='display:none;'></div> </div>
-                                    </div>
-                                    <div style="width:100%; display:block;">
-                                        <div style="width:45%; display: inline-block;">{$lang->price}</div><div style="width:45%; display: inline-block;"><input type="text" size="8" name="marketdata[competitor][{$rowid}][unitPrice]" accept="numeric" autocomplete="off" min="0"/> USD/KG</div>
-                                    </div>
-                                    <div style="width:100%; display:block;">
-                                        <div style="width:45%; display: inline-block;">{$lang->product}</div>
-                                        <div style="width:45%; display: inline-block;"><input type="text" name="marketdata[competitor][{$rowid}][pid]" id="product_{$rowid}_QSearch"  autocomplete="off"/>
-                                            <input type="hidden" id="product_{$rowid}_id" name="marketdata[competitor][{$rowid}][pid]" />
-                                            <div id="searchQuickResults_{$rowid}" class="searchQuickResults" style="display:none;"></div></div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr><td><img id="addmore_competitor" src="{$core->settings[rootdir]}/images/add.gif" /></td></tr>
-                        </tfoot>
-                    </table>
-                </td>
-            </tr>
-        </table>
+            <div>{$lang->comment}</div>
+            <div><textarea cols="60" rows="5" name="marketdata[comments]">{$midata->comments}</textarea></div>
+            <hr />
+            <table cellpadding="0" cellspacing="0" width="100%">
+                <tr><td><strong>{$lang->competition}</strong></td></tr>
+                <tr>
+                    <td>
+                        <table class="datatable" width="100%">
+                            <tbody id="competitor_tbody">
+                                <tr id="2">
+                                    <td>
+                                        <div style="width:100%; display:block;">
+                                            <div style="width:45%; display: inline-block;">{$lang->competitortrader}</div>
+                                            <div style="width:45%; display: inline-block;"><input type='text'id='competitortradersupp_{$rowid}_QSearch' autocomplete='off' />
+                                                <input type='hidden' id='competitortradersupp_{$rowid}_id' name='marketdata[competitor][{$rowid}][trader]' value="" /> <a href="index.php?module=contents/addentities&type=supplier" target="_blank" title="{$lang->add}"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0"></a>
+                                                <div id='searchQuickResults_competitortradersupp_{$rowid}' class='searchQuickResults' style='display:none;'></div></div>
+                                        </div>
+                                        <div style="width:100%; display:block;">
+                                            <div style="width:45%; display: inline-block;">{$lang->competitorprod}</div>
+                                            <div style="width:45%; display: inline-block;"><input type='text'id='competitorproducersupp_{$rowid}_QSearch' autocomplete='off'/> <a href="index.php?module=contents/addentities&type=supplier" target="_blank" title="{$lang->add}"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0"></a>
+                                                <input type='hidden' id='competitorproducersupp_{$rowid}_id' name='marketdata[competitor][{$rowid}][producer]' value="" />
+                                                <div id='searchQuickResults_competitorproducersupp_{$rowid}' class='searchQuickResults' style='display:none;'></div> </div>
+                                        </div>
+                                        <div style="width:100%; display:block;">
+                                            <div style="width:45%; display: inline-block;">{$lang->price}</div><div style="width:45%; display: inline-block;"><input type="text" size="8" name="marketdata[competitor][{$rowid}][unitPrice]" accept="numeric" autocomplete="off" min="0"/> USD/KG</div>
+                                        </div>
+                                        <div style="width:100%; display:block;">
+                                            <div style="width:45%; display: inline-block;">{$lang->product}</div>
+                                            <div style="width:45%; display: inline-block;"><input type="text" name="marketdata[competitor][{$rowid}][pid]" id="product_{$rowid}_QSearch"  autocomplete="off"/>
+                                                <input type="hidden" id="product_{$rowid}_id" name="marketdata[competitor][{$rowid}][pid]" />
+                                                <div id="searchQuickResults_{$rowid}" class="searchQuickResults" style="display:none;"></div></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr><td><img id="addmore_competitor" src="{$core->settings[rootdir]}/images/add.gif" /></td></tr>
+                            </tfoot>
+                        </table>
+                    </td>
+                </tr>
+            </table>
 
-        <div>
-            <input class="button" value="{$lang->add}" id="perform_{$module}/{$modulefile}_Button" onclick="loadmidata" type="submit">
-            <div id="perform_{$module}/{$modulefile}_Results"></div>
-        </div>
+            <div>
+                <input class="button" value="{$lang->add}" id="perform_{$module}/{$modulefile}_Button" type="submit">
+                <div id="perform_{$module}/{$modulefile}_Results"></div>
+            </div>
     </form>
 </div>

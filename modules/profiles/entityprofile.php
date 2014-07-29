@@ -57,7 +57,7 @@ if(!$core->input['action']) {
                 $mktintldata['tlidentifier']['id'] = 'tlrelation-'.$eid;
                 $mktintldata['tlidentifier']['value'] = array('cid' => $eid);
 
-                $detailmarketbox .= $maktintl_mainobj->parse_timeline_entry($mktintldata, $miprofile, '', '', 'canupdate');
+                $detailmarketbox .= $maktintl_mainobj->parse_timeline_entry($mktintldata, $miprofile, '', '');
             }
         }
         /* View detailed market intelligence box --END */
@@ -480,7 +480,7 @@ if(!$core->input['action']) {
         }
 
         /* parse visit report --START */
-        $visitreport_objs = VisitReport::get_visitreports(array('uid' => $core->user['uid'], 'cid' => $eid, 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
+        $visitreport_objs = VisitReports::get_visitreports(array('uid' => $core->user['uid'], 'cid' => $eid, 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
         if(is_array($visitreport_objs)) {
             $profiles_mincustomervisit_title = $lang->visitreport;
             $profiles_mincustomervisit = parse_selectlist('marketdata[vrid]', 7, $visitreport_objs, '', '', '', array('blankstart' => 1));
@@ -561,7 +561,6 @@ else {
         $marketin_obj = new MarketIntelligence();
         $marketin_obj->create($core->input['marketdata']);
         if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'crm/fillvisitreport') !== false) {
-
             if($session->isset_phpsession(('visitreportmidata_'.$identifier))) {
                 $mibdids = unserialize($session->get_phpsession('visitreportmidata_'.$identifier));
                 $mibdids[] = $marketin_obj->mibdid;
@@ -603,8 +602,6 @@ else {
         $midata = new MarketIntelligence($core->input['id']);
         $customer = $midata->get_customer();
 
-
-
         $brandsproducts = $customer->get_brandsproducts();
         $output = '';
         if(is_array($brandsproducts)) {
@@ -645,12 +642,11 @@ else {
         $action = 'do_addmartkerdata';
         $elemtentid = $customer->get_eid();
         /* parse visit report --START */
-        //$visitreport_objs = VisitReport::get_visitreports(array('uid' => $core->user['uid'], 'cid' => $elemtentid, 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
-        $visitreport_obj = $midata->get_visitreport();
-        // if(is_array($visitreport_objs)) {
-        $profiles_mincustomervisit_title = $lang->visitreport;
-        $profiles_mincustomervisit = parse_selectlist('marketdata[vrid]', 7, $visitreport_obj, '', '', '', array('blankstart' => 1));
-        //}
+        $visitreport_objs = VisitReports::get_visitreports(array('uid' => $core->user['uid'], 'cid' => $elemtentid, 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
+        if(is_array($visitreport_objs)) {
+            $profiles_mincustomervisit_title = $lang->visitreport;
+            $profiles_mincustomervisit = parse_selectlist('marketdata[vrid]', 7, $visitreport_objs, '', '', '', array('blankstart' => 1));
+        }
         /* parse visit report --END */
         eval("\$popup_marketdata = \"".$template->get('popup_profiles_marketdata')."\";");
         output($popup_marketdata);
@@ -739,7 +735,7 @@ else {
             foreach($mrkt_objs as $mktintldata) {
                 $mktintldata['tlidentifier']['id'] = 'tlrelation-'.implode('-', $filter);
                 $mktintldata['tlidentifier']['value'] = $filter;
-                $previoustimelinerows .= $mrktint_obj->parse_timeline_entry($mktintldata, $miprofile, $depth, $is_last, 'canupdate');
+                $previoustimelinerows .= $mrktint_obj->parse_timeline_entry($mktintldata, $miprofile, $depth, $is_last);
             }
         }
         output($previoustimelinerows);

@@ -34,25 +34,4 @@
             </span>
         </td>
     </tr>
-    <tr>
-        <td> <div id="customermktdata_loader"></div></td>
-    </tr>
-    <tr>
-        <td class="thead" colspan="2" >{$lang->detlmrktbox} {$lang->customermktdata}{$addmarketdata_link}</td></tr>
-    <tr id="customermktdata">
-        {$visitdetails_fields_mktidata}
-    </tr>
-
 </table>
-<script language="javascript">
-    $(function() {
-        /*Refresh timeline on adding MI data (after save)*/
-        $("input[id^='perform_']").click(function()
-        {
-            $(".timeline_container").find('.timeline_entry:eq( 2 )').first().effect("highlight", {color: '#D6EAAC'}, 1500); //to be improved later
-            sharedFunctions.requestAjax("post", "index.php?module=crm/fillvisitreport&stage=visitdetails&identifier=" + $('#identifier') + "&action=parsemitimeline", "identifier=" + $('#identifier').val(), 'customermktdata_loader', 'customermktdata', true);
-        });
-
-
-    });
-</script>
