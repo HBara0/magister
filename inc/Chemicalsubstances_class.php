@@ -13,12 +13,14 @@
  *
  * @author tony.assaad
  */
-class Chemicalsubstances {
-    private $data = array();
+class Chemicalsubstances extends AbstractClass {
+    protected $data = array();
 
     const PRIMARY_KEY = 'csid';
     const TABLE_NAME = 'chemicalsubstances';
     const DISPLAY_NAME = 'name';
+    const CLASSNAME = __CLASS__;
+    const SIMPLEQ_ATTRS = 'csid, casNum';
 
     public function __construct($id = '', $simple = false) {
         if(isset($id)) {
@@ -26,13 +28,21 @@ class Chemicalsubstances {
         }
     }
 
-    private function read($id, $simple) {
+    protected function read($id, $simple) {
         global $db;
         $query_select = '*';
         if($simple == true) {
             $query_select = 'csid, casNum';
         }
         $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemicalsubstances WHERE csid='.intval($id)));
+    }
+
+    protected function save(array $data = array()) {
+
+    }
+
+    protected function update(array $data) {
+
     }
 
     public function create(array $data) {
@@ -116,10 +126,6 @@ class Chemicalsubstances {
 
     public function get() {
         return $this->data;
-    }
-
-    public function get_displayname() {
-        return $this->data[self::DISPLAY_NAME];
     }
 
     public function get_status() {
