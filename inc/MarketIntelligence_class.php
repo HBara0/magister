@@ -148,9 +148,9 @@ class MarketIntelligence {
                 $item = new ChemFunctionProducts($id);
                 return array($item->get_produt(), $item->get_chemicalfunction(), $item->get_segmentapplication(), $item->get_segment());
                 break;
-            case ChemicalFunctionChemical:
-                $item = new ChemicalFunctionChemical($id);
                 return array($item->get_chemicalsubstance());
+            case ChemFunctionChemicals:
+                $item = new ChemFunctionChemicals($id);
                 break;
             case Customers:
                 $item = new Customers($id);
@@ -222,7 +222,7 @@ class MarketIntelligence {
         if(!empty($profile['displayItem'])) {
             /* Get chemial substance if no cfpid for the cusomter */
             if(empty($data[$profile['displayItem']::PRIMARY_KEY]) && $profile['displayItem'] == ChemFunctionProducts) {
-                $profile['displayItem'] = ChemicalFunctionChemical;
+                $profile['displayItem'] = ChemFunctionChemicals;
             }
 
             $data['timelineItem'] = $this->parse_timelineentry_item($data[$profile['displayItem']::PRIMARY_KEY], $profile['displayItem']);
@@ -345,7 +345,7 @@ class MarketIntelligence {
 
     public function get_chemfunctionschemcials() {
         if($this->marketintelligence['cfcid'] != 0) {
-            return new ChemicalFunctionChemical($this->marketintelligence['cfcid']);
+            return new ChemFunctionChemicals($this->marketintelligence['cfcid']);
         }
     }
 
