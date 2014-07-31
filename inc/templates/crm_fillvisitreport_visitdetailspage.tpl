@@ -38,7 +38,7 @@
                 <input type="hidden" name="identifier" value="{$identifier}" id="identifier">
                 {$visitdetails_fields}
                 <div>
-                    <div class="thead">{$lang->detlmrktbox} {$lang->customermktdata}{$addmarketdata_link}</div>
+                    <div class="thead">{$lang->detailmktintelbox} {$addmarketdata_link}</div>
                     <div id="customermktdata">{$visitdetails_fields_mktidata}</div>
                 </div>
                 <div align="center"><input type="button" value="{$lang->prev}" class="button" onclick="goToURL('index.php?module=crm/fillvisitreport&identifier={$identifier}')"> <input type="submit" value="{$lang->next}" class="button"></div>

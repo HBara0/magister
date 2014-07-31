@@ -268,7 +268,7 @@ if(!$core->input['action']) {
                     $detailmarketbox .= $maktintl_mainobj->parse_timeline_entry($mktintldata, $miprofile, '', '', array('viewonly' => true));
                 }
 
-                $viewall_button = '<div style="display:block; padding:25px;"> <input type="button" class="button" value="View All Market data" onClick="window.open(\'index.php?module=profiles/entityprofile&amp;eid='.$mktintldata['cid'].'#misection\')" /></div>';
+                $viewall_button = '<div style="display:block; padding:25px;"><input type="button" class="button" value="View All Market data" onClick="window.open(\'index.php?module=profiles/entityprofile&amp;eid='.$mktintldata['cid'].'#misection\')" /></div>';
                 eval("\$visitdetails_fields_mktidata = \"".$template->get('crm_fillvisitreport_visitdetailspage_marketdata')."\";");
             }
 

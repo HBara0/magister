@@ -227,7 +227,9 @@ if(!$core->input['action']) {
         $elementname = 'marketdata[affid]';
         $action = 'do_addmartkerdata';
         $modulefile = 'affiliateprofile';
-        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        $css['display']['chemsubfield'] = 'none';
+        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+        eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
         /* View detailed market intelligence box --START */
         $maktintl_mainobj = new MarketIntelligence();
         $miprofile = $maktintl_mainobj->get_miprofconfig_byname('latestaggregatebycustomer');
