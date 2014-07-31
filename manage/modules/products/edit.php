@@ -161,6 +161,9 @@ else {
             if(isset($productschemsubstances)) {
                 $db->delete_query('productschemsubstances', 'pid='.$db->escape_string($core->input['pid']));
                 foreach($productschemsubstances as $productschemsubstances) {
+                    if(empty($productschemsubstances['csid'])) {
+                        continue;
+                    }
                     $chemsubstances_array = array('pid' => $core->input['pid'],
                             'csid' => $productschemsubstances['csid'],
                             'modifiedBy' => $core->user['uid'],
@@ -168,6 +171,9 @@ else {
                     );
 
                     $db->insert_query('productschemsubstances', $chemsubstances_array);
+
+                    $chemfuncchem = new ChemFunctionChemicals();
+                    $chemfuncchem->save(array('csid' => $productschemsubstances['csid'], 'safid' => $core->input['defaultFunction']));
                 }
             }
             $lang->productedited = $lang->sprint($lang->productedited, $core->input['name']);
