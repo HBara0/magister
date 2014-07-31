@@ -71,5 +71,5 @@ $lang['telephonecall'] = 'Telephone Call';
 $lang['territory'] = 'Territory';
 $lang['workshift'] = 'Work Shift';
 $lang['visitreport'] = 'Visit Report';
-$lang['chemsubstfunc'] = 'Chemical Substance';
+$lang['chemicalsubstance'] = 'Chemical Substance';
 ?>

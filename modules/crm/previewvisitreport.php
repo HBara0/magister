@@ -254,6 +254,7 @@ if(!$core->input['action']) {
             }
 
             /* Parse visit report MIdata timeline --START */
+            $lang->load('profiles_meta');
             $maktintl_mainobj = new MarketIntelligence();
             $miprofile = $maktintl_mainobj->get_miprofconfig_byname('latestcustomersumbyproduct');
             $miprofile['next_miprofile'] = 'allprevious';

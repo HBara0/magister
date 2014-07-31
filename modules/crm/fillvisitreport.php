@@ -108,6 +108,7 @@ if(!$core->input['action']) {
             }
             /* Parse MI Data Section - START */
             if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
+                $lang->load('profiles_meta');
                 $addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarket.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
                 $module = 'profiles';
                 $elemtentid = $visitreport_data['cid'];
@@ -470,6 +471,7 @@ else {
         $visitdetails = unserialize($session->get_phpsession('visitreportvisitdetailsdata_'.$db->escape_string($core->input['identifier'])));
         /* Add Market Inteligence Data --START */
         if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
+            $lang->load('profiles_meta');
             $module = 'profiles';
             $elemtentid = $visitreport['cid'];
             $elementname = 'marketdata[cid]';
