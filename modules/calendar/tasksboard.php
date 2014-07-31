@@ -54,15 +54,16 @@ elseif($core->input['action'] == 'get_taskdetails') {
 
             foreach($task_notes as $note) {
                 $rowclass = alt_row($rowclass);
-                $note_date_diff = (TIME_NOW - $note['dateAdded']);
-                if(date('y-m-d', $note['dateAdded']) != date('y-m-d', TIME_NOW)) {
-                    $note['dateAdded_output'] = date($core->settings['dateformat'].' '.$core->setting['timeformat'], $note['dateAdded']);
+                $note_date_diff = (TIME_NOW - $note->dateAdded);
+                if(date('y-m-d', $note->dateAdded) != date('y-m-d', TIME_NOW)) {
+                    $note->dateAdded_output = date($core->settings['dateformat'].' '.$core->setting['timeformat'], $note->dateAdded);
                 }
                 else {
-                    $note['dateAdded_output'] = date($core->settings['timeformat'], $note['dateAdded']);
+                    $note->dateAdded_output = date($core->settings['timeformat'], $note->dateAdded);
                 }
 
-                $task_notes_output .= '<div class="'.$rowclass.'" style="padding: 5px 0px 5px 10px;">'.$note['note'].'. <span class="smalltext" style="font-style:italic;">'.$note['dateAdded_output'].' by <a href="users.php?action=profile&uid='.$note['uid'].'" target="_blank">'.$note['displayName'].'</a></span></div>';
+                fix_newline($note->note);
+                $task_notes_output .= '<div class="'.$rowclass.'" style="padding: 5px 0px 5px 10px;">'.$note->note.'. <span class="smalltext" style="font-style:italic;">'.$note->dateAdded_output.' by <a href="users.php?action=profile&uid='.$note->uid.'" target="_blank">'.$note->get_user()->displayName.'</a></span></div>';
             }
         }
         eval("\$taskdetailsbox = \"".$template->get('popup_calendar_taskdetails')."\";");

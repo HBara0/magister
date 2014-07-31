@@ -127,10 +127,10 @@ class Tasks {
             $ical_obj->set_description($this->task['description']);
             $ical_obj->set_duedate($this->task['dueDate']);
             $ical_obj->set_priority($this->task['priority']);
-            //$ical_obj->set_icalattendees($this->task['uid']);
+//$ical_obj->set_icalattendees($this->task['uid']);
             $ical_obj->sentby();
             $ical_obj->set_percentcomplete($this->task['percCompleted']);
-            //$ical_obj->set_categories('CalendarTask');
+//$ical_obj->set_categories('CalendarTask');
             $ical_obj->endical();
             $ical_obj->save();
 
@@ -257,23 +257,7 @@ class Tasks {
     }
 
     public function get_notes() {
-        global $db, $core;
-
-        $query = $db->query("SELECT ctn.*, u.displayName
-							FROM ".Tprefix." calendar_tasks_notes ctn
-							JOIN ".Tprefix."users u ON (u.uid=ctn.uid)
-							WHERE ctn.ctid=".$this->task['ctid']."
-							ORDER BY dateAdded DESC");
-        if($db->num_rows($query) > 0) {
-            while($tasks_note = $db->fetch_assoc($query)) {
-                fix_newline($tasks_note['note']);
-                $tasks_notes[$tasks_note['ctnid']] = $tasks_note;
-            }
-            return $tasks_notes;
-        }
-        else {
-            return false;
-        }
+        return TasksNotes::get_data(array('ctid' => $this->task['ctid']), array('simple' => false, 'returnarray' => true, 'order' => array('by' => 'dateAdded', 'sort' => 'DESC')));
     }
 
     public function get_status() {
