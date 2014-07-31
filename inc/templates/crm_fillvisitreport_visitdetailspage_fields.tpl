@@ -12,10 +12,10 @@
         <td width="30%">{$lang->newprojectcustomer}</td>
         <td><textarea cols="50" rows="3" name="comments[$val][newProjCustomer]" id="newProjCustomer_{$val}" class="texteditormin">{$visitdetails[comments][$val][newProjCustomer]}</textarea></td>
     </tr>
-    <tr>
+    <!--<tr>
         <td>{$lang->opportunitiescustomer}</td>
         <td><textarea cols="50" rows="3" name="comments[$val][opportunitiesCustomer]" id="opportunitiesCustomer_{$val}" class="texteditormin">{$visitdetails[comments][$val][opportunitiesCustomer]}</textarea></td>
-    </tr>
+    </tr>-->
     <tr>
         <td>{$lang->conclusions}</td>
         <td><textarea cols="50" rows="3" name="comments[$val][conclusions]" id="conclusions_{$val}" class="texteditormin">{$visitdetails[comments][$val][conclusions]}</textarea></td>

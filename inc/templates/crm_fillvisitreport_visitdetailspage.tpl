@@ -27,8 +27,6 @@
                 }, 300000); // 300000 5 minutes
             });
         </script>
-
-
     </head>
     <body>
         {$header}

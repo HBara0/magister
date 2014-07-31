@@ -3,13 +3,12 @@
         <input type="hidden" name="action" value="{$action}"/>
         <input type="hidden" name="{$elementname}" value="{$elemtentid}"/>
         <input type="hidden" name="{$elementname}" value="{$elemtentid}"/>
-        <input type="hidden" name="marketdata[visitreportdate]" value="{$visitreport['date']}"/>
-        <input type="hidden" name="marketdata[vridentifier]" value="{$core->input[identifier]}"/>
+        <input type="hidden" name="marketdata[visitreportdate]" value="{$visitreport->date}"/>
+        <input type="hidden" name="marketdata[vridentifier]" value="{$visitreport->identifier}"/>
         <div>
             {$profiles_entityprofile_micustomerentry}
-            {$profiles_michemfuncproductentry}
             {$profiles_minproductentry}
-            {$serach_chemicalfunc}
+            {$profiles_michemfuncproductentry}
             <div style="width: 30%; display: inline-block;">{$lang->annualpotential}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="potential" name="marketdata[potential]" accept="numeric"  required="required" autocomplete="off" min="0" value="{$midata->potential}"/></div>
             <div style="width: 30%; display: inline-block;">{$lang->marketshareperc}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="mktshareperc" name="marketdata[mktSharePerc]" accept="numeric" required="required" autocomplete="off" min="0" value="{$midata->mktSharePerc}"/></div>
             <div style="width: 30%; display: inline-block;">{$lang->marketshareqty}</div><div style="width: 60%; display: inline-block;"><input type="number" size="12" step="any" id="mktshareqty" name="marketdata[mktShareQty]" accept="numeric" required="required" autocomplete="off" min="0" value="{$midata->mktShareQty}"/></div>

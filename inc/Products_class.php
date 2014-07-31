@@ -19,6 +19,7 @@ class Products {
         if(isset($id)) {
             $this->read($id, $simple);
         }
+        return null;
     }
 
     private function read($id, $simple) {

@@ -33,6 +33,14 @@ if(!$core->input['action']) {
     /* Check if there is data in Sessions - START */
     if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
         $identifier = $db->escape_string($core->input['identifier']);
+
+        $visitreport_obj = new CrmVisitReports();
+        $visitreport = $visitreport_obj->get_visitreports(array('identifier' => $identifier));
+        if(!is_object($visitreport)) {
+            $visitreport = new CrmVisitReports();
+            $visitreport->identifier = $identifier;
+        }
+        unset($visitreport_obj);
         if($core->input['stage'] == 'visitdetails') {
             $rowid = intval($core->input['value']) + 2;
 
@@ -94,6 +102,8 @@ if(!$core->input['action']) {
                     }
                 }
 
+                $core->input['vrid'] = $visitreport->vrid;
+                $visitreport_data['cid'] = $core->input['cid'];
                 $session->set_phpsession(array('visitreportdata_'.$identifier => serialize($core->input)));
             }
             /* Parse MI Data Section - START */
@@ -104,6 +114,7 @@ if(!$core->input['action']) {
                 $elementname = 'marketdata[cid]';
                 $action = 'do_addmartkerdata';
                 $modulefile = 'entityprofile';
+                $css['display']['chemsubfield'] = 'none';
                 eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
                 eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
                 //get brand related to the customer
@@ -119,7 +130,7 @@ if(!$core->input['action']) {
                     }
                     $entitiesbrandsproducts_list = parse_selectlist('marketdata[ebpid]', 7, $options, '');
                 }
-                //Adding   end-product type for the add brand box
+                //Adding end-product type for the add brand box
                 $endproducttypes = EndProducTypes::get_endproductypes();
                 if(is_array($endproducttypes)) {
                     foreach($endproducttypes as $endproducttype) {
@@ -127,7 +138,6 @@ if(!$core->input['action']) {
                     }
                 }
                 eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
-
                 eval("\$popup_marketdata = \"".$template->get('popup_profiles_marketdata')."\";");
             }
             /* Parse MI Data Section - END */
@@ -484,7 +494,7 @@ else {
                 }
                 $latest_mkdataid = max($maktintl_objs)['mibdid'];
 
-                eval("\$visitdetails_fields_mktidata = \"".$template->get('crm_fillvisitreport_visitdetailspage_fields_marketdata')."\";");
+                eval("\$visitdetails_fields_mktidata = \"".$template->get('crm_fillvisitreport_visitdetailspage_marketdata')."\";");
             }
 
             /* View detailed market intelligence box --END */

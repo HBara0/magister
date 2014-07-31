@@ -35,7 +35,7 @@ class MarketIntelligence {
         }
     }
 
-    private function read($id, $simple) {
+    private function read($id, $simple = false) {
         global $db;
         $query_select = '*';
         if($simple == true) {
@@ -148,9 +148,9 @@ class MarketIntelligence {
                 $item = new ChemFunctionProducts($id);
                 return array($item->get_produt(), $item->get_chemicalfunction(), $item->get_segmentapplication(), $item->get_segment());
                 break;
-                return array($item->get_chemicalsubstance());
             case ChemFunctionChemicals:
                 $item = new ChemFunctionChemicals($id);
+                return array($item->get_chemicalsubstance(), $item->get_chemicalfunction(), $item->get_segmentapplication(), $item->get_segment());
                 break;
             case Customers:
                 $item = new Customers($id);
@@ -332,7 +332,10 @@ class MarketIntelligence {
     }
 
     public function get_visitreport() {
-        return new VisitReports($this->marketintelligence['vrid']);
+        if(empty($this->marketintelligence['vrid'])) {
+            return false;
+        }
+        return new CrmVisitReports($this->marketintelligence['vrid']);
     }
 
     public function get_customer() {
@@ -340,6 +343,9 @@ class MarketIntelligence {
     }
 
     public function get_chemfunctionproducts() {
+        if($this->marketintelligence['cfpid'] == 0) {
+            return false;
+        }
         return new ChemFunctionProducts($this->marketintelligence['cfpid']);
     }
 

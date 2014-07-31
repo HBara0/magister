@@ -113,7 +113,6 @@ if(!$core->input['action']) {
     }
 
     if(is_array($visitreports)) {
-
         foreach($visitreports as $key => $visitreport) {
             if(empty($visitreport)) {
                 unset($visitreports[$key]);
@@ -258,7 +257,7 @@ if(!$core->input['action']) {
             $maktintl_mainobj = new MarketIntelligence();
             $miprofile = $maktintl_mainobj->get_miprofconfig_byname('latestcustomersumbyproduct');
             $miprofile['next_miprofile'] = 'allprevious';
-            $maktintl_objs = $maktintl_mainobj->get_marketintelligence_timeline(array('vrid' => $visitreport['vrid']), $miprofile);
+            $maktintl_objs = $maktintl_mainobj->get_marketintelligence_timeline(array('cid' => $visitreport['cid'], 'vrid' => $visitreport['vrid']), $miprofile);
             if(is_array($maktintl_objs)) {
                 $core->input['module'] = 'profiles/entityprofile';
                 foreach($maktintl_objs as $mktintldata) {
@@ -269,7 +268,7 @@ if(!$core->input['action']) {
                 }
 
                 $viewall_button = '<div style="display:block; padding:25px;"> <input type="button" class="button" value="View All Market data" onClick="window.open(\'index.php?module=profiles/entityprofile&amp;eid='.$mktintldata['cid'].'#misection\')" /></div>';
-                eval("\$visitdetails_fields_mktidata = \"".$template->get('crm_fillvisitreport_visitdetailspage_fields_marketdata')."\";");
+                eval("\$visitdetails_fields_mktidata = \"".$template->get('crm_fillvisitreport_visitdetailspage_marketdata')."\";");
             }
 
             /* Parse visit report MIdata timeline --END */
@@ -329,8 +328,7 @@ else {
         $html2pdf->pdf->SetTitle("{$report[supplier]}", true);
         $html2pdf->WriteHTML($content, $show_html);
         $html2pdf->Output('visitreports_'.$core->input['identifier'].'.pdf');
-        $session->
-                destroy_phpsession();
+        $session->destroy_phpsession();
     }
 }
 function parse_supplystatus(&$value) {
