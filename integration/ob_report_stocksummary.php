@@ -29,14 +29,14 @@ if($core->input['authCode'] == AUTHCODE) {
     );
 
     $affiliates_addrecpt = array(
-            19 => array(244, 'audrey.sacy', 356),
-            22 => array(248, 246, 287, 270, 'audrey.sacy', 356),
-            23 => array('zadok.oppong-boahene', 'courage.dzandu', 322, 321, 'audrey.sacy', 'tarek.chalhoub', 63, 356),
-            1 => array(12, 333, 182, 43, 'audrey.sacy', 356),
-            21 => array(63, 158, 'audrey.sacy', 'bamou.diop', 'annick.kouame', 'abel.laho', 'boulongo.diata', 356),
-            27 => array(12, 333, 68, 67, 'audrey.sacy', 342, 30, 356),
-            20 => array('michel.mbengue', 'abdoulaye.lo', 'audrey.sacy', 'ansou.dabo', 'fatimatou.diallo', 356),
-            11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 'audrey.sacy', 356)
+            19 => array(244, 356),
+            22 => array(248, 246, 287, 270, 356),
+            23 => array('zadok.oppong-boahene', 'courage.dzandu', 322, 321, 'tarek.chalhoub', 63, 356),
+            1 => array(12, 333, 182, 43, 356),
+            21 => array(63, 158, 'bamou.diop', 'annick.kouame', 'abel.laho', 'boulongo.diata', 356),
+            27 => array(12, 333, 68, 67, 342, 30, 356),
+            20 => array('michel.mbengue', 'abdoulaye.lo', 'ansou.dabo', 'fatimatou.diallo', 356),
+            11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 356)
     );
 
     $integration = new IntegrationOB($db_info, 'C08F137534222BD001345B7B2E8F182D', $affiliates_index, 3, array('from' => '2010-01-01'));
