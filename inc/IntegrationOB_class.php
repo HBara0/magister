@@ -672,6 +672,16 @@ class IntegrationOB extends Integration {
         return $invoices->get_saleinvoices($filters);
     }
 
+    public function get_sales_byyearmonth($filters = null) {
+        $sales = new IntegrationOBInvoiceLine(null, $this->f_db);
+
+        if(!empty($filters)) {
+            $filters .= ' AND ';
+        }
+        $filters .= "c_invoice.issotrx='Y'";
+        return $sales->get_data_byyearmonth($filters);
+    }
+
     public function get_status() {
         return $this->status;
     }
@@ -1301,6 +1311,43 @@ class IntegrationOBInvoiceLine {
                 $invoicelines[$invoiceline[self::PRIMARY_KEY]] = new self($invoiceline[self::PRIMARY_KEY], $this->f_db);
             }
             return $invoicelines;
+        }
+        return false;
+    }
+
+    public function get_data_byyearmonth($filters = '') {
+
+        $rawdata = $this->get_aggreateddata_byyearmonth('salesrep_id, c_currency_id', $filters);
+        if(is_array($rawdata)) {
+            foreach($rawdata as $salesdata) {
+                $data['qty'][$salesdata['salesrep_id']][$salesdata['year']][$salesdata['month']] = $salesdata['qty'];
+                $data['linenetamt'][$salesdata['c_currency_id']][$salesdata['salesrep_id']][$salesdata['year']][$salesdata['month']] = $salesdata['linenetamt'];
+            }
+
+            return $data;
+        }
+        return false;
+    }
+
+    public function get_aggreateddata_byyearmonth($groupby, $filters = '') {
+        if(!empty($filters)) {
+            $query_where = ' WHERE '.$filters; //' AND '.$this->f_db->escape_string($filters);
+        }
+
+        if(!empty($groupby)) {
+            $groupby = ', '.$this->f_db->escape_string($groupby);
+        }
+
+        $sql = "SELECT EXTRACT(YEAR FROM dateinvoiced) AS year, EXTRACT(MONTH FROM dateinvoiced) AS month, SUM(qtyinvoiced) as qty, SUM(linenetamt) AS linenetamt ".$groupby."
+                        FROM c_invoiceline JOIN c_invoice  ON (c_invoice.c_invoice_id=c_invoiceline.c_invoice_id)".$query_where."
+                        GROUP BY year, month ".$groupby;
+        $query = $this->f_db->query($sql);
+        if($this->f_db->num_rows($query) > 0) {
+            while($salesdata = $this->f_db->fetch_assoc($query)) {
+                $data[] = $salesdata;
+            }
+            $this->f_db->free_result($query);
+            return $data;
         }
         return false;
     }
@@ -2171,6 +2218,10 @@ class IntegrationOBUser {
             return $this->data[$name];
         }
         return false;
+    }
+
+    public function __isset($name) {
+        return isset($this->data[$name]);
     }
 
     public function get() {
