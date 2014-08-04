@@ -2033,6 +2033,21 @@ CREATE TABLE `sourcing_suppliers_activityareas_new` (
   PRIMARY KEY (`ssaid`,`ssid`,`coid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=12737 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `sourcing_suppliers_blhistory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sourcing_suppliers_blhistory` (
+  `ssbid` int(10) NOT NULL AUTO_INCREMENT,
+  `ssid` int(10) NOT NULL,
+  `reason` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `requestedBy` int(10) NOT NULL,
+  `requestedOn` bigint(30) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `removedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`ssbid`)
+) ENGINE=MyISAM AUTO_INCREMENT=112 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `sourcing_suppliers_chemicals`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
