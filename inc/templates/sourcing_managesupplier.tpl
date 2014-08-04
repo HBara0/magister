@@ -2,11 +2,24 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->managesuppliers}</title>
         {$headerinc}
+        <script>
+            $(function() {
+                $("[id^='removebl_']").click(function() {
+                    if(sharedFunctions.checkSession() == false) {
+                        return;
+                    }
+                    var id = $(this).attr("id").split("_");
+
+                    sharedFunctions.requestAjax("post", "index.php?module=sourcing/managesupplier&type=edit&action=removebl", "ssid=" + id[2] + "&historyid=" + id[1], 'remove_results', 'remove_results' + id[1], 'html');
+                });
+            });
+        </script>
     </head>
     <body>
         {$header}
     <tr>{$menu}
         <td class="contentContainer"><h1>{$lang->$actiontype}</h1>
+                {$sourcing_managesupplier_blhistory}
             <form name="perform_sourcing/managesupplier_Form" action="{$_SERVER[QUERY_STRING]}" method="post" id="perform_sourcing/managesupplier_Form" >
                 <input type="hidden" value="do_{$actiontype}page" name="action" id="action" />
                 <input name="supplier[ssid]" type="hidden" value="{$supplierid}" />
@@ -108,6 +121,17 @@
                         </div>
                     </div>
                     <div style="display:table-row;">
+                        <div style="display:table-cell;">{$lang->selectentity}</div>
+                        <div style="display:table-cell;">
+                            <fieldset ><legend class="subtitle"><strong>{$lang->selectentity}</strong></legend>
+                                <input id="supplier_1_QSearch"  autocomplete="off" type="text"  size="40" value="{$supplier[relatedsupplier]}">
+
+                                <input id="supplier_1_id" name="supplier[eid]" value="{$supplier[relatedsupplierid]}" type="hidden">
+                                <div id="searchQuickResults_supplier_1" class="searchQuickResults" style="display:none;"></div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div style="display:table-row;">
                         <div class="thead" style="display:table-cell;">{$lang->activityarea}</div>
                         <div class="thead" style="display:table-cell;"></div>
                     </div>
@@ -144,7 +168,7 @@
                     <div style="display:table-row;">
                         <div class="thead" style="display:table-cell;">{$lang->genericproducts}</div>
                         <div class="thead" style="display:table-cell;"></div>
-                    </div> 
+                    </div>
                     <div style="display:table-row; vertical-align:top;">
                         <div style="display: table-cell; padding:5px;">{$lang->selectgenericproducts}</div>
                         <div style="display: table-cell; padding:5px;">
@@ -227,6 +251,7 @@
                             <textarea tabindex="30" class="texteditormin" cols="35" rows="5" name="supplier[productFunction]">{$supplier[details][productFunction]}</textarea>
                         </div>
                     </div>
+                    {$blacklist}
                     <div style="display:table-row;">{$mark_blacklist} </div>
                     <div  style="margin-bottom: 0.9em;"></div>
                     <div style="display:table-row;">
@@ -239,7 +264,9 @@
                 <div style="display:table-row">
                     <div style="display:table-cell;"id="perform_sourcing/managesupplier_Results"></div>
                 </div>
-            </form></td>
+            </form>
+            {$popup_sourcingblhistory}
+        </td>
     </tr>
     {$footer}
 </body>

@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Potential Supplier Profile
  * $module: Sourcing
- * $id: supplierprofile.php	
+ * $id: supplierprofile.php
  * Last Update: @tony.assaad	January 7, 2013 | 3:05 PM
  */
 if(!defined('DIRECT_ACCESS')) {
@@ -36,7 +36,10 @@ if(!$core->input['action']) {
 
     $question_section = array('isPriceApproved' => 'paymentterms', 'isPaymentApproved' => 'customerdocument', 'isCustomerdocumentApproved' => 'samplerequest', 'isSampleAccepted' => 'customersample', 'isCompliantSpec' => 'industrial', 'isProductApproved' => 'commercialoffer');
     $array_converteddate = array('date', 'customerDocumentDate', 'receivedQuantityDate', 'providedDocumentsDate', 'customerAnswerDate', 'provisionDate', 'offerDate', 'OfferAnswerDate');
-
+    $supplier['relatedsupplier'] = $potential_supplier->get_entity()->companyName;
+    if(!empty($supplier['relatedsupplier'])) {
+        $supplier['relatedsupplier_output'] = '<div class="ui-state-highlight ui-corner-all" style="padding:5px;margin:5px 0px;">'.$lang->sprint($lang->actualsuplmsg, $potential_supplier->get_entity()->parse_link()).'</div>';
+    }
     $supplier['maindetails'] = $potential_supplier->get_supplier();
     $supplier['contactdetails'] = $potential_supplier->get_supplier_contactdetails();
     $supplier['segments'] = $potential_supplier->get_supplier_segments();
@@ -117,7 +120,7 @@ if(!$core->input['action']) {
         /* Show contact button */
         $contactsupplier_button = '<hr /><form  name="perform_sourcing/supplierprofile_Form" action="index.php?module=sourcing/supplierprofile&amp;action=do_contactsupplier" method="post" id"perform_sourcing/supplierprofile_Form" >
 			<input type="submit" class="button" value="'.$lang->contact.'" />
-			<input type="hidden" value="'.$supplier['maindetails']['ssid'].'" name="supplierid" />	
+			<input type="hidden" value="'.$supplier['maindetails']['ssid'].'" name="supplierid" />
 		</form>';
         /* Blur text */
         $header_blurjs = '$(".contactsvalue").each(function(){$(this).addClass("blur");});';
@@ -282,6 +285,24 @@ if(!$core->input['action']) {
     }
     /* New  Communication Report after the user has initiated contact - END */
 
+    /* parse blacklist histories --START */
+
+    $blacklisthist_objs = SourcingSupplierblHistory::get_histories(array('ssid' => $supplier_id), array('order' => array('by' => 'requestedOn', 'sort' => 'DESC')));
+    if(is_array($blacklisthist_objs)) {
+        foreach($blacklisthist_objs as $blacklisthist) {
+            $blacklisthist->requestedOn = date($core->settings['dateformat'], $blacklisthist->requestedOn);
+            if(($blacklisthist->removedOn != 0)) {
+                $blacklisthist->removedOn = date($core->settings['dateformat'], $blacklisthist->removedOn);
+            }
+            $blacklisthist->requestedBy = $blacklisthist->get_requestedby()->displayName;
+            eval("\$blacklist_historiesrows .= \"".$template->get('sourcing_potentialsupplierprofile_blhistory_rows')."\";");
+        }
+
+        eval("\$blacklist_histories = \"".$template->get('sourcing_potentialsupplierprofile_blhistory')."\";");
+    }
+
+
+    /* parse blacklist histories --END */
     eval("\$supplierprofile = \"".$template->get('sourcing_potentialsupplierprofile')."\";");
     output_page($supplierprofile);
 }

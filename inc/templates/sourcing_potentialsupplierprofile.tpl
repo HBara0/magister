@@ -37,7 +37,8 @@
                             var obj = $(this).parent().parent().parent().nextAll().has(":checkbox").first().find(":checkbox").removeAttr("disabled").prop("checked", true);
                             var nextdiv = $("div[id^='" + obj.val() + "']");
                             $("div[id^='sourcingnotpossible_body']").hide()
-                            if (nextdiv.length) {
+                            $("div[id^='manuallyselect_entity']").show()
+                            if(nextdiv.length) {
                     //	$("html, body").animate({ scrollTop: $('#'+nextdiv.attr('id')).offset().top }, 1000)
                     //$("html, body").scrollTo ('#'+nextdiv.attr('id'));  /* scrolling to a specified next div.*/
                     }
@@ -98,8 +99,10 @@
     <tr> {$menu}
         <td class="contentContainer">
             <div style="margin-bottom: 10px;">
-                <h3 style="margin-bottom: 5px;">{$supplier[maindetails][companyName]} {$supplier[maindetails][businessPotential_output]}</h1>
+                <h3 style="margin-bottom: 5px;">{$supplier[maindetails][companyName]} {$supplier[maindetails][businessPotential_output]}</h3>
+
                 {$supplier[maindetails][relationMaturity_output]}
+                {$supplier[relatedsupplier_output]}
             </div>
             <div style='display:inline-block; width:50%; padding:5px; vertical-align:top;'>
                 <div class="subtitle border_right"><strong>{$lang->contactdtails}</strong></div>
@@ -112,7 +115,7 @@
                 </div>
                 <div class="border_right">{$contactsupplier_button}</div>
             </div>
-            <div style='display:inline-block; width:45%; padding:5px; vertical-align:top;'>
+            <div style='display:inline-block; width:45%; padding:5px; vertical-align:top;'>sss
                 <div class="subtitle"><strong>{$lang->contactperson}</strong></div>
                 {$contactpersons_output}</div>
             <div style='display:inline-block; width:50%; padding:5px; margin-top:10px; vertical-align:top;' class="border_right"><strong>{$lang->segments}</strong><br />
@@ -131,7 +134,7 @@
                     </thead>
                     {$chemicalslist_section}
                 </table>
-                <hr /> 
+                <hr />
             </div>
             <div style="display:inline-block; overflow:auto; width:100%; max-height:200px; vertical-align:top; margin-top:10px;">
                 <table class="datatable" width="100%">
@@ -142,7 +145,7 @@
                     </thead>
                     {$genericproductlist_section}
                 </table>
-                <hr /> 
+                <hr />
             </div>
             <div>
                 <div class="subtitle" style="margin-top: 10px;">{$lang->comments}</div>
@@ -156,6 +159,10 @@
                     <p style="width:1000px; word-wrap: break-word;">{$supplier[maindetails][sourcingRecords]}</p></div>
                 <div style='padding:5px;' class='border_bottom'><strong>{$lang->commentstoshare}</strong><br />
                     <p style="width:1000px; word-wrap: break-word;">{$supplier[maindetails][commentsToShare]}</p></div>
+
+
+                {$blacklist_histories}
+
                 <div>
                     <hr />
                     <div class="subtitle">{$lang->contacthistory}</div>

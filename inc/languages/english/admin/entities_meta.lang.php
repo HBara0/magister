@@ -75,4 +75,6 @@ $lang['verbal'] = 'Verbal';
 $lang['selectoption'] = 'Please select an option';
 $lang['centralpurchase'] = "Is Central Purchase";
 $lang['centralpurchasenote'] = "Central Purchase Notes";
-?>  
+$lang['entitynotifysubject'] = 'New Supplier has been added';
+$lang['entitynotify'] = 'Dears, <br> <strong>{1}</strong> has been created  <br> Click {2} to go the supplier profile '
+?>
