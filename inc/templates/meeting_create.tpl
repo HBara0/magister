@@ -10,7 +10,7 @@
         <script>
             $(function() {
                 $('a[id^=deletefile_]').live('click', function() {
-                    if (sharedFunctions.checkSession() == false) {
+                    if(sharedFunctions.checkSession() == false) {
                         return;
                     }
                     var id = $(this).attr('id').split("_");
@@ -25,7 +25,7 @@
         <td class="contentContainer">
             <h1>{$pagetitle}</h1>
             <iframe id='uploadFrame'  name='uploadFrame' style="display:none;" ></iframe>
-            <form method="post" enctype="multipart/form-data" action="index.php?module=meetings/create" target="uploadFrame">      
+            <form method="post" enctype="multipart/form-data" action="index.php?module=meetings/create" target="uploadFrame">
 
                 <input type="hidden" value="do_{$action}meeting" name="action" id="action" />
                 <input type="hidden" value="{$core->input[mtid]}" name="mtid"  />
@@ -62,7 +62,7 @@
                                 <tr><td class="thead" colspan="3">{$lang->attendees}</td></tr>
                                 <tr>
                                     <td><input type="checkbox" id='notify_user' name='meeting[notifyuser]' value="1"> {$lang->notifyusers}</td>
-                                    <td><input type="checkbox"{$checked} id='notify_representative' name='meeting[notifyrep]' value="1"> {$lang->notifyreps}</td> 
+                                    <td><input type="checkbox"{$checked} id='notify_representative' name='meeting[notifyrep]' value="1"> {$lang->notifyreps}</td>
                                 </tr>
                                 <tr>
                                     <td style="vertical-align: top;">
@@ -70,10 +70,10 @@
                                             <table border="0" width="50%" cellspacing="1" cellpadding="1">
                                                 <tbody id="attendees_tbody">
                                                     {$createmeeting_userattendees}
-                                                </tbody>  
+                                                </tbody>
                                             </table>
                                         </div>
-                                    </td> 
+                                    </td>
                                     <td style="vertical-align: top;">
                                         <div style="display: inline-block;">
                                             <table border="0" width="50%" cellspacing="1" cellpadding="1">
@@ -81,7 +81,7 @@
                                                     {$createmeeting_repattendees}
                                                 </tbody>
                                             </table>
-                                        </div></td> 
+                                        </div></td>
                                 </tr>
                                 <tr><td><img src="images/add.gif" id="addmore_attendees" alt='{$lang->add}'></td><td><img src="images/add.gif" id="addmore_rep" alt='{$lang->add}' title="{$lang->addmorerows}"></td></tr>
                             </table>
@@ -90,12 +90,12 @@
                     <tr><td class="thead" colspan="2">{$lang->associations}<a title="{$lang->associations}" href="#associationssection" onClick="$('#associationssection').fadeToggle();">...</a></td></tr>
                     {$createmeeting_associations}
                     <tr><td>&nbsp;</td></tr>
-                    <tr><td class="thead" colspan="2">{$lang->attachements}</td></tr> 
+                    <tr><td class="thead" colspan="2">{$lang->attachements}</td></tr>
                         {$meeting_attachments}
                     <tr>
                         <td colspan="2">
 
-                            <input type="submit" class="button" value="{$lang->savecaps}" id="meetings_create" onclick="$('#upload_Result').show()"  />
+                            <input type="submit" class="button main" value="{$lang->savecaps}" id="meetings_create" onclick="$('#upload_Result').show()"  />
                             <input type="reset" class="button" value="{$lang->reset}"/>
                             <hr />
                             <div id="upload_Result" style="display:none;"><img src="{$core->settings[rootdir]}/images/loading.gif" /> {$lang->uploadinprogress}</div>

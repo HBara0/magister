@@ -106,6 +106,9 @@ if(!$core->input['action']) {
     $core->input['uid'] = $leave['uid'];
     if(is_array($additional_fields)) {
         foreach($additional_fields as $key => $val) {
+            if(empty($val)) {
+                continue;
+            }
             $val['key_attribute_value'] = $leave[$key];
             $val['value_attribute_value'] = implode('', parse_additionaldata($leave, serialize(array($key => $val))));
             $val['uid'] = $leave['uid'];
@@ -579,7 +582,7 @@ else {
                     }
                 }
             }
-            $leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields'], 1);
+            $leave['details_crumb'] = implode(' ', parse_additionaldata($core->input, $leavetype_details['additionalFields'], 1));
             $leave['details_crumb'] = $core->sanitize_inputs($leave['details_crumb'], array('method' => 'striponly', 'removetags' => true));
             if(!empty($leave['details_crumb'])) {
                 //$leave['details_crumb'] = implode(' ', parse_additionaldata($core->input, $leavetype_details['additionalFields']));

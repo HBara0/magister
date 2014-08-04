@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * View Requirement
  * $module: development
- * $id: viewrequirement.php	
+ * $id: viewrequirement.php
  * Created By: 		@zaher.reda			May 21, 2012 | 03:31 PM
  * Last Update: 	@zaher.reda			May 21, 2012 | 03:31 PM
  */
@@ -53,12 +53,34 @@ if(!$core->input['action']) {
             eval("\$changes_section .= \"".$template->get('development_requirementdetails_addchange')."\";");
         }
 
+        $complete_button = '<img src="./images/valid.gif" /> <strong>Completed</strong>';
+        if(empty($requirement['isCompleted'])) {
+            $complete_button = '<a href="index.php?module=development/viewrequirement&action=markcompleted&id='.$requirement['drid'].'">Mark as Completed</a>';
+        }
+
         eval("\$requirementdetails = \"".$template->get('development_requirementdetails')."\";");
         output_page($requirementdetails);
     }
 }
 else {
-    if($core->input['action'] == 'createreqchange') {
+    if($core->input['action'] == 'markcompleted') {
+        if($core->usergroup['development_canCreateReq'] == 0) {
+            output_xml('<status>false</status><message>'.$lang->sectionnopermission.'</message>');
+            exit;
+        }
+        $requirement = new Requirements($core->input['id']);
+        $requirement->save(array('isCompleted' => 1));
+
+        switch($requirement->get_errorcode()) {
+            case 0:
+                redirect('index.php?module=development/viewrequirement&id='.$core->input['id'], 1, $lang->successfullysaved);
+                break;
+            default:
+                error($errorhandler->parse_errorcode($requirement->get_errorcode()));
+                break;
+        }
+    }
+    elseif($core->input['action'] == 'createreqchange') {
         if($core->usergroup['development_canCreateReq'] == 0) {
             output_xml('<status>false</status><message>'.$lang->sectionnopermission.'</message>');
             exit;

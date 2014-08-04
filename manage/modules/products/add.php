@@ -84,6 +84,9 @@ else {
             if(isset($productschemsubstances)) {
                 foreach($productschemsubstances as $productschemsubstance) {
                     foreach($productschemsubstance as $csid) {
+                        if(empty($csid)) {
+                            continue;
+                        }
                         $chemsubstances_array = array(
                                 'pid' => $pid,
                                 'csid' => $csid,
@@ -91,6 +94,9 @@ else {
                                 'createdOn' => TIME_NOW
                         );
                         $db->insert_query('productschemsubstances', $chemsubstances_array);
+
+                        $chemfuncchem = new ChemFunctionChemicals();
+                        $chemfuncchem->save(array('csid' => $csid, 'safid' => $core->input['defaultFunction']));
                     }
                 }
             }

@@ -13,28 +13,50 @@
  *
  * @author tony.assaad
  */
-class ChemFunctionChemicals {
-    private $chemfuntionchemical = array();
+class ChemFunctionChemicals extends AbstractClass {
+    protected $data = array();
     private $segmentapplicationfunction = null;
 
-    public function __construct($id, $simple = true) {
-        if(isset($id)) {
-            $this->read($id, $simple);
-        }
+    const PRIMARY_KEY = 'cfcid';
+    const TABLE_NAME = 'chemfunctionchemcials';
+    const CLASSNAME = __CLASS__;
+    const SIMPLEQ_ATTRS = 'cfcid, safid, csid';
+
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
-    private function read($id, $simple) {
+    protected function create(array $data) {
         global $db;
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'cfcid, safid, csid';
+
+        $db->insert_query(self::TABLE_NAME, $data);
+    }
+
+    protected function update(array $data) {
+        global $db;
+
+        $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+    }
+
+    public function save(array $data = array()) {
+        if(empty($data)) {
+            $data = $this->data;
         }
-        $this->chemfuntionchemical = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemfunctionchemcials WHERE cfcid='.intval($id)));
+
+
+        $object = self::get_data(array('safid' => $data['safid'], 'csid' => $data['csid']));
+        if(is_object($object)) {
+            $object->update($data);
+        }
+        else {
+            $object = new self();
+            $object->create($data);
+        }
     }
 
     /* return segmentapplication object */
     public function get_segapplicationfunction() {
-        $this->segmentapplicationfunction = new SegApplicationFunctions($this->chemfuntionchemical['safid']);  /* we store object in the var to avoid multiple instantiation thus will avoid multiple queries */
+        $this->segmentapplicationfunction = new SegApplicationFunctions($this->data['safid']);  /* we store object in the var to avoid multiple instantiation thus will avoid multiple queries */
         return $this->segmentapplicationfunction;
     }
 
@@ -47,6 +69,10 @@ class ChemFunctionChemicals {
         }
     }
 
+    public function get_segment() {
+        return $this->get_segmentapplication()->get_segment();
+    }
+
     public function get_chemicalfunction() {
         if(is_object($this->segmentapplicationfunction)) {
             return $this->segmentapplicationfunction->get_function();
@@ -56,20 +82,20 @@ class ChemFunctionChemicals {
         }
     }
 
+    public function get_chemicalsubstance() {
+        return $this->get_chemical();
+    }
+
     public function get_chemical() {
-        return new Chemicalsubstances($this->chemfuntionchemical['csid']);
+        return new Chemicalsubstances($this->data['csid']);
     }
 
     public function get_createdby() {
-        return new Users($this->chemfuntionchemical['createdBy']);
+        return new Users($this->data['createdBy']);
     }
 
     public function get_modifiedby() {
-        return new Users($this->chemfuntionchemical['modifiedBy']);
-    }
-
-    public function get() {
-        return $this->chemfuntionchemical;
+        return new Users($this->data['modifiedBy']);
     }
 
 }

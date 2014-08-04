@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Events & Tasks
  * $module: calendar
  * $id: evenstasks.php
@@ -19,7 +19,7 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'do_createtask') {
-        //if($core->input['type'] == 'task') { 
+        //if($core->input['type'] == 'task') {
         $task = new Tasks();
         $task->create_task($core->input['task']);
 
@@ -52,7 +52,7 @@ else {
                 $(function() {
                     top.$("#upload_Result").html("<span class='red_text'><?php echo $lang->fillallrequiredfields;?></span>");
                 });
-            </script>   
+            </script>
             <?php
             exit;
         }
@@ -104,7 +104,7 @@ else {
                         $(function() {
                             top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
                         });
-                    </script>   
+                    </script>
                     <?php
                     exit;
                 }
@@ -307,15 +307,16 @@ else {
 
                 foreach($task_notes as $note) {
                     $rowclass = alt_row($rowclass);
-                    $note_date_diff = (TIME_NOW - $note['dateAdded']);
-                    if(date('y-m-d', $note['dateAdded']) != date('y-m-d', TIME_NOW)) {
-                        $note['dateAdded_output'] = date($core->settings['dateformat'].' '.$core->setting['timeformat'], $note['dateAdded']);
+                    $note_date_diff = (TIME_NOW - $note->dateAdded);
+                    if(date('y-m-d', $note->dateAdded) != date('y-m-d', TIME_NOW)) {
+                        $note->dateAdded_output = date($core->settings['dateformat'].' '.$core->setting['timeformat'], $note->dateAdded);
                     }
                     else {
-                        $note['dateAdded_output'] = date($core->settings['timeformat'], $note['dateAdded']);
+                        $note->dateAdded_output = date($core->settings['timeformat'], $note->dateAdded);
                     }
 
-                    $task_notes_output .= '<div class="'.$rowclass.'" style="padding: 5px 0px 5px 10px;">'.$note['note'].'. <span class="smalltext" style="font-style:italic;">'.$note['dateAdded_output'].' by <a href="users.php?action=profile&uid='.$note['uid'].'" target="_blank">'.$note['displayName'].'</a></span></div>';
+                    fix_newline($note->note);
+                    $task_notes_output .= '<div class="'.$rowclass.'" style="padding: 5px 0px 5px 10px;">'.$note->note.'. <span class="smalltext" style="font-style:italic;">'.$note->dateAdded_output.' by <a href="users.php?action=profile&uid='.$note->uid.'" target="_blank">'.$note->get_user()->displayName.'</a></span></div>';
                 }
             }
             eval("\$eventdetailsbox = \"".$template->get('popup_calendar_taskdetails')."\";");

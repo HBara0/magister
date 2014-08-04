@@ -2,6 +2,7 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->fillvisitreport}</title>
         {$headerinc}
+
     </head>
     <body>
         {$header}

@@ -255,8 +255,10 @@
                     <div style="display:table-row;">{$mark_blacklist} </div>
                     <div  style="margin-bottom: 0.9em;"></div>
                     <div style="display:table-row;">
-                        <div style="display: table-cell; width:10px;">
-                            <input type="button" class="button" value="{$lang->savecaps}" id="perform_sourcing/managesupplier_Button" />
+                        <div style="display: table-cell;">
+                            <input type="button" class="button main" value="{$lang->savecaps}" id="perform_sourcing/managesupplier_Button" />
+                        </div>
+                        <div style="display: table-cell;">
                             <input type="reset" class="button" value="{$lang->reset}"/>
                         </div>
                     </div>

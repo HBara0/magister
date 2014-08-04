@@ -13,21 +13,24 @@
  *
  * @author zaher.reda
  */
-class CrmVisitReports {
-    private $data = array();
-    private $errorcode = 0;
+class CrmVisitReports extends AbstractClass {
+    protected $data = array();
+    protected $errorcode = 0;
 
     const PRIMARY_KEY = 'vrid';
     const TABLE_NAME = 'visitreports';
     const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
+    const SIMPLEQ_ATTRS = 'vrid, identifier, uid, cid, affid, date';
 
-    public function __construct($id, $simple = true) {
+    public function __construct($id = '', $simple = true) {
         if(isset($id) && !empty($id)) {
             $this->data = $this->read($id, $simple);
         }
+        return null;
     }
 
-    private function read($id, $simple = false) {
+    protected function read($id, $simple = false) {
         global $db;
         $query_select = '*';
         if($simple == true) {
@@ -42,33 +45,37 @@ class CrmVisitReports {
         return $data->get_objects($filters, $configs);
     }
 
-    public function set(array $data) {
-        foreach($data as $name => $value) {
-            $this->data[$name] = $value;
-        }
-    }
-
-    public function __set($name, $value) {
-        $this->data[$name] = $value;
-    }
-
-    public function __get($name) {
-        if(isset($this->data[$name])) {
-            return $this->data[$name];
-        }
-        return false;
-    }
-
-    public function get() {
-        return $this->data;
+    public function get_customer() {
+        return new Customers($this->data['cid']);
     }
 
     public function get_displayname() {
-        return $this->data[self::DISPLAY_NAME];
+        global $core;
+
+        return $this->get_customer()->get_displayname().' - '.date($core->settings['dateformat'], $this->data['date']);
     }
 
-    public function get_errorcode() {
-        return $this->errorcode;
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        global $core;
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+
+        return '<a href="index.php?module=crm/previewvisitreport&referrer=list&vrid='.$this->data[self::PRIMARY_KEY].'" '.$attributes.'>'.$this->get_displayname().'</a>';
+    }
+
+    protected function save(array $data = array()) {
+
+    }
+
+    protected function update(array $data) {
+
+    }
+
+    protected function create(array $data) {
+
     }
 
 }

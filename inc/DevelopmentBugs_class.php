@@ -234,6 +234,10 @@ class DevelopmentBugs {
         return false;
     }
 
+    public function __isset($name) {
+        return isset($this->data[$name]);
+    }
+
     public function get() {
         return $this->data;
     }

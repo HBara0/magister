@@ -227,7 +227,9 @@ if(!$core->input['action']) {
         $elementname = 'marketdata[affid]';
         $action = 'do_addmartkerdata';
         $modulefile = 'affiliateprofile';
-        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        $css['display']['chemsubfield'] = 'none';
+        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+        eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
         /* View detailed market intelligence box --START */
         $maktintl_mainobj = new MarketIntelligence();
         $miprofile = $maktintl_mainobj->get_miprofconfig_byname('latestaggregatebycustomer');
@@ -251,7 +253,14 @@ if(!$core->input['action']) {
         else {
             $endproducttypes_list = '<option value="0">'.$lang->na.'</option>';
         }
-
+        /* parse visit report */
+        $visitreport_objs = CrmVisitReports::get_visitreports(array('uid' => $core->user['uid'], 'affid' => $elemtentid, 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
+        if(is_array($visitreport_objs)) {
+            foreach($visitreport_objs as $visitreport) {
+                $customer_name = $visitreport->get_customer($visitreport->cid)->companyName;
+                $customervisit_list.='<option value="'.$visitreport->vrid.'">'.$customer_name.' - '.date($core->settings['dateformat'], $visitreport->date).'</option>';
+            }
+        }
         $entitiesbrandsproducts_list = $lang->na;
 
         eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");

@@ -2,15 +2,23 @@
     <form name="perform_{$module}/{$modulefile}_Form" id="perform_{$module}/{$modulefile}_Form">
         <input type="hidden" name="action" value="{$action}"/>
         <input type="hidden" name="{$elementname}" value="{$elemtentid}"/>
+        <input type="hidden" name="{$elementname}" value="{$elemtentid}"/>
+        <input type="hidden" name="marketdata[visitreportdate]" value="{$visitreport->date}"/>
+        <input type="hidden" name="marketdata[vridentifier]" value="{$visitreport->identifier}"/>
         <div>
             {$profiles_entityprofile_micustomerentry}
+            {$profiles_minproductentry}
             {$profiles_michemfuncproductentry}
-            {$serach_chemicalfunc}
             <div style="width: 30%; display: inline-block;">{$lang->annualpotential}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="potential" name="marketdata[potential]" accept="numeric"  required="required" autocomplete="off" min="0" value="{$midata->potential}"/></div>
             <div style="width: 30%; display: inline-block;">{$lang->marketshareperc}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="mktshareperc" name="marketdata[mktSharePerc]" accept="numeric" required="required" autocomplete="off" min="0" value="{$midata->mktSharePerc}"/></div>
             <div style="width: 30%; display: inline-block;">{$lang->marketshareqty}</div><div style="width: 60%; display: inline-block;"><input type="number" size="12" step="any" id="mktshareqty" name="marketdata[mktShareQty]" accept="numeric" required="required" autocomplete="off" min="0" value="{$midata->mktShareQty}"/></div>
             <div style="width: 30%; display: inline-block;">{$lang->price}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" name="marketdata[unitPrice]" accept="numeric" autocomplete="off" min="0" value="{$midata->unitPrice}"/> USD/KG {$lang->cif}</div>
-            <div style="width: 30%; display: inline-block;">{$lang->endproduct}</div><div style="width: 60%; display: inline-block;"><!--<select {$hideselect} name="marketdata[ebpid]">{$entitiesbrandsproducts_list}</select>--> <span id="entitiesbrandsproducts_endproductResult">{$entitiesbrandsproducts_list}</span> | <a href="createbrand" id="showpopup_createbrand" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->createbrand}</a></div>
+            <div style="width: 30%; display: inline-block;">{$lang->endproduct}</div>
+            <div style="width: 60%; display: inline-block;"><!--<select {$hideselect} name="marketdata[ebpid]">{$entitiesbrandsproducts_list}</select>--> <span id="entitiesbrandsproducts_endproductResult">{$entitiesbrandsproducts_list}</span> | <a href="createbrand" id="showpopup_createbrand" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->createbrand}</a></div>
+            <div style="width: 30%; display: inline-block;"> {$profiles_mincustomervisit_title}</div>
+            <div style="width: 30%; display: inline-block;">
+                {$profiles_mincustomervisit}
+            </div>
             <div>{$lang->comment}</div>
             <div><textarea cols="60" rows="5" name="marketdata[comments]">{$midata->comments}</textarea></div>
             <hr />
@@ -53,10 +61,10 @@
                     </td>
                 </tr>
             </table>
-        </div>
-        <div>
-            <input class="button" value="{$lang->add}" id="perform_{$module}/{$modulefile}_Button" type="submit">
-            <div id="perform_{$module}/{$modulefile}_Results"></div>
-        </div>
+
+            <div>
+                <input class="button" value="{$lang->add}" id="perform_{$module}/{$modulefile}_Button" type="submit">
+                <div id="perform_{$module}/{$modulefile}_Results"></div>
+            </div>
     </form>
 </div>

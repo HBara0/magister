@@ -17,7 +17,7 @@
             <td>{$mkintentry->potential}</td>
         </tr>
         <tr>
-            <td><strong>{$lang->marketshare}</strong></td>
+            <td><strong>{$lang->marketshareperc}</strong></td>
             <td>{$mkintentry->mktSharePerc}</td>
         </tr>
         <tr>
@@ -27,6 +27,10 @@
         <tr>
             <td><strong>{$lang->price}</strong></td>
             <td>{$mkintentry->unitPrice}</td>
+        </tr>
+        <tr>
+            <td><strong>{$lang->visitreport}</strong></td>
+            <td>{$mkintentry_visitreport}</td>
         </tr>
         <tr>
             <td><strong>{$lang->comment}</strong></td>

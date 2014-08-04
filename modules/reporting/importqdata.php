@@ -59,11 +59,10 @@ else {
         }
 
         if(!isset($options['salesonly']) || $options['salesonly'] != 1) {
-            $po_query = $db->query("SELECT imso.*, ims.localId AS localspid, ims.foreignName AS foreignSupplierName
+            $po_query = $db->query("SELECT DISTINCT(imso.foreignId), imso.*, ims.localId AS localspid, ims.foreignName AS foreignSupplierName
 						FROM ".Tprefix."integration_mediation_purchaseorders imso
 						LEFT JOIN ".Tprefix."integration_mediation_entities ims ON (imso.spid=ims.foreignId)
 						WHERE imso.foreignSystem={$options[foreignSystem]} AND imso.affid={$affid} AND (imso.date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).")");
-
             if($db->num_rows($po_query) > 0) {
                 while($purchaseorder = $db->fetch_assoc($po_query)) {
                     $pol_query = $db->query("SELECT DISTINCT(imsol.foreignId), imsol.*, imp.localId AS localpid, imsol.pid AS foreignpid, p.spid AS localspid, imp.foreignName AS productname
@@ -288,7 +287,7 @@ else {
                     }
 
                     if(value_exists('productsactivity', 'rid', $rid, 'pid='.$pid.$pacheck_querywhere)) {
-                        if($options['runtype'] == 'dry' && ($options['operation'] == 'addonly' || $options['operation'] == 'replace')) {
+                        if($options['runtype'] == 'dry' || ($options['operation'] == 'addonly' || $options['operation'] == 'replace')) {
                             if($options['operation'] == 'replace') {
                                 echo 'Skipped Replace: ';
                             }

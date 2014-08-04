@@ -42,7 +42,7 @@ class Tasks {
 
         $query_select = 'ct.*, u.displayName AS assignedTo';
         if($simple == true) {
-            $query_select = 'ctid, subject,priority, dueDate ,isDone,percCompleted , timeDone ,identifier, pimAppId';
+            $query_select = 'ctid, subject, pimAppId';
         }
         return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."calendar_tasks ct JOIN ".Tprefix."users u ON (u.uid=ct.uid) WHERE ctid=".$db->escape_string($id)));
     }
@@ -51,13 +51,12 @@ class Tasks {
      * @param  	Array			$data 		Array containing the input
      * @return  Boolean						0=No errors;1=Subject missing;2=Entry exists
      */
-    public function parsestatus($status = 0) {
-
-        switch($status) {
+    public function parsestatus() {
+        switch($this->task['percCompleted']) {
             case 0:
-                $task_status = 'todo';
+                $task_status = 'pending';
                 break;
-            case $status >= 1 && $status <= 99:
+            case $this->task['percCompleted'] >= 1 && $this->task['percCompleted'] <= 99:
                 $task_status = 'inprogress';
                 break;
             default :
@@ -128,10 +127,10 @@ class Tasks {
             $ical_obj->set_description($this->task['description']);
             $ical_obj->set_duedate($this->task['dueDate']);
             $ical_obj->set_priority($this->task['priority']);
-            //$ical_obj->set_icalattendees($this->task['uid']);
+//$ical_obj->set_icalattendees($this->task['uid']);
             $ical_obj->sentby();
             $ical_obj->set_percentcomplete($this->task['percCompleted']);
-            //$ical_obj->set_categories('CalendarTask');
+//$ical_obj->set_categories('CalendarTask');
             $ical_obj->endical();
             $ical_obj->save();
 
@@ -258,23 +257,7 @@ class Tasks {
     }
 
     public function get_notes() {
-        global $db, $core;
-
-        $query = $db->query("SELECT ctn.*, u.displayName
-							FROM ".Tprefix." calendar_tasks_notes ctn
-							JOIN ".Tprefix."users u ON (u.uid=ctn.uid)
-							WHERE ctn.ctid=".$this->task['ctid']."
-							ORDER BY dateAdded DESC");
-        if($db->num_rows($query) > 0) {
-            while($tasks_note = $db->fetch_assoc($query)) {
-                fix_newline($tasks_note['note']);
-                $tasks_notes[$tasks_note['ctnid']] = $tasks_note;
-            }
-            return $tasks_notes;
-        }
-        else {
-            return false;
-        }
+        return TasksNotes::get_data(array('ctid' => $this->task['ctid']), array('simple' => false, 'returnarray' => true, 'order' => array('by' => 'dateAdded', 'sort' => 'DESC')));
     }
 
     public function get_status() {

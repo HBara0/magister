@@ -29,7 +29,7 @@ class Budgets {
             $query_select = 'year, description';
         }
         if($isallbudget == true) {
-            $queryall = $db->query("SELECT DISTINCT(year), bid, identifier, description, affid, spid, currency,isLocked,isFinalized,finalizedBy,status,createdOn,createdBy,modifiedBy 
+            $queryall = $db->query("SELECT DISTINCT(year), bid, identifier, description, affid, spid, currency,isLocked,isFinalized,finalizedBy,status,createdOn,createdBy,modifiedBy
 									FROM ".Tprefix."budgeting_budgets GROUP BY year ORDER BY year DESC  ");
             if($db->num_rows($queryall) > 0) {
                 while($budget = $db->fetch_assoc($queryall)) {
@@ -94,7 +94,7 @@ class Budgets {
         }
 //get next year and return budget
         $next_budgetyear = date('Y', strtotime('+1 year'));
-        $budget_nextyearquery = $db->query('SELECT bid,year,isLocked FROM '.Tprefix.'budgeting_budgets WHERE spid='.$data['spid'].' 
+        $budget_nextyearquery = $db->query('SELECT bid,year,isLocked FROM '.Tprefix.'budgeting_budgets WHERE spid='.$data['spid'].'
 												AND affid='.$data['affid'].' AND year='.$next_budgetyear.' ORDER BY year DESC');
         if($db->num_rows($budget_nextyearquery) > 0) {
             while($budget_nextyear = $db->fetch_assoc($budget_nextyearquery)) {
@@ -277,9 +277,9 @@ class Budgets {
 
 
         if(isset($data['affilliates'], $data['suppliers'], $data['years']) && !empty($data['affilliates']) && !empty($data['suppliers']) && !empty($data['years'])) {
-            $budget_reportquery = $db->query("SELECT bid FROM ".Tprefix."budgeting_budgets 
-														  WHERE year in(".$db->escape_string(implode(',', $data['years'])).") 
-														  AND affid in(".$db->escape_string(implode(',', $data['affilliates'])).") 
+            $budget_reportquery = $db->query("SELECT bid FROM ".Tprefix."budgeting_budgets
+														  WHERE year in(".$db->escape_string(implode(',', $data['years'])).")
+														  AND affid in(".$db->escape_string(implode(',', $data['affilliates'])).")
 														  AND spid in(".$db->escape_string(implode(',', $data['suppliers'])).")");
         }
 
@@ -319,14 +319,14 @@ class Budgets {
                 continue;
             }
 
-            $prev_budget_bydataquery = $db->query("SELECT * 
-					FROM ".Tprefix."budgeting_budgets bd 
-					JOIN ".Tprefix."budgeting_budgets_lines bdl ON (bd.bid=bdl.bid) 
+            $prev_budget_bydataquery = $db->query("SELECT *
+					FROM ".Tprefix."budgeting_budgets bd
+					JOIN ".Tprefix."budgeting_budgets_lines bdl ON (bd.bid=bdl.bid)
 					WHERE affid='".$data['affid']."' AND spid='".$data['spid']."' AND year='".$year."'".$budgetline_query_where);
             if($db->num_rows($prev_budget_bydataquery) > 0) {
                 while($prevbudget_bydata = $db->fetch_assoc($prev_budget_bydataquery)) {
                     if($prevbudget_bydata['cid'] == 0) {
-                        $prevbudget_bydata['cid'] = md5($prevbudget_bydata['altCid'].$prevbudget_bydata['saltType'].$prevbudget_bydata['pid']);
+                        $prevbudget_bydata['cid'] = md5($prevbudget_bydata['altCid'].$prevbudget_bydata['saleType'].$prevbudget_bydata['pid']);
                     }
                     $budgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['saleType']][] = $prevbudget_bydata;
                 }
@@ -334,6 +334,46 @@ class Budgets {
         }
 
         return $budgetline_details;
+    }
+
+    public function read_prev_sales($data = array(), $options = array()) {
+        global $intgconfig;
+
+        $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
+
+        $mediationproducts = IntegrationMediationProducts::get_products('affid='.$data['affid'].' AND localId IN (SELECT pid FROM '.Tprefix.'products WHERE spid IN ('.$data['spid'].')');
+        foreach($mediationproducts as $product) {
+            $products[] = $product->foreignId;
+        }
+        $orderline_query_where = ' AND m_product_id IN (\''.implode('\',\'', $products).'\')';
+        $filters = "ad_org_id IN ('".$data['integrationOBOrgId']."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', ($data['year'] - 1).'01-01')."' AND '".date('Y-m-d 00:00:00', ($data['year'] - 1).'-12-31')."')";
+        $filters .= ' AND c_invoice IN (SELECT DISTINCT(c_invoice) FROM c_invoiceline WHERE ad_org_id IN (\''.$data['integrationOBOrgId'].'\')'.$orderline_query_where.')';
+
+        $invoices = new IntegrationOBInvoice(null, $integration->get_dbconn());
+        $invoices->get_aggregates('qty', $groupby, $filters);
+        $invoices = $integration->get_saleinvoices($filters);
+
+        if(is_array($invoices)) {
+            foreach($invoices as $invoice) {
+                $customer = $invoice->get_customer()->get_bp_local();
+                $prevsales['cid'] = $customer->eid;
+
+                $invoicelines = $invoice->get_invoicelines();
+                foreach($invoicelines as $invoiceline) {
+                    $product = $invoiceline->get_product_local();
+                    $prevsales['pid'] = $product->pid;
+                    if(empty($prevsales['pid'])) {
+                        $prevsales['pid'] = $invoiceline->m_product_id;
+                    }
+                    $prevsales['saleType'] = $invoiceline->c_doctype_id;
+                    if($prevsales['cid'] == 0) {
+                        $prevsales['cid'] = md5($customer->companyName.$invoiceline->c_doctype_id.$prevsales['pid']);
+                    }
+                }
+            }
+
+            $budgetline_details[$prevsales['cid']][$prevsales['pid']][$prevsales['saleType']][0] = $prevsales;
+        }
     }
 
     public function get_budgetLines($bid = '', $options = array()) {
@@ -380,7 +420,7 @@ class Budgets {
 
             $mediation_result = $db->query("SELECT ime.imspid,ime.localid,ime.foreignname,ime.entityType,bl.cid, ims.quantity ,ims.price,ims.cost FROM ".Tprefix." integration_mediation_entities ime
 					JOIN ".Tprefix."budgeting_budgets_lines bl ON (bl.cid = ime.localid)
-					JOIN  ".Tprefix."integration_mediation_salesorderlines  ims ON (ims.pid=bl.pid) 
+					JOIN  ".Tprefix."integration_mediation_salesorderlines  ims ON (ims.pid=bl.pid)
 					WHERE ims.pid =".$data['pid']."  AND  ime.localid ='".$data['cid']."' AND ims.saleType=".$data['saleType']." AND ime.entityType='e'");
 
             if($db->num_rows($mediation_result) > 0) {

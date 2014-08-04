@@ -57,14 +57,14 @@
                         </tr>
                         <tr>
                             <td style="border-right: 1px solid #E1F2D0; vertical-align:top; padding-left: 20%;">
-                                {$lang->includemarketreport} 
+                                {$lang->includemarketreport}
                             </td>
                             <td>
                                 <input type="radio" name="incMarketReport" id="incMarketReport" value="1" tabindex="13" checked> Yes <input type="radio" name="incMarketReport" id="incMarketReport2" value="0" tabindex="14"> No
                             </td>
                         </tr>
                         <tr><td colspan="2" align="center"><hr /></td></tr>
-                        <tr><td colspan="2" align="center" id="buttons_row" style="display:none;"><input type="submit" value="{$lang->generate}" class="button"> <input type="reset" value="{$lang->reset}" class="button"></td></tr>
+                        <tr><td colspan="2" align="center" id="buttons_row" style="display:none;"><input type="submit" value="{$lang->generate}" class="button main"> <input type="reset" value="{$lang->reset}" class="button"></td></tr>
                     </table>
                 </form>
             </div>

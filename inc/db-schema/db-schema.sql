@@ -592,6 +592,8 @@ CREATE TABLE `development_requirements` (
   `requestedBy` int(10) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `dateCreated` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL DEFAULT '0',
+  `modifiedOn` bigint(30) NOT NULL DEFAULT '0',
   `assignedTo` int(10) DEFAULT '0',
   PRIMARY KEY (`drid`),
   KEY `parent` (`parent`,`requestedBy`,`createdBy`)
@@ -1319,6 +1321,8 @@ CREATE TABLE `marketintelligence_basicdata` (
   `ebpid` int(10) NOT NULL,
   `eptid` int(10) NOT NULL,
   `affid` smallint(5) NOT NULL,
+  `vrid` int(10) DEFAULT NULL,
+  `vridentifier` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
   `potential` float NOT NULL,
   `mktSharePerc` float NOT NULL,
   `mktShareQty` float NOT NULL,
