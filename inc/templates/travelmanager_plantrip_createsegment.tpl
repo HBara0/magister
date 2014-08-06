@@ -27,13 +27,14 @@
             </td>
             <td></td>
         </tr>
+        <tr><td>desc</td><td><textarea name="segment[{$sequence}][description]"  cols="30" rows="3" required="required"></textarea></td></tr>
     </table>
     <div id="content_detailsloader_{$sequence}"></div>
     <div id="content_details_{$sequence}">
         {$plansegmentscontent_output}
     </div>
 </div>
-<div style="display:inline-block;width:25%; vertical-align: top;" id="segment_city_{$sequence}">
+<div style="display:inline-block;width:25%; margin-left:50px;vertical-align: top;" id="segment_city_{$sequence}">
     <div id="segment_city_loader_{$sequence}"></div>
 
     {$cityprofile_output}

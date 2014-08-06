@@ -257,7 +257,6 @@ class TravelManagerPlan {
         global $db;
 
         $segment_planobj = new TravelManagerPlanSegments();
-        echo 'update ';
         $this->segmentdata = $plandata;
         $tmpid = $plandata['tmpid'];
         unset($plandata['tmpid']);
@@ -268,12 +267,13 @@ class TravelManagerPlan {
             if(isset($segmentdata['lid'])) {
                 unset($segmentdata['lid']);
             }
-            // if(isset($segmentdata['fromDate']) && isset($segmentdata['toDate']) && isset($segmentdata['tmpid']) && isset($segmentdata['sequence'])) {
-            $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
-            $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
-            $segmentdata['tmpid'] = $tmpid;
-            $segmentdata['sequence'] = $sequence;
-            // }
+            if(isset($segmentdata['fromDate']) && isset($segmentdata['toDate']) && !empty($tmpid) && isset($segmentdata['sequence'])) {
+                $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
+                $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
+                $segmentdata['tmpid'] = $tmpid;
+                $segmentdata['sequence'] = $sequence;
+            }
+
             $segment_planobj->set($segmentdata);
             $segment_planobj->save();
             // $segment_planobj->create($segmentdata);
@@ -319,19 +319,19 @@ class TravelManagerPlan {
     }
 
     public function get_leave() {
-        return new Leaves($this->plan['lid']);
+        return new Leaves($this->data['lid'], false);
     }
 
     public function get_user() {
-        return new Users($this->plan['uid']);
+        return new Users($this->data['uid']);
     }
 
     public function get_createdBy() {
-        return new Users($this->plan['createdBy']);
+        return new Users($this->data['createdBy']);
     }
 
     public function get_modifiedBy() {
-        return new Users($this->plan['modifiedBy']);
+        return new Users($this->data['modifiedBy']);
     }
 
 }

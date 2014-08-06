@@ -32,11 +32,11 @@ class TravelManagerHotels {
     }
 
     public function get_country() {
-        return new Countries($this->hotels['coid']);
+        return new Countries($this->hotels['country']);
     }
 
     public function get_city() {
-        return new Cities($this->hotels['ciid']);
+        return new Cities($this->hotels['city']);
     }
 
     public static function get_hotels_byattr($attr, $value) {

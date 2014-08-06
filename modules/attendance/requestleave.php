@@ -333,8 +333,8 @@ else {
                 $leave['details_crumb'] = implode(' ', $leave['details_crumb']);
             }
             else {
-                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-                exit;
+//                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+//                exit;
             }
         }
 
@@ -357,15 +357,15 @@ else {
         unset($core->input['leaveexpenses']);
         /* Validate required Fields - START */
         $leavetype = new Leavetypes($core->input['type']);
-        if($leavetype->has_expenses()) {
-            $expensesfield_type = $leavetype->get_expenses();
-            foreach($expensesfield_type as $alteid => $expensesfield) {
-                if(($expensesfield['isRequired'] == 1 && (empty($expenses_data[$alteid]['expectedAmt']) && $expenses_data[$alteid]['expectedAmt'] != 0)) || (($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description'])))) {
-                    output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-                    exit;
-                }
-            }
-        }
+//        if($leavetype->has_expenses()) {
+//            $expensesfield_type = $leavetype->get_expenses();
+//            foreach($expensesfield_type as $alteid => $expensesfield) {
+//                if(($expensesfield['isRequired'] == 1 && (empty($expenses_data[$alteid]['expectedAmt']) && $expenses_data[$alteid]['expectedAmt'] != 0)) || (($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description'])))) {
+//                    output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+//                    exit;
+//                }
+//            }
+//        }
 
         if(isset($leavetype_details['reasonIsRequired']) && $leavetype_details['reasonIsRequired'] == 1) {
             if(empty($core->input['reason']) || strlen($core->input['reason']) <= 20) {
@@ -382,8 +382,16 @@ else {
             $log->record($lid);
 
             /* Create leave expenses - START */
-            $leave_obj = new Leaves(array('lid' => $lid), false);
-            $leave_obj->create_expenses($expenses_data);
+            //$leave_obj = new Leaves(array('lid' => $lid), false);
+//            $leave_obj->create_expenses($expenses_data);
+
+            if($leavetype_details['isBusiness'] == 1) {
+                $url = 'index.php?module=travelmanager/plantrip&lid=';
+                header('Content-type: text/xml+javascript');
+                output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
+                exit;
+            }
+
 
             $lang->load('attendance_messages');
 
@@ -529,29 +537,29 @@ else {
                 $lang->requestleavesubject = $lang->sprint($lang->requestleavesubject, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']), $core->input['requestKey']);
 
                 /* Parse expense information for message - START */
-                if($leave_obj->has_expenses()) {
-                    $expenses_data = $leave_obj->get_expensesdetails();
-                    $expenses_message = '';
-                    foreach($expenses_data as $expense) {
-                        if(!empty($lang->{$expense['name']})) {
-                            $expense['title'] = $lang->{$expense['name']};
-                        }
-
-                        if(isset($expense['description']) && !empty($expense['description'])) {
-                            $expense['description'] = ' ('.$expense['description'].')';
-                        }
-
-                        $exptype_obj = LeaveExpenseTypes::get_exptype_byattr('title', $expense['title'], false);
-                        if(is_object($exptype_obj)) {
-                            $agency_link = $exptype_obj->parse_agencylink($leave_obj);
-                        }
-                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].$expense['description'].' '.$agency_link.'<br />';
-                        unset($agency_link);
-                    }
-
-                    $total = $leave_obj->get_expensestotal();
-                    $expenses_message_ouput = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
-                }
+//                if($leave_obj->has_expenses()) {
+//                    $expenses_data = $leave_obj->get_expensesdetails();
+//                    $expenses_message = '';
+//                    foreach($expenses_data as $expense) {
+//                        if(!empty($lang->{$expense['name']})) {
+//                            $expense['title'] = $lang->{$expense['name']};
+//                        }
+//
+//                        if(isset($expense['description']) && !empty($expense['description'])) {
+//                            $expense['description'] = ' ('.$expense['description'].')';
+//                        }
+//
+//                        $exptype_obj = LeaveExpenseTypes::get_exptype_byattr('title', $expense['title'], false);
+//                        if(is_object($exptype_obj)) {
+//                            $agency_link = $exptype_obj->parse_agencylink($leave_obj);
+//                        }
+//                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].$expense['description'].' '.$agency_link.'<br />';
+//                        unset($agency_link);
+//                    }
+//
+//                    $total = $leave_obj->get_expensestotal();
+//                    $expenses_message_ouput = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
+//                }
                 /* Parse expense information for message - END */
 
                 $core->input['reason'] .= $expenses_message_ouput;

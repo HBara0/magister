@@ -33,6 +33,8 @@ class TravelManagerPlanSegments {
 
     public function create($segmentdata = array()) {
         global $db, $core;
+        $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
+        $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
 
         if(is_empty($segmentdata['fromDate'], $segmentdata['toDate'], $segmentdata['originCity'], $segmentdata['destinationCity'])) {
             $this->errorode = 2;
@@ -52,6 +54,7 @@ class TravelManagerPlanSegments {
                 'fromDate' => $segmentdata['fromDate'],
                 'toDate' => $segmentdata['toDate'],
                 'originCity' => $segmentdata['originCity'],
+                'description' => $segmentdata['description'],
                 'destinationCity' => $segmentdata['destinationCity'],
                 'createdBy' => $core->user['uid'],
                 'sequence' => $segmentdata['sequence'],
@@ -163,8 +166,7 @@ class TravelManagerPlanSegments {
     }
 
     public function get_plan() {
-        return new TravelManagerPlan($this->data['tmpid'])
-        ;
+        return new TravelManagerPlan($this->data['tmpid']);
     }
 
     public function get_origincity() {
@@ -193,6 +195,40 @@ class TravelManagerPlanSegments {
 
     public function get_modifiedBy() {
         return new Users($this->data['modifiedBy']);
+    }
+
+    public function get_transportations() {
+        return new TravelManagerPlanTransps();
+    }
+
+    public function parse_segment() {
+        global $template, $lang, $core;
+        $segmentdate = date('l F,d,Y', $this->fromDate);
+        $destination_cities = $this->get_origincity()->name.'  -  '.$this->get_destinationcity()->name;
+
+        $transp_objs = TravelManagerPlanTransps::get_transpsegments(array('tmpsid' => $this->data[self::PRIMARY_KEY]));
+        if(is_array($transp_objs)) {
+            foreach($transp_objs as $transportation) {
+
+                if(!empty(base64_decode(unserialize($transportation->flightDetails))) {
+
+                    $flight_detials = '<div style=" width:40%; display: inline-block;"> '.unserialize($transportation->flightDetails).'</div>';
+                }
+
+                eval("\$segment_transpdetails .= \"".$template->get('travelmanager_viewplan_transpsegments')."\";");
+            }
+        }
+        $accomd_objs = TravelManagerPlanaccomodations::get_planaccomodations(array('tmpsid' => $this->data[self::PRIMARY_KEY]));
+        //if(is_array($accomd_objs) ) {
+        //foreach($accomd_objs as $accomdation) {
+        $segment_hotel = $accomd_objs->get_hotel()->get()[name];
+        eval("\$segment_accomdetails  = \"".$template->get('travelmanager_viewplan_accomsegments')."\";");
+        //}
+        //}
+
+        eval("\$segment_details .= \"".$template->get('travelmanager_viewplan_segments')."\";");
+
+        return $segment_details;
     }
 
 }

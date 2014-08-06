@@ -34,6 +34,11 @@ $lang['agency'] = 'Agency Name ';
 $lang['numberdays'] = 'number of days ';
 $lang['feeday'] = 'Fee Per Day';
 $lang['transptype'] = 'Transportation Type';
+$lang['viewplan'] = 'View Plan';
+$lang['listplan'] = 'List Plan';
+$lang['leavedetails'] = 'Leave Details';
+$lang['purpose'] = 'Purpose';
+$lang['segment'] = 'Segment';
 
 $lang['oppositedate'] = 'Segment from date cannot be greater than to date';
 ?>

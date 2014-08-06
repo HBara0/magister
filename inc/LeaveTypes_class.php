@@ -89,7 +89,7 @@ class Leavetypes {
         }
         $query_select = '*';
         if($simple == true) {
-            $query_select = 'ltid, name, title,title AS name ,description, additionalFields,toApprove';
+            $query_select = 'ltid, name,isBusiness, title,title AS name ,description, additionalFields,toApprove';
         }
         return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'leavetypes WHERE ltid='.$db->escape_string($id)));
     }

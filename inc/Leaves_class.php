@@ -321,6 +321,10 @@ class Leaves {
         return $this->get_leavetype($simple);
     }
 
+    public function get_country() {
+        return new Countries($this->leave['coid']);
+    }
+
     public function get_leavetype($simple = true) {
         return new Leavetypes($this->leave['type'], $simple);
     }
@@ -397,6 +401,18 @@ class Leaves {
             return false;
         }
         return false;
+    }
+
+    public function parse_leave() {
+        global $template, $lang, $core;
+
+        if(is_array($this->leave)) {
+            echo $this->get_segment()->name;
+            $leave_title = $this->get_type()->get()['name'].' to '.$this->get_country()->get()['name'].'- Between '.date($core->settings['dateformat'], $this->get()['fromDate']).' And '.date($core->settings['dateformat'], $this->get()['toDate']);
+            eval("\$leave_details = \"".$template->get('leave_details')."\";");
+
+            return $leave_details;
+        }
     }
 
     public static function get_leave_byattr($attr, $value) {
