@@ -2685,6 +2685,7 @@ CREATE TABLE `travelmanager_transpcategories` (
   `tmtcid` int(10) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `title` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `description` text COLLATE utf8_unicode_ci,
   `createdBy` int(10) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `modifiedBy` int(1) NOT NULL,

@@ -1,4 +1,4 @@
-<div style="display:inline-block;width:60%;">
+<div style="display:inline-block; width:60%;">
     <table>
         <tr>
         <input type="hidden" value="{$leaveid}" id="lid" name="segment[lid]"/>
@@ -23,7 +23,6 @@
             <td><input type="text" {$disabled}  id="destinationcity_{$sequence}_cache_autocomplete" autocomplete="off" tabindex="1" value="{$segment[$sequence][destinationcity][name]}" required="required"/>
                 <input type="hidden" id="coid"  value="{$segment[countryleave]}" name="coid"/>
                 <input type='hidden' id='destinationcity_{$sequence}_cache_id'  name="segment[{$sequence}][destinationCity]" value="{$segment[$sequence][destinationcity][ciid]}"/>
-
             </td>
             <td></td>
         </tr>
@@ -36,21 +35,6 @@
 </div>
 <div style="display:inline-block;width:25%; margin-left:50px;vertical-align: top;" id="segment_city_{$sequence}">
     <div id="segment_city_loader_{$sequence}"></div>
-
     {$cityprofile_output}
-
     {$citybriefings_output}
-
 </div>
-
-<div style="padding: 8px; width:100%;" id="transpcat_content">
-
-    {$transsegments_output}
-
-</div>
-
-
-<div style="display:block;width:25%; vertical-align: top;" id="segment_transportcity_{$sequence}">
-    {$hotelssegments_output}
-</div>
-

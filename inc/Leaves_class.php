@@ -368,15 +368,15 @@ class Leaves {
         }
     }
 
-    public function get_sourcecity() {
+    public function get_sourcecity($simple = true) {
         /* To be expanded later depending on
          * 1. User selection
          * 2. Current location
          */
-        return $this->get_requester()->get_mainaffiliate()->get_city();
+        return $this->get_requester()->get_mainaffiliate()->get_city($simple);
     }
 
-    public function get_destinationcity() {
+    public function get_destinationcity($simple = true) {
         $attributes = array('coid', 'affid', 'spid', 'cid');
         $alt_functions = array('coid' => 'get_capitalcity');
 
@@ -395,7 +395,7 @@ class Leaves {
             }
             else {
                 if(method_exists($object, 'get_city')) {
-                    return $object->get_city();
+                    return $object->get_city($simple);
                 }
             }
             return false;
@@ -423,6 +423,12 @@ class Leaves {
     public static function get_leaves($filters = null, array $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);
+    }
+
+    public function __get($name) {
+        if(array_key_exists($name, $this->leave)) {
+            return $this->leave[$name];
+        }
     }
 
     public function get() {
