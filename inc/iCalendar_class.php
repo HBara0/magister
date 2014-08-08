@@ -81,7 +81,7 @@ class Icalendar {
     }
 
     private function set_datestamp() {
-        $this->icalendarfile .= 'DTSTAMP:'.$this->parse_datestamp(TIME_NOW)."\r\n";
+        $this->icalendarfile .= 'DTSTAMP:'.$this->parse_datestamp(TIME_NOW)."Z\r\n";
     }
 
     public function set_datestart($datestart, $timezone = '', $use_utc = true) {
@@ -139,12 +139,12 @@ class Icalendar {
     public function set_summary($summary) {
         global $core;
         $this->icalendar['summary'] = $core->sanitize_inputs($summary);
-        $this->icalendarfile .= "SUMMARY:{$this->icalendar[summary]}\r\n";
+        $this->icalendarfile .= "SUMMARY:".$this->apply_icalstd($this->icalendar['summary'])."\r\n";
     }
 
     public function set_location($location) {
         $this->icalendar['location'] = $location;
-        $this->icalendarfile .= "LOCATION:{$location}\r\n";
+        $this->icalendarfile .= "LOCATION:".$this->apply_icalstd($location)."\r\n";
     }
 
     public function set_priority($priority) {
@@ -205,8 +205,8 @@ class Icalendar {
     public function set_description($description) {
         global $core;
 
-        $this->icalendarfile .= 'DESCRIPTION: '.$core->sanitize_inputs($description, array('removetags' => true))."\r\n";
-        $this->icalendarfile .= 'X-ALT-DESC;FMTTYPE=text/html:<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">\n<html>\n<body>\n'.$description.'\n</body>\n</html>'."\r\n";
+        $this->icalendarfile .= 'DESCRIPTION: '.$this->apply_icalstd($core->sanitize_inputs($description, array('removetags' => true)))."\r\n";
+        $this->icalendarfile .= 'X-ALT-DESC;FMTTYPE=text/html:<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">\n<html>\n<body>\n'.$this->apply_icalstd($description).'\n</body>\n</html>'."\r\n";
     }
 
     public function set_transparency($trasp = 'PUBLIC') {
@@ -228,7 +228,7 @@ class Icalendar {
 
     public function endical() {
         $this->icalendarfile .= "END:{$this->icalendar[type]}\r\n";
-        $this->icalendarfile .= "END:VCALENDAR\r\n";
+        $this->icalendarfile .= "END:VCALENDAR";
     }
 
     public function parse_datestamp($timestamp, $utc = false) {
@@ -290,6 +290,10 @@ class Icalendar {
         $offset = $timezone->getOffset($time);
 
         return $timestamp - $offset;
+    }
+
+    private function apply_icalstd($value) {
+        return str_replace(array(';', ',', ':'), array('\\;', '\\,', '\\:'), $value);
     }
 
     public function geticalendar() {
