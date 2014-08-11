@@ -204,7 +204,7 @@ class TravelManagerPlanSegments {
             foreach($transp_objs as $transportation) {
                 $transportation->transpType = $transportation->get_transpcategory($transportation->tmtcid)->name;
 
-                if(!empty(($transportation->flightDetails))) {
+                if(!empty($transportation->flightDetails)) {
                     $transp_flightdetails = json_decode($transportation->flightDetails, true);
                     $flight_details = $this->parse_flightdetails($transp_flightdetails);
                 }
@@ -223,9 +223,9 @@ class TravelManagerPlanSegments {
         }
         elseif(is_array($accomd_objs)) {
             foreach($accomd_objs as $accomdation) {
-                $segment_hotel .= '<div style=" width:30%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'</div>'; // fix the html parse multiple hotl
-                $segment_hotel .= '<div style=" width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
-                $segment_hotel .= '<div style=" width:30%; display: inline-block;font-size:14px; font-weight:bold;"> <span> $ '.($accomdation->numNights * $accomdation->priceNight).'</span></div>'; // fix the html parse multiple hotl
+                $segment_hotel .= '<div style=" width:50%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style="margin:10px;"> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
+                //    $segment_hotel .= '<div style=" width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
+                $segment_hotel .= '<div style=" width:50%; display: inline-block;font-size:14px; font-weight:bold;"> <span> $ '.($accomdation->numNights * $accomdation->priceNight).'</span></div>'; // fix the html parse multiple hotl
                 //   $segment_hotelprice .='<div style=" width:45%; display: block;"> Nights '.$accomdation->numNights.' at $ '.$accomdation->priceNight.'/Night</div>';
             }
         }
