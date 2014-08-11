@@ -26,7 +26,7 @@
             </td>
             <td></td>
         </tr>
-        <tr><td>desc</td><td><textarea name="segment[{$sequence}][description]"  cols="30" rows="3" required="required"></textarea></td></tr>
+        <tr><td>{$lang->reason}</td><td><textarea name="segment[{$sequence}][reason]"  cols="30" rows="3" required="required"></textarea></td></tr>
     </table>
     <div id="content_detailsloader_{$sequence}"></div>
     <div id="content_details_{$sequence}">

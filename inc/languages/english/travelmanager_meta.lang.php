@@ -27,6 +27,7 @@ $lang['errorcity'] = 'The segment city must be the same of the previous city ';
 $lang['citybrfg'] = 'City Briefing';
 $lang['cityreview'] = 'City Review';
 $lang['reservation'] = 'Possible Reservation Resources :';
+$lang['reason'] = 'Reason :';
 
 $lang['approxfare'] = 'Approxmita fare';
 $lang['traino'] = 'Train Number';

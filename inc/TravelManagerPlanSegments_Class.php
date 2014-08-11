@@ -55,7 +55,7 @@ class TravelManagerPlanSegments {
                 'fromDate' => $segmentdata['fromDate'],
                 'toDate' => $segmentdata['toDate'],
                 'originCity' => $segmentdata['originCity'],
-                'description' => $segmentdata['description'],
+                'reason' => $segmentdata['reason'],
                 'destinationCity' => $segmentdata['destinationCity'],
                 'createdBy' => $core->user['uid'],
                 'sequence' => $segmentdata['sequence'],
