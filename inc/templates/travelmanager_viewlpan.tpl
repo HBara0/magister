@@ -13,8 +13,8 @@
             <div id="container" style="width:100%; margin: 0px auto;display:block;">
                 {$leave_details}
                 {$segment_details}
-
-
+                {$transportaion_fields}
+                <div style=" width:100%; background-color :white ; display: block;">{$segment_expenses} </div>
             </div>
 
         </td>

@@ -189,7 +189,7 @@ class Leaves {
         }
         $query_select = '*';
         if($simple == true) {
-            $query_select = 'lid, uid, type, fromDate, toDate';
+            $query_select = 'lid, uid, type, requestKey,fromDate, toDate';
         }
 
         return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."leaves WHERE lid=".$db->escape_string($id)));

@@ -1,2 +1,7 @@
-<div style=" width:50%; display: block;"> Check in at {$segment_hotel}  </div>
-<div style=" width:45%; display: block;"> Nights ;</div>
+
+<div style="width:100%; display: block; ">
+    {$segment_hotel}
+    {$segment_hotelprice}
+
+</div>
+

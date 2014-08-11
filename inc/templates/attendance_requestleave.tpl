@@ -112,12 +112,7 @@
                             </fieldset>
                         </td>
                     </tr>
-                    <tr><td>
-                            <fieldset><legend><strong>Select leave To plan</strong></legend>
-                                <select>{$userown_leaves}</select>
-                                <div> <input type="submit" id="attendance/plantrip_Button" value="Plantrip" class="button" />
-                            </fieldset>
-                        </td></tr>
+
                     <tr><td colspan="2"><hr /></td></tr>
 
                 </table>

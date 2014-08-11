@@ -14,7 +14,7 @@
  * @author tony.assaad
  */
 class TravelManagerTranspCategories {
-    private $transpcategories = array();
+    private $data = array();
 
     const PRIMARY_KEY = 'tmtcid';
     const TABLE_NAME = 'travelmanager_transpcategories';
@@ -28,7 +28,7 @@ class TravelManagerTranspCategories {
 
     private function read($id) {
         global $db;
-        $this->transpcategories = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
+        $this->data = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
 
     public static function get_categories_byattr($attr, $value, $options = null) {
@@ -41,20 +41,37 @@ class TravelManagerTranspCategories {
         return $data->get_objects($filters, $configs);
     }
 
+    public function set(array $data) {
+        foreach($data as $name => $value) {
+            $this->data[$name] = $value;
+        }
+    }
+
+    public function __set($name, $value) {
+        $this->data[$name] = $value;
+    }
+
+    /* call the Magical function  get to acces the private attributes */
+    public function __get($name) {
+        if(array_key_exists($name, $this->data)) {
+            return $this->data[$name];
+        }
+    }
+
     public function get() {
-        return $this->transpcategories;
+        return $this->data;
     }
 
     public function get_apivehicle() {
-        return $this->transpcategories['apiVehicleTypes'];
+        return $this->data['apiVehicleTypes'];
     }
 
     public function get_createdBy() {
-        return new Users($this->transpcategories['createdBy']);
+        return new Users($this->data['createdBy']);
     }
 
     public function get_modifiedBy() {
-        return new Users($this->transpcategories['modifiedBy']);
+        return new Users($this->data['modifiedBy']);
     }
 
 }

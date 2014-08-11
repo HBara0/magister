@@ -279,7 +279,7 @@ class TravelManagerPlan {
             if(isset($segmentdata['fromDate']) && isset($segmentdata['toDate']) && !empty($tmpid) && isset($segmentdata['sequence'])) {
                 $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
                 $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
-            $segmentdata[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+                $segmentdata[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                 $segmentdata['sequence'] = $sequence;
             }
 

@@ -86,10 +86,10 @@ class TravelManagerPlanTransps {
     public function create($transportdata = array()) {
         global $db;
 
-        $transp_details = base64_decode($transportdata['transpDetails'], true);
-        if($transp_details != false) {
-            $transportdata['flightDetails'] = $transp_details;
-        }
+//        $transp_details = base64_decode($transportdata['transpDetails'], true);
+//        if($transp_details != false) {
+//            $transportdata['flightDetails'] = $transp_details;
+//        }
         $tanspdata_array = array('tmpsid' => $transportdata['tmpsid'],
                 'tmtcid' => $transportdata['tmtcid'],
                 'fare' => $transportdata['fare'],
@@ -98,6 +98,7 @@ class TravelManagerPlanTransps {
                 'flightDetails' => $transportdata['flightDetails'],
                 'transpType' => $transportdata['transpType'],
         );
+
 
         $db->insert_query(self::TABLE_NAME, $tanspdata_array);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
