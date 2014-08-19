@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Events Class
  * $id: Events.php
  * Created:        @tony.assaad    Oct 16, 2013 | 1:53:26 PM
@@ -13,34 +13,50 @@
  *
  * @author tony.assaad
  */
-class Events {
+class Events extends AbstractClass {
     protected $status = 0;
-    private $event = array();
+    protected $data = array();
 
-    public function __construct($id = '', $simple = true, $options = array()) {
-        if(isset($id) && !empty($id)) {
-            $this->event = $this->read($id, $simple);
-        }
+    const PRIMARY_KEY = 'ceid';
+    const TABLE_NAME = 'calendar_events';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
+    const SIMPLEQ_ATTRS = 'ceid, title, description,fromDate,toDate,place';
+
+    public function __construct($id = '', $simple = false, $options = array()) {
+        parent::__construct($id, $simple);
     }
 
-    private function read($id, $simple, $options = array()) {
-        global $db;
-        if(empty($id)) {
-            return false;
-        }
+//    protected function read($id, $simple, $options = array()) {
+//        global $db;
+//        if(empty($id)) {
+//            return false;
+//        }
+//
+//        $query_select = 'ceid, title, identifier, description, type';
+//        if($simple == false) {
+//            $query_select = '*';
+//        }
+//
+//        if(isset($options['privateonly'])) {
+//            $query_where = ' AND isPublic=1';
+//            if($options['privateonly'] == true) {
+//                $query_where = ' AND isPublic=0';
+//            }
+//        }
+//        return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."calendar_events WHERE ceid=".$db->escape_string($id).$query_where));
+//    }
 
-        $query_select = 'ceid, title, identifier, description, type';
-        if($simple == false) {
-            $query_select = '*';
-        }
+    protected function create(array $data) {
 
-        if(isset($options['privateonly'])) {
-            $query_where = ' AND isPublic=1';
-            if($options['privateonly'] == true) {
-                $query_where = ' AND isPublic=0';
-            }
-        }
-        return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."calendar_events WHERE ceid=".$db->escape_string($id).$query_where));
+    }
+
+    protected function save(array $data = array()) {
+
+    }
+
+    protected function update(array $data) {
+
     }
 
     public function get_eventbypriority($attributes = array()) {
@@ -65,7 +81,7 @@ class Events {
             }
         }
         $events_aff = $db->query("SELECT ce.* FROM ".Tprefix."calendar_events ce
-								JOIN ".Tprefix."affiliatedemployees a ON (a.affid=ce.affid) 
+								JOIN ".Tprefix."affiliatedemployees a ON (a.affid=ce.affid)
 								WHERE a.uid=".$core->user['uid']." AND a.affid in (".(implode(',', $affiliates)).") ".$query_where_add." ");
         if($db->num_rows($events_aff) > 0) {
             while($aff_events = $db->fetch_assoc($events_aff)) {
@@ -85,7 +101,7 @@ class Events {
 
     public function get_invited_users() {
         global $db;
-        $invitess_query = $db->query("SELECT ceiid, uid FROM ".Tprefix."calendar_events_invitees WHERE ceid=".$db->escape_string($this->event['ceid']));
+        $invitess_query = $db->query("SELECT ceiid, uid FROM ".Tprefix."calendar_events_invitees WHERE ceid=".$db->escape_string($this->data['ceid']));
         if($db->num_rows($invitess_query) > 0) {
             while($invitee = $db->fetch_assoc($invitess_query)) {
                 $invitees[$invitee['ceiid']] = new Users($invitee['uid']);
@@ -96,7 +112,7 @@ class Events {
     }
 
     public function get() {
-        return $this->event;
+        return $this->data;
     }
 
 }
