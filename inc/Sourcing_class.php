@@ -12,6 +12,10 @@
 class Sourcing {
     protected $status = 0;
     private $supplier = array();
+    private $data = array();
+
+    const PRIMARY_KEY = 'ssid';
+    const TABLE_NAME = 'sourcing_suppliers';
 
     public function __construct($id = '', $simple = false) {
         if(isset($id) && !empty($id)) {
@@ -19,9 +23,18 @@ class Sourcing {
         }
     }
 
+    public function update($data) {
+        global $db, $core;
+
+        $data['modifiedBy'] = $core->user['uid'];
+
+
+        $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+    }
+
     public function add($data, array $options = array()) {
         global $db, $log, $core, $errorhandler, $lang;
-        if(is_empty($data['companyName'], $data['productsegment']) || (empty($data['ssid']) && $options['operationtype'] == 'update')) {
+        if(is_empty($data['companyName']) || (empty($data['ssid']) && $options['operationtype'] == 'update')) {
             $this->status = 1;
             return false;
         }
@@ -294,7 +307,7 @@ class Sourcing {
         }
 
         if($options['operationtype'] == 'update') {
-            //$this->communication_report['isCompleted'] = 1;
+//$this->communication_report['isCompleted'] = 1;
             $db->update_query("sourcing_suppliers_contacthist", $this->communication_report, " identifier='".$db->escape_string($identifier)."' AND ssid=".$db->escape_string($supplier_id));
             $this->status = 7;
             return true;
@@ -390,7 +403,7 @@ class Sourcing {
             while($supplier = $db->fetch_assoc($suppliers_query)) {
                 $activity_area = $this->get_supplier_activity_area($supplier['ssid']);
                 if(!$this->validate_permission($supplier['ssid'])) {
-                    //	continue;
+//	continue;
                 }
                 $potential_suppliers[$supplier['ssid']]['segments'] = $this->get_supplier_segments($supplier['ssid']);
                 $potential_suppliers[$supplier['ssid']]['activityarea'] = $this->get_supplier_activity_area($supplier['ssid']);
@@ -509,7 +522,7 @@ class Sourcing {
     public function get_single_supplier_contact_person($id) {
         global $db;
 
-        //return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
+//return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($id)."'"));
     }
 
     public function get_chemicalsubstance_byid($id, $selected_attr = array()) {
@@ -1003,6 +1016,10 @@ class Sourcing {
         return $this->supplier;
     }
 
+    public function get_entity() {
+        return new Entities($this->supplier['eid']);
+    }
+
     public function get_status() {
         return $this->status;
     }
@@ -1018,6 +1035,21 @@ class Sourcing {
             $where = ' AND isProductApproved <> 0';
         }
         return $db->fetch_field($db->query("SELECT COUNT(*) AS totalcount FROM ".Tprefix."sourcing_suppliers_contacthist WHERE (date BETWEEN ".$config['fromDate']." AND ".$config['toDate']."){$where}"), 'totalcount');
+    }
+
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        global $core;
+        if(!empty($this->supplier['companyNameAbbr'])) {
+            $this->supplier['companyName'] .= ' ('.$this->supplier['companyNameAbbr'].')';
+        }
+
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+        return '<a href="'.$core->settings['rootdir'].'/index.php?module=sourcing/supplierprofile&id='.$this->supplier['id'].'" '.$attributes.'>'.$this->supplier['companyName'].'</a>';
     }
 
 }

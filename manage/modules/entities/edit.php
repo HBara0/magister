@@ -207,6 +207,7 @@ else {
         unset($entity_data['module'], $entity_data['action'], $entity_data['createReports']);
 
         $entity = new Entities($entity_data, 'edit');
+
         if($entity->get_status() === true) {
             $log->record($entity->get_eid());
         }
@@ -218,6 +219,9 @@ else {
 
         $query = $db->update_query('entities', array($attribute => $newvalue), "eid={$eid}");
         if($db->affected_rows() > 0) {
+            /* Notify coordinator and sourcing upon approve supplier */
+            $entity = new Entities($eid);
+            $entity->sendCreationNotification();
             output_xml("<status>true</status><message></message>");
             log_action($eid);
         }
