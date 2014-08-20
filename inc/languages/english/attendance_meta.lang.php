@@ -77,7 +77,7 @@ $lang['importattendanceallowedtypes'] = 'Only CSV & Excel files allowed.';
 $lang['importattentancepreview'] = 'Import Attendance Preview';
 $lang['informfollowing'] = 'Inform the following';
 $lang['invalidfromdate'] = 'Invalid from date';
-$lang['invalidtodate'] = 'Invalid to date';
+$lang['invaliddate'] = 'Invalid to date';
 $lang['justification'] = 'Justification';
 $lang['latestdeparture'] = 'Latest departure';
 $lang['leave'] = 'Leave';
@@ -168,4 +168,6 @@ $lang['messagesent'] = 'your message was successfully sent';
 $lang['leavemessagesubject'] = 'New message to leave request';
 $lang['leavemessagereply'] = 'To Reply to this message simply click  <a href=\'{1}\'>here</a>';
 $lang['conversation'] = 'Conversation';
+$lang['leavedetails'] = 'Leave Details';
+$lang['additionaldetails'] = 'Additional Details';
 ?>
