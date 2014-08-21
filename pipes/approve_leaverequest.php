@@ -98,7 +98,8 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                 $leave['type_details'] = parse_type($leave['type']);
 
                 if($leave['type_details']['noBalance'] == 0) {
-                    update_leavestats_periods($leave, $leave['type_details']['isWholeDay']);
+                    $stat = new LeavesStats();
+                    $stat->generate_periodbased($leave);
                 }
 
                 $lang->leaveapprovedmessage = $lang->sprint($lang->leaveapprovedmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']));

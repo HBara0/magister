@@ -193,7 +193,7 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'perform_revokeleave') {
-        $lid = $db->escape_string($core->input['torevoke']);
+        $lid = intval($core->input['torevoke']);
         $user_obj = new Users($core->user['uid']);
 
         $leave_obj = new Leaves($lid, false);
@@ -243,19 +243,21 @@ else {
             }
         }
 
-        $query = $db->delete_query('leaves', "lid='{$lid}'");
+        $query = $db->delete_query('leaves', 'lid='.$lid);
         if($query && $db->affected_rows() > 0) {
             //Reset Leave Balance - Start
             if(!value_exists('leavesapproval', 'isApproved', 0, 'lid='.$lid)) {
                 $workingdays = count_workingdays($leave['uid'], $leave['fromDate'], $leave['toDate'], $leavetype_details['isWholeDay']);
                 $leavestats_updatedetails = array(
                         'uid' => $leave['uid'],
-                        'workingdays' => -$workingdays,
+                        'workingDays' => $workingdays,
                         'fromDate' => $leave['fromDate'],
                         'toDate' => $leave['toDate'],
-                        'type' => $leave['type']
+                        'type' => $leave['type'],
+                        'negativeWorkingDays' => true
                 );
-                update_leavestats_periods($leavestats_updatedetails, $leavetype_details['isWholeDay']);
+                $stat = new LeavesStats();
+                $stat->generate_periodbased($leavestats_updatedetails);
             }
             //Reset Leave Balance - End
 

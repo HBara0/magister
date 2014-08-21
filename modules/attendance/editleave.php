@@ -318,12 +318,16 @@ else {
                     $old_workingdays = count_workingdays($core->input['uid'], $old_leave_info['fromDate'], $old_leave_info['toDate'], $old_type_details['isWholeDay']);
                     $old_leave_updatedetails = array(
                             'uid' => $core->input['uid'],
-                            'workingdays' => -$old_workingdays,
+                            'workingDays' => $old_workingdays,
                             'fromDate' => $old_leave_info['fromDate'],
                             'toDate' => $old_leave_info['toDate'],
-                            'type' => $old_leave_info['type']
+                            'type' => $old_leave_info['type'],
+                            'lid' => $lid,
+                            'negativeWorkingDays' => true
                     );
-                    update_leavestats_periods($old_leave_updatedetails, $old_type_details['isWholeDay']);
+
+                    $stat = new LeavesStats();
+                    $stat->generate_periodbased($old_leave_updatedetails);
                 }
             }
             //Reset Leave Balance - End

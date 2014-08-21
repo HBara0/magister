@@ -521,7 +521,9 @@ else {
 
             /* Generate Leaves Balances - START */
             if($leavetype_details['noBalance'] == 0) {
-                update_leavestats_periods($core->input, $leavetype_details['isWholeDay'], $approve_immediately);
+                $stat = new LeavesStats();
+                $core->input['skipWorkingDays'] = !$approve_immediately; /* Negate the boolean */
+                $stat->generate_periodbased($core->input);
             }
             /* Generate Leaves Balances - END */
 
