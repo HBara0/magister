@@ -351,7 +351,7 @@ else {
         $expenses_data = $core->input['leaveexpenses'];
         unset($core->input['leaveexpenses']);
         /* Validate required Fields - START */
-        $leavetype = new Leavetypes($core->input['type']);
+        $leavetype = new LeaveTypes($core->input['type']);
         if($leavetype->has_expenses()) {
             $expensesfield_type = $leavetype->get_expenses();
             foreach($expensesfield_type as $alteid => $expensesfield) {
@@ -684,7 +684,7 @@ else {
         }
     }
     elseif($core->input['action'] == 'parseexpenses') {
-        $leavetype = new Leavetypes($core->input['ltid']);
+        $leavetype = new LeaveTypes($core->input['ltid']);
         if($leavetype->has_expenses()) {
             $expenses_total = 0;
             $expenses_leavetype = $leavetype->get_expenses();

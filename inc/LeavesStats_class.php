@@ -32,7 +32,7 @@ class LeavesStats extends AbstractClass {
     }
 
     public function get_leavetype() {
-        return new Leavetypes($this->data['ltid']);
+        return new LeaveTypes($this->data['ltid']);
     }
 
     protected function create(array $data) {

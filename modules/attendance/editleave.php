@@ -127,7 +127,7 @@ if(!$core->input['action']) {
     $to_inform = parse_toinform_list($leave['uid'], unserialize($leave['affToInform']), $leavetype_details);
 
     $leaveobject = new Leaves(array('lid' => $core->input['lid']));
-    $leavetype = new Leavetypes($leaveobject->get_leavetype()->get()['ltid']);
+    $leavetype = new LeaveTypes($leaveobject->get_leavetype()->get()['ltid']);
     if($leaveobject->has_expenses()) {
         $leaveexpenses = $leaveobject->get_expensesdetails();
         if(!is_array($leaveexpenses)) {
@@ -152,7 +152,7 @@ else {
         echo parse_toinform_list($core->input['uid'], '', $leavetype_details);
     }
     elseif($core->input['action'] == 'parseexpenses') {
-        $leavetype = new Leavetypes($core->input['ltid']);
+        $leavetype = new LeaveTypes($core->input['ltid']);
         if($leavetype->has_expenses()) {
             $expenses_total = 0;
             $leaveexpences = $leavetype->get_expenses();
@@ -286,7 +286,7 @@ else {
         $core->input['affToInform'] = serialize($core->input['affToInform']);
 
         /* Validate required Fields --START */
-        $leavetype = new Leavetypes($core->input['type']);
+        $leavetype = new LeaveTypes($core->input['type']);
         if($leavetype->has_expenses()) {
             $expensesfield_type = $leavetype->get_expenses();
             foreach($expensesfield_type as $alteid => $expensesfield) {
@@ -582,7 +582,12 @@ else {
                     }
                 }
             }
-            $leave['details_crumb'] = implode(' ', parse_additionaldata($core->input, $leavetype_details['additionalFields'], 1));
+
+            $leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields'], 1);
+            if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
+                $leave['details_crumb'] = ' - '.implode(' ', $leave['details_crumb']);
+            }
+
             $leave['details_crumb'] = $core->sanitize_inputs($leave['details_crumb'], array('method' => 'striponly', 'removetags' => true));
             if(!empty($leave['details_crumb'])) {
                 //$leave['details_crumb'] = implode(' ', parse_additionaldata($core->input, $leavetype_details['additionalFields']));
@@ -613,7 +618,8 @@ else {
             }
             elseif($approve_immediately == true) {  //&& $notification_required == true
                 if($leavetype_details['noBalance'] == 0) {
-                    update_leavestats_periods($core->input, $leavetype_details['isWholeDay']);
+                    $stat = new LeavesStats();
+                    $stat->generate_periodbased($core->input);
                 }
 
                 $to_inform = unserialize($core->input['affToInform']);
