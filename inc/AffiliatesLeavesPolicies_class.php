@@ -31,7 +31,7 @@ class AffiliatesLeavesPolicies extends AbstractClass {
 
     }
 
-    protected function save(array $data = array()) {
+    public function save(array $data = array()) {
 
     }
 
@@ -40,7 +40,7 @@ class AffiliatesLeavesPolicies extends AbstractClass {
     }
 
     protected function delete() {
-        
+
     }
 
 }

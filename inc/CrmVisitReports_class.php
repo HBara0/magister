@@ -66,7 +66,7 @@ class CrmVisitReports extends AbstractClass {
         return '<a href="index.php?module=crm/previewvisitreport&referrer=list&vrid='.$this->data[self::PRIMARY_KEY].'" '.$attributes.'>'.$this->get_displayname().'</a>';
     }
 
-    protected function save(array $data = array()) {
+    public function save(array $data = array()) {
 
     }
 
