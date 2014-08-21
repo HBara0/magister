@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Create Web Page
  * $id:createwebpage.php
  * Created:			@tony.assaad	August 24, 2012 | 10:53 PM
@@ -26,6 +26,8 @@ if(!$core->input['action']) {
         $pageid = $db->escape_string($core->input['id']);
         $cms_page = new CmsPages($pageid);  /* call the page object and the pageid to the constructor to read the single page */
         $page = $cms_page->get();
+
+        $page['publishDate_output'] = date($core->settings['dateformat'], $page['publishDate']);
     }
     else {
         $actiontype = 'add';

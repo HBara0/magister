@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * CMS News Class
  * $id: CmsPages_class.php
  * Created:			@tony.assaad	August 24, 2012 | 10:53 PM
@@ -26,7 +26,7 @@ class CmsPages extends Cms {
         $this->category = $this->page['category'];
 
         /* if the action is edit here we call the add and pass the [options type] function if the action type is do_editpage */
-        if(is_empty($this->page['title'])) {
+        if(empty($this->page['title'])) {
             $this->status = 1;
             return false;
         }
@@ -59,10 +59,13 @@ class CmsPages extends Cms {
 
         /* Set appropriate version - START */
         if($options['operationtype'] == 'updateversion') {
-            $this->prevversion = $this->get_lastversion_page($this->page['alias'], array('exclude' => array('cmspid' => $cmspid)));
+            $cmspid['cmspid'] = $db->fetch_field($db->query("SELECT MAX(cmspid) as cmspid  FROM ".Tprefix." cms_pages "), 'cmspid');
+            $this->page['dateModified'] = TIME_NOW;
+            $this->page['modifiedBy'] = $core->user['uid'];
+            $this->prevversion = $this->get_lastversion_page($this->page['alias'], array('exclude' => array('cmspid' => $cmspid['cmspid'])));
         }
 
-        if(isset($this->prevversion)) {
+        if(is_array($this->prevversion)) {
             if(similar_text($this->page['bodyText'], $this->prevversion['bodyText']) > 70) {
                 $this->page['version'] = $this->prevversion['version'] + 0.1;
             }
@@ -130,7 +133,7 @@ class CmsPages extends Cms {
 
                 foreach($pageimages as $key_link => $link) {
                     print_r($val);
-                    exit;
+
                     $link = parse_url($link);
                     $path_info = pathinfo($link['path']);
                     $file_info = finfo_open(FILEINFO_MIME_TYPE);
@@ -155,8 +158,7 @@ class CmsPages extends Cms {
         if(isset($options['exclude'])) {
             $exclude_querystring = ' AND cmspid NOT IN ('.implode(',', $options['exclude']).')';
         }
-
-        return $db->fetch_assoc($db->query("SELECT title, alias, bodyText,version FROM ".Tprefix."cms_page WHERE alias='".$db->escape_string($alias)."'{$exclude_querystring} ORDER BY version DESC"));
+        return $db->fetch_assoc($db->query("SELECT title, alias, bodyText,version FROM ".Tprefix."cms_pages WHERE alias='".$db->escape_string($alias)."'{$exclude_querystring} ORDER BY version DESC"));
     }
 
     private function read($id, $simple = false) {
@@ -203,7 +205,7 @@ class CmsPages extends Cms {
         return $string;
     }
 
-    public function get_multiplepages() {
+    public function get_multiplepages($filter_where) {
         global $db, $core;
 
         $sort_query = 'ORDER BY cp.title ASC, cp.version DESC';
@@ -220,23 +222,23 @@ class CmsPages extends Cms {
             $limit_start = $db->escape_string($core->input['start']);
         }
 
-        if(isset($core->input['filterby'], $core->input['filtervalue'])) {
-            $attributes_filter_options['title'] = array('title' => 'cp.');
-
-            if($attributes_filter_options['title'][$core->input['filterby']] == 'int') {
-                $filter_value = ' = "'.$db->escape_string($core->input['filtervalue']).'"';
-            }
-            else {
-                $filter_value = ' LIKE "%'.$db->escape_string($core->input['filtervalue']).'%"';
-            }
-
-            $filter_where = ' WHERE '.$db->escape_string($attributes_filter_options['title'][$core->input['filterby']].$core->input['filterby']).$filter_value;
-        }
-        $pages_query = $db->query("SELECT cp.cmspid, cp.version, cp.alias, cp.isPublished, cp.lang, cp.hits, cp.title, cp.dateCreated, u.displayname as creator 
+//        if(isset($core->input['filterby'], $core->input['filtervalue'])) {
+//            $attributes_filter_options['title'] = array('title' => 'cp.');
+//
+//            if($attributes_filter_options['title'][$core->input['filterby']] == 'int') {
+//                $filter_value = ' = "'.$db->escape_string($core->input['filtervalue']).'"';
+//            }
+//            else {
+//                $filter_value = ' LIKE "%'.$db->escape_string($core->input['filtervalue']).'%"';
+//            }
+//
+//            $filter_where = ' WHERE '.$db->escape_string($attributes_filter_options['title'][$core->input['filterby']].$core->input['filterby']).$filter_value;
+//        }
+        $pages_query = $db->query("SELECT cp.cmspid, cp.version, cp.alias, cp.isPublished, cp.lang, cp.hits, cp.title, cp.dateCreated, u.displayname as creator
 								FROM  ".Tprefix."cms_pages cp
 								JOIN ".Tprefix."users u ON (u.uid=cp.createdBy)
 								{$filter_where}
-								{$sort_query} 
+								{$sort_query}
 								LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
         if($db->num_rows($pages_query) > 0) {
