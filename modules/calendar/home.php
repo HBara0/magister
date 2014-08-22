@@ -2,11 +2,11 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * View calendar
  * $module: calendar
  * $id: home.php
- * Created: 	@zaher.reda		Feb 04, 2009 | 10:14 AM		
+ * Created: 	@zaher.reda		Feb 04, 2009 | 10:14 AM
  * Last Update: @tony.assaad	Sep 6, 2013 | 12:09:56 PM
  */
 if(!defined('DIRECT_ACCESS')) {
@@ -57,7 +57,7 @@ else {
 
     /* Parse events/tasks popup - Start */
     $eventtypes = get_specificdata('calendar_eventtypes', array('cetid', 'title'), 'cetid', 'title', array('by' => 'title', 'sort' => 'ASC'));
-    $eventypes_selectlist = parse_selectlist('event[type]', 1, $eventtypes, 0, '', '', array('blankstart' => 1, 'id' => 'event_type'));
+    //$eventypes_selectlist = parse_selectlist('event[type]', 1, $eventtypes, 0, '', '', array('blankstart' => 1, 'id' => 'event_type'));
     $etypemorefields = array(4);
     $etypemorefields = implode(', ', $etypemorefields);
 
@@ -134,6 +134,23 @@ else {
     }
     unset($affiliates_users);
     /* parse invitees - END */
+
+
+    /* Parse share with users */
+    $affiliates_users = Users::get_allusers();
+    foreach($affiliates_users as $uid => $user) {
+        $user = $user->get();
+        $checked = $rowclass = '';
+        if($uid == $core->user['uid']) {
+            continue;
+        }
+
+
+
+        eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
+    }
+    eval("\$task_sharewith = \"".$template->get('calendar_createeventtask_sharewith')."\";");
+
     eval("\$addeventtask_popup = \"".$template->get('popup_calendar_createeventtask')."\";");
     /* Parse events/tasks popup - End */
 }
