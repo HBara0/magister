@@ -30,7 +30,7 @@
             <h1>{$lang->leavedetails}</h1>
             <div style="padding: 5px; margin-bottom:20px; word-wrap: break-word;">
                 <div class="thead">{$lang->leavedetails}</div>
-                <div class="label" style='vertical-align: top;'>{$lang->employeename}</div><div class="details">{$leave_obj->get_requester()->displayName}</div>
+                <div class="label" style='vertical-align: top;'>{$lang->employeename}</div><div class="details">{$leave_obj->get_requester()->parse_link()}</div>
 
                 <div class="label">{$lang->from}</div><div class="details">{$leave_obj->fromDate_output}</div>
                 <div class="label">{$lang->to}</div><div class="details">{$leave_obj->toDate_output}</div>

@@ -71,8 +71,10 @@ elseif($core->input['action'] == 'get_taskdetails') {
         $affiliates_users = Users::get_allusers();
         $shared_users = $task->get_shared_users();
         if(is_array($shared_users)) {
+
             foreach($shared_users as $uid => $user) {
                 $user = $user->get();
+                $user = array_unique($user);
                 $checked = ' checked="checked"';
                 $rowclass = 'selected';
 
@@ -90,7 +92,7 @@ elseif($core->input['action'] == 'get_taskdetails') {
 
             eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
         }
-        eval("\$task_sharewith = \"".$template->get('calendar_createeventtask_sharewith')."\";");
+
         eval("\$task_sharewith = \"".$template->get('calendar_createeventtask_sharewith')."\";");
         eval("\$taskdetailsbox = \"".$template->get('popup_calendar_taskdetails')."\";");
         output($taskdetailsbox);

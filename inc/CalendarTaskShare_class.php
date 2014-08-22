@@ -45,8 +45,7 @@ class CalendarTaskShare extends AbstractClass {
                 $users_toremove = array_diff($existing_users, $data);
                 if(!empty($users_toremove)) {
                     $db->delete_query(self::TABLE_NAME, 'uid IN ('.$db->escape_string(implode(',', $users_toremove)).') AND ctid='.$task_data['ctid']);
-                    $this->errorcode = 2;
-                    return true;
+                    $this->errorcode = 0;
                 }
             }
             foreach($data as $uid) {
@@ -68,11 +67,10 @@ class CalendarTaskShare extends AbstractClass {
             $data = $this->data;
         }
         if(!empty($data['ctid'])) {
-            $latest_taskshared = CalendarTaskShare::get_data('ctid='.intval($data['ctid']));
+            // $latest_taskshared = CalendarTaskShare::get_data('ctid='.intval($data['ctid']));
         }
 
         if(is_object($latest_taskshared)) {
-            print_R($data);
             $this->update($data);
         }
         else {
