@@ -8,49 +8,39 @@
  * Last Update:    @tony.assaad    June 21, 2013 | 12:17:27 PM
  */
 
-class Leaves {
-    private $errorcode = 0; //0=No errors;1=Subject missing;2=Entry exists;3=Error saving;4=validation violation
-    private $leave = array();
+class Leaves extends AbstractClass {
+    protected $errorcode = 0; //0=No errors;1=Subject missing;2=Entry exists;3=Error saving;4=validation violation
+    protected $data = array();
 
-    public function __construct($leavedata = array(), $simple = true) {
-        global $db;
-        if(!is_array($leavedata) && !empty($leavedata)) {
-            $this->leave = $this->read($leavedata, $simple);
+    const PRIMARY_KEY = 'lid';
+    const TABLE_NAME = 'leaves';
+    const DISPLAY_NAME = '';
+    const SIMPLEQ_ATTRS = 'lid, uid, type, requestKey, fromDate, toDate';
+    const CLASSNAME = __CLASS__;
+
+    public function __construct($id = array(), $simple = true) {
+        if(!is_array($id) && !empty($id)) {
+            parent::__construct($id, $simple);
         }
         else {
-            if(isset($leavedata['lid']) && !empty($leavedata['lid'])) {
-                $this->leave = $this->read($leavedata['lid'], $simple);
+            if(isset($id['lid']) && !empty($id['lid'])) {
+                parent::__construct($id['lid'], $simple);
             }
         }
     }
 
     public function get_segment() {
-        if(!empty($this->leave['psid'])) {
-            return new ProductsSegments($this->leave['psid']);
+        if(!empty($this->data['psid'])) {
+            return new ProductsSegments($this->data['psid']);
         }
         return false;
-    }
-
-    private function read($id, $simple = true) {
-        global $db;
-
-        if(empty($id)) {
-            return false;
-        }
-        $query_select = '*';
-
-        if($simple == true) {
-            $query_select = 'lid, uid, type, requestKey, fromDate, toDate';
-        }
-
-        return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."leaves WHERE lid=".$db->escape_string($id)));
     }
 
     public function has_expenses($id = '') {
         global $db;
 
-        if(!empty($this->leave['lid']) && empty($id)) {
-            $id = $this->leave['lid'];
+        if(!empty($this->data['lid']) && empty($id)) {
+            $id = $this->data['lid'];
         }
 
         if(value_exists('attendance_leaves_expenses', 'lid', $db->escape_string($id))) {
@@ -64,8 +54,8 @@ class Leaves {
     public function get_expenses($id = '') {
         global $db;
 
-        if(!empty($this->leave['lid']) && empty($id)) {
-            $id = $this->leave['lid'];
+        if(!empty($this->data['lid']) && empty($id)) {
+            $id = $this->data['lid'];
         }
 
         $leaveexptype_query = $db->query('SELECT * FROM '.Tprefix.'attendance_leaves_expenses WHERE lid='.$db->escape_string($id));
@@ -73,7 +63,7 @@ class Leaves {
             while($leaveexpenses = $db->fetch_assoc($leaveexptype_query)) {
                 $leaveexpense[$leaveexpenses['aleid']] = $leaveexpenses;
             }
-            if(is_array($leaveexpense)) {
+            if(array($leaveexpense)) {
                 return $leaveexpense;
             }
             return false;
@@ -84,8 +74,8 @@ class Leaves {
     public function get_expensesdetails($id = '') {
         global $db;
 
-        if(!empty($this->leave['lid']) && empty($id)) {
-            $id = $this->leave['lid'];
+        if(!empty($this->data['lid']) && empty($id)) {
+            $id = $this->data['lid'];
         }
 
         $leaveexpdetails_query = $db->query('SELECT ale.*, alte.*, alet.*
@@ -108,8 +98,8 @@ class Leaves {
     public function get_expensestotal($id = '', $amounttype = 'expected', $currency = '') {
         global $db;
 
-        if(!empty($this->leave['lid']) && empty($id)) {
-            $id = $this->leave['lid'];
+        if(!empty($this->data['lid']) && empty($id)) {
+            $id = $this->data['lid'];
         }
 
         if($this->has_expenses()) {
@@ -136,8 +126,8 @@ class Leaves {
 
         if(is_array($expenses)) {
             foreach($expenses as $alteid => $expense) {
-                if(!isset($this->leave['ltid'])) {
-                    $this->leave['ltid'] = $db->fetch_field($db->query("SELECT ltid FROM ".Tprefix."attendance_leavetypes_expenses WHERE alteid=".$db->escape_string($alteid)), 'ltid');
+                if(!isset($this->data['ltid'])) {
+                    $this->data['ltid'] = $db->fetch_field($db->query("SELECT ltid FROM ".Tprefix."attendance_leavetypes_expenses WHERE alteid=".$db->escape_string($alteid)), 'ltid');
                 }
 
                 $leavetype = $this->get_leavetype();
@@ -149,7 +139,7 @@ class Leaves {
                 }
 
                 $expenses_data = array('alteid' => $alteid,
-                        'lid' => $this->leave['lid'],
+                        'lid' => $this->data['lid'],
                         'expectedAmt' => $expense['expectedAmt'],
                         'currency' => $expense['currency'],
                         'description' => $expense['description'],
@@ -160,7 +150,7 @@ class Leaves {
                     //Record Error
                 }
             }
-            $log->record($this->leave['lid'], 'addedexpenses');
+            $log->record($this->data['lid'], 'addedexpenses');
             $this->errorcode = 0;
         }
         return false;
@@ -178,23 +168,23 @@ class Leaves {
                 if($expense['expectedAmt'] == '') {
                     $expense['expectedAmt'] = 0;
                 }
-                if(value_exists('attendance_leaves_expenses', 'lid', $this->leave['lid'], 'alteid='.$alteid)) {
-                    $db->update_query('attendance_leaves_expenses', $expense, 'lid='.$this->leave['lid'].' AND alteid='.$alteid);
+                if(value_exists('attendance_leaves_expenses', 'lid', $this->data['lid'], 'alteid='.$alteid)) {
+                    $db->update_query('attendance_leaves_expenses', $expense, 'lid='.$this->data['lid'].' AND alteid='.$alteid);
                 }
                 else {
-                    $expense['lid'] = $this->leave['lid'];
+                    $expense['lid'] = $this->data['lid'];
                     $expense['alteid'] = $alteid;
                     $db->insert_query('attendance_leaves_expenses', $expense);
                 }
             }
             /* Remove unrelated expenses - in case the type has changed */
-            $db->delete_query('attendance_leaves_expenses', 'lid='.$this->leave['lid'].' AND alteid NOT IN ('.implode(',', array_keys($leaveexpenses_data)).')');
-            $log->record($this->leave['lid'], 'updatedexpenses');
+            $db->delete_query('attendance_leaves_expenses', 'lid='.$this->data['lid'].' AND alteid NOT IN ('.implode(',', array_keys($leaveexpenses_data)).')');
+            $log->record($this->data['lid'], 'updatedexpenses');
         }
     }
 
     public function get_approval_byappover($approver) {
-        return AttLeavesApproval::get_approvals('lid='.$this->leave['lid'].' AND uid='.intval($approver));
+        return AttLeavesApproval::get_approvals('lid='.$this->data['lid'].' AND uid='.intval($approver));
     }
 
     public function get_toapprove() {
@@ -202,7 +192,7 @@ class Leaves {
     }
 
     public function get_approvers() {
-        return AttLeavesApproval::get_approvals_byattr('lid', $this->leave['lid']);
+        return AttLeavesApproval::get_approvals_byattr('lid', $this->data['lid']);
     }
 
     public function get_approvals($isapproved = 1) {
@@ -213,7 +203,7 @@ class Leaves {
         else {
             $where_isapproved = ' WHERE isApproved=0';
         }
-        $query = $db->query('SELECT * FROM '.Tprefix.'leavesapproval '.$where_isapproved.' AND lid='.$this->leave['lid']);
+        $query = $db->query('SELECT * FROM '.Tprefix.'leavesapproval '.$where_isapproved.' AND lid='.$this->data['lid']);
         if($db->num_rows($query) > 0) {
             while($approver = $db->fetch_assoc($query)) {
                 $approvers[$approver['uid']] = new Users($approver['uid']);
@@ -327,7 +317,7 @@ class Leaves {
 
     public function get_conversation() {
         /* apply view permission */
-        $messages = LeavesMessages::get_messages('lid='.$this->leave['lid'], array('simple' => false));
+        $messages = LeavesMessages::get_messages('lid='.$this->data['lid'], array('simple' => false));
         if(is_array($messages)) {
             return $messages;
         }
@@ -336,7 +326,7 @@ class Leaves {
 
     public function get_initalmessage() {
         global $db;
-        $initalmessage['lmid'] = $db->fetch_field($db->query("SELECT lmid, uid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."' AND inReplyTo=0 ORDER BY lmid ASC LIMIT 0, 1"), 'lmid');
+        $initalmessage['lmid'] = $db->fetch_field($db->query("SELECT lmid, uid FROM ".Tprefix."leaves_messages WHERE lid='".$this->data['lid']."' AND inReplyTo=0 ORDER BY lmid ASC LIMIT 0, 1"), 'lmid');
         if(isset($initalmessage['lmid']) && !empty($initalmessage['lmid'])) {
             return new LeavesMessages($initalmessage['lmid'], false);
         }
@@ -345,23 +335,28 @@ class Leaves {
     public function get_initalvisiblemessage() {
         global $db;
 
-        $initalmessage['lmid'] = $db->fetch_field($db->query("SELECT lmid, uid FROM ".Tprefix."leaves_messages WHERE lid='".$this->leave['lid']."' AND viewPermission='public' AND inReplyTo=0 ORDER BY createdOn DESC"), 'lmid');
+        $initalmessage['lmid'] = $db->fetch_field($db->query("SELECT lmid, uid FROM ".Tprefix."leaves_messages WHERE lid='".$this->data['lid']."' AND viewPermission='public' AND inReplyTo=0 ORDER BY createdOn DESC"), 'lmid');
         if(isset($initalmessage['lmid']) && !empty($initalmessage['lmid'])) {
             return new LeavesMessages($initalmessage['lmid'], false);
         }
     }
 
     public function get_latestmsg() {
-        return LeavesMessages::get_messages('lid='.$this->leave['lid'], array('simple' => false, 'limit' => '0, 1', 'order' => array('by' => 'createdOn', 'sort' => 'DESC')));
+        return LeavesMessages::get_messages('lid='.$this->data['lid'], array('simple' => false, 'limit' => '0, 1', 'order' => array('by' => 'createdOn', 'sort' => 'DESC')));
     }
 
     public function parse_messages(array $options = array()) {
         global $template, $core;
         $takeactionpage_conversation = null;
 
-        $initialmsgs = LeavesMessages::get_messages('lid='.$this->leave['lid'].' AND inReplyTo=0', array('simple' => false, 'returnarray' => true));
+        $initialmsgs = LeavesMessages::get_messages('lid='.$this->data['lid'].' AND inReplyTo=0', array('simple' => false, 'returnarray' => true));
         if(!is_array($initialmsgs)) {
             return false;
+        }
+
+        $show_replyicon = 'display:block;';
+        if(isset($options['viewsource']) && ($options['viewsource'] == 'viewleave')) {
+            $show_replyicon = 'display:none;';
         }
 
         if(empty($options['uid'])) {
@@ -400,6 +395,11 @@ class Leaves {
 
     private function parse_replies($replies, $depth = 1, array $options = array()) {
         global $template, $core;
+
+        $show_replyicon = 'display:block;';
+        if(isset($options['viewsource']) && ($options['viewsource'] == 'viewleave')) {
+            $show_replyicon = 'display:none;';
+        }
 
         if(is_array($replies)) {
             foreach($replies as $reply) {
@@ -476,18 +476,18 @@ class Leaves {
     }
 
     public function get_requester($simple = true) {
-        return new Users($this->leave['uid'], $simple);
+        return new Users($this->data['uid'], $simple);
     }
 
     public function is_leaverequester() {
-        if(value_exists('leaves', 'uid', $this->leave['uid'], 'lid='.intval($this->leave['lid']))) {
+        if(value_exists('leaves', 'uid', $this->data['uid'], 'lid='.intval($this->data['lid']))) {
             return true;
         }
         return false;
     }
 
     public function get_purpose() {
-        return new LeaveTypesPurposes($this->leave['ltpid']);
+        return new LeaveTypesPurposes($this->data['ltpid']);
     }
 
     public function get_type($simple = true) {
@@ -495,11 +495,14 @@ class Leaves {
     }
 
     public function get_leavetype($simple = true) {
-        return new LeaveTypes($this->leave['type'], $simple);
+        return new LeaveTypes($this->data['type'], $simple);
     }
 
     public function count_workingdays() {
-        return count_workingdays($this->leave['uid'], $this->leave['fromDate'], $this->leave['toDate'], $this->get_type()['isWholeDay']);
+        if(!function_exists('count_workingdays')) {
+            require ROOT.INC_ROOT.'attendance_functions.php';
+        }
+        return count_workingdays($this->data['uid'], $this->data['fromDate'], $this->data['toDate'], $this->get_leavetype(false)->isWholeDay);
     }
 
     public function parse_link($attributes_param = array('target' => '_blank')) {
@@ -508,14 +511,7 @@ class Leaves {
          * For now the function returns a info that identify a leave
          */
 
-        return '<a href="#'.$this->leave['lid'].'">'.date($core->settings['dateformat'], $this->leave['fromDate']).' - '.date($core->settings['dateformat'], $this->leave['toDate']).'</a>';
-    }
-
-    public function __get($attr) {
-        if(isset($this->leave[$attr])) {
-            return $this->leave[$attr];
-        }
-        return false;
+        return '<a href="#'.$this->data['lid'].'">'.date($core->settings['dateformat'], $this->data['fromDate']).' - '.date($core->settings['dateformat'], $this->data['toDate']).'</a>';
     }
 
     /*
@@ -540,12 +536,29 @@ class Leaves {
         }
     }
 
-    public function get() {
-        return $this->leave;
+    public function get_displayname() {
+        global $core;
+        return $this->get_type()->title.' | '.date($core->settings['dateformat'], $this->fromDate).'-'.date($core->settings['dateformat'], $this->toDate);
     }
 
     public function get_errorcode() {
         $this->errorcode;
+    }
+
+    public function get_contactperson($simple) {
+        return new Users($this->data['contactPerson'], $simple);
+    }
+
+    protected function create(array $data) {
+
+    }
+
+    public function save(array $data = array()) {
+
+    }
+
+    protected function update(array $data) {
+
     }
 
 }
