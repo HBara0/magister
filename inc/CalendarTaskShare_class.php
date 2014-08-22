@@ -55,10 +55,10 @@ class CalendarTaskShare extends AbstractClass {
                 $task_data['uid'] = $core->sanitize_inputs($uid);
                 if(!value_exists(self::TABLE_NAME, 'uid', $uid, ' ctid='.$this->data['ctid'])) {
                     $db->insert_query(self::TABLE_NAME, $task_data);
-                    $this->errorcode = 0;
-                    return true;
                 }
             }
+            $this->errorcode = 0;
+            return true;
         }
     }
 
