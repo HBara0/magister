@@ -170,4 +170,5 @@ $lang['leavemessagereply'] = 'To Reply to this message simply click  <a href=\'{
 $lang['conversation'] = 'Conversation';
 $lang['leavedetails'] = 'Leave Details';
 $lang['additionaldetails'] = 'Additional Details';
+$lang['approvals'] = 'Approvals';
 ?>
