@@ -21,6 +21,10 @@ if(!$core->input['action']) {
     if(is_array($multiple_meetings)) {
         foreach($multiple_meetings as $mid => $meeting) {
             $meeting_obj = new Meetings($mid);
+            $meeting_sharedwithyou = '';
+            if($meeting_obj->is_sharedwithuser()) {
+                $meeting_sharedwithyou = '<img src=./images/icons/sharing-overlay-1.png border=0 alt='.$lang->sharedwithyou.' title='.$lang->sharedwithyou.'/>';
+            }
             $row_tools = '';
             if($meeting['createdBy'] == $core->user['uid']) {
                 if($meeting['hasMoM'] == 1) {
