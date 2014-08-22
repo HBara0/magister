@@ -26,7 +26,7 @@ if(!$core->input['action']) {
 
     $leave_obj->get_requester()->displayName;
     $leave_obj->fromDate_output = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave_obj->fromDate);
-    $leave_obj->toDate_output = date($core->settings['dateformat'], $leave_obj->toDate);
+    $leave_obj->toDate_output = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave_obj->toDate);
     $limitedemail = 'No';
     if(($leave_obj->limitedEmail) == 1) {
         $limitedemail = 'Yes';
