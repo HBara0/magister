@@ -19,6 +19,7 @@ $lang['customervisit'] = 'Customer Visit';
 $lang['custvisitedgrmonth'] = 'Suggestions - Customers not visited since more than a month';
 $lang['datecompleted'] = 'Date completed';
 $lang['description'] = 'Description';
+$lang['userremoved'] = 'User Successfully Removed';
 $lang['requiredfield'] = 'Select at least one user';
 $lang['duedate'] = 'Due date';
 $lang['sharewith'] = 'Share With';
