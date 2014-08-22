@@ -154,7 +154,12 @@ class DataAccessLayer {
                 }
                 else {
                     if(is_numeric($value)) {
-                        $operators[$attr] = '=';
+                        if($operators[$attr] == 'grt') {
+                            $operators[$attr] = ' > ';
+                        }
+                        else {
+                            $operators[$attr] = '=';
+                        }
                         $value = intval($value);
                     }
                     else {
