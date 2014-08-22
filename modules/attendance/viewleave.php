@@ -24,9 +24,9 @@ if(!$core->input['action']) {
         }
     }
 
-    $employeename = $leave_obj->get_requester()->parse_link();
+
     $leave_obj->fromDate_output = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave_obj->fromDate);
-    $leave_obj->toDate_output = date($core->settings['dateformat'], $leave_obj->toDate);
+    $leave_obj->toDate_output = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave_obj->toDate);
     $limitedemail = $lang->no;
     if(($leave_obj->limitedEmail) == 1) {
         $limitedemail = $lang->yes;
@@ -34,7 +34,8 @@ if(!$core->input['action']) {
 
     $workingdays = $leave_obj->count_workingdays();
     $contactperson = $leave_obj->get_contactperson(true)->parse_link();
-
+        $contactperson = $leave_obj->get_contactperson(true)->parse_link();
+    }
     $leavetype = $leave_obj->get_type(false);
     $leave_obj->details_crumb = parse_additionaldata($leave_obj->get(), $leavetype->additionalFields);
     $additionalfield_output = '';
@@ -61,6 +62,7 @@ if(!$core->input['action']) {
         $aff_object = new affiliates($affiliate);
         $affiliates_list .= $seperator.$aff_object->parse_link();
         $seperator = '; ';
+        }
     }
 
     $takeactionpage_conversation = $leave_obj->parse_messages(array('uid' => $core->user['uid'], 'viewsource' => 'viewleave'));
@@ -68,7 +70,7 @@ if(!$core->input['action']) {
         $conversation = '';
     }
     else {
-        $conversation = '<div class="thead" style="margin-top:15px;">'.conversation.'</div>';
+        $conversation = '<div class="thead" style="margin-top:15px;">'.$lang->conversation.'</div>';
     }
 
 
