@@ -323,6 +323,28 @@ else {
             output($eventdetailsbox);
         }
     }
+    elseif($core->input['action'] == 'share_task') {
+        $taskid = $db->escape_string($core->input['id']);
+        $calendarshare_obj = new CalendarTaskShare();
+        if(is_array($core->input['task']['share'])) {
+
+            $core->input['task']['share']['ctid'] = $taskid;
+            $calendarshare_obj->set($core->input['task']['share']);
+            $calendarshare_obj->save();
+        }
+
+        switch($calendarshare_obj->get_errorcode()) {
+            case 0:
+                output_xml("<status>true</status><message>".$lang->successfullysaved."</message>");
+                break;
+            case 1:
+                output_xml("<status>true</status><message>".$lang->requiredfield."</message>");
+                break;
+            case 2:
+                output_xml("<status>true</status><message>".$lang->userremoved."</message>");
+                break;
+        }
+    }
     elseif($core->input['action'] == 'save_tasknote') {
         $lang->load('calendar_messages');
         $task = new Tasks($core->input['id']);
