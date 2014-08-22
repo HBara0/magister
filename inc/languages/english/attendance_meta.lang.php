@@ -171,4 +171,5 @@ $lang['conversation'] = 'Conversation';
 $lang['leavedetails'] = 'Leave Details';
 $lang['additionaldetails'] = 'Additional Details';
 $lang['approvals'] = 'Approvals';
+$lang['affiliates'] = 'Affiliates Informed';
 ?>

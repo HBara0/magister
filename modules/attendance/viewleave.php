@@ -24,17 +24,16 @@ if(!$core->input['action']) {
         }
     }
 
-    $leave_obj->get_requester()->displayName;
+    $employeename = $leave_obj->get_requester()->parse_link();
     $leave_obj->fromDate_output = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave_obj->fromDate);
     $leave_obj->toDate_output = date($core->settings['dateformat'], $leave_obj->toDate);
-    $limitedemail = 'No';
+    $limitedemail = $lang->no;
     if(($leave_obj->limitedEmail) == 1) {
-        $limitedemail = 'Yes';
+        $limitedemail = $lang->yes;
     }
 
-
     $workingdays = $leave_obj->count_workingdays();
-    $contactperson = $leave_obj->get_contactperson(true)->displayName;
+    $contactperson = $leave_obj->get_contactperson(true)->parse_link();
 
     $leavetype = $leave_obj->get_type(false);
     $leave_obj->details_crumb = parse_additionaldata($leave_obj->get(), $leavetype->additionalFields);
@@ -43,18 +42,25 @@ if(!$core->input['action']) {
     if(is_array($leave_obj->details_crumb)) {
         $additionalfield_output = implode('<br/>', $leave_obj->details_crumb);
     }
-//    foreach($leave_obj->details_crumb as $key => $val) {
-//        //echo "$key; $val <br/>\n";
-//        $additionalfield_output .= '<div class="lefttext">'.''.'</div><div class="righttext">'.$val.'</div>';
-//    }
+
+    $seperator = '';
 
     $approvers_objs = $leave_obj->get_approvers();
     foreach($approvers_objs as $approver) {
         if($approver->is_apporved()) {
-            $approved .=$approver->get_user()->get_displayname().'; ';
+            $approved .=$seperator.$approver->get_user()->get_displayname();
+            $seperator = '; ';
         }
-        else
-            $toapprove .= $approver->get_user()->get_displayname().'; ';
+        else {
+            $toapprove .= $seperator.$approver->get_user()->get_displayname();
+        }
+    }
+
+    $seperator = '';
+    foreach(unserialize($leave_obj->affToInform) as $affiliate) {
+        $aff_object = new affiliates($affiliate);
+        $affiliates_list .= $seperator.$aff_object->parse_link();
+        $seperator = '; ';
     }
 
     $takeactionpage_conversation = $leave_obj->parse_messages(array('uid' => $core->user['uid'], 'viewsource' => 'viewleave'));

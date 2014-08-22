@@ -2,25 +2,6 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->leavedetails}</title>
         {$headerinc}
-        <style>
-            .label{
-                padding: 2px;
-                display:inline-block;
-                width: 20%;
-
-            }
-            .details{
-                padding: 2px;
-                display:inline-block;
-                width: 75%;
-            }
-            .approved{
-                color:rgb(102, 153, 0);
-                display:inline-block;}
-            .toapprove{
-                display:inline-block;}
-
-        </style>
     </head>
     <body>
         {$header}
@@ -30,30 +11,27 @@
             <h1>{$lang->leavedetails}</h1>
             <div style="padding: 5px; margin-bottom:20px; word-wrap: break-word;">
                 <div class="thead">{$lang->leavedetails}</div>
-                <div class="label" style='vertical-align: top;'>{$lang->employeename}</div><div class="details">{$leave_obj->get_requester()->displayName}</div>
-
-                <div class="label">{$lang->from}</div><div class="details">{$leave_obj->fromDate_output}</div>
-                <div class="label">{$lang->to}</div><div class="details">{$leave_obj->toDate_output}</div>
-                <div class="label">{$lang->actualworkingdays}</div><div class="details">{$workingdays}</div>
-                <div class="label">{$lang->leavetype}</div><div class="details">{$leave_obj->get_type(false)->title}</div>
-                <div class="label"></div><div class="details">{$additionalfield_output}</div>
-                <div class="label">{$lang->leavereason}</div><div class="details">{$leave_obj->reason}</div>
-                <div class="label">{$lang->approvals}</div>
-                <div class="details">
-                    <div class="approved">$approved</div>
-                    <div class="toapprove">$toapprove</div>
+                <div style='padding: 2px; display:inline-block; width: 30%;vertical-align: top;'>{$lang->employeename}</div><div  style=' padding: 2px; display:inline-block;width: 45%;'>{$employeename}</div>
+                <div style='padding: 2px; display:inline-block; width: 30%;'>{$lang->from}</div><div  style=' padding: 2px; display:inline-block;width: 45%;'>{$leave_obj->fromDate_output}</div>
+                <div style='padding: 2px; display:inline-block; width: 30%;'>{$lang->to}</div><div  style=' padding: 2px; display:inline-block;width: 45%;'>{$leave_obj->toDate_output}</div>
+                <div style='padding: 2px; display:inline-block; width: 30%;'>{$lang->actualworkingdays}</div><div  style=' padding: 2px; display:inline-block;width: 45%;'>{$workingdays}</div>
+                <div style='padding: 2px; display:inline-block; width: 30%;'>{$lang->leavetype}</div><div  style=' padding: 2px; display:inline-block;width: 45%;'>{$leave_obj->get_type(false)->title}</div>
+                <div style='padding: 2px; display:inline-block; width: 30%;'></div><div  style=' padding: 2px; display:inline-block;width: 45%;'>{$additionalfield_output}</div>
+                <div style='padding: 2px; display:inline-block; width: 30%;'>{$lang->leavereason}</div><div  style=' padding: 2px; display:inline-block;width: 45%;'>{$leave_obj->reason}</div>
+                <div style='padding: 2px; display:inline-block; width: 30%;'>{$lang->approvals}</div>
+                <div  style=' padding: 2px; display:inline-block;width: 45%;'>
+                    <div class="green_text" style="display:inline-block;">{$approved}</div><span>{$toapprove}</span>
                 </div>
+                <div style='padding: 2px; display:inline-block; width: 30%;'>{$lang->affiliates}</div><div  style=' padding: 2px; display:inline-block;width: 45%;'>{$affiliates_list}</div>
 
                 <div class="thead" style="margin-top:15px;">{$lang->contactwhileabsent}</div>
-                <div class="label" style='vertical-align:top;'>{$lang->leaveaddress}</div><div class="details">{$leave_obj->addressWhileAbsent}</div>
-                <div class="label">{$lang->phonenumber}</div><div class="details">{$leave_obj->phoneWhileAbsent}</div>
-                <div class="label">{$lang->contactpersonleave}</div><div class="details">{$contactperson}</div>
-                <div class="label">{$lang->limitedemailaccess}</div><div class="details">{$limitedemail}</div>
+                <div style='padding: 2px; display:inline-block; width: 30%;vertical-align:top;'>{$lang->leaveaddress}</div><div  style=' padding: 2px; display:inline-block;width: 45%;'">{$leave_obj->addressWhileAbsent}</div>
+                <div style='padding: 2px; display:inline-block; width: 30%;'>{$lang->phonenumber}</div><div  style=' padding: 2px; display:inline-block;width: 45%;'>{$leave_obj->phoneWhileAbsent}</div>
+                <div style='padding: 2px; display:inline-block; width: 30%;'>{$lang->contactpersonleave}</div><div  style=' padding: 2px; display:inline-block;width: 45%;'>{$contactperson}</div>
+                <div style='padding: 2px; display:inline-block; width: 30%;'>{$lang->limitedemailaccess}</div><div  style=' padding: 2px; display:inline-block;width: 45%;'>{$limitedemail}</div>
 
                 <div>{$conversation}</div>
                 <div>$takeactionpage_conversation</div>
-
-
 
             </div>
         </td>
