@@ -13,22 +13,18 @@
  *
  * @author tony.assaad
  */
-class TravelManagerPlanTransps {
-    private $data = array();
+class TravelManagerPlanTransps extends AbstractClass {
+    protected $data = array();
+    protected $errorcode = 0;
 
     const PRIMARY_KEY = 'tmpltid';
     const TABLE_NAME = 'travelmanager_plan_transps';
+    const DISPLAY_NAME = '';
+    const SIMPLEQ_ATTRS = '*';
+    const CLASSNAME = __CLASS__;
 
-    public function __construct($id = '') {
-        if(empty($id)) {
-            return false;
-        }
-        $this->read($id);
-    }
-
-    private function read($id) {
-        global $db;
-        $this->data = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
     public static function get_transpsegments_byattr($attr, $value) {
@@ -39,23 +35,6 @@ class TravelManagerPlanTransps {
     public static function get_transpsegments($filters = null, array $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);
-    }
-
-    public function set(array $data) {
-        foreach($data as $name => $value) {
-            $this->data[$name] = $value;
-        }
-    }
-
-    public function __set($name, $value) {
-        $this->data[$name] = $value;
-    }
-
-    /* call the Magical function  get to acces the private attributes */
-    public function __get($name) {
-        if(array_key_exists($name, $this->data)) {
-            return $this->data[$name];
-        }
     }
 
     public function save(array $data = array()) {
@@ -76,7 +55,7 @@ class TravelManagerPlanTransps {
         }
     }
 
-    public function update(array $data) {
+    protected function update(array $data) {
         global $db;
 
         $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'transpDetails');
@@ -86,7 +65,7 @@ class TravelManagerPlanTransps {
         $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
-    public function create($transportdata = array()) {
+    protected function create(array $transportdata = array()) {
         global $db;
 
 //        $transp_details = base64_decode($transportdata['transpDetails'], true);
@@ -104,10 +83,6 @@ class TravelManagerPlanTransps {
 
         $db->insert_query(self::TABLE_NAME, $tanspdata_array);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
-    }
-
-    public function get() {
-        return $this->data;
     }
 
     public function get_segment() {

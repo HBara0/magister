@@ -208,15 +208,15 @@ class TravelManagerPlanSegments {
 
     public function parse_segment() {
         global $template, $lang, $core;
-        $segmentdate = date('l F,d,Y', $this->fromDate);
-        $destination_cities = $this->get_origincity()->name.'  -  '.$this->get_destinationcity()->name;
-        $transp_objs = TravelManagerPlanTransps::get_transpsegments(array('tmpsid' => $this->data[self::PRIMARY_KEY]));
+        $segmentdate = date('l F d, Y', $this->fromDate);
+        $destination_cities = $this->get_origincity()->name.' - '.$this->get_destinationcity()->name;
+        $transp_objs = TravelManagerPlanTransps::get_transpsegments(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
         if(is_array($transp_objs)) {
             foreach($transp_objs as $transportation) {
-                $transportation->transpType = $transportation->get_transpcategory($transportation->tmtcid)->name;
+                $transportation->transpType = $transportation->get_transpcategory()->title;
 
-                if(!empty($transportation->flightDetails)) {
-                    $transp_flightdetails = json_decode($transportation->flightDetails, true);
+                if(!empty($transportation->transpDetails)) {
+                    $transp_flightdetails = json_decode($transportation->transpDetails, true);
                     $flight_details = $this->parse_flightdetails($transp_flightdetails);
                 }
                 eval("\$segment_transpdetails .= \"".$template->get('travelmanager_viewplan_transpsegments')."\";");
@@ -247,25 +247,26 @@ class TravelManagerPlanSegments {
     }
 
     public function parse_expensesummary() {
-        global $template, $core, $db;
+        global $template, $db;
 
-        $query = $db->query("SELECT  tmpltid,transpType, sum(fare) as fare FROM ".Tprefix."travelmanager_plan_transps WHERE tmpsid IN(SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".$db->escape_string($this->tmpid).") group By tmtcid");
+        $query = $db->query("SELECT tmpltid, tmtcid, sum(fare) AS fare FROM ".Tprefix."travelmanager_plan_transps WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP By tmtcid");
         if($db->num_rows($query) > 0) {
             while($transpexp = $db->fetch_assoc($query)) {
-                $expenses_details .= '<div style="display:block;padding:5px;"> ';
-                $expenses_details .= '<div style="width:20%;display:inline-block;">'.$transpexp['transpType'].'</div>';
-                $expenses_details .= '<div style="width:20%;display:inline-block;">$'.$transpexp['fare'].'</div>';
+                $transpcat = new TravelManagerTranspCategories($transpexp['tmtcid']);
+                $expenses_details .= '<div style="display:block;padding:5px;">';
+                $expenses_details .= '<div style="width:20%;display:inline-block;">'.$transpcat->title.'</div>';
+                $expenses_details .= '<div style="width:20%;display:inline-block;">$'.round($transpexp['fare'], 2).'</div>';
                 $expenses_details .= '</div>';
                 $expenses_total += $transpexp['fare'];
             }
             /* get hotel expences total night of each segment */
-            $hotelexpensesquery = $db->query("SELECT sum(priceNight*numNights)as total FROM ".Tprefix."travelmanager_plan_accomodations WHERE tmpsid IN(SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".$db->escape_string($this->tmpid).") ");
-            if($db->num_rows($hotelexpensesquery) > 0) {
-                if($hotelexp = $db->fetch_assoc($hotelexpensesquery)) {
-                    $expenses_total +=$hotelexp['total'];
-                }
-            }
 
+            $expenses['accomodation'] = $db->fetch_field($db->query("SELECT SUM(priceNight*numNights) AS total FROM ".Tprefix."travelmanager_plan_accomodations WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid=".intval($this->tmpid).")"), 'total');
+            if(empty($expenses['accomodation'])) {
+                $expenses['accomodation'] = 0;
+            }
+            $expenses_total += $expenses['accomodation'];
+            $expenses_total = round($expenses_total, 2);
             eval("\$segment_expenses  = \"".$template->get('travelmanager_viewplan_expenses')."\";");
             return $segment_expenses;
         }
@@ -278,11 +279,10 @@ class TravelManagerPlanSegments {
 // parse flight name
             foreach($flightdata['slice'] as $slicenum => $slice) {
                 foreach($slice['segment'] as $segmentnu => $segment) {
-
-                    $flight[$segmentnu]['arrivaltime'] = date($core->settings['dateformate']."H:m", strtotime($segment[leg][0][arrivalTime]));
-                    $flight[$segmentnu]['departuretime'] = date($core->settings['dateformate']."H:m", strtotime($segment[leg][0][departureTime]));
+                    $flight[$segmentnu]['arrivaltime'] = date($core->settings['dateformat']." H:m", strtotime($segment[leg][0][arrivalTime]));
+                    $flight[$segmentnu]['departuretime'] = date($core->settings['dateformat']." H:m", strtotime($segment[leg][0][departureTime]));
                     $flight[$segmentnu]['origin'] = $segment['leg'][0]['origin'];
-                    $flight[$segmentnu]['destination'] = $segment['leg'][0] ['destination'];
+                    $flight[$segmentnu]['destination'] = $segment['leg'][0]['destination'];
                     if(isset($segment['connectionDuration'])) {
                         $flight[$segmentnu]['connectionDuration'] = sprintf('%2dh %2dm', floor($segment['connectionDuration'] / 60), ($segment['connectionDuration'] % 60));
                         $connectionduration = '<div class="display:block; border_top border_bottom" style="padding: 10px; font-style: italic;">Connection: '.$flight[$segmentnu]['connectionDuration'].'</div>';

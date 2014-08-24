@@ -174,7 +174,7 @@ class TravelManagerAirlines {
 //        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
 //        $result = curl_exec($ch);
         //$result = file_get_contents('./modules/travelmanager/jsonflightdetails_roundtrip.txt');
-        $result = file_get_contents('./modules/travelmanager/jsonflightdetailsWAS.txt');
+        $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
         //      curl_close($ch);
         return $result;
     }

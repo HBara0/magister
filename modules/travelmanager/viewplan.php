@@ -20,21 +20,20 @@ if(!$core->input['action']) {
     if($core->user['uid'] != $plan_object->uid) {
         error($lang->sectionpermissions);
     }
-    $leave_type = $plan_object->get_leave()->get_type()->get()['name'];
+    $leave = $plan_object->get_leave();
+    $leave_type = $leave->get_type();
 
-    $plan_name = $leave_type.' - '.$plan_object->get_leave()->get_country()->get()['name'];
+    $plan_name = $leave_type->title.' - '.$plan_object->get_leave()->get_country()->get()['name'];
     //$leave_type = unserialize($plan_object->get_leave()->get_type()->get()['toApprove']);
 
-    /* parse leave */
-    $leave_details = $plan_object->get_leave()->parse_leave();
-
     /* parse segment of plan */
-    $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid));
+    $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'fromDate', 'returnarray' => true));
     foreach($segment_objs as $segmentid => $segment) {
         $segment_details .= $segment->parse_segment();
         $segment_expenses = $segment->parse_expensesummary();
     }
 
+    eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
     eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpan')."\";");
     output_page($travelmanager_viewplan);
     //get  segment trans from db
