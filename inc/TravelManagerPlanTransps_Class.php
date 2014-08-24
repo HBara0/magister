@@ -68,7 +68,7 @@ class TravelManagerPlanTransps {
             $tmptransp->update($data);
         }
         else {
-            $tmptransp = TravelManagerPlanTransps::get_transpsegments(array(TravelManagerTranspCategories::PRIMARY_KEY => $data[TravelManagerTranspCategories::PRIMARY_KEY], TravelManagerPlan::PRIMARY_KEY => $data[TravelManagerPlan::PRIMARY_KEY]));
+            $tmptransp = TravelManagerPlanTransps::get_transpsegments(array(TravelManagerTranspCategories::PRIMARY_KEY => $data[TravelManagerTranspCategories::PRIMARY_KEY], TravelManagerPlanSegments::PRIMARY_KEY => $data[TravelManagerPlanSegments::PRIMARY_KEY]));
             if(is_object($tmptransp)) {
                 $tmptransp->update($data);
             }
@@ -79,7 +79,10 @@ class TravelManagerPlanTransps {
     public function update(array $data) {
         global $db;
 
-        /* Futher checks required here */
+        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'transpDetails');
+        $valid_attrs = array_combine($valid_attrs, $valid_attrs);
+        $data = array_intersect_key($data, $valid_attrs);
+
         $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
@@ -95,10 +98,9 @@ class TravelManagerPlanTransps {
                 'fare' => $transportdata['fare'],
                 'vehicleNumber' => $transportdata['vehicleNumber'],
                 'flightNumber' => $transportdata['flightNumber'],
-                'flightDetails' => $transportdata['flightDetails'],
-                'transpType' => $transportdata['transpType'],
+                'transpDetails' => $transportdata['transpDetails']
+                //'transpType' => $transportdata['transpType'],
         );
-
 
         $db->insert_query(self::TABLE_NAME, $tanspdata_array);
         $this->data[self::PRIMARY_KEY] = $db->last_id();

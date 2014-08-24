@@ -33,9 +33,10 @@ class TravelManagerPlanSegments {
 
     public function create($segmentdata = array()) {
         global $db, $core;
-        $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
-        $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
-
+        if(!is_numeric($segmentdata['toDate'])) {
+            $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
+            $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
+        }
         if(is_empty($segmentdata['fromDate'], $segmentdata['toDate'], $segmentdata['originCity'], $segmentdata['destinationCity'])) {
             $this->errorode = 2;
             return false;
@@ -76,6 +77,9 @@ class TravelManagerPlanSegments {
                 rsort($chkdata);
                 if(is_array($chkdata[0])) {
                     foreach($data as $id => $transit) {
+                        if(!isset($transit['flightNumber'])) {
+                            continue;
+                        }
                         $transp_obj = new TravelManagerPlanTransps();
                         $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                         $transit['tmtcid'] = $category;
@@ -84,6 +88,9 @@ class TravelManagerPlanSegments {
                     }
                 }
                 else {
+                    if(isset($data['transpType']) && empty($data['transpType'])) {
+                        continue;
+                    }
                     $transp_obj = new TravelManagerPlanTransps();
                     $data['tmtcid'] = $category;
                     $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
@@ -108,6 +115,11 @@ class TravelManagerPlanSegments {
 
     public function update(array $segmentdata) {
         global $db;
+
+        if(!is_numeric($segmentdata['toDate'])) {
+            $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
+            $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
+        }
 
         $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity');
         /* Consider using array intersection */
@@ -136,7 +148,6 @@ class TravelManagerPlanSegments {
     }
 
     public function save(array $data = array()) {
-        global $core;
         if(empty($data)) {
             $data = $this->data;
         }//get object of and the id and set data and save
@@ -225,7 +236,7 @@ class TravelManagerPlanSegments {
             foreach($accomd_objs as $accomdation) {
                 $segment_hotel .= '<div style=" width:50%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style="margin:10px;"> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
                 //    $segment_hotel .= '<div style=" width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
-                $segment_hotel .= '<div style=" width:50%; display: inline-block;font-size:14px; font-weight:bold;"> <span> $ '.($accomdation->numNights * $accomdation->priceNight).'</span></div>'; // fix the html parse multiple hotl
+                $segment_hotel .= '<div style=" width:50%; display: inline-block;font-size:14px; font-weight:bold;"><span>$'.($accomdation->numNights * $accomdation->priceNight).'</span></div>'; // fix the html parse multiple hotl
                 //   $segment_hotelprice .='<div style=" width:45%; display: block;"> Nights '.$accomdation->numNights.' at $ '.$accomdation->priceNight.'/Night</div>';
             }
         }
@@ -242,8 +253,8 @@ class TravelManagerPlanSegments {
         if($db->num_rows($query) > 0) {
             while($transpexp = $db->fetch_assoc($query)) {
                 $expenses_details .= '<div style="display:block;padding:5px;"> ';
-                $expenses_details .= '<div style="width:20%;display:inline-block; ">'.$transpexp['transpType'].'</div>';
-                $expenses_details .= '<div style="width:20%;display:inline-block; "> $'.$transpexp['fare'].'</div>';
+                $expenses_details .= '<div style="width:20%;display:inline-block;">'.$transpexp['transpType'].'</div>';
+                $expenses_details .= '<div style="width:20%;display:inline-block;">$'.$transpexp['fare'].'</div>';
                 $expenses_details .= '</div>';
                 $expenses_total += $transpexp['fare'];
             }

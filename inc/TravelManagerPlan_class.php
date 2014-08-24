@@ -131,8 +131,8 @@ class TravelManagerPlan {
                     $transportaion_fields .= '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->feeday.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '').'</div>';
                     break;
                 default:
-                    $transportaion_fields = '<div style="padding:3px; display: inline-block; width:50%;">'.$lang->feeday.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '').'</div>';
-                    $transportaion_fields .= '<div style="padding:3px; display: inline-block; width:45%;">'.$lang->transptype.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][transpType]', 'text', '').'</div>';
+                    $transportaion_fields = '<div style="padding:3px; display: inline-block; width:45%;">'.$lang->transptype.' '.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][transpType]', 'text', '').'</div>';
+                    $transportaion_fields .= '<div style="padding:3px; display: inline-block; width:50%;">'.$lang->feeday.' '.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '').'</div>';
                     break;
             }
             // $transportaion_fields .='<div style="display:inline-block;padding:5px;"  id="approximatefare"> Approximate Fare '.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'number', '').'</div>';
@@ -203,16 +203,16 @@ class TravelManagerPlan {
             $this->data['lid'] = $data['lid'];
             $leave = new Leaves($this->data['lid']);
             unset($data['lid']);
-            if($this->check_isemptyfields($data)) {
-                $this->errorode = 2;
-                return false;
-            }
+//            if($this->check_isemptyfields($data)) {
+//                $this->errorode = 2;
+//                return false;
+//            }
 
             $planleavedata['fromdate'] = $leave->get()['fromDate'];
             $planleavedata['todate'] = $leave->get()['toDate'];
             /* function to validate fields */
 
-            if(!$this->check_iteneraryconsistency($data, array('leavefromdate' => $leave->get()['fromDate'], 'leavetodate' => $leave->get()['toDate']))) {
+            if(!$this->check_iteneraryconsistency($data['segment'], array('leavefromdate' => $leave->get()['fromDate'], 'leavetodate' => $leave->get()['toDate']))) {
                 return false;
             }
 
@@ -230,11 +230,10 @@ class TravelManagerPlan {
             );
             $db->insert_query('travelmanager_plan', $plandata);
             $this->data[self::PRIMARY_KEY] = $db->last_id();
-            $this->segmentdata = $data;
         }
         /* create segment */
-        $segment_planobj = new TravelManagerPlanSegments();
-        foreach($this->segmentdata as $sequence => $segmentdata) {
+
+        foreach($data['segment'] as $sequence => $segmentdata) {
             $tmpsegment = new TravelManagerPlanSegments();
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
             $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
@@ -265,28 +264,28 @@ class TravelManagerPlan {
     public function update($plandata = array()) {
         global $db;
 
-        $segment_planobj = new TravelManagerPlanSegments();
-        $this->segmentdata = $plandata;
-        $tmpid = $plandata['tmpid'];
-        unset($plandata['tmpid']);
+        $segments = $plandata['segment'];
+
+        $valid_attrs = array('lid', 'uid', 'title', 'createBy', 'createdOn', 'modifiedBy', 'modifiedOn', 'isFinalized');
+        $valid_attrs = array_combine($valid_attrs, $valid_attrs);
+        $plandata = array_intersect_key($plandata, $valid_attrs);
         $db->update_query(self::TABLE_NAME, $plandata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
 
-        foreach($this->segmentdata as $sequence => $segmentdata) {
-            $segment_planobj = new TravelManagerPlanSegments();
-            if(isset($segmentdata['lid'])) {
-                unset($segmentdata['lid']);
-            }
-            if(isset($segmentdata['fromDate']) && isset($segmentdata['toDate']) && !empty($tmpid) && isset($segmentdata['sequence'])) {
-                $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
-                $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
-                $segmentdata[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
-                $segmentdata['sequence'] = $sequence;
-            }
+        if(is_array($segments)) {
+            foreach($segments as $sequence => $segmentdata) {
+                $segment_planobj = new TravelManagerPlanSegments();
+                if(isset($segmentdata['fromDate']) && isset($segmentdata['toDate'])) {
+                    $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
+                    $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
+                    $segmentdata[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+                    $segmentdata['sequence'] = $sequence;
+                }
 
-            $segment_planobj->set($segmentdata);
-            $segment_planobj->save();
-            // $segment_planobj->create($segmentdata);
-            $this->errorode = $segment_planobj->get_errorcode();
+                $segment_planobj->set($segmentdata);
+                $segment_planobj->save();
+                // $segment_planobj->create($segmentdata);
+                $this->errorode = $segment_planobj->get_errorcode();
+            }
         }
     }
 

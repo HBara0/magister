@@ -168,7 +168,7 @@ else {
     elseif($core->input['action'] == 'do_perform_plantrip') {
         $travelplan = new TravelManagerPlan();
         if(is_array($core->input['segment'])) {
-            $travelplan->set($core->input['segment']);
+            $travelplan->set($core->input);
             $travelplan->save();
             // $travelplan_obj->create($core->input['segment']);
         }

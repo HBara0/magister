@@ -111,15 +111,15 @@
                 <div style='margin-top: 10px;'>
                     <a id="createtab" class="showpopup" href="#"><img border="0" alt="{$lang->addsegment}" src="images/addnew.png"> {$lang->addsegment}</a>
                 </div>
-                <input type="hidden" value="{$leaveid}" id="lid" name="segment[{$sequence}][lid]"/>
                 <input type="hidden" value="{$sequence}" name="sequence"/>
                 <input type="hidden" value="{$previoussegtodate}" id="todate" name="todate"/>
                 <input type="hidden" value="{$previoussegdestcity}" id="prevdestcity" name="prevdestcity"/>
+                <input type="hidden" value="{$leaveid}" id="lid" name="lid"/>
                 <div id="segmentstabs">
                     <ul>
                         <li><a href="#segmentstabs-1">Segment 1</a></li>
                     </ul>
-                    <div id="loadindsection">  </div>
+                    <div id="loadindsection"></div>
                     {$segments_output}
                 </div>
                 <input type='submit' class='button' value="{$lang->savecaps}" id='perform_travelmanager/plantrip_Button'>
