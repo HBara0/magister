@@ -126,7 +126,7 @@ class TravelManagerAirlines {
                     $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
                     //  $flight['flightdetails'] = base64_encode(serialize($flight['flightnumber'].$flight['flightid']));
 
-                    $flight['flightdetails'] = (json_encode($response_flightdata->trips->tripOption[$tripoptnum]));
+                    $flight['flightdetails'] = htmlspecialchars(json_encode($response_flightdata->trips->tripOption[$tripoptnum]));
                     if($is_roundtrip == true) {
                         $flight['triptype'] = 'Round Trip';
                         $flight['pricing'] += $flight['pricing'];

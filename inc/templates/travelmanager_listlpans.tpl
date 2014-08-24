@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->listsurveys}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->listplans}</title>
         {$headerinc}
     </head>
     <body>
@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->listsurveys}</h3>
+            <h3>{$lang->listplans}</h3>
             <table width="100%" class="datatable">
                 <thead>
                     <tr>

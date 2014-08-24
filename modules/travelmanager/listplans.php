@@ -13,18 +13,24 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
-    $travelplan_obj = TravelManagerPlan::get_plan(array('uid' => $core->user['uid'], 'isFinalized' => 1));
+    $travelplan_obj = TravelManagerPlan::get_plan(array('uid' => $core->user['uid']), array('returnarray' => true));
+    if(is_array($travelplan_obj)) {
+        foreach($travelplan_obj as $plan) {
+            // $leave_type = $plan->get_leave()->get_type()->get()['name'];
 
-    foreach($travelplan_obj as $plan) {
-        $leave_type = $plan->get_leave()->get_type()->get()['name'];
+            $plan->displayName = $plan->get_leave()->get_type()->name.' - '.$plan->get_leave()->get_country()->get()['name'];
+            $employee = $plan->get_createdBy()->get()['displayName'];
+            if(!empty($plan->createdOn)) {
+                $createdon = date($core->settings['dateformat'], $plan->createdOn);
+            }
 
-        $plan_name = $leave_type.'-'.$plan->get_leave()->get_country()->get()['name'];
-        $employee = $plan->get_createdBy()->get()['displayName'];
-        if(!empty($plan->createdOn)) {
-            $createdon = date($core->settings['dateformat'], $plan->createdOn);
+            $plan->link = 'index.php?module=travelmanager/viewplan&id='.$plan->tmpid;
+            if($plan->isFinalized == 0) {
+                $plan->link = 'index.php?module=travelmanager/plantrip&lid='.$plan->lid;
+            }
+            eval("\$plan_rows .= \"".$template->get('travelmanager_listlpans_rows')."\";");
         }
-        eval("\$plan_rows .= \"".$template->get('travelmanager_listlpan_rows')."\";");
     }
-    eval("\$travelmanager_listlpant = \"".$template->get('travelmanager_listlpan')."\";");
+    eval("\$travelmanager_listlpant = \"".$template->get('travelmanager_listlpans')."\";");
     output_page($travelmanager_listlpant);
 }

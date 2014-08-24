@@ -14,7 +14,7 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
-    $planid = $db->escape_string($core->input['id']);
+    $planid = intval($core->input['id']);
     $plan_object = TravelManagerPlan::get_plan(array('tmpid' => $planid));
     //set user permission
     if($core->user['uid'] != $plan_object->uid) {
@@ -22,9 +22,7 @@ if(!$core->input['action']) {
     }
     $leave_type = $plan_object->get_leave()->get_type()->get()['name'];
 
-
-    $plan_name = $leave_type.'-'.$plan_object->get_leave()->get_country()->get()['name'];
-
+    $plan_name = $leave_type.' - '.$plan_object->get_leave()->get_country()->get()['name'];
     //$leave_type = unserialize($plan_object->get_leave()->get_type()->get()['toApprove']);
 
     /* parse leave */
