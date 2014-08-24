@@ -63,7 +63,7 @@ class Leaves extends AbstractClass {
             while($leaveexpenses = $db->fetch_assoc($leaveexptype_query)) {
                 $leaveexpense[$leaveexpenses['aleid']] = $leaveexpenses;
             }
-            if(is_array($leaveexpense)) {
+            if(array($leaveexpense)) {
                 return $leaveexpense;
             }
             return false;
@@ -354,6 +354,11 @@ class Leaves extends AbstractClass {
             return false;
         }
 
+        $show_replyicon = 'display:block;';
+        if(isset($options['viewsource']) && ($options['viewsource'] == 'viewleave')) {
+            $show_replyicon = 'display:none;';
+        }
+
         if(empty($options['uid'])) {
             $options['uid'] = $core->user['uid'];
         }
@@ -390,6 +395,11 @@ class Leaves extends AbstractClass {
 
     private function parse_replies($replies, $depth = 1, array $options = array()) {
         global $template, $core;
+
+        $show_replyicon = 'display:block;';
+        if(isset($options['viewsource']) && ($options['viewsource'] == 'viewleave')) {
+            $show_replyicon = 'display:none;';
+        }
 
         if(is_array($replies)) {
             foreach($replies as $reply) {
@@ -526,8 +536,17 @@ class Leaves extends AbstractClass {
         }
     }
 
+    public function get_displayname() {
+        global $core;
+        return $this->get_type()->title.' | '.date($core->settings['dateformat'], $this->fromDate).'-'.date($core->settings['dateformat'], $this->toDate);
+    }
+
     public function get_errorcode() {
         $this->errorcode;
+    }
+
+    public function get_contactperson($simple) {
+        return new Users($this->data['contactPerson'], $simple);
     }
 
     protected function create(array $data) {

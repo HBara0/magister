@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Create Web Page
  * $module: CMS
  * $id: managewebpages.php
@@ -27,7 +27,7 @@ if(!$core->input['action']) {
     else {
         $actiontype = 'add';
         //$pagecategory = get_specificdata('cms_contentcategories', array('cmsccid', 'title'), 'cmsccid', 'title', 'title');
-        //$pagecategories_list = parse_selectlist('page[category]', 5, $pagecategory,$page['category']);		
+        //$pagecategories_list = parse_selectlist('page[category]', 5, $pagecategory,$page['category']);
     }
 
     if($core->usergroup['crm_canPublishPages'] == 1) {

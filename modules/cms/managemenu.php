@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Manage News
  * $module: CMS
- * $id: managemenu.php	
+ * $id: managemenu.php
  * Created By: 		@tony.assaad		Augusst 30, 2012 | 11:30 PM
  * Last Update: 	@tony.assaad		August 30, 201 | 12:13 PM
  */
@@ -28,13 +28,12 @@ if(!$core->input['action']) {
             $menu_id = $db->escape_string($core->input['id']);
         }
 
-
         $query = $db->query("SELECT cmsmiid, title, parent FROM ".Tprefix." cms_menuitems WHERE cmsmid =".$menu_id." ORDER BY title ASC");
         while($parentmenu = $db->fetch_assoc($query)) {
             $parentmenus[$parentmenu['cmsmiid']] = $parentmenu;
         }
         if(isset($parentmenus)) {
-            $parent_list = parse_selectlist('parent', 3, array(0 => '') + get_menuitmes($parentmenus, 1), 0);
+            $parent_list = parse_selectlist('menuitem[parent]', 3, array(0 => '') + get_menuitmes($parentmenus, 1), 0);
         }
 
         //$parent_list =  parse_selectlist('menuid', 1, $parentmenu,  0);
@@ -57,6 +56,7 @@ if(!$core->input['action']) {
 }
 elseif($core->input['action'] == 'do_createmenuitem') {
     $cms_menu = new CmsMenu();
+    $core->input['menuitem']['cmsmid'] = $core->input['menuitem']['cmsmid'];
     $cms_menu->create_menuitem($core->input['menuitem']);
 
     switch($cms_menu->get_status()) {
@@ -105,8 +105,7 @@ function get_menuitmes($parentmenus, $depth = '') {
     }
     if(is_array($parentmenus)) {
         foreach($parentmenus as $key => $parentmenu) {
-            $parent_list[$parentmenu['cmsmid']] = str_repeat('&hellip;', $depth).' '.$parentmenu['title'];
-
+            $parent_list[$parentmenu['cmsmiid']] = str_repeat('&hellip;', $depth).' '.$parentmenu['title'];
             if(is_array($parentmenu['title'])) {
                 $parent_list += get_menuitmes($parentmenu['title'], $depth);
             }

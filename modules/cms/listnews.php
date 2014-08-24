@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * List Website News
  * $module: CMS
- * $id: listnews.php	
+ * $id: listnews.php
  * Created By: 		@tony.assaad		Augusst 17, 2012 | 05:30 PM
  * Last Update: 	@zaher.reda			Augusst 22, 2012 | 02:20 PM
  */
@@ -28,7 +28,7 @@ if(!$core->input['action']) {
         foreach($news_details as $newsid => $news) {
             $isfeatured_icon = $ispublished_icon = '';
             $rowclass = alt_row($rowclass);
-
+            print_R($news);
             $news['dateCreated_output'] = date($core->settings['dateformat'], $news['createDate']);
             //$editnews_link = 'index.php?module=cms/managenews&type=edit&amp;newsid='.$news['cmsnid'];
 

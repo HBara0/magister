@@ -22,7 +22,7 @@ if(!$core->input['action']) {
             $task_iconstats = $task->parsestatus();
             $task->percCompleted_output = '';
             if($task_iconstats == 'inprogress') {
-                $task->percCompleted_output = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $task->percCompleted / 100);
+                //$task->percCompleted_output = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $task->percCompleted / 100);
             }
 
             $task_icon[$task_iconstats] = '<img src="./images/icons/'.$task_iconstats.'.png" border="0" />';
@@ -66,6 +66,34 @@ elseif($core->input['action'] == 'get_taskdetails') {
                 $task_notes_output .= '<div class="'.$rowclass.'" style="padding: 5px 0px 5px 10px;">'.$note->note.'. <span class="smalltext" style="font-style:italic;">'.$note->dateAdded_output.' by <a href="users.php?action=profile&uid='.$note->uid.'" target="_blank">'.$note->get_user()->displayName.'</a></span></div>';
             }
         }
+
+        /* Parse share with users */
+        $affiliates_users = Users::get_allusers();
+        $shared_users = $task->get_shared_users();
+        if(is_array($shared_users)) {
+
+            foreach($shared_users as $uid => $user) {
+                $user = $user->get();
+                $user = array_unique($user);
+                $checked = ' checked="checked"';
+                $rowclass = 'selected';
+
+                eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
+            }
+        }
+
+
+        foreach($affiliates_users as $uid => $user) {
+            $user = $user->get();
+            $checked = $rowclass = '';
+            if($uid == $core->user['uid']) {
+                continue;
+            }
+
+            eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
+        }
+
+        eval("\$task_sharewith = \"".$template->get('calendar_createeventtask_sharewith')."\";");
         eval("\$taskdetailsbox = \"".$template->get('popup_calendar_taskdetails')."\";");
         output($taskdetailsbox);
     }

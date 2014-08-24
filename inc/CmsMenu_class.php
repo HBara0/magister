@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * CMS News Class
  * $id: CmsMenu_class.php
  * Created:			@tony.assaad	September 12, 2012 | 01:53 PM
@@ -70,7 +70,8 @@ class CmsMenu extends Cms {
                 $this->menuitem['configurations'] = serialize($this->menuitem['configurations'][$key]);
                 break;
             }
-        }
+        } unset($this->menuitem['menuid'], $this->menuitem['itemid']);
+        print_r($this->menuitem);
 
         if(is_array($this->menuitem)) {
             $query = $db->insert_query('cms_menuitems', $this->menuitem);
@@ -111,19 +112,19 @@ class CmsMenu extends Cms {
         }
 
         if(!empty($options) && !empty($newsid)) {
-            $menu_query = "SELECT DISTINCT(cmi.cmsmiid), cmi.* 
+            $menu_query = "SELECT DISTINCT(cmi.cmsmiid), cmi.*
 				FROM  ".Tprefix."cms_menuitems cmi
 				JOIN ".Tprefix."cms_menus cm   ON(cmi.cmsmid=cm.cmsmid)
-				WHERE cmi.cmsmid={$newsid} 
-				{$sort_query} 
+				WHERE cmi.cmsmid={$newsid}
+				{$sort_query}
 				LIMIT {$limit_start}, {$core->settings[itemsperlist]}";
         }
         else {
-            $menu_query = "SELECT DISTINCT(cm.cmsmid), cm.*, u.displayname as creator 
+            $menu_query = "SELECT DISTINCT(cm.cmsmid), cm.*, u.displayname as creator
 				FROM  ".Tprefix."cms_menus cm
 				JOIN ".Tprefix."users u ON (u.uid=cm.createdBy)
 				{$filter_where}
-				{$sort_query} 
+				{$sort_query}
 				LIMIT {$limit_start}, {$core->settings[itemsperlist]}";
         }
 

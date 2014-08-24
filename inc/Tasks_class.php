@@ -104,6 +104,13 @@ class Tasks {
             $this->task['ctid'] = $db->last_id();
 
             $log->record($this->task['ctid']);
+            /* share task  ----START */
+            $calendarshare_obj = new CalendarTaskShare();
+            if(is_array($data['share'])) {
+                $data['share']['ctid'] = $this->task['ctid'];
+                $calendarshare_obj->set($data['share']);
+                $calendarshare_obj->save();
+            }
             $this->status = 0;
             return true;
         }
@@ -111,6 +118,19 @@ class Tasks {
             $this->status = 3;
             return false;
         }
+    }
+
+    public function get_shared_users() {
+        global $db;
+
+        $query = $db->query('SELECT uid FROM '.Tprefix.'calendar_tasks_sharewith WHERE ctid='.$db->escape_string($this->task['ctid'].''));
+        if($db->num_rows($query)) {
+            while($user = $db->fetch_assoc($query)) {
+                $users[$user['uid']] = new Users($user['uid']);
+            }
+            return $users;
+        }
+        return false;
     }
 
     public function notify_task() {
@@ -147,7 +167,7 @@ class Tasks {
             $mailer->add_attachment($ical_obj->get_filepath(), 'text/calendar', array('filename' => $this->task['subject']));
             $mailer->send();
             $ical_obj->delete();
-            if($mail->get_status() === false) {
+            if($mailer->get_status() === false) {
                 return false; //output_xml("<status>false</status><message>{$lang->errorsendingemail}</message>");
             }
         }

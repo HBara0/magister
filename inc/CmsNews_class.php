@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * CMS News Class
  * $id: CmsNews_class.php
  * Created:			@tony.assaad	August 13, 2012 | 10:53 PM
@@ -11,90 +11,100 @@
 
 class CmsNews extends Cms {
     private $status = 0;
-    private $news = array();
+    protected $data = array();
 
-    public function __construct($id = '', $simple = false) {
-        $this->read_settings_db();
+    const PRIMARY_KEY = 'cmsnid';
+    const TABLE_NAME = 'cms_news';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
+    const SIMPLEQ_ATTRS = 'cmsnid, createdBy';
 
+    public function __construct($id = '', $simple = true) {
         if(isset($id) && !empty($id)) {
-            $this->news = $this->read(intval($id), $simple);
+            $this->data = $this->read($id, $simple);
         }
+        return null;
     }
 
     public function add($data, array $options = array()) {
         global $db, $log, $core, $errorhandler, $lang;
 
-        $this->news = $data;
-        $this->categories = $this->news['categories'];
+        $this->data = $data;
+        $this->categories = $this->data['categories'];
 
-        if(is_empty($this->news['title'], $this->news['alias'], $this->news['bodyText'])) {
+        if(is_empty($this->data['title'], $this->data['alias'])) {
             $this->status = 1;
             return false;
         }
 
+
+
         /* Check if news with same title created by anyone */
-        if($options['operationtype'] == 'updateversion') {
-            if(value_exists('cms_news', 'title', $this->news['title'])) {
+        if($options['operationtype'] != 'updateversion') {
+            if(value_exists('cms_news', 'title', $this->data['title'])) {
                 $this->status = 2;
                 return false;
             }
         }
 
-        unset($this->news['categories']);
+        unset($this->data['categories']);
 
         /* Closing date can be empty, means news doesn't expire */
-        if(isset($this->news['publishDate']) && !empty($this->news['publishDate'])) {
-            $this->news['publishDate'] = strtotime($this->news['publishDate']);
+        if(isset($this->data['publishDate']) && !empty($this->data['publishDate'])) {
+            $this->data['publishDate'] = strtotime($this->data['publishDate']);
         }
 
-        if(empty($this->news['alias'])) {
-            $this->news['alias'] = $this->news['title'];
+        if(empty($this->data['alias'])) {
+            $this->data['alias'] = $this->data['title'];
         }
 
-        $this->news['alias'] = parent::generate_alias($this->news['alias']);
-        $this->news['title'] = $core->sanitize_inputs($this->news['title'], array('removetags' => true));
-        $this->news['bodyText'] = $core->sanitize_inputs($this->news['bodyText'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
-        $this->news['createdBy'] = $core->user['uid'];
-        $this->news['createDate'] = TIME_NOW;
+        $this->data['alias'] = parent::generate_alias($this->data['alias']);
+        $this->data['title'] = $core->sanitize_inputs($this->data['title'], array('removetags' => true));
+        $this->data['bodyText'] = $core->sanitize_inputs($this->data['bodyText'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
+        $this->data['createdBy'] = $core->user['uid'];
+        $this->data['createDate'] = TIME_NOW;
         /* Double check publishing permissions */
         if($core->usergroup['crm_canPublishNews'] == 0) {
-            $this->news['isPublished'] = 0;
+            $this->data['isPublished'] = 0;
         }
 
         if($options['operationtype'] == 'updateversion') {
-            $this->prevversion = $this->get_lastversion_news($this->news['alias'], array('exclude' => array('cmsnid' => $cmsnid)));
+            $cmsnid['cmsnid'] = $db->fetch_field($db->query("SELECT cmsnid as cmsnid  FROM ".Tprefix.self::TABLE_NAME), 'cmsnid');
+            $this->data['modifyDate'] = TIME_NOW;
+            $this->data['modifiedBy'] = $core->user['uid'];
+            $this->prevversion = $this->get_lastversion_news($this->data['alias'], array('exclude' => array('cmsnid' => $cmsnid['cmsnid'])));
         }
 
         /* Set appropriate version - START */
         if(isset($this->prevversion)) {
-            if(similar_text($this->news['bodyText'], $this->prevversion['bodyText']) > 70) {
-                $this->news['version'] = $this->prevversion['version'] + 0.1;
+            if(similar_text($this->data['bodyText'], $this->prevversion['bodyText']) > 70) {
+                $this->data['version'] = $this->prevversion['version'] + 0.1;
             }
             else {
-                $this->news['version'] = $this->prevversion['version'] + 1;
+                $this->data['version'] = $this->prevversion['version'] + 1;
             }
         }
         else {
-            $this->news['version'] = 1.0;
+            $this->data['version'] = 1.0;
         }
         /* Set appropriate version - END */
 
-        $newsimages = $this->news['uploadedImages'];
+        $newsimages = $this->data['uploadedImages'];
         $this->prepare_newsimages($newsimages);
-        $this->news['bodyText'] = $this->replace_imageslinks($this->news['bodyText'], $newsimages);
+        $this->data['bodyText'] = $this->replace_imageslinks($this->data['bodyText'], $newsimages);
 
-        if(isset($this->news['attachments']) && is_array($this->news['attachments'])) {
-            $attachments = $this->news['attachments'];
-            unset($this->news['attachments']);
+        if(isset($this->data['attachments']) && is_array($this->data['attachments'])) {
+            $attachments = $this->data['attachments'];
+            unset($this->data['attachments']);
         }
 
         /* Insert news - START */
-        if(is_array($this->news)) {
-            $query = $db->insert_query('cms_news', $this->news);
+        if(is_array($this->data)) {
+            $query = $db->insert_query('cms_news', $this->data);
             if($query) {
                 $this->status = 0;
                 $cmsnid = $db->last_id();
-                $log->record($this->news['cmsnid']);
+                $log->record($this->data['cmsnid']);
 
                 /* Insert relatedcategories */
                 $related_categories = array(
@@ -118,17 +128,17 @@ class CmsNews extends Cms {
                     if($options['operationtype'] == 'updateversion') {
                         $email_data['subject'] = $lang->sprint($lang->modifynotification_subject, $this->prevversion['title']);
                         $email_data['message'] = $lang->sprint($lang->modifynotification_body, $this->prevversion['title'], //1
-                                similar_text($this->prevversion['title'], $this->news['title']), //2
-                                $this->news['title'], //3
-                                similar_text($this->prevversion['summary'], $this->news['summary']), //4
-                                $this->news['summary'], //5
-                                similar_text($this->prevversion['bodyText'], $this->news['bodyText']), //6
-                                get_stringdiff($this->oldnews['bodyText'], $this->news['bodyText'])//7
+                                similar_text($this->prevversion['title'], $this->data['title']), //2
+                                $this->data['title'], //3
+                                similar_text($this->prevversion['summary'], $this->data['summary']), //4
+                                $this->data['summary'], //5
+                                similar_text($this->prevversion['bodyText'], $this->data['bodyText']), //6
+                                get_stringdiff($this->oldnews['bodyText'], $this->data['bodyText'])//7
                         );
                     }
                     else {
-                        $email_data['subject'] = $lang->sprint($lang->newnotification_subject, $this->news['title']);
-                        $email_data['message'] = $lang->sprint($lang->newnotification_body, $this->news['title'], $this->news['summary'], $this->news['bodyText']);
+                        $email_data['subject'] = $lang->sprint($lang->newnotification_subject, $this->data['title']);
+                        $email_data['message'] = $lang->sprint($lang->newnotification_body, $this->data['title'], $this->data['summary'], $this->data['bodyText']);
                     }
                     /* Attach new attachments to the message and indicate that in the message body */
                     //HERE
@@ -138,27 +148,28 @@ class CmsNews extends Cms {
                 /* Inform audits about the change, and request approval - END */
 
                 /* Upload related files - START */
+
                 $ftp_settings = array('server' => $this->settings['ftpserver'], 'username' => $this->settings['ftpusername'], 'password' => $this->settings['ftppassword']);
-                $upload = new Uploader('', array(), array(), 'constructonly');
-                $upload->establish_ftp($ftp_settings);
+//                $upload = new Uploader('', array(), array(), 'constructonly');
+//                $upload->establish_ftp($ftp_settings);
 
                 /* Upload news images - Start */
-                $upload->set_upload_path($this->settings['newsimagespath']);
-                $allowed_types_newsimages = array('image/jpeg', 'image/gif', 'image/png');
+//                $upload->set_upload_path($this->settings['newsimagespath']);
+//                $allowed_types_newsimages = array('image/jpeg', 'image/gif', 'image/png');
 
                 foreach($newsimages as $key_link => $link) {
                     $link = parse_url($link);
                     $path_info = pathinfo($link['path']);
                     $file_info = finfo_open(FILEINFO_MIME_TYPE);
 
-                    $upload->set_options('newsimage', array('newsimage' => array('type' => finfo_file($file_info, $link['path']), 'name' => $path_info['basename'], 'tmp_name' => $link['path'], 'size' => filesize($link['path']))), $allowed_types_newsimages, 'ftp', 5242880, 0, 0); //5242880 bytes = 5 MB (1024)
+                    //  $upload->set_options('newsimage', array('newsimage' => array('type' => finfo_file($file_info, $link['path']), 'name' => $path_info['basename'], 'tmp_name' => $link['path'], 'size' => filesize($link['path']))), $allowed_types_newsimages, 'ftp', 5242880, 0, 0); //5242880 bytes = 5 MB (1024)
                     finfo_close($file_info);
 
-                    $upload->process_file();
+                    //  $upload->process_file();
                     @unlink($link['path']);
                 }
                 /* Upload news images - End */
-                $upload->close_ftp();
+                //  $upload->close_ftp();
 
                 /* Upload attachments - Start */
                 $upload_param['allowed_types'] = array('image/jpeg', 'image/gif', 'image/png', 'application/zip', 'application/pdf', 'application/x-pdf', 'application/msword', 'application/vnd.ms-powerpoint', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
@@ -177,7 +188,6 @@ class CmsNews extends Cms {
                 $upload->process_file();
                 /* Upload attachments - Start */
                 $upload->close_ftp();
-
                 foreach($upload->get_status_array() as $key => $val) {
                     if($val == 4) {
                         $fileinfo = $upload->get_fileinfo($key);
@@ -204,10 +214,10 @@ class CmsNews extends Cms {
     }
 
     public function edit() {
-        
+
     }
 
-    private function read($id, $simple = false) {
+    protected function read($id, $simple = false) {
         global $db;
 
         if(empty($id)) {
@@ -216,14 +226,14 @@ class CmsNews extends Cms {
 
         $query_select = 'cn.*';
         if($simple == true) {
-            $query_select = 'cmsnid, title, summary';
+            $query_select = 'cn.cmsnid, cn.title, cn.summary';
         }
 
         return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."cms_news cn JOIN ".Tprefix."cms_news_relatedcategories cnrc ON (cnrc.cmsnid=cn.cmsnid) JOIN ".Tprefix."cms_contentcategories cnc ON(cnc.cmsccid=cnrc.cmsccid) WHERE cn.cmsnid=".$db->escape_string($id)));
     }
 
     public function get() {
-        
+        return $this->data;
     }
 
     private function prepare_newsimages(&$newsimages) {
@@ -234,7 +244,7 @@ class CmsNews extends Cms {
                 continue;
             }
 
-            if(!strstr($this->news['bodyText'], $link)) {
+            if(!strstr($this->data['bodyText'], $link)) {
                 $link = parse_url($link);
                 unset($newsimages[$key_link]);
                 @unlink($link['path']);
@@ -252,7 +262,7 @@ class CmsNews extends Cms {
     }
 
     /* Will retun an associative array of all news that match the selected options */
-    public function get_multiplenews() {
+    public function get_multiplenews($filter_where) {
         global $db, $core;
 
         $sort_query = 'ORDER BY cn.title ASC, cn.version DESC';
@@ -269,26 +279,26 @@ class CmsNews extends Cms {
             $limit_start = $db->escape_string($core->input['start']);
         }
 
-        if(isset($core->input['filterby'], $core->input['filtervalue'])) {
-            $attributes_filter_options['title'] = array('title' => 'cn.');
+//        if(isset($core->input['filterby'], $core->input['filtervalue'])) {
+//            $attributes_filter_options['title'] = array('title' => 'cn.');
+//
+//            if($attributes_filter_options['title'][$core->input['filterby']] == 'int') {
+//                $filter_value = ' = "'.$db->escape_string($core->input['filtervalue']).'"';
+//            }
+//            else {
+//                $filter_value = ' LIKE "%'.$db->escape_string($core->input['filtervalue']).'%"';
+//            }
+//              $filter_where = ' WHERE '.$db->escape_string($attributes_filter_options['title'][$core->input['filterby']].$core->input['filterby']).$filter_value;
+//        }
 
-            if($attributes_filter_options['title'][$core->input['filterby']] == 'int') {
-                $filter_value = ' = "'.$db->escape_string($core->input['filtervalue']).'"';
-            }
-            else {
-                $filter_value = ' LIKE "%'.$db->escape_string($core->input['filtervalue']).'%"';
-            }
-            $filter_where = ' WHERE '.$db->escape_string($attributes_filter_options['title'][$core->input['filterby']].$core->input['filterby']).$filter_value;
-        }
 
-
-        $news_query = $db->query("SELECT cn.cmsnid, cn.version, cn.isPublished, cn.isFeatured, cn.lang, cn.hits, cn.title, cn.summary, cn.createDate AS date, u.displayname as creator 
+        $news_query = $db->query("SELECT cn.cmsnid, cn.version, cn.createDate,cn.isPublished, cn.isFeatured, cn.lang, cn.hits, cn.title, cn.summary, cn.createDate AS date, u.displayname as creator
 								FROM ".Tprefix."cms_news cn
 								JOIN ".Tprefix."users u ON(u.uid=cn.createdBy)
 								LEFT JOIN ".Tprefix."cms_news_relatedcategories cnrc ON (cnrc.cmsnid=cn.cmsnid)
-								LEFT JOIN ".Tprefix."cms_contentcategories cnc ON (cnc.cmsccid=cnrc.cmsccid) 
+								LEFT JOIN ".Tprefix."cms_contentcategories cnc ON (cnc.cmsccid=cnrc.cmsccid)
 								{$filter_where}
-								{$sort_query} 
+								{$sort_query}
 								LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
         if($db->num_rows($news_query) > 0) {
