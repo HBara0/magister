@@ -515,7 +515,7 @@ function get_specificdata($table, $attributes, $key_attribute, $value_attribute,
     }
 }
 
-function quick_search($table, $attributes, $value, $select_attributes, $key_attribute, $order, $extra_where = '', $andor_param = 'OR', $configs = array()) {
+function quick_search($table, $attributes, $value, $select_attributes, $key_attribute, $options = array(), $andor_param = 'OR') {
     global $db, $lang;
 
     $value = $db->escape_string($value);
@@ -592,7 +592,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     }
 
     if(is_array($results)) {
-        if($configs['returnType'] == 'json') {
+        if($options['returnType'] == 'json') {
             foreach($results as $key => $val) {
                 $results_list[$key]['id'] = $key;
                 $results_list[$key]['value'] = $val;
@@ -602,26 +602,17 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
         else {
             $results_list .= '<ul id="searchResultsList">';
             foreach($results as $key => $val) {
-            if(isset($options['descinfo']) && !empty($options['descinfo'])) {
-                switch($options['descinfo']) {
-                    case 'citycountry':
-                        $city = new Cities($key);
-                        $details = '<br /><span class="smalltext" >'.$city->get_country()->name.'</span>';
-                        $results_list .= '<li id="'.$city->ciid.'">'.$val.$details.'</li>';
-                        unset($details);
-                        break;
-                    case 'productsegment':
-                        $product = new Products($key);
-                        $chemfuncprod_objs = $product->get_chemfunctionproducts();
-                        if(is_array($chemfuncprod_objs)) {
-                            foreach($chemfuncprod_objs as $chemfuncprod_obj) {
-                                $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
-                                $details = '<br /><span class="smalltext" >'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
-                                $results_list .= '<li id="'.$chemfuncprod_obj->cfpid.'">'.$val.$details.'</li>';
-                            }
-                        }
-                        else { /* get Defaultfunction of the product */
-                            $chemfuncprod_objs = $product->get_defaultchemfunction();
+                if(isset($options['descinfo']) && !empty($options['descinfo'])) {
+                    switch($options['descinfo']) {
+                        case 'citycountry':
+                            $city = new Cities($key);
+                            $details = '<br /><span class="smalltext" >'.$city->get_country()->name.'</span>';
+                            $results_list .= '<li id="'.$city->ciid.'">'.$val.$details.'</li>';
+                            unset($details);
+                            break;
+                        case 'productsegment':
+                            $product = new Products($key);
+                            $chemfuncprod_objs = $product->get_chemfunctionproducts();
                             if(is_array($chemfuncprod_objs)) {
                                 foreach($chemfuncprod_objs as $chemfuncprod_obj) {
                                     $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
@@ -629,41 +620,42 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                     $results_list .= '<li id="'.$chemfuncprod_obj->cfpid.'">'.$val.$details.'</li>';
                                 }
                             }
-                            else {
-                                $results_list .= '<li id="'.$key.'">'.$val.'</li>';
+                            else { /* get Defaultfunction of the product */
+                                $chemfuncprod_objs = $product->get_defaultchemfunction();
+                                if(is_array($chemfuncprod_objs)) {
+                                    foreach($chemfuncprod_objs as $chemfuncprod_obj) {
+                                        $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
+                                        $details = '<br /><span class="smalltext" >'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
+                                        $results_list .= '<li id="'.$chemfuncprod_obj->cfpid.'">'.$val.$details.'</li>';
+                                    }
+                                }
                             }
-                        }
+                            unset($details);
+                            break;
+                        case 'checmicalfunction':
+                            $chemfunchem_objs = ChemFunctionChemicals::get_data('csid='.$key, array('returnarray' => 1));
+                            if(is_array($chemfunchem_objs)) {
+                                foreach($chemfunchem_objs as $chemfunchem_obj) {
+                                    $application_obj = $chemfunchem_obj->get_segapplicationfunction();
+                                    $details = '<br /><span class="smalltext" >'.$chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
+                                    $results_list .= '<li id="'.$chemfunchem_obj->cfcid.'">'.$val.$details.'</li>';
+                                }
+                            }
+                            break;
+                        default:
+                            $results_list .= '<li id="'.$key.'">'.$val.'</li>';
+                            break;
                     }
                 }
                 else {
                     $results_list .= '<li id="'.$key.'">'.$val.'</li>';
                 }
-                        unset($details);
-                        break;
-                    case 'checmicalfunction':
-                        $chemfunchem_objs = ChemFunctionChemicals::get_data('csid='.$key, array('returnarray' => 1));
-                        if(is_array($chemfunchem_objs)) {
-                            foreach($chemfunchem_objs as $chemfunchem_obj) {
-                                $application_obj = $chemfunchem_obj->get_segapplicationfunction();
-                                $details = '<br /><span class="smalltext" >'.$chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
-                                $results_list .= '<li id="'.$chemfunchem_obj->cfcid.'">'.$val.$details.'</li>';
-                            }
-                        }
-                        break;
-                    default:
-                        $results_list .= '<li id="'.$key.'">'.$val.'</li>';
-                        break;
-                }
-            }
-            else {
-                $results_list .= '<li id="'.$key.'">'.$val.'</li>';
-            }
             }
             $results_list .= '</ul>';
         }
     }
     else {
-        if($configs['returnType'] != 'json') {
+        if($options['returnType'] != 'json') {
             $results_list = '<span class="red_text">'.$lang->nomatchfound.'</span>';
         }
     }

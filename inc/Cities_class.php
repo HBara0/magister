@@ -181,13 +181,6 @@ class Cities {
             }
             $db->free_result($query);
             return $cities;
-    }
-
-    public function __get($name) {
-        if(isset($this->city[$name])) {
-            return $this->city[$name];
-        }
-        return false;
         }
         else {
             if($db->num_rows($query) == 1) {

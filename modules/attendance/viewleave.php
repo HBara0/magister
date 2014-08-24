@@ -27,6 +27,7 @@ if(!$core->input['action']) {
 
     $leave_obj->fromDate_output = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave_obj->fromDate);
     $leave_obj->toDate_output = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave_obj->toDate);
+    $leave_obj->user_output = $leave_obj->get_requester()->displayName;
     $limitedemail = $lang->no;
     if(($leave_obj->limitedEmail) == 1) {
         $limitedemail = $lang->yes;
@@ -34,8 +35,7 @@ if(!$core->input['action']) {
 
     $workingdays = $leave_obj->count_workingdays();
     $contactperson = $leave_obj->get_contactperson(true)->parse_link();
-        $contactperson = $leave_obj->get_contactperson(true)->parse_link();
-    }
+
     $leavetype = $leave_obj->get_type(false);
     $leave_obj->details_crumb = parse_additionaldata($leave_obj->get(), $leavetype->additionalFields);
     $additionalfield_output = '';
@@ -45,23 +45,26 @@ if(!$core->input['action']) {
     }
 
     $seperator = '';
-
     $approvers_objs = $leave_obj->get_approvers();
     foreach($approvers_objs as $approver) {
         if($approver->is_apporved()) {
-            $approved .=$seperator.$approver->get_user()->get_displayname();
-            $seperator = '; ';
+            $approved .= $seperator.$approver->get_user()->get_displayname();
+            $seperator = ', ';
         }
         else {
             $toapprove .= $seperator.$approver->get_user()->get_displayname();
+            $seperator = ', ';
         }
     }
 
     $seperator = '';
-    foreach(unserialize($leave_obj->affToInform) as $affiliate) {
-        $aff_object = new affiliates($affiliate);
-        $affiliates_list .= $seperator.$aff_object->parse_link();
-        $seperator = '; ';
+    $affiliates_list = '';
+    $informedaffs = unserialize($leave_obj->affToInform);
+    if(is_array($informedaffs)) {
+        foreach($informedaffs as $affiliate) {
+            $aff_object = new affiliates($affiliate);
+            $affiliates_list .= $seperator.$aff_object->parse_link();
+            $seperator = ', ';
         }
     }
 

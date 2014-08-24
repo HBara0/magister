@@ -22,7 +22,7 @@ class Users extends AbstractClass {
     public function __construct($id = '', $simple = true) {
         global $core;
         if(empty($id)) {
-            $this->data = $core->data;
+            $this->data = $core->user;
             $this->data['uid'] = intval($this->data['uid']);
         }
         else {
@@ -275,7 +275,7 @@ class Users extends AbstractClass {
             while($segment = $db->fetch_assoc($query)) {
                 $segments[$segment['psid']] = new ProductsSegments($segment['psid']);
             }
-            return $segment;
+            return $segments;
         }
     }
 

@@ -495,7 +495,7 @@ class Leaves extends AbstractClass {
     }
 
     public function get_country() {
-        return new Countries($this->leave['coid']);
+        return new Countries($this->data['coid']);
     }
 
     public function get_leavetype($simple = true) {
@@ -557,9 +557,9 @@ class Leaves extends AbstractClass {
         $alt_functions = array('coid' => 'get_capitalcity');
 
         foreach($attributes as $attribute) {
-            if(!empty($this->leave[$attribute])) {
+            if(!empty($this->data[$attribute])) {
                 $destination['type'] = $attribute;
-                $destination['id'] = $this->leave[$attribute];
+                $destination['id'] = $this->data[$attribute];
                 break;
             }
         }
@@ -590,14 +590,14 @@ class Leaves extends AbstractClass {
     }
 
     public function __get($name) {
-        if(array_key_exists($name, $this->leave)) {
-            return $this->leave[$name];
+        if(array_key_exists($name, $this->data)) {
+            return $this->data[$name];
         }
     }
 
     public function get_displayname() {
         global $core;
-        return $this->get_type()->title.' | '.date($core->settings['dateformat'], $this->fromDate).'-'.date($core->settings['dateformat'], $this->toDate);
+        return $this->get_type()->title.' | '.date($core->settings['dateformat'], $this->fromDate).' - '.date($core->settings['dateformat'], $this->toDate);
     }
 
     public function get_errorcode() {
