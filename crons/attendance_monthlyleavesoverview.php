@@ -17,7 +17,7 @@ $lang->load('attendance_meta');
 
 if(!$core->input['action']) {
     $startdate = mktime(0, 0, 0, 1, 1, date('Y', TIME_NOW));
-    $enddate = mktime(23, 59, 0, 12, 31, date('Y', TIME_NOW));
+    $enddate = mktime(23, 59, 59, 12, 31, date('Y', TIME_NOW));
     $lang->thismonth = 'This Month';
     $lang->thisweek = 'This Week';
     $lang->lastmonth = 'Last Month';
@@ -46,7 +46,7 @@ if(!$core->input['action']) {
 
 
     for($i = 1; $i <= 12; $i++) {
-        $month_names .= '<td style="width:6%; padding:5px;">'.$lang->{strtolower(date("F", mktime(0, 0, 0, $i, 1, 0)))}.'</td>';
+        $month_names .= '<th style="width:6%; padding:5px;">'.$lang->{strtolower(date("F", mktime(0, 0, 0, $i, 1, 0)))}.'</th>';
     }
 
     $hrgm_query = $db->query("SELECT affid, generalManager, supervisor, hrManager, finManager FROM ".Tprefix."affiliates ORDER by name ASC");
@@ -243,18 +243,6 @@ if(!$core->input['action']) {
                     }
                 }
 
-                $balance_query = $db->query("SELECT canTake, additionalDays
-                                            FROM ".Tprefix."leavesstats
-                                            WHERE uid = {$uid} AND ltid = {$ltid} AND (((periodStart BETWEEN {$startdate} AND {$enddate}) OR (periodEnd  BETWEEN {$startdate} AND {$enddate})))");
-
-                while($stats = $db->fetch_assoc($balance_query)) {
-                    $balance[$ltid][$uid] = $stats['canTake'] + $stats['additionalDays']; //$subbalance[$ltid][$uid];
-
-                    if(is_array($total[$ltid][$uid])) {
-                        $balance[$ltid][$uid] -= array_sum($total[$ltid][$uid]);
-                    }
-                }
-
                 if($rowcolor == '#F7FAFD') {
                     $rowcolor = '#FFF';
                 }
@@ -268,36 +256,63 @@ if(!$core->input['action']) {
                     if(isset($total[$ltid][$uid][$i]) && !empty($total[$ltid][$uid][$i])) {
                         $fromdate = mktime(0, 0, 0, $i, 1, date('Y', TIME_NOW));
                         $todate = mktime(23, 59, 0, $i, 31, date('Y', TIME_NOW));
-                        $output[$val['affid']][$ltid][$uid] .= '<td><a href="'.DOMAIN.'/index.php?module=attendance/listleaves&uid='.$uid.'&fromdate='.$fromdate.'&todate='.$todate.'" target="_blank">'.$total[$ltid][$uid][$i].'</a></td>';
+                        $output[$val['affid']][$ltid][$uid] .= '<td style="text-align:right;"><a href="'.DOMAIN.'/index.php?module=attendance/listleaves&uid='.$uid.'&fromdate='.$fromdate.'&todate='.$todate.'" target="_blank">'.$total[$ltid][$uid][$i].'</a></td>';
                     }
                     else {
-                        $output[$val['affid']][$ltid][$uid] .= '<td>0</td>';
+                        $output[$val['affid']][$ltid][$uid] .= '<td style="text-align:right;">0</td>';
                     }
                 }
 
                 if(is_array($total[$ltid][$uid])) {
-                    $output[$val['affid']][$ltid][$uid] .= '<td style="font-style:italic;">'.array_sum($total[$ltid][$uid]).'</td>';
+                    $output[$val['affid']][$ltid][$uid] .= '<td style="font-style:italic; font-weight: bold; text-align:right;">'.array_sum($total[$ltid][$uid]).'</td>';
                 }
                 else {
-                    $output[$val['affid']][$ltid][$uid] .= '<td style="font-style:italic;">0</td>';
-                }
-
-                if(!in_array($ltid, $skipbalance_types)) {
-                    if(isset($balance[$ltid][$uid])) {
-                        $output_style = '';
-                        if($balance[$ltid][$uid] < 0) {
-                            $output_style = ' color: red;';
-                        }
-                        $output[$val['affid']][$ltid][$uid] .= '<td style="font-weight:bold;'.$output_style.'">'.$balance[$ltid][$uid].'</td></tr>';
-                    }
-                    else {
-                        $output[$val['affid']][$ltid][$uid] .= '<td style="font-weight:bold;">0</td></tr>';
-                    }
-                }
-                else {
-                    $output[$val['affid']][$ltid][$uid] .= '<td style="font-weight:bold;"></td></tr>';
+                    $output[$val['affid']][$ltid][$uid] .= '<td style="font-style:italic; text-align:right;">0</td>';
                 }
             }
+            else {
+                if($rowcolor == '#F7FAFD') {
+                    $rowcolor = '#FFF';
+                }
+                else {
+                    $rowcolor = '#F7FAFD';
+                }
+                $output[$val['affid']][$ltid][$uid] = '<tr style="border-bottom: 1px dashed #CCCCCC; background-color:'.$rowcolor.'"><td><a href="'.DOMAIN.'/users.php?action=profile&uid='.$uid.'" target="_blank">'.$users_info[$uid]['name'].'</a></td>';
+
+                for($i = 1; $i <= 12; $i++) {
+                    $output[$val['affid']][$ltid][$uid] .= '<td style="text-align:right;">0</td>';
+                }
+                $output[$val['affid']][$ltid][$uid] .= '<td style="font-style:italic; text-align:right;">0</td>';
+            }
+
+            /* Get balance - START */
+            $balance_query = $db->query("SELECT canTake, additionalDays
+                                            FROM ".Tprefix."leavesstats
+                                            WHERE uid = {$uid} AND ltid = {$ltid} AND (((periodStart BETWEEN {$startdate} AND {$enddate}) OR (periodEnd  BETWEEN {$startdate} AND {$enddate})))");
+
+            while($stats = $db->fetch_assoc($balance_query)) {
+                $balance[$ltid][$uid] = $stats['canTake'] + $stats['additionalDays']; //$subbalance[$ltid][$uid];
+
+                if(is_array($total[$ltid][$uid])) {
+                    $balance[$ltid][$uid] -= array_sum($total[$ltid][$uid]);
+                }
+            }
+            if(!in_array($ltid, $skipbalance_types)) {
+                if(isset($balance[$ltid][$uid])) {
+                    $output_style = '';
+                    if($balance[$ltid][$uid] < 0) {
+                        $output_style = ' color: red;';
+                    }
+                    $output[$val['affid']][$ltid][$uid] .= '<td style="text-align: right; font-weight:bold;'.$output_style.'">'.$balance[$ltid][$uid].'</td></tr>';
+                }
+                else {
+                    $output[$val['affid']][$ltid][$uid] .= '<td style="font-weight:bold; text-align:right;">0</td></tr>';
+                }
+            }
+            else {
+                $output[$val['affid']][$ltid][$uid] .= '<td style="font-weight:bold; text-align:center;">-</td></tr>';
+            }
+            /* Get balance - END */
             /* Get leaves - END */
 
             /* Parse Timeline - START */
@@ -549,19 +564,17 @@ if(!$core->input['action']) {
             }
 
             //echo $message_output;
-//            print_r($email_data);
-            echo '<hr />';
+            //print_r($email_data);
+            //echo '<hr />';
             $mail = new Mailer($email_data, 'php');
             if($mail->get_status() === true) {
                 $log->record($lang->monthlyleavesoverview, $email_data['to']);
-//					//$result['successfully'][]= $supid;
+//					$result['successfully'][]= $supid;
             }
             else {
                 $result['error'][] = $supid;
             }
             //echo '<hr />';
-
-
             $timeline_output = $message = $message_rows = '';
         }
     }
