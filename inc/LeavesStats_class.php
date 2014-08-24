@@ -16,6 +16,7 @@
 class LeavesStats extends AbstractClass {
     protected $data = array();
     protected $errorcode = 0;
+    private $user_hrinfo = null;
 
     const PRIMARY_KEY = 'lsid';
     const TABLE_NAME = 'leavesstats';
@@ -37,20 +38,25 @@ class LeavesStats extends AbstractClass {
 
     public function generate_periodbased($data) {
         /* Get required Info */
-        $user = new Users($data['uid']);
+        $user = new Users($data['uid'], false);
         $this->user_hrinfo = $user->get_hrinfo();
         $affiliate = $user->get_mainaffiliate();
+
         $leavetype = new LeaveTypes($data['type'], false);
-
-        if(empty($this->user_hrinfo['joinDate'])) {
-            $this->user_hrinfo['joinDate'] = $data['fromDate'];
-        }
-
         if(!isset($data['isWholeDay'])) {
             $data['isWholeDay'] = 1;
             if($leavetype->isWholeDay == 0) {
                 $data['isWholeDay'] = 0.5;
             }
+        }
+
+        if(!empty($leavetype->countWith)) {
+            $leavetype = new LeaveTypes($leavetype->countWith, false);
+            $data['type'] = $leavetype->ltid;
+        }
+
+        if(empty($this->user_hrinfo['joinDate'])) {
+            $this->user_hrinfo['joinDate'] = $user->dateAdded;
         }
 
         /* Count Working Days - START */
@@ -89,10 +95,6 @@ class LeavesStats extends AbstractClass {
                 /* Case where one period exists, and one or more don't */
 
                 $this->generate_periodbased_multiperiods(current($existing_stats), $data);
-
-//                $stat = current($existing_stats);
-//                $statdata['daysTaken'] = $stat->daysTaken + $data['workingDays'];
-//                $stat->update($statdata);
             }
             else {
                 foreach($existing_stats as $stat) {
@@ -157,7 +159,7 @@ class LeavesStats extends AbstractClass {
             $statdata['canTake'] = $statdata['entitledFor'];
 
             /* Set the new data for later use */
-            $valid_attrs = array('uid', 'ltid', 'periodStart', 'periodEnd', 'entitledFor', 'canTake');
+            $valid_attrs = array('uid', 'ltid', 'periodStart', 'periodEnd', 'entitledFor', 'canTake', 'daysTaken');
             $data['ltid'] = $data['type'];
             $statdata += $data;
             $valid_attrs = array_combine($valid_attrs, $valid_attrs);
@@ -166,31 +168,30 @@ class LeavesStats extends AbstractClass {
 
             $prev_stat = $this->get_prevstat();
             if(is_object($prev_stat)) {
-                // foreach($prev_stats as $prev_stat) {
+                $effective_prevbalance = ($prev_stat->canTake - $prev_stat->entitledFor); /* The actual accepted prev balance */
+                if($prev_stat->daysTaken < $effective_prevbalance) {
+                    $statdata['remainPrevYear'] = $prev_stat->entitledFor;
+                }
+                else {
+                    /* Consume previous balance 1st */
+                    $statdata['remainPrevYear'] = $prev_stat->daysTaken - $effective_prevbalance;
+                    /* Consume additional days 2nd */
+                    $statdata['remainPrevYear'] -= $prev_stat->additionalDays;
+                    /* Consume previous period entitelment 3rd */
+                    $statdata['remainPrevYear'] = $prev_stat->entitledFor - $statdata['remainPrevYear'];
+                }
+
+                $statdata['remainPrevYearActual'] = $statdata['remainPrevYear'];
+
+
                 /* Check if balance was entitled less than a year ago
                  * Required for adjustment period
                  */
-                if(floor(($statdata['periodStart'] - $prev_stat->periodStart) / (365 * 60 * 60 * 24)) < 1) {
-                    $statdata['remainPrevYear'] = $statdata['remainPrevYearActual'] = $prev_stat->entitledFor - $prev_stat->daysTaken;
-                }
-                else {
-                    $effective_prevbalance = ($prev_stat->canTake - $prev_stat->entitledFor); /* The actual accepted prev balance */
-                    if($prev_stat->taken < $effective_prevbalance) {
-                        $statdata['remainPrevYear'] = $prev_stat->entitledFor;
-                    }
-                    else {
-                        /* Consume previous balance 1st */
-                        $statdata['remainPrevYear'] = $prev_stat->daysTaken - $effective_prevbalance;
-                        /* Consume previous period entitelment 2nd */
-                        $statdata['remainPrevYear'] = $prev_stat->entitledFor - $prev_stat->remaining;
-                    }
-
-                    $statdata['remainPrevYearActual'] = $statdata['remainPrevYear'];
+                if(floor(($statdata['periodStart'] - $prev_stat->periodStart) / (365 * 60 * 60 * 24)) > 1) {
                     if($statdata['remainPrevYear'] > $leavepolicy->maxAccumulateDays) {
                         $statdata['remainPrevYearActual'] = $leavepolicy->maxAccumulateDays;
                     }
                 }
-                // }
             }
 
             $statdata['canTake'] += $statdata['remainPrevYearActual'];
@@ -201,18 +202,17 @@ class LeavesStats extends AbstractClass {
     }
 
     private function generate_periodbased_multiperiods(LeavesStats $stat, array $data) {
+        $periods[2] = $data;
         if($data['fromDate'] < $stat->periodStart) {
             $periods[1] = $data;
             $periods[1]['toDate'] = $stat->periodStart - 1;
+            $periods[2]['fromDate'] = $stat->periodStart;
         }
-
-        $periods[2] = $data;
-        $periods[2]['fromDate'] = $stat->periodStart;
-        $periods[2]['toDate'] = $stat->periodEnd;
 
         if($data['toDate'] > $stat->periodEnd) {
             $periods[3] = $data;
             $periods[3]['fromDate'] = $stat->periodEnd + 1;
+            $periods[2]['toDate'] = $stat->periodEnd;
         }
 
         foreach($periods as $period) {
