@@ -1596,4 +1596,11 @@ function get_object_bytype($dim, $id) {
     }
 }
 
+function fix_url($url) {
+    if(!preg_match("~^(?:f|ht)tps?://~i", $url)) {
+        $url = "http://".$url;
+    }
+    return $url;
+}
+
 ?>
