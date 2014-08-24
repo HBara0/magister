@@ -579,18 +579,6 @@ class Leaves extends AbstractClass {
         return false;
     }
 
-    public function parse_leave() {
-        global $template, $lang, $core;
-
-        if(is_array($this->leave)) {
-            echo $this->get_segment()->name;
-            $leave_title = $this->get_type()->get()['name'].' to '.$this->get_country()->get()['name'].'- Between '.date($core->settings['dateformat'], $this->get()['fromDate']).' And '.date($core->settings['dateformat'], $this->get()['toDate']);
-            eval("\$leave_details = \"".$template->get('leave_details')."\";");
-
-            return $leave_details;
-        }
-    }
-
     public static function get_leave_byattr($attr, $value) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects_byattr($attr, $value);
