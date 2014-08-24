@@ -89,7 +89,7 @@ class Leavetypes {
         }
         $query_select = '*';
         if($simple == true) {
-            $query_select = 'ltid, name, title,title AS name ,description, additionalFields,toApprove';
+            $query_select = 'ltid, name,isBusiness, title,title AS name ,description, additionalFields,toApprove';
         }
         return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'leavetypes WHERE ltid='.$db->escape_string($id)));
     }
@@ -150,7 +150,7 @@ class Leavetypes {
                 }
 
                 //$field = '<input type = "text" id = "'.$search_for.'_'.$identifier.'_QSearch" value = "'.$field_settings['value_attribute_value'].'" required = "required"/><input type = "text" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value = "'.$field_settings['key_attribute_value'].'" id = "'.$search_for.'_'.$identifier.'_id" name = "'.$attribute.'" /><div id = "searchQuickResults_'.$identifier.'" class = "searchQuickResults" style = "display:none;"></div>';
-                $field = '<input type = "text" id = "'.$search_for.'_'.$identifier.'_cache_autocomplete" value = "'.$field_settings['value_attribute_value'].'" required = "required"/><input type = "text" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value = "'.$field_settings['key_attribute_value'].'" id = "'.$search_for.'_'.$identifier.'_id" name = "'.$attribute.'" />';
+                $field = '<input type = "text" id = "'.$search_for.'_'.$identifier.'_autocomplete" value = "'.$field_settings['value_attribute_value'].'" required = "required"/><input type = "text" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value = "'.$field_settings['key_attribute_value'].'" id = "'.$search_for.'_'.$identifier.'_id" name = "'.$attribute.'" />';
 
                 break;
             case 'select':
@@ -177,6 +177,7 @@ class Leavetypes {
                         }
 
                         $data = get_specificdata($field_settings['table'], $field_settings['attributes'], $field_settings['key_attribute'], $field_settings['value_attribute'], array('by' => $field_settings['value_attribute'], 'sort' => 'ASC'), 0, $field_settings['where']);
+
                         if(is_array($data)) {
                             $field = parse_selectlist($attribute, 0, $data, $field_settings['key_attribute_value'], $field_settings['mulitpleselect'], '', array('required' => true));
                         }

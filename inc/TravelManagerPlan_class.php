@@ -233,6 +233,7 @@ class TravelManagerPlan {
             $this->segmentdata = $data;
         }
         /* create segment */
+        $segment_planobj = new TravelManagerPlanSegments();
         foreach($this->segmentdata as $sequence => $segmentdata) {
             $tmpsegment = new TravelManagerPlanSegments();
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
@@ -264,7 +265,9 @@ class TravelManagerPlan {
     public function update($plandata = array()) {
         global $db;
 
+        $segment_planobj = new TravelManagerPlanSegments();
         $this->segmentdata = $plandata;
+        $tmpid = $plandata['tmpid'];
         unset($plandata['tmpid']);
         $db->update_query(self::TABLE_NAME, $plandata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
 
@@ -273,12 +276,13 @@ class TravelManagerPlan {
             if(isset($segmentdata['lid'])) {
                 unset($segmentdata['lid']);
             }
-            // if(isset($segmentdata['fromDate']) && isset($segmentdata['toDate']) && isset($segmentdata['tmpid']) && isset($segmentdata['sequence'])) {
-            $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
-            $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
-            $segmentdata[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
-            $segmentdata['sequence'] = $sequence;
-            // }
+            if(isset($segmentdata['fromDate']) && isset($segmentdata['toDate']) && !empty($tmpid) && isset($segmentdata['sequence'])) {
+                $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
+                $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
+                $segmentdata[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+                $segmentdata['sequence'] = $sequence;
+            }
+
             $segment_planobj->set($segmentdata);
             $segment_planobj->save();
             // $segment_planobj->create($segmentdata);
@@ -325,11 +329,11 @@ class TravelManagerPlan {
     }
 
     public function get_leave() {
-        return new Leaves($this->plan['lid']);
+        return new Leaves($this->data['lid'], false);
     }
 
     public function get_user() {
-        return new Users($this->plan['uid']);
+        return new Users($this->data['uid']);
     }
 
     public function get_createdBy() {
@@ -338,7 +342,7 @@ class TravelManagerPlan {
     }
 
     public function get_modifiedBy() {
-        return new Users($this->plan['modifiedBy']);
+        return new Users($this->data['modifiedBy']);
     }
 
 }

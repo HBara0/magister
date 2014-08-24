@@ -69,7 +69,7 @@ class TravelManagerAirlines {
         return false;
     }
 
-    private function parse_responsefilghts($response_flightdata, $transpcatid, $sequence) {
+    private function parse_responsefilghts($response_flightdata, $transpcatid, $sequence, $source = 'plan') {
         global $core, $template, $lang;
         foreach($response_flightdata->trips->tripOption as $tripoptnum => $tripoption) {
 //for($tripoptnum = 0; $tripoptnum <= count($response_flightdata->trips->tripOption); $tripoptnum++) {
@@ -124,9 +124,9 @@ class TravelManagerAirlines {
 
                     $flight['flightid'] = $response_flightdata->trips->tripOption[$tripoptnum]->id;
                     $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
+                    //  $flight['flightdetails'] = base64_encode(serialize($flight['flightnumber'].$flight['flightid']));
 
-                    $flight['flightdetails'] = base64_encode(serialize($flight['flightnumber'].$flight['flightid']));
-
+                    $flight['flightdetails'] = (json_encode($response_flightdata->trips->tripOption[$tripoptnum]));
                     if($is_roundtrip == true) {
                         $flight['triptype'] = 'Round Trip';
                         $flight['pricing'] += $flight['pricing'];
@@ -143,8 +143,9 @@ class TravelManagerAirlines {
                     unset($connectionduration, $flight['connectionDuration']);
                     // }
                 }
-
-                //}
+                if(!empty($source) && ($source == 'plan')) {
+                    $flightnumber_checkbox = ' <input type="checkbox" name="segment['.$sequence.'][tmtcid]['.$transpcatid.']['.$flight[flightid].'][flightNumber]" value="'.$flight['flightnumber'].'"/>';
+                }
             }
             eval("\$flights_records .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
             $flights_records_segments = $flights_records_roundtripsegments = $flights_records_roundtripsegments_details = '';
@@ -158,21 +159,21 @@ class TravelManagerAirlines {
      * @param	int		$length		Length of the random string
      * @return  parsed Html	$output
      */
-    public static function parse_bestflight($data, array $transpcat, $sequence) {
+    public static function parse_bestflight($data, array $transpcat, $sequence, $source = 'plan') {
         $response_flightdata = json_decode($data);
         //$flights_records = '<div class = "subtitle" style = "width:100%;margin:10px; box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px  rgba(0, 0, 0, 0.1) solid;;">Best Flights</div>';
 
-        return self::parse_responsefilghts($response_flightdata, $transpcat['tmtcid'], $sequence);
+        return self::parse_responsefilghts($response_flightdata, $transpcat['tmtcid'], $sequence, $source);
     }
 
     public static function get_flights($request, $apikey = null) {
-        $ch = curl_init('https://www.googleapis.com/qpxExpress/v1/trips/search?key=AIzaSyDXUgYSlAux8xlE8mA38T0-_HviEPiM5dU');
+//        $ch = curl_init('https://www.googleapis.com/qpxExpress/v1/trips/search?key=AIzaSyDXUgYSlAux8xlE8mA38T0-_HviEPiM5dU');
         // curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
-        $result = curl_exec($ch);
+//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+//        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
+//        $result = curl_exec($ch);
+        $result = file_get_contents('./modules/travelmanager/jsonflightdetails_roundtrip.txt');
         $result = file_get_contents('./modules/travelmanager/jsonflightdetailsWAS.txt');
         curl_close($ch);
         return $result;

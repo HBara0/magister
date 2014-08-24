@@ -2632,6 +2632,7 @@ CREATE TABLE `travelmanager_plan_segments` (
   `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `fromDate` bigint(30) NOT NULL,
   `toDate` bigint(30) NOT NULL,
+  `reason` varchar(500) COLLATE utf8_unicode_ci NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `createdBy` int(1) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
@@ -2639,9 +2640,10 @@ CREATE TABLE `travelmanager_plan_segments` (
   `originCity` int(10) NOT NULL,
   `destinationCity` int(10) NOT NULL,
   `sequence` tinyint(3) NOT NULL,
+  `apiFlightdata` longtext COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`tmpsid`),
   KEY `tmpid` (`tmpid`,`originCity`,`destinationCity`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=45 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `travelmanager_plan_transportation`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

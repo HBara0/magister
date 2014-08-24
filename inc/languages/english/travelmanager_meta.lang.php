@@ -27,6 +27,7 @@ $lang['errorcity'] = 'The segment city must be the same of the previous city ';
 $lang['citybrfg'] = 'City Briefing';
 $lang['cityreview'] = 'City Review';
 $lang['reservation'] = 'Possible Reservation Resources :';
+$lang['reason'] = 'Reason :';
 
 $lang['approxfare'] = 'Approxmita fare';
 $lang['traino'] = 'Train Number';
@@ -34,6 +35,14 @@ $lang['agency'] = 'Agency Name ';
 $lang['numberdays'] = 'number of days ';
 $lang['feeday'] = 'Fee Per Day';
 $lang['transptype'] = 'Transportation Type';
-
+$lang['viewplan'] = 'View Plan';
+$lang['listplan'] = 'List Plan';
+$lang['leavedetails'] = 'Leave Details';
+$lang['purpose'] = 'Purpose';
+$lang['segment'] = 'Segment';
+$lang['night'] = 'Night';
+$lang['checkin'] = 'Check in At';
+$lang['segment'] = 'Segment';
+$lang['viewleave'] = 'click to view leave';
 $lang['oppositedate'] = 'Segment from date cannot be greater than to date';
 ?>

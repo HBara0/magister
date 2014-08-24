@@ -26,13 +26,15 @@ class TravelManagerPlanSegments {
         $this->read($id);
     }
 
-    private function read($id) {
+    private function read($id = '') {
         global $db;
         $this->data = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
 
     public function create($segmentdata = array()) {
         global $db, $core;
+        $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
+        $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
 
         if(is_empty($segmentdata['fromDate'], $segmentdata['toDate'], $segmentdata['originCity'], $segmentdata['destinationCity'])) {
             $this->errorode = 2;
@@ -53,6 +55,7 @@ class TravelManagerPlanSegments {
                 'fromDate' => $segmentdata['fromDate'],
                 'toDate' => $segmentdata['toDate'],
                 'originCity' => $segmentdata['originCity'],
+                'reason' => $segmentdata['reason'],
                 'destinationCity' => $segmentdata['destinationCity'],
                 'createdBy' => $core->user['uid'],
                 'sequence' => $segmentdata['sequence'],
@@ -62,8 +65,8 @@ class TravelManagerPlanSegments {
         $db->insert_query(self::TABLE_NAME, $segmentdata_array);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
 
-        // if(isset($segmentdata['tmtcid'])) {
-        //  $transptdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
+// if(isset($segmentdata['tmtcid'])) {
+//  $transptdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
         $transptdata = $segmentdata['tmtcid'];
 
         /* Initialize the object */
@@ -182,6 +185,112 @@ class TravelManagerPlanSegments {
 
     public function get_modifiedBy() {
         return new Users($this->data['modifiedBy']);
+    }
+
+    public function get_transportations() {
+        return new TravelManagerPlanTransps();
+    }
+
+    private function get_allapidata() {
+        return json_decode($this->apiFlightdata);
+    }
+
+    public function parse_segment() {
+        global $template, $lang, $core;
+        $segmentdate = date('l F,d,Y', $this->fromDate);
+        $destination_cities = $this->get_origincity()->name.'  -  '.$this->get_destinationcity()->name;
+        $transp_objs = TravelManagerPlanTransps::get_transpsegments(array('tmpsid' => $this->data[self::PRIMARY_KEY]));
+        if(is_array($transp_objs)) {
+            foreach($transp_objs as $transportation) {
+                $transportation->transpType = $transportation->get_transpcategory($transportation->tmtcid)->name;
+
+                if(!empty($transportation->flightDetails)) {
+                    $transp_flightdetails = json_decode($transportation->flightDetails, true);
+                    $flight_details = $this->parse_flightdetails($transp_flightdetails);
+                }
+                eval("\$segment_transpdetails .= \"".$template->get('travelmanager_viewplan_transpsegments')."\";");
+                $flight_details = '';
+            }
+        }
+        $accomd_objs = TravelManagerPlanaccomodations::get_planaccomodations(array('tmpsid' => $this->data[self::PRIMARY_KEY]));
+
+        if(is_object($accomd_objs)) {
+            $segment_hotel = '<div style="width:15%; display: inline-block;">'.$lang->checkin.' '.$accomd_objs->get_hotel()->get()['name'].' </div>'; // fix the html parse multiple hotl
+            $segment_hotelprice = '<div style=" width:100%; display: block;">';
+            $segment_hotelprice = '<div style=" width:15%; display: inline-block;">'.$lang->night.' '.$accomd_objs->numNights.' at $ '.$accomd_objs->priceNight.'/'.$lang->night.'</div>';
+            $segment_hotelprice .=' <div style=" width:25%; margin-left:195px; display: inline-block;font-size:14px; font-weight:bold;"> $ '.($accomd_objs->numNights * $accomd_objs->priceNight).'</div> ';
+            $segment_hotelprice .='</div>';
+        }
+        elseif(is_array($accomd_objs)) {
+            foreach($accomd_objs as $accomdation) {
+                $segment_hotel .= '<div style=" width:50%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style="margin:10px;"> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
+                //    $segment_hotel .= '<div style=" width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
+                $segment_hotel .= '<div style=" width:50%; display: inline-block;font-size:14px; font-weight:bold;"> <span> $ '.($accomdation->numNights * $accomdation->priceNight).'</span></div>'; // fix the html parse multiple hotl
+                //   $segment_hotelprice .='<div style=" width:45%; display: block;"> Nights '.$accomdation->numNights.' at $ '.$accomdation->priceNight.'/Night</div>';
+            }
+        }
+        eval("\$segment_accomdetails  = \"".$template->get('travelmanager_viewplan_accomsegments')."\";");
+        eval("\$segment_details .= \"".$template->get('travelmanager_viewplan_segments')."\";");
+
+        return $segment_details;
+    }
+
+    public function parse_expensesummary() {
+        global $template, $core, $db;
+
+        $query = $db->query("SELECT  tmpltid,transpType, sum(fare) as fare FROM ".Tprefix."travelmanager_plan_transps WHERE tmpsid IN(SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".$db->escape_string($this->tmpid).") group By tmtcid");
+        if($db->num_rows($query) > 0) {
+            while($transpexp = $db->fetch_assoc($query)) {
+                $expenses_details .= '<div style="display:block;padding:5px;"> ';
+                $expenses_details .= '<div style="width:20%;display:inline-block; ">'.$transpexp['transpType'].'</div>';
+                $expenses_details .= '<div style="width:20%;display:inline-block; "> $'.$transpexp['fare'].'</div>';
+                $expenses_details .= '</div>';
+                $expenses_total += $transpexp['fare'];
+            }
+            /* get hotel expences total night of each segment */
+            $hotelexpensesquery = $db->query("SELECT sum(priceNight*numNights)as total FROM ".Tprefix."travelmanager_plan_accomodations WHERE tmpsid IN(SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".$db->escape_string($this->tmpid).") ");
+            if($db->num_rows($hotelexpensesquery) > 0) {
+                if($hotelexp = $db->fetch_assoc($hotelexpensesquery)) {
+                    $expenses_total +=$hotelexp['total'];
+                }
+            }
+
+            eval("\$segment_expenses  = \"".$template->get('travelmanager_viewplan_expenses')."\";");
+            return $segment_expenses;
+        }
+    }
+
+    private function parse_flightdetails($flightdata) {
+        global $template, $core;
+        $allapi_data = $this->get_allapidata();
+        if(is_array($flightdata)) {
+// parse flight name
+            foreach($flightdata['slice'] as $slicenum => $slice) {
+                foreach($slice['segment'] as $segmentnu => $segment) {
+
+                    $flight[$segmentnu]['arrivaltime'] = date($core->settings['dateformate']."H:m", strtotime($segment[leg][0][arrivalTime]));
+                    $flight[$segmentnu]['departuretime'] = date($core->settings['dateformate']."H:m", strtotime($segment[leg][0][departureTime]));
+                    $flight[$segmentnu]['origin'] = $segment['leg'][0]['origin'];
+                    $flight[$segmentnu]['destination'] = $segment['leg'][0] ['destination'];
+                    if(isset($segment['connectionDuration'])) {
+                        $flight[$segmentnu]['connectionDuration'] = sprintf('%2dh %2dm', floor($segment['connectionDuration'] / 60), ($segment['connectionDuration'] % 60));
+                        $connectionduration = '<div class="display:block; border_top border_bottom" style="padding: 10px; font-style: italic;">Connection: '.$flight[$segmentnu]['connectionDuration'].'</div>';
+                    }
+                    for($carriernum = 0; $carriernum < count($allapi_data->trips->data->carrier); $carriernum++) {
+
+                        if($segment['flight'] ['carrier'] == $allapi_data->trips->data->carrier[$carriernum]->code) {
+                            $flight['carrier'] = $allapi_data->trips->data->carrier[$carriernum]->name;
+                            break;
+                        }
+                    }
+                    $flight_details .='<div style=" width:40%; display:block;">'.$flight['carrier'].'</div>';
+                    $flight_details .= '<div style=" width:55%; display:  block;">Departure '.$flight[$segmentnu]['departuretime'].' '.$flight[$segmentnu]['origin'].' Arrival  '.$flight[$segmentnu]['arrivaltime'].' '.$flight[$segmentnu]['destination'].'</div>';
+                    $flight_details .= $connectionduration;
+                    unset($connectionduration, $flight[$segmentnu]['connectionDuration']);
+                }
+            }
+            return $flight_details;
+        }
     }
 
 }
