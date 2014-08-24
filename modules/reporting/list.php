@@ -269,7 +269,7 @@ else {
             $extra_where = ' AND a.affid IN ('.$inaffiliates.') ';
         }
         if($core->usergroup['canViewAllSupp'] == 0) {
-            $insuppliers = implode(',', $core->user['suppliers']);
+            $insuppliers = implode(',', $core->user['suppliers']['eid']);
             $extra_where .= ' AND r.spid IN ('.$insuppliers.') ';
         }
 

@@ -35,7 +35,7 @@ if(!$core->input['action']) {
     }
 
     if(!empty($profile['city'])) {
-        $profile['fulladdress'] .= $profile['city'].' - ';
+        $profile['fulladdress'] .= $affiliate_obj->get_city()->get()['name'].' - ';
     }
 
     $profile['fax'] = '+'.$profile['fax'];

@@ -494,8 +494,16 @@ class Leaves extends AbstractClass {
         return $this->get_leavetype($simple);
     }
 
+    public function get_country() {
+        return new Countries($this->leave['coid']);
+    }
+
     public function get_leavetype($simple = true) {
         return new LeaveTypes($this->data['type'], $simple);
+    }
+
+    public function get_businessleave() {
+        return $this->get_leavetype()->get_businessleaves();
     }
 
     public function count_workingdays() {
@@ -533,6 +541,69 @@ class Leaves extends AbstractClass {
                 $affiliates[$affiliates_data['affid']] = $affiliates_data['name'];
             }
             return $affiliates;
+        }
+    }
+
+    public function get_sourcecity($simple = true) {
+        /* To be expanded later depending on
+         * 1. User selection
+         * 2. Current location
+         */
+        return $this->get_requester()->get_mainaffiliate()->get_city($simple);
+    }
+
+    public function get_destinationcity($simple = true) {
+        $attributes = array('coid', 'affid', 'spid', 'cid');
+        $alt_functions = array('coid' => 'get_capitalcity');
+
+        foreach($attributes as $attribute) {
+            if(!empty($this->leave[$attribute])) {
+                $destination['type'] = $attribute;
+                $destination['id'] = $this->leave[$attribute];
+                break;
+            }
+        }
+
+        $object = get_object_bytype($destination['type'], $destination['id']);
+        if(is_object($object)) {
+            if(array_key_exists($destination['type'], $alt_functions)) {
+                return $object->$alt_functions[$destination['type']]();
+            }
+            else {
+                if(method_exists($object, 'get_city')) {
+                    return $object->get_city($simple);
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    public function parse_leave() {
+        global $template, $lang, $core;
+
+        if(is_array($this->leave)) {
+            echo $this->get_segment()->name;
+            $leave_title = $this->get_type()->get()['name'].' to '.$this->get_country()->get()['name'].'- Between '.date($core->settings['dateformat'], $this->get()['fromDate']).' And '.date($core->settings['dateformat'], $this->get()['toDate']);
+            eval("\$leave_details = \"".$template->get('leave_details')."\";");
+
+            return $leave_details;
+        }
+    }
+
+    public static function get_leave_byattr($attr, $value) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects_byattr($attr, $value);
+    }
+
+    public static function get_leaves($filters = null, array $configs = array()) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
+    }
+
+    public function __get($name) {
+        if(array_key_exists($name, $this->leave)) {
+            return $this->leave[$name];
         }
     }
 

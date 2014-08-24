@@ -99,6 +99,19 @@ $(function() {
             }
         });
     }
+//    $("input[id^='pickDate']").datepicker({maxDate: "+1d"});
+//    $(this).datepicker("option", "maxDate", "+1d ");
+
+
+    $("input[id^='pickDate']").each(function() {
+        initalisedatepicker(this);
+    })
+
+
+    function initalisedatepicker(object) {
+        $(object).datepicker({altField: "#alt" + $(object).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown'});
+        $("#ui-datepicker-div").css("z-index", $(object).parents(".ui-dialog").css("z-index") + 1);
+    }
 
     $("input[class*='inlinefilterfield']").live("keyup", function() {
         var parentContainer = $(this).closest('table');
@@ -132,12 +145,103 @@ $(function() {
     });
 
     $("input[id^='pickDate']").live('click', function() {
-        //$(this).removeClass('hasDatepicker');
-        $(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown'}).focus();
-        $("#ui-datepicker-div").css("z-index", $(this).parents(".ui-dialog").css("z-index") + 1);
-
+        if(!$(this).hasClass('hasDatepicker')) {
+            initalisedatepicker(this);
+            $(this).focus();
+        }
     });
 
+    var accache = {};
+    $("input[id$='_autocomplete']").live("keydown", function() {
+        if(sharedFunctions.checkSession() == false) {
+            return;
+        }
+        var id = $(this).attr("id").split("_");
+        var restrictcountry = $("input[id='restrictcountry']").val();
+
+        $(this).autocomplete({
+            source: function(request, response) {
+                var term = request.term;
+
+                if(id[id.length - 2] == 'cache') {
+                    if(term in accache) {
+                        response(accache[ term ]);
+                        return;
+                    }
+                }
+
+                var exclude = "";
+                var comma = "";
+                var count = 1;
+
+//                if(id[1] != 'noexception') {
+//                    var inputselection_extra = '';
+//
+//                    if(id[1] == 'sectionexception') {
+//                        inputselection_extra = "[id*='" + id[2] + "']";
+//                    }
+//
+//                    $("input[id^='" + id[0] + "']" + inputselection_extra + "[id$='_id']").each(function() {
+//                        if($(this).val().length > 0) {
+//
+//                            exclude += comma + $(this).val();
+//
+//                            if(++count != 1) {
+//                                comma = ",";
+//                                console.log(exclude)
+//                            }
+//                        }
+//                    });
+//                }
+
+                filtersQuery = "";
+                var filters = new Array("rid", "spid", "cid", "spid[]", "coid");
+                for(var i = 0; i < filters.length; i++) {
+                    if($("input[name='" + filters[i] + "']").length > 0) {
+                        if($("input[name='" + filters[i] + "']").val() != '') {
+                            filtersQuery += "&" + filters[i] + "=" + $("input[name='" + filters[i] + "']").val();
+                        }
+                    }
+                }
+
+                if(filtersQuery.length > 0) {
+                    filtersQuery += "&filter=1";
+                }
+
+                $.getJSON(rootdir + "search.php?type=quick&returnType=json&for=" + id[0] + "&exclude=" + exclude + filtersQuery, {
+                    value: term
+                }, function(data, status, xhr) {
+                    if(id[id.length - 2] == 'cache') {
+                        accache[ term ] = data;
+                    }
+
+                    response(data);
+                });
+            },
+            minLength: 2,
+            select: function(event, ui) {
+
+                var valueIn = '#' + $(this).attr("id").replace("_autocomplete", "_id");
+//                if($("#" + id[0] + "_" + id[id.length - 3] + "_" + id[id.length - 2] + "_id").length > 0) {
+//                    var valueIn = "#" + id[0] + "_" + id[id.length - 3] + "_" + id[id.length - 2] + "_id";
+//
+//                }
+//                else if($("#" + id[0] + "_" + id[id.length - 2] + "_id").length > 0) {
+//
+//                    var valueIn = "#" + id[0] + "_" + id[id.length - 2] + "_id";
+//
+//                }
+//                else {
+//                    var valueIn = "#" + id[0] + "_id";
+//                }
+
+                $(valueIn).val(ui.item.id);
+                if($(valueIn + "_output").length > 0) {
+                    $(valueIn + "_output").val(ui.item.id);
+                }
+            }
+        });
+    });
     $("input[id$='_QSearch']").live("keyup", QSearch);
 
     function QSearch() {
@@ -618,7 +722,6 @@ $(function() {
             }
 
             var image_name = 'loading-bar.gif';
-
             $.ajax({type: methodParam,
                 url: urlParam,
                 data: dataParam,
@@ -627,6 +730,7 @@ $(function() {
                 },
                 complete: function() {
                     if(loadingId != contentId) {
+
                         $("#" + loadingId).empty();
                     }
                 },
@@ -738,6 +842,11 @@ $(function() {
 
                     if($(this).is("span")) {
                         $(this).html("");
+                    }
+
+
+                    if($(this).hasClass('hasDatepicker')) {
+                        $(this).removeClass('hasDatepicker');
                     }
                 });
             });

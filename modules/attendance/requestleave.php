@@ -13,6 +13,7 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 
+
 if(!$core->input['action']) {
     $action = 'requestleave';
 
@@ -21,7 +22,7 @@ if(!$core->input['action']) {
     }
 
     if($core->usergroup['attendance_canViewAffAllLeaves'] == 1) {
-        $employees[$core->user['uid']] = $core->user['displayName'];
+        $employees[$core->user['uid']] = '';
         if(is_array($core->user['hraffids'])) {
             $query_extrawhere = 'affid IN ('.implode(', ', $core->user['hraffids']).') OR ';
         }
@@ -35,7 +36,7 @@ if(!$core->input['action']) {
     else {
         if(value_exists('users', 'reportsTo', $core->user['uid'])) {
             $employees = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', '', 0, "reportsTo='{$core->user[uid]}' AND gid!=7");
-            $employees[$core->user['uid']] = $core->user['displayName'];
+            $employees[$core->user['uid']] = '';
             asort($employees);
             $show_onbehalf = true;
         }
@@ -106,7 +107,19 @@ if(!$core->input['action']) {
 
     $limitedemail_radiobutton = parse_yesno('limitedEmail', 11, 1);
     $to_inform = parse_toinform_list();
-
+    /* Parse user own leave to plan */
+    //d $user_leaveobjs = TravelManagerPlan::get_unplannedleaves();   // get only approved business leave
+    if(is_array($user_leaveobjs)) {
+        foreach($user_leaveobjs as $user_leaveobj) {
+            $userleave = $user_leaveobj->get();
+            $userleave['from'] = date($core->settings['dateformat'], $userleave['fromDate']);
+            $userleave['to'] = date($core->settings['dateformat'], $userleave['toDate']);
+            $userleave['origincity'] = $user_leaveobj->get_sourcecity()->get()[name];
+            $userleave['destinationcity'] = $user_leaveobj->get_destinationcity();
+            $userleave['leavetype'] = $user_leaveobj->get_leavetype($userleave['type'])->get()['title'];
+            $userown_leaves.='<option value="'.$userleave['lid'].'">'.$userleave['leavetype'].' - '.$userleave['origincity'].' - '.$userleave['from'].'-'.$userleave['to'].' </option>';
+        }
+    }
     eval("\$requestleavepage = \"".$template->get('attendance_requestleave')."\";");
     output_page($requestleavepage);
 }
@@ -128,14 +141,6 @@ else {
 
         $fields = $leavetype_obj->parse_additonalfields();
         output($fields);
-//        $additional_fields = unserialize($db->fetch_field($db->query("SELECT additionalFields FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($core->input['ltid'])."'"), 'additionalFields'));
-//        print_R($additional_fields);
-//        if(is_array($additional_fields)) {
-//            foreach($additional_fields as $key => $val) {
-//                $fields .= parse_additonalfield($key, $val).'<br />';
-//            }
-//            output($fields);
-//        }
     }
     elseif($core->input['action'] == 'getleavetime') {
         $ltid = $db->escape_string($core->input['ltid']);
@@ -251,7 +256,6 @@ else {
         output($lang->sprint($lang->betweenhours, $leave_actual_times['fromHour'], $leave_actual_times['fromMinutes'], $leave_actual_times['toHour'], $leave_actual_times['toMinutes'], $leave_actual_times['workingDays']).$hidden_fields);
     }
     elseif($core->input['action'] == 'do_perform_requestleave') {
-
         //NO LEAVE IF BEFORE EMPLOYMENT
         if(isset($core->input['fromDate']) && !is_empty($core->input['fromDate'], $core->input['fromMinutes'], $core->input['fromHour'])) {
             $fromdate = explode('-', $core->input['fromDate']);
@@ -326,14 +330,15 @@ else {
         }
 
         if(!empty($leavetype_details['additionalFields'])) {
+
             $leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields']);
 
             if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
                 $leave['details_crumb'] = implode(' ', $leave['details_crumb']);
             }
             else {
-                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-                exit;
+//                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+//                exit;
             }
         }
 
@@ -381,8 +386,16 @@ else {
             $log->record($lid);
 
             /* Create leave expenses - START */
-            $leave_obj = new Leaves(array('lid' => $lid), false);
-            $leave_obj->create_expenses($expenses_data);
+            //$leave_obj = new Leaves(array('lid' => $lid), false);
+//            $leave_obj->create_expenses($expenses_data);
+
+            if($leavetype_details['isBusiness'] == 1) {
+                $url = 'index.php?module=travelmanager/plantrip&lid=';
+                header('Content-type: text/xml+javascript');
+                output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
+                exit;
+            }
+
 
             $lang->load('attendance_messages');
 
@@ -416,8 +429,6 @@ else {
             //update_leavestats_periods($core->input, $leavetype_details['isWholeDay']);
 
             $toapprove = $toapprove_select = unserialize($leavetype_details['toApprove']); //explode(',', $leavetype_details['toApprove']);
-
-
             if(is_array($toapprove)) {
                 $aff_obj = new Affiliates($leave_user_obj->get_mainaffiliate()->get()['affid'], false);
                 foreach($toapprove as $key => $val) {
@@ -581,7 +592,7 @@ else {
                           ($leavestats['canTake'] - $leavestats['daysTaken']),
                           ($leavestats['canTake'] - $leavestats['daysTaken']) - $leave['workingdays']); */
 
-                        $lang->requestleavemessage_stats = $lang->sprint($lang->requestleavemessage_stats, ($leavestats['canTake'] - $leavestats['daysTaken']) + $leavestats['additionalDays'], (($leavestats['canTake'] - $leavestats['daysTaken']) + $leavestats['additionalDays']) - $leave['workingdays']);
+                        $lang->requestleavemessage_stats = $lang->sprint($lang->requestleavemessage_stats, ($leavestats ['canTake'] - $leavestats ['daysTaken']) + $leavestats ['additionalDays'], (($leavestats ['canTake'] - $leavestats['daysTaken'] ) + $leavestats['additionalDays']) - $leave['workingdays']);
                     }
                     else {
 
@@ -591,7 +602,6 @@ else {
                     if(!empty($leave['details_crumb'])) {
                         $leave['details_crumb'] = ' - '.$leave['details_crumb'];
                     }
-
                     $lang->requestleavemessage = $lang->sprint($lang->requestleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']).' ('.$leavetype_details['description'].')'.$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $core->input['reason'], $lang->requestleavemessage_stats, $approve_link);
 
                     /* Parse Calendar - Start */
@@ -706,10 +716,9 @@ function get_calendar($arguments) {
     global $core, $db;
 
     $current_date = getdate($arguments['fromDate']);
-    $month['firstday'] = mktime(0, 0, 0, $current_date['mon'], 1, $current_date['year']);
+    $month['firstday'] = mktime(0, 0, 0, $current_date['mon'], 1, $current_date ['year']);
     $month['numdays'] = date('t', $month['firstday']);
     $month['today_weekday'] = date('N', $month['firstday']);
-
     $affiliate_users = get_specificdata('affiliatedemployees', 'uid', 'uid', 'uid', '', 0, "affid='{$arguments[affid]}' AND isMain='1'");
     if(empty($affiliate_users)) {
         return false;
@@ -750,6 +759,7 @@ function get_calendar($arguments) {
                     $leaves[$current_check_date['mon']][$current_check_date['mday']][] = $more_leaves;
                 }
                 else {
+
                     for($i = 0; $i < $num_days_off; $i++) {
                         $current_check = $more_leaves['fromDate'] + (60 * 60 * 24 * $i);
 
@@ -802,7 +812,7 @@ function get_calendar($arguments) {
     $message .= draw_available(1, $month['numdays'], $current_date, $week_num_days, $leaves, $days_tohighlight);
 
     $message .= '</table>';
-//$message .= '</body></html>';
+    //$message .= '</body></html>';
 
     return $message;
 }
@@ -810,6 +820,7 @@ function get_calendar($arguments) {
 function draw_available($start_from, $num_days, $start_date_info, $week_num_days, $leaves = '', $days_tohighlight = array(), $primary = true) {
     $current_date['mday'] = $start_from;
     $month['numdays'] = $num_days;
+
 
     for($day = $start_from; $day <= $num_days; $day++) {
         if($current_date['mday'] > $day) {
@@ -841,7 +852,7 @@ function draw_available($start_from, $num_days, $start_date_info, $week_num_days
         $message .= '</td>';
 
         if($week_num_days == 7) {
-            $message .= '</tr><tr><td style="width: 3%; text-align:center; font-weight: bold; font-size: 11px; position: relative; padding: 5px; min-height: 80px; border-bottom: 1px solid #999; border-right: 1px solid #999; height: 80px;">'.date('W', mktime(0, 0, 0, $start_date_info['mon'], 1, $start_date_info['year']) + (60 * 60 * 24 * ($day + 1))).'</font></td>';
+            $message .= '</tr><tr><td style="width: 3%; text-align:center; font-weight: bold; font-size: 11px; position: relative; padding: 5px; min-height: 80px; border-bottom: 1px solid #999; border-right: 1px solid #999; height: 80px;">'.date('W', mktime(0, 0, 0, $start_date_info ['mon'], 1, $start_date_info ['year']) + (60 * 60 * 24 * ($day + 1))).'</font></td>';
             $week_num_days = 0;
         }
         else {
@@ -854,7 +865,7 @@ function draw_available($start_from, $num_days, $start_date_info, $week_num_days
                 if($primary == true) {
                     $message .= draw_available(1, 15, getdate(strtotime("+1 month", mktime(0, 0, 0, $start_date_info['mon'], 1, $start_date_info['year']))), $week_num_days, $leaves, $days_tohighlight, false);
                 }
-                //$message .= '</tr>';
+//$message .= '</tr>';
             }
         }
         $week_num_days++;

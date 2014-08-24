@@ -129,10 +129,21 @@ class LeaveTypes extends AbstractClass {
                 if($attribute == 'cid') {
                     $search_for = 'customer';
                 }
+                elseif($attribute == 'destinationcity') {
+                    $search_for = 'destinationcity';
+                }
+                elseif($attribute == 'sourcecity') {
+                    $search_for = 'sourcecity';
+                }
+                elseif($attribute == 'city') {
+                    $search_for = 'cities';
+                }
                 elseif($attribute == 'spid') {
                     $search_for = 'supplier';
                 }
-                $field = '<input type="text" id="'.$search_for.'_'.$identifier.'_QSearch" value="'.$field_settings['value_attribute_value'].'" required="required"/><input type="text" size="3" id="'.$search_for.'_'.$identifier.'_id_output" value="'.$field_settings['key_attribute_value'].'" disabled /><input type="hidden" value="'.$field_settings['key_attribute_value'].'" id="'.$search_for.'_'.$identifier.'_id" name="'.$attribute.'" /><div id="searchQuickResults_'.$identifier.'" class="searchQuickResults" style="display:none;"></div>';
+
+                //$field = '<input type = "text" id = "'.$search_for.'_'.$identifier.'_QSearch" value = "'.$field_settings['value_attribute_value'].'" required = "required"/><input type = "text" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value = "'.$field_settings['key_attribute_value'].'" id = "'.$search_for.'_'.$identifier.'_id" name = "'.$attribute.'" /><div id = "searchQuickResults_'.$identifier.'" class = "searchQuickResults" style = "display:none;"></div>';
+                $field = '<input type = "text" id = "'.$search_for.'_'.$identifier.'_autocomplete" value = "'.$field_settings['value_attribute_value'].'" required = "required"/><input type = "text" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value = "'.$field_settings['key_attribute_value'].'" id = "'.$search_for.'_'.$identifier.'_id" name = "'.$attribute.'" />';
 
                 break;
             case 'select':
@@ -159,6 +170,7 @@ class LeaveTypes extends AbstractClass {
                         }
 
                         $data = get_specificdata($field_settings['table'], $field_settings['attributes'], $field_settings['key_attribute'], $field_settings['value_attribute'], array('by' => $field_settings['value_attribute'], 'sort' => 'ASC'), 0, $field_settings['where']);
+
                         if(is_array($data)) {
                             $field = parse_selectlist($attribute, 0, $data, $field_settings['key_attribute_value'], $field_settings['mulitpleselect'], '', array('required' => true));
                         }
@@ -171,7 +183,7 @@ class LeaveTypes extends AbstractClass {
                     }
                 }
                 elseif($field_settings['datasource'] == 'function') {
-                    unset($field_settings['type'], $field_settings['table'], $field_settings['attributes']);
+                    unset($field_settings['key_attribute_value'], $field_settings['type'], $field_settings['table'], $field_settings['attributes']);
                     if(method_exists($this, $field_settings['functionname'])) {
                         /* call the sgment function to get  the segment for the on behalf user */
                         $data = $this->{$field_settings['functionname']}(new Users($core->input['uid']));
@@ -187,13 +199,15 @@ class LeaveTypes extends AbstractClass {
 
         if(!empty($field)) {
             if(isset($field_settings['titlelangvar'])) {
-                $field = '<br /><div style="display:inline-block; width:10%;">'.$lang->{$field_settings['titlelangvar']}.'</div><div style="display:inline-block; width:75%;">'.$field.'</div>';
+                $field = '<br /><div style = "display:inline-block; width:10%;">'.$lang->{$field_settings['titlelangvar']}.'</div><div style = "display:inline-block; width:75%;">'.$field.'</div>
+
+            ';
             }
         }
         return $field;
     }
 
-    private function parse_segments_byuser(Users $user_obj = null) {
+ private function parse_segments_byuser(Users $user_obj = null) {
         global $core;
 
         if($this->data['isBusiness'] == 1) {
@@ -211,6 +225,12 @@ class LeaveTypes extends AbstractClass {
             return false;
         }
         return false;
+    }
+
+
+ public function get_businessleaves() {
+        global $db;
+        $query = $db->query('SELECT type,lid FROM '.Tprefix.' leaves l JOIN leavetypes lt ON ( l.type = lt.ltid )WHERE lt.isBusiness=1');
     }
 
     protected function create(array $data) {

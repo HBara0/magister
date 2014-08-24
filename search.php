@@ -8,12 +8,16 @@
  * Created: 		@zaher.reda			Mar 21, 2009 | 11:40 AM
  * Last Update: 	@zaher.reda			February 28, 2013 | 08:56 AM
  */
+
 require_once 'global.php';
 
 if($core->input['type'] == 'quick') {
     $dofilter = false;
     if(isset($core->input['filter'])) {
         $dofilter = true;
+        if(isset($core->input['coid']) && !empty($core->input['coid'])) {
+            $restrictcountry_filter = "coid ='".$db->escape_string($core->input['coid'])."'";
+        }
         if(isset($core->input['rid']) && !empty($core->input['rid'])) {
             $report_data = $db->fetch_array($db->query('SELECT affid, spid FROM '.Tprefix.'reports WHERE rid='.intval($core->input['rid'])));
         }
@@ -117,7 +121,7 @@ if($core->input['type'] == 'quick') {
             if(isset($core->input['rid']) && !empty($core->input['rid'])) {
                 $extra_where .= 'spid = "'.$report_data['spid'].'"';
             }
-            if($core->usergroup['canViewAllsupp'] == 0) {
+            if($core->usergroup['canViewAllsupp'] == 0 && !isset($core->input['rid'])) {
                 $core->user['suppliers']['eid'] = array_map(intval, $core->user['suppliers']['eid']);
                 $supplier_filter = " spid IN (".implode(',', $core->user['suppliers']['eid']).")";
             }
@@ -231,8 +235,47 @@ if($core->input['type'] == 'quick') {
                 $extra_where .= " AND {$key_attribute} NOT IN ({$core->input[exclude]})";
             }
         }
+        elseif($core->input['for'] == 'cities' || $core->input['for'] == 'sourcecity' || $core->input['for'] == 'destinationcity') {
+            if(strlen($core->input['value']) < 3) {
+                exit;
+            }
+            if(!empty($restrictcountry_filter)) {
+                $extra_where = $restrictcountry_filter;
+            }
 
-        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, array('order' => $order, 'extra_where' => $extra_where, 'descinfo' => $descinfo));
+            $table = 'cities';
+            $attributes = array('name');
+            $key_attribute = 'ciid';
+            $select_attributes = array('name');
+            $extra_info = array('table' => 'countries');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+        }
+        elseif($core->input['for'] == 'countries') {
+            $table = 'countries';
+            $attributes = array('name');
+            $key_attribute = 'coid';
+            $select_attributes = array('name');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+        }
+        elseif($core->input['for'] == 'airports') {
+            if(strlen($core->input['value']) < 3) {
+                exit;
+            }
+            $table = 'travelmanager_airports';
+            $attributes = array('name');
+            $key_attribute = 'apid';
+            $select_attributes = array('name');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+        }
+        elseif($core->input['for'] == 'hotels') {
+            $table = 'travelmanager_hotels';
+            $attributes = array('name');
+            $key_attribute = 'tmhid';
+            $select_attributes = array('name');
+            //$extra_info = array('table' => 'hotelcountries');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+        }
+        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, $order, $extra_where, 'OR', array('returnType' => $core->input['returnType']));
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);
         $module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);
         if($core->input['for'] == 'supplier') {
@@ -247,7 +290,7 @@ if($core->input['type'] == 'quick') {
           {
           $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='#' id='addnew_{$module}_".$core->input['for']."'>{$lang->add}</a></p>";
           } */
-        output_page($results_list);
+        output($results_list);
     }
 }
 ?>

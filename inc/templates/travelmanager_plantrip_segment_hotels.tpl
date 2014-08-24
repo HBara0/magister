@@ -1,0 +1,1 @@
+<div style="display:block; padding: 8px;">{$hotels}</div>

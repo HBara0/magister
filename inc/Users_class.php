@@ -262,6 +262,11 @@ class Users extends AbstractClass {
         return new Affiliates($this->data['mainaffiliate'], FALSE);
     }
 
+    /* CORRECTIONS NEEDED:
+     *  The below should return objects of Segments
+     *  There is no need for the join being made
+     * Should return false if nothing
+     */
     public function get_segments() {
         global $db;
 
@@ -270,9 +275,8 @@ class Users extends AbstractClass {
             while($segment = $db->fetch_assoc($query)) {
                 $segments[$segment['psid']] = new ProductsSegments($segment['psid']);
             }
-            return $segments;
+            return $segment;
         }
-        return false;
     }
 
     /* CORRECTIONS NEEDED:
@@ -284,14 +288,15 @@ class Users extends AbstractClass {
     public function get_coordinatesegments() {
         global $db;
 
-        $segment_query = $db->query("SELECT psc.pscid FROM  ".Tprefix."productsegmentcoordinators psc WHERE psc.uid=".$this->data['uid']);
+        $segment_query = $db->query("SELECT psc.pscid,ps.psid,ps.title FROM  ".Tprefix."productsegmentcoordinators psc
+									JOIN ".Tprefix."users u on u.uid=psc.uid
+									JOIN ".Tprefix."productsegments ps ON (ps.psid=psc.psid) WHERE u.uid=".$this->data['uid']);
         if($db->num_rows($segment_query) > 0) {
             while($segmentcoord = $db->fetch_assoc($segment_query)) {
                 $segmentcoords[$segmentcoord['pscid']] = $segmentcoord;
             }
             return $segmentcoords;
         }
-        return false;
     }
 
     public function get_hrinfo($simple = true) {
@@ -331,7 +336,7 @@ class Users extends AbstractClass {
         }
 
         if(!empty($this->data['mainaffiliate_details']['city'])) {
-            $info['address'] .= ucfirst($this->data['mainaffiliate_details']['city']).' - ';
+            $info['address'] .= $mainaffiliate->get_city()->get()['name'].' - '; //ucfirst($this->user['mainaffiliate_details']['city']).' - ';
         }
 
         $info['address'] .= ucfirst($this->data['mainaffiliate_details']['countryname']);

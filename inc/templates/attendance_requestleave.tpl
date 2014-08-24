@@ -5,7 +5,7 @@
         <script type="text/javascript">
             $(function() {
                 $("#uid, #type").change(function() {
-                    if (sharedFunctions.checkSession() == false) {
+                    if(sharedFunctions.checkSession() == false) {
                         return;
                     }
 
@@ -13,11 +13,11 @@
                 });
 
                 $("#type, #pickDate_to").live('change', function() {
-                    if (sharedFunctions.checkSession() == false) {
+                    if(sharedFunctions.checkSession() == false) {
                         return;
                     }
 
-                    if (($("#altpickDate_from").val() != '') && $("#altpickDate_to").val() != '') {
+                    if(($("#altpickDate_from").val() != '') && $("#altpickDate_to").val() != '') {
                         sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getleavetime", "ltid=" + $('#type').val() + "&uid=" + $("#uid").val() + "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val(), 'leavetime_details', 'leavetime_details', true);
                     }
                     else
@@ -28,9 +28,9 @@
                     sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getadditionalfields", "ltid=" + $('#type').val() + "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val() + "&uid=" + $("#uid").val(), 'additionalfields_output', 'additionalfields_output', true);
                 });
 
-                $("#type").live('change', function() {
-                    sharedFunctions.requestAjax("post", "index.php?module=attendance/{$action}&action=parseexpenses", "ltid=" + $('#type').val() + "&lid=" + $('input[id=lid]').val(), 'leaveexpenses_container', 'leaveexpenses_container', true);
-                });
+                //  $("#type").live('change', function() {
+                ///sharedFunctions.requestAjax("post", "index.php?module=attendance/{$action}&action=parseexpenses", "ltid=" + $('#type').val() + "&lid=" + $('input[id=lid]').val(), 'leaveexpenses_container', 'leaveexpenses_container', true);
+                // });
 
                 $('input[id^=expenses_]').live('blur', function() {
                     var sum = 0;
@@ -68,7 +68,7 @@
                     <tr>
                         <td>{$lang->leavetype}</td>
                         <td>{$leavetypes_list}&nbsp;<span id="additionalfields_output">{$additional_fields_output}</span></td>
-                    </tr>   
+                    </tr>
                     <tr>
                         <td>{$lang->leavereason}</td>
                         <td><textarea cols="50" rows="5" name="reason" id="reason" title="{$lang->minimumcharacter}">{$leave[reason]}</textarea></td>
@@ -93,7 +93,11 @@
                     </tr>
                     <tr>
                         <td>{$lang->contactpersonleave}</td>
-                        <td><input type='text' id='user_1_QSearch' value="{$leave[contactPersonName]}"/><input type="text" size="3" id="user_1_id_output" value="{$leave[contactPerson]}" disabled/><input type='hidden' id='user_1_id' name='contactPerson' value="{$leave[contactPerson]}" /><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
+                        <td><input type='text' id='user_1_autocomplete' value="{$leave[contactPersonName]}"/>
+                            <input type='text' id='user_1_id_output' name='contactPerson' value="{$leave[contactPerson]}" />
+                            <input type='hidden' id='user_1_id' name='contactPerson' value="{$leave[contactPerson]}" />
+
+                        </td>
                     </tr>
                     <tr>
                         <td>{$lang->limitedemailaccess}</td>
@@ -101,14 +105,16 @@
                     </tr>
                     <tr><td colspan="2"><hr /></td></tr>
                     <tr>
-                        <td colspan="2">        
+                        <td colspan="2">
                             <fieldset class="altrow">
                                 <legend><strong>{$lang->informfollowing}:</strong></legend>
                                 <div id='to_inform_fields'>{$to_inform}</div>
                             </fieldset>
                         </td>
                     </tr>
+
                     <tr><td colspan="2"><hr /></td></tr>
+
                 </table>
                 <input type="submit" id="perform_attendance/{$action}_Button" value="{$lang->$action}" class="button" />
             </form>

@@ -309,7 +309,7 @@ function parse_textfield($id, $type, $value = '', $options = array(), $config = 
         }
     }
 
-    $accepted_types = array('text', 'tel', 'search', 'url', 'email', 'datetime', 'date', 'month', 'week', 'time', 'checkbox', 'image', 'file');
+    $accepted_types = array('text', 'tel', 'number', 'search', 'url', 'email', 'datetime', 'date', 'month', 'week', 'time', 'checkbox', 'image', 'file');
     if(!array($accepted_types, $type)) {
         $type = 'text';
     }
@@ -431,7 +431,7 @@ function parse_radiobutton($name, $items, $checked_option = '', $display_title =
     return false;
 }
 
-function parse_checkboxes($name, $items, $selected_options = array(), $display_title = true, $seperator = '') {
+function parse_checkboxes($name, $items, $selected_options = array(), $display_title = true, $title = '', $seperator = '') {
     if(is_array($items)) {
         foreach($items as $key => $val) {
             $checked = '';
@@ -444,7 +444,7 @@ function parse_checkboxes($name, $items, $selected_options = array(), $display_t
                     $checked = ' checked="checked"';
                 }
             }
-            $checkbox .= '<input name="'.$name.'['.$key.']" id="'.$name.'_'.$key.'" type="checkbox" value="'.$key.'"'.$checked.'/>'.$val.$seperator;
+            $checkbox .= '<input name="'.$name.'['.$key.']" id="'.$name.'_'.$key.'" type="checkbox"  title="'.$title.'" value="'.$key.'"'.$checked.'/>'.$val.$seperator;
         }
         return $checkbox;
     }
@@ -458,7 +458,6 @@ function value_exists($table, $attribute, $value, $extra_where = '') {
         $extra_where = ' AND '.$extra_where;
     }
     $attribute = $db->escape_string($attribute);
-
     $query = $db->query("SELECT {$attribute} FROM ".Tprefix."{$table} WHERE {$attribute}='".$db->escape_string($value)."'{$extra_where}");
     if($db->num_rows($query) > 0) {
         return true;
@@ -516,7 +515,7 @@ function get_specificdata($table, $attributes, $key_attribute, $value_attribute,
     }
 }
 
-function quick_search($table, $attributes, $value, $select_attributes, $key_attribute, $options = array(), $andor_param = 'OR') {
+function quick_search($table, $attributes, $value, $select_attributes, $key_attribute, $order, $extra_where = '', $andor_param = 'OR', $configs = array()) {
     global $db, $lang;
 
     $value = $db->escape_string($value);
@@ -593,8 +592,16 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     }
 
     if(is_array($results)) {
-        $results_list .= '<ul id="searchResultsList">';
-        foreach($results as $key => $val) {
+        if($configs['returnType'] == 'json') {
+            foreach($results as $key => $val) {
+                $results_list[$key]['id'] = $key;
+                $results_list[$key]['value'] = $val;
+            }
+            $results_list = json_encode($results_list);
+        }
+        else {
+            $results_list .= '<ul id="searchResultsList">';
+            foreach($results as $key => $val) {
             if(isset($options['descinfo']) && !empty($options['descinfo'])) {
                 switch($options['descinfo']) {
                     case 'citycountry':
@@ -622,7 +629,15 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                     $results_list .= '<li id="'.$chemfuncprod_obj->cfpid.'">'.$val.$details.'</li>';
                                 }
                             }
+                            else {
+                                $results_list .= '<li id="'.$key.'">'.$val.'</li>';
+                            }
                         }
+                    }
+                }
+                else {
+                    $results_list .= '<li id="'.$key.'">'.$val.'</li>';
+                }
                         unset($details);
                         break;
                     case 'checmicalfunction':
@@ -643,11 +658,14 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
             else {
                 $results_list .= '<li id="'.$key.'">'.$val.'</li>';
             }
+            }
+            $results_list .= '</ul>';
         }
-        $results_list .= '</ul>';
     }
     else {
-        $results_list = '<span class="red_text">'.$lang->nomatchfound.'</span>';
+        if($configs['returnType'] != 'json') {
+            $results_list = '<span class="red_text">'.$lang->nomatchfound.'</span>';
+        }
     }
 
     return $results_list;
@@ -1553,7 +1571,7 @@ function array_merge_recursive_replace() {
     return $base;
 }
 
-function get_object_bytype($dim, $id) {
+function get_object_bytype($dim, $id, $simple = true) {
     switch($dim) {
         case 'affid':
         case 'useraffid':
