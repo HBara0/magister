@@ -322,6 +322,7 @@ else {
                 }
                 if($options['runtype'] != 'dry') {
                     $db->update_query('reports', array('isLocked' => 0, 'status' => 0, 'prActivityAvailable' => 1), 'rid='.$rid);
+                    $db->update_query('reportcontributors', array('isDone' => 0), 'rid='.$rid);
                 }
             }
             if(is_array($errors)) {
