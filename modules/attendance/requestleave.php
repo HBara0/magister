@@ -16,6 +16,10 @@ if(!defined('DIRECT_ACCESS')) {
 if(!$core->input['action']) {
     $action = 'requestleave';
 
+    if(empty($core->user_obj->get_hrinfo()['joinDate'])) {
+        error('Your HR file does not have your join date. Please contact your HR Manager to correct this.');
+    }
+
     if($core->usergroup['attendance_canViewAffAllLeaves'] == 1) {
         $employees[$core->user['uid']] = $core->user['displayName'];
         if(is_array($core->user['hraffids'])) {
