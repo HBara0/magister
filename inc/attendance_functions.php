@@ -389,7 +389,7 @@ function count_holidays($uid, $check_dates_start, $check_dates_end, $reoccurring
                 $month_check++;
             }
             if(!empty($day_querystring)) {
-                $day_querystring = ' AND '.$day_querystring;
+                $day_querystring = ' AND ('.$day_querystring.')';
             }
         }
 
