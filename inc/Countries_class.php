@@ -63,15 +63,14 @@ class Countries {
         return false;
     }
 
-    public function get_displayname() {
-        return $this->country[self::DISPLAY_NAME];
+    public function __set($name, $value) {
+        $this->country[$name] = $value;
     }
 
     public function __get($name) {
-        if(isset($this->country[$name])) {
+        if(array_key_exists($name, $this->country)) {
             return $this->country[$name];
         }
-        return false;
     }
 
     public function save() {

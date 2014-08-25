@@ -122,7 +122,7 @@ if(!$core->input['action']) {
     }
 
     if(!empty($profile['website'])) {
-        $profile['website'] = '<a href="'.$profile['website'].'" target="_blank">'.$profile['website'].'</a>';
+        $profile['website'] = '<a href="'.fix_url($profile['website']).'" target="_blank">'.$profile['website'].'</a>';
     }
     else {
         $profile['website'] = '';

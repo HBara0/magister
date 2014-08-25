@@ -215,7 +215,7 @@ class MarketIntelligence {
         $entity_brdprd_objs = new EntBrandsProducts($data['ebpid']); //$maktintl_obj->get_entitiesbrandsproducts();
         $entity_brandproducts = $entity_brdprd_objs->get();
 
-        $entity_mrktendproducts_objs = new EndproducTypes($entity_brandproducts['eptid']); //$maktintl_obj->get_marketendproducts($entity_brandproducts['eptid']);
+        $entity_mrktendproducts_objs = new EndProducTypes($entity_brandproducts['eptid']); //$maktintl_obj->get_marketendproducts($entity_brandproducts['eptid']);
         $entity_mrktendproducts = $entity_mrktendproducts_objs->get()['title'];
 
 
@@ -318,7 +318,7 @@ class MarketIntelligence {
     }
 
     public function get_marketendproducts($id) {
-        return new EndproducTypes($id);
+        return new EndProducTypes($id);
     }
 
     public function get_competitors() {

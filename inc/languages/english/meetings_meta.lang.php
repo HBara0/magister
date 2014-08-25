@@ -12,6 +12,7 @@ $lang['location'] = 'Location';
 $lang['listmeeting'] = 'List Meetings';
 $lang['mof'] = 'Minutes Of Meetings';
 $lang['edit'] = 'Edit Meeting';
+$lang['sharedwithyou'] = 'Shared With You';
 $lang['fromtime'] = 'From Time';
 $lang['totime'] = 'To Time';
 $lang['setmof'] = 'Set Minutes Of Meetings';

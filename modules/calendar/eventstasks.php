@@ -319,8 +319,52 @@ else {
                     $task_notes_output .= '<div class="'.$rowclass.'" style="padding: 5px 0px 5px 10px;">'.$note->note.'. <span class="smalltext" style="font-style:italic;">'.$note->dateAdded_output.' by <a href="users.php?action=profile&uid='.$note->uid.'" target="_blank">'.$note->get_user()->displayName.'</a></span></div>';
                 }
             }
+
+            /* Parse share with users */
+            $affiliates_users = Users::get_allusers();
+            $shared_users = $task->get_shared_users();
+            if(is_array($shared_users)) {
+                foreach($shared_users as $uid => $user) {
+                    $user = $user->get();
+                    $checked = ' checked="checked"';
+                    $rowclass = 'selected';
+
+                    eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
+                }
+            }
+
+
+            foreach($affiliates_users as $uid => $user) {
+                $user = $user->get();
+                $checked = $rowclass = '';
+                if($uid == $core->user['uid']) {
+                    continue;
+                }
+
+                eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
+            }
+            eval("\$task_sharewith = \"".$template->get('calendar_createeventtask_sharewith')."\";");
             eval("\$eventdetailsbox = \"".$template->get('popup_calendar_taskdetails')."\";");
             output($eventdetailsbox);
+        }
+    }
+    elseif($core->input['action'] == 'share_task') {
+        $taskid = $db->escape_string($core->input['id']);
+        $calendarshare_obj = new CalendarTaskShare();
+        if(is_array($core->input['task']['share'])) {
+
+            $core->input['task']['share']['ctid'] = $taskid;
+            $calendarshare_obj->set($core->input['task']['share']);
+            $calendarshare_obj->save();
+        }
+
+        switch($calendarshare_obj->get_errorcode()) {
+            case 0:
+                output_xml("<status>true</status><message>".$lang->successfullysaved."</message>");
+                break;
+            case 1:
+                output_xml("<status>true</status><message>".$lang->requiredfield."</message>");
+                break;
         }
     }
     elseif($core->input['action'] == 'save_tasknote') {

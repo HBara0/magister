@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Lists all suppliers
  * $module: profiles
- * $id: supplierslist.php	
+ * $id: supplierslist.php
  * Created:	   	@najwa.kassem		October 15, 2010 | 10:28 AM
  * Last Update: 	@zaher.reda		 October 27, 2010 | 11:17 AM
  */
@@ -23,7 +23,11 @@ if(!$core->input['action']) {
 
     $sort_url = sort_url();
     $limit_start = 0;
-    $multipage_where = ' type="s" ';
+    $type_querywhere = ' type="s"';
+    if(!empty($core->input['type'])) {
+        $type_querywhere = ' type="'.$db->escape_string($core->input['type']).'"';
+    }
+    $multipage_where = $type_querywhere;
     if(isset($core->input['start'])) {
         $limit_start = $db->escape_string($core->input['start']);
     }
@@ -67,8 +71,8 @@ if(!$core->input['action']) {
     /* Perform inline filtering - END */
 
     $query = $db->query("SELECT *, companyName AS entityname
-						FROM ".Tprefix."entities 
-						WHERE type='s' {$filter_where}
+						FROM ".Tprefix."entities
+						WHERE".$type_querywhere." {$filter_where}
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 

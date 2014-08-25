@@ -27,6 +27,7 @@ class DataAccessLayer {
 
     public function get_objects($filters = null, array $configs = array()) {
         global $db;
+
         if(!isset($configs['simple'])) {
             $configs['simple'] = true;
         }
@@ -154,7 +155,12 @@ class DataAccessLayer {
                 }
                 else {
                     if(is_numeric($value)) {
-                        $operators[$attr] = '=';
+                        if($operators[$attr] == 'grt') {
+                            $operators[$attr] = ' > ';
+                        }
+                        else {
+                            $operators[$attr] = '=';
+                        }
                         $value = intval($value);
                     }
                     else {

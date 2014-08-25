@@ -32,18 +32,18 @@ class LeaveExpenseTypes {
         }
         $query_select = '*';
         if($simple == true) {
-            $query_select = 'aletid, name, title, title AS name';
+            $query_select = 'aletid, name, title';
         }
-        return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'attendance_leaveexptypes WHERE aletid='.intval($id)));
+        return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
 
     public static function get_leaveexpensetypes($filters = array()) {
         global $db;
 
-        $query = $db->query('SELECT * FROM '.Tprefix.'attendance_leaveexptypes');
+        $query = $db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME);
         if($db->num_rows($query) > 0) {
             while($expensetype = $db->fetch_assoc($query)) {
-                $expensetypes[$expensetype['aletid']] = $expensetype;
+                $expensetypes[$expensetype[self::PRIMARY_KEY]] = $expensetype;
             }
 
             return $expensetypes;
@@ -70,6 +70,45 @@ class LeaveExpenseTypes {
                 }
                 return false;
             }
+        }
+        return false;
+    }
+
+    public function parse_agencylink(Leaves $leave, $agency = 'kayak') {
+        global $lang;
+        $link_patterns = array(
+                'kayak' => array('flight' => 'https://www.kayak.com/flights/{FROM_AIRPORT}-{TO_AIRPORT}/{FROM_DATE}/{TO_DATE}',
+                        'hotel' => 'https://www.kayak.com/hotels/{CITY},{COUNTRY}/{FROM_DATE}/{TO_DATE}/1guest')
+        );
+
+        $leave_info['fromDate_formated'] = date('Y-m-d', $leave->get()['fromDate']);
+        $leave_info['toDate_formated'] = date('Y-m-d', $leave->get()['toDate']);
+
+        $destination_city = $leave->get_destinationcity();
+        if(!is_object($destination_city)) {
+            return false;
+        }
+
+        $destination_airport = $destination_city->get_defaultairport();
+        if(!is_object($destination_airport)) {
+            return false;
+        }
+
+        if($agency == 'kayak') {
+            if($this->expencetype['isAirFare']) {
+                $source_airport = $leave->get_sourcecity()->get_defaultairport();
+                if(!is_object($source_airport)) {
+                    return false;
+                }
+                $source_airport_code = $source_airport->get()['iatacode'];
+                $link_values = array('FROM_DATE' => $leave_info['fromDate_formated'], 'TO_DATE' => $leave_info['toDate_formated'], 'FROM_AIRPORT' => $source_airport_code, 'TO_AIRPORT' => $destination_airport->get()['iatacode']);
+                return ' - <a href="'.preg_replace('/\{([ A-Z_]+)\}/e', '$link_values["$1"]', $link_patterns[$agency]['flight']).'" target="_blank">'.$lang->checkon.'Check on '.ucwords($agency).'</a>';
+            }
+            elseif($this->expencetype['isAccommodation']) {
+                $link_values = array('FROM_DATE' => $leave_info['fromDate_formated'], 'TO_DATE' => $leave_info['toDate_formated'], 'CITY' => $destination_city->get()['name'], 'COUNTRY' => $destination_city->get_country()->get()['name']);
+                return ' - <a href="'.preg_replace('/\{([ A-Z_]+)\}/e', '$link_values["$1"]', $link_patterns[$agency]['hotel']).'" target="_blank">'.$lang->checkon.'Check on '.ucwords($agency).'</a>';
+            }
+            return false;
         }
         return false;
     }

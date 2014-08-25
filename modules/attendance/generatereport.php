@@ -218,7 +218,7 @@ else {
                             /* Check if leaves exist while attendance exists too & adjust accordingly - START */
                             if(isset($data[$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']]['leaves'])) {
                                 foreach($data[$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']]['leaves'] as $leave) {
-                                    $leavetype_obj = new Leavetypes($leave['type'], false);
+                                    $leavetype_obj = new LeaveTypes($leave['type'], false);
                                     $leavetype = $leavetype_obj->get();
                                     if($leavetype['isWholeDay'] == 0) {
                                         $dutytime = (($current_worshift['offDutyHour'] * 60 * 60) + ($current_worshift['offDutyMinutes'] * 60)) - (($current_worshift['onDutyHour'] * 60 * 60) + ($current_worshift['onDutyMinutes'] * 60));

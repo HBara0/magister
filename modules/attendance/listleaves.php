@@ -193,7 +193,7 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'perform_revokeleave') {
-        $lid = $db->escape_string($core->input['torevoke']);
+        $lid = intval($core->input['torevoke']);
         $user_obj = new Users($core->user['uid']);
 
         $leave_obj = new Leaves($lid, false);
@@ -243,19 +243,21 @@ else {
             }
         }
 
-        $query = $db->delete_query('leaves', "lid='{$lid}'");
+        $query = $db->delete_query('leaves', 'lid='.$lid);
         if($query && $db->affected_rows() > 0) {
             //Reset Leave Balance - Start
             if(!value_exists('leavesapproval', 'isApproved', 0, 'lid='.$lid)) {
                 $workingdays = count_workingdays($leave['uid'], $leave['fromDate'], $leave['toDate'], $leavetype_details['isWholeDay']);
                 $leavestats_updatedetails = array(
                         'uid' => $leave['uid'],
-                        'workingdays' => -$workingdays,
+                        'workingDays' => $workingdays,
                         'fromDate' => $leave['fromDate'],
                         'toDate' => $leave['toDate'],
-                        'type' => $leave['type']
+                        'type' => $leave['type'],
+                        'negativeWorkingDays' => true
                 );
-                update_leavestats_periods($leavestats_updatedetails, $leavetype_details['isWholeDay']);
+                $stat = new LeavesStats();
+                $stat->generate_periodbased($leavestats_updatedetails);
             }
             //Reset Leave Balance - End
 
@@ -360,8 +362,40 @@ else {
                 $leave['details_crumb'] = ' - '.implode(' ', $leave['details_crumb']);
             }
 
-            $leave['reason'] .= $leave_obj->parse_expenses();
-            $leave['reason'] .= $leave_obj->parse_approvalsapprovers(array('parselabel' => true));
+            /* Parse expense information for message - START */
+            $leave_obj = new Leaves($leave['lid'], false);
+            if($leave_obj->has_expenses()) {
+                $expenses_data = $leave_obj->get_expensesdetails();
+                $total = 0;
+                $expenses_message = '';
+                foreach($expenses_data as $expense) {
+                    if(!empty($lang->{$expense['name']})) {
+                        $expense['title'] = $lang->{$expense['name']};
+                    }
+                    $total += $expense['expectedAmt'];
+
+                    $exptype_obj = LeaveExpenseTypes::get_exptype_byattr('title', $expense['title'], false);
+                    if(is_object($exptype_obj)) {
+                        $agency_link = $exptype_obj->parse_agencylink($leave_obj);
+                    }
+                    $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].' '.$agency_link.'<br>';
+                    unset($agency_link);
+                }
+                $expenses_message_output = '<br /><p>'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD</p>';
+            }
+            $leave['reason'] .= $expenses_message_output;
+            /* Parse expense information for message - END */
+
+            /* Previous approvals - START */
+            $approvers = $leave_obj->get_approvers();
+            if(is_array($approvers)) {
+                foreach($approvers as $approver) {
+                    $leave['approvers'][] = $approver->get()['displayName'];
+                }
+                $leave['approvers'] = implode(', ', $leave['approvers']);
+                unset($approvers);
+                $leave['reason'] .= '<span style="font-weight:bold;">'.$lang->approvedby.': '.$leave['approvers'].'</span>';
+            }
 
             /* Conversation message --START */
             $leaemessag_obj = new LeavesMessages();

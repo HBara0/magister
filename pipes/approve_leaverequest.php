@@ -71,7 +71,13 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                             $expense['title'] = $lang->{$expense['name']};
                         }
                         $total += $expense['expectedAmt'];
-                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].'<br>';
+
+                        $exptype_obj = LeaveExpenseTypes::get_exptype_byattr('title', $expense['title'], false);
+                        if(is_object($exptype_obj)) {
+                            $agency_link = $exptype_obj->parse_agencylink($leave_obj);
+                        }
+                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].' '.$agency_link.'<br>';
+                        unset($agency_link);
                     }
                     $expenses_message_output = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
                 }
@@ -98,7 +104,8 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                 $leave['type_details'] = parse_type($leave['type']);
 
                 if($leave['type_details']['noBalance'] == 0) {
-                    update_leavestats_periods($leave, $leave['type_details']['isWholeDay']);
+                    $stat = new LeavesStats();
+                    $stat->generate_periodbased($leave);
                 }
 
                 $lang->leaveapprovedmessage = $lang->sprint($lang->leaveapprovedmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']));
@@ -123,7 +130,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                     if($leave['type_details']['isBusiness'] == 1) {
                         $mailinglists_attr = 'mailingList';
                     }
-                    $mailinglists = get_specificdata('affiliates', array('affid', $mailinglists_attr), 'affid', $mailinglists_attr, '', 0, 'affid IN ('.implode(',', $to_inform).')');
+                    $mailinglists = get_specificdata('affiliates', array('affid', $mailinglists_attr), 'affid', $mailinglists_attr, '', 0, 'affid IN ('.implode(', ', $to_inform).')');
                     //$mailingList = $db->fetch_field($db->query("SELECT aff.mailingList FROM ".Tprefix."affiliates aff LEFT JOIN ".Tprefix."affiliatedemployees ae ON (ae.affid=aff.affid) WHERE ae.isMain='1' AND ae.uid='{$leave[uid]}'"), 'mailingList');
                 }
 
@@ -138,7 +145,9 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                     }
 
                     /* if($leave['type_details']['isWholeDay'] == 1) {
-                      //$employeeshift = $db->fetch_assoc($db->query("SELECT ws.* FROM ".Tprefix."employeesshifts es JOIN ".Tprefix."workshifts ws ON (ws.wsid=es.wsid) WHERE es.uid='{$leave[uid]}'"));
+                      //$employeeshift = $db->fetch_assoc($db->query("SELECT ws.* FROM ".Tprefix."employeesshifts es JOIN ".Tprefix."workshifts ws ON (ws.wsid=es.wsid) WHERE es.uid=' {
+                      $leave[uid]
+                      }'"));
                       //$employeeshift['weekDays'] = unserialize($employeeshift['weekDays']);
 
                       $lang->leavenotificationmessage_days = $lang->sprint($lang->leavenotificationmessage_days, count_workingdays($leave['uid'], $leave['fromDate'], $leave['toDate']));
@@ -220,7 +229,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                     <script language="javascript" type="text/javascript">
                         window.top.$('tr[id="leave_<?php echo $leave['lid'];?>"]').attr('class', 'greenbackground');
                         window.top.$("#approveimg_<?php echo $leave['lid'];?>").remove();
-                        window.top.$("#approveleave_Result").html("<?php echo '<span class=\'green_text\'>'.$lang->leavesuccessfullyapproved.'</span>';?>");
+                        window.top.$("#approveleave_Result").html("<?php echo '<span class = \'green_text\'>'.$lang->leavesuccessfullyapproved.'</span>';?>");
                         window.top.$("#popup_approveleave").remove();
                     </script>
                     <?php

@@ -68,9 +68,8 @@ else {
             $query_where .= ' AND ime.localId IN ('.implode(',', $core->input['cid']).')';
         }
 
-        $filters = "ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', $period['from'])."' AND '".date('Y-m-d 00:00:00', $period['to'])."')";
+        $filters = "c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', $period['from'])."' AND '".date('Y-m-d 00:00:00', $period['to'])."')";
         $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
-
         $invoices = $integration->get_saleinvoices($filters);
         $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'unitcostlocal', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'netmargin', 'netmarginusd', 'marginperc');
         if(is_array($invoices)) {
@@ -184,14 +183,82 @@ else {
             redirect($url, $delay, $redirect_message);
         }
 
-        if($core->input['type'] == 'analytic') {
+        if($core->input['type'] == 'analytic' || $core->input['type'] == 'dimensional') {
             $overwrite = array('marginperc' => array('fields' => array('divider' => 'netmargin', 'dividedby' => 'linenetamt'), 'operation' => '/'),
                     'priceactual' => array('fields' => array('divider' => 'linenetamt', 'dividedby' => 'qtyinvoiced'), 'operation' => '/'));
             $formats = array('marginperc' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'));
-
             $required_fields = array('qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'grossmargin', 'netmargin', 'marginperc');
-            $required_tables = array('segmentsummary' => array('segment'), 'salesrepsummary' => array('salesrep'), 'suppliersummary' => array('suppliername'), 'customerssummary' => array('customername'), 'detailed' => array('month', 'week', 'salesrep', 'suppliername', 'customername', 'productname'));
 
+            if($core->input['type'] == 'analytic') {
+                $current_year = date('Y', TIME_NOW);
+                $required_tables = array('segmentsummary' => array('segment'), 'salesrepsummary' => array('salesrep'), 'suppliersummary' => array('suppliername'), 'customerssummary' => array('customername'));
+
+                $yearsummary_filter = "c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW) - 2).'-01-01'))."' AND '".date('Y-m-d 00:00:00', $period['to'])."')";
+                $monthdata = $integration->get_sales_byyearmonth($yearsummary_filter);
+                if(is_array($monthdata)) {
+                    $formatter = new NumberFormatter('EN_en', NumberFormatter::DECIMAL, '#.##');
+                    $salesreport .= '<table width="100%" class="datatable datatable-striped">';
+                    $salesreport .= '<tr><th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">Sales Rep</th>';
+                    for($i = 1; $i <= 12; $i++) {
+                        $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">'.DateTime::createFromFormat('m', $i)->format('M').'</th>';
+                    }
+                    for($y = $current_year; $y >= ($current_year - 1); $y--) {
+                        $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">'.$y.'</th>';
+                    }
+                    $salesreport .= '</tr>';
+                    foreach($monthdata['qty'] as $salerepid => $salerepdata) {
+                        $currentyeardata = $salerepdata[$current_year];
+                        $salesreport .= '<tr>';
+                        $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
+                        if(empty($salesrep->name)) {
+                            $salesrep->name = 'Not Specified';
+                        }
+                        $salesreport .= '<td>'.$salesrep->name.'</td>';
+
+                        for($i = 1; $i <= 12; $i++) {
+                            if(!isset($currentyeardata[$i])) {
+                                $currentyeardata[$i] = 0;
+                            }
+                            $salesreport .= '<td style="text-align: right;">'.$formatter->format($currentyeardata[$i]).'</td>';
+                        }
+                        for($y = $current_year; $y >= ($current_year - 1); $y--) {
+                            if(!is_array($salerepdata[$y])) {
+                                $salerepdata[$y][] = 0;
+                            }
+                            $salesreport .= '<td style="text-align: right;">'.$formatter->format(array_sum($salerepdata[$y])).'</td>';
+                        }
+                        $salesreport .= '</tr>';
+                    }
+                    $invoicelinesdata = new IntegrationOBInvoiceLine(null, $integration->get_dbconn());
+                    $yearsumrawtotals = $invoicelinesdata->get_aggreateddata_byyearmonth(null, $yearsummary_filter." AND c_invoice.issotrx='Y'");
+                    foreach($yearsumrawtotals as $totaldata) {
+                        $yearsummarytotals[$totaldata['year']][$totaldata['month']] = $totaldata['qty'];
+                    }
+                    for($y = $current_year; $y >= ($current_year - 1); $y--) {
+                        $salesreport .= '<tr><th>Totals ('.$y.')</th>';
+                        for($i = 1; $i <= 12; $i++) {
+                            $salesreport .= '<th style="text-align: right;">'.$formatter->format($yearsummarytotals[$y][$i]).'</th>';
+                        }
+
+                        for($yy = $current_year; $yy >= ($current_year - 1); $yy--) {
+                            if($yy != $y) {
+                                $salesreport .= '<th style="text-align: center;">-</th>';
+                                continue;
+                            }
+                            if(!is_array($yearsummarytotals[$yy])) {
+                                $yearsummarytotals[$yy][] = 0;
+                            }
+                            $salesreport .= '<th style="text-align: right;">'.$formatter->format(array_sum($yearsummarytotals[$yy])).'</th>';
+                        }
+                        $salesreport .= '</tr>';
+                    }
+                    $salesreport .= '</table>';
+                    unset($yearsumrawtotals, $yearsummarytotals, $monthdata, $currentyeardata);
+                }
+            }
+            elseif($core->input['type'] == 'dimensional') {
+                $required_tables = array('detailed' => array('month', 'week', 'salesrep', 'suppliername', 'customername', 'productname'));
+            }
             foreach($required_tables as $dimensions) {
                 $rawdata = $data;
                 $dimensionalreport = new DimentionalData();

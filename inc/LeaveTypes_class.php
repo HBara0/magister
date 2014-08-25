@@ -8,20 +8,25 @@
  * Last Update:    @tony.assaad    May 29, 2013 | 3:39:18 PM
  */
 
-class Leavetypes {
-    private $leavetype = array();
+class LeaveTypes extends AbstractClass {
+    protected $data = array();
+    protected $errorcode = 0;
 
-    public function __construct($ltid = 0, $simple = true) {
-        if(isset($ltid) && !empty($ltid)) {
-            $this->leavetype = $this->read($ltid, $simple);
-        }
+    const PRIMARY_KEY = 'ltid';
+    const TABLE_NAME = 'leavetypes';
+    const DISPLAY_NAME = 'title';
+    const SIMPLEQ_ATTRS = 'ltid, name, title';
+    const CLASSNAME = __CLASS__;
+
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
     public function has_expenses($id = '') {
         global $db;
 
-        if(!empty($this->leavetype['ltid']) && empty($id)) {
-            $id = $this->leavetype['ltid'];
+        if(!empty($this->data['ltid']) && empty($id)) {
+            $id = $this->data['ltid'];
         }
 
         if(value_exists('attendance_leavetypes_expenses', 'ltid', $db->escape_string($id))) {
@@ -35,8 +40,8 @@ class Leavetypes {
     public function get_expenses($id = '') {
         global $db;
 
-        if(!empty($this->leavetype['ltid']) && empty($id)) {
-            $id = $this->leavetype['ltid'];
+        if(!empty($this->data['ltid']) && empty($id)) {
+            $id = $this->data['ltid'];
         }
 
         $leavetypeexp_query = $db->query('SELECT *
@@ -82,18 +87,6 @@ class Leavetypes {
         return $requestleaveexpenses;
     }
 
-    private function read($id, $simple = true) {
-        global $db;
-        if(empty($id)) {
-            return false;
-        }
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'ltid, name, title';
-        }
-        return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'leavetypes WHERE ltid='.$db->escape_string($id)));
-    }
-
     public static function get_leavetypes($filters = '') {
         global $db;
 
@@ -103,7 +96,7 @@ class Leavetypes {
         $query = $db->query('SELECT ltid FROM '.Tprefix.'leavetypes'.$query_where);
         if($db->num_rows($query) > 0) {
             while($leavetype = $db->fetch_assoc($query)) {
-                $leavetypes[$leavetype['ltid']] = new Leavetypes($leavetype['ltid']);
+                $leavetypes[$leavetype['ltid']] = new LeaveTypes($leavetype['ltid']);
             }
 
             return $leavetypes;
@@ -112,7 +105,7 @@ class Leavetypes {
     }
 
     public function get_additonalfields() {
-        return unserialize($this->leavetype['additionalFields']);
+        return unserialize($this->data['additionalFields']);
     }
 
     public function parse_additonalfields(array $additional_settings = array()) {
@@ -136,10 +129,21 @@ class Leavetypes {
                 if($attribute == 'cid') {
                     $search_for = 'customer';
                 }
+                elseif($attribute == 'destinationcity') {
+                    $search_for = 'destinationcity';
+                }
+                elseif($attribute == 'sourcecity') {
+                    $search_for = 'sourcecity';
+                }
+                elseif($attribute == 'city') {
+                    $search_for = 'cities';
+                }
                 elseif($attribute == 'spid') {
                     $search_for = 'supplier';
                 }
-                $field = '<input type="text" id="'.$search_for.'_'.$identifier.'_QSearch" value="'.$field_settings['value_attribute_value'].'" required="required"/><input type="text" size="3" id="'.$search_for.'_'.$identifier.'_id_output" value="'.$field_settings['key_attribute_value'].'" disabled /><input type="hidden" value="'.$field_settings['key_attribute_value'].'" id="'.$search_for.'_'.$identifier.'_id" name="'.$attribute.'" /><div id="searchQuickResults_'.$identifier.'" class="searchQuickResults" style="display:none;"></div>';
+
+                //$field = '<input type = "text" id = "'.$search_for.'_'.$identifier.'_QSearch" value = "'.$field_settings['value_attribute_value'].'" required = "required"/><input type = "text" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value = "'.$field_settings['key_attribute_value'].'" id = "'.$search_for.'_'.$identifier.'_id" name = "'.$attribute.'" /><div id = "searchQuickResults_'.$identifier.'" class = "searchQuickResults" style = "display:none;"></div>';
+                $field = '<input type = "text" id = "'.$search_for.'_'.$identifier.'_autocomplete" value = "'.$field_settings['value_attribute_value'].'" required = "required"/><input type = "text" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value = "'.$field_settings['key_attribute_value'].'" id = "'.$search_for.'_'.$identifier.'_id" name = "'.$attribute.'" />';
 
                 break;
             case 'select':
@@ -166,6 +170,7 @@ class Leavetypes {
                         }
 
                         $data = get_specificdata($field_settings['table'], $field_settings['attributes'], $field_settings['key_attribute'], $field_settings['value_attribute'], array('by' => $field_settings['value_attribute'], 'sort' => 'ASC'), 0, $field_settings['where']);
+
                         if(is_array($data)) {
                             $field = parse_selectlist($attribute, 0, $data, $field_settings['key_attribute_value'], $field_settings['mulitpleselect'], '', array('required' => true));
                         }
@@ -178,7 +183,7 @@ class Leavetypes {
                     }
                 }
                 elseif($field_settings['datasource'] == 'function') {
-                    unset($field_settings['type'], $field_settings['table'], $field_settings['attributes']);
+                    unset($field_settings['key_attribute_value'], $field_settings['type'], $field_settings['table'], $field_settings['attributes']);
                     if(method_exists($this, $field_settings['functionname'])) {
                         /* call the sgment function to get  the segment for the on behalf user */
                         $data = $this->{$field_settings['functionname']}(new Users($core->input['uid']));
@@ -194,16 +199,18 @@ class Leavetypes {
 
         if(!empty($field)) {
             if(isset($field_settings['titlelangvar'])) {
-                $field = '<br /><div style="display:inline-block; width:10%;">'.$lang->{$field_settings['titlelangvar']}.'</div><div style="display:inline-block; width:75%;">'.$field.'</div>';
+                $field = '<br /><div style = "display:inline-block; width:10%;">'.$lang->{$field_settings['titlelangvar']}.'</div><div style = "display:inline-block; width:75%;">'.$field.'</div>
+
+            ';
             }
         }
         return $field;
     }
 
-    private function parse_segments_byuser(Users $user_obj = null) {
+ private function parse_segments_byuser(Users $user_obj = null) {
         global $core;
 
-        if($this->leavetype['isBusiness'] == 1) {
+        if($this->data['isBusiness'] == 1) {
             /* only we get the segments of  selected user (core user) */
             if(!is_object($user_obj)) {
                 $user_obj = $core->user_obj;
@@ -220,15 +227,22 @@ class Leavetypes {
         return false;
     }
 
-    public function __get($attr) {
-        if(isset($this->leavetype[$attr])) {
-            return $this->leavetype[$attr];
-        }
-        return false;
+
+ public function get_businessleaves() {
+        global $db;
+        $query = $db->query('SELECT type,lid FROM '.Tprefix.' leaves l JOIN leavetypes lt ON ( l.type = lt.ltid )WHERE lt.isBusiness=1');
     }
 
-    public function get() {
-        return $this->leavetype;
+    protected function create(array $data) {
+
+    }
+
+    public function save(array $data = array()) {
+
+    }
+
+    protected function update(array $data) {
+
     }
 
 }

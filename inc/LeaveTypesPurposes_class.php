@@ -32,7 +32,7 @@ class LeaveTypesPurposes {
         }
         $query_select = '*';
         if($simple == true) {
-            $query_select = self::PRIMARY_KEY.', name, purpose';
+            $query_select = self::PRIMARY_KEY.', name, title';
         }
         return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.$db->escape_string($id)));
     }

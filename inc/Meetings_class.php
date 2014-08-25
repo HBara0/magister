@@ -33,6 +33,14 @@ class Meetings {
         return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."meetings WHERE mtid=".$db->escape_string($id)));
     }
 
+    public function is_sharedwithuser() {
+        global $core, $db;
+        if(value_exists('meetings_sharedwith', 'uid', $core->user['uid'], '  mtid='.$db->escape_string(intval($this->meeting['mtid'])))) {
+            return true;
+        }
+        return false;
+    }
+
     public function create($meeting_data = array()) {
         global $db, $core, $log;
         if(is_array($meeting_data)) {

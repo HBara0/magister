@@ -13,6 +13,7 @@
                 <form name="do_crm/salesreport_Form" id="do_crm/salesreportlive_Form" method="post" action="index.php?module=crm/salesreportlive&amp;action=do_generatereport">
                     {$lang->type} <select name="type" id="type">
                         <option value="analytic">{$lang->analytic}Analytic</option>
+                        <option value="dimensional">{$lang->analytic}Analytic</option>
                         <option value="transactions">{$lang->transactions}Transactions</option>
                     </select>
 

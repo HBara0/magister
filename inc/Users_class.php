@@ -9,23 +9,24 @@
  * Last Update: @zaher.reda		July 26, 2012 | 01:08 PM
  */
 
-class Users {
-    private $user = array();
-    private $errorcode = 0;
+class Users extends AbstractClass {
+    protected $data = array();
+    protected $errorcode = 0;
 
     const PRIMARY_KEY = 'uid';
     const TABLE_NAME = 'users';
     const DISPLAY_NAME = 'displayName';
+    const SIMPLEQ_ATTRS = 'uid, username, reportsTo, firstName, middleName, lastName, displayName, displayName AS name, email';
+    const CLASSNAME = __CLASS__;
 
-    public function __construct($uid = 0, $simple = true) {
-        global $core, $db;
-
-        if(empty($uid)) {
-            $this->user = $core->user;
-            $this->user['uid'] = $db->escape_string($this->user['uid']);
+    public function __construct($id = '', $simple = true) {
+        global $core;
+        if(empty($id)) {
+            $this->data = $core->user;
+            $this->data['uid'] = intval($this->data['uid']);
         }
         else {
-            $this->read_user($uid, $simple);
+            parent::__construct($id, $simple);
         }
     }
 
@@ -33,7 +34,7 @@ class Users {
         global $db;
 
         if(empty($uid)) {
-            $uid = $this->user['uid'];
+            $uid = $this->data['uid'];
         }
 
         $query_select = 'uid, username, reportsTo, firstName, middleName, lastName, displayName, displayName AS name, email';
@@ -41,10 +42,10 @@ class Users {
             $query_select = '*';
         }
 
-        $this->user = $db->fetch_assoc($db->query("SELECT ".$query_select."
+        $this->data = $db->fetch_assoc($db->query("SELECT ".$query_select."
 												FROM ".Tprefix."users
 												WHERE uid='".intval($uid)."'"));
-        if(is_array($this->user) && !empty($this->user)) {
+        if(is_array($this->data) && !empty($this->data)) {
             return true;
         }
         $this->status = 2;
@@ -53,7 +54,7 @@ class Users {
 
     private function read_mainaffiliate() {
         global $db;
-        $this->user['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->user['uid']}' AND isMain=1"), 'affid');
+        $this->data['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->data['uid']}' AND isMain=1"), 'affid');
     }
 
     public function read_usergroupsperm($mainonly = false) {
@@ -66,7 +67,7 @@ class Users {
         $query = $db->query('SELECT *
 							FROM '.Tprefix.'users_usergroups uug
 							JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid)
-							WHERE uid='.$this->user['uid'].$query_extrawhere.'
+							WHERE uid='.$this->data['uid'].$query_extrawhere.'
 							ORDER BY isMain DESC');
         while($usergroup = $db->fetch_assoc($query)) {
             if($usergroup['isMain'] != 1) {
@@ -91,7 +92,7 @@ class Users {
         $query = $db->query('SELECT uug.gid, uug.isMain, ug.title
 					FROM '.Tprefix.'users_usergroups uug
 					JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid)
-					WHERE uid='.$this->user['uid'].'
+					WHERE uid='.$this->data['uid'].'
 					ORDER BY isMain DESC');
         while($usergroup = $db->fetch_assoc($query)) {
             if($config['classified'] == true) {
@@ -151,37 +152,26 @@ class Users {
         return false;
     }
 
-    public function get() {
-        return $this->user;
-    }
-
-    public function __get($name) {
-        if(isset($this->user[$name])) {
-            return $this->user[$name];
-        }
-        return false;
-    }
-
     public function get_reportsto() {
-        if(empty($this->user['reportsTo'])) {
+        if(empty($this->data['reportsTo'])) {
             return false;
         }
-        return new Users($this->user['reportsTo']);
+        return new Users($this->data['reportsTo']);
     }
 
     public function get_reportingto() {
         global $db;
         $reportsquery = $db->query("SELECT DISTINCT(uid), reportsTo, username, firstName, middleName, lastName, displayName FROM ".Tprefix."users
-			 WHERE reportsTo={$this->user[uid]}");
+			 WHERE reportsTo={$this->data[uid]}");
         while($reporting = $db->fetch_assoc($reportsquery)) {
-            $this->user['reportingTo'][] = $reporting;
+            $this->data['reportingTo'][] = $reporting;
         }
-        return $this->user['reportingTo'];
+        return $this->data['reportingTo'];
     }
 
     public function get_additionaldays_byuser() {
         global $db;
-        return $this->user['additionaldays'] = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."attendance_additionalleaves WHERE uid={$this->user[uid]}"));
+        return $this->data['additionaldays'] = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."attendance_additionalleaves WHERE uid={$this->data[uid]}"));
     }
 
     public function can_hr($options = '') {
@@ -198,7 +188,7 @@ class Users {
         $hrquery = $db->query("SELECT canHR
 						FROM ".Tprefix."users u
 						JOIN ".Tprefix."affiliatedemployees affe ON(u.uid=affe.uid)
-						WHERE affe.canHr=1 {$affiliate_where} AND affe.uid={$this->user[uid]}");
+						WHERE affe.canHr=1 {$affiliate_where} AND affe.uid={$this->data[uid]}");
         if($db->num_rows($hrquery) > 0) {
             return true;
         }
@@ -208,7 +198,7 @@ class Users {
     }
 
     public function get_assistant() {
-        return new Users($this->user['assistant']);
+        return new Users($this->data['assistant']);
     }
 
 // The below has to be in the Affiliates Class
@@ -228,20 +218,20 @@ class Users {
     public function get_positions() {
         global $db, $lang;
 
-        $query = $db->query("SELECT name, title FROM ".Tprefix."positions p JOIN ".Tprefix."userspositions up ON (up.posid=p.posid) WHERE uid={$this->user[uid]}");
+        $query = $db->query("SELECT name, title FROM ".Tprefix."positions p JOIN ".Tprefix."userspositions up ON (up.posid=p.posid) WHERE uid={$this->data[uid]}");
         while($position = $db->fetch_assoc($query)) {
             if(!isset($lang->{$position['name']})) {
                 $lang->{$position['name']} = $position['title'];
             }
-            $this->user['positions'][] = $lang->{$position['name']};
+            $this->data['positions'][] = $lang->{$position['name']};
         }
-        return $this->user['positions'];
+        return $this->data['positions'];
     }
 
     public function get_auditedaffiliates() {
         global $db;
 
-        $query = $db->query('SELECT * FROM '.Tprefix.'affiliatedemployees WHERE uid='.$this->user['uid'].' AND canAudit=1');
+        $query = $db->query('SELECT * FROM '.Tprefix.'affiliatedemployees WHERE uid='.$this->data['uid'].' AND canAudit=1');
         if($db->num_rows($query) > 0) {
             while($affiliate = $db->fetch_assoc($query)) {
                 $affiliates[$affiliate['affid']] = new Affiliates($affiliate['affid']);
@@ -256,33 +246,37 @@ class Users {
         $query = $db->query("SELECT l.lid,l.uid FROM ".Tprefix."leaves l
 							JOIN ".Tprefix."leavetypes lt ON(lt.ltid=l.type)
 							JOIN ".Tprefix."leavesapproval lap ON(l.lid=lap.lid) WHERE lap.isApproved=1
-							AND lt.isBusiness=1 AND l.uid={$this->user[uid]}");
+							AND lt.isBusiness=1 AND l.uid={$this->data[uid]}");
         while($leaves = $db->fetch_assoc($query)) {
             $leav_obj = new Leaves(array('lid' => $leaves['lid']), false);
             $user_leaves[$leaves['lid']] = $leav_obj->get_leavetype()->get();
-            $this->user['leaves'] = $user_leaves;
+            $this->data['leaves'] = $user_leaves;
         }
-        return $this->user['leaves'];
+        return $this->data['leaves'];
     }
 
     public function get_mainaffiliate() {
-        if(!isset($this->user['mainaffiliate']) || empty($this->user['mainaffiliate'])) {
+        if(!isset($this->data['mainaffiliate']) || empty($this->data['mainaffiliate'])) {
             $this->read_mainaffiliate();
         }
-        return new Affiliates($this->user['mainaffiliate'], FALSE);
+        return new Affiliates($this->data['mainaffiliate'], FALSE);
     }
 
+    /* CORRECTIONS NEEDED:
+     *  The below should return objects of Segments
+     *  There is no need for the join being made
+     * Should return false if nothing
+     */
     public function get_segments() {
         global $db;
 
-        $query = $db->query("SELECT psid FROM employeessegments WHERE uid=".$this->user['uid']);
+        $query = $db->query("SELECT psid FROM employeessegments WHERE uid=".$this->data['uid']);
         if($db->num_rows($query) > 0) {
             while($segment = $db->fetch_assoc($query)) {
                 $segments[$segment['psid']] = new ProductsSegments($segment['psid']);
             }
             return $segments;
         }
-        return false;
     }
 
     /* CORRECTIONS NEEDED:
@@ -294,14 +288,15 @@ class Users {
     public function get_coordinatesegments() {
         global $db;
 
-        $segment_query = $db->query("SELECT psc.pscid FROM  ".Tprefix."productsegmentcoordinators psc WHERE psc.uid=".$this->user['uid']);
+        $segment_query = $db->query("SELECT psc.pscid,ps.psid,ps.title FROM  ".Tprefix."productsegmentcoordinators psc
+									JOIN ".Tprefix."users u on u.uid=psc.uid
+									JOIN ".Tprefix."productsegments ps ON (ps.psid=psc.psid) WHERE u.uid=".$this->data['uid']);
         if($db->num_rows($segment_query) > 0) {
             while($segmentcoord = $db->fetch_assoc($segment_query)) {
                 $segmentcoords[$segmentcoord['pscid']] = $segmentcoord;
             }
             return $segmentcoords;
         }
-        return false;
     }
 
     public function get_hrinfo($simple = true) {
@@ -311,11 +306,11 @@ class Users {
             $query_select = 'employeeNum, joinDate, jobDescription';
         }
 
-        $this->user['hrinfo'] = $db->fetch_assoc($db->query("SELECT ".$query_select."
+        $this->data['hrinfo'] = $db->fetch_assoc($db->query("SELECT ".$query_select."
 										FROM ".Tprefix."userhrinformation
-										WHERE uid='".$this->user['uid']."'"));
-        if(is_array($this->user['hrinfo']) && !empty($this->user['hrinfo'])) {
-            return $this->user['hrinfo'];
+										WHERE uid='".$this->data['uid']."'"));
+        if(is_array($this->data['hrinfo']) && !empty($this->data['hrinfo'])) {
+            return $this->data['hrinfo'];
         }
         return false;
     }
@@ -325,43 +320,43 @@ class Users {
         $lang->load('profile');
 
         $mainaffiliate = $this->get_mainaffiliate();
-        $this->user['mainaffiliate_details'] = $mainaffiliate->get();
-        $this->user['mainaffiliate_details']['countryname'] = $mainaffiliate->get_country()->get()['name'];
+        $this->data['mainaffiliate_details'] = $mainaffiliate->get();
+        $this->data['mainaffiliate_details']['countryname'] = $mainaffiliate->get_country()->get()['name'];
 
-        if(!empty($this->user['mainaffiliate_details']['addressLine1'])) {
-            $info['address'] .= $this->user['mainaffiliate_details']['addressLine1'].', ';
+        if(!empty($this->data['mainaffiliate_details']['addressLine1'])) {
+            $info['address'] .= $this->data['mainaffiliate_details']['addressLine1'].', ';
         }
 
-        if(!empty($this->user['mainaffiliate_details']['addressLine2'])) {
-            $info['address'] .= $this->user['mainaffiliate_details']['addressLine2'].', ';
+        if(!empty($this->data['mainaffiliate_details']['addressLine2'])) {
+            $info['address'] .= $this->data['mainaffiliate_details']['addressLine2'].', ';
         }
 
         if(!empty($affiliate['postCode'])) {
-            $info['address'] .= $this->user['mainaffiliate_details']['postCode'].'  ';
+            $info['address'] .= $this->data['mainaffiliate_details']['postCode'].'  ';
         }
 
-        if(!empty($this->user['mainaffiliate_details']['city'])) {
-            $info['address'] .= ucfirst($this->user['mainaffiliate_details']['city']).' - ';
+        if(!empty($this->data['mainaffiliate_details']['city'])) {
+            $info['address'] .= $mainaffiliate->get_city()->get()['name'].' - '; //ucfirst($this->user['mainaffiliate_details']['city']).' - ';
         }
 
-        $info['address'] .= ucfirst($this->user['mainaffiliate_details']['countryname']);
-        $info['tel'] = '+'.$this->user['mainaffiliate_details']['phone1'];
-        $info['ext'] = $this->user['internalExtension'];
-        $info['fax'] = '+'.$this->user['mainaffiliate_details']['fax'];
+        $info['address'] .= ucfirst($this->data['mainaffiliate_details']['countryname']);
+        $info['tel'] = '+'.$this->data['mainaffiliate_details']['phone1'];
+        $info['ext'] = $this->data['internalExtension'];
+        $info['fax'] = '+'.$this->data['mainaffiliate_details']['fax'];
         $info['website'] = 'www.orkila.com';
         //$info['bbpin'] = $this->user['bbPin'];
-        $info['email'] = $this->user['email'];
-        $info['skype'] = $this->user['skype'];
+        $info['email'] = $this->data['email'];
+        $info['skype'] = $this->data['skype'];
 
-        if($this->user['mobileIsPrivate'] == 0 && !empty($this->user['mobile'])) {
-            $info['mob'] = '+'.$this->user['mobile'];
+        if($this->data['mobileIsPrivate'] == 0 && !empty($this->data['mobile'])) {
+            $info['mob'] = '+'.$this->data['mobile'];
         }
 
-        if($this->user['mobile2IsPrivate'] == 0 && !empty($this->user['mobile2'])) {
+        if($this->data['mobile2IsPrivate'] == 0 && !empty($this->data['mobile2'])) {
             if(!empty($info['mob'])) {
                 $info['mob'] .= '/';
             }
-            $info['mob'] .= '+'.$this->user['mobile2'];
+            $info['mob'] .= '+'.$this->data['mobile2'];
         }
 
         $info['mob'] = str_replace('-', ' ', $info['mob']);
@@ -389,7 +384,7 @@ class Users {
                     $details['values'] .= $info[$type].'   ';
 
                     $details['titles'] .= $lang->{$type}.":\n";
-                    if(strpos($this->user['mainaffiliate_details'][$type], "\n") || strpos($this->user[$type], "\n")) {
+                    if(strpos($this->data['mainaffiliate_details'][$type], "\n") || strpos($this->data[$type], "\n")) {
                         $details['titles'] .= "\n";
                     }
                 }
@@ -436,12 +431,12 @@ class Users {
             }
         }
         else {
-            $details['values_bbox'] = imagettfbbox(11, 0, $fonts['arial']['bold'], $this->user['displayName']);
+            $details['values_bbox'] = imagettfbbox(11, 0, $fonts['arial']['bold'], $this->data['displayName']);
             if(($details['values_bbox'][4] + 65) > $width) {
                 $width = $details['values_bbox'][4] + 65;
             }
 
-            $this->user['mainaffiliate_details'] = $this->get_mainaffiliate()->get();
+            $this->data['mainaffiliate_details'] = $this->get_mainaffiliate()->get();
         }
 
         $im = imagecreatetruecolor($width, $height);
@@ -469,32 +464,32 @@ class Users {
 
         imageline($im, 0, 0, 260, 0, $colors['black']);
 
-        $this->user['displayName'] = explode(' ', $this->user['displayName']);
-        $this->user['displayName'][count($this->user['displayName']) - 1] = strtoupper($this->user['displayName'][count($this->user['displayName']) - 1]);
-        $this->user['displayName'] = implode(' ', $this->user['displayName']);
+        $this->data['displayName'] = explode(' ', $this->data['displayName']);
+        $this->data['displayName'][count($this->data['displayName']) - 1] = strtoupper($this->data['displayName'][count($this->data['displayName']) - 1]);
+        $this->data['displayName'] = implode(' ', $this->data['displayName']);
 
         if($is_compact == false) {
-            imagefttext($im, 11, 0, 1, 16, $colors['green'], $fonts['arial']['bold'], $this->user['displayName']);
+            imagefttext($im, 11, 0, 1, 16, $colors['green'], $fonts['arial']['bold'], $this->data['displayName']);
             $this->get_positions();
-            imagefttext($im, 9, 0, 1, 98, $colors['salmon'], $fonts['arial']['bolditalic'], implode(', ', $this->user['positions']));
+            imagefttext($im, 9, 0, 1, 98, $colors['salmon'], $fonts['arial']['bolditalic'], implode(', ', $this->data['positions']));
             imagefttext($im, 8.5, 0, 1, 130, $colors['gray'], $fonts['arial']['regular'], $details['values'], array('linespacing' => 1.1));
 
-            if(empty($this->user['legalAffid'])) {
-                $this->user['legalAffid'] = $this->user['mainaffiliate_details']['legalName'];
+            if(empty($this->data['legalAffid'])) {
+                $this->data['legalAffid'] = $this->data['mainaffiliate_details']['legalName'];
             }
-            imagefttext($im, 10, 0, 1, 115, $colors['green'], $fonts['arial']['regular'], $this->user['legalAffid']);
+            imagefttext($im, 10, 0, 1, 115, $colors['green'], $fonts['arial']['regular'], $this->data['legalAffid']);
         }
         else {
-            imagefttext($im, 10, 0, 49 + 8, 36 / 1.8, $colors['green'], $fonts['arial']['bold'], $this->user['displayName']);
-            if(!empty($this->user['internalExtension'])) {
-                $this->user['internalExtension'] = ' ext: '.$this->user['internalExtension'];
+            imagefttext($im, 10, 0, 49 + 8, 36 / 1.8, $colors['green'], $fonts['arial']['bold'], $this->data['displayName']);
+            if(!empty($this->data['internalExtension'])) {
+                $this->data['internalExtension'] = ' ext: '.$this->data['internalExtension'];
             }
             else {
-                $this->user['internalExtension'] = '';
+                $this->data['internalExtension'] = '';
             }
 
-            $this->user['mainaffiliate_details']['phone1'] = str_replace('-', ' ', $this->user['mainaffiliate_details']['phone1']);
-            imagefttext($im, 8, 0, 49 + 8, (36 / 1.8) + 13, $colors['salmon'], $fonts['arial']['regular'], '+'.$this->user['mainaffiliate_details']['phone1'].$this->user['internalExtension']);
+            $this->data['mainaffiliate_details']['phone1'] = str_replace('-', ' ', $this->data['mainaffiliate_details']['phone1']);
+            imagefttext($im, 8, 0, 49 + 8, (36 / 1.8) + 13, $colors['salmon'], $fonts['arial']['regular'], '+'.$this->data['mainaffiliate_details']['phone1'].$this->data['internalExtension']);
         }
 
         /* Check if banners exist & add them */
@@ -532,31 +527,31 @@ class Users {
 
     public function generate_text_sign($is_compact = false) {
         $signature = str_repeat('_', 35).'<br />';
-        $this->user['displayName'] = explode(' ', $this->user['displayName']);
-        $this->user['displayName'][count($this->user['displayName']) - 1] = strtoupper($this->user['displayName'][count($this->user['displayName']) - 1]);
-        $this->user['displayName'] = implode(' ', $this->user['displayName']);
-        $signature .= $this->user['displayName'].'<br />';
+        $this->data['displayName'] = explode(' ', $this->data['displayName']);
+        $this->data['displayName'][count($this->data['displayName']) - 1] = strtoupper($this->data['displayName'][count($this->data['displayName']) - 1]);
+        $this->data['displayName'] = implode(' ', $this->data['displayName']);
+        $signature .= $this->data['displayName'].'<br />';
 
         if($is_compact == false) {
             $signature .= '<br />';
             $details = $this->prepare_sign_info();
 
-            if(!isset($this->user['positions'])) {
+            if(!isset($this->data['positions'])) {
                 $this->get_positions();
             }
 
-            if(empty($this->user['legalAffid'])) {
-                $this->user['legalAffid'] = $this->user['mainaffiliate_details']['legalName'];
+            if(empty($this->data['legalAffid'])) {
+                $this->data['legalAffid'] = $this->data['mainaffiliate_details']['legalName'];
             }
-            $signature .= implode(', ', $this->user['positions'])."<br />";
-            $signature .= $this->user['legalAffid']."<br />";
+            $signature .= implode(', ', $this->data['positions'])."<br />";
+            $signature .= $this->data['legalAffid']."<br />";
             $signature .= preg_replace("/\n/i", '<br />', $details['values']);
         }
         else {
-            if(!isset($this->user['mainaffiliate_details'])) {
-                $this->user['mainaffiliate_details'] = $this->get_mainaffiliate()->get();
+            if(!isset($this->data['mainaffiliate_details'])) {
+                $this->data['mainaffiliate_details'] = $this->get_mainaffiliate()->get();
             }
-            $signature .= '+'.$this->user['mainaffiliate_details']['phone1'].$this->user['internalExtension'];
+            $signature .= '+'.$this->data['mainaffiliate_details']['phone1'].$this->data['internalExtension'];
         }
         return $signature;
     }
@@ -598,11 +593,19 @@ class Users {
             $options['outputvar'] = 'displayName';
         }
 
-        return '<a href="users.php?action=profile&uid='.$this->user['uid'].'" '.$attributes.'>'.$this->user[$options['outputvar']].'</a>';
+        return '<a href="users.php?action=profile&uid='.$this->data['uid'].'" '.$attributes.'>'.$this->data[$options['outputvar']].'</a>';
     }
 
-    public function get_displayname() {
-        return $this->user[self::DISPLAY_NAME];
+    protected function create(array $data) {
+
+    }
+
+    protected function update(array $data) {
+
+    }
+
+    public function save(array $data = array()) {
+
     }
 
 }

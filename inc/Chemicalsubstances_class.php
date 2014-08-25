@@ -37,7 +37,7 @@ class Chemicalsubstances extends AbstractClass {
         $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemicalsubstances WHERE csid='.intval($id)));
     }
 
-    protected function save(array $data = array()) {
+    public function save(array $data = array()) {
 
     }
 

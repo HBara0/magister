@@ -130,8 +130,13 @@ if(!$core->input['action']) {
         }
     }
 
-    eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
+    /* get leaves of business type associated to the user where 'fromDate' is within one year from now */
 
+    $leavetypes = LeaveTypes::get_data('isBusiness=1');
+    $leaves = Leaves::get_data(array('uid' => $core->user['uid'], 'type' => array_keys($leavetypes), 'fromDate' => strtotime("-1 year")), array('operators' => array('type' => 'IN', 'fromDate' => 'grt'), 'returnarray' => true));
+    $leaves_list = parse_selectlist('meeting[associations][lid]', $tabindex, $leaves, '');
+
+    eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
     eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
 
     output($createmeeting);
@@ -144,7 +149,8 @@ else {
             $deleted = $meetingattach_obj->delete();
             header('Content-type: text/javascript');
             if($deleted) {
-                echo '$("div[id=\'file_'.$mattid.'\']").css("display","none");';
+                echo '$("div[id=\'file_'.$mattid.'\']").css("display", "none");
+    ';
                 exit;
             }
         }
@@ -226,7 +232,8 @@ else {
     ?>
     <script language="javascript" type="text/javascript">
         $(function() {
-            top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
+            top.$("#upload_Result").html("<span class='<?php echo $output_class;
+    ?>'><?php echo $output_message;?></span>");
         });
     </script>
     <?php

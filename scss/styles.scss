@@ -257,7 +257,9 @@ td { padding: 2px; }
 .border_bottom {
     border-bottom: 1px solid #F2F2F2;
 }
-
+.border_top {
+    border-top: 1px solid #F2F2F2;
+}
 .searchQuickResults {
     width: 200px;
     background:#F8F8F8;
@@ -690,4 +692,8 @@ tr.dummytrow td, tr.dummytrow th {
         height: 1.2em;
         line-height: 1.2em;
     }
+}
+
+.ui-autocomplete-loading {
+    background: white url('../images/loading.gif') right center no-repeat;
 }
