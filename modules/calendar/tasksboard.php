@@ -68,28 +68,25 @@ elseif($core->input['action'] == 'get_taskdetails') {
         }
 
         /* Parse share with users */
-        $affiliates_users = Users::get_allusers();
+
         $shared_users = $task->get_shared_users();
         if(is_array($shared_users)) {
-
-            foreach($shared_users as $uid => $user) {
-                $user = $user->get();
-                $user = array_unique($user);
-                $checked = ' checked="checked"';
-                $rowclass = 'selected';
-
-                eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
-            }
+            $shared_users_uids = array_keys($shared_users);
         }
 
-
-        foreach($affiliates_users as $uid => $user) {
-            $user = $user->get();
+        $users = Users::get_data('gid!=7', array('order' => 'CASE WHEN uid IN ('.implode(',', $shared_users_uids).') THEN -1 ELSE displayName END, displayName'));
+        foreach($users as $uid => $user) {
             $checked = $rowclass = '';
             if($uid == $core->user['uid']) {
                 continue;
             }
 
+            if(is_array($shared_users_uids)) {
+                if(in_array($uid, $shared_users_uids)) {
+                    $checked = ' checked="checked"';
+                    $rowclass = 'selected';
+                }
+            }
             eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
         }
 

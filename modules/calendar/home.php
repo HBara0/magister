@@ -135,18 +135,13 @@ else {
     unset($affiliates_users);
     /* parse invitees - END */
 
-
     /* Parse share with users */
-    $affiliates_users = Users::get_allusers();
-    foreach($affiliates_users as $uid => $user) {
-        $user = $user->get();
+    $users = Users::get_allusers();
+    foreach($users as $uid => $user) {
         $checked = $rowclass = '';
         if($uid == $core->user['uid']) {
             continue;
         }
-
-
-
         eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
     }
     eval("\$task_sharewith = \"".$template->get('calendar_createeventtask_sharewith')."\";");

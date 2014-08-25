@@ -21,15 +21,11 @@
     </span>
     <p style="font-style:italic">{$task_details[description]}</p>
     <hr />
-
-    <div id="sharetask" class="subtitle" style="cursor:pointer;" onClick="$('#calendar_task_share').toggle();"> {$lang->sharewith}...</div><br>
-
+    <div id="sharetask" class="subtitle" style="cursor:pointer;" onClick="$('#calendar_task_share').toggle();">{$lang->sharewith}...</div>
     <div id="calendar_task_share" style="display:none;">
         <form name="perform_sharetask_calendar/eventstasks_Form" id="perform_sharetask_calendar/eventstasks_Form" method="post">
             <input type="hidden" id="action" name="action" value="share_task" />
             <input type="hidden" id="id" name="id" value="{$task_details[ctid]}" />
-
-
             {$task_sharewith}
             <input type="button" id='perform_sharetask_calendar/eventstasks_Button' value='{$lang->savecaps}' class="button">
             <div id="perform_sharetask_calendar/eventstasks_Results"></div>
@@ -47,7 +43,7 @@
         <div id="calendar_task_notes">
             {$task_notes_output}
         </div>
-    </div> 
+    </div>
     <script src="{$core->settings[rootdir]}/js/redactor.min.js" type="text/javascript"></script>
     <script type="text/javascript">
         $(function() {

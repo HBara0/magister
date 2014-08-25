@@ -105,7 +105,7 @@ class Tasks {
 
             $log->record($this->task['ctid']);
             /* share task  ----START */
-            $calendarshare_obj = new CalendarTaskShare();
+            $calendarshare_obj = new CalendarTaskShares();
             if(is_array($data['share'])) {
                 $data['share']['ctid'] = $this->task['ctid'];
                 $calendarshare_obj->set($data['share']);
@@ -121,16 +121,15 @@ class Tasks {
     }
 
     public function get_shared_users() {
-        global $db;
-
-        $query = $db->query('SELECT uid FROM '.Tprefix.'calendar_tasks_sharewith WHERE ctid='.$db->escape_string($this->task['ctid'].''));
-        if($db->num_rows($query)) {
-            while($user = $db->fetch_assoc($query)) {
-                $users[$user['uid']] = new Users($user['uid']);
+        $shares = CalendarTaskShares::get_data(array('ctid' => $this->task['ctid']), array('returnarray' => true));
+        if(is_array($shares)) {
+            foreach($shares as $share) {
+                $users[$share->uid] = $share->get_user();
             }
+
             return $users;
         }
-        return false;
+        return null;
     }
 
     public function notify_task() {
