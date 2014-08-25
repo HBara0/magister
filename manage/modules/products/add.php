@@ -142,7 +142,7 @@ else {
                 output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
                 break;
             case 2:
-                output_xml("<status>false</status><message>{$lang->chemicalexsist}</message>");
+                output_xml("<status>false</status><message>{$lang->entryexists}</message>");
                 break;
         }
     }
