@@ -347,33 +347,39 @@ else {
         }
     }
     elseif($core->input['action'] == 'share_task') {
-        $taskid = $db->escape_string($core->input['id']);
-        $calendarshare_obj = new CalendarTaskShares();
-        $task_obj = new Tasks($taskid);
-        $existing_users = $task_obj->get_shared_users();
+        $task = new Tasks($core->input['id']);
+        $shares = $task->get_shares();
 
-        if(is_array($existing_users)) {
+        if(is_array($shares)) {
+            foreach($shares as $share) {
+                $sharedusers[$share->uid] = $share;
+            }
 
-            $existing_users = array_keys($existing_users);
-            $users_toremove = array_diff($existing_users, $core->input['task']['share']);
-
-            if(!empty($users_toremove)) {
-                foreach($users_toremove as $user) {
-                    $taskshare_obj = CalendarTaskShares::get_data('uid='.$user);
-                    $calendarshare_obj->set(array('uid' => $user, 'ctsid' => $taskshare_obj->ctsid));
-                    $calendarshare_obj->delete();
+            if(empty($core->input['task']['share'])) {
+                foreach($shares as $share) {
+                    $share->delete();
+                }
+            }
+            else {
+                $users_toremove = array_diff(array_keys($sharedusers), $core->input['task']['share']);
+                if(!empty($users_toremove)) {
+                    foreach($users_toremove as $uid) {
+                        $object = $sharedusers[$uid];
+                        $object->delete();
+                    }
                 }
             }
         }
 
-        exit;
         if(is_array($core->input['task']['share'])) {
-            $core->input['task']['share']['ctid'] = $taskid;
-            $calendarshare_obj->set($core->input['task']['share']);
-            $calendarshare_obj->save();
+            foreach($core->input['task']['share'] as $uid) {
+                $share = new CalendarTaskShares();
+                $share->set(array('uid' => $uid, 'ctid' => $task->ctid));
+                $share->save();
+            }
         }
 
-        switch($calendarshare_obj->get_errorcode()) {
+        switch($share->get_errorcode()) {
             case 0:
                 output_xml("<status>true</status><message>".$lang->successfullysaved."</message>");
                 break;

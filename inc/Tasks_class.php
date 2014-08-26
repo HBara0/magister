@@ -100,12 +100,11 @@ class Tasks {
         $this->task = $new_task;
 
         /* get exist users for the current task */
-
         $query = $db->insert_query('calendar_tasks', $new_task);
         if($query) {
             $this->task['ctid'] = $db->last_id();
             $log->record($this->task['ctid']);
-            /* share task  ----START */
+            /* share task  - START */
             if(is_array($data['share'])) {
                 foreach($data['share'] as $uid) {
                     $calendarshare_obj = new CalendarTaskShares();
@@ -123,7 +122,7 @@ class Tasks {
     }
 
     public function get_shared_users() {
-        $shares = CalendarTaskShares::get_data(array('ctid' => $this->task['ctid']), array('returnarray' => true));
+        $shares = $this->get_shares();
         if(is_array($shares)) {
             foreach($shares as $share) {
                 $users[$share->uid] = $share->get_user();
@@ -132,6 +131,10 @@ class Tasks {
             return $users;
         }
         return null;
+    }
+
+    public function get_shares() {
+        return CalendarTaskShares::get_data(array(self::PRIMARY_KEY => $this->task[self::PRIMARY_KEY]), array('returnarray' => true));
     }
 
     public function notify_task() {
