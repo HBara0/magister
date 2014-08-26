@@ -13,8 +13,8 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
-// improve DAL to have multiple orders
-    $tasks = Tasks::get_tasks('(uid='.$core->user['uid'].' OR createdBy='.$core->user['uid'].')', array('simple' => false, 'order' => 'dueDate DESC, isDone'));
+    $taskdata['filter']['ctid'] = 'SELECT ctid FROM calendar_tasks_sharewith WHERE uid='.$core->user['uid'].') OR (createdBy='.$core->user['uid'].'';
+    $tasks = Tasks::get_tasks($taskdata['filter'], array('simple' => false, 'order' => 'dueDate DESC, isDone', 'operators' => array('ctid' => 'IN')));
 
     if(is_array($tasks)) {
         foreach($tasks as $task) {
