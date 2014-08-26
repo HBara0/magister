@@ -199,15 +199,13 @@ class LeaveTypes extends AbstractClass {
 
         if(!empty($field)) {
             if(isset($field_settings['titlelangvar'])) {
-                $field = '<br /><div style = "display:inline-block; width:10%;">'.$lang->{$field_settings['titlelangvar']}.'</div><div style = "display:inline-block; width:75%;">'.$field.'</div>
-
-            ';
+                $field = '<br /><div style="display:inline-block; width:10%;">'.$lang->{$field_settings['titlelangvar']}.'</div><div style = "display:inline-block; width:75%;">'.$field.'</div>';
             }
         }
         return $field;
     }
 
- private function parse_segments_byuser(Users $user_obj = null) {
+    private function parse_segments_byuser(Users $user_obj = null) {
         global $core;
 
         if($this->data['isBusiness'] == 1) {
@@ -225,12 +223,6 @@ class LeaveTypes extends AbstractClass {
             return false;
         }
         return false;
-    }
-
-
- public function get_businessleaves() {
-        global $db;
-        $query = $db->query('SELECT type,lid FROM '.Tprefix.' leaves l JOIN leavetypes lt ON ( l.type = lt.ltid )WHERE lt.isBusiness=1');
     }
 
     protected function create(array $data) {
