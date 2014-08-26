@@ -99,17 +99,19 @@ class Tasks {
 
         $this->task = $new_task;
 
+        /* get exist users for the current task */
+
         $query = $db->insert_query('calendar_tasks', $new_task);
         if($query) {
             $this->task['ctid'] = $db->last_id();
-
             $log->record($this->task['ctid']);
             /* share task  ----START */
-            $calendarshare_obj = new CalendarTaskShares();
             if(is_array($data['share'])) {
-                $data['share']['ctid'] = $this->task['ctid'];
-                $calendarshare_obj->set($data['share']);
-                $calendarshare_obj->save();
+                foreach($data['share'] as $uid) {
+                    $calendarshare_obj = new CalendarTaskShares();
+                    $calendarshare_obj->set(array('uid' => $uid, self::PRIMARY_KEY => $this->task[self::PRIMARY_KEY]));
+                    $calendarshare_obj->save();
+                }
             }
             $this->status = 0;
             return true;

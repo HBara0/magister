@@ -36,29 +36,24 @@ class CalendarTaskShares extends AbstractClass {
             $task_data['ctid'] = $data['ctid'];
             unset($data['ctid']);
 
-            /* get exist users for the current task */
-            $existing_users = $this->get_task()->get_shared_users();
 
             /* get the difference between the exist users and the slected users */
-            if(is_array($existing_users)) {
-                $existing_users = array_keys($existing_users);
-                $users_toremove = array_diff($existing_users, $data);
-                if(!empty($users_toremove)) {
-                    $users_toremove = array_map(intval, $users_toremove);
-                    $db->delete_query(self::TABLE_NAME, 'uid IN ('.implode(',', $users_toremove).') AND ctid='.intval($task_data['ctid']));
-                    $this->errorcode = 0;
-                }
+//            if(is_array($existing_users)) {
+//                $existing_users = array_keys($existing_users);
+//                $users_toremove = array_diff($existing_users, $data);
+//                if(!empty($users_toremove)) {
+//                    $users_toremove = array_map(intval, $users_toremove);
+//                    $db->delete_query(self::TABLE_NAME, 'uid IN ('.implode(',', $users_toremove).') AND ctid='.intval($task_data['ctid']));
+//                    $this->errorcode = 0;
+//                }
+//            }
+
+            $task_data['createdBy'] = $core->user['uid'];
+            $task_data['createdOn'] = TIME_NOW;
+            $task_data['uid'] = intval($data['uid']);
+            if(!value_exists(self::TABLE_NAME, 'uid', $data['uid'], 'ctid='.intval($this->data['ctid']))) {
+                $db->insert_query(self::TABLE_NAME, $task_data);
             }
-            foreach($data as $uid) {
-                $task_data['createdBy'] = $core->user['uid'];
-                $task_data['createdOn'] = TIME_NOW;
-                $task_data['uid'] = intval($uid);
-                if(!value_exists(self::TABLE_NAME, 'uid', $uid, 'ctid='.intval($this->data['ctid']))) {
-                    $db->insert_query(self::TABLE_NAME, $task_data);
-                }
-            }
-            $this->errorcode = 0;
-            return true;
         }
     }
 
@@ -90,6 +85,15 @@ class CalendarTaskShares extends AbstractClass {
     protected function update(array $data) {
 
     }
+
+//    protected function delete() {
+//        global $db;
+//        $query = $db->delete_query(self::TABLE_NAME, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+//        if($query) {
+//            return true;
+//        }
+//        return false;
+//    }
 
     public function get_user() {
         return new Users($this->data['uid']);

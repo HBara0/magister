@@ -349,8 +349,25 @@ else {
     elseif($core->input['action'] == 'share_task') {
         $taskid = $db->escape_string($core->input['id']);
         $calendarshare_obj = new CalendarTaskShares();
-        if(is_array($core->input['task']['share'])) {
+        $task_obj = new Tasks($taskid);
+        $existing_users = $task_obj->get_shared_users();
 
+        if(is_array($existing_users)) {
+
+            $existing_users = array_keys($existing_users);
+            $users_toremove = array_diff($existing_users, $core->input['task']['share']);
+
+            if(!empty($users_toremove)) {
+                foreach($users_toremove as $user) {
+                    $taskshare_obj = CalendarTaskShares::get_data('uid='.$user);
+                    $calendarshare_obj->set(array('uid' => $user, 'ctsid' => $taskshare_obj->ctsid));
+                    $calendarshare_obj->delete();
+                }
+            }
+        }
+
+        exit;
+        if(is_array($core->input['task']['share'])) {
             $core->input['task']['share']['ctid'] = $taskid;
             $calendarshare_obj->set($core->input['task']['share']);
             $calendarshare_obj->save();
