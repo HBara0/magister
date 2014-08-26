@@ -13,7 +13,7 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
-    $taskdata['filter']['ctid'] = 'SELECT ctid FROM calendar_tasks_sharewith WHERE uid='.$core->user['uid'].') OR (createdBy='.$core->user['uid'].'';
+    $taskdata['filter']['ctid'] = 'SELECT ctid FROM calendar_tasks_shares WHERE uid='.$core->user['uid'].') OR (uid='.$core->user['uid'].' OR createdBy='.$core->user['uid'];
     $tasks = Tasks::get_tasks($taskdata['filter'], array('simple' => false, 'order' => 'dueDate DESC, isDone', 'operators' => array('ctid' => 'IN')));
 
     if(is_array($tasks)) {
@@ -22,7 +22,7 @@ if(!$core->input['action']) {
             $task_iconstats = $task->parsestatus();
             $task->percCompleted_output = '';
             if($task_iconstats == 'inprogress') {
-                //$task->percCompleted_output = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $task->percCompleted / 100);
+                $task->percCompleted_output = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $task->percCompleted / 100);
             }
 
             $task_icon[$task_iconstats] = '<img src="./images/icons/'.$task_iconstats.'.png" border="0" />';
