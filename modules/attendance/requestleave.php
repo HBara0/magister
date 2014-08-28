@@ -36,7 +36,7 @@ if(!$core->input['action']) {
     else {
         if(value_exists('users', 'reportsTo', $core->user['uid'])) {
             $employees = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', '', 0, "reportsTo='{$core->user[uid]}' AND gid!=7");
-            $employees[$core->user['uid']] = '';
+            $employees[$core->user['uid']] = $core->user['displayName'];
             asort($employees);
             $show_onbehalf = true;
         }

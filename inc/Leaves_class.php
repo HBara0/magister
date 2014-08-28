@@ -191,8 +191,8 @@ class Leaves extends AbstractClass {
         return $this->get_approvers();
     }
 
-    public function get_approvers() {
-        return AttLeavesApproval::get_approvals_byattr('lid', $this->data['lid']);
+    public function get_approvers(array $config = array()) {
+        return AttLeavesApproval::get_data(array('lid' => $this->data['lid']), $config);
     }
 
     public function get_approvals($isapproved = 1) {
