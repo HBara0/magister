@@ -284,7 +284,7 @@ else {
 
             $task_details = $task->get_task();
 
-            if($core->user['uid'] != $task_details['uid'] && $core->user['uid'] != $task_details['createdBy']) {
+            if(!$task->is_sharedwithuser() && $core->user['uid'] != $task_details['uid'] && $core->user['uid'] != $task_details['createdBy']) {
                 exit;
             }
             //$task_details['dueDate_output'] = date($core->settings['dateformat'], $task_details['dueDate']);
@@ -321,27 +321,33 @@ else {
             }
 
             /* Parse share with users */
-
-            $shared_users = $task->get_shared_users();
-            if(is_array($shared_users)) {
-                $shared_users_uids = array_keys($shared_users);
-            }
-            $users = Users::get_data('gid!=7', array('order' => 'CASE WHEN uid IN ('.implode(',', $shared_users_uids).') THEN -1 ELSE displayName END, displayName'));
-            foreach($users as $uid => $user) {
-                $checked = $rowclass = '';
-                if($uid == $core->user['uid']) {
-                    continue;
+            if($core->user['uid'] == $task_details['uid'] || $core->user['uid'] == $task_details['createdBy']) {
+                $shared_users = $task->get_shared_users();
+                $users_order = '0';
+                if(is_array($shared_users)) {
+                    $shared_users_uids = array_keys($shared_users);
+                    $users_order = implode(',', $shared_users_uids);
                 }
 
-                if(is_array($shared_users_uids)) {
-                    if(in_array($uid, $shared_users_uids)) {
-                        $checked = ' checked="checked"';
-                        $rowclass = 'selected';
+                $users = Users::get_data('gid!=7', array('order' => 'CASE WHEN uid IN ('.$users_order.') THEN -1 ELSE displayName END, displayName'));
+                foreach($users as $uid => $user) {
+                    $checked = $rowclass = '';
+                    if($uid == $core->user['uid']) {
+                        continue;
                     }
+
+                    if(is_array($shared_users_uids)) {
+                        if(in_array($uid, $shared_users_uids)) {
+                            $checked = ' checked="checked"';
+                            $rowclass = 'selected';
+                        }
+                    }
+                    eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
                 }
-                eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
+                eval("\$sharewith_section = \"".$template->get('calendar_createeventtask_sharewithsection')."\";");
+                unset($sharewith_rows);
+                eval("\$task_sharewith = \"".$template->get('calendar_createeventtask_sharewithform')."\";");
             }
-            eval("\$task_sharewith = \"".$template->get('calendar_createeventtask_sharewith')."\";");
             eval("\$eventdetailsbox = \"".$template->get('popup_calendar_taskdetails')."\";");
             output($eventdetailsbox);
         }
