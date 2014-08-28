@@ -2,18 +2,6 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->managesuppliers}</title>
         {$headerinc}
-        <script>
-            $(function() {
-                $("[id^='removebl_']").click(function() {
-                    if(sharedFunctions.checkSession() == false) {
-                        return;
-                    }
-                    var id = $(this).attr("id").split("_");
-
-                    sharedFunctions.requestAjax("post", "index.php?module=sourcing/managesupplier&type=edit&action=removebl", "ssid=" + id[2] + "&historyid=" + id[1], 'remove_results', 'remove_results' + id[1], 'html');
-                });
-            });
-        </script>
     </head>
     <body>
         {$header}
@@ -116,19 +104,16 @@
                     </div>
                     <div style="display:table-row;">
                         <div style="display: table-cell;">{$lang->website}</div>
-                        <div style="display: table-cell; padding:5px; ">
+                        <div style="display: table-cell; padding:5px;">
                             <input type="text" value="{$supplier[details][website]}" name="supplier[website]" />
                         </div>
                     </div>
                     <div style="display:table-row;">
                         <div style="display:table-cell;">{$lang->selectentity}</div>
-                        <div style="display:table-cell;">
-                            <fieldset ><legend class="subtitle"><strong>{$lang->selectentity}</strong></legend>
-                                <input id="supplier_1_QSearch"  autocomplete="off" type="text"  size="40" value="{$supplier[relatedsupplier]}">
-
-                                <input id="supplier_1_id" name="supplier[eid]" value="{$supplier[relatedsupplierid]}" type="hidden">
-                                <div id="searchQuickResults_supplier_1" class="searchQuickResults" style="display:none;"></div>
-                            </fieldset>
+                        <div style="display:table-cell; padding:5px;">
+                            <input id="supplier_1_QSearch" autocomplete="off" type="text" value="{$supplier[relatedsupplier]}">
+                            <input id="supplier_1_id" name="supplier[eid]" value="{$supplier[eid]}" type="hidden">
+                            <div id="searchQuickResults_supplier_1" class="searchQuickResults" style="display:none;"></div>
                         </div>
                     </div>
                     <div style="display:table-row;">
@@ -179,15 +164,11 @@
                             </table>
                         </div>
                     </div>
-
                     <div style="display:table-row; margin-bottom: 10px;">
                         <div style="display: table-cell; padding:5px;"> <img src="images/add.gif" id="addmore_genericproducts" alt="{$lang->add}" />
                             <input name="genericproduct_numrows" id="genericproduct_numrows" value="{$genericproduct_rowid}" type="hidden" />
                         </div>
                     </div>
-
-
-
                     <div style="display:table-row;">
                         <div class="thead" style="display:table-cell;">{$lang->representative}</div>
                         <div class="thead" style="display:table-cell;"></div>
@@ -251,8 +232,8 @@
                             <textarea tabindex="30" class="texteditormin" cols="35" rows="5" name="supplier[productFunction]">{$supplier[details][productFunction]}</textarea>
                         </div>
                     </div>
-                    {$blacklist}
-                    <div style="display:table-row;">{$mark_blacklist} </div>
+                    {$blacklist_button}
+                    <div style="display:table-row;">{$mark_blacklist}</div>
                     <div  style="margin-bottom: 0.9em;"></div>
                     <div style="display:table-row;">
                         <div style="display: table-cell;">

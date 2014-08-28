@@ -33,10 +33,16 @@ class SourcingSupplierblHistory {
     }
 
     public function create($data) {
-        global $db, $log, $core, $errorhandler, $lang;
+        global $db, $log, $core;
 
         if(empty($data['reason'])) {
             $this->status = 1;
+            return false;
+        }
+
+        $supplier = new Sourcing($data['ssid']);
+        if($supplier->is_blacklisted()) {
+            $this->status = 2;
             return false;
         }
         $blacklist_history = array(
@@ -48,45 +54,42 @@ class SourcingSupplierblHistory {
         );
         $query = $db->insert_query(self::TABLE_NAME, $blacklist_history);
         if($query) {
-            $query = $db->update_query('sourcing_suppliers', array('isBlacklisted' => 1), 'ssid='.$data['ssid'].'');
-
+            $query = $db->update_query('sourcing_suppliers', array('isBlacklisted' => 1), 'ssid='.intval($data['ssid']).'');
+            $log->record($data['ssid']);
             /* Notify coordinators */
-            $this->sendBLNotification($data['ssid']);
+            $this->sendblnotification();
             $this->status = 0;
         }
     }
 
     public function update($data) {
         global $db, $core;
-        if(!isset($data['ssbid'])) {
-            $data['ssbid'] = 0;
-        }
 
         $data['modifiedBy'] = $core->user['uid'];
-        $data['removedOn'] = TIME_NOW; //make this param pass fomr outside fun
 
         $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
-    public function sendBLNotification($ssid = '', array $options = array()) {
+    public function sendblnotification(Sourcing $supplier = null, array $options = array()) {
         global $core, $lang;
 
-        if(empty($ssid)) {
-            $ssid = $this->data['ssid'];
+        if(!is_object($supplier)) {
+            $supplier = new Sourcing($this->data['ssid']);
         }
 
+        $lang->load('messages');
+        $message_body = $lang->sourcing_notifyblacklist_message;
+        $message_subject = $lang->sourcing_notifyblacklist_subject;
         if(isset($options['status']) && $options['status'] == 'remove') {
-            $lang->notifyblaclist = $lang->removeblaclist;
-            $lang->blaclistsubject = $lang->removeblaclistsubject;
+            $message_body = $lang->sourcing_removeblacklist_message;
+            $message_subject = $lang->sourcing_removeblacklist_subject;
         }
 
-        $supplier_obj = new Sourcing($ssid);
-        $supplier_segments = $supplier_obj->get_supplier_segments(); /* get product segment of the potential supplier */
+        $supplier_segments = $supplier->get_supplier_segments(); /* get product segment of the potential supplier */
 
-        $email_data['cc'] = array('anis.bohsali@ocos.local');
+        $email_data['cc'] = array('sourcing@orkila.com');
         foreach($supplier_segments as $psid => $supsegment) {
             $segment_objs = new ProductsSegments($psid);
-
             $segment_coordobjs = $segment_objs->get_coordinators();
             if(is_array($segment_coordobjs)) {
                 foreach($segment_coordobjs as $coord) {
@@ -99,8 +102,8 @@ class SourcingSupplierblHistory {
         $mailer = $mailer->get_mailerobj();
         $mailer->set_type();
         $mailer->set_from(array('name' => $core->settings['mailfrom'], 'email' => $core->settings['maileremail']));
-        $mailer->set_subject($lang->blaclistsubject);
-        $mailer->set_message($lang->sprint($lang->notifyblaclist, $supplier_obj->get_supplier()['companyName']));
+        $mailer->set_subject($message_subject);
+        $mailer->set_message($lang->sprint($message_body, $supplier->get_supplier()['companyName']));
         $mailer->set_to($email_data['to']);
         $mailer->set_cc($email_data['cc']);
         $mailer->send();

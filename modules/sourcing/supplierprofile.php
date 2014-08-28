@@ -286,8 +286,7 @@ if(!$core->input['action']) {
     /* New  Communication Report after the user has initiated contact - END */
 
     /* parse blacklist histories --START */
-
-    $blacklisthist_objs = SourcingSupplierblHistory::get_histories(array('ssid' => $supplier_id), array('order' => array('by' => 'requestedOn', 'sort' => 'DESC')));
+    $blacklisthist_objs = SourcingSupplierblHistory::get_histories(array('ssid' => $supplier_id), array('returnarray' => true, 'order' => array('by' => 'requestedOn', 'sort' => 'DESC')));
     if(is_array($blacklisthist_objs)) {
         foreach($blacklisthist_objs as $blacklisthist) {
             $blacklisthist->requestedOn = date($core->settings['dateformat'], $blacklisthist->requestedOn);
@@ -300,8 +299,6 @@ if(!$core->input['action']) {
 
         eval("\$blacklist_histories = \"".$template->get('sourcing_potentialsupplierprofile_blhistory')."\";");
     }
-
-
     /* parse blacklist histories --END */
     eval("\$supplierprofile = \"".$template->get('sourcing_potentialsupplierprofile')."\";");
     output_page($supplierprofile);
