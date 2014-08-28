@@ -280,11 +280,13 @@ if($core->input['type'] == 'quick') {
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);
         $module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);
         if($core->input['for'] == 'supplier') {
-            if(strpos(strtolower($_SERVER['HTTP_REFERER']), ADMIN_DIR) !== false) {
-                $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='index.php?module=entities/add&amp;type=supplier' target='_blank'>{$lang->add}</a></p>";
-            }
-            else {
-                $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='index.php?module=contents/addentities&amp;type=supplier' target='_blank'>{$lang->add}</a></p>";
+            if($core->input['returnType'] != 'json') {
+                if(strpos(strtolower($_SERVER['HTTP_REFERER']), ADMIN_DIR) !== false) {
+                    $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='index.php?module=entities/add&amp;type=supplier' target='_blank'>{$lang->add}</a></p>";
+                }
+                else {
+                    $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='index.php?module=contents/addentities&amp;type=supplier' target='_blank'>{$lang->add}</a></p>";
+                }
             }
         }
         /* else
