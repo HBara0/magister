@@ -152,8 +152,8 @@ class Entities {
                 $this->insert_representatives($representatives);
                 if(is_array($segments)) {
                     $this->insert_entitysegments($segments);
-                    if($this->data['type'] == 's') {
-                        $this->sendCreationNotification();
+                    if($this->data['type'] == 's' && $this->data['approved'] == 1) {
+                        $this->send_creationnotification();
                     }
                 }
                 //if($this->data['type'] == 'c') {
@@ -208,12 +208,12 @@ class Entities {
         }
     }
 
-    public function sendCreationNotification() {
+    public function send_creationnotification() {
         global $core, $lang;
-        $segment_objs = $this->get_segments();
-        if(is_array($segment_objs)) {
-            $email_data['cc'] = array('anis.bohsali@ocos.local');
-            foreach($segment_objs as $segment) {
+        $segments = $this->get_segments();
+        if(is_array($segments)) {
+            $email_data['cc'] = array('sourcing@orkila.com');
+            foreach($segments as $segment) {
                 $segment_coordobjs = $segment->get_coordinators();
                 if(is_array($segment_coordobjs)) {
                     foreach($segment_coordobjs as $coord) {
@@ -234,8 +234,7 @@ class Entities {
         }
     }
 
-    protected
-            function modify() {
+    protected function modify() {
         global $core, $db, $lang;
 
         if(array_key_exists('eid', $this->data)) {
@@ -245,7 +244,7 @@ class Entities {
                 $check_name = $db->query("SELECT eid FROM ".Tprefix."entities WHERE companyName='".$db->escape_string($this->data['companyName'])."'");
                 if($db->num_rows($check_name) > 0) {
                     $existing = $db->fetch_array($check_name);
-                    if($existing['eid'] != $this->data ['eid']) {
+                    if($existing['eid'] != $this->data['eid']) {
                         output_xml("<status>false</status><message>{$lang->entityalreadyexists}</message>");
                         $this->status = false;
                         exit;
@@ -318,7 +317,7 @@ class Entities {
                 if(isset($this->data['logo']) && !empty($this->data['logo'])) {
                     $old_logo = $db->fetch_field($db->query("SELECT logo FROM ".Tprefix."entities WHERE eid=".$this->eid), 'logo');
                     if(!empty($old_logo)) {
-                        if($old_logo != $this->data ['logo']) {
+                        if($old_logo != $this->data['logo']) {
                             unlink(ROOT.'/uploads/entitieslogos/'.$old_logo);
                         }
                     }
@@ -406,8 +405,7 @@ class Entities {
         }
     }
 
-    public
-            function get_products() {
+    public function get_products() {
         global $db;
 
         $query = $db->query('SELECT pid FROM '.Tprefix.'products WHERE spid = "'.$db->escape_string($this->data['eid']).'"');
@@ -420,8 +418,7 @@ class Entities {
         return false;
     }
 
-    private
-            function create_representative() {
+    private function create_representative() {
         global $core, $db, $lang;
 
         if(!isset($this->data['repName'], $this->data['repEmail']) || (empty($this->data['repName']) || empty($this->data['repEmail']))) {
@@ -470,12 +467,10 @@ class Entities {
         }
     }
 
-    private
-            function workout_representatives() {
+    private function workout_representatives() {
         global $core, $lang;
 
         for($i = 1; $i <= $this->data ['rep_numrows']; $i++) {
-
             if(empty($this->data['representative_'.$i])) {
                 unset($this->data['representative_'.$i]);
                 continue;
@@ -497,12 +492,10 @@ class Entities {
         return $representatives;
     }
 
-    private
-            function insert_representatives(array $representatives) {
+    private function insert_representatives(array $representatives) {
         global $db;
 
         foreach($representatives as $key => $val) {
-
             if(empty($val['rpid'])) {
                 continue;
             }
@@ -514,8 +507,7 @@ class Entities {
         }
     }
 
-    private
-            function insert_affiliatedentities(array $affiliates) {
+    private function insert_affiliatedentities(array $affiliates) {
         global $db;
 
         foreach($affiliates as $key => $val) {
@@ -528,8 +520,7 @@ class Entities {
         }
     }
 
-    private function insert_assignedemployee($employees = '', array
-    $validators = array()) {
+    private function insert_assignedemployee($employees = '', array $validators = array()) {
         global $db, $core;
 
         if(isset($employees) && !empty($employees)) {
@@ -569,12 +560,10 @@ class Entities {
           } */
     }
 
-    private
-            function insert_entitysegments(array $segments) {
+    private function insert_entitysegments(array $segments) {
         global $db;
         if(is_array($segments)) {
             foreach($segments as $key => $val) {
-
                 $db->insert_query('entitiessegments', array('psid' => $val, 'eid' => $this->eid));
             }
         }
@@ -583,8 +572,7 @@ class Entities {
     private function checkgenerate_date($date) {
         if(!empty($date)) {
             $date_details = explode('-', $date);
-            if(checkdate($date_details[
-                            1], $date_details[0], $date_details[2])) {
+            if(checkdate($date_details[1], $date_details[0], $date_details[2])) {
                 return mktime(0, 0, 0, $date_details[1], $date_details[0], $date_details[2]);
             }
             else {
@@ -594,8 +582,7 @@ class Entities {
         }
     }
 
-    private
-            function upload_logo() {
+    private function upload_logo() {
         global $core;
         $core->settings['logosdir'] = ROOT.'/uploads/entitieslogos';
         $upload = new Uploader($this->data['fieldname'], $this->data['file'], array('image/jpeg', 'image/gif'), 'putfile', 300000, 0, 1);
@@ -606,23 +593,19 @@ class Entities {
         $this->logofilename = $upload->get_filename();
     }
 
-    public
-            function get_uploaded_logo() {
+    public function get_uploaded_logo() {
         return $this->logofilename;
     }
 
-    public
-            function get_eid() {
+    public function get_eid() {
         return $this->data['eid'];
     }
 
-    public
-            function get_status() {
+    public function get_status() {
         return $this->status;
     }
 
-    public
-            function entity_exists($name) {
+    public function entity_exists($name) {
         global $db;
 
         if(function_exists('value_exists')) {
@@ -639,31 +622,26 @@ class Entities {
         }
     }
 
-    public
-            function get_country() {
+    public function get_country() {
         return new Countries($this->data['country']);
     }
 
-    public
-            function __get($name) {
+    public function __get($name) {
         if(isset($this->data[$name])) {
             return $this->data[$name];
         }
         return false;
     }
 
-    public
-            function __isset($name) {
+    public function __isset($name) {
         return isset($this->affiliate[$name]);
     }
 
-    public
-            function get() {
+    public function get() {
         return $this->data;
     }
 
-    protected
-            function read($id, $simple) {
+    protected function read($id, $simple) {
         global $db;
         if(!empty($id)) {
             $query_select = '*';
@@ -675,20 +653,17 @@ class Entities {
         return false;
     }
 
-    protected
-            function existing_eid($name) {
+    protected function existing_eid($name) {
         global $db;
         return $db->fetch_field($db->query("SELECT eid FROM ".Tprefix."entities WHERE companyName='".$db->escape_string($name)."'"), 'eid');
     }
 
-    public
-            function entity_type($name) {
+    public function entity_type($name) {
         global $db;
         return $db->fetch_field($db->query("SELECT type FROM ".Tprefix."entities WHERE companyName='".$db->escape_string($name)."'"), 'type');
     }
 
-    public
-            function auto_assignsegment($gpid) {
+    public function auto_assignsegment($gpid) {
         global $db;
         /* Get segment of generic product */
         $psid = $db->fetch_field($db->query("SELECT psid FROM ".Tprefix."genericproducts WHERE gpid='".$db->escape_string($gpid)."'"), 'psid');
@@ -698,8 +673,7 @@ class Entities {
         }
     }
 
-    public
-    static function get_entity_byname($name) {
+    public static function get_entity_byname($name) {
         global $db;
 
         if(!empty($name)) {
@@ -711,8 +685,7 @@ class Entities {
         return false;
     }
 
-    public
-            function get_assignedusers(array $affiliates = array()) {
+    public function get_assignedusers(array $affiliates = array()) {
         global $db;
 
         if(!empty($affiliates)) {
@@ -731,8 +704,7 @@ class Entities {
         return false;
     }
 
-    public
-            function has_assignedusers(array $affiliates = array()) {
+    public function has_assignedusers(array $affiliates = array()) {
         global $db;
 
         if(!empty($affiliates)) {
@@ -748,8 +720,7 @@ class Entities {
         return false;
     }
 
-    public
-            function requires_qr() {
+    public function requires_qr() {
         global $db;
         if(!isset($this->data['noQReportReq'])) {
             $this->data['noQReportReq'] = $db->fetch_field($db->query('SELECT noQReportReq FROM '.Tprefix.'entities WHERE eid='.intval($this->data['eid'])), 'noQReportReq');
@@ -761,8 +732,7 @@ class Entities {
         return false;
     }
 
-    public
-            function get_meetings() {
+    public function get_meetings() {
         global $db, $core;
 
         $filters = ' AND idAttr="spid"';
@@ -791,16 +761,14 @@ class Entities {
         return false;
     }
 
-    public
-            function get_parent() {
+    public function get_parent() {
         if(isset($this->data['parent']) && !empty($this->data['parent'])) {
             return new Entities($this->data['parent']);
         }
         return false;
     }
 
-    public
-            function get_brands() {
+    public function get_brands() {
         global $db;
 
         $query = $db->query('SELECT ebid FROM '.Tprefix.'entitiesbrands WHERE eid="'.intval($this->data['eid']).'"');
@@ -813,8 +781,7 @@ class Entities {
         return false;
     }
 
-    public
-            function get_brandsproducts() {
+    public function get_brandsproducts() {
         $data = new DataAccessLayer(EntBrandsProducts, 'entitiesbrandsproducts', 'ebpid');
         $brands = $this->get_brands();
         if(is_array($brands)) {
@@ -823,8 +790,7 @@ class Entities {
         return false;
     }
 
-    public
-            function get_segments() {
+    public function get_segments() {
         global $db;
         if(empty($this->data['eid'])) {
             $this->data['eid'] = $this->eid;
@@ -840,13 +806,11 @@ class Entities {
         return false;
     }
 
-    public
-            function get_contractedcountires() { /* for this supplier */
+    public function get_contractedcountires() { /* for this supplier */
         return EntitiesContractCountries::get_contractcountries('eid='.intval($this->data['eid']));
     }
 
-    public
-            function get_displayname() {
+    public function get_displayname() {
         return $this->data[self::DISPLAY_NAME];
     }
 
