@@ -102,11 +102,9 @@ $(function() {
 //    $("input[id^='pickDate']").datepicker({maxDate: "+1d"});
 //    $(this).datepicker("option", "maxDate", "+1d ");
 
-
     $("input[id^='pickDate']").each(function() {
         initalisedatepicker(this);
     })
-
 
     function initalisedatepicker(object) {
         $(object).datepicker({altField: "#alt" + $(object).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown'});
@@ -152,12 +150,18 @@ $(function() {
     });
 
     var accache = {};
-    $("input[id$='_autocomplete']").live("keydown", function() {
+    $("input[id$='_autocomplete']").live("keyup", function() {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
         var id = $(this).attr("id").split("_");
         var restrictcountry = $("input[id='restrictcountry']").val();
+        var valueIn = '#' + $(this).attr("id").replace("_autocomplete", "_id");
+
+        if($(this).val().length == 0) {
+            $(valueIn).val("");
+            $(valueIn + "_output").val("");
+        }
 
         $(this).autocomplete({
             source: function(request, response) {
@@ -220,21 +224,6 @@ $(function() {
             },
             minLength: 2,
             select: function(event, ui) {
-
-                var valueIn = '#' + $(this).attr("id").replace("_autocomplete", "_id");
-//                if($("#" + id[0] + "_" + id[id.length - 3] + "_" + id[id.length - 2] + "_id").length > 0) {
-//                    var valueIn = "#" + id[0] + "_" + id[id.length - 3] + "_" + id[id.length - 2] + "_id";
-//
-//                }
-//                else if($("#" + id[0] + "_" + id[id.length - 2] + "_id").length > 0) {
-//
-//                    var valueIn = "#" + id[0] + "_" + id[id.length - 2] + "_id";
-//
-//                }
-//                else {
-//                    var valueIn = "#" + id[0] + "_id";
-//                }
-
                 $(valueIn).val(ui.item.id);
                 if($(valueIn + "_output").length > 0) {
                     $(valueIn + "_output").val(ui.item.id);

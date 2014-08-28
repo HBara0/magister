@@ -25,7 +25,6 @@ if(!$core->input['action']) {
         $potential_supplier = new Sourcing($id);
         $supplier['details'] = $potential_supplier->get_supplier();
         $supplier['relatedsupplier'] = $potential_supplier->get_entity()->companyName;
-        $supplier['relatedsupplierid'] = $potential_supplier->get_entity()->eid;
         $supplier['segments'] = array_keys($potential_supplier->get_supplier_segments());
         $supplier['contactpersons'] = $potential_supplier->get_supplier_contact_persons();
         $supplier['activityareas'] = $potential_supplier->get_supplier_activity_area();
@@ -83,30 +82,19 @@ if(!$core->input['action']) {
         $supplier['details']['fax'] = explode('-', $supplier['details']['fax']);
 
         // $mark_blacklist = '<div style="display: table-cell; width:700px;vertical-align:middle;">'.$lang->blacklisted.'</div><div style="display: table-cell; width:700px;vertical-align:middle;"><input name="supplier[isBlacklisted]" type="checkbox" value="1"'.$checkedboxes.'></div>';
-        // print_R($supplier);
         switch($supplier['details']['isBlacklisted']) {
             case 0:
                 /* parse blacklist section */
-                $blacklist = '<div style="display:table-row;">
+                $blacklist_button = '<div style="display:table-row;">
                         <div style="display: table-cell; vertical-align:middle;">'.$lang->setblacklist.'</div>
                         <div style="display: table-cell; padding:5px; vertical-align:middle;">
                            <input type="button" class="showpopup button" id="showpopup_blacklist" value="'.$lang->blacklist.'"/>
                         </div>
                     </div>';
 
-                //parser affiliated users
-
-                if(is_array($core->user['affiliates'])) {
-                    foreach($core->user['affiliates'] as $affiliates) {
-                        $aff_obj = new Affiliates($affiliates);
-                        $affiliate_users = $aff_obj->get_users();
-                    }
-                    if(is_array($affiliate_users)) {
-                        foreach($affiliate_users as $user) {
-
-                            eval("\$users_rows  .= \"".$template->get('popup_sourcing_blhistoryrequesters')."\";");
-                        }
-                    }
+                $users = Users::get_allusers();
+                foreach($users as $user) {
+                    eval("\$users_rows .= \"".$template->get('popup_sourcing_blhistoryrequesters')."\";");
                 }
 
                 eval("\$popup_sourcingblhistory = \"".$template->get('popup_sourcing_blhistory')."\";");
@@ -242,27 +230,33 @@ else {
         $potential_supplier = new SourcingSupplierblHistory();
         $potential_supplier->create($core->input['supplier']['blacklist']);
 
-        if($potential_supplier->get_status() == 0) {
+        $status = $potential_supplier->get_status();
+        if($status == 0) {
             output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+        }
+        elseif($status == 2) {
+            output_xml("<status>false</status><message>{$lang->alreadyblacklisted}</message>");
         }
         else {
             output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
         }
     }
-    elseif($core->input['action'] == 'removebl') {
-        $historyid = $db->escape_string($core->input['historyid']);
-        $history_obj = new SourcingSupplierblHistory($historyid);
-        //update blacklisthistory
-        $latest_blhistory = $history_obj->get();
-        $history_obj->update($latest_blhistory);
-        //upate sourcing_suppliers blacklisted
-        $supplier_obj = $history_obj->get_potntialsupplier();
-        $supplier = $supplier_obj->get_supplier();
-        $supplier[isBlacklisted] = 0;
-        $history_obj->sendBLNotification($core->input['ssid'], array('status' => 'remove'));
-        $supplier_obj->update($supplier);
+    elseif($core->input['action'] == 'do_removebl') {
+        $history = new SourcingSupplierblHistory($core->input['ssbid']);
 
-        //announce
+        $data['removedOn'] = TIME_NOW;
+        $history->update($data);
+
+        $supplier = $history->get_potntialsupplier();
+        $supplier_update['isBlacklisted'] = 0;
+        $supplier->update($supplier_update);
+        $history->sendblnotification($supplier, array('status' => 'remove'));
+        if($history->get_status() == 0) {
+            output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+        }
+        else {
+            output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+        }
     }
 }
 ?>

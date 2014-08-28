@@ -97,16 +97,32 @@ class DataAccessLayer {
         global $db;
 
         /* Improve to have multiple orders */
-        if(is_array($order)) {
+        if(!is_array($order)) {
+            if(!empty($order)) {
+                return ' ORDER BY '.$db->escape_string($order).' ASC';
+            }
+            return false;
+        }
+
+        if(is_array($order['by'])) {
+            foreach($order['by'] as $seq => $by) {
+                $sort = $order['sort'];
+                if(is_array($order['sort'])) {
+                    $sort = $order['sort'][$seq];
+                    if(!isset($order['sort'][$seq]) || empty($order['sort'][$seq])) {
+                        $sort = 'ASC';
+                    }
+                }
+
+                $sortentries[] = $db->escape_string($by).' '.$db->escape_string($sort);
+            }
+            return ' ORDER BY '.implode(',', $sortentries);
+        }
+        else {
             if(!isset($order['sort']) || empty($order['sort'])) {
                 $order['sort'] = 'ASC';
             }
             return ' ORDER BY '.$db->escape_string($order['by']).' '.$db->escape_string($order['sort']);
-        }
-        else {
-            if(!empty($order)) {
-                return ' ORDER BY '.$db->escape_string($order).' ASC';
-            }
         }
         return false;
     }
@@ -188,6 +204,49 @@ class DataAccessLayer {
             }
         }
         return $filters_querystring;
+    }
+
+    public function fulltext_search($match, $against, $config = array()) {
+        global $db;
+
+        if(isset($config['modifier'])) {
+            $config['modifier'] = ' '.$db->escape_string($config['modifier']);
+        }
+
+        if(!isset($configs['simple'])) {
+            $configs['simple'] = true;
+        }
+
+        $items = array();
+
+        $syntax = 'MATCH ('.$db->escape_string($match).') AGAINST ("'.$db->escape_string($against).'" '.$configs['modifier'].')';
+        $sql = 'SELECT '.$this->primary_key.', '.$syntax.' AS relevance FROM '.Tprefix.$this->table_name;
+        $sql .= ' WHERE '.$syntax;
+
+        $order['by'][] = 'relevance';
+        if(!is_array($configs['order'])) {
+            if(!empty($configs['order'])) {
+                $order['by'][] = $configs['order'];
+            }
+        }
+        else {
+            if(is_array($configs['order'])) {
+                $order['by'] += $configs['order'];
+            }
+        }
+        $order['sort'] = 'DESC';
+        $sql .= $this->construct_orderclause($order);
+        $sql .= $this->construct_limitclause($configs['limit']);
+
+        $query = $db->query($sql);
+        if($db->num_rows($query) > 0) {
+            while($item = $db->fetch_assoc($query)) {
+                $items[$item[$this->primary_key]] = new $this->class($item[$this->primary_key], $configs['simple']);
+            }
+            $db->free_result($query);
+            return $items;
+        }
+        return false;
     }
 
     public function __get($name) {

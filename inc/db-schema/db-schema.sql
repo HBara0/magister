@@ -396,10 +396,10 @@ CREATE TABLE `calendar_tasks_notes` (
   KEY `uid` (`uid`),
   KEY `ctid` (`ctid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1734 DEFAULT CHARSET=latin1;
-DROP TABLE IF EXISTS `calendar_tasks_sharewith`;
+DROP TABLE IF EXISTS `calendar_tasks_shares`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `calendar_tasks_sharewith` (
+CREATE TABLE `calendar_tasks_shares` (
   `ctsid` int(10) NOT NULL AUTO_INCREMENT,
   `ctid` int(10) NOT NULL,
   `uid` int(10) NOT NULL,

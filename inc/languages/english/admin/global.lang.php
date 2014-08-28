@@ -101,5 +101,6 @@ $lang['fileinfomodifiedsuccessfully'] = "File information were successfully modi
 $lang['successfullysaved'] = "Successfully Saved";
 $lang['fillallrequiredfields'] = "Fill All Required Fields";
 $lang['entryexist'] = "Entry Already Exist";
+$lang['entryexists'] = 'Entry with same information already exists';
 $lang['newversionuploaded'] = "New version successfully uploaded";
 ?>

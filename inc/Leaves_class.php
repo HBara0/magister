@@ -63,7 +63,7 @@ class Leaves extends AbstractClass {
             while($leaveexpenses = $db->fetch_assoc($leaveexptype_query)) {
                 $leaveexpense[$leaveexpenses['aleid']] = $leaveexpenses;
             }
-            if(array($leaveexpense)) {
+            if(is_array($leaveexpense)) {
                 return $leaveexpense;
             }
             return false;
@@ -191,8 +191,8 @@ class Leaves extends AbstractClass {
         return $this->get_approvers();
     }
 
-    public function get_approvers() {
-        return AttLeavesApproval::get_approvals_byattr('lid', $this->data['lid']);
+    public function get_approvers(array $config = array()) {
+        return AttLeavesApproval::get_data(array('lid' => $this->data['lid']), $config);
     }
 
     public function get_approvals($isapproved = 1) {
@@ -502,10 +502,6 @@ class Leaves extends AbstractClass {
         return new LeaveTypes($this->data['type'], $simple);
     }
 
-    public function get_businessleave() {
-        return $this->get_leavetype()->get_businessleaves();
-    }
-
     public function count_workingdays() {
         if(!function_exists('count_workingdays')) {
             require ROOT.INC_ROOT.'attendance_functions.php';
@@ -587,12 +583,6 @@ class Leaves extends AbstractClass {
     public static function get_leaves($filters = null, array $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);
-    }
-
-    public function __get($name) {
-        if(array_key_exists($name, $this->data)) {
-            return $this->data[$name];
-        }
     }
 
     public function get_displayname() {

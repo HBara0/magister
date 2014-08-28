@@ -39,8 +39,4 @@ class AffiliatesLeavesPolicies extends AbstractClass {
 
     }
 
-    protected function delete() {
-
-    }
-
 }

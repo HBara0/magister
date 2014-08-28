@@ -13,8 +13,8 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
-// improve DAL to have multiple orders
-    $tasks = Tasks::get_tasks('(uid='.$core->user['uid'].' OR createdBy='.$core->user['uid'].')', array('simple' => false, 'order' => 'dueDate DESC, isDone'));
+    $taskdata['filter']['ctid'] = 'SELECT ctid FROM calendar_tasks_shares WHERE uid='.$core->user['uid'].') OR (uid='.$core->user['uid'].' OR createdBy='.$core->user['uid'];
+    $tasks = Tasks::get_tasks($taskdata['filter'], array('simple' => false, 'order' => 'dueDate DESC, isDone', 'operators' => array('ctid' => 'IN')));
 
     if(is_array($tasks)) {
         foreach($tasks as $task) {
@@ -22,7 +22,7 @@ if(!$core->input['action']) {
             $task_iconstats = $task->parsestatus();
             $task->percCompleted_output = '';
             if($task_iconstats == 'inprogress') {
-                //$task->percCompleted_output = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $task->percCompleted / 100);
+                $task->percCompleted_output = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $task->percCompleted / 100);
             }
 
             $task_icon[$task_iconstats] = '<img src="./images/icons/'.$task_iconstats.'.png" border="0" />';
@@ -38,7 +38,7 @@ elseif($core->input['action'] == 'get_taskdetails') {
     if(!empty($core->input['id'])) {
         $task = new Tasks($core->input['id'], false);
         $task_details = $task->get_task();
-        if($core->user['uid'] != $task_details['uid'] && $core->user['uid'] != $task_details['createdBy']) {
+        if(!$task->is_sharedwithuser() && $core->user['uid'] != $task_details['uid'] && $core->user['uid'] != $task_details['createdBy']) {
             exit;
         }
         if(isset($task_details['timeDone'])) {
@@ -68,32 +68,34 @@ elseif($core->input['action'] == 'get_taskdetails') {
         }
 
         /* Parse share with users */
-        $affiliates_users = Users::get_allusers();
-        $shared_users = $task->get_shared_users();
-        if(is_array($shared_users)) {
+        if($core->user['uid'] == $task_details['uid'] || $core->user['uid'] == $task_details['createdBy']) {
+            $shared_users = $task->get_shared_users();
+            $users_order = '0';
+            if(is_array($shared_users)) {
+                $shared_users_uids = array_keys($shared_users);
+                $users_order = implode(',', $shared_users_uids);
+            }
 
-            foreach($shared_users as $uid => $user) {
-                $user = $user->get();
-                $user = array_unique($user);
-                $checked = ' checked="checked"';
-                $rowclass = 'selected';
+            $users = Users::get_data('gid!=7', array('order' => 'CASE WHEN uid IN ('.$users_order.') THEN -1 ELSE displayName END, displayName'));
+            foreach($users as $uid => $user) {
+                $checked = $rowclass = '';
+                if($uid == $core->user['uid']) {
+                    continue;
+                }
 
+                if(is_array($shared_users_uids)) {
+                    if(in_array($uid, $shared_users_uids)) {
+                        $checked = ' checked="checked"';
+                        $rowclass = 'selected';
+                    }
+                }
                 eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
             }
+
+            eval("\$sharewith_section = \"".$template->get('calendar_createeventtask_sharewithsection')."\";");
+            unset($sharewith_rows);
+            eval("\$task_sharewith = \"".$template->get('calendar_createeventtask_sharewithform')."\";");
         }
-
-
-        foreach($affiliates_users as $uid => $user) {
-            $user = $user->get();
-            $checked = $rowclass = '';
-            if($uid == $core->user['uid']) {
-                continue;
-            }
-
-            eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
-        }
-
-        eval("\$task_sharewith = \"".$template->get('calendar_createeventtask_sharewith')."\";");
         eval("\$taskdetailsbox = \"".$template->get('popup_calendar_taskdetails')."\";");
         output($taskdetailsbox);
     }

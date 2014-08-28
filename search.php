@@ -15,9 +15,6 @@ if($core->input['type'] == 'quick') {
     $dofilter = false;
     if(isset($core->input['filter'])) {
         $dofilter = true;
-        if(isset($core->input['coid']) && !empty($core->input['coid'])) {
-            $restrictcountry_filter = "coid ='".$db->escape_string($core->input['coid'])."'";
-        }
         if(isset($core->input['rid']) && !empty($core->input['rid'])) {
             $report_data = $db->fetch_array($db->query('SELECT affid, spid FROM '.Tprefix.'reports WHERE rid='.intval($core->input['rid'])));
         }
@@ -239,6 +236,10 @@ if($core->input['type'] == 'quick') {
             if(strlen($core->input['value']) < 3) {
                 exit;
             }
+
+            if(isset($core->input['coid']) && !empty($core->input['coid'])) {
+                $restrictcountry_filter = "coid ='".intval($core->input['coid'])."'";
+            }
             if(!empty($restrictcountry_filter)) {
                 $extra_where = $restrictcountry_filter;
             }
@@ -279,11 +280,13 @@ if($core->input['type'] == 'quick') {
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);
         $module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);
         if($core->input['for'] == 'supplier') {
-            if(strpos(strtolower($_SERVER['HTTP_REFERER']), ADMIN_DIR) !== false) {
-                $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='index.php?module=entities/add&amp;type=supplier' target='_blank'>{$lang->add}</a></p>";
-            }
-            else {
-                $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='index.php?module=contents/addentities&amp;type=supplier' target='_blank'>{$lang->add}</a></p>";
+            if($core->input['returnType'] != 'json') {
+                if(strpos(strtolower($_SERVER['HTTP_REFERER']), ADMIN_DIR) !== false) {
+                    $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='index.php?module=entities/add&amp;type=supplier' target='_blank'>{$lang->add}</a></p>";
+                }
+                else {
+                    $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='index.php?module=contents/addentities&amp;type=supplier' target='_blank'>{$lang->add}</a></p>";
+                }
             }
         }
         /* else

@@ -141,10 +141,7 @@ class LeaveTypes extends AbstractClass {
                 elseif($attribute == 'spid') {
                     $search_for = 'supplier';
                 }
-
-                //$field = '<input type = "text" id = "'.$search_for.'_'.$identifier.'_QSearch" value = "'.$field_settings['value_attribute_value'].'" required = "required"/><input type = "text" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value = "'.$field_settings['key_attribute_value'].'" id = "'.$search_for.'_'.$identifier.'_id" name = "'.$attribute.'" /><div id = "searchQuickResults_'.$identifier.'" class = "searchQuickResults" style = "display:none;"></div>';
-                $field = '<input type = "text" id = "'.$search_for.'_'.$identifier.'_autocomplete" value = "'.$field_settings['value_attribute_value'].'" required = "required"/><input type = "text" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value = "'.$field_settings['key_attribute_value'].'" id = "'.$search_for.'_'.$identifier.'_id" name = "'.$attribute.'" />';
-
+                $field = '<input type="text" id="'.$search_for.'_'.$identifier.'_autocomplete" value="'.$field_settings['value_attribute_value'].'" required="required"/><input type="text" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value="'.$field_settings['key_attribute_value'].'" id="'.$search_for.'_'.$identifier.'_id" name="'.$attribute.'" />';
                 break;
             case 'select':
                 if($field_settings['datasource'] == 'db') {
@@ -199,15 +196,13 @@ class LeaveTypes extends AbstractClass {
 
         if(!empty($field)) {
             if(isset($field_settings['titlelangvar'])) {
-                $field = '<br /><div style = "display:inline-block; width:10%;">'.$lang->{$field_settings['titlelangvar']}.'</div><div style = "display:inline-block; width:75%;">'.$field.'</div>
-
-            ';
+                $field = '<br /><div style="display:inline-block; width:10%;">'.$lang->{$field_settings['titlelangvar']}.'</div><div style = "display:inline-block; width:75%;">'.$field.'</div>';
             }
         }
         return $field;
     }
 
- private function parse_segments_byuser(Users $user_obj = null) {
+    private function parse_segments_byuser(Users $user_obj = null) {
         global $core;
 
         if($this->data['isBusiness'] == 1) {
@@ -225,12 +220,6 @@ class LeaveTypes extends AbstractClass {
             return false;
         }
         return false;
-    }
-
-
- public function get_businessleaves() {
-        global $db;
-        $query = $db->query('SELECT type,lid FROM '.Tprefix.' leaves l JOIN leavetypes lt ON ( l.type = lt.ltid )WHERE lt.isBusiness=1');
     }
 
     protected function create(array $data) {

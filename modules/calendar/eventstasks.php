@@ -284,7 +284,7 @@ else {
 
             $task_details = $task->get_task();
 
-            if($core->user['uid'] != $task_details['uid'] && $core->user['uid'] != $task_details['createdBy']) {
+            if(!$task->is_sharedwithuser() && $core->user['uid'] != $task_details['uid'] && $core->user['uid'] != $task_details['createdBy']) {
                 exit;
             }
             //$task_details['dueDate_output'] = date($core->settings['dateformat'], $task_details['dueDate']);
@@ -321,44 +321,71 @@ else {
             }
 
             /* Parse share with users */
-            $affiliates_users = Users::get_allusers();
-            $shared_users = $task->get_shared_users();
-            if(is_array($shared_users)) {
-                foreach($shared_users as $uid => $user) {
-                    $user = $user->get();
-                    $checked = ' checked="checked"';
-                    $rowclass = 'selected';
+            if($core->user['uid'] == $task_details['uid'] || $core->user['uid'] == $task_details['createdBy']) {
+                $shared_users = $task->get_shared_users();
+                $users_order = '0';
+                if(is_array($shared_users)) {
+                    $shared_users_uids = array_keys($shared_users);
+                    $users_order = implode(',', $shared_users_uids);
+                }
 
+                $users = Users::get_data('gid!=7', array('order' => 'CASE WHEN uid IN ('.$users_order.') THEN -1 ELSE displayName END, displayName'));
+                foreach($users as $uid => $user) {
+                    $checked = $rowclass = '';
+                    if($uid == $core->user['uid']) {
+                        continue;
+                    }
+
+                    if(is_array($shared_users_uids)) {
+                        if(in_array($uid, $shared_users_uids)) {
+                            $checked = ' checked="checked"';
+                            $rowclass = 'selected';
+                        }
+                    }
                     eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
                 }
+                eval("\$sharewith_section = \"".$template->get('calendar_createeventtask_sharewithsection')."\";");
+                unset($sharewith_rows);
+                eval("\$task_sharewith = \"".$template->get('calendar_createeventtask_sharewithform')."\";");
             }
-
-
-            foreach($affiliates_users as $uid => $user) {
-                $user = $user->get();
-                $checked = $rowclass = '';
-                if($uid == $core->user['uid']) {
-                    continue;
-                }
-
-                eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
-            }
-            eval("\$task_sharewith = \"".$template->get('calendar_createeventtask_sharewith')."\";");
             eval("\$eventdetailsbox = \"".$template->get('popup_calendar_taskdetails')."\";");
             output($eventdetailsbox);
         }
     }
     elseif($core->input['action'] == 'share_task') {
-        $taskid = $db->escape_string($core->input['id']);
-        $calendarshare_obj = new CalendarTaskShare();
-        if(is_array($core->input['task']['share'])) {
+        $task = new Tasks($core->input['id']);
+        $shares = $task->get_shares();
 
-            $core->input['task']['share']['ctid'] = $taskid;
-            $calendarshare_obj->set($core->input['task']['share']);
-            $calendarshare_obj->save();
+        if(is_array($shares)) {
+            foreach($shares as $share) {
+                $sharedusers[$share->uid] = $share;
+            }
+
+            if(empty($core->input['task']['share'])) {
+                foreach($shares as $share) {
+                    $share->delete();
+                }
+            }
+            else {
+                $users_toremove = array_diff(array_keys($sharedusers), $core->input['task']['share']);
+                if(!empty($users_toremove)) {
+                    foreach($users_toremove as $uid) {
+                        $object = $sharedusers[$uid];
+                        $object->delete();
+                    }
+                }
+            }
         }
 
-        switch($calendarshare_obj->get_errorcode()) {
+        if(is_array($core->input['task']['share'])) {
+            foreach($core->input['task']['share'] as $uid) {
+                $share = new CalendarTaskShares();
+                $share->set(array('uid' => $uid, 'ctid' => $task->ctid));
+                $share->save();
+            }
+        }
+
+        switch($share->get_errorcode()) {
             case 0:
                 output_xml("<status>true</status><message>".$lang->successfullysaved."</message>");
                 break;

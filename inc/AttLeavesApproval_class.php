@@ -13,28 +13,26 @@
  *
  * @author zaher.reda
  */
-class AttLeavesApproval {
-    //put your code here
-    private $approval;
+class AttLeavesApproval extends AbstractClass {
+    protected $data = array();
+    protected $errorcode = 0;
 
-    public function __construct($id) {
-        if(empty($id)) {
-            return false;
-        }
-        $this->read($id);
-    }
+    const PRIMARY_KEY = 'laid';
+    const TABLE_NAME = 'leavesapproval';
+    const DISPLAY_NAME = '';
+    const SIMPLEQ_ATTRS = '*';
+    const CLASSNAME = __CLASS__;
 
-    private function read($id) {
-        global $db;
-        $this->approval = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'leavesapproval WHERE laid='.intval($id)));
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
     public function get_user() {
-        return new Users($this->approval['uid']);
+        return new Users($this->data['uid']);
     }
 
     public function get_leave() {
-        return new Leaves($this->approval['lid']);
+        return new Leaves($this->data['lid']);
     }
 
     public static function get_approvals($filters = '') {
@@ -83,14 +81,22 @@ class AttLeavesApproval {
     }
 
     public function is_apporved() {
-        if($this->approval['isApproved'] == 1) {
+        if($this->data['isApproved'] == 1) {
             return true;
         }
         return false;
     }
 
-    public function get() {
-        return $this->approval;
+    protected function create(array $data) {
+
+    }
+
+    protected function update(array $data) {
+
+    }
+
+    public function save(array $data = array()) {
+
     }
 
 }

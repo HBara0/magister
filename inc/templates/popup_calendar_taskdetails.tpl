@@ -1,4 +1,3 @@
-
 <div id="popup_taskdetails" title="{$lang->taskdetails}">
     <strong>{$task_details[subject]}</strong><br />
     <span style="font-style:italic">
@@ -21,20 +20,7 @@
     </span>
     <p style="font-style:italic">{$task_details[description]}</p>
     <hr />
-
-    <div id="sharetask" class="subtitle" style="cursor:pointer;" onClick="$('#calendar_task_share').toggle();"> {$lang->sharewith}...</div><br>
-
-    <div id="calendar_task_share" style="display:none;">
-        <form name="perform_sharetask_calendar/eventstasks_Form" id="perform_sharetask_calendar/eventstasks_Form" method="post">
-            <input type="hidden" id="action" name="action" value="share_task" />
-            <input type="hidden" id="id" name="id" value="{$task_details[ctid]}" />
-
-
-            {$task_sharewith}
-            <input type="button" id='perform_sharetask_calendar/eventstasks_Button' value='{$lang->savecaps}' class="button">
-            <div id="perform_sharetask_calendar/eventstasks_Results"></div>
-        </form>
-    </div>
+    {$task_sharewith}
     <div id="shownotes" class="subtitle" style="cursor:pointer;" onClick="$('#calendar_task_notessection').toggle();">{$notes_count} {$lang->notes}...</div><br>
     <div id="calendar_task_notessection" style="display:none;">
         <form name="perform_savenote_calendar/eventstasks_Form" id="perform_savenote_calendar/eventstasks_Form" method="post">
@@ -47,8 +33,7 @@
         <div id="calendar_task_notes">
             {$task_notes_output}
         </div>
-    </div> 
-    <script src="{$core->settings[rootdir]}/js/redactor.min.js" type="text/javascript"></script>
+    </div>
     <script type="text/javascript">
         $(function() {
             $("#percCompleted").live('change', function() {
@@ -58,12 +43,6 @@
 
                 sharedFunctions.requestAjax("post", "index.php?module=calendar/eventstasks&action=update_task", "ctid=" + $("#ctid").val() + "&percCompleted=" + $(this).val(), '', '', 'script');
             });
-            $('.texteditormin').redactor({
-                air: true,
-                airButtons: ['bold', 'italic', 'deleted', '|', 'unorderedlist', 'orderedlist', 'outdent', 'indent', '|', 'alignleft', 'aligncenter', 'alignright', 'justify'],
-                allowedTags: ["br", "p", "b", "i", "del", "strike", "blockquote", "cite", "small", "ul", "ol", "li", "dl", "dt", "dd", "sup", "sub", "pre", "strong", "em"]
-            });
-            $('.redactor_air').css('z-index', ($('.ui-dialog').css('z-index') + 1));
         });
     </script>
 </div>

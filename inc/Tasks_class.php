@@ -99,17 +99,18 @@ class Tasks {
 
         $this->task = $new_task;
 
+        /* get exist users for the current task */
         $query = $db->insert_query('calendar_tasks', $new_task);
         if($query) {
             $this->task['ctid'] = $db->last_id();
-
             $log->record($this->task['ctid']);
-            /* share task  ----START */
-            $calendarshare_obj = new CalendarTaskShare();
+            /* share task  - START */
             if(is_array($data['share'])) {
-                $data['share']['ctid'] = $this->task['ctid'];
-                $calendarshare_obj->set($data['share']);
-                $calendarshare_obj->save();
+                foreach($data['share'] as $uid) {
+                    $calendarshare_obj = new CalendarTaskShares();
+                    $calendarshare_obj->set(array('uid' => $uid, self::PRIMARY_KEY => $this->task[self::PRIMARY_KEY]));
+                    $calendarshare_obj->save();
+                }
             }
             $this->status = 0;
             return true;
@@ -121,16 +122,19 @@ class Tasks {
     }
 
     public function get_shared_users() {
-        global $db;
-
-        $query = $db->query('SELECT uid FROM '.Tprefix.'calendar_tasks_sharewith WHERE ctid='.$db->escape_string($this->task['ctid'].''));
-        if($db->num_rows($query)) {
-            while($user = $db->fetch_assoc($query)) {
-                $users[$user['uid']] = new Users($user['uid']);
+        $shares = $this->get_shares();
+        if(is_array($shares)) {
+            foreach($shares as $share) {
+                $users[$share->uid] = $share->get_user();
             }
+
             return $users;
         }
-        return false;
+        return null;
+    }
+
+    public function get_shares() {
+        return CalendarTaskShares::get_data(array(self::PRIMARY_KEY => $this->task[self::PRIMARY_KEY]), array('returnarray' => true));
     }
 
     public function notify_task() {
@@ -343,6 +347,14 @@ class Tasks {
                 break;
             default: return false;
         }
+    }
+
+    public function is_sharedwithuser() {
+        global $core;
+        if(value_exists(CalendarTaskShares::TABLE_NAME, 'uid', $core->user['uid'], self::PRIMARY_KEY.'='.intval($this->task[self::PRIMARY_KEY]))) {
+            return true;
+        }
+        return false;
     }
 
 }

@@ -44,7 +44,7 @@ Abstract class AbstractClass {
     abstract protected function update(array $data);
     public function delete() {
         global $db;
-        $query = $db->delete_query(static::TABLE_NAME, static::PRIMARY_KEY.'='.intval($id));
+        $query = $db->delete_query(static::TABLE_NAME, static::PRIMARY_KEY.'='.intval($this->data[static::PRIMARY_KEY]));
         if($query) {
             return true;
         }

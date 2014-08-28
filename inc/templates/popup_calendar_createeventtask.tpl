@@ -81,7 +81,9 @@
             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->description}</div><div style="width:70%; display:inline-block;"><textarea cols="50" rows="10" name="task[description]" class="texteditormin"></textarea></div><br/>
             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->reminder}</div><div style="width:70%; display:inline-block;"><input type="text" value="" tabindex="1" autocomplete="off" name="task[reminderStart]"id="pickDate_reminderStart" size="15"/> {$lang->repeat} {$reminderinterval_selectlist}</div>
             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->notifytask}</div><div style="width:70%; display:inline-block;">{$tasks_notify_radiobutton}</div><br/>
-                {$task_sharewith}
+            <br />
+            <div class="subtitle">{$lang->sharewith}</div>
+            {$task_sharewith}
             <input type='button' class='button' value='{$lang->create}' id='perform_calendar/eventstasks_Button' />
             <div id="perform_calendar/eventstasks_Results"> </div>
         </form>
