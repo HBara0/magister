@@ -3,9 +3,9 @@
     <td>{$meeting[description]} </td>
     <td>{$meeting[fromDate_output]}</td>
     <td>{$meeting[toDate_output]}</td>
-    <td>{$meeting[Location]} </td>
+    <td>{$meeting[location]} </td>
     <td id="setmom_{$meeting[mtid]}_tools">
-        <div style="display:none; width:60px;">
+        <div style="display:none;">
             {$row_tools}
         </div>
     </td>

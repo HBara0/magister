@@ -35,7 +35,7 @@ class Meetings {
 
     public function is_sharedwithuser() {
         global $core;
-        if(value_exists('meetings_sharedwith', 'uid', $core->user['uid'], '  mtid='.intval($this->meeting['mtid']))) {
+        if(value_exists('meetings_sharedwith', 'uid', $core->user['uid'], 'mtid='.intval($this->meeting['mtid']))) {
             return true;
         }
         return false;
