@@ -221,7 +221,7 @@ else {
         if($db->affected_rows() > 0) {
             /* Notify coordinator and sourcing upon approve supplier */
             $entity = new Entities($eid);
-            $entity->sendCreationNotification();
+            $entity->sendcreationnotification();
             output_xml("<status>true</status><message></message>");
             log_action($eid);
         }
