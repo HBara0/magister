@@ -34,12 +34,12 @@
 
                     <div style="display:table-row">
                         <div style="display:table-cell;">{$lang->tags}</div>
-                        <div style="display: table-cell; padding:5px;">   <textarea name="page[tags]" title="You can add multiple tag seperated by comma" cols="40"  rows="3">{$page[bodyText]}</textarea></div>
+                        <div style="display: table-cell; padding:5px;">   <textarea name="page[tags]" title="You can add multiple tag seperated by comma" cols="40"  rows="3">{$page[tags]}</textarea></div>
                     </div>
 
 
                     <div style="display:table-row ;">
-                        {$publish_page}  
+                        {$publish_page}
                     </div>
 
                     <div style="display:table-row">
