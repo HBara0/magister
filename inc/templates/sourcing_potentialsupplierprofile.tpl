@@ -159,10 +159,7 @@
                     <p style="width:1000px; word-wrap: break-word;">{$supplier[maindetails][sourcingRecords]}</p></div>
                 <div style='padding:5px;' class='border_bottom'><strong>{$lang->commentstoshare}</strong><br />
                     <p style="width:1000px; word-wrap: break-word;">{$supplier[maindetails][commentsToShare]}</p></div>
-
-
-                {$blacklist_histories}
-
+                    {$blacklist_histories}
                 <div>
                     <hr />
                     <div class="subtitle">{$lang->contacthistory}</div>

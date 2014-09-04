@@ -349,5 +349,13 @@ class Tasks {
         }
     }
 
+    public function is_sharedwithuser() {
+        global $core;
+        if(value_exists(CalendarTaskShares::TABLE_NAME, 'uid', $core->user['uid'], self::PRIMARY_KEY.'='.intval($this->task[self::PRIMARY_KEY]))) {
+            return true;
+        }
+        return false;
+    }
+
 }
 ?>

@@ -326,6 +326,9 @@ function parse_textfield($id, $type, $value = '', $options = array(), $config = 
   creates a selection list
  */
 function parse_selectlist($name, $tabindex, $options, $selected_options, $multiple_list = 0, $onchange_actions = '', $config = array()) {
+    if(!is_array($options)) {
+        return;
+    }
     if($multiple_list == 1) {
         if(!isset($config['multiplesize']) || empty($config['multiplesize'])) {
             $config['multiplesize'] = 5;

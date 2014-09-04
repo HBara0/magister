@@ -7,7 +7,7 @@
                     <input type='text'id='customer_1_QSearch' value="{$meeting[associations][cutomername]}" autocomplete='off' size='40px'/>
                     <input type='hidden' id='customer_1_id' name='meeting[associations][cid]' value="{$meeting[associations][cid]}" />
                     <div id='searchQuickResults_customer_1' class='searchQuickResults' style='display:none;'></div> </select>
-                    <input type='hidden'   name='cid' value="{$meeting[associations][cid]}" />
+                    <input type='hidden' name='cid' value="{$meeting[associations][cid]}" />
                 </td>
                 <td>{$lang->supplier}</td>
                 <td><input type='text'id='supplier_1_QSearch' value="{$meeting[associations][suppliername]}" autocomplete='off' size='40px'/>

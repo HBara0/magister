@@ -179,7 +179,7 @@ class Affiliates {
         }
 
         if(!isset($options['outputvar'])) {
-            $options['outputvar'] = 'name';
+            $options['outputvar'] = self::DISPLAY_NAME;
         }
         if(is_array($attributes_param)) {
             foreach($attributes_param as $attr => $val) {

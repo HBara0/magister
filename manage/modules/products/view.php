@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright � 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * View Products
  * $module: admin/products
- * $id: view.php	
+ * $id: view.php
  * Last Update: @zaher.reda 	Apr 03, 2009 | 01:38 PM
  */
 if(!defined("DIRECT_ACCESS")) {
@@ -34,14 +34,13 @@ if(!$core->input['action']) {
         $core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
     }
 
-    $query = $db->query("SELECT p.*, s.companyName AS supplier, g.title AS generic, ps.title AS segment 
+    $query = $db->query("SELECT p.*, s.companyName AS supplier, g.title AS generic, ps.title AS segment
 						FROM ".Tprefix."products p, ".Tprefix."entities s, ".Tprefix."genericproducts g, ".Tprefix."productsegments ps
 						WHERE p.spid=s.eid AND g.gpid=p.gpid AND g.psid=ps.psid
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
     if($db->num_rows($query) > 0) {
         while($product = $db->fetch_array($query)) {
-            $class = alt_row($class);
             $products_list .= "<tr class='{$class}'><td>{$product[pid]}</td><td><span class='editableinline' id='products/view_name_{$product[pid]}'>{$product[name]}</span></td><td>{$product[generic]}</td><td>{$product[segment]}</td><td><a href='".DOMAIN."/index.php?module=profiles/entityprofile&eid={$product[spid]}' target='_blank'>{$product[supplier]}</a></td>";
             $products_list .= "<td><a href='index.php?module=products/edit&amp;pid={$product[pid]}'><img src='{$core->settings[rootdir]}/images/edit.gif' alt='{$lang->edit}' border='0' /></a> <a href='#' id='mergeanddelete_{$product[pid]}_products/edit_icon'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' /></a></td></tr>";
         }

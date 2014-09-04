@@ -57,7 +57,7 @@ else {
 
     /* Parse events/tasks popup - Start */
     $eventtypes = get_specificdata('calendar_eventtypes', array('cetid', 'title'), 'cetid', 'title', array('by' => 'title', 'sort' => 'ASC'));
-    //$eventypes_selectlist = parse_selectlist('event[type]', 1, $eventtypes, 0, '', '', array('blankstart' => 1, 'id' => 'event_type'));
+    $eventypes_selectlist = parse_selectlist('event[type]', 1, $eventtypes, 0, '', '', array('blankstart' => 1, 'id' => 'event_type'));
     $etypemorefields = array(4);
     $etypemorefields = implode(', ', $etypemorefields);
 
@@ -144,7 +144,7 @@ else {
         }
         eval("\$sharewith_rows .= \"".$template->get('calendar_createeventtask_sharewithrows')."\";");
     }
-    eval("\$task_sharewith = \"".$template->get('calendar_createeventtask_sharewith')."\";");
+    eval("\$task_sharewith = \"".$template->get('calendar_createeventtask_sharewithsection')."\";");
 
     eval("\$addeventtask_popup = \"".$template->get('popup_calendar_createeventtask')."\";");
     /* Parse events/tasks popup - End */

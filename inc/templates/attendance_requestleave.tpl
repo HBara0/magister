@@ -28,9 +28,9 @@
                     sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getadditionalfields", "ltid=" + $('#type').val() + "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val() + "&uid=" + $("#uid").val(), 'additionalfields_output', 'additionalfields_output', true);
                 });
 
-                //  $("#type").live('change', function() {
-                ///sharedFunctions.requestAjax("post", "index.php?module=attendance/{$action}&action=parseexpenses", "ltid=" + $('#type').val() + "&lid=" + $('input[id=lid]').val(), 'leaveexpenses_container', 'leaveexpenses_container', true);
-                // });
+                $("#type").live('change', function() {
+                    sharedFunctions.requestAjax("post", "index.php?module=attendance/{$action}&action=parseexpenses", "ltid=" + $('#type').val() + "&lid=" + $('input[id=lid]').val(), 'leaveexpenses_container', 'leaveexpenses_container', true);
+                });
 
                 $('input[id^=expenses_]').live('blur', function() {
                     var sum = 0;
@@ -94,9 +94,8 @@
                     <tr>
                         <td>{$lang->contactpersonleave}</td>
                         <td><input type='text' id='user_1_autocomplete' value="{$leave[contactPersonName]}"/>
-                            <input type='text' id='user_1_id_output' name='contactPerson' value="{$leave[contactPerson]}" />
+                            <input type='text' size="3" disabled="disabled" id='user_1_id_output' name='contactPerson' value="{$leave[contactPerson]}" />
                             <input type='hidden' id='user_1_id' name='contactPerson' value="{$leave[contactPerson]}" />
-
                         </td>
                     </tr>
                     <tr>
