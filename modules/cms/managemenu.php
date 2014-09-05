@@ -46,7 +46,7 @@ if(!$core->input['action']) {
 
         $robots_list = parse_selectlist('menuitem[robotsRule]', 1, array("INDEX,FOLLOW" => "INDEX,FOLLOW", "NOINDEX,FOLLOW" => "NOINDEX,FOLLOW", "INDEX,NOFOLLOW" => "INDEX,NOFOLLOW", "NOINDEX,NOFOLLOW" => "NOINDEX,NOFOLLOW"), 0);
 
-        $webpages = get_specificdata('cms_pages', array('alias', 'alias'), 'alias', 'alias', array('by' => 'title', 'sort' => 'ASC'), 0, "isPublished = 1");
+        $webpages = get_specificdata('cms_pages', array('alias', 'title'), 'alias', 'title', array('by' => 'title', 'sort' => 'ASC'), 0, "isPublished = 1");
         $list_webpages = parse_selectlist('menuitem[configurations][webpage]', 1, array(0 => '') + $webpages, 0);
 
 
