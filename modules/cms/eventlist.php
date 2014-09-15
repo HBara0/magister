@@ -13,16 +13,15 @@ if(!defined('DIRECT_ACCESS')) {
 
 if(!$core->input['action']) {
 
-
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('title', 'place', 'fromDate', 'toDate'),
+            'parse' => array('filters' => array('title', 'place'),
             ),
             'process' => array(
                     'filterKey' => 'ceid',
                     'mainTable' => array(
                             'name' => 'calendar_events',
-                            'filters' => array('title' => 'title', 'place' => 'place', 'fromDate' => 'fromDate', 'toDate' => 'toDate'),
+                            'filters' => array('title' => 'title', 'place' => 'place'),
                     ),
             )
     );
@@ -51,28 +50,32 @@ if(!$core->input['action']) {
         foreach($array_fields as $field) {
             if(isset($core->input['filters'][$field]) && !empty($core->input['filters'][$field])) {
                 $where_filter[$field] = ($core->input['filters'][$field]);
-
-                $where_filter['fromDate'] = strtotime($core->input['filters']['fromDate']);
-                $where_filter['toDate'] = strtotime($core->input['filters']['toDate']);
+//                    $where_filter['fromDate'] = strtotime($core->input['filters']['fromDate']);
+//                    $where_filter['toDate'] = strtotime($core->input['filters']['toDate']);
             }
         }
     }
     $sort_url = sort_url();
+    $where_filter['publishOnWebsite'] = 1;
+    $dal_config = array(
+            'simple' => false,
+            'returnarray' => true
+    );
+    $event_objs = events::get_data($where_filter, $dal_config);
 
-    $event_objs = events::get_data($where_filter);
-    // if(is_array($event_objs)) {
-    foreach($event_objs as $event) {
+    unset($where_filter);
 
-        $event->fromdate = date($core->settings['dateformat'], $event->fromDate);
-        $event->todate = date($core->settings['dateformat'], $event->toDate);
+    if(is_array($event_objs)) {
+        foreach($event_objs as $event) {
+            $event->fromdate = date($core->settings['dateformat'], $event->fromDate);
+            $event->todate = date($core->settings['dateformat'], $event->toDate);
+            eval("\$cms_events_list_rows .= \"".$template->get('cms_events_list_rows')."\";");
+        }
+        $multipages = new Multipages('calendar_events', $core->settings['itemsperlist'], $multipage_where);
+        $cms_events_list_rows .= "<tr><td colspan='6'>".$multipages->parse_multipages()."</td></tr>";
 
-        eval("\$cms_events_list_rows .= \"".$template->get('cms_events_list_rows')."\";");
+
+        eval("\$eventslist = \"".$template->get('cms_eventlist')."\";");
+        output_page($eventslist);
     }
-    $multipages = new Multipages('calendar_events', $core->settings['itemsperlist'], $multipage_where);
-    $cms_events_list_rows .= "<tr><td colspan='6'>".$multipages->parse_multipages()."</td></tr>";
-
-
-    eval("\$eventslist = \"".$template->get('cms_eventlist')."\";");
-    output_page($eventslist);
-    // }
 }
