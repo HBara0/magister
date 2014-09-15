@@ -1,7 +1,7 @@
 <?php
 
 class Cms {
-    protected $settings_file_path = "modules/cms/settings.php";
+    protected $settings_file_path = "modules/cms/cmssettings.php";
     private $status;
     protected $settings = array();
 
@@ -62,7 +62,7 @@ class Cms {
     }
 
     public function add_settings(array $settings) {
-        
+
     }
 
     public function get_country_bysubdomain() {
@@ -72,9 +72,11 @@ class Cms {
         return substr($host, $start - 2, 2);
     }
 
-    private function rebuild_settings() {
+    public function rebuild_settings() {
         global $db, $core;
-
+        if(empty($this->settings)) {
+            $this->read_settings_db();
+        }
         if(!file_exists(ROOT.$this->settings_file_path)) {
             $mode = "x";
         }
