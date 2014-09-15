@@ -23,6 +23,7 @@ if(!$core->input['action']) {
     if($core->usergroup['crm_canPublishNews'] == 1) {
         $publish_news = '<div style="display:inline-block">'.$lang->ispublish.'</div><div style="display: table-cell; padding:10px;"><input name="news[isPublished]" type="checkbox" value="1"></div>';
     }
+    $content_categories = CmsContentCategories::get_data('title IS NOT NULL');
 
     if(isset($core->input['newsid']) && !empty($core->input['newsid'])) {
         $actiontype = 'edit';
@@ -48,12 +49,12 @@ if(!$core->input['action']) {
             }
         }
 
-        $newscategories = get_specificdata('cms_contentcategories', array('cmsccid', 'name'), 'cmsccid', 'name', 'name');
-        $newscategories_list = parse_selectlist('news[categories]', 5, $newscategories, $news['category']);
+        // $newscategories = get_specificdata('cms_contentcategories', array('cmsccid', 'name'), 'cmsccid', 'name', 'name');
+        $newscategories_list = parse_selectlist('news[categories]', 5, $content_categories, $news['category']);
     }
     else {
         $actiontype = 'add';
-        $newscategories_list = parse_selectlist('news[categories]', 5, array('1' => 'featured news', '2' => 'afilliates related news'), '');
+        $newscategories_list = parse_selectlist('news[categories]', 5, $content_categories, '');
     }
 
     if($core->usergroup['crm_canPublishNews'] == 1) {
