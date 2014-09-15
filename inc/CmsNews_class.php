@@ -36,7 +36,7 @@ class CmsNews extends Cms {
             $this->status = 1;
             return false;
         }
-
+        $this->settings = parent::read_settings_db(false);
 
 
         /* Check if news with same title created by anyone */
@@ -64,7 +64,7 @@ class CmsNews extends Cms {
         $this->data['createdBy'] = $core->user['uid'];
         $this->data['createDate'] = TIME_NOW;
         /* Double check publishing permissions */
-        if($core->usergroup['crm_canPublishNews'] == 0) {
+        if($core->usergroup['cms_canPublishNews'] == 0) {
             $this->data['isPublished'] = 0;
         }
 
@@ -114,36 +114,44 @@ class CmsNews extends Cms {
                 $categoyquery = $db->insert_query('cms_news_relatedcategories', $related_categories);
 
                 /* Inform audits about the change, and request approval - START */
-                if($core->usergroup['crm_canPublishNews'] == 0) {
+                if($core->usergroup['cms_canPublishNews'] == 0) {
                     if(!is_array($this->settings['websiteaudits'])) {
                         $this->settings['websiteaudits'] = explode(';', $this->settings['websiteaudits']);
                     }
 
-                    $email_data = array(
-                            'to' => $this->settings['websiteaudits'],
-                            'from_email' => $core->settings['maileremail'],
-                            'from' => 'OCOS Mailer'
-                    );
+                    $news_approvers = unserialize($this->settings[websiteaudits]['value']);
+                    foreach($news_approvers as $approver) {
+                        $user_object = new Users($approver);
+                        $email_data['to'][] = $user_object->email;
+                    }
+                    $mailer = new Mailer();
+                    $mailer = $mailer->get_mailerobj();
+                    $mailer->set_type();
+                    $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
+                    $mailer->set_to($email_data['to']);
+
 
                     if($options['operationtype'] == 'updateversion') {
-                        $email_data['subject'] = $lang->sprint($lang->modifynotification_subject, $this->prevversion['title']);
-                        $email_data['message'] = $lang->sprint($lang->modifynotification_body, $this->prevversion['title'], //1
+                        print_R($this->prevversion);
+                        $mailer->set_subject($lang->sprint($lang->modifynotification_subject, $this->prevversion['title']));
+                        $emailmessage = $lang->sprint($lang->modifynotification_body, $this->prevversion['title'], //1
                                 similar_text($this->prevversion['title'], $this->data['title']), //2
                                 $this->data['title'], //3
                                 similar_text($this->prevversion['summary'], $this->data['summary']), //4
                                 $this->data['summary'], //5
                                 similar_text($this->prevversion['bodyText'], $this->data['bodyText']), //6
-                                get_stringdiff($this->oldnews['bodyText'], $this->data['bodyText'])//7
-                        );
+                                get_stringdiff($this->oldnews['bodyText'], $this->data['bodyText'])); //7
+
+                        $mailer->set_message($emailmessage);
                     }
                     else {
-                        $email_data['subject'] = $lang->sprint($lang->newnotification_subject, $this->data['title']);
-                        $email_data['message'] = $lang->sprint($lang->newnotification_body, $this->data['title'], $this->data['summary'], $this->data['bodyText']);
+                        $mailer->set_subject($lang->sprint($lang->newnotification_subject, $this->data['title']));
+                        $emailmessage = $lang->sprint($lang->newnotification_body, $this->data['title'], $this->data['summary'], $this->data['bodyText']);
+                        $mailer->set_message($emailmessage);
                     }
                     /* Attach new attachments to the message and indicate that in the message body */
-                    //HERE
-
-                    $mail = new Mailer($email_data, 'php');
+//HERE
+                    $mailer->send();
                 }
                 /* Inform audits about the change, and request approval - END */
 
@@ -162,14 +170,14 @@ class CmsNews extends Cms {
                     $path_info = pathinfo($link['path']);
                     $file_info = finfo_open(FILEINFO_MIME_TYPE);
 
-                    //  $upload->set_options('newsimage', array('newsimage' => array('type' => finfo_file($file_info, $link['path']), 'name' => $path_info['basename'], 'tmp_name' => $link['path'], 'size' => filesize($link['path']))), $allowed_types_newsimages, 'ftp', 5242880, 0, 0); //5242880 bytes = 5 MB (1024)
+//  $upload->set_options('newsimage', array('newsimage' => array('type' => finfo_file($file_info, $link['path']), 'name' => $path_info['basename'], 'tmp_name' => $link['path'], 'size' => filesize($link['path']))), $allowed_types_newsimages, 'ftp', 5242880, 0, 0); //5242880 bytes = 5 MB (1024)
                     finfo_close($file_info);
 
-                    //  $upload->process_file();
+//  $upload->process_file();
                     @unlink($link['path']);
                 }
                 /* Upload news images - End */
-                //  $upload->close_ftp();
+//  $upload->close_ftp();
 
                 /* Upload attachments - Start */
                 $upload_param['allowed_types'] = array('image/jpeg', 'image/gif', 'image/png', 'application/zip', 'application/pdf', 'application/x-pdf', 'application/msword', 'application/vnd.ms-powerpoint', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
