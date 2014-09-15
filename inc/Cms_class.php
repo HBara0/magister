@@ -21,7 +21,6 @@ class Cms {
         if($simple == false) {
             $query_select = '*';
         }
-
         $query = $db->query('SELECT '.$query_select.' FROM '.Tprefix.'cms ORDER BY name ASC');
         if($query) {
             while($setting = $db->fetch_assoc($query)) {
@@ -32,6 +31,7 @@ class Cms {
                     $this->settings[$setting['name']] = $setting;
                 }
             }
+            return $this->settings;
         }
         else {
             $this->status = 4;

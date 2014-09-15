@@ -80,3 +80,17 @@ $lang['deletefilequestion'] = "Are you sure you want to delete this file? ";
 $lang['deletefile'] = 'Delete File';
 $lang['attachmentstitle'] = 'Existing Attachments';
 $lang['publishdate'] = 'Publish Date';
+$lang['newnotification_subject'] = 'A new  page {1} has been created as follows:';
+$lang['modifynotification_body'] = 'The page {1} has been modified as follows:</br></br>
+
+Title {2} similar: {3}</br>
+Summary {4} similar: {5}</br>
+Body {6} similar: {7} </br>';
+$lang['modifynotification_subject'] = 'Modified News: {1}';
+
+$lang['newnotification_body'] = 'The page {1} has been created  as follows:</br></br>
+
+Title {2} similar: {3}</br>
+Summary {4} similar: {5}</br>
+Body {6} similar: {7} </br>';
+

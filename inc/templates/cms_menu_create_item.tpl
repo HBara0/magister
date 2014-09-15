@@ -112,7 +112,7 @@
                                 <label>{$lang->jobs}</label>
                             </div>
                             <div style="display:inline-block; margin-left:30px">
-                                <input id="listsegments_type" name="menuitem[type]" type="radio" value="listsegments">
+                                <input id="listsegments_type" name="menuitem[type]" type="radio" value="segmentslist">
                                 <label>{$lang->listsegments}</label>
                             </div>
                             <div style="display:inline-block; margin-left:30px">

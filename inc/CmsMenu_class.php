@@ -64,18 +64,19 @@ class CmsMenu extends Cms {
 
         /* validate configuration against set of defined configuratons */
 
-        $accepted_configurations = array('webpage' => array('webpage' => 'webpage'), 'newsarchive' => array('newsarchive' => 'newsarchive'), 'eventsarchive' => array('eventsarchive' => 'eventsarchive'), 'listnews' => array('listnews' => 'listnews'), 'branchprofile' => array('branchprofile' => 'branchprofile'), 'affiliate' => array('affiliate'), 'externalurl' => array('link', 'linktitle', 'linkimage'));
+        $accepted_configurations = array('webpage' => array('webpage' => 'webpage'), 'newsarchive' => array('newsarchive' => 'newsarchive'), 'eventsarchive' => array('eventsarchive' => 'eventsarchive'), 'listnews' => array('listnews' => 'listnews'), 'branchprofile' => array('branchprofile' => 'branchprofile'), 'affiliate' => array('affiliate'), 'externalurl' => array('link', 'linktitle', 'linkimage'),'contact' => array('contact'));
         $configs = $this->menuitem['configurations'];
         $this->menuitem['configurations'] = null;
-        foreach($accepted_configurations as $key => $val) {
-            if(!empty($configs[$key])) {
-                $this->menuitem['configurations'] = base64_encode(serialize($this->menuitem['configurations'][$key]));
+         foreach($accepted_configurations as $key => $val) {
+            if(!empty($this->menuitem['configurations'][$key])) {
+                $this->menuitem['configurations'] = base64_encode(serialize(($this->menuitem['configurations'][$key])));
                 break;
             }
-        }
-        if(empty($this->menuitem['configurations'])) {
-            $this->menuitem['configurations'] = base64_encode(serialize($accepted_configurations[$this->menuitem['type']]));
-        }
+        } 
+
+
+        unset($this->menuitem['menuid'], $this->menuitem['itemid']);
+
 
         unset($this->menuitem['menuid'], $this->menuitem['itemid']);
         if(is_array($this->menuitem)) {
