@@ -55,19 +55,19 @@
                         <div style="display: inline-block; padding:10px;">{$newscategories_list}</div>
                     </div>
                     <div style="display:block;">
-                        <div style="display:block;">{$lang->summary}</div>
-                        <div style="display:block; padding:10px;"><textarea name="news[summary]" cols="100"rows="6" class="texteditor">{$news[summary]}</textarea></div>
+                        <div style="display:block;" class="thead">{$lang->summary}</div>
+                        <div style="display:block;"><textarea name="news[summary]" cols="100"rows="6" class="texteditor">{$news[summary]}</textarea></div>
                     </div>
                     <div style="display:block;">
-                        <div style="display:block;">{$lang->text}</div>
-                        <div style="display:block; padding:10px;">
+                        <div style="display:block;" class="thead">{$lang->text}</div>
+                        <div style="display:block;">
                             <textarea name="news[bodyText]" cols="100" class="texteditor" rows="15" >{$news[bodyText]}</textarea>
                             <input type="hidden" name="news[uploadedImages]" id="uploadedImages" value="{$news[uploadedImages]}">
                         </div>
                     </div>
                     <div style="display:block;">
-                        <div style="display:block;">{$lang->attachfiles}</div>
-                        <div style="display:block; padding:10px;">
+                        <div style="display:block;" class="thead">{$lang->attachfiles}</div>
+                        <div style="display:block;">
                             <fieldset  title="{$lang->attachments}"class="altrow2" style="border:1px solid #DDDDDD"><legend class="subtitle">{$lang->attachments}</legend><input type="file" id="attachments" name="attachments[]" multiple="true"></fieldset>
                         </div>
 
