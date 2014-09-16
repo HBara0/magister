@@ -2,11 +2,11 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Manage Site Settings
  * $module: CMS
- * $id: settings.php	
- * Created: 	@zaher.reda 	
+ * $id: settings.php
+ * Created: 	@zaher.reda
  * Last Update: @zaher.reda 	August 09, 2012 | 04:PM
  */
 if(!defined("DIRECT_ACCESS")) {
@@ -50,7 +50,7 @@ else {
         unset($core->input['module'], $core->input['action']);
         $settings = new Cms();
         $settings->update_settings($core->input);
-
+        $settings->rebuild_settings();
         switch($settings->get_status()) {
             case 0:
                 output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");

@@ -97,9 +97,9 @@
                                 <label>{$lang->listaffiliates}</label>
                             </div>
                             <div style="display:inline-block; margin-left:30px">
-                                <input  id="externalurl_type" name="menuitem[type]" type="radio" value="externalurl">
+                                <input  id="externalurl_type" name="menuitem[type]" type="radio" value="externalurl"  >
                                 <label>{$lang->externalurl}</label>
-                            </div></div><!--end 1st type table cell-->
+                            </div></div>
 
 
                         <div style="display:table-cell; padding:5px; margin:5px;">
@@ -112,7 +112,7 @@
                                 <label>{$lang->jobs}</label>
                             </div>
                             <div style="display:inline-block; margin-left:30px">
-                                <input id="listsegments_type" name="menuitem[type]" type="radio" value="listsegments">
+                                <input id="listsegments_type" name="menuitem[type]" type="radio" value="segmentslist">
                                 <label>{$lang->listsegments}</label>
                             </div>
                             <div style="display:inline-block; margin-left:30px">
@@ -152,7 +152,16 @@
                             </fieldset>
                         </div>
                     </div>
-
+                    <div id="contact_configuration" style="display:none;">
+                        <div style="display: table-cell; padding:10px;">
+                            <input type="hidden" name="menuitem[configurations][contact][]"  value="contact" />
+                        </div>
+                    </div>
+                    <div id="jobs_configuration" style="display:none;">
+                        <div style="display: table-cell; padding:10px;">
+                            <input type="hidden" name="menuitem[configurations][jobs][]"  value="jobs" />
+                        </div>
+                    </div>
                     <div id="listaffiliates_configuration" style="display:none;">
                         <div style="display: table-cell; padding:10px;">
                             <fieldset class="altrow2" style="width:100%;">
@@ -161,6 +170,16 @@
                                 <div style="display: table-cell;  margin-left:10px;"id="listaffiliates_content"> {$list_affiliates} </div>
                             </fieldset>
                         </div>
+                    </div>
+                    <div id="segmentslist_configuration" style="display:none;">
+                        <div style="display: table-cell; padding:10px;">
+                            <fieldset class="altrow2" style="width:100%;">
+                                <legend class="subtitle">{$lang->listsegments}</legend>
+                                <div style="display: table-cell; padding:10px;">{$lang->exclude}</div>
+                                <div style="display: table-cell;  margin-left:10px;"id="segmentslist_content"> {$list_segments} </div>
+                            </fieldset>
+                        </div>
+
                     </div>
 
                     <div id="branchprofile_configuration" style="display:none;">

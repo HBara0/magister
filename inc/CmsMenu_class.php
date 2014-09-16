@@ -64,15 +64,21 @@ class CmsMenu extends Cms {
 
         /* validate configuration against set of defined configuratons */
 
-        $accepted_configurations = array('webpages' => array('webpages' => 'webpages'), 'branchprofile' => array('branchprofile' => 'branchprofile'), 'affiliate' => array('affiliate'), 'externalurl' => array('link', 'linktitle', 'linkimage'));
-        foreach($accepted_configurations as $key => $val) {
+        $accepted_configurations = array('webpage' => array('webpage' => 'webpage'), 'newsarchive' => array('newsarchive' => 'newsarchive'), 'eventsarchive' => array('eventsarchive' => 'eventsarchive'), 'listnews' => array('listnews' => 'listnews'), 'branchprofile' => array('branchprofile' => 'branchprofile'), 'affiliate' => array('affiliate'), 'externalurl' => array('link', 'linktitle', 'linkimage'),'contact' => array('contact'));
+        $configs = $this->menuitem['configurations'];
+        $this->menuitem['configurations'] = null;
+         foreach($accepted_configurations as $key => $val) {
             if(!empty($this->menuitem['configurations'][$key])) {
-                $this->menuitem['configurations'] = serialize($this->menuitem['configurations'][$key]);
+                $this->menuitem['configurations'] = base64_encode(serialize(($this->menuitem['configurations'][$key])));
                 break;
             }
-        } unset($this->menuitem['menuid'], $this->menuitem['itemid']);
-        print_r($this->menuitem);
+        } 
 
+
+        unset($this->menuitem['menuid'], $this->menuitem['itemid']);
+
+
+        unset($this->menuitem['menuid'], $this->menuitem['itemid']);
         if(is_array($this->menuitem)) {
             $query = $db->insert_query('cms_menuitems', $this->menuitem);
             if($query) {
@@ -89,7 +95,7 @@ class CmsMenu extends Cms {
             $sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
         }
 
-        if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+        if(isset($core->input ['perpage']) && !empty($core->input['perpage'])) {
             $core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
         }
 
@@ -101,7 +107,7 @@ class CmsMenu extends Cms {
         if(isset($core->input['filterby'], $core->input['filtervalue'])) {
             $attributes_filter_options['title'] = array('title' => 'cp.');
 
-            if($attributes_filter_options['title'][$core->input['filterby']] == 'int') {
+            if($attributes_filter_options['title'][$core->input ['filterby']] == 'int') {
                 $filter_value = ' = "'.$db->escape_string($core->input['filtervalue']).'"';
             }
             else {
@@ -141,7 +147,8 @@ class CmsMenu extends Cms {
             }
             return $menus;
         }
-        return false;
+        return
+                false;
     }
 
     public function get_status() {

@@ -19,20 +19,19 @@ if(!$core->input['action']) {
         $publish_page = '<div style="display:inline-block">'.$lang->ispublish.'</div><div style="display: table-cell; padding:10px;"><input name="page[isPublished]" type="checkbox" value="1"></div>';
     }
     $robots_list = parse_selectlist('page[robotsRule]', 1, array("INDEX,FOLLOW" => "INDEX,FOLLOW", "NOINDEX,FOLLOW" => "NOINDEX,FOLLOW", "INDEX,NOFOLLOW" => "INDEX,NOFOLLOW", "NOINDEX,NOFOLLOW" => "NOINDEX,NOFOLLOW"), 0);
-
+    $content_categories = CmsContentCategories::get_data('title IS NOT NULL');
     if($core->input['type'] == 'edit') {
         $actiontype = 'edit';
         $lang->createwebpage = $lang->editwebpage;
         $pageid = $db->escape_string($core->input['id']);
         $cms_page = new CmsPages($pageid);  /* call the page object and the pageid to the constructor to read the single page */
         $page = $cms_page->get();
-
+        $pagecategories_list = parse_selectlist('page[category]', 5, $content_categories, $page['category']);
         $page['publishDate_output'] = date($core->settings['dateformat'], $page['publishDate']);
     }
     else {
         $actiontype = 'add';
-        $pagecategory = get_specificdata('cms_contentcategories', array('cmsccid', 'title'), 'cmsccid', 'title', 'title');
-        $pagecategories_list = parse_selectlist('page[category]', 5, $pagecategory, $page['category']);
+        $pagecategories_list = parse_selectlist('page[category]', 5, $content_categories, $page['category']);
     }
 
     eval("\$createpage =\"".$template->get('cms_page_create')."\";");

@@ -45,9 +45,11 @@ if(!$core->input['action']) {
         $list_brancheprofile = parse_selectlist('menuitem[configurations][branchprofile]', 1, array(0 => '') + $affiliates, $core->user['mainaffiliate'], 0);
 
         $robots_list = parse_selectlist('menuitem[robotsRule]', 1, array("INDEX,FOLLOW" => "INDEX,FOLLOW", "NOINDEX,FOLLOW" => "NOINDEX,FOLLOW", "INDEX,NOFOLLOW" => "INDEX,NOFOLLOW", "NOINDEX,NOFOLLOW" => "NOINDEX,NOFOLLOW"), 0);
+        $segment_data = get_specificdata('productsegments', array('psid', 'alias'), 'psid', 'alias', array('by' => 'title', 'sort' => 'ASC'), 0, "publishOnwebsite = 1");
 
-        $webpages = get_specificdata('cms_pages', array('title', 'title'), 'title', 'title', array('by' => 'title', 'sort' => 'ASC'), 0, "isPublished = 1");
-        $list_webpages = parse_selectlist('menuitem[configurations][webpages]', 1, array(0 => '') + $webpages, 0);
+        $list_segments = parse_selectlist('menuitem[configurations][segmentslist][]', 1, array(0 => '') + $segment_data, $core->user['segments'], 1);
+        $webpages = get_specificdata('cms_pages', array('alias', 'title'), 'alias', 'title', array('by' => 'title', 'sort' => 'ASC'), 0);
+        $list_webpages = parse_selectlist('menuitem[configurations][webpage]', 1, array(0 => '') + $webpages, 0);
 
 
         eval("\$createmenuitem =\"".$template->get('cms_menu_create_item')."\";");
