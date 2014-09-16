@@ -111,7 +111,7 @@
                     <div style="display:table-row;">
                         <div style="display:table-cell;">{$lang->selectentity}</div>
                         <div style="display:table-cell; padding:5px;">
-                            <input id="supplier_1_QSearch" autocomplete="off" type="text" value="{$supplier[relatedsupplier]}">
+                            <input id="supplier_1_autocomplete" autocomplete="off" type="text" value="{$supplier[relatedsupplier]}">
                             <input id="supplier_1_id" name="supplier[eid]" value="{$supplier[eid]}" type="hidden">
                             <div id="searchQuickResults_supplier_1" class="searchQuickResults" style="display:none;"></div>
                         </div>

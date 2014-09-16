@@ -18,7 +18,7 @@
                     </tr>
                     <tr class="altrow2">
                         <td width="20%"><span class='font-weight: bold;'>{$lang->supplier}</span></td>
-                        <td><input type='text' id='supplier_1_QSearch' name='suppliername' value="{$report_data[suppliername]}" autocomplete="off"/>
+                        <td><input type='text' id='supplier_1_autocomplete' name='suppliername' value="{$report_data[suppliername]}" autocomplete="off"/>
                             <input type="text" size="3" id="supplier_1_id_output" value="{$report_data[spid]}" disabled/>
                             <input type='hidden' id='supplier_1_id' name='spid' value="{$report_data[spid]}"/>
                             <a href="index.php?module=contents/addentities&amp;type=supplier" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a>

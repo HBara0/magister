@@ -38,11 +38,11 @@
                 </tr>
                 <tr>
                     <td>{$lang->customername}</td>
-                    <td><input type='text' id='customer_1_QSearch' value="{$visitreport_values[customername]}" autocomplete="off"/><input type="text" size="3" id="customer_1_id_output" value="{$visitreport_values[cid]}" disabled/><input type='hidden' id='customer_1_id' name='cid' value="{$visitreport_values[cid]}"/><a href="index.php?module=contents/addentities&amp;type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
+                    <td><input type='text' id='customer_1_autocomplete' value="{$visitreport_values[customername]}" autocomplete="off"/><input type="text" size="3" id="customer_1_id_output" value="{$visitreport_values[cid]}" disabled/><input type='hidden' id='customer_1_id' name='cid' value="{$visitreport_values[cid]}"/><a href="index.php?module=contents/addentities&amp;type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
                 </tr>
                 <tr>
                     <td>{$lang->contactperson}</td>
-                    <td><input type='text' id='representative_2_QSearch' value="{$visitreport_values[representativename]}" autocomplete="off"/><input type="text" size="3" id="representative_2_id_output" value="{$visitreport_values[rpid]}" disabled/><input type='hidden' id='representative_2_id' name='rpid' value="{$visitreport_values[rpid]}" /><a href="#" id="addnew_crm/fillvisitreport_representative"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a><div id='searchQuickResults_2' class='searchQuickResults' style='display:none;'></div></td>
+                    <td><input type='text' id='representative_2_autocomplete' value="{$visitreport_values[representativename]}" autocomplete="off"/><input type="text" size="3" id="representative_2_id_output" value="{$visitreport_values[rpid]}" disabled/><input type='hidden' id='representative_2_id' name='rpid' value="{$visitreport_values[rpid]}" /><a href="#" id="addnew_crm/fillvisitreport_representative"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a><div id='searchQuickResults_2' class='searchQuickResults' style='display:none;'></div></td>
                 </tr>
                 <tr>
                     <td>{$lang->affiliate}</td>
@@ -69,7 +69,7 @@
                 </tr>
                 <tr id="accompaniedby_row">
                     <td>{$lang->accompaniedby}</td>
-                    <td><input type='text' id='supprepresentative_4_QSearch' value="{$visitreport_values[srepresentativename]}" autocomplete="off"/><input type="text" size="3" id="supprepresentative_4_id_output" value="{$visitreport_values[sprpid]}" disabled/><input type='hidden' id='supprepresentative_4_id' name='sprpid' value="{$visitreport_values[sprpid]}" /><a href="#" id="addnew_crm/fillvisitreport_supprepresentative"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a><div id='searchQuickResults_4' class='searchQuickResults' style='display:none;'></div></td>
+                    <td><input type='text' id='supprepresentative_4_autocomplete' value="{$visitreport_values[srepresentativename]}" autocomplete="off"/><input type="text" size="3" id="supprepresentative_4_id_output" value="{$visitreport_values[sprpid]}" disabled/><input type='hidden' id='supprepresentative_4_id' name='sprpid' value="{$visitreport_values[sprpid]}" /><a href="#" id="addnew_crm/fillvisitreport_supprepresentative"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a><div id='searchQuickResults_4' class='searchQuickResults' style='display:none;'></div></td>
                 </tr>
                 <tr><td colspan="2"><hr /></td></tr>
                 <tr>

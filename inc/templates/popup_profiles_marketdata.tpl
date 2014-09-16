@@ -32,13 +32,13 @@
                                     <td>
                                         <div style="width:100%; display:block;">
                                             <div style="width:45%; display: inline-block;">{$lang->competitortrader}</div>
-                                            <div style="width:45%; display: inline-block;"><input type='text'id='competitortradersupp_{$rowid}_QSearch' autocomplete='off' />
+                                            <div style="width:45%; display: inline-block;"><input type='text'id='competitortradersupp_{$rowid}_autocomplete' autocomplete='off' />
                                                 <input type='hidden' id='competitortradersupp_{$rowid}_id' name='marketdata[competitor][{$rowid}][trader]' value="" /> <a href="index.php?module=contents/addentities&type=supplier" target="_blank" title="{$lang->add}"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0"></a>
                                                 <div id='searchQuickResults_competitortradersupp_{$rowid}' class='searchQuickResults' style='display:none;'></div></div>
                                         </div>
                                         <div style="width:100%; display:block;">
                                             <div style="width:45%; display: inline-block;">{$lang->competitorprod}</div>
-                                            <div style="width:45%; display: inline-block;"><input type='text'id='competitorproducersupp_{$rowid}_QSearch' autocomplete='off'/> <a href="index.php?module=contents/addentities&type=supplier" target="_blank" title="{$lang->add}"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0"></a>
+                                            <div style="width:45%; display: inline-block;"><input type='text'id='competitorproducersupp_{$rowid}_autocomplete' autocomplete='off'/> <a href="index.php?module=contents/addentities&type=supplier" target="_blank" title="{$lang->add}"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0"></a>
                                                 <input type='hidden' id='competitorproducersupp_{$rowid}_id' name='marketdata[competitor][{$rowid}][producer]' value="" />
                                                 <div id='searchQuickResults_competitorproducersupp_{$rowid}' class='searchQuickResults' style='display:none;'></div> </div>
                                         </div>
@@ -47,7 +47,7 @@
                                         </div>
                                         <div style="width:100%; display:block;">
                                             <div style="width:45%; display: inline-block;">{$lang->product}</div>
-                                            <div style="width:45%; display: inline-block;"><input type="text" name="marketdata[competitor][{$rowid}][pid]" id="product_{$rowid}_QSearch"  autocomplete="off"/>
+                                            <div style="width:45%; display: inline-block;"><input type="text" name="marketdata[competitor][{$rowid}][pid]" id="product_{$rowid}_autocomplete"  autocomplete="off"/>
                                                 <input type="hidden" id="product_{$rowid}_id" name="marketdata[competitor][{$rowid}][pid]" />
                                                 <div id="searchQuickResults_{$rowid}" class="searchQuickResults" style="display:none;"></div></div>
                                         </div>

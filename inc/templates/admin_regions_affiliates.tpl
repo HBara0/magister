@@ -57,19 +57,19 @@
                     <tr>
                         <td>{$lang->affiliatesupervisor}</td>
                         <td>
-                            <input type='text' id='user_2_QSearch' autocomplete='off' size='40px'/><input type='hidden' id='user_2_id' name='supervisor'/><div id='searchQuickResults_2' class='searchQuickResults' style='display:none;'></div>
+                            <input type='text' id='user_2_autocomplete' autocomplete='off' size='40px'/><input type='hidden' id='user_2_id' name='supervisor'/><div id='searchQuickResults_2' class='searchQuickResults' style='display:none;'></div>
                         </td>
                     </tr>
                     <tr>
                         <td>{$lang->affiliategm}</td>
                         <td>
-                            <input type='text' id='user_1_QSearch' autocomplete='off' size='40px'/><input type='hidden' id='user_1_id' name='generalManager'/><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div>
+                            <input type='text' id='user_1_autocomplete' autocomplete='off' size='40px'/><input type='hidden' id='user_1_id' name='generalManager'/><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div>
                         </td>
                     </tr>
                     <tr>
                         <td>{$lang->affiliatehr}</td>
                         <td>
-                            <input type='text' id='user_3_QSearch' autocomplete='off' size='40px'/><input type='hidden' id='user_3_id' name='hrManager'/><div id='searchQuickResults_3' class='searchQuickResults' style='display:none;'></div>
+                            <input type='text' id='user_3_autocomplete' autocomplete='off' size='40px'/><input type='hidden' id='user_3_id' name='hrManager'/><div id='searchQuickResults_3' class='searchQuickResults' style='display:none;'></div>
                         </td>
                     </tr>
                     <tr>

@@ -22,7 +22,7 @@
                         <td><strong>{$lang->generic}</strong></td><td>{$generics_list} <span class="ui-state-highlight ui-corner-all" style="padding: 5px;">Legacy approach; do not change.</span></td>
                     </tr>
                     <tr>
-                        <td><strong>{$lang->supplier}</strong></td><td><input type='text' id='supplier_1_QSearch' value="{$product[suppliername]}"/><input type="text" size="3" id="supplier_1_id_output" value="{$product[spid]}" disabled/><input type='hidden' id='supplier_1_id' name='spid' value="{$product[spid]}" /><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
+                        <td><strong>{$lang->supplier}</strong></td><td><input type='text' id='supplier_1_autocomplete' value="{$product[suppliername]}"/><input type="text" size="3" id="supplier_1_id_output" value="{$product[spid]}" disabled/><input type='hidden' id='supplier_1_id' name='spid' value="{$product[spid]}" /><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>
                     <tr class="thead"><td colspan="2">{$lang->applications}</td></tr>
                     <tr>

@@ -14,7 +14,7 @@
                 <table width="100%">
                     <thead>
                         <tr>
-                            <td colspan="6" class="ui-state-highlight ui-corner-all" style="padding: 5px;"><strong>{$lang->supplier}</strong> <input type='text' id='supplier_1_QSearch' /><input type="text" size="3" id="supplier_1_id_output" disabled/><input type='hidden' id='supplier_1_id' name='spid'  /><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div>
+                            <td colspan="6" class="ui-state-highlight ui-corner-all" style="padding: 5px;"><strong>{$lang->supplier}</strong> <input type='text' id='supplier_1_autocomplete' /><input type="text" size="3" id="supplier_1_id_output" disabled/><input type='hidden' id='supplier_1_id' name='spid'  /><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div>
                             </td>
                         </tr>
                         <tr>
@@ -27,7 +27,7 @@
                         </tr>
                     </thead>
                     <tr>
-                        <td><input name="affiliate[1]" value="0" type="hidden"> <input type='text' id="product_1_QSearch" name="product_name" autocomplete='off'/><input type='hidden' size='2' id='product_1_id_output' disabled='disabled' /><input type='hidden' id='product_1_id' name='pid' /><div id='searchQuickResults_product_1' class='searchQuickResults' style='display:none;'></div></td>
+                        <td><input name="affiliate[1]" value="0" type="hidden"> <input type='text' id="product_1_autocomplete" name="product_name" autocomplete='off'/><input type='hidden' size='2' id='product_1_id_output' disabled='disabled' /><input type='hidden' id='product_1_id' name='pid' /><div id='searchQuickResults_product_1' class='searchQuickResults' style='display:none;'></div></td>
                         <td align="center">{$pricingmethods_mainlist}</td>
                         <td align="center"><input type='text' name="price[1]" accept="numeric" id="price[1]" size="10"/></td>
                         <td align="center">{$units_mainlist}</td>

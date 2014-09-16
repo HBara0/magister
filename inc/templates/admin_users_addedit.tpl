@@ -42,11 +42,11 @@
                     </tr>
                     <tr>
                         <td><strong>{$lang->reportsto}</strong></td>
-                        <td><input type='text' id='user_1_QSearch' value="{$user[reportsToName]}"/><input type="text" size="3" id="user_1_id_output" value="{$user[reportsTo]}" disabled/><input type='hidden' id='user_1_id' name='reportsTo' value="{$user[reportsTo]}" /><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
+                        <td><input type='text' id='user_1_autocomplete' value="{$user[reportsToName]}"/><input type="text" size="3" id="user_1_id_output" value="{$user[reportsTo]}" disabled/><input type='hidden' id='user_1_id' name='reportsTo' value="{$user[reportsTo]}" /><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>
                     <tr>
                         <td>{$lang->assistant}</td>
-                        <td><input type='text' id='user_2_QSearch' value="{$user[assistantName]}"/><input type="text" size="3" id="user_2_id_output" value="{$user[assistant]}" disabled/><input type='hidden' id='user_2_id' name='assistant' value="{$user[assistant]}" /><div id='searchQuickResults_2' class='searchQuickResults' style='display:none;'></div></td>
+                        <td><input type='text' id='user_2_autocomplete' value="{$user[assistantName]}"/><input type="text" size="3" id="user_2_id_output" value="{$user[assistant]}" disabled/><input type='hidden' id='user_2_id' name='assistant' value="{$user[assistant]}" /><div id='searchQuickResults_2' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>
                     <tr><td colspan="2"><hr /></td></tr>
                     <tr>

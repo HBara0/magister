@@ -1,6 +1,6 @@
 <tr id="{$rowid}">
     <td style="padding: 2px; border-bottom: dashed 1px #CCCCCC;" align="left">{$paid_field}
-        <input type='text' name="productactivity[$rowid][productname]" id="product_{$rowid}_QSearch" value="{$productactivity[productname]}" autocomplete='off'/>
+        <input type='text' name="productactivity[$rowid][productname]" id="product_{$rowid}_autocomplete" value="{$productactivity[productname]}" autocomplete='off'/>
         <!--<input type='text' size='2' style="width:25px;" name='product_{$rowid}_id_output' id='product_{$rowid}_id_output' disabled='disabled' value="{$productactivity[pid]}"/>-->
         <input type='hidden' value='{$productactivity[pid]}' id='product_{$rowid}_id' name='productactivity[$rowid][pid]' />
         <a href="#" id="showpopup_addproduct" class="showpopup"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a>
