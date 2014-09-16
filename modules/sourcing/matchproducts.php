@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: matchproducts.php
  * Created:        @tony.assaad    May 3, 2013 | 10:41:15 AM
@@ -58,7 +58,7 @@ elseif($core->input['action'] == 'do_match') {
 function get_importtemp_data($limit = 0) {
     global $db;
 
-    $tempquery = $db->query("SELECT id,REPLACE(companyName,\"'\",\"\") AS companyName FROM importtemp 
+    $tempquery = $db->query("SELECT id,REPLACE(companyName,\"'\",\"\") AS companyName FROM importtemp
 		WHERE companyName is not null AND companyNAme != '' LIMIT ".$limit.", 20");
     while($tempdata = $db->fetch_assoc($tempquery)) {
         $importtemp[$tempdata['id']] = get_mainproducts($tempdata['id']);
@@ -105,7 +105,7 @@ function matchWithChemical($chemical_id, $product) {
         $matchproduct .= '</select></td>';
     }
     else {
-        $matchproduct = '<td><input id="chemicalproducts_'.$chemical_id.'_QSearch" value="" autocomplete="off" size="40px" type="text" name="matchwith['.$chemical_id.']">
+        $matchproduct = '<td><input id="chemicalproducts_'.$chemical_id.'_autocomplete" value="" autocomplete="off" size="40px" type="text" name="matchwith['.$chemical_id.']">
 						<input id="chemicalproducts_'.$chemical_id.'_id"  value="" type="hidden">
 						<div id="searchQuickResults_chemicalproducts_'.$chemical_id.'" class="searchQuickResults" style="display:none;"></div></td>';
     }

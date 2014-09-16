@@ -74,7 +74,7 @@ if(!$core->input['action']) {
     $countries_list = parse_selectlist('country', 8, $countries, '');
 
     //$representative_rows = " <tr id='1'><td><input type='text' id='repName_1' name='repName_1'/></td><td><input type='text' id='email' name='repEmail_1'/> <span id='repEmail_1_Validation'></span></td></tr>";
-    $representative_rows = " <tr id='1'><td><input type='text' id='representative_1_QSearch' autocomplete='off' size='40px'/><input type='hidden' id='representative_1_id' name='representative[1][rpid]'/><a href='#' id='addnew_entities/add_representative'><img src='../images/addnew.png' border='0' alt='{$lang->add}'></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td></tr>";
+    $representative_rows = " <tr id='1'><td><input type='text' id='representative_1_autocomplete' autocomplete='off' size='40px'/><input type='hidden' id='representative_1_id' name='representative[1][rpid]'/><a href='#' id='addnew_entities/add_representative'><img src='../images/addnew.png' border='0' alt='{$lang->add}'></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td></tr>";
     $rep_counter = 1;
 
     $users_counter = 1;
