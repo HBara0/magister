@@ -46,4 +46,8 @@ $lang['segment'] = 'Segment';
 $lang['viewleave'] = 'click to view leave';
 $lang['oppositedate'] = 'Segment from date cannot be greater than to date';
 $lang['allpossibletransportations'] = 'All Possible Transportations';
+$lang['plantrip'] = 'Plan Trip';
+$lang['listplans'] = 'List Plans';
+$lang['plantrip'] = 'Plan Trip';
+$lang['additionalexpenses'] = 'Additional Expenses';
 ?>
