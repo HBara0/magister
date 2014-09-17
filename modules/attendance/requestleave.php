@@ -13,7 +13,6 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 
-
 if(!$core->input['action']) {
     $action = 'requestleave';
 
@@ -22,7 +21,7 @@ if(!$core->input['action']) {
     }
 
     if($core->usergroup['attendance_canViewAffAllLeaves'] == 1) {
-        $employees[$core->user['uid']] = '';
+        $employees[$core->user['uid']] = $core->user['displayName'];
         if(is_array($core->user['hraffids'])) {
             $query_extrawhere = 'affid IN ('.implode(', ', $core->user['hraffids']).') OR ';
         }

@@ -62,14 +62,16 @@ if(!$core->input['action']) {
     $affiliate_filters_cache = $segment_filters_cache = array();
 
     if($core->usergroup['canViewAllCust'] == 0) {
-        $query_string = ' AND ase.uid='.$core->user['uid'].' AND e.eid IN ('.implode(',', $core->user['customers']).')';
+        $query_string = ' AND (ae.uid='.$core->user['uid'].' AND e.eid IN ('.implode(',', $core->user['customers']).') OR e.createdBy='.$core->user['uid'].')';
+
+        $multipage_where .= $query_string;
     }
 
     $query = $db->query("SELECT DISTINCT(e.eid), e.companyName AS customername, e.companyNameAbbr, e.type
 						FROM ".Tprefix."entities e
 						JOIN ".Tprefix."affiliatedentities a ON (e.eid=a.eid)
 						JOIN ".Tprefix."affiliatedemployees ae ON (a.affid=ae.affid)
-						WHERE e.type IN ('c', 'pc'){$extra_where}
+                                                WHERE e.type IN ('c', 'pc'){$extra_where}{$query_string}
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
@@ -82,7 +84,7 @@ if(!$core->input['action']) {
                 $customer['customername'] .= ' ('.$customer['companyNameAbbr'].')';
             }
 
-            $query2 = $db->query("SELECT ae.affid, a.name FROM ".Tprefix."affiliatedentities ae  JOIN ".Tprefix."affiliates a ON (a.affid=ae.affid) WHERE ae.eid='$customer[eid]'  GROUP BY a.name ORDER BY a.name ASC");
+            $query2 = $db->query("SELECT ae.affid, a.name FROM ".Tprefix."affiliatedentities ae JOIN ".Tprefix."affiliates a ON (a.affid=ae.affid) WHERE ae.eid='$customer[eid]'  GROUP BY a.name ORDER BY a.name ASC");
 
             while($affiliate = $db->fetch_assoc($query2)) {
                 if(!in_array($affiliate['affid'], $affiliate_filters_cache)) {
@@ -143,13 +145,13 @@ if(!$core->input['action']) {
             }
 
             $customers_list .= "<tr class='{$class}'><td valign='top'><a href='index.php?module=profiles/entityprofile&eid={$customer[eid]}'>{$customer[customername]}</td><td valign='top'>{$affiliates}</td><td valign='top'>{$segments}</td><td>".strtoupper($customer['type'])."</td><td>";
-            if($core->usergroup['canAdminCP'] == 1) {
+            if($core->usergroup['canAdminCP'] == 1 || $customer['createdBy'] == $core->user['uid']) {
                 $customers_list .= "<a href='{$core->settings[rootdir]}/{$config[admindir]}/index.php?module=entities/edit&amp;eid={$customer[eid]}'><img src='{$core->settings[rootdir]}/images/edit.gif' alt='{$lang->edit}' border='0' /></a>";
             }
             $customers_list .= '</td></tr>';
         }
 
-        $multipages = new Multipages('entities e', $core->settings['itemsperlist'], $multipage_where);
+        $multipages = new Multipages('entities e JOIN '.Tprefix.'affiliatedentities a ON (e.eid=a.eid) JOIN '.Tprefix.'affiliatedemployees ae ON (a.affid=ae.affid)', $core->settings['itemsperlist'], $multipage_where);
         $customers_list .= '<tr><td colspan="4">'.$multipages->parse_multipages().'</td></tr>';
     }
     else {

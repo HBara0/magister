@@ -131,7 +131,8 @@ class Entities {
             $this->data['contractFirstSigDate'] = $this->checkgenerate_date($this->data['contractFirstSigDate']);
             $this->data['contractExpiryDate'] = $this->checkgenerate_date($this->data['contractExpiryDate']);
 
-            $this->data['dateAdded'] = TIME_NOW;
+            $this->data['createdOn'] = $this->data['dateAdded'] = TIME_NOW;
+            $this->data['createdBy'] = $core->user['uid'];
             if(!isset($this->data['noQReportReq'])) {
                 $this->data['noQReportReq'] = 1; //By default no QR is required
             }
@@ -340,6 +341,9 @@ class Entities {
                 /* Set value for unchecked checkboxes - END */
                 $coveredcountries = $this->data['coveredcountry'];
                 unset($this->data['coveredcountry']);
+
+                $this->data['modifiedOn'] = TIME_NOW;
+                $this->data['modifiedBy'] = $core->user['uid'];
                 $query = $db->update_query('entities', $this->data, "eid='".$this->eid."'");
 
                 if($query) {

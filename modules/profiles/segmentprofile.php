@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: segmentprofile.php
  * Created:        @tony.assaad    Dec 12, 2013 | 10:30:30 AM
@@ -19,30 +19,30 @@ if(!$core->input['action']) {
     $segment['title'] = $segment_obj->get()['title'];
     $segmentapp_objs = $segment_obj->get_applications();   /* retunr object of applications of the segments */
     if(is_array($segmentapp_objs)) {
-        $segment_applications = '<div style="display:block;padding:5px; vertical-align: left;"> <ul>';
+        $segment_applications = '<div style="display:block;padding:5px; vertical-align: left;"><ul>';
         foreach($segmentapp_objs as $segmentapp_obj) {
             $applications = $segmentapp_obj->get();
-            $segment_applications .='<li><strong><span> '.$applications['title'].'</span></strong>';
+            $segment_applications .= '<li><strong><span>'.$applications['title'].'</span></strong>';
 
             /* Get functions for all the segment applications */
             $segmentappfunc_objs = $segmentapp_obj->get_segappfunctions();
             if(is_array($segmentappfunc_objs)) {
                 foreach($segmentappfunc_objs as $function_obj) {
-                    //loop over funtion objects 
-                    $segment_applications .='<ul><li><span>'.$function_obj->get()['title'].'</span></li></ul>  </li> ';
+                    //loop over funtion objects
+                    $segment_applications .= '<ul><li><span>'.$function_obj->get()['title'].'</span></li></ul></li> ';
                     //$segment_applicationsfunctions .='<li> '.$function_obj->get()['title'].'</li> ';
                 }
             }
             $endproduct_objs = $segmentapp_obj->get_endproduct();
             if(is_array($endproduct_objs)) {
-                $endproduct_types = '<div style="display:block;padding:5px; vertical-align: left;"> <ul>';
+                $endproduct_types .= '<div style="display:block;padding:5px; vertical-align: left;"><strong>'.$applications['title'].'</strong><br /><ul>';
                 foreach($endproduct_objs as $endproduct_obj) {
-                    $endproduct_types .='<li><span> '.$endproduct_obj->get()['title'].'</span>';
+                    $endproduct_types .= '<li><span>'.$endproduct_obj->get()['title'].'</span>';
                 }
-                $endproduct_types .='</ul></div>';
+                $endproduct_types .= '</ul></div>';
             }
         }
-        $segment_applications .='</ul></div>';
+        $segment_applications .= '</ul></div>';
         //$segment_applicationsfunctions .='</ul></div>';
     }
 

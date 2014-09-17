@@ -16,7 +16,7 @@
         <div>
             <div style="display:inline-block; width: 30%;">{$lang->endproducttypes} </div>
             <div style="display:inline-block; width: 60%;">
-                <select name="entitybrand[endproducttypes][]">{$endproducttypes_list}</select>
+                <select name="entitybrand[endproducttypes][]" multiple="multiple" size="10">{$endproducttypes_list}</select>
             </div>
         </div>
         <div>

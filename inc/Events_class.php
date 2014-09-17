@@ -51,7 +51,7 @@ class Events extends AbstractClass {
 
     }
 
-    protected function save(array $data = array()) {
+    public function save(array $data = array()) {
 
     }
 
