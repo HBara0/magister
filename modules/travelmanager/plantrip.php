@@ -64,6 +64,13 @@ if(!$core->input['action']) {
         $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence);
         $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 
+        /* parse expenses --START */
+        $rowid = 1;
+        $expensestype_obj = new Travelmanager_Expenses_Types();
+        $segments_expenses_output = $expensestype_obj->parse_expensesfield($sequence, $rowid);
+
+        /* parse expenses --END */
+
         eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
 
         eval("\$plantrip_createsegment= \"".$template->get('travelmanager_plantrip_createsegment')."\";");
@@ -116,6 +123,11 @@ else {
             //if($core->input['toDate']) > leavedate
 // from date todate origin city loaded via js from the prevsegment
             $disabled = '';
+            /* parse expenses --START */
+//            $rowid = 1;
+//            $expensestype_obj = new Travelmanager_Expenses_Types();
+//            $segments_expenses_output = $expensestype_obj->parse_expensesfield($sequence, $rowid);
+            /* parse expenses --END */
             eval("\$plantrip_createsegment= \"".$template->get('travelmanager_plantrip_createsegment')."\";");
             output($plantrip_createsegment);
         }
@@ -134,25 +146,35 @@ else {
         $origincity_obj = new Cities($origincityid);
         $origintcity = $origincity_obj->get();
         $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
-        $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
+        //  $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 
         /* Load proposed transproration */
         $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
         /* load approved hotels */
         $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence);
-
+        /* parse expenses --START */
+        $rowid = 1;
+        $expensestype_obj = new Travelmanager_Expenses_Types();
+        $segments_expenses_output = $expensestype_obj->parse_expensesfield($sequence, $rowid);
+        /* parse expenses --END */
         eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
         output($plansegmentscontent_output);
     }
     elseif($core->input['action'] == 'populatecityprofile') {
         $destcityid = $db->escape_string($core->input['destcity']);
-        $city_obj = new Cities($destcityid);
-
+        if(!empty($destcityid)) {
+            $city_obj = new Cities($destcityid);
+        }
         /* Parse city reviews content */
-        $cityprofile_output = $city_obj->parse_cityreviews();
-        output($cityprofile_output);
+        if(is_object($city_obj)) {
+            $cityprofile_output = $city_obj->parse_cityreviews();
+            output($cityprofile_output);
 
-        $citybriefings_output = $city_obj->parse_citybriefing();
+            $citybriefings_output = $city_obj->parse_citybriefing();
+        }
+        else {
+            $citybriefings_output = $lang->na;
+        }
         output($citybriefings_output);
     }
     elseif($core->input['action'] == 'parsedetailstransp') {
@@ -213,6 +235,14 @@ else {
         }
         eval("\$hotel_reviews = \"".$template->get('popup_hotel_review')."\";");
         output($hotel_reviews);
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_expenses') {
+        $expensestype_obj = new Travelmanager_Expenses_Types();
+        $rowid = 1;
+        $rowid = $db->escape_string($core->input['value']) + 1;
+        $sequence = $db->escape_string($core->input['id']);
+        $expenses = $expensestype_obj->parse_expensesfield($sequence, $rowid);
+        echo $expenses;
     }
 }
 ?>
