@@ -515,7 +515,7 @@ class Leaves extends AbstractClass {
          * For now the function returns a info that identify a leave
          */
 
-        return '<a href="#'.$this->data['lid'].'">'.date($core->settings['dateformat'], $this->data['fromDate']).' - '.date($core->settings['dateformat'], $this->data['toDate']).'</a>';
+        return '<a href="index.php?module=attendance/viewleave&amp;id='.$this->data['lid'].'">'.date($core->settings['dateformat'], $this->data['fromDate']).' - '.date($core->settings['dateformat'], $this->data['toDate']).'</a>';
     }
 
     /*
