@@ -8,27 +8,22 @@
  * Last Update:    @zaher.reda    Mar 8, 2013 | 4:56:25 PM
  */
 
-class Countries {
-    private $country = array();
+class Countries extends AbstractClass {
+    protected $data = array();
+    protected $errorcode = 0;
 
     const PRIMARY_KEY = 'coid';
     const TABLE_NAME = 'countries';
     const DISPLAY_NAME = 'name';
+    const SIMPLEQ_ATTRS = '*';
+    const CLASSNAME = __CLASS__;
 
-    public function __construct($id) {
-        if(empty($id)) {
-            return false;
-        }
-        $this->read($id);
-    }
-
-    private function read($id) {
-        global $db;
-        $this->country = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'countries WHERE coid='.intval($id)));
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
     public function get_maincurrency() {
-        return new Currencies($this->country['mainCurrency']);
+        return new Currencies($this->data['mainCurrency']);
     }
 
     public static function get_coveredcountries() {
@@ -41,14 +36,14 @@ class Countries {
     }
 
     public function get_capitalcity() {
-        if(!is_empty($this->country['capitalCity'])) {
-            return new Cities($this->country['capitalCity']);
+        if(!is_empty($this->data['capitalCity'])) {
+            return new Cities($this->data['capitalCity']);
         }
         return false;
     }
 
     public function get_affiliate() {
-        return new Affiliates($this->country['affid']);
+        return new Affiliates($this->data['affid']);
     }
 
     public static function get_country_byname($name) {
@@ -64,23 +59,31 @@ class Countries {
     }
 
     public function __set($name, $value) {
-        $this->country[$name] = $value;
+        $this->data[$name] = $value;
     }
 
     public function __get($name) {
-        if(array_key_exists($name, $this->country)) {
-            return $this->country[$name];
+        if(array_key_exists($name, $this->data)) {
+            return $this->data[$name];
         }
     }
 
-    public function save() {
+    public function save(array $data = array()) {
         global $db;
         /* Add validations */
-        $db->update_query('countries', $this->country, 'coid='.intval($this->country['coid']));
+        $db->update_query('countries', $this->data, 'coid='.intval($this->data['coid']));
     }
 
     public function get() {
-        return $this->country;
+        return $this->data;
+    }
+
+    protected function create(array $data) {
+
+    }
+
+    protected function update(array $data) {
+
     }
 
 }
