@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright � 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * View customers
  * $module: admin/entities
- * $id: viewcustomers.php	
+ * $id: viewcustomers.php
  * Last Update: @zaher.reda 	Apr 07, 2009 | 11:27 PM
  */
 if(!defined("DIRECT_ACCESS")) {
@@ -18,7 +18,7 @@ if($core->usergroup['canManageSuppliers'] == 0) {
 }
 
 if(!$core->input['action']) {
-    $sort_query = "s.companyName ASC";
+    $sort_query = 's.companyName ASC';
     if(isset($core->input['sortby'], $core->input['order'])) {
         $sort_query = $core->input['sortby']." ".$core->input['order'];
     }

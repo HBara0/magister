@@ -23,7 +23,7 @@ if(!$core->input['action']) {
             $meeting_obj = new Meetings($mid);
             $sharedwith_icon = '';
             if($meeting_obj->is_sharedwithuser()) {
-                $sharedwith_icon = '<img src=./images/icons/sharing-overlay-1.png border=0 alt="'.$lang->sharedwithyou.'" title="'.$lang->sharedwithyou.'"/>';
+                $sharedwith_icon = '<img src="./images/icons/shared.png" border=0 alt="'.$lang->sharedwithyou.'" title="'.$lang->sharedwithyou.'"/>';
             }
             $row_tools = '';
             if($meeting['createdBy'] == $core->user['uid']) {

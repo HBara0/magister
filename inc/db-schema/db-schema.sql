@@ -744,9 +744,13 @@ CREATE TABLE `entities` (
   `noQReportSend` tinyint(1) NOT NULL DEFAULT '0',
   `customerSince` bigint(30) NOT NULL,
   `loyalty` int(2) DEFAULT NULL,
-  `isActive` tinyint(1) NOT NULL,
-  PRIMARY KEY (`eid`)
-) ENGINE=MyISAM AUTO_INCREMENT=3929 DEFAULT CHARSET=utf8;
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) DEFAULT NULL,
+  `modifiedOn` bigint(30) DEFAULT NULL,
+  PRIMARY KEY (`eid`),
+  KEY `createBy` (`createdBy`,`modifiedBy`)
+) ENGINE=MyISAM AUTO_INCREMENT=4938 DEFAULT CHARSET=utf8;
 DROP TABLE IF EXISTS `entities_contractcountries`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -2645,6 +2649,7 @@ CREATE TABLE `usergroups` (
   `canLockUnlockReports` int(1) NOT NULL DEFAULT '0',
   `canManageSuppliers` int(1) NOT NULL DEFAULT '0',
   `canManageCustomers` int(1) NOT NULL DEFAULT '0',
+  `admin_canManageAllCustomers` tinyint(1) NOT NULL DEFAULT '0',
   `canManageProducts` int(1) NOT NULL DEFAULT '0',
   `canUseContents` int(1) NOT NULL DEFAULT '0',
   `canAddProducts` int(1) NOT NULL DEFAULT '0',

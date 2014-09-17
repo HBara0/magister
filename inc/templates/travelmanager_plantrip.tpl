@@ -30,7 +30,7 @@
                         /*Select the  tabs-panel that isn't hidden with  tabs-hide:*/
 
                         var selectedPanel = $("#segmentstabs div.ui-tabs-panel:not(.ui-tabs-hide)");
-                        var templatecontent = sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=add_segment", "sequence=" + tabcounter + "&lid=" + $('#lid').val() + "&destcity=" + $('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() + "&toDatetime=" + (Date.parse($('#pickDate_to_' + (tabcounter - 1)).val())) + "&leavetoDatetime=" + $('#leaveDate_to_' + (tabcounter - 1)).val() + "&toDate=" + $('#altpickDate_to_' + (tabcounter - 1)).val(), 'loadindsection', id, id, true);
+                        var templatecontent = sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=add_segment", "sequence=" + tabcounter + "&lid=" + $('#lid').val() + "&destcity=" + $('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() + "&toDatetime=" + (Date.parse($('#pickDate_to_' + (tabcounter - 1)).val())) + "&leavetoDatetime=" + $('#leaveDate_to_' + (tabcounter - 1)).val() + "&toDate=" + $('#altpickDate_to_' + (tabcounter - 1)).val(), 'loadindsection', id, 'html', true);
                         var templatecontent = errormessage = '';
                         tabs.append("<div id=" + id + "><p>" + templatecontent + "</p></div>");
                         tabs.tabs("refresh");
@@ -86,6 +86,10 @@
                 $("input[id^='pickDate']").each(function() {
                     //$(this).datepicker("option", "maxDate", new Date($("#pickDate_to_" + (tabcounter - 1)).val()));
 
+                });
+                $("input[id='show_otherexpenses']").live('change', function() {
+                    var id = $(this).attr('id').split("_");
+                    $("div[id='" + id[1] + "']").fadeToggle('fast');
                 });
             });
 
