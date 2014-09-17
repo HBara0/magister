@@ -18,7 +18,7 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
             'operators' => array('fromDate' => 'BETWEEN'),
     );
 
-    $Leaves_obj = Leaves::get_data(array('fromDate' => array(strtotime("+2 days 00:00:00"), strtotime("+2 days 24:59:59"))), $dal_config);
+    $Leaves_obj = Leaves::get_data(array('fromDate' => array(strtotime("+2 days 00:00:00"), strtotime("+2 days 23:59:59"))), $dal_config);
     if(!empty($Leaves_obj)) {
         foreach($Leaves_obj as $leave) {
             $plan_object = TravelManagerPlan::get_plan(array('lid' => $leave->lid));
