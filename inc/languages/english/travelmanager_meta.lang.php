@@ -45,4 +45,5 @@ $lang['checkin'] = 'Check in At';
 $lang['segment'] = 'Segment';
 $lang['viewleave'] = 'click to view leave';
 $lang['oppositedate'] = 'Segment from date cannot be greater than to date';
+$lang['allpossibletransportations'] = 'All Possible Transportations';
 ?>

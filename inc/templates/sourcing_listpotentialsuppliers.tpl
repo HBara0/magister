@@ -51,7 +51,7 @@
                 <div style="display:table-row">
                     <div style="display:table-cell; width:150px; vertical-align:middle;">{$lang->chemicalname}</div>
                     <div style="display:table-cell;">
-                        <input type='text' id='chemicalproducts_1_QSearch' autocomplete='off' size='40px'/>
+                        <input type='text' id='chemicalproducts_1_autocomplete' autocomplete='off' size='40px'/>
                         <input type='hidden' id='chemicalproducts_1_id' name='request[product]'/>
                         <div id="searchQuickResults_chemicalproducts_1" class="searchQuickResults" style="display:none;"></div>
                     </div>

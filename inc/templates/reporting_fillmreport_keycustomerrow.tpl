@@ -1,6 +1,6 @@
 <tr id="{$rowid}">
     <td valign="top" width="15%" style="border-right: 1px solid #E8E8E8;" class="altrow2">{$lang->customername}</td>
-    <td valign="top"><input type='text' id='customer_{$rowid}_QSearch' name='keycustomers[$rowid][customername]' value="{$report_data[keycustomers][$rowid][customername]}" autocomplete="off"/>
+    <td valign="top"><input type='text' id='customer_{$rowid}_autocomplete' name='keycustomers[$rowid][customername]' value="{$report_data[keycustomers][$rowid][customername]}" autocomplete="off"/>
         <input type="text" size="3" id="customer_{$rowid}_id_output" value="{$report_data[keycustomers][$rowid][cid]}" disabled/>
         <input type='hidden' id='customer_{$rowid}_id' name='keycustomers[$rowid][cid]' value="{$report_data[keycustomers][$rowid][cid]}"/>
         <a href="index.php?module=contents/addentities&amp;type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a>

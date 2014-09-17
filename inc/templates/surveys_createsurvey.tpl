@@ -76,7 +76,7 @@
                                     <td>{$employees_list}</td>
                                     <td>{$lang->supplier}</td>
                                     <td>
-                                        <input type='text'    id='supplier_1_QSearch'  value="{$survey[associations][suppliername]}" autocomplete='off' size='40px'/>
+                                        <input type='text'    id='supplier_1_autocomplete'  value="{$survey[associations][suppliername]}" autocomplete='off' size='40px'/>
                                         <input type='hidden' id='supplier_1_id' name='associations[spid]' value="{$survey[associations][spid]}" /> 
                                         <div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div>
                                     </td>
@@ -86,7 +86,7 @@
                                     <td>{$affiliates_list}</td>
                                     <td >{$lang->product}</td>
                                     <td>
-                                        <input type='text' id='product_1_QSearch' value="{$survey[associations][pid]}" autocomplete='off' size='40px'/>
+                                        <input type='text' id='product_1_autocomplete' value="{$survey[associations][pid]}" autocomplete='off' size='40px'/>
                                         <input type='hidden' id='product_1_id' name='associations[pid]' value="{$survey[associations][pid]}" />
                                         <div id='searchQuickResults_product_1' class='searchQuickResults' style='display:none;'></div>
                                     </td>

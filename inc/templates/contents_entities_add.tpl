@@ -56,10 +56,10 @@
                         <td width="20%" valign="top"><strong>{$lang->companyshortname}</strong></td><td><input type="text" id="companyNameShort" required="required" name="companyNameShort" value="{$entity[companyNameShort]}"/></td>
                     </tr>
                     <tr id="parentcompany">
-                        <td valign="top">{$lang->parentcompany}</td><td ><input type='text' id='supplier_1_QSearch' value="{$entity[parent]}"/><input type="hidden" size="3" id="supplier_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='supplier_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div></td>
+                        <td valign="top">{$lang->parentcompany}</td><td ><input type='text' id='supplier_1_autocomplete' value="{$entity[parent]}"/><input type="hidden" size="3" id="supplier_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='supplier_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>
                     <tr id="parentcustomer">
-                        <td valign="top">{$lang->parentcompany}</td><td><input type='text' id='customer_1_QSearch' value="{$entity[parent]}"/><input type="hidden" size="3" id="customer_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='customer_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_customer_1' class='searchQuickResults' style='display:none;'></div></td>
+                        <td valign="top">{$lang->parentcompany}</td><td><input type='text' id='customer_1_autocomplete' value="{$entity[parent]}"/><input type="hidden" size="3" id="customer_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='customer_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_customer_1' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>
                     <tr>
                         <td><strong>{$lang->segments}</strong></td><td>{$segments_list}</td>
@@ -117,7 +117,7 @@
                         <td colspan="3">
                             <table width="100%">
                                 <tbody id="representatives_tbody">
-                                    <tr id='1'><td><input type='text' id='representative_1_QSearch' autocomplete='off' size='40px' required="required" />
+                                    <tr id='1'><td><input type='text' id='representative_1_autocomplete' autocomplete='off' size='40px' required="required" />
                                             <input type='hidden' id='representative_1_id' name='representative[1][rpid]'/><a href='#representative_1_id' id='addnew_contents/addentities_representative'><img src='images/addnew.png' border='0' alt='{$lang->add}'></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></tr>
                                 </tbody>
                                 <tr><td colspan="2"><img src="images/add.gif" id="addmore_representatives" alt="{$lang->add}"><input type="hidden" name="rep_numrows" id="numrows" value="1"></td><tr>

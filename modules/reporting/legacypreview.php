@@ -244,7 +244,7 @@ if(!$core->input['action']) {
                         $productsdata['paid'][$i] = $db->escape_string($productsactivitydata['paid_'.$q]);
                     }
                     $productsdata['pid'][$i] = $db->escape_string($productsactivitydata['pid_'.$q]);
-                    $productsdata['name'][$i] = $db->escape_string($productsactivitydata['product_'.$q.'_QSearch']);
+                    $productsdata['name'][$i] = $db->escape_string($productsactivitydata['product_'.$q.'_autocomplete']);
                     $productsdata['turnOver'][$i] = $db->escape_string($productsactivitydata['turnOver_'.$q]);
                     if($productsactivitydata['fxrate_'.$q] != 1) {
                         $productsdata['turnOverOc'][$i] = $productsactivitydata['turnOver_'.$q];

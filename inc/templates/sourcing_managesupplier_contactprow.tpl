@@ -1,6 +1,6 @@
 <tr id='{$contactp_rowid}' style="vertical-align:top;">
     <td>
-        <input type='text' id='representative_{$contactp_rowid}_QSearch' autocomplete='off' size='40px' value="{$contactperson[name]}"/>
+        <input type='text' id='representative_{$contactp_rowid}_autocomplete' autocomplete='off' size='40px' value="{$contactperson[name]}"/>
         <input type='hidden' id='representative_{$contactp_rowid}_id' name='supplier[representative][{$contactp_rowid}][id]' value="{$contactperson[rpid]}"/></td>
     <td>
         <a href='#representative_{$contactp_rowid}_id' id='addnew_sourcing/managesupplier_representative'><img src='images/addnew.png' border='0' alt='{$lang->add}' /></a>

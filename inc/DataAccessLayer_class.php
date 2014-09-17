@@ -37,7 +37,7 @@ class DataAccessLayer {
         $sql .= $this->construct_whereclause($filters, $configs['operators']);
         $sql .= $this->construct_orderclause($configs['order']);
         $sql .= $this->construct_limitclause($configs['limit']);
-
+        // echo $sql;
         $query = $db->query($sql);
         $numrows = $db->num_rows($query);
         if($numrows > 1) {
@@ -157,6 +157,9 @@ class DataAccessLayer {
                     if($operators[$attr] == 'like') {
 
                     }
+                    if($operators[$attr] == 'BETWEEN') {
+                        $filters_querystring .= $andor.$attr.' BETWEEN '.$value[0].' AND '.$value[1];
+                    }
                     else {
                         $value_numerichk = array_filter($value, 'is_numeric');
                         if($value_numerichk == $value) {
@@ -173,6 +176,9 @@ class DataAccessLayer {
                     if(is_numeric($value)) {
                         if($operators[$attr] == 'grt') {
                             $operators[$attr] = ' > ';
+                        }
+                        elseif($operators[$attr] == 'lt') {
+                            $operators[$attr] = ' < ';
                         }
                         else {
                             $operators[$attr] = '=';

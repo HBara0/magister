@@ -45,7 +45,7 @@
                         <th style="text-align:center;" class="thead" colspan="4">{$lang->supplier}</th>
                     </tr>
                     <tr>
-                        <td style="text-align:left;">{$lang->supplier}</td><td colspan="4"><input type='text' id='supplier_1_QSearch' autocomplete='off' value="{$spid}" name="supplier[companyName]"/><input type="text" size="3" id="supplier_1_id_output"  disabled="disabled" value="{$stockorder_data[spid]}" /><input type='hidden' id='supplier_1_id' name='supplier[spid]' value="{$stockorder_data[spid]}"/><a href="index.php?module=contents/addproducts" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
+                        <td style="text-align:left;">{$lang->supplier}</td><td colspan="4"><input type='text' id='supplier_1_autocomplete' autocomplete='off' value="{$spid}" name="supplier[companyName]"/><input type="text" size="3" id="supplier_1_id_output"  disabled="disabled" value="{$stockorder_data[spid]}" /><input type='hidden' id='supplier_1_id' name='supplier[spid]' value="{$stockorder_data[spid]}"/><a href="index.php?module=contents/addproducts" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
                     </tr>
                     <tr>
                         <td>{$lang->incoterms}</td>
@@ -119,7 +119,7 @@
                                 <tbody id="customerproducts_0_tbody">
                                     <tr id="{$customerproduct_rowid}">
                                         <td>
-                                            <input type='text' id="product_sectionexception_parent0_id1_QSearch" autocomplete='off' value="{$customer[0][products][1][productName]}" name="unallocatedquantity[1][productName]"/>
+                                            <input type='text' id="product_sectionexception_parent0_id1_autocomplete" autocomplete='off' value="{$customer[0][products][1][productName]}" name="unallocatedquantity[1][productName]"/>
                                             <input type='text' size='2' id='product_parent0_id1_id_output' value="{$customer[0][products][1][pid]}" disabled="disabled"/>
                                             <input type='hidden' id='product_parent0_id1_id' name='unallocatedquantity[1][pid]' value="{$customer[0][products][1][pid]}"/><div id='searchQuickResults_product_sectionexception_parent0_id1' class='searchQuickResults' style='display:none;'></div>
                                         </td>

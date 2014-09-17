@@ -1,7 +1,7 @@
 <tr id='{$customer_rowid}' class="{$altrow_class}">
     <td>
         <div style="widows:50%; display:inline-block;">
-            <input type='text' id="customer_{$customer_rowid}_QSearch" autocomplete='off' value="{$customer[companyName]}" name='customers[$customer_rowid][companyName]'/><div id="searchQuickResults_customer_{$customer_rowid}" class='searchQuickResults' style='display:none;'></div>
+            <input type='text' id="customer_{$customer_rowid}_autocomplete" autocomplete='off' value="{$customer[companyName]}" name='customers[$customer_rowid][companyName]'/><div id="searchQuickResults_customer_{$customer_rowid}" class='searchQuickResults' style='display:none;'></div>
             <input type='text' size='3' id="customer_{$customer_rowid}_id_output" disabled="disabled" value="{$customer[eid]}"/></div>
         <input type='hidden' id="customer_{$customer_rowid}_id" name="customers[$customer_rowid][cid]" value="{$customer[eid]}"/></div>
 </div>

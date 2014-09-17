@@ -1,6 +1,6 @@
 <tr id="{$rownumber}">
     <td><input type="text" name="competitorName_{$rownumber}" id="competitorName_{$rownumber}" value='{$competitiondetails[$rownumber][competitorName]}'/></td>
-    <td><input type='text' id='product_{$rownumber}_QSearch' autocomplete="off" value="{$competitiondetails[$rownumber][productname]}"/><input type='hidden' id='product_{$rownumber}_id' name='pid_{$rownumber}' value="{$competitiondetails[$rownumber][pid]}" /><div id='searchQuickResults_product_{$rownumber}' class='searchQuickResults' style='display:none;'></div></td>
+    <td><input type='text' id='product_{$rownumber}_autocomplete' autocomplete="off" value="{$competitiondetails[$rownumber][productname]}"/><input type='hidden' id='product_{$rownumber}_id' name='pid_{$rownumber}' value="{$competitiondetails[$rownumber][pid]}" /><div id='searchQuickResults_product_{$rownumber}' class='searchQuickResults' style='display:none;'></div></td>
     <td><select name="aggressionLevel_{$rownumber}" id="aggressionLevel_{$rownumber}">
             <option value="1"{$competitiondetails_aggressionLevel_selected[$rownumber][1]}>{$lang->extremeaggression}</option>
             <option value="2"{$competitiondetails_aggressionLevel_selected[$rownumber][2]}>{$lang->highaggression}</option>

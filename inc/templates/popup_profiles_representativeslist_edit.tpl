@@ -7,7 +7,7 @@
                 <td><strong>{$lang->name}:</strong></td><td><input type="text" id="name" name="name" value="{$representative[name]}"  autocomplete="off" /></td>
             </tr>
             <tr>
-                <td><strong>{$lang->companyname}:</strong></td><td><input id="{$type}_1_QSearch" autocomplete="off" type="text" value="{$entity[companyName]}"><input size="3" id="{$type}_1_id_output"  disabled="disabled" type="text" value="{$entity[eid]}"><input id="{$type}_1_id" name="eid"  value="{$entity[eid]}" type="hidden"><div id="searchQuickResults_1" class="searchQuickResults" style="display: none;"></div></td>
+                <td><strong>{$lang->companyname}:</strong></td><td><input id="{$type}_1_autocomplete" autocomplete="off" type="text" value="{$entity[companyName]}"><input size="3" id="{$type}_1_id_output"  disabled="disabled" type="text" value="{$entity[eid]}"><input id="{$type}_1_id" name="eid"  value="{$entity[eid]}" type="hidden"><div id="searchQuickResults_1" class="searchQuickResults" style="display: none;"></div></td>
             </tr>
             <tr>
                 <td><strong>{$lang->position}:</strong></td><td>{$representative[positions]}</td>

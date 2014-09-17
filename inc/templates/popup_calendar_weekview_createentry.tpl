@@ -27,7 +27,7 @@
             <tr>
                 <td style="font-weight:bold;">{$lang->customername}</td>
                 <td>
-                    <input type='text' id='customer_1_QSearch' value="" autocomplete="off" required="required" />
+                    <input type='text' id='customer_1_autocomplete' value="" autocomplete="off" required="required" />
                     <a href="index.php?module=contents/addentities&amp;type=customer" target="_blank"><img src="./images/addnew.png" border="0" alt="{$lang->add}" title="{$lang->add}"></a>
                     <input type='hidden'  id='customer_1_id' name='cid' value=""/>
                     <div id='searchQuickResults_customer_1' class='searchQuickResults' style='display:none;'></div>

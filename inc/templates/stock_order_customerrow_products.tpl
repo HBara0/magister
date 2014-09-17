@@ -1,6 +1,6 @@
 <tr id="{$customerproduct_rowid}">
     <td>
-        <input type='text' id="product_sectionexception_parent{$customer_rowid}_id{$customerproduct_rowid}_QSearch" autocomplete='off' value="{$customer[$customer_rowid][products][$customerproduct_rowid][productName]}" name="customers[$customer_rowid][products][$customerproduct_rowid][productName]"/>
+        <input type='text' id="product_sectionexception_parent{$customer_rowid}_id{$customerproduct_rowid}_autocomplete" autocomplete='off' value="{$customer[$customer_rowid][products][$customerproduct_rowid][productName]}" name="customers[$customer_rowid][products][$customerproduct_rowid][productName]"/>
         <input type='text' size='2' id='product_parent{$customer_rowid}_id{$customerproduct_rowid}_id_output' value="{$customer[$customer_rowid][products][$customerproduct_rowid][pid]}" disabled="disabled"/>
         <input type='hidden' id='product_parent{$customer_rowid}_id{$customerproduct_rowid}_id' name='customers[$customer_rowid][products][$customerproduct_rowid][pid]' value="{$customer[$customer_rowid][products][$customerproduct_rowid][pid]}"/><div id='searchQuickResults_product_sectionexception_parent{$customer_rowid}_id{$customerproduct_rowid}' class='searchQuickResults' style='display:none;'></div>
     </td>

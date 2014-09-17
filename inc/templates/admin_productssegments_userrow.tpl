@@ -1,7 +1,7 @@
 <tr id='{$users_counter}'>   
     <td width="10%"></td>
     <td>
-        <input type='text' id='user_{$users_counter}_QSearch' autocomplete='off' size='30px'/>
+        <input type='text' id='user_{$users_counter}_autocomplete' autocomplete='off' size='30px'/>
         <input type='hidden' id='user_{$users_counter}_id' name='coordinators[{$users_counter}][uid]' value="{$user[uid]}"/>
         <div id='searchQuickResults_user_{$users_counter}' class='searchQuickResults' style='display:none;'></div>
     </td>

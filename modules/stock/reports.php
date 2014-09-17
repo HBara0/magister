@@ -211,7 +211,7 @@ if($core->usergroup['stock_canGenerateReports'] == '1') {
                         'filters' => array('product', 'spid', 'affid', 'date', 'amount'),
                         'overwriteField' => array(
                                 'spid' => parse_selectlist('filters[spid][]', 2, $named_suppliers, $core->input['filters']['spid'], 1, '', array('multiplesize' => 3, 'id' => 'spid')),
-                                'product' => '<input id="product_QSearch" type="text" title="" autocomplete="off" value="" tabindex="1" name="filters[product]"/><div id="searchQuickResults_product_product" class="searchQuickResults" style="display:none;"></div>',
+                                'product' => '<input id="product_autocomplete" type="text" title="" autocomplete="off" value="" tabindex="1" name="filters[product]"/><div id="searchQuickResults_product_product" class="searchQuickResults" style="display:none;"></div>',
                         ),
                 ),
                 'process' => array(

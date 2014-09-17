@@ -197,7 +197,7 @@ if(!$core->input['action']) {
                     else {
                         $contact_history['identifier'] = substr(md5(uniqid(microtime())), 1, 10);
                     }
-                    $chemical_text_field = '<input class="rounded" type="text" value="'.$contact_history['chemical']['name'].'" id="chemicalproducts_'.$contact_history['identifier'].'_QSearch" autocomplete="off"size="40px"/>';
+                    $chemical_text_field = '<input class="rounded" type="text" value="'.$contact_history['chemical']['name'].'" id="chemicalproducts_'.$contact_history['identifier'].'_autocomplete" autocomplete="off"size="40px"/>';
                     $chemical_hidden_field = '<input type="hidden" id="chemicalproducts_'.$contact_history['identifier'].'" name = "contacthst[chemical]" value="'.$contact_history['chemical']['csid'].'"/>';
                     $chemical_div_result = '<div id="searchQuickResults_chemicalproducts_'.$contact_history['identifier'].'" class="searchQuickResults" style="display:none;"></div>';
 
@@ -272,7 +272,7 @@ if(!$core->input['action']) {
         foreach($array_converteddate as $key => $value) {
             $datepicker_id[$value] = 'pickDate_'.uniqid();
         }
-        $chemical_text_field = '<input class="rounded" type="text" id="chemicalproducts_1_QSearch" autocomplete="off"size="40px"/>';
+        $chemical_text_field = '<input class="rounded" type="text" id="chemicalproducts_1_autocomplete" autocomplete="off"size="40px"/>';
         $chemical_hidden_field = ' <input type="hidden" id="chemicalproducts_1_id" name="contacthst[chemical]" value="'.$contacthst['chemical'].'"/>';
         $chemical_div_result = '<div id="searchQuickResults_chemicalproducts_1" class="searchQuickResults" style="display:none;"></div>';
 
