@@ -13,7 +13,7 @@ if(!defined("DIRECT_ACCESS")) {
     die('Direct initialization of this file is not allowed.');
 }
 
-if($core->usergroup['canManageSuppliers'] == 0 || $core->usergroup['canManageCustomers'] == 0) {
+if($core->usergroup['canManageSuppliers'] == 0 || ($core->usergroup['canManageCustomers'] == 0 && $core->usergroup['admin_canManageAllCustomers'] == 0)) {
     error($lang->sectionnopermission);
     exit;
 }
@@ -23,7 +23,7 @@ if(!$core->input['action']) {
         redirect('index.php?module=home/index');
     }
 
-    $eid = $db->escape_string($core->input['eid']);
+    $eid = intval($core->input['eid']);
     $entity_obj = new Entities($core->input['eid'], '', false);
 
     $entity = $entity_obj->get();
@@ -33,8 +33,10 @@ if(!$core->input['action']) {
         $entity['parent_companyName'] = $entity['parent_obj']->get()['companyName'];
     }
 
-    if($entity['type'] == 'c' && $core->usergroup['canManageCustomers'] == 0) {
-        redirect('index.php?module=home/index');
+    if($entity['type'] == 'c' && $core->usergroup['admin_canManageAllCustomers'] == 0) {
+        if($entity['createdBy'] != $core->user['uid']) {
+            redirect('index.php?module=home/index');
+        }
     }
 
     if($entity['type'] == 's' && $core->usergroup['canManageSuppliers'] == 0) {
