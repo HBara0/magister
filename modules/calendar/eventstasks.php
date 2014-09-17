@@ -404,13 +404,19 @@ else {
             case 0:
                 if($core->user['uid'] == $task_details['uid']) {
                     if($task_details['createdby'] != $core->user['uid']) {
-                        $to = $db->fetch_field($db->query('SELECT email FROM '.Tprefix.'users WHERE uid='.$task_details['createdBy']), 'email');
+                        $to[] = $db->fetch_field($db->query('SELECT email FROM '.Tprefix.'users WHERE uid='.$task_details['createdBy']), 'email');
                     }
                 }
                 else {
-                    $to = $db->fetch_field($db->query('SELECT email FROM '.Tprefix.'users WHERE uid='.$task_details['uid']), 'email');
+                    $to[] = $db->fetch_field($db->query('SELECT email FROM '.Tprefix.'users WHERE uid='.$task_details['uid']), 'email');
                 }
 
+                $shares = $task->get_shares();
+                if(is_array($shares)) {
+                    foreach($shares as $share) {
+                        $to[] = $share->get_user()->email;
+                    }
+                }
                 if(!empty($to)) {
                     $notification = array(
                             'to' => $to,
