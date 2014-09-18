@@ -32,7 +32,6 @@ class Travelmanager_Expenses extends AbstractClass {
         global $db, $core;
         if(is_array($data)) {
             $data['createdOn'] = TIME_NOW;
-            $data['createdBy'] = '';
             $query = $db->insert_query(self::TABLE_NAME, $data);
         }
     }
