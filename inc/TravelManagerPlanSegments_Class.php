@@ -83,8 +83,8 @@ class TravelManagerPlanSegments {
                         $transp_obj = new TravelManagerPlanTransps();
                         $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                         $transit['tmtcid'] = $category;
-                        $transp_obj->set($transit);
-                        $transp_obj->save();
+//                        $transp_obj->set($transit);
+//                        $transp_obj->save();
                     }
                 }
                 else {
@@ -94,8 +94,8 @@ class TravelManagerPlanSegments {
                     $transp_obj = new TravelManagerPlanTransps();
                     $data['tmtcid'] = $category;
                     $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
-                    $transp_obj->set($data);
-                    $transp_obj->save();
+//                    $transp_obj->set($data);
+//                    $transp_obj->save();
                 }
             }
             unset($chkdata);
@@ -110,6 +110,29 @@ class TravelManagerPlanSegments {
             $accod_obj->set($hoteltdata);
             $accod_obj->save();
             $this->errorode = 0;
+        }
+
+
+        $additionalexpenses = $segmentdata['expenses'];
+        if(is_array($additionalexpenses)) {
+            foreach($additionalexpenses as $expense) {
+                $expensestdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                $expensestdata['tmetid'] = $expense['tmetid'];
+                $expensestdata['expectedAmt'] = $expense['expectedAmt'];
+                $expensestdata['currency'] = $expense['currency'];
+                $expensestdata['actualAmt'] = $expense['actualAmt'];
+                $expensestdata['otherExp'] = $expense['otherdesc'];
+                $expensestdata['otherAmt'] = $expense['otheramt'];
+                $expensestdata['createdBy'] = $core->user['uid'];
+                $expensestdata['paidBy'] = $expense['paidBy'];
+                if(empty($expensestdata['paidBy']) && isset($expensestdata['paidBy'])) {
+                    $expensestdata['paidBy'] = $expense['entites'];
+                }
+                $expenses_obj = new Travelmanager_Expenses();
+                $expenses_obj->set($expensestdata);
+                $expenses_obj->save();
+                $this->errorode = 0;
+            }
         }
     }
 
