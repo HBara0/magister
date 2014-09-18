@@ -98,7 +98,7 @@ class TravelManagerPlan {
                 'myself' => $lang->myself,
                 'anotheraff' => $lang->anotheraff
         );
-        return '<div style="display:inline-block;padding:5px;"  id="paidby"> Paid By '.parse_selectlist('segment['.$sequence.'][tmtcid][paidBy]', 6, $paidby_entities, $paidby_entities[$paidby_entities['myaffiliate']], '', '$("#"+$(this).find(":selected").val()).effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();', array('id' => 'paidby')).'</div>';
+        return '<div style="display:inline-block;padding:5px;"  id="paidby"> Paid By '.parse_selectlist('segment['.$sequence.'][tmtcid][paidBy]', 6, $paidby_entities, $paidby_entities[$paidby_entities['myaffiliate']], '', '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();', array('id' => 'paidby')).'</div>';
     }
 
     public static function parse_transportaionfields(array $category, $cityinfo = array(), $sequence) {

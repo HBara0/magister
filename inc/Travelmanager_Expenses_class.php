@@ -13,7 +13,7 @@
  *
  * @author tony.assaad
  */
-class Travelmanager_Expenses {
+class Travelmanager_Expenses extends AbstractClass {
     protected $data = array();
     protected $errorcode = 0;
 
@@ -29,10 +29,19 @@ class Travelmanager_Expenses {
 
     protected function create(array $data) {
 
+        global $db, $core;
+        if(is_array($data)) {
+            $data['createdOn'] = TIME_NOW;
+            $data['createdBy'] = '';
+            $query = $db->insert_query(self::TABLE_NAME, $data);
+        }
     }
 
     public function save(array $data = array()) {
-
+        if(empty($data)) {
+            $data = $this->data;
+        }
+        $this->create($data);
     }
 
     protected function update(array $data) {
@@ -52,7 +61,7 @@ class Travelmanager_Expenses {
 
         $expenses_output_required_comments = '<span class=l"red_text">*</span>';
         $expenses_output_comments_requiredattr = ' required="required"';
-        //$expenses_output_comments_field = '<div style="display:block; padding:5px; text-align:left;  vertical-align: top;">expectedAmt'.$expenses_output_required_comments.'<textarea cols="25" rows="1" id="expenses_['.$expensestype['alteid'].'][description]" name="leaveexpenses['.$expensestype['alteid'].'][description]" '.$expenses_output_comments_requiredattr.'>'.$expensestype['description'].'</textarea></div>';
+//$expenses_output_comments_field = '<div style="display:block; padding:5px; text-align:left;  vertical-align: top;">expectedAmt'.$expenses_output_required_comments.'<textarea cols="25" rows="1" id="expenses_['.$expensestype['alteid'].'][description]" name="leaveexpenses['.$expensestype['alteid'].'][description]" '.$expenses_output_comments_requiredattr.'>'.$expensestype['description'].'</textarea></div>';
 
         eval("\$expenses= \"".$template->get('travelmanager_expenses')."\";");
         return $expenses;
