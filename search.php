@@ -138,6 +138,13 @@ if($core->input['type'] == 'quick') {
             $select_attributes = array('name');
             $order = array('by' => 'name', 'sort' => 'ASC');
         }
+        elseif($core->input['for'] == 'affiliate') {
+            $table = 'affiliates';
+            $attributes = array('name');
+            $key_attribute = 'affid';
+            $select_attributes = array('name');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+        }
         elseif($core->input['for'] == 'chemfunctionproducts') {
             if($core->usergroup['canViewAllsupp'] == 0) {
                 if(is_array($core->user['suppliers']['eid'])) {

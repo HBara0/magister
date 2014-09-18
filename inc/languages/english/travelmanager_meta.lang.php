@@ -51,4 +51,11 @@ $lang['actualamt'] = 'Actual Amount';
 $lang['exptype'] = 'Expenses Category';
 $lang['addexp'] = 'Additional Expenses';
 $lang['allpossibletransportations'] = 'All Possible Transportations';
+$lang['other'] = 'Other';
+$lang['what'] = 'What';
+$lang['myaffiliate'] = 'My Affiliate';
+$lang['supplier'] = 'Supplier';
+$lang['client'] = 'Client ';
+$lang['myself'] = 'Myself ';
+$lang['anotheraff'] = 'Another Affiliate';
 ?>

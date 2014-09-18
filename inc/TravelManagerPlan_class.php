@@ -89,20 +89,44 @@ class TravelManagerPlan {
         }
     }
 
-    public static function parse_transportaionfields(array $category, $cityinfo = array(), $sequence) {
+    public function parse_paidby($sequence) {
         global $lang;
+        $paidby_entities = array(
+                'myaffiliate' => $lang->myaffiliate,
+                'supplier' => $lang->supplier,
+                'client' => $lang->client,
+                'myself' => $lang->myself,
+                'anotheraff' => $lang->anotheraff
+        );
+        return '<div style="display:inline-block;padding:5px;"  id="paidby"> Paid By '.parse_selectlist('segment['.$sequence.'][tmtcid][paidBy]', 6, $paidby_entities, $paidby_entities[$paidby_entities['myaffiliate']], '', '$("#"+$(this).find(":selected").val()).effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();', array('id' => 'paidby')).'</div>';
+    }
+
+    public static function parse_transportaionfields(array $category, $cityinfo = array(), $sequence) {
+        global $lang, $core;
+
         if(!empty($category['name'])) {
+            $paidby_entities = array(
+                    'myaffiliate' => $lang->myaffiliate,
+                    'supplier' => $lang->supplier,
+                    'client' => $lang->client,
+                    'myself' => $lang->myself,
+                    'anotheraff' => $lang->anotheraff
+            );
             switch($category['name']) {
-                case 'taxi':
+                case 'taxi'://taxi
                     $transportaion_fields = '<div style="padding:3px; display: inline-block; width:50%;">'.$lang->approxfare.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '').'</div>';
+                    $transportaion_fields .=self::parse_paidby($sequence);
+
                     break;
                 case 'bus':
                     $transportaion_fields = '<div style="padding:2px; display: inline-block; width:50%;">'.$lang->approxfare.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '').'</div>';
+                    $transportaion_fields .=self::parse_paidby($sequence);
                     break;
                 case 'train':
                 case 'lightrail':
                     $transportaion_fields = '<div style="padding:2px; display: inline-block; width:50%;">'.$lang->traino.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][vehicleNumber]', 'number', '').'</div>';
                     $transportaion_fields.=' <div style="padding:2px; display: inline-block; width:45%;">'.$lang->approxfare.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '').'</div>';
+                    $transportaion_fields .=self::parse_paidby($sequence);
                     break;
                 case 'airplane':
                     $availabe_arilinersobjs = TravelManagerAirlines::get_airlines(array('contracted' => '1'));
@@ -122,21 +146,20 @@ class TravelManagerPlan {
                     //}
                     //$transportaion_fields .='<div style="display:block;width:100%;"> <div style="display:inline-block;" id="airlinesoptions"> '.$arilinersroptions.' </div>  </div>';
                     //}
-
+                    $transportaion_fields .=self::parse_paidby($sequence);
                     /* Parse predefined airliners */
                     break;
                 case 'car':
                     $transportaion_fields = '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->agency.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][agencyName]', 'text', '').'</div>';
                     $transportaion_fields .= '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->numberdays.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][numDays]', 'number', '').'</div>';
                     $transportaion_fields .= '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->feeday.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '').'</div>';
+                    $transportaion_fields .=self::parse_paidby($sequence);
                     break;
                 default:
                     $transportaion_fields = '<div style="padding:3px; display: inline-block; width:45%;">'.$lang->transptype.' '.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][transpType]', 'text', '').'</div>';
                     $transportaion_fields .= '<div style="padding:3px; display: inline-block; width:50%;">'.$lang->feeday.' '.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '').'</div>';
                     break;
             }
-            // $transportaion_fields .='<div style="display:inline-block;padding:5px;"  id="approximatefare"> Approximate Fare '.parse_textfield('segment['.$sequence.'][tmtcid][fare]', 'number', '').'</div>';
-
             return $transportaion_fields;
         }
     }
