@@ -3,7 +3,7 @@
 
     <div style="display:inline-block; text-align:left;   vertical-align: top;">
         <input tabindex="" accept="numeric"   value="{$expensestype[expectedAmt]}" id="expenses_expectedAmt"  size="20" name="segment[{$sequence}][{$rowid}][expectedAmt]" type="text"{$expenses_output_requiredattr}/>
-    </div> 
+    </div>
     <div style="display:inline-block; text-align:left; padding: 10px;vertical-align: top;">
         <span style="display:inline-block;"2>{$lang->currecy}</span>
         <select name="segment[{$sequence}][{$rowid}][currency]"><option value="USD">USD</option></select>{$expenses_output_required}
@@ -13,3 +13,6 @@
     </div>
 
 </div>
+
+
+

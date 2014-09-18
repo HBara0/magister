@@ -61,6 +61,8 @@ if(!$core->input['action']) {
         $destcity['departuretime'] = $db->escape_string(($leave['fromDate']));
 
         $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
+
+
         $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence);
         $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 

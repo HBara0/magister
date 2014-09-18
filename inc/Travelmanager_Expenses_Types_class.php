@@ -61,13 +61,33 @@ class Travelmanager_Expenses_Types extends AbstractClass {
 
     public function parse_expensesfield($sequence, $rowid) {
         global $db, $template, $lang;
-        //$rowid++;
+
         foreach($this->data as $expenses) {
             $expenses_details = Travelmanager_Expenses::parse_expenses($sequence, $rowid);
+            $expenses_details.=$this->parse_paidby($sequence, $rowid);
+//            $expenses_details.='<div style="display:none; padding: 8px;" id="pickaffiliate">
+//        <span>Another Affiliate </span>
+//        <input id="affiliate_'.$sequence.'_cache_autocomplete" autocomplete="off" tabindex="8" value=""  type="text">
+//        <input id="affiliate_'.$sequence.'_cache_id" name="segment['.$sequence.'][tmtcid]['.$rowid.'][paidBy]" value="" type="hidden"></div>';
+
             $expenses_options.='<option value='.$expenses->tmetid.'>'.$expenses->title.'</option>';
         }
         eval("\$segments_expenses_output = \"".$template->get('travelmanager_expenses_types')."\";");
+
         return $segments_expenses_output;
+    }
+
+    public function parse_paidby($sequence, $rowid) {
+        global $lang;
+        $paidby_entities = array(
+                'myaffiliate' => $lang->myaffiliate,
+                'supplier' => $lang->supplier,
+                'client' => $lang->client,
+                'myself' => $lang->myself,
+                'anotheraff' => $lang->anotheraff
+        );
+        //echo '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.')';
+        return '<div style="display:block;padding:8px;"  id="paidby"> Paid By '.parse_selectlist('segment['.$sequence.']['.$rowid.'][tmetid][paidBy]', 6, $paidby_entities, $paidby_entities[$paidby_entities['myaffiliate']], '', '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();;', array('id' => 'paidby')).'</div>';
     }
 
 }

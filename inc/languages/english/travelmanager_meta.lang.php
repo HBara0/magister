@@ -55,4 +55,11 @@ $lang['plantrip'] = 'Plan Trip';
 $lang['listplans'] = 'List Plans';
 $lang['plantrip'] = 'Plan Trip';
 $lang['additionalexpenses'] = 'Additional Expenses';
+$lang['other'] = 'Other';
+$lang['what'] = 'What';
+$lang['myaffiliate'] = 'My Affiliate';
+$lang['supplier'] = 'Supplier';
+$lang['client'] = 'Client ';
+$lang['myself'] = 'Myself ';
+$lang['anotheraff'] = 'Another Affiliate';
 ?>
