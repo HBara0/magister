@@ -110,7 +110,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->plantrip}Plan Trip</h1>
+            <h1>{$lang->plantrip}</h1>
             <div class="ui-state-highlight ui-corner-all" style='padding: 5px; font-style: italic;'>{$leave['type_output']} - {$leave[fromDate_output]} -  {$leave[toDate_output]}</div>
             <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" action="#" method="post">
                 <div style='margin-top: 10px;'>

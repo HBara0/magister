@@ -207,7 +207,7 @@ class TravelManagerPlanSegments {
     }
 
     public function parse_segment() {
-        global $template, $lang, $core;
+        global $template, $lang, $core, $db;
         $segmentdate = date('l F d, Y', $this->fromDate);
         $destination_cities = $this->get_origincity()->name.' - '.$this->get_destinationcity()->name;
         $transp_objs = TravelManagerPlanTransps::get_transpsegments(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
@@ -240,6 +240,17 @@ class TravelManagerPlanSegments {
                 //   $segment_hotelprice .='<div style=" width:45%; display: block;"> Nights '.$accomdation->numNights.' at $ '.$accomdation->priceNight.'/Night</div>';
             }
         }
+        $additional_expenses = $db->query("SELECT tmetid,actualAmt FROM ".Tprefix."travelmanager_expenses WHERE tmpsid=".($this->tmpsid));
+        if($db->num_rows($additional_expenses) > 0) {
+            while($additionalexp = $db->fetch_assoc($additional_expenses)) {
+                $additionalexp_type = new TravelManager_Expenses_Types($additionalexp['tmetid']);
+                $additional_expenses_details .= '<div style="display:block;padding:5px;">';
+                $additional_expenses_details .= '<div style="width:50%;display:inline-block;">'.$additionalexp_type->title.'</div>';
+                $additional_expenses_details .= '<div style="width:50%;display:inline-block;font-size:14px; font-weight:bold;">$'.$additionalexp['actualAmt'].'</div>';
+                $additional_expenses_details .= '</div>';
+            }
+        }
+
         eval("\$segment_accomdetails  = \"".$template->get('travelmanager_viewplan_accomsegments')."\";");
         eval("\$segment_details .= \"".$template->get('travelmanager_viewplan_segments')."\";");
 
@@ -266,10 +277,23 @@ class TravelManagerPlanSegments {
                 $expenses['accomodation'] = 0;
             }
             $expenses_total += $expenses['accomodation'];
-            $expenses_total = round($expenses_total, 2);
-            eval("\$segment_expenses  = \"".$template->get('travelmanager_viewplan_expenses')."\";");
-            return $segment_expenses;
         }
+        $additional_expenses = $db->query("SELECT tmetid,sum(actualAmt) AS actualAmt FROM ".Tprefix."travelmanager_expenses WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP by tmetid");
+        if($db->num_rows($additional_expenses) > 0) {
+            while($additionalexp = $db->fetch_assoc($additional_expenses)) {
+                $additionalexp_type = new TravelManager_Expenses_Types($additionalexp['tmetid']);
+                $additional_expenses_details .= '<div style="display:block;padding:5px;">';
+                $additional_expenses_details .= '<div style="width:20%;display:inline-block;">'.$additionalexp_type->title.'</div>';
+                $additional_expenses_details .= '<div style="width:20%;display:inline-block;">$'.$additionalexp['actualAmt'].'</div>';
+                $additional_expenses_details .= '</div>';
+                $expenses['additional'] += $additionalexp['actualAmt'];
+            }
+            $expenses_total += $expenses['additional'];
+        }
+
+        $expenses_total = round($expenses_total, 2);
+        eval("\$segment_expenses  = \"".$template->get('travelmanager_viewplan_expenses')."\";");
+        return $segment_expenses;
     }
 
     private function parse_flightdetails($flightdata) {

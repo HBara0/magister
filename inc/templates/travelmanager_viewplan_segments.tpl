@@ -6,4 +6,5 @@
     <div style="width:100%; font-size:12px; font-weight: bold;">{$destination_cities}</div>
     <div style="width:100%;">{$segment_transpdetails}</div>
     <div style="width:100%;">{$segment_accomdetails}</div>
+    <div style="width:100%;">{$additional_expenses_details}</div>
 </div>
