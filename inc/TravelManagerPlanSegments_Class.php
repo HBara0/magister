@@ -83,8 +83,9 @@ class TravelManagerPlanSegments {
                         $transp_obj = new TravelManagerPlanTransps();
                         $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                         $transit['tmtcid'] = $category;
-//                        $transp_obj->set($transit);
-//                        $transp_obj->save();
+
+                        $transp_obj->set($transit);
+                        $transp_obj->save();
                     }
                 }
                 else {
@@ -94,8 +95,8 @@ class TravelManagerPlanSegments {
                     $transp_obj = new TravelManagerPlanTransps();
                     $data['tmtcid'] = $category;
                     $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
-//                    $transp_obj->set($data);
-//                    $transp_obj->save();
+                    $transp_obj->set($data);
+                    $transp_obj->save();
                 }
             }
             unset($chkdata);
@@ -117,17 +118,14 @@ class TravelManagerPlanSegments {
         if(is_array($additionalexpenses)) {
             foreach($additionalexpenses as $expense) {
                 $expensestdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                $expensestdata['createdBy'] = $core->user['uid'];
                 $expensestdata['tmetid'] = $expense['tmetid'];
                 $expensestdata['expectedAmt'] = $expense['expectedAmt'];
                 $expensestdata['currency'] = $expense['currency'];
                 $expensestdata['actualAmt'] = $expense['actualAmt'];
-                $expensestdata['otherExp'] = $expense['otherdesc'];
-                $expensestdata['otherAmt'] = $expense['otheramt'];
-                $expensestdata['createdBy'] = $core->user['uid'];
-                $expensestdata['paidBy'] = $expense['paidBy'];
-                if(empty($expensestdata['paidBy']) && isset($expensestdata['paidBy'])) {
-                    $expensestdata['paidBy'] = $expense['entites'];
-                }
+                $expensestdata['description'] = $expense['description'];
+                $expensestdata['paidBy'] = $expense['entites'];
+                $expensestdata['paidByEntity'] = $expense['paidBy'];
                 $expenses_obj = new Travelmanager_Expenses();
                 $expenses_obj->set($expensestdata);
                 $expenses_obj->save();
@@ -237,7 +235,11 @@ class TravelManagerPlanSegments {
         if(is_array($transp_objs)) {
             foreach($transp_objs as $transportation) {
                 $transportation->transpType = $transportation->get_transpcategory()->title;
-
+                $paidby = $transportation->paidBy;
+                if(empty($paidby)) {
+                    $affiliate = new Affiliates($transportation->paidByEntity);
+                    $paidby = $affiliate->name;
+                }
                 if(!empty($transportation->transpDetails)) {
                     $transp_flightdetails = json_decode($transportation->transpDetails, true);
                     $flight_details = $this->parse_flightdetails($transp_flightdetails);
@@ -249,31 +251,57 @@ class TravelManagerPlanSegments {
         $accomd_objs = TravelManagerPlanaccomodations::get_planaccomodations(array('tmpsid' => $this->data[self::PRIMARY_KEY]));
 
         if(is_object($accomd_objs)) {
-            echo($accomd_objs->paidBy);
-            $segment_hotel = '<div style="width:15%; display: inline-block;">'.$lang->checkin.' '.$accomd_objs->get_hotel()->get()['name'].' </div>'; // fix the html parse multiple hotl
-            $segment_hotelprice = '<div style=" width:100%; display: block;">';
-            $segment_hotelprice = '<div style=" width:15%; display: inline-block;">'.$lang->night.' '.$accomd_objs->numNights.' at $ '.$accomd_objs->priceNight.'/'.$lang->night.'</div>';
-            $segment_hotelprice .=' <div style=" width:25%; margin-left:195px; display: inline-block;font-size:14px; font-weight:bold;"> $ '.($accomd_objs->numNights * $accomd_objs->priceNight).'</div> ';
+            $paidby = $accomd_objs->paidBy;
+            if(empty($paidby)) {
+                $affiliate = new Affiliates($accomd_objs->paidByEntity);
+                $paidby = $affiliate->name;
+            }
+            $segment_hotel = '<div style="display:block;padding:5px 0px 5px 0px;"><div style="width:70%; display: inline-block;">'.$lang->checkin.' '.$accomd_objs->get_hotel()->get()['name']; // fix the html parse multiple hotl
+            // $segment_hotelprice = '<div style=" width:100%; display: block;">';
+            $segment_hotelprice = '<span style = "margin:10px;">'.$lang->night.' '.$accomd_objs->numNights.' at $ '.$accomd_objs->priceNight.'/'.$lang->night.'</span></div>';
+            $segment_hotelprice .=' <div style = " width:25%; display: inline-block;font-size:14px;font-weight:bold;text-align:right;"><small style="font-weight:normal;">[paid by: '.$paidby.' ]</small> $ '.($accomd_objs->numNights * $accomd_objs->priceNight).'</div> ';
             $segment_hotelprice .='</div>';
         }
         elseif(is_array($accomd_objs)) {
             foreach($accomd_objs as $accomdation) {
-                $segment_hotel .= '<div style=" width:85%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style="margin:10px;"> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
-                //    $segment_hotel .= '<div style=" width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
-                $segment_hotel .= '<div style=" width:10%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;"><span>$'.($accomdation->numNights * $accomdation->priceNight).'</span></div>'; // fix the html parse multiple hotl
-                //   $segment_hotelprice .='<div style=" width:45%; display: block;"> Nights '.$accomdation->numNights.' at $ '.$accomdation->priceNight.'/Night</div>';
+                $paidby = $accomdation->paidBy;
+                if(empty($paidby)) {
+                    $affiliate = new Affiliates($accomdation->paidByEntity);
+                    $paidby = $affiliate->name;
+                }
+
+                $segment_hotel .= '<div style = " width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin:10px;"> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
+                //    $segment_hotel .= '<div style = " width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
+                $segment_hotel .= '<div style = " width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;"><span>  <small style="font-weight:normal;">[paid by: '.$paidby.' ]</small> $'.($accomdation->numNights * $accomdation->priceNight).'</span></div>'; // fix the html parse multiple hotl
+                //   $segment_hotelprice .='<div style = " width:45%; display: block;"> Nights '.$accomdation->numNights.' at $ '.$accomdation->priceNight.'/Night</div>';
             }
         }
-        $additional_expenses = $db->query("SELECT tmetid,actualAmt FROM ".Tprefix."travelmanager_expenses WHERE tmpsid=".($this->tmpsid));
-        if($db->num_rows($additional_expenses) > 0) {
-            while($additionalexp = $db->fetch_assoc($additional_expenses)) {
-                $additionalexp_type = new TravelManager_Expenses_Types($additionalexp['tmetid']);
-                $additional_expenses_details .= '<div style="display:block;padding:5px;">';
-                $additional_expenses_details .= '<div style="width:85%;display:inline-block;">'.$additionalexp_type->title.'</div>';
-                $additional_expenses_details .= '<div style="width:10%;display:inline-block;font-size:14px; font-weight:bold;text-align:right;">$'.$additionalexp['actualAmt'].'</div>';
-                $additional_expenses_details .= '</div>';
+        $additional_expenses = Travelmanager_Expenses::get_data(array('tmpsid' => $this->tmpsid), array('simple' => false, 'returnarray' => true));
+        //  $additional_expenses = $db->query("SELECT tmetid,actualAmt,paidBy FROM ".Tprefix."travelmanager_expenses WHERE tmpsid=".($this->tmpsid));
+        //  if($db->num_rows($additional_expenses) > 0) {
+        // while($additionalexp = $db->fetch_assoc($additional_expenses)) {
+
+        if(is_array($additional_expenses)) {
+            foreach($additional_expenses as $additionalexp) {
+                $additionalexp_type = new TravelManager_Expenses_Types($additionalexp->tmetid);
+                $additional_expenses_details .= '<div style = "display:block;padding:5px 0px 5px 0px;">';
+                $paidby = $additionalexp->paidBy;
+                if($paidby == 'myaffiliate') {
+                    $affid = $core->user['mainaffiliate'];
+                }
+                if($paidby == 'anotheraff') {
+                    $affid = $additionalexp->paidByEntity;
+                }
+
+                $affiliate = new Affiliates($affid);
+                $paidby = $affiliate->name;
             }
+
+            $additional_expenses_details .= '<div style = "width:70%;display:inline-block;">'.$additionalexp_type->title.'</div>';
+            $additional_expenses_details .= '<div style = "width:25%;display:inline-block;font-size:14px;font-weight:bold;text-align:right;"><small style="font-weight:normal;">[paid by: '.$paidby.' ] </small>$'.$additionalexp->actualAmt.'</div>';
+            $additional_expenses_details .= '</div>';
         }
+
 
         eval("\$segment_accomdetails  = \"".$template->get('travelmanager_viewplan_accomsegments')."\";");
         eval("\$segment_details .= \"".$template->get('travelmanager_viewplan_segments')."\";");
@@ -282,15 +310,14 @@ class TravelManagerPlanSegments {
     }
 
     public function parse_expensesummary() {
-        global $template, $db;
-
+        global $template, $db, $lang;
         $query = $db->query("SELECT tmpltid, tmtcid, sum(fare) AS fare FROM ".Tprefix."travelmanager_plan_transps WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP By tmtcid");
         if($db->num_rows($query) > 0) {
             while($transpexp = $db->fetch_assoc($query)) {
                 $transpcat = new TravelManagerTranspCategories($transpexp['tmtcid']);
-                $expenses_details .= '<div style="display:block;padding-top:5px;padding-bottom:5px;">';
-                $expenses_details .= '<div style="width:85%;display:inline-block;">'.$transpcat->title.'</div>';
-                $expenses_details .= '<div style="width:10%;display:inline-block;text-align:right;">$'.round($transpexp['fare'], 2).'</div>';
+                $expenses_details .= '<div style = "display:block;padding:5px 0px 5px 0px;">';
+                $expenses_details .= '<div style = "width:85%;display:inline-block;">'.$transpcat->title.'</div>';
+                $expenses_details .= '<div style = "width:10%;display:inline-block;text-align:right;">$'.round($transpexp['fare'], 2).'</div>';
                 $expenses_details .= '</div>';
                 $expenses_total += $transpexp['fare'];
             }
@@ -301,17 +328,21 @@ class TravelManagerPlanSegments {
                 $expenses['accomodation'] = 0;
             }
             $expenses_total += $expenses['accomodation'];
+            $expenses_subtotal = $expenses_total;
         }
         $additional_expenses = $db->query("SELECT tmetid,sum(actualAmt) AS actualAmt FROM ".Tprefix."travelmanager_expenses WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP by tmetid");
         if($db->num_rows($additional_expenses) > 0) {
+            $additional_expenses_details = '<div style="display:block;padding:5px 0px 5px 0px;width:15%;" class="subtitle">'.$lang->addexp.'</div>';
             while($additionalexp = $db->fetch_assoc($additional_expenses)) {
                 $additionalexp_type = new TravelManager_Expenses_Types($additionalexp['tmetid']);
-                $additional_expenses_details .= '<div style="display:block;padding:5px;">';
-                $additional_expenses_details .= '<div style="width:85%;display:inline-block;">'.$additionalexp_type->title.'</div>';
-                $additional_expenses_details .= '<div style="width:10%;display:inline-block;text-align:right;">$'.$additionalexp['actualAmt'].'</div>';
+                $additional_expenses_details .= '<div style = "display:block;padding:5px 0px 5px 0px;">';
+                $additional_expenses_details .= '<div style = "width:85%;display:inline-block;">'.$additionalexp_type->title.'</div>';
+                $additional_expenses_details .= '<div style = "width:10%;display:inline-block;text-align:right;">$'.$additionalexp['actualAmt'].'</div>';
                 $additional_expenses_details .= '</div>';
                 $expenses['additional'] += $additionalexp['actualAmt'];
             }
+            $additional_expenses_details .='<div style="display:block;padding:5px 0px 5px 0px;">';
+            $additional_expenses_details .='<div style="display:inline-block;width:85%;">'.$lang->additionalexpensestotal.'</div><div style="width:10%; display:inline-block;text-align:right;font-weight:bold;">$ '.$expenses[additional].'</div></div>';
             $expenses_total += $expenses['additional'];
         }
 
@@ -333,7 +364,7 @@ class TravelManagerPlanSegments {
                     $flight[$segmentnu]['destination'] = $segment['leg'][0]['destination'];
                     if(isset($segment['connectionDuration'])) {
                         $flight[$segmentnu]['connectionDuration'] = sprintf('%2dh %2dm', floor($segment['connectionDuration'] / 60), ($segment['connectionDuration'] % 60));
-                        $connectionduration = '<div class="display:block; border_top border_bottom" style="padding: 10px; font-style: italic;">Connection: '.$flight[$segmentnu]['connectionDuration'].'</div>';
+                        $connectionduration = '<div class = "display:block; border_top border_bottom" style = "padding: 10px; font-style: italic;">Connection: '.$flight[$segmentnu]['connectionDuration'].'</div>';
                     }
                     for($carriernum = 0; $carriernum < count($allapi_data->trips->data->carrier); $carriernum++) {
 
@@ -342,8 +373,8 @@ class TravelManagerPlanSegments {
                             break;
                         }
                     }
-                    $flight_details .='<div style=" width:40%; display:block;">'.$flight['carrier'].'</div>';
-                    $flight_details .= '<div style=" width:55%; display:  block;">Departure '.$flight[$segmentnu]['departuretime'].' '.$flight[$segmentnu]['origin'].' Arrival  '.$flight[$segmentnu]['arrivaltime'].' '.$flight[$segmentnu]['destination'].'</div>';
+                    $flight_details .='<div style = " width:40%; display:block;">'.$flight['carrier'].'</div>';
+                    $flight_details .= '<div style = " width:55%; display:  block;">Departure '.$flight[$segmentnu]['departuretime'].' '.$flight[$segmentnu]['origin'].' Arrival '.$flight[$segmentnu]['arrivaltime'].' '.$flight[$segmentnu]['destination'].'</div>';
                     $flight_details .= $connectionduration;
                     unset($connectionduration, $flight[$segmentnu]['connectionDuration']);
                 }

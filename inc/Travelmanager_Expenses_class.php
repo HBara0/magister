@@ -40,11 +40,20 @@ class Travelmanager_Expenses extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
-        $this->create($data);
+        $expenses = Travelmanager_Expenses::get_data(array('tmpsid' => $data['tmpsid'], 'tmetid' => $data['tmetid']));
+        if(is_object($expenses)) {
+            $tmpsegment->update($data);
+        }
+        else {
+            $this->create($data);
+        }
     }
 
     protected function update(array $data) {
-
+        global $db, $core;
+        if(is_array($data)) {
+            $query = $db->insert_query(self::TABLE_NAME, $data);
+        }
     }
 
     public function get_types() {
