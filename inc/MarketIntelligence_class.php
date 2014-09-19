@@ -210,6 +210,9 @@ class MarketIntelligence {
 
         $altrow_class = alt_row($altrow_class);
         foreach($round_fields as $round_field) {
+            if($data[$round_field] < 1) {
+                continue;
+            }
             $data[$round_field] = round($data[$round_field]);
         }
         $entity_brdprd_objs = new EntBrandsProducts($data['ebpid']); //$maktintl_obj->get_entitiesbrandsproducts();
@@ -217,7 +220,6 @@ class MarketIntelligence {
 
         $entity_mrktendproducts_objs = new EndProducTypes($entity_brandproducts['eptid']); //$maktintl_obj->get_marketendproducts($entity_brandproducts['eptid']);
         $entity_mrktendproducts = $entity_mrktendproducts_objs->get()['title'];
-
 
         if(!empty($profile['displayItem'])) {
             /* Get chemial substance if no cfpid for the cusomter */
