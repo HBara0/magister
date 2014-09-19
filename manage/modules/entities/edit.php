@@ -13,7 +13,7 @@ if(!defined("DIRECT_ACCESS")) {
     die('Direct initialization of this file is not allowed.');
 }
 
-if($core->usergroup['canManageSuppliers'] == 0 || ($core->usergroup['canManageCustomers'] == 0 && $core->usergroup['admin_canManageAllCustomers'] == 0)) {
+if($core->usergroup['canManageSuppliers'] == 0 && ($core->usergroup['canManageCustomers'] == 0 && $core->usergroup['admin_canManageAllCustomers'] == 0)) {
     error($lang->sectionnopermission);
     exit;
 }
