@@ -62,4 +62,9 @@ $lang['supplier'] = 'Supplier';
 $lang['client'] = 'Client ';
 $lang['myself'] = 'Myself ';
 $lang['anotheraff'] = 'Another Affiliate';
+$lang['additionalexpensestotal'] = 'Additional Expenses total';
+$lang['hotelaccommodation'] = 'Hotel Accommodation';
+$lang['summaryofexpenses'] = 'Summary of Expenses';
+$lang['subtotal'] = 'Subtotal';
+$lang['plannotification'] = 'Your Flight is in two days';
 ?>

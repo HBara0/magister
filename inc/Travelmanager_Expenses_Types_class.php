@@ -69,9 +69,10 @@ class Travelmanager_Expenses_Types extends AbstractClass {
 //        <span>Another Affiliate </span>
 //        <input id="affiliate_'.$sequence.'_cache_autocomplete" autocomplete="off" tabindex="8" value=""  type="text">
 //        <input id="affiliate_'.$sequence.'_cache_id" name="segment['.$sequence.'][tmtcid]['.$rowid.'][paidBy]" value="" type="hidden"></div>';
-
-            $expenses_options.='<option value='.$expenses->tmetid.'>'.$expenses->title.'</option>';
+            $onchange_actions = '$("#"+$(this).find(":selected").attr("itemref")+"_"+'.$sequence.'+"_"+'.$rowid.').show()';
+            $expenses_options.='<option value='.$expenses->tmetid.' itemref='.$expenses->name.'   >'.$expenses->title.'</option>';
         }
+
         eval("\$segments_expenses_output = \"".$template->get('travelmanager_expenses_types')."\";");
 
         return $segments_expenses_output;
