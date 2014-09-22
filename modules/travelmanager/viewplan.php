@@ -28,11 +28,13 @@ if(!$core->input['action']) {
 
     /* parse segment of plan */
     $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'fromDate', 'returnarray' => true));
-    foreach($segment_objs as $segmentid => $segment) {
-        $segment_details .= $segment->parse_segment();
-        $segment_expenses = $segment->parse_expensesummary();
+    if(is_array($segment_objs)) {
+        foreach($segment_objs as $segmentid => $segment) {
+            $segment_details .= $segment->parse_segment();
+            $segment_expenses = $segment->parse_expensesummary();
+        }
     }
-
+    $transportaion_fields_title = $lang->allpossibletransportations;
     eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
     eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpan')."\";");
     output_page($travelmanager_viewplan);

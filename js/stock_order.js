@@ -30,7 +30,7 @@ $(function() {
                 loadingIn = "paymenttermss_Loading";
                 contentIn = "supplierPaymentTermsDays";
                 var requires_ajax = true;
-                $("input[id^='product_'][id$='_QSearch'],input[id^='customerproduct_'][id$='_QSearch']").removeAttr("disabled");
+                $("input[id^='product_'][id$='_autocomplete'],input[id^='customerproduct_'][id$='_autocomplete']").removeAttr("disabled");
                 var html = false;
             }
 
@@ -80,7 +80,7 @@ $(function() {
                     },
                     complete: function() {
                         $("#" + loadingIn).empty();
-                   },
+                    },
                     success: function(returnedData) {
                         $("#" + contentIn).val(returnedData);
                     }
@@ -96,7 +96,7 @@ $(function() {
                     },
                     complete: function() {
                         $("#" + loadingIn).empty();
-                   },
+                    },
                     success: function(returnedData) {
                         $("#" + contentIn).html(returnedData);
                     }
@@ -146,7 +146,7 @@ $(function() {
 
             if(exit_process == false) {
                 sharedFunctions.addmoreRows("addmore_product_" + last_product_rowid);
-                $("#product_name_" + new_product_rowid).html($("#" + id[0] + "_sectionexception_" + id[1] + "_" + id[2] + "_QSearch").val());
+                $("#product_name_" + new_product_rowid).html($("#" + id[0] + "_sectionexception_" + id[1] + "_" + id[2] + "_autocomplete").val());
                 $("#pid_" + new_product_rowid).val(product_id);
 
                 loadingIn = "packingType_" + new_product_rowid + "_Loading";
@@ -155,7 +155,7 @@ $(function() {
         }
         else
         {
-            $("#product_name_1").html($("#" + id[0] + "_sectionexception_" + id[1] + "_" + id[2] + "_QSearch").val());
+            $("#product_name_1").html($("#" + id[0] + "_sectionexception_" + id[1] + "_" + id[2] + "_autocomplete").val());
             $("#pid_1").val(product_id);
             loadingIn = "packingType_1_Loading";
             contentIn = "packingType_1_output";

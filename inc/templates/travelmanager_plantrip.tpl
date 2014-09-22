@@ -30,7 +30,7 @@
                         /*Select the  tabs-panel that isn't hidden with  tabs-hide:*/
 
                         var selectedPanel = $("#segmentstabs div.ui-tabs-panel:not(.ui-tabs-hide)");
-                        var templatecontent = sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=add_segment", "sequence=" + tabcounter + "&lid=" + $('#lid').val() + "&destcity=" + $('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() + "&toDatetime=" + (Date.parse($('#pickDate_to_' + (tabcounter - 1)).val())) + "&leavetoDatetime=" + $('#leaveDate_to_' + (tabcounter - 1)).val() + "&toDate=" + $('#altpickDate_to_' + (tabcounter - 1)).val(), 'loadindsection', id, id, true);
+                        var templatecontent = sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=add_segment", "sequence=" + tabcounter + "&lid=" + $('#lid').val() + "&destcity=" + $('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() + "&toDatetime=" + (Date.parse($('#pickDate_to_' + (tabcounter - 1)).val())) + "&leavetoDatetime=" + $('#leaveDate_to_' + (tabcounter - 1)).val() + "&toDate=" + $('#altpickDate_to_' + (tabcounter - 1)).val(), 'loadindsection', id, 'html', true);
                         var templatecontent = errormessage = '';
                         tabs.append("<div id=" + id + "><p>" + templatecontent + "</p></div>");
                         tabs.tabs("refresh");
@@ -87,6 +87,20 @@
                     //$(this).datepicker("option", "maxDate", new Date($("#pickDate_to_" + (tabcounter - 1)).val()));
 
                 });
+                $("select[id^='show_otherexpenses']").live('change', function() {
+                    var id = $(this).attr('id').split("_");
+                    $("div[id='" + id[1] + "_" + id[2] + "_" + id[3] + "']").fadeToggle('fast');
+                });
+
+                $("select[id^='segment_expensestype']").live('change', function() {
+                    var id = $(this).attr('id').split("_");
+                    var item = $(this).find(':selected').attr('itemref');
+                    $("div[id='Other_" + id[2] + "_" + id[3] + "']").hide();
+                    if(item == 'Other') {
+                        $("div[id='" + item + "_" + id[2] + "_" + id[3] + "']").show();
+                    }
+
+                });
             });
 
         </script>
@@ -105,7 +119,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->plantrip}Plan Trip</h1>
+            <h1>{$lang->plantrip}</h1>
             <div class="ui-state-highlight ui-corner-all" style='padding: 5px; font-style: italic;'>{$leave['type_output']} - {$leave[fromDate_output]} -  {$leave[toDate_output]}</div>
             <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" action="#" method="post">
                 <div style='margin-top: 10px;'>

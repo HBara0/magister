@@ -548,7 +548,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     if(is_array($options['order'])) {
         $order = $db->escape_string('ORDER BY '.$options['order']['by'].' '.$options['order']['sort']);
     }
-
+    $extra_where_string = '';
     if(!empty($options['extra_where'])) {
         $extra_where_string = ' AND '.$options['extra_where'];
     }

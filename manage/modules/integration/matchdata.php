@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Match data in mediation tables
  * $module: admin/integration
- * $id: matchdata.php	
+ * $id: matchdata.php
  * Last Update: @zaher.reda 	September 30, 2011 | 02:26 PM
  */
 if(!defined("DIRECT_ACCESS")) {
@@ -69,7 +69,7 @@ else {
         if($core->input['limitfrom'] >= 0 && !empty($core->input['limitnum'])) {
             $query_limit = ' LIMIT '.$core->input['limitfrom'].', '.$core->input['limitnum'];
         }
-        $query = $db->query("SELECT m.*, m.{$check_query_parameters[$core->input[matchitem]][mediationtableid]} AS dbkey, t.{$check_query_parameters[$core->input[matchitem]][name]} AS localName 
+        $query = $db->query("SELECT m.*, m.{$check_query_parameters[$core->input[matchitem]][mediationtableid]} AS dbkey, t.{$check_query_parameters[$core->input[matchitem]][name]} AS localName
 							FROM ".Tprefix."{$check_query_parameters[$core->input[matchitem]][mediationtable]} m LEFT JOIN ".Tprefix."{$check_query_parameters[$core->input[matchitem]][table]} t ON (t.{$check_query_parameters[$core->input[matchitem]][id]}=m.localId)
 							{$query_filter}
 							ORDER BY foreignName ASC, localId ASC
@@ -88,8 +88,8 @@ else {
                 $integration_entries .= '<td><input type="hidden" value="'.$entrytomatch['foreignId'].'" id="foreignId_'.$entrytomatch['dbkey'].'" name="foreignId['.$entrytomatch['dbkey'].']"><input type="hidden" value="'.$entrytomatch['foreignName'].'" id="foreignName_'.$entrytomatch['dbkey'].'" name="foreignName['.$entrytomatch['dbkey'].']">'.$entrytomatch['foreignName'].$extra_info.'</td>';
                 $integration_entries .= '<td>&lt;-&gt;</td>';
 
-                $check_query = $db->query("SELECT {$check_query_parameters[$core->input[matchitem]][id]} as localId, {$check_query_parameters[$core->input[matchitem]][name]} as localName 
-											FROM ".Tprefix."{$check_query_parameters[$core->input[matchitem]][table]} 
+                $check_query = $db->query("SELECT {$check_query_parameters[$core->input[matchitem]][id]} as localId, {$check_query_parameters[$core->input[matchitem]][name]} as localName
+											FROM ".Tprefix."{$check_query_parameters[$core->input[matchitem]][table]}
 											WHERE {$check_query_parameters[$core->input[matchitem]][checkAttr]}='".$db->escape_string($entrytomatch['foreignName'])."'{$check_query_extrawhere}");
                 if($db->num_rows($check_query) > 0) {
                     $check_results = $db->fetch_assoc($check_query);
@@ -112,8 +112,8 @@ else {
                     }
 
                     $furthercheck_query = $db->query("SELECT {$check_query_parameters[$core->input[matchitem]][id]} as localId, {$check_query_parameters[$core->input[matchitem]][name]} as localName
-											FROM ".Tprefix."{$check_query_parameters[$core->input[matchitem]][table]}  
-											WHERE (SOUNDEX({$check_query_parameters[$core->input[matchitem]][checkAttr]}) = SOUNDEX('".$db->escape_string($entrytomatch['foreignName'])."') 
+											FROM ".Tprefix."{$check_query_parameters[$core->input[matchitem]][table]}
+											WHERE (SOUNDEX({$check_query_parameters[$core->input[matchitem]][checkAttr]}) = SOUNDEX('".$db->escape_string($entrytomatch['foreignName'])."')
 											OR {$check_query_parameters[$core->input[matchitem]][checkAttr]} LIKE '%".$db->escape_string($entrytomatch['foreignName'])."%' OR {$check_query_parameters[$core->input[matchitem]][checkAttr]} SOUNDS LIKE '%".$db->escape_string($entrytomatch['foreignName'])."%'{$furthercheck_query_extra}){$check_query_extrawhere}");
 
                     if($db->num_rows($furthercheck_query) > 0) {
@@ -132,7 +132,7 @@ else {
                         $matching_entries .= '</select>';
                     }
                     else {
-                        $matching_entries = '<input type="text" id="'.$check_query_parameters[$core->input['matchitem']]['quicksearch'].'_noexception_'.$entrytomatch['dbkey'].'_QSearch" value="'.$entrytomatch['localName'].'" autocomplete="off" size="40px" /><input type="hidden" id="'.$check_query_parameters[$core->input['matchitem']]['quicksearch'].'_'.$entrytomatch['dbkey'].'_id" name="localId['.$entrytomatch['dbkey'].']" value="'.$entrytomatch['localId'].'"/><a href="index.php?module='.$check_query_parameters[$core->input['matchitem']]['addlink'].'" target="_blank"><img src="../images/addnew.png" border="0" alt="'.$lang->add.'"></a><div id="searchQuickResults_'.$check_query_parameters[$core->input['matchitem']]['quicksearch'].'_'.$entrytomatch['dbkey'].'" class="searchQuickResults" style="display:none;"></div>';
+                        $matching_entries = '<input type="text" id="'.$check_query_parameters[$core->input['matchitem']]['quicksearch'].'_noexception_'.$entrytomatch['dbkey'].'_autocomplete" value="'.$entrytomatch['localName'].'" autocomplete="off" size="40px" /><input type="hidden" id="'.$check_query_parameters[$core->input['matchitem']]['quicksearch'].'_'.$entrytomatch['dbkey'].'_id" name="localId['.$entrytomatch['dbkey'].']" value="'.$entrytomatch['localId'].'"/><a href="index.php?module='.$check_query_parameters[$core->input['matchitem']]['addlink'].'" target="_blank"><img src="../images/addnew.png" border="0" alt="'.$lang->add.'"></a><div id="searchQuickResults_'.$check_query_parameters[$core->input['matchitem']]['quicksearch'].'_'.$entrytomatch['dbkey'].'" class="searchQuickResults" style="display:none;"></div>';
                     }
                 }
                 $integration_entries .= '<td>'.$matching_entries.'</td>';
