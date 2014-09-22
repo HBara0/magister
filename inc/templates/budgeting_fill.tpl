@@ -6,7 +6,7 @@
             $(function() {
                 $('input[id^="amountper_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
-                    if (!jQuery.isNumeric($('input[id=amountper_' + id[1] + ']').val())) {
+                    if(!jQuery.isNumeric($('input[id=amountper_' + id[1] + ']').val())) {
                         return;
                     }
                     $('input[id=income_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id=amount_' + id[1] + ']').val());
@@ -14,21 +14,21 @@
 
                 $('input[id^="income_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
-                    if (!jQuery.isNumeric($('input[id=income_' + id[1] + ']').val())) {
+                    if(!jQuery.isNumeric($('input[id=income_' + id[1] + ']').val())) {
                         return;
                     }
-                    if ($('input[id="amount_' + id[1] + '"]').val().length > 0) {
+                    if($('input[id="amount_' + id[1] + '"]').val().length > 0) {
                         $('input[id=amountper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id=amount_' + id[1] + ']').val());
                     }
                 });
 
                 $('input[id^="unitprice_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
-                    if (!jQuery.isNumeric($('input[id=unitprice_' + id[1] + ']').val())) {
+                    if(!jQuery.isNumeric($('input[id=unitprice_' + id[1] + ']').val())) {
                         return;
                     }
 
-                    if ($('input[id="Qty_' + id[1] + '"]').val().length > 0) {
+                    if($('input[id="Qty_' + id[1] + '"]').val().length > 0) {
                         $('input[id=amount_' + id[1] + ']').val((Number($('input[id=Qty_' + id[1] + ']').val() * $('input[id=unitprice_' + id[1] + ']').val()))).trigger("input");
                         $('input[id="amountper_' + id[1] + '"]').trigger('keyup');
                     }
@@ -43,19 +43,19 @@
 
                 $('input[id^="amount_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
-                    if (!jQuery.isNumeric($('input[id=amount_' + id[1] + ']').val())) {
+                    if(!jQuery.isNumeric($('input[id=amount_' + id[1] + ']').val())) {
                         return;
                     }
-                    if ($('input[id="amountper_' + id[1] + '"]').val().length > 0) {
+                    if($('input[id="amountper_' + id[1] + '"]').val().length > 0) {
                         $('input[id="amountper_' + id[1] + '"]').trigger('keyup');
 
                     } else {
-                        if ($('input[id="income_' + id[1] + '"]').val().length > 0) {
+                        if($('input[id="income_' + id[1] + '"]').val().length > 0) {
                             $('input[id="income_' + id[1] + '"]').trigger('keyup');
                         }
                     }
 
-                    if ($('input[id="Qty_' + id[1] + '"]').val().length > 0) {
+                    if($('input[id="Qty_' + id[1] + '"]').val().length > 0) {
                         $('input[id=unitprice_' + id[1] + ']').val(($('input[id=amount_' + id[1] + ']').val() / $('input[id=Qty_' + id[1] + ']').val()));
                     }
 
@@ -63,20 +63,20 @@
 
                 $('input[id^="s1perc_"]').live('keyup', function(e) {
                     var id = $(this).attr("id").split("_");
-                    if ($(this).val() > 100) {
+                    if($(this).val() > 100) {
                         e.preventDefault();
                     }
-                    else if ($(this).val().length > 0 && $(this).val() <= 100) {
+                    else if($(this).val().length > 0 && $(this).val() <= 100) {
                         $('input[id="s2perc_' + id[1] + '"]').val(Number(100 - $(this).val()));
                     }
                 });
 
                 $('input[id^="s2perc_"]').live('keyup', function(e) {
                     var id = $(this).attr("id").split("_");
-                    if ($(this).val() > 100) {
+                    if($(this).val() > 100) {
                         e.preventDefault();
                     }
-                    else if ($(this).val().length > 0 && $(this).val() <= 100) {
+                    else if($(this).val().length > 0 && $(this).val() <= 100) {
                         $('input[id="s1perc_' + id[1] + '"]').val(Number(100 - $(this).val()));
                     }
                 });
@@ -87,11 +87,11 @@
 
                     var currencies = {$js_currencies};
                     var invoicetypes = {$js_saletypesinvoice};
-                    if (typeof currencies[salestype] != 'undefined') {
+                    if(typeof currencies[salestype] != 'undefined') {
                         $("#currency_" + id[1]).val(currencies[salestype]);
                     }
 
-                    if (typeof invoicetypes[salestype] != 'undefined') {
+                    if(typeof invoicetypes[salestype] != 'undefined') {
                         $('#invoice_' + id[1]).val(invoicetypes[salestype]);
                     }
                 });
@@ -113,7 +113,7 @@
                     <thead>
                         <tr style="vertical-align: top;">
                             <td  width="11.6%" class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->customer} <a href="index.php?module=contents/addentities&type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
-                            <td width="11.6%" rowspan="2" valign="top" align="center" class=" border_right">{$lang->product}  <a href="index.php?module=contents/addproducts" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
+                            <td width="11.6%" rowspan="2" valign="top" align="center" class=" border_right">{$lang->product}  <a href="index.php?module=contents/addproducts&amp;referrer=budgeting" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->saletype}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->quantity}<br /><span class="smalltext"><em>{$lang->mt}</em></span></td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
@@ -131,9 +131,9 @@
                         {$budgetlinesrows}
                     </tbody>
                     <tfoot>
-                        <tr><td valign="top">  
+                        <tr><td valign="top">
                                 <input name="numrows_budgetlines{$rowid}" type="hidden" id="numrows_budgetlines{$rowid}" value="{$rowid}">
-                                <input type="hidden" name="ajaxaddmoredata[affid]" id="ajaxaddmoredata_affid" value="{$budget_data[affid]}"/> 
+                                <input type="hidden" name="ajaxaddmoredata[affid]" id="ajaxaddmoredata_affid" value="{$budget_data[affid]}"/>
                                 <img src="./images/add.gif" id="ajaxaddmore_budgeting/fillbudget_budgetlines_{$rowid}" alt="{$lang->add}">
                             </td></tr>
                         <tr>
