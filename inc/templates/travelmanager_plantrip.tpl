@@ -111,7 +111,8 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->plantrip}</h1>
-            <div class="ui-state-highlight ui-corner-all" style='padding: 5px; font-style: italic;'>{$leave['type_output']} - {$leave[fromDate_output]} -  {$leave[toDate_output]}</div>
+
+            {$leave_ouput}
             <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" action="#" method="post">
                 <div style='margin-top: 10px;'>
                     <a id="createtab" class="showpopup" href="#"><img border="0" alt="{$lang->addsegment}" src="images/addnew.png"> {$lang->addsegment}</a>
@@ -120,13 +121,7 @@
                 <input type="hidden" value="{$previoussegtodate}" id="todate" name="todate"/>
                 <input type="hidden" value="{$previoussegdestcity}" id="prevdestcity" name="prevdestcity"/>
                 <input type="hidden" value="{$leaveid}" id="lid" name="lid"/>
-                <div id="segmentstabs">
-                    <ul>
-                        <li><a href="#segmentstabs-1">Segment 1</a></li>
-                    </ul>
-                    <div id="loadindsection"></div>
-                    {$segments_output}
-                </div>
+                {$plantript_segmentstabs}
                 <input type='submit' class='button' value="{$lang->savecaps}" id='perform_travelmanager/plantrip_Button'>
             </form>
             <div id="perform_travelmanager/plantrip_Results"></div>
