@@ -69,9 +69,10 @@ class Travelmanager_Expenses_Types extends AbstractClass {
 //        <span>Another Affiliate </span>
 //        <input id="affiliate_'.$sequence.'_cache_autocomplete" autocomplete="off" tabindex="8" value=""  type="text">
 //        <input id="affiliate_'.$sequence.'_cache_id" name="segment['.$sequence.'][tmtcid]['.$rowid.'][paidBy]" value="" type="hidden"></div>';
-
-            $expenses_options.='<option value='.$expenses->tmetid.'>'.$expenses->title.'</option>';
+            $onchange_actions = '$("#"+$(this).find(":selected").attr("itemref")+"_"+'.$sequence.'+"_"+'.$rowid.').show()';
+            $expenses_options.='<option value='.$expenses->tmetid.' itemref='.$expenses->name.'   >'.$expenses->title.'</option>';
         }
+
         eval("\$segments_expenses_output = \"".$template->get('travelmanager_expenses_types')."\";");
 
         return $segments_expenses_output;
@@ -87,7 +88,7 @@ class Travelmanager_Expenses_Types extends AbstractClass {
                 'anotheraff' => $lang->anotheraff
         );
         //echo '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.')';
-        return '<div style="display:block;padding:8px;"  id="paidby"> Paid By '.parse_selectlist('segment['.$sequence.']['.$rowid.'][tmetid][paidBy]', 6, $paidby_entities, $paidby_entities[$paidby_entities['myaffiliate']], '', '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();;', array('id' => 'paidby')).'</div>';
+        return '<div style="display:block;padding:8px;"  id="paidby"> Paid By '.parse_selectlist('segment['.$sequence.'][expenses]['.$rowid.'][entites]', 6, $paidby_entities, $paidby_entities[$paidby_entities['myaffiliate']], '', '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();;', array('id' => 'paidby')).'</div>';
     }
 
 }

@@ -1,13 +1,12 @@
-<div style="horizontal-align: middle; font-weight: bold;border-bottom: 1px dashed #666;font-size: 14px;padding:5px; background-color: #92D050 ; ">Summary of Expenses</div>
+<div style="horizontal-align: middle; font-weight: bold;border-bottom: 1px dashed #666;font-size: 14px;padding:5px; background-color: #92D050 ; ">{$lang->summaryofexpenses}</div>
 {$expenses_details}
-<div><div style="display:inline-block;padding:5px;width:18%;">Hotel Accommodation</div><div style="width:20%; display:inline-block;padding:5px;">$ {$expenses[accomodation]}</div>
+<div style="display:block;padding:5px 0px 5px 0px;"><div style="display:inline-block;width:85%;">{$lang->hotelaccommodation}</div><div style="width:10%; display:inline-block;text-align:right;">$ {$expenses[accomodation]}</div>
 </div>
-<div>
-    <div style="display:inline-block;padding:5px;width:18%;"><b>Additional Expenses</b></div>
-    <div> {$additional_expenses_details}</div>
-    <div style="display:inline-block;padding:5px;width:18%;">Additional Expenses total</div><div style="width:20%; display:inline-block;padding:5px;">$ {$expenses[additional]}</div>
+<div style="display:block;padding:5px 0px 5px 0px;">
+    <div style="display:inline-block;width:85%;">{$lang->subtotal}</div><div style="width:10%; display:inline-block;text-align:right;font-weight:bold;">$ {$expenses_subtotal}</div>
 </div>
+<div> {$additional_expenses_details}</div>
 
-<div>
-    <div style="width:18%;font-weight:bold;display:inline-block;padding:5px;">Total</div><div style="display:inline-block;font-weight:bold;padding:5px;">$ {$expenses_total}</div>
+<div style="display:block;padding:5px 0px 5px 0px;">
+    <div style="width:85%;font-weight:bold;display:inline-block;">Total</div><div style="display:inline-block;width:10%;font-weight:bold;text-align:right;">$ {$expenses_total}</div>
 </div>
