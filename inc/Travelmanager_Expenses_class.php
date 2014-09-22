@@ -37,12 +37,13 @@ class Travelmanager_Expenses extends AbstractClass {
     }
 
     public function save(array $data = array()) {
+        global $core;
         if(empty($data)) {
             $data = $this->data;
         }
         $expenses = Travelmanager_Expenses::get_data(array('tmpsid' => $data['tmpsid'], 'tmetid' => $data['tmetid']));
         if(is_object($expenses)) {
-            $tmpsegment->update($data);
+            $expenses->update($data);
         }
         else {
             $this->create($data);
@@ -52,7 +53,14 @@ class Travelmanager_Expenses extends AbstractClass {
     protected function update(array $data) {
         global $db, $core;
         if(is_array($data)) {
-            $query = $db->insert_query(self::TABLE_NAME, $data);
+            $expensestdata['expectedAmt'] = $data['expectedAmt'];
+            $expensestdata['currency'] = $data['currency'];
+            $expensestdata['description'] = $data['description'];
+            $expensestdata['paidBy'] = $data['paidBy'];
+            $expensestdata['paidByEntity'] = $data['paidByEntity'];
+            $expensestdata['modifiedBy'] = $core->user['uid'];
+            $expensestdata['modifiedOn'] = TIME_NOW;
+            $db->update_query(self::TABLE_NAME, $expensestdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         }
     }
 
