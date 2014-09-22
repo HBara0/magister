@@ -28,6 +28,7 @@ $lang['citybrfg'] = 'City Briefing';
 $lang['cityreview'] = 'City Review';
 $lang['reservation'] = 'Possible Reservation Resources :';
 $lang['reason'] = 'Reason :';
+$lang['approvedhotels'] = 'Approved Hotels';
 
 $lang['approxfare'] = 'Approxmita fare';
 $lang['traino'] = 'Train Number';

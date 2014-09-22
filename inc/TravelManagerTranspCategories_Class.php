@@ -36,7 +36,7 @@ class TravelManagerTranspCategories {
         return $data->get_objects_byattr($attr, $value, $options);
     }
 
-    public static function get_categories($filters = null, array $configs = array()) {
+    public static function get_data($filters = null, array $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);
     }

@@ -95,16 +95,16 @@ class Cities {
         return TravelManagerCityBriefings::get_citybriefings('ciid='.$db->escape_string($this->data['ciid']), array('ORDER' => array('by' => 'createdOn', 'sort' => 'DESC'), 'limit' => '0,1'));
     }
 
-    public function parse_approvedhotels($sequence) {
+    public function parse_approvedhotels($sequence, $selectedhotel) {
         $approved_hotelsobjs = $this->get_approvedhotels();
 
         if(is_array($approved_hotelsobjs)) {
-            $hotelssegments_output = '<div class="subtitle">Approved Hotels</div>';
+            $hotelssegments_output = '<div class="subtitle">'.$lang->approvedhotels.'</div>';
             foreach($approved_hotelsobjs as $approved_hotelsobj) {
                 $approved_hotels = $approved_hotelsobj->get();
                 $hotelname = array($approved_hotels['tmhid'] => $approved_hotels['name']);
                 $review_tools .= ' <a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'./images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
-                $hotelssegments_output .= '<div style="display:block;">'.parse_checkboxes('segment['.$sequence.'][tmhid]', $hotelname, '', true, '&nbsp;&nbsp;').'<span> '.$review_tools.' </span></div>';
+                $hotelssegments_output .= '<div style="display:block;">'.parse_checkboxes('segment['.$sequence.'][tmhid]', $hotelname, $selectedhotel, true, '&nbsp;&nbsp;').'<span> '.$review_tools.' </span></div>';
 
 //eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
                 $review_tools = '';
@@ -194,9 +194,12 @@ class Cities {
 
     public static function parse_transportations($transpdata = array(), $sequence) {  //to be continued later
         global $template, $lang;
-
-        $directionapi = TravelManagerPlan::get_availablecitytransp(array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'departuretime' => $transpdata['departuretime']));  /* Get available tranportaion mode for the city proposed by google API */
-
+        if(is_array($transpdata) && empty($transpdata['apiFlightdata'])) {
+            $directionapi = TravelManagerPlan::get_availablecitytransp(array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'departuretime' => $transpdata['departuretime']));  /* Get available tranportaion mode for the city proposed by google API */
+        }
+        else {
+            $directionapi = $transpdata['apiFlightdata'];
+        }
         $valid_travelmodes = array('transit', 'driving');
         $used_transptype = array();
         if(is_array($directionapi->routes[0]->legs[0]->steps)) {

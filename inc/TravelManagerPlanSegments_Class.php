@@ -199,7 +199,12 @@ class TravelManagerPlanSegments {
     }
 
     public function get_transportations() {
-        return new TravelManagerPlanTransps();
+        return TravelManagerPlanTransps::get_data(array('tmpsid' => $this->data['tmpsid']));
+    }
+
+    public function get_transportationscat() {
+        /* get the transportations categories of the transportations related to the segment object we call */
+        return TravelManagerTranspCategories::get_data(array('tmtcid' => $this->get_transportations()->tmtcid));
     }
 
     private function get_allapidata() {
@@ -326,6 +331,10 @@ class TravelManagerPlanSegments {
             }
             return $flight_details;
         }
+    }
+
+    public function get_accomodations($config = array()) {
+        return TravelManagerPlanaccomodations::get_planaccomodations(array('tmpsid' => $this->data[self::PRIMARY_KEY]), $config);
     }
 
 }
