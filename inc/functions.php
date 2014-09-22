@@ -605,6 +605,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                     case 'citycountry':
                         $city = new Cities($key);
                         if($options['returnType'] == 'json') {
+                            $results_list[$key]['id'] = $city->ciid;
                             $results_list[$key]['desc'] = $city->get_country()->name;
                         }
                         else {
@@ -620,6 +621,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             foreach($chemfuncprod_objs as $chemfuncprod_obj) {
                                 $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
                                 if($options['returnType'] == 'json') {
+                                    $results_list[$key]['id'] = $chemfuncprod_obj->cfpid;
                                     $results_list[$key]['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
                                 }
                                 else {
@@ -634,6 +636,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 foreach($chemfuncprod_objs as $chemfuncprod_obj) {
                                     $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
                                     if($options['returnType'] == 'json') {
+                                        $results_list[$key]['id'] = $chemfuncprod_obj->cfpid;
                                         $results_list[$key]['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
                                     }
                                     else {
@@ -656,6 +659,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             foreach($chemfunchem_objs as $chemfunchem_obj) {
                                 $application_obj = $chemfunchem_obj->get_segapplicationfunction();
                                 if($options['returnType'] == 'json') {
+                                    $results_list[$key]['id'] = $chemfuncprod_obj->cfcid;
                                     $results_list[$key]['desc'] = $chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
                                 }
                                 else {
@@ -1654,4 +1658,5 @@ function fix_url($url) {
     }
     return $url;
 }
+
 ?>
