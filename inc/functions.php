@@ -114,9 +114,10 @@ function gzip_compression($contents, $level = 1) {
 function output_xml($xml) {
     global $lang;
     ob_clean();
+
     //header('Content-type: text/xml');
-    echo "<?xml version='1.0' encoding='{$lang->settings[charset]}'?>";
-    echo "<xml>{$xml}</xml>";
+    echo '<?xml version="1.0" encoding="'.$lang->settings['charset'].'"?>';
+    echo '<xml>'.$xml.'</xml>';
 }
 
 /*
