@@ -50,6 +50,12 @@ class CmsMenu extends Cms {
         global $db, $log, $core, $errorhandler, $lang;
         $this->menuitem = $data;
 
+
+        if(is_empty($this->menuitem['title'], $this->menuitem['alias'])) {
+            $this->status = 1;
+            return false;
+        }
+
         if(value_exists('cms_menuitems', 'title', $this->menuitem['title'])) {
             $this->status = 2;
             return false;
@@ -64,25 +70,22 @@ class CmsMenu extends Cms {
 
         /* validate configuration against set of defined configuratons */
 
-        $accepted_configurations = array('webpage' => array('webpage' => 'webpage'), 'newsarchive' => array('newsarchive' => 'newsarchive'), 'eventsarchive' => array('eventsarchive' => 'eventsarchive'), 'listnews' => array('listnews' => 'listnews'), 'branchprofile' => array('branchprofile' => 'branchprofile'), 'affiliate' => array('affiliate'), 'externalurl' => array('link', 'linktitle', 'linkimage'),'contact' => array('contact'));
+        $accepted_configurations = array('webpage' => array('webpage' => 'webpage'), 'singlesegment' => array('singlesegment' => 'singlesegment'), 'newsarchive' => array('newsarchive' => 'newsarchive'), 'eventsarchive' => array('eventsarchive' => 'eventsarchive'), 'listnews' => array('listnews' => 'listnews'), 'branchprofile' => array('branchprofile' => 'branchprofile'), 'affiliate' => array('affiliate'), 'externalurl' => array('link', 'linktitle', 'linkimage'), 'contact' => array('contact'));
         $configs = $this->menuitem['configurations'];
-        $this->menuitem['configurations'] = null;
-         foreach($accepted_configurations as $key => $val) {
+
+        foreach($accepted_configurations as $key => $val) {
             if(!empty($this->menuitem['configurations'][$key])) {
                 $this->menuitem['configurations'] = base64_encode(serialize(($this->menuitem['configurations'][$key])));
-                break;
             }
-        } 
-
-
-        unset($this->menuitem['menuid'], $this->menuitem['itemid']);
-
+        }
 
         unset($this->menuitem['menuid'], $this->menuitem['itemid']);
         if(is_array($this->menuitem)) {
             $query = $db->insert_query('cms_menuitems', $this->menuitem);
             if($query) {
                 $log->record($db->last_id());
+                $this->status = 0;
+                return true;
             }
         }
     }

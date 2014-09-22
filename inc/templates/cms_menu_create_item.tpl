@@ -116,7 +116,7 @@
                                 <label>{$lang->listsegments}</label>
                             </div>
                             <div style="display:inline-block; margin-left:30px">
-                                <input  id="segment_type" name="menuitem[type]" type="radio" value="segment">
+                                <input  id="singlesegment_type" name="menuitem[type]" type="radio" value="singlesegment">
                                 <label>{$lang->segment}</label>
                             </div>
                         </div><!--end 2st type table cell-->
@@ -124,11 +124,11 @@
 
                         <div style="display:table-cell; padding:5px; margin:5px;">
                             <div style="display:inline-block; margin-left:30px">
-                                <input  id="listnews_type"name="menuitem[type]" type="radio" value="listnews">
+                                <input  id="listnews_type"name="menuitem[type]" type="radio" value="news">
                                 <label>{$lang->listnews}</label>
                             </div>
                             <div style="display:inline-block; margin-left:30px">
-                                <input id="listevents_type"  name="menuitem[type]" type="radio" value="listevents">
+                                <input id="events_type"  name="menuitem[type]" type="radio" value="events">
                                 <label>{$lang->listevents}</label>
                             </div>
                             <div style="display:inline-block; margin-left:30px">
@@ -181,7 +181,16 @@
                         </div>
 
                     </div>
+                    <div id="singlesegment_configuration" style="display:none;">
+                        <div style="display: table-cell; padding:10px;">
+                            <fieldset class="altrow2" style="width:100%;">
+                                <legend class="subtitle">{$lang->listsegments}</legend>
+                                <div style="display: table-cell; padding:10px;">{$lang->singlesegment}</div>
+                                <div style="display: table-cell;  margin-left:10px;"id="singlesegment_content"> {$single_segment} </div>
+                            </fieldset>
+                        </div>
 
+                    </div>
                     <div id="branchprofile_configuration" style="display:none;">
                         <div style="display: table-cell; padding:10px;">
                             <fieldset class="altrow2" style="width:100%;">

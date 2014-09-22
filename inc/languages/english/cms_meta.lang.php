@@ -79,6 +79,7 @@ $lang['existingattachments'] = "Existing Attachments";
 $lang['deletefilequestion'] = "Are you sure you want to delete this file? ";
 $lang['deletefile'] = 'Delete File';
 $lang['attachmentstitle'] = 'Existing Attachments';
+$lang['singlesegment'] = 'Single Segments';
 $lang['publishdate'] = 'Publish Date';
 $lang['newnotification_subject'] = 'A new  page {1} has been created as follows:';
 $lang['modifynotification_body'] = 'The page {1} has been modified as follows:</br></br>
