@@ -1,11 +1,9 @@
 <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-left: 8px;">
-
-
     <tbody id="expenses{$rowid}_tbody">
         <tr id="{$rowid}"><td>
                 <div style="display:inline-block;">{$lang->exptype}</div>
 
-                <div style="display:inline-block;"><select   id='test' name='segment[{$sequence}][expenses][{$rowid}][tmetid]' onchange={$onchange_actions}>{$expenses_options}   </select></div>
+                <div style="display:inline-block;"><select id="segment_expensestype_{$sequence}_{$rowid}" name='segment[{$sequence}][expenses][{$rowid}][tmetid]'   {$onchange_actions}>{$expenses_options}</select></div>
                 <div style="display:block;padding:5px">
 
                     <div style="display:none;" id="Other_{$sequence}_{$rowid}">
