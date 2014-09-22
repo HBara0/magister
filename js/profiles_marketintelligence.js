@@ -34,7 +34,7 @@ $(function() {
         }
     });
     /*parse end product type*/
-    $("input[id='customer_1_QSearch']").live('blur', function() {
+    $("input[id='customer_1_autocomplete']").live('blur', function() {
         var cid = $('input[id="customer_1_id"]').val();
         if(cid.length == 0) {
             return;

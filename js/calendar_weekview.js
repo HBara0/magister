@@ -1,7 +1,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Calendar Class
  * $id: Calendar_class.php
  * Created:		@zaher.reda		May 23, 2012 | 03:45 PM
@@ -138,7 +138,7 @@ $(function() {
         });
     });
 
-    $("#customer_1_QSearch").live('change', function() {
+    $("#customer_1_autocomplete").live('change', function() {
         $.post("index.php?module=calendar/weekviewoperations&action=suggest_customervisits", {uid: $('#popup_weekview_createentry').find('#uid').val(), cid: $('#popup_weekview_createentry').find('#customer_1_id').val()}, function(returnedData) {
             $("#suggestions_Results").show();
             $("#suggestions_Results").html(returnedData);
