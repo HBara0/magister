@@ -15,7 +15,8 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('title', 'place'),
+            'parse' => array('filters' => array('title', 'place', 'from', 'to'),
+                    'overwriteField' => array('to' => '', 'from' => '')
             ),
             'process' => array(
                     'filterKey' => 'ceid',
@@ -34,7 +35,7 @@ if(!$core->input['action']) {
         if($filters_config['process']['filterKey'] == 'ceid') {
             $filters_config['process']['filterKey'] = 'ceid';
         }
-        $filter_where = ' WHERE '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        $filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
         $multipage_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
 
@@ -45,24 +46,24 @@ if(!$core->input['action']) {
     else {
         $filter_where = ' publishOnWebsite=1';
     }
-    if(is_array($core->input[filters])) {
-        $array_fields = array('title', 'place', 'fromDate', 'toDate');
-        foreach($array_fields as $field) {
-            if(isset($core->input['filters'][$field]) && !empty($core->input['filters'][$field])) {
-                $where_filter[$field] = ($core->input['filters'][$field]);
-//                    $where_filter['fromDate'] = strtotime($core->input['filters']['fromDate']);
-//                    $where_filter['toDate'] = strtotime($core->input['filters']['toDate']);
-            }
-        }
-    }
+//    if(is_array($core->input[filters])) {
+//        $array_fields = array('title', 'place', 'fromDate', 'toDate');
+//        foreach($array_fields as $field) {
+//            if(isset($core->input['filters'][$field]) && !empty($core->input['filters'][$field])) {
+//                $where_filter[$field] = ($core->input['filters'][$field]);
+////                    $where_filter['fromDate'] = strtotime($core->input['filters']['fromDate']);
+////                    $where_filter['toDate'] = strtotime($core->input['filters']['toDate']);
+//            }
+//        }
+//    }
     $sort_url = sort_url();
     $where_filter['publishOnWebsite'] = 1;
     $dal_config = array(
             'simple' => false,
-            'returnarray' => true
+            'returnarray' => true,
     );
-    $event_objs = events::get_data($where_filter, $dal_config);
 
+    $event_objs = events::get_data($filter_where, $dal_config);
     unset($where_filter);
 
     if(is_array($event_objs)) {
@@ -71,11 +72,11 @@ if(!$core->input['action']) {
             $event->todate = date($core->settings['dateformat'], $event->toDate);
             eval("\$cms_events_list_rows .= \"".$template->get('cms_events_list_rows')."\";");
         }
-        $multipages = new Multipages('calendar_events', $core->settings['itemsperlist'], $multipage_where);
-        $cms_events_list_rows .= "<tr><td colspan='6'>".$multipages->parse_multipages()."</td></tr>";
-
-
-        eval("\$eventslist = \"".$template->get('cms_eventlist')."\";");
-        output_page($eventslist);
     }
+    $multipages = new Multipages('calendar_events', $core->settings['itemsperlist'], $multipage_where);
+    $cms_events_list_rows .= "<tr><td colspan='6'>".$multipages->parse_multipages()."</td></tr>";
+
+
+    eval("\$eventslist = \"".$template->get('cms_eventlist')."\";");
+    output_page($eventslist);
 }
