@@ -302,7 +302,7 @@ else {
             exit;
         }
         $marketin_obj = new MarketIntelligence();
-        $marketin_obj->create($core->input[marketdata]);
+        $marketin_obj->create($core->input['marketdata']);
         switch($marketin_obj->get_errorcode()) {
             case 0:
                 output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
@@ -311,9 +311,11 @@ else {
                 output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
                 break;
             case 2:
+            default:
                 output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
                 break;
         }
+        exit;
     }
     elseif($core->input['action'] == 'do_addbrand') {
         if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
@@ -348,7 +350,10 @@ else {
         $mkintentry_customer = $mkintentry->get_customer();
         $mkintentry_brand = $mkintentry->get_entitiesbrandsproducts()->get_entitybrand();
         $mkintentry_endproducttype = $mkintentry->get_entitiesbrandsproducts()->get_endproduct();
-
+        if(!is_object($mkintentry_endproducttype)) {
+            $mkintentry_endproducttype = new EntBrandsProducts();
+            $mkintentry_endproducttype->title = $lang->unspecified;
+        }
         //$mrktintl_detials['brand'] = $mkintentry->get_entitiesbrandsproducts()->get_entitybrand()->name;
         //$mrktintl_detials['endproduct'] = $mkintentry->get_entitiesbrandsproducts()->get_endproduct()->title;
 
@@ -426,7 +431,10 @@ else {
         $output = '';
         if(is_array($brandsproducts)) {
             foreach($brandsproducts as $brandproduct) {
-                $options[$brandproduct->ebpid] = $brandproduct->get_entitybrand()->name.' - '.$brandproduct->get_endproduct()->title;
+                $options[$brandproduct->ebpid] = $brandproduct->get_entitybrand()->name;
+                if(!empty($brandproduct->eptid)) {
+                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct->get_endproduct()->title;
+                }
             }
 
             $output = parse_selectlist('marketdata[ebpid]', 7, $options, '');

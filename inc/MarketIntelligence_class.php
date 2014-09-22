@@ -68,7 +68,9 @@ class MarketIntelligence {
             /* Get end product type if not specified in input */
             if(!isset($this->marketdata['eptid']) || empty($this->marketdata['eptid'])) {
                 $brand = new EntBrandsProducts($this->marketdata['ebpid']);
-                $this->marketdata['eptid'] = $brand->get_endproduct()->eptid;
+                if($brand->eptid != 0) {
+                    $this->marketdata['eptid'] = $brand->get_endproduct()->eptid;
+                }
                 unset($brand);
             }
 
@@ -219,8 +221,10 @@ class MarketIntelligence {
         $entity_brandproducts = $entity_brdprd_objs->get();
 
         $entity_mrktendproducts_objs = new EndProducTypes($entity_brandproducts['eptid']); //$maktintl_obj->get_marketendproducts($entity_brandproducts['eptid']);
-        $entity_mrktendproducts = $entity_mrktendproducts_objs->get()['title'];
-
+        $entity_mrktendproducts = $lang->unspecified;
+        if(!empty($entity_brandproducts['eptid'])) {
+            $entity_mrktendproducts = $entity_mrktendproducts_objs->title;
+        }
         if(!empty($profile['displayItem'])) {
             /* Get chemial substance if no cfpid for the cusomter */
             if(empty($data[$profile['displayItem']::PRIMARY_KEY]) && $profile['displayItem'] == ChemFunctionProducts) {
@@ -325,8 +329,7 @@ class MarketIntelligence {
 
     public function get_competitors() {
         global $db;
-        $query = $db->query('SELECT micid FROM '.Tprefix.'marketintelligence_competitors WHERE mibdid = '.
-                $this->marketintelligence['mibdid'].'');
+        $query = $db->query('SELECT micid FROM '.Tprefix.'marketintelligence_competitors WHERE mibdid='.$this->marketintelligence['mibdid'].'');
         while($rows = $db->fetch_assoc($query)) {
             $marketcomp[$rows['micid']] = new MarketIntelligenceCompetitors($rows['micid']);
         }

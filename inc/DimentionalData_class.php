@@ -215,14 +215,17 @@ class DimentionalData {
                             $key = $this->parse_attributetype($key);
                             $this->dimensions['link'] = $key;
                         }
-                        if($options['outputtype'] == 'div') {
-                            $columns = '<div style="display: inline-block; padding-left:'.(($depth - 1) * 20).'px; font-size:'.$fontsize.'px;">'.$this->dimensions['link'].'</div>';
-                        }
-                        else {
-                            $columns = '<td style="padding-left:'.(($depth - 1) * 20).'px; font-size:'.$fontsize.'px;">'.$this->dimensions['link'].'</td>';
-                        }
+                    }
+                    else {
+                        $this->dimensions['link'] = 'Unspecified';
                     }
 
+                    if($options['outputtype'] == 'div') {
+                        $columns = '<div style="display: inline-block; padding-left:'.(($depth - 1) * 20).'px; font-size:'.$fontsize.'px;">'.$this->dimensions['link'].'</div>';
+                    }
+                    else {
+                        $columns = '<td style="padding-left:'.(($depth - 1) * 20).'px; font-size:'.$fontsize.'px;">'.$this->dimensions['link'].'</td>';
+                    }
                     foreach($options['requiredfields'] as $field) {
                         if(isset($options['overwritecalculation'][$field])) {
                             $total[$dimensions[$depth]][$field.'-'.$previds] = $this->recalculate_dimvalue($field, $total[$dimensions[$depth]], $previds, $options['overwritecalculation'][$field]);

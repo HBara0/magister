@@ -44,7 +44,7 @@ class EntitiesBrands {
                 return false;
             }
 
-            if(value_exists('entitiesbrands', 'name', $this->data['title'])) {
+            if(value_exists('entitiesbrands', 'name', $this->data['title'], 'eid='.intval($this->data['eid']))) {
                 $this->errorcode = 2;
                 return false;
             }
@@ -56,6 +56,11 @@ class EntitiesBrands {
                     'createdOn' => TIME_NOW
             );
 
+            if($this->data['isGeneral'] == 1) {
+                $enttitbrand_data['isGeneral'] = 1;
+                unset($this->data['endproducttypes']);
+                $this->data['endproducttypes'][] = 0;
+            }
             $query = $db->insert_query('entitiesbrands', $enttitbrand_data);
             if($query) {
                 $this->ebid = $db->last_id();
