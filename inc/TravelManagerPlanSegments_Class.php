@@ -125,7 +125,7 @@ class TravelManagerPlanSegments {
                 $expensestdata['actualAmt'] = $expense['actualAmt'];
                 $expensestdata['description'] = $expense['description'];
                 $expensestdata['paidBy'] = $expense['entites'];
-                $expensestdata['paidByEntity'] = $expense['paidBy'];
+                $expensestdata['paidById'] = $expense['paidBy'];
                 $expenses_obj = new Travelmanager_Expenses();
                 $expenses_obj->set($expensestdata);
                 $expenses_obj->save();
@@ -135,7 +135,7 @@ class TravelManagerPlanSegments {
     }
 
     public function update(array $segmentdata) {
-        global $db;
+        global $db, $core;
 
         if(!is_numeric($segmentdata['toDate'])) {
             $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
@@ -143,12 +143,77 @@ class TravelManagerPlanSegments {
         }
 
         $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity');
+
         /* Consider using array intersection */
         foreach($valid_fields as $attr) {
             $segmentnewdata[$attr] = $segmentdata[$attr];
         }
+        $segmentnewdata['modifiedBy'] = $core->user['uid'];
+        $segmentnewdata['modifiedOn'] = TIME_NOW;
 
         $db->update_query(self::TABLE_NAME, $segmentnewdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+
+        if(is_array($transptdata)) {
+            foreach($transptdata as $category => $data) {
+                $chkdata = $data;
+                rsort($chkdata);
+                if(is_array($chkdata[0])) {
+                    foreach($data as $id => $transit) {
+                        if(!isset($transit['flightNumber'])) {
+                            continue;
+                        }
+                        $transp_obj = new TravelManagerPlanTransps();
+                        $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+                        $transit['tmtcid'] = $category;
+
+                        $transp_obj->set($transit);
+                        $transp_obj->save();
+                    }
+                }
+                else {
+                    if(isset($data['transpType']) && empty($data['transpType'])) {
+                        continue;
+                    }
+                    $transp_obj = new TravelManagerPlanTransps();
+                    $data['tmtcid'] = $category;
+                    $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+                    $transp_obj->set($data);
+                    $transp_obj->save();
+                }
+            }
+            unset($chkdata);
+        }
+
+        if(isset($segmentdata['tmhid'])) {
+            $hoteltdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
+            $hoteltdata['tmhid'] = $segmentdata['tmhid'];
+
+            $accod_obj = new TravelManagerPlanaccomodations();
+
+            $accod_obj->set($hoteltdata);
+            $accod_obj->save();
+            $this->errorode = 0;
+        }
+
+
+        $additionalexpenses = $segmentdata['expenses'];
+        if(is_array($additionalexpenses)) {
+            foreach($additionalexpenses as $expense) {
+                $expensestdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                $expensestdata['createdBy'] = $core->user['uid'];
+                $expensestdata['tmetid'] = $expense['tmetid'];
+                $expensestdata['expectedAmt'] = $expense['expectedAmt'];
+                $expensestdata['currency'] = $expense['currency'];
+                $expensestdata['actualAmt'] = $expense['actualAmt'];
+                $expensestdata['description'] = $expense['description'];
+                $expensestdata['paidBy'] = $expense['entites'];
+                $expensestdata['paidById'] = $expense['paidBy'];
+                $expenses_obj = new Travelmanager_Expenses();
+                $expenses_obj->set($expensestdata);
+                $expenses_obj->save();
+                $this->errorode = 0;
+            }
+        }
     }
 
     public function set(array $data) {
@@ -169,6 +234,7 @@ class TravelManagerPlanSegments {
     }
 
     public function save(array $data = array()) {
+        global $core;
         if(empty($data)) {
             $data = $this->data;
         }//get object of and the id and set data and save
@@ -241,7 +307,7 @@ class TravelManagerPlanSegments {
                     $paidby = $affiliate->name;
                 }
                 if($paidby == 'anotheraff') {
-                    $affiliate = new Affiliates($transportation->paidByEntity);
+                    $affiliate = new Affiliates($transportation->paidById);
                     $paidby = $affiliate->name;
                 }
                 if(!empty($transportation->transpDetails)) {
@@ -261,7 +327,7 @@ class TravelManagerPlanSegments {
 //                $paidby = $affiliate->name;
 //            }
 //            if($paidby == 'anotheraff') {
-//                $affiliate = new Affiliates($accomd_objs->paidByEntity);
+//                $affiliate = new Affiliates($accomd_objs->paidById);
 //                $paidby = $affiliate->name;
 //            }
 //            $segment_hotel = '<div style="display:block;padding:5px 0px 5px 0px;"><div style="width:70%; display: inline-block;">'.$lang->checkin.' '.$accomd_objs->get_hotel()->get()['name']; // fix the html parse multiple hotl
@@ -278,7 +344,7 @@ class TravelManagerPlanSegments {
                     $paidby = $affiliate->name;
                 }
                 if($paidby == 'anotheraff') {
-                    $affiliate = new Affiliates($accomdation->paidByEntity);
+                    $affiliate = new Affiliates($accomdation->paidById);
                     $paidby = $affiliate->name;
                 }
                 $segment_hotel .= '<div style = " width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin:10px;"> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
@@ -298,7 +364,7 @@ class TravelManagerPlanSegments {
                     $paidby = $affiliate->name;
                 }
                 if($paidby == 'anotheraff') {
-                    $affiliate = new Affiliates($additionalexp->paidByEntity);
+                    $affiliate = new Affiliates($additionalexp->paidById);
                     $paidby = $affiliate->name;
                 }
                 if($additionalexp_type->title == 'Other') {
