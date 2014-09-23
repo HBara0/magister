@@ -293,6 +293,23 @@ class TravelManagerPlanSegments {
         return json_decode($this->apiFlightdata);
     }
 
+    public function display_paidby($paidby, $paidbyid) {
+        global $core;
+        switch($paidby) {
+            case "myaffiliate":
+                $object = new Affiliates($core->user['mainaffiliate']);
+                //$paidby = $affiliate->name;
+                break;
+            case "anotheraff":
+                $object = new Affiliates($paidbyid);
+                // $paidby = $affiliate->name;
+                break;
+            default:
+                $object = $paidby;
+        }
+        return $object;
+    }
+
     public function parse_segment() {
         global $template, $lang, $core, $db;
         $segmentdate = date('l F d, Y', $this->fromDate);
@@ -301,14 +318,9 @@ class TravelManagerPlanSegments {
         if(is_array($transp_objs)) {
             foreach($transp_objs as $transportation) {
                 $transportation->transpType = $transportation->get_transpcategory()->title;
-                $paidby = $transportation->paidBy;
-                if($paidby == 'myaffiliate') {
-                    $affiliate = new Affiliates($core->user['mainaffiliate']);
-                    $paidby = $affiliate->name;
-                }
-                if($paidby == 'anotheraff') {
-                    $affiliate = new Affiliates($transportation->paidById);
-                    $paidby = $affiliate->name;
+                $paidby = $this->display_paidby($transportation->paidBy, $transportation->paidById);
+                if(is_object($paidby)) {
+                    $paidby = $paidby->get_displayname();
                 }
                 if(!empty($transportation->transpDetails)) {
                     $transp_flightdetails = json_decode($transportation->transpDetails, true);
@@ -320,37 +332,16 @@ class TravelManagerPlanSegments {
         }
         $accomd_objs = TravelManagerPlanaccomodations::get_planaccomodations(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
 
-//        if(is_object($accomd_objs)) {
-//            $paidby = $accomd_objs->paidBy;
-//            if($paidby == 'myaffiliate') {
-//                $affiliate = new Affiliates($core->user['mainaffiliate']);
-//                $paidby = $affiliate->name;
-//            }
-//            if($paidby == 'anotheraff') {
-//                $affiliate = new Affiliates($accomd_objs->paidById);
-//                $paidby = $affiliate->name;
-//            }
-//            $segment_hotel = '<div style="display:block;padding:5px 0px 5px 0px;"><div style="width:70%; display: inline-block;">'.$lang->checkin.' '.$accomd_objs->get_hotel()->get()['name']; // fix the html parse multiple hotl
-//            // $segment_hotelprice = '<div style=" width:100%; display: block;">';
-//            $segment_hotelprice = '<span style = "margin:10px;">'.$lang->night.' '.$accomd_objs->numNights.' at $ '.$accomd_objs->priceNight.'/'.$lang->night.'</span></div>';
-//            $segment_hotelprice .=' <div style = " width:25%; display: inline-block;font-size:14px;font-weight:bold;text-align:right;"><small style="font-weight:normal;">[paid by: '.$paidby.' ]</small> $ '.($accomd_objs->numNights * $accomd_objs->priceNight).'</div> ';
-//            $segment_hotelprice .='</div>';
-//        }
         if(is_array($accomd_objs)) {
             foreach($accomd_objs as $accomdation) {
-                $paidby = $accomdation->paidBy;
-                if($paidby == 'myaffiliate') {
-                    $affiliate = new Affiliates($core->user['mainaffiliate']);
-                    $paidby = $affiliate->name;
-                }
-                if($paidby == 'anotheraff') {
-                    $affiliate = new Affiliates($accomdation->paidById);
-                    $paidby = $affiliate->name;
+                $paidby = $this->display_paidby($accomdation->paidBy, $accomdation->paidById);
+                if(is_object($paidby)) {
+                    $paidby = $paidby->get_displayname();
                 }
                 $segment_hotel .= '<div style = " width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin:10px;"> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
-                //    $segment_hotel .= '<div style = " width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
+//    $segment_hotel .= '<div style = " width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
                 $segment_hotel .= '<div style = " width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;"><span>  <small style="font-weight:normal;">[paid by: '.$paidby.' ]</small> $'.($accomdation->numNights * $accomdation->priceNight).'</span></div>'; // fix the html parse multiple hotl
-                //   $segment_hotelprice .='<div style = " width:45%; display: block;"> Nights '.$accomdation->numNights.' at $ '.$accomdation->priceNight.'/Night</div>';
+//   $segment_hotelprice .='<div style = " width:45%; display: block;"> Nights '.$accomdation->numNights.' at $ '.$accomdation->priceNight.'/Night</div>';
             }
         }
         $additional_expenses = Travelmanager_Expenses::get_data(array('tmpsid' => $this->tmpsid), array('simple' => false, 'returnarray' => true));
@@ -358,14 +349,9 @@ class TravelManagerPlanSegments {
             foreach($additional_expenses as $additionalexp) {
                 $additionalexp_type = new TravelManager_Expenses_Types($additionalexp->tmetid);
                 $additional_expenses_details .= '<div style = "display:block;padding:5px 0px 5px 0px;">';
-                $paidby = $additionalexp->paidBy;
-                if($paidby == 'myaffiliate') {
-                    $affiliate = new Affiliates($core->user['mainaffiliate']);
-                    $paidby = $affiliate->name;
-                }
-                if($paidby == 'anotheraff') {
-                    $affiliate = new Affiliates($additionalexp->paidById);
-                    $paidby = $affiliate->name;
+                $paidby = $this->display_paidby($additionalexp->paidBy, $additionalexp->paidById);
+                if(is_object($paidby)) {
+                    $paidby = $paidby->get_displayname();
                 }
                 if($additionalexp_type->title == 'Other') {
                     $additionalexp_type->title = $additionalexp->description;
