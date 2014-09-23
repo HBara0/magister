@@ -14,14 +14,21 @@
                 <div id='searchQuickResults_customer_noexception' class='searchQuickResults' style='display:none;'></div> </div>
         </div>
         <div>
-            <div style="display:inline-block; width: 30%;">{$lang->endproducttypes} </div>
+            <hr />
+        </div>
+        <div>
+            <div style="display:inline-block; width: 30%;">{$lang->endproducttypes}</div>
             <div style="display:inline-block; width: 60%;">
-                <select name="entitybrand[endproducttypes][]" multiple="multiple" size="10">{$endproducttypes_list}</select>
+                <select name="entitybrand[endproducttypes][]" multiple="multiple" size="10" id='popup_createbrand_endproducttypes'>{$endproducttypes_list}</select>
             </div>
         </div>
         <div>
+            <div style="display:inline-block; width: 30%;"></div>
+            <div style="display:inline-block; width: 60%;"><input type="checkbox" value="1" onclick="$('#popup_createbrand_endproducttypes').toggle()" name="entitybrand[isGeneral]"> or consider the brand with unspecified/unknown end-product type</div>
+        </div>
+        <div>
             <div><input type='button' id='add_{$module}/{$modulefile}_Button' value='{$lang->savecaps}' class='button'/></div>
-            <div style="display:table-row;"> <div style="display:table-cell;"> <div id="add_{$module}/{$modulefile}_Results"></div></div></div>
+            <div style="display:table-row;"> <div style="display:table-cell;"><div id="add_{$module}/{$modulefile}_Results"></div></div></div>
         </div>
     </form>
 </div>

@@ -15,7 +15,7 @@
             <div style="width: 30%; display: inline-block;">{$lang->price}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" name="marketdata[unitPrice]" accept="numeric" autocomplete="off" min="0" value="{$midata->unitPrice}"/> USD/KG {$lang->cif}</div>
             <div style="width: 30%; display: inline-block;">{$lang->endproduct}</div>
             <div style="width: 60%; display: inline-block;"><!--<select {$hideselect} name="marketdata[ebpid]">{$entitiesbrandsproducts_list}</select>--> <span id="entitiesbrandsproducts_endproductResult">{$entitiesbrandsproducts_list}</span> | <a id="showpopup_createbrand" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->createbrand}</a></div>
-            <div style="width: 30%; display: inline-block;"> {$profiles_mincustomervisit_title}</div>
+            <div style="width: 30%; display: inline-block;">{$profiles_mincustomervisit_title}</div>
             <div style="width: 30%; display: inline-block;">
                 {$profiles_mincustomervisit}
             </div>
@@ -47,7 +47,7 @@
                                         </div>
                                         <div style="width:100%; display:block;">
                                             <div style="width:45%; display: inline-block;">{$lang->product}</div>
-                                            <div style="width:45%; display: inline-block;"><input type="text" name="marketdata[competitor][{$rowid}][pid]" id="product_{$rowid}_autocomplete"  autocomplete="off"/>
+                                            <div style="width:45%; display: inline-block;"><input type="text" name="marketdata[competitor][{$rowid}][pid]" id="product_{$rowid}_autocomplete" autocomplete="off"/>
                                                 <input type="hidden" id="product_{$rowid}_id" name="marketdata[competitor][{$rowid}][pid]" />
                                                 <div id="searchQuickResults_{$rowid}" class="searchQuickResults" style="display:none;"></div></div>
                                         </div>

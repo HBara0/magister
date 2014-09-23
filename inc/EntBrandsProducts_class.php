@@ -13,22 +13,18 @@
  *
  * @author tony.assaad
  */
-class EntBrandsProducts {
-    private $entbrandproducts = array();
+class EntBrandsProducts extends AbstractClass {
+    protected $data = array();
+    protected $errorcode = 0;
 
-    public function __construct($id, $simple = true) {
-        if(isset($id)) {
-            $this->read($id, $simple);
-        }
-    }
+    const PRIMARY_KEY = 'ebpid';
+    const TABLE_NAME = 'entitiesbrandsproducts';
+    const DISPLAY_NAME = '';
+    const SIMPLEQ_ATTRS = 'ebpid, ebid, eptid';
+    const CLASSNAME = __CLASS__;
 
-    private function read($id, $simple) {
-        global $db;
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'ebpid, ebid, eptid';
-        }
-        $this->entbrandproducts = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'entitiesbrandsproducts WHERE ebpid='.intval($id)));
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
     public static function get_producttypes_bybrand($id) {
@@ -74,30 +70,34 @@ class EntBrandsProducts {
     }
 
     public function get_entitybrand() {
-        return new EntitiesBrands($this->entbrandproducts['ebid']);
+        return new EntitiesBrands($this->data['ebid']);
     }
 
     public function get_endproduct() {
-        return new EndProducTypes($this->entbrandproducts['eptid']);
+        if($this->data['eptid'] == 0) {
+            return;
+        }
+        return new EndProducTypes($this->data['eptid']);
     }
 
     public function get_createdby() {
-        return new Users($this->entbrandproducts['createdBy']);
+        return new Users($this->data['createdBy']);
     }
 
     public function get_modifiedby() {
-        return new Users($this->entbrandproducts['modifiedBy']);
+        return new Users($this->data['modifiedBy']);
     }
 
-    public function __get($name) {
-        if(isset($this->entbrandproducts[$name])) {
-            return $this->entbrandproducts[$name];
-        }
-        return false;
+    protected function create(array $data) {
+
     }
 
-    public function get() {
-        return $this->entbrandproducts;
+    protected function update(array $data) {
+
+    }
+
+    public function save(array $data = array()) {
+
     }
 
 }

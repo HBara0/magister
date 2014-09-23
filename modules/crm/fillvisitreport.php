@@ -56,7 +56,7 @@ if(!$core->input['action']) {
                         $visitdetails['comments'][$val]['suppliername'] = $db->fetch_field($db->query("SELECT companyName FROM ".Tprefix."entities WHERE eid='".$db->escape_string($val)."'"), 'companyName');
 
                         if(empty($visitdetails['comments'][$val]['suppliername'])) {
-                            $visitdetails['comments'][$val]['suppliername'] = 'Unspecified';
+                            $visitdetails['comments'][$val]['suppliername'] = $lang->unspecified;
                         }
 
                         if(is_array($visitdetails['comments'])) {
@@ -89,7 +89,7 @@ if(!$core->input['action']) {
                             $visitdetails['comments'][$val]['suppliername'] = $db->fetch_field($db->query("SELECT companyName FROM ".Tprefix."entities WHERE eid='".$db->escape_string($val)."'"), "companyName");
 
                             if(empty($visitdetails['comments'][$val]['suppliername'])) {
-                                $visitdetails['comments'][$val]['suppliername'] = 'Unspecified';
+                                $visitdetails['comments'][$val]['suppliername'] = $lang->unspecified;
                             }
 
                             if(is_array($visitdetails['comments'])) {
@@ -126,7 +126,11 @@ if(!$core->input['action']) {
                     foreach($brandsproducts as $brandproduct) {
                         $brandproduct_brand = $brandproduct->get_entitybrand();
                         $brandproduct_productype = $brandproduct->get_endproduct();
-                        $options[$brandproduct->ebpid] = $brandproduct_brand->name.' - '.$brandproduct_productype->title;
+                        $options[$brandproduct->ebpid] = $brandproduct_brand->name;
+                        if(is_object($brandproduct_productype)) {
+                            $options[$brandproduct->ebpid] .= ' - '.$brandproduct_productype->title;
+                        }
+
                         eval("\$brandsendproducts .= \"".$template->get('profiles_entityprofile_brandsproducts')."\";");
                     }
                     $entitiesbrandsproducts_list = parse_selectlist('marketdata[ebpid]', 7, $options, '');
@@ -231,9 +235,9 @@ if(!$core->input['action']) {
                     unset($visitreport_data['spid'][$key]);
                     continue;
                 }
-                $competition['comments'][$val]['suppliername'] = $db->fetch_field($db->query("SELECT companyName FROM ".Tprefix."entities WHERE eid='".$db->escape_string($val)."'"), "companyName");
+                $competition['comments'][$val]['suppliername'] = $db->fetch_field($db->query("SELECT companyName FROM ".Tprefix."entities WHERE eid='".$db->escape_string($val)."'"), 'companyName');
                 if(empty($competition['comments'][$val]['suppliername'])) {
-                    $competition['comments'][$val]['suppliername'] = 'Unspecified';
+                    $competition['comments'][$val]['suppliername'] = $lang->unspecified;
                 }
 
                 foreach($competition['comments'][$val] as $k => $v) {

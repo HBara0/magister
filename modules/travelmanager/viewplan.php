@@ -34,6 +34,7 @@ if(!$core->input['action']) {
             $segment_expenses = $segment->parse_expensesummary();
         }
     }
+    $transportaion_fields_title = $lang->allpossibletransportations;
     eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
     eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpan')."\";");
     output_page($travelmanager_viewplan);

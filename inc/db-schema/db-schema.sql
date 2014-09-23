@@ -827,6 +827,7 @@ CREATE TABLE `entitiesbrands` (
   `ebid` int(10) NOT NULL AUTO_INCREMENT,
   `name` varchar(220) COLLATE utf8_unicode_ci NOT NULL,
   `eid` int(10) NOT NULL,
+  `isGeneral` tinyint(1) NOT NULL DEFAULT '0',
   `createdBy` int(10) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,

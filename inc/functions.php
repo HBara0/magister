@@ -114,9 +114,10 @@ function gzip_compression($contents, $level = 1) {
 function output_xml($xml) {
     global $lang;
     ob_clean();
+
     //header('Content-type: text/xml');
-    echo "<?xml version='1.0' encoding='{$lang->settings[charset]}'?>";
-    echo "<xml>{$xml}</xml>";
+    echo '<?xml version="1.0" encoding="'.$lang->settings['charset'].'"?>';
+    echo '<xml>'.$xml.'</xml>';
 }
 
 /*
@@ -595,72 +596,115 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     }
 
     if(is_array($results)) {
-        if($options['returnType'] == 'json') {
-            foreach($results as $key => $val) {
+        foreach($results as $key => $val) {
+            if($options['returnType'] == 'json') {
                 $results_list[$key]['id'] = $key;
                 $results_list[$key]['value'] = $val;
             }
-            $results_list = json_encode($results_list);
-        }
-        else {
-            $results_list .= '<ul id="searchResultsList">';
-            foreach($results as $key => $val) {
-                if(isset($options['descinfo']) && !empty($options['descinfo'])) {
-                    switch($options['descinfo']) {
-                        case 'citycountry':
-                            $city = new Cities($key);
-                            $details = '<br /><span class="smalltext" >'.$city->get_country()->name.'</span>';
+            if(isset($options['descinfo']) && !empty($options['descinfo'])) {
+                switch($options['descinfo']) {
+                    case 'citycountry':
+                        $city = new Cities($key);
+                        if($options['returnType'] == 'json') {
+                            $results_list[$key]['id'] = $city->ciid;
+                            $results_list[$key]['desc'] = $city->get_country()->name;
+                        }
+                        else {
+                            $details = '<br /><span class="smalltext">'.$city->get_country()->name.'</span>';
                             $results_list .= '<li id="'.$city->ciid.'">'.$val.$details.'</li>';
-                            unset($details);
-                            break;
-                        case 'productsegment':
-                            $product = new Products($key);
-                            $chemfuncprod_objs = $product->get_chemfunctionproducts();
-                            if(is_array($chemfuncprod_objs)) {
-                                foreach($chemfuncprod_objs as $chemfuncprod_obj) {
-                                    $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
-                                    $details = '<br /><span class="smalltext" >'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
+                        }
+                        unset($details);
+                        break;
+                    case 'productsegment':
+                        $product = new Products($key);
+                        $chemfuncprod_objs = $product->get_chemfunctionproducts();
+                        if(is_array($chemfuncprod_objs)) {
+                            foreach($chemfuncprod_objs as $chemfuncprod_obj) {
+                                $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
+                                if($options['returnType'] == 'json') {
+                                    $results_list[$key]['id'] = $chemfuncprod_obj->cfpid;
+                                    $results_list[$key]['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                }
+                                else {
+                                    $details = '<br /><span class="smalltext">'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
                                     $results_list .= '<li id="'.$chemfuncprod_obj->cfpid.'">'.$val.$details.'</li>';
                                 }
                             }
-                            else { /* get Defaultfunction of the product */
-                                $chemfuncprod_objs = $product->get_defaultchemfunction();
-                                if(is_array($chemfuncprod_objs)) {
-                                    foreach($chemfuncprod_objs as $chemfuncprod_obj) {
-                                        $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
-                                        $details = '<br /><span class="smalltext" >'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
+                        }
+                        else { /* get Defaultfunction of the product */
+                            $chemfuncprod_objs = $product->get_defaultchemfunction();
+                            if(is_array($chemfuncprod_objs)) {
+                                foreach($chemfuncprod_objs as $chemfuncprod_obj) {
+                                    $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
+                                    if($options['returnType'] == 'json') {
+                                        $results_list[$key]['id'] = $chemfuncprod_obj->cfpid;
+                                        $results_list[$key]['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                    }
+                                    else {
+                                        $details = '<br/><span class="smalltext">'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
                                         $results_list .= '<li id="'.$chemfuncprod_obj->cfpid.'">'.$val.$details.'</li>';
                                     }
                                 }
                             }
-                            unset($details);
-                            break;
-                        case 'checmicalfunction':
-                            $chemfunchem_objs = ChemFunctionChemicals::get_data('csid='.$key, array('returnarray' => 1));
-                            if(is_array($chemfunchem_objs)) {
-                                foreach($chemfunchem_objs as $chemfunchem_obj) {
-                                    $application_obj = $chemfunchem_obj->get_segapplicationfunction();
-                                    $details = '<br /><span class="smalltext" >'.$chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
+                            else {
+                                if($options['returnType'] == 'json') {
+                                    unset($results_list[$key]);
+                                }
+                            }
+                        }
+                        unset($details);
+                        break;
+                    case 'checmicalfunction':
+                        $chemfunchem_objs = ChemFunctionChemicals::get_data('csid='.$key, array('returnarray' => 1));
+                        if(is_array($chemfunchem_objs)) {
+                            foreach($chemfunchem_objs as $chemfunchem_obj) {
+                                $application_obj = $chemfunchem_obj->get_segapplicationfunction();
+                                if($options['returnType'] == 'json') {
+                                    $results_list[$key]['id'] = $chemfuncprod_obj->cfcid;
+                                    $results_list[$key]['desc'] = $chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                }
+                                else {
+                                    $details = '<br /><span class="smalltext">'.$chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
+
                                     $results_list .= '<li id="'.$chemfunchem_obj->cfcid.'">'.$val.$details.'</li>';
                                 }
                             }
-                            break;
-                        default:
+                        }
+                        else {
+                            if($options['returnType'] == 'json') {
+                                unset($results_list[$key]);
+                            }
+                        }
+                        break;
+                    default:
+                        if($options['returnType'] != 'json') {
                             $results_list .= '<li id="'.$key.'">'.$val.'</li>';
-                            break;
-                    }
+                        }
+                        break;
                 }
-                else {
+            }
+            else {
+                if($options['returnType'] != 'json') {
                     $results_list .= '<li id="'.$key.'">'.$val.'</li>';
                 }
             }
-            $results_list .= '</ul>';
         }
     }
-    else {
+
+    if(!is_array($results) || empty($results_list)) {
         if($options['returnType'] != 'json') {
             $results_list = '<span class="red_text">'.$lang->nomatchfound.'</span>';
         }
+        else {
+            $results_list[0]['value'] = $lang->nomatchfound;
+        }
+    }
+
+    if($options['returnType'] != 'json') {
+        $results_list = '<ul id="searchResultsList">'.$results_list.'</ul>';
+    }
+    else {
+        $results_list = json_encode($results_list);
     }
 
     return $results_list;

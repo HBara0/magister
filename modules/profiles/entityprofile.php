@@ -458,7 +458,15 @@ if(!$core->input['action']) {
             foreach($brandsproducts as $brandproduct) {
                 $brandproduct_brand = $brandproduct->get_entitybrand();
                 $brandproduct_productype = $brandproduct->get_endproduct();
-                $options[$brandproduct->ebpid] = $brandproduct_brand->name.' - '.$brandproduct_productype->title;
+                $options[$brandproduct->ebpid] = $brandproduct_brand->name;
+                if(!is_object($brandproduct_productype)) {
+                    $brandproduct_productype = new EntBrandsProducts();
+                    $brandproduct_productype->title = $lang->unspecified;
+                }
+                else {
+                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct_productype->title;
+                }
+
                 eval("\$brandsendproducts .= \"".$template->get('profiles_entityprofile_brandsproducts')."\";");
             }
 
@@ -618,7 +626,14 @@ else {
             foreach($brandsproducts as $brandproduct) {
                 $brandproduct_brand = $brandproduct->get_entitybrand();
                 $brandproduct_productype = $brandproduct->get_endproduct();
-                $options[$brandproduct->ebpid] = $brandproduct_brand->name.' - '.$brandproduct_productype->title;
+                $options[$brandproduct->ebpid] = $brandproduct_brand->name;
+                if(!is_object($brandproduct_productype)) {
+                    $brandproduct_productype = new EntBrandsProducts();
+                    $brandproduct_productype->title = $lang->unspecified;
+                }
+                else {
+                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct_productype->title;
+                }
                 eval("\$brandsendproducts .= \"".$template->get('profiles_entityprofile_brandsproducts')."\";");
             }
 
@@ -674,6 +689,10 @@ else {
         $mkintentry_customer = $mkintentry->get_customer();
         $mkintentry_brand = $mkintentry->get_entitiesbrandsproducts()->get_entitybrand();
         $mkintentry_endproducttype = $mkintentry->get_entitiesbrandsproducts()->get_endproduct();
+        if(!is_object($mkintentry_endproducttype)) {
+            $mkintentry_endproducttype = new EntBrandsProducts();
+            $mkintentry_endproducttype->title = $lang->unspecified;
+        }
         $mkint_visitreportobj = $mkintentry->get_visitreport();
 
         $mkintentry_visitreport = '-';

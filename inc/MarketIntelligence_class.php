@@ -68,7 +68,9 @@ class MarketIntelligence {
             /* Get end product type if not specified in input */
             if(!isset($this->marketdata['eptid']) || empty($this->marketdata['eptid'])) {
                 $brand = new EntBrandsProducts($this->marketdata['ebpid']);
-                $this->marketdata['eptid'] = $brand->get_endproduct()->eptid;
+                if($brand->eptid != 0) {
+                    $this->marketdata['eptid'] = $brand->get_endproduct()->eptid;
+                }
                 unset($brand);
             }
 
@@ -210,15 +212,19 @@ class MarketIntelligence {
 
         $altrow_class = alt_row($altrow_class);
         foreach($round_fields as $round_field) {
+            if($data[$round_field] < 1) {
+                continue;
+            }
             $data[$round_field] = round($data[$round_field]);
         }
         $entity_brdprd_objs = new EntBrandsProducts($data['ebpid']); //$maktintl_obj->get_entitiesbrandsproducts();
         $entity_brandproducts = $entity_brdprd_objs->get();
 
         $entity_mrktendproducts_objs = new EndProducTypes($entity_brandproducts['eptid']); //$maktintl_obj->get_marketendproducts($entity_brandproducts['eptid']);
-        $entity_mrktendproducts = $entity_mrktendproducts_objs->get()['title'];
-
-
+        $entity_mrktendproducts = $lang->unspecified;
+        if(!empty($entity_brandproducts['eptid'])) {
+            $entity_mrktendproducts = $entity_mrktendproducts_objs->title;
+        }
         if(!empty($profile['displayItem'])) {
             /* Get chemial substance if no cfpid for the cusomter */
             if(empty($data[$profile['displayItem']::PRIMARY_KEY]) && $profile['displayItem'] == ChemFunctionProducts) {
@@ -323,8 +329,7 @@ class MarketIntelligence {
 
     public function get_competitors() {
         global $db;
-        $query = $db->query('SELECT micid FROM '.Tprefix.'marketintelligence_competitors WHERE mibdid = '.
-                $this->marketintelligence['mibdid'].'');
+        $query = $db->query('SELECT micid FROM '.Tprefix.'marketintelligence_competitors WHERE mibdid='.$this->marketintelligence['mibdid'].'');
         while($rows = $db->fetch_assoc($query)) {
             $marketcomp[$rows['micid']] = new MarketIntelligenceCompetitors($rows['micid']);
         }

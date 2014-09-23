@@ -87,11 +87,20 @@
                     //$(this).datepicker("option", "maxDate", new Date($("#pickDate_to_" + (tabcounter - 1)).val()));
 
                 });
-                $("input[id^='show_otherexpenses']").live('change', function() {
+                $("select[id^='show_otherexpenses']").live('change', function() {
                     var id = $(this).attr('id').split("_");
                     $("div[id='" + id[1] + "_" + id[2] + "_" + id[3] + "']").fadeToggle('fast');
                 });
 
+                $("select[id^='segment_expensestype']").live('change', function() {
+                    var id = $(this).attr('id').split("_");
+                    var item = $(this).find(':selected').attr('itemref');
+                    $("div[id='Other_" + id[2] + "_" + id[3] + "']").hide();
+                    if(item == 'Other') {
+                        $("div[id='" + item + "_" + id[2] + "_" + id[3] + "']").show();
+                    }
+
+                });
             });
 
         </script>

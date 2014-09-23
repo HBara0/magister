@@ -57,7 +57,7 @@ class Travelmanager_Expenses extends AbstractClass {
             $expensestdata['currency'] = $data['currency'];
             $expensestdata['description'] = $data['description'];
             $expensestdata['paidBy'] = $data['paidBy'];
-            $expensestdata['paidByEntity'] = $data['paidByEntity'];
+            $expensestdata['paidById'] = $data['paidById'];
             $expensestdata['modifiedBy'] = $core->user['uid'];
             $expensestdata['modifiedOn'] = TIME_NOW;
             $db->update_query(self::TABLE_NAME, $expensestdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));

@@ -229,7 +229,12 @@ $(function() {
                     $(valueIn + "_output").val(ui.item.id);
                 }
             }
-        });
+        }).data('uiAutocomplete')._renderItem = function(ul, item) {
+            if(typeof item.desc != 'undefined') {
+                return $("<li>").append("<a>" + item.value + "<br><small>" + item.desc + "</small></a>").appendTo(ul);
+            }
+            return $("<li>").append("<a>" + item.value + "</a>").appendTo(ul);
+        };
     });
     $("input[id$='_QSearch']").live("keyup", QSearch);
 
