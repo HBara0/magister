@@ -699,6 +699,47 @@ $(function() {
 
     });
 
+    $("img[id^='ajaxaddmoresegment_']").live("click", function() {
+        if(sharedFunctions.checkSession() == false) {
+            return;
+        }
+
+        var id = $(this).attr('id').split('_');
+        //ajaxaddmoresegment,travelmanager/plantrip,expenses,2
+        var seg = id[3];
+        var num_rows = 0;
+        if($("#numrows_" + id[id.length - 2] + id[id.length - 1] + "_" + seg).length != 0) {
+            var num_rows = parseInt($("#numrows_" + id[id.length - 2] + id[id.length - 1] + "_" + seg).val());
+            var affid = parseInt($("#affid_" + id[id.length - 2] + id[id.length - 1]).val());
+        }
+
+        $.ajax({type: 'post',
+            url: rootdir + "index.php?module=" + id[1] + "&action=ajaxaddmore_" + id[2],
+            data: "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + $('input[id^=ajaxaddmoredata_]').serialize(),
+            beforeSend: function() {
+                $("body").append("<div id='modal-loading'></div>");
+                $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
+                });
+            },
+            complete: function() {
+                $("#modal-loading").dialog("close").remove();
+            },
+            success: function(returnedData) {
+
+                $('#' + id[id.length - 2] + id[id.length - 1] + "_" + seg + '_tbody').append(returnedData);
+                if($("#numrows_" + id[id.length - 2] + id[id.length - 1] + "_" + seg).length != 0) {
+                    $("#numrows_" + id[id.length - 2] + id[id.length - 1] + "_" + seg).val(num_rows + 1);
+                }
+                /*find the offset of the first input in the last tr*/
+                alert('#' + id[id.length - 2] + id[id.length - 1] + "_" + seg + '_tbody > tr:last');
+                $("html, body").animate({scrollTop: $('#' + id[id.length - 2] + id[id.length - 1] + "_" + seg + '_tbody > tr:last').find("input").filter(':visible:first').offset().top}, 1000);
+                $('#' + id[id.length - 2] + id[id.length - 1] + "_" + seg + '_tbody > tr:last').effect("highlight", {color: '#D6EAAC'}, 1500).find('input').first().focus();
+            }
+        });
+
+    });
+
+
     window.sharedFunctions = function() {
         function requestAjax(methodParam, urlParam, dataParam, loadingId, contentId, datatype, options) {
             //var datatype = 'html';
@@ -724,6 +765,7 @@ $(function() {
                     }
                 },
                 success: function(returnedData) {
+                    alert(returnedData);
                     if(datatype == 'xml') {
                         if($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -743,8 +785,8 @@ $(function() {
                             }
                         }
                     }
-                },
-                dataType: datatype
+                }//,
+                /// dataType: datatype
             });
         }
         function checkSession() {
