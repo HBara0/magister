@@ -65,16 +65,12 @@ class Travelmanager_Expenses_Types extends AbstractClass {
         foreach($this->data as $expenses) {
             $expenses_details = Travelmanager_Expenses::parse_expenses($sequence, $rowid);
             $expenses_details.=$this->parse_paidby($sequence, $rowid);
-//            $expenses_details.='<div style="display:none; padding: 8px;" id="pickaffiliate">
-//        <span>Another Affiliate </span>
-//        <input id="affiliate_'.$sequence.'_cache_autocomplete" autocomplete="off" tabindex="8" value=""  type="text">
-//        <input id="affiliate_'.$sequence.'_cache_id" name="segment['.$sequence.'][tmtcid]['.$rowid.'][paidBy]" value="" type="hidden"></div>';
-            $onchange_actions = '$("#"+$(this).find(":selected").attr("itemref")+"_"+'.$sequence.'+"_"+'.$rowid.').show()';
-            $expenses_options.='<option value='.$expenses->tmetid.' itemref='.$expenses->name.'   >'.$expenses->title.'</option>';
+            $onchange_actions = '$("#"+$(this).find(":selected").attr("itemref")+"_"+'.$sequence.'+"_"+'.$rowid.').show();';
+            $expenses_options.='<option value='.$expenses->tmetid.' itemref='.$expenses->name.'>'.$expenses->title.'</option>';
         }
 
         eval("\$segments_expenses_output = \"".$template->get('travelmanager_expenses_types')."\";");
-
+        $segments_expenses_output .='<hr>';
         return $segments_expenses_output;
     }
 

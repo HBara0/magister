@@ -286,7 +286,16 @@ class TravelManagerPlanSegments {
     }
 
     public function get_transportations() {
-        return new TravelManagerPlanTransps();
+        return TravelManagerPlanTransps::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]));
+    }
+
+    public function get_transportationscat() {
+        /* get the transportations categories of the transportations related to the segment object we call */
+        return TravelManagerTranspCategories::get_data(array('tmtcid' => $this->get_transportations()->tmtcid));
+    }
+
+    public function get_expenses($config) {
+        return Travelmanager_Expenses::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), $config);
     }
 
     private function get_allapidata() {
@@ -314,7 +323,7 @@ class TravelManagerPlanSegments {
         global $template, $lang, $core, $db;
         $segmentdate = date('l F d, Y', $this->fromDate);
         $destination_cities = $this->get_origincity()->name.' - '.$this->get_destinationcity()->name;
-        $transp_objs = TravelManagerPlanTransps::get_transpsegments(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
+        $transp_objs = TravelManagerPlanTransps::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
         if(is_array($transp_objs)) {
             foreach($transp_objs as $transportation) {
                 $transportation->transpType = $transportation->get_transpcategory()->title;
@@ -441,6 +450,10 @@ class TravelManagerPlanSegments {
             }
             return $flight_details;
         }
+    }
+
+    public function get_accomodations($config = array()) {
+        return TravelManagerPlanaccomodations::get_planaccomodations(array('tmpsid' => $this->data[self::PRIMARY_KEY]), $config);
     }
 
 }

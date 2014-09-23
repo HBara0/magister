@@ -32,7 +32,7 @@ class TravelManagerPlanTransps extends AbstractClass {
         return $data->get_objects_byattr($attr, $value);
     }
 
-    public static function get_transpsegments($filters = null, array $configs = array()) {
+    public static function get_data($filters = null, array $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);
     }
@@ -42,12 +42,12 @@ class TravelManagerPlanTransps extends AbstractClass {
             $data = $this->data;
         }
 
-        $tmptransp = TravelManagerPlanTransps::get_transpsegments(array(self::PRIMARY_KEY => $data[self::PRIMARY_KEY]));
+        $tmptransp = TravelManagerPlanTransps::get_data(array(self::PRIMARY_KEY => $data[self::PRIMARY_KEY]));
         if(is_object($tmptransp)) {
             $tmptransp->update($data);
         }
         else {
-            $tmptransp = TravelManagerPlanTransps::get_transpsegments(array(TravelManagerTranspCategories::PRIMARY_KEY => $data[TravelManagerTranspCategories::PRIMARY_KEY], TravelManagerPlanSegments::PRIMARY_KEY => $data[TravelManagerPlanSegments::PRIMARY_KEY]));
+            $tmptransp = TravelManagerPlanTransps::get_data(array(TravelManagerTranspCategories::PRIMARY_KEY => $data[TravelManagerTranspCategories::PRIMARY_KEY], TravelManagerPlanSegments::PRIMARY_KEY => $data[TravelManagerPlanSegments::PRIMARY_KEY]));
             if(is_object($tmptransp)) {
                 $tmptransp->update($data);
             }
