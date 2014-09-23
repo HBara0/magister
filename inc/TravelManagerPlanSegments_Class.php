@@ -306,7 +306,7 @@ class TravelManagerPlanSegments {
         global $template, $lang, $core, $db;
         $segmentdate = date('l F d, Y', $this->fromDate);
         $destination_cities = $this->get_origincity()->name.' - '.$this->get_destinationcity()->name;
-        $transp_objs = TravelManagerPlanTransps::get_transpsegments(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
+        $transp_objs = TravelManagerPlanTransps::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
         if(is_array($transp_objs)) {
             foreach($transp_objs as $transportation) {
                 $transportation->transpType = $transportation->get_transpcategory()->title;
