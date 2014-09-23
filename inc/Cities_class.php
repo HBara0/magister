@@ -95,7 +95,8 @@ class Cities {
         return TravelManagerCityBriefings::get_citybriefings('ciid='.$db->escape_string($this->data['ciid']), array('ORDER' => array('by' => 'createdOn', 'sort' => 'DESC'), 'limit' => '0,1'));
     }
 
-    public function parse_approvedhotels($sequence, $selectedhotel) {
+    public function parse_approvedhotels($sequence, $selectedhotel = '') {
+        global $lang;
         $approved_hotelsobjs = $this->get_approvedhotels();
 
         if(is_array($approved_hotelsobjs)) {

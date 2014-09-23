@@ -380,14 +380,13 @@ class TravelManagerPlan {
 
     public function parse_existingsegments() {
         global $lang, $template, $core, $header, $headerinc, $menu;
-        $segmentplan_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $this->tmpid));
+        $segmentplan_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $this->tmpid), array('order' => array('by' => 'sequence', 'sort' => 'ASC')));
         $segid = 1;
         $leave_ouput = $this->parse_leavetypetitle();
         foreach($segmentplan_objs as $id => $segmentobj) {
 
             $segmentstabs .= '<li><a href="#segmentstabs-'.$segid.'">Segment '.$segid.'</a></li>  ';
             $sequence = $segmentobj->sequence;
-
             $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ( $segmentobj->toDate));
             $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ( $segmentobj->toDate));
             $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], $segmentobj->fromDate);
@@ -411,10 +410,7 @@ class TravelManagerPlan {
             $drivingmode[transpcat][type] = Cities::parse_transportations(array('apiFlightdata' => $segmentobj->apiFlightdata), $sequence);
             /* parse transportations types --END */
 
-
             /* parse hotel --START */
-
-
             $hotelssegments_objs = $segmentobj->get_accomodations(array('returnarray' => true));
             if(is_array($hotelssegments_objs)) {
                 foreach($hotelssegments_objs as $segmentacc) {
@@ -422,12 +418,24 @@ class TravelManagerPlan {
                 }
             }
             $city_obj = new Cities($segmentobj->get_origincity()->ciid);
-
             $hotelssegments_output = $city_obj->parse_approvedhotels($sequence, $selectedhotel);
             /* parse hotel --END */
 
+            /* parse expenses --START */
+            $segexpenses_ojbs = $segmentobj->get_expenses(array('returnarray' => true));
+            if(is_array($segexpenses_ojbs)) {
+                foreach($segexpenses_ojbs as $rowid => $expenses) {
+                    $expensestype[$sequence][$rowid]['expectedAmt'] = $expenses->expectedAmt;
+                    $segments_expenses_output .= $expenses->get_types()->parse_expensesfield($sequence, $rowid);
+                }
+            }
+            print_R($expensestype);
+
+            /* parse expenses --END */
+
             eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
             eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
+            $segments_expenses_output = $expensestype = '';
             eval("\$plantrip_createsegment   = \"".$template->get('travelmanager_plantrip_createsegment')."\";");
             $segments_output .= '<div id="segmentstabs-'.$segid.'">'.$plantrip_createsegment.'</div>';
             $segid++;
@@ -436,7 +444,7 @@ class TravelManagerPlan {
         eval("\$plantript_segmentstabs= \"".$template->get('travelmanager_plantrip_segmentstabs')."\";");
 
         eval("\$plantrip = \"".$template->get('travelmanager_plantrip')."\";");
-        // unset($segments_output);
+
         return $plantrip;
     }
 

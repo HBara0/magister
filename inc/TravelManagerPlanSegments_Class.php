@@ -220,12 +220,16 @@ class TravelManagerPlanSegments {
     }
 
     public function get_transportations() {
-        return TravelManagerPlanTransps::get_data(array('tmpsid' => $this->data['tmpsid']));
+        return TravelManagerPlanTransps::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]));
     }
 
     public function get_transportationscat() {
         /* get the transportations categories of the transportations related to the segment object we call */
         return TravelManagerTranspCategories::get_data(array('tmtcid' => $this->get_transportations()->tmtcid));
+    }
+
+    public function get_expenses($config) {
+        return Travelmanager_Expenses::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), $config);
     }
 
     private function get_allapidata() {
