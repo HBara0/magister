@@ -49,4 +49,5 @@ $lang['actual'] = 'Actual';
 $lang['subtotal'] = 'Sub-total';
 $lang['budyef'] = 'Bud./YEF';
 $lang['commercialadminstrationexpenses'] = 'Commercial and Adminstration Expenses';
+$lang['createcomadminexpenses'] = 'Create Commercial and Adminstration Expenses';
 ?>
