@@ -34,7 +34,7 @@ class BudgetExpenseCategories extends AbstractClass {
     }
 
     public function get_items() {
-        $items = BudgetExpenseItems::get_data(array('becid' => $this->data['becid']), array('returnarray' => true, 'sim[le' => false));
+        $items = BudgetExpenseItems::get_data(array('becid' => $this->data['becid']), array('returnarray' => true, 'simple' => false));
         return $items;
     }
 
