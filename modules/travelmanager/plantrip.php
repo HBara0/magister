@@ -75,8 +75,9 @@ if(!$core->input['action']) {
 
             /* parse expenses --START */
             $rowid = 1;
+            $expensestype[$sequence][$rowid]['display'] = "display:none;";
             $expensestype_obj = new Travelmanager_Expenses_Types();
-            $segments_expenses_output = $expensestype_obj->parse_expensesfield($sequence, $rowid);
+            $segments_expenses_output = $expensestype_obj->parse_expensesfield('', $sequence, $rowid, $expensestype);
 
             /* parse expenses --END */
 
@@ -108,7 +109,6 @@ else {
         foreach($querystring as $key => $val) {
             $$key = $db->escape_string($val);
         }
-
         $leave_obj = new Leaves(array('lid' => $leaveid), false);
         $leave = $leave_obj->get();
         /* prevent adding new segment if to date  greater than original  leave end date */
@@ -169,7 +169,7 @@ else {
         /* parse expenses --START */
         $rowid = 1;
         $expensestype_obj = new Travelmanager_Expenses_Types();
-        $segments_expenses_output = $expensestype_obj->parse_expensesfield($sequence, $rowid);
+        $segments_expenses_output = $expensestype_obj->parse_expensesfield('', $sequence, $rowid);
         /* parse expenses --END */
         eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
         output($plansegmentscontent_output);
@@ -204,6 +204,7 @@ else {
     elseif($core->input['action'] == 'do_perform_plantrip') {
         $travelplan = new TravelManagerPlan();
         if(is_array($core->input['segment'])) {
+
             $travelplan->set($core->input);
             $travelplan->save();
             // $travelplan_obj->create($core->input['segment']);

@@ -46,7 +46,7 @@ class TravelManagerPlanaccomodations {
         return $data->get_objects_byattr($attr, $value);
     }
 
-    public static function get_planaccomodations($filters = null, array $configs = array()) {
+    public static function get_data($filters = null, array $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);
     }
@@ -74,15 +74,30 @@ class TravelManagerPlanaccomodations {
     }
 
     public function save(array $data = array()) {
-        if(value_exists(self::TABLE_NAME, self::PRIMARY_KEY, $this->data[self::PRIMARY_KEY])) {
-            //Update
+        global $core;
+        if(empty($data)) {
+            $data = $this->data;
+        }
+
+        $accomodations = TravelManagerPlanaccomodations::get_data(array('tmpsid' => $data['tmpsid'], 'tmhid' => $data['tmhid']));
+        if(is_object($accomodations)) {
+            $accomodations->update($data);
         }
         else {
-            if(empty($data)) {
-                $data = $this->data;
-            }
-
             $this->create($data);
+        }
+    }
+
+    protected function update(array $data) {
+        global $db, $core;
+        if(is_array($data)) {
+            $hoteldata['priceNight'] = $data['priceNight'];
+            $hoteldata['numNights'] = $data['numNights'];
+            $hoteldata['paidBy'] = $data['paidBy'];
+            $hoteldata['paidById'] = $data['paidById'];
+            $hoteldata['modifiedBy'] = $core->user['uid'];
+            $hoteldata['modifiedOn'] = TIME_NOW;
+            $db->update_query(self::TABLE_NAME, $hoteldata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         }
     }
 

@@ -6,10 +6,11 @@
             $(function() {
 
                 var tabs = $("#segmentstabs").tabs();
-                var tabcounter = tabs.find(".ui-tabs-nav").length + 1;
+                var tabcounter = tabs.find(".ui-tabs-nav").find('li').length + 1; //find the  lenght of li tabs and increment by 1
                 $("#createtab").live('click', function() {
                     var templatecontent = errormessage = '';
                     var id = "segmentstabs-" + tabcounter;
+
                     /*User cannot add a new segment if the destination city/to date of the previous segment are not filled*/
                     if($('#altpickDate_to_' + (tabcounter - 1)).val() == '' || ($('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() == '')) {
                         var errormessage = ' Please make sure the to Date and Destination city are filled ';
@@ -30,6 +31,7 @@
                         /*Select the  tabs-panel that isn't hidden with  tabs-hide:*/
 
                         var selectedPanel = $("#segmentstabs div.ui-tabs-panel:not(.ui-tabs-hide)");
+
                         var templatecontent = sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=add_segment", "sequence=" + tabcounter + "&lid=" + $('#lid').val() + "&destcity=" + $('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() + "&toDatetime=" + (Date.parse($('#pickDate_to_' + (tabcounter - 1)).val())) + "&leavetoDatetime=" + $('#leaveDate_to_' + (tabcounter - 1)).val() + "&toDate=" + $('#altpickDate_to_' + (tabcounter - 1)).val(), 'loadindsection', id, 'html', true);
                         var templatecontent = errormessage = '';
                         tabs.append("<div id=" + id + "><p>" + templatecontent + "</p></div>");
@@ -100,6 +102,16 @@
                         $("div[id='" + item + "_" + id[2] + "_" + id[3] + "']").show();
                     }
 
+                });
+
+                $('input[id^="numnight_segacc_"]').live('keyup', function() {
+                    var id = $(this).attr("id").split("_");
+                    if($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').length < 0) {
+                        return;
+                    }
+                    alert($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').text());
+
+                    $("div[id=total_" + id[1] + "_" + id[2] + '_' + id[3] + "]").fadeToggle('slow').stop().text($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() * $('input[id="numnight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val());
                 });
             });
 

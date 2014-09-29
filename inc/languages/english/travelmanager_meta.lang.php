@@ -29,6 +29,7 @@ $lang['cityreview'] = 'City Review';
 $lang['reservation'] = 'Possible Reservation Resources :';
 $lang['reason'] = 'Reason :';
 $lang['approvedhotels'] = 'Approved Hotels';
+$lang['numnight'] = 'Number Of Nights';
 
 $lang['approxfare'] = 'Approxmita fare';
 $lang['traino'] = 'Train Number';
@@ -42,6 +43,7 @@ $lang['leavedetails'] = 'Leave Details';
 $lang['purpose'] = 'Purpose';
 $lang['segment'] = 'Segment';
 $lang['night'] = 'Night';
+$lang['pricenight'] = 'Price Per Night';
 $lang['checkin'] = 'Check in At';
 $lang['segment'] = 'Segment';
 $lang['viewleave'] = 'click to view leave';

@@ -14,7 +14,7 @@
     {$segments_expenses_output}
 
     <span> <img src="./images/add.gif"  id="ajaxaddmoresegment_travelmanager/plantrip_expenses_{$sequence}"  alt="{$lang->add}">
-        <input name="numrows_expenses{$rowid}_{$sequence}" type="text" id="numrows_expenses{$rowid}_{$sequence}" value="{$rowid}">
+        <input name="numrows_expenses{$rowid}_{$sequence}" type="hidden" id="numrows_expenses{$rowid}_{$sequence}" value="{$rowid}">
     </span>
 
 </div>
