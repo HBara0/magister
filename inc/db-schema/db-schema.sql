@@ -2566,6 +2566,26 @@ CREATE TABLE `travelmanager_airports_tocorrect` (
   KEY `ciid` (`ciid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1980 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `travelmanager_expenses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `travelmanager_expenses` (
+  `tmeid` int(10) NOT NULL AUTO_INCREMENT,
+  `tmpsid` int(10) NOT NULL,
+  `tmetid` int(10) NOT NULL,
+  `expectedAmt` float NOT NULL,
+  `actualAmt` float NOT NULL,
+  `currency` varchar(4) COLLATE utf8_unicode_ci NOT NULL,
+  `usdFxrate` float NOT NULL,
+  `description` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `paidById` int(10) NOT NULL,
+  `paidBy` varchar(180) COLLATE utf8_unicode_ci NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`tmeid`)
+) ENGINE=MyISAM AUTO_INCREMENT=92 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 DROP TABLE IF EXISTS `travelmanager_flightrates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -2602,6 +2622,43 @@ SET character_set_client = utf8;
   `remarks` tinyint NOT NULL
 ) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
+DROP TABLE IF EXISTS `travelmanager_plan_accomodations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `travelmanager_plan_accomodations` (
+  `tmpaid` int(10) NOT NULL AUTO_INCREMENT,
+  `tmpsid` int(10) NOT NULL,
+  `tmhid` int(10) NOT NULL,
+  `accomType` smallint(5) NOT NULL,
+  `priceNight` float NOT NULL,
+  `numNights` smallint(3) NOT NULL,
+  `notes` text COLLATE utf8_unicode_ci,
+  `paidById` int(10) NOT NULL,
+  `paidBy` varchar(180) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`tmpaid`,`tmpsid`,`tmhid`)
+) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+DROP TABLE IF EXISTS `travelmanager_plan_transps`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `travelmanager_plan_transps` (
+  `tmpltid` int(10) NOT NULL AUTO_INCREMENT,
+  `tmpsid` int(10) NOT NULL,
+  `tmtcid` int(10) NOT NULL,
+  `isMAin` tinyint(1) NOT NULL,
+  `fare` float(10,0) NOT NULL,
+  `vehicleNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `flightNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `flightDetails` text COLLATE utf8_unicode_ci NOT NULL,
+  `agencyName` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `numDays` decimal(10,0) NOT NULL,
+  `transpType` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `paidById` int(10) NOT NULL,
+  `paidBy` varchar(180) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`tmpltid`,`tmpsid`,`tmtcid`),
+  KEY `tmpltid` (`tmpltid`),
+  KEY `tmtcid` (`tmtcid`),
+  KEY `tmpltid_2` (`tmpltid`)
+) ENGINE=MyISAM AUTO_INCREMENT=95 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 DROP TABLE IF EXISTS `uom`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
