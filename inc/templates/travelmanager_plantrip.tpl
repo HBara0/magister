@@ -6,10 +6,11 @@
             $(function() {
 
                 var tabs = $("#segmentstabs").tabs();
-                var tabcounter = tabs.find(".ui-tabs-nav").length + 1;
+                var tabcounter = tabs.find(".ui-tabs-nav").find('li').length + 1; //find the  lenght of li tabs and increment by 1
                 $("#createtab").live('click', function() {
                     var templatecontent = errormessage = '';
                     var id = "segmentstabs-" + tabcounter;
+
                     /*User cannot add a new segment if the destination city/to date of the previous segment are not filled*/
                     if($('#altpickDate_to_' + (tabcounter - 1)).val() == '' || ($('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() == '')) {
                         var errormessage = ' Please make sure the to Date and Destination city are filled ';
@@ -30,6 +31,7 @@
                         /*Select the  tabs-panel that isn't hidden with  tabs-hide:*/
 
                         var selectedPanel = $("#segmentstabs div.ui-tabs-panel:not(.ui-tabs-hide)");
+
                         var templatecontent = sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=add_segment", "sequence=" + tabcounter + "&lid=" + $('#lid').val() + "&destcity=" + $('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() + "&toDatetime=" + (Date.parse($('#pickDate_to_' + (tabcounter - 1)).val())) + "&leavetoDatetime=" + $('#leaveDate_to_' + (tabcounter - 1)).val() + "&toDate=" + $('#altpickDate_to_' + (tabcounter - 1)).val(), 'loadindsection', id, 'html', true);
                         var templatecontent = errormessage = '';
                         tabs.append("<div id=" + id + "><p>" + templatecontent + "</p></div>");
@@ -101,6 +103,16 @@
                     }
 
                 });
+
+                $('input[id^="numnight_segacc_"]').live('keyup', function() {
+                    var id = $(this).attr("id").split("_");
+                    if($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').length < 0) {
+                        return;
+                    }
+                    alert($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').text());
+
+                    $("div[id=total_" + id[1] + "_" + id[2] + '_' + id[3] + "]").fadeToggle('slow').stop().text($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() * $('input[id="numnight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val());
+                });
             });
 
         </script>
@@ -120,7 +132,8 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->plantrip}</h1>
-            <div class="ui-state-highlight ui-corner-all" style='padding: 5px; font-style: italic;'>{$leave['type_output']} - {$leave[fromDate_output]} -  {$leave[toDate_output]}</div>
+
+            {$leave_ouput}
             <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" action="#" method="post">
                 <div style='margin-top: 10px;'>
                     <a id="createtab" class="showpopup" href="#"><img border="0" alt="{$lang->addsegment}" src="images/addnew.png"> {$lang->addsegment}</a>
@@ -129,13 +142,7 @@
                 <input type="hidden" value="{$previoussegtodate}" id="todate" name="todate"/>
                 <input type="hidden" value="{$previoussegdestcity}" id="prevdestcity" name="prevdestcity"/>
                 <input type="hidden" value="{$leaveid}" id="lid" name="lid"/>
-                <div id="segmentstabs">
-                    <ul>
-                        <li><a href="#segmentstabs-1">Segment 1</a></li>
-                    </ul>
-                    <div id="loadindsection"></div>
-                    {$segments_output}
-                </div>
+                {$plantript_segmentstabs}
                 <input type='submit' class='button' value="{$lang->savecaps}" id='perform_travelmanager/plantrip_Button'>
             </form>
             <div id="perform_travelmanager/plantrip_Results"></div>

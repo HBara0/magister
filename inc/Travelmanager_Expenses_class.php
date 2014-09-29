@@ -21,7 +21,7 @@ class Travelmanager_Expenses extends AbstractClass {
     const TABLE_NAME = 'travelmanager_expenses';
     const DISPLAY_NAME = '';
     const CLASSNAME = __CLASS__;
-    const SIMPLEQ_ATTRS = 'tmeid, description';
+    const SIMPLEQ_ATTRS = 'tmeid,tmetid,tmpsid,expectedAmt,currency,description';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -60,6 +60,7 @@ class Travelmanager_Expenses extends AbstractClass {
             $expensestdata['paidById'] = $data['paidById'];
             $expensestdata['modifiedBy'] = $core->user['uid'];
             $expensestdata['modifiedOn'] = TIME_NOW;
+
             $db->update_query(self::TABLE_NAME, $expensestdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         }
     }
@@ -72,14 +73,17 @@ class Travelmanager_Expenses extends AbstractClass {
         return new Users($this->data['createdBy']);
     }
 
-    public static function parse_expenses($sequence, $rowid) {
+    public static function parse_expenses($sequence, $rowid, $expensestype) {
         global $lang, $template;
-
+        if(is_array($expensestype)) {
+            $segid = key($expensestype);
+        }
         $expenses_output_required_comments = '<span class=l"red_text">*</span>';
         $expenses_output_comments_requiredattr = ' required="required"';
 //$expenses_output_comments_field = '<div style="display:block; padding:5px; text-align:left;  vertical-align: top;">expectedAmt'.$expenses_output_required_comments.'<textarea cols="25" rows="1" id="expenses_['.$expensestype['alteid'].'][description]" name="leaveexpenses['.$expensestype['alteid'].'][description]" '.$expenses_output_comments_requiredattr.'>'.$expensestype['description'].'</textarea></div>';
 
         eval("\$expenses= \"".$template->get('travelmanager_expenses')."\";");
+
         return $expenses;
     }
 

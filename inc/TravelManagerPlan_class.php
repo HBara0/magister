@@ -60,7 +60,6 @@ class TravelManagerPlan {
 
     public static function get_availablecitytransp($directiondata = array()) {
         global $core;
-
         if($directiondata['destcity']['departuretime'] < TIME_NOW) {
             $directiondata['destcity']['departuretime'] = TIME_NOW + 3600;
         }
@@ -129,7 +128,7 @@ class TravelManagerPlan {
                     $transportaion_fields .=self::parse_paidby($sequence, $category['tmtcid']);
                     break;
                 case 'airplane':
-                    $availabe_arilinersobjs = TravelManagerAirlines::get_airlines(array('contracted' => '1'));
+                    // $availabe_arilinersobjs = TravelManagerAirlines::get_airlines(array('contracted' => '1'));
                     if(is_array($availabe_arilinersobjs)) {
                         foreach($availabe_arilinersobjs as $availabe_arilinersobj) {
                             $permitted_ariliners[] = $availabe_arilinersobj->iatacode;
@@ -140,10 +139,11 @@ class TravelManagerPlan {
                     //$arilinersroptions = parse_radiobutton('segment['.$sequence.'][aflid]', $ariliners, '', true, '&nbsp;&nbsp;');
                     //if(is_array($permitted_ariliners)) {
                     /* parse request array for the allowed airlines  and encode it as json array */
+                    if(!is_array($cityinfo['flight']) && empty($cityinfo['flight'])) {
+                        $flights = TravelManagerAirlines::get_flights(TravelManagerAirlines::build_flightrequestdata(array('origin' => $cityinfo['origincity']['unlocode'], 'destination' => $cityinfo['destcity']['unlocode'], 'maxStops' => 0, 'date' => $cityinfo['date'], 'permittedCarrier' => $permitted_ariliners)));
 
-                    $flights = TravelManagerAirlines::get_flights(TravelManagerAirlines::build_flightrequestdata(array('origin' => $cityinfo['origincity']['unlocode'], 'destination' => $cityinfo['destcity']['unlocode'], 'maxStops' => 0, 'date' => $cityinfo['date'], 'permittedCarrier' => $permitted_ariliners)));
-                    $transportaion_fields = TravelManagerAirlines::parse_bestflight($flights, array('name' => $category['name'], 'tmtcid' => $category['tmtcid']), $sequence);
-                    //}
+                        $transportaion_fields = TravelManagerAirlines::parse_bestflight($flights, array('name' => $category['name'], 'tmtcid' => $category['tmtcid']), $sequence);
+                    }
                     //$transportaion_fields .='<div style="display:block;width:100%;"> <div style="display:inline-block;" id="airlinesoptions"> '.$arilinersroptions.' </div>  </div>';
                     //}
                     $transportaion_fields .=self::parse_paidby($sequence, $category['tmtcid']);
@@ -223,9 +223,10 @@ class TravelManagerPlan {
     public function create($data = array()) {
         global $db, $core;
         if(is_array($data)) {
+
             $this->data['lid'] = $data['lid'];
             $leave = new Leaves($this->data['lid']);
-            unset($data['lid']);
+
 //            if($this->check_isemptyfields($data)) {
 //                $this->errorode = 2;
 //                return false;
@@ -255,13 +256,13 @@ class TravelManagerPlan {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
         }
         /* create segment */
-
         foreach($data['segment'] as $sequence => $segmentdata) {
             $tmpsegment = new TravelManagerPlanSegments();
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
             $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
             $segmentdata[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
             $segmentdata['sequence'] = $sequence;
+
             $tmpsegment->set($segmentdata);
             $tmpsegment->save();
             $this->errorode = $tmpsegment->get_errorcode();
@@ -273,8 +274,10 @@ class TravelManagerPlan {
         if(empty($data)) {
             $data = $this->data;
         }
+
 //get object of and the id and set data and save
         $latestsplan_obj = TravelManagerPlan::get_plan(array('lid' => $this->data['lid'], 'createdBy' => $core->user['uid']));
+        unset($data['lid'], $data['module'], $data['action'], $data['sequence'], $data['todate'], $data['prevdestcity']);
         if(is_object($latestsplan_obj)) {
             $this->data['tmpid'] = $latestsplan_obj->get()['tmpid'];
             $this->update($data);
@@ -288,13 +291,14 @@ class TravelManagerPlan {
         global $db;
 
         $segments = $plandata['segment'];
-
         $valid_attrs = array('lid', 'uid', 'title', 'createBy', 'createdOn', 'modifiedBy', 'modifiedOn', 'isFinalized');
         $valid_attrs = array_combine($valid_attrs, $valid_attrs);
         $plandata = array_intersect_key($plandata, $valid_attrs);
-        $db->update_query(self::TABLE_NAME, $plandata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
-
+        if(!empty($plandata)) {
+            $db->update_query(self::TABLE_NAME, $plandata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        }
         if(is_array($segments)) {
+
             foreach($segments as $sequence => $segmentdata) {
                 $segment_planobj = new TravelManagerPlanSegments();
                 if(isset($segmentdata['fromDate']) && isset($segmentdata['toDate'])) {
@@ -365,6 +369,133 @@ class TravelManagerPlan {
 
     public function get_modifiedBy() {
         return new Users($this->data['modifiedBy']);
+    }
+
+    private function parse_leavetypetitle() {
+        global $core;
+        $leave_obj = $this->get_leave();
+        $leave = $leave_obj->get();
+        $leave['fromDate_output'] = date($core->settings['dateformat'], $leave['fromDate']);
+        $leave['toDate_output'] = date($core->settings['dateformat'], $leave['toDate']);
+        $leave['type_output'] = $leave_obj->get_leavetype()->get()['title'];
+        $leave_ouput = '  <div class="ui-state-highlight ui-corner-all" style="padding: 5px; font-style: italic;">'.$leave['type_output'].' - '.$leave['fromDate_output'].' - '.$leave['toDate_output'].'</div>';
+        return $leave_ouput;
+    }
+
+    public function parse_existingsegments() {
+        global $lang, $template, $core, $header, $headerinc, $menu;
+        $segmentplan_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $this->tmpid), array('order' => array('by' => 'sequence', 'sort' => 'ASC')));
+        $segid = 1;
+        $disabled = 'disabled="true"';
+        $leave_ouput = $this->parse_leavetypetitle();
+        $leaveid = $this->get_leave()->lid;
+        foreach($segmentplan_objs as $segmentid => $segmentobj) {
+            $segmentstabs .= '<li><a href="#segmentstabs-'.$segid.'">Segment '.$segid.'</a></li>  ';
+            $sequence = $segmentobj->sequence;
+            $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ( $segmentobj->toDate));
+            $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ( $segmentobj->toDate));
+            $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], $segmentobj->fromDate);
+            $segment[$sequence]['fromDate_formatted'] = date('d-m-Y', ($segmentobj->fromDate));
+
+            $segment[$sequence]['origincity']['name'] = $segmentobj->get_origincity()->name;
+            $segment[$sequence]['origincity']['ciid'] = $segmentobj->get_origincity()->ciid;
+            $segment[$sequence]['destinationcity']['name'] = $segmentobj->get_destinationcity()->name;
+            $segment[$sequence]['destinationcity']['ciid'] = $segmentobj->get_destinationcity()->ciid;
+            $segment[$sequence]['reason'] = $segmentobj->reason;
+
+            //get transp cat send to  parse_transportaionfields
+            $transportation_obj = $segmentobj->get_transportationscat();
+            $categery['name'] = $transportation_obj->name;
+            //$transsegments_output = $this->parse_transportaionfields(array('name' => $transportation_obj->name), array('flight' => $segmentobj->apiFlightdata), $sequence);
+
+            /* parse transportations types --START */
+            $seg_transppbj = $segmentobj->get_transportations();
+            if(is_array($seg_transppbj)) {
+                foreach($seg_transppbj as $transp) {
+                    $selectedtransp[] = $transp->tmtcid;
+
+                    //$drivingmode[transpcat][type] = Cities::parse_transportations(array('apiFlightdata' => $segmentobj->apiFlightdata), $sequence);
+                    //     $transsegments_output .= Cities::parse_transportations(array('origincity' => $segmentobj->get_origincity()->get(), 'destcity' => $segmentobj->get_destinationcity()->get(), 'departuretime' => $segmentobj->fromDate), $sequence);
+                }
+            }
+            /* parse transportations types --END */
+
+            $cityprofile_output = $segmentobj->get_destinationcity()->parse_cityreviews();
+            $citybriefings_output = $segmentobj->get_destinationcity()->parse_citybriefing();
+
+
+            /* parse hotel --START */
+            $hotelssegments_objs = $segmentobj->get_accomodations(array('returnarray' => true));
+            if(is_array($hotelssegments_objs)) {
+
+                foreach($hotelssegments_objs as $segmentacc) {
+                    $accomodation[$segmentid][$segmentacc->tmhid]['priceNight'] = $segmentacc->priceNight;
+                    $accomodation[$segmentid][$segmentacc->tmhid]['numNights'] = $segmentacc->numNights;
+                    $accomodation[$segmentid][$segmentacc->tmhid]['paidbyid'] = $segmentacc->paidById;
+
+                    $accomodation[$segmentid][$segmentacc->tmhid]['display'] = "display:none;";
+                    $accomodation[$segmentid][$segmentacc->tmhid]['paidby'] = $segmentacc->paidBy;
+                    if(isset($accomodation[$segmentid][$segmentacc->tmhid]['paidbyid']) && !empty($accomodation[$segmentid][$segmentacc->tmhid]['paidbyid'])) {
+                        $accomodation[$segmentid][$segmentacc->tmhid]['display'] = "display:block;";
+                    }
+
+                    $accomodation[$segmentid][$segmentacc->tmhid]['affid'] = $segmentacc->paidById;
+                    $accomodation[$segmentid][$segmentacc->tmhid]['affiliate'] = $segmentobj->display_paidby($segmentacc->paidBy, $segmentacc->paidById)->name;
+
+                    $accomodation[$segmentid][$segmentacc->tmhid]['total'] = ($accomodation[$segmentid][$segmentacc->tmhid]['priceNight']) * ($accomodation [$segmentid][$segmentacc->tmhid]['numNights']);
+                    $accomodation[$segmentid][$segmentacc->tmhid]['selectedhotel'][] = $segmentacc->tmhid;
+                }
+            }
+            $city_obj = new Cities($segmentobj->get_destinationcity()->ciid);
+            $hotelssegments_output = $city_obj->parse_approvedhotels($sequence, $accomodation);
+            /* parse hotel --END */
+
+
+            /* parse expenses --START */
+            $segexpenses_ojbs = $segmentobj->get_expenses(array('simple' => false, 'returnarray' => true));
+            if(is_array($segexpenses_ojbs)) {
+
+                foreach($segexpenses_ojbs as $rowid => $expenses) {
+                    $expensesoptions = Travelmanager_Expenses_Types::get_data();
+                    $expensestype[$segmentid][$rowid]['expectedAmt'] = $expenses->expectedAmt;
+                    $expensestype[$segmentid][$rowid]['selectedtype'][] = $expenses->tmetid;
+
+                    if(!empty($expenses->paidBy)) {
+                        $expensestype[$segmentid][$rowid]['paidby'] = $expenses->paidBy;
+                    }
+                    if(!empty($expenses->paidById)) {
+                        $expensestype[$segmentid][$rowid]['paidbyid'] = $expenses->paidById;
+                    }
+                    $expensestype[$segmentid][$rowid]['display'] = "display:none;";
+                    if(isset($expensestype[$segmentid][$rowid]['paidbyid']) && !empty($expensestype[$segmentid][$rowid]['paidbyid'])) {
+                        $expensestype[$segmentid][$rowid]['display'] = "display:block;";
+                    }
+
+                    $expensestype[$segmentid][$rowid]['affid'] = $expenses->paidById;
+                    $affid = $segmentobj->display_paidby($expenses->paidBy, $expenses->paidById)->affid;
+                    $expensestype[$segmentid][$rowid]['affiliate'] = $segmentobj->display_paidby($expenses->paidBy, $expenses->paidById)->name;
+                    if(!empty($expenses->description)) {
+                        $expensestype[$segmentid][$rowid]['otherdesc'] = $expenses->description;
+                    }
+                    $segments_expenses_output .= $expenses->get_types()->parse_expensesfield($expensesoptions, $sequence, $rowid, $expensestype);
+                }
+            }
+
+            /* parse expenses --END */
+
+            eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
+            eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
+            unset($segments_expenses_output, $expensestype, $transsegments_output, $accomodation, $selectedhotel);
+            eval("\$plantrip_createsegment   = \"".$template->get('travelmanager_plantrip_createsegment')."\";");
+            $segments_output .= '<div id="segmentstabs-'.$segid.'">'.$plantrip_createsegment.'</div>';
+            $segid++;
+        }
+
+        eval("\$plantript_segmentstabs= \"".$template->get('travelmanager_plantrip_segmentstabs')."\";");
+
+        eval("\$plantrip = \"".$template->get('travelmanager_plantrip')."\";");
+
+        return $plantrip;
     }
 
 }

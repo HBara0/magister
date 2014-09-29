@@ -59,27 +59,42 @@ class Travelmanager_Expenses_Types extends AbstractClass {
         return new Users($this->data['createdBy']);
     }
 
-    public function parse_expensesfield($sequence, $rowid) {
+    public function parse_expensesfield($expensesoptions, $sequence, $rowid, $expensestype = array()) {
         global $db, $template, $lang;
 
-        foreach($this->data as $expenses) {
-            $expenses_details = Travelmanager_Expenses::parse_expenses($sequence, $rowid);
-            $expenses_details.=$this->parse_paidby($sequence, $rowid);
-//            $expenses_details.='<div style="display:none; padding: 8px;" id="pickaffiliate">
-//        <span>Another Affiliate </span>
-//        <input id="affiliate_'.$sequence.'_cache_autocomplete" autocomplete="off" tabindex="8" value=""  type="text">
-//        <input id="affiliate_'.$sequence.'_cache_id" name="segment['.$sequence.'][tmtcid]['.$rowid.'][paidBy]" value="" type="hidden"></div>';
-            $onchange_actions = '$("#"+$(this).find(":selected").attr("itemref")+"_"+'.$sequence.'+"_"+'.$rowid.').show()';
-            $expenses_options.='<option value='.$expenses->tmetid.' itemref='.$expenses->name.'   >'.$expenses->title.'</option>';
+        if(is_array($expensesoptions)) {  // if the object coming from the update mode.
+            $this->data = $expensesoptions;
+        }
+        if(is_array($expensestype)) {
+            $segid = key($expensestype);
         }
 
+        if(is_array($this->data)) {
+            foreach($this->data as $expenses) {
+                print_R($expensestype[$segid][$rowid]);
+                if(is_array($expensestype[$segid][$rowid]['selectedtype'])) {
+                    if(in_array($expenses->tmetid, $expensestype[$segid][$rowid]['selectedtype'])) {
+                        $selected = ' selected="selected"';
+                    }
+                }
+                $expenses_details = Travelmanager_Expenses::parse_expenses($sequence, $rowid, $expensestype);
+                $expenses_details.=$this->parse_paidby($sequence, $rowid, $segid, array('selectedpaidby' => $expensestype[$segid][$expenses->tmetid]['paidby'], 'selectedpaidid' => $expensestype[$segid][$expenses->tmetid]['paidbyid']));
+                $onchange_actions = '$("#"+$(this).find(":selected").attr("itemref")+"_"+'.$sequence.'+"_"+'.$rowid.').show();';
+                $expenses_options.='<option value='.$expenses->tmetid.' itemref='.$expenses->name.' '.$selected.'>'.$expenses->title.'</option>';
+                $selected = '';
+            }
+        }
         eval("\$segments_expenses_output = \"".$template->get('travelmanager_expenses_types')."\";");
-
+        $segments_expenses_output .='<hr>';
         return $segments_expenses_output;
     }
 
-    public function parse_paidby($sequence, $rowid) {
+    public function parse_paidby($sequence, $rowid, $segid, $selectedoptions = array()) {
         global $lang;
+
+        if(!empty($selectedoptions['selectedpaidby'])) {
+            $selected_paidby[$segid][$rowid] = $selectedoptions['selectedpaidby'];
+        }
         $paidby_entities = array(
                 'myaffiliate' => $lang->myaffiliate,
                 'supplier' => $lang->supplier,
@@ -87,8 +102,7 @@ class Travelmanager_Expenses_Types extends AbstractClass {
                 'myself' => $lang->myself,
                 'anotheraff' => $lang->anotheraff
         );
-        //echo '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.')';
-        return '<div style="display:block;padding:8px;"  id="paidby"> Paid By '.parse_selectlist('segment['.$sequence.'][expenses]['.$rowid.'][entites]', 6, $paidby_entities, $paidby_entities[$paidby_entities['myaffiliate']], '', '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();;', array('id' => 'paidby')).'</div>';
+        return '<div style="display:block;padding:8px;"  id="paidby"> Paid By '.parse_selectlist('segment['.$sequence.'][expenses]['.$rowid.'][entites]', 6, $paidby_entities, $selected_paidby[$segid], '', '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();;', array('id' => 'paidby')).'</div>';
     }
 
 }

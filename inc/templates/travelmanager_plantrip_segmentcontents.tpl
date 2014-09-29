@@ -4,20 +4,17 @@
     {$transsegments_output}
 </div>
 <div style="display:block;" id="segment_hotels_{$sequence}">
-    <div class="subtitle">Approved Hotels</div>
+   <!-- <div class="subtitle">{}Approved Hotels</div>-->
     {$hotelssegments_output}
 </div>
-
-
 <div style="display:block; width: 100%;" id="segment_expenses_{$sequence}">
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
     <div class="subtitle" style="padding:8px;width:40%;">{$lang->addexp}</div>
 
     {$segments_expenses_output}
 
-    <span> <img src="./images/add.gif"  id="ajaxaddmore_travelmanager/plantrip_expenses_{$sequence}"  alt="{$lang->add}">
-        <input name="numrows_expenses{$sequence}" type="text" id="numrows_expenses{$sequence}" value="{$rowid}">
-
+    <span> <img src="./images/add.gif"  id="ajaxaddmoresegment_travelmanager/plantrip_expenses_{$sequence}"  alt="{$lang->add}">
+        <input name="numrows_expenses{$rowid}_{$sequence}" type="hidden" id="numrows_expenses{$rowid}_{$sequence}" value="{$rowid}">
     </span>
 
 </div>
