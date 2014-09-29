@@ -8,7 +8,7 @@
     <td style="width:10%"> <input name="budgetexps[{$item->beciid}][yefPrevYear]" type="text" accept="numeric" id="budgetexps_{$item->beciid}_{$item->becid}_yefPrevYear" value="{$budgetexps[yefPrevYear]}" required></td>
     <td style="width:10%"> <input name="budgetexps[{$item->beciid}][budgetCurrent]" type="text" accept="numeric" id="budgetexps_{$item->beciid}_{$item->becid}_budgetCurrent" value="{$budgetexps[budgetCurrent]}" required></td>
     <td style="width:10%">
-        <span id="budgetexps_{$item->beciid}_{$item->becid}_budYefPerc" style="font-weight:bold;width:100%;">{$comadmin_expenses->budYefPerc}</span>
-        <input type="hidden" name="budgetexps[{$item->beciid}][budYefPerc]" id="budgetexps_{$item->beciid}_{$item->becid}_budYefPerc" value="{$comadmin_expenses->budYefPerc}"></input>
+        <span id="budgetexps_{$item->beciid}_{$item->becid}_budYefPerc" style="font-weight:bold;width:100%;">{$budgetexps[budYefPerc]}</span>
+        <input type="hidden" name="budgetexps[{$item->beciid}][budYefPerc]" id="budgetexps_{$item->beciid}_{$item->becid}_budYefPerc" value="{$budgetexps[budYefPerc]}"></input>
     </td>
 </tr>
