@@ -25,14 +25,14 @@ $session->name_phpsession(COOKIE_PREFIX.'budget_expenses_'.$sessionidentifier);
 $session->start_phpsession(480);
 
 if(!isset($core->input['action'])) {
-    $session->set_phpsession(array('budget_expenses_'.$sessionidentifier => serialize($core->input['financialbudget'])));
-    if(isset($core->input['financialbudget']['year']) && !empty($core->input['financialbudget']['year'])) {
-        $financialbudget_year = $core->input['financialbudget']['year'];
-        $financialbudget_prevyear = $financialbudget_year - 1;
-        $financialbudget_prev2year = $financialbudget_year - 2;
-        $affid = $core->input['financialbudget']['affid'];
-        $affiliate = new Affiliates($affid);
-    }
+    //$session->set_phpsession(array('budget_expenses_'.$sessionidentifier => serialize($core->input['financialbudget'])));
+    $budget_data = unserialize($session->get_phpsession('budget_expenses_'.$sessionidentifier));
+    $financialbudget_year = $budget_data['year'];
+    $financialbudget_prevyear = $financialbudget_year - 1;
+    $financialbudget_prev2year = $financialbudget_year - 2;
+    $affid = $budget_data['affid'];
+    $affiliate = new Affiliates($affid);
+
     $prevfinancialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_prevyear), array('simple' => false));
     $financialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_year), array('simple' => false));
     $expensescategories = BudgetExpenseCategories::get_data('', array('returnarray' => true));
@@ -50,9 +50,10 @@ if(!isset($core->input['action'])) {
                         $budgetexps[$field] = $comadmin_expenses->$field;
                         $subtotal[$field] +=$comadmin_expenses->$field;
                     }
-                }
-                if($subtotal[yefPrevYear] != 0 && ($subtotal[budgetCurrent] - $subtotal[yefPrevYear]) != 0) {
-                    $subtotal['budYefPerc'] = sprintf("%.2f", (($subtotal[budgetCurrent] - $subtotal[yefPrevYear]) / $subtotal[yefPrevYear]) * 100).'%';
+                    $budgetexps[budYefPerc] = sprintf("%.2f", $comadmin_expenses->budYefPerc).'%';
+                    if($subtotal[yefPrevYear] != 0) {
+                        $subtotal['budYefPerc'] = sprintf("%.2f", (($subtotal[budgetCurrent] - $subtotal[yefPrevYear]) / $subtotal[yefPrevYear]) * 100).'%';
+                    }
                 }
 
                 if(is_object($prevfinancialbudget)) {
