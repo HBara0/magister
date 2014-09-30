@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->fillsurvey}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->fillbudget}</title>
         {$headerinc}
         <script type="text/javascript">
             $(function() {
@@ -105,6 +105,7 @@
             <h1>{$lang->fillbudget}
                 <div style="font-style:italic; font-size:12px; color:#666;">{$budget_data[affiliateName]} | {$budget_data[supplierName]} | {$budget_data[year]}</div>
             </h1>
+            <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p><strong>Important:</strong> Keeping the product field empty will result in deleting the row even if the product name hint is displayed below it.<br /><strong>Note:</strong> For better consistency we recommend picking up the customer name if only the customer name hint is displayed below the field.</p></div>
             <form id="perform_budgeting/fillbudget_Form" name="perform_budgeting/fillbudget_Form" action="index.php?module=budgeting/generatebudget&amp;identifier={$sessionidentifier}" method="post">
                 <input type="hidden" id='spid' name="spid" value="{$core->input[budget][spid]}"/>
                 <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">
@@ -117,7 +118,7 @@
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->saletype}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->quantity}<br /><span class="smalltext"><em>{$lang->mt}</em></span></td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
-                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->unitPrice}</td>
+                            <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->unitprice}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->amount}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->incomeperc}</td>
                             <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->income}</td>

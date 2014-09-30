@@ -208,7 +208,7 @@ class Budgets {
                     }
                 }
 
-                if(empty($data['pid']) || (empty($data['cid']) && empty($data['altCid']))) {
+                if((empty($data['pid']) && empty($data['altPid'])) || (empty($data['cid']) && empty($data['altCid']))) {
                     if(!empty($data['blid'])) {
                         $removed_lines[] = $data['blid'];
                     }
