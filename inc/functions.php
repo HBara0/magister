@@ -299,7 +299,7 @@ function create_cookie($name, $value, $duration = '', $secure = false, $httponly
 }
 
 /* Parse input fields of various types */
-function parse_textfield($id, $type, $value = '', $options = array(), $config = array()) {
+function parse_textfield($name, $id, $type, $value = '', $options = array(), $config = array()) {
     if(empty($id)) {
         return false;
     }
@@ -319,7 +319,7 @@ function parse_textfield($id, $type, $value = '', $options = array(), $config = 
         $id = $config['id'];
     }
 
-    $text = '<input type="'.$type.'" name="'.$id.'" value="'.$value.'" id="'.$id.'"'.$attributes.'>';
+    $text = '<input type="'.$type.'" name="'.$name.'" value="'.$value.'" id="'.$id.'"'.$attributes.'>';
     return $text;
 }
 
