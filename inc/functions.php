@@ -676,6 +676,16 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             }
                         }
                         break;
+                    case 'country':
+                        $entity = new Entities($key);
+                        if($options['returnType'] == 'json') {
+                            $results_list[$key]['desc'] = $entity->get_country()->name;
+                        }
+                        else {
+                            $details = '<br /><span class="smalltext">'.$entity->get_country()->name.'</span>';
+                            $results_list .= '<li id="'.$key.'">'.$val.$details.'</li>';
+                        }
+                        break;
                     default:
                         if($options['returnType'] != 'json') {
                             $results_list .= '<li id="'.$key.'">'.$val.'</li>';
