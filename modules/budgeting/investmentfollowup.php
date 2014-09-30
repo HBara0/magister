@@ -31,7 +31,7 @@ if(!isset($core->input['action'])) {
         $financialbudget_prevyear = $financialbudget_year - 1;
         $financialbudget_prev2year = $financialbudget_year - 2;
         $affid = $core->input['financialbudget']['affid'];
-        $affiliate = new Affiliates(1);
+        $affiliate = new Affiliates($affid);
     }
     $prevfinancialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_prevyear), array('simple' => false));
     $financialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_year), array('simple' => false));
