@@ -42,7 +42,6 @@ class BudgetInvestCategories extends AbstractClass {
         global $template, $lang;
 
         if(is_array($categories)) {
-            print_R($options['financialbudget']);
             foreach($categories as $category) {
                 unset($subtotal);
                 unset($readonly);
@@ -58,8 +57,9 @@ class BudgetInvestCategories extends AbstractClass {
                                 $budgetinvst[$field] = $invest_expenses->$field;
                                 $subtotal[$field] +=$invest_expenses->$field;
                             }
+                            $budgetinvst['percVariation'] = sprintf("%.2f", $invest_expenses->budYefPerc).'%';
                             if($subtotal['yefPrevYear'] != 0 && ($subtotal['budgetCurrent'] - $subtotal['yefPrevYear']) != 0) {
-                                $subtotal['budYefPerc'] = sprintf("%.2f", (($subtotal['budgetCurrent'] - $subtotal['yefPrevYear']) / $subtotal['yefPrevYear']) * 100).'%';
+                                $subtotal['percVariation'] = sprintf("%.2f", (($subtotal['budgetCurrent'] - $subtotal['yefPrevYear']) / $subtotal['yefPrevYear']) * 100).'%';
                             }
                         }
                         if(is_object($options['prevfinancialbudget'])) {
@@ -68,12 +68,20 @@ class BudgetInvestCategories extends AbstractClass {
                             $budgetinvst['budgetPrevYear'] = $prevyear_invest_expenses->budgetCurrent;
                             $subtotal['budgetPrevYear'] +=$budgetinvst['budgetPrevYear'];
                         }
+                        $config_fields = array('budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
                         if(isset($options['mode']) && $options['mode'] == 'fill') {
-                            eval("\$budgeting_investexpenses_item .= \"".$template->get('budgeting_investexpenses_item')."\";");
+                            foreach($config_fields as $input) {
+                                $column_output.=' <td style="width:10%">'.parse_textfield('budgetinvst['.$item->biiid.']['.$input.']', 'budgetinvst_'.$item->biiid.'_'.$item->bicid.'_'.'budgetPrevYear', 'text', $budgetinvst[$input], array('accept' => 'numeric')).'</td>';
+                            }
                         }
                         else {
+                            foreach($config_fields as $input) {
+                                $column_output.= $budgetinvst[$input];
+                            }
                             //eval view mode template
                         }
+                        eval("\$budgeting_investexpenses_item .= \"".$template->get('budgeting_investexpenses_item')."\";");
+                        $field_output = $column_output = '';
                     }
                     foreach($fields as $field) {
                         $total[$field] += $subtotal[$field];

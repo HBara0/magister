@@ -36,14 +36,11 @@ if(!isset($core->input['action'])) {
     $prevfinancialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_prevyear), array('simple' => false));
     $financialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_year), array('simple' => false));
     $investcategories = BudgetInvestCategories::get_data('', array('returnarray' => true));
-    //  foreach($investcategories as $category) {
-    unset($subtotal);
-    unset($readonly);
-    // $budgeting_investexpenses_categories = '';
-    $fields = array('budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
+
 
     $budgeting_investexpenses_categories = BudgetInvestCategories::parse_expensesfields($investcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget));
 
+    $header_percentage = '<td style="width:10%">% '.$lang->budyef.'</td>';
     eval("\$budgeting_header = \"".$template->get('budgeting_investheader')."\";");
 
     eval("\$budgeting_investexpenses = \"".$template->get('budgeting_investexpenses')."\";");
