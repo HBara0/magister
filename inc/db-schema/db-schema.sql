@@ -299,6 +299,50 @@ CREATE TABLE `budgeting_budgets_lines` (
   KEY `createdBy` (`createdBy`),
   KEY `businessMgr` (`businessMgr`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2279 DEFAULT CHARSET=utf8;
+CREATE TABLE `budgeting_investcategory` (
+  `bicid` int(7) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(20) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(20) NOT NULL,
+  PRIMARY KEY (`bicid`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `budgeting_investexpenses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `budgeting_investexpenses` (
+  `biid` int(7) NOT NULL AUTO_INCREMENT,
+  `bfbid` int(10) NOT NULL,
+  `biiid` int(7) NOT NULL,
+  `budgetPrevYear` decimal(10,0) NOT NULL,
+  `yefPrevYear` decimal(10,0) NOT NULL,
+  `percVariation` decimal(10,0) NOT NULL,
+  `budgetCurrent` decimal(10,0) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(10) NOT NULL,
+  `modifiedOn` bigint(7) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`biid`),
+  UNIQUE KEY `biid` (`biid`)
+) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `budgeting_investitems`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `budgeting_investitems` (
+  `biiid` int(7) NOT NULL AUTO_INCREMENT,
+  `bicid` int(7) NOT NULL,
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `createdOn` bigint(7) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(7) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`biiid`)
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `calendar_events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
