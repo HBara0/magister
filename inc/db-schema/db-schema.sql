@@ -306,11 +306,11 @@ CREATE TABLE `budgeting_commadminexps` (
   `bcaeid` int(10) NOT NULL AUTO_INCREMENT,
   `bfbid` int(10) NOT NULL,
   `beciid` int(10) NOT NULL,
-  `actualPrevTwoYears` decimal(20,0) NOT NULL,
-  `budgetPrevYear` decimal(20,0) NOT NULL,
-  `yefPrevYear` decimal(20,0) NOT NULL,
-  `budgetCurrent` decimal(20,0) NOT NULL,
-  `budYefPerc` decimal(20,0) NOT NULL,
+  `actualPrevTwoYears` float NOT NULL,
+  `budgetPrevYear` float NOT NULL,
+  `yefPrevYear` float NOT NULL,
+  `budgetCurrent` float NOT NULL,
+  `budYefPerc` float NOT NULL,
   `createdBy` int(10) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
@@ -322,9 +322,9 @@ DROP TABLE IF EXISTS `budgeting_expense_categories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `budgeting_expense_categories` (
-  `becid` int(10) NOT NULL AUTO_INCREMENT,
+  `becid` smallint(10) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`becid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -333,9 +333,9 @@ DROP TABLE IF EXISTS `budgeting_expense_items`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `budgeting_expense_items` (
   `beciid` int(10) NOT NULL AUTO_INCREMENT,
-  `becid` int(10) NOT NULL,
+  `becid` smallint(10) NOT NULL,
   `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `createdBy` int(10) NOT NULL,
   PRIMARY KEY (`beciid`)
@@ -346,13 +346,13 @@ DROP TABLE IF EXISTS `budgeting_financialbudget`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `budgeting_financialbudget` (
   `bfbid` int(10) NOT NULL AUTO_INCREMENT,
-  `affid` int(10) NOT NULL,
-  `year` varchar(7) COLLATE utf8_unicode_ci NOT NULL,
+  `affid` smallint(5) NOT NULL,
+  `year` int(10) NOT NULL,
   `currency` varchar(7) COLLATE utf8_unicode_ci NOT NULL,
-  `finGenAdmExpAmtApty` decimal(10,0) NOT NULL,
-  `finGenAdmExpAmtBpy` decimal(10,0) NOT NULL,
-  `finGenAdmExpAmtYpy` decimal(10,0) NOT NULL,
-  `finGenAdmExpAmtCurrent` decimal(10,0) NOT NULL,
+  `finGenAdmExpAmtApty` float NOT NULL,
+  `finGenAdmExpAmtBpy` float NOT NULL,
+  `finGenAdmExpAmtYpy` float NOT NULL,
+  `finGenAdmExpAmtCurrent` float NOT NULL,
   `isFinalized` tinyint(1) NOT NULL,
   `finalizedBy` int(10) NOT NULL,
   `createdBy` int(10) NOT NULL,
