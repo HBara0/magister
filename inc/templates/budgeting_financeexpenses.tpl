@@ -1,10 +1,10 @@
 <tr><td colspan="6"><hr /></td></tr>
 <tr>
     <td style="font-weight:bold;">{$lang->financegeneralexpenses}</td>
-    <td><input name="financialbudget[finGenAdmExpAmtApty]" id="finGenAdm_actualPrevTwoYears" accept="numeric" style="width:100%;" type="number" required="required" value="{$financialbudget->finGenAdmExpAmtApty}" min="0" max="{$total[actualPrevTwoYears]}"></td>
-    <td><input name="financialbudget[finGenAdmExpAmtBpy]" id="finGenAdm_budgetPrevYear" accept="numeric" style="width:100%;" type="number" required="required" value="{$financialbudget->finGenAdmExpAmtBpy}" min="0" max="{$total[budgetPrevYear]}"></td>
-    <td><input name="financialbudget[finGenAdmExpAmtYpy]" id="finGenAdm_yefPrevYear" accept="numeric" style="width:100%;" type="number" required="required" value="{$financialbudget->finGenAdmExpAmtYpy}" min="0" max="{$total[yefPrevYear]}"></td>
-    <td><input name="financialbudget[finGenAdmExpAmtCurrent]" id="finGenAdm_budgetCurrent" accept="numeric" style="width:100%;" type="number" required="required" value="{$financialbudget->finGenAdmExpAmtCurrent}" min="0" max="{$total[budgetCurrent]}"></td>
+    <td><input name="financialbudget[finGenAdmExpAmtApty]" id="finGenAdm_actualPrevTwoYears" accept="numeric" style="width:100%;" type="number" step="any" required="required" value="{$financialbudget->finGenAdmExpAmtApty}" min="0" max="{$total[actualPrevTwoYears]}"></td>
+    <td><input name="financialbudget[finGenAdmExpAmtBpy]" id="finGenAdm_budgetPrevYear" accept="numeric" style="width:100%;" type="number" step="any" required="required" value="{$financialbudget->finGenAdmExpAmtBpy}" min="0" max="{$total[budgetPrevYear]}"></td>
+    <td><input name="financialbudget[finGenAdmExpAmtYpy]" id="finGenAdm_yefPrevYear" accept="numeric" style="width:100%;" type="number" step="any" required="required" value="{$financialbudget->finGenAdmExpAmtYpy}" min="0" max="{$total[yefPrevYear]}"></td>
+    <td><input name="financialbudget[finGenAdmExpAmtCurrent]" id="finGenAdm_budgetCurrent" accept="numeric" style="width:100%;" type="number" step="any" required="required" value="{$financialbudget->finGenAdmExpAmtCurrent}" min="0" max="{$total[budgetCurrent]}"></td>
     <td>&nbsp;</td>
 </tr>
 <tr>

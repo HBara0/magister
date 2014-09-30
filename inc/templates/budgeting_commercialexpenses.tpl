@@ -77,7 +77,7 @@
                 <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">
                 <table class="datatable" style="width:100%">
                     <tr class="thead">
-                        <td style="width:50%">Company name:</td>
+                        <td style="width:50%"></td>
                         <td style="width:10%">{$lang->actual}</td>
                         <td style="width:10%">{$lang->budget}</td>
                         <td style="width:10%">{$lang->yef}</td>
