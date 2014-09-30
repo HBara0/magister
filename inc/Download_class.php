@@ -90,6 +90,9 @@ class Download {
       @param	$also_delete	Boolean		Whether to delete original file after download or not (useful for temp files)
      */
     public function stream_file($also_delete = false) {
+        if(!file_exists($this->file_url)) {
+            return;
+        }
         if(empty($this->config['options']['titleattr'])) {
             $this->config['options']['titleattr'] = $this->config['options']['fileattr'];
         }
@@ -97,8 +100,10 @@ class Download {
         if(empty($this->file[$this->config['options']['titleattr']])) {
             $this->file[$this->config['options']['titleattr']] = basename($this->file_url);
         }
-        header('Content-type: application/x-msdownload');
-        header('Pragma: no-cache');
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
         header('Expires: 0');
         header("Content-Length: ".(string)(filesize($this->file_url)));
         header('Content-Disposition: attachment; filename="'.$this->file[$this->config['options']['titleattr']].'"');
