@@ -1,6 +1,6 @@
 <div class="{$classes[entrycontainer]}">
-    <input type="hidden" value='{$tlidentifier[value]}' id="{$tlidentifier[id]}"></a>
-    <input type="hidden" value='{$profile[next_miprofile]}' id="miprofile-{$tlidentifier[id]}"></a>
+    <input type="hidden" value='{$tlidentifier[value]}' id="{$tlidentifier[id]}">
+    <input type="hidden" value='{$profile[next_miprofile]}' id="miprofile-{$tlidentifier[id]}">
     <div class="{$classes[entrybullet]}" id="markettimeline_{$tlidentifier[id]}" style="top:{$top}px; left:{$left}%; height:{$height}px; width:{$timedepth}px;"></div>
     <div>
         <div class="timeline_column" style="width:15%;">{$data[timelineItem][displayName]}<div class="smalltext">{$data[timelineItem][addInfo]}</div></div>

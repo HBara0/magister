@@ -211,9 +211,10 @@ class Entities {
 
     public function send_creationnotification() {
         global $core, $lang;
+
+        $lang->load('messages');
         $segments = $this->get_segments();
         if(is_array($segments)) {
-            $email_data['cc'] = array('sourcing@orkila.com');
             foreach($segments as $segment) {
                 $segment_coordobjs = $segment->get_coordinators();
                 if(is_array($segment_coordobjs)) {
@@ -222,17 +223,18 @@ class Entities {
                     }
                 }
             }
-            $email_data['to'] = array_unique($email_data['to']);
-            $mailer = new Mailer();
-            $mailer = $mailer->get_mailerobj();
-            $mailer->set_type();
-            $mailer->set_from(array('name' => $core->settings['mailfrom'], 'email' => $core->settings['maileremail']));
-            $mailer->set_subject($lang->entitynotifysubject);
-            $mailer->set_message($lang->sprint($lang->entitynotify, $this->companyName, $this->parse_link()));
-            $mailer->set_to($email_data['to']);
-            $mailer->set_cc($email_data['cc']);
-            $mailer->send();
         }
+        $email_data['to'][] = array('sourcing@orkila.com');
+
+        $email_data['to'] = array_unique($email_data['to']);
+        $mailer = new Mailer();
+        $mailer = $mailer->get_mailerobj();
+        $mailer->set_type();
+        $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
+        $mailer->set_subject($lang->addsuppliernotification_subject);
+        $mailer->set_message($lang->sprint($lang->addsuppliernotification_message, $this->companyName, $this->parse_link()));
+        $mailer->set_to($email_data['to']);
+        $mailer->send();
     }
 
     protected function modify() {
@@ -650,7 +652,7 @@ class Entities {
         if(!empty($id)) {
             $query_select = '*';
             if($simple == true) {
-                $query_select = 'eid, companyName, companyName AS name, companyNameAbbr, companyNameShort, logo';
+                $query_select = 'eid, companyName, companyName AS name, companyNameAbbr, companyNameShort, logo, country';
             }
             return $db->fetch_assoc($db->query("SELECT ".$query_select." FROM ".Tprefix."entities WHERE eid='".$db->escape_string($id)."'"));
         }
@@ -681,7 +683,8 @@ class Entities {
         global $db;
 
         if(!empty($name)) {
-            $id = $db->fetch_field($db->query('SELECT eid FROM '.Tprefix.'entities WHERE companyName="'.$db->escape_string($name).'"'), 'eid');
+            $sql = 'SELECT eid FROM '.Tprefix.'entities WHERE companyName="'.$db->escape_string($name).'"';
+            $id = $db->fetch_field($db->query($sql), 'eid');
             if(!empty($id)) {
                 return new Entities($id);
             }

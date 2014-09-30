@@ -4,6 +4,13 @@
  PLEASE USE the Admin CP
 \*********************************/
 
+$lang['addsuppliernotification_message'] = 'Hello,
+
+<strong>{1}</strong> has been created on the system.
+Click <a href=\"{2}\">here</a> to view their profile.
+
+Regards';
+$lang['addsuppliernotification_subject'] = 'A new supplier has been added';
 $lang['calendar_taskreminder_message'] = 'Hello {1},<br />
 <br />
 {2}';
@@ -133,12 +140,12 @@ Password: {password}<br />
 <br />
 Best regards, Orkila';
 $lang['sendbymailsubject'] = 'ORKILA {1} Report - {2} - {3}';
-$lang['sourcing_notifyblacklist_message'] = 'Hello,
-
+$lang['sourcing_notifyblacklist_message'] = 'Hello,<br />
+<br />
 Kindly note that potential supplier <strong>{1}</strong> has been blacklisted.';
 $lang['sourcing_notifyblacklist_subject'] = 'A potential supplier has been blacklisted';
-$lang['sourcing_removeblacklist_message'] = 'Hello,
-
+$lang['sourcing_removeblacklist_message'] = 'Hello,<br />
+<br />
 Kindly note that <strong>{1}</strong> has been removed from blacklist.';
 $lang['sourcing_removeblacklist_subject'] = 'A potential supplier has been unblacklisted';
 $lang['souring_incompletecommunication_message'] = 'The following communication attempts to potential suppliers are still incomplete';
