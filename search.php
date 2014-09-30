@@ -53,6 +53,7 @@ if($core->input['type'] == 'quick') {
             $select_attributes = array('companyName');
             $order = array('by' => 'companyName', 'sort' => 'ASC');
             $extra_where .= ' type="pc"';
+            $descinfo = 'country';
         }
         if($core->input['for'] == 'allcustomertypes') {
             $table = 'entities';
@@ -88,16 +89,17 @@ if($core->input['type'] == 'quick') {
                     $core->user['customers'] = array_map(intval, $core->user['customers']);
                     $inentities = implode(',', $core->user['customers']);
                     $extra_where = 'eid IN ('.$inentities.')';
-                    $extra_where = 'eid IN (SELECT affe.eid FROM  affiliatedentities  affe
-									join entities e on (e.eid=affe.eid)
-									join affiliates aff on (aff.affid=affe.affid) where aff.affid in('.implode(',', $core->user['affiliates']).') and e.type="'.$type.'")';
+                    $extra_where = 'eid IN (SELECT affe.eid FROM  affiliatedentities affe
+									JOIN entities e on (e.eid=affe.eid)
+									JOIN affiliates aff on (aff.affid=affe.affid) where aff.affid in('.implode(',', $core->user['affiliates']).') and e.type="'.$type.'")';
                 }
             }
             $table = 'entities';
-            $attributes = array('companyName', 'companyNameAbbr');
+            $attributes = array('companyName', 'companyNameAbbr', 'companyNameShort');
             $key_attribute = 'eid';
             $select_attributes = array('companyName');
             $order = array('by' => 'companyName', 'sort' => 'ASC');
+            $descinfo = 'country';
             if(!empty($extra_where)) {
                 $extra_where .= ' AND type="'.$type.'"';
             }
@@ -106,7 +108,6 @@ if($core->input['type'] == 'quick') {
             }
         }
         elseif($core->input['for'] == 'chemicalproducts') {
-
             $table = 'chemicalsubstances';
             $attributes = array('name', 'casNum', 'synonyms');
             $key_attribute = 'csid';

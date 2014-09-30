@@ -274,6 +274,7 @@ DROP TABLE IF EXISTS `budgeting_budgets_lines`;
 CREATE TABLE `budgeting_budgets_lines` (
   `blid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `pid` int(10) unsigned NOT NULL,
+  `altPid` varchar(200) DEFAULT NULL,
   `bid` int(10) unsigned NOT NULL,
   `cid` int(10) NOT NULL,
   `altCid` varchar(50) NOT NULL,
@@ -344,6 +345,26 @@ CREATE TABLE `budgeting_investitems` (
   PRIMARY KEY (`biiid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `budgeting_financialbudget`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `budgeting_financialbudget` (
+  `bfbid` int(10) NOT NULL AUTO_INCREMENT,
+  `affid` smallint(5) NOT NULL,
+  `year` int(10) NOT NULL,
+  `currency` varchar(7) COLLATE utf8_unicode_ci NOT NULL,
+  `finGenAdmExpAmtApty` float NOT NULL,
+  `finGenAdmExpAmtBpy` float NOT NULL,
+  `finGenAdmExpAmtYpy` float NOT NULL,
+  `finGenAdmExpAmtCurrent` float NOT NULL,
+  `isFinalized` tinyint(1) NOT NULL,
+  `finalizedBy` int(10) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`bfbid`)
+) ENGINE=MyISAM AUTO_INCREMENT=62 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 DROP TABLE IF EXISTS `calendar_events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

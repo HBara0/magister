@@ -19,6 +19,7 @@ class EntitiesBrands {
     const PRIMARY_KEY = 'ebid';
     const TABLE_NAME = 'entitiesbrands';
     const DISPLAY_NAME = 'name';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = false) {
         if(isset($id)) {
@@ -44,28 +45,46 @@ class EntitiesBrands {
                 return false;
             }
 
-            if(value_exists('entitiesbrands', 'name', $this->data['title'], 'eid='.intval($this->data['eid']))) {
+            if(value_exists('entitiesbrands', 'name', $this->data['title'], 'eid!='.intval($this->data['eid']))) {
                 $this->errorcode = 2;
                 return false;
             }
 
-            $enttitbrand_data = array(
-                    'name' => $this->data['title'],
-                    'eid' => $this->data['eid'],
-                    'createdBy' => $core->user['uid'],
-                    'createdOn' => TIME_NOW
-            );
+            $brand = EntitiesBrands::get_data(array('name' => $this->data['title'], 'eid' => $this->data['eid']));
+
+            if(!is_object($brand)) {
+                $enttitbrand_data = array(
+                        'name' => $this->data['title'],
+                        'eid' => $this->data['eid'],
+                        'createdBy' => $core->user['uid'],
+                        'createdOn' => TIME_NOW
+                );
+
+                if($this->data['isGeneral'] == 1) {
+                    $enttitbrand_data['isGeneral'] = 1;
+                }
+                $query = $db->insert_query('entitiesbrands', $enttitbrand_data);
+            }
+            else {
+                $query = true;
+            }
 
             if($this->data['isGeneral'] == 1) {
-                $enttitbrand_data['isGeneral'] = 1;
                 unset($this->data['endproducttypes']);
                 $this->data['endproducttypes'][] = 0;
             }
-            $query = $db->insert_query('entitiesbrands', $enttitbrand_data);
             if($query) {
-                $this->ebid = $db->last_id();
+                if(is_object($brand)) {
+                    $this->ebid = $brand->ebid;
+                }
+                else {
+                    $this->ebid = $db->last_id();
+                }
                 if(is_array($this->data['endproducttypes'])) {
                     foreach($this->data['endproducttypes'] as $eptid) {
+                        if(value_exists('entitiesbrandsproducts', 'eptid', $eptid, 'ebid='.$this->ebid)) {
+                            continue;
+                        }
                         $entitiesbrandsproducts_data = array(
                                 'ebid' => $this->ebid,
                                 'eptid' => $eptid,
@@ -91,6 +110,16 @@ class EntitiesBrands {
 
     public function get_modifiedby() {
         return new Users($this->entitiesbrands['modifiedBy']);
+    }
+
+    public static function get_data($filters = '', $configs = array()) {
+        $data = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
+    }
+
+    public function get_entitybrands_byattr($attr, $value) {
+        $data = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects_byattr($attr, $value);
     }
 
     public static function get_entitybrands_byeid($id) {

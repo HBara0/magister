@@ -585,7 +585,7 @@ class Users extends AbstractClass {
     public function parse_link($attributes_param = array('target' => '_blank'), $options = array()) {
         if(is_array($attributes_param)) {
             foreach($attributes_param as $attr => $val) {
-                $attributes .= $attr.' "'.$val.'"';
+                $attributes .= $attr.'="'.$val.'"';
             }
         }
 
@@ -593,7 +593,7 @@ class Users extends AbstractClass {
             $options['outputvar'] = 'displayName';
         }
 
-        return '<a href="users.php?action=profile&uid='.$this->data['uid'].'" '.$attributes.'>'.$this->data[$options['outputvar']].'</a>';
+        return '<a href="users.php?action=profile&amp;uid='.$this->data['uid'].'" '.$attributes.'>'.$this->data[$options['outputvar']].'</a>';
     }
 
     protected function create(array $data) {

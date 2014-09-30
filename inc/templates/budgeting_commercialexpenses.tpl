@@ -72,17 +72,57 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->commercialadminstrationexpenses}</h1>
-            <form name="perform_budgeting/commercialexpenses_Form" id="perform_budgeting/commercialexpenses_Form"  action="#" method="post">
+            <h1>{$lang->commercialadminstrationexpenses}<br /><small>{$affiliate->name} - {$financialbudget_year}</small></h1>
+            <form name="perform_budgeting/financialadminexpenses_Form" id="perform_budgeting/financialadminexpenses_Form"  action="#" method="post">
                 <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">
-                {$budgeting_commercialexpenses_categories}
-                <br/>
-                {$budgeting_financeexpenses}
-                <input type="submit" id="perform_budgeting/commercialexpenses_Button" value="proceed" class="button"/>
+                <table class="datatable" style="width:100%">
+                    <tr class="thead">
+                        <td style="width:50%"></td>
+                        <td style="width:10%">{$lang->actual}</td>
+                        <td style="width:10%">{$lang->budget}</td>
+                        <td style="width:10%">{$lang->yef}</td>
+                        <td style="width:10%">{$lang->budget}</td>
+                        <td style="width:10%">% {$lang->budyef}</td>
+                    </tr>
+                    <tr style="width:100%">
+                        <td style="width:50%"><input name="financialbudget[affid]" value="{$affid}" type="hidden"></td>
+                        <td style="width:10%"><span>{$financialbudget_prev2year}</span></td>
+                        <td style="width:10%"><span>{$financialbudget_prevyear}</span></td>
+                        <td style="width:10%"><span>{$financialbudget_prevyear}</span></td>
+                        <td style="width:10%"><span>{$financialbudget_year}</span><input name="financialbudget[year]" value="{$financialbudget_year}" type="hidden"></td>
+                        <td style="width:10%"></td>
+                    </tr>
+                    {$budgeting_commercialexpenses_category}
+                    <tr>
+                        <td style="width:50%;font-weight:bold;">{$lang->totalexpenses}</td>
+                        <td>
+                            <div style="font-weight:bold;" id="total_actualPrevTwoYears">{$total[actualPrevTwoYears]}</div>
+                            <input type="hidden" id="total_actualPrevTwoYears" value="{$total[actualPrevTwoYears]}">
+                        </td>
+                        <td>
+                            <div style="font-weight:bold;" id="total_budgetPrevYear">{$total[budgetPrevYear]}</div>
+                            <input type="hidden" id="total_budgetPrevYear" value="{$total[budgetPrevYear]}">
+                        </td>
+                        <td>
+                            <div style="font-weight:bold;" id="total_yefPrevYear">{$total[yefPrevYear]}</div>
+                            <input type="hidden" id="total_yefPrevYear" value="{$total[yefPrevYear]}">
+                        </td>
+                        <td>
+                            <div style="font-weight:bold;" id="total_budgetCurrent">{$total[budgetCurrent]}</div>
+                            <input type="hidden" id="total_budgetCurrent" value="{$total[budgetCurrent]}">
+                        </td>
+                        <td>
+                            <div style="font-weight:bold;" id="total_budYefPerc"></div>
+                            <input type="hidden" id="total_budYefPerc">
+                        </td>
+                    </tr>
+                    {$budgeting_financeexpenses}
+                    <hr />
+                    <input type="submit" id="perform_budgeting/financialadminexpenses_Button" value="Proceed" class="button"/>
             </form>
-            <div id="perform_budgeting/commercialexpenses_Results"></div>
-        </body>
-    </td>
-</tr>
-{$footer}
+            <div id="perform_budgeting/financialadminexpenses_Results"></div>
+        </td>
+    </tr>
+    {$footer}
+</body>
 </html>

@@ -42,12 +42,14 @@ $lang['financegeneralexpenses'] = 'Finance & General Admin. Expenses';
 $lang['proportionfgaexpenses'] = 'Proportion - F&GA Expenses (%)';
 $lang['commercialexpenses'] = 'Commercial Expenses';
 $lang['proportioncommercialexpenses'] = 'Proportion - Comm Expenses (%)';
-$lang['totalexpenses'] = 'Total COM.ADM. Expenses';
+$lang['totalexpenses'] = 'Total COM. ADM. Expenses';
 $lang['budget'] = 'Budget';
 $lang['yef'] = 'YEF';
 $lang['actual'] = 'Actual';
 $lang['subtotal'] = 'Sub-total';
 $lang['budyef'] = 'Bud./YEF';
-$lang['commercialadminstrationexpenses'] = 'Commercial and Adminstration Expenses';
-$lang['createcomadminexpenses'] = 'Create Commercial and Adminstration Expenses';
+$lang['commercialadminstrationexpenses'] = 'Commercial and Administration Expenses';
+$lang['fillfinancialbudget'] = 'Fill Financial Budget';
+$lang['budgettype'] = 'Financial Budget Type';
+$lang['bm'] = 'Business managers';
 ?>

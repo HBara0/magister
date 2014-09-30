@@ -86,6 +86,7 @@ else {
         /* implementing years restricitons */
         $budget = new Budgets();
         $budget_years = $budget->populate_budgetyears(array('affid' => $affid, 'spid' => $spid));
+        $year_selected = '';
         if(is_array($budget_years)) {
             foreach($budget_years as $year) {
                 if($year == date('Y') + 1) {
@@ -97,9 +98,10 @@ else {
                 $budget_year .= "<option value='{$year}'".$year_selected.">{$year}</option>";
             }
         }
-        else {
+
+        if(empty($year_selected)) {
             $next_year = date('Y') + 1;
-            $budget_year .= "<option value='{$next_year}'>{$next_year}</option>";
+            $budget_year .= "<option value='{$next_year}' selected='selected'>{$next_year}</option>";
         }
 
         output($budget_year);

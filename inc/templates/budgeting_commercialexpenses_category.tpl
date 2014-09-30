@@ -3,24 +3,23 @@
 <tr>
     <td>{$lang->subtotal} {$category->title}</td>
     <td>
-        <input type="hidden" id="subtotal_{$category->becid}_actualPrevTwoYears" value="{$subtotal[actualPrevTwoYears]}"></input>
+        <input type="hidden" id="subtotal_{$category->becid}_actualPrevTwoYears" value="{$subtotal[actualPrevTwoYears]}">
         <div id="subtotal_{$category->becid}_actualPrevTwoYears">{$subtotal[actualPrevTwoYears]}</div>
     </td>
     <td>
         <div id="subtotal_{$category->becid}_budgetPrevYear">{$subtotal[budgetPrevYear]}</div>
-        <input type="hidden" id="subtotal_{$category->becid}_budgetPrevYear" value="{$subtotal[budgetPrevYear]}"></input>
+        <input type="hidden" id="subtotal_{$category->becid}_budgetPrevYear" value="{$subtotal[budgetPrevYear]}">
     </td>
     <td>
         <div id="subtotal_{$category->becid}_yefPrevYear">{$subtotal[yefPrevYear]}</div>
-        <input type="hidden" id="subtotal_{$category->becid}_yefPrevYear" value="{$subtotal[yefPrevYear]}"></input>
+        <input type="hidden" id="subtotal_{$category->becid}_yefPrevYear" value="{$subtotal[yefPrevYear]}">
     </td>
     <td>
         <div id="subtotal_{$category->becid}_budgetCurrent">{$subtotal[budgetCurrent]}</div>
-        <input type="hidden" id="subtotal_{$category->becid}_budgetCurrent" value="{$subtotal[budgetCurrent]}"></input>
+        <input type="hidden" id="subtotal_{$category->becid}_budgetCurrent" value="{$subtotal[budgetCurrent]}">
     </td>
     <td>
-        <div id="subtotal_{$category->becid}_budYefPerc"> {$subtotal[budYefPerc]}</div>
-        <input type="hidden" id="subtotal_{$category->becid}_budYefPerc" value="{$subtotal[budYefPerc]}"></input>
+        <div id="subtotal_{$category->becid}_budYefPerc">{$subtotal[budYefPerc]}</div>
+        <input type="hidden" id="subtotal_{$category->becid}_budYefPerc" value="{$subtotal[budYefPerc]}">
     </td>
 </tr>
-

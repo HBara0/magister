@@ -205,9 +205,9 @@ else {
                 redirect($_SERVER['HTTP_REFERER']);
             }
         }
-        $path = $core->settings['rootdir'].'/uploads/sharedfiles';
+        $path = ROOT.'/uploads/sharedfiles';
         $download = new Download('fileversions', 'name', array('fid' => $core->input['fid']), $path);
-        $download->download_file();
+        $download->stream_file();
         $log->record($core->input['fid']);
     }
     elseif($core->input['action'] == 'thumbnail') {

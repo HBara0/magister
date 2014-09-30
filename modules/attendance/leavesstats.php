@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Get Leaves Balance
  * $module: attendance
- * $id: leavesstats.php	
+ * $id: leavesstats.php
  * Created:		@zaher.reda		January 03, 2010 | 10:51 AM
  * Last Update: @tony.assaad    March   08, 2012 | 2:00  PM
  */
@@ -15,7 +15,7 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
-    $sort_query = 'canTake DESC, uid ASC';
+    $sort_query = 'uid ASC, periodStart ASC';
     if(isset($core->input['sortby'], $core->input['order'])) {
         $sort_query = $core->input['sortby'].' '.$core->input['order'];
     }

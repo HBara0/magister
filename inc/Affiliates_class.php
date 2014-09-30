@@ -25,7 +25,7 @@ class Affiliates {
     private function read($id, $simple = TRUE) {
         global $db;
 
-        $query_select = 'affid, name, legalName, country, integrationOBOrgId';
+        $query_select = 'affid, name, legalName, country, city, integrationOBOrgId';
         if($simple == false) {
             $query_select = '*';
         }

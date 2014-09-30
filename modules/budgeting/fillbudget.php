@@ -114,10 +114,8 @@ if(!$core->input['action']) {
         /* Get Invoice Types - ENDs */
         //$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1, 'numCode = '.$affiliate_currency);
         $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
-        $currencies = array('USD', 'EUR', $affiliate_currency->get()['alphaCode']);
-        foreach($currencies as $currency) {
-            $budget_currencylist.= '<option value = "'.$currency.'">'.$currency.'</option>';
-        }
+        $currencies = array_filter(array('USD', 'EUR', $affiliate_currency->get()['alphaCode']));
+
         /* check whether to display existing budget Form or display new one  */
         $unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income');
         if(is_array($budgetlinesdata)) {
@@ -167,24 +165,25 @@ if(!$core->input['action']) {
 //									$budgetLines['actualamount'] = $mediation_actual['cost'];
 //									$budgetLines['actualincome'] = $mediation_actual['price'];
 //								}
-                                $budgetline['alternativecustomer'] .= '<span style = "display:block;">'.ucfirst($prev_budgetline['altCid']).'</span>';
-                                $previous_blid = '<input type = "hidden" name = "budgetline['.$rowid.'][prevblid]" value = "'.$prev_budgetline['blid'].'" />';
-                                $previous_customercountry = '<input type = "hidden" name = "budgetline['.$rowid.'][customerCountry]" value = "'.$prev_budgetline['customerCountry'].'" />';
-                                $previous_yearsqty .= '<span class = "altrow smalltext" style = "display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['quantity'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualQty'].'</span>';
-                                $previous_yearsamount .= '<span class = "altrow smalltext" style = "display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['amount'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualAmount'].'</span>';
-                                $previous_yearsincome .= '<span class = "altrow smalltext" style = "display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['income'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncome'].'</span>';
+                                $budgetline['alternativecustomer'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altCid']).'</span>';
+                                $budgetline['alternativeproduct'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altPid']).'</span>';
+                                $previous_blid = '<input type="hidden" name="budgetline['.$rowid.'][prevblid]" value="'.$prev_budgetline['blid'].'" />';
+                                $previous_customercountry = '<input type="hidden" name="budgetline['.$rowid.'][customerCountry]" value="'.$prev_budgetline['customerCountry'].'" />';
+                                $previous_yearsqty .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['quantity'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualQty'].'</span>';
+                                $previous_yearsamount .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['amount'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualAmount'].'</span>';
+                                $previous_yearsincome .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['income'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncome'].'</span>';
 
                                 $prev_budgetline['actualIncomePerc'] = 0;
                                 if(!empty($prev_budgetline['actualAmount'])) {
                                     $prev_budgetline['actualIncomePerc'] = round(($prev_budgetline['actualIncome'] * 100) / $prev_budgetline['actualAmount'], 2);
                                 }
-                                $prevyear_incomeperc .= '<span class = "altrow smalltext" style = "display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['incomePerc'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncomePerc'].'</span>';
+                                $prevyear_incomeperc .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['incomePerc'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncomePerc'].'</span>';
 
                                 $prev_budgetline['actualUnitPrice'] = 0;
                                 if(!empty($prev_budgetline['actualQty'])) {
                                     $prev_budgetline['actualUnitPrice'] = round($prev_budgetline['actualAmount'] / $prev_budgetline['actualQty'], 2);
                                 }
-                                $prevyear_unitprice .= '<span class = "altrow smalltext" style = "display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['unitPrice'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualUnitPrice'].'</span>';
+                                $prevyear_unitprice .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['unitPrice'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualUnitPrice'].'</span>';
                             }
                         }
 
@@ -196,9 +195,18 @@ if(!$core->input['action']) {
                         $invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('id' => 'invoice_'.$rowid));
 
                         if(empty($budgetline['cid']) && $budgetline['altCid'] == 'Unspecified Customer') {
-                            $checked_checkboxes[$rowid]['unspecifiedCustomer'] = ' checked = "checked"';
+                            $checked_checkboxes[$rowid]['unspecifiedCustomer'] = ' checked="checked"';
                         }
                         /* Get Actual data from mediation tables --END */
+                        $budget_currencylist = '';
+                        foreach($currencies as $currency) {
+                            if($budgetline['originalCurrency'] == $currency) {
+                                $budget_currencylist_selected = ' selected="selected"';
+                            }
+                            $budget_currencylist .= '<option value="'.$currency.'"'.$budget_currencylist_selected.'>'.$currency.'</option>';
+                            $budget_currencylist_selected = '';
+                        }
+
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
                         $rowid++;
                     }
@@ -209,6 +217,9 @@ if(!$core->input['action']) {
             $rowid = 1;
             $saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, '', '', '', array('id' => 'salestype_'.$rowid));
             $invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, '', '', '', array('id' => 'invoice_'.$rowid));
+            foreach($currencies as $currency) {
+                $budget_currencylist .= '<option value="'.$currency.'">'.$currency.'</option>';
+            }
             eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
         }
         unset($saletype_selectlistdata, $checked_checkboxes);
@@ -277,7 +288,7 @@ else {
         }
 
         /* Get Invoice Types - START */
-        $saleinvoice_query = $db->query('SELECT * FROM '.Tprefix.'saletypes_invoicing WHERE isActive = 1 AND affid = '.intval($budget_data['affid']));
+        $saleinvoice_query = $db->query('SELECT * FROM '.Tprefix.'saletypes_invoicing WHERE isActive=1 AND affid='.intval($budget_data['affid']));
         if($db->num_rows($saleinvoice_query) > 0) {
             while($saleinvoice = $db->fetch_assoc($saleinvoice_query)) {
                 $invoice_selectlistdata[$saleinvoice['invoicingEntity']] = ucfirst($saleinvoice['invoicingEntity']);
@@ -299,7 +310,7 @@ else {
         $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
         $currencies = array('USD', 'EUR', $affiliate_currency->get()['alphaCode']);
         foreach($currencies as $currency) {
-            $budget_currencylist.= '<option value = "'.$currency.'">'.$currency.'</option>';
+            $budget_currencylist.= '<option value="'.$currency.'">'.$currency.'</option>';
         }
 
         eval("\$budgetlinesrows = \"".$template->get('budgeting_fill_lines')."\";");
