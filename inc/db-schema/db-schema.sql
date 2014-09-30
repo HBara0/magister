@@ -1584,6 +1584,15 @@ CREATE TABLE `monthly_productsstatus` (
   KEY `rid` (`rid`,`gpid`),
   KEY `csid` (`csid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1725 DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS `positiongroups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `positiongroups` (
+  `posgid` smallint(5) NOT NULL AUTO_INCREMENT,
+  `name` varchar(220) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`posgid`)
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `positions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

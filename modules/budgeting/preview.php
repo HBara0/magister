@@ -83,6 +83,12 @@ if(!($core->input['action'])) {
                                 $budgetline['customerCountry'] = $budgetline_obj->parse_country();
 
                                 $budgetline['uom'] = 'Kg';
+                                if(isset($budgetline['invoice']) && !empty($budgetline['invoice'])) {
+                                    $invoicetype = InvoiceTypes::get_data(array('invoicingEntity' => $budgetline['invoice'], 'stid' => $budgetline['saleType']));
+                                    if(is_object($invoicetype)) {
+                                        $budgetline['invoiceentity'] = $invoicetype->get_invoiceentity();
+                                    }
+                                }
                                 $budgetline['saleType'] = Budgets::get_saletype_byid($saleid);
 
 //								if(isset($budgetline['genericproduct']) && !empty($budgetline['genericproduct'])) {
@@ -91,6 +97,7 @@ if(!($core->input['action'])) {
                                 if(isset($budgetline['pid']) && !empty($budgetline['pid'])) {
                                     $budgetline['segment'] = $budgetline_obj->get_product()->get_segment()['titleAbbr'];
                                 }
+
                                 if((empty($budgetline['cid']) && !empty($budgetline['altCid']))) {
                                     $customername = $budgetline['altCid'];
                                 }
@@ -110,7 +117,8 @@ if(!($core->input['action'])) {
             $toolgenerate = '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a href="index.php?module=budgeting/preview&identifier='.$export_identifier.'&action=exportexcel" target="_blank"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
         }
         else {
-            $budgeting_budgetrawreport = '<tr><td>'.$lang->na.'</td></tr>';
+//            /$budgeting_budgetrawreport
+            $budget_report_row = '<tr><td colspan="16">'.$lang->na.'</td></tr>';
         }
         eval("\$budgeting_budgetrawreport = \"".$template->get('budgeting_budgetrawreport')."\";");
     }
