@@ -128,10 +128,10 @@ class Budgets {
         global $db, $core, $log;
 
         if(is_array($budgetdata)) {
-            if(is_empty($budgetdata['year'], $budgetdata['affid'], $budgetdata['spid'])) {
-                $this->errorcode = 2;
-                return false;
-            }
+//            if(is_empty($budgetdata['year'], $budgetdata['affid'], $budgetdata['spid'])) {
+//                $this->errorcode = 2;
+//                return false;
+//            }
             /* Check if budget exists, then process accordingly */
             if(!Budgets::budget_exists_bydata($budgetdata)) {
                 $budget_data = array('identifier' => substr(uniqid(time()), 0, 10),
@@ -274,20 +274,17 @@ class Budgets {
 
     public static function get_budgets_bydata($data = array()) {
         global $db;
-
-
         if(isset($data['affilliates'], $data['suppliers'], $data['years']) && !empty($data['affilliates']) && !empty($data['suppliers']) && !empty($data['years'])) {
-            $budget_reportquery = $db->query("SELECT bid FROM ".Tprefix."budgeting_budgets
-														  WHERE year in(".$db->escape_string(implode(',', $data['years'])).")
-														  AND affid in(".$db->escape_string(implode(',', $data['affilliates'])).")
-														  AND spid in(".$db->escape_string(implode(',', $data['suppliers'])).")");
+            $budget_reportquery = $db->query("SELECT bid FROM ".Tprefix."budgeting_budgets WHERE year in(".$db->escape_string(implode(',', $data['years'])).")"
+                    ." AND affid in(".$db->escape_string(implode(',', $data['affilliates'])).") AND spid in(".$db->escape_string(implode(',', $data['suppliers'])).")");
         }
-
-        if($db->num_rows($budget_reportquery) > 0) {
-            while($budget_reportids = $db->fetch_assoc($budget_reportquery)) {
-                $budgetreport[$budget_reportids['bid']] = $budget_reportids['bid'];
+        if($budget_reportquery) {
+            if($db->num_rows($budget_reportquery) > 0) {
+                while($budget_reportids = $db->fetch_assoc($budget_reportquery)) {
+                    $budgetreport[$budget_reportids['bid']] = $budget_reportids['bid'];
+                }
+                return $budgetreport;
             }
-            return $budgetreport;
         }
     }
 

@@ -18,6 +18,7 @@
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->income}</th>
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->s1perc}</th>
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->s2perc}</th>
+                <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->invoice}</th>
             </tr>
         </tbody>
         {$budget_report_row}
