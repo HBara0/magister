@@ -79,6 +79,20 @@ if(!isset($core->input['action'])) {
         }
         eval("\$budgeting_commercialexpenses_category .= \"".$template->get('budgeting_commercialexpenses_category')."\";");
     }
+
+    if(is_object($financialbudget)) {
+        $financialbudgetdata[actualPrevTwoYears] = $financialbudget->finGenAdmExpAmtApty;
+        $financialbudgetdata[budgetPrevYear] = $financialbudget->finGenAdmExpAmtBpy;
+        $financialbudgetdata[yefPrevYear] = $financialbudget->finGenAdmExpAmtYpy;
+        $financialbudgetdata[budgetCurrent] = $financialbudget->finGenAdmExpAmtCurrent;
+        $fields = array('actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
+
+        foreach($fields as $field) {
+            $comexpenses[$field] = $total[$field] - $financialbudgetdata[$field];
+            $propfin[$field] = sprintf("%.2f", (($financialbudgetdata[$field] / $total[$field]) * 100)).'%';
+            $propcomexpenses[$field] = sprintf("%.2f", (( $comexpenses[$field] / $total[$field]) * 100)).'%';
+        }
+    }
     eval("\$budgeting_financeexpenses = \"".$template->get('budgeting_financeexpenses')."\";");
     eval("\$budgeting_commercialexpenses = \"".$template->get('budgeting_commercialexpenses')."\";");
     output_page($budgeting_commercialexpenses);

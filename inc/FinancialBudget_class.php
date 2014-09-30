@@ -26,8 +26,8 @@ Class FinancialBudget extends AbstractClass {
         global $db, $core;
         if(is_array($data)) {
             $financialdata['bfbid'] = self::PRIMARY_KEY;
-            // $required_fields = array('affid', 'year', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtBpy', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent');  // this will not be applicable for the other expenses
-            $required_fields = array('affid', 'year');
+            $required_fields = array('affid', 'year', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtBpy', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent');  // this will not be applicable for the other expenses
+            // $required_fields = array('affid', 'year');
             foreach($required_fields as $field) {
                 if(empty($data['financialbudget'][$field]) && $data['financialbudget'][$field] == 0) {
                     $this->errorcode = 1;
