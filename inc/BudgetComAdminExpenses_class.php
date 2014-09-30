@@ -15,7 +15,7 @@ Class BudgetComAdminExpenses extends AbstractClass {
     const PRIMARY_KEY = 'bcaeid';
     const TABLE_NAME = 'budgeting_commadminexps';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'bcaeid, beciid,actualPrevTwoYears,budgetPrevYear,yefPrevYear,budgetCurrent';
+    const SIMPLEQ_ATTRS = 'bcaeid, beciid, actualPrevTwoYears, budgetPrevYear, yefPrevYear, budgetCurrent';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -27,7 +27,7 @@ Class BudgetComAdminExpenses extends AbstractClass {
         if(is_array($data)) {
             $required_fields = array('bfbid', 'beciid', 'actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent', 'budYefPerc');
             foreach($required_fields as $field) {
-                if(is_empty($data[$field])) {
+                if(empty($data[$field]) && $data[$field] != 0) {
                     $this->errorcode = 1;
                     return false;
                 }
@@ -62,7 +62,6 @@ Class BudgetComAdminExpenses extends AbstractClass {
     }
 
     public function save(array $data = array()) {
-        global $core;
         if(empty($data)) {
             $data = $this->data;
         }

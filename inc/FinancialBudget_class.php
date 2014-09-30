@@ -15,7 +15,7 @@ Class FinancialBudget extends AbstractClass {
     const PRIMARY_KEY = 'bfbid';
     const TABLE_NAME = 'budgeting_financialbudget';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'bfbid,affid, year';
+    const SIMPLEQ_ATTRS = 'bfbid, affid, year';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -84,7 +84,6 @@ Class FinancialBudget extends AbstractClass {
     }
 
     public function save(array $data = array()) {
-        global $core, $db;
         if(empty($data)) {
             $data = $this->data;
         }
