@@ -53,4 +53,6 @@ $lang['createcomadminexpenses'] = 'Create Commercial and Adminstration Expenses'
 $lang['fillfinancialbudget'] = 'Fill Financial Budget';
 $lang['budgettype'] = 'Financial Budget Type';
 $lang['bm'] = 'Business managers';
+$lang['search'] = 'Search';
+$lang['filterby'] = 'Filter By';
 ?>

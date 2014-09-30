@@ -26,9 +26,20 @@ if(!$core->input['action']) {
         $inaffiliates = implode(',', $core->user['affiliates']);
         $affiliate_where = " affid IN ({$inaffiliates})";
     }
-
     $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, "{$affiliate_where}");
-    $affiliated_budget = parse_selectlist('budget[affilliates][]', 1, $affiliates, $core->user['mainaffiliate'], 1, '', array('id' => 'affid'));
+    //$affiliated_budget = parse_selectlist('budget[affilliates][]', 1, $affiliates, $core->user['mainaffiliate'], 1, '', array('id' => 'affid'));
+    if(is_array($affiliates)) {
+
+        foreach($affiliates as $key => $value) {
+            if($key == 0) {
+                continue;
+            }
+            $checked = $rowclass = '';
+            $affiliates_list .='<tr class="'.$rowclass.'">';
+            $affiliates_list .='<td><input name="budget[affilliates][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
+        }
+    }
+
 
     if($core->usergroup['canViewAllSupp'] == 0) {
         $insupplier = implode(',', $core->user['suppliers']['eid']);
@@ -38,7 +49,18 @@ if(!$core->input['action']) {
         $supplier_where = " type='s'";
     }
     $suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, "{$supplier_where}");
-    $budget_supplierslist = parse_selectlist('budget[suppliers][]', 2, $suppliers, $core->user['suppliers']['eid'], 1, '', array('id' => 'spid'));
+    // $budget_supplierslist = parse_selectlist('budget[suppliers][]', 2, $suppliers, $core->user['suppliers']['eid'], 1, '', array('id' => 'spid'));
+
+    if(is_array($suppliers)) {
+        foreach($suppliers as $key => $value) {
+            if($key == 0) {
+                continue;
+            }
+            $checked = $rowclass = '';
+            $suppliers_list .= ' <tr class="'.$rowclass.'">';
+            $suppliers_list .= '<td><input name="budget[suppliers][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td><tr>';
+        }
+    }
 
     $user = new Users($core->user['uid']);
     $user_segments_objs = $user->get_segments();
@@ -49,20 +71,25 @@ if(!$core->input['action']) {
     }
     $reporting_touser = $user->get_reportingto();
     if(is_array($user_segments)) {
-        $budget_segment.='<select name="budget[segments][]" multiple="multiple" tabindex="4">';
         foreach($user_segments as $segment) {
-            $budget_segment .='<option value='.$segment['psid'].'>'.$segment['title'].'</option>';
+            $checked = $rowclass = '';
+            $budget_segments_list .='<tr class="'.$rowclass.'">';
+            $budget_segments_list .='<td><input name="budget[segments][]" type="checkbox"'.$checked.' value="'.$segment['psid'].'">'.$segment['title'].'</td></tr>';
         }
-        $budget_segment.='</select>';
     }
     else {
         $budget_segment.=$lang->na;
     }
     $years = Budgets::get_availableyears();
-
-    $budget_year_selectlist = parse_selectlist('budget[years][]', 4, $years, date('Y') + 1, 1, '', array('id' => 'year'));
-
-    //$years = array_combine(range(date("Y") + 1, date("Y") - 3), range(date("Y") + 1, date("Y") - 3));
+    if(is_array($years)) {
+        foreach($years as $key => $value) {
+            $checked = $rowclass = '';
+            $budget_year_list .= '<tr class="'.$rowclass.'">';
+            $budget_year_list .= '<td><input name="budget[years][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
+        }
+    }
+    // $budget_year_selectlist = parse_selectlist('budget[years][]', 4, $years, date('Y') + 1, 1, '', array('id' => 'year'));
+//$years = array_combine(range(date("Y") + 1, date("Y") - 3), range(date("Y") + 1, date("Y") - 3));
 //	foreach($years as $year) {
 //		$year_selected = '';
 //		if($year == $years[date("Y")]) {
@@ -88,11 +115,23 @@ if(!$core->input['action']) {
                 $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['displayName'];
             }
         }
-        $business_managerslist = parse_selectlist('budget[managers][]', 7, $business_managers, $core->user['uid'], 1, '', '');
+        // $business_managerslist = parse_selectlist('budget[managers][]', 7, $business_managers, $core->user['uid'], 1, '', '');
+        if(is_array($business_managers)) {
+            foreach($business_managers as $key => $value) {
+                $checked = $rowclass = '';
+                $business_managerslist .= '<tr class="'.$rowclass.'">';
+                $business_managerslist .='<td><input name="budget[managers][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td><tr>';
+            }
+        }
     }
     else {
         $business_managers[$core->user['uid']] = $core->user['displayName'];
-        $business_managerslist = parse_selectlist('budget[managers][]', 7, $business_managers, $core->user['uid'], 1, '', '');
+        // $business_managerslist = parse_selectlist('budget[managers][]', 7, $business_managers, $core->user['uid'], 1, '', '');
+        foreach($business_managers as $key => $value) {
+            $checked = $rowclass = '';
+            $business_managerslist .= '<tr class="'.$rowclass.'">';
+            $business_managerslist .='<td><input name="budget[managers][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td><tr>';
+        }
     }
 
 //	if($core->usergroup['canViewaffBudget'] == 1) {
