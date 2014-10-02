@@ -26,7 +26,7 @@ class ProductsSegments {
 
         $query_select = '*';
         if($simple == true) {
-            $query_select = 'psid, title';
+            $query_select = 'psid, title, titleAbbr';
         }
 
         $this->segment = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'productsegments WHERE psid='.intval($id)));
