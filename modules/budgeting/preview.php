@@ -87,7 +87,13 @@ if(!($core->input['action'])) {
             $budgeting_budgetrawreport .= '</table>';
         }
         elseif($type == 'statistical') {
-            $data = BudgetLines::get_top(10, 'income', array('bid' => array_keys($budgets)), array('operators' => array('bid' => 'IN')));
+            $value_types = array('income', 'amount');
+            $value_perc = array(50, 50);
+            foreach($value_types as $type) {
+                foreach($value_perc as $perc) {
+                    $data = BudgetLines::get_top($perc, $type, array('bid' => array_keys($budgets)), array('operators' => array('bid' => 'IN')));
+                }
+            }
         }
         else {
             if(is_array($budgets)) {
