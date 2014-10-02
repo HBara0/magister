@@ -408,6 +408,12 @@ class Budgets {
         }
     }
 
+    public function get_budgetlines_objs($filters = '', $configs = array()) {
+        $filters['bid'] = $this->budget['bid'];
+        $configs['returnarray'] = true;
+        return BudgetLines::get_data($filters, $configs);
+    }
+
     public function get_actual_meditaiondata($data = array()) {
         global $db;
         if(is_array($data)) {
@@ -442,6 +448,39 @@ class Budgets {
             return $years;
         }
         return false;
+    }
+
+    public function generate_budgetline_filters() {
+        global $core;
+
+        if($core->usergroup['canViewAllSupp'] == 0 && $core->usergroup['canViewAllAff'] == 0) {
+            if(is_array($core->user['auditfor'])) {
+                if(!in_array($this->budget['spid'], $core->user['auditfor'])) {
+                    if(is_array($core->user['auditedaffids'])) {
+                        if(!in_array($this->budget['affid'], $core->user['auditedaffids'])) {
+                            if(is_array($core->user['suppliers']['affid'][$this->budget['spid']])) {
+                                if(in_array($this->budget['affid'], $core->user['suppliers']['affid'][$this->budget['spid']])) {
+                                    $filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+                                }
+                                else {
+                                    return false;
+                                }
+                            }
+                            else {
+                                $filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+                            }
+                        }
+                    }
+                    else {
+                        $filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+                    }
+                }
+            }
+            else {
+                $filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+            }
+        }
+        return $filter;
     }
 
     /* function return object Type --START */
@@ -488,6 +527,12 @@ class Budgets {
 class BudgetLines {
     private $budgetline = array();
 
+    const PRIMARY_KEY = 'blid';
+    const TABLE_NAME = 'budgeting_budgets_lines';
+    const DISPLAY_NAME = '';
+    const SIMPLEQ_ATTRS = '*';
+    const CLASSNAME = __CLASS__;
+
     public function __construct($budgetlineid = '') {
         if(!empty($budgetlineid)) {
             $this->budgetline = $this->read($budgetlineid);
@@ -498,9 +543,9 @@ class BudgetLines {
         global $db;
         if(isset($budgetlineid) && !empty($budgetlineid)) {
             return $db->fetch_assoc($db->query("SELECT bdl.*, bd.bid
-														FROM ".Tprefix."budgeting_budgets bd
-														JOIN ".Tprefix."budgeting_budgets_lines bdl ON (bd.bid=bdl.bid)
-														WHERE bdl.blid='".$db->escape_string($budgetlineid)."'"));
+                                                FROM ".Tprefix."budgeting_budgets bd
+                                                JOIN ".Tprefix."budgeting_budgets_lines bdl ON (bd.bid=bdl.bid)
+                                                WHERE bdl.blid='".intval($budgetlineid)."'"));
         }
     }
 
@@ -591,6 +636,38 @@ class BudgetLines {
             }
             return false;
         }
+    }
+
+    public static function get_data($filters = '', $configs = array()) {
+        $data = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
+    }
+
+    public static function get_top($percent, $attr, $filters = '', $configs = array()) {
+        global $db;
+
+        $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
+
+        $config['group'] = 'cid, altCid';
+        $config['order'] = array('sort' => 'DESC', 'by' => $attr);
+        $data = BudgetLines::get_data($filters, $config);
+        $total = $db->fetch_field($db->query('SELECT SUM('.$attr.') AS total FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators'])), 'total');
+        foreach($data as $id => $values) {
+            $info['count'] += 1;
+            $info['contribution'] += $values->{$attr};
+
+            if(round(($info['contribution'] * 100) / $total) >= $percent) {
+                break;
+            }
+        }
+        return $info;
+    }
+
+    public function __get($name) {
+        if(isset($this->budgetline[$name])) {
+            return $this->budgetline[$name];
+        }
+        return false;
     }
 
     public function get() {
