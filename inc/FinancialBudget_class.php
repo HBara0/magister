@@ -26,11 +26,12 @@ Class FinancialBudget extends AbstractClass {
         global $db, $core;
         if(is_array($data)) {
             $financialdata['bfbid'] = self::PRIMARY_KEY;
-            $required_fields = array('affid', 'year', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtBpy', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent');
+            $required_fields = array('affid', 'year', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtBpy', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent');  // this will not be applicable for the other expenses
+            // $required_fields = array('affid', 'year');
             foreach($required_fields as $field) {
                 if(empty($data['financialbudget'][$field]) && $data['financialbudget'][$field] == 0) {
                     $this->errorcode = 1;
-                    return false;
+                    //return false;
                 }
                 $data['financialbudget'][$field] = $core->sanitize_inputs($data['financialbudget'][$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
                 $data['financialbudget'][$field] = $db->escape_string($data['financialbudget'][$field]);
@@ -51,16 +52,29 @@ Class FinancialBudget extends AbstractClass {
                 //  $this->errorcode = 0;
             }
         }
+
+        $financialinvest = $data['budgetinvst'];
+        if(is_array($financialinvest)) {
+            foreach($financialinvest as $invest) {
+                $invest['bfbid'] = $this->data[self::PRIMARY_KEY];
+                $investfollowup = new BudgetInvestExpenses();
+                $investfollowup->set($invest);
+                $investfollowup->save();
+                //  $this->errorcode = 0;
+            }
+        }
     }
 
     protected function update(array $data) {
         global $db, $core;
         if(is_array($data)) {
-            $required_fields = array('affid', 'year', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtBpy', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent');
+
+            // $required_fields = array('affid', 'year', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtBpy', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent');  // this will not be applicable for the other expenses
+            $required_fields = array('affid', 'year');
             foreach($required_fields as $field) {
                 if(is_empty($data['financialbudget'][$field])) {
                     $this->errorcode = 1;
-                    return false;
+                    //  return false;
                 }
                 $data['financialbudget'][$field] = $core->sanitize_inputs($data['financialbudget'][$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
                 $data['financialbudget'][$field] = $db->escape_string($data['financialbudget'][$field]);
@@ -77,6 +91,17 @@ Class FinancialBudget extends AbstractClass {
                     $comadminexpense = new BudgetComAdminExpenses();
                     $comadminexpense->set($expense);
                     $comadminexpense->save();
+                    //  $this->errorcode = 0;
+                }
+            }
+            $financialinvest = $data['budgetinvst'];
+
+            if(is_array($financialinvest)) {
+                foreach($financialinvest as $invest) {
+                    $invest['bfbid'] = $this->data[self::PRIMARY_KEY];
+                    $investfollowup = new BudgetInvestExpenses();
+                    $investfollowup->set($invest);
+                    $investfollowup->save();
                     //  $this->errorcode = 0;
                 }
             }

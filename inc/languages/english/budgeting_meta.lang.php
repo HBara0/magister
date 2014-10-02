@@ -50,6 +50,9 @@ $lang['subtotal'] = 'Sub-total';
 $lang['budyef'] = 'Bud./YEF';
 $lang['commercialadminstrationexpenses'] = 'Commercial and Administration Expenses';
 $lang['fillfinancialbudget'] = 'Fill Financial Budget';
+$lang['fillfinancialbudget'] = 'Fill Financial Budget';
 $lang['budgettype'] = 'Financial Budget Type';
 $lang['bm'] = 'Business managers';
+$lang['search'] = 'Search';
+$lang['filterby'] = 'Filter By';
 ?>
