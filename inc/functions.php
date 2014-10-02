@@ -364,10 +364,17 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
     }
 
     $list .= '<select style="'.$list_style.'" id="'.$id.'" name="'.$name.'" size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
-    if($config['blankstart'] == true) {
+    if($config['blankstart'] == true && empty($config['placeholder'])) {
         $list .= '<option></option>';
     }
 
+    if(!empty($config['placeholder'])) {
+        if(empty($selected_options)) {
+            $placeholder_selected = ' selected';
+        }
+        $list .= '<option disabled value="0"'.$placeholder_selected.'>'.$config['placeholder'].'</option>';
+        unset($placeholder_selected);
+    }
     foreach($options as $key => $val) {
         if($multiple_selected == true) {
             $selected_options = array_filter($selected_options, 'strlen');
@@ -546,7 +553,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     }
 
     if(is_array($options['order'])) {
-        $order = $db->escape_string('ORDER BY '.$options['order']['by'].' '.$options['order']['sort']);
+        $order = ' '.$db->escape_string('ORDER BY '.$options['order']['by'].' '.$options['order']['sort']);
     }
     $extra_where_string = '';
     if(!empty($options['extra_where'])) {
@@ -575,6 +582,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
             $output = '';
 //$results_list .= "<li id='".$result[$key_attribute]."'>{$output}</li>";
         }
+        $space = '';
     }
 
     if(is_array($foundkeys)) {
@@ -654,6 +662,24 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
                         unset($details);
                         break;
+                    case 'genericsegment':
+                        $product = new Products($key);
+                        $generic = $product->get_genericproduct();
+                        if(is_object($generic)) {
+                            if($options['returnType'] == 'json') {
+                                $results_list[$key]['desc'] = $generic->get_segment()->title;
+                            }
+                            else {
+                                $details = '<br/><span class="smalltext">'.$generic->get_segment()->title.'</span>';
+                                $results_list .= '<li id="'.$key.'">'.$val.$details.'</li>';
+                            }
+                        }
+                        else {
+                            if($options['returnType'] == 'json') {
+                                unset($results_list[$key]);
+                            }
+                        }
+                        break;
                     case 'checmicalfunction':
                         $chemfunchem_objs = ChemFunctionChemicals::get_data('csid='.$key, array('returnarray' => 1));
                         if(is_array($chemfunchem_objs)) {
@@ -678,12 +704,17 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         break;
                     case 'country':
                         $entity = new Entities($key);
-                        if($options['returnType'] == 'json') {
-                            $results_list[$key]['desc'] = $entity->get_country()->name;
+                        if(!empty($entity->country)) {
+                            if($options['returnType'] == 'json') {
+                                $results_list[$key]['desc'] = $entity->get_country()->name;
+                            }
+                            else {
+                                $details = '<br /><span class="smalltext">'.$entity->get_country()->name.'</span>';
+                                $results_list .= '<li id="'.$key.'">'.$val.$details.'</li>';
+                            }
                         }
                         else {
-                            $details = '<br /><span class="smalltext">'.$entity->get_country()->name.'</span>';
-                            $results_list .= '<li id="'.$key.'">'.$val.$details.'</li>';
+                            $results_list .= '<li id="'.$key.'">'.$val.'</li>';
                         }
                         break;
                     default:
@@ -1637,6 +1668,9 @@ function get_object_bytype($dim, $id, $simple = true) {
             return new Countries($id);
             break;
         case 'uid':
+        case 'createdBy':
+        case 'modifiedBy':
+        case 'reportsTo':
             return new Users($id);
             break;
         case 'ltid':
@@ -1660,6 +1694,8 @@ function get_object_bytype($dim, $id, $simple = true) {
         case 'csid':
             return new Chemicalsubstances($id);
             break;
+        case 'saleType':
+            return new SaleTypes($id);
     }
 }
 
@@ -1668,6 +1704,17 @@ function fix_url($url) {
         $url = "http://".$url;
     }
     return $url;
+}
+
+function array_multisort_bycolumn(&$data, $order_attr, $sort = SORT_DESC) {
+    ${$order_attr} = array();
+    if(!is_array($data)) {
+        return;
+    }
+    foreach($data as $data_key => $data_row) {
+        ${$order_attr}[$data_key] = $data_row->{$order_attr};
+    }
+    array_multisort(${$order_attr}, $sort, $data);
 }
 
 ?>
