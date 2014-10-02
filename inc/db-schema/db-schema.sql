@@ -363,6 +363,20 @@ CREATE TABLE `budgeting_financialbudget` (
   `modifiedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`bfbid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=62 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+DROP TABLE IF EXISTS `budgeting_fxrates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `budgeting_fxrates` (
+  `bfxid` int(10) NOT NULL AUTO_INCREMENT,
+  `affid` smallint(5) NOT NULL,
+  `year` smallint(5) NOT NULL,
+  `fromCurrency` int(3) NOT NULL,
+  `toCurrency` int(3) NOT NULL,
+  `rate` float NOT NULL,
+  `isActual` tinyint(1) NOT NULL,
+  PRIMARY KEY (`bfxid`),
+  KEY `affid` (`affid`,`fromCurrency`,`toCurrency`)
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 DROP TABLE IF EXISTS `calendar_events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
