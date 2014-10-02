@@ -33,12 +33,16 @@ class Products {
         $this->product = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'products WHERE pid='.intval($id)));
     }
 
-    public function get_generic_product() {
+    public function get_genericproduct_legacy() {
         global $db;
         return $this->product['genericproduct'] = $db->fetch_assoc($db->query("SELECT gp.*
 								FROM ".Tprefix."genericproducts gp
 								JOIN ".Tprefix."products p ON (p.gpid=gp.gpid)
 								WHERE p.pid=".$this->product['pid'].""));
+    }
+
+    public function get_genericproduct() {
+        return new GenericProducts($this->product['gpid']);
     }
 
     public function get_segment() {
@@ -48,6 +52,15 @@ class Products {
 								JOIN ".Tprefix."products p ON (p.gpid=gp.gpid)
 								JOIN ".Tprefix."productsegments ps ON (gp.psid=ps.psid)
 								WHERE p.gpid=".$this->product['gpid'].""));
+    }
+
+    public function get_productsegment() {
+        if(!empty($this->product['defaultFunction'])) {
+            return $this->get_defaultchemfunction()->get_segment();
+        }
+        else {
+            return $this->get_genericproduct()->get_segment();
+        }
     }
 
     public function get_supplier() {

@@ -244,7 +244,7 @@ if(!$core->input['action']) {
                     $defaultchemfunc_output = $defaultchemfunc->get_chemicalfunction()->title.' - '.$defaultchemfunc->get_segmentapplication()->title.' - '.$defaultchemfunc->get_segment()->title;
                 }
                 else {
-                    $defaultchemfunc_output = $product->get_generic_product()['title'];
+                    $defaultchemfunc_output = $product->get_genericproduct_legacy()['title'];
                 }
                 $productslist .= '<tr><td style="width:50%;">'.$product->name.'</td><td>'.$defaultchemfunc_output.'</td></tr>';
                 unset($defaultchemfunc_output);
