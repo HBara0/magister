@@ -34,6 +34,7 @@ if(!$core->input['action']) {
         $budget_data['affiliateName'] = $affiliate->get()['name'];
         $supplier = new Entities($budget_data['spid']);
         $budget_data['supplierName'] = $supplier->get()['companyName'];
+        $supplier_segments = array_filter($supplier->get_segments());
 
         $currentbudget = Budgets::get_budget_bydata($budget_data);
         /* Validate Permissions - START */
@@ -207,6 +208,10 @@ if(!$core->input['action']) {
                             $budget_currencylist_selected = '';
                         }
 
+                        $segments_selectlist = '';
+                        if(count($supplier_segments) > 1) {
+                            $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['spid'], null, null, array('placeholder' => 'Overwrite Segment'));
+                        }
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
                         $rowid++;
                     }
@@ -219,6 +224,10 @@ if(!$core->input['action']) {
             $invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, '', '', '', array('id' => 'invoice_'.$rowid));
             foreach($currencies as $currency) {
                 $budget_currencylist .= '<option value="'.$currency.'">'.$currency.'</option>';
+            }
+
+            if(count($supplier_segments) > 1) {
+                $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, 0, null, null, array('placeholder' => 'Overwrite Segment'));
             }
             eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
         }

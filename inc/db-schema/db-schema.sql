@@ -275,6 +275,7 @@ CREATE TABLE `budgeting_budgets_lines` (
   `blid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `pid` int(10) unsigned NOT NULL,
   `altPid` varchar(200) DEFAULT NULL,
+  `psid` smallint(5) DEFAULT NULL,
   `bid` int(10) unsigned NOT NULL,
   `cid` int(10) NOT NULL,
   `altCid` varchar(50) NOT NULL,
