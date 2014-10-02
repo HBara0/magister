@@ -35,6 +35,7 @@ class DataAccessLayer {
         $sql = 'SELECT '.$this->primary_key.' FROM '.Tprefix.$this->table_name;
 
         $sql .= $this->construct_whereclause($filters, $configs['operators']);
+        $sql .= $this->construct_groupclause($configs['group']);
         $sql .= $this->construct_orderclause($configs['order']);
         $sql .= $this->construct_limitclause($configs['limit']);
         // echo $sql;
@@ -93,6 +94,22 @@ class DataAccessLayer {
 
     }
 
+    private function construct_groupclause($group) {
+        global $db;
+        if(!is_array($group)) {
+            if(!empty($group)) {
+                return ' GROUP BY '.$db->escape_string($group);
+            }
+            return false;
+        }
+
+        if(is_array($group)) {
+            $group = array_map($db->escape_string, $group);
+            return implode(', ', $group);
+        }
+        return false;
+    }
+
     private function construct_orderclause($order) {
         global $db;
 
@@ -141,6 +158,10 @@ class DataAccessLayer {
             }
         }
         return false;
+    }
+
+    public function construct_whereclause_public($filters, $operators = array()) {
+        return self::construct_whereclause($filters, $operators);
     }
 
     private function construct_whereclause($filters, $operators = array()) {
