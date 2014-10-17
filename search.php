@@ -119,7 +119,7 @@ if($core->input['type'] == 'quick') {
             if(isset($core->input['rid']) && !empty($core->input['rid'])) {
                 $extra_where .= 'spid = "'.$report_data['spid'].'"';
             }
-            if($core->usergroup['canViewAllsupp'] == 0 && !isset($core->input['rid'])) {
+            if($core->usergroup['canViewAllSupp'] == 0 && !isset($core->input['rid']) && empty($supplier_filter)) {
                 $core->user['suppliers']['eid'] = array_map(intval, $core->user['suppliers']['eid']);
                 $supplier_filter = " spid IN (".implode(',', $core->user['suppliers']['eid']).")";
             }
@@ -138,6 +138,7 @@ if($core->input['type'] == 'quick') {
             $key_attribute = 'pid';
             $select_attributes = array('name');
             $order = array('by' => 'name', 'sort' => 'ASC');
+            $descinfo = 'genericsegment';
         }
         elseif($core->input['for'] == 'affiliate') {
             $table = 'affiliates';
