@@ -14,11 +14,19 @@ if(!defined('DIRECT_ACCESS')) {
 
 if(!$core->input['action']) {
     $leave = new Leaves($core->input['id'], FALSE);
+    $leavetype = $leave->get_type(false);
     if($leave->uid != $core->user['uid']) {
         if($core->usergroup['attendance_canViewAffAllLeaves'] == 0) {
             if(!value_exists('users', 'reportsTo', $core->user['uid'], "uid='{$leave->uid}'") && $core->usergroup['attenance_canApproveAllLeaves'] == 0) {
                 //if($core->usergroup['attendance_canViewAllAttendnace'] == 0) { //TO REVISE
-                error($message, 'index.php?module=attendance/listleaves');
+                if($core->usergroup['attendace_canViewAllAffExpenses'] == 1) {
+                    if($leavetype->isBusiness == 0) {
+                        error($message, 'index.php?module=attendance/listleaves');
+                    }
+                }
+                else {
+                    error($message, 'index.php?module=attendance/listleaves');
+                }
                 //}
             }
         }
@@ -35,7 +43,7 @@ if(!$core->input['action']) {
     $workingdays = $leave->count_workingdays();
     $contactperson = $leave->get_contactperson(true)->parse_link();
 
-    $leavetype = $leave->get_type(false);
+
     $leave->details_crumb = parse_additionaldata($leave->get(), $leavetype->additionalFields);
     $additionalfield_output = '';
 
