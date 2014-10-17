@@ -714,7 +714,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             }
                         }
                         else {
-                            $results_list .= '<li id="'.$key.'">'.$val.'</li>';
+                            if($options['returnType'] != 'json') {
+                                $results_list .= '<li id="'.$key.'">'.$val.'</li>';
+                            }
                         }
                         break;
                     default:
