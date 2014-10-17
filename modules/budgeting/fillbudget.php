@@ -94,6 +94,7 @@ if(!$core->input['action']) {
         while($saletype = $db->fetch_assoc($saletypes_query)) {
             $saletype_selectlistdata[$saletype['stid']] = $saletype['title'];
             $saletypes[$saletype['stid']] = $saletype;
+            $tooltips['saletype'] .= '<strong>'.$saletype['title'].'</strong><br />'.$saletype['description'].'<hr />';
         }
 
         /* Get Invoice Types - START */
@@ -283,6 +284,9 @@ else {
                 break;
             case 602:
                 output_xml('<status>false</status><message>'.$lang->budgetexist.'</message>');
+                break;
+            default:
+                output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
                 break;
         }
     }
