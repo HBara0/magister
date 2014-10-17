@@ -177,7 +177,7 @@ class Icalendar {
         else {
             $organizer = $core->user_obj;
         }
-        $this->icalendarfile .= "ORGANIZER;CN={$organizer->get()['displayName']}:MAILTO:{$organizer->get()['email']}\r\n";
+        $this->icalendarfile .= "ORGANIZER;CN=".$this->apply_icalstd($organizer->get()['displayName']).":MAILTO:{$organizer->get()['email']}\r\n";
     }
 
     public function set_icalattendees($attendees) {
@@ -190,23 +190,26 @@ class Icalendar {
                 if(empty($attendee['name'])) {
                     $attendee['name'] = $attendee['email'];
                 }
-                $this->icalattendees .= "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE;CN={$attendee['name']};RSVP=TRUE:MAILTO:{$attendee['email']}\r\n";
+                $this->icalattendees .= "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE;CN=".$this->apply_icalstd($attendee['name']).";RSVP=TRUE:MAILTO:{$attendee['email']}\r\n";
             }
         }
         //if single attendee
         else {
             $user_object = new Users($attendees);
             $attendee = $user_object->get();
-            $this->icalattendees = "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE;CN={$attendee['displayName']};RSVP=TRUE:MAILTO:{$attendee['email']}\r\n";
+            $this->icalattendees = "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE;CN=".$this->apply_icalstd($attendee['displayName']).";RSVP=TRUE:MAILTO:{$attendee['email']}\r\n";
         }
         $this->icalendarfile .= $this->icalattendees;
     }
 
     public function set_description($description) {
         global $core;
-
-        $this->icalendarfile .= 'DESCRIPTION: '.$this->apply_icalstd($core->sanitize_inputs($description, array('removetags' => true)))."\r\n";
-        $this->icalendarfile .= 'X-ALT-DESC;FMTTYPE=text/html:<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">\n<html>\n<body>\n'.$this->apply_icalstd($description).'\n</body>\n</html>'."\r\n";
+        $description = $this->apply_icalstd(trim($description));
+        $description_sanitized = $core->sanitize_inputs($description, array('method' => 'convert', 'removetags' => true));
+        $this->icalendarfile .= 'DESCRIPTION: '.$description_sanitized."\r\n";
+        if(!empty($description)) {
+            $this->icalendarfile .= 'X-ALT-DESC;FMTTYPE=text/html:<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">\n<html>\n<body>\n'.$description.'\n</body>\n</html>'."\r\n";
+        }
     }
 
     public function set_transparency($trasp = 'PUBLIC') {
