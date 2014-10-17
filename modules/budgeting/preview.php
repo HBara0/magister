@@ -16,7 +16,7 @@ if(!($core->input['action'])) {
         $budgetsdata = ($core->input['budget']);
         $aggregate_types = array('affilliates', 'suppliers', 'managers', 'segments', 'years');
 
-        eval("\$budgetreport_coverpage = \"".$template->get('budgeting_budgetreport_coverpage')."\";");
+        // eval("\$budgetreport_coverpage = \"".$template->get('budgeting_budgetreport_coverpage')."\";");
 
         $export_identifier = base64_encode(serialize($budgetsdata));
         $budgets = Budgets::get_budgets_bydata($budgetsdata);
@@ -87,13 +87,63 @@ if(!($core->input['action'])) {
             $budgeting_budgetrawreport .= '</table>';
         }
         elseif($type == 'statistical') {
+            /* Parse Risks - Start */
             $value_types = array('income', 'amount');
-            $value_perc = array(50, 50);
-            foreach($value_types as $type) {
-                foreach($value_perc as $perc) {
-                    $data = BudgetLines::get_top($perc, $type, array('bid' => array_keys($budgets)), array('operators' => array('bid' => 'IN')));
+            $value_perc = array(50, 80);
+            $value_by = array('customers' => 'cid, altCid', 'suppliers' => 'bid');
+            $budgeting_budgetrawreport = '<h1>Customers/Suppliers Risks</h1>';
+            foreach($value_by as $by => $group) {
+                $budgeting_budgetrawreport .= '<h2>'.ucwords($by).'</h2><table width="100%" class="datatable">';
+                foreach($value_types as $type) {
+                    foreach($value_perc as $perc) {
+                        $data = BudgetLines::get_top($perc, $type, array('bid' => array_keys($budgets)), array('group' => $group, 'operators' => array('bid' => 'IN')));
+                        $budgeting_budgetrawreport .= '<tr><td>'.$perc.'% '.$by.' by '.$type.'</td><td>'.$data['count'].'</td></tr>';
+                    }
                 }
+                $budgeting_budgetrawreport .= '</table>';
             }
+            /* Parse Risks - END */
+
+            $required_fields = array('amount', 'income', 'cost');
+            $budgeting_budgetrawreport .= '<hr /><h1>Country vs. Affiliate</h1><table width="100%" class="datatable">';
+            $budgeting_budgetrawreport .= '<tr class="thead"><th></th>';
+            foreach($required_fields as $field) {
+                if(!isset($lang->{$field})) {
+                    $lang->{$field} = ucwords($field);
+                }
+                $budgeting_budgetrawreport .= '<th>'.$lang->{$field}.'</th>';
+            }
+            $budgeting_budgetrawreport .= '</tr>';
+            foreach($budgetsdata['affilliates'] as $affid) {
+                $affiliate = new Affiliates($affid);
+                if($affiliate->country == 0) {
+                    continue;
+                }
+                $country = $affiliate->get_country();
+                $budgeting_budgetrawreport .= '<tr><td colspan=4 class="subtitle">'.$affiliate->name.'</td></tr>';
+
+                $operators = array('bid' => 'IN');
+                $country_row = '<tr><td style="width: 40%;">'.$lang->country.' ('.$country->get_displayname().')</td>';
+                $affiliate_row = '<tr><td>'.$lang->affiliate.'</td>';
+                foreach($required_fields as $field) {
+                    if($field == 'cost') {
+                        $values['country'][$field] = $values['country']['amount'] - $values['country']['income'];
+                        $values['affiliate'][$field] = $values['affiliate']['amount'] - $values['affiliate']['income'];
+                    }
+                    else {
+                        $values['country'][$field] = ceil(BudgetLines::get_aggregate_bycountry($country, $field, array('bid' => array_keys($budgets)), array('operators' => $operators)));
+                        $values['affiliate'][$field] = ceil(BudgetLines::get_aggregate_byaffiliate($affiliate, $field, array('bid' => array_keys($budgets)), array('operators' => $operators)));
+                    }
+                    $country_row .= '<td>'.$values['country'][$field].'</td>';
+                    $affiliate_row .= '<td>'.$values['affiliate'][$field].'</td>';
+                }
+                $country_row .= '</tr>';
+                $affiliate_row .= '</tr>';
+
+                $budgeting_budgetrawreport .= $country_row.$affiliate_row;
+                unset($affiliate_row, $country_row);
+            }
+            $budgeting_budgetrawreport .= '</table>';
         }
         else {
             if(is_array($budgets)) {
