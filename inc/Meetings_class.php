@@ -285,11 +285,12 @@ class Meetings {
             $meeting_data['isPublic'] = 0;
         }
 
-        $query = $db->update_query('meetings', $meeting_data, 'mtid='.$db->escape_string($this->meeting['mtid']));
+        $query = $db->update_query('meetings', $meeting_data, 'mtid='.intval($this->meeting['mtid']));
         if($query) {
             if(isset($this->meeting['attachments']) && !empty($this->meeting['attachments'])) {
                 $this->add_attachments($this->meeting['attachments']);
             }
+            $this->meeting = $meeting_data + $this->meeting;
             if(is_array($attendees)) {
                 foreach($attendees as $type => $type_attendees) {
                     foreach($type_attendees as $attendee) {
@@ -663,7 +664,7 @@ class MeetingsAttendees {
 
     public function get_rep() {
         if($this->attendee['idAttr'] == 'rpid' && !empty($this->attendee['attendee'])) {
-            return new representatives($this->attendee['attendee']);
+            return new Representatives($this->attendee['attendee']);
         }
         return false;
     }
