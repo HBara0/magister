@@ -141,7 +141,7 @@ class Entities {
             unset($this->data['coveredcountry']);
             $query = $db->insert_query('entities', $this->data);
             if($query) {
-                $this->eid = $db->last_id();
+                $this->data['eid'] = $this->eid = $db->last_id();
                 /* Temp Solution */
                 if(!empty($geolocation)) {
                     if(strstr($geolocation, ',')) {
@@ -224,7 +224,7 @@ class Entities {
                 }
             }
         }
-        $email_data['to'][] = array('sourcing@orkila.com');
+        $email_data['to'][] = 'sourcing@orkila.com';
 
         $email_data['to'] = array_unique($email_data['to']);
         $mailer = new Mailer();
@@ -232,7 +232,7 @@ class Entities {
         $mailer->set_type();
         $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
         $mailer->set_subject($lang->addsuppliernotification_subject);
-        $mailer->set_message($lang->sprint($lang->addsuppliernotification_message, $this->companyName, $this->parse_link()));
+        $mailer->set_message($lang->sprint($lang->addsuppliernotification_message, $this->companyName, $this->get_link()));
         $mailer->set_to($email_data['to']);
         $mailer->send();
     }
@@ -640,7 +640,7 @@ class Entities {
     }
 
     public function __isset($name) {
-        return isset($this->affiliate[$name]);
+        return isset($this->data[$name]);
     }
 
     public function get() {
@@ -821,19 +821,22 @@ class Entities {
         return $this->data[self::DISPLAY_NAME];
     }
 
-    public function parse_link($attributes_param = array('target' => '_blank')) {
+    public function get_link() {
         global $core;
+        return $core->settings['rootdir'].'/index.php?module=profiles/entityprofile&amp;eid='.$this->data['eid'];
+    }
+
+    public function parse_link($attributes_param = array('target' => '_blank')) {
         if(!empty($this->data['companyNameAbbr'])) {
             $this->data['companyName'] .= ' ('.$this->data['companyNameAbbr'].')';
         }
 
         if(is_array($attributes_param)) {
             foreach($attributes_param as $attr => $val) {
-
                 $attributes .= $attr.'="'.$val.'"';
             }
         }
-        return '<a href="'.$core->settings['rootdir'].'/index.php?module=profiles/entityprofile&eid='.$this->data['eid'].'" '.$attributes.'>'.$this->data['companyName'].'</a>';
+        return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->data['companyName'].'</a>';
     }
 
 }
