@@ -100,7 +100,7 @@ class BudgetHeadCount extends AbstractClass {
                         if($input == 'budgetPrevYear') {
                             $readonly = $disabledfield;
                         }
-                        $column_output .=' <td style="width:12.5%">'.parse_textfield('headcount['.$group->posgid.']['.$input.']', 'headcount_'.$input, 'number', $headcount[$input], array('accept' => 'numeric', 'step' => '1', $readonly => $readonly, 'style' => 'width:100%;')).'</td>';
+                        $column_output .=' <td style="width:12.5%">'.parse_textfield('headcount['.$group->posgid.']['.$input.']', 'headcount_'.$input, 'number', $headcount[$input], array('accept' => 'numeric', 'step' => '1', $readonly => $readonly, 'style' => 'width:100%;', 'min' => 0)).'</td>';
                         unset($readonly);
                     }
                     else {
