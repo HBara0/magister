@@ -147,10 +147,9 @@ class Budgets extends AbstractClass {
         global $db, $core, $log;
 
         if(is_array($budgetdata)) {
-//            if(is_empty($budgetdata['year'], $budgetdata['affid'], $budgetdata['spid'])) {
-//                $this->errorcode = 2;
-//                return false;
-//            }
+            if(is_empty($budgetdata['year'], $budgetdata['affid'], $budgetdata['spid'])) {
+                return false;
+            }
             /* Check if budget exists, then process accordingly */
             if(!Budgets::budget_exists_bydata($budgetdata)) {
                 $budget_data = array('identifier' => substr(uniqid(time()), 0, 10),
@@ -223,7 +222,7 @@ class Budgets extends AbstractClass {
                 if($data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
                     $data['altCid'] = 'Unspecified Customer';
                     if(empty($data['customerCountry'])) {
-                        $data['customerCountry'] = $this->get_affiliate()->get_country()->get()['name'];
+                        $data['customerCountry'] = $this->get_affiliate()->get_country()->coid;
                     }
                 }
 
@@ -294,6 +293,11 @@ class Budgets extends AbstractClass {
     public static function get_budgets_bydata($data = array()) {
         global $db;
         if(isset($data['affilliates'], $data['suppliers'], $data['years']) && !empty($data['affilliates']) && !empty($data['suppliers']) && !empty($data['years'])) {
+            array_walk($data['affilliates'], intval);
+            if(is_array($data['suppliers'])) {
+                array_walk($data['suppliers'], intval);
+                $budget_reportquery = "AND spid IN (".implode(',', $data['suppliers']).")";
+            }
             $budget_reportquery = $db->query("SELECT bid FROM ".Tprefix."budgeting_budgets WHERE year=".intval($data['years'])." AND affid IN (".implode(',', $data['affilliates']).")");
         }
         if($budget_reportquery) {
@@ -406,7 +410,7 @@ class Budgets extends AbstractClass {
         if(isset($bid) && !empty($bid)) {
 //$prevbudgetline_details = $this->read_prev_budgetbydata();
             $budgetline_queryid = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines
-											  WHERE bid IN (".$db->escape_string($bid).")".$budgetline_query_where.$options['order_by']);
+											  WHERE bid IN (".intval($bid).")".$budgetline_query_where.$options['order_by']);
 
             if($db->num_rows($budgetline_queryid) > 0) {
                 while($budgetline_data = $db->fetch_assoc($budgetline_queryid)) {
@@ -658,12 +662,32 @@ class BudgetLines {
         return $data->get_objects($filters, $configs);
     }
 
+    public static function get_aggregate_bycountry(Countries $country, $by, $filters = array(), $configs = array()) {
+        global $db;
+
+        $dal = new DataAccessLayer(self:: CLASSNAME, self:: TABLE_NAME, self::PRIMARY_KEY);
+
+        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.') AS total, (CASE WHEN customerCountry=0 THEN (SELECT country FROM entities WHERE entities.eid='.self::TABLE_NAME.'.cid) ELSE customerCountry END) AS coid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY coid HAVING coid='.$country->coid));
+        return $total['total'];
+    }
+
+    public static function get_aggregate_byaffiliate(Affiliates $affiliate, $by, $filters = array(), $configs = array()) {
+        global $db;
+
+        $dal = new DataAccessLayer(self:: CLASSNAME, self:: TABLE_NAME, self::PRIMARY_KEY);
+
+        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.') AS total, (SELECT affid FROM budgeting_budgets WHERE budgeting_budgets.bid='.self::TABLE_NAME.'.bid) AS affid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY affid HAVING affid='.$affiliate->affid));
+        return $total['total'];
+    }
+
     public static function get_top($percent, $attr, $filters = '', $configs = array()) {
         global $db;
 
         $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
 
-        $config['group'] = 'cid, altCid';
+        if(empty($config['group'])) {
+            $config['group'] = 'cid, altCid';
+        }
         $config['order'] = array('sort' => 'DESC', 'by' => $attr);
         $data = BudgetLines::get_data($filters, $config);
         $total = $db->fetch_field($db->query('SELECT SUM('.$attr.') AS total FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators'])), 'total');
