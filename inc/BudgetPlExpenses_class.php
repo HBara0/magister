@@ -76,7 +76,7 @@ class BudgetPlExpenses extends AbstractClass {
         if(is_array($data)) {
             $required_fields = array('bpliid', 'bfbid', 'actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
             foreach($required_fields as $field) {
-                if(is_empty($data[$field])) {
+                if(empty($data[$field]) && $data[$field] != '0') {
                     $this->errorcode = 1;
                     return true;
                 }
