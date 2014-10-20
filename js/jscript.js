@@ -911,6 +911,29 @@ $(function() {
             "sharedPopUp": sharedPopUp
         }
     }();
+
+
+    $("#dimensionfrom, #dimensionto").sortable({
+        connectWith: ".sortable",
+        revert: true, //revert to their new positions using a smooth animation.
+        cursor: "wait",
+        tolerance: "intersect", //overlaps the item being moved to the other item by 50%.
+        placeholder: "ui-state-highlight",
+        over: function () {
+            $('.sortable-placeholder').hide();
+        },
+        dropOnEmpty: true, //Prevent all items in a list from being dropped into a separate, empty list
+        start: function () {        /*  return back the Color of the  element to its origin Upon remove of the item */
+            $("#dimensionto li").animate({
+                opacity: 2.35,
+                backgroundColor: "#cccccc",
+            });
+        },
+        stop: function (event, ui) {
+            $("#dimensionto li").css('background', '#92d050');
+            $('#field').val($("#dimensionto").sortable('toArray'));
+        }
+    });
 }
 );
 function validateEmail(email) {

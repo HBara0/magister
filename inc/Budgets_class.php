@@ -8,9 +8,16 @@
  * Last Update:    @tony.assaad    Aug 13, 2013 | 4:15:18 PM
  */
 
-class Budgets {
+class Budgets extends AbstractClass {
     private $budget = array();
-    private $errorcode = 0;
+    protected $errorcode = null;
+    protected $data = array();
+
+    const PRIMARY_KEY = 'bid';
+    const TABLE_NAME = 'budgeting_budgets';
+    const DISPLAY_NAME = '';
+    const SIMPLEQ_ATTRS = 'bid,year,affid,spid';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = false, $budgetdata = '', $isallbudget = false) {
         if(isset($id) && !empty($id)) {
@@ -18,7 +25,19 @@ class Budgets {
         }
     }
 
-    private function read($id, $simple = false, $isallbudget = false) {
+    protected function create(array $data) {
+
+    }
+
+    protected function update(array $data) {
+
+    }
+
+    public function save(array $data = array()) {
+
+    }
+
+    protected function read($id, $simple = false, $isallbudget = false) {
         global $db;
         if(empty($id) && empty($isallbudget)) {
             return false;
@@ -275,8 +294,7 @@ class Budgets {
     public static function get_budgets_bydata($data = array()) {
         global $db;
         if(isset($data['affilliates'], $data['suppliers'], $data['years']) && !empty($data['affilliates']) && !empty($data['suppliers']) && !empty($data['years'])) {
-            $budget_reportquery = $db->query("SELECT bid FROM ".Tprefix."budgeting_budgets WHERE year in(".$db->escape_string(implode(',', $data['years'])).")"
-                    ." AND affid in(".$db->escape_string(implode(',', $data['affilliates'])).") AND spid in(".$db->escape_string(implode(',', $data['suppliers'])).")");
+            $budget_reportquery = $db->query("SELECT bid FROM ".Tprefix."budgeting_budgets WHERE year=".intval($data['years'])." AND affid IN (".implode(',', $data['affilliates']).")");
         }
         if($budget_reportquery) {
             if($db->num_rows($budget_reportquery) > 0) {

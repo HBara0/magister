@@ -11,21 +11,36 @@
 if(!($core->input['action'])) {
     if($core->input['referrer'] == 'generate') {
         $budgetcache = new Cache();
-//		$identifier = base64_decode($core->input['identifier']);
-//		$generate_budget_data = unserialize($session->get_phpsession('generatebudgetdata_'.$identifier));
+// $identifier = base64_decode($core->input['identifier']);
+//$generate_budget_data = unserialize($session->get_phpsession('generatebudgetdata_'.$identifier));
         $budgetsdata = ($core->input['budget']);
         $aggregate_types = array('affilliates', 'suppliers', 'managers', 'segments', 'years');
+        //eval("\$budgetreport_coverpage = \"".$template->get('budgeting_budgetreport_coverpage')."\";");
 
-        // eval("\$budgetreport_coverpage = \"".$template->get('budgeting_budgetreport_coverpage')."\";");
+        /* overrites the filters and get the user filter when no  filters are selected */
+        $filters = array('affilliates' => $core->user['affiliates'], 'suppliers' => $core->user['suppliers']['eid'], 'segments' => array_keys($core->user_obj->get_segments()));
+        foreach($filters as $key => $val) {
+            if(empty($budgetsdata[$key])) {
+                $budgetsdata[$key] = $val;
+                continue;
+            }
+        }
+        $dal_config = array(
+                'operators' => array('affid' => 'in', 'year' => '='),
+                'simple' => false,
+                'returnarray' => true
+        );
 
         $export_identifier = base64_encode(serialize($budgetsdata));
         $budgets = Budgets::get_budgets_bydata($budgetsdata);
-
-        if($type == 'dimensional') {
+        if(!is_array($budgets)) {
+            //redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
+        }
+        $report_type = $core->input['budget']['reporttype'];
+        if($report_type == 'dimensional') {
             if(is_array($budgets)) {
                 foreach($budgets as $budgetid) {
                     $budget_obj = new Budgets($budgetid);
-
                     /* Validate Permissions - START */
                     $filter = $budget_obj->generate_budgetline_filters();
                     if($filter === false) {
@@ -33,23 +48,45 @@ if(!($core->input['action'])) {
                     }
                     /* Validate Permissions - END */
 
-                    $budgetlines = $budget_obj->get_budgetlines_objs(null, array('order' => 'quantity'));
+                    if(!isset($budgetsdata['managers']) && empty($budgetsdata['managers'])) {
+                        $budgetsdata['managers'][] = $core->user['uid'];
+                    }
+
+                    $budgetlines = $budget_obj->get_budgetlines_objs(array('createdBy' => $budgetsdata['managers']), array('operators' => array('createdBy' => 'in'), 'order' => 'quantity', 'returnarray' => true));
+
                     if(!is_array($budgetlines)) {
                         continue;
                     }
+
                     foreach($budgetlines as $blid => $budgetline) {
                         $rawdata[$blid] = $budget_obj->get() + $budgetline->get();
-
                         $product = $budgetline->get_product();
                         if(empty($rawdata[$blid]['psid'])) {
                             $rawdata[$blid]['psid'] = $product->get_productsegment()->psid;
                         }
+                        $budget_currencies[$budgetline->blid] = $budgetline->originalCurrency;
+                        /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
+                        if($budgetline->originalCurrency != $budgetsdata['toCurrency']) {
+                            $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline->originalCurrency, 'toCurrency' => $budgetsdata['toCurrency'], 'affid' => $budgetsdata['affilliates'], 'year' => $budgetsdata['years'],), $dal_config);
+                            if(is_array($fxrates_obj)) {
+                                foreach($fxrates_obj as $fxid => $fxrates) {
+                                    $rawdata[$blid]['amount'] = ($budgetline->amount * $fxrates->rate);
+                                    $rawdata[$blid]['income'] = ($budgetline->income * $fxrates->rate);
+                                }
+                            }
+                            else {
+                                error($lang->currencynotexist.' '.$budgetline->originalCurrency, $_SERVER['HTTP_REFERER']);
+                            }
+                        }
+                        /* get the currency rate of the Origin currency  of the current buudget - START */
+
+                        //get the report to of the user who created the budget.
 
                         $rawdata[$blid]['reportsTo'] = $budget_obj->get_CreateUser()->get_reportsto()->uid;
+                        $rawdata[$blid]['uid'] = $budgetline->businessMgr;
                         $rawdata[$blid]['spid'] = $product->get_supplier()->eid;
                         $rawdata[$blid]['s1Income'] = $rawdata[$blid]['income'] * ($rawdata[$blid]['s1Perc'] / 100);
                         $rawdata[$blid]['s2Income'] = $rawdata[$blid]['income'] * ($rawdata[$blid]['s2Perc'] / 100);
-
                         if(empty($rawdata[$blid]['coid'])) {
                             if(!empty($rawdata[$blid]['customerCountry'])) {
                                 $rawdata[$blid]['coid'] = $rawdata[$blid]['customerCountry'];
@@ -64,19 +101,19 @@ if(!($core->input['action'])) {
                     }
                 }
             }
-
             /* Dimensional Report Settings - START */
-            $dimensions = array('cid'); // Need to be passed from options stage
+            $dimensions = explode(',', $budgetsdata['dimension'][0]); // Need to be passed from options stage
             $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 's1Income', 's2Income');
             $formats = array('incomePerc' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'));
             $overwrite = array('unitPrice' => array('fields' => array('divider' => 'amount', 'dividedby' => 'quantity'), 'operation' => '/'),
                     'incomePerc' => array('fields' => array('divider' => 'income', 'dividedby' => 'amount'), 'operation' => '/'));
             /* Dimensional Report Settings - END */
-
             $dimensionalreport = new DimentionalData();
             $dimensionalreport->set_dimensions(array_combine(range(1, count($dimensions)), array_values($dimensions)));
             $dimensionalreport->set_requiredfields($required_fields);
-            $dimensionalreport->set_data($rawdata);
+            if(!empty($rawdata)) {
+                $dimensionalreport->set_data($rawdata);
+            }
             $budgeting_budgetrawreport .= '<table width="100%" class="datatable">';
             $budgeting_budgetrawreport .= '<tr><th></th>';
             foreach($required_fields as $field) {
@@ -86,7 +123,7 @@ if(!($core->input['action'])) {
             $budgeting_budgetrawreport .= $dimensionalreport->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'formats' => $formats, 'overwritecalculation' => $overwrite));
             $budgeting_budgetrawreport .= '</table>';
         }
-        elseif($type == 'statistical') {
+        elseif($report_type == 'statistical') {
             /* Parse Risks - Start */
             $value_types = array('income', 'amount');
             $value_perc = array(50, 80);
@@ -159,14 +196,20 @@ if(!($core->input['action'])) {
                         continue;
                     }
                     /* Validate Permissions - END */
-                    $firstbudgetline = $budget_obj->get_budgetLines(0, $filter);
+                    $firstbudgetline = $budget_obj->get_budgetLines(array('businessMgr' => $budgetsdata['managers']), $filter);
                     if(is_array($firstbudgetline)) {
                         foreach($firstbudgetline as $cid => $customersdata) {
                             foreach($customersdata as $pid => $productsdata) {
                                 foreach($productsdata as $saleid => $budgetline) {
                                     $rowclass = alt_row($rowclass);
                                     $budgetline_obj = new BudgetLines($budgetline['blid']);
+                                    if(isset($budgetline['invoice']) && !empty($budgetline['invoice'])) {
+                                        $invoicetype = InvoiceTypes::get_data(array('invoicingEntity' => $budgetline['invoice'], 'stid' => $budgetline['saleType']));
 
+                                        if(is_object($invoicetype)) {
+                                            $budgetline['invoiceentity'] = $invoicetype->get_invoiceentity();
+                                        }
+                                    }
                                     $budget['manager'] = $budgetline_obj->get_businessMgr()->get();
                                     $budget['managerid'] = $budgetline_obj->get_businessMgr()->get()['uid'];
 
@@ -187,6 +230,21 @@ if(!($core->input['action'])) {
 //								if(isset($budgetline['genericproduct']) && !empty($budgetline['genericproduct'])) {
 //									$budgetline['genericproduct'] = $budgetline_obj->get_product()->get_generic_product();
 //								}
+
+                                    /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
+                                    if($budgetline['originalCurrency'] != $budgetsdata['toCurrency']) {
+                                        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['toCurrency'], 'affid' => $budgetsdata['affilliates'], 'year' => $budgetsdata['years'],), $dal_config);
+                                        if(is_array($fxrates_obj)) {
+                                            foreach($fxrates_obj as $fxid => $fxrates) {
+                                                $budgetline['amount'] = ($budgetline['amount'] * $fxrates->rate);
+                                                $budgetline['income'] = ($budgetline['income'] * $fxrates->rate);
+                                            }
+                                        }
+                                        else {
+                                            error($lang->currencynotexist.' '.$budgetline['originalCurrency'], $_SERVER['HTTP_REFERER']);
+                                        }
+                                    }
+                                    /* get the currency rate of the Origin currency  of the current buudget - END */
                                     if(isset($budgetline['pid']) && !empty($budgetline['pid'])) {
                                         if(!empty($budgetline['psid'])) {
                                             $segment = new ProductsSegments($budgetline['psid']);
@@ -292,13 +350,27 @@ elseif($core->input['action'] == 'exportexcel') {
                             else {
                                 $budgetline[$counter]['segment'] = $budgetline_obj->get_product($pid)->get_segment()['title'];
                             }
+                            $dal_config = array(
+                                    'operators' => array('affid' => 'in', 'year' => '='),
+                                    'simple' => false,
+                                    'returnarray' => true
+                            );
+
 
                             $budgetline[$counter]['product'] = $budgetline_obj->get_product($pid)->get()['name'];
                             $budgetline[$counter]['uom'] = 'Kg';
                             $budgetline[$counter]['unitPrice'] = $budgetline[$counter]['unitPrice'];
                             $budgetline[$counter]['saleType'] = Budgets::get_saletype_byid($saleid);
 
-
+                            /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
+                            $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline[$counter]['originalCurrency'], 'toCurrency' => $budgetsdata['toCurrency'], 'affid' => $budgetsdata['affilliates'], 'year' => $budgetsdata['years'],), $dal_config);
+                            if(is_array($fxrates_obj)) {
+                                foreach($fxrates_obj as $fxid => $fxrates) {
+                                    $budgetline[$counter]['amount'] = ( $budgetline[$counter]['amount'] * $fxrates->rate);
+                                    $budgetline[$counter]['income'] = ( $budgetline[$counter]['income'] * $fxrates->rate);
+                                }
+                            }
+                            /* get the currency rate of the Origin currency  of the current buudget - END */
                             if((empty($budgetline[$counter]['cid']) && !empty($budgetline[$counter]['altCid']))) {
                                 $budgetline[$counter]['customer'] = $budgetline[$counter]['altCid'];
                             }

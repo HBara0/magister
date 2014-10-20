@@ -2,14 +2,31 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->fillsurvey}</title>
         {$headerinc}
+
+
         <script type="text/javascript">
-            $(document).ready(function() {
-                $('input[name=fxrate]').live('change', function() {
-                    $('#fxrateinput').slideToggle('fast', function() {
+            $(function () {
+
+
+                $('input[name=fxrate]').live('change', function () {
+                    $('#fxrateinput').slideToggle('fast', function () {
                     });
                 });
+                $("select[id='budget[reporttype]']").live('change', function () {
+                    var id = $(this).attr("id")
+                    var value = $(this).attr("value")
+                    //  if($(this).not($("div[id^='" + $(this).val() + "']"))) {
+
+                    $("div[id$=_reporttype]").not([id ^= '" + $(this).val() + "']).hide();
+                    $("div[id^='" + value + "']").show(1000);
+
+                });
+
             });
+
+
         </script>
+
     </head>
     <body>
         {$header}
@@ -20,7 +37,7 @@
             <form name="perform_budgeting/generate_Form" id="perform_budgeting/generate_Form" method="post" action="index.php?module=budgeting/preview&amp;referrer=generate">
                 <input type="hidden" name="identifier" value="{$core->input[identifier]}"/>
                 <div style="display:block; padding:8px;">
-                    <table>
+                    <table width="100%">
                         <div class="thead" >{$lang->filterby}</div>
 
                         <tr>
@@ -53,67 +70,100 @@
                                 </div>
                             </td>
                         </tr>
-                        <td  width="50%">
-                            <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
-                                <table class="datatable" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th width="100%">{$lang->bm}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->bm}" style="width:60%;display:inline-block;margin-left:5px;"/></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody style="height:100px;">
-                                        {$business_managerslist}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </td>
-                        <td  width="50%">
-                            <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
-                                <table class="datatable" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th width="100%">{$lang->segment}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->segment}" style="width:70%;display:inline-block;margin-left:5px;"/></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {$budget_segments_list}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </td>
+                        <tr>
+                            <td  width="50%">
+                                <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
+                                    <table class="datatable" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th width="100%">{$lang->manager}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->bm}" style="width:60%;display:inline-block;margin-left:5px;"/></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="height:100px;">
+                                            {$business_managerslist}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                            <td  width="50%">
+                                <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
+                                    <table class="datatable" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th width="100%">{$lang->segment}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->segment}" style="width:70%;display:inline-block;margin-left:5px;"/></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {$budget_segments_list}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
                         </tr>
-                        <td  width="50%">
-                            <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
-                                <table class="datatable" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th width="100%">{$lang->year}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->year}" style="width:70%;display:inline-block;margin-left:5px;"/></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {$budget_year_list}
-                                    </tbody>
-                                </table>
-                            </div>
-                        <td>
-                        <td  width="50%">
+                        <tr>
+                            <td  width="50%">
+                                <div style="width:100%; height:70px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
+                                    <table class="datatable" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th width="100%">{$lang->year}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->year}" style="width:70%;display:inline-block;margin-left:5px;"/></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {$budget_year_list}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                            <td  width="50%">
+                                <div style="width:100%; height:70px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
 
-                        </td>
+                                    <table class="datatable" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th width="100%">{$lang->reporttype}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><select  name="budget[reporttype]" id="budget[reporttype]" style="width:100%;">
+                                                        <option value="basic">{$lang->basic}</option>
+                                                        <option value="dimensional">{$lang->dimensional}</option>
+                                                        <option value="statistical">{$lang->statistical}</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="50%">
+                                <strong>{$lang->currency}</strong><br />
+                                {$currencies_list}
+                            </td>
                         </tr>
                     </table>
-                    <!-- <div style="display:block; padding:15px;">
-                         <div style="display:inline-block;padding:10px;">{$lang->curr}</div>
-                         <div style="display:inline-block;padding:10px;"></div>
-                     </div> -->
-                    <!--<div id="budget_currautomatic" style="display:block;">
-                       <div style="display:inline-block;padding:8px; margin-left:65px;"><input  id="autofxrate"  type="radio" value=1 checked name="fxrate"/></div>
-                       <div style="display:inline-block;padding:8px;">{$lang->automaticusdrate}</div>
-                   </div>
-                  <div  id="budget_currspecify"style="display:block;">
-                       <div style="display:inline-block;padding:8px; margin-left:65px;"><input  id="specifyfxrate" type="radio" value=2 name="fxrate"/></div>
-                       <div style="display:inline-block;padding:8px;"> {$lang->specifyusdrate}<span id="fxrateinput" style="display:none;"><input type="texr" size="8" name="budgetgenerate[fxrate]"/></span>
-
-                       </div>-->
+                </div>
+                <div id="dimensional_reporttype" style="display:none;">
+                    <div class="thead" style="margin:10px;">{$lang->dimensions}</div>
+                    <div style="display:block; ">
+                        <div style="display:inline-block;width:40%;  vertical-align:top;">
+                            <ul id="dimensionfrom" class="sortable">
+                                {$dimension_item}
+                            </ul>
+                        </div>
+                        <div style="display:inline-block;width:40%; vertical-align:top;">
+                            <div style="text-align: left;">
+                                {$lang->selecteddimensions}<br />
+                                <ul id="dimensionto" class="sortable">
+                                    <li class="sortable-placeholder" style="background:none;">{$lang->drophere}</li>
+                                </ul>
+                            </div>
+                            <input type='hidden' id='field' name="budget[dimension][]" value=''>
+                        </div>
+                    </div>
                 </div>
                 <div  id="budget_currspecify"style="display:block;">
                     <input type="submit" value="{$lang->generate}" class="button"> <input type="reset" value="{$lang->reset}" class="button">

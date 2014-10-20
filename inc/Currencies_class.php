@@ -9,10 +9,17 @@
  * Last Update: @zaher.reda 		May 17, 2012 | 04:07 PM
  */
 
-class Currencies {
+class Currencies extends AbstractClass {
     private $base_currency = 'USD';
     private $currency;
     private $error_handler = NULL;
+
+    const DISPLAY_NAME = 'name';
+    const TABLE_NAME = 'currencies';
+    const PRIMARY_KEY = 'numCode';
+    const SIMPLEQ_ATTRS = 'numCode, alphaCode,name';
+    const CLASSNAME = __CLASS__;
+
     private $cachearr = '';
 
     public function __construct($base_currency) {
@@ -29,7 +36,23 @@ class Currencies {
         $this->cache = new Cache();
     }
 
-    private function read($id) {
+    protected function create(array $data) {
+
+    }
+
+    public function save(array $data = array()) {
+
+    }
+
+    protected function update(array $data) {
+
+    }
+
+    public function get_displayname() {
+        return $this->currency[self::DISPLAY_NAME];
+    }
+
+    protected function read($id) {
         global $db;
         $this->currency = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'currencies WHERE numCode='.intval($id)));
     }
