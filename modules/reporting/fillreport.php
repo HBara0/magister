@@ -616,6 +616,7 @@ else {
             if($found_one == false) {
                 if(!empty($val)) {
                     foreach($val as $k => $v) {
+                        $v = preg_replace(array('/\s/', '~\x{00a0}~siu'), '', $core->sanitize_inputs($v, array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true)));
                         if($section_allempty == true) {
                             if(!in_array(strtolower(trim($v)), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
                                 $section_allempty = false;
@@ -869,6 +870,7 @@ else {
             if($marketreport_found_one == false) {
                 if(!empty($val)) {
                     foreach($val as $k => $v) {
+                        $v = preg_replace(array('/\s/', '~\x{00a0}~siu'), '', $core->sanitize_inputs($v, array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true)));
                         if($section_allempty == true) {
                             if(!in_array(strtolower(trim($v)), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
                                 $section_allempty = false;
