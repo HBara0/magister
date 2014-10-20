@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Process to sync with Openbravo
  * $id: sync_openbravo.php
  * Created:        @zaher.reda    Feb 18, 2013 | 4:16:34 PM
@@ -28,7 +28,7 @@ if($core->input['authCode'] == AUTHCODE) {
             '0B366EFAE0524FDAA97A1322A57373BB' => 'invoice', //Orkila East Africa
             'DA0CE0FED12C4424AA9B51D492AE96D2' => 'invoice', //Orkila Nigeria
             'F2347759780B43B1A743BEE40BA213AD' => 'invoice', //Orkila Ghana
-            'BD9DC2F7883B4E11A90B02A9A47991DC' => 'invoice', //Orkila Lebanon
+            'BD9DC2F7883B4E11A90B02A9A47991DC' => 'order', //Orkila Lebanon
             '933EC892369245E485E922731D46FCB1' => 'invoice', //Orkila Senegal
             '51FB1280AB104EFCBBB982D50B3B7693' => 'invoice', //Orkila CI
             '7AD08388D369403A9DF4B8240E3AD7FF' => 'invoice' //Orkila International
@@ -46,7 +46,7 @@ if($core->input['authCode'] == AUTHCODE) {
     $integration->sync_businesspartners();
     foreach($sync_documents as $orgid => $document) {
         $integration->sync_purchases(array($orgid), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')), $document);
+        $integration->sync_sales(array($orgid), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')), $document);
     }
-    $integration->sync_sales(array_keys($affiliates_index), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')));
 }
 ?>
