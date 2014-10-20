@@ -59,7 +59,7 @@
                     {$output}
                 </table>
                 <hr />
-                <input type="submit" id="perform_budgeting/profitlossaccount_Button" value="Save" class="button"/>
+                <input type="{$type}" id="perform_budgeting/profitlossaccount_Button" value="Save" class="button"/>
             </form>
             <div id="perform_budgeting/profitlossaccount_Results"></div>
         </td>

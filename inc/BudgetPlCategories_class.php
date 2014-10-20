@@ -59,11 +59,10 @@ class BudgetPlCategories extends AbstractClass {
                                     $plexpenses['budyef'] = sprintf("%.2f", (($plexpenses_current->budgetCurrent - $plexpenses_current->yefPrevYear) / $plexpenses_current->yefPrevYear) * 100).' %';
                                 }
                                 $column_output .='<td style="width:8.3%" class="border_left"><div id="placcount_'.$category->name.'_'.$input.'_'.$item->bpliid.'" >'.$plexpenses[$input].'</div></td>';
-
                                 $total['plexpenses'][$input] +=$plexpenses[$input];
                             }
                             else {
-                                if(isset($options['mode']) && $options ['mode'] == 'fill') {
+                                if(isset($options['mode']) && $options['mode'] === 'fill') {
                                     $column_output .='<td style="width:12.5%" class="border_left">'.parse_textfield('placcount['.$item->bpliid.']['.$input.']', 'placcount_'.$category->name.'_'.$input.'_'.$item->bpliid, 'number', $plexpenses_current->$input, array('accept' => 'numeric', 'step' => 'any', $readonly => $readonly, 'style' => 'width:100%;')).'</td>';
                                 }
                                 else {
@@ -79,6 +78,7 @@ class BudgetPlCategories extends AbstractClass {
                         }
                         eval("\$category_item .= \"".$template->get('budgeting_plcategory_item')."\";");
                         $output .=$category_item;
+                        unset($plexpenses);
                         $category_item = $column_output = '';
                     }
                     $title = $category->title;
@@ -96,7 +96,6 @@ class BudgetPlCategories extends AbstractClass {
                             if($total['plexpenses']['actualPrevTwoYears'] != 0) {
                                 $total['plexpenses']['yefactual'] = sprintf("%.2f", (( $total['plexpenses']['yefPrevYear'] - $total['plexpenses']['actualPrevTwoYears']) / $total['plexpenses']['actualPrevTwoYears']) * 100).' %';
                             }
-
                             if($total['plexpenses']['budgetPrevYear'] != 0) {
                                 $total['plexpenses']['yefbud'] = sprintf("%.2f", (( $total['plexpenses']['yefPrevYear'] - $total['plexpenses']['budgetPrevYear']) / $total['plexpenses']['budgetPrevYear']) * 100).' %';
                             }
