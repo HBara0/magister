@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$lang->commercialadminstrationexpenses}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function () {
-                $("input[id^='budgetexps']").bind('keyup change', function () {
+            $(function() {
+                $("input[id^='budgetexps']").bind('keyup change', function() {
                     var id = $(this).attr('id').split("_");
                     var yefPrevYear = parseFloat($('input[id=budgetexps_' + id[1] + '_' + id[2] + '_yefPrevYear]').val());
                     var budgetCurrent = parseFloat($('input[id=budgetexps_' + id[1] + '_' + id[2] + '_budgetCurrent]').val());
@@ -18,7 +18,7 @@
                     }
 
                     var category_subtotal = 0;
-                    $('input[id$=' + id[2] + '_' + id[3] + '][id^=budgetexps]').each(function () {
+                    $('input[id$=' + id[2] + '_' + id[3] + '][id^=budgetexps]').each(function() {
                         if(!jQuery.isEmptyObject(this.value)) {
                             category_subtotal += parseFloat(this.value);
                         }
@@ -28,7 +28,7 @@
 
 
                     var total = 0;
-                    $('input[id^=subtotal_][id$=' + id[3] + ']').each(function () {
+                    $('input[id^=subtotal_][id$=' + id[3] + ']').each(function() {
                         if(!jQuery.isEmptyObject(this.value)) {
                             total += parseFloat(this.value);
                         }
@@ -57,7 +57,7 @@
                     }
                 });
 
-                $("input[id^='finGenAdm_']").bind('keyup change', function () {
+                $("input[id^='finGenAdm_']").bind('keyup change', function() {
                     var financeid = $(this).attr('id').split("_");
                     if(($('input[id^=total_' + financeid[1] + ']').val().length) == 0){return;}
                     if(($('input[id=finGenAdm_' + financeid[1] + ']').val().length) == 0){return;}
@@ -83,8 +83,7 @@
                     {$budgeting_header}
                     {$output}
                     <hr />
-                </table>
-                <input type="{$type}" id="perform_budgeting/financialadminexpenses_Button" value="Save" class="button"/>
+                    <input type="{$type}" id="perform_budgeting/financialadminexpenses_Button" value="Save" class="button"/>
             </form>
             <div id="perform_budgeting/financialadminexpenses_Results"></div>
         </td>
