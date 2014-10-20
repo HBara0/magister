@@ -39,7 +39,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 
     $query = $db->query("SELECT DISTINCT(u.uid), Concat(firstName, ' ', lastName) AS employeename FROM ".Tprefix."users u LEFT JOIN ".Tprefix."usersemails ue ON (ue.uid=u.uid) WHERE u.email='".$db->escape_string($data['from'])."' OR ue.email='".$db->escape_string($data['from'])."'");
     if($db->num_rows($query) > 0) {
-        $user = $db->fetch_assoc($query);
+        $user = $core->user; //$db->fetch_assoc($query);
         $db->update_query('leavesapproval', array('isApproved' => 1, 'timeApproved' => TIME_NOW), "lid='{$leave[lid]}' AND uid='{$user[uid]}' AND isApproved='0'");
         if($db->affected_rows() > 0) {
             $query3 = $db->query("SELECT l.uid, u.email
@@ -61,7 +61,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                 $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($core->input['requestKey']).'&id='.base64_encode($leave['lid']);
 
                 /* Parse expense information for message - START */
-                $leave_obj = new Leaves(array('lid' => $leave['lid']));
+                $leave_obj = new Leaves(array('lid' => $leave['lid']), false);
                 if($leave_obj->has_expenses()) {
                     $expenses_data = $leave_obj->get_expensesdetails();
                     $total = 0;
