@@ -37,13 +37,14 @@ class BudgetExpenseCategories extends AbstractClass {
         return BudgetExpenseItems::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]), array('returnarray' => true, 'simple' => false));
     }
 
-    public static function parse_financialadminfields($expensescategories, $options = array()) {
+    public function parse_financialadminfields($expensescategories, $options = array()) {
         global $template, $lang;
         if(is_array($expensescategories)) {
             foreach($expensescategories as $category) {
                 unset($subtotal);
                 $budgeting_commercialexpenses_item = '';
-                $fields = array('actualPrevTwoYears', 'actualPrevYear', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
+                //'actualPrevYear', 'budgetPrevYear'
+                $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent');
                 $expensesitems = $category->get_items();
                 if(is_array($expensesitems)) {
                     foreach($expensesitems as $item) {
@@ -78,7 +79,7 @@ class BudgetExpenseCategories extends AbstractClass {
                                 if($input == 'budgetPrevYear') {
                                     $readonly = $disabledfield;
                                 }
-                                $column_output .= '<td style="width:12.5%;">'.parse_textfield('budgetexps['.$item->beciid.']['.$input.']', 'budgetexps_'.$item->beciid.'_'.$item->becid.'_'.$input, 'number', $budgetexps[$input], array('accept' => 'numeric', 'step' => 'any', 'required' => 'required', $readonly => $readonly, 'style' => 'width:100%')).'</td>';
+                                $column_output .=' <td style="width:12.5%;">'.parse_textfield('budgetexps['.$item->beciid.']['.$input.']', 'budgetexps_'.$item->beciid.'_'.$item->becid.'_'.$input, 'number', $budgetexps[$input], array('accept' => 'numeric', 'step' => 'any', 'required' => 'required', $readonly => $readonly, 'style' => 'width:100%')).'</td>';
                                 unset($readonly);
                             }
                             else {
@@ -110,7 +111,8 @@ class BudgetExpenseCategories extends AbstractClass {
             eval("\$budgeting_commercialexpenses_categories .= \"".$template->get('budgeting_commercialexpenses_total')."\";");
 
             // parse Finance & General Admin. Expenses
-            $financialbudget_fields = array('actualPrevTwoYears' => 'finGenAdmExpAmtApty', 'actualPrevYear' => 'finGenAdmExpAmtApy', 'budgetPrevYear' => 'finGenAdmExpAmtBpy', 'yefPrevYear' => 'finGenAdmExpAmtYpy', 'budgetCurrent' => 'finGenAdmExpAmtCurrent');
+            //'actualPrevYear' => 'finGenAdmExpAmtApy', 'budgetPrevYear' => 'finGenAdmExpAmtBpy',
+            $financialbudget_fields = array('actualPrevThreeYears' => 'finGenAdmExpAmtApthy', 'actualPrevTwoYears' => 'finGenAdmExpAmtApty', 'yefPrevYear' => 'finGenAdmExpAmtYpy', 'budgetCurrent' => 'finGenAdmExpAmtCurrent');
             foreach($financialbudget_fields as $key => $value) {
                 //
                 if(isset($options['financialbudget']) && !empty($options['financialbudget'])) {
