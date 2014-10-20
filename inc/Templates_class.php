@@ -39,15 +39,15 @@ class Templates {
 
     function dump_templates_to_file_folder() {
         global $db, $template;
-        $base_dir = substr(ROOT, 0, strlen(ROOT) - 1).'\\'.substr(INC_ROOT, 0, strlen(INC_ROOT) - 1).'\templates\\';
-        $content = '<div style="padding:20px;"><form><hr>';
+        $base_dir = ROOT.INC_ROOT.'templates/';
+        $content = '<div style = "padding:20px;"><hr>';
         $templates_query = $db->query('SELECT * FROM '.Tprefix.'templates');
 
         if($db->num_rows($templates_query) > 0) {
             while($singletemplate = $db->fetch_assoc($templates_query)) {
-                $content.='<br>'.$singletemplate['title'];
+                $content.=' < br>'.$base_dir.$singletemplate['title'];
                 try {
-                    $filename = $base_dir.$singletemplate['title'];
+                    $filename = $base_dir.$singletemplate['title'].'.tpl';
                     $filehandle = fopen($filename, 'w');
                     fwrite($filehandle, $singletemplate['template']);
                     fclose($filehandle);
@@ -57,22 +57,12 @@ class Templates {
                     $content.=' X '.$e->getMessage();
                 }
             }
+
+            echo $content;
         }
-
-
-        $content.='<br><input type=submit value=send id="sendform"/><hr>';
-        $content.='</form><div id=resultsdiv></div></div>';
-
-        $script = '<script>
-						$(document).ready(function() {
-							$("#sendform").click(function(){
-								sharedFunctions.requestAjax("post", "index.php?module=stock/migrate&action=do_migrate","", "resultsdiv","resultsdiv", "html");
-							});
-						});
-					</script>';
-        $content.=$script;
-        eval("\$debug = \"".$template->get('debug')."\";");
-        output_page($debug);
+        else {
+            echo 'Nothing to copy.';
+        }
     }
 
 }
