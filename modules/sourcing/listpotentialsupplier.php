@@ -207,7 +207,7 @@ if(!$core->input['action']) {
     $applications = SegmentApplications::get_segmentsapplications(null, array('order' => SegmentApplications::DISPLAY_NAME));
     if(is_array($applications)) {
         foreach($applications as $application) {
-            $productsegment_applications .= '<option value='.$applications->psaid.'>'.$application->get_displayname().' - '.$application->get_segment()->title.'</option>';
+            $productsegment_applications .= '<option value='.$application->psaid.'>'.$application->get_displayname().' - '.$application->get_segment()->title.'</option>';
         }
     }
 

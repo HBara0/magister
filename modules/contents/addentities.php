@@ -120,11 +120,10 @@ else {
 
                 $eid = $db->fetch_field($db->query("SELECT eid FROM ".Tprefix."entities WHERe {$attribute}='{$value}'"), 'eid');
                 //$existing = get_specificdata('affiliatedentities', array('affid'), 'affid', 'affid', '', 0, "eid='{$eid}'");
-
-                $where = '';
-                if($core->usergroup['canViewAllAff'] == 0) {
-                    $where = 'affid IN ('.implode(',', $core->user['affiliates']).')'; // AND affid NOT IN('.implode(',', $existing).')
-                }
+//                $where = '';
+//                if($core->usergroup['canViewAllAff'] == 0) {
+//                $where = 'affid IN ('.implode(',', $core->user['affiliates']).')'; // AND affid NOT IN('.implode(',', $existing).')
+//                }
 
                 $affiliates_attributes = array('affid', 'name');
                 $affiliates_order = array(
@@ -132,14 +131,14 @@ else {
                         'sort' => 'ASC'
                 );
 
-                $affiliates = get_specificdata('affiliates', $affiliates_attributes, 'affid', 'name', $affiliates_order, 0, $where);
-                if(is_array($affiliates)) {
-                    $affiliates_list = parse_selectlist('affid', 1, $affiliates, '');
+                // $affiliates = get_specificdata('affiliates', $affiliates_attributes, 'affid', 'name', $affiliates_order, 0, $where);
+                //if(is_array($affiliates)) {
+                //$affiliates_list = parse_selectlist('affid', 1, $affiliates, '');
 
-                    eval("\$affiliateentity = \"".$template->get('inline_affiliateentity')."\";");
-                    $affiliateentity = "<![CDATA[{$affiliateentity}]]>";
-                }
-
+                eval("\$affiliateentity = \"".$template->get('inline_entityexist')."\";");
+                $affiliateentity = "<![CDATA[{$affiliateentity}]]>";
+                //  }
+                header('Content-type: text/xml+javascript');
                 output_xml("<status>false</status><message>{$lang->entityalreadyexists}{$affiliateentity}</message>");
             }
             else {
