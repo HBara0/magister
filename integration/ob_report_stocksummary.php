@@ -81,7 +81,7 @@ if($core->input['authCode'] == AUTHCODE) {
     $configs['summary']['total_types'] = array('initialquantity', 'quantitysold', 'quantity', 'cost', 'costusd');
 
 
-    $configs['aging']['summary_categories'] = array('category' => 'm_product_category_id', 'warehouse' => 'm_warehouse_id', 'supplier' => 'c_bpartner_id');
+    $configs['aging']['summary_categories'] = $configs['aging']['summary_categories'] = array('category' => 'm_product_category_id', 'warehouse' => 'm_warehouse_id', 'supplier' => 'c_bpartner_id');
     $configs['aging']['summary_reqinfo'] = array('quantity', 'cost', 'range1cost', 'range1qty', /* 'range2cost', 'range2qty', 'range3cost', 'range3qty', */ 'range4cost', 'range4qty', 'range5cost', 'range5qty');
     $configs['aging']['summary_order_attr'] = 'cost';
     $configs['aging']['order_attr'] = 'cost';
@@ -109,6 +109,29 @@ if($core->input['authCode'] == AUTHCODE) {
             'range5costusd' => array('source' => null, 'attribute' => 5, 'title' => '> 180<br />Amt USD', 'numformat' => true, 'styles' => 'background-color: #F1594A;'),
             'range5qty' => array('source' => array('entries', 'qty'), 'attribute' => 5, 'title' => '> 180<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F1594A;')
     );
+
+    $configs['expiryaging']['summary_categories'] = $configs['aging']['summary_categories'];
+    $configs['expiryaging']['summary_reqinfo'] = array('quantity', 'range1qty', 'range2qty', 'range3qty', 'range4qty');
+    $configs['expiryaging']['summary_order_attr'] = 'quantity';
+    $configs['expiryaging']['maintable_hiddencols'] = $configs['aging']['maintable_hiddencols'];
+    $configs['expiryaging']['total_types'] = array('quantity', 'range1qty', 'range2qty', 'range3qty', 'range4qty');
+
+    $configs['expiryaging']['info'] = array('title' => 'Expiry Aging');
+    $configs['expiryaging']['output_fields'] = array(
+            //			'manager' => 'Business Manager',
+            'product' => array('source' => 'product', 'attribute' => 'name', 'title' => 'Product'),
+            'supplier' => array('source' => 'supplier', 'attribute' => 'value', 'title' => 'Supplier'),
+            'warehouse' => array('source' => 'warehouse', 'attribute' => 'value', 'title' => 'Warehouse'),
+            'category' => array('source' => array('product', 'category'), 'attribute' => 'value', 'title' => 'Segment'),
+            'quantity' => array('source' => null, 'title' => 'Stock Qty', 'numformat' => true),
+            'uom' => array('source' => array('product', 'uom'), 'attribute' => 'uomsymbol', 'title' => 'UoM'),
+            'range1qty' => array('source' => array('entries', 'qty'), 'attribute' => 1, 'title' => '0-90<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F1594A;'),
+            'range2qty' => array('source' => array('entries', 'qty'), 'attribute' => 2, 'title' => '90-180<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
+            'range3qty' => array('source' => array('entries', 'qty'), 'attribute' => 3, 'title' => '180-270<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F2EB80;'),
+            'range4qty' => array('source' => array('entries', 'qty'), 'attribute' => 4, 'title' => '>270<br />Qty', 'numformat' => true, 'styles' => 'background-color: #ABD25E;')
+    );
+
+    //$aging_ranges = array('aging' => array(29))
     /* Configurations Section - END */
 
     foreach($affiliates_index as $orgid => $affid) {
@@ -123,22 +146,36 @@ if($core->input['authCode'] == AUTHCODE) {
 
         foreach($configs as $report => $config) {
             $totals = $summaries = array();
-            if($report == 'aging') {
+            if($report == 'aging' || $report == 'expiryaging') {
                 foreach($inputs as $key => $input) {
-                    if($input['stack']['daysinstock'] < 29) {
-                        $range = 1;
+                    if($report == 'aging') {
+                        if($input['stack']['daysinstock'] < 90) {
+                            $range = 1;
+                        }
+                        elseif($input['stack']['daysinstock'] < 180) {
+                            $range = 4;
+                        }
+                        else {
+                            $range = 5;
+                        }
                     }
-                    elseif($input['stack']['daysinstock'] < 59) {
-                        $range = 1;
-                    }
-                    elseif($input['stack']['daysinstock'] < 90) {
-                        $range = 1;
-                    }
-                    elseif($input['stack']['daysinstock'] < 180) {
-                        $range = 4;
-                    }
-                    else {
-                        $range = 5;
+                    if($report == 'expiryaging') {
+                        if($input['transaction']['attributes']['daystoexpire'] == false) {
+                            $inputs[$key]['entries']['qty'][$range] += 0;
+                            continue;
+                        }
+                        if($input['transaction']['attributes']['daystoexpire'] < 90 || !is_numeric($input['transaction']['attributes']['daystoexpire'])) {
+                            $range = 1;
+                        }
+                        elseif($input['transaction']['attributes']['daystoexpire'] < 180) {
+                            $range = 2;
+                        }
+                        elseif($input['transaction']['attributes']['daystoexpire'] < 270) {
+                            $range = 3;
+                        }
+                        else {
+                            $range = 4;
+                        }
                     }
                     $inputs[$key]['entries']['qty'][$range] += $input['stack']['remaining_qty'];
                     $inputs[$key]['entries']['costs'][$range] += $input['stack']['remaining_cost'];
@@ -169,6 +206,11 @@ if($core->input['authCode'] == AUTHCODE) {
                 array_multisort(${$order_attr}, SORT_DESC, $inputs);
 
                 foreach($inputs as $id => $input) {
+                    if($report == 'expiryaging') {
+                        if(!is_array($inputs[$id]['entries']['qty']) || array_sum($inputs[$id]['entries']['qty']) == 0) {
+                            continue;
+                        }
+                    }
                     $output .= '<tr>';
                     foreach($config['output_fields'] as $field => $field_configs) {
                         $output_td_style = '';
@@ -325,7 +367,12 @@ if($core->input['authCode'] == AUTHCODE) {
                                     //$totals['costusd'][$date_valueobj->format('Y')][$date_valueobj->format('n')] += $input['stack']['remaining_cost'] / $rate;
                                     break;
                                 case 'quantity':
-                                    $output_value = array_sum($input['entries']['qty']);
+                                    if(!is_array($input['entries']['qty'])) {
+                                        $output_value = 0;
+                                    }
+                                    else {
+                                        $output_value = array_sum($input['entries']['qty']);
+                                    }
                                     if(in_array($field, $config['summary_reqinfo'])) {
                                         foreach($config['summary_categories'] as $category => $attribute) {
                                             if(empty($input[$category][$attribute])) {
@@ -372,6 +419,8 @@ if($core->input['authCode'] == AUTHCODE) {
                             $expired_entries[] = $input;
                         }
                     }
+
+                    unset($inputs[$id]['entries']['qty'], $inputs[$id]['entries']['cost'], $inputs[$id]['entries']['costs']);
                 }
             }
             else {
@@ -475,6 +524,7 @@ if($core->input['authCode'] == AUTHCODE) {
                     /* Output summary table totals row - END */
                     $summaries_ouput .= '</table>';
                 }
+                $summaries = array();
             }
             /* Parse Summaries - END */
         }
@@ -716,7 +766,7 @@ if($core->input['authCode'] == AUTHCODE) {
         $message .= '</body></html>';
 
         $message = '<html><head><title>Stock Report</title></head><body>';
-        $message .= '<h1>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')</h1>';
+        $message .= '<h1>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')<br /><small style="color:red;">New Feature: Check the new Expiry Aging table, and its summaries</small></h1>';
         $message .= $stockevolution_output.$alerts.$summaries_ouput.$output.$fxratesoverview_output;
 
         $email_data = array();
