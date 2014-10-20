@@ -13,6 +13,10 @@ if(!defined('DIRECT_ACCESS')) {
 }
 $session->start_phpsession();
 
+if($core->usergroup['canAdminCP'] == 0) {
+    error($lang->sectionnopermission);
+}
+
 if(!$core->input['action']) {
     eval("\$importpage = \"".$template->get('budgeting_importbuget')."\";");
     output_page($importpage);

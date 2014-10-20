@@ -116,7 +116,7 @@ if(!$core->input['action']) {
         /* Get Invoice Types - ENDs */
         //$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1, 'numCode = '.$affiliate_currency);
         $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
-        $currencies = array_filter(array('USD', 'EUR', $affiliate_currency->get()['alphaCode']));
+        $currencies = array_filter(array(840 => 'USD', 978 => 'EUR', $affiliate_currency->get()['numCode'] => $affiliate_currency->get()['alphaCode']));
 
         /* check whether to display existing budget Form or display new one  */
         $unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income');
@@ -201,11 +201,11 @@ if(!$core->input['action']) {
                         }
                         /* Get Actual data from mediation tables --END */
                         $budget_currencylist = '';
-                        foreach($currencies as $currency) {
-                            if($budgetline['originalCurrency'] == $currency) {
+                        foreach($currencies as $numcode => $currency) {
+                            if($budgetline['originalCurrency'] == $numcode) {
                                 $budget_currencylist_selected = ' selected="selected"';
                             }
-                            $budget_currencylist .= '<option value="'.$currency.'"'.$budget_currencylist_selected.'>'.$currency.'</option>';
+                            $budget_currencylist .= '<option value="'.$numcode.'"'.$budget_currencylist_selected.'>'.$currency.'</option>';
                             $budget_currencylist_selected = '';
                         }
 
@@ -223,8 +223,8 @@ if(!$core->input['action']) {
             $rowid = 1;
             $saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, '', '', '', array('id' => 'salestype_'.$rowid));
             $invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, '', '', '', array('id' => 'invoice_'.$rowid));
-            foreach($currencies as $currency) {
-                $budget_currencylist .= '<option value="'.$currency.'">'.$currency.'</option>';
+            foreach($currencies as $numcode => $currency) {
+                $budget_currencylist .= '<option value="'.$numcode.'">'.$currency.'</option>';
             }
 
             if(count($supplier_segments) > 1) {
@@ -237,10 +237,10 @@ if(!$core->input['action']) {
         /* Parse values for JS - START */
         foreach($saletypes as $stid => $saletype) {
             if($saletype['useLocalCurrency'] == 1) {
-                $saltypes_currencies[$stid] = $affiliate_currency->get()['alphaCode'];
+                $saltypes_currencies[$stid] = $affiliate_currency->get()['numCode'];
             }
             else {
-                $saltypes_currencies[$stid] = 'USD';
+                $saltypes_currencies[$stid] = 840;
             }
         }
 
@@ -256,6 +256,11 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'do_perform_fillbudget') {
         $budget_data = unserialize($session->get_phpsession('budgetdata_'.$core->input['identifier']));
+
+        $keydata = array('year', 'spid', 'affid');
+        foreach($keydata as $attr) {
+            $budget_data[$attr] = $core->input[$attr];
+        }
 
         if(is_array($core->input['budgetline'])) {
             if(isset($core->input['budget']['bid'])) {

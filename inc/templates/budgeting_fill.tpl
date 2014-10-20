@@ -108,6 +108,8 @@
             <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p><h2><small>Please Read First</small></h2><strong>Important:</strong> Keeping the product field empty will result in deleting the row even if the product name hint is displayed below it.<br /><strong>Note:</strong> For better consistency we recommend picking up the customer if you can only see the customer name hint below the field. The hint comes from your previous budgets.<br />When importing these previous budgets, some customer names could not be matched to those on OCOS, so we simply used the customer name as is as an alternative way to identify the customer of the given budget line.<br /><strong>Do no pick a customer that is not in reality the same company as the one displayed below the field.</strong><hr /><em>"Unspecified Customer"</em> is exclsively used in the case when you don't already know the end customer of the budgeted items; if you tick it, you are not obliged to specify a customer.</p></div>
         <form id="perform_budgeting/fillbudget_Form" name="perform_budgeting/fillbudget_Form" action="index.php?module=budgeting/generatebudget&amp;identifier={$sessionidentifier}" method="post">
             <input type="hidden" id='spid' name="spid" value="{$core->input[budget][spid]}"/>
+            <input type="hidden" id='affid' name="affid" value="{$core->input[budget][affid]}"/>
+            <input type="hidden" id='year' name="year" value="{$core->input[budget][year]}"/>
             <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">
             <input type="hidden" name="budget[bid]" value="{$budget_data[bid]}">
             <table width="100%" border="0" cellspacing="0" cellpadding="2">
