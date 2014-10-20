@@ -385,7 +385,7 @@ else {
             $log->record($lid);
 
             /* Create leave expenses - START */
-            //$leave_obj = new Leaves(array('lid' => $lid), false);
+            $leave_obj = new Leaves(array('lid' => $lid), false);
 //            $leave_obj->create_expenses($expenses_data);
 
             if($leavetype_details['isBusiness'] == 1) {
@@ -567,7 +567,13 @@ else {
                             $expense['description'] = ' ('.$expense['description'].')';
                         }
 
-                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].$expense['description'].'<br />';
+                        $exptype_obj = LeaveExpenseTypes::get_exptype_byattr('title', $expense['title'], false);
+                        if(is_object($exptype_obj)) {
+                            $agency_link = $exptype_obj->parse_agencylink($leave_obj);
+                        }
+
+                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].$expense['description'].' '.$agency_link.'<br />';
+                        unset($agency_link);
                     }
 
                     $total = $leave_obj->get_expensestotal();
