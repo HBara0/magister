@@ -116,14 +116,14 @@ class IntegrationOB extends Integration {
         }
 
         if($doc_type == 'order') {
-            return false;
-//			$query = $this->f_db->query("SELECT o.ad_org_id, o.c_order_id, o.dateordered, o.documentNo, bp.name AS bpname, bp.c_bpartner_id AS bpid, bp.value AS bpname_abv, c.iso_code AS currency, o.salesrep_id, u.username, u.name AS salesrep, pt.netdays AS paymenttermsdays
-//						FROM c_order o JOIN c_bpartner bp ON (bp.c_bpartner_id=o.c_bpartner_id)
-//						JOIN c_currency c ON (c.c_currency_id=o.c_currency_id)
-//						JOIN ad_user u ON (u.ad_user_id=o.salesrep_id)
-//						JOIN c_paymentterm pt ON (o.c_paymentterm_id=pt.c_paymentterm_id)
-//						WHERE o.ad_org_id IN ('".implode('\',\'', $organisations)."') AND docstatus NOT IN ('VO', 'CL') AND issotrx='Y' AND (dateordered BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."')
-//						ORDER by dateordered ASC");
+            $query = $this->f_db->query("SELECT o.ad_org_id, o.c_order_id AS doc_id, o.dateordered AS doc_date, o.documentNo, bp.name AS bpname, bp.c_bpartner_id AS bpid, bp.value AS bpname_abv, c.iso_code AS currency, o.salesrep_id, u.username, u.name AS salesrep, pt.netdays AS paymenttermsdays
+						FROM c_order o
+                                                JOIN c_bpartner bp ON (bp.c_bpartner_id=o.c_bpartner_id)
+						JOIN c_currency c ON (c.c_currency_id=o.c_currency_id)
+						LEFT JOIN ad_user u ON (u.ad_user_id=o.salesrep_id)
+						JOIN c_paymentterm pt ON (o.c_paymentterm_id=pt.c_paymentterm_id)
+						WHERE o.ad_org_id IN ('".implode('\',\'', $organisations)."') AND docstatus NOT IN ('VO', 'CL') AND issotrx='Y' AND ((dateordered BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."') OR (o.updated BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."'))
+						ORDER by dateordered ASC");
         }
         elseif($doc_type == 'invoice') {
             $query = $this->f_db->query("SELECT i.ad_org_id, i.c_invoice_id AS doc_id, i.dateinvoiced AS doc_date, i.documentno, bp.name AS bpname, bp.c_bpartner_id AS bpid, bp.value AS bpname_abv, c.iso_code AS currency, i.salesrep_id, u.username, u.name AS salesrep, pt.netdays AS paymenttermsdays
@@ -165,19 +165,16 @@ class IntegrationOB extends Integration {
                 }
 
                 if($doc_type == 'order') {
-//					$documentline_query = $this->f_db->query("SELECT ol.*, ct.cost, ppo.c_bpartner_id, u.x12de355 AS uom, c.iso_code AS costcurrency
-//							FROM c_orderline ol
-//							JOIN m_product p ON (p.m_product_id=ol.m_product_id)
-//							JOIN c_uom u ON (u.c_uom_id=ol.c_uom_id)
-//							LEFT JOIN m_costing ct ON (ct.m_product_id=p.m_product_id)
-//							LEFT JOIN c_currency c ON (c.c_currency_id=ct.c_currency_id)
-//							LEFT JOIN m_product_po ppo ON (p.m_product_id=ppo.m_product_id)
-//							LEFT JOIN c_bpartner bp ON (bp.c_bpartner_id=ppo.c_bpartner_id)
-//							WHERE c_order_id='{$document[c_order_id]}' AND ('".$document['dateordered']."' BETWEEN ct.datefrom AND ct.dateto) AND ol.m_product_id NOT IN ('".implode('\',\'', $exclude['products'])."')");
+                    $documentline_query = $this->f_db->query("SELECT ol.*, c_orderline_id AS documentlineid, ol.qtyordered AS quantity, p.name AS productname, u.x12de355 AS uom
+							FROM c_orderline ol
+							JOIN m_product p ON (p.m_product_id=ol.m_product_id)
+							JOIN c_uom u ON (u.c_uom_id=ol.c_uom_id)
+							WHERE c_order_id='{$document[doc_id]}'");
                 }
                 else {
                     $documentline_query = $this->f_db->query('SELECT m_transaction_id, il.*, il.c_invoiceline_id AS docline_id, il.qtyinvoiced AS quantity, ppo.c_bpartner_id, u.x12de355 AS uom, tr.transactioncost AS cost, c.iso_code AS costcurrency, m_costing_algorithm_id
-													FROM c_invoiceline il JOIN m_product p ON (p.m_product_id=il.m_product_id)
+													FROM c_invoiceline il
+                                                                                                        JOIN m_product p ON (p.m_product_id=il.m_product_id)
 													JOIN c_uom u ON (u.c_uom_id=il.c_uom_id)
 													LEFT JOIN m_inoutline iol ON (iol.m_inoutline_id=il.m_inoutline_id)
 													LEFT JOIN m_transaction tr ON (iol.m_inoutline_id=tr.m_inoutline_id)
