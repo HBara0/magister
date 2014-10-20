@@ -25,22 +25,47 @@ else {
 }
 
 if(!isset($core->input['action'])) {
-
     $budget_data = unserialize($session->get_phpsession('budget_expenses_'.$sessionidentifier));
     if(empty($budget_data)) {
         $budget_data = $core->input['financialbudget'];
+    }
+    if($core->usergroup['canViewAllAff'] == 0) {
+        $affiliates = $core->user['affiliates'];
+        if(!in_array($budget_data['affid'], array_keys($affiliates))) {
+            redirect('index.php?module=budgeting/createfinbudget');
+        }
     }
     $financialbudget_year = $budget_data['year'];
     $financialbudget_prevyear = $financialbudget_year - 1;
     $financialbudget_prev2year = $financialbudget_year - 2;
     $affid = $budget_data['affid'];
     $affiliate = new Affiliates($affid);
-    // $positiongroups=
-}
-else if($core->input['action'] == 'do_perform_financialadminexpenses') {
-    //$budget_data = unserialize($session->get_phpsession('budget_expenses_'.$core->input['identifier']));
-    unset($core->input['identifier'], $core->input['module'], $core->input['action']);
+    $prevfinancialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_prevyear), array('simple' => false));
+    $financialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_year), array('simple' => false));
+    $positiongroups = PositionGroups::get_data('', array('returnarray' => true));
 
+    if(is_object($financialbudget) && $financialbudget->isFinalized()) {
+        $type = 'hidden';
+        $output = BudgetHeadCount::parse_headcountfields($positiongroups, array('mode' => 'display', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget));
+    }
+    else {
+        $type = 'submit';
+        $output = BudgetHeadCount::parse_headcountfields($positiongroups, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget));
+    }
+    $header_actual = '<td style = "width:12.5%">'.$lang->actual.'</td>';
+    eval("\$budgeting_header = \"".$template->get('budgeting_investheader')."\";");
+    eval("\$budgeting_headcount = \"".$template->get('budgeting_headcount')."\";");
+    output_page($budgeting_headcount);
+}
+else if($core->input['action'] == 'do_perform_headcount') {
+    if($core->usergroup['canViewAllAff'] == 0) {
+        $affiliates = $core->user['affiliates'];
+        if(!in_array($core->input['financialbudget']['affid'], array_keys($affiliates))) {
+            output_xml('<status>false</status><message></message>');
+            return;
+        }
+    }
+    unset($core->input['identifier'], $core->input['module'], $core->input['action']);
     $financialbudget = new FinancialBudget();
     $financialbudget->set($core->input);
     $financialbudget->save();

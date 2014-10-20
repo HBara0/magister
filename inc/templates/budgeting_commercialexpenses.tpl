@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$lang->commercialadminstrationexpenses}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function() {
-                $("input[id^='budgetexps']").live('keyup', function() {
+            $(function () {
+                $("input[id^='budgetexps']").bind('keyup change', function () {
                     var id = $(this).attr('id').split("_");
                     var yefPrevYear = parseFloat($('input[id=budgetexps_' + id[1] + '_' + id[2] + '_yefPrevYear]').val());
                     var budgetCurrent = parseFloat($('input[id=budgetexps_' + id[1] + '_' + id[2] + '_budgetCurrent]').val());
@@ -18,22 +18,26 @@
                     }
 
                     var category_subtotal = 0;
-                    $('input[id$=' + id[2] + '_' + id[3] + '][id^=budgetexps]').each(function() {
-                        category_subtotal += parseFloat(this.value);
+                    $('input[id$=' + id[2] + '_' + id[3] + '][id^=budgetexps]').each(function () {
+                        if(!jQuery.isEmptyObject(this.value)) {
+                            category_subtotal += parseFloat(this.value);
+                        }
                     });
-                    if(category_subtotal > 0) {
-                        $('div[id=subtotal_' + id[2] + '_' + id[3] + ']').text(category_subtotal);
-                        $('input[id=subtotal_' + id[2] + '_' + id[3] + ']').val(category_subtotal);
-                    }
+                    $('div[id=subtotal_' + id[2] + '_' + id[3] + ']').text(category_subtotal);
+                    $('input[id=subtotal_' + id[2] + '_' + id[3] + ']').val(category_subtotal);
+
 
                     var total = 0;
-                    $('input[id^=subtotal_][id$=' + id[3] + ']').each(function() {
-                        total += parseFloat(this.value);
+                    $('input[id^=subtotal_][id$=' + id[3] + ']').each(function () {
+                        if(!jQuery.isEmptyObject(this.value)) {
+                            total += parseFloat(this.value);
+                        }
                     });
                     if(total > 0) {
                         $('div[id=total_' + id[3] + ']').text(total);
                         $('input[id=total_' + id[3] + ']').val(total);
                         $('input[id^=finGenAdm_' + id[3] + ']').attr('max', total);
+                        $('input[id=finGenAdm_max' + id[3] + ']').val(total);
                     }
 
                     var totalyefPrevYear = parseFloat($('input[id=total_yefPrevYear]').val());
@@ -53,7 +57,7 @@
                     }
                 });
 
-                $("input[id^='finGenAdm_']").live('keyup', function() {
+                $("input[id^='finGenAdm_']").bind('keyup change', function () {
                     var financeid = $(this).attr('id').split("_");
                     if(($('input[id^=total_' + financeid[1] + ']').val().length) == 0){return;}
                     if(($('input[id=finGenAdm_' + financeid[1] + ']').val().length) == 0){return;}
@@ -75,50 +79,12 @@
             <h1>{$lang->commercialadminstrationexpenses}<br /><small>{$affiliate->name} - {$financialbudget_year}</small></h1>
             <form name="perform_budgeting/financialadminexpenses_Form" id="perform_budgeting/financialadminexpenses_Form"  action="#" method="post">
                 <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">
-                <table class="datatable" style="width:100%">
-                    <tr class="thead">
-                        <td style="width:50%"></td>
-                        <td style="width:10%">{$lang->actual}</td>
-                        <td style="width:10%">{$lang->budget}</td>
-                        <td style="width:10%">{$lang->yef}</td>
-                        <td style="width:10%">{$lang->budget}</td>
-                        <td style="width:10%">% {$lang->budyef}</td>
-                    </tr>
-                    <tr style="width:100%">
-                        <td style="width:50%"><input name="financialbudget[affid]" value="{$affid}" type="hidden"></td>
-                        <td style="width:10%"><span>{$financialbudget_prev2year}</span></td>
-                        <td style="width:10%"><span>{$financialbudget_prevyear}</span></td>
-                        <td style="width:10%"><span>{$financialbudget_prevyear}</span></td>
-                        <td style="width:10%"><span>{$financialbudget_year}</span><input name="financialbudget[year]" value="{$financialbudget_year}" type="hidden"></td>
-                        <td style="width:10%"></td>
-                    </tr>
-                    {$budgeting_commercialexpenses_category}
-                    <tr>
-                        <td style="width:50%;font-weight:bold;">{$lang->totalexpenses}</td>
-                        <td>
-                            <div style="font-weight:bold;" id="total_actualPrevTwoYears">{$total[actualPrevTwoYears]}</div>
-                            <input type="hidden" id="total_actualPrevTwoYears" value="{$total[actualPrevTwoYears]}">
-                        </td>
-                        <td>
-                            <div style="font-weight:bold;" id="total_budgetPrevYear">{$total[budgetPrevYear]}</div>
-                            <input type="hidden" id="total_budgetPrevYear" value="{$total[budgetPrevYear]}">
-                        </td>
-                        <td>
-                            <div style="font-weight:bold;" id="total_yefPrevYear">{$total[yefPrevYear]}</div>
-                            <input type="hidden" id="total_yefPrevYear" value="{$total[yefPrevYear]}">
-                        </td>
-                        <td>
-                            <div style="font-weight:bold;" id="total_budgetCurrent">{$total[budgetCurrent]}</div>
-                            <input type="hidden" id="total_budgetCurrent" value="{$total[budgetCurrent]}">
-                        </td>
-                        <td>
-                            <div style="font-weight:bold;" id="total_budYefPerc"></div>
-                            <input type="hidden" id="total_budYefPerc">
-                        </td>
-                    </tr>
-                    {$budgeting_financeexpenses}
+                <table class="datatable" style="width:100%;table-layout:fixed;">
+                    {$budgeting_header}
+                    {$output}
                     <hr />
-                    <input type="submit" id="perform_budgeting/financialadminexpenses_Button" value="Proceed" class="button"/>
+                </table>
+                <input type="{$type}" id="perform_budgeting/financialadminexpenses_Button" value="Save" class="button"/>
             </form>
             <div id="perform_budgeting/financialadminexpenses_Results"></div>
         </td>

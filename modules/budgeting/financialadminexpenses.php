@@ -19,17 +19,21 @@ $session->start_phpsession(480);
 
 if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
     $sessionidentifier = $core->input['identifier'];
-    //$session->set_phpsession(array('budget_expenses_'.$sessionidentifier => serialize($core->input['financialbudget'])));
 }
 else {
     $sessionidentifier = md5(uniqid(microtime()));
 }
 
 if(!isset($core->input['action'])) {
-    //$session->set_phpsession(array('budget_expenses_'.$sessionidentifier => serialize($core->input['financialbudget'])));
     $budget_data = unserialize($session->get_phpsession('budget_expenses_'.$sessionidentifier));
     if(empty($budget_data)) {
         $budget_data = $core->input['financialbudget'];
+    }
+    if($core->usergroup['canViewAllAff'] == 0) {
+        $affiliates = $core->user['affiliates'];
+        if(!in_array($budget_data['affid'], array_keys($affiliates))) {
+            redirect('index.php?module=budgeting/createfinbudget');
+        }
     }
     $financialbudget_year = $budget_data['year'];
     $financialbudget_prevyear = $financialbudget_year - 1;
@@ -39,68 +43,29 @@ if(!isset($core->input['action'])) {
 
     $prevfinancialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_prevyear), array('simple' => false));
     $financialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_year), array('simple' => false));
-    $expensescategories = BudgetExpenseCategories::get_data('', array('returnarray' => true));
-    foreach($expensescategories as $category) {
-        unset($subtotal);
-        unset($readonly);
-        $budgeting_commercialexpenses_item = '';
-        $fields = array('actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
-        $expensesitems = $category->get_items();
-        if(is_array($expensesitems)) {
-            foreach($expensesitems as $item) {
-                $comadmin_expenses = BudgetComAdminExpenses::get_data(array('beciid' => $item->beciid, 'bfbid' => $financialbudget->bfbid), array('simple' => false));
-                if(is_object($comadmin_expenses)) {
-                    foreach($fields as $field) {
-                        $budgetexps[$field] = $comadmin_expenses->$field;
-                        $subtotal[$field] += $comadmin_expenses->$field;
-                    }
-                    $budgetexps['budYefPerc'] = sprintf("%.2f", $comadmin_expenses->budYefPerc).'%';
-                    if($subtotal['yefPrevYear'] != 0) {
-                        $subtotal['budYefPerc'] = sprintf("%.2f", (($subtotal['budgetCurrent'] - $subtotal['yefPrevYear']) / $subtotal['yefPrevYear']) * 100).'%';
-                    }
-                }
-
-                if(is_object($prevfinancialbudget)) {
-                    $prevyear_comadmin_expenses = BudgetComAdminExpenses::get_data(array('beciid' => $item->beciid, 'bfbid' => $prevfinancialbudget->bfbid), array('simple' => false));
-                    $readonly = 'readonly';
-                    $budgetexps['budgetPrevYear'] = $prevyear_comadmin_expenses->budgetCurrent;
-                    $subtotal['budgetPrevYear'] += $budgetexps['budgetPrevYear'];
-                }
-
-                eval("\$budgeting_commercialexpenses_item .= \"".$template->get('budgeting_commercialexpenses_item')."\";");
-                unset($budgetexps);
-            }
-        }
-        foreach($fields as $field) {
-            $total[$field] += $subtotal[$field];
-            if($total[$field] == 0) {
-                unset($total[$field]);
-            }
-        }
-        eval("\$budgeting_commercialexpenses_category .= \"".$template->get('budgeting_commercialexpenses_category')."\";");
+    $expensescategories = BudgetExpenseCategories::get_data(null, array('returnarray' => true));
+    if(is_object($financialbudget) && $financialbudget->isFinalized == 1) {
+        $type = 'hidden';
+        $output = BudgetExpenseCategories::parse_financialadminfields($expensescategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget));
     }
-
-    if(is_object($financialbudget)) {
-        $financialbudgetdata[actualPrevTwoYears] = $financialbudget->finGenAdmExpAmtApty;
-        $financialbudgetdata[budgetPrevYear] = $financialbudget->finGenAdmExpAmtBpy;
-        $financialbudgetdata[yefPrevYear] = $financialbudget->finGenAdmExpAmtYpy;
-        $financialbudgetdata[budgetCurrent] = $financialbudget->finGenAdmExpAmtCurrent;
-        $fields = array('actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
-
-        foreach($fields as $field) {
-            $comexpenses[$field] = $total[$field] - $financialbudgetdata[$field];
-            $propfin[$field] = sprintf("%.2f", (($financialbudgetdata[$field] / $total[$field]) * 100)).'%';
-            $propcomexpenses[$field] = sprintf("%.2f", (( $comexpenses[$field] / $total[$field]) * 100)).'%';
-        }
+    else {
+        $type = 'submit';
+        $output = BudgetExpenseCategories::parse_financialadminfields($expensescategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget));
     }
-    eval("\$budgeting_financeexpenses = \"".$template->get('budgeting_financeexpenses')."\";");
+    $header_actual = '<td style="width:12.5%">'.$lang->actual.'</td>';
+    $header_percentage = '<td style="width:12.5%">%'.$lang->budyef.'</td>';
+    eval("\$budgeting_header = \"".$template->get('budgeting_investheader')."\";");
     eval("\$budgeting_commercialexpenses = \"".$template->get('budgeting_commercialexpenses')."\";");
     output_page($budgeting_commercialexpenses);
 }
 else if($core->input['action'] == 'do_perform_financialadminexpenses') {
-    //$budget_data = unserialize($session->get_phpsession('budget_expenses_'.$core->input['identifier']));
+    if($core->usergroup['canViewAllAff'] == 0) {
+        $affiliates = $core->user['affiliates'];
+        if(!in_array($core->input['financialbudget']['affid'], array_keys($affiliates))) {
+            return;
+        }
+    }
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
-
     $financialbudget = new FinancialBudget();
     $financialbudget->set($core->input);
     $financialbudget->save();
@@ -110,6 +75,9 @@ else if($core->input['action'] == 'do_perform_financialadminexpenses') {
             break;
         case 1:
             output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+            break;
+        case 3:
+            output_xml('<status>false</status><message> please select a value not more than the total expenses</message>');
             break;
     }
 }

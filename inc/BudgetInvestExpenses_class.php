@@ -15,12 +15,12 @@
  */
 class BudgetInvestExpenses extends AbstractClass {
     protected $data = array();
-    protected $errorcode = 0;
+    public $errorcode = 0;
 
     const PRIMARY_KEY = 'biid';
     const TABLE_NAME = 'budgeting_investexpenses';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'biid, bfbid,biiid,budgetPrevYear,yefPrevYear,percVariation,budgetCurrent';
+    const SIMPLEQ_ATTRS = 'biid, bfbid,biiid,actualPrevYear,budgetPrevYear,yefPrevYear,percVariation,budgetCurrent';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -30,13 +30,8 @@ class BudgetInvestExpenses extends AbstractClass {
     protected function create(array $data) {
         global $db, $core;
         if(is_array($data)) {
-
-            $required_fields = array('bfbid', 'biiid', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent', 'percVariation');
-            foreach($required_fields as $field) {
-                if(is_empty($data[$field])) {
-                    $this->errorcode = 1;
-                    //   return false;
-                }
+            $fields = array('bfbid', 'biiid', 'actualPrevYear', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent', 'percVariation');
+            foreach($fields as $field) {
                 $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
                 $data[$field] = $db->escape_string($data[$field]);
                 $investexpenses_data[$field] = $data[$field];
@@ -52,12 +47,8 @@ class BudgetInvestExpenses extends AbstractClass {
 
         global $db, $core;
         if(is_array($data)) {
-            $required_fields = array('bfbid', 'biiid', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent', 'percVariation');
-            foreach($required_fields as $field) {
-                if(is_empty($data[$field])) {
-                    $this->errorcode = 1;
-                    return false;
-                }
+            $fields = array('bfbid', 'biiid', 'actualPrevYear', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent', 'percVariation');
+            foreach($fields as $field) {
                 $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
                 $data[$field] = $db->escape_string($data[$field]);
                 $investexpenses_data[$field] = $data[$field];
@@ -74,19 +65,32 @@ class BudgetInvestExpenses extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
-        $investexpenses = self::get_data(array('biid' => $this->data[self::PRIMARY_KEY]));
-        if(is_object($investexpenses)) {
-
-            $investexpenses->update($data);
-        }
-        else {
-
-            $investexpenses = self::get_data(array('bfbid' => $data['bfbid'], 'biiid' => $data['biiid']));
+        if(!$this->validate_requiredfields($data)) {
+            $investexpenses = self::get_data(array('biid' => $this->data[self::PRIMARY_KEY]));
             if(is_object($investexpenses)) {
                 $investexpenses->update($data);
             }
             else {
-                $this->create($data);
+                $investexpenses = self::get_data(array('bfbid' => $data['bfbid'], 'biiid' => $data['biiid']));
+                if(is_object($investexpenses)) {
+                    $investexpenses->update($data);
+                }
+                else {
+                    $this->create($data);
+                }
+            }
+        }
+    }
+
+    private function validate_requiredfields(array $data = array()) {
+        if(is_array($data)) {
+            $required_fields = array('actualPrevYear', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent', 'percVariation');
+            foreach($required_fields as $field) {
+                $x = empty($data[$field]);
+                if(empty($data[$field]) && $data[$field] != '0') {
+                    $this->errorcode = 1;
+                    return true;
+                }
             }
         }
     }

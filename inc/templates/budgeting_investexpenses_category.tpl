@@ -1,23 +1,28 @@
-<tr><td colspan="6" class="subtitle">{$category->title}</td></tr>
+
+
+<tr><td colspan="7" class="subtitle">{$category->title}</td></tr>
     {$budgeting_investexpenses_item}
 <tr>
-    <td>{$lang->subtotal} {$category->title}</td>
-    <td></td>
-    <td>
-        <div id="subtotal_{$category->becid}_budgetPrevYear" style="font-weight: bold;">{$subtotal[budgetPrevYear]}</div>
-        <input type="hidden" id="subtotal_{$category->becid}_budgetPrevYear" value="{$subtotal[budgetPrevYear]}"></input>
+    <td style="width:25%;">{$lang->subtotal} {$category->title}</td>
+    <td style="width:12.5%;">
+        <div id="subtotal_{$category->bicid}_actualPrevYear" style="font-weight: bold;">{$subtotal[actualPrevYear]}</div>
+        <input type="hidden" id="subtotal_{$category->bicid}_actualPrevYear" value="{$subtotal[actualPrevYear]}"></input>
     </td>
-    <td>
-        <div id="subtotal_{$category->becid}_yefPrevYear" style="font-weight: bold;">{$subtotal[yefPrevYear]}</div>
-        <input type="hidden" id="subtotal_{$category->becid}_yefPrevYear" value="{$subtotal[yefPrevYear]}"></input>
+    <td style="width:12.5%;">
+        <div id="subtotal_{$category->bicid}_budgetPrevYear" style="font-weight: bold;">{$subtotal[budgetPrevYear]}</div>
+        <input type="hidden" id="subtotal_{$category->bicid}_budgetPrevYear" value="{$subtotal[budgetPrevYear]}"></input>
     </td>
-    <td>
-        <div id="subtotal_{$category->becid}_budgetCurrent" style="font-weight: bold;">{$subtotal[budgetCurrent]}</div>
-        <input type="hidden" id="subtotal_{$category->becid}_budgetCurrent" value="{$subtotal[budgetCurrent]}"></input>
+    <td style="width:12.5%;">
+        <div id="subtotal_{$category->bicid}_yefPrevYear" style="font-weight: bold;">{$subtotal[yefPrevYear]}</div>
+        <input type="hidden" id="subtotal_{$category->bicid}_yefPrevYear" value="{$subtotal[yefPrevYear]}"></input>
     </td>
-    <td>
-        <div id="subtotal_{$category->becid}_budYefPerc" style="font-weight: bold;"> {$subtotal[budYefPerc]}</div>
-        <input type="hidden" id="subtotal_{$category->becid}_budYefPerc" value="{$subtotal[budYefPerc]}"></input>
+    <td style="width:12.5%;">
+        <div id="subtotal_{$category->bicid}_percVariation" style="font-weight: bold;"> {$subtotal[percVariation]}</div>
+        <input type="hidden" id="subtotal_{$category->bicid}_percVariation" value="{$subtotal[percVariation]}"></input>
+    </td>
+    <td style="width:12.5%;">
+        <div id="subtotal_{$category->bicid}_budgetCurrent" style="font-weight: bold;">{$subtotal[budgetCurrent]}</div>
+        <input type="hidden" id="subtotal_{$category->bicid}_budgetCurrent" value="{$subtotal[budgetCurrent]}"></input>
     </td>
 </tr>
 

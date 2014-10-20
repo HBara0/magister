@@ -15,7 +15,7 @@ Class BudgetComAdminExpenses extends AbstractClass {
     const PRIMARY_KEY = 'bcaeid';
     const TABLE_NAME = 'budgeting_commadminexps';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'bcaeid, beciid, actualPrevTwoYears, budgetPrevYear, yefPrevYear, budgetCurrent';
+    const SIMPLEQ_ATTRS = 'bcaeid, beciid, actualPrevTwoYears, actualPrevYear, budgetPrevYear, yefPrevYear, budgetCurrent';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -25,7 +25,7 @@ Class BudgetComAdminExpenses extends AbstractClass {
     protected function create(array $data) {
         global $db, $core;
         if(is_array($data)) {
-            $required_fields = array('bfbid', 'beciid', 'actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent', 'budYefPerc');
+            $required_fields = array('bfbid', 'beciid', 'actualPrevTwoYears', 'actualPrevYear', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent', 'budYefPerc');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != 0) {
                     $this->errorcode = 1;
@@ -44,7 +44,7 @@ Class BudgetComAdminExpenses extends AbstractClass {
     protected function update(array $data) {
         global $db, $core;
         if(is_array($data)) {
-            $required_fields = array('bfbid', 'beciid', 'actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent', 'budYefPerc');
+            $required_fields = array('bfbid', 'beciid', 'actualPrevTwoYears', 'actualPrevYear', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent', 'budYefPerc');
             foreach($required_fields as $field) {
                 if(is_empty($data[$field])) {
                     $this->errorcode = 1;
@@ -65,17 +65,32 @@ Class BudgetComAdminExpenses extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
-        $commadminexps = self::get_data(array('bcaeid' => $this->data[self::PRIMARY_KEY]));
-        if(is_object($commadminexps)) {
-            $commadminexps->update($data);
-        }
-        else {
-            $commadminexps = self::get_data(array('bfbid' => $data['bfbid'], 'beciid' => $data['beciid']));
+        if(!$this->validate_requiredfields($data)) {
+            $commadminexps = self::get_data(array('bcaeid' => $this->data[self::PRIMARY_KEY]));
             if(is_object($commadminexps)) {
                 $commadminexps->update($data);
             }
             else {
-                $this->create($data);
+                $commadminexps = self::get_data(array('bfbid' => $data['bfbid'], 'beciid' => $data['beciid']));
+                if(is_object($commadminexps)) {
+                    $commadminexps->update($data);
+                }
+                else {
+                    $this->create($data);
+                }
+            }
+        }
+    }
+
+    private function validate_requiredfields(array $data = array()) {
+        if(is_array($data)) {
+            $required_fields = array('bfbid', 'beciid', 'actualPrevTwoYears', 'actualPrevYear', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent', 'budYefPerc');
+            foreach($required_fields as $field) {
+                if(empty($data[$field]) && $data[$field] != '0') {
+
+                    $this->errorcode = 1;
+                    return true;
+                }
             }
         }
     }
