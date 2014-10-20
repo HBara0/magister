@@ -35,7 +35,7 @@ if(!$core->input['action']) {
         }
     }
 
-    $budgetypes = array('financialadminexpenses' => 'Financial & Admin Expenses', 'investmentfollowup' => 'Investment Follow-up', 'headcount' => 'Head Count', 'forecastbalancesheet' => 'Forecast Balance Sheet');
+    $budgetypes = array('financialadminexpenses' => 'Financial & Admin Expenses', 'investmentfollowup' => 'Investment Follow-up', 'headcount' => 'Head Count', 'forecastbalancesheet' => 'Forecast Balance Sheet', 'profitlossaccount' => 'Profit and Loss Account');
     if(is_array($budgetypes)) {
         foreach($budgetypes as $key => $value) {
             $checked = $rowclass = '';
