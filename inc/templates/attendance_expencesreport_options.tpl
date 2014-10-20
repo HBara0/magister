@@ -2,23 +2,6 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->expensesreport}</title>
         {$headerinc}
-        <script>
-            $(function() {
-                $("#dimensionfrom, #dimensionto").sortable({
-                    connectWith: ".sortable",
-                    revert: true, //revert to their new positions using a smooth animation.
-                    cursor: "move",
-                    opacity: 0.6,
-                    tolerance: "intersect", //overlaps the item being moved to the other item by 50%.
-                    dropOnEmpty: true, //Prevent all items in a list from being dropped into a separate, empty list
-                    placeholder: "ui-state-highlight",
-                    receive: function(event, ui) {
-                        $("#dimensionto li").css('background', '#92d050');
-                        $('#dimensions').val($("#dimensionto").sortable('toArray'));
-                    }
-                });
-            });
-        </script>
     </head>
     <body>
         {$header}

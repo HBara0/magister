@@ -2,77 +2,11 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->fillmontlyreport}</title>
         {$headerinc}
-        <style>
-            #dimensionfrom, #dimensionto {
-                list-style-type: none;
-                margin: 5;
-                padding: 0;
-                float: left;
-                margin-right: 10px;
-                -webkit-border-radius: 5px 4px 7px 0px;
-                -moz-border-radius:  1px 4px 7px 0px;
-                border-radius: 1px 4px 7px 0px;
-                border: 2px  dashed  #cccccc;
-                background:#ffffff;
-                padding: 5px;
-                width: 50%;
-            }
-            #dimensionfrom li, #dimensionto li  {
-                margin:5px;
-                padding: 5px;
-                background: #efefef;
-                font-size: 13PX;
-                width: 50%;
-            }
-            #dimensionfrom li:hover, #dimensionto li:hover{
-                cursor:move;
-            }
-            .sortable-placeholder {
-                opacity: 0.6;
-            }
 
-            .sortable {
-                list-style-type: none;
-                margin: 10px;
-                float: left;
-                border-radius: 1px;
-                border: 1px dashed #CCC;
-                background: none repeat scroll 0% 0% #FEFEFE;
-                padding: 5px;
-                width: 50%;
-            }
-
-        </style>
     </head>
     <body>
         {$header}
 
-        <script>
-            $(function() {
-                $("#dimensionfrom, #dimensionto")
-                $("#dimensionfrom, #dimensionto").sortable({
-                    connectWith: ".sortable",
-                    revert: true, //revert to their new positions using a smooth animation.
-                    cursor: "wait",
-                    tolerance: "intersect", //overlaps the item being moved to the other item by 50%.
-                    placeholder: "ui-state-highlight",
-                    over: function() {
-                        $('.sortable-placeholder').hide();
-                    },
-                    dropOnEmpty: true, //Prevent all items in a list from being dropped into a separate, empty list
-                    start: function() {        /*  return back the Color of the  element to its origin Upon remove of the item */
-                        $("#dimensionto li").animate({
-                            opacity: 2.35,
-                            backgroundColor: "#cccccc",
-                        });
-                    },
-                    stop: function(event, ui) {
-                        $("#dimensionto li").css('background', '#92d050');
-                        $('#field').val($("#dimensionto").sortable('toArray'));
-                    }
-                });
-            });
-        </script>
     <tr>
         {$menu}
         <td class="contentContainer">
@@ -173,7 +107,7 @@
                 <div class="thead" style="margin:10px;">{$lang->dimensions}</div>
                 <div style="display:block; ">
                     <div style="display:inline-block;width:40%;  vertical-align:top;">
-                        <ul id="dimensionfrom"   class="connectedSortable">
+                        <ul id="dimensionfrom"  class="sortable">
                             {$dimension_item}
                         </ul>
                     </div>
