@@ -9,7 +9,7 @@
  */
 
 class Budgets extends AbstractClass {
-    private $budget = array();
+    //protected $budget = array();
     protected $errorcode = null;
     protected $data = array();
 

@@ -26,12 +26,15 @@ Class FinancialBudget extends AbstractClass {
         global $db, $core;
         if(is_array($data)) {
             $financialdata['bfbid'] = self::PRIMARY_KEY;
-            $required_fields = array('affid', 'year', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtBpy', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent');  // this will not be applicable for the other expenses
-            // $required_fields = array('affid', 'year');
-            foreach($required_fields as $field) {
-                if(empty($data['financialbudget'][$field]) && $data['financialbudget'][$field] == 0) {
-                    $this->errorcode = 1;
-                    //return false;
+            $fields = array('finGenAdmExpAmtApthy', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent'); //'finGenAdmExpAmtApy', 'finGenAdmExpAmtBpy'
+            $financialdata['affid'] = $data['financialbudget']['affid'];
+            $financialdata['year'] = $data['financialbudget']['year'];
+
+            foreach($fields as $field) {
+                $max = 'max'.$field;
+                if($data['financialbudget'][$field] > $data['financialbudget'][$max]) {
+                    $this->errorcode = 3;
+                    return;
                 }
                 $data['financialbudget'][$field] = $core->sanitize_inputs($data['financialbudget'][$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
                 $data['financialbudget'][$field] = $db->escape_string($data['financialbudget'][$field]);
@@ -42,6 +45,9 @@ Class FinancialBudget extends AbstractClass {
             $query = $db->insert_query(self::TABLE_NAME, $financialdata);
             $this->data[self::PRIMARY_KEY] = $db->last_id();
         }
+        if(!query) {
+            return;
+        }
         $financialexpenses = $data['budgetexps'];
         if(is_array($financialexpenses)) {
             foreach($financialexpenses as $expense) {
@@ -49,7 +55,13 @@ Class FinancialBudget extends AbstractClass {
                 $comadminexpense = new BudgetComAdminExpenses();
                 $comadminexpense->set($expense);
                 $comadminexpense->save();
-                //  $this->errorcode = 0;
+                $this->errorcode = $comadminexpense->errorcode;
+                switch($this->get_errorcode()) {
+                    case 0:
+                        continue;
+                    case 1:
+                        return;
+                }
             }
         }
 
@@ -60,7 +72,62 @@ Class FinancialBudget extends AbstractClass {
                 $investfollowup = new BudgetInvestExpenses();
                 $investfollowup->set($invest);
                 $investfollowup->save();
-                //  $this->errorcode = 0;
+                $this->errorcode = $investfollowup->errorcode;
+                switch($this->get_errorcode()) {
+                    case 0:
+                        continue;
+                    case 1:
+                        return;
+                }
+            }
+        }
+
+        $headcount = $data['headcount'];
+        if(is_array($headcount)) {
+            foreach($headcount as $count) {
+                $count[bfbid] = $this->data[self::PRIMARY_KEY];
+                $budgetheadcount = new BudgetHeadCount();
+                $budgetheadcount->set($count);
+                $budgetheadcount->save();
+                $this->errorcode = $budgetheadcount->errorcode;
+                switch($this->get_errorcode()) {
+                    case 0:
+                        continue;
+                    case 1:
+                        return;
+                }
+            }
+        }
+        $placcounts = $data['placcount'];
+        if(is_array($placcounts)) {
+            foreach($placcounts as $account) {
+                $account['bfbid'] = $this->data[self::PRIMARY_KEY];
+                $placcount_obj = new BudgetPlExpenses();
+                $placcount_obj->set($account);
+                $placcount_obj->save();
+                $this->errorcode = $placcount_obj->errorcode;
+                switch($this->get_errorcode()) {
+                    case 0:
+                        continue;
+                    case 1:
+                        return;
+                }
+            }
+        }
+        $budgetforecastbs = $data['budgetforecastbs'];
+        if(is_array($budgetforecastbs)) {
+            foreach($budgetforecastbs as $forecast) {
+                $forecast['bfbid'] = $this->data[self::PRIMARY_KEY];
+                $budgetforecast_obj = new BudgetForecastBalanceSheet();
+                $budgetforecast_obj->set($forecast);
+                $budgetforecast_obj->save();
+                $this->errorcode = $budgetforecast_obj->errorcode;
+                switch($this->get_errorcode()) {
+                    case 0:
+                        continue;
+                    case 1:
+                        return;
+                }
             }
         }
     }
@@ -68,13 +135,14 @@ Class FinancialBudget extends AbstractClass {
     protected function update(array $data) {
         global $db, $core;
         if(is_array($data)) {
-
-            // $required_fields = array('affid', 'year', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtBpy', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent');  // this will not be applicable for the other expenses
-            $required_fields = array('affid', 'year');
-            foreach($required_fields as $field) {
-                if(is_empty($data['financialbudget'][$field])) {
-                    $this->errorcode = 1;
-                    //  return false;
+            $fields = array('finGenAdmExpAmtApthy', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent'); //'finGenAdmExpAmtApy', 'finGenAdmExpAmtBpy'
+            $financialdata['affid'] = $data['financialbudget']['affid'];
+            $financialdata['year'] = $data['financialbudget']['year'];
+            foreach($fields as $field) {
+                $max = 'max'.$field;
+                if($data['financialbudget'][$field] > $data['financialbudget'][$max]) {
+                    $this->errorcode = 3;
+                    return;
                 }
                 $data['financialbudget'][$field] = $core->sanitize_inputs($data['financialbudget'][$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
                 $data['financialbudget'][$field] = $db->escape_string($data['financialbudget'][$field]);
@@ -82,8 +150,10 @@ Class FinancialBudget extends AbstractClass {
             }
             $financialdata['modifiedOn'] = TIME_NOW;
             $financialdata['modifiedBy'] = $core->user['uid'];
-            $db->update_query(self::TABLE_NAME, $financialdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
-
+            $query = $db->update_query(self::TABLE_NAME, $financialdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+            if(!query) {
+                return;
+            }
             $financialexpenses = $data['budgetexps'];
             if(is_array($financialexpenses)) {
                 foreach($financialexpenses as $expense) {
@@ -91,18 +161,81 @@ Class FinancialBudget extends AbstractClass {
                     $comadminexpense = new BudgetComAdminExpenses();
                     $comadminexpense->set($expense);
                     $comadminexpense->save();
-                    //  $this->errorcode = 0;
+                    $this->errorcode = $comadminexpense->errorcode;
+                    switch($this->get_errorcode()) {
+                        case 0:
+                            continue;
+                        case 1:
+                            return;
+                    }
                 }
             }
             $financialinvest = $data['budgetinvst'];
-
             if(is_array($financialinvest)) {
                 foreach($financialinvest as $invest) {
                     $invest['bfbid'] = $this->data[self::PRIMARY_KEY];
                     $investfollowup = new BudgetInvestExpenses();
                     $investfollowup->set($invest);
                     $investfollowup->save();
-                    //  $this->errorcode = 0;
+                    $this->errorcode = $investfollowup->errorcode;
+                    switch($this->get_errorcode()) {
+                        case 0:
+                            continue;
+                        case 1:
+                            return;
+                    }
+                }
+            }
+
+            $headcount = $data['headcount'];
+            if(is_array($headcount)) {
+                foreach($headcount as $count) {
+                    $count['bfbid'] = $this->data[self::PRIMARY_KEY];
+                    $budgetheadcount = new BudgetHeadCount();
+                    $budgetheadcount->set($count);
+                    $budgetheadcount->save();
+                    $this->errorcode = $budgetheadcount->errorcode;
+                    switch($this->get_errorcode()) {
+                        case 0:
+                            continue;
+                        case 1:
+                            return;
+                    }
+                }
+            }
+            $budgetforecastbs = $data['budgetforecastbs'];
+            if(is_array($budgetforecastbs)) {
+                unset($budgetforecastbs[liabilities], $budgetforecastbs[Assets]);
+
+                foreach($budgetforecastbs as $forecast) {
+                    $forecast['bfbid'] = $this->data[self::PRIMARY_KEY];
+                    $budgetforecast_obj = new BudgetForecastBalanceSheet();
+                    $budgetforecast_obj->set($forecast);
+                    $budgetforecast_obj->save();
+                    $this->errorcode = $budgetforecast_obj->errorcode;
+                    switch($this->get_errorcode()) {
+                        case 0:
+                            continue;
+                        case 1:
+                            return;
+                    }
+                }
+            }
+            $placcounts = $data['placcount'];
+
+            if(is_array($placcounts)) {
+                foreach($placcounts as $account) {
+                    $account['bfbid'] = $this->data[self::PRIMARY_KEY];
+                    $placcount_obj = new BudgetPlExpenses();
+                    $placcount_obj->set($account);
+                    $placcount_obj->save();
+                    $this->errorcode = $placcount_obj->errorcode;
+                    switch($this->get_errorcode()) {
+                        case 0:
+                            continue;
+                        case 1:
+                            return;
+                    }
                 }
             }
         }
@@ -112,18 +245,237 @@ Class FinancialBudget extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
-
-        $financialbudget = FinancialBudget::get_data(array('bfbid' => $this->data[self::PRIMARY_KEY]));
-        if(is_object($financialbudget)) {
-            $financialbudget->update($data);
+        // $data['budgetforecastbs']['equityliabilities']['total'] = $data['budgetforecastbs']['OwnersEquity']['total'] + $data['budgetforecastbs']['Liabilities']['total'];
+        if(isset($data['budgetforecastbs']['equityliabilities']['total']) && !empty($data['budgetforecastbs']['Assets']['total'])) {
+            if($data['budgetforecastbs']['equityliabilities']['total'] != $data['budgetforecastbs']['Assets']['total']) {
+                $this->errorcode = 4;
+                return false;
+            }
         }
-        else {
-            $financialbudget = FinancialBudget::get_data(array('affid' => $data['financialbudget']['affid'], 'year' => $data['financialbudget']['year']));
+        if(!$this->validate_requiredfields($data)) {
+            $financialbudget = FinancialBudget::get_data(array('bfbid' => $this->data[self::PRIMARY_KEY]));
             if(is_object($financialbudget)) {
                 $financialbudget->update($data);
+                $this->errorcode = $financialbudget->errorcode;
             }
             else {
-                $this->create($data);
+                $financialbudget = FinancialBudget::get_data(array('affid' => $data['financialbudget']['affid'], 'year' => $data['financialbudget']['year']));
+                if(is_object($financialbudget)) {
+                    $financialbudget->update($data);
+                    $this->errorcode = $financialbudget->errorcode;
+                }
+                else {
+                    $this->create($data);
+                }
+            }
+        }
+    }
+
+    public static function get_availableyears() {
+        global $db;
+        $query = $db->query('SELECT DISTINCT(year) FROM '.Tprefix.'budgeting_financialbudget ORDER BY year DESC');
+        if($db->num_rows($query) > 0) {
+            while($year = $db->fetch_assoc($query)) {
+                $years[$year['year']] = $year['year'];
+            }
+            return $years;
+        }
+        return false;
+    }
+
+    public static function parse_financialbudget($options = array()) {
+        global $db, $template, $lang;
+        if(isset($options['budgettypes']) && !empty($options['budgettypes'])) {
+
+            /* get currenceis by consolidated budgetfinamce id */
+            $financial_obj = FinancialBudget::get_data(array('bfbid' => $options['filter']), array('simple' => false, 'returnarray' => true));
+            if(is_array($financial_obj)) {
+                foreach($financial_obj as $finbudget) {
+                    $budget_currencies[$finbudget->bfbid] = $finbudget->currency;
+                }
+            }
+            $dal_config = array(
+                    'operators' => array('fromCurrency' => 'in', 'affid' => 'in', 'year' => '='),
+                    'simple' => false,
+                    'returnarray' => true
+            );
+
+            $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currencies, 'toCurrency' => $options['tocurrency'], 'affid' => $options['affid'], 'year' => $options['year'],), $dal_config);
+            if(is_array($fxrates_obj)) {
+                if(count($budget_currencies) != count($fxrates_obj)) {
+                    foreach($fxrates_obj as $budgetrate) {
+                        $budget_currency[] = $budgetrate->fromCurrency;
+                    }
+                    $currencies_diff = array_diff($budget_currencies, $budget_currency);
+                    if(is_array($currencies_diff)) {
+                        foreach($currencies_diff as $currencyid) {
+                            $currency = new Currencies($currencyid);
+                            $output_currname.=$comma.$currency->get_displayname();
+                            $comma = ', ';
+                        }
+                    }
+                    error($lang->sprint($lang->currencynotexistvar, $output_currname), $_SERVER['HTTP_REFERER']);
+                }
+            }
+            else {
+                error($lang->currencynotexist, $_SERVER['HTTP_REFERER']);
+            }
+            foreach($options['budgettypes'] as $type) {
+                switch($type) {
+                    case'headcount':
+                        $positiongroups = PositionGroups::get_data('', array('returnarray' => true));
+                        $sql = "SELECT posgid, sum(actualPrevThreeYears) AS actualPrevThreeYear,sum(actualPrevTwoYears) AS actualPrevTwoYears, sum(yefPrevYear) AS yefPrevYear, sum(budgetCurrent) AS budgetCurrent FROM ".Tprefix."budgeting_headcount WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By posgid";
+                        $query = $db->query($sql);
+                        $fields = array('actualPrevTwoYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent');
+                        if($db->num_rows($query) > 0) {
+                            while($item = $db->fetch_assoc($query)) {
+                                foreach($fields as $field) {
+                                    $headcount[$item['posgid']][$field] = sprintf("%.2f", $item[$field]);
+                                }
+                            }
+                        }
+                        if(is_empty($headcount)) {
+                            break;
+                        }
+                        $output['headcount']['data'] = BudgetHeadCount::parse_headcountfields($positiongroups, array('mode' => 'display', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget, 'headcount' => $headcount));
+                        $output['headcount']['headeractual'] = '<td style="width:10%">'.$lang->actual.'</td>';
+                        break;
+
+                    case'investmentfollowup':
+                        $investcategories = BudgetInvestCategories::get_data('', array('returnarray' => true));
+                        /* Converting amount into the affiliates existing currency */
+                        $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid= budgeting_investexpenses.bfbid)';
+                        $sql = "SELECT biiid, sum(budgetPrevYear*{$fxrate_query}) AS budgetPrevYear, sum(actualPrevYear*{$fxrate_query}) AS actualPrevYear, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrent, sum(percVariation) AS percVariation FROM ".Tprefix."budgeting_investexpenses WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By biiid";
+                        $query = $db->query($sql);
+
+                        $fields = array('budgetPrevYear', 'actualPrevYear', 'yefPrevYear', 'budgetCurrent');
+                        if($db->num_rows($query) > 0) {
+                            while($item = $db->fetch_assoc($query)) {
+                                foreach($fields as $field) {
+                                    $investmentfollowup[$item['biiid']][$field] = sprintf("%.2f", $item[$field]);
+                                }
+                                $investmentfollowup[$item['biiid']]['percVariation'] = sprintf("%.2f", $item['percVariation']);
+                            }
+                        }
+                        if(is_empty($investmentfollowup)) {
+                            break;
+                        }
+                        $output['investmentfollowup']['data'] = BudgetInvestCategories::parse_expensesfields($investcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget, 'investmentfollowup' => $investmentfollowup));
+                        $output['investmentfollowup']['headervariation'] = '<td style="width:10%">% '.$lang->variation.'</td>';
+                        break;
+
+                    case'financialadminexpenses':
+                        $expensescategories = BudgetExpenseCategories::get_data('', array('returnarray' => true));
+                        /* Converting amount into the affiliates existing currency */
+                        $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid=budgeting_commadminexps.bfbid)';
+                        $sql = "SELECT beciid,sum(actualPrevThreeYears*{$fxrate_query}) AS actualPrevThreeYears ,sum(actualPrevTwoYears*{$fxrate_query}) AS actualPrevTwoYears, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrent,sum(budYefPerc) AS budYefPerc FROM ".Tprefix."budgeting_commadminexps WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By beciid";
+                        $query = $db->query($sql);
+                        $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent'); //'budgetPrevYear', 'actualPrevYear'
+                        if($db->num_rows($query) > 0) {
+                            while($item = $db->fetch_assoc($query)) {
+                                foreach($fields as $field) {
+                                    $financialadminexpenses[$item['beciid']][$field] = sprintf("%.2f", $item[$field]);
+                                }
+                                $financialadminexpenses[$item['beciid']]['budYefPerc'] = sprintf("%.2f", (($financialadminexpenses[$item['beciid']]['budgetCurrent'] - $financialadminexpenses [$item['beciid']]['yefPrevYear']) / $financialadminexpenses [$item['beciid']]['yefPrevYear']) * 100).'%';
+                            }
+                        }
+
+                        $finbudgetquery = $db->query("SELECT bfbid,sum(finGenAdmExpAmtApthy) AS finGenAdmExpAmtApthy ,sum(finGenAdmExpAmtApty) AS finGenAdmExpAmtApty, sum(finGenAdmExpAmtYpy) AS finGenAdmExpAmtYpy, sum(finGenAdmExpAmtCurrent) AS finGenAdmExpAmtCurrent FROM ".Tprefix."budgeting_financialbudget WHERE bfbid IN (".implode(',', $options['filter']).")");
+                        if($db->num_rows($finbudgetquery) > 0) {
+                            while($finbudget = $db->fetch_assoc($finbudgetquery)) {
+                                $financialbudget = $finbudget;
+                            }
+                        }
+                        if(is_empty($financialadminexpenses)) {
+                            break;
+                        }
+                        $output['financialadminexpenses']['data'] = BudgetExpenseCategories::parse_financialadminfields($expensescategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget, 'financialadminexpenses' => $financialadminexpenses));
+                        $output['financialadminexpenses']['headerpercentage'] = '<td style="width:10%">% '.$lang->budyef.'</td>';
+                        $output['financialadminexpenses']['headeractual'] = '<td style="width:10%">'.$lang->actual.'</td>';
+                        break;
+
+                    case'forecastbalancesheet':
+                        $budforecastobj = new BudgetForecastAccountsTree();
+                        $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid=budgeting_forecastbs.bfbid)';
+                        $sql = "SELECT batid,sum(amount*{$fxrate_query}) AS amount FROM ".Tprefix."budgeting_forecastbs WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By batid";
+                        $query = $db->query($sql);
+                        if($db->num_rows($query) > 0) {
+                            while($item = $db->fetch_assoc($query)) {
+                                $forecastbalancesheet[$item['batid']]['amount'] = $item['amount'];
+                            }
+                        }
+                        if(is_empty($forecastbalancesheet)) {
+                            break;
+                        }
+                        $output['forecastbalancesheet']['data'] .= $budforecastobj->parse_account('a', array('financialbudget' => $financialbudget, 'forecastbalancesheet' => $forecastbalancesheet, 'mode' => 'display'));
+                        break;
+
+                    case'profitlossaccount':
+                        $plcategories = BudgetPlCategories::get_data('', array('returnarray' => true));
+                        $query = $db->query("SELECT bpliid,sum(actualPrevTwoYears) AS actualPrevTwoYears,sum(budgetPrevYear) AS budgetPrevYear, sum(yefPrevYear) AS yefPrevYear, sum(budgetCurrent) AS budgetCurrens FROM ".Tprefix."budgeting_plexpenses WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By bpliid");
+                        if($db->num_rows($query) > 0) {
+                            while($item = $db->fetch_assoc($query)) {
+                                $placcount[$item['bpliid']]['actualPrevTwoYears'] = sprintf("%.2f", $item['actualPrevTwoYears']);
+                                $placcount[$item['bpliid']]['budgetPrevYear'] = sprintf("%.2f", $item['budgetPrevYear']);
+                                $placcount[$item['bpliid']]['yefPrevYear'] = sprintf("%.2f", $item['yefPrevYear']);
+                                $placcount[$item['bpliid']]['budgetCurrent'] = sprintf("%.2f", $item['budgetCurrent']);
+                            }
+                        }
+                        if(is_empty($placcount)) {
+                            break;
+                        }
+                        $commericalbudget = Budgets::get_data(array('affid' => $options['affid'], 'year' => $options['year']), array('simple' => false, 'operators' => array('affid' => IN)));
+                        $prevcommericalbudget = Budgets::get_data(array('affid' => $options['affid'], 'year' => ($options['year'] - 1)), array('simple' => false, 'operators' => array('affid' => IN)));
+                        $prevtwocommericalbudget = Budgets::get_data(array('affid' => $options['affid'], 'year' => ($options['year'] - 2)), array('simple' => false, 'operators' => array('affid' => IN)));
+
+                        $current = $budget->budget['bid'];
+                        $prevtwoyears = $prevtwocommericalbudget->budget['bid'];
+                        $prevyear = $prevcommericalbudget->budget['bid'];
+                        if(is_array($commericalbudget)) {
+                            foreach($commericalbudget as $budget) {
+                                $current[$budget->budget['bid']] = $budget->budget['bid'];
+                            }
+                        }
+                        if(is_array($prevcommericalbudget)) {
+                            foreach($prevcommericalbudget as $budget) {
+                                $prevyear[$budget->budget['bid']] = $budget->budget['bid'];
+                            }
+                        }
+                        if(is_array($prevtwocommericalbudget)) {
+                            foreach($prevtwocommericalbudget as $budget) {
+                                $prevtwoyears[$budget->budget['bid']] = $budget->budget['bid'];
+                            }
+                        }
+                        $bid = array('prevtwoyears' => $prevtwoyears, 'prevyear' => $prevyear, 'current' => $current);
+                        $output['profitlossaccount']['data'] = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'placcount' => $placcount, 'bid' => $bid, 'filter' => $options['filter']));
+                        // $output['profitlossaccount']['headervariation'] = '<td style="width:10%">% '.$lang->variation.'</td>';
+                        break;
+                }
+            }
+        }
+        return $output;
+    }
+
+    public function isFinalized() {
+        if($this->isFinalized == 1) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private function validate_requiredfields(array $data = array()) {
+        global $core, $db;
+        if(is_array($data)) {
+            $required_fields = array('affid', 'year');
+            foreach($required_fields as $field) {
+                if(empty($data['financialbudget'][$field]) && $data['financialbudget'][$field] != '0') {
+                    $this->errorcode = 1;
+                    return true;
+                }
+                $data['financialbudget'][$field] = $core->sanitize_inputs($data['financialbudget'][$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
+                $data['financialbudget'][$field] = $db->escape_string($data['financialbudget'][$field]);
             }
         }
     }
