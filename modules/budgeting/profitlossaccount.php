@@ -54,9 +54,14 @@ if(!isset($core->input['action'])) {
     }
     $bid = array('prevtwoyears' => $prevtwoyears, 'prevyear' => $prevyear, 'current' => $current);
     $plcategories = BudgetPlCategories::get_data('', array('returnarray' => true));
-//call parse fields functions with parameters pl categories and $bid(id's of the previous 3 commercial budget) and financial budget object
-    $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'bid' => $bid));
-
+    if(is_object($financialbudget) && $financialbudget->isFinalized()) {
+        $type = 'hidden';
+        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'bid' => $bid));
+    }
+    else {
+        $type = 'submit';
+        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'bid' => $bid));
+    }
     $header_yef = '<td style = "width:8.3%">%'.$lang->yef.' '.$plprevyear.'</td>';
     $header_yef .= '<td style = "width:8.3%">%'.$lang->yef.' '.$plprevyear.'</td>';
     $header_budyef .= '<td style = "width:8.3%">%'.$lang->yef.' '.$plyear.'</td>';
@@ -64,6 +69,7 @@ if(!isset($core->input['action'])) {
     $bud = '/Budget ';
     $pl_yefprevyear = '/YEF '.$financialbudget_prevyear;
     eval("\$budgeting_header = \"".$template->get('budgeting_investheader')."\";");
+
     eval("\$budgeting_placcount = \"".$template->get('budgeting_placcount')."\";");
     output_page($budgeting_placcount);
 }
@@ -77,7 +83,6 @@ else if($core->input['action'] == 'do_perform_profitlossaccount') {
 //    }
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
     $financialbudget = new FinancialBudget();
-
     $financialbudget->set($core->input);
     $financialbudget->save();
     switch($financialbudget->get_errorcode()) {

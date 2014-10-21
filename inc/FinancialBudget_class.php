@@ -26,7 +26,7 @@ Class FinancialBudget extends AbstractClass {
         global $db, $core;
         if(is_array($data)) {
             $financialdata['bfbid'] = self::PRIMARY_KEY;
-            $fields = array('finGenAdmExpAmtApty', 'finGenAdmExpAmtApy', 'finGenAdmExpAmtBpy', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent');
+            $fields = array('finGenAdmExpAmtApthy', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent'); //'finGenAdmExpAmtApy', 'finGenAdmExpAmtBpy'
             $financialdata['affid'] = $data['financialbudget']['affid'];
             $financialdata['year'] = $data['financialbudget']['year'];
 
@@ -135,10 +135,9 @@ Class FinancialBudget extends AbstractClass {
     protected function update(array $data) {
         global $db, $core;
         if(is_array($data)) {
-            $fields = array('finGenAdmExpAmtApty', 'finGenAdmExpAmtApy', 'finGenAdmExpAmtBpy', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent');
+            $fields = array('finGenAdmExpAmtApthy', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent'); //'finGenAdmExpAmtApy', 'finGenAdmExpAmtBpy'
             $financialdata['affid'] = $data['financialbudget']['affid'];
             $financialdata['year'] = $data['financialbudget']['year'];
-            $financialdata['bfbid'] = self::PRIMARY_KEY;
             foreach($fields as $field) {
                 $max = 'max'.$field;
                 if($data['financialbudget'][$field] > $data['financialbudget'][$max]) {
@@ -204,7 +203,6 @@ Class FinancialBudget extends AbstractClass {
                     }
                 }
             }
-
             $budgetforecastbs = $data['budgetforecastbs'];
             if(is_array($budgetforecastbs)) {
                 unset($budgetforecastbs[liabilities], $budgetforecastbs[Assets]);
@@ -224,6 +222,7 @@ Class FinancialBudget extends AbstractClass {
                 }
             }
             $placcounts = $data['placcount'];
+
             if(is_array($placcounts)) {
                 foreach($placcounts as $account) {
                     $account['bfbid'] = $this->data[self::PRIMARY_KEY];
@@ -246,7 +245,7 @@ Class FinancialBudget extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
-        $data['budgetforecastbs']['equityliabilities']['total'] = $data['budgetforecastbs']['OwnersEquity']['total'] + $data['budgetforecastbs']['Liabilities']['total'];
+        // $data['budgetforecastbs']['equityliabilities']['total'] = $data['budgetforecastbs']['OwnersEquity']['total'] + $data['budgetforecastbs']['Liabilities']['total'];
         if(isset($data['budgetforecastbs']['equityliabilities']['total']) && !empty($data['budgetforecastbs']['Assets']['total'])) {
             if($data['budgetforecastbs']['equityliabilities']['total'] != $data['budgetforecastbs']['Assets']['total']) {
                 $this->errorcode = 4;
@@ -325,9 +324,9 @@ Class FinancialBudget extends AbstractClass {
                 switch($type) {
                     case'headcount':
                         $positiongroups = PositionGroups::get_data('', array('returnarray' => true));
-                        $sql = "SELECT posgid, sum(actualPrevTwoYears) AS actualPrevTwoYearssum(budgetPrevYear) AS budgetPrevYear, sum(yefPrevYear) AS yefPrevYear, sum(budgetCurrent) AS budgetCurrent FROM ".Tprefix."budgeting_headcount WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By posgid";
+                        $sql = "SELECT posgid, sum(actualPrevThreeYears) AS actualPrevThreeYear,sum(actualPrevTwoYears) AS actualPrevTwoYears, sum(yefPrevYear) AS yefPrevYear, sum(budgetCurrent) AS budgetCurrent FROM ".Tprefix."budgeting_headcount WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By posgid";
                         $query = $db->query($sql);
-                        $fields = array('actualPrevTwoYears', 'actualPrevYear', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
+                        $fields = array('actualPrevTwoYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent');
                         if($db->num_rows($query) > 0) {
                             while($item = $db->fetch_assoc($query)) {
                                 foreach($fields as $field) {
@@ -369,9 +368,9 @@ Class FinancialBudget extends AbstractClass {
                         $expensescategories = BudgetExpenseCategories::get_data('', array('returnarray' => true));
                         /* Converting amount into the affiliates existing currency */
                         $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid=budgeting_commadminexps.bfbid)';
-                        $sql = "SELECT beciid, sum(actualPrevTwoYears*{$fxrate_query}) AS actualPrevTwoYears, sum(actualPrevYear*{$fxrate_query}) AS actualPrevYear,sum(budgetPrevYear*{$fxrate_query}) AS budgetPrevYear, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrent,sum(budYefPerc) AS budYefPerc FROM ".Tprefix."budgeting_commadminexps WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By beciid";
+                        $sql = "SELECT beciid,sum(actualPrevThreeYears*{$fxrate_query}) AS actualPrevThreeYears ,sum(actualPrevTwoYears*{$fxrate_query}) AS actualPrevTwoYears, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrent,sum(budYefPerc) AS budYefPerc FROM ".Tprefix."budgeting_commadminexps WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By beciid";
                         $query = $db->query($sql);
-                        $fields = array('budgetPrevYear', 'actualPrevYear', 'yefPrevYear', 'budgetCurrent');
+                        $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent'); //'budgetPrevYear', 'actualPrevYear'
                         if($db->num_rows($query) > 0) {
                             while($item = $db->fetch_assoc($query)) {
                                 foreach($fields as $field) {
@@ -381,7 +380,7 @@ Class FinancialBudget extends AbstractClass {
                             }
                         }
 
-                        $finbudgetquery = $db->query("SELECT bfbid, sum(finGenAdmExpAmtApty) AS finGenAdmExpAmtApty,sum(finGenAdmExpAmtApy) AS finGenAdmExpAmtApy,sum(finGenAdmExpAmtBpy) AS finGenAdmExpAmtBpy, sum(finGenAdmExpAmtYpy) AS finGenAdmExpAmtYpy, sum(finGenAdmExpAmtCurrent) AS finGenAdmExpAmtCurrent FROM ".Tprefix."budgeting_financialbudget WHERE bfbid IN (".implode(',', $options['filter']).")");
+                        $finbudgetquery = $db->query("SELECT bfbid,sum(finGenAdmExpAmtApthy) AS finGenAdmExpAmtApthy ,sum(finGenAdmExpAmtApty) AS finGenAdmExpAmtApty, sum(finGenAdmExpAmtYpy) AS finGenAdmExpAmtYpy, sum(finGenAdmExpAmtCurrent) AS finGenAdmExpAmtCurrent FROM ".Tprefix."budgeting_financialbudget WHERE bfbid IN (".implode(',', $options['filter']).")");
                         if($db->num_rows($finbudgetquery) > 0) {
                             while($finbudget = $db->fetch_assoc($finbudgetquery)) {
                                 $financialbudget = $finbudget;

@@ -15,7 +15,7 @@ class BudgetHeadCount extends AbstractClass {
     const PRIMARY_KEY = 'bhcid';
     const TABLE_NAME = 'budgeting_headcount';
     const DISPLAY_NAME = 'bhcid';
-    const SIMPLEQ_ATTRS = 'bhcid, bfbid, posgid, actualPrevTwoYears, actualPrevYear, budgetPrevYear,yefPrevYear,budgetCurrent';
+    const SIMPLEQ_ATTRS = 'bhcid, bfbid, posgid, actualPrevThreeYears,actualPrevTwoYears,yefPrevYear,budgetCurrent'; //actualPrevYear, budgetPrevYear
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -25,7 +25,7 @@ class BudgetHeadCount extends AbstractClass {
     protected function create(array $data) {
         global $db, $core;
         if(is_array($data)) {
-            $required_fields = array('bfbid', 'posgid', 'actualPrevTwoYears', 'actualPrevYear', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
+            $required_fields = array('bfbid', 'posgid', 'actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent'); //'actualPrevYear', 'budgetPrevYear',
             foreach($required_fields as $field) {
                 $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
                 $data[$field] = $db->escape_string($data[$field]);
@@ -40,7 +40,7 @@ class BudgetHeadCount extends AbstractClass {
     protected function update(array $data) {
         global $db, $core;
         if(is_array($data)) {
-            $required_fields = array('bfbid', 'posgid', 'actualPrevTwoYears', 'actualPrevYear', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
+            $required_fields = array('bfbid', 'posgid', 'actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent'); //'actualPrevYear', 'budgetPrevYear',
             foreach($required_fields as $field) {
                 $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
                 $data[$field] = $db->escape_string($data[$field]);
@@ -79,7 +79,7 @@ class BudgetHeadCount extends AbstractClass {
         if(is_array($positiongroups)) {
             foreach($positiongroups as $group) {
                 unset($subtotal, $headcount);
-                $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'actualPrevYear', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
+                $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent');
                 $group_headcount = self::get_data(array('posgid' => $group->posgid, 'bfbid' => $options['financialbudget']->bfbid), array('simple' => false));
                 if(is_object($group_headcount)) {
                     foreach($fields as $field) {
@@ -100,7 +100,7 @@ class BudgetHeadCount extends AbstractClass {
                         if($input == 'budgetPrevYear') {
                             $readonly = $disabledfield;
                         }
-                        $column_output .=' <td style="width:12.5%">'.parse_textfield('headcount['.$group->posgid.']['.$input.']', 'headcount_'.$input, 'number', $headcount[$input], array('accept' => 'numeric', 'step' => '1', $readonly => $readonly, 'style' => 'width:100%;')).'</td>';
+                        $column_output .=' <td style="width:12.5%">'.parse_textfield('headcount['.$group->posgid.']['.$input.']', 'headcount_'.$input, 'number', $headcount[$input], array('accept' => 'numeric', 'step' => '1', $readonly => $readonly, 'style' => 'width:100%;', 'min' => 0)).'</td>';
                         unset($readonly);
                     }
                     else {
@@ -123,7 +123,7 @@ class BudgetHeadCount extends AbstractClass {
 
     private function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
-            $required_fields = array('bfbid', 'posgid', 'actualPrevTwoYears', 'actualPrevYear', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
+            $required_fields = array('bfbid', 'posgid', 'actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
                     $this->errorcode = 1;

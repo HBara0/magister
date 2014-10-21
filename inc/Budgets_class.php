@@ -9,7 +9,7 @@
  */
 
 class Budgets extends AbstractClass {
-    private $budget = array();
+    protected $budget = array();
     protected $errorcode = null;
     protected $data = array();
 
@@ -49,7 +49,7 @@ class Budgets extends AbstractClass {
         }
         if($isallbudget == true) {
             $queryall = $db->query("SELECT DISTINCT(year), bid, identifier, description, affid, spid, currency,isLocked,isFinalized,finalizedBy,status,createdOn,createdBy,modifiedBy
-									FROM ".Tprefix."budgeting_budgets GROUP BY year ORDER BY year DESC  ");
+									FROM ".Tprefix."budgeting_budgets GROUP BY year ORDER BY year DESC");
             if($db->num_rows($queryall) > 0) {
                 while($budget = $db->fetch_assoc($queryall)) {
                     $allbudgets[] = $budget;
@@ -58,14 +58,14 @@ class Budgets extends AbstractClass {
             return $allbudgets;
         }
         else {
-            return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."budgeting_budgets WHERE bid=".$db->escape_string($id)));
+            return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."budgeting_budgets WHERE bid=".intval($id)));
         }
     }
 
     private function budget_exists($id) {
         global $db;
         if(!empty($id)) {
-            if(value_exists('budgeting_budgets', 'bid', $data['bid'])) {
+            if(value_exists('budgeting_budgets', 'bid', $data['bid'])) { //Where is $data coming from?
                 return true;
             }
             return false;
@@ -665,7 +665,7 @@ class BudgetLines {
     public static function get_aggregate_bycountry(Countries $country, $by, $filters = array(), $configs = array()) {
         global $db;
 
-        $dal = new DataAccessLayer(self:: CLASSNAME, self:: TABLE_NAME, self::PRIMARY_KEY);
+        $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
 
         $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.') AS total, (CASE WHEN customerCountry=0 THEN (SELECT country FROM entities WHERE entities.eid='.self::TABLE_NAME.'.cid) ELSE customerCountry END) AS coid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY coid HAVING coid='.$country->coid));
         return $total['total'];
@@ -674,7 +674,7 @@ class BudgetLines {
     public static function get_aggregate_byaffiliate(Affiliates $affiliate, $by, $filters = array(), $configs = array()) {
         global $db;
 
-        $dal = new DataAccessLayer(self:: CLASSNAME, self:: TABLE_NAME, self::PRIMARY_KEY);
+        $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
 
         $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.') AS total, (SELECT affid FROM budgeting_budgets WHERE budgeting_budgets.bid='.self::TABLE_NAME.'.bid) AS affid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY affid HAVING affid='.$affiliate->affid));
         return $total['total'];
@@ -685,7 +685,7 @@ class BudgetLines {
 
         $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
 
-        if(empty($config['group'])) {
+        if(empty($configs['group'])) {
             $config['group'] = 'cid, altCid';
         }
         $config['order'] = array('sort' => 'DESC', 'by' => $attr);

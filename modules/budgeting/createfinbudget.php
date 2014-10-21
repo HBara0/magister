@@ -31,11 +31,10 @@ if(!$core->input['action']) {
         $inaffiliates = implode(',', $core->user['affiliates']);
         $affiliate_where = ' affid IN ('.$inaffiliates.')';
     }
-
     $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0, $affiliate_where);
     $affiliated_budget = parse_selectlist('financialbudget[affid]', 1, $affiliates, $core->user['mainaffiliate'], 0, '', array('id' => 'affid'));
 
-    $budgetypes = array('financialadminexpenses' => 'Financial & Admin Expenses', 'investmentfollowup' => 'Investment Follow-up', 'headcount' => 'Head Count', 'forecastbalancesheet' => 'Forecast Balance Sheet');
+    $budgetypes = array('financialadminexpenses' => 'Financial & Admin Expenses', 'investmentfollowup' => 'Investment Follow-up', 'headcount' => 'Head Count', 'forecastbalancesheet' => 'Forecast Balance Sheet', 'profitlossaccount' => $lang->profitandlossaccount);
     $budgettypes_list = parse_selectlist('financialbudget[budgettypes]', '', $budgetypes, '', '', '$("#module_hiddenfield").val("budgeting/" + $(this).val());', '');
 
     $years = array_combine(range(date('Y') + 1, date('Y') - 2), range(date('Y') + 1, date('Y') - 2));

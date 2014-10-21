@@ -33,19 +33,21 @@
                             total += parseFloat(this.value);
                         }
                     });
-                    if(total > 0) {
-                        $('div[id=total_' + id[3] + ']').text(total);
-                        $('input[id=total_' + id[3] + ']').val(total);
-                        $('input[id^=finGenAdm_' + id[3] + ']').attr('max', total);
-                        $('input[id=finGenAdm_max' + id[3] + ']').val(total);
-                    }
+
+                    $('div[id=total_' + id[3] + ']').text(total);
+                    $('input[id=total_' + id[3] + ']').val(total);
+                    $('input[id^=finGenAdm_' + id[3] + ']').attr('max', total);
+                    $('input[id=finGenAdm_max' + id[3] + ']').val(total);
+
 
                     var totalyefPrevYear = parseFloat($('input[id=total_yefPrevYear]').val());
                     var totalbudgetCurrent = parseFloat($('input[id=total_budgetCurrent]').val());
-                    if(!isNaN(((totalbudgetCurrent - totalyefPrevYear) / totalyefPrevYear) * 100)) {
-                        $('div[id=total_budYefPerc]').text((((totalbudgetCurrent - totalyefPrevYear) / totalyefPrevYear) * 100).toFixed(2) + '%');
-                    }
+                    var perc = ((totalbudgetCurrent - totalyefPrevYear) / totalyefPrevYear) * 100;
 
+                    if(!jQuery.isNumeric(perc)) {
+                        perc = 0;
+                    }
+                    $('div[id=total_budYefPerc]').text(perc + '%');
                     var subtotalyefPrevYear = parseFloat($('input[id=subtotal_' + id[2] + '_yefPrevYear]').val());
                     var subtotalbudgetCurrent = parseFloat($('input[id=subtotal_' + id[2] + '_budgetCurrent]').val());
                     if(!isNaN(((subtotalbudgetCurrent - subtotalyefPrevYear) / subtotalyefPrevYear) * 100)) {
@@ -64,7 +66,6 @@
                     $('div[id=comexpenses_' + financeid[1] + ']').text(parseFloat($('input[id=total_' + financeid[1] + ']').val()) - parseFloat($('input[id=finGenAdm_' + financeid[1] + ']').val()));
                     $('div[id=propfin_' + financeid[1] + ']').text(((parseFloat($('input[id=finGenAdm_' + financeid[1] + ']').val()) / parseFloat($('input[id=total_' + financeid[1] + ']').val())) * 100).toFixed(2) + '%');
                     $('div[id=propcomexpenses_' + financeid[1] + ']').text(((parseFloat($('div[id=comexpenses_' + financeid[1] + ']').text()) / parseFloat($('input[id=total_' + financeid[1] + ']').val())) * 100).toFixed(2) + '%');
-
                 });
             });
 

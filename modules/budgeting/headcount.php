@@ -38,6 +38,7 @@ if(!isset($core->input['action'])) {
     $financialbudget_year = $budget_data['year'];
     $financialbudget_prevyear = $financialbudget_year - 1;
     $financialbudget_prev2year = $financialbudget_year - 2;
+    $financialbudget_prev3year = $financialbudget_year - 3;
     $affid = $budget_data['affid'];
     $affiliate = new Affiliates($affid);
     $prevfinancialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_prevyear), array('simple' => false));
@@ -52,8 +53,23 @@ if(!isset($core->input['action'])) {
         $type = 'submit';
         $output = BudgetHeadCount::parse_headcountfields($positiongroups, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget));
     }
-    $header_actual = '<td style = "width:12.5%">'.$lang->actual.'</td>';
-    eval("\$budgeting_header = \"".$template->get('budgeting_investheader')."\";");
+
+    $headerfields = array('actual', 'actual', 'yef', 'budget');
+    $headeryears = array($financialbudget_prev3year, $financialbudget_prev2year, $financialbudget_prevyear, $financialbudget_year);
+    $budgeting_header .='<tr class="thead"><td style="width:25%"></td>';
+    foreach($headerfields as $field) {
+        $budgeting_header .= '<td style="width:12.5%">'.$lang->$field.'</td>';
+    }
+    $budgeting_header .='</tr>';
+    $budgeting_header .='<tr><td style="width:25%"><input name="financialbudget[affid]" value="'.$affid.'" type="hidden"></td>';
+    foreach($headeryears as $year) {
+        $budgeting_header .= '<td style="width:12.5%">'.$year.'</td>';
+    }
+    $budgeting_header .='<input name="financialbudget[year]" value="'.$financialbudget_year.'" type="hidden"></td>';
+    $budgeting_header .='</tr>';
+
+//    $header_actual = '<td style = "width:12.5%">'.$lang->actual.'</td>';
+//    eval("\$budgeting_header = \"".$template->get('budgeting_investheader')."\";");
     eval("\$budgeting_headcount = \"".$template->get('budgeting_headcount')."\";");
     output_page($budgeting_headcount);
 }

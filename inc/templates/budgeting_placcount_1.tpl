@@ -33,12 +33,15 @@
                     var budgetPrevYear = $("input[id^='" + id[0] + "_" + id[1] + "_budgetPrevYear_" + id[3] + "']").val();
                     var budgetCurrent = $("input[id^='" + id[0] + "_" + id[1] + "_budgetCurrent_" + id[3] + "']").val();
 
-                    if(!jQuery.isEmptyObject(actualPrevTwoYears) && !jQuery.isEmptyObject(yefPrevYear)) {
+                    if(actualPrevTwoYears != 0) {
                         $("div[id='" + id[0] + "_" + id[1] + "_yefactual_" + id[3] + "']").text((((yefPrevYear - actualPrevTwoYears) / actualPrevTwoYears) * 100).toFixed(2));
                     }
-                    $("div[id='" + id[0] + "_" + id[1] + "_yefbud_" + id[3] + "']").text((((yefPrevYear - budgetPrevYear) / budgetPrevYear) * 100).toFixed(2));
-                    $("div[id='" + id[0] + "_" + id[1] + "_budyef_" + id[3] + "']").text((((budgetCurrent - yefPrevYear) / yefPrevYear) * 100).toFixed(2));
-
+                    if(budgetPrevYear != 0) {
+                        $("div[id='" + id[0] + "_" + id[1] + "_yefbud_" + id[3] + "']").text((((yefPrevYear - budgetPrevYear) / budgetPrevYear) * 100).toFixed(2));
+                    }
+                    if(yefPrevYear != 0) {
+                        $("div[id='" + id[0] + "_" + id[1] + "_budyef_" + id[3] + "']").text((((budgetCurrent - yefPrevYear) / yefPrevYear) * 100).toFixed(2));
+                    }
 
                 });
             });
@@ -59,7 +62,7 @@
                     {$output}
                 </table>
                 <hr />
-                <input type="{$type}" id="perform_budgeting/profitlossaccount_Button" value="Save" class="button"/>
+                <input type="submit" id="perform_budgeting/profitlossaccount_Button" value="Save" class="button"/>
             </form>
             <div id="perform_budgeting/profitlossaccount_Results"></div>
         </td>
