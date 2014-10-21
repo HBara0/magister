@@ -246,8 +246,8 @@ Class FinancialBudget extends AbstractClass {
             $data = $this->data;
         }
 
-        if(!empty($data['budgetforecastbs']['Liabilities']['total']) && !empty($data['budgetforecastbs']['Assets']['total'])) {
-            $data['budgetforecastbs']['equityliabilities']['total'] = $data['budgetforecastbs']['OwnersEquity']['total'] + $data['budgetforecastbs']['Liabilities']['total'];
+        if(!empty($data['budgetforecastbs']['Liabilities']['total']) && !empty($data['budgetforecastbs']['Assets']['total']) && !empty($data['budgetforecastbs']['OwnersEquity']['netIncome'])) {
+            $data['budgetforecastbs']['equityliabilities']['total'] = ($data['budgetforecastbs']['OwnersEquity']['total'] + $data['budgetforecastbs']['OwnersEquity']['netIncome']) + ($data['budgetforecastbs']['Liabilities']['total']);
             if($data['budgetforecastbs']['equityliabilities']['total'] != $data['budgetforecastbs']['Assets']['total']) {
                 $this->errorcode = 4;
                 return false;
@@ -327,7 +327,6 @@ Class FinancialBudget extends AbstractClass {
             foreach($fxrates_obj as $budgetrate) {
                 $currency = new Currencies($budgetrate->fromCurrency);
                 $currencyto = new Currencies($options['tocurrency']);
-
                 $output['currfxrates'] .= $currency->get()['alphaCode'].' to '.$currencyto->get()['alphaCode'].' > '.$budgetrate->rate.'<br>';
             }
 
