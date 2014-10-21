@@ -95,13 +95,14 @@ class BudgetExpenseCategories extends AbstractClass {
                     }
                     foreach($fields as $field) {
                         $total[$field] += $subtotal[$field];
-                        if($total[$field] == 0) {
-                            unset($total[$field]);
-                        }
+//                        if($total[$field] == 0) {
+//                            unset($total[$field]);
+//                        }
                     }
                     if($subtotal['yefPrevYear'] != 0) {
                         $subtotal['budYefPerc'] = sprintf("%.2f", (($subtotal['budgetCurrent'] - $subtotal['yefPrevYear']) / $subtotal['yefPrevYear']) * 100).'%';
                     }
+                    $total['budYefPerc'] = '0.00%';
                     if($total['yefPrevYear'] != 0) {
                         $total['budYefPerc'] = sprintf("%.2f", (($total['budgetCurrent'] - $total['yefPrevYear']) / $total['yefPrevYear']) * 100).'%';
                     }
@@ -116,7 +117,7 @@ class BudgetExpenseCategories extends AbstractClass {
             foreach($financialbudget_fields as $key => $value) {
                 //
                 if(isset($options['financialbudget']) && !empty($options['financialbudget'])) {
-                    if(isset($options['financialbudget']->$value) && !empty($options['financialbudget']->$value)) {
+                    if(isset($options['financialbudget']->$value)) {
                         $financialbudgetdata[$key] = $options['financialbudget']->$value;
                     }
                     elseif(is_array($options['financialbudget'])) {
@@ -133,6 +134,9 @@ class BudgetExpenseCategories extends AbstractClass {
 
                 foreach($fields as $field) {
                     if($total[$field] == 0) {
+                        $comexpenses[$field] = 0;
+                        $propfin[$field] = '0.00%';
+                        $propcomexpenses[$field] = '0.00%';
                         continue;
                     }
                     $comexpenses[$field] = $total[$field] - $financialbudgetdata[$field];
