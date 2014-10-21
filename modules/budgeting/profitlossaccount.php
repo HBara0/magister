@@ -34,22 +34,22 @@ if(!isset($core->input['action'])) {
     $prevtwocommericalbudget = Budgets::get_data(array('affid' => $budget_data['affid'], 'year' => ($budget_data['year'] - 2)), array('simple' => false));
 
     //get commercial budget id's (current budget, prev budget and prev two years budget)
-    $current = $commericalbudget->budget['bid'];
-    $prevtwoyears = $prevtwocommericalbudget->budget['bid'];
-    $prevyear = $prevcommericalbudget->budget['bid'];
+    $current = $commericalbudget->bid;
+    $prevtwoyears = $prevtwocommericalbudget->bid;
+    $prevyear = $prevcommericalbudget->bid;
     if(is_array($commericalbudget)) {
         foreach($commericalbudget as $budget) {
-            $current[$budget->budget['bid']] = $budget->budget['bid'];
+            $current[$budget->bid] = $budget->bid;
         }
     }
     if(is_array($prevcommericalbudget)) {
         foreach($prevcommericalbudget as $budget) {
-            $prevyear[$budget->budget['bid']] = $budget->budget['bid'];
+            $prevyear[$budget->bid] = $budget->bid;
         }
     }
     if(is_array($prevtwocommericalbudget)) {
         foreach($prevtwocommericalbudget as $budget) {
-            $prevtwoyears[$budget->budget['bid']] = $budget->budget['bid'];
+            $prevtwoyears[$budget->bid] = $budget->bid;
         }
     }
     $bid = array('prevtwoyears' => $prevtwoyears, 'prevyear' => $prevyear, 'current' => $current);

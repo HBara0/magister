@@ -29,7 +29,9 @@ if(!isset($core->input['action'])) {
     if(isset($core->input['financialbudget']['year']) && !empty($core->input['financialbudget']['year'])) {
         $financialbudget_year = $core->input['financialbudget']['year'];
         $financialbudget_prevyear = $investprevyear = $financialbudget_year - 1;
-        // $financialbudget_prev2year = $financialbudget_year - 2;
+        $financialbudget_prev2year = $financialbudget_year - 2;
+        $financialbudget_prev3year = $financialbudget_year - 3;
+
         if($core->usergroup['canViewAllAff'] == 0) {
             $affiliates = $core->user['affiliates'];
             if(!in_array($core->input['financialbudget']['affid'], array_keys($affiliates))) {
@@ -49,8 +51,24 @@ if(!isset($core->input['action'])) {
     else {
         $type = 'submit';
         $budgeting_investexpenses_categories = BudgetInvestCategories::parse_expensesfields($investcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget));
-    }$header_variation = '<td style="width:12.5%">% '.$lang->variation.'</td>';
-    eval("\$budgeting_header = \"".$template->get('budgeting_investheader')."\";");
+    }
+
+//    $header_variation = '<td style="width:12.5%">% '.$lang->variation.'</td>';
+//    eval("\$budgeting_header = \"".$template->get('budgeting_investheader')."\";");
+    $headerfields = array('actual', 'actual', 'yef', 'budget');
+    $headeryears = array($financialbudget_prev3year, $financialbudget_prev2year, $financialbudget_prevyear, $financialbudget_year);
+    $budgeting_header .='<tr class="thead"><td style="width:25%"></td>';
+    foreach($headerfields as $field) {
+        $budgeting_header .= '<td style="width:12.5%">'.$lang->$field.'</td>';
+    }
+    $budgeting_header .='</tr>';
+    $budgeting_header .='<tr><td style="width:25%"><input name="financialbudget[affid]" value="'.$affid.'" type="hidden"></td>';
+    foreach($headeryears as $year) {
+        $budgeting_header .= '<td style="width:12.5%">'.$year.'</td>';
+    }
+    $budgeting_header .='<input name="financialbudget[year]" value="'.$financialbudget_year.'" type="hidden"></td>';
+    $budgeting_header .='</tr>';
+
     eval("\$budgeting_investexpenses = \"".$template->get('budgeting_investexpenses')."\";");
     output_page($budgeting_investexpenses);
 }

@@ -244,6 +244,9 @@ class BudgetPlCategories extends AbstractClass {
                             $commercialexpenses[$key] = $comercialbudget[$key] - $financialbudget[$value];
                             if($key === 'yefactual' || $key === 'yefbud' || $key === 'budyef') {
                                 $width = '8.3%';
+                                $comercialbudget['yefactual'] = $comercialbudget['yefbud'] = $comercialbudget['budyef'] = '0.00%';
+                                $commercialexpenses['yefactual'] = $commercialexpenses['yefbud'] = $commercialexpenses['budyef'] = '0.00%';
+                                $financialbudget['yefactual'] = $financialbudget['yefbud'] = $financialbudget['budyef'] = '0.00%';
                                 // !!! code need to be optimized
                                 //calculatio of yef/actual  yef/bud and bud/yef fields
                                 if($comercialbudget['actualPrevTwoYears'] != 0) {
