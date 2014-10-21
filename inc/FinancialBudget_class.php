@@ -29,7 +29,9 @@ Class FinancialBudget extends AbstractClass {
             $fields = array('finGenAdmExpAmtApthy', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent'); //'finGenAdmExpAmtApy', 'finGenAdmExpAmtBpy'
             $financialdata['affid'] = $data['financialbudget']['affid'];
             $financialdata['year'] = $data['financialbudget']['year'];
-
+            $financialdata['netIncome'] = $data['financialbudget']['income'];
+            $affiliate = new Affiliates($financialdata['affid']);
+            $financialdata['currency'] = $affiliate->get_country()->get_maincurrency()->get()[numCode];
             foreach($fields as $field) {
                 $max = 'max'.$field;
                 if($data['financialbudget'][$field] > $data['financialbudget'][$max]) {
@@ -40,6 +42,8 @@ Class FinancialBudget extends AbstractClass {
                 $data['financialbudget'][$field] = $db->escape_string($data['financialbudget'][$field]);
                 $financialdata[$field] = $data['financialbudget'][$field];
             }
+            $affiliate = new Affiliates($financialdata['affid']);
+            $financialdata['currency'] = $affiliate->get_country()->get_maincurrency()->get()[numCode];
             $financialdata['createdOn'] = TIME_NOW;
             $financialdata['createdBy'] = $core->user['uid'];
             $query = $db->insert_query(self::TABLE_NAME, $financialdata);
@@ -140,6 +144,7 @@ Class FinancialBudget extends AbstractClass {
             $fields = array('finGenAdmExpAmtApthy', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent'); //'finGenAdmExpAmtApy', 'finGenAdmExpAmtBpy'
             $financialdata['affid'] = $data['financialbudget']['affid'];
             $financialdata['year'] = $data['financialbudget']['year'];
+            $financialdata['netIncome'] = $data['financialbudget']['income'];
             foreach($fields as $field) {
                 $max = 'max'.$field;
                 if($data['financialbudget'][$field] > $data['financialbudget'][$max]) {
@@ -150,6 +155,8 @@ Class FinancialBudget extends AbstractClass {
                 $data['financialbudget'][$field] = $db->escape_string($data['financialbudget'][$field]);
                 $financialdata[$field] = $data['financialbudget'][$field];
             }
+            $affiliate = new Affiliates($financialdata['affid']);
+            $financialdata['currency'] = $affiliate->get_country()->get_maincurrency()->get()[numCode];
             $financialdata['modifiedOn'] = TIME_NOW;
             $financialdata['modifiedBy'] = $core->user['uid'];
             $query = $db->update_query(self::TABLE_NAME, $financialdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
@@ -334,13 +341,13 @@ Class FinancialBudget extends AbstractClass {
                 switch($type) {
                     case'headcount':
                         $positiongroups = PositionGroups::get_data('', array('returnarray' => true));
-                        $sql = "SELECT posgid, sum(actualPrevThreeYears) AS actualPrevThreeYear,sum(actualPrevTwoYears) AS actualPrevTwoYears, sum(yefPrevYear) AS yefPrevYear, sum(budgetCurrent) AS budgetCurrent FROM ".Tprefix."budgeting_headcount WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By posgid";
+                        $sql = "SELECT posgid, sum(actualPrevThreeYears) AS actualPrevThreeYears,sum(actualPrevTwoYears) AS actualPrevTwoYears, sum(yefPrevYear) AS yefPrevYear, sum(budgetCurrent) AS budgetCurrent FROM ".Tprefix."budgeting_headcount WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By posgid";
                         $query = $db->query($sql);
-                        $fields = array('actualPrevTwoYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent');
+                        $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent');
                         if($db->num_rows($query) > 0) {
                             while($item = $db->fetch_assoc($query)) {
                                 foreach($fields as $field) {
-                                    $headcount[$item['posgid']][$field] = sprintf("%.2f", $item[$field]);
+                                    $headcount[$item['posgid']][$field] = $item[$field];
                                 }
                             }
                         }
@@ -348,30 +355,29 @@ Class FinancialBudget extends AbstractClass {
                             break;
                         }
                         $output['headcount']['data'] = BudgetHeadCount::parse_headcountfields($positiongroups, array('mode' => 'display', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget, 'headcount' => $headcount));
-                        $output['headcount']['headeractual'] = '<td style="width:10%">'.$lang->actual.'</td>';
+
                         break;
 
                     case'investmentfollowup':
                         $investcategories = BudgetInvestCategories::get_data('', array('returnarray' => true));
                         /* Converting amount into the affiliates existing currency */
                         $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid= budgeting_investexpenses.bfbid)';
-                        $sql = "SELECT biiid, sum(budgetPrevYear*{$fxrate_query}) AS budgetPrevYear, sum(actualPrevYear*{$fxrate_query}) AS actualPrevYear, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrent, sum(percVariation) AS percVariation FROM ".Tprefix."budgeting_investexpenses WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By biiid";
+                        $sql = "SELECT biiid, sum(actualPrevThreeYears*{$fxrate_query}) AS actualPrevThreeYears, sum(actualPrevTwoYears*{$fxrate_query}) AS actualPrevTwoYears, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrent, sum(percVariation) AS percVariation FROM ".Tprefix."budgeting_investexpenses WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By biiid";
                         $query = $db->query($sql);
 
-                        $fields = array('budgetPrevYear', 'actualPrevYear', 'yefPrevYear', 'budgetCurrent');
+                        $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent');
                         if($db->num_rows($query) > 0) {
                             while($item = $db->fetch_assoc($query)) {
                                 foreach($fields as $field) {
                                     $investmentfollowup[$item['biiid']][$field] = sprintf("%.2f", $item[$field]);
                                 }
-                                $investmentfollowup[$item['biiid']]['percVariation'] = sprintf("%.2f", $item['percVariation']);
+                                //$investmentfollowup[$item['biiid']]['percVariation'] = sprintf("%.2f", $item['percVariation']);
                             }
                         }
                         if(is_empty($investmentfollowup)) {
                             break;
                         }
                         $output['investmentfollowup']['data'] = BudgetInvestCategories::parse_expensesfields($investcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget, 'investmentfollowup' => $investmentfollowup));
-                        $output['investmentfollowup']['headervariation'] = '<td style="width:10%">% '.$lang->variation.'</td>';
                         break;
 
                     case'financialadminexpenses':
@@ -386,7 +392,9 @@ Class FinancialBudget extends AbstractClass {
                                 foreach($fields as $field) {
                                     $financialadminexpenses[$item['beciid']][$field] = sprintf("%.2f", $item[$field]);
                                 }
-                                $financialadminexpenses[$item['beciid']]['budYefPerc'] = sprintf("%.2f", (($financialadminexpenses[$item['beciid']]['budgetCurrent'] - $financialadminexpenses [$item['beciid']]['yefPrevYear']) / $financialadminexpenses [$item['beciid']]['yefPrevYear']) * 100).'%';
+                                if($financialadminexpenses [$item['beciid']]['yefPrevYear'] != 0) {
+                                    $financialadminexpenses[$item['beciid']]['budYefPerc'] = sprintf("%.2f", (($financialadminexpenses[$item['beciid']]['budgetCurrent'] - $financialadminexpenses [$item['beciid']]['yefPrevYear']) / $financialadminexpenses [$item['beciid']]['yefPrevYear']) * 100).'%';
+                                }
                             }
                         }
 
@@ -400,8 +408,7 @@ Class FinancialBudget extends AbstractClass {
                             break;
                         }
                         $output['financialadminexpenses']['data'] = BudgetExpenseCategories::parse_financialadminfields($expensescategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget, 'financialadminexpenses' => $financialadminexpenses));
-                        $output['financialadminexpenses']['headerpercentage'] = '<td style="width:10%">% '.$lang->budyef.'</td>';
-                        $output['financialadminexpenses']['headeractual'] = '<td style="width:10%">'.$lang->actual.'</td>';
+                        $output['financialadminexpenses']['budyef'] = '<td style="width:10%">% '.$lang->budyef.'</td>';
                         break;
 
                     case'forecastbalancesheet':
@@ -422,13 +429,15 @@ Class FinancialBudget extends AbstractClass {
 
                     case'profitlossaccount':
                         $plcategories = BudgetPlCategories::get_data('', array('returnarray' => true));
-                        $query = $db->query("SELECT bpliid,sum(actualPrevTwoYears) AS actualPrevTwoYears,sum(budgetPrevYear) AS budgetPrevYear, sum(yefPrevYear) AS yefPrevYear, sum(budgetCurrent) AS budgetCurrens FROM ".Tprefix."budgeting_plexpenses WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By bpliid");
+                        $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid=budgeting_plexpenses.bfbid)';
+                        $sql = "SELECT bpliid,sum(actualPrevTwoYears*{$fxrate_query}) AS actualPrevTwoYears,sum(budgetPrevYear*{$fxrate_query}) AS budgetPrevYear, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrens FROM ".Tprefix."budgeting_plexpenses WHERE bfbid IN (".implode(', ', $options['filter']).") GROUP By bpliid";
+                        $query = $db->query($sql);
+                        $fields = array('actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
                         if($db->num_rows($query) > 0) {
                             while($item = $db->fetch_assoc($query)) {
-                                $placcount[$item['bpliid']]['actualPrevTwoYears'] = sprintf("%.2f", $item['actualPrevTwoYears']);
-                                $placcount[$item['bpliid']]['budgetPrevYear'] = sprintf("%.2f", $item['budgetPrevYear']);
-                                $placcount[$item['bpliid']]['yefPrevYear'] = sprintf("%.2f", $item['yefPrevYear']);
-                                $placcount[$item['bpliid']]['budgetCurrent'] = sprintf("%.2f", $item['budgetCurrent']);
+                                foreach($fields as $field) {
+                                    $placcount[$item['bpliid']][$field] = sprintf("%.2f", $item[$field]);
+                                }
                             }
                         }
                         if(is_empty($placcount)) {
@@ -438,7 +447,7 @@ Class FinancialBudget extends AbstractClass {
                         $prevcommericalbudget = Budgets::get_data(array('affid' => $options['affid'], 'year' => ($options['year'] - 1)), array('simple' => false, 'operators' => array('affid' => IN)));
                         $prevtwocommericalbudget = Budgets::get_data(array('affid' => $options['affid'], 'year' => ($options['year'] - 2)), array('simple' => false, 'operators' => array('affid' => IN)));
 
-                        $current = $budget->bid;
+                        $current = $commericalbudget->bid;
                         $prevtwoyears = $prevtwocommericalbudget->bid;
                         $prevyear = $prevcommericalbudget->bid;
                         if(is_array($commericalbudget)) {
@@ -458,7 +467,9 @@ Class FinancialBudget extends AbstractClass {
                         }
                         $bid = array('prevtwoyears' => $prevtwoyears, 'prevyear' => $prevyear, 'current' => $current);
                         $output['profitlossaccount']['data'] = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'placcount' => $placcount, 'bid' => $bid, 'filter' => $options['filter']));
-                        // $output['profitlossaccount']['headervariation'] = '<td style="width:10%">% '.$lang->variation.'</td>';
+                        $output['profitlossaccount']['variations'] = '<td style="width:10%">% '.$lang->yefactual.'</td><td style="width:10%">% '.$lang->yefbud.'</td>';
+                        $output['profitlossaccount']['budyef'] = '<td style="width:10%">% '.$lang->budyef.'</td>';
+                        $output[$type]['years'] = ' <td style="width:10%"><span>'.$options['year'].' / '.($options['year'] - 2).'</span></td> <td style="width:10%"><span>'.$options['year'].' / '.$options['year'].'</span></td>';
                         break;
                 }
             }

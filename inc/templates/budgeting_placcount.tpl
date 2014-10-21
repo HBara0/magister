@@ -18,20 +18,18 @@
                     if(subtotal_income !== 0) {
                         $("div[id='total_income_" + id[2] + "']").text(subtotal_income + parseFloat($("input[id='total_sales_" + id[2] + "']").val()));
                     }
-                    if(subtotal_operatingprofit !== 0) {
-                        $("div[id='total_operatingprofit_" + id[2] + "']").text(subtotal_operatingprofit + parseFloat($("div[id='total_income_" + id[2] + "']").text()) + parseFloat($("div[id='total_admcomexpenses_" + id[2] + "']").text()));
-                    }
-                    if(subtotal_netincome !== 0) {
-                        $("div[id='total_netincome_" + id[2] + "']").text(subtotal_netincome + parseFloat($("div[id='total_operatingprofit_" + id[2] + "']").text()));
-                    }
-
-//placcount,income,actualPrevTwoYears,1
-                    // var budgettypes = new Array("yefPrevYear", "actualPrevTwoYears", "budgetPrevYear", "budgetCurrent");
+                    //if(subtotal_operatingprofit !== 0) {
+                    $("div[id='total_operatingprofit_" + id[2] + "']").text(subtotal_operatingprofit + parseFloat($("div[id='total_income_" + id[2] + "']").text()) + parseFloat($("div[id='total_admcomexpenses_" + id[2] + "']").text()));
+                    //}
+                    //if(subtotal_netincome !== 0) {
+                    $("div[id='total_netincome_" + id[2] + "']").text(subtotal_netincome + parseFloat($("div[id='total_operatingprofit_" + id[2] + "']").text()));
+                    //}
 
                     var yefPrevYear = $("input[id^='" + id[0] + "_" + id[1] + "_yefPrevYear_" + id[3] + "']").val();
                     var actualPrevTwoYears = $("input[id^='" + id[0] + "_" + id[1] + "_actualPrevTwoYears_" + id[3] + "']").val();
                     var budgetPrevYear = $("input[id^='" + id[0] + "_" + id[1] + "_budgetPrevYear_" + id[3] + "']").val();
                     var budgetCurrent = $("input[id^='" + id[0] + "_" + id[1] + "_budgetCurrent_" + id[3] + "']").val();
+
                     $("div[id='" + id[0] + "_" + id[1] + "_yefactual_" + id[3] + "']").text('0.00%');
                     $("div[id='" + id[0] + "_" + id[1] + "_yefbud_" + id[3] + "']").text('0.00%');
                     $("div[id='" + id[0] + "_" + id[1] + "_budyef_" + id[3] + "']").text('0.00%');

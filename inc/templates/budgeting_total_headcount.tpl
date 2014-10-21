@@ -1,7 +1,7 @@
 
 {$budgeting_group_headcount}
 <tr>
-    <td style="width:25%;font-weight:bold;">{$lang->totalheadcount}</td>
+    <td style="width:30%;font-weight:bold;">{$lang->totalheadcount}</td>
     <td>
         <div style="font-weight:bold;" id="total_actualPrevThreeYears">{$total[actualPrevThreeYears]}</div>
         <input type="hidden" id="total_actualPrevThreeYears" value="{$total[actualPrevThreeYears]}">

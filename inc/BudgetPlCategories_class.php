@@ -49,6 +49,7 @@ class BudgetPlCategories extends AbstractClass {
                         $column_output .= '<td style="width:25%">'.$item->title.'<input type="hidden" name="placcount['.$item->bpliid.'][bpliid]" value='.$item->bpliid.'></td>';
                         foreach($fields as $input) {
                             if($input === 'yefactual' || $input === 'yefbud' || $input === 'budyef') {
+                                $plexpenses[$input] = '0.00%';
                                 if($plexpenses_current->actualPrevTwoYears != 0) {
                                     $plexpenses['yefactual'] = sprintf("%.2f", (($plexpenses_current->yefPrevYear - $plexpenses_current->actualPrevTwoYears) / $plexpenses_current->actualPrevTwoYears) * 100).' %';
                                 }
@@ -105,6 +106,9 @@ class BudgetPlCategories extends AbstractClass {
                         }
                         $column_output .=' <td style="width:12.5%;font-weight:bold;"><div id="total_'.$category->name.'_'.$input.'">'.$total['plexpenses'][$input].'</div>';
                         $column_output .=parse_textfield('', 'total_'.$category->name.'_'.$input, 'hidden', $total['plexpenses'][$input]).'</td>';
+                        if($category->name === 'netincome' && $input === 'budgetCurrent') {
+                            $column_output .=parse_textfield('financialbudget[income]', 'total_'.$category->name.'_'.$input, 'hidden', $total['plexpenses'][$input]).'</td>';
+                        }
                         $column_output .= '</td>';
                     }
                     eval("\$category_total .= \"".$template->get('budgeting_plcategory_item')."\";");
@@ -236,7 +240,6 @@ class BudgetPlCategories extends AbstractClass {
                                     $comercialbudget[$key] +=$item->$key;
                                 }
                             }
-
                             if(empty($financialbudget[$value])) {
                                 $financialbudget[$value] = $options['financialbudget']->$value;
                             }

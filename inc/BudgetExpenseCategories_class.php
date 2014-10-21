@@ -67,6 +67,12 @@ class BudgetExpenseCategories extends AbstractClass {
                             }
                             $budgetexps['budYefPerc'] = sprintf("%.2f", $comadmin_expenses->budYefPerc).'%';
                         }
+                        else {
+                            foreach($fields as $field) {
+                                $budgetexps[$field] = 0;
+                                $subtotal[$field] = 0;
+                            }
+                        }
 
                         //Get data from financialadminexpenses array for generate report
                         if(isset($options['financialadminexpenses']) && !empty($options['financialadminexpenses'])) {
@@ -79,7 +85,7 @@ class BudgetExpenseCategories extends AbstractClass {
                                 if($input == 'budgetPrevYear') {
                                     $readonly = $disabledfield;
                                 }
-                                $column_output .=' <td style="width:12.5%;">'.parse_textfield('budgetexps['.$item->beciid.']['.$input.']', 'budgetexps_'.$item->beciid.'_'.$item->becid.'_'.$input, 'number', $budgetexps[$input], array('accept' => 'numeric', 'step' => 'any', 'required' => 'required', $readonly => $readonly, 'style' => 'width:100%')).'</td>';
+                                $column_output .=' <td style="width:10%;">'.parse_textfield('budgetexps['.$item->beciid.']['.$input.']', 'budgetexps_'.$item->beciid.'_'.$item->becid.'_'.$input, 'number', $budgetexps[$input], array('accept' => 'numeric', 'step' => 'any', 'required' => 'required', $readonly => $readonly, 'style' => 'width:100%')).'</td>';
                                 unset($readonly);
                             }
                             else {
@@ -115,7 +121,7 @@ class BudgetExpenseCategories extends AbstractClass {
             //'actualPrevYear' => 'finGenAdmExpAmtApy', 'budgetPrevYear' => 'finGenAdmExpAmtBpy',
             $financialbudget_fields = array('actualPrevThreeYears' => 'finGenAdmExpAmtApthy', 'actualPrevTwoYears' => 'finGenAdmExpAmtApty', 'yefPrevYear' => 'finGenAdmExpAmtYpy', 'budgetCurrent' => 'finGenAdmExpAmtCurrent');
             foreach($financialbudget_fields as $key => $value) {
-                //
+                $financialbudgetdata[$key] = 0;
                 if(isset($options['financialbudget']) && !empty($options['financialbudget'])) {
                     if(isset($options['financialbudget']->$value)) {
                         $financialbudgetdata[$key] = $options['financialbudget']->$value;

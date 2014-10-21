@@ -49,8 +49,11 @@
                     $('div[id=total_budYefPerc]').text(perc + '%');
                     var subtotalyefPrevYear = parseFloat($('input[id=subtotal_' + id[2] + '_yefPrevYear]').val());
                     var subtotalbudgetCurrent = parseFloat($('input[id=subtotal_' + id[2] + '_budgetCurrent]').val());
+                    $('div[id=subtotal_' + id[2] + '_budYefPerc]').text('0.00%')
                     if(!isNaN(((subtotalbudgetCurrent - subtotalyefPrevYear) / subtotalyefPrevYear) * 100)) {
-                        $('div[id=subtotal_' + id[2] + '_budYefPerc]').text((((subtotalbudgetCurrent - subtotalyefPrevYear) / subtotalyefPrevYear) * 100).toFixed(2) + '%');
+                        if(subtotalyefPrevYear != 0) {
+                            $('div[id=subtotal_' + id[2] + '_budYefPerc]').text((((subtotalbudgetCurrent - subtotalyefPrevYear) / subtotalyefPrevYear) * 100).toFixed(2) + '%');
+                        }
                     }
 
                     if($("input[id^='budgetexps']").val() != 0) {

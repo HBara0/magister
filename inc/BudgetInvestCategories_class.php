@@ -103,9 +103,6 @@ class BudgetInvestCategories extends AbstractClass {
 //                }
                 foreach($inputfields as $field) {
                     $total[$field] += $subtotal[$field];
-                    if($total[$field] == 0) {
-                        unset($total[$field]);
-                    }
                 }
                 eval("\$budgeting_investexpenses_category  .= \"".$template->get('budgeting_investexpenses_category')."\";");
             }
