@@ -428,22 +428,22 @@ Class FinancialBudget extends AbstractClass {
                         $prevcommericalbudget = Budgets::get_data(array('affid' => $options['affid'], 'year' => ($options['year'] - 1)), array('simple' => false, 'operators' => array('affid' => IN)));
                         $prevtwocommericalbudget = Budgets::get_data(array('affid' => $options['affid'], 'year' => ($options['year'] - 2)), array('simple' => false, 'operators' => array('affid' => IN)));
 
-                        $current = $budget->budget['bid'];
-                        $prevtwoyears = $prevtwocommericalbudget->budget['bid'];
-                        $prevyear = $prevcommericalbudget->budget['bid'];
+                        $current = $budget->bid;
+                        $prevtwoyears = $prevtwocommericalbudget->bid;
+                        $prevyear = $prevcommericalbudget->bid;
                         if(is_array($commericalbudget)) {
                             foreach($commericalbudget as $budget) {
-                                $current[$budget->budget['bid']] = $budget->budget['bid'];
+                                $current[$budget->bid] = $budget->bid;
                             }
                         }
                         if(is_array($prevcommericalbudget)) {
                             foreach($prevcommericalbudget as $budget) {
-                                $prevyear[$budget->budget['bid']] = $budget->budget['bid'];
+                                $prevyear[$budget->bid] = $budget->bid;
                             }
                         }
                         if(is_array($prevtwocommericalbudget)) {
                             foreach($prevtwocommericalbudget as $budget) {
-                                $prevtwoyears[$budget->budget['bid']] = $budget->budget['bid'];
+                                $prevtwoyears[$budget->bid] = $budget->bid;
                             }
                         }
                         $bid = array('prevtwoyears' => $prevtwoyears, 'prevyear' => $prevyear, 'current' => $current);

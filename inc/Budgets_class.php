@@ -9,9 +9,8 @@
  */
 
 class Budgets extends AbstractClass {
-    protected $budget = array();
-    protected $errorcode = null;
     protected $data = array();
+    protected $errorcode = null;
 
     const PRIMARY_KEY = 'bid';
     const TABLE_NAME = 'budgeting_budgets';
@@ -21,7 +20,7 @@ class Budgets extends AbstractClass {
 
     public function __construct($id = '', $simple = false, $budgetdata = '', $isallbudget = false) {
         if(isset($id) && !empty($id)) {
-            $this->budget = $this->read($id, $simple, $isallbudget);
+            $this->data = $this->read($id, $simple, $isallbudget);
         }
     }
 
@@ -89,7 +88,7 @@ class Budgets extends AbstractClass {
         global $db;
         if(!empty($data)) {
             if(isset($data['pid'], $data['cid'], $data['saleType'])) {
-                if(value_exists('budgeting_budgets_lines', 'bid', $this->budget['bid'], 'pid='.intval($data['pid']).' AND cid='.intval($data['cid']).' AND saleType='.intval($data['saleType']))) {
+                if(value_exists('budgeting_budgets_lines', 'bid', $this->data['bid'], 'pid='.intval($data['pid']).' AND cid='.intval($data['cid']).' AND saleType='.intval($data['saleType']))) {
                     return true;
                 }
             }
@@ -163,9 +162,9 @@ class Budgets extends AbstractClass {
                 $insertquery = $db->insert_query('budgeting_budgets', $budget_data);
                 if($insertquery) {
                     if(is_object($this)) {
-                        $this->budget['bid'] = $db->last_id();
-                        $log->record('savenewbudget', $this->budget['bid']);
-                        $this->save_budgetlines($budgetline_data, $this->budget['bid']);
+                        $this->data['bid'] = $db->last_id();
+                        $log->record('savenewbudget', $this->data['bid']);
+                        $this->save_budgetlines($budgetline_data, $this->data['bid']);
                     }
                     else {
                         $bid = $db->last_id();
@@ -178,8 +177,8 @@ class Budgets extends AbstractClass {
             else {
                 $existing_budget = Budgets::get_budget_bydata($budgetdata);
                 if(isset($this)) {
-                    $this->budget['bid'] = $existing_budget['bid'];
-                    $this->save_budgetlines($budgetline_data, $this->budget['bid']);
+                    $this->data['bid'] = $existing_budget['bid'];
+                    $this->save_budgetlines($budgetline_data, $this->data['bid']);
                 }
                 else {
                     $budget = new Budgets($existing_budget['bid']);
@@ -197,7 +196,7 @@ class Budgets extends AbstractClass {
         }
 
         if(empty($bid)) {
-            $bid = $this->budget['bid'];
+            $bid = $this->data['bid'];
         }
 
         if(is_array($budgetline_data)) {
@@ -324,9 +323,9 @@ class Budgets extends AbstractClass {
     public function read_prev_budgetbydata($data = array(), $options = array()) {
         global $db;
         if(empty($data)) {
-            $data['affid'] = $this->budget['affid'];
-            $data['spid'] = $this->budget['spid'];
-            $data['year'] = $this->budget['year'];
+            $data['affid'] = $this->data['affid'];
+            $data['spid'] = $this->data['spid'];
+            $data['year'] = $this->data['year'];
         }
 
         if(isset($options['filters']['businessMgr']) && is_array($options['filters']['businessMgr'])) {
@@ -398,7 +397,7 @@ class Budgets extends AbstractClass {
     public function get_budgetLines($bid = '', $options = array()) {
         global $db;
         if(empty($bid)) {
-            $bid = $this->budget['bid'];
+            $bid = $this->data['bid'];
         }
 
         $options['order_by'] = ' ORDER BY pid ASC';
@@ -428,7 +427,7 @@ class Budgets extends AbstractClass {
     }
 
     public function get_budgetlines_objs($filters = '', $configs = array()) {
-        $filters['bid'] = $this->budget['bid'];
+        $filters['bid'] = $this->data['bid'];
         $configs['returnarray'] = true;
         return BudgetLines::get_data($filters, $configs);
     }
@@ -474,11 +473,11 @@ class Budgets extends AbstractClass {
 
         if($core->usergroup['canViewAllSupp'] == 0 && $core->usergroup['canViewAllAff'] == 0) {
             if(is_array($core->user['auditfor'])) {
-                if(!in_array($this->budget['spid'], $core->user['auditfor'])) {
+                if(!in_array($this->data['spid'], $core->user['auditfor'])) {
                     if(is_array($core->user['auditedaffids'])) {
-                        if(!in_array($this->budget['affid'], $core->user['auditedaffids'])) {
-                            if(is_array($core->user['suppliers']['affid'][$this->budget['spid']])) {
-                                if(in_array($this->budget['affid'], $core->user['suppliers']['affid'][$this->budget['spid']])) {
+                        if(!in_array($this->data['affid'], $core->user['auditedaffids'])) {
+                            if(is_array($core->user['suppliers']['affid'][$this->data['spid']])) {
+                                if(in_array($this->data['affid'], $core->user['suppliers']['affid'][$this->data['spid']])) {
                                     $filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
                                 }
                                 else {
@@ -504,36 +503,36 @@ class Budgets extends AbstractClass {
 
     /* function return object Type --START */
     public function get_supplier() {
-        return new Entities($this->budget['spid']);
+        return new Entities($this->data['spid']);
     }
 
     public function get_affiliate() {
-        return new Affiliates($this->budget['affid']);
+        return new Affiliates($this->data['affid']);
     }
 
     public function get_currency() {
-        return new Currencies($this->budget['originalCurrency']);
+        return new Currencies($this->data['originalCurrency']);
     }
 
     public function get_CreateUser() {
-        return new Users($this->budget['createdBy']);
+        return new Users($this->data['createdBy']);
     }
 
     public function get_ModifyUser() {
-        return new Users($this->budget['modifiedBy']);
+        return new Users($this->data['modifiedBy']);
     }
 
     public function get_FinalizeUser() {
-        return new Users($this->budget['finalizedBy']);
+        return new Users($this->data['finalizedBy']);
     }
 
     public function get_LockUser() {
-        return new Users($this->budget['lockedBy']);
+        return new Users($this->data['lockedBy']);
     }
 
     /* function return object Type --END */
     public function get() {
-        return $this->budget;
+        return $this->data;
     }
 
     public function get_errorcode() {
