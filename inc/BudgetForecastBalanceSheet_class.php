@@ -63,8 +63,7 @@ class BudgetForecastBalanceSheet extends AbstractClass {
         global $core;
         if(empty($data)) {
             $data = $this->data;
-        }print_r($data);
-
+        }
         if(!$this->validate_requiredfields($data)) {
             $forecastbs = self::get_data(array('bfbsid' => $this->data[self::PRIMARY_KEY]));
             if(is_object($forecastbs)) {
@@ -87,7 +86,7 @@ class BudgetForecastBalanceSheet extends AbstractClass {
         if(is_array($data)) {
             $required_fields = array('bfbid', 'batid', 'amount');
             foreach($required_fields as $field) {
-                if(is_empty($data[$field])) {
+                if(empty($data[$field]) && $data[$field] != '0') {
                     $this->errorcode = 1;
                     return true;
                 }
