@@ -44,7 +44,7 @@ class BudgetInvestCategories extends AbstractClass {
         if(is_array($categories)) {
             foreach($categories as $category) {
                 unset($subtotal);
-                $inputfields = array('actualPrevYear', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
+                $inputfields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent'); //'actualPrevYear', 'budgetPrevYear'
                 $budgeting_investexpenses_item = '';
                 $items = $category->get_items();
                 if(is_array($items)) {
@@ -65,21 +65,21 @@ class BudgetInvestCategories extends AbstractClass {
                                 $budgetinvst[$field] = $invest_expenses->$field;
                                 $subtotal[$field] +=$invest_expenses->$field;
                             }
-                            $budgetinvst['percVariation'] = sprintf("%.2f", $invest_expenses->percVariation);
+                            // $budgetinvst['percVariation'] = sprintf("%.2f", $invest_expenses->percVariation);
                         }
 
-                        $fields = array('actualPrevYear', 'budgetPrevYear', 'yefPrevYear', 'percVariation', 'budgetCurrent');
+                        $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent'); // percVariation,'actualPrevYear', 'budgetPrevYear',
                         foreach($fields as $input) {
                             $column_output .=' <td style="width:10%">';
                             if(isset($options['mode']) && $options['mode'] == 'fill') {
                                 $type = 'number';
-                                if($input == 'budgetPrevYear') {
-                                    $readonly = $disabledfield;
-                                }
-                                if($input == 'percVariation') {
-                                    $type = 'hidden';
-                                    $column_output .='<div id="budgetinvst_'.$item->biiid.'_'.$item->bicid.'_'.$input.'">'.$budgetinvst[$input].'</div>';
-                                }
+//                                if($input == 'budgetPrevYear') {
+//                                    $readonly = $disabledfield;
+//                                }
+//                                if($input == 'percVariation') {
+//                                    $type = 'hidden';
+//                                    $column_output .='<div id="budgetinvst_'.$item->biiid.'_'.$item->bicid.'_'.$input.'">'.$budgetinvst[$input].'</div>';
+//                                }
                                 $column_output .= parse_textfield('budgetinvst['.$item->biiid.']['.$input.']', 'budgetinvst_'.$item->biiid.'_'.$item->bicid.'_'.$input, $type, $budgetinvst[$input], array('accept' => 'numeric', 'required' => 'required', 'step' => 'any', $readonly => $readonly, 'style' => 'width:100%;')).'</td>';
                                 unset($readonly);
                             }
@@ -98,9 +98,9 @@ class BudgetInvestCategories extends AbstractClass {
                         $field_output = $column_output = '';
                     }
                 }
-                if($subtotal['yefPrevYear'] != 0 && ($subtotal['yefPrevYear'] - $subtotal['budgetPrevYear']) != 0) {
-                    $subtotal['percVariation'] = sprintf("%.2f", (($subtotal['yefPrevYear'] - $subtotal['budgetPrevYear']) / $subtotal['budgetPrevYear']) * 100).'%';
-                }
+//                if($subtotal['yefPrevYear'] != 0 && ($subtotal['yefPrevYear'] - $subtotal['budgetPrevYear']) != 0) {
+//                    $subtotal['percVariation'] = sprintf("%.2f", (($subtotal['yefPrevYear'] - $subtotal['budgetPrevYear']) / $subtotal['budgetPrevYear']) * 100).'%';
+//                }
                 foreach($inputfields as $field) {
                     $total[$field] += $subtotal[$field];
                     if($total[$field] == 0) {
@@ -110,9 +110,9 @@ class BudgetInvestCategories extends AbstractClass {
                 eval("\$budgeting_investexpenses_category  .= \"".$template->get('budgeting_investexpenses_category')."\";");
             }
         }
-        if($total ['yefPrevYear'] != 0 && ($total ['yefPrevYear'] - $total ['budgetPrevYear']) != 0) {
-            $total['percVariation'] = sprintf("%.2f", (($total ['yefPrevYear'] - $total ['budgetPrevYear']) / $total ['budgetPrevYear']) * 100).'%';
-        }
+//        if($total ['yefPrevYear'] != 0 && ($total ['yefPrevYear'] - $total ['budgetPrevYear']) != 0) {
+//            $total['percVariation'] = sprintf("%.2f", (($total ['yefPrevYear'] - $total ['budgetPrevYear']) / $total ['budgetPrevYear']) * 100).'%';
+//        }
         $budgeting_investexpenses_category .= '<tr><td style="width:25%;font-weight:bold;">'.$lang->total.'</td>';
         foreach($fields as $field) {
             $budgeting_investexpenses_category .='<td><div style="font-weight:bold;width:12.5%" id="total_'.$field.'">'.$total[$field].'</div></td>';
