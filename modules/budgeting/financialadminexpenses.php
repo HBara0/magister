@@ -45,7 +45,7 @@ if(!isset($core->input['action'])) {
     $prevfinancialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_prevyear), array('simple' => false));
     $financialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_year), array('simple' => false));
     $expensescategories = BudgetExpenseCategories::get_data('', array('returnarray' => true));
-    if(is_object($financialbudget) && $financialbudget->isFinalized()) {
+    if(is_object($financialbudget) && $financialbudget->isFinalized == 1) {
         $type = 'hidden';
         $output = BudgetExpenseCategories::parse_financialadminfields($expensescategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget));
     }

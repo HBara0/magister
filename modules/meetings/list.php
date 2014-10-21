@@ -17,7 +17,32 @@ if($core->usergroup['meetings_canCreateMeeting'] == 0) {
 }
 if(!$core->input['action']) {
     $sort_url = sort_url();
-    $multiple_meetings = Meetings::get_multiplemeetings(array('order' => array('sortby' => $core->input['sortby'], 'order' => $core->input['order'])));
+
+    /* Advanced filter search */
+    $filters_config = array(
+            'parse' => array('filters' => array('title', 'description', 'from', 'to', 'location'),
+                    'overwriteField' => array('to' => '', 'from' => '')
+            ),
+            'process' => array(
+                    'filterKey' => 'mtid',
+                    'mainTable' => array(
+                            'name' => 'meetings',
+                            'filters' => array('title' => 'title', 'description' => 'description', 'location' => 'location'),
+                    ),
+            )
+    );
+    $filter = new Inlinefilters($filters_config);
+    $filter_where_values = $filter->process_multi_filters();
+    if(is_array($filter_where_values)) {
+        $filters_row_display = 'show';
+        if($filters_config['process']['filterKey'] == 'mtid') {
+            $filters_config['process']['filterKey'] = 'mtid';
+        }
+        $filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+    }
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+
+    $multiple_meetings = Meetings::get_multiplemeetings(array('filter_where' => $filter_where, 'order' => array('sortby' => $core->input['sortby'], 'order' => $core->input['order'])));
     if(is_array($multiple_meetings)) {
         foreach($multiple_meetings as $mid => $meeting) {
             $meeting_obj = new Meetings($mid);

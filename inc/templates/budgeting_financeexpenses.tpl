@@ -34,4 +34,3 @@
     <td><div id="propcomexpenses_budgetCurrent">{$propcomexpenses[budgetCurrent]}</div></td>
     <td></td>
 </tr>
-</table>

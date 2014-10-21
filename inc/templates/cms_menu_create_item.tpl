@@ -207,18 +207,18 @@
                                 <legend class="subtitle">{$lang->externalurl}</legend>
                                 <div  style="display:table-row;">
                                     <div style="display: table-cell; padding:10px;">{$lang->link} </div>
-                                    <div style="display: table-cell; padding:10px;"><input name="menuitem[configurations][link]" type="url" ></div>
+                                    <div style="display: table-cell; padding:10px;"><input name="menuitem[configurations][externalurl][link]" type="url" ></div>
                                 </div>
 
                                 <div  style="display:table-row">
                                     <div style="display: table-cell; padding:10px; ">{$lang->linktitle} </div>
 
-                                    <div style="display: table-cell; padding:10px; margin-left:20px;"><input name="menuitem[configurations][linktitle]" type="text"></div>
+                                    <div style="display: table-cell; padding:10px; margin-left:20px;"><input name="menuitem[configurations][externalurl][linktitle]" type="text"></div>
                                 </div>
                                 <div  style="display:table-row">
                                     <div style="display: table-cell; padding:10px;">{$lang->linkimage} </div>
 
-                                    <div style="display: table-cell; padding:10px;margin-left:20px;"><input  name="menuitem[configurations][linkimage]" type="text"></div>
+                                    <div style="display: table-cell; padding:10px;margin-left:20px;"><input  name="menuitem[configurations][externalurl][linkimage]" type="text"></div>
                                 </div>
 
                             </fieldset>

@@ -29,6 +29,10 @@ Class BudgetComAdminExpenses extends AbstractClass {
             // 'actualPrevYear', 'budgetPrevYear',
             $required_fields = array('bfbid', 'beciid', 'actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent', 'budYefPerc');
             foreach($required_fields as $field) {
+                if(empty($data[$field]) && $data[$field] != 0) {
+                    $this->errorcode = 1;
+                    return false;
+                }
                 $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
                 $data[$field] = $db->escape_string($data[$field]);
                 $comadminexpense_data[$field] = $data[$field];
@@ -45,6 +49,10 @@ Class BudgetComAdminExpenses extends AbstractClass {
             //'actualPrevYear', 'budgetPrevYear',
             $required_fields = array('bfbid', 'beciid', 'actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent', 'budYefPerc');
             foreach($required_fields as $field) {
+                if(empty($data[$field]) && $data[$field] != 0) {
+                    $this->errorcode = 1;
+                    return false;
+                }
                 $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
                 $data[$field] = $db->escape_string($data[$field]);
                 $comadminexpense_data[$field] = $data[$field];

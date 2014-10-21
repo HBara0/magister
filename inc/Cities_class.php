@@ -95,20 +95,23 @@ class Cities {
         return TravelManagerCityBriefings::get_citybriefings('ciid='.$db->escape_string($this->data['ciid']), array('ORDER' => array('by' => 'createdOn', 'sort' => 'DESC'), 'limit' => '0,1'));
     }
 
-    public function parse_approvedhotels($sequence, $selectedhotel = '') {
-        global $lang;
+    public function parse_approvedhotels($sequence, $selectedhotel = array()) {
+        global $template, $lang;
         $approved_hotelsobjs = $this->get_approvedhotels();
-
+        if(is_array($selectedhotel)) {
+            $segid = key($selectedhotel);
+        }
         if(is_array($approved_hotelsobjs)) {
             $hotelssegments_output = '<div class="subtitle">'.$lang->approvedhotels.'</div>';
             foreach($approved_hotelsobjs as $approved_hotelsobj) {
+
                 $approved_hotels = $approved_hotelsobj->get();
                 $hotelname = array($approved_hotels['tmhid'] => $approved_hotels['name']);
                 $review_tools .= ' <a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'./images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
-                $hotelssegments_output .= '<div style="display:block;">'.parse_checkboxes('segment['.$sequence.'][tmhid]', $hotelname, $selectedhotel, true, '&nbsp;&nbsp;').'<span> '.$review_tools.' </span></div>';
-
-//eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
-                $review_tools = '';
+                $checkbox_hotel = parse_checkboxes('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].']', $hotelname, $selectedhotel[$segid][$approved_hotels['tmhid']]['selectedhotel'], true, '&nbsp;&nbsp;');
+                $paidby_details.=$this->parse_paidby($sequence, '', $segid, array('tmhid' => $approved_hotels['tmhid'], 'selectedpaidby' => $selectedhotel[$segid][$approved_hotels['tmhid']]['paidby'], 'selectedpaidid' => $selectedhotel[$segid][$approved_hotels['tmhid']]['paidbyid']));
+                eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
+                $review_tools = $paidby_details = '';
             }
         }
         else {
@@ -117,16 +120,34 @@ class Cities {
         return $hotelssegments_output;
     }
 
+    public function parse_paidby($sequence, $rowid, $segid, $selectedoptions = array()) {
+        global $lang;
+        if(empty($rowid)) {
+            $rowid = $selectedoptions['tmhid'];
+        }
+        if(!empty($selectedoptions['selectedpaidby'])) {
+            $selected_paidby[$segid][$rowid] = $selectedoptions['selectedpaidby'];
+        }
+        $paidby_entities = array(
+                'myaffiliate' => $lang->myaffiliate,
+                'supplier' => $lang->supplier,
+                'client' => $lang->client,
+                'myself' => $lang->myself,
+                'anotheraff' => $lang->anotheraff
+        );
+        return '<div style="display:block;padding:8px;"  id="paidby"> Paid By '.parse_selectlist('segment['.$sequence.'][tmhid]['.$selectedoptions['tmhid'].'][entites]', 6, $paidby_entities, $selected_paidby[$segid], '', '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();;', array('id' => 'paidby')).'</div>';
+    }
+
     public function parse_cityreviews() {
         global $lang, $core;
         $descity_reviewobjs = $this->get_reviews();
         if(is_array($descity_reviewobjs)) {
             $cityprofile_output = '<div> <strong>'.$lang->cityreview.'</strong></div>';
             foreach($descity_reviewobjs as $city_reviewsobj) {
-                $destcityreview['review'] = $city_reviewsobj->get()['review'];
+                $destcityreview['review'] = $city_reviewsobj->get()[review];
                 $destcityreview['user'] = $city_reviewsobj->get_createdBy()->get();
                 $destcityreview['reviewdby'] = $destcityreview['user']['displayName'];
-                $cityprofile_outparse_transportationput .='<div style="display:block;padding:8px;">
+                $cityprofile_output .='<div style="display:block;padding:8px;">
                 <div>'.$destcityreview['review'].'</div>
                     <div class="smalltext"><a href="'.$core->settings['rootdir'].'/users.php?action=profile&uid='.$destcityreview['user']['uid'].'"  target="_blank">'.$destcityreview['reviewdby'].'</a></div>
                         </div>';
@@ -136,7 +157,8 @@ class Cities {
     }
 
     public function parse_citybriefing() {
-        global $lang, $core;
+        global
+        $lang, $core;
         $city_briefingsobj = $this->get_latestbriefing();
         if(is_object($city_briefingsobj)) {
             $citybriefings_output = ' <div><strong>'.$lang->citybrfg.'</strong></div>';
@@ -167,7 +189,7 @@ class Cities {
                     else {
                         $value = '"'.$db->escape_string($value).'"';
                     }
-                    $filters_querystring .= $andor.$attr.'='.$value;
+                    $filters_querystring.=$andor.$attr.'='.$value;
                     $andor = ' AND ';
                 }
             }
@@ -193,10 +215,11 @@ class Cities {
         return false;
     }
 
-    public static function parse_transportations($transpdata = array(), $sequence) {  //to be continued later
+    public static function parse_transportations(
+    $transpdata = array(), $sequence) {  //to be continued later
         global $template, $lang;
         if(is_array($transpdata) && empty($transpdata['apiFlightdata'])) {
-            $directionapi = TravelManagerPlan::get_availablecitytransp(array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'departuretime' => $transpdata['departuretime']));  /* Get available tranportaion mode for the city proposed by google API */
+            $directionapi = TravelManagerPlan::get_availablecitytransp(array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'departuretime' => $transpdata['departuretime']));  /*  Get available tranportaion mode for the city proposed by google API */
         }
         else {
             $directionapi = $transpdata['apiFlightdata'];
@@ -227,7 +250,7 @@ class Cities {
                 }
 
                 $urldisplay = explode('/', $transitmode['url']);
-                if(!empty($urldisplay[2])) {
+                if(!empty($urldisplay [2])) {
                     $transitmode['url'] = '<a href="'.$transitmode[url].'" target="_blank" >'.$urldisplay[2].'</a>'; //temporary coded
                     $possible_transportation = '<div>'.$lang->reservation.'<span class="smalllinkgrey"> '.$transitmode['url'].'</span></div>';
                 }
@@ -241,8 +264,8 @@ class Cities {
             }
         }
         if($transpdata['origincity']['country'] != $transpdata['destcity']['country']) {
-            $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation(array('vehicleType' => 'airplane'), $sequence);
-            //$transptitle = '<div class="subtitle">Possible Transportations</div>';
+            $drivingmode ['transpcat'] = TravelManagerPlan::parse_transportation(array('vehicleType' => 'airplane'), $sequence);
+//$transptitle = '<div class="subtitle">Possible Transportations</div>';
 
             $transp_category_fields = TravelManagerPlan::parse_transportaionfields(array('name' => $drivingmode['transpcat']['name'], 'tmtcid' => $drivingmode['transpcat']['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['departuretime']), $sequence);
             if(!empty($transp_category_fields)) {
@@ -263,12 +286,14 @@ class Cities {
     }
 
     public function __set($name, $value) {
-        $this->data[$name] = $value;
+        $this->
+                data[$name] = $value;
     }
 
     /* call the Magical function  get to acces the private attributes */
     public function __get($name) {
-        if(array_key_exists($name, $this->data)) {
+        if(
+                array_key_exists($name, $this->data)) {
             return $this->data[$name];
         }
     }

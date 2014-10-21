@@ -7,7 +7,7 @@
  * $module: reporting
  * $id: sendbyemail.php
  * Created:		@zaher.reda		August 17, 2009
- * Last Update: @zaher.reda 	July 16, 2012 | 11:26 AM
+ * Last Update: @tony.assaad	July 16, 2012 | 11:26 AM
  */
 
 if(!defined('DIRECT_ACCESS')) {
@@ -196,51 +196,57 @@ else {
                 }
                 break;
             case 'q':
-                $recipients = $report->get_recipient($core->input['recipients']['id']);
-                $allrecipients['representative'] = $recipients;
-                foreach($allrecipients as $rtype => $recipients) {
-                    foreach($recipients as $id => $recipient) {
-                        if($rtype == 'representative' && !in_array($recipient['rpid'], $core->input['recipients']['id'])) {
-                            continue;
-                        }
+                if(is_array($core->input['recipients']['id'])) {
+                    $recipients = $report->get_recipient($core->input['recipients']['id']);
+                    $allrecipients['representative'] = $recipients;
+                    if(is_array($allrecipients)) {
+                        foreach($allrecipients as $rtype => $recipients) {
+                            foreach($recipients as $id => $recipient) {
+                                if($rtype == 'representative' && !in_array($recipient['rpid'], $core->input['recipients']['id'])) {
+                                    continue;
+                                }
+                                if($rtype == 'unregisteredRcpts') {
+                                    $recipient['email'] = $recipient['unregisteredRcpts'];
+                                }
+                                if(is_array($recipients)) {
 
-                        if($rtype == 'unregisteredRcpts') {
-                            $recipient['email'] = $recipient['unregisteredRcpts'];
-                        }
+                                    $email_data = array(
+                                            'from_email' => 'reporting@ocos.orkila.com',
+                                            'from' => 'Orkila Reporting System',
+                                            'to' => $recipient['email'],
+                                            'subject' => $core->input['subject'],
+                                            'message' => $core->input['message']
+                                    );
 
-                        if(is_array($recipients)) {
-                            $email_data = array(
-                                    'from_email' => 'reporting@ocos.orkila.com',
-                                    'from' => 'Orkila Reporting System',
-                                    'to' => $recipient['email'],
-                                    'subject' => $core->input['subject'],
-                                    'message' => $core->input['message']
-                            );
+                                    if($rtype == 'representative') {
+                                        $email_data['cc'] = $cc_valid_emails;
+                                    }
 
-                            if($rtype == 'representative') {
-                                $email_data['cc'] = $cc_valid_emails;
+                                    $reportlink = 'http://www.orkila.com/qreport/'.$recipient['reportIdentifier'].'/'.$recipient['token'];
+                                    if(strstr($email_data['message'], '{link}')) {
+                                        $email_data['message'] = str_replace('{link}', $reportlink, $email_data['message']);
+                                    }
+                                    else {
+                                        $email_data['message'] .= '<br />'.$lang->link.': '.$reportlink;
+                                    }
+
+                                    $recipient['password'] = str_replace($recipient['salt'], '', base64_decode($recipient['password']));
+                                    if(strstr($email_data['message'], '{password}')) {
+                                        $email_data['message'] = str_replace('{password}', $recipient['password'], $email_data['message']);
+                                    }
+                                    else {
+                                        $email_data['message'] .= '<br />'.$lang->password.': '.$recipient['password'];
+                                    }
+
+                                    $mail = new Mailer($email_data, 'php');
+                                    $email_sent = true;
+                                }
                             }
-
-                            $reportlink = 'http://www.orkila.com/qreport/'.$recipient['reportIdentifier'].'/'.$recipient['token'];
-                            if(strstr($email_data['message'], '{link}')) {
-                                $email_data['message'] = str_replace('{link}', $reportlink, $email_data['message']);
-                            }
-                            else {
-                                $email_data['message'] .= '<br />'.$lang->link.': '.$reportlink;
-                            }
-
-                            $recipient['password'] = str_replace($recipient['salt'], '', base64_decode($recipient['password']));
-                            if(strstr($email_data['message'], '{password}')) {
-                                $email_data['message'] = str_replace('{password}', $recipient['password'], $email_data['message']);
-                            }
-                            else {
-                                $email_data['message'] .= '<br />'.$lang->password.': '.$recipient['password'];
-                            }
-
-                            $mail = new Mailer($email_data, 'php');
-                            $email_sent = true;
                         }
                     }
+                }
+                else {
+                    redirect($_SERVER['HTTP_REFERER'], 2, $lang->norepselected);
                 }
                 break;
         }
@@ -251,7 +257,8 @@ else {
                     $update_query_where = 'rid IN ('.implode(',', $reports_meta_data['rid']).')';
                 }
                 else {
-                    $update_query_where = "rid = '{$reports_meta_data[rid]}'";
+                    $update_query_where = "rid = '{$reports_meta_data[rid]
+                            }'";
                 }
                 $db->update_query('reports', array('isSent' => 1, 'isApproved' => 1, 'isLocked' => 1), $update_query_where);
 

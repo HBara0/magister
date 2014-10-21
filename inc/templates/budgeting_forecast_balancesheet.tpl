@@ -5,32 +5,23 @@
 
         <script>
             $(function() {
-                $("input[id^='budgetforecastbs']").bind('keyup change ', function() {
+
+                $("input[id^='budgetforecastbs_']").bind('change keyup', function() {
                     var id = $(this).attr('id').split("_");
-                    if($(this).val().length == 0) {
-                        return;
-                    }
-
-                    var subtotal = total = 0;
-                    $('input[id$=' + id[2] + '_' + id[3] + '][id^=budgetforecastbs]').each(function() {
+                    var total = 0;//headcount_actualPrevTwoYears
+                    $('input[id$=' + id[3] + '_' + id[4] + ']').each(function() {
                         if(!jQuery.isEmptyObject(this.value)) {
-                            subtotal += parseFloat(this.value);
+                            total += parseInt(this.value);
                         }
-                    });
-                    //budgetforecastbs,10,9,8
-                    $('input[id^=subtotal_' + id[1] + '_' + id[2] + ']').val(subtotal);
-                    $('input[id^=subtotal_][id$=_' + id[3] + ']').each(function() {
-                        if(!jQuery.isEmptyObject(this.value)) {
-                            total += parseFloat(this.value);
-                        }
-                    });
 
-                    //  if(if(!jQuery.isEmptyObject())
+                    });
                     $('div[id^=total_' + id[3] + ']').text(total);
                     $('input[id^=total_' + id[3] + ']').val(total);
-                    // }
 
                 });
+
+
+
             });
 
         </script>

@@ -78,7 +78,6 @@ class CmsMenu extends Cms {
                 $this->menuitem['configurations'] = base64_encode(serialize(($this->menuitem['configurations'][$key])));
             }
         }
-
         unset($this->menuitem['menuid'], $this->menuitem['itemid']);
         if(is_array($this->menuitem)) {
             $query = $db->insert_query('cms_menuitems', $this->menuitem);
