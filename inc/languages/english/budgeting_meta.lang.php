@@ -14,6 +14,7 @@ $lang['actualquantity'] = "Actual Quantity";
 $lang['actualincome'] = "Actual income";
 $lang['actualamount'] = "Actual amount";
 $lang['unitprice'] = "Unit Price";
+$lang['exchangerates'] = "Exchange rates ";
 $lang['s1perc'] = "S1 Perc";
 $lang['generate'] = "Generate";
 $lang['s2perc'] = "S2 Perc";

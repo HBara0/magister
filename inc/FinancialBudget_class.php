@@ -290,6 +290,7 @@ Class FinancialBudget extends AbstractClass {
 
             /* get currenceis by consolidated budgetfinamce id */
             $financial_obj = FinancialBudget::get_data(array('bfbid' => $options['filter']), array('simple' => false, 'returnarray' => true));
+
             if(is_array($financial_obj)) {
                 foreach($financial_obj as $finbudget) {
                     $budget_currencies[$finbudget->bfbid] = $finbudget->currency;
@@ -303,6 +304,7 @@ Class FinancialBudget extends AbstractClass {
 
             $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currencies, 'toCurrency' => $options['tocurrency'], 'affid' => $options['affid'], 'year' => $options['year'],), $dal_config);
             if(is_array($fxrates_obj)) {
+
                 if(count($budget_currencies) != count($fxrates_obj)) {
                     foreach($fxrates_obj as $budgetrate) {
                         $budget_currency[] = $budgetrate->fromCurrency;
@@ -321,6 +323,14 @@ Class FinancialBudget extends AbstractClass {
             else {
                 error($lang->currencynotexist, $_SERVER['HTTP_REFERER']);
             }
+            $output['currfxrates'] = '<strong>'.$lang->exchangerates.'</strong><br>';
+            foreach($fxrates_obj as $budgetrate) {
+                $currency = new Currencies($budgetrate->fromCurrency);
+                $currencyto = new Currencies($options['tocurrency']);
+
+                $output['currfxrates'] .= $currency->get()['alphaCode'].' to '.$currencyto->get()['alphaCode'].' > '.$budgetrate->rate.'<br>';
+            }
+
             foreach($options['budgettypes'] as $type) {
                 switch($type) {
                     case'headcount':
