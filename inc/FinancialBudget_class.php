@@ -428,7 +428,7 @@ Class FinancialBudget extends AbstractClass {
                         $prevcommericalbudget = Budgets::get_data(array('affid' => $options['affid'], 'year' => ($options['year'] - 1)), array('simple' => false, 'operators' => array('affid' => IN)));
                         $prevtwocommericalbudget = Budgets::get_data(array('affid' => $options['affid'], 'year' => ($options['year'] - 2)), array('simple' => false, 'operators' => array('affid' => IN)));
 
-                        $current = $budget->bid;
+                        $current = $commericalbudget->bid;
                         $prevtwoyears = $prevtwocommericalbudget->bid;
                         $prevyear = $prevcommericalbudget->bid;
                         if(is_array($commericalbudget)) {
