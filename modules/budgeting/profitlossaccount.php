@@ -64,7 +64,7 @@ if(!isset($core->input['action'])) {
     }
     $header_yef = '<td style = "width:8.3%">%'.$lang->yef.' '.$plprevyear.'</td>';
     $header_yef .= '<td style = "width:8.3%">%'.$lang->yef.' '.$plprevyear.'</td>';
-    $header_budyef .= '<td style = "width:8.3%">%'.$lang->yef.' '.$plyear.'</td>';
+    $header_budyef .= '<td style = "width:8.3%">%'.$lang->bud.' '.$plyear.'</td>';
     $actual = '<td>/'.$lang->actual.' '.$financialbudget_prev2year.'</td>';
     $bud = '/Budget ';
     $pl_yefprevyear = '/YEF '.$financialbudget_prevyear;

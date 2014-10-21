@@ -100,7 +100,7 @@ class BudgetHeadCount extends AbstractClass {
                         if($input == 'budgetPrevYear') {
                             $readonly = $disabledfield;
                         }
-                        $column_output .=' <td style="width:12.5%">'.parse_textfield('headcount['.$group->posgid.']['.$input.']', 'headcount_'.$input, 'number', $headcount[$input], array('accept' => 'numeric', 'step' => '1', $readonly => $readonly, 'style' => 'width:100%;', 'min' => 0)).'</td>';
+                        $column_output .=' <td style="width:10%">'.parse_textfield('headcount['.$group->posgid.']['.$input.']', 'headcount_'.$input, 'number', $headcount[$input], array('accept' => 'numeric', 'step' => '1', $readonly => $readonly, 'style' => 'width:100%;', 'min' => 0)).'</td>';
                         unset($readonly);
                     }
                     else {
@@ -108,11 +108,11 @@ class BudgetHeadCount extends AbstractClass {
                             $headcount = $options['headcount'];
                             $headcount[$input] = $headcount[$group->posgid][$input];
                         }
-                        $column_output .=' <td style="width:12.5%">'.$headcount[$input].'</td>';
-                        $total[$input] += $headcount[$group->posgid][$input];
+                        $column_output .=' <td style="width:10%">'.$headcount[$input].'</td>';
+                        $total2[$input] += $headcount[$group->posgid][$input];
+                        $total[$input] = $total2[$input];
                     }
                 }
-
                 eval("\$budgeting_group_headcount .= \"".$template->get('budgeting_group_headcount')."\";");
                 $field_output = $column_output = $disabledfield = '';
             }

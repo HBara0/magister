@@ -1,5 +1,5 @@
 <tr>
-    <td style="width:25%;font-weight:bold;">{$lang->totalexpenses}</td>
+    <td style="width:30%;font-weight:bold;">{$lang->totalexpenses}</td>
     <td>
         <div style="font-weight:bold;" id="total_actualPrevThreeYears">{$total[actualPrevThreeYears]}</div>
         <input type="hidden" id="total_actualPrevThreeYears" value="{$total[actualPrevThreeYears]}">
