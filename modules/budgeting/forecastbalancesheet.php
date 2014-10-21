@@ -54,9 +54,11 @@ else if($core->input['action'] == 'do_perform_forecastbalancesheet') {
     unset($core->input['action']);
     $financialbudget = new FinancialBudget();
     $financialbudget->set($core->input);
+
     $financialbudget->save();
+
     switch($financialbudget->get_errorcode()) {
-        case 0:
+        case 1:
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
             break;
 //        case 1:

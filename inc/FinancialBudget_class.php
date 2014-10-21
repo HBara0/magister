@@ -120,6 +120,8 @@ Class FinancialBudget extends AbstractClass {
         }
         $budgetforecastbs = $data['budgetforecastbs'];
         if(is_array($budgetforecastbs)) {
+            unset($budgetforecastbs['Liabilities'], $budgetforecastbs['Assets']);
+            print_r($budgetforecastbs);
             foreach($budgetforecastbs as $forecast) {
                 $forecast['bfbid'] = $this->data[self::PRIMARY_KEY];
                 $budgetforecast_obj = new BudgetForecastBalanceSheet();
@@ -212,8 +214,7 @@ Class FinancialBudget extends AbstractClass {
             }
             $budgetforecastbs = $data['budgetforecastbs'];
             if(is_array($budgetforecastbs)) {
-                unset($budgetforecastbs[liabilities], $budgetforecastbs[Assets]);
-
+                unset($budgetforecastbs[Liabilities], $budgetforecastbs[Assets]);
                 foreach($budgetforecastbs as $forecast) {
                     $forecast['bfbid'] = $this->data[self::PRIMARY_KEY];
                     $budgetforecast_obj = new BudgetForecastBalanceSheet();
@@ -229,7 +230,6 @@ Class FinancialBudget extends AbstractClass {
                 }
             }
             $placcounts = $data['placcount'];
-
             if(is_array($placcounts)) {
                 foreach($placcounts as $account) {
                     $account['bfbid'] = $this->data[self::PRIMARY_KEY];
@@ -252,8 +252,9 @@ Class FinancialBudget extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
-        // $data['budgetforecastbs']['equityliabilities']['total'] = $data['budgetforecastbs']['OwnersEquity']['total'] + $data['budgetforecastbs']['Liabilities']['total'];
-        if(isset($data['budgetforecastbs']['equityliabilities']['total']) && !empty($data['budgetforecastbs']['Assets']['total'])) {
+
+        if(!empty($data['budgetforecastbs']['Liabilities']['total']) && !empty($data['budgetforecastbs']['Assets']['total'])) {
+            $data['budgetforecastbs']['equityliabilities']['total'] = $data['budgetforecastbs']['OwnersEquity']['total'] + $data['budgetforecastbs']['Liabilities']['total'];
             if($data['budgetforecastbs']['equityliabilities']['total'] != $data['budgetforecastbs']['Assets']['total']) {
                 $this->errorcode = 4;
                 return false;
@@ -296,6 +297,7 @@ Class FinancialBudget extends AbstractClass {
 
             /* get currenceis by consolidated budgetfinamce id */
             $financial_obj = FinancialBudget::get_data(array('bfbid' => $options['filter']), array('simple' => false, 'returnarray' => true));
+
             if(is_array($financial_obj)) {
                 foreach($financial_obj as $finbudget) {
                     $budget_currencies[$finbudget->bfbid] = $finbudget->currency;
@@ -309,6 +311,7 @@ Class FinancialBudget extends AbstractClass {
 
             $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currencies, 'toCurrency' => $options['tocurrency'], 'affid' => $options['affid'], 'year' => $options['year'],), $dal_config);
             if(is_array($fxrates_obj)) {
+
                 if(count($budget_currencies) != count($fxrates_obj)) {
                     foreach($fxrates_obj as $budgetrate) {
                         $budget_currency[] = $budgetrate->fromCurrency;
@@ -327,6 +330,14 @@ Class FinancialBudget extends AbstractClass {
             else {
                 error($lang->currencynotexist, $_SERVER['HTTP_REFERER']);
             }
+            $output['currfxrates'] = '<strong>'.$lang->exchangerates.'</strong><br>';
+            foreach($fxrates_obj as $budgetrate) {
+                $currency = new Currencies($budgetrate->fromCurrency);
+                $currencyto = new Currencies($options['tocurrency']);
+
+                $output['currfxrates'] .= $currency->get()['alphaCode'].' to '.$currencyto->get()['alphaCode'].' > '.$budgetrate->rate.'<br>';
+            }
+
             foreach($options['budgettypes'] as $type) {
                 switch($type) {
                     case'headcount':
@@ -437,7 +448,7 @@ Class FinancialBudget extends AbstractClass {
                         $prevcommericalbudget = Budgets::get_data(array('affid' => $options['affid'], 'year' => ($options['year'] - 1)), array('simple' => false, 'operators' => array('affid' => IN)));
                         $prevtwocommericalbudget = Budgets::get_data(array('affid' => $options['affid'], 'year' => ($options['year'] - 2)), array('simple' => false, 'operators' => array('affid' => IN)));
 
-                        $current = $budget->bid;
+                        $current = $commericalbudget->bid;
                         $prevtwoyears = $prevtwocommericalbudget->bid;
                         $prevyear = $prevcommericalbudget->bid;
                         if(is_array($commericalbudget)) {
