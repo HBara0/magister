@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$lang->commercialadminstrationexpenses}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function () {
-                $("input[id^='budgetexps']").bind('keyup change', function () {
+            $(function() {
+                $("input[id^='budgetexps']").bind('keyup change', function() {
                     var id = $(this).attr('id').split("_");
                     var yefPrevYear = parseFloat($('input[id=budgetexps_' + id[1] + '_' + id[2] + '_yefPrevYear]').val());
                     var budgetCurrent = parseFloat($('input[id=budgetexps_' + id[1] + '_' + id[2] + '_budgetCurrent]').val());
@@ -18,7 +18,7 @@
                     }
 
                     var category_subtotal = 0;
-                    $('input[id$=' + id[2] + '_' + id[3] + '][id^=budgetexps]').each(function () {
+                    $('input[id$=' + id[2] + '_' + id[3] + '][id^=budgetexps]').each(function() {
                         if(!jQuery.isEmptyObject(this.value)) {
                             category_subtotal += parseFloat(this.value);
                         }
@@ -28,7 +28,7 @@
 
 
                     var total = 0;
-                    $('input[id^=subtotal_][id$=' + id[3] + ']').each(function () {
+                    $('input[id^=subtotal_][id$=' + id[3] + ']').each(function() {
                         if(!jQuery.isEmptyObject(this.value)) {
                             total += parseFloat(this.value);
                         }
@@ -42,8 +42,7 @@
 
                     var totalyefPrevYear = parseFloat($('input[id=total_yefPrevYear]').val());
                     var totalbudgetCurrent = parseFloat($('input[id=total_budgetCurrent]').val());
-                    var perc = ((totalbudgetCurrent - totalyefPrevYear) / totalyefPrevYear) * 100;
-
+                    var perc = (((totalbudgetCurrent - totalyefPrevYear) / totalyefPrevYear) * 100).toFixed(2);
                     if(!jQuery.isNumeric(perc)) {
                         perc = 0;
                     }
@@ -57,12 +56,15 @@
                     if($("input[id^='budgetexps']").val() != 0) {
                         $("input[id^='finGenAdm_']").trigger('keyup');
                     }
+                    $("input[id='finGenAdm_budgetCurrent']").val(0).trigger('keyup');
                 });
 
-                $("input[id^='finGenAdm_']").bind('keyup change', function () {
+                $("input[id^='finGenAdm_']").bind('keyup change', function() {
                     var financeid = $(this).attr('id').split("_");
-                    if(($('input[id^=total_' + financeid[1] + ']').val().length) == 0){return;}
-                    if(($('input[id=finGenAdm_' + financeid[1] + ']').val().length) == 0){return;}
+                    if(($('input[id^=total_' + financeid[1] + ']').val()) == 0){return;}
+                    if(($('input[id=finGenAdm_' + financeid[1] + ']').val().length) == 0) {
+                        return;
+                    }
                     $('div[id=comexpenses_' + financeid[1] + ']').text(parseFloat($('input[id=total_' + financeid[1] + ']').val()) - parseFloat($('input[id=finGenAdm_' + financeid[1] + ']').val()));
                     $('div[id=propfin_' + financeid[1] + ']').text(((parseFloat($('input[id=finGenAdm_' + financeid[1] + ']').val()) / parseFloat($('input[id=total_' + financeid[1] + ']').val())) * 100).toFixed(2) + '%');
                     $('div[id=propcomexpenses_' + financeid[1] + ']').text(((parseFloat($('div[id=comexpenses_' + financeid[1] + ']').text()) / parseFloat($('input[id=total_' + financeid[1] + ']').val())) * 100).toFixed(2) + '%');
