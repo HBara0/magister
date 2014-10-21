@@ -67,6 +67,12 @@ class BudgetExpenseCategories extends AbstractClass {
                             }
                             $budgetexps['budYefPerc'] = sprintf("%.2f", $comadmin_expenses->budYefPerc).'%';
                         }
+                        else {
+                            foreach($fields as $field) {
+                                $budgetexps[$field] = 0;
+                                $subtotal[$field] = 0;
+                            }
+                        }
 
                         //Get data from financialadminexpenses array for generate report
                         if(isset($options['financialadminexpenses']) && !empty($options['financialadminexpenses'])) {
@@ -115,7 +121,7 @@ class BudgetExpenseCategories extends AbstractClass {
             //'actualPrevYear' => 'finGenAdmExpAmtApy', 'budgetPrevYear' => 'finGenAdmExpAmtBpy',
             $financialbudget_fields = array('actualPrevThreeYears' => 'finGenAdmExpAmtApthy', 'actualPrevTwoYears' => 'finGenAdmExpAmtApty', 'yefPrevYear' => 'finGenAdmExpAmtYpy', 'budgetCurrent' => 'finGenAdmExpAmtCurrent');
             foreach($financialbudget_fields as $key => $value) {
-                //
+                $financialbudgetdata[$key] = 0;
                 if(isset($options['financialbudget']) && !empty($options['financialbudget'])) {
                     if(isset($options['financialbudget']->$value)) {
                         $financialbudgetdata[$key] = $options['financialbudget']->$value;

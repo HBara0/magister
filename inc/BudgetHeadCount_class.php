@@ -81,6 +81,7 @@ class BudgetHeadCount extends AbstractClass {
                 unset($subtotal, $headcount);
                 $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent');
                 $group_headcount = self::get_data(array('posgid' => $group->posgid, 'bfbid' => $options['financialbudget']->bfbid), array('simple' => false));
+                $headcount['actualPrevThreeYears'] = $headcount['actualPrevTwoYears'] = $headcount['yefPrevYear'] = $headcount['budgetCurrent'] = 0;
                 if(is_object($group_headcount)) {
                     foreach($fields as $field) {
                         $headcount[$field] = $group_headcount->$field;
