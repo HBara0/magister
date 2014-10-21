@@ -5,14 +5,13 @@
 <tr>
     <td style="width:25%;">{$lang->subtotal} {$category->title}</td>
     <td style="width:12.5%;">
+        <div id="subtotal_{$category->bicid}_actualPrevThreeYears" style="font-weight: bold;">{$subtotal[actualPrevThreeYears]}</div>
+        <input type="hidden" id="subtotal_{$category->bicid}_actualPrevThreeYears" value="{$subtotal[actualPrevThreeYears]}"></input>
+    </td>
+    <td style="width:12.5%;">
         <div id="subtotal_{$category->bicid}_actualPrevTwoYears" style="font-weight: bold;">{$subtotal[actualPrevTwoYears]}</div>
         <input type="hidden" id="subtotal_{$category->bicid}_actualPrevTwoYears" value="{$subtotal[actualPrevTwoYears]}"></input>
     </td>
-    <td style="width:12.5%;">
-        <div id="subtotal_{$category->bicid}_actualPrevThreeYear" style="font-weight: bold;">{$subtotal[actualPrevThreeYears]}</div>
-        <input type="hidden" id="subtotal_{$category->bicid}_actualPrevThreeYears" value="{$subtotal[actualPrevThreeYears]}"></input>
-    </td>
-
     <!-- <td style="width:12.5%;">
         <div id="subtotal_{$category->bicid}_actualPrevYear" style="font-weight: bold;">{$subtotal[actualPrevYear]}</div>
         <input type="hidden" id="subtotal_{$category->bicid}_actualPrevYear" value="{$subtotal[actualPrevYear]}"></input>
