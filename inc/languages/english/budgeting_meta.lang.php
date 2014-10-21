@@ -80,4 +80,5 @@ $lang['profitandlossaccount'] = 'Profit and Loss Account';
 $lang['adminexpenses'] = 'Administrative expenses';
 $lang['totaladmcom'] = 'Total Adm.Com. Expenses';
 $lang['accountedcommissions'] = 'Accounted commissions';
+$lang['generatefinbudget'] = 'Generate Financial Budget';
 ?>
