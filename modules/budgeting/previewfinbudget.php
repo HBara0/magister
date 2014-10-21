@@ -14,6 +14,7 @@ if(!($core->input['action'])) {
     $financialbudget_year = $budgetsdata['year'];
     $financialbudget_prevyear = $financialbudget_year - 1;
     $financialbudget_prev2year = $financialbudget_year - 2;
+    $financialbudget_prev3year = $financialbudget_year - 3;
     $affid = $budgetsdata['affilliates'];
     $budgettypes = $budgetsdata['budgetypes'];
 
@@ -21,7 +22,7 @@ if(!($core->input['action'])) {
     if(is_array($financialbudget)) {
         $output = FinancialBudget::parse_financialbudget(array('budgettypes' => $budgettypes, 'affid' => $affid, 'tocurrency' => $budgetsdata['toCurrency'], 'year' => $financialbudget_year, 'filter' => array_keys($financialbudget)));
 
-        $budgetypes = array('financialadminexpenses', 'investmentfollowup', 'headcount', 'forecastbalancesheet');
+        $budgetypes = array('financialadminexpenses', 'investmentfollowup', 'headcount', 'forecastbalancesheet', 'profitlossaccount');
         foreach($budgetypes as $type) {
             if(isset($output[$type]) && !empty($output[$type])) {
                 if($type == 'forecastbalancesheet') {
@@ -33,10 +34,10 @@ if(!($core->input['action'])) {
                     $budgettitle = $lang->$type;
                     ${"budgeting_".$type} = '<table width="100%">';
                     $outputdata[$type] = $output[$type]['data'];
-                    $header_actual = $output[$type]['headeractual'];
-                    $header_percentage = $output[$type]['headerpercentage'];
-                    $header_variation = $output[$type]['headervariation'];
-                    eval("\$budgeting_".$type." .= \"".$template->get('budgeting_investheader')."\";");
+                    $header_budyef = $output[$type]['budyef'];
+                    $header_variations = $output[$type]['variations'];
+                    $header_variations_years = $output[$type]['years'];
+                    eval("\$budgeting_".$type." .= \"".$template->get('budgeting_financialbudget_header')."\";");
                     ${"budgeting_".$type} .= $outputdata[$type];
                     if($type != financialadminexpenses) {
                         ${"budgeting_".$type} .= '</table><br/>';
