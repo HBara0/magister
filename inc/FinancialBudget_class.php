@@ -120,7 +120,7 @@ Class FinancialBudget extends AbstractClass {
         }
         $budgetforecastbs = $data['budgetforecastbs'];
         if(is_array($budgetforecastbs)) {
-            unset($budgetforecastbs['Liabilities'], $budgetforecastbs['Assets']);
+            unset($budgetforecastbs['liabilities'], $budgetforecastbs['Assets']);
             print_r($budgetforecastbs);
             foreach($budgetforecastbs as $forecast) {
                 $forecast['bfbid'] = $this->data[self::PRIMARY_KEY];
@@ -214,7 +214,7 @@ Class FinancialBudget extends AbstractClass {
             }
             $budgetforecastbs = $data['budgetforecastbs'];
             if(is_array($budgetforecastbs)) {
-                unset($budgetforecastbs[Liabilities], $budgetforecastbs[Assets]);
+                unset($budgetforecastbs[liabilities], $budgetforecastbs[Assets]);
                 foreach($budgetforecastbs as $forecast) {
                     $forecast['bfbid'] = $this->data[self::PRIMARY_KEY];
                     $budgetforecast_obj = new BudgetForecastBalanceSheet();
@@ -253,8 +253,8 @@ Class FinancialBudget extends AbstractClass {
             $data = $this->data;
         }
 
-        if(!empty($data['budgetforecastbs']['Liabilities']['total']) && !empty($data['budgetforecastbs']['Assets']['total']) && !empty($data['budgetforecastbs']['OwnersEquity']['netIncome'])) {
-            $data['budgetforecastbs']['equityliabilities']['total'] = ($data['budgetforecastbs']['OwnersEquity']['total'] + $data['budgetforecastbs']['OwnersEquity']['netIncome']) + ($data['budgetforecastbs']['Liabilities']['total']);
+        if(!empty($data['budgetforecastbs']['liabilities']['total']) && !empty($data['budgetforecastbs']['Assets']['total'])) {
+            $data['budgetforecastbs']['equityliabilities']['total'] = ($data['budgetforecastbs']['OwnersEquity']['total'] + $data['budgetforecastbs']['liabilities']['total']);
             if($data['budgetforecastbs']['equityliabilities']['total'] != $data['budgetforecastbs']['Assets']['total']) {
                 $this->errorcode = 4;
                 return false;
