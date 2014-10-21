@@ -82,4 +82,6 @@ $lang['adminexpenses'] = 'Administrative expenses';
 $lang['totaladmcom'] = 'Total Adm.Com. Expenses';
 $lang['accountedcommissions'] = 'Accounted commissions';
 $lang['generatefinbudget'] = 'Generate Financial Budget';
+$lang['currrate'] = 'From {1} To {2} rate:{3}';
+$lang['exchangerate'] = 'Exchange rate for The currency being used : ';
 ?>

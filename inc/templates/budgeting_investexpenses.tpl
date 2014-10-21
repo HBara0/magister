@@ -43,6 +43,7 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->investexpenses}<br /><small>{$affiliate->name} {$financialbudget_year}</small></h1>
+                {$output_currency}
             <form name="perform_budgeting/investmentfollowup_Form" id="perform_budgeting/investmentfollowup_Form"  action="#" method="post">
                 <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">
                 <table style="width:100%;table-layout:fixed;">

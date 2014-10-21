@@ -69,6 +69,25 @@ if(!isset($core->input['action'])) {
     $budgeting_header .='<input name="financialbudget[year]" value="'.$financialbudget_year.'" type="hidden"></td>';
     $budgeting_header .='</tr>';
 
+
+    /* get main currecny of the affiliate being budgeted */
+
+    $affilaite_obj = new Affiliates($affid);
+    $budget_affiliatecurr = $affilaite_obj->get_country()->get_maincurrency()->get()['alphaCode'];
+    if(!empty($budget_affiliatecurr)) {
+        $tocurrency = '840'; //usd
+        $currencyto_obj = new Currencies($tocurrency);
+        $currency_to = $currencyto_obj->get()['alphaCode'];
+        $dal_config = array(
+                'operators' => array('fromCurrency' => '=', 'affid' => 'in', 'year' => '='),
+                'simple' => false,
+                'returnarray' => false
+        );
+        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $affilaite_obj->get_country()->get_maincurrency()->get()['numCode'], 'toCurrency' => $tocurrency, 'affid' => $affid, 'year' => $financialbudget_year,), $dal_config);
+        if(is_object($fxrates_obj)) {
+            $output_currency = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding: 5px; margin-top: 10px; margin-bottom: 10px; display: block;"><em><strong>'.$lang->exchangerate.'</strong></em></br><span>'.$lang->sprint($lang->currrate, $budget_affiliatecurr, $currency_to, $fxrates_obj->rate).'</span></div>';
+        }
+    }
     eval("\$budgeting_investexpenses = \"".$template->get('budgeting_investexpenses')."\";");
     output_page($budgeting_investexpenses);
 }

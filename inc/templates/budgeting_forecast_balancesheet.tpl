@@ -33,6 +33,7 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->budgetforecast} <small>{$affiliate->name} - {$financialbudget_year}</small></h1>
+            {$output_currency}
             <form name="perform_budgeting/forecastbalancesheet_Form" id="perform_budgeting/forecastbalancesheet_Form"  action="#" method="post">
 
                 <input name="financialbudget[affid]" value="{$affid}" type="hidden">

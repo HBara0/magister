@@ -36,9 +36,9 @@ class BudgetInvestExpenses extends AbstractClass {
                 $data[$field] = $db->escape_string($data[$field]);
                 $investexpenses_data[$field] = $data[$field];
             }
+
             $investexpenses_data['createdOn'] = TIME_NOW;
             $investexpenses_data['createdBy'] = $core->user['uid'];
-
             $query = $db->insert_query(self::TABLE_NAME, $investexpenses_data);
         }
     }
