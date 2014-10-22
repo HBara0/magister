@@ -189,7 +189,7 @@ class DataAccessLayer {
                         }
                         else {
                             $value = array_map($db->escape_string, $value);
-                            $filters_querystring .= $andor.$attr.' IN ("'.implode('","', $value).')"';
+                            $filters_querystring .= $andor.$attr.' IN ("'.implode('","', $value).'")';
                         }
                     }
                 }
