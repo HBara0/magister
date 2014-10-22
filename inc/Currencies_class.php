@@ -10,14 +10,14 @@
  */
 
 class Currencies extends AbstractClass {
-    private $base_currency = 'USD';
-    private $currency;
-    private $error_handler = NULL;
+    protected $base_currency = 'USD';
+    protected $data;
+    protected $error_handler = NULL;
 
     const DISPLAY_NAME = 'name';
     const TABLE_NAME = 'currencies';
     const PRIMARY_KEY = 'numCode';
-    const SIMPLEQ_ATTRS = 'numCode, alphaCode,name';
+    const SIMPLEQ_ATTRS = 'numCode, alphaCode, name';
     const CLASSNAME = __CLASS__;
 
     private $cachearr = '';
@@ -49,21 +49,21 @@ class Currencies extends AbstractClass {
     }
 
     public function get_displayname() {
-        return $this->currency[self::DISPLAY_NAME];
+        return $this->data[self::DISPLAY_NAME];
     }
 
     protected function read($id) {
         global $db;
-        $this->currency = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'currencies WHERE numCode='.intval($id)));
+        $this->data = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'currencies WHERE numCode='.intval($id)));
     }
 
     private function read_byalphacode($id) {
         global $db;
-        $this->currency = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'currencies WHERE alphaCode="'.$db->escape_string($id).'"'));
+        $this->data = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'currencies WHERE alphaCode="'.$db->escape_string($id).'"'));
     }
 
     public function get() {
-        return $this->currency;
+        return $this->data;
     }
 
     public function get_average_fxrate($currency, array $period = array(), array $options = array(), $base_currency = '') {
