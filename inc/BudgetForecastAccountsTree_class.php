@@ -63,11 +63,13 @@ class BudgetForecastAccountsTree extends AbstractClass {
                     $accountitems_output .= '<div>';
                     $accountitems_output .= '<table width="100%">';
                     $accountitems_output .= $this->parse_accountsitems(array($id => $item), 0, array('financialbudget' => $options['financialbudget']->bfbid, 'mode' => $options['mode'], 'forecastbalancesheet' => $options['forecastbalancesheet']));
+                    $this->total[$id] = number_format($this->total[$id], 2);
                     $accountitems_output .= '<tr><td><strong>Total of '.$item->title.': </strong><span style="font-weight:bold;" id="total_'.$id.'_'.$item.'">'.$this->total[$id].'</span><input type="hidden" name="budgetforecastbs['.$item.'][total]" id="total_'.$id.'_'.$item.'" value="'.$this->total[$id].'"></input></td></tr>';
                     //parse net income for  Stockholders'Equity get the value from the financial budget total netIncome
                     $accountitems_output.= $accountnetincome_output;
                     $accountitems_output .= '</table>';
                     $accountitems_output .= '</div>';
+                    $this->total[$id] = number_format($this->total[$id], 2);
                     $grandtotals[$column] += $this->total[$id];
                     $columnrelation[$column] .= '_'.$id;
                 }
