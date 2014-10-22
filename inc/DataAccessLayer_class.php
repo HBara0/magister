@@ -38,7 +38,7 @@ class DataAccessLayer {
         $sql .= $this->construct_groupclause($configs['group']);
         $sql .= $this->construct_orderclause($configs['order']);
         $sql .= $this->construct_limitclause($configs['limit']);
-        // echo $sql;
+        //   echo $sql.'<br>';
         $query = $db->query($sql);
         $numrows = $db->num_rows($query);
         if($numrows > 1) {

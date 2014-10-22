@@ -327,11 +327,15 @@ Class FinancialBudget extends AbstractClass {
             else {
                 error($lang->currencynotexist, $_SERVER['HTTP_REFERER']);
             }
-            $output['currfxrates'] = '<strong>'.$lang->exchangerates.'</strong><br>';
+
+            $output['currfxrates'] = '<strong>'.$lang->exchangerates.'</strong></br></br>';
             foreach($fxrates_obj as $budgetrate) {
                 $currency = new Currencies($budgetrate->fromCurrency);
+                $output['currfxratesdesc'].= $lang->currfxratedesc.$currency->get()[alphaCode].'</br>';
+                $output['currfxrates'].='<span style="margin-top:3px;"><strong>'.$output['currfxratesdesc'].'</strong></span>';
                 $currencyto = new Currencies($options['tocurrency']);
-                $output['currfxrates'] .= $currency->get()['alphaCode'].' to '.$currencyto->get()['alphaCode'].' > '.$budgetrate->rate.'<br>';
+                $output['currfxrates'] .= $currency->get()['alphaCode'].' to '.$currencyto->get()['alphaCode'].'> '.$budgetrate->rate.'<br>';
+                $output['currfxratesdesc'] = '';
             }
 
             foreach($options['budgettypes'] as $type) {
