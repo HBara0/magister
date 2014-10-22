@@ -34,20 +34,23 @@ if(!isset($core->input['action'])) {
     $prevtwocommericalbudget = Budgets::get_data(array('affid' => $budget_data['affid'], 'year' => ($budget_data['year'] - 2)), array('simple' => false));
 
     //get commercial budget id's (current budget, prev budget and prev two years budget)
-    $current = $commericalbudget->bid;
-    $prevtwoyears = $prevtwocommericalbudget->bid;
-    $prevyear = $prevcommericalbudget->bid;
+    $current[$commericalbudget->bid] = $commericalbudget->bid;
+    $prevtwoyears[$prevtwocommericalbudget->bid] = $prevtwocommericalbudget->bid;
+    $prevyear[$prevcommericalbudget->bid] = $prevcommericalbudget->bid;
     if(is_array($commericalbudget)) {
+        unset($current[$commericalbudget->bid]);
         foreach($commericalbudget as $budget) {
             $current[$budget->bid] = $budget->bid;
         }
     }
     if(is_array($prevcommericalbudget)) {
+        unset($prevyear[$prevcommericalbudget->bid]);
         foreach($prevcommericalbudget as $budget) {
             $prevyear[$budget->bid] = $budget->bid;
         }
     }
     if(is_array($prevtwocommericalbudget)) {
+        unset($prevtwoyears[$prevtwocommericalbudget->bid]);
         foreach($prevtwocommericalbudget as $budget) {
             $prevtwoyears[$budget->bid] = $budget->bid;
         }
@@ -56,11 +59,11 @@ if(!isset($core->input['action'])) {
     $plcategories = BudgetPlCategories::get_data('', array('returnarray' => true));
     if(is_object($financialbudget) && $financialbudget->isFinalized()) {
         $type = 'hidden';
-        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'bid' => $bid));
+        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'bid' => $bid, 'tocurrency' => 840));
     }
     else {
         $type = 'submit';
-        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'bid' => $bid));
+        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'bid' => $bid, 'tocurrency' => 840));
     }
     $header_yef = '<td style = "width:8.3%">%'.$lang->yef.' '.$plprevyear.'</td>';
     $header_yef .= '<td style = "width:8.3%">%'.$lang->yef.' '.$plprevyear.'</td>';

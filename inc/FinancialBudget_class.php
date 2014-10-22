@@ -327,11 +327,15 @@ Class FinancialBudget extends AbstractClass {
             else {
                 error($lang->currencynotexist, $_SERVER['HTTP_REFERER']);
             }
-            $output['currfxrates'] = '<strong>'.$lang->exchangerates.'</strong><br>';
+
+            $output['currfxrates'] = '<strong>'.$lang->exchangerates.'</strong></br></br>';
             foreach($fxrates_obj as $budgetrate) {
                 $currency = new Currencies($budgetrate->fromCurrency);
+                $output['currfxratesdesc'].= $lang->currfxratedesc.$currency->get()[alphaCode].'</br>';
+                $output['currfxrates'].='<span style="margin-top:3px;"><strong>'.$output['currfxratesdesc'].'</strong></span>';
                 $currencyto = new Currencies($options['tocurrency']);
-                $output['currfxrates'] .= $currency->get()['alphaCode'].' to '.$currencyto->get()['alphaCode'].' > '.$budgetrate->rate.'<br>';
+                $output['currfxrates'] .= $currency->get()['alphaCode'].' to '.$currencyto->get()['alphaCode'].'> '.$budgetrate->rate.'<br>';
+                $output['currfxratesdesc'] = '';
             }
 
             foreach($options['budgettypes'] as $type) {
@@ -421,7 +425,7 @@ Class FinancialBudget extends AbstractClass {
                         if(is_empty($forecastbalancesheet)) {
                             break;
                         }
-                        $output['forecastbalancesheet']['data'] .= $budforecastobj->parse_account('a', array('financialbudget' => $financialbudget, 'forecastbalancesheet' => $forecastbalancesheet, 'mode' => 'display'));
+                        $output['forecastbalancesheet']['data'] .= $budforecastobj->parse_account(array('financialbudget' => $financialbudget, 'forecastbalancesheet' => $forecastbalancesheet, 'mode' => 'display'));
                         break;
 
                     case'profitlossaccount':
@@ -444,26 +448,29 @@ Class FinancialBudget extends AbstractClass {
                         $prevcommericalbudget = Budgets::get_data(array('affid' => $options['affid'], 'year' => ($options['year'] - 1)), array('simple' => false, 'operators' => array('affid' => IN)));
                         $prevtwocommericalbudget = Budgets::get_data(array('affid' => $options['affid'], 'year' => ($options['year'] - 2)), array('simple' => false, 'operators' => array('affid' => IN)));
 
-                        $current = $commericalbudget->bid;
-                        $prevtwoyears = $prevtwocommericalbudget->bid;
-                        $prevyear = $prevcommericalbudget->bid;
+                        $current[$commericalbudget->bid] = $commericalbudget->bid;
+                        $prevtwoyears[$prevtwocommericalbudget->bid] = $prevtwocommericalbudget->bid;
+                        $prevyear[$prevcommericalbudget->bid] = $prevcommericalbudget->bid;
                         if(is_array($commericalbudget)) {
+                            unset($current[$commericalbudget->bid]);
                             foreach($commericalbudget as $budget) {
                                 $current[$budget->bid] = $budget->bid;
                             }
                         }
                         if(is_array($prevcommericalbudget)) {
+                            unset($prevyear[$prevcommericalbudget->bid]);
                             foreach($prevcommericalbudget as $budget) {
                                 $prevyear[$budget->bid] = $budget->bid;
                             }
                         }
                         if(is_array($prevtwocommericalbudget)) {
+                            unset($prevtwoyears[$prevtwocommericalbudget->bid]);
                             foreach($prevtwocommericalbudget as $budget) {
                                 $prevtwoyears[$budget->bid] = $budget->bid;
                             }
                         }
                         $bid = array('prevtwoyears' => $prevtwoyears, 'prevyear' => $prevyear, 'current' => $current);
-                        $output['profitlossaccount']['data'] = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'placcount' => $placcount, 'bid' => $bid, 'filter' => $options['filter']));
+                        $output['profitlossaccount']['data'] = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'placcount' => $placcount, 'bid' => $bid, 'filter' => $options['filter'], 'tocurrency' => $options['tocurrency']));
                         $output['profitlossaccount']['variations'] = '<td style="width:10%">% '.$lang->yefactual.'</td><td style="width:10%">% '.$lang->yefbud.'</td>';
                         $output['profitlossaccount']['budyef'] = '<td style="width:10%">% '.$lang->budyef.'</td>';
                         $output[$type]['years'] = ' <td style="width:10%"><span>'.$options['year'].' / '.($options['year'] - 2).'</span></td> <td style="width:10%"><span>'.$options['year'].' / '.$options['year'].'</span></td>';
