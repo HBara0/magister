@@ -95,14 +95,19 @@ class BudgetForecastAccountsTree extends AbstractClass {
         foreach($items as $id => $item) {
             switch($item->accountLevel) {
                 case 'heading':
-                    $class = 'subtitle';
+                    $class = 'thead';
                     $item->title = ucwords(strtolower($item->title));
+                    $colspan = 2;
                     break;
                 case 'account':
                 case 'Account';
+                    $class = 'subtitle';
+                    $item->title = ucwords(strtolower($item->title));
+                    $colspan = 2;
                     break;
                 default:
                     $class = '';
+                    $colspan = 1;
                     break;
             }
 
@@ -110,7 +115,7 @@ class BudgetForecastAccountsTree extends AbstractClass {
                 $item = self::get_data(array('batid' => $item['batid']));
             }
 
-            $output .= '<tr><td class="'.$class.'" style="padding-left: '.(5 * $depth).'px;">'.$item->title.'</td>';
+            $output .= '<tr><td colspan="'.$colspan.'" class="'.$class.'" style="padding-left: '.(5 * $depth).'px;">'.$item->title.'</td>';
 
             if(method_exists($item, get_children)) {
                 $account_children = $item->get_children();
