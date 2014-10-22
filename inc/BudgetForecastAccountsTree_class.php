@@ -20,7 +20,7 @@ class BudgetForecastAccountsTree extends AbstractClass {
     const PRIMARY_KEY = 'batid';
     const TABLE_NAME = 'budgeting_accountstrees';
     const DISPLAY_NAME = 'name';
-    const SIMPLEQ_ATTRS = 'batid, name,sequence, title,parent,accountlevel,accountType';
+    const SIMPLEQ_ATTRS = 'batid, name, sequence, title, parent, accountLevel, accountType';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -43,54 +43,73 @@ class BudgetForecastAccountsTree extends AbstractClass {
         return $this->get_data(array('parent' => $this->data[self::PRIMARY_KEY]), array('simple' => false, 'returnarray' => true));
     }
 
-    public function get_headaccounts() {
-        return $this->get_data(array('parent' => 0), array('order' => array('by' => 'sequence', 'sort' => 'ASC'), 'simple' => false, 'returnarray' => true));
+    public function get_headaccounts($filters = array()) {
+        $filters['parent'] = 0;
+        return $this->get_data($filters, array('order' => array('by' => 'sequence', 'sort' => 'ASC'), 'simple' => false, 'returnarray' => true));
     }
 
     public function get_parent($simple = true) {
         return new BudgetForecastAccountsTree($this->data['parent'], $simple);
     }
 
-    public function parse_account($accountype, $options = array()) {
-        $account_items = $this->get_headaccounts();
-        if(!empty($account_items)) {
-            foreach($account_items as $id => $item) {
-                $accountitems_output.='<div style="display:inline-block;padding:5px; width:40%;">';
-                $accountitems_output.='<table width="100%">';
-                $accountitems_output .= $this->parse_accountsitems(array($id => $item), 0, array('financialbudget' => $options['financialbudget']->bfbid, 'mode' => $options['mode'], 'forecastbalancesheet' => $options['forecastbalancesheet']));
-                $accountitems_output .= '<tr><td><strong>Total of '.$item.': </strong> <div style="display:inline-block;font-weight:bold;font-size:14px;" id="total_'.$id.'_'.$item.'">'.$this->total[$id].'</div><input type="hidden" name="budgetforecastbs['.$item.'][total]" id="total_'.$id.'_'.$item.'" value="'.$this->total[$id].'"></input></td></tr>';
-                //parse net income for  Stockholders'Equity get the value from the financial budget total netIncome
+    public function parse_account($options = array()) {
+        $sides = array('left' => array('a'), 'right' => array('l', 'o'));
+        foreach($sides as $column => $accounttypes) {
+            $accountitems_output .= '<div style="display:inline-block; padding:5px; width:45%; vertical-align: top;">';
+            $account_items = $this->get_data(array('accountType' => $accounttypes, 'parent' => 0), array('returnarray' => true));
+            if(!empty($account_items)) {
+                foreach($account_items as $id => $item) {
+                    $accountitems_output .= '<div>';
+                    $accountitems_output .= '<table width="100%">';
+                    $accountitems_output .= $this->parse_accountsitems(array($id => $item), 0, array('financialbudget' => $options['financialbudget']->bfbid, 'mode' => $options['mode'], 'forecastbalancesheet' => $options['forecastbalancesheet']));
+                    $accountitems_output .= '<tr><td><strong>Total of '.$item->title.': </strong><span style="font-weight:bold;" id="total_'.$id.'_'.$item.'">'.$this->total[$id].'</span><input type="hidden" name="budgetforecastbs['.$item.'][total]" id="total_'.$id.'_'.$item.'" value="'.$this->total[$id].'"></input></td></tr>';
+                    //parse net income for  Stockholders'Equity get the value from the financial budget total netIncome
 
-                if($item->accountType === 'o') {
-                    //  $accountnetincome_output.='<td><div class="ui-state-highlight ui-corner-all" style="display:inline-block; background-color:#690;font-weight:bold;font-size:14px;padding-left: 5px; padding:8px; margin-top: 10px; margin-bottom:7px; " id="netIncome_'.$id.'_'.$item.'"><strong>Net income : </strong> '.$options['financialbudget']->netIncome.'</div>'.parse_textfield('budgetforecastbs['.$item.'][netIncome]', 'budgetforecastbs['.$item.'][netIncome]', 'hidden', $options['financialbudget']->netIncome, array('required' => 'required', 'accept' => 'numeric', 'step' => 'any')).'</td>';
+                    $accountitems_output.= $accountnetincome_output;
+                    $accountitems_output .= '</table>';
+                    $accountitems_output .= '</div>';
+
+                    $grandtotals[$column] += $this->total[$id];
+                    $columnrelation[$column] .= '_'.$id;
                 }
-                $accountitems_output.=$accountnetincome_output;
-                $accountitems_output .='</table>';
-                $accountitems_output .= '</div>';
             }
+
+
+            $accountitems_output .= '</div>';
         }
 
+        if($options['mode'] != 'fill') {
+            foreach($grandtotals as $column => $total) {
+                $accountitems_output .= '<div class="subtitle" style="display:inline-block; width:45%; padding:5px;"><h3>Total: <span id="gtotal'.$columnrelation[$column].'">'.$total.'</span></h3></div>';
+            }
+        }
         return $accountitems_output;
     }
 
     private function parse_accountsitems($items, $depth, $options = array()) {
         global $template, $core;
 
-
         $finacncial_budobj = new FinancialBudget($options['financialbudget'], false);
 
         foreach($items as $id => $item) {
-            switch($item->accountlevel) {
-                case'heading':
+            switch($item->accountLevel) {
+                case 'heading':
                     $class = 'subtitle';
-                    $item->name = ucwords($item->name);
+                    $item->title = ucwords(strtolower($item->title));
+                    break;
+                case 'account':
+                case 'Account';
+                    break;
+                default:
+                    $class = '';
+                    break;
             }
 
             if(!is_object($item)) {
                 $item = self::get_data(array('batid' => $item['batid']));
             }
 
-            $output.='<tr><td class="'.$class.'">'.$item->name.'</td>';
+            $output .= '<tr><td class="'.$class.'" style="padding-left: '.(5 * $depth).'px;">'.$item->title.'</td>';
 
             if(method_exists($item, get_children)) {
                 $account_children = $item->get_children();
@@ -129,12 +148,12 @@ class BudgetForecastAccountsTree extends AbstractClass {
                     if(!empty($item->sourceTable)) {
                         $this->total[$item->get_parent()->get_parent()->batid] +=$finacncial_budobj->netIncome;
 
-                        $output.='<td>'.parse_textfield('budgetforecastbs[netIncome]', 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $finacncial_budobj->netIncome, array('readonly' => true, 'accept' => 'numeric', 'step' => 'any')).'</td>';
+                        $output .= '<td>'.parse_textfield(null, 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $finacncial_budobj->netIncome, array('readonly' => true, 'accept' => 'numeric', 'step' => 'any')).'</td>';
                     }
                     else {
                         $output.=' <input type = "hidden" name = "budgetforecastbs['.$item->batid.'][bfbsid]" value = "'.$forecast_expenses->bfbsid.'">';
                         $output.=' <input type = "hidden" name = "budgetforecastbs['.$item->batid.'][batid]" value = "'.$item->batid.'">';
-                        $output.='<td>'.parse_textfield('budgetforecastbs['.$item->batid.'][amount]', 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $budgetforecastexp[$item->batid], array('required' => 'required', 'accept' => 'numeric', 'step' => 'any')).'</td>';
+                        $output .= '<td>'.parse_textfield('budgetforecastbs['.$item->batid.'][amount]', 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $budgetforecastexp[$item->batid], array('required' => 'required', 'accept' => 'numeric', 'step' => 'any')).'</td>';
                     }
                 }
                 else {
@@ -142,7 +161,7 @@ class BudgetForecastAccountsTree extends AbstractClass {
                         $forecastbalancesheet = $options['forecastbalancesheet'];
                         $budgetforecastexp[$item->batid] = $forecastbalancesheet[$item->batid]['amount'];
                     }
-                    $output.='<td>'.$budgetforecastexp[$item->batid].'</td>';
+                    $output .= '<td>'.$budgetforecastexp[$item->batid].'</td>';
                 }
             }
             $output .='</tr>';
@@ -193,8 +212,7 @@ class BudgetForecastAccountsTree extends AbstractClass {
     }
 
     public function get_createdby() {
-        return new Users($this->data['createdBy'
-        ]);
+        return new Users($this->data['createdBy']);
     }
 
 }

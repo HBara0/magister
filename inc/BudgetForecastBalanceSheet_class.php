@@ -84,10 +84,10 @@ class BudgetForecastBalanceSheet extends AbstractClass {
 
     private function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
-            $required_fields = array('bfbid', 'batid', 'amount');
+            $required_fields = array('batid', 'amount');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
-                    $this->errorcode = 1;
+                    $this->errorcode = 2;
                     return true;
                 }
             }

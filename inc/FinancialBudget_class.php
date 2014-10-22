@@ -63,7 +63,7 @@ Class FinancialBudget extends AbstractClass {
                 switch($this->get_errorcode()) {
                     case 0:
                         continue;
-                    case 1:
+                    case 2:
                         return;
                 }
             }
@@ -80,7 +80,7 @@ Class FinancialBudget extends AbstractClass {
                 switch($this->get_errorcode()) {
                     case 0:
                         continue;
-                    case 1:
+                    case 2:
                         return;
                 }
             }
@@ -97,7 +97,7 @@ Class FinancialBudget extends AbstractClass {
                 switch($this->get_errorcode()) {
                     case 0:
                         continue;
-                    case 1:
+                    case 2:
                         return;
                 }
             }
@@ -113,7 +113,7 @@ Class FinancialBudget extends AbstractClass {
                 switch($this->get_errorcode()) {
                     case 0:
                         continue;
-                    case 1:
+                    case 2:
                         return;
                 }
             }
@@ -130,7 +130,7 @@ Class FinancialBudget extends AbstractClass {
                 switch($this->get_errorcode()) {
                     case 0:
                         continue;
-                    case 1:
+                    case 2:
                         return;
                 }
             }
@@ -143,7 +143,9 @@ Class FinancialBudget extends AbstractClass {
             $fields = array('finGenAdmExpAmtApthy', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent'); //'finGenAdmExpAmtApy', 'finGenAdmExpAmtBpy'
             $financialdata['affid'] = $data['financialbudget']['affid'];
             $financialdata['year'] = $data['financialbudget']['year'];
-            $financialdata['netIncome'] = $data['financialbudget']['income'];
+            if(isset($data['financialbudget']['income'])) {
+                $financialdata['netIncome'] = $data['financialbudget']['income'];
+            }
             foreach($fields as $field) {
                 $max = 'max'.$field;
                 if($data['financialbudget'][$field] > $data['financialbudget'][$max]) {
@@ -160,6 +162,7 @@ Class FinancialBudget extends AbstractClass {
             $financialdata['modifiedBy'] = $core->user['uid'];
             $query = $db->update_query(self::TABLE_NAME, $financialdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
             if(!query) {
+                $this->errorcode = 601;
                 return;
             }
             $financialexpenses = $data['budgetexps'];
@@ -173,7 +176,7 @@ Class FinancialBudget extends AbstractClass {
                     switch($this->get_errorcode()) {
                         case 0:
                             continue;
-                        case 1:
+                        case 2:
                             return;
                     }
                 }
@@ -189,7 +192,7 @@ Class FinancialBudget extends AbstractClass {
                     switch($this->get_errorcode()) {
                         case 0:
                             continue;
-                        case 1:
+                        case 2:
                             return;
                     }
                 }
@@ -206,7 +209,7 @@ Class FinancialBudget extends AbstractClass {
                     switch($this->get_errorcode()) {
                         case 0:
                             continue;
-                        case 1:
+                        case 2:
                             return;
                     }
                 }
@@ -216,15 +219,15 @@ Class FinancialBudget extends AbstractClass {
                 unset($budgetforecastbs[liabilities], $budgetforecastbs[Assets]);
 
                 foreach($budgetforecastbs as $forecast) {
-                    $forecasts['bfbid'] = $this->data[self::PRIMARY_KEY];
+                    $forecast['bfbid'] = $this->data[self::PRIMARY_KEY];
                     $budgetforecast_obj = new BudgetForecastBalanceSheet();
-                    $budgetforecast_obj->set($forecasts);
+                    $budgetforecast_obj->set($forecast);
                     $budgetforecast_obj->save();
                     $this->errorcode = $budgetforecast_obj->errorcode;
                     switch($this->get_errorcode()) {
                         case 0:
                             continue;
-                        case 1:
+                        case 2:
                             return;
                     }
                 }
@@ -240,11 +243,12 @@ Class FinancialBudget extends AbstractClass {
                     switch($this->get_errorcode()) {
                         case 0:
                             continue;
-                        case 1:
+                        case 2:
                             return;
                     }
                 }
             }
+            $this->errorcode = 1;
         }
     }
 
@@ -253,13 +257,6 @@ Class FinancialBudget extends AbstractClass {
             $data = $this->data;
         }
 
-        if(!empty($data['budgetforecastbs']['liabilities']['total']) && !empty($data['budgetforecastbs']['Assets']['total'])) {
-            $data['budgetforecastbs']['equityliabilities']['total'] = ($data['budgetforecastbs']['OwnersEquity']['total'] + $data['budgetforecastbs']['liabilities']['total']);
-            if($data['budgetforecastbs']['equityliabilities']['total'] != $data['budgetforecastbs']['Assets']['total']) {
-                $this->errorcode = 4;
-                return false;
-            }
-        }
         if(!$this->validate_requiredfields($data)) {
             $financialbudget = FinancialBudget::get_data(array('bfbid' => $this->data[self::PRIMARY_KEY]));
             if(is_object($financialbudget)) {
@@ -481,9 +478,7 @@ Class FinancialBudget extends AbstractClass {
         if($this->isFinalized == 1) {
             return true;
         }
-        else {
-            return false;
-        }
+        return false;
     }
 
     private function validate_requiredfields(array $data = array()) {
@@ -492,7 +487,7 @@ Class FinancialBudget extends AbstractClass {
             $required_fields = array('affid', 'year');
             foreach($required_fields as $field) {
                 if(empty($data['financialbudget'][$field]) && $data['financialbudget'][$field] != '0') {
-                    $this->errorcode = 1;
+                    $this->errorcode = 2;
                     return true;
                 }
                 $data['financialbudget'][$field] = $core->sanitize_inputs($data['financialbudget'][$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
