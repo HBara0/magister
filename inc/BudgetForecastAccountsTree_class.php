@@ -145,15 +145,23 @@ class BudgetForecastAccountsTree extends AbstractClass {
 
 
                 if(isset($options['mode']) && $options['mode'] === 'fill') {
+                    /* to acquire netIncome */
                     if(!empty($item->sourceTable)) {
                         $this->total[$item->get_parent()->get_parent()->batid] +=$finacncial_budobj->netIncome;
-
                         $output .= '<td>'.parse_textfield(null, 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $finacncial_budobj->netIncome, array('readonly' => true, 'accept' => 'numeric', 'step' => 'any')).'</td>';
                     }
                     else {
+                        $maxattr = null;
+                        $min = 0;
+                        $stepany = 'any';
+                        /* Handle  negatie account signs ex depreciation */
+                        if(!empty($item->accountSign) && $item->accountSign === 'negative') {
+                            $maxattr = 0;
+                            $stepany = $min = '';
+                        }
                         $output.=' <input type = "hidden" name = "budgetforecastbs['.$item->batid.'][bfbsid]" value = "'.$forecast_expenses->bfbsid.'">';
                         $output.=' <input type = "hidden" name = "budgetforecastbs['.$item->batid.'][batid]" value = "'.$item->batid.'">';
-                        $output .= '<td>'.parse_textfield('budgetforecastbs['.$item->batid.'][amount]', 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $budgetforecastexp[$item->batid], array('required' => 'required', 'accept' => 'numeric', 'step' => 'any')).'</td>';
+                        $output .= '<td>'.parse_textfield('budgetforecastbs['.$item->batid.'][amount]', 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $budgetforecastexp[$item->batid], array('min' => $min, 'max' => $maxattr, 'required' => 'required', 'accept' => 'numeric', 'step' => $stepany)).'</td>';
                     }
                 }
                 else {
@@ -174,6 +182,7 @@ class BudgetForecastAccountsTree extends AbstractClass {
     }
 
     public static function parse_accounts_old($accounts = array(), $options = array()) {
+
         global $template, $lang;
 
         if(is_array($accounts['type'])) {
@@ -202,7 +211,8 @@ class BudgetForecastAccountsTree extends AbstractClass {
                         $fields .= ' <div style = "display:inline-block; padding:7px;  border: grey solid 1px;">liabilities</div>';
                         break;
                     case'equity':
-                        $fields .= ' <div style = "display:inline-block; padding:7px;  border: grey solid 1px;">equity</div>';
+                        $fields .=
+                                ' <div style = "display:inline-block; padding:7px;  border: grey solid 1px;">equity</div>';
                         break;
                 }
             }

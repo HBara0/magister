@@ -421,7 +421,7 @@ Class FinancialBudget extends AbstractClass {
                         if(is_empty($forecastbalancesheet)) {
                             break;
                         }
-                        $output['forecastbalancesheet']['data'] .= $budforecastobj->parse_account('a', array('financialbudget' => $financialbudget, 'forecastbalancesheet' => $forecastbalancesheet, 'mode' => 'display'));
+                        $output['forecastbalancesheet']['data'] .= $budforecastobj->parse_account(array('financialbudget' => $financialbudget, 'forecastbalancesheet' => $forecastbalancesheet, 'mode' => 'display'));
                         break;
 
                     case'profitlossaccount':
