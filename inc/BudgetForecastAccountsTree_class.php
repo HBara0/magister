@@ -110,7 +110,10 @@ class BudgetForecastAccountsTree extends AbstractClass {
                     $colspan = 1;
                     break;
             }
-
+            if(!empty($item->sourceTable)) {
+                echo $item->title;
+                $item->title = null;
+            }
             if(!is_object($item)) {
                 $item = self::get_data(array('batid' => $item['batid']));
             }
@@ -150,10 +153,12 @@ class BudgetForecastAccountsTree extends AbstractClass {
 
 
                 if(isset($options['mode']) && $options['mode'] === 'fill') {
+
                     /* to acquire netIncome */
                     if(!empty($item->sourceTable)) {
+
                         $this->total[$item->get_parent()->get_parent()->batid] +=$finacncial_budobj->netIncome;
-                        $output .= '<td>'.parse_textfield(null, 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $finacncial_budobj->netIncome, array('readonly' => true, 'accept' => 'numeric', 'step' => 'any')).'</td>';
+                        // $output .= '<td>'.parse_textfield(null, 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $finacncial_budobj->netIncome, array('readonly' => 'true', 'accept' => 'numeric', 'step' => 'any')).'</td>';
                     }
                     else {
                         $maxattr = null;
