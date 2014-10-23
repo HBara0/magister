@@ -34,6 +34,7 @@ $lang['importbudget'] = 'Import Budget';
 $lang['segment'] = "Segments";
 $lang['uom'] = 'UOM';
 $lang['importpreview'] = 'Budget preview';
+$lang['errorselectbudgettype'] = 'You need to select at least one financial budget type';
 $lang['import'] = 'Import';
 $lang['fieldrepeated'] = 'Field Repeated';
 $lang['altCid'] = 'Alternative Customer';

@@ -38,7 +38,7 @@
                                     <table class="datatable" width="100%">
                                         <thead>
                                             <tr>
-                                                <th width="100%">{$lang->budgettype}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->type}" style="width:40%;display:inline-block;margin-left:5px;"/></th>
+                                                <th width="100%">{$lang->budgettype}<input class='inlinefilterfield' type='text'placeholder="{$lang->search} {$lang->type}" style="width:40%;display:inline-block;margin-left:5px;"/></th>
                                             </tr>
                                         </thead>
                                         <tbody>
