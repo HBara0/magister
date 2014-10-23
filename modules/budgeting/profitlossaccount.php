@@ -27,6 +27,7 @@ if(!isset($core->input['action'])) {
     };
     $affiliate = new Affiliates($budget_data['affid']);
     $financialbudget = FinancialBudget::get_data(array('affid' => $budget_data['affid'], 'year' => $budget_data['year']), array('simple' => false));
+    $currency = $affiliate->get_country()->get_maincurrency();
 
 //get 3 commercial budgets of current year, prev year and prev two years
     $commericalbudget = Budgets::get_data(array('affid' => $budget_data['affid'], 'year' => $budget_data['year']), array('simple' => false));
@@ -59,11 +60,11 @@ if(!isset($core->input['action'])) {
     $plcategories = BudgetPlCategories::get_data('', array('returnarray' => true));
     if(is_object($financialbudget) && $financialbudget->isFinalized()) {
         $type = 'hidden';
-        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'bid' => $bid, 'tocurrency' => 840));
+        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'bid' => $bid, 'tocurrency' => $currency->numCode));
     }
     else {
         $type = 'submit';
-        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'bid' => $bid, 'tocurrency' => 840));
+        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'bid' => $bid, 'tocurrency' => $currency->numCode));
     }
     $header_yef = '<td style = "width:8.3%">%'.$lang->yef.' '.$plprevyear.'</td>';
     $header_yef .= '<td style = "width:8.3%">%'.$lang->yef.' '.$plprevyear.'</td>';
@@ -72,6 +73,22 @@ if(!isset($core->input['action'])) {
     $bud = '/Budget ';
     $pl_yefprevyear = '/YEF '.$financialbudget_prevyear;
     eval("\$budgeting_header = \"".$template->get('budgeting_investheader')."\";");
+
+///////
+    if(!empty($currency->alphaCode)) {
+        $tocurrency = '840'; //usd
+        $currencyto_obj = new Currencies($tocurrency);
+        $currency_to = $currencyto_obj->get()['alphaCode'];
+        $dal_config = array(
+                'operators' => array('fromCurrency' => '=', 'affid' => 'in', 'year' => '='),
+                'simple' => false,
+                'returnarray' => false
+        );
+        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $currency->numCode, 'toCurrency' => $tocurrency, 'affid' => $affid, 'year' => $financialbudget_year,), $dal_config);
+        if(is_object($fxrates_obj)) {
+            $output_currency = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding: 5px; margin-top: 10px; margin-bottom: 10px; display: block;"><em><strong>'.$lang->exchangerate.'</strong></em></br><span>'.$lang->sprint($lang->currrate, $currency->alphaCode, $currency_to, $fxrates_obj->rate).'</span></div>';
+        }
+    }
 
     eval("\$budgeting_placcount = \"".$template->get('budgeting_placcount')."\";");
     output_page($budgeting_placcount);

@@ -124,9 +124,10 @@ class BudgetPlCategories extends AbstractClass {
                                     if(is_array($id)) {
                                         foreach($id as $budgetid) {
                                             $budgetobject = Budgets::get_data(array('bid' => $budgetid), array('simple' => false));
-                                            $fxrate_query = "(SELECT rate from budgeting_fxrates WHERE affid=".$budgetobject->affid." AND year=".$budgetobject->year." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($options['tocurrency']).")";
-                                            $sql = "SELECT saleType,sum(amount*{$fxrate_query}) AS amount,sum(income*{$fxrate_query}) AS income, sum(actualAmount*{$fxrate_query}) AS actualAmount, sum(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines where bid=".$budgetid." GROUP BY saleType";
 
+                                            $fxrate_query = "(SELECT (CASE WHEN fromCurrency=".intval($options['tocurrency'])." THEN 1 ELSE (select rate from budgeting_fxrates WHERE affid=".$budgetobject->affid." AND year=".$budgetobject->year." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($options['tocurrency']).") END) FRom budgeting_fxrates where fromCurrency=budgeting_budgets_lines.originalCurrency AND affid=".$budgetobject->affid." AND year=".$budgetobject->year.")";
+                                            $sql = "SELECT saleType,sum(amount*{$fxrate_query}) AS amount,sum(income*{$fxrate_query}) AS income, sum(actualAmount*{$fxrate_query}) AS actualAmount, sum(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines where bid=".$budgetid." GROUP BY saleType";
+                                            echo $sql;
                                             $query = $db->query($sql);
                                             if($db->num_rows($query) > 0) {
                                                 $amount = 'amount';
@@ -142,14 +143,6 @@ class BudgetPlCategories extends AbstractClass {
                                             }
                                         }
                                     }
-//                                        $id = "(".implode(',', $id).")";
-//                                        $operator = 'IN';
-//                                        $budgetobject = Budgets::get_data(array('bid' => $id), array('simple' => false));
-//                                    }
-//                                    else {
-//                                        $operator = '=';
-//                                        $budgetobject = Budgets::get_data(array('bid' => $id), array('simple' => false));
-//                                    }
                                 }
                             }
                             $saletypes = SaleTypes::get_data();

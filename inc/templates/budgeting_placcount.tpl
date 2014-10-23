@@ -55,6 +55,7 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->profitandlossaccount}<br /><small>{$affiliate->name} - {$budget_data['year']}</small></h1>
+                {$output_currency}
             <form name="perform_budgeting/profitlossaccount_Form" id="perform_budgeting/profitlossaccount_Form"  action="#" method="post">
                 <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">
                 <table class="datatable" style="width:100%;table-layout:fixed;">
