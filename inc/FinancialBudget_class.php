@@ -398,11 +398,15 @@ Class FinancialBudget extends AbstractClass {
                                 }
                             }
                         }
-
-                        $finbudgetquery = $db->query("SELECT bfbid,sum(finGenAdmExpAmtApthy) AS finGenAdmExpAmtApthy ,sum(finGenAdmExpAmtApty) AS finGenAdmExpAmtApty, sum(finGenAdmExpAmtYpy) AS finGenAdmExpAmtYpy, sum(finGenAdmExpAmtCurrent) AS finGenAdmExpAmtCurrent FROM ".Tprefix."budgeting_financialbudget WHERE bfbid IN (".implode(',', $options['filter']).")");
-                        if($db->num_rows($finbudgetquery) > 0) {
-                            while($finbudget = $db->fetch_assoc($finbudgetquery)) {
-                                $financialbudget = $finbudget;
+                        $fxrate_query2 = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid= budgeting_financialbudget.bfbid)';
+                        $sql = "SELECT bfbid,sum(finGenAdmExpAmtApthy*{$fxrate_query2}) AS finGenAdmExpAmtApthy ,sum(finGenAdmExpAmtApty*{$fxrate_query2}) AS finGenAdmExpAmtApty, sum(finGenAdmExpAmtYpy*{$fxrate_query2}) AS finGenAdmExpAmtYpy, sum(finGenAdmExpAmtCurrent*{$fxrate_query2}) AS finGenAdmExpAmtCurrent FROM ".Tprefix."budgeting_financialbudget WHERE bfbid IN (".implode(',', $options['filter']).")";
+                        $query = $db->query($sql);
+                        $fields = array('bfbid', 'finGenAdmExpAmtApthy', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent');
+                        if($db->num_rows($query) > 0) {
+                            while($finbudget = $db->fetch_assoc($query)) {
+                                foreach($fields as $field) {
+                                    $financialbudget[$field] = sprintf("%.2f", $finbudget[$field]);
+                                }
                             }
                         }
                         if(is_empty($financialadminexpenses)) {
