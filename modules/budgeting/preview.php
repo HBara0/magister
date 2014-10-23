@@ -151,6 +151,7 @@ if(!($core->input['action'])) {
                 $budgeting_budgetrawreport .= '<th>'.$lang->{$field}.'</th>';
             }
             $budgeting_budgetrawreport .= '</tr>';
+
             foreach($budgetsdata['affilliates'] as $affid) {
                 $affiliate = new Affiliates($affid);
                 if($affiliate->country == 0) {
@@ -162,7 +163,10 @@ if(!($core->input['action'])) {
                 $operators = array('bid' => 'IN');
                 $country_row = '<tr><td style="width: 40%;">'.$lang->country.' ('.$country->get_displayname().')</td>';
                 $affiliate_row = '<tr><td>'.$lang->affiliate.'</td>';
+
+
                 foreach($required_fields as $field) {
+
                     if($field == 'cost') {
                         $values['country'][$field] = $values['country']['amount'] - $values['country']['income'];
                         $values['affiliate'][$field] = $values['affiliate']['amount'] - $values['affiliate']['income'];
@@ -173,12 +177,24 @@ if(!($core->input['action'])) {
                     }
                     $country_row .= '<td>'.$values['country'][$field].'</td>';
                     $affiliate_row .= '<td>'.$values['affiliate'][$field].'</td>';
+
+
+                    //   $countryaff_chart = new Charts(array('x' => array('countries' => $values['country'][$field], 'affiliates' => array($values['affiliate'][$field])), 'y' => array($country->get_displayname() => $values['country'], $affiliate->name => $values['affiliate'])), 'bar', array('xaxisname' => $lang->{$field}, 'yaxisname' => $country->get_displayname().'/'.$affiliate->name, 'yaxisunit' => 'k$'));
+                    // $countryaff_chart = new Charts(array('x' => array('cost' => $values['country'][cost], 'amount' => $values['country'][amount], 'income' => $values['country'][amount]), 'y' => array($country->get_displayname() => $values['country'], $affiliate->name => $values['affiliate'])), 'bar', array('xaxisname' => $lang->{$field}, 'yaxisname' => $country->get_displayname().'/'.$affiliate->name, 'yaxisunit' => 'k$'));
+                    //  $countryaff_chart = new Charts(array('x' => array('amount' => $values['country']['amount'], 'income' => $values['country']['income'], 'cost' => $values['country']['cost'], 'amount' => $values['affiliate']['amount'], 'income' => $values['affiliate']['amount'], 'cost' => $values['affiliate']['cost']), 'y' => array($country->get_displayname() => $values['country'], $affiliate->name => $values['affiliate'])), 'bar', array('xaxisname' => $lang->{$field}, 'yaxisname' => $country->get_displayname().'/'.$affiliate->name, 'yaxisunit' => 'k$'));
+                    $ydata = array('amount' => array($country->get_displayname() => $values['country']['amount'], $affiliate->name => $values['affiliate']['amount']),
+                            'income' => array($country->get_displayname() => $values['country']['income'], $affiliate->name => $values['affiliate']['income']),
+                            'cost' => array($country->get_displayname() => $values['country']['cost'], $affiliate->name => $values['affiliate']['cost']));
+
+                    $countryaff_chart = new Charts(array('x' => array_keys($ydata), 'y' => $ydata), 'bar', array('xaxisname' => $lang->{$field}, 'yaxisunit' => 'k$'));
                 }
+
                 $country_row .= '</tr>';
                 $affiliate_row .= '</tr>';
-
-                $budgeting_budgetrawreport .= $country_row.$affiliate_row;
+                $chart.='<tr><td colspan="3"><img src='.$countryaff_chart->get_chart().' /><td></tr>';
+                $budgeting_budgetrawreport .= $country_row.$affiliate_row.$chart;
                 unset($affiliate_row, $country_row);
+                $chart = '';
             }
             $budgeting_budgetrawreport .= '</table>';
         }
