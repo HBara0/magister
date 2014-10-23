@@ -326,11 +326,11 @@ else {
         /* Get budget data */
         $affiliate = new Affiliates($budget_data['affid']);
         $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
-        $currencies = array('USD', 'EUR', $affiliate_currency->get()['alphaCode']);
-        foreach($currencies as $currency) {
-            $budget_currencylist.= '<option value="'.$currency.'">'.$currency.'</option>';
-        }
+        $currencies = array_filter(array(840 => 'USD', 978 => 'EUR', $affiliate_currency->get()['numCode'] => $affiliate_currency->get()['alphaCode']));
 
+        foreach($currencies as $numcode => $currency) {
+            $budget_currencylist .= '<option value="'.$numcode.'">'.$currency.'</option>';
+        }
         eval("\$budgetlinesrows = \"".$template->get('budgeting_fill_lines')."\";");
         output($budgetlinesrows);
     }

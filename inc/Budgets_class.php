@@ -15,7 +15,7 @@ class Budgets extends AbstractClass {
     const PRIMARY_KEY = 'bid';
     const TABLE_NAME = 'budgeting_budgets';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'bid,year,affid,spid';
+    const SIMPLEQ_ATTRS = 'bid, year, affid, spid';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = false, $budgetdata = '', $isallbudget = false) {
@@ -291,13 +291,17 @@ class Budgets extends AbstractClass {
 
     public static function get_budgets_bydata($data = array()) {
         global $db;
-        if(isset($data['affilliates'], $data['suppliers'], $data['years']) && !empty($data['affilliates']) && !empty($data['suppliers']) && !empty($data['years'])) {
-            array_walk($data['affilliates'], intval);
+        if(isset($data['years']) && !empty($data['years'])) {
             if(is_array($data['suppliers'])) {
                 array_walk($data['suppliers'], intval);
-                $budget_reportquery = "AND spid IN (".implode(',', $data['suppliers']).")";
+                $budget_reportquery = " AND spid IN (".implode(',', $data['suppliers']).")";
             }
-            $budget_reportquery = $db->query("SELECT bid FROM ".Tprefix."budgeting_budgets WHERE year=".intval($data['years'])." AND affid IN (".implode(',', $data['affilliates']).")");
+
+            if(is_array($data['affiliates'])) {
+                array_walk($data['affiliates'], intval);
+                $budget_reportquery = " AND affid IN (".implode(',', $data['affiliates']).")";
+            }
+            $budget_reportquery = $db->query("SELECT bid FROM ".Tprefix."budgeting_budgets WHERE year=".intval($data['years']).$budget_reportquery);
         }
         if($budget_reportquery) {
             if($db->num_rows($budget_reportquery) > 0) {
@@ -409,7 +413,7 @@ class Budgets extends AbstractClass {
         if(isset($bid) && !empty($bid)) {
 //$prevbudgetline_details = $this->read_prev_budgetbydata();
             $budgetline_queryid = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines
-											  WHERE bid IN (".intval($bid).")".$budgetline_query_where.$options['order_by']);
+                                                WHERE bid IN (".intval($bid).")".$budgetline_query_where.$options['order_by']);
 
             if($db->num_rows($budgetline_queryid) > 0) {
                 while($budgetline_data = $db->fetch_assoc($budgetline_queryid)) {
@@ -468,34 +472,37 @@ class Budgets extends AbstractClass {
         return false;
     }
 
-    public function generate_budgetline_filters() {
+    public static function generate_budgetline_filters() {
         global $core;
 
         if($core->usergroup['canViewAllSupp'] == 0 && $core->usergroup['canViewAllAff'] == 0) {
+            $filter['filters']['suppliers'] = $core->user['suppliers']['eid'];
             if(is_array($core->user['auditfor'])) {
+                $filter['filters']['suppliers'] = $core->user['suppliers']['eid'] + $core->user['auditfor'];
                 if(!in_array($this->data['spid'], $core->user['auditfor'])) {
                     if(is_array($core->user['auditedaffids'])) {
                         if(!in_array($this->data['affid'], $core->user['auditedaffids'])) {
+                            $filter['filters']['affiliates'] = $core->user['affiliates'];
                             if(is_array($core->user['suppliers']['affid'][$this->data['spid']])) {
                                 if(in_array($this->data['affid'], $core->user['suppliers']['affid'][$this->data['spid']])) {
-                                    $filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+                                    $filter['filters']['businessMgr'] = array($core->user['uid']);
                                 }
                                 else {
                                     return false;
                                 }
                             }
                             else {
-                                $filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+                                $filter['filters']['businessMgr'] = array($core->user['uid']);
                             }
                         }
                     }
                     else {
-                        $filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+                        $filter['filters']['businessMgr'] = array($core->user['uid']);
                     }
                 }
             }
             else {
-                $filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
+                $filter['filters']['businessMgr'] = array($core->user['uid']);
             }
         }
         return $filter;
