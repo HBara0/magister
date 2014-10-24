@@ -65,7 +65,6 @@ if(!($core->input['action'])) {
         if(!is_array($budgets['current'])) {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
         }
-        print_R($budgetsdata['prev2years']);
         $report_type = $core->input['budget']['reporttype'];
         if($report_type == 'dimensional') {
             $fields = array('current', 'prev2years', 'prev3years');
@@ -187,10 +186,11 @@ if(!($core->input['action'])) {
             }
 
             foreach($cdata as $dcdata) {
+                print_R($dcdata);
                 $xaxis = array_keys($dcdata['title'])[0];
-                $amount_barchart = new Charts(array('x' => array_values(array_unique($dcdata['title'])), 'y' => array_values($dcdata['amount'])), 'bar', array('yaxisname' => 'amount', 'xaxisname' => $xaxis));
+                $amount_barchart = new Charts(array('x' => array_keys($dcdata['amount']), 'y' => array_values($dcdata['amount'])), 'bar', array('yaxisname' => 'amount', 'xaxisname' => $xaxis));
                 $budgeting_budgetrawreport.='<img src='.$amount_barchart->get_chart().' />';
-                $income_barchart = new Charts(array('x' => array_values($dcdata['title']), 'y' => array_values($dcdata['income'])), 'bar', array('yaxisname' => 'amount', 'xaxisname' => $xaxis));
+                $income_barchart = new Charts(array('x' => array_keys($dcdata['income']), 'y' => array_values($dcdata['income'])), 'bar', array('yaxisname' => 'amount', 'xaxisname' => $xaxis));
                 $budgeting_budgetrawreport.='<img src='.$income_barchart->get_chart().' />';
             }
         }
