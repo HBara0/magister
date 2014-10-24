@@ -135,11 +135,15 @@ class BudgetPlCategories extends AbstractClass {
                                                 }
                                                 $budget_currencies = array_unique($budget_currencies);
                                             }
+                                            if(in_array($options['tocurrency'], $budget_currencies)) {
+                                                continue;
+                                            }
                                             $dal_config = array(
                                                     'operators' => array('fromCurrency' => 'in', 'affid' => '=', 'year' => '='),
                                                     'simple' => false,
                                                     'returnarray' => true
                                             );
+
                                             $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currencies, 'toCurrency' => $options['tocurrency'], 'affid' => $budgetobject->affid, 'year' => $budgetobject->year,), $dal_config);
                                             if(is_array($fxrates_obj)) {
                                                 if(count($budget_currencies) != count($fxrates_obj)) {
