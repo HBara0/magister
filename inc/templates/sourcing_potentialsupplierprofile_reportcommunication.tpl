@@ -6,7 +6,7 @@
         <span class="subtitle">{$communication_title}</span>
         <div style="display:inline-block; width:100%; margin-left:15px;">
             <div style="display:inline-block; padding:5px;">
-                <div style="display:inline-block; margin-left:5px;">{$lang->affilliate}</div>
+                <div style="display:inline-block; margin-left:5px;">{$lang->affiliate}</div>
                 <div style="display:inline-block; padding:5px;">   <select name="contacthst[affid]">
                         {$affiliates_list}
                     </select></div>

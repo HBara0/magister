@@ -33,7 +33,7 @@ if(!($core->input['action'])) {
         /* overrites the filters and get the user filter when no  filters are selected */
         $dummy_budget = new Budgets();
         $filters = $dummy_budget->generate_budgetline_filters();
-        ///$filters = array('affilliates' => $core->user['affiliates'], 'suppliers' => $core->user['suppliers']['eid'], 'segments' => array_keys($core->user_obj->get_segments()));
+        ///$filters = array('affiliates' => $core->user['affiliates'], 'suppliers' => $core->user['suppliers']['eid'], 'segments' => array_keys($core->user_obj->get_segments()));
         if(is_array($filters)) {
             foreach($filters as $key => $val) {
                 if(empty($budgetsdata['current'][$key])) {
@@ -65,6 +65,7 @@ if(!($core->input['action'])) {
         if(!is_array($budgets['current'])) {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
         }
+        print_R($budgetsdata['prev2years']);
         $report_type = $core->input['budget']['reporttype'];
         if($report_type == 'dimensional') {
             $fields = array('current', 'prev2years', 'prev3years');

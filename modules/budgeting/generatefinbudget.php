@@ -31,7 +31,7 @@ if(!$core->input['action']) {
             }
             $checked = $rowclass = '';
             $affiliates_list .='<tr class="'.$rowclass.'">';
-            $affiliates_list .='<td><input name="budget[affilliates][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
+            $affiliates_list .='<td><input name="budget[affiliates][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
         }
     }
 

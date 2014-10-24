@@ -513,14 +513,14 @@ Class FinancialBudget extends AbstractClass {
     public static function generate_filters(array $inputdata) {
         global $core;
 
-        if(is_array($inputdata['affilliates'])) {
+        if(is_array($inputdata['affiliates'])) {
             if($core->usergroup['canViewAllAff'] == 0) {
                 if(is_array($core->user['auditedaffids'])) {
-                    if(!in_array($inputdata['affilliates'], $core->user['auditedaffids'])) {
-                        $filter = array('filters' => array('affilliates' => array($core->user['affiliates'])));
+                    if(!in_array($inputdata['affiliates'], $core->user['auditedaffids'])) {
+                        $filter = array('filters' => array('affiliates' => array($core->user['affiliates'])));
                     }
                     else {
-                        $filter = array('filters' => array($inputdata['affilliates']));
+                        $filter = array('filters' => array($inputdata['affiliates']));
                     }
                 }
                 else {
