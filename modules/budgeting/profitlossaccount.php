@@ -74,7 +74,6 @@ if(!isset($core->input['action'])) {
     $pl_yefprevyear = '/YEF '.$financialbudget_prevyear;
     eval("\$budgeting_header = \"".$template->get('budgeting_investheader')."\";");
 
-///////
     if(!empty($currency->alphaCode)) {
         $tocurrency = '840'; //usd
         $currencyto_obj = new Currencies($tocurrency);
@@ -86,7 +85,7 @@ if(!isset($core->input['action'])) {
         );
         $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $currency->numCode, 'toCurrency' => $tocurrency, 'affid' => $affid, 'year' => $financialbudget_year,), $dal_config);
         if(is_object($fxrates_obj)) {
-            $output_currency = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding: 5px; margin-top: 10px; margin-bottom: 10px; display: block;"><em><strong>'.$lang->exchangerate.'</strong></em></br><span>'.$lang->sprint($lang->currrate, $currency->alphaCode, $currency_to, $fxrates_obj->rate).'</span></div>';
+            $output_currency = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding: 5px; margin-top: 10px; margin-bottom: 10px; display: block;"><span><em>'.$lang->sprint($lang->budgcurrdesc, $currency->alphaCode).'</em></br></span><em><strong>'.$lang->exchangerate.'</strong></em></br><span>'.$lang->sprint($lang->currrate, $currency->alphaCode, $currency_to, $fxrates_obj->rate).'</span></div>';
         }
     }
 

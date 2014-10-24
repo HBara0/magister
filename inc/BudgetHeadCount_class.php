@@ -127,7 +127,7 @@ class BudgetHeadCount extends AbstractClass {
             $required_fields = array('bfbid', 'posgid', 'actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
-                    $this->errorcode = 1;
+                    $this->errorcode = 2;
                     return true;
                 }
             }

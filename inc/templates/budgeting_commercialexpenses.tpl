@@ -83,6 +83,7 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->commercialadminstrationexpenses}<br /><small>{$affiliate->name} - {$financialbudget_year}</small></h1>
+                {$output_currency}
             <form name="perform_budgeting/financialadminexpenses_Form" id="perform_budgeting/financialadminexpenses_Form"  action="#" method="post">
                 <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">
                 <table class="datatable" style="width:100%;table-layout:fixed;">
