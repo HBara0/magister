@@ -212,11 +212,6 @@ if(!($core->input['action'])) {
                     }
                     $country_row .= '<td>'.$values['country'][$field].'</td>';
                     $affiliate_row .= '<td>'.$values['affiliate'][$field].'</td>';
-
-
-                    //   $countryaff_chart = new Charts(array('x' => array('countries' => $values['country'][$field], 'affiliates' => array($values['affiliate'][$field])), 'y' => array($country->get_displayname() => $values['country'], $affiliate->name => $values['affiliate'])), 'bar', array('xaxisname' => $lang->{$field}, 'yaxisname' => $country->get_displayname().'/'.$affiliate->name, 'yaxisunit' => 'k$'));
-                    // $countryaff_chart = new Charts(array('x' => array('cost' => $values['country'][cost], 'amount' => $values['country'][amount], 'income' => $values['country'][amount]), 'y' => array($country->get_displayname() => $values['country'], $affiliate->name => $values['affiliate'])), 'bar', array('xaxisname' => $lang->{$field}, 'yaxisname' => $country->get_displayname().'/'.$affiliate->name, 'yaxisunit' => 'k$'));
-                    //  $countryaff_chart = new Charts(array('x' => array('amount' => $values['country']['amount'], 'income' => $values['country']['income'], 'cost' => $values['country']['cost'], 'amount' => $values['affiliate']['amount'], 'income' => $values['affiliate']['amount'], 'cost' => $values['affiliate']['cost']), 'y' => array($country->get_displayname() => $values['country'], $affiliate->name => $values['affiliate'])), 'bar', array('xaxisname' => $lang->{$field}, 'yaxisname' => $country->get_displayname().'/'.$affiliate->name, 'yaxisunit' => 'k$'));
                     $ydata = array('amount' => array($country->get_displayname() => $values['country']['amount'], $affiliate->name => $values['affiliate']['amount']),
                             'income' => array($country->get_displayname() => $values['country']['income'], $affiliate->name => $values['affiliate']['income']),
                             'cost' => array($country->get_displayname() => $values['country']['cost'], $affiliate->name => $values['affiliate']['cost']));
