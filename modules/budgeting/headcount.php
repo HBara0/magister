@@ -100,10 +100,11 @@ else if($core->input['action'] == 'do_perform_headcount') {
     $financialbudget->set($core->input);
     $financialbudget->save();
     switch($financialbudget->get_errorcode()) {
+        case 0:
         case 1:
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
             break;
-        case 2:
+        case 1:
             output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
             break;
     }
