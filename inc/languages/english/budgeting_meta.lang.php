@@ -89,7 +89,7 @@ $lang['generatefinbudget'] = 'Generate Financial Budget';
 $lang['currrate'] = 'From {1} To {2} rate:{3}';
 $lang['budgcurrdesc'] = 'Currency in this budget is in  K {1}';  //use to display currency desc
 $lang['exchangerate'] = 'Exchange rate for The currency being used : ';
-$lang['currfxratedesc'] = 'data in this budget K : ';
-$lang['currfxratedesc'] = 'data in this budget K : ';
-$lang['currencynotexistvar'] = 'The currency {1} is not existing in this budget';
+$lang['currfxratedesc'] = 'Data in this budget is in K';
+$lang['currencynotexistvar'] = 'The currency {1} does not have a conversion rate.';
+$lang['noexchangerate'] = 'No exchange rate from {1} to {2} for year {3}';
 ?>
