@@ -67,13 +67,6 @@ class BudgetExpenseCategories extends AbstractClass {
                             }
                             $budgetexps['budYefPerc'] = sprintf("%.2f", $comadmin_expenses->budYefPerc).'%';
                         }
-                        else {
-                            foreach($fields as $field) {
-                                $budgetexps[$field] = 0;
-                                $subtotal[$field] = 0;
-                            }
-                        }
-
                         //Get data from financialadminexpenses array for generate report
                         if(isset($options['financialadminexpenses']) && !empty($options['financialadminexpenses'])) {
                             $financialadminexpenses = $options['financialadminexpenses'];
@@ -101,9 +94,6 @@ class BudgetExpenseCategories extends AbstractClass {
                     }
                     foreach($fields as $field) {
                         $total[$field] += $subtotal[$field];
-//                        if($total[$field] == 0) {
-//                            unset($total[$field]);
-//                        }
                     }
                     if($subtotal['yefPrevYear'] != 0) {
                         $subtotal['budYefPerc'] = sprintf("%.2f", (($subtotal['budgetCurrent'] - $subtotal['yefPrevYear']) / $subtotal['yefPrevYear']) * 100).'%';

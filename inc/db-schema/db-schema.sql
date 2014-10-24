@@ -360,6 +360,17 @@ CREATE TABLE `budgeting_financialbudget` (
   `finGenAdmExpAmtCurrent` float NOT NULL,
   `isFinalized` tinyint(1) NOT NULL,
   `finalizedBy` int(10) NOT NULL,
+CREATE TABLE `budgeting_plcategory` (
+  `bplcid` int(10) NOT NULL,
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `createdOn` bigint(20) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(20) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`bplcid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
   `createdBy` int(10) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,

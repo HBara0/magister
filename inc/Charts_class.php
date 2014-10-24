@@ -154,8 +154,8 @@ class Charts {
 
         /* Write the chart legend */
         if($this->options['noLegend'] == false) {
-
-            $this->chart->drawLegend(596, 150, array('Style' => LEGEND_NOBORDER, 'Mode' => LEGEND_VERTICAL));
+            $this->chart->drawLegend(75, 20, array('Style' => LEGEND_NOBORDER, 'Mode' => LEGEND_HORIZONTAL));
+            //$this->chart->drawLegend(596, 150, array('Style' => LEGEND_NOBORDER, 'Mode' => LEGEND_VERTICAL));
         }
 
         /* Turn on shadow computing */
