@@ -106,7 +106,7 @@ if(!($core->input['action'])) {
                                 }
                             }
                             else {
-                                error($lang->currencynotexist.' '.$budgetline->originalCurrency, $_SERVER['HTTP_REFERER']);
+                                error($lang->sprint($lang->noexchangerate, $budgetline->originalCurrency, $budgetsdata['toCurrency'], $budget_obj->year), $_SERVER['HTTP_REFERER']);
                             }
                         }
                         /* get the currency rate of the Origin currency  of the current buudget - START */

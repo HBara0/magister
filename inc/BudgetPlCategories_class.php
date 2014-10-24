@@ -60,7 +60,7 @@ class BudgetPlCategories extends AbstractClass {
                                     $plexpenses['budyef'] = sprintf("%.2f", (($plexpenses_current->budgetCurrent - $plexpenses_current->yefPrevYear) / $plexpenses_current->yefPrevYear) * 100).' %';
                                 }
                                 $column_output .='<td style="width:8.3%" class="border_left"><div id="placcount_'.$category->name.'_'.$input.'_'.$item->bpliid.'" >'.$plexpenses[$input].'</div></td>';
-                                $total['plexpenses'][$input] +=$plexpenses[$input];
+                                $total['plexpenses'][$input] += $plexpenses[$input];
                             }
                             else {
                                 if(isset($options['mode']) && $options['mode'] === 'fill') {
@@ -119,10 +119,10 @@ class BudgetPlCategories extends AbstractClass {
                     if($category->name == 'sales') {
                         if(is_array($options['bid'])) {
 //get commercial budgets data if exits
-                            foreach($options['bid'] as $key => $id) {
-                                if(isset($id) && !empty($id)) {
-                                    if(is_array($id)) {
-                                        foreach($id as $budgetid) {
+                            foreach($options['bid'] as $key => $budgetsids) {
+                                if(isset($budgetsids) && !empty($budgetsids)) {
+                                    if(is_array($budgetsids)) {
+                                        foreach($budgetsids as $budgetid) {
                                             $budgetobject = Budgets::get_data(array('bid' => $budgetid), array('simple' => false));
                                             if(!is_object($budgetobject)) {
                                                 continue;
@@ -135,9 +135,7 @@ class BudgetPlCategories extends AbstractClass {
                                                 }
                                                 $budget_currencies = array_unique($budget_currencies);
                                             }
-                                            if(in_array($options['tocurrency'], $budget_currencies)) {
-                                                continue;
-                                            }
+
                                             $dal_config = array(
                                                     'operators' => array('fromCurrency' => 'in', 'affid' => '=', 'year' => '='),
                                                     'simple' => false,
@@ -158,18 +156,19 @@ class BudgetPlCategories extends AbstractClass {
                                                             $comma = ', ';
                                                         }
                                                     }
-                                                    error($lang->sprint($lang->noexchangerate, $output_currname, $options['tocurrency'], $budgetobject->year), $_SERVER['HTTP_REFERER']);
-                                                    exit;
+                                                    if($currencyid != $options['tocurrency']) {
+                                                        error($lang->sprint($lang->noexchangerate, $output_currname, $options['tocurrency'], $budgetobject->year), $_SERVER['HTTP_REFERER']);
+                                                    }
                                                 }
                                             }
                                             else {
                                                 error($lang->sprint($lang->noexchangerate, implode(', ', $budget_currencies), $options['tocurrency'], $budgetobject->year), $_SERVER['HTTP_REFERER']);
-                                                exit;
                                             }
 
                                             $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($options['tocurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=".$budgetobject->affid." AND year=".$budgetobject->year." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($options['tocurrency']).") END)";
                                             $sql = "SELECT saleType,sum(amount*{$fxrate_query}) AS amount,sum(income*{$fxrate_query}) AS income, sum(actualAmount*{$fxrate_query}) AS actualAmount, sum(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines where bid=".$budgetid." GROUP BY saleType";
-
+                                            //echo $sql;
+                                            //echo '<hr />';
                                             $query = $db->query($sql);
                                             if($db->num_rows($query) > 0) {
                                                 $amount = 'amount';
@@ -258,36 +257,39 @@ class BudgetPlCategories extends AbstractClass {
                         $rows = array('adminexpenses', 'commercialexpenses', 'totaladmcom');
                         $budgets = array('actualPrevThreeYears' => 'finGenAdmExpAmtApthy', 'actualPrevTwoYears' => 'finGenAdmExpAmtApty', 'yefPrevYear' => 'finGenAdmExpAmtApty', 'yefactual' => 'yefactual', 'yefbud' => 'yefbud', 'budgetCurrent' => 'finGenAdmExpAmtCurrent', 'budyef' => 'budyef');
                         if(is_object($options['financialbudget'])) {
-                            $finbudgetitems = BudgetComAdminExpenses::get_data(array('bfbid' => $options['financialbudget']->bfbid), array('returnarray' => true));
+                            $options['filter'][] = $options['financialbudget']->bfbid;
+//                            $finbudgetitems = BudgetComAdminExpenses::get_data(array('bfbid' => $options['financialbudget']->bfbid), array('returnarray' => true));
                         }
-                        else { //for generate report (mode=display) case where more than one affiliate is selected
-                            if(is_array($options['filter'])) {
-                                $fxrate_query2 = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid= budgeting_financialbudget.bfbid)';
-                                $sql = "SELECT bfbid,sum(finGenAdmExpAmtApthy*{$fxrate_query2}) AS finGenAdmExpAmtApthy ,sum(finGenAdmExpAmtApty*{$fxrate_query2}) AS finGenAdmExpAmtApty, sum(finGenAdmExpAmtYpy*{$fxrate_query2}) AS finGenAdmExpAmtYpy, sum(finGenAdmExpAmtCurrent*{$fxrate_query2}) AS finGenAdmExpAmtCurrent FROM ".Tprefix."budgeting_financialbudget WHERE bfbid IN (".implode(',', $options['filter']).")";
-                                $query = $db->query($sql);
-                                if($db->num_rows($query) > 0) {
-                                    while($budget = $db->fetch_assoc($query)) {
-                                        $financialbudget['finGenAdmExpAmtApthy'] += $budget['finGenAdmExpAmtApthy'];
-                                        $financialbudget['finGenAdmExpAmtApty'] += $budget['finGenAdmExpAmtApty'];
-                                        $financialbudget['finGenAdmExpAmtYpy'] += $budget['finGenAdmExpAmtYpy'];
-                                        $financialbudget['finGenAdmExpAmtCurrent'] += $budget['finGenAdmExpAmtCurrent'];
-                                    }
+
+//for generate report (mode=display) case where more than one affiliate is selected
+                        if(is_array($options['filter'])) {
+                            $fxrate_query2 = '(CASE WHEN budgeting_financialbudget.currency='.intval($options['tocurrency']).' THEN 1 ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid=budgeting_financialbudget.affid AND bfr.year=budgeting_financialbudget.year AND bfr.fromCurrency=budgeting_financialbudget.currency AND bfr.toCurrency='.intval($options['tocurrency']).') END)';
+                            $sql = "SELECT bfbid, sum(finGenAdmExpAmtApthy*{$fxrate_query2}) AS finGenAdmExpAmtApthy ,sum(finGenAdmExpAmtApty*{$fxrate_query2}) AS finGenAdmExpAmtApty, sum(finGenAdmExpAmtYpy*{$fxrate_query2}) AS finGenAdmExpAmtYpy, sum(finGenAdmExpAmtCurrent*{$fxrate_query2}) AS finGenAdmExpAmtCurrent FROM ".Tprefix."budgeting_financialbudget WHERE bfbid IN (".implode(',', $options['filter']).")";
+                            $query = $db->query($sql);
+                            if($db->num_rows($query) > 0) {
+                                while($budget = $db->fetch_assoc($query)) {
+                                    $financialbudget['finGenAdmExpAmtApthy'] += $budget['finGenAdmExpAmtApthy'];
+                                    $financialbudget['finGenAdmExpAmtApty'] += $budget['finGenAdmExpAmtApty'];
+                                    $financialbudget['finGenAdmExpAmtYpy'] += $budget['finGenAdmExpAmtYpy'];
+                                    $financialbudget['finGenAdmExpAmtCurrent'] += $budget['finGenAdmExpAmtCurrent'];
                                 }
-                                //   $finbudgetitems = BudgetComAdminExpenses::get_data(array('bfbid' => $options['filter']), array('returnarray' => true, 'operators' => array('bfbid' => IN)));
-                                $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid=budgeting_commadminexps.bfbid)';
-                                $sql = "SELECT beciid,sum(actualPrevThreeYears*{$fxrate_query}) AS actualPrevThreeYears ,sum(actualPrevTwoYears*{$fxrate_query}) AS actualPrevTwoYears, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrent FROM ".Tprefix."budgeting_commadminexps WHERE bfbid IN (".implode(',', $options['filter']).")";
-                                $query = $db->query($sql);
-                                if($db->num_rows($query) > 0) {
-                                    while($item = $db->fetch_assoc($query)) {
-                                        $comercialbudget['actualPrevThreeYears'] = sprintf("%.2f", $item['actualPrevThreeYears']);
-                                        $comercialbudget['actualPrevTwoYears'] = sprintf("%.2f", $item['actualPrevTwoYears']);
-                                        $comercialbudget['yefPrevYear'] = sprintf("%.2f", $item['yefPrevYear']);
-                                        $comercialbudget['budgetCurrent'] = sprintf("%.2f", $item['budgetCurrent']);
-                                    }
-                                }
-                                //  $finbudgetitems = BudgetComAdminExpenses::get_data(array('bfbid' => $options['filter']), array('returnarray' => true, 'operators' => array('bfbid' => IN)));
                             }
+                            //   $finbudgetitems = BudgetComAdminExpenses::get_data(array('bfbid' => $options['filter']), array('returnarray' => true, 'operators' => array('bfbid' => IN)));
+                            // $fxrate_query = '(CASE WHEN bfb(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid=budgeting_commadminexps.bfbid) END)';
+                            $fxrate_query = '(CASE WHEN bfb.currency='.intval($options['tocurrency']).' THEN 1 ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid=bfb.affid AND bfr.year=bfb.year AND bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).') END)';
+                            $sql = "SELECT beciid, SUM(actualPrevThreeYears*{$fxrate_query}) AS actualPrevThreeYears, SUM(actualPrevTwoYears*{$fxrate_query}) AS actualPrevTwoYears, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrent FROM ".Tprefix."budgeting_commadminexps bcade JOIN ".Tprefix." budgeting_financialbudget bfb ON (bcade.bfbid=bfb.bfbid) WHERE bcade.bfbid IN (".implode(',', $options['filter']).")";
+                            $query = $db->query($sql);
+                            if($db->num_rows($query) > 0) {
+                                while($item = $db->fetch_assoc($query)) {
+                                    $comercialbudget['actualPrevThreeYears'] = sprintf("%.2f", $item['actualPrevThreeYears']);
+                                    $comercialbudget['actualPrevTwoYears'] = sprintf("%.2f", $item['actualPrevTwoYears']);
+                                    $comercialbudget['yefPrevYear'] = sprintf("%.2f", $item['yefPrevYear']);
+                                    $comercialbudget['budgetCurrent'] = sprintf("%.2f", $item['budgetCurrent']);
+                                }
+                            }
+                            //  $finbudgetitems = BudgetComAdminExpenses::get_data(array('bfbid' => $options['filter']), array('returnarray' => true, 'operators' => array('bfbid' => IN)));
                         }
+
                         foreach($rows as $row) {
                             $style = 'style = "width:25%"';
                             if($row === 'totaladmcom') {

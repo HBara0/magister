@@ -102,9 +102,10 @@ else if($core->input['action'] == 'do_perform_financialadminexpenses') {
     $financialbudget->save();
     switch($financialbudget->get_errorcode()) {
         case 0:
+        case 1:
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
             break;
-        case 1:
+        case 2:
             output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
             break;
         case 3:
