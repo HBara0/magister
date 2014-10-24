@@ -199,9 +199,7 @@ if(!($core->input['action'])) {
                 $country_row = '<tr><td style="width: 40%;">'.$lang->country.' ('.$country->get_displayname().')</td>';
                 $affiliate_row = '<tr><td>'.$lang->affiliate.'</td>';
 
-
                 foreach($required_fields as $field) {
-
                     if($field == 'cost') {
                         $values['country'][$field] = $values['country']['amount'] - $values['country']['income'];
                         $values['affiliate'][$field] = $values['affiliate']['amount'] - $values['affiliate']['income'];
