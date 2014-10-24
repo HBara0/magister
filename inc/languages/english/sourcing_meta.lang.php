@@ -12,6 +12,7 @@ $lang['addnewrepresentative'] = 'Add New Representative';
 $lang['address1'] = 'Address1';
 $lang['address2'] = 'Address2';
 $lang['affiliate'] = 'Affiliate';
+$lang['affilliate'] = 'Affiliate';
 $lang['american'] = 'American';
 $lang['answerdate'] = 'Answer Date';
 $lang['anyorigin'] = 'Any origin';
