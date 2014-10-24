@@ -22,10 +22,13 @@ if(!$core->input['action']) {
     $identifier = base64_decode($core->input['identifier']);
     $budget_data = unserialize($session->get_phpsession('budgetmetadata_'.$identifier));
 
+    $affiliate_where = ' name LIKE "orkila%"';
     if($core->usergroup['canViewAllAff'] == 0) {
         $inaffiliates = implode(',', $core->user['affiliates']);
-        $affiliate_where = " affid IN ({$inaffiliates})";
+        $affiliate_where .= " AND affid IN ({$inaffiliates})";
     }
+
+
     $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, "{$affiliate_where}");
     //$affiliated_budget = parse_selectlist('budget[affilliates][]', 1, $affiliates, $core->user['mainaffiliate'], 1, '', array('id' => 'affid'));
     if(is_array($affiliates)) {
@@ -121,7 +124,7 @@ if(!$core->input['action']) {
             foreach($business_managers as $key => $value) {
                 $checked = $rowclass = '';
                 $business_managerslist .= '<tr class="'.$rowclass.'">';
-                $business_managerslist .='<td><input name="budget[managers][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
+                $business_managerslist .= '<td><input name="budget[managers][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
             }
         }
     }
