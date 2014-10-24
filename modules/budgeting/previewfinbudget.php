@@ -50,9 +50,7 @@ if(!($core->input['action'])) {
                     $header_variations_years = $output[$type]['years'];
                     eval("\$budgeting_".$type." .= \"".$template->get('budgeting_financialbudget_header')."\";");
                     ${"budgeting_".$type} .= $outputdata[$type];
-                    if($type != financialadminexpenses) {
-                        ${"budgeting_".$type} .= '</table><br/>';
-                    }
+                    ${"budgeting_".$type} .= '</table><br/>';
                 }
             }
         }

@@ -472,7 +472,7 @@ class Budgets extends AbstractClass {
         return false;
     }
 
-    public static function generate_budgetline_filters() {
+    public function generate_budgetline_filters() {
         global $core;
 
         if($core->usergroup['canViewAllSupp'] == 0 && $core->usergroup['canViewAllAff'] == 0) {

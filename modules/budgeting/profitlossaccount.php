@@ -74,7 +74,6 @@ if(!isset($core->input['action'])) {
     $pl_yefprevyear = '/YEF '.$financialbudget_prevyear;
     eval("\$budgeting_header = \"".$template->get('budgeting_investheader')."\";");
 
-///////
     if(!empty($currency->alphaCode)) {
         $tocurrency = '840'; //usd
         $currencyto_obj = new Currencies($tocurrency);
