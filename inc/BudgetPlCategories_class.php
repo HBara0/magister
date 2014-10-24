@@ -144,7 +144,7 @@ class BudgetPlCategories extends AbstractClass {
                                                     'returnarray' => true
                                             );
 
-                                            $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currencies, 'toCurrency' => $options['tocurrency'], 'affid' => $budgetobject->affid, 'year' => $budgetobject->year,), $dal_config);
+                                            $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currencies, 'toCurrency' => $options['tocurrency'], 'affid' => $budgetobject->affid, 'year' => $budgetobject->year), $dal_config);
                                             if(is_array($fxrates_obj)) {
                                                 if(count($budget_currencies) != count($fxrates_obj)) {
                                                     foreach($fxrates_obj as $budgetrate) {
@@ -154,15 +154,17 @@ class BudgetPlCategories extends AbstractClass {
                                                     if(is_array($currencies_diff)) {
                                                         foreach($currencies_diff as $currencyid) {
                                                             $currency = new Currencies($currencyid);
-                                                            $output_currname.=$comma.$currency->name;
+                                                            $output_currname .= $comma.$currency->name;
                                                             $comma = ', ';
                                                         }
                                                     }
-                                                    error($lang->sprint($lang->currencynotexistvar, $output_currname), $_SERVER['HTTP_REFERER']);
+                                                    error($lang->sprint($lang->noexchangerate, $output_currname, $options['tocurrency'], $budgetobject->year), $_SERVER['HTTP_REFERER']);
+                                                    exit;
                                                 }
                                             }
                                             else {
-                                                error($lang->currencynotexist, $_SERVER['HTTP_REFERER']);
+                                                error($lang->sprint($lang->noexchangerate, implode(', ', $budget_currencies), $options['tocurrency'], $budgetobject->year), $_SERVER['HTTP_REFERER']);
+                                                exit;
                                             }
 
                                             $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($options['tocurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=".$budgetobject->affid." AND year=".$budgetobject->year." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($options['tocurrency']).") END)";
