@@ -118,16 +118,17 @@ if(!($core->input['action'])) {
                         $rawdata[$blid]['spid'] = $product->get_supplier()->eid;
                         $rawdata[$blid]['s1Income'] = $rawdata[$blid]['income'] * ($rawdata[$blid]['s1Perc'] / 100);
                         $rawdata[$blid]['s2Income'] = $rawdata[$blid]['income'] * ($rawdata[$blid]['s2Perc'] / 100);
-                        if(empty($rawdata[$blid]['coid'])) {
-                            if(!empty($rawdata[$blid]['customerCountry'])) {
-                                $rawdata[$blid]['coid'] = $rawdata[$blid]['customerCountry'];
-                            }
-                            else {
-                                $rawdata[$blid]['coid'] = $budget_obj->get_affiliate()->get_country()->coid;
-                            }
+
+
+                        if(!empty($rawdata[$blid]['customerCountry'])) {
+                            $rawdata[$blid]['coid'] = $rawdata[$blid]['customerCountry'];
                         }
                         else {
-                            $rawdata[$blid]['coid'] = $budget_obj->get_customer()->get_country()->coid;
+
+                            $rawdata[$blid]['coid'] = $budgetline->get_customer()->get_country()->coid;
+                            if(empty($rawdata[$blid]['coid'])) {
+                                $rawdata[$blid]['coid'] = $budget_obj->get_affiliate()->get_country()->coid;
+                            }
                         }
                     }
                 }
@@ -201,7 +202,6 @@ if(!($core->input['action'])) {
 
 
                 foreach($required_fields as $field) {
-
                     if($field == 'cost') {
                         $values['country'][$field] = $values['country']['amount'] - $values['country']['income'];
                         $values['affiliate'][$field] = $values['affiliate']['amount'] - $values['affiliate']['income'];

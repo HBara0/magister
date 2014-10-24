@@ -21,9 +21,10 @@ if(!$core->input['action']) {
     $session->name_phpsession(COOKIE_PREFIX.'fillbudget'.$sessionidentifier);
     $session->start_phpsession(480);
 
+    $affiliate_where = ' name LIKE "orkila%"';
     if($core->usergroup['canViewAllAff'] == 0) {
         $inaffiliates = implode(',', $core->user['affiliates']);
-        $affiliate_where = " affid IN ({$inaffiliates})";
+        $affiliate_where .= " AND affid IN ({$inaffiliates})";
     }
 
     $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, "{$affiliate_where}");
@@ -36,6 +37,8 @@ if(!$core->input['action']) {
     else {
         $supplier_where = " type='s'";
     }
+
+    $supplier_where .= ' AND isActive=1';
     $suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, "{$supplier_where}");
     $budget_supplierslist = "<select name=budget[spid] id=spid ><option value='0'>&nbsp;</option></select>";
 
