@@ -90,4 +90,6 @@ $lang['currrate'] = 'From {1} To {2} rate:{3}';
 $lang['budgcurrdesc'] = 'Currency in this budget is in  K {1}';
 $lang['exchangerate'] = 'Exchange rate for The currency being used : ';
 $lang['currfxratedesc'] = 'data in this budget K : ';
+$lang['affid'] = 'Affiliate';
+$lang['spid'] = 'Supplier';
 ?>
