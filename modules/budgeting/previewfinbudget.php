@@ -17,6 +17,17 @@ if(!($core->input['action'])) {
     $financialbudget_prev3year = $financialbudget_year - 3;
     $affid = $budgetsdata['affilliates'];
     $budgettypes = $budgetsdata['budgetypes'];
+    if(empty($budgetsdata['affilliates'])) {
+        $affid = $core->user['affiliates'];
+    }
+    else {
+        $budgetsdata['affilliates'] = FinancialBudget::generate_filters($budgetsdata);
+        $affid = $budgetsdata['affilliates'][filters][affilliates][0];
+    }
+    /* if no budget selected */
+    if(empty($budgettypes)) {
+        error($lang->errorselectbudgettype, $_SERVER['HTTP_REFERER']);
+    }
 
     $financialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_year), array('simple' => false, 'returnarray' => true, 'operators' => array('affid' => IN)));
     if(is_array($financialbudget)) {
