@@ -338,8 +338,8 @@ class BudgetPlCategories extends AbstractClass {
                             }
 
                             $output_adminexpenses .= '<td style="width:9%" class = "border_left"><div id = "adminexpenses_'.$key.'">'.$financialbudget[$key].'</div></td>';
-                            $output_commercialexpenses .= '<td style="width:9%" class = "border_left"><div id = "total_'.$category->name.'_'.$key.'">'.$commercialexpenses[$key].'</div></td>';
-                            $output_totaladmcom .= '<td style="width:9%;font-weight:bold;" class = "border_left"><div id = "commercialexpenses_'.$key.'">'.$comercialbudget[$key].'</div></td>';
+                            $output_commercialexpenses .= '<td style="width:9%" class = "border_left"><div  id = "commercialexpenses_'.$key.'">'.$commercialexpenses[$key].'</div></td>';
+                            $output_totaladmcom .= '<td style="width:9%;font-weight:bold;" class = "border_left"><div id = "total_'.$category->name.'_'.$key.'">'.$comercialbudget[$key].'</div></td>';
                         }
                         foreach($rows as $row) {
                             $column_output = ${"output_".$row};
