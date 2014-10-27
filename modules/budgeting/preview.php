@@ -108,13 +108,18 @@ if(!($core->input['action'])) {
                             if($budgetline->originalCurrency != $budgetsdata[$field]['toCurrency']) {
                                 $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline->originalCurrency, 'toCurrency' => $budgetsdata[$field]['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budget_obj->year), $dal_config);
                                 if(is_array($fxrates_obj)) {
+                                    if($field !== 'current') {
+                                        $budgetline->amount = $budgetline->actualAmount;
+                                        $budgetline->income = $budgetline->actualIncome;
+                                    }
+                                    echo $budgetline->actualAmount;
                                     foreach($fxrates_obj as $fxid => $fxrates) {
                                         $rawdata[$field][$blid]['amount'] = ($budgetline->amount * $fxrates->rate);
                                         $rawdata[$field][$blid]['income'] = ($budgetline->income * $fxrates->rate);
                                     }
                                 }
                                 else {
-                                error($lang->sprint($lang->noexchangerate, $budgetline->originalCurrency, $budgetsdata['toCurrency'], $budget_obj->year), $_SERVER['HTTP_REFERER']);
+                                    error($lang->sprint($lang->noexchangerate, $budgetline->originalCurrency, $budgetsdata['toCurrency'], $budget_obj->year), $_SERVER['HTTP_REFERER']);
                                 }
                             }
                             /* get the currency rate of the Origin currency  of the current buudget - START */
@@ -144,6 +149,7 @@ if(!($core->input['action'])) {
             if(empty($rawdata['current'])) {
                 error($lang->nomatchfound, $_SERVER['HTTP_REFERER']);
             }
+            print_R($rawdata);
             /* Dimensional Report Settings - START */
             $dimensions = explode(',', $budgetsdata['current']['dimension'][0]); // Need to be passed from options stage
             $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 's1Income', 's2Income');
@@ -172,13 +178,20 @@ if(!($core->input['action'])) {
                     foreach($rawdata[$field] as $data) {
                         foreach($dimensions as $dimension) {
                             if(!empty($dimension)) {
-                                $cdata[$dimension]['amount'][$data[$dimension]][$field] += $data['amount'];
-                                $cdata[$dimension]['income'][$data[$dimension]][$field] += $data['income'];
+                                $amount = 'amount';
+                                $income = 'income';
+                                if($field !== 'current') {
+                                    $amount = 'actualAmount';
+                                    $income = 'actualIncome';
+                                }
                                 if($dimension == 'uid') {
                                     $data[$dimension] = $data['businessMgr'];
                                 }
+                                $cdata[$dimension]['amount'][$data[$dimension]][$field] += $data[$amount];
+                                $cdata[$dimension]['income'][$data[$dimension]][$field] += $data[$income];
+
                                 $dimension_objs = get_object_bytype($dimension, $data[$dimension]);
-                                $cdata[$dimension]['title'][$lang->$dimension] = $dimension_objs->get_displayname();
+                                $cdata[$dimension]['title'][$data[$dimension]] = $dimension_objs->get_displayname();
                             }
                         }
                     }
@@ -186,11 +199,11 @@ if(!($core->input['action'])) {
             }
 
             foreach($cdata as $dcdata) {
-                print_R($dcdata);
-                $xaxis = array_keys($dcdata['title'])[0];
-                $amount_barchart = new Charts(array('x' => array_keys($dcdata['amount']), 'y' => array_values($dcdata['amount'])), 'bar', array('yaxisname' => 'amount', 'xaxisname' => $xaxis));
+                // print_R($dcdata);
+                $xaxis = 'Affiliate';
+                $amount_barchart = new Charts(array('x' => array_values($dcdata['title']), 'y' => array_values($dcdata['amount'])), 'bar', array('yaxisname' => 'amount', 'xaxisname' => $xaxis));
                 $budgeting_budgetrawreport.='<img src='.$amount_barchart->get_chart().' />';
-                $income_barchart = new Charts(array('x' => array_keys($dcdata['income']), 'y' => array_values($dcdata['income'])), 'bar', array('yaxisname' => 'amount', 'xaxisname' => $xaxis));
+                $income_barchart = new Charts(array('x' => array_values($dcdata['title']), 'y' => array_values($dcdata['income'])), 'bar', array('yaxisname' => 'income', 'xaxisname' => $xaxis));
                 $budgeting_budgetrawreport.='<img src='.$income_barchart->get_chart().' />';
             }
         }

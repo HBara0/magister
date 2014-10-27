@@ -311,8 +311,7 @@ Class FinancialBudget extends AbstractClass {
                         'simple' => false,
                         'returnarray' => true
                 );
-
-                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currencies, 'toCurrency' => $options['tocurrency'], 'affid' => $options['affid'], 'year' => $options['year'],), $dal_config);
+                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currencies, 'toCurrency' => $options['tocurrency'], 'affid' => $options['affid'], 'year' => $options['year']), $dal_config);
                 if(is_array($fxrates_obj)) {
 
                     if(count($budget_currencies) != count($fxrates_obj)) {
@@ -327,11 +326,11 @@ Class FinancialBudget extends AbstractClass {
                                 $comma = ', ';
                             }
                         }
-                        error($lang->sprint($lang->currencynotexistvar, $output_currname), $_SERVER['HTTP_REFERER']);
+                        error($lang->sprint($lang->noexchangerate, $output_currname, $options['tocurrency'], $options['year']), $_SERVER['HTTP_REFERER']);
                     }
                 }
                 else {
-                    error($lang->currencynotexist, $_SERVER['HTTP_REFERER']);
+                    error($lang->sprint($lang->noexchangerate, implode(', ', $budget_currencies), $options['tocurrency'], $options['year']), $_SERVER['HTTP_REFERER']);
                 }
 
                 $output['currfxrates'] = '<strong>'.$lang->exchangerates.'</strong></br></br>';
