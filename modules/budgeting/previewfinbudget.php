@@ -17,19 +17,34 @@ if(!($core->input['action'])) {
     $financialbudget_prev3year = $financialbudget_year - 3;
     $affid = $budgetsdata['affiliates'];
     $budgettypes = $budgetsdata['budgetypes'];
-    if(empty($budgetsdata['affiliates'])) {
-        $affid = $core->user['affiliates'];
+    $dummy_budget = new Budgets();
+    $filters = $dummy_budget->generate_budgetline_filters();
+    ///$filters = array('affiliates' => $core->user['affiliates'], 'suppliers' => $core->user['suppliers']['eid'], 'segments' => array_keys($core->user_obj->get_segments()));
+    if(is_array($filters)) {
+        foreach($filters as $key => $val) {
+            if(empty($budgetsdata[$key])) {
+                if(empty($val)) {
+                    unset($budgetsdata[$key]);
+                    continue;
+                }
+                $budgetsdata[$key] = $val;
+            }
+            else {
+                $budgetsdata[$key] = array_intersect($val, $budgetsdata[$key]);
+            }
+        }
     }
-    else {
-        $budgetsdata['affiliates'] = FinancialBudget::generate_filters($budgetsdata);
-        $affid = $budgetsdata['affiliates'][filters][affiliates][0];
-    }
+    $affid = $budgetsdata['affiliates'];
     /* if no budget selected */
     if(empty($budgettypes)) {
         error($lang->errorselectbudgettype, $_SERVER['HTTP_REFERER']);
     }
 
-    $financialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_year), array('simple' => false, 'returnarray' => true, 'operators' => array('affid' => IN)));
+    $filters['year'] = $budgetsdata['year'];
+    if(!empty($budgetsdata['affiliates'])) {
+        $filters['affid'] = $budgetsdata['affiliates'];
+    }
+    $financialbudget = FinancialBudget::get_data($filters, array('simple' => false, 'returnarray' => true, 'operators' => array('affid' => IN)));
     if(is_array($financialbudget)) {
         $output = FinancialBudget::parse_financialbudget(array('budgettypes' => $budgettypes, 'affid' => $affid, 'tocurrency' => $budgetsdata['toCurrency'], 'year' => $financialbudget_year, 'filter' => array_keys($financialbudget)));
 
