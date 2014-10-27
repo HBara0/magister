@@ -371,13 +371,24 @@ CREATE TABLE `budgeting_plcategory` (
   PRIMARY KEY (`bplcid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `budgeting_plexpenses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `budgeting_plexpenses` (
+  `bpleid` int(10) NOT NULL AUTO_INCREMENT,
+  `bpliid` int(10) NOT NULL,
+  `bfbid` int(10) NOT NULL,
+  `actualPrevThreeYears` float NOT NULL,
+  `actualPrevTwoYears` float NOT NULL,
+  `budgetPrevYear` float NOT NULL,
+  `yefPrevYear` float NOT NULL,
+  `budgetCurrent` float NOT NULL,
   `createdBy` int(10) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
-  PRIMARY KEY (`bfbid`)
-) ENGINE=MyISAM AUTO_INCREMENT=62 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-DROP TABLE IF EXISTS `budgeting_fxrates`;
+  PRIMARY KEY (`bpleid`)
+) ENGINE=MyISAM AUTO_INCREMENT=30 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `budgeting_fxrates` (
