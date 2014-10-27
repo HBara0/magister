@@ -19,7 +19,6 @@ if(!($core->input['action'])) {
     $budgettypes = $budgetsdata['budgetypes'];
     $dummy_budget = new Budgets();
     $filters = $dummy_budget->generate_budgetline_filters();
-    ///$filters = array('affiliates' => $core->user['affiliates'], 'suppliers' => $core->user['suppliers']['eid'], 'segments' => array_keys($core->user_obj->get_segments()));
     if(is_array($filters)) {
         foreach($filters as $key => $val) {
             if(empty($budgetsdata[$key])) {
@@ -61,8 +60,10 @@ if(!($core->input['action'])) {
                     ${"budgeting_".$type} = '<table width="100%">';
                     $outputdata[$type] = $output[$type]['data'];
                     $header_budyef = $output[$type]['budyef'];
+                    $header_prevbudget = $output[$type]['prevbudget'];
+                    $header_prevbudget_year = $output[$type]['prevbudget_years'];
                     $header_variations = $output[$type]['variations'];
-                    $header_variations_years = $output[$type]['years'];
+                    $header_variations_years = $output[$type]['variations_years'];
                     eval("\$budgeting_".$type." .= \"".$template->get('budgeting_financialbudget_header')."\";");
                     ${"budgeting_".$type} .= $outputdata[$type];
                     ${"budgeting_".$type} .= '</table><br/>';

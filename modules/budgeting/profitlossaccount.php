@@ -18,6 +18,7 @@ if(!isset($core->input['action'])) {
     $affid = $budget_data['affid'];
     $plyear = $financialbudget_year = $budget_data['year'];
     $plprevyear = $financialbudget_prevyear = $plyear - 1;
+    $financialbudget_prev3year = $financialbudget_year - 3;
     $financialbudget_prev2year = $plyear - 2;
     if($core->usergroup['canViewAllAff'] == 0) {
         $affiliates = $core->user['affiliates'];
@@ -63,13 +64,21 @@ if(!isset($core->input['action'])) {
         $type = 'submit';
         $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'bid' => $budgetsids, 'tocurrency' => $currency->numCode));
     }
-    $header_yef = '<td style = "width:8.3%">%'.$lang->yef.' '.$plprevyear.'</td>';
-    $header_yef .= '<td style = "width:8.3%">%'.$lang->yef.' '.$plprevyear.'</td>';
-    $header_budyef .= '<td style = "width:8.3%">%'.$lang->bud.' '.$plyear.'</td>';
-    $actual = '<td>/'.$lang->actual.' '.$financialbudget_prev2year.'</td>';
-    $bud = '/Budget ';
-    $pl_yefprevyear = '/YEF '.$financialbudget_prevyear;
-    eval("\$budgeting_header = \"".$template->get('budgeting_investheader')."\";");
+
+
+
+    $headerfields = array($lang->actual, $lang->actual, $lang->budget, $lang->yef, '%YEF'.$financialbudget_prevyear, '%YEF'.$financialbudget_prevyear, $lang->budget, '%Bud'.$financialbudget_year);
+    $headeryears = array($financialbudget_prev3year, $financialbudget_prev2year, $financialbudget_prevyear, $financialbudget_prevyear, '/Actual '.$financialbudget_prev2year, '/Budget '.$financialbudget_prevyear, $financialbudget_year, '/YEF '.$financialbudget_prevyear);
+    $budgeting_header .='<tr class="thead"><td></td>';
+    foreach($headerfields as $field) {
+        $budgeting_header .= '<td>'.$field.'</td>';
+    }
+    $budgeting_header .='</tr><tr><td><input name="financialbudget[affid]" value="'.$affid.'" type="hidden">';
+    $budgeting_header .='<input name="financialbudget[year]" value="'.$financialbudget_year.'" type="hidden"></td>';
+    foreach($headeryears as $year) {
+        $budgeting_header .= '<td>'.$year.'</td>';
+    }
+    $budgeting_header .='</tr>';
 
     if(!empty($currency->alphaCode)) {
         $tocurrency = '840'; //usd

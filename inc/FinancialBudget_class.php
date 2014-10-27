@@ -439,9 +439,9 @@ Class FinancialBudget extends AbstractClass {
                     case'profitlossaccount':
                         $plcategories = BudgetPlCategories::get_data('', array('returnarray' => true));
                         $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid=budgeting_plexpenses.bfbid)';
-                        $sql = "SELECT bpliid,sum(actualPrevTwoYears*{$fxrate_query}) AS actualPrevTwoYears,sum(budgetPrevYear*{$fxrate_query}) AS budgetPrevYear, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrens FROM ".Tprefix."budgeting_plexpenses WHERE bfbid IN (".implode(', ', $options['filter']).") GROUP By bpliid";
+                        $sql = "SELECT bpliid,sum(actualPrevThreeYears*{$fxrate_query}) AS actualPrevThreeYears, sum(actualPrevTwoYears*{$fxrate_query}) AS actualPrevTwoYears,sum(budgetPrevYear*{$fxrate_query}) AS budgetPrevYear, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrens FROM ".Tprefix."budgeting_plexpenses WHERE bfbid IN (".implode(', ', $options['filter']).") GROUP By bpliid";
                         $query = $db->query($sql);
-                        $fields = array('actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
+                        $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
                         if($db->num_rows($query) > 0) {
                             while($item = $db->fetch_assoc($query)) {
                                 foreach($fields as $field) {
@@ -479,9 +479,11 @@ Class FinancialBudget extends AbstractClass {
                         }
                         $bid = array('prevtwoyears' => $prevtwoyears, 'prevyear' => $prevyear, 'current' => $current);
                         $output['profitlossaccount']['data'] = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'placcount' => $placcount, 'bid' => $bid, 'filter' => $options['filter'], 'tocurrency' => $options['tocurrency']));
+                        $output['profitlossaccount']['prevbudget'] = '<td style="width:10%">'.$lang->budget.'</td>';
+                        $output[$type]['prevbudget_years'] = '<td style="width:10%"><span>'.($options['year'] - 1).'</span></td>';
                         $output['profitlossaccount']['variations'] = '<td style="width:10%">% '.$lang->yefactual.'</td><td style="width:10%">% '.$lang->yefbud.'</td>';
                         $output['profitlossaccount']['budyef'] = '<td style="width:10%">% '.$lang->budyef.'</td>';
-                        $output[$type]['years'] = ' <td style="width:10%"><span>'.$options['year'].' / '.($options['year'] - 2).'</span></td> <td style="width:10%"><span>'.$options['year'].' / '.$options['year'].'</span></td>';
+                        $output[$type]['variations_years'] = ' <td style="width:10%"><span>'.$options['year'].' / '.($options['year'] - 2).'</span></td> <td style="width:10%"><span>'.$options['year'].' / '.$options['year'].'</span></td>';
                         break;
                 }
             }
