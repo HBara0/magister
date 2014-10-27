@@ -149,14 +149,16 @@ Class FinancialBudget extends AbstractClass {
                 $financialdata['netIncome'] = $data['financialbudget']['income'];
             }
             foreach($fields as $field) {
-                $max = 'max'.$field;
-                if($data['financialbudget'][$field] > $data['financialbudget'][$max]) {
-                    $this->errorcode = 3;
-                    return;
+                if(isset($data['financialbudget'][$field])) {
+                    $max = 'max'.$field;
+                    if($data['financialbudget'][$field] > $data['financialbudget'][$max]) {
+                        $this->errorcode = 3;
+                        return;
+                    }
+                    $data['financialbudget'][$field] = $core->sanitize_inputs($data['financialbudget'][$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
+                    $data['financialbudget'][$field] = $db->escape_string($data['financialbudget'][$field]);
+                    $financialdata[$field] = $data['financialbudget'][$field];
                 }
-                $data['financialbudget'][$field] = $core->sanitize_inputs($data['financialbudget'][$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
-                $data['financialbudget'][$field] = $db->escape_string($data['financialbudget'][$field]);
-                $financialdata[$field] = $data['financialbudget'][$field];
             }
             $affiliate = new Affiliates($financialdata['affid']);
             $financialdata['currency'] = $affiliate->get_country()->get_maincurrency()->get()[numCode];
@@ -439,7 +441,7 @@ Class FinancialBudget extends AbstractClass {
                     case'profitlossaccount':
                         $plcategories = BudgetPlCategories::get_data('', array('returnarray' => true));
                         $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid=budgeting_plexpenses.bfbid)';
-                        $sql = "SELECT bpliid,sum(actualPrevThreeYears*{$fxrate_query}) AS actualPrevThreeYears, sum(actualPrevTwoYears*{$fxrate_query}) AS actualPrevTwoYears,sum(budgetPrevYear*{$fxrate_query}) AS budgetPrevYear, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrens FROM ".Tprefix."budgeting_plexpenses WHERE bfbid IN (".implode(', ', $options['filter']).") GROUP By bpliid";
+                        $sql = "SELECT bpliid,sum(actualPrevThreeYears*{$fxrate_query}) AS actualPrevThreeYears, sum(actualPrevTwoYears*{$fxrate_query}) AS actualPrevTwoYears,sum(budgetPrevYear*{$fxrate_query}) AS budgetPrevYear, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrent FROM ".Tprefix."budgeting_plexpenses WHERE bfbid IN (".implode(', ', $options['filter']).") GROUP By bpliid";
                         $query = $db->query($sql);
                         $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
                         if($db->num_rows($query) > 0) {
