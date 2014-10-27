@@ -21,7 +21,7 @@ if(!$core->input['action']) {
     $affiliate_where = ' name LIKE "orkila%"';
     if($core->usergroup['canViewAllAff'] == 0) {
         $inaffiliates = implode(',', $core->user['affiliates']);
-        $affiliate_where = " AND affid IN ({$inaffiliates})";
+        $affiliate_where .= " AND affid IN ({$inaffiliates})";
     }
     $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, "{$affiliate_where}");
     if(is_array($affiliates)) {

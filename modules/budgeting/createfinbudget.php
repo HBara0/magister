@@ -30,7 +30,7 @@ if(!$core->input['action']) {
     $affiliate_where = ' name LIKE "orkila%"';
     if($core->usergroup['canViewAllAff'] == 0) {
         $inaffiliates = implode(',', $core->user['affiliates']);
-        $affiliate_where = ' AND affid IN ('.$inaffiliates.')';
+        $affiliate_where .= ' AND affid IN ('.$inaffiliates.')';
     }
     $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0, $affiliate_where);
     $affiliated_budget = parse_selectlist('financialbudget[affid]', 1, $affiliates, $core->user['mainaffiliate'], 0, '', array('id' => 'affid'));
