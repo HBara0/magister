@@ -64,8 +64,7 @@ class BudgetPlCategories extends AbstractClass {
                             }
                             else {
                                 if(isset($options['mode']) && $options['mode'] === 'fill') {
-                                    $column_output .='<td style="width:12.5%" class="border_left">'.parse_textfield('placcount['.$item->bpliid.']['.$input.']', 'placcount_'.$category->name.'_'.$input.'_'.$item->bpliid, 'number', sprintf("%.2f", $plexpenses_current->$input), array('step' => 'any', $readonly => $readonly, 'style' => 'width:100%;
-                                    ')).'</td>';
+                                    $column_output .='<td style="width:12.5%" class="border_left">'.parse_textfield('placcount['.$item->bpliid.']['.$input.']', 'placcount_'.$category->name.'_'.$input.'_'.$item->bpliid, 'number', sprintf("%.2f", $plexpenses_current->$input), array('step' => 'any', $readonly => $readonly, 'style' => 'width:100%;')).'</td>';
                                 }
                                 else {
                                     if(isset($options['placcount']) && !empty($options['placcount'])) {
@@ -238,15 +237,13 @@ class BudgetPlCategories extends AbstractClass {
                                 eval("\$output .= \"".$template->get('budgeting_plitem')."\";");
                                 $income_output = $amount_output = '';
                             }
-                            $column_output .='<td style = "width:25%"></td>';
+                            $column_output .='<td style="width:25%"></td>';
                             $hiddenfields = array('actualPrevTwoYears' => 'prevtwoyears', 'budgetPrevYear' => 'prevyear', 'yefPrevYear' => 'yef', 'yefactual' => 'yefactual', 'yefbud' => 'yefbud', 'budgetCurrent' => current, 'budyef' => 'budyef');
 // parse hidden fields for Sales category total
                             foreach($hiddenfields as $key => $value) {
-                                $width = '12.5%;
-                                    ';
+                                $width = '12.5%;';
                                 if($field == 'yefactual' || $field == 'yefbud' || $field == 'budyef') {
-                                    $width = '8.3%;
-                                    ';
+                                    $width = '8.3%;';
                                 }
                                 $totalincome[$key] = $totalincome[$value];
                                 $column_output.='<td style = "width:'.$width.'"><input type = "hidden" id = "total_'.$category->name.'_'.$key.'" value = "'.$totalincome[$key].'"></td>';
@@ -300,11 +297,10 @@ class BudgetPlCategories extends AbstractClass {
                             if($row === 'totaladmcom') {
                                 $style = 'style = "width:25%;font-weight:bold;"';
                             }
-                            ${"output_".$row} .='<td '.$style.'>'.$lang->$row.'</td>';
+                            ${"output_".$row} .= '<td '.$style.'>'.$lang->$row.'</td>';
                         }
                         foreach($budgets as $key => $value) {
-                            $width = '12.5%;
-                                    ';
+                            $width = '12.5%;';
                             if(empty($financialbudget[$value])) {
                                 $financialbudget[$value] = $options['financialbudget']->$value;
                             }
@@ -346,9 +342,9 @@ class BudgetPlCategories extends AbstractClass {
                                 }
                             }
 
-                            $output_adminexpenses .='<td style = "width:'.$width.'" class = "border_left"><div id = "adminexpenses_'.$key.'">'.$financialbudget[$key].'</div></td>';
-                            $output_commercialexpenses .='<td style = "width:'.$width.'" class = "border_left"><div id = "total_'.$category->name.'_'.$key.'">'.$commercialexpenses[$key].'</div></td>';
-                            $output_totaladmcom .='<td style = "width:'.$width.'font-weight:bold;" class = "border_left"><div id = "commercialexpenses_'.$key.'">'.$comercialbudget[$key].'</div></td>';
+                            $output_adminexpenses .= '<td style="width:'.$width.'" class = "border_left"><div id = "adminexpenses_'.$key.'">'.$financialbudget[$key].'</div></td>';
+                            $output_commercialexpenses .= '<td style="width:'.$width.'" class = "border_left"><div id = "total_'.$category->name.'_'.$key.'">'.$commercialexpenses[$key].'</div></td>';
+                            $output_totaladmcom .= '<td style="width:'.$width.'font-weight:bold;" class = "border_left"><div id = "commercialexpenses_'.$key.'">'.$comercialbudget[$key].'</div></td>';
                         }
                         foreach($rows as $row) {
                             $column_output = ${"output_".$row};

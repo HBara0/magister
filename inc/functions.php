@@ -822,8 +822,8 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
     $path = ROOT.$modules_dir;
     $list = '';
     if(is_dir($path)) {
-        $dir = opendir($path);
-        while(false !== ($file = readdir($dir))) {
+        $files = scandir($path);
+        foreach($files as $file) {
             if($file != '.' && $file != '..') {
                 $file_info = pathinfo($path.'/'.$file);
                 if($file_info['extension'] == 'php') {
@@ -850,7 +850,6 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
                 }
             }
         }
-        closedir($dir);
     }
 
     if(!empty($list)) {

@@ -48,11 +48,11 @@ class Entities {
 
             if(array_key_exists('repName', $this->data) || array_key_exists('repEmail', $this->data)) {
                 if($this->data['repName'] == 'na' || $this->data['repName'] == 'n/a') {
-                    $representatives[$i]['rpid'] = $db->fetch_field($db->query("SELECT rpid FROM ".Tprefix."representatives WHERE name='n/a'"), 'rpid');
+                    $representatives[0]['rpid'] = $db->fetch_field($db->query("SELECT rpid FROM ".Tprefix."representatives WHERE name='n/a'"), 'rpid');
                 }
                 else {
                     $this->create_representative();
-                    $representatives[$i]['rpid'] = $db->last_id();
+                    $representatives[0]['rpid'] = $db->last_id();
                 }
                 unset($this->data['repName'], $this->data['repEmail']);
             }
