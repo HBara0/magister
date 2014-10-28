@@ -183,10 +183,17 @@ class TravelManagerPlanSegments {
 //            unset($chkdata);
 //        }
 
+
         if(is_array($segmentdata['tmhid'])) {
             $segment_hotels['tmhid'] = $segmentdata['tmhid'];
 
             foreach($segment_hotels['tmhid'] as $tmhid => $hotel) {
+                $hotelacc = TravelManagerPlanaccomodations::get_data('tmhid='.$tmhid);
+                if(!in_array($hotelacc->tmhid, $hotel)) {
+                    $db->delete_query('travelmanager_plan_accomodations', 'tmhid='.$tmhid.' AND tmpsid ='.$this->data['tmpsid'].'');
+                    continue;
+                }
+
                 $hoteldata['tmhid'] = $tmhid;
                 $hoteldata['tmpsid'] = $this->data[self::PRIMARY_KEY];
                 $hoteldata['priceNight'] = $hotel['priceNight'];
@@ -244,7 +251,6 @@ class TravelManagerPlanSegments {
         }//get object of and the id and set data and save
         $tmpsegment = TravelManagerPlanSegments::get_segments(array(TravelManagerPlan::PRIMARY_KEY => $data[TravelManagerPlan::PRIMARY_KEY], 'fromDate' => $data['fromDate'], 'toDate' => $data['toDate']));
         if(is_object($tmpsegment)) {
-            print_r($this->data);
             $this->data['tmpsid'] = $tmpsegment->tmpsid;
             $tmpsegment->update($data);
         }
@@ -462,22 +468,22 @@ class TravelManagerPlanSegments {
         return TravelManagerPlanaccomodations::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), $config);
     }
 
-    public function display_paidby($paidby, $paidbyid) {
-        global $core;
-        switch($paidby) {
-            case "myaffiliate":
-                $object = new Affiliates($core->user['mainaffiliate']);
-                //$paidby = $affiliate->name;
-                break;
-            case "anotheraff":
-                $object = new Affiliates($paidbyid);
-                // $paidby = $affiliate->name;
-                break;
-            default:
-                $object = $paidby;
-        }
-        return $object;
-    }
-
+//
+//    public function display_paidby($paidby, $paidbyid) {
+//        global $core;
+//        switch($paidby) {
+//            case "myaffiliate":
+//                $object = new Affiliates($core->user['mainaffiliate']);
+//                //$paidby = $affiliate->name;
+//                break;
+//            case "anotheraff":
+//                $object = new Affiliates($paidbyid);
+//                // $paidby = $affiliate->name;
+//                break;
+//            default:
+//                $object = $paidby;
+//        }
+//        return $object;
+//    }
 }
 ?>
