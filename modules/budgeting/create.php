@@ -38,7 +38,7 @@ if(!$core->input['action']) {
         $supplier_where = " type='s'";
     }
 
-    $supplier_where .= ' AND isActive=1';
+    $supplier_where .= ' AND approved=1 AND isActive=1';
     $suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, "{$supplier_where}");
     $budget_supplierslist = "<select name=budget[spid] id=spid ><option value='0'>&nbsp;</option></select>";
 

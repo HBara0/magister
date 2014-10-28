@@ -30,7 +30,7 @@ if(!$core->input['action']) {
 
 
     $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, "{$affiliate_where}");
-    //$affiliated_budget = parse_selectlist('budget[affilliates][]', 1, $affiliates, $core->user['mainaffiliate'], 1, '', array('id' => 'affid'));
+    //$affiliated_budget = parse_selectlist('budget[affiliates][]', 1, $affiliates, $core->user['mainaffiliate'], 1, '', array('id' => 'affid'));
     if(is_array($affiliates)) {
 
         foreach($affiliates as $key => $value) {
@@ -39,7 +39,7 @@ if(!$core->input['action']) {
             }
             $checked = $rowclass = '';
             $affiliates_list .='<tr class="'.$rowclass.'">';
-            $affiliates_list .='<td><input name="budget[affilliates][]"  type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
+            $affiliates_list .='<td><input name="budget[affiliates][]"  type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
         }
     }
 

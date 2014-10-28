@@ -13,27 +13,21 @@
  *
  * @author zaher.reda
  */
-class IntegrationMediationEntities {
-    private $status = 0;
-    private $data = array();
+class IntegrationMediationEntities extends AbstractClass {
+    protected $data = array();
+    protected $errorcode = 0;
 
     const PRIMARY_KEY = 'imspid';
     const TABLE_NAME = 'integration_mediation_entities';
     const DISPLAY_NAME = 'foreignName';
+    const SIMPLEQ_ATTRS = '*';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id = null, $simple = true) {
         if(empty($id)) {
             return false;
         }
         $this->read($id, $simple);
-    }
-
-    private function read($id, $simple) {
-        global $db;
-
-        $query_select = '*';
-
-        $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
 
     public function get_localentity() {
@@ -71,6 +65,18 @@ class IntegrationMediationEntities {
 
     public function get() {
         return $this->data;
+    }
+
+    protected function create(array $data) {
+
+    }
+
+    protected function update(array $data) {
+
+    }
+
+    public function save(array $data = array()) {
+
     }
 
 }

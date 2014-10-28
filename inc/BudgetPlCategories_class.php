@@ -45,8 +45,9 @@ class BudgetPlCategories extends AbstractClass {
                 if(is_array($plitems)) {
                     foreach($plitems as $item) {
                         $plexpenses_current = BudgetPlExpenses::get_data(array('bpliid' => $item->bpliid, 'bfbid' => $options['financialbudget']->bfbid));
-                        $fields = array('actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'yefactual', 'yefbud', 'budgetCurrent', 'budyef');
-                        $column_output .= '<td style="width:25%">'.$item->title.'<input type="hidden" name="placcount['.$item->bpliid.'][bpliid]" value='.$item->bpliid.'></td>';
+                        $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'yefactual', 'yefbud', 'budgetCurrent', 'budyef');
+                        $column_output .= '<td style="width:28%">'.$item->title.'<input type="hidden" name="placcount['.$item->bpliid.'][bpliid]" value='.$item->bpliid.'></td>';
+                        $plexpenses_current = new BudgetPlExpenses();
                         foreach($fields as $input) {
                             if($input === 'yefactual' || $input === 'yefbud' || $input === 'budyef') {
                                 $plexpenses[$input] = '0.00%';
@@ -59,20 +60,19 @@ class BudgetPlCategories extends AbstractClass {
                                 if($plexpenses_current->yefPrevYear != 0) {
                                     $plexpenses['budyef'] = sprintf("%.2f", (($plexpenses_current->budgetCurrent - $plexpenses_current->yefPrevYear) / $plexpenses_current->yefPrevYear) * 100).' %';
                                 }
-                                $column_output .='<td style="width:8.3%" class="border_left"><div id="placcount_'.$category->name.'_'.$input.'_'.$item->bpliid.'" >'.$plexpenses[$input].'</div></td>';
-                                $total['plexpenses'][$input] +=$plexpenses[$input];
+                                $column_output .='<td style="width:9%" class="border_left"><div id="placcount_'.$category->name.'_'.$input.'_'.$item->bpliid.'" >'.$plexpenses[$input].'</div></td>';
+                                $total['plexpenses'][$input] += $plexpenses[$input];
                             }
                             else {
                                 if(isset($options['mode']) && $options['mode'] === 'fill') {
-                                    $column_output .='<td style="width:12.5%" class="border_left">'.parse_textfield('placcount['.$item->bpliid.']['.$input.']', 'placcount_'.$category->name.'_'.$input.'_'.$item->bpliid, 'number', sprintf("%.2f", $plexpenses_current->$input), array('accept' => 'numeric', 'step' => 'any', $readonly => $readonly, 'style' => 'width:100%;')).'</td>';
+                                    $column_output .='<td style="width:9%" class="border_left">'.parse_textfield('placcount['.$item->bpliid.']['.$input.']', 'placcount_'.$category->name.'_'.$input.'_'.$item->bpliid, 'number', sprintf("%.2f", $plexpenses_current->$input), array('step' => 'any', $readonly => $readonly, 'style' => 'width:100%;')).'</td>';
                                 }
                                 else {
                                     if(isset($options['placcount']) && !empty($options['placcount'])) {
                                         $placcount = $options['placcount'];
-                                        $plexpenses_current = new BudgetPlExpenses();
                                         $plexpenses_current->$input = sprintf("%.2f", $placcount[$item->bpliid][$input]);
                                     }
-                                    $column_output .=' <td style="width:12.5%">'.$plexpenses_current->$input.'</td>';
+                                    $column_output .=' <td style = "width:9%">'.$plexpenses_current->$input.'</td>';
                                 }
                                 $total['plexpenses'][$input] +=$plexpenses_current->$input;
                             }
@@ -83,7 +83,7 @@ class BudgetPlCategories extends AbstractClass {
                         $category_item = $column_output = '';
                     }
                     $title = $category->title;
-                    $column_output .= '<td style="width:25%;font-weight:bold;">'.$title.'</td>';
+                    $column_output .= '<td style = "width:28%;font-weight:bold;">'.$title.'</td>';
                     foreach($fields as $input) {
                         switch($category->name) {
                             case'income':
@@ -104,7 +104,7 @@ class BudgetPlCategories extends AbstractClass {
                                 $total['plexpenses']['budyef'] = sprintf("%.2f", (( $total['plexpenses']['budgetCurrent'] - $total['plexpenses']['yefPrevYear']) / $total['plexpenses']['yefPrevYear']) * 100).' %';
                             }
                         }
-                        $column_output .=' <td style="width:12.5%;font-weight:bold;"><div id="total_'.$category->name.'_'.$input.'">'.$total['plexpenses'][$input].'</div>';
+                        $column_output .=' <td style = "width:9%;font-weight:bold;"><div id = "total_'.$category->name.'_'.$input.'">'.$total['plexpenses'][$input].'</div>';
                         $column_output .=parse_textfield('', 'total_'.$category->name.'_'.$input, 'hidden', $total['plexpenses'][$input]).'</td>';
                         if($category->name === 'netincome' && $input === 'budgetCurrent') {
                             $column_output .=parse_textfield('financialbudget[income]', 'total_'.$category->name.'_'.$input, 'hidden', $total['plexpenses'][$input]).'</td>';
@@ -119,10 +119,10 @@ class BudgetPlCategories extends AbstractClass {
                     if($category->name == 'sales') {
                         if(is_array($options['bid'])) {
 //get commercial budgets data if exits
-                            foreach($options['bid'] as $key => $id) {
-                                if(isset($id) && !empty($id)) {
-                                    if(is_array($id)) {
-                                        foreach($id as $budgetid) {
+                            foreach($options['bid'] as $key => $budgetsids) {
+                                if(isset($budgetsids) && !empty($budgetsids)) {
+                                    if(is_array($budgetsids)) {
+                                        foreach($budgetsids as $budgetid) {
                                             $budgetobject = Budgets::get_data(array('bid' => $budgetid), array('simple' => false));
                                             if(!is_object($budgetobject)) {
                                                 continue;
@@ -135,16 +135,14 @@ class BudgetPlCategories extends AbstractClass {
                                                 }
                                                 $budget_currencies = array_unique($budget_currencies);
                                             }
-                                            if(in_array($options['tocurrency'], $budget_currencies)) {
-                                                continue;
-                                            }
+
                                             $dal_config = array(
-                                                    'operators' => array('fromCurrency' => 'in', 'affid' => '=', 'year' => '='),
+                                                    'operators' => array('fromCurrency' => 'in', 'affid' => ' = ', 'year' => ' = '),
                                                     'simple' => false,
                                                     'returnarray' => true
                                             );
 
-                                            $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currencies, 'toCurrency' => $options['tocurrency'], 'affid' => $budgetobject->affid, 'year' => $budgetobject->year,), $dal_config);
+                                            $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currencies, 'toCurrency' => $options['tocurrency'], 'affid' => $budgetobject->affid, 'year' => $budgetobject->year), $dal_config);
                                             if(is_array($fxrates_obj)) {
                                                 if(count($budget_currencies) != count($fxrates_obj)) {
                                                     foreach($fxrates_obj as $budgetrate) {
@@ -154,20 +152,23 @@ class BudgetPlCategories extends AbstractClass {
                                                     if(is_array($currencies_diff)) {
                                                         foreach($currencies_diff as $currencyid) {
                                                             $currency = new Currencies($currencyid);
-                                                            $output_currname.=$comma.$currency->name;
+                                                            $output_currname .= $comma.$currency->name;
                                                             $comma = ', ';
                                                         }
                                                     }
-                                                    error($lang->sprint($lang->currencynotexistvar, $output_currname), $_SERVER['HTTP_REFERER']);
+                                                    if($currencyid != $options['tocurrency']) {
+                                                        error($lang->sprint($lang->noexchangerate, $output_currname, $options['tocurrency'], $budgetobject->year), $_SERVER['HTTP_REFERER']);
+                                                    }
                                                 }
                                             }
                                             else {
-                                                error($lang->currencynotexistvar, $_SERVER['HTTP_REFERER']);
+                                                error($lang->sprint($lang->noexchangerate, implode(', ', $budget_currencies), $options['tocurrency'], $budgetobject->year), $_SERVER['HTTP_REFERER']);
                                             }
 
                                             $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($options['tocurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=".$budgetobject->affid." AND year=".$budgetobject->year." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($options['tocurrency']).") END)";
                                             $sql = "SELECT saleType,sum(amount*{$fxrate_query}) AS amount,sum(income*{$fxrate_query}) AS income, sum(actualAmount*{$fxrate_query}) AS actualAmount, sum(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines where bid=".$budgetid." GROUP BY saleType";
-
+                                            //echo $sql;
+                                            //echo '<hr />';
                                             $query = $db->query($sql);
                                             if($db->num_rows($query) > 0) {
                                                 $amount = 'amount';
@@ -177,8 +178,8 @@ class BudgetPlCategories extends AbstractClass {
                                                         $amount = 'actualAmount';
                                                         $income = 'actualIncome';
                                                     }
-                                                    $combudget[$key][$budget['saleType']]['amount'] += sprintf("%.2f", $budget[$amount]);
-                                                    $combudget[$key][$budget['saleType']]['income'] += sprintf("%.2f", $budget[$income]);
+                                                    $combudget[$key][$budget['saleType']]['amount'] += sprintf("%.2f", $budget[$amount] / 1000);
+                                                    $combudget[$key][$budget['saleType']]['income'] += sprintf("%.2f", $budget[$income] / 1000);
                                                 }
                                             }
                                         }
@@ -190,7 +191,7 @@ class BudgetPlCategories extends AbstractClass {
                             foreach($saletypes as $type) {
                                 $combudget[yef][$type->stid]['amount'] = $combudget[yef][$type->stid]['income'] = 10;
 
-                                $fields = array('prevtwoyears', 'prevyear', 'yef', 'current');
+                                $fields = array('prevthreeyears', 'prevtwoyears', 'prevyear', 'yef', 'current');
                                 foreach($fields as $field) {
                                     $combudget[$field][$type->stid]['perc'] = 0;
                                     if($combudget[$field][$type->stid]['amount'] != 0) {
@@ -212,9 +213,9 @@ class BudgetPlCategories extends AbstractClass {
                                     }
                                 }
 //parse fields
-                                $fields = array('prevtwoyears', 'prevyear', 'yef', 'yefactual', 'yefbud', 'current', 'budyef');
-                                $amount_output .=' <td style="width:25%;font-weight:bold;">'.$type->title.'</td>';
-                                $income_output .='<td style="width:25%">'.$lang->accountedcommissions.'</td>';
+                                $fields = array('prevthreeyears', 'prevtwoyears', 'prevyear', 'yef', 'yefactual', 'yefbud', 'current', 'budyef');
+                                $amount_output .=' <td style = "width:28%;font-weight:bold;">'.$type->title.'</td>';
+                                $income_output .='<td style = "width:28%">'.$lang->accountedcommissions.'</td>';
                                 foreach($fields as $field) {
                                     if(empty($combudget[$field][$type->stid]['amount'])) {
                                         $combudget[$field][$type->stid]['amount'] = 0;
@@ -223,12 +224,12 @@ class BudgetPlCategories extends AbstractClass {
                                         $combudget[$field][$type->stid]['income'] = 0;
                                     }
                                     if($field == 'yefactual' || $field == 'yefbud' || $field == 'budyef') {
-                                        $amount_output .='<td style="width:8.3%" class="border_left"><div id="placcount_'.$category->name.'_'.$field.'_'.$type->stid.'">'.$combudget[$field][$type->stid]['amount'].'</div></td>';
-                                        $income_output .='<td style="width:8.3%" class="border_left"><div id="placcount_'.$category->name.'_'.$field.'_'.$type->stid.'">'.$combudget[$field][$type->stid]['income'].'</div></td>';
+                                        $amount_output .='<td style = "width:9%" class = "border_left"><div id = "placcount_'.$category->name.'_'.$field.'_'.$type->stid.'">'.$combudget[$field][$type->stid]['amount'].'</div></td>';
+                                        $income_output .='<td style = "width:9%" class = "border_left"><div id = "placcount_'.$category->name.'_'.$field.'_'.$type->stid.'">'.$combudget[$field][$type->stid]['income'].'</div></td>';
                                     }
                                     else {
-                                        $amount_output .='<td style="width:12.5%" class="border_left">'.$combudget[$field][$type->stid]['amount'].'</td>';
-                                        $income_output .='<td style="width:12.5%" class="border_left">'.$combudget[$field][$type->stid]['income'].'</td>';
+                                        $amount_output .='<td style = "width:9%" class = "border_left">'.$combudget[$field][$type->stid]['amount'].'</td>';
+                                        $income_output .='<td style = "width:9%" class = "border_left">'.$combudget[$field][$type->stid]['income'].'</td>';
                                         $totalincome[$field] += $combudget[$field][$type->stid]['income'];
                                     }
                                 }
@@ -236,16 +237,16 @@ class BudgetPlCategories extends AbstractClass {
                                 eval("\$output .= \"".$template->get('budgeting_plitem')."\";");
                                 $income_output = $amount_output = '';
                             }
-                            $column_output .='<td style="width:25%"></td>';
-                            $hiddenfields = array('actualPrevTwoYears' => 'prevtwoyears', 'budgetPrevYear' => 'prevyear', 'yefPrevYear' => 'yef', 'yefactual' => 'yefactual', 'yefbud' => 'yefbud', 'budgetCurrent' => current, 'budyef' => 'budyef');
+                            $column_output .='<td style="width:28%"></td>';
+                            $hiddenfields = array('actualPrevThreeYears' => 'prevthreeyears', 'actualPrevTwoYears' => 'prevtwoyears', 'budgetPrevYear' => 'prevyear', 'yefPrevYear' => 'yef', 'yefactual' => 'yefactual', 'yefbud' => 'yefbud', 'budgetCurrent' => current, 'budyef' => 'budyef');
 // parse hidden fields for Sales category total
                             foreach($hiddenfields as $key => $value) {
-                                $width = '12.5%;';
+                                $width = '9%;';
                                 if($field == 'yefactual' || $field == 'yefbud' || $field == 'budyef') {
-                                    $width = '8.3%;';
+                                    $width = '9%;';
                                 }
                                 $totalincome[$key] = $totalincome[$value];
-                                $column_output.='<td style="width:'.$width.'"><input type="hidden" id="total_'.$category->name.'_'.$key.'" value="'.$totalincome[$key].'"></td>';
+                                $column_output.='<td style = "width:'.$width.'"><input type = "hidden" id = "total_'.$category->name.'_'.$key.'" value = "'.$totalincome[$key].'"></td>';
                             }
                             eval("\$output .= \"".$template->get('budgeting_plcategory_item')."\";");
                             unset($column_output);
@@ -254,54 +255,54 @@ class BudgetPlCategories extends AbstractClass {
 //parse Adm.Com. Expenses section
                     if($category->name == 'admcomexpenses') {
                         $rows = array('adminexpenses', 'commercialexpenses', 'totaladmcom');
-                        $budgets = array('actualPrevThreeYears' => 'finGenAdmExpAmtApthy', 'actualPrevTwoYears' => 'finGenAdmExpAmtApty', 'yefPrevYear' => 'finGenAdmExpAmtApty', 'yefactual' => 'yefactual', 'yefbud' => 'yefbud', 'budgetCurrent' => 'finGenAdmExpAmtCurrent', 'budyef' => 'budyef');
+                        $budgets = array('actualPrevThreeYears' => 'finGenAdmExpAmtApthy', 'actualPrevTwoYears' => 'finGenAdmExpAmtApty', 'budgetPrevYear' => 'finGenAdmExpAmtBpy', 'yefPrevYear' => 'finGenAdmExpAmtYpy', 'yefactual' => 'yefactual', 'yefbud' => 'yefbud', 'budgetCurrent' => 'finGenAdmExpAmtCurrent', 'budyef' => 'budyef');
                         if(is_object($options['financialbudget'])) {
-                            $finbudgetitems = BudgetComAdminExpenses::get_data(array('bfbid' => $options['financialbudget']->bfbid), array('returnarray' => true));
+                            $options['filter'][] = $options['financialbudget']->bfbid;
                         }
-                        else { //for generate report (mode=display) case where more than one affiliate is selected
-                            if(is_array($options['filter'])) {
-                                $fxrate_query2 = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid= budgeting_financialbudget.bfbid)';
-                                $sql = "SELECT bfbid,sum(finGenAdmExpAmtApthy*{$fxrate_query2}) AS finGenAdmExpAmtApthy ,sum(finGenAdmExpAmtApty*{$fxrate_query2}) AS finGenAdmExpAmtApty, sum(finGenAdmExpAmtYpy*{$fxrate_query2}) AS finGenAdmExpAmtYpy, sum(finGenAdmExpAmtCurrent*{$fxrate_query2}) AS finGenAdmExpAmtCurrent FROM ".Tprefix."budgeting_financialbudget WHERE bfbid IN (".implode(',', $options['filter']).")";
-                                $query = $db->query($sql);
-                                if($db->num_rows($query) > 0) {
-                                    while($budget = $db->fetch_assoc($query)) {
-                                        $financialbudget['finGenAdmExpAmtApthy'] += $budget['finGenAdmExpAmtApthy'];
-                                        $financialbudget['finGenAdmExpAmtApty'] += $budget['finGenAdmExpAmtApty'];
-                                        $financialbudget['finGenAdmExpAmtYpy'] += $budget['finGenAdmExpAmtYpy'];
-                                        $financialbudget['finGenAdmExpAmtCurrent'] += $budget['finGenAdmExpAmtCurrent'];
-                                    }
+
+                        //for generate report (mode=display) case where more than one affiliate is selected
+                        if(is_array($options['filter'])) {
+                            $fxrate_query2 = '(CASE WHEN budgeting_financialbudget.currency = '.intval($options['tocurrency']).' THEN 1
+                                    ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = budgeting_financialbudget.affid AND bfr.year = budgeting_financialbudget.year AND bfr.fromCurrency = budgeting_financialbudget.currency AND bfr.toCurrency = '.intval($options['tocurrency']).') END)';
+                            $sql = "SELECT bfbid, sum(finGenAdmExpAmtApthy*{$fxrate_query2}) AS finGenAdmExpAmtApthy ,sum(finGenAdmExpAmtApty*{$fxrate_query2}) AS finGenAdmExpAmtApty, sum(finGenAdmExpAmtYpy*{$fxrate_query2}) AS finGenAdmExpAmtYpy, sum(finGenAdmExpAmtCurrent*{$fxrate_query2}) AS finGenAdmExpAmtCurrent FROM ".Tprefix."budgeting_financialbudget WHERE bfbid IN (".implode(', ', $options['filter']).")";
+                            $query = $db->query($sql);
+                            if($db->num_rows($query) > 0) {
+                                while($budget = $db->fetch_assoc($query)) {
+                                    $financialbudget['finGenAdmExpAmtApthy'] -= $budget['finGenAdmExpAmtApthy'];
+                                    $financialbudget['finGenAdmExpAmtApty'] -= $budget['finGenAdmExpAmtApty'];
+                                    $financialbudget['finGenAdmExpAmtYpy'] -= $budget['finGenAdmExpAmtYpy'];
+                                    $financialbudget['finGenAdmExpAmtCurrent'] -= $budget['finGenAdmExpAmtCurrent'];
                                 }
-                                //   $finbudgetitems = BudgetComAdminExpenses::get_data(array('bfbid' => $options['filter']), array('returnarray' => true, 'operators' => array('bfbid' => IN)));
-                                $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid=budgeting_commadminexps.bfbid)';
-                                $sql = "SELECT beciid,sum(actualPrevThreeYears*{$fxrate_query}) AS actualPrevThreeYears ,sum(actualPrevTwoYears*{$fxrate_query}) AS actualPrevTwoYears, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrent FROM ".Tprefix."budgeting_commadminexps WHERE bfbid IN (".implode(',', $options['filter']).")";
-                                $query = $db->query($sql);
-                                if($db->num_rows($query) > 0) {
-                                    while($item = $db->fetch_assoc($query)) {
-                                        $comercialbudget['actualPrevThreeYears'] = sprintf("%.2f", $item['actualPrevThreeYears']);
-                                        $comercialbudget['actualPrevTwoYears'] = sprintf("%.2f", $item['actualPrevTwoYears']);
-                                        $comercialbudget['yefPrevYear'] = sprintf("%.2f", $item['yefPrevYear']);
-                                        $comercialbudget['budgetCurrent'] = sprintf("%.2f", $item['budgetCurrent']);
-                                    }
-                                }
-                                //  $finbudgetitems = BudgetComAdminExpenses::get_data(array('bfbid' => $options['filter']), array('returnarray' => true, 'operators' => array('bfbid' => IN)));
                             }
+                            $fxrate_query = '(CASE WHEN bfb.currency = '.intval($options['tocurrency']).' THEN 1
+                                    ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = bfb.affid AND bfr.year = bfb.year AND bfr.fromCurrency = bfb.currency AND bfr.toCurrency = '.intval($options['tocurrency']).') END)';
+                            $sql = "SELECT beciid, SUM(actualPrevThreeYears*{$fxrate_query}) AS actualPrevThreeYears, SUM(actualPrevTwoYears*{$fxrate_query}) AS actualPrevTwoYears, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrent FROM ".Tprefix."budgeting_commadminexps bcade JOIN ".Tprefix." budgeting_financialbudget bfb ON (bcade.bfbid=bfb.bfbid) WHERE bcade.bfbid IN (".implode(', ', $options['filter']).")";
+                            $query = $db->query($sql);
+                            if($db->num_rows($query) > 0) {
+                                while($item = $db->fetch_assoc($query)) {
+                                    $comercialbudget['actualPrevThreeYears'] = sprintf("%.2f", 0 - $item['actualPrevThreeYears']);
+                                    $comercialbudget['actualPrevTwoYears'] = sprintf("%.2f", 0 - $item['actualPrevTwoYears']);
+                                    $comercialbudget['yefPrevYear'] = sprintf("%.2f", 0 - $item['yefPrevYear']);
+                                    $comercialbudget['budgetCurrent'] = sprintf("%.2f", 0 - $item['budgetCurrent']);
+                                }
+                            }
+                            $comercialbudget['budgetPrevYear'] = '0.00';
                         }
+
                         foreach($rows as $row) {
-                            $style = 'style = "width:25%"';
+                            $style = 'style = "width:28%"';
                             if($row === 'totaladmcom') {
-                                $style = 'style = "width:25%;font-weight:bold;"';
+                                $style = 'style = "width:28%;font-weight:bold;"';
                             }
-                            ${"output_".$row} .='<td '.$style.'>'.$lang->$row.'</td>';
+                            ${"output_".$row} .= '<td '.$style.'>'.$lang->$row.'</td>';
                         }
                         foreach($budgets as $key => $value) {
-                            $width = '12.5%;';
                             if(empty($financialbudget[$value])) {
                                 $financialbudget[$value] = $options['financialbudget']->$value;
                             }
                             $financialbudget[$key] = sprintf("%.2f", $financialbudget[$value]);
                             $commercialexpenses[$key] = sprintf("%.2f", $comercialbudget[$key] - $financialbudget[$value]);
                             if($key === 'yefactual' || $key === 'yefbud' || $key === 'budyef') {
-                                $width = '8.3%';
                                 $comercialbudget['yefactual'] = $comercialbudget['yefbud'] = $comercialbudget['budyef'] = '0.00%';
                                 $commercialexpenses['yefactual'] = $commercialexpenses['yefbud'] = $commercialexpenses['budyef'] = '0.00%';
                                 $financialbudget['yefactual'] = $financialbudget['yefbud'] = $financialbudget['budyef'] = '0.00%';
@@ -336,9 +337,9 @@ class BudgetPlCategories extends AbstractClass {
                                 }
                             }
 
-                            $output_adminexpenses .='<td style = "width:'.$width.'" class="border_left"><div id = "adminexpenses_'.$key.'">'.$financialbudget[$key].'</div></td>';
-                            $output_commercialexpenses .='<td style = "width:'.$width.'" class="border_left"><div id = "total_'.$category->name.'_'.$key.'">'.$commercialexpenses[$key].'</div></td>';
-                            $output_totaladmcom .='<td style = "width:'.$width.'font-weight:bold;" class="border_left"><div id = "commercialexpenses_'.$key.'">'.$comercialbudget[$key].'</div></td>';
+                            $output_adminexpenses .= '<td style="width:9%" class = "border_left"><div id = "adminexpenses_'.$key.'">'.$financialbudget[$key].'</div></td>';
+                            $output_commercialexpenses .= '<td style="width:9%" class = "border_left"><div  id = "commercialexpenses_'.$key.'">'.$commercialexpenses[$key].'</div></td>';
+                            $output_totaladmcom .= '<td style="width:9%;font-weight:bold;" class = "border_left"><div id = "total_'.$category->name.'_'.$key.'">'.$comercialbudget[$key].'</div></td>';
                         }
                         foreach($rows as $row) {
                             $column_output = ${"output_".$row};

@@ -18,6 +18,7 @@ if(!isset($core->input['action'])) {
     $affid = $budget_data['affid'];
     $plyear = $financialbudget_year = $budget_data['year'];
     $plprevyear = $financialbudget_prevyear = $plyear - 1;
+    $financialbudget_prev3year = $financialbudget_year - 3;
     $financialbudget_prev2year = $plyear - 2;
     if($core->usergroup['canViewAllAff'] == 0) {
         $affiliates = $core->user['affiliates'];
@@ -28,51 +29,56 @@ if(!isset($core->input['action'])) {
     $affiliate = new Affiliates($budget_data['affid']);
     $financialbudget = FinancialBudget::get_data(array('affid' => $budget_data['affid'], 'year' => $budget_data['year']), array('simple' => false));
     $currency = $affiliate->get_country()->get_maincurrency();
-
 //get 3 commercial budgets of current year, prev year and prev two years
-    $commericalbudget = Budgets::get_data(array('affid' => $budget_data['affid'], 'year' => $budget_data['year']), array('simple' => false));
-    $prevcommericalbudget = Budgets::get_data(array('affid' => $budget_data['affid'], 'year' => ($budget_data['year'] - 1)), array('simple' => false));
-    $prevtwocommericalbudget = Budgets::get_data(array('affid' => $budget_data['affid'], 'year' => ($budget_data['year'] - 2)), array('simple' => false));
+    $commericalbudget = Budgets::get_data(array('affid' => $budget_data['affid'], 'year' => $budget_data['year']), array('returnarray' => true, 'simple' => false));
+    $prevcommericalbudget = Budgets::get_data(array('affid' => $budget_data['affid'], 'year' => ($budget_data['year'] - 1)), array('returnarray' => true, 'simple' => false));
+    $prevtwocommericalbudget = Budgets::get_data(array('affid' => $budget_data['affid'], 'year' => ($budget_data['year'] - 2)), array('returnarray' => true, 'simple' => false));
 
     //get commercial budget id's (current budget, prev budget and prev two years budget)
-    $current[$commericalbudget->bid] = $commericalbudget->bid;
-    $prevtwoyears[$prevtwocommericalbudget->bid] = $prevtwocommericalbudget->bid;
-    $prevyear[$prevcommericalbudget->bid] = $prevcommericalbudget->bid;
+//    $current[$commericalbudget->bid] = $commericalbudget->bid;
+//    $prevtwoyears[$prevtwocommericalbudget->bid] = $prevtwocommericalbudget->bid;
+//    $prevyear[$prevcommericalbudget->bid] = $prevcommericalbudget->bid;
     if(is_array($commericalbudget)) {
-        unset($current[$commericalbudget->bid]);
         foreach($commericalbudget as $budget) {
             $current[$budget->bid] = $budget->bid;
         }
     }
     if(is_array($prevcommericalbudget)) {
-        unset($prevyear[$prevcommericalbudget->bid]);
         foreach($prevcommericalbudget as $budget) {
             $prevyear[$budget->bid] = $budget->bid;
         }
     }
     if(is_array($prevtwocommericalbudget)) {
-        unset($prevtwoyears[$prevtwocommericalbudget->bid]);
         foreach($prevtwocommericalbudget as $budget) {
             $prevtwoyears[$budget->bid] = $budget->bid;
         }
     }
-    $bid = array('prevtwoyears' => $prevtwoyears, 'prevyear' => $prevyear, 'current' => $current);
+    $budgetsids = array('prevtwoyears' => $prevtwoyears, 'prevyear' => $prevyear, 'current' => $current);
+
     $plcategories = BudgetPlCategories::get_data('', array('returnarray' => true));
     if(is_object($financialbudget) && $financialbudget->isFinalized()) {
         $type = 'hidden';
-        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'bid' => $bid, 'tocurrency' => $currency->numCode));
+        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'bid' => $budgetsids, 'tocurrency' => $currency->numCode));
     }
     else {
         $type = 'submit';
-        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'bid' => $bid, 'tocurrency' => $currency->numCode));
+        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'bid' => $budgetsids, 'tocurrency' => $currency->numCode));
     }
-    $header_yef = '<td style = "width:8.3%">%'.$lang->yef.' '.$plprevyear.'</td>';
-    $header_yef .= '<td style = "width:8.3%">%'.$lang->yef.' '.$plprevyear.'</td>';
-    $header_budyef .= '<td style = "width:8.3%">%'.$lang->bud.' '.$plyear.'</td>';
-    $actual = '<td>/'.$lang->actual.' '.$financialbudget_prev2year.'</td>';
-    $bud = '/Budget ';
-    $pl_yefprevyear = '/YEF '.$financialbudget_prevyear;
-    eval("\$budgeting_header = \"".$template->get('budgeting_investheader')."\";");
+
+
+
+    $headerfields = array($lang->actual, $lang->actual, $lang->budget, $lang->yef, '%YEF'.$financialbudget_prevyear, '%YEF'.$financialbudget_prevyear, $lang->budget, '%Bud'.$financialbudget_year);
+    $headeryears = array($financialbudget_prev3year, $financialbudget_prev2year, $financialbudget_prevyear, $financialbudget_prevyear, '/Actual '.$financialbudget_prev2year, '/Budget '.$financialbudget_prevyear, $financialbudget_year, '/YEF '.$financialbudget_prevyear);
+    $budgeting_header .='<tr class="thead"><td></td>';
+    foreach($headerfields as $field) {
+        $budgeting_header .= '<td>'.$field.'</td>';
+    }
+    $budgeting_header .='</tr><tr><td><input name="financialbudget[affid]" value="'.$affid.'" type="hidden">';
+    $budgeting_header .='<input name="financialbudget[year]" value="'.$financialbudget_year.'" type="hidden"></td>';
+    foreach($headeryears as $year) {
+        $budgeting_header .= '<td>'.$year.'</td>';
+    }
+    $budgeting_header .='</tr>';
 
     if(!empty($currency->alphaCode)) {
         $tocurrency = '840'; //usd
@@ -106,9 +112,10 @@ else if($core->input['action'] == 'do_perform_profitlossaccount') {
     $financialbudget->save();
     switch($financialbudget->get_errorcode()) {
         case 0:
+        case 1:
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
             break;
-        case 1:
+        case 2:
             output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
             break;
     }

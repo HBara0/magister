@@ -68,14 +68,14 @@ if(!isset($core->input['action'])) {
 else if($core->input['action'] == 'do_perform_forecastbalancesheet') {
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
     $financialbudget = new FinancialBudget();
-    if(!empty($core->input['budgetforecastbs']['liabilities']['total']) && !empty($core->input['budgetforecastbs']['Assets']['total'])) {
-        $core->input['budgetforecastbs']['equityliabilities']['total'] = ($core->input['budgetforecastbs']['OwnersEquity']['total'] + $core->input['budgetforecastbs']['liabilities']['total']);
-        if($core->input['budgetforecastbs']['equityliabilities']['total'] != $core->input['budgetforecastbs']['Assets']['total']) {
+    if(!empty($core->input['budgetforecastbs']['liabilities']['total']) && !empty($core->input['budgetforecastbs']['assets']['total'])) {
+        $core->input['budgetforecastbs']['equityliabilities']['total'] = ($core->input['budgetforecastbs']['ownersequity']['total'] + $core->input['budgetforecastbs']['liabilities']['total']);
+        if($core->input['budgetforecastbs']['equityliabilities']['total'] != $core->input['budgetforecastbs']['assets']['total']) {
             output_xml('<status>false</status><message>'.$lang->totalerror.'</message>');
             exit;
         }
     }
-    unset($core->input['budgetforecastbs']['equityliabilities'], $core->input['budgetforecastbs']['Assets'], $core->input['budgetforecastbs']['OwnersEquity'], $core->input['budgetforecastbs']['liabilities']);
+    unset($core->input['budgetforecastbs']['equityliabilities'], $core->input['budgetforecastbs']['assets'], $core->input['budgetforecastbs']['ownersequity'], $core->input['budgetforecastbs']['liabilities']);
     $financialbudget->set($core->input);
 
     $financialbudget->save();
