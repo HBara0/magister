@@ -4,11 +4,11 @@
         {$headerinc}
 
         <script>
-            $(function () {
-                $("input[id^='budgetforecastbs_']").bind('change keyup', function () {
+            $(function() {
+                $("input[id^='budgetforecastbs_']").bind('change keyup', function() {
                     var id = $(this).attr('id').split("_");
                     var total = 0;//headcount_actualPrevTwoYears
-                    $('input[id$=' + id[3] + '_' + id[4] + ']').each(function () {
+                    $('input[id$=' + id[3] + '_' + id[4] + ']').each(function() {
                         if(!jQuery.isEmptyObject(this.value)) {
                             total += parseInt(this.value);
                         }
