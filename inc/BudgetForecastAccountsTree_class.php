@@ -110,8 +110,7 @@ class BudgetForecastAccountsTree extends AbstractClass {
                     $colspan = 1;
                     break;
             }
-            if(!empty($item->sourceTable)) {
-                echo $item->title;
+            if(!empty($item->ophrand)) {
                 $item->title = null;
             }
             if(!is_object($item)) {
@@ -151,16 +150,13 @@ class BudgetForecastAccountsTree extends AbstractClass {
                     unset($total[$item->get_parent()->batid]);
                 }
 
-
                 if(isset($options['mode']) && $options['mode'] === 'fill') {
-
                     /* to acquire netIncome */
                     if(!empty($item->sourceTable)) {
-
                         $this->total[$item->get_parent()->get_parent()->batid] +=$finacncial_budobj->netIncome;
-                        // $output .= '<td>'.parse_textfield(null, 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $finacncial_budobj->netIncome, array('readonly' => 'true', 'accept' => 'numeric', 'step' => 'any')).'</td>';
+                        $output .= '<td style="background-color:red;"> '.parse_textfield(null, 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $finacncial_budobj->netIncome, array('readonly' => 'true', 'step' => 'any')).'</td>';
                     }
-                    else {
+                    else if(empty($item->ophrand)) { /* hide fields for oprhand items */
                         $maxattr = null;
                         $min = 0;
                         $stepany = 'any';
