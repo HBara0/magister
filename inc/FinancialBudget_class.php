@@ -149,14 +149,16 @@ Class FinancialBudget extends AbstractClass {
                 $financialdata['netIncome'] = $data['financialbudget']['income'];
             }
             foreach($fields as $field) {
-                $max = 'max'.$field;
-                if($data['financialbudget'][$field] > $data['financialbudget'][$max]) {
-                    $this->errorcode = 3;
-                    return;
+                if(isset($data['financialbudget'][$field])) {
+                    $max = 'max'.$field;
+                    if($data['financialbudget'][$field] > $data['financialbudget'][$max]) {
+                        $this->errorcode = 3;
+                        return;
+                    }
+                    $data['financialbudget'][$field] = $core->sanitize_inputs($data['financialbudget'][$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
+                    $data['financialbudget'][$field] = $db->escape_string($data['financialbudget'][$field]);
+                    $financialdata[$field] = $data['financialbudget'][$field];
                 }
-                $data['financialbudget'][$field] = $core->sanitize_inputs($data['financialbudget'][$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
-                $data['financialbudget'][$field] = $db->escape_string($data['financialbudget'][$field]);
-                $financialdata[$field] = $data['financialbudget'][$field];
             }
             $affiliate = new Affiliates($financialdata['affid']);
             $financialdata['currency'] = $affiliate->get_country()->get_maincurrency()->get()[numCode];
