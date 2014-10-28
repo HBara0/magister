@@ -14,7 +14,7 @@ class BudgetPlExpenses extends AbstractClass {
     const PRIMARY_KEY = 'bpleid';
     const TABLE_NAME = 'budgeting_plexpenses';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'bpleid, bpliid, bfbid, actualPrevTwoYears, budgetPrevYear, yefPrevYear, budgetCurrent';
+    const SIMPLEQ_ATTRS = 'bpleid, bpliid, bfbid,actualPrevThreeYears, actualPrevTwoYears, budgetPrevYear, yefPrevYear, budgetCurrent';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
