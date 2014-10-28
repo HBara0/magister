@@ -79,11 +79,10 @@ Class BudgetComAdminExpenses extends AbstractClass {
 
     private function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
-            //'actualPrevYear', 'budgetPrevYear'
-            $required_fields = array('bfbid', 'beciid', 'actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent', 'budYefPerc');
+            $required_fields = array('bfbid', 'beciid', 'actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent', 'budYefPerc'); //'actualPrevYear', 'budgetPrevYear'
             foreach($required_fields as $field) {
-                if(empty($data[$field]) && $data[$field] != 0) {
-                    $this->errorcode = 1;
+                if(empty($data[$field]) && $data[$field] != '0') {
+                    $this->errorcode = 2;
                     return true;
                 }
             }

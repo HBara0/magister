@@ -56,10 +56,11 @@
                         }
                     }
 
-                    if($("input[id^='budgetexps']").val() != 0) {
-                        $("input[id^='finGenAdm_']").trigger('keyup');
-                    }
-                    $("input[id='finGenAdm_budgetCurrent']").val(0).trigger('keyup');
+                    //if($("input[id^='budgetexps']").val() != 0) {
+                    $("input[id^='finGenAdm_']").trigger('keyup');
+                    // }
+
+                    // $("input[id='finGenAdm_budgetCurrent']").val(0).trigger('keyup');
                 });
 
                 $("input[id^='finGenAdm_']").bind('keyup change', function() {

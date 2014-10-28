@@ -53,7 +53,6 @@ if(!($core->input['action'])) {
                 'simple' => false,
                 'returnarray' => true
         );
-
         $export_identifier = base64_encode(serialize($budgetsdata['current']));
         $budgetsdata['prev2years'] = $budgetsdata['prev3years'] = $budgetsdata['current'];
         $budgetsdata['prev2years']['years'] = $budgetsdata['current']['years'] - 2;
@@ -100,6 +99,9 @@ if(!($core->input['action'])) {
                         foreach($budgetlines as $blid => $budgetline) {
                             $rawdata[$field][$blid] = $budget_obj->get() + $budgetline->get();
                             $product = $budgetline->get_product();
+                            if(empty($rawdata[$field][$blid]['pid'])) {
+                                continue;
+                            }
                             if(empty($rawdata[$field][$blid]['psid'])) {
                                 $rawdata[$field][$blid]['psid'] = $product->get_productsegment()->psid;
                             }
@@ -112,7 +114,6 @@ if(!($core->input['action'])) {
                                         $budgetline->amount = $budgetline->actualAmount;
                                         $budgetline->income = $budgetline->actualIncome;
                                     }
-                                    echo $budgetline->actualAmount;
                                     foreach($fxrates_obj as $fxid => $fxrates) {
                                         $rawdata[$field][$blid]['amount'] = ($budgetline->amount * $fxrates->rate);
                                         $rawdata[$field][$blid]['income'] = ($budgetline->income * $fxrates->rate);
@@ -149,7 +150,6 @@ if(!($core->input['action'])) {
             if(empty($rawdata['current'])) {
                 error($lang->nomatchfound, $_SERVER['HTTP_REFERER']);
             }
-            print_R($rawdata);
             /* Dimensional Report Settings - START */
             $dimensions = explode(',', $budgetsdata['current']['dimension'][0]); // Need to be passed from options stage
             $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 's1Income', 's2Income');
@@ -172,7 +172,6 @@ if(!($core->input['action'])) {
             $budgeting_budgetrawreport .= $dimensionalreport->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'formats' => $formats, 'overwritecalculation' => $overwrite));
             $budgeting_budgetrawreport .= '</table>';
 
-            $fields = array('current', 'prev2years', 'prev3years');
             foreach($fields as $field) {
                 if(is_array($rawdata[$field])) {
                     foreach($rawdata[$field] as $data) {
@@ -187,23 +186,52 @@ if(!($core->input['action'])) {
                                 if($dimension == 'uid') {
                                     $data[$dimension] = $data['businessMgr'];
                                 }
+
+                                if(!isset($cdata[$dimension]['amount'][$data[$dimension]])) {
+                                    foreach($fields as $field_check) {
+                                        $cdata[$dimension]['amount'][$data[$dimension]][$field_check] = 0;
+                                        $cdata[$dimension]['income'][$data[$dimension]][$field_check] = 0;
+                                        $dimension_objs = get_object_bytype($dimension, $data[$dimension]);
+                                        $cdata[$dimension]['title'][$data[$dimension]] = $dimension_objs->get_displayname();
+                                    }
+                                }
                                 $cdata[$dimension]['amount'][$data[$dimension]][$field] += $data[$amount];
                                 $cdata[$dimension]['income'][$data[$dimension]][$field] += $data[$income];
-
-                                $dimension_objs = get_object_bytype($dimension, $data[$dimension]);
-                                $cdata[$dimension]['title'][$data[$dimension]] = $dimension_objs->get_displayname();
+                                switch($dimension) {
+                                    case 'affid':
+                                        $cdata[$dimension]['charttitle'] = 'Affiliate';
+                                        break;
+                                    case 'spid':
+                                        $cdata[$dimension]['charttitle'] = 'Supplier';
+                                        break;
+                                    case 'uid':
+                                        $cdata[$dimension]['charttitle'] = 'Business Manger';
+                                        break;
+                                    case 'cid':
+                                        $cdata[$dimension]['charttitle'] = 'Customer';
+                                        break;
+                                    case 'pid':
+                                        $cdata[$dimension]['charttitle'] = 'Product';
+                                        break;
+                                    case 'coid':
+                                        $cdata[$dimension]['charttitle'] = 'Country';
+                                        break;
+                                    case 'psid':
+                                        $cdata[$dimension]['charttitle'] = 'Segment';
+                                        break;
+                                    case 'reportsTo':
+                                        $cdata[$dimension]['charttitle'] = 'Reports To';
+                                        break;
+                                }
                             }
                         }
                     }
                 }
             }
-
             foreach($cdata as $dcdata) {
-                // print_R($dcdata);
-                $xaxis = 'Affiliate';
-                $amount_barchart = new Charts(array('x' => array_values($dcdata['title']), 'y' => array_values($dcdata['amount'])), 'bar', array('yaxisname' => 'amount', 'xaxisname' => $xaxis));
+                $amount_barchart = new Charts(array('x' => $dcdata['title'], 'y' => $dcdata['amount']), 'bar', array('yaxisname' => 'amount', 'xaxisname' => $dcdata['charttitle'], 'scale' => 'SCALE_START0', 'nosort' => true, 'title' => 'Amount VS. '.$dcdata['charttitle']));
                 $budgeting_budgetrawreport.='<img src='.$amount_barchart->get_chart().' />';
-                $income_barchart = new Charts(array('x' => array_values($dcdata['title']), 'y' => array_values($dcdata['income'])), 'bar', array('yaxisname' => 'income', 'xaxisname' => $xaxis));
+                $income_barchart = new Charts(array('x' => $dcdata['title'], 'y' => $dcdata['income']), 'bar', array('yaxisname' => 'income', 'xaxisname' => $dcdata['charttitle'], 'scale' => 'SCALE_START0', 'nosort' => true, 'title' => 'Income VS. '.$dcdata['charttitle']));
                 $budgeting_budgetrawreport.='<img src='.$income_barchart->get_chart().' />';
             }
         }

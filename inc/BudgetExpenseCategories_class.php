@@ -108,8 +108,7 @@ class BudgetExpenseCategories extends AbstractClass {
             eval("\$budgeting_commercialexpenses_categories .= \"".$template->get('budgeting_commercialexpenses_total')."\";");
 
             // parse Finance & General Admin. Expenses
-            //'actualPrevYear' => 'finGenAdmExpAmtApy', 'budgetPrevYear' => 'finGenAdmExpAmtBpy',
-            $financialbudget_fields = array('actualPrevThreeYears' => 'finGenAdmExpAmtApthy', 'actualPrevTwoYears' => 'finGenAdmExpAmtApty', 'yefPrevYear' => 'finGenAdmExpAmtYpy', 'budgetCurrent' => 'finGenAdmExpAmtCurrent');
+            $financialbudget_fields = array('actualPrevThreeYears' => 'finGenAdmExpAmtApthy', 'actualPrevTwoYears' => 'finGenAdmExpAmtApty', 'yefPrevYear' => 'finGenAdmExpAmtYpy', 'budgetCurrent' => 'finGenAdmExpAmtCurrent');            //'actualPrevYear' => 'finGenAdmExpAmtApy', 'budgetPrevYear' => 'finGenAdmExpAmtBpy'
             foreach($financialbudget_fields as $key => $value) {
                 $financialbudgetdata[$key] = 0;
                 if(isset($options['financialbudget']) && !empty($options['financialbudget'])) {

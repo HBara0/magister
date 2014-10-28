@@ -81,7 +81,6 @@ class Charts {
 
     private function build_barchart() {
         $this->DataSet = new pData();
-
         foreach($this->data['y'] as $index => $rawdata) {
             if(is_array($rawdata)) {
                 foreach($rawdata as $index2 => $val) {
@@ -92,16 +91,18 @@ class Charts {
                 $this->ready_data['y'][$index] = $rawdata;
             }
         }
-
         foreach($this->ready_data as $legend => $bar) {
             ksort($bar);
             $this->DataSet->addPoints($bar, $legend);
         }
-
         $this->DataSet->setAxisName(0, $this->options['yaxisname']);
         $this->DataSet->SetAxisUnit(0, $this->options['yaxisunit']);
         $this->DataSet->setAxisName(1, $this->options['xaxisname']);
-        ksort($this->data['x']);
+
+        if(!isset($this->options['nosort']) || $this->options['nosort'] == false) {
+            ksort($this->data['x']);
+        }
+        //ksort($this->data['x']);
         $this->DataSet->addPoints($this->data['x'], 'x');
         $this->DataSet->setSerieDescription("x", $this->options['xaxisname']);
         $this->DataSet->setAbscissa('x');
@@ -127,7 +128,11 @@ class Charts {
                 $this->chart->AntialiasQuality = intval($this->options['antialiasquality']);
             }
         }
-
+        /* Write the chart title */
+        if(isset($this->options['title']) && !empty($this->options['title'])) {
+            $this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 11));
+            $this->chart->drawText(420, 35, $this->options['title'], array('FontSize' => 15, 'Align' => TEXT_ALIGN_BOTTOMLEFT));
+        }
         /* Set the default font */
         $this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 8));
 
