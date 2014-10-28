@@ -154,7 +154,7 @@ class BudgetForecastAccountsTree extends AbstractClass {
                     /* to acquire netIncome */
                     if(!empty($item->sourceTable)) {
                         $this->total[$item->get_parent()->get_parent()->batid] +=$finacncial_budobj->netIncome;
-                        $output .= '<td style="background-color:red;"> '.parse_textfield(null, 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $finacncial_budobj->netIncome, array('readonly' => 'true', 'step' => 'any')).'</td>';
+                        $output .= '<td style="background-color:lightblue;"> '.parse_textfield(null, 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $finacncial_budobj->netIncome, array('readonly' => 'true', 'step' => 'any')).'</td>';
                     }
                     else if(empty($item->ophrand)) { /* hide fields for oprhand items */
                         $maxattr = null;
@@ -167,7 +167,7 @@ class BudgetForecastAccountsTree extends AbstractClass {
                         }
                         $output.=' <input type = "hidden" name = "budgetforecastbs['.$item->batid.'][bfbsid]" value = "'.$forecast_expenses->bfbsid.'">';
                         $output.=' <input type = "hidden" name = "budgetforecastbs['.$item->batid.'][batid]" value = "'.$item->batid.'">';
-                        $output .= '<td>'.parse_textfield('budgetforecastbs['.$item->batid.'][amount]', 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $budgetforecastexp[$item->batid], array('min' => $min, 'max' => $maxattr, 'required' => 'required', 'accept' => 'numeric', 'step' => $stepany)).'</td>';
+                        $output .= '<td>'.parse_textfield('budgetforecastbs['.$item->batid.'][amount]', 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $budgetforecastexp[$item->batid], array('min' => $min, 'max' => $maxattr, 'required' => 'required', 'step' => $stepany)).'</td>';
                     }
                 }
                 else {
