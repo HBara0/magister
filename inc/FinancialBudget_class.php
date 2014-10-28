@@ -329,7 +329,7 @@ Class FinancialBudget extends AbstractClass {
                     }
                 }
                 else {
-                    error($lang->currencynotexist, $_SERVER['HTTP_REFERER']);
+                    error($lang->currencynotexistvar, $_SERVER['HTTP_REFERER']);
                 }
 
                 $output['currfxrates'] = '<strong>'.$lang->exchangerates.'</strong></br></br>';

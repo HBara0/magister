@@ -162,7 +162,7 @@ class BudgetPlCategories extends AbstractClass {
                                                 }
                                             }
                                             else {
-                                                error($lang->currencynotexist, $_SERVER['HTTP_REFERER']);
+                                                error($lang->currencynotexistvar, $_SERVER['HTTP_REFERER']);
                                             }
 
                                             $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($options['tocurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=".$budgetobject->affid." AND year=".$budgetobject->year." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($options['tocurrency']).") END)";

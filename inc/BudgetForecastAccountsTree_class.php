@@ -156,9 +156,8 @@ class BudgetForecastAccountsTree extends AbstractClass {
 
                     /* to acquire netIncome */
                     if(!empty($item->sourceTable)) {
-
                         $this->total[$item->get_parent()->get_parent()->batid] +=$finacncial_budobj->netIncome;
-                        // $output .= '<td>'.parse_textfield(null, 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $finacncial_budobj->netIncome, array('readonly' => 'true', 'accept' => 'numeric', 'step' => 'any')).'</td>';
+                        // $output .= '<td>'.parse_textfield(null, 'budgetforecastbs_'.$item->batid.'_'.$item->get_parent()->batid.'_'.$item->get_parent()->get_parent()->batid.'_subaccount', 'number', $finacncial_budobj->netIncome, array('readonly' => 'true',  'step' => 'any')).'</td>';
                     }
                     else {
                         $maxattr = null;
