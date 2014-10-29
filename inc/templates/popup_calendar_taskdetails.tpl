@@ -3,6 +3,7 @@
     <span style="font-style:italic">
         {$task_details[assignedTo_output]}
         {$lang->duedate}: {$task_details[dueDate_output]}<br />
+        {$task_details[timeStarted_output]}
         {$task_details[timeDone_output]}
         {$lang->priority}: {$task_details[priority_output]}<br />
        	<form name="perform_updatepercentage_calendar/eventstasks_Form" id="perform_updatepercentage_calendar/eventstasks_Form" method="post">

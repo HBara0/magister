@@ -234,8 +234,15 @@ class Tasks {
         if($completed == '100') {
             $new_status = 1;
         }
+        $taskdata[percCompleted] = $completed;
+        $taskdata[isDone] = $new_status;
 
-        $query = $db->update_query('calendar_tasks', array('percCompleted' => $completed, 'isDone' => $new_status), 'ctid='.$this->task['ctid']);
+        if($this->task['percCompleted'] == 0) {
+            $taskdata['timestarted'] = TIME_NOW;
+        }
+
+        $query = $db->update_query('calendar_tasks', $taskdata, 'ctid='.$this->task['ctid']);
+
         if($query) {
             $log->record($this->task['ctid']);
             $this->status = 0;
