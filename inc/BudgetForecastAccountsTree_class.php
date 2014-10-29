@@ -54,6 +54,7 @@ class BudgetForecastAccountsTree extends AbstractClass {
 
     public function parse_account($options = array()) {
         global $lang, $numfmt;
+
         $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
 
         $numfmt->setPattern("#0.###");
@@ -64,6 +65,7 @@ class BudgetForecastAccountsTree extends AbstractClass {
             if(!empty($account_items)) {
                 foreach($account_items as $id => $item) {
                     $accountitems_output .= '<div>';
+
                     $accountitems_output .= '<table width="100%">';
                     $accountitems_output .= $this->parse_accountsitems(array($id => $item), 0, array('financialbudget' => $options['financialbudget']->bfbid, 'mode' => $options['mode'], 'forecastbalancesheet' => $options['forecastbalancesheet']));
                     //$this->total[$id] = number_format($this->total[$id], 2);
@@ -127,24 +129,30 @@ class BudgetForecastAccountsTree extends AbstractClass {
             }
             if(is_array($account_children) && !empty($account_children)) { /* pass the fill type to parse the expenses for each subaccount */
                 if(!empty($options['financialbudget'])) {
-                    $forecast_expenses = BudgetForecastBalanceSheet::get_data(array('batid' => $item->batid, 'bfbid' => $options['financialbudget']->bfbid), array('simple' => false));
+                    $forecast_expenses = BudgetForecastBalanceSheet::get_data(array('batid' => $item->batid, 'bfbid' => $options['financialbudget']), array('simple' => false));
                 }
 
                 $output.= $this->parse_accountsitems($account_children, $depth + 1, array('financialbudget' => $options['financialbudget'], 'mode' => $options['mode'], 'forecastbalancesheet' => $options['forecastbalancesheet'], 'total' => $this->total));
+
                 unset($children, $account_children);
                 continue;
             }
             else {
-
                 if(!empty($options['financialbudget'])) {
-                    $forecast_expenses = BudgetForecastBalanceSheet::get_data(array('batid' => $item->batid, 'bfbid' => $options[financialbudget]), array('simple' => false));
+                    $forecast_expenses = BudgetForecastBalanceSheet::get_data(array('batid' => $item->batid, 'bfbid' => $options['financialbudget']), array('simple' => false));
                 }
+
                 if(is_object($forecast_expenses)) {
-                    $budgetforecastexp[$item->batid] = $forecast_expenses->amount;
-                    $subtotal[$parent->batid] +=$forecast_expenses->amount;
+                    if($forecast_expenses->amount != 0) {
+                        //echo $forecast_expenses->amount.'  is amout of '.$item->name.' <br>';
+                        $budgetforecastexp[$item->batid] = $forecast_expenses->amount;
+                        //$subtotal[$parent->batid] +=$forecast_expenses->amount;
+                        $subtotal[$parent->batid] = array_sum($budgetforecastexp);
+                    }
                 }
                 /* total of each liablity and assets */
                 $total[$parent->get_parent()->batid] = $subtotal[$parent->batid];
+
                 if(isset($options['total']) && !empty($options['total'])) {
                     $total[$parent->get_parent()->batid] += $options['total'][$parent->get_parent()->batid];
                 }
@@ -177,7 +185,6 @@ class BudgetForecastAccountsTree extends AbstractClass {
                     /* mode display */
                     if(isset($options['forecastbalancesheet']) && !empty($options['forecastbalancesheet'])) {
                         $forecastbalancesheet = $options['forecastbalancesheet'];
-
                         if(!empty($item->sourceTable)) {
                             $amount = $finacncial_budobj->{$item->sourceAttr};
                         }
@@ -186,10 +193,10 @@ class BudgetForecastAccountsTree extends AbstractClass {
                         }
 
                         $subtotal[$parent->batid] += $amount;
-                        $total[$parent->get_parent()->batid] += $subtotal[$parent->batid];
-                        $this->total = $total;
+                        $total[$parent->get_parent()->batid] = array_sum($subtotal);
+                        //   $this->total = $total;
                         if($total[$parent->batid] == 0) {
-                            unset($total[$parent->batid]);
+                            //  unset($total[$parent->batid]);
                         }
                         if(!empty($item->ophrand)) {
                             $ophrand_itmes = explode('+', $item->ophrand);
