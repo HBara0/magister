@@ -47,7 +47,6 @@ class BudgetPlCategories extends AbstractClass {
                         $plexpenses_current = BudgetPlExpenses::get_data(array('bpliid' => $item->bpliid, 'bfbid' => $options['financialbudget']->bfbid));
                         $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'yefactual', 'yefbud', 'budgetCurrent', 'budyef');
                         $column_output .= '<td style="width:28%">'.$item->title.'<input type="hidden" name="placcount['.$item->bpliid.'][bpliid]" value='.$item->bpliid.'></td>';
-                        $plexpenses_current = new BudgetPlExpenses();
                         foreach($fields as $input) {
                             if($input === 'yefactual' || $input === 'yefbud' || $input === 'budyef') {
                                 $plexpenses[$input] = '0.00%';
@@ -70,6 +69,7 @@ class BudgetPlCategories extends AbstractClass {
                                 else {
                                     if(isset($options['placcount']) && !empty($options['placcount'])) {
                                         $placcount = $options['placcount'];
+                                        $plexpenses_current = new BudgetPlExpenses();
                                         $plexpenses_current->$input = sprintf("%.2f", $placcount[$item->bpliid][$input]);
                                     }
                                     $column_output .=' <td style = "width:9%">'.$plexpenses_current->$input.'</td>';

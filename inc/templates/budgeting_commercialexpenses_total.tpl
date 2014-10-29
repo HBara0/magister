@@ -27,7 +27,7 @@
         <input type="hidden" id="total_budgetCurrent" value="{$total[budgetCurrent]}">
     </td>
     <td>
-        <div style="font-weight:bold;margin-left:10px;" id="total_budYefPerc">{$total[budYefPerc]}</div>
+        <div style="font-weight:bold;margin-left:10px;" id="total_budYefPerc">{$total[budYefPerc_output]}</div>
         <input type="hidden" id="total_budYefPerc" value="{$total[budYefPerc]}">
     </td>
 </tr>

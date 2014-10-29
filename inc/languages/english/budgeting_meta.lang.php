@@ -92,4 +92,5 @@ $lang['exchangerate'] = 'Exchange rate for The currency being used : ';
 $lang['currfxratedesc'] = 'Data in this budget is in K';
 $lang['currencynotexistvar'] = 'The currency {1} does not have a conversion rate.';
 $lang['noexchangerate'] = 'No exchange rate from {1} to {2} for year {3}';
+$lang['finexpensestotalerror'] = 'Please select a value not more than the total expenses';
 ?>

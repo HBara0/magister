@@ -29,7 +29,7 @@
         <input type="hidden" id="subtotal_{$category->becid}_budgetCurrent" value="{$subtotal[budgetCurrent]}">
     </td>
     <td>
-        <div id="subtotal_{$category->becid}_budYefPerc" style="margin-left:10px;">{$subtotal[budYefPerc]}</div>
+        <div id="subtotal_{$category->becid}_budYefPerc" style="font-weight:bold;margin-left:10px;">{$subtotal[budYefPerc_output]}</div>
         <input type="hidden" id="subtotal_{$category->becid}_budYefPerc" value="{$subtotal[budYefPerc]}">
     </td>
 </tr>
