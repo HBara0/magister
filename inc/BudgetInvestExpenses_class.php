@@ -88,7 +88,7 @@ class BudgetInvestExpenses extends AbstractClass {
             foreach($required_fields as $field) {
                 $x = empty($data[$field]);
                 if(empty($data[$field]) && $data[$field] != '0') {
-                    $this->errorcode = 1;
+                    $this->errorcode = 2;
                     return true;
                 }
             }

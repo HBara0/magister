@@ -1,11 +1,11 @@
 <?php
-$lang['create'] = 'Create';
+$lang['create'] = 'Create (Commerical)';
 $lang['country'] = 'Country';
 $lang['budg'] = 'Budg';
 $lang['budgetabbr'] = 'B';
 $lang['actualabbr'] = 'A';
 $lang['fillbudget'] = 'Fill';
-$lang['createbudget'] = 'Create Budget';
+$lang['createbudget'] = 'Create Commerical Budget';
 $lang['automaticusdrate'] = 'Automatic USD Fx Rate';
 $lang['specifyusdrate'] = 'Specify USD Fx Rate';
 $lang['fillbudget'] = "Fill Budget";
@@ -16,14 +16,14 @@ $lang['actualamount'] = "Actual amount";
 $lang['unitprice'] = "Unit Price";
 $lang['exchangerates'] = "Exchange rates ";
 $lang['s1perc'] = "S1 Perc";
-$lang['generate'] = "Generate";
+$lang['generate'] = "Generate (Commercial)";
 $lang['s2perc'] = "S2 Perc";
 $lang['amount'] = "Sale Amount";
 $lang['actual'] = "Act";
 $lang['income'] = 'Income';
 $lang['incomeperc'] = 'Income %';
 $lang['saletype'] = "Sales Type";
-$lang['generatebudget'] = "Generate Budget";
+$lang['generatebudget'] = "Generate Commercial Budget";
 $lang['manager'] = 'Business Manager';
 $lang['invoice'] = "Invoice";
 $lang['unspecifiedcust'] = "Unspecified Customer";
@@ -92,4 +92,5 @@ $lang['exchangerate'] = 'Exchange rate for The currency being used : ';
 $lang['currfxratedesc'] = 'Data in this budget is in K';
 $lang['currencynotexistvar'] = 'The currency {1} does not have a conversion rate.';
 $lang['noexchangerate'] = 'No exchange rate from {1} to {2} for year {3}';
+$lang['finexpensestotalerror'] = 'Please select a value not more than the total expenses';
 ?>

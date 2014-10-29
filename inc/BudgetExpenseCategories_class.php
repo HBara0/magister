@@ -43,8 +43,7 @@ class BudgetExpenseCategories extends AbstractClass {
             foreach($expensescategories as $category) {
                 unset($subtotal);
                 $budgeting_commercialexpenses_item = '';
-                //'actualPrevYear', 'budgetPrevYear'
-                $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent');
+                $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent'); //'actualPrevYear', 'budgetPrevYear'
                 $expensesitems = $category->get_items();
                 if(is_array($expensesitems)) {
                     foreach($expensesitems as $item) {
@@ -65,12 +64,14 @@ class BudgetExpenseCategories extends AbstractClass {
                                 $budgetexps[$field] = $comadmin_expenses->$field;
                                 $subtotal[$field] += $comadmin_expenses->$field;
                             }
-                            $budgetexps['budYefPerc'] = sprintf("%.2f", $comadmin_expenses->budYefPerc).'%';
+                            $budgetexps['budYefPerc'] = sprintf("%.2f", $comadmin_expenses->budYefPerc);
+                            $budgetexps['budYefPerc_output'] = $budgetexps['budYefPerc'].'%';
                         }
                         //Get data from financialadminexpenses array for generate report
                         if(isset($options['financialadminexpenses']) && !empty($options['financialadminexpenses'])) {
                             $financialadminexpenses = $options['financialadminexpenses'];
-                            $budgetexps['budYefPerc'] = sprintf("%.2f", $financialadminexpenses[$item->beciid][budYefPerc]).'%';
+                            $budgetexps['budYefPerc'] = sprintf("%.2f", $financialadminexpenses[$item->beciid][budYefPerc]);
+                            $budgetexps['budYefPerc_output'] = $budgetexps['budYefPerc'].'%';
                         }
                         //parse fields as input or output for modes fill and display respectively
                         foreach($fields as $input) {
@@ -78,7 +79,10 @@ class BudgetExpenseCategories extends AbstractClass {
                                 if($input == 'budgetPrevYear') {
                                     $readonly = $disabledfield;
                                 }
-                                $column_output .=' <td style="width:10%;">'.parse_textfield('budgetexps['.$item->beciid.']['.$input.']', 'budgetexps_'.$item->beciid.'_'.$item->becid.'_'.$input, 'number', $budgetexps[$input], array('accept' => 'numeric', 'step' => 'any', 'required' => 'required', $readonly => $readonly, 'style' => 'width:100%')).'</td>';
+                                if(!isset($budgetexps[$input])) {
+                                    $budgetexps[$input] = 0;
+                                }
+                                $column_output .=' <td style="width:10%;">'.parse_textfield('budgetexps['.$item->beciid.']['.$input.']', 'budgetexps_'.$item->beciid.'_'.$item->becid.'_'.$input, 'number', $budgetexps[$input], array('accept' => 'numeric', 'step' => 'any', 'required' => 'required', 'min' => 0, 'style' => 'width:100%')).'</td>'; //$readonly => $readonly, 
                                 unset($readonly);
                             }
                             else {
@@ -95,12 +99,16 @@ class BudgetExpenseCategories extends AbstractClass {
                     foreach($fields as $field) {
                         $total[$field] += $subtotal[$field];
                     }
+                    $subtotal['budYefPerc'] = '0.00';
                     if($subtotal['yefPrevYear'] != 0) {
-                        $subtotal['budYefPerc'] = sprintf("%.2f", (($subtotal['budgetCurrent'] - $subtotal['yefPrevYear']) / $subtotal['yefPrevYear']) * 100).'%';
+                        $subtotal['budYefPerc'] = sprintf("%.2f", (($subtotal['budgetCurrent'] - $subtotal['yefPrevYear']) / $subtotal['yefPrevYear']) * 100);
+                        $subtotal['budYefPerc_output'] = $subtotal['budYefPerc'].'%';
                     }
-                    $total['budYefPerc'] = '0.00%';
+                    $total['budYefPerc'] = '0.00';
+                    $total['budYefPerc_output'] = '0.00%';
                     if($total['yefPrevYear'] != 0) {
-                        $total['budYefPerc'] = sprintf("%.2f", (($total['budgetCurrent'] - $total['yefPrevYear']) / $total['yefPrevYear']) * 100).'%';
+                        $total['budYefPerc'] = sprintf("%.2f", (($total['budgetCurrent'] - $total['yefPrevYear']) / $total['yefPrevYear']) * 100);
+                        $total['budYefPerc_output'] = $total['budYefPerc'].'%';
                     }
                     eval("\$budgeting_commercialexpenses_categories .= \"".$template->get('budgeting_commercialexpenses_category')."\";");
                 }

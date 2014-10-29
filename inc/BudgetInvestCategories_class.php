@@ -80,7 +80,7 @@ class BudgetInvestCategories extends AbstractClass {
 //                                    $type = 'hidden';
 //                                    $column_output .='<div id="budgetinvst_'.$item->biiid.'_'.$item->bicid.'_'.$input.'">'.$budgetinvst[$input].'</div>';
 //                                }
-                                $column_output .= parse_textfield('budgetinvst['.$item->biiid.']['.$input.']', 'budgetinvst_'.$item->biiid.'_'.$item->bicid.'_'.$input, $type, $budgetinvst[$input], array('accept' => 'numeric', 'required' => 'required', 'step' => 'any', $readonly => $readonly, 'style' => 'width:100%;')).'</td>';
+                                $column_output .= parse_textfield('budgetinvst['.$item->biiid.']['.$input.']', 'budgetinvst_'.$item->biiid.'_'.$item->bicid.'_'.$input, $type, $budgetinvst[$input], array('accept' => 'numeric', 'required' => 'required', 'step' => 'any', 'min' => 0, 'style' => 'width:100%;')).'</td>'; //$readonly => $readonly,
                                 unset($readonly);
                             }
                             else {

@@ -109,7 +109,7 @@ else if($core->input['action'] == 'do_perform_financialadminexpenses') {
             output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
             break;
         case 3:
-            output_xml('<status>false</status><message> please select a value not more than the total expenses</message>');
+            output_xml('<status>false</status><message>'.$lang->finexpensestotalerror.'</message>');
             break;
     }
 }

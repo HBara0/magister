@@ -471,6 +471,7 @@ CREATE TABLE `calendar_tasks` (
   `subject` varchar(220) NOT NULL,
   `priority` tinyint(1) NOT NULL DEFAULT '2',
   `dueDate` bigint(30) NOT NULL,
+  `timeStarted` bigint(30) DEFAULT NULL,
   `isDone` tinyint(1) NOT NULL DEFAULT '0',
   `timeDone` bigint(30) DEFAULT NULL,
   `description` text,
@@ -483,7 +484,7 @@ CREATE TABLE `calendar_tasks` (
   PRIMARY KEY (`ctid`),
   KEY `uid` (`uid`),
   KEY `createdBy` (`createdBy`)
-) ENGINE=MyISAM AUTO_INCREMENT=988 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `calendar_tasks_notes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

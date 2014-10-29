@@ -41,6 +41,9 @@ elseif($core->input['action'] == 'get_taskdetails') {
         if(!$task->is_sharedwithuser() && $core->user['uid'] != $task_details['uid'] && $core->user['uid'] != $task_details['createdBy']) {
             exit;
         }
+        if(isset($task_details['timeStarted'])) {
+            $task_details['timeStarted_output'] = $lang->datestarted.': '.date($core->settings['dateformat'].' H: i ', $task_details['timeStarted']).'<br />';
+        }
         if(isset($task_details['timeDone'])) {
             $task_details['timeDone_output'] = $lang->datecompleted.': '.date($core->settings['dateformat'].' H: i ', $task_details['timeDone']).'<br />';
         }
