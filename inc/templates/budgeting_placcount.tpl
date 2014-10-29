@@ -4,26 +4,21 @@
         {$headerinc}
         <script type="text/javascript">
             $(function() {
+                var subtotal_income = subtotal_operatingprofit = subtotal_netincome = 0;
                 $("input[id^='placcount']").bind('keyup change', function() {
                     var id = $(this).attr('id').split("_");
                     var v = 0;
-                    var subtotal_income = subtotal_operatingprofit = subtotal_netincome = 0;
-                    var name = 'subtotal_' + id[1];
                     $("input[id^='" + id[0] + "_" + id[1] + "_" + id[2] + "']").each(function() {
                         if(!jQuery.isEmptyObject(this.value)) {
                             v += parseFloat(this.value);
                         }
                     });
-                    eval("var " + "subtotal_" + id[1] + "=" + v);
+                    eval("subtotal_" + id[1] + "=" + v);
                     if(subtotal_income !== 0) {
                         $("div[id='total_income_" + id[2] + "']").text(subtotal_income + parseFloat($("input[id='total_sales_" + id[2] + "']").val()));
                     }
-                    //if(subtotal_operatingprofit !== 0) {
                     $("div[id='total_operatingprofit_" + id[2] + "']").text(subtotal_operatingprofit + parseFloat($("div[id='total_income_" + id[2] + "']").text()) + parseFloat($("div[id='total_admcomexpenses_" + id[2] + "']").text()));
-                    //}
-                    //if(subtotal_netincome !== 0) {
                     $("div[id='total_netincome_" + id[2] + "']").text(subtotal_netincome + parseFloat($("div[id='total_operatingprofit_" + id[2] + "']").text()));
-                    //}
 
                     var yefPrevYear = $("input[id^='" + id[0] + "_" + id[1] + "_yefPrevYear_" + id[3] + "']").val();
                     var actualPrevTwoYears = $("input[id^='" + id[0] + "_" + id[1] + "_actualPrevTwoYears_" + id[3] + "']").val();
