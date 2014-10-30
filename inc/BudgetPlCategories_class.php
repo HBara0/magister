@@ -46,18 +46,21 @@ class BudgetPlCategories extends AbstractClass {
                     foreach($plitems as $item) {
                         $plexpenses_current = BudgetPlExpenses::get_data(array('bpliid' => $item->bpliid, 'bfbid' => $options['financialbudget']->bfbid));
                         $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'yefactual', 'yefbud', 'budgetCurrent', 'budyef');
+                        foreach($fields as $input) {
+                            $placcount[$input] = $plexpenses_current->$input;
+                        }
                         $column_output .= '<td style="width:28%">'.$item->title.'<input type="hidden" name="placcount['.$item->bpliid.'][bpliid]" value='.$item->bpliid.'></td>';
                         foreach($fields as $input) {
                             if($input === 'yefactual' || $input === 'yefbud' || $input === 'budyef') {
                                 $plexpenses[$input] = '0.00%';
-                                if($plexpenses_current->actualPrevTwoYears != 0) {
-                                    $plexpenses['yefactual'] = sprintf("%.2f", (($plexpenses_current->yefPrevYear - $plexpenses_current->actualPrevTwoYears) / $plexpenses_current->actualPrevTwoYears) * 100).' %';
+                                if($placcount['actualPrevTwoYears'] != 0) {
+                                    $plexpenses['yefactual'] = sprintf("%.2f", (($placcount['yefPrevYear'] - $placcount['actualPrevTwoYears']) / $placcount['actualPrevTwoYears']) * 100).' %';
                                 }
-                                if($plexpenses_current->budgetPrevYear != 0) {
-                                    $plexpenses['yefbud'] = sprintf("%.2f", (($plexpenses_current->yefPrevYear - $plexpenses_current->budgetPrevYear) / $plexpenses_current->budgetPrevYear) * 100).' %';
+                                if($placcount['budgetPrevYear'] != 0) {
+                                    $plexpenses['yefbud'] = sprintf("%.2f", (($placcount['yefPrevYear'] - $placcount['budgetPrevYear']) / $placcount['budgetPrevYear']) * 100).' %';
                                 }
-                                if($plexpenses_current->yefPrevYear != 0) {
-                                    $plexpenses['budyef'] = sprintf("%.2f", (($plexpenses_current->budgetCurrent - $plexpenses_current->yefPrevYear) / $plexpenses_current->yefPrevYear) * 100).' %';
+                                if($placcount['yefPrevYear'] != 0) {
+                                    $plexpenses['budyef'] = sprintf("%.2f", (($placcount['budgetCurrent'] - $placcount['yefPrevYear']) / $placcount['yefPrevYear'] ) * 100).' %';
                                 }
                                 $column_output .='<td style="width:9%" class="border_left"><div id="placcount_'.$category->name.'_'.$input.'_'.$item->bpliid.'" >'.$plexpenses[$input].'</div></td>';
                                 $total['plexpenses'][$input] += $plexpenses[$input];
@@ -68,13 +71,15 @@ class BudgetPlCategories extends AbstractClass {
                                 }
                                 else {
                                     if(isset($options['placcount']) && !empty($options['placcount'])) {
-                                        $placcount = $options['placcount'];
-                                        $plexpenses_current = new BudgetPlExpenses();
-                                        $plexpenses_current->$input = sprintf("%.2f", $placcount[$item->bpliid][$input]);
+                                        $placcounts = $options['placcount'];
+                                        $placcount = $placcounts[$item->bpliid];
+                                        // $plexpenses_current = new BudgetPlExpenses();
+                                        // $plexpenses_current->$input = sprintf("%.2f", $placcount[$item->bpliid][$input]);
+                                        $placcount[$input] = sprintf("%.2f", $placcount[$input]);
                                     }
-                                    $column_output .=' <td style = "width:9%">'.$plexpenses_current->$input.'</td>';
+                                    $column_output .=' <td style = "width:9%">'.$placcount[$input].'</td>';
                                 }
-                                $total['plexpenses'][$input] +=$plexpenses_current->$input;
+                                $total['plexpenses'][$input] +=$placcount[$input];
                             }
                         }
                         eval("\$category_item .= \"".$template->get('budgeting_plcategory_item')."\";");
@@ -198,7 +203,7 @@ class BudgetPlCategories extends AbstractClass {
                                         $combudget[$field][$type->stid]['perc'] = sprintf("%.2f", ($combudget[$field][$type->stid]['income'] / $combudget[$field][$type->stid]['amount']) * 100);
                                     }
                                 }
-//calculate yef/prev2years , yef/budgetprevyear and budgetCurrent/yef percentages
+                                //calculate yef/prev2years , yef/budgetprevyear and budgetCurrent/yef percentages
                                 $commercialbudget_item_rows = array('amount', 'income', 'perc');
                                 foreach($commercialbudget_item_rows as $row) {
                                     $combudget[yefactual][$type->stid][$row] = $combudget[yefbud][$type->stid][$row] = $combudget[budyef][$type->stid][$row] = '0.00%';
@@ -212,7 +217,7 @@ class BudgetPlCategories extends AbstractClass {
                                         $combudget[budyef][$type->stid][$row] = sprintf("%.2f", (($combudget[current][$type->stid][$row] - $combudget[yef][$type->stid][$row]) / $combudget[yef][$type->stid][$row]) * 100).' %';
                                     }
                                 }
-//parse fields
+                                //parse fields
                                 $fields = array('prevthreeyears', 'prevtwoyears', 'prevyear', 'yef', 'yefactual', 'yefbud', 'current', 'budyef');
                                 $amount_output .=' <td style = "width:28%;font-weight:bold;">'.$type->title.'</td>';
                                 $income_output .='<td style = "width:28%">'.$lang->accountedcommissions.'</td>';
@@ -239,7 +244,7 @@ class BudgetPlCategories extends AbstractClass {
                             }
                             $column_output .='<td style="width:28%"></td>';
                             $hiddenfields = array('actualPrevThreeYears' => 'prevthreeyears', 'actualPrevTwoYears' => 'prevtwoyears', 'budgetPrevYear' => 'prevyear', 'yefPrevYear' => 'yef', 'yefactual' => 'yefactual', 'yefbud' => 'yefbud', 'budgetCurrent' => current, 'budyef' => 'budyef');
-// parse hidden fields for Sales category total
+                            // parse hidden fields for Sales category total
                             foreach($hiddenfields as $key => $value) {
                                 $width = '9%;';
                                 if($field == 'yefactual' || $field == 'yefbud' || $field == 'budyef') {
@@ -252,7 +257,7 @@ class BudgetPlCategories extends AbstractClass {
                             unset($column_output);
                         }
                     }
-//parse Adm.Com. Expenses section
+                    //parse Adm.Com. Expenses section
                     if($category->name == 'admcomexpenses') {
                         $rows = array('adminexpenses', 'commercialexpenses', 'totaladmcom');
                         $budgets = array('actualPrevThreeYears' => 'finGenAdmExpAmtApthy', 'actualPrevTwoYears' => 'finGenAdmExpAmtApty', 'budgetPrevYear' => 'finGenAdmExpAmtBpy', 'yefPrevYear' => 'finGenAdmExpAmtYpy', 'yefactual' => 'yefactual', 'yefbud' => 'yefbud', 'budgetCurrent' => 'finGenAdmExpAmtCurrent', 'budyef' => 'budyef');
