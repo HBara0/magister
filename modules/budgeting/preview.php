@@ -129,9 +129,12 @@ if(!($core->input['action'])) {
 
                             $rawdata[$field][$blid]['reportsTo'] = $budget_obj->get_CreateUser()->get_reportsto()->uid;
                             $rawdata[$field][$blid]['uid'] = $budgetline->businessMgr;
+                            $rawdata[$field][$blid]['stid'] = $budgetline->saleType;
                             $rawdata[$field][$blid]['spid'] = $product->get_supplier()->eid;
-                            $rawdata[$field][$blid]['s1Income'] = $rawdata[$blid]['income'] * ($rawdata[$blid]['s1Perc'] / 100);
-                            $rawdata[$field][$blid]['s2Income'] = $rawdata[$blid]['income'] * ($rawdata[$blid]['s2Perc'] / 100);
+                            $rawdata[$field][$blid]['s1Amount'] = $rawdata[$field][$blid]['amount'] * ($rawdata[$field][$blid]['s1Perc'] / 100);
+                            $rawdata[$field][$blid]['s2Amount'] = $rawdata[$field][$blid]['amount'] * ($rawdata[$field][$blid]['s2Perc'] / 100);
+                            $rawdata[$field][$blid]['s1Income'] = $rawdata[$field][$blid]['income'] * ($rawdata[$field][$blid]['s1Perc'] / 100);
+                            $rawdata[$field][$blid]['s2Income'] = $rawdata[$field][$blid]['income'] * ($rawdata[$field][$blid]['s2Perc'] / 100);
                             if(empty($rawdata[$field][$blid]['coid'])) {
                                 if(!empty($rawdata[$field][$blid]['customerCountry'])) {
                                     $rawdata[$field][$blid]['coid'] = $rawdata[$blid]['customerCountry'];
@@ -152,7 +155,7 @@ if(!($core->input['action'])) {
             }
             /* Dimensional Report Settings - START */
             $dimensions = explode(',', $budgetsdata['current']['dimension'][0]); // Need to be passed from options stage
-            $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 's1Income', 's2Income');
+            $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 's1Income', 's2Income', 's1Amount', 's2Amount');
             $formats = array('incomePerc' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'));
             $overwrite = array('unitPrice' => array('fields' => array('divider' => 'amount', 'dividedby' => 'quantity'), 'operation' => '/'),
                     'incomePerc' => array('fields' => array('divider' => 'income', 'dividedby' => 'amount'), 'operation' => '/'));

@@ -160,7 +160,7 @@ if(!$core->input['action']) {
     $curr_objs = Currencies::get_data('alphaCode IS NOT NULL');
     $currencies_list = parse_selectlist('budget[toCurrency]', 7, $curr_objs, 840);
 
-    $dimensions = array('affid' => $lang->affiliate, 'spid' => $lang->supplier, 'cid' => $lang->customer, 'reportsTo' => $lang->reportsto, 'pid' => $lang->product, 'coid' => $lang->country, 'uid' => $lang->manager, 'psid' => $lang->segment);
+    $dimensions = array('affid' => $lang->affiliate, 'spid' => $lang->supplier, 'cid' => $lang->customer, 'reportsTo' => $lang->reportsto, 'pid' => $lang->product, 'coid' => $lang->country, 'uid' => $lang->manager, 'psid' => $lang->segment, 'stid' => $lang->saletype);
 
     foreach($dimensions as $dimensionid => $dimension) {
         $dimension_item.='<li class = "ui-state-default" id = '.$dimensionid.' title = "Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
