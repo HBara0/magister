@@ -1,5 +1,5 @@
 <?php
-$lang['create'] = 'Create (Commerical)';
+$lang['create'] = 'Create';
 $lang['country'] = 'Country';
 $lang['budg'] = 'Budg';
 $lang['budgetabbr'] = 'B';
@@ -16,7 +16,7 @@ $lang['actualamount'] = "Actual amount";
 $lang['unitprice'] = "Unit Price";
 $lang['exchangerates'] = "Exchange rates ";
 $lang['s1perc'] = "S1 Perc";
-$lang['generate'] = "Generate (Commercial)";
+$lang['generate'] = "Generate";
 $lang['s2perc'] = "S2 Perc";
 $lang['amount'] = "Sale Amount";
 $lang['actual'] = "Act";

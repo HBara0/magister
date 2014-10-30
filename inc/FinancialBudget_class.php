@@ -315,7 +315,6 @@ Class FinancialBudget extends AbstractClass {
                 );
                 $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currencies, 'toCurrency' => $options['tocurrency'], 'affid' => $options['affid'], 'year' => $options['year']), $dal_config);
                 if(is_array($fxrates_obj)) {
-
                     if(count($budget_currencies) != count($fxrates_obj)) {
                         foreach($fxrates_obj as $budgetrate) {
                             $budget_currency[] = $budgetrate->fromCurrency;
@@ -425,7 +424,7 @@ Class FinancialBudget extends AbstractClass {
                     case'forecastbalancesheet':
                         $budforecastobj = new BudgetForecastAccountsTree();
                         $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid=budgeting_forecastbs.bfbid)';
-                        $sql = "SELECT batid,sum(amount) AS amount  FROM ".Tprefix."budgeting_forecastbs WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By batid";
+                        $sql = "SELECT batid, SUM(amount*{$fxrate_query}) AS amount  FROM ".Tprefix."budgeting_forecastbs WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By batid";
 
                         $query = $db->query($sql);
                         if($db->num_rows($query) > 0) {
@@ -437,15 +436,15 @@ Class FinancialBudget extends AbstractClass {
                             break;
                             /* @var $forecastbalancesheet type */
                         }
-                        $financialbudget = FinancialBudget::get_data(array('bfbid' => $options['filter']), array('simple' => false, 'returnarray' => false));
+                        $financialbudgets = FinancialBudget::get_data(array('bfbid' => $options['filter']), array('simple' => false, 'returnarray' => true));
 
-                        $output['forecastbalancesheet']['data'] .= $budforecastobj->parse_account(array('financialbudget' => $financialbudget, 'forecastbalancesheet' => $forecastbalancesheet, 'mode' => 'display'));
+                        $output['forecastbalancesheet']['data'] .= $budforecastobj->parse_account(array('financialbudgets' => $financialbudgets, 'forecastbalancesheet' => $forecastbalancesheet, 'fxrates' => $fxrates_obj, 'toCurrency' => $options['tocurrency'], 'mode' => 'display'));
                         break;
 
                     case'profitlossaccount':
                         $plcategories = BudgetPlCategories::get_data('', array('returnarray' => true));
                         $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid=budgeting_plexpenses.bfbid)';
-                        $sql = "SELECT bpliid,sum(actualPrevThreeYears*{$fxrate_query}) AS actualPrevThreeYears, sum(actualPrevTwoYears*{$fxrate_query}) AS actualPrevTwoYears,sum(budgetPrevYear*{$fxrate_query}) AS budgetPrevYear, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrent FROM ".Tprefix."budgeting_plexpenses WHERE bfbid IN (".implode(', ', $options['filter']).") GROUP By bpliid";
+                        $sql = "SELECT bpliid, sum(actualPrevThreeYears*{$fxrate_query}) AS actualPrevThreeYears, sum(actualPrevTwoYears*{$fxrate_query}) AS actualPrevTwoYears,sum(budgetPrevYear*{$fxrate_query}) AS budgetPrevYear, sum(yefPrevYear*{$fxrate_query}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_query}) AS budgetCurrent FROM ".Tprefix."budgeting_plexpenses WHERE bfbid IN (".implode(', ', $options['filter']).") GROUP By bpliid";
                         $query = $db->query($sql);
                         $fields = array('actualPrevThreeYears', 'actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
                         if($db->num_rows($query) > 0) {
