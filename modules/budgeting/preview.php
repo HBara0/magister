@@ -284,8 +284,8 @@ if(!($core->input['action'])) {
                         $values['affiliate'][$field] = $values['affiliate']['amount'] - $values['affiliate']['income'];
                     }
                     else {
-                        $values['country'][$field] = ceil(BudgetLines::get_aggregate_bycountry($country, $field, array('bid' => array_keys($budgets['current'])), array('operators' => $operators)));
-                        $values['affiliate'][$field] = ceil(BudgetLines::get_aggregate_byaffiliate($affiliate, $field, array('bid' => array_keys($budgets['current'])), array('operators' => $operators)));
+                        $values['country'][$field] = ceil(BudgetLines::get_aggregate_bycountry($country, $field, array('bid' => array_keys($budgets['current'])), array('toCurrency' => $budgetsdata['current']['toCurrency'], 'operators' => $operators)));
+                        $values['affiliate'][$field] = ceil(BudgetLines::get_aggregate_byaffiliate($affiliate, $field, array('bid' => array_keys($budgets['current'])), array('toCurrency' => $budgetsdata['current']['toCurrency'], 'operators' => $operators)));
                     }
                     $country_row .= '<td>'.$values['country'][$field].'</td>';
                     $affiliate_row .= '<td>'.$values['affiliate'][$field].'</td>';
