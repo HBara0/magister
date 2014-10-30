@@ -239,11 +239,44 @@ if(!($core->input['action'])) {
             }
         }
         elseif($report_type == 'statistical') {
+            /* Parse suppliers weight - START */
+            $query = $db->query('SELECT DISTINCT(spid) FROM '.Tprefix.'budgeting_budgets WHERE bid IN ('.implode(',', array_keys($budgets['current'])).') GROUP BY spid');
+            while($supplier = $db->fetch_assoc($query)) {
+                $suppliers[$supplier['spid']] = $supplier['spid'];
+            }
+
+            $numfmt_perc = new NumberFormatter($lang->settings['locale'], NumberFormatter::PERCENT);
+            $numfmt_perc->setPattern("#0.###%");
+            foreach($suppliers as $spid) {
+                $suppliers[$spid] = new Entities($spid);
+                $weightstotals['income'][$spid] = ceil(BudgetLines::get_aggregate_bysupplier($suppliers[$spid], 'income', array('bid' => array_keys($budgets['current'])), array('toCurrency' => $budgetsdata['current']['toCurrency'], 'operators' => $operators)));
+                $weightstotals['amount'][$spid] = ceil(BudgetLines::get_aggregate_bysupplier($suppliers[$spid], 'amount', array('bid' => array_keys($budgets['current'])), array('toCurrency' => $budgetsdata['current']['toCurrency'], 'operators' => $operators)));
+                $weightstotals['customers'][$spid] = $db->fetch_field($db->query('SELECT COUNT(DISTINCT(cid)) AS count FROM budgeting_budgets_lines WHERE bid IN (SELECT bid FROM budgeting_budgets WHERE bid IN ('.implode(',', array_keys($budgets['current'])).') AND spid='.intval($spid).')'), 'count');
+            }
+            $weightsgtotals['income'] = array_sum_recursive($weightstotals['income']);
+            $weightsgtotals['amount'] = array_sum_recursive($weightstotals['amount']);
+            arsort($weightstotals['income']);
+            arsort($weightstotals['amount']);
+            $count = 1;
+
+            $budgeting_budgetrawreport .= '<h1>Top 10 Suppliers Weight (Budget)</h1>';
+            $budgeting_budgetrawreport .= '<table width="100%" class="datatable">';
+            $budgeting_budgetrawreport .= '<tr><th>'.$lang->company.'</th><th>'.$lang->amount.'</th><th>'.$lang->income.'</th><th># '.$lang->customer.'</tr>';
+            foreach($weightstotals['income'] as $spid => $total) {
+                if($count > 10) {
+                    break;
+                }
+                $budgeting_budgetrawreport .= '<tr><td>'.$suppliers[$spid]->companyName.'</td><td>'.$numfmt_perc->format($weightstotals['amount'][$spid] / $weightsgtotals['amount']).'</td><td>'.$numfmt_perc->format($total / $weightsgtotals['income']).'</td><td>'.$weightstotals['customers'][$spid].'</td></tr>';
+
+                $count++;
+            }
+            $budgeting_budgetrawreport .= '</table>';
+            /* Parse suppliers weight - END */
             /* Parse Risks - Start */
             $value_types = array('income', 'amount');
             $value_perc = array(50, 80);
             $value_by = array('customers' => 'cid, altCid', 'suppliers' => 'bid');
-            $budgeting_budgetrawreport = '<h1>Customers/Suppliers Risks</h1>';
+            $budgeting_budgetrawreport .= '<h1>Customers/Suppliers Risks</h1>';
             foreach($value_by as $by => $group) {
                 $budgeting_budgetrawreport .= '<h2>'.ucwords($by).'</h2><table width="100%" class="datatable">';
                 foreach($value_types as $type) {
