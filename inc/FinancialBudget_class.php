@@ -425,7 +425,8 @@ Class FinancialBudget extends AbstractClass {
                     case'forecastbalancesheet':
                         $budforecastobj = new BudgetForecastAccountsTree();
                         $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN  budgeting_financialbudget bfb ON(bfb.affid=bfr.affid AND bfb.year=bfr.year)  WHERE bfr.fromCurrency=bfb.currency AND bfr.toCurrency='.intval($options['tocurrency']).' AND bfb.bfbid=budgeting_forecastbs.bfbid)';
-                        $sql = "SELECT batid,sum(amount*{$fxrate_query}) AS amount FROM ".Tprefix."budgeting_forecastbs WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By batid";
+                        $sql = "SELECT batid,sum(amount) AS amount  FROM ".Tprefix."budgeting_forecastbs WHERE bfbid IN (".implode(',', $options['filter']).") GROUP By batid";
+
                         $query = $db->query($sql);
                         if($db->num_rows($query) > 0) {
                             while($item = $db->fetch_assoc($query)) {
@@ -434,7 +435,10 @@ Class FinancialBudget extends AbstractClass {
                         }
                         if(is_empty($forecastbalancesheet)) {
                             break;
+                            /* @var $forecastbalancesheet type */
                         }
+                        $financialbudget = FinancialBudget::get_data(array('bfbid' => $options['filter']), array('simple' => false, 'returnarray' => false));
+
                         $output['forecastbalancesheet']['data'] .= $budforecastobj->parse_account(array('financialbudget' => $financialbudget, 'forecastbalancesheet' => $forecastbalancesheet, 'mode' => 'display'));
                         break;
 
