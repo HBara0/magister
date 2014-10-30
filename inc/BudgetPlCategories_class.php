@@ -146,28 +146,30 @@ class BudgetPlCategories extends AbstractClass {
                                                     'simple' => false,
                                                     'returnarray' => true
                                             );
-
-                                            $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currencies, 'toCurrency' => $options['tocurrency'], 'affid' => $budgetobject->affid, 'year' => $budgetobject->year), $dal_config);
-                                            if(is_array($fxrates_obj)) {
-                                                if(count($budget_currencies) != count($fxrates_obj)) {
-                                                    foreach($fxrates_obj as $budgetrate) {
-                                                        $budget_currency[] = $budgetrate->fromCurrency;
-                                                    }
-                                                    $currencies_diff = array_diff($budget_currencies, $budget_currency);
-                                                    if(is_array($currencies_diff)) {
-                                                        foreach($currencies_diff as $currencyid) {
-                                                            $currency = new Currencies($currencyid);
-                                                            $output_currname .= $comma.$currency->name;
-                                                            $comma = ', ';
+                                            /* converting  when from CurrencyX not equal to CurrecnyX */
+                                            if(!in_array($options['tocurrency'], $budget_currencies)) {
+                                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currencies, 'toCurrency' => $options['tocurrency'], 'affid' => $budgetobject->affid, 'year' => $budgetobject->year), $dal_config);
+                                                if(is_array($fxrates_obj)) {
+                                                    if(count($budget_currencies) != count($fxrates_obj)) {
+                                                        foreach($fxrates_obj as $budgetrate) {
+                                                            $budget_currency[] = $budgetrate->fromCurrency;
+                                                        }
+                                                        $currencies_diff = array_diff($budget_currencies, $budget_currency);
+                                                        if(is_array($currencies_diff)) {
+                                                            foreach($currencies_diff as $currencyid) {
+                                                                $currency = new Currencies($currencyid);
+                                                                $output_currname .= $comma.$currency->name;
+                                                                $comma = ', ';
+                                                            }
+                                                        }
+                                                        if($currencyid != $options['tocurrency']) {
+                                                            error($lang->sprint($lang->noexchangerate, $output_currname, $options['tocurrency'], $budgetobject->year), $_SERVER['HTTP_REFERER']);
                                                         }
                                                     }
-                                                    if($currencyid != $options['tocurrency']) {
-                                                        error($lang->sprint($lang->noexchangerate, $output_currname, $options['tocurrency'], $budgetobject->year), $_SERVER['HTTP_REFERER']);
-                                                    }
                                                 }
-                                            }
-                                            else {
-                                                error($lang->sprint($lang->noexchangerate, implode(', ', $budget_currencies), $options['tocurrency'], $budgetobject->year), $_SERVER['HTTP_REFERER']);
+                                                else {
+                                                    error($lang->sprint($lang->noexchangerate, implode(', ', $budget_currencies), $options['tocurrency'], $budgetobject->year), $_SERVER['HTTP_REFERER']);
+                                                }
                                             }
 
                                             $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($options['tocurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=".$budgetobject->affid." AND year=".$budgetobject->year." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($options['tocurrency']).") END)";
@@ -200,7 +202,7 @@ class BudgetPlCategories extends AbstractClass {
                                 foreach($fields as $field) {
                                     $combudget[$field][$type->stid]['perc'] = 0;
                                     if($combudget[$field][$type->stid]['amount'] != 0) {
-                                        $combudget[$field][$type->stid]['perc'] = sprintf("%.2f", ($combudget[$field][$type->stid]['income'] / $combudget[$field][$type->stid]['amount']) * 100);
+                                        $combudget[$field][$type->stid]['perc'] = sprintf("%.2f", ($combudget[$field][$type->stid]['income'] / $combudget[$field][$type->stid]['amount'] ) * 100);
                                     }
                                 }
                                 //calculate yef/prev2years , yef/budgetprevyear and budgetCurrent/yef percentages
@@ -208,13 +210,13 @@ class BudgetPlCategories extends AbstractClass {
                                 foreach($commercialbudget_item_rows as $row) {
                                     $combudget[yefactual][$type->stid][$row] = $combudget[yefbud][$type->stid][$row] = $combudget[budyef][$type->stid][$row] = '0.00%';
                                     if($combudget[prevtwoyears][$type->stid][$row] != 0) {
-                                        $combudget[yefactual][$type->stid][$row] = sprintf("%.2f", (($combudget[yef][$type->stid][$row] - $combudget[prevtwoyears][$type->stid][$row]) / $combudget[prevtwoyears][$type->stid][$row]) * 100).' %';
+                                        $combudget[yefactual][$type->stid][$row] = sprintf("%.2f", (($combudget[yef][$type->stid][$row] - $combudget[prevtwoyears][$type->stid][$row] ) / $combudget[prevtwoyears][$type->stid][$row] ) * 100).' %';
                                     }
                                     if($combudget[prevyear][$type->stid][$row] != 0) {
-                                        $combudget[yefbud][$type->stid][$row] = sprintf("%.2f", (($combudget[yef][$type->stid][$row] - $combudget[prevyear][$type->stid][$row]) / $combudget[prevyear][$type->stid][$row]) * 100).' %';
+                                        $combudget[yefbud][$type->stid][$row] = sprintf("%.2f", (($combudget[yef][$type->stid][$row] - $combudget[prevyear][$type->stid][$row] ) / $combudget[prevyear][$type->stid][$row] ) * 100).' %';
                                     }
                                     if($combudget[yef][$type->stid][$row] != 0) {
-                                        $combudget[budyef][$type->stid][$row] = sprintf("%.2f", (($combudget[current][$type->stid][$row] - $combudget[yef][$type->stid][$row]) / $combudget[yef][$type->stid][$row]) * 100).' %';
+                                        $combudget[budyef][$type->stid][$row] = sprintf("%.2f", (($combudget[current][$type->stid][$row] - $combudget[yef][$type->stid][$row] ) / $combudget[yef][$type->stid][$row] ) * 100).' %';
                                     }
                                 }
                                 //parse fields
@@ -265,11 +267,13 @@ class BudgetPlCategories extends AbstractClass {
                             $options['filter'][] = $options['financialbudget']->bfbid;
                         }
 
-                        //for generate report (mode=display) case where more than one affiliate is selected
+//for generate report (mode=display) case where more than one affiliate is selected
                         if(is_array($options['filter'])) {
                             $fxrate_query2 = '(CASE WHEN budgeting_financialbudget.currency = '.intval($options['tocurrency']).' THEN 1
                                     ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = budgeting_financialbudget.affid AND bfr.year = budgeting_financialbudget.year AND bfr.fromCurrency = budgeting_financialbudget.currency AND bfr.toCurrency = '.intval($options['tocurrency']).') END)';
-                            $sql = "SELECT bfbid, sum(finGenAdmExpAmtApthy*{$fxrate_query2}) AS finGenAdmExpAmtApthy ,sum(finGenAdmExpAmtApty*{$fxrate_query2}) AS finGenAdmExpAmtApty, sum(finGenAdmExpAmtYpy*{$fxrate_query2}) AS finGenAdmExpAmtYpy, sum(finGenAdmExpAmtCurrent*{$fxrate_query2}) AS finGenAdmExpAmtCurrent FROM ".Tprefix."budgeting_financialbudget WHERE bfbid IN (".implode(', ', $options['filter']).")";
+                            $sql = "SELECT bfbid, sum(finGenAdmExpAmtApthy*{$fxrate_query2}) AS finGenAdmExpAmtApthy ,sum(finGenAdmExpAmtApty*{$fxrate_query2}) AS finGenAdmExpAmtApty, sum(finGenAdmExpAmtYpy*{$fxrate_query2}) AS finGenAdmExpAmtYpy, sum(finGenAdmExpAmtCurrent*{$fxrate_query2}) AS finGenAdmExpAmtCurrent "
+                                    .""
+                                    ."FROM ".Tprefix."budgeting_financialbudget WHERE bfbid IN (".implode(', ', $options['filter']).")";
                             $query = $db->query($sql);
                             if($db->num_rows($query) > 0) {
                                 while($budget = $db->fetch_assoc($query)) {
@@ -311,34 +315,34 @@ class BudgetPlCategories extends AbstractClass {
                                 $comercialbudget['yefactual'] = $comercialbudget['yefbud'] = $comercialbudget['budyef'] = '0.00%';
                                 $commercialexpenses['yefactual'] = $commercialexpenses['yefbud'] = $commercialexpenses['budyef'] = '0.00%';
                                 $financialbudget['yefactual'] = $financialbudget['yefbud'] = $financialbudget['budyef'] = '0.00%';
-                                // !!! code need to be optimized
-                                //calculatio of yef/actual  yef/bud and bud/yef fields
+// !!! code need to be optimized
+//calculatio of yef/actual  yef/bud and bud/yef fields
                                 if($comercialbudget['actualPrevTwoYears'] != 0) {
-                                    $comercialbudget['yefactual'] = sprintf("%.2f", (($comercialbudget['yefPrevYear'] - $comercialbudget['actualPrevTwoYears']) / $comercialbudget['actualPrevTwoYears']) * 100).' %';
+                                    $comercialbudget['yefactual'] = sprintf("%.2f", (($comercialbudget['yefPrevYear'] - $comercialbudget['actualPrevTwoYears'] ) / $comercialbudget['actualPrevTwoYears'] ) * 100).' %';
                                 }
                                 if($comercialbudget['budgetPrevYear'] != 0) {
-                                    $comercialbudget['yefbud'] = sprintf("%.2f", (($comercialbudget['yefPrevYear'] - $comercialbudget['budgetPrevYear']) / $comercialbudget['budgetPrevYear']) * 100).' %';
+                                    $comercialbudget['yefbud'] = sprintf("%.2f", (($comercialbudget['yefPrevYear'] - $comercialbudget['budgetPrevYear'] ) / $comercialbudget['budgetPrevYear'] ) * 100).' %';
                                 }
                                 if($comercialbudget['yefPrevYear'] != 0) {
-                                    $comercialbudget['budyef'] = sprintf("%.2f", (($comercialbudget['budgetCurrent'] - $comercialbudget['yefPrevYear']) / $comercialbudget['yefPrevYear']) * 100).' %';
+                                    $comercialbudget['budyef'] = sprintf("%.2f", (($comercialbudget['budgetCurrent'] - $comercialbudget['yefPrevYear'] ) / $comercialbudget['yefPrevYear'] ) * 100).' %';
                                 }
                                 if($commercialexpenses['actualPrevTwoYears'] != 0) {
-                                    $commercialexpenses['yefactual'] = sprintf("%.2f", (($commercialexpenses['yefPrevYear'] - $commercialexpenses['actualPrevTwoYears']) / $commercialexpenses['actualPrevTwoYears']) * 100).' %';
+                                    $commercialexpenses['yefactual'] = sprintf("%.2f", (($commercialexpenses['yefPrevYear'] - $commercialexpenses['actualPrevTwoYears'] ) / $commercialexpenses['actualPrevTwoYears'] ) * 100).' %';
                                 }
                                 if($commercialexpenses['budgetPrevYear'] != 0) {
-                                    $commercialexpenses['yefbud'] = sprintf("%.2f", (($commercialexpenses['yefPrevYear'] - $commercialexpenses['budgetPrevYear']) / $commercialexpenses['budgetPrevYear']) * 100).' %';
+                                    $commercialexpenses['yefbud'] = sprintf("%.2f", (($commercialexpenses['yefPrevYear'] - $commercialexpenses['budgetPrevYear'] ) / $commercialexpenses['budgetPrevYear'] ) * 100).' %';
                                 }
                                 if($commercialexpenses['yefPrevYear'] != 0) {
-                                    $commercialexpenses['budyef'] = sprintf("%.2f", (($commercialexpenses['budgetCurrent'] - $commercialexpenses['yefPrevYear']) / $commercialexpenses['yefPrevYear']) * 100).' %';
+                                    $commercialexpenses['budyef'] = sprintf("%.2f", (($commercialexpenses['budgetCurrent'] - $commercialexpenses['yefPrevYear'] ) / $commercialexpenses['yefPrevYear'] ) * 100).' %';
                                 }
                                 if($financialbudget['actualPrevTwoYears'] != 0) {
-                                    $financialbudget['yefactual'] = sprintf("%.2f", (($financialbudget['yefPrevYear'] - $financialbudget['actualPrevTwoYears']) / $financialbudget['actualPrevTwoYears']) * 100).' %';
+                                    $financialbudget['yefactual'] = sprintf("%.2f", (($financialbudget['yefPrevYear'] - $financialbudget['actualPrevTwoYears'] ) / $financialbudget['actualPrevTwoYears'] ) * 100).' %';
                                 }
                                 if($financialbudget['budgetPrevYear'] != 0) {
-                                    $financialbudget['yefbud'] = sprintf("%.2f", (($financialbudget['yefPrevYear'] - $financialbudget['budgetPrevYear']) / $financialbudget['budgetPrevYear']) * 100).' %';
+                                    $financialbudget['yefbud'] = sprintf("%.2f", (($financialbudget['yefPrevYear'] - $financialbudget['budgetPrevYear'] ) / $financialbudget['budgetPrevYear'] ) * 100).' %';
                                 }
                                 if($financialbudget['yefPrevYear'] != 0) {
-                                    $financialbudget['budyef'] = sprintf("%.2f", (($financialbudget['budgetCurrent'] - $financialbudget['yefPrevYear']) / $financialbudget['yefPrevYear']) * 100).' %';
+                                    $financialbudget['budyef'] = sprintf("%.2f", (($financialbudget['budgetCurrent'] - $financialbudget['yefPrevYear'] ) / $financialbudget['yefPrevYear'] ) * 100).' %';
                                 }
                             }
 
