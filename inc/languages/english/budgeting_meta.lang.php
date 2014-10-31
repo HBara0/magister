@@ -85,6 +85,7 @@ $lang['profitandlossaccount'] = $lang['profitlossaccount'] = 'Profit and Loss Ac
 $lang['adminexpenses'] = 'Administrative expenses';
 $lang['totaladmcom'] = 'Total Adm.Com. Expenses';
 $lang['accountedcommissions'] = 'Accounted commissions';
+$lang['grossmargin'] = 'Gross margin';
 $lang['generatefinbudget'] = 'Generate Financial Budget';
 $lang['currrate'] = 'From {1} To {2} rate:{3}';
 $lang['budgcurrdesc'] = 'Currency in this budget is in  K {1}';  //use to display currency desc
@@ -93,4 +94,5 @@ $lang['currfxratedesc'] = 'Data in this budget is in K';
 $lang['currencynotexistvar'] = 'The currency {1} does not have a conversion rate.';
 $lang['noexchangerate'] = 'No exchange rate from {1} to {2} for year {3}';
 $lang['finexpensestotalerror'] = 'Please select a value not more than the total expenses';
+$lang['totalsales'] = 'Total Sales';
 ?>
