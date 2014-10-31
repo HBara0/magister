@@ -16,10 +16,10 @@ if($core->usergroup['budgeting_canFillBPl'] == 0) {
 if(!isset($core->input['action'])) {
     $budget_data = $core->input['financialbudget'];
     $affid = $budget_data['affid'];
-    $plyear = $financialbudget_year = $budget_data['year'];
-    $plprevyear = $financialbudget_prevyear = $plyear - 1;
-    $financialbudget_prev3year = $financialbudget_year - 3;
-    $financialbudget_prev2year = $plyear - 2;
+    $financialbudget_year = $budget_data['year'];
+    $financialbudget_prevyear = $budget_data['year'] - 1;
+    $financialbudget_prev3year = $budget_data['year'] - 3;
+    $financialbudget_prev2year = $budget_data['year'] - 2;
     if($core->usergroup['canViewAllAff'] == 0) {
         $affiliates = $core->user['affiliates'];
         if(!in_array($budget_data['affid'], array_keys($affiliates))) {
@@ -29,15 +29,13 @@ if(!isset($core->input['action'])) {
     $affiliate = new Affiliates($budget_data['affid']);
     $financialbudget = FinancialBudget::get_data(array('affid' => $budget_data['affid'], 'year' => $budget_data['year']), array('simple' => false));
     $currency = $affiliate->get_country()->get_maincurrency();
-//get 3 commercial budgets of current year, prev year and prev two years
+
+    //get 3 commercial budgets of current year, prev year and prev two years
     $commericalbudget = Budgets::get_data(array('affid' => $budget_data['affid'], 'year' => $budget_data['year']), array('returnarray' => true, 'simple' => false));
     $prevcommericalbudget = Budgets::get_data(array('affid' => $budget_data['affid'], 'year' => ($budget_data['year'] - 1)), array('returnarray' => true, 'simple' => false));
     $prevtwocommericalbudget = Budgets::get_data(array('affid' => $budget_data['affid'], 'year' => ($budget_data['year'] - 2)), array('returnarray' => true, 'simple' => false));
 
     //get commercial budget id's (current budget, prev budget and prev two years budget)
-//    $current[$commericalbudget->bid] = $commericalbudget->bid;
-//    $prevtwoyears[$prevtwocommericalbudget->bid] = $prevtwocommericalbudget->bid;
-//    $prevyear[$prevcommericalbudget->bid] = $prevcommericalbudget->bid;
     if(is_array($commericalbudget)) {
         foreach($commericalbudget as $budget) {
             $current[$budget->bid] = $budget->bid;
@@ -64,8 +62,6 @@ if(!isset($core->input['action'])) {
         $type = 'submit';
         $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'bid' => $budgetsids, 'tocurrency' => $currency->numCode));
     }
-
-
 
     $headerfields = array($lang->actual, $lang->actual, $lang->budget, $lang->yef, '%YEF'.$financialbudget_prevyear, '%YEF'.$financialbudget_prevyear, $lang->budget, '%Bud'.$financialbudget_year);
     $headeryears = array($financialbudget_prev3year, $financialbudget_prev2year, $financialbudget_prevyear, $financialbudget_prevyear, '/Actual '.$financialbudget_prev2year, '/Budget '.$financialbudget_prevyear, $financialbudget_year, '/YEF '.$financialbudget_prevyear);
@@ -120,5 +116,4 @@ else if($core->input['action'] == 'do_perform_profitlossaccount') {
             break;
     }
 }
-//}
 ?>

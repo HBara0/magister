@@ -30,8 +30,8 @@ class BudgetPlExpenses extends AbstractClass {
                 $data[$field] = $db->escape_string($data[$field]);
                 $placcount_data[$field] = $data[$field];
             }
-            $headcounts_data['createdOn'] = TIME_NOW;
-            $headcounts_data['createdBy'] = $core->user['uid'];
+            $placcount_data['createdOn'] = TIME_NOW;
+            $placcount_data['createdBy'] = $core->user['uid'];
             $query = $db->insert_query(self::TABLE_NAME, $placcount_data);
         }
     }
@@ -45,8 +45,8 @@ class BudgetPlExpenses extends AbstractClass {
                 $data[$field] = $db->escape_string($data[$field]);
                 $placcount_data[$field] = $data[$field];
             }
-            $headcounts_data['modifiedOn'] = TIME_NOW;
-            $headcounts_data['modifiedBy'] = $core->user['uid'];
+            $placcount_data['modifiedOn'] = TIME_NOW;
+            $placcount_data['modifiedBy'] = $core->user['uid'];
             $db->update_query(self::TABLE_NAME, $placcount_data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
         }
     }
