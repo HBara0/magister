@@ -110,7 +110,6 @@ if(!$core->input['action']) {
 //	}
     /* Can Generate users of the affiliates he belongs to */
 
-
     if(is_array($core->user['auditedaffids'])) {
         foreach($core->user['auditedaffids'] as $auditaffid) {
             $aff_obj = new Affiliates($auditaffid);
@@ -119,22 +118,21 @@ if(!$core->input['action']) {
                 $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['displayName'];
             }
         }
-        // $business_managerslist = parse_selectlist('budget[managers][]', 7, $business_managers, $core->user['uid'], 1, '', '');
-        if(is_array($business_managers)) {
-            foreach($business_managers as $key => $value) {
-                $checked = $rowclass = '';
-                $business_managerslist .= '<tr class="'.$rowclass.'">';
-                $business_managerslist .= '<td><input name="budget[managers][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
-            }
-        }
     }
     else {
-        $business_managers[$core->user['uid']] = $core->user['displayName'];
-        // $business_managerslist = parse_selectlist('budget[managers][]', 7, $business_managers, $core->user['uid'], 1, '', '');
+        if($core->usergroup['canViewAllEmp'] == 1) {
+            $affiliate = new Affiliates($core->user['mainaffiliate']);
+            $business_managers = $affiliate->get_users(array('displaynameonly' => true));
+        }
+        else {
+            $business_managers[$core->user['uid']] = $core->user['displayName'];
+        }
+    }
+    if(is_array($business_managers)) {
         foreach($business_managers as $key => $value) {
             $checked = $rowclass = '';
             $business_managerslist .= '<tr class="'.$rowclass.'">';
-            $business_managerslist .='<td><input name="budget[managers][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
+            $business_managerslist .= '<td><input name="budget[managers][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
         }
     }
 
@@ -160,7 +158,7 @@ if(!$core->input['action']) {
     $curr_objs = Currencies::get_data('alphaCode IS NOT NULL');
     $currencies_list = parse_selectlist('budget[toCurrency]', 7, $curr_objs, 840);
 
-    $dimensions = array('affid' => $lang->affiliate, 'spid' => $lang->supplier, 'cid' => $lang->customer, 'reportsTo' => $lang->reportsto, 'pid' => $lang->product, 'coid' => $lang->country, 'uid' => $lang->manager, 'psid' => $lang->segment);
+    $dimensions = array('affid' => $lang->affiliate, 'spid' => $lang->supplier, 'cid' => $lang->customer, 'reportsTo' => $lang->reportsto, 'pid' => $lang->product, 'coid' => $lang->country, 'uid' => $lang->manager, 'psid' => $lang->segment, 'stid' => $lang->saletype);
 
     foreach($dimensions as $dimensionid => $dimension) {
         $dimension_item.='<li class = "ui-state-default" id = '.$dimensionid.' title = "Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';

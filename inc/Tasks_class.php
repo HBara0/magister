@@ -234,10 +234,10 @@ class Tasks {
         if($completed == '100') {
             $new_status = 1;
         }
-        $taskdata[percCompleted] = $completed;
-        $taskdata[isDone] = $new_status;
+        $taskdata['percCompleted'] = $completed;
+        $taskdata['isDone'] = $new_status;
 
-        if($this->task['percCompleted'] == 0) {
+        if($this->task['percCompleted'] == 0 && $this->task['percCompleted'] < $completed) {
             $taskdata['timestarted'] = TIME_NOW;
         }
 

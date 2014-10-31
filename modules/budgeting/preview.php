@@ -24,7 +24,13 @@ if(!($core->input['action'])) {
             }
         }
         else {
-            $business_managers['managers'][] = $core->user['uid'];
+            if($core->usergroup['canViewAllEmp'] == 1) {
+                $affiliate = new Affiliates($core->user['mainaffiliate']);
+                $business_managers = array_keys($affiliate->get_users(array('displaynameonly' => true)));
+            }
+            else {
+                $business_managers[$core->user['uid']] = $core->user['uid'];
+            }
         }
         $budgetsdata['current'] = ($core->input['budget']);
         $aggregate_types = array('affiliates', 'suppliers', 'managers', 'segments', 'years');
@@ -129,9 +135,12 @@ if(!($core->input['action'])) {
 
                             $rawdata[$field][$blid]['reportsTo'] = $budget_obj->get_CreateUser()->get_reportsto()->uid;
                             $rawdata[$field][$blid]['uid'] = $budgetline->businessMgr;
+                            $rawdata[$field][$blid]['stid'] = $budgetline->saleType;
                             $rawdata[$field][$blid]['spid'] = $product->get_supplier()->eid;
-                            $rawdata[$field][$blid]['s1Income'] = $rawdata[$blid]['income'] * ($rawdata[$blid]['s1Perc'] / 100);
-                            $rawdata[$field][$blid]['s2Income'] = $rawdata[$blid]['income'] * ($rawdata[$blid]['s2Perc'] / 100);
+                            $rawdata[$field][$blid]['s1Amount'] = $rawdata[$field][$blid]['amount'] * ($rawdata[$field][$blid]['s1Perc'] / 100);
+                            $rawdata[$field][$blid]['s2Amount'] = $rawdata[$field][$blid]['amount'] * ($rawdata[$field][$blid]['s2Perc'] / 100);
+                            $rawdata[$field][$blid]['s1Income'] = $rawdata[$field][$blid]['income'] * ($rawdata[$field][$blid]['s1Perc'] / 100);
+                            $rawdata[$field][$blid]['s2Income'] = $rawdata[$field][$blid]['income'] * ($rawdata[$field][$blid]['s2Perc'] / 100);
                             if(empty($rawdata[$field][$blid]['coid'])) {
                                 if(!empty($rawdata[$field][$blid]['customerCountry'])) {
                                     $rawdata[$field][$blid]['coid'] = $rawdata[$blid]['customerCountry'];
@@ -152,7 +161,7 @@ if(!($core->input['action'])) {
             }
             /* Dimensional Report Settings - START */
             $dimensions = explode(',', $budgetsdata['current']['dimension'][0]); // Need to be passed from options stage
-            $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 's1Income', 's2Income');
+            $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 's1Income', 's2Income', 's1Amount', 's2Amount');
             $formats = array('incomePerc' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'));
             $overwrite = array('unitPrice' => array('fields' => array('divider' => 'amount', 'dividedby' => 'quantity'), 'operation' => '/'),
                     'incomePerc' => array('fields' => array('divider' => 'income', 'dividedby' => 'amount'), 'operation' => '/'));
@@ -193,34 +202,37 @@ if(!($core->input['action'])) {
                                         $cdata[$dimension]['income'][$data[$dimension]][$field_check] = 0;
                                         $dimension_objs = get_object_bytype($dimension, $data[$dimension]);
                                         $cdata[$dimension]['title'][$data[$dimension]] = $dimension_objs->get_displayname();
+                                        if($dimension_objs instanceof Entities) {
+                                            $cdata[$dimension]['title'][$data[$dimension]] = $dimension_objs->get_shortdisplayname();
+                                        }
                                     }
                                 }
                                 $cdata[$dimension]['amount'][$data[$dimension]][$field] += $data[$amount];
                                 $cdata[$dimension]['income'][$data[$dimension]][$field] += $data[$income];
                                 switch($dimension) {
                                     case 'affid':
-                                        $cdata[$dimension]['charttitle'] = 'Affiliate';
+                                        $cdata[$dimension]['charttitle'] = $lang->affiliate;
                                         break;
                                     case 'spid':
-                                        $cdata[$dimension]['charttitle'] = 'Supplier';
+                                        $cdata[$dimension]['charttitle'] = $lang->supplier;
                                         break;
                                     case 'uid':
-                                        $cdata[$dimension]['charttitle'] = 'Business Manger';
+                                        $cdata[$dimension]['charttitle'] = $lang->bm;
                                         break;
                                     case 'cid':
-                                        $cdata[$dimension]['charttitle'] = 'Customer';
+                                        $cdata[$dimension]['charttitle'] = $lang->customer;
                                         break;
                                     case 'pid':
-                                        $cdata[$dimension]['charttitle'] = 'Product';
+                                        $cdata[$dimension]['charttitle'] = $lang->product;
                                         break;
                                     case 'coid':
-                                        $cdata[$dimension]['charttitle'] = 'Country';
+                                        $cdata[$dimension]['charttitle'] = $lang->country;
                                         break;
                                     case 'psid':
-                                        $cdata[$dimension]['charttitle'] = 'Segment';
+                                        $cdata[$dimension]['charttitle'] = $lang->segment;
                                         break;
                                     case 'reportsTo':
-                                        $cdata[$dimension]['charttitle'] = 'Reports To';
+                                        $cdata[$dimension]['charttitle'] = $lang->reportsto;
                                         break;
                                 }
                             }
@@ -229,18 +241,53 @@ if(!($core->input['action'])) {
                 }
             }
             foreach($cdata as $dcdata) {
-                $amount_barchart = new Charts(array('x' => $dcdata['title'], 'y' => $dcdata['amount']), 'bar', array('yaxisname' => 'amount', 'xaxisname' => $dcdata['charttitle'], 'scale' => 'SCALE_START0', 'nosort' => true, 'title' => 'Amount VS. '.$dcdata['charttitle']));
+                $budgeting_budgetrawreport .= '<br /> <h1>'.$lang->amountchart.' '.$lang->vs.' '.$dcdata['charttitle'].'</h1>';
+                $amount_barchart = new Charts(array('x' => $dcdata['title'], 'y' => $dcdata['amount']), 'bar', array('yaxisname' => 'amount', 'xaxisname' => $dcdata['charttitle'], 'scale' => 'SCALE_START0', 'nosort' => true));
                 $budgeting_budgetrawreport.='<img src='.$amount_barchart->get_chart().' />';
-                $income_barchart = new Charts(array('x' => $dcdata['title'], 'y' => $dcdata['income']), 'bar', array('yaxisname' => 'income', 'xaxisname' => $dcdata['charttitle'], 'scale' => 'SCALE_START0', 'nosort' => true, 'title' => 'Income VS. '.$dcdata['charttitle']));
+                $budgeting_budgetrawreport .= '<h1>'.$lang->income.' '.$lang->vs.' '.$dcdata['charttitle'].'</h1>';
+                $income_barchart = new Charts(array('x' => $dcdata['title'], 'y' => $dcdata['income']), 'bar', array('yaxisname' => 'income', 'xaxisname' => $dcdata['charttitle'], 'scale' => 'SCALE_START0', 'nosort' => true));
                 $budgeting_budgetrawreport.='<img src='.$income_barchart->get_chart().' />';
             }
         }
         elseif($report_type == 'statistical') {
+            /* Parse suppliers weight - START */
+            $query = $db->query('SELECT DISTINCT(spid) FROM '.Tprefix.'budgeting_budgets WHERE bid IN ('.implode(',', array_keys($budgets['current'])).') GROUP BY spid');
+            while($supplier = $db->fetch_assoc($query)) {
+                $suppliers[$supplier['spid']] = $supplier['spid'];
+            }
+
+            $numfmt_perc = new NumberFormatter($lang->settings['locale'], NumberFormatter::PERCENT);
+            $numfmt_perc->setPattern("#0.###%");
+            foreach($suppliers as $spid) {
+                $suppliers[$spid] = new Entities($spid);
+                $weightstotals['income'][$spid] = ceil(BudgetLines::get_aggregate_bysupplier($suppliers[$spid], 'income', array('bid' => array_keys($budgets['current'])), array('toCurrency' => $budgetsdata['current']['toCurrency'], 'operators' => $operators)));
+                $weightstotals['amount'][$spid] = ceil(BudgetLines::get_aggregate_bysupplier($suppliers[$spid], 'amount', array('bid' => array_keys($budgets['current'])), array('toCurrency' => $budgetsdata['current']['toCurrency'], 'operators' => $operators)));
+                $weightstotals['customers'][$spid] = $db->fetch_field($db->query('SELECT COUNT(DISTINCT(cid)) AS count FROM budgeting_budgets_lines WHERE bid IN (SELECT bid FROM budgeting_budgets WHERE bid IN ('.implode(',', array_keys($budgets['current'])).') AND spid='.intval($spid).')'), 'count');
+            }
+            $weightsgtotals['income'] = array_sum_recursive($weightstotals['income']);
+            $weightsgtotals['amount'] = array_sum_recursive($weightstotals['amount']);
+            arsort($weightstotals['income']);
+            arsort($weightstotals['amount']);
+            $count = 1;
+
+            $budgeting_budgetrawreport .= '<h1>Top 10 Suppliers Weight (Budget)</h1>';
+            $budgeting_budgetrawreport .= '<table width="100%" class="datatable">';
+            $budgeting_budgetrawreport .= '<tr><th>'.$lang->company.'</th><th>'.$lang->amount.'</th><th>'.$lang->income.'</th><th># '.$lang->customer.'</tr>';
+            foreach($weightstotals['income'] as $spid => $total) {
+                if($count > 10) {
+                    break;
+                }
+                $budgeting_budgetrawreport .= '<tr><td>'.$suppliers[$spid]->companyName.'</td><td>'.$numfmt_perc->format($weightstotals['amount'][$spid] / $weightsgtotals['amount']).'</td><td>'.$numfmt_perc->format($total / $weightsgtotals['income']).'</td><td>'.$weightstotals['customers'][$spid].'</td></tr>';
+
+                $count++;
+            }
+            $budgeting_budgetrawreport .= '</table>';
+            /* Parse suppliers weight - END */
             /* Parse Risks - Start */
             $value_types = array('income', 'amount');
             $value_perc = array(50, 80);
             $value_by = array('customers' => 'cid, altCid', 'suppliers' => 'bid');
-            $budgeting_budgetrawreport = '<h1>Customers/Suppliers Risks</h1>';
+            $budgeting_budgetrawreport .= '<h1>Customers/Suppliers Risks</h1>';
             foreach($value_by as $by => $group) {
                 $budgeting_budgetrawreport .= '<h2>'.ucwords($by).'</h2><table width="100%" class="datatable">';
                 foreach($value_types as $type) {
@@ -284,8 +331,8 @@ if(!($core->input['action'])) {
                         $values['affiliate'][$field] = $values['affiliate']['amount'] - $values['affiliate']['income'];
                     }
                     else {
-                        $values['country'][$field] = ceil(BudgetLines::get_aggregate_bycountry($country, $field, array('bid' => array_keys($budgets['current'])), array('operators' => $operators)));
-                        $values['affiliate'][$field] = ceil(BudgetLines::get_aggregate_byaffiliate($affiliate, $field, array('bid' => array_keys($budgets['current'])), array('operators' => $operators)));
+                        $values['country'][$field] = ceil(BudgetLines::get_aggregate_bycountry($country, $field, array('bid' => array_keys($budgets['current'])), array('toCurrency' => $budgetsdata['current']['toCurrency'], 'operators' => $operators)));
+                        $values['affiliate'][$field] = ceil(BudgetLines::get_aggregate_byaffiliate($affiliate, $field, array('bid' => array_keys($budgets['current'])), array('toCurrency' => $budgetsdata['current']['toCurrency'], 'operators' => $operators)));
                     }
                     $country_row .= '<td>'.$values['country'][$field].'</td>';
                     $affiliate_row .= '<td>'.$values['affiliate'][$field].'</td>';
@@ -364,7 +411,7 @@ if(!($core->input['action'])) {
                                             }
                                         }
                                         else {
-                                            error($lang->currencynotexist.' '.$budgetline['originalCurrency'], $_SERVER['HTTP_REFERER']);
+                                            error($lang->currencynotexist.' '.$budgetline['originalCurrency'].' ('.$budget['affiliate'].')', $_SERVER['HTTP_REFERER']);
                                         }
                                     }
                                     /* get the currency rate of the Origin currency  of the current buudget - END */
