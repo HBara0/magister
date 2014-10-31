@@ -1696,6 +1696,7 @@ function get_object_bytype($dim, $id, $simple = true) {
             return new Chemicalsubstances($id);
             break;
         case 'saleType':
+        case 'stid':
             return new SaleTypes($id);
     }
 }

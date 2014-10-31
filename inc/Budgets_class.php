@@ -672,8 +672,10 @@ class BudgetLines {
         global $db;
 
         $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
-
-        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.') AS total, (CASE WHEN customerCountry=0 THEN (SELECT country FROM entities WHERE entities.eid='.self::TABLE_NAME.'.cid) ELSE customerCountry END) AS coid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY coid HAVING coid='.$country->coid));
+        if($configs['toCurrency']) {
+            $fxrate_query = "*(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND year=(SELECT year FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency']).") END)";
+        }
+        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.$fxrate_query.') AS total, (CASE WHEN customerCountry=0 THEN (SELECT country FROM entities WHERE entities.eid='.self::TABLE_NAME.'.cid) ELSE customerCountry END) AS coid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY coid HAVING coid='.$country->coid));
         return $total['total'];
     }
 
@@ -682,7 +684,21 @@ class BudgetLines {
 
         $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
 
-        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.') AS total, (SELECT affid FROM budgeting_budgets WHERE budgeting_budgets.bid='.self::TABLE_NAME.'.bid) AS affid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY affid HAVING affid='.$affiliate->affid));
+        if($configs['toCurrency']) {
+            $fxrate_query = "*(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND year=(SELECT year FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency']).") END)";
+        }
+        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.$fxrate_query.') AS total, (SELECT affid FROM budgeting_budgets WHERE budgeting_budgets.bid='.self::TABLE_NAME.'.bid) AS affid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY affid HAVING affid='.$affiliate->affid));
+        return $total['total'];
+    }
+
+    public static function get_aggregate_bysupplier(Entities $supplier, $by, $filters = array(), $configs = array()) {
+        global $db;
+
+        $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
+        if($configs['toCurrency']) {
+            $fxrate_query = "*(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND year=(SELECT year FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency']).") END)";
+        }
+        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.$fxrate_query.') AS total, (SELECT spid FROM budgeting_budgets WHERE budgeting_budgets.bid='.self::TABLE_NAME.'.bid) AS spid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY spid HAVING spid='.$supplier->eid));
         return $total['total'];
     }
 
