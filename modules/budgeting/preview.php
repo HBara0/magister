@@ -24,7 +24,13 @@ if(!($core->input['action'])) {
             }
         }
         else {
-            $business_managers['managers'][] = $core->user['uid'];
+            if($core->usergroup['canViewAllEmp'] == 1) {
+                $affiliate = new Affiliates($core->user['mainaffiliate']);
+                $business_managers = array_keys($affiliate->get_users(array('displaynameonly' => true)));
+            }
+            else {
+                $business_managers[$core->user['uid']] = $core->user['uid'];
+            }
         }
         $budgetsdata['current'] = ($core->input['budget']);
         $aggregate_types = array('affiliates', 'suppliers', 'managers', 'segments', 'years');
