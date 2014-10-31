@@ -406,7 +406,7 @@ if(!($core->input['action'])) {
                                             }
                                         }
                                         else {
-                                            error($lang->currencynotexist.' '.$budgetline['originalCurrency'], $_SERVER['HTTP_REFERER']);
+                                            error($lang->currencynotexist.' '.$budgetline['originalCurrency'].' ('.$budget['affiliate'].')', $_SERVER['HTTP_REFERER']);
                                         }
                                     }
                                     /* get the currency rate of the Origin currency  of the current buudget - END */
