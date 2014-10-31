@@ -95,4 +95,6 @@ $lang['currencynotexistvar'] = 'The currency {1} does not have a conversion rate
 $lang['noexchangerate'] = 'No exchange rate from {1} to {2} for year {3}';
 $lang['finexpensestotalerror'] = 'Please select a value not more than the total expenses';
 $lang['totalsales'] = 'Total Sales';
+$lang['vs'] = 'Vs.';
+$lang['amountchart'] = 'Amount';
 ?>

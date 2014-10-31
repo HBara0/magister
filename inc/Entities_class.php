@@ -839,5 +839,17 @@ class Entities {
         return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->data['companyName'].'</a>';
     }
 
+    function get_shortdisplayname() {
+        if(!empty($this->companyNameAbbr)) {
+            return $this->companyNameAbbr;
+        }
+        else if(!empty($this->companyNameShort)) {
+            return $this->companyNameShort;
+        }
+        else {
+            return $this->get_displayname();
+        }
+    }
+
 }
 ?>

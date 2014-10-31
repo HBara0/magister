@@ -193,34 +193,37 @@ if(!($core->input['action'])) {
                                         $cdata[$dimension]['income'][$data[$dimension]][$field_check] = 0;
                                         $dimension_objs = get_object_bytype($dimension, $data[$dimension]);
                                         $cdata[$dimension]['title'][$data[$dimension]] = $dimension_objs->get_displayname();
+                                        if($dimension_objs instanceof Entities) {
+                                            $cdata[$dimension]['title'][$data[$dimension]] = $dimension_objs->get_shortdisplayname();
+                                        }
                                     }
                                 }
                                 $cdata[$dimension]['amount'][$data[$dimension]][$field] += $data[$amount];
                                 $cdata[$dimension]['income'][$data[$dimension]][$field] += $data[$income];
                                 switch($dimension) {
                                     case 'affid':
-                                        $cdata[$dimension]['charttitle'] = 'Affiliate';
+                                        $cdata[$dimension]['charttitle'] = $lang->affiliate;
                                         break;
                                     case 'spid':
-                                        $cdata[$dimension]['charttitle'] = 'Supplier';
+                                        $cdata[$dimension]['charttitle'] = $lang->supplier;
                                         break;
                                     case 'uid':
-                                        $cdata[$dimension]['charttitle'] = 'Business Manger';
+                                        $cdata[$dimension]['charttitle'] = $lang->bm;
                                         break;
                                     case 'cid':
-                                        $cdata[$dimension]['charttitle'] = 'Customer';
+                                        $cdata[$dimension]['charttitle'] = $lang->customer;
                                         break;
                                     case 'pid':
-                                        $cdata[$dimension]['charttitle'] = 'Product';
+                                        $cdata[$dimension]['charttitle'] = $lang->product;
                                         break;
                                     case 'coid':
-                                        $cdata[$dimension]['charttitle'] = 'Country';
+                                        $cdata[$dimension]['charttitle'] = $lang->country;
                                         break;
                                     case 'psid':
-                                        $cdata[$dimension]['charttitle'] = 'Segment';
+                                        $cdata[$dimension]['charttitle'] = $lang->segment;
                                         break;
                                     case 'reportsTo':
-                                        $cdata[$dimension]['charttitle'] = 'Reports To';
+                                        $cdata[$dimension]['charttitle'] = $lang->reportsto;
                                         break;
                                 }
                             }
@@ -229,9 +232,11 @@ if(!($core->input['action'])) {
                 }
             }
             foreach($cdata as $dcdata) {
-                $amount_barchart = new Charts(array('x' => $dcdata['title'], 'y' => $dcdata['amount']), 'bar', array('yaxisname' => 'amount', 'xaxisname' => $dcdata['charttitle'], 'scale' => 'SCALE_START0', 'nosort' => true, 'title' => 'Amount VS. '.$dcdata['charttitle']));
+                $budgeting_budgetrawreport .= '<br /> <h1>'.$lang->amountchart.' '.$lang->vs.' '.$dcdata['charttitle'].'</h1>';
+                $amount_barchart = new Charts(array('x' => $dcdata['title'], 'y' => $dcdata['amount']), 'bar', array('yaxisname' => 'amount', 'xaxisname' => $dcdata['charttitle'], 'scale' => 'SCALE_START0', 'nosort' => true));
                 $budgeting_budgetrawreport.='<img src='.$amount_barchart->get_chart().' />';
-                $income_barchart = new Charts(array('x' => $dcdata['title'], 'y' => $dcdata['income']), 'bar', array('yaxisname' => 'income', 'xaxisname' => $dcdata['charttitle'], 'scale' => 'SCALE_START0', 'nosort' => true, 'title' => 'Income VS. '.$dcdata['charttitle']));
+                $budgeting_budgetrawreport .= '<h1>'.$lang->income.' '.$lang->vs.' '.$dcdata['charttitle'].'</h1>';
+                $income_barchart = new Charts(array('x' => $dcdata['title'], 'y' => $dcdata['income']), 'bar', array('yaxisname' => 'income', 'xaxisname' => $dcdata['charttitle'], 'scale' => 'SCALE_START0', 'nosort' => true));
                 $budgeting_budgetrawreport.='<img src='.$income_barchart->get_chart().' />';
             }
         }
