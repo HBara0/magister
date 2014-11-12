@@ -473,10 +473,12 @@ else {
         if($report_meta['auditor'] != '1') {
             $existingentries_query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
         }
-
         //$oldentries = get_specificdata('productsactivity', array('paid'), 'paid', 'paid', '', 0, "rid='{$rid}'{$oldentries_query_string}");
         foreach($core->input['productactivity'] as $i => $productactivity) {
             if(empty($productactivity['pid'])) {
+                if(!empty($productactivity['paid'])) {
+                    $db->query("DELETE FROM ".Tprefix."productsactivity WHERE paid=".intval($productactivity['paid']));
+                }
                 continue;
             }
 
@@ -487,12 +489,13 @@ else {
             }
 
             if(value_exists('productsactivity', 'rid', $rid, 'pid='.intval($productactivity['pid']).$existingentries_query_string)) {
+                $productactivity['uid'] = $core->user['uid'];
                 if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
-                    $update_query_where = 'paid='.$db->escape_string($productactivity['paid']);
+                    $update_query_where = 'paid='.intval($productactivity['paid']);
                 }
                 else {
                     unset($productactivity['paid']);
-                    $update_query_where = 'rid='.$rid.' AND pid='.$db->escape_string($productactivity['pid']).$existingentries_query_string;
+                    $update_query_where = 'rid='.$rid.' AND pid='.intval($productactivity['pid']).$existingentries_query_string;
                 }
                 unset($productactivity['productname'], $productactivity['fxrate']);
                 $update = $db->update_query('productsactivity', $productactivity, $update_query_where);
@@ -523,7 +526,12 @@ else {
             if(is_array($cachearr['usedpaid'])) {
                 //$delete_query_where = ' OR ( paid NOT IN ('.implode(', ', $cachearr['usedpaid']).') AND pid NOT IN ('.implode(', ', $cachearr['usedpids']).'))';
             }
-            $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rid}' AND (pid NOT IN (".implode(', ', $cachearr['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
+//            if(is_array($cachearr['usedpids']) && !empty($cachearr['usedpids'])) {
+//                $del_query = $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rid}' AND (pid NOT IN (".implode(', ', $cachearr['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
+//                if($db->affected_rows($del_query) > 0) {
+//                    $log->record('deleteproductsactivity', $cachearr);
+//                }
+//            }
             $update_status = $db->update_query('reports', array('prActivityAvailable' => 1), "rid='{$rid}'");
             if($update_status) {
                 if($report_meta['transFill'] != '1') {
@@ -691,7 +699,7 @@ else {
                 $core->input['isDone'] = 0;
             }
             else {
-                if($db->fetch_field($db->query("SELECT COUNT(*) as count FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid) WHERE ae.affid='{$report_meta[affid]}' AND ae.eid='{$report_meta[spid]}' AND u.gid NOT IN (SELECT gid FROM usergroups WHERE canUseReporting=0) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$rid}' AND isDone=1) AND u.uid!={$core->user[uid]}"), 'count') == 0) {
+                if($db->fetch_field($db->query("SELECT COUNT(*) as count FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid) WHERE ae.affid='{$report_meta[affid]}' AND ae.eid='{$report_meta[spid]}' AND u.gid IN (SELECT gid FROM usergroups WHERE canUseReporting=1 AND canFillReports=1) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$rid}' AND isDone=1) AND u.uid!={$core->user[uid]}"), 'count') == 0) {
                     $new_status['status'] = 1;
                 }
                 $output_message = $lang->savedsuccessfully;
@@ -804,6 +812,9 @@ else {
             }
             foreach($rawdata['productactivitydata'] as $i => $newdata) {
                 if(empty($newdata['pid'])) {
+                    if(!empty($newdata['paid'])) {
+                        $db->query("DELETE FROM ".Tprefix."productsactivity WHERE paid=".intval($newdata['paid']));
+                    }
                     continue;
                 }
                 if(isset($newdata['fxrate']) && $newdata['fxrate'] != 1) {
@@ -837,10 +848,10 @@ else {
                 }
             }
 
-            if(is_array($cachearr['usedpaid'])) {
-                $delete_query_where = ' OR paid NOT IN ('.implode(', ', $cachearr['usedpaid']).')';
-                $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}' AND (pid NOT IN (".implode(', ', $cachearr['usedpids'])."){$delete_query_where}){$products_deletequery_string}");
-            }
+//            if(is_array($cachearr['usedpaid'])) {
+//                $delete_query_where = ' OR paid NOT IN ('.implode(', ', $cachearr['usedpaid']).')';
+//                $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}' AND (pid NOT IN (".implode(', ', $cachearr['usedpids'])."){$delete_query_where}){$products_deletequery_string}");
+//            }
         }
         else {
             $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}'");
