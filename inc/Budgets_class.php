@@ -204,6 +204,19 @@ class Budgets extends AbstractClass {
                 if(!isset($data['bid'])) {
                     $data['bid'] = $bid;
                 }
+
+                if($data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
+                    $data['altCid'] = 'Unspecified Customer';
+                    if(empty($data['customerCountry'])) {
+                        $data['customerCountry'] = $this->get_affiliate()->get_country()->coid;
+                    }
+                }
+
+                if(!empty($data['cid']) && $data['unspecifiedCustomer'] != 1) {
+                    $data['altCid'] = NULL;
+                    $data['customerCountry'] = 0;
+                }
+
                 if(isset($data['blid']) && !empty($data['blid'])) {
                     $budgetlineobj = new BudgetLines($data['blid']);
                 }
@@ -218,23 +231,11 @@ class Budgets extends AbstractClass {
                     }
                 }
 
-                if($data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
-                    $data['altCid'] = 'Unspecified Customer';
-                    if(empty($data['customerCountry'])) {
-                        $data['customerCountry'] = $this->get_affiliate()->get_country()->coid;
-                    }
-                }
-
                 if((empty($data['pid']) && empty($data['altPid'])) || (empty($data['cid']) && empty($data['altCid']))) {
                     if(!empty($data['blid'])) {
                         $removed_lines[] = $data['blid'];
                     }
                     continue;
-                }
-
-                if(!empty($data['cid']) && $data['unspecifiedCustomer'] != 1) {
-                    $data['altCid'] = NULL;
-                    $data['customerCountry'] = 0;
                 }
 
                 if(empty($data['s1Perc']) && empty($data['s2Perc'])) {
@@ -301,6 +302,7 @@ class Budgets extends AbstractClass {
                 array_walk($data['affiliates'], intval);
                 $budget_reportquery = " AND affid IN (".implode(',', $data['affiliates']).")";
             }
+
             $budget_reportquery = $db->query("SELECT bid FROM ".Tprefix."budgeting_budgets WHERE year=".intval($data['years']).$budget_reportquery);
         }
         if($budget_reportquery) {
