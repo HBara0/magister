@@ -5,12 +5,12 @@
 
 
         <script type="text/javascript">
-            $(function() {
-                $('input[name=fxrate]').live('change', function() {
-                    $('#fxrateinput').slideToggle('fast', function() {
+            $(function () {
+                $('input[name=fxrate]').live('change', function () {
+                    $('#fxrateinput').slideToggle('fast', function () {
                     });
                 });
-                $("select[id='budget[reporttype]']").live('change', function() {
+                $("select[id='budget[reporttype]']").live('change', function () {
                     var id = $(this).attr("id")
                     var value = $(this).attr("value")
                     //  if($(this).not($("div[id^='" + $(this).val() + "']"))) {
@@ -159,7 +159,7 @@
                                     <li class="sortable-placeholder" style="background:none;">{$lang->drophere}</li>
                                 </ul>
                             </div>
-                            <input type='hidden' id='field' name="budget[dimension][]" value=''>
+                            <input type='hidden' id='dimensions' name="budget[dimension][]" value=''>
                         </div>
                     </div>
                 </div>

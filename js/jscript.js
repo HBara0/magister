@@ -931,7 +931,7 @@ $(function() {
         },
         stop: function (event, ui) {
             $("#dimensionto li").css('background', '#92d050');
-            $('#field').val($("#dimensionto").sortable('toArray'));
+            $('#dimensions').val($("#dimensionto").sortable('toArray'));
         }
     });
 }
