@@ -103,6 +103,7 @@ if(!($core->input['action'])) {
                         }
 
                         foreach($budgetlines as $blid => $budgetline) {
+
                             $rawdata[$field][$blid] = $budget_obj->get() + $budgetline->get();
                             $product = $budgetline->get_product();
                             if(empty($rawdata[$field][$blid]['pid'])) {
@@ -135,6 +136,8 @@ if(!($core->input['action'])) {
 
                             $rawdata[$field][$blid]['reportsTo'] = $budget_obj->get_CreateUser()->get_reportsto()->uid;
                             $rawdata[$field][$blid]['uid'] = $budgetline->businessMgr;
+                            $rawdata[$field][$blid]['localIncomePercentage'] = $budgetline->localIncomePercentage;
+                            $rawdata[$field][$blid]['localIncomeAmount'] = $budgetline->localIncomeAmount;
                             $rawdata[$field][$blid]['stid'] = $budgetline->saleType;
                             $rawdata[$field][$blid]['spid'] = $product->get_supplier()->eid;
                             $rawdata[$field][$blid]['s1Amount'] = $rawdata[$field][$blid]['amount'] * ($rawdata[$field][$blid]['s1Perc'] / 100);
@@ -161,9 +164,10 @@ if(!($core->input['action'])) {
             }
             /* Dimensional Report Settings - START */
             $dimensions = explode(',', $budgetsdata['current']['dimension'][0]); // Need to be passed from options stage
-            $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 's1Income', 's2Income', 's1Amount', 's2Amount');
-            $formats = array('incomePerc' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'));
+            $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 'localIncomeAmount', 'localIncomePercentage', 's1Income', 's2Income', 's1Amount', 's2Amount');
+            $formats = array('incomePerc' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'), 'localIncomePercentage' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'));
             $overwrite = array('unitPrice' => array('fields' => array('divider' => 'amount', 'dividedby' => 'quantity'), 'operation' => '/'),
+                    'localIncomePercentage' => array('fields' => array('divider' => 'localIncomeAmount', 'dividedby' => 'amount'), 'operation' => '/'),
                     'incomePerc' => array('fields' => array('divider' => 'income', 'dividedby' => 'amount'), 'operation' => '/'));
             /* Dimensional Report Settings - END */
             $dimensionalreport = new DimentionalData();
@@ -249,6 +253,8 @@ if(!($core->input['action'])) {
                 $budgeting_budgetrawreport.='<img src='.$income_barchart->get_chart().' />';
             }
         }
+
+        /* ------------------------------------------------------------------------------------------------------------------------------------------------------- */
         elseif($report_type == 'statistical') {
             /* Parse suppliers weight - START */
             $query = $db->query('SELECT DISTINCT(spid) FROM '.Tprefix.'budgeting_budgets WHERE bid IN ('.implode(',', array_keys($budgets['current'])).') GROUP BY spid');
@@ -352,6 +358,8 @@ if(!($core->input['action'])) {
             }
             $budgeting_budgetrawreport .= '</table>';
         }
+
+        /* ------------------------------------------------------------------------------------------------------------------------------------------------------- */
         else {
             if(is_array($budgets['current'])) {
                 foreach($budgets['current'] as $budgetid) {
@@ -371,6 +379,7 @@ if(!($core->input['action'])) {
                         foreach($firstbudgetline as $cid => $customersdata) {
                             foreach($customersdata as $pid => $productsdata) {
                                 foreach($productsdata as $saleid => $budgetline) {
+
                                     $rowclass = alt_row($rowclass);
                                     $budgetline_obj = new BudgetLines($budgetline['blid']);
                                     if(isset($budgetline['invoice']) && !empty($budgetline['invoice'])) {
@@ -382,8 +391,15 @@ if(!($core->input['action'])) {
                                     }
                                     $budget['manager'] = $budgetline_obj->get_businessMgr()->get();
                                     $budget['managerid'] = $budgetline_obj->get_businessMgr()->get()['uid'];
-
-                                    if(!$budgetcache->iscached('managercache', $budget['manager']['uid'])) {
+                                    /* if empty localIncomeAmount by default */
+                                    if(empty($budgetline['localIncomePercentage'])) {
+                                        $budgetline['localIncomePercentage'] = $budgetline['incomePerc'];
+                                    }
+                                    if(empty($budgetline['localIncomeAmount'])) {
+                                        $budgetline['localIncomeAmount'] = $budgetline['income'];
+                                    }
+                                    $budgetline['allocatedlocalIncome'] = $budgetline['income'] - $budgetline['localIncomeAmount'];
+                                    if(!$budgetcache->iscached('mana=gercache', $budget['manager']['uid'])) {
                                         $budgetcache->add('managercache', $budget['manager']['displayName'], $budget['manager']['uid']);
                                     }
                                     $budget['supplier'] = $budget_obj->get_supplier()->get()['companyNameShort'];
@@ -393,7 +409,6 @@ if(!($core->input['action'])) {
                                     $budget['manager'] = $budgetcache->data['managercache'][$budget['manager']['uid']];
 
                                     $budgetline['customerCountry'] = $budgetline_obj->parse_country();
-
                                     $budgetline['uom'] = 'Kg';
                                     $budgetline['saleType'] = Budgets::get_saletype_byid($saleid);
 
@@ -403,8 +418,9 @@ if(!($core->input['action'])) {
 
                                     /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
                                     if($budgetline['originalCurrency'] != $budgetsdata['current']['toCurrency']) {
-                                        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budget['affid'], 'year' => $budget['years']), $dal_config);
+                                        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budgetsdata['current']['affiliates'], 'year' => $budgetsdata['current']['years']), $dal_config);
                                         if(is_array($fxrates_obj)) {
+
                                             foreach($fxrates_obj as $fxid => $fxrates) {
                                                 $budgetline['amount'] = ($budgetline['amount'] * $fxrates->rate);
                                                 $budgetline['income'] = ($budgetline['income'] * $fxrates->rate);
@@ -459,7 +475,7 @@ elseif($core->input['action'] == 'exportexcel') {
     $budgetsdata['current'] = unserialize(base64_decode($core->input['identifier']));
     $budgets['current'] = Budgets::get_budgets_bydata($budgetsdata['current']);
 
-    $headers_data = array('manager', 'customer', 'customerCountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saleType', 'amount', 'income', 's1Perc', 's2Perc');
+    $headers_data = array('manager', 'customer', 'customerCountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saleType', 'amount', 'income', 'localIncomeAmount', 's1Perc', 's2Perc');
     $counter = 1;
     if(is_array($budgets['current'])) {
         foreach($budgets['current'] as $budgetid) {
@@ -513,6 +529,12 @@ elseif($core->input['action'] == 'exportexcel') {
 
                             $budgetline[$counter]['customerCountry'] = $budgetline_obj->parse_country();
 
+                            if(empty($budgetline[$counter]['localIncomePercentage'])) {
+                                $budgetline[$counter]['localIncomePercentage'] = $budgetline[$counter]['incomePerc'];
+                            }
+                            if(empty($budgetline[$counter]['localIncomeAmount'])) {
+                                $budgetline[$counter]['localIncomeAmount'] = $budgetline[$counter]['income'];
+                            }
                             if(!empty($budgetline[$counter]['psid'])) {
                                 $segment = new ProductsSegments($budgetline[$counter]['psid']);
                                 $budgetline[$counter]['segment'] = $segment->title;
@@ -571,6 +593,7 @@ elseif($core->input['action'] == 'exportexcel') {
             $budgetline[$counter][$val] = $value[$val];
         }
     }
+
     unset($budgetline_temp);
 
     //unset($budgetline['bid'], $budgetline['blid'], $budgetline['pid'], $budgetline['cid'], $budgetline['incomePerc'], $budgetline['invoice'], $budgetline['createdBy'], $budgetline['modifiedBy'], $budgetline['originalCurrency'], $budgetline['prevbudget'], $budgetline['cusomtercountry']);
