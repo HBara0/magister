@@ -48,7 +48,7 @@ if(!isset($core->input['action'])) {
         }
     }
 
-    $fields = array('purpose', 'event', 'Costaffiliate', 'inputChecksum', 'bm', 'planCost', 'otherCosts'); //'actualPrevYear', 'budgetPrevYear'
+    $fields = array('purpose', 'event', 'Costaffiliate', 'company', 'inputChecksum', 'bm', 'planCost', 'otherCosts'); //'actualPrevYear', 'budgetPrevYear'
     if(is_array($budgetrainingvisit_obj)) {
         $rowid = 0;
         foreach($budgetrainingvisit_obj as $btvid => $budgetvisit) {
