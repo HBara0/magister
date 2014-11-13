@@ -25,7 +25,7 @@ class Affiliates {
     private function read($id, $simple = TRUE) {
         global $db;
 
-        $query_select = 'affid, name, legalName, country, city, integrationOBOrgId';
+        $query_select = 'affid, name, legalName, country, city, integrationOBOrgId, mainCurrency';
         if($simple == false) {
             $query_select = '*';
         }
@@ -187,6 +187,12 @@ class Affiliates {
             }
         }
         return '<a href="index.php?module=profiles/affiliateprofile&affid='.$this->affiliate['affid'].'" '.$attributes.'>'.$this->affiliate[$options['outputvar']].'</a>';
+    }
+
+    public function get_mainCurrency() {
+        print_R($this->affiliate);
+        exit;
+        return $this->affiliate['mainCurrency'];
     }
 
 }
