@@ -108,5 +108,21 @@ class BudgetBankFacilities extends AbstractClass {
         }
     }
 
+    public function delete_bankfacility() {
+        global $db, $core;
+        if(empty($data)) {
+            $data = $this->data;
+        }
+        if(isset($data[self::PRIMARY_KEY]) && !empty($data[self::PRIMARY_KEY])) {
+            $this->delete();
+        }
+        if(isset($data['inputChecksum']) && !empty($data['inputChecksum'])) {
+            $bank = self::get_data(array('inputChecksum' => $data['inputChecksum']));
+            if(is_object($bank)) {
+                $bank->delete();
+            }
+        }
+    }
+
 }
 ?>
