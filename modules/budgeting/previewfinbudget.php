@@ -73,6 +73,6 @@ if(!($core->input['action'])) {
     else {
         redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
     }
-    eval("\$budgeting_headcount = \"".$template->get('budgeting_previewfinbudget')."\";");
-    output_page($budgeting_headcount);
+    eval("\$budgeting_previewfinbudget = \"".$template->get('budgeting_previewfinbudget')."\";");
+    output_page($budgeting_previewfinbudget);
 }
