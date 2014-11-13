@@ -35,7 +35,7 @@ if(!$core->input['action']) {
         }
     }
 
-    $budgetypes = array('financialadminexpenses' => 'Financial & Admin Expenses', 'investmentfollowup' => 'Investment Follow-up', 'headcount' => 'Head Count', 'forecastbalancesheet' => 'Forecast Balance Sheet', 'profitlossaccount' => 'Profit and Loss Account');
+    $budgetypes = array('financialadminexpenses' => 'Financial & Admin Expenses', 'investmentfollowup' => 'Investment Follow-up', 'headcount' => 'Head Count', 'forecastbalancesheet' => 'Forecast Balance Sheet', 'profitlossaccount' => 'Profit and Loss Account', 'overduereceivables' => 'Overdue Receivables', 'trainingvisits' => 'Training and visits', 'bank' => 'Bank');
     if(is_array($budgetypes)) {
         foreach($budgetypes as $key => $value) {
             $checked = $rowclass = '';
@@ -54,8 +54,10 @@ if(!$core->input['action']) {
             $checked = '';
         }
     }
-    $curr_objs = Currencies::get_data('alphaCode IS NOT NULL');
-    $currencies_list = parse_selectlist('budget[toCurrency]', 4, $curr_objs, '');
+    $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where affid IS NOT NULL';
+    $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
+    $curr_objs[840] = new Currencies(840);
+    $currencies_list = parse_selectlist('budget[toCurrency]', 4, $curr_objs, '840');
 
     eval("\$generatefinbudget = \"".$template->get('budgeting_generatefinbudget')."\";");
     output_page($generatefinbudget);

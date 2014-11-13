@@ -56,15 +56,15 @@ if(!isset($core->input['action'])) {
     $plcategories = BudgetPlCategories::get_data('', array('returnarray' => true));
     if(is_object($financialbudget) && $financialbudget->isFinalized()) {
         $type = 'hidden';
-        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'bid' => $budgetsids, 'tocurrency' => $currency->numCode));
+        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'bid' => $budgetsids, 'tocurrency' => $currency->numCode, 'year' => $financialbudget_year));
     }
     else {
         $type = 'submit';
-        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'bid' => $budgetsids, 'tocurrency' => $currency->numCode));
+        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'bid' => $budgetsids, 'tocurrency' => $currency->numCode, 'year' => $financialbudget_year));
     }
 
-    $headerfields = array($lang->actual, $lang->actual, $lang->budget, $lang->yef, '%YEF'.$financialbudget_prevyear, '%YEF'.$financialbudget_prevyear, $lang->budget, '%Bud'.$financialbudget_year);
-    $headeryears = array($financialbudget_prev3year, $financialbudget_prev2year, $financialbudget_prevyear, $financialbudget_prevyear, '/Actual '.$financialbudget_prev2year, '/Budget '.$financialbudget_prevyear, $financialbudget_year, '/YEF '.$financialbudget_prevyear);
+    $headerfields = array($lang->actual, $lang->actual, $lang->yef, '%YEF'.$financialbudget_prevyear, $lang->budget, '%Bud'.$financialbudget_year);
+    $headeryears = array($financialbudget_prev3year, $financialbudget_prev2year, $financialbudget_prevyear, '/Actual '.$financialbudget_prev2year, $financialbudget_year, '/YEF '.$financialbudget_prevyear);
     $budgeting_header .='<tr class="thead"><td></td>';
     foreach($headerfields as $field) {
         $budgeting_header .= '<td>'.$field.'</td>';
@@ -81,13 +81,19 @@ if(!isset($core->input['action'])) {
         $currencyto_obj = new Currencies($tocurrency);
         $currency_to = $currencyto_obj->get()['alphaCode'];
         $dal_config = array(
-                'operators' => array('fromCurrency' => '=', 'affid' => 'in', 'year' => '='),
+                'operators' => array('fromCurrency' => '=', 'affid' => 'in', 'year' => 'in'),
                 'simple' => false,
-                'returnarray' => false
+                'order' => 'year',
+                'returnarray' => true
         );
-        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $currency->numCode, 'toCurrency' => $tocurrency, 'affid' => $affid, 'year' => $financialbudget_year,), $dal_config);
-        if(is_object($fxrates_obj)) {
-            $output_currency = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding: 5px; margin-top: 10px; margin-bottom: 10px; display: block;"><span><em>'.$lang->sprint($lang->budgcurrdesc, $currency->alphaCode).'</em></br></span><em><strong>'.$lang->exchangerate.'</strong></em></br><span>'.$lang->sprint($lang->currrate, $currency->alphaCode, $currency_to, $fxrates_obj->rate).'</span></div>';
+        $years = array($financialbudget_year, $financialbudget_year - 1, $financialbudget_year - 2, $financialbudget_year - 3);
+        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $currency->numCode, 'toCurrency' => $tocurrency, 'affid' => $affid, 'year' => $years,), $dal_config);
+        if(is_array($fxrates_obj)) {
+            $output_currency = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding: 5px; margin-top: 10px; margin-bottom: 10px; display: block;"><span><em>'.$lang->sprint($lang->budgcurrdesc, $budget_affiliatecurr->alphaCode).'</em></span></br><em><strong>'.$lang->exchangerate.'</strong></em></br>';
+            foreach($fxrates_obj as $rate) {
+                $output_currency.='<span>'.$lang->sprint($lang->currrate, $budget_affiliatecurr->alphaCode, $currency_to, $rate->rate).' for year: '.$rate->year.'</span><br/>';
+            }
+            $output_currency.='</div>';
         }
     }
 

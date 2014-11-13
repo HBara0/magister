@@ -46,22 +46,21 @@ if(!($core->input['action'])) {
     $financialbudget = FinancialBudget::get_data($filters, array('simple' => false, 'returnarray' => true, 'operators' => array('affid' => IN)));
     if(is_array($financialbudget)) {
         $output = FinancialBudget::parse_financialbudget(array('budgettypes' => $budgettypes, 'affid' => $affid, 'tocurrency' => $budgetsdata['toCurrency'], 'year' => $financialbudget_year, 'filter' => array_keys($financialbudget)));
-
-        $budgetypes = array('financialadminexpenses', 'investmentfollowup', 'headcount', 'forecastbalancesheet', 'profitlossaccount');
+        $budgetypes = array('financialadminexpenses', 'investmentfollowup', 'headcount', 'forecastbalancesheet', 'profitlossaccount', 'overduereceivables', 'trainingvisits', 'bank');
         foreach($budgetypes as $type) {
             if(isset($output[$type]) && !empty($output[$type])) {
-                if($type == 'forecastbalancesheet') {
+                $budgettitle = $lang->$type;
+                if($type == 'forecastbalancesheet' || $type == 'overduereceivables' || $type == 'bank' || $type == 'trainingvisits') {
                     $outputdata[$type] = $output[$type]['data'];
-                    ${"budgeting_".$type} .='<p class="thead">Forecast Balance Sheet</p>';
+                    ${"budgeting_".$type} .='<p class="thead">'.$budgettitle.'</p>';
                     ${"budgeting_".$type} .= $outputdata[$type];
                 }
                 else {
-                    $budgettitle = $lang->$type;
                     ${"budgeting_".$type} = '<table width="100%">';
                     $outputdata[$type] = $output[$type]['data'];
                     $header_budyef = $output[$type]['budyef'];
-                    $header_prevbudget = $output[$type]['prevbudget'];
-                    $header_prevbudget_year = $output[$type]['prevbudget_years'];
+//                    $header_prevbudget = $output[$type]['prevbudget'];
+//                    $header_prevbudget_year = $output[$type]['prevbudget_years'];
                     $header_variations = $output[$type]['variations'];
                     $header_variations_years = $output[$type]['variations_years'];
                     eval("\$budgeting_".$type." .= \"".$template->get('budgeting_financialbudget_header')."\";");
