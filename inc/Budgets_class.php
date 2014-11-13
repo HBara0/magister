@@ -144,8 +144,7 @@ class Budgets extends AbstractClass {
 
     public static function save_budget($budgetdata = array(), $budgetline_data = array()) {
         global $db, $core, $log;
-        print_r($budgetline_data);
-        exit;
+
         if(is_array($budgetdata)) {
             if(is_empty($budgetdata['year'], $budgetdata['affid'], $budgetdata['spid'])) {
                 return false;
