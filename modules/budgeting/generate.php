@@ -113,7 +113,7 @@ if(!$core->input['action']) {
     if(is_array($core->user['auditedaffids'])) {
         foreach($core->user['auditedaffids'] as $auditaffid) {
             $aff_obj = new Affiliates($auditaffid);
-            $affiliate_users = $aff_obj->get_users();
+            $affiliate_users = $aff_obj->get_all_users();
             foreach($affiliate_users as $aff_businessmgr) {
                 $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['displayName'];
             }
@@ -122,7 +122,7 @@ if(!$core->input['action']) {
     else {
         if($core->usergroup['canViewAllEmp'] == 1) {
             $affiliate = new Affiliates($core->user['mainaffiliate']);
-            $business_managers = $affiliate->get_users(array('displaynameonly' => true));
+            $business_managers = $affiliate->get_all_users(array('displaynameonly' => true));
         }
         else {
             $business_managers[$core->user['uid']] = $core->user['displayName'];
@@ -154,7 +154,7 @@ if(!$core->input['action']) {
 //	}
 
     /* parse currencies */
-    $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where affid IS NOT NULL';
+    $currency['filter']['numCode'] = 'SELECT mainCurrency FROM '.Tprefix.'countries WHERE affid IS NOT NULL';
     $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
     $curr_objs[840] = new Currencies(840);
     //$curr_objs = Currencies::get_data('alphaCode IS NOT NULL');

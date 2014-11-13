@@ -81,7 +81,12 @@ class Affiliates {
         return false;
     }
 
-    public function get_users($options = array()) {
+    public function get_all_users($options = array()) {
+        $options['allusers'] = true;
+        return $this->get_users($options);
+    }
+
+    public function get_users($options = array('allusers' => false)) {
         global $db;
 
         if(is_array($options)) {
@@ -89,10 +94,14 @@ class Affiliates {
                 $query_where_add = ' AND isMain=1';
             }
         }
+        /* On purpose outside the is_array */
+        if(!isset($options['allusers']) || $options['allusers'] === false) {
+            $query_where_add .= ' AND u.gid!=7';
+        }
         $query = $db->query("SELECT DISTINCT(u.uid)
 					FROM ".Tprefix."users u
 					JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid)
-					WHERE a.affid={$this->affiliate['affid']}".$query_where_add." AND u.gid!=7
+					WHERE a.affid={$this->affiliate['affid']}".$query_where_add."
 					ORDER BY displayName ASC");
         while($user = $db->fetch_assoc($query)) {
             $users = new Users($user['uid']);

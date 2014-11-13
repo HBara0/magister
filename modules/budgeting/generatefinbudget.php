@@ -35,7 +35,7 @@ if(!$core->input['action']) {
         }
     }
 
-    $budgetypes = array('financialadminexpenses' => 'Financial & Admin Expenses', 'investmentfollowup' => 'Investment Follow-up', 'headcount' => 'Head Count', 'forecastbalancesheet' => 'Forecast Balance Sheet', 'profitlossaccount' => 'Profit and Loss Account', 'overduereceivables' => 'Overdue Receivables', 'trainingvisits' => 'Training and visits', 'bank' => 'Bank');
+    $budgetypes = array('financialadminexpenses' => $lang->commercialadminstrationexpenses, 'investmentfollowup' => 'Investment Follow-up', 'headcount' => 'Head Count', 'forecastbalancesheet' => 'Forecast Balance Sheet', 'profitlossaccount' => 'Profit and Loss Account', 'overduereceivables' => 'Overdue Receivables', 'trainingvisits' => 'Training and visits', 'bank' => 'Bank');
     if(is_array($budgetypes)) {
         foreach($budgetypes as $key => $value) {
             $checked = $rowclass = '';
