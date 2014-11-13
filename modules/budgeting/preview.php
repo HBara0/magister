@@ -11,13 +11,10 @@
 if(!($core->input['action'])) {
     if($core->input['referrer'] == 'generate') {
         $budgetcache = new Cache();
-// $identifier = base64_decode($core->input['identifier']);
-//$generate_budget_data = unserialize($session->get_phpsession('generatebudgetdata_'.$identifier));
-
         if(is_array($core->user['auditedaffids'])) {
             foreach($core->user['auditedaffids'] as $auditaffid) {
                 $aff_obj = new Affiliates($auditaffid);
-                $affiliate_users = $aff_obj->get_users();
+                $affiliate_users = $aff_obj->get_all_users();
                 foreach($affiliate_users as $aff_businessmgr) {
                     $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['uid'];
                 }
@@ -26,7 +23,7 @@ if(!($core->input['action'])) {
         else {
             if($core->usergroup['canViewAllEmp'] == 1) {
                 $affiliate = new Affiliates($core->user['mainaffiliate']);
-                $business_managers = array_keys($affiliate->get_users(array('displaynameonly' => true)));
+                $business_managers = array_keys($affiliate->get_all_users(array('displaynameonly' => true)));
             }
             else {
                 $business_managers[$core->user['uid']] = $core->user['uid'];
@@ -63,9 +60,9 @@ if(!($core->input['action'])) {
         $budgetsdata['prev2years'] = $budgetsdata['prev3years'] = $budgetsdata['current'];
         $budgetsdata['prev2years']['years'] = $budgetsdata['current']['years'] - 2;
         $budgetsdata['prev3years']['years'] = $budgetsdata['current']['years'] - 3;
-        $fields = array('current', 'prev2years', 'prev3years');
-        foreach($fields as $field) {
-            $budgets[$field] = Budgets::get_budgets_bydata($budgetsdata[$field]);
+        $periods = array('current', 'prev2years', 'prev3years');
+        foreach($periods as $period) {
+            $budgets[$period] = Budgets::get_budgets_bydata($budgetsdata[$period]);
         }
         if(!is_array($budgets['current'])) {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
