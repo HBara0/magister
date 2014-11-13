@@ -98,7 +98,7 @@ class BudgetBankFacilities extends AbstractClass {
 
     private function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
-            $required_fields = array('bnkid', 'interestRate', 'premiumCommission', 'totalAmount', 'endquarterAmount', 'comfortLetter', 'LastIssuanceDate', 'LastRenewalDate');
+            $required_fields = array('bnkid', 'interestRate', 'premiumCommission', 'totalAmount', 'endquarterAmount', 'comfortLetter');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
                     $this->errorcode = 2;
