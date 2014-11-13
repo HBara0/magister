@@ -53,14 +53,16 @@ if(!$core->input['action']) {
 
     $seperator = '';
     $approvers_objs = $leave->get_approvers(array('returnarray' => true));
-    foreach($approvers_objs as $approver) {
-        if($approver->is_apporved()) {
-            $approved .= $seperator.$approver->get_user()->get_displayname();
-            $seperator = ', ';
-        }
-        else {
-            $toapprove .= $seperator.$approver->get_user()->get_displayname();
-            $seperator = ', ';
+    if(is_array($approvers_objs)) {
+        foreach($approvers_objs as $approver) {
+            if($approver->is_apporved()) {
+                $approved .= $seperator.$approver->get_user()->get_displayname();
+                $seperator = ', ';
+            }
+            else {
+                $toapprove .= $seperator.$approver->get_user()->get_displayname();
+                $seperator = ', ';
+            }
         }
     }
 
