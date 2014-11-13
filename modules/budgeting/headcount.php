@@ -54,20 +54,20 @@ if(!isset($core->input['action'])) {
         $output = BudgetHeadCount::parse_headcountfields($positiongroups, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget));
     }
 
-    $headerfields = array('actual', 'actual', 'yef', 'budget');
-    $headeryears = array($financialbudget_prev3year, $financialbudget_prev2year, $financialbudget_prevyear, $financialbudget_year);
-    $budgeting_header .='<tr class="thead"><td style="width:30%"></td>';
-    foreach($headerfields as $field) {
-        $budgeting_header .= '<td style="width:10%">'.$lang->$field.'</td>';
-    }
-    $budgeting_header .='</tr>';
-    $budgeting_header .='<tr><td style="width:30%"><input name="financialbudget[affid]" value="'.$affid.'" type="hidden"></td>';
-    foreach($headeryears as $year) {
-        $budgeting_header .= '<td style="width:10%">'.$year.'</td>';
-    }
-    $budgeting_header .='<input name="financialbudget[year]" value="'.$financialbudget_year.'" type="hidden"></td>';
-    $budgeting_header .='</tr>';
-
+//    $headerfields = array('actual', 'actual', 'yef', 'budget');
+//    $headeryears = array($financialbudget_prev3year, $financialbudget_prev2year, $financialbudget_prevyear, $financialbudget_year);
+//    $budgeting_header .='<tr class="thead"><td style="width:30%"></td>';
+//    foreach($headerfields as $field) {
+//        $budgeting_header .= '<td style="width:10%">'.$lang->$field.'</td>';
+//    }
+//    $budgeting_header .='</tr>';
+//    $budgeting_header .='<tr><td style="width:30%"><input name="financialbudget[affid]" value="'.$affid.'" type="hidden"></td>';
+//    foreach($headeryears as $year) {
+//        $budgeting_header .= '<td style="width:10%">'.$year.'</td>';
+//    }
+//    $budgeting_header .='<input name="financialbudget[year]" value="'.$financialbudget_year.'" type="hidden"></td>';
+//    $budgeting_header .='</tr>';
+    eval("\$budgeting_header = \"".$template->get('budgeting_financialbudget_header')."\";");
     eval("\$budgeting_headcount = \"".$template->get('budgeting_headcount')."\";");
     output_page($budgeting_headcount);
 }

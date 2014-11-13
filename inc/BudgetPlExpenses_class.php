@@ -14,7 +14,7 @@ class BudgetPlExpenses extends AbstractClass {
     const PRIMARY_KEY = 'bpleid';
     const TABLE_NAME = 'budgeting_plexpenses';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'bpleid, bpliid, bfbid,actualPrevThreeYears, actualPrevTwoYears, budgetPrevYear, yefPrevYear, budgetCurrent';
+    const SIMPLEQ_ATTRS = 'bpleid, bpliid, bfbid,actualPrevThreeYears, actualPrevTwoYears, yefPrevYear, budgetCurrent';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -24,7 +24,7 @@ class BudgetPlExpenses extends AbstractClass {
     protected function create(array $data) {
         global $db, $core;
         if(is_array($data)) {
-            $required_fields = array('bpliid', 'bfbid', 'actualPrevThreeYears', 'actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
+            $required_fields = array('bpliid', 'bfbid', 'actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent');
             foreach($required_fields as $field) {
                 $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
                 $data[$field] = $db->escape_string($data[$field]);
@@ -39,7 +39,7 @@ class BudgetPlExpenses extends AbstractClass {
     protected function update(array $data) {
         global $db, $core;
         if(is_array($data)) {
-            $required_fields = array('bpliid', 'bfbid', 'actualPrevThreeYears', 'actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
+            $required_fields = array('bpliid', 'bfbid', 'actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent');
             foreach($required_fields as $field) {
                 $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
                 $data[$field] = $db->escape_string($data[$field]);
@@ -74,7 +74,7 @@ class BudgetPlExpenses extends AbstractClass {
 
     private function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
-            $required_fields = array('bpliid', 'bfbid', 'actualPrevTwoYears', 'budgetPrevYear', 'yefPrevYear', 'budgetCurrent');
+            $required_fields = array('bpliid', 'bfbid', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
                     $this->errorcode = 2;
