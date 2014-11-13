@@ -86,6 +86,8 @@ if(!isset($core->input['action'])) {
                 'order' => 'year',
                 'returnarray' => true
         );
+
+        $budget_affiliatecurr = $affiliate->get_country()->get_maincurrency();
         $years = array($financialbudget_year, $financialbudget_year - 1, $financialbudget_year - 2, $financialbudget_year - 3);
         $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $currency->numCode, 'toCurrency' => $tocurrency, 'affid' => $affid, 'year' => $years,), $dal_config);
         if(is_array($fxrates_obj)) {
