@@ -11,10 +11,9 @@
 if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
-if($core->usergroup['budgeting_canFillInvests'] == 0) {
+if($core->usergroup['budgeting_canFillFinBudgets'] == 0) {
     error($lang->sectionnopermission);
 }
-
 
 if(!isset($core->input['action'])) {
     if(isset($core->input['financialbudget']['year']) && !empty($core->input['financialbudget']['year'])) {
