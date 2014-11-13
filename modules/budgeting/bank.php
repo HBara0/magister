@@ -38,7 +38,7 @@ if(!isset($core->input['action'])) {
 
     /* select list of banks for selected affiliate */
     $affiliate = new Affiliates($budget_data['affid']);
-    $banks = array();
+    $banks = array('0' => '');
     $banks_objs = Banks::get_data(array('affid' => $budget_data['affid']), array('returnarray' => true));
     if(is_array($banks_objs)) {
         foreach($banks_objs as $bank) {
@@ -66,15 +66,19 @@ if(!isset($core->input['action'])) {
             ++$rowid;
             $banks_list = parse_selectlist('bank['.$rowid.'][bnkid]', '', $banks, $bankfacility->bnkid, '', '', array('width' => '100%'));
             $currencies_list = parse_selectlist('bank['.$rowid.'][facilityCurrency]', '', $currencies, $bankfacility->facilityCurrency, '', '', array('width' => '100%'));
-            $bankfacility->LastIssuanceDate = date($core->settings['dateformat'], $bankfacility->LastIssuanceDate);
-            $bankfacility->LastRenewalDate = date($core->settings['dateformat'], $bankfacility->LastRenewalDate);
+            if($bankfacility->LastIssuanceDate != 0) {
+                $bankfacility->LastIssuanceDate = date($core->settings['dateformat'], $bankfacility->LastIssuanceDate);
+            }
+            if($bankfacility->LastRenewalDate != 0) {
+                $bankfacility->LastRenewalDate = date($core->settings['dateformat'], $bankfacility->LastRenewalDate);
+            }
             eval("\$bank_row .= \"".$template->get('budgeting_bank_row')."\";");
         }
     }
     else {
         $rowid = 1;
         $inputChecksum = generate_checksum('budget');
-        $banks_list = parse_selectlist('bank['.$rowid.'][bnkid]', '', $banks, '', '', '', array('width' => '100%'));
+        $banks_list = parse_selectlist('bank['.$rowid.'][bnkid]', '', $banks, 0, '', '', array('width' => '100%'));
         $currencies_list = parse_selectlist('bank['.$rowid.'][facilityCurrency]', '', $currencies, 840, '', '', array('width' => '100%'));
         eval("\$bank_row = \"".$template->get('budgeting_bank_row')."\";");
     }
@@ -97,7 +101,7 @@ else if($core->input['action'] == 'ajaxaddmore_bankfacilities') {
         }
     }
     unset($bankfacility);
-    $banks = array();
+    $banks = array('0' => '');
     $banks_objs = Banks::get_data(array('affid' => $budget_data['affid']), array('returnarray' => true));
     if(is_array($banks_objs)) {
         foreach($banks_objs as $bank) {
@@ -105,7 +109,7 @@ else if($core->input['action'] == 'ajaxaddmore_bankfacilities') {
         }
     }
     $banks = array_diff($banks, $facilitybanks);
-    $banks_list = parse_selectlist('bank['.$rowid.'][bnkid]', '', $banks, '', '', '', array('width' => '100%'));
+    $banks_list = parse_selectlist('bank['.$rowid.'][bnkid]', '', $banks, '0', '', '', array('width' => '100%'));
 
     $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where affid IS NOT NULL';
     $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => IN)));
