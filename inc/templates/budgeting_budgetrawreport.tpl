@@ -16,9 +16,13 @@
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->unitPrice}</th>
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->amount}</th>
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->income}</th>
+                <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->localincome}</th>
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->s1perc}</th>
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->s2perc}</th>
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->invoice}</th>
+                <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->allocatedlocalincome}</th>
+                <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->intercompany}</th>
+
             </tr>
         </tbody>
         {$budget_report_row}

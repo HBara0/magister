@@ -222,7 +222,10 @@ if(!$core->input['action']) {
                             $budget_currencylist .= '<option value="'.$numcode.'"'.$budget_currencylist_selected.'>'.$currency.'</option>';
                             $budget_currencylist_selected = '';
                         }
-
+                        if(!empty($budgetline['interCompanyPurchase'])) {
+                            $intercompany_obj = new Affiliates($budgetline['interCompanyPurchase']);
+                            $budgetline['interCompanyPurchase_output'] = $intercompany_obj->get_displayname();
+                        }
                         $segments_selectlist = '';
                         if(count($supplier_segments) > 1) {
                             $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
