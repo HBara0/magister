@@ -80,7 +80,7 @@ class BudgetOverdueReceivables extends AbstractClass {
 
     private function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
-            $required_fields = array('cid', 'totalAmount');
+            $required_fields = array('cid', 'totalAmount, oldestUnpaidInvoiceDate');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
                     $this->errorcode = 2;
