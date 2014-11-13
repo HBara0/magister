@@ -18,7 +18,7 @@ if($core->usergroup['budgeting_cangenerateFinBudgets'] == 0) {
 //$session->start_phpsession();
 
 if(!$core->input['action']) {
-    $affiliate_where = ' name LIKE "orkila%"';
+    $affiliate_where = ' name LIKE "%orkila%"';
     if($core->usergroup['canViewAllAff'] == 0) {
         $inaffiliates = implode(',', $core->user['affiliates']);
         $affiliate_where .= " AND affid IN ({$inaffiliates})";

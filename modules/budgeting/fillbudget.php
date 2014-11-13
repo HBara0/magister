@@ -225,7 +225,7 @@ if(!$core->input['action']) {
 
                         $segments_selectlist = '';
                         if(count($supplier_segments) > 1) {
-                            $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['spid'], null, null, array('placeholder' => 'Overwrite Segment'));
+                            $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
                         }
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
                         $rowid++;

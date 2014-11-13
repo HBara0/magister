@@ -22,7 +22,7 @@ if(!$core->input['action']) {
     $identifier = base64_decode($core->input['identifier']);
     $budget_data = unserialize($session->get_phpsession('budgetmetadata_'.$identifier));
 
-    $affiliate_where = ' name LIKE "orkila%"';
+    $affiliate_where = ' name LIKE "%orkila%"';
     if($core->usergroup['canViewAllAff'] == 0) {
         $inaffiliates = implode(',', $core->user['affiliates']);
         $affiliate_where .= " AND affid IN ({$inaffiliates})";

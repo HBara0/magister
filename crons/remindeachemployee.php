@@ -18,7 +18,7 @@ if($time_now >= $quarter_end) {
     $quarter = $quarter2;
 }
 
-$query = $db->query("SELECT r.*, aff.name AS affiliatename, s.companyName AS suppliername 
+$query = $db->query("SELECT r.*, aff.name AS affiliatename, s.companyName AS suppliername
 					FROM ".Tprefix."reports r JOIN ".Tprefix."affiliates aff ON (r.affid=aff.affid) JOIN ".Tprefix."entities s ON (r.spid=s.eid)
 					WHERE year='{$quarter[year]}' AND quarter = '{$quarter[quarter]}' AND status!=1 AND isLocked!=1 AND r.type='q' AND s.noQReportSend=0");
 
@@ -36,7 +36,7 @@ while($supervisor = $db->fetch_assoc($supervisors_query)) {
 while($report = $db->fetch_array($query)) {
     $query2 = $db->query("SELECT u.uid, u.firstName, u.lastName, u.email, ase.affid
 						  FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ase ON (u.uid=ase.uid)
-						  WHERE ase.eid='{$report[spid]}' AND ase.affid='{$report[affid]}' AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$report[rid]}' AND isDone='1') AND u.gid NOT IN (7, 11)");
+						  WHERE ase.eid='{$report[spid]}' AND ase.affid='{$report[affid]}' AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$report[rid]}' AND isDone='1') AND u.gid IN (SELECT gid FROM usergroups WHERE canUseReporting=1 AND canFillReports=1)");
     while($user = $db->fetch_assoc($query2)) {
         if(is_array($user)) {
             $user_obj = new Users($user['uid']);

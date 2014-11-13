@@ -62,6 +62,7 @@ if($core->input['type'] == 'quick') {
             $select_attributes = array('companyName');
             $order = array('by' => 'companyName', 'sort' => 'ASC');
             $extra_where .= ' type IN ("pc", "c")';
+            $descinfo = 'country';
         }
         if($core->input['for'] == 'supplier' || $core->input['for'] == 'customer' || $core->input['for'] == 'competitorsupp' || $core->input['for'] == 'competitortradersupp' || $core->input['for'] == 'competitorproducersupp') {
             if($core->input['for'] == 'supplier') {
