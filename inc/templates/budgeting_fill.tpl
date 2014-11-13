@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$lang->fillbudget}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function () {
-                $('input[id^="amountper_"]').live('keyup', function () {
+            $(function() {
+                $('input[id^="amountper_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=amountper_' + id[1] + ']').val())) {
                         return;
@@ -12,7 +12,27 @@
                     $('input[id=income_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id=amount_' + id[1] + ']').val());
                 });
 
-                $('input[id^="income_"]').live('keyup', function () {
+
+                $('input[id^="localincomeper_"]').live('keyup', function() {
+                    var id = $(this).attr("id").split("_");
+                    if(!jQuery.isNumeric($('input[id=localincomeper_' + id[1] + ']').val())) {
+                        return;
+                    }
+                    $('input[id=localincome_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id=amount_' + id[1] + ']').val());
+                });
+
+                $('input[id^="localincome_"]').live('keyup change', function() {
+                    var id = $(this).attr("id").split("_");
+
+                    if(!jQuery.isNumeric($('input[id=localincome_' + id[1] + ']').val())) {
+                        return;
+                    }
+
+                    if($('input[id="localincome_' + id[1] + '"]').val().length > 0) {
+                        $('input[id=localincomeper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id=amount_' + id[1] + ']').val());
+                    }
+                });
+                $('input[id^="income_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=income_' + id[1] + ']').val())) {
                         return;
@@ -22,7 +42,7 @@
                     }
                 });
 
-                $('input[id^="unitprice_"]').live('keyup', function () {
+                $('input[id^="unitprice_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=unitprice_' + id[1] + ']').val())) {
                         return;
@@ -35,13 +55,13 @@
 
                 });
 
-                $('input[id^="Qty_"]').live('keyup', function () {
+                $('input[id^="Qty_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
                     $('input[id="unitprice_' + id[1] + '"]').trigger('keyup');
                     $('input[id="amountper_' + id[1] + '"]').trigger('keyup');
                 });
 
-                $('input[id^="amount_"]').live('keyup', function () {
+                $('input[id^="amount_"]').live('keyup', function() {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=amount_' + id[1] + ']').val())) {
                         return;
@@ -61,7 +81,7 @@
 
                 });
 
-                $('input[id^="s1perc_"]').live('keyup', function (e) {
+                $('input[id^="s1perc_"]').live('keyup', function(e) {
                     var id = $(this).attr("id").split("_");
                     if($(this).val() > 100) {
                         e.preventDefault();
@@ -71,7 +91,7 @@
                     }
                 });
 
-                $('input[id^="s2perc_"]').live('keyup', function (e) {
+                $('input[id^="s2perc_"]').live('keyup', function(e) {
                     var id = $(this).attr("id").split("_");
                     if($(this).val() > 100) {
                         e.preventDefault();
@@ -81,7 +101,7 @@
                     }
                 });
 
-                $('select[id^="salestype_"]').live('change', function () {
+                $('select[id^="salestype_"]').live('change', function() {
                     var id = $(this).attr("id").split("_");
                     var salestype = $(this).val();
 
@@ -125,10 +145,13 @@
                         <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->amount}</td>
                         <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->incomeperc}</td>
                         <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->income}</td>
+                        <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->localincome}<a href="#" title="{$lang->localincomeexp}"><img src="./images/icons/question.gif" ></a></td>
+                        <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->localincomeper}</td>
                         <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->curr}</td>
                         <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->invoice} <a href="#" title="Defines who is issuing the invoice for the given transaction."><img src="./images/icons/question.gif" ></a></td>
                         <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->s1perc}</td>
                         <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->s2perc}</td>
+                        <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->intercompanypurchase}</td>
                     </tr>
                 </thead>
                 <tbody id="budgetlines{$rowid}_tbody" style="width:100%;">
