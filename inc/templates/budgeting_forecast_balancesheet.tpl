@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->commercialadminstrationexpenses}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->budgetforecast}</title>
         {$headerinc}
 
         <script>
@@ -26,7 +26,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->budgetforecast} <small>{$affiliate->name} - {$financialbudget_year}</small></h1>
+            <h1>{$lang->budgetforecast} <small>{$affiliate->name} {$financialbudget_year}</small></h1>
             {$output_currency}
             <form name="perform_budgeting/forecastbalancesheet_Form" id="perform_budgeting/forecastbalancesheet_Form"  action="#" method="post">
 

@@ -139,4 +139,6 @@ $lang['localincomeper'] = 'Local Percentage  ';
 $lang['intercompanypurchase'] = 'Purchase From ';
 $lang['localincomeexp'] = 'Local income is the portion of total income retained to the local affiliate ';
 $lang['copytospreadsheets'] = 'Note that you may copy data from the following tables to Excel spreadsheet';
+$lang['trainingandvisits'] = 'Training and visits';
+$lang['successfullydeleted'] = 'Successfully deleted'
 ?>

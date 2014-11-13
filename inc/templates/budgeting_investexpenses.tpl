@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->commercialadminstrationexpenses}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->investmentfollowup}</title>
         {$headerinc}
         <script type="text/javascript">
             $(function() {
@@ -42,7 +42,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->investexpenses}<br /><small>{$affiliate->name} {$financialbudget_year}</small></h1>
+            <h1>{$lang->investmentfollowup}<br /><small>{$affiliate->name} {$financialbudget_year}</small></h1>
                 {$output_currency}
             <form name="perform_budgeting/investmentfollowup_Form" id="perform_budgeting/investmentfollowup_Form"  action="#" method="post">
                 <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">

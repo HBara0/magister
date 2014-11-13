@@ -45,7 +45,10 @@ Class FinancialBudget extends AbstractClass {
                 }
             }
             $affiliate = new Affiliates($financialdata['affid']);
-            $financialdata['currency'] = $affiliate->get_country()->get_maincurrency()->get()[numCode];
+            $financialdata['currency'] = $affiliate->mainCurrency;
+            if($financialdata['currency'] == NULL) {
+                $financialdata['currency'] = $affiliate->get_country()->get_maincurrency()->get()[numCode];
+            }
             $financialdata['createdOn'] = TIME_NOW;
             $financialdata['createdBy'] = $core->user['uid'];
             $query = $db->insert_query(self::TABLE_NAME, $financialdata);
@@ -217,7 +220,10 @@ Class FinancialBudget extends AbstractClass {
                 }
             }
             $affiliate = new Affiliates($financialdata['affid']);
-            $financialdata['currency'] = $affiliate->get_country()->get_maincurrency()->get()[numCode];
+            $financialdata['currency'] = $affiliate->mainCurrency;
+            if($financialdata['currency'] == NULL) {
+                $financialdata['currency'] = $affiliate->get_country()->get_maincurrency()->get()[numCode];
+            }
             $financialdata['modifiedOn'] = TIME_NOW;
             $financialdata['modifiedBy'] = $core->user['uid'];
             $query = $db->update_query(self::TABLE_NAME, $financialdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
