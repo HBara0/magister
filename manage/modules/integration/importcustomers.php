@@ -20,11 +20,17 @@ $counter = 0;
 if(is_array($customers)) {
     foreach($customers as $customer) {
         echo $customer->foreignName;
-        if(value_exists('entities', 'companyName', trim($customer->foreignName))) {
+        if(value_exists('entities', 'companyName', ucwords(strtolower(trim($customer->foreignName))))) {
             echo ': Skipped<br />';
             continue;
         }
-
+        else {
+            $query = $db->query('SELECT eid FROM entities WHERE INSTR("'.ucwords(strtolower(trim($customer->foreignName))).'", companyName) > 0');
+            if($db->num_rows($query) > 0) {
+                echo ': Skipped<br />';
+                continue;
+            }
+        }
         $newcust_data['companyName'] = ucwords(strtolower(trim($customer->foreignName)));
         $newcust_data['companyNameShort'] = $newcust_data['companyName'];
         $newcust_data['affid'][] = $customer->affid;
