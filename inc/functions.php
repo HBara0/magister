@@ -1719,4 +1719,10 @@ function array_multisort_bycolumn(&$data, $order_attr, $sort = SORT_DESC) {
     array_multisort(${$order_attr}, $sort, $data);
 }
 
+function generate_checksum($prefix = '') {
+    $identifier = substr(md5(uniqid(microtime())), 1, 10);
+
+    return $prefix.'_'.$identifier;
+}
+
 ?>
