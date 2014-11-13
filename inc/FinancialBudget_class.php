@@ -432,30 +432,7 @@ Class FinancialBudget extends AbstractClass {
                     'order' => array('by' => 'year', 'sort' => DESC),
                     'returnarray' => true
             );
-// if(!in_array($options['tocurrency'], $budget_currencies)) {
-//
-//                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currencies, 'toCurrency' => $options['tocurrency'], 'affid' => $options['affid'], 'year' => $options['year']), $dal_config);
-//                if(is_array($fxrates_obj)) {
-//                    if(count($budget_currencies) != count($fxrates_obj)) {
-//                        foreach($fxrates_obj as $budgetrate) {
-//                            $budget_currency[] = $budgetrate->fromCurrency;
-//                        }
-//                        $currencies_diff = array_diff($budget_currencies, $budget_currency);
-//                        if(is_array($currencies_diff)) {
-//                            foreach($currencies_diff as $currencyid) {
-//                                $currency = new Currencies($currencyid);
-//                                $output_currname.=$comma.$currency->get_displayname();
-//                                $comma = ', ';
-//                            }
-//                        }
-//                        error($lang->sprint($lang->noexchangerate, $output_currname, $options['tocurrency'], $options['year']), $_SERVER['HTTP_REFERER']);
-//                    }
-//                }
-//                else {
-//                    $fxrates_obj = array(new BudgetFxRates());
-////   error($lang->sprint($lang->noexchangerate, implode(', ', $budget_currencies), $options['tocurrency'], $options['year']), $_SERVER['HTTP_REFERER']);
-//                }
-//// }
+
             $output['currfxratesdesc'] = $lang->currfxratedesc.$currencyto->alphaCode.'</br>';
             $output['currfxrates'].='<span style="margin-top:3px;"><strong>'.$output['currfxratesdesc'].'</strong></span>';
             foreach($budget_currencies as $budgetyear => $budget_currency) {
@@ -501,24 +478,6 @@ Class FinancialBudget extends AbstractClass {
                 }
             }
 
-
-//                if(is_array($fxrates_obj) && (!in_array($options['tocurrency'], $budget_currencies))) {
-//                    $output['currfxrates'] = '<strong>'.$lang->exchangerates.'</strong></br></br>';
-//                    foreach($fxrates_obj as $budgetrate) {
-//                        $currency = new Currencies($budgetrate->fromCurrency);
-//                        $output['currfxratesdesc'].= $lang->currfxratedesc.$currency->get()['alphaCode'].'</br>';
-//                        $output['currfxrates'].='<span style="margin-top:3px;"><strong>'.$output['currfxratesdesc'].'</strong></span>';
-//                        $currencyto = new Currencies($options['tocurrency']);
-//                        $output['currfxrates'] .= $currency->get()['alphaCode'].' to '.$currencyto->get()['alphaCode'].'> '.$budgetrate->rate.'<br>';
-//                        $output['currfxratesdesc'] = '';
-//                    }
-//                }
-//                else {
-//                    $currency = new Currencies($options['tocurrency']);
-//                    $output['currfxrates'] = '<strong>'.$lang->sprint($lang->budgcurrdesc, $currency->alphaCode).'</strong></br></br>';
-//                }
-//
-            //   }
             $output['note'] = '<p><strong>'.$lang->copytospreadsheets.'</strong></p>';
             foreach($options['budgettypes'] as $type) {
                 /* specify for each year of budget  the specific rate from the fxrate */
