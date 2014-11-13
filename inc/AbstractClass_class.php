@@ -58,9 +58,9 @@ Abstract class AbstractClass {
                 return $object->update($data);
             }
         }
-        $this->data[static::UNIQUE_ATTRS] = explode(",", static::UNIQUE_ATTRS);
-        if(is_array($this->data[static::UNIQUE_ATTRS])) {
-            foreach($this->data[static::UNIQUE_ATTRS] as $attr) {
+        $unique_attrs = explode(',', static::UNIQUE_ATTRS);
+        if(is_array($unique_attrs)) {
+            foreach($unique_attrs as $attr) {
                 if(empty($data[$attr])) {
                     $checks = null;
                     break;
