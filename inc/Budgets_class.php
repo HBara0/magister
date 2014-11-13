@@ -144,7 +144,8 @@ class Budgets extends AbstractClass {
 
     public static function save_budget($budgetdata = array(), $budgetline_data = array()) {
         global $db, $core, $log;
-
+        print_r($budgetline_data);
+        exit;
         if(is_array($budgetdata)) {
             if(is_empty($budgetdata['year'], $budgetdata['affid'], $budgetdata['spid'])) {
                 return false;
@@ -159,6 +160,7 @@ class Budgets extends AbstractClass {
                         'createdOn' => TIME_NOW
                 );
 
+
                 $insertquery = $db->insert_query('budgeting_budgets', $budget_data);
                 if($insertquery) {
                     if(is_object($this)) {
@@ -170,6 +172,7 @@ class Budgets extends AbstractClass {
                         $bid = $db->last_id();
                         $budget = new Budgets($bid);
                         $log->record('savenewbudget', $bid);
+                        $budgetline_data['bid'] = $bid;
                         $budget->save_budgetlines($budgetline_data);
                     }
                 }
@@ -178,19 +181,20 @@ class Budgets extends AbstractClass {
                 $existing_budget = Budgets::get_budget_bydata($budgetdata);
                 if(isset($this)) {
                     $this->data['bid'] = $existing_budget['bid'];
-                    $this->save_budgetlines($budgetline_data, $this->data['bid']);
+                    $this->save_budgetlines($budgetline_data, $this->data['bid'], '', array('budgetdata' => $budgetdata));
                 }
                 else {
                     $budget = new Budgets($existing_budget['bid']);
-                    $budget->save_budgetlines($budgetline_data);
+                    $budget->save_budgetlines($budgetline_data, '', array('budgetdata' => $budgetdata));
                 }
                 $log->record('updatedbudget', $existing_budget['bid']);
             }
         }
     }
 
-    private function save_budgetlines($budgetline_data = array(), $bid = '') {
+    private function save_budgetlines($budgetline_data = array(), $bid = '', $options = array()) {
         global $db;
+
         if(isset($budgetline_data['customerName'])) {
             unset($budgetline_data['customerName']);
         }
@@ -201,8 +205,9 @@ class Budgets extends AbstractClass {
 
         if(is_array($budgetline_data)) {
             foreach($budgetline_data as $blid => $data) {
-                if(!isset($data['bid'])) {
-                    $data['bid'] = $bid;
+
+                if(!isset($data['bid']) && empty($data['bid'])) {
+                    //   $data['bid'] = $bid;
                 }
                 if(isset($data['blid']) && !empty($data['blid'])) {
                     $budgetlineobj = new BudgetLines($data['blid']);
@@ -218,7 +223,7 @@ class Budgets extends AbstractClass {
                     }
                 }
 
-                if($data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
+                if(isset($data['unspecifiedCustomer']) && $data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
                     $data['altCid'] = 'Unspecified Customer';
                     if(empty($data['customerCountry'])) {
                         $data['customerCountry'] = $this->get_affiliate()->get_country()->coid;
@@ -240,7 +245,10 @@ class Budgets extends AbstractClass {
                 if(empty($data['s1Perc']) && empty($data['s2Perc'])) {
                     $data['s1Perc'] = $data['s2Perc'] = 50;
                 }
-
+                /* cascade itetcompany */
+                if(isset($data['interCompanyPurchase']) && !empty($data['interCompanyPurchase'])) {
+                    $this->create_intercompanybudget($data, $options);
+                }
                 unset($data['unspecifiedCustomer']);
                 if(isset($data['blid']) && !empty($data['blid'])) {
                     $budgetlineobj->update($data);
@@ -257,6 +265,59 @@ class Budgets extends AbstractClass {
                 }
             }
         }
+    }
+
+    private function create_intercompanybudget($intercompan_data = array(), $options = array()) {
+
+        //   unset($options['budgetdata']['bid']);
+        $budgetdata_intercompany = $options['budgetdata'];
+        $purchasaff_obj = new Affiliates($options['budgetdata']['affid']);
+        $intercompan_data['altCid'] = $purchasaff_obj->name;
+        $budgetdata_intercompany['affid'] = $intercompan_data['interCompanyPurchase'];
+        unset($intercompan_data['blid'], $intercompan_data['interCompanyPurchase']);
+        $intercompan_data['cid'] = '';
+        $intercompan_data[bid] = 31;
+
+        /* create budget for the intercompany affilaite --START */
+        $intercomp_budgetobj = Budgets::get_data(array('affid' => $budgetdata_intercompany['affid'], 'spid' => $budgetdata_intercompany['spid'], 'year' => $budgetdata_intercompany['year']), array('simple' => false));
+        if(!is_object($intercomp_budgetobj)) {
+            $interc_obj = new Budgets();
+
+            $interc_obj->save_budget($budgetdata_intercompany, $intercompan_data);
+        }
+
+        /* create budget for the intercompany affilaite --END */
+
+        if(isset($intercompan_data['blid']) && !empty($intercompan_data['blid'])) {
+            $budgetlineobj = new BudgetLines($intercompan_data['blid']);
+        }
+        else {
+            $budgetline = BudgetLines::get_budgetline_bydata($intercompan_data);
+            if($budgetline != false) {
+                $budgetlineobj = new BudgetLines($budgetline['blid']);
+                $intercompan_data['blid'] = $budgetline['blid'];
+            }
+            else {
+                $budgetlineobj = new BudgetLines();
+            }
+        }
+
+
+
+        /* update budget line with exist data ---START */
+        if(isset($intercompan_data['blid']) && !empty($intercompan_data['blid'])) {
+            // $budgetlineobj->update($intercompan_data);
+            $this->errorcode = 0;
+
+            /* update budget line with exist data ---END */
+        }
+        else {
+            // $budgetlineobj->create($intercompan_data);
+        }
+
+
+
+        // create budget  line in the other affiliate's bugdet f
     }
 
     public function import_budgetlines($budgetline_data = array()) {
@@ -733,6 +794,20 @@ class BudgetLines {
 
     public function get() {
         return $this->budgetline;
+    }
+
+    public function get_invoicingentity_income($tocurrency, $year, $affid) {
+        global $db;
+        $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".$tocurrency." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.interComoanypurchase AND year=".$year." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".$tocurrency.") END)";
+        $sql = "SELECT saleType,sum(amount*{$fxrate_query}) AS amount,sum(income*{$fxrate_query}) AS income,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomePercentage*{$fxrate_query}) AS localIncomePercentage, sum(actualAmount*{$fxrate_query}) AS actualAmount, sum(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines Where interComoanypurchase=".$affid." GROUP BY saleType";
+        $query = $db->query($sql);
+        if($db->num_rows($query) > 0) {
+            while($budget = $db->fetch_assoc($query)) {
+                $data['current'][$budget['saleType']]['amount'] = $budget['amount'];
+                $data['current'][$budget['saleType']]['allocated'] = $budget['income'] - $budget['localIncomeAmount'];
+            }
+        }
+        return $data;
     }
 
 }

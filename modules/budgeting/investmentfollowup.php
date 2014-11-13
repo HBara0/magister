@@ -53,8 +53,6 @@ if(!isset($core->input['action'])) {
         $budgeting_investexpenses_categories = BudgetInvestCategories::parse_expensesfields($investcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'prevfinancialbudget' => $prevfinancialbudget));
     }
 
-//    $header_variation = '<td style="width:12.5%">% '.$lang->variation.'</td>';
-//    eval("\$budgeting_header = \"".$template->get('budgeting_investheader')."\";");
     $headerfields = array('actual', 'actual', 'yef', 'budget');
     $headeryears = array($financialbudget_prev3year, $financialbudget_prev2year, $financialbudget_prevyear, $financialbudget_year);
     $budgeting_header .='<tr class="thead"><td style="width:25%"></td>';
@@ -79,13 +77,19 @@ if(!isset($core->input['action'])) {
         $currencyto_obj = new Currencies($tocurrency);
         $currency_to = $currencyto_obj->get()['alphaCode'];
         $dal_config = array(
-                'operators' => array('fromCurrency' => '=', 'affid' => 'in', 'year' => '='),
+                'operators' => array('fromCurrency' => '=', 'affid' => 'in', 'year' => 'in'),
                 'simple' => false,
-                'returnarray' => false
+                'order' => 'year',
+                'returnarray' => true
         );
-        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_affiliatecurr->numCode, 'toCurrency' => $tocurrency, 'affid' => $affid, 'year' => $financialbudget_year,), $dal_config);
-        if(is_object($fxrates_obj)) {
-            $output_currency = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding: 5px; margin-top: 10px; margin-bottom: 10px; display: block;"><span><em>'.$lang->sprint($lang->budgcurrdesc, $budget_affiliatecurr->alphaCode).'</em></span></br><em><strong>'.$lang->exchangerate.'</strong></em></br><span>'.$lang->sprint($lang->currrate, $budget_affiliatecurr->alphaCode, $currency_to, $fxrates_obj->rate).'</span></div>';
+        $years = array($financialbudget_year, $financialbudget_year - 1, $financialbudget_year - 2, $financialbudget_year - 3);
+        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_affiliatecurr->numCode, 'toCurrency' => $tocurrency, 'affid' => $affid, 'year' => $years), $dal_config);
+        if(is_array($fxrates_obj)) {
+            $output_currency = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding: 5px; margin-top: 10px; margin-bottom: 10px; display: block;"><span><em>'.$lang->sprint($lang->budgcurrdesc, $budget_affiliatecurr->alphaCode).'</em></span></br><em><strong>'.$lang->exchangerate.'</strong></em></br>';
+            foreach($fxrates_obj as $rate) {
+                $output_currency.='<span>'.$lang->sprint($lang->currrate, $budget_affiliatecurr->alphaCode, $currency_to, $rate->rate).' for year: '.$rate->year.'</span><br/>';
+            }
+            $output_currency.='</div>';
         }
     }
     eval("\$budgeting_investexpenses = \"".$template->get('budgeting_investexpenses')."\";");

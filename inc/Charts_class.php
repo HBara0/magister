@@ -99,10 +99,10 @@ class Charts {
         $this->DataSet->SetAxisUnit(0, $this->options['yaxisunit']);
         $this->DataSet->setAxisName(1, $this->options['xaxisname']);
 
-        if(!isset($this->options['nosort']) || $this->options['nosort'] == false) {
+        if(!isset($this->options['xaxisnosort']) || $this->options['xaxisnosort'] == false) {
             ksort($this->data['x']);
         }
-        //ksort($this->data['x']);
+
         $this->DataSet->addPoints($this->data['x'], 'x');
         $this->DataSet->setSerieDescription("x", $this->options['xaxisname']);
         $this->DataSet->setAbscissa('x');

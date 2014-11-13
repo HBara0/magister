@@ -27,17 +27,16 @@
             <tr>
                 <td style="font-weight:bold;">{$lang->customername}</td>
                 <td>
-                    <input type='text' id='customer_1_autocomplete' value="" autocomplete="off" required="required" />
+                    <input type='text' id='allcustomertypes_1_autocomplete' value="" autocomplete="off" required="required" />
                     <a href="index.php?module=contents/addentities&amp;type=customer" target="_blank"><img src="./images/addnew.png" border="0" alt="{$lang->add}" title="{$lang->add}"></a>
-                    <input type='hidden'  id='customer_1_id' name='cid' value=""/>
-                    <div id='searchQuickResults_customer_1' class='searchQuickResults' style='display:none;'></div>
+                    <input type='hidden'  id='allcustomertypes_1_id' name='cid' value=""/>
+                    <div id='searchQuickResults_allcustomertypes_1' class='searchQuickResults' style='display:none;'></div>
                 </td>
             </tr>
             <tr>
                 <td style="font-weight:bold;">{$lang->calltype}</td>
                 <td>
                     <select name="type" id="type" required="required">
-                        <option value=""></option>
                         <option value="1">{$lang->facetoface}</option>
                         <option value="2">{$lang->telephonecall}</option>
                     </select>
@@ -47,14 +46,13 @@
                 <td style="font-weight:bold;">{$lang->callpurpose}</td>
                 <td>
                     <select name="purpose" id="purpose" required="required">
-                        <option value=""></option>
                         <option value="1">{$lang->followup}</option>
                         <option value="2">{$lang->service}</option>
                         <option value="3">{$lang->prospective}</option>
                     </select>
                 </td>
             </tr>
-        </table>  
+        </table>
         <hr />
         <input type='submit' class='button' value='{$lang->create}' id='perform_calendar/weekviewoperations_Button' />
     </form>

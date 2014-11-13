@@ -22,7 +22,7 @@ if(!$core->input['action']) {
     $identifier = base64_decode($core->input['identifier']);
     $budget_data = unserialize($session->get_phpsession('budgetmetadata_'.$identifier));
 
-    $affiliate_where = ' name LIKE "orkila%"';
+    $affiliate_where = ' name LIKE "%orkila%"';
     if($core->usergroup['canViewAllAff'] == 0) {
         $inaffiliates = implode(',', $core->user['affiliates']);
         $affiliate_where .= " AND affid IN ({$inaffiliates})";
@@ -154,8 +154,10 @@ if(!$core->input['action']) {
 //	}
 
     /* parse currencies */
-
-    $curr_objs = Currencies::get_data('alphaCode IS NOT NULL');
+    $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where affid IS NOT NULL';
+    $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
+    $curr_objs[840] = new Currencies(840);
+    //$curr_objs = Currencies::get_data('alphaCode IS NOT NULL');
     $currencies_list = parse_selectlist('budget[toCurrency]', 7, $curr_objs, 840);
 
     $dimensions = array('affid' => $lang->affiliate, 'spid' => $lang->supplier, 'cid' => $lang->customer, 'reportsTo' => $lang->reportsto, 'pid' => $lang->product, 'coid' => $lang->country, 'uid' => $lang->manager, 'psid' => $lang->segment, 'stid' => $lang->saletype);

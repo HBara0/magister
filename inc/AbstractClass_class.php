@@ -22,6 +22,7 @@ Abstract class AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '';
     const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = null;
 
     public function __construct($id = '', $simple = true) {
         if(isset($id)) {
@@ -39,7 +40,50 @@ Abstract class AbstractClass {
         $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.static::TABLE_NAME.' WHERE '.static::PRIMARY_KEY.'='.intval($id)));
     }
 
-    abstract public function save(array $data = array());
+    public function save(array $data = array()) {
+        if(empty($data)) {
+            $data = $this->data;
+        }
+        if(isset($this->data[static::PRIMARY_KEY]) && !empty($this->data[static::PRIMARY_KEY])) {
+            return $this->update($data);
+        }
+
+        if(empty($data[static::PRIMARY_KEY])) {
+            unset($data[static::PRIMARY_KEY]);
+        }
+
+        if(isset($data['inputChecksum']) && !empty($data['inputChecksum'])) {
+            $object = self::get_data(array('inputChecksum' => $data['inputChecksum']));
+            if(is_object($object)) {
+                return $object->update($data);
+            }
+        }
+        $this->data[static::UNIQUE_ATTRS] = explode(",", static::UNIQUE_ATTRS);
+        if(is_array($this->data[static::UNIQUE_ATTRS])) {
+            foreach($this->data[static::UNIQUE_ATTRS] as $attr) {
+                if(empty($data[$attr])) {
+                    $checks = null;
+                    break;
+                }
+                $checks[$attr] = $data[$attr];
+            }
+        }
+        if(is_array($checks)) {
+            $object = self::get_data($checks);
+            if(is_object($object)) {
+                return $object->update($data);
+            }
+
+            if(is_array($object)) {
+                foreach($object as $obj) {
+                    $obj->delete();
+                }
+            }
+        }
+
+        return $this->create($data);
+    }
+
     abstract protected function create(array $data);
     abstract protected function update(array $data);
     public function delete() {

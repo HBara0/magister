@@ -118,12 +118,12 @@
                                 <li class="sortable-placeholder" style="background:none;">{$lang->drophere}</li>
                             </ul>
                         </div>
-                        <input type='hidden' id='field' name="mireport[dimension][]" value=''>
+                        <input type='hidden' id='dimensions' name="mireport[dimension][]" value=''>
                     </div>
                 </div>
 
                 <div style="display:block;">
-                    <div style="display:inline-block; padding: 8px; margin:8px;">   <input value="{$lang->generate}"  class="button" type="submit" id="perform_crm/marketintelligencereport_Button"/></div>
+                    <div style="display:inline-block; padding: 8px; margin:8px;"><input value="{$lang->generate}" class="button" type="submit" id="perform_crm/marketintelligencereport_Button"/></div>
                 </div>
 
                 <div style="display:block;">

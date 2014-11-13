@@ -21,7 +21,7 @@ if(!$core->input['action']) {
     $session->name_phpsession(COOKIE_PREFIX.'fillbudget'.$sessionidentifier);
     $session->start_phpsession(480);
 
-    $affiliate_where = ' name LIKE "orkila%"';
+    $affiliate_where = ' name LIKE "%orkila%"';
     if($core->usergroup['canViewAllAff'] == 0) {
         $inaffiliates = implode(',', $core->user['affiliates']);
         $affiliate_where .= " AND affid IN ({$inaffiliates})";
@@ -63,6 +63,7 @@ else {
     if($core->input['action'] == 'get_supplierslist') {
         $affid = $db->escape_string($core->input['id']);
         $affiliate = new Affiliates($affid);
+
         $budget_suppliers = $affiliate->get_suppliers();
 
         $budget_supplierslist = '<option value="0"></option>';

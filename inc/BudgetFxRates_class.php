@@ -36,4 +36,12 @@ class BudgetFxRates extends AbstractClass {
 
     }
 
+    public function get_formCurrency() {
+        return new Currencies($this->data['fromCurrency']);
+    }
+
+    public function get_toCurrency() {
+        return new Currencies($this->data['toCurrency']);
+    }
+
 }
