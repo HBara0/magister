@@ -37,6 +37,7 @@ if(!$core->input['action']) {
         $supplier_segments = array_filter($supplier->get_segments());
 
         $currentbudget = Budgets::get_budget_bydata($budget_data);
+
         /* Validate Permissions - START */
         if($core->usergroup['canViewAllSupp'] == 0 && $core->usergroup['canViewAllAff'] == 0) {
             if(is_array($core->user['auditfor'])) {
@@ -122,8 +123,10 @@ if(!$core->input['action']) {
         $unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income');
         if(is_array($budgetlinesdata)) {
             $rowid = 1;
+
             foreach($budgetlinesdata as $cid => $customersdata) {
                 /* Get Customer name from object */
+
                 if(!is_int($cid)) {
                     $cid = 0;
                 }
@@ -138,6 +141,10 @@ if(!$core->input['action']) {
 //				}
 
                     foreach($productsdata as $saleid => $budgetline) {
+
+                        if(!empty($budgetline['cid'])) {
+                            $budgetline['disabled'] = " disabled='disabled'";
+                        }
                         $previous_yearsqty = $previous_yearsamount = $previous_yearsincome = $prevyear_incomeperc = $prevyear_unitprice = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
                         if($is_prevonly === true || isset($budgetline['prevbudget'])) {
                             if($is_prevonly == true) {
@@ -174,6 +181,7 @@ if(!$core->input['action']) {
                                 $previous_yearsqty .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['quantity'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualQty'].'</span>';
                                 $previous_yearsamount .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['amount'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualAmount'].'</span>';
                                 $previous_yearsincome .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['income'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncome'].'</span>';
+                                $previous_yearslocalincome .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['localIncomeAmount'].' | '.$lang->actualabbr.':</span>';
 
                                 $prev_budgetline['actualIncomePerc'] = 0;
                                 if(!empty($prev_budgetline['actualAmount'])) {
@@ -187,6 +195,12 @@ if(!$core->input['action']) {
                                 }
                                 $prevyear_unitprice .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['unitPrice'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualUnitPrice'].'</span>';
                             }
+                        }
+                        if(empty($budgetline['localIncomePercentage'])) {
+                            $budgetline['localIncomePercentage'] = $budgetline['incomePerc'];
+                        }
+                        if(empty($budgetline['localIncomeAmount'])) {
+                            $budgetline['localIncomeAmount'] = $budgetline['income'];
                         }
 
                         $budgetline['cid'] = $cid;
