@@ -24,7 +24,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->overduereceivables}<br /><small>{$affiliate->name} - {$budget_data['year']}</small></h1>
+            <h1>{$lang->overduereceivables}<br /><small>{$affiliate->name} {$budget_data['year']}</small></h1>
                 {$output_currency}
             <form name="perform_budgeting/overduereceivables_Form" id="perform_budgeting/overduereceivables_Form"  action="#" method="post">
                 <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">

@@ -82,7 +82,7 @@ class BudgetExpenseCategories extends AbstractClass {
                                 if(!isset($budgetexps[$input])) {
                                     $budgetexps[$input] = 0;
                                 }
-                                $column_output .=' <td style="width:10%;">'.parse_textfield('budgetexps['.$item->beciid.']['.$input.']', 'budgetexps_'.$item->beciid.'_'.$item->becid.'_'.$input, 'number', $budgetexps[$input], array('accept' => 'numeric', 'step' => 'any', 'required' => 'required', 'min' => 0, 'style' => 'width:100%')).'</td>'; //$readonly => $readonly, 
+                                $column_output .=' <td style="width:10%;">'.parse_textfield('budgetexps['.$item->beciid.']['.$input.']', 'budgetexps_'.$item->beciid.'_'.$item->becid.'_'.$input, 'number', $budgetexps[$input], array('accept' => 'numeric', 'step' => 'any', 'required' => 'required', 'min' => 0, 'style' => 'width:100%')).'</td>'; //$readonly => $readonly,
                                 unset($readonly);
                             }
                             else {
@@ -123,7 +123,7 @@ class BudgetExpenseCategories extends AbstractClass {
                     if(isset($options['financialbudget']->$value)) {
                         $financialbudgetdata[$key] = $options['financialbudget']->$value;
                     }
-                    elseif(is_array($options['financialbudget'])) {
+                    else if(is_array($options['financialbudget'])) {
                         $financialbudgetdata[$key] = $options['financialbudget'][$value];
                     }
                 }

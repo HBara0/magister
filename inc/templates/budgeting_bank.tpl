@@ -7,17 +7,16 @@
         </script>
     </head>
     <body>
-    <tr style="width:100%;">
-
+    <tr>
         {$header}
         {$menu}
         <td class="contentContainer" colspan="2">
-            <h1>{$lang->bank}<br /><small>{$affiliate->name} - {$budget_data['year']}</small></h1>
+            <h1>{$lang->bank}<br /><small>{$affiliate->name} {$budget_data['year']}</small></h1>
                 {$output_currency}
             <form name="perform_budgeting/bank_Form" id="perform_budgeting/bank_Form"  action="#" method="post">
                 <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">
-                <table class="datatable" width="100%">
-                    <thead style="width:100%;">
+                <table class="datatable" width="100%" border="0" cellspacing="0" cellpadding="2">
+                    <thead>
                         {$bank_header}
                         {$bank_row}
                     </thead>

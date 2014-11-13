@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->commercialadminstrationexpenses}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->trainingandvisits}</title>
         {$headerinc}
         <script type="text/javascript">
             $(function() {

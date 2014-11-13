@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | </title>
+        <title>{$core->settings[systemtitle]} | {$lang->generatefinbudget}</title>
         {$headerinc}
         <script type="text/javascript">
 
@@ -11,7 +11,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1></h1>
+            <h1>{$lang->generatefinbudget}</h1>
             <form name="perform_budgeting/generatefinbudget_Form" id="perform_budgeting/generatefinbudget_Form" method="post" action="index.php?module=budgeting/previewfinbudget">
                 <input type="hidden" name="identifier" value="{$core->input[identifier]}"/>
                 <div style="display:block; padding:8px;">
