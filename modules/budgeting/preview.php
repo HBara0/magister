@@ -296,13 +296,13 @@ if(!($core->input['action'])) {
             /* Parse Risks - Start */
             $value_types = array('income', 'amount');
             $value_perc = array(50, 80);
-            $value_by = array('customers' => 'cid, altCid', 'suppliers' => 'bid');
+            $value_by = array('customers' => 'cid, altCid', 'suppliers' => 'spid');
             $budgeting_budgetrawreport .= '<h1>Customers/Suppliers Risks</h1>';
             foreach($value_by as $by => $group) {
                 $budgeting_budgetrawreport .= '<h2>'.ucwords($by).'</h2><table width="100%" class="datatable">';
                 foreach($value_types as $type) {
                     foreach($value_perc as $perc) {
-                        $data = BudgetLines::get_top($perc, $type, array('bid' => array_keys($budgets['current'])), array('group' => $group, 'operators' => array('bid' => 'IN')));
+                        $data = BudgetLines::get_top($perc, $type, array('bb.bid' => array_keys($budgets['current'])), array('group' => $group, 'operators' => array('bb.bid' => 'IN')));
                         $budgeting_budgetrawreport .= '<tr><td>'.$perc.'% '.$by.' by '.$type.'</td><td>'.$data['count'].'</td></tr>';
                     }
                 }
