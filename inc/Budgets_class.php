@@ -210,6 +210,7 @@ class Budgets extends AbstractClass {
                 $budgetlineobj->create($budgetline_data);
             }
             else {
+
                 foreach($budgetline_data as $blid => $data) {
 
                     if(!isset($data['bid']) && empty($data['bid'])) {
@@ -228,7 +229,6 @@ class Budgets extends AbstractClass {
                             $budgetlineobj = new BudgetLines();
                         }
                     }
-
                     if(isset($data['unspecifiedCustomer']) && $data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
                         $data['altCid'] = 'Unspecified Customer';
                         if(empty($data['customerCountry'])) {
@@ -281,10 +281,9 @@ class Budgets extends AbstractClass {
         $purchasaff_obj = new Affiliates($options['budgetdata']['affid']);
         $intercompan_data['altCid'] = $purchasaff_obj->name;
         $budgetdata_intercompany['affid'] = $intercompan_data['interCompanyPurchase'];
-        unset($intercompan_data['blid'], $intercompan_data['interCompanyPurchase']);
-        $intercompan_data['cid'] = '';
+        unset($intercompan_data['blid'], $intercompan_data['cid'], $intercompan_data['interCompanyPurchase']);
+
         $intercompan_data['linkedBudgetLine'] = $relatedblid;
-        //   $intercompan_data[bid] = 31;
 
         /* create budget for the intercompany affilaite --START */
         $intercomp_budgetobj = Budgets::get_data(array('affid' => $budgetdata_intercompany['affid'], 'spid' => $budgetdata_intercompany['spid'], 'year' => $budgetdata_intercompany['year']), array('simple' => false));
@@ -625,6 +624,12 @@ class BudgetLines {
                 $budgetline_data['businessMgr'] = $core->user['uid'];
             }
             unset($budgetline_data['customerName'], $budgetline_data['blid']);
+            if(empty($budgetline_data['localIncomeAmount'])) {
+                $budgetline_data['localIncomeAmount'] = $budgetline_data['income'];
+            }
+            if(empty($budgetline_data['localIncomePercentage'])) {
+                $budgetline_data['localIncomePercentage'] = $budgetline_data['incomePerc'];
+            }
 
             $insertquery = $db->insert_query('budgeting_budgets_lines', $budgetline_data);
             if($insertquery) {
