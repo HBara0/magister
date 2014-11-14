@@ -62,7 +62,9 @@ if(!isset($core->input['action'])) {
             $client = new Entities($clientoverdue->cid);
             $clientoverdue->customername = $client->get_displayname();
             $totalamount +=$clientoverdue->totalAmount;
-            $clientoverdue->oldestUnpaidInvoiceDate = date($core->settings['dateformat'], $clientoverdue->oldestUnpaidInvoiceDate);
+            if($clientoverdue->oldestUnpaidInvoiceDate != 0) {
+                $clientoverdue->oldestUnpaidInvoiceDate = date($core->settings['dateformat'], $clientoverdue->oldestUnpaidInvoiceDate);
+            }
             $inputChecksum = $clientoverdue->inputChecksum;
             eval("\$overduereceivables_row .= \"".$template->get('budgeting_overduereceivables_row')."\";");
         }
@@ -96,9 +98,6 @@ else if($core->input['action'] == 'do_perform_overduereceivables') {
             break;
         case 2:
             output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
-            break;
-        case 3:
-            output_xml('<status>false</status><message>'.$lang->updateunsuccessfull.'</message>');
             break;
     }
 }

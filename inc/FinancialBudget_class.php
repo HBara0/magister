@@ -322,7 +322,6 @@ Class FinancialBudget extends AbstractClass {
                         case 0:
                             continue;
                         case 2:
-                        case 3:
                             return;
                     }
                 }
@@ -343,7 +342,6 @@ Class FinancialBudget extends AbstractClass {
                         case 0:
                             continue;
                         case 2:
-                        case 3:
                             return;
                     }
                 }

@@ -54,10 +54,6 @@ class BudgetOverdueReceivables extends AbstractClass {
             $overdues_data['modifiedOn'] = TIME_NOW;
             $overdues_data['modifiedBy'] = $core->user['uid'];
             $db->update_query(self::TABLE_NAME, $overdues_data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
-            if(!$db->update_query) {
-                $this->errorcode = 3;
-                return;
-            }
         }
     }
 
@@ -79,7 +75,8 @@ class BudgetOverdueReceivables extends AbstractClass {
             $data = $this->data;
         }
         if(isset($data[self::PRIMARY_KEY]) && !empty($data[self::PRIMARY_KEY])) {
-            $this->delete();
+            $clientoverdue = self::get_data(array('boid' => $data[self::PRIMARY_KEY]));
+            $clientoverdue->delete();
         }
         if(isset($data['inputChecksum']) && !empty($data['inputChecksum'])) {
             $clientoverdue = self::get_data(array('inputChecksum' => $data['inputChecksum']));

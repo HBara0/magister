@@ -137,9 +137,6 @@ else if($core->input['action'] == 'do_perform_bank') {
         case 2:
             output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
             break;
-        case 3:
-            output_xml('<status>false</status><message>'.$lang->updateunsuccessfull.'</message>');
-            break;
     }
 }
 ?>
