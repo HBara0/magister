@@ -141,5 +141,5 @@ $lang['localincomeexp'] = 'Local income is the portion of total income retained 
 $lang['intercompany'] = 'Intercompany purchase';
 $lang['copytospreadsheets'] = 'Note that you may copy data from the following tables to Excel spreadsheet';
 $lang['trainingandvisits'] = 'Training and visits';
-$lang['successfullydeleted'] = 'Successfully deleted'
+$lang['updateunsuccessfull'] = 'Update Unsuccessfull';
 ?>

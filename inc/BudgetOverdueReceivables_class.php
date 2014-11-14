@@ -54,29 +54,12 @@ class BudgetOverdueReceivables extends AbstractClass {
             $overdues_data['modifiedOn'] = TIME_NOW;
             $overdues_data['modifiedBy'] = $core->user['uid'];
             $db->update_query(self::TABLE_NAME, $overdues_data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
+            if(!$db->update_query) {
+                $this->errorcode = 3;
+                return;
+            }
         }
     }
-
-//    public function save(array $data = array()) {
-//        if(empty($data)) {
-//            $data = $this->data;
-//        }
-//        if(!$this->validate_requiredfields($data)) {
-//            $overduereceivables = self::get_data(array('boid' => $this->data[self::PRIMARY_KEY]));
-//            if(is_object($overduereceivables)) {
-//                $overduereceivables->update($data);
-//            }
-//            else {
-//                $overduereceivables = self::get_data(array('bfbid' => $data['bfbid'], 'boid' => $data['boid']));
-//                if(is_object($overduereceivables)) {
-//                    $overduereceivables->update($data);
-//                }
-//                else {
-//                    $this->create($data);
-//                }
-//            }
-//        }
-//    }
 
     private function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {

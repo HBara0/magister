@@ -72,6 +72,10 @@ class BudgetBankFacilities extends AbstractClass {
             $banks_data['modifiedOn'] = TIME_NOW;
             $banks_data['modifiedBy'] = $core->user['uid'];
             $db->update_query(self::TABLE_NAME, $banks_data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
+            if(!$db->update_query) {
+                $this->errorcode = 3;
+                return;
+            }
         }
     }
 

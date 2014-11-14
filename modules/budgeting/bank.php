@@ -72,6 +72,7 @@ if(!isset($core->input['action'])) {
             if($bankfacility->LastRenewalDate != 0) {
                 $bankfacility->LastRenewalDate = date($core->settings['dateformat'], $bankfacility->LastRenewalDate);
             }
+            $inputChecksum = $bankfacility->inputChecksum;
             eval("\$bank_row .= \"".$template->get('budgeting_bank_row')."\";");
         }
     }
@@ -135,6 +136,9 @@ else if($core->input['action'] == 'do_perform_bank') {
             break;
         case 2:
             output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+            break;
+        case 3:
+            output_xml('<status>false</status><message>'.$lang->updateunsuccessfull.'</message>');
             break;
     }
 }
