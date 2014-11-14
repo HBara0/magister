@@ -28,7 +28,13 @@ if(!isset($core->input['action'])) {
     };
     $affiliate = new Affiliates($budget_data['affid']);
     $financialbudget = FinancialBudget::get_data(array('affid' => $budget_data['affid'], 'year' => $budget_data['year']), array('simple' => false));
-    $currency = $affiliate->get_country()->get_maincurrency();
+    $affcurrency = $affiliate->mainCurrency;
+    if($affcurrency == NULL) {
+        $currency = $affiliate->get_country()->get_maincurrency();
+    }
+    else {
+        $currency = Currencies::get_data(array('numCode' => $affcurrency));
+    }
 
     //get 3 commercial budgets of current year, prev year and prev two years
     $commericalbudget = Budgets::get_data(array('affid' => $budget_data['affid'], 'year' => $budget_data['year']), array('returnarray' => true, 'simple' => false));
@@ -86,7 +92,6 @@ if(!isset($core->input['action'])) {
                 'order' => 'year',
                 'returnarray' => true
         );
-
         $years = array($financialbudget_year, $financialbudget_year - 1, $financialbudget_year - 2, $financialbudget_year - 3);
         $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $currency->numCode, 'toCurrency' => $tocurrency, 'affid' => $affid, 'year' => $years,), $dal_config);
         if(is_array($fxrates_obj)) {

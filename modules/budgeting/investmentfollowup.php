@@ -71,7 +71,13 @@ if(!isset($core->input['action'])) {
     /* get main currecny of the affiliate being budgeted */
 
     $affilaite_obj = new Affiliates($affid);
-    $budget_affiliatecurr = $affilaite_obj->get_country()->get_maincurrency();
+    $affcurrency = $affilaite_obj->mainCurrency;
+    if($affcurrency == NULL) {
+        $budget_affiliatecurr = $affiliate->get_country()->get_maincurrency();
+    }
+    else {
+        $budget_affiliatecurr = Currencies::get_data(array('numCode' => $affcurrency));
+    }
     if(!empty($budget_affiliatecurr)) {
         $tocurrency = '840'; //usd
         $currencyto_obj = new Currencies($tocurrency);

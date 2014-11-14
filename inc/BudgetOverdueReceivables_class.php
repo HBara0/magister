@@ -80,12 +80,28 @@ class BudgetOverdueReceivables extends AbstractClass {
 
     private function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
-            $required_fields = array('cid', 'totalAmount');
+            $required_fields = array('cid', 'totalAmount', 'oldestUnpaidInvoiceDate');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
                     $this->errorcode = 2;
                     return true;
                 }
+            }
+        }
+    }
+
+    public function delete_clientoverdues() {
+        global $db, $core;
+        if(empty($data)) {
+            $data = $this->data;
+        }
+        if(isset($data[self::PRIMARY_KEY]) && !empty($data[self::PRIMARY_KEY])) {
+            $this->delete();
+        }
+        if(isset($data['inputChecksum']) && !empty($data['inputChecksum'])) {
+            $clientoverdue = self::get_data(array('inputChecksum' => $data['inputChecksum']));
+            if(is_object($clientoverdue)) {
+                $clientoverdue->delete();
             }
         }
     }

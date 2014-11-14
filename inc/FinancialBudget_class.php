@@ -170,6 +170,10 @@ Class FinancialBudget extends AbstractClass {
                 $bank['bfbid'] = $this->data[self::PRIMARY_KEY];
                 $bankfacilities = new BudgetBankFacilities();
                 $bankfacilities->set($bank);
+                if($bank['bnkid'] == 0) {
+                    $bankfacilities->delete_bankfacility();
+                    continue;
+                }
                 $bankfacilities->save();
                 $this->errorcode = $bankfacilities->errorcode;
                 switch($this->get_errorcode()) {
@@ -186,6 +190,10 @@ Class FinancialBudget extends AbstractClass {
                 $clientoverdue['bfbid'] = $this->data[self::PRIMARY_KEY];
                 $overduereceivables_obj = new BudgetOverdueReceivables();
                 $overduereceivables_obj->set($clientoverdue);
+                if(empty($clientoverdue['cid'])) {
+                    $overduereceivables_obj->delete_clientoverdues();
+                    continue;
+                }
                 $overduereceivables_obj->save();
                 $this->errorcode = $overduereceivables_obj->errorcode;
                 switch($this->get_errorcode()) {
@@ -304,6 +312,10 @@ Class FinancialBudget extends AbstractClass {
                     $bank['bfbid'] = $this->data[self::PRIMARY_KEY];
                     $bankfacilities = new BudgetBankFacilities();
                     $bankfacilities->set($bank);
+                    if($bank['bnkid'] == 0) {
+                        $bankfacilities->delete_bankfacility();
+                        continue;
+                    }
                     $bankfacilities->save();
                     $this->errorcode = $bankfacilities->errorcode;
                     switch($this->get_errorcode()) {
@@ -320,6 +332,10 @@ Class FinancialBudget extends AbstractClass {
                     $clientoverdue['bfbid'] = $this->data[self::PRIMARY_KEY];
                     $overduereceivables_obj = new BudgetOverdueReceivables();
                     $overduereceivables_obj->set($clientoverdue);
+                    if(empty($clientoverdue['cid'])) {
+                        $overduereceivables_obj->delete_clientoverdues();
+                        continue;
+                    }
                     $overduereceivables_obj->save();
                     $this->errorcode = $overduereceivables_obj->errorcode;
                     switch($this->get_errorcode()) {
@@ -790,7 +806,9 @@ Class FinancialBudget extends AbstractClass {
                                                 break;
                                             case 'LastIssuanceDate':
                                             case 'LastRenewalDate':
-                                                $bankfacilitiy->$field = date($core->settings['dateformat'], $bankfacilitiy->$field);
+                                                if($bankfacilitiy->$field != 0) {
+                                                    $bankfacilitiy->$field = date($core->settings['dateformat'], $bankfacilitiy->$field);
+                                                }
                                                 $row_output .= '<td>'.$bankfacilitiy->$field.'</td>';
                                                 break;
                                             case 'facilitiesSubtotal':
