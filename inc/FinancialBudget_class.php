@@ -899,7 +899,7 @@ Class FinancialBudget extends AbstractClass {
                             }
                         }
                         $bid = array('prevtwoyears' => $prevtwoyears, 'prevyear' => $prevyear, 'current' => $current);
-                        $output['profitlossaccount']['data'] = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'placcount' => $placcount, 'bid' => $bid, 'filter' => $options['filter'], 'year' => $options['year'], 'tocurrency' => $options['tocurrency']));
+                        $output['profitlossaccount']['data'] = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'placcount' => $placcount, 'bid' => $bid, 'filter' => $options['filter'], 'year' => $options['year'], 'affid' => $options['affid'], 'tocurrency' => $options['tocurrency']));
                         $output['profitlossaccount']['variations'] = '<td style = "width:10%">% '.$lang->yefactual.'</td>';
                         $output['profitlossaccount']['budyef'] = '<td style = "width:10%">% '.$lang->budyef.'</td>';
                         $output[$type]['variations_years'] = ' <td style = "width:10%"><span>'.$options['year'].' / '.($options['year'] - 2).'</span></td>';

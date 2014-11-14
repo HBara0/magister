@@ -62,11 +62,11 @@ if(!isset($core->input['action'])) {
     $plcategories = BudgetPlCategories::get_data('', array('returnarray' => true));
     if(is_object($financialbudget) && $financialbudget->isFinalized()) {
         $type = 'hidden';
-        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'bid' => $budgetsids, 'tocurrency' => $currency->numCode, 'year' => $financialbudget_year));
+        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'bid' => $budgetsids, 'tocurrency' => $currency->numCode, 'affid' => array('0' => $affid), 'year' => $financialbudget_year));
     }
     else {
         $type = 'submit';
-        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'bid' => $budgetsids, 'tocurrency' => $currency->numCode, 'year' => $financialbudget_year));
+        $output = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'fill', 'financialbudget' => $financialbudget, 'bid' => $budgetsids, 'tocurrency' => $currency->numCode, 'affid' => array('0' => $affid), 'year' => $financialbudget_year));
     }
 
     $headerfields = array($lang->actual, $lang->actual, $lang->yef, '%YEF'.$financialbudget_prevyear, $lang->budget, '%Bud'.$financialbudget_year);
