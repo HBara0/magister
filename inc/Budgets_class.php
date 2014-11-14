@@ -193,9 +193,6 @@ class Budgets extends AbstractClass {
 
     private function save_budgetlines($budgetline_data = array(), $bid = '', $options = array()) {
         global $db;
-
-
-
         if(isset($budgetline_data['customerName'])) {
             unset($budgetline_data['customerName']);
         }
@@ -250,6 +247,15 @@ class Budgets extends AbstractClass {
 
                     if(empty($data['s1Perc']) && empty($data['s2Perc'])) {
                         $data['s1Perc'] = $data['s2Perc'] = 50;
+                    }
+
+                    if(isset($data['invoice'])) {
+                        $invoiceentity = InvoiceTypes::get_data(array('affid' => $options['budgetdata']['affid'], 'invoicingEntity' => $data['invoice'], 'stid' => $data['saleType']));
+                        if(is_object($invoiceentity)) {
+                            if($invoiceentity->isAffiliate == 1) {
+                                $data['invoiceAffid'] = $invoiceentity->invoiceAffid;
+                            }
+                        }
                     }
                     /* cascade itetcompany */
                     if(isset($data['interCompanyPurchase']) && !empty($data['interCompanyPurchase'])) {
@@ -784,8 +790,8 @@ class BudgetLines {
 
     public function get_invoicingentity_income($tocurrency, $year, $affid) {
         global $db;
-        $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($tocurrency)." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.interCompanyPurchase AND year=".intval($year)." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".$tocurrency.") END)";
-        $sql = "SELECT saleType,sum(amount*{$fxrate_query}) AS amount,sum(income*{$fxrate_query}) AS income,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomePercentage*{$fxrate_query}) AS localIncomePercentage, sum(actualAmount*{$fxrate_query}) AS actualAmount, sum(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines Where interCompanyPurchase=".intval($affid)." GROUP BY saleType";
+        $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($tocurrency)." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.invoiceAffid AND year=".intval($year)." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".$tocurrency.") END)";
+        $sql = "SELECT saleType,sum(amount*{$fxrate_query}) AS amount,sum(income*{$fxrate_query}) AS income,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomePercentage*{$fxrate_query}) AS localIncomePercentage, sum(actualAmount*{$fxrate_query}) AS actualAmount, sum(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines Where invoiceAffid IN (".implode(",", $affid).") GROUP BY saleType";
         $query = $db->query($sql);
         if($db->num_rows($query) > 0) {
             while($budget = $db->fetch_assoc($query)) {
