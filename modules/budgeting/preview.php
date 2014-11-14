@@ -143,10 +143,6 @@ if(!($core->input['action'])) {
                             $rawdata[$field][$blid]['s2Income'] = $rawdata[$field][$blid]['income'] * ($rawdata[$field][$blid]['s2Perc'] / 100);
                             $rawdata[$field][$blid]['interCompanyPurchase_output'] = $lang->na;
 
-                            if(!empty($budgetline->interCompanyPurchase)) {
-                                $intercompany_obj = new Affiliates($budgetline->interCompanyPurchase);
-                                $rawdata[$field][$blid]['interCompanyPurchase'] = $intercompany_obj->get_displayname();
-                            }
 
                             if(empty($rawdata[$field][$blid]['coid'])) {
                                 if(!empty($rawdata[$field][$blid]['customerCountry'])) {
@@ -168,7 +164,7 @@ if(!($core->input['action'])) {
             }
             /* Dimensional Report Settings - START */
             $dimensions = explode(',', $budgetsdata['current']['dimension'][0]); // Need to be passed from options stage
-            $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 'localIncomeAmount', 'localIncomePercentage', 's1Income', 's2Income', 's1Amount', 's2Amount', 'interCompanyPurchase');
+            $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 'localIncomeAmount', 'localIncomePercentage', 's1Income', 's2Income', 's1Amount', 's2Amount');
             $formats = array('incomePerc' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'), 'localIncomePercentage' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'));
             $overwrite = array('unitPrice' => array('fields' => array('divider' => 'amount', 'dividedby' => 'quantity'), 'operation' => '/'),
                     'localIncomePercentage' => array('fields' => array('divider' => 'localIncomeAmount', 'dividedby' => 'amount'), 'operation' => '/'),
@@ -454,10 +450,7 @@ if(!($core->input['action'])) {
                                     }
                                     $budgetline['interCompanyPurchase_output'] = $lang->na;
 
-                                    if(!empty($budgetline['interCompanyPurchase'])) {
-                                        $intercompany_obj = new Affiliates($budgetline['interCompanyPurchase']);
-                                        $budgetline['interCompanyPurchase_output'] = $intercompany_obj->get_displayname();
-                                    }
+
                                     $budgetline['product'] = $budgetline_obj->get_product($budgetline['pid'])->get()['name'];
                                     eval("\$budget_report_row .= \"".$template->get('budgeting_budgetrawreport_row')."\";");
                                 }

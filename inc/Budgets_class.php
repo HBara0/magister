@@ -209,58 +209,60 @@ class Budgets extends AbstractClass {
                 $budgetlineobj = new BudgetLines();
                 $budgetlineobj->create($budgetline_data);
             }
-            foreach($budgetline_data as $blid => $data) {
+            else {
+                foreach($budgetline_data as $blid => $data) {
 
-                if(!isset($data['bid']) && empty($data['bid'])) {
-                    $data['bid'] = $bid;
-                }
-                if(isset($data['blid']) && !empty($data['blid'])) {
-                    $budgetlineobj = new BudgetLines($data['blid']);
-                }
-                else {
-                    $budgetline = BudgetLines::get_budgetline_bydata($data);
-                    if($budgetline != false) {
-                        $budgetlineobj = new BudgetLines($budgetline['blid']);
-                        $data['blid'] = $budgetline['blid'];
+                    if(!isset($data['bid']) && empty($data['bid'])) {
+                        $data['bid'] = $bid;
+                    }
+                    if(isset($data['blid']) && !empty($data['blid'])) {
+                        $budgetlineobj = new BudgetLines($data['blid']);
                     }
                     else {
-                        $budgetlineobj = new BudgetLines();
+                        $budgetline = BudgetLines::get_budgetline_bydata($data);
+                        if($budgetline != false) {
+                            $budgetlineobj = new BudgetLines($budgetline['blid']);
+                            $data['blid'] = $budgetline['blid'];
+                        }
+                        else {
+                            $budgetlineobj = new BudgetLines();
+                        }
                     }
-                }
 
-                if(isset($data['unspecifiedCustomer']) && $data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
-                    $data['altCid'] = 'Unspecified Customer';
-                    if(empty($data['customerCountry'])) {
-                        $data['customerCountry'] = $this->get_affiliate()->get_country()->coid;
+                    if(isset($data['unspecifiedCustomer']) && $data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
+                        $data['altCid'] = 'Unspecified Customer';
+                        if(empty($data['customerCountry'])) {
+                            $data['customerCountry'] = $this->get_affiliate()->get_country()->coid;
+                        }
                     }
-                }
 
-                if((empty($data['pid']) && empty($data['altPid'])) || (empty($data['cid']) && empty($data['altCid']))) {
-                    if(!empty($data['blid'])) {
-                        $removed_lines[] = $data['blid'];
+                    if((empty($data['pid']) && empty($data['altPid'])) || (empty($data['cid']) && empty($data['altCid']))) {
+                        if(!empty($data['blid'])) {
+                            $removed_lines[] = $data['blid'];
+                        }
+                        continue;
                     }
-                    continue;
-                }
 
-                if(!empty($data['cid']) && $data['unspecifiedCustomer'] != 1) {
-                    $data['altCid'] = NULL;
-                    $data['customerCountry'] = 0;
-                }
+                    if(!empty($data['cid']) && $data['unspecifiedCustomer'] != 1) {
+                        $data['altCid'] = NULL;
+                        $data['customerCountry'] = 0;
+                    }
 
-                if(empty($data['s1Perc']) && empty($data['s2Perc'])) {
-                    $data['s1Perc'] = $data['s2Perc'] = 50;
-                }
-                /* cascade itetcompany */
-                if(isset($data['interCompanyPurchase']) && !empty($data['interCompanyPurchase'])) {
-                    $this->create_intercompanybudget($data, $blid, $options);
-                }
-                unset($data['unspecifiedCustomer']);
-                if(isset($data['blid']) && !empty($data['blid'])) {
-                    $budgetlineobj->update($data);
-                    $this->errorcode = 0;
-                }
-                else {
-                    $budgetlineobj->create($data);
+                    if(empty($data['s1Perc']) && empty($data['s2Perc'])) {
+                        $data['s1Perc'] = $data['s2Perc'] = 50;
+                    }
+                    /* cascade itetcompany */
+                    if(isset($data['interCompanyPurchase']) && !empty($data['interCompanyPurchase'])) {
+                        $this->create_intercompanybudget($data, $blid, $options);
+                    }
+                    unset($data['unspecifiedCustomer']);
+                    if(isset($data['blid']) && !empty($data['blid'])) {
+                        $budgetlineobj->update($data);
+                        $this->errorcode = 0;
+                    }
+                    else {
+                        $budgetlineobj->create($data);
+                    }
                 }
             }
             if(is_array($removed_lines)) {
