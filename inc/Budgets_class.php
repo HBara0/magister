@@ -779,8 +779,8 @@ class BudgetLines {
 
     public function get_invoicingentity_income($tocurrency, $year, $affid) {
         global $db;
-        $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".$tocurrency." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.interCompanyPurchase AND year=".$year." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".$tocurrency.") END)";
-        $sql = "SELECT saleType,sum(amount*{$fxrate_query}) AS amount,sum(income*{$fxrate_query}) AS income,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomePercentage*{$fxrate_query}) AS localIncomePercentage, sum(actualAmount*{$fxrate_query}) AS actualAmount, sum(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines Where interCompanyPurchase=".$affid." GROUP BY saleType";
+        $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($tocurrency)." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.interCompanyPurchase AND year=".intval($year)." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".$tocurrency.") END)";
+        $sql = "SELECT saleType,sum(amount*{$fxrate_query}) AS amount,sum(income*{$fxrate_query}) AS income,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomePercentage*{$fxrate_query}) AS localIncomePercentage, sum(actualAmount*{$fxrate_query}) AS actualAmount, sum(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines Where interCompanyPurchase=".intval($affid)." GROUP BY saleType";
         $query = $db->query($sql);
         if($db->num_rows($query) > 0) {
             while($budget = $db->fetch_assoc($query)) {
