@@ -143,10 +143,6 @@ if(!($core->input['action'])) {
                             $rawdata[$field][$blid]['s2Income'] = $rawdata[$field][$blid]['income'] * ($rawdata[$field][$blid]['s2Perc'] / 100);
                             $rawdata[$field][$blid]['interCompanyPurchase_output'] = $lang->na;
 
-                            if(!empty($budgetline->interCompanyPurchase)) {
-                                $intercompany_obj = new Affiliates($budgetline->interCompanyPurchase);
-                                $rawdata[$field][$blid]['interCompanyPurchase'] = $intercompany_obj->get_displayname();
-                            }
 
                             if(empty($rawdata[$field][$blid]['coid'])) {
                                 if(!empty($rawdata[$field][$blid]['customerCountry'])) {
@@ -168,7 +164,7 @@ if(!($core->input['action'])) {
             }
             /* Dimensional Report Settings - START */
             $dimensions = explode(',', $budgetsdata['current']['dimension'][0]); // Need to be passed from options stage
-            $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 'localIncomeAmount', 'localIncomePercentage', 's1Income', 's2Income', 's1Amount', 's2Amount', 'interCompanyPurchase');
+            $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 'localIncomeAmount', 'localIncomePercentage', 's1Income', 's2Income', 's1Amount', 's2Amount');
             $formats = array('incomePerc' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'), 'localIncomePercentage' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'));
             $overwrite = array('unitPrice' => array('fields' => array('divider' => 'amount', 'dividedby' => 'quantity'), 'operation' => '/'),
                     'localIncomePercentage' => array('fields' => array('divider' => 'localIncomeAmount', 'dividedby' => 'amount'), 'operation' => '/'),
@@ -296,13 +292,13 @@ if(!($core->input['action'])) {
             /* Parse Risks - Start */
             $value_types = array('income', 'amount');
             $value_perc = array(50, 80);
-            $value_by = array('customers' => 'cid, altCid', 'suppliers' => 'bid');
+            $value_by = array('customers' => 'cid, altCid', 'suppliers' => 'spid');
             $budgeting_budgetrawreport .= '<h1>Customers/Suppliers Risks</h1>';
             foreach($value_by as $by => $group) {
                 $budgeting_budgetrawreport .= '<h2>'.ucwords($by).'</h2><table width="100%" class="datatable">';
                 foreach($value_types as $type) {
                     foreach($value_perc as $perc) {
-                        $data = BudgetLines::get_top($perc, $type, array('bid' => array_keys($budgets['current'])), array('group' => $group, 'operators' => array('bid' => 'IN')));
+                        $data = BudgetLines::get_top($perc, $type, array('bb.bid' => array_keys($budgets['current'])), array('group' => $group, 'operators' => array('bb.bid' => 'IN')));
                         $budgeting_budgetrawreport .= '<tr><td>'.$perc.'% '.$by.' by '.$type.'</td><td>'.$data['count'].'</td></tr>';
                     }
                 }
@@ -454,10 +450,7 @@ if(!($core->input['action'])) {
                                     }
                                     $budgetline['interCompanyPurchase_output'] = $lang->na;
 
-                                    if(!empty($budgetline['interCompanyPurchase'])) {
-                                        $intercompany_obj = new Affiliates($budgetline['interCompanyPurchase']);
-                                        $budgetline['interCompanyPurchase_output'] = $intercompany_obj->get_displayname();
-                                    }
+
                                     $budgetline['product'] = $budgetline_obj->get_product($budgetline['pid'])->get()['name'];
                                     eval("\$budget_report_row .= \"".$template->get('budgeting_budgetrawreport_row')."\";");
                                 }

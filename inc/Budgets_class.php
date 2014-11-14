@@ -209,58 +209,60 @@ class Budgets extends AbstractClass {
                 $budgetlineobj = new BudgetLines();
                 $budgetlineobj->create($budgetline_data);
             }
-            foreach($budgetline_data as $blid => $data) {
+            else {
 
-                if(!isset($data['bid']) && empty($data['bid'])) {
-                    $data['bid'] = $bid;
-                }
-                if(isset($data['blid']) && !empty($data['blid'])) {
-                    $budgetlineobj = new BudgetLines($data['blid']);
-                }
-                else {
-                    $budgetline = BudgetLines::get_budgetline_bydata($data);
-                    if($budgetline != false) {
-                        $budgetlineobj = new BudgetLines($budgetline['blid']);
-                        $data['blid'] = $budgetline['blid'];
+                foreach($budgetline_data as $blid => $data) {
+
+                    if(!isset($data['bid']) && empty($data['bid'])) {
+                        $data['bid'] = $bid;
+                    }
+                    if(isset($data['blid']) && !empty($data['blid'])) {
+                        $budgetlineobj = new BudgetLines($data['blid']);
                     }
                     else {
-                        $budgetlineobj = new BudgetLines();
+                        $budgetline = BudgetLines::get_budgetline_bydata($data);
+                        if($budgetline != false) {
+                            $budgetlineobj = new BudgetLines($budgetline['blid']);
+                            $data['blid'] = $budgetline['blid'];
+                        }
+                        else {
+                            $budgetlineobj = new BudgetLines();
+                        }
                     }
-                }
-
-                if(isset($data['unspecifiedCustomer']) && $data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
-                    $data['altCid'] = 'Unspecified Customer';
-                    if(empty($data['customerCountry'])) {
-                        $data['customerCountry'] = $this->get_affiliate()->get_country()->coid;
+                    if(isset($data['unspecifiedCustomer']) && $data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
+                        $data['altCid'] = 'Unspecified Customer';
+                        if(empty($data['customerCountry'])) {
+                            $data['customerCountry'] = $this->get_affiliate()->get_country()->coid;
+                        }
                     }
-                }
 
-                if((empty($data['pid']) && empty($data['altPid'])) || (empty($data['cid']) && empty($data['altCid']))) {
-                    if(!empty($data['blid'])) {
-                        $removed_lines[] = $data['blid'];
+                    if((empty($data['pid']) && empty($data['altPid'])) || (empty($data['cid']) && empty($data['altCid']))) {
+                        if(!empty($data['blid'])) {
+                            $removed_lines[] = $data['blid'];
+                        }
+                        continue;
                     }
-                    continue;
-                }
 
-                if(!empty($data['cid']) && $data['unspecifiedCustomer'] != 1) {
-                    $data['altCid'] = NULL;
-                    $data['customerCountry'] = 0;
-                }
+                    if(!empty($data['cid']) && $data['unspecifiedCustomer'] != 1) {
+                        $data['altCid'] = NULL;
+                        $data['customerCountry'] = 0;
+                    }
 
-                if(empty($data['s1Perc']) && empty($data['s2Perc'])) {
-                    $data['s1Perc'] = $data['s2Perc'] = 50;
-                }
-                /* cascade itetcompany */
-                if(isset($data['interCompanyPurchase']) && !empty($data['interCompanyPurchase'])) {
-                    $this->create_intercompanybudget($data, $blid, $options);
-                }
-                unset($data['unspecifiedCustomer']);
-                if(isset($data['blid']) && !empty($data['blid'])) {
-                    $budgetlineobj->update($data);
-                    $this->errorcode = 0;
-                }
-                else {
-                    $budgetlineobj->create($data);
+                    if(empty($data['s1Perc']) && empty($data['s2Perc'])) {
+                        $data['s1Perc'] = $data['s2Perc'] = 50;
+                    }
+                    /* cascade itetcompany */
+                    if(isset($data['interCompanyPurchase']) && !empty($data['interCompanyPurchase'])) {
+                        $this->create_intercompanybudget($data, $blid, $options);
+                    }
+                    unset($data['unspecifiedCustomer']);
+                    if(isset($data['blid']) && !empty($data['blid'])) {
+                        $budgetlineobj->update($data);
+                        $this->errorcode = 0;
+                    }
+                    else {
+                        $budgetlineobj->create($data);
+                    }
                 }
             }
             if(is_array($removed_lines)) {
@@ -279,10 +281,9 @@ class Budgets extends AbstractClass {
         $purchasaff_obj = new Affiliates($options['budgetdata']['affid']);
         $intercompan_data['altCid'] = $purchasaff_obj->name;
         $budgetdata_intercompany['affid'] = $intercompan_data['interCompanyPurchase'];
-        unset($intercompan_data['blid'], $intercompan_data['interCompanyPurchase']);
-        $intercompan_data['cid'] = '';
+        unset($intercompan_data['blid'], $intercompan_data['cid'], $intercompan_data['interCompanyPurchase']);
+
         $intercompan_data['linkedBudgetLine'] = $relatedblid;
-        //   $intercompan_data[bid] = 31;
 
         /* create budget for the intercompany affilaite --START */
         $intercomp_budgetobj = Budgets::get_data(array('affid' => $budgetdata_intercompany['affid'], 'spid' => $budgetdata_intercompany['spid'], 'year' => $budgetdata_intercompany['year']), array('simple' => false));
@@ -623,6 +624,12 @@ class BudgetLines {
                 $budgetline_data['businessMgr'] = $core->user['uid'];
             }
             unset($budgetline_data['customerName'], $budgetline_data['blid']);
+            if(empty($budgetline_data['localIncomeAmount'])) {
+                $budgetline_data['localIncomeAmount'] = $budgetline_data['income'];
+            }
+            if(empty($budgetline_data['localIncomePercentage'])) {
+                $budgetline_data['localIncomePercentage'] = $budgetline_data['incomePerc'];
+            }
 
             $insertquery = $db->insert_query('budgeting_budgets_lines', $budgetline_data);
             if($insertquery) {
@@ -745,16 +752,19 @@ class BudgetLines {
         $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
 
         if(empty($configs['group'])) {
-            $config['group'] = 'cid, altCid';
+            $configs['group'] = 'cid, altCid';
         }
-        $config['order'] = array('sort' => 'DESC', 'by' => $attr);
-        $data = BudgetLines::get_data($filters, $config);
-        $total = $db->fetch_field($db->query('SELECT SUM('.$attr.') AS total FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators'])), 'total');
-        foreach($data as $id => $values) {
-            $info['count'] += 1;
-            $info['contribution'] += $values->{$attr};
 
-            if(round(($info['contribution'] * 100) / $total) >= $percent) {
+        $fx_query = '*(CASE WHEN bbl.originalCurrency = 840 THEN 1
+                          ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = bb.affid AND bfr.year = bb.year AND bfr.fromCurrency = bbl.originalCurrency AND bfr.toCurrency = 840) END)';
+        $sql = 'SELECT SUM('.$attr.$fx_query.') AS '.$attr.' FROM '.self::TABLE_NAME.' bbl JOIN budgeting_budgets bb ON (bb.bid=bbl.bid)'.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY '.$configs['group'].' ORDER BY '.$attr.' DESC';
+        $data = $db->query($sql);
+        $total = $db->fetch_field($db->query('SELECT SUM('.$attr.$fx_query.') AS total FROM '.self::TABLE_NAME.' bbl JOIN budgeting_budgets bb ON (bb.bid=bbl.bid)'.$dal->construct_whereclause_public($filters, $configs['operators'])), 'total');
+        while($values = $db->fetch_assoc($data)) {
+            $info['count'] += 1;
+            $info['contribution'] += $values[$attr];
+
+            if((($info['contribution'] * 100) / $total) >= $percent) {
                 break;
             }
         }
@@ -774,8 +784,8 @@ class BudgetLines {
 
     public function get_invoicingentity_income($tocurrency, $year, $affid) {
         global $db;
-        $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".$tocurrency." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.interCompanyPurchase AND year=".$year." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".$tocurrency.") END)";
-        $sql = "SELECT saleType,sum(amount*{$fxrate_query}) AS amount,sum(income*{$fxrate_query}) AS income,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomePercentage*{$fxrate_query}) AS localIncomePercentage, sum(actualAmount*{$fxrate_query}) AS actualAmount, sum(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines Where interCompanyPurchase=".$affid." GROUP BY saleType";
+        $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($tocurrency)." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.interCompanyPurchase AND year=".intval($year)." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".$tocurrency.") END)";
+        $sql = "SELECT saleType,sum(amount*{$fxrate_query}) AS amount,sum(income*{$fxrate_query}) AS income,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomePercentage*{$fxrate_query}) AS localIncomePercentage, sum(actualAmount*{$fxrate_query}) AS actualAmount, sum(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines Where interCompanyPurchase=".intval($affid)." GROUP BY saleType";
         $query = $db->query($sql);
         if($db->num_rows($query) > 0) {
             while($budget = $db->fetch_assoc($query)) {

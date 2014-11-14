@@ -279,8 +279,6 @@ DROP TABLE IF EXISTS `budgeting_budgets_lines`;
 CREATE TABLE `budgeting_budgets_lines` (
   `blid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `pid` int(10) unsigned NOT NULL,
-  `altPid` varchar(200) DEFAULT NULL,
-  `psid` smallint(5) DEFAULT NULL,
   `bid` int(10) unsigned NOT NULL,
   `cid` int(10) NOT NULL,
   `altCid` varchar(50) NOT NULL,
@@ -294,6 +292,8 @@ CREATE TABLE `budgeting_budgets_lines` (
   `unitPrice` float NOT NULL,
   `income` float NOT NULL,
   `incomePerc` float NOT NULL,
+  `localIncomePercentage` float NOT NULL,
+  `localIncomeAmount` float NOT NULL,
   `invoice` varchar(10) NOT NULL,
   `quantity` float NOT NULL,
   `createdBy` int(10) NOT NULL DEFAULT '0',
@@ -302,10 +302,12 @@ CREATE TABLE `budgeting_budgets_lines` (
   `saleType` varchar(12) NOT NULL,
   `s1Perc` float NOT NULL,
   `s2Perc` float NOT NULL,
+  `interCompanyPurchase` int(10) NOT NULL,
+  `linkedBudgetLine` int(10) NOT NULL,
   PRIMARY KEY (`blid`),
   KEY `createdBy` (`createdBy`),
   KEY `businessMgr` (`businessMgr`)
-) ENGINE=MyISAM AUTO_INCREMENT=2279 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
 CREATE TABLE `budgeting_investcategory` (
   `bicid` int(7) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
