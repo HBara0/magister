@@ -120,6 +120,7 @@ class BudgetPlCategories extends AbstractClass {
                                 if(isset($budgetsids) && !empty($budgetsids)) {
                                     if(is_array($budgetsids)) {
                                         foreach($budgetsids as $budgetid) {
+
                                             $budgetobject = Budgets::get_data(array('bid' => $budgetid), array('simple' => false));
                                             if(!is_object($budgetobject)) {
                                                 continue;
@@ -183,16 +184,16 @@ class BudgetPlCategories extends AbstractClass {
                                                 }
                                             }
                                             unset($budget);
-                                            $budgetline = new BudgetLines();
-                                            $allocatedamount = $budgetline->get_invoicingentity_income($options['tocurrency'], $budgetobject->year, $budgetobject->affid);
-                                            if($key = 'current') {
-                                                if(is_array($allocatedamount[$key])) {
-                                                    foreach($allocatedamount[$key] as $saletype => $data) {
-                                                        $combudget[$key][$saletype]['amount'] +=$data['amount'];
-                                                        $combudget[$key][$saletype]['income'] +=$data['allocated'];
-                                                    }
-                                                }
-                                            }
+                                        }
+                                    }
+                                }
+                                $budgetline = new BudgetLines();
+                                $allocatedamount = $budgetline->get_invoicingentity_income($options['tocurrency'], $options['year'], $options['affid']);
+                                if($key == 'current') {
+                                    if(is_array($allocatedamount[$key])) {
+                                        foreach($allocatedamount[$key] as $saletype => $data) {
+                                            //  $combudget[$key][$saletype]['amount'] +=$data['amount'];
+                                            $combudget[$key][$saletype]['income'] +=$data['allocated'];
                                         }
                                     }
                                 }
