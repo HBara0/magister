@@ -745,16 +745,19 @@ class BudgetLines {
         $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
 
         if(empty($configs['group'])) {
-            $config['group'] = 'cid, altCid';
+            $configs['group'] = 'cid, altCid';
         }
-        $config['order'] = array('sort' => 'DESC', 'by' => $attr);
-        $data = BudgetLines::get_data($filters, $config);
-        $total = $db->fetch_field($db->query('SELECT SUM('.$attr.') AS total FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators'])), 'total');
-        foreach($data as $id => $values) {
-            $info['count'] += 1;
-            $info['contribution'] += $values->{$attr};
 
-            if(round(($info['contribution'] * 100) / $total) >= $percent) {
+        $fx_query = '*(CASE WHEN bbl.originalCurrency = 840 THEN 1
+                          ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = bb.affid AND bfr.year = bb.year AND bfr.fromCurrency = bbl.originalCurrency AND bfr.toCurrency = 840) END)';
+        $sql = 'SELECT SUM('.$attr.$fx_query.') AS '.$attr.' FROM '.self::TABLE_NAME.' bbl JOIN budgeting_budgets bb ON (bb.bid=bbl.bid)'.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY '.$configs['group'].' ORDER BY '.$attr.' DESC';
+        $data = $db->query($sql);
+        $total = $db->fetch_field($db->query('SELECT SUM('.$attr.$fx_query.') AS total FROM '.self::TABLE_NAME.' bbl JOIN budgeting_budgets bb ON (bb.bid=bbl.bid)'.$dal->construct_whereclause_public($filters, $configs['operators'])), 'total');
+        while($values = $db->fetch_assoc($data)) {
+            $info['count'] += 1;
+            $info['contribution'] += $values[$attr];
+
+            if((($info['contribution'] * 100) / $total) >= $percent) {
                 break;
             }
         }
