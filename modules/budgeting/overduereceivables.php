@@ -65,6 +65,9 @@ if(!isset($core->input['action'])) {
             if($clientoverdue->oldestUnpaidInvoiceDate != 0) {
                 $clientoverdue->oldestUnpaidInvoiceDate = date($core->settings['dateformat'], $clientoverdue->oldestUnpaidInvoiceDate);
             }
+            else {
+                $clientoverdue->oldestUnpaidInvoiceDate = '';
+            }
             $inputChecksum = $clientoverdue->inputChecksum;
             eval("\$overduereceivables_row .= \"".$template->get('budgeting_overduereceivables_row')."\";");
         }

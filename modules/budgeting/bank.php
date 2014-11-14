@@ -69,8 +69,14 @@ if(!isset($core->input['action'])) {
             if($bankfacility->LastIssuanceDate != 0) {
                 $bankfacility->LastIssuanceDate = date($core->settings['dateformat'], $bankfacility->LastIssuanceDate);
             }
+            else {
+                $bankfacility->LastIssuanceDate = '';
+            }
             if($bankfacility->LastRenewalDate != 0) {
                 $bankfacility->LastRenewalDate = date($core->settings['dateformat'], $bankfacility->LastRenewalDate);
+            }
+            else {
+                $bankfacility->LastRenewalDate = '';
             }
             $inputChecksum = $bankfacility->inputChecksum;
             eval("\$bank_row .= \"".$template->get('budgeting_bank_row')."\";");
