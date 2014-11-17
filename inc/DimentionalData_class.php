@@ -234,10 +234,10 @@ class DimentionalData {
                         }
 
                         if($options['outputtype'] == 'div') {
-                            $columns .= '<div style="display: inline-block; font-size:'.$fontsize.'px">'.$this->format_number($total[$dimensions[$depth]][$field.'-'.$previds], $options['formats'][$field]).'</div>';
+                            $columns .= '<div style="display: inline-block; text-align:right; font-size:'.$fontsize.'px">'.$this->format_number($total[$dimensions[$depth]][$field.'-'.$previds], $options['formats'][$field]).'</div>';
                         }
                         else {
-                            $columns .= '<td style="font-size:'.$fontsize.'px">'.$this->format_number($total[$dimensions[$depth]][$field.'-'.$previds], $options['formats'][$field]).'</td>';
+                            $columns .= '<td style="font-size:'.$fontsize.'px; text-align:right;">'.$this->format_number($total[$dimensions[$depth]][$field.'-'.$previds], $options['formats'][$field]).'</td>';
                         }
                     }
 
@@ -305,10 +305,10 @@ class DimentionalData {
             }
 
             if($options['outputtype'] == 'div') {
-                $columns .= '<div style="display: inline-block; font-size:'.$fontsize.'px;'.$style.'">'.$this->format_number($total[$field], $options['formats'][$field]).'</div>';
+                $columns .= '<div style="display: inline-block; text-align:right; font-size:'.$fontsize.'px;'.$style.'">'.$this->format_number($total[$field], $options['formats'][$field]).'</div>';
             }
             else {
-                $columns .= '<td style="font-size:'.$fontsize.'px;'.$style.'">'.$this->format_number($total[$field], $options['formats'][$field]).'</td>';
+                $columns .= '<td style="font-size:'.$fontsize.'px; text-align:right;'.$style.'">'.$this->format_number($total[$field], $options['formats'][$field]).'</td>';
             }
         }
 
@@ -321,23 +321,23 @@ class DimentionalData {
     }
 
     private function format_number($number, $format) {
-        global $htmllang;
+        global $lang;
 
-        if(is_array($format)) {
-            extract($format);
-        }
-        else {
-            $pattern = $format;
+        if(!is_array($format)) {
+            $format['pattern'] = $format;
         }
 
-        if(empty($style)) {
-            $style = NumberFormatter::DECIMAL;
+        if(empty($format['style'])) {
+            $format['style'] = NumberFormatter::DECIMAL;
         }
 
-        if(empty($pattern)) {
-            $pattern = '#0.##';
+
+        $formatter = new NumberFormatter($lang->settings['locale'], $format['style']);
+        if(!empty($format['pattern'])) {
+            $formatter->setPattern($format['pattern']);
         }
-        $formatter = new NumberFormatter($htmllang, $style, $pattern);
+
+        $x = $formatter->format($number);
         return $formatter->format($number);
     }
 

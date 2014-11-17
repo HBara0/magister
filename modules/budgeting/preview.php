@@ -165,7 +165,15 @@ if(!($core->input['action'])) {
             /* Dimensional Report Settings - START */
             $dimensions = explode(',', $budgetsdata['current']['dimension'][0]); // Need to be passed from options stage
             $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 'localIncomeAmount', 'localIncomePercentage', 's1Income', 's2Income', 's1Amount', 's2Amount');
-            $formats = array('incomePerc' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'), 'localIncomePercentage' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'));
+            $formats = array(
+                    'incomePerc' => array('style' => NumberFormatter::PERCENT),
+                    'localIncomePercentage' => array('style' => NumberFormatter::PERCENT),
+                    'localIncomeAmount' => array('style' => NumberFormatter::DECIMAL, 'pattern' => '#,##0.00'),
+                    'income' => array('style' => NumberFormatter::DECIMAL, 'pattern' => '#,##0.00'),
+                    'amount' => array('style' => NumberFormatter::DECIMAL, 'pattern' => '#,##0.00'),
+                    's1Amount' => array('style' => NumberFormatter::DECIMAL, 'pattern' => '#,##0.00'),
+                    's2Amount' => array('style' => NumberFormatter::DECIMAL, 'pattern' => '#,##0.00')
+            );
             $overwrite = array('unitPrice' => array('fields' => array('divider' => 'amount', 'dividedby' => 'quantity'), 'operation' => '/'),
                     'localIncomePercentage' => array('fields' => array('divider' => 'localIncomeAmount', 'dividedby' => 'amount'), 'operation' => '/'),
                     'incomePerc' => array('fields' => array('divider' => 'income', 'dividedby' => 'amount'), 'operation' => '/'));

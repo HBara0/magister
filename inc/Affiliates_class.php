@@ -199,8 +199,6 @@ class Affiliates {
     }
 
     public function get_mainCurrency() {
-        print_R($this->affiliate);
-        exit;
         return $this->affiliate['mainCurrency'];
     }
 
