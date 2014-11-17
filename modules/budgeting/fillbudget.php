@@ -230,6 +230,11 @@ if(!$core->input['action']) {
                         if(count($supplier_segments) > 1) {
                             $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
                         }
+                        if(showfield_permission('Budget_canFillLocalincome')) {
+                            $localincome_rows = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline[localIncomeAmount].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
+                                    'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline[localIncomePercentage].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>'
+                            );
+                        }
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
                         $rowid++;
                     }
@@ -247,6 +252,12 @@ if(!$core->input['action']) {
             if(count($supplier_segments) > 1) {
                 $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, 0, null, null, array('placeholder' => 'Overwrite Segment'));
             }
+            if(showfield_permission('Budget_canFillLocalincome')) {
+                $localincome_rows = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline[localIncomeAmount].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
+                        'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline[localIncomePercentage].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>'
+                );
+            }
+
             eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
         }
         unset($saletype_selectlistdata, $checked_checkboxes);
@@ -265,6 +276,12 @@ if(!$core->input['action']) {
         $js_saletypesinvoice = json_encode($saletypes_invoicing);
 
         /* Parse values for JS - END */
+        /* Parse  local amount felds based on specific permission */
+        if(showfield_permission('Budget_canFillLocalincome')) {
+            $localincome_heads = array('localincome_head' => '<td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">'.$lang->localincome.'<a href="#" title="'.$lang->localincomeexp.'"><img src="./images/icons/question.gif" ></a></td>',
+                    'localincomeper_head' => '<td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">'.$lang->localincomeper.'</td>',
+            );
+        }
 
         eval("\$fillbudget = \"".$template->get('budgeting_fill')."\";");
         output_page($fillbudget);
@@ -347,6 +364,12 @@ else {
 
         foreach($currencies as $numcode => $currency) {
             $budget_currencylist .= '<option value="'.$numcode.'">'.$currency.'</option>';
+        }
+        /* Parse  local amount felds based on specific permission */
+        if(showfield_permission('Budget_canFillLocalincome')) {
+            $localincome_rows = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline[localIncomeAmount].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
+                    'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline[localIncomePercentage].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>'
+            );
         }
         eval("\$budgetlinesrows = \"".$template->get('budgeting_fill_lines')."\";");
         output($budgetlinesrows);

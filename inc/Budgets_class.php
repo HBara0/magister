@@ -161,7 +161,9 @@ class Budgets extends AbstractClass {
 
                 $insertquery = $db->insert_query('budgeting_budgets', $budget_data);
                 if($insertquery) {
+
                     if(is_object($this)) {
+
                         $this->data['bid'] = $db->last_id();
                         $log->record('savenewbudget', $this->data['bid']);
                         $this->save_budgetlines($budgetline_data, $this->data['bid']);
@@ -209,10 +211,10 @@ class Budgets extends AbstractClass {
             else {
 
                 foreach($budgetline_data as $blid => $data) {
-
                     if(!isset($data['bid']) && empty($data['bid'])) {
                         $data['bid'] = $bid;
                     }
+
                     if(isset($data['blid']) && !empty($data['blid'])) {
                         $budgetlineobj = new BudgetLines($data['blid']);
                     }
@@ -259,7 +261,7 @@ class Budgets extends AbstractClass {
                     }
                     /* cascade itetcompany */
                     if(isset($data['interCompanyPurchase']) && !empty($data['interCompanyPurchase'])) {
-                        $this->create_intercompanybudget($data, $blid, $options);
+                        //  $this->create_intercompanybudget($data, $blid, $options);
                     }
                     unset($data['unspecifiedCustomer']);
                     if(isset($data['blid']) && !empty($data['blid'])) {
@@ -282,11 +284,16 @@ class Budgets extends AbstractClass {
 
     private function create_intercompanybudget($intercompan_data = array(), $blid, $options = array()) {
         $relatedblid = $intercompan_data['blid'];
+
         //unset($options['budgetdata']['bid']);
         $budgetdata_intercompany = $options['budgetdata'];
+
         $purchasaff_obj = new Affiliates($options['budgetdata']['affid']);
+
         $intercompan_data['altCid'] = $purchasaff_obj->name;
+
         $budgetdata_intercompany['affid'] = $intercompan_data['interCompanyPurchase'];
+
         unset($intercompan_data['blid'], $intercompan_data['cid'], $intercompan_data['interCompanyPurchase']);
 
         $intercompan_data['linkedBudgetLine'] = $relatedblid;
@@ -630,11 +637,13 @@ class BudgetLines {
                 $budgetline_data['businessMgr'] = $core->user['uid'];
             }
             unset($budgetline_data['customerName'], $budgetline_data['blid']);
-            if(empty($budgetline_data['localIncomeAmount'])) {
-                $budgetline_data['localIncomeAmount'] = $budgetline_data['income'];
-            }
-            if(empty($budgetline_data['localIncomePercentage'])) {
-                $budgetline_data['localIncomePercentage'] = $budgetline_data['incomePerc'];
+            if(showfield_permission('Budget_canFillLocalincome')) {
+                if(is_null($budgetline_data['localIncomeAmount'])) {
+                    $budgetline_data['localIncomeAmount'] = $budgetline_data['income'];
+                }
+                if(is_null($budgetline_data['localIncomePercentage'])) {
+                    $budgetline_data['localIncomePercentage'] = $budgetline_data['incomePerc'];
+                }
             }
 
             $insertquery = $db->insert_query('budgeting_budgets_lines', $budgetline_data);

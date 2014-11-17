@@ -18,7 +18,8 @@
                     if(!jQuery.isNumeric($('input[id=localincomeper_' + id[1] + ']').val())) {
                         return;
                     }
-                    $('input[id=localincome_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id=amount_' + id[1] + ']').val());
+                    $('input[id=localincome_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id=income_' + id[1] + ']').val());
+
                 });
 
                 $('input[id^="localincome_"]').live('keyup change', function() {
@@ -27,9 +28,8 @@
                     if(!jQuery.isNumeric($('input[id=localincome_' + id[1] + ']').val())) {
                         return;
                     }
-
                     if($('input[id="localincome_' + id[1] + '"]').val().length > 0) {
-                        $('input[id=localincomeper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id=amount_' + id[1] + ']').val());
+                        $('input[id=localincomeper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id=income_' + id[1] + ']').val());
                     }
                 });
                 $('input[id^="income_"]').live('keyup', function() {
@@ -145,8 +145,8 @@
                         <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->amount}</td>
                         <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->incomeperc}</td>
                         <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->income}</td>
-                        <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->localincome}<a href="#" title="{$lang->localincomeexp}"><img src="./images/icons/question.gif" ></a></td>
-                        <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->localincomeper}</td>
+                        {$localincome_heads[localincome_head]}
+                        {$localincome_heads[localincomeper_head]}
                         <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->curr}</td>
                         <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->invoice} <a href="#" title="Defines who is issuing the invoice for the given transaction."><img src="./images/icons/question.gif" ></a></td>
                         <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->s1perc}</td>

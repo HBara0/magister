@@ -133,8 +133,14 @@ if(!($core->input['action'])) {
 
                             $rawdata[$field][$blid]['reportsTo'] = $budget_obj->get_CreateUser()->get_reportsto()->uid;
                             $rawdata[$field][$blid]['uid'] = $budgetline->businessMgr;
-                            $rawdata[$field][$blid]['localIncomePercentage'] = $budgetline->localIncomePercentage;
-                            $rawdata[$field][$blid]['localIncomeAmount'] = $budgetline->localIncomeAmount;
+                            if(showfield_permission('Budget_canFillLocalincome')) {
+                                $rawdata[$field][$blid]['localIncomePercentage'] = $budgetline->localIncomePercentage;
+                                $rawdata[$field][$blid]['localIncomeAmount'] = $budgetline->localIncomeAmount;
+                            }
+                            else {
+
+                                unset($rawdata[$field][$blid]['localIncomeAmount'], $rawdata[$field][$blid]['localIncomePercentage']);
+                            }
                             $rawdata[$field][$blid]['stid'] = $budgetline->saleType;
                             $rawdata[$field][$blid]['spid'] = $product->get_supplier()->eid;
                             $rawdata[$field][$blid]['s1Amount'] = $rawdata[$field][$blid]['amount'] * ($rawdata[$field][$blid]['s1Perc'] / 100);
@@ -392,13 +398,21 @@ if(!($core->input['action'])) {
                                     $budget['manager'] = $budgetline_obj->get_businessMgr()->get();
                                     $budget['managerid'] = $budgetline_obj->get_businessMgr()->get()['uid'];
                                     /* if empty localIncomeAmount by default */
-                                    if(empty($budgetline['localIncomePercentage'])) {
-                                        $budgetline['localIncomePercentage'] = $budgetline['incomePerc'];
+
+                                    if(showfield_permission('Budget_canFillLocalincome')) {
+
+                                        if(empty($budgetline['localIncomePercentage'])) {
+                                            $budgetline['localIncomePercentage'] = $budgetline['incomePerc'];
+                                        }
+                                        if(empty($budgetline['localIncomeAmount'])) {
+                                            $budgetline['localIncomeAmount'] = $budgetline['income'];
+                                        }
+
+                                        $budgetline['allocatedlocalIncome'] = $budgetline['income'] - $budgetline['localIncomeAmount'];
                                     }
-                                    if(empty($budgetline['localIncomeAmount'])) {
-                                        $budgetline['localIncomeAmount'] = $budgetline['income'];
+                                    else {
+                                        unset($budgetline['localIncomeAmount'], $budgetline['allocatedlocalIncome'], $budgetline['localIncomePercentage']);
                                     }
-                                    $budgetline['allocatedlocalIncome'] = $budgetline['income'] - $budgetline['localIncomeAmount'];
                                     if(!$budgetcache->iscached('mana=gercache', $budget['manager']['uid'])) {
                                         $budgetcache->add('managercache', $budget['manager']['displayName'], $budget['manager']['uid']);
                                     }
@@ -450,7 +464,6 @@ if(!($core->input['action'])) {
                                     }
                                     $budgetline['interCompanyPurchase_output'] = $lang->na;
 
-
                                     $budgetline['product'] = $budgetline_obj->get_product($budgetline['pid'])->get()['name'];
                                     eval("\$budget_report_row .= \"".$template->get('budgeting_budgetrawreport_row')."\";");
                                 }
@@ -462,6 +475,11 @@ if(!($core->input['action'])) {
             }
             else {
                 $budgeting_budgetrawreport = '<tr><td>'.$lang->na.'</td></tr>';
+            }
+
+            if(showfield_permission('Budget_canFillLocalincome')) {
+                $loalincomeheader = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->localincome.'</th>';
+                $loalincome_allocatedheader = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->allocatedlocalincome.'</th>';
             }
             eval("\$budgeting_budgetrawreport = \"".$template->get('budgeting_budgetrawreport')."\";");
         }
@@ -531,11 +549,16 @@ elseif($core->input['action'] == 'exportexcel') {
 
                             $budgetline[$counter]['customerCountry'] = $budgetline_obj->parse_country();
 
-                            if(empty($budgetline[$counter]['localIncomePercentage'])) {
-                                $budgetline[$counter]['localIncomePercentage'] = $budgetline[$counter]['incomePerc'];
+                            if(showfield_permission('Budget_canFillLocalincome')) {
+                                if(empty($budgetline[$counter]['localIncomePercentage'])) {
+                                    $budgetline[$counter]['localIncomePercentage'] = $budgetline[$counter]['incomePerc'];
+                                }
+                                if(empty($budgetline[$counter]['localIncomeAmount'])) {
+                                    $budgetline[$counter]['localIncomeAmount'] = $budgetline[$counter]['income'];
+                                }
                             }
-                            if(empty($budgetline[$counter]['localIncomeAmount'])) {
-                                $budgetline[$counter]['localIncomeAmount'] = $budgetline[$counter]['income'];
+                            else {
+                                unset($budgetline[$counter]['localIncomeAmount'], $budgetline[$counter]['localIncomePercentage']);
                             }
                             if(!empty($budgetline[$counter]['psid'])) {
                                 $segment = new ProductsSegments($budgetline[$counter]['psid']);
