@@ -296,6 +296,7 @@ CREATE TABLE `budgeting_budgets_lines` (
   `incomePerc` float NOT NULL,
   `invoice` varchar(10) NOT NULL,
   `invoiceAffid` int(10) NOT NULL,
+  `invoicingEntityIncome` float NOT NULL,
   `interCompanypurchase` int(10) NOT NULL,
   `quantity` float NOT NULL,
   `createdBy` int(10) NOT NULL DEFAULT '0',
@@ -307,6 +308,8 @@ CREATE TABLE `budgeting_budgets_lines` (
   PRIMARY KEY (`blid`),
   KEY `createdBy` (`createdBy`),
   KEY `businessMgr` (`businessMgr`)
+) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 CREATE TABLE `budgeting_investcategory` (
   `bicid` int(7) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
@@ -2020,6 +2023,8 @@ CREATE TABLE `saletypes_invoicing` (
   `isAffiliate` tinyint(1) NOT NULL DEFAULT '0',
   `invoiceAffid` smallint(5) DEFAULT NULL,
   `isActive` tinyint(1) NOT NULL DEFAULT '1',
+  `invoiceAffStid` int(10) NOT NULL,
+  `countlocally` int(1) NOT NULL,
   PRIMARY KEY (`stiid`,`affid`,`stid`),
   KEY `affid` (`affid`,`stid`,`invoiceAffid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
