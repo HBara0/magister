@@ -2825,7 +2825,6 @@ CREATE TABLE `usergroups` (
   `canLockUnlockReports` int(1) NOT NULL DEFAULT '0',
   `canManageSuppliers` int(1) NOT NULL DEFAULT '0',
   `canManageCustomers` int(1) NOT NULL DEFAULT '0',
-  `admin_canManageAllCustomers` tinyint(1) NOT NULL DEFAULT '0',
   `canManageProducts` int(1) NOT NULL DEFAULT '0',
   `canUseContents` int(1) NOT NULL DEFAULT '0',
   `canAddProducts` int(1) NOT NULL DEFAULT '0',
@@ -2887,6 +2886,13 @@ CREATE TABLE `usergroups` (
   `canUseMeetings` tinyint(1) NOT NULL DEFAULT '0',
   `meetings_canViewAllMeetings` tinyint(1) NOT NULL DEFAULT '0',
   `meetings_canCreateMeeting` tinyint(1) NOT NULL DEFAULT '0',
+  `profiles_canViewContractInfo` int(1) NOT NULL,
+  `cms_canAddNews` tinyint(1) NOT NULL,
+  `cms_canPublishNews` tinyint(1) NOT NULL,
+  `budgeting_canFillInvests` tinyint(1) NOT NULL,
+  `budgeting_canFillComAdmExp` tinyint(1) NOT NULL,
+  `budgeting_canFillFinBudgets` tinyint(1) NOT NULL,
+  `Budget_canFillLocalincome` tinyint(1) NOT NULL,
   PRIMARY KEY (`gid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
