@@ -143,17 +143,15 @@ if(!($core->input['action'])) {
                             $rawdata[$field][$blid]['s2Income'] = $rawdata[$field][$blid]['income'] * ($rawdata[$field][$blid]['s2Perc'] / 100);
                             $rawdata[$field][$blid]['interCompanyPurchase_output'] = $lang->na;
 
-
-                            if(empty($rawdata[$field][$blid]['coid'])) {
-                                if(!empty($rawdata[$field][$blid]['customerCountry'])) {
-                                    $rawdata[$field][$blid]['coid'] = $rawdata[$blid]['customerCountry'];
-                                }
-                                else {
-                                    $rawdata[$field][$blid]['coid'] = $budget_obj->get_affiliate()->get_country()->coid;
-                                }
+                            if(!empty($rawdata[$field][$blid]['customerCountry'])) {
+                                $rawdata[$field][$blid]['coid'] = $rawdata[$blid]['customerCountry'];
                             }
                             else {
-                                $rawdata[$field][$blid]['coid'] = $budget_obj->get_customer()->get_country()->coid;
+
+                                $rawdata[$field][$blid]['coid'] = $budgetline->get_customer()->get_country()->coid;
+                                if(empty($rawdata[$field][$blid]['coid'])) {
+                                    $rawdata[$field][$blid]['coid'] = $budget_obj->get_affiliate()->get_country()->coid;
+                                }
                             }
                         }
                     }
