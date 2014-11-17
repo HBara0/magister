@@ -791,12 +791,17 @@ class BudgetLines {
     public function get_invoicingentity_income($tocurrency, $year, $affid) {
         global $db;
         $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($tocurrency)." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.invoiceAffid AND year=".intval($year)." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".$tocurrency.") END)";
-        $sql = "SELECT saleType,sum(amount*{$fxrate_query}) AS amount,sum(income*{$fxrate_query}) AS income,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomePercentage*{$fxrate_query}) AS localIncomePercentage, sum(actualAmount*{$fxrate_query}) AS actualAmount, sum(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines Where invoiceAffid IN (".implode(",", $affid).") GROUP BY saleType";
+        $sql = "SELECT saleType,invoice,sum(amount*{$fxrate_query}) AS amount,sum(invoicingEntityIncome*{$fxrate_query}) AS invoicingEntityIncome FROM ".Tprefix."budgeting_budgets_lines Where invoiceAffid= ".$affid." GROUP BY saleType";
+
         $query = $db->query($sql);
         if($db->num_rows($query) > 0) {
             while($budget = $db->fetch_assoc($query)) {
+                $invoiceaffsaletype = InvoiceTypes::get_data(array('stid' => $budget['saleType'], 'invoiceAffid' => $affid, 'invoicingEntity' => $budget['invoice']), array('simple' => false));
+                if(is_object($invoiceaffsaletype)) {
+                    $budget['saleType'] = $invoiceaffsaletype->invoiceAffStid;
+                }
                 $data['current'][$budget['saleType']]['amount'] = $budget['amount'];
-                $data['current'][$budget['saleType']]['allocated'] = $budget['income'] - $budget['localIncomeAmount'];
+                $data['current'][$budget['saleType']]['invoicingentityincome'] = $budget['invoicingEntityIncome'];
             }
         }
         return $data;
