@@ -198,8 +198,13 @@ class Affiliates {
         return '<a href="index.php?module=profiles/affiliateprofile&affid='.$this->affiliate['affid'].'" '.$attributes.'>'.$this->affiliate[$options['outputvar']].'</a>';
     }
 
-    public function get_mainCurrency() {
-        return $this->affiliate['mainCurrency'];
+    public function get_currency() {
+        if(empty($this->affiliate['mainCurrency'])) {
+            return $this->get_country()->get_maincurrency();
+        }
+        else {
+            return Currencies::get_data(array('numCode' => $this->affiliate['mainCurrency']));
+        }
     }
 
 }
