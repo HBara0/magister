@@ -115,8 +115,8 @@ class BudgetPlCategories extends AbstractClass {
                 else {
                     if($category->name == 'sales') {
                         if(is_array($options['bid'])) {
-                            //get commercial budgets data if exits
-                            foreach($options['bid'] as $key => $budgetsids) {
+                            /* Loop over commercial budgets and get data if it exits */
+                            foreach($options['bid'] as $key => $budgetsids) {   // $key values(current, prevyear, prevtwoyears)
                                 if(isset($budgetsids) && !empty($budgetsids)) {
                                     if(is_array($budgetsids)) {
                                         foreach($budgetsids as $budgetid) {
@@ -124,6 +124,7 @@ class BudgetPlCategories extends AbstractClass {
                                             if(!is_object($budgetobject)) {
                                                 continue;
                                             }
+                                            /* get budget line currencies */
                                             $budget_currencies = array();
                                             $budgetlines = BudgetLines::get_data(array('bid' => $budgetobject->bid), array('returnarray' => true));
                                             if(is_array($budgetlines)) {
@@ -133,12 +134,12 @@ class BudgetPlCategories extends AbstractClass {
                                                 $budget_currencies = array_unique($budget_currencies);
                                             }
 
+                                            /* Currency Check */
                                             $dal_config = array(
                                                     'operators' => array('fromCurrency' => 'in', 'affid' => ' = ', 'year' => ' = '),
                                                     'simple' => false,
                                                     'returnarray' => true
                                             );
-                                            /* converting  when from CurrencyX not equal to CurrecnyX */
                                             if(!empty($budget_currencies)) {
                                                 if(!in_array($options['tocurrency'], $budget_currencies)) {
                                                     $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currencies, 'toCurrency' => $options['tocurrency'], 'affid' => $budgetobject->affid, 'year' => $budgetobject->year), $dal_config);
@@ -168,29 +169,39 @@ class BudgetPlCategories extends AbstractClass {
 
                                             $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($options['tocurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=".$budgetobject->affid." AND year=".$budgetobject->year." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($options['tocurrency']).") END)";
                                             $sql = "SELECT saleType,sum(amount*{$fxrate_query}) AS amount,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount, sum(actualAmount*{$fxrate_query}) AS actualAmount, sum(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines where bid=".$budgetid." GROUP BY saleType";
-
                                             $query = $db->query($sql);
                                             if($db->num_rows($query) > 0) {
                                                 $amount = 'amount';
                                                 $income = 'localIncomeAmount';
                                                 while($budget = $db->fetch_assoc($query)) {
-                                                    if($key == 'prevtwoyears' || $key == 'prevyear') {
+                                                    if($key != 'current') {
                                                         $amount = 'actualAmount';
                                                         $income = 'actualIncome';
                                                     };
                                                     $combudget[$key][$budget['saleType']]['amount'] += number_format($budget[$amount] / 1000, 2);
                                                     $combudget[$key][$budget['saleType']]['income'] += number_format($budget[$income] / 1000, 2);
+                                                    $saletypeinvoicing = InvoiceTypes::get_data(array('stid' => $budget['saleType'], 'affid' => $budgetobject->affid), array('simple' => false));
+                                                    if($key == 'current') {
+                                                        if($saletypeinvoicing->countLocally == 1) {
+                                                            $totalamount[$key] += $combudget[$key][$budget['saleType']]['amount'];
+                                                        }
+                                                    }
                                                 }
                                             }
                                             unset($budget);
+                                        }
+                                    }
+                                }
+                                if($key == 'current') {
+                                    if(is_array($options['affid'])) {
+                                        foreach($options['affid'] as $affid) {
                                             $budgetline = new BudgetLines();
-                                            $allocatedamount = $budgetline->get_invoicingentity_income($options['tocurrency'], $budgetobject->year, $budgetobject->affid);
-                                            if($key = 'current') {
-                                                if(is_array($allocatedamount[$key])) {
-                                                    foreach($allocatedamount[$key] as $saletype => $data) {
-                                                        $combudget[$key][$saletype]['amount'] +=$data['amount'];
-                                                        $combudget[$key][$saletype]['income'] +=$data['allocated'];
-                                                    }
+                                            $allocatedamount = $budgetline->get_invoicingentity_income($options['tocurrency'], $options['year'], $affid);
+                                            if(is_array($allocatedamount[$key])) {
+                                                foreach($allocatedamount[$key] as $saletype => $data) {
+                                                    $combudget[$key][$saletype]['amount'] +=number_format($data['amount'] / 1000, 2);
+                                                    $combudget[$key][$saletype]['income'] +=number_format($data['invoicingentityincome'] / 1000, 2);
+                                                    $totalamount[$key] += $combudget[$key][$saletype]['amount'];
                                                 }
                                             }
                                         }
@@ -198,30 +209,32 @@ class BudgetPlCategories extends AbstractClass {
                                 }
                             }
                             $saletypes = SaleTypes::get_data();
-                            //loop over salestypes to parse fields
                             foreach($saletypes as $type) {
                                 /* Set yef default value for testing */
-                                $combudget[yef][$type->stid]['amount'] = $combudget[yef][$type->stid]['income'] = 10;
-                                $fields = array('prevthreeyears', 'prevtwoyears', 'yef', 'current');
-                                foreach($fields as $field) {
+                                $combudget['prevyear'][$type->stid]['amount'] = $combudget['prevyear'][$type->stid]['income'] = 10;
+
+                                /* calculate field values of Accounted commissions/sales category Row */
+                                $commercialbudgetfields = array('prevthreeyears', 'prevtwoyears', 'prevyear', 'current');
+                                foreach($commercialbudgetfields as $field) {
                                     $combudget[$field][$type->stid]['perc'] = sprintf("%.2f", 0);
                                     if($combudget[$field][$type->stid]['amount'] != 0) {
                                         $combudget[$field][$type->stid]['perc'] = sprintf("%.2f", ($combudget[$field][$type->stid]['income'] / $combudget[$field][$type->stid]['amount'] ) * 100);
                                     }
                                 }
-                                /* Calculate yef/prev2years and budgetCurrent/yef percentages  */
-                                $commercialbudget_item_rows = array('amount', 'income', 'perc');
-                                foreach($commercialbudget_item_rows as $row) {
+                                /* Calculate yef/ActualPrev2years and budgetCurrent/yef percentages  */
+                                $commercialbudget_rows = array('amount', 'income', 'perc');
+                                foreach($commercialbudget_rows as $row) {
                                     $combudget[yefactual][$type->stid][$row] = $combudget[budyef][$type->stid][$row] = '0.00 %';
                                     if($combudget[prevtwoyears][$type->stid][$row] != 0) {
-                                        $combudget[yefactual][$type->stid][$row] = sprintf("%.2f", (($combudget[yef][$type->stid][$row] - $combudget[prevtwoyears][$type->stid][$row] ) / $combudget[prevtwoyears][$type->stid][$row] ) * 100).' %';
+                                        $combudget[yefactual][$type->stid][$row] = sprintf("%.2f", (($combudget[prevyear][$type->stid][$row] - $combudget[prevtwoyears][$type->stid][$row] ) / $combudget[prevtwoyears][$type->stid][$row] ) * 100).' %';
                                     }
                                     if($combudget[yef][$type->stid][$row] != 0) {
-                                        $combudget[budyef][$type->stid][$row] = sprintf("%.2f", (($combudget[current][$type->stid][$row] - $combudget[yef][$type->stid][$row] ) / $combudget[yef][$type->stid][$row] ) * 100).' %';
+                                        $combudget[budyef][$type->stid][$row] = sprintf("%.2f", (($combudget[current][$type->stid][$row] - $combudget[prevyear][$type->stid][$row] ) / $combudget[prevyear][$type->stid][$row] ) * 100).' %';
                                     }
                                 }
-                                //parse fields
-                                $fields = array('prevthreeyears', 'prevtwoyears', 'yef', 'yefactual', 'current', 'budyef');
+
+                                /* parse fields */
+                                $fields = array('prevthreeyears', 'prevtwoyears', 'prevyear', 'yefactual', 'current', 'budyef');
                                 $amount_output .=' <td style = "width:28%;font-weight:bold;">'.$type->title.'</td>';
                                 $grossmargin_commissions = $lang->grossmargin;
                                 if($type->stid == 3 || $type->stid == 4) {
@@ -243,7 +256,9 @@ class BudgetPlCategories extends AbstractClass {
                                         $amount_output .='<td style = "width:9%" class = "border_left">'.$combudget[$field][$type->stid]['amount'].'</td>';
                                         $income_output .='<td style = "width:9%" class = "border_left">'.$combudget[$field][$type->stid]['income'].'</td>';
                                         $totalincome[$field] += $combudget[$field][$type->stid]['income'];
-                                        $totalamount[$field] += $combudget[$field][$type->stid]['amount'];
+                                        if($field != 'current') {
+                                            $totalamount[$field] += $combudget[$field][$type->stid]['amount'];
+                                        }
                                     }
                                 }
                                 $rowclass = alt_row($rowclass);
@@ -251,31 +266,30 @@ class BudgetPlCategories extends AbstractClass {
                                 $income_output = $amount_output = '';
                             }
                             /* Sales Category total amount */
-                            $fields = array('prevthreeyears', 'prevtwoyears', 'yef', 'yefactual', 'current', 'budyef');
+                            $fields = array('actualPrevThreeYears' => 'prevthreeyears', 'actualPrevTwoYears' => 'prevtwoyears', 'yefPrevYear' => 'prevyear', 'yefactual' => 'yefactual', 'budgetCurrent' => 'current', 'budyef' => 'budyef');
                             $output .='<tr><td style = "width:28%;font-weight:bold;">'.$lang->totalsales.'</td>';
-                            foreach($fields as $field) {
-                                switch($field) {
+                            foreach($fields as $key => $value) {
+                                switch($value) {
                                     case yefactual:
-                                        $totalamount[$field] = '0.00 %';
+                                        $totalamount[$value] = '0.00 %';
                                         if($totalamount['prevtwoyears'] != 0) {
-                                            $totalamount[$field] = sprintf("%.2f", (($totalamount['yef'] - $totalamount['prevtwoyears']) / $totalamount['prevtwoyears']) * 100).' %';
+                                            $totalamount[$value] = sprintf("%.2f", (($totalamount['prevyear'] - $totalamount['prevtwoyears']) / $totalamount['prevtwoyears']) * 100).' %';
                                         }
                                         break;
                                     case budyef:
-                                        $totalamount[$field] = '0.00 %';
-                                        if($totalamount['yef'] != 0) {
-                                            $totalamount[$field] = sprintf("%.2f", (($totalamount['current'] - $totalamount['yef']) / $totalamount['yef']) * 100).' %';
-                                        }break;
+                                        $totalamount[$value] = '0.00 %';
+                                        if($totalamount['prevyear'] != 0) {
+                                            $totalamount[$value] = sprintf("%.2f", (($totalamount['current'] - $totalamount['prevyear']) / $totalamount['prevyear']) * 100).' %';
+                                        }
+                                        break;
                                 }
-                                $output .='<td style = "width:9%;font-weight:bold;" class = "border_left">'.$totalamount[$field].'</td>';
+                                $output .='<td style = "width:9%;font-weight:bold;" class = "border_left">'.$totalamount[$value].'</td>';
                             }
                             $output .='</tr>';
                             $output .=$saletypeoutput;
-
                             /* Sales category total income */
                             $output .= '<tr><td style="width:28%"></td>';
-                            $hiddenfields = array('actualPrevThreeYears' => 'prevthreeyears', 'actualPrevTwoYears' => 'prevtwoyears', 'yefPrevYear' => 'yef', 'yefactual' => 'yefactual', 'budgetCurrent' => current, 'budyef' => 'budyef');
-                            foreach($hiddenfields as $key => $value) {
+                            foreach($fields as $key => $value) {
                                 $totalincome[$key] = $totalincome[$value];  /* total of sale types category */
                                 $output.='<td style = "width:9%;"><input type = "hidden" id = "total_'.$category->name.'_'.$key.'" value = "'.$totalincome[$key].'"></td>';
                             }

@@ -454,8 +454,8 @@ Class FinancialBudget extends AbstractClass {
                     'order' => array('by' => 'year', 'sort' => DESC),
                     'returnarray' => true
             );
-
-            $output['currfxratesdesc'] = $lang->currfxratedesc.$currencyto->alphaCode.'</br>';
+            $budgetcurrency = new Currencies($options['tocurrency']);
+            $output['currfxratesdesc'] = $lang->currfxratedesc.$budgetcurrency->alphaCode.'</br>';
             $output['currfxrates'].='<span style="margin-top:3px;"><strong>'.$output['currfxratesdesc'].'</strong></span>';
             foreach($budget_currencies as $budgetyear => $budget_currency) {
                 $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currency, 'toCurrency' => $options['tocurrency'], 'affid' => $options['affid'], 'year' => $budgetyear), $dal_config);
@@ -721,7 +721,12 @@ Class FinancialBudget extends AbstractClass {
                                     foreach($fields as $field) {
                                         switch($field) {
                                             case 'oldestUnpaidInvoiceDate':
-                                                $clientoverdue->$field = date($core->settings['dateformat'], $clientoverdue->$field);
+                                                if($clientoverdue->$field == 0) {
+                                                    $clientoverdue->$field = '';
+                                                }
+                                                else {
+                                                    $clientoverdue->$field = date($core->settings['dateformat'], $clientoverdue->$field);
+                                                }
                                                 $overduereceivables_row .='<td style="width:10%;">'.$clientoverdue->$field.'</td>';
                                                 break;
                                             case 'convertedtotalAmount':
@@ -808,6 +813,9 @@ Class FinancialBudget extends AbstractClass {
                                             case 'LastRenewalDate':
                                                 if($bankfacilitiy->$field != 0) {
                                                     $bankfacilitiy->$field = date($core->settings['dateformat'], $bankfacilitiy->$field);
+                                                }
+                                                else {
+                                                    $bankfacilitiy->$field = '';
                                                 }
                                                 $row_output .= '<td>'.$bankfacilitiy->$field.'</td>';
                                                 break;
@@ -897,7 +905,7 @@ Class FinancialBudget extends AbstractClass {
                             }
                         }
                         $bid = array('prevtwoyears' => $prevtwoyears, 'prevyear' => $prevyear, 'current' => $current);
-                        $output['profitlossaccount']['data'] = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'placcount' => $placcount, 'bid' => $bid, 'filter' => $options['filter'], 'year' => $options['year'], 'tocurrency' => $options['tocurrency']));
+                        $output['profitlossaccount']['data'] = BudgetPlCategories::parse_plfields($plcategories, array('mode' => 'display', 'financialbudget' => $financialbudget, 'placcount' => $placcount, 'bid' => $bid, 'filter' => $options['filter'], 'year' => $options['year'], 'affid' => $options['affid'], 'tocurrency' => $options['tocurrency']));
                         $output['profitlossaccount']['variations'] = '<td style = "width:10%">% '.$lang->yefactual.'</td>';
                         $output['profitlossaccount']['budyef'] = '<td style = "width:10%">% '.$lang->budyef.'</td>';
                         $output[$type]['variations_years'] = ' <td style = "width:10%"><span>'.$options['year'].' / '.($options['year'] - 2).'</span></td>';

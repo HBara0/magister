@@ -1725,4 +1725,13 @@ function generate_checksum($prefix = '') {
     return $prefix.'_'.$identifier;
 }
 
+function showfield_permission($permission = '') {
+    global $core;
+
+    if($core->usergroup[$permission] == 1) {
+        return true;
+    }
+    return false;
+}
+
 ?>

@@ -114,7 +114,8 @@ class BudgetBankFacilities extends AbstractClass {
             $data = $this->data;
         }
         if(isset($data[self::PRIMARY_KEY]) && !empty($data[self::PRIMARY_KEY])) {
-            $this->delete();
+            $bank = self::get_data(array('bbfid' => $data[self::PRIMARY_KEY]));
+            $bank->delete();
         }
         if(isset($data['inputChecksum']) && !empty($data['inputChecksum'])) {
             $bank = self::get_data(array('inputChecksum' => $data['inputChecksum']));

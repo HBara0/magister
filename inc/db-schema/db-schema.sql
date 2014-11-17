@@ -288,26 +288,28 @@ CREATE TABLE `budgeting_budgets_lines` (
   `actualQty` float NOT NULL,
   `actualIncome` float NOT NULL,
   `actualAmount` float NOT NULL,
+  `localIncomePercentage` float NOT NULL,
+  `localIncomeAmount` float NOT NULL,
   `amount` float NOT NULL,
   `unitPrice` float NOT NULL,
   `income` float NOT NULL,
   `incomePerc` float NOT NULL,
-  `localIncomePercentage` float NOT NULL,
-  `localIncomeAmount` float NOT NULL,
   `invoice` varchar(10) NOT NULL,
+  `invoiceAffid` int(10) NOT NULL,
+  `invoicingEntityIncome` float NOT NULL,
+  `interCompanypurchase` int(10) NOT NULL,
   `quantity` float NOT NULL,
   `createdBy` int(10) NOT NULL DEFAULT '0',
   `modifiedBy` int(10) NOT NULL,
-  `originalCurrency` varchar(4) DEFAULT NULL,
+  `originalCurrency` int(11) DEFAULT NULL,
   `saleType` varchar(12) NOT NULL,
   `s1Perc` float NOT NULL,
   `s2Perc` float NOT NULL,
-  `interCompanyPurchase` int(10) NOT NULL,
-  `linkedBudgetLine` int(10) NOT NULL,
   PRIMARY KEY (`blid`),
   KEY `createdBy` (`createdBy`),
   KEY `businessMgr` (`businessMgr`)
-) ENGINE=MyISAM AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 CREATE TABLE `budgeting_investcategory` (
   `bicid` int(7) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
@@ -2021,6 +2023,8 @@ CREATE TABLE `saletypes_invoicing` (
   `isAffiliate` tinyint(1) NOT NULL DEFAULT '0',
   `invoiceAffid` smallint(5) DEFAULT NULL,
   `isActive` tinyint(1) NOT NULL DEFAULT '1',
+  `invoiceAffStid` int(10) NOT NULL,
+  `countlocally` int(1) NOT NULL,
   PRIMARY KEY (`stiid`,`affid`,`stid`),
   KEY `affid` (`affid`,`stid`,`invoiceAffid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -2826,7 +2830,6 @@ CREATE TABLE `usergroups` (
   `canLockUnlockReports` int(1) NOT NULL DEFAULT '0',
   `canManageSuppliers` int(1) NOT NULL DEFAULT '0',
   `canManageCustomers` int(1) NOT NULL DEFAULT '0',
-  `admin_canManageAllCustomers` tinyint(1) NOT NULL DEFAULT '0',
   `canManageProducts` int(1) NOT NULL DEFAULT '0',
   `canUseContents` int(1) NOT NULL DEFAULT '0',
   `canAddProducts` int(1) NOT NULL DEFAULT '0',
@@ -2888,6 +2891,13 @@ CREATE TABLE `usergroups` (
   `canUseMeetings` tinyint(1) NOT NULL DEFAULT '0',
   `meetings_canViewAllMeetings` tinyint(1) NOT NULL DEFAULT '0',
   `meetings_canCreateMeeting` tinyint(1) NOT NULL DEFAULT '0',
+  `profiles_canViewContractInfo` int(1) NOT NULL,
+  `cms_canAddNews` tinyint(1) NOT NULL,
+  `cms_canPublishNews` tinyint(1) NOT NULL,
+  `budgeting_canFillInvests` tinyint(1) NOT NULL,
+  `budgeting_canFillComAdmExp` tinyint(1) NOT NULL,
+  `budgeting_canFillFinBudgets` tinyint(1) NOT NULL,
+  `Budget_canFillLocalincome` tinyint(1) NOT NULL,
   PRIMARY KEY (`gid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

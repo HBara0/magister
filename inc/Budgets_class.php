@@ -161,7 +161,9 @@ class Budgets extends AbstractClass {
 
                 $insertquery = $db->insert_query('budgeting_budgets', $budget_data);
                 if($insertquery) {
+
                     if(is_object($this)) {
+
                         $this->data['bid'] = $db->last_id();
                         $log->record('savenewbudget', $this->data['bid']);
                         $this->save_budgetlines($budgetline_data, $this->data['bid']);
@@ -193,9 +195,6 @@ class Budgets extends AbstractClass {
 
     private function save_budgetlines($budgetline_data = array(), $bid = '', $options = array()) {
         global $db;
-
-
-
         if(isset($budgetline_data['customerName'])) {
             unset($budgetline_data['customerName']);
         }
@@ -212,10 +211,10 @@ class Budgets extends AbstractClass {
             else {
 
                 foreach($budgetline_data as $blid => $data) {
-
                     if(!isset($data['bid']) && empty($data['bid'])) {
                         $data['bid'] = $bid;
                     }
+
                     if(isset($data['blid']) && !empty($data['blid'])) {
                         $budgetlineobj = new BudgetLines($data['blid']);
                     }
@@ -251,9 +250,18 @@ class Budgets extends AbstractClass {
                     if(empty($data['s1Perc']) && empty($data['s2Perc'])) {
                         $data['s1Perc'] = $data['s2Perc'] = 50;
                     }
+
+                    if(isset($data['invoice'])) {
+                        $invoiceentity = InvoiceTypes::get_data(array('affid' => $options['budgetdata']['affid'], 'invoicingEntity' => $data['invoice'], 'stid' => $data['saleType']));
+                        if(is_object($invoiceentity)) {
+                            if($invoiceentity->isAffiliate == 1) {
+                                $data['invoiceAffid'] = $invoiceentity->invoiceAffid;
+                            }
+                        }
+                    }
                     /* cascade itetcompany */
                     if(isset($data['interCompanyPurchase']) && !empty($data['interCompanyPurchase'])) {
-                        $this->create_intercompanybudget($data, $blid, $options);
+                        //  $this->create_intercompanybudget($data, $blid, $options);
                     }
                     unset($data['unspecifiedCustomer']);
                     if(isset($data['blid']) && !empty($data['blid'])) {
@@ -276,11 +284,16 @@ class Budgets extends AbstractClass {
 
     private function create_intercompanybudget($intercompan_data = array(), $blid, $options = array()) {
         $relatedblid = $intercompan_data['blid'];
+
         //unset($options['budgetdata']['bid']);
         $budgetdata_intercompany = $options['budgetdata'];
+
         $purchasaff_obj = new Affiliates($options['budgetdata']['affid']);
+
         $intercompan_data['altCid'] = $purchasaff_obj->name;
+
         $budgetdata_intercompany['affid'] = $intercompan_data['interCompanyPurchase'];
+
         unset($intercompan_data['blid'], $intercompan_data['cid'], $intercompan_data['interCompanyPurchase']);
 
         $intercompan_data['linkedBudgetLine'] = $relatedblid;
@@ -624,11 +637,13 @@ class BudgetLines {
                 $budgetline_data['businessMgr'] = $core->user['uid'];
             }
             unset($budgetline_data['customerName'], $budgetline_data['blid']);
-            if(empty($budgetline_data['localIncomeAmount'])) {
-                $budgetline_data['localIncomeAmount'] = $budgetline_data['income'];
-            }
-            if(empty($budgetline_data['localIncomePercentage'])) {
-                $budgetline_data['localIncomePercentage'] = $budgetline_data['incomePerc'];
+            if(showfield_permission('Budget_canFillLocalincome')) {
+                if(is_null($budgetline_data['localIncomeAmount'])) {
+                    $budgetline_data['localIncomeAmount'] = $budgetline_data['income'];
+                }
+                if(is_null($budgetline_data['localIncomePercentage'])) {
+                    $budgetline_data['localIncomePercentage'] = $budgetline_data['incomePerc'];
+                }
             }
 
             $insertquery = $db->insert_query('budgeting_budgets_lines', $budgetline_data);
@@ -789,13 +804,18 @@ class BudgetLines {
 
     public function get_invoicingentity_income($tocurrency, $year, $affid) {
         global $db;
-        $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($tocurrency)." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.interCompanyPurchase AND year=".intval($year)." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".$tocurrency.") END)";
-        $sql = "SELECT saleType,sum(amount*{$fxrate_query}) AS amount,sum(income*{$fxrate_query}) AS income,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount,sum(localIncomePercentage*{$fxrate_query}) AS localIncomePercentage, sum(actualAmount*{$fxrate_query}) AS actualAmount, sum(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines Where interCompanyPurchase=".intval($affid)." GROUP BY saleType";
+        $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($tocurrency)." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.invoiceAffid AND year=".intval($year)." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".$tocurrency.") END)";
+        $sql = "SELECT saleType,invoice,sum(amount*{$fxrate_query}) AS amount,sum(invoicingEntityIncome*{$fxrate_query}) AS invoicingEntityIncome FROM ".Tprefix."budgeting_budgets_lines Where invoiceAffid= ".$affid." GROUP BY saleType";
+
         $query = $db->query($sql);
         if($db->num_rows($query) > 0) {
             while($budget = $db->fetch_assoc($query)) {
+                $invoiceaffsaletype = InvoiceTypes::get_data(array('stid' => $budget['saleType'], 'invoiceAffid' => $affid, 'invoicingEntity' => $budget['invoice']), array('simple' => false));
+                if(is_object($invoiceaffsaletype)) {
+                    $budget['saleType'] = $invoiceaffsaletype->invoiceAffStid;
+                }
                 $data['current'][$budget['saleType']]['amount'] = $budget['amount'];
-                $data['current'][$budget['saleType']]['allocated'] = $budget['income'] - $budget['localIncomeAmount'];
+                $data['current'][$budget['saleType']]['invoicingentityincome'] = $budget['invoicingEntityIncome'];
             }
         }
         return $data;

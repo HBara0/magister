@@ -57,27 +57,6 @@ class BudgetOverdueReceivables extends AbstractClass {
         }
     }
 
-//    public function save(array $data = array()) {
-//        if(empty($data)) {
-//            $data = $this->data;
-//        }
-//        if(!$this->validate_requiredfields($data)) {
-//            $overduereceivables = self::get_data(array('boid' => $this->data[self::PRIMARY_KEY]));
-//            if(is_object($overduereceivables)) {
-//                $overduereceivables->update($data);
-//            }
-//            else {
-//                $overduereceivables = self::get_data(array('bfbid' => $data['bfbid'], 'boid' => $data['boid']));
-//                if(is_object($overduereceivables)) {
-//                    $overduereceivables->update($data);
-//                }
-//                else {
-//                    $this->create($data);
-//                }
-//            }
-//        }
-//    }
-
     private function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
             $required_fields = array('cid', 'totalAmount', 'oldestUnpaidInvoiceDate');
@@ -96,7 +75,8 @@ class BudgetOverdueReceivables extends AbstractClass {
             $data = $this->data;
         }
         if(isset($data[self::PRIMARY_KEY]) && !empty($data[self::PRIMARY_KEY])) {
-            $this->delete();
+            $clientoverdue = self::get_data(array('boid' => $data[self::PRIMARY_KEY]));
+            $clientoverdue->delete();
         }
         if(isset($data['inputChecksum']) && !empty($data['inputChecksum'])) {
             $clientoverdue = self::get_data(array('inputChecksum' => $data['inputChecksum']));
