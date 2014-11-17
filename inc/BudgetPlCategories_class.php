@@ -200,7 +200,7 @@ class BudgetPlCategories extends AbstractClass {
                                             if(is_array($allocatedamount[$key])) {
                                                 foreach($allocatedamount[$key] as $saletype => $data) {
                                                     $combudget[$key][$saletype]['amount'] +=number_format($data['amount'] / 1000, 2);
-                                                    $combudget[$key][$saletype]['income'] +=number_format($data['allocatedincome'] / 1000, 2);
+                                                    $combudget[$key][$saletype]['income'] +=number_format($data['invoicingentityincome'] / 1000, 2);
                                                     $totalamount[$key] += $combudget[$key][$saletype]['amount'];
                                                 }
                                             }
