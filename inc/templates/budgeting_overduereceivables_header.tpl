@@ -7,8 +7,8 @@
     <td style="width:10%">{$lang->oldestunpaidinvoice}</td>
     <td style="width:10%">{$lang->totallocal}</td>
     {$total}
-    <td style="width:10%;">{$lang->reason}</td>
-    <td style="width:10%;">{$lang->action}</td>
+    <td style="width:25%;">{$lang->reason}</td>
+    <td style="width:15%;">{$lang->action}</td>
 
 </tr>
 
