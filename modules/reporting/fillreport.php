@@ -854,7 +854,10 @@ else {
 //            }
         }
         else {
-            $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}'");
+            if($report_meta['auditor'] != '1') {
+                $products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
+            }
+            $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}'".$products_deletequery_string);
         }
 
         $db->query("DELETE FROM ".Tprefix."keycustomers WHERE rid='{$report_meta[rid]}'");
