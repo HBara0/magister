@@ -177,6 +177,7 @@ class BudgetPlCategories extends AbstractClass {
                                                         $amount = 'actualAmount';
                                                         $income = 'actualIncome';
                                                     };
+
                                                     $combudget[$key][$budget['saleType']]['amount'] += number_format($budget[$amount] / 1000, 2);
                                                     $combudget[$key][$budget['saleType']]['income'] += number_format($budget[$income] / 1000, 2);
                                                     $saletype = SaleTypes::get_data(array('stid' => $budget['saleType']));
@@ -198,10 +199,10 @@ class BudgetPlCategories extends AbstractClass {
                                             $allocatedamount = $budgetline->get_invoicingentity_income($options['tocurrency'], $options['year'], $affid);
                                             if(is_array($allocatedamount[$key])) {
                                                 foreach($allocatedamount[$key] as $saletype => $data) {
-                                                    $combudget[$key][$saletype]['amount'] +=number_format($data['amount'] / 1000, 2);
+                                                    $allocatedamount = number_format($data['amount'] / 1000, 2);
+                                                    $combudget[$key][$saletype]['amount'] +=$allocatedamount;
                                                     $combudget[$key][$saletype]['income'] +=number_format($data['invoicingentityincome'] / 1000, 2);
-                                                    $totalamount[$key] += $combudget[$key][$saletype]['amount'];
-                                                    unset($combudget[$key][$saletype]['amount']);
+                                                    $totalamount[$key] += $allocatedamount;
                                                 }
                                             }
                                         }
@@ -283,9 +284,9 @@ class BudgetPlCategories extends AbstractClass {
                                         }
                                         break;
                                 }
-                                if(empty($totalamount[$value])) {
-                                    $totalamount[$value] = 0;
-                                }
+//                                if(empty($totalamount[$value])) {
+//                                    $totalamount[$value] = 0;
+//                                }
                                 $output .='<td style = "width:9%;font-weight:bold;" class = "border_left">'.$totalamount[$value].'</td>';
                             }
                             $output .='</tr>';
