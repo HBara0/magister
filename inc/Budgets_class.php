@@ -629,7 +629,6 @@ class BudgetLines {
         global $db, $core;
 
         if(is_array($budgetline_data)) {
-//$budgetline_data['bid'] = $bid;
             if(empty($budgetline_data['createdBy'])) {
                 $budgetline_data['createdBy'] = $core->user['uid'];
             }
@@ -637,15 +636,8 @@ class BudgetLines {
                 $budgetline_data['businessMgr'] = $core->user['uid'];
             }
             unset($budgetline_data['customerName'], $budgetline_data['blid']);
-            if(showfield_permission('Budget_canFillLocalincome')) {
-                if(is_null($budgetline_data['localIncomeAmount'])) {
-                    $budgetline_data['localIncomeAmount'] = $budgetline_data['income'];
-                }
-                if(is_null($budgetline_data['localIncomePercentage'])) {
-                    $budgetline_data['localIncomePercentage'] = $budgetline_data['incomePerc'];
-                }
-            }
 
+            $this->split_income($budgetline_data);
             $insertquery = $db->insert_query('budgeting_budgets_lines', $budgetline_data);
             if($insertquery) {
                 $this->errorcode = 0;
@@ -657,7 +649,30 @@ class BudgetLines {
         global $db, $core;
         unset($budgetline_data['customerName']);
         $budgetline_data['modifiedBy'] = $core->user['uid'];
+
+        $this->split_income($budgetline_data);
         $db->update_query('budgeting_budgets_lines', $budgetline_data, 'blid='.$budgetline_data['blid']);
+    }
+
+    private function split_income(&$budgetline_data) {
+        global $core;
+
+        if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
+            if(empty($budgetline_data['localIncomeAmount']) && $budgetline_data['localIncomeAmount'] != '0') {
+                $saletype = new SaleTypes($budgetline_data['saleType']);
+                $budgetline_data['localIncomeAmount'] = $budgetline_data['income'];
+                $budgetline_data['localIncomePercentage'] = 100;
+                $budgetline_data['invoicingEntityIncome'] = 0;
+                if($saletype->localIncomeByDefault == 0) {
+                    $budgetline_data['localIncomeAmount'] = 0;
+                    $budgetline_data['localIncomePercentage'] = 0;
+                    $budgetline_data['invoicingEntityIncome'] = $budgetline_data['income'];
+                }
+            }
+            else {
+                $budgetline_data['invoicingEntityIncome'] = $budgetline_data['income'] - $budgetline_data['localIncomeAmount'];
+            }
+        }
     }
 
     public function delete() {
@@ -804,8 +819,8 @@ class BudgetLines {
 
     public function get_invoicingentity_income($tocurrency, $year, $affid) {
         global $db;
-        $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($tocurrency)." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.invoiceAffid AND year=".intval($year)." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".$tocurrency.") END)";
-        $sql = "SELECT saleType,invoice,sum(amount*{$fxrate_query}) AS amount,sum(invoicingEntityIncome*{$fxrate_query}) AS invoicingEntityIncome FROM ".Tprefix."budgeting_budgets_lines Where invoiceAffid= ".$affid." GROUP BY saleType";
+        $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($tocurrency)." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.invoiceAffid AND year=".intval($year)." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($tocurrency).") END)";
+        $sql = "SELECT saleType, invoice, SUM(amount*{$fxrate_query}) AS amount, SUM(invoicingEntityIncome*{$fxrate_query}) AS invoicingEntityIncome FROM ".Tprefix."budgeting_budgets_lines Where invoiceAffid= ".$affid." GROUP BY saleType";
 
         $query = $db->query($sql);
         if($db->num_rows($query) > 0) {

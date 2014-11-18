@@ -192,11 +192,12 @@ if(!$core->input['action']) {
                                 $prevyear_unitprice .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['unitPrice'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualUnitPrice'].'</span>';
                             }
                         }
+
                         if(empty($budgetline['localIncomePercentage'])) {
-                            $budgetline['localIncomePercentage'] = $budgetline['incomePerc'];
+                            $budgetline['localIncomePercentage'] = 0;
                         }
                         if(empty($budgetline['localIncomeAmount'])) {
-                            $budgetline['localIncomeAmount'] = $budgetline['income'];
+                            $budgetline['localIncomeAmount'] = 0;
                         }
 
                         $budgetline['cid'] = $cid;

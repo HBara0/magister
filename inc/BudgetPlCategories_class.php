@@ -321,9 +321,8 @@ class BudgetPlCategories extends AbstractClass {
 //                            $fxrate_query2 = '(CASE WHEN budgeting_financialbudget.currency = '.intval($options['tocurrency']).' THEN 1
 //                                    ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = budgeting_financialbudget.affid AND bfr.year = budgeting_financialbudget.year AND bfr.fromCurrency = budgeting_financialbudget.currency AND bfr.toCurrency = '.intval($options['tocurrency']).') END)';
 
-                            $sql = "SELECT bfbid, sum(finGenAdmExpAmtApthy*{$fxrate_query2['finGenAdmExpAmtApthy']}) AS finGenAdmExpAmtApthy ,sum(finGenAdmExpAmtApty*{$fxrate_query2['finGenAdmExpAmtApty']}) AS finGenAdmExpAmtApty, sum(finGenAdmExpAmtYpy*{$fxrate_query2['finGenAdmExpAmtYpy']}) AS finGenAdmExpAmtYpy, sum(finGenAdmExpAmtCurrent*{$fxrate_query2['finGenAdmExpAmtCurrent']}) AS finGenAdmExpAmtCurrent "
-                                    .""
-                                    ."FROM ".Tprefix."budgeting_financialbudget WHERE bfbid IN (".implode(', ', $options['filter']).")";
+                            $sql = "SELECT bfbid, sum(finGenAdmExpAmtApthy*{$fxrate_query2['finGenAdmExpAmtApthy']}) AS finGenAdmExpAmtApthy ,sum(finGenAdmExpAmtApty*{$fxrate_query2['finGenAdmExpAmtApty']}) AS finGenAdmExpAmtApty, sum(finGenAdmExpAmtYpy*{$fxrate_query2['finGenAdmExpAmtYpy']}) AS finGenAdmExpAmtYpy, sum(finGenAdmExpAmtCurrent*{$fxrate_query2['finGenAdmExpAmtCurrent']}) AS finGenAdmExpAmtCurrent
+                                    FROM ".Tprefix."budgeting_financialbudget WHERE bfbid IN (".implode(', ', $options['filter']).")";
 
                             $query = $db->query($sql);
                             if($db->num_rows($query) > 0) {
