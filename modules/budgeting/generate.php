@@ -113,7 +113,7 @@ if(!$core->input['action']) {
     if(is_array($core->user['auditedaffids'])) {
         foreach($core->user['auditedaffids'] as $auditaffid) {
             $aff_obj = new Affiliates($auditaffid);
-            $affiliate_users = $aff_obj->get_all_users();
+            $affiliate_users = $aff_obj->get_all_users(array('customfilter' => 'u.uid IN (SELECT users_usergroups.uid FROM users_usergroups WHERE gid IN (SELECT usergroups.gid FROM usergroups WHERE budgeting_canFillBudget=1))'));
             foreach($affiliate_users as $aff_businessmgr) {
                 $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['displayName'];
             }
@@ -122,7 +122,7 @@ if(!$core->input['action']) {
     else {
         if($core->usergroup['canViewAllEmp'] == 1) {
             $affiliate = new Affiliates($core->user['mainaffiliate']);
-            $business_managers = $affiliate->get_all_users(array('displaynameonly' => true));
+            $business_managers = $affiliate->get_all_users(array('displaynameonly' => true, 'customfilter' => 'u.uid IN (SELECT DISTINCT(users_usergroups.uid) FROM users_usergroups WHERE gid IN (SELECT usergroups.gid FROM usergroups WHERE budgeting_canFillBudget=1))'));
         }
         else {
             $business_managers[$core->user['uid']] = $core->user['displayName'];

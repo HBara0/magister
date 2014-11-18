@@ -98,11 +98,16 @@ class Affiliates {
         if(!isset($options['allusers']) || $options['allusers'] === false) {
             $query_where_add .= ' AND u.gid!=7';
         }
-        $query = $db->query("SELECT DISTINCT(u.uid)
+
+        if(!empty($options['customfilter'])) {
+            $query_where_add .= ' AND '.$options['customfilter'];
+        }
+        $sql = "SELECT DISTINCT(u.uid)
 					FROM ".Tprefix."users u
 					JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid)
 					WHERE a.affid={$this->affiliate['affid']}".$query_where_add."
-					ORDER BY displayName ASC");
+					ORDER BY displayName ASC";
+        $query = $db->query($sql);
         while($user = $db->fetch_assoc($query)) {
             $users = new Users($user['uid']);
             if($options['displaynameonly']) {
