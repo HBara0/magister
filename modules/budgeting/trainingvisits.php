@@ -22,7 +22,6 @@ if(!isset($core->input['action'])) {
     }
     $affid = $core->input['financialbudget']['affid'];
 
-
     $affiliate = new Affiliates($affid);
     $rowid = 1;
     /* get budget */

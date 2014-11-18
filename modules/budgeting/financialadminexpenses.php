@@ -60,23 +60,16 @@ if(!isset($core->input['action'])) {
     foreach($headerfields as $field) {
         $budgeting_header .= '<td style="width:10%">'.$lang->$field.'</td>';
     }
-    $budgeting_header .='</tr><tr><td style="width:30%"><input name="financialbudget[affid]" value="'.$affid.'" type="hidden">';
-    $budgeting_header .='<input name="financialbudget[year]" value="'.$financialbudget_year.'" type="hidden"></td>';
+    $budgeting_header .= '</tr><tr><td style="width:30%"><input name="financialbudget[affid]" value="'.$affid.'" type="hidden">';
+    $budgeting_header .= '<input name="financialbudget[year]" value="'.$financialbudget_year.'" type="hidden"></td>';
     foreach($headeryears as $year) {
         $budgeting_header .= '<td style="width:10%">'.$year.'</td>';
     }
-    $budgeting_header .='</tr>';
+    $budgeting_header .= '</tr>';
 
     /* get main currecny of the affiliate being budgeted */
 
-    $affilaite_obj = new Affiliates($affid);
-    $affcurrency = $affilaite_obj->mainCurrency;
-    if($affcurrency == NULL) {
-        $budget_affiliatecurr = $affiliate->get_country()->get_maincurrency();
-    }
-    else {
-        $budget_affiliatecurr = Currencies::get_data(array('numCode' => $affcurrency));
-    }
+    $budget_affiliatecurr = $affiliate->get_currency();
     if(!empty($budget_affiliatecurr)) {
         $tocurrency = '840'; //usd
         $currencyto_obj = new Currencies($tocurrency);
@@ -91,12 +84,12 @@ if(!isset($core->input['action'])) {
         $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_affiliatecurr->numCode, 'toCurrency' => $tocurrency, 'affid' => $affid, 'year' => $years), $dal_config);
         $output_currency = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding: 5px; margin-top: 10px; margin-bottom: 10px; display: block;"><span><em>'.$lang->sprint($lang->budgcurrdesc, $budget_affiliatecurr->alphaCode).'</em></span></br>';
         if(is_array($fxrates_obj)) {
-            $output_currency .='<em><strong>'.$lang->exchangerate.'</strong></em></br>';
+            $output_currency .= '<em><strong>'.$lang->exchangerate.'</strong></em></br>';
             foreach($fxrates_obj as $rate) {
-                $output_currency.='<span>'.$lang->sprint($lang->currrate, $budget_affiliatecurr->alphaCode, $currency_to, $rate->rate).' for year: '.$rate->year.'</span><br/>';
+                $output_currency .= '<span>'.$lang->sprint($lang->currrate, $budget_affiliatecurr->alphaCode, $currency_to, $rate->rate).' for year: '.$rate->year.'</span><br/>';
             }
         }
-        $output_currency .='</div>';
+        $output_currency .= '</div>';
     }
 
     eval("\$budgeting_commercialexpenses = \"".$template->get('budgeting_commercialexpenses')."\";");

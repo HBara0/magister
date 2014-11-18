@@ -30,9 +30,10 @@ if(!isset($core->input['action'])) {
         $financialbudget_year = $core->input['financialbudget']['year'];
         //  $financialbudget_prevyear = $financialbudget_year - 1;
         //$financialbudget_prev2year = $financialbudget_year - 2;
-        $affid = $core->input['financialbudget']['affid'];
-        $affiliate = new Affiliates($affid);
     }
+
+    $affid = $core->input['financialbudget']['affid'];
+    $affiliate = new Affiliates($affid);
     $financialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_year), array('simple' => false));
 
     $budforecastobj = new BudgetForecastAccountsTree();
@@ -46,8 +47,7 @@ if(!isset($core->input['action'])) {
     //$budgetaccounts = BudgetForecastAccountsTree::parse_accounts(array('type' => array('assets' => $assets_accounts, 'liabilities' => $liability_accounts)), array('mode' => 'fill'));
     /* get main currecny of the affiliate being budgeted */
 
-    $affilaite_obj = new Affiliates($affid);
-    $currency = $affilaite_obj->get_country()->get_maincurrency();
+    $currency = $affiliate->get_currency();
     if(!empty($currency->alphaCode)) {
         $tocurrency = '840'; //usd
         $currencyto_obj = new Currencies($tocurrency);

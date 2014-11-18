@@ -28,13 +28,7 @@ if(!isset($core->input['action'])) {
     };
     $affiliate = new Affiliates($budget_data['affid']);
     $financialbudget = FinancialBudget::get_data(array('affid' => $budget_data['affid'], 'year' => $budget_data['year']), array('simple' => false));
-    $affcurrency = $affiliate->mainCurrency;
-    if($affcurrency == NULL) {
-        $currency = $affiliate->get_country()->get_maincurrency();
-    }
-    else {
-        $currency = Currencies::get_data(array('numCode' => $affcurrency));
-    }
+    $currency = $affiliate->get_currency();
 
     //get 3 commercial budgets of current year, prev year and prev two years
     $commericalbudget = Budgets::get_data(array('affid' => $budget_data['affid'], 'year' => $budget_data['year']), array('returnarray' => true, 'simple' => false));

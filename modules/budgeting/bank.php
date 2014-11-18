@@ -56,7 +56,6 @@ if(!isset($core->input['action'])) {
             $currencies[$curr->numCode] = $curr->alphaCode;
         }
     }
-    /**/
 
     $financialbudget = FinancialBudget::get_data(array('affid' => $budget_data['affid'], 'year' => $budget_data['year']), array('simple' => false));
     $banksfacilities = BudgetBankFacilities::get_data(array('bfbid' => $financialbudget->bfbid), array('returnarray' => true, 'simple' => false));

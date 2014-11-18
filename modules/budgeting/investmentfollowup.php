@@ -31,16 +31,16 @@ if(!isset($core->input['action'])) {
         $financialbudget_prevyear = $investprevyear = $financialbudget_year - 1;
         $financialbudget_prev2year = $financialbudget_year - 2;
         $financialbudget_prev3year = $financialbudget_year - 3;
-
-        if($core->usergroup['canViewAllAff'] == 0) {
-            $affiliates = $core->user['affiliates'];
-            if(!in_array($core->input['financialbudget']['affid'], array_keys($affiliates))) {
-                redirect('index.php?module=budgeting/createfinbudget');
-            }
-        }
-        $affid = $core->input['financialbudget']['affid'];
-        $affiliate = new Affiliates($affid);
     }
+
+    if($core->usergroup['canViewAllAff'] == 0) {
+        $affiliates = $core->user['affiliates'];
+        if(!in_array($core->input['financialbudget']['affid'], array_keys($affiliates))) {
+            redirect('index.php?module=budgeting/createfinbudget');
+        }
+    }
+    $affid = $core->input['financialbudget']['affid'];
+    $affiliate = new Affiliates($affid);
     $prevfinancialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_prevyear), array('simple' => false));
     $financialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_year), array('simple' => false));
     $investcategories = BudgetInvestCategories::get_data('', array('returnarray' => true));
@@ -69,15 +69,7 @@ if(!isset($core->input['action'])) {
 
 
     /* get main currecny of the affiliate being budgeted */
-
-    $affilaite_obj = new Affiliates($affid);
-    $affcurrency = $affilaite_obj->mainCurrency;
-    if($affcurrency == NULL) {
-        $budget_affiliatecurr = $affiliate->get_country()->get_maincurrency();
-    }
-    else {
-        $budget_affiliatecurr = Currencies::get_data(array('numCode' => $affcurrency));
-    }
+    $budget_affiliatecurr = $affiliate->get_currency();
     if(!empty($budget_affiliatecurr)) {
         $tocurrency = '840'; //usd
         $currencyto_obj = new Currencies($tocurrency);
