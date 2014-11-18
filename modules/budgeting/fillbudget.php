@@ -123,15 +123,12 @@ if(!$core->input['action']) {
         $unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income');
         if(is_array($budgetlinesdata)) {
             $rowid = 1;
-
             foreach($budgetlinesdata as $cid => $customersdata) {
                 /* Get Customer name from object */
-
                 if(!is_int($cid)) {
                     $cid = 0;
                 }
                 $customer = new Entities($cid);
-
                 foreach($customersdata as $pid => $productsdata) {
                     /* Get Products name from object */
                     $product = new Products($pid);
@@ -141,9 +138,8 @@ if(!$core->input['action']) {
 //				}
 
                     foreach($productsdata as $saleid => $budgetline) {
-
                         if(!empty($budgetline['cid'])) {
-                            $budgetline['disabled'] = " disabled='disabled'";
+                            $disabledattrs['cid'] = $disabledattrs['unspecifiedCustomer'] = 'disabled="disabled"';
                         }
                         $previous_yearsqty = $previous_yearsamount = $previous_yearsincome = $prevyear_incomeperc = $prevyear_unitprice = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
                         if($is_prevonly === true || isset($budgetline['prevbudget'])) {
@@ -230,8 +226,8 @@ if(!$core->input['action']) {
                         if(count($supplier_segments) > 1) {
                             $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
                         }
-                        if(showfield_permission('Budget_canFillLocalincome')) {
-                            $localincome_rows = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline[localIncomeAmount].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
+                        if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
+                            $hidden_colcells = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline[localIncomeAmount].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
                                     'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline[localIncomePercentage].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>'
                             );
                         }
@@ -252,8 +248,8 @@ if(!$core->input['action']) {
             if(count($supplier_segments) > 1) {
                 $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, 0, null, null, array('placeholder' => 'Overwrite Segment'));
             }
-            if(showfield_permission('Budget_canFillLocalincome')) {
-                $localincome_rows = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline[localIncomeAmount].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
+            if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
+                $hidden_colcells = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline[localIncomeAmount].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
                         'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline[localIncomePercentage].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>'
                 );
             }
@@ -277,8 +273,8 @@ if(!$core->input['action']) {
 
         /* Parse values for JS - END */
         /* Parse  local amount felds based on specific permission */
-        if(showfield_permission('Budget_canFillLocalincome')) {
-            $localincome_heads = array('localincome_head' => '<td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">'.$lang->localincome.'<a href="#" title="'.$lang->localincomeexp.'"><img src="./images/icons/question.gif" ></a></td>',
+        if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
+            $hidden_colcells = array('localincome_head' => '<td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">'.$lang->localincome.'<a href="#" title="'.$lang->localincomeexp.'"><img src="./images/icons/question.gif" ></a></td>',
                     'localincomeper_head' => '<td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">'.$lang->localincomeper.'</td>',
             );
         }
@@ -366,8 +362,8 @@ else {
             $budget_currencylist .= '<option value="'.$numcode.'">'.$currency.'</option>';
         }
         /* Parse  local amount felds based on specific permission */
-        if(showfield_permission('Budget_canFillLocalincome')) {
-            $localincome_rows = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline[localIncomeAmount].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
+        if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
+            $hidden_colcells = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline[localIncomeAmount].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
                     'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline[localIncomePercentage].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>'
             );
         }
