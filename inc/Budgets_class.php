@@ -148,6 +148,7 @@ class Budgets extends AbstractClass {
             if(is_empty($budgetdata['year'], $budgetdata['affid'], $budgetdata['spid'])) {
                 return false;
             }
+
             /* Check if budget exists, then process accordingly */
             if(!Budgets::budget_exists_bydata($budgetdata)) {
                 $budget_data = array('identifier' => substr(uniqid(time()), 0, 10),
@@ -161,9 +162,7 @@ class Budgets extends AbstractClass {
 
                 $insertquery = $db->insert_query('budgeting_budgets', $budget_data);
                 if($insertquery) {
-
                     if(is_object($this)) {
-
                         $this->data['bid'] = $db->last_id();
                         $log->record('savenewbudget', $this->data['bid']);
                         $this->save_budgetlines($budgetline_data, $this->data['bid']);
@@ -173,7 +172,6 @@ class Budgets extends AbstractClass {
                         $budget = new Budgets($bid);
                         $log->record('savenewbudget', $bid);
                         $budgetline_data['bid'] = $bid;
-
                         $budget->save_budgetlines($budgetline_data);
                     }
                 }
@@ -259,10 +257,7 @@ class Budgets extends AbstractClass {
                             }
                         }
                     }
-                    /* cascade itetcompany */
-                    if(isset($data['interCompanyPurchase']) && !empty($data['interCompanyPurchase'])) {
-                        //  $this->create_intercompanybudget($data, $blid, $options);
-                    }
+
                     unset($data['unspecifiedCustomer']);
                     if(isset($data['blid']) && !empty($data['blid'])) {
                         $budgetlineobj->update($data);
@@ -270,6 +265,24 @@ class Budgets extends AbstractClass {
                     }
                     else {
                         $budgetlineobj->create($data);
+                    }
+                    /* cascade itetcompany */
+                    if(isset($data['interCompanyPurchase']) && !empty($data['interCompanyPurchase'])) {
+                        $intercomp_budgetobj = Budgets::get_data(array('affid' => $data['interCompanyPurchase'], 'spid' => $this->data['spid'], 'year' => $this->data['year']), array('simple' => false));
+                        if(!is_object($intercomp_budgetobj)) {
+                            $interc_obj = new Budgets();
+                            $budgetdata_intercompany = array('identifier' => substr(uniqid(time()), 0, 10),
+                                    'year' => $this->data['year'],
+                                    'affid' => $data['interCompanyPurchase'],
+                                    'spid' => $this->data['spid'],
+                                    'createdBy' => $core->user['uid'],
+                                    'createdOn' => TIME_NOW
+                            );
+                            print_r($data);
+
+                            $interc_obj->save_budget($budgetdata_intercompany, $data);
+                            // $this->create_intercompanybudget($data, $blid, $options);
+                        }
                     }
                 }
             }
@@ -297,7 +310,8 @@ class Budgets extends AbstractClass {
         unset($intercompan_data['blid'], $intercompan_data['cid'], $intercompan_data['interCompanyPurchase']);
 
         $intercompan_data['linkedBudgetLine'] = $relatedblid;
-
+        print_r($intercompan_data);
+        exit;
         /* create budget for the intercompany affilaite --START */
         $intercomp_budgetobj = Budgets::get_data(array('affid' => $budgetdata_intercompany['affid'], 'spid' => $budgetdata_intercompany['spid'], 'year' => $budgetdata_intercompany['year']), array('simple' => false));
         if(!is_object($intercomp_budgetobj)) {
