@@ -821,10 +821,12 @@ class BudgetLines {
         global $db;
         $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($tocurrency)." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.invoiceAffid AND year=".intval($year)." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($tocurrency).") END)";
         $sql = "SELECT saleType, invoice, SUM(amount*{$fxrate_query}) AS amount, SUM(invoicingEntityIncome*{$fxrate_query}) AS invoicingEntityIncome FROM ".Tprefix."budgeting_budgets_lines Where invoiceAffid= ".$affid." GROUP BY saleType";
-
         $query = $db->query($sql);
         if($db->num_rows($query) > 0) {
             while($budget = $db->fetch_assoc($query)) {
+                if($budget['invoice'] == 'supplier' || $budget['invoice'] == 'direct') {
+                    return;
+                }
                 $invoiceaffsaletype = InvoiceTypes::get_data(array('stid' => $budget['saleType'], 'invoiceAffid' => $affid, 'invoicingEntity' => $budget['invoice']), array('simple' => false));
                 if(is_object($invoiceaffsaletype)) {
                     $budget['saleType'] = $invoiceaffsaletype->invoiceAffStid;
