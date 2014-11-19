@@ -264,10 +264,23 @@ class Budgets extends AbstractClass {
             }
 
             if(is_array($removed_lines)) {
-                foreach($removed_lines as $removedblid) {
-                    $budgetlineobj = new BudgetLines($removedblid);
-                    $budgetlineobj->delete();
-                    $budgetlineobj->delete_interco_line();
+                $linked_bdlineobj = new BudgetLines($budgetlineobj->linkedBudgetLine);
+
+                if(empty($linked_bdlineobj->modifiedOn)) {
+                    print_R($linked_bdlineobj);
+
+                    foreach($removed_lines as $removedblid) {
+                        $budgetlineobj = new BudgetLines($removedblid);
+                        $budgetlineobj->delete();
+                        // $budgetlineobj->delete_interco_line();
+                    }
+                }
+                else {
+                    foreach($removed_lines as $removedblid) {
+                        $budgetlineobj = new BudgetLines($removedblid);
+                        // $budgetlineobj->delete();
+                        $linked_bdlineobj->delete_interco_line();
+                    }
                 }
             }
         }
@@ -614,6 +627,7 @@ class BudgetLines {
         global $db, $core;
         unset($budgetline_data['customerName']);
         $budgetline_data['modifiedBy'] = $core->user['uid'];
+        $budgetline_data['modifiedOn'] = TIME_NOW;
 
         $this->split_income($budgetline_data);
 
@@ -694,17 +708,25 @@ class BudgetLines {
                     return;
                 }
                 $saletype = new SaleTypes($budgetline_data['saleType']);
+
                 $budgetline_data['localIncomeAmount'] = $budgetline_data['income'];
                 $budgetline_data['localIncomePercentage'] = 100;
                 $budgetline_data['invoicingEntityIncome'] = 0;
+                $budgetline_data['invoicingEntityIncome'] = $budgetline_data['income'];
                 if($saletype->localIncomeByDefault == 0) {
                     $budgetline_data['localIncomeAmount'] = 0;
                     $budgetline_data['localIncomePercentage'] = 0;
-                    $budgetline_data['invoicingEntityIncome'] = $budgetline_data['income'];
+                    ///  $budgetline_data['invoicingEntityIncome'] = $budgetline_data['income'];
+                    $budgetline_data['invoicingEntityIncome'] = 0;
                 }
             }
             else {
+
                 $budgetline_data['invoicingEntityIncome'] = $budgetline_data['income'] - $budgetline_data['localIncomeAmount'];
+                /* set the inome to zero to the intercompany budgetline when empty loclincome */
+                if($saletype->localIncomeByDefault == 0) {
+                    $budgetline_data['invoicingEntityIncome'] = 0;
+                }
             }
         }
     }
@@ -847,6 +869,10 @@ class BudgetLines {
             }
         }
         return $info;
+    }
+
+    public function __isset($name) {
+        return isset($this->budgetline[$name]);
     }
 
     public function __get($name) {
