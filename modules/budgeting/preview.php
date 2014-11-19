@@ -29,6 +29,12 @@ if(!($core->input['action'])) {
                 $business_managers[$core->user['uid']] = $core->user['uid'];
             }
         }
+        $affiliate_users = $core->user_obj->get_reportingto();
+        if(is_array($affiliate_users)) {
+            foreach($affiliate_users as $aff_businessmgr) {
+                $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['displayName'];
+            }
+        }
         $budgetsdata['current'] = ($core->input['budget']);
         $aggregate_types = array('affiliates', 'suppliers', 'managers', 'segments', 'years');
         //eval("\$budgetreport_coverpage = \"".$template->get('budgeting_budgetreport_coverpage')."\";");

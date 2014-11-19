@@ -128,6 +128,12 @@ if(!$core->input['action']) {
             $business_managers[$core->user['uid']] = $core->user['displayName'];
         }
     }
+    $affiliate_users = $core->user_obj->get_reportingto();
+    if(is_array($affiliate_users)) {
+        foreach($affiliate_users as $aff_businessmgr) {
+            $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['displayName'];
+        }
+    }
     if(is_array($business_managers)) {
         foreach($business_managers as $key => $value) {
             $checked = $rowclass = '';
