@@ -91,7 +91,10 @@ if(!$core->input['action']) {
             $session->set_phpsession(array('budgetmetadata_'.$sessionidentifier => serialize($core->input)));
         }
 
-        $saletypes_query = $db->query('SELECT * FROM '.Tprefix.'saletypes');
+        if($affiliate->isIntReinvoiceAffiliate != 1) {
+            $saletypes_query_where = ' WHERE stid NOT IN (SELECT s1.invoiceAffStid FROM saletypes s1 WHERE s1.invoiceAffStid IS NOT NULL)';
+        }
+        $saletypes_query = $db->query('SELECT * FROM '.Tprefix.'saletypes'.$saletypes_query_where);
         while($saletype = $db->fetch_assoc($saletypes_query)) {
             $saletype_selectlistdata[$saletype['stid']] = $saletype['title'];
             $saletypes[$saletype['stid']] = $saletype;
@@ -138,6 +141,7 @@ if(!$core->input['action']) {
 //				}
 
                     foreach($productsdata as $saleid => $budgetline) {
+                        unset($disabledattrs);
                         if(!empty($budgetline['cid'])) {
                             $disabledattrs['cid'] = $disabledattrs['unspecifiedCustomer'] = 'disabled="disabled"';
                         }
@@ -316,7 +320,7 @@ else {
                 output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
                 break;
             case 2:
-                output_xml('<status>false</status><message>'.$lang->fillrequiredfield.'</message>');
+                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
                 break;
             case 602:
                 output_xml('<status>false</status><message>'.$lang->budgetexist.'</message>');
@@ -329,7 +333,11 @@ else {
     elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
         $rowid = intval($core->input['value']) + 1;
         $budget_data = $core->input['ajaxaddmoredata'];
+        $affiliate = new Affiliates($budget_data['affid']);
 
+        if($affiliate->isIntReinvoiceAffiliate == 0) {
+            $saletypes_query_where = ' WHERE stid NOT IN (SELECT s1.invoiceAffStid FROM saletypes s1 WHERE s1.invoiceAffStid IS NOT NULL)';
+        }
         $saletypes_query = $db->query('SELECT * FROM '.Tprefix.'saletypes');
         while($saletype = $db->fetch_assoc($saletypes_query)) {
             $saletype_selectlistdata[$saletype['stid']] = $saletype['title'];
@@ -355,10 +363,9 @@ else {
         $invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('blankstart' => 0, 'id' => 'invoice_'.$rowid));
 
         /* Get budget data */
-        $affiliate = new Affiliates($budget_data['affid']);
+
         $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
         $currencies = array_filter(array(840 => 'USD', 978 => 'EUR', $affiliate_currency->get()['numCode'] => $affiliate_currency->get()['alphaCode']));
-
         foreach($currencies as $numcode => $currency) {
             $budget_currencylist .= '<option value="'.$numcode.'">'.$currency.'</option>';
         }
