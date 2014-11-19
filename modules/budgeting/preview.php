@@ -127,6 +127,8 @@ if(!($core->input['action'])) {
                                     foreach($fxrates_obj as $fxid => $fxrates) {
                                         $rawdata[$field][$blid]['amount'] = ($budgetline->amount * $fxrates->rate);
                                         $rawdata[$field][$blid]['income'] = ($budgetline->income * $fxrates->rate);
+                                        $rawdata[$field][$blid]['localIncomeAmount'] = ($budgetline->localIncomeAmount * $fxrates->rate);
+                                        $rawdata[$field][$blid]['invoicingEntityIncome'] = ($budgetline->invoicingEntityIncome * $fxrates->rate);
                                     }
                                 }
                                 else {
@@ -139,14 +141,6 @@ if(!($core->input['action'])) {
 
                             $rawdata[$field][$blid]['reportsTo'] = $budget_obj->get_CreateUser()->get_reportsto()->uid;
                             $rawdata[$field][$blid]['uid'] = $budgetline->businessMgr;
-                            if(showfield_permission('Budget_canFillLocalincome')) {
-                                $rawdata[$field][$blid]['localIncomePercentage'] = $budgetline->localIncomePercentage;
-                                $rawdata[$field][$blid]['localIncomeAmount'] = $budgetline->localIncomeAmount;
-                            }
-                            else {
-
-                                unset($rawdata[$field][$blid]['localIncomeAmount'], $rawdata[$field][$blid]['localIncomePercentage']);
-                            }
                             $rawdata[$field][$blid]['stid'] = $budgetline->saleType;
                             $rawdata[$field][$blid]['spid'] = $product->get_supplier()->eid;
                             $rawdata[$field][$blid]['s1Amount'] = $rawdata[$field][$blid]['amount'] * ($rawdata[$field][$blid]['s1Perc'] / 100);
@@ -174,7 +168,12 @@ if(!($core->input['action'])) {
             }
             /* Dimensional Report Settings - START */
             $dimensions = explode(',', $budgetsdata['current']['dimension'][0]); // Need to be passed from options stage
-            $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 'localIncomeAmount', 'localIncomePercentage', 's1Income', 's2Income', 's1Amount', 's2Amount');
+            $required_fields = array('quantity', 'amount', 'income', 'incomePerc', 's1Income', 's2Income', 's1Amount', 's2Amount');
+            if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
+                $required_fields[] = 'localIncomeAmount';
+                $required_fields[] = 'localIncomePercentage';
+            }
+
             $formats = array(
                     'incomePerc' => array('style' => NumberFormatter::PERCENT),
                     'localIncomePercentage' => array('style' => NumberFormatter::PERCENT),
@@ -197,7 +196,11 @@ if(!($core->input['action'])) {
             $budgeting_budgetrawreport .= '<table width="100%" class="datatable">';
             $budgeting_budgetrawreport .= '<tr><th></th>';
             foreach($required_fields as $field) {
-                $budgeting_budgetrawreport .= '<th>'.$field.'</th>';
+                $field = strtolower($field);
+                if(!isset($lang->{$field})) {
+                    $lang->{$field} = $field;
+                }
+                $budgeting_budgetrawreport .= '<th>'.$lang->{$field}.'</th>';
             }
             $budgeting_budgetrawreport .= '</tr>';
             $budgeting_budgetrawreport .= $dimensionalreport->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'formats' => $formats, 'overwritecalculation' => $overwrite));
