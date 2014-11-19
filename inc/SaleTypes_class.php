@@ -39,5 +39,9 @@ class SaleTypes extends AbstractClass {
 
     }
 
+    public function get_invoicesaletype() {
+        return new SaleTypes($this->data['invoiceAffStid']);
+    }
+
 //put your code here
 }
