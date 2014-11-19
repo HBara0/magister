@@ -178,11 +178,11 @@ class Budgets extends AbstractClass {
                 $existing_budget = Budgets::get_budget_bydata($budgetdata);
                 if(isset($this)) {
                     $this->data['bid'] = $existing_budget['bid'];
-                    $this->save_budgetlines($budgetline_data, $this->data['bid'], '', array('budgetdata' => $budgetdata));
+                    $this->save_budgetlines($budgetline_data, $this->data['bid']);
                 }
                 else {
                     $budget = new Budgets($existing_budget['bid']);
-                    $budget->save_budgetlines($budgetline_data, '', array('budgetdata' => $budgetdata));
+                    $budget->save_budgetlines($budgetline_data);
                 }
                 $log->record('updatedbudget', $existing_budget['bid']);
             }
@@ -265,9 +265,13 @@ class Budgets extends AbstractClass {
 
             if(is_array($removed_lines)) {
                 foreach($removed_lines as $removedblid) {
-                    $budgetlineobj = new BudgetLines($removedblid);
-                    $budgetlineobj->delete();
-                    $budgetlineobj->delete_interco_line();
+                    if(!empty($removedblid)) {
+                        $budgetlineobj = new BudgetLines($removedblid);
+                        if(!empty($budgetlineobj->blid)) {
+                            $budgetlineobj->delete();
+                            $budgetlineobj->delete_interco_line();
+                        }
+                    }
                 }
             }
         }
@@ -711,6 +715,10 @@ class BudgetLines {
 
     public function delete_interco_line() {
         global $db;
+
+        if(empty($this->budgetline['linkedBudgetLine'])) {
+            return;
+        }
         $db->delete_query('budgeting_budgets_lines', 'blid='.$this->budgetline['linkedBudgetLine']);
     }
 
@@ -854,6 +862,10 @@ class BudgetLines {
             return $this->budgetline[$name];
         }
         return false;
+    }
+
+    public function __isset($name) {
+        return isset($this->budgetline[$name]);
     }
 
     public function get() {
