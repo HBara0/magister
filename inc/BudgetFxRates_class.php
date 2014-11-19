@@ -25,11 +25,19 @@ class BudgetFxRates extends AbstractClass {
     }
 
     protected function create(array $data) {
-
+        global $db;
+        if(empty($data[rate])) {
+            $this->errorcode = 1;
+            return false;
+        }
+        $db->insert_query(self::TABLE_NAME, $data);
     }
 
     public function save(array $data = array()) {
 
+        if(isset($this->data)) {
+            $this->create($this->data);
+        }
     }
 
     protected function update(array $data) {

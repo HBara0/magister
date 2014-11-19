@@ -2010,9 +2010,9 @@ CREATE TABLE `saletypes` (
   `altName` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
   `description` text COLLATE utf8_unicode_ci,
   `useLocalCurrency` tinyint(1) NOT NULL,
-  `countLocally` int(1) NOT NULL,
+  `localIncomeByDefault` float NOT NULL,
   PRIMARY KEY (`stid`)
-) ENGINE=MyISAM AUTO_INCREMENT=56 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `saletypes_invoicing`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

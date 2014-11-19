@@ -618,6 +618,7 @@ class BudgetLines {
         global $db, $core;
         unset($budgetline_data['customerName']);
         $budgetline_data['modifiedBy'] = $core->user['uid'];
+        $budgetline_data['modifiedOn'] = TIME_NOW;
 
         $this->split_income($budgetline_data);
 
@@ -698,6 +699,7 @@ class BudgetLines {
                     return;
                 }
                 $saletype = new SaleTypes($budgetline_data['saleType']);
+
                 $budgetline_data['localIncomeAmount'] = $budgetline_data['income'];
                 $budgetline_data['localIncomePercentage'] = 100;
                 $budgetline_data['invoicingEntityIncome'] = 0;
@@ -708,7 +710,12 @@ class BudgetLines {
                 }
             }
             else {
+
                 $budgetline_data['invoicingEntityIncome'] = $budgetline_data['income'] - $budgetline_data['localIncomeAmount'];
+                /* set the inome to zero to the intercompany budgetline when empty loclincome */
+                if($saletype->localIncomeByDefault == 0) {
+                    $budgetline_data['invoicingEntityIncome'] = 0;
+                }
             }
         }
     }

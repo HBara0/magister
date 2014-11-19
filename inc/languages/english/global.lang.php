@@ -17,6 +17,7 @@ $lang['affiliate'] = 'Affiliate';
 $lang['affiliateslist'] = 'Affiliates List';
 $lang['april'] = 'April';
 $lang['assets'] = 'Assets';
+$lang['fillrequiredfield'] = 'Please fill all required fields';
 $lang['attendance'] = 'Attendance';
 $lang['august'] = 'August';
 $lang['budgeting'] = 'Budgeting';
