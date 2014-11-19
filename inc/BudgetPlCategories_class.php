@@ -167,7 +167,7 @@ class BudgetPlCategories extends AbstractClass {
                                                 }
                                             }
                                             $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($options['tocurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=".$budgetobject->affid." AND year=".$budgetobject->year." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($options['tocurrency']).") END)";
-                                            $sql = "SELECT saleType,sum(amount*{$fxrate_query}) AS amount,sum(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount, sum(actualAmount*{$fxrate_query}) AS actualAmount, sum(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines where bid=".$budgetid." GROUP BY saleType";
+                                            $sql = "SELECT saleType, SUM(amount*{$fxrate_query}) AS amount, SUM(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount, sum(actualAmount*{$fxrate_query}) AS actualAmount, SUM(actualIncome*{$fxrate_query}) AS actualIncome FROM ".Tprefix."budgeting_budgets_lines WHERE bid=".$budgetid." GROUP BY saleType";
                                             $query = $db->query($sql);
                                             if($db->num_rows($query) > 0) {
                                                 $amount = 'amount';
@@ -178,12 +178,12 @@ class BudgetPlCategories extends AbstractClass {
                                                         $income = 'actualIncome';
                                                     };
 
-                                                    $combudget[$key][$budget['saleType']]['amount'] += number_format($budget[$amount] / 1000, 2);
-                                                    $combudget[$key][$budget['saleType']]['income'] += number_format($budget[$income] / 1000, 2);
+                                                    $combudget[$key][$budget['saleType']]['amount'] += $budget[$amount] / 1000;
+                                                    $combudget[$key][$budget['saleType']]['income'] += $budget[$income] / 1000;
                                                     $saletype = SaleTypes::get_data(array('stid' => $budget['saleType']));
                                                     if($key == 'current') {
                                                         if($saletype->countLocally == 1) {
-                                                            $totalamount[$key] += $combudget[$key][$budget['saleType']]['amount'];
+                                                            $totalamount[$key] += $budget[$amount] / 1000;
                                                         }
                                                     }
                                                 }
@@ -192,6 +192,7 @@ class BudgetPlCategories extends AbstractClass {
                                         }
                                     }
                                 }
+
                                 if($key == 'current') {
                                     if(is_array($options['affid'])) {
                                         foreach($options['affid'] as $affid) {
@@ -200,8 +201,8 @@ class BudgetPlCategories extends AbstractClass {
                                             if(is_array($allocatedamount[$key])) {
                                                 foreach($allocatedamount[$key] as $saletype => $data) {
                                                     $allocatedamount = number_format($data['amount'] / 1000, 2);
-                                                    $combudget[$key][$saletype]['amount'] +=$allocatedamount;
-                                                    $combudget[$key][$saletype]['income'] +=number_format($data['invoicingentityincome'] / 1000, 2);
+                                                    $combudget[$key][$saletype]['amount'] += $allocatedamount;
+                                                    $combudget[$key][$saletype]['income'] += number_format($data['invoicingentityincome'] / 1000, 2);
                                                     $totalamount[$key] += $allocatedamount;
                                                 }
                                             }
@@ -236,12 +237,12 @@ class BudgetPlCategories extends AbstractClass {
 
                                 /* parse fields */
                                 $fields = array('prevthreeyears', 'prevtwoyears', 'prevyear', 'yefactual', 'current', 'budyef');
-                                $amount_output .=' <td style = "width:28%;font-weight:bold;">'.$type->title.'</td>';
+                                $amount_output .= '<td style = "width:28%;font-weight:bold;">'.$type->title.'</td>';
                                 $grossmargin_commissions = $lang->grossmargin;
                                 if($type->stid == 3 || $type->stid == 4) {
                                     $grossmargin_commissions = $lang->accountedcommissions;
                                 }
-                                $income_output .='<td style = "width:28%">'.$grossmargin_commissions.'</td>';
+                                $income_output .='<td style="width:28%">'.$grossmargin_commissions.'</td>';
                                 foreach($fields as $field) {
                                     if(empty($combudget[$field][$type->stid]['amount'])) {
                                         $combudget[$field][$type->stid]['amount'] = 0;
@@ -250,12 +251,12 @@ class BudgetPlCategories extends AbstractClass {
                                         $combudget[$field][$type->stid]['income'] = 0;
                                     }
                                     if($field == 'yefactual' || $field == 'budyef') {
-                                        $amount_output .='<td style = "width:9%" class = "border_left"><div id = "placcount_'.$category->name.'_'.$field.'_'.$type->stid.'">'.$combudget[$field][$type->stid]['amount'].'</div></td>';
-                                        $income_output .='<td style = "width:9%" class = "border_left"><div id = "placcount_'.$category->name.'_'.$field.'_'.$type->stid.'">'.$combudget[$field][$type->stid]['income'].'</div></td>';
+                                        $amount_output .= '<td style = "width:9%" class = "border_left"><div id = "placcount_'.$category->name.'_'.$field.'_'.$type->stid.'">'.$combudget[$field][$type->stid]['amount'].'</div></td>';
+                                        $income_output .= '<td style = "width:9%" class = "border_left"><div id = "placcount_'.$category->name.'_'.$field.'_'.$type->stid.'">'.$combudget[$field][$type->stid]['income'].'</div></td>';
                                     }
                                     else {
-                                        $amount_output .='<td style = "width:9%" class = "border_left">'.$combudget[$field][$type->stid]['amount'].'</td>';
-                                        $income_output .='<td style = "width:9%" class = "border_left">'.$combudget[$field][$type->stid]['income'].'</td>';
+                                        $amount_output .= '<td style = "width:9%" class = "border_left">'.number_format($combudget[$field][$type->stid]['amount'], 2).'</td>';
+                                        $income_output .= '<td style = "width:9%" class = "border_left">'.number_format($combudget[$field][$type->stid]['income'], 2).'</td>';
                                         $totalincome[$field] += $combudget[$field][$type->stid]['income'];
                                         if($field != 'current') {
                                             $totalamount[$field] += $combudget[$field][$type->stid]['amount'];
@@ -263,12 +264,13 @@ class BudgetPlCategories extends AbstractClass {
                                     }
                                 }
                                 $rowclass = alt_row($rowclass);
+
                                 eval("\$saletypeoutput .= \"".$template->get('budgeting_plitem')."\";");
                                 $income_output = $amount_output = '';
                             }
                             /* Sales Category total amount */
                             $fields = array('actualPrevThreeYears' => 'prevthreeyears', 'actualPrevTwoYears' => 'prevtwoyears', 'yefPrevYear' => 'prevyear', 'yefactual' => 'yefactual', 'budgetCurrent' => 'current', 'budyef' => 'budyef');
-                            $output .='<tr><td style = "width:28%;font-weight:bold;">'.$lang->totalsales.'</td>';
+                            $output .= '<tr><td style="width:28%;font-weight:bold;">'.$lang->totalsales.'</td>';
                             foreach($fields as $key => $value) {
                                 switch($value) {
                                     case yefactual:
@@ -283,6 +285,9 @@ class BudgetPlCategories extends AbstractClass {
                                             $totalamount[$value] = sprintf("%.2f", (($totalamount['current'] - $totalamount['prevyear'] ) / $totalamount['prevyear'] ) * 100).' %';
                                         }
                                         break;
+                                    default:
+                                        $totalamount[$value] = round($totalamount[$value], 2);
+                                        break;
                                 }
 //                                if(empty($totalamount[$value])) {
 //                                    $totalamount[$value] = 0;
@@ -290,14 +295,14 @@ class BudgetPlCategories extends AbstractClass {
                                 $output .='<td style = "width:9%;font-weight:bold;" class = "border_left">'.$totalamount[$value].'</td>';
                             }
                             $output .='</tr>';
-                            $output .=$saletypeoutput;
+                            $output .= $saletypeoutput;
                             /* Sales category total income */
                             $output .= '<tr><td style="width:28%"></td>';
                             foreach($fields as $key => $value) {
                                 $totalincome[$key] = $totalincome[$value];  /* total of sale types category */
-                                $output.='<td style = "width:9%;"><input type = "hidden" id = "total_'.$category->name.'_'.$key.'" value = "'.$totalincome[$key].'"></td>';
+                                $output .= '<td style="width:9%;"><input type="hidden" id="total_'.$category->name.'_'.$key.'" value="'.$totalincome[$key].'"></td>';
                             }
-                            $output.='</tr>';
+                            $output .= '</tr>';
                         }
                     }
 
