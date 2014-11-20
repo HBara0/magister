@@ -710,23 +710,25 @@ class BudgetLines {
                 }
             }
             else {
-
                 $budgetline_data['invoicingEntityIncome'] = $budgetline_data['income'] - $budgetline_data['localIncomeAmount'];
-                /* set the inome to zero to the intercompany budgetline when empty loclincome */
-                if($saletype->localIncomeByDefault == 0) {
-                    $budgetline_data['invoicingEntityIncome'] = 0;
-                }
             }
         }
     }
 
     public function delete_interco_line() {
-        global $db;
-
         if(empty($this->budgetline['linkedBudgetLine'])) {
             return;
         }
-        $db->delete_query('budgeting_budgets_lines', 'blid='.$this->budgetline['linkedBudgetLine']);
+
+        $linked_bdlineobj = new BudgetLines($this->budgetline['linkedBudgetLine']);
+        /* If this is the initiator bugdet line, don't delete it */
+        if(!empty($linked_bdlineobj->interCompanyPurchase)) {
+            return;
+        }
+        /* If linked budget line has not been mondified, then delete it */
+        if(empty($linked_bdlineobj->modifiedOn)) {
+            $linked_bdlineobj->delete();
+        }
     }
 
     public function delete() {
