@@ -37,12 +37,11 @@ Class SaleTypesInvoicing extends AbstractClass {
     public function get_invoiceentity() {
         if($this->data['isAffiliate'] == 1) {
             $entity = Affiliates::get_affiliates(array('affid' => $this->data['invoiceAffid']));
-            $entity = $entity->get_displayname();
+            return $entity->get_displayname();
         }
         else {
-            $entity = $this->data['invoicingEntity'];
+            return $this->data['invoicingEntity'];
         }
-        return $entity;
     }
 
 }

@@ -157,7 +157,7 @@
                     <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->invoice} <a href="#" title="Defines who is issuing the invoice for the given transaction."><img src="./images/icons/question.gif" ></a></td>
                     <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->s1perc}</td>
                     <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->s2perc}</td>
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->purchasedfromaffiliate} <a href="#" title="The affiliate from which you are buying the items. Only applicable for the case of intercompany transactions. This will automatically create an intercompany sale in the select affiliate budget."><img src="./images/icons/question.gif" ></a></td>
+                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->purchasedfromaffiliate} <a href="#" title="The affiliate from which you are buying the items. Only applicable for the case of intercompany transactions. This will automatically create an intercompany sale in the budget of the select affiliate."><img src="./images/icons/question.gif" ></a></td>
                 </tr>
             </thead>
             <tbody id="budgetlines{$rowid}_tbody" style="width:100%;">
