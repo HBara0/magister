@@ -141,12 +141,15 @@ $lang['tangibleassests'] = 'Tangible Assests';
 $lang['facilitiessubtotal'] = 'Bank Facilities SubTotal';
 $lang['facilitiessubtotal'] = 'Bank Facilities SubTotal';
 $lang['localincome'] = 'Local Income';
+$lang['localincomeamount'] = 'Local Income';
 $lang['allocatedlocalincome'] = ' Inome Allocated to invoicing entity ';
 $lang['localincomeper'] = 'Local Income %';
+$lang['localincomepercentage'] = 'Local Income %';
 $lang['intercompanypurchase'] = 'Purchase From ';
 $lang['localincomeexp'] = 'Local income is the portion of total income retained to the local affiliate ';
 $lang['intercompany'] = 'Intercompany purchase';
 $lang['copytospreadsheets'] = 'Note that you may copy data from the following tables to Excel spreadsheet';
 $lang['trainingandvisits'] = 'Training and visits';
 $lang['updateunsuccessfull'] = 'Update Unsuccessfull';
+$lang['purchasedfromaffiliate'] = 'Purchase from Affiliate';
 ?>

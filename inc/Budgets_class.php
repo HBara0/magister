@@ -178,11 +178,11 @@ class Budgets extends AbstractClass {
                 $existing_budget = Budgets::get_budget_bydata($budgetdata);
                 if(isset($this)) {
                     $this->data['bid'] = $existing_budget['bid'];
-                    $this->save_budgetlines($budgetline_data, $this->data['bid'], '', array('budgetdata' => $budgetdata));
+                    $this->save_budgetlines($budgetline_data, $this->data['bid']);
                 }
                 else {
                     $budget = new Budgets($existing_budget['bid']);
-                    $budget->save_budgetlines($budgetline_data, '', array('budgetdata' => $budgetdata));
+                    $budget->save_budgetlines($budgetline_data);
                 }
                 $log->record('updatedbudget', $existing_budget['bid']);
             }
@@ -264,22 +264,13 @@ class Budgets extends AbstractClass {
             }
 
             if(is_array($removed_lines)) {
-                $linked_bdlineobj = new BudgetLines($budgetlineobj->linkedBudgetLine);
-
-                if(empty($linked_bdlineobj->modifiedOn)) {
-                    print_R($linked_bdlineobj);
-
-                    foreach($removed_lines as $removedblid) {
+                foreach($removed_lines as $removedblid) {
+                    if(!empty($removedblid)) {
                         $budgetlineobj = new BudgetLines($removedblid);
-                        $budgetlineobj->delete();
-                        // $budgetlineobj->delete_interco_line();
-                    }
-                }
-                else {
-                    foreach($removed_lines as $removedblid) {
-                        $budgetlineobj = new BudgetLines($removedblid);
-                        // $budgetlineobj->delete();
-                        $linked_bdlineobj->delete_interco_line();
+                        if(!empty($budgetlineobj->blid)) {
+                            $budgetlineobj->delete();
+                            $budgetlineobj->delete_interco_line();
+                        }
                     }
                 }
             }
@@ -710,28 +701,32 @@ class BudgetLines {
                 $budgetline_data['localIncomeAmount'] = $budgetline_data['income'];
                 $budgetline_data['localIncomePercentage'] = 100;
                 $budgetline_data['invoicingEntityIncome'] = 0;
-                $budgetline_data['invoicingEntityIncome'] = $budgetline_data['income'];
                 if($saletype->localIncomeByDefault == 0) {
                     $budgetline_data['localIncomeAmount'] = 0;
                     $budgetline_data['localIncomePercentage'] = 0;
-                    ///  $budgetline_data['invoicingEntityIncome'] = $budgetline_data['income'];
-                    $budgetline_data['invoicingEntityIncome'] = 0;
+                    $budgetline_data['invoicingEntityIncome'] = $budgetline_data['income'];
                 }
             }
             else {
-
                 $budgetline_data['invoicingEntityIncome'] = $budgetline_data['income'] - $budgetline_data['localIncomeAmount'];
-                /* set the inome to zero to the intercompany budgetline when empty loclincome */
-                if($saletype->localIncomeByDefault == 0) {
-                    $budgetline_data['invoicingEntityIncome'] = 0;
-                }
             }
         }
     }
 
     public function delete_interco_line() {
-        global $db;
-        $db->delete_query('budgeting_budgets_lines', 'blid='.$this->budgetline['linkedBudgetLine']);
+        if(empty($this->budgetline['linkedBudgetLine'])) {
+            return;
+        }
+
+        $linked_bdlineobj = new BudgetLines($this->budgetline['linkedBudgetLine']);
+        /* If this is the initiator bugdet line, don't delete it */
+        if(!empty($linked_bdlineobj->interCompanyPurchase)) {
+            return;
+        }
+        /* If linked budget line has not been mondified, then delete it */
+        if(empty($linked_bdlineobj->modifiedOn)) {
+            $linked_bdlineobj->delete();
+        }
     }
 
     public function delete() {
@@ -869,15 +864,15 @@ class BudgetLines {
         return $info;
     }
 
-    public function __isset($name) {
-        return isset($this->budgetline[$name]);
-    }
-
     public function __get($name) {
         if(isset($this->budgetline[$name])) {
             return $this->budgetline[$name];
         }
         return false;
+    }
+
+    public function __isset($name) {
+        return isset($this->budgetline[$name]);
     }
 
     public function get() {
@@ -887,17 +882,19 @@ class BudgetLines {
     public function get_invoicingentity_income($tocurrency, $year, $affid) {
         global $db;
         $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($tocurrency)." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.invoiceAffid AND year=".intval($year)." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($tocurrency).") END)";
-        $sql = "SELECT saleType, invoice, SUM(amount*{$fxrate_query}) AS amount, SUM(invoicingEntityIncome*{$fxrate_query}) AS invoicingEntityIncome FROM ".Tprefix."budgeting_budgets_lines Where invoiceAffid= ".$affid." GROUP BY saleType";
+        $sql = "SELECT saleType, invoice, SUM(amount*{$fxrate_query}) AS amount, SUM(invoicingEntityIncome*{$fxrate_query}) AS invoicingEntityIncome FROM ".Tprefix."budgeting_budgets_lines Where invoiceAffid= ".intval($affid)." GROUP BY saleType";
         $query = $db->query($sql);
         if($db->num_rows($query) > 0) {
             while($budget = $db->fetch_assoc($query)) {
                 if($budget['invoice'] == 'supplier' || $budget['invoice'] == 'direct') {
                     return;
                 }
-                $invoiceaffsaletype = InvoiceTypes::get_data(array('stid' => $budget['saleType'], 'invoiceAffid' => $affid, 'invoicingEntity' => $budget['invoice']), array('simple' => false));
-                if(is_object($invoiceaffsaletype)) {
-                    $budget['saleType'] = $invoiceaffsaletype->invoiceAffStid;
+
+                $saletype = new SaleTypes($budget['saleType']);
+                if(!empty($saletype->invoiceAffStid)) {
+                    $budget['saleType'] = $saletype->invoiceAffStid;
                 }
+
                 $data['current'][$budget['saleType']]['amount'] = $budget['amount'];
                 $data['current'][$budget['saleType']]['invoicingentityincome'] = $budget['invoicingEntityIncome'];
             }
