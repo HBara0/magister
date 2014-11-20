@@ -404,7 +404,7 @@ if(!($core->input['action'])) {
                                     $rowclass = alt_row($rowclass);
                                     $budgetline_obj = new BudgetLines($budgetline['blid']);
                                     if(isset($budgetline['invoice']) && !empty($budgetline['invoice'])) {
-                                        $invoicetype = InvoiceTypes::get_data(array('invoicingEntity' => $budgetline['invoice'], 'stid' => $budgetline['saleType']));
+                                        $invoicetype = SaleTypesInvoicing::get_data(array('invoicingEntity' => $budgetline['invoice'], 'stid' => $budgetline['saleType']));
 
                                         if(is_object($invoicetype)) {
                                             $budgetline['invoiceentity'] = $invoicetype->get_invoiceentity();
