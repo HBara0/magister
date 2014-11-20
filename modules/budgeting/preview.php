@@ -400,11 +400,10 @@ if(!($core->input['action'])) {
                         foreach($firstbudgetline as $cid => $customersdata) {
                             foreach($customersdata as $pid => $productsdata) {
                                 foreach($productsdata as $saleid => $budgetline) {
-
                                     $rowclass = alt_row($rowclass);
                                     $budgetline_obj = new BudgetLines($budgetline['blid']);
                                     if(isset($budgetline['invoice']) && !empty($budgetline['invoice'])) {
-                                        $invoicetype = InvoiceTypes::get_data(array('invoicingEntity' => $budgetline['invoice'], 'stid' => $budgetline['saleType']));
+                                        $invoicetype = InvoiceTypes::get_data(array('affid' => $budget_obj->affid, 'invoicingEntity' => $budgetline['invoice'], 'stid' => $budgetline['saleType']));
 
                                         if(is_object($invoicetype)) {
                                             $budgetline['invoiceentity'] = $invoicetype->get_invoiceentity();
@@ -576,8 +575,14 @@ elseif($core->input['action'] == 'exportexcel') {
                             $budgetline[$counter]['product'] = $budgetline_obj->get_product($pid)->get()['name'];
                             $budgetline[$counter]['uom'] = 'Kg';
                             $budgetline[$counter]['unitPrice'] = $budgetline[$counter]['unitPrice'];
-                            $budgetline[$counter]['saleType'] = Budgets::get_saletype_byid($saleid);
+                            if(isset($budgetline[$counter]['invoice']) && !empty($budgetline[$counter]['invoice'])) {
+                                $invoicetype = InvoiceTypes::get_data(array('affid' => $budget_obj->affid, 'invoicingEntity' => $budgetline[$counter]['invoice'], 'stid' => $budgetline[$counter]['saleType']));
 
+                                if(is_object($invoicetype)) {
+                                    $budgetline[$counter]['invoiceentity'] = $invoicetype->get_invoiceentity();
+                                }
+                            }
+                            $budgetline[$counter]['saleType'] = Budgets::get_saletype_byid($saleid);
                             /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
                             $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline[$counter]['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budget_obj->year), $dal_config);
                             if(is_array($fxrates_obj)) {
