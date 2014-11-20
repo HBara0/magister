@@ -11,7 +11,7 @@ require '../inc/init.php';
 $budgetrates = BudgetFxRates::get_data();
 
 foreach($budgetrates as $rate) {
-    $budgetrates_reverse = BudgetFxRates::get_data(array('toCurrency' => $rate->fromCurrency, 'fromCurrency' => $rate->toCurrency));
+    $budgetrates_reverse = BudgetFxRates::get_data(array('year' => $rate->year, 'affid' => $rate->affid, 'toCurrency' => $rate->fromCurrency, 'fromCurrency' => $rate->toCurrency));
     if(!is_object($budgetrates_reverse)) {
         $reversearray = array('fromCurrency' => $rate->toCurrency,
                 'toCurrency' => $rate->fromCurrency,
