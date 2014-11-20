@@ -210,7 +210,7 @@ class BudgetPlCategories extends AbstractClass {
                                     }
                                 }
                             }
-                            $saletypes = SaleTypes::get_data();
+                            $saletypes = SaleTypes::get_data('', array('order' => array('by' => 'sequence')));
                             foreach($saletypes as $type) {
                                 /* Set yef default value for testing */
                                 $combudget['prevyear'][$type->stid]['amount'] = $combudget['prevyear'][$type->stid]['income'] = 10;
