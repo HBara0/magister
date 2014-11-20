@@ -41,4 +41,5 @@
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">  <input type='text' placeholder="{$lang->search} {$lang->affiliate}" id='affiliate_noexception_{$rowid}_autocomplete' name="" value="{$budgetline[interCompanyPurchase_output]}" autocomplete='off'  />
         <input type='hidden' value="{$budgetline[interCompanyPurchase]}" id='affiliate_noexception_{$rowid}_id' name='budgetline[$rowid][interCompanyPurchase]' />
     </td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center">{$purchase_selectlist}</td>
 </tr>
