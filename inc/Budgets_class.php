@@ -256,7 +256,28 @@ class Budgets extends AbstractClass {
                         }
                     }
                 }
-
+                if(isset($data['purchasingEntity'])) {
+                    $data['purchasingEntityId'] = 0;
+                    switch($data['purchasingEntity']) {
+                        case'customer':
+                            if(!empty($data['cid'])) {
+                                $data['purchasingEntityId'] = $data['cid'];
+                            }
+                            else if(empty($data['cid']) && !empty($data['altCid'])) {
+                                $data['purchasingEntityId'] = $data['altCid'];
+                            }
+                            break;
+                        case 'direct':
+                            $data['purchasingEntityId'] = $this->data['affid'];
+                            break;
+                        case 'fze':
+                            $data['purchasingEntityId'] = 14;
+                            break;
+                        case 'int':
+                            $data['purchasingEntityId'] = 27;
+                            break;
+                    }
+                }
                 unset($data['unspecifiedCustomer']);
                 if(isset($data['blid']) && !empty($data['blid'])) {
                     $budgetlineobj->update($data);
