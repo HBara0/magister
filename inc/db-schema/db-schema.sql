@@ -306,6 +306,8 @@ CREATE TABLE `budgeting_budgets_lines` (
   `saleType` varchar(12) NOT NULL,
   `s1Perc` float NOT NULL,
   `s2Perc` float NOT NULL,
+  `inputChecksum` varchar(200) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`blid`),
   KEY `createdBy` (`createdBy`),
   KEY `businessMgr` (`businessMgr`)

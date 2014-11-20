@@ -8,7 +8,7 @@
  * Last Update:    @rasha.aboushakra    Sep 30, 2014 | 11:16:22 AM
  */
 
-Class InvoiceTypes extends AbstractClass {
+Class SaleTypesInvoicing extends AbstractClass {
     protected $data = array();
     protected $errorcode = 0;
 
