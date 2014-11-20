@@ -18,8 +18,9 @@
             </tr>
             <tr>
                 <td>{$lang->rate}</td>
-                <td><input type="number" name="budgetrate[rate]"   step="any"  required="required" value="{$budgetrate[rate]}"/></td>
+                <td><input type="number" name="budgetrate[rate]"   step="any"  required="required" value="{$budgetrate->rate}"/></td>
             </tr>
+            {$craetereverserate}
 
 
             <tr> <td><input type="submit" id="perform_budgeting/listfxrates_Button" value="{$lang->savecaps}" class="button"/></td></tr>

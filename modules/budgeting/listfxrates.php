@@ -60,21 +60,17 @@ if(!$core->input['action']) {
                     $fromcur_obj = new Currencies($fxrate->fromCurrency);
                     $tocur_obj = new Currencies($fxrate->toCurrency);
                     $row_tools .= ' <a href="#'.$fxrate->bfxid.'" id="deleterate_'.$fxrate->bfxid.'_budgeting/listfxrates_loadpopupbyid" rel="delete_'.$fxrate->bfxid.'" title="'.$lang->delete.'"><img src="'.$core->settings['rootdir'].'/images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>';
-                    $row_tools .= ' <a href="#'.$fxrate->bfxid.'" id="updaterate_'.$fxrate->bfxid.'_budgeting/listfxrates_loadpopupbyid" rel="update_'.$fxrate->bfxid.'" title="'.$lang->delete.'"><img src="'.$core->settings['rootdir'].'/images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>';
+                    $row_tools .= ' <a href="#'.$fxrate->bfxid.'" id="updaterate_'.$fxrate->bfxid.'_budgeting/listfxrates_loadpopupbyid" rel="update_'.$fxrate->bfxid.'" title="'.$lang->delete.'"><img src="'.$core->settings['rootdir'].'/images/icons/edit.gif" alt="'.$lang->delete.'" border="0"></a>';
 
                     eval("\$budgetfxratess_list .= \"".$template->get('budgeting_listfxrates_rows')."\";");
                     $row_tools = '';
                 }
             }
-
-            //   eval("\$budgetfxratess_list .= \"".$template->get('budgeting_listfxrates_rows')."\";");
         }
     }
 
-
     /* Crate rates popup interface */
     $years = array_combine(range(date('Y') - 2, date('Y') + 1), range(date('Y') - 2, date('Y') + 1));
-
     foreach($years as $year) {
         $year_selected = '';
         if($year == $years[date("Y")] + 1) {
@@ -82,7 +78,6 @@ if(!$core->input['action']) {
         }
         $budget_years .= "<option value='{$year}'{$year_selected}>{$year}</option>";
     }
-
 
     $aff_objs = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('operators' => array('affid' => 'IN')));
     if(is_array($aff_objs)) {
@@ -101,25 +96,82 @@ if(!$core->input['action']) {
 
 
     $popupcreaterate = '';
+    $craetereverserate = '<tr> <td>'.$lang->craetereverserate.'</td> <td><input  type="checkbox" name="budgetrate[createreverserate]"   value="1"/></td></tr>';
     eval("\$popupcreaterate= \"".$template->get('popup_createbudget_fxrate')."\";");
     eval("\$budgetinglistfxrates = \"".$template->get('budgeting_listfxrates')."\";");
     output_page($budgetinglistfxrates);
 }
 else if($core->input['action'] == 'get_updaterate') {
-    eval("\$addrate = \"".$template->get('popup_budget_update')."\";");
+    $bfxid = $db->escape_string($core->input['id']);
+    $budgetrate = BudgetFxRates::get_data(array('bfxid' => $bfxid));
+    $aff_objs = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('operators' => array('affid' => 'IN')));
+    if(is_array($aff_objs)) {
+        foreach($aff_objs as $affiliate) {
+            $affiliates[$affiliate->affid] = $affiliate->get_displayname();
+            if($affiliate->affid == $budgetrate->affid) {
+                $selectedaff[] = $budgetrate->affid;
+            }
+        }
+        $affiliate_list = parse_selectlist('budgetrate[affid]', 1, $affiliates, $selectedaff);
+    }
+    /* Crate rates popup interface */
+    $years = array_combine(range(date('Y') - 2, date('Y') + 1), range(date('Y') - 2, date('Y') + 1));
+
+    foreach($years as $year) {
+        $year_selected = '';
+        if($year == $years[date("Y")] + 1) {
+            $year_selected = "selected=selected";
+        }
+        $budget_years .= "<option value='{$year}'{$year_selected}>{$year}</option>";
+    }
+
+    $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where affid IS NOT NULL';
+    $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
+
+    if(in_array($budgetrate->fromCurrency, array_keys($curr_objs))) {
+        $selectedfrom[] = $budgetrate->fromCurrency;
+    }
+    if(in_array($budgetrate->toCurrency, array_keys($curr_objs))) {
+        $selectedto[] = $budgetrate->toCurrency;
+    }
+    $fromcurr_list = parse_selectlist('budgetrate[fromCurrency]', 4, $curr_objs, $selectedfrom);
+    $tocurr_list = parse_selectlist('budgetrate[toCurrency]', 4, $curr_objs, $selectedto);
+
+
+    eval("\$addrate= \"".$template->get('popup_createbudget_fxrate')."\";");
     output($addrate);
 }
-else if($core->input['action'] == 'get_deleterate') {
+elseif($core->input['action'] == 'get_deleterate') {
     $bfxid = $db->escape_string($core->input['id']);
+
+    $budget_rateobj = BudgetFxRates::get_data(array('bfxid' => $bfxid));
+    $fromcur_obj = new Currencies($budget_rateobj->fromCurrency);
+    $tocur_obj = new Currencies($budget_rateobj->toCurrency);
 
     eval("\$deleterate = \"".$template->get('popup_budget_delete')."\";");
     output($deleterate);
 }
-else if($core->input['action'] == 'do_createrate') {
-
+elseif($core->input['action'] == 'do_deleterate') {
+    $bfxid = $db->escape_string($core->input['bfxid']);
+    $budget_rateobj = BudgetFxRates::get_data(array('bfxid' => $bfxid));
+    $budget_rateobj->delete();
+    switch($budget_rateobj->get_errorcode()) {
+        case 0:
+            output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+            break;
+    }
+}
+elseif($core->input['action'] == 'do_createrate') {
     $budgetrate = $core->input['budgetrate'];
-
     $budgetfxrate_obj = new BudgetFxRates();
+    //  $mac = shell_exec('getmac');
+    // echo $mac;
+
+    if($budgetrate['fromCurrency'] == $budgetrate['toCurrency']) {
+        output_xml('<status>false</status><message>err'.$lang->successfullysaved.'</message>');
+        return;
+    }
+
     $budgetfxrate_obj->set($budgetrate);
     $budgetfxrate_obj->save();
     switch($budgetfxrate_obj->get_errorcode()) {
