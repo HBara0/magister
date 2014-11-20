@@ -194,7 +194,6 @@ class Budgets extends AbstractClass {
         if(isset($budgetline_data['customerName'])) {
             unset($budgetline_data['customerName']);
         }
-
         if(empty($bid)) {
             $bid = $this->data['bid'];
         }
@@ -216,11 +215,14 @@ class Budgets extends AbstractClass {
                     $data['altCid'] = NULL;
                     $data['customerCountry'] = 0;
                 }
-
                 if(isset($data['blid']) && !empty($data['blid'])) {
                     $budgetlineobj = new BudgetLines($data['blid']);
                 }
-                else {
+                else if(isset($data['inputChecksum']) && !empty($data['inputChecksum'])) {
+                    $budgetlineobj = BudgetLines::get_data(array('inputChecksum' => $data['inputChecksum']));
+                    $data['blid'] = $budgetlineobj->blid;
+                }
+                if(!is_object($budgetlineobj)) {
                     $budgetline = BudgetLines::get_budgetline_bydata($data);
                     if($budgetline != false) {
                         $budgetlineobj = new BudgetLines($budgetline['blid']);
@@ -241,9 +243,12 @@ class Budgets extends AbstractClass {
                 if(empty($data['s1Perc']) && empty($data['s2Perc'])) {
                     $data['s1Perc'] = $data['s2Perc'] = 50;
                 }
-
                 if(isset($data['invoice'])) {
-                    $invoiceentity = InvoiceTypes::get_data(array('affid' => $options['budgetdata']['affid'], 'invoicingEntity' => $data['invoice'], 'stid' => $data['saleType']));
+                    if(empty($this->data['affid'])) {
+                        $budget_obj = new Budgets($data['bid']);
+                        $this->data['affid'] = $budget_obj->affid;
+                    }
+                    $invoiceentity = SaleTypesInvoicing::get_data(array('affid' => $this->data['affid'], 'invoicingEntity' => $data['invoice'], 'stid' => $data['saleType']));
                     if(is_object($invoiceentity)) {
                         if($invoiceentity->isAffiliate == 1) {
                             $data['invoiceAffid'] = $invoiceentity->invoiceAffid;
