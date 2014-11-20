@@ -1,5 +1,6 @@
 <tr id="{$rowid}">
     <td style="vertical-align: top; border-bottom: dashed 1px #CCCCCC; text-align: left;">
+        <input type="hidden" name="budgetline[$rowid][inputChecksum]" value="{$inputChecksum}"/>
         <input type="hidden" name="budgetline[$rowid][blid]" value="{$budgetline[blid]}"/>
         <input type='text' id='customer_noexception_{$rowid}_autocomplete' name="budgetline[$rowid][customerName]" {$disabledattrs[cid]} value="{$budgetline[customerName]}" autocomplete='off' {$required}/>
         <input type='text' size='3' id='customer_noexception_{$rowid}_id_output' disabled='disabled' value="{$budgetline[cid]}" style="display:none;"/>
@@ -37,7 +38,7 @@
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[$rowid][s1Perc]" type="text" id="s1perc_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[s1Perc]}" placeholder="50" autocomplete='off'/></td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[$rowid][s2Perc]" type="text" id="s2perc_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[s2Perc]}"  placeholder="50"  autocomplete='off'/></td>
 
-    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">  <input type='text' placeholder="{$lang->search} {$lang->affiliate}" id='affiliate_noexception_{$rowid}_autocomplete' name=""   value="{$budgetline[interCompanyPurchase_output]}" autocomplete='off'  />
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">  <input type='text' placeholder="{$lang->search} {$lang->affiliate}" id='affiliate_noexception_{$rowid}_autocomplete' name="" value="{$budgetline[interCompanyPurchase_output]}" autocomplete='off'  />
         <input type='hidden' value="{$budgetline[interCompanyPurchase]}" id='affiliate_noexception_{$rowid}_id' name='budgetline[$rowid][interCompanyPurchase]' />
     </td>
 </tr>

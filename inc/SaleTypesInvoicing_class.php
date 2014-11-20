@@ -8,7 +8,7 @@
  * Last Update:    @rasha.aboushakra    Sep 30, 2014 | 11:16:22 AM
  */
 
-Class InvoiceTypes extends AbstractClass {
+Class SaleTypesInvoicing extends AbstractClass {
     protected $data = array();
     protected $errorcode = 0;
 
@@ -37,12 +37,11 @@ Class InvoiceTypes extends AbstractClass {
     public function get_invoiceentity() {
         if($this->data['isAffiliate'] == 1) {
             $entity = Affiliates::get_affiliates(array('affid' => $this->data['invoiceAffid']));
-            $entity = $entity->get_displayname();
+            return $entity->get_displayname();
         }
         else {
-            $entity = $this->data['invoicingEntity'];
+            return $this->data['invoicingEntity'];
         }
-        return $entity;
     }
 
 }

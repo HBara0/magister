@@ -241,6 +241,7 @@ if(!$core->input['action']) {
                                     'remainingcommaff_header_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"> <input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id=affiliate_'.$rowid.'_autocomplete name=""  value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete="off" /><input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_'.$rowid.'_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
                             );
                         }
+                        $inputChecksum = $budgetline['inputChecksum'];
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
                         $rowid++;
                     }
@@ -266,7 +267,7 @@ if(!$core->input['action']) {
         <input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
                 );
             }
-
+            $inputChecksum = generate_checksum('budget');
             eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
         }
         unset($saletype_selectlistdata, $checked_checkboxes);
@@ -339,7 +340,7 @@ else {
                 break;
         }
     }
-    elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
+    else if($core->input['action'] == 'ajaxaddmore_budgetlines') {
         $rowid = intval($core->input['value']) + 1;
         $budget_data = $core->input['ajaxaddmoredata'];
         $affiliate = new Affiliates($budget_data['affid']);
@@ -387,6 +388,7 @@ else {
         <input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
             );
         }
+        $inputChecksum = generate_checksum('budget');
         eval("\$budgetlinesrows = \"".$template->get('budgeting_fill_lines')."\";");
         output($budgetlinesrows);
     }
