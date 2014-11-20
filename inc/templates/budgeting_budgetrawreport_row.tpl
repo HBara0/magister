@@ -12,10 +12,11 @@
     <td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">{$budgetline[unitPrice]}</td>
     <td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">{$budgetline[amount]}</td>
     <td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">{$budgetline[income]}</td>
-    <td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">{$budgetline[localIncomeAmount]}</td>
+    {$localincomeamount}
+
     <td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$budgetline[s1Perc]}%</td>
     <td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$budgetline[s2Perc]}%</td>
     <td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$budgetline[invoiceentity]}</td>
-    <td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$budgetline[allocatedlocalIncome]}</td>
+    {$allocatedincome}
     <td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$budgetline[interCompanyPurchase_output]}</td>
 </tr>

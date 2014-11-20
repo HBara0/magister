@@ -414,20 +414,7 @@ if(!($core->input['action'])) {
                                     $budget['managerid'] = $budgetline_obj->get_businessMgr()->get()['uid'];
                                     /* if empty localIncomeAmount by default */
 
-                                    if(showfield_permission('Budget_canFillLocalincome')) {
 
-                                        if(empty($budgetline['localIncomePercentage'])) {
-                                            $budgetline['localIncomePercentage'] = $budgetline['incomePerc'];
-                                        }
-                                        if(empty($budgetline['localIncomeAmount'])) {
-                                            $budgetline['localIncomeAmount'] = $budgetline['income'];
-                                        }
-
-                                        $budgetline['allocatedlocalIncome'] = $budgetline['income'] - $budgetline['localIncomeAmount'];
-                                    }
-                                    else {
-                                        unset($budgetline['localIncomeAmount'], $budgetline['allocatedlocalIncome'], $budgetline['localIncomePercentage']);
-                                    }
                                     if(!$budgetcache->iscached('mana=gercache', $budget['manager']['uid'])) {
                                         $budgetcache->add('managercache', $budget['manager']['displayName'], $budget['manager']['uid']);
                                     }
@@ -449,16 +436,31 @@ if(!($core->input['action'])) {
                                     if($budgetline['originalCurrency'] != $budgetsdata['current']['toCurrency']) {
                                         $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budgetsdata['current']['affiliates'], 'year' => $budgetsdata['current']['years']), $dal_config);
                                         if(is_array($fxrates_obj)) {
-
                                             foreach($fxrates_obj as $fxid => $fxrates) {
                                                 $budgetline['amount'] = ($budgetline['amount'] * $fxrates->rate);
                                                 $budgetline['income'] = ($budgetline['income'] * $fxrates->rate);
+                                                $budgetline['localIncomeAmount'] = ($budgetline['localIncomeAmount'] * $fxrates->rate);
                                             }
                                         }
                                         else {
                                             error($lang->currencynotexist.' '.$budgetline['originalCurrency'].' ('.$budget['affiliate'].')', $_SERVER['HTTP_REFERER']);
                                         }
                                     }
+                                    if(showfield_permission('budgeting_canFillLocalIncome')) {
+                                        if(empty($budgetline['localIncomePercentage'])) {
+                                            $budgetline['localIncomePercentage'] = $budgetline['incomePerc'];
+                                        }
+                                        if(empty($budgetline['localIncomeAmount'])) {
+                                            $budgetline['localIncomeAmount'] = $budgetline['income'];
+                                        }
+                                        $localincomeamount = ' <td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['localIncomeAmount'].'</td>';
+                                        $budgetline['allocatedlocalIncome'] = $budgetline['income'] - $budgetline['localIncomeAmount'];
+                                        $allocatedincome = '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$budgetline['allocatedlocalIncome'].'</td>';
+                                    }
+                                    else {
+                                        unset($localincomeamount, $budgetline['localIncomeAmount'], $budgetline['allocatedlocalIncome'], $budgetline['localIncomePercentage']);
+                                    }
+
                                     /* get the currency rate of the Origin currency  of the current buudget - END */
                                     if(isset($budgetline['pid']) && !empty($budgetline['pid'])) {
                                         if(!empty($budgetline['psid'])) {
@@ -492,7 +494,7 @@ if(!($core->input['action'])) {
                 $budgeting_budgetrawreport = '<tr><td>'.$lang->na.'</td></tr>';
             }
 
-            if(showfield_permission('Budget_canFillLocalincome')) {
+            if(showfield_permission('budgeting_canFillLocalIncome')) {
                 $loalincomeheader = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->localincome.'</th>';
                 $loalincome_allocatedheader = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->allocatedlocalincome.'</th>';
             }
@@ -564,17 +566,6 @@ elseif($core->input['action'] == 'exportexcel') {
 
                             $budgetline[$counter]['customerCountry'] = $budgetline_obj->parse_country();
 
-                            if(showfield_permission('Budget_canFillLocalincome')) {
-                                if(empty($budgetline[$counter]['localIncomePercentage'])) {
-                                    $budgetline[$counter]['localIncomePercentage'] = $budgetline[$counter]['incomePerc'];
-                                }
-                                if(empty($budgetline[$counter]['localIncomeAmount'])) {
-                                    $budgetline[$counter]['localIncomeAmount'] = $budgetline[$counter]['income'];
-                                }
-                            }
-                            else {
-                                unset($budgetline[$counter]['localIncomeAmount'], $budgetline[$counter]['localIncomePercentage']);
-                            }
                             if(!empty($budgetline[$counter]['psid'])) {
                                 $segment = new ProductsSegments($budgetline[$counter]['psid']);
                                 $budgetline[$counter]['segment'] = $segment->title;
@@ -588,7 +579,6 @@ elseif($core->input['action'] == 'exportexcel') {
                                     'returnarray' => true
                             );
 
-
                             $budgetline[$counter]['product'] = $budgetline_obj->get_product($pid)->get()['name'];
                             $budgetline[$counter]['uom'] = 'Kg';
                             $budgetline[$counter]['unitPrice'] = $budgetline[$counter]['unitPrice'];
@@ -600,7 +590,20 @@ elseif($core->input['action'] == 'exportexcel') {
                                 foreach($fxrates_obj as $fxid => $fxrates) {
                                     $budgetline[$counter]['amount'] = ( $budgetline[$counter]['amount'] * $fxrates->rate);
                                     $budgetline[$counter]['income'] = ( $budgetline[$counter]['income'] * $fxrates->rate);
+                                    $budgetline[$counter]['localIncomeAmount'] = ( $budgetline[$counter]['localIncomeAmount'] * $fxrates->rate);
                                 }
+                            }
+                            /* set permission for local income */
+                            if(showfield_permission('budgeting_canFillLocalIncome')) {
+                                if(empty($budgetline[$counter]['localIncomePercentage'])) {
+                                    $budgetline[$counter]['localIncomePercentage'] = $budgetline[$counter]['incomePerc'];
+                                }
+                                if(empty($budgetline[$counter]['localIncomeAmount'])) {
+                                    $budgetline[$counter]['localIncomeAmount'] = $budgetline[$counter]['income'];
+                                }
+                            }
+                            else {
+                                unset($budgetline[$counter]['localIncomeAmount'], $budgetline[$counter]['localIncomePercentage']);
                             }
                             /* get the currency rate of the Origin currency  of the current buudget - END */
                             if((empty($budgetline[$counter]['cid']) && !empty($budgetline[$counter]['altCid']))) {

@@ -697,14 +697,12 @@ class BudgetLines {
 
     private function split_income(&$budgetline_data) {
         global $core;
-
         if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
             if(empty($budgetline_data['localIncomeAmount']) && $budgetline_data['localIncomeAmount'] != '0') {
                 if(!isset($budgetline_data['saleType'])) {
                     return;
                 }
                 $saletype = new SaleTypes($budgetline_data['saleType']);
-
                 $budgetline_data['localIncomeAmount'] = $budgetline_data['income'];
                 $budgetline_data['localIncomePercentage'] = 100;
                 $budgetline_data['invoicingEntityIncome'] = 0;
