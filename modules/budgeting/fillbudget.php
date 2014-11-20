@@ -236,7 +236,10 @@ if(!$core->input['action']) {
                                     'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline[localIncomePercentage].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>'
                             );
                         }
-                        $inputChecksum = $budgetline['inputChecksum'];
+
+                        if(empty($budgetline['inputChecksum'])) {
+                            $budgetline['inputChecksum'] = generate_checksum('bl');
+                        }
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
                         $rowid++;
                     }
@@ -259,7 +262,7 @@ if(!$core->input['action']) {
                         'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline[localIncomePercentage].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>'
                 );
             }
-            $inputChecksum = generate_checksum('budget');
+            $budgetline['inputChecksum'] = generate_checksum('bl');
             eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
         }
         unset($saletype_selectlistdata, $checked_checkboxes);
@@ -331,7 +334,7 @@ else {
                 break;
         }
     }
-    else if($core->input['action'] == 'ajaxaddmore_budgetlines') {
+    elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
         $rowid = intval($core->input['value']) + 1;
         $budget_data = $core->input['ajaxaddmoredata'];
         $affiliate = new Affiliates($budget_data['affid']);
@@ -376,7 +379,7 @@ else {
                     'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline[localIncomePercentage].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>'
             );
         }
-        $inputChecksum = generate_checksum('budget');
+        $budgetline['inputChecksum'] = generate_checksum('bl');
         eval("\$budgetlinesrows = \"".$template->get('budgeting_fill_lines')."\";");
         output($budgetlinesrows);
     }
