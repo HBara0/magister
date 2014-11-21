@@ -77,11 +77,9 @@ if(!isset($core->input['action'])) {
     $budgeting_header .='</tr>';
 
     if(!empty($currency->alphaCode)) {
-        $tocurrency = '840'; //usd
-        $currencyto_obj = new Currencies($tocurrency);
-        $currency_to = $currencyto_obj->get()['alphaCode'];
+        $tocurrency = array('840', '978'); //usd,eur
         $dal_config = array(
-                'operators' => array('fromCurrency' => '=', 'affid' => 'in', 'year' => 'in'),
+                'operators' => array('fromCurrency' => '=', 'affid' => 'in', 'toCurrency' => 'in', 'year' => 'in'),
                 'simple' => false,
                 'order' => 'year',
                 'returnarray' => true
@@ -91,9 +89,17 @@ if(!isset($core->input['action'])) {
         $output_currency = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding: 5px; margin-top: 10px; margin-bottom: 10px; display: block;"><span><em>'.$lang->sprint($lang->budgcurrdesc, $currency->alphaCode).'</em></span></br>';
         if(is_array($fxrates_obj)) {
             $output_currency .='<em><strong>'.$lang->exchangerate.'</strong></em></br>';
-            foreach($fxrates_obj as $rate) {
-                $output_currency.='<span>'.$lang->sprint($lang->currrate, $currency->alphaCode, $currency_to, $rate->rate).' for year: '.$rate->year.'</span><br/>';
+            foreach($fxrates_obj as $fxrate) {
+                $currencyto_obj = new Currencies($fxrate->toCurrency);
+                $output_currency.='<span>'.$lang->sprint($lang->currrate, $currency->alphaCode, $currencyto_obj->get()['alphaCode'], $fxrate->rate).' for year: '.$fxrate->year.'</span><br/>';
             }
+        }
+        // Exchange rate from USD to EUR
+        $usdtoeur_fxrate = BudgetFxRates::get_data(array('fromCurrency' => $tocurrency[0], 'toCurrency' => $tocurrency[1], 'affid' => $affid, 'year' => $years), array('operators' => array('year' => 'in')));
+        if(is_object($usdtoeur_fxrate)) {
+            $currencyfrom_obj = new Currencies($usdtoeur_fxrate->fromCurrency);
+            $currencyto_obj = new Currencies($usdtoeur_fxrate->toCurrency);
+            $output_currency .= '<span>'.$lang->sprint($lang->currrate, $currencyfrom_obj->get()['alphaCode'], $currencyto_obj->get()['alphaCode'], $usdtoeur_fxrate->rate).' for year: '.$usdtoeur_fxrate->year.'</span><br/>';
         }
         $output_currency.='</div>';
     }
