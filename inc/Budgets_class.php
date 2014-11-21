@@ -919,10 +919,6 @@ class BudgetLines {
         $query = $db->query($sql);
         if($db->num_rows($query) > 0) {
             while($budget = $db->fetch_assoc($query)) {
-                if($budget['invoice'] == 'supplier' || $budget['invoice'] == 'direct') {
-                    return;
-                }
-
                 $saletype = new SaleTypes($budget['saleType']);
                 if(!empty($saletype->invoiceAffStid)) {
                     $budget['saleType'] = $saletype->invoiceAffStid;
