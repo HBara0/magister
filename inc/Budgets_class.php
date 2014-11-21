@@ -267,6 +267,20 @@ class Budgets extends AbstractClass {
                                 $data['purchasingEntityId'] = $data['altCid'];
                             }
                             break;
+
+//                    default:
+//                      if(empty($this->data['affid'])) {
+//                        $budget_obj = new Budgets($data['bid']);
+//                        $this->data['affid'] = $budget_obj->affid;
+//                    }
+//                    $purchasingentity = SaleTypesInvoicing::get_data(array('affid' => $this->data['affid'], 'invoicingEntity' => $data['purchasingEntity'], 'stid' => $data['saleType']));
+//                    if(is_object($purchasingentity)) {
+//                        if($purchasingentity->isAffiliate == 1) {
+//                            $data['purchasingEntityId'] = $purchasingentity->invoiceAffid;
+//                            if($data['purchasingEntity'] !='direct'){
+//                            $data['commissionSplitAffid'] = $data['commissionSplitAffid'];}
+//                        }
+//                    }
                         case 'direct':
                             $data['purchasingEntityId'] = $this->data['affid'];
                             break;
@@ -663,7 +677,6 @@ class BudgetLines {
 
     public function save_interco_line($data) {
         global $core;
-
         if(empty($data['interCompanyPurchase'])) {
             return;
         }
