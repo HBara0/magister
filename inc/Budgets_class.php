@@ -252,10 +252,10 @@ class Budgets extends AbstractClass {
                     if(is_object($invoiceentity)) {
                         if($invoiceentity->isAffiliate == 1) {
                             $data['invoiceAffid'] = $invoiceentity->invoiceAffid;
-                            $data['commissionSplitAffid'] = $invoiceentity->invoiceAffid;
                         }
                     }
                 }
+
                 if(isset($data['purchasingEntity'])) {
                     $data['purchasingEntityId'] = 0;
                     switch($data['purchasingEntity']) {
@@ -272,9 +272,15 @@ class Budgets extends AbstractClass {
                             break;
                         case 'fze':
                             $data['purchasingEntityId'] = 14;
+                            $data['commissionSplitAffid'] = $data['purchasingEntityId'];
                             break;
                         case 'int':
                             $data['purchasingEntityId'] = 27;
+                            $data['commissionSplitAffid'] = $data['commissionSplitAffid'];
+                            break;
+                        case 'alex':
+                            $data['purchasingEntityId'] = 28;
+                            $data['commissionSplitAffid'] = $data['commissionSplitAffid'];
                             break;
                     }
                 }

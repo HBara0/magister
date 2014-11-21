@@ -403,18 +403,21 @@ if(!($core->input['action'])) {
                                     $rowclass = alt_row($rowclass);
                                     $budgetline_obj = new BudgetLines($budgetline['blid']);
                                     if(isset($budgetline['invoice']) && !empty($budgetline['invoice'])) {
-                                        $invoicetype = InvoiceTypes::get_data(array('affid' => $budget_obj->affid, 'invoicingEntity' => $budgetline['invoice'], 'stid' => $budgetline['saleType']));
+                                        $invoicetype = SaleTypesInvoicing::get_data(array('affid' => $budget_obj->affid, 'invoicingEntity' => $budgetline['invoice'], 'stid' => $budgetline['saleType']));
 
                                         if(is_object($invoicetype)) {
                                             $budgetline['invoiceentity'] = $invoicetype->get_invoiceentity();
                                         }
                                     }
+                                    if(!empty($budgetline['purchasingEntityId'])) {
+                                        $purchasingentity = new Affiliates($budgetline['purchasingEntityId']);
+                                        $budgetline['purchasingEntity'] = $purchasingentity->name;
+                                    }
                                     $budget['manager'] = $budgetline_obj->get_businessMgr()->get();
                                     $budget['managerid'] = $budgetline_obj->get_businessMgr()->get()['uid'];
                                     /* if empty localIncomeAmount by default */
 
-
-                                    if(!$budgetcache->iscached('mana=gercache', $budget['manager']['uid'])) {
+                                    if(!$budgetcache->iscached('managercache', $budget['manager']['uid'])) {
                                         $budgetcache->add('managercache', $budget['manager']['displayName'], $budget['manager']['uid']);
                                     }
                                     $budget['supplier'] = $budget_obj->get_supplier()->get()['companyNameShort'];
@@ -502,7 +505,7 @@ elseif($core->input['action'] == 'exportexcel') {
     $budgetsdata['current'] = unserialize(base64_decode($core->input['identifier']));
     $budgets['current'] = Budgets::get_budgets_bydata($budgetsdata['current']);
 
-    $headers_data = array('manager', 'customer', 'customerCountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saleType', 'amount', 'income', 's1Perc', 's2Perc', 'invoiceentity');
+    $headers_data = array('blid', 'manager', 'customer', 'customerCountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saleType', 'amount', 'income', 's1Perc', 's2Perc', 'purchasingentity');
     if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
         $headers_data[] = 'localIncomeAmount';
     }
@@ -576,11 +579,16 @@ elseif($core->input['action'] == 'exportexcel') {
                             $budgetline[$counter]['uom'] = 'Kg';
                             $budgetline[$counter]['unitPrice'] = $budgetline[$counter]['unitPrice'];
                             if(isset($budgetline[$counter]['invoice']) && !empty($budgetline[$counter]['invoice'])) {
-                                $invoicetype = InvoiceTypes::get_data(array('affid' => $budget_obj->affid, 'invoicingEntity' => $budgetline[$counter]['invoice'], 'stid' => $budgetline[$counter]['saleType']));
+                                $invoicetype = SaleTypesInvoicing::get_data(array('affid' => $budget_obj->affid, 'invoicingEntity' => $budgetline[$counter]['invoice'], 'stid' => $budgetline[$counter]['saleType']));
 
                                 if(is_object($invoicetype)) {
                                     $budgetline[$counter]['invoiceentity'] = $invoicetype->get_invoiceentity();
                                 }
+                            }
+
+                            if(!empty($budgetline[$counter]['purchasingEntityId'])) {
+                                $purchasingentity = new Affiliates($budgetline[$counter]['purchasingEntityId']);
+                                $budgetline[$counter]['purchasingEntity'] = $purchasingentity->name;
                             }
                             $budgetline[$counter]['saleType'] = Budgets::get_saletype_byid($saleid);
                             /* get the currency rate of the Origin currency  of the current buudget and convert it - START */

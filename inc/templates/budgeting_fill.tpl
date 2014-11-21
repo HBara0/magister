@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$lang->fillbudget}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function() {
-                $('input[id^="amountper_"]').live('keyup', function() {
+            $(function () {
+                $('input[id^="amountper_"]').live('keyup', function () {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=amountper_' + id[1] + ']').val())) {
                         return;
@@ -13,7 +13,7 @@
                 });
 
 
-                $('input[id^="localincomeper_"]').live('keyup', function() {
+                $('input[id^="localincomeper_"]').live('keyup', function () {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=localincomeper_' + id[1] + ']').val())) {
                         return;
@@ -22,7 +22,7 @@
 
                 });
 
-                $('input[id^="localincome_"]').live('keyup change', function() {
+                $('input[id^="localincome_"]').live('keyup change', function () {
                     var id = $(this).attr("id").split("_");
 
                     if(!jQuery.isNumeric($('input[id=localincome_' + id[1] + ']').val())) {
@@ -32,7 +32,7 @@
                         $('input[id=localincomeper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id=income_' + id[1] + ']').val());
                     }
                 });
-                $('input[id^="income_"]').live('keyup', function() {
+                $('input[id^="income_"]').live('keyup', function () {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=income_' + id[1] + ']').val())) {
                         return;
@@ -42,7 +42,7 @@
                     }
                 });
 
-                $('input[id^="unitprice_"]').live('keyup', function() {
+                $('input[id^="unitprice_"]').live('keyup', function () {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=unitprice_' + id[1] + ']').val())) {
                         return;
@@ -56,14 +56,14 @@
 
                 });
 
-                $('input[id^="Qty_"]').live('keyup', function() {
+                $('input[id^="Qty_"]').live('keyup', function () {
                     var id = $(this).attr("id").split("_");
                     $('input[id="unitprice_' + id[1] + '"]').trigger('keyup');
                     $('input[id="amountper_' + id[1] + '"]').trigger('keyup');
                     $('input[id="localincomeper_' + id[1] + '"]').trigger('keyup');
                 });
 
-                $('input[id^="amount_"]').live('keyup', function() {
+                $('input[id^="amount_"]').live('keyup', function () {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=amount_' + id[1] + ']').val())) {
                         return;
@@ -85,7 +85,7 @@
 
                 });
 
-                $('input[id^="s1perc_"]').live('keyup', function(e) {
+                $('input[id^="s1perc_"]').live('keyup', function (e) {
                     var id = $(this).attr("id").split("_");
                     if($(this).val() > 100) {
                         e.preventDefault();
@@ -95,7 +95,7 @@
                     }
                 });
 
-                $('input[id^="s2perc_"]').live('keyup', function(e) {
+                $('input[id^="s2perc_"]').live('keyup', function (e) {
                     var id = $(this).attr("id").split("_");
                     if($(this).val() > 100) {
                         e.preventDefault();
@@ -105,7 +105,7 @@
                     }
                 });
 
-                $('select[id^="salestype_"]').live('change', function() {
+                $('select[id^="salestype_"]').live('change', function () {
                     var id = $(this).attr("id").split("_");
                     var salestype = $(this).val();
 
@@ -152,15 +152,13 @@
                     <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->incomeperc}</td>
                     <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->income}</td>
                     {$hidden_colcells[localincome_head]}
-                    {$hidden_colcells[remainingcommaff_head]}
                     {$hidden_colcells[localincomeper_head]}
+                    {$hidden_colcells[remainingcommaff_head]}
                     <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->curr}</td>
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->invoice} <a href="#" title="Defines who is issuing the invoice for the given transaction."><img src="./images/icons/question.gif" ></a></td>
+                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->entitypurchasingfromsupplier}</td>
                     <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->s1perc}</td>
                     <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->s2perc}</td>
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->purchasedfromaffiliate} <a href="#" title="The affiliate from which you are buying the items. Only applicable for the case of intercompany transactions. This will automatically create an intercompany sale in the budget of the select affiliate."><img src="./images/icons/question.gif" ></a></td>
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->purchasingentity}</td>
-
+                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->purchasedfromaffiliate} <a href="#" title="The affiliate from which you are buying the items in exceptional cases. Only applicable for the case of intercompany transactions; one affiliate (ex. Orkila Free Zone - Alex) selling and invoicing the other affiliate (ex. Orkila Egypt). This will automatically create an intercompany sale in the budget of the select affiliate. This should not be filled unless in exceptional cases."><img src="./images/icons/question.gif" ></a></td>
                 </tr>
             </thead>
             <tbody id="budgetlines{$rowid}_tbody" style="width:100%;">

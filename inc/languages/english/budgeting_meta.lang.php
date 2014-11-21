@@ -155,6 +155,6 @@ $lang['trainingandvisits'] = 'Training and visits';
 $lang['updateunsuccessfull'] = 'Update Unsuccessfull';
 $lang['purchasedfromaffiliate'] = 'Purchase from Affiliate';
 $lang['invoiceentity'] = 'Invoicing Entity';
-
 $lang['purchasingentity'] = 'Purchasing Entity';
+$lang['entitypurchasingfromsupplier'] = 'Entity Purchasing from Supplier';
 ?>
