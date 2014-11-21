@@ -434,10 +434,6 @@ Class FinancialBudget extends AbstractClass {
             $financial_obj = FinancialBudget::get_data(array('bfbid' => $options['filter']), array('simple' => false, 'returnarray' => true));
             $prev_financial_obj = FinancialBudget::get_data(array('affid' => $options['affid'], 'year' => array(($options['year'] - 1), ($options['year'] - 2), ($options['year'] - 3))), array('simple' => false, 'returnarray' => true));
 
-            //  foreach($options['budgettypes'] as $type) {
-//                if($type == 'headcount') {
-//                    continue;
-//                }
             if(is_array($financial_obj)) {
                 foreach($financial_obj as $finbudget) {
                     $budget_currencies[$finbudget->year][$finbudget->bfbid] = $finbudget->currency;
@@ -461,7 +457,6 @@ Class FinancialBudget extends AbstractClass {
                 $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currency, 'toCurrency' => $options['tocurrency'], 'affid' => $options['affid'], 'year' => $budgetyear), $dal_config);
                 $currencyto = new Currencies($options['tocurrency']);
                 if(is_array($fxrates_obj)) {
-                    $output['currfxrates'] .='<br/><strong>'.$lang->exchangerates.'for year '.$budgetyear.'</strong><br/>';
                     foreach($budget_currency as $currency) {
                         if($currency == $options['tocurrency']) {
                             continue;
@@ -476,14 +471,7 @@ Class FinancialBudget extends AbstractClass {
                             error($lang->sprint($lang->noexchangerate, $currency->alphaCode, $currencyto->alphaCode, $budgetyear), $_SERVER['HTTP_REFERER']);
                         }
                         $currency = $budgetfx->get_formCurrency();
-                        $output['currfxrates'] .= $currency->alphaCode.' to '.$currencyto->alphaCode.' > '.$budgetfx->rate.'<br>';
-                    }
-
-                    $Eurfxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currency, 'toCurrency' => 978, 'affid' => $options['affid'], 'year' => $budgetyear), $dal_config);
-                    if(is_array($Eurfxrates_obj)) {
-                        foreach($Eurfxrates_obj as $fxrate) {
-                            $output['currfxrates'] .= $currency->alphaCode.' to '.EUR.' > '.$fxrate->rate.'<br>';
-                        }
+                        $outputfxrates[$budgetfx->affid][$budgetyear][$currency->alphaCode] = $currency->alphaCode.' to '.$currencyto->alphaCode.' > '.$budgetfx->rate.'<br>';
                     }
                 }
                 else {
@@ -493,7 +481,40 @@ Class FinancialBudget extends AbstractClass {
                         }
                     }
                 }
+                /* Exchange rates to EUR */
+                $budget_currency['USD'] = 840;
+                $eur_fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currency, 'toCurrency' => 978, 'affid' => $options['affid'], 'year' => $budgetyear), $dal_config);
+                $eur = new Currencies(978);
+                if(is_array($eur_fxrates_obj)) {
+                    foreach($eur_fxrates_obj as $fxrate) {
+                        $fromcurrency = new Currencies($fxrate->fromCurrency);
+                        $outputfxrates[$fxrate->affid][$fxrate->year][$fromcurrency->alphaCode] = $fromcurrency->alphaCode.' to '.EUR.' > '.$fxrate->rate.'<br>';
+                    }
+                }
             }
+
+            /* Displaying used exchange rates */
+            if(is_array($outputfxrates)) {
+                $output['currfxrates'] .='<br/><strong>'.$lang->exchangerates.'</strong><br/>';
+                foreach($outputfxrates as $affiliateid => $fxrates_data) {
+                    $affiliate = new Affiliates($affiliateid);
+                    $output['currfxrates'] .= '<div style = "display:inline-block; vertical-align:top;"><ul style = "list-style-type: none;"><li>'.$affiliate->get_displayname();
+                    if(is_array($fxrates_data)) {
+                        $output['currfxrates'] .= '<ul style = "list-style-type: none;">';
+                        foreach($fxrates_data as $year => $rates) {
+                            if(is_array($rates)) {
+                                foreach($rates as $rate) {
+                                    $output['currfxrates'] .='<li>'.$year.' : '.$rate.'</li>';
+                                }
+                            }
+                        }
+                        $output['currfxrates'] .= '</ul>';
+                    }
+                    $output['currfxrates'] .= '</li></ul></div>';
+                }
+            }
+            /**/
+
             if(count($options['budgettypes']) === 1) {
                 if($options['budgettypes'][0] === 'headcount') {
                     $output['currfxrates'] = '';
@@ -848,8 +869,6 @@ Class FinancialBudget extends AbstractClass {
 
                     case'profitlossaccount':
                         $plcategories = BudgetPlCategories::get_data('', array('returnarray' => true));
-// $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN budgeting_financialbudget bfb ON(bfb.affid = bfr.affid AND bfb.year = bfr.year) WHERE bfr.fromCurrency = bfb.currency AND bfr.toCurrency = '.intval($options['tocurrency']).' AND bfb.bfbid = budgeting_plexpenses.bfbid)';
-
                         /* make the fxrate query dynamic based on actual(year) and year */
                         $prevyears_fxrates = array('actualPrevThreeYears' => ($options['year'] - 3),
                                 'actualPrevTwoYears' => ($options['year'] - 2),
