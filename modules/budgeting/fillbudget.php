@@ -244,7 +244,7 @@ if(!$core->input['action']) {
                         if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                             $hidden_colcells = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline[localIncomeAmount].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
                                     'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline[localIncomePercentage].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>',
-                                    'remainingcommaff_header_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"> <input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id=affiliate_'.$rowid.'_autocomplete name=""  value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete="off" /><input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_'.$rowid.'_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
+                                    'remainingcommaff_header_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"> <input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id=affiliate_'.$rowid.'_commission_autocomplete name=""  value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete="off" /><input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
                             );
                         }
 
@@ -274,8 +274,8 @@ if(!$core->input['action']) {
                 $hidden_colcells = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline[localIncomeAmount].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
                         'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline[localIncomePercentage].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>',
                         'remainingcommaff_header_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center">
-             <input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id=affiliate_noexception_'.$rowid.'_autocomplete name=""  value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete="off" />
-        <input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
+             <input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id=affiliate_noexception_'.$rowid.'_commission_autocomplete name=""  value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete="off" />
+        <input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
                 );
             }
             $budgetline['inputChecksum'] = generate_checksum('bl');
@@ -355,7 +355,7 @@ else {
         $rowid = intval($core->input['value']) + 1;
         $budget_data = $core->input['ajaxaddmoredata'];
         $affiliate = new Affiliates($budget_data['affid']);
-
+        $budgetline['inputChecksum'] = generate_checksum('bl');
         if($affiliate->isIntReinvoiceAffiliate == 0) {
             $saletypes_query_where = ' WHERE stid NOT IN (SELECT s1.invoiceAffStid FROM saletypes s1 WHERE s1.invoiceAffStid IS NOT NULL)';
         }
@@ -395,11 +395,11 @@ else {
             $hidden_colcells = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline[localIncomeAmount].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
                     'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline[localIncomePercentage].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>',
                     'remainingcommaff_header_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center">
-             <input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id=affiliate_noexception_'.$rowid.'_autocomplete name=""  value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete="off" />
-        <input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
+             <input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id=affiliate_noexception_'.$rowid.'_commission_autocomplete name=""  value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete="off" />
+        <input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
             );
         }
-        $budgetline['inputChecksum'] = generate_checksum('bl');
+
 
         $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $affiliate->get_displayname());
 

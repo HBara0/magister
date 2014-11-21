@@ -670,7 +670,7 @@ class BudgetLines {
         $data_toremove = array('bid', 'blid', 'cid', 'customerCountry', 'interCompanyPurchase');
         $data_zerofill = array('localIncomePercentage', 'localIncomeAmount', 'invoicingEntityIncome');
         $budget = $this->get_budget();
-
+        $data['inputChecksum'] = generate_checksum('bl');
         $data['linkedBudgetLine'] = $this->budgetline['blid'];
         $data['altCid'] = $budget->get_affiliate()->name;
         $data['saleType'] = 6; //Need to be acquire through DAL where isInterCoSale
