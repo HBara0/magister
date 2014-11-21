@@ -137,17 +137,14 @@ else if($core->input['action'] == 'get_updaterate') {
     $fromcurr_list = parse_selectlist('budgetrate[fromCurrency]', 4, $curr_objs, $selectedfrom);
     $tocurr_list = parse_selectlist('budgetrate[toCurrency]', 4, $curr_objs, $selectedto);
 
-
     eval("\$addrate= \"".$template->get('popup_createbudget_fxrate')."\";");
     output($addrate);
 }
 elseif($core->input['action'] == 'get_deleterate') {
     $bfxid = $db->escape_string($core->input['id']);
-
     $budget_rateobj = BudgetFxRates::get_data(array('bfxid' => $bfxid));
     $fromcur_obj = new Currencies($budget_rateobj->fromCurrency);
     $tocur_obj = new Currencies($budget_rateobj->toCurrency);
-
     eval("\$deleterate = \"".$template->get('popup_budget_delete')."\";");
     output($deleterate);
 }
@@ -157,7 +154,7 @@ elseif($core->input['action'] == 'do_deleterate') {
     $budget_rateobj->delete();
     switch($budget_rateobj->get_errorcode()) {
         case 0:
-            output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+            output_xml('<status>true</status><message>'.$lang->successfullydeleted.'</message>');
             break;
     }
 }
@@ -168,7 +165,7 @@ elseif($core->input['action'] == 'do_createrate') {
     // echo $mac;
 
     if($budgetrate['fromCurrency'] == $budgetrate['toCurrency']) {
-        output_xml('<status>false</status><message>err'.$lang->successfullysaved.'</message>');
+        output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
         return;
     }
 
