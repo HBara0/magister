@@ -148,7 +148,6 @@ if(!($core->input['action'])) {
                             $rawdata[$field][$blid]['s1Income'] = $rawdata[$field][$blid]['income'] * ($rawdata[$field][$blid]['s1Perc'] / 100);
                             $rawdata[$field][$blid]['s2Income'] = $rawdata[$field][$blid]['income'] * ($rawdata[$field][$blid]['s2Perc'] / 100);
                             $rawdata[$field][$blid]['interCompanyPurchase_output'] = $lang->na;
-
                             if(!empty($rawdata[$field][$blid]['customerCountry'])) {
                                 $rawdata[$field][$blid]['coid'] = $rawdata[$blid]['customerCountry'];
                             }
@@ -287,7 +286,7 @@ if(!($core->input['action'])) {
             $numfmt_perc->setPattern("#0.###%");
             foreach($suppliers as $spid) {
                 $suppliers[$spid] = new Entities($spid);
-                $weightstotals['income'][$spid] = ceil(BudgetLines::get_aggregate_bysupplier($suppliers[$spid], 'income', array('bid' => array_keys($budgets['current'])), array('toCurrency' => $budgetsdata['current']['toCurrency'], 'operators' => $operators)));
+                $weightstotals['income'][$spid] = ceil(BudgetLines::get_aggregate_bysupplier($suppliers[$spid], 'localIncomeAmount', array('bid' => array_keys($budgets['current'])), array('toCurrency' => $budgetsdata['current']['toCurrency'], 'operators' => $operators)));
                 $weightstotals['amount'][$spid] = ceil(BudgetLines::get_aggregate_bysupplier($suppliers[$spid], 'amount', array('bid' => array_keys($budgets['current'])), array('toCurrency' => $budgetsdata['current']['toCurrency'], 'operators' => $operators)));
                 $weightstotals['customers'][$spid] = $db->fetch_field($db->query('SELECT COUNT(DISTINCT(cid)) AS count FROM budgeting_budgets_lines WHERE bid IN (SELECT bid FROM budgeting_budgets WHERE bid IN ('.implode(',', array_keys($budgets['current'])).') AND spid='.intval($spid).')'), 'count');
             }
@@ -303,7 +302,7 @@ if(!($core->input['action'])) {
             foreach($weightstotals['income'] as $spid => $total) {
                 if($count > 10) {
                     break;
-                }
+                } print_R($weightstotals);
                 $budgeting_budgetrawreport .= '<tr><td>'.$suppliers[$spid]->companyName.'</td><td>'.$numfmt_perc->format($weightstotals['amount'][$spid] / $weightsgtotals['amount']).'</td><td>'.$numfmt_perc->format($total / $weightsgtotals['income']).'</td><td>'.$weightstotals['customers'][$spid].'</td></tr>';
 
                 $count++;
@@ -311,7 +310,7 @@ if(!($core->input['action'])) {
             $budgeting_budgetrawreport .= '</table>';
             /* Parse suppliers weight - END */
             /* Parse Risks - Start */
-            $value_types = array('income', 'amount');
+            $value_types = array('localIncomeAmount', 'amount');
             $value_perc = array(50, 80);
             $value_by = array('customers' => 'cid, altCid', 'suppliers' => 'spid');
             $budgeting_budgetrawreport .= '<h1>Customers/Suppliers Risks</h1>';
@@ -327,7 +326,7 @@ if(!($core->input['action'])) {
             }
             /* Parse Risks - END */
 
-            $required_fields = array('amount', 'income', 'cost');
+            $required_fields = array('amount', 'localincomeamount', 'cost');
             $budgeting_budgetrawreport .= '<hr /><h1>Country vs. Affiliate</h1><table width="100%" class="datatable">';
             $budgeting_budgetrawreport .= '<tr class="thead"><th></th>';
             foreach($required_fields as $field) {
@@ -354,8 +353,8 @@ if(!($core->input['action'])) {
                 foreach($required_fields as $field) {
 
                     if($field == 'cost') {
-                        $values['country'][$field] = $values['country']['amount'] - $values['country']['income'];
-                        $values['affiliate'][$field] = $values['affiliate']['amount'] - $values['affiliate']['income'];
+                        $values['country'][$field] = $values['country']['amount'] - $values['country']['localIncomeAmount'];
+                        $values['affiliate'][$field] = $values['affiliate']['amount'] - $values['affiliate']['localIncomeAmount'];
                     }
                     else {
                         $values['country'][$field] = ceil(BudgetLines::get_aggregate_bycountry($country, $field, array('bid' => array_keys($budgets['current'])), array('toCurrency' => $budgetsdata['current']['toCurrency'], 'operators' => $operators)));
@@ -364,7 +363,7 @@ if(!($core->input['action'])) {
                     $country_row .= '<td>'.$values['country'][$field].'</td>';
                     $affiliate_row .= '<td>'.$values['affiliate'][$field].'</td>';
                     $ydata = array('amount' => array($country->get_displayname() => $values['country']['amount'], $affiliate->name => $values['affiliate']['amount']),
-                            'income' => array($country->get_displayname() => $values['country']['income'], $affiliate->name => $values['affiliate']['income']),
+                            'localIncomeAmount' => array($country->get_displayname() => $values['country']['localIncomeAmount'], $affiliate->name => $values['affiliate']['localIncomeAmount']),
                             'cost' => array($country->get_displayname() => $values['country']['cost'], $affiliate->name => $values['affiliate']['cost']));
 
                     $countryaff_chart = new Charts(array('x' => array_keys($ydata), 'y' => $ydata), 'bar', array('xaxisname' => $lang->{$field}, 'yaxisunit' => 'k$'));

@@ -27,6 +27,7 @@ $session->start_phpsession(480);
 
 if(!$core->input['action']) {
     if($core->input['stage'] == 'fillbudgetline') {
+
         $session->set_phpsession(array('budgetdata_'.$sessionidentifier => serialize($core->input['budget'])));
         $budget_data = $core->input['budget'];
 
@@ -253,6 +254,11 @@ if(!$core->input['action']) {
 
                         if(empty($budgetline['inputChecksum'])) {
                             $budgetline['inputChecksum'] = generate_checksum('bl');
+                        }
+
+                        $altcid = $budgetline['altCid'];
+                        if(empty($altcid)) {
+                            $altcid = $prev_budgetline['altCid'];
                         }
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
                         $rowid++;
