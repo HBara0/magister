@@ -1,6 +1,6 @@
 <?php
 
-class Entities {
+class Entities extends AbstractClass {
     protected $eid = 0;
     protected $status = false;
     protected $data = array();
@@ -8,6 +8,7 @@ class Entities {
     const PRIMARY_KEY = 'eid';
     const TABLE_NAME = 'entities';
     const DISPLAY_NAME = 'companyName';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($data, $action = '', $simple = true) {
         if(is_array($data)) {
@@ -32,7 +33,15 @@ class Entities {
         }
     }
 
-    protected function create() {
+    protected function update(array $data) {
+
+    }
+
+    public function save(array $data = array()) {
+
+    }
+
+    protected function create(array $data = array()) {
         global $db, $core, $lang;
         if(empty($this->data['companyName'])) {
             output_xml("<status>false</status><message>{$lang->specifycompanyname}</message>");
