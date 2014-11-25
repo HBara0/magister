@@ -26,7 +26,7 @@ class BudgetFxRates extends AbstractClass {
 
     protected function create(array $data) {
         global $db;
-        if(empty($data[rate])) {
+        if(empty($data['rate'])) {
             $this->errorcode = 1;
             return false;
         }
@@ -39,19 +39,13 @@ class BudgetFxRates extends AbstractClass {
 
     private function create_reverserate($data) {
         global $db;
-        $affid = $data['affid'];
-        $year = $data['year'];
-        $rate = $data['rate'];
-        unset($data['createreverserate'], $reversed_data['createreverserate'], $data['rate'], $data['affid'], $data['year']);
-        /* swap the 2 arrays */
-        $reversed_data = array_combine(array_keys($data), array_reverse(array_values($data)));
+
+        $reversed_data = $data;
+        $reversed_data['fromCurrency'] = $data['toCurrency'];
+        $reversed_data['toCurrency'] = $data['fromCurrency'];
+        $reversed_data['rate'] = 1 / $data['rate'];
+
         unset($reversed_data['createreverserate']);
-        $reversed_data['affid'] = $affid;
-        $reversed_data['year'] = $year;
-        $reversed_data['rate'] = 1 / $rate;
-        if(!is_empty($data['affid'], $data['year'], $data['rate'])) {
-            $db->insert_query(self::TABLE_NAME, $data);
-        }
         $db->insert_query(self::TABLE_NAME, $reversed_data);
     }
 
@@ -61,7 +55,7 @@ class BudgetFxRates extends AbstractClass {
         if(is_array($data)) {
             unset($data['createreverserate']);
             $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
-            if(!query) {
+            if(!$query) {
                 $this->errorcode = 601;
                 return;
             }
@@ -79,7 +73,6 @@ class BudgetFxRates extends AbstractClass {
             }
         }
         else {
-
             $existing_rate->update($data);
         }
     }
@@ -89,7 +82,6 @@ class BudgetFxRates extends AbstractClass {
     }
 
     public function get_toCurrency() {
-
         return new Currencies($this->data['toCurrency']);
     }
 
