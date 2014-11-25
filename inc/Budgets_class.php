@@ -725,6 +725,11 @@ class BudgetLines {
 
     private function split_income(&$budgetline_data) {
         global $core;
+        if(!empty($budgetline_data['linkedBudgetLine'])) {
+            if(!empty($budgetline_data['altCid']) && $budgetline_data != 'Unspecified Customer') {
+                return;
+            }
+        }
         if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
             if(empty($budgetline_data['localIncomeAmount']) && $budgetline_data['localIncomeAmount'] != '0') {
                 if(!isset($budgetline_data['saleType'])) {
@@ -921,6 +926,7 @@ class BudgetLines {
             while($budget = $db->fetch_assoc($query)) {
                 $saletype = new SaleTypes($budget['saleType']);
                 if(!empty($saletype->invoiceAffStid)) {
+                    $data['current'][$saletype->invoiceAffStid]['oldSaleType'] = $budget['saleType'];
                     $budget['saleType'] = $saletype->invoiceAffStid;
                 }
 
