@@ -220,6 +220,9 @@ if(!$core->input['action']) {
                         if(empty($budgetline['cid']) && $budgetline['altCid'] == 'Unspecified Customer') {
                             $checked_checkboxes[$rowid]['unspecifiedCustomer'] = ' checked="checked"';
                         }
+                        if(empty($budgetline['cid']) && $budgetline['altCid'] != 'Unspecified Customer') {
+                            $budgetline['alternativecustomer'] = '<span style="display:block;">'.ucfirst($budgetline['altCid']).'</span>';
+                        }
                         /* Get Actual data from mediation tables --END */
                         $budget_currencylist = '';
                         foreach($currencies as $numcode => $currency) {
