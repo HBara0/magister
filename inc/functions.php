@@ -115,7 +115,7 @@ function output_xml($xml) {
     global $lang;
     ob_clean();
 
-    //header('Content-type: text/xml');
+    header('Content-type: text/xml');
     echo '<?xml version="1.0" encoding="'.$lang->settings['charset'].'"?>';
     echo '<xml>'.$xml.'</xml>';
 }
@@ -1723,15 +1723,6 @@ function generate_checksum($prefix = '') {
     $identifier = substr(md5(uniqid(microtime())), 1, 10);
 
     return $prefix.'_'.$identifier;
-}
-
-function showfield_permission($permission = '') {
-    global $core;
-
-    if($core->usergroup[$permission] == 1) {
-        return true;
-    }
-    return false;
 }
 
 ?>
