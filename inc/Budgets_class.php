@@ -726,7 +726,7 @@ class BudgetLines {
     private function split_income(&$budgetline_data) {
         global $core;
         if(!empty($budgetline_data['linkedBudgetLine'])) {
-            if(!empty($budgetline_data['altCid']) && $budgetline_data != 'Unspecified Customer') {
+            if(empty($budgetline_data['interCompanypurchase'])) {
                 return;
             }
         }
