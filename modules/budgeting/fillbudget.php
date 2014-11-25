@@ -27,6 +27,7 @@ $session->start_phpsession(480);
 
 if(!$core->input['action']) {
     if($core->input['stage'] == 'fillbudgetline') {
+
         $session->set_phpsession(array('budgetdata_'.$sessionidentifier => serialize($core->input['budget'])));
         $budget_data = $core->input['budget'];
 
@@ -220,6 +221,9 @@ if(!$core->input['action']) {
                         if(empty($budgetline['cid']) && $budgetline['altCid'] == 'Unspecified Customer') {
                             $checked_checkboxes[$rowid]['unspecifiedCustomer'] = ' checked="checked"';
                         }
+                        if(empty($budgetline['cid']) && $budgetline['altCid'] != 'Unspecified Customer') {
+                            $budgetline['alternativecustomer'] = '<span style="display:block;">'.ucfirst($budgetline['altCid']).'</span>';
+                        }
                         /* Get Actual data from mediation tables --END */
                         $budget_currencylist = '';
                         foreach($currencies as $numcode => $currency) {
@@ -250,6 +254,11 @@ if(!$core->input['action']) {
 
                         if(empty($budgetline['inputChecksum'])) {
                             $budgetline['inputChecksum'] = generate_checksum('bl');
+                        }
+
+                        $altcid = $budgetline['altCid'];
+                        if(empty($altcid)) {
+                            $altcid = $prev_budgetline['altCid'];
                         }
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
                         $rowid++;

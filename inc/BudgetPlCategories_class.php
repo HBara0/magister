@@ -200,10 +200,17 @@ class BudgetPlCategories extends AbstractClass {
                                             $allocatedamount = $budgetline->get_invoicingentity_income($options['tocurrency'], $options['year'], $affid);
                                             if(is_array($allocatedamount[$key])) {
                                                 foreach($allocatedamount[$key] as $saletype => $data) {
+                                                    $effective_stid = $saletype;
+                                                    if(isset($data['oldSaleType'])) {
+                                                        $effective_stid = $data['oldSaleType'];
+                                                    }
+                                                    $saletype_obj = SaleTypes::get_data(array('stid' => $effective_stid));
                                                     $allocatedamount = number_format($data['amount'] / 1000, 2);
                                                     $combudget[$key][$saletype]['amount'] += $allocatedamount;
+                                                    if($saletype_obj->countLocally == 0) {
+                                                        $totalamount[$key] += $allocatedamount;
+                                                    }
                                                     $combudget[$key][$saletype]['income'] += number_format($data['invoicingentityincome'] / 1000, 2);
-                                                    $totalamount[$key] += $allocatedamount;
                                                 }
                                             }
                                         }

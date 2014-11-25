@@ -5,8 +5,8 @@
         <input type='text' id='customer_noexception_{$rowid}_autocomplete' name="budgetline[$rowid][customerName]" {$disabledattrs[cid]} value="{$budgetline[customerName]}" autocomplete='off' {$required}/>
         <input type='text' size='3' id='customer_noexception_{$rowid}_id_output' disabled='disabled' value="{$budgetline[cid]}" style="display:none;"/>
         <input type='hidden' value="{$budgetline[cid]}" id='customer_noexception_{$rowid}_id' name='budgetline[$rowid][cid]' />
-        <input type='hidden' value="{$budgetline[altCid]}" id='altCid' name='budgetline[$rowid][altCid]' />
-        <input type="hidden" id="budgetline_{$rowid}_altCid" name="budgetline[$rowid][altCid]" value="{$prev_budgetline[altCid]}"/>
+        <!-- <input type='hidden' value="{$budgetline[altCid]}" id='altCid' name='budgetline[$rowid][altCid]' />-->
+        <input type="hidden" id="budgetline_{$rowid}_altCid" name="budgetline[$rowid][altCid]" value="{$altcid}"/>
         {$budgetline[alternativecustomer]} {$previous_blid}
         <span style="padding:8px;"><br /><input type="checkbox" name="budgetline[$rowid][unspecifiedCustomer]" title="{$lang->unspecifiedcust}" {$disabledattrs[unspecifiedCustomer]} value="1"{$checked_checkboxes[$rowid][unspecifiedCustomer]}/>{$lang->unspecifiedcust}</span>
         <div id='searchQuickResults_customer_{$rowid}' class='searchQuickResults' style='display:none;'></div>
@@ -38,9 +38,7 @@
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[$rowid][s1Perc]" type="text" id="s1perc_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[s1Perc]}" placeholder="50" autocomplete='off'/></td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[$rowid][s2Perc]" type="text" id="s2perc_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[s2Perc]}" placeholder="50"  autocomplete='off'/></td>
 
-    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">
-
-        <input type='text' placeholder="{$lang->search} {$lang->affiliate}" id='affiliate_noexception_{$rowid}_autocomplete' name="" value="{$budgetline[interCompanyPurchase_output]}" autocomplete='off'  />
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input type='text' placeholder="{$lang->search} {$lang->affiliate}" id='affiliate_noexception_{$rowid}_autocomplete' name="" value="{$budgetline[interCompanyPurchase_output]}" autocomplete='off'  />
         <input type='hidden' value="{$budgetline[interCompanyPurchase]}" id='affiliate_noexception_{$rowid}_id' name='budgetline[$rowid][interCompanyPurchase]' />
     </td>
 </tr>

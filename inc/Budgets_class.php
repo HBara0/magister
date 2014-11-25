@@ -677,7 +677,9 @@ class BudgetLines {
 
         if(!empty($this->budgetline['linkedBudgetLine'])) {
             $ic_budgetline = new BudgetLines($this->budgetline['linkedBudgetLine']);
-
+            if(!empty($ic_budgetline->modifiedOn)) {
+                return;
+            }
             if(is_object($ic_budgetline)) {
                 foreach($data_toremove as $attr) {
                     unset($data[$attr]);
@@ -726,10 +728,16 @@ class BudgetLines {
     private function split_income(&$budgetline_data) {
         global $core;
         if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
+            if(!empty($budgetline_data['linkedBudgetLine']) && !isset($budgetline_data['blid'])) {
+                if(empty($budgetline_data['interCompanyPurchase'])) {
+                    return;
+                }
+            }
             if(empty($budgetline_data['localIncomeAmount']) && $budgetline_data['localIncomeAmount'] != '0') {
                 if(!isset($budgetline_data['saleType'])) {
                     return;
                 }
+
                 $saletype = new SaleTypes($budgetline_data['saleType']);
                 $budgetline_data['localIncomeAmount'] = $budgetline_data['income'];
                 $budgetline_data['localIncomePercentage'] = 100;
@@ -820,7 +828,7 @@ class BudgetLines {
             if(!isset($data['bid']) || empty($data['bid'])) {
                 return false;
             }
-            $budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$data['altCid']."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."'");
+            $budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."'");
             if($db->num_rows($budgetline_bydataquery) > 0) {
                 return $db->fetch_assoc($budgetline_bydataquery);
             }
@@ -921,6 +929,7 @@ class BudgetLines {
             while($budget = $db->fetch_assoc($query)) {
                 $saletype = new SaleTypes($budget['saleType']);
                 if(!empty($saletype->invoiceAffStid)) {
+                    $data['current'][$saletype->invoiceAffStid]['oldSaleType'] = $budget['saleType'];
                     $budget['saleType'] = $saletype->invoiceAffStid;
                 }
 
