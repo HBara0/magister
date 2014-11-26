@@ -167,9 +167,9 @@ class BudgetForecastAccountsTree extends AbstractClass {
                             $maxattr = 0;
                             $stepany = $min = '';
                         }
-                        $output .= '<input type = "hidden" name = "budgetforecastbs['.$item->batid.'][bfbsid]" value = "'.$forecast_expenses->bfbsid.'">';
-                        $output .= '<input type = "hidden" name = "budgetforecastbs['.$item->batid.'][batid]" value = "'.$item->batid.'">';
-                        $output .= '<td>'.parse_textfield('budgetforecastbs['.$item->batid.'][amount]', 'budgetforecastbs_'.$item->batid.'_'.$parent->batid.'_'.$parent->get_parent()->batid.'_subaccount', 'number', $budgetforecastexp[$item->batid], array('min' => $min, 'max' => $maxattr, 'required' => 'required', 'step' => $stepany)).'</td>';
+                        $output .= '<input type="hidden" name="budgetforecastbs['.$item->batid.'][bfbsid]" value = "'.$forecast_expenses->bfbsid.'">';
+                        $output .= '<input type="hidden" name="budgetforecastbs['.$item->batid.'][batid]" value = "'.$item->batid.'">';
+                        $output .= '<td>'.parse_textfield('budgetforecastbs['.$item->batid.'][amount]', 'budgetforecastbs_'.$item->batid.'_'.$parent->batid.'_'.$parent->get_parent()->batid.'_subaccount', 'number', $budgetforecastexp[$item->batid], array('max' => $maxattr, 'required' => 'required', 'step' => $stepany)).'</td>';
                     }
                 }
                 else {
@@ -184,11 +184,6 @@ class BudgetForecastAccountsTree extends AbstractClass {
                                 $callback = function($val) use ($currency) {
                                     return $val->fromCurrency == $currency;
                                 };
-//                                if($finbudget->currency == $options['toCurrency'] && !is_array($options['fxrates'])) {
-//                                    $amount = $finbudget->netIncome;
-//                                    echo $finbudget->currency.' == '.$options['toCurrency'];
-//                                }
-
                                 $budgetfx = array_filter($options['fxrates'], $callback);
                                 if($finbudget->currency != $options['toCurrency']) {
                                     $budgetfx = current($budgetfx);
