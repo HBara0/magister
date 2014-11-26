@@ -27,14 +27,14 @@ if(!$core->input['action']) {
     foreach($aff_objs as $affiliate) {
         $affiliates_list .= '<td><input name="budget[filter][affid][]" type="checkbox"'.$checked.' value="'.$affiliate->affid.'">'.$affiliate->get_displayname().'</td></tr>';
     }
-    if($core->usergroup['canViewAllSupp'] == 0) {
-        foreach($core->user['suppliers']['eid'] as $suplier) {
-            $supplier_obj[$suplier] = new Entities($suplier);
-        }
-    }
-    else {
-        $supplier_obj = Entities::get_data(array('isActive' => 1, 'approved' => 1, 'type' => 's'));
-    }
+//    if($core->usergroup['canViewAllSupp'] == 0) {
+//        foreach($core->user['suppliers']['eid'] as $suplier) {
+//            $supplier_obj[$suplier] = new Entities($suplier);
+//        }
+//    }
+    // else {
+    $supplier_obj = Entities::get_data(array('isActive' => 1, 'approved' => 1, 'type' => 's'));
+    // }
     foreach($supplier_obj as $supplier) {
         $suppliers_list .= '<tr class="'.$rowclass.'">';
         $suppliers_list .= '<td><input name="budget[filter][spid][]" type="checkbox"'.$checked.' value="'.$supplier->eid.'">'.$supplier->get_displayname().'</td><tr>';
@@ -50,8 +50,8 @@ if(!$core->input['action']) {
     }
     /* Can Generate users of the affiliates he belongs to */
 
-    if(is_array($core->user['auditedaffids'])) {
-        foreach($core->user['auditedaffids'] as $auditaffid) {
+    if(is_array($core->user['affiliates'])) {
+        foreach($core->user['affiliates'] as $auditaffid) {
             $aff_obj = new Affiliates($auditaffid);
             $affiliate_users = $aff_obj->get_all_users();
             foreach($affiliate_users as $aff_businessmgr) {
@@ -59,21 +59,16 @@ if(!$core->input['action']) {
             }
         }
     }
-    else {
-        if($core->usergroup['canViewAllEmp'] == 1) {
-            $affiliate = new Affiliates($core->user['mainaffiliate']);
-            $business_managers = $affiliate->get_all_users(array('displaynameonly' => true, 'customfilter' => 'u.uid IN (SELECT DISTINCT(users_usergroups.uid) FROM users_usergroups WHERE gid IN (SELECT usergroups.gid FROM usergroups WHERE budgeting_canMassUpdate=1))'));
-        }
-        else {
-            $business_managers[$core->user['uid']] = $core->user['displayName'];
-        }
-    }
-    $affiliate_users = $core->user_obj->get_reportingto();
-    if(is_array($affiliate_users)) {
-        foreach($affiliate_users as $aff_businessmgr) {
-            $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['displayName'];
-        }
-    }
+//    else {
+//        if($core->usergroup['canViewAllEmp'] == 1) {
+//            $affiliate = new Affiliates($core->user['mainaffiliate']);
+//            $business_managers = $affiliate->get_all_users(array('displaynameonly' => true, 'customfilter' => 'u.uid IN (SELECT DISTINCT(users_usergroups.uid) FROM users_usergroups WHERE gid IN (SELECT usergroups.gid FROM usergroups WHERE budgeting_canMassUpdate=1))'));
+//        }
+//        else {
+//            $business_managers[$core->user['uid']] = $core->user['displayName'];
+//        }
+//    }
+
     if(is_array($business_managers)) {
         foreach($business_managers as $key => $value) {
             $checked = $rowclass = '';
@@ -112,6 +107,9 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'do_massupdate') {
+
+
+
         $budgetfilter_where = $core->input['budget']['filter'];
 
         $filterline_where = $core->input['budget']['filterline'];
@@ -134,13 +132,20 @@ else {
                 exit;
             }
         }
+
+        /* acquire all rows which will be affected, */
+        //error($lang->sprint($lang->noexchangerate, $budgetline->originalCurrency, $budgetsdata['toCurrency'], $budget_obj->year), $_SERVER['HTTP_REFERER']);
+        $budgetobjs = Budgets::get_data(array('affid' => $budgetfilter_where['affid'], 'spid ' => $budgetfilter_where['spid'], 'year ' => $budgetfilter_where['year']), array('returnarray' => true, 'simple' => false, 'operators' => array('affid' => 'IN', 'spid' => 'IN', 'year' => 'IN')));
+        foreach($budgetobjs as $budgetobj) {
+            $budgetlines_notaffectedobjs = BudgetLines::get_data('bid='.$budgetobj->bid, array('returnarray' => true));
+        }
+
         $overwrites_fieldstocheck = array('businessMgr',
                 'purchasingEntity',
                 'purchasingEntityId',
                 'localIncomePercentage',
                 'commissionSplitAffid'
         );
-
         if(is_array($overwrites_fieldstocheck)) {
             foreach($overwrites_fieldstocheck as $attrfields) {
                 if(!isset($attribute[$attrfields])) {
@@ -148,7 +153,6 @@ else {
                 }
             }
         }
-
         if(is_array($budgetfilter_where)) {
             $budget_wherecondition = ' WHERE ';
             foreach($budgetfilter_where as $attr => $filter) {
@@ -170,10 +174,12 @@ else {
             }
         }
 
+
+
         if(isset($overwrite_fields['value']['localIncomePercentage']) && !empty($overwrite_fields['value']['localIncomePercentage'])) {
             $overwrite_fields['value'] = array('localIncomeAmount' => '(amount * ('.$overwrite_fields['value']['localIncomePercentage'].' / 100))',
                     'localIncomePercentage' => $overwrite_fields['value']['localIncomePercentage'],
-                    'invoicingEntityIncome' => 'amount * ((incomePerc - '.$overwrite_fields['value']['localIncomePercentage'].') / 100)',
+                    'invoicingEntityIncome' => '(amount * ((incomePerc - '.$overwrite_fields['value']['localIncomePercentage'].') / 100))',
                     'businessMgr' => intval($overwrite_fields['value']['businessMgr']),
                     'purchasingEntity' => '\''.$overwrite_fields['value']['purchasingEntity'].'\'',
                     'purchasingEntityId' => $overwrite_fields['value']['purchasingEntityId'],
@@ -183,7 +189,7 @@ else {
         $overwrite_fields['value']['modifiedOn'] = TIME_NOW;
         $overwrite_fields['value']['modifiedBy'] = $core->user['uid'];
 
-        foreach($overwrite_fields as $column => $colvalue) {
+        foreach($overwrite_fields['value'] as $column => $colvalue) {
             if(empty($colvalue) && $colvalue != "0") {
                 continue;
             }
@@ -193,6 +199,7 @@ else {
 
         $query = $db->query('UPDATE '.Tprefix.'budgeting_budgets_lines SET '.$updatequery_set.' WHERE bid IN (SELECT bid FROM budgeting_budgets '.$budget_wherecondition.')'.$budgetline_wherecondition);
         if($query) {
+
             output_xml('<status>true</status><message>'.$lang->successfullysaved.' '.$db->affected_rows().' lines.</message>');
         }
     }
