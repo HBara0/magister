@@ -298,26 +298,28 @@ class Calendar {
     public function read_meetings() {
 
         $meeting_objs = Meetings::get_multiplemeetings(array('filter_where' => 'fromDate BETWEEN '.$this->period['firstday'].' AND '.$this->period['lastday'].' OR (toDate BETWEEN '.$this->period['firstday'].' AND '.$this->period['lastday'].') OR ('.$this->period['firstday'].' BETWEEN fromDate AND toDate) OR ('.$this->period['lastday'].' BETWEEN fromDate AND toDate)'));
-        foreach($meeting_objs as $meeting) {
-            $meeting_date = getdate($meeting['fromDate']);
-            $num_days_meeting = (($meeting['toDate'] - $meeting['fromDate']) / 24 / 60 / 60); /* divison to know how many days between the from and to */ //(date('z', $event['toDate'])-date('z', $event['fromDate']))+1;
+        if(is_array($meeting_objs)) {
+            foreach($meeting_objs as $meeting) {
+                $meeting_date = getdate($meeting['fromDate']);
+                $num_days_meeting = (($meeting['toDate'] - $meeting['fromDate']) / 24 / 60 / 60); /* divison to know how many days between the from and to */ //(date('z', $event['toDate'])-date('z', $event['fromDate']))+1;
 
-            if($num_days_meeting == 1) {
-                $current_check_date = getdate($meeting['toDate']);
-                $this->data['meetings'][$current_check_date['mday']][] = $meeting;
-            }
-            else {
-                for($i = 0; $i < $num_days_meeting; $i++) {
-                    $current_check = $meeting['fromDate'] + (60 * 60 * 24 * $i);
-
-                    if($this->period['firstday'] > $current_check) { //|| $more_leaves['toDate'] < $current_check) {
-                        continue;
-                    }
-                    if($current_check > ($this->period['firstday'] * 60 * 60 * 24 * $this->period['numdays'])) {
-                        break;
-                    }
-                    $current_check_date = getdate($current_check);
+                if($num_days_meeting == 1) {
+                    $current_check_date = getdate($meeting['toDate']);
                     $this->data['meetings'][$current_check_date['mday']][] = $meeting;
+                }
+                else {
+                    for($i = 0; $i < $num_days_meeting; $i++) {
+                        $current_check = $meeting['fromDate'] + (60 * 60 * 24 * $i);
+
+                        if($this->period['firstday'] > $current_check) { //|| $more_leaves['toDate'] < $current_check) {
+                            continue;
+                        }
+                        if($current_check > ($this->period['firstday'] * 60 * 60 * 24 * $this->period['numdays'])) {
+                            break;
+                        }
+                        $current_check_date = getdate($current_check);
+                        $this->data['meetings'][$current_check_date['mday']][] = $meeting;
+                    }
                 }
             }
         }
