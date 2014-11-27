@@ -115,5 +115,19 @@ class Events extends AbstractClass {
         return $this->data;
     }
 
+    public function uploadlogo() {
+        if($this->data['publishOnWebsite'] == 1) {
+            $cms = new Cms('db');
+            $settings = $cms->get_settings();
+            $upload_param['upload_allowed_types'] = array('image/jpg', 'image/jpeg', 'image/gif', 'image/png');
+            $ftp_settings = array('server' => $settings['ftpserver'], 'username' => $settings['ftpusername'], 'password' => $settings['ftppassword']);
+            $upload = new Uploader('logo', $this->logo, $upload_param['upload_allowed_types'], 'ftp', 5242880, 1, 1);
+            $upload->establish_ftp($ftp_settings);
+            $upload->set_upload_path('./uploads/eventslogos');
+            $upload->process_file();
+            $upload->close_ftp();
+        }
+    }
+
 }
 ?>
