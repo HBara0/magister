@@ -90,8 +90,8 @@ if(!$core->input['action']) {
     $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where affid IS NOT NULL';
     $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
     $curr_objs[840] = new Currencies(840);
-    $fromcurr_list = parse_selectlist('budgetrate[fromCurrency]', 4, $curr_objs, '840');
-    $tocurr_list = parse_selectlist('budgetrate[toCurrency]', 4, $curr_objs, '840');
+    $fromcurr_list = parse_selectlist('budgetrate[fromCurrency]', 4, $curr_objs, '');
+    $tocurr_list = parse_selectlist('budgetrate[toCurrency]', 4, $curr_objs, '');
 
 
     $popupcreaterate = '';
@@ -126,8 +126,8 @@ else if($core->input['action'] == 'get_updaterate') {
 
     $curr_objs = Currencies::get_data(null, array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
 
-    $fromcurr_list = parse_selectlist('budgetrate[fromCurrency]', 4, $curr_objs, $budgetrate->fromCurrency, '', '', array('disabled' => true));
-    $tocurr_list = parse_selectlist('budgetrate[toCurrency]', 4, $curr_objs, $budgetrate->toCurrency, '', '', array('disabled' => true));
+    $fromcurr_list = parse_selectlist('budgetrate[fromCurrency]', 4, $curr_objs, $budgetrate->fromCurrency, '', '', array('disabledItems' => $curr_objs));
+    $tocurr_list = parse_selectlist('budgetrate[toCurrency]', 4, $curr_objs, $budgetrate->toCurrency, '', '', array('disabledItems' => $curr_objs));
 
     eval("\$addrate = \"".$template->get('popup_createbudget_fxrate')."\";");
     output($addrate);
@@ -152,7 +152,9 @@ elseif($core->input['action'] == 'do_deleterate') {
 }
 elseif($core->input['action'] == 'do_createrate') {
     $budgetrate = $core->input['budgetrate'];
+
     $budgetfxrate_obj = new BudgetFxRates();
+
     if(isset($budgetrate['fromCurrency']) && isset($budgetrate['toCurrency'])) {
         if($budgetrate['fromCurrency'] == $budgetrate['toCurrency']) {
             output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
