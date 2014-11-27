@@ -16,7 +16,7 @@ class Budgets extends AbstractClass {
     const TABLE_NAME = 'budgeting_budgets';
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = 'bid, year, affid, spid';
-    const attachments_path = './uploads/budget/';
+    const attachments_path = './uploads/budget';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = false, $budgetdata = '', $isallbudget = false) {
@@ -601,13 +601,13 @@ class Budgets extends AbstractClass {
     public static function download($method = 'stream') {
         global $log;
 
-        $download = new Download('budget_lines', 'filename', array(), self::attachments_path, array('titleattr' => 'title'));
-        $download->set_real_path(self::attachments_path);
+        $download = new Download();
+        $download->set_real_path(self::attachments_path.'/budgetdata.csv');
         if($method == 'download') {
             $download->download_file();
         }
         else {
-            $download->stream_file();
+            $download->stream_file(true);
         }
     }
 

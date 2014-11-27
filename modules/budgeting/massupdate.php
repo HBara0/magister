@@ -177,15 +177,11 @@ else {
 
 
         if(isset($overwrite_fields['value']['localIncomePercentage']) && !empty($overwrite_fields['value']['localIncomePercentage'])) {
-            $overwrite_fields['value'] = array('localIncomeAmount' => '(amount * ('.$overwrite_fields['value']['localIncomePercentage'].' / 100))',
-                    'localIncomePercentage' => $overwrite_fields['value']['localIncomePercentage'],
-                    'invoicingEntityIncome' => '(amount * ((incomePerc - '.$overwrite_fields['value']['localIncomePercentage'].') / 100))',
-                    'businessMgr' => intval($overwrite_fields['value']['businessMgr']),
-                    'purchasingEntity' => '\''.$overwrite_fields['value']['purchasingEntity'].'\'',
-                    'purchasingEntityId' => $overwrite_fields['value']['purchasingEntityId'],
-                    'commissionSplitAffid' => $overwrite_fields['value']['commissionSplitAffid'],
-            );
+            $overwrite_fields['value']['localIncomeAmount'] = '(amount * ('.$overwrite_fields['value']['localIncomePercentage'].' / 100))';
+            $overwrite_fields['value']['localIncomePercentage'] = '('.$overwrite_fields['value']['localIncomePercentage'].' * (100/incomePerc))';
+            $overwrite_fields['value']['invoicingEntityIncome'] = '(amount * ((incomePerc - '.$overwrite_fields['value']['localIncomePercentage'].') / 100))';
         }
+
         $overwrite_fields['value']['modifiedOn'] = TIME_NOW;
         $overwrite_fields['value']['modifiedBy'] = $core->user['uid'];
 
@@ -193,14 +189,35 @@ else {
             if(empty($colvalue) && $colvalue != "0") {
                 continue;
             }
+            if(is_string($colvalue)) {
+                $colvalue = '\''.$colvalue.'\'';
+            }
             $updatequery_set .= $comma.$column.'='.$colvalue;
             $comma = ', ';
         }
+        echo $updatequery_set;
 
         $query = $db->query('UPDATE '.Tprefix.'budgeting_budgets_lines SET '.$updatequery_set.' WHERE bid IN (SELECT bid FROM budgeting_budgets '.$budget_wherecondition.')'.$budgetline_wherecondition);
         if($query) {
+            $filepath = 'C:\www\development\ocos\uploads\budget\budgetdata.csv';
+            $file = fopen($filepath, "w+");
+            //  $csv = new CSV($filepath);  // to  be completed in later iteration
+            // $csv->write_tocsv();
 
-            output_xml('<status>true</status><message>'.$lang->successfullysaved.' '.$db->affected_rows().' lines.</message>');
+            foreach($budgetlines_notaffectedobjs as $budgetlines) {
+                //    fputcsv($file, array_keys($budgetlines->get()));
+                fputcsv($file, $budgetlines->get(), ',', ',');
+            }
+            /** rewrind the "file" with the csv lines * */
+            fseek($file, 0);
+//            /** Send file to browser for download */
+            fpassthru($file);
+
+            output_xml('<status>true</status><message>'.$lang->successfullysaved.' '.$db->affected_rows().' lines.<![CDATA[ <a href="'.$core->settings['rootdir'].'/index.php?module=budgeting/massupdate&action=download" target="_blank">click here to downolad CSV </a>]]></message>');
         }
     }
+    elseif($core->input['action'] == 'download') {
+        Budgets::download();
+    }
 }
+

@@ -350,7 +350,10 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
     if(isset($config['id'])) {
         $id = $config['id'];
     }
-
+    $disabled = '';
+    if(isset($config['disabled'])) {
+        $disabled = '  disabled="'.$config['disabled'].'" ';
+    }
     if(isset($config['required']) && ($config['required'] == true || $config['required'] == 'required')) {
         $required = ' required = "required"';
     }
@@ -363,7 +366,7 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
         $list_style = 'width: '.$config['width'].';';
     }
 
-    $list .= '<select style="'.$list_style.'" id="'.$id.'" name="'.$name.'" size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
+    $list .= '<select style="'.$list_style.'" id="'.$id.'" name="'.$name.'" '.$disabled.' size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
     if($config['blankstart'] == true && empty($config['placeholder'])) {
         $list .= '<option></option>';
     }
