@@ -54,6 +54,10 @@
                 <legend class="subtitle">{$lang->attachments}</legend>
                 <input name="attachments[]" id="attachments" multiple="true" type="file" />
             </fieldset>
+            <fieldset class="altrow2" style="border:1px solid #DDDDDD">
+                <legend class="subtitle">{$lang->eventlogo}</legend>
+                <input name="logo[]" id="logo" multiple="false" type="file" />
+            </fieldset>
             <hr />
             <input type="submit" class="button" value="{$lang->create}" id="calendar_eventstasks" onclick="$('#upload_Result').show()"  />
             <div id="upload_Result" style="display:none;"><img src="{$core->settings[rootdir]}/images/loading.gif" /> {$lang->uploadinprogress}</div>
