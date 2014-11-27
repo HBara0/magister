@@ -301,7 +301,7 @@ class Calendar {
         if(is_array($meeting_objs)) {
             foreach($meeting_objs as $meeting) {
                 $meeting_date = getdate($meeting['fromDate']);
-                $num_days_meeting = (($meeting['toDate'] - $meeting['fromDate']) / 24 / 60 / 60); /* divison to know how many days between the from and to */ //(date('z', $event['toDate'])-date('z', $event['fromDate']))+1;
+                $num_days_meeting = (($meeting['toDate'] - $meeting['fromDate']) / 24 / 60 / 60); /* divison to know how many days between the from and to */
 
                 if($num_days_meeting == 1) {
                     $current_check_date = getdate($meeting['toDate']);
@@ -311,7 +311,7 @@ class Calendar {
                     for($i = 0; $i < $num_days_meeting; $i++) {
                         $current_check = $meeting['fromDate'] + (60 * 60 * 24 * $i);
 
-                        if($this->period['firstday'] > $current_check) { //|| $more_leaves['toDate'] < $current_check) {
+                        if($this->period['firstday'] > $current_check) {
                             continue;
                         }
                         if($current_check > ($this->period['firstday'] * 60 * 60 * 24 * $this->period['numdays'])) {

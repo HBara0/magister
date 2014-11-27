@@ -102,6 +102,7 @@ if(!$core->input['action']) {
 }
 else if($core->input['action'] == 'get_updaterate') {
     $budgetrate = new BudgetFxRates($core->input['id']);
+
     $aff_objs = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('operators' => array('affid' => 'IN')));
     if(is_array($aff_objs)) {
         foreach($aff_objs as $affiliate) {
@@ -110,22 +111,23 @@ else if($core->input['action'] == 'get_updaterate') {
                 $selectedaff[] = $budgetrate->affid;
             }
         }
-        $affiliate_list = parse_selectlist('budgetrate[affid]', 1, $affiliates, $selectedaff);
+        $affiliate_list = parse_selectlist('budgetrate[affid]', 1, $affiliates, $selectedaff, '', '', array('disabled' => true));
     }
     /* Crate rates popup interface */
     $years = array_combine(range(date('Y') - 2, date('Y') + 1), range(date('Y') - 2, date('Y') + 1));
+    $disabled = '  disabled="'.$config['disabled'].'"';
     foreach($years as $year) {
         $year_selected = '';
         if($year == $budgetrate->year) {
             $year_selected = "selected=selected";
         }
-        $budget_years .= "<option value='{$year}'{$year_selected}>{$year}</option>";
+        $budget_years .= "<option  value='{$year}'{$year_selected}>{$year}</option>";
     }
 
     $curr_objs = Currencies::get_data(null, array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
 
-    $fromcurr_list = parse_selectlist('budgetrate[fromCurrency]', 4, $curr_objs, $budgetrate->fromCurrency);
-    $tocurr_list = parse_selectlist('budgetrate[toCurrency]', 4, $curr_objs, $budgetrate->toCurrency);
+    $fromcurr_list = parse_selectlist('budgetrate[fromCurrency]', 4, $curr_objs, $budgetrate->fromCurrency, '', '', array('disabled' => true));
+    $tocurr_list = parse_selectlist('budgetrate[toCurrency]', 4, $curr_objs, $budgetrate->toCurrency, '', '', array('disabled' => true));
 
     eval("\$addrate = \"".$template->get('popup_createbudget_fxrate')."\";");
     output($addrate);
@@ -151,10 +153,11 @@ elseif($core->input['action'] == 'do_deleterate') {
 elseif($core->input['action'] == 'do_createrate') {
     $budgetrate = $core->input['budgetrate'];
     $budgetfxrate_obj = new BudgetFxRates();
-
-    if($budgetrate['fromCurrency'] == $budgetrate['toCurrency']) {
-        output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
-        return;
+    if(isset($budgetrate['fromCurrency']) && isset($budgetrate['toCurrency'])) {
+        if($budgetrate['fromCurrency'] == $budgetrate['toCurrency']) {
+            output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+            return;
+        }
     }
 
     $budgetfxrate_obj->set($budgetrate);
