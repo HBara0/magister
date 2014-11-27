@@ -174,8 +174,6 @@ else {
             }
         }
 
-
-
         if(isset($overwrite_fields['value']['localIncomePercentage']) && !empty($overwrite_fields['value']['localIncomePercentage'])) {
             $overwrite_fields['value']['localIncomeAmount'] = '(amount * ('.$overwrite_fields['value']['localIncomePercentage'].' / 100))';
             $overwrite_fields['value']['localIncomePercentage'] = '('.$overwrite_fields['value']['localIncomePercentage'].' * (100/incomePerc))';
@@ -184,7 +182,6 @@ else {
 
         $overwrite_fields['value']['modifiedOn'] = TIME_NOW;
         $overwrite_fields['value']['modifiedBy'] = $core->user['uid'];
-
         foreach($overwrite_fields['value'] as $column => $colvalue) {
             if(empty($colvalue) && $colvalue != "0") {
                 continue;
@@ -195,24 +192,13 @@ else {
             $updatequery_set .= $comma.$column.'='.$colvalue;
             $comma = ', ';
         }
-        echo $updatequery_set;
 
         $query = $db->query('UPDATE '.Tprefix.'budgeting_budgets_lines SET '.$updatequery_set.' WHERE bid IN (SELECT bid FROM budgeting_budgets '.$budget_wherecondition.')'.$budgetline_wherecondition);
         if($query) {
             $filepath = 'C:\www\development\ocos\uploads\budget\budgetdata.csv';
             $file = fopen($filepath, "w+");
-            //  $csv = new CSV($filepath);  // to  be completed in later iteration
-            // $csv->write_tocsv();
-
-            foreach($budgetlines_notaffectedobjs as $budgetlines) {
-                //    fputcsv($file, array_keys($budgetlines->get()));
-                fputcsv($file, $budgetlines->get(), ',', ',');
-            }
-            /** rewrind the "file" with the csv lines * */
-            fseek($file, 0);
-//            /** Send file to browser for download */
-            fpassthru($file);
-
+            $csv = new CSV($filepath);
+            $csv->write_tocsv($budgetlines_notaffectedobjs);
             output_xml('<status>true</status><message>'.$lang->successfullysaved.' '.$db->affected_rows().' lines.<![CDATA[ <a href="'.$core->settings['rootdir'].'/index.php?module=budgeting/massupdate&action=download" target="_blank">click here to downolad CSV </a>]]></message>');
         }
     }
