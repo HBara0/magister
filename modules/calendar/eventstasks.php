@@ -68,7 +68,8 @@ else {
                 'place' => $core->input['event']['place'],
                 'type' => $core->input['event']['type'],
                 'createdOn' => TIME_NOW,
-                'createdBy' => $core->user['uid']
+                'createdBy' => $core->user['uid'],
+                'publishOnWebsite' => $core->input['event']['publishOnWebsite']
         );
 
         $new_event['fromDate'] = strtotime($core->input['event']['fromDate'].' '.$core->input['event']['fromTime']);
@@ -113,7 +114,7 @@ else {
 
         /* Parse Event Logo - START */
         $core->input['logo'] = $_FILES['logo'];
-        if(!empty($core->input['logo']['name'])) {
+        if(!empty($core->input['logo']['name'][0])) {
             $upload_param['upload_allowed_types'] = array('image/jpg', 'image/jpeg', 'image/gif', 'image/png');
             if(is_array($core->input['logo'])) {
                 $upload_obj = new Uploader('logo', $core->input, $upload_param['upload_allowed_types'], 'putfile', 5242880, 1, 1); //5242880 bytes = 5 MB (1024);
@@ -139,7 +140,9 @@ else {
         $query = $db->insert_query('calendar_events', $new_event);
         $last_id = $db->last_id();
         $event_obj = new Events($last_id, false);
-        $event_obj->uploadlogo();
+        if(!empty($event_obj->logo)) {
+            $event_obj->upload_logo();
+        }
         $events_details = $event_obj->get();
         /* Add event Invitee */
         if(is_array($core->input['event']['invitee'])) {
