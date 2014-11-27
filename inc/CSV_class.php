@@ -121,6 +121,24 @@ class CSV {
         }
     }
 
+    public function write_tocsv($data = array()) {
+        if(empty($data)) {
+            return;
+        }
+        $data_source = @fopen($this->filename, 'w+');
+        /* prepare header data */
+        $data_header = (array_keys($data[key($data)]->get()));
+        /* write the headers to csv */
+        fputcsv($data_source, $data_header, ',', ',');
+        foreach($data as $datatowrite) {
+            fputcsv($data_source, $datatowrite->get(), ',', ',');
+        }
+        /** rewrind the "file" with the csv lines * */
+        fseek($data_source, 0);
+        /** Send file to browser for download */
+        fpassthru($data_source);
+    }
+
     public function readdata_file(array $filter = array()) {
         $data_source = @fopen($this->filename, 'r');
 

@@ -6,7 +6,7 @@
             <td>{$lang->affiliate}</td>
             <td>{$affiliate_list}</td>
             </tr>
-            <tr> <td>{$lang->year}</td><td><select  name="budgetrate[year]"> {$budget_years}</select></td></tr>
+            <tr> <td>{$lang->year}</td><td><select  name="budgetrate[year]" {$disabled}> {$budget_years}</select></td></tr>
             <tr>
                 <td>{$lang->fromcurr}</td>
                 <td>{$fromcurr_list}</td>
