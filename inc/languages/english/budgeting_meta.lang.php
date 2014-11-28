@@ -161,4 +161,5 @@ $lang['purchasedfromaffiliate'] = 'Purchase from Affiliate';
 $lang['invoiceentity'] = 'Invoicing Entity';
 $lang['purchasingentity'] = 'Purchasing Entity';
 $lang['entitypurchasingfromsupplier'] = 'Entity Purchasing from Supplier';
+$lang['samerateexist'] = 'Same Rate already exist for this affilaite and this year';
 ?>

@@ -246,7 +246,7 @@ class BudgetPlCategories extends AbstractClass {
                                 $fields = array('prevthreeyears', 'prevtwoyears', 'prevyear', 'yefactual', 'current', 'budyef');
                                 $amount_output .= '<td style = "width:28%;font-weight:bold;">'.$type->title.'</td>';
                                 $grossmargin_commissions = $lang->grossmargin;
-                                if($type->stid == 3 || $type->stid == 4) {
+                                if($type->stid == 1 || $type->stid == 2) {
                                     $grossmargin_commissions = $lang->accountedcommissions;
                                 }
                                 $income_output .='<td style="width:28%">'.$grossmargin_commissions.'</td>';

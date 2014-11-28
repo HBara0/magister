@@ -435,6 +435,7 @@ CREATE TABLE `calendar_events` (
   `createdOn` bigint(30) NOT NULL,
   `editedBy` int(10) DEFAULT NULL,
   `editedOn` bigint(30) DEFAULT NULL,
+  `logo` varchar(220) NOT NULL,
   PRIMARY KEY (`ceid`),
   KEY `uid` (`uid`),
   KEY `createdBy` (`createdBy`,`editedBy`)

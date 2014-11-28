@@ -46,8 +46,8 @@
                         <div class="thead">{$lang->domesticvisit}</div>
                         <thead>
                             <tr style="vertical-align: top;">
-                                <td  width="17.5%" class=" border_right"   align="center"  valign="top" align="left">{$lang->company} <a href="index.php?module=contents/addentities&type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
                                 <td width="17.5%" rowspan="2" valign="top" align="center" class=" border_right">{$lang->event} </td>
+                                <td  width="17.5%" class=" border_right"   align="center"  valign="top" align="left">{$lang->company} <a href="index.php?module=contents/addentities&type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
                                 <td width="17.5%" class=" border_right"   valign="top" align="center">{$lang->date}  </td>
                                 <td width="17.5%" class=" border_right" valign="top" align="center">{$lang->purpose}</td>
                                 <td width="30%" class=" border_right"    valign="top" align="center">{$lang->costaffonly}</td>
@@ -74,8 +74,6 @@
                     </table>
 
                 </div>
-
-
                 <div class="datatable" style="display: block; width: 100%;">
                     <div class="thead">{$lang->intvisit}</div>
                     <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -88,7 +86,6 @@
                                 <td width="14.2" class=" border_right"   valign="top" align="center">{$lang->plancost}</td>
                                 <td width="14.2" class=" border_right"   valign="top" align="center">{$lang->othercost}</td>
                                 <td width="14.2" class=" border_right"   valign="top" align="center">{$lang->totalcostaffonly}</td>
-
                             </tr>
                         </thead>
                         <tbody id="budgetrainvisitint{$rowid}_tbody" style="width:100%;">

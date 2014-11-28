@@ -45,9 +45,9 @@ if($view_type == 'week') {
 else {
     $main_calendar->read_tasks();
     $main_calendar->read_events();
+    $main_calendar->read_meetings();
     $main_calendar->read_holidays();
     $main_calendar->read_leaves();
-
     $calendar = $main_calendar->get_calendar();
 
     $previous_period = $main_calendar->get_prev_period();

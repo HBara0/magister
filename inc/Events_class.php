@@ -21,7 +21,7 @@ class Events extends AbstractClass {
     const TABLE_NAME = 'calendar_events';
     const DISPLAY_NAME = '';
     const CLASSNAME = __CLASS__;
-    const SIMPLEQ_ATTRS = 'ceid, title, description,fromDate,toDate,place';
+    const SIMPLEQ_ATTRS = 'ceid, title, description,fromDate,toDate,place,publishOnWebsite';
 
     public function __construct($id = '', $simple = false, $options = array()) {
         parent::__construct($id, $simple);
@@ -113,6 +113,21 @@ class Events extends AbstractClass {
 
     public function get() {
         return $this->data;
+    }
+
+    /* upload logo to the website directory if event is to be published on website */
+    public function upload_logo() {
+        if($this->data['publishOnWebsite'] == 1) {
+            $cms = new Cms('db');
+            $settings = $cms->get_settings();
+            $upload_param['upload_allowed_types'] = array('image/jpg', 'image/jpeg', 'image/gif', 'image/png');
+            $ftp_settings = array('server' => $settings['ftpserver'], 'username' => $settings['ftpusername'], 'password' => $settings['ftppassword']);
+            $upload = new Uploader('logo', $this->data['logo'], $upload_param['upload_allowed_types'], 'ftp', 5242880, 1, 1);
+            $upload->establish_ftp($ftp_settings);
+            $upload->set_upload_path('./uploads/eventslogos');
+            $upload->process_file();
+            $upload->close_ftp();
+        }
     }
 
 }

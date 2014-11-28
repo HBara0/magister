@@ -111,10 +111,11 @@ else if($core->input['action'] == 'get_updaterate') {
                 $selectedaff[] = $budgetrate->affid;
             }
         }
-        $affiliate_list = parse_selectlist('budgetrate[affid]', 1, $affiliates, $selectedaff);
+        $affiliate_list = parse_selectlist('budgetrate[affid]', 1, $affiliates, $selectedaff, '', '', array('disabled' => true));
     }
     /* Crate rates popup interface */
     $years = array_combine(range(date('Y') - 2, date('Y') + 1), range(date('Y') - 2, date('Y') + 1));
+    $disabled = '  disabled="'.$config['disabled'].'"';
     foreach($years as $year) {
         $year_selected = '';
         if($year == $budgetrate->year) {
@@ -125,8 +126,8 @@ else if($core->input['action'] == 'get_updaterate') {
 
     $curr_objs = Currencies::get_data(null, array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
 
-    $fromcurr_list = parse_selectlist('budgetrate[fromCurrency]', 4, $curr_objs, $budgetrate->fromCurrency);
-    $tocurr_list = parse_selectlist('budgetrate[toCurrency]', 4, $curr_objs, $budgetrate->toCurrency);
+    $fromcurr_list = parse_selectlist('budgetrate[fromCurrency]', 4, $curr_objs, $budgetrate->fromCurrency, '', '', array('disabledItems' => $curr_objs));
+    $tocurr_list = parse_selectlist('budgetrate[toCurrency]', 4, $curr_objs, $budgetrate->toCurrency, '', '', array('disabledItems' => $curr_objs));
 
     eval("\$addrate = \"".$template->get('popup_createbudget_fxrate')."\";");
     output($addrate);
@@ -151,11 +152,14 @@ elseif($core->input['action'] == 'do_deleterate') {
 }
 elseif($core->input['action'] == 'do_createrate') {
     $budgetrate = $core->input['budgetrate'];
+
     $budgetfxrate_obj = new BudgetFxRates();
 
-    if($budgetrate['fromCurrency'] == $budgetrate['toCurrency']) {
-        output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
-        return;
+    if(isset($budgetrate['fromCurrency']) && isset($budgetrate['toCurrency'])) {
+        if($budgetrate['fromCurrency'] == $budgetrate['toCurrency']) {
+            output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+            return;
+        }
     }
 
     $budgetfxrate_obj->set($budgetrate);
