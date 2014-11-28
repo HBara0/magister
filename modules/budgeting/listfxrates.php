@@ -102,7 +102,8 @@ if(!$core->input['action']) {
 }
 else if($core->input['action'] == 'get_updaterate') {
     $budgetrate = new BudgetFxRates($core->input['id']);
-    $aff_objs = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('operators' => array('affid' => 'IN')));
+
+    $aff_objs = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('returnarray' => true, 'operators' => array('affid' => 'IN')));
     if(is_array($aff_objs)) {
         foreach($aff_objs as $affiliate) {
             $affiliates[$affiliate->affid] = $affiliate->get_displayname();
