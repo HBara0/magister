@@ -5,8 +5,7 @@
         <input type='text' id='customer_noexception_{$rowid}_autocomplete' name="budgetline[$rowid][customerName]" {$disabledattrs[cid]} value="{$budgetline[customerName]}" autocomplete='off' {$required}/>
         <input type='text' size='3' id='customer_noexception_{$rowid}_id_output' disabled='disabled' value="{$budgetline[cid]}" style="display:none;"/>
         <input type='hidden' value="{$budgetline[cid]}" id='customer_noexception_{$rowid}_id' name='budgetline[$rowid][cid]' />
-        <!-- <input type='hidden' value="{$budgetline[altCid]}" id='altCid' name='budgetline[$rowid][altCid]' />-->
-        <input type="hidden" id="budgetline_{$rowid}_altCid" name="budgetline[$rowid][altCid]" value="{$altcid}"/>
+        <input type="hidden" id="budgetline_{$rowid}_altCid" name="budgetline[$rowid][altCid]" value="{$prev_budgetline[altCid]}"/>
         {$budgetline[alternativecustomer]} {$previous_blid}
         <span style="padding:8px;"><br /><input type="checkbox" name="budgetline[$rowid][unspecifiedCustomer]" title="{$lang->unspecifiedcust}" {$disabledattrs[unspecifiedCustomer]} value="1"{$checked_checkboxes[$rowid][unspecifiedCustomer]}/>{$lang->unspecifiedcust}</span>
         <div id='searchQuickResults_customer_{$rowid}' class='searchQuickResults' style='display:none;'></div>

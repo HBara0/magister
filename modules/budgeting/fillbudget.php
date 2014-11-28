@@ -223,6 +223,7 @@ if(!$core->input['action']) {
                         }
                         if(empty($budgetline['cid']) && $budgetline['altCid'] != 'Unspecified Customer') {
                             $budgetline['alternativecustomer'] = '<span style="display:block;">'.ucfirst($budgetline['altCid']).'</span>';
+                            $prev_budgetline['altCid'] = $budgetline['altCid'];
                         }
                         /* Get Actual data from mediation tables --END */
                         $budget_currencylist = '';
@@ -256,10 +257,6 @@ if(!$core->input['action']) {
                             $budgetline['inputChecksum'] = generate_checksum('bl');
                         }
 
-                        $altcid = $budgetline['altCid'];
-                        if(empty($altcid)) {
-                            $altcid = $prev_budgetline['altCid'];
-                        }
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
                         $rowid++;
                     }
