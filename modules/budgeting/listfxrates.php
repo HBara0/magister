@@ -90,8 +90,8 @@ if(!$core->input['action']) {
     $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where affid IS NOT NULL';
     $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
     $curr_objs[840] = new Currencies(840);
-    $fromcurr_list = parse_selectlist('budgetrate[fromCurrency]', 4, $curr_objs, '');
-    $tocurr_list = parse_selectlist('budgetrate[toCurrency]', 4, $curr_objs, '');
+    $fromcurr_list = parse_selectlist('budgetrate[fromCurrency]', 4, $curr_objs, '840');
+    $tocurr_list = parse_selectlist('budgetrate[toCurrency]', 4, $curr_objs, '840');
 
 
     $popupcreaterate = '';
@@ -103,7 +103,7 @@ if(!$core->input['action']) {
 else if($core->input['action'] == 'get_updaterate') {
     $budgetrate = new BudgetFxRates($core->input['id']);
 
-    $aff_objs = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('operators' => array('affid' => 'IN')));
+    $aff_objs = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('returnarray' => true, 'operators' => array('affid' => 'IN')));
     if(is_array($aff_objs)) {
         foreach($aff_objs as $affiliate) {
             $affiliates[$affiliate->affid] = $affiliate->get_displayname();
@@ -121,7 +121,7 @@ else if($core->input['action'] == 'get_updaterate') {
         if($year == $budgetrate->year) {
             $year_selected = "selected=selected";
         }
-        $budget_years .= "<option  value='{$year}'{$year_selected}>{$year}</option>";
+        $budget_years .= "<option value='{$year}'{$year_selected}>{$year}</option>";
     }
 
     $curr_objs = Currencies::get_data(null, array('returnarray' => true, 'operators' => array('numCode' => 'IN')));

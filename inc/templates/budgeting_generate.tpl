@@ -44,7 +44,7 @@
                                     <table class="datatable" width="100%">
                                         <thead>
                                             <tr>
-                                                <th width="100%">{$lang->affiliate}<input class='inlinefilterfield' type='text' tabindex="2"  placeholder="{$lang->search} {$lang->affiliate}" style="display:inline-block;width:70%;margin-left:5px;"/></th>
+                                                <th width="100%"><input type="checkbox" id='affiliatefilter_checkall'><input class='inlinefilterfield' type='text' tabindex="2"  placeholder="{$lang->search} {$lang->affiliate}" style="display:inline-block;width:70%;margin-left:5px;"/></th>
                                             </tr>
                                         </thead>
                                         <tbody >
@@ -58,7 +58,7 @@
                                     <table class="datatable" width="100%">
                                         <thead>
                                             <tr>
-                                                <th width="100%">{$lang->supplier}<input class='inlinefilterfield' type='text' tabindex="2" placeholder="{$lang->search} {$lang->supplier}" style="width:70%;display:inline-block;margin-left:5px;"/></th>
+                                                <th width="100%"><input type="checkbox" id='supplierfilter_checkall'><input class='inlinefilterfield' type='text' tabindex="2" placeholder="{$lang->search} {$lang->supplier}" style="width:70%;display:inline-block;margin-left:5px;"/></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -74,7 +74,7 @@
                                     <table class="datatable" width="100%">
                                         <thead>
                                             <tr>
-                                                <th width="100%">{$lang->manager}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->bm}" style="width:60%;display:inline-block;margin-left:5px;"/></th>
+                                                <th width="100%"><input type="checkbox" id='bmfilter_checkall'><input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->bm}" style="width:60%;display:inline-block;margin-left:5px;"/></th>
                                             </tr>
                                         </thead>
                                         <tbody style="height:100px;">
@@ -88,7 +88,7 @@
                                     <table class="datatable" width="100%">
                                         <thead>
                                             <tr>
-                                                <th width="100%">{$lang->segment}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->segment}" style="width:70%;display:inline-block;margin-left:5px;"/></th>
+                                                <th width="100%"><input type="checkbox" id='segmentfilter_checkall'><input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->segment}" style="width:70%;display:inline-block;margin-left:5px;"/></th>
                                             </tr>
                                         </thead>
                                         <tbody>

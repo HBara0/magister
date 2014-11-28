@@ -39,7 +39,7 @@ if(!$core->input['action']) {
             }
             $checked = $rowclass = '';
             $affiliates_list .='<tr class="'.$rowclass.'">';
-            $affiliates_list .='<td><input name="budget[affiliates][]"  type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
+            $affiliates_list .='<td><input id="affiliatefilter_check_'.$key.'" name="budget[affiliates][]"  type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
         }
     }
 
@@ -61,7 +61,7 @@ if(!$core->input['action']) {
             }
             $checked = $rowclass = '';
             $suppliers_list .= ' <tr class="'.$rowclass.'">';
-            $suppliers_list .= '<td><input name="budget[suppliers][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td><tr>';
+            $suppliers_list .= '<td><input id="supplierfilter_check_'.$key.'" name="budget[suppliers][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td><tr>';
         }
     }
 
@@ -77,7 +77,7 @@ if(!$core->input['action']) {
         foreach($user_segments as $segment) {
             $checked = $rowclass = '';
             $budget_segments_list .='<tr class="'.$rowclass.'">';
-            $budget_segments_list .='<td><input name="budget[segments][]" type="checkbox"'.$checked.' value="'.$segment['psid'].'">'.$segment['title'].'</td></tr>';
+            $budget_segments_list .='<td><input id="segmentfilter_check_'.$segment['psid'].'"  name="budget[segments][]" type="checkbox"'.$checked.' value="'.$segment['psid'].'">'.$segment['title'].'</td></tr>';
         }
     }
     else {
@@ -138,7 +138,7 @@ if(!$core->input['action']) {
         foreach($business_managers as $key => $value) {
             $checked = $rowclass = '';
             $business_managerslist .= '<tr class="'.$rowclass.'">';
-            $business_managerslist .= '<td><input name="budget[managers][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
+            $business_managerslist .= '<td><input id="bmfilter_check_'.$key.'" name="budget[managers][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
         }
     }
 
