@@ -3,21 +3,21 @@
         <title>{$core->settings[systemtitle]} | {$lang->trainingandvisits}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function() {
-                $("input[id^='costaff_']").live('change keyup live', function() {
+            $(function () {
+                $("input[id^='costaff_']").live('change keyup live', function () {
                     var id = $(this).attr('id').split("_");
                     var total = 0;
-                    $('input[id^=costaff_][id$=' + id[2] + ']').each(function() {
+                    $('input[id^=costaff_][id$=' + id[2] + ']').each(function () {
                         if(!jQuery.isEmptyObject(this.value)) {
                             total += parseFloat(this.value);
                         }
                     });
                     $('span[id=total_' + id[2] + ']').text(total);
                 });
-                $("input[id^='cost_']").live('change keyup live', function() {
+                $("input[id^='cost_']").live('change keyup live', function () {
                     var id = $(this).attr('id').split("_");
                     var subtotalintamount = 0;
-                    $('input[id$=' + id[2] + '_' + id[3] + '][id^=cost]').each(function() {
+                    $('input[id$=' + id[2] + '_' + id[3] + '][id^=cost]').each(function () {
                         if(!jQuery.isEmptyObject(this.value)) {
                             subtotalintamount += parseFloat(this.value);
                         }
@@ -34,7 +34,7 @@
     <tr>
         {$menu}
         <td class="contentContainer" colspan="1">
-            <h1>{$lang->trainingandvisits}<br /><small>{$affiliate->name} {$financialbudget_year}- {$financialbudget_prevyear }</small></h1>
+            <h1>{$lang->trainingandvisits}<br /><small>{$affiliate->name} {$financialbudget_year} - YEF {$financialbudget_prevyear}</small></h1>
 
             <form name="perform_budgeting/trainingvisits_Form" id="perform_budgeting/trainingvisits_Form"  action="#" method="post">
                 <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">
