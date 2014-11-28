@@ -598,19 +598,6 @@ class Budgets extends AbstractClass {
         return $this->errorcode;
     }
 
-    public static function download($method = 'stream') {
-        global $log;
-
-        $download = new Download();
-        $download->set_real_path(self::attachments_path.'/budgetdata.csv');
-        if($method == 'download') {
-            $download->download_file();
-        }
-        else {
-            $download->stream_file(true);
-        }
-    }
-
 }
 /* Budgeting Line Class --START */
 

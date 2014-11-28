@@ -16,7 +16,7 @@ if($core->usergroup['budgeting_canMassUpdate'] == 0) {
 }
 
 if(!$core->input['action']) {
-    if($core->usergroup['canViewAllAff'] == 0) {
+    if($core->usergroup['canViewAllAff'] == 1) {
         foreach($core->user['affiliates'] as $affid) {
             $aff_objs[$affid] = new Affiliates($affid);
         }
@@ -50,24 +50,20 @@ if(!$core->input['action']) {
     }
     /* Can Generate users of the affiliates he belongs to */
 
-    if(is_array($core->user['affiliates'])) {
-        foreach($core->user['affiliates'] as $auditaffid) {
+// get affid of the above
+
+    if(is_array(array_keys($aff_objs))) {
+        foreach(array_keys($aff_objs) as $auditaffid) {
             $aff_obj = new Affiliates($auditaffid);
-            $affiliate_users = $aff_obj->get_all_users();
-            foreach($affiliate_users as $aff_businessmgr) {
-                $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['displayName'];
+            $affiliate_users = $aff_obj->get_all_users(array('customfilter' => 'u.uid IN (SELECT users_usergroups.uid FROM users_usergroups WHERE gid IN (SELECT usergroups.gid FROM usergroups WHERE budgeting_canFillBudget=1))'));
+            if(is_array($affiliate_users)) {
+                foreach($affiliate_users as $aff_businessmgr) {
+                    $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['displayName'];
+                }
             }
         }
     }
-//    else {
-//        if($core->usergroup['canViewAllEmp'] == 1) {
-//            $affiliate = new Affiliates($core->user['mainaffiliate']);
-//            $business_managers = $affiliate->get_all_users(array('displaynameonly' => true, 'customfilter' => 'u.uid IN (SELECT DISTINCT(users_usergroups.uid) FROM users_usergroups WHERE gid IN (SELECT usergroups.gid FROM usergroups WHERE budgeting_canMassUpdate=1))'));
-//        }
-//        else {
-//            $business_managers[$core->user['uid']] = $core->user['displayName'];
-//        }
-//    }
+
 
     if(is_array($business_managers)) {
         foreach($business_managers as $key => $value) {
@@ -88,11 +84,12 @@ if(!$core->input['action']) {
     $user_segments_objs = $user->get_segments();
 
     /*  configuration array for the Values to Overwrite: */
+    $allaff_objs = Affiliates::get_affiliates('name IS NOT NULL');
     $overwrites_fields = array('businessMgr' => array('inputfield' => parse_selectlist('budget[overwrite][value][businessMgr]', 0, $business_managers, '', '', '', array('blankstart' => true, 'id' => 'businessMgr_'))),
             'purchasingEntity' => array('inputfield' => '<input type="text" placeholder="'.$lang->affiliate.'"  size="20" id="affiliate_pe" name="budget[overwrite][value][purchasingEntity]"    autocomplete="off" />'),
             'purchasingEntityId' => array('inputfield' => '<input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id=affiliate_peid_autocomplete name=""    autocomplete="off" /><input type="hidden" value=" " id="affiliate_peid_id" name="budget[overwrite][value][purchasingEntityId]"/>'),
             'localIncomePercentage' => array('inputfield' => '<input name="budget[overwrite][value][localIncomePercentage]"  value="" type="text" id="localincomeper_'.$rowid.'" size="15" accept="numeric"  />'),
-            'commissionSplitAffid' => array('inputfield' => parse_selectlist('budget[overwrite][value][commissionSplitAffid]', 0, $aff_objs, '', '', '', array('blankstart' => true, 'id' => 'commissionsplitaffid_')))
+            'commissionSplitAffid' => array('inputfield' => parse_selectlist('budget[overwrite][value][commissionSplitAffid]', 0, $allaff_objs, '', '', '', array('blankstart' => true, 'id' => 'commissionsplitaffid_')))
             //'Segment' => array('inputfield' => parse_selectlist('budget[overwrite][segment]', 0, $user_segments_objs, '', '', '', array('blankstart' => true, 'id' => 'segment_')))
     );
 
@@ -186,7 +183,7 @@ else {
             if(empty($colvalue) && $colvalue != "0") {
                 continue;
             }
-            if(is_string($colvalue)) {
+            if($column == 'purchasingEntity') {
                 $colvalue = '\''.$colvalue.'\'';
             }
             $updatequery_set .= $comma.$column.'='.$colvalue;
@@ -195,15 +192,19 @@ else {
 
         $query = $db->query('UPDATE '.Tprefix.'budgeting_budgets_lines SET '.$updatequery_set.' WHERE bid IN (SELECT bid FROM budgeting_budgets '.$budget_wherecondition.')'.$budgetline_wherecondition);
         if($query) {
-            $filepath = 'C:\www\development\ocos\uploads\budget\budgetdata.csv';
+            $filepath = ''.ROOT.'\tmp\budget\budgetdata.csv';
             $file = fopen($filepath, "w+");
             $csv = new CSV($filepath);
             $csv->write_tocsv($budgetlines_notaffectedobjs);
-            output_xml('<status>true</status><message>'.$lang->successfullysaved.' '.$db->affected_rows().' lines.<![CDATA[ <a href="'.$core->settings['rootdir'].'/index.php?module=budgeting/massupdate&action=download" target="_blank">click here to downolad CSV </a>]]></message>');
+            output_xml('<status>true</status><message>'.$lang->successfullysaved.' '.$db->affected_rows().' lines.<![CDATA[ <a href="'.$core->settings['rootdir'].'/index.php?module=budgeting/massupdate&action=download" target="_blank">click here to downolad original value </a>]]></message>');
         }
     }
     elseif($core->input['action'] == 'download') {
-        Budgets::download();
+
+        $filepath = ''.ROOT.'\tmp\budget\budgetdata.csv';
+        $file = fopen($filepath, "w+");
+        $csv = new CSV($filepath);
+        $csv->download();
     }
 }
 

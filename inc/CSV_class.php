@@ -139,6 +139,19 @@ class CSV {
         fpassthru($data_source);
     }
 
+    public function download($method = 'stream') {
+        global $log;
+        $data_source = @fopen($this->filename, 'w+');
+        $download = new Download();
+        $download->set_real_path($this->filename);
+        if($method == 'download') {
+            $download->download_file();
+        }
+        else {
+            $download->stream_file(true);
+        }
+    }
+
     public function readdata_file(array $filter = array()) {
         $data_source = @fopen($this->filename, 'r');
 
