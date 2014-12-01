@@ -17,7 +17,7 @@ class BudgetFxRates extends AbstractClass {
     const PRIMARY_KEY = 'bfxid';
     const TABLE_NAME = 'budgeting_fxrates';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'bfxid, affid, year, fromCurrency, toCurrency, rate';
+    const SIMPLEQ_ATTRS = 'bfxid, affid, year,rateCategory,fromCurrency, toCurrency, rate';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -53,6 +53,7 @@ class BudgetFxRates extends AbstractClass {
         global $db;
 
         if(is_array($data)) {
+
             unset($data['createreverserate']);
             $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
             if(!$query) {
@@ -66,7 +67,7 @@ class BudgetFxRates extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
-        $existing_rate = BudgetFxRates::get_data(array('affid' => $data['affid'], 'year' => $data['year'], 'fromCurrency' => $data['fromCurrency'], 'toCurrency' => $data['toCurrency']));
+        $existing_rate = BudgetFxRates::get_data(array('affid' => $data['affid'], 'year' => $data['year'], 'fromCurrency' => $data['fromCurrency'], 'toCurrency' => $data['toCurrency'], 'rateCategory' => $data['rateCategory']));
         if(!is_object($existing_rate)) {
             if(isset($this->data)) {
                 $this->create($this->data);
