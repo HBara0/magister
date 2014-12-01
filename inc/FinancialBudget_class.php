@@ -29,7 +29,7 @@ Class FinancialBudget extends AbstractClass {
             $fields = array('finGenAdmExpAmtApthy', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent'); //'finGenAdmExpAmtApy', 'finGenAdmExpAmtBpy'
             $financialdata['affid'] = $data['financialbudget']['affid'];
             $financialdata['year'] = $data['financialbudget']['year'];
-            $financialdata['netIncome'] = $data['financialbudget']['income'];
+            // $financialdata['netIncome'] = $data['financialbudget']['income'];
             $affiliate = new Affiliates($financialdata['affid']);
             $financialdata['currency'] = $affiliate->get_country()->get_maincurrency()->get()[numCode];
             foreach($fields as $field) {
@@ -122,6 +122,8 @@ Class FinancialBudget extends AbstractClass {
                         return;
                 }
             }
+            $financialbudgetdata['netIncome'] = $data['financialbudget']['income'];
+            $query = $db->update_query(self::TABLE_NAME, $financialbudgetdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         }
 
         $budgetforecastbs = $data['budgetforecastbs'];
@@ -212,9 +214,6 @@ Class FinancialBudget extends AbstractClass {
             $fields = array('finGenAdmExpAmtApthy', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent'); //'finGenAdmExpAmtApy', 'finGenAdmExpAmtBpy'
             $financialdata['affid'] = $data['financialbudget']['affid'];
             $financialdata['year'] = $data['financialbudget']['year'];
-            if(isset($data['financialbudget']['income'])) {
-                $financialdata['netIncome'] = $data['financialbudget']['income'];
-            }
             foreach($fields as $field) {
                 if(isset($data['financialbudget'][$field])) {
                     $max = 'max'.$field;
@@ -290,7 +289,7 @@ Class FinancialBudget extends AbstractClass {
             }
             $budgetforecastbs = $data['budgetforecastbs'];
             if(is_array($budgetforecastbs)) {
-                unset($budgetforecastbs[liabilities], $budgetforecastbs[Assets]);
+                unset($budgetforecastbs[liabilities], $budgetforecastbs[Assets], $budgetforecastbs[OwnersEquity]);
 
                 foreach($budgetforecastbs as $forecast) {
                     $forecast['bfbid'] = $this->data[self::PRIMARY_KEY];
@@ -384,6 +383,10 @@ Class FinancialBudget extends AbstractClass {
                             return;
                     }
                 }
+                if(isset($data['financialbudget']['income'])) {
+                    $financialbudgetdata['netIncome'] = $data['financialbudget']['income'];
+                }
+                $query = $db->update_query(self::TABLE_NAME, $financialbudgetdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
             }
             $this->errorcode = 1;
         }
