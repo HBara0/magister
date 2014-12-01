@@ -75,9 +75,7 @@ if(!$core->input['action']) {
         if($year == $years[date('Y')] + 1) {
             $year_selected = 'selected = "selected"';
         }
-        $budget_years .= "<option value=' {
-            $year
-        }'{$year_selected}>{$year}</option>";
+        $budget_years .= "<option value=".$year."  {$year_selected}>{$year}</option>";
     }
 
     $aff_objs = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('operators' => array('affid' => 'IN')));
