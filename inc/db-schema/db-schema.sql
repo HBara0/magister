@@ -312,6 +312,18 @@ CREATE TABLE `budgeting_budgets_lines` (
   KEY `createdBy` (`createdBy`),
   KEY `businessMgr` (`businessMgr`)
 ) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
+CREATE TABLE `budgeting_fxrates` (
+  `bfxid` int(10) NOT NULL AUTO_INCREMENT,
+  `affid` smallint(5) NOT NULL,
+  `year` smallint(5) NOT NULL,
+  `fromCurrency` int(3) NOT NULL,
+  `toCurrency` int(3) NOT NULL,
+  `rate` float NOT NULL,
+  `isActual` tinyint(1) NOT NULL,
+  `rateCategory` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`bfxid`),
+  KEY `affid` (`affid`,`fromCurrency`,`toCurrency`)
+) ENGINE=MyISAM AUTO_INCREMENT=164 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 CREATE TABLE `budgeting_investcategory` (
   `bicid` int(7) NOT NULL AUTO_INCREMENT,
