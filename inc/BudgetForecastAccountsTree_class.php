@@ -70,6 +70,7 @@ class BudgetForecastAccountsTree extends AbstractClass {
                     $accountitems_output .= '<table width="100%">';
                     $accountitems_output .= $this->parse_accountsitems(array($id => $item), 0, $options);
                     //$this->total[$id] = number_format($this->total[$id], 2);
+                    $this->total[$id] = number_format(array_sum_recursive($this->subtotals[$id]));
                     $accountitems_output .= '<tr><td><strong>Total of '.$item->title.': </strong><span style="font-weight:bold;" id="total_'.$id.'_'.$item.'">'.$numfmt->format(array_sum_recursive($this->subtotals[$id])).'</span><input type="hidden" name="budgetforecastbs['.$item.'][total]" id="total_'.$id.'_'.$item.'" value="'.$this->total[$id].'"></input></td></tr>';
                     //parse net income for  Stockholders'Equity get the value from the financial budget total netIncome
                     $accountitems_output .= '</table>';
