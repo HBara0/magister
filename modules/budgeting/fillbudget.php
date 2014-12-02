@@ -27,7 +27,7 @@ $session->start_phpsession(480);
 
 if(!$core->input['action']) {
     if($core->input['stage'] == 'fillbudgetline') {
-
+        $display = 'none';
         $session->set_phpsession(array('budgetdata_'.$sessionidentifier => serialize($core->input['budget'])));
         $budget_data = $core->input['budget'];
 
@@ -217,9 +217,10 @@ if(!$core->input['action']) {
                         }
                         $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $budget_data['affiliateName']);
                         $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, $budgetline['purchasingEntity'], '', '', array('id' => 'purchasingEntity_'.$rowid));
-
+                        $display = 'none';
                         if(empty($budgetline['cid']) && $budgetline['altCid'] == 'Unspecified Customer') {
                             $checked_checkboxes[$rowid]['unspecifiedCustomer'] = ' checked="checked"';
+                            $display = 'block';
                         }
                         if(empty($budgetline['cid']) && $budgetline['altCid'] != 'Unspecified Customer') {
                             $budgetline['alternativecustomer'] = '<span style="display:block;">'.ucfirst($budgetline['altCid']).'</span>';
@@ -256,6 +257,9 @@ if(!$core->input['action']) {
                         if(empty($budgetline['inputChecksum'])) {
                             $budgetline['inputChecksum'] = generate_checksum('bl');
                         }
+                        $countries = Countries::get_coveredcountries();
+                        $affiliatecountry = $affiliate->get_country()->coid;
+                        $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][unspecifiedcustcountry]', 0, $countries, $budgetline['customerCountry'], '', '', array('style="width:100%"'));
 
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
                         $rowid++;
@@ -285,6 +289,9 @@ if(!$core->input['action']) {
                 );
             }
             $budgetline['inputChecksum'] = generate_checksum('bl');
+            $countries = Countries::get_coveredcountries();
+            $affiliatecountry = $affiliate->get_country()->coid;
+            $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][unspecifiedcustcountry]', 0, $countries, $affiliatecountry, '', '', array('style="width:100%"'));
             eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
         }
         unset($saletype_selectlistdata, $checked_checkboxes);
@@ -358,6 +365,7 @@ else {
         }
     }
     elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
+        $display = 'none';
         $rowid = intval($core->input['value']) + 1;
         $budget_data = $core->input['ajaxaddmoredata'];
         $affiliate = new Affiliates($budget_data['affid']);
@@ -410,6 +418,9 @@ else {
         $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $affiliate->get_displayname());
 
         $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, 'direct', '', '', array('id' => 'purchasingEntity_'.$rowid));
+        $countries = Countries::get_coveredcountries();
+        $affiliatecountry = $affiliate->get_country()->coid;
+        $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][unspecifiedcustcountry]', 0, $countries, $affiliatecountry, '', '', array('style="width:100%"'));
 
         eval("\$budgetlinesrows = \"".$template->get('budgeting_fill_lines')."\";");
         output($budgetlinesrows);

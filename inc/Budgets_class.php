@@ -208,13 +208,16 @@ class Budgets extends AbstractClass {
                 if($data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
                     $data['altCid'] = 'Unspecified Customer';
                     if(empty($data['customerCountry'])) {
-                        $data['customerCountry'] = $this->get_affiliate()->get_country()->coid;
+                        // $data['customerCountry'] = $this->get_affiliate()->get_country()->coid;
+                        $data['customerCountry'] = $data['unspecifiedcustcountry'];
+                        unset($data['unspecifiedcustcountry']);
                     }
                 }
 
                 if(!empty($data['cid']) && $data['unspecifiedCustomer'] != 1) {
                     $data['altCid'] = NULL;
                     $data['customerCountry'] = 0;
+                    unset($data['unspecifiedcustcountry']);
                 }
                 if(isset($data['blid']) && !empty($data['blid'])) {
                     $budgetlineobj = new BudgetLines($data['blid']);
