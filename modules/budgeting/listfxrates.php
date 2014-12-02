@@ -130,7 +130,7 @@ else if($core->input['action'] == 'get_updaterate') {
         }
         $budget_years .= "<option disabled ='disabled' value=".$year." {$year_selected}>{$year}</option>";
     }
-    $disabled = 'disabled';
+    $disabled = 'disabled="disabled"';
     $ratecategories = array('isActual', 'isYef', 'isCurrent');
     foreach($ratecategories as $ratecategory) {
         if(isset($budgetrate->$ratecategory) && !empty($budgetrate->$ratecategory)) {

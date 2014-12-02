@@ -21,9 +21,12 @@
             </tr>
             <tr>
                 <td>{$lang->rateategorization}</td>
-                <td><span> <input type="radio" name="budgetrate[rateCategory]"  {$category[checked][isYef]} value="isYef" {$disabled}/>{$lang->isyef}</span>
-                    <span> <input type="radio" name="budgetrate[rateCategory]"  {$category[checked][isActual]}  value="isActual" {$disabled}/>{$lang->isactual}</span>
-                    <span> <input type="radio" name="budgetrate[rateCategory]" {$category[checked][isCurrent]} value="isCurrent" {$disabled}/>{$lang->iscurrent}</span></td>
+                <td>
+                    <fieldset style="border:none;" {$disabled}>
+                        <span> <input type="radio" name="budgetrate[rateCategory]"  {$category[checked][isYef]} value="isYef"/>{$lang->isyef}</span>
+                        <span> <input type="radio" name="budgetrate[rateCategory]"  {$category[checked][isActual]}  value="isActual"/>{$lang->isactual}</span>
+                        <span> <input type="radio" name="budgetrate[rateCategory]" {$category[checked][isCurrent]} value="isCurrent"/>{$lang->iscurrent}</span>
+                    </fieldset></td>
             </tr>
             {$craetereverserate}
             <tr> <td><input type="submit" id="perform_budgeting/listfxrates_Button" value="{$lang->savecaps}" class="button"/></td></tr>
