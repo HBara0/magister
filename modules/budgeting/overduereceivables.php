@@ -45,7 +45,7 @@ if(!isset($core->input['action'])) {
                 'simple' => false,
                 'returnarray' => true
         );
-        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_affiliatecurr->numCode, 'toCurrency' => $tocurrency, 'affid' => $budget_data['affid'], 'year' => $budget_data['year'],), $dal_config);
+        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_affiliatecurr->numCode, 'toCurrency' => $tocurrency, 'affid' => $budget_data['affid'], 'year' => $budget_data['year'], 'isCurrent' => 1), $dal_config);
         $output_currency = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding: 5px; margin-top: 10px; margin-bottom: 10px; display: block;"><span><em>'.$lang->sprint($lang->budgcurrdesc, $budget_affiliatecurr->alphaCode).'</em></span></br>';
         if(is_array($fxrates_obj)) {
             $output_currency .='<em><strong>'.$lang->exchangerate.'</strong></em></br>';
