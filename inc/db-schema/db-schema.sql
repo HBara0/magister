@@ -320,7 +320,8 @@ CREATE TABLE `budgeting_fxrates` (
   `toCurrency` int(3) NOT NULL,
   `rate` float NOT NULL,
   `isActual` tinyint(1) NOT NULL,
-  `rateCategory` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `isYef` tinyint(1) NOT NULL,
+  `isCurrent` tinyint(1) NOT NULL,
   PRIMARY KEY (`bfxid`),
   KEY `affid` (`affid`,`fromCurrency`,`toCurrency`)
 ) ENGINE=MyISAM AUTO_INCREMENT=164 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
