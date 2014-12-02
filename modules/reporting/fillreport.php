@@ -114,6 +114,35 @@ if(!$core->input['action']) {
                     $paid_field = '<input type="hidden" value="'.$productactivity['paid'].'" id="paid_'.$rowid.'" name="productactivity['.$rowid.'][paid]" />';
                 }
 
+
+                /* Integrate budget data --------START */
+                $productact_objs = productsactivity::get_data('pid='.$productactivity['pid'], array('returnarray' => true));
+                if(is_array($productact_objs)) {
+                    foreach($productact_objs as $productact) {
+                        $relatedbudgetlines = $productact->get_relatedbudgetlines();
+                        if(is_object($relatedbudgetlines)) {
+                            /* get the currency rate of the product related budget line Origin currency   - START */
+                            $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $relatedbudgetlines->originalCurrency, 'toCurrency' => 840, 'affid' => $core->input[affid], 'year' => $core->input['year']), array('operators' => array('affid' => 'in', 'year' => '='), 'simple' => false, 'returnarray' => true));
+                            if(is_array($fxrates_obj)) {
+                                foreach($fxrates_obj as $fxid => $fxrates) {
+                                    $productactivity['salesForecast'] = ($relatedbudgetlines->amount * $fxrates->rate);
+                                }
+                            }
+                            $productactivity['quantityForecast'] = $relatedbudgetlines->quantity;
+                        }
+                        /* summing related budget lines based on the given data in the budgetline */
+                        else if(is_array($relatedbudgetlines)) {
+                            $agrregatedproductlines = $productact->aggregate_relatedbudgetlines();
+                            $productactivity['salesForecast'] = $agrregatedproductlines[$productact->pid]['amount'];
+                            $productactivity['quantityForecast'] = $agrregatedproductlines[$productact->pid]['quantity'];
+                        }
+                    }
+                }
+
+                //  $productact->aggregate_relatedbudgetlines();
+
+                /* Integrate budget data --------END */
+
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
             }
         }
@@ -141,6 +170,8 @@ if(!$core->input['action']) {
 
         $popup_addsupplier_supplierfield = "{$core->input[supplier]}<input type='hidden' value='{$core->input[spid]}' name='spid' />";
         eval("\$addproduct_popup = \"".$template->get('popup_addproduct')."\";");
+
+
 
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_productsactivity')."\";");
     }
