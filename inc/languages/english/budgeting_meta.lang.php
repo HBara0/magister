@@ -163,7 +163,7 @@ $lang['rateategorization'] = 'Rate Categorization';
 $lang['purchasingentity'] = 'Purchasing Entity';
 $lang['entitypurchasingfromsupplier'] = 'Entity Purchasing from Supplier';
 $lang['samerateexist'] = 'Same Rate already exist for this affilaite and this year';
-$lang['iscurrent'] = 'Current';
+$lang['isbudget'] = 'Budget';
 $lang['isyef'] = 'YEF';
 $lang['isactual'] = 'Actual';
 ?>
