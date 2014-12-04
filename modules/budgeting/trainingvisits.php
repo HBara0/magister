@@ -193,12 +193,9 @@ else if($core->input['action'] == 'ajaxaddmore_budgetrainvisitint') {
 }
 else if($core->input['action'] == 'do_perform_trainingvisits') {
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
-    print_r($core->input['budgetrainingvisit']);
-    exit;
     $financialbudget = new FinancialBudget();
     $financialbudget->set($core->input);
     $financialbudget->save();
-
     switch($financialbudget->get_errorcode()) {
 
         case 0:
@@ -210,30 +207,28 @@ else if($core->input['action'] == 'do_perform_trainingvisits') {
             break;
     }
 }
-else if($core->input['action'] == 'impodrtleaves') {
-
-    if(is_array($core->input['budgetrainingvisit']['leaves']) && !empty($core->input['budgetrainingvisit']['leaves'])) {
-        $populated_leaves = populate_leaves();
-        $rowid = intval($core->input['value']) + 1;
-        $budgetrainingvisit['inputChecksum'] = generate_checksum('budget');
-        $budgetrainingvisit[Date_formatted] = $populated_leaves[0][Date_formatted];
-
-        eval("\$budgettaininig_intvisits_rows = \"".$template->get('budgeting_tainingintvisits_lines')."\";");
-
-
-
-        // parse the rows
-        eval("\$budgeting_tainingvisit = \"".$template->get('budgeting_tainingvisits')."\";");
-        output_page($budgeting_tainingvisit);
-
-        exit;
-    }
-}
+//else if($core->input['action'] == 'impodrtleaves') {
+//    if(is_array($core->input['budgetrainingvisit']['leaves']) && !empty($core->input['budgetrainingvisit']['leaves'])) {
+//        $populated_leaves = populate_leaves();
+//        $rowid = intval($core->input['value']) + 1;
+//        $budgetrainingvisit['inputChecksum'] = generate_checksum('budget');
+//        $budgetrainingvisit[Date_formatted] = $populated_leaves[0][Date_formatted];
+//
+//        eval("\$budgettaininig_intvisits_rows = \"".$template->get('budgeting_tainingintvisits_lines')."\";");
+//
+//
+//
+//        // parse the rows
+//        eval("\$budgeting_tainingvisit = \"".$template->get('budgeting_tainingvisits')."\";");
+//        output_page($budgeting_tainingvisit);
+//
+//        exit;
+//    }
+//}
 function populate_leaves() {
     global $core;
     $leaves_import = Leaves::get_data(array('lid' => $core->input['budgetrainingvisit']['leaves']), array('returnarray' => true, 'simple' => false, 'operators' => array('lid' => 'IN')));
 
-//   $switch_array[Date_formatted]=
     foreach($leaves_import as $leave) {
         $budgetrainingvisit[] = $leave;
     }
