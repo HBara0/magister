@@ -244,7 +244,7 @@ class BudgetLines {
             if(!isset($data['bid']) || empty($data['bid'])) {
                 return false;
             }
-            $budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."'");
+            $budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."' And customerCountry='".$data['customerCountry']."'");
             if($db->num_rows($budgetline_bydataquery) > 0) {
                 return $db->fetch_assoc($budgetline_bydataquery);
             }
@@ -266,10 +266,10 @@ class BudgetLines {
         }
 
         if(isset($configs['vsAffid']) && !empty($configs['vsAffid'])) {
-            $by = '(CASE '.$configs['vsAffid'].'=(SELECT affid FROM budgeting_budgets WHERE budgeting_budgets.bid='.self::TABLE_NAME.'.bid) THEN localIncome ELSE (income-LocalIncome) END)';
+            $by = '(CASE '.$configs['vsAffid'].' = (SELECT affid FROM budgeting_budgets WHERE budgeting_budgets.bid = '.self::TABLE_NAME.'.bid) THEN localIncome ELSE (income-LocalIncome) END)';
         }
 
-        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.$fxrate_query.') AS total, (CASE WHEN customerCountry=0 THEN (SELECT country FROM entities WHERE entities.eid='.self::TABLE_NAME.'.cid) ELSE customerCountry END) AS coid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY coid HAVING coid='.$country->coid));
+        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.$fxrate_query.') AS total, (CASE WHEN customerCountry = 0 THEN (SELECT country FROM entities WHERE entities.eid = '.self::TABLE_NAME.'.cid) ELSE customerCountry END) AS coid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY coid HAVING coid = '.$country->coid));
         return $total['total'];
     }
 
@@ -281,7 +281,7 @@ class BudgetLines {
         if($configs['toCurrency']) {
             $fxrate_query = "*(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND year=(SELECT year FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency']).") END)";
         }
-        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.$fxrate_query.') AS total, (SELECT affid FROM budgeting_budgets WHERE budgeting_budgets.bid='.self::TABLE_NAME.'.bid) AS affid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY affid HAVING affid='.$affiliate->affid));
+        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.$fxrate_query.') AS total, (SELECT affid FROM budgeting_budgets WHERE budgeting_budgets.bid = '.self::TABLE_NAME.'.bid) AS affid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY affid HAVING affid ='.$affiliate->affid));
         return $total['total'];
     }
 
@@ -292,7 +292,7 @@ class BudgetLines {
         if($configs['toCurrency']) {
             $fxrate_query = "*(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND year=(SELECT year FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency']).") END)";
         }
-        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.$fxrate_query.') AS total, (SELECT spid FROM budgeting_budgets WHERE budgeting_budgets.bid='.self::TABLE_NAME.'.bid) AS spid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY spid HAVING spid='.$supplier->eid));
+        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.$fxrate_query.') AS total, (SELECT spid FROM budgeting_budgets WHERE budgeting_budgets.bid = '.self::TABLE_NAME.'.bid) AS spid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY spid HAVING spid='.$supplier->eid));
         return $total['total'];
     }
 
@@ -306,10 +306,10 @@ class BudgetLines {
         }
 
         $fx_query = '*(CASE WHEN bbl.originalCurrency = 840 THEN 1
-                          ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = bb.affid AND bfr.year = bb.year AND bfr.fromCurrency = bbl.originalCurrency AND bfr.toCurrency = 840) END)';
-        $sql = 'SELECT SUM('.$attr.$fx_query.') AS '.$attr.' FROM '.self::TABLE_NAME.' bbl JOIN budgeting_budgets bb ON (bb.bid=bbl.bid)'.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY '.$configs['group'].' ORDER BY '.$attr.' DESC';
+            ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = bb.affid AND bfr.year = bb.year AND bfr.fromCurrency = bbl.originalCurrency AND bfr.toCurrency = 840) END)';
+        $sql = 'SELECT SUM('.$attr.$fx_query.') AS '.$attr.' FROM '.self::TABLE_NAME.' bbl JOIN budgeting_budgets bb ON (bb.bid = bbl.bid)'.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY '.$configs['group'].' ORDER BY '.$attr.' DESC';
         $data = $db->query($sql);
-        $total = $db->fetch_field($db->query('SELECT SUM('.$attr.$fx_query.') AS total FROM '.self::TABLE_NAME.' bbl JOIN budgeting_budgets bb ON (bb.bid=bbl.bid)'.$dal->construct_whereclause_public($filters, $configs['operators'])), 'total');
+        $total = $db->fetch_field($db->query('SELECT SUM('.$attr.$fx_query.') AS total FROM '.self::TABLE_NAME.' bbl JOIN budgeting_budgets bb ON (bb.bid = bbl.bid)'.$dal->construct_whereclause_public($filters, $configs['operators'])), 'total');
         while($values = $db->fetch_assoc($data)) {
             $info['count'] += 1;
             $info['contribution'] += $values[$attr];
