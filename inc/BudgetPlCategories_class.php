@@ -119,7 +119,7 @@ class BudgetPlCategories extends AbstractClass {
                             foreach($options['bid'] as $key => $budgetsids) {   // $key values(current, prevyear, prevtwoyears)
                                 switch($key) {
                                     case'current':
-                                        $ratecategory = 'isCurrent';
+                                        $ratecategory = 'isBudget';
                                         break;
                                     case'prevyear':
                                         $ratecategory = 'isYef';
@@ -332,20 +332,16 @@ class BudgetPlCategories extends AbstractClass {
                         }
                         unset($fxrate_query2);
                         if(is_array($options['filter'])) {
-                            /* make the fxrate query dynamic based on actual(year) and year */
-                            $prevyearsexp_fxrates = array('finGenAdmExpAmtApthy' => array(($options['year'] - 3), 'isActual'),
-                                    'finGenAdmExpAmtApty' => array(($options['year'] - 2), 'isActual'),
-                                    'finGenAdmExpAmtYpy' => array(($options['year'] - 1), 'isYef'),
-                                    'finGenAdmExpAmtCurrent' => array($options['year'], 'isCurrent')
+                            $prevyearsexp_fxrates = array('finGenAdmExpAmtApthy' => array('year' => ($options['year'] - 3), 'ratecategory' => 'isActual'),
+                                    'finGenAdmExpAmtApty' => array('year' => ($options['year'] - 2), 'ratecategory' => 'isActual'),
+                                    'finGenAdmExpAmtYpy' => array('year' => ($options['year'] - 1), 'ratecategory' => 'isYef'),
+                                    'finGenAdmExpAmtCurrent' => array('year' => $options['year'], 'ratecategory' => 'isBudget')
                             );
-                            foreach($prevyearsexp_fxrates as $attr => $fxyear) {
+                            foreach($prevyearsexp_fxrates as $attr => $fxconfig) {
 
                                 $fxrate_query2[$attr] = '(CASE WHEN budgeting_financialbudget.currency = '.intval($options['tocurrency']).' THEN 1
-                                    ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = budgeting_financialbudget.affid AND bfr.year = '.$fxyear[0].' AND bfr.fromCurrency = budgeting_financialbudget.currency AND bfr.toCurrency = '.intval($options['tocurrency']).'  AND bfr.'.$fxyear[1].' =1) END)';
+                                    ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = budgeting_financialbudget.affid AND bfr.year = '.$fxconfig['year'].' AND bfr.fromCurrency = budgeting_financialbudget.currency AND bfr.toCurrency = '.intval($options['tocurrency']).'  AND bfr.'.$fxconfig['ratecategory'].' =1) END)';
                             }
-
-//                            $fxrate_query2 = '(CASE WHEN budgeting_financialbudget.currency = '.intval($options['tocurrency']).' THEN 1
-//                                    ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = budgeting_financialbudget.affid AND bfr.year = budgeting_financialbudget.year AND bfr.fromCurrency = budgeting_financialbudget.currency AND bfr.toCurrency = '.intval($options['tocurrency']).') END)';
 
                             $sql = "SELECT bfbid, sum(finGenAdmExpAmtApthy*{$fxrate_query2['finGenAdmExpAmtApthy']}) AS finGenAdmExpAmtApthy ,sum(finGenAdmExpAmtApty*{$fxrate_query2['finGenAdmExpAmtApty']}) AS finGenAdmExpAmtApty, sum(finGenAdmExpAmtYpy*{$fxrate_query2['finGenAdmExpAmtYpy']}) AS finGenAdmExpAmtYpy, sum(finGenAdmExpAmtCurrent*{$fxrate_query2['finGenAdmExpAmtCurrent']}) AS finGenAdmExpAmtCurrent
                                     FROM ".Tprefix."budgeting_financialbudget WHERE bfbid IN (".implode(', ', $options['filter']).")";
@@ -359,14 +355,14 @@ class BudgetPlCategories extends AbstractClass {
                                     $financialbudget['finGenAdmExpAmtCurrent'] -= $budget['finGenAdmExpAmtCurrent'];
                                 }
                             }
-                            $prevyears_fxrates = array('actualPrevThreeYears' => array(($options['year'] - 3), 'isActual'),
-                                    'actualPrevTwoYears' => array(($options['year'] - 2), 'isActual'),
-                                    'yefPrevYear' => array(($options['year'] - 1), 'isYef'),
-                                    'budgetCurrent' => array($options['year'], 'isCurrent')
+                            $prevyears_fxrates = array('actualPrevThreeYears' => array('year' => ($options['year'] - 3), 'ratecategory' => 'isActual'),
+                                    'actualPrevTwoYears' => array('year' => ($options['year'] - 2), 'ratecategory' => 'isActual'),
+                                    'yefPrevYear' => array('year' => ($options['year'] - 1), 'ratecategory' => 'isYef'),
+                                    'budgetCurrent' => array('year' => $options['year'], 'ratecategory' => 'isBudget')
                             );
-                            foreach($prevyears_fxrates as $attr => $fxyear) {
+                            foreach($prevyears_fxrates as $attr => $fxconfig) {
                                 $fxrate_commadminexpsquery[$attr] = '(CASE WHEN bfb.currency = '.intval($options['tocurrency']).' THEN 1
-                                    ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = bfb.affid AND bfr.year =  '.$fxyear[0].' AND bfr.fromCurrency = bfb.currency AND bfr.toCurrency = '.intval($options['tocurrency']).' AND bfr.'.$fxyear[1].' =1) END)';
+                                    ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = bfb.affid AND bfr.year =  '.$fxconfig['year'].' AND bfr.fromCurrency = bfb.currency AND bfr.toCurrency = '.intval($options['tocurrency']).' AND bfr.'.$fxconfig['ratecategory'].' =1) END)';
                             }
                             $sql = "SELECT beciid, SUM(actualPrevThreeYears*{$fxrate_commadminexpsquery['actualPrevThreeYears']}) AS actualPrevThreeYears, SUM(actualPrevTwoYears*{$fxrate_commadminexpsquery['actualPrevTwoYears']}) AS actualPrevTwoYears, sum(yefPrevYear*{$fxrate_commadminexpsquery['yefPrevYear']}) AS yefPrevYear, sum(budgetCurrent*{$fxrate_commadminexpsquery['budgetCurrent']}) AS budgetCurrent FROM ".Tprefix."budgeting_commadminexps bcade JOIN ".Tprefix." budgeting_financialbudget bfb ON (bcade.bfbid=bfb.bfbid) WHERE bcade.bfbid IN (".implode(', ', $options['filter']).")";
                             $query = $db->query($sql);

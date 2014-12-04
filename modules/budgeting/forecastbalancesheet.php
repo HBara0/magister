@@ -28,8 +28,6 @@ if(!isset($core->input['action'])) {
     $session->set_phpsession(array('budget_expenses_'.$sessionidentifier => serialize($core->input['financialbudget'])));
     if(isset($core->input['financialbudget']['year']) && !empty($core->input['financialbudget']['year'])) {
         $financialbudget_year = $core->input['financialbudget']['year'];
-        //  $financialbudget_prevyear = $financialbudget_year - 1;
-        //$financialbudget_prev2year = $financialbudget_year - 2;
     }
 
     $affid = $core->input['financialbudget']['affid'];
@@ -55,7 +53,7 @@ if(!isset($core->input['action'])) {
                 'simple' => false,
                 'returnarray' => true
         );
-        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $currency->numCode, 'toCurrency' => $tocurrency, 'affid' => $affid, 'year' => $financialbudget_year, 'isCurrent' => 1), $dal_config);
+        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $currency->numCode, 'toCurrency' => $tocurrency, 'affid' => $affid, 'year' => $financialbudget_year, 'isBudget' => 1), $dal_config);
         $output_currency = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding: 5px; margin-top: 10px; margin-bottom: 10px; display: block;"><span><em>'.$lang->sprint($lang->budgcurrdesc, $currency->alphaCode).'</em></br></span>';
         if(is_array($fxrates_obj)) {
             $output_currency .='<em><strong>'.$lang->exchangerate.'</strong></em></br>';

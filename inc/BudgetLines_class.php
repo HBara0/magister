@@ -82,12 +82,13 @@ class BudgetLines {
         if(empty($data['interCompanyPurchase'])) {
             return;
         }
-        $data_toremove = array('bid', 'blid', 'cid', 'customerCountry', 'interCompanyPurchase');
+        $data_toremove = array('bid', 'blid', 'cid', 'interCompanyPurchase');
         $data_zerofill = array('localIncomePercentage', 'localIncomeAmount', 'invoicingEntityIncome');
         $budget = $this->get_budget();
         $data['inputChecksum'] = generate_checksum('bl');
         $data['linkedBudgetLine'] = $this->budgetline['blid'];
         $data['altCid'] = $budget->get_affiliate()->name;
+        $data['customerCountry'] = $budget->get_affiliate()->get_country()->coid;
         $data['saleType'] = 6; //Need to be acquire through DAL where isInterCoSale
 
         if(!empty($this->budgetline['linkedBudgetLine'])) {

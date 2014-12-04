@@ -8,8 +8,9 @@
         <input type="hidden" id="budgetline_{$rowid}_altCid" name="budgetline[$rowid][altCid]" value="{$prev_budgetline[altCid]}"/>
         {$budgetline[alternativecustomer]} {$previous_blid}
         <span style="padding:8px;"><br /><input type="checkbox" name="budgetline[$rowid][unspecifiedCustomer]" title="{$lang->unspecifiedcust}" {$disabledattrs[unspecifiedCustomer]} value="1"{$checked_checkboxes[$rowid][unspecifiedCustomer]} id="budgetline_{$rowid}_unspecifiedCustomer"/>{$lang->unspecifiedcust}</span>
-        <div id="budgetline_{$rowid}_unspecifiedCustomer_country" style="display:{$display};">
-            <label>{$lang->customer} {$lang->country}</label> {$countries_selectlist}</div>
+        <div id="budgetline_{$rowid}_unspecifiedCustomer_country" style="display:{$display};width:100%">
+            <span style="display:inline-block;width:10%;"> in</span> <div style="display:inline-block;width:85%">{$countries_selectlist}</div>
+        </div>
         <div id='searchQuickResults_customer_{$rowid}' class='searchQuickResults' style='display:none;'></div>
         {$previous_customercountry}
     </td>

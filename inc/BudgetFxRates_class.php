@@ -17,7 +17,7 @@ class BudgetFxRates extends AbstractClass {
     const PRIMARY_KEY = 'bfxid';
     const TABLE_NAME = 'budgeting_fxrates';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'bfxid,affid, year, fromCurrency, toCurrency, rate, isActual, isYef, isCurrent';
+    const SIMPLEQ_ATTRS = 'bfxid,affid, year, fromCurrency, toCurrency, rate, isActual, isYef, isBudget';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -69,7 +69,7 @@ class BudgetFxRates extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
-        $existing_rate = BudgetFxRates::get_data(array('affid' => $data['affid'], 'year' => $data['year'], 'fromCurrency' => $data['fromCurrency'], 'toCurrency' => $data['toCurrency'], 'isActual' => $data['isActual'], 'isYef' => $data['isYef'], 'isCurrent' => $data['isCurrent']));
+        $existing_rate = BudgetFxRates::get_data(array('affid' => $data['affid'], 'year' => $data['year'], 'fromCurrency' => $data['fromCurrency'], 'toCurrency' => $data['toCurrency'], 'isActual' => $data['isActual'], 'isYef' => $data['isYef'], 'isBudget' => $data['isBudget']));
         if(!is_object($existing_rate)) {
             if(isset($this->data)) {
                 $this->create($this->data);

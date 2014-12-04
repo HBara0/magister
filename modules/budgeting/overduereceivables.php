@@ -45,7 +45,7 @@ if(!isset($core->input['action'])) {
                 'simple' => false,
                 'returnarray' => true
         );
-        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_affiliatecurr->numCode, 'toCurrency' => $tocurrency, 'affid' => $budget_data['affid'], 'year' => $budget_data['year'], 'isCurrent' => 1), $dal_config);
+        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_affiliatecurr->numCode, 'toCurrency' => $tocurrency, 'affid' => $budget_data['affid'], 'year' => $budget_data['year'], 'isBudget' => 1), $dal_config);
         $output_currency = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding: 5px; margin-top: 10px; margin-bottom: 10px; display: block;"><span><em>'.$lang->sprint($lang->budgcurrdesc, $budget_affiliatecurr->alphaCode).'</em></span></br>';
         if(is_array($fxrates_obj)) {
             $output_currency .='<em><strong>'.$lang->exchangerate.'</strong></em></br>';
@@ -55,7 +55,7 @@ if(!isset($core->input['action'])) {
             }
         }
         // Exchange rate from USD to EUR
-        $usdtoeur_fxrate = BudgetFxRates::get_data(array('fromCurrency' => $tocurrency[0], 'toCurrency' => $tocurrency[1], 'affid' => $budget_data['affid'], 'year' => $budget_data['year']));
+        $usdtoeur_fxrate = BudgetFxRates::get_data(array('fromCurrency' => $tocurrency[0], 'toCurrency' => $tocurrency[1], 'affid' => $budget_data['affid'], 'year' => $budget_data['year'], 'isBudget' => 1));
         if(is_object($usdtoeur_fxrate)) {
             $currencyfrom_obj = new Currencies($usdtoeur_fxrate->fromCurrency);
             $currencyto_obj = new Currencies($usdtoeur_fxrate->toCurrency);

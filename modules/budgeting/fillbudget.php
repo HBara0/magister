@@ -225,6 +225,9 @@ if(!$core->input['action']) {
                         if(empty($budgetline['cid']) && $budgetline['altCid'] != 'Unspecified Customer') {
                             $budgetline['alternativecustomer'] = '<span style="display:block;">'.ucfirst($budgetline['altCid']).'</span>';
                             $prev_budgetline['altCid'] = $budgetline['altCid'];
+                            if(!empty($budgetline['customerCountry'])) {
+                                $display = 'block';
+                            }
                         }
                         /* Get Actual data from mediation tables --END */
                         $budget_currencylist = '';
@@ -259,7 +262,7 @@ if(!$core->input['action']) {
                         }
                         $countries = Countries::get_coveredcountries();
                         $affiliatecountry = $affiliate->get_country()->coid;
-                        $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][unspecifiedcustcountry]', 0, $countries, $budgetline['customerCountry'], '', '', array('style="width:100%"'));
+                        $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][unspecifiedcustcountry]', 0, $countries, $budgetline['customerCountry'], '', '', '');
 
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
                         $rowid++;
@@ -291,7 +294,7 @@ if(!$core->input['action']) {
             $budgetline['inputChecksum'] = generate_checksum('bl');
             $countries = Countries::get_coveredcountries();
             $affiliatecountry = $affiliate->get_country()->coid;
-            $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][unspecifiedcustcountry]', 0, $countries, $affiliatecountry, '', '', array('style="width:100%"'));
+            $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][unspecifiedcustcountry]', 0, $countries, $affiliatecountry, '', '', '');
             eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
         }
         unset($saletype_selectlistdata, $checked_checkboxes);
@@ -420,7 +423,7 @@ else {
         $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, 'direct', '', '', array('id' => 'purchasingEntity_'.$rowid));
         $countries = Countries::get_coveredcountries();
         $affiliatecountry = $affiliate->get_country()->coid;
-        $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][unspecifiedcustcountry]', 0, $countries, $affiliatecountry, '', '', array('style="width:100%"'));
+        $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][unspecifiedcustcountry]', 0, $countries, $affiliatecountry, '', '');
 
         eval("\$budgetlinesrows = \"".$template->get('budgeting_fill_lines')."\";");
         output($budgetlinesrows);
