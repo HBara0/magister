@@ -50,14 +50,20 @@ class productsactivity extends AbstractClass {
     public function get_relatedbudgetlines() {
         if(class_exists('BudgetLines')) {
             $budget = $this->get_budget();
+            // get BM of related budgetlines.
+            $budgetlines_obs = $budget->get_budgetlines_objs(array('bid' => $budget->bid));
+
+            $filterbudget_config = array('pid' => $this->data['pid'], 'bid' => $budget->bid);
             //switch user filter  between productacti user of budget line user
             if($this->data['uid'] != 0) {
-                $uid = $this->data['uid'];
+                $filterbudget_config['businessMgr'] = $this->data['uid'];
             }
             else {
-                $uid = $budget->businessMgr;
+                foreach($budgetlines_obs as $budgetlines_ob) {
+                    $filterbudget_config['businessMgr'] = $budgetlines_ob->businessMgr;
+                }
             }
-            return BudgetLines::get_data(array('pid' => $this->data['pid'], 'businessMgr' => $uid, 'bid' => $budget->bid));
+            return BudgetLines::get_data($filterbudget_config);
         }
     }
 
@@ -66,19 +72,17 @@ class productsactivity extends AbstractClass {
         $budget = $this->get_budget();
         $budgetlines = $this->get_relatedbudgetlines();
         $fxrate_query = '(CASE WHEN budgeting_budgets_lines.originalCurrency = 840 THEN 1
-                          ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = '.$budget->affid.' AND bfr.year = '.$budget->year.' AND bfr.fromCurrency ='.$budgetlines[key($budgetlines)]->originalCurrency.' AND bfr.toCurrency = 840) END)';
+                          ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = '.$budget->affid.' AND bfr.year = '.$budget->year.' AND bfr.fromCurrency = budgeting_budgets_lines.originalCurrency  AND bfr.toCurrency = 840) END)';
 
-        $sql = "SELECT blid, pid,originalCurrency, sum(amount*{$fxrate_query}) AS amount, sum(quantity) AS quantity FROM ".Tprefix."budgeting_budgets_lines WHERE bid =".$budget->bid." GROUP By businessMgr, pid";
+        $sql = "SELECT blid, pid,   businessMgr as businessmgr , sum(amount*{$fxrate_query}) AS amount, sum(quantity) AS quantity FROM ".Tprefix."budgeting_budgets_lines WHERE blid IN (".implode(',', array_keys($budgetlines)).") GROUP By businessMgr, pid";
         $sumquery = $db->query($sql);
+
         if($db->num_rows($sumquery) > 0) {
             while($item = $db->fetch_assoc($sumquery)) {
-                $aggregated_lines[$item['pid']] = array_unique($item);
+                $aggregated_lines[$item['pid']][$item['businessmgr']] = $item;
             }
             return $aggregated_lines;
         }
-
-        //$aggregate_budgetlines[$budget_lines[key($budget_lines)]->pid]['amount'] += ($budget_lines[key($budget_lines)]->amount);
-        // $aggregate_budgetlines[$budget_lines[key($budget_lines)]->pid]['quantity'] += ($budget_lines[key($budget_lines)]->quantity);
     }
 
 }

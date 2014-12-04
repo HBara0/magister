@@ -128,13 +128,14 @@ if(!$core->input['action']) {
                                     $productactivity['salesForecast'] = ($relatedbudgetlines->amount * $fxrates->rate);
                                 }
                             }
+
                             $productactivity['quantityForecast'] = $relatedbudgetlines->quantity;
                         }
                         /* summing related budget lines based on the given data in the budgetline */
                         else if(is_array($relatedbudgetlines)) {
                             $agrregatedproductlines = $productact->aggregate_relatedbudgetlines();
-                            $productactivity['salesForecast'] = $agrregatedproductlines[$productact->pid]['amount'];
-                            $productactivity['quantityForecast'] = $agrregatedproductlines[$productact->pid]['quantity'];
+                            $productactivity['salesForecast'] = $agrregatedproductlines[$productact->pid][$productactivity['uid']]['amount'];
+                            $productactivity['quantityForecast'] = $agrregatedproductlines[$productact->pid][$productactivity['uid']]['quantity'];
                         }
                     }
                 }
