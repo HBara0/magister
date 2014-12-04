@@ -176,6 +176,9 @@ if(!$core->input['action']) {
 //									$budgetLines['actualincome'] = $mediation_actual['price'];
 //								}
                                 $budgetline['alternativecustomer'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altCid']).'</span>';
+                                if(!empty($budgetline['cid'])) {
+                                    unset($budgetline['alternativecustomer']);
+                                }
                                 $budgetline['alternativeproduct'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altPid']).'</span>';
                                 $previous_blid = '<input type="hidden" name="budgetline['.$rowid.'][prevblid]" value="'.$prev_budgetline['blid'].'" />';
                                 $previous_customercountry = '<input type="hidden" name="budgetline['.$rowid.'][customerCountry]" value="'.$prev_budgetline['customerCountry'].'" />';
