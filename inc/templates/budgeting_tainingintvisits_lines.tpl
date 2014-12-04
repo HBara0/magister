@@ -5,11 +5,11 @@
         <input type="hidden" name="budgetrainingvisit[international][$rowid][btvid] " value="{$budgetvisit->btvid}"/>
     </td>
     <td> <select name="budgetrainingvisit[international][$rowid][bm]"> {$business_managers_list}</select></td>
-    <td><input type="text"  id="pickDate_intvisit{$rowid}" autocomplete="off" tabindex="1" value="{$budgetrainingvisit[date_output]}" required="required"/>
-        <input type="hidden" name="budgetrainingvisit[international][$rowid][date]" id="altpickDate_intvisit{$rowid}" value="{$budgetrainingvisit[Date_formatted]}" />
+    <td><input type="text"  id="pickDate_intvisit{$rowid}" autocomplete="off" tabindex="1" value="{$budgetrainingvisit[date_output]} {$budgetrainingvisit[$populated_leave->lid][date_output]}" required="required"/>
+        <input type="hidden" name="budgetrainingvisit[international][$rowid][date]" id="altpickDate_intvisit{$rowid}" value="{$budgetrainingvisit[Date_formatted]} {$budgetrainingvisit[$populated_leave->lid][Date_formatted]}" />
     </td>
     <td>
-        <textarea  name="budgetrainingvisit[international][$rowid][purpose]"  cols="40" required="required">{$budgetrainingvisit[purpose]}</textarea>
+        <textarea  name="budgetrainingvisit[international][$rowid][purpose]"  cols="40" required="required">{$budgetrainingvisit[purpose]}{$budgetrainingvisit[$populated_leave->lid][purpose]}</textarea>
     </td>
     <td><input type='number'  step="only" id="cost_plancost_{$rowid}_int"   name="budgetrainingvisit[international][$rowid][planCost]" value="{$budgetrainingvisit[planCost]}" autocomplete='off'  required="required"/></td>
     <td><input type='number'  step="only"  id="cost_othercost_{$rowid}_int"  name="budgetrainingvisit[international][$rowid][otherCosts]" value="{$budgetrainingvisit[otherCosts]}" autocomplete='off' required="required" /></td>

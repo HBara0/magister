@@ -23,6 +23,7 @@ $lang['warningupdate'] = "Please use this tool carefully, changes you made can a
 $lang['s2perc'] = "S2 Perc";
 $lang['amount'] = "Sale Amount";
 $lang['agreewarningcond'] = "I agree the warning conditions";
+$lang['totalleavecost'] = ' Total  expenses cost';
 $lang['actual'] = "Act";
 $lang['income'] = 'Total Income';
 $lang['remainingcommaff'] = 'Remaining Commission Affiliate';
@@ -166,4 +167,5 @@ $lang['samerateexist'] = 'Same Rate already exist for this affilaite and this ye
 $lang['iscurrent'] = 'Current';
 $lang['isyef'] = 'YEF';
 $lang['isactual'] = 'Actual';
+$lang['warningimport'] = ' You an only import if you doesn\'t have unsaved data in the form';
 ?>
