@@ -93,8 +93,9 @@ if(!isset($core->input['action'])) {
                 $budgetrainingvisit[$populated_leave->lid]['date_output'] = date($core->settings['dateformat'], $populated_leave->fromDate);
                 $budgetrainingvisit[$populated_leave->lid]['Date_formatted'] = date('d-m-Y', $populated_leave->fromDate);
                 $budgetrainingvisit[$populated_leave->lid]['purpose'] = $populated_leave->reason;
-                if(!empty($populated_leave->get_expensestotal())) {
-                    $budgetrainingvisit[$populated_leave->lid][totalexpenses] = $populated_leave->get_expensestotal();
+                $leave_expenses = $populated_leave->get_expensestotal();
+                if(!empty($leave_expenses)) {
+                    $budgetrainingvisit[$populated_leave->lid][totalexpenses] = $leave_expenses;
                 }
                 if(is_array($business_managers)) {
                     foreach($business_managers as $uid => $bm) {
