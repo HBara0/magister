@@ -133,10 +133,11 @@ if(!isset($core->input['action'])) {
     $lang->load('attendance_messages');
     if(is_array($leaves_objs)) {
         foreach($leaves_objs as $leaves_obj) {
-            $leaves_obj->employee = $leaves_obj->get_requester();
+            $leaves_obj->employee = $leaves_obj->get_requester()->get_displayname();
             $leavedate[$leaves_obj->lid] = $lang->sprint($lang->leavedate, date($core->settings['dateformat'], $leaves_obj->fromDate), date($core->settings['dateformat'], $leaves_obj->toDate)); //' from '.date($core->settings['dateformat'], $leaves_obj->fromDate).' TO '.date($core->settings['dateformat'], $leaves_obj->toDate);
-            if(!empty($leaves_obj->get_expensestotal())) {
-                $leaves_obj->totalexpenses = $leaves_obj->get_expensestotal();
+            $leaveexpenses = $leaves_obj->get_expensestotal();
+            if(!empty($leaveexpenses)) {
+                $leaves_obj->totalexpenses = $leaveexpenses;
             }
             eval("\$budgeting_tainingvisitleaves_rows .= \"".$template->get('budgeting_tainingvisits_leavesintegration_rows')."\";");
         }
