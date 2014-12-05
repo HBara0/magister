@@ -164,16 +164,17 @@ elseif($core->input['action'] == 'do_deleterate') {
 }
 elseif($core->input['action'] == 'do_createrate') {
     $budgetrate = $core->input['budgetrate'];
-
     $budgetfxrate_obj = new BudgetFxRates();
-
     if(isset($budgetrate['fromCurrency']) && isset($budgetrate['toCurrency'])) {
         if($budgetrate['fromCurrency'] == $budgetrate['toCurrency']) {
             output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
             return;
         }
     }
-
+    if(!isset($budgetrate['rateCategory'])) {
+        output_xml('<status>false</status><message>'.$lang->fillrequiredfield.'</message>');
+        return;
+    }
     $budgetrate['isActual'] = $budgetrate['isBudget'] = $budgetrate['isYef'] = 0;
     $budgetrate[$budgetrate['rateCategory']] = 1;
     $budgetfxrate_obj->set($budgetrate);
