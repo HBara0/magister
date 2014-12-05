@@ -27,7 +27,7 @@ $session->name_phpsession(COOKIE_PREFIX.'budget_expenses_'.$sessionidentifier);
 $session->start_phpsession(480);
 
 if(!$core->input['action']) {
-    $affiliate_where = ' name LIKE "%orkila%"';
+    $affiliate_where = ' name LIKE "%orkila%" AND isActive=1';
     if($core->usergroup['canViewAllAff'] == 0) {
         $inaffiliates = implode(',', $core->user['affiliates']);
         $affiliate_where .= ' AND affid IN ('.$inaffiliates.')';

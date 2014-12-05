@@ -19,7 +19,7 @@ if(!$core->input['action']) {
         $switchview = array('icon' => 'list_view.gif', 'link' => 'list');
 
         $datatable_display = 'none';
-        $query = $db->query("SELECT affid, name, phone1, X(geoLocation) AS longitude, Y(geoLocation) AS latitude FROM ".Tprefix."affiliates WHERE asText(geoLocation) IS NOT NULL");
+        $query = $db->query("SELECT affid, name, phone1, X(geoLocation) AS longitude, Y(geoLocation) AS latitude FROM ".Tprefix."affiliates WHERE asText(geoLocation) IS NOT NULL AND isActive=1");
         while($affiliate = $db->fetch_assoc($query)) {
             $markers[$affiliate['affid']] = array('title' => $affiliate['name'], 'otherinfo' => $affiliate['phone1'], 'geoLocation' => $affiliate['longitude'].','.$affiliate['latitude'], 'type' => 'affiliateprofile');
         }
@@ -36,6 +36,7 @@ if(!$core->input['action']) {
             $sort_query = $core->input['sortby'].' '.$core->input['order'];
         }
 
+        $multipage_where = 'isActive=1';
         if(isset($core->input['filterby'], $core->input['filtervalue'])) {
             $value_accepted = true;
 
@@ -51,19 +52,19 @@ if(!$core->input['action']) {
 
             if($value_accepted == true) {
                 $where = $field." IN (SELECT ".$field." FROM ".Tprefix."affiliates WHERE ".$db->escape_string($core->input['filterby']).'='.$db->escape_string($core->input['filtervalue']).")";
-                $extra_where = "WHERE ".$where;
+                $extra_where = " AND ".$where;
             }
             else {
                 $extra_where = '';
             }
-            $multipage_where = $where;
+            $multipage_where .= ' AND '.$where;
         }
         $sort_url = sort_url();
         $limit_start = 0;
         $gm_filters_cache = $supervisor_filters_cache = array();
 
         if(isset($core->input['start'])) {
-            $limit_start = $db->escape_string($core->input['start']);
+            $limit_start = intval($core->input['start']);
         }
 
         if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
@@ -71,6 +72,7 @@ if(!$core->input['action']) {
         }
         $query = $db->query("SELECT *
 							FROM ".Tprefix."affiliates
+                                                        WHERE isActive=1
 							{$extra_where}
 							ORDER BY {$sort_query}
 							LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
