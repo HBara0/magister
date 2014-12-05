@@ -856,6 +856,7 @@ CREATE TABLE `entities` (
   `fax1` varchar(20) DEFAULT NULL,
   `fax2` varchar(20) DEFAULT NULL,
   `approved` smallint(1) unsigned NOT NULL DEFAULT '0',
+  `isActive` tinyint(1) NOT NULL DEFAULT '1',
   `dateAdded` bigint(30) unsigned NOT NULL,
   `notes` text,
   `type` char(2) NOT NULL,
