@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Reporting Class
  * $id: reporting_class.php
  * Created:			@tony.assaad    March 06, 2013 | 11:44:29 AM
@@ -52,6 +52,10 @@ class Reporting {
 
     public function get() {
         return $this->report;
+    }
+
+    public function get_budget() {
+        return Budgets::get_data(array('affid' => $this->report['affid'], 'year' => $this->report['year'], 'spid' => $this->report['spid']), array('simple' => false, 'operators' => array('affid' => 'IN', 'spid' => 'IN', 'year' => 'IN')));
     }
 
 }

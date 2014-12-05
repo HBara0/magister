@@ -296,17 +296,18 @@ class Calendar {
     }
 
     public function read_meetings() {
-
-        $meeting_objs = Meetings::get_multiplemeetings(array('filter_where' => 'fromDate BETWEEN '.$this->period['firstday'].' AND '.$this->period['lastday'].' OR (toDate BETWEEN '.$this->period['firstday'].' AND '.$this->period['lastday'].') OR ('.$this->period['firstday'].' BETWEEN fromDate AND toDate) OR ('.$this->period['lastday'].' BETWEEN fromDate AND toDate)'));
+        global $core;
+        /* get Meeting for the calender period ,add filter to display  Meeting to the logged uuser in case they are invited.   */
+        $meeting_objs = Meetings::get_multiplemeetings(array('filter_where' => '(fromDate BETWEEN '.$this->period['firstday'].' AND '.$this->period['lastday'].' OR (toDate BETWEEN '.$this->period['firstday'].' AND '.$this->period['lastday'].') OR ('.$this->period['firstday'].' BETWEEN fromDate AND toDate) OR ('.$this->period['lastday'].' BETWEEN fromDate AND toDate)) AND  (mtid IN (SELECT m.mtid  FROM  meetings m where EXISTS (select * from meetings_attendees ma WHERE ma.mtid=m.mtid and ma.idAttr= "uid" and ma.attendee='.$core->user['uid'].'))) OR createdBy ='.$core->user['uid'].''));
         if(is_array($meeting_objs)) {
             foreach($meeting_objs as $meeting) {
                 $meeting_date = getdate($meeting['fromDate']);
                 $num_days_meeting = (($meeting['toDate'] - $meeting['fromDate']) / 24 / 60 / 60); /* divison to know how many days between the from and to */
 
-                if($num_days_meeting == 1) {
+                if($num_days_meeting <= 1) {
                     $current_check_date = getdate($meeting['toDate']);
                     $this->data['meetings'][$current_check_date['mday']][] = $meeting;
-                }
+                }//where uid in  invitess where uid =coreuser
                 else {
                     for($i = 0; $i < $num_days_meeting; $i++) {
                         $current_check = $meeting['fromDate'] + (60 * 60 * 24 * $i);

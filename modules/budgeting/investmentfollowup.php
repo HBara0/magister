@@ -78,18 +78,27 @@ if(!isset($core->input['action'])) {
                 'order' => 'year',
                 'returnarray' => true
         );
-        $years = array($financialbudget_year, $financialbudget_year - 1, $financialbudget_year - 2, $financialbudget_year - 3);
-        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_affiliatecurr->numCode, 'toCurrency' => $tocurrency, 'affid' => $affid, 'year' => $years), $dal_config);
+        $fxratesconfigs = array(array('year' => $financialbudget_year, 'ratecategory' => 'isBudget'), array('year' => ($financialbudget_year - 1), 'ratecategory' => 'isYef'), array('year' => $financialbudget_year - 2, 'ratecategory' => 'isActual'), array('year' => $financialbudget_year - 3, 'ratecategory' => 'isActual'));
+        foreach($fxratesconfigs as $fxconfig) {
+            $query = BudgetFxRates::get_data(array('fromCurrency' => $budget_affiliatecurr->numCode, 'toCurrency' => $tocurrency, 'affid' => $affid, 'year' => $fxconfig['year'], $fxconfig['ratecategory'] => 1), $dal_config);
+            if($query) {
+                $fxrates_obj[] = $query;
+            }
+        }
         $output_currency = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding: 5px; margin-top: 10px; margin-bottom: 10px; display: block;"><span><em>'.$lang->sprint($lang->budgcurrdesc, $budget_affiliatecurr->alphaCode).'</em></span></br>';
         if(is_array($fxrates_obj)) {
             $output_currency .='<em><strong>'.$lang->exchangerate.'</strong></em></br>';
-            foreach($fxrates_obj as $rate) {
-                $currencyto_obj = new Currencies($rate->toCurrency);
-                $output_currency.='<span>'.$lang->sprint($lang->currrate, $budget_affiliatecurr->alphaCode, $currencyto_obj->get()['alphaCode'], $rate->rate).' for year: '.$rate->year.'</span><br/>';
+            foreach($fxrates_obj as $fxrate) {
+                if(is_array($fxrate)) {
+                    foreach($fxrate as $rate) {
+                        $currencyto_obj = new Currencies($rate->toCurrency);
+                        $output_currency.='<span>'.$lang->sprint($lang->currrate, $budget_affiliatecurr->alphaCode, $currencyto_obj->get()['alphaCode'], $rate->rate).' for year: '.$rate->year.'</span><br/>';
+                    }
+                }
             }
         }
         // Exchange rate from USD to EUR
-        $usdtoeur_fxrate = BudgetFxRates::get_data(array('fromCurrency' => $tocurrency[0], 'toCurrency' => $tocurrency[1], 'affid' => $affid, 'year' => $years), array('operators' => array('year' => 'in')));
+        $usdtoeur_fxrate = BudgetFxRates::get_data(array('fromCurrency' => $tocurrency[0], 'toCurrency' => $tocurrency[1], 'affid' => $affid, 'year' => $financialbudget_year, 'isBudget' => 1));
         if(is_object($usdtoeur_fxrate)) {
             $currencyfrom_obj = new Currencies($usdtoeur_fxrate->fromCurrency);
             $currencyto_obj = new Currencies($usdtoeur_fxrate->toCurrency);

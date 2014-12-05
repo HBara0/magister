@@ -52,16 +52,23 @@ if(!$core->input['action']) {
             $budgetrate['filter']['bfxid'] = $filter_where;
         }
 
-        $affilaite_budgetrateobjs = BudgetFxRates::get_data(array('affid' => $affid), array('returnarray' => true));
+        $affilaite_budgetrateobjs = BudgetFxRates::get_data(array('affid' => $affid), array('simple' => false, 'returnarray' => true));
         $row_tools = '';
         if(is_array($affilaite_budgetrateobjs)) {
             foreach($affilaite_budgetrateobjs as $fxrate) {
                 $affiliate = new Affiliates($fxrate->affid);
                 $fromcurrency = new Currencies($fxrate->fromCurrency);
                 $tocurrency = new Currencies($fxrate->toCurrency);
-                $row_tools .= ' <a href="#'.$fxrate->bfxid.'" id="deleterate_'.$fxrate->bfxid.'_budgeting/listfxrates_loadpopupbyid" rel="delete_'.$fxrate->bfxid.'" title="'.$lang->delete.'"><img src="'.$core->settings['rootdir'].'/images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>';
-                $row_tools .= ' <a href="#'.$fxrate->bfxid.'" id="updaterate_'.$fxrate->bfxid.'_budgeting/listfxrates_loadpopupbyid" rel="update_'.$fxrate->bfxid.'" title="'.$lang->delete.'"><img src="'.$core->settings['rootdir'].'/images/icons/edit.gif" alt="'.$lang->delete.'" border="0"></a>';
+                $row_tools .= ' <a href = "#'.$fxrate->bfxid.'" id = "deleterate_'.$fxrate->bfxid.'_budgeting/listfxrates_loadpopupbyid" rel = "delete_'.$fxrate->bfxid.'" title = "'.$lang->delete.'"><img src = "'.$core->settings['rootdir'].'/images/invalid.gif" alt = "'.$lang->delete.'" border = "0"></a>';
+                $row_tools .= ' <a href = "#'.$fxrate->bfxid.'" id = "updaterate_'.$fxrate->bfxid.'_budgeting/listfxrates_loadpopupbyid" rel = "update_'.$fxrate->bfxid.'" title = "'.$lang->delete.'"><img src = "'.$core->settings['rootdir'].'/images/icons/edit.gif" alt = "'.$lang->delete.'" border = "0"></a>';
 
+                $ratecategories = array('isActual', 'isYef', 'isBudget');
+                foreach($ratecategories as $ratecategory) {
+                    if(isset($fxrate->$ratecategory) && !empty($fxrate->$ratecategory)) {
+                        $ratecategory = strtolower($ratecategory);
+                        $rateCategory = $lang->$ratecategory;
+                    }
+                }
                 eval("\$budgetfxratess_list .= \"".$template->get('budgeting_listfxrates_rows')."\";");
                 $row_tools = '';
             }
@@ -73,9 +80,9 @@ if(!$core->input['action']) {
     foreach($years as $year) {
         $year_selected = '';
         if($year == $years[date('Y')] + 1) {
-            $year_selected = 'selected="selected"';
+            $year_selected = 'selected = "selected"';
         }
-        $budget_years .= "<option value='{$year}'{$year_selected}>{$year}</option>";
+        $budget_years .= "<option value=".$year."  {$year_selected}>{$year}</option>";
     }
 
     $aff_objs = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('operators' => array('affid' => 'IN')));
@@ -95,13 +102,13 @@ if(!$core->input['action']) {
 
 
     $popupcreaterate = '';
-    $craetereverserate = '<tr> <td>'.$lang->craetereverserate.'</td> <td><input  type="checkbox" name="budgetrate[createreverserate]"   value="1"/></td></tr>';
+    $craetereverserate = '<tr> <td>'.$lang->craetereverserate.'</td> <td><input type = "checkbox" name = "budgetrate[createreverserate]" value = "1"/></td></tr>';
     eval("\$popupcreaterate= \"".$template->get('popup_createbudget_fxrate')."\";");
     eval("\$budgetinglistfxrates = \"".$template->get('budgeting_listfxrates')."\";");
     output_page($budgetinglistfxrates);
 }
 else if($core->input['action'] == 'get_updaterate') {
-    $budgetrate = new BudgetFxRates($core->input['id']);
+    $budgetrate = new BudgetFxRates($core->input['id'], array('simple' => false));
 
     $aff_objs = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('returnarray' => true, 'operators' => array('affid' => 'IN')));
     if(is_array($aff_objs)) {
@@ -111,24 +118,29 @@ else if($core->input['action'] == 'get_updaterate') {
                 $selectedaff[] = $budgetrate->affid;
             }
         }
-        $affiliate_list = parse_selectlist('budgetrate[affid]', 1, $affiliates, $selectedaff, '', '', array('disabled' => true));
+        $affiliate_list = parse_selectlist('budgetrate[affid]', 1, $affiliates, $selectedaff, '', '', array('disabledItems' => $affiliates));
     }
     /* Crate rates popup interface */
     $years = array_combine(range(date('Y') - 2, date('Y') + 1), range(date('Y') - 2, date('Y') + 1));
-    $disabled = '  disabled="'.$config['disabled'].'"';
+    $disabled = ' disabled = "'.$config['disabled'].'"';
     foreach($years as $year) {
         $year_selected = '';
         if($year == $budgetrate->year) {
             $year_selected = "selected=selected";
         }
-        $budget_years .= "<option value='{$year}'{$year_selected}>{$year}</option>";
+        $budget_years .= "<option disabled ='disabled' value=".$year." {$year_selected}>{$year}</option>";
     }
-
+    $disabled = 'disabled="disabled"';
+    $ratecategories = array('isActual', 'isYef', 'isBudget');
+    foreach($ratecategories as $ratecategory) {
+        if(isset($budgetrate->$ratecategory) && !empty($budgetrate->$ratecategory)) {
+            $category['checked'][$ratecategory] = " checked='checked'";
+        }
+    }
     $curr_objs = Currencies::get_data(null, array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
 
     $fromcurr_list = parse_selectlist('budgetrate[fromCurrency]', 4, $curr_objs, $budgetrate->fromCurrency, '', '', array('disabledItems' => $curr_objs));
     $tocurr_list = parse_selectlist('budgetrate[toCurrency]', 4, $curr_objs, $budgetrate->toCurrency, '', '', array('disabledItems' => $curr_objs));
-
     eval("\$addrate = \"".$template->get('popup_createbudget_fxrate')."\";");
     output($addrate);
 }
@@ -152,16 +164,19 @@ elseif($core->input['action'] == 'do_deleterate') {
 }
 elseif($core->input['action'] == 'do_createrate') {
     $budgetrate = $core->input['budgetrate'];
-
     $budgetfxrate_obj = new BudgetFxRates();
-
     if(isset($budgetrate['fromCurrency']) && isset($budgetrate['toCurrency'])) {
         if($budgetrate['fromCurrency'] == $budgetrate['toCurrency']) {
             output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
             return;
         }
     }
-
+    if(!isset($budgetrate['rateCategory'])) {
+        output_xml('<status>false</status><message>'.$lang->fillrequiredfield.'</message>');
+        return;
+    }
+    $budgetrate['isActual'] = $budgetrate['isBudget'] = $budgetrate['isYef'] = 0;
+    $budgetrate[$budgetrate['rateCategory']] = 1;
     $budgetfxrate_obj->set($budgetrate);
     $budgetfxrate_obj->save();
     switch($budgetfxrate_obj->get_errorcode()) {

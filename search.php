@@ -90,7 +90,10 @@ if($core->input['type'] == 'quick') {
                     $core->user['customers'] = array_map(intval, $core->user['customers']);
                     $inentities = implode(',', $core->user['customers']);
                     $extra_where = 'eid IN ('.$inentities.')';
-                    $extra_where = 'eid IN (SELECT affe.eid FROM  affiliatedentities affe
+                    if(!empty($extra_where)) {
+                        $extra_where .=' AND ';
+                    }
+                    $extra_where .='eid IN (SELECT affe.eid FROM  affiliatedentities affe
 									JOIN entities e on (e.eid=affe.eid)
 									JOIN affiliates aff on (aff.affid=affe.affid) where aff.affid in('.implode(',', $core->user['affiliates']).') and e.type="'.$type.'")';
                 }
