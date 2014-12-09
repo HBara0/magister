@@ -207,17 +207,11 @@ class Budgets extends AbstractClass {
 
                 if($data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
                     $data['altCid'] = 'Unspecified Customer';
-                    if(empty($data['customerCountry'])) {
-                        // $data['customerCountry'] = $this->get_affiliate()->get_country()->coid;
-                        $data['customerCountry'] = $data['unspecifiedcustcountry'];
-                        unset($data['unspecifiedcustcountry']);
-                    }
                 }
 
-                if(!empty($data['cid']) && $data['unspecifiedCustomer'] != 1) {
+                if(!empty($data['cid'])) {
                     $data['altCid'] = NULL;
                     $data['customerCountry'] = 0;
-                    unset($data['unspecifiedcustcountry']);
                 }
                 if(isset($data['blid']) && !empty($data['blid'])) {
                     $budgetlineobj = new BudgetLines($data['blid']);
@@ -473,7 +467,7 @@ class Budgets extends AbstractClass {
             if($db->num_rows($budgetline_queryid) > 0) {
                 while($budgetline_data = $db->fetch_assoc($budgetline_queryid)) {
                     if($budgetline_data['cid'] == 0) {
-                        $budgetline_data['cid'] = md5($budgetline_data['altCid'].$budgetline_data['saltType'].$budgetline_data['pid']);
+                        $budgetline_data['cid'] = md5($budgetline_data['altCid'].$budgetline_data['customerCountry'].$budgetline_data['saltType'].$budgetline_data['pid']);
                     }
                     $budgetline = new BudgetLines($budgetline_data['blid']);
                     $prevbudgetline = new BudgetLines($budgetline_data['prevblid']);

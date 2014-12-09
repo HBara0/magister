@@ -456,8 +456,16 @@ Class FinancialBudget extends AbstractClass {
             $budgetcurrency = new Currencies($options['tocurrency']);
             $output['currfxratesdesc'] = $lang->currfxratedesc.$budgetcurrency->alphaCode.'</br>';
             $output['currfxrates'].='<span style="margin-top:3px;"><strong>'.$output['currfxratesdesc'].'</strong></span>';
+            ksort($budget_currencies);
             foreach($budget_currencies as $budgetyear => $budget_currency) {
-                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currency, 'toCurrency' => $options['tocurrency'], 'affid' => $options['affid'], 'year' => $budgetyear), $dal_config);
+                $ratecategory = 'isBudget';
+                if($budgetyear == ($options['year'] - 1)) {
+                    $ratecategory = 'isYef';
+                }
+                else if($budgetyear == ($options['year'] - 2) || $budgetyear == ($options['year'] - 3)) {
+                    $ratecategory = 'isActual';
+                }
+                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currency, 'toCurrency' => $options['tocurrency'], 'affid' => $options['affid'], 'year' => $budgetyear, $ratecategory => 1), $dal_config);
                 $currencyto = new Currencies($options['tocurrency']);
                 if(is_array($fxrates_obj)) {
                     foreach($budget_currency as $currency) {
@@ -474,7 +482,7 @@ Class FinancialBudget extends AbstractClass {
                             error($lang->sprint($lang->noexchangerate, $currency->alphaCode, $currencyto->alphaCode, $budgetyear), $_SERVER['HTTP_REFERER']);
                         }
                         $currency = $budgetfx->get_formCurrency();
-                        $outputfxrates[$budgetfx->affid][$budgetyear][$currency->alphaCode] = $currency->alphaCode.' to '.$currencyto->alphaCode.' > '.$budgetfx->rate.'<br>';
+                        $outputfxrates[$budgetfx->affid][$budgetyear][$currency->alphaCode][$currencyto->alphaCode] = $currency->alphaCode.' to '.$currencyto->alphaCode.' > '.$budgetfx->rate.'<br>';
                     }
                 }
                 else {
@@ -486,12 +494,12 @@ Class FinancialBudget extends AbstractClass {
                 }
                 /* Exchange rates to EUR */
                 $budget_currency['USD'] = 840;
-                $eur_fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currency, 'toCurrency' => 978, 'affid' => $options['affid'], 'year' => $budgetyear), $dal_config);
+                $eur_fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budget_currency, 'toCurrency' => 978, 'affid' => $options['affid'], 'year' => $budgetyear, $ratecategory => 1), $dal_config);
                 $eur = new Currencies(978);
                 if(is_array($eur_fxrates_obj)) {
                     foreach($eur_fxrates_obj as $fxrate) {
                         $fromcurrency = new Currencies($fxrate->fromCurrency);
-                        $outputfxrates[$fxrate->affid][$fxrate->year][$fromcurrency->alphaCode] = $fromcurrency->alphaCode.' to '.EUR.' > '.$fxrate->rate.'<br>';
+                        $outputfxrates[$fxrate->affid][$fxrate->year][$fromcurrency->alphaCode][978] = $fromcurrency->alphaCode.' to '.EUR.' > '.$fxrate->rate.'<br>';
                     }
                 }
             }
@@ -504,10 +512,12 @@ Class FinancialBudget extends AbstractClass {
                     $output['currfxrates'] .= '<div style = "display:inline-block; vertical-align:top;"><ul style = "list-style-type: none;"><li>'.$affiliate->get_displayname();
                     if(is_array($fxrates_data)) {
                         $output['currfxrates'] .= '<ul style = "list-style-type: none;">';
-                        foreach($fxrates_data as $year => $rates) {
-                            if(is_array($rates)) {
-                                foreach($rates as $rate) {
-                                    $output['currfxrates'] .='<li>'.$year.' : '.$rate.'</li>';
+                        foreach($fxrates_data as $year => $fxrates) {
+                            if(is_array($fxrates)) {
+                                foreach($fxrates as $rates) {
+                                    foreach($rates as $rate) {
+                                        $output['currfxrates'] .='<li>'.$year.' : '.$rate.'</li>';
+                                    }
                                 }
                             }
                         }
