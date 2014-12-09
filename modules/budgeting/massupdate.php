@@ -25,7 +25,7 @@ if(!$core->input['action']) {
         $aff_objs = Affiliates::get_affiliates('name IS NOT NULL');
     }
     foreach($aff_objs as $affiliate) {
-        $affiliates_list .= '<td><input name="budget[filter][affid][]" type="checkbox"'.$checked.' value="'.$affiliate->affid.'">'.$affiliate->get_displayname().'</td></tr>';
+        $affiliates_list .= '<td><input name="budget[filter][affid][]" type="checkbox"'.$checked.'  id="affiliate_'.$affiliate->affid.'" value="'.$affiliate->affid.'">'.$affiliate->get_displayname().'</td></tr>';
     }
 //    if($core->usergroup['canViewAllSupp'] == 0) {
 //        foreach($core->user['suppliers']['eid'] as $suplier) {
@@ -37,7 +37,7 @@ if(!$core->input['action']) {
     // }
     foreach($supplier_obj as $supplier) {
         $suppliers_list .= '<tr class="'.$rowclass.'">';
-        $suppliers_list .= '<td><input name="budget[filter][spid][]" type="checkbox"'.$checked.' value="'.$supplier->eid.'">'.$supplier->get_displayname().'</td><tr>';
+        $suppliers_list .= '<td><input name="budget[filter][spid][]" type="checkbox"'.$checked.'  id="supplier_'.$supplier->eid.'"  value="'.$supplier->eid.'">'.$supplier->get_displayname().'</td><tr>';
     }
 
     $years = Budgets::get_availableyears();
@@ -45,7 +45,7 @@ if(!$core->input['action']) {
         foreach($years as $key => $value) {
             $checked = $rowclass = '';
             $budget_year_list .= '<tr class="'.$rowclass.'">';
-            $budget_year_list .= '<td><input name="budget[filter][year][]" required="required" type="checkbox" value="'.$key.'">'.$value.'</td></tr>';
+            $budget_year_list .= '<td><input name="budget[filter][year][]" required="required" type="checkbox"  id="year_'.$key.'" value="'.$key.'">'.$value.'</td></tr>';
         }
     }
     /* Can Generate users of the affiliates he belongs to */
@@ -69,7 +69,7 @@ if(!$core->input['action']) {
         foreach($business_managers as $key => $value) {
             $checked = $rowclass = '';
             $business_managerslist .= '<tr class="'.$rowclass.'">';
-            $business_managerslist .= '<td><input name="budget[filterline][businessMgr][]" type="checkbox"'.$checked.' value="'.$key.'"/>'.$value.'</td></tr>';
+            $business_managerslist .= '<td><input name="budget[filterline][businessMgr][]" type="checkbox"'.$checked.' id="bm_'.$key.'" value="'.$key.'"/>'.$value.'</td></tr>';
         }
     }
     $saletype_objs = SaleTypes::get_data();
@@ -77,7 +77,7 @@ if(!$core->input['action']) {
         foreach($saletype_objs as $key => $value) {
             $checked = $rowclass = '';
             $sale_types .= '<tr class="'.$rowclass.'">';
-            $sale_types .= '<td><input name="budget[filterline][saleType][]" type="checkbox" value="'.$key.'">'.$value.'</td></tr>';
+            $sale_types .= '<td><input name="budget[filterline][saleType][]" type="checkbox"   id="saletype_'.$key.'" value="'.$key.'">'.$value.'</td></tr>';
         }
     }
     $user = new Users($core->user['uid']);
@@ -200,7 +200,6 @@ else {
         }
     }
     elseif($core->input['action'] == 'download') {
-
         $filepath = ''.ROOT.'\tmp\budget\budgetdata.csv';
         $file = fopen($filepath, "w+");
         $csv = new CSV($filepath);
