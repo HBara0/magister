@@ -13,7 +13,7 @@
  *
  * @author tony.assaad
  */
-class productsactivity extends AbstractClass {
+class ProductsActivity extends AbstractClass {
     protected $data = array();
     protected $errorcode = null;
 
@@ -63,23 +63,29 @@ class productsactivity extends AbstractClass {
                     $filterbudget_config['businessMgr'] = $budgetlines_ob->businessMgr;
                 }
             }
-            return BudgetLines::get_data($filterbudget_config);
+            return BudgetLines::get_data($filterbudget_config, array('returnarray' => true));
         }
     }
 
-    public function aggregate_relatedbudgetlines() {
+    public function aggregate_relatedbudgetlines($config = array()) {
         global $db;
+        $config['aggregatebm'] = true;
         $budget = $this->get_budget();
         $budgetlines = $this->get_relatedbudgetlines();
         $fxrate_query = '(CASE WHEN budgeting_budgets_lines.originalCurrency = 840 THEN 1
-                          ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = '.$budget->affid.' AND bfr.year = '.$budget->year.' AND bfr.fromCurrency = budgeting_budgets_lines.originalCurrency  AND bfr.toCurrency = 840) END)';
+                          ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = '.$budget->affid.' AND isBudget=1 AND  bfr.year = '.$budget->year.' AND bfr.fromCurrency = budgeting_budgets_lines.originalCurrency  AND bfr.toCurrency = 840) END)';
 
-        $sql = "SELECT blid, pid,   businessMgr as businessmgr , sum(amount*{$fxrate_query}) AS amount, sum(quantity) AS quantity FROM ".Tprefix."budgeting_budgets_lines WHERE blid IN (".implode(',', array_keys($budgetlines)).") GROUP By businessMgr, pid";
+        $sql = "SELECT blid, pid, businessMgr as businessmgr , sum(amount*{$fxrate_query}) AS amount, sum(quantity) AS quantity FROM ".Tprefix."budgeting_budgets_lines WHERE blid IN (".implode(',', array_keys($budgetlines)).") GROUP By businessMgr";
         $sumquery = $db->query($sql);
-
         if($db->num_rows($sumquery) > 0) {
             while($item = $db->fetch_assoc($sumquery)) {
-                $aggregated_lines[$item['pid']][$item['businessmgr']] = $item;
+
+                if(isset($config['aggregatebm']) && $config['aggregatebm'] == true) {
+                    $aggregated_lines[$item['businessmgr']] = $item;
+                }
+                else {
+                    $aggregated_lines += $item;
+                }
             }
             return $aggregated_lines;
         }
