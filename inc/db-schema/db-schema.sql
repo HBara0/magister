@@ -2000,6 +2000,7 @@ CREATE TABLE `representatives` (
   `name` varchar(300) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `email` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `phone` varchar(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `isSupportive` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`rpid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=5866 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;

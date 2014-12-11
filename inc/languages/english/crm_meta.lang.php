@@ -46,4 +46,5 @@ $lang['searchseg'] = 'Search Segment';
 $lang['searchct'] = 'Search Potential Customer';
 $lang['total'] = 'Total';
 $lang['turnover'] = 'Turnover (USD)';
+$lang['issupportive'] = 'Is supportive of us';
 ?>
