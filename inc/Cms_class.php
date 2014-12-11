@@ -4,6 +4,7 @@ class Cms {
     protected $settings_file_path = "modules/cms/cmssettings.php";
     private $status;
     protected $settings = array();
+    protected $ftpconnection;
 
     public function __construct($source = '', $simple = true) {
         if($source == 'file') {
@@ -110,6 +111,45 @@ class Cms {
         $string = $core->sanitize_inputs($string, array('removetags' => true));
         $string = preg_replace('/[\@\!\&\(\)$%\^\*\+\#\/\\,.;:=]+/i', '', $string);
         return $string;
+    }
+
+    public function copy_file_ftp(array $source, array $destination) {
+        if(!isset($this->ftpconnection)) {
+            $this->establish_ftp();
+        }
+        $upload = ftp_put($this->ftpconnection, $destination['path'].$destination['filename'], $source['path'].$source['filename'], FTP_BINARY);
+        if($upload == false) {
+            ftp_close($this->ftpconnection);
+            return false;
+        }
+        if(strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+            $chmod = ftp_chmod($this->ftpconnection, 0644, $destination['path'].$destination['filename']);
+        }
+        return true;
+    }
+
+    protected function establish_ftp() {
+        $this->read_settings_file();
+        if(!isset($this->settings['ftpserver'], $this->settings['ftpusername'], $this->settings['ftppassword'])) {
+            return false;
+        }
+
+        if(is_empty($this->settings['ftpserver'], $this->settings['ftpusername'], $this->settings['ftppassword'])) {
+            return false;
+        }
+
+        $connection = ftp_connect($this->settings['ftpserver']);
+        $login = ftp_login($connection, $this->settings['ftpusername'], $this->settings['ftppassword']);
+
+        if(!$connection || !$login) {
+            return false;
+        }
+
+        if($this->ftp_settings['passive'] == 1) {
+            ftp_pasv($connection, true);
+        }
+
+        $this->ftpconnection = $connection;
     }
 
     public function get_settings() {
