@@ -19,7 +19,7 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'do_createtask') {
-        //if($core->input['type'] == 'task') {
+//if($core->input['type'] == 'task') {
         $task = new Tasks();
         $task->create_task($core->input['task']);
 
@@ -29,7 +29,7 @@ else {
                     $task->notify_task();
                 }
                 header('Content-type: text/xml+javascript');
-                //output_xml('<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>');
+//output_xml('<![CDATA[<script>$("#popup_createeventtask").dialog("close");</script>]]>');
                 output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
                 break;
             case 1:
@@ -46,7 +46,7 @@ else {
     elseif($core->input['action'] == 'do_createeventtask') {
         echo $headerinc;
         if(is_empty($core->input['event']['title'], $core->input['event']['fromDate'], $core->input['event']['toDate'], $core->input['event']['type'])) {
-            //output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+//output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
             ?>
             <script language="javascript" type="text/javascript">
                 $(function() {
@@ -71,7 +71,7 @@ else {
                 'createdBy' => $core->user['uid'],
                 'publishOnWebsite' => $core->input['event']['publishOnWebsite']
         );
-
+        $new_event['alias'] = generate_alias($new_event['title']);
         $new_event['fromDate'] = strtotime($core->input['event']['fromDate'].' '.$core->input['event']['fromTime']);
         $new_event['toDate'] = strtotime($core->input['event']['toDate'].' '.$core->input['event']['toTime']);
 
@@ -111,28 +111,27 @@ else {
             }
         }
         /* Parse incoming Attachemtns - END */
-
         /* Parse Event Logo - START */
-        $core->input['logo'] = $_FILES['logo'];
-        if(!empty($core->input['logo']['name'][0])) {
+        if(!empty($_FILES)) {
+            $_FILES['logo']['newname'][0] = $new_event['alias'];
             $upload_param['upload_allowed_types'] = array('image/jpg', 'image/jpeg', 'image/gif', 'image/png');
-            if(is_array($core->input['logo'])) {
-                $upload_obj = new Uploader('logo', $core->input, $upload_param['upload_allowed_types'], 'putfile', 5242880, 1, 1); //5242880 bytes = 5 MB (1024);
-                $logo_path = './uploads/eventslogos'; /* */
-                $upload_obj->set_upload_path($logo_path);
-                $upload_obj->process_file();
-                $logo = $upload_obj->get_filesinfo();
-                $new_event['logo'] = $upload_obj->get_filename();
-                if($upload_obj->get_status() != 4) {
-                    ?>
-                    <script language="javascript" type="text/javascript">
-                        $(function() {
-                            top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
-                        });
-                    </script>
-                    <?php
-                    exit;
-                }
+            $upload_obj = new Uploader('logo', $_FILES, $upload_param['upload_allowed_types'], 'putfile', 5242880, 1, 1); //5242880 bytes = 5 MB (1024);
+            $logo_path = './uploads/eventslogos';
+            $upload_obj->set_upload_path($logo_path);
+            $upload_obj->process_file();
+            $upload_obj->resize(150, '');
+
+            $logo = $upload_obj->get_filesinfo();
+            $new_event['logo'] = $upload_obj->get_filename();
+            if($upload_obj->get_status() != 4) {
+                ?>
+                <script language="javascript" type="text/javascript">
+                    $(function() {
+                        top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
+                    });
+                </script>
+                <?php
+                exit;
             }
         }
         /* Parse Event Logo - END */
@@ -140,9 +139,14 @@ else {
         $query = $db->insert_query('calendar_events', $new_event);
         $last_id = $db->last_id();
         $event_obj = new Events($last_id, false);
+
         if(!empty($event_obj->logo)) {
-            $event_obj->upload_logo();
+            $cms = new Cms();
+            $source = array('path' => './uploads/eventslogos/', 'filename' => $event_obj->logo);
+            $destination = array('path' => '/development/website/uploads/eventslogos/', 'filename' => $event_obj->logo);
+            $cms->copy_file_ftp($source, $destination);
         }
+
         $events_details = $event_obj->get();
         /* Add event Invitee */
         if(is_array($core->input['event']['invitee'])) {
@@ -266,7 +270,7 @@ else {
 //		}
     }
 
-    //}
+//}
     elseif($core->input['action'] == 'settaskdone') {
         if(is_empty($core->input['id'])) {
             output_xml("<status>false</status><message></message>");
@@ -315,7 +319,7 @@ else {
             if(!$task->is_sharedwithuser() && $core->user['uid'] != $task_details['uid'] && $core->user['uid'] != $task_details['createdBy']) {
                 exit;
             }
-            //$task_details['dueDate_output'] = date($core->settings['dateformat'], $task_details['dueDate']);
+//$task_details['dueDate_output'] = date($core->settings['dateformat'], $task_details['dueDate']);
             $task_details['priority_output'] = $task->parse_status();
 
             if(isset($task_details['timeDone_output'])) {
