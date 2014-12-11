@@ -47,6 +47,7 @@ if(!$core->input['action']) {
             if($session->isset_phpsession('visitreportvisitdetailsdata_'.$identifier)) {
                 $visitdetails = unserialize($session->get_phpsession("visitreportvisitdetailsdata_{$identifier}"));
                 $visitreport_data = unserialize($session->get_phpsession("visitreportdata_{$identifier}"));
+
                 if(is_array($visitreport_data['spid'])) {
                     foreach($visitreport_data['spid'] as $key => $val) {
                         if(empty($val) && $val != 0 || (count($visitreport_data['spid']) > 1 && $val == 0)) {
@@ -507,6 +508,15 @@ else {
             output($visitdetails_fields_mktidata);
         }
         /* Add Market Inteligence Data --END */
+    }
+    elseif($core->input['action'] == 'get_customerlocation') {
+        $cid = $db->escape_string($core->input['cid']);
+        $entity_locbjs = EntityLocations::get_data(array('eid' => $cid), array('returnarray' => true));
+        if(is_array($entity_locbjs)) {
+            $entity_locations = '<td>'.$lang->chooselocation.'</td>';
+            $entity_locations .='<td>'.parse_selectlist('location', 3, $entity_locbjs, '', 6, '', array('blankstart' => 1)).'</td>';
+            output($entity_locations);
+        }
     }
 }
 ?>

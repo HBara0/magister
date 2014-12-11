@@ -9,6 +9,8 @@ $lang['accountsuspended'] = 'Sorry, you can\'t access OCOS.';
 $lang['add'] = 'Add';
 $lang['addcustomers'] = 'Add Customers';
 $lang['addproducts'] = 'Add Products';
+$lang['createentityloc'] = 'Create Entity Locations';
+$lang['location'] = 'location';
 $lang['addrepresentative_note'] = 'Representatives (contact persons) are not you, they are the persons you deal with from the entity side.<br />
 <br />
 Always provide complete name, without title.';

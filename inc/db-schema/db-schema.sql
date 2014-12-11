@@ -904,6 +904,26 @@ CREATE TABLE `entities_contractcountries` (
   KEY `eccid_2` (`eccid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `entities_locations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `entities_locations` (
+  `eloid` int(10) NOT NULL AUTO_INCREMENT,
+  `inputChecksum` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `eid` int(10) NOT NULL,
+  `location` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `coid` int(10) NOT NULL,
+  `ciid` int(10) NOT NULL,
+  `address` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `buildingName` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `postcode` int(50) NOT NULL,
+  `geoLocation` point NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` int(11) NOT NULL,
+  `isMain` tinyint(1) NOT NULL,
+  PRIMARY KEY (`eloid`)
+) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `entities_ratingcriteria`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

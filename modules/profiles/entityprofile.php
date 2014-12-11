@@ -489,7 +489,13 @@ if(!$core->input['action']) {
         /* parse visit report --END */
 
         unset($endproducttypes);
-
+        $packaging_objs = Packaging::get_data('name IS NOT NULL');
+        $incoterms_objs = Incoterms::get_data('name IS NOT NULL');
+        $saletype_objs = SaleTypes::get_data('stid IN(1,4)');
+        $packaging_list = parse_selectlist('marketdata[competitor]['.$rowid.'][packaging]', 7, $packaging_objs, '', '', '', array('blankstart' => 1));
+        $incoterms_list = parse_selectlist('marketdata[competitor]['.$rowid.'][incoterms]', 8, $incoterms_objs, '', '', '', array('blankstart' => 1));
+        $saletype_list = parse_selectlist('marketdata[competitor]['.$rowid.'][saletype]', 8, $saletype_objs, '', '', '', array('blankstart' => 1));
+        $samplacquire = parse_radiobutton('marketdata[competitor]['.$rowid.'][isSampleacquire]', array(1 => 'yes', 0 => 'no'), '', true);
         $css['display']['chemsubfield'] = 'none';
         eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
         eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
@@ -560,9 +566,7 @@ else {
             parse_str(parse_url($_SERVER['HTTP_REFERER'])[query], $query_string);
             $identifier = $query_string['identifier'];
         }
-
         $session->start_phpsession();
-
         $marketin_obj = new MarketIntelligence();
         $marketin_obj->create($core->input['marketdata']);
         if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'crm/fillvisitreport') !== false) {
@@ -671,7 +675,33 @@ else {
             $profiles_mincustomervisit_title = $lang->visitreport;
             $profiles_mincustomervisit = parse_selectlist('marketdata[vrid]', 7, $visitreport_objs, '', '', '', array('blankstart' => 1));
         }
+        /* Parse competitors related market Data */
+        $mrktcompetitor_objs = $midata->get_competitors();
+
+        if(is_array($mrktcompetitor_objs)) {
+            foreach($mrktcompetitor_objs as $mrktcompetitor_obj) {
+
+                $competitor['trader'] = new Entities($mrktcompetitor_obj->trader);
+                if(!empty($mrktcompetitor_obj->producer)) {
+                    $competitor['producer'] = new Entities($mrktcompetitor_obj->producer);
+                }
+                $competitor['uniprice'] = $mrktcompetitor_obj->unitPrice;
+                $competitor['product'] = $mrktcompetitor_obj->get_products()->name;
+
+                $competitor['pid'] = $mrktcompetitor_obj->get_products()->pid;
+            }
+            // multiple rows
+        }
         /* parse visit report --END */
+        $packaging_objs = Packaging::get_data('name IS NOT NULL');
+        $incoterms_objs = Incoterms::get_data('name IS NOT NULL');
+        $saletype_objs = SaleTypes::get_data('stid IN(1,4)');
+        $packaging_list = parse_selectlist('marketdata[competitor]['.$rowid.'][packaging]', 7, $packaging_objs, '', '', '', array('blankstart' => 1));
+        $incoterms_list = parse_selectlist('marketdata[competitor]['.$rowid.'][incoterms]', 8, $incoterms_objs, '', '', '', array('blankstart' => 1));
+        $saletype_list = parse_selectlist('marketdata[competitor]['.$rowid.'][saletype]', 8, $saletype_objs, '', '', '', array('blankstart' => 1));
+        $samplacquire = parse_radiobutton('marketdata[competitor]['.$rowid.'][isSampleacquire]', array(1 => 'yes', 0 => 'no'), '', true);
+        /* parse incoterms and packaging */
+
         eval("\$popup_marketdata = \"".$template->get('popup_profiles_marketdata')."\";");
         output($popup_marketdata);
     }
@@ -705,7 +735,9 @@ else {
 
         /* Parse competitors related market Data */
         $mrktcompetitor_objs = $mkintentry->get_competitors();
+
         if(is_array($mrktcompetitor_objs)) {
+
             foreach($mrktcompetitor_objs as $mrktcompetitor_obj) {
                 $mrktintl_detials['competitors'] = $mrktcompetitor_obj->get();
                 if(is_array($mrktintl_detials['competitors'])) {

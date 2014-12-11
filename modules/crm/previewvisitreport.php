@@ -30,9 +30,7 @@ if(!$core->input['action']) {
     if($core->input['referrer'] == 'fill') {
         $identifier = $db->escape_string($core->input['identifier']);
         $session->set_phpsession(array('visitreportcompetitiondata_'.$identifier => serialize($core->input)));
-
         $visitreports[1] = array_merge(unserialize($session->get_phpsession('visitreportdata_'.$identifier)), unserialize($session->get_phpsession('visitreportvisitdetailsdata_'.$identifier)));
-
         foreach($visitreports[1]['comments'] as $key => $val) {
             $visitreports[1]['comments'][$key] = array_merge($visitreports[1]['comments'][$key], $core->input['comments'][$key]);
         }
@@ -170,22 +168,34 @@ if(!$core->input['action']) {
                 eval("\$accompaniedbyrow = \"".$template->get('crm_fillvisitreport_accompaniedbyrow')."\";");
             }
 
-            if($core->input['showLimitedCustDetails'] == 0) {
-                if(!empty($visitreport['customerdetails']['addressLine1'])) {
-                    $visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['addressLine1'].', ';
-                }
-
-                if(!empty($visitreport['customerdetails']['city'])) {
-                    $visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['addressLine1'].', ';
-                }
-
-                if(!empty($visitreport['customerdetails']['phone1'])) {
-                    $phone_details = "{$lang->phone}: {$visitreport[customerdetails][phone1]}";
-                }
+            if(empty($visitreport['customerdetails']['addressLine1']) || empty($visitreports[1]['location'])) {
+                $customerobj = new Customers($visitreports[1]['cid'], '', false);
+                $customer_data = $customerobj->get();
+                $visitreport['customerdetails']['addressDetails'] = $customer_data['addressLine1'].' - '.$customer_data['addressLine2'].' - '.$customer_data['city'].' - '.$customerobj->get_country()->get_displayname();
             }
+            elseif(!empty($visitreports[1]['location'])) {
+                $customer_locobj = new EntityLocations($visitreports[1]['location'], false);
+                $visitreport['customerdetails']['addressDetails'] = $customer_locobj->location.' - '.$customer_locobj->address.' - '.$customer_locobj->get_country()->get_displayname();
+            }
+            else {
 
-            if(!empty($visitreport['customerdetails']['countryname'])) {
-                $visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['countryname'];
+                if($core->input['showLimitedCustDetails'] == 0) {
+                    if(!empty($visitreport['customerdetails']['addressLine1'])) {
+                        $visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['addressLine1'].', ';
+                    }
+
+                    if(!empty($visitreport['customerdetails']['city'])) {
+                        $visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['addressLine1'].', ';
+                    }
+
+                    if(!empty($visitreport['customerdetails']['phone1'])) {
+                        $phone_details = "{$lang->phone}: {$visitreport[customerdetails][phone1]}";
+                    }
+                }
+
+                if(!empty($visitreport['customerdetails']['countryname'])) {
+                    $visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['countryname'];
+                }
             }
 
             parse_calltype($visitreport['type']);

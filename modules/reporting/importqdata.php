@@ -314,6 +314,13 @@ else {
                             echo 'Added: ';
                             if($options['runtype'] != 'dry') {
                                 $db->insert_query('productsactivity', $activity);
+                                /* Implement Budget data integration to acquire forecasts   --START */
+                                /* get last prodcut created */
+                                $productact = new ProductsActivity($db->last_id());
+                                $agrregatedproductlines = $productact->aggregate_relatedbudgetlines(array('aggregatebm' => false));
+                                $db->update_query('productsactivity', array('salesForecast' => $productactivity['salesForecast'], 'quantityForecast' => $productactivity['quantityForecast']), 'paid='.$productact->paid);
+
+                                /* Implement Budget data integration to acquire forecasts   --END */
                             }
                         }
                     }

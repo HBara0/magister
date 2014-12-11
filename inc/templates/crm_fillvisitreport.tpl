@@ -2,7 +2,17 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->fillvisitreport}</title>
         {$headerinc}
+        <script>
+            $(function() {
+                $('input[id^=customer_]').bind('change', function() {
+                    if(sharedFunctions.checkSession() == false) {
+                        return;
+                    }
+                    var cid = $('[id$=id_output]').val();
+                    sharedFunctions.requestAjax("post", "index.php?module=crm/fillvisitreport&action=get_customerlocation", "&cid=" + cid, 'content_detailsloader', 'content_details', true);
 
+                });
+            });</script>
     </head>
     <body>
         {$header}
@@ -38,7 +48,11 @@
                 </tr>
                 <tr>
                     <td>{$lang->customername}</td>
-                    <td><input type='text' id='customer_1_autocomplete' value="{$visitreport_values[customername]}" autocomplete="off"/><input type="text" size="3" id="customer_1_id_output" value="{$visitreport_values[cid]}" disabled/><input type='hidden' id='customer_1_id' name='cid' value="{$visitreport_values[cid]}"/><a href="index.php?module=contents/addentities&amp;type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td>
+                    <td><input type='text' id='customer_1_autocomplete' value="{$visitreport_values[customername]}" autocomplete="off"/><input type="text" size="3" id="customer_1_id_output" value="{$visitreport_values[cid]}" disabled/><input type='hidden' id='customer_1_id' name='cid' value="{$visitreport_values[cid]}"/><a href="index.php?module=contents/addentities&amp;type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div>
+                        <div id="content_detailsloader"></div>
+                        <div id="content_details"></div>
+                    </td>
+
                 </tr>
                 <tr>
                     <td>{$lang->contactperson}</td>

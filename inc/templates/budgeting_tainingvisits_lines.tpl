@@ -7,9 +7,9 @@
         <input type="hidden" name="budgetrainingvisit[local][$rowid][inputChecksum] " value="{$budgetrainingvisit[inputChecksum]}"/>
     </td>
 
-    <td><input type="text"  id="pickDate_local{$rowid}" autocomplete="off" tabindex="1" value="{$budgetrainingvisit[date_output]}" required="required"/>
-        <input type="hidden" name="budgetrainingvisit[local][$rowid][date]" id="altpickDate_local{$rowid}" value="{$budgetrainingvisit[Date_formatted]}" />
+    <td><input type="text"  id="pickDate_local{$rowid}" autocomplete="off" tabindex="1" value="{$budgetrainingvisit[date_output]} {$budgetrainingvisit[$populated_leave->lid][$type][date_output]} " required="required"/>
+        <input type="hidden" name="budgetrainingvisit[local][$rowid][date]" id="altpickDate_local{$rowid}" value="{$budgetrainingvisit[Date_formatted]}{$budgetrainingvisit[$populated_leave->lid][$type][Date_formatted]}" />
     </td>
-    <td><textarea  name="budgetrainingvisit[local][$rowid][purpose]"  cols="40" required="required">{$budgetrainingvisit[purpose]}</textarea></td>
-    <td><input type='number' id="costaff_{$rowid}_local" step="only"  name="budgetrainingvisit[local][$rowid][Costaffiliate]" value="{$budgetrainingvisit[Costaffiliate]}" autocomplete='off' {$required}/></td>
-</tr>
+    <td><textarea  name="budgetrainingvisit[local][$rowid][purpose]"  cols="40" required="required">{$budgetrainingvisit[purpose]}{$budgetrainingvisit[$populated_leave->lid][$type][purpose]}</textarea></td>
+    <td><input type='number' id="costaff_{$rowid}_local" step="only"  name="budgetrainingvisit[local][$rowid][Costaffiliate]" value="{$budgetrainingvisit[$populated_leave->lid][$type][Costaffiliate]}" autocomplete='off' {$required}/></td>
+</tr>type
