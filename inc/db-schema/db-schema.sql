@@ -919,7 +919,7 @@ CREATE TABLE `entities_locations` (
   `createdOn` int(11) NOT NULL,
   `isMain` tinyint(1) NOT NULL,
   PRIMARY KEY (`eloid`)
-) ENGINE=MyISAM AUTO_INCREMENT=22 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `entities_ratingcriteria`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
