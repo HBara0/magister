@@ -19,7 +19,7 @@ class EntityLocations extends AbstractClass {
 
     const PRIMARY_KEY = 'eloid';
     const TABLE_NAME = 'entities_locations';
-    const DISPLAY_NAME = '';
+    const DISPLAY_NAME = 'location';
     const SIMPLEQ_ATTRS = 'eloid,eid,location';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'eid,location';
@@ -59,7 +59,7 @@ class EntityLocations extends AbstractClass {
     }
 
     public function get_entity() {
-        return new Entities($this->data[eid]);
+        return new Entities($this->data['eid']);
     }
 
     public function get_country() {

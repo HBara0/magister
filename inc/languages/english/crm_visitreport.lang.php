@@ -93,4 +93,5 @@ $lang['visitdetails'] = 'Visit Details';
 $lang['visitfollowup'] = 'Visit Follow-up';
 $lang['visitreportfinalized'] = 'The visit report was successfully finalized';
 $lang['visitslist'] = 'Visits List';
+$lang['chooselocation'] = ' Choose visit location  ';
 ?>
