@@ -79,4 +79,5 @@ $lang['packaging'] = 'Packaging';
 $lang['saletype'] = 'Sale Type';
 $lang['incoterms'] = 'Incoterms';
 $lang['sampleacquire'] = 'Sample acquire';
+$lang['issupportive'] = 'Is supportive of us';
 ?>

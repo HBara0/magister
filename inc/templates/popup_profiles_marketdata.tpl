@@ -43,12 +43,8 @@
                                                 <div id='searchQuickResults_competitorproducersupp_{$rowid}' class='searchQuickResults' style='display:none;'></div> </div>
                                         </div>
                                         <div style="width:100%; display:block;padding:5px">
-                                            <div style="width:45%; display: inline-block;">{$lang->price}</div><div style="width:45%; display: inline-block;"><input type="text" size="8" name="marketdata[competitor][{$rowid}][unitPrice]"  value="{$competitor[uniprice]}" accept="numeric" autocomplete="off" min="0"/> USD/KG</div>
-
-                                        </div>
-                                        <div style="width:100%; display:block;padding:5px">
-                                            <div style="width:45%; display: inline-block;">{$lang->incoterms}</div>
-                                            <div style="width:45%; display: inline-block;">{$incoterms_list}</div>
+                                            <div style="width:45%; display: inline-block;">{$lang->price}</div><div style="width:30%; display: inline-block;"><input type="text" size="8" name="marketdata[competitor][{$rowid}][unitPrice]"  value="{$competitor[uniprice]}" accept="numeric" autocomplete="off" min="0"/> USD/KG</div>
+                                            <div style="width:15%; display: inline-block;">{$incoterms_list}</div>
                                         </div>
                                         <div style="width:100%; display:block;padding:5px">
                                             <div style="width:45%; display: inline-block;">{$lang->product}</div>

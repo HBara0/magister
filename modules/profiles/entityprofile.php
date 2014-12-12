@@ -490,7 +490,7 @@ if(!$core->input['action']) {
 
         unset($endproducttypes);
         $packaging_objs = Packaging::get_data('name IS NOT NULL');
-        $incoterms_objs = Incoterms::get_data('name IS NOT NULL');
+        $incoterms_objs = Incoterms::get_data('titleAbbr IS NOT NULL');
         $saletype_objs = SaleTypes::get_data('stid IN(1,4)');
         $packaging_list = parse_selectlist('marketdata[competitor]['.$rowid.'][packaging]', 7, $packaging_objs, '', '', '', array('blankstart' => 1));
         $incoterms_list = parse_selectlist('marketdata[competitor]['.$rowid.'][incoterms]', 8, $incoterms_objs, '', '', '', array('blankstart' => 1));
@@ -540,7 +540,6 @@ else {
         $rpid = $db->escape_string(base64_decode($core->input['id']));
 
         $information = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid={$rpid}"));
-
         $segments = get_specificdata("representativessegments s JOIN ".Tprefix."productsegments seg ON(seg.psid=s.psid)", array('title', 's.psid as id'), 'id', 'title', '', 0, "rpid='{$rpid}'");
         if(is_array($segments)) {
             $information['segments'] = implode(',', $segments);
@@ -550,7 +549,17 @@ else {
         if(is_array($positions)) {
             $information['positions'] = implode(',', $positions);
         }
-
+        $information['issuportive_icon'] = '<img src="'.DOMAIN.'/images/icons/question.gif"/>';
+        if(!is_null($information['isSupportive'])) {
+            switch($information['isSupportive']) {
+                case 0:
+                    $information['issuportive_icon'] = '<img src="'.DOMAIN.'/images/invalid.gif"/>';
+                    break;
+                case 1:
+                    $information['issuportive_icon'] = '<img src="'.DOMAIN.'/images/icons/valid.png"/>';
+                    break;
+            }
+        }
         eval("\$contactinformation = \"".$template->get('popup_profiles_contactpersoninformation')."\";");
         echo $contactinformation;
     }
@@ -694,7 +703,7 @@ else {
         }
         /* parse visit report --END */
         $packaging_objs = Packaging::get_data('name IS NOT NULL');
-        $incoterms_objs = Incoterms::get_data('name IS NOT NULL');
+        $incoterms_objs = Incoterms::get_data('titleAbbr IS NOT NULL');
         $saletype_objs = SaleTypes::get_data('stid IN(1,4)');
         $packaging_list = parse_selectlist('marketdata[competitor]['.$rowid.'][packaging]', 7, $packaging_objs, '', '', '', array('blankstart' => 1));
         $incoterms_list = parse_selectlist('marketdata[competitor]['.$rowid.'][incoterms]', 8, $incoterms_objs, '', '', '', array('blankstart' => 1));
