@@ -296,9 +296,16 @@ if(!$core->input['action']) {
             }
             $draftreports_selectlist = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>'.$lang->continuefilling.': '.parse_selectlist('identifier', 1, $draftreports, '', 0, 'goToURL("index.php?module=crm/fillvisitreport&amp;identifier="+$(this).val())').'</p></div>';
         }
+        $display = "  display: none;";
+        if(!empty($visitreport_values['location'])) {
+            $display = "  display: block;";
+            $location[$visitreport_values['location']] = new EntityLocations($visitreport_values['location'], false);
+            $customerlocation = parse_selectlist('location', 3, $location, $location->elocid, 6, '');
+        }
         /* Parse draft reports select list - END */
         eval("\$fillreportpage = \"".$template->get('crm_fillvisitreport')."\";");
     }
+
 
     output_page($fillreportpage);
 }
@@ -511,14 +518,11 @@ else {
     elseif($core->input['action'] == 'get_customerlocation') {
         $cid = $db->escape_string($core->input['cid']);
         $entity_locbjs = EntityLocations::get_data(array('eid' => $cid), array('simple' => false, 'returnarray' => true));
-
         if(is_array($entity_locbjs)) {
-
             foreach($entity_locbjs as $locationobj) {
                 //   $location[$entity_locbjs->eloid] = array($entity_locbjs->eloid => $entity_locbjs->location.' - '.$entity_locbjs->address.'-');
                 $location[$locationobj->eloid] = $locationobj->locationType.' - '.$locationobj->address.'-'.$locationobj->get_city()->name.' - '.$locationobj->get_country()->get_displayname();
             }
-
             $entity_locations = '<td>'.$lang->chooselocation.'</td>';
             $entity_locations .='<td>'.parse_selectlist('location', 3, $location, '', 6, '', array('blankstart' => 1)).'</td>';
             output($entity_locations);

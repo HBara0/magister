@@ -19,7 +19,7 @@ class EntityLocations extends AbstractClass {
 
     const PRIMARY_KEY = 'eloid';
     const TABLE_NAME = 'entities_locations';
-    const DISPLAY_NAME = 'location';
+    const DISPLAY_NAME = 'locationType';
     const SIMPLEQ_ATTRS = 'eloid,eid,locationType';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'eid,locationType';
