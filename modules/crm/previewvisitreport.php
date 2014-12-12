@@ -133,23 +133,7 @@ if(!$core->input['action']) {
             }
             // $visitreport['contactperson'] = $db->fetch_field($db->query("SELECT name AS contactperson FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($visitreport['rpid'])."'"), "contactperson");
             $contactperson = Representatives::get_data(array('rpid' => $visitreport['rpid']));
-            $visitreport['contactperson'] = $contactperson->get_displayname();
-            if(is_object($contactperson->get_repposition())) {
-                $visitreport['position'] = '/ ('.$contactperson->get_repposition()->title.')';
-            }
-
-            $issupportiveicon = '<img src="'.DOMAIN.'/images/icons/question.gif"/>';
-            if(isset($contactperson->isSupportive)) {
-                switch($contactperson->isSupportive) {
-                    case 1:
-                        $issupportiveicon = '<img src="'.DOMAIN.'/images/icons/valid.png"/>';
-                        break;
-                    case 0:
-                        $issupportiveicon = '<img src="'.DOMAIN.'/images/invalid.gif"/>';
-                        break;
-                }
-            }
-            $visitreport['issuportive'] .= ' / '.$lang->issupportive.' '.$issupportiveicon;
+            $visitreport['contactperson'] = '<a href="#" id="contactpersoninformation_'.base64_encode($contactperson->rpid).'_profiles/entityprofile_loadpopupbyid">'.$contactperson->name.'</a> - <a href = "mailto:'.$contactperson->email.'">'.$contactperson->email.'</a><br />';
 
             if(is_array($visitreport['productLine'])) {
                 foreach($visitreport['productLine'] as $k => $v) {

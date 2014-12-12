@@ -37,8 +37,7 @@
                 {$visitreport[availabilityIssues]}</td>
         </tr>
         <tr>
-            <td class="altrow2" style="border-right: 1px solid #CCCCCC; padding:5px; width:50%;"><hr /><strong>{$lang->contactperson}:</strong> {$visitreport[contactperson]} {$visitreport[position]}
-                {$visitreport[issuportive]}</td>
+            <td class="altrow2" style="border-right: 1px solid #CCCCCC; padding:5px; width:50%;"><hr /><strong>{$lang->contactperson}:</strong> {$visitreport[contactperson]}</td>
             <td colspan="2" style="text-align:center;"><hr /><strong>{$lang->ourcurrentmktshare}</strong><br />
                 {$visitreport[currentMktShare]}</td>
         </tr>

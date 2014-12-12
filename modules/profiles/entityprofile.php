@@ -540,7 +540,6 @@ else {
         $rpid = $db->escape_string(base64_decode($core->input['id']));
 
         $information = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."representatives WHERE rpid={$rpid}"));
-
         $segments = get_specificdata("representativessegments s JOIN ".Tprefix."productsegments seg ON(seg.psid=s.psid)", array('title', 's.psid as id'), 'id', 'title', '', 0, "rpid='{$rpid}'");
         if(is_array($segments)) {
             $information['segments'] = implode(',', $segments);
@@ -550,7 +549,17 @@ else {
         if(is_array($positions)) {
             $information['positions'] = implode(',', $positions);
         }
-
+        $information['issuportive_icon'] = '<img src="'.DOMAIN.'/images/icons/question.gif"/>';
+        if(!is_null($information['isSupportive'])) {
+            switch($information['isSupportive']) {
+                case 0:
+                    $information['issuportive_icon'] = '<img src="'.DOMAIN.'/images/invalid.gif"/>';
+                    break;
+                case 1:
+                    $information['issuportive_icon'] = '<img src="'.DOMAIN.'/images/icons/valid.png"/>';
+                    break;
+            }
+        }
         eval("\$contactinformation = \"".$template->get('popup_profiles_contactpersoninformation')."\";");
         echo $contactinformation;
     }
