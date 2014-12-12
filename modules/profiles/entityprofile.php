@@ -490,7 +490,7 @@ if(!$core->input['action']) {
 
         unset($endproducttypes);
         $packaging_objs = Packaging::get_data('name IS NOT NULL');
-        $incoterms_objs = Incoterms::get_data('name IS NOT NULL');
+        $incoterms_objs = Incoterms::get_data('titleAbbr IS NOT NULL');
         $saletype_objs = SaleTypes::get_data('stid IN(1,4)');
         $packaging_list = parse_selectlist('marketdata[competitor]['.$rowid.'][packaging]', 7, $packaging_objs, '', '', '', array('blankstart' => 1));
         $incoterms_list = parse_selectlist('marketdata[competitor]['.$rowid.'][incoterms]', 8, $incoterms_objs, '', '', '', array('blankstart' => 1));
@@ -694,7 +694,7 @@ else {
         }
         /* parse visit report --END */
         $packaging_objs = Packaging::get_data('name IS NOT NULL');
-        $incoterms_objs = Incoterms::get_data('name IS NOT NULL');
+        $incoterms_objs = Incoterms::get_data('titleAbbr IS NOT NULL');
         $saletype_objs = SaleTypes::get_data('stid IN(1,4)');
         $packaging_list = parse_selectlist('marketdata[competitor]['.$rowid.'][packaging]', 7, $packaging_objs, '', '', '', array('blankstart' => 1));
         $incoterms_list = parse_selectlist('marketdata[competitor]['.$rowid.'][incoterms]', 8, $incoterms_objs, '', '', '', array('blankstart' => 1));

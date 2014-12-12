@@ -1200,6 +1200,7 @@ DROP TABLE IF EXISTS `incoterms`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `incoterms` (
   `iid` int(10) NOT NULL AUTO_INCREMENT,
+  `titleAbbr` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `title` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`iid`),
