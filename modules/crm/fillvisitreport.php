@@ -347,7 +347,6 @@ else {
                 $visitreport_main['hasSupplier'] = 0;
             }
         }
-
         $existing_report = $db->fetch_assoc($db->query('SELECT vrid, identifier FROM '.Tprefix.'visitreports WHERE identifier="'.$db->escape_string($visitreport['identifier']).'"'));
         if(!empty($existing_report)) {
             $is_new = false;
@@ -511,10 +510,17 @@ else {
     }
     elseif($core->input['action'] == 'get_customerlocation') {
         $cid = $db->escape_string($core->input['cid']);
-        $entity_locbjs = EntityLocations::get_data(array('eid' => $cid), array('returnarray' => true));
+        $entity_locbjs = EntityLocations::get_data(array('eid' => $cid), array('simple' => false, 'returnarray' => true));
+
         if(is_array($entity_locbjs)) {
+
+            foreach($entity_locbjs as $locationobj) {
+                //   $location[$entity_locbjs->eloid] = array($entity_locbjs->eloid => $entity_locbjs->location.' - '.$entity_locbjs->address.'-');
+                $location[$locationobj->eloid] = $locationobj->locationType.' - '.$locationobj->address.'-'.$locationobj->get_city()->name.' - '.$locationobj->get_country()->get_displayname();
+            }
+
             $entity_locations = '<td>'.$lang->chooselocation.'</td>';
-            $entity_locations .='<td>'.parse_selectlist('location', 3, $entity_locbjs, '', 6, '', array('blankstart' => 1)).'</td>';
+            $entity_locations .='<td>'.parse_selectlist('location', 3, $location, '', 6, '', array('blankstart' => 1)).'</td>';
             output($entity_locations);
         }
     }
