@@ -54,7 +54,7 @@ class Entities extends AbstractClass {
                 $this->status = false;
                 exit;
             }
-            $noncurrentitytypes = arary('pc', 'cs');
+            $noncurrentitytypes = array('pc', 'cs');
             if(!in_array($this->data['type'], $noncurrentitytypes)) {
                 if(array_key_exists('repName', $this->data) || array_key_exists('repEmail', $this->data)) {
                     if($this->data['repName'] == 'na' || $this->data['repName'] == 'n/a') {
