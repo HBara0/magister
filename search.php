@@ -46,6 +46,7 @@ if($core->input['type'] == 'quick') {
     }
 
     if(isset($core->input['for'])) {
+
         if($core->input['for'] == 'potentialcustomer') {
             $table = 'entities';
             $attributes = array('companyName', 'companyNameAbbr');
@@ -54,6 +55,15 @@ if($core->input['type'] == 'quick') {
             $order = array('by' => 'companyName', 'sort' => 'ASC');
             $extra_where .= ' type="pc"';
             $descinfo = 'country';
+        }
+        if($core->input['for'] == 'allentities') {
+            $table = 'entities';
+            $attributes = array('companyName', 'companyNameAbbr');
+            $key_attribute = 'eid';
+            $select_attributes = array('companyName');
+            $order = array('by' => 'companyName', 'sort' => 'ASC');
+            $descinfo = 'country';
+            $extra_where .= ' isActive=1 AND approved=1';
         }
         if($core->input['for'] == 'allcustomertypes') {
             $table = 'entities';
