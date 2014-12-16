@@ -80,6 +80,7 @@ if(!isset($core->input['action'])) {
                     //  $business_managers_list = parse_selectlist('budgetrainingvisit[international]['.$rowid.'][bm]', 7, $business_managers, $selected_options);
                 }
                 eval("\$budgettaininig_intvisits_rows .= \"".$template->get('budgeting_tainingintvisits_lines')."\";");
+                unset($budgetrainingvisit);
             }
         }
     }
@@ -128,6 +129,7 @@ if(!isset($core->input['action'])) {
                         }
                     }
                     eval("\$budgettaininig_intvisits_rows .= \"".$template->get('budgeting_tainingintvisits_lines')."\";");
+                    unset($budgetrainingvisit[$populated_leave->lid]);
                     break;
                 case"domestic":
                     $type = 'domestic';
@@ -140,6 +142,7 @@ if(!isset($core->input['action'])) {
                         $budgetrainingvisit[$populated_leave->lid][$type]['Costaffiliate'] = $leave_expenses;
                     }
                     eval("\$budgettaininglocalvisits_rows .= \"".$template->get('budgeting_tainingvisits_lines')."\";");
+                    unset($budgetrainingvisit[$populated_leave->lid]);
                     break;
             }
         }
