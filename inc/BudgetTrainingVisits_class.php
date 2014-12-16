@@ -22,6 +22,7 @@ class BudgetTrainingVisits extends AbstractClass {
     const TABLE_NAME = 'budgeting_trainingvisits';
     const DISPLAY_NAME = 'name';
     const SIMPLEQ_ATTRS = 'btvid,company, date';
+    const UNIQUE_ATTRS = 'company,date,event';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
