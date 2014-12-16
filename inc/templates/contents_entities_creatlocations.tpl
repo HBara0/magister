@@ -15,11 +15,10 @@
             <form action="#" method="post" id="perform_contents/createlocations_Form" name="perform_contents/createlocations_Form">
                 <table width="100%" border="0" cellpadding="0" cellspacing="0">
                     <tr>
-                        <td><strong><input type="hidden" name="entitylocation[inputChecksum]" value="{$entitylocation[inputChecksum]}"/>{$lang->customer}</strong></td><td colspan="2"><input type="text"  autocomplete="off" id="customer_1_cache_autocomplete"/><input type='hidden' id='customer_1_cache_id' name='entitylocation[cid]' value="{$entitylocation[cid]}"/></td>
+                        <td><strong><input type="hidden" name="entitylocation[inputChecksum]" value="{$entitylocation[inputChecksum]}"/>{$lang->entity}</strong></td>
+                        <td colspan="2"><input type="text"  autocomplete="off" id="allentities_1_cache_autocomplete"/><input type='hidden' id='allentities_1_cache_id' name='entitylocation[eid]' value="{$entitylocation[eid]}"/></td>
                     </tr>
-                    <tr>
-                        <td><strong>{$lang->supplier}</strong></td><td colspan="2"><input type="text"  autocomplete="off" id="supplier_1_cache_autocomplete"/><input type='hidden' id='supplier_1_cache_id' name='entitylocation[sid]' value="{$entitylocation[cid]}"/></td>
-                    </tr>
+
                     <tr>
                         <td><strong>{$lang->location}</strong></td><td colspan="2">{$locations_list}</td>
                     </tr>
@@ -41,6 +40,17 @@
                     </tr>
                     <tr>
                         <td>{$lang->postcode}</td><td colspan="2"><input type="text" id="postCode" name="entitylocation[postCode]" accept="numeric" /></td>
+                    </tr>
+
+                    <tr>
+                        <td>{$lang->pobox}</td><td colspan="2"><input type="text" id="poBox" name="entitylocation[poBox]" accept="numeric" /></td>
+                    </tr>
+                    <tr>
+                        <td>{$lang->telephone}</td>
+                        <td colspan="2">+ <input type="text" id="telephone_intcode" name="entitylocation[telephone_intcode]" size="3" maxlength="3" accept="numeric" />
+                            <input type="text" id="telephone_areacode" name="entitylocation[telephone_areacode]" size='4' maxlength="4" accept="numeric" />
+                            <input type="text" id="telephone_number" name="entitylocation[telephone_number]" accept="numeric"  /><br />
+
                     </tr>
                     <tr>
                         <td>{$lang->geolocation}</td><td colspan="2"><input type="text" name="entitylocation[geoLocation]" id="geoLocation" placeholder="33.892516 35.510929" pattern="(\-?\d+(\.\d+)?) \s*(\-?\d+(\.\d+)?)"/> <span class="smalltext">({$lang->longlattidue})</span></td>

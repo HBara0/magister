@@ -23,7 +23,7 @@ if(!$core->input['action']) {
     $entitylocation['inputChecksum'] = generate_checksum('entitylocation');
     $locations = array('plant' => 'plant', 'office' => 'office', 'showroom ' => 'show room '
     );
-    $locations_list = parse_selectlist('entitylocation[location]', 1, $locations, '', '', '', array('required' => 'required', 'blankstart' => true));
+    $locations_list = parse_selectlist('entitylocation[locationType]', 1, $locations, '', '', '', array('required' => 'required', 'blankstart' => true));
 
     $countries = Countries::get_data();
     $countries_list = parse_selectlist('entitylocation[coid]', 2, $countries, $core->user_obj->get_mainaffiliate()->get_country()->coid, '', '', array('required' => 'required', 'blankstart' => true));

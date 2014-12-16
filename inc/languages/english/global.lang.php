@@ -27,6 +27,7 @@ $lang['calendar'] = 'Calendar';
 $lang['cancel'] = 'Cancel';
 $lang['contactadministrator'] = 'Contact Administrator';
 $lang['contents'] = 'Contents';
+$lang['entity'] = 'Entity';
 $lang['successfullydeleted'] = 'Successfully Deleted';
 $lang['copyright'] = 'Copyright © Orkila Holding';
 $lang['create'] = 'Create';

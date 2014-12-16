@@ -133,7 +133,11 @@ if(!$core->input['action']) {
             }
             // $visitreport['contactperson'] = $db->fetch_field($db->query("SELECT name AS contactperson FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($visitreport['rpid'])."'"), "contactperson");
             $contactperson = Representatives::get_data(array('rpid' => $visitreport['rpid']));
-            $visitreport['contactperson'] = '<a href="#" id="contactpersoninformation_'.base64_encode($contactperson->rpid).'_profiles/entityprofile_loadpopupbyid">'.$contactperson->name.'</a> - <a href = "mailto:'.$contactperson->email.'">'.$contactperson->email.'</a><br />';
+            if(is_object($contactperson)) {
+
+             $visitreport['contactperson'] = '<a href="#" id="contactpersoninformation_'.base64_encode($contactperson->rpid).'_profiles/entityprofile_loadpopupbyid">'.$contactperson->name.'</a> - <a href = "mailto:'.$contactperson->email.'">'.$contactperson->email.'</a><br />';
+             }
+            }
 
             if(is_array($visitreport['productLine'])) {
                 foreach($visitreport['productLine'] as $k => $v) {
@@ -152,14 +156,14 @@ if(!$core->input['action']) {
                 eval("\$accompaniedbyrow = \"".$template->get('crm_fillvisitreport_accompaniedbyrow')."\";");
             }
 
-            if(empty($visitreport['customerdetails']['addressLine1']) || empty($visitreports[1]['location'])) {
+            if(!empty($visitreport['customerdetails']['addressLine1']) && empty($visitreports[1]['location'])) {
                 $customerobj = new Customers($visitreports[1]['cid'], '', false);
                 $customer_data = $customerobj->get();
                 $visitreport['customerdetails']['addressDetails'] = $customer_data['addressLine1'].' - '.$customer_data['addressLine2'].' - '.$customer_data['city'].' - '.$customerobj->get_country()->get_displayname();
             }
             elseif(!empty($visitreports[1]['location'])) {
                 $customer_locobj = new EntityLocations($visitreports[1]['location'], false);
-                $visitreport['customerdetails']['addressDetails'] = $customer_locobj->location.' - '.$customer_locobj->address.' - '.$customer_locobj->get_country()->get_displayname();
+                $visitreport['customerdetails']['addressDetails'] = $customer_locobj->location.' - '.$customer_locobj->address.' - '.' - '.$customer_locobj->get_city()->name.' - '.$customer_locobj->get_country()->get_displayname();
             }
             else {
 

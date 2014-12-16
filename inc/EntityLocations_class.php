@@ -19,10 +19,10 @@ class EntityLocations extends AbstractClass {
 
     const PRIMARY_KEY = 'eloid';
     const TABLE_NAME = 'entities_locations';
-    const DISPLAY_NAME = 'location';
-    const SIMPLEQ_ATTRS = 'eloid,eid,location';
+    const DISPLAY_NAME = 'locationType';
+    const SIMPLEQ_ATTRS = 'eloid,eid,locationType';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'eid,location';
+    const UNIQUE_ATTRS = 'eid,locationType';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -31,22 +31,19 @@ class EntityLocations extends AbstractClass {
     protected function create(array $data) {
         global $db, $core;
         if(is_array($data)) {
-            $required_fields = array('location', 'ciid', 'addressLine1');
+            $required_fields = array('locationType', 'eid', 'ciid', 'addressLine1');
             foreach($required_fields as $field) {
                 if(empty($data[$field])) {
                     $this->errorcode = 2;
                     return false;
                 }
             }
-            if(!empty($data['sid']) && empty($data['cid'])) {
-                $data['eid'] = $data['sid'];
+            if(!is_empty($data['telephone_intcode'], $data['telephone_areacode'], $data['telephone_number'])) {
+                $data['phone'] = $data['telephone_intcode'].'-'.$data['telephone_areacode'].'-'.$data['telephone_number'];
             }
-            else {
-                $data['eid'] = $data['cid'];
-            }
-            $data['address'] = $data['addressLine1'].' - '.$data['addressLine1'];
+            //  $data['address'] = $data['addressLine1'].' - '.$data['addressLine1'];
             $data['buildingName'] = $data['building'].' - '.$data['floor'];
-            unset($data['cid'], $data['sid'], $data['building'], $data['addressLine1'], $data['floor'], $data['addressLine2']);
+            unset($data['building'], $data['floor'], $data['telephone_intcode'], $data['telephone_areacode'], $data['telephone_number']);
 
             $data['createdOn'] = TIME_NOW;
             $data['createdBy'] = $core->user['uid'];
