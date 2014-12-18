@@ -38,6 +38,9 @@ if(!$core->input['action']) {
             if($meeting['isPublic'] == 1) {
                 $checked_checkboxes['isPublic'] = ' checked="checked"';
             }
+            if($meeting['fromDate'] < TIME_NOW) {
+                $disabled_checkboxes['notifyuser'] = $disabled_checkboxes['notifyrep'] = ' disabled="disabled"';
+            }
             $meeting_assoc = $meeting_obj->get_meetingassociations();
             if(is_array($meeting_assoc)) {
                 foreach($meeting_assoc as $mtaid => $associaton) {
@@ -227,6 +230,23 @@ else {
                 //output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
                 break;
         }
+    }
+    elseif($core->input['action'] == 'do_add_representative') {
+        $representative = new Entities($core->input, 'add_representative');
+
+        if($representative->get_status() === true) {
+            header('Content-type: text/xml+javascript');
+            output_xml('<status>true</status><message>{$lang->representativecreated}<![CDATA[<script>$("#popup_addrepresentative").dialog("close");</script>]]></message>');
+            //output_xml("<status>true</status><message>{$lang->representativecreated}</message>");
+            exit;
+        }
+        else {
+            output_xml("<status>false</status><message>{$lang->errorcreatingreprentative}</message>");
+        }
+    }
+    elseif($core->input['action'] == 'get_addnew_representative') {
+        eval("\$addrepresentativebox = \"".$template->get('popup_addrepresentative')."\";");
+        output($addrepresentativebox);
     }
     ?>
     <script language="javascript" type="text/javascript">
