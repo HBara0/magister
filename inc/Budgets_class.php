@@ -458,6 +458,24 @@ class Budgets extends AbstractClass {
         }
     }
 
+    public function get_budgetlines_objs($filters = '', $configs = array()) {
+        return $this->get_lines($filters, $configs);
+    }
+
+    public function get_lines($filters, $configs = null) {
+        if(isset($this->data['bid']) && !empty($this->data['bid'])) {
+            $filters['bid'] = $this->data['bid'];
+
+            $configs['returnarray'] = true;
+
+            if(!isset($configs['order'])) {
+                $configs['order'] = array('by' => 'pid', 'sort' => 'ASC');
+            }
+            $configs['operators']['businessMgr'] = 'IN';
+            return BudgetLines::get_data($filters, $configs);
+        }
+    }
+
     public function get_budgetLines($bid = '', $options = array()) {
         global $db;
         if(empty($bid)) {
@@ -488,12 +506,6 @@ class Budgets extends AbstractClass {
                 return $budgetline_details;
             }
         }
-    }
-
-    public function get_budgetlines_objs($filters = '', $configs = array()) {
-        $filters['bid'] = $this->data['bid'];
-        $configs['returnarray'] = true;
-        return BudgetLines::get_data($filters, $configs);
     }
 
     public function get_actual_meditaiondata($data = array()) {

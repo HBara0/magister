@@ -244,7 +244,7 @@ class BudgetLines {
             if(!isset($data['bid']) || empty($data['bid'])) {
                 return false;
             }
-            $budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."' And customerCountry='".$data['customerCountry']."'");
+            $budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."' AND customerCountry='".$data['customerCountry']."' AND psid='".$data['psid']."' AND businessMgr=".$data['businessMgr']);
             if($db->num_rows($budgetline_bydataquery) > 0) {
                 return $db->fetch_assoc($budgetline_bydataquery);
             }
