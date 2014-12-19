@@ -133,11 +133,11 @@ if(!$core->input['action']) {
         $rep_counter = 0;
         while($representative = $db->fetch_array($query2)) {
             ++$rep_counter;
-            $representative_rows .= " <tr id='{$rep_counter}'><td><input type='text' id='representative_{$rep_counter}_autocomplete' autocomplete='off' size='40px' value='{$representative[name]}'/><input type='hidden' id='representative_{$rep_counter}_id' name='representative[{$rep_counter}][rpid]' value='{$representative[rpid]}'/><a href='#' id='addnew_entities/add_representative'><img src='../images/addnew.png' border='0' alt='{$lang->add}'></a><div id='searchQuickResults_representative_{$rep_counter}' class='searchQuickResults' style='display:none;'></div></td></tr>";
+            $representative_rows .= " <tr id='{$rep_counter}'><td><input type='text' id='representative_{$rep_counter}_QSearch' autocomplete='off' size='40px' value='{$representative[name]}'/><input type='hidden' id='representative_{$rep_counter}_id' name='representative[{$rep_counter}][rpid]' value='{$representative[rpid]}'/><a href='#' id='addnew_entities/add_representative'><img src='../images/addnew.png' border='0' alt='{$lang->add}'></a><div id='searchQuickResults_representative_{$rep_counter}' class='searchQuickResults' style='display:none;'></div></td></tr>";
         }
     }
     else {
-        $representative_rows = " <tr id='1'><td><input type='text' id='representative_1_autocomplete' autocomplete='off' size='40px'/><input type='hidden' id='representative_1_id' name='representative[1][rpid]'/><a href='#' id='addnew_entities/add_representative'><img src='../images/addnew.png' border='0' alt='{$lang->add}'></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td></tr>";
+        $representative_rows = " <tr id='1'><td><input type='text' id='representative_1_QSearch' autocomplete='off' size='40px'/><input type='hidden' id='representative_1_id' name='representative[1][rpid]'/><a href='#' id='addnew_entities/add_representative'><img src='../images/addnew.png' border='0' alt='{$lang->add}'></a><div id='searchQuickResults_1' class='searchQuickResults' style='display:none;'></div></td></tr>";
     }
 
     $checkboxes = array('noQReportReq', 'isCentralPurchase', 'noQReportSend', 'contractIsEvergreen');
