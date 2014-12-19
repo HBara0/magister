@@ -55,12 +55,12 @@
                             <td class=" border_right" align="center" rowspan="2" valign="top" align="left" style="font-weight:bold">{$lang->total}</td>
                         </tr>
                     </thead>
-                    <tbody id="forecastlines{$rowid}_tbody" style="width:100%;">
+                    <tbody id="forecastlines_{$rowid}_tbody" style="width:100%;">
                         {$forecastlines}
                     </tbody>
                     <tfoot>
                         <tr><td valign="top">
-                                <input name="numrows_forecastlines{$rowid}" type="hidden" id="numrows_forecastlines{$rowid}" value="{$rowid}">
+                                <input name="numrows_forecastlines{$rowid}" type="hidden" id="numrows_forecastlines_{$rowid}" value="{$rowid}">
                                 <input type="hidden" name="ajaxaddmoredata[affid]" id="ajaxaddmoredata_affid" value="{$forecast_data[affid]}"/>
                                 <img src="./images/add.gif" id="ajaxaddmore_grouppurchase/fillforecast_forecastlines_{$rowid}" alt="{$lang->add}">
                             </td></tr>

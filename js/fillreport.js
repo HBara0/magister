@@ -19,7 +19,6 @@ $(function() {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
-
         var value = $(this).val();
 
         if(value != '0') {
@@ -36,7 +35,7 @@ $(function() {
             else if(id == "spid")
             {
                 dataParam += "&affid=" + $("#affid").val() + "&spid=" + $("#spid").val();
-                if(formname == "perform_budgeting") {
+                if(formname == "perform_budgeting" || formname == "perform_grouppurchase") {
                     get = "years";
                     loadingIn = "years_Loading";
                     contentIn = "year";
@@ -68,13 +67,15 @@ $(function() {
             }
 
             $("#buttons_row").show();
-            if(formname != "perform_budgeting") {
+            if(formname != "perform_budgeting" && formname != "perform_grouppurchase") {
                 var url = "index.php?module=reporting/fillreport&action=get_" + get;
             }
             else if(formname == "perform_budgeting") {
                 var url = "index.php?module=budgeting/create&action=get_" + get;
             }
-
+            else if(formname == "perform_grouppurchase") {
+                var url = "index.php?module=grouppurchase/create&action=get_" + get;
+            }
             $.ajax({
                 method: "post",
                 url: url,
