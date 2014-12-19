@@ -118,7 +118,7 @@ if(!$core->input['action']) {
     $afiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, 'affid IN ('.implode(',', $core->user['affiliates']).')');
     $afiliates[0] = '';
     asort($afiliates);
-    $affiliates_list = parse_selectlist('meeting[associations][affid]', 5, $afiliates, $associatons['affid']);
+    $affiliates_list = parse_selectlist('meeting[associations][affid][]', 5, $afiliates, $associatons['affid'], 1);
 
     $aff_events = Events::get_affiliatedevents($core->user['affiliates']);
     if(is_array($aff_events)) {

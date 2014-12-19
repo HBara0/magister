@@ -105,6 +105,7 @@ class Meetings {
                 $this->meeting['identifier'] = $meeting_data['identifier'];
                 $log->record('addedmeeting', $this->meeting['mtid']);
                 //$this->get_meetingassociations($this->meeting['mtid'])->set_associations($this->meeting['associations']);
+
                 $this->set_associations($this->meeting['associations']);
                 /* insert meetings Attendees */
                 $this->set_attendees($this->meeting['attendees']);
@@ -239,15 +240,28 @@ class Meetings {
         if(empty($associations)) {
             $associations = $this->meeting['associations'];
         }
+        //array_keys($associations)
         if(is_array($associations)) {
-            foreach($associations as $key => $val) {
-                if(empty($val)) {
+            foreach($associations as $key => $association) {
+                if(empty($association)) {
                     continue;
                 }
-                $new_association['mtid'] = $this->meeting['mtid'];
-                $new_association['idAttr'] = $key;
-                $new_association['id'] = $val;
-
+                if(is_array($association)) {
+                    foreach($association as $id => $val) {
+                        if(empty($val)) {
+                            continue;
+                        }
+                        $new_associations['idAttr'] = $id;
+                        $new_associations['id'] = $val;
+                        $new_associations['mtid'] = $this->meeting['mtid'];
+                        MeetingsAssociations::set_association($new_associations);
+                    }
+                }
+                else {
+                    $new_association['mtid'] = $this->meeting['mtid'];
+                    $new_association['idAttr'] = $key;
+                    $new_association['id'] = $association;
+                }
                 MeetingsAssociations::set_association($new_association);
             }
         }
@@ -325,7 +339,6 @@ class Meetings {
 
     public static function get_multiplemeetings(array $options = array()) {
         global $db, $core;
-
         $sort_query = 'fromDate DESC';
         if(isset($options['order']['sortby'], $options['order']['order']) && !is_empty($options['order']['sortby'], $options['order']['order'])) {
             $sort_query = $options['order']['sortby'].' '.$options['order']['order'];
@@ -351,7 +364,6 @@ class Meetings {
             }
             $query_where .= ')';
         }
-
         $meetingsquery = $db->query("SELECT * FROM ".Tprefix."meetings{$query_where} ORDER BY {$sort_query}");
 
         if($db->num_rows($meetingsquery) > 0) {
