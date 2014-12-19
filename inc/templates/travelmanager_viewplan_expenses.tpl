@@ -3,10 +3,10 @@
 <div style="display:block;padding:5px 0px 5px 0px;"><div style="display:inline-block;width:85%;">{$lang->hotelaccommodation}</div><div style="width:10%; display:inline-block;text-align:right;">$ {$expenses[accomodation]}</div>
 </div>
 <div style="display:block;padding:5px 0px 5px 0px;">
-    <div style="display:inline-block;width:85%;">{$lang->subtotal}</div><div style="width:10%; display:inline-block;text-align:right;font-weight:bold;">$ {$expenses_subtotal}</div>
+    <div style="display:inline-block;width:85%;">{$lang->subtotal}</div><div style="width:10%; display:inline-block;text-align:right;font-weight:bold;"> {$expenses_subtotal}</div>
 </div>
 <div> {$additional_expenses_details}</div>
 
 <div style="display:block;padding:5px 0px 5px 0px;">
-    <div style="width:85%;font-weight:bold;display:inline-block;">Total</div><div style="display:inline-block;width:10%;font-weight:bold;text-align:right;">$ {$expenses_total}</div>
+    <div style="width:85%;font-weight:bold;display:inline-block;">Total</div><div style="display:inline-block;width:10%;font-weight:bold;text-align:right;"> {$expenses_total}</div>
 </div>

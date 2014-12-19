@@ -319,11 +319,11 @@ class TravelManagerPlanSegments {
         switch($paidby) {
             case "myaffiliate":
                 $object = new Affiliates($core->user['mainaffiliate']);
-                //$paidby = $affiliate->name;
+//$paidby = $affiliate->name;
                 break;
             case "anotheraff":
                 $object = new Affiliates($paidbyid);
-                // $paidby = $affiliate->name;
+// $paidby = $affiliate->name;
                 break;
             default:
                 $object = $paidby;
@@ -334,6 +334,8 @@ class TravelManagerPlanSegments {
     public function parse_segment() {
         global $template, $lang, $core, $db;
         $segmentdate = date('l F d, Y', $this->fromDate);
+        $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::CURRENCY);
+
         $destination_cities = $this->get_origincity()->name.' - '.$this->get_destinationcity()->name;
         $transp_objs = TravelManagerPlanTransps::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
         if(is_array($transp_objs)) {
@@ -361,7 +363,7 @@ class TravelManagerPlanSegments {
                 }
                 $segment_hotel .= '<div style = " width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin:10px;"> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
 //    $segment_hotel .= '<div style = " width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
-                $segment_hotel .= '<div style = " width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;"><span>  <small style="font-weight:normal;">[paid by: '.$paidby.' ]</small> $'.($accomdation->numNights * $accomdation->priceNight).'</span></div>'; // fix the html parse multiple hotl
+                $segment_hotel .= '<div style = " width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;"><span>  <small style="font-weight:normal;">[paid by: '.$paidby.' ]</small> '.$numfmt->formatCurrency(($accomdation->numNights * $accomdation->priceNight), "USD").'</span></div>'; // fix the html parse multiple hotl
 //   $segment_hotelprice .='<div style = " width:45%; display: block;"> Nights '.$accomdation->numNights.' at $ '.$accomdation->priceNight.'/Night</div>';
             }
         }
@@ -378,20 +380,20 @@ class TravelManagerPlanSegments {
                     $additionalexp_type->title = $additionalexp->description;
                 }
                 $additional_expenses_details .= '<div style = "width:70%;display:inline-block;">'.$additionalexp_type->title.'</div>';
-                $additional_expenses_details .= '<div style = "width:25%;display:inline-block;font-size:14px;font-weight:bold;text-align:right;"><small style="font-weight:normal;">[paid by: '.$paidby.' ] </small>$'.$additionalexp->expectedAmt.'</div>';
+                $additional_expenses_details .= '<div style = "width:25%;display:inline-block;font-size:14px;font-weight:bold;text-align:right;"><small style="font-weight:normal;">[paid by: '.$paidby.' ] </small> '.$numfmt->formatCurrency($additionalexp->expectedAmt, "USD").'</div>';
                 $additional_expenses_details .= '</div>';
             }
         }
-
-
         eval("\$segment_accomdetails  = \"".$template->get('travelmanager_viewplan_accomsegments')."\";");
         eval("\$segment_details .= \"".$template->get('travelmanager_viewplan_segments')."\";");
-
         return $segment_details;
     }
 
     public function parse_expensesummary() {
         global $template, $db, $lang;
+
+        $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::CURRENCY);
+
         $query = $db->query("SELECT tmpltid, tmtcid, sum(fare) AS fare FROM ".Tprefix."travelmanager_plan_transps WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP By tmtcid");
         if($db->num_rows($query) > 0) {
             while($transpexp = $db->fetch_assoc($query)) {
@@ -403,14 +405,15 @@ class TravelManagerPlanSegments {
                 $expenses_total += $transpexp['fare'];
             }
             /* get hotel expences total night of each segment */
-
-            $expenses['accomodation'] = $db->fetch_field($db->query("SELECT SUM(priceNight*numNights) AS total FROM ".Tprefix."travelmanager_plan_accomodations WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid=".intval($this->tmpid).")"), 'total');
-            if(empty($expenses['accomodation'])) {
-                $expenses['accomodation'] = 0;
-            }
-            $expenses_total += $expenses['accomodation'];
-            $expenses_subtotal = $expenses_total;
         }
+        $expenses['accomodation'] = $db->fetch_field($db->query("SELECT SUM(priceNight*numNights) AS total FROM ".Tprefix."travelmanager_plan_accomodations WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid=".intval($this->tmpid).")"), 'total');
+        if(empty($expenses['accomodation'])) {
+            $expenses['accomodation'] = 0;
+        }
+        $expenses_total += $expenses['accomodation'];
+        $expenses_subtotal = $numfmt->formatCurrency($expenses_total, "USD");
+
+
         $additional_expenses = $db->query("SELECT tmetid,sum(expectedAmt) AS expectedAmt,description FROM ".Tprefix."travelmanager_expenses WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP by tmetid");
         if($db->num_rows($additional_expenses) > 0) {
             $additional_expenses_details = '<div style="display:block;padding:5px 0px 5px 0px;width:15%;" class="subtitle">'.$lang->addexp.'</div>';
@@ -418,16 +421,16 @@ class TravelManagerPlanSegments {
                 $additionalexp_type = new TravelManager_Expenses_Types($additionalexp['tmetid']);
                 $additional_expenses_details .= '<div style = "display:block;padding:5px 0px 5px 0px;">';
                 $additional_expenses_details .= '<div style = "width:85%;display:inline-block;">'.$additionalexp_type->title.'</div>';
-                $additional_expenses_details .= '<div style = "width:10%;display:inline-block;text-align:right;">$'.$additionalexp['expectedAmt'].'</div>';
+                $additional_expenses_details .= '<div style = "width:10%;display:inline-block;text-align:right;">'.$numfmt->formatCurrency($additionalexp['expectedAmt'], "USD").'</div>';
                 $additional_expenses_details .= '</div>';
                 $expenses['additional'] += $additionalexp['expectedAmt'];
             }
             $additional_expenses_details .='<div style="display:block;padding:5px 0px 5px 0px;">';
-            $additional_expenses_details .='<div style="display:inline-block;width:85%;">'.$lang->additionalexpensestotal.'</div><div style="width:10%; display:inline-block;text-align:right;font-weight:bold;">$ '.$expenses[additional].'</div></div>';
+            $additional_expenses_details .='<div style="display:inline-block;width:85%;">'.$lang->additionalexpensestotal.'</div><div style="width:10%; display:inline-block;text-align:right;font-weight:bold;">  '.$numfmt->formatCurrency($expenses['additional'], "USD").'</div></div>';
             $expenses_total += $expenses['additional'];
         }
-
-        $expenses_total = round($expenses_total, 2);
+        $expenses_total = $numfmt->formatCurrency($expenses_total, "USD");
+// $expenses_total = round($expenses_total, 2);
         eval("\$segment_expenses  = \"".$template->get('travelmanager_viewplan_expenses')."\";");
         return $segment_expenses;
     }
