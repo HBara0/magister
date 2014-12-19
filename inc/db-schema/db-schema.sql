@@ -1120,6 +1120,10 @@ CREATE TABLE `genericproducts` (
 ) ENGINE=MyISAM AUTO_INCREMENT=304 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 CREATE TABLE `goruppurchase_forecast` (
+DROP TABLE IF EXISTS `grouppurchase_forecast`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `grouppurchase_forecast` (
   `gpfid` int(10) NOT NULL AUTO_INCREMENT,
   `affid` smallint(5) NOT NULL,
   `year` int(4) unsigned NOT NULL,
@@ -1129,12 +1133,12 @@ CREATE TABLE `goruppurchase_forecast` (
   `modifiedOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   PRIMARY KEY (`gpfid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=73 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `goruppurchase_forecastlines`;
+DROP TABLE IF EXISTS `grouppurchase_forecastlines`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `goruppurchase_forecastlines` (
+CREATE TABLE `grouppurchase_forecastlines` (
   `gpflid` int(10) NOT NULL AUTO_INCREMENT,
   `gpfid` int(10) NOT NULL,
   `inputChecksum` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1159,7 +1163,6 @@ CREATE TABLE `goruppurchase_forecastlines` (
   `modifiedBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`gpflid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `grouppurchase_pricing`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
