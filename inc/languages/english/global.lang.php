@@ -135,4 +135,5 @@ $lang['year'] = 'Year';
 $lang['yes'] = 'Yes';
 $lang['date'] = 'Date';
 $lang['event'] = 'Event';
+$lang['delete'] = 'Delete';
 ?>
