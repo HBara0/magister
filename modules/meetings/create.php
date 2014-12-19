@@ -142,7 +142,7 @@ if(!$core->input['action']) {
     eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
     eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
 
-    output($createmeeting);
+    output_page($createmeeting);
 }
 else {
     if($core->input['action'] == 'deletefile') {
@@ -246,7 +246,7 @@ else {
     }
     elseif($core->input['action'] == 'get_addnew_representative') {
         eval("\$addrepresentativebox = \"".$template->get('popup_addrepresentative')."\";");
-        output($addrepresentativebox);
+        output_page($addrepresentativebox);
     }
     ?>
     <script language="javascript" type="text/javascript">
