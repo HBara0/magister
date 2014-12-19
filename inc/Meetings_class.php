@@ -253,10 +253,11 @@ class Meetings {
                         if(empty($val)) {
                             continue;
                         }
-                        $new_associations['idAttr'] = $id;
+                        $new_associations['idAttr'] = $key;
                         $new_associations['id'] = $val;
                         $new_associations['mtid'] = $this->meeting['mtid'];
                         MeetingsAssociations::set_association($new_associations);
+                        unset($new_associations);
                     }
                 }
                 else {
@@ -265,6 +266,7 @@ class Meetings {
                     $new_association['id'] = $association;
                 }
                 MeetingsAssociations::set_association($new_association);
+                unset($new_association);
             }
         }
     }
@@ -300,6 +302,8 @@ class Meetings {
         if(!isset($meeting_data['isPublic'])) {
             $meeting_data['isPublic'] = 0;
         }
+        $meeting_data['modifiedBy'] = $core->user['uid'];
+        $meeting_data['modifiedOn'] = TIME_NOW;
 
         $query = $db->update_query('meetings', $meeting_data, 'mtid='.intval($this->meeting['mtid']));
         if($query) {
