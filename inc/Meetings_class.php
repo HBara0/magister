@@ -257,16 +257,14 @@ class Meetings {
                         $new_associations['id'] = $val;
                         $new_associations['mtid'] = $this->meeting['mtid'];
                         MeetingsAssociations::set_association($new_associations);
-                        unset($new_associations);
                     }
                 }
                 else {
                     $new_association['mtid'] = $this->meeting['mtid'];
                     $new_association['idAttr'] = $key;
                     $new_association['id'] = $association;
+                    MeetingsAssociations::set_association($new_association);
                 }
-                MeetingsAssociations::set_association($new_association);
-                unset($new_association);
             }
         }
     }
