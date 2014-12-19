@@ -10,11 +10,14 @@
 <div style="display:block; width: 100%;" id="segment_expenses_{$sequence}">
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
     <div class="subtitle" style="padding:8px;width:40%;">{$lang->addexp}</div>
+    <table width="100%" border="1" cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
+        <tbody id="expenses_{$sequence}_tbody">
+            {$segments_expenses_output}
 
-    {$segments_expenses_output}
-
-    <span> <img src="./images/add.gif"  id="ajaxaddmoresegment_travelmanager/plantrip_expenses_{$sequence}"  alt="{$lang->add}">
-        <input name="numrows_expenses{$rowid}_{$sequence}" type="hidden" id="numrows_expenses{$rowid}_{$sequence}" value="{$rowid}">
+        </tbody>
+    </table>
+    <span> <img src="./images/add.gif"  id="ajaxaddmore_travelmanager/plantrip_expenses_{$sequence}"  alt="{$lang->add}">
+        <input name="numrows_expenses_{$sequence}" type="hidden" id="numrows_expenses_{$sequence}" value="{$rowid}">
     </span>
 
 </div>

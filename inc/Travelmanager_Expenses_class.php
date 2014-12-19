@@ -78,12 +78,14 @@ class Travelmanager_Expenses extends AbstractClass {
         if(is_array($expensestype)) {
             $segid = key($expensestype);
         }
+        else {
+            unset($expensestype);
+        }
         $expenses_output_required_comments = '<span class=l"red_text">*</span>';
         $expenses_output_comments_requiredattr = ' required="required"';
 //$expenses_output_comments_field = '<div style="display:block; padding:5px; text-align:left;  vertical-align: top;">expectedAmt'.$expenses_output_required_comments.'<textarea cols="25" rows="1" id="expenses_['.$expensestype['alteid'].'][description]" name="leaveexpenses['.$expensestype['alteid'].'][description]" '.$expenses_output_comments_requiredattr.'>'.$expensestype['description'].'</textarea></div>';
 
         eval("\$expenses= \"".$template->get('travelmanager_expenses')."\";");
-
         return $expenses;
     }
 

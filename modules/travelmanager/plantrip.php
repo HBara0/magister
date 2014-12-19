@@ -17,7 +17,6 @@ if(!$core->input['action']) {
 
     if(isset($core->input['id']) && !empty($core->input['id'])) {
         $planid = $db->escape_string($core->input['id']);
-
         $plan_obj = new TravelManagerPlan($planid);
         $plantrip = $plan_obj->parse_existingsegments();
         output($plantrip);
@@ -114,7 +113,7 @@ else {
         /* prevent adding new segment if to date  greater than original  leave end date */
         $leave[$sequence]['toDate'] = $leave['toDate'];
         $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 00:00:00', $leave[$sequence]['toDate']));
-        if(strtotime($core->input['toDate']) >= $leave[$sequence]['toDate']) {
+        if(strtotime($core->input['toDatetime']) >= $leave[$sequence]['toDate']) {
             output_xml("<message>{$lang->dateexceeded}</message>");
             exit;
         }
@@ -204,7 +203,6 @@ else {
     elseif($core->input['action'] == 'do_perform_plantrip') {
         $travelplan = new TravelManagerPlan();
         if(is_array($core->input['segment'])) {
-
             $travelplan->set($core->input);
             $travelplan->save();
             // $travelplan_obj->create($core->input['segment']);
@@ -252,11 +250,15 @@ else {
         output($hotel_reviews);
     }
     elseif($core->input['action'] == 'ajaxaddmore_expenses') {
-        $expensestype_obj = new Travelmanager_Expenses_Types();
-        $rowid = 1;
+        //  $expensestype_obj = Travelmanager_Expenses_Types::get_data('', array('returnarray' => false));
+
+        $expensestypeobj = new Travelmanager_Expenses_Types();
         $rowid = $db->escape_string($core->input['value']) + 1;
+        //   $segexpenses_ojbs = Travelmanager_Expenses::get_data(array('tmetid' => key($expensestype_obj)), array('returnarray' => true));
         $sequence = $db->escape_string($core->input['id']);
-        $expenses = $expensestype_obj->parse_expensesfield($sequence, $rowid);
+
+        $expenses = $expensestypeobj->parse_expensesfield($expensestype_obj, $sequence, $rowid, '', array('mode' => 'addrows'));
+        //eval("\$expenses = \"".$template->get('travelmanager_expenses_types')."\";");
         echo $expenses;
     }
 }
