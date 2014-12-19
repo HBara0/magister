@@ -47,7 +47,7 @@ if(!$core->input['action']) {
         $forecast_year .= "<option value='{$year}'{$year_selected}>{$year}</option>";
     }
 
-    eval("\$createforecast = \"".$template->get('grouppurchase_create')."\";");
+    eval("\$createforecast = \"".$template->get('grouppurchase_createforecast')."\";");
     output_page($createforecast);
 }
 

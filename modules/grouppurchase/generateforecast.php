@@ -74,7 +74,7 @@ if(!$core->input['action']) {
         $dimension_item.='<li class = "ui-state-default" id = '.$dimensionid.' title = "Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
     }
 
-    eval("\$gpforecastgenerate = \"".$template->get('grouppurchase_generate')."\";");
+    eval("\$gpforecastgenerate = \"".$template->get('grouppurchase_generateforecast')."\";");
     output_page($gpforecastgenerate);
 }
 ?>

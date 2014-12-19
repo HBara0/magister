@@ -74,7 +74,7 @@ $(function() {
                 var url = "index.php?module=budgeting/create&action=get_" + get;
             }
             else if(formname == "perform_grouppurchase") {
-                var url = "index.php?module=grouppurchase/create&action=get_" + get;
+                var url = "index.php?module=grouppurchase/createforecast&action=get_" + get;
             }
             $.ajax({
                 method: "post",

@@ -16,7 +16,7 @@ if($core->usergroup['grouppurchase_canUpdateForecast'] == 0) {
 }
 if(!$core->input['action']) {
     $forecast_data = $core->input['forecast'];
-    if(array_search("0", $forecast_data) !== false) {
+    if(empty($forecast_data) || array_search("0", $forecast_data) !== false) {
         redirect('index.php?module=grouppurchase/create');
     }
     $affiliate = new Affiliates($forecast_data['affid']);
