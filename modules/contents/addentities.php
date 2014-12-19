@@ -69,6 +69,9 @@ if(!$core->input['action']) {
 
     $countries = get_specificdata('countries', $countries_attributes, 'coid', 'name', $countries_order);
     $countries_list = parse_selectlist('country', 8, $countries, $core->user_obj->get_mainaffiliate()->get_country()->coid, '', '', array('required' => 'required', 'blankstart' => true));
+    $companysize = array('', '1-9', '10-49', '50-249', '150-999', '>= 1000');
+    $companysize = array_combine($companysize, $companysize);
+    $companysize_list = parse_selectlist('companySize', '', $companysize, '', '', '');
 
     eval("\$addpage = \"".$template->get('contents_entities_add')."\";");
     output_page($addpage);

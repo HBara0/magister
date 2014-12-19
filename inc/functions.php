@@ -1728,4 +1728,13 @@ function generate_checksum($prefix = '') {
     return $prefix.'_'.$identifier;
 }
 
+function generate_alias($string) {
+    global $core;
+    $string = trim(str_replace(' ', '-', $string));
+    $string = $core->sanitize_inputs($string, array('removetags' => true));
+    $string = preg_replace('/[\@\!\&\(\)$%\^\*\+\#\/\\,.;:=]+/i', '', $string);
+    $string = strtolower($string);
+    return $string;
+}
+
 ?>

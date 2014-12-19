@@ -9,6 +9,8 @@ $lang['accountsuspended'] = 'Sorry, you can\'t access OCOS.';
 $lang['add'] = 'Add';
 $lang['addcustomers'] = 'Add Customers';
 $lang['addproducts'] = 'Add Products';
+$lang['createentityloc'] = 'Create Entity Locations';
+$lang['location'] = 'location';
 $lang['addrepresentative_note'] = 'Representatives (contact persons) are not you, they are the persons you deal with from the entity side.<br />
 <br />
 Always provide complete name, without title.';
@@ -25,6 +27,7 @@ $lang['calendar'] = 'Calendar';
 $lang['cancel'] = 'Cancel';
 $lang['contactadministrator'] = 'Contact Administrator';
 $lang['contents'] = 'Contents';
+$lang['entity'] = 'Entity';
 $lang['successfullydeleted'] = 'Successfully Deleted';
 $lang['copyright'] = 'Copyright © Orkila Holding';
 $lang['create'] = 'Create';
@@ -132,4 +135,5 @@ $lang['year'] = 'Year';
 $lang['yes'] = 'Yes';
 $lang['date'] = 'Date';
 $lang['event'] = 'Event';
+$lang['delete'] = 'Delete';
 ?>

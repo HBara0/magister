@@ -679,9 +679,17 @@ $(function() {
 
         var id = $(this).attr('id').split('_');
         var num_rows = 0;
-        if($("#numrows_" + id[id.length - 2] + id[id.length - 1]).length != 0) {
-            var num_rows = parseInt($("#numrows_" + id[id.length - 2] + id[id.length - 1]).val());
-            var affid = parseInt($("#affid_" + id[id.length - 2] + id[id.length - 1]).val());
+        var uniquename = '';
+        //ajaxaddmore,travelmanager/plantrip,expenses,1
+        var underscore = '';
+        for(i = 2; i < id.length; i++) {
+            uniquename = uniquename + underscore + id[i];
+            underscore = "_";
+        }
+
+        if($("#numrows_" + uniquename).length != 0) {
+            var num_rows = parseInt($("#numrows_" + uniquename).val());
+            var affid = parseInt($("#affid_" + uniquename).val());
         }
 
         $.ajax({type: 'post',
@@ -696,13 +704,14 @@ $(function() {
                 $("#modal-loading").dialog("close").remove();
             },
             success: function(returnedData) {
-                $('#' + id[id.length - 2] + id[id.length - 1] + '_tbody').append(returnedData);
-                if($("#numrows_" + id[id.length - 2] + id[id.length - 1]).length != 0) {
-                    $("#numrows_" + id[id.length - 2] + id[id.length - 1]).val(num_rows + 1);
+                $('#' + uniquename + '_tbody').append(returnedData);
+                if($("#numrows_" + uniquename).length != 0) {
+                    $("#numrows_" + uniquename).val(num_rows + 1);
                 }
+
                 /*find the offset of the first input in the last tr*/
-                $("html, body").animate({scrollTop: $('#' + id[id.length - 2] + id[id.length - 1] + '_tbody > tr:last').find("input").filter(':visible:first').offset().top}, 1000);
-                $('#' + id[id.length - 2] + id[id.length - 1] + '_tbody > tr:last').effect("highlight", {color: '#D6EAAC'}, 1500).find('input').first().focus();
+                $("html, body").animate({scrollTop: $('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').offset().top}, 1000);
+                $('#' + uniquename + '_tbody > tr:last').effect("highlight", {color: '#D6EAAC'}, 1500).find('input').first().focus();
             }
         });
 
@@ -734,13 +743,15 @@ $(function() {
                 $("#modal-loading").dialog("close").remove();
             },
             success: function(returnedData) {
-
+                alert(returnedData);
                 $('#' + id[id.length - 2] + id[id.length - 1] + "_" + seg + '_tbody').append(returnedData);
                 if($("#numrows_" + id[id.length - 2] + id[id.length - 1] + "_" + seg).length != 0) {
                     $("#numrows_" + id[id.length - 2] + id[id.length - 1] + "_" + seg).val(num_rows + 1);
                 }
                 /*find the offset of the first input in the last tr*/
-                alert('#' + id[id.length - 2] + id[id.length - 1] + "_" + seg + '_tbody > tr:last');
+
+
+                console.log($('#' + id[id.length - 2] + id[id.length - 1] + "_" + seg));
                 $("html, body").animate({scrollTop: $('#' + id[id.length - 2] + id[id.length - 1] + "_" + seg + '_tbody > tr:last').find("input").filter(':visible:first').offset().top}, 1000);
                 $('#' + id[id.length - 2] + id[id.length - 1] + "_" + seg + '_tbody > tr:last').effect("highlight", {color: '#D6EAAC'}, 1500).find('input').first().focus();
             }

@@ -21,10 +21,10 @@ if(!isset($core->input['action'])) {
         // $financialbudget_prevyear = $investprevyear = $financialbudget_year - 1;
     }
     $affid = $core->input['financialbudget']['affid'];
-
     $affiliate = new Affiliates($affid);
     $rowid = 1;
     /* get budget */
+
     $financialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_year), array('simple' => false));
     $budgetrainingvisit_obj = BudgetTrainingVisits::get_data(array('bfbid' => $financialbudget->bfbid), array('simple' => false, 'returnarray' => true));
 
@@ -59,6 +59,10 @@ if(!isset($core->input['action'])) {
                 $budgetrainingvisit['date_output'] = date($core->settings['dateformat'], $budgetvisit->date);
                 $budgetrainingvisit['Date_formatted'] = date($core->settings['dateformat'], $budgetvisit->date);
             }
+            /* move the import leave code to here  ---START */
+
+            /* move the import leave code to here ---END */
+
             if($budgetvisit->classification === 'local') {
                 $entityobj = new Entities($budgetvisit->company);
                 $budgetrainingvisit['companyoutput'] = $entityobj->name;
@@ -76,28 +80,30 @@ if(!isset($core->input['action'])) {
                     //  $business_managers_list = parse_selectlist('budgetrainingvisit[international]['.$rowid.'][bm]', 7, $business_managers, $selected_options);
                 }
                 eval("\$budgettaininig_intvisits_rows .= \"".$template->get('budgeting_tainingintvisits_lines')."\";");
+                unset($budgetrainingvisit);
             }
         }
     }
-    else {
-        unset($budgettaininglocalvisits_rows, $budgettaininig_intvisits_rows);
 
-        /* Parse and fill training visit fields based on selected leaves ----START */
-        /* recognize that the request includes leave IDs */
-        if(isset($core->input['budgetrainingvisit']['leaves']) && $core->input['source'] == 'import' && !empty($core->input['budgetrainingvisit']['leaves'])) {
-            $populated_leaves = populate_leaves();
-            $affiliate = new Affiliates($core->input['affid']);
-            $financialbudget_year = $core->input['year'];
-            foreach($populated_leaves as $lid => $populated_leave) {
-                $rowid = intval($lid) + 1;
-                $budgetrainingvisit[$populated_leave->lid]['date_output'] = date($core->settings['dateformat'], $populated_leave->fromDate);
-                $budgetrainingvisit[$populated_leave->lid]['Date_formatted'] = date('d-m-Y', $populated_leave->fromDate);
-                $budgetrainingvisit[$populated_leave->lid]['purpose'] = $populated_leave->reason;
-                $leave_expenses = $populated_leave->get_expensestotal();
-                if(!empty($leave_expenses)) {
-                    $budgetrainingvisit[$populated_leave->lid][totalexpenses] = $leave_expenses;
-                }
-                if(is_array($business_managers)) {
+    // unset($budgettaininglocalvisits_rows, $budgettaininig_intvisits_rows);
+
+    /* Parse and fill training visit fields based on selected leaves ----START */
+    /* recognize that the request includes leave IDs */
+    if(isset($core->input['budgetrainingvisit']['leaves']) && $core->input['source'] == 'import' && !empty($core->input['budgetrainingvisit']['leaves'])) {
+        unset($budgetrainingvisit);
+        $populated_leaves = populate_leaves();
+        $affiliate = new Affiliates($affid);
+        foreach($populated_leaves as $lid => $populated_leave) {
+            $visit_type = $populated_leave->check_leavedestination();
+            $rowid = intval($lid) + 1;
+            switch($visit_type) {
+                case'international':
+                    $type = 'international';
+                    $budgetrainingvisit['inputChecksum'] = generate_checksum('budget');
+                    if(is_array($business_managers)) {
+                        $budgetrainingvisit[$populated_leave->lid]['international']['bm'] = $populated_leave->uid;
+                        // $business_managers_list = parse_selectlist('budgetrainingvisit[international]['.$rowid.'][bm]', 7, $business_managers, $selected_options);
+                    }
                     foreach($business_managers as $uid => $bm) {
                         $selected = '';
                         if($uid == $populated_leave->uid) {
@@ -105,24 +111,61 @@ if(!isset($core->input['action'])) {
                         }
                         $business_managers_list.='<option value='.$uid.' '.$selected.'>'.$bm.'</option>';
                     }
-                    // $business_managers_list = parse_selectlist('budgetrainingvisit[international]['.$rowid.'][bm]', 7, $business_managers, $selected_options);
-                }
-                $budgetrainingvisit['inputChecksum'] = generate_checksum('budget');
-                eval("\$budgettaininglocalvisits_rows = \"".$template->get('budgeting_tainingvisits_lines')."\";");
-                $budgetrainingvisit['inputChecksum'] = generate_checksum('budget');
-                eval("\$budgettaininig_intvisits_rows .= \"".$template->get('budgeting_tainingintvisits_lines')."\";");
+                    $budgetrainingvisit[$populated_leave->lid][$type]['date_output'] = date($core->settings['dateformat'], $populated_leave->fromDate);
+                    $budgetrainingvisit[$populated_leave->lid][$type]['Date_formatted'] = date('d-m-Y', $populated_leave->fromDate);
+                    $budgetrainingvisit[$populated_leave->lid][$type]['purpose'] = $populated_leave->reason;
+                    $leave_expenses = $populated_leave->get_expensestotal();
+                    if(!empty($leave_expenses)) {
+                        $budgetrainingvisit[$populated_leave->lid][$type]['totalexpenses'] = $leave_expenses;
+                    }
+                    $expensesdetails = $populated_leave->get_expensesdetails();
+                    if(is_array($expensesdetails)) {
+                        foreach($expensesdetails as $expenses) {
+                            if($expenses['name'] == 'airfare') {
+                                $budgetrainingvisit[$populated_leave->lid][$type]['planCost'] = $expenses['expectedAmt'];
+                            }
+                            //    echo $budgetrainingvisit[$populated_leave->lid][$type]['planCost'];
+                            //  $budgetrainingvisit[$populated_leave->lid][$type]['otherCosts'] = $budgetrainingvisit[$populated_leave->lid][$type]['totalexpenses'] - $expenses['expectedAmt'];
+                        }
+                    }
+                    eval("\$budgettaininig_intvisits_rows .= \"".$template->get('budgeting_tainingintvisits_lines')."\";");
+                    unset($budgetrainingvisit[$populated_leave->lid]);
+                    break;
+                case"domestic":
+                    $type = 'domestic';
+                    $budgetrainingvisit['inputChecksum'] = generate_checksum('budget');
+                    $budgetrainingvisit[$populated_leave->lid][$type]['date_output'] = date($core->settings['dateformat'], $populated_leave->fromDate);
+                    $budgetrainingvisit[$populated_leave->lid][$type]['Date_formatted'] = date('d-m-Y', $populated_leave->fromDate);
+                    $budgetrainingvisit[$populated_leave->lid][$type]['purpose'] = $populated_leave->reason;
+                    $leave_expenses = $populated_leave->get_expensestotal();
+                    if(!empty($leave_expenses)) {
+                        $budgetrainingvisit[$populated_leave->lid][$type]['Costaffiliate'] = $leave_expenses;
+                    }
+                    eval("\$budgettaininglocalvisits_rows .= \"".$template->get('budgeting_tainingvisits_lines')."\";");
+                    unset($budgetrainingvisit[$populated_leave->lid]);
+                    break;
             }
         }
-        else {
-            $budgetrainingvisit['inputChecksum'] = generate_checksum('budget');
-            eval("\$budgettaininglocalvisits_rows = \"".$template->get('budgeting_tainingvisits_lines')."\";");
-            $budgetrainingvisit['inputChecksum'] = generate_checksum('budget');
-            eval("\$budgettaininig_intvisits_rows  = \"".$template->get('budgeting_tainingintvisits_lines')."\";");
-        }
-        /* Parse and fill training visit fields based on selected leaves ----END */
-
-        //eval("\$budgettaininig_intvisits_rows .= \"".$template->get('budgeting_tainingintvisits_lines')."\";");
     }
+
+    /* Parse and fill training visit fields based on selected leaves ----END */
+    if(empty($budgettaininglocalvisits_rows)) {
+        $budgetrainingvisit['inputChecksum'] = generate_checksum('budget');
+        eval("\$budgettaininglocalvisits_rows = \"".$template->get('budgeting_tainingvisits_lines')."\";");
+    }
+    if(empty($budgettaininig_intvisits_rows)) {
+        if(is_array($business_managers)) {
+            $business_managers_list.='<option value="" ></option>';
+            foreach($business_managers as $uid => $bm) {
+                $business_managers_list.='<option value='.$uid.' '.$selected.'>'.$bm.'</option>';
+            }
+        }
+        $budgetrainingvisit['inputChecksum'] = generate_checksum('budget');
+        eval("\$budgettaininig_intvisits_rows  = \"".$template->get('budgeting_tainingintvisits_lines')."\";");
+    }
+
+    //eval("\$budgettaininig_intvisits_rows .= \"".$template->get('budgeting_tainingintvisits_lines')."\";");
+    //}
 
 
     /* Fill based on existing leaves  populate existing business leaves  ----START */
@@ -159,11 +202,12 @@ else if($core->input['action'] == 'ajaxaddmore_budgetrainvisitlocal') {
 else if($core->input['action'] == 'ajaxaddmore_budgetrainvisitint') {
     $rowid = intval($core->input['value']) + 1;
     $budgetrainingvisit['inputChecksum'] = generate_checksum('budget');
-    if(is_array($core->user['auditedaffids'])) {
+    if(is_array($core->user ['auditedaffids'])) {
         foreach($core->user['auditedaffids'] as $auditaffid) {
             $aff_obj = new Affiliates($auditaffid);
             $affiliate_users = $aff_obj->get_users();
             foreach($affiliate_users as $aff_businessmgr) {
+
                 $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['displayName'];
             }
         }
@@ -187,7 +231,7 @@ else if($core->input['action'] == 'ajaxaddmore_budgetrainvisitint') {
             }
         }
 
-        //$business_managers_list = parse_selectlist('budgetrainingvisit[international]['.$rowid.'][bm]', 7, $business_managers, $selected_options);
+        //$business_managers_list = parse_selectlist('budgetrainingvisit[international]['.$rowid.'][bm]', 7, $business_managers, $selected_optio ns);
     }
 
     eval("\$budgettaininig_intvisits_rows = \"".$template->get('budgeting_tainingintvisits_lines')."\";");
@@ -199,7 +243,6 @@ else if($core->input['action'] == 'do_perform_trainingvisits') {
     $financialbudget->set($core->input);
     $financialbudget->save();
     switch($financialbudget->get_errorcode()) {
-
         case 0:
         case 1:
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
@@ -229,7 +272,8 @@ else if($core->input['action'] == 'do_perform_trainingvisits') {
 //}
 function populate_leaves() {
     global $core;
-    $leaves_import = Leaves::get_data(array('lid' => $core->input['budgetrainingvisit']['leaves']), array('returnarray' => true, 'simple' => false, 'operators' => array('lid' => 'IN')));
+    $leaves_import = Leaves::get_data(array('lid' => $core->input['budgetrainingvisit']['leaves']), array('returnarray' => true,
+                    'simple' => false, 'operators' => array('lid' => 'IN')));
 
     foreach($leaves_import as $leave) {
         $budgetrainingvisit[] = $leave;

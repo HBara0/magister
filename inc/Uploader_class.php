@@ -42,7 +42,7 @@ class Uploader {
     public function process_file() {
         if($this->array_of_files == 0) {
             foreach($this->raw_file[$this->fieldname] as $key => $val) {
-                $this->file[$this->fieldname][$key][0] = $val;
+                $this->file[$this->fieldname][$key] = $val;
             }
 
             if($this->file[$this->fieldname]['error'][0] != UPLOAD_ERR_OK) {
@@ -114,6 +114,9 @@ class Uploader {
         else {
             $path_info = pathinfo($this->file[$this->fieldname]['name'][$key]);
             $this->cleaned_name[$key] = rand(0, 99).'_'.time().'.'.$path_info['extension'];
+            if(!empty($this->file[$this->fieldname]['newname'][$key])) {
+                $this->cleaned_name[$key] = $this->file[$this->fieldname]['newname'][0].'.'.$path_info['extension'];
+            }
         }
 
         $this->file_path[$key] = $this->target_path.'/'.$this->cleaned_name[$key];
@@ -169,7 +172,8 @@ class Uploader {
         }
 
         if($this->format_path($key)) {
-            $upload = ftp_put($this->ftpconnection, $this->file_path[$key], $this->file[$this->fieldname]['tmp_name'][$key], FTP_BINARY);
+            ftp_chdir($this->ftpconnection, $this->target_path);
+            $upload = ftp_put($this->ftpconnection, $this->cleaned_name[$key], $this->file[$this->fieldname]['tmp_name'][$key], FTP_BINARY);
             if($upload == false) {
                 $this->set_status(0, $key);
                 $this->close_ftp();

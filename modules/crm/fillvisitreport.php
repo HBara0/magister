@@ -47,6 +47,7 @@ if(!$core->input['action']) {
             if($session->isset_phpsession('visitreportvisitdetailsdata_'.$identifier)) {
                 $visitdetails = unserialize($session->get_phpsession("visitreportvisitdetailsdata_{$identifier}"));
                 $visitreport_data = unserialize($session->get_phpsession("visitreportdata_{$identifier}"));
+
                 if(is_array($visitreport_data['spid'])) {
                     foreach($visitreport_data['spid'] as $key => $val) {
                         if(empty($val) && $val != 0 || (count($visitreport_data['spid']) > 1 && $val == 0)) {
@@ -295,9 +296,16 @@ if(!$core->input['action']) {
             }
             $draftreports_selectlist = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>'.$lang->continuefilling.': '.parse_selectlist('identifier', 1, $draftreports, '', 0, 'goToURL("index.php?module=crm/fillvisitreport&amp;identifier="+$(this).val())').'</p></div>';
         }
+        $display = "  display: none;";
+        if(!empty($visitreport_values['location'])) {
+            $display = "  display: block;";
+            $location[$visitreport_values['location']] = new EntityLocations($visitreport_values['location'], false);
+            $customerlocation = parse_selectlist('location', 3, $location, $location->elocid, 6, '');
+        }
         /* Parse draft reports select list - END */
         eval("\$fillreportpage = \"".$template->get('crm_fillvisitreport')."\";");
     }
+
 
     output_page($fillreportpage);
 }
@@ -346,7 +354,6 @@ else {
                 $visitreport_main['hasSupplier'] = 0;
             }
         }
-
         $existing_report = $db->fetch_assoc($db->query('SELECT vrid, identifier FROM '.Tprefix.'visitreports WHERE identifier="'.$db->escape_string($visitreport['identifier']).'"'));
         if(!empty($existing_report)) {
             $is_new = false;
@@ -507,6 +514,19 @@ else {
             output($visitdetails_fields_mktidata);
         }
         /* Add Market Inteligence Data --END */
+    }
+    elseif($core->input['action'] == 'get_customerlocation') {
+        $cid = $db->escape_string($core->input['cid']);
+        $entity_locbjs = EntityLocations::get_data(array('eid' => $cid), array('simple' => false, 'returnarray' => true));
+        if(is_array($entity_locbjs)) {
+            foreach($entity_locbjs as $locationobj) {
+                //   $location[$entity_locbjs->eloid] = array($entity_locbjs->eloid => $entity_locbjs->location.' - '.$entity_locbjs->address.'-');
+                $location[$locationobj->eloid] = $locationobj->locationType.' - '.$locationobj->address.'-'.$locationobj->get_city()->name.' - '.$locationobj->get_country()->get_displayname();
+            }
+            $entity_locations = '<td>'.$lang->chooselocation.'</td>';
+            $entity_locations .='<td>'.parse_selectlist('location', 3, $location, '', 6, '', array('blankstart' => 1)).'</td>';
+            output($entity_locations);
+        }
     }
 }
 ?>

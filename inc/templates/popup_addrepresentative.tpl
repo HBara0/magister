@@ -1,3 +1,7 @@
+<script>
+    $('a[title]').qtip({style: {classes: 'ui-tooltip-green ui-tooltip-shadow'}, show: {event: 'focus mouseenter', solo: true}, hide: 'unfocus mouseleave', position: {viewport: $(window)}});
+
+</script>
 <div id="popup_addrepresentative" title="{$lang->addnewrepresentative}">
     <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>{$lang->addrepresentative_note}</p></div>
     <form action="#" method="post" id="add_representative_{$core->input[module]}_Form" name="add_representative_{$core->input[module]}_Form">
@@ -8,6 +12,11 @@
             </tr>
             <tr>
                 <td><strong>{$lang->email}</strong></td><td><input type='email' required="required" id='repEmail' name='repEmail' tabindex="2" placeholder="name@example.com" /></td>
+            </tr>
+            <tr>
+                <td width="40%">{$lang->issupportive} <a href="#" title="{$lang->issuportivedescription}" class=""><img src="./images/icons/question.gif" /></a></td>
+                <td><select name="isSupportive"><option value="" ></option><option value="1">{$lang->yes}</option><option value="0">{$lang->no}</option></select>
+                </td>
             </tr>
             <tr>
                 <td>{$lang->telephone}</td><td><input name="repTelephone[intcode]" accept="numeric" type="text" size="3" /><input name="repTelephone[areacode]" accept="numeric" type="text" size="4" /><input type='text' accept="numeric" id='repTelephone_number' name='repTelephone[number]' tabindex="2"/></td>

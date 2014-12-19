@@ -4,4 +4,6 @@
         <input type='hidden' id='representative_{$reprowid}_id' name='meeting[attendees][rpid][{$reprowid}][id]' value="{$meeting[attendees][$matid][id]}" />
         <div id='searchQuickResults_representative_{$reprowid}' class='searchQuickResults' style='display:none;'></div>
     </td>
+    <td> <a href='#representative_{$reprowid}_id' id='addnew_meetings/create_representative'><img src='images/addnew.png' border='0' alt='{$lang->add}'/></a>
+    </td>
 </tr>

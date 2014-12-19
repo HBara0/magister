@@ -105,14 +105,17 @@ class Meetings {
                 $this->meeting['identifier'] = $meeting_data['identifier'];
                 $log->record('addedmeeting', $this->meeting['mtid']);
                 //$this->get_meetingassociations($this->meeting['mtid'])->set_associations($this->meeting['associations']);
+
                 $this->set_associations($this->meeting['associations']);
                 /* insert meetings Attendees */
                 $this->set_attendees($this->meeting['attendees']);
                 if(isset($this->meeting['attachments']) && !empty($this->meeting['attachments'])) {
                     $this->add_attachments($this->meeting['attachments']);
                 }
-                $this->send_invitations();
 
+                if(!($meeting_data['fromDate'] < TIME_NOW)) {
+                    $this->send_invitations();
+                }
                 $this->errorcode = 0;
                 return true;
             }
@@ -239,16 +242,29 @@ class Meetings {
         if(empty($associations)) {
             $associations = $this->meeting['associations'];
         }
+        //array_keys($associations)
         if(is_array($associations)) {
-            foreach($associations as $key => $val) {
-                if(empty($val)) {
+            foreach($associations as $key => $association) {
+                if(empty($association)) {
                     continue;
                 }
-                $new_association['mtid'] = $this->meeting['mtid'];
-                $new_association['idAttr'] = $key;
-                $new_association['id'] = $val;
-
-                MeetingsAssociations::set_association($new_association);
+                if(is_array($association)) {
+                    foreach($association as $id => $val) {
+                        if(empty($val)) {
+                            continue;
+                        }
+                        $new_associations['idAttr'] = $key;
+                        $new_associations['id'] = $val;
+                        $new_associations['mtid'] = $this->meeting['mtid'];
+                        MeetingsAssociations::set_association($new_associations);
+                    }
+                }
+                else {
+                    $new_association['mtid'] = $this->meeting['mtid'];
+                    $new_association['idAttr'] = $key;
+                    $new_association['id'] = $association;
+                    MeetingsAssociations::set_association($new_association);
+                }
             }
         }
     }
@@ -284,6 +300,8 @@ class Meetings {
         if(!isset($meeting_data['isPublic'])) {
             $meeting_data['isPublic'] = 0;
         }
+        $meeting_data['modifiedBy'] = $core->user['uid'];
+        $meeting_data['modifiedOn'] = TIME_NOW;
 
         $query = $db->update_query('meetings', $meeting_data, 'mtid='.intval($this->meeting['mtid']));
         if($query) {
@@ -311,8 +329,9 @@ class Meetings {
                         }
                     }
                 }
-
-                $this->send_invitations();
+                if(!($meeting_data['fromDate'] < TIME_NOW)) {
+                    $this->send_invitations();
+                }
             }
 
             $db->delete_query('meetings_associations', 'mtid='.intval($this->meeting['mtid']));
@@ -325,7 +344,6 @@ class Meetings {
 
     public static function get_multiplemeetings(array $options = array()) {
         global $db, $core;
-
         $sort_query = 'fromDate DESC';
         if(isset($options['order']['sortby'], $options['order']['order']) && !is_empty($options['order']['sortby'], $options['order']['order'])) {
             $sort_query = $options['order']['sortby'].' '.$options['order']['order'];
@@ -351,7 +369,6 @@ class Meetings {
             }
             $query_where .= ')';
         }
-
         $meetingsquery = $db->query("SELECT * FROM ".Tprefix."meetings{$query_where} ORDER BY {$sort_query}");
 
         if($db->num_rows($meetingsquery) > 0) {

@@ -610,5 +610,28 @@ class Leaves extends AbstractClass {
 
     }
 
+    public function check_leavedestination() {
+        global $core;
+        if(!empty($this->data['coid'])) {
+            $requester_mainaff = new Affiliates($core->user['mainaffiliate']);
+            $aff_country = $requester_mainaff->country; //|| $this->data['affid'] == $requester_mainaff->affid
+            if(($this->data['coid'] == $aff_country)) {
+                $visit_type = 'domestic';
+            }
+            else {
+                $visit_type = 'international';
+            }
+        }
+        else if(!empty($this->data['affid'])) {
+            if(($this->data['affid'] == $requester_mainaff->affid)) {
+                $visit_type = 'domestic';
+            }
+            else {
+                $visit_type = 'international';
+            }
+        }
+        return $visit_type;
+    }
+
 }
 ?>

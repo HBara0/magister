@@ -227,10 +227,10 @@ class TravelManagerPlan {
             $this->data['lid'] = $data['lid'];
             $leave = new Leaves($this->data['lid']);
 
-//            if($this->check_isemptyfields($data)) {
-//                $this->errorode = 2;
-//                return false;
-//            }
+            if($this->check_isemptyfields($data)) {
+                $this->errorode = 2;
+                return false;
+            }
 
             $planleavedata['fromdate'] = $leave->get()['fromDate'];
             $planleavedata['todate'] = $leave->get()['toDate'];
@@ -291,14 +291,13 @@ class TravelManagerPlan {
         global $db;
 
         $segments = $plandata['segment'];
-        $valid_attrs = array('lid', 'uid', 'title', 'createBy', 'createdOn', 'modifiedBy', 'modifiedOn', 'isFinalized');
+        $valid_attrs = array('uid', 'title', 'createBy', 'createdOn', 'modifiedBy', 'modifiedOn', 'isFinalized');
         $valid_attrs = array_combine($valid_attrs, $valid_attrs);
         $plandata = array_intersect_key($plandata, $valid_attrs);
         if(!empty($plandata)) {
             $db->update_query(self::TABLE_NAME, $plandata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         }
         if(is_array($segments)) {
-
             foreach($segments as $sequence => $segmentdata) {
                 $segment_planobj = new TravelManagerPlanSegments();
                 if(isset($segmentdata['fromDate']) && isset($segmentdata['toDate'])) {
@@ -307,7 +306,6 @@ class TravelManagerPlan {
                     $segmentdata[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                     $segmentdata['sequence'] = $sequence;
                 }
-
                 $segment_planobj->set($segmentdata);
                 $segment_planobj->save();
                 // $segment_planobj->create($segmentdata);
@@ -363,7 +361,6 @@ class TravelManagerPlan {
     }
 
     public function get_createdBy() {
-
         return new Users($this->plan['createdBy']);
     }
 
@@ -449,7 +446,6 @@ class TravelManagerPlan {
             $city_obj = new Cities($segmentobj->get_destinationcity()->ciid);
             $hotelssegments_output = $city_obj->parse_approvedhotels($sequence, $accomodation);
             /* parse hotel --END */
-
 
             /* parse expenses --START */
             $segexpenses_ojbs = $segmentobj->get_expenses(array('simple' => false, 'returnarray' => true));

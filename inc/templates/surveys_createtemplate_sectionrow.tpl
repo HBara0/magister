@@ -3,13 +3,13 @@
         <div style="padding:5px 5px 10px 5px;"><strong>{$lang->sectiontitle}</strong>
             <input name="section[{$section_rowid}][title]" type="text" size="50" required="required"></div>
         <table width="100%">
-            <tbody id="questions{$section_rowid}_tbody"  class="{$altrow_class}">
+            <tbody id="questions_{$section_rowid}_tbody"  class="{$altrow_class}">
                 {$newquestions}
-            </tbody>  
+            </tbody>
             <tfoot>
                 <tr>
                     <td colspan="2">
-                        <img src="./images/add.gif" id="ajaxaddmore_surveys/createsurveytemplate_questions_{$section_rowid}" alt="{$lang->add}"><input id="numrows_questions{$section_rowid}" name="numrows_questions{$section_rowid}" type="hidden" value="{$question_rowid}">
+                        <img src="./images/add.gif" id="ajaxaddmore_surveys/createsurveytemplate_questions_{$section_rowid}" alt="{$lang->add}"><input id="numrows_questions_{$section_rowid}" name="numrows_questions{$section_rowid}" type="hidden" value="{$question_rowid}">
                     </td>
                 </tr>
             </tfoot>

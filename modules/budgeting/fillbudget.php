@@ -124,7 +124,8 @@ if(!$core->input['action']) {
         $currencies = array_filter(array(840 => 'USD', 978 => 'EUR', $affiliate_currency->get()['numCode'] => $affiliate_currency->get()['alphaCode']));
 
         /* check whether to display existing budget Form or display new one  */
-        $unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income');
+        $unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income', 'inputChecksum');
+        $countries = Countries::get_coveredcountries();
         if(is_array($budgetlinesdata)) {
             $rowid = 1;
             foreach($budgetlinesdata as $cid => $customersdata) {
@@ -164,7 +165,6 @@ if(!$core->input['action']) {
                                         unset($budgetline[$field]);
                                     }
                                 }
-
                                 /* Get Actual data from mediation tables --START */
 
 //								if(empty($budgetline['actualQty']) || empty($budgetline['actualincome']) || empty($budgetline['actualamount'])) {
@@ -176,12 +176,12 @@ if(!$core->input['action']) {
 //									$budgetLines['actualincome'] = $mediation_actual['price'];
 //								}
                                 $budgetline['alternativecustomer'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altCid']).'</span>';
-                                if(!empty($budgetline['cid'])) {
+                                if(!empty($budgetline['cid']) || !empty($budgetline['altCid']) || $prev_budgetline['altCid'] == 'Unspecified Customer') {
                                     unset($budgetline['alternativecustomer']);
                                 }
                                 $budgetline['alternativeproduct'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altPid']).'</span>';
                                 $previous_blid = '<input type="hidden" name="budgetline['.$rowid.'][prevblid]" value="'.$prev_budgetline['blid'].'" />';
-                                $previous_customercountry = '<input type="hidden" name="budgetline['.$rowid.'][customerCountry]" value="'.$prev_budgetline['customerCountry'].'" />';
+                                // $previous_customercountry = '<input type="hidden" name="budgetline['.$rowid.'][customerCountry]" value="'.$prev_budgetline['customerCountry'].'" />';
                                 $previous_yearsqty .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['quantity'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualQty'].'</span>';
                                 $previous_yearsamount .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['amount'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualAmount'].'</span>';
                                 $previous_yearsincome .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['income'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncome'].'</span>';
@@ -198,6 +198,15 @@ if(!$core->input['action']) {
                                     $prev_budgetline['actualUnitPrice'] = round($prev_budgetline['actualAmount'] / $prev_budgetline['actualQty'], 2);
                                 }
                                 $prevyear_unitprice .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['unitPrice'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualUnitPrice'].'</span>';
+
+                                $altcid = $budgetline['altCid'];
+                                if(empty($altcid)) {
+                                    $altcid = $prev_budgetline['altCid'];
+                                }
+
+                                if(empty($budgetline['customerCountry'])) {
+                                    $budgetline['customerCountry'] = $prev_budgetline['customerCountry'];
+                                }
                             }
                         }
 
@@ -207,7 +216,7 @@ if(!$core->input['action']) {
                         if(empty($budgetline['localIncomeAmount'])) {
                             $budgetline['localIncomeAmount'] = 0;
                         }
-
+                        $budgetline['altCid'] = $altcid;
                         $budgetline['cid'] = $cid;
                         $budgetline['customerName'] = $customer->get()['companyName'];
                         $budgetline['pid'] = $pid;
@@ -221,6 +230,9 @@ if(!$core->input['action']) {
                         $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $budget_data['affiliateName']);
                         $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, $budgetline['purchasingEntity'], '', '', array('id' => 'purchasingEntity_'.$rowid));
                         $display = 'none';
+
+
+
                         if(empty($budgetline['cid']) && $budgetline['altCid'] == 'Unspecified Customer') {
                             $checked_checkboxes[$rowid]['unspecifiedCustomer'] = ' checked="checked"';
                             $display = 'block';
@@ -232,6 +244,7 @@ if(!$core->input['action']) {
                                 $display = 'block';
                             }
                         }
+
                         /* Get Actual data from mediation tables --END */
                         $budget_currencylist = '';
                         foreach($currencies as $numcode => $currency) {
@@ -263,9 +276,16 @@ if(!$core->input['action']) {
                         if(empty($budgetline['inputChecksum'])) {
                             $budgetline['inputChecksum'] = generate_checksum('bl');
                         }
-                        $countries = Countries::get_coveredcountries();
-                        $affiliatecountry = $affiliate->get_country()->coid;
-                        $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][unspecifiedcustcountry]', 0, $countries, $budgetline['customerCountry'], '', '', '');
+
+                        if(empty($budgetline['customerCountry'])) {
+                            $budgetline['customerCountry'] = $affiliate->country;
+                        }
+                        $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][customerCountry]', 0, $countries, $budgetline['customerCountry'], '', '', '');
+
+//                        $altcid = $budgetline['altCid'];
+//                        if(empty($altcid)) {
+//                            $altcid = $prev_budgetline['altCid'];
+//                        }
 
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
                         $rowid++;
@@ -295,9 +315,7 @@ if(!$core->input['action']) {
                 );
             }
             $budgetline['inputChecksum'] = generate_checksum('bl');
-            $countries = Countries::get_coveredcountries();
-            $affiliatecountry = $affiliate->get_country()->coid;
-            $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][unspecifiedcustcountry]', 0, $countries, $affiliatecountry, '', '', '');
+            $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][customerCountry]', 0, $countries, $affiliate->country, '', '', '');
             eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
         }
         unset($saletype_selectlistdata, $checked_checkboxes);
@@ -336,7 +354,6 @@ else {
         foreach($keydata as $attr) {
             $budget_data[$attr] = $core->input[$attr];
         }
-
         if(is_array($core->input['budgetline'])) {
             if(isset($core->input['budget']['bid'])) {
                 $currentbudget = $core->input['budget'];
@@ -425,8 +442,7 @@ else {
 
         $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, 'direct', '', '', array('id' => 'purchasingEntity_'.$rowid));
         $countries = Countries::get_coveredcountries();
-        $affiliatecountry = $affiliate->get_country()->coid;
-        $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][unspecifiedcustcountry]', 0, $countries, $affiliatecountry, '', '');
+        $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][customerCountry]', 0, $countries, $affiliate->country, '', '');
 
         eval("\$budgetlinesrows = \"".$template->get('budgeting_fill_lines')."\";");
         output($budgetlinesrows);

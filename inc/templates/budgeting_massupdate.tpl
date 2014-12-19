@@ -35,7 +35,7 @@
                                 <table class="datatable" width="100%">
                                     <thead>
                                         <tr>
-                                            <th width="100%">{$lang->affiliate}<input class='inlinefilterfield' type='text' tabindex="2"  placeholder="{$lang->search} {$lang->affiliate}" style="display:inline-block;width:70%;margin-left:5px;"/></th>
+                                            <th width="100%"><input type="checkbox" id="affiliate_checkall" />{$lang->affiliate}<input class='inlinefilterfield' type='text' tabindex="2"  placeholder="{$lang->search} {$lang->affiliate}" style="display:inline-block;width:70%;margin-left:5px;"/></th>
                                         </tr>
                                     </thead>
                                     <tbody >
@@ -51,7 +51,7 @@
                                 <table class="datatable" width="100%">
                                     <thead>
                                         <tr>
-                                            <th width="100%">{$lang->supplier}<input class='inlinefilterfield' type='text' tabindex="2" placeholder="{$lang->search} {$lang->supplier}" style="width:70%;display:inline-block;margin-left:5px;"/></th>
+                                            <th width="100%"><input type="checkbox" id="supplier_checkall" />{$lang->supplier}<input class='inlinefilterfield' type='text' tabindex="2" placeholder="{$lang->search} {$lang->supplier}" style="width:70%;display:inline-block;margin-left:5px;"/></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -68,7 +68,7 @@
                                 <table class="datatable" width="100%">
                                     <thead>
                                         <tr>
-                                            <th width="100%">{$lang->year}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->year}" style="width:70%;display:inline-block;margin-left:5px;"/></th>
+                                            <th width="100%"><input type="checkbox" id="year_checkall" />{$lang->year}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->year}" style="width:70%;display:inline-block;margin-left:5px;"/></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -92,7 +92,7 @@
                                 <table class="datatable" width="100%">
                                     <thead>
                                         <tr>
-                                            <th width="100%">{$lang->manager}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->bm}" style="width:60%;display:inline-block;margin-left:5px;"/></th>
+                                            <th width="100%"><input type="checkbox" id="bm_checkall"/>{$lang->manager}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->bm}" style="width:60%;display:inline-block;margin-left:5px;"/></th>
                                         </tr>
                                     </thead>
                                     <tbody style="height:100px;">
@@ -106,7 +106,7 @@
                                 <table class="datatable" width="100%">
                                     <thead>
                                         <tr>
-                                            <th width="100%">{$lang->saletype}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->saletype}" style="width:60%;display:inline-block;margin-left:5px;"/></th>
+                                            <th width="100%"><input type="checkbox" id="saletype_checkall"/>{$lang->saletype}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->saletype}" style="width:60%;display:inline-block;margin-left:5px;"/></th>
                                         </tr>
                                     </thead>
                                     <tbody style="height:100px;">

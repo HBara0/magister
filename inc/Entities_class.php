@@ -54,30 +54,34 @@ class Entities extends AbstractClass {
                 $this->status = false;
                 exit;
             }
-
-            if(array_key_exists('repName', $this->data) || array_key_exists('repEmail', $this->data)) {
-                if($this->data['repName'] == 'na' || $this->data['repName'] == 'n/a') {
-                    $representatives[0]['rpid'] = $db->fetch_field($db->query("SELECT rpid FROM ".Tprefix."representatives WHERE name='n/a'"), 'rpid');
+            $noncurrentitytypes = array('pc', 'cs');
+            if(!in_array($this->data['type'], $noncurrentitytypes)) {
+                if(array_key_exists('repName', $this->data) || array_key_exists('repEmail', $this->data)) {
+                    if($this->data['repName'] == 'na' || $this->data['repName'] == 'n/a') {
+                        $representatives[0]['rpid'] = $db->fetch_field($db->query("SELECT rpid FROM ".Tprefix."representatives WHERE name='n/a'"), 'rpid');
+                    }
+                    else {
+                        $this->create_representative();
+                        $representatives[0]['rpid'] = $db->last_id();
+                    }
+                    unset($this->data['repName'], $this->data['repEmail']);
                 }
                 else {
-                    $this->create_representative();
-                    $representatives[0]['rpid'] = $db->last_id();
+                    $representatives = $this->data['representative']; //;$this->workout_representatives();
+                    unset($this->data['representative'], $this->data['rep_numrows']);
                 }
-                unset($this->data['repName'], $this->data['repEmail']);
+                if(is_array($representatives)) {
+                    $representatives = array_filter(array_map('array_filter', $representatives));
+                }
+                if(empty($representatives)) {
+                    output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                    $this->status = false;
+                    exit;
+                }
             }
             else {
-                $representatives = $this->data['representative']; //;$this->workout_representatives();
                 unset($this->data['representative'], $this->data['rep_numrows']);
             }
-            if(is_array($representatives)) {
-                $representatives = array_filter(array_map('array_filter', $representatives));
-            }
-            if(empty($representatives)) {
-                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-                $this->status = false;
-                exit;
-            }
-
             $affiliates = $this->data['affid'];
             unset($this->data['affid']);
 
@@ -145,10 +149,9 @@ class Entities extends AbstractClass {
             if(!isset($this->data['noQReportReq'])) {
                 $this->data['noQReportReq'] = 1; //By default no QR is required
             }
-
             $coveredcountries = $this->data['coveredcountry'];
             unset($this->data['coveredcountry']);
-            $query = $db->insert_query('entities', $this->data);
+            $query = $db->insert_query(self::TABLE_NAME, $this->data);
             if($query) {
                 $this->data['eid'] = $this->eid = $db->last_id();
                 /* Temp Solution */
@@ -159,7 +162,9 @@ class Entities extends AbstractClass {
                     $db->query('UPDATE entities SET geoLocation=geomFromText("POINT('.$db->escape_string($geolocation).')") WHERE eid='.$this->eid);
                 }
                 $this->insert_affiliatedentities($affiliates);
-                $this->insert_representatives($representatives);
+                if(!in_array($this->data['type'], $noncurrentitytypes)) {
+                    $this->insert_representatives($representatives);
+                }
                 if(is_array($segments)) {
                     $this->insert_entitysegments($segments);
                     if($this->data['type'] == 's' && $this->data['approved'] == 1) {
@@ -167,11 +172,13 @@ class Entities extends AbstractClass {
                     }
                 }
                 //if($this->data['type'] == 'c') {
-                if(IN_AREA == 'user') {
-                    $this->insert_assignedemployee();
-                }
-                else {
-                    $this->insert_assignedemployee($employees);
+                if(!in_array($this->data['type'], $noncurrentitytypes)) {
+                    if(IN_AREA == 'user') {
+                        $this->insert_assignedemployee();
+                    }
+                    else {
+                        $this->insert_assignedemployee($employees);
+                    }
                 }
                 //}
                 if(is_array($coveredcountries)) {
@@ -464,7 +471,7 @@ class Entities extends AbstractClass {
             }
         }
 
-        $query = $db->insert_query('representatives', array('name' => ucwords(strtolower($this->data['repName'])), 'email' => $this->data['repEmail'], 'phone' => $this->data['repTelephone']));
+        $query = $db->insert_query('representatives', array('name' => ucwords(strtolower($this->data['repName'])), 'email' => $this->data['repEmail'], 'phone' => $this->data['repTelephone'], 'isSupportive' => $this->data['isSupportive']));
         if($query) {
             $rpid = $db->last_id();
             if(isset($this->data['repcid'])) {

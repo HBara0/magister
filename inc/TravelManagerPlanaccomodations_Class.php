@@ -33,9 +33,13 @@ class TravelManagerPlanaccomodations {
 
     public function create($data = array()) {
         global $db, $core;
+        echo 'create';
 
         $tanspdata_array = array('tmpsid' => $data['tmpsid'],
-                'tmhid' => $data['tmhid']
+                'tmhid' => $data['tmhid'],
+                'priceNight' => $data['priceNight'],
+                'numNights' => $data['numNights'],
+                'paidBy' => $data['paidBy'],
         );
         $db->insert_query('travelmanager_plan_accomodations', $tanspdata_array);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
@@ -80,6 +84,8 @@ class TravelManagerPlanaccomodations {
         }
 
         $accomodations = TravelManagerPlanaccomodations::get_data(array('tmpsid' => $data['tmpsid'], 'tmhid' => $data['tmhid']));
+        print_r($accomodations);
+
         if(is_object($accomodations)) {
             $accomodations->update($data);
         }
@@ -90,6 +96,7 @@ class TravelManagerPlanaccomodations {
 
     protected function update(array $data) {
         global $db, $core;
+        echo 'update';
         if(is_array($data)) {
             $hoteldata['priceNight'] = $data['priceNight'];
             $hoteldata['numNights'] = $data['numNights'];
@@ -97,7 +104,7 @@ class TravelManagerPlanaccomodations {
             $hoteldata['paidById'] = $data['paidById'];
             $hoteldata['modifiedBy'] = $core->user['uid'];
             $hoteldata['modifiedOn'] = TIME_NOW;
-            $db->update_query(self::TABLE_NAME, $hoteldata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+            $db->update_query(self::TABLE_NAME, $hoteldata, ' tmhid='.intval($this->data['tmhid']).' AND tmpsid='.intval($this->data['tmpsid']));
         }
     }
 

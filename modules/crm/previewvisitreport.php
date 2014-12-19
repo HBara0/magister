@@ -30,9 +30,7 @@ if(!$core->input['action']) {
     if($core->input['referrer'] == 'fill') {
         $identifier = $db->escape_string($core->input['identifier']);
         $session->set_phpsession(array('visitreportcompetitiondata_'.$identifier => serialize($core->input)));
-
         $visitreports[1] = array_merge(unserialize($session->get_phpsession('visitreportdata_'.$identifier)), unserialize($session->get_phpsession('visitreportvisitdetailsdata_'.$identifier)));
-
         foreach($visitreports[1]['comments'] as $key => $val) {
             $visitreports[1]['comments'][$key] = array_merge($visitreports[1]['comments'][$key], $core->input['comments'][$key]);
         }
@@ -133,7 +131,13 @@ if(!$core->input['action']) {
             if(is_array($visitreport['suppliername'])) {
                 $reportsuppliers = implode('<br />', $visitreport['suppliername']);
             }
-            $visitreport['contactperson'] = $db->fetch_field($db->query("SELECT name AS contactperson FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($visitreport['rpid'])."'"), "contactperson");
+            // $visitreport['contactperson'] = $db->fetch_field($db->query("SELECT name AS contactperson FROM ".Tprefix."representatives WHERE rpid='".$db->escape_string($visitreport['rpid'])."'"), "contactperson");
+            $contactperson = Representatives::get_data(array('rpid' => $visitreport['rpid']));
+            if(is_object($contactperson)) {
+
+             $visitreport['contactperson'] = '<a href="#" id="contactpersoninformation_'.base64_encode($contactperson->rpid).'_profiles/entityprofile_loadpopupbyid">'.$contactperson->name.'</a> - <a href = "mailto:'.$contactperson->email.'">'.$contactperson->email.'</a><br />';
+             }
+            }
 
             if(is_array($visitreport['productLine'])) {
                 foreach($visitreport['productLine'] as $k => $v) {
@@ -152,22 +156,34 @@ if(!$core->input['action']) {
                 eval("\$accompaniedbyrow = \"".$template->get('crm_fillvisitreport_accompaniedbyrow')."\";");
             }
 
-            if($core->input['showLimitedCustDetails'] == 0) {
-                if(!empty($visitreport['customerdetails']['addressLine1'])) {
-                    $visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['addressLine1'].', ';
-                }
-
-                if(!empty($visitreport['customerdetails']['city'])) {
-                    $visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['addressLine1'].', ';
-                }
-
-                if(!empty($visitreport['customerdetails']['phone1'])) {
-                    $phone_details = "{$lang->phone}: {$visitreport[customerdetails][phone1]}";
-                }
+            if(!empty($visitreport['customerdetails']['addressLine1']) && empty($visitreports[1]['location'])) {
+                $customerobj = new Customers($visitreports[1]['cid'], '', false);
+                $customer_data = $customerobj->get();
+                $visitreport['customerdetails']['addressDetails'] = $customer_data['addressLine1'].' - '.$customer_data['addressLine2'].' - '.$customer_data['city'].' - '.$customerobj->get_country()->get_displayname();
             }
+            elseif(!empty($visitreports[1]['location'])) {
+                $customer_locobj = new EntityLocations($visitreports[1]['location'], false);
+                $visitreport['customerdetails']['addressDetails'] = $customer_locobj->location.' - '.$customer_locobj->address.' - '.' - '.$customer_locobj->get_city()->name.' - '.$customer_locobj->get_country()->get_displayname();
+            }
+            else {
 
-            if(!empty($visitreport['customerdetails']['countryname'])) {
-                $visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['countryname'];
+                if($core->input['showLimitedCustDetails'] == 0) {
+                    if(!empty($visitreport['customerdetails']['addressLine1'])) {
+                        $visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['addressLine1'].', ';
+                    }
+
+                    if(!empty($visitreport['customerdetails']['city'])) {
+                        $visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['addressLine1'].', ';
+                    }
+
+                    if(!empty($visitreport['customerdetails']['phone1'])) {
+                        $phone_details = "{$lang->phone}: {$visitreport[customerdetails][phone1]}";
+                    }
+                }
+
+                if(!empty($visitreport['customerdetails']['countryname'])) {
+                    $visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['countryname'];
+                }
             }
 
             parse_calltype($visitreport['type']);
@@ -221,7 +237,7 @@ if(!$core->input['action']) {
             array_walk_recursive($visitreport, 'parse_ocode');
 
             if($core->input['incVisitDetails'] != 0 || !isset($core->input['incVisitDetails'])) {
-                $visitdetails = '<div class="subtitle">'.$lang->visitdetails.'</div>';
+                $visitdetails = '<div class = "subtitle">'.$lang->visitdetails.'</div>';
                 foreach($visitreport['spid'] as $k => $v) {
                     if(empty($v) && $v != 0) {
                         continue;
@@ -238,7 +254,7 @@ if(!$core->input['action']) {
             }
 
             if($core->input['incCommentsCompetition'] != 0 || !isset($core->input['incCommentsCompetition'])) {
-                $competitioncomments = '<div class="subtitle">'.$lang->commentsoncompetition.'</div>';
+                $competitioncomments = '<div class = "subtitle">'.$lang->commentsoncompetition.'</div>';
 
                 foreach($visitreport['spid'] as $k => $v) {
                     if(empty($v) && $v != 0) {
@@ -268,7 +284,7 @@ if(!$core->input['action']) {
                     $detailmarketbox .= $maktintl_mainobj->parse_timeline_entry($mktintldata, $miprofile, '', '', array('viewonly' => true));
                 }
 
-                $viewall_button = '<div style="display:block; padding:25px;"><input type="button" class="button" value="View All Market data" onClick="window.open(\'index.php?module=profiles/entityprofile&amp;eid='.$mktintldata['cid'].'#misection\')" /></div>';
+                $viewall_button = '<div style = "display:block; padding:25px;"><input type = "button" class = "button" value = "View All Market data" onClick = "window.open(\'index.php?module=profiles/entityprofile&amp;eid='.$mktintldata['cid'].'#misection\')" /></div>';
                 eval("\$visitdetails_fields_mktidata = \"".$template->get('crm_fillvisitreport_visitdetailspage_marketdata')."\";");
             }
 
@@ -291,14 +307,15 @@ if(!$core->input['action']) {
     /* Get list of previous reports - START */
     if(count($visitreports) == 1 && $core->input['referrer'] != 'fill') {
         if($core->usergroup ['canViewAllSupp'] == 0) {
-            $prev_reports_query_where = ' AND uid='.$core->user['uid'];
+            $prev_reports_query_where = ' AND uid = '.$core->user['uid'];
         }
-        $prev_reports_query = $db->query("SELECT vrid, date, type FROM ".Tprefix."visitreports WHERE cid='{$visitreports[1][cid]}' AND vrid!={$visitreports[1][vrid]}{$prev_reports_query_where} ORDER BY DATE DESC");
+        $prev_reports_query = $db->query("SELECT vrid, date, type FROM ".Tprefix."visitreports WHERE cid='{$visitreports[1][cid]
+                }' AND vrid!={$visitreports[1][vrid]}{$prev_reports_query_where} ORDER BY DATE DESC");
         if($db->num_rows($prev_reports_query) > 0) {
-            $prev_visitreports_list = '<span class="subtitle">'.$lang->listofvisitreports.':</span> <ul>';
+            $prev_visitreports_list = '<span class = "subtitle">'.$lang->listofvisitreports.':</span> <ul>';
             while($prev_visitreport = $db->fetch_assoc($prev_reports_query)) {
                 parse_calltype($prev_visitreport['type']);
-                $prev_visitreports_list .= '<li><a href="index.php?module=crm/previewvisitreport&referrer=list&vrid='.$prev_visitreport['vrid'].'">'.date($core->settings['dateformat'], $prev_visitreport['date']).' - '.$prev_visitreport['type'].'</a></li>';
+                $prev_visitreports_list .= '<li><a href = "index.php?module=crm/previewvisitreport&referrer=list&vrid='.$prev_visitreport['vrid'].'">'.date($core->settings['dateformat'], $prev_visitreport['date']).' - '.$prev_visitreport['type'].'</a></li>';
             }
             $prev_visitreports_list .= '</ul><hr />';
         }
@@ -311,7 +328,8 @@ else {
     if($core->input['action'] == 'exportpdf' || $core->input['action'] == 'print') {
         if($core->input['action'] == 'print') {
             $show_html = 1;
-            $content .= "<link href='{$core->settings[rootdir]}/report_printable.css' rel='stylesheet' type='text/css' />";
+            $content .= "<link href=' {
+                    $core->settings[rootdir]}/report_printable.css' rel='stylesheet' type='text/css' />";
             $content .= "<script language='javascript' type='text/javascript'>window.print();</script>";
         }
         else {

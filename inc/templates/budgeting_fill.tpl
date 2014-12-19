@@ -166,12 +166,12 @@
                     <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->purchasedfromaffiliate} <a href="#" title="The affiliate from which you are buying the items in exceptional cases. Only applicable for the case of intercompany transactions; one affiliate (ex. Orkila Free Zone - Alex) selling and invoicing the other affiliate (ex. Orkila Egypt). This will automatically create an intercompany sale in the budget of the select affiliate. This should not be filled unless in exceptional cases."><img src="./images/icons/question.gif" ></a></td>
                 </tr>
             </thead>
-            <tbody id="budgetlines{$rowid}_tbody" style="width:100%;">
+            <tbody id="budgetlines_{$rowid}_tbody" style="width:100%;">
                 {$budgetlinesrows}
             </tbody>
             <tfoot>
                 <tr><td valign="top">
-                        <input name="numrows_budgetlines{$rowid}" type="hidden" id="numrows_budgetlines{$rowid}" value="{$rowid}">
+                        <input name="numrows_budgetlines{$rowid}" type="hidden" id="numrows_budgetlines_{$rowid}" value="{$rowid}">
                         <input type="hidden" name="ajaxaddmoredata[affid]" id="ajaxaddmoredata_affid" value="{$budget_data[affid]}"/>
                         <img src="./images/add.gif" id="ajaxaddmore_budgeting/fillbudget_budgetlines_{$rowid}" alt="{$lang->add}">
                     </td></tr>

@@ -427,7 +427,7 @@ class MarketIntelligenceCompetitors {
         global $db, $core;
 
         $market_competitors = $data;
-        $sanitize_fields = array('eid', 'unitPrice', 'pid', 'unitPrice');
+        $sanitize_fields = array('trader', 'unitPrice', 'pid', 'unitPrice', 'incoterms', 'packaging', 'saletype', 'isSampleacquire');
         foreach($sanitize_fields as $val) {
             $market_competitors_data[$val] = $core->sanitize_inputs
                     ($market_competitors_data[$val], array('removetags' => true));
@@ -439,10 +439,15 @@ class MarketIntelligenceCompetitors {
                     continue;
                 }
                 $market_competitors_data = array('mibdid' => $market_competitors[mibdid],
-                        'eid' => $market_competitor['eid'], 'trader' => $market_competitor['trader'],
+                        // 'eid' => $market_competitor['eid'],
+                        'trader' => $market_competitor['trader'],
                         'producer' => $market_competitor['producer'],
                         'unitPrice' => $market_competitor['unitPrice'],
                         'pid' => $market_competitor['pid'],
+                        'incoterms' => $market_competitor['incoterms'],
+                        'packaging' => $market_competitor['packaging'],
+                        'saletype' => $market_competitor['saletype'],
+                        'isSampleacquire' => $market_competitor['isSampleacquire'],
                         'createdBy' => $core->user['uid'],
                         'createdOn' => TIME_NOW
                 );

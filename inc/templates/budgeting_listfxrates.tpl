@@ -19,7 +19,7 @@
                             <th style="width:20%;">{$lang->fromcurr}</th>
                             <th style="width:20%;">{$lang->tocurr}</th>
                             <th style="width:10%;">{$lang->rate}</th>
-                            <th style="width:20%;">{$lang->rateategorization}</th>
+                            <th style="width:20%;">{$lang->category}</th>
                         </tr>
                     </thead>
                     <tbody class="datatable datacell">
