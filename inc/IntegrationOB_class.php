@@ -8,47 +8,6 @@
  * Last Update:    @zaher.reda    Feb 18, 2013 | 12:45:36 PM
  */
 
-Abstract class IntegrationAbstractClass {
-    protected $data;
-    protected $f_db;
-
-    const PRIMARY_KEY = '';
-    const TABLE_NAME = '';
-    const DISPLAY_NAME = '';
-
-    public function __construct($id, $f_db = NULL) {
-        if(!empty($f_db)) {
-            $this->f_db = $f_db;
-        }
-        else {
-//Open connections
-        }
-        $this->read($id);
-    }
-
-    private function read($id) {
-        $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM ".static::TABLE_NAME."
-						WHERE ".static::PRIMARY_KEY."='".$this->f_db->escape_string($id)."'"));
-    }
-
-    public function get_id() {
-        return $this->data[static::PRIMARY_KEY];
-    }
-
-    public function __get($name) {
-        if(isset($this->data[$name])) {
-            return $this->data[$name];
-        }
-        return false;
-    }
-
-    public function get() {
-        return $this->data;
-    }
-
-}
-
 class IntegrationOB extends Integration {
     private $client;
     private $status = 0;
@@ -1222,6 +1181,10 @@ class IntegrationOBInvoice {
         return false;
     }
 
+    public function get_paymentplan() {
+        return IntegrationOBFinPaymentSchedule::get_data("c_invoice_id='".$this->invoice['c_invoice_id']."'");
+    }
+
     public function __get($name) {
         if(isset($this->invoice[$name])) {
             return $this->invoice[$name];
@@ -1433,6 +1396,10 @@ class IntegrationOBOrder {
 
     public function get_currency() {
         return new IntegrationOBCurrency($this->order['c_currency_id'], $this->f_db);
+    }
+
+    public function get_paymentplan() {
+        return IntegrationOBFinPaymentSchedule::get_data("c_order_id='".$this->invoice['c_order_id']."'");
     }
 
     public function get_id() {
@@ -2316,6 +2283,7 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
     const PRIMARY_KEY = 'fin_payment_schedule_id';
     const TABLE_NAME = 'fin_payment_schedule';
     const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
         parent::__construct($id, $f_db);
@@ -2337,6 +2305,10 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
         return new IntegrationOBFinPaymentMethod($this->data['fin_paymentmethod_id'], $this->f_db);
     }
 
+    public function get_plandetails() {
+        return IntegrationOBFinPaymentScheduleDetail::get_data("fin_payment_schedule_invoice='".$this->data[self::PRIMARY_KEY]."' OR fin_payment_schedule_order='".$this->data[self::PRIMARY_KEY]."'", array('returnarray' => true));
+    }
+
 }
 
 class IntegrationOBFinPaymentScheduleDetail extends IntegrationAbstractClass {
@@ -2346,6 +2318,7 @@ class IntegrationOBFinPaymentScheduleDetail extends IntegrationAbstractClass {
     const PRIMARY_KEY = 'fin_payment_scheduledetail_id';
     const TABLE_NAME = 'fin_payment_scheduledetail';
     const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
         parent::__construct($id, $f_db);
@@ -2376,6 +2349,7 @@ class IntegrationOBFinPaymentMethod extends IntegrationAbstractClass {
     const PRIMARY_KEY = 'fin_paymentmethod_id';
     const TABLE_NAME = 'fin_paymentmethod';
     const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
         parent::__construct($id, $f_db);
@@ -2390,6 +2364,7 @@ class IntegrationOBFinPayment extends IntegrationAbstractClass {
     const PRIMARY_KEY = 'fin_payment_id';
     const TABLE_NAME = 'fin_payment';
     const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
         parent::__construct($id, $f_db);
@@ -2404,6 +2379,7 @@ class IntegrationOBFinPaymentDetail extends IntegrationAbstractClass {
     const PRIMARY_KEY = 'fin_payment_detail_id';
     const TABLE_NAME = 'fin_payment_detail';
     const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
         parent::__construct($id, $f_db);
@@ -2411,6 +2387,21 @@ class IntegrationOBFinPaymentDetail extends IntegrationAbstractClass {
 
     public function get_payment() {
         return new IntegrationOBFinPayment($this->data['fin_payment_id'], $this->f_db);
+    }
+
+}
+
+class IntegrationOBOrg extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'ad_org_id';
+    const TABLE_NAME = 'ad_org';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
+
+    public function __construct($id, $f_db = NULL) {
+        parent::__construct($id, $f_db);
     }
 
 }
