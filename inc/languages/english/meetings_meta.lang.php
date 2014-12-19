@@ -49,4 +49,5 @@ $lang['filesize'] = 'File Size';
 $lang['issupportive'] = 'Is supportive of us';
 $lang['representativename'] = 'Representative name';
 $lang['addnewrepresentative'] = 'Add New Representative';
+$lang['issuportivedescription'] = 'In case of a customer, he/she might be supportive of competitor supplier</br>In case of a supplier, their representative might be supportive of another agent.';
 ?>
