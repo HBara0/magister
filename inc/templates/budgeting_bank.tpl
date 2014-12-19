@@ -20,12 +20,12 @@
                         {$bank_header}
                         {$bank_row}
                     </thead>
-                    <tbody id="bankfacilities{$rowid}_tbody" style="width:100%;">
+                    <tbody id="bankfacilities_{$rowid}_tbody" style="width:100%;">
                         {$row}
                     </tbody>
                     <tfoot>
                         <tr><td valign="top">
-                                <input name="numrows_bankfacilities{$rowid}" type="hidden" id="numrows_bankfacilities{$rowid}" value="{$rowid}">
+                                <input name="numrows_bankfacilities{$rowid}" type="hidden" id="numrows_bankfacilities_{$rowid}" value="{$rowid}">
                                 <input type="hidden" name="ajaxaddmoredata[affid]" id="ajaxaddmoredata_affid" value="{$budget_data[affid]}"/>
                                 <input type="hidden" name="ajaxaddmoredata[year]" id="ajaxaddmoredata_year" value="{$budget_data['year']}"/>
                                 <img src="./images/add.gif" id="ajaxaddmore_budgeting/bank_bankfacilities_{$rowid}" alt="{$lang->add}">

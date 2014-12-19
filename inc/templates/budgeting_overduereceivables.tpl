@@ -33,12 +33,12 @@
                         {$overduereceivables_header}
                         {$overduereceivables_row}
                     </thead>
-                    <tbody id="clientsoverdues{$rowid}_tbody" style="width:100%;">
+                    <tbody id="clientsoverdues_{$rowid}_tbody" style="width:100%;">
                         {$row}
                     </tbody>
                     <tfoot>
                         <tr><td valign="top">
-                                <input name="numrows_clientsoverdues{$rowid}" type="hidden" id="numrows_clientsoverdues{$rowid}" value="{$rowid}">
+                                <input name="numrows_clientsoverdues{$rowid}" type="hidden" id="numrows_clientsoverdues_{$rowid}" value="{$rowid}">
                                 <img src="./images/add.gif" id="ajaxaddmore_budgeting/overduereceivables_clientsoverdues_{$rowid}" alt="{$lang->add}">
                             </td>
                         </tr>

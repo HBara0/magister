@@ -5,11 +5,11 @@
         <script type="text/javascript">
             $(function() {
                 $("select[id$='_[type]']").live('change', function() {
-                    if (sharedFunctions.checkSession() == false) {
+                    if(sharedFunctions.checkSession() == false) {
                         return;
                     }
                     var id = $(this).attr("id").split("_");
-                    if ($(this).val() != "") {
+                    if($(this).val() != "") {
                     $.ajax({type: 'post',
                                 url: rootdir + "index.php?module=surveys/createsurveytemplate&action=parsetype",
                                 data: {questiontype:$("select[id^='section_"+id[1]+"_[questions]_"+id[3]+"_[type]']").val(),sectionid:id[1],questionid:id[3]},
@@ -27,7 +27,7 @@
                 var id = $(this).attr("id").split("_");
                 var valMatch = ["minchars", "maxchars"];
                 $("tr[id='section_" + id[1] + "_[questions]_" + id[3] + "_[validationCriterion]']").css("display", "none");
-                if (jQuery.inArray($(this).val(), valMatch) != -1) {
+                if(jQuery.inArray($(this).val(), valMatch) != -1) {
                     $("tr[id='section_" + id[1] + "_[questions]_" + id[3] + "_[validationCriterion]']").css("display", "table-row");
                 }
             }
@@ -75,16 +75,16 @@
                                         <td colspan="2"><hr /><span class="subtitle">{$lang->surveyquestions}</span></td>
                                     </tr>
                                 </thead>
-                                <tbody id="section{$section_rowid}_tbody">
+                                <tbody id="section_{$section_rowid}_tbody">
                                     {$newsection}
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <td colspan="4"><img src="./images/add.gif" id="ajaxaddmore_surveys/createsurveytemplate_section_{$section_rowid}"  border="0" alt="{$lang->add}">
-                                            <input name="numrows_section{$section_rowid}" type="hidden" id="numrows_section{$section_rowid}" value="{$section_rowid}"></td>
+                                            <input name="numrows_section{$section_rowid}" type="hidden" id="numrows_section_{$section_rowid}" value="{$section_rowid}"></td>
                                     </tr>
                                 </tfoot>
-                            </table>    
+                            </table>
                         </td>
                     </tr>
                     <tr>
@@ -95,8 +95,8 @@
                         </td>
                     </tr>
                 </table>
-                <div id="perform_surveys/createsurveytemplate_Results"></div>  
-            </form>  
+                <div id="perform_surveys/createsurveytemplate_Results"></div>
+            </form>
         </td>
     </tr>
     {$footer}

@@ -59,7 +59,7 @@
 
                             </tr>
                         </thead>
-                        <tbody id="budgetrainvisitlocal{$rowid}_tbody" style="width:100%;">
+                        <tbody id="budgetrainvisitlocal_{$rowid}_tbody" style="width:100%;">
                             {$budgettaininglocalvisits_rows}
                         </tbody>
 
@@ -71,7 +71,7 @@
                         </tr>
                         <tfoot>
                             <tr><td valign="top">
-                                    <input name="numrows_budgetrainvisitlocal{$rowid}" type="hidden" id="numrows_budgetrainvisitlocal{$rowid}" value="{$rowid}">
+                                    <input name="numrows_budgetrainvisitlocal{$rowid}" type="hidden" id="numrows_budgetrainvisitlocal_{$rowid}" value="{$rowid}">
                                     <input type="hidden" name="ajaxaddmoredata[affid]" id="ajaxaddmoredata_affid" value="{$budget_data[affid]}"/>
                                     <img src="./images/add.gif" id="ajaxaddmore_budgeting/trainingvisits_budgetrainvisitlocal_{$rowid}" alt="{$lang->add}">
                                 </td></tr>
@@ -93,7 +93,7 @@
                                 <td width="14.2" class=" border_right"   valign="top" align="center">{$lang->totalcostaffonly}</td>
                             </tr>
                         </thead>
-                        <tbody id="budgetrainvisitint{$rowid}_tbody" style="width:100%;">
+                        <tbody id="budgetrainvisitint_{$rowid}_tbody" style="width:100%;">
                             {$budgettaininig_intvisits_rows}
                         </tbody>
 
@@ -106,7 +106,7 @@
                         <tfoot>
 
                             <tr><td valign="top">
-                                    <input name="numrows_budgetrainvisitint{$rowid}" type="hidden" id="numrows_budgetrainvisitint{$rowid}" value="{$rowid}">
+                                    <input name="numrows_budgetrainvisitint{$rowid}" type="hidden" id="numrows_budgetrainvisitint_{$rowid}" value="{$rowid}">
                                     <img src="./images/add.gif" id="ajaxaddmore_budgeting/trainingvisits_budgetrainvisitint_{$rowid}" alt="{$lang->add}">
                                 </td></tr>
 
