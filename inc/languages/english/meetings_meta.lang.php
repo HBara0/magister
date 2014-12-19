@@ -46,4 +46,7 @@ $lang['notifyusers'] = 'Notify Employees';
 $lang['attachements'] = 'Attachements';
 $lang['filename'] = 'File Name';
 $lang['filesize'] = 'File Size';
+$lang['issupportive'] = 'Is supportive of us';
+$lang['representativename'] = 'Representative name';
+$lang['addnewrepresentative'] = 'Add New Representative';
 ?>

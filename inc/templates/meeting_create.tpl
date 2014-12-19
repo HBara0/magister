@@ -6,7 +6,6 @@
     <body>
         {$header}
 
-
         <script>
             $(function() {
                 $('a[id^=deletefile_]').live('click', function() {
@@ -61,8 +60,8 @@
                             <table border="0" width="100%" cellspacing="1" cellpadding="1">
                                 <tr><td class="thead" colspan="3">{$lang->attendees}</td></tr>
                                 <tr>
-                                    <td><input type="checkbox" id='notify_user' name='meeting[notifyuser]' value="1"> {$lang->notifyusers}</td>
-                                    <td><input type="checkbox"{$checked} id='notify_representative' name='meeting[notifyrep]' value="1"> {$lang->notifyreps}</td>
+                                    <td><input type="checkbox" id='notify_user' name='meeting[notifyuser]' value="1" {$disabled_checkboxes['notifyuser']}> {$lang->notifyusers}</td>
+                                    <td><input type="checkbox"{$checked} id='notify_representative' name='meeting[notifyrep]' value="1" {$disabled_checkboxes['notifyrep']}> {$lang->notifyreps}</td>
                                 </tr>
                                 <tr>
                                     <td style="vertical-align: top;">
@@ -106,5 +105,6 @@
         </td>
     </tr>
     {$createmeeting_deletefile}
+    {$footer}
 </body>
 </html>

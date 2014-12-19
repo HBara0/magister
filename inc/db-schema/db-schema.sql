@@ -1119,6 +1119,48 @@ CREATE TABLE `genericproducts` (
   KEY `psid` (`psid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=304 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+CREATE TABLE `goruppurchase_forecast` (
+  `gpfid` int(10) NOT NULL AUTO_INCREMENT,
+  `affid` smallint(5) NOT NULL,
+  `year` int(4) unsigned NOT NULL,
+  `spid` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`gpfid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `goruppurchase_forecastlines`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `goruppurchase_forecastlines` (
+  `gpflid` int(10) NOT NULL AUTO_INCREMENT,
+  `gpfid` int(10) NOT NULL,
+  `inputChecksum` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `pid` int(10) NOT NULL,
+  `psid` int(10) NOT NULL,
+  `saleType` smallint(10) NOT NULL,
+  `businessMgr` int(10) NOT NULL,
+  `month1` float NOT NULL,
+  `month2` float NOT NULL,
+  `month3` float NOT NULL,
+  `month4` float NOT NULL,
+  `month5` float NOT NULL,
+  `month6` float NOT NULL,
+  `month7` float NOT NULL,
+  `month8` float NOT NULL,
+  `month9` float NOT NULL,
+  `month10` float NOT NULL,
+  `month11` float NOT NULL,
+  `month12` float NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`gpflid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `grouppurchase_pricing`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

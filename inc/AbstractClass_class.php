@@ -47,7 +47,6 @@ Abstract class AbstractClass {
         if(isset($this->data[static::PRIMARY_KEY]) && !empty($this->data[static::PRIMARY_KEY])) {
             return $this->update($data);
         }
-
         if(empty($data[static::PRIMARY_KEY])) {
             unset($data[static::PRIMARY_KEY]);
         }
@@ -80,7 +79,6 @@ Abstract class AbstractClass {
                 }
             }
         }
-
         return $this->create($data);
     }
 
@@ -88,7 +86,15 @@ Abstract class AbstractClass {
     abstract protected function update(array $data);
     public function delete() {
         global $db;
-        $query = $db->delete_query(static::TABLE_NAME, static::PRIMARY_KEY.'='.intval($this->data[static::PRIMARY_KEY]));
+        if(empty($this->data[static::PRIMARY_KEY]) && empty($this->data['inputChecksum'])) {
+            return false;
+        }
+        else if(empty($this->data[static::PRIMARY_KEY]) && !empty($this->data['inputChecksum'])) {
+            $query = $db->delete_query(static::TABLE_NAME, 'inputChecksum ="'.$this->data['inputChecksum'].'"');
+        }
+        else {
+            $query = $db->delete_query(static::TABLE_NAME, static::PRIMARY_KEY.'='.intval($this->data[static::PRIMARY_KEY]));
+        }
         if($query) {
             return true;
         }

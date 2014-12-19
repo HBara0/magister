@@ -112,8 +112,10 @@ class Meetings {
                 if(isset($this->meeting['attachments']) && !empty($this->meeting['attachments'])) {
                     $this->add_attachments($this->meeting['attachments']);
                 }
-                $this->send_invitations();
 
+                if(!($meeting_data['fromDate'] < TIME_NOW)) {
+                    $this->send_invitations();
+                }
                 $this->errorcode = 0;
                 return true;
             }
@@ -325,8 +327,9 @@ class Meetings {
                         }
                     }
                 }
-
-                $this->send_invitations();
+                if(!($meeting_data['fromDate'] < TIME_NOW)) {
+                    $this->send_invitations();
+                }
             }
 
             $db->delete_query('meetings_associations', 'mtid='.intval($this->meeting['mtid']));
