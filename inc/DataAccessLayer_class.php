@@ -38,7 +38,7 @@ class DataAccessLayer {
         $sql .= $this->construct_groupclause($configs['group']);
         $sql .= $this->construct_orderclause($configs['order']);
         $sql .= $this->construct_limitclause($configs['limit']);
-        //   echo $sql.'<br>';
+        //  echo $sql.'<br>';
         $query = $db->query($sql);
         $numrows = $db->num_rows($query);
         if($numrows > 1) {
@@ -211,6 +211,9 @@ class DataAccessLayer {
                             $value = '"%'.$db->escape_string($value).'%"';
                         }
                         elseif($operators[$attr] == 'IN') {
+                            $value = '('.$value.')';
+                        }
+                        elseif($operators[$attr] == 'NOT IN') {
                             $value = '('.$value.')';
                         }
                         else {
