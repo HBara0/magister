@@ -213,12 +213,26 @@ class DataAccessLayer {
                         elseif($operators[$attr] == 'IN') {
                             $value = '('.$value.')';
                         }
+                        else if($operators[$attr] == 'CUSTOMSQL') {
+                            $value = $db->escape_string($value);
+                        }
+                        else if($operators[$attr] == 'CUSTOMSQLSECURE') {
+                            $value = $value;
+                        }
                         else {
                             $operators[$attr] = '=';
                             $value = '"'.$db->escape_string($value).'"';
                         }
                     }
-                    $filters_querystring .= $andor.$attr.' '.$operators[$attr].$value;
+                    if($operators[$attr] == 'CUSTOMSQL') {
+                        $filters_querystring .= $andor.' '.$value;
+                    }
+                    else if($operators[$attr] == 'CUSTOMSQLSECURE') {
+                        $filters_querystring .= $andor.' '.$value;
+                    }
+                    else {
+                        $filters_querystring .= $andor.$attr.' '.$operators[$attr].$value;
+                    }
                     unset($value);
                 }
 
