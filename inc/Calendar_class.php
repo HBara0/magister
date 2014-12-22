@@ -298,7 +298,7 @@ class Calendar {
     public function read_meetings() {
         global $core;
         /* get Meeting for the calender period ,add filter to display  Meeting to the logged uuser in case they are invited.   */
-        $meeting_objs = Meetings::get_multiplemeetings(array('filter_where' => '(fromDate BETWEEN '.$this->period['firstday'].' AND '.$this->period['lastday'].' OR (toDate BETWEEN '.$this->period['firstday'].' AND '.$this->period['lastday'].') OR ('.$this->period['firstday'].' BETWEEN fromDate AND toDate) OR ('.$this->period['lastday'].' BETWEEN fromDate AND toDate)) AND  (mtid IN (SELECT m.mtid  FROM  meetings m where EXISTS (select * from meetings_attendees ma WHERE ma.mtid=m.mtid and ma.idAttr= "uid" and ma.attendee='.$core->user['uid'].'))) OR createdBy ='.$core->user['uid'].''));
+        $meeting_objs = Meetings::get_multiplemeetings(array('filter_where' => '((fromDate BETWEEN '.$this->period['firstday'].' AND '.$this->period['lastday'].') OR (toDate BETWEEN '.$this->period['firstday'].' AND '.$this->period['lastday'].') OR ('.$this->period['firstday'].' BETWEEN fromDate AND toDate) OR ('.$this->period['lastday'].' BETWEEN fromDate AND toDate)) AND  ((mtid IN (SELECT m.mtid FROM meetings m WHERE EXISTS (select mtid from meetings_attendees ma WHERE ma.mtid=m.mtid AND ma.idAttr= "uid" AND ma.attendee='.$core->user['uid'].'))) OR createdBy='.$core->user['uid'].')'));
         if(is_array($meeting_objs)) {
             foreach($meeting_objs as $meeting) {
                 $meeting_date = getdate($meeting['fromDate']);

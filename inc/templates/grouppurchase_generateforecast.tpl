@@ -22,7 +22,7 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->generateforecast}</h1>
-            <form name="perform_grouppurchase/generate_Form" id="perform_grouppurchase/generate_Form" method="post" action="index.php?module=grouppurchase/preview">
+            <form name="perform_grouppurchase/generate_Form" id="perform_grouppurchase/generate_Form" method="post" action="index.php?module=grouppurchase/previewforecast">
                 <input type="hidden" name="identifier" value="{$core->input[identifier]}"/>
                 <div style="display:block; padding:8px;">
                     <table width="100%">

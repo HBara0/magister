@@ -359,6 +359,7 @@ class Meetings {
 
         if($options['filter_where']) {
             $query_where .= $query_where_and.$options['filter_where'];
+            $query_where_and = ' AND ';
         }
 
         if($core->usergroup['meetings_canViewAllMeetings'] == 0) {

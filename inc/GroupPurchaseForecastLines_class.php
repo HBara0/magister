@@ -16,7 +16,7 @@ class GroupPurchaseForecastLines extends AbstractClass {
     const TABLE_NAME = 'grouppurchase_forecastlines';
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = 'gpflid, gpfid, inputChecksum, pid, psid, saleType, businessMgr';
-    const UNIQUE_ATTRS = 'businessMgr,gpfid,pid,psid,saleType';
+    const UNIQUE_ATTRS = 'gpfid,businessMgr,pid,psid,saleType';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -29,10 +29,6 @@ class GroupPurchaseForecastLines extends AbstractClass {
             if(!$this->validate_requiredfields($data)) {
                 $fields = array('gpfid', 'inputChecksum', 'pid', 'psid', 'saleType', 'businessMgr', 'month1', 'month2', 'month3', 'month4', 'month5', 'month6', 'month7', 'month8', 'month9', 'month10', 'month11', 'month12');
                 foreach($fields as $field) {
-                    if($field == 'psid' && empty($data[$field])) {
-                        $product = new Products($data['pid']);
-                        $data['psid'] = $product->get_genericproduct()->get_segment()->psid;
-                    }
                     $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
                     $data[$field] = $db->escape_string($data[$field]);
                     $forecastline_data[$field] = $data[$field];
@@ -50,10 +46,6 @@ class GroupPurchaseForecastLines extends AbstractClass {
             if(!$this->validate_requiredfields($data)) {
                 $fields = array('pid', 'psid', 'saleType', 'month1', 'month2', 'month3', 'month4', 'month5', 'month6', 'month7', 'month8', 'month9', 'month10', 'month11', 'month12');
                 foreach($fields as $field) {
-                    if($field == 'psid' && empty($data[$field])) {
-                        $product = new Products($data['pid']);
-                        $data['psid'] = $product->get_genericproduct()->get_segment()->psid;
-                    }
                     $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
                     $data[$field] = $db->escape_string($data[$field]);
                     $forecastline_data[$field] = $data[$field];

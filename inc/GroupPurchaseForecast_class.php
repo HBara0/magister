@@ -45,6 +45,10 @@ class GroupPurchaseForecast extends AbstractClass {
                         $forecastline['gpfid'] = $this->data[self::PRIMARY_KEY];
                         $forecastline['businessMgr'] = $core->user['uid'];
                         $gpforecastline = new GroupPurchaseForecastLines($forecastline[GroupPurchaseForecastLines::PRIMARY_KEY]);
+                        if(empty($forecastline['psid'])) {
+                            $product = new Products($forecastline['pid']);
+                            $forecastline['psid'] = $product->get_genericproduct()->get_segment()->psid;
+                        }
                         $gpforecastline->set($forecastline);
                         if(isset($forecastline['todelete']) && $forecastline['todelete'] == 1) {
                             $gpforecastline->delete();
@@ -86,6 +90,10 @@ class GroupPurchaseForecast extends AbstractClass {
                         $forecastline['gpfid'] = $this->data[self::PRIMARY_KEY];
                         $forecastline['businessMgr'] = $core->user['uid'];
                         $gpforecastline = new GroupPurchaseForecastLines($forecastline[GroupPurchaseForecastLines::PRIMARY_KEY]);
+                        if(empty($forecastline['psid'])) {
+                            $product = new Products($forecastline['pid']);
+                            $forecastline['psid'] = $product->get_genericproduct()->get_segment()->psid;
+                        }
                         $gpforecastline->set($forecastline);
                         if(isset($forecastline['todelete']) && $forecastline['todelete'] == 1) {
                             $gpforecastline->delete();
