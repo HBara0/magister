@@ -426,6 +426,30 @@ CREATE TABLE `budgeting_fxrates` (
   PRIMARY KEY (`bfxid`),
   KEY `affid` (`affid`,`fromCurrency`,`toCurrency`)
 ) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+DROP TABLE IF EXISTS `budgeting_trainingvisits`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `budgeting_trainingvisits` (
+  `btvid` int(10) NOT NULL AUTO_INCREMENT,
+  `inputChecksum` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `bfbid` int(10) NOT NULL,
+  `lid` int(10) NOT NULL,
+  `company` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `date` bigint(30) NOT NULL,
+  `purpose` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `Costaffiliate` float NOT NULL,
+  `event` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `bm` int(11) NOT NULL,
+  `planCost` float NOT NULL,
+  `otherCosts` float NOT NULL,
+  `TotalCostAffiliate` float NOT NULL,
+  `classification` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`btvid`)
 DROP TABLE IF EXISTS `calendar_events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

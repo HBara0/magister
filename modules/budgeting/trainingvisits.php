@@ -20,6 +20,9 @@ if(!isset($core->input['action'])) {
         $financialbudget_year = $core->input['financialbudget']['year'];
         // $financialbudget_prevyear = $investprevyear = $financialbudget_year - 1;
     }
+    else {
+        redirect('index.php?module=budgeting/createfinbudget');
+    }
     $affid = $core->input['financialbudget']['affid'];
     $affiliate = new Affiliates($affid);
     $rowid = 1;
@@ -92,8 +95,10 @@ if(!isset($core->input['action'])) {
     if(isset($core->input['budgetrainingvisit']['leaves']) && $core->input['source'] == 'import' && !empty($core->input['budgetrainingvisit']['leaves'])) {
         unset($budgetrainingvisit);
         $populated_leaves = populate_leaves();
+        //financialbudget->bfbid;
         $affiliate = new Affiliates($affid);
         foreach($populated_leaves as $lid => $populated_leave) {
+
             $visit_type = $populated_leave->check_leavedestination();
             $rowid = intval($lid) + 1;
             switch($visit_type) {
@@ -111,6 +116,7 @@ if(!isset($core->input['action'])) {
                         }
                         $business_managers_list.='<option value='.$uid.' '.$selected.'>'.$bm.'</option>';
                     }
+                    $budgetrainingvisit[$populated_leave->lid][$type]['lid'] = $populated_leave->lid;
                     $budgetrainingvisit[$populated_leave->lid][$type]['date_output'] = date($core->settings['dateformat'], $populated_leave->fromDate);
                     $budgetrainingvisit[$populated_leave->lid][$type]['Date_formatted'] = date('d-m-Y', $populated_leave->fromDate);
                     $budgetrainingvisit[$populated_leave->lid][$type]['purpose'] = $populated_leave->reason;
@@ -129,11 +135,12 @@ if(!isset($core->input['action'])) {
                         }
                     }
                     eval("\$budgettaininig_intvisits_rows .= \"".$template->get('budgeting_tainingintvisits_lines')."\";");
-                    unset($budgetrainingvisit[$populated_leave->lid]);
+                    unset($budgetrainingvisit[$populated_leave->lid], $rowid);
                     break;
                 case"domestic":
                     $type = 'domestic';
                     $budgetrainingvisit['inputChecksum'] = generate_checksum('budget');
+                    $budgetrainingvisit[$populated_leave->lid][$type]['lid'] = $populated_leave->lid;
                     $budgetrainingvisit[$populated_leave->lid][$type]['date_output'] = date($core->settings['dateformat'], $populated_leave->fromDate);
                     $budgetrainingvisit[$populated_leave->lid][$type]['Date_formatted'] = date('d-m-Y', $populated_leave->fromDate);
                     $budgetrainingvisit[$populated_leave->lid][$type]['purpose'] = $populated_leave->reason;
@@ -142,7 +149,7 @@ if(!isset($core->input['action'])) {
                         $budgetrainingvisit[$populated_leave->lid][$type]['Costaffiliate'] = $leave_expenses;
                     }
                     eval("\$budgettaininglocalvisits_rows .= \"".$template->get('budgeting_tainingvisits_lines')."\";");
-                    unset($budgetrainingvisit[$populated_leave->lid]);
+                    unset($budgetrainingvisit[$populated_leave->lid], $rowid);
                     break;
             }
         }
@@ -172,7 +179,9 @@ if(!isset($core->input['action'])) {
 
     $leave['filter']['type'] = 'SELECT ltid FROM leavetypes WHERE isBusiness=1 ';
     $leave['filter']['affid'] = $affid;
-    $leaves_objs = Leaves::get_data($leave['filter'], array('simple' => false, 'operators' => array('type' => 'IN')));
+    /* avoid reshowing import text box if all leaves have been imported. Only show those that have not been imported.  */
+    $leave['filter']['lid'] = ' SELECT lid from  budgeting_trainingvisits WHERE bfbid='.$financialbudget->bfbid;
+    $leaves_objs = Leaves::get_data($leave['filter'], array('returnarray' => true, 'simple' => false, 'operators' => array('type' => 'IN', 'lid' => 'NOT IN')));
     $lang->load('attendance_messages');
     if(is_array($leaves_objs)) {
         foreach($leaves_objs as $leaves_obj) {
@@ -231,7 +240,7 @@ else if($core->input['action'] == 'ajaxaddmore_budgetrainvisitint') {
             }
         }
 
-        //$business_managers_list = parse_selectlist('budgetrainingvisit[international]['.$rowid.'][bm]', 7, $business_managers, $selected_optio ns);
+//$business_managers_list = parse_selectlist('budgetrainingvisit[international]['.$rowid.'][bm]', 7, $business_managers, $selected_optio ns);
     }
 
     eval("\$budgettaininig_intvisits_rows = \"".$template->get('budgeting_tainingintvisits_lines')."\";");
@@ -242,6 +251,7 @@ else if($core->input['action'] == 'do_perform_trainingvisits') {
     $financialbudget = new FinancialBudget();
     $financialbudget->set($core->input);
     $financialbudget->save();
+    exit;
     switch($financialbudget->get_errorcode()) {
         case 0:
         case 1:

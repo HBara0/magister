@@ -42,10 +42,11 @@ if(!$core->input['action']) {
                 $disabled_checkboxes['notifyuser'] = $disabled_checkboxes['notifyrep'] = ' disabled="disabled"';
             }
             $meeting_assoc = $meeting_obj->get_meetingassociations();
+
             if(is_array($meeting_assoc)) {
                 foreach($meeting_assoc as $mtaid => $associaton) {
                     $associaton_temp = $associaton->get();
-                    $associatons[$associaton_temp['idAttr']] = $associaton_temp['id'];
+                    $associatons[$associaton_temp['idAttr']][$associaton->get()['mtaid']] = $associaton_temp['id'];
                 }
                 unset($associaton_temp);
             }
@@ -122,7 +123,6 @@ if(!$core->input['action']) {
     $afiliates[0] = '';
     asort($afiliates);
     $affiliates_list = parse_selectlist('meeting[associations][affid][]', 5, $afiliates, $associatons['affid'], 1);
-
     $aff_events = Events::get_affiliatedevents($core->user['affiliates']);
     if(is_array($aff_events)) {
         foreach($aff_events as $ceid => $event) {
@@ -141,7 +141,6 @@ if(!$core->input['action']) {
 
     eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
     eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
-
     output_page($createmeeting);
 }
 else {
