@@ -16,7 +16,7 @@ class GroupPurchaseForecastLines extends AbstractClass {
     const TABLE_NAME = 'grouppurchase_forecastlines';
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = 'gpflid, gpfid, inputChecksum, pid, psid, saleType, businessMgr';
-    const UNIQUE_ATTRS = 'businessMgr,pid,psid,saleType';
+    const UNIQUE_ATTRS = 'businessMgr,gpfid,pid,psid,saleType';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
