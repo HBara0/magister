@@ -5,6 +5,7 @@
         <input type="hidden" name="budgetrainingvisit[local][$rowid][classification] " value="local"/>
         <input type="hidden" name="budgetrainingvisit[local][$rowid][btvid] " value="{$budgetvisit->btvid}"/>
         <input type="hidden" name="budgetrainingvisit[local][$rowid][inputChecksum] " value="{$budgetrainingvisit[inputChecksum]}"/>
+        <input type="hidden" name="budgetrainingvisit[local][$rowid][lid] " value="{$budgetrainingvisit[$populated_leave->lid][$type][lid]}"/>
     </td>
 
     <td><input type="text"  id="pickDate_local{$rowid}" autocomplete="off" tabindex="1" value="{$budgetrainingvisit[date_output]} {$budgetrainingvisit[$populated_leave->lid][$type][date_output]} " required="required"/>
