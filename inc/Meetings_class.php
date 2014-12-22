@@ -112,7 +112,7 @@ class Meetings {
                 if(isset($this->meeting['attachments']) && !empty($this->meeting['attachments'])) {
                     $this->add_attachments($this->meeting['attachments']);
                 }
-
+                /* we need to explain code here */
                 if(!($meeting_data['fromDate'] < TIME_NOW)) {
                     $this->send_invitations();
                 }
