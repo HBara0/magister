@@ -3029,6 +3029,7 @@ CREATE TABLE `usergroups` (
   `budgeting_canFillComAdmExp` tinyint(1) NOT NULL,
   `budgeting_canFillFinBudgets` tinyint(1) NOT NULL,
   `Budget_canFillLocalincome` tinyint(1) NOT NULL,
+  `canUseFinance` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`gid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
