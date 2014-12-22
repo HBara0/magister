@@ -198,7 +198,7 @@ else {
         unset($core->input['action'], $core->input['module'], $core->input['uid'], $core->input['fromTime'], $core->input['toTime']);
 
         if($action == 'do_edit') {
-            $query = $db->update_query('holidays', $core->input, "hid='".$db->escape_string($core->input['hid'])."'");
+            $query = $db->update_query('holidays', $core->input, "hid='".intval($core->input['hid'])."'");
         }
         else {
             $query = $db->insert_query('holidays', $core->input);

@@ -180,7 +180,7 @@ else {
 //            exit;
 //        }
 
-        $message['recepient'] = $core->settings['globalmailinglist']; //$affiliate['mailingList'];
+        $message['recepient'] = $affiliate['mailingList'];
         if(!isset($core->input['id'])) {
             $query = $db->query("SELECT * FROM ".Tprefix."holidays  WHERE ((validFrom = 0 OR ({$current_year} >= FROM_UNIXTIME(validFrom, '%Y') AND month >= FROM_UNIXTIME(validFrom, '%m') AND day >= FROM_UNIXTIME(validFrom, '%d')))
 								AND (validTo=0 OR ({$current_year} <= FROM_UNIXTIME(validTo, '%Y') AND month <= FROM_UNIXTIME(validTo, '%m') AND day <= FROM_UNIXTIME(validTo, '%d'))))
