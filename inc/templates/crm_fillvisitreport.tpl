@@ -3,14 +3,13 @@
         <title>{$core->settings[systemtitle]} | {$lang->fillvisitreport}</title>
         {$headerinc}
         <script>
-            $(function() {
-                $('input[id^=customer_]').bind('change', function() {
+            $(function () {
+                $('input[id^=customer_]').bind('change', function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
                     var cid = $('[id$=id_output]').val();
                     sharedFunctions.requestAjax("post", "index.php?module=crm/fillvisitreport&action=get_customerlocation", "&cid=" + cid, 'content_detailsloader', 'content_details', true);
-
                 });
             });</script>
     </head>
