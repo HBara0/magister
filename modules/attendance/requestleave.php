@@ -387,14 +387,12 @@ else {
             /* Create leave expenses - START */
             $leave_obj = new Leaves(array('lid' => $lid), false);
 //            $leave_obj->create_expenses($expenses_data);
-
-            if($leavetype_details['isBusiness'] == 1) {
-                $url = 'index.php?module=travelmanager/plantrip&lid=';
-                header('Content-type: text/xml+javascript');
-                output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
-                exit;
-            }
-
+//            if($leavetype_details['isBusiness'] == 1) {
+//                $url = 'index.php?module=travelmanager/plantrip&lid=';
+//                header('Content-type: text/xml+javascript');
+//                output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
+//                exit;
+//            }
 
             $lang->load('attendance_messages');
 
