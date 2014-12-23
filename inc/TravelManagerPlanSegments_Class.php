@@ -105,12 +105,14 @@ class TravelManagerPlanSegments {
 //        }
 
         if(isset($segmentdata['tmhid'])) {
-            $hoteltdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
-            $hoteltdata['tmhid'] = $segmentdata['tmhid'];
+            foreach($segmentdata['tmhid'] as $hotel) {
+                $hotel['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                $accod_obj = new TravelManagerPlanaccomodations();
+                $accod_obj->set($hotel);
+                $accod_obj->save();
+            }
 
-            $accod_obj = new TravelManagerPlanaccomodations();
-            $accod_obj->set($hoteltdata);
-            $accod_obj->save();
+            // $hoteltdata['tmhid'] = $segmentdata['tmhid'];
         }
 
         $additionalexpenses = $segmentdata['expenses'];
