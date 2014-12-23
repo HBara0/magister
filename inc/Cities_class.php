@@ -106,7 +106,7 @@ class Cities {
             $hotelssegments_output = '<div class="subtitle">'.$lang->approvedhotels.'</div>';
             foreach($approved_hotelsobjs as $approved_hotelsobj) {
                 $approved_hotels = $approved_hotelsobj->get();
-                $approvedhotel_id = key($selectedhotel[key($selectedhotel)]);
+//                $approvedhotel_id = key($selectedhotel[key($selectedhotel)]);
                 $hotelname = array($approved_hotels['tmhid'] => $approved_hotels['name']);
                 $review_tools .= ' <a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'./images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
 
@@ -150,7 +150,7 @@ class Cities {
         }
         $onchange_actions = '$("#"+$(this).find(":selected").val()+"_"+'.$sequence.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();';
         // $onchange_actions = 'onchange="$(\"#"+$(this).find(":selected").val()+"_"+'.$sequence.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();\"';
-        return 'Paid By <select id="paidby" name="segment['.$sequence.'][tmhid]['.$selectedoptions[tmhid].'][entites]" '.$onchange_actions.'>'.$paid_options.'</select> ';
+        return 'Paid By <select id="paidby" name="segment['.$sequence.'][tmhid]['.$selectedoptions['tmhid'].'][entites]" '.$onchange_actions.'>'.$paid_options.'</select> ';
         //   return '<div style="display:block;padding:8px;"  id="paidby"> Paid By '.parse_selectlist('segment['.$sequence.'][tmhid]['.$selectedoptions['tmhid'].'][entites]', 6, $paidby_entities, $selected_paidby[$segid], '', '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();;', array('id' => 'paidby')).'</div>';
     }
 

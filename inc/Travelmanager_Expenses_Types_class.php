@@ -133,7 +133,7 @@ class Travelmanager_Expenses_Types extends AbstractClass {
         }
         $onchange_actions = 'onchange=\"$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();\"';
 
-        return "Paid By <select id=segment_expensestype_".$sequence."_".$rowid." name=segment[".$sequence."][expenses][".$rowid."][tmetid] ".$onchange_actions.">".$paid_options."</select>";
+        return "Paid By <select id=segment_expensestype_".$sequence."_".$rowid." name=segment[".$sequence."][expenses][".$rowid."][paidBy] ".$onchange_actions.">".$paid_options."</select>";
 
         // return '<div style="display:block;padding:8px;"  id="paidby"> Paid By '.parse_selectlist('segment['.$sequence.'][expenses]['.$rowid.'][entites]', 6, $paidby_entities, $selected_paidby[$segid], '', '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();;', array('id' => 'paidby')).'</div>';
     }

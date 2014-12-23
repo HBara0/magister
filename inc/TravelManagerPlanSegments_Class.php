@@ -32,7 +32,6 @@ class TravelManagerPlanSegments {
     }
 
     public function create($segmentdata = array()) {
-
         global $db, $core;
         if(!is_numeric($segmentdata['toDate'])) {
             $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
@@ -105,10 +104,15 @@ class TravelManagerPlanSegments {
 //        }
 
         if(isset($segmentdata['tmhid'])) {
-            foreach($segmentdata['tmhid'] as $hotel) {
-                $hotel['tmpsid'] = $this->data[self::PRIMARY_KEY];
+            foreach($segmentdata['tmhid'] as $tmhid => $hotel) {
+                $hoteldata['tmhid'] = $tmhid;
+                $hoteldata['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                $hoteldata['priceNight'] = $hotel['priceNight'];
+                $hoteldata['numNights'] = $hotel['numNights'];
+                $hoteldata['paidBy'] = $hotel['entites'];
+                $hoteldata['paidById'] = $hotel['paidBy'];
                 $accod_obj = new TravelManagerPlanaccomodations();
-                $accod_obj->set($hotel);
+                $accod_obj->set($hoteldata);
                 $accod_obj->save();
             }
 
@@ -125,8 +129,8 @@ class TravelManagerPlanSegments {
                 $expensestdata['currency'] = $expense['currency'];
                 $expensestdata['actualAmt'] = $expense['actualAmt'];
                 $expensestdata['description'] = $expense['description'];
-                $expensestdata['paidBy'] = $expense['entites'];
-                $expensestdata['paidById'] = $expense['paidBy'];
+                $expensestdata['paidBy'] = $expense['paidBy'];
+                $expensestdata['paidById'] = $expense['paidById'];
                 $expenses_obj = new Travelmanager_Expenses();
                 $expenses_obj->set($expensestdata);
                 $expenses_obj->save();
@@ -195,7 +199,6 @@ class TravelManagerPlanSegments {
                     $db->delete_query('travelmanager_plan_accomodations', 'tmhid='.$tmhid.' AND tmpsid ='.$this->data['tmpsid'].'');
                     continue;
                 }
-
                 $hoteldata['tmhid'] = $tmhid;
                 $hoteldata['tmpsid'] = $this->data[self::PRIMARY_KEY];
                 $hoteldata['priceNight'] = $hotel['priceNight'];
@@ -218,8 +221,8 @@ class TravelManagerPlanSegments {
                 $expensestdata['currency'] = $expense['currency'];
                 $expensestdata['actualAmt'] = $expense['actualAmt'];
                 $expensestdata['description'] = $expense['description'];
-                $expensestdata['paidBy'] = $expense['entites'];
-                $expensestdata['paidById'] = $expense['paidBy'];
+                $expensestdata['paidBy'] = $expense['paidBy'];
+                $expensestdata['paidById'] = $expense['paidById'];
                 $expenses_obj = new Travelmanager_Expenses();
                 $expenses_obj->set($expensestdata);
                 $expenses_obj->save();

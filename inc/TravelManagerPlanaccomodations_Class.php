@@ -84,7 +84,7 @@ class TravelManagerPlanaccomodations {
         }
 
         $accomodations = TravelManagerPlanaccomodations::get_data(array('tmpsid' => $data['tmpsid'], 'tmhid' => $data['tmhid']));
-        print_r($accomodations);
+        //print_r($accomodations);
 
         if(is_object($accomodations)) {
             $accomodations->update($data);

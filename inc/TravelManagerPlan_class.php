@@ -381,7 +381,7 @@ class TravelManagerPlan {
 
     public function parse_existingsegments() {
         global $lang, $template, $core, $header, $headerinc, $menu;
-        $segmentplan_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $this->tmpid), array('order' => array('by' => 'sequence', 'sort' => 'ASC')));
+        $segmentplan_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $this->tmpid), array('returnarray' => true, 'order' => array('by' => 'sequence', 'sort' => 'ASC')));
         $segid = 1;
         $disabled = 'disabled="true"';
         $leave_ouput = $this->parse_leavetypetitle();
