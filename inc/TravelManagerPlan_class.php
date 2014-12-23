@@ -227,7 +227,7 @@ class TravelManagerPlan {
             $this->data['lid'] = $data['lid'];
             $leave = new Leaves($this->data['lid']);
 
-            if($this->check_isemptyfields($data)) {
+            if($this->check_isemptyfields($data['segment'])) {
                 $this->errorode = 2;
                 return false;
             }
@@ -277,7 +277,7 @@ class TravelManagerPlan {
 
 //get object of and the id and set data and save
         $latestsplan_obj = TravelManagerPlan::get_plan(array('lid' => $this->data['lid'], 'createdBy' => $core->user['uid']));
-        unset($data['lid'], $data['module'], $data['action'], $data['sequence'], $data['todate'], $data['prevdestcity']);
+        unset($data['module'], $data['action'], $data['sequence'], $data['todate'], $data['prevdestcity']);
         if(is_object($latestsplan_obj)) {
             $this->data['tmpid'] = $latestsplan_obj->get()['tmpid'];
             $this->update($data);
