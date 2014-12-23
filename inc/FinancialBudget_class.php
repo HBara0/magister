@@ -129,7 +129,7 @@ Class FinancialBudget extends AbstractClass {
         $budgetforecastbs = $data['budgetforecastbs'];
 
         if(is_array($budgetforecastbs)) {
-            unset($budgetforecastbs['liabilities'], $budgetforecastbs['Assets']);
+            unset($budgetforecastbs['liabilities'], $budgetforecastbs['assets']);
             foreach($budgetforecastbs as $forecast) {
                 $forecasts['bfbid'] = $this->data[self::PRIMARY_KEY];
                 $budgetforecast_obj = new BudgetForecastBalanceSheet();
@@ -289,7 +289,7 @@ Class FinancialBudget extends AbstractClass {
             }
             $budgetforecastbs = $data['budgetforecastbs'];
             if(is_array($budgetforecastbs)) {
-                unset($budgetforecastbs[liabilities], $budgetforecastbs[Assets], $budgetforecastbs[OwnersEquity]);
+                unset($budgetforecastbs[liabilities], $budgetforecastbs['assets'], $budgetforecastbs['ownersequity']);
 
                 foreach($budgetforecastbs as $forecast) {
                     $forecast['bfbid'] = $this->data[self::PRIMARY_KEY];

@@ -60,6 +60,7 @@ Abstract class AbstractClass {
         $unique_attrs = explode(',', static::UNIQUE_ATTRS);
         if(is_array($unique_attrs)) {
             foreach($unique_attrs as $attr) {
+                $attr = trim($attr);
                 if(empty($data[$attr])) {
                     $checks = null;
                     break;
@@ -89,8 +90,8 @@ Abstract class AbstractClass {
         if(empty($this->data[static::PRIMARY_KEY]) && empty($this->data['inputChecksum'])) {
             return false;
         }
-        else if(empty($this->data[static::PRIMARY_KEY]) && !empty($this->data['inputChecksum'])) {
-            $query = $db->delete_query(static::TABLE_NAME, 'inputChecksum ="'.$this->data['inputChecksum'].'"');
+        elseif(empty($this->data[static::PRIMARY_KEY]) && !empty($this->data['inputChecksum'])) {
+            $query = $db->delete_query(static::TABLE_NAME, 'inputChecksum="'.$db->escape_string($this->data['inputChecksum']).'"');
         }
         else {
             $query = $db->delete_query(static::TABLE_NAME, static::PRIMARY_KEY.'='.intval($this->data[static::PRIMARY_KEY]));

@@ -15,21 +15,18 @@
             <form action="#" method="post" id="perform_contents/createlocations_Form" name="perform_contents/createlocations_Form">
                 <table width="100%" border="0" cellpadding="0" cellspacing="0">
                     <tr>
-                        <td><strong><input type="hidden" name="entitylocation[inputChecksum]" value="{$entitylocation[inputChecksum]}"/>{$lang->entity}</strong></td>
+                        <td><strong>{$lang->entity}</strong></td>
                         <td colspan="2"><input type="text"  autocomplete="off" id="allentities_1_cache_autocomplete"/><input type='hidden' id='allentities_1_cache_id' name='entitylocation[eid]' value="{$entitylocation[eid]}"/></td>
                     </tr>
-
                     <tr>
-                        <td><strong>{$lang->location}</strong></td><td colspan="2">{$locations_list}</td>
+                        <td><strong>{$lang->location}</strong></td><td colspan="2">{$locationstypes_list}</td>
                     </tr>
-
                     <tr>
                         <td><strong>{$lang->country}</strong></td><td colspan="2">{$countries_list}</td>
                     </tr>
                     <tr>
                         <td>{$lang->city}</td>
                         <td> <input type="text" required="required"  autocomplete="off" id="cities_1_cache_autocomplete"/><input type='hidden' id='cities_1_cache_id' name='entitylocation[ciid]'  value="{$entitylocation[ciid]}"/></td>
-
                     </tr>
                     <tr>
                         <td>{$lang->address}</td>
