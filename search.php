@@ -243,6 +243,18 @@ if($core->input['type'] == 'quick') {
             $select_attributes = array('displayName');
             $order = array('by' => 'firstName', 'sort' => 'ASC');
         }
+
+        if(isset($core->input['exclude']) && !empty($core->input['exclude'])) {
+            if(is_array($core->input['exclude'])) {
+                $core->input['exclude'] = array_map(intval, $core->input['exclude']);
+            }
+            if(empty($extra_where)) {
+                $extra_where = "{$key_attribute} NOT IN ({$core->input[exclude]})";
+            }
+            else {
+                $extra_where .= " AND {$key_attribute} NOT IN ({$core->input[exclude]})";
+            }
+        }
         elseif($core->input['for'] == 'cities' || $core->input['for'] == 'sourcecity' || $core->input['for'] == 'destinationcity') {
             if(strlen($core->input['value']) < 3) {
                 exit;
@@ -286,17 +298,6 @@ if($core->input['type'] == 'quick') {
             $select_attributes = array('name');
             //$extra_info = array('table' => 'hotelcountries');
             $order = array('by' => 'name', 'sort' => 'ASC');
-        }
-        if(isset($core->input['exclude']) && !empty($core->input['exclude'])) {
-            if(is_array($core->input['exclude'])) {
-                $core->input['exclude'] = array_map(intval, $core->input['exclude']);
-            }
-            if(empty($extra_where)) {
-                $extra_where = "{$key_attribute} NOT IN ({$core->input[exclude]})";
-            }
-            else {
-                $extra_where .= " AND {$key_attribute} NOT IN ({$core->input[exclude]})";
-            }
         }
         $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, array('returnType' => $core->input['returnType'], 'order' => $order, 'extra_where' => $extra_where, 'descinfo' => $descinfo));
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);

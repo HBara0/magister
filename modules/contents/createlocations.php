@@ -20,10 +20,8 @@ if($core->usergroup['canAddSuppliers'] == 0 && $core->usergroup['canAddCustomers
 $lang->load('contents_addentities');
 
 if(!$core->input['action']) {
-    $entitylocation['inputChecksum'] = generate_checksum('entitylocation');
-    $locations = array('plant' => 'plant', 'office' => 'office', 'showroom ' => 'show room '
-    );
-    $locations_list = parse_selectlist('entitylocation[locationType]', 1, $locations, '', '', '', array('required' => 'required', 'blankstart' => true));
+    $locationtypes = array('plant' => 'plant', 'office' => 'office', 'showroom' => 'show room');
+    $locationstypes_list = parse_selectlist('entitylocation[locationType]', 1, $locationtypes, '', '', '', array('required' => 'required', 'blankstart' => true));
 
     $countries = Countries::get_data();
     $countries_list = parse_selectlist('entitylocation[coid]', 2, $countries, $core->user_obj->get_mainaffiliate()->get_country()->coid, '', '', array('required' => 'required', 'blankstart' => true));

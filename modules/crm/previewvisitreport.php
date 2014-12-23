@@ -162,11 +162,10 @@ if(!$core->input['action']) {
             $visitreport['customerdetails']['addressDetails'] = $customer_data['addressLine1'].' - '.$customer_data['addressLine2'].' - '.$customer_data['city'].' - '.$customerobj->get_country()->get_displayname();
         }
         elseif(!empty($visitreports[1]['location'])) {
-            $customer_locobj = new EntityLocations($visitreports[1]['location'], false);
-            $visitreport['customerdetails']['addressDetails'] = $customer_locobj->location.' - '.$customer_locobj->address.' - '.' - '.$customer_locobj->get_city()->name.' - '.$customer_locobj->get_country()->get_displayname();
+            $customer_location = new EntityLocations($visitreports[1]['location'], false);
+            $visitreport['customerdetails']['addressDetails'] = $customer_location->get_displayname();
         }
         else {
-
             if($core->input['showLimitedCustDetails'] == 0) {
                 if(!empty($visitreport['customerdetails']['addressLine1'])) {
                     $visitreport['customerdetails']['addressDetails'] .= $visitreport['customerdetails']['addressLine1'].', ';

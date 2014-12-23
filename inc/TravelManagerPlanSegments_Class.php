@@ -43,8 +43,8 @@ class TravelManagerPlanSegments {
         }
 
         if(value_exists(self::TABLE_NAME, TravelManagerPlan::PRIMARY_KEY, $segmentdata[TravelManagerPlan::PRIMARY_KEY], "(fromDate = {$segmentdata['fromDate']}  OR toDate = {$segmentdata['toDate']}) AND sequence=".$segmentdata['sequence'])) {
-            $this->errorode = 4;
-            return false;
+            //  $this->errorode = 4;
+            //  return false;
         }
 
         $sanitize_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity');
@@ -66,42 +66,43 @@ class TravelManagerPlanSegments {
         $db->insert_query(self::TABLE_NAME, $segmentdata_array);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
 
-// if(isset($segmentdata['tmtcid'])) {
-//  $transptdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
+        if(isset($segmentdata['tmtcid'])) {
+            $transptdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
 
-        $transptdata = $segmentdata['tmtcid'];
+            $transptdata = $segmentdata['tmtcid'];
 
-        /* Initialize the object */
-//        if(is_array($transptdata)) {
-//            foreach($transptdata as $category => $data) {
-//                $chkdata = $data;
-//                rsort($chkdata);
-//                if(is_array($chkdata[0])) {
-//                    foreach($data as $id => $transit) {
-//                        if(!isset($transit['flightNumber'])) {
-//                            continue;
-//                        }
-//                        $transp_obj = new TravelManagerPlanTransps();
-//                        $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
-//                        $transit['tmtcid'] = $category;
-//
-//                        $transp_obj->set($transit);
-//                        $transp_obj->save();
-//                    }
-//                }
-//                else {
-//                    if(isset($data['transpType']) && empty($data['transpType'])) {
-//                        continue;
-//                    }
-//                    $transp_obj = new TravelManagerPlanTransps();
-//                    $data['tmtcid'] = $category;
-//                    $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
-//                    $transp_obj->set($data);
-//                    $transp_obj->save();
-//                }
-//            }
-//            unset($chkdata);
-//        }
+            /* Initialize the object */
+            if(is_array($transptdata)) {
+                foreach($transptdata as $category => $data) {
+                    $chkdata = $data;
+                    rsort($chkdata);
+                    if(is_array($chkdata[0])) {
+                        foreach($data as $id => $transit) {
+                            if(!isset($transit['flightNumber'])) {
+                                continue;
+                            }
+                            $transp_obj = new TravelManagerPlanTransps();
+                            $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+                            $transit['tmtcid'] = $category;
+
+                            $transp_obj->set($transit);
+                            $transp_obj->save();
+                        }
+                    }
+                    else {
+                        if(isset($data['transpType']) && empty($data['transpType'])) {
+                            continue;
+                        }
+                        $transp_obj = new TravelManagerPlanTransps();
+                        $data['tmtcid'] = $category;
+                        $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+                        $transp_obj->set($data);
+                        $transp_obj->save();
+                    }
+                }
+                unset($chkdata);
+            }
+        }
 
         if(isset($segmentdata['tmhid'])) {
             foreach($segmentdata['tmhid'] as $tmhid => $hotel) {

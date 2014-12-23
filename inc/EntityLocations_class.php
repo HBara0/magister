@@ -20,9 +20,9 @@ class EntityLocations extends AbstractClass {
     const PRIMARY_KEY = 'eloid';
     const TABLE_NAME = 'entities_locations';
     const DISPLAY_NAME = 'locationType';
-    const SIMPLEQ_ATTRS = 'eloid,eid,locationType';
+    const SIMPLEQ_ATTRS = 'eloid, eid, locationType';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'eid,locationType';
+    const UNIQUE_ATTRS = 'eid,locationType,coid,ciid';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -31,7 +31,7 @@ class EntityLocations extends AbstractClass {
     protected function create(array $data) {
         global $db, $core;
         if(is_array($data)) {
-            $required_fields = array('locationType', 'eid', 'ciid', 'addressLine1');
+            $required_fields = array('locationType', 'eid', 'coid', 'ciid', 'addressLine1');
             foreach($required_fields as $field) {
                 if(empty($data[$field])) {
                     $this->errorcode = 2;
@@ -48,6 +48,7 @@ class EntityLocations extends AbstractClass {
             $data['createdOn'] = TIME_NOW;
             $data['createdBy'] = $core->user['uid'];
             $query = $db->insert_query(self::TABLE_NAME, $data);
+            $this->data[self::PRIMARY_KEY] = $db->last_id();
         }
     }
 
@@ -67,5 +68,8 @@ class EntityLocations extends AbstractClass {
         return new Cities($this->data['ciid']);
     }
 
-    //put your code here
+    public function get_displayname() {
+        return ucwords($this->data['locationType']).': '.$this->data['addressLine1'].' - '.$this->get_city()->name.' - '.$this->get_country()->get_displayname();
+    }
+
 }

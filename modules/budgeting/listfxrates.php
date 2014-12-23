@@ -59,14 +59,14 @@ if(!$core->input['action']) {
                 $affiliate = new Affiliates($fxrate->affid);
                 $fromcurrency = new Currencies($fxrate->fromCurrency);
                 $tocurrency = new Currencies($fxrate->toCurrency);
-                $row_tools .= ' <a href = "#'.$fxrate->bfxid.'" id = "deleterate_'.$fxrate->bfxid.'_budgeting/listfxrates_loadpopupbyid" rel = "delete_'.$fxrate->bfxid.'" title = "'.$lang->delete.'"><img src = "'.$core->settings['rootdir'].'/images/invalid.gif" alt = "'.$lang->delete.'" border = "0"></a>';
-                $row_tools .= ' <a href = "#'.$fxrate->bfxid.'" id = "updaterate_'.$fxrate->bfxid.'_budgeting/listfxrates_loadpopupbyid" rel = "update_'.$fxrate->bfxid.'" title = "'.$lang->delete.'"><img src = "'.$core->settings['rootdir'].'/images/icons/edit.gif" alt = "'.$lang->delete.'" border = "0"></a>';
+                $row_tools .= ' <a href="#'.$fxrate->bfxid.'" id="deleterate_'.$fxrate->bfxid.'_budgeting/listfxrates_loadpopupbyid" rel = "delete_'.$fxrate->bfxid.'" title = "'.$lang->delete.'"><img src = "'.$core->settings['rootdir'].'/images/invalid.gif" alt = "'.$lang->delete.'" border = "0"></a>';
+                $row_tools .= ' <a href="#'.$fxrate->bfxid.'" id="updaterate_'.$fxrate->bfxid.'_budgeting/listfxrates_loadpopupbyid" rel = "update_'.$fxrate->bfxid.'" title = "'.$lang->delete.'"><img src = "'.$core->settings['rootdir'].'/images/icons/edit.gif" alt = "'.$lang->delete.'" border = "0"></a>';
 
                 $ratecategories = array('isActual', 'isYef', 'isBudget');
                 foreach($ratecategories as $ratecategory) {
                     if(isset($fxrate->$ratecategory) && !empty($fxrate->$ratecategory)) {
-                        $ratecategory = strtolower($ratecategory);
-                        $rateCategory = $lang->$ratecategory;
+                        $fxrate->category_output = $lang->{strtolower($ratecategory)};
+                        break;
                     }
                 }
                 eval("\$budgetfxratess_list .= \"".$template->get('budgeting_listfxrates_rows')."\";");
@@ -103,6 +103,8 @@ if(!$core->input['action']) {
 
     $popupcreaterate = '';
     $craetereverserate = '<tr> <td>'.$lang->craetereverserate.'</td> <td><input type = "checkbox" name = "budgetrate[createreverserate]" value = "1"/></td></tr>';
+
+    $category['checked']['isBudget'] = 'checked="checked"';
     eval("\$popupcreaterate= \"".$template->get('popup_createbudget_fxrate')."\";");
     eval("\$budgetinglistfxrates = \"".$template->get('budgeting_listfxrates')."\";");
     output_page($budgetinglistfxrates);
