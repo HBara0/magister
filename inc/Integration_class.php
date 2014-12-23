@@ -88,12 +88,12 @@ class IntegrationDataAccessLayer {
     protected $f_db = null;
 
     public function __construct($class, $table, $primary_key, $f_db = null) {
-        global $intdb;
+        global $intgdb;
         $this->table_name = $table;
         $this->primary_key = $primary_key;
         $this->class = $class;
 
-        $this->f_db = $intdb;
+        $this->f_db = $intgdb;
         if(!empty($f_db)) {
             $this->f_db = $f_db;
         }
@@ -142,12 +142,12 @@ Abstract class IntegrationAbstractClass {
     const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
-        global $intdb;
+        global $intgdb;
         if(!empty($f_db)) {
             $this->f_db = $f_db;
         }
         else {
-            $this->f_db = $intdb;
+            $this->f_db = $intgdb;
         }
         $this->read($id);
     }
