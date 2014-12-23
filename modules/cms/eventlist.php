@@ -63,7 +63,7 @@ if(!$core->input['action']) {
             'returnarray' => true,
     );
 
-    $event_objs = events::get_data($filter_where, $dal_config);
+    $event_objs = Events::get_data($filter_where, $dal_config);
     unset($where_filter);
 
     if(is_array($event_objs)) {

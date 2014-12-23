@@ -3,17 +3,17 @@
         <title>{$core->settings[systemtitle]} | {$pagetitle}</title>
         {$headerinc}
         <script language="javascript" type="text/javascript">
-            $(function() {
-                $("#affid").change(function() {
-                    if (sharedFunctions.checkSession() == false) {
+            $(function () {
+                $("#affid").change(function () {
+                    if(sharedFunctions.checkSession() == false) {
                         return;
                     }
 
                     sharedFunctions.requestAjax("post", "index.php?module=hr/manageholidays&action=get_affiliateemployees", "affid=" + $(this).val(), 'exceptionsemployees_list', 'exceptionsemployees_list', true);
                 });
 
-                $("input[id='isOnce']").change(function() {
-                    if ($(this).is(":checked")) {
+                $("input[id='isOnce']").change(function () {
+                    if($(this).is(":checked")) {
                         $("#year").removeAttr("disabled");
                     }
                     else
@@ -30,6 +30,8 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$pagetitle}</h1>
+            <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p><strong>Important:</strong> Holidays recurring on the same date should not be created each year. Holidays which dates change should be re-created each year.</p></div>
+
             <form name='change_hr/manageholidays_Form' id="change_hr/manageholidays_Form" method="post"  >
                 <input type="hidden" id="action" name="action" value="{$action}" />
                 {$affid_field}

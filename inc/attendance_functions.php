@@ -320,7 +320,8 @@ function count_workingdays($uid, $check_dates_start, $check_dates_end, $is_whole
         return $count_working_days;
     }
     else {
-        error('No workshift specified for user');
+        $user = new Users($uid);
+        error('No workshift specified for user ('.$user->displayName.')');
     }
 
     while($reached_last_day == false) {
