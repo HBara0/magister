@@ -17,7 +17,7 @@ if($core->usergroup['grouppurchase_canUpdateForecast'] == 0) {
 if(!$core->input['action']) {
     $forecast_data = $core->input['forecast'];
     if(empty($forecast_data) || array_search("0", $forecast_data) !== false) {
-        redirect('index.php?module=grouppurchase/create');
+        redirect('index.php?module=grouppurchase/createforecast');
     }
     $affiliate = new Affiliates($forecast_data['affid']);
     $supplier = new Entities($forecast_data['spid']);
@@ -58,8 +58,9 @@ if(!$core->input['action']) {
                             $forecastline[$field] = number_format($forecastline[$field], 2);
                             $forecastline['quantity'] = number_format($forecastline['quantity'], 2);
                             /* disable input fields on update for past months */
-                            if(trim($field, "month") < date("m")) {
-                                $readonly[$field] = 'readonly=readonly';
+                            $date_str = $forecast_data['year'].'-'.trim($field, 'month');
+                            if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
+                                $readonly[$field] = 'readonly="readonly"';
                             }
                         }
                 }
@@ -69,7 +70,7 @@ if(!$core->input['action']) {
                 $segments_selectlist = parse_selectlist('forecastline['.$rowid.'][psid]', 3, $supplier_segments, $forecastline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
             }
             eval("\$forecastlines .= \"".$template->get('grouppurchase_fill_forecastlines')."\";");
-            unset($forecastline);
+            unset($forecastline, $readonly);
             $rowid++;
         }
     }
@@ -85,11 +86,12 @@ if(!$core->input['action']) {
                     foreach($fields as $field) {
                         switch($field) {
                             case 's1quantity':
-                                for($i = 1; $i < 7; $i++) {
-                                    $forecastline[$months[$i]] = ($line['s1quantity'] / 6);
+                                for($i = 1; $i < 7; $i ++) {
+                                    $forecastline[$months[$i]] = ($line['s1quantity'] / 6 );
                                     $total[$months[$i]] += $forecastline[$months[$i]];
-                                    if($i < date("m")) {
-                                        $readonly[$months[$i]] = 'readonly=readonly';
+                                    $date_str = $forecast_data[year].'-'.$i;
+                                    if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
+                                        $readonly[$months[$i]] = 'readonly = "readonly"';
                                     }
                                 }
                                 break;
@@ -97,8 +99,9 @@ if(!$core->input['action']) {
                                 for($i = 7; $i < 13; $i++) {
                                     $forecastline[$months[$i]] = $line['s2quantity'] / 6;
                                     $total[$months[$i]] += $forecastline[$months[$i]];
-                                    if($i < date("m")) {
-                                        $readonly[$months[$i]] = 'readonly=readonly';
+                                    $date_str = $forecast_data[year].'-'.$i;
+                                    if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
+                                        $readonly[$months[$i]] = 'readonly = "readonly"';
                                     }
                                 }
                                 break;
@@ -112,7 +115,7 @@ if(!$core->input['action']) {
                                 $forecastline['productName'] = $product->name;
                         }
                     }
-                    $forecastline['quantity'] = $line['s1quantity'] + $line['s2quantity'];
+                    $forecastline['quantity'] = $line['s1quantity'] + $line ['s2quantity'];
                     $segments_selectlist = '';
                     if(count($supplier_segments) > 1) {
                         $segments_selectlist = parse_selectlist('forecastline['.$rowid.'][psid]', 3, $supplier_segments, $forecastline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
@@ -139,7 +142,7 @@ if(!$core->input['action']) {
         }
     }
     foreach($months as $month) { /* output total row */
-        $total_output .='<td class="border_right" align="center"><span style="font-weight:bold;" id="forecastline_total_'.$month.'">'.number_format($total[$month], 2).'</span></td>';
+        $total_output .='<td class = "border_right" align = "center"><span style = "font-weight:bold;" id = "forecastline_total_'.$month.'">'.number_format($total[$month], 2).'</span></td>';
     }
     eval("\$fillforecast = \"".$template->get('grouppurchase_fill_forecast')."\";");
     output_page($fillforecast);

@@ -33,7 +33,6 @@ class TravelManagerPlanaccomodations {
 
     public function create($data = array()) {
         global $db, $core;
-        echo 'create';
 
         $tanspdata_array = array('tmpsid' => $data['tmpsid'],
                 'tmhid' => $data['tmhid'],
@@ -41,7 +40,8 @@ class TravelManagerPlanaccomodations {
                 'numNights' => $data['numNights'],
                 'paidBy' => $data['paidBy'],
         );
-        $db->insert_query('travelmanager_plan_accomodations', $tanspdata_array);
+
+        $db->insert_query('travelmanager_plan_accomodations', $data);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
     }
 
