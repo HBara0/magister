@@ -13,4 +13,4 @@
     </td>
     <td><textarea  name="budgetrainingvisit[local][$rowid][purpose]"  cols="40" required="required">{$budgetrainingvisit[purpose]}{$budgetrainingvisit[$populated_leave->lid][$type][purpose]}</textarea></td>
     <td><input type='number' id="costaff_{$rowid}_local" step="only"  name="budgetrainingvisit[local][$rowid][Costaffiliate]" value="{$budgetrainingvisit[$populated_leave->lid][$type][Costaffiliate]}" autocomplete='off' {$required}/></td>
-</tr>type
+</tr>
