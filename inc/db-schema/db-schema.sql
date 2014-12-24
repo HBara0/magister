@@ -2963,6 +2963,7 @@ CREATE TABLE `usergroups` (
   `canManageCustomers` int(1) NOT NULL DEFAULT '0',
   `canManageProducts` int(1) NOT NULL DEFAULT '0',
   `canUseContents` int(1) NOT NULL DEFAULT '0',
+  `contents_canManageLocations` tinyint(1) NOT NULL DEFAULT '0',
   `canAddProducts` int(1) NOT NULL DEFAULT '0',
   `canAddSuppliers` int(1) NOT NULL DEFAULT '0',
   `canAddCustomers` int(1) NOT NULL DEFAULT '0',

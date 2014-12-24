@@ -19,7 +19,7 @@
                         <td colspan="2"><input type="text"  autocomplete="off" id="allentities_1_cache_autocomplete"/><input type='hidden' id='allentities_1_cache_id' name='entitylocation[eid]' value="{$entitylocation[eid]}"/></td>
                     </tr>
                     <tr>
-                        <td><strong>{$lang->location}</strong></td><td colspan="2">{$locationstypes_list}</td>
+                        <td><strong>{$lang->locationtype}</strong></td><td colspan="2">{$locationstypes_list}</td>
                     </tr>
                     <tr>
                         <td><strong>{$lang->country}</strong></td><td colspan="2">{$countries_list}</td>
@@ -38,7 +38,6 @@
                     <tr>
                         <td>{$lang->postcode}</td><td colspan="2"><input type="text" id="postCode" name="entitylocation[postCode]" accept="numeric" /></td>
                     </tr>
-
                     <tr>
                         <td>{$lang->pobox}</td><td colspan="2"><input type="text" id="poBox" name="entitylocation[poBox]" accept="numeric" /></td>
                     </tr>
@@ -47,14 +46,13 @@
                         <td colspan="2">+ <input type="text" id="telephone_intcode" name="entitylocation[telephone_intcode]" size="3" maxlength="3" accept="numeric" />
                             <input type="text" id="telephone_areacode" name="entitylocation[telephone_areacode]" size='4' maxlength="4" accept="numeric" />
                             <input type="text" id="telephone_number" name="entitylocation[telephone_number]" accept="numeric"  /><br />
-
                     </tr>
                     <tr>
                         <td>{$lang->geolocation}</td><td colspan="2"><input type="text" name="entitylocation[geoLocation]" id="geoLocation" placeholder="33.892516 35.510929" pattern="(\-?\d+(\.\d+)?) \s*(\-?\d+(\.\d+)?)"/> <span class="smalltext">({$lang->longlattidue})</span></td>
                     </tr>
-
                     <tr>
                         <td colspan="3" align="left">
+                            <hr />
                             <input type="submit" class="button" value="{$lang->add}" id="perform_contents/createlocations_Button" /> <input  class="button" type="reset" value="{$lang->reset}"/>
                             <div id="perform_contents/createlocations_Results"></div>
                         </td>
