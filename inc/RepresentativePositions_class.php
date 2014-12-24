@@ -38,7 +38,7 @@ class RepresentativePositions extends AbstractClass {
     }
 
     public function get_position() {
-        return Positions::get_data(array('posid' => $this->data['posid']));
+        return new Positions($this->data['posid']);
     }
 
 }
