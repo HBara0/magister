@@ -121,7 +121,7 @@ class CSV {
         }
     }
 
-    public function write_tocsv($data = array()) {
+    public function write_file($data = array()) {
         if(empty($data)) {
             return;
         }
@@ -136,20 +136,7 @@ class CSV {
         /** rewrind the "file" with the csv lines * */
         fseek($data_source, 0);
         /** Send file to browser for download */
-        fpassthru($data_source);
-    }
-
-    public function download($method = 'stream') {
-        global $log;
-        $data_source = @fopen($this->filename, 'w+');
-        $download = new Download();
-        $download->set_real_path($this->filename);
-        if($method == 'download') {
-            $download->download_file();
-        }
-        else {
-            $download->stream_file(true);
-        }
+        //fpassthru($data_source);
     }
 
     public function readdata_file(array $filter = array()) {

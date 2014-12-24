@@ -192,18 +192,24 @@ else {
 
         $query = $db->query('UPDATE '.Tprefix.'budgeting_budgets_lines SET '.$updatequery_set.' WHERE bid IN (SELECT bid FROM budgeting_budgets '.$budget_wherecondition.')'.$budgetline_wherecondition);
         if($query) {
-            $filepath = ''.ROOT.'\tmp\budget\budgetdata.csv';
-            $file = fopen($filepath, "w+");
+            $filename = generate_checksum();
+            $filepath = ROOT.'/tmp/budget/'.$filename.'.csv';
             $csv = new CSV($filepath);
-            $csv->write_tocsv($budgetlines_notaffectedobjs);
-            output_xml('<status>true</status><message>'.$lang->successfullysaved.' '.$db->affected_rows().' lines.<![CDATA[ <a href="'.$core->settings['rootdir'].'/index.php?module=budgeting/massupdate&action=download" target="_blank">click here to downolad original value </a>]]></message>');
+            $csv->write_file($budgetlines_notaffectedobjs);
+            output_xml('<status>true</status><message>'.$lang->successfullysaved.' '.$db->affected_rows().' lines.<![CDATA[ <a href="'.$core->settings['rootdir'].'/index.php?module=budgeting/massupdate&amps;action=download&amps;file='.$filename.'" target="_blank">Click here to downolad original values.</a>]]></message>');
         }
     }
     elseif($core->input['action'] == 'download') {
-        $filepath = ''.ROOT.'\tmp\budget\budgetdata.csv';
-        $file = fopen($filepath, "w+");
-        $csv = new CSV($filepath);
-        $csv->download();
+        if(empty($core->input['file'])) {
+            error($lang->error);
+        }
+
+        $filepath = ROOT.'/tmp/budget/'.$core->input['file'].'.csv';
+
+        $download = new Download();
+        $download->set_real_path($filepath);
+        $download->stream_file(true);
+        unlink($filepath);
     }
 }
 
