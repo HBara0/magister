@@ -23,7 +23,7 @@
             <div><textarea cols="60" rows="5" name="marketdata[comments]">{$midata->comments}</textarea></div>
             <hr />
             <table cellpadding="0" cellspacing="0" width="100%">
-                <tr><td><strong>{$lang->competition}sssssssss</strong></td></tr>
+                <tr><td><strong>{$lang->competition}</strong></td></tr>
                 <tr>
                     <td>
                         <table class="datatable" width="100%">
@@ -43,8 +43,8 @@
                                                 <div id='searchQuickResults_competitorproducersupp_{$rowid}' class='searchQuickResults' style='display:none;'></div> </div>
                                         </div>
                                         <div style="width:100%; display:block;padding:5px">
-                                            <div style="width:45%; display: inline-block;">{$lang->price}</div><div style="width:30%; display: inline-block;"><input type="text" size="8" name="marketdata[competitor][{$rowid}][unitPrice]"  value="{$competitor[uniprice]}" accept="numeric" autocomplete="off" min="0"/> USD/KG</div>
-                                            <div style="width:15%; display: inline-block;">{$incoterms_list}</div>
+                                            <div style="width:45%; display: inline-block;">{$lang->price}</div>
+                                            <div style="width:45%; display: inline-block;"><input type="text" size="8" name="marketdata[competitor][{$rowid}][unitPrice]"  value="{$competitor[uniprice]}" accept="numeric" autocomplete="off" min="0"/> {$incoterms_list} USD/KG</div>
                                         </div>
                                         <div style="width:100%; display:block;padding:5px">
                                             <div style="width:45%; display: inline-block;">{$lang->product}</div>
@@ -62,7 +62,7 @@
                                             <div style="width:45%; display: inline-block;">{$saletype_list}</div>
                                         </div>
                                         <div style="width:100%; display:block;padding:5px">
-                                            <div style="width:45%; display: inline-block;">{$lang->sampleacquire}</div>
+                                            <div style="width:45%; display: inline-block;">{$lang->sampleacquired}</div>
                                             <div style="width:45%; display: inline-block;">{$samplacquire}</div>
                                         </div>
                                     </td>
