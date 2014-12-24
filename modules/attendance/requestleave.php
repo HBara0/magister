@@ -336,8 +336,8 @@ else {
                 $leave['details_crumb'] = implode(' ', $leave['details_crumb']);
             }
             else {
-//                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-//                exit;
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                exit;
             }
         }
 
@@ -363,8 +363,8 @@ else {
         if($leavetype->has_expenses()) {
             $expensesfield_type = $leavetype->get_expenses();
             foreach($expensesfield_type as $alteid => $expensesfield) {
-                if(($expensesfield['isRequired'] == 1 && (empty($expenses_data[$alteid]['expectedAmt']) && $expenses_data[$alteid]['expectedAmt'] != 0)) || (($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description'])))) {
-                    output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                if(($expensesfield['isRequired'] == 1 && (empty($expenses_data[$alteid]['expectedAmt']) && $expenses_data[$alteid]['expectedAmt'] != '0')) || (($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description'])))) {
+                    output_xml("<status>false</status><message>{$lang->fillallrequiredfields} (".$expensesfield_type['titleOverwrite'].")</message>");
                     exit;
                 }
             }
@@ -373,7 +373,7 @@ else {
         if(isset($leavetype_details['reasonIsRequired']) && $leavetype_details['reasonIsRequired'] == 1) {
             if(empty($core->input['reason']) || strlen($core->input['reason']) <= 20) {
                 header('Content-type: text/xml+javascript');
-                output_xml('<status>false</status><message>'.$lang->minimumcharacter.'<![CDATA[<script>$("#reason"). addClass("requiredfield").focus();</script>]]></message>');
+                output_xml('<status>false</status><message>'.$lang->minimumcharacter.'<![CDATA[<script>$("#reason").addClass("requiredfield").focus();</script>]]></message>');
                 exit;
             }
         }
