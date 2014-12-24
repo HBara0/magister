@@ -688,7 +688,6 @@ $(function () {
 
         if($("#numrows_" + uniquename).length != 0) {
             var num_rows = parseInt($("#numrows_" + uniquename).val());
-            var affid = parseInt($("#affid_" + uniquename).val());
         }
 
         $.ajax({type: 'post',
