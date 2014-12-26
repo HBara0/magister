@@ -88,7 +88,7 @@
                                 <td width="14.2%" class=" border_right"  valign="top" align="center">{$lang->bm}  </td>
                                 <td width="14.2%" class=" border_right"   valign="top" align="center">{$lang->date}</td>
                                 <td width="14.2%" class=" border_right"  valign="top" align="center">{$lang->purpose}</td>
-                                <td width="14.2" class=" border_right"   valign="top" align="center">{$lang->plancost}</td>
+                                <td width="14.2" class=" border_right"   valign="top" align="center">{$lang->planecost}</td>
                                 <td width="14.2" class=" border_right"   valign="top" align="center">{$lang->othercost}</td>
                                 <td width="14.2" class=" border_right"   valign="top" align="center">{$lang->totalcostaffonly}</td>
                             </tr>
