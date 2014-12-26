@@ -23,9 +23,9 @@
                 <td>{$lang->rateategorization}</td>
                 <td>
                     <fieldset style="border:none;padding:0px;" {$disabled}>
-                        <span> <input type="radio" name="budgetrate[rateCategory]" {$category[checked][isYef]} value="isYef" />{$lang->isyef}</span>
-                        <span> <input type="radio" name="budgetrate[rateCategory]" {$category[checked][isActual]} value="isActual"/>{$lang->isactual}</span>
-                        <span> <input type="radio" name="budgetrate[rateCategory]" {$category[checked][isBudget]} value="isBudget"/>{$lang->isbudget}</span>
+                        <span><input type="radio" name="budgetrate[rateCategory]" {$category[checked][isYef]} value="isYef" />{$lang->isyef}</span>
+                        <span><input type="radio" name="budgetrate[rateCategory]" {$category[checked][isActual]} value="isActual"/>{$lang->isactual}</span>
+                        <span><input type="radio" name="budgetrate[rateCategory]" {$category[checked][isBudget]} value="isBudget"/>{$lang->isbudget}</span>
                     </fieldset></td>
             </tr>
             {$craetereverserate}

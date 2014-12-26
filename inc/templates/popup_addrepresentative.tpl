@@ -1,6 +1,5 @@
 <script>
     $('a[title]').qtip({style: {classes: 'ui-tooltip-green ui-tooltip-shadow'}, show: {event: 'focus mouseenter', solo: true}, hide: 'unfocus mouseleave', position: {viewport: $(window)}});
-
 </script>
 <div id="popup_addrepresentative" title="{$lang->addnewrepresentative}">
     <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>{$lang->addrepresentative_note}</p></div>
@@ -15,7 +14,7 @@
             </tr>
             <tr>
                 <td width="40%">{$lang->issupportive} <a href="#" title="{$lang->issuportivedescription}" class=""><img src="./images/icons/question.gif" /></a></td>
-                <td><select name="isSupportive"><option value="" ></option><option value="1">{$lang->yes}</option><option value="0">{$lang->no}</option></select>
+                <td><select name="isSupportive"><option value=""></option><option value="1">{$lang->yes}</option><option value="0">{$lang->no}</option></select>
                 </td>
             </tr>
             <tr>

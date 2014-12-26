@@ -20,7 +20,7 @@ if($core->usergroup['canAddSuppliers'] == 0 && $core->usergroup['canAddCustomers
 $lang->load('contents_addentities');
 
 if(!$core->input['action']) {
-    $locationtypes = array('plant' => 'plant', 'office' => 'office', 'showroom' => 'show room');
+    $locationtypes = array('plant' => $lang->plant, 'office' => $lang->office, 'showroom' => $lang->showroom, 'rdlab' => $lang->rdlab);
     $locationstypes_list = parse_selectlist('entitylocation[locationType]', 1, $locationtypes, '', '', '', array('required' => 'required', 'blankstart' => true));
 
     $countries = Countries::get_data();
