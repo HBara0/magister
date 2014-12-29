@@ -222,6 +222,7 @@ class TravelManagerPlanSegments {
                 $expensestdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
                 $expensestdata['createdBy'] = $core->user['uid'];
                 $expensestdata['tmetid'] = $expense['tmetid'];
+                $expensestdata['tmeid'] = $expense['tmeid'];
                 $expensestdata['expectedAmt'] = $expense['expectedAmt'];
                 $expensestdata['currency'] = $expense['currency'];
                 $expensestdata['actualAmt'] = $expense['actualAmt'];

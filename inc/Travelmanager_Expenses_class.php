@@ -41,12 +41,20 @@ class Travelmanager_Expenses extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
-        $expenses = Travelmanager_Expenses::get_data(array('tmpsid' => $data['tmpsid'], 'tmetid' => $data['tmetid']));
-        if(is_object($expenses)) {
-            $expenses->update($data);
+        if(isset($data['tmeid']) && !empty($data['tmeid'])) {
+            $expensesbypk = Travelmanager_Expenses::get_data(array('tmeid' => $data['tmeid']));
+        }
+        if(is_object($expensesbypk)) {
+            $expensesbypk->update($data);
         }
         else {
-            $this->create($data);
+            $expenses = Travelmanager_Expenses::get_data(array('tmpsid' => $data['tmpsid'], 'tmetid' => $data['tmetid']));
+            if(is_object($expenses)) {
+                $expenses->update($data);
+            }
+            else {
+                $this->create($data);
+            }
         }
     }
 
@@ -56,6 +64,7 @@ class Travelmanager_Expenses extends AbstractClass {
             $expensestdata['expectedAmt'] = $data['expectedAmt'];
             $expensestdata['currency'] = $data['currency'];
             $expensestdata['description'] = $data['description'];
+            $expensestdata['tmetid'] = $data['tmetid'];
             $expensestdata['paidBy'] = $data['paidBy'];
             $expensestdata['paidById'] = $data['paidById'];
             $expensestdata['modifiedBy'] = $core->user['uid'];
