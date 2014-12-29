@@ -39,6 +39,7 @@ class TravelManagerPlanaccomodations {
                 'priceNight' => $data['priceNight'],
                 'numNights' => $data['numNights'],
                 'paidBy' => $data['paidBy'],
+                'paidById' => $data['paidById'],
         );
 
         $db->insert_query('travelmanager_plan_accomodations', $data);

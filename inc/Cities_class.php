@@ -106,18 +106,19 @@ class Cities {
             $hotelssegments_output = '<div class="subtitle">'.$lang->approvedhotels.'</div>';
             foreach($approved_hotelsobjs as $approved_hotelsobj) {
                 $approved_hotels = $approved_hotelsobj->get();
-//                $approvedhotel_id = key($selectedhotel[key($selectedhotel)]);
+                if(is_array($selectedhotel) && !empty($selectedhotel)) {
+
+                    // $approvedhotel_id = key($selectedhotel[key($selectedhotel)]);
+                    $approvedhotel_id = $selectedhotel[$segid][$approved_hotels['tmhid']]['selectedhotel'];
+                }
                 $hotelname = array($approved_hotels['tmhid'] => $approved_hotels['name']);
                 $review_tools .= ' <a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'./images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
 
-                $checkbox_hotel = parse_checkboxes('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].']', $hotelname, $selectedhotel[$segid][$approvedhotel_id]['selectedhotel'], true, '&nbsp;&nbsp;');
-
+                $checkbox_hotel = parse_checkboxes('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].']', $hotelname, $selectedhotel[$segid][$approved_hotels['tmhid']], true, '&nbsp;&nbsp;');
                 //$paidby_details.=$this->parse_paidby($sequence, '', $segid, array('tmhid' => $approved_hotels['tmhid'], 'selectedpaidby' => $selectedhotel[$segid][$approved_hotels['tmhid']]['paidby'], 'selectedpaidid' => $selectedhotel[$segid][$approved_hotels['tmhid']]['paidbyid']));
                 $paidby_details.=$this->parse_paidby($sequence, '', $segid, array('tmhid' => $approved_hotels['tmhid'], 'accomodations' => $selectedhotel[$segid][$approvedhotel_id]));
-                print_R($selectedhotel);
-
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
-                $review_tools = $paidby_details = '';
+                $review_tools = $paidby_details = $checkbox_hotel = '';
             }
         }
         else {
@@ -138,7 +139,6 @@ class Cities {
                 'myself' => $lang->myself,
                 'anotheraff' => $lang->anotheraff
         );
-
         foreach($paidby_entities as $val => $paidby) {
             if(!empty($selectedoptions['accomodations']['paidby'])) {
                 $selected = '';
@@ -148,9 +148,10 @@ class Cities {
             }
             $paid_options.="<option value=".$val." {$selected}> {$paidby} </option>";
         }
-        $onchange_actions = '$("#"+$(this).find(":selected").val()+"_"+'.$sequence.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();';
+
+        $onchange_actions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$rowid.'").show();}else{$("#anotheraff_accomodations_'.$sequence.'_'.$rowid.'").hide();}';
         // $onchange_actions = 'onchange="$(\"#"+$(this).find(":selected").val()+"_"+'.$sequence.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();\"';
-        return 'Paid By <select id="paidby" name="segment['.$sequence.'][tmhid]['.$selectedoptions['tmhid'].'][entites]" '.$onchange_actions.'>'.$paid_options.'</select> ';
+        return 'Paid By <select id="paidbylist_accomodations_'.$sequence.'_'.$rowid.'" name="segment['.$sequence.'][tmhid]['.$selectedoptions['tmhid'].'][entites]" onchange='.$onchange_actions.'>'.$paid_options.'</select> ';
         //   return '<div style="display:block;padding:8px;"  id="paidby"> Paid By '.parse_selectlist('segment['.$sequence.'][tmhid]['.$selectedoptions['tmhid'].'][entites]', 6, $paidby_entities, $selected_paidby[$segid], '', '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();;', array('id' => 'paidby')).'</div>';
     }
 

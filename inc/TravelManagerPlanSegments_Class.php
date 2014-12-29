@@ -196,8 +196,12 @@ class TravelManagerPlanSegments {
 
             foreach($segment_hotels['tmhid'] as $tmhid => $hotel) {
                 $hotelacc = TravelManagerPlanaccomodations::get_data('tmhid='.$tmhid);
-                if(!in_array($hotelacc->tmhid, $hotel)) {
+                if(is_object($hotelacc) && (!in_array($hotelacc->tmhid, $hotel))) {
                     $db->delete_query('travelmanager_plan_accomodations', 'tmhid='.$tmhid.' AND tmpsid ='.$this->data['tmpsid'].'');
+                    continue;
+                }
+                /* if hotel not exist in segment accomodation & is not selected Skip! */
+                if(!is_object($hotelacc) && empty($hotel[$tmhid])) {
                     continue;
                 }
                 $hoteldata['tmhid'] = $tmhid;
