@@ -69,7 +69,7 @@ class TravelManagerAirlines {
         return false;
     }
 
-    private function parse_responsefilghts($response_flightdata, $transpcatid, $sequence, $source = 'plan') {
+    private function parse_responsefilghts($response_flightdata, $transpcat = array(), $sequence, $source = 'plan') {
         global $core, $template, $lang;
         foreach($response_flightdata->trips->tripOption as $tripoptnum => $tripoption) {
 //for($tripoptnum = 0; $tripoptnum <= count($response_flightdata->trips->tripOption); $tripoptnum++) {
@@ -144,7 +144,11 @@ class TravelManagerAirlines {
                     // }
                 }
                 if(!empty($source) && ($source == 'plan')) {
-                    $flightnumber_checkbox = ' <input type="checkbox" name="segment['.$sequence.'][tmtcid]['.$transpcatid.']['.$flight[flightid].'][flightNumber]" value="'.$flight['flightnumber'].'"/>';
+                    $checkbox['selctedflight'] = '';
+                    if($transpcat['selectedflight'] == $flight['flightnumber']) {
+                        $checkbox['selctedflight'] = "checked='checked'";
+                    }
+                    $flightnumber_checkbox = ' <input type="checkbox" name="segment['.$sequence.'][tmtcid]['.$transpcat['tmtcid'].']['.$flight[flightid].'][flightNumber]" value="'.$flight['flightnumber'].'"'.$checkbox['selctedflight'].'/>';
                 }
             }
             eval("\$flights_records .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
@@ -163,7 +167,7 @@ class TravelManagerAirlines {
         $response_flightdata = json_decode($data);
         //$flights_records = '<div class = "subtitle" style = "width:100%;margin:10px; box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px  rgba(0, 0, 0, 0.1) solid;;">Best Flights</div>';
 
-        return self::parse_responsefilghts($response_flightdata, $transpcat['tmtcid'], $sequence, $source);
+        return self::parse_responsefilghts($response_flightdata, $transpcat, $sequence, $source);
     }
 
     public static function get_flights($request, $apikey = null) {

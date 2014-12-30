@@ -51,14 +51,16 @@ class TravelManagerPlanTransps extends AbstractClass {
             if(is_object($tmptransp)) {
                 $tmptransp->update($data);
             }
-            $this->create($data);
+            else {
+                $this->create($data);
+            }
         }
     }
 
     protected function update(array $data) {
         global $db;
 
-        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'transpDetails');
+        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'flightDetails', 'paidBy', 'paidById', 'transpType');
         $valid_attrs = array_combine($valid_attrs, $valid_attrs);
         $data = array_intersect_key($data, $valid_attrs);
 
@@ -77,8 +79,10 @@ class TravelManagerPlanTransps extends AbstractClass {
                 'fare' => $transportdata['fare'],
                 'vehicleNumber' => $transportdata['vehicleNumber'],
                 'flightNumber' => $transportdata['flightNumber'],
-                'flightDetails' => $transportdata['transpDetails']
-                //'transpType' => $transportdata['transpType'],
+                'flightDetails' => $transportdata['transpDetails'],
+                'paidBy' => $transportdata['paidBy'],
+                'paidById' => $transportdata['paidById'],
+                'transpType' => $transportdata['transpType'],
         );
 
         $db->insert_query(self::TABLE_NAME, $tanspdata_array);

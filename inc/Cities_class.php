@@ -174,8 +174,7 @@ class Cities {
     }
 
     public function parse_citybriefing() {
-        global
-        $lang, $core;
+        global $lang, $core;
         $city_briefingsobj = $this->get_latestbriefing();
         if(is_object($city_briefingsobj)) {
             $citybriefings_output = ' <div><strong>'.$lang->citybrfg.'</strong></div>';
@@ -232,9 +231,9 @@ class Cities {
         return false;
     }
 
-    public static function parse_transportations(
-    $transpdata = array(), $sequence) {  //to be continued later
+    public static function parse_transportations($transpdata = array(), $sequence) {  //to be continued later
         global $template, $lang;
+
         if(is_array($transpdata) && empty($transpdata['apiFlightdata'])) {
             $directionapi = TravelManagerPlan::get_availablecitytransp(array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'departuretime' => $transpdata['departuretime']));  /*  Get available tranportaion mode for the city proposed by google API */
         }
@@ -271,8 +270,9 @@ class Cities {
                     $transitmode['url'] = '<a href="'.$transitmode[url].'" target="_blank" >'.$urldisplay[2].'</a>'; //temporary coded
                     $possible_transportation = '<div>'.$lang->reservation.'<span class="smalllinkgrey"> '.$transitmode['url'].'</span></div>';
                 }
-                $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation(array('vehicleType' => $transitmode['vehiclename']), $sequence);
-                $transp_category_fields = TravelManagerPlan::parse_transportaionfields(array('name' => $drivingmode['transpcat']['name'], 'tmtcid' => $drivingmode['transpcat']['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['departuretime']), $sequence);
+
+                $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation(array('selectedtransp' => $transpdata['transportationdetails'][$transpdata['segmentid']], 'vehicleType' => $transitmode['vehiclename']), $sequence);
+                $transp_category_fields = TravelManagerPlan::parse_transportaionfields(array('transportationdetials' => $transpdata['transportationdetails'][$transpdata['segmentid']][$drivingmode['transpcat']['cateid']], 'name' => $drivingmode['transpcat']['name'], 'tmtcid' => $drivingmode['transpcat']['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['departuretime']), $sequence);
                 if(!empty($transp_category_fields)) {
                     eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
                     eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
@@ -281,10 +281,9 @@ class Cities {
             }
         }
         if($transpdata['origincity']['country'] != $transpdata['destcity']['country']) {
-            $drivingmode ['transpcat'] = TravelManagerPlan::parse_transportation(array('vehicleType' => 'airplane'), $sequence);
-//$transptitle = '<div class="subtitle">Possible Transportations</div>';
+            $drivingmode ['transpcat'] = TravelManagerPlan::parse_transportation(array('selectedtransp' => $transpdata['transportationdetails'][$transpdata['segmentid']], 'vehicleType' => 'airplane'), $sequence);
 
-            $transp_category_fields = TravelManagerPlan::parse_transportaionfields(array('name' => $drivingmode['transpcat']['name'], 'tmtcid' => $drivingmode['transpcat']['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['departuretime']), $sequence);
+            $transp_category_fields = TravelManagerPlan::parse_transportaionfields(array('transportationdetials' => $transpdata['transportationdetails'][$transpdata['segmentid']][$drivingmode['transpcat']['cateid']], 'name' => $drivingmode['transpcat']['name'], 'tmtcid' => $drivingmode['transpcat'] ['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['departuretime']), $sequence);
             if(!empty($transp_category_fields)) {
                 unset($possible_transportation);
                 eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
@@ -293,11 +292,16 @@ class Cities {
         }
 
         /* Always have the Others type */
-        $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation(array('vehicleType' => 'other'), $sequence);
-        $transp_category_fields = TravelManagerPlan::parse_transportaionfields(array('name' => $drivingmode['transpcat']['name'], 'tmtcid' => $drivingmode['transpcat']['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['departuretime']), $sequence);
 
+        $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation(array('selectedtransp' => $transpdata['transportationdetails'][$transpdata['segmentid']], 'vehicleType' => 'other'), $sequence);
+        if(empty($drivingmode['transpcat']['display'])) {
+            $drivingmode['transpcat']['display'] = 'display:none;';
+        }
+        $transp_category_fields = TravelManagerPlan::parse_transportaionfields(array('transportationdetials' => $transpdata['transportationdetails'][$transpdata['segmentid']][$drivingmode['transpcat']['cateid']], 'name' => $drivingmode['transpcat']['name'], 'tmtcid' => $drivingmode['transpcat'] ['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['departuretime']), $sequence);
+        echo $drivingmode['transpcat']['display'];
         eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
         eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
+
 
         return $transsegments_output.$transcategments_output;
     }

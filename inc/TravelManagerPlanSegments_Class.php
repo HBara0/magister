@@ -81,6 +81,8 @@ class TravelManagerPlanSegments {
                             if(!isset($transit['flightNumber'])) {
                                 continue;
                             }
+                            $transit['paidBy'] = $data['paidBy'];
+                            $transit['paidById'] = $data['paidById'];
                             $transp_obj = new TravelManagerPlanTransps();
                             $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                             $transit['tmtcid'] = $category;
@@ -158,37 +160,39 @@ class TravelManagerPlanSegments {
 
         $db->update_query(self::TABLE_NAME, $segmentnewdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
 
-//        if(is_array($transptdata)) {
-//
-//            foreach($transptdata as $category => $data) {
-//                $chkdata = $data;
-//                rsort($chkdata);
-//                if(is_array($chkdata[0])) {
-//                    foreach($data as $id => $transit) {
-//                        if(!isset($transit['flightNumber'])) {
-//                            continue;
-//                        }
-//                        $transp_obj = new TravelManagerPlanTransps();
-//                        $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
-//                        $transit['tmtcid'] = $category;
-//
-//                        $transp_obj->set($transit);
-//                        $transp_obj->save();
-//                    }
-//                }
-//                else {
-//                    if(isset($data['transpType']) && empty($data['transpType'])) {
-//                        continue;
-//                    }
-//                    $transp_obj = new TravelManagerPlanTransps();
-//                    $data['tmtcid'] = $category;
-//                    $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
-//                    $transp_obj->set($data);
-//                    $transp_obj->save();
-//                }
-//            }
-//            unset($chkdata);
-//        }
+        $transptdata = $segmentdata['tmtcid'];
+        if(is_array($transptdata)) {
+            foreach($transptdata as $category => $data) {
+                $chkdata = $data;
+                rsort($chkdata);
+                if(is_array($chkdata[0])) {
+                    foreach($data as $id => $transit) {
+                        if(!isset($transit['flightNumber'])) {
+                            continue;
+                        }
+                        $transit['paidBy'] = $data['paidBy'];
+                        $transit['paidById'] = $data['paidById'];
+                        $transp_obj = new TravelManagerPlanTransps();
+                        $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+                        $transit['tmtcid'] = $category;
+
+                        $transp_obj->set($transit);
+                        $transp_obj->save();
+                    }
+                }
+                else {
+                    if(isset($data['transpType']) && empty($data['transpType'])) {
+                        continue;
+                    }
+                    $transp_obj = new TravelManagerPlanTransps();
+                    $data['tmtcid'] = $category;
+                    $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+                    $transp_obj->set($data);
+                    $transp_obj->save();
+                }
+            }
+            unset($chkdata);
+        }
 
 
         if(is_array($segmentdata['tmhid'])) {
@@ -309,13 +313,13 @@ class TravelManagerPlanSegments {
     }
 
     public function get_transportations() {
-        return TravelManagerPlanTransps::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]));
+        return TravelManagerPlanTransps::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
     }
 
-    public function get_transportationscat() {
-        /* get the transportations categories of the transportations related to the segment object we call */
-        return TravelManagerTranspCategories::get_data(array('tmtcid' => $this->get_transportations()->tmtcid));
-    }
+//    public function get_transportationscat() {
+//        /* get the transportations categories of the transportations related to the segment object we call */
+//        return TravelManagerTranspCategories::get_data(array('tmtcid' => $this->get_transportations()->tmtcid));
+//    }
 
     public function get_expenses($config = array()) {
         return Travelmanager_Expenses::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), $config);
