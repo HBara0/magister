@@ -68,7 +68,7 @@ class Travelmanager_Expenses_Types extends AbstractClass {
         if(isset($options['mode']) && $options['mode'] != 'addrows') {
             if(is_array($expensestype) && !empty($expensestype)) {
                 $segid = key($expensestype);
-                $segmentexptype = key($expensestype[$segid]);
+                $segmentexptype = key($expensestype[$segid][$rowid]);
             }
         }
 

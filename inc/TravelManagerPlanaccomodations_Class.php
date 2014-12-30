@@ -97,7 +97,6 @@ class TravelManagerPlanaccomodations {
 
     protected function update(array $data) {
         global $db, $core;
-        echo 'update';
         if(is_array($data)) {
             $hoteldata['priceNight'] = $data['priceNight'];
             $hoteldata['numNights'] = $data['numNights'];
