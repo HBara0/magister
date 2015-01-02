@@ -86,22 +86,23 @@ class Travelmanager_Expenses_Types extends AbstractClass {
                     $expenses_details.=$this->parse_paidby($sequence, $rowid, $segid, array('selectedtype' => $expensestype[$segid][$rowid]['selectedtype'], 'expenses' => $expensestype));
                 }
                 else {
-                    // $expenses_details = '';
                     $expenses_details = Travelmanager_Expenses::parse_expenses($sequence, $rowid, '');
 
                     $expenses_details.=$this->parse_paidby($sequence, $rowid, $segid, array());
                 }
                 $expensestype[$segid][$segmentexptype]['paidby'] = '';
                 $onchangepaidby = '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus()';
-                //   $expenses_detailspaidby = $this->parse_paidby();
-
                 $onchange_actions = '$("#"+$(this).find(":selected").attr("itemref")+"_"+'.$sequence.'+"_"+'.$rowid.').show();';
                 $expenses_options.='<option value='.$expenses->tmetid.' itemref='.$expenses->name.' '.$selected.'>'.$expenses->title.'</option>';
-
                 $selected = $segmentexptype = '';
             }
         }
         $altrow = alt_row($altrow);
+        /* hide Another affiliate input field */
+        $expensestype[$sequence][$rowid]['display'] = $expensestype[$segid][$rowid]['display'];
+        if(empty($expensestype[$sequence][$rowid]['display'])) {
+            $expensestype[$sequence][$rowid]['display'] = "display:none;";
+        }
         eval("\$segments_expenses_output = \"".$template->get('travelmanager_expenses_types')."\";");
         $expenses_detailspaidby = '';
         $segments_expenses_output .='<hr>';
