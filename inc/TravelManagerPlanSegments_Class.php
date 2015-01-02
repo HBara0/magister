@@ -110,6 +110,11 @@ class TravelManagerPlanSegments extends AbstractClass {
 
         if(isset($segmentdata['tmhid'])) {
             foreach($segmentdata['tmhid'] as $tmhid => $hotel) {
+                $hotelacc = TravelManagerPlanaccomodations::get_data('tmhid='.$tmhid);
+                /* if hotel not exist in segment accomodation & is not selected Skip! */
+                if(!is_object($hotelacc) && empty($hotel[$tmhid])) {
+                    continue;
+                }
                 $hoteldata['tmhid'] = $tmhid;
                 $hoteldata['tmpsid'] = $this->data[self::PRIMARY_KEY];
                 $hoteldata['priceNight'] = $hotel['priceNight'];
@@ -120,8 +125,6 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $accod_obj->set($hoteldata);
                 $accod_obj->save();
             }
-
-            // $hoteltdata['tmhid'] = $segmentdata['tmhid'];
         }
 
         $additionalexpenses = $segmentdata['expenses'];
@@ -202,7 +205,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
             foreach($segment_hotels['tmhid'] as $tmhid => $hotel) {
                 $hotelacc = TravelManagerPlanaccomodations::get_data('tmhid='.$tmhid);
-                if(is_object($hotelacc) && (!in_array($hotelacc->tmhid, $hotel))) {
+                if(is_object($hotelacc) && (!in_array($hotelacc->tmhid, array_keys($hotel)))) {
                     $db->delete_query('travelmanager_plan_accomodations', 'tmhid='.$tmhid.' AND tmpsid ='.$this->data['tmpsid'].'');
                     continue;
                 }
