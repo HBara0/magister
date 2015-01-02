@@ -167,18 +167,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
         $transptdata = $segmentdata['tmtcid'];
         if(is_array($transptdata)) {
-            print_r($transptdata);
-
             foreach($transptdata as $category => $data) {
-                $transpseg = TravelManagerPlanTransps::get_data('tmtcid='.$category);
-                if(is_object($transpseg) && (!in_array($transpseg->tmtcid, $data))) {
-                    $db->delete_query('travelmanager_plan_transps', 'tmtcid='.$category.' AND tmpsid ='.$this->data['tmpsid'].'');
-                    continue;
-                }
-                /* if hotel not exist in segment accomodation & is not selected Skip! */
-                if(!is_object($transpseg) && empty($transpseg[tmtcid])) {
-                    continue;
-                }
                 $chkdata = $data;
                 rsort($chkdata);
                 if(is_array($chkdata[0])) {
@@ -195,6 +184,19 @@ class TravelManagerPlanSegments extends AbstractClass {
                         $transp_obj->set($transit);
                         $transp_obj->save();
                     }
+                    ///// Delete Flight if not checked on modify segment //////
+                    $transpseg = TravelManagerPlanTransps::get_data(array('tmtcid' => $category, 'tmpsid' => $this->data[self::PRIMARY_KEY]));
+                    if(is_object($transpseg)) {
+                        foreach($data as $id => $transit) {
+                            if(isset($transit['flightNumber']) && $transpseg->flightNumber == $transit['flightNumber']) {
+                                $flights[$id] = $transit['flightNumber'];
+                            }
+                        }
+                        if(!is_array($flights)) {
+                            $db->delete_query('travelmanager_plan_transps', 'tmtcid='.$category.' AND tmpsid ='.$this->data['tmpsid'].'');
+                        }
+                    }
+                    ///////////////////////////////////////////////////////
                 }
                 else {
                     if(isset($data['transpType']) && empty($data['transpType'])) {
