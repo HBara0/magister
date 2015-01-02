@@ -132,7 +132,7 @@ class Travelmanager_Expenses_Types extends AbstractClass {
             }
             $paid_options.="<option value=".$val." {$selected}> {$paidby} </option>";
         }
-        $onchange_actions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();}else{$("#anotheraff_'.$sequence.'_'.$rowid.'").hide();}';
+        $onchange_actions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_'.$sequence.'_'.$rowid.'").hide();}';
         // $onchange_actions = 'onchange="$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();"';
 
         return "Paid By <select id=segment_expensestype_".$sequence."_".$rowid." name=segment[".$sequence."][expenses][".$rowid."][paidBy] onchange='".$onchange_actions."'>".$paid_options."</select>";
