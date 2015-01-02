@@ -13,11 +13,13 @@
  *
  * @author tony.assaad
  */
-class TravelManagerPlanSegments {
-    private $data = array();
+class TravelManagerPlanSegments extends AbstractClass {
+    protected $data = array();
 
     const PRIMARY_KEY = 'tmpsid';
     const TABLE_NAME = 'travelmanager_plan_segments';
+    const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = 'tmpid,sequence,fromDate';
 
     public function __construct($id = '') {
         if(empty($id)) {
@@ -26,12 +28,12 @@ class TravelManagerPlanSegments {
         $this->read($id);
     }
 
-    private function read($id = '') {
+    protected function read($id = '') {
         global $db;
         $this->data = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
 
-    public function create($segmentdata = array()) {
+    public function create(array $segmentdata) {
         global $db, $core;
         if(!is_numeric($segmentdata['toDate'])) {
             $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
@@ -43,8 +45,8 @@ class TravelManagerPlanSegments {
         }
 
         if(value_exists(self::TABLE_NAME, TravelManagerPlan::PRIMARY_KEY, $segmentdata[TravelManagerPlan::PRIMARY_KEY], "(fromDate = {$segmentdata['fromDate']}  OR toDate = {$segmentdata['toDate']}) AND sequence=".$segmentdata['sequence'])) {
-            //  $this->errorode = 4;
-            //  return false;
+            $this->errorode = 4;
+            return false;
         }
 
         $sanitize_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity');
@@ -258,21 +260,21 @@ class TravelManagerPlanSegments {
         }
     }
 
-    public function save(array $data = array()) {
-        global $core;
-
-        if(empty($data)) {
-            $data = $this->data;
-        }//get object of and the id and set data and save
-        $tmpsegment = TravelManagerPlanSegments::get_segments(array(TravelManagerPlan::PRIMARY_KEY => $data[TravelManagerPlan::PRIMARY_KEY], 'fromDate' => $data['fromDate'], 'toDate' => $data['toDate']));
-        if(is_object($tmpsegment)) {
-            $this->data['tmpsid'] = $tmpsegment->tmpsid;
-            $tmpsegment->update($data);
-        }
-        else {
-            $this->create($data);
-        }
-    }
+//    public function save(array $data = array()) {
+//        global $core;
+//
+//        if(empty($data)) {
+//            $data = $this->data;
+//        }//get object of and the id and set data and save
+//        $tmpsegment = TravelManagerPlanSegments::get_segments(array(TravelManagerPlan::PRIMARY_KEY => $data[TravelManagerPlan::PRIMARY_KEY], 'fromDate' => $data['fromDate'], 'toDate' => $data['toDate']));
+//        if(is_object($tmpsegment)) {
+//            $this->data['tmpsid'] = $tmpsegment->tmpsid;
+//            $tmpsegment->update($data);
+//        }
+//        else {
+//            $this->create($data);
+//        }
+//    }
 
     public static function get_segment_byattr($attr, $value, $operator = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
