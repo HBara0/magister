@@ -164,7 +164,18 @@ class TravelManagerPlanSegments extends AbstractClass {
 
         $transptdata = $segmentdata['tmtcid'];
         if(is_array($transptdata)) {
+            print_r($transptdata);
+
             foreach($transptdata as $category => $data) {
+                $transpseg = TravelManagerPlanTransps::get_data('tmtcid='.$category);
+                if(is_object($transpseg) && (!in_array($transpseg->tmtcid, $data))) {
+                    $db->delete_query('travelmanager_plan_transps', 'tmtcid='.$category.' AND tmpsid ='.$this->data['tmpsid'].'');
+                    continue;
+                }
+                /* if hotel not exist in segment accomodation & is not selected Skip! */
+                if(!is_object($transpseg) && empty($transpseg[tmtcid])) {
+                    continue;
+                }
                 $chkdata = $data;
                 rsort($chkdata);
                 if(is_array($chkdata[0])) {
