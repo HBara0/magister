@@ -60,14 +60,13 @@ class TravelManagerPlanTransps extends AbstractClass {
     protected function update(array $data) {
         global $db;
 
-        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'flightDetails', 'paidBy', 'transpType');
+        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'flightDetails', 'paidBy', 'paidById', 'transpType');
         $valid_attrs = array_combine($valid_attrs, $valid_attrs);
-        $transpdata = array_intersect_key($data, $valid_attrs);
-        $transpdata['paidById'] = '';
-        if($data['paidBy'] == 'anotheraff') {
-            $transpdata['paidById'] = $data['paidById'];
+        $data = array_intersect_key($data, $valid_attrs);
+        if($data['paidBy'] != 'anotheraff') {
+            unset($data['paidById']);
         }
-        $db->update_query(self::TABLE_NAME, $transpdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
     protected function create(array $transportdata = array()) {
@@ -84,10 +83,11 @@ class TravelManagerPlanTransps extends AbstractClass {
                 'flightNumber' => $transportdata['flightNumber'],
                 'flightDetails' => $transportdata['transpDetails'],
                 'paidBy' => $transportdata['paidBy'],
+                'paidById' => $transportdata['paidById'],
                 'transpType' => $transportdata['transpType'],
         );
-        if($transportdata['paidBy'] == 'anotheraff') {
-            $tanspdata_array['paidById'] = $transportdata['paidById'];
+        if($tanspdata_array['paidBy'] != 'anotheraff') {
+            unset($tanspdata_array['paidById']);
         }
         $db->insert_query(self::TABLE_NAME, $tanspdata_array);
         $this->data[self::PRIMARY_KEY] = $db->last_id();

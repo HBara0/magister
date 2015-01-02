@@ -15,7 +15,7 @@
  */
 class Travelmanager_Expenses extends AbstractClass {
     protected $data = array();
-    protected $errorcode = 0;
+    public $errorcode = 0;
 
     const PRIMARY_KEY = 'tmeid';
     const TABLE_NAME = 'travelmanager_expenses';
@@ -31,6 +31,9 @@ class Travelmanager_Expenses extends AbstractClass {
 
         global $db, $core;
         if(is_array($data)) {
+            if($data['paidBy'] != 'anotheraff') {
+                unset($data['paidById']);
+            }
             $data['createdOn'] = TIME_NOW;
             $query = $db->insert_query(self::TABLE_NAME, $data);
         }
@@ -41,19 +44,21 @@ class Travelmanager_Expenses extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
-        if(isset($data['tmeid']) && !empty($data['tmeid'])) {
-            $expensesbypk = Travelmanager_Expenses::get_data(array('tmeid' => $data['tmeid']));
-        }
-        if(is_object($expensesbypk)) {
-            $expensesbypk->update($data);
-        }
-        else {
-            $expenses = Travelmanager_Expenses::get_data(array('tmpsid' => $data['tmpsid'], 'tmetid' => $data['tmetid']));
-            if(is_object($expenses)) {
-                $expenses->update($data);
+        if(!$this->validate_requiredfields($data)) {
+            if(isset($data['tmeid']) && !empty($data['tmeid'])) {
+                $expensesbypk = Travelmanager_Expenses::get_data(array('tmeid' => $data['tmeid']));
+            }
+            if(is_object($expensesbypk)) {
+                $expensesbypk->update($data);
             }
             else {
-                $this->create($data);
+                $expenses = Travelmanager_Expenses::get_data(array('tmpsid' => $data['tmpsid'], 'tmetid' => $data['tmetid']));
+                if(is_object($expenses)) {
+                    $expenses->update($data);
+                }
+                else {
+                    $this->create($data);
+                }
             }
         }
     }
@@ -66,7 +71,9 @@ class Travelmanager_Expenses extends AbstractClass {
             $expensestdata['description'] = $data['description'];
             $expensestdata['tmetid'] = $data['tmetid'];
             $expensestdata['paidBy'] = $data['paidBy'];
-            $expensestdata['paidById'] = $data['paidById'];
+            if($expensestdata['paidBy'] == 'anotheraff') {
+                $expensestdata['paidById'] = $data['paidById'];
+            }
             $expensestdata['modifiedBy'] = $core->user['uid'];
             $expensestdata['modifiedOn'] = TIME_NOW;
 
@@ -96,6 +103,21 @@ class Travelmanager_Expenses extends AbstractClass {
 
         eval("\$expenses= \"".$template->get('travelmanager_expenses')."\";");
         return $expenses;
+    }
+
+    private function validate_requiredfields(array $data = array()) {
+        global $core, $db;
+        if(is_array($data)) {
+            $required_fields = array('expectedAmt', 'tmetid');
+            foreach($required_fields as $field) {
+                if(empty($data[$field]) && $data[$field] != '0') {
+                    $this->errorcode = 2;
+                    return true;
+                }
+                $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
+                $data[$field] = $db->escape_string($data[$field]);
+            }
+        }
     }
 
 }

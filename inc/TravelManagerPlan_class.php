@@ -449,7 +449,6 @@ class TravelManagerPlan {
                     $accomodation[$segmentid][$segmentacc->tmhid]['priceNight'] = $segmentacc->priceNight;
                     $accomodation[$segmentid][$segmentacc->tmhid]['numNights'] = $segmentacc->numNights;
                     $accomodation[$segmentid][$segmentacc->tmhid]['paidbyid'] = $segmentacc->paidById;
-
                     $accomodation[$segmentid][$segmentacc->tmhid]['display'] = "display:none;";
                     $accomodation[$segmentid][$segmentacc->tmhid]['paidby'] = $segmentacc->paidBy;
                     if(isset($accomodation[$segmentid][$segmentacc->tmhid]['paidbyid']) && !empty($accomodation[$segmentid][$segmentacc->tmhid]['paidbyid'])) {
@@ -468,7 +467,7 @@ class TravelManagerPlan {
             /* parse hotel --END */
 
             /* parse expenses --START */
-            $segexpenses_ojbs = $segmentobj->get_expenses(array('simple' => false, 'returnarray' => true));
+            $segexpenses_ojbs = $segmentobj->get_expenses(array('simple' => false, 'returnarray' => true, 'order' => array('by' => 'tmeid', 'sort' => 'ASC')));
             $rowid = 0;
             if(is_array($segexpenses_ojbs)) {
                 foreach($segexpenses_ojbs as $rowid => $expenses) {

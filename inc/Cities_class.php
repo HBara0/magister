@@ -107,7 +107,6 @@ class Cities {
             foreach($approved_hotelsobjs as $approved_hotelsobj) {
                 $approved_hotels = $approved_hotelsobj->get();
                 if(is_array($selectedhotel) && !empty($selectedhotel)) {
-
                     // $approvedhotel_id = key($selectedhotel[key($selectedhotel)]);
                     $approvedhotel_id = $selectedhotel[$segid][$approved_hotels['tmhid']]['selectedhotel'];
                 }
@@ -117,6 +116,9 @@ class Cities {
                 $checkbox_hotel = parse_checkboxes('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].']', $hotelname, $selectedhotel[$segid][$approved_hotels['tmhid']], true, '&nbsp;&nbsp;');
                 //$paidby_details.=$this->parse_paidby($sequence, '', $segid, array('tmhid' => $approved_hotels['tmhid'], 'selectedpaidby' => $selectedhotel[$segid][$approved_hotels['tmhid']]['paidby'], 'selectedpaidid' => $selectedhotel[$segid][$approved_hotels['tmhid']]['paidbyid']));
                 $paidby_details.=$this->parse_paidby($sequence, '', $segid, array('tmhid' => $approved_hotels['tmhid'], 'accomodations' => $selectedhotel[$segid][$approvedhotel_id]));
+                if(empty($selectedhotel[$segid][$approved_hotels['tmhid']]['display'])) {
+                    $selectedhotel[$segid][$approved_hotels['tmhid']]['display'] = "display:none;";
+                }
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
                 $review_tools = $paidby_details = $checkbox_hotel = '';
             }
