@@ -16,10 +16,15 @@ if(!defined('DIRECT_ACCESS')) {
 if(!$core->input['action']) {
     $planid = intval($core->input['id']);
     $plan_object = TravelManagerPlan::get_plan(array('tmpid' => $planid, 'isFinalized' => 1));
+    if(!is_object($plan_object)) {
+        redirect('index.php?module=travelmanager/listplans');
+    }
     $leave = $plan_object->get_leave();
     $approvers = $leave->get_approvers();
-    foreach($approvers as $approver) {
-        $approver_chain[] = $approver->uid;
+    if(is_array($approvers)) {
+        foreach($approvers as $approver) {
+            $approver_chain[] = $approver->uid;
+        }
     }
     /* Viewable only if user is the person travel  or  the user is in the apprval chain of the plan trip leave */
     if(!is_object($plan_object) || ($plan_object->uid != $core->user['uid'] && !in_array($core->user['uid'], $approver_chain))) {
@@ -79,7 +84,7 @@ elseif($core->input['action'] == 'email') {
     $mailer->set_type();
     $mailer->set_from(array('name' => 'tony.assaad', 'email' => 'tony.assaad@ocos.local'));
     $mailer->set_subject('plantrip'.'['.$plan_name.']');
-            $mailer->set_message($travelmanager_viewplan);
-            $mailer->set_to('tony.assaad@ocos.local');
-            $mailer->send();
-            }
+    $mailer->set_message($travelmanager_viewplan);
+    $mailer->set_to('tony.assaad@ocos.local');
+    $mailer->send();
+}
