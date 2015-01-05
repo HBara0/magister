@@ -58,7 +58,7 @@ class TravelManagerPlanTransps extends AbstractClass {
     }
 
     protected function update(array $data) {
-        global $db;
+        global $db, $core;
 
         $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'flightDetails', 'paidBy', 'paidById', 'transpType');
         $valid_attrs = array_combine($valid_attrs, $valid_attrs);
@@ -66,11 +66,13 @@ class TravelManagerPlanTransps extends AbstractClass {
         if($data['paidBy'] != 'anotheraff') {
             unset($data['paidById']);
         }
+        $data['modifiedOn'] = TIME_NOW;
+        $data['modifiedBy'] = $core->user['uid'];
         $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
     protected function create(array $transportdata = array()) {
-        global $db;
+        global $db, $core;
 
         $transp_details = base64_decode($transportdata['transpDetails'], true);
         if($transp_details != false) {
@@ -85,7 +87,10 @@ class TravelManagerPlanTransps extends AbstractClass {
                 'paidBy' => $transportdata['paidBy'],
                 'paidById' => $transportdata['paidById'],
                 'transpType' => $transportdata['transpType'],
+                'createdOn' => TIME_NOW,
+                'createdBy' => $core->user['uid']
         );
+
         if($tanspdata_array['paidBy'] != 'anotheraff') {
             unset($tanspdata_array['paidById']);
         }
