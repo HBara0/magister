@@ -13,8 +13,8 @@
         </div>
         <div style="{$expensestype[$sequence][$rowid][display]}  padding: 8px;" id="anotheraff_{$sequence}_{$rowid}" class="border_bottom border_left border_right border_top" >
             <span>Another Affiliate </span>
-            <input id="affiliate_{$sequence}_{$rowid}_cache_autocomplete" autocomplete="off" tabindex="8" value="{$expensestype[$segid][$rowid][affiliate]}"  type="text">
-            <input id="affiliate_{$sequence}_{$rowid}_cache_id" name="segment[{$sequence}][expenses][{$rowid}][paidById]" value="{$expensestype[$segid][$rowid][affid]}"type="hidden">
+            <input id="affiliate_{$sequence}_{$rowid}_cache_expenses_autocomplete" autocomplete="off" tabindex="8" value="{$expensestype[$segid][$rowid][affiliate]}"  type="text">
+            <input id="affiliate_{$sequence}_{$rowid}_cache_expenses_id" name="segment[{$sequence}][expenses][{$rowid}][paidById]" value="{$expensestype[$segid][$rowid][affid]}"type="hidden">
         </div>
     </td></tr>
 
