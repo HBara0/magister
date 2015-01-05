@@ -218,7 +218,7 @@ class TravelManagerPlan {
                     $this->errorode = 5;
                     return false;
                 }
-                if(strtotime($this->segmentdata [$sequence - 1]['toDate']) > $segmentdata['toDate']) {
+                if(strtotime($this->segmentdata[$sequence - 1]['toDate']) > $segmentdata['toDate']) {
                     $this->errorode = 5;
                     // return false;
                 }
@@ -433,7 +433,11 @@ class TravelManagerPlan {
                 }
                 //   $selectedtransp[] = $transp->tmtcid;
                 //$drivingmode[transpcat][type] = Cities::parse_transportations(array('apiFlightdata' => $segmentobj->apiFlightdata), $sequence);
-                $transsegments_output .= Cities::parse_transportations(array('transportationdetails' => $transportation_details, 'segment' => $segmentobj, 'origincity' => $segmentobj->get_origincity()->get(), 'destcity' => $segmentobj->get_destinationcity()->get(), 'departuretime' => $segmentobj->fromDate), $sequence);
+
+                $destcity = $segmentobj->get_destinationcity()->get();
+                $destcity['drivemode'] = 'transit';
+                $destcity['departuretime'] = $segmentobj->fromDate;
+                $transsegments_output .= Cities::parse_transportations(array('transportationdetails' => $transportation_details, 'segment' => $segmentobj, 'origincity' => $segmentobj->get_origincity()->get(), 'destcity' => $destcity), $sequence);
             }
             /* parse transportations types --END */
 

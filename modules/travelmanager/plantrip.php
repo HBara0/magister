@@ -44,30 +44,30 @@ if(!$core->input['action']) {
             $todate = new DateTime($segment[$sequence]['toDate_output']);
 
             $segment[$sequence]['numberdays'] = $fromDate->diff($todate)->format(' %d days');
-
-            $segment[$sequence]['origincity'] = $leave_obj->get_sourcecity($leave['origincity'])->get();
+            $origincity_obj = new Cities($leave['sourcecity']);
+            $segment[$sequence]['origincity'] = $origincity_obj->get();
             $segment[$sequence]['origincity']['name'] = $segment[$sequence]['origincity'] ['name'];
             $segment[$sequence]['origincity']['ciid'] = $segment[$sequence]['origincity']['ciid'];
-            $segment[$sequence]['destinationcity'] = $leave_obj->get_destinationcity()->get();                 /* Will get the capital city of the visited country of leave */
+            $descity_obj = new Cities($leave['destinationcity']);
+            $segment[$sequence]['destinationcity'] = $descity_obj->get();                 /* Will get the capital city of the visited country of leave */
             $segment[$sequence]['destinationcity']['name'] = $segment[$sequence]['destinationcity']['name'];  /* Will get the capital city of the visited country of leave */
             $segment[$sequence]['destinationcity']['ciid'] = $segment[$sequence]['destinationcity']['ciid'];  /* Will get the capital city of the visited country of leave */
             $disabled = 'disabled="true"';
-
+//$leave_destcity
             $cityprofile_output = $leave_obj->get_destinationcity()->parse_cityreviews();
             $citybriefings_output = $leave_obj->get_destinationcity()->parse_citybriefing();
 
-            $origincity_obj = $leave_obj->get_sourcecity(false);
+            //   $origincity_obj = $leave_obj->get_sourcecity(false);
             $origintcity = $origincity_obj->get();
             $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
 
-            $descity_obj = $leave_obj->get_destinationcity($false);
+            // $descity_obj = $leave_obj->get_destinationcity($false);
             $destcity = $descity_obj->get();
             $destcity['country'] = $descity_obj->get_country()->get()['name'];
             $destcity['drivemode'] = 'transit';
             $destcity['departuretime'] = $db->escape_string(($leave['fromDate']));
 
             $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
-
 
             $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence);
             $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
@@ -112,8 +112,10 @@ else {
         $leave = $leave_obj->get();
         /* prevent adding new segment if to date  greater than original  leave end date */
         $leave[$sequence]['toDate'] = $leave['toDate'];
-        $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 00:00:00', $leave[$sequence]['toDate']));
-        if(strtotime($core->input['toDatetime']) >= $leave[$sequence]['toDate']) {
+        // $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 00:00:00', $leave[$sequence]['toDate']));
+
+        if(strtotime($core->input['toDate']) >= $leave[$sequence]['toDate']) {
+
             output_xml("<message>{$lang->dateexceeded}</message>");
             exit;
         }
@@ -126,7 +128,7 @@ else {
             $segment[$sequence]['origincity']['ciid'] = $descitydata['ciid'];
             /* Overwrite from date of next segment with  TOdate of prev segment */
             $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ( $leave[$sequence]['toDate']));
-            $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ( $leave[$sequence]['toDate'])); // leave to date
+            $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ($leave[$sequence]['toDate'])); // leave to date
             $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
             $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
 
@@ -159,7 +161,7 @@ else {
         $origincity_obj = new Cities($origincityid);
         $origintcity = $origincity_obj->get();
         $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
-        //  $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
+        $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 
         /* Load proposed transproration */
         $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
