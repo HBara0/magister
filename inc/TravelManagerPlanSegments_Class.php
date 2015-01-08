@@ -60,6 +60,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 'originCity' => $segmentdata['originCity'],
                 'reason' => $segmentdata['reason'],
                 'destinationCity' => $segmentdata['destinationCity'],
+                'apiFlightdata' => $segmentdata['apiFlightdata'],
                 'createdBy' => $core->user['uid'],
                 'sequence' => $segmentdata['sequence'],
                 'createdOn' => TIME_NOW
@@ -175,6 +176,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         if(!isset($transit['flightNumber'])) {
                             continue;
                         }
+                        $flightnumber = $transit['flightNumber'];
                         $transit['paidBy'] = $data['paidBy'];
                         $transit['paidById'] = $data['paidById'];
                         $transp_obj = new TravelManagerPlanTransps();
@@ -184,25 +186,13 @@ class TravelManagerPlanSegments extends AbstractClass {
                         $transp_obj->set($transit);
                         $transp_obj->save();
                     }
-                    if(isset($data['todelete']) && !empty($data['todelete'])) {
+                    /* Delete Flight if not checked on modify segment */
+                    if(!isset($flightnumber)) {
                         $transpseg = TravelManagerPlanTransps::get_data(array('tmtcid' => $category, 'tmpsid' => $this->data[self::PRIMARY_KEY]));
                         if(is_object($transpseg)) {
-                            $db->delete_query('travelmanager_plan_transps', 'tmtcid='.$category.' AND tmpsid ='.$this->data['tmpsid'].'');
+                            $db->delete_query('travelmanager_plan_transps', 'tmpltid='.$transpseg->tmpltid.'');
                         }
                     }
-                    ///// Delete Flight if not checked on modify segment //////
-//                    $transpseg = TravelManagerPlanTransps::get_data(array('tmtcid' => $category, 'tmpsid' => $this->data[self::PRIMARY_KEY]));
-//                    if(is_object($transpseg)) {
-//                        foreach($data as $id => $transit) {
-//                            if(isset($transit['flightNumber']) && $transpseg->flightNumber == $transit['flightNumber']) {
-//                                $flights[$id] = $transit['flightNumber'];
-//                            }
-//                        }
-//                        if(!is_array($flights)) {
-//                            $db->delete_query('travelmanager_plan_transps', 'tmtcid='.$category.' AND tmpsid ='.$this->data['tmpsid'].'');
-//                        }
-//                    }
-                    ///////////////////////////////////////////////////////
                 }
                 else {
                     if(isset($data['transpType']) && empty($data['transpType']) || (isset($data['fare']) && empty($data['fare']))) {
