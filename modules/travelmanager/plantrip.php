@@ -54,8 +54,8 @@ if(!$core->input['action']) {
             $segment[$sequence]['destinationcity']['ciid'] = $segment[$sequence]['destinationcity']['ciid'];  /* Will get the capital city of the visited country of leave */
             $disabled = 'disabled="true"';
 //$leave_destcity
-            $cityprofile_output = $leave_obj->get_destinationcity()->parse_cityreviews();
-            $citybriefings_output = $leave_obj->get_destinationcity()->parse_citybriefing();
+            $cityprofile_output = $origincity_obj->parse_cityreviews();
+            $citybriefings_output = $descity_obj->parse_citybriefing();
 
             //   $origincity_obj = $leave_obj->get_sourcecity(false);
             $origintcity = $origincity_obj->get();
@@ -64,10 +64,10 @@ if(!$core->input['action']) {
             // $descity_obj = $leave_obj->get_destinationcity($false);
             $destcity = $descity_obj->get();
             $destcity['country'] = $descity_obj->get_country()->get()['name'];
-            $destcity['drivemode'] = 'transit';
-            $destcity['departuretime'] = $db->escape_string(($leave['fromDate']));
+            $transp_requirements['drivemode'] = 'transit';
+            $transp_requirements['departuretime'] = $db->escape_string(($leave['fromDate']));
 
-            $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
+            $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
 
             $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence);
             $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
@@ -155,8 +155,8 @@ else {
         $descity_obj = new Cities($destcityid);
         $destcity = $descity_obj->get();
         $destcity['country'] = $descity_obj->get_country()->get()['name'];
-        $destcity['drivemode'] = 'transit';
-        $destcity['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
+        $transp_requirements['drivemode'] = 'transit';
+        $transp_requirements['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
 
         $origincity_obj = new Cities($origincityid);
         $origintcity = $origincity_obj->get();
@@ -164,7 +164,7 @@ else {
         $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 
         /* Load proposed transproration */
-        $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
+        $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
         /* load approved hotels */
         $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence);
         /* parse expenses --START */
@@ -207,7 +207,6 @@ else {
         if(is_array($core->input['segment'])) {
             $travelplan->set($core->input);
             $travelplan->save();
-            // $travelplan_obj->create($core->input['segment']);
         }
         switch($travelplan->get_errorcode()) {
             case 0:
