@@ -114,6 +114,7 @@ if(!$core->input['action']) {
         $leave_ouput = '  <div class="ui-state-highlight ui-corner-all" style="padding: 5px; font-style: italic;">'.$leave['type_output'].' - '.$leave['fromDate_output'].' - '.$leave['toDate_output'].'</div>';
 
         $segmentstabs = '   <li><a href="#segmentstabs-1">Segment 1</a></li>  ';
+        // $identifier = substr(md5(uniqid(microtime())), 1, 10);
         eval("\$plantript_segmentstabs= \"".$template->get('travelmanager_plantrip_segmentstabs')."\";");
         eval("\$plantrip = \"".$template->get('travelmanager_plantrip')."\";");
         output_page($plantrip);
@@ -133,8 +134,7 @@ else {
         // $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 00:00:00', $leave[$sequence]['toDate']));
 
         if(strtotime($core->input['toDate']) >= $leave[$sequence]['toDate']) {
-
-            output_xml("<message>{$lang->dateexceeded}</message>");
+            output_xml("<status>false</status><message>{$lang->dateexceeded}</message>");
             exit;
         }
         else {
@@ -253,6 +253,12 @@ else {
             }
             switch($travelplan->get_errorcode()) {
                 case 0:
+                if(isset($core->input['finalizeplan']) && $core->input['finalizeplan'] == 1) {
+                    $url = 'index.php?module=travelmanager/viewplan&referrer=plantrip&id=';
+                    header('Content-type: text/xml+javascript');
+                    output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.$travelplan->tmpid.'\');</script>]]></message>');
+                    exit;
+                }
                     output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
                     break;
                 case 1:

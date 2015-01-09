@@ -81,6 +81,7 @@
                     //  sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=parsedetailstransp", "&categoryid=" + categoryid + "&sequence=" + sequence + "&catid=" + id[2], 'cat_detailsloader_' + categoryid + '', 'transpcat_content' + categoryid + '', true);
 
                 });
+
                 $('input[id*=pickDate_to_]').live('change', function() {
                     if(sharedFunctions.checkSession() == false) {
                         return;
@@ -122,6 +123,12 @@
 
                     $("div[id=total_" + id[1] + "_" + id[2] + '_' + id[3] + "]").fadeToggle('slow').stop().text($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() * $('input[id="numnight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val());
                 });
+                $('input[id=finalize]').live('click', function() {
+                    $('input[id="finalizeplan"]').val('1');
+                    $('input[id="perform_travelmanager/plantrip_Button"]').click();
+                    $('input[id="finalizeplan"]').val('');
+                });
+
 
                 $('input[id^="pickDate_to"]').live('change', function() {
                     var descity = '';
@@ -151,9 +158,8 @@
         {$header}
     <tr>
         {$menu}
-        <td class="contentContainer">
+        <td class="contentContainer" colspan="2">
             <h1>{$lang->plantrip}</h1>
-
             {$leave_ouput}
             <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" action="#" method="post">
                 <div style='margin-top: 10px;'>
@@ -166,7 +172,13 @@
                 <input type="hidden" value="{$planid}" id="lid" name="planid"/>
                 {$plantript_segmentstabs}
                 <input type='submit' class='button' value="{$lang->savecaps}" id='perform_travelmanager/plantrip_Button'>
+                <a href="index.php?module=travelmanager/viewplan&id={$planid}&lid={$leaveid}&referrer=plan" target="_blank">
+                    <input type="button" class='button' value="{$lang->preview}">
+                </a>
+                <input type="button" class='button'  value="{$lang->save} & {$lang->preview}" id="finalize"/>
+                <input type="hidden" value="" name="finalizeplan" id="finalizeplan"/>
             </form>
+
             <div id="perform_travelmanager/plantrip_Results"></div>
         </td>
     </tr>
