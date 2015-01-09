@@ -59,7 +59,8 @@ if(!$core->input['action']) {
 //$leave_destcity
             $cityprofile_output = $leave_obj->get_destinationcity()->parse_cityreviews();
             $citybriefings_output = $leave_obj->get_destinationcity()->parse_citybriefing();
-            $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
+            $leave_purposes = LeaveTypesPurposes::get_data('');
+            //$leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
             $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '');
 
             //   $origincity_obj = $leave_obj->get_sourcecity(false);
@@ -149,7 +150,8 @@ else {
             $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ($leave[$sequence]['toDate'])); // leave to date
             $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
             $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
-            $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
+            //   $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
+            $leave_purposes = LeaveTypesPurposes::get_data('');
             $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '');
 
             /* Popuplate basic information from the leave based on the lid passed via ajax */
@@ -253,12 +255,12 @@ else {
             }
             switch($travelplan->get_errorcode()) {
                 case 0:
-                if(isset($core->input['finalizeplan']) && $core->input['finalizeplan'] == 1) {
-                    $url = 'index.php?module=travelmanager/viewplan&referrer=plantrip&id=';
-                    header('Content-type: text/xml+javascript');
-                    output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.$travelplan->tmpid.'\');</script>]]></message>');
-                    exit;
-                }
+                    if(isset($core->input['finalizeplan']) && $core->input['finalizeplan'] == 1) {
+                        $url = 'index.php?module=travelmanager/viewplan&referrer=plantrip&id=';
+                        header('Content-type: text/xml+javascript');
+                        output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.$travelplan->tmpid.'\');</script>]]></message>');
+                        exit;
+                    }
                     output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
                     break;
                 case 1:

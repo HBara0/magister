@@ -103,7 +103,7 @@ class TravelManagerPlan {
                 'myself' => $lang->myself,
                 'anotheraff' => $lang->anotheraff
         );
-        return '<div style="display:inline-block;padding:5px;"  id="paidby_transp_'.$sequence.'_'.$categoryid.'"> Paid By '.parse_selectlist('segment['.$sequence.'][tmtcid]['.$categoryid.'][paidBy]', 6, $paidby_entities, $selectedoptions, '', 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+ "_transp_"+'.$categoryid.'+"_"+'.$sequence.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_transp_"+'.$categoryid.'+"_"+'.$sequence.').hide();}', array('id' => 'paidbylist_transp_'.$sequence.'_'.$categoryid.'')).'</div>';
+        return '<div><div style="display:inline-block;padding:10px;width:15%;"  id="paidby_transp_'.$sequence.'_'.$categoryid.'"> Paid By</div><div style="display:inline-block;width:20%;">'.parse_selectlist('segment['.$sequence.'][tmtcid]['.$categoryid.'][paidBy]', 6, $paidby_entities, $selectedoptions, '', 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+ "_transp_"+'.$categoryid.'+"_"+'.$sequence.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_transp_"+'.$categoryid.'+"_"+'.$sequence.').hide();}', array('id' => 'paidbylist_transp_'.$sequence.'_'.$categoryid.'', 'width' => '100%')).'</div></div>';
     }
 
     public static function parse_transportaionfields(array $category, $cityinfo = array(), $sequence) {
@@ -164,8 +164,8 @@ class TravelManagerPlan {
                     $transportaion_fields .=self::parse_paidby($sequence, $category['tmtcid'], $category['transportationdetials']['paidBy']);
                     break;
                 default:
-                    $transportaion_fields = '<div style="padding:3px; display: inline-block; width:45%;">'.$lang->transptype.' '.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][transpType]', 'text', '', $category['transportationdetials']['transpType']).'</div>';
-                    $transportaion_fields .= '<div style="padding:3px; display: inline-block; width:40%;">'.$lang->feeday.' '.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '', $category['transportationdetials']['fare']).'</div>';
+                    $transportaion_fields = '<div><div style="display:inline-block;padding:10px;width:15%;">'.$lang->transptype.'</div><div style="display:inline-block;width:20%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][transpType]', 'text', '', $category['transportationdetials']['transpType']).'</div>';
+                    $transportaion_fields .= ' <div style="display:inline-block;padding:10px;width:15%;">'.$lang->feeday.'</div><div style="display:inline-block;width:20%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '', $category['transportationdetials']['fare']).'</div></div>';
                     $transportaion_fields .=self::parse_paidby($sequence, $category['tmtcid'], $category['transportationdetials']['paidBy']);
                     break;
             }
@@ -396,7 +396,8 @@ class TravelManagerPlan {
         $disabled = 'disabled="true"';
         $leave_ouput = $this->parse_leavetypetitle();
         $leaveid = $this->get_leave()->lid;
-        $leave_purposes = array($this->get_leave()->get_purpose()->get()['ltpid'] => $this->get_leave()->get_purpose()->get()['name']);
+        //  $leave_purposes = array($this->get_leave()->get_purpose()->get()['ltpid'] => $this->get_leave()->get_purpose()->get()['name']);
+        $leave_purposes = LeaveTypesPurposes::get_data('');
         foreach($segmentplan_objs as $segmentid => $segmentobj) {
             $segmentstabs .= '<li><a href="#segmentstabs-'.$segid.'">Segment '.$segid.'</a></li>  ';
             $sequence = $segmentobj->sequence;
