@@ -1,5 +1,5 @@
 <div style="display:block;" >
-    <div class="subtitle">Possible Transportations</div>
+    <h2 class="subtitle">Possible Transportations</h2>
     <div class="ui-state-highlight ui-corner-all" style="padding: 6px; font-weight: bold;"><a href="{$transpmode_apimaplink}" target="_blank">Visualize Tranpostation Possibilities on Map</a></div>
     {$transsegments_output}
 </div>
