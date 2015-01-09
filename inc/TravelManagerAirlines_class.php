@@ -145,12 +145,12 @@ class TravelManagerAirlines {
                     // }
                 }
                 if(!empty($source) && ($source == 'plan')) {
-                    $checkbox['selctedflight'] = '';
                     if($transpcat['selectedflight'] == $flight['flightnumber']) {
                         $checkbox['selctedflight'] = "checked='checked'";
                     }
                     $transpcatid = $transpcat['tmtcid'];
                     $flightnumber_checkbox = ' <input type="checkbox" name="segment['.$sequence.'][tmtcid]['.$transpcatid.']['.$flight[flightid].'][flightNumber]" value="'.$flight['flightnumber'].'"'.$checkbox['selctedflight'].'/>';
+                    unset($checkbox['selctedflight']);
                 }
             }
             eval("\$flights_records .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");

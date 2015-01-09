@@ -61,6 +61,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 'purpose' => $segmentdata['purpose'],
                 'reason' => $segmentdata['reason'],
                 'destinationCity' => $segmentdata['destinationCity'],
+                'apiFlightdata' => $segmentdata['apiFlightdata'],
                 'createdBy' => $core->user['uid'],
                 'sequence' => $segmentdata['sequence'],
                 'createdOn' => TIME_NOW
@@ -194,6 +195,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         if(!isset($transit['flightNumber'])) {
                             continue;
                         }
+                        $flightnumber = $transit['flightNumber'];
                         $transit['paidBy'] = $data['paidBy'];
                         $transit['paidById'] = $data['paidById'];
                         $transp_obj = new TravelManagerPlanTransps();
@@ -203,25 +205,26 @@ class TravelManagerPlanSegments extends AbstractClass {
                         $transp_obj->set($transit);
                         $transp_obj->save();
                     }
-                    ///// Delete Flight if not checked on modify segment //////
-                    $transpseg = TravelManagerPlanTransps::get_data(array('tmtcid' => $category, 'tmpsid' => $this->data[self::PRIMARY_KEY]));
-                    if(is_object($transpseg)) {
-                        foreach($data as $id => $transit) {
-                            if(isset($transit['flightNumber']) && $transpseg->flightNumber == $transit['flightNumber']) {
-                                $flights[$id] = $transit['flightNumber'];
-                            }
-                        }
-                        if(!is_array($flights)) {
-                            $db->delete_query('travelmanager_plan_transps', 'tmtcid='.$category.' AND tmpsid ='.$this->data['tmpsid'].'');
+                    /* Delete Flight if not checked on modify segment */
+                    if(!isset($flightnumber)) {
+                        $transpseg = TravelManagerPlanTransps::get_data(array('tmtcid' => $category, 'tmpsid' => $this->data[self::PRIMARY_KEY]));
+                        if(is_object($transpseg)) {
+                            $db->delete_query('travelmanager_plan_transps', 'tmpltid='.$transpseg->tmpltid.'');
                         }
                     }
-                    ///////////////////////////////////////////////////////
                 }
                 else {
-                    if(isset($data['transpType']) && empty($data['transpType'])) {
+                    if(isset($data['transpType']) && empty($data['transpType']) || (isset($data['fare']) && empty($data['fare']))) {
                         continue;
                     }
                     $transp_obj = new TravelManagerPlanTransps();
+                    if(isset($data['todelete']) && !empty($data['todelete'])) {
+                        $transp_obj = TravelManagerPlanTransps::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY], 'tmtcid' => $category));
+                        if(is_object($transp_obj)) {
+                            $db->delete_query('travelmanager_plan_transps', 'tmtcid='.$category.' AND tmpsid ='.$this->data[self::PRIMARY_KEY].'');
+                        }
+                        continue;
+                    }
                     $data['tmtcid'] = $category;
                     $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                     $transp_obj->set($data);
@@ -386,6 +389,7 @@ class TravelManagerPlanSegments extends AbstractClass {
     public function parse_segment() {
         global $template, $lang, $core, $db;
         $segmentdate = date('l F d, Y', $this->fromDate);
+        $segmentdate .=' - '.date('l F d, Y', $this->toDate);
         $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::CURRENCY);
 
         $destination_cities = $this->get_origincity()->name.' - '.$this->get_destinationcity()->name;
@@ -397,8 +401,8 @@ class TravelManagerPlanSegments extends AbstractClass {
                 if(is_object($paidby)) {
                     $paidby = $paidby->get_displayname();
                 }
-                if(!empty($transportation->transpDetails)) {
-                    $transp_flightdetails = json_decode($transportation->transpDetails, true);
+                if(!empty($transportation->flightDetails)) {
+                    $transp_flightdetails = json_decode($transportation->flightDetails, true);
                     $flight_details = $this->parse_flightdetails($transp_flightdetails);
                 }
                 eval("\$segment_transpdetails .= \"".$template->get('travelmanager_viewplan_transpsegments')."\";");
@@ -492,7 +496,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         $allapi_data = $this->get_allapidata();
         if(is_array($flightdata)) {
 // parse flight name
-            foreach($flightdata['slice'] as $slicenum => $slice) {
+            foreach($flightdata[0]['slice'] as $slicenum => $slice) {
                 foreach($slice['segment'] as $segmentnu => $segment) {
                     $flight[$segmentnu]['arrivaltime'] = date($core->settings['dateformat']." H:m", strtotime($segment[leg][0][arrivalTime]));
                     $flight[$segmentnu]['departuretime'] = date($core->settings['dateformat']." H:m", strtotime($segment[leg][0][departureTime]));
