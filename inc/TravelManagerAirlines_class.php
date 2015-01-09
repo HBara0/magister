@@ -87,7 +87,7 @@ class TravelManagerAirlines {
             foreach($tripoption->slice as $slicenum => $slice) {
 // for($slicenum = 0; $slicenum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice); $slicenum++) {
                 foreach($slice->segment as $segmentnum => $segment) {
-//  for($segmentnum = 0; $segmentnum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment); $segmentnum++) {
+                    //  for($segmentnum = 0; $segmentnum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment); $segmentnum++) {
                     $departuretime = strtotime($segment->leg[0]->departureTime);
                     $arrivaltime = strtotime($segment->leg[0]->arrivalTime);
                     $flight['departuredate'] = date($core->settings['dateformat'], $departuretime);
@@ -96,6 +96,7 @@ class TravelManagerAirlines {
                     $flight['arrivaltime'] = date($core->settings['timeformat'], $arrivaltime);
 
                     $flight['origin'] = $segment->leg[0]->origin;
+                    $flight['cabin'] = $segment->cabin;
                     $flight['destination'] = $segment->leg[0]->destination;
 
                     $flight['duration'] = sprintf('%2dh %2dm', floor($segment->leg[0]->duration / 60), ($segment->leg[0]->duration % 60));

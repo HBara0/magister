@@ -58,6 +58,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 'fromDate' => $segmentdata['fromDate'],
                 'toDate' => $segmentdata['toDate'],
                 'originCity' => $segmentdata['originCity'],
+                'purpose' => $segmentdata['purpose'],
                 'reason' => $segmentdata['reason'],
                 'destinationCity' => $segmentdata['destinationCity'],
                 'apiFlightdata' => $segmentdata['apiFlightdata'],
@@ -110,15 +111,33 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
 
         if(isset($segmentdata['tmhid'])) {
+//            if(isset($segmentdata['tmhid']['otherhotel'])) {
+//
+//                foreach($segmentdata['tmhid']['otherhotel'] as $column => $otherhotel) {
+//                    $otherhoteldata['tmhid'] = $segmentdata['tmhid']['otherhotel'];
+//                    $otherhoteldata['tmpsid'] = $this->data[self::PRIMARY_KEY];
+//                    $otherhoteldata['priceNight'] = $segmentdata['tmhid']['otherhotel']['priceNight'];
+//                    $otherhoteldata['numNights'] = $segmentdata['tmhid']['otherhotel']['numNights'];
+//                    $otherhoteldata['paidBy'] = $segmentdata['tmhid']['otherhotel']['entites'];
+//                    $otherhoteldata['paidById'] = $segmentdata['tmhid']['otherhotel']['paidBy'];
+//                    $otherhoteldata = array($column => $otherhotel);
+//                    $accod_obj = new TravelManagerPlanaccomodations();
+//                    $accod_obj->set($otherhoteldata);
+//                }
+//            }
+            print_r($segmentdata['tmhid']);
+
             foreach($segmentdata['tmhid'] as $tmhid => $hotel) {
                 $hotelacc = TravelManagerPlanaccomodations::get_data('tmhid='.$tmhid);
                 /* if hotel not exist in segment accomodation & is not selected Skip! */
+
                 if(!is_object($hotelacc) && empty($hotel[$tmhid])) {
                     continue;
                 }
                 $hoteldata['tmhid'] = $tmhid;
                 $hoteldata['tmpsid'] = $this->data[self::PRIMARY_KEY];
                 $hoteldata['priceNight'] = $hotel['priceNight'];
+                $hoteldata['currency'] = $hotel['currency'];
                 $hoteldata['numNights'] = $hotel['numNights'];
                 $hoteldata['paidBy'] = $hotel['entites'];
                 $hoteldata['paidById'] = $hotel['paidBy'];

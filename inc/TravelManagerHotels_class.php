@@ -13,30 +13,47 @@
  *
  * @author tony.assaad
  */
-class TravelManagerHotels {
-    private $hotels = array();
+class TravelManagerHotels extends AbstractClass {
+    protected $data = array();
+    public $errorcode = 0;
 
     const PRIMARY_KEY = 'tmhid';
     const TABLE_NAME = 'travelmanager_hotels';
+    const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = 'country,city';
+    const SIMPLEQ_ATTRS = 'tmhid, name, alias,city';
 
-    public function __construct($id) {
-        if(empty($id)) {
-            return false;
-        }
-        $this->read($id);
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
-    private function read($id) {
-        global $db;
-        $this->hotels = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
+//    protected function read($id) {
+//        global $db;
+//        $this->hotels = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
+//    }
+
+    public function create(array $data) {
+        global $db, $core;
+        if(is_empty($data['name'], $data['city'])) {
+            $this->errorode = 2;
+            return false;
+        }
+        $data['alias'] = trim($data['name']);
+        $db->insert_query(self::TABLE_NAME, $data);
+        $this->data[self::PRIMARY_KEY] = $db->last_id();
+        $this->errorode = 0;
+    }
+
+    public function update(array $data) {
+
     }
 
     public function get_country() {
-        return new Countries($this->hotels['country']);
+        return new Countries($this->data['country']);
     }
 
     public function get_city() {
-        return new Cities($this->hotels['city']);
+        return new Cities($this->data['city']);
     }
 
     public static function get_hotels_byattr($attr, $value) {
@@ -51,11 +68,7 @@ class TravelManagerHotels {
 
     public function get_review() {
         global $db;
-        return TravelManagerAccomodationsReview::get_accoreviews('tmhid='.$db->escape_string($this->hotels['tmhid']), array('ORDER' => array('by' => 'createdOn', 'sort' => 'DESC'), 'limit' => '0,1'));
-    }
-
-    public function get() {
-        return $this->hotels;
+        return TravelManagerAccomodationsReview::get_accoreviews('tmhid='.$db->escape_string($this->data['tmhid']), array('ORDER' => array('by' => 'createdOn', 'sort' => 'DESC'), 'limit' => '0,1'));
     }
 
 }

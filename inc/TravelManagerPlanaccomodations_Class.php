@@ -13,8 +13,8 @@
  *
  * @author tony.assaad
  */
-class TravelManagerPlanaccomodations {
-    private $data = array();
+class TravelManagerPlanaccomodations extends AbstractClass {
+    protected $data = array();
 
     const PRIMARY_KEY = 'tmpaid';
     const TABLE_NAME = 'travelmanager_plan_accomodations';
@@ -26,12 +26,12 @@ class TravelManagerPlanaccomodations {
         $this->read($id);
     }
 
-    private function read($id = '') {
+    protected function read($id = '') {
         global $db;
         $this->data = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
 
-    public function create($data = array()) {
+    public function create(array $data) {
         global $db, $core;
 
         $tanspdata_array = array('tmpsid' => $data['tmpsid'],

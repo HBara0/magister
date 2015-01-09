@@ -13,11 +13,12 @@
  *
  * @author tony.assaad
  */
-class TravelManagerCityReviews {
-    private $cityreviews = array();
+class TravelManagerCityReviews extends AbstractClass {
+    protected $cityreviews = array();
 
     const PRIMARY_KEY = 'tmcrid';
     const TABLE_NAME = 'travelmanager_cityreviews';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id) {
         if(empty($id)) {
@@ -26,10 +27,18 @@ class TravelManagerCityReviews {
         $this->read($id);
     }
 
-    private function read($id) {
+    protected function read($id) {
         global $db;
 
         $this->cityreviews = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
+    }
+
+    public function create(array $data) {
+        ;
+    }
+
+    public function update(array $data) {
+        ;
     }
 
     public static function get_cityreviews_byattr($attr, $value) {

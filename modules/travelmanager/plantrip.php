@@ -18,6 +18,9 @@ if(!$core->input['action']) {
     if(isset($core->input['id']) && !empty($core->input['id'])) {
         $planid = $db->escape_string($core->input['id']);
         $plan_obj = new TravelManagerPlan($planid);
+        if($plan_obj->is_finalized()) {
+            redirect('index.php?module=travelmanager/viewplan&id='.$planid);
+        }
         $plantrip = $plan_obj->parse_existingsegments();
         output($plantrip);
     }
@@ -54,8 +57,10 @@ if(!$core->input['action']) {
             $segment[$sequence]['destinationcity']['ciid'] = $segment[$sequence]['destinationcity']['ciid'];  /* Will get the capital city of the visited country of leave */
             $disabled = 'disabled="true"';
 //$leave_destcity
-            $cityprofile_output = $origincity_obj->parse_cityreviews();
-            $citybriefings_output = $descity_obj->parse_citybriefing();
+            $cityprofile_output = $leave_obj->get_destinationcity()->parse_cityreviews();
+            $citybriefings_output = $leave_obj->get_destinationcity()->parse_citybriefing();
+            $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
+            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '');
 
             //   $origincity_obj = $leave_obj->get_sourcecity(false);
             $origintcity = $origincity_obj->get();
@@ -64,12 +69,12 @@ if(!$core->input['action']) {
             // $descity_obj = $leave_obj->get_destinationcity($false);
             $destcity = $descity_obj->get();
             $destcity['country'] = $descity_obj->get_country()->get()['name'];
-            $transp_requirements['drivemode'] = 'transit';
-            $transp_requirements['departuretime'] = $db->escape_string(($leave['fromDate']));
+            $destcity['drivemode'] = 'transit';
+            $destcity['departuretime'] = $db->escape_string(($leave['fromDate']));
 
-            $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
+            $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
 
-            $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence);
+            $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence, $destcity);
             $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 
             /* parse expenses --START */
@@ -80,6 +85,19 @@ if(!$core->input['action']) {
 
             /* parse expenses --END */
 
+            /* Get unaprroved hotel of the destcity  for the purpose to acquire the tmhid */
+            $unapproved_hotelobjs = $descity_obj->get_unapprovedhotels();
+            $approved_hotels['tmhid'] = $unapproved_hotelobjs->tmhid;
+
+            $mainaffobj = new Affiliates($core->user['mainaffiliate']);
+            /* ffilter the currency  either get the curreny of the destination city or  the currencies of the country of the main affiliate */
+            $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where capitalCity='.$destcity['ciid'].' OR numCode IN(SELECT mainCurrency FROM countries where coid='.$mainaffobj->get_country()->coid.')';
+            $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
+            $curr_objs[840] = new Currencies(840);
+            $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].'][currency]', 4, $curr_objs, '840');
+
+
+            eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
             eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
 
             eval("\$plantrip_createsegment= \"".$template->get('travelmanager_plantrip_createsegment')."\";");
@@ -131,6 +149,8 @@ else {
             $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ($leave[$sequence]['toDate'])); // leave to date
             $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
             $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
+            $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
+            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '');
 
             /* Popuplate basic information from the leave based on the lid passed via ajax */
 
@@ -143,6 +163,7 @@ else {
 //            $expensestype_obj = new Travelmanager_Expenses_Types();
 //            $segments_expenses_output = $expensestype_obj->parse_expensesfield($sequence, $rowid);
             /* parse expenses --END */
+
             eval("\$plantrip_createsegment= \"".$template->get('travelmanager_plantrip_createsegment')."\";");
             output($plantrip_createsegment);
         }
@@ -155,8 +176,8 @@ else {
         $descity_obj = new Cities($destcityid);
         $destcity = $descity_obj->get();
         $destcity['country'] = $descity_obj->get_country()->get()['name'];
-        $transp_requirements['drivemode'] = 'transit';
-        $transp_requirements['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
+        $destcity['drivemode'] = 'transit';
+        $destcity['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
 
         $origincity_obj = new Cities($origincityid);
         $origintcity = $origincity_obj->get();
@@ -164,14 +185,29 @@ else {
         $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 
         /* Load proposed transproration */
-        $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
+        $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
         /* load approved hotels */
-        $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence);
+        $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence, $destcity);
         /* parse expenses --START */
         $rowid = 1;
         $expensestype_obj = new Travelmanager_Expenses_Types();
         $segments_expenses_output = $expensestype_obj->parse_expensesfield('', $sequence, $rowid);
         /* parse expenses --END */
+
+
+        /* Get unaprroved hotel of the destcity  for the purpose to acquire the tmhid */
+        $unapproved_hotelobjs = $descity_obj->get_unapprovedhotels();
+        $approved_hotels['tmhid'] = $unapproved_hotelobjs->tmhid;
+
+        $mainaffobj = new Affiliates($core->user['mainaffiliate']);
+        /* ffilter the currency  either get the curreny of the destination city or  the currencies of the country of the main affiliate */
+        $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where capitalCity='.$destcity['ciid'].' OR numCode IN(SELECT mainCurrency FROM countries where coid='.$mainaffobj->get_country()->coid.')';
+        $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
+        $curr_objs[840] = new Currencies(840);
+        $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].'][currency]', 4, $curr_objs, '840');
+
+
+        eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
         eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
         output($plansegmentscontent_output);
     }
@@ -204,41 +240,49 @@ else {
     }
     elseif($core->input['action'] == 'do_perform_plantrip') {
         $travelplan = new TravelManagerPlan();
-        if(is_array($core->input['segment'])) {
-            $travelplan->set($core->input);
-            $travelplan->save();
+        $travelplanexist = new TravelManagerPlan($core->input[planid]);
+        if($travelplanexist->is_finalized()) {
+            output_xml("<status>false</status><message>{$lang->finalizedplan}</message>");
+            exit;
         }
-        switch($travelplan->get_errorcode()) {
-            case 0:
+        else {
+            if(is_array($core->input['segment'])) {
+                $travelplan->set($core->input);
+                $travelplan->save();
+                // $travelplan_obj->create($core->input['segment']);
+            }
+            switch($travelplan->get_errorcode()) {
+                case 0:
                 if(isset($core->input['finalizeplan']) && $core->input['finalizeplan'] == 1) {
                     $url = 'index.php?module=travelmanager/viewplan&referrer=plantrip&id=';
                     header('Content-type: text/xml+javascript');
                     output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.$travelplan->tmpid.'\');</script>]]></message>');
                     exit;
                 }
-                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
-                break;
-            case 1:
-                output_xml("<status>false</status><message>{$lang->planexist}</message>");
-                exit;
-            case 2:
-                output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
-                exit;
-            case 3:
-                output_xml("<status>false</status><message>{$lang->dateexceeded}</message>");
-                exit;
-            case 4:
-                output_xml("<status>false</status><message>{$lang->segmenexist}</message>");
-                exit;
-            case 5:
-                output_xml("<status>false</status><message>{$lang->oppositedate}</message>");
-                exit;
-            case 6:
-                output_xml("<status>false</status><message> {$lang->errorcity}</message>");
-                exit;
-            case 7:
-                output_xml("<status>false</status><message> {$lang->errordate} </message>");
-                exit;
+                    output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                    break;
+                case 1:
+                    output_xml("<status>false</status><message>{$lang->planexist}</message>");
+                    exit;
+                case 2:
+                    output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+                    exit;
+                case 3:
+                    output_xml("<status>false</status><message>{$lang->dateexceeded}</message>");
+                    exit;
+                case 4:
+                    output_xml("<status>false</status><message>{$lang->segmenexist}</message>");
+                    exit;
+                case 5:
+                    output_xml("<status>false</status><message>{$lang->oppositedate}</message>");
+                    exit;
+                case 6:
+                    output_xml("<status>false</status><message> {$lang->errorcity}</message>");
+                    exit;
+                case 7:
+                    output_xml("<status>false</status><message> {$lang->errordate} </message>");
+                    exit;
+            }
         }
     }
     elseif($core->input['action'] == 'get_hotelreview') {
@@ -251,7 +295,8 @@ else {
             $hotel['reviewby'] = $hotel_review->get_createdBy()->get()['displayName'];
         }
         else {
-            $hotel['review'] = $hotel['reviewby'] = $lang->na;
+            $hotel['reviewby'] = $lang->na;
+            $hotel['review'] = $lang->noreviews;
         }
         eval("\$hotel_reviews = \"".$template->get('popup_hotel_review')."\";");
         output($hotel_reviews);
@@ -267,6 +312,44 @@ else {
         $expenses = $expensestypeobj->parse_expensesfield($expensestype_obj, $sequence, $rowid, '', array('mode' => 'addrows'));
         //eval("\$expenses = \"".$template->get('travelmanager_expenses_types')."\";");
         echo $expenses;
+    }
+    elseif($core->input['action'] == 'get_addnewhotel') {
+        $ciy_sequence = explode('_', $db->escape_string($core->input['id']));
+        $sequence = $ciy_sequence[0];
+        $destcityid = $ciy_sequence[1];
+        $segdescity_obj = new Cities($destcityid);
+        $segdescity_country = $segdescity_obj->get_country()->get_displayname();
+        $segdescity_obj_coid = $segdescity_obj->get_country()->coid;
+        $segmentobj_destcityname = $segdescity_obj->get()['name'];
+        eval("\$addhotel= \"".$template->get('popup_addhotel')."\";");
+        output($addhotel);
+    }
+    elseif($core->input['action'] == 'do_add_otherhotel') {
+        $hotelobj = new TravelManagerHotels();
+        $hotelobj->set($core->input['otherhotel']);
+        $hotelobj->save();
+        switch($hotelobj->get_errorcode()) {
+            case 0:
+                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                break;
+            case 2:
+                output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+                exit;
+        }
+    }
+    elseif($core->input['action'] == 'deletesegment') {
+        $segmentid = 105; // dynamic later
+        $plan_classes = array('TravelManagerPlanSegments', 'TravelManagerPlanTransps', 'TravelManagerPlanaccomodations', 'Travelmanager_Expenses', 'TravelManagerCityReviews');
+        if(is_array($plan_classes)) {
+            foreach($plan_classes as $object) {
+                $data = $object::get_data('tmpsid='.$segmentid.'', array('returnarray' => true));
+                if(is_array($data)) {
+                    foreach($data as $object_todelete) {
+                        $object_todelete->delete();
+                    }
+                }
+            }
+        }
     }
 }
 ?>
