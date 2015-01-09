@@ -94,7 +94,6 @@ class TravelManagerAirlines {
                     $flight['departuretime'] = date($core->settings['timeformat'], $departuretime);
                     $flight['arrivaldate'] = date($core->settings['dateformat'], $arrivaltime);
                     $flight['arrivaltime'] = date($core->settings['timeformat'], $arrivaltime);
-
                     $flight['origin'] = $segment->leg[0]->origin;
                     $flight['cabin'] = $segment->cabin;
                     $flight['destination'] = $segment->leg[0]->destination;
@@ -122,7 +121,6 @@ class TravelManagerAirlines {
                         }
                     }
                     $flight['flightnumber'] = $segment->flight->carrier.' '.$segment->flight->number;
-
                     $flight['flightid'] = $response_flightdata->trips->tripOption[$tripoptnum]->id;
                     $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
                     //  $flight['flightdetails'] = base64_encode(serialize($flight['flightnumber'].$flight['flightid']));
@@ -140,7 +138,6 @@ class TravelManagerAirlines {
                     else {
                         eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails_roundtrip_segments_details')."\";");
                     }
-
                     unset($connectionduration, $flight['connectionDuration']);
                     // }
                 }

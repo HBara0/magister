@@ -397,14 +397,16 @@ class TravelManagerPlan {
         $leave_ouput = $this->parse_leavetypetitle();
         $leaveid = $this->get_leave()->lid;
         $leave_purposes = array($this->get_leave()->get_purpose()->get()['ltpid'] => $this->get_leave()->get_purpose()->get()['name']);
+        if(!is_array($segmentplan_objs)) {
+            redirect('index.php?module=travelmanager/listplans');
+        }
         foreach($segmentplan_objs as $segmentid => $segmentobj) {
-            $segmentstabs .= '<li><a href="#segmentstabs-'.$segid.'">Segment '.$segid.'</a></li>  ';
+            $segmentstabs .= '<li><a href="#segmentstabs-'.$segid.'">Segment '.$segid.'</a><span class="ui-icon ui-icon-close" id="deleteseg_'.$segmentid.'"role="presentation" title="Close">Remove Tab</span></li>  ';
             $sequence = $segmentobj->sequence;
             $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ( $segmentobj->toDate));
             $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ( $segmentobj->toDate));
             $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], $segmentobj->fromDate);
             $segment[$sequence]['fromDate_formatted'] = date('d-m-Y', ($segmentobj->fromDate));
-
             $segment[$sequence]['origincity']['name'] = $segmentobj->get_origincity()->name;
             $segment[$sequence]['origincity']['ciid'] = $segmentobj->get_origincity()->ciid;
             $segment[$sequence]['destinationcity']['name'] = $segmentobj->get_destinationcity()->name;
@@ -450,11 +452,9 @@ class TravelManagerPlan {
             $cityprofile_output = $segmentobj->get_destinationcity()->parse_cityreviews();
             $citybriefings_output = $segmentobj->get_destinationcity()->parse_citybriefing();
 
-
             /* parse hotel --START */
             $hotelssegments_objs = $segmentobj->get_accomodations(array('returnarray' => true));
             if(is_array($hotelssegments_objs)) {
-
                 foreach($hotelssegments_objs as $segmentacc) {
                     $accomodation[$segmentid][$segmentacc->tmhid]['priceNight'] = $segmentacc->priceNight;
                     $accomodation[$segmentid][$segmentacc->tmhid]['numNights'] = $segmentacc->numNights;
@@ -516,7 +516,9 @@ class TravelManagerPlan {
             eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
             unset($segments_expenses_output, $expensestype, $transsegments_output, $accomodation, $selectedhotel);
             eval("\$plantrip_createsegment   = \"".$template->get('travelmanager_plantrip_createsegment')."\";");
+
             $segments_output .= '<div id="segmentstabs-'.$segid.'">'.$plantrip_createsegment.'</div>';
+
             $segid++;
             unset($transsegments_output);
         }

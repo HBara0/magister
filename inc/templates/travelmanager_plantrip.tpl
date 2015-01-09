@@ -4,8 +4,6 @@
         {$headerinc}
         <script>
             $(function() {
-
-
                 var tabs = $("#segmentstabs").tabs();
                 var tabcounter = tabs.find(".ui-tabs-nav").find('li').length + 1; //find the  lenght of li tabs and increment by 1
                 $("#createtab").live('click', function() {
@@ -44,18 +42,15 @@
                 });
                 // close icon: removing the tab on click
                 tabs.delegate("span.ui-icon-close", "click", function() {
+                    var segmentid = $(this).closest("li").find('span').attr('id').split("_");
+                    sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=deletesegment", "&segmentid=" + segmentid[1], '', '', true);
+
                     var panelId = $(this).closest("li").remove().attr("aria-controls");
                     $("#" + panelId).remove();
 
                     tabcounter = tabcounter - 1;
                     tabs.tabs("refresh");
                 });
-                $("#segmentstabs").bind("tabsremove", function(event, ui) {
-
-                    // sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=deleteseg", "&sequence=2&destcity=33&origincity=44 ", 'content_detailsloader_2', 'content_details_2', true);
-
-                });
-                // var event = $("#segmentstabs").tabs("option", "event", "tabsremove");
 
                 $('input[id^=destinationcity_]').live('change', function() {
                     if(sharedFunctions.checkSession() == false) {

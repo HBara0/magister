@@ -4,6 +4,7 @@
             <td width="18%">{$lang->fromdate}</td>
             <td><input type="text" id="pickDate_from_{$sequence}" disabled="disabled" autocomplete="off" tabindex="1" value="{$segment[$sequence][fromDate_output]}" required="required"/>
                 <input type="hidden" name="segment[{$sequence}][fromDate]" id="altpickDate_from_{$sequence}" value="{$segment[$sequence][fromDate_formatted]}" /></td>
+            </td>
 
             <td>{$lang->todate}</td>
             <td><input type="text" id="pickDate_to_{$sequence}"    autocomplete="off" tabindex="2" value="{$segment[$sequence][toDate_output]}" required="required" />
