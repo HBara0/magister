@@ -70,4 +70,10 @@ $lang['hotelaccommodation'] = 'Hotel Accommodation';
 $lang['summaryofexpenses'] = 'Summary of Expenses';
 $lang['subtotal'] = 'Subtotal';
 $lang['plannotification'] = 'Your Flight is in two days';
+$lang['anotheraffiliate'] = 'Another Affiliate ';
+$lang['todelete'] = 'check this box to delete';
+$lang['preview'] = 'Preview';
+$lang['save'] = 'Save';
+$lang['finalize'] = 'Finalize';
+$lang['confirmfinalizeplan'] = 'I understand that once I confirm this plan, it will be sent to the management for review and approval';
 ?>
