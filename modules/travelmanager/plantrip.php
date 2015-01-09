@@ -18,6 +18,9 @@ if(!$core->input['action']) {
     if(isset($core->input['id']) && !empty($core->input['id'])) {
         $planid = $db->escape_string($core->input['id']);
         $plan_obj = new TravelManagerPlan($planid);
+        if(!is_object($plan_obj)) {
+            redirect('index.php?module=travelmanager/listplans');
+        }
         if($plan_obj->is_finalized()) {
             redirect('index.php?module=travelmanager/viewplan&id='.$planid);
         }
@@ -57,8 +60,8 @@ if(!$core->input['action']) {
             $segment[$sequence]['destinationcity']['ciid'] = $segment[$sequence]['destinationcity']['ciid'];  /* Will get the capital city of the visited country of leave */
             $disabled = 'disabled="true"';
 //$leave_destcity
-            $cityprofile_output = $leave_obj->get_destinationcity()->parse_cityreviews();
-            $citybriefings_output = $leave_obj->get_destinationcity()->parse_citybriefing();
+            $cityprofile_output = $descity_obj->parse_cityreviews();
+            $citybriefings_output = $descity_obj->parse_citybriefing();
             $leave_purposes = LeaveTypesPurposes::get_data('');
             //$leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
             $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '');
@@ -340,7 +343,7 @@ else {
         }
     }
     elseif($core->input['action'] == 'deletesegment') {
-        $segmentid = 105; // dynamic later
+        $segmentid = $db->escape_string($core->input['segmentid']); // dynamic later
         $plan_classes = array('TravelManagerPlanSegments', 'TravelManagerPlanTransps', 'TravelManagerPlanaccomodations', 'Travelmanager_Expenses', 'TravelManagerCityReviews');
         if(is_array($plan_classes)) {
             foreach($plan_classes as $object) {
