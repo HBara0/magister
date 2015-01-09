@@ -5,6 +5,7 @@
         <script>
             $(function() {
 
+
                 var tabs = $("#segmentstabs").tabs();
                 var tabcounter = tabs.find(".ui-tabs-nav").find('li').length + 1; //find the  lenght of li tabs and increment by 1
                 $("#createtab").live('click', function() {
@@ -45,9 +46,17 @@
                 tabs.delegate("span.ui-icon-close", "click", function() {
                     var panelId = $(this).closest("li").remove().attr("aria-controls");
                     $("#" + panelId).remove();
+
                     tabcounter = tabcounter - 1;
                     tabs.tabs("refresh");
                 });
+                $("#segmentstabs").bind("tabsremove", function(event, ui) {
+
+                    // sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=deleteseg", "&sequence=2&destcity=33&origincity=44 ", 'content_detailsloader_2', 'content_details_2', true);
+
+                });
+                // var event = $("#segmentstabs").tabs("option", "event", "tabsremove");
+
                 $('input[id^=destinationcity_]').live('change', function() {
                     if(sharedFunctions.checkSession() == false) {
                         return;
@@ -113,6 +122,18 @@
 
                     $("div[id=total_" + id[1] + "_" + id[2] + '_' + id[3] + "]").fadeToggle('slow').stop().text($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() * $('input[id="numnight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val());
                 });
+
+                $('input[id^="pickDate_to"]').live('change', function() {
+                    var descity = '';
+                    var segid = $(this).attr("id").split("_");
+                    if(sharedFunctions.checkSession() == false) {
+                        return;
+                    }
+                    var descity = $('input[id="destinationcity_' + segid[2] + '_cache_id"]').val();
+                    if((descity != '') && $("#altpickDate_to").val() != '') {
+                        $('input[id^=destinationcity_]').trigger('change');
+                    }
+                });
             });
 
         </script>
@@ -142,6 +163,7 @@
                 <input type="hidden" value="{$previoussegtodate}" id="todate" name="todate"/>
                 <input type="hidden" value="{$previoussegdestcity}" id="prevdestcity" name="prevdestcity"/>
                 <input type="hidden" value="{$leaveid}" id="lid" name="lid"/>
+                <input type="hidden" value="{$planid}" id="lid" name="planid"/>
                 {$plantript_segmentstabs}
                 <input type='submit' class='button' value="{$lang->savecaps}" id='perform_travelmanager/plantrip_Button'>
             </form>

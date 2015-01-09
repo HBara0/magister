@@ -20,6 +20,7 @@ $lang['reviewdby'] = 'Reviewd By :';
 $lang['readhotelreview'] = 'Read Hotel Review';
 $lang['dateexceeded'] = 'The segment from and to date cannot exceed the leave date ';
 $lang['destinationcity'] = 'Destination City';
+$lang['noreviews'] = 'No reviews yet';
 $lang['planexist'] = 'The plan already exist';
 $lang['segmenexist'] = 'Segment Already exist';
 $lang['errordate'] = 'itinerary exceed leave time frame';
@@ -70,4 +71,9 @@ $lang['hotelaccommodation'] = 'Hotel Accommodation';
 $lang['summaryofexpenses'] = 'Summary of Expenses';
 $lang['subtotal'] = 'Subtotal';
 $lang['plannotification'] = 'Your Flight is in two days';
+$lang['city'] = 'City';
+$lang['country'] = 'Country';
+$lang['hotel'] = 'Hotel';
+$lang['addotherhotel'] = 'Add Other Hotel ';
+$lang['searchotherhotel'] = 'Search Other Hotels';
 ?>

@@ -388,11 +388,13 @@ class TravelManagerPlan {
 
     public function parse_existingsegments() {
         global $lang, $template, $core, $header, $headerinc, $menu;
+        $planid = $this->tmpid;
         $segmentplan_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $this->tmpid), array('returnarray' => true, 'order' => array('by' => 'sequence', 'sort' => 'ASC')));
         $segid = 1;
         $disabled = 'disabled="true"';
         $leave_ouput = $this->parse_leavetypetitle();
         $leaveid = $this->get_leave()->lid;
+        $leave_purposes = array($this->get_leave()->get_purpose()->get()['ltpid'] => $this->get_leave()->get_purpose()->get()['name']);
         foreach($segmentplan_objs as $segmentid => $segmentobj) {
             $segmentstabs .= '<li><a href="#segmentstabs-'.$segid.'">Segment '.$segid.'</a></li>  ';
             $sequence = $segmentobj->sequence;
@@ -406,6 +408,8 @@ class TravelManagerPlan {
             $segment[$sequence]['destinationcity']['name'] = $segmentobj->get_destinationcity()->name;
             $segment[$sequence]['destinationcity']['ciid'] = $segmentobj->get_destinationcity()->ciid;
             $segment[$sequence]['reason'] = $segmentobj->reason;
+            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, $segmentobj->purpose);
+
             //get transp cat send to  parse_transportaionfields
 //            $transportation_obj = $segmentobj->get_transportationscat();
 //            $categery['name'] = $transportation_obj->name;
@@ -455,6 +459,9 @@ class TravelManagerPlan {
                     $accomodation[$segmentid][$segmentacc->tmhid]['paidbyid'] = $segmentacc->paidById;
                     $accomodation[$segmentid][$segmentacc->tmhid]['display'] = "display:none;";
                     $accomodation[$segmentid][$segmentacc->tmhid]['paidby'] = $segmentacc->paidBy;
+                    $acc_currobj = new Currencies($segmentacc->currency);
+                    $accomodation[$segmentid][$segmentacc->tmhid]['currency'] = $acc_currobj->alphaCode;
+                    echo $accomodation[$segmentid][$segmentacc->tmhid]['currency'];
                     if(isset($accomodation[$segmentid][$segmentacc->tmhid]['paidbyid']) && !empty($accomodation[$segmentid][$segmentacc->tmhid]['paidbyid'])) {
                         $accomodation[$segmentid][$segmentacc->tmhid]['display'] = "display:block;";
                     }
@@ -467,7 +474,7 @@ class TravelManagerPlan {
                 }
             }
             $city_obj = new Cities($segmentobj->get_destinationcity()->ciid);
-            $hotelssegments_output = $city_obj->parse_approvedhotels($sequence, $accomodation);
+            $hotelssegments_output = $city_obj->parse_approvedhotels($sequence, $city_obj->get(), $accomodation);
             /* parse hotel --END */
 
             /* parse expenses --START */
@@ -517,6 +524,12 @@ class TravelManagerPlan {
         eval("\$plantrip = \"".$template->get('travelmanager_plantrip')."\";");
 
         return $plantrip;
+    }
+
+    public function is_finalized() {
+        if($this->data['isFinalized'] == 1) {
+            return true;
+        }
     }
 
 }

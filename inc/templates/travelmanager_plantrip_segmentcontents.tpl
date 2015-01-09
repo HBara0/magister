@@ -5,7 +5,12 @@
 </div>
 <div style="display:block;" id="segment_hotels_{$sequence}">
    <!-- <div class="subtitle">{}Approved Hotels</div>-->
+
     {$hotelssegments_output}
+</div>
+<div style="display:block;" id="other_hotels_{$sequence}">
+  <!-- <div class="subtitle">{}Approved Hotels</div>-->
+    {$otherhotels_output}
 </div>
 <div style="display:block; width: 100%;" id="segment_expenses_{$sequence}">
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">

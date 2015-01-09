@@ -64,10 +64,17 @@ class Cities {
         return new TravelManagerAirports($this->data['defaultAirport']);
     }
 
-    public function get_approvedhotels() {
+    public function get_approvedhotels($filter = '') {
         global $db;
-
-        $query = $db->query('SELECT tmhid FROM '.Tprefix.'travelmanager_hotels  WHERE  isApproved=1 AND city ="'.$db->escape_string($this->data['ciid']).'"');
+        if(!empty($filter) && $filter == 'approved') {
+            $filterwhere = '  WHERE  isApproved=1 ';
+            $filterwhereand = ' AND city ="'.$db->escape_string($this->data['ciid']).'"';
+        }
+        else {
+            $filterwhere = ' WHERE city ="'.$db->escape_string($this->data['ciid']).'"';
+            $filterwhereand = '';
+        }
+        $query = $db->query('SELECT tmhid FROM '.Tprefix.'travelmanager_hotels '.$filterwhere.$filterwhereand);
         if($db->num_rows($query) >= 1) {
             while($item = $db->fetch_assoc($query)) {
                 $items[$item['tmhid']] = new TravelManagerHotels($item['tmhid']);
@@ -95,8 +102,12 @@ class Cities {
         return TravelManagerCityBriefings::get_citybriefings('ciid='.$db->escape_string($this->data['ciid']), array('ORDER' => array('by' => 'createdOn', 'sort' => 'DESC'), 'limit' => '0,1'));
     }
 
-    public function parse_approvedhotels($sequence, $selectedhotel = array()) {
-        global $template, $lang;
+    public function get_unapprovedhotels() {
+        return TravelManagerHotels::get_data(array('isApproved' => 0, 'city' => $this->data['ciid']));
+    }
+
+    public function parse_approvedhotels($sequence, $destcity = '', $selectedhotel = array()) {
+        global $template, $lang, $core;
         $approved_hotelsobjs = $this->get_approvedhotels();
         if(is_array($selectedhotel) && !empty($selectedhotel)) {
             $segid = key($selectedhotel);
@@ -111,15 +122,22 @@ class Cities {
                     $approvedhotel_id = $selectedhotel[$segid][$approved_hotels['tmhid']]['selectedhotel'];
                 }
                 $hotelname = array($approved_hotels['tmhid'] => $approved_hotels['name']);
-                $review_tools .= ' <a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'./images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
+                $review_tools .= '<a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
 
                 $checkbox_hotel = parse_checkboxes('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].']', $hotelname, $selectedhotel[$segid][$approved_hotels['tmhid']], true, '&nbsp;&nbsp;');
                 $paidby_details.=$this->parse_paidby($sequence, '', $segid, array('tmhid' => $approved_hotels['tmhid'], 'accomodations' => $selectedhotel[$segid][$approvedhotel_id]));
                 if(empty($selectedhotel[$segid][$approved_hotels['tmhid']]['display'])) {
                     $selectedhotel[$segid][$approved_hotels['tmhid']]['display'] = "display:none;";
                 }
+                $mainaffobj = new Affiliates($core->user['mainaffiliate']);
+                /* ffilter the currency  either get the curreny of the destination city or  the currencies of the country of the main affiliate */
+                $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where capitalCity='.$destcity['ciid'].' OR numCode IN(SELECT mainCurrency FROM countries where coid='.$mainaffobj->get_country()->coid.')';
+                $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
+                $curr_objs[840] = new Currencies(840);
+                $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].'][currency]', 4, $curr_objs, '840');
+
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
-                $review_tools = $paidby_details = $checkbox_hotel = '';
+                $review_tools = $paidby_details = $currencies_list = $checkbox_hotel = '';
             }
         }
         else {

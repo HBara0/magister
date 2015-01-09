@@ -1,4 +1,4 @@
-<div style="display:inline-block; width:60%;">
+<div style="display:inline-block; width:100%;">
     <table>
         <tr>
             <td width="18%">{$lang->fromdate}</td>
@@ -11,7 +11,6 @@
         <input type="hidden" name="leaveDate" id="leaveDate_to_{$sequence}" value="{$leave[$sequence][toDate]}"/></td>
         <td> <span id="numdays_{$sequence}">{$segment[$sequence][numberdays]}</span></td>
         </tr>
-
         <tr>  <td>{$lang->origincity}</td>
             <Td><input type="text"  disabled="disabled" autocomplete="off" tabindex="1"  id="cities_{$sequence}_cache_autocomplete"    value="{$segment[$sequence][origincity][name]}" required="required"/></Td>
             <td>
@@ -25,6 +24,7 @@
             </td>
             <td></td>
         </tr>
+        <tr><td>{$lang->purpose}</td><td>{$segment_purposlist}</td></tr>
         <tr><td>{$lang->reason}</td><td><textarea name="segment[{$sequence}][reason]"  cols="30" rows="3" required="required">{$segment[$sequence][reason]}</textarea></td></tr>
     </table>
     <div id="content_detailsloader_{$sequence}"></div>
