@@ -93,12 +93,19 @@ if(!$core->input['action']) {
             $approved_hotels['tmhid'] = $unapproved_hotelobjs->tmhid;
 
             $mainaffobj = new Affiliates($core->user['mainaffiliate']);
-            /* ffilter the currency  either get the curreny of the destination city or  the currencies of the country of the main affiliate */
-            $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where capitalCity='.$destcity['ciid'].' OR numCode IN(SELECT mainCurrency FROM countries where coid='.$mainaffobj->get_country()->coid.')';
-            $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
-            $curr_objs[840] = new Currencies(840);
-            $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].'][currency]', 4, $curr_objs, '840');
-
+            $destcity_obj = new Cities($destcity['ciid']);
+            /* get currency for the country of the destcity */
+            $currency[] = $destcity_obj->get_country()->get_maincurrency()->get();
+            /* append default usd currency to the object */
+            $currencydefault = new Currencies(840, true);
+            $currency[] = $currencydefault->get();
+            /* append currency of the country of the main user affiliate to the object */
+            $countryobj = new Countries($mainaffobj->get_country()->coid);
+            $currency[] = $countryobj->get_maincurrency()->get();
+            foreach($currency as $curr) {
+                $currencies[$curr['numCode']] = $curr[alphaCode];
+            }
+            $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].'][currency]', 4, $currencies, '840');
 
             eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
             eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
@@ -116,7 +123,7 @@ if(!$core->input['action']) {
         }
         $leave_ouput = '  <div class="ui-state-highlight ui-corner-all" style="padding: 5px; font-style: italic;">'.$leave['type_output'].' - '.$leave['fromDate_output'].' - '.$leave['toDate_output'].'</div>';
 
-        $segmentstabs = '   <li><a href="#segmentstabs-1">Segment 1</a></li>  ';
+        $segmentstabs = '<li><a href="#segmentstabs-1">Segment 1</a></li>';
         // $identifier = substr(md5(uniqid(microtime())), 1, 10);
         eval("\$plantript_segmentstabs= \"".$template->get('travelmanager_plantrip_segmentstabs')."\";");
         eval("\$plantrip = \"".$template->get('travelmanager_plantrip')."\";");
@@ -203,13 +210,19 @@ else {
         $approved_hotels['tmhid'] = $unapproved_hotelobjs->tmhid;
 
         $mainaffobj = new Affiliates($core->user['mainaffiliate']);
-        /* ffilter the currency  either get the curreny of the destination city or  the currencies of the country of the main affiliate */
-        $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where capitalCity='.$destcity['ciid'].' OR numCode IN(SELECT mainCurrency FROM countries where coid='.$mainaffobj->get_country()->coid.')';
-        $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
-        $curr_objs[840] = new Currencies(840);
-        $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].'][currency]', 4, $curr_objs, '840');
-
-
+        $destcity_obj = new Cities($destcity['ciid']);
+        /* get currency for the country of the destcity */
+        $currency[] = $destcity_obj->get_country()->get_maincurrency()->get();
+        /* append default usd currency to the object */
+        $currencydefault = new Currencies(840, true);
+        $currency[] = $currencydefault->get();
+        /* append currency of the country of the main user affiliate to the object */
+        $countryobj = new Countries($mainaffobj->get_country()->coid);
+        $currency[] = $countryobj->get_maincurrency()->get();
+        foreach($currency as $curr) {
+            $currencies[$curr['numCode']] = $curr[alphaCode];
+        }
+        $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].'][currency]', 4, $currencies, '840');
         eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
         eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
         output($plansegmentscontent_output);
@@ -341,14 +354,16 @@ else {
         }
     }
     elseif($core->input['action'] == 'deletesegment') {
-        $segmentid = $db->escape_string($core->input['segmentid']); // dynamic later
-        $plan_classes = array('TravelManagerPlanSegments', 'TravelManagerPlanTransps', 'TravelManagerPlanaccomodations', 'Travelmanager_Expenses', 'TravelManagerCityReviews');
-        if(is_array($plan_classes)) {
-            foreach($plan_classes as $object) {
-                $data = $object::get_data('tmpsid='.$segmentid.'', array('returnarray' => true));
-                if(is_array($data)) {
-                    foreach($data as $object_todelete) {
-                        $object_todelete->delete();
+        $segmentid = $db->escape_string($core->input['segmentid']);
+        if(!empty($segmentid)) {
+            $plan_classes = array('TravelManagerPlanSegments', 'TravelManagerPlanTransps', 'TravelManagerPlanaccomodations', 'Travelmanager_Expenses', 'TravelManagerCityReviews');
+            if(is_array($plan_classes)) {
+                foreach($plan_classes as $object) {
+                    $data = $object::get_data('tmpsid='.$segmentid.'', array('returnarray' => true));
+                    if(is_array($data)) {
+                        foreach($data as $object_todelete) {
+                            $object_todelete->delete();
+                        }
                     }
                 }
             }

@@ -129,12 +129,25 @@ class Cities {
                 if(empty($selectedhotel[$segid][$approved_hotels['tmhid']]['display'])) {
                     $selectedhotel[$segid][$approved_hotels['tmhid']]['display'] = "display:none;";
                 }
-                $mainaffobj = new Affiliates($core->user['mainaffiliate']);
+
                 /* ffilter the currency  either get the curreny of the destination city or  the currencies of the country of the main affiliate */
-                $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where capitalCity='.$destcity['ciid'].' OR numCode IN(SELECT mainCurrency FROM countries where coid='.$mainaffobj->get_country()->coid.')';
-                $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
-                $curr_objs[840] = new Currencies(840);
-                $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].'][currency]', 4, $curr_objs, '840');
+                //    $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where capitalCity='.$destcity['ciid'].' OR numCode IN(SELECT mainCurrency FROM countries where coid='.$mainaffobj->get_country()->coid.')';
+                //    $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
+
+                $mainaffobj = new Affiliates($core->user['mainaffiliate']);
+                $destcity_obj = new Cities($destcity['ciid']);
+                /* get currency for the country of the destcity */
+                $currency[] = $destcity_obj->get_country()->get_maincurrency()->get();
+                /* append default usd currency to the object */
+                $currencydefault = new Currencies(840, true);
+                $currency[] = $currencydefault->get();
+                /* append currency of the country of the main user affiliate to the object */
+                $countryobj = new Countries($mainaffobj->get_country()->coid);
+                $currency[] = $countryobj->get_maincurrency()->get();
+                foreach($currency as $curr) {
+                    $currencies[$curr['numCode']] = $curr[alphaCode];
+                }
+                $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].'][currency]', 4, $currencies, '840');
 
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
                 $review_tools = $paidby_details = $currencies_list = $checkbox_hotel = '';
