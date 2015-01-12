@@ -103,7 +103,7 @@ elseif($core->input['action'] == 'email') {
             $segment_expenses = $segment->parse_expensesummary();
         }
         /* Get and parse all the possibe transportations */
-        $transportaion_fields_title .= '<div style="font-size: 24px;color: #91B64F;font-weight: 100;">'.$lang->allpossibletransportations.'</div>';
+        $transportaion_fields_title = '<div style="font-size: 24px;color: #91B64F;font-weight: 100;">'.$lang->allpossibletransportations.'</div>';
         foreach($segment_objs as $segmentid => $segment) {
             if(!empty($segment->get()[apiFlightdata])) {
                 $transportaionsegment_fields .='<div style="horizontal-align: middle; font-weight: bold;border-bottom: 1px dashed #666;font-size: 14px;padding:5px; background-color: #92D050 ; ">'.$segment->get_origincity()->name.' - '.$segment->get_destinationcity()->name.'</div>';
@@ -112,7 +112,7 @@ elseif($core->input['action'] == 'email') {
         }
         if(!empty($transportaionsegment_fields)) {
             $transportaion_fields .= $transportaion_fields_title.$transportaionsegment_fields;
-            unset($transportaionsegment_fields);
+            unset($transportaionsegment_fields, $transportaion_fields_title);
         }
     }
     eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpanemail')."\";");

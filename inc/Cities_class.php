@@ -122,7 +122,7 @@ class Cities {
                     $approvedhotel_id = $selectedhotel[$segid][$approved_hotels['tmhid']]['selectedhotel'];
                 }
                 $hotelname = array($approved_hotels['tmhid'] => $approved_hotels['name']);
-                $review_tools .= '<a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
+                $review_tools .= '<a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->hotelreview.'"><img src="'.$core->settings['rootdir'].'/images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
 
                 $checkbox_hotel = parse_checkboxes('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].']', $hotelname, $selectedhotel[$segid][$approved_hotels['tmhid']], true, '&nbsp;&nbsp;');
                 $paidby_details.=$this->parse_paidby($sequence, '', $segid, array('tmhid' => $approved_hotels['tmhid'], 'accomodations' => $selectedhotel[$segid][$approvedhotel_id]));
@@ -134,7 +134,7 @@ class Cities {
                 $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where capitalCity='.$destcity['ciid'].' OR numCode IN(SELECT mainCurrency FROM countries where coid='.$mainaffobj->get_country()->coid.')';
                 $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
                 $curr_objs[840] = new Currencies(840);
-                $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].'][currency]', 4, $curr_objs, '840');
+                $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].'][currency]', 4, $curr_objs, '840', '', '', array('width' => '100%'));
 
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
                 $review_tools = $paidby_details = $currencies_list = $checkbox_hotel = '';
@@ -170,7 +170,7 @@ class Cities {
 
         $onchange_actions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$rowid.'").show().find("input").first().focus().val("");}else{$("#anotheraff_accomodations_'.$sequence.'_'.$rowid.'").hide();}';
         // $onchange_actions = 'onchange="$(\"#"+$(this).find(":selected").val()+"_"+'.$sequence.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();\"';
-        return 'Paid By <select id="paidbylist_accomodations_'.$sequence.'_'.$rowid.'" name="segment['.$sequence.'][tmhid]['.$selectedoptions['tmhid'].'][entites]" onchange='.$onchange_actions.'>'.$paid_options.'</select> ';
+        return ' <div style="display:inline-block;padding:5px;width:15%;">Paid By</div><div style="display:inline-block;width:20%;padding:5px;"><select id="paidbylist_accomodations_'.$sequence.'_'.$rowid.'" name="segment['.$sequence.'][tmhid]['.$selectedoptions['tmhid'].'][entites]" style="width:100%;" onchange='.$onchange_actions.'>'.$paid_options.'</select></div> ';
         //   return '<div style="display:block;padding:8px;"  id="paidby"> Paid By '.parse_selectlist('segment['.$sequence.'][tmhid]['.$selectedoptions['tmhid'].'][entites]', 6, $paidby_entities, $selected_paidby[$segid], '', '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();;', array('id' => 'paidby')).'</div>';
     }
 
@@ -301,8 +301,8 @@ class Cities {
                     if(is_object($transpdata['segment'])) {
                         $transportation_details[$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['affiliate'] = $transpdata['segment']->display_paidby($transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['paidBy'], $transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['paidById'])->name;
                     }
-                    $todelete[$drivingmode[transpcat][cateid]] = '<div style="display:inline-block;vertical-align:top;width:10%">'.$lang->delete.' <input type = "checkbox" title = "'.$lang->todelete.'" value = "1" id = "segment_'.$sequence.'_tmtcid_'.$drivingmode[transpcat][cateid].'_todelete" name = "segment['.$sequence.'][tmtcid]['.$drivingmode[transpcat][cateid].'][todelete]" /></div>';
-
+                    $todelete[$drivingmode[transpcat][cateid]] = $lang->delete.' <input type = "checkbox" title = "'.$lang->todelete.'" value = "1" id = "segment_'.$sequence.'_tmtcid_'.$drivingmode[transpcat][cateid].'_todelete" name = "segment['.$sequence.'][tmtcid]['.$drivingmode[transpcat][cateid].'][todelete]" />';
+                    $transpfield['display'] = 'display:inline-block;';
                     eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
                     eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
                 };
@@ -342,7 +342,8 @@ class Cities {
             $transportation_details[$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['affiliate'] = $transpdata['segment']->display_paidby($transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['paidBy'], $transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['paidById'])->name;
         }
         $transp_category_fields = TravelManagerPlan::parse_transportaionfields(array('transportationdetials' => $transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']], 'name' => $drivingmode['transpcat']['name'], 'tmtcid' => $drivingmode['transpcat'] ['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence);
-        $todelete[$drivingmode[transpcat][cateid]] = '<div style="display:inline-block;vertical-align:top;width:10%">'.$lang->delete.' <input type = "checkbox" title = "'.$lang->todelete.'" value = "1" id = "segment_'.$sequence.'_tmtcid_'.$drivingmode[transpcat][cateid].'_todelete" name = "segment['.$sequence.'][tmtcid]['.$drivingmode[transpcat][cateid].'][todelete]" /></div>';
+        $todelete[$drivingmode[transpcat][cateid]] = $lang->delete.' <input type = "checkbox" title = "'.$lang->todelete.'" value = "1" id = "segment_'.$sequence.'_tmtcid_'.$drivingmode[transpcat][cateid].'_todelete" name = "segment['.$sequence.'][tmtcid]['.$drivingmode[transpcat][cateid].'][todelete]" />';
+        $transpfield['display'] = 'display:inline-block;';
         eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
         eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
 
