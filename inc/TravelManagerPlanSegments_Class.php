@@ -504,7 +504,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $flight[$segmentnu]['destination'] = $segment['leg'][0]['destination'];
                     if(isset($segment['connectionDuration'])) {
                         $flight[$segmentnu]['connectionDuration'] = sprintf('%2dh %2dm', floor($segment['connectionDuration'] / 60), ($segment['connectionDuration'] % 60));
-                        $connectionduration = '<div class = "display:block; border_top border_bottom" style = "padding: 10px; font-style: italic;">Connection: '.$flight[$segmentnu]['connectionDuration'].'</div>';
+                        $connectionduration = '<small><div class = "display:block; border_top border_bottom" style = "padding: 10px; font-style: italic;">Connection: '.$flight[$segmentnu]['connectionDuration'].'</div></small>';
                     }
                     for($carriernum = 0; $carriernum < count($allapi_data->trips->data->carrier); $carriernum++) {
 
@@ -513,8 +513,8 @@ class TravelManagerPlanSegments extends AbstractClass {
                             break;
                         }
                     }
-                    $flight_details .='<div style = "width:40%; display:block;">'.$flight['carrier'].'</div>';
-                    $flight_details .= '<div style = "width:55%; display:  block;">Departure '.$flight[$segmentnu]['departuretime'].' '.$flight[$segmentnu]['origin'].' Arrival '.$flight[$segmentnu]['arrivaltime'].' '.$flight[$segmentnu]['destination'].'</div>';
+                    $flight_details .='<small><div style = "width:40%; display:block;">'.$flight['carrier'].'</div>';
+                    $flight_details .= '<div style = "width:55%; display:  block;">Departure '.$flight[$segmentnu]['departuretime'].' '.$flight[$segmentnu]['origin'].' Arrival '.$flight[$segmentnu]['arrivaltime'].' '.$flight[$segmentnu]['destination'].'</div></small>';
                     $flight_details .= $connectionduration;
                     unset($connectionduration, $flight[$segmentnu]['connectionDuration']);
                 }
