@@ -28,9 +28,7 @@
                             return;
                         }
                         /*Select the  tabs-panel that isn't hidden with  tabs-hide:*/
-
                         var selectedPanel = $("#segmentstabs div.ui-tabs-panel:not(.ui-tabs-hide)");
-
                         var templatecontent = sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=add_segment", "sequence=" + tabcounter + "&lid=" + $('#lid').val() + "&destcity=" + $('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() + "&toDate=" + ($('#pickDate_to_' + (tabcounter - 1)).val()) + "&leavetoDatetime=" + $('#leaveDate_to_' + (tabcounter - 1)).val() + "&toDate=" + $('#altpickDate_to_' + (tabcounter - 1)).val(), 'loadindsection', id, 'html', true);
                         var templatecontent = errormessage = '';
                         tabs.append("<div id=" + id + "><p>" + templatecontent + "</p></div>");
@@ -42,9 +40,11 @@
                 });
                 // close icon: removing the tab on click
                 tabs.delegate("span.ui-icon-close", "click", function() {
-                    var segmentid = $(this).closest("li").find('span').attr('id').split("_");
-                    sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=deletesegment", "&segmentid=" + segmentid[1], '', '', true);
-
+                    /*only send ajax request when segmentid exist on modify*/
+                    if(typeof $(this).closest("li").find('span').attr('id') !== typeof undefined && $(this).closest("li").find('span').attr('id') !== false) {
+                        var segmentid = $(this).closest("li").find('span').attr('id').split("_");
+                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=deletesegment", "&segmentid=" + segmentid[1], '', '', true);
+                    }
                     var panelId = $(this).closest("li").remove().attr("aria-controls");
                     $("#" + panelId).remove();
 
