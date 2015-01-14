@@ -97,7 +97,9 @@ else {
                     $year_selected = ' selected="selected"';
                 }
                 else {
-                    continue;
+                    if($year < date('Y') - 1) {
+                        continue;
+                    }
                 }
                 $budget_year .= "<option value='{$year}'".$year_selected.">{$year}</option>";
             }
