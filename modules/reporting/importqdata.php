@@ -314,13 +314,25 @@ else {
                             echo 'Added: ';
                             if($options['runtype'] != 'dry') {
                                 $db->insert_query('productsactivity', $activity);
-                                /* Implement Budget data integration to acquire forecasts   --START */
-                                /* get last prodcut created */
-                                $productact = new ProductsActivity($db->last_id());
-                                $agrregatedproductlines = $productact->aggregate_relatedbudgetlines(array('aggregatebm' => false));
-                                $db->update_query('productsactivity', array('salesForecast' => $productactivity['salesForecast'], 'quantityForecast' => $productactivity['quantityForecast']), 'paid='.$productact->paid);
 
-                                /* Implement Budget data integration to acquire forecasts   --END */
+                                $productact = new ProductsActivity($db->last_id());
+                                if($quarter_info['quarter'] < 4) {
+                                    /* Implement Budget data integration to acquire forecasts  - START */
+                                    $forecasts = $productact->aggregate_relatedbudgetlines(array('aggregatebm' => false));
+                                    /* Implement Budget data integration to acquire forecasts   - END */
+                                    $activity['salesForecast'] = $agrregatedbudgetlines['salesForecast'];
+                                    $activity['quantityForecast'] = $agrregatedbudgetlines['quantityForecast'];
+                                }
+                                else {
+                                    $forecasts = $db->fetch_assoc($db->query("SELECT pid, SUM(quantity) AS quantityForecast, SUM(turnOver) AS salesForecast
+							FROM ".Tprefix."productsactivity pa
+							JOIN ".Tprefix."reports r ON (r.rid=pa.rid)
+							WHERE r.quarter<'".$quarter_info['quarter']."' AND r.year='".$quarter_info['year']."' AND r.affid='".$affid."' AND r.spid='".$productact->get_report()->spid."' AND pa.pid='".$productact->pid."'
+							GROUP BY pa.pid"));
+                                    $forecasts['quantityForecast'] += $activity['quantity'];
+                                    $forecasts['salesForecast'] += $activity['turnOver'];
+                                }
+                                $db->update_query('productsactivity', array('salesForecast' => $forecasts['salesForecast'], 'quantityForecast' => $forecasts['quantityForecast']), 'paid='.$productact->paid);
                             }
                         }
                     }
