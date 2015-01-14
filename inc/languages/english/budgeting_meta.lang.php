@@ -168,4 +168,6 @@ $lang['isbudget'] = 'Budget';
 $lang['isyef'] = 'YEF';
 $lang['isactual'] = 'Actual';
 $lang['warningimport'] = ' You should only import if you do not have unsaved data in the form';
+$lang['invoicingentityincome'] = 'Puchasing Entity Income';
+$lang['commissionsplitaffname'] = 'Commission Split Affiliate';
 ?>
