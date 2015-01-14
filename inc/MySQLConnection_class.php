@@ -258,6 +258,24 @@ class MySQLConnection {
         return $field_info;
     }
 
+    public function get_tables_havingcolumn($column, $filter = '') {
+        if(!empty($filter)) {
+            $filter = ' AND '.$filter;
+        }
+        $query = $this->query('SELECT DISTINCT TABLE_NAME
+                        FROM INFORMATION_SCHEMA.COLUMNS
+                        WHERE COLUMN_NAME IN ("'.$this->escape_string($column).'")
+                        AND TABLE_SCHEMA="'.$this->db['db'].'"'.$filter);
+
+        if($this->num_rows($query) > 0) {
+            while($table = $this->fetch_array($query)) {
+                $tables[] = $table['TABLE_NAME'];
+            }
+            return $tables;
+        }
+        return null;
+    }
+
     public function field_name($result, $index) {
         return mysql_field_name($result, $index);
     }

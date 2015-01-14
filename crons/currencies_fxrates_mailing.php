@@ -74,13 +74,13 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
                 }
             }
         }
-        $email_data['message'] .= '[EUR] Avg: '.formatit($fxrates['EUR']['average']).' ('.trim(formatit(1 / $fxrates['EUR']['average'])).') Last: '.trim(formatit($fxrates['EUR']['latest']))." (".trim(formatit(1 / $fxrates['EUR']['latest'])).")\n";
+        $email_data['message'] .= '[EUR] Avg: '.formatit($fxrates['EUR']['average']).' ('.trim(formatit(1 / $fxrates['EUR']['average'])).') <span style="color: red; font-weight:bold;">Last: '.trim(formatit($fxrates['EUR']['latest'])).' ('.trim(formatit(1 / $fxrates['EUR']['latest'])).")</span>\n";
         foreach($user['currencies'] as $alphacode => $rates) {
             if(empty($rates['average']) && !empty($rates['latest'])) {
                 $rates['average'] = $rates['latest'];
             }
             if(!empty($rates['average']) && !empty($rates['latest'])) {
-                $email_data['message'] .= '['.$alphacode.'] Avg: '.formatit($rates['average']).' ('.trim(formatit(1 / $rates['average'])).') Last: '.trim(formatit($rates['latest']))." (".trim(formatit(1 / $rates['latest'])).") \n";
+                $email_data['message'] .= '['.$alphacode.'] Avg: '.formatit($rates['average']).' ('.trim(formatit(1 / $rates['average'])).') <span style="color: red; font-weight:bold;">Last: '.trim(formatit($rates['latest']))." (".trim(formatit(1 / $rates['latest'])).")</span>\n";
             }
             else {
                 if(empty($rates['average'])) {
@@ -91,7 +91,7 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
                         $rates['latest'] = $rates['average'];
                     }
                 }
-                $email_data['message'] .= '['.$alphacode.'] Avg: '.formatit($rates['average']).' ('.trim(formatit(1 / $rates['average'])).') Last: '.trim(formatit($rates['latest']))." (".trim(formatit(1 / $rates['latest'])).") \n";
+                $email_data['message'] .= '['.$alphacode.'] Avg: '.formatit($rates['average']).' ('.trim(formatit(1 / $rates['average'])).') <span style="color: red; font-weight:bold;">Last: '.trim(formatit($rates['latest']))." (".trim(formatit(1 / $rates['latest'])).")</span> \n";
             }
         }
 

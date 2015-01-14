@@ -173,7 +173,7 @@ else {
             }
         }
 
-        $affiliate_obj = new Affiliates($core->input['affidtoinform']);
+        $affiliate_obj = new Affiliates($core->input['affidtoinform'], false);
         $affiliate = $affiliate_obj->get();
 //        if(empty($affiliate['mailingList'])) {
 //            output_xml("<status>false</status><message>{$lang->errorsendingemail}</message>");

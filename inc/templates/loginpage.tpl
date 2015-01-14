@@ -7,7 +7,7 @@
         <div align="center">
             <table width="100%" border="0" cellpadding="0" cellspacing="0" id="loginbox">
                 <tr>
-                    <td class="content" align="center" id="resetpasswordcontent" style="display:none;">
+                    <td class="content" align="center" id="resetpasswordcontent" style="display:none; position: relative;">
                         <h1>{$lang->resetpassword}</h1>
                         <form id='resetpassword_Form' name='resetpassword_Form' action="#">
                             {$lang->emailtosendpassword}
@@ -16,6 +16,7 @@
                             <input type="hidden" value="{$token}" name="token" id="resetpasswordtoken" />
                         </form>
                         <div id='resetpassword_Results'></div>
+                        <div style='position: absolute; top:1px; right: 1px;'>{$helplink}</div>
                     </td>
                 </tr>
                 <tr>

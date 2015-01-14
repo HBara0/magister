@@ -64,7 +64,7 @@ class IntegrationOB extends Integration {
 
             $items_count++;
         }
-        $log->record($items_count);
+        $log->record('Integration: Synced '.$items_count.' product(s).');
         return true;
     }
 
@@ -104,7 +104,7 @@ class IntegrationOB extends Integration {
             }
             $items_count++;
         }
-        $log->record($items_count);
+        $log->record('Integration: Synced '.$items_count.' business partner(s).');
         return true;
     }
 
@@ -207,7 +207,7 @@ class IntegrationOB extends Integration {
                 }
             }
         }
-        $log->record();
+        $log->record('Integration: Synced Sales');
 
         $this->remove_voided_sales($organisations, $doc_type);
     }
@@ -233,7 +233,7 @@ class IntegrationOB extends Integration {
                 }
             }
         }
-        $log->record();
+        $log->record('Integration: Removed Voided Purchases');
         return true;
     }
 
@@ -325,7 +325,7 @@ class IntegrationOB extends Integration {
                 }
             }
         }
-        $log->record();
+        $log->record('Integration: Synced Purchases');
         $this->remove_voided_purchases($organisations, $doc_type);
     }
 
@@ -349,7 +349,7 @@ class IntegrationOB extends Integration {
                 }
             }
         }
-        $log->record();
+        $log->record('Integration: Removed Voided Purchases');
         return true;
     }
 
@@ -1198,31 +1198,17 @@ class IntegrationOBInvoice {
 
 }
 
-class IntegrationOBInvoiceLine {
-    private $invoiceline;
-    private $f_db;
+class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
 
     const PRIMARY_KEY = 'c_invoiceline_id';
     const TABLE_NAME = 'c_invoiceline';
     const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
 
-    public function __construct($id = '', $f_db = NULL) {
-        if(!empty($f_db)) {
-            $this->f_db = $f_db;
-        }
-        else {
-//Open connections
-        }
-
-        if(!empty($id)) {
-            $this->read($id);
-        }
-    }
-
-    private function read($id) {
-        $this->invoiceline = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM c_invoiceline
-						WHERE c_invoiceline_id='".$this->f_db->escape_string($id)."'"));
+    public function __construct($id, $f_db = NULL) {
+        parent::__construct($id, $f_db);
     }
 
     public function get_byinoutline($id) {
@@ -1236,19 +1222,19 @@ class IntegrationOBInvoiceLine {
     }
 
     public function get_inoutline() {
-        return new IntegrationOBInOutLine($this->invoiceline['m_inoutline_id'], $this->f_db);
+        return new IntegrationOBInOutLine($this->data['m_inoutline_id'], $this->f_db);
     }
 
     public function get_orderline() {
-        return new IntegrationOBOrderLine($this->invoiceline['c_orderline_id'], $this->f_db);
+        return new IntegrationOBOrderLine($this->data['c_orderline_id'], $this->f_db);
     }
 
     public function get_invoice() {
-        return new IntegrationOBInvoice($this->invoiceline['c_invoice_id'], $this->f_db);
+        return new IntegrationOBInvoice($this->data['c_invoice_id'], $this->f_db);
     }
 
     public function get_product() {
-        return new IntegrationOBProduct($this->invoiceline['m_product_id'], $this->f_db);
+        return new IntegrationOBProduct($this->data['m_product_id'], $this->f_db);
     }
 
     public function get_product_local() {
@@ -1262,7 +1248,7 @@ class IntegrationOBInvoiceLine {
     }
 
     public function get_uom() {
-        return new IntegrationOBUom($this->invoiceline['c_uom_id'], $this->f_db);
+        return new IntegrationOBUom($this->data['c_uom_id'], $this->f_db);
     }
 
     public function get_cost() {
@@ -1316,17 +1302,39 @@ class IntegrationOBInvoiceLine {
         return false;
     }
 
-    public function get_data_byyearmonth($filters = '') {
+    public function get_data_byyearmonth($filters = '', $options = array()) {
+        //$rawdata = $this->get_aggreateddata_byyearmonth('salesrep_id, c_currency_id', $filters);
+        $lines = IntegrationOBInvoiceLine::get_data($filters);
+        if(is_array($lines)) {
+            foreach($lines as $line) {
+                $invoice = $line->get_invoice();
+                $invoice->dateinvoiceduts = strtotime($invoice->dateinvoiced);
+                $invoice->dateparts = getdate($invoice->dateinvoiceduts);
+                $currency = $invoice->get_currency();
+                $data['qty'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->qtyinvoiced;
 
-        $rawdata = $this->get_aggreateddata_byyearmonth('salesrep_id, c_currency_id', $filters);
-        if(is_array($rawdata)) {
-            foreach($rawdata as $salesdata) {
-                $data['qty'][$salesdata['salesrep_id']][$salesdata['year']][$salesdata['month']] = $salesdata['qty'];
-                $data['linenetamt'][$salesdata['c_currency_id']][$salesdata['salesrep_id']][$salesdata['year']][$salesdata['month']] = $salesdata['linenetamt'];
+                if(!empty($options['reportcurrency'])) {
+                    $reportcurrency = new Currencies($options['reportcurrency']);
+
+                    $fxrate = $reportcurrency->get_fxrate_bytype($options['fxtype'], $currency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+                    if(!empty($fxrate)) {
+                        $data['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
+                    }
+                }
+                else {
+                    $data['linenetamt'][$invoice->c_currency_id][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt;
+                }
             }
-
             return $data;
         }
+//        if(is_array($rawdata)) {
+//            foreach($rawdata as $salesdata) {
+//                $data['qty'][$salesdata['salesrep_id']][$salesdata['year']][$salesdata['month']] = $salesdata['qty'];
+//                $data['linenetamt'][$salesdata['c_currency_id']][$salesdata['salesrep_id']][$salesdata['year']][$salesdata['month']] = $salesdata['linenetamt'];
+//            }
+//
+//            return $data;
+//        }
         return false;
     }
 
@@ -1351,25 +1359,6 @@ class IntegrationOBInvoiceLine {
             return $data;
         }
         return false;
-    }
-
-    public function get_id() {
-        return $this->invoiceline['c_invoiceline_id'];
-    }
-
-    public function __get($name) {
-        if(isset($this->invoiceline[$name])) {
-            return $this->invoiceline[$name];
-        }
-        return false;
-    }
-
-    public function __isset($name) {
-        return isset($this->invoiceline[$name]);
-    }
-
-    public function get() {
-        return $this->invoiceline;
     }
 
 }
@@ -1655,39 +1644,17 @@ class IntegrationOBOutputStack {
 
 }
 
-class IntegrationOBCurrency {
-    private $currency;
-    private $f_db;
+class IntegrationOBCurrency extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'c_currency_id';
+    const TABLE_NAME = 'c_currency';
+    const DISPLAY_NAME = 'description';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
-        if(!empty($f_db)) {
-            $this->f_db = $f_db;
-        }
-        else {
-//Open connections
-        }
-        $this->read($id);
-    }
-
-    private function read($id) {
-        $this->currency = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM c_currency
-						WHERE c_currency_id='".$this->f_db->escape_string($id)."'"));
-    }
-
-    public function get_id() {
-        return $this->currency['c_currency_id'];
-    }
-
-    public function __get($name) {
-        if(isset($this->currency[$name])) {
-            return $this->currency[$name];
-        }
-        return false;
-    }
-
-    public function get() {
-        return $this->currency;
+        parent::__construct($id, $f_db);
     }
 
 }

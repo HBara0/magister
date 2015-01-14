@@ -408,7 +408,10 @@ if(!($core->input['action'])) {
                         $budgetsdata['current']['managers'][] = $core->user['uid'];
                     }
 
-                    $budgetlines = $budget_obj->get_lines(array('businessMgr' => $budgetsdata[$field]['managers']));
+                    if(is_array($budgetsdata[$field]['managers'])) {
+                        $budgetlines_filters = array('businessMgr' => $budgetsdata[$field]['managers']);
+                    }
+                    $budgetlines = $budget_obj->get_lines($budgetlines_filters);
                     if(is_array($budgetlines)) {
                         //foreach($firstbudgetline as $cid => $customersdata) {
                         //foreach($customersdata as $pid => $productsdata) {
@@ -456,6 +459,7 @@ if(!($core->input['action'])) {
                                         $budgetline['amount'] = ($budgetline['amount'] * $fxrates->rate);
                                         $budgetline['income'] = ($budgetline['income'] * $fxrates->rate);
                                         $budgetline['localIncomeAmount'] = ($budgetline['localIncomeAmount'] * $fxrates->rate);
+                                        $budgetline['invoicingEntityIncome'] = ($budgetline['invoicingEntityIncome'] * $fxrates->rate);
                                     }
                                 }
                                 else {
@@ -464,9 +468,10 @@ if(!($core->input['action'])) {
                             }
                             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                                 $localincome_cell = '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['localIncomeAmount'].'</td>';
+                                $localincome_cell = '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['invoicingEntityIncome'].'</td>';
                             }
                             else {
-                                unset($localincome_cell, $budgetline['localIncomeAmount'], $budgetline['localIncomePercentage']);
+                                unset($localincome_cell, $budgetline['localIncomeAmount'], $budgetline['localIncomePercentage'], $budgetline['invoicingEntityIncome']);
                             }
 
                             /* get the currency rate of the Origin currency  of the current buudget - END */
@@ -504,6 +509,7 @@ if(!($core->input['action'])) {
 
             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                 $loalincome_header = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->localincome.'</th>';
+                $loalincome_header = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->remainingcommaff.'</th>';
             }
             eval("\$budgeting_budgetrawreport = \"".$template->get('budgeting_budgetrawreport')."\";");
         }
@@ -519,9 +525,10 @@ elseif($core->input['action'] == 'exportexcel') {
     $budgetsdata['current'] = unserialize(base64_decode($core->input['identifier']));
     $budgets['current'] = Budgets::get_budgets_bydata($budgetsdata['current']);
 
-    $headers_data = array('blid', 'manager', 'customer', 'customerCountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saleType', 'amount', 'income', 's1Perc', 's2Perc', 'purchasingentity');
+    $headers_data = array('blid', 'manager', 'customer', 'customerCountry', 'affiliate', 'supplier', 'segment', 'product', 'quantity', 'uom', 'unitPrice', 'saleType', 'amount', 'income', 's1Perc', 's2Perc', 'purchasingEntity', 'commissionSplitAffName');
     if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
         $headers_data[] = 'localIncomeAmount';
+        $headers_data[] = 'invoicingEntityIncome';
     }
     $counter = 1;
     if(is_array($budgets['current'])) {
@@ -597,7 +604,6 @@ elseif($core->input['action'] == 'exportexcel') {
 
                     $budgetline[$counter]['product'] = $budgetline_obj->get_product()->get()['name'];
                     $budgetline[$counter]['uom'] = 'Kg';
-                    $budgetline[$counter]['unitPrice'] = $budgetline[$counter]['unitPrice'];
                     if(isset($budgetline[$counter]['invoice']) && !empty($budgetline[$counter]['invoice'])) {
                         $invoicetype = SaleTypesInvoicing::get_data(array('affid' => $budget_obj->affid, 'invoicingEntity' => $budgetline[$counter]['invoice'], 'stid' => $budgetline[$counter]['saleType']));
 
@@ -610,19 +616,26 @@ elseif($core->input['action'] == 'exportexcel') {
                         $purchasingentity = new Affiliates($budgetline[$counter]['purchasingEntityId']);
                         $budgetline[$counter]['purchasingEntity'] = $purchasingentity->name;
                     }
+
+                    if(!empty($budgetline[$counter]['commissionSplitAffid'])) {
+                        $commissionsplitaff = new Affiliates($budgetline[$counter]['commissionSplitAffid']);
+                        $budgetline[$counter]['commissionSplitAffName'] = $commissionsplitaff->name;
+                    }
                     $budgetline[$counter]['saleType'] = Budgets::get_saletype_byid($budgetline[$counter]['saleType']);
                     /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
-                    $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline[$counter]['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budget_obj->year), $dal_config);
+                    $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline[$counter]['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budget_obj->year, 'isBudget' => 1), $dal_config);
                     if(is_array($fxrates_obj)) {
                         foreach($fxrates_obj as $fxid => $fxrates) {
+                            $budgetline[$counter]['unitPrice'] = ($budgetline[$counter]['unitPrice'] * $fxrates->rate);
                             $budgetline[$counter]['amount'] = ($budgetline[$counter]['amount'] * $fxrates->rate);
                             $budgetline[$counter]['income'] = ($budgetline[$counter]['income'] * $fxrates->rate);
                             $budgetline[$counter]['localIncomeAmount'] = ($budgetline[$counter]['localIncomeAmount'] * $fxrates->rate);
+                            $budgetline[$counter]['invoicingEntityIncome'] = ($budgetline[$counter]['invoicingEntityIncome'] * $fxrates->rate);
                         }
                     }
                     /* set permission for local income */
                     if($core->usergroup['budgeting_canFillLocalIncome'] != 1) {
-                        unset($budgetline[$counter]['localIncomeAmount'], $budgetline[$counter]['localIncomePercentage']);
+                        unset($budgetline[$counter]['localIncomeAmount'], $budgetline[$counter]['localIncomePercentage'], $budgetline[$counter]['invoicingEntityIncome']);
                     }
                     /* get the currency rate of the Origin currency  of the current buudget - END */
                     if((empty($budgetline[$counter]['cid']) && !empty($budgetline[$counter]['altCid']))) {
