@@ -64,7 +64,7 @@ class TravelManagerPlan {
             $directiondata['departuretime'] = TIME_NOW + 3600;
         }
         //key='.$core->settings['googleapikey'].'&
-        $googledirection_api = 'http://maps.googleapis.com/maps/api/directions/json?origin='.$directiondata['origincity']['name'].',+'.$directiondata['origincity']['country'].'&destination='.$directiondata['destcity']['name'].',+'.$directiondata['destcity']['country'].'&sensor=false&mode='.$directiondata['drivemode'].'&units=metric&departure_time='.$directiondata['departuretime'];
+        $googledirection_api = 'http://maps.googleapis.com/maps/api/directions/json?origin='.$directiondata['origincity']['name'].',+'.$directiondata['origincity']['country'].'&destination='.$directiondata['destcity']['name'].',+'.$directiondata['destcity']['country'].'&sensor=false&mode='.$directiondata['drivemode'].'&units=metric&departure_time='.$directiondata['destcity']['departuretime'];
         $json = file_get_contents($googledirection_api);
         $data = json_decode($json);
         return $data;
@@ -396,6 +396,7 @@ class TravelManagerPlan {
         $segmentplan_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $this->tmpid), array('returnarray' => true, 'order' => array('by' => 'sequence', 'sort' => 'ASC')));
         $segid = 1;
         $disabled = 'disabled="true"';
+        $section = '';
         $leave_ouput = $this->parse_leavetypetitle();
         $leaveid = $this->get_leave()->lid;
         //  $leave_purposes = array($this->get_leave()->get_purpose()->get()['ltpid'] => $this->get_leave()->get_purpose()->get()['name']);
@@ -459,6 +460,17 @@ class TravelManagerPlan {
             $hotelssegments_objs = $segmentobj->get_accomodations(array('returnarray' => true));
             if(is_array($hotelssegments_objs)) {
                 foreach($hotelssegments_objs as $segmentacc) {
+                    $allhotels = TravelManagerHotels::get_data('tmhid='.$segmentacc->tmhid, array('returnarray' => false));
+                    if($allhotels->isApproved == 1) {
+                        $section = 'Approved';
+                        $bgcolor = '#C0C4ED';
+                    }
+                    else {
+                        $section = 'Others';
+                        $bgcolor = '#ccc';
+                    }
+                    $accomodation[$segmentid][$segmentacc->tmhid]['hotelsection'] = $section.' '.$lang->hotel;
+                    $accomodation[$segmentid][$segmentacc->tmhid]['hotelsectioncolor'] = "background-color:".$bgcolor."; ";
                     $accomodation[$segmentid][$segmentacc->tmhid]['priceNight'] = $segmentacc->priceNight;
                     $accomodation[$segmentid][$segmentacc->tmhid]['numNights'] = $segmentacc->numNights;
                     $accomodation[$segmentid][$segmentacc->tmhid]['paidbyid'] = $segmentacc->paidById;
@@ -466,22 +478,22 @@ class TravelManagerPlan {
                     $accomodation[$segmentid][$segmentacc->tmhid]['paidby'] = $segmentacc->paidBy;
                     $acc_currobj = new Currencies($segmentacc->currency);
                     $accomodation[$segmentid][$segmentacc->tmhid]['currency'] = $acc_currobj->alphaCode;
-                    echo $accomodation[$segmentid][$segmentacc->tmhid]['currency'];
+
                     if(isset($accomodation[$segmentid][$segmentacc->tmhid]['paidbyid']) && !empty($accomodation[$segmentid][$segmentacc->tmhid]['paidbyid'])) {
                         $accomodation[$segmentid][$segmentacc->tmhid]['display'] = "display:block;";
                     }
-
                     $accomodation[$segmentid][$segmentacc->tmhid]['affid'] = $segmentacc->paidById;
                     $accomodation[$segmentid][$segmentacc->tmhid]['affiliate'] = $segmentobj->display_paidby($segmentacc->paidBy, $segmentacc->paidById)->name;
-
                     $accomodation[$segmentid][$segmentacc->tmhid]['total'] = ($accomodation[$segmentid][$segmentacc->tmhid]['priceNight']) * ($accomodation [$segmentid][$segmentacc->tmhid]['numNights']);
                     $accomodation[$segmentid][$segmentacc->tmhid]['selectedhotel'] = $segmentacc->tmhid;
                 }
             }
-            $city_obj = new Cities($segmentobj->get_destinationcity()->ciid);
-            $hotelssegments_output = $city_obj->parse_approvedhotels($sequence, $city_obj->get(), $accomodation);
-            /* parse hotel --END */
 
+            $city_obj = new Cities($segmentobj->get_destinationcity()->ciid);
+            $hotelssegments_output = $city_obj->parse_approvedhotels($sequence, $city_obj->get(), $accomodation, 'modify');
+            /* parse hotel --END */
+            $otherhotel_checksum = generate_checksum('accomodation');
+            eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
             /* parse expenses --START */
             $segexpenses_ojbs = $segmentobj->get_expenses(array('simple' => false, 'returnarray' => true, 'order' => array('by' => 'tmeid', 'sort' => 'ASC')));
             $rowid = 0;
