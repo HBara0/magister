@@ -133,6 +133,10 @@ Abstract class AbstractClass {
         return false;
     }
 
+    public function get_id() {
+        return $this->data[static::PRIMARY_KEY];
+    }
+
     public function get_displayname() {
         return $this->data[static::DISPLAY_NAME];
     }
