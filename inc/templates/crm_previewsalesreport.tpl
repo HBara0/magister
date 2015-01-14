@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->salesreport}</h1>
+           <!-- <h1>{$lang->salesreport}</h1>-->
             {$salesreport}
         </td>
     </tr>
