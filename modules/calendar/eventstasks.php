@@ -44,6 +44,7 @@ else {
         }
     }
     elseif($core->input['action'] == 'do_createeventtask') {
+
         echo $headerinc;
         if(is_empty($core->input['event']['title'], $core->input['event']['fromDate'], $core->input['event']['toDate'], $core->input['event']['type'])) {
 //output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
@@ -112,7 +113,7 @@ else {
         }
         /* Parse incoming Attachemtns - END */
         /* Parse Event Logo - START */
-        if(!empty($_FILES)) {
+        if(!empty($_FILES['logo']['name'][0])) {
             $_FILES['logo']['newname'][0] = $new_event['alias'];
             $upload_param['upload_allowed_types'] = array('image/jpg', 'image/jpeg', 'image/gif', 'image/png');
             $upload_obj = new Uploader('logo', $_FILES, $upload_param['upload_allowed_types'], 'putfile', 5242880, 1, 1); //5242880 bytes = 5 MB (1024);
@@ -135,7 +136,6 @@ else {
             }
         }
         /* Parse Event Logo - END */
-
         $query = $db->insert_query('calendar_events', $new_event);
         $last_id = $db->last_id();
         $event_obj = new Events($last_id, false);
