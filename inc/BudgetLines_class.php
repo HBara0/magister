@@ -88,7 +88,7 @@ class BudgetLines {
         $data['inputChecksum'] = generate_checksum('bl');
         $data['linkedBudgetLine'] = $this->budgetline['blid'];
         $data['altCid'] = $budget->get_affiliate()->name;
-        $data['customerCountry'] = $budget->get_affiliate()->get_country()->coid;
+        $data['customerCountry'] = $budget->get_affiliate()->country;
         $data['saleType'] = 6; //Need to be acquire through DAL where isInterCoSale
 
         if(!empty($this->budgetline['linkedBudgetLine'])) {
@@ -334,6 +334,20 @@ class BudgetLines {
 
     public function get() {
         return $this->budgetline;
+    }
+
+    public function get_convertedamount(Currencies $tocurrency) {
+        $budget = $this->get_budget();
+
+        if($this->originalCurrency == $tocurrency->get_id()) {
+            return $this->amount;
+        }
+
+        $fxrate = BudgetFxRates::get_data(array('fromCurrency' => $this->originalCurrency, 'toCurrency' => $tocurrency->get_id(), 'year' => $budget->year, 'isBudget' => 1, 'affid' => $budget->affid));
+        if(is_object($fxrate)) {
+            return $this->amount * $fxrate->rate;
+        }
+        return false;
     }
 
     public function get_invoicingentity_income($tocurrency, $year, $affid) {

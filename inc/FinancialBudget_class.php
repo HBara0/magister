@@ -544,7 +544,7 @@ Class FinancialBudget extends AbstractClass {
                 );
 
                 switch($type) {
-                    case'headcount':
+                    case 'headcount':
                         $positiongroups = PositionGroups::get_data('', array('returnarray' => true));
                         $sql = "SELECT posgid, sum(actualPrevThreeYears) AS actualPrevThreeYears,sum(actualPrevTwoYears) AS actualPrevTwoYears, sum(yefPrevYear) AS yefPrevYear, sum(budgetCurrent) AS budgetCurrent FROM ".Tprefix."budgeting_headcount WHERE bfbid IN (".implode(', ', $options['filter']).") GROUP By posgid";
                         $query = $db->query($sql);
@@ -564,7 +564,7 @@ Class FinancialBudget extends AbstractClass {
 
                     /* ------------------------------------------------------------------------------------------------------------------- */
 
-                    case'investmentfollowup':
+                    case 'investmentfollowup':
                         $investcategories = BudgetInvestCategories::get_data('', array('returnarray' => true));
                         /* Converting amount into the affiliates existing currency */
                         // $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN budgeting_financialbudget bfb ON(bfb.affid = bfr.affid AND bfb.year = bfr.year) WHERE bfr.fromCurrency = bfb.currency AND bfr.toCurrency = '.intval($options['tocurrency']).' AND bfb.bfbid = budgeting_investexpenses.bfbid)';
@@ -592,7 +592,7 @@ Class FinancialBudget extends AbstractClass {
 
                     /* ------------------------------------------------------------------------------------------------------------------- */
 
-                    case'financialadminexpenses':
+                    case 'financialadminexpenses':
                         $expensescategories = BudgetExpenseCategories::get_data('', array('returnarray' => true));
                         /* Converting amount into the affiliates existing currency */
                         foreach($prevyears_fxrates as $attr => $fxconfig) {
@@ -643,7 +643,7 @@ Class FinancialBudget extends AbstractClass {
 
                     /* ------------------------------------------------------------------------------------------------------------------- */
 
-                    case'forecastbalancesheet':
+                    case 'forecastbalancesheet':
                         $budforecastobj = new BudgetForecastAccountsTree();
 
                         $fxrate_query = '(CASE WHEN bfb.currency = '.intval($options['tocurrency']).' THEN 1
@@ -670,7 +670,7 @@ Class FinancialBudget extends AbstractClass {
 
                     /* ------------------------------------------------------------------------------------------------------------------- */
 
-                    case'trainingvisits':
+                    case 'trainingvisits':
                         $budgetrainingvisit_obj = BudgetTrainingVisits::get_data(array('bfbid' => $financialbudget), array('simple' => false));
 
                         if(is_array($financial_obj)) {

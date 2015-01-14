@@ -188,19 +188,28 @@ else {
             output_xml("<status>false</status><message>{$lang->errordeleting}</message>");
             exit;
         }
-        $oldid = $db->escape_string($core->input['todelete']);
-        $products_tables = array('productsactivity' => 'pid', ' integration_mediation_products' => 'localId', 'budgeting_budgets_lines' => 'pid');
+        $oldid = intval($core->input['todelete']);
+
+        $tables = $db->get_tables_havingcolumn('pid', '(TABLE_NAME NOT LIKE "integration%" AND TABLE_NAME !="products")');
+        if(is_array($tables)) {
+            $products_tables = array_fill_keys(array_values($tables), 'pid');
+        }
+
+        $products_tables['integration_mediation_products'] = 'localId';
+        // $products_tables = array('productsactivity' => 'pid', ' integration_mediation_products' => 'localId', 'budgeting_budgets_lines' => 'pid', 'chemfunctionproducts' => 'pid', 'grouppurchase_forecastlines' => 'pid', 'grouppurchase_pricing' => 'pid', 'marketintelligence_competitors' => 'pid', 'productschemsubstances' => 'pid', 'visitreports_competition' => 'pid');
         if(!empty($core->input['mergepid'])) {
             $newid = $db->escape_string($core->input['mergepid']);
             foreach($products_tables as $table => $attr) {
                 $db->update_query($table, array($attr => $newid), $attr.'='.$oldid);
+
+                $results .= $table.': '.$db->affected_rows().'<br />';
             }
         }
 
         $query = $db->delete_query('products', "pid='{$oldid}'");
         if($query) {
             $log->record($oldid, $newid);
-            output_xml("<status>true</status><message>{$lang->successdeletemerge}</message>");
+            output_xml("<status>true</status><message>{$lang->successdeletemerge}<![CDATA[<br />{$results}]]></message>");
         }
         else {
             output_xml("<status>false</status><message>{$lang->errordeleting}</message>");

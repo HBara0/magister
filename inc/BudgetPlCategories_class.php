@@ -104,7 +104,7 @@ class BudgetPlCategories extends AbstractClass {
                         $column_output .=' <td style = "width:9%;font-weight:bold;"><div id = "total_'.$category->name.'_'.$input.'">'.$total['plexpenses'][$input].'</div>';
                         $column_output .=parse_textfield('', 'total_'.$category->name.'_'.$input, 'hidden', $total['plexpenses'][$input]).'</td>';
                         if($category->name === 'netincome' && $input === 'budgetCurrent') {
-                            $column_output .=parse_textfield('financialbudget[income]', 'total_'.$category->name.'_'.$input, 'hidden', $total['plexpenses'][$input]).'</td>';
+                            $column_output .= parse_textfield('financialbudget[income]', 'total_'.$category->name.'_'.$input, 'hidden', $total['plexpenses'][$input]).'</td>';
                         }
                         $column_output .= '</td>';
                     }

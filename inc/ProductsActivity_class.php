@@ -75,11 +75,13 @@ class ProductsActivity extends AbstractClass {
         $fxrate_query = '(CASE WHEN budgeting_budgets_lines.originalCurrency = 840 THEN 1
                           ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = '.$budget->affid.' AND isBudget=1 AND  bfr.year = '.$budget->year.' AND bfr.fromCurrency = budgeting_budgets_lines.originalCurrency  AND bfr.toCurrency = 840) END)';
 
-        $sql = "SELECT blid, pid, businessMgr as businessmgr , sum(amount*{$fxrate_query}) AS amount, sum(quantity) AS quantity FROM ".Tprefix."budgeting_budgets_lines WHERE blid IN (".implode(',', array_keys($budgetlines)).") GROUP By businessMgr";
+        if(empty($budgetlines)) {
+            return null;
+        }
+        $sql = "SELECT blid, pid, businessMgr AS businessmgr , SUM(amount*{$fxrate_query}) AS amount, SUM(quantity) AS quantity FROM ".Tprefix."budgeting_budgets_lines WHERE blid IN (".implode(',', array_keys($budgetlines)).") GROUP By businessMgr";
         $sumquery = $db->query($sql);
         if($db->num_rows($sumquery) > 0) {
             while($item = $db->fetch_assoc($sumquery)) {
-
                 if(isset($config['aggregatebm']) && $config['aggregatebm'] == true) {
                     $aggregated_lines[$item['businessmgr']] = $item;
                 }

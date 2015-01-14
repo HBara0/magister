@@ -2,7 +2,17 @@
     <div style="page-break-before:always;"></div>
     <div class="paperContainer">
         <a name="closingpage"></a>
-        <div align='center'><img src='http://www.orkila.com/images/closingpage.jpg' /></div>
+        <div align='center'><img src='http://www.orkila.com/images/map.jpg' /></div>
+    </div>
+</page>
+
+<page>
+    <div style="page-break-before:always;"></div>
+    <div class="paperContainer">
+        <h1>Orkila Corporate Video<hr /></h1>
+        <div align='center'>
+            <iframe src="//fast.wistia.net/embed/iframe/75svbgg2qq" allowtransparency="true" frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" allowfullscreen mozallowfullscreen webkitallowfullscreen oallowfullscreen msallowfullscreen width="640" height="360"></iframe>
+        </div>
     </div>
 </page>
 <page>
@@ -42,76 +52,106 @@
         </p>
     </div>
 </page>
+
 <page>
     <div style="page-break-before:always;"></div>
     <div class="paperContainer">
         <!--<a name="closingpage"></a>-->
         <div class="logo"></div>
         <div align='left' style='margin-top:20px;'>
-            <h1>New Addresses for Orkila Offices</h1>
+            <h1>News</h1>
             <p style="text-align: justify;">
-            <div class="subtitle">Orkila South Africa</div>
-            Orkila South Africa has moved to a new address on August 22, 2014. The new address is:
-            <br /><br />
-            lst Floor, Solutions House<br />
-            42 Gazelle Close<br />
-            Corporate Park South<br />
-            Randjespark<br />
-            Midrand<br />
-            1685<br />
-            South Africa<br /><br />
-            The telephone and facsimile numbers have not changed. Phone +27-11-805193 and Fax +27-11-8051956.
+            <div class="subtitle">Orkila award for BEST INNOVATIVE PRODUCT for exhibition in Morocco</div>
+            <p style="text-align: justify;">Orkila participated at CFIA AWARDS with <strong>Ajinomoto product ACTIVA</strong> at the section “Innovative Ingredients” and won the <strong>Bronze Prize (15.75/20 points)</strong></p>
+            <p style="text-align: justify;">The prize has been awarded by a panel of food specialists in Morocco at the Chambre Francaise de Commerce et d’Industrie du Maroc. CFIA Award gathers the innovative latest opportunities in the industry for Morocco market.</p>
+            <p style="text-align: justify;">The film is available starting with minute 11h55 in <a href='https://www.youtube.com/watch?v=TYNfel-JwUQ#t=11m55s' target="_blank">this link</a>.</p>
             </p>
+            <hr />
+
             <p style="text-align: justify;">
-            <div class="subtitle">Orkila Nigeria</div>
-            Orkila Nigeria has also moved to a new address on August 12, 2014. The new address is:
-            <br /><br />
-            48 Ogunnusi Road<br />
-            Close to FRSC Office<br />
-            Ojodu Berger<br />
-            Lagos, Nigeria<br /><br />
-            The telephone numbers and PO Box remain the same: Tel: +234-1-7742182 - Fax: +234-1-3453371 - PO Box No. 21439
+            <div class="subtitle">Another Orkila award for BEST DISTRIBUTOR</div>
+            <p style="text-align: justify;">We are very pleased to announce that Maroof  Mohamed (Orkila FZE Dubai) has been awarded <strong>CEAMSA GOLD MEDAL</strong> for his success in developing a new Product with KRAFT! Replacing Ceamsa’s main competitor.</p>
+            <p style="text-align: justify;">This is an exceptional nomination as Orkila was selected among 18 distributors and around 52 people were contesting for this award. There were three categories Gold, Silver & Bronze.</p>
             </p>
+            <hr />
+
+            <p style="text-align: justify;">
+            <div class="subtitle"> Another Orkila award for BEST DISTRIBUTOR</div>
+            <p style="text-align: justify;">Orkila ranks 6th among chemicals distributors in Middle East and Africa and maintains its position as <strong>leading distributor of specialty products.</strong> (ICIS Top 100 Chemical Distributors 2014)
+                <br /><br />
+                The list of ICIS Top 100 Chemical Companies highlights the top players in the global chemical distribution business, measured by sales.
+            </p>
+            </p>
+            <hr />
         </div>
     </div>
 </page>
+
 <page>
     <div style="page-break-before:always;"></div>
     <div class="paperContainer">
         <!--<a name="closingpage"></a>-->
         <div class="logo"></div>
         <div align='left' style='margin-top:20px;'>
-            <h1>Events and Exhibitions</h1>
-            <p style="text-align: justify;">
-            <div class="subtitle">Accra (Ghana), 2-4 July 2014: West Africa Building & Construction. Exhibition  - Wacker Booth D8/9 – A9<br />
-                Accra (Ghana), 3 July 2014 : Technical Seminar – Customer Event</div>
-            Orkila showcased at Wacker booth D8/9 – A9 at West Africa Building & Construction exhibition and seized the opportunity to hold a Technical Seminar for the customers of the region aiming to offer detailed information about Wacker’s Polymer and Silicone Technology in line with Construction Chemical Trends.<br /><br />
-            Industry’s authorities sum 17% of the total audience and many local manufacturers are now developing projects with new products that were introduced during the seminar. </p>
-            <p style="text-align: justify;">
-            <div class="subtitle">Casablanca (Morocco), 16-18 September 2014: CFIA – Orkila Booth 2-10.3 - Food exhibition</div>
-            Orkila & its Partners for the Food industry exhibited for the second time at CFIA Maroc, International exhibition dedicated to ingredients and food technology in Casablanca. The positive context & the promising market is supported by the Industry Development Plan.<br /><br />
-            Orkila-Ajinomoto won the <strong>Bronze Prize at the Award competition</strong> which gathered the innovative latest opportunities in the industry for Morocco market .The prize has been awarded by a panel of food specialists in Morocco at the Chambre Francaise de Commerce et d’Industrie du Maroc.</p>
-            <p style="text-align: justify;">
-            <div class="subtitle">Algiers, 21-24 April 2014. DJAZAGRO - Food Industry</div>
-            Orkila & its Partners exhibited for the past seven consecutive years at Djazagro. The exhibition is the biggest in the region with over 500 exhibitors from about 30 countries, aimed at professionals involved in all aspects of the food and beverage industry, ingredients or food packaging and food hygiene products. It demonstrated and encouraging context in this very promising market, all supported by the National Industry Development Plan.
-            </p>
-            <p style="text-align: justify;">
-            <div class="subtitle">Johannesburg, South Africa. 1-3 October 2014. Vitafoods Africa Conference</div>
-            Orkila is sponsoring the leading nutraceutical event for Africa’s functional food, dietary supplements and CAMS industries. Vitafood Africa conference is an opportunity to do business with leading suppliers of ingredients and raw materials, gain insight into market trends and industry regulation, source new products, ingredients and applications and get inspiration for product lines and business targets.
-             </p>
-            <p style="text-align: justify;">
-            <div class="subtitle">Paris (France), 7-9 October 2014. CPhI 2014</div>
-            Orkila Pharma team visited the CPhI 2014 to meet face-to-face with international pharmaceutical companies, stay informed about the latest industry trends and remain one step ahead of a constantly changing pharmaceutical market.</p>
-            <p style="text-align: justify;">
-            <div class="subtitle">Paris (France), 6 October 2014. Orkila Pharma Seminar</div>
-            The annual ORKILA Pharma Seminar was held in Paris, with the participation of Orkila’s key partners for the pharma industry and focused on the commercial strategy and specific market approach.</p>
-            <p style="text-align: justify;">
-            <div class="subtitle">Casablanca (Morocco), 15-16 October 2014. NACC - Wacker Booth 8</div>
-            North African Coatings Congress, taking place in Casablanca, is one of the most effective mediums for establishing and maintaining customer relation. Wacker and Orkila at booth 8 will be giving the opportunity to meet an extremely high number of decision makers, all under one roof.</p>
-            <h1>Upcoming Events</h1>
-            <p style="text-align: justify;">
-            <div class="subtitle">Dubai (UAE), 9-11 November 2014. Gulfood Manufacturing - Orkila Booth S3-E40</div>
-            ORKILA and its partners are exhibiting at Gulfood Manufacturing which features over 1,000 suppliers who deliver world class food and beverage processing industry solutions. ORKILA will provide information and solution on products and applications helping to develop the great-tasting, healthy solutions demanded by today’s consumers.</p>
+            <h3>Events and Exhibitions</h3>
+            <table width='100%' border='0'>
+                <tr>
+                    <td style='width: 10%; vertical-align: top;'><h2>October<br /><small>2014</small></h2></td>
+                    <td>
+                        <div style='vertical-align: top;'>
+                            <p style="text-align: justify;">
+                            <div class="subtitle">Johannesburg (South Africa) 1-3 October 2014. VITAFOODS exhibition</div>
+                            Orkila team sponsored and visited the leading Nutraceutical event of Africa’s functional food & dietary supplements industries.<br />
+                            This was a great opportunity to advertise Orkila South Africa and it's principles to South African Nutraceutical pharma companies.
+                            </p>
+
+                            <hr />
+                        </div>
+                        <div style='vertical-align: top;'>
+                            <p style="text-align: justify;">
+                            <div class="subtitle">Paris (France) 6 October 2014. ORKILA PHARMA SEMINAR</div>
+                            One of Orkila greatest strength is to gather its qualified sales team with its partners jointly discussing sales strategies. The Pharma programme, including technical seminars was held in Paris for a full-day as dedicated event prior to the CPhI exhibition.Some of the Orkila partners include: Roquette, Meggle, Novacyl,PharmcoAaper & more.
+                            </p>
+                            <hr />
+                        </div>
+
+                        <div style='vertical-align: top;'>
+                            <p style="text-align: justify;">
+                            <div class="subtitle">Paris (France) 7-9 October 2014. CPHI PARIS</div>
+                            Orkila at CPhI in Paris. The world's leading pharmaceutical networking event, Our pharma team has visited with our customers from the region to meet our principles
+                            </p>
+                            <hr />
+                        </div></td>
+                </tr>
+
+                <tr>
+                    <td style='width: 10%; vertical-align: top;'><h2>November<br /><small>2014</small></h2></td>
+                    <td>
+                        <div style='vertical-align: top;'>
+                            <p style="text-align: justify;">
+                            <div class="subtitle">Dubai (UAE). GULFOOD MANUFACTURING Exhibition</div>
+                            <p style="text-align: justify;">Orkila and its partners for the Food Industry participated for the seventh consecutive year at the biggest Food and beverage processing Event in the Middle East and Africa region</p>
+                            <p style="text-align: justify;">The Middle East food industry is growing and fast! New trends, tastes and products are being introduced. For any requirements or new food product our ingredients help create just right structure, bring colors & taste, while optimize production process & ensure that consumers receive nutritious and cost effective end products.</p>
+                            <p style="text-align: justify;">Footfall at Orkila  booth grew in quality of visitors with 13% of visitors are CEOs while 27% of visitors of the first line management and decision makers.</p>
+                            </p>
+
+                            <hr />
+                        </div>
+
+                        <div style='vertical-align: top;'>
+                            <p style="text-align: justify;">
+                            <div class="subtitle">Casablanca (Morocco). NACC Paints Exhibition, DAWAJINE Feed Exhibition & CFIA</div>
+                            Orkila Morocco follows a series of marketing activities to meet traditional clients or prospects and has exhibited in these main industry shows:
+                            <ul>
+                                <li>NACC (North African Coatings Congress) where Orkila exhibited with Wacker</li>
+                                <li>Dawajine the main poultry dedicated exhibition where Orkila exhibited with Adisseo</li>
+                                <li>CFIA one of the largest exhibitions in food industry suppliers Trade show</li>
+                            </ul>
+                            <hr />
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>
         <div align="right"><a href="http://www.linkedin.com/company/orkila" target="_blank"><img src='http://www.orkila.com/images/icons/linkedin.png' alt='LinkedIn'/></a></div>
     </div>
