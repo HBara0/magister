@@ -306,6 +306,9 @@ class Currencies extends AbstractClass {
         $period['month'] = 12;
         if($period['year'] == date('Y', TIME_NOW)) {
             $period['month'] = date('m', strtotime('last month'));
+            if($period['month'] == 12) {
+                $period['year'] -= 1;
+            }
         }
 
         if($this->cache->iscached('fxrates', $currency.'-'.$period['year'].'-'.$period['month'].'-'.$base_currency)) {
