@@ -26,7 +26,7 @@ if(!$core->input['action']) {
 
             $plan->link = 'index.php?module=travelmanager/viewplan&id='.$plan->tmpid;
             if($plan->isFinalized == 0) {
-                $plan->link = 'index.php?module=travelmanager/plantrip&lid='.$plan->lid;
+                $plan->link = 'index.php?module=travelmanager/plantrip&id='.$plan->tmpid;
             }
             eval("\$plan_rows .= \"".$template->get('travelmanager_listlpans_rows')."\";");
         }

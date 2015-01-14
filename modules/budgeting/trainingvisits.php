@@ -49,7 +49,7 @@ if(!isset($core->input['action'])) {
         }
     }
 
-    $fields = array('purpose', 'event', 'Costaffiliate', 'company', 'inputChecksum', 'bm', 'planCost', 'otherCosts'); //'actualPrevYear', 'budgetPrevYear'
+    $fields = array('purpose', 'event', 'costAffiliate', 'company', 'inputChecksum', 'bm', 'planeCost', 'otherCosts'); //'actualPrevYear', 'budgetPrevYear'
     $rowid = 0;
     if(is_array($budgetrainingvisit_obj)) {
         foreach($budgetrainingvisit_obj as $btvid => $budgetvisit) {
@@ -127,7 +127,7 @@ if(!isset($core->input['action'])) {
                     if(is_array($expensesdetails)) {
                         foreach($expensesdetails as $expenses) {
                             if($expenses['name'] == 'airfare') {
-                                $budgetrainingvisit[$populated_leave->lid][$type]['planCost'] = $expenses['expectedAmt'];
+                                $budgetrainingvisit[$populated_leave->lid][$type]['planeCost'] = $expenses['expectedAmt'];
                             }
                             //  $budgetrainingvisit[$populated_leave->lid][$type]['otherCosts'] = $budgetrainingvisit[$populated_leave->lid][$type]['totalexpenses'] - $expenses['expectedAmt'];
                         }
@@ -144,7 +144,7 @@ if(!isset($core->input['action'])) {
                     $budgetrainingvisit[$populated_leave->lid][$type]['purpose'] = $populated_leave->reason;
                     $leave_expenses = $populated_leave->get_expensestotal();
                     if(!empty($leave_expenses)) {
-                        $budgetrainingvisit[$populated_leave->lid][$type]['Costaffiliate'] = $leave_expenses;
+                        $budgetrainingvisit[$populated_leave->lid][$type]['costAffiliate'] = $leave_expenses;
                     }
                     eval("\$budgettaininglocalvisits_rows .= \"".$template->get('budgeting_tainingvisits_lines')."\";");
                     unset($budgetrainingvisit[$populated_leave->lid]);

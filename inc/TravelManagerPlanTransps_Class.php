@@ -51,36 +51,59 @@ class TravelManagerPlanTransps extends AbstractClass {
             if(is_object($tmptransp)) {
                 $tmptransp->update($data);
             }
-            $this->create($data);
+            else {
+                $this->create($data);
+            }
         }
     }
 
     protected function update(array $data) {
-        global $db;
-
-        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'transpDetails');
+        global $db, $core;
+        /* Specify transportation categories As isMain (if suggested by the system) */
+        $transportdata['isMain'] = 1;
+        if($transportdata['tmtcid'] == 0) {
+            $transportdata['tmtcid'] = $transportdata['othercategory'];
+            unset($transportdata['othercategory'], $transportdata['isMain']);
+        }
+        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'transpDetails', 'paidBy', 'paidById', 'transpType');
         $valid_attrs = array_combine($valid_attrs, $valid_attrs);
         $data = array_intersect_key($data, $valid_attrs);
-
+        if($data['paidBy'] != 'anotheraff') {
+            unset($data['paidById']);
+        }
+        $data['modifiedOn'] = TIME_NOW;
+        $data['modifiedBy'] = $core->user['uid'];
         $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
     protected function create(array $transportdata = array()) {
-        global $db;
+        global $db, $core;
 
         $transp_details = base64_decode($transportdata['transpDetails'], true);
+        $transportdata['isMain'] = 1;
+        if($transportdata['tmtcid'] == 0) {
+            $transportdata['tmtcid'] = $transportdata['othercategory'];
+            unset($transportdata['othercategory'], $transportdata['isMain']);
+        }
         if($transp_details != false) {
-            $transportdata['flightDetails'] = $transp_details;
+            $transportdata['transpDetails'] = $transp_details;
         }
         $tanspdata_array = array('tmpsid' => $transportdata['tmpsid'],
                 'tmtcid' => $transportdata['tmtcid'],
                 'fare' => $transportdata['fare'],
                 'vehicleNumber' => $transportdata['vehicleNumber'],
                 'flightNumber' => $transportdata['flightNumber'],
-                'flightDetails' => $transportdata['transpDetails']
-                //'transpType' => $transportdata['transpType'],
+                'transpDetails' => $transportdata['transpDetails'],
+                'paidBy' => $transportdata['paidBy'],
+                'paidById' => $transportdata['paidById'],
+                'transpType' => $transportdata['transpType'],
+                'createdOn' => TIME_NOW,
+                'createdBy' => $core->user['uid']
         );
 
+        if($tanspdata_array['paidBy'] != 'anotheraff') {
+            unset($tanspdata_array['paidById']);
+        }
         $db->insert_query(self::TABLE_NAME, $tanspdata_array);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
     }
@@ -91,6 +114,15 @@ class TravelManagerPlanTransps extends AbstractClass {
 
     public function get_transpcategory() {
         return new TravelManagerTranspCategories($this->data['tmtcid']);
+    }
+
+    public function get_convertedamount($fromcurrency, $tocurrency, $amount = '') {
+        if(empty($amount)) {
+            $amount = $this->fare;
+        }
+        $curr = new Currencies($fromcurrency);
+        $exchagerate = $curr->get_latest_fxrate($tocurrency, array(), $fromcurrency);
+        return $amount * $exchagerate;
     }
 
 }

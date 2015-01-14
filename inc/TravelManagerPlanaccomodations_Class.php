@@ -13,8 +13,8 @@
  *
  * @author tony.assaad
  */
-class TravelManagerPlanaccomodations {
-    private $data = array();
+class TravelManagerPlanaccomodations extends AbstractClass {
+    protected $data = array();
 
     const PRIMARY_KEY = 'tmpaid';
     const TABLE_NAME = 'travelmanager_plan_accomodations';
@@ -26,12 +26,12 @@ class TravelManagerPlanaccomodations {
         $this->read($id);
     }
 
-    private function read($id = '') {
+    protected function read($id = '') {
         global $db;
         $this->data = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
     }
 
-    public function create($data = array()) {
+    public function create(array $data) {
         global $db, $core;
 
         $tanspdata_array = array('tmpsid' => $data['tmpsid'],
@@ -39,6 +39,7 @@ class TravelManagerPlanaccomodations {
                 'priceNight' => $data['priceNight'],
                 'numNights' => $data['numNights'],
                 'paidBy' => $data['paidBy'],
+                'paidById' => $data['paidById'],
         );
 
         $db->insert_query('travelmanager_plan_accomodations', $data);
@@ -96,7 +97,6 @@ class TravelManagerPlanaccomodations {
 
     protected function update(array $data) {
         global $db, $core;
-        echo 'update';
         if(is_array($data)) {
             $hoteldata['priceNight'] = $data['priceNight'];
             $hoteldata['numNights'] = $data['numNights'];
@@ -118,6 +118,11 @@ class TravelManagerPlanaccomodations {
 
     public function get() {
         return $this->data;
+    }
+
+    public function get_convertedamount($fromcurrency, $tocurrency) {
+        $exchagerate = $fromcurrency->get_latest_fxrate($tocurrency->alphaCode, array(), $fromcurrency->alphaCode);
+        return $this->priceNight * $exchagerate;
     }
 
 }

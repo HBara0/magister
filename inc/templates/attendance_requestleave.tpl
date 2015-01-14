@@ -29,7 +29,7 @@
                 });
 
                 $("#type").live('change', function() {
-                    sharedFunctions.requestAjax("post", "index.php?module=attendance/{$action}&action=parseexpenses", "ltid=" + $('#type').val() + "&lid=" + $('input[id=lid]').val(), 'leaveexpenses_container', 'leaveexpenses_container', true);
+                    // sharedFunctions.requestAjax("post", "index.php?module=attendance/{$action}&action=parseexpenses", "ltid=" + $('#type').val() + "&lid=" + $('input[id=lid]').val(), 'leaveexpenses_container', 'leaveexpenses_container', true);
                 });
 
                 $('input[id^=expenses_]').live('blur', function() {
@@ -73,11 +73,7 @@
                         <td>{$lang->leavereason}</td>
                         <td><textarea cols="50" rows="5" name="reason" id="reason" title="{$lang->minimumcharacter}">{$leave[reason]}</textarea></td>
                     </tr>
-                    <tr>
-                        <td colspan='2' id='leaveexpenses_container'>{$expsection}</td>
 
-
-                    </tr>
                     <tr><td colspan="2"><hr /><span class="subtitle">{$lang->contactwhileabsent}</span></td></tr>
                     <tr>
                         <td>{$lang->leaveaddress}</td>

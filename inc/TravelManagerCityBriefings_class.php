@@ -13,8 +13,8 @@
  *
  * @author tony.assaad
  */
-class TravelManagerCityBriefings {
-    private $citybriefings = array();
+class TravelManagerCityBriefings extends AbstractClass {
+    protected $citybriefings = array();
 
     const PRIMARY_KEY = 'tmcbid';
     const TABLE_NAME = 'travelmanager_citybriefings';
@@ -26,10 +26,18 @@ class TravelManagerCityBriefings {
         $this->read($id);
     }
 
-    private function read($id) {
+    protected function read($id) {
         global $db;
 
         $this->citybriefings = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
+    }
+
+    public function create(array $data) {
+        ;
+    }
+
+    public function update(array $data) {
+        ;
     }
 
     public static function get_citybriefings_byattr($attr, $value) {

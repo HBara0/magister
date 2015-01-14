@@ -237,18 +237,20 @@ if(!$core->input['action']) {
 
         if($core->input['incVisitDetails'] != 0 || !isset($core->input['incVisitDetails'])) {
             $visitdetails = '<div class = "subtitle">'.$lang->visitdetails.'</div>';
-            foreach($visitreport['spid'] as $k => $v) {
-                if(empty($v) && $v != 0) {
-                    continue;
+            if(is_array($visitreport['spid'])) {
+                foreach($visitreport['spid'] as $k => $v) {
+                    if(empty($v) && $v != 0) {
+                        continue;
+                    }
+
+                    /* if($core->usergroup['canViewAllSupp'] == 0)  {
+                      if(!in_array($k, $core->user['suppliers']['eid'])) {
+                      continue;
+                      }
+                      } */
+
+                    eval("\$visitdetails .= \"".$template->get('crm_visitreport_visitdetails')."\";");
                 }
-
-                /* if($core->usergroup['canViewAllSupp'] == 0)  {
-                  if(!in_array($k, $core->user['suppliers']['eid'])) {
-                  continue;
-                  }
-                  } */
-
-                eval("\$visitdetails .= \"".$template->get('crm_visitreport_visitdetails')."\";");
             }
         }
 

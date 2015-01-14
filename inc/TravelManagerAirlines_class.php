@@ -69,7 +69,7 @@ class TravelManagerAirlines {
         return false;
     }
 
-    private function parse_responsefilghts($response_flightdata, $transpcatid, $sequence, $source = 'plan') {
+    private function parse_responsefilghts($response_flightdata, $transpcat = array(), $sequence, $source = 'plan') {
         global $core, $template, $lang;
         foreach($response_flightdata->trips->tripOption as $tripoptnum => $tripoption) {
 //for($tripoptnum = 0; $tripoptnum <= count($response_flightdata->trips->tripOption); $tripoptnum++) {
@@ -87,15 +87,15 @@ class TravelManagerAirlines {
             foreach($tripoption->slice as $slicenum => $slice) {
 // for($slicenum = 0; $slicenum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice); $slicenum++) {
                 foreach($slice->segment as $segmentnum => $segment) {
-//  for($segmentnum = 0; $segmentnum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment); $segmentnum++) {
+                    //  for($segmentnum = 0; $segmentnum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment); $segmentnum++) {
                     $departuretime = strtotime($segment->leg[0]->departureTime);
                     $arrivaltime = strtotime($segment->leg[0]->arrivalTime);
                     $flight['departuredate'] = date($core->settings['dateformat'], $departuretime);
                     $flight['departuretime'] = date($core->settings['timeformat'], $departuretime);
                     $flight['arrivaldate'] = date($core->settings['dateformat'], $arrivaltime);
                     $flight['arrivaltime'] = date($core->settings['timeformat'], $arrivaltime);
-
                     $flight['origin'] = $segment->leg[0]->origin;
+                    $flight['cabin'] = $segment->cabin;
                     $flight['destination'] = $segment->leg[0]->destination;
 
                     $flight['duration'] = sprintf('%2dh %2dm', floor($segment->leg[0]->duration / 60), ($segment->leg[0]->duration % 60));
@@ -121,7 +121,6 @@ class TravelManagerAirlines {
                         }
                     }
                     $flight['flightnumber'] = $segment->flight->carrier.' '.$segment->flight->number;
-
                     $flight['flightid'] = $response_flightdata->trips->tripOption[$tripoptnum]->id;
                     $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
                     //  $flight['flightdetails'] = base64_encode(serialize($flight['flightnumber'].$flight['flightid']));
@@ -139,12 +138,16 @@ class TravelManagerAirlines {
                     else {
                         eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails_roundtrip_segments_details')."\";");
                     }
-
                     unset($connectionduration, $flight['connectionDuration']);
                     // }
                 }
                 if(!empty($source) && ($source == 'plan')) {
-                    $flightnumber_checkbox = ' <input type="checkbox" name="segment['.$sequence.'][tmtcid]['.$transpcatid.']['.$flight[flightid].'][flightNumber]" value="'.$flight['flightnumber'].'"/>';
+                    if($transpcat['selectedflight'] == $flight['flightnumber']) {
+                        $checkbox['selctedflight'] = "checked='checked'";
+                    }
+                    $transpcatid = $transpcat['tmtcid'];
+                    $flightnumber_checkbox = ' <input type="checkbox" name="segment['.$sequence.'][tmtcid]['.$transpcatid.']['.$flight[flightid].'][flightNumber]" value="'.$flight['flightnumber'].'"'.$checkbox['selctedflight'].'/>';
+                    unset($checkbox['selctedflight']);
                 }
             }
             eval("\$flights_records .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
@@ -163,7 +166,7 @@ class TravelManagerAirlines {
         $response_flightdata = json_decode($data);
         //$flights_records = '<div class = "subtitle" style = "width:100%;margin:10px; box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px  rgba(0, 0, 0, 0.1) solid;;">Best Flights</div>';
 
-        return self::parse_responsefilghts($response_flightdata, $transpcat['tmtcid'], $sequence, $source);
+        return self::parse_responsefilghts($response_flightdata, $transpcat, $sequence, $source);
     }
 
     public static function get_flights($request, $apikey = null) {

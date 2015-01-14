@@ -4,7 +4,6 @@
         {$headerinc}
         <script>
             $(function() {
-
                 var tabs = $("#segmentstabs").tabs();
                 var tabcounter = tabs.find(".ui-tabs-nav").find('li').length + 1; //find the  lenght of li tabs and increment by 1
                 $("#createtab").live('click', function() {
@@ -29,10 +28,8 @@
                             return;
                         }
                         /*Select the  tabs-panel that isn't hidden with  tabs-hide:*/
-
                         var selectedPanel = $("#segmentstabs div.ui-tabs-panel:not(.ui-tabs-hide)");
-
-                        var templatecontent = sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=add_segment", "sequence=" + tabcounter + "&lid=" + $('#lid').val() + "&destcity=" + $('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() + "&toDatetime=" + (Date.parse($('#pickDate_to_' + (tabcounter - 1)).val())) + "&leavetoDatetime=" + $('#leaveDate_to_' + (tabcounter - 1)).val() + "&toDate=" + $('#altpickDate_to_' + (tabcounter - 1)).val(), 'loadindsection', id, 'html', true);
+                        var templatecontent = sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=add_segment", "sequence=" + tabcounter + "&lid=" + $('#lid').val() + "&destcity=" + $('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() + "&toDate=" + ($('#pickDate_to_' + (tabcounter - 1)).val()) + "&leavetoDatetime=" + $('#leaveDate_to_' + (tabcounter - 1)).val() + "&toDate=" + $('#altpickDate_to_' + (tabcounter - 1)).val(), 'loadindsection', id, 'html', true);
                         var templatecontent = errormessage = '';
                         tabs.append("<div id=" + id + "><p>" + templatecontent + "</p></div>");
                         tabs.tabs("refresh");
@@ -43,11 +40,18 @@
                 });
                 // close icon: removing the tab on click
                 tabs.delegate("span.ui-icon-close", "click", function() {
+                    /*only send ajax request when segmentid exist on modify*/
+                    if(typeof $(this).closest("li").find('span').attr('id') !== typeof undefined && $(this).closest("li").find('span').attr('id') !== false) {
+                        var segmentid = $(this).closest("li").find('span').attr('id').split("_");
+                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=deletesegment", "&segmentid=" + segmentid[1], '', '', true);
+                    }
                     var panelId = $(this).closest("li").remove().attr("aria-controls");
                     $("#" + panelId).remove();
+
                     tabcounter = tabcounter - 1;
                     tabs.tabs("refresh");
                 });
+
                 $('input[id^=destinationcity_]').live('change', function() {
                     if(sharedFunctions.checkSession() == false) {
                         return;
@@ -67,11 +71,12 @@
                     var id = $(this).attr('id').split("_");
                     var sequence = id[1];
                     var categoryid = id[3];
-                    $('div[id=cat_content_' + categoryid + ']').slideToggle("slow");
+                    $('div[id=cat_content_' + categoryid + '_' + sequence + ']').slideToggle("slow");
                     /*ajax call to parse transpfields*/
                     //  sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=parsedetailstransp", "&categoryid=" + categoryid + "&sequence=" + sequence + "&catid=" + id[2], 'cat_detailsloader_' + categoryid + '', 'transpcat_content' + categoryid + '', true);
 
                 });
+
                 $('input[id*=pickDate_to_]').live('change', function() {
                     if(sharedFunctions.checkSession() == false) {
                         return;
@@ -113,6 +118,24 @@
 
                     $("div[id=total_" + id[1] + "_" + id[2] + '_' + id[3] + "]").fadeToggle('slow').stop().text($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() * $('input[id="numnight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val());
                 });
+                $('input[id=finalize]').live('click', function() {
+                    $('input[id="finalizeplan"]').val('1');
+                    $('input[id="perform_travelmanager/plantrip_Button"]').click();
+                    $('input[id="finalizeplan"]').val('');
+                });
+
+
+                $('input[id^="pickDate_to"]').live('change', function() {
+                    var descity = '';
+                    var segid = $(this).attr("id").split("_");
+                    if(sharedFunctions.checkSession() == false) {
+                        return;
+                    }
+                    var descity = $('input[id="destinationcity_' + segid[2] + '_cache_id"]').val();
+                    if((descity != '') && $("#altpickDate_to").val() != '') {
+                        $('input[id^=destinationcity_]').trigger('change');
+                    }
+                });
             });
 
         </script>
@@ -130,9 +153,8 @@
         {$header}
     <tr>
         {$menu}
-        <td class="contentContainer">
+        <td class="contentContainer" colspan="2">
             <h1>{$lang->plantrip}</h1>
-
             {$leave_ouput}
             <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" action="#" method="post">
                 <div style='margin-top: 10px;'>
@@ -142,9 +164,16 @@
                 <input type="hidden" value="{$previoussegtodate}" id="todate" name="todate"/>
                 <input type="hidden" value="{$previoussegdestcity}" id="prevdestcity" name="prevdestcity"/>
                 <input type="hidden" value="{$leaveid}" id="lid" name="lid"/>
+                <input type="hidden" value="{$planid}" id="lid" name="planid"/>
                 {$plantript_segmentstabs}
                 <input type='submit' class='button' value="{$lang->savecaps}" id='perform_travelmanager/plantrip_Button'>
+                <a href="index.php?module=travelmanager/viewplan&id={$planid}&lid={$leaveid}&referrer=plan" target="_blank">
+                    <input type="button" class='button' value="{$lang->preview}">
+                </a>
+                <input type="button" class='button'  value="{$lang->save} & {$lang->preview}" id="finalize"/>
+                <input type="hidden" value="" name="finalizeplan" id="finalizeplan"/>
             </form>
+
             <div id="perform_travelmanager/plantrip_Results"></div>
         </td>
     </tr>

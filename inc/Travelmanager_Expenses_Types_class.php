@@ -68,7 +68,7 @@ class Travelmanager_Expenses_Types extends AbstractClass {
         if(isset($options['mode']) && $options['mode'] != 'addrows') {
             if(is_array($expensestype) && !empty($expensestype)) {
                 $segid = key($expensestype);
-                $segmentexptype = key($expensestype[$segid]);
+                $segmentexptype = key($expensestype[$segid][$rowid]);
             }
         }
 
@@ -86,22 +86,23 @@ class Travelmanager_Expenses_Types extends AbstractClass {
                     $expenses_details.=$this->parse_paidby($sequence, $rowid, $segid, array('selectedtype' => $expensestype[$segid][$rowid]['selectedtype'], 'expenses' => $expensestype));
                 }
                 else {
-                    // $expenses_details = '';
                     $expenses_details = Travelmanager_Expenses::parse_expenses($sequence, $rowid, '');
 
                     $expenses_details.=$this->parse_paidby($sequence, $rowid, $segid, array());
                 }
                 $expensestype[$segid][$segmentexptype]['paidby'] = '';
                 $onchangepaidby = '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus()';
-                //   $expenses_detailspaidby = $this->parse_paidby();
-
                 $onchange_actions = '$("#"+$(this).find(":selected").attr("itemref")+"_"+'.$sequence.'+"_"+'.$rowid.').show();';
                 $expenses_options.='<option value='.$expenses->tmetid.' itemref='.$expenses->name.' '.$selected.'>'.$expenses->title.'</option>';
-
                 $selected = $segmentexptype = '';
             }
         }
         $altrow = alt_row($altrow);
+        /* hide Another affiliate input field */
+        $expensestype[$sequence][$rowid]['display'] = $expensestype[$segid][$rowid]['display'];
+        if(empty($expensestype[$sequence][$rowid]['display'])) {
+            $expensestype[$sequence][$rowid]['display'] = "display:none;";
+        }
         eval("\$segments_expenses_output = \"".$template->get('travelmanager_expenses_types')."\";");
         $expenses_detailspaidby = '';
         $segments_expenses_output .='<hr>';
@@ -131,11 +132,10 @@ class Travelmanager_Expenses_Types extends AbstractClass {
             }
             $paid_options.="<option value=".$val." {$selected}> {$paidby} </option>";
         }
-        $onchange_actions = 'onchange=\"$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();\"';
+        $onchange_actions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_'.$sequence.'_'.$rowid.'").hide();}';
+        // $onchange_actions = 'onchange="$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();"';
 
-        return "Paid By <select id=segment_expensestype_".$sequence."_".$rowid." name=segment[".$sequence."][expenses][".$rowid."][paidBy] ".$onchange_actions.">".$paid_options."</select>";
-
-        // return '<div style="display:block;padding:8px;"  id="paidby"> Paid By '.parse_selectlist('segment['.$sequence.'][expenses]['.$rowid.'][entites]', 6, $paidby_entities, $selected_paidby[$segid], '', '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();;', array('id' => 'paidby')).'</div>';
+        return "<div><div style='display:inline-block;width:20%;padding:5px;'>Paid By</div> <div style='display:inline-block;width:70%;'> <select id=segment_expensestype_".$sequence."_".$rowid." name=segment[".$sequence."][expenses][".$rowid."][paidBy] onchange='".$onchange_actions."'>".$paid_options."</select></div></div>";
     }
 
 }
