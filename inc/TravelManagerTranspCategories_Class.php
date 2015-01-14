@@ -40,8 +40,9 @@ class TravelManagerTranspCategories extends AbstractClass {
         return $data->get_objects_byattr($attr, $value, $options);
     }
 
-    public function get_data($filters = '', $configs = array()) {
-        parent::get_data($filters, $configs);
+    public static function get_data($filters = null, array $configs = array()) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
     }
 
     public function set(array $data) {
@@ -75,7 +76,12 @@ class TravelManagerTranspCategories extends AbstractClass {
     }
 
     public function get_modifiedBy() {
-        return new Users($this->data['modifiedBy']);
+        return new Users($this->data['
+    modifiedBy
+
+
+
+    ']);
     }
 
     protected function create(array $data) {
