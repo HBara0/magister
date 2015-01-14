@@ -405,6 +405,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $transp_flightdetails = json_decode($transportation->flightDetails, true);
                     $flight_details = $this->parse_flightdetails($transp_flightdetails);
                 }
+                $fare = $transportation->get_convertedamount($transportation->currency, USD);
                 eval("\$segment_transpdetails .= \"".$template->get('travelmanager_viewplan_transpsegments')."\";");
                 $flight_details = '';
             }
@@ -417,9 +418,12 @@ class TravelManagerPlanSegments extends AbstractClass {
                 if(is_object($paidby)) {
                     $paidby = $paidby->get_displayname();
                 }
-                $segment_hotel .= '<div style = " width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin:10px;"> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
+                $curr = new Currencies($accomdation->currency);
+                $tocurr = new Currencies('USD');
+                $pricenight = $accomdation->get_convertedamount($curr, $tocurr);
+                $segment_hotel .= '<div style = " width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin:10px;"> '.$lang->night.' '.$accomdation->numNights.' at $ '.$pricenight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
 //    $segment_hotel .= '<div style = " width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
-                $segment_hotel .= '<div style = " width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;"><span>  '.$numfmt->formatCurrency(($accomdation->numNights * $accomdation->priceNight), "USD").'</span> <br/> <small style="font-weight:normal;">[paid by: '.$paidby.' ]</small></div>'; // fix the html parse multiple hotl
+                $segment_hotel .= '<div style = " width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;"><span>  '.$numfmt->formatCurrency(($accomdation->numNights * $pricenight), "USD").'</span> <br/> <small style="font-weight:normal;">[paid by: '.$paidby.' ]</small></div>'; // fix the html parse multiple hotl
 //   $segment_hotelprice .='<div style = " width:45%; display: block;"> Nights '.$accomdation->numNights.' at $ '.$accomdation->priceNight.'/Night</div>';
             }
         }
@@ -435,6 +439,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 if($additionalexp_type->title == 'Other') {
                     $additionalexp_type->title = $additionalexp->description;
                 }
+                $additionalexp->expectedAmt = $additionalexp->get_convertedamount($additionalexp->currency, USD);
                 $additional_expenses_details .= '<div style = "width:70%;display:inline-block;">'.$additionalexp_type->title.'</div>';
                 $additional_expenses_details .= '<div style = "width:25%;display:inline-block;font-size:14px;font-weight:bold;text-align:right;">'.$numfmt->formatCurrency($additionalexp->expectedAmt, "USD").'<br/><small style="font-weight:normal;">[paid by: '.$paidby.' ] </small> </div>';
                 $additional_expenses_details .= '</div>';
@@ -449,28 +454,35 @@ class TravelManagerPlanSegments extends AbstractClass {
         global $template, $db, $lang;
 
         $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::CURRENCY);
+        $fxrate_query['transp'] = "(SELECT rate FROM currencies_fxrates WHERE baseCurrency=(SELECT numCode FROM currencies WHERE alphaCode=tmpt.currency) AND currency=840
+				ORDER BY date DESC LIMIT 0, 1)";
 
-        $query = $db->query("SELECT tmpltid, tmtcid, sum(fare) AS fare FROM ".Tprefix."travelmanager_plan_transps WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP By tmtcid");
+        $query = $db->query("SELECT tmpltid, tmtcid, sum(fare* {$fxrate_query['transp']}) AS fare FROM ".Tprefix."travelmanager_plan_transps tmpt WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP By tmtcid");
         if($db->num_rows($query) > 0) {
             while($transpexp = $db->fetch_assoc($query)) {
                 $transpcat = new TravelManagerTranspCategories($transpexp['tmtcid']);
                 $expenses_details .= '<div style = "display:block;padding:5px 0px 5px 0px;">';
                 $expenses_details .= '<div style = "width:85%;display:inline-block;">'.$transpcat->title.'</div>';
+                $transp_obj = new TravelManagerPlanTransps();
                 $expenses_details .= '<div style = "width:10%;display:inline-block;text-align:right;">$'.round($transpexp['fare'], 2).'</div>';
                 $expenses_details .= '</div>';
                 $expenses_total += $transpexp['fare'];
             }
             /* get hotel expences total night of each segment */
         }
-        $expenses['accomodation'] = $db->fetch_field($db->query("SELECT SUM(priceNight*numNights) AS total FROM ".Tprefix."travelmanager_plan_accomodations WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid=".intval($this->tmpid).")"), 'total');
+
+        $fxrate_query['accomodation'] = "(SELECT rate FROM currencies_fxrates WHERE baseCurrency=tmpa.currency AND currency=840
+				ORDER BY date DESC LIMIT 0, 1)";
+        $expenses['accomodation'] = $db->fetch_field($db->query("SELECT SUM(priceNight*{$fxrate_query['accomodation']}*numNights) AS total FROM ".Tprefix."travelmanager_plan_accomodations tmpa WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid=".intval($this->tmpid).")"), 'total');
         if(empty($expenses['accomodation'])) {
             $expenses['accomodation'] = 0;
         }
         $expenses_total += $expenses['accomodation'];
         $expenses_subtotal = $numfmt->formatCurrency($expenses_total, "USD");
 
-
-        $additional_expenses = $db->query("SELECT tmetid,sum(expectedAmt) AS expectedAmt,description FROM ".Tprefix."travelmanager_expenses WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP by tmetid");
+        $fxrate_query['expenses'] = "(SELECT rate FROM currencies_fxrates WHERE baseCurrency=(SELECT numCode FROM currencies WHERE alphaCode=tme.currency) AND currency=840
+				ORDER BY date DESC LIMIT 0, 1)";
+        $additional_expenses = $db->query("SELECT tmetid,sum(expectedAmt*{$fxrate_query['expenses']}) AS expectedAmt,description FROM ".Tprefix."travelmanager_expenses tme WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP by tmetid");
         if($db->num_rows($additional_expenses) > 0) {
             $additional_expenses_details = '<div style="display:block;padding:5px 0px 5px 0px;width:15%;" class="subtitle">'.$lang->addexp.'</div>';
             while($additionalexp = $db->fetch_assoc($additional_expenses)) {
