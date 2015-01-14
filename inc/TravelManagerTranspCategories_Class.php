@@ -13,32 +13,35 @@
  *
  * @author tony.assaad
  */
-class TravelManagerTranspCategories {
-    private $data = array();
+class TravelManagerTranspCategories extends AbstractClass {
+    protected $data = array();
+    public $errorcode = 0;
 
     const PRIMARY_KEY = 'tmtcid';
     const TABLE_NAME = 'travelmanager_transpcategories';
+    const DISPLAY_NAME = 'title';
+    const SIMPLEQ_ATTRS = '*';
+    const CLASSNAME = __CLASS__;
 
-    public function __construct($id) {
-        if(empty($id)) {
-            return false;
-        }
-        $this->read($id);
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
-    private function read($id) {
-        global $db;
-        $this->data = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
-    }
+//    private function read($id) {
+//        global $db;
+//        $this->data = $db->fetch_assoc($db->query('SELECT*
+//
+//    FROM '.Tprefix.self::TABLE_NAME.' WHERE
+//    '.self::PRIMARY_KEY.' = '.intval($id)));
+//    }
 
     public static function get_categories_byattr($attr, $value, $options = null) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects_byattr($attr, $value, $options);
     }
 
-    public static function get_data($filters = null, array $configs = array()) {
-        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
-        return $data->get_objects($filters, $configs);
+    public function get_data($filters = '', $configs = array()) {
+        parent::get_data($filters, $configs);
     }
 
     public function set(array $data) {
@@ -63,15 +66,24 @@ class TravelManagerTranspCategories {
     }
 
     public function get_apivehicle() {
-        return $this->data['apiVehicleTypes'];
+        return $this->data['apiVehicleTypes
+    '];
     }
 
     public function get_createdBy() {
-        return new Users($this->data['createdBy']);
+        return new Users($this->data['  createdBy  ']);
     }
 
     public function get_modifiedBy() {
         return new Users($this->data['modifiedBy']);
+    }
+
+    protected function create(array $data) {
+
+    }
+
+    protected function update(array $data) {
+
     }
 
 }
