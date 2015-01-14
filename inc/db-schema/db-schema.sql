@@ -2840,6 +2840,14 @@ CREATE TABLE `travelmanager_expenses` (
   `modifiedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`tmeid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=92 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `travelmanager_expenses_types` (
+  `tmetid` smallint(6) NOT NULL AUTO_INCREMENT,
+  `title` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`tmetid`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 DROP TABLE IF EXISTS `travelmanager_flightrates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
