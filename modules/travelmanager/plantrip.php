@@ -237,7 +237,6 @@ else {
         $catid = $db->escape_string($core->input['catid']);
         $sequence = $db->escape_string($core->input['sequence']);
         $categoryid = $db->escape_string($core->input['categoryid']);
-
         $transp_category_fields = TravelManagerPlan::parse_transportaionfields($catid, $sequence);
         eval("\$transsegments_output = \"".$template->get('travelmanager_plantrip_segment_transportation')."\";");
 
@@ -253,6 +252,7 @@ else {
         else {
             if(is_array($core->input['segment'])) {
                 $travelplan->set($core->input);
+
                 $travelplan->save();
                 // $travelplan_obj->create($core->input['segment']);
             }
@@ -355,6 +355,12 @@ else {
                 }
             }
         }
+    }
+    else if($core->input['action'] == 'ajaxaddmore_othertranspcat') {
+        $rowid = $db->escape_string($core->input['value']) + 1;
+        $sequence = $db->escape_string($core->input['id']);
+        $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
+        echo $transsegments_output;
     }
 }
 ?>

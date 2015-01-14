@@ -59,6 +59,7 @@ class TravelManagerPlanTransps extends AbstractClass {
 
     protected function update(array $data) {
         global $db, $core;
+        /* Specify transportation categories As isMain (if suggested by the system) */
         $transportdata['isMain'] = 1;
         if($transportdata['tmtcid'] == 0) {
             $transportdata['tmtcid'] = $transportdata['othercategory'];
