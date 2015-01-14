@@ -59,8 +59,12 @@ class TravelManagerPlanTransps extends AbstractClass {
 
     protected function update(array $data) {
         global $db, $core;
-
-        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'flightDetails', 'paidBy', 'paidById', 'transpType');
+        $transportdata['isMain'] = 1;
+        if($transportdata['tmtcid'] == 0) {
+            $transportdata['tmtcid'] = $transportdata['othercategory'];
+            unset($transportdata['othercategory'], $transportdata['isMain']);
+        }
+        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'transpDetails', 'paidBy', 'paidById', 'transpType');
         $valid_attrs = array_combine($valid_attrs, $valid_attrs);
         $data = array_intersect_key($data, $valid_attrs);
         if($data['paidBy'] != 'anotheraff') {
@@ -75,15 +79,20 @@ class TravelManagerPlanTransps extends AbstractClass {
         global $db, $core;
 
         $transp_details = base64_decode($transportdata['transpDetails'], true);
+        $transportdata['isMain'] = 1;
+        if($transportdata['tmtcid'] == 0) {
+            $transportdata['tmtcid'] = $transportdata['othercategory'];
+            unset($transportdata['othercategory'], $transportdata['isMain']);
+        }
         if($transp_details != false) {
-            $transportdata['flightDetails'] = $transp_details;
+            $transportdata['transpDetails'] = $transp_details;
         }
         $tanspdata_array = array('tmpsid' => $transportdata['tmpsid'],
                 'tmtcid' => $transportdata['tmtcid'],
                 'fare' => $transportdata['fare'],
                 'vehicleNumber' => $transportdata['vehicleNumber'],
                 'flightNumber' => $transportdata['flightNumber'],
-                'flightDetails' => $transportdata['transpDetails'],
+                'transpDetails' => $transportdata['transpDetails'],
                 'paidBy' => $transportdata['paidBy'],
                 'paidById' => $transportdata['paidById'],
                 'transpType' => $transportdata['transpType'],
@@ -104,6 +113,15 @@ class TravelManagerPlanTransps extends AbstractClass {
 
     public function get_transpcategory() {
         return new TravelManagerTranspCategories($this->data['tmtcid']);
+    }
+
+    public function get_convertedamount($fromcurrency, $tocurrency, $amount = '') {
+        if(empty($amount)) {
+            $amount = $this->fare;
+        }
+        $curr = new Currencies($fromcurrency);
+        $exchagerate = $curr->get_latest_fxrate($tocurrency, array(), $fromcurrency);
+        return $amount * $exchagerate;
     }
 
 }
