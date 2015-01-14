@@ -119,18 +119,18 @@ class TravelManagerPlan {
             );
             switch($category['name']) {
                 case 'taxi'://taxi
-                    $transportaion_fields = '<div style="padding:3px; display: inline-block; width:50%;">'.$lang->approxfare.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '', $category['transportationdetials']['fare']).'</div>';
+                    $transportaion_fields = '<div style="padding:3px; display: inline-block; width:50%;">'.$lang->approxfare.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_fare', 'number', $category['transportationdetials']['fare']).'</div>';
                     // $transportaion_fields .= parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][transpType]', 'hidden', '', $category['name']);
                     $transportaion_fields .=self::parse_paidby($sequence, $category['tmtcid'], $category['transportationdetials']['paidBy']);
                     break;
                 case 'bus':
-                    $transportaion_fields = '<div><div style="padding:10px; display: inline-block; width:25%;">'.$lang->approxfare.'</div><div style="display:inline-block;width:25%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '', $category['transportationdetials']['fare']).'</div></div>';
+                    $transportaion_fields = '<div><div style="padding:10px; display: inline-block; width:25%;">'.$lang->approxfare.'</div><div style="display:inline-block;width:25%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_fare', 'number', $category['transportationdetials']['fare']).'</div></div>';
                     $transportaion_fields .=self::parse_paidby($sequence, $category['tmtcid'], $category['transportationdetials']['paidBy']);
                     break;
                 case 'train':
                 case 'lightrail':
-                    $transportaion_fields = '<div style="padding:2px; display: inline-block; width:25%;padding:10px;">'.$lang->traino.'</div><div style="display:inline-block;width:25%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][vehicleNumber]', 'number', '', $category['transportationdetials']['vehicleNumber']).'</div>';
-                    $transportaion_fields.=' <div style="padding:2px; display: inline-block; width:15%;">'.$lang->approxfare.'</div><div style="display:inline-block;width:25%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '', $category['transportationdetials']['fare']).'</div>';
+                    $transportaion_fields = '<div style="padding:2px; display: inline-block; width:25%;padding:10px;">'.$lang->traino.'</div><div style="display:inline-block;width:25%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][vehicleNumber]', 'segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_vehicleNumber', 'number', $category['transportationdetials']['vehicleNumber']).'</div>';
+                    $transportaion_fields.=' <div style="padding:2px; display: inline-block; width:15%;">'.$lang->approxfare.'</div><div style="display:inline-block;width:25%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_fare', 'number', $category['transportationdetials']['fare']).'</div>';
                     // $transportaion_fields .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][transpType]" value="'.$category['name'].'" />';
                     $transportaion_fields .=self::parse_paidby($sequence, $category['tmtcid'], $category['transportationdetials']['paidBy']);
                     break;
@@ -157,15 +157,15 @@ class TravelManagerPlan {
                     /* Parse predefined airliners */
                     break;
                 case 'car':
-                    $transportaion_fields = '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->agency.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][agencyName]', 'text', '', $category['transportationdetials']['agencyName']).'</div>';
-                    $transportaion_fields .= '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->numberdays.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][numDays]', 'number', '', $category['transportationdetials']['transpType']).'</div>';
-                    $transportaion_fields .= '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->feeday.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '', $category['transportationdetials']['fare']).'</div>';
+                    $transportaion_fields = '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->agency.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][agencyName]', 'segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_agencyName', 'text', $category['transportationdetials']['agencyName']).'</div>';
+                    $transportaion_fields .= '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->numberdays.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][numDays]', 'segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_numDays', 'number', $category['transportationdetials']['transpType']).'</div>';
+                    $transportaion_fields .= '<div style="padding:2px; display: inline-block; width:30%;">'.$lang->feeday.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_fare', 'number', $category['transportationdetials']['fare']).'</div>';
                     $transportaion_fields .=self::parse_paidby($sequence, $category['tmtcid'], $category['transportationdetials']['paidBy']);
                     break;
                 default:
-                    $transportaion_fields = '<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->transptype.'</div><div style="display:inline-block;width:25%;">'.parse_selectlist('segment['.$sequence.'][tmtcid][0][othercategory]', '', $category['othercategories'], '', '', '', array('width' => '100%')).'</div>';
+                    $transportaion_fields = '<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->transptype.'</div><div style="display:inline-block;width:25%;">'.parse_selectlist('segment['.$sequence.'][tmtcid][0][othercategory]', '', $category['othercategories'], '', '', '', array('width' => '100%', 'id' => 'segment_'.$sequence.'_tmtcid_0_othercategory')).'</div>';
                     //parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][transpType]', 'text', '', $category['transportationdetials']['transpType'], array('style' => 'width:100%;'))
-                    $transportaion_fields .= ' <div style = "display:inline-block;padding:10px;width:15%;">'.$lang->feeday.'</div><div style = "display:inline-block;width:20%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'number', '', $category['transportationdetials']['fare'], array('style' => 'width:100%; ')).'</div></div>';
+                    $transportaion_fields .= ' <div style = "display:inline-block;padding:10px;width:15%;">'.$lang->feeday.'</div><div style = "display:inline-block;width:20%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][fare]', 'segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_fare', 'number', $category['transportationdetials']['fare'], array('style' => 'width:100%; ')).'</div></div>';
                     $transportaion_fields .=self::parse_paidby($sequence, $category['tmtcid'], $category['transportationdetials']['paidBy']);
                     break;
             }
