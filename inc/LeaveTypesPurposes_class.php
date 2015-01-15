@@ -19,7 +19,7 @@ class LeaveTypesPurposes extends AbstractClass {
 
     const PRIMARY_KEY = 'ltpid';
     const TABLE_NAME = 'leavetypes_purposes';
-    const DISPLAY_NAME = 'purpose';
+    const DISPLAY_NAME = 'title';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
 

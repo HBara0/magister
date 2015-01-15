@@ -129,10 +129,10 @@ class LeaveTypes extends AbstractClass {
                 if($attribute == 'cid') {
                     $search_for = 'customer';
                 }
-                elseif($attribute == 'destinationcity') {
+                elseif($attribute == 'destinationCity') {
                     $search_for = 'destinationcity';
                 }
-                elseif($attribute == 'sourcecity') {
+                elseif($attribute == 'sourceCity') {
                     $search_for = 'sourcecity';
                 }
                 elseif($attribute == 'city') {

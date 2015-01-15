@@ -22,6 +22,7 @@ class TravelManagerPlanTransps extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = 'tmpsid,tmtcid';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -37,35 +38,31 @@ class TravelManagerPlanTransps extends AbstractClass {
         return $data->get_objects($filters, $configs);
     }
 
-    public function save(array $data = array()) {
-        if(empty($data)) {
-            $data = $this->data;
-        }
-
-        $tmptransp = TravelManagerPlanTransps::get_data(array(self::PRIMARY_KEY => $data[self::PRIMARY_KEY]));
-        if(is_object($tmptransp)) {
-            $tmptransp->update($data);
-        }
-        else {
-            $tmptransp = TravelManagerPlanTransps::get_data(array(TravelManagerTranspCategories::PRIMARY_KEY => $data[TravelManagerTranspCategories::PRIMARY_KEY], TravelManagerPlanSegments::PRIMARY_KEY => $data[TravelManagerPlanSegments::PRIMARY_KEY]));
-            if(is_object($tmptransp)) {
-                $tmptransp->update($data);
-            }
-            else {
-                $this->create($data);
-            }
-        }
-    }
+//    public function save(array $data = array()) {
+//        if(empty($data)) {
+//            $data = $this->data;
+//        }
+//
+//        $tmptransp = TravelManagerPlanTransps::get_data(array(self::PRIMARY_KEY => $data[self::PRIMARY_KEY]));
+//        if(is_object($tmptransp)) {
+//            $tmptransp->update($data);
+//        }
+//        else {
+//            $tmptransp = TravelManagerPlanTransps::get_data(array(TravelManagerTranspCategories::PRIMARY_KEY => $data[TravelManagerTranspCategories::PRIMARY_KEY], TravelManagerPlanSegments::PRIMARY_KEY => $data[TravelManagerPlanSegments::PRIMARY_KEY]));
+//            if(is_object($tmptransp)) {
+//                $tmptransp->update($data);
+//            }
+//            else {
+//                $this->create($data);
+//            }
+//        }
+//    }
 
     protected function update(array $data) {
         global $db, $core;
         /* Specify transportation categories As isMain (if suggested by the system) */
-        $transportdata['isMain'] = 1;
-        if($transportdata['tmtcid'] == 0) {
-            $transportdata['tmtcid'] = $transportdata['othercategory'];
-            unset($transportdata['othercategory'], $transportdata['isMain']);
-        }
-        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'transpDetails', 'paidBy', 'paidById', 'transpType');
+
+        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'transpDetails', 'paidBy', 'paidById', 'transpType', 'isUserSuggested');
         $valid_attrs = array_combine($valid_attrs, $valid_attrs);
         $data = array_intersect_key($data, $valid_attrs);
         if($data['paidBy'] != 'anotheraff') {
@@ -80,11 +77,7 @@ class TravelManagerPlanTransps extends AbstractClass {
         global $db, $core;
 
         $transp_details = base64_decode($transportdata['transpDetails'], true);
-        $transportdata['isMain'] = 1;
-        if($transportdata['tmtcid'] == 0) {
-            $transportdata['tmtcid'] = $transportdata['othercategory'];
-            unset($transportdata['othercategory'], $transportdata['isMain']);
-        }
+
         if($transp_details != false) {
             $transportdata['transpDetails'] = $transp_details;
         }
@@ -98,7 +91,8 @@ class TravelManagerPlanTransps extends AbstractClass {
                 'paidById' => $transportdata['paidById'],
                 'transpType' => $transportdata['transpType'],
                 'createdOn' => TIME_NOW,
-                'createdBy' => $core->user['uid']
+                'createdBy' => $core->user['uid'],
+                'isUserSuggested' => $transportdata['isUserSuggested']
         );
 
         if($tanspdata_array['paidBy'] != 'anotheraff') {
