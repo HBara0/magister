@@ -76,6 +76,7 @@ $lang['country'] = 'Country';
 $lang['hotel'] = 'Hotel';
 $lang['addotherhotel'] = 'Add Other Hotel ';
 $lang['searchotherhotel'] = 'Search Other Hotels';
+$lang['preferedcabin'] = 'Preferred Class';
 $lang['confirmfinalizeplan'] = 'I understand that once I confirm this plan, it will be sent to the management for review and approval';
 $lang['hotelreview'] = 'Read Hotel Review';
 $lang['preview'] = 'Preview';

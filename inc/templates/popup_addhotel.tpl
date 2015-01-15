@@ -14,15 +14,11 @@
 
             </tr>
             <tr>
-                <td><strong>{$lang->country}</strong></td>
-
-                <Td><input type="text"  disabled="disabled" autocomplete="off" tabindex="1"  id="countries_{$sequence}_cache_autocomplete"    value="{$segdescity_country}" required="required"/></Td>
                 <td>
                     <input type='hidden' id='countries_{$sequence}_cache_id'   name="otherhotel[country]" value="{$segdescity_obj_coid }"/>
                 </td>
 
             </tr>
-
 
             <td colspan="2" align="left">
                 <hr />

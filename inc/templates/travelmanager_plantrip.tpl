@@ -59,10 +59,11 @@
                     var id = $(this).attr('id').split("_");
                     var sequence = id[1];
                     var ciid = $('input[id$=destinationcity_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
-                    var origincity = $('input[id=cities_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
-
-                    sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_to_' + (sequence - 1)).val(), 'content_detailsloader_' + sequence + '', 'content_details_' + sequence + '', true);
-                    sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecityprofile", "&sequence=" + sequence + "&destcity=" + ciid, 'segment_city_loader_' + sequence + '', 'segment_city_' + sequence + '', true);
+                    if(typeof ciid !== typeof undefined && ciid !== '') {
+                        var origincity = $('input[id=cities_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
+                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_to_' + (sequence - 1)).val(), 'content_detailsloader_' + sequence + '', 'content_details_' + sequence + '', true);
+                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecityprofile", "&sequence=" + sequence + "&destcity=" + ciid, 'segment_city_loader_' + sequence + '', 'segment_city_' + sequence + '', true);
+                    }
                 });
 
                 /*var firstcategoryid = $('input[id*=transp_]').attr('id').split("_")[3];*/
@@ -114,7 +115,6 @@
                     if($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').length < 0) {
                         return;
                     }
-                    alert($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').text());
 
                     $("div[id=total_" + id[1] + "_" + id[2] + '_' + id[3] + "]").fadeToggle('slow').stop().text($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() * $('input[id="numnight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val());
                 });
@@ -126,11 +126,10 @@
 
 
                 $('input[id^="pickDate_to"]').live('change', function() {
-                    var descity = '';
                     var segid = $(this).attr("id").split("_");
-                    if(sharedFunctions.checkSession() == false) {
-                        return;
-                    }
+                    var nextsegid = ++segid[2];
+                    $('input[id^="pickDate_from_' + nextsegid + '"]').val($(this).val())
+                    $('input[id^="altpickDate_from_' + nextsegid + '"]').val($(this).val());
                     var descity = $('input[id="destinationcity_' + segid[2] + '_cache_id"]').val();
                     if((descity != '') && $("#altpickDate_to").val() != '') {
                         $('input[id^=destinationcity_]').trigger('change');

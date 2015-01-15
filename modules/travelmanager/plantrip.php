@@ -63,7 +63,7 @@ if(!$core->input['action']) {
             $segment[$sequence]['destinationcity']['ciid'] = $segment[$sequence]['destinationcity']['ciid'];  /* Will get the capital city of the visited country of leave */
             $disabled = 'disabled="true"';
 //$leave_destcity
-
+            $otherhotel_checksum = generate_checksum('accomodation');
             if(!empty($descity_obj->get_id())) {
                 $cityprofile_output = $descity_obj->parse_cityreviews();
                 $citybriefings_output = $descity_obj->parse_citybriefing();
@@ -84,7 +84,7 @@ if(!$core->input['action']) {
 
             $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
 
-            $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence, $destcity);
+            $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence, $destcity, '', 'create');
             $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 
             /* parse expenses --START */
@@ -97,14 +97,14 @@ if(!$core->input['action']) {
 
             /* Get unaprroved hotel of the destcity  for the purpose to acquire the tmhid */
             $unapproved_hotelobjs = $descity_obj->get_unapprovedhotels();
-            $approved_hotels['tmhid'] = $unapproved_hotelobjs->tmhid;
+            //  $approved_hotels['tmhid'] = $unapproved_hotelobjs->tmhid;
 
             $mainaffobj = new Affiliates($core->user['mainaffiliate']);
             $destcity_obj = new Cities($destcity['ciid']);
             $currencies[] = $destcity_obj->get_country()->get_maincurrency();
             $currencies[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies[] = new Currencies(887, true);
-            $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].'][currency]', 4, $currencies, '840');
+            $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
 
             eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
             eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
@@ -182,7 +182,7 @@ else {
         $origincityid = $db->escape_string($core->input['origincity']);
         $destcityid = $db->escape_string($core->input['destcity']);
         $sequence = $db->escape_string($core->input['sequence']); /* get the  sequence to differentiate the content of each */
-
+        $otherhotel_checksum = generate_checksum('accomodation');
         $descity_obj = new Cities($destcityid);
         $destcity = $descity_obj->get();
         $destcity['country'] = $descity_obj->get_country()->get()['name'];
@@ -197,7 +197,7 @@ else {
         /* Load proposed transproration */
         $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
         /* load approved hotels */
-        $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence, $destcity);
+        $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence, $destcity, '', 'create');
         /* parse expenses --START */
         $rowid = 1;
         $expensestype_obj = new Travelmanager_Expenses_Types();
@@ -222,7 +222,8 @@ else {
         foreach($currency as $curr) {
             $currencies[$curr['numCode']] = $curr[alphaCode];
         }
-        $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].'][currency]', 4, $currencies, '840');
+        $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
+
         eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
         eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
         output($plansegmentscontent_output);
@@ -308,10 +309,10 @@ else {
         if(is_array($hotel_review)) {
             $hotel['reviewdetails'] = $hotel_review->get();
             $hotel['review'] = $hotel['reviewdetails']['review'];
-            $hotel['reviewby'] = $hotel_review->get_createdBy()->get()['displayName'];
+            $hotel['reviewby'] = $lang->reviewdby.': '.$hotel_review->get_createdBy()->get()['displayName'];
         }
         else {
-            $hotel['reviewby'] = $lang->na;
+            $hotel['reviewby'] = '';
             $hotel['review'] = $lang->noreviews;
         }
         eval("\$hotel_reviews = \"".$template->get('popup_hotel_review')."\";");
