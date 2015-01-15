@@ -330,6 +330,11 @@ if($core->input['action']) {
             $profile['uid'] = $core->user['uid'];
 
             eval("\$editprofilepage_profilepicform = \"".$template->get('popup_changeprofilepic')."\";");
+            /* Get Help Video */
+            $helpvideo = HelpVideos::get_data(array('alias' => 'how-to-generate-signature'));
+            if(is_object($helpvideo)) {
+                $helplinks['how-to-generate-signature'] = $helpvideo->parse_link();
+            }
             eval("\$editprofilepage = \"".$template->get('editprofile')."\";");
             output_page($editprofilepage);
         }

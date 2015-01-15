@@ -36,7 +36,7 @@ class HelpVideos extends AbstractClass {
     }
 
     public function parse_link() {
-        return '<a href="'.$this->link.'" target="_blank"><image src="./images/icons/question.gif" height="16px" width="16px"></a>';
+        return '<a href="'.$this->link.'" target="_blank"><image src="./images/icons/question.gif" height = "16px" width = "16px"></a>';
     }
 
 //put your code here
