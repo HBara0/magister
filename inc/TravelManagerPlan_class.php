@@ -461,15 +461,15 @@ class TravelManagerPlan {
             $hotelssegments_objs = $segmentobj->get_accomodations(array('returnarray' => true));
             if(is_array($hotelssegments_objs)) {
                 foreach($hotelssegments_objs as $segmentacc) {
-                    $allhotels = TravelManagerHotels::get_data('tmhid='.$segmentacc->tmhid, array('returnarray' => false));
-                    if($allhotels->isApproved == 1) {
-                        $section = 'Approved';
-                        $bgcolor = '#C0C4ED';
-                    }
-                    else {
-                        $section = 'Others';
-                        $bgcolor = '#ccc';
-                    }
+//                    $hotel = new TravelManagerHotels($segmentacc->tmhid);
+//                    if($hotel->isApproved == 1) {
+//                        $section = 'Approved';
+//                        $bgcolor = '#C0C4ED';
+//                    }
+//                    else {
+//                        $section = 'Others';
+//                        $bgcolor = '#ccc';
+//                    }
                     $accomodation[$segmentid][$segmentacc->tmhid]['hotelsection'] = $section.' '.$lang->hotel;
                     $accomodation[$segmentid][$segmentacc->tmhid]['hotelsectioncolor'] = "background-color:".$bgcolor."; ";
                     $accomodation[$segmentid][$segmentacc->tmhid]['priceNight'] = $segmentacc->priceNight;
@@ -492,7 +492,14 @@ class TravelManagerPlan {
             }
 
             $city_obj = new Cities($segmentobj->get_destinationcity()->ciid);
-            $hotelssegments_output = $city_obj->parse_approvedhotels($sequence, $city_obj->get(), $accomodation, 'modify');
+
+            $hotelssegments_output .= '<h2><small>Approved Hotels</small></h2>';
+            $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $segmentobj->get_destinationcity()->get_approvedhotels());
+            $hotelssegments_output .= '<br /><h2><small>Other Possible Hotels</small></h2>';
+            $otherhotels = TravelManagerHotels::get_data(array('city' => $segmentobj->get_destinationcity()->get_id(), 'tmhid' => '(SELECT tmhid FROM '.TravelManagerPlanaccomodations::TABLE_NAME.' WHERE '.TravelManagerPlanSegments::PRIMARY_KEY.'='.$segmentobj->get_id().')', 'isApproved' => 0), array('returnarray' => true, 'operators' => array('tmhid' => 'IN')));
+            if(is_array($otherhotels)) {
+                $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $otherhotels);
+            }
             /* parse hotel --END */
             $otherhotel_checksum = generate_checksum('accomodation');
             eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");

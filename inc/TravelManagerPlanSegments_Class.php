@@ -236,20 +236,11 @@ class TravelManagerPlanSegments extends AbstractClass {
 
                 $validate_fields = array('priceNight', 'numNights', 'currency');
                 foreach($segment_hotels['tmhid'] as $checksum => $hotel) {
-                    foreach($validate_fields as $hotelfield) {
-                        if(empty($hotel[$hotelfield])) {
-                            continue;
-                        }
-                    }
-                    // if(intval($tmhid)) {
                     $hotelacc = TravelManagerPlanaccomodations::get_data(array('inputChecksum' => $checksum));  //$hotel[tmhid]
-                    if(is_object($hotelacc)) {
-                        $db->delete_query('travelmanager_plan_accomodations', 'tmpaid='.$hotelacc->tmpaid.' AND tmpsid ='.$this->data['tmpsid'].'');
-                        continue;
-                    }
-                    // }
-                    /* if hotel not exist in segment accomodation & is not selected Skip! */
-                    if(!is_object($hotelacc) && empty($hotel[tmhid])) {
+                    if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
+                        if(is_object($hotelacc)) {
+                            $hotelacc->delete();
+                        }
                         continue;
                     }
 
@@ -540,6 +531,54 @@ class TravelManagerPlanSegments extends AbstractClass {
             }
             return $flight_details;
         }
+    }
+
+    public function parse_hotels($sequence, array $hotels) {
+        global $template, $lang, $core;
+
+        if(is_array($hotels)) {
+            foreach($hotels as $hotel) {
+                $approved_hotels = $hotel->get();
+
+                $selectedhotel = TravelManagerPlanaccomodations::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY], TravelManagerHotels::PRIMARY_KEY => $hotel->tmhid), array('simple' => false));
+                if(is_object($selectedhotel)) {
+                    $hotel->isChecked = " checked='checked'";
+                    $rescurrency = $selectedhotel->get_currency();
+                    $rescurrency_id = $rescurrency->get_id();
+                    $checksum = $selectedhotel->inputChecksum;
+                }
+                else {
+                    $checksum = generate_checksum('accomodation');
+                }
+
+                $review_tools .= '<a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$hotel->tmhid.'" title="'.$lang->hotelreview.'"><img src="'.$core->settings['rootdir'].'/images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
+
+                $checkbox_hotel = '<input aria-describedby="ui-tooltip-155" title="" name="segment['.$sequence.'][tmhid]['.$checksum.'][tmhid]" id="segment['.$sequence.']['.$checksum.'][tmhid]" value="'.$hotel->tmhid.'" type="checkbox">'.$hotel->name;
+
+                $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$checksum.'").show();}else{$("#anotheraff_accomodations_'.$sequence.'_'.$checksum.'").hide();}';
+                $paidby_entities = array(
+                        'myaffiliate' => $lang->myaffiliate,
+                        'supplier' => $lang->supplier,
+                        'client' => $lang->client,
+                        'myself' => $lang->myself,
+                        'anotheraff' => $lang->anotheraff
+                );
+                $selectlists['paidBy'] = parse_selectlist('"segment[{$sequence}][tmhid][{$checksum}][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
+
+                $mainaffobj = new Affiliates($core->user['mainaffiliate']);
+                $destcity_obj = $this->get_destinationcity();
+
+                $currencies[] = $destcity_obj->get_country()->get_maincurrency();
+                $currencies[] = $mainaffobj->get_country()->get_maincurrency();
+                $currencies[] = new Currencies(840, true);
+                $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', 4, $currencies, $rescurrency_id);
+
+                eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
+                $review_tools = $paidby_details = $currencies_list = $checkbox_hotel = '';
+            }
+        }
+
+        return $hotelssegments_output;
     }
 
     public function get_accomodations($config = array()) {

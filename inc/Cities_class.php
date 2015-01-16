@@ -61,23 +61,8 @@ class Cities extends AbstractClass {
         return new TravelManagerAirports($this->data['defaultAirport']);
     }
 
-    public function get_approvedhotels($filter = '') {
-        global $db;
-        if(!empty($filter) && $filter == 'approved') {
-            $filterwhere = '  WHERE  isApproved=1 ';
-            $filterwhereand = ' AND city ="'.$db->escape_string($this->data['ciid']).'"';
-        }
-        else {
-            $filterwhere = ' WHERE city ="'.$db->escape_string($this->data['ciid']).'"';
-            $filterwhereand = '';
-        }
-        $query = $db->query('SELECT tmhid FROM '.Tprefix.'travelmanager_hotels '.$filterwhere.$filterwhereand);
-        if($db->num_rows($query) >= 1) {
-            while($item = $db->fetch_assoc($query)) {
-                $items[$item['tmhid']] = new TravelManagerHotels($item['tmhid']);
-            }
-        }
-        return $items;
+    public function get_approvedhotels() {
+        return TravelManagerHotels::get_data(array('city' => $this->data['ciid'], 'isApproved' => 1), array('returnarray' => true));
     }
 
     public function get_reviews() {
@@ -101,127 +86,6 @@ class Cities extends AbstractClass {
 
     public function get_unapprovedhotels() {
         return TravelManagerHotels::get_data(array('isApproved' => 0, 'city' => $this->data['ciid']));
-    }
-
-    public function parse_approvedhotels($sequence, $destcity = '', $selectedhotel = array(), $source) {
-        global $template, $lang, $core;
-        $approved_hotelsobjs = $this->get_approvedhotels();
-        if(is_array($selectedhotel) && !empty($selectedhotel)) {
-            $segid = key($selectedhotel);
-        }
-
-
-        if(is_array($approved_hotelsobjs)) {
-            //   $hotelssegments_output = '<div class="subtitle">'.$lang->approvedhotels.'</div>';
-            foreach($approved_hotelsobjs as $approved_hotelsobj) {
-                $approved_hotels = $approved_hotelsobj->get();
-
-//                switch($approved_hotelsobj->isApproved) {
-//                    case 1:
-//                        $section = 'Approved';
-//                        $bgcolor = '#C0C4ED';
-//                        break;
-//                    case 0:
-//                        $section = 'Others';
-//                        $bgcolor = '#ccc';
-//                        $selectedhotel[$segid][$approved_hotels['tmhid']]['hotelsection'] = 'others';
-//                        break;
-//                }
-                $selectedhotel[$segid][$approved_hotels['tmhid']]['hotelsection'] = $section;
-                $selectedhotel[$segid][$approved_hotels['tmhid']]['hotelsectioncolor'] = "background-color:".$bgcolor."; ";
-                if(is_array($selectedhotel)) {
-                    if(!in_array($selectedhotel[$segid][$approved_hotels['tmhid']]['selectedhotel'], $approved_hotels)) {
-                        echo $selectedhotel[$segid][$approved_hotels['tmhid']][selectedhotel].'not in ';
-                        print_R($approved_hotels);
-                        echo '<br>';
-                        // $approvedhotel_checksum = generate_checksum('accomodation');
-                    }
-                }
-                //  else {
-//                if($source == 'modify') {
-//                    $approvedhotel_checksum = $selectedhotel[$segid][$approved_hotels['tmhid']]['inputChecksum'];
-//                }
-//                else {
-//                    $approvedhotel_checksum = generate_checksum('accomodation');
-//                }
-                // }
-                $approvedhotel_checksum = generate_checksum('accomodation');
-                if(is_array($selectedhotel) && !empty($selectedhotel)) {
-                    $approvedhotel_id = $selectedhotel[$segid][$approved_hotels['tmhid']]['selectedhotel'];
-                    // $approvedhotel_id = key($selectedhotel[key($selectedhotel)]);
-                    if(!in_array($selectedhotel[$segid][$approved_hotels['tmhid']]['selectedhotel'], $approved_hotels)) {
-                        $approvedhotel_checksum = generate_checksum('accomodation');
-                    }
-                    else {
-                        $approvedhotel_checksum = $selectedhotel[$segid][$approved_hotels['tmhid']]['inputChecksum'];
-                    }
-                }
-
-                if($approved_hotels['tmhid'] == $approvedhotel_id) {
-                    $segment[$sequence]['tmhid'][$approvedhotel_checksum]['checked'] = " checked='checked'";
-                }
-                $hotelname = array($approved_hotels['tmhid'] => $approved_hotels['name']);
-                $review_tools .= '<a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->hotelreview.'"><img src="'.$core->settings['rootdir'].'/images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
-
-
-                // $checkbox_hotel = parse_checkboxes('segment['.$sequence.']['.$approvedhotel_checksum.'][tmhid]', $hotelname, $selectedhotel[$segid][$approved_hotels['tmhid']], true, '&nbsp;&nbsp;');
-                $checkbox_hotel = '<input aria-describedby="ui-tooltip-155" title="" '.$segment[$sequence][tmhid][$approvedhotel_checksum]['checked'].'  name="segment['.$sequence.'][tmhid]['.$approvedhotel_checksum.'][tmhid]" id="segment['.$sequence.']['.$approvedhotel_checksum.'][tmhid]" value="'.$approved_hotels['tmhid'].'" type="checkbox">'.$approved_hotels['name'];
-
-                $paidby_details.=$this->parse_paidby($sequence, '', $segid, $approvedhotel_checksum, array('tmhid' => $approved_hotels['tmhid'], 'accomodations' => $selectedhotel[$segid][$approvedhotel_id]));
-                if(empty($selectedhotel[$segid][$approved_hotels['tmhid']]['display'])) {
-                    $selectedhotel[$segid][$approved_hotels['tmhid']]['display'] = "display:none;";
-                }
-                $mainaffobj = new Affiliates($core->user['mainaffiliate']);
-                $destcity_obj = new Cities($destcity['ciid']);
-                /* get currency for the country of the destcity */
-                $currency[] = $destcity_obj->get_country()->get_maincurrency()->get();
-                /* append default usd currency to the object */
-                $currencydefault = new Currencies(840, true);
-                $currency[] = $currencydefault->get();
-                /* append currency of the country of the main user affiliate to the object */
-                $countryobj = new Countries($mainaffobj->get_country()->coid);
-                $currency[] = $mainaffobj->get_country()->get_maincurrency()->get();
-                foreach($currency as $curr) {
-                    $currencies[$curr['numCode']] = $curr[alphaCode];
-                }
-                $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approvedhotel_checksum.'][currency]', 4, $currencies, $selectedhotel[$segid][$approved_hotels['tmhid']]);
-
-                eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
-                $review_tools = $paidby_details = $currencies_list = $checkbox_hotel = '';
-            }
-        }
-        else {
-            /* Parse others */
-        }
-        return $hotelssegments_output;
-    }
-
-    public function parse_paidby($sequence, $rowid, $segid, $approvedhotel_checksum, $selectedoptions = array()) {
-        global $lang;
-        if(empty($rowid)) {
-            $rowid = $selectedoptions['tmhid'];
-        }
-        $paidby_entities = array(
-                'myaffiliate' => $lang->myaffiliate,
-                'supplier' => $lang->supplier,
-                'client' => $lang->client,
-                'myself' => $lang->myself,
-                'anotheraff' => $lang->anotheraff
-        );
-        foreach($paidby_entities as $val => $paidby) {
-            if(!empty($selectedoptions['accomodations']['paidby'])) {
-                $selected = '';
-                if($selectedoptions['accomodations']['paidby'] === $val) {
-                    $selected = ' selected="selected"';
-                }
-            }
-            $paid_options.="<option value=".$val." {$selected}> {$paidby} </option>";
-        }
-
-        $onchange_actions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$rowid.'").show().find("input").first().focus().val("");}else{$("#anotheraff_accomodations_'.$sequence.'_'.$rowid.'").hide();}';
-        // $onchange_actions = 'onchange="$(\"#"+$(this).find(":selected").val()+"_"+'.$sequence.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();\"';
-        return 'Paid By <select id="paidbylist_accomodations_'.$sequence.'_'.$rowid.'" name="segment['.$sequence.'][tmhid]['.$approvedhotel_checksum.'][entites]" onchange='.$onchange_actions.'>'.$paid_options.'</select> ';
-        //   return '<div style="display:block;padding:8px;"  id="paidby"> Paid By '.parse_selectlist('segment['.$sequence.'][tmhid]['.$selectedoptions['tmhid'].'][entites]', 6, $paidby_entities, $selected_paidby[$segid], '', '$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();;', array('id' => 'paidby')).'</div>';
     }
 
     public function parse_cityreviews() {
