@@ -19,7 +19,7 @@ class TravelManagerPlanaccomodations extends AbstractClass {
     const PRIMARY_KEY = 'tmpaid';
     const TABLE_NAME = 'travelmanager_plan_accomodations';
     const SIMPLEQ_ATTRS = 'tmpsid,tmhid,tmpaid,priceNight,numNights';
-    const UNIQUE_ATTRS = 'tmpsid,tmhid,inputChecksum';
+    const UNIQUE_ATTRS = 'tmpsid,tmhid';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '') {
@@ -35,7 +35,7 @@ class TravelManagerPlanaccomodations extends AbstractClass {
     }
 
     public function create(array $data) {
-        global $db, $core;
+        global $db;
 
         $tanspdata_array = array('tmpsid' => $data['tmpsid'],
                 'tmhid' => $data['tmhid'],
@@ -47,8 +47,7 @@ class TravelManagerPlanaccomodations extends AbstractClass {
                 'paidById' => $data['paidById'],
         );
 
-
-        $db->insert_query('travelmanager_plan_accomodations', $data);
+        $db->insert_query(self::TABLE_NAME, $data);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
     }
 
@@ -82,42 +81,31 @@ class TravelManagerPlanaccomodations extends AbstractClass {
         return new TravelManagerPlanSegments($this->data['tmpsid']);
     }
 
-    /**/
-    public function set(array $data) {
-        foreach($data as $name => $value) {
-            $this->data[$name] = $value;
+    public function get_currency() {
+        return new Currencies($this->data['currency']);
+    }
+
+    public function parse_paidby() {
+        global $lang;
+
+        $paidby_entities = array(
+                'myaffiliate' => $lang->myaffiliate,
+                'supplier' => $lang->supplier,
+                'client' => $lang->client,
+                'myself' => $lang->myself,
+                'anotheraff' => $lang->anotheraff
+        );
+        foreach($paidby_entities as $val => $paidby) {
+            $selected = '';
+            if($this->data['paidBy'] === $val) {
+                $selected = ' selected="selected"';
+            }
+
+            $paid_options.="<option value=".$val." {$selected}>{$paidby}</option>";
         }
+
+        return $paid_options;
     }
-
-    public function __set($name, $value) {
-        $this->data[$name] = $value;
-    }
-
-    /* call the Magical function  get to acces the private attributes */
-    public function __get($name) {
-        if(array_key_exists($name, $this->data)) {
-            return $this->data[$name];
-        }
-    }
-
-//    public function save(array $data = array()) {
-//        global $core;
-//        if(empty($data)) {
-//            $data = $this->data;
-//        }
-//
-//        $accomodations = TravelManagerPlanaccomodations::get_data(array('tmpsid' => $data['tmpsid'], 'tmhid' => $data['tmhid']));
-//        //print_r($accomodations);
-//
-//        if(is_object($accomodations)) {
-//            $accomodations->update($data);
-//        }
-//        else {
-//            $this->create($data);
-//        }
-//    }
-
-
 
     public function get_hotel() {
         return new TravelManagerHotels($this->data['tmhid']);

@@ -20,7 +20,7 @@ class TravelManagerHotels extends AbstractClass {
     const PRIMARY_KEY = 'tmhid';
     const TABLE_NAME = 'travelmanager_hotels';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'country,city';
+    const UNIQUE_ATTRS = 'country,city,alias';
     const SIMPLEQ_ATTRS = 'tmhid, name, alias,city,isApproved';
 
     public function __construct($id = '', $simple = true) {
@@ -33,12 +33,12 @@ class TravelManagerHotels extends AbstractClass {
 //    }
 
     public function create(array $data) {
-        global $db, $core;
+        global $db;
         if(is_empty($data['name'], $data['city'])) {
             $this->errorode = 2;
             return false;
         }
-        $data['alias'] = trim($data['name']);
+        $data['alias'] = generate_alias($data['name']);
         $db->insert_query(self::TABLE_NAME, $data);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
         $this->errorode = 0;
@@ -67,8 +67,7 @@ class TravelManagerHotels extends AbstractClass {
     }
 
     public function get_review() {
-        global $db;
-        return TravelManagerAccomodationsReview::get_accoreviews('tmhid='.$db->escape_string($this->data['tmhid']), array('ORDER' => array('by' => 'createdOn', 'sort' => 'DESC'), 'limit' => '0,1'));
+        return TravelManagerAccomodationsReview::get_accoreviews('tmhid='.intval($this->data['tmhid']), array('ORDER' => array('by' => 'createdOn', 'sort' => 'DESC'), 'limit' => '0,1'));
     }
 
 }

@@ -85,7 +85,12 @@ if(!$core->input['action']) {
             $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
 
 
-            $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence, $destcity, '', 'create');
+            $segmentobj = new TravelManagerPlanSegments();
+            $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
+            if(empty($approvedhotels)) {
+                $approvedhotels = array();
+            }
+            $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
             $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 
             /* parse expenses --START */
@@ -198,13 +203,19 @@ else {
         $transp = new TravelManagerPlanTransps();
         $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
         /* load approved hotels */
-        $hotelssegments_output = $descity_obj->parse_approvedhotels($sequence, $destcity, '', 'create');
-        /* parse expenses --START */
+
+        $segmentobj = new TravelManagerPlanSegments();
+        $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
+        if(empty($approvedhotels)) {
+            $approvedhotels = array();
+        }
+        $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
+
+        /* parse expenses - START */
         $rowid = 1;
         $expensestype_obj = new Travelmanager_Expenses_Types();
         $segments_expenses_output = $expensestype_obj->parse_expensesfield('', $sequence, $rowid);
-        /* parse expenses --END */
-
+        /* parse expenses - END */
 
         /* Get unaprroved hotel of the destcity  for the purpose to acquire the tmhid */
         $unapproved_hotelobjs = $descity_obj->get_unapprovedhotels();

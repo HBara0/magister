@@ -379,6 +379,13 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
         unset($placeholder_selected);
     }
     foreach($options as $key => $val) {
+        if(is_object($val)) {
+            if(method_exists($val, 'get_id')) {
+                $key = $val->get_id();
+            }
+            $val = $val->get_displayname();
+        }
+
         if($multiple_selected == true) {
             $selected_options = array_filter($selected_options, 'strlen');
             if(in_array($key, $selected_options)) {
@@ -395,9 +402,6 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
             $attributes .= ' disabled="disabled"';
         }
 
-        if(is_object($val)) {
-            $val = $val->get_displayname();
-        }
         $list .= '<option value="'.$key.'"'.$attributes.'>'.$val.'</option>';
         $attributes = '';
     }
@@ -1746,7 +1750,7 @@ function generate_checksum($prefix = '') {
     $identifier = substr(md5(uniqid(microtime())), 1, 10);
 
     if(!empty($prefix)) {
-        $prefix = '_'.$prefix;
+        $prefix = $prefix.'_';
     }
     return $prefix.$identifier;
 }
