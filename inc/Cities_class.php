@@ -278,6 +278,7 @@ class Cities extends AbstractClass {
                     $transportation_details[$transpdata['segment']->tmpsid][$transpdata['inputChecksum']]['display'] = 'display:none;';
                     eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
                     eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
+                    $availabletransp[$transp->tmtcid] = $transp->tmtcid;
                 }
             }
         }

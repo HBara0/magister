@@ -169,7 +169,7 @@
                 <a href="index.php?module=travelmanager/viewplan&id={$planid}&lid={$leaveid}&referrer=plan" target="_blank">
                     <input type="button" class='button' value="{$lang->preview}">
                 </a>
-                <input type="button" class='button'  value="{$lang->save} & {$lang->preview}" id="finalize"/>
+                <input type="button" class='button'  value="{$lang->preview} & {$lang->finish}" id="finalize"/>
                 <input type="hidden" value="" name="finalizeplan" id="finalizeplan"/>
             </form>
 
