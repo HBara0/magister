@@ -502,7 +502,11 @@ class TravelManagerPlan {
             $city_obj = new Cities($segmentobj->get_destinationcity()->ciid);
 
             $hotelssegments_output .= '<h2><small>Approved Hotels</small></h2>';
-            $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $segmentobj->get_destinationcity()->get_approvedhotels());
+            $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
+            if(empty($approvedhotels)) {
+                $approvedhotels = array();
+            }
+            $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $approvedhotels);
             $hotelssegments_output .= '<br /><h2><small>Other Possible Hotels</small></h2>';
             $otherhotels = TravelManagerHotels::get_data(array('city' => $segmentobj->get_destinationcity()->get_id(), 'tmhid' => '(SELECT tmhid FROM '.TravelManagerPlanaccomodations::TABLE_NAME.' WHERE '.TravelManagerPlanSegments::PRIMARY_KEY.'='.$segmentobj->get_id().')', 'isApproved' => 0), array('returnarray' => true, 'operators' => array('tmhid' => 'IN')));
             if(is_array($otherhotels)) {
