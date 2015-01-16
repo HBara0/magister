@@ -110,38 +110,25 @@ class TravelManagerPlanSegments extends AbstractClass {
             }
         }
 
-        foreach($segmentdata as $key => $hotel) {
-
-        }
-
-
         if(isset($segmentdata['tmhid'])) {
+            print_r($segmentdata['tmhid']);
 
-//            if(isset($segmentdata['tmhid']['otherhotel'])) {
-//
-//                foreach($segmentdata['tmhid']['otherhotel'] as $column => $otherhotel) {
-//                    $otherhoteldata['tmhid'] = $segmentdata['tmhid']['otherhotel'];
-//                    $otherhoteldata['tmpsid'] = $this->data[self::PRIMARY_KEY];
-//                    $otherhoteldata['priceNight'] = $segmentdata['tmhid']['otherhotel']['priceNight'];
-//                    $otherhoteldata['numNights'] = $segmentdata['tmhid']['otherhotel']['numNights'];
-//                    $otherhoteldata['paidBy'] = $segmentdata['tmhid']['otherhotel']['entites'];
-//                    $otherhoteldata['paidById'] = $segmentdata['tmhid']['otherhotel']['paidBy'];
-//                    $otherhoteldata = array($column => $otherhotel);
-//                    $accod_obj = new TravelManagerPlanaccomodations();
-//                    $accod_obj->set($otherhoteldata);
+            foreach($segmentdata['tmhid'] as $checksum => $hotel) {
+//                if(!empty($checksum)) {
+//                    $hotelacc = TravelManagerPlanaccomodations::get_data(array('inputChecksum' => $checksum));
+//                    /* if hotel not exist in segment accomodation & is not selected Skip! */
 //                }
-//            }
-
-            foreach($segmentdata['tmhid'] as $tmhid => $hotel) {
-
-                if(!empty($hotel['tmhid'])) {
-                    $hotelacc = TravelManagerPlanaccomodations::get_data('tmhid='.$hotel['tmhid']);
-                    /* if hotel not exist in segment accomodation & is not selected Skip! */
-                }
-                if(!is_object($hotelacc) && empty($hotel['tmhid'])) {
-                    continue;
+//                if(!is_object($hotelacc) && empty($checksum)) {
+//                    continue;
+//                }
+                $validate_fields = array('priceNight', 'numNights', 'currency');
+                foreach($validate_fields as $hotelfield) {
+                    if(empty($hotel[$hotelfield])) {
+                        return;
+                    }
                 }
                 $hoteldata['tmhid'] = $hotel['tmhid'];
+                $hoteldata['inputChecksum'] = $checksum;
                 $hoteldata['tmpsid'] = $this->data[self::PRIMARY_KEY];
                 $hoteldata['priceNight'] = $hotel['priceNight'];
                 $hoteldata['currency'] = $hotel['currency'];
@@ -245,35 +232,39 @@ class TravelManagerPlanSegments extends AbstractClass {
 
         if(is_array($segmentdata['tmhid'])) {
             $segment_hotels['tmhid'] = $segmentdata['tmhid'];
-            $validate_fields = array('priceNight', 'numNights', 'currency');
-            foreach($segment_hotels['tmhid'] as $tmhid => $hotel) {
-                foreach($validate_fields as $hotelfield) {
-                    if(empty($hotel[$hotelfield])) {
-                        return;
-                    }
-                }
+            if(is_array($segment_hotels['tmhid'])) {
 
-                if(intval($tmhid)) {
-                    $hotelacc = TravelManagerPlanaccomodations::get_data('tmhid='.$tmhid);  //$hotel[tmhid]
-                    if(is_object($hotelacc) && (!in_array($hotelacc->tmhid, ($hotel)))) {
-                        echo ' delete from travelmanager_plan_accomodations', 'wehre tmhid='.$tmhid.' AND tmpsid ='.$this->data['tmpsid'].'';
-                        $db->delete_query('travelmanager_plan_accomodations', 'tmhid='.$tmhid.' AND tmpsid ='.$this->data['tmpsid'].'');
+                $validate_fields = array('priceNight', 'numNights', 'currency');
+                foreach($segment_hotels['tmhid'] as $checksum => $hotel) {
+                    foreach($validate_fields as $hotelfield) {
+                        if(empty($hotel[$hotelfield])) {
+                            continue;
+                        }
+                    }
+                    // if(intval($tmhid)) {
+                    $hotelacc = TravelManagerPlanaccomodations::get_data(array('inputChecksum' => $checksum));  //$hotel[tmhid]
+                    if(is_object($hotelacc)) {
+                        $db->delete_query('travelmanager_plan_accomodations', 'tmpaid='.$hotelacc->tmpaid.' AND tmpsid ='.$this->data['tmpsid'].'');
                         continue;
                     }
+                    // }
+                    /* if hotel not exist in segment accomodation & is not selected Skip! */
+                    if(!is_object($hotelacc) && empty($hotel[tmhid])) {
+                        continue;
+                    }
+
+                    $hoteldata['tmhid'] = $hotel['tmhid'];
+                    $hoteldata['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                    $hoteldata['priceNight'] = $hotel['priceNight'];
+                    $hoteldata['inputChecksum'] = $checksum;
+                    $hoteldata['numNights'] = $hotel['numNights'];
+                    $hoteldata['currency'] = $hotel['currency'];
+                    $hoteldata['paidBy'] = $hotel['entites'];
+                    $hoteldata['paidById'] = $hotel['paidBy'];
+                    $accod_obj = new TravelManagerPlanaccomodations();
+                    $accod_obj->set($hoteldata);
+                    $accod_obj->save();
                 }
-                /* if hotel not exist in segment accomodation & is not selected Skip! */
-                if(!is_object($hotelacc) && empty($hotel[tmhid])) {
-                    continue;
-                }
-                $hoteldata['tmhid'] = $tmhid;
-                $hoteldata['tmpsid'] = $this->data[self::PRIMARY_KEY];
-                $hoteldata['priceNight'] = $hotel['priceNight'];
-                $hoteldata['numNights'] = $hotel['numNights'];
-                $hoteldata['paidBy'] = $hotel['entites'];
-                $hoteldata['paidById'] = $hotel['paidBy'];
-                $accod_obj = new TravelManagerPlanaccomodations();
-                $accod_obj->set($hoteldata);
-                $accod_obj->save();
             }
         }
 

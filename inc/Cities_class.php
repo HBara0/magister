@@ -113,19 +113,51 @@ class Cities {
             $segid = key($selectedhotel);
         }
 
+
         if(is_array($approved_hotelsobjs)) {
             //   $hotelssegments_output = '<div class="subtitle">'.$lang->approvedhotels.'</div>';
             foreach($approved_hotelsobjs as $approved_hotelsobj) {
                 $approved_hotels = $approved_hotelsobj->get();
-                if($source == 'modify') {
-                    $approvedhotel_checksum = $approved_hotels['tmhid'];
+
+//                switch($approved_hotelsobj->isApproved) {
+//                    case 1:
+//                        $section = 'Approved';
+//                        $bgcolor = '#C0C4ED';
+//                        break;
+//                    case 0:
+//                        $section = 'Others';
+//                        $bgcolor = '#ccc';
+//                        $selectedhotel[$segid][$approved_hotels['tmhid']]['hotelsection'] = 'others';
+//                        break;
+//                }
+                $selectedhotel[$segid][$approved_hotels['tmhid']]['hotelsection'] = $section;
+                $selectedhotel[$segid][$approved_hotels['tmhid']]['hotelsectioncolor'] = "background-color:".$bgcolor."; ";
+                if(is_array($selectedhotel)) {
+                    if(!in_array($selectedhotel[$segid][$approved_hotels['tmhid']]['selectedhotel'], $approved_hotels)) {
+                        echo $selectedhotel[$segid][$approved_hotels['tmhid']][selectedhotel].'not in ';
+                        print_R($approved_hotels);
+                        echo '<br>';
+                        // $approvedhotel_checksum = generate_checksum('accomodation');
+                    }
                 }
-                else {
-                    $approvedhotel_checksum = generate_checksum('accomodation');
-                }
+                //  else {
+//                if($source == 'modify') {
+//                    $approvedhotel_checksum = $selectedhotel[$segid][$approved_hotels['tmhid']]['inputChecksum'];
+//                }
+//                else {
+//                    $approvedhotel_checksum = generate_checksum('accomodation');
+//                }
+                // }
+                $approvedhotel_checksum = generate_checksum('accomodation');
                 if(is_array($selectedhotel) && !empty($selectedhotel)) {
-                    // $approvedhotel_id = key($selectedhotel[key($selectedhotel)]);
                     $approvedhotel_id = $selectedhotel[$segid][$approved_hotels['tmhid']]['selectedhotel'];
+                    // $approvedhotel_id = key($selectedhotel[key($selectedhotel)]);
+                    if(!in_array($selectedhotel[$segid][$approved_hotels['tmhid']]['selectedhotel'], $approved_hotels)) {
+                        $approvedhotel_checksum = generate_checksum('accomodation');
+                    }
+                    else {
+                        $approvedhotel_checksum = $selectedhotel[$segid][$approved_hotels['tmhid']]['inputChecksum'];
+                    }
                 }
 
                 if($approved_hotels['tmhid'] == $approvedhotel_id) {
@@ -143,12 +175,19 @@ class Cities {
                     $selectedhotel[$segid][$approved_hotels['tmhid']]['display'] = "display:none;";
                 }
                 $mainaffobj = new Affiliates($core->user['mainaffiliate']);
-                /* ffilter the currency  either get the curreny of the destination city or  the currencies of the country of the main affiliate */
-                $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where capitalCity='.$destcity['ciid'].' OR numCode IN(SELECT mainCurrency FROM countries where coid='.$mainaffobj->get_country()->coid.')';
-                $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
-                $curr_objs[840] = new Currencies(840);
-                $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approved_hotels['tmhid'].'][currency]', 4, $curr_objs, '840', '', '', array('width' => '100%'));
-                $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approvedhotel_checksum.'][currency]', 4, $currencies, '840');
+                $destcity_obj = new Cities($destcity['ciid']);
+                /* get currency for the country of the destcity */
+                $currency[] = $destcity_obj->get_country()->get_maincurrency()->get();
+                /* append default usd currency to the object */
+                $currencydefault = new Currencies(840, true);
+                $currency[] = $currencydefault->get();
+                /* append currency of the country of the main user affiliate to the object */
+                $countryobj = new Countries($mainaffobj->get_country()->coid);
+                $currency[] = $mainaffobj->get_country()->get_maincurrency()->get();
+                foreach($currency as $curr) {
+                    $currencies[$curr['numCode']] = $curr[alphaCode];
+                }
+                $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$approvedhotel_checksum.'][currency]', 4, $currencies, $selectedhotel[$segid][$approved_hotels['tmhid']]);
 
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
                 $review_tools = $paidby_details = $currencies_list = $checkbox_hotel = '';

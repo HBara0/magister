@@ -472,11 +472,12 @@ class TravelManagerPlan {
                     $accomodation[$segmentid][$segmentacc->tmhid]['hotelsectioncolor'] = "background-color:".$bgcolor."; ";
                     $accomodation[$segmentid][$segmentacc->tmhid]['priceNight'] = $segmentacc->priceNight;
                     $accomodation[$segmentid][$segmentacc->tmhid]['numNights'] = $segmentacc->numNights;
+                    $accomodation[$segmentid][$segmentacc->tmhid]['inputChecksum'] = $segmentacc->inputChecksum;
                     $accomodation[$segmentid][$segmentacc->tmhid]['paidbyid'] = $segmentacc->paidById;
                     $accomodation[$segmentid][$segmentacc->tmhid]['display'] = "display:none;";
                     $accomodation[$segmentid][$segmentacc->tmhid]['paidby'] = $segmentacc->paidBy;
                     $acc_currobj = new Currencies($segmentacc->currency);
-                    $accomodation[$segmentid][$segmentacc->tmhid]['currency'] = $acc_currobj->alphaCode;
+                    $accomodation[$segmentid][$segmentacc->tmhid]['currency'] = $acc_currobj->numCode;
 
                     if(isset($accomodation[$segmentid][$segmentacc->tmhid]['paidbyid']) && !empty($accomodation[$segmentid][$segmentacc->tmhid]['paidbyid'])) {
                         $accomodation[$segmentid][$segmentacc->tmhid]['display'] = "display:block;";
