@@ -553,6 +553,12 @@ class TravelManagerPlan {
                     $segments_expenses_output .= $expenses->get_types()->parse_expensesfield($expensesoptions, $sequence, $rowid, $expensestype);
                 }
             }
+            else {
+                $rowid = 1;
+                $expensestype[$sequence][$rowid]['display'] = "display:none;";
+                $expensestype_obj = new Travelmanager_Expenses_Types();
+                $segments_expenses_output = $expensestype_obj->parse_expensesfield('', $sequence, $rowid, $expensestype);
+            }
 
             /* parse expenses --END */
 

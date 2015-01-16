@@ -109,7 +109,7 @@ if(!$core->input['action']) {
             $destcity_obj = new Cities($destcity['ciid']);
             $currencies[] = $destcity_obj->get_country()->get_maincurrency();
             $currencies[] = $mainaffobj->get_country()->get_maincurrency();
-            $currencies[] = new Currencies(887, true);
+            $currencies[] = new Currencies(840, true);
             $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
 
             eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
