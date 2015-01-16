@@ -18,6 +18,9 @@ class TravelManagerPlanaccomodations extends AbstractClass {
 
     const PRIMARY_KEY = 'tmpaid';
     const TABLE_NAME = 'travelmanager_plan_accomodations';
+    const SIMPLEQ_ATTRS = 'tmpsid,tmhid,tmpaid,priceNight,numNights';
+    const UNIQUE_ATTRS = 'tmpsid,tmhid,inputChecksum';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id = '') {
         if(empty($id)) {
@@ -37,13 +40,32 @@ class TravelManagerPlanaccomodations extends AbstractClass {
         $tanspdata_array = array('tmpsid' => $data['tmpsid'],
                 'tmhid' => $data['tmhid'],
                 'priceNight' => $data['priceNight'],
+                'inputChecksum' => $data['inputChecksum'],
                 'numNights' => $data['numNights'],
+                'currency' => $data['currency'],
                 'paidBy' => $data['paidBy'],
                 'paidById' => $data['paidById'],
         );
 
+
         $db->insert_query('travelmanager_plan_accomodations', $data);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
+    }
+
+    protected function update(array $data) {
+        global $db, $core;
+        if(is_array($data)) {
+            $hoteldata['priceNight'] = $data['priceNight'];
+            $hoteldata['numNights'] = $data['numNights'];
+            $hoteldata['inputChecksum'] = $data['inputChecksum'];
+            $hoteldata['paidBy'] = $data['paidBy'];
+            $hoteldata['paidById'] = $data['paidById'];
+            $hoteldata['currency'] = $data['currency'];
+            $hoteldata['modifiedBy'] = $core->user['uid'];
+            $hoteldata['modifiedOn'] = TIME_NOW;
+
+            $db->update_query(self::TABLE_NAME, $hoteldata, ' tmhid='.intval($this->data['tmhid']).' AND tmpsid='.intval($this->data['tmpsid']));
+        }
     }
 
     public static function get_planacco_byattr($attr, $value) {
@@ -78,35 +100,24 @@ class TravelManagerPlanaccomodations extends AbstractClass {
         }
     }
 
-    public function save(array $data = array()) {
-        global $core;
-        if(empty($data)) {
-            $data = $this->data;
-        }
+//    public function save(array $data = array()) {
+//        global $core;
+//        if(empty($data)) {
+//            $data = $this->data;
+//        }
+//
+//        $accomodations = TravelManagerPlanaccomodations::get_data(array('tmpsid' => $data['tmpsid'], 'tmhid' => $data['tmhid']));
+//        //print_r($accomodations);
+//
+//        if(is_object($accomodations)) {
+//            $accomodations->update($data);
+//        }
+//        else {
+//            $this->create($data);
+//        }
+//    }
 
-        $accomodations = TravelManagerPlanaccomodations::get_data(array('tmpsid' => $data['tmpsid'], 'tmhid' => $data['tmhid']));
-        //print_r($accomodations);
 
-        if(is_object($accomodations)) {
-            $accomodations->update($data);
-        }
-        else {
-            $this->create($data);
-        }
-    }
-
-    protected function update(array $data) {
-        global $db, $core;
-        if(is_array($data)) {
-            $hoteldata['priceNight'] = $data['priceNight'];
-            $hoteldata['numNights'] = $data['numNights'];
-            $hoteldata['paidBy'] = $data['paidBy'];
-            $hoteldata['paidById'] = $data['paidById'];
-            $hoteldata['modifiedBy'] = $core->user['uid'];
-            $hoteldata['modifiedOn'] = TIME_NOW;
-            $db->update_query(self::TABLE_NAME, $hoteldata, ' tmhid='.intval($this->data['tmhid']).' AND tmpsid='.intval($this->data['tmpsid']));
-        }
-    }
 
     public function get_hotel() {
         return new TravelManagerHotels($this->data['tmhid']);

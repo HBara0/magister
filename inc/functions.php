@@ -615,14 +615,34 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
             if(isset($options['descinfo']) && !empty($options['descinfo'])) {
                 switch($options['descinfo']) {
                     case 'citycountry':
+//                        $hotelsobj = TravelManagerHotels::get_data('tmhid='.$key);
+//                        if(is_object($hotelsobj)) {
+//                            $city = new Cities($hotelsobj->city);
+//                        }
+//                        else {
+//                            $city = new Cities($key);
+//                        }
                         $city = new Cities($key);
                         if($options['returnType'] == 'json') {
                             $results_list[$key]['id'] = $city->ciid;
-                            $results_list[$key]['desc'] = $city->get_country()->name;
+                            $results_list[$key]['desc'] = $city->name.'-'.$city->get_country()->name;
+                        }
+                        else {
+                            $details = '<br /><span class="smalltext">'.$city->name.'-'.$city->get_country()->name.'</span>';
+                            $results_list .= '<li id="'.$city->ciid.'">'.$val.$details.'</li>';
+                        }
+                        unset($details);
+                        break;
+                    case 'hotelcitycountry':
+                        $hotelsobj = TravelManagerHotels::get_data('tmhid='.$key);
+                        $city = new Cities($hotelsobj->city);
+                        if($options['returnType'] == 'json') {
+                            $results_list[$key]['id'] = $key;
+                            $results_list[$key]['desc'] = $city->name.'-'.$city->get_country()->name;
                         }
                         else {
                             $details = '<br /><span class="smalltext">'.$city->get_country()->name.'</span>';
-                            $results_list .= '<li id="'.$city->ciid.'">'.$val.$details.'</li>';
+                            $results_list .= '<li id="'.$key.'">'.$val.$details.'</li>';
                         }
                         unset($details);
                         break;
