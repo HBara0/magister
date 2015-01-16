@@ -119,8 +119,11 @@ class TravelManagerPlanaccomodations extends AbstractClass {
         return $this->data;
     }
 
-    public function get_convertedamount($fromcurrency, $tocurrency) {
-        $exchagerate = $fromcurrency->get_latest_fxrate($tocurrency->alphaCode, array(), $fromcurrency->alphaCode);
+    public function get_convertedamount($fromcurrency, $tocurrency = '') {
+        if(!is_object($tocurrency)) {
+            $tocurrency = new Currencies('840');
+        }
+        $exchagerate = $tocurrency->get_latest_fxrate($tocurrency->alphaCode, array(), $fromcurrency->alphaCode);
         return $this->priceNight * $exchagerate;
     }
 

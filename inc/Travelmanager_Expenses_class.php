@@ -120,9 +120,11 @@ class Travelmanager_Expenses extends AbstractClass {
         }
     }
 
-    public function get_convertedamount($fromcurrency, $tocurrency) {
-        $curr = new Currencies($fromcurrency);
-        $exchagerate = $curr->get_latest_fxrate($tocurrency, array(), $fromcurrency);
+    public function get_convertedamount($fromcurrency, $tocurrency = '') {
+        if(!is_object($tocurrency)) {
+            $tocurrency = new Currencies('840');
+        }
+        $exchagerate = $tocurrency->get_latest_fxrate($tocurrency->alphaCode, array(), $fromcurrency->alphaCode);
         return $this->expectedAmt * $exchagerate;
     }
 

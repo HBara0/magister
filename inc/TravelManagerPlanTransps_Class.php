@@ -112,13 +112,12 @@ class TravelManagerPlanTransps extends AbstractClass {
         return new TravelManagerTranspCategories($this->data['tmtcid']);
     }
 
-    public function get_convertedamount($fromcurrency, $tocurrency, $amount = '') {
-        if(empty($amount)) {
-            $amount = $this->fare;
+    public function get_convertedamount($fromcurrency, $tocurrency = '') {
+        if(!is_object($tocurrency)) {
+            $tocurrency = new Currencies('840');
         }
-        $curr = new Currencies($fromcurrency);
-        $exchagerate = $curr->get_latest_fxrate($tocurrency, array(), $fromcurrency);
-        return $amount * $exchagerate;
+        $exchagerate = $tocurrency->get_latest_fxrate($tocurrency->alphaCode, array(), $fromcurrency->alphaCode);
+        return $this->fare * $exchagerate;
     }
 
 }
