@@ -69,8 +69,11 @@ class TravelManagerAirlines {
         return false;
     }
 
-    private function parse_responsefilghts($response_flightdata, $transpcat = array(), $sequence, $source = 'plan') {
+    private function parse_responsefilghts($response_flightdata, $category = array(), $sequence, $source = 'plan') {
         global $core, $template, $lang;
+        if(!is_array($response_flightdata->trips->tripOption)) {
+            return;
+        }
         foreach($response_flightdata->trips->tripOption as $tripoptnum => $tripoption) {
 //for($tripoptnum = 0; $tripoptnum <= count($response_flightdata->trips->tripOption); $tripoptnum++) {
 //$tripoption = $response_flightdata->trips->tripOption[$tripoptnum];
@@ -125,7 +128,7 @@ class TravelManagerAirlines {
                     $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
                     //  $flight['flightdetails'] = base64_encode(serialize($flight['flightnumber'].$flight['flightid']));
 
-                    $flight['flightdetails'] = htmlspecialchars(json_encode($response_flightdata->trips->tripOption[$tripoptnum]));
+                    $flight['flightdetails'] = htmlspecialchars('{ "kind": "qpxExpress#tripsSearch","trips": { "tripOption": ['.json_encode($response_flightdata->trips->tripOption[$tripoptnum]).']}}');
                     if($is_roundtrip == true) {
                         $flight['triptype'] = 'Round Trip';
                         $flight['pricing'] += $flight['pricing'];
@@ -142,13 +145,20 @@ class TravelManagerAirlines {
                     // }
                 }
                 if(!empty($source) && ($source == 'plan')) {
-                    if($transpcat['selectedflight'] == $flight['flightnumber']) {
+                    if($category['selectedflight'] == $flight['flightnumber']) {
                         $checkbox['selctedflight'] = "checked='checked'";
                     }
-                    $transpcatid = $transpcat['tmtcid'];
-                    $flightnumber_checkbox = ' <input type="checkbox" name="segment['.$sequence.'][tmtcid]['.$transpcatid.']['.$flight[flightid].'][flightNumber]" value="'.$flight['flightnumber'].'"'.$checkbox['selctedflight'].'/>';
+                    $flightnumber_checkbox = ' <input type="checkbox" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][flightNumber]" value="'.$flight['flightnumber'].'"'.$checkbox['selctedflight'].'/>';
+                    $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][tmtcid]" value="'.$category['tmtcid'].'"/>';
+
                     unset($checkbox['selctedflight']);
                 }
+            }
+
+            if(!empty($flightnumber_checkbox)) {
+                $selectlists['paidby'] = '<hr />'.TravelManagerPlan::parse_paidby($sequence, $category['inputChecksum'].']['.$flight['flightid'], $category['transportationdetails']['paidBy']);
+
+                eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_paidbyfields')."\";");
             }
             eval("\$flights_records .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
             $flights_records_segments = $flights_records_roundtripsegments = $flights_records_roundtripsegments_details = '';

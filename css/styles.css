@@ -622,3 +622,20 @@ tr.dummytrow td, tr.dummytrow th {
 
 .ui-autocomplete-loading {
   background: white url("../images/loading.gif") right center no-repeat; }
+
+.deletecheckbox {
+  display: none; }
+
+.deletecheckbox + label {
+  background: url("../images/icons/trash.png") no-repeat top left;
+  height: 16px;
+  width: 16px;
+  display: inline-block;
+  padding: 0 0 0 0px; }
+
+.deletecheckbox:checked + label {
+  background: url("../images/icons/trash-ticked.png") no-repeat top left;
+  height: 16px;
+  width: 16px;
+  display: inline-block;
+  padding: 0 0 0 0px; }

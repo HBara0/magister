@@ -12,7 +12,7 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
-    $leaveid = $db->escape_string($core->input['lid']);
+    $leaveid = intval($core->input['lid']);
     $sequence = 1;
 
     if(isset($core->input['id']) && !empty($core->input['id'])) {
@@ -29,6 +29,9 @@ if(!$core->input['action']) {
     }
     //$tools_addnewtab = '<a id="createtab" class="showpopup" href="#" title="'.$lang->addsegment.'"><img border="0" alt="Create New Tab" src="images/addnew.png"></img> </a>';
     else {
+        if(empty($core->input['lid'])) {
+            redirect('index.php?module=travelmanager/listplans');
+        }
         $segments = null;
         /* Popuplate basic information from the leave based on the lid passed via ajax */
         $leave_obj = new Leaves(array('lid' => $leaveid), false);
@@ -50,20 +53,22 @@ if(!$core->input['action']) {
             $todate = new DateTime($segment[$sequence]['toDate_output']);
 
             $segment[$sequence]['numberdays'] = $fromDate->diff($todate)->format(' %d days');
-            $origincity_obj = new Cities($leave['sourcecity']);
+            $origincity_obj = new Cities($leave['sourceCity']);
             $segment[$sequence]['origincity'] = $origincity_obj->get();
             $segment[$sequence]['origincity']['name'] = $segment[$sequence]['origincity'] ['name'];
             $segment[$sequence]['origincity']['ciid'] = $segment[$sequence]['origincity']['ciid'];
-            $descity_obj = new Cities($leave['destinationcity']);
+            $descity_obj = new Cities($leave['destinationCity']);
             $segment[$sequence]['destinationcity'] = $descity_obj->get();                 /* Will get the capital city of the visited country of leave */
             $segment[$sequence]['destinationcity']['name'] = $segment[$sequence]['destinationcity']['name'];  /* Will get the capital city of the visited country of leave */
             $segment[$sequence]['destinationcity']['ciid'] = $segment[$sequence]['destinationcity']['ciid'];  /* Will get the capital city of the visited country of leave */
             $disabled = 'disabled="true"';
 //$leave_destcity
             $otherhotel_checksum = generate_checksum('accomodation');
-            $cityprofile_output = $descity_obj->parse_cityreviews();
-            $citybriefings_output = $descity_obj->parse_citybriefing();
-            $leave_purposes = LeaveTypesPurposes::get_data('');
+            if(!empty($descity_obj->get_id())) {
+                $cityprofile_output = $descity_obj->parse_cityreviews();
+                $citybriefings_output = $descity_obj->parse_citybriefing();
+            }
+            $leave_purposes = LeaveTypesPurposes::get_data(null);
             //$leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
             $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '');
 
@@ -96,17 +101,9 @@ if(!$core->input['action']) {
 
             $mainaffobj = new Affiliates($core->user['mainaffiliate']);
             $destcity_obj = new Cities($destcity['ciid']);
-            /* get currency for the country of the destcity */
-            $currency[] = $destcity_obj->get_country()->get_maincurrency()->get();
-            /* append default usd currency to the object */
-            $currencydefault = new Currencies(840, true);
-            $currency[] = $currencydefault->get();
-            /* append currency of the country of the main user affiliate to the object */
-            $countryobj = new Countries($mainaffobj->get_country()->coid);
-            $currency[] = $countryobj->get_maincurrency()->get();
-            foreach($currency as $curr) {
-                $currencies[$curr['numCode']] = $curr[alphaCode];
-            }
+            $currencies[] = $destcity_obj->get_country()->get_maincurrency();
+            $currencies[] = $mainaffobj->get_country()->get_maincurrency();
+            $currencies[] = new Currencies(887, true);
             $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
 
             eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
@@ -269,7 +266,6 @@ else {
                 $travelplan->set($core->input);
 
                 $travelplan->save();
-                exit;
                 // $travelplan_obj->create($core->input['segment']);
             }
             switch($travelplan->get_errorcode()) {

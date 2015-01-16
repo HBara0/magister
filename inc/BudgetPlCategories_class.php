@@ -78,7 +78,7 @@ class BudgetPlCategories extends AbstractClass {
                             }
                         }
                         eval("\$category_item .= \"".$template->get('budgeting_plcategory_item')."\";");
-                        $output .=$category_item;
+                        $output .= $category_item;
                         unset($plexpenses);
                         $category_item = $column_output = '';
                     }
@@ -230,7 +230,7 @@ class BudgetPlCategories extends AbstractClass {
                             $saletypes = SaleTypes::get_data('', array('order' => array('by' => 'sequence')));
                             foreach($saletypes as $type) {
                                 /* Set yef default value for testing */
-                                $combudget['prevyear'][$type->stid]['amount'] = $combudget['prevyear'][$type->stid]['income'] = 10;
+                                $combudget['prevyear'][$type->stid]['amount'] = $combudget['prevyear'][$type->stid]['income'] = 0;
 
                                 /* calculate field values of Accounted commissions/sales category Row */
                                 $commercialbudgetfields = array('prevthreeyears', 'prevtwoyears', 'prevyear', 'current');
@@ -254,12 +254,12 @@ class BudgetPlCategories extends AbstractClass {
 
                                 /* parse fields */
                                 $fields = array('prevthreeyears', 'prevtwoyears', 'prevyear', 'yefactual', 'current', 'budyef');
-                                $amount_output .= '<td style = "width:28%;font-weight:bold;">'.$type->title.'</td>';
+                                $amount_output .= '<td style = "width:28%; font-weight:bold;">'.$type->title.'</td>';
                                 $grossmargin_commissions = $lang->grossmargin;
                                 if($type->stid == 1 || $type->stid == 2) {
                                     $grossmargin_commissions = $lang->accountedcommissions;
                                 }
-                                $income_output .='<td style="width:28%">'.$grossmargin_commissions.'</td>';
+                                $income_output .= '<td style="width:28%">'.$grossmargin_commissions.'</td>';
                                 foreach($fields as $field) {
                                     if(empty($combudget[$field][$type->stid]['amount'])) {
                                         $combudget[$field][$type->stid]['amount'] = 0;

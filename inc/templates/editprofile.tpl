@@ -127,7 +127,7 @@
                 <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px; text-align:center; font-weight:bold;"><a href="users.php?action=profile&amp;action=downloadsignature" title="{$lang->downloadsignature}">{$lang->downloadsignature}</a></div>
             </div>
             <hr />
-            <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding-top: 25px; margin-bottom:10px; text-align:center; font-weight:bold; height: 50px; font-size:14px;"><a id="showpopup_getsignature" class="showpopup" href="#popup_getsignature">{$lang->generatesignature}</a></div>
+            <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; padding-top: 25px; margin-bottom:10px; text-align:center; font-weight:bold; height: 50px; font-size:14px; position: relative;"><a id="showpopup_getsignature" class="showpopup" href="#popup_getsignature">{$lang->generatesignature}</a><div style='position: absolute; top:1px; right: 1px;'>{$helplinks['how-to-generate-signature']}</div></div>
         </td>
     </tr>
     {$footer}

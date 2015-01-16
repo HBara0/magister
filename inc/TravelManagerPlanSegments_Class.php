@@ -77,7 +77,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
             /* Initialize the object */
             if(is_array($transptdata)) {
-                foreach($transptdata as $category => $data) {
+                foreach($transptdata as $checksum => $data) {
                     $chkdata = $data;
                     rsort($chkdata);
                     if(is_array($chkdata[0])) {
@@ -89,7 +89,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                             $transit['paidById'] = $data['paidById'];
                             $transp_obj = new TravelManagerPlanTransps();
                             $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
-                            $transit['tmtcid'] = $category;
+                            //$transit['tmtcid'] = $category;
 
                             $transp_obj->set($transit);
                             $transp_obj->save();
@@ -100,7 +100,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                             continue;
                         }
                         $transp_obj = new TravelManagerPlanTransps();
-                        $data['tmtcid'] = $category;
+                        // $data['tmtcid'] = $category;
                         $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                         $transp_obj->set($data);
                         $transp_obj->save();
@@ -182,7 +182,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
         $transptdata = $segmentdata['tmtcid'];
         if(is_array($transptdata)) {
-            foreach($transptdata as $category => $data) {
+            foreach($transptdata as $checksum => $data) {
                 $chkdata = $data;
                 rsort($chkdata);
                 if(is_array($chkdata[0])) {
@@ -195,14 +195,14 @@ class TravelManagerPlanSegments extends AbstractClass {
                         $transit['paidById'] = $data['paidById'];
                         $transp_obj = new TravelManagerPlanTransps();
                         $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
-                        $transit['tmtcid'] = $category;
+                        $transit['tmtcid'] = $data['tmtcid'];
 
                         $transp_obj->set($transit);
                         $transp_obj->save();
                     }
                     /* Delete Flight if not checked on modify segment */
                     if(!isset($flightnumber)) {
-                        $transpseg = TravelManagerPlanTransps::get_data(array('tmtcid' => $category, 'tmpsid' => $this->data[self::PRIMARY_KEY]));
+                        $transpseg = TravelManagerPlanTransps::get_data(array('tmtcid' => $data['tmtcid'], 'tmpsid' => $this->data[self::PRIMARY_KEY]));
                         if(is_object($transpseg)) {
                             $db->delete_query('travelmanager_plan_transps', 'tmpltid='.$transpseg->tmpltid.'');
                         }
@@ -214,13 +214,13 @@ class TravelManagerPlanSegments extends AbstractClass {
                     }
                     $transp_obj = new TravelManagerPlanTransps();
                     if(isset($data['todelete']) && !empty($data['todelete'])) {
-                        $transp_obj = TravelManagerPlanTransps::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY], 'tmtcid' => $category));
+                        $transp_obj = TravelManagerPlanTransps::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY], 'tmtcid' => $data['tmtcid']));
                         if(is_object($transp_obj)) {
-                            $db->delete_query('travelmanager_plan_transps', 'tmtcid='.$category.' AND tmpsid ='.$this->data[self::PRIMARY_KEY].'');
+                            $db->delete_query('travelmanager_plan_transps', 'tmtcid='.intval($data['tmtcid']).' AND tmpsid ='.$this->data[self::PRIMARY_KEY].'');
                         }
                         continue;
                     }
-                    $data['tmtcid'] = $category;
+                    // $data['tmtcid'] = $category;
                     $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                     $transp_obj->set($data);
                     $transp_obj->save();
@@ -380,11 +380,11 @@ class TravelManagerPlanSegments extends AbstractClass {
     public function display_paidby($paidby, $paidbyid) {
         global $core;
         switch($paidby) {
-            case "myaffiliate":
+            case 'myaffiliate':
                 $object = new Affiliates($core->user['mainaffiliate']);
 //$paidby = $affiliate->name;
                 break;
-            case "anotheraff":
+            case 'anotheraff':
                 $object = new Affiliates($paidbyid);
 // $paidby = $affiliate->name;
                 break;
@@ -462,10 +462,9 @@ class TravelManagerPlanSegments extends AbstractClass {
         global $template, $db, $lang;
 
         $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::CURRENCY);
-        $fxrate_query['transp'] = "(SELECT rate FROM currencies_fxrates WHERE baseCurrency=(SELECT numCode FROM currencies WHERE alphaCode=tmpt.currency) AND currency=840
-				ORDER BY date DESC LIMIT 0, 1)";
+        $fxrate_query['transp'] = "(SELECT rate FROM currencies_fxrates WHERE baseCurrency=tmpt.currency AND currency=840 ORDER BY date DESC LIMIT 0, 1)";
 
-        $query = $db->query("SELECT tmpltid, tmtcid, sum(fare* {$fxrate_query['transp']}) AS fare FROM ".Tprefix."travelmanager_plan_transps tmpt WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP By tmtcid");
+        $query = $db->query("SELECT tmpltid, tmtcid, sum(fare*{$fxrate_query['transp']}) AS fare FROM ".Tprefix."travelmanager_plan_transps tmpt WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP By tmtcid");
         if($db->num_rows($query) > 0) {
             while($transpexp = $db->fetch_assoc($query)) {
                 $transpcat = new TravelManagerTranspCategories($transpexp['tmtcid']);

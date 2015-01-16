@@ -1745,7 +1745,10 @@ function array_multisort_bycolumn(&$data, $order_attr, $sort = SORT_DESC) {
 function generate_checksum($prefix = '') {
     $identifier = substr(md5(uniqid(microtime())), 1, 10);
 
-    return $prefix.'_'.$identifier;
+    if(!empty($prefix)) {
+        $prefix = '_'.$prefix;
+    }
+    return $prefix.$identifier;
 }
 
 function generate_alias($string) {
