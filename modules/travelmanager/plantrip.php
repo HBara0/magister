@@ -85,7 +85,11 @@ if(!$core->input['action']) {
             $transsegments_output = Cities::parse_transportations('', array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
 
             $segmentobj = new TravelManagerPlanSegments();
-            $hotelssegments_output = $segmentobj->parse_hotels($sequence, $segmentobj->get_destinationcity()->get_approvedhotels());
+            $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
+            if(empty($approvedhotels)) {
+                $approvedhotels = array();
+            }
+            $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
             $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 
             /* parse expenses --START */
@@ -201,7 +205,11 @@ else {
         /* load approved hotels */
 
         $segmentobj = new TravelManagerPlanSegments();
-        $hotelssegments_output = $segmentobj->parse_hotels($sequence, $segmentobj->get_destinationcity()->get_approvedhotels());
+        $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
+        if(empty($approvedhotels)) {
+            $approvedhotels = array();
+        }
+        $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
 
         /* parse expenses - START */
         $rowid = 1;
