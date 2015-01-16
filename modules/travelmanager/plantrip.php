@@ -86,7 +86,7 @@ if(!$core->input['action']) {
 
 
             $segmentobj = new TravelManagerPlanSegments();
-            $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
+            $approvedhotels = $descity_obj->get_approvedhotels();
             if(empty($approvedhotels)) {
                 $approvedhotels = array();
             }
