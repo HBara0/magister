@@ -191,11 +191,11 @@ class TravelManagerPlanSegments extends AbstractClass {
                             continue;
                         }
                         $flightnumber = $transit['flightNumber'];
-                        $transit['paidBy'] = $data['paidBy'];
-                        $transit['paidById'] = $data['paidById'];
+                        $transit['paidBy'] = $transit['paidBy'];
+                        $transit['paidById'] = $transit['paidById'];
                         $transp_obj = new TravelManagerPlanTransps();
                         $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
-                        $transit['tmtcid'] = $data['tmtcid'];
+                        $transit['tmtcid'] = $transit['tmtcid'];
 
                         $transp_obj->set($transit);
                         $transp_obj->save();

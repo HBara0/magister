@@ -64,10 +64,10 @@ if(!$core->input['action']) {
             $disabled = 'disabled="true"';
 //$leave_destcity
             $otherhotel_checksum = generate_checksum('accomodation');
-            if(!empty($descity_obj->get_id())) {
-                $cityprofile_output = $descity_obj->parse_cityreviews();
-                $citybriefings_output = $descity_obj->parse_citybriefing();
-            }
+//            if(!empty($descity_obj->get_id())) {
+//                $cityprofile_output = $descity_obj->parse_cityreviews();
+//                $citybriefings_output = $descity_obj->parse_citybriefing();
+//            }
             $leave_purposes = LeaveTypesPurposes::get_data(null);
             //$leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
             $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '');
@@ -81,8 +81,8 @@ if(!$core->input['action']) {
             $destcity['country'] = $descity_obj->get_country()->get()['name'];
             $destcity['drivemode'] = 'transit';
             $destcity['departuretime'] = $db->escape_string(($leave['fromDate']));
-
-            $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
+            $transp = new TravelManagerPlanTransps();
+            $transsegments_output = Cities::parse_transportations('', array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
 
             $segmentobj = new TravelManagerPlanSegments();
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $segmentobj->get_destinationcity()->get_approvedhotels());
@@ -196,7 +196,8 @@ else {
         $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 
         /* Load proposed transproration */
-        $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
+        $transp = new TravelManagerPlanTransps();
+        $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
         /* load approved hotels */
 
         $segmentobj = new TravelManagerPlanSegments();
@@ -267,7 +268,6 @@ else {
         else {
             if(is_array($core->input['segment'])) {
                 $travelplan->set($core->input);
-
                 $travelplan->save();
                 // $travelplan_obj->create($core->input['segment']);
             }
@@ -376,7 +376,8 @@ else {
     else if($core->input['action'] == 'ajaxaddmore_othertranspcat') {
         $rowid = $db->escape_string($core->input['value']) + 1;
         $sequence = $db->escape_string($core->input['id']);
-        $transsegments_output = Cities::parse_transportations(array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence);
+        $transp = new TravelManagerPlanTransps();
+        $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence, 'addmore');
         echo $transsegments_output;
     }
 }

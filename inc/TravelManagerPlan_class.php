@@ -103,7 +103,7 @@ class TravelManagerPlan {
                 'myself' => $lang->myself,
                 'anotheraff' => $lang->anotheraff
         );
-        return '<div style="display:inline-block;padding:10px;width:25%;" id="paidby_transp_'.$sequence.'_'.$checksum.'">Paid By</div><div style="display:inline-block;width:25%;">'.parse_selectlist('segment['.$sequence.'][tmtcid]['.$checksum.'][paidBy]', 6, $paidby_entities, $selectedoptions, '', 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+ "_transp_"+'.$checksum.'+"_"+'.$sequence.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_transp_"+'.$checksum.'+"_"+'.$sequence.').hide();}', array('id' => 'paidbylist_transp_'.$sequence.'_'.$checksum.'', 'width' => '100%')).'</div>';
+        return '<div style="display:inline-block;padding:10px;width:25%;" id="paidby_transp_'.$sequence.'_'.$checksum.'">Paid By</div><div style="display:inline-block;width:25%;">'.parse_selectlist('segment['.$sequence.'][tmtcid]['.$checksum.'][paidBy]', 6, $paidby_entities, $selectedoptions, '', 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+ "_transp_"+'.$checksum.'+"_"+'.$sequence.').effect("highlight",{color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_transp_"+'.$checksum.'+"_"+'.$sequence.').hide();}', array('id' => 'paidbylist_transp_'.$sequence.'_'.$checksum.'', 'width' => '100%')).'</div>';
     }
 
     public static function parse_transportaionfields(TravelManagerPlanTransps $transportation, array $category, $cityinfo = array(), $sequence, $rowid = '') {
@@ -159,8 +159,8 @@ class TravelManagerPlan {
                         $transportaion_fields .= TravelManagerAirlines::parse_bestflight($transportation->transpDetails, array('transportationdetails' => $category['transportationdetials'], 'selectedflight' => $transportation->flightNumber, 'name' => $category['name'], 'tmtcid' => $category['tmtcid'], 'inputChecksum' => $category['inputChecksum']), $sequence);
                         $transportaion_fields .= '<br /><hr/><br />';
                     }
-
-                    if(!is_array($cityinfo['flight']) && empty($cityinfo['flight'])) {
+                    else {
+                        // if(!is_array($cityinfo['flight']) && empty($cityinfo['flight'])) {
                         $transportaion_fields .= '<h2><small>Possible Flights</small></h2>';
                         $flights = TravelManagerAirlines::get_flights(TravelManagerAirlines::build_flightrequestdata(array('origin' => $cityinfo['origincity']['unlocode'], 'destination' => $cityinfo['destcity']['unlocode'], 'maxStops' => 0, 'date' => $cityinfo['date'], 'permittedCarrier' => $permitted_ariliners)));
                         $transportaion_fields .= '<input name="segment['.$sequence.'][apiFlightdata]" id="segment_'.$sequence.'apiFlightdata" type="hidden" value=\''.$flights.'\' />';
@@ -178,10 +178,12 @@ class TravelManagerPlan {
                     $transportaion_fields .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][tmtcid]" value="'.$category['tmtcid'].'"/>';
                     break;
                 default:
-                    $transportaion_fields = '<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->transptype.'</div><div style="display:inline-block;width:25%;">'.parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][tmtcid]', '', $category['othercategories'], $transportation->tmtcid, '', '', array('width' => '100%', 'id' => 'segment_'.$sequence.'_tmtcid_0_othercategory')).'</div>';
+                    $transportaion_fields = '<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->transptype.'</div><div style="display:inline-block;width:25%;">'.parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][tmtcid]', '', $category['othercategories'], $transportation->tmtcid, '', '', array('width' => '100%', 'id' => 'segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_othercategory')).'</div>';
                     //parse_textfield('segment['.$sequence.'][tmtcid]['.$category['tmtcid'].'][transpType]', 'text', '', $category['transportationdetials']['transpType'], array('style' => 'width:100%;'))
-                    $transportaion_fields .= ' <div style = "display:inline-block;padding:10px;width:15%;">'.$lang->feeday.'</div><div style = "display:inline-block;width:20%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][fare]', 'segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_fare', 'number', $category['transportationdetials']['fare'], array('style' => 'width:100%; ')).'</div></div>';
-                    $selectlists['paidby'] = self::parse_paidby($sequence, $category['inputChecksum'], $category['transportationdetials']['paidBy']);
+                    $transportaion_fields .= '<div style = "display:inline-block;padding:10px;width:15%;">'.$lang->vehiclenumber.'</div><div style = "display:inline-block;width:20%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][vehicleNumber]', 'segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_vehicleNumber', 'number', $transportation->vehicleNumber, array('style' => 'width:100%; ')).'</div></div>';
+                    $transportaion_fields .= '<div><div style = "display:inline-block;padding:10px;width:25%;">'.$lang->feeday.'</div><div style = "display:inline-block;width:25%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][fare]', 'segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'fare', 'number', $transportation->fare, array('style' => 'width:100%; ')).'</div>';
+                    $transportaion_fields .= '<div style = "display:inline-block;padding:10px;width:15%;">'.$lang->currency.'</div><div style = "display:inline-block;width:20%;">'.parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][currency]', '', '', '', '', '', array('width' => '100%', 'id' => 'segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_currency')).'</div></div>';
+                    $selectlists['paidby'] = self::parse_paidby($sequence, $category['inputChecksum'], $transportation->paidBy);
                     $transportaion_fields .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][isUserSuggested]" value="1"/>';
                     break;
             }
@@ -190,8 +192,14 @@ class TravelManagerPlan {
                 $transportaion_fields .= '<div style="position: absolute; top: 1px; right: 1px;"><input type="checkbox" label="'.$lang->delete.'" class="deletecheckbox" title="'.$lang->todelete.'" value = "1" id = "segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_todelete" name = "segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][todelete]" /><label for="segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_todelete">&nbsp;</label></div>';
             }
             if(!empty($selectlists['paidby'])) {
+                $transportation_details[$sequence][$category['inputChecksum']]['display'] = 'display:none;';
+                if(!empty($transportation->paidById)) {
+                    $transportation_details[$sequence][$category['inputChecksum']]['display'] = 'display:block;';
+                }
                 eval("\$transportaion_fields .= \"".$template->get('travelmanager_plantrip_segment_paidbyfields')."\";");
             }
+            $transportaion_fields .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][inputChecksum]" value="'.$category['inputChecksum'].'"/>';
+
             return $transportaion_fields;
         }
     }

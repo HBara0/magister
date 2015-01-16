@@ -1,9 +1,11 @@
 <div style="display:block;" >
     <h2 class="subtitle">Possible Transportations</h2>
-    <div class="ui-state-highlight ui-corner-all" style="padding: 6px; font-weight: bold;"><a href="{$transpmode_apimaplink}" target="_blank">Visualize Tranpostation Possibilities on Map</a></div>
+    <!--able width="100%" cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
+          <tbody id="othertranspcat_{$sequence}_tbody">-->
+    {$transsegments_output}
     <table width="100%" cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
         <tbody id="othertranspcat_{$sequence}_tbody">
-            {$transsegments_output}
+            {$rows}
         </tbody>
     </table>
     <div> <img src="./images/add.gif"  id="ajaxaddmore_travelmanager/plantrip_othertranspcat_{$sequence}"  alt="{$lang->add}">
