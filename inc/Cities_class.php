@@ -412,9 +412,6 @@ class Cities extends AbstractClass {
                     $othertranspcategories = TravelManagerTranspCategories ::get_data('tmtcid NOT IN ('.implode(', ', $availabletransp).')', array('returnarray' => true));
                     $transp_category_fields = TravelManagerPlan::parse_transportaionfields($transp, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transpdata['transportationdetails'], 'name' => 'other', 'tmtcid' => $transp->tmtcid, 'othercategories' => $othertranspcategories), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence, $rowid);
                     $transportation_details[$transpdata['segment']->tmpsid][$transpdata['inputChecksum']]['display'] = 'display:none;';
-                    if(is_object($transpdata['segment'])) {
-                        $transportation_details[$transpdata['segment']->tmpsid][$transpdata['inputChecksum']]['affiliate'] = $transpdata['segment']->display_paidby($transp->paidBy, $transp->paidById)->name;
-                    }
                     eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
                     eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
                 }
@@ -438,11 +435,9 @@ class Cities extends AbstractClass {
             $transpdata['inputChecksum'] = generate_checksum();
             /* Parse save flight */
             if(!empty($aerialtransp)) {
-                $transp_category_fields = TravelManagerPlan::parse_transportaionfields($aerialtransp, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transpdata['transportationdetails'], 'name' => 'airplane', 'tmtcid' => $transpdata['transportationdetails']['tmtcid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence);
+                $transpdata['inputChecksum'] = $aerialtransp->inputChecksum;
+                $transp_category_fields = TravelManagerPlan::parse_transportaionfields($aerialtransp, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transportation_details, 'name' => 'airplane', 'tmtcid' => $aerialtransp->tmtcid), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence);
                 if(!empty($transp_category_fields)) {
-                    if(is_object($transpdata['segment'])) {
-                        $transportation_details[$transpdata['segment']->tmpsid][$transpdata['inputChecksum']]['affiliate'] = $transpdata['segment']->display_paidby($transp->paidBy, $transp->paidById)->name;
-                    }
                     eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
                     eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
                 }
