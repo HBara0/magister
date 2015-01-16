@@ -1750,7 +1750,7 @@ function generate_checksum($prefix = '') {
     $identifier = substr(md5(uniqid(microtime())), 1, 10);
 
     if(!empty($prefix)) {
-        $prefix = '_'.$prefix;
+        $prefix = $prefix.'_';
     }
     return $prefix.$identifier;
 }
