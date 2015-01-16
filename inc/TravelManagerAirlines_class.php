@@ -150,19 +150,26 @@ class TravelManagerAirlines {
                     }
                     $flightnumber_checkbox = ' <input type="checkbox" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][flightNumber]" value="'.$flight['flightnumber'].'"'.$checkbox['selctedflight'].'/>';
                     $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][tmtcid]" value="'.$category['tmtcid'].'"/>';
+                    $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][inputChecksum]" value="'.$category['inputChecksum'].'"/>';
+                    $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][currency]" value="840"/>';
+
 
                     unset($checkbox['selctedflight']);
                 }
             }
 
             if(!empty($flightnumber_checkbox)) {
-
-                $selectlists['paidby'] = '<hr />'.TravelManagerPlan::parse_paidby($sequence, $category['inputChecksum'].']['.$flight['flightid'], $category['transportationdetails']['paidBy']);
+                $selectlists['paidby'] = '<hr />'.TravelManagerPlan::parse_paidby($sequence, $category['inputChecksum'].']['.$flight['flightid'], $category['transportationdetails'][$sequence][$category['tmtcid']]['paidBy']);
 
                 if(empty($transportation_details[$sequence][$category['inputChecksum']]['display'])) {
                     $transportation_details[$sequence][$category['inputChecksum']]['display'] = "display:none;";
                 }
                 $flightid = '['.$flight['flightid'].']';
+                if(!empty($category['transportationdetails'][$sequence][$category['tmtcid']]['paidById'])) {
+                    $transportation_details[$sequence][$category[inputChecksum]][display] = 'display:block;';
+                    $transpseg = new TravelManagerPlanSegments();
+                    $transportation_details[$sequence][$category['inputChecksum']]['affiliate'] = $transpseg->display_paidby($category['transportationdetails'][$sequence][$category['tmtcid']]['paidBy'], $category['transportationdetails'][$sequence][$category['tmtcid']]['paidById'])->name;
+                }
                 eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_paidbyfields')."\";");
             }
             eval("\$flights_records .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");

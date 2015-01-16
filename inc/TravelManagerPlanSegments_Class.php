@@ -85,8 +85,6 @@ class TravelManagerPlanSegments extends AbstractClass {
                             if(!isset($transit['flightNumber'])) {
                                 continue;
                             }
-                            $transit['paidBy'] = $data['paidBy'];
-                            $transit['paidById'] = $data['paidById'];
                             $transp_obj = new TravelManagerPlanTransps();
                             $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                             //$transit['tmtcid'] = $category;
@@ -96,7 +94,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         }
                     }
                     else {
-                        if(isset($data['transpType']) && empty($data['transpType'])) {
+                        if(isset($data['transpType']) && empty($data['transpType']) || (isset($data['fare']) && empty($data['fare']))) {
                             continue;
                         }
                         $transp_obj = new TravelManagerPlanTransps();
@@ -202,7 +200,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     }
                     /* Delete Flight if not checked on modify segment */
                     if(!isset($flightnumber)) {
-                        $transpseg = TravelManagerPlanTransps::get_data(array('tmtcid' => $data['tmtcid'], 'tmpsid' => $this->data[self::PRIMARY_KEY]));
+                        $transpseg = TravelManagerPlanTransps::get_data(array('inputChecksum' => $checksum));
                         if(is_object($transpseg)) {
                             $db->delete_query('travelmanager_plan_transps', 'tmpltid='.$transpseg->tmpltid.'');
                         }
