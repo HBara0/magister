@@ -156,8 +156,13 @@ class TravelManagerAirlines {
             }
 
             if(!empty($flightnumber_checkbox)) {
+
                 $selectlists['paidby'] = '<hr />'.TravelManagerPlan::parse_paidby($sequence, $category['inputChecksum'].']['.$flight['flightid'], $category['transportationdetails']['paidBy']);
 
+                if(empty($transportation_details[$sequence][$category['inputChecksum']]['display'])) {
+                    $transportation_details[$sequence][$category['inputChecksum']]['display'] = "display:none;";
+                }
+                $flightid = '['.$flight['flightid'].']';
                 eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_paidbyfields')."\";");
             }
             eval("\$flights_records .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");

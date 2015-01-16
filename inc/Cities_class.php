@@ -261,12 +261,20 @@ class Cities extends AbstractClass {
         return false;
     }
 
-    public static function parse_transportations($tranps, $transpdata = array(), $sequence) {  //to be continued later
+    public static function parse_transportations($transps, $transpdata = array(), $sequence, $source = '') {  //to be continued later
         global $template, $lang;
-        $rowid = 0;
+        if($source == 'addmore') {
+            $transpdata['inputChecksum'] = generate_checksum();
+            $availabletransp[1] = 1;
+            $othertranspcategories = TravelManagerTranspCategories ::get_data('tmtcid NOT IN ('.implode(', ', $availabletransp).')', array('returnarray' => true));
+            $transp_category_fields = TravelManagerPlan::parse_transportaionfields($transps, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transpdata['transportationdetails'], 'name' => 'other', 'tmtcid' => $transp->tmtcid, 'othercategories' => $othertranspcategories), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence, $rowid);
+            eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
+            eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
+            return '<tr><td>'.$transcategments_output.$transsegments_output.'</td></tr>';
+        }
 
-        if(is_array($tranps)) {
-            foreach($tranps as $transp) {
+        if(is_array($transps)) {
+            foreach($transps as $transp) {
                 $transpdetailsfields = array('fare', 'vehicleNumber', 'flightNumber', 'transpDetails', 'agencyName', 'numDays', 'transpType', 'paidBy', 'paidById', 'isMain');
                 foreach($transpdetailsfields as $field) {
                     $transportation_details[$sequence][$transp->tmtcid][$field] = $transp->$field;
@@ -290,7 +298,9 @@ class Cities extends AbstractClass {
         /* Parse proposed transits - START */
         $valid_travelmodes = array('transit', 'driving');
         $used_transptype = array();
+
         if(is_array($directionapi->routes[0]->legs[0]->steps)) {
+            $suggestedtransp['title'] .='<h2>'.$lang->suggestedtransportations.'</h2>';
             foreach($directionapi->routes[0]->legs[0]->steps as $step) {
                 if(!in_array(strtolower($step->travel_mode), $valid_travelmodes)) {
                     continue;
@@ -318,10 +328,16 @@ class Cities extends AbstractClass {
                     $transitmode['url'] = '<a href="'.$transitmode[url].'" target="_blank" >'.$urldisplay[2].'</a>'; //temporary coded
                     $possible_transportation = '<div>'.$lang->reservation.'<span class="smalllinkgrey"> '.$transitmode['url'].'</span></div>';
                 }
-
+                if(is_array($usedcategories)) {
+                    if(in_array($transitmode['vehiclename'], $usedcategories)) {
+                        continue;
+                    }
+                }
+                $usedcategories[$transitmode['vehiclename']] = $transitmode['vehiclename'];
                 $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation(array('selectedtransp' => $transpdata['transportationdetails'][$transpdata['segment']->tmpsid], 'vehicleType' => $transitmode['vehiclename']), $sequence);
                 $transpdata['inputChecksum'] = generate_checksum();
-                $transp_category_fields = TravelManagerPlan::parse_transportaionfields(array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']], 'name' => strtolower($drivingmode['transpcat']['name']), 'tmtcid' => $drivingmode['transpcat']['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence);
+                $transp = new TravelManagerPlanTransps();
+                $transp_category_fields = TravelManagerPlan::parse_transportaionfields($transp, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']], 'name' => strtolower($drivingmode['transpcat']['name']), 'tmtcid' => $drivingmode['transpcat']['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence);
                 if(!empty($transp_category_fields)) {
                     if(empty($drivingmode['transpcat']['display'])) {
                         $drivingmode['transpcat']['display'] = 'display:none;';
@@ -333,98 +349,95 @@ class Cities extends AbstractClass {
                     if(is_object($transpdata['segment'])) {
                         $transportation_details[$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['affiliate'] = $transpdata['segment']->display_paidby($transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['paidBy'], $transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['paidById'])->name;
                     }
-                    // $todelete[$drivingmode['transpcat']['cateid']] = $lang->delete.' <input type = "checkbox" title = "'.$lang->todelete.'" value = "1" id = "segment_'.$sequence.'_tmtcid_'.$drivingmode['transpcat']['cateid'].'_todelete" name = "segment['.$sequence.'][tmtcid]['.$drivingmode['transpcat']['cateid'].'][todelete]" />';
-                    // $transpfield['display'] = 'display:inline-block;';
-
-                    $availabletransp[$drivingmode['transpcat']['cateid']] = $drivingmode['transpcat']['cateid'];
-                    eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
-                    eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
+                    // $availabletransp[$drivingmode['transpcat']['cateid']] = $drivingmode['transpcat']['cateid'];
+                    eval("\$suggestedtranscategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
+                    eval("\$suggestedtranssegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
                 };
             }
         }
         /* Parse proposed transits - END */
 
-
-
-
         /* Parse saved transits & flights - START */
+        if(is_array($transps)) {
+            $transsegments['title'] = '<h2>'.$lang->selectedtransportations.'</h2>';
 
-        if(is_array($tranps)) {
-            $transsegments_output .='<h2>'.$lang->selectedtransportations.'Selected Transportations</h2>';
-            foreach($tranps as $transp) {
-                //if($transp->isUserSuggested == 0) {
+            foreach($transps as $transp) {
                 if($transp->get_transpcategory()->isAerial == 1) {
                     $aerialtransp = $transp;
                 }
                 else {
-                    /* Always have the Others type */
                     unset($drivingmode);
-                    //$drivingmode[transpcat][cateid] = 0;
-                    //  $drivingmode['transpcat'] = TravelManagerPlan::parse_transportation(array('selectedtransp' => $transpdata['transportationdetails'][$transpdata['segment']->tmpsid], 'vehicleType' => 'other'), $sequence);
                     $availabletransp[1] = 1; /* Always exclude the airplan cateory when parsing other categories */
-
-
                     $transpdata['transportationdetails'] = $transp->get();
-                    $drivingmode['transpcat']['title'] = '';
-                    $transpdata['inputChecksum'] = generate_checksum();
-
+                    $transpdata['inputChecksum'] = $transp->inputChecksum;
                     $othertranspcategories = TravelManagerTranspCategories ::get_data('tmtcid NOT IN ('.implode(', ', $availabletransp).')', array('returnarray' => true));
-
                     $transp_category_fields = TravelManagerPlan::parse_transportaionfields($transp, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transpdata['transportationdetails'], 'name' => 'other', 'tmtcid' => $transp->tmtcid, 'othercategories' => $othertranspcategories), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence, $rowid);
-                    $row_id = 'id="'.$sequence.'_'.$rowid.'"';
-
+                    $transportation_details[$transpdata['segment']->tmpsid][$transpdata['inputChecksum']]['display'] = 'display:none;';
                     if(is_object($transpdata['segment'])) {
                         $transportation_details[$transpdata['segment']->tmpsid][$transpdata['inputChecksum']]['affiliate'] = $transpdata['segment']->display_paidby($transp->paidBy, $transp->paidById)->name;
                     }
                     eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
                     eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
-                    $rowid++;
-                    unset($row_id);
                 }
             }
         }
-        else {
-            /* Always show one section */
+        /* Always show one section Others type */
+        if(empty($transsegments['title'])) {
+            $transsegments['title'] = '<h2>'.$lang->selectedtransportations.'</h2>';
+        } unset($drivingmode);
+        $transpdata['inputChecksum'] = generate_checksum();
+        $availabletransp[1] = 1;
+        $othertranspcategories = TravelManagerTranspCategories ::get_data('tmtcid NOT IN ('.implode(', ', $availabletransp).')', array('returnarray' => true));
+        $transp = new TravelManagerPlanTransps();
+        $transp_category_fields = TravelManagerPlan::parse_transportaionfields($transp, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transpdata['transportationdetails'], 'name' => 'other', 'tmtcid' => $transp->tmtcid, 'othercategories' => $othertranspcategories), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence, $rowid);
+        eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
+        eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
 
-            eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
-            eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
-        }
+
         /* Parse Flights */
-        if($transpdata['origincity']['coid'] != $transpdata['destcity']['coid']) {
+        if($transpdata['origincity']['coid'] != $transpdata ['destcity']['coid']) {
             $transpdata['inputChecksum'] = generate_checksum();
-            $drivingmode ['transpcat'] = TravelManagerPlan::parse_transportation(array('selectedtransp' => $transpdata['transportationdetails'][$transpdata['segment']->tmpsid], 'vehicleType' => 'airplane'), $sequence);
-            if(empty($aerialtransp)) {
-                $aerialtransp = new TravelManagerPlanTransps();
+            /* Parse save flight */
+            if(!empty($aerialtransp)) {
+                $transp_category_fields = TravelManagerPlan::parse_transportaionfields($aerialtransp, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transpdata['transportationdetails'], 'name' => 'airplane', 'tmtcid' => $transpdata['transportationdetails']['tmtcid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence);
+                if(!empty($transp_category_fields)) {
+                    if(is_object($transpdata['segment'])) {
+                        $transportation_details[$transpdata['segment']->tmpsid][$transpdata['inputChecksum']]['affiliate'] = $transpdata['segment']->display_paidby($transp->paidBy, $transp->paidById)->name;
+                    }
+                    eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
+                    eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
+                }
+            }
+            /* Parse Available flights */
+            $drivingmode ['transpcat'] = TravelManagerPlan::parse_transportation(array('vehicleType' => 'airplane'), $sequence);
+            $aerialtransp = new TravelManagerPlanTransps();
+            if(empty($suggestedtransp['title'])) {
+                $suggestedtransp['title'] .='<h2>'.$lang->suggestedtransportations.'</h2>';
             }
             $transp_category_fields = TravelManagerPlan::parse_transportaionfields($aerialtransp, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']], 'name' => $drivingmode['transpcat']['name'], 'tmtcid' => $drivingmode['transpcat'] ['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence);
             if(!empty($transp_category_fields)) {
-                unset($possible_transportation);
-                if(empty($drivingmode['transpcat']['display'])) {
-                    $drivingmode['transpcat']['display'] = 'display:none;';
-                }
-                if(empty($transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['display'])) {
-                    $transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['display'] = "display:none;";
-                }
-                $transportation_details[$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['affid'] = $transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['paidById'];
-                if(is_object($transpdata['segment'])) {
-                    $transportation_details[$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['affiliate'] = $transpdata['segment']->display_paidby($transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['paidBy'], $transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']]['paidById'])->name;
-                }
-                $availabletransp[$drivingmode['transpcat']['cateid']] = $drivingmode['transpcat']['cateid'];
-                eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
-                eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
+                $drivingmode['transpcat']['display'] = 'display:none;';
+                eval("\$suggestedtranscategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
+                eval("\$suggestedtranssegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
             }
         }
+        /* Parse saved transits & flights - END */
 
-        /* Parse saved transits & flights - START */
-
-        return $transsegments_output.$transcategments_output;
+        if(!empty($suggestedtranssegments_output)) {
+            $suggestedtranssegments_output = $suggestedtransp['title'].'<div class="ui-state-highlight ui-corner-all" style="padding: 6px; font-weight: bold;"><a href="{$transpmode_apimaplink}" target="_blank">Visualize Tranpostation Possibilities on Map</a></div>'.$suggestedtranssegments_output;
+        }
+        if(!empty($transsegments_output)) {
+            $transsegments_output = $transsegments['title'].$transsegments_output;
+        }
+        return $suggestedtranssegments_output.$suggestedtranscategments_output.'<hr/>'.$transsegments_output.$transcategments_output;
     }
 
     protected function create(array $data) {
 
     }
 
-    protected function update(array $data) {
+    protected
+            function update(array $data) {
 
     }
 

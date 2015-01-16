@@ -83,5 +83,8 @@ $lang['preview'] = 'Preview';
 $lang['save'] = 'Save';
 $lang['anotheraffiliate'] = 'Another Affiliate';
 $lang['finalize'] = 'Finalize';
-$lang['accomodations'] = 'Accomodations'
+$lang['accomodations'] = 'Accomodations';
+$lang['selectedtransportations'] = 'Selected Transportations';
+$lang['suggestedtransportations'] = 'Suggested Transportations';
+$lang['vehiclenumber'] = 'Vehicle Number'
 ?>
