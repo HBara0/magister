@@ -133,4 +133,32 @@ class GroupPurchaseForecast extends AbstractClass {
         }
     }
 
+    public static function canview_group_permissions($groupdata) {
+        global $core;
+
+        $affiliates = Affiliates::get_affiliates(array('affid' => $groupdata['affiliates']), array('simple' => false, 'operators' => array('affid' => 'in')));
+        foreach($affiliates as $affiliate) {
+            if($affiliate->generalManager == $core->user['uid']) {
+                $filter_where = $affiliate->affid;
+            }
+            if($affiliate->supervisor == $core->user['uid']) {
+                $filter_where = $affiliate->affid;
+            }
+            /* User is an audit of the affiliate => show all affiliate data */
+
+            $affemployess_objs = AffiliatedEmployees::get_data(array('affid' => $affiliate->affid, 'uid' => $core->user['uid'], 'canAudit' => 1), array('returnarray' => true));
+            if(is_array($affemployess_objs)) {
+                foreach($affemployess_objs as $affemployess_obj) {
+                    if($affemployess_obj->user == $core->user['uid']) {
+                        $filter_where = $affemployess_obj->affid;
+                    }
+                }
+            }
+        }
+        /* security to show data */
+
+
+        return $filter_where;
+    }
+
 }
