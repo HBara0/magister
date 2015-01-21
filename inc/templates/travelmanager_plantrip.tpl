@@ -125,14 +125,20 @@
                 });
 
 
+//on chagne from date refresh qnd trigger again
                 $('input[id^="pickDate_to"]').live('change', function() {
                     var segid = $(this).attr("id").split("_");
                     var nextsegid = ++segid[2];
+                    $('input[id^="pickDate_from_' + nextsegid + '"]').live('change', function() {
+                        $('input[id^=destinationcity_]').trigger('change');
+                    });
                     $('input[id^="pickDate_from_' + nextsegid + '"]').val($(this).val())
                     $('input[id^="altpickDate_from_' + nextsegid + '"]').val($(this).val());
                     var descity = $('input[id="destinationcity_' + segid[2] + '_cache_id"]').val();
+                    $('input[id^="pickDate_from_' + nextsegid + '"]').trigger('change');
                     if((descity != '') && $("#altpickDate_to").val() != '') {
                         $('input[id^=destinationcity_]').trigger('change');
+
                     }
                 });
             });
