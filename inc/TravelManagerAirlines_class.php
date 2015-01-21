@@ -168,9 +168,6 @@ class TravelManagerAirlines {
                 );
                 $selectlists['paidby'] = '<div style="display:inline-block;padding:10px;width:25%;" id="paidby_transp_'.$sequence.'_'.$category[inputChecksum].'_'.$flight[flightid].'">'.$lang->paidby.'</div><div style="display:inline-block;width:25%;">'.parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][paidBy]', 6, $paidby_entities, $category['transportationdetails'][$sequence][$category['tmtcid']]['paidBy'], '', 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+ "_transp_'.$category[inputChecksum].'_'.$flight[flightid].'_'.$sequence.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_transp_'.$category[inputChecksum].'_'.$flight[flightid].'_'.$sequence.'").hide();}', array('id' => 'paidbylist_transp_'.$sequence.'_'.$category[inputChecksum].'_'.$flight[flightid], 'width' => '100%')).'</div>';
 
-                //   $selectlists['paidby'] = '<hr />'.TravelManagerPlan::parse_paidby($sequence, $category['inputChecksum'].']['.$flight['flightid'], $category['transportationdetails'][$sequence][$category['tmtcid']]['paidBy']);
-                //$category['inputChecksum'] = $category['inputChecksum'].']['.$flight['flightid'];
-
                 if(empty($transportation_details[$sequence][$category['inputChecksum']]['display'])) {
                     $transportation_details[$sequence][$category['inputChecksum']]['display'] = "display:none;";
                 }
