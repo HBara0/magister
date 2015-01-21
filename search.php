@@ -262,6 +262,7 @@ if($core->input['type'] == 'quick') {
             $key_attribute = 'ciid';
             $select_attributes = array('name');
             $extra_info = array('table' => 'countries');
+            $descinfo = 'citycountry';
             $order = array('by' => 'name', 'sort' => 'ASC');
         }
         elseif($core->input['for'] == 'countries') {
