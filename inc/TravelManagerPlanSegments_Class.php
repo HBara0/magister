@@ -109,7 +109,6 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
 
         if(isset($segmentdata['tmhid'])) {
-            print_r($segmentdata['tmhid']);
 
             foreach($segmentdata['tmhid'] as $checksum => $hotel) {
 //                if(!empty($checksum)) {
@@ -120,10 +119,13 @@ class TravelManagerPlanSegments extends AbstractClass {
 //                    continue;
 //                }
                 $validate_fields = array('priceNight', 'numNights', 'currency');
-                foreach($validate_fields as $hotelfield) {
-                    if(empty($hotel[$hotelfield])) {
-                        return;
-                    }
+//                foreach($validate_fields as $hotelfield) {
+//                    if(empty($hotel[$hotelfield])) {
+//                        return;
+//                    }
+//                }
+                if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
+                    continue;
                 }
                 $hoteldata['tmhid'] = $hotel['tmhid'];
                 $hoteldata['inputChecksum'] = $checksum;
@@ -545,16 +547,23 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $rescurrency = $selectedhotel->get_currency();
                     $rescurrency_id = $rescurrency->get_id();
                     $checksum = $selectedhotel->inputChecksum;
+                    $selected_hotel[$sequence][$checksum]['displaystatus'] = "display:none;";
+                    if(!empty($selectedhotel->paidById)) {
+                        $selected_hotel[$sequence][$checksum]['displaystatus'] = "display:block;";
+                        $affiliate = new Affiliates($selectedhotel->paidById);
+                    }
                 }
                 else {
                     $checksum = generate_checksum('accomodation');
+                    $selected_hotel[$sequence][$checksum]['displaystatus'] = "display:none;";
                 }
 
                 $review_tools .= '<a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$hotel->tmhid.'" title="'.$lang->hotelreview.'"><img src="'.$core->settings['rootdir'].'/images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
 
                 $checkbox_hotel = '<input aria-describedby="ui-tooltip-155" title="" name="segment['.$sequence.'][tmhid]['.$checksum.'][tmhid]" id="segment['.$sequence.']['.$checksum.'][tmhid]" value="'.$hotel->tmhid.'" type="checkbox">'.$hotel->name;
 
-                $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$checksum.'").show();}else{$("#anotheraff_accomodations_'.$sequence.'_'.$checksum.'").hide();}';
+                // $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$checksum.'").show();}else{$("#anotheraff_accomodations_'.$sequence.'_'.$checksum.'").hide();}';
+                $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_accomodations_'.$sequence.'_'.$checksum.'").hide();}';
                 $paidby_entities = array(
                         'myaffiliate' => $lang->myaffiliate,
                         'supplier' => $lang->supplier,
@@ -562,7 +571,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         'myself' => $lang->myself,
                         'anotheraff' => $lang->anotheraff
                 );
-                $selectlists['paidBy'] = parse_selectlist('"segment[{$sequence}][tmhid][{$checksum}][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
+                $selectlists['paidBy'] = parse_selectlist('"segment['.$sequence.'][tmhid]['.$checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
 
                 $mainaffobj = new Affiliates($core->user['mainaffiliate']);
                 $destcity_obj = $this->get_destinationcity();
@@ -573,7 +582,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', 4, $currencies, $rescurrency_id);
 
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
-                $review_tools = $paidby_details = $currencies_list = $checkbox_hotel = '';
+                $review_tools = $paidby_details = $currencies_list = $currencies = $selected_hotel = $checkbox_hotel = '';
             }
         }
 
