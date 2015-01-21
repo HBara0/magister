@@ -405,8 +405,13 @@ class TravelManagerPlanSegments extends AbstractClass {
                     //  $transp_flightdetails = json_decode($transportation->flightDetails, true);
                     //  $flight_details = $this->parse_flightdetails($transp_flightdetails);
                 }
-                $fromcurr = new Currencies($transportation->currency);
-                $fare = $transportation->get_convertedamount($fromcurr);
+                $tocurr = new Currencies(840);
+                $fare = $transportation->get_convertedamount($tocurr);
+                if($transportation->fare != 0 && $fare == 0) {
+                    $fromcurr = new Currencies($transportation->currency);
+                    $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
+                    $fare = $transportation->get_convertedamount($fromcurr);
+                }
                 eval("\$segment_transpdetails .= \"".$template->get('travelmanager_viewplan_transpsegments')."\";");
                 $flight_details = '';
             }
@@ -419,8 +424,13 @@ class TravelManagerPlanSegments extends AbstractClass {
                 if(is_object($paidby)) {
                     $paidby = $paidby->get_displayname();
                 }
-                $fromcurr = new Currencies($accomdation->currency);
-                $pricenight = $accomdation->get_convertedamount($fromcurr);
+                $tocurr = new Currencies(840);
+                $pricenight = $accomdation->get_convertedamount($tocurr);
+                if($accomdation->priceNight != 0 && $pricenight == 0) {
+                    $fromcurr = new Currencies($accomdation->currency);
+                    $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
+                    $pricenight = $accomdation->get_convertedamount($fromcurr);
+                }
                 $segment_hotel .= '<div style = " width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin:10px;"> '.$lang->night.' '.$accomdation->numNights.' at $ '.$pricenight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
 //    $segment_hotel .= '<div style = " width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
                 $segment_hotel .= '<div style = " width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;"><span>  '.$numfmt->formatCurrency(($accomdation->numNights * $pricenight), "USD").'</span> <br/> <small style="font-weight:normal;">[paid by: '.$paidby.' ]</small></div>'; // fix the html parse multiple hotl
@@ -439,10 +449,16 @@ class TravelManagerPlanSegments extends AbstractClass {
                 if($additionalexp_type->title == 'Other') {
                     $additionalexp_type->title = $additionalexp->description;
                 }
-                $fromcurr = new Currencies($additionalexp->currency);
-                $additionalexp->expectedAmt = $additionalexp->get_convertedamount($fromcurr);
+
+                $tocurr = new Currencies(840);
+                $expectedAmt = $additionalexp->get_convertedamount($tocurr);
+                if($additionalexp->expectedAmt != 0 && $expectedAmt == 0) {
+                    $fromcurr = new Currencies($additionalexp->currency);
+                    $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
+                    $expectedAmt = $additionalexp->get_convertedamount($fromcurr);
+                }
                 $additional_expenses_details .= '<div style = "width:70%;display:inline-block;">'.$additionalexp_type->title.'</div>';
-                $additional_expenses_details .= '<div style = "width:25%;display:inline-block;font-size:14px;font-weight:bold;text-align:right;">'.$numfmt->formatCurrency($additionalexp->expectedAmt, "USD").'<br/><small style="font-weight:normal;">[paid by: '.$paidby.' ] </small> </div>';
+                $additional_expenses_details .= '<div style = "width:25%;display:inline-block;font-size:14px;font-weight:bold;text-align:right;">'.$numfmt->formatCurrency($expectedAmt, "USD").'<br/><small style="font-weight:normal;">[paid by: '.$paidby.' ] </small> </div>';
                 $additional_expenses_details .= '</div>';
             }
         }
