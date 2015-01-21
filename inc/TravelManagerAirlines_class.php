@@ -159,22 +159,31 @@ class TravelManagerAirlines {
             }
 
             if(!empty($flightnumber_checkbox)) {
-                $selectlists['paidby'] = '<hr />'.TravelManagerPlan::parse_paidby($sequence, $category['inputChecksum'].']['.$flight['flightid'], $category['transportationdetails'][$sequence][$category['tmtcid']]['paidBy']);
+                $paidby_entities = array(
+                        'myaffiliate' => $lang->myaffiliate,
+                        'supplier' => $lang->supplier,
+                        'client' => $lang->client,
+                        'myself' => $lang->myself,
+                        'anotheraff' => $lang->anotheraff
+                );
+                $selectlists['paidby'] = '<div style="display:inline-block;padding:10px;width:25%;" id="paidby_transp_'.$sequence.'_'.$category[inputChecksum].'_'.$flight[flightid].'">'.$lang->paidby.'</div><div style="display:inline-block;width:25%;">'.parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][paidBy]', 6, $paidby_entities, $category['transportationdetails'][$sequence][$category['tmtcid']]['paidBy'], '', 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+ "_transp_'.$category[inputChecksum].'_'.$flight[flightid].'_'.$sequence.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_transp_'.$category[inputChecksum].'_'.$flight[flightid].'_'.$sequence.'").hide();}', array('id' => 'paidbylist_transp_'.$sequence.'_'.$category[inputChecksum].'_'.$flight[flightid], 'width' => '100%')).'</div>';
+
+                //   $selectlists['paidby'] = '<hr />'.TravelManagerPlan::parse_paidby($sequence, $category['inputChecksum'].']['.$flight['flightid'], $category['transportationdetails'][$sequence][$category['tmtcid']]['paidBy']);
+                //$category['inputChecksum'] = $category['inputChecksum'].']['.$flight['flightid'];
 
                 if(empty($transportation_details[$sequence][$category['inputChecksum']]['display'])) {
                     $transportation_details[$sequence][$category['inputChecksum']]['display'] = "display:none;";
                 }
-                $flightid = '['.$flight['flightid'].']';
+                /* change later to Use input checksum instead of tmtcid */
                 if(!empty($category['transportationdetails'][$sequence][$category['tmtcid']]['paidById'])) {
-                    $transportation_details[$sequence][$category[inputChecksum]][display] = 'display:block;';
+                    $transportation_details[$sequence][$category['inputChecksum']]['display'] = 'display:block;';
                     $transpseg = new TravelManagerPlanSegments();
                     $transportation_details[$sequence][$category['inputChecksum']]['affiliate'] = $transpseg->display_paidby($category['transportationdetails'][$sequence][$category['tmtcid']]['paidBy'], $category['transportationdetails'][$sequence][$category['tmtcid']]['paidById'])->name;
                 }
-                eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_paidbyfields')."\";");
+                eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_flight_paidbyfields')."\";");
             }
             eval("\$flights_records .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
             $flights_records_segments = $flights_records_roundtripsegments = $flights_records_roundtripsegments_details = '';
-            //}
         }
         return $flights_records;
     }
@@ -188,7 +197,8 @@ class TravelManagerAirlines {
         $response_flightdata = json_decode($data);
         //$flights_records = '<div class = "subtitle" style = "width:100%;margin:10px; box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px  rgba(0, 0, 0, 0.1) solid;;">Best Flights</div>';
 
-        return self::parse_responsefilghts($response_flightdata, $transpcat, $sequence, $source);
+        return self::
+                parse_responsefilghts($response_flightdata, $transpcat, $sequence, $source);
     }
 
     public static function get_flights($request, $apikey = null) {
@@ -199,13 +209,15 @@ class TravelManagerAirlines {
 //        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
 //        $result = curl_exec($ch);
         //$result = file_get_contents('./modules/travelmanager/jsonflightdetails_roundtrip.txt');
-        $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
+        $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt'
+        );
         //      curl_close($ch);
         return $result;
     }
 
     public function __get($name) {
-        if(array_key_exists($name, $this->airlines)) {
+        if(array_key_exists($name, $this->
+                        airlines)) {
             return $this->airlines[$name];
         }
     }
