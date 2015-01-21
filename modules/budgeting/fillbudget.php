@@ -117,8 +117,26 @@ if(!$core->input['action']) {
         else {
             $invoice_selectlistdata['other'] = $lang->other;
         }
-
         /* Get Invoice Types - ENDs */
+
+        /* Get Purchasing entity Types - START */
+//      $salepurchase_query = $db->query('SELECT * FROM '.Tprefix.'saletypes_invoicing WHERE isActive = 1 AND affid = '.intval($budget_data['affid']));
+//        if($db->num_rows($salepurchase_query) > 0) {
+//            while($salepurchase = $db->fetch_assoc($salepurchase_query)) {
+//                $purchase_selectlistdata[$salepurchase['invoicingEntity']] = ucfirst($salepurchase['invoicingEntity']);
+//                $saletypes_purchasing[$salepurchase['stid']] = $salepurchase['invoicingEntity'];
+//                if($salepurchase['isAffiliate'] == 1 && !empty($salepurchase['invoiceAffid'])) {
+//                    $salepurchase['invoiceAffiliate'] = new Affiliates($salepurchase['invoiceAffid']);
+//                    $purchase_selectlistdata[$salepurchase['invoicingEntity']] = $salepurchase['invoiceAffiliate']->get()['name'];
+//                }
+//            }
+//        }
+//        else {
+//            $purchase_selectlistdata['other'] = $lang->other;
+//        }
+//        /* --------------------- */
+//
+//
         //$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1, 'numCode = '.$affiliate_currency);
         $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
         $currencies = array_filter(array(840 => 'USD', 978 => 'EUR', $affiliate_currency->get()['numCode'] => $affiliate_currency->get()['alphaCode']));
@@ -332,6 +350,7 @@ if(!$core->input['action']) {
 
         $js_currencies = json_encode($saltypes_currencies);
         $js_saletypesinvoice = json_encode($saletypes_invoicing);
+        //  $js_saletypespurchase = json_encode($saletypes_purchasing);
 
         /* Parse values for JS - END */
         /* Parse  local amount felds based on specific permission */
