@@ -68,7 +68,7 @@ if(!$core->input['action']) {
         }
     }
 
-    $dimensions = array('affid' => $lang->affiliate, 'spid' => $lang->supplier, 'pid' => $lang->product);
+    $dimensions = array('affid' => $lang->affiliate, 'spid' => $lang->supplier, 'pid' => $lang->product, 'saleType' => $lang->saletype, 'businessMgr' => $lang->bm, 'psid' => $lang->segment);
 
     foreach($dimensions as $dimensionid => $dimension) {
         $dimension_item.='<li class = "ui-state-default" id = '.$dimensionid.' title = "Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
