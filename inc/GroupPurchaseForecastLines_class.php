@@ -70,31 +70,30 @@ class GroupPurchaseForecastLines extends AbstractClass {
         }
     }
 
-    public function filter_securityview() {
-        global $core;
-        $forcastobj = GroupPurchaseForecast::get_data(array('gpfid' => $this->data['gpfid']));
-        $affiliate = new Affiliates($forcastobj->affid, false);
-        /* Data is created by user => show all data of the given user */
-        if(($this->data['businessMgr'] == $core->user['uid']) || $core->usergroup['grouppurchasing_canViewAllForecasts'] == 1) {
-            $filter_where = '';
-        }
-        /* User is GM of the affiliate => show all affiliate data */
-        if($affiliate->generalManager == $core->user['uid']) {
-            $filter_where = ' AND gpfid IN (SELECT  gpfid FROM '.GroupPurchaseForecast::TABLE_NAME.' WHERE affid IN('.$forcastobj->affid.'))';
-        }
-        /* User is supervisor of the affiliate => show all affiliate data */
-        if($affiliate->supervisor == $core->user['uid']) {
-            $filter_where = ' AND gpfid IN (SELECT  gpfid FROM '.GroupPurchaseForecast::TABLE_NAME.' WHERE affid IN('.$forcastobj->affid.'))';
-        }
-        /* User is an audit of the affiliate => show all affiliate data */
-
-
-
-//        else {
-//            $filter_where = ' AND gpfid IN (SELECT  gpfid FROM '.GroupPurchaseForecast::TABLE_NAME.' WHERE affid IN(2))';
+//    public function filter_securityview() {
+//        global $core;
+//        $forcastobj = GroupPurchaseForecast::get_data(array('gpfid' => $this->data['gpfid']));
+//        $affiliate = new Affiliates($forcastobj->affid, false);
+//        /* Data is created by user => show all data of the given user */
+//        if(($this->data['businessMgr'] == $core->user['uid']) || $core->usergroup['grouppurchasing_canViewAllForecasts'] == 1) {
+//            $filter_where = '';
 //        }
-
-        return $filter_where;
-    }
-
+//        /* User is GM of the affiliate => show all affiliate data */
+//        if($affiliate->generalManager == $core->user['uid']) {
+//            $filter_where = ' AND gpfid IN (SELECT  gpfid FROM '.GroupPurchaseForecast::TABLE_NAME.' WHERE affid IN('.$forcastobj->affid.'))';
+//        }
+//        /* User is supervisor of the affiliate => show all affiliate data */
+//        if($affiliate->supervisor == $core->user['uid']) {
+//            $filter_where = ' AND gpfid IN (SELECT  gpfid FROM '.GroupPurchaseForecast::TABLE_NAME.' WHERE affid IN('.$forcastobj->affid.'))';
+//        }
+//        /* User is an audit of the affiliate => show all affiliate data */
+//
+//
+//
+////        else {
+////            $filter_where = ' AND gpfid IN (SELECT  gpfid FROM '.GroupPurchaseForecast::TABLE_NAME.' WHERE affid IN(2))';
+////        }
+//
+//        return $filter_where;
+//    }
 }
