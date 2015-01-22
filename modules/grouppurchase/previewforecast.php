@@ -43,15 +43,15 @@ if(!($core->input['action'])) {
 
         /* stil under development... */
         if(is_array($purchase_forcastobjs)) {
-            foreach($purchase_forcastobjs as $purchase_forcastobj) {
-                $forecast_lines = GroupPurchaseForecastLines::get_data('gpfid='.$purchase_forcastobj->gpfid, array('returnarray' => true));
-//                if(is_array($forecast_lines)) {
-//                    foreach($forecast_lines as $forecast_line) {
-//                        $filter = $forecast_line->filter_securityview();
-//                    }
-//                }
+//            foreach($purchase_forcastobjs as $purchase_forcastobj) {
+//                $forecast_lines = GroupPurchaseForecastLines::get_data('gpfid='.$purchase_forcastobj->gpfid, array('returnarray' => true));
+////                if(is_array($forecast_lines)) {
+////                    foreach($forecast_lines as $forecast_line) {
+////                        $filter = $forecast_line->filter_securityview();
+////                    }
+////                }
 // filter of bm send to the query
-            }
+            //    }
 
             $query = 'SELECT  pid,saleType,'.$groupurchase['summonth'].' FROM grouppurchase_forecastlines WHERE '.GroupPurchaseForecast::PRIMARY_KEY.' IN('.implode(',', array_keys($purchase_forcastobjs)).')'.$filter.' Group BY pid,saleType';
             $sql = $db->query($query);
