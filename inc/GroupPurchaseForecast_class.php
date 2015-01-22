@@ -140,17 +140,14 @@ class GroupPurchaseForecast extends AbstractClass {
             $groupdata['suppliers'] = $core->user['suppliers']['eid'];
         }
         $filter_where['suppliers'] = $groupdata['suppliers'];
-
         if(empty($groupdata['affiliates'])) {
             $groupdata['affiliates'] = $core->user['affiliates'];
         }
-
         if($core->usergroup['grouppurchasing_canViewAllForecasts'] == 1) {
             //$filter_where['suppliers'] = $groupdata['suppliers'];
             $filter_where['affid'] = $groupdata['affiliates'];
         }
         else {
-
             $affiliates = Affiliates::get_affiliates(array('affid' => $groupdata['affiliates']), array('returnarray' => true, 'simple' => false, 'operators' => array('affid' => 'in')));
             foreach($affiliates as $affiliate) {
                 if($affiliate->generalManager == $core->user['uid']) {
@@ -162,8 +159,6 @@ class GroupPurchaseForecast extends AbstractClass {
                 else {
                     //  $filter_where['affid'] = $core->user['affiliates'];
                 }
-
-
                 /* User is an audit of the affiliate => show all affiliate data */
                 $affemployess_objs = AffiliatedEmployees::get_data(array('affid' => $affiliate->affid, 'uid' => $core->user['uid'], 'canAudit' => 1), array('returnarray' => true));
                 if(is_array($affemployess_objs)) {
@@ -182,7 +177,6 @@ class GroupPurchaseForecast extends AbstractClass {
                 'returnarray' => true
         );
         $purchase_forcastobjs = GroupPurchaseForecast::get_data(array('affid' => $filter_where['affid'], 'year' => $groupdata['years'], 'spid' => $filter_where['suppliers']), $dal_config);
-
         /* security to show data */
         return $purchase_forcastobjs;
     }
