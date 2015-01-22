@@ -7,25 +7,18 @@
     <tr>
         {$menu}
         <td class="contentContainer" colspan="2">
-            <h1>{$lang->grouppurchasetabular}</h1>
+            <h1>{$reporttitle}</h1>
 
     <page>
         <div style="page-break-before:always;"></div>
         <table class="datatable" border="0" cellpadding="1" cellspacing="1" width="100%">
             <tbody>
-                <tr class="thead">
-                    <th style="vertical-align:central; padding:2px;  border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->product}</th>
-                    <th style="vertical-align:central; padding:2px;border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->saletype}</th>
-
-                    {$groupurchase[monthead]}
-
-                </tr>
+                {$groupurchase[monthead]}
             </tbody>
+            {$gpforecat_report}
             {$grouppurchase_report_rows}
         </table>
     </page>
-
-
 </td>
 </tr>
 </body>
