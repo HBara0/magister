@@ -83,7 +83,9 @@ if(!($core->input['action'])) {
                 $gpforecastlines = $groupforecast->get_forecastlines();
                 if(is_array($gpforecastlines)) {
                     foreach($gpforecastlines as $grouppurchasline) {
-                        $gplines_data[$grouppurchasline->gpflid] = $grouppurchasline->get() + $groupforecast->get();
+                        $gplines_data[$grouppurchasline->gpflid] = $grouppurchasline->get();
+                        $gplines_data[$grouppurchasline->gpflid]['affid'] = $groupforecast->affid;
+                        $gplines_data[$grouppurchasline->gpflid]['spid'] = $groupforecast->spid;
                     }
                 }
             }
