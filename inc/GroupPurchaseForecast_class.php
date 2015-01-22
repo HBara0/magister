@@ -164,7 +164,7 @@ class GroupPurchaseForecast extends AbstractClass {
                 if(is_array($affemployess_objs)) {
                     foreach($affemployess_objs as $affemployess_obj) {
                         if($affemployess_obj->uid == $core->user['uid']) {
-                            $filter_where['affid'] = $affemployess_obj->affid;
+                            $filter_where['affid'][$affiliate->affid] = $affemployess_obj->affid;
                         }
                     }
                 }
