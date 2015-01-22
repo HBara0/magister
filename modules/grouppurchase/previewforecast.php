@@ -37,20 +37,19 @@ if(!($core->input['action'])) {
                 'simple' => false,
                 'returnarray' => true
         );
-        $groupforecast_filters = GroupPurchaseForecast::canview_group_permissions($core->input['forecast']);
+        $purchase_forcastobjs = GroupPurchaseForecast::get_grouppurchaseforecast($core->input['forecast']);
 
-        $purchase_forcastobjs = GroupPurchaseForecast::get_data(array('affid' => $groupforecast_filters, 'year' => $core->input['forecast']['years'], 'spid' => $core->input['forecast']['suppliers']), $dal_config);
+        //  $purchase_forcastobjs = GroupPurchaseForecast::get_data(array('affid' => $groupforecast_filters, 'year' => $core->input['forecast']['years'], 'spid' => $core->input['forecast']['suppliers']), $dal_config);
 
         /* stil under development... */
         if(is_array($purchase_forcastobjs)) {
             foreach($purchase_forcastobjs as $purchase_forcastobj) {
                 $forecast_lines = GroupPurchaseForecastLines::get_data('gpfid='.$purchase_forcastobj->gpfid, array('returnarray' => true));
-                if(is_array($forecast_lines)) {
-                    foreach($forecast_lines as $forecast_line) {
-                        $filter = $forecast_line->filter_securityview();
-                    }
-                }
-
+//                if(is_array($forecast_lines)) {
+//                    foreach($forecast_lines as $forecast_line) {
+//                        $filter = $forecast_line->filter_securityview();
+//                    }
+//                }
 // filter of bm send to the query
             }
 

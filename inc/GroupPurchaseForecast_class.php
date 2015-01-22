@@ -133,32 +133,60 @@ class GroupPurchaseForecast extends AbstractClass {
         }
     }
 
-    public static function canview_group_permissions($groupdata) {
+    public static function get_grouppurchaseforecast($groupdata) {
         global $core;
 
-        $affiliates = Affiliates::get_affiliates(array('affid' => $groupdata['affiliates']), array('simple' => false, 'operators' => array('affid' => 'in')));
+        if($core->usergroup['grouppurchasing_canViewAllForecasts'] == 1) {
+
+        }
+        $dal_config = array(
+                'operators' => array('affid' => 'in', 'spid' => 'in', 'year' => '='),
+                'simple' => false,
+                'returnarray' => true
+        );
+
+        if(empty($groupdata['suppliers'])) {
+            $filter_where['suppliers'] = $core->user['suppliers']['eid'];
+        }
+        else {
+            $filter_where['suppliers'] = $groupdata['suppliers'];
+        }
+        if(empty($groupdata['affiliates'])) {
+            $groupdata['affiliates'] = $core->user['affiliates'];
+        }
+        else {
+            $groupdata['affiliates'] = $groupdata['affiliates'];
+        }
+
+        $affiliates = Affiliates::get_affiliates(array('affid' => $groupdata['affiliates']), array('returnarray' => true, 'simple' => false, 'operators' => array('affid' => 'in')));
         foreach($affiliates as $affiliate) {
             if($affiliate->generalManager == $core->user['uid']) {
-                $filter_where = $affiliate->affid;
+                $filter_where['affid'] = $affiliate->affid;
             }
             if($affiliate->supervisor == $core->user['uid']) {
-                $filter_where = $affiliate->affid;
+                $filter_where['affid'] = $affiliate->affid;
+            }
+            else {
+                $filter_where['affid'] = $core->user['affiliates'];
             }
             /* User is an audit of the affiliate => show all affiliate data */
-
             $affemployess_objs = AffiliatedEmployees::get_data(array('affid' => $affiliate->affid, 'uid' => $core->user['uid'], 'canAudit' => 1), array('returnarray' => true));
             if(is_array($affemployess_objs)) {
                 foreach($affemployess_objs as $affemployess_obj) {
                     if($affemployess_obj->user == $core->user['uid']) {
-                        $filter_where = $affemployess_obj->affid;
+                        $filter_where['affid'] = $affemployess_obj->affid;
                     }
                 }
             }
         }
+
+        /* User is coordinator of the segment of a given product => show data from all affiliates of of products related to specific segment */
+
+
+        $purchase_forcastobjs = GroupPurchaseForecast::get_data(array('affid' => $filter_where['affid'], 'year' => $groupdata['years'], 'spid' => $filter_where['suppliers']), $dal_config);
+
         /* security to show data */
-
-
-        return $filter_where;
+        return $purchase_forcastobjs;
     }
 
 }
