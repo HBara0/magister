@@ -135,7 +135,6 @@ class GroupPurchaseForecast extends AbstractClass {
 
     public static function get_grouppurchaseforecast($groupdata) {
         global $core;
-        $core->usergroup['grouppurchasing_canViewAllForecasts'] = 0;
         if(empty($groupdata['suppliers'])) {
             $groupdata['suppliers'] = $core->user['suppliers']['eid'];
         }

@@ -21,6 +21,12 @@ if(!($core->input['action'])) {
 //        error($lang->sectionnopermission);
 //    }
 
+    $purchase_forcastobjs = GroupPurchaseForecast::get_grouppurchaseforecast($core->input['forecast']);
+    $dal_config = array(
+            'operators' => array('affid' => 'in', 'spid' => 'in', 'year' => '='),
+            'simple' => false,
+            'returnarray' => true
+    );
     if($report_type == 'basic') {
         for($i = 1; $i <= 12; $i++) {
             $groupurchase_months[$i] = 'month'.$i;
@@ -32,16 +38,6 @@ if(!($core->input['action'])) {
         $groupurchase['monthead'] .= '<th class="border_left">'.implode('</th><th  class="border_left">', $groupurchase_monthname).'</th></tr>';
         $groupurchase['summonth'] = 'SUM('.implode('),SUM(', $groupurchase_months).')';
 
-        $dal_config = array(
-                'operators' => array('affid' => 'in', 'spid' => 'in', 'year' => '='),
-                'simple' => false,
-                'returnarray' => true
-        );
-        $purchase_forcastobjs = GroupPurchaseForecast::get_grouppurchaseforecast($core->input['forecast']);
-
-        //  $purchase_forcastobjs = GroupPurchaseForecast::get_data(array('affid' => $groupforecast_filters, 'year' => $core->input['forecast']['years'], 'spid' => $core->input['forecast']['suppliers']), $dal_config);
-
-        /* stil under development... */
         if(is_array($purchase_forcastobjs)) {
 //            foreach($purchase_forcastobjs as $purchase_forcastobj) {
 //                $forecast_lines = GroupPurchaseForecastLines::get_data('gpfid='.$purchase_forcastobj->gpfid, array('returnarray' => true));
@@ -71,15 +67,8 @@ if(!($core->input['action'])) {
     }
     if($report_type == 'dimensional') {
         $forecastdata = $core->input['forecast'];
-        unset($groupurchase[monthead]);
-        $dal_config = array(
-                'returnarray' => true,
-                'operators' => array('affid' => 'IN', 'spid' => 'IN'),
-        );
-        $grouppurchaseforecasts = GroupPurchaseForecast::get_data(array('year' => $forecastdata['years'], 'affid' => $forecastdata['affiliates'], 'spid' => $forecastdata['suppliers']), $dal_config);
-        //check
-        if(is_array($grouppurchaseforecasts)) {
-            foreach($grouppurchaseforecasts as $groupforecast) {
+        if(is_array($purchase_forcastobjs)) {
+            foreach($purchase_forcastobjs as $groupforecast) {
                 $gpforecastlines = $groupforecast->get_forecastlines();
                 if(is_array($gpforecastlines)) {
                     foreach($gpforecastlines as $grouppurchasline) {
@@ -102,19 +91,23 @@ if(!($core->input['action'])) {
         $dimensionalreport = new DimentionalData();
         $dimensionalreport->set_dimensions(array_combine(range(1, count($dimensions)), array_values($dimensions)));
         $dimensionalreport->set_requiredfields($required_fields);
-
-        $dimensionalreport->set_data($gplines_data);
-        $gpforecat_report .= '<table width="100%" class="datatable">';
-        $gpforecat_report .= '<tr class="thead">';
-        for($i = 1; $i <= 12; $i++) {
-            $groupurchase_months[$i] = 'month'.$i;
-            $dateObj = DateTime::createFromFormat('!m', $i);
-            $groupurchase_monthname[$i] = $dateObj->format('F');
+        if(!empty($gplines_data)) {
+            $dimensionalreport->set_data($gplines_data);
+            $gpforecat_report .= '<table width="100%" class="datatable">';
+            $gpforecat_report .= '<tr class="thead">';
+            for($i = 1; $i <= 12; $i++) {
+                $groupurchase_months[$i] = 'month'.$i;
+                $dateObj = DateTime::createFromFormat('!m', $i);
+                $groupurchase_monthname[$i] = $dateObj->format('F');
+            }
+            $gpforecat_report .= '<th class="border_left" style="width:7.5%;"></th><th class="border_left" style="width:7.5%;">'.implode('</th><th  class="border_left" style="width:7.5%;">', $groupurchase_monthname).'</th>';
+            $gpforecat_report .= '</tr>';
+            $gpforecat_report .= $dimensionalreport->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'formats' => $formats));
+            $gpforecat_report .= '</table>';
         }
-        $gpforecat_report .= '<th class="border_left" style="width:7.5%;"></th><th class="border_left" style="width:7.5%;">'.implode('</th><th  class="border_left" style="width:7.5%;">', $groupurchase_monthname).'</th>';
-        $gpforecat_report .= '</tr>';
-        $gpforecat_report .= $dimensionalreport->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'formats' => $formats));
-        $gpforecat_report .= '</table>';
+        else {
+            redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
+        }
         eval("\$grouppurchase_report = \"".$template->get('grouppurchase_report')."\";");
         output_page($grouppurchase_report);
     }
