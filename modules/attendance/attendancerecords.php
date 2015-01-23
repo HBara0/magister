@@ -15,9 +15,10 @@ if(!defined('DIRECT_ACCESS')) {
 if($core->usergroup['attendance_canListAttendance'] == 0) {
     error($lang->sectionnopermission);
 }
+/* Temporary specific fix for time zone */
+date_default_timezone_set($core->user_obj->get_mainaffiliate()->get_country()->defaultTimeZone);
 
 if(!$core->input['action']) {
-
     $limit_start = 0;
     if(isset($core->input['start'])) {
         $limit_start = intval($core->input['start']);

@@ -16,6 +16,8 @@ if($core->usergroup['attendance_canGenerateReport'] == 0) {
 }
 
 $session->start_phpsession();
+/* Temporary specific fix for time zone */
+date_default_timezone_set($core->user_obj->get_mainaffiliate()->get_country()->defaultTimeZone);
 
 if(!$core->input['action']) {
     $filter_where = '';
