@@ -111,12 +111,17 @@
 
                     var currencies = {$js_currencies};
                     var invoicetypes = {$js_saletypesinvoice};
+                    var saletypespurchase ={$js_saletypespurchase};
                     if(typeof currencies[salestype] != 'undefined') {
                         $("#currency_" + id[1]).val(currencies[salestype]);
                     }
 
                     if(typeof invoicetypes[salestype] != 'undefined') {
                         $('#invoice_' + id[1]).val(invoicetypes[salestype]);
+                    }
+
+                    if(typeof saletypespurchase[salestype] != 'undefined') {
+                        $('#purchasingEntity_' + id[1]).val(saletypespurchase[salestype]);
                     }
                 });
 

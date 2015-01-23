@@ -85,8 +85,6 @@ class TravelManagerPlanSegments extends AbstractClass {
                             if(!isset($transit['flightNumber'])) {
                                 continue;
                             }
-                            $transit['paidBy'] = $data['paidBy'];
-                            $transit['paidById'] = $data['paidById'];
                             $transp_obj = new TravelManagerPlanTransps();
                             $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                             //$transit['tmtcid'] = $category;
@@ -96,7 +94,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         }
                     }
                     else {
-                        if(isset($data['transpType']) && empty($data['transpType'])) {
+                        if(isset($data['transpType']) && empty($data['transpType']) || (isset($data['fare']) && empty($data['fare']))) {
                             continue;
                         }
                         $transp_obj = new TravelManagerPlanTransps();
@@ -111,7 +109,6 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
 
         if(isset($segmentdata['tmhid'])) {
-            print_r($segmentdata['tmhid']);
 
             foreach($segmentdata['tmhid'] as $checksum => $hotel) {
 //                if(!empty($checksum)) {
@@ -122,10 +119,13 @@ class TravelManagerPlanSegments extends AbstractClass {
 //                    continue;
 //                }
                 $validate_fields = array('priceNight', 'numNights', 'currency');
-                foreach($validate_fields as $hotelfield) {
-                    if(empty($hotel[$hotelfield])) {
-                        return;
-                    }
+//                foreach($validate_fields as $hotelfield) {
+//                    if(empty($hotel[$hotelfield])) {
+//                        return;
+//                    }
+//                }
+                if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
+                    continue;
                 }
                 $hoteldata['tmhid'] = $hotel['tmhid'];
                 $hoteldata['inputChecksum'] = $checksum;
@@ -202,7 +202,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     }
                     /* Delete Flight if not checked on modify segment */
                     if(!isset($flightnumber)) {
-                        $transpseg = TravelManagerPlanTransps::get_data(array('tmtcid' => $data['tmtcid'], 'tmpsid' => $this->data[self::PRIMARY_KEY]));
+                        $transpseg = TravelManagerPlanTransps::get_data(array('inputChecksum' => $checksum));
                         if(is_object($transpseg)) {
                             $db->delete_query('travelmanager_plan_transps', 'tmpltid='.$transpseg->tmpltid.'');
                         }
@@ -400,11 +400,18 @@ class TravelManagerPlanSegments extends AbstractClass {
                 if(is_object($paidby)) {
                     $paidby = $paidby->get_displayname();
                 }
-                if(!empty($transportation->flightDetails)) {
-                    $transp_flightdetails = json_decode($transportation->flightDetails, true);
-                    $flight_details = $this->parse_flightdetails($transp_flightdetails);
+                if(!empty($transportation->transpDetails)) {
+                    $flight_details = TravelManagerAirlines::parse_bestflight($transportation->transpDetails, array(), $sequence, email);
+                    //  $transp_flightdetails = json_decode($transportation->flightDetails, true);
+                    //  $flight_details = $this->parse_flightdetails($transp_flightdetails);
                 }
-                $fare = $transportation->get_convertedamount($transportation->currency, USD);
+                $tocurr = new Currencies(840);
+                $fare = $transportation->get_convertedamount($tocurr);
+                if($transportation->fare != 0 && $fare == 0) {
+                    $fromcurr = new Currencies($transportation->currency);
+                    $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
+                    $fare = $transportation->get_convertedamount($fromcurr);
+                }
                 eval("\$segment_transpdetails .= \"".$template->get('travelmanager_viewplan_transpsegments')."\";");
                 $flight_details = '';
             }
@@ -417,9 +424,13 @@ class TravelManagerPlanSegments extends AbstractClass {
                 if(is_object($paidby)) {
                     $paidby = $paidby->get_displayname();
                 }
-                $curr = new Currencies($accomdation->currency);
-                $tocurr = new Currencies('USD');
-                $pricenight = $accomdation->get_convertedamount($curr, $tocurr);
+                $tocurr = new Currencies(840);
+                $pricenight = $accomdation->get_convertedamount($tocurr);
+                if($accomdation->priceNight != 0 && $pricenight == 0) {
+                    $fromcurr = new Currencies($accomdation->currency);
+                    $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
+                    $pricenight = $accomdation->get_convertedamount($fromcurr);
+                }
                 $segment_hotel .= '<div style = " width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin:10px;"> '.$lang->night.' '.$accomdation->numNights.' at $ '.$pricenight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
 //    $segment_hotel .= '<div style = " width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
                 $segment_hotel .= '<div style = " width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;"><span>  '.$numfmt->formatCurrency(($accomdation->numNights * $pricenight), "USD").'</span> <br/> <small style="font-weight:normal;">[paid by: '.$paidby.' ]</small></div>'; // fix the html parse multiple hotl
@@ -438,9 +449,16 @@ class TravelManagerPlanSegments extends AbstractClass {
                 if($additionalexp_type->title == 'Other') {
                     $additionalexp_type->title = $additionalexp->description;
                 }
-                $additionalexp->expectedAmt = $additionalexp->get_convertedamount($additionalexp->currency, USD);
+
+                $tocurr = new Currencies(840);
+                $expectedAmt = $additionalexp->get_convertedamount($tocurr);
+                if($additionalexp->expectedAmt != 0 && $expectedAmt == 0) {
+                    $fromcurr = new Currencies($additionalexp->currency);
+                    $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
+                    $expectedAmt = $additionalexp->get_convertedamount($fromcurr);
+                }
                 $additional_expenses_details .= '<div style = "width:70%;display:inline-block;">'.$additionalexp_type->title.'</div>';
-                $additional_expenses_details .= '<div style = "width:25%;display:inline-block;font-size:14px;font-weight:bold;text-align:right;">'.$numfmt->formatCurrency($additionalexp->expectedAmt, "USD").'<br/><small style="font-weight:normal;">[paid by: '.$paidby.' ] </small> </div>';
+                $additional_expenses_details .= '<div style = "width:25%;display:inline-block;font-size:14px;font-weight:bold;text-align:right;">'.$numfmt->formatCurrency($expectedAmt, "USD").'<br/><small style="font-weight:normal;">[paid by: '.$paidby.' ] </small> </div>';
                 $additional_expenses_details .= '</div>';
             }
         }
@@ -453,8 +471,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         global $template, $db, $lang;
 
         $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::CURRENCY);
-        $fxrate_query['transp'] = "(SELECT rate FROM currencies_fxrates WHERE baseCurrency=tmpt.currency AND currency=840 ORDER BY date DESC LIMIT 0, 1)";
-
+        $fxrate_query['transp'] = "(CASE WHEN tmpt.currency =840 THEN 1 ELSE (SELECT rate FROM currencies_fxrates WHERE baseCurrency=tmpt.currency AND currency=840 ORDER BY date DESC LIMIT 0, 1)END)";
         $query = $db->query("SELECT tmpltid, tmtcid, sum(fare*{$fxrate_query['transp']}) AS fare FROM ".Tprefix."travelmanager_plan_transps tmpt WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP By tmtcid");
         if($db->num_rows($query) > 0) {
             while($transpexp = $db->fetch_assoc($query)) {
@@ -469,8 +486,8 @@ class TravelManagerPlanSegments extends AbstractClass {
             /* get hotel expences total night of each segment */
         }
 
-        $fxrate_query['accomodation'] = "(SELECT rate FROM currencies_fxrates WHERE baseCurrency=tmpa.currency AND currency=840
-				ORDER BY date DESC LIMIT 0, 1)";
+        $fxrate_query['accomodation'] = "(CASE WHEN tmpa.currency =840 THEN 1 ELSE (SELECT rate FROM currencies_fxrates WHERE baseCurrency=tmpa.currency AND currency=840
+				ORDER BY date DESC LIMIT 0, 1) END)";
         $expenses['accomodation'] = $db->fetch_field($db->query("SELECT SUM(priceNight*{$fxrate_query['accomodation']}*numNights) AS total FROM ".Tprefix."travelmanager_plan_accomodations tmpa WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid=".intval($this->tmpid).")"), 'total');
         if(empty($expenses['accomodation'])) {
             $expenses['accomodation'] = 0;
@@ -478,8 +495,8 @@ class TravelManagerPlanSegments extends AbstractClass {
         $expenses_total += $expenses['accomodation'];
         $expenses_subtotal = $numfmt->formatCurrency($expenses_total, "USD");
 
-        $fxrate_query['expenses'] = "(SELECT rate FROM currencies_fxrates WHERE baseCurrency=(SELECT numCode FROM currencies WHERE alphaCode=tme.currency) AND currency=840
-				ORDER BY date DESC LIMIT 0, 1)";
+        $fxrate_query['expenses'] = "(CASE WHEN tme.currency =840 THEN 1 ELSE (SELECT rate FROM currencies_fxrates WHERE baseCurrency=tme.currency AND currency=840
+				ORDER BY date DESC LIMIT 0, 1)END)";
         $additional_expenses = $db->query("SELECT tmetid,sum(expectedAmt*{$fxrate_query['expenses']}) AS expectedAmt,description FROM ".Tprefix."travelmanager_expenses tme WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP by tmetid");
         if($db->num_rows($additional_expenses) > 0) {
             $additional_expenses_details = '<div style="display:block;padding:5px 0px 5px 0px;width:15%;" class="subtitle">'.$lang->addexp.'</div>';
@@ -546,16 +563,23 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $rescurrency = $selectedhotel->get_currency();
                     $rescurrency_id = $rescurrency->get_id();
                     $checksum = $selectedhotel->inputChecksum;
+                    $selected_hotel[$sequence][$checksum]['displaystatus'] = "display:none;";
+                    if(!empty($selectedhotel->paidById)) {
+                        $selected_hotel[$sequence][$checksum]['displaystatus'] = "display:block;";
+                        $affiliate = new Affiliates($selectedhotel->paidById);
+                    }
                 }
                 else {
                     $checksum = generate_checksum('accomodation');
+                    $selected_hotel[$sequence][$checksum]['displaystatus'] = "display:none;";
                 }
 
                 $review_tools .= '<a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$hotel->tmhid.'" title="'.$lang->hotelreview.'"><img src="'.$core->settings['rootdir'].'/images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
 
                 $checkbox_hotel = '<input aria-describedby="ui-tooltip-155" title="" name="segment['.$sequence.'][tmhid]['.$checksum.'][tmhid]" id="segment['.$sequence.']['.$checksum.'][tmhid]" value="'.$hotel->tmhid.'" type="checkbox">'.$hotel->name;
 
-                $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$checksum.'").show();}else{$("#anotheraff_accomodations_'.$sequence.'_'.$checksum.'").hide();}';
+                // $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$checksum.'").show();}else{$("#anotheraff_accomodations_'.$sequence.'_'.$checksum.'").hide();}';
+                $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_accomodations_'.$sequence.'_'.$checksum.'").hide();}';
                 $paidby_entities = array(
                         'myaffiliate' => $lang->myaffiliate,
                         'supplier' => $lang->supplier,
@@ -563,7 +587,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         'myself' => $lang->myself,
                         'anotheraff' => $lang->anotheraff
                 );
-                $selectlists['paidBy'] = parse_selectlist('"segment[{$sequence}][tmhid][{$checksum}][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
+                $selectlists['paidBy'] = parse_selectlist('"segment['.$sequence.'][tmhid]['.$checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
 
                 $mainaffobj = new Affiliates($core->user['mainaffiliate']);
                 $destcity_obj = $this->get_destinationcity();
@@ -574,7 +598,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', 4, $currencies, $rescurrency_id);
 
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
-                $review_tools = $paidby_details = $currencies_list = $checkbox_hotel = '';
+                $review_tools = $paidby_details = $currencies_list = $currencies = $selected_hotel = $checkbox_hotel = '';
             }
         }
 

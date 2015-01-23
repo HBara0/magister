@@ -62,7 +62,7 @@ class TravelManagerPlanTransps extends AbstractClass {
         global $db, $core;
         /* Specify transportation categories As isMain (if suggested by the system) */
 
-        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'transpDetails', 'paidBy', 'paidById', 'transpType', 'isUserSuggested', 'inputChecksum');
+        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'transpDetails', 'paidBy', 'paidById', 'transpType', 'isUserSuggested', 'inputChecksum', 'currency');
         $valid_attrs = array_combine($valid_attrs, $valid_attrs);
         $data = array_intersect_key($data, $valid_attrs);
         if($data['paidBy'] != 'anotheraff') {
@@ -94,6 +94,7 @@ class TravelManagerPlanTransps extends AbstractClass {
                 'createdBy' => $core->user['uid'],
                 'isUserSuggested' => $transportdata['isUserSuggested'],
                 'inputChecksum' => $transportdata['inputChecksum'],
+                'currency' => $transportdata['currency'],
         );
 
         if($tanspdata_array['paidBy'] != 'anotheraff') {
@@ -111,13 +112,21 @@ class TravelManagerPlanTransps extends AbstractClass {
         return new TravelManagerTranspCategories($this->data['tmtcid']);
     }
 
-    public function get_convertedamount($fromcurrency, $tocurrency, $amount = '') {
-        if(empty($amount)) {
-            $amount = $this->fare;
+    public function get_convertedamount(Currencies $tocurrency) {
+        if($this->currency == $tocurrency->numCode) {
+            return $this->fare;
         }
-        $curr = new Currencies($fromcurrency);
-        $exchagerate = $curr->get_latest_fxrate($tocurrency, array(), $fromcurrency);
-        return $amount * $exchagerate;
+        $fromcurrency = new Currencies($this->currency);
+        $exchangerate = $tocurrency->get_latest_fxrate($tocurrency->alphaCode, array(), $fromcurrency->alphaCode);
+
+        if(empty($exchangerate)) {
+            $reverserate = $tocurrency->get_latest_fxrate($fromcurrency->alphaCode, array(), $tocurrency->alphaCode);
+            if(!empty($reverserate)) {
+                $exchangerate = 1 / $reverserate;
+                $tocurrency->set_fx_rate($fromcurrency->numCode, $tocurrency->numCode, $exchangerate);
+            }
+        }
+        return $this->fare * $exchangerate;
     }
 
 }

@@ -29,8 +29,8 @@ if(!$core->input['action']) {
     /* Save and Preview button from plantrip */
     if(isset($core->input['referrer']) && $core->input['referrer'] == 'plantrip') {
         $plan_object = TravelManagerPlan::get_plan(array('tmpid' => $planid));
-        $checkbox['confirm'] = '<div style="margin-bottom:5px"><input type="checkbox" id="confirm_finalize"/>'.$lang->confirmfinalizeplan.'</div>';
-        $finalize_button = '<div><input type="submit" disabled="disabled" class="button" value="'.$lang->finalize.'" id="perform_travelmanager/viewplan_Button"></div>';
+        $checkbox['confirm'] = '<input type="checkbox" id="confirm_finalize"/>'.$lang->confirmfinalizeplan.'</div>';
+        $finalize_button = '<div><input type="submit" disabled="disabled" class="button" value=" '.$lang->finalize.'" id="perform_travelmanager/viewplan_Button">';
     }
 
     if(!is_object($plan_object)) {

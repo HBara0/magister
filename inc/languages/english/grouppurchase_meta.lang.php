@@ -21,4 +21,7 @@ $lang['dimensional'] = 'Dimensional';
 $lang['basic'] = 'Basic (Tabular)';
 $lang['reporttype'] = 'Report Type';
 $lang['todelete'] = 'If checkbox is checked row is deleted';
+$lang['grouppurchasetabular'] = 'Tabular View';
+$lang['grouppurchase'] = 'Group Purchase';
+$lang['selecteddimensions'] = 'Selected Dimensions'
 ?>

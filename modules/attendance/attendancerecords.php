@@ -28,7 +28,7 @@ if(!$core->input['action']) {
     }
 
     if($core->usergroup['attendance_canViewAllAttendance'] != 1) {
-        $filter_where = '(uid = '.$core->user['uid'].' OR uid IN (SELECT uid FROM users WHERE reportsTo='.$core->user['uid'].')) ';
+        $usersfilter_where = '(uid = '.$core->user['uid'].' OR uid IN (SELECT uid FROM users WHERE reportsTo='.$core->user['uid'].')) ';
         $and = ' AND ';
     }
     else {
@@ -40,10 +40,44 @@ if(!$core->input['action']) {
         }
 
         $users = get_specificdata('affiliatedemployees', array('uid'), 'uid', 'uid', '', 0, $users_where);
-        $filter_where = 'uid IN ('.implode(',', $users).') ';
+        $usersfilter_where = 'uid IN ('.implode(',', $users).') ';
         $and = ' AND ';
     }
 
+    /* Perform inline filtering - START */
+    $userobjs = Users::get_data(array('uid' => $users), array('operators' => array('uid' => 'IN')));
+    $filters_config = array(
+            'parse' => array('filters' => array('uid', 'fromDate', 'toDate', 'operation'),
+                    'overwriteField' => array('uid' => parse_selectlist('filters[uid][]', 1, $userobjs, $core->input['filters']['uid'], 1, '', array('blankstart' => true, 'width' => 250, 'multiplesize' => 3)),
+                            'operation' => parse_selectlist('filters[operation]', 4, array('' => '', 'checkin' => $lang->checkin, 'checkout' => $lang->checkout), $core->input['filters']['operation']),
+                    ),
+                    'fieldsSequence' => array('uid' => 1, 'fromDate' => 2, 'toDate' => 3, 'operation' => 4)
+            ),
+            'process' => array(
+                    'filterKey' => 'aarid',
+                    'mainTable' => array(
+                            'name' => 'attendance_attrecords',
+                            'filters' => array('uid' => array('operatorType' => 'multiple', 'name' => 'uid'), 'fromDate' => array('operatorType' => 'date', 'name' => 'time'), 'toDate', 'operation' => array('operatorType' => 'equal', 'name' => 'operation')),
+                    )
+            )
+    );
+
+    $filter = new Inlinefilters($filters_config);
+    $filter_where_values = $filter->process_multi_filters();
+
+    $filters_row_display = 'hide';
+    if(is_array($filter_where_values)) {
+        $filters_row_display = 'show';
+        // $filter_where = ' AND ';
+        if(empty($uid_where)) {
+            //  $filter_where = ' WHERE ';
+        }
+        $filter_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        $multipage_filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+    }
+
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+ 
     $configs['order'] = array('by' => array('time', 'uid'), 'sort' => 'DESC');
     if(isset($core->input['sortby'], $core->input['order'])) {
         $configs['order'] = array('by' => $db->escape_string($core->input['sortby']), 'sort' => $db->escape_string($core->input['order']));
@@ -52,7 +86,11 @@ if(!$core->input['action']) {
 
     $configs['limit'] = array('offset' => $limit_start, 'row_count' => $core->settings['itemsperlist']);
     $configs['operators']['uid'] = CUSTOMSQL;
+    if(empty($filter_where)) {
+        $filter_where = $usersfilter_where;
+    }
 
+    $configs['returnarray'] = true;
     $records = AttendanceAttRecords::get_data(array('uid' => $filter_where), $configs);
     if(is_array($records)) {
         foreach($records as $record) {

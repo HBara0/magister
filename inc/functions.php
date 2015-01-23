@@ -1699,6 +1699,7 @@ function get_object_bytype($dim, $id, $simple = true) {
         case 'createdBy':
         case 'modifiedBy':
         case 'reportsTo':
+        case 'businessMgr':
             return new Users($id);
             break;
         case 'ltid':
