@@ -133,51 +133,28 @@ class GroupPurchaseForecast extends AbstractClass {
         }
     }
 
-    public static function get_grouppurchaseforecast($groupdata) {
+    public static function get_grppurchpermissions($groupdata) {
         global $core;
+
+        if($core->usergroup['grouppurchasing_canViewAllForecasts'] == 1) {
+            $filter_where['affid'] = $groupdata['affiliates'];
+            $filter_where['spid'] = $groupdata['suppliers'];
+            return $filter_where;
+        }
         if(empty($groupdata['suppliers'])) {
             $groupdata['suppliers'] = $core->user['suppliers']['eid'];
         }
-        $filter_where['suppliers'] = $groupdata['suppliers'];
-        if(empty($groupdata['affiliates'])) {
-            $groupdata['affiliates'] = $core->user['affiliates'];
+        $filter_where['spid'] = array_intersect($groupdata['suppliers'], $core->user['suppliers']['eid']);
+
+        $affiliates_where = '(affid IN ('.implode(',', $core->user['affiliates']).') AND(generalManager='.$core->user['uid'].' OR supervisor='.$core->user['uid'].'))';
+        $affiliates_filter = Affiliates::get_affiliates(array('affid' => $affiliates_where), array('returnarray' => true, 'simple' => false, 'operators' => array('affid' => 'CUSTOMSQL')));
+        if(is_array($affiliates_filter)) {
+            $intersection = array_intersect(array_keys($affiliates_filter), $groupdata['affiliates']);
         }
-        if($core->usergroup['grouppurchasing_canViewAllForecasts'] == 1) {
-            //$filter_where['suppliers'] = $groupdata['suppliers'];
-            $filter_where['affid'] = $groupdata['affiliates'];
+        if(!empty($intersection)) {
+            $filter_where['affid'] = array_intersect(array_keys($affiliates_filter), $groupdata['affiliates']);
         }
-        else {
-            $affiliates = Affiliates::get_affiliates(array('affid' => $groupdata['affiliates']), array('returnarray' => true, 'simple' => false, 'operators' => array('affid' => 'in')));
-            foreach($affiliates as $affiliate) {
-                if($affiliate->generalManager == $core->user['uid']) {
-                    $filter_where['affid'][$affiliate->affid] = $affiliate->affid;
-                }
-                if($affiliate->supervisor == $core->user['uid']) {
-                    $filter_where['affid'][$affiliate->affid] = $affiliate->affid;
-                }
-                else {
-                    //  $filter_where['affid'] = $core->user['affiliates'];
-                }
-                /* User is an audit of the affiliate => show all affiliate data */
-                $affemployess_objs = AffiliatedEmployees::get_data(array('affid' => $affiliate->affid, 'uid' => $core->user['uid'], 'canAudit' => 1), array('returnarray' => true));
-                if(is_array($affemployess_objs)) {
-                    foreach($affemployess_objs as $affemployess_obj) {
-                        if($affemployess_obj->uid == $core->user['uid']) {
-                            $filter_where['affid'][$affiliate->affid] = $affemployess_obj->affid;
-                        }
-                    }
-                }
-            }
-        }
-        /* User is coordinator of the segment of a given product => show data from all affiliates of of products related to specific segment */
-        $dal_config = array(
-                'operators' => array('affid' => 'in', 'spid' => 'in', 'year' => '='),
-                'simple' => false,
-                'returnarray' => true
-        );
-        $purchase_forcastobjs = GroupPurchaseForecast::get_data(array('affid' => $filter_where['affid'], 'year' => $groupdata['years'], 'spid' => $filter_where['suppliers']), $dal_config);
-        /* security to show data */
-        return $purchase_forcastobjs;
+        return $filter_where;
     }
 
 }

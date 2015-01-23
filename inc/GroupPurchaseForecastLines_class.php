@@ -96,4 +96,27 @@ class GroupPurchaseForecastLines extends AbstractClass {
 //
 //        return $filter_where;
 //    }
+
+    public static function get_forecastlinespermisiions(GroupPurchaseForecast $gpforecast) {
+        global $core;
+        $productseg_coordinators = ProdSegCoordinators::get_data(array('uid' => $core->user['uid']), array('returnarray' => true));
+        if(is_array($productseg_coordinators)) {
+            foreach($productseg_coordinators as $productseg_coordinator) {
+                $segments[] = $productseg_coordinator->psid;
+            }
+        }
+        $affiliates_where = '(affid IN ('.implode(',', $core->user['affiliates']).') AND(generalManager='.$core->user['uid'].' OR supervisor='.$core->user['uid'].')) OR (affid IN ('.implode(',', $core->user['auditedaffids']).'))';
+        $affiliates_filter = Affiliates::get_affiliates(array('affid' => $affiliates_where), array('returnarray' => true, 'simple' => false, 'operators' => array('affid' => 'CUSTOMSQL')));
+        if(in_array($gpforecast->affid, array_keys($affiliates_filter))) {
+            return;
+        }
+        if(is_array($segments)) {
+            $filter['psid'] = $segments;
+        }
+        else {
+            $filter['businessMgr'] = $core->user[uid];
+        }
+        return $filter;
+    }
+
 }
