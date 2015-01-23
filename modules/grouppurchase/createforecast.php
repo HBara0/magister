@@ -37,8 +37,9 @@ if(!$core->input['action']) {
     $supplier_where .= ' AND approved=1 AND isActive=1';
     // $suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, "{$supplier_where}");
     $gp_supplierslist = "<select name=forecast[spid] id=spid ><option value='0'>&nbsp;</option></select>";
+    $years = array_combine(range(date('Y') + 1, date('Y')), range(date('Y') + 1, date('Y')));
 
-    $years = array_combine(range(date('Y'), date('Y') + 1), range(date('Y'), date('Y') + 1));
+    //$years = array_combine(range(date('Y'), date('Y') + 1), range(date('Y'), date('Y') + 1));
     foreach($years as $year) {
         $year_selected = '';
         if($year == $years[date('Y')] + 1) {
@@ -67,7 +68,10 @@ if($core->input['action'] == 'get_supplierslist') {
 }
 elseif($core->input['action'] == 'get_years') {
     /* implementing years restricitons */
-    $next_year = date('Y') + 1;
-    $gp_year = "<option value='{$next_year}' selected='selected'>{$next_year}</option>";
+    $next_years = array_combine(range(date('Y'), date('Y') + 1), range(date('Y'), date('Y') + 1));
+    //  $next_year = date('Y') + 1;
+    foreach($next_years as $next_year) {
+        $gp_year .= "<option value='{$next_year}' selected='selected'>{$next_year}</option>";
+    }
     output($gp_year);
 }

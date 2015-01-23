@@ -62,14 +62,23 @@ if(!$core->input['action']) {
     $years = array_combine(range(date('Y') + 1, date('Y')), range(date('Y') + 1, date('Y')));
     if(is_array($years)) {
         foreach($years as $key => $value) {
+            if($key == 0) {
+                continue;
+            }
             $checked = $rowclass = '';
-            $forecast_year_list .= '<tr class="'.$rowclass.'">';
-            $forecast_year_list .= '<td><input name="forecast[years]"  required="required" type="radio" value="'.$key.'">'.$value.'</td></tr>';
+            $forecast_year_list .= ' <tr class="'.$rowclass.'">';
+            $forecast_year_list .= '<td><input id="yearsfilter_check_'.$key.'" name="forecast[years][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td><tr>';
         }
     }
+//    if(is_array($years)) {
+//        foreach($years as $key => $value) {
+//            $checked = $rowclass = '';
+//            $forecast_year_list .= '<tr class="'.$rowclass.'">';
+//            $forecast_year_list .= '<td><input name="forecast[years]"  required="required" type="radio" value="'.$key.'">'.$value.'</td></tr>';
+//        }
+//    }
 
-    $dimensions = array('affid' => $lang->affiliate, 'spid' => $lang->supplier, 'pid' => $lang->product, 'saleType' => $lang->saletype, 'businessMgr' => $lang->bm, 'psid' => $lang->segment);
-
+    $dimensions = array('affid' => $lang->affiliate, 'spid' => $lang->supplier, 'pid' => $lang->product, 'saleType' => $lang->saletype, 'businessMgr' => $lang->bm, 'psid' => $lang->segment, 'year' => $lang->year);
     foreach($dimensions as $dimensionid => $dimension) {
         $dimension_item.='<li class = "ui-state-default" id = '.$dimensionid.' title = "Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
     }
