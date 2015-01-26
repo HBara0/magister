@@ -7,7 +7,7 @@
     <tr>
         {$menu}
         <td class="contentContainer" colspan="2">
-            <h1>{$reporttitle}</h1>
+            {$reporttitle}
 
     <page>
         <div style="page-break-before:always;"></div>

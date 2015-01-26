@@ -17,51 +17,43 @@ if($core->usergroup['grouppurchasing_canViewAllForecasts'] == 0) {
 if(!($core->input['action'])) {
     $report_type = $core->input['forecast']['reporttype'];
 
-//    if(GroupPurchaseForecast::canview_permissions($core->input['forecast']) == false) {
-//        error($lang->sectionnopermission);
-//    }
+    $filter_where = GroupPurchaseForecast::get_grppurchpermissions($core->input['forecast']);
+    $filter_where['year'] = $core->input['forecast']['years'];
 
-    $purchase_forcastobjs = GroupPurchaseForecast::get_grouppurchaseforecast($core->input['forecast']);
     $dal_config = array(
-            'operators' => array('affid' => 'in', 'spid' => 'in', 'year' => '='),
+            'operators' => array('affid' => 'in', 'spid' => 'in', 'year' => 'in'),
             'simple' => false,
             'returnarray' => true
     );
+    $purchase_forcastobjs = GroupPurchaseForecast::get_data($filter_where, $dal_config);
+
     if($report_type == 'basic') {
         for($i = 1; $i <= 12; $i++) {
             $groupurchase_months[$i] = 'month'.$i;
             $dateObj = DateTime::createFromFormat('!m', $i);
             $groupurchase_monthname[$i] = $dateObj->format('F');
         }
-        $groupurchase['monthead'] .= '<tr class="thead"><th style="vertical-align:central; padding:2px;  border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->product.'</th>';
+        $groupurchase['monthead'] .= '<tr class = "thead"><th style = "vertical-align:central; padding:2px;  border-bottom: dashed 1px #CCCCCC;" align = "center" class = "border_left">'.$lang->product.'</th>';
         $groupurchase['monthead'] .='<th style = "vertical-align:central; padding:2px;border-bottom: dashed 1px #CCCCCC;" align = "center" class = "border_left">'.$lang->saletype.'</th>';
-        $groupurchase['monthead'] .= '<th class="border_left">'.implode('</th><th  class="border_left">', $groupurchase_monthname).'</th></tr>';
-        $groupurchase['summonth'] = 'SUM('.implode('),SUM(', $groupurchase_months).')';
+        $groupurchase['monthead'] .= '<th class = "border_left">'.implode('</th><th class = "border_left"> ', $groupurchase_monthname).'</th></tr>';
+        $groupurchase['summonth'] = 'SUM('.implode('), SUM(', $groupurchase_months).')';
 
+        $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
+        $numfmt->setPattern("#0.###");
         if(is_array($purchase_forcastobjs)) {
-//            foreach($purchase_forcastobjs as $purchase_forcastobj) {
-//                $forecast_lines = GroupPurchaseForecastLines::get_data('gpfid='.$purchase_forcastobj->gpfid, array('returnarray' => true));
-////                if(is_array($forecast_lines)) {
-////                    foreach($forecast_lines as $forecast_line) {
-////                        $filter = $forecast_line->filter_securityview();
-////                    }
-////                }
-// filter of bm send to the query
-            //    }
-
-            $query = 'SELECT  pid,saleType,'.$groupurchase['summonth'].' FROM grouppurchase_forecastlines WHERE '.GroupPurchaseForecast::PRIMARY_KEY.' IN('.implode(',', array_keys($purchase_forcastobjs)).')'.$filter.' Group BY pid,saleType';
+            $query = 'SELECT pid, saleType,'.$groupurchase['summonth'].' FROM grouppurchase_forecastlines WHERE '.GroupPurchaseForecast::PRIMARY_KEY.' IN('.implode(', ', array_keys($purchase_forcastobjs)).') Group BY pid, saleType';
             $sql = $db->query($query);
             while($forecaslines = $db->fetch_assoc($sql)) {
                 $product_obj = new Products($forecaslines['pid']);
                 $slaletype = new SaleTypes($forecaslines['saleType']);
                 foreach($groupurchase_months as $monthval) {
-                    $groupurchase['monthval'] .= '<td class="smalltext" class="border_left">'.$forecaslines['SUM('.$monthval.')'].'</td>';
+                    $groupurchase['monthval'] .= '<td class = "smalltext" class = "border_left">'.$numfmt->format($forecaslines['SUM('.$monthval.')']).'</td>';
                 }
                 eval("\$grouppurchase_report_rows .= \"".$template->get('grouppurchase_report_rows')."\";");
                 unset($groupurchase['monthval']);
             }
         }
-        $reporttitle = $lang->grouppurchasetabular;
+        $reporttitle = '<h1>'.$lang->forecastedquantities.'<br/><small> '.implode(', ', $filter_where['year']).'</small></h1>';
         eval("\$grouppurchase_report = \"".$template->get('grouppurchase_report')."\";");
         output_page($grouppurchase_report);
     }
@@ -69,12 +61,15 @@ if(!($core->input['action'])) {
         $forecastdata = $core->input['forecast'];
         if(is_array($purchase_forcastobjs)) {
             foreach($purchase_forcastobjs as $groupforecast) {
-                $gpforecastlines = $groupforecast->get_forecastlines();
+                $gplines_filter = GroupPurchaseForecastLines::get_forecastlinespermisiions($groupforecast);
+                $gplines_filter['gpfid'] = $groupforecast->gpfid;
+                $gpforecastlines = GroupPurchaseForecastLines::get_data($gplines_filter, array('returnarray' => true, 'simple' => false, 'operators' => array('psid' => 'IN')));
                 if(is_array($gpforecastlines)) {
                     foreach($gpforecastlines as $grouppurchasline) {
                         $gplines_data[$grouppurchasline->gpflid] = $grouppurchasline->get();
                         $gplines_data[$grouppurchasline->gpflid]['affid'] = $groupforecast->affid;
                         $gplines_data[$grouppurchasline->gpflid]['spid'] = $groupforecast->spid;
+                        $gplines_data[$grouppurchasline->gpflid]['year'] = $groupforecast->year;
                     }
                 }
             }
@@ -85,8 +80,7 @@ if(!($core->input['action'])) {
             $required_fields[$i] = 'month'.$j;
             $formats[$required_fields[$i]] = array('style' => NumberFormatter::DECIMAL, 'pattern' => '#,##0.00');
         }
-        $dimensions = explode(',', $forecastdata['dimension'][0]);
-        /* Dimensional Report Settings - END */
+        $dimensions = explode(',', $forecastdata['dimension'][0]); /* Dimensional Report Settings - END */
 
         $dimensionalreport = new DimentionalData();
         $dimensionalreport->set_dimensions(array_combine(range(1, count($dimensions)), array_values($dimensions)));
@@ -108,6 +102,7 @@ if(!($core->input['action'])) {
         else {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
         }
+        $reporttitle = '<h1>'.$lang->forecastedquantities.'<br/><small> '.implode(', ', $filter_where['year']).'</small></h1>';
         eval("\$grouppurchase_report = \"".$template->get('grouppurchase_report')."\";");
         output_page($grouppurchase_report);
     }
