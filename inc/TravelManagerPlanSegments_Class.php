@@ -134,7 +134,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $hoteldata['currency'] = $hotel['currency'];
                 $hoteldata['numNights'] = $hotel['numNights'];
                 $hoteldata['paidBy'] = $hotel['entites'];
-                $hoteldata['paidById'] = $hotel['paidBy'];
+                $hoteldata['paidById'] = $hotel['paidById'];
 
                 $accod_obj = new TravelManagerPlanaccomodations();
                 $accod_obj->set($hoteldata);
@@ -251,7 +251,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $hoteldata['numNights'] = $hotel['numNights'];
                     $hoteldata['currency'] = $hotel['currency'];
                     $hoteldata['paidBy'] = $hotel['entites'];
-                    $hoteldata['paidById'] = $hotel['paidBy'];
+                    $hoteldata['paidById'] = $hotel['paidById'];
                     $accod_obj = new TravelManagerPlanaccomodations();
                     $accod_obj->set($hoteldata);
                     $accod_obj->save();
@@ -587,7 +587,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         'myself' => $lang->myself,
                         'anotheraff' => $lang->anotheraff
                 );
-                $selectlists['paidBy'] = parse_selectlist('"segment['.$sequence.'][tmhid]['.$checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
+                $selectlists['paidBy'] = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
 
                 $mainaffobj = new Affiliates($core->user['mainaffiliate']);
                 $destcity_obj = $this->get_destinationcity();

@@ -121,9 +121,9 @@ if(!$core->input['action']) {
                     'myself' => $lang->myself,
                     'anotheraff' => $lang->anotheraff
             );
-            $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$otherhotel_checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_accomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide();}';
+            $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide();}';
 
-            $paidbyoptions = parse_selectlist('"segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
+            $paidbyoptions = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
 
             eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
             eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
@@ -160,9 +160,8 @@ else {
         /* prevent adding new segment if to date  greater than original  leave end date */
         $leave[$sequence]['toDate'] = $leave['toDate'];
         // $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 00:00:00', $leave[$sequence]['toDate']));
-
-        if(strtotime($core->input['toDate']) >= $leave[$sequence]['toDate']) {
-            output_xml("<status>false</status><message>{$lang->dateexceeded}</message>");
+        if(strtotime($core->input['toDate']) >= $leave[$sequence]['toDate'] || $core->input['fromDate'] == 'undefined') {
+            echo'<div style="color:red;">'.$lang->dateexceeded.'</div>';
             exit;
         }
         else {
@@ -204,6 +203,7 @@ else {
         $otherhotel_checksum = generate_checksum('accomodation');
         $descity_obj = new Cities($destcityid);
         $destcity = $descity_obj->get();
+        print_r($destcity);
         $destcity['country'] = $descity_obj->get_country()->get()['name'];
         $transp_requirements['drivemode'] = 'transit';
         $transp_requirements['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
@@ -249,6 +249,14 @@ else {
         $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
         $otherhotel['displaystatus'] = "display:none;";
         $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide();}';
+        $paidby_entities = array(
+                'myaffiliate' => $lang->myaffiliate,
+                'supplier' => $lang->supplier,
+                'client' => $lang->client,
+                'myself' => $lang->myself,
+                'anotheraff' => $lang->anotheraff
+        );
+        $paidbyoptions = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
 
         eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
         eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
@@ -290,6 +298,7 @@ else {
         else {
             if(is_array($core->input['segment'])) {
                 $travelplan->set($core->input);
+
                 $travelplan->save();
                 // $travelplan_obj->create($core->input['segment']);
             }

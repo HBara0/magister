@@ -17,10 +17,10 @@
                 {$paidbyoptions}
             </div>
         </div>
-        <div id="anotheraff_accomodations_{$sequence}_{$otherhotel_checksum}" style="{$otherhotel[displaystatus]} padding: 8px;" class="border_bottom border_left border_right border_top">
+        <div id="anotheraff_otheraccomodations_{$sequence}_{$otherhotel_checksum}" style="{$otherhotel[displaystatus]} padding: 8px;" class="border_bottom border_left border_right border_top">
             <div style="display:inline-block;width:15%;">{$lang->anotheraff}</div>
             <div style="display:inline-block;width:20%;padding:5px;"><input id="affiliate_{$sequence}_{$approved_hotels[tmhid]}_cache_otheracc_autocomplete" autocomplete="off" tabindex="8" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][affiliate]}"  type="text"></div>
-            <input id="affiliate_{$sequence}_{$approved_hotels[tmhid]}_cache_otheracc_id" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][paidBy]" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][affid]}" type="hidden">
+            <input id="affiliate_{$sequence}_{$approved_hotels[tmhid]}_cache_otheracc_id" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][paidById]" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][affid]}" type="hidden">
         </div>
 
     </div>
