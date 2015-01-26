@@ -91,7 +91,7 @@ if(!$core->input['action']) {
                 $approvedhotels = array();
             }
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
-            $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
+            // $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 
             /* parse expenses --START */
             $rowid = 1;
@@ -160,7 +160,6 @@ else {
         /* prevent adding new segment if to date  greater than original  leave end date */
         $leave[$sequence]['toDate'] = $leave['toDate'];
         // $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 00:00:00', $leave[$sequence]['toDate']));
-
         if(strtotime($core->input['toDate']) >= $leave[$sequence]['toDate']) {
             output_xml("<status>false</status><message>{$lang->dateexceeded}</message>");
             exit;

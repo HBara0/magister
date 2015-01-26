@@ -244,10 +244,10 @@ class TravelManagerPlan {
             $leavetimeframe['leavetodate'] = strtotime(date('Y-m-d 23:59:59', $leavetimeframe['leavetodate']));
             $lastsegment_todate = strtotime(date('Y-m-d 23:59:59', $lastsegment_todate));
 
-            if(($leavetimeframe ['leavefromdate'] != $firstsegment_fromdate || $leavetimeframe['leavetodate'] != $lastsegment_todate)) {
-                //echo ' leavefromdate '.$leavetimeframe['leavefromdate'].' firstsegfrom '.$firstsegment_fromdate.' leavetodate '.$leavetimeframe['leavetodate'].' $lastsegment_todate '.$lastsegment_todate;
+            if($leavetimeframe['leavefromdate'] != $firstsegment_fromdate || $leavetimeframe['leavetodate'] != $lastsegment_todate) {
+                //  echo ' leavefromdate '.$leavetimeframe['leavefromdate'].' firstsegfrom '.$firstsegment_fromdate.' leavetodate '.$leavetimeframe['leavetodate'].' $lastsegment_todate '.$lastsegment_todate;
                 $this->errorode = 7;
-                //return false;
+                return false;
             }
 
             foreach($this->segmentdata as $sequence => $segmentdata) {
@@ -265,9 +265,9 @@ class TravelManagerPlan {
                     $this->errorode = 5;
                     return false;
                 }
-                if(strtotime($this->segmentdata[$sequence - 1]['toDate']) > $segmentdata['toDate']) {
+                if((strtotime($this->segmentdata[$sequence - 1]['toDate']) > $segmentdata['toDate'])) {
                     $this->errorode = 5;
-                    // return false;
+                    return false;
                 }
             }
         }
@@ -329,7 +329,7 @@ class TravelManagerPlan {
             $data = $this->data;
         }
 
-//get object of and the id and set data and save
+        //get object of and the id and set data and save
         $latestsplan_obj = TravelManagerPlan::get_plan(array('lid' => $this->data['lid'], 'createdBy' => $core->user['uid']));
         unset($data['module'], $data['action'], $data['sequence'], $data['todate'], $data['prevdestcity']);
         if(is_object($latestsplan_obj)) {
@@ -343,6 +343,11 @@ class TravelManagerPlan {
 
     public function update($plandata = array()) {
         global $db;
+        $this->data['lid'] = $plandata['lid'];
+        $leave = new Leaves($this->data['lid']);
+        if(!$this->check_iteneraryconsistency($plandata['segment'], array('leavefromdate' => $leave->get()['fromDate'], 'leavetodate' => $leave->get()['toDate']))) {
+            return false;
+        }
         $segments = $plandata['segment'];
         $valid_attrs = array('uid', 'title', 'createBy', 'createdOn', 'modifiedBy', 'modifiedOn', 'isFinalized');
         $valid_attrs = array_combine($valid_attrs, $valid_attrs);
@@ -573,7 +578,7 @@ class TravelManagerPlan {
 
             /* parse expenses --END */
 
-            eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
+            //  eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
             eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
             unset($segments_expenses_output, $expensestype, $transsegments_output, $accomodation, $selectedhotel);
             eval("\$plantrip_createsegment   = \"".$template->get('travelmanager_plantrip_createsegment')."\";");

@@ -3,7 +3,7 @@
     <!--able width="100%" cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
           <tbody id="othertranspcat_{$sequence}_tbody">-->
     {$transsegments_output}
-    <table width="100%" cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
+    <table width="100%" class="datatable" style="margin-top:-20px;">
         <tbody id="othertranspcat_{$sequence}_tbody">
             {$rows}
         </tbody>
