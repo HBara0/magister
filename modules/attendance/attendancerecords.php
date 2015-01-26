@@ -15,8 +15,17 @@ if(!defined('DIRECT_ACCESS')) {
 if($core->usergroup['attendance_canListAttendance'] == 0) {
     error($lang->sectionnopermission);
 }
+/* Temporary specific fix for time zone */
+date_default_timezone_set($core->user_obj->get_mainaffiliate()->get_country()->defaultTimeZone);
 
 if(!$core->input['action']) {
+    $limit_start = 0;
+    if(isset($core->input['start'])) {
+        $limit_start = intval($core->input['start']);
+    }
+    if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+        $core->settings['itemsperlist'] = intval($core->input['perpage']);
+    }
 
     if($core->usergroup['attendance_canViewAllAttendance'] != 1) {
         $usersfilter_where = '(uid = '.$core->user['uid'].' OR uid IN (SELECT uid FROM users WHERE reportsTo='.$core->user['uid'].')) ';
@@ -68,15 +77,7 @@ if(!$core->input['action']) {
     }
 
     $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
-
-    $limit_start = 0;
-    if(isset($core->input['start'])) {
-        $limit_start = intval($core->input['start']);
-    }
-    if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
-        $core->settings['itemsperlist'] = intval($core->input['perpage']);
-    }
-
+ 
     $configs['order'] = array('by' => array('time', 'uid'), 'sort' => 'DESC');
     if(isset($core->input['sortby'], $core->input['order'])) {
         $configs['order'] = array('by' => $db->escape_string($core->input['sortby']), 'sort' => $db->escape_string($core->input['order']));
