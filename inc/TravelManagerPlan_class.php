@@ -66,6 +66,7 @@ class TravelManagerPlan {
         //key = '.$core->settings['googleapikey'].' &
 
         $googledirection_api = 'http://maps.googleapis.com/maps/api/directions/json?origin='.$directiondata['origincity']['name'].',+'.$directiondata['origincity']['country'].'&destination='.$directiondata['destcity']['name'].',+'.$directiondata['destcity']['country'].'&sensor=false&mode='.$directiondata['drivemode'].'&units=metric&departure_time='.$directiondata['departuretime'];
+        echo $googledirection_api;
         $json = file_get_contents($googledirection_api);
         $data = json_decode($json);
         return $data;
@@ -466,7 +467,7 @@ class TravelManagerPlan {
             //get transp cat send to  parse_transportaionfields
 //            $transportation_obj = $segmentobj->get_transportationscat();
 //            $categery['name'] = $transportation_obj->name;
-//            $transsegments_output = $this->parse_transportaionfields(array('name' => $transportation_obj->name), array('flight' => $segmentobj->apiFlightdata), $sequence);
+            $transsegments_output = $this->parse_transportaionfields(array('name' => $transportation_obj->name), array('flight' => $segmentobj->apiFlightdata), $sequence);
 
             /* parse transportations types --START */
             $seg_transppbj = $segmentobj->get_transportations();
@@ -474,6 +475,8 @@ class TravelManagerPlan {
             $transp_requirements['drivemode'] = 'transit';
             $transp_requirements['departuretime'] = $segmentobj->fromDate;
             $transsegments_output .= Cities::parse_transportations($seg_transppbj, array('transportationdetails' => $transportation_details, 'segment' => $segmentobj, 'origincity' => $segmentobj->get_origincity()->get(), 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
+
+
 
             unset($transp_requirements);
             /* parse transportations types --END */
@@ -576,10 +579,10 @@ class TravelManagerPlan {
 
             /* parse expenses --END */
 
-            //  eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
+            //  eval("\$transsegments_output.= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
             eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
             unset($segments_expenses_output, $expensestype, $transsegments_output, $hotelssegments_output, $accomodation, $selectedhotel);
-            eval("\$plantrip_createsegment   = \"".$template->get('travelmanager_plantrip_createsegment')."\";");
+            eval("\$plantrip_createsegment = \"".$template->get('travelmanager_plantrip_createsegment')."\";");
 
             $segments_output .= '<div id="segmentstabs-'.$segid.'">'.$plantrip_createsegment.'</div>';
 

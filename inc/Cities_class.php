@@ -333,7 +333,16 @@ class Cities extends AbstractClass {
         //   if(!empty($transsegments_output)) {
         $transsegments_output = $transsegments['title'].$transsegments_output;
         //  }
-        return $suggestedtranssegments_output.$suggestedtranscategments_output.'<hr/>'.$transsegments_output.$transcategments_output;
+
+
+        $transp_ouptut['suggested'] = $suggestedtranssegments_output.$suggestedtranscategments_output;
+        $transp_ouptut['othertransp'] = $transsegments_output.$transcategments_output;
+        if(isset($transpdata['transprequirements']['referrer']) && $transpdata['transprequirements'][referrer] == 'todate') {
+            return $transp_ouptut['suggested'];
+        }
+
+        //return $suggestedtranssegments_output.$suggestedtranscategments_output.'<hr/>'.$transsegments_output.$transcategments_output;
+        return $transp_ouptut;
     }
 
     protected function create(array $data) {
