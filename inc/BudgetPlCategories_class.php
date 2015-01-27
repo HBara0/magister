@@ -215,10 +215,10 @@ class BudgetPlCategories extends AbstractClass {
                                                         $effective_stid = $data['oldSaleType'];
                                                     }
                                                     $saletype_obj = SaleTypes::get_data(array('stid' => $effective_stid));
-                                                    $allocatedamount = number_format($data['amount'] / 1000, 2);
-                                                    $combudget[$key][$saletype]['amount'] += $allocatedamount;
+                                                    //$allocatedamount = number_format($data['amount'] / 1000, 2);
+                                                    $combudget[$key][$saletype]['amount'] += $data['amount'] / 1000;
                                                     if($saletype_obj->countLocally == 0) {
-                                                        $totalamount[$key] += $allocatedamount;
+                                                        $totalamount[$key] += $data['amount'] / 1000;
                                                     }
                                                     $combudget[$key][$saletype]['income'] += number_format($data['invoicingentityincome'] / 1000, 2);
                                                 }

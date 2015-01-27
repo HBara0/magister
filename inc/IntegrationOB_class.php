@@ -687,6 +687,10 @@ class IntegrationOB extends Integration {
         return $this->f_db;
     }
 
+    public function close_dbconn() {
+        $this->f_db->close();
+    }
+
 }
 
 class IntegrationOBTransaction {
@@ -1148,7 +1152,7 @@ class IntegrationOBInvoice {
         if(!empty($filters)) {
             $query_where = ' AND '.$filters; //' AND '.$this->f_db->escape_string($filters);
         }
-        $query = $this->f_db->query("SELECT c_invoice_id FROM c_invoice WHERE issotrx='Y'".$query_where." ORDER by dateinvoiced ASC");
+        $query = $this->f_db->query("SELECT c_invoice_id FROM c_invoice WHERE issotrx='Y'".$query_where." ORDER by dateinvoiced ASC, created ASC");
         if($this->f_db->num_rows($query) > 0) {
             while($invoice = $this->f_db->fetch_assoc($query)) {
                 $invoices[$invoice['c_invoice_id']] = new self($invoice['c_invoice_id'], $this->f_db);

@@ -91,7 +91,7 @@ if(!$core->input['action']) {
                 $approvedhotels = array();
             }
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
-            $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
+            // $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 
             /* parse expenses --START */
             $rowid = 1;

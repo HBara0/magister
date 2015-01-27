@@ -98,6 +98,7 @@ else {
 }
 //}
 
+$message_sentence .= '<br /><em>Please not not fill any products activity unless you receive an announcement that they have been imported.</em><br />';
 if($is_thedate == true) {
     foreach($users as $key => $val) { //$time_difference days to finalize these reports
         $email_message = "<strong>Hello {$val[firstName]} {$val[lastName]}</strong> <br /> ".floor($time_difference)." {$message_sentence} <ul>{$val[reports]}</ul>";

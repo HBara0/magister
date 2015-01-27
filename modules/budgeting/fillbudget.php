@@ -139,7 +139,12 @@ if(!$core->input['action']) {
 //
         //$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1, 'numCode = '.$affiliate_currency);
         $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
-        $currencies = array_filter(array(840 => 'USD', 978 => 'EUR', $affiliate_currency->get()['numCode'] => $affiliate_currency->get()['alphaCode']));
+        $currencies = array_filter(array(840 => 'USD', 978 => 'EUR'));
+        $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where affid IS NOT NULL';
+        $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
+        foreach($curr_objs as $curr_obj) {
+            $currencies[$curr_obj->get_id()] = $curr_obj->alphaCode;
+        }
 
         /* check whether to display existing budget Form or display new one  */
         $unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income', 'inputChecksum');

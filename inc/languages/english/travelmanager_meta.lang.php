@@ -85,6 +85,7 @@ $lang['finish'] = 'Finish';
 $lang['finalize'] = 'Finalize';
 $lang['accomodations'] = 'Accomodations';
 $lang['selectedtransportations'] = 'Selected Transportations';
+$lang['selectothertransportations'] = 'Select Other Transportations';
 $lang['suggestedtransportations'] = 'Suggested Transportations';
 $lang['vehiclenumber'] = 'Vehicle Number';
 $lang['paidby'] = 'Paid By';

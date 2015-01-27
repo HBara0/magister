@@ -47,6 +47,10 @@ if($core->input['authCode'] == AUTHCODE) {
     foreach($sync_documents as $orgid => $document) {
         $integration->sync_purchases(array($orgid), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')), $document);
         $integration->sync_sales(array($orgid), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')), $document);
+        sleep(10);
     }
+
+    $integration->close_dbconn();
+    echo 'Done';
 }
 ?>
