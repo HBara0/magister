@@ -123,7 +123,6 @@ elseif($core->input['action'] == 'email') {
     $mailer->set_subject('plantrip'.'['.$plan_name.']');
     $mailer->set_message($travelmanager_viewplan);
     $mailer->set_to('tony.assaad@ocos.local');
-    print_R($mailer->debug_info());
     $mailer->send();
 }
 elseif($core->input['action'] == 'do_perform_viewplan') {
