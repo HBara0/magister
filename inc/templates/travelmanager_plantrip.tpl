@@ -130,16 +130,18 @@
                 $('input[id^="pickDate_to"]').live('change', function() {
                     var segid = $(this).attr("id").split("_");
                     var nextsegid = ++segid[2];
-                    $('input[id^="pickDate_from_' + nextsegid + '"]').live('change', function() {
-                        $('input[id^="destinationcity_' + nextsegid + '"]').trigger('change');
-                    });
-                    $('input[id^="pickDate_from_' + nextsegid + '"]').val($(this).val())
-                    $('input[id^="altpickDate_from_' + nextsegid + '"]').val($(this).val());
                     var descity = $('input[id="destinationcity_' + segid[2] + '_cache_id"]').val();
+                    var origincity = $('input[id=cities_' + nextsegid + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
+                    $('input[id^="pickDate_from_' + nextsegid + '"]').live('change', function() {
+                        //  $('input[id^="destinationcity_' + nextsegid + '"]').trigger('change');
+                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=refreshtransp", "&sequence=" + nextsegid + "&destcity=" + descity + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_to_' + (nextsegid - 1)).val(), 'content_suggestedtransploader_' + nextsegid + '', 'content_suggestedtransp_' + nextsegid + '', true);
+                    });
+                    $('input[id^="pickDate_from_' + nextsegid + '"]').val($(this).val()) // set fromdate of the next segment to get the value of the previous ssegment
+                    $('input[id^="altpickDate_from_' + nextsegid + '"]').val($(this).val());
+
                     $('input[id^="pickDate_from_' + nextsegid + '"]').trigger('change');
                     if((descity != '') && $("#altpickDate_to").val() != '') {
-                        $('input[id^="destinationcity_' + nextsegid + '"]').trigger('change');
-
+                        // $('input[id^="destinationcity_' + nextsegid + '"]').trigger('change');
                     }
                 });
             });

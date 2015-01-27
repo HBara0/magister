@@ -203,7 +203,6 @@ else {
         $otherhotel_checksum = generate_checksum('accomodation');
         $descity_obj = new Cities($destcityid);
         $destcity = $descity_obj->get();
-        print_r($destcity);
         $destcity['country'] = $descity_obj->get_country()->get()['name'];
         $transp_requirements['drivemode'] = 'transit';
         $transp_requirements['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
@@ -409,6 +408,24 @@ else {
         $sequence = $db->escape_string($core->input['id']);
         $transp = new TravelManagerPlanTransps();
         $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence, 'addmore');
+        echo $transsegments_output;
+    }
+    else if($core->input['action'] == 'refreshtransp') {
+        $destcityid = $db->escape_string($core->input['destcity']);
+        $origincityid = $db->escape_string($core->input['origincity']);
+        $descity_obj = new Cities($destcityid);
+        $destcity = $descity_obj->get();
+        $destcity['country'] = $descity_obj->get_country()->get()['name'];
+        $transp_requirements['drivemode'] = 'transit';
+        $transp_requirements['referrer'] = 'todate';
+        $transp_requirements['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
+        $origincity_obj = new Cities($origincityid);
+        $origintcity = $origincity_obj->get();
+        $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
+
+        /* Load proposed transproration */
+        $transp = new TravelManagerPlanTransps();
+        $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $core->input['sequence']);
         echo $transsegments_output;
     }
 }
