@@ -45,7 +45,7 @@ if(!$core->input['action']) {
                     'fieldsSequence' => array('uid' => 1, 'fromDate' => 2, 'toDate' => 3, 'operation' => 4)
             ),
             'process' => array(
-                    'filterKey' => 'aarid',
+                    'filterKey' => 'uid',
                     'mainTable' => array(
                             'name' => 'attendance_attrecords',
                             'filters' => array('uid' => array('operatorType' => 'multiple', 'name' => 'uid'), 'fromDate' => array('operatorType' => 'date', 'name' => 'time'), 'toDate', 'operation' => array('operatorType' => 'equal', 'name' => 'operation')),
@@ -63,6 +63,7 @@ if(!$core->input['action']) {
         if(empty($uid_where)) {
             //  $filter_where = ' WHERE ';
         }
+        print_r($filter_where_values); // intersect with filteruserwehre
         $filter_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
         $multipage_filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
