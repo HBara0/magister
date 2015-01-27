@@ -66,7 +66,6 @@ class TravelManagerPlan {
         //key = '.$core->settings['googleapikey'].' &
 
         $googledirection_api = 'http://maps.googleapis.com/maps/api/directions/json?origin='.$directiondata['origincity']['name'].',+'.$directiondata['origincity']['country'].'&destination='.$directiondata['destcity']['name'].',+'.$directiondata['destcity']['country'].'&sensor=false&mode='.$directiondata['drivemode'].'&units=metric&departure_time='.$directiondata['departuretime'];
-        echo $googledirection_api;
         $json = file_get_contents($googledirection_api);
         $data = json_decode($json);
         return $data;
@@ -341,16 +340,18 @@ class TravelManagerPlan {
     }
 
     public function update($plandata = array()) {
-        global $db;
+        global $db, $core;
         $this->data['lid'] = $plandata['lid'];
         $leave = new Leaves($this->data['lid']);
         if(!$this->check_iteneraryconsistency($plandata['segment'], array('leavefromdate' => $leave->get()['fromDate'], 'leavetodate' => $leave->get()['toDate']))) {
             return false;
         }
         $segments = $plandata['segment'];
-        $valid_attrs = array('uid', 'title', 'createBy', 'createdOn', 'modifiedBy', 'modifiedOn', 'isFinalized');
+        $valid_attrs = array('uid', 'title', 'modifiedBy', 'modifiedOn', 'isFinalized');
         $valid_attrs = array_combine($valid_attrs, $valid_attrs);
         $plandata = array_intersect_key($plandata, $valid_attrs);
+        $plandata['modifiedBy'] = $core->user['uid'];
+        $plandata['modifiedOn'] = TIME_NOW;
         if(!empty($plandata)) {
             $db->update_query(self::TABLE_NAME, $plandata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         }
@@ -467,14 +468,14 @@ class TravelManagerPlan {
             //get transp cat send to  parse_transportaionfields
 //            $transportation_obj = $segmentobj->get_transportationscat();
 //            $categery['name'] = $transportation_obj->name;
-            $transsegments_output = $this->parse_transportaionfields(array('name' => $transportation_obj->name), array('flight' => $segmentobj->apiFlightdata), $sequence);
+            // $transsegments_output = $this->parse_transportaionfields(array('name' => $transportation_obj->name), array('flight' => $segmentobj->apiFlightdata), $sequence);
 
             /* parse transportations types --START */
             $seg_transppbj = $segmentobj->get_transportations();
             $destcity = $segmentobj->get_destinationcity()->get();
             $transp_requirements['drivemode'] = 'transit';
             $transp_requirements['departuretime'] = $segmentobj->fromDate;
-            $transsegments_output .= Cities::parse_transportations($seg_transppbj, array('transportationdetails' => $transportation_details, 'segment' => $segmentobj, 'origincity' => $segmentobj->get_origincity()->get(), 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
+            $transsegments_output = Cities::parse_transportations($seg_transppbj, array('transportationdetails' => $transportation_details, 'segment' => $segmentobj, 'origincity' => $segmentobj->get_origincity()->get(), 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
 
 
 
