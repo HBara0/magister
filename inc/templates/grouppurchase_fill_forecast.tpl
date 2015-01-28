@@ -21,6 +21,16 @@
                     });
                     $('span[id=forecastline_total_' + id[2] + id[3] + ']').text(monthtotal.toFixed(2));
                 });
+
+                $('input[id="enable_notification"]').live('click', function() {
+                    $('input[type="button"][id="notify_concernedparties"]').attr("disabled", !this.checked);
+                });
+
+                $('input[id=notify_concernedparties]').live('click', function() {
+                    $('input[id="notify"]').val('1');
+                    $('input[id="perform_grouppurchase/fillforecast_Button"]').click();
+                    $('input[id="notify"]').val('');
+                });
             });
         </script>
     </head>
@@ -71,6 +81,9 @@
                         </tr>
                     </tfoot>
                 </table>
+                <div class="ui-state-highlight ui-corner-all" style="padding:5px; margin-top:10px;;margin-bottom:10px;">
+                    {$notify['checkbox']}{$notify['button']}{$notify['hidden']}
+                </div>
                 <input type="submit" id="perform_grouppurchase/fillforecast_Button" value="{$lang->savecaps}" class="button"/>
             </form>
             <div id="perform_grouppurchase/fillforecast_Results"></div>
