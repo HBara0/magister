@@ -29,8 +29,8 @@ if(!$core->input['action']) {
     /* Save and Preview button from plantrip */
     if(isset($core->input['referrer']) && $core->input['referrer'] == 'plantrip') {
         $plan_object = TravelManagerPlan::get_plan(array('tmpid' => $planid));
-        $checkbox['confirm'] = '<input type="checkbox" id="confirm_finalize"/>'.$lang->confirmfinalizeplan.'</div>';
-        $finalize_button = '<div><input type="submit" disabled="disabled" class="button" value=" '.$lang->finalize.'" id="perform_travelmanager/viewplan_Button">';
+        $checkbox['confirm'] = '<div class="ui-state-highlight ui-corner-all" style="padding:5px; margin-bottom:10px;"><input type="checkbox" id="confirm_finalize"/>'.$lang->confirmfinalizeplan.'</div>';
+        $finalize_button = '<input type="submit" disabled="disabled" class="button" value=" '.$lang->finalize.'" id="perform_travelmanager/viewplan_Button">';
     }
 
     if(!is_object($plan_object)) {
@@ -56,7 +56,6 @@ if(!$core->input['action']) {
     if(is_object($leave->get_segment())) {
         $leave_segment = $leave->get_segment()->get()['title'];
     }
-
     $plan_name = $leave_type->title.' - '.$plan_object->get_leave()->get_country()->get_displayname();
     //$leave_type = unserialize($plan_object->get_leave()->get_type()->get()['toApprove']);
 
@@ -66,17 +65,6 @@ if(!$core->input['action']) {
         foreach($segment_objs as $segmentid => $segment) {
             $segment_details .= $segment->parse_segment();
             $segment_expenses = $segment->parse_expensesummary();
-        }
-        $transportaion_fields_title = '<div style="font-size: 24px;color: #91B64F;font-weight: 100;">'.$lang->allpossibletransportations.'</div>';
-        foreach($segment_objs as $segmentid => $segment) {
-            if(!empty($segment->get()[apiFlightdata])) {
-                $transportaionsegment_fields .='<div style="horizontal-align: middle; font-weight: bold;border-bottom: 1px dashed #666;font-size: 14px;padding:5px; background-color: #92D050 ; ">'.$segment->get_origincity()->name.' - '.$segment->get_destinationcity()->name.'</div>';
-                $transportaionsegment_fields .= TravelManagerAirlines::parse_bestflight($segment->get()[apiFlightdata], array(), $sequence, 'email');
-            }
-        }
-        if(!empty($transportaionsegment_fields)) {
-            $transportaion_fields .= $transportaion_fields_title.$transportaionsegment_fields;
-            unset($transportaionsegment_fields);
         }
     }
     eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
@@ -103,7 +91,7 @@ elseif($core->input['action'] == 'email') {
             $segment_expenses = $segment->parse_expensesummary();
         }
         /* Get and parse all the possibe transportations */
-        $transportaion_fields_title = '<div style="font-size: 24px;color: #91B64F;font-weight: 100;">'.$lang->allpossibletransportations.'</div>';
+        $transportaion_fields_title = '<div style="font-size: 24px;color: #91B64F;font-weight: 100;">'.$lang->allpossibleflights.'</div>';
         foreach($segment_objs as $segmentid => $segment) {
             if(!empty($segment->get()[apiFlightdata])) {
                 $transportaionsegment_fields .='<div style="horizontal-align: middle; font-weight: bold;border-bottom: 1px dashed #666;font-size: 14px;padding:5px; background-color: #92D050 ; ">'.$segment->get_origincity()->name.' - '.$segment->get_destinationcity()->name.'</div>';
@@ -123,6 +111,7 @@ elseif($core->input['action'] == 'email') {
     $mailer->set_subject('plantrip'.'['.$plan_name.']');
     $mailer->set_message($travelmanager_viewplan);
     $mailer->set_to('tony.assaad@ocos.local');
+    print_R($mailer->debug_info());
     $mailer->send();
 }
 elseif($core->input['action'] == 'do_perform_viewplan') {

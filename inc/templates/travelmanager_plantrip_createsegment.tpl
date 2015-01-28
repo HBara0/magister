@@ -25,6 +25,7 @@
             <td></td>
         </tr>
         <tr><td>{$lang->purpose}</td><td>{$segment_purposlist}</td></tr>
+        <tr><td>{$lang->considerleisuretourism}</td><td><input type="checkbox" name="segment[{$sequence}][isNoneBusiness]" value="1" {$checkbox_checked['isNoneBusiness']}/></td></tr>
         <tr><td>{$lang->reason}</td><td><textarea name="segment[{$sequence}][reason]"  cols="30" rows="3" required="required">{$segment[$sequence][reason]}</textarea></td></tr>
     </table>
     <div id="content_detailsloader_{$sequence}"></div>
