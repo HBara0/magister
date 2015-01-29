@@ -70,7 +70,7 @@ if(!$core->input['action']) {
 //            }
             $leave_purposes = LeaveTypesPurposes::get_data(null);
             //$leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
-            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '');
+            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '', '', '', array('blankstart' => true));
 
             //   $origincity_obj = $leave_obj->get_sourcecity(false);
             $origintcity = $origincity_obj->get();
@@ -179,7 +179,7 @@ else {
             $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
             //   $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
             $leave_purposes = LeaveTypesPurposes::get_data('');
-            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '');
+            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '', '', '', array('blankstart' => true));
 
             /* Popuplate basic information from the leave based on the lid passed via ajax */
 
@@ -298,7 +298,6 @@ else {
         else {
             if(is_array($core->input['segment'])) {
                 $travelplan->set($core->input);
-
                 $travelplan->save();
                 // $travelplan_obj->create($core->input['segment']);
             }
@@ -332,6 +331,9 @@ else {
                     exit;
                 case 7:
                     output_xml("<status>false</status><message> {$lang->errordate} </message>");
+                    exit;
+                case 8:
+                    output_xml("<status>false</status><message> {$lang->erroritinerarydate} </message>");
                     exit;
             }
         }
@@ -408,6 +410,7 @@ else {
         $rowid = $db->escape_string($core->input['value']) + 1;
         $sequence = $db->escape_string($core->input['id']);
         $transp = new TravelManagerPlanTransps();
+        /* Note need to pass object for origin and destination city */
         $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence, 'addmore');
         echo $transsegments_output;
     }

@@ -24,6 +24,7 @@ $lang['todelete'] = 'If checkbox is checked row is deleted';
 $lang['grouppurchasetabular'] = 'Tabular View';
 $lang['grouppurchase'] = 'Group Purchase';
 $lang['selecteddimensions'] = 'Selected Dimensions';
-
+$lang['informconcernedparties'] = 'Inform Concerned Parties';
+$lang['notify'] = 'Notify';
 $lang['forecastedquantities'] = 'Forecasted Quantities';
 ?>

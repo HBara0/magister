@@ -64,7 +64,8 @@ class TravelManagerPlanSegments extends AbstractClass {
                 'apiFlightdata' => $segmentdata['apiFlightdata'],
                 'createdBy' => $core->user['uid'],
                 'sequence' => $segmentdata['sequence'],
-                'createdOn' => TIME_NOW
+                'createdOn' => TIME_NOW,
+                'isNoneBusiness' => $segmentdata['isNoneBusiness'],
         );
 
         $db->insert_query(self::TABLE_NAME, $segmentdata_array);
@@ -169,7 +170,7 @@ class TravelManagerPlanSegments extends AbstractClass {
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
         }
 
-        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason');
+        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'purpose', 'isNoneBusiness');
         /* Consider using array intersection */
         foreach($valid_fields as $attr) {
             $segmentnewdata[$attr] = $segmentdata[$attr];
@@ -431,7 +432,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
                     $pricenight = $accomdation->get_convertedamount($fromcurr);
                 }
-                $segment_hotel .= '<div style = " width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin:10px;"> '.$lang->night.' '.$accomdation->numNights.' at $ '.$pricenight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
+                $segment_hotel .= '<div style = " width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin-bottom:10px;display:block;"><em>'.$accomdation->numNights.' '.$lang->night.' x $'.$pricenight.' </em></span></div>'; // fix the html parse multiple hotl
 //    $segment_hotel .= '<div style = " width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
                 $segment_hotel .= '<div style = " width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;"><span>  '.$numfmt->formatCurrency(($accomdation->numNights * $pricenight), "USD").'</span> <br/> <small style="font-weight:normal;">[paid by: '.$paidby.' ]</small></div>'; // fix the html parse multiple hotl
 //   $segment_hotelprice .='<div style = " width:45%; display: block;"> Nights '.$accomdation->numNights.' at $ '.$accomdation->priceNight.'/Night</div>';
