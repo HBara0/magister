@@ -110,6 +110,7 @@ if(!$core->input['action']) {
             $currencies[] = $destcity_obj->get_country()->get_maincurrency();
             $currencies[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies[] = new Currencies(840, true);
+            $currencies = array_unique($currencies);
             $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
             $otherhotel['displaystatus'] = "display:none;";
 
@@ -159,7 +160,7 @@ else {
         $leave = $leave_obj->get();
         /* prevent adding new segment if to date  greater than original  leave end date */
         $leave[$sequence]['toDate'] = $leave['toDate'];
-        // $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 00:00:00', $leave[$sequence]['toDate']));
+        $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 00:00:00', $leave[$sequence]['toDate']));
         if(strtotime($core->input['toDate']) >= $leave[$sequence]['toDate'] || $core->input['fromDate'] == 'undefined') {
             echo'<div style="color:red;">'.$lang->dateexceeded.'</div>';
             exit;

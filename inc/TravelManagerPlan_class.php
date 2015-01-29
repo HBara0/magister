@@ -66,7 +66,6 @@ class TravelManagerPlan {
         //key = '.$core->settings['googleapikey'].' &
 
         $googledirection_api = 'http://maps.googleapis.com/maps/api/directions/json?origin='.$directiondata['origincity']['name'].',+'.$directiondata['origincity']['country'].'&destination='.$directiondata['destcity']['name'].',+'.$directiondata['destcity']['country'].'&sensor=false&mode='.$directiondata['drivemode'].'&units=metric&departure_time='.$directiondata['departuretime'];
-        echo $googledirection_api;
         $json = file_get_contents($googledirection_api);
         $data = json_decode($json);
         return $data;
@@ -467,16 +466,15 @@ class TravelManagerPlan {
             //get transp cat send to  parse_transportaionfields
 //            $transportation_obj = $segmentobj->get_transportationscat();
 //            $categery['name'] = $transportation_obj->name;
-            $transsegments_output = $this->parse_transportaionfields(array('name' => $transportation_obj->name), array('flight' => $segmentobj->apiFlightdata), $sequence);
+//            $transp = new TravelManagerPlanTransps();
+//            $transsegments_output = $this->parse_transportaionfields($transp, array('flight' => $segmentobj->apiFlightdata), $sequence);
 
             /* parse transportations types --START */
             $seg_transppbj = $segmentobj->get_transportations();
             $destcity = $segmentobj->get_destinationcity()->get();
             $transp_requirements['drivemode'] = 'transit';
             $transp_requirements['departuretime'] = $segmentobj->fromDate;
-            $transsegments_output .= Cities::parse_transportations($seg_transppbj, array('transportationdetails' => $transportation_details, 'segment' => $segmentobj, 'origincity' => $segmentobj->get_origincity()->get(), 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
-
-
+            $transsegments_output = Cities::parse_transportations($seg_transppbj, array('transportationdetails' => $transportation_details, 'segment' => $segmentobj, 'origincity' => $segmentobj->get_origincity()->get(), 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
 
             unset($transp_requirements);
             /* parse transportations types --END */
