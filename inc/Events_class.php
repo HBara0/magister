@@ -14,7 +14,7 @@
  * @author tony.assaad
  */
 class Events extends AbstractClass {
-    protected $status = 0;
+    protected $errorcode = 0;
     protected $data = array();
 
     const PRIMARY_KEY = 'ceid';
@@ -22,41 +22,73 @@ class Events extends AbstractClass {
     const DISPLAY_NAME = '';
     const CLASSNAME = __CLASS__;
     const SIMPLEQ_ATTRS = 'ceid, title, description,fromDate,toDate,place,publishOnWebsite';
+    const UNIQUE_ATTRS = 'alias';
 
     public function __construct($id = '', $simple = false, $options = array()) {
         parent::__construct($id, $simple);
     }
 
-//    protected function read($id, $simple, $options = array()) {
-//        global $db;
-//        if(empty($id)) {
-//            return false;
-//        }
-//
-//        $query_select = 'ceid, title, identifier, description, type';
-//        if($simple == false) {
-//            $query_select = '*';
-//        }
-//
-//        if(isset($options['privateonly'])) {
-//            $query_where = ' AND isPublic=1';
-//            if($options['privateonly'] == true) {
-//                $query_where = ' AND isPublic=0';
-//            }
-//        }
-//        return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."calendar_events WHERE ceid=".$db->escape_string($id).$query_where));
-//    }
-
     protected function create(array $data) {
+        global $db, $core;
+        $fields = array('title', 'alias', 'description', 'place', 'type', 'isPublic', 'publishOnWebsite');
+        foreach($fields as $field) {
+            $event_data[$field] = $data[$field];
+        }
+        $event_data['identifier'] = substr(md5(uniqid(microtime())), 0, 10);
+        $event_data['description'] = ucfirst(strtolower($event_data['description']));
+        $event_data['fromDate'] = strtotime($data['fromDate']);
+        $event_data['toDate'] = strtotime($data['toDate']);
+        $event_data['createdOn'] = TIME_NOW;
+        $event_data['createdBy'] = $data['uid'] = $core->user['uid'];
+        unset($event_data['restrictto']);
+        // $data['restricto'] = implode(',', $ $data['restricto']);
+        //  'affid' => $core->input['event']['affid'],
+        //'spid' => $core->input['event']['spid'],
+        $query = $db->insert_query(self::TABLE_NAME, $event_data);
 
-    }
 
-    public function save(array $data = array()) {
+        /* Parse incoming Attachemtns - START */
+        $data['attachments'] = $_FILES['attachments'];
 
+        if(!empty($data['attachments']['name'][0])) {
+            $upload_param['upload_allowed_types'] = array('image/jpeg', 'image/gif', 'image/png', 'application/zip', 'application/pdf', 'application/x-pdf', 'application/msword', 'application/vnd.ms-powerpoint', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
+            if(is_array($data['attachments'])) {
+                $upload_obj = new Uploader('attachments', $core->input, $upload_param['upload_allowed_types'], 'putfile', 5242880, 1, 1); //5242880 bytes = 5 MB (1024);
+                $attachments_path = './uploads/eventsattachments';
+                $upload_obj->set_upload_path($attachments_path);
+                $upload_obj->process_file();
+                $attachments = $upload_obj->get_filesinfo();
+
+                if($upload_obj->get_status() != 4) {
+                    ?>
+                    <script language="javascript" type="text/javascript">
+                        $(function() {
+                            top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
+                        });
+                    </script>
+                    <?php
+                    exit;
+                }
+            }
+        }
+        /* Parse incoming Attachemtns - END */
     }
 
     protected function update(array $data) {
-
+        global $db, $core;
+        $fields = array('title', 'description', 'place', 'type', 'isPublic', 'publishOnWebsite');
+        foreach($fields as $field) {
+            $event_data[$field] = $data[$field];
+        }
+        $event_data['description'] = ucfirst(strtolower($event_data['description']));
+        $event_data['fromDate'] = strtotime($data['fromDate']);
+        $event_data['toDate'] = strtotime($data['toDate']);
+        $event_data['editedOn'] = TIME_NOW;
+        $event_data['editedBy'] = $core->user['uid'];
+        unset($event_data['restrictto']);
+        //'affid' => $core->input['event']['affid'],
+        //'spid' => $core->input['event']['spid'],
+        $db->update_query(self::TABLE_NAME, $event_data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
     }
 
     public function get_eventbypriority($attributes = array()) {

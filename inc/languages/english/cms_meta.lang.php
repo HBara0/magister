@@ -6,6 +6,7 @@ $lang['listnews'] = "List News";
 $lang['create'] = "Create";
 $lang['cmssettings'] = "Cms Settings";
 $lang['managenews'] = "Manage News";
+$lang['manageevents'] = "Manage Events";
 $lang['addnews'] = "Edit news";
 $lang['managewebpage'] = "Manage Webpages";
 $lang['editnews'] = "Add News";
@@ -94,4 +95,15 @@ $lang['newnotification_body'] = 'The page {1} has been created  as follows:</br>
 Title {2} similar: {3}</br>
 Summary {4} similar: {5}</br>
 Body {6} similar: {7} </br>';
+
+$lang['ispublic'] = 'Is public';
+$lang['location'] = 'Location';
+$lang['restricto'] = 'Restric to';
+$lang['description'] = 'Description';
+$lang['publishonwebsite'] = 'Publish on Website';
+$lang['notifyevent'] = 'Communicate event';
+$lang['attacheventlogo'] = 'Attach Event Logo';
+$lang['type'] = 'Type';
+$lang['employees'] = 'employees';
+$lang['inviteemployees'] = 'Invite Employees';
 
