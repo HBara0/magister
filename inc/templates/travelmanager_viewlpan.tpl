@@ -29,9 +29,8 @@
                 {$transportaion_fields}
                 <form name="perform_travelmanager/viewplan_Form" id="perform_travelmanager/viewplan_Form" action="#" method="post">
                     <input type="hidden" name="planid" value="{$planid}"/>
-                    <div class="ui-state-highlight ui-corner-all" style="padding:5px; margin-bottom:10px;">
-                        {$checkbox['confirm']}
-                    </div>
+
+                    {$checkbox['confirm']}
                     {$finalize_button}
                 </form>
                 <div id="perform_travelmanager/viewplan_Results"></div>

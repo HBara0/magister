@@ -11,13 +11,14 @@
                     var id = "segmentstabs-" + tabcounter;
 
                     /*User cannot add a new segment if the destination city/to date of the previous segment are not filled*/
-                    if($('#altpickDate_to_' + (tabcounter - 1)).val() == '' || ($('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() == '')) {
+                    if($('#pickDate_to_' + (tabcounter - 1)).val() == '' || ($('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() == '')) {
                         var errormessage = ' Please make sure the to Date and Destination city are filled ';
                         tabs.append("<div id=" + id + "><p class='red_text'>" + errormessage + "</p></div>");
                         varerrormessage = '';
                         return false;
                     }
                     else {
+                        $('div[id=segmentstabs-' + tabcounter + ']').remove(); //remove  Error about destination city and date
                         var label = "segment " + tabcounter;
                         // tabTemplate = "<li><a href='#" + id + "'>" + label + "</a></li>"
                         tabTemplate = "<li><a href='#" + id + "'>" + label + "</a> <span class='ui-icon ui-icon-close' role='presentation' title='Close'>Remove Tab</span></li>"
@@ -29,7 +30,7 @@
                         }
                         /*Select the  tabs-panel that isn't hidden with  tabs-hide:*/
                         var selectedPanel = $("#segmentstabs div.ui-tabs-panel:not(.ui-tabs-hide)");
-                        var templatecontent = sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=add_segment", "sequence=" + tabcounter + "&lid=" + $('#lid').val() + "&destcity=" + $('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() + "&toDate=" + ($('#pickDate_to_' + (tabcounter - 1)).val()) + "&leavetoDatetime=" + $('#leaveDate_to_' + (tabcounter - 1)).val() + "&toDate=" + $('#altpickDate_to_' + (tabcounter - 1)).val(), 'loadindsection', id, 'html', true);
+                        var templatecontent = sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=add_segment", "sequence=" + tabcounter + "&lid=" + $('#lid').val() + "&destcity=" + $('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() + "&toDate=" + ($('#pickDate_to_' + (tabcounter - 1)).val()) + "&fromDate=" + ($('#pickDate_from_' + (tabcounter - 1)).val()) + "&leavetoDatetime=" + $('#leaveDate_to_' + (tabcounter - 1)).val() + "&toDate=" + $('#altpickDate_to_' + (tabcounter - 1)).val(), 'loadindsection', id, 'html', true);
                         var templatecontent = errormessage = '';
                         tabs.append("<div id=" + id + "><p>" + templatecontent + "</p></div>");
                         tabs.tabs("refresh");
@@ -47,7 +48,6 @@
                     }
                     var panelId = $(this).closest("li").remove().attr("aria-controls");
                     $("#" + panelId).remove();
-
                     tabcounter = tabcounter - 1;
                     tabs.tabs("refresh");
                 });
@@ -58,6 +58,7 @@
                     }
                     var id = $(this).attr('id').split("_");
                     var sequence = id[1];
+                    errormessage = '';
                     var ciid = $('input[id$=destinationcity_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
                     if(typeof ciid !== typeof undefined && ciid !== '') {
                         var origincity = $('input[id=cities_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
@@ -129,16 +130,18 @@
                 $('input[id^="pickDate_to"]').live('change', function() {
                     var segid = $(this).attr("id").split("_");
                     var nextsegid = ++segid[2];
-                    $('input[id^="pickDate_from_' + nextsegid + '"]').live('change', function() {
-                        $('input[id^=destinationcity_]').trigger('change');
-                    });
-                    $('input[id^="pickDate_from_' + nextsegid + '"]').val($(this).val())
-                    $('input[id^="altpickDate_from_' + nextsegid + '"]').val($(this).val());
                     var descity = $('input[id="destinationcity_' + segid[2] + '_cache_id"]').val();
+                    var origincity = $('input[id=cities_' + nextsegid + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
+                    $('input[id^="pickDate_from_' + nextsegid + '"]').live('change', function() {
+                        //  $('input[id^="destinationcity_' + nextsegid + '"]').trigger('change');
+                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=refreshtransp", "&sequence=" + nextsegid + "&destcity=" + descity + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_to_' + (nextsegid - 1)).val(), 'content_suggestedtransploader_' + nextsegid + '', 'content_suggestedtransp_' + nextsegid + '', true);
+                    });
+                    $('input[id^="pickDate_from_' + nextsegid + '"]').val($(this).val()) // set fromdate of the next segment to get the value of the previous ssegment
+                    $('input[id^="altpickDate_from_' + nextsegid + '"]').val($(this).val());
+
                     $('input[id^="pickDate_from_' + nextsegid + '"]').trigger('change');
                     if((descity != '') && $("#altpickDate_to").val() != '') {
-                        $('input[id^=destinationcity_]').trigger('change');
-
+                        // $('input[id^="destinationcity_' + nextsegid + '"]').trigger('change');
                     }
                 });
             });
@@ -162,7 +165,7 @@
             <h1>{$lang->plantrip}</h1>
             {$leave_ouput}
             <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" action="#" method="post">
-                <div style='margin-top: 10px;'>
+                <div style='margin-top: 10px; '>
                     <a id="createtab" class="showpopup" href="#"><img border="0" alt="{$lang->addsegment}" src="images/addnew.png"> {$lang->addsegment}</a>
                 </div>
                 <input type="hidden" value="{$sequence}" name="sequence"/>

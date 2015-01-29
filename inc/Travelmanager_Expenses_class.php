@@ -76,7 +76,6 @@ class Travelmanager_Expenses extends AbstractClass {
             }
             $expensestdata['modifiedBy'] = $core->user['uid'];
             $expensestdata['modifiedOn'] = TIME_NOW;
-
             $db->update_query(self::TABLE_NAME, $expensestdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         }
     }
@@ -90,7 +89,7 @@ class Travelmanager_Expenses extends AbstractClass {
     }
 
     public static function parse_expenses($sequence, $rowid, $expensestype) {
-        global $lang, $template;
+        global $lang, $core, $template;
         if(is_array($expensestype)) {
             $segid = key($expensestype);
         }
@@ -100,7 +99,13 @@ class Travelmanager_Expenses extends AbstractClass {
         $expenses_output_required_comments = '<span class=l"red_text">*</span>';
         $expenses_output_comments_requiredattr = ' required="required"';
 //$expenses_output_comments_field = '<div style="display:block; padding:5px; text-align:left;  vertical-align: top;">expectedAmt'.$expenses_output_required_comments.'<textarea cols="25" rows="1" id="expenses_['.$expensestype['alteid'].'][description]" name="leaveexpenses['.$expensestype['alteid'].'][description]" '.$expenses_output_comments_requiredattr.'>'.$expensestype['description'].'</textarea></div>';
-
+        $mainaffobj = new Affiliates($core->user['mainaffiliate']);
+        $destcity_obj = new Cities($destcity['ciid']);
+        $currencies[] = $destcity_obj->get_country()->get_maincurrency();
+        $currencies[] = $mainaffobj->get_country()->get_maincurrency();
+        $currencies[] = new Currencies(840, true);
+        $currencies = array_unique($currencies);
+        $currencies_list = parse_selectlist('segment['.$sequence.'][expenses]['.$rowid.'][currency]', 4, $currencies, $expensestype[$segid][$rowid][currency]);
         eval("\$expenses= \"".$template->get('travelmanager_expenses')."\";");
         return $expenses;
     }

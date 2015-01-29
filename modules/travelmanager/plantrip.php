@@ -70,7 +70,7 @@ if(!$core->input['action']) {
 //            }
             $leave_purposes = LeaveTypesPurposes::get_data(null);
             //$leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
-            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '');
+            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '', '', '', array('blankstart' => true));
 
             //   $origincity_obj = $leave_obj->get_sourcecity(false);
             $origintcity = $origincity_obj->get();
@@ -91,7 +91,7 @@ if(!$core->input['action']) {
                 $approvedhotels = array();
             }
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
-            $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
+            // $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
 
             /* parse expenses --START */
             $rowid = 1;
@@ -110,6 +110,7 @@ if(!$core->input['action']) {
             $currencies[] = $destcity_obj->get_country()->get_maincurrency();
             $currencies[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies[] = new Currencies(840, true);
+            $currencies = array_unique($currencies);
             $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
             $otherhotel['displaystatus'] = "display:none;";
 
@@ -121,9 +122,9 @@ if(!$core->input['action']) {
                     'myself' => $lang->myself,
                     'anotheraff' => $lang->anotheraff
             );
-            $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$otherhotel_checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_accomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide();}';
+            $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide();}';
 
-            $paidbyoptions = parse_selectlist('"segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
+            $paidbyoptions = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
 
             eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
             eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
@@ -159,10 +160,9 @@ else {
         $leave = $leave_obj->get();
         /* prevent adding new segment if to date  greater than original  leave end date */
         $leave[$sequence]['toDate'] = $leave['toDate'];
-        // $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 00:00:00', $leave[$sequence]['toDate']));
-
-        if(strtotime($core->input['toDate']) >= $leave[$sequence]['toDate']) {
-            output_xml("<status>false</status><message>{$lang->dateexceeded}</message>");
+        $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 00:00:00', $leave[$sequence]['toDate']));
+        if(strtotime($core->input['toDate']) >= $leave[$sequence]['toDate'] || $core->input['fromDate'] == 'undefined') {
+            echo'<div style="color:red;">'.$lang->dateexceeded.'</div>';
             exit;
         }
         else {
@@ -179,7 +179,7 @@ else {
             $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
             //   $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
             $leave_purposes = LeaveTypesPurposes::get_data('');
-            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '');
+            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '', '', '', array('blankstart' => true));
 
             /* Popuplate basic information from the leave based on the lid passed via ajax */
 
@@ -233,22 +233,30 @@ else {
         $unapproved_hotelobjs = $descity_obj->get_unapprovedhotels();
         $approved_hotels['tmhid'] = $unapproved_hotelobjs->tmhid;
 
+
+        /* get currency for the country of the destcity */
+
+        /* append default usd currency to the object */
+
+        /* append currency of the country of the main user affiliate to the object */
+
         $mainaffobj = new Affiliates($core->user['mainaffiliate']);
         $destcity_obj = new Cities($destcity['ciid']);
-        /* get currency for the country of the destcity */
-        $currency[] = $destcity_obj->get_country()->get_maincurrency()->get();
-        /* append default usd currency to the object */
-        $currencydefault = new Currencies(840, true);
-        $currency[] = $currencydefault->get();
-        /* append currency of the country of the main user affiliate to the object */
-        $countryobj = new Countries($mainaffobj->get_country()->coid);
-        $currency[] = $countryobj->get_maincurrency()->get();
-        foreach($currency as $curr) {
-            $currencies[$curr['numCode']] = $curr[alphaCode];
-        }
+        $currencies[] = $destcity_obj->get_country()->get_maincurrency();
+        $currencies[] = $mainaffobj->get_country()->get_maincurrency();
+        $currencies[] = new Currencies(840, true);
+        $currencies = array_unique($currencies);
         $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
         $otherhotel['displaystatus'] = "display:none;";
         $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide();}';
+        $paidby_entities = array(
+                'myaffiliate' => $lang->myaffiliate,
+                'supplier' => $lang->supplier,
+                'client' => $lang->client,
+                'myself' => $lang->myself,
+                'anotheraff' => $lang->anotheraff
+        );
+        $paidbyoptions = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
 
         eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
         eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
@@ -323,6 +331,9 @@ else {
                     exit;
                 case 7:
                     output_xml("<status>false</status><message> {$lang->errordate} </message>");
+                    exit;
+                case 8:
+                    output_xml("<status>false</status><message> {$lang->erroritinerarydate} </message>");
                     exit;
             }
         }
@@ -399,7 +410,26 @@ else {
         $rowid = $db->escape_string($core->input['value']) + 1;
         $sequence = $db->escape_string($core->input['id']);
         $transp = new TravelManagerPlanTransps();
+        /* Note need to pass object for origin and destination city */
         $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence, 'addmore');
+        echo $transsegments_output;
+    }
+    else if($core->input['action'] == 'refreshtransp') {
+        $destcityid = $db->escape_string($core->input['destcity']);
+        $origincityid = $db->escape_string($core->input['origincity']);
+        $descity_obj = new Cities($destcityid);
+        $destcity = $descity_obj->get();
+        $destcity['country'] = $descity_obj->get_country()->get()['name'];
+        $transp_requirements['drivemode'] = 'transit';
+        $transp_requirements['referrer'] = 'todate';
+        $transp_requirements['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
+        $origincity_obj = new Cities($origincityid);
+        $origintcity = $origincity_obj->get();
+        $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
+
+        /* Load proposed transproration */
+        $transp = new TravelManagerPlanTransps();
+        $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $core->input['sequence']);
         echo $transsegments_output;
     }
 }

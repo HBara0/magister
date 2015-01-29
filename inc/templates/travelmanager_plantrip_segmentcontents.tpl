@@ -2,13 +2,19 @@
     <h2 class="subtitle">Possible Transportations</h2>
     <!--able width="100%" cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
           <tbody id="othertranspcat_{$sequence}_tbody">-->
-    {$transsegments_output}
-    <table width="100%" cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
+    <div id="content_suggestedtransploader_{$sequence}"></div>
+    <div id="content_suggestedtransp_{$sequence}">{$transsegments_output[suggested]}</div>
+    <hr>
+
+    <div>{$transsegments_output[othertransp]}</div>
+    <table width="100%" class="datatable" style="margin-top:-20px;">
         <tbody id="othertranspcat_{$sequence}_tbody">
             {$rows}
         </tbody>
     </table>
     <div> <img src="./images/add.gif"  id="ajaxaddmore_travelmanager/plantrip_othertranspcat_{$sequence}"  alt="{$lang->add}">
+        <input type="hidden" name="ajaxaddmoredata[{$sequence}][destcity]" id="ajaxaddmoredata_destcity" value="{$segment[$sequence][destinationcity][ciid]}"/>
+
         <input name="numrows_othertranspcat_{$sequence}" type="hidden" id="numrows_othertranspcat_{$sequence}" value="{$rowid}">
     </div>
 </div>

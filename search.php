@@ -259,7 +259,7 @@ if($core->input['type'] == 'quick') {
             $table = 'cities';
             $attributes = array('name');
             $key_attribute = 'ciid';
-            $select_attributes = array('name');
+            $select_attributes = array('name', 'unlocode');
             $extra_info = array('table' => 'countries');
             $descinfo = 'citycountry';
             $order = array('by' => 'name', 'sort' => 'ASC');

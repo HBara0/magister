@@ -3436,9 +3436,9 @@ CREATE TABLE `travelmanager_plan_segments` (
   `sequence` tinyint(3) NOT NULL,
   `apiFlightdata` longtext COLLATE utf8_unicode_ci NOT NULL,
   `purpose` int(10) NOT NULL,
+  `isNoneBusiness` tinyint(1) NOT NULL,
   PRIMARY KEY (`tmpsid`),
   KEY `tmpid` (`tmpid`,`originCity`,`destinationCity`)
-) ENGINE=MyISAM AUTO_INCREMENT=190 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `travelmanager_plan_transportation`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3471,6 +3471,7 @@ CREATE TABLE `travelmanager_plan_transps` (
   `transpType` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `paidById` int(10) NOT NULL,
   `paidBy` varchar(180) COLLATE utf8_unicode_ci NOT NULL,
+  `seatingDescription` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,

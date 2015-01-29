@@ -148,4 +148,6 @@ $lang['youapprovedleave'] = 'You have already approved this leave';
 $lang['yoursonly'] = 'Yours only';
 $lang['checkin'] = 'checkin';
 $lang['checkout'] = 'checkout';
+$lang['sourcecity'] = 'sourcecity';
+$lang['destinationcity'] = 'destinationcity ';
 ?>

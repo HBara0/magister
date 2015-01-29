@@ -64,7 +64,8 @@ class TravelManagerPlanSegments extends AbstractClass {
                 'apiFlightdata' => $segmentdata['apiFlightdata'],
                 'createdBy' => $core->user['uid'],
                 'sequence' => $segmentdata['sequence'],
-                'createdOn' => TIME_NOW
+                'createdOn' => TIME_NOW,
+                'isNoneBusiness' => $segmentdata['isNoneBusiness'],
         );
 
         $db->insert_query(self::TABLE_NAME, $segmentdata_array);
@@ -134,7 +135,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $hoteldata['currency'] = $hotel['currency'];
                 $hoteldata['numNights'] = $hotel['numNights'];
                 $hoteldata['paidBy'] = $hotel['entites'];
-                $hoteldata['paidById'] = $hotel['paidBy'];
+                $hoteldata['paidById'] = $hotel['paidById'];
 
                 $accod_obj = new TravelManagerPlanaccomodations();
                 $accod_obj->set($hoteldata);
@@ -169,7 +170,7 @@ class TravelManagerPlanSegments extends AbstractClass {
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
         }
 
-        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason');
+        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'purpose', 'isNoneBusiness');
         /* Consider using array intersection */
         foreach($valid_fields as $attr) {
             $segmentnewdata[$attr] = $segmentdata[$attr];
@@ -251,7 +252,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $hoteldata['numNights'] = $hotel['numNights'];
                     $hoteldata['currency'] = $hotel['currency'];
                     $hoteldata['paidBy'] = $hotel['entites'];
-                    $hoteldata['paidById'] = $hotel['paidBy'];
+                    $hoteldata['paidById'] = $hotel['paidById'];
                     $accod_obj = new TravelManagerPlanaccomodations();
                     $accod_obj->set($hoteldata);
                     $accod_obj->save();
@@ -431,7 +432,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
                     $pricenight = $accomdation->get_convertedamount($fromcurr);
                 }
-                $segment_hotel .= '<div style = " width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin:10px;"> '.$lang->night.' '.$accomdation->numNights.' at $ '.$pricenight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
+                $segment_hotel .= '<div style = " width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin-bottom:10px;display:block;"><em>'.$accomdation->numNights.' '.$lang->night.' x $'.$pricenight.' </em></span></div>'; // fix the html parse multiple hotl
 //    $segment_hotel .= '<div style = " width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
                 $segment_hotel .= '<div style = " width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;"><span>  '.$numfmt->formatCurrency(($accomdation->numNights * $pricenight), "USD").'</span> <br/> <small style="font-weight:normal;">[paid by: '.$paidby.' ]</small></div>'; // fix the html parse multiple hotl
 //   $segment_hotelprice .='<div style = " width:45%; display: block;"> Nights '.$accomdation->numNights.' at $ '.$accomdation->priceNight.'/Night</div>';
@@ -587,14 +588,17 @@ class TravelManagerPlanSegments extends AbstractClass {
                         'myself' => $lang->myself,
                         'anotheraff' => $lang->anotheraff
                 );
-                $selectlists['paidBy'] = parse_selectlist('"segment['.$sequence.'][tmhid]['.$checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
+                $selectlists['paidBy'] = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
 
+                $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
+                $numfmt->setPattern("#0.###");
+                $selectedhotel->total = $numfmt->format($selectedhotel->priceNight * $selectedhotel->numNights);
                 $mainaffobj = new Affiliates($core->user['mainaffiliate']);
                 $destcity_obj = $this->get_destinationcity();
-
                 $currencies[] = $destcity_obj->get_country()->get_maincurrency();
                 $currencies[] = $mainaffobj->get_country()->get_maincurrency();
                 $currencies[] = new Currencies(840, true);
+                $currencies = array_unique($currencies);
                 $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', 4, $currencies, $rescurrency_id);
 
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
@@ -609,22 +613,5 @@ class TravelManagerPlanSegments extends AbstractClass {
         return TravelManagerPlanaccomodations::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), $config);
     }
 
-//
-//    public function display_paidby($paidby, $paidbyid) {
-//        global $core;
-//        switch($paidby) {
-//            case "myaffiliate":
-//                $object = new Affiliates($core->user['mainaffiliate']);
-//                //$paidby = $affiliate->name;
-//                break;
-//            case "anotheraff":
-//                $object = new Affiliates($paidbyid);
-//                // $paidby = $affiliate->name;
-//                break;
-//            default:
-//                $object = $paidby;
-//        }
-//        return $object;
-//    }
 }
 ?>
