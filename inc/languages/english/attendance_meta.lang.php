@@ -148,4 +148,5 @@ $lang['youapprovedleave'] = 'You have already approved this leave';
 $lang['yoursonly'] = 'Yours only';
 $lang['checkin'] = 'checkin';
 $lang['checkout'] = 'checkout';
+$lang['redirecttotmplantrip'] = 'Successfully Saved. You will be redirected to the Travel Manager module to fill your plan';
 ?>

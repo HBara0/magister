@@ -390,8 +390,8 @@ else {
 
             if($leavetype_details['isBusiness'] == 1) {
                 $url = 'index.php?module=travelmanager/plantrip&lid=';
-                header('Content-type: text/xml+javascript');
-                output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
+                header('Content-type: text/xhml+javascript');
+                output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
                 exit;
             }
 
