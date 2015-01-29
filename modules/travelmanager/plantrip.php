@@ -233,19 +233,19 @@ else {
         $unapproved_hotelobjs = $descity_obj->get_unapprovedhotels();
         $approved_hotels['tmhid'] = $unapproved_hotelobjs->tmhid;
 
+
+        /* get currency for the country of the destcity */
+
+        /* append default usd currency to the object */
+
+        /* append currency of the country of the main user affiliate to the object */
+
         $mainaffobj = new Affiliates($core->user['mainaffiliate']);
         $destcity_obj = new Cities($destcity['ciid']);
-        /* get currency for the country of the destcity */
-        $currency[] = $destcity_obj->get_country()->get_maincurrency()->get();
-        /* append default usd currency to the object */
-        $currencydefault = new Currencies(840, true);
-        $currency[] = $currencydefault->get();
-        /* append currency of the country of the main user affiliate to the object */
-        $countryobj = new Countries($mainaffobj->get_country()->coid);
-        $currency[] = $countryobj->get_maincurrency()->get();
-        foreach($currency as $curr) {
-            $currencies[$curr['numCode']] = $curr[alphaCode];
-        }
+        $currencies[] = $destcity_obj->get_country()->get_maincurrency();
+        $currencies[] = $mainaffobj->get_country()->get_maincurrency();
+        $currencies[] = new Currencies(840, true);
+        $currencies = array_unique($currencies);
         $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
         $otherhotel['displaystatus'] = "display:none;";
         $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide();}';

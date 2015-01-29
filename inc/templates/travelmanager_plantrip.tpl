@@ -18,6 +18,7 @@
                         return false;
                     }
                     else {
+                        $('div[id=segmentstabs-' + tabcounter + ']').remove(); //remove  Error about destination city and date
                         var label = "segment " + tabcounter;
                         // tabTemplate = "<li><a href='#" + id + "'>" + label + "</a></li>"
                         tabTemplate = "<li><a href='#" + id + "'>" + label + "</a> <span class='ui-icon ui-icon-close' role='presentation' title='Close'>Remove Tab</span></li>"
@@ -47,7 +48,6 @@
                     }
                     var panelId = $(this).closest("li").remove().attr("aria-controls");
                     $("#" + panelId).remove();
-
                     tabcounter = tabcounter - 1;
                     tabs.tabs("refresh");
                 });
@@ -58,7 +58,7 @@
                     }
                     var id = $(this).attr('id').split("_");
                     var sequence = id[1];
-
+                    errormessage = '';
                     var ciid = $('input[id$=destinationcity_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
                     if(typeof ciid !== typeof undefined && ciid !== '') {
                         var origincity = $('input[id=cities_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/

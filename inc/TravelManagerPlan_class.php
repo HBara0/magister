@@ -455,8 +455,12 @@ class TravelManagerPlan {
             redirect('index.php?module=travelmanager/listplans');
         }
         foreach($segmentplan_objs as $segmentid => $segmentobj) {
-            $segmentstabs .= '<li><a href="#segmentstabs-'.$segid.'">Segment '.$segid.'</a><span class="ui-icon ui-icon-close" id="deleteseg_'.$segmentid.'"role="presentation" title="Close">Remove Tab</span></li>  ';
             $sequence = $segmentobj->sequence;
+            if($sequence > 1) {
+                $delete_tabicon = '<span class="ui-icon ui-icon-close" id="deleteseg_'.$segmentid.'"role="presentation" title="Close">Remove Tab</span>';
+            }
+            $segmentstabs .= '<li><a href="#segmentstabs-'.$segid.'">Segment '.$segid.'</a>'.$delete_tabicon.'</li>  ';
+
             $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ( $segmentobj->toDate));
             $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ( $segmentobj->toDate));
             $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], $segmentobj->fromDate);
@@ -517,8 +521,6 @@ class TravelManagerPlan {
             }
 
             $city_obj = new Cities($segmentobj->get_destinationcity()->ciid);
-
-
             $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
             if(is_array($approvedhotels)) {
                 $hotelssegments_output = '<h2><small>Approved Hotels</small></h2>';
@@ -543,8 +545,14 @@ class TravelManagerPlan {
             );
             $otherhotel['displaystatus'] = "display:none;";
             $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide();}';
-            $paidbyoptions = parse_selectlist('"segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
-
+            $paidbyoptions = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
+            $mainaffobj = new Affiliates($core->user['mainaffiliate']);
+            $destcity_obj = new Cities($destcity['ciid']);
+            $currencies[] = $destcity_obj->get_country()->get_maincurrency();
+            $currencies[] = $mainaffobj->get_country()->get_maincurrency();
+            $currencies[] = new Currencies(840, true);
+            $currencies = array_unique($currencies);
+            $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
             eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
             /* parse expenses --START */
             $segexpenses_ojbs = $segmentobj->get_expenses(array('simple' => false, 'returnarray' => true, 'order' => array('by' => 'tmeid', 'sort' => 'ASC')));
@@ -555,6 +563,7 @@ class TravelManagerPlan {
                     $expensestype[$segmentid][$rowid]['tmeid'] = $expenses->tmeid;
                     $expensestype[$segmentid][$rowid]['expectedAmt'] = $expenses->expectedAmt;
                     $expensestype[$segmentid][$rowid]['selectedtype'][] = $expenses->tmetid;
+                    $expensestype[$segmentid][$rowid]['currency'][] = $expenses->currency;
 
                     if(!empty($expenses->paidBy)) {
                         $expensestype[$segmentid][$rowid]['paidby'] = $expenses->paidBy;

@@ -592,10 +592,10 @@ class TravelManagerPlanSegments extends AbstractClass {
 
                 $mainaffobj = new Affiliates($core->user['mainaffiliate']);
                 $destcity_obj = $this->get_destinationcity();
-
                 $currencies[] = $destcity_obj->get_country()->get_maincurrency();
                 $currencies[] = $mainaffobj->get_country()->get_maincurrency();
                 $currencies[] = new Currencies(840, true);
+                $currencies = array_unique($currencies);
                 $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', 4, $currencies, $rescurrency_id);
 
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
@@ -610,22 +610,5 @@ class TravelManagerPlanSegments extends AbstractClass {
         return TravelManagerPlanaccomodations::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), $config);
     }
 
-//
-//    public function display_paidby($paidby, $paidbyid) {
-//        global $core;
-//        switch($paidby) {
-//            case "myaffiliate":
-//                $object = new Affiliates($core->user['mainaffiliate']);
-//                //$paidby = $affiliate->name;
-//                break;
-//            case "anotheraff":
-//                $object = new Affiliates($paidbyid);
-//                // $paidby = $affiliate->name;
-//                break;
-//            default:
-//                $object = $paidby;
-//        }
-//        return $object;
-//    }
 }
 ?>
