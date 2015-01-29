@@ -590,6 +590,9 @@ class TravelManagerPlanSegments extends AbstractClass {
                 );
                 $selectlists['paidBy'] = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
 
+                $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
+                $numfmt->setPattern("#0.###");
+                $selectedhotel->total = $numfmt->format($selectedhotel->priceNight * $selectedhotel->numNights);
                 $mainaffobj = new Affiliates($core->user['mainaffiliate']);
                 $destcity_obj = $this->get_destinationcity();
                 $currencies[] = $destcity_obj->get_country()->get_maincurrency();
