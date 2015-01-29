@@ -182,9 +182,8 @@ if($core->input['type'] == 'quick') {
             $descinfo = 'productsegment';
         }
         elseif($core->input['for'] == 'chemfunctionchecmical') {
-
             $table = 'chemicalsubstances';
-            $attributes = array('name');
+            $attributes = array('name', 'synonyms');
             $key_attribute = 'csid';
             $select_attributes = array('name');
             $order = array('by' => 'name', 'sort' => 'ASC');
