@@ -165,12 +165,19 @@ class Cities extends AbstractClass {
     }
 
     public static function parse_transportations($transps, $transpdata = array(), $sequence, $source = '') {  //to be continued later
-        global $template, $lang;
+        global $template, $lang, $core;
         if($source == 'addmore') {
             $transpdata['inputChecksum'] = generate_checksum();
             $availabletransp[1] = 1;
             $othertranspcategories = TravelManagerTranspCategories ::get_data('tmtcid NOT IN ('.implode(', ', $availabletransp).')', array('returnarray' => true));
             $transp_category_fields = TravelManagerPlan::parse_transportaionfields($transps, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transpdata['transportationdetails'], 'name' => 'other', 'tmtcid' => $transp->tmtcid, 'othercategories' => $othertranspcategories), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence, $rowid);
+            $mainaffobj = new Affiliates($core->user['mainaffiliate']);
+            $destcity_obj = new Cities($transpdata['destcity']);
+            $currencies[] = $destcity_obj->get_country()->get_maincurrency();
+            $currencies[] = $mainaffobj->get_country()->get_maincurrency();
+            $currencies[] = new Currencies(840, true);
+            $currencies = array_unique($currencies);
+            $currencies_list .= parse_selectlist('segment['.$sequence.'][tmtcid]['.$transpdata['inputChecksum'].'][currency]', 4, $currencies, '840');
             eval("\$transcategments_output = \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
             //  eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
             return '<tr><td>'.$transcategments_output.'</td></tr>';
@@ -257,6 +264,9 @@ class Cities extends AbstractClass {
                     eval("\$suggestedtranssegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
                 };
             }
+        }
+        else if(($transpdata['transprequirements']['departuretime']) > strtotime(date("Y-m-d", strtotime(date("Y-m-d")))." +55 days")) {
+            $suggestedtranssegments_output .='<div class="ui-state-highlight ui-corner-all" style="padding:10px; margin-bottom:10px;">system doesn\'t return possible trnsportations if the duration between now and the "from date" exceeds 55 days </div>';
         }
         /* Possible Reservation Resources */
         unset($possible_transportation);

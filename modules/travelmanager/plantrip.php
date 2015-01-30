@@ -58,6 +58,7 @@ if(!$core->input['action']) {
             $segment[$sequence]['origincity']['name'] = $segment[$sequence]['origincity'] ['name'];
             $segment[$sequence]['origincity']['ciid'] = $segment[$sequence]['origincity']['ciid'];
             $descity_obj = new Cities($leave['destinationCity']);
+            $destcityid = $leave['destinationCity'];
             $segment[$sequence]['destinationcity'] = $descity_obj->get();                 /* Will get the capital city of the visited country of leave */
             $segment[$sequence]['destinationcity']['name'] = $segment[$sequence]['destinationcity']['name'];  /* Will get the capital city of the visited country of leave */
             $segment[$sequence]['destinationcity']['ciid'] = $segment[$sequence]['destinationcity']['ciid'];  /* Will get the capital city of the visited country of leave */
@@ -408,10 +409,13 @@ else {
     }
     else if($core->input['action'] == 'ajaxaddmore_othertranspcat') {
         $rowid = $db->escape_string($core->input['value']) + 1;
+        $destcity = ($core->input['ajaxaddmoredata']['destcity']);
+        $transp_requirements['drivemode'] = 'transit';
+        $transp_requirements['departuretime'] = '';
         $sequence = $db->escape_string($core->input['id']);
         $transp = new TravelManagerPlanTransps();
         /* Note need to pass object for origin and destination city */
-        $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'departuretime' => $destcity['departuretime']), $sequence, 'addmore');
+        $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence, 'addmore');
         echo $transsegments_output;
     }
     else if($core->input['action'] == 'refreshtransp') {

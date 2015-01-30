@@ -54,10 +54,22 @@ class MarketIntelligence {
         if(is_array($data)) {
             $this->marketdata = $data;
 
-            if((empty($this->marketdata['cfpid']) && empty($this->marketdata['cfcid'])) || is_empty($this->marketdata['potential'], $this->marketdata['mktSharePerc'], $this->marketdata['mktShareQty'])) {
+            if(empty($this->marketdata['cfpid']) && empty($this->marketdata['cfcid'])) {
                 $this->errorcode = 1;
                 return false;
             }
+            $required_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice'); // check cfcid
+            foreach($required_fields as $field) {
+                if(empty($this->marketdata[$field]) && $this->marketdata[$field] != '0') {
+                    $this->errorcode = 1;
+                    return false;
+                }
+            }
+
+//            if((empty($this->marketdata['cfpid']) && empty($this->marketdata['cfcid'])) || is_empty($this->marketdata['potential'], $this->marketdata['mktSharePerc'], $this->marketdata['mktShareQty'])) {
+//                $this->errorcode = 1;
+//                return false;
+//            }
 
             /* Santize inputs - START */
             $sanitize_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice', 'ebpid', 'comments');

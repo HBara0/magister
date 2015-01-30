@@ -150,4 +150,5 @@ $lang['checkin'] = 'checkin';
 $lang['checkout'] = 'checkout';
 $lang['sourcecity'] = 'sourcecity';
 $lang['destinationcity'] = 'destinationcity ';
+$lang['redirecttotmplantrip'] = 'Successfully Saved. You will be redirected to the Travel Manager module to fill your plan';
 ?>
