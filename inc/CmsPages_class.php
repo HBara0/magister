@@ -123,30 +123,30 @@ class CmsPages extends Cms {
                 /* Inform audits about the change, and request approval - END */
 
                 /* Upload related files - START */
-                $ftp_settings = array('server' => $this->settings['ftpserver'], 'username' => $this->settings['ftpusername'], 'password' => $this->settings['ftppassword']);
-                $upload = new Uploader('', array(), array(), 'constructonly');
-                $upload->establish_ftp($ftp_settings);
-
-                /* Upload page images - Start */
-                $upload->set_upload_path($this->settings['pageimagespath']);
-                $allowed_types_pageimages = array('image/jpeg', 'image/gif', 'image/png');
-
-                foreach($pageimages as $key_link => $link) {
-                    print_r($val);
-
-                    $link = parse_url($link);
-                    $path_info = pathinfo($link['path']);
-                    $file_info = finfo_open(FILEINFO_MIME_TYPE);
-
-                    $upload->set_options('pageimage', array('pageimage' => array('type' => finfo_file($file_info, $link['path']), 'name' => $path_info['basename'], 'tmp_name' => $link['path'], 'size' => filesize($link['path']))), $allowed_types_pageimages, 'ftp', 5242880, 0, 0); //5242880 bytes = 5 MB (1024)
-                    finfo_close($file_info);
-
-                    $upload->process_file();
-                    @unlink($link['path']);
-                }
-                /* Upload page images - End */
-                $upload->close_ftp();
-
+//                $ftp_settings = array('server' => $this->settings['ftpserver'], 'username' => $this->settings['ftpusername'], 'password' => $this->settings['ftppassword']);
+//                $upload = new Uploader('', array(), array(), 'constructonly');
+//                $upload->establish_ftp($ftp_settings);
+//
+//                /* Upload page images - Start */
+//                $upload->set_upload_path($this->settings['pageimagespath']);
+//                $allowed_types_pageimages = array('image/jpeg', 'image/gif', 'image/png');
+//                if(is_array($pageimages)) {
+//                    foreach($pageimages as $key_link => $link) {
+//
+//                        $link = parse_url($link);
+//                        $path_info = pathinfo($link['path']);
+//                        $file_info = finfo_open(FILEINFO_MIME_TYPE);
+//
+//                        $upload->set_options('pageimage', array('pageimage' => array('type' => finfo_file($file_info, $link['path']), 'name' => $path_info['basename'], 'tmp_name' => $link['path'], 'size' => filesize($link['path']))), $allowed_types_pageimages, 'ftp', 5242880, 0, 0); //5242880 bytes = 5 MB (1024)
+//                        finfo_close($file_info);
+//
+//                        $upload->process_file();
+//                        @unlink($link['path']);
+//                    }
+//
+//                    /* Upload page images - End */
+//                    $upload->close_ftp();
+//                }
                 /* Upload related files - END */
                 return true;
             }
