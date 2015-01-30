@@ -109,9 +109,15 @@ class TravelManagerPlan {
 
     public static function parse_transportaionfields(TravelManagerPlanTransps $transportation, array $category, $cityinfo = array(), $sequence, $rowid = '') {
         global $lang, $template, $core;
-
         $mainaffobj = new Affiliates($core->user['mainaffiliate']);
-        $destcity_obj = new Cities($cityinfo['destcity']['ciid']);
+        if(!empty($cityinfo['destcity']['ciid'])) {
+            $destcity = $cityinfo['destcity']['ciid'];
+        }
+        else {
+            $destcity = $cityinfo['destcity'];
+        }
+
+        $destcity_obj = new Cities($destcity);
         $currencies[] = $destcity_obj->get_country()->get_maincurrency();
         $currencies[] = $mainaffobj->get_country()->get_maincurrency();
         $currencies_list .= parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][currency]', '', $currencies, $transportation->currency, '', '', array('width' => '100%'));
@@ -204,7 +210,7 @@ class TravelManagerPlan {
                     break;
             }
             if($category['name'] != 'airplane') {
-                $transportaion_fields .= '<div style="position: absolute; top: 1px; right: 1px;"><input type="checkbox" label="'.$lang->delete.'" class="deletecheckbox" title="'.$lang->todelete.'" value = "1" id = "segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_todelete" name = "segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][todelete]" /><label for="segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_todelete">&nbsp;</label></div>';
+                $transportaion_fields .= '<div style="position: absolute; top: 1px; right: 1px;"><input type="checkbox" label="'.$lang->delete.'" class="deletecheckbox" title="'.$lang->deletecheckboxnote.'" value = "1" id = "segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_todelete" name = "segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][todelete]" /><label for="segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_todelete">&nbsp;</label></div>';
                 $transportaion_fields .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][inputChecksum]" value="'.$category['inputChecksum'].'"/>';
             }
             if(!empty($selectlists['paidby'])) {
@@ -491,6 +497,7 @@ class TravelManagerPlan {
             /* parse transportations types --START */
             $seg_transppbj = $segmentobj->get_transportations();
             $destcity = $segmentobj->get_destinationcity()->get();
+            $destcityid = $destcity['ciid'];
             $transp_requirements['drivemode'] = 'transit';
             $transp_requirements['departuretime'] = $segmentobj->fromDate;
             $transsegments_output = Cities::parse_transportations($seg_transppbj, array('transportationdetails' => $transportation_details, 'segment' => $segmentobj, 'origincity' => $segmentobj->get_origincity()->get(), 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
