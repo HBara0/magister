@@ -13,8 +13,8 @@
         </tbody>
     </table>
     <div> <img src="./images/add.gif"  id="ajaxaddmore_travelmanager/plantrip_othertranspcat_{$sequence}"  alt="{$lang->add}">
-        <input type="hidden" name="ajaxaddmoredata[{$sequence}][destcity]" id="ajaxaddmoredata_destcity" value="{$segment[$sequence][destinationcity][ciid]}"/>
 
+        <input type="hidden" name="ajaxaddmoredata[destcity]" id="ajaxaddmoredata_destcity" value="{$destcityid}"/>
         <input name="numrows_othertranspcat_{$sequence}" type="hidden" id="numrows_othertranspcat_{$sequence}" value="{$rowid}">
     </div>
 </div>
