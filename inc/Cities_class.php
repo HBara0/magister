@@ -171,7 +171,6 @@ class Cities extends AbstractClass {
             $availabletransp[1] = 1;
             $othertranspcategories = TravelManagerTranspCategories ::get_data('tmtcid NOT IN ('.implode(', ', $availabletransp).')', array('returnarray' => true));
             $transp_category_fields = TravelManagerPlan::parse_transportaionfields($transps, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transpdata['transportationdetails'], 'name' => 'other', 'tmtcid' => $transp->tmtcid, 'othercategories' => $othertranspcategories), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence, $rowid);
-
             $mainaffobj = new Affiliates($core->user['mainaffiliate']);
             $destcity_obj = new Cities($transpdata['destcity']);
             $currencies[] = $destcity_obj->get_country()->get_maincurrency();
