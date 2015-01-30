@@ -37,6 +37,12 @@ else {
             redirect('index.php?module=crm/salesreportlive');
         }
 
+        /* In-line CSS styles in form of array in order to be compatible with email message */
+        $css_styles['table-datacell'] = 'text-align: right;';
+        $css_styles['altrow'] = 'background-color: #f7fafd;';
+        $css_styles['altrow2'] = 'background-color: #F2FAED;';
+        $css_styles['greenrow'] = 'background-color: #F2FAED;';
+
         $current_date = getdate(TIME_NOW);
         $period['from'] = strtotime($core->input['fromDate']);
         $period['to'] = TIME_NOW;
@@ -211,7 +217,7 @@ else {
                     $formatter = new NumberFormatter('EN_en', NumberFormatter::DECIMAL, '#.##');
                     $percformatter = new NumberFormatter('EN_en', NumberFormatter::PERCENT);
                     $salesreport .= '<h2>Monthly Overview by BM</h2>';
-                    $salesreport .= '<table width="100%" class="datatable datatable-striped">';
+                    $salesreport .= '<table width="100%" class="datatable">';
                     $salesreport .= '<tr><th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">Sales Rep</th>';
                     for($i = 1; $i <= 12; $i++) {
                         $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">'.DateTime::createFromFormat('m', $i)->format('M').'</th>';
@@ -222,29 +228,36 @@ else {
                     $salesreport .= '</tr>';
                     foreach($monthdata['linenetamt'] as $salerepid => $salerepdata) {
                         $currentyeardata = $salerepdata[$current_year];
-                        $salesreport .= '<tr>';
+
+                        $salesreport .= '<tr style="'.$rowstyle.'">';
                         $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
                         if(empty($salesrep->name)) {
                             $salesrep->name = 'Not Specified';
                         }
-                        $salesreport .= '<td>'.$salesrep->name.'</td>';
+                        $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$salesrep->name.'</td>';
 
                         for($i = 1; $i <= 12; $i++) {
                             if(!isset($currentyeardata[$i])) {
                                 $currentyeardata[$i] = 0;
                             }
-                            $salesreport .= '<td style="text-align: right;">'.$formatter->format($currentyeardata[$i]).'</td>';
+                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$formatter->format($currentyeardata[$i]).'</td>';
                         }
                         for($y = $current_year; $y >= ($current_year - 1); $y--) {
                             if(!is_array($salerepdata[$y])) {
                                 $salerepdata[$y][] = 0;
                             }
-                            $salesreport .= '<td style="text-align: right;">'.$formatter->format(array_sum($salerepdata[$y])).'</td>';
+                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$formatter->format(array_sum($salerepdata[$y])).'</td>';
                             for($m = 1; $m <= 12; $m++) {
                                 $yearsummarytotals[$y][$m] += $salerepdata[$y][$m];
                             }
                         }
                         $salesreport .= '</tr>';
+                        if(empty($rowstyle)) {
+                            $rowstyle = $css_styles['altrow'];
+                        }
+                        else {
+                            $rowstyle = '';
+                        }
                     }
 
 //                    $invoicelinesdata = new IntegrationOBInvoiceLine(null, $integration->get_dbconn());
@@ -253,7 +266,7 @@ else {
 //                        $yearsummarytotals[$totaldata['year']][$totaldata['month']] = $totaldata['qty'];
 //                    }
                     for($y = $current_year; $y >= ($current_year - 1); $y--) {
-                        $salesreport .= '<tr><th>Totals ('.$y.')</th>';
+                        $salesreport .= '<tr style="'.$css_styles['altrow2'].'"><th>Totals ('.$y.')</th>';
                         for($i = 1; $i <= 12; $i++) {
                             $salesreport .= '<th style="text-align: right;">'.$formatter->format($yearsummarytotals[$y][$i]).'</th>';
                         }
@@ -275,7 +288,7 @@ else {
 
                     /* YTD Comparison */
                     $salesreport .= '<h2>Progression by BM</h2>';
-                    $salesreport .= '<table width="100%" class="datatable datatable-striped">';
+                    $salesreport .= '<table width="100%" class="datatable">';
                     $salesreport .= '<tr><th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">Sales Rep</th>';
                     $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">YTD</th>';
                     $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">YTD / '.($current_year - 1).'</th>';
@@ -294,7 +307,7 @@ else {
                             continue;
                         }
                         $salerep_user = Users::get_data_byattr('displayName', $salesrep->name);
-                        $salesreport .= '<tr>';
+                        $salesreport .= '<tr style="'.$rowstyle.'">';
                         $salesreport .= '<td>'.$salesrep->name.'</td>';
                         $salesreport .= '<td style="text-align: right;">'.$formatter->format(array_sum($salerepdata[$current_year])).'</td>';
 
@@ -326,6 +339,12 @@ else {
                             $salesreport .= '<td style="text-align: right;">-</td>';
                         }
                         $salesreport .= '</tr>';
+                        if(empty($rowstyle)) {
+                            $rowstyle = $css_styles['altrow'];
+                        }
+                        else {
+                            $rowstyle = '';
+                        }
                         unset($budget_totals, $percentages);
                     }
 
@@ -416,7 +435,8 @@ else {
             ));
 
             //$mailer->set_to('zaher.reda@orkila.com');
-            //print_r($mailer->debug_info());
+            // print_r($mailer->debug_info());
+            // exit;
             $mailer->send();
             if($mailer->get_status() === true) {
                 unset($core->input['reporttype']);
