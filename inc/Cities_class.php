@@ -258,6 +258,9 @@ class Cities extends AbstractClass {
                 };
             }
         }
+        else if(($transpdata['transprequirements']['departuretime']) > strtotime(date("Y-m-d", strtotime(date("Y-m-d")))." +55 days")) {
+            $suggestedtranssegments_output .='<div class="ui-state-highlight ui-corner-all" style="padding:10px; margin-bottom:10px;">system doesn\'t return possible trnsportations if the duration between now and the "from date" exceeds 55 days </div>';
+        }
         /* Possible Reservation Resources */
         unset($possible_transportation);
 
