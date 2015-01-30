@@ -187,7 +187,7 @@ class LeavesStats extends AbstractClass {
                 /* Check if balance was entitled less than a year ago
                  * Required for adjustment period
                  */
-                if(floor(($statdata['periodStart'] - $prev_stat->periodStart) / (365 * 60 * 60 * 24)) > 1) {
+                if(floor(($statdata['periodStart'] - $prev_stat->periodStart) / (365 * 60 * 60 * 24)) >= 1) {
                     if($statdata['remainPrevYear'] > $leavepolicy->maxAccumulateDays) {
                         $statdata['remainPrevYearActual'] = $leavepolicy->maxAccumulateDays;
                     }
