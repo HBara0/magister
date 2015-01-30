@@ -413,6 +413,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
                     $fare = $transportation->get_convertedamount($fromcurr);
                 }
+                $fare = $numfmt->formatCurrency(($fare), "USD");
                 eval("\$segment_transpdetails .= \"".$template->get('travelmanager_viewplan_transpsegments')."\";");
                 $flight_details = '';
             }
@@ -592,7 +593,9 @@ class TravelManagerPlanSegments extends AbstractClass {
 
                 $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
                 $numfmt->setPattern("#0.###");
-                $selectedhotel->total = $numfmt->format($selectedhotel->priceNight * $selectedhotel->numNights);
+                if(is_object($selectedhotel)) {
+                    $selectedhotel->total = $numfmt->format($selectedhotel->priceNight * $selectedhotel->numNights);
+                }
                 $mainaffobj = new Affiliates($core->user['mainaffiliate']);
                 $destcity_obj = $this->get_destinationcity();
                 $currencies[] = $destcity_obj->get_country()->get_maincurrency();
