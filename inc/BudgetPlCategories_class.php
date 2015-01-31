@@ -78,7 +78,7 @@ class BudgetPlCategories extends AbstractClass {
                             }
                         }
                         eval("\$category_item .= \"".$template->get('budgeting_plcategory_item')."\";");
-                        $output .=$category_item;
+                        $output .= $category_item;
                         unset($plexpenses);
                         $category_item = $column_output = '';
                     }
@@ -104,7 +104,7 @@ class BudgetPlCategories extends AbstractClass {
                         $column_output .=' <td style = "width:9%;font-weight:bold;"><div id = "total_'.$category->name.'_'.$input.'">'.$total['plexpenses'][$input].'</div>';
                         $column_output .=parse_textfield('', 'total_'.$category->name.'_'.$input, 'hidden', $total['plexpenses'][$input]).'</td>';
                         if($category->name === 'netincome' && $input === 'budgetCurrent') {
-                            $column_output .=parse_textfield('financialbudget[income]', 'total_'.$category->name.'_'.$input, 'hidden', $total['plexpenses'][$input]).'</td>';
+                            $column_output .= parse_textfield('financialbudget[income]', 'total_'.$category->name.'_'.$input, 'hidden', $total['plexpenses'][$input]).'</td>';
                         }
                         $column_output .= '</td>';
                     }
@@ -215,10 +215,10 @@ class BudgetPlCategories extends AbstractClass {
                                                         $effective_stid = $data['oldSaleType'];
                                                     }
                                                     $saletype_obj = SaleTypes::get_data(array('stid' => $effective_stid));
-                                                    $allocatedamount = number_format($data['amount'] / 1000, 2);
-                                                    $combudget[$key][$saletype]['amount'] += $allocatedamount;
+                                                    //$allocatedamount = number_format($data['amount'] / 1000, 2);
+                                                    $combudget[$key][$saletype]['amount'] += $data['amount'] / 1000;
                                                     if($saletype_obj->countLocally == 0) {
-                                                        $totalamount[$key] += $allocatedamount;
+                                                        $totalamount[$key] += $data['amount'] / 1000;
                                                     }
                                                     $combudget[$key][$saletype]['income'] += number_format($data['invoicingentityincome'] / 1000, 2);
                                                 }
@@ -230,7 +230,7 @@ class BudgetPlCategories extends AbstractClass {
                             $saletypes = SaleTypes::get_data('', array('order' => array('by' => 'sequence')));
                             foreach($saletypes as $type) {
                                 /* Set yef default value for testing */
-                                $combudget['prevyear'][$type->stid]['amount'] = $combudget['prevyear'][$type->stid]['income'] = 10;
+                                $combudget['prevyear'][$type->stid]['amount'] = $combudget['prevyear'][$type->stid]['income'] = 0;
 
                                 /* calculate field values of Accounted commissions/sales category Row */
                                 $commercialbudgetfields = array('prevthreeyears', 'prevtwoyears', 'prevyear', 'current');
@@ -254,12 +254,12 @@ class BudgetPlCategories extends AbstractClass {
 
                                 /* parse fields */
                                 $fields = array('prevthreeyears', 'prevtwoyears', 'prevyear', 'yefactual', 'current', 'budyef');
-                                $amount_output .= '<td style = "width:28%;font-weight:bold;">'.$type->title.'</td>';
+                                $amount_output .= '<td style = "width:28%; font-weight:bold;">'.$type->title.'</td>';
                                 $grossmargin_commissions = $lang->grossmargin;
                                 if($type->stid == 1 || $type->stid == 2) {
                                     $grossmargin_commissions = $lang->accountedcommissions;
                                 }
-                                $income_output .='<td style="width:28%">'.$grossmargin_commissions.'</td>';
+                                $income_output .= '<td style="width:28%">'.$grossmargin_commissions.'</td>';
                                 foreach($fields as $field) {
                                     if(empty($combudget[$field][$type->stid]['amount'])) {
                                         $combudget[$field][$type->stid]['amount'] = 0;

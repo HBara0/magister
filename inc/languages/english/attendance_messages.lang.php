@@ -27,6 +27,11 @@ $lang['declineleavenotificationsubject'] = 'Your {1} request was declined';
 $lang['leaveapprovedmessage'] = 'Dear {1},<br />
 <br />
 Your {2} between {3} and {4} was approved.<br />
+To modify your leave simply click <a href=\'{5}\'>here</a>.
+<br />
+Please do not forget to go to webmail and create an out of office reply
+click <a href=\'{6}\'>here</a> to create the auto reply message.
+
 <br />
 Regards';
 $lang['leaveapprovedsubject'] = 'Your leave request was approved';
@@ -62,7 +67,7 @@ Start date: {3}<br />
 End date: {4} {5} <br />
 Reason: {6}<br />
 {7}<br />
-To approve simply reply to this message, or click <a href=\'{8}\'>here</a>.';
+To approve simply reply to this message, or click <a href=\'{8}\'>here</a>.<br />To modify the leave simply click <a href=\'{9}\'>here</a>.';
 $lang['requestleavemessagesupervisor'] = '{1} requested a leave as follows:<br />
 Type: {2}<br />
 Start date: {3}<br />

@@ -54,6 +54,13 @@ class Reporting {
         return $this->report;
     }
 
+    public function __get($name) {
+        if(isset($this->report[$name])) {
+            return $this->report[$name];
+        }
+        return false;
+    }
+
     public function get_budget() {
         return Budgets::get_data(array('affid' => $this->report['affid'], 'year' => $this->report['year'], 'spid' => $this->report['spid']), array('simple' => false, 'operators' => array('affid' => 'IN', 'spid' => 'IN', 'year' => 'IN')));
     }

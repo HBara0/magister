@@ -189,7 +189,7 @@ if($core->input['action']) {
         echo $headerinc;
         ?>
         <script language="javascript" type="text/javascript">
-            $(function() {
+            $(function () {
                 window.top.$("#upload_Result").html("<?php echo $upload->parse_status($upload->get_status());?>");
             });
         </script>
@@ -330,6 +330,11 @@ if($core->input['action']) {
             $profile['uid'] = $core->user['uid'];
 
             eval("\$editprofilepage_profilepicform = \"".$template->get('popup_changeprofilepic')."\";");
+            /* Get Help Video */
+            $helpvideo = HelpVideos::get_data(array('alias' => 'how-to-generate-signature'));
+            if(is_object($helpvideo)) {
+                $helplinks['how-to-generate-signature'] = $helpvideo->parse_link();
+            }
             eval("\$editprofilepage = \"".$template->get('editprofile')."\";");
             output_page($editprofilepage);
         }
@@ -807,6 +812,11 @@ if($core->input['action']) {
         else {
             $lastpage = DOMAIN;
         }
+
+        /* Get Help Video */
+        $helpvideo = HelpVideos::get_data(array('alias' => 'how-to-reset-password'));
+        $helplink = $helpvideo->parse_link();
+
         eval("\$loginpage = \"".$template->get('loginpage')."\";");
         output_page($loginpage);
     }

@@ -855,11 +855,11 @@ class Entities extends AbstractClass {
         return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->data['companyName'].'</a>';
     }
 
-    function get_shortdisplayname() {
+    public function get_shortdisplayname() {
         if(!empty($this->companyNameAbbr)) {
             return $this->companyNameAbbr;
         }
-        else if(!empty($this->companyNameShort)) {
+        elseif(!empty($this->companyNameShort)) {
             return $this->companyNameShort;
         }
         else {

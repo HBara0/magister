@@ -75,7 +75,7 @@ foreach($holidays as $affid => $holidayslist) {
                 $email_data['to'] = array_unique($mailinglists[$affid]['email'][$hid]);
             }
             else {
-                $email_data['to'] = $core->settings['globalmailinglist']; //$db->fetch_field($db->query("SELECT mailingList FROM ".Tprefix."affiliates WHERE affid=".$affid), 'mailingList');
+                $email_data['to'] = $db->fetch_field($db->query("SELECT mailingList FROM ".Tprefix."affiliates WHERE affid=".$affid), 'mailingList');
             }
 
             if(empty($email_data['to'])) {

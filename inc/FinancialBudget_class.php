@@ -544,7 +544,7 @@ Class FinancialBudget extends AbstractClass {
                 );
 
                 switch($type) {
-                    case'headcount':
+                    case 'headcount':
                         $positiongroups = PositionGroups::get_data('', array('returnarray' => true));
                         $sql = "SELECT posgid, sum(actualPrevThreeYears) AS actualPrevThreeYears,sum(actualPrevTwoYears) AS actualPrevTwoYears, sum(yefPrevYear) AS yefPrevYear, sum(budgetCurrent) AS budgetCurrent FROM ".Tprefix."budgeting_headcount WHERE bfbid IN (".implode(', ', $options['filter']).") GROUP By posgid";
                         $query = $db->query($sql);
@@ -564,7 +564,7 @@ Class FinancialBudget extends AbstractClass {
 
                     /* ------------------------------------------------------------------------------------------------------------------- */
 
-                    case'investmentfollowup':
+                    case 'investmentfollowup':
                         $investcategories = BudgetInvestCategories::get_data('', array('returnarray' => true));
                         /* Converting amount into the affiliates existing currency */
                         // $fxrate_query = '(SELECT rate from budgeting_fxrates bfr JOIN budgeting_financialbudget bfb ON(bfb.affid = bfr.affid AND bfb.year = bfr.year) WHERE bfr.fromCurrency = bfb.currency AND bfr.toCurrency = '.intval($options['tocurrency']).' AND bfb.bfbid = budgeting_investexpenses.bfbid)';
@@ -592,7 +592,7 @@ Class FinancialBudget extends AbstractClass {
 
                     /* ------------------------------------------------------------------------------------------------------------------- */
 
-                    case'financialadminexpenses':
+                    case 'financialadminexpenses':
                         $expensescategories = BudgetExpenseCategories::get_data('', array('returnarray' => true));
                         /* Converting amount into the affiliates existing currency */
                         foreach($prevyears_fxrates as $attr => $fxconfig) {
@@ -643,7 +643,7 @@ Class FinancialBudget extends AbstractClass {
 
                     /* ------------------------------------------------------------------------------------------------------------------- */
 
-                    case'forecastbalancesheet':
+                    case 'forecastbalancesheet':
                         $budforecastobj = new BudgetForecastAccountsTree();
 
                         $fxrate_query = '(CASE WHEN bfb.currency = '.intval($options['tocurrency']).' THEN 1
@@ -670,7 +670,7 @@ Class FinancialBudget extends AbstractClass {
 
                     /* ------------------------------------------------------------------------------------------------------------------- */
 
-                    case'trainingvisits':
+                    case 'trainingvisits':
                         $budgetrainingvisit_obj = BudgetTrainingVisits::get_data(array('bfbid' => $financialbudget), array('simple' => false));
 
                         if(is_array($financial_obj)) {
@@ -682,20 +682,20 @@ Class FinancialBudget extends AbstractClass {
                                 if(is_object($ratequery)) {
                                     $rates[$financialbudget->affid] = $ratequery->rate;
                                 }
-                                $budgetraininglocalvisit_objs = BudgetTrainingVisits::get_data(array('bfbid' => $financialbudget->bfbid, 'classification' => 'local'), array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'TotalCostAffiliate', 'sort' => 'DESC')));
+                                $budgetraininglocalvisit_objs = BudgetTrainingVisits::get_data(array('bfbid' => $financialbudget->bfbid, 'classification' => 'local'), array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'totalCostAffiliate', 'sort' => 'DESC')));
                                 if(is_array($budgetraininglocalvisit_objs)) {
                                     $budgeting_tainingvisitpreview .='<div class = "subtitle" style = "padding:8px;"> '.$lang->localvisit.'</div>';
                                     eval("\$budgeting_localtainingvisitpreviewinheader = \"".$template->get('budgeting_localtraininvisitpreview_header')."\";");
                                     foreach($budgetraininglocalvisit_objs as $budgetrainingvisit_ob) {
-                                        $inputfields = array('company', 'name', 'date', 'purpose', 'Costaffiliate', 'event', 'bm', 'planCost', 'otherCosts', 'TotalCostAffiliate');
+                                        $inputfields = array('company', 'name', 'date', 'purpose', 'costAffiliate', 'event', 'bm', 'planeCost', 'otherCosts', 'totalCostAffiliate');
                                         if(!empty($budgetrainingvisit_ob->date)) {
                                             $budgetrainingvisit_ob->date = date($core->settings['dateformat'], $budgetrainingvisit_ob->date);
                                         }
                                         // $entityobj = new Entities($budgetrainingvisit_ob->company);
                                         // $budgetrainingvisit_ob->company = $entityobj->name;
-                                        $budgetrainingvisit_ob->Costaffiliate = $budgetrainingvisit_ob->Costaffiliate * $rates[$financialbudget->affid];
+                                        $budgetrainingvisit_ob->costAffiliate = $budgetrainingvisit_ob->costAffiliate * $rates[$financialbudget->affid];
 
-                                        $totallocalcostamount[$budgetrainingvisit_ob->btvid] += $budgetrainingvisit_ob->Costaffiliate;
+                                        $totallocalcostamount[$budgetrainingvisit_ob->btvid] += $budgetrainingvisit_ob->costAffiliate;
                                         $total_localamount += ($totallocalcostamount[$budgetrainingvisit_ob->btvid] );
                                         eval("\$budgeting_local_traininvisitpreview  = \"".$template->get('budgeting_local_traininvisitpreview')."\";");
 
@@ -716,10 +716,10 @@ Class FinancialBudget extends AbstractClass {
                                         if(!empty($budgetrainingintvisit_ob->date)) {
                                             $budgetrainingintvisit_ob->date = date($core->settings['dateformat'], $budgetrainingintvisit_ob->date);
                                         }
-                                        $budgetrainingintvisit_ob->planCost = $budgetrainingintvisit_ob->planCost * $rates[$financialbudget->affid];
+                                        $budgetrainingintvisit_ob->planeCost = $budgetrainingintvisit_ob->planeCost * $rates[$financialbudget->affid];
                                         $budgetrainingintvisit_ob->otherCosts = $budgetrainingintvisit_ob->otherCosts * $rates[$financialbudget->affid];
 
-                                        $totalinternvisit[$budgetrainingintvisit_ob->btvid] = number_format($budgetrainingintvisit_ob->planCost + $budgetrainingintvisit_ob->otherCosts, 2);
+                                        $totalinternvisit[$budgetrainingintvisit_ob->btvid] = number_format($budgetrainingintvisit_ob->planeCost + $budgetrainingintvisit_ob->otherCosts, 2);
                                         $totalamount += ($totalinternvisit[$budgetrainingintvisit_ob->btvid] );
 
                                         eval("\$budgeting_int_tainingvisitpreview  = \"".$template->get('budgeting_int_traininvisitpreview')."\";");

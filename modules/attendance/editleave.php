@@ -166,7 +166,7 @@ else {
     }
     elseif($core->input['action'] == 'do_perform_editleave') {
         unset($core->input['leaveid']);
-        $expenses_data = $core->input['leaveexpenses'];
+        //  $expenses_data = $core->input['leaveexpenses'];
         unset($core->input['leaveexpenses']);
 
         $lid = $db->escape_string($core->input['lid']);
@@ -287,22 +287,22 @@ else {
 
         /* Validate required Fields --START */
         $leavetype = new LeaveTypes($core->input['type']);
-        if($leavetype->has_expenses()) {
-            $expensesfield_type = $leavetype->get_expenses();
-            foreach($expensesfield_type as $alteid => $expensesfield) {
-                if(($expensesfield['isRequired'] == 1 && (empty($expenses_data[$alteid]['expectedAmt']) && $expenses_data[$alteid]['expectedAmt'] != 0)) || ($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description']))) {
-                    output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-                    exit;
-                }
-            }
-        }
+//        if($leavetype->has_expenses()) {
+//            $expensesfield_type = $leavetype->get_expenses();
+//            foreach($expensesfield_type as $alteid => $expensesfield) {
+//                if(($expensesfield['isRequired'] == 1 && (empty($expenses_data[$alteid]['expectedAmt']) && $expenses_data[$alteid]['expectedAmt'] != 0)) || ($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description']))) {
+//                    output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+//                    exit;
+//                }
+//            }
+//        }
         /* Validate required Fields --END */
         $query = $db->update_query('leaves', $core->input, "lid='{$lid}'");
         /* Update leave expenses - START */
         $leave_obj = new Leaves(array('lid' => $lid), false);
-        if(is_array($expenses_data) && !empty($expenses_data)) {
-            $leave_obj->update_leaveexpenses($expenses_data);
-        }
+//        if(is_array($expenses_data) && !empty($expenses_data)) {
+//            $leave_obj->update_leaveexpenses($expenses_data);
+//        }
         /* Update leave expenses - END */
         if($query) {
             if($db->affected_rows() == 0) {
@@ -514,24 +514,24 @@ else {
 
                 /* Parse expense information for message - START */
 
-                if($leave_obj->has_expenses()) {
-                    $expenses_data = $leave_obj->get_expensesdetails();
-                    $expenses_message = '';
-                    foreach($expenses_data as $expense) {
-                        if(!empty($lang->{$expense['name']})) {
-                            $expense['title'] = $lang->{$expense['name']};
-                        }
-
-                        if(isset($expense['description']) && !empty($expense['description'])) {
-                            $expense['description'] = ' ('.$expense['description'].')';
-                        }
-
-                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].$expense['description'].'<br />';
-                    }
-                    $total = $leave_obj->get_expensestotal();
-
-                    $expenses_message_ouput = '<br />'.$expenses_message.'<br />Total: '.$total.' USD<br />';
-                }
+//                if($leave_obj->has_expenses()) {
+//                    $expenses_data = $leave_obj->get_expensesdetails();
+//                    $expenses_message = '';
+//                    foreach($expenses_data as $expense) {
+//                        if(!empty($lang->{$expense['name']})) {
+//                            $expense['title'] = $lang->{$expense['name']};
+//                        }
+//
+//                        if(isset($expense['description']) && !empty($expense['description'])) {
+//                            $expense['description'] = ' ('.$expense['description'].')';
+//                        }
+//
+//                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].$expense['description'].'<br />';
+//                    }
+//                    $total = $leave_obj->get_expensestotal();
+//
+//                    $expenses_message_ouput = '<br />'.$expenses_message.'<br />Total: '.$total.' USD<br />';
+//                }
                 $core->input['reason'] .= $expenses_message_ouput;
                 /* Parse expense information for message - END */
 

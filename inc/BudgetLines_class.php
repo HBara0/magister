@@ -88,7 +88,7 @@ class BudgetLines {
         $data['inputChecksum'] = generate_checksum('bl');
         $data['linkedBudgetLine'] = $this->budgetline['blid'];
         $data['altCid'] = $budget->get_affiliate()->name;
-        $data['customerCountry'] = $budget->get_affiliate()->get_country()->coid;
+        $data['customerCountry'] = $budget->get_affiliate()->country;
         $data['saleType'] = 6; //Need to be acquire through DAL where isInterCoSale
 
         if(!empty($this->budgetline['linkedBudgetLine'])) {
@@ -135,6 +135,10 @@ class BudgetLines {
             $ic_budget = Budgets::get_data(array('affid' => $budgetdata_intercompany['affid'], 'spid' => $budget->spid, 'year' => $budget->year), array('simple' => false));
             $data['bid'] = $ic_budget->bid;
         }
+        $data['amount'] = $data['amount'] - $data['income'];
+        /* Apply Default Margin */
+        $data['income'] = $data['localIncomeAmount'] = $data['amount'] * 0.03;
+        $data['localIncomePercentage'] = 100;
         $ic_budgetline = new BudgetLines();
         $ic_budgetline->create($data);
 
@@ -244,7 +248,7 @@ class BudgetLines {
             if(!isset($data['bid']) || empty($data['bid'])) {
                 return false;
             }
-            $budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."' AND customerCountry='".$data['customerCountry']."' AND psid='".$data['psid']."' AND businessMgr=".$data['businessMgr']);
+            $budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."' AND customerCountry='".$data['customerCountry']."' AND psid='".$data['psid']."' AND businessMgr='".$data['businessMgr']."'");
             if($db->num_rows($budgetline_bydataquery) > 0) {
                 return $db->fetch_assoc($budgetline_bydataquery);
             }
@@ -336,10 +340,24 @@ class BudgetLines {
         return $this->budgetline;
     }
 
+    public function get_convertedamount(Currencies $tocurrency) {
+        $budget = $this->get_budget();
+
+        if($this->originalCurrency == $tocurrency->get_id()) {
+            return $this->amount;
+        }
+
+        $fxrate = BudgetFxRates::get_data(array('fromCurrency' => $this->originalCurrency, 'toCurrency' => $tocurrency->get_id(), 'year' => $budget->year, 'isBudget' => 1, 'affid' => $budget->affid));
+        if(is_object($fxrate)) {
+            return $this->amount * $fxrate->rate;
+        }
+        return false;
+    }
+
     public function get_invoicingentity_income($tocurrency, $year, $affid) {
         global $db;
         $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($tocurrency)." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.commissionSplitAffid AND year=".intval($year)." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($tocurrency).") END)";
-        $sql = "SELECT saleType, invoice, SUM(amount*{$fxrate_query}) AS amount, SUM(invoicingEntityIncome*{$fxrate_query}) AS invoicingEntityIncome FROM ".Tprefix."budgeting_budgets_lines WHERE commissionSplitAffid= ".intval($affid)." GROUP BY saleType";
+        $sql = "SELECT saleType, invoice, SUM(amount*{$fxrate_query}) AS amount, SUM(invoicingEntityIncome*{$fxrate_query}) AS invoicingEntityIncome FROM ".Tprefix."budgeting_budgets_lines WHERE commissionSplitAffid= ".intval($affid)." AND bid IN (SELECT bid FROM ".Tprefix."budgeting_budgets WHERE year=".intval($year).") GROUP BY saleType";
         $query = $db->query($sql);
         if($db->num_rows($query) > 0) {
             while($budget = $db->fetch_assoc($query)) {

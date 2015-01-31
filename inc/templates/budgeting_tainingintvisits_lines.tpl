@@ -11,7 +11,7 @@
     </td>
     <td>
         <textarea  name="budgetrainingvisit[international][$rowid][purpose]"  cols="40" required="required">{$budgetrainingvisit[purpose]}{$budgetrainingvisit[$populated_leave->lid][$type][purpose]}</textarea>
-    <td><input type='number'  step="only" id="cost_plancost_{$rowid}_int"   name="budgetrainingvisit[international][$rowid][planCost]" value="{$budgetrainingvisit[planCost]}{$budgetrainingvisit[$populated_leave->lid][$type][planCost]}" autocomplete='off'  required="required"/></td>
+    <td><input type='number'  step="only" id="cost_planecost_{$rowid}_int"   name="budgetrainingvisit[international][$rowid][planeCost]" value="{$budgetrainingvisit[planeCost]}{$budgetrainingvisit[$populated_leave->lid][$type][planeCost]}" autocomplete='off'  required="required"/></td>
     <td><input type='number'  step="only"  id="cost_othercost_{$rowid}_int"  name="budgetrainingvisit[international][$rowid][otherCosts]" value="{$budgetrainingvisit[otherCosts]}{$budgetrainingvisit[$populated_leave->lid][$type][otherCosts]}" autocomplete='off' required="required" /></td>
 
     <td>  <span id="subtotal_{$rowid}_int" style=" float: right;font-weight:bold;">{$totalintamount}{$budgetrainingvisit[$populated_leave->lid][$type][totalexpenses]} </span>  </td>

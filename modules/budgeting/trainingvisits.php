@@ -25,9 +25,8 @@ if(!isset($core->input['action'])) {
     }
     $affid = $core->input['financialbudget']['affid'];
     $affiliate = new Affiliates($affid);
-    $rowid = 1;
+    $rowid = 0;
     /* get budget */
-
     $financialbudget = FinancialBudget::get_data(array('affid' => $affid, 'year' => $financialbudget_year), array('simple' => false));
     $budgetrainingvisit_obj = BudgetTrainingVisits::get_data(array('bfbid' => $financialbudget->bfbid), array('simple' => false, 'returnarray' => true));
 
@@ -50,11 +49,10 @@ if(!isset($core->input['action'])) {
         }
     }
 
-    $fields = array('purpose', 'event', 'Costaffiliate', 'company', 'inputChecksum', 'bm', 'planCost', 'otherCosts'); //'actualPrevYear', 'budgetPrevYear'
+    $fields = array('purpose', 'event', 'costAffiliate', 'company', 'inputChecksum', 'bm', 'planeCost', 'otherCosts'); //'actualPrevYear', 'budgetPrevYear'
+    $rowid = 0;
     if(is_array($budgetrainingvisit_obj)) {
-        $rowid = 0;
         foreach($budgetrainingvisit_obj as $btvid => $budgetvisit) {
-            $rowid ++;
             foreach($fields as $field) {
                 if(!empty($budgetvisit->$field)) {
                     $budgetrainingvisit[$field] = $budgetvisit->$field;
@@ -85,6 +83,7 @@ if(!isset($core->input['action'])) {
                 eval("\$budgettaininig_intvisits_rows .= \"".$template->get('budgeting_tainingintvisits_lines')."\";");
                 unset($budgetrainingvisit);
             }
+            $rowid ++;
         }
     }
 
@@ -94,15 +93,15 @@ if(!isset($core->input['action'])) {
     /* recognize that the request includes leave IDs */
     if(isset($core->input['budgetrainingvisit']['leaves']) && $core->input['source'] == 'import' && !empty($core->input['budgetrainingvisit']['leaves'])) {
         unset($budgetrainingvisit);
-        $populated_leaves = populate_leaves();
+        $populated_leaves = Leaves::get_data(array('lid' => $core->input['budgetrainingvisit']['leaves']), array('returnarray' => true, 'simple' => false, 'operators' => array('lid' => 'IN')));
         //financialbudget->bfbid;
         $affiliate = new Affiliates($affid);
         foreach($populated_leaves as $lid => $populated_leave) {
 
             $visit_type = $populated_leave->check_leavedestination();
-            $rowid = intval($lid) + 1;
+            //   $rowid = intval($rowid) + 1;
             switch($visit_type) {
-                case'international':
+                case 'international':
                     $type = 'international';
                     $budgetrainingvisit['inputChecksum'] = generate_checksum('budget');
                     if(is_array($business_managers)) {
@@ -114,7 +113,7 @@ if(!isset($core->input['action'])) {
                         if($uid == $populated_leave->uid) {
                             $selected = " selected='selected'";
                         }
-                        $business_managers_list.='<option value='.$uid.' '.$selected.'>'.$bm.'</option>';
+                        $business_managers_list .= '<option value='.$uid.' '.$selected.'>'.$bm.'</option>';
                     }
                     $budgetrainingvisit[$populated_leave->lid][$type]['lid'] = $populated_leave->lid;
                     $budgetrainingvisit[$populated_leave->lid][$type]['date_output'] = date($core->settings['dateformat'], $populated_leave->fromDate);
@@ -128,16 +127,15 @@ if(!isset($core->input['action'])) {
                     if(is_array($expensesdetails)) {
                         foreach($expensesdetails as $expenses) {
                             if($expenses['name'] == 'airfare') {
-                                $budgetrainingvisit[$populated_leave->lid][$type]['planCost'] = $expenses['expectedAmt'];
+                                $budgetrainingvisit[$populated_leave->lid][$type]['planeCost'] = $expenses['expectedAmt'];
                             }
-                            //    echo $budgetrainingvisit[$populated_leave->lid][$type]['planCost'];
                             //  $budgetrainingvisit[$populated_leave->lid][$type]['otherCosts'] = $budgetrainingvisit[$populated_leave->lid][$type]['totalexpenses'] - $expenses['expectedAmt'];
                         }
                     }
                     eval("\$budgettaininig_intvisits_rows .= \"".$template->get('budgeting_tainingintvisits_lines')."\";");
-                    unset($budgetrainingvisit[$populated_leave->lid], $rowid);
+                    unset($budgetrainingvisit[$populated_leave->lid]);
                     break;
-                case"domestic":
+                case 'domestic':
                     $type = 'domestic';
                     $budgetrainingvisit['inputChecksum'] = generate_checksum('budget');
                     $budgetrainingvisit[$populated_leave->lid][$type]['lid'] = $populated_leave->lid;
@@ -146,12 +144,13 @@ if(!isset($core->input['action'])) {
                     $budgetrainingvisit[$populated_leave->lid][$type]['purpose'] = $populated_leave->reason;
                     $leave_expenses = $populated_leave->get_expensestotal();
                     if(!empty($leave_expenses)) {
-                        $budgetrainingvisit[$populated_leave->lid][$type]['Costaffiliate'] = $leave_expenses;
+                        $budgetrainingvisit[$populated_leave->lid][$type]['costAffiliate'] = $leave_expenses;
                     }
                     eval("\$budgettaininglocalvisits_rows .= \"".$template->get('budgeting_tainingvisits_lines')."\";");
-                    unset($budgetrainingvisit[$populated_leave->lid], $rowid);
+                    unset($budgetrainingvisit[$populated_leave->lid]);
                     break;
             }
+            $rowid ++;
         }
     }
 
@@ -174,19 +173,21 @@ if(!isset($core->input['action'])) {
     //eval("\$budgettaininig_intvisits_rows .= \"".$template->get('budgeting_tainingintvisits_lines')."\";");
     //}
 
-
     /* Fill based on existing leaves  populate existing business leaves  ----START */
 
-    $leave['filter']['type'] = 'SELECT ltid FROM leavetypes WHERE isBusiness=1 ';
-    $leave['filter']['affid'] = $affid;
+    $leave['filter']['type'] = 'SELECT ltid FROM leavetypes WHERE isBusiness=1';
+    $leave['filter']['uid'] = 'SELECT uid FROM affiliatedemployees WHERE affid='.intval($affid).' AND isMain=1';
     /* avoid reshowing import text box if all leaves have been imported. Only show those that have not been imported.  */
-    $leave['filter']['lid'] = ' SELECT lid from  budgeting_trainingvisits WHERE bfbid='.$financialbudget->bfbid;
-    $leaves_objs = Leaves::get_data($leave['filter'], array('returnarray' => true, 'simple' => false, 'operators' => array('type' => 'IN', 'lid' => 'NOT IN')));
+    if(isset($financialbudget->bfbid)) {
+        $leave['filter']['lid'] = 'SELECT lid FROM budgeting_trainingvisits WHERE bfbid='.$financialbudget->bfbid;
+    }
+    $leave['filter']['fromdate'] = 'SELECT fromdate FROM leaves WHERE FROM_UNIXTIME(fromDate, "%Y")='.($financialbudget_year - 1);
+    $leaves_objs = Leaves::get_data($leave['filter'], array('returnarray' => true, 'simple' => false, 'operators' => array('uid' => 'IN', 'type' => 'IN', 'lid' => 'NOT IN', 'fromdate' => 'IN')));
     $lang->load('attendance_messages');
     if(is_array($leaves_objs)) {
         foreach($leaves_objs as $leaves_obj) {
             $leaves_obj->employee = $leaves_obj->get_requester()->get_displayname();
-            $leavedate[$leaves_obj->lid] = $lang->sprint($lang->leavedate, date($core->settings['dateformat'], $leaves_obj->fromDate), date($core->settings['dateformat'], $leaves_obj->toDate)); //' from '.date($core->settings['dateformat'], $leaves_obj->fromDate).' TO '.date($core->settings['dateformat'], $leaves_obj->toDate);
+            $leavedate[$leaves_obj->lid] = date($core->settings['dateformat'], $leaves_obj->fromDate).' -> '.date($core->settings['dateformat'], $leaves_obj->toDate); //' from '.date($core->settings['dateformat'], $leaves_obj->fromDate).' TO '.date($core->settings['dateformat'], $leaves_obj->toDate);
             $leaveexpenses = $leaves_obj->get_expensestotal();
             if(!empty($leaveexpenses)) {
                 $leaves_obj->totalexpenses = $leaveexpenses;
@@ -236,7 +237,7 @@ else if($core->input['action'] == 'ajaxaddmore_budgetrainvisitint') {
         if(is_array($business_managers)) {
             $business_managers_list = '<option> </option>';
             foreach($business_managers as $uid => $bm) {
-                $business_managers_list.='<option value='.$uid.' >'.$bm.'</option>';
+                $business_managers_list.='<option value = '.$uid.' >'.$bm.'</option>';
             }
         }
 
@@ -251,7 +252,6 @@ else if($core->input['action'] == 'do_perform_trainingvisits') {
     $financialbudget = new FinancialBudget();
     $financialbudget->set($core->input);
     $financialbudget->save();
-    exit;
     switch($financialbudget->get_errorcode()) {
         case 0:
         case 1:

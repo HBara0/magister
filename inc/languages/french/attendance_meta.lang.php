@@ -102,6 +102,7 @@ $lang['noattendanceavailable'] = 'Aucune Présence Disponible';
 $lang['noeventforperiod'] = 'Il n\'existe aucun évévenement durant cette période';
 $lang['noleavesavailable'] = 'Aucune Absence n\'est disponible';
 $lang['norequestsavailable'] = 'Aucune demande n\'est disponible';
+$lang['operation'] = 'Operation';
 $lang['parentalleave'] = 'Congé Parental';
 $lang['percentage'] = 'Pourcentage';
 $lang['period'] = 'Période';

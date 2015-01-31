@@ -16,6 +16,8 @@ if($core->usergroup['attendance_canGenerateReport'] == 0) {
 }
 
 $session->start_phpsession();
+/* Temporary specific fix for time zone */
+date_default_timezone_set($core->user_obj->get_mainaffiliate()->get_country()->defaultTimeZone);
 
 if(!$core->input['action']) {
     $filter_where = '';
@@ -169,19 +171,37 @@ else {
 
             /* Check for the attendance during the period - START */
             $attendance_query = $db->query("SELECT a.*, CONCAT(firstName, ' ', lastName) AS fullname
-											FROM ".Tprefix."attendance a
+											FROM ".Tprefix."attendance_attrecords a
 											JOIN ".Tprefix."users u ON (a.uid = u.uid)
-											WHERE (date BETWEEN '{$fromdate}' AND '{$todate}') AND a.uid={$uid}
-											ORDER BY date DESC");
+											WHERE (time BETWEEN '{$fromdate}' AND '{$todate}') AND a.uid={$uid}
+											ORDER BY time DESC");
 
             if($db->num_rows($attendance_query) > 0) {
+                $daycount = 1;
                 while($attendance = $db->fetch_assoc($attendance_query)) {
-                    $attendance_date = getdate_custom($attendance['date']);
+                    $attendance_date = getdate_custom($attendance['time']);
 
                     if($attendance_date['week'] == 1 && $attendance_date['mon'] == 12) {
                         $attendance_date['week'] = 53;
                     }
-                    $data[$attendance_date['year']][$attendance_date['mon']][$attendance_date['week']][$attendance_date['mday']]['attendance'][$attendance['aid']] = $attendance;
+                    if(!isset($data[$attendance_date['year']][$attendance_date['mon']][$attendance_date['week']][$attendance_date['mday']]['attendance'][$daycount])) {
+                        $data[$attendance_date['year']][$attendance_date['mon']][$attendance_date['week']][$attendance_date['mday']]['attendance'][$daycount] = $attendance;
+                        $data[$attendance_date['year']][$attendance_date['mon']][$attendance_date['week']][$attendance_date['mday']]['attendance'][$daycount]['date'] = $attendance['time'];
+                    }
+                    if($attendance['operation'] == 'check-in') {
+                        $data[$attendance_date['year']][$attendance_date['mon']][$attendance_date['week']][$attendance_date['mday']]['attendance'][$daycount]['timeIn'] = $attendance['time'];
+
+                        if(!empty($data[$attendance_date['year']][$attendance_date['mon']][$attendance_date['week']][$attendance_date['mday']]['attendance'][$daycount]['timeOut'])) {
+                            $daycount++;
+                        }
+                    }
+                    elseif($attendance['operation'] == 'check-out') {
+                        $data[$attendance_date['year']][$attendance_date['mon']][$attendance_date['week']][$attendance_date['mday']]['attendance'][$daycount]['timeOut'] = $attendance['time'];
+
+                        if(!empty($data[$attendance_date['year']][$attendance_date['mon']][$attendance_date['week']][$attendance_date['mday']]['attendance'][$daycount]['timeIn'])) {
+                            $daycount++;
+                        }
+                    }
                 }
             }
             /* else

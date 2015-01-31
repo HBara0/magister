@@ -379,6 +379,13 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
         unset($placeholder_selected);
     }
     foreach($options as $key => $val) {
+        if(is_object($val)) {
+            if(method_exists($val, 'get_id')) {
+                $key = $val->get_id();
+            }
+            $val = $val->get_displayname();
+        }
+
         if($multiple_selected == true) {
             $selected_options = array_filter($selected_options, 'strlen');
             if(in_array($key, $selected_options)) {
@@ -395,9 +402,6 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
             $attributes .= ' disabled="disabled"';
         }
 
-        if(is_object($val)) {
-            $val = $val->get_displayname();
-        }
         $list .= '<option value="'.$key.'"'.$attributes.'>'.$val.'</option>';
         $attributes = '';
     }
@@ -615,14 +619,34 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
             if(isset($options['descinfo']) && !empty($options['descinfo'])) {
                 switch($options['descinfo']) {
                     case 'citycountry':
+//                        $hotelsobj = TravelManagerHotels::get_data('tmhid='.$key);
+//                        if(is_object($hotelsobj)) {
+//                            $city = new Cities($hotelsobj->city);
+//                        }
+//                        else {
+//                            $city = new Cities($key);
+//                        }
                         $city = new Cities($key);
                         if($options['returnType'] == 'json') {
                             $results_list[$key]['id'] = $city->ciid;
-                            $results_list[$key]['desc'] = $city->get_country()->name;
+                            $results_list[$key]['desc'] = $city->name.' - '.$city->get_country()->name;
+                        }
+                        else {
+                            $details = '<br /><span class="smalltext">'.$city->name.' - '.$city->get_country()->name.'</span>';
+                            $results_list .= '<li id="'.$city->ciid.'">'.$val.$details.'</li>';
+                        }
+                        unset($details);
+                        break;
+                    case 'hotelcitycountry':
+                        $hotelsobj = TravelManagerHotels::get_data('tmhid='.$key);
+                        $city = new Cities($hotelsobj->city);
+                        if($options['returnType'] == 'json') {
+                            $results_list[$key]['id'] = $key;
+                            $results_list[$key]['desc'] = $city->name.' - '.$city->get_country()->name;
                         }
                         else {
                             $details = '<br /><span class="smalltext">'.$city->get_country()->name.'</span>';
-                            $results_list .= '<li id="'.$city->ciid.'">'.$val.$details.'</li>';
+                            $results_list .= '<li id="'.$key.'">'.$val.$details.'</li>';
                         }
                         unset($details);
                         break;
@@ -689,12 +713,11 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             foreach($chemfunchem_objs as $chemfunchem_obj) {
                                 $application_obj = $chemfunchem_obj->get_segapplicationfunction();
                                 if($options['returnType'] == 'json') {
-                                    $results_list[$key]['id'] = $chemfuncprod_obj->cfcid;
+                                    $results_list[$key]['id'] = $chemfunchem_obj->cfcid;
                                     $results_list[$key]['desc'] = $chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
                                 }
                                 else {
                                     $details = '<br /><span class="smalltext">'.$chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
-
                                     $results_list .= '<li id="'.$chemfunchem_obj->cfcid.'">'.$val.$details.'</li>';
                                 }
                             }
@@ -1675,6 +1698,7 @@ function get_object_bytype($dim, $id, $simple = true) {
         case 'createdBy':
         case 'modifiedBy':
         case 'reportsTo':
+        case 'businessMgr':
             return new Users($id);
             break;
         case 'ltid':
@@ -1725,7 +1749,10 @@ function array_multisort_bycolumn(&$data, $order_attr, $sort = SORT_DESC) {
 function generate_checksum($prefix = '') {
     $identifier = substr(md5(uniqid(microtime())), 1, 10);
 
-    return $prefix.'_'.$identifier;
+    if(!empty($prefix)) {
+        $prefix = $prefix.'_';
+    }
+    return $prefix.$identifier;
 }
 
 function generate_alias($string) {

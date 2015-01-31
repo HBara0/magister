@@ -4,7 +4,7 @@
         <div class="logo" style="width:100%;">&nbsp;</div>
         <a name="tableofcontent"></a>
         <div style="width:100%;" id="tableofcontent">
-            <div class="thead">{$lang->tableofcontents}</div>
+            <h1>{$lang->tableofcontents}</h1>
             {$toc_entries}
         </div>
     </div>

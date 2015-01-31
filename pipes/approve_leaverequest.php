@@ -62,25 +62,25 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 
                 /* Parse expense information for message - START */
                 $leave_obj = new Leaves(array('lid' => $leave['lid']), false);
-                if($leave_obj->has_expenses()) {
-                    $expenses_data = $leave_obj->get_expensesdetails();
-                    $total = 0;
-                    $expenses_message = '';
-                    foreach($expenses_data as $expense) {
-                        if(!empty($lang->{$expense['name']})) {
-                            $expense['title'] = $lang->{$expense['name']};
-                        }
-                        $total += $expense['expectedAmt'];
-
-                        $exptype_obj = LeaveExpenseTypes::get_exptype_byattr('title', $expense['title'], false);
-                        if(is_object($exptype_obj)) {
-                            $agency_link = $exptype_obj->parse_agencylink($leave_obj);
-                        }
-                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].' '.$agency_link.'<br>';
-                        unset($agency_link);
-                    }
-                    $expenses_message_output = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
-                }
+//                if($leave_obj->has_expenses()) {
+//                    $expenses_data = $leave_obj->get_expensesdetails();
+//                    $total = 0;
+//                    $expenses_message = '';
+//                    foreach($expenses_data as $expense) {
+//                        if(!empty($lang->{$expense['name']})) {
+//                            $expense['title'] = $lang->{$expense['name']};
+//                        }
+//                        $total += $expense['expectedAmt'];
+//
+//                        $exptype_obj = LeaveExpenseTypes::get_exptype_byattr('title', $expense['title'], false);
+//                        if(is_object($exptype_obj)) {
+//                            $agency_link = $exptype_obj->parse_agencylink($leave_obj);
+//                        }
+//                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].' '.$agency_link.'<br>';
+//                        unset($agency_link);
+//                    }
+//                    $expenses_message_output = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
+//                }
                 $leave['reason'] .= $expenses_message_output;
                 /* Parse expense information for message - END */
 
@@ -108,7 +108,9 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                     $stat->generate_periodbased($leave);
                 }
 
-                $lang->leaveapprovedmessage = $lang->sprint($lang->leaveapprovedmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']));
+                $modifyleave_link = 'https://ocos.orkila.com/index.php?module=attendance/editleave&lid='.$leave['lid'];
+                $outofoffice_link = 'https://server.orkila.com:2096/logout/?locale=en';
+                $lang->leaveapprovedmessage = $lang->sprint($lang->leaveapprovedmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']), $modifyleave_link, $outofoffice_link);
 
                 $email_data = array(
                         'from_email' => 'attendance@ocos.orkila.com',

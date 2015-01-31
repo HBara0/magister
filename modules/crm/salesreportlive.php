@@ -37,6 +37,12 @@ else {
             redirect('index.php?module=crm/salesreportlive');
         }
 
+        /* In-line CSS styles in form of array in order to be compatible with email message */
+        $css_styles['table-datacell'] = 'text-align: right;';
+        $css_styles['altrow'] = 'background-color: #f7fafd;';
+        $css_styles['altrow2'] = 'background-color: #F2FAED;';
+        $css_styles['greenrow'] = 'background-color: #F2FAED;';
+
         $current_date = getdate(TIME_NOW);
         $period['from'] = strtotime($core->input['fromDate']);
         $period['to'] = TIME_NOW;
@@ -46,12 +52,12 @@ else {
 
         if(is_array($core->input['affids'])) {
             foreach($core->input['affids'] as $affid) {
-                $affiliate = new Affiliates($affid);
+                $affiliate = new Affiliates($affid, false);
                 $orgs[] = $affiliate->integrationOBOrgId;
             }
         }
         else {
-            $affiliate = new Affiliates($core->input['affids']);
+            $affiliate = new Affiliates($core->input['affids'], false);
             $orgs[] = $affiliate->integrationOBOrgId;
         }
         $currency_obj = new Currencies('USD');
@@ -97,6 +103,9 @@ else {
                     continue;
                 }
                 foreach($invoicelines as $invoiceline) {
+                    if($invoiceline->linenetamt == 0) {
+                        continue;
+                    }
                     $iltrx = $invoiceline->get_transaction();
                     if(is_object($iltrx)) {
                         $outputstack = $iltrx->get_outputstack();
@@ -137,9 +146,12 @@ else {
                         $invoiceline->costlocal = 0 - $invoiceline->costlocal;
                     }
 
-                    $invoiceline->unitcostlocal = $invoiceline->costlocal / $invoiceline->qtyinvoiced;
+                    if($invoiceline->qtyinvoiced != 0) {
+                        $invoiceline->unitcostlocal = $invoiceline->costlocal / $invoiceline->qtyinvoiced;
+                        $invoiceline->unitcostusd = $invoiceline->costusd / $invoiceline->qtyinvoiced;
+                    }
+
                     $invoiceline->costusd = $invoiceline->costlocal / $invoice->usdfxrate;
-                    $invoiceline->unitcostusd = $invoiceline->costusd / $invoiceline->qtyinvoiced;
 
                     if(is_object($inputstack)) {
                         $input_inoutline = $inputstack->get_transcation()->get_inoutline();
@@ -183,6 +195,8 @@ else {
             redirect($url, $delay, $redirect_message);
         }
 
+        $salesreport = '<h1>'.$lang->salesreport.'<small><br />'.$lang->{$core->input['type']}.'</small></h1>';
+        $salesreport = '<p><em>The report might have issues in the cost information. If so please report them to the ERP Team.</em></p>';
         if($core->input['type'] == 'analytic' || $core->input['type'] == 'dimensional') {
             $overwrite = array('marginperc' => array('fields' => array('divider' => 'netmargin', 'dividedby' => 'linenetamt'), 'operation' => '/'),
                     'priceactual' => array('fields' => array('divider' => 'linenetamt', 'dividedby' => 'qtyinvoiced'), 'operation' => '/'));
@@ -193,11 +207,17 @@ else {
                 $current_year = date('Y', TIME_NOW);
                 $required_tables = array('segmentsummary' => array('segment'), 'salesrepsummary' => array('salesrep'), 'suppliersummary' => array('suppliername'), 'customerssummary' => array('customername'));
 
-                $yearsummary_filter = "c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW) - 2).'-01-01'))."' AND '".date('Y-m-d 00:00:00', $period['to'])."')";
-                $monthdata = $integration->get_sales_byyearmonth($yearsummary_filter);
+                $yearsummary_filter = "EXISTS (SELECT c_invoice_id FROM c_invoice WHERE c_invoice.c_invoice_id=c_invoiceline.c_invoice_id AND issotrx='Y'AND ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW) - 2).'-01-01'))."' AND '".date('Y-m-d 00:00:00', $period['to'])."'))";
+                //$monthdata = $integration->get_sales_byyearmonth($yearsummary_filter);
+                $intgdb = $integration->get_dbconn();
+                $invoicelines = new IntegrationOBInvoiceLine(null);
+                $monthdata = $invoicelines->get_data_byyearmonth($yearsummary_filter, array('reportcurrency' => 'USD'));
+
                 if(is_array($monthdata)) {
                     $formatter = new NumberFormatter('EN_en', NumberFormatter::DECIMAL, '#.##');
-                    $salesreport .= '<table width="100%" class="datatable datatable-striped">';
+                    $percformatter = new NumberFormatter('EN_en', NumberFormatter::PERCENT);
+                    $salesreport .= '<h2>Monthly Overview by BM</h2>';
+                    $salesreport .= '<table width="100%" class="datatable">';
                     $salesreport .= '<tr><th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">Sales Rep</th>';
                     for($i = 1; $i <= 12; $i++) {
                         $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">'.DateTime::createFromFormat('m', $i)->format('M').'</th>';
@@ -206,36 +226,47 @@ else {
                         $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">'.$y.'</th>';
                     }
                     $salesreport .= '</tr>';
-                    foreach($monthdata['qty'] as $salerepid => $salerepdata) {
+                    foreach($monthdata['linenetamt'] as $salerepid => $salerepdata) {
                         $currentyeardata = $salerepdata[$current_year];
-                        $salesreport .= '<tr>';
+
+                        $salesreport .= '<tr style="'.$rowstyle.'">';
                         $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
                         if(empty($salesrep->name)) {
                             $salesrep->name = 'Not Specified';
                         }
-                        $salesreport .= '<td>'.$salesrep->name.'</td>';
+                        $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$salesrep->name.'</td>';
 
                         for($i = 1; $i <= 12; $i++) {
                             if(!isset($currentyeardata[$i])) {
                                 $currentyeardata[$i] = 0;
                             }
-                            $salesreport .= '<td style="text-align: right;">'.$formatter->format($currentyeardata[$i]).'</td>';
+                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$formatter->format($currentyeardata[$i]).'</td>';
                         }
                         for($y = $current_year; $y >= ($current_year - 1); $y--) {
                             if(!is_array($salerepdata[$y])) {
                                 $salerepdata[$y][] = 0;
                             }
-                            $salesreport .= '<td style="text-align: right;">'.$formatter->format(array_sum($salerepdata[$y])).'</td>';
+                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$formatter->format(array_sum($salerepdata[$y])).'</td>';
+                            for($m = 1; $m <= 12; $m++) {
+                                $yearsummarytotals[$y][$m] += $salerepdata[$y][$m];
+                            }
                         }
                         $salesreport .= '</tr>';
+                        if(empty($rowstyle)) {
+                            $rowstyle = $css_styles['altrow'];
+                        }
+                        else {
+                            $rowstyle = '';
+                        }
                     }
-                    $invoicelinesdata = new IntegrationOBInvoiceLine(null, $integration->get_dbconn());
-                    $yearsumrawtotals = $invoicelinesdata->get_aggreateddata_byyearmonth(null, $yearsummary_filter." AND c_invoice.issotrx='Y'");
-                    foreach($yearsumrawtotals as $totaldata) {
-                        $yearsummarytotals[$totaldata['year']][$totaldata['month']] = $totaldata['qty'];
-                    }
+
+//                    $invoicelinesdata = new IntegrationOBInvoiceLine(null, $integration->get_dbconn());
+//                    $yearsumrawtotals = $invoicelinesdata->get_aggreateddata_byyearmonth(null, $yearsummary_filter." AND c_invoice.issotrx='Y'");
+//                    foreach($yearsumrawtotals as $totaldata) {
+//                        $yearsummarytotals[$totaldata['year']][$totaldata['month']] = $totaldata['qty'];
+//                    }
                     for($y = $current_year; $y >= ($current_year - 1); $y--) {
-                        $salesreport .= '<tr><th>Totals ('.$y.')</th>';
+                        $salesreport .= '<tr style="'.$css_styles['altrow2'].'"><th>Totals ('.$y.')</th>';
                         for($i = 1; $i <= 12; $i++) {
                             $salesreport .= '<th style="text-align: right;">'.$formatter->format($yearsummarytotals[$y][$i]).'</th>';
                         }
@@ -253,22 +284,93 @@ else {
                         $salesreport .= '</tr>';
                     }
                     $salesreport .= '</table>';
-                    unset($yearsumrawtotals, $yearsummarytotals, $monthdata, $currentyeardata);
+                    unset($yearsumrawtotals, $yearsummarytotals, $currentyeardata);
+
+                    /* YTD Comparison */
+                    $salesreport .= '<h2>Progression by BM</h2>';
+                    $salesreport .= '<table width="100%" class="datatable">';
+                    $salesreport .= '<tr><th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">Sales Rep</th>';
+                    $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">YTD</th>';
+                    $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">YTD / '.($current_year - 1).'</th>';
+                    $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">'.$current_year.' objective</th>';
+                    $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">YTD / '.$current_year.' objective</th>';
+                    $salesreport .= '</tr>';
+                    foreach($monthdata['linenetamt'] as $salerepid => $salerepdata) {
+                        for($y = $current_year; $y >= ($current_year - 1); $y--) {
+                            if(!is_array($salerepdata[$y])) {
+                                $salerepdata[$y][] = 0;
+                            }
+                        }
+
+                        $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
+                        if(empty($salesrep->name)) {
+                            continue;
+                        }
+                        $salerep_user = Users::get_data_byattr('displayName', $salesrep->name);
+                        $salesreport .= '<tr style="'.$rowstyle.'">';
+                        $salesreport .= '<td>'.$salesrep->name.'</td>';
+                        $salesreport .= '<td style="text-align: right;">'.$formatter->format(array_sum($salerepdata[$current_year])).'</td>';
+
+                        $percentages['prevyear']['linenetamt'] = 0.10;
+                        if(array_sum($salerepdata[$current_year - 1]) != 0) {
+                            $percentages['prevyear']['linenetamt'] = (array_sum($salerepdata[$current_year]) / array_sum($salerepdata[$current_year - 1]));
+                        }
+                        $salesreport .= '<td style="text-align: right;">'.$percformatter->format($percentages['prevyear']['linenetamt']).'</td>';
+
+                        /* Get budget */
+                        if(is_object($salerep_user)) {
+                            $budgetlines = BudgetLines::get_data(array('businessMgr' => $salerep_user->uid, 'bid' => '(SELECT bid FROM budgeting_budgets WHERE year='.$current_year.' AND affid IN ('.implode(',', $core->input['affids']).'))'), array('returnarray' => true, 'operators' => array('bid' => 'IN')));
+                            $percentages['budget']['amt'] = 0.10;
+                            if(is_array($budgetlines)) {
+                                foreach($budgetlines as $budgetline) {
+                                    $budget_totals['qty'] += $budgetline->quantity;
+                                    $budget_totals['amt'] += $budgetline->get_convertedamount($currency_obj);
+                                }
+                                if(!empty($budget_totals['amt'])) {
+                                    $percentages['budget']['amt'] = (array_sum($salerepdata[$current_year]) / $budget_totals['amt']);
+                                }
+                            }
+
+                            $salesreport .= '<td style="text-align: right;">'.$formatter->format($budget_totals['amt']).'</td>';
+                            $salesreport .= '<td style="text-align: right;">'.$percformatter->format($percentages['budget']['amt']).'</td>';
+                        }
+                        else {
+                            $salesreport .= '<td style="text-align: right;">-</td>';
+                            $salesreport .= '<td style="text-align: right;">-</td>';
+                        }
+                        $salesreport .= '</tr>';
+                        if(empty($rowstyle)) {
+                            $rowstyle = $css_styles['altrow'];
+                        }
+                        else {
+                            $rowstyle = '';
+                        }
+                        unset($budget_totals, $percentages);
+                    }
+
+                    $salesreport .= '</table>';
+                    /* YTD Comparison - END */
+
+                    unset($monthdata);
                 }
             }
             elseif($core->input['type'] == 'dimensional') {
                 $required_tables = array('detailed' => array('month', 'week', 'salesrep', 'suppliername', 'customername', 'productname'));
             }
-            foreach($required_tables as $dimensions) {
+            foreach($required_tables as $tabledesc => $dimensions) {
                 $rawdata = $data;
                 $dimensionalreport = new DimentionalData();
                 $dimensionalreport->set_dimensions(array_combine(range(1, count($dimensions)), array_values($dimensions)));
                 $dimensionalreport->set_requiredfields($required_fields);
                 $dimensionalreport->set_data($rawdata);
+                $salesreport .= '<h2><br />'.$lang->{$tabledesc}.'</h2>';
                 $salesreport .= '<table width="100%" class="datatable">';
                 $salesreport .= '<tr><th></th>';
                 foreach($required_fields as $field) {
-                    $salesreport .= '<th>'.$field.'</th>';
+                    if(!isset($lang->{$field})) {
+                        $lang->{$field} = $field;
+                    }
+                    $salesreport .= '<th>'.$lang->{$field}.'</th>';
                 }
                 $salesreport .= '</tr>';
                 $salesreport .= $dimensionalreport->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'formats' => $formats, 'overwritecalculation' => $overwrite));
@@ -313,8 +415,55 @@ else {
                 $salesreport .= '</table><br />';
             }
         }
-        eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
-        output_page($previewpage);
+
+        if($core->input['reporttype'] == 'email') {
+            if(count($core->input['affids']) > 1) {
+                error('Cannot send when report contain multiple affiliates');
+            }
+            $mailer = new Mailer();
+            $mailer = $mailer->get_mailerobj();
+            $mailer->set_required_contenttypes(array('html'));
+            $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
+            $mailer->set_subject('Sales Report '.$core->input['fromDate'].' - '.$core->input['toDate']);
+            $mailer->set_message($salesreport);
+
+            $mailer->set_to(array(
+                    $affiliate->get_generalmanager()->email,
+                    $affiliate->get_supervisor()->email,
+                    $affiliate->get_financialemanager()->email,
+                    $core->user_obj->email
+            ));
+
+            //$mailer->set_to('zaher.reda@orkila.com');
+            // print_r($mailer->debug_info());
+            // exit;
+            $mailer->send();
+            if($mailer->get_status() === true) {
+                unset($core->input['reporttype']);
+                redirect('index.php?'.http_build_query($core->input), 1, 'Success');
+            }
+            else {
+                error($lang->errorsendingemail);
+            }
+            unset($salesreport);
+        }
+        else {
+            if(!is_array($core->input['affids']) || count($core->input['affids']) == 1) {
+                $recipients = array(
+                        $affiliate->get_generalmanager()->displayName,
+                        $affiliate->get_supervisor()->displayName,
+                        $affiliate->get_financialemanager()->displayName,
+                        $core->user_obj->displayName);
+
+                if(is_array($recipients)) {
+                    $recipients = array_filter($recipients);
+                    $salesreport .= '<hr /><div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>This report will be sent to <ul><li>'.implode('</li><li>', $recipients).'</li></ul></p></div>';
+                    $salesreport .= '<a href="index.php?reporttype=email&amp;'.http_build_query($core->input).'"><button class="button">Send by email</button></a>';
+                }
+            }
+            eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
+            output_page($previewpage);
+        }
     }
 }
 ?>

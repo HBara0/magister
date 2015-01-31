@@ -182,9 +182,8 @@ if($core->input['type'] == 'quick') {
             $descinfo = 'productsegment';
         }
         elseif($core->input['for'] == 'chemfunctionchecmical') {
-
             $table = 'chemicalsubstances';
-            $attributes = array('name');
+            $attributes = array('name', 'synonyms');
             $key_attribute = 'csid';
             $select_attributes = array('name');
             $order = array('by' => 'name', 'sort' => 'ASC');
@@ -243,18 +242,6 @@ if($core->input['type'] == 'quick') {
             $select_attributes = array('displayName');
             $order = array('by' => 'firstName', 'sort' => 'ASC');
         }
-
-        if(isset($core->input['exclude']) && !empty($core->input['exclude'])) {
-            if(is_array($core->input['exclude'])) {
-                $core->input['exclude'] = array_map(intval, $core->input['exclude']);
-            }
-            if(empty($extra_where)) {
-                $extra_where = "{$key_attribute} NOT IN ({$core->input[exclude]})";
-            }
-            else {
-                $extra_where .= " AND {$key_attribute} NOT IN ({$core->input[exclude]})";
-            }
-        }
         elseif($core->input['for'] == 'cities' || $core->input['for'] == 'sourcecity' || $core->input['for'] == 'destinationcity') {
             if(strlen($core->input['value']) < 3) {
                 exit;
@@ -263,15 +250,18 @@ if($core->input['type'] == 'quick') {
             if(isset($core->input['coid']) && !empty($core->input['coid'])) {
                 $restrictcountry_filter = "coid ='".intval($core->input['coid'])."'";
             }
+
             if(!empty($restrictcountry_filter)) {
                 $extra_where = $restrictcountry_filter;
             }
 
+
             $table = 'cities';
             $attributes = array('name');
             $key_attribute = 'ciid';
-            $select_attributes = array('name');
+            $select_attributes = array('name', 'unlocode');
             $extra_info = array('table' => 'countries');
+            $descinfo = 'citycountry';
             $order = array('by' => 'name', 'sort' => 'ASC');
         }
         elseif($core->input['for'] == 'countries') {
@@ -292,12 +282,31 @@ if($core->input['type'] == 'quick') {
             $order = array('by' => 'name', 'sort' => 'ASC');
         }
         elseif($core->input['for'] == 'hotels') {
+            $extra_where = ' isApproved=0';
+            if(isset($core->input['city']) && !empty($core->input['city'])) {
+                // $restrictdest_filter = "city ='".intval($core->input['city'])."'";
+            }
+            if(!empty($restrictdest_filter)) {
+                // $extra_where .= ' AND '.$restrictdest_filter;
+            }
             $table = 'travelmanager_hotels';
             $attributes = array('name');
             $key_attribute = 'tmhid';
             $select_attributes = array('name');
+            $descinfo = 'hotelcitycountry';
             //$extra_info = array('table' => 'hotelcountries');
             $order = array('by' => 'name', 'sort' => 'ASC');
+        }
+        if(isset($core->input['exclude']) && !empty($core->input['exclude'])) {
+            if(is_array($core->input['exclude'])) {
+                $core->input['exclude'] = array_map(intval, $core->input['exclude']);
+            }
+            if(empty($extra_where)) {
+                $extra_where = "{$key_attribute} NOT IN ({$core->input[exclude]})";
+            }
+            else {
+                $extra_where .= " AND {$key_attribute} NOT IN ({$core->input[exclude]})";
+            }
         }
         $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, array('returnType' => $core->input['returnType'], 'order' => $order, 'extra_where' => $extra_where, 'descinfo' => $descinfo));
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);

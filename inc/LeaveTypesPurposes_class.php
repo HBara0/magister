@@ -13,36 +13,34 @@
  *
  * @author tony.assaad
  */
-class LeaveTypesPurposes {
-    private $purpose = array();
+class LeaveTypesPurposes extends AbstractClass {
+    protected $data = array();
+    public $errorcode = 0;
 
     const PRIMARY_KEY = 'ltpid';
     const TABLE_NAME = 'leavetypes_purposes';
+    const DISPLAY_NAME = 'title';
+    const SIMPLEQ_ATTRS = '*';
+    const CLASSNAME = __CLASS__;
 
-    public function __construct($id = 0, $simple = true) {
-        if(isset($id) && !empty($id)) {
-            $this->purpose = $this->read($id, $simple);
-        }
-    }
-
-    private function read($id, $simple = true) {
-        global $db;
-        if(empty($id)) {
-            return false;
-        }
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = self::PRIMARY_KEY.', name';
-        }
-        return $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.$db->escape_string($id)));
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
     public function get() {
-        return $this->purpose;
+        return $this->data;
     }
 
     public function get_createdby() {
-        return new Users($this->purpose['createdBy']);
+        return new Users($this->data['createdBy']);
+    }
+
+    protected function create(array $data) {
+
+    }
+
+    protected function update(array $data) {
+
     }
 
 }

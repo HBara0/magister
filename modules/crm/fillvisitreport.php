@@ -299,8 +299,9 @@ if(!$core->input['action']) {
         $display = "  display: none;";
         if(!empty($visitreport_values['location'])) {
             $display = " display: block;";
-            $location[$visitreport_values['location']] = new EntityLocations($visitreport_values['location'], false);
-            $customerlocation = parse_selectlist('location', 3, $location, $location->elocid, 6, '');
+
+            $locations = EntityLocations::get_data(array('eid' => $visitreport_values['cid']), array('simple' => false, 'returnarray' => true));
+            $customerlocation = parse_selectlist('location', 3, $locations, $visitreport_values['location'], 6, '');
         }
         /* Parse draft reports select list - END */
         eval("\$fillreportpage = \"".$template->get('crm_fillvisitreport')."\";");

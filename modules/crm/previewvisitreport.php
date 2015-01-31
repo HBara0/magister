@@ -237,18 +237,20 @@ if(!$core->input['action']) {
 
         if($core->input['incVisitDetails'] != 0 || !isset($core->input['incVisitDetails'])) {
             $visitdetails = '<div class = "subtitle">'.$lang->visitdetails.'</div>';
-            foreach($visitreport['spid'] as $k => $v) {
-                if(empty($v) && $v != 0) {
-                    continue;
+            if(is_array($visitreport['spid'])) {
+                foreach($visitreport['spid'] as $k => $v) {
+                    if(empty($v) && $v != 0) {
+                        continue;
+                    }
+
+                    /* if($core->usergroup['canViewAllSupp'] == 0)  {
+                      if(!in_array($k, $core->user['suppliers']['eid'])) {
+                      continue;
+                      }
+                      } */
+
+                    eval("\$visitdetails .= \"".$template->get('crm_visitreport_visitdetails')."\";");
                 }
-
-                /* if($core->usergroup['canViewAllSupp'] == 0)  {
-                  if(!in_array($k, $core->user['suppliers']['eid'])) {
-                  continue;
-                  }
-                  } */
-
-                eval("\$visitdetails .= \"".$template->get('crm_visitreport_visitdetails')."\";");
             }
         }
 
@@ -293,35 +295,35 @@ if(!$core->input['action']) {
             $session->set_phpsession(array("visitreports_{$export_identifier}" => $visitreportspages));
         }
     }
-}
-if(empty($pagetitle)) {
-    if(count($visitreports) == 1) {
-        $pagetitle = $visitreports[1]['customerName'].' / '.$visitreports[1]['formatteddate'];
-    }
-    else {
-        $pagetitle = $lang->aggregatedvisitreports;
-    }
-}
 
-/* Get list of previous reports - START */
-if(count($visitreports) == 1 && $core->input['referrer'] != 'fill') {
-    if($core->usergroup ['canViewAllSupp'] == 0) {
-        $prev_reports_query_where = ' AND uid = '.$core->user['uid'];
-    }
-    $prev_reports_query = $db->query("SELECT vrid, date, type FROM ".Tprefix."visitreports WHERE cid='{$visitreports[1][cid]
-            }' AND vrid!={$visitreports[1][vrid]}{$prev_reports_query_where} ORDER BY DATE DESC");
-    if($db->num_rows($prev_reports_query) > 0) {
-        $prev_visitreports_list = '<span class = "subtitle">'.$lang->listofvisitreports.':</span> <ul>';
-        while($prev_visitreport = $db->fetch_assoc($prev_reports_query)) {
-            parse_calltype($prev_visitreport['type']);
-            $prev_visitreports_list .= '<li><a href = "index.php?module=crm/previewvisitreport&referrer=list&vrid='.$prev_visitreport['vrid'].'">'.date($core->settings['dateformat'], $prev_visitreport['date']).' - '.$prev_visitreport['type'].'</a></li>';
+    if(empty($pagetitle)) {
+        if(count($visitreports) == 1) {
+            $pagetitle = $visitreports[1]['customerName'].' / '.$visitreports[1]['formatteddate'];
         }
-        $prev_visitreports_list .= '</ul><hr />';
+        else {
+            $pagetitle = $lang->aggregatedvisitreports;
+        }
     }
-}
-/* Get list of previous reports - END */
-eval("\$visitreportpage = \"".$template->get('crm_previewvisitreport')."\";");
-output_page($visitreportpage);
+
+    /* Get list of previous reports - START */
+    if(count($visitreports) == 1 && $core->input['referrer'] != 'fill') {
+        if($core->usergroup ['canViewAllSupp'] == 0) {
+            $prev_reports_query_where = ' AND uid = '.$core->user['uid'];
+        }
+        $prev_reports_query = $db->query("SELECT vrid, date, type FROM ".Tprefix."visitreports WHERE cid='{$visitreports[1][cid]
+                }' AND vrid!={$visitreports[1][vrid]}{$prev_reports_query_where} ORDER BY DATE DESC");
+        if($db->num_rows($prev_reports_query) > 0) {
+            $prev_visitreports_list = '<span class = "subtitle">'.$lang->listofvisitreports.':</span> <ul>';
+            while($prev_visitreport = $db->fetch_assoc($prev_reports_query)) {
+                parse_calltype($prev_visitreport['type']);
+                $prev_visitreports_list .= '<li><a href = "index.php?module=crm/previewvisitreport&referrer=list&vrid='.$prev_visitreport['vrid'].'">'.date($core->settings['dateformat'], $prev_visitreport['date']).' - '.$prev_visitreport['type'].'</a></li>';
+            }
+            $prev_visitreports_list .= '</ul><hr />';
+        }
+    }
+    /* Get list of previous reports - END */
+    eval("\$visitreportpage = \"".$template->get('crm_previewvisitreport')."\";");
+    output_page($visitreportpage);
 }
 else {
     if($core->input['action'] == 'exportpdf' || $core->input['action'] == 'print') {

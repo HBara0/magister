@@ -5,7 +5,7 @@
             <td width="20%">{$budgetrainingvisit_ob->name} </td>
             <td width="20%">{$budgetrainingvisit_ob->date} </td>
             <td width="20%">{$budgetrainingvisit_ob->purpose} </td>
-            <td width="20%">{$budgetrainingvisit_ob->Costaffiliate} </td>
+            <td width="20%">{$budgetrainingvisit_ob->costAffiliate} </td>
         </tr>
     </tbody>
 </table>
