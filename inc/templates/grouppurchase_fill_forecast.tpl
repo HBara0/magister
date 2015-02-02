@@ -82,7 +82,7 @@
                     </tfoot>
                 </table>
                 <div class="ui-state-highlight ui-corner-all" style="padding:5px; margin-top:10px;;margin-bottom:10px;">
-                    {$notify['checkbox']}{$notify['button']}{$notify['hidden']}
+                    {$notify['checkbox']}{$notify['hidden']}
                 </div>
                 <input type="submit" id="perform_grouppurchase/fillforecast_Button" value="{$lang->savecaps}" class="button"/>
             </form>

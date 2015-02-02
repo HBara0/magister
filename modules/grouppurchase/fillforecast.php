@@ -12,7 +12,7 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 if($core->usergroup['grouppurchase_canUpdateForecast'] == 0) {
-    error($lang->sectionnopermission);
+    // error($lang->sectionnopermission);
 }
 if(!$core->input['action']) {
     $forecast_data = $core->input['forecast'];
@@ -145,7 +145,7 @@ if(!$core->input['action']) {
         $total_output .='<td class = "border_right" align = "center"><span style = "font-weight:bold;" id = "forecastline_total_'.$month.'">'.number_format($total[$month], 2).'</span></td>';
     }
     $notify['checkbox'] = '<input type="checkbox" id="enable_notification"/>'.$lang->informconcernedparties.'</div>';
-    $notify['button'] = '<input type="button" disabled="disabled" class="button" value="'.$lang->notify.'" id="notify_concernedparties" />';
+    // $notify['button'] = '<input type="button" disabled="disabled" class="button" value="'.$lang->notify.'" id="notify_concernedparties" />';
     $notify['hidden'] = '<input type="hidden" class="button" id="notify" name="notify" value="0" />';
 
     eval("\$fillforecast = \"".$template->get('grouppurchase_fill_forecast')."\";");
