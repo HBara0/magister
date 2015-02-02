@@ -18,10 +18,7 @@
                         <div style="display: inline-block;width:10%">{$lang->title}</div>
                         <div style="display: inline-block;padding:5px;"><input name="event[title]" type="text" value="{$event[title]}" required="required" size="30"></div>
                     </div>
-                    <div style="display:block;">
-                        <div style="display: inline-block;width:10%">{$lang->alias}</div>
-                        <div style="display: inline-block;padding:5px;"><input name="event[alias]" type="text" value="{$event[alias]}" required="required" size="30" {$disabled[alias]}></div>
-                    </div>
+
                     <div style="display:block;">
                         <div style="display:inline-block;width:10%">{$lang->type}</div>
                         <div style="display: inline-block;padding:5px;">{$eventtypes_list}</div>

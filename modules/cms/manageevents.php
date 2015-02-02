@@ -62,7 +62,7 @@ if(!$core->input['action']) {
 }
 else if($core->input['action'] == 'do_perform_manageevents') {
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
-    $event = Events::get_data(array('alias' => $core->input['event']['alias']));
+    $event = Events::get_data(array('title' => $core->input['event']['title']));
     if(is_object($event)) {
         output_xml('<status>false</status><message>Alias used</message>');
         exit;
