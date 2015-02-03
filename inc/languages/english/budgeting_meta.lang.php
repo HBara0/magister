@@ -5,7 +5,7 @@ $lang['budg'] = 'Budg';
 $lang['budgetabbr'] = 'B';
 $lang['actualabbr'] = 'A';
 $lang['fillbudget'] = 'Fill';
-$lang['createbudget'] = 'Create Commerical Budget';
+$lang['createbudget'] = 'Create Commercial Budget';
 $lang['automaticusdrate'] = 'Automatic USD Fx Rate';
 $lang['specifyusdrate'] = 'Specify USD Fx Rate';
 $lang['fillbudget'] = "Fill Budget";
@@ -168,6 +168,6 @@ $lang['isbudget'] = 'Budget';
 $lang['isyef'] = 'YEF';
 $lang['isactual'] = 'Actual';
 $lang['warningimport'] = ' You should only import if you do not have unsaved data in the form';
-$lang['invoicingentityincome'] = 'Puchasing Entity Income';
+$lang['invoicingentityincome'] = 'Commission Split Affiliate Income';
 $lang['commissionsplitaffname'] = 'Commission Split Affiliate';
 ?>

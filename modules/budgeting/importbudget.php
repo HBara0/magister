@@ -33,7 +33,7 @@ else {
             if($upload->get_status() != 4) {
                 ?>
                 <script language="javascript" type="text/javascript">
-                    $(function() {
+                    $(function () {
                         return window.top.$("#upload_Result").html('<?php echo addslashes($filestatus);?>');
                     });
                 </script>
@@ -53,7 +53,7 @@ else {
         echo $headerinc;
         ?>
         <script language="javascript" type="text/javascript">
-            $(function()
+            $(function ()
             {
                 return window.top.$("#upload_Result").html("<?php echo addslashes(parse_datapreview($csv_header, $data));?>");
             });
@@ -66,12 +66,12 @@ else {
         $options = $core->input['options'];
         $options['useAltCid'] = 1;
         $options['useAltPid'] = 1;
-        $options['resolvesupplierbyproduct'] = 0;
+        $options['resolvesupplierbyproduct'] = 1;
         $options['resolveproductname'] = 1;
         $all_data = unserialize($session->get_phpsession('budgetingimport_'.$core->input['identifier']));
         $allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'invoice' => 'invoice', 'country' => 'Country', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'actualAmount' => 'Actual Amount', 'income' => 'Income', 'actualIncome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type', 'Producer' => 'Producer', 's1Perc' => 'S1 %', 's2Perc' => 'S2 %');
         $required_headers_check = $required_headers = array('customerName', 'productName', 'supplierName', 'year', 'saleType');
-        $budgetlines_valid_data = array('cid', 'pid', 'altPid', 'altCid', 'customerCountry', 'amount', 'actualAmount', 'income', 'actualIncome', 'incomePerc', 'quantity', 'unitPrice', 'businessMgr', 'actualQty', 'saleType', 'originalCurrency', 'invoice', 's1Perc', 's2Perc');
+        $budgetlines_valid_data = array('inputChecksum', 'cid', 'pid', 'psid', 'altPid', 'altCid', 'customerCountry', 'amount', 'actualAmount', 'income', 'actualIncome', 'incomePerc', 'quantity', 'unitPrice', 'businessMgr', 'actualQty', 'saleType', 'originalCurrency', 'invoice', 's1Perc', 's2Perc');
         $budgetlines_required_data = array('cid', 'pid', 'altPid', 'altCid', 'saleType', 'unitPrice', 'originalCurrency', 'businessMgr', 'invoice');
 
         $headers_cache = array();
@@ -144,7 +144,7 @@ else {
                         $data['pid'] = $product_obj->get()['pid'];
                     }
                     if(empty($data['pid'])) {
-                        $data['pid'] = $db->fetch_field($db->query('SELECT localId FROM '.Tprefix.'integration_mediation_products WHERE foreignName="'.$db->escape_string($data['productName']).'" AND (affid="'.$db->escape_string($data['affid']).'" OR affid=0)'), 'localId');
+                        $data['pid'] = $db->fetch_field($db->query('SELECT localId FROM '.Tprefix.'integration_mediation_products WHERE foreignName = "'.$db->escape_string($data['productName']).'" AND (affid = "'.$db->escape_string($data['affid']).'" OR affid = 0)'), 'localId');
                         if(empty($data['pid'])) {
                             if($options['useAltPid'] == 1) {
                                 $data['altPid'] = $data['productName'];
@@ -175,7 +175,7 @@ else {
                             $data['spid'] = $data['spid']->get()['eid'];
                         }
                         if(empty($data['spid'])) {
-                            $data['spid'] = $db->fetch_field($db->query('SELECT localId FROM '.Tprefix.'integration_mediation_entities WHERE foreignName="'.$db->escape_string($data['supplierName']).'" AND (affid="'.$db->escape_string($data['affid']).'" OR affid=0) AND entityType="s"'), 'localId');
+                            $data['spid'] = $db->fetch_field($db->query('SELECT localId FROM '.Tprefix.'integration_mediation_entities WHERE foreignName = "'.$db->escape_string($data['supplierName']).'" AND (affid = "'.$db->escape_string($data['affid']).'" OR affid = 0) AND entityType = "s"'), 'localId');
                             if(empty($data['spid'])) {
                                 $errorhandler->record('suppliernomatch', $data['supplierName']);
                                 continue;
@@ -199,10 +199,32 @@ else {
                     $data['spid'] = $product_obj->get_supplier()->get()['eid'];
                 }
                 else {
-                    $errorhandler->record('suppliernomatch', '---'.$data['supplierName']);
+                    $errorhandler->record('suppliernomatch', $data['productName'].' ---'.$data['supplierName']);
                     continue;
                 }
                 unset($product_obj);
+            }
+
+            if(isset($data['segment'])) {
+                if($options['resolvesegmentname'] == 1 || true) {
+                    if($cache->incache('segments', $data['segment'])) {
+                        $data['psid'] = array_search($data['segment'], $cache->data['segments']);
+                    }
+                    else {
+                        $data['psid'] = ProductsSegments::get_segment_byname($data['segment']);
+                        if($data['psid'] != false) {
+                            $data['psid'] = $data['psid']->psid;
+                        }
+
+                        if(empty($data['psid'])) {
+                            $errorhandler->record('segmentnomatch', $data['segment']);
+                            continue;
+                        }
+                    }
+                }
+                else {
+                    $data['psid'] = $data['segment'];
+                }
             }
 
             if($options['resolvecustomername'] == 1 || true) {
@@ -216,7 +238,7 @@ else {
                     }
 
                     if(empty($data['cid'])) {
-                        $data['cid'] = $db->fetch_field($db->query('SELECT localId FROM '.Tprefix.'integration_mediation_entities WHERE foreignName="'.$db->escape_string($data['customerName']).'" AND affid="'.$db->escape_string($data['affid']).'" AND entityType="c"'), 'localId');
+                        $data['cid'] = $db->fetch_field($db->query('SELECT localId FROM '.Tprefix.'integration_mediation_entities WHERE foreignName = "'.$db->escape_string($data['customerName']).'" AND affid = "'.$db->escape_string($data['affid']).'" AND entityType = "c"'), 'localId');
                         if(empty($data['cid'])) {
                             if($options['useAltCid'] == 1) {
                                 $data['altCid'] = $data['customerName'];
@@ -258,17 +280,17 @@ else {
                 $data['businessMgr'] = $data['salesManager'];
             }
             if($options['runtype'] != 'dry') {
-                if(!value_exists('assignedemployees', 'uid', $data['businessMgr'], 'affid='.intval($data['affid']).' AND eid='.intval($data['spid']))) {
+                if(!value_exists('assignedemployees', 'uid', $data['businessMgr'], 'affid = '.intval($data['affid']).' AND eid = '.intval($data['spid']))) {
                     $db->insert_query('assignedemployees', array('uid' => $data['businessMgr'], 'affid' => $data['affid'], 'eid' => $data['spid']));
                     $errorhandler->record('new assignedemployees-', 'Row: '.$key.' - '.$data['supplierName']);
                 }
 
-                if(!value_exists('affiliatedentities', 'affid', $data['affid'], 'eid='.intval($data['spid']))) {
+                if(!value_exists('affiliatedentities', 'affid', $data['affid'], 'eid = '.intval($data['spid']))) {
                     $db->insert_query('affiliatedentities', array('affid' => $data['affid'], 'eid' => $data['spid']));
                     $errorhandler->record('new affiliatedentities-', 'Row: '.$key.' - '.$data['supplierName']);
                 }
 
-                if(!empty($data['cid']) && !value_exists('assignedemployees', 'uid', $data['businessMgr'], 'affid='.intval($data['affid']).' AND eid='.intval($data['cid']))) {
+                if(!empty($data['cid']) && !value_exists('assignedemployees', 'uid', $data['businessMgr'], 'affid = '.intval($data['affid']).' AND eid = '.intval($data['cid']))) {
                     $db->insert_query('assignedemployees', array('uid' => $data['businessMgr'], 'affid' => $data['affid'], 'eid' => $data['cid']));
                     $errorhandler->record('new assignedemployees-', 'Row: '.$key.' - '.$data['customerName']);
                 }
@@ -346,6 +368,7 @@ else {
                 $data['amount'] = ($data['quantity'] * $data['unitPrice']);
             }
 
+            $data['inputChecksum'] = generate_checksum('bl');
             $budgetlines = array();
             foreach($budgetlines_valid_data as $valid_attribute) {
                 if($data[$valid_attribute] != '') {
@@ -396,7 +419,7 @@ function parse_datapreview($csv_header, $data) {
     $output = "<span class='subtitle'></span><br /><form id='perform_budgeting/importbudget_Form'><table class='datatable'><tr><td colspan='16' class='subtitle' style='text-align:center'>{$lang->importpreview}</td></tr><tr>";
     $budgetlines_valid_data = array('affiliate', 'Sales Manager', 'Customer Name', 'country', 'SupplierID', 'Supplier Name', 'productID', 'Product Name', 'Year', 'quantity', 'actualQty', 'Unit of Measure', 'Sales amount', 'invoice', 'actualAmount', 'Income', 'actualIncome', 'incomePerc', 'originalCurrency', 'Market Segment', 'Sale Type', 'Producer');
     $allowed_headers = array('affiliate' => 'Affiliate', 'salesManager' => 'Sales Manager', 'CustomerID' => 'Cutomer ID', 'customerName' => 'Customer Name', 'country' => 'Country', 'invoice' => 'invoice', 'supplierID' => 'Supplier ID', 'supplierName' => 'Supplier Name', 'productID' => 'Product ID', 'productName' => 'Product Name', 'year' => 'Year', 'quantity' => 'Quantity', 'actualQty' => 'Actual Qty', 'uom' => 'Unit of Measure', 'amount' => 'Sales amount', 'unitPrice' => 'unitPrice', 'actualAmount' => 'Actual Amount', 'income' => 'Income', 'actualIncome' => 'Actual Income', 'incomePerc' => 'Income Perc', 'originalCurrency' => 'Currency', 'segment' => 'Market Segment', 'saleType' => 'Sale Type', 'Producer' => 'Producer');
-    $abbreviation = array('Ltd.', 'Ltd', 'Llc.', 'Llc', 'Sal.', 'Co.,', 'Co.', 'Co');
+    $abbreviation = array('Ltd.', 'Ltd', 'Llc.', 'Llc', 'Sal.', 'Co., ', 'Co.', 'Co');
     $output .= '<td>#</td>';
 
     if(!isset($csv_header['budget']['unitPrice'])) {
