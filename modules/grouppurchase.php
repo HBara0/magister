@@ -1,4 +1,3 @@
-
 <?php
 $module['name'] = 'grouppurchase';
 $module['title'] = $lang->grouppurchase;

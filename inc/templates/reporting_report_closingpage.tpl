@@ -52,41 +52,6 @@
         </p>
     </div>
 </page>
-
-<page>
-    <div style="page-break-before:always;"></div>
-    <div class="paperContainer">
-        <!--<a name="closingpage"></a>-->
-        <div class="logo"></div>
-        <div align='left' style='margin-top:20px;'>
-            <h1>News</h1>
-            <p style="text-align: justify;">
-            <div class="subtitle">Orkila award for BEST INNOVATIVE PRODUCT for exhibition in Morocco</div>
-            <p style="text-align: justify;">Orkila participated at CFIA AWARDS with <strong>Ajinomoto product ACTIVA</strong> at the section “Innovative Ingredients” and won the <strong>Bronze Prize (15.75/20 points)</strong></p>
-            <p style="text-align: justify;">The prize has been awarded by a panel of food specialists in Morocco at the Chambre Francaise de Commerce et d’Industrie du Maroc. CFIA Award gathers the innovative latest opportunities in the industry for Morocco market.</p>
-            <p style="text-align: justify;">The film is available starting with minute 11h55 in <a href='https://www.youtube.com/watch?v=TYNfel-JwUQ#t=11m55s' target="_blank">this link</a>.</p>
-            </p>
-            <hr />
-
-            <p style="text-align: justify;">
-            <div class="subtitle">Another Orkila award for BEST DISTRIBUTOR</div>
-            <p style="text-align: justify;">We are very pleased to announce that Maroof  Mohamed (Orkila FZE Dubai) has been awarded <strong>CEAMSA GOLD MEDAL</strong> for his success in developing a new Product with KRAFT! Replacing Ceamsa’s main competitor.</p>
-            <p style="text-align: justify;">This is an exceptional nomination as Orkila was selected among 18 distributors and around 52 people were contesting for this award. There were three categories Gold, Silver & Bronze.</p>
-            </p>
-            <hr />
-
-            <p style="text-align: justify;">
-            <div class="subtitle"> Another Orkila award for BEST DISTRIBUTOR</div>
-            <p style="text-align: justify;">Orkila ranks 6th among chemicals distributors in Middle East and Africa and maintains its position as <strong>leading distributor of specialty products.</strong> (ICIS Top 100 Chemical Distributors 2014)
-                <br /><br />
-                The list of ICIS Top 100 Chemical Companies highlights the top players in the global chemical distribution business, measured by sales.
-            </p>
-            </p>
-            <hr />
-        </div>
-    </div>
-</page>
-
 <page>
     <div style="page-break-before:always;"></div>
     <div class="paperContainer">
@@ -123,7 +88,6 @@
                             <hr />
                         </div></td>
                 </tr>
-
                 <tr>
                     <td style='width: 10%; vertical-align: top;'><h2>November<br /><small>2014</small></h2></td>
                     <td>
@@ -134,10 +98,8 @@
                             <p style="text-align: justify;">The Middle East food industry is growing and fast! New trends, tastes and products are being introduced. For any requirements or new food product our ingredients help create just right structure, bring colors & taste, while optimize production process & ensure that consumers receive nutritious and cost effective end products.</p>
                             <p style="text-align: justify;">Footfall at Orkila  booth grew in quality of visitors with 13% of visitors are CEOs while 27% of visitors of the first line management and decision makers.</p>
                             </p>
-
                             <hr />
                         </div>
-
                         <div style='vertical-align: top;'>
                             <p style="text-align: justify;">
                             <div class="subtitle">Casablanca (Morocco). NACC Paints Exhibition, DAWAJINE Feed Exhibition & CFIA</div>

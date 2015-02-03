@@ -629,10 +629,10 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         $city = new Cities($key);
                         if($options['returnType'] == 'json') {
                             $results_list[$key]['id'] = $city->ciid;
-                            $results_list[$key]['desc'] = $city->name.'-'.$city->get_country()->name;
+                            $results_list[$key]['desc'] = $city->name.' - '.$city->get_country()->name;
                         }
                         else {
-                            $details = '<br /><span class="smalltext">'.$city->name.'-'.$city->get_country()->name.'</span>';
+                            $details = '<br /><span class="smalltext">'.$city->name.' - '.$city->get_country()->name.'</span>';
                             $results_list .= '<li id="'.$city->ciid.'">'.$val.$details.'</li>';
                         }
                         unset($details);
@@ -642,7 +642,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         $city = new Cities($hotelsobj->city);
                         if($options['returnType'] == 'json') {
                             $results_list[$key]['id'] = $key;
-                            $results_list[$key]['desc'] = $city->name.'-'.$city->get_country()->name;
+                            $results_list[$key]['desc'] = $city->name.' - '.$city->get_country()->name;
                         }
                         else {
                             $details = '<br /><span class="smalltext">'.$city->get_country()->name.'</span>';
@@ -713,12 +713,11 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             foreach($chemfunchem_objs as $chemfunchem_obj) {
                                 $application_obj = $chemfunchem_obj->get_segapplicationfunction();
                                 if($options['returnType'] == 'json') {
-                                    $results_list[$key]['id'] = $chemfuncprod_obj->cfcid;
+                                    $results_list[$key]['id'] = $chemfunchem_obj->cfcid;
                                     $results_list[$key]['desc'] = $chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
                                 }
                                 else {
                                     $details = '<br /><span class="smalltext">'.$chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
-
                                     $results_list .= '<li id="'.$chemfunchem_obj->cfcid.'">'.$val.$details.'</li>';
                                 }
                             }

@@ -135,6 +135,10 @@ class BudgetLines {
             $ic_budget = Budgets::get_data(array('affid' => $budgetdata_intercompany['affid'], 'spid' => $budget->spid, 'year' => $budget->year), array('simple' => false));
             $data['bid'] = $ic_budget->bid;
         }
+        $data['amount'] = $data['amount'] - $data['income'];
+        /* Apply Default Margin */
+        $data['income'] = $data['localIncomeAmount'] = $data['amount'] * 0.03;
+        $data['localIncomePercentage'] = 100;
         $ic_budgetline = new BudgetLines();
         $ic_budgetline->create($data);
 

@@ -5,8 +5,8 @@
 
 
         <script type="text/javascript">
-            $(function() {
-                $("select[id='forecast[reporttype]']").live('change', function() {
+            $(function () {
+                $("select[id='forecast[reporttype]']").live('change', function () {
                     var id = $(this).attr("id")
                     var value = $(this).attr("value")
                     $("div[id$=_reporttype]").not([id ^= '" + $(this).val() + "']).hide();
@@ -85,7 +85,7 @@
                                         <tbody>
                                             <tr>
                                                 <td><select  name="forecast[reporttype]" id="forecast[reporttype]" style="width:100%;">
-                                                        <option value="basic">{$lang->basic}</option>
+                                                        <option value="basic">{$lang->basictabular}</option>
                                                         <option value="dimensional">{$lang->dimensional}</option>
                                                     </select>
                                                 </td>
