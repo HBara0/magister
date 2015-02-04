@@ -40,7 +40,7 @@ class AroManageWarehousesPolicies extends AbstractClass {
             }
         }
 
-        $policies_array = array(self::PRIMARY_KEY => $data['warehosue'],
+        $policies_array = array('warehouse' => $data['warehouse'],
                 'effectiveFrom' => $data['effectiveFrom'],
                 'effectiveTo' => $data['effectiveTo'],
                 'rate' => $data['rate'],
