@@ -24,7 +24,7 @@ class Warehouses extends AbstractClass {
     }
 
     protected function create(array $data) {
-        global $db, $core;
+        global $db, $core, $log;
         if(!$this->validate_requiredfields($data)) {
             $city = new Cities($data['ciid']);
             $data['coid'] = $city->get_country()->coid;
@@ -41,11 +41,15 @@ class Warehouses extends AbstractClass {
             $query = $db->insert_query(self::TABLE_NAME, $data);
             $id = $db->last_id();
             $db->query('UPDATE warehouses SET geoLocation=geomFromText("POINT('.$db->escape_string($geolocation).')") WHERE wid='.$id);
+            if($query) {
+                $log->record('warehouses', $this->data[self::PRIMARY_KEY]);
+                return $this;
+            }
         }
     }
 
     protected function update(array $data) {
-        global $db, $core;
+        global $db, $core, $log;
         if(!$this->validate_requiredfields($data)) {
 
             $city = new Cities($data['ciid']);
@@ -60,9 +64,13 @@ class Warehouses extends AbstractClass {
                     $geolocation = str_replace(', ', ' ', $geolocation);
                 }
             }
-            $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
+            $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
             $id = $db->last_id();
             $db->query('UPDATE warehouses SET geoLocation=geomFromText("POINT('.$db->escape_string($geolocation).')") WHERE wid='.$id);
+            if($query) {
+                $log->record('warehouses', $this->data[self::PRIMARY_KEY]);
+                return $this;
+            }
         }
     }
 
