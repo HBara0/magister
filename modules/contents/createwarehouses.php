@@ -13,7 +13,6 @@ if(!defined('DIRECT_ACCESS')) {
 }
 if($core->usergroup['contents_canManageWarehouses'] == 0) {
     error($lang->sectionnopermission);
-    exit;
 }
 if(!$core->input['action']) {
 
