@@ -513,7 +513,7 @@ $(function() {
                 );
     }
 
-    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function() {
+    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='deletewarehouse_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function() {
         var id = $(this).attr("id").split("_");
         var rel = $(this).prop("rel");
         var underscore = '_';
@@ -599,7 +599,6 @@ $(function() {
         if(module == '' && id != '') {
             file = rootdir + id;
         }
-
         /*change ajax call*/
         $.ajax({type: 'post',
             url: file + "?module=" + module + "&action=get_" + template,
