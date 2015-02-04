@@ -36,6 +36,9 @@ if(!$core->input['action']) {
             eval("\$addwarehouse = \"".$template->get('contents_warehouses_add')."\";");
             output_page($addwarehouse);
         }
+        else {
+            redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
+        }
     }
     else {
         $affiliates_list = parse_selectlist('warehouse[affid]', '', $affiliates, '', 0, '', array('id' => 'warehouse_affid'));

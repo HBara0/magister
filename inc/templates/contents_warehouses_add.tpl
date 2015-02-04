@@ -14,7 +14,8 @@
             <form action="#" method="post" id="perform_contents/createwarehouses_Form" name="perform_contents/createwarehouses_Form">
                 <table width="100%" border="0" cellpadding="0" cellspacing="0">
                     <tr>
-                        <td>{$lang->affiliate}</td><td colspan="2">{$affiliates_list}</td>
+                        <td>{$lang->affiliate}</td><td colspan="2">{$affiliates_list}
+                            <input type="hidden" value="{$warehouse->wid}" name="warehouse[wid]" /></td>
                     </tr>
                     <tr>
                         <td>{$lang->name}</td><td><input type="text" id="warehouse_name" name="warehouse[name]" value="{$warehouse->name}" required="required"/></td>
