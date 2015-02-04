@@ -513,7 +513,7 @@ $(function() {
                 );
     }
 
-    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='deletewarehouse_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function() {
+    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='deletearopolicy_'][id$='_icon'],a[id^='deletewarehouse_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function() {
         var id = $(this).attr("id").split("_");
         var rel = $(this).prop("rel");
         var underscore = '_';
