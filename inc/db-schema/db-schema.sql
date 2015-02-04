@@ -120,6 +120,25 @@ CREATE TABLE `aro_managewareshouses_policies` (
   PRIMARY KEY (`awpid`),
   UNIQUE KEY `awpid` (`awpid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `aro_policies` (
+  `apid` int(11) NOT NULL AUTO_INCREMENT,
+  `affid` smallint(6) NOT NULL,
+  `purchaseType` int(11) NOT NULL,
+  `effectiveFrom` bigint(30) NOT NULL,
+  `effectiveTo` bigint(30) NOT NULL,
+  `riskRatio` decimal(10,0) NOT NULL,
+  `yearlyInterestRate` decimal(10,0) NOT NULL,
+  `commissionCharged` decimal(10,0) NOT NULL,
+  `riskRatioDiffCurrCP` decimal(10,0) NOT NULL,
+  `riskRatioMonthlyIncreaseDiffCurrCN` decimal(10,0) NOT NULL,
+  `riskRatioSameCurrCN` decimal(10,0) NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`apid`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `assets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3656,6 +3675,7 @@ CREATE TABLE `usergroups` (
   `grouppurchase_canUpdateForecast` tinyint(1) NOT NULL DEFAULT '0',
   `contents_canManageWarehouses` tinyint(1) NOT NULL,
   `aro_canManagePolicies` tinyint(1) NOT NULL,
+  `aro_canManageWarehousePolicies` tinyint(1) NOT NULL,
   PRIMARY KEY (`gid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
