@@ -2377,6 +2377,20 @@ CREATE TABLE `productsegments_mailinglists` (
   PRIMARY KEY (`psmid`,`affid`,`psid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+CREATE TABLE `purchasetypes` (
+  `ptid` smallint(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(220) COLLATE utf8_unicode_ci NOT NULL,
+  `abbreviation` varchar(5) COLLATE utf8_unicode_ci NOT NULL,
+  `altName` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8_unicode_ci,
+  `useLocalCurrency` tinyint(1) NOT NULL,
+  `countLocally` int(1) NOT NULL,
+  `invoiceAffStid` int(10) NOT NULL,
+  `sequence` int(1) NOT NULL,
+  `localIncomeByDefault` float NOT NULL,
+  PRIMARY KEY (`ptid`)
+) ENGINE=MyISAM AUTO_INCREMENT=56 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 DROP TABLE IF EXISTS `reportcontributors`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -3641,6 +3655,7 @@ CREATE TABLE `usergroups` (
   `budgeting_canFillLocalIncome` int(1) NOT NULL,
   `grouppurchase_canUpdateForecast` tinyint(1) NOT NULL DEFAULT '0',
   `contents_canManageWarehouses` tinyint(1) NOT NULL,
+  `aro_canManagePolicies` tinyint(1) NOT NULL,
   PRIMARY KEY (`gid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
