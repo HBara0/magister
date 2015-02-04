@@ -28,7 +28,7 @@ if(!$core->input['action']) {
             'simple' => false,
             'returnarray' => true
     );
-//$warehouse_objs = Warehouses::get_data(array('affid' => $core->user['affilaites']), $dal_config);
+    $warehouse_objs = Warehouses::get_data(array('affid' => $core->user['affiliates'], 'isActive' => 1), $dal_config);
     $warehouse_list = parse_selectlist('warehousepolicy[warehouse]', 1, $warehouse_objs, '');
     $warehouse[effectiveFrom_output] = date($core->settings['dateformat'], $warehouse['effectiveFrom']);
     $warehouse[effectiveTo_output] = date($core->settings['dateformat'], $warehouse['effectiveTo']);

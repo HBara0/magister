@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->bank}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->aro}</title>
         {$headerinc}
         <script type="text/javascript">
 
@@ -19,13 +19,13 @@
                         <td> {$warehouse_list}</td>
                     </tr>
                     <tr ><td>{$lang->effromdate} </td>
-                        <td> <input type="text" id="pickDate_from"  autocomplete="off" tabindex="2" value="{$warehouse[effectiveFrom_output]}" required="required" /> </td>               </td>
+                        <td> <input type="text" id="pickDate_from"    autocomplete="off" tabindex="2" value="{$warehouse[effectiveFrom_output]}" required="required" /> </td>               </td>
 
-                        <td> <input type="hidden" name="warehousepolicy[effectiveFrom]" id="altpickDate_from" value="{$warehouse[effectiveFrom_formatted]}"/></td>
+                        <td> <input type="hidden" name="warehousepolicy[effectiveFrom]" id="altpickDate_from" value="{$warehouse[effectiveFrom]}"/></td>
                     </tr>
                     <tr><td>{$lang->effromdate}  </td>
-                        <td> <input type="text" id="pickDate_to" autocomplete="off" tabindex="2" value="{$warehouse[effectiveTo_output]}" required="required" />  </td>
-                        <td> <input type="hidden" name="warehousepolicy[effectiveTo]" id="altpickDate_to" value="{$warehouse[effectiveTo_formatted]}"/></td>
+                        <td> <input type="text" id="pickDate_to"    autocomplete="off" tabindex="2" value="{$warehouse[effectiveTo_output]}" required="required" />  </td>
+                        <td> <input type="hidden" name="warehousepolicy[effectiveTo]" id="altpickDate_to" value="{$warehouse[effectiveTo]}"/></td>
 
                     </tr>
                     <tr><td>{$lang->rate}  </td>
