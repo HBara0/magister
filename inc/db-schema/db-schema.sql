@@ -101,6 +101,26 @@ CREATE TABLE `affiliatesleavespolicies` (
   PRIMARY KEY (`alpid`,`affid`,`ltid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=32 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `aro_managewareshouses_policies`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `aro_managewareshouses_policies` (
+  `awpid` int(10) NOT NULL AUTO_INCREMENT,
+  `warehouse` int(10) NOT NULL,
+  `effectiveFrom` bigint(30) NOT NULL,
+  `effectiveTo` bigint(30) NOT NULL,
+  `rate` float NOT NULL,
+  `currency` int(10) NOT NULL,
+  `rate_uom` float NOT NULL,
+  `datePeriod` float NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`awpid`),
+  UNIQUE KEY `awpid` (`awpid`)
+) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `assets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
