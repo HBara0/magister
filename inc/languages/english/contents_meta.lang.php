@@ -14,4 +14,23 @@ $lang['office'] = 'Office';
 $lang['showroom'] = 'Show Room';
 $lang['rdlab'] = 'R&D Lab';
 $lang['entity'] = 'Entity';
+
+$lang['warehouse'] = 'Warehouse';
+$lang['managewarehouse'] = 'Manage Warehouse';
+$lang['name'] = 'Name';
+$lang['city'] = 'City';
+$lang['postcode'] = 'Post code';
+$lang['country'] = 'Country';
+$lang['address'] = 'Address';
+$lang['addressline1'] = 'Address Line 1';
+$lang['addressline2'] = 'Address Line 2';
+$lang['geolocation'] = 'Geographic Location';
+$lang['longlattidue'] = 'Longitude Latitude [space in between]';
+$lang['isactive'] = 'Is Active';
+$lang['editwarehouse'] = 'Edit Warehouse';
+$lang['warehouseslist'] = 'Warehouses List';
+$lang['save'] = 'Save';
+$lang['confirmdeletewarehouse'] = 'Are you sure you want to delete this warehouse?';
+$lang['deletewarehouse'] = 'Delete Warehouse';
+$lang['cannotdeletewarehouse'] = 'Warehouse cannot be deleted';
 ?>
