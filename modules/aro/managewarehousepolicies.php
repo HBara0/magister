@@ -13,7 +13,7 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if($core->usergroup['aro_canManageWarehousePolicies'] == 0) {
-    // error($lang->sectionnopermission);
+    error($lang->sectionnopermission);
 }
 
 if(!$core->input['action']) {
@@ -28,7 +28,7 @@ if(!$core->input['action']) {
             'simple' => false,
             'returnarray' => true
     );
-//$warehouse_objs = Warehouses::get_data(array('affid' => $core->user['affilaites']), $dal_config);
+    $warehouse_objs = Warehouses::get_data(array('affid' => $core->user['affiliates']), $dal_config);
     $warehouse_list = parse_selectlist('warehousepolicy[warehouse]', 1, $warehouse_objs, '');
     $warehouse[effectiveFrom_output] = date($core->settings['dateformat'], $warehouse['effectiveFrom']);
     $warehouse[effectiveTo_output] = date($core->settings['dateformat'], $warehouse['effectiveTo']);

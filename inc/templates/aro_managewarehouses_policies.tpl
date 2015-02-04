@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->bank}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->aro}</title>
         {$headerinc}
         <script type="text/javascript">
 
