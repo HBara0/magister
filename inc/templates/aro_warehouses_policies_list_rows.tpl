@@ -1,5 +1,5 @@
 <Tr class="trowtools">
-    <td></td>
+    <td>{$aro->warehouse}</td>
     <td>{$aro->effectiveFrom}</td>
     <td>{$aro->effectiveTo}</td>
     <td id="edit_{$aro->awpid}_tools">

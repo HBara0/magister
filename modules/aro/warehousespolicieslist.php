@@ -13,7 +13,7 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if($core->usergroup['aro_canManageWarehousePolicies'] == 0) {
-    // error($lang->sectionnopermission);
+    error($lang->sectionnopermission);
 }
 
 if(!$core->input['action']) {
@@ -29,8 +29,8 @@ if(!$core->input['action']) {
 
             $aro->effectiveTo = date($core->settings['dateformat'], $aro->effectiveTo);
             $aro->effectiveFrom = date($core->settings['dateformat'], $aro->effectiveFrom);
-
-
+            $warehouse = new Warehouses($aro->warehouse);
+            $aro->warehouse = $warehouse->get_displayname();
             $row_tools = '<a href=index.php?module=aro/managewarehousepolicies&id='.$aro->awpid.' title="'.$lang->edit.'"><img src=./images/icons/edit.gif border=0 alt='.$lang->edit.'/></a>';
             $row_tools .= ' <a href="#'.$aro->awpid.'" id="deletepolicy_'.$aro->awpid.'_aro/warehousespolicieslist_loadpopupbyid" rel="delete_'.$aro->awpid.'" title="'.$lang->delete.'"><img src="'.$core->settings['rootdir'].'/images/icons/delete.png" alt="'.$lang->delete.'" border="0"></a>';
             eval("\$policies_listrow .= \"".$template->get('aro_warehouses_policies_list_rows')."\";");

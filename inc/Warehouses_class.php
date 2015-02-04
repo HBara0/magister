@@ -78,7 +78,7 @@ class Warehouses extends AbstractClass {
         if(is_array($data)) {
             $required_fields = array('affid', 'name', 'ciid');
             foreach($required_fields as $field) {
-                if(empty($data[$field]) && $data[$field] != '0') {
+                if(empty($data[$field])) {
                     $this->errorcode = 2;
                     return true;
                 }
