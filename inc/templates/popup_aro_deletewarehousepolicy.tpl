@@ -1,4 +1,4 @@
-<div id="popup_revokeleave" title="{$lang->deletepolicy}">
+<div id="popup_deletewarehpuse" title="{$lang->deletepolicy}">
     <form id="perform_aro/warehousespolicieslist_Form" name="perform_aro/warehousespolicieslist_Form" action="#" method="post">
         <input type="hidden" name="action" value="perform_deletepolicy" />
         <input type="hidden" id="todelelete" name="todelelete" value="{$core->input[id]}" />

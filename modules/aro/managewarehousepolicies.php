@@ -60,6 +60,10 @@ else if($core->input['action'] == 'do_perform_managewarehousepolicies') {
     $arowarepolicy = new AroManageWarehousesPolicies();
     $core->input['warehousepolicy']['effectiveFrom'] = strtotime($core->input['warehousepolicy']['effectiveFrom']);
     $core->input['warehousepolicy']['effectiveTo'] = strtotime($core->input['warehousepolicy']['effectiveTo']);
+    if($core->input['warehousepolicy']['effectiveFrom'] > $core->input['warehousepolicy']['effectiveTo']) {
+        output_xml('<status>false</status><message>'.$lang->errordate.'</message>');
+        exit;
+    }
     $arowarepolicy->set($core->input['warehousepolicy']);
     $arowarepolicy->save();
     switch($arowarepolicy->get_errorcode()) {

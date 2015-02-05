@@ -1,21 +1,19 @@
 <tr id="{$rowid}">
     <Td>
-        <div style="display: block; width: 100%;">
-            <div  style="display: inline-block; ; width:30%;"> <label>sequence</label><input type="number"  min="1" max="12" name="chainpolicy[approverchain][{$rowid}][sequence]"/></div>
-            <div  style="display: inline-block; ; width:60%;">
-                <label>select approver</label>
+        <div style="display: block; width: 100%; height:150px; overflow:auto;">
+            <div  style="display: inline-block; ; width:20%; vertical-align:top;"> <label>sequence</label><input type="number"  min="1" max="12" value="{$approverdata[sequence]}" name="chainpolicy[approverchain][{$rowid}][sequence]"/></div>
+            <div  style="display: inline-block; ; width:50%;">
+                <label> <h4>select approver</h4></label>
                 <div  style="display:block; ">
                     {$list}
                 </div>
             </div>
-            <div id="user_{$rowid}_approveruser" style="float:right;display:none;">
+            <div id="user_{$rowid}_approveruser" style= margin-left:240px; {$display[$rowid][uid]};">
                 <label>select employee</label>
-                <input type='text' id='user_{$rowid}_autocomplete' value="{$chainpolicy[contactPersonName]}"/>
-                <input type='hidden' size="3" disabled="disabled" id='user_{$rowid}_id_output' name='contactPerson' value="{$chainpolicy[contactPerson]}" />
-                <input type='hidden' id='user_{$rowid}_id' name='chainpolicy[approverchain][{$rowid}][uid]' value="{$chainpolicy[contactPerson]}" />
+                <input type='text' id='user_{$rowid}_autocomplete' value="{$chainpolicy[username]}"/>
+                <input type='hidden' size="3" disabled="disabled" id='user_{$rowid}_id_output' name='contactPerson' value="{$user->uid}" />
+                <input type='hidden' id='user_{$rowid}_id' name='chainpolicy[approverchain][{$rowid}][uid]' value="{$user->uid}" />
             </div>
         </div>
-
-
     </td>
 </tr>

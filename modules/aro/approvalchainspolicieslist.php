@@ -29,20 +29,34 @@ if(!$core->input['action']) {
             $approvers->effectiveTo = date($core->settings['dateformat'], $approvers->effectiveTo);
             $approvers->effectiveFrom = date($core->settings['dateformat'], $approvers->effectiveFrom);
             $affobj = new Affiliates($approvers->affid);
+            $purchasetype_obj = new PurchaseTypes($approvers->purchaseType);
 
-            $approver_data = unserialize($approvers->approvalChain);
-            if(is_array($approver_data)) {
-                foreach($approver_data as $approverschain) {
-                    // $listapprovers[] = implode(',', $approverschain);
-                    // print_R($approverschain);
-                }
-            }
+
+//            $approver_data = unserialize($approvers->approvalChain);
+//            if(is_array($approver_data)) {
+//                foreach($approver_data as $approverschain) {
+//                    // $listapprovers[] = implode(',', $approverschain);
+//                    // print_R($approverschain);
+//                }
+//            }
+
+            $row_tools = '<a href=index.php?module=aro/manageapprovalchainspolicies&id='.$approvers->aapcid.' title="'.$lang->edit.'"><img src=./images/icons/edit.gif border=0 alt='.$lang->edit.'/></a>';
+            $row_tools .= ' <a href="#'.$approvers->aapcid.'" id="deletepolicy_'.$approvers->aapcid.'_aro/approvalchainspolicieslist_loadpopupbyid" rel="delete_'.$approvers->aapcid.'" title="'.$lang->delete.'"><img src="'.$core->settings['rootdir'].'/images/icons/delete.png" alt="'.$lang->delete.'" border="0"></a>';
 
             eval("\$policies_approverpolicieslistrow .= \"".$template->get('aro_warehouses_approverpolicies_list_rows')."\";");
-            unset($listapprovers);
         }
     }
 
     eval("\$aro_warehousesapppolicieslist = \"".$template->get('aro_warehouses_approverpolicies_list')."\";");
     output_page($aro_warehousesapppolicieslist);
+}
+elseif($core->input['action'] == 'get_deletepolicy') {
+    eval("\$deletebox = \"".$template->get('popup_aro_deleteapprovalpolicy')."\";");
+    output($deletebox);
+}
+elseif($core->input['action'] == 'perform_deletepolicy') {
+    $areotodel = new AroManageApprovalChainPolicies($core->input['todelelete']);
+    if(is_object($areotodel)) {
+        $areotodel->delete();
+    }
 }

@@ -21,7 +21,7 @@ class AroManageApprovalChainPolicies extends AbstractClass {
     const TABLE_NAME = 'aro_manage_approvalchain_policies';
     const DISPLAY_NAME = '';
     const UNIQUE_ATTRS = 'affid,purchaseType';
-    const SIMPLEQ_ATTRS = '*';
+    const SIMPLEQ_ATTRS = 'aapcid,affid,purchaseType';
     const CLASSNAME = __CLASS__;
 
     protected function create(array $data) {
@@ -54,11 +54,26 @@ class AroManageApprovalChainPolicies extends AbstractClass {
     }
 
     protected function update(array $data) {
+        global $db, $core, $log;
+        if(is_array($data)) {
 
+            $policies_array = array('affid' => $data['affid'],
+                    'effectiveFrom' => $data['effectiveFrom'],
+                    'effectiveTo' => $data['effectiveTo'],
+                    'approvalChain' => @serialize($data['approverchain']),
+                    'modifiedBy' => $core->user['uid'],
+                    'modifiedOn' => TIME_NOW,
+            );
+            unset($data['approvalChain']);
+            $query = $db->update_query(self::TABLE_NAME, $policies_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+            if($query) {
+                $log->record('aro_manage_approvalchain_policies', array('update'));
+            }
+        }
     }
 
     public function get_purchasetype() {
-        return new purchaseType($this->data['purchaseType']);
+        return new PurchaseTypes($this->data['purchaseType']);
     }
 
 }

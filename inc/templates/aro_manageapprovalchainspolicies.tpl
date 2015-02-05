@@ -25,7 +25,7 @@
             <h1>{$lang->manageapprovalchainspolicies} </h1>
             <form name="perform_aro/manageapprovalchainspolicies_Form" id="perform_aro/manageapprovalchainspolicies_Form"  action="#" method="post">
                 <input type="hidden" id="wpid" name="chainpolicy[aapcid]" value="{$chainpolicy[aapcid]}">
-                <table class="datatable"  style="width: 50%;">
+                <table class="datatable"  style="width:100%;">
                     <tr><td>{$lang->affiliate} </td>
                         <td> {$affiliate_list}</td>
                     </tr>
@@ -40,14 +40,19 @@
 
                     </tr>
                     <tr><td>{$lang->purchasetype}  </td>
-                        <td>{$purchasetype} </td>
+                        <td>{$purchasetypelist} </td>
                     </tr>
+
+                </table>
+                <table class=" datatable-striped">
                     <tbody id="approvers_tbody" style="width:100%;">
                         <tr class="thead"><Td colspan="3">Approval Chain</Td></tr>
                                 {$aro_manageapprovalchainspolicies_approversrows}
                     </tbody>
 
-                    </tr>
+
+                </table>
+                <table>
                     <tr><td valign="top">
 
                             <input name="numrows_approvers{$rowid}" type="hidden" id="approvers_numrows" value="{$rowid}">

@@ -17,33 +17,64 @@ if(!$core->input['action']) {
     if($core->usergroup['canViewAllAff'] == 0) {
         $inaffiliates = $core->user['affiliates'];
     }
+    if(isset($core->input['id']) && !empty($core->input['id'])) {
+        $chainpolicyobj = new AroManageApprovalChainPolicies($core->input['id'], false);
+        $chainpolicy = $chainpolicyobj->get();
+
+        /* parse approvers */
+    }
+    $chainpolicy[effectiveTo_output] = date($core->settings['dateformat'], $chainpolicy['effectiveTo']);
+    $chainpolicy[effectiveFrom_output] = date($core->settings['dateformat'], $chainpolicy['effectiveFrom']);
+
+    $chainpolicy['effectiveFrom_formatted'] = date('d-m-Y', $chainpolicy['effectiveFrom']);
+    $chainpolicy['effectiveTo_formatted'] = date('d-m-Y', $chainpolicy['effectiveTo']);
+
     foreach($inaffiliates as $affid) {
         $affiliate[$affid] = new Affiliates($affid);
     }
 
-    $affiliate_list = parse_selectlist('chainpolicy[affid]', 1, $affiliate, '');
+    $affiliate_list = parse_selectlist('chainpolicy[affid]', 1, $affiliate, $chainpolicy[affid]);
 
-    //$purchasetypes = purchaseTypes::get_data();
-    $purchasetype = parse_selectlist('chainpolicy[purchaseType]', 1, $purchasetypes, '');
+    $purchasetypes = PurchaseTypes::get_data('name IS NOT NULL', array('returnarray' => true));
 
+    $purchasetypelist = parse_selectlist('chainpolicy[purchaseType]', 4, $purchasetypes, $chainpolicy[purchaseType]);
 
+    if(is_array(unserialize($chainpolicy['approvalChain'])) && !empty($core->input['id'])) {
+        $approvers = array('BM' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lofm' => 'Local Finance Manager', 'gm' => 'General Manager', 'fm' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'user' => 'user');
+        foreach(unserialize($chainpolicy[approvalChain]) as $key => $approverdata) {
+            $rowid++;
+            if(empty($approverdata[sequence])) {
+                $approverdata[sequence] = $rowid;
+            }
+            if(in_array($approverdata['approver'], array_keys($approvers))) {
+                $checkbox[$approverdata[approver]]['checked'] = ' checked="checked"';
+            }
+            $display[$key][uid] = 'display:none';
+            if(isset($approverdata['uid']) && !empty($approverdata['uid'])) {
+                $user = new Users($approverdata['uid']);
+                $chainpolicy[username] = $user->get_displayname();
+                $display[$key][uid] = 'display:block;';
+            }
+            print_r($user->uid);
+
+            foreach($approvers as $key => $approver) {
+                $list .= ' <div style="display: inline-block; width:45%;"><input type="radio"  '.$checkbox[$key]['checked'].'   onchange =\''.$onchange_actions.'\' name="chainpolicy[approverchain]['.$rowid.'][approver]" value="'.$key.'" id="'.$key.'_'.$rowid.'_approver"'.$checked.'/> '.$val.' '.$approver.'</div>';
+            }
+            eval("\$aro_manageapprovalchainspolicies_approversrows  .= \"".$template->get('aro_manageapprovalchainspolicies_approversrows')."\";");
+            unset($list, $checkbox);
+        }
+    }
 
     /* approvers predfined */
-
-    $approvers = array('BM' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lofm' => 'Local Finance Manager', 'gm' => 'General Manager', 'fm' => 'Global Finance Manage', 'cfo' => 'Global CFO', 'user' => 'user');
-    $rowid = 1;
-    //$onchange_actions = 'if($(this).find(":selected").val()=="user"){ $("#"+$(this).find(":selected").val()+"_search_'.$rowid.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val(""); } else{$("#user_search_'.$rowid.'").hide();}';
-
-    $list = '<table class="datacell_freewidth" width="100%;">';
-    $list .= '<tr>';
-    foreach($approvers as $key => $approver) {
-        $list .= ' <td> <input type="radio" onchange =\''.$onchange_actions.'\' name="chainpolicy[approverchain]['.$rowid.'][approver]" value="'.$key.'" id="'.$key.'_'.$rowid.'_approver"'.$checked.'/> '.$val.'</td><td>'.$approver.'</td>';
+    else {
+        $approvers = array('BM' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lofm' => 'Local Finance Manager', 'gm' => 'General Manager', 'fm' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'user' => 'user');
+        $rowid = 1;
+        foreach($approvers as $key => $approver) {
+            $list .= ' <div style="display: inline-block; width:40%;"><input type="radio" onchange =\''.$onchange_actions.'\' name="chainpolicy[approverchain]['.$rowid.'][approver]" value="'.$key.'" id="'.$key.'_'.$rowid.'_approver"'.$checked.'/> '.$val.'</div><div style="display: inline-block; width:45%;">'.$approver.'</div>';
+        }
+        eval("\$aro_manageapprovalchainspolicies_approversrows= \"".$template->get('aro_manageapprovalchainspolicies_approversrows')."\";");
+        // $rowid = intval($core->input['value']) + 1;
     }
-    $list .= '</tr>';
-    $list .='</table>';
-    eval("\$aro_manageapprovalchainspolicies_approversrows= \"".$template->get('aro_manageapprovalchainspolicies_approversrows')."\";");
-    // $rowid = intval($core->input['value']) + 1;
-
     eval("\$aro_manageapprovalchainspolicies= \"".$template->get('aro_manageapprovalchainspolicies')."\";");
     output_page($aro_manageapprovalchainspolicies);
 }
@@ -53,8 +84,10 @@ else if($core->input['action'] == 'do_perform_manageapprovalchainspolicies') {
     $aroapproval_policy = new AroManageApprovalChainPolicies();
     $core->input['chainpolicy']['effectiveFrom'] = strtotime($core->input['chainpolicy']['effectiveFrom']);
     $core->input['chainpolicy']['effectiveTo'] = strtotime($core->input['chainpolicy']['effectiveTo']);
-
-
+    if($core->input['chainpolicy']['effectiveFrom'] > $core->input['chainpolicy']['effectiveTo']) {
+        output_xml('<status>false</status><message>'.$lang->errordate.'</message>');
+        exit;
+    }
     $aroapproval_policy->set($core->input['chainpolicy']);
     $aroapproval_policy->save();
     switch($aroapproval_policy->get_errorcode()) {
