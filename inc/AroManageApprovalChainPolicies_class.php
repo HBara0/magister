@@ -18,10 +18,10 @@ class AroManageApprovalChainPolicies extends AbstractClass {
     public $errorcode = 0;
 
     const PRIMARY_KEY = 'aapcid';
-    const TABLE_NAME = 'aro_manage_approvalchain_policies';
+    const TABLE_NAME = 'aro_approvalchain_policies';
     const DISPLAY_NAME = '';
     const UNIQUE_ATTRS = 'affid,purchaseType';
-    const SIMPLEQ_ATTRS = 'aapcid,affid,purchaseType';
+    const SIMPLEQ_ATTRS = 'affid,purchaseType,effectiveFrom,effectiveTo';
     const CLASSNAME = __CLASS__;
 
     protected function create(array $data) {
@@ -50,6 +50,7 @@ class AroManageApprovalChainPolicies extends AbstractClass {
                 'effectiveTo' => $data['effectiveTo'],
                 'approvalChain' => @serialize($data['approverchain']),
                 'createdBy' => $core->user['uid'],
+                'purchaseType' => $data['purchaseType'],
                 'createdOn' => TIME_NOW,
         );
         $query = $db->insert_query(self::TABLE_NAME, $policies_array);
@@ -80,6 +81,7 @@ class AroManageApprovalChainPolicies extends AbstractClass {
                     'effectiveTo' => $data['effectiveTo'],
                     'approvalChain' => @serialize($data['approverchain']),
                     'modifiedBy' => $core->user['uid'],
+                    'purchaseType' => $data['purchaseType'],
                     'modifiedOn' => TIME_NOW,
             );
             unset($data['approvalChain']);
