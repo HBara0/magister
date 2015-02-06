@@ -22,7 +22,9 @@ if(!$core->input['action']) {
     $affiliate = new Affiliates($forecast_data['affid']);
     $supplier = new Entities($forecast_data['spid']);
     $supplier_segments = array_filter($supplier->get_segments());
-    $saletypes = SaleTypes::get_data();
+
+    $allowed_saletypes = array('localindent', 'proxydirect', 'localexstock', 'localreinvoicing');
+    $saletypes = SaleTypes::get_data(array('name' => $allowed_saletypes), array('operators' => array('name' => 'IN')));
     $rowid = 1;
 
     for($i = 1; $i < 13; $i++) {
@@ -78,7 +80,7 @@ if(!$core->input['action']) {
      * Upon opening the forecast page for the 1st time, read data from commercial budgets and parse the rows accordingly */
     else {
         if(isset($budget['bid']) && !empty($budget['bid'])) {
-            $sql = "SELECT businessMgr,pid,psid,saleType, sum(quantity*s1Perc/100) AS s1quantity,sum(quantity*s2Perc/100) AS s2quantity from budgeting_budgets_lines where businessMgr=".$core->user['uid']." AND bid=".$budget['bid']." GROUP by pid,psid,saleType";
+            $sql = "SELECT businessMgr, pid, psid, saleType, SUM(quantity*s1Perc/100) AS s1quantity, SUM(quantity*s2Perc/100) AS s2quantity FROM budgeting_budgets_lines WHERE businessMgr=".$core->user['uid']." AND bid=".$budget['bid']." AND saletype IN (".implode(', ', array_keys($saletypes)).") GROUP by pid, psid, saleType";
             $query = $db->query($sql);
             if($db->num_rows($query) > 0) {
                 $fields = array('pid', 'saleType', 's1quantity', 's2quantity');
