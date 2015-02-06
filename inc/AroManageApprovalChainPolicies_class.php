@@ -34,9 +34,16 @@ class AroManageApprovalChainPolicies extends AbstractClass {
                 return false;
             }
         }
-
         if(is_array($data['approverchain'])) {
-            print_r($data['approverchain']);
+            foreach($data['approverchain'] as $approverfield) {
+                if(empty($approverfield['approver']) || !isset($approverfield['approver'])) {
+                    unset($approverfield);
+                    // continue;
+                }
+                if(is_array($approverfield)) {
+                    $policies_array['approvalChain'] = @serialize($approverfield);
+                }
+            }
         }
         $policies_array = array('affid' => $data['affid'],
                 'effectiveFrom' => $data['effectiveFrom'],
@@ -56,6 +63,17 @@ class AroManageApprovalChainPolicies extends AbstractClass {
     protected function update(array $data) {
         global $db, $core, $log;
         if(is_array($data)) {
+            if(is_array($data['approverchain'])) {
+                foreach($data['approverchain'] as $approverfield) {
+                    if(empty($approverfield['approver']) || !isset($approverfield['approver'])) {
+                        unset($approverfield);
+                        // continue;
+                    }
+                    if(is_array($approverfield)) {
+                        $policies_array['approvalChain'] = @serialize($approverfield);
+                    }
+                }
+            }
 
             $policies_array = array('affid' => $data['affid'],
                     'effectiveFrom' => $data['effectiveFrom'],
