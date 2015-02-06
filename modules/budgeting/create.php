@@ -105,6 +105,10 @@ else {
             }
         }
 
+        if(!in_array(date('Y'), $budget_years)) {
+            $budget_year .= "<option value='".(date('Y'))."'>".(date('Y'))."</option>";
+        }
+
         if(empty($year_selected)) {
             $next_year = date('Y') + 1;
             $budget_year .= "<option value='{$next_year}' selected='selected'>{$next_year}</option>";
