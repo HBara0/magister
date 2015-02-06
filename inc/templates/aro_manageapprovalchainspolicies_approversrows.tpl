@@ -8,7 +8,7 @@
                     {$list}
                 </div>
             </div>
-            <div id="user_{$rowid}_approveruser" style= margin-left:240px; {$display[$rowid][uid]};">
+            <div id="user_{$rowid}_approveruser" style=" margin-left:240px; {$display[$rowid][uid]}">
                 <label>select employee</label>
                 <input type='text' id='user_{$rowid}_autocomplete' value="{$chainpolicy[username]}"/>
                 <input type='hidden' size="3" disabled="disabled" id='user_{$rowid}_id_output' name='contactPerson' value="{$user->uid}" />

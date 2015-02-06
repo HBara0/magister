@@ -55,8 +55,9 @@
                 <table>
                     <tr><td valign="top">
 
-                            <input name="numrows_approvers{$rowid}" type="hidden" id="approvers_numrows" value="{$rowid}">
-                            <img src="./images/add.gif" id="addmore_approvers" alt="{$lang->add}">
+                            <input name="numrows_approvers{$rowid}" type="hidden" id="numrows_approvers" value="{$rowid}">
+
+                            <img src="./images/add.gif" id="ajaxaddmore_aro/manageapprovalchainspolicies_approvers" alt="{$lang->add}">
                         </td>
                     </tr>
                     <tr>

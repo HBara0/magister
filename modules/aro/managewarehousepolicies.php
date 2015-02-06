@@ -13,7 +13,7 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if($core->usergroup['aro_canManageWarehousePolicies'] == 0) {
-    error($lang->sectionnopermission);
+    ///error($lang->sectionnopermission);
 }
 
 if(!$core->input['action']) {
@@ -21,6 +21,11 @@ if(!$core->input['action']) {
     if(isset($core->input['id']) && !empty($core->input['id'])) {
         $aroobj = new AroManageWarehousesPolicies($core->input['id'], false);
         $warehouse = $aroobj->get();
+        $warehouse[effectiveFrom_output] = date($core->settings['dateformat'], $warehouse['effectiveFrom']);
+        $warehouse[effectiveTo_output] = date($core->settings['dateformat'], $warehouse['effectiveTo']);
+
+        $warehouse['effectiveFrom_formatted'] = date('d-m-Y', $warehouse['effectiveFrom']);
+        $warehouse['effectiveTo_formatted'] = date('d-m-Y', $warehouse['effectiveTo']);
     }
     /* get warehouses of the affiliates users */
     $dal_config = array(
@@ -30,11 +35,7 @@ if(!$core->input['action']) {
     );
     $warehouse_objs = Warehouses::get_data(array('affid' => $core->user['affiliates'], 'isActive' => 1), $dal_config);
     $warehouse_list = parse_selectlist('warehousepolicy[warehouse]', 1, $warehouse_objs, '');
-    $warehouse[effectiveFrom_output] = date($core->settings['dateformat'], $warehouse['effectiveFrom']);
-    $warehouse[effectiveTo_output] = date($core->settings['dateformat'], $warehouse['effectiveTo']);
 
-    $warehouse['effectiveFrom_formatted'] = date('d-m-Y', $warehouse['effectiveFrom']);
-    $warehouse['effectiveTo_formatted'] = date('d-m-Y', $warehouse['effectiveTo']);
     /* parse select list of covered countries currencies */
 
     $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where affid IS NOT NULL';
