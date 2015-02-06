@@ -47,8 +47,12 @@
                     <tr>
                         <td>{$lang->geolocation}</td>
                         <td colspan="2">
-                            <input type="text" name="warehouse[geoLocation]" id="warehouse_geoLocation" placeholder="33.892516 35.510929" pattern="(\-?\d+(\.\d+)?) \s*(\-?\d+(\.\d+)?)" value="{$warehouse->geoLocation}"/>
+                            <input type="text" name="warehouse[geoLocation]" id="warehouse_geoLocation" placeholder="33.892516 35.510929" pattern="(\-?\d+(\.\d+)?) \s*(\-?\d+(\.\d+)?)" value="{$warehouse->longitude} {$warehouse->latitude}"/>
                             <span class="smalltext">({$lang->longlattidue})</span></td>
+                    </tr>
+                    <tr>
+                        <td>{$lang->idob}</td>
+                        <td colspan="2"><input type="text" id="warehouse_idOB" name="warehouse[idOB]"  value="{$warehouse->idOB}" required="required"/></td>
                     </tr>
 
                     <tr>  <td colspan="3" align="left">
