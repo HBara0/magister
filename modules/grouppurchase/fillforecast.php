@@ -12,7 +12,7 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 if($core->usergroup['grouppurchase_canUpdateForecast'] == 0) {
-    error($lang->sectionnopermission);
+    // error($lang->sectionnopermission);
 }
 if(!$core->input['action']) {
     $forecast_data = $core->input['forecast'];
@@ -146,10 +146,6 @@ if(!$core->input['action']) {
     foreach($months as $month) { /* output total row */
         $total_output .='<td class = "border_right" align = "center"><span style = "font-weight:bold;" id = "forecastline_total_'.$month.'">'.number_format($total[$month], 2).'</span></td>';
     }
-    $notify['checkbox'] = '<input type="checkbox" id="enable_notification"/>'.$lang->informconcernedparties.'</div>';
-    $notify['button'] = '<input type="button" disabled="disabled" class="button" value="'.$lang->notify.'" id="notify_concernedparties" />';
-    $notify['hidden'] = '<input type="hidden" class="button" id="notify" name="notify" value="0" />';
-
     eval("\$fillforecast = \"".$template->get('grouppurchase_fill_forecast')."\";");
     output_page($fillforecast);
 }
@@ -178,7 +174,7 @@ else if($core->input['action'] == 'do_perform_fillforecast') {
                 $mailer->set_from(array('name' => 'tony.assaad', 'email' => 'tony.assaad@ocos.local'));
                 $mailer->set_subject('');
                 $mailer->set_message('');
-                $mailer->set_to('tony.assaad@ocos.local');
+                $mailer->set_to('');
                 $mailer->send();
             }
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');

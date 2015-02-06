@@ -18,7 +18,7 @@
             </td>
 
             <td style="text-align:left;">{$lang->destinationcity}</td>
-            <td><input type="text"   id="destinationcity_{$sequence}_cache_autocomplete" autocomplete="off" tabindex="1" value="{$segment[$sequence][destinationcity][name]}" required="required"/>
+            <td><input type="text" {$disabled}  id="destinationcity_{$sequence}_cache_autocomplete" autocomplete="off" tabindex="1" value="{$segment[$sequence][destinationcity][name]}" required="required"/>
                 <input type="hidden" id="coid"  value="{$segment[countryleave]}" name="coid"/>
                 <input type='hidden' id='destinationcity_{$sequence}_cache_id'  name="segment[{$sequence}][destinationCity]" value="{$segment[$sequence][destinationcity][ciid]}"/>
             </td>

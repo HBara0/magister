@@ -217,12 +217,22 @@ else {
         $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
         /* load approved hotels */
 
-        $segmentobj = new TravelManagerPlanSegments();
-        $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
-        if(empty($approvedhotels)) {
-            $approvedhotels = array();
+        // $segmentobj = new TravelManagerPlanSegments();
+        $segmentobj = TravelManagerPlanSegments::get_data(array('originCity' => $origincityid, 'destinationCity' => $destcityid));
+        if(is_object($segmentobj)) {
+            $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
+            $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
         }
-        $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
+        else {
+            $segmentobj = new TravelManagerPlanSegments();
+            $approvedhotels = $descity_obj->get_approvedhotels();
+            if(empty($approvedhotels)) {
+                $approvedhotels = array();
+            }
+            $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
+        }
+
+
 
         /* parse expenses - START */
         $rowid = 1;
@@ -263,7 +273,7 @@ else {
         eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
         output($plansegmentscontent_output);
     }
-    elseif($core->input['action'] == 'populatecityprofile') {
+    elseif($core->input ['action'] == 'populatecityprofile') {
         $destcityid = $db->escape_string($core->input['destcity']);
         if(!empty($destcityid)) {
             $city_obj = new Cities($destcityid);
@@ -280,7 +290,7 @@ else {
         }
         output($citybriefings_output);
     }
-    elseif($core->input['action'] == 'parsedetailstransp') {
+    elseif($core->input ['action'] == 'parsedetailstransp') {
         $catid = $db->escape_string($core->input['catid']);
         $sequence = $db->escape_string($core->input['sequence']);
         $categoryid = $db->escape_string($core->input['categoryid']);
@@ -289,7 +299,7 @@ else {
 
 //output($transsegments_output);
     }
-    elseif($core->input['action'] == 'do_perform_plantrip') {
+    elseif($core->input ['action'] == 'do_perform_plantrip') {
         $travelplan = new TravelManagerPlan();
         $travelplanexist = new TravelManagerPlan($core->input[planid]);
         if($travelplanexist->is_finalized()) {
@@ -339,7 +349,7 @@ else {
             }
         }
     }
-    elseif($core->input['action'] == 'get_hotelreview') {
+    elseif($core->input ['action'] == 'get_hotelreview') {
         $hotelid = $db->escape_string($core->input['id']);
         $hotel_obj = new TravelManagerHotels($hotelid);
         $hotel_review = $hotel_obj->get_review();
@@ -355,11 +365,11 @@ else {
         eval("\$hotel_reviews = \"".$template->get('popup_hotel_review')."\";");
         output($hotel_reviews);
     }
-    elseif($core->input['action'] == 'ajaxaddmore_expenses') {
+    elseif($core->input ['action'] == 'ajaxaddmore_expenses') {
         //  $expensestype_obj = Travelmanager_Expenses_Types::get_data('', array('returnarray' => false));
 
         $expensestypeobj = new Travelmanager_Expenses_Types();
-        $rowid = $db->escape_string($core->input['value']) + 1;
+        $rowid = $db->escape_string($core->input ['value']) + 1;
         //   $segexpenses_ojbs = Travelmanager_Expenses::get_data(array('tmetid' => key($expensestype_obj)), array('returnarray' => true));
         $sequence = $db->escape_string($core->input['id']);
 
@@ -367,7 +377,7 @@ else {
         //eval("\$expenses = \"".$template->get('travelmanager_expenses_types')."\";");
         echo $expenses;
     }
-    elseif($core->input['action'] == 'get_addnewhotel') {
+    elseif($core->input ['action'] == 'get_addnewhotel') {
         $ciy_sequence = explode('_', $db->escape_string($core->input['id']));
         $sequence = $ciy_sequence[0];
         $destcityid = $ciy_sequence[1];
@@ -378,7 +388,7 @@ else {
         eval("\$addhotel= \"".$template->get('popup_addhotel')."\";");
         output($addhotel);
     }
-    elseif($core->input['action'] == 'do_add_otherhotel') {
+    elseif($core->input ['action'] == 'do_add_otherhotel') {
         $hotelobj = new TravelManagerHotels();
         $hotelobj->set($core->input['otherhotel']);
         $hotelobj->save();
@@ -391,7 +401,7 @@ else {
                 exit;
         }
     }
-    elseif($core->input['action'] == 'deletesegment') {
+    elseif($core->input ['action'] == 'deletesegment') {
         $segmentid = $db->escape_string($core->input['segmentid']);
         if(!empty($segmentid)) {
             $plan_classes = array('TravelManagerPlanSegments', 'TravelManagerPlanTransps', 'TravelManagerPlanaccomodations', 'Travelmanager_Expenses', 'TravelManagerCityReviews');
@@ -407,8 +417,8 @@ else {
             }
         }
     }
-    else if($core->input['action'] == 'ajaxaddmore_othertranspcat') {
-        $rowid = $db->escape_string($core->input['value']) + 1;
+    else if($core->input ['action'] == 'ajaxaddmore_othertranspcat') {
+        $rowid = $db->escape_string($core->input ['value']) + 1;
         $destcity = ($core->input['ajaxaddmoredata']['destcity']);
         $transp_requirements['drivemode'] = 'transit';
         $transp_requirements['departuretime'] = '';
@@ -418,7 +428,7 @@ else {
         $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence, 'addmore');
         echo $transsegments_output;
     }
-    else if($core->input['action'] == 'refreshtransp') {
+    else if($core->input ['action'] == 'refreshtransp') {
         $destcityid = $db->escape_string($core->input['destcity']);
         $origincityid = $db->escape_string($core->input['origincity']);
         $descity_obj = new Cities($destcityid);

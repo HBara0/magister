@@ -318,7 +318,7 @@ class Cities extends AbstractClass {
                 $transp_category_fields = TravelManagerPlan::parse_transportaionfields($aerialtransp, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transportation_details, 'name' => 'airplane', 'tmtcid' => $aerialtransp->tmtcid), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence);
                 if(!empty($transp_category_fields)) {
                     eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
-                    eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
+                    //eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
                 }
             }
             /* Parse Available flights */
@@ -340,10 +340,7 @@ class Cities extends AbstractClass {
             $suggestedtranssegments_output = $suggestedtransp['title'].'<div class="ui-state-highlight ui-corner-all" style="padding: 6px; font-weight: bold;"><a href="'.$transpmode_apimaplink.'" target="_blank">Visualize Tranpostation Possibilities on Map</a></div>'.$suggestedtranssegments_output;
         }
 
-        //   if(!empty($transsegments_output)) {
         $transsegments_output = $transsegments['title'].$transsegments_output;
-        //  }
-
 
         $transp_ouptut['suggested'] = $suggestedtranssegments_output.$suggestedtranscategments_output;
         $transp_ouptut['othertransp'] = $transsegments_output.$transcategments_output;
