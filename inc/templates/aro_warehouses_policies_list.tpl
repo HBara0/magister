@@ -6,7 +6,7 @@
     <body>
         {$header}
     <tr> {$menu}
-        <td class="contentContainer"><h1>{$lang->listasset}</h1>
+        <td class="contentContainer"><h1>{$lang->warehousespolicieslist}</h1>
             <form action='$_SERVER[REQUEST_URI]' method="post">
                 <table class="datatable">
                     <thead>

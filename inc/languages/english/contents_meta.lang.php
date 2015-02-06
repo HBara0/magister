@@ -33,4 +33,5 @@ $lang['save'] = 'Save';
 $lang['confirmdeletewarehouse'] = 'Are you sure you want to delete this warehouse?';
 $lang['deletewarehouse'] = 'Delete Warehouse';
 $lang['cannotdeletewarehouse'] = 'Warehouse cannot be deleted';
+$lang['idob'] = 'Id on OB';
 ?>
