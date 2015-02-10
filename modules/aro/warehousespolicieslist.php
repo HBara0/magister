@@ -17,11 +17,21 @@ if($core->usergroup['aro_canManageWarehousePolicies'] == 0) {
 }
 
 if(!$core->input['action']) {
+    $sort_url = sort_url();
 
-    $dal_config = array(
-            'simple' => false,
-            'returnarray' => true
-    );
+    if(isset($core->input['sortby']) && !empty($core->input['sortby'])) {
+        $dal_config = array(
+                'simple' => false,
+                'order' => array('by' => $core->input['sortby'], 'sort' => $core->input['order']),
+                'returnarray' => true
+        );
+    }
+    else {
+        $dal_config = array(
+                'simple' => false,
+                'returnarray' => true
+        );
+    }
     $aroobjs = AroManageWarehousesPolicies::get_data('effectiveFrom IS NOT NULL and effectiveTo IS NOT NULL', $dal_config);
 
     if(is_array($aroobjs)) {

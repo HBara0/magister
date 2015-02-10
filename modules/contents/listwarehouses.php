@@ -12,8 +12,7 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 if($core->usergroup['contents_canManageWarehouses'] == 0) {
-    error($lang->sectionnopermission);
-    exit;
+    //   error($lang->sectionnopermission);
 }
 if(!$core->input['action']) {
 

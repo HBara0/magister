@@ -17,11 +17,22 @@ if($core->usergroup['aro_canManageApprovalPolicies'] == 0) {
 }
 
 if(!$core->input['action']) {
+    $sort_url = sort_url();
 
-    $dal_config = array(
-            'simple' => false,
-            'returnarray' => true
-    );
+    if(isset($core->input['sortby']) && !empty($core->input['sortby'])) {
+        $dal_config = array(
+                'simple' => false,
+                'order' => array('by' => $core->input['sortby'], 'sort' => $core->input['order']),
+                'returnarray' => true
+        );
+    }
+    else {
+        $dal_config = array(
+                'simple' => false,
+                'returnarray' => true
+        );
+    }
+
     $aroappr_pol = AroManageApprovalChainPolicies::get_data('effectiveFrom IS NOT NULL and effectiveTo IS NOT NULL', $dal_config);
     if(is_array($aroappr_pol)) {
         foreach($aroappr_pol as $approvers) {
@@ -30,15 +41,6 @@ if(!$core->input['action']) {
             $approvers->effectiveFrom = date($core->settings['dateformat'], $approvers->effectiveFrom);
             $affobj = new Affiliates($approvers->affid);
             $purchasetype_obj = new PurchaseTypes($approvers->purchaseType);
-
-
-//            $approver_data = unserialize($approvers->approvalChain);
-//            if(is_array($approver_data)) {
-//                foreach($approver_data as $approverschain) {
-//                    // $listapprovers[] = implode(',', $approverschain);
-//                    // print_R($approverschain);
-//                }
-//            }
 
             $row_tools = '<a href=index.php?module=aro/manageapprovalchainspolicies&id='.$approvers->aapcid.' title="'.$lang->edit.'"><img src=./images/icons/edit.gif border=0 alt='.$lang->edit.'/></a>';
             $row_tools .= ' <a href="#'.$approvers->aapcid.'" id="deletepolicy_'.$approvers->aapcid.'_aro/approvalchainspolicieslist_loadpopupbyid" rel="delete_'.$approvers->aapcid.'" title="'.$lang->delete.'"><img src="'.$core->settings['rootdir'].'/images/icons/delete.png" alt="'.$lang->delete.'" border="0"></a>';
