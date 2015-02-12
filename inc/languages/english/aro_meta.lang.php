@@ -37,4 +37,10 @@ $lang['isactive'] = 'Is Active';
 $lang['listaroapprovers'] = 'Aproval list Policies';
 $lang['deletearopolicy'] = 'Delete Aro Policy';
 $lang['confirmdeletearopolicy'] = 'Are you sure you want to delete this policy?';
+$lang['prefix'] = 'Prefix';
+$lang['incrementby'] = 'Increment by';
+$lang['nextnumber'] = 'Next number';
+$lang['suffix'] = 'Suffix';
+$lang['managedoumentsequence'] = 'ARO Document Sequence Configuration';
+$lang['managearodouments'] = 'Manage Aro Documents';
 
