@@ -12,7 +12,7 @@
         <td class="contentContainer">
             <h1>{$lang->managewarehouse}</h1>
             <form action="#" method="post" id="perform_contents/createwarehouses_Form" name="perform_contents/createwarehouses_Form">
-                <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                <table width="100%" border="0" cellpadding="0" cellspacing="1">
                     <tr>
                         <td>{$lang->affiliate}</td><td colspan="2">{$affiliates_list}
                             <input type="hidden" value="{$warehouse->wid}" name="warehouse[wid]" /></td>
@@ -20,7 +20,7 @@
                     <tr>
                         <td>{$lang->name}</td><td><input type="text" id="warehouse_name" name="warehouse[name]" value="{$warehouse->name}" required="required"/></td>
                     </tr>
-                    <tr class="thead"><td colspan="2">{$lang->address}</td></tr>
+                    <tr><td><h3 style="margin-bottom:10px;">{$lang->address}</h3></td></tr>
                     <tr>
                         <td>{$lang->addressline1}</td>
                         <td colspan="2">
@@ -55,9 +55,10 @@
                         <td colspan="2"><input type="text" id="warehouse_idOB" name="warehouse[idOB]"  value="{$warehouse->idOB}" required="required"/></td>
                     </tr>
 
-                    <tr>  <td colspan="3" align="left">
-                            <input name="warehouse[isActive]" id="warehouse_isActive" type="checkbox" value="1" {$checked[isactive]}> {$lang->isactive}</td>
-
+                    <tr>   <td colspan="3" align="left">
+                            <fieldset class="altrow2" style="width:25%;">
+                                <input name="warehouse[isActive]" id="warehouse_isActive" type="checkbox" value="1" {$checked[isactive]}> {$lang->isactive}</td>
+                            </fieldset>
                     </tr>
 
                     <tr>

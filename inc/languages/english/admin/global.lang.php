@@ -44,6 +44,7 @@ $lang['viewsuppliers'] = "View Suppliers";
 $lang['viewcustomers'] = "View Customers";
 $lang['addentities'] = "Add Entities";
 $lang['manageproducts'] = "Manage Products";
+$lang['managepaymentterms'] = 'Manage Payment Terms';
 $lang['segments'] = "Segments";
 $lang['generics'] = "Generics";
 $lang['applications'] = "Manage Applications";
