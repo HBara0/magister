@@ -756,7 +756,7 @@ $(function() {
                     }
                 },
                 success: function(returnedData) {
-                    //  alert(returnedData);
+
                     if(datatype == 'xml') {
                         if($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -891,14 +891,45 @@ $(function() {
                 $("#numrows").val(increment);
             }
         }
+
         function sharedPopUp(module, template, id) {
             popUp(module, template, id);
+        }
+
+
+        function populateForm(formname, querystring) {
+            // ajaxrequest
+            $.ajax({type: 'post',
+                dataType: "text",
+                url: querystring,
+                //  data: $(this).serialize() + "&" + $.param(data),
+                beforeSend: function() {
+                    $("body").append("<div id='modal-loading'></div>");
+                    $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
+                    });
+                },
+                complete: function() {
+
+                    $("#modal-loading").dialog("close").remove();
+                },
+                success: function(returnedData) {
+                    //{"orderreference":"LB-9-aor1"}
+                    //  var json = eval("({'orderreference':'Lb - 1 - 2014'});"); /* convert the json to object */
+                    var json = eval("(" + returnedData + ");"); /* convert the json to object */
+                    var form = document.forms[formname];
+                    $(form).populate(json, {resetForm: 0});
+                }
+            });
+            ///return json from ajax
+
+            //semd json data to populate function
         }
         return {
             "requestAjax": requestAjax,
             "checkSession": checkSession,
             "addmoreRows": addmoreRows,
-            "sharedPopUp": sharedPopUp
+            "sharedPopUp": sharedPopUp,
+            "populateForm": populateForm
         }
     }();
 
@@ -957,3 +988,5 @@ function goToURL(url)
         }
     }
 }
+
+
