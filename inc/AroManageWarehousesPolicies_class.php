@@ -18,7 +18,7 @@ class AroManageWarehousesPolicies extends AbstractClass {
     public $errorcode = 0;
 
     const PRIMARY_KEY = 'awpid';
-    const TABLE_NAME = 'aro_managewareshouses_policies';
+    const TABLE_NAME = 'aro_wareshouses_policies';
     const DISPLAY_NAME = '';
     const UNIQUE_ATTRS = 'effectiveFrom,effectiveTo';
     const SIMPLEQ_ATTRS = 'awpid,warehouse,effectiveFrom,effectiveTo,rate';
@@ -30,7 +30,6 @@ class AroManageWarehousesPolicies extends AbstractClass {
 
     public function create(array $data) {
         global $db, $core, $log;
-
         $required_fields = array('effectiveFrom', 'effectiveTo'); //warehsuoe
         foreach($required_fields as $field) {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
