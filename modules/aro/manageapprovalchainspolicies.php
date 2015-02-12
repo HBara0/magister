@@ -53,7 +53,6 @@ if(!$core->input['action']) {
                 $checkbox[$approverdata['approver']]['checked'] = ' checked="checked"';
             }
             $display[$key][uid] = 'display:none;';
-            print_R($approverdata['approver']);
             if(isset($approverdata['uid']) && !empty($approverdata['uid']) && $approverdata['approver'] == 'user') {
                 $user = new Users($approverdata['uid']);
                 $chainpolicy[username] = $user->get_displayname();
