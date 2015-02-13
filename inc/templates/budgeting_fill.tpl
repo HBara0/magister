@@ -111,7 +111,7 @@
 
                     var currencies = {$js_currencies};
                     var invoicetypes = {$js_saletypesinvoice};
-                    var saletypespurchase ={$js_saletypespurchase};
+                    //var saletypespurchase ={$js_saletypespurchase};
                     if(typeof currencies[salestype] != 'undefined') {
                         $("#currency_" + id[1]).val(currencies[salestype]);
                     }

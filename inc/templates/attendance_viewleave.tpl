@@ -18,7 +18,7 @@
                 <div style='padding: 2px; display:inline-block; width: 30%;'></div><div  style='padding: 2px; display:inline-block; width: 45%;'>{$additionalfield_output}</div>
                 <div style='padding: 2px; display:inline-block; width: 30%;'>{$lang->leavereason}</div><div style='padding: 2px; display:inline-block;width: 45%;'>{$leave->reason}</div>
                 <div style='padding: 2px; display:inline-block; width: 30%;'>{$lang->approvals}</div>
-                <div style='padding: 2px; display:inline-block; width: 45%;'><span class="green_text">{$approved}</span><span>{$toapprove}</span></div>
+                <div style='padding: 2px; display:inline-block; width: 45%;'><span class="green_text">{$approved}</span> <span>{$toapprove}</span></div>
                 <div style='padding: 2px; display:inline-block; width: 30%;'>{$lang->informedaffiliates}</div><div style=' padding: 2px; display:inline-block;width: 60%;'>{$affiliates_list}</div>
                 <br />
                 <br />

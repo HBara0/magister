@@ -83,13 +83,17 @@ class BudgetLines {
             return;
         }
         $data_toremove = array('bid', 'blid', 'cid', 'interCompanyPurchase');
-        $data_zerofill = array('localIncomePercentage', 'localIncomeAmount', 'invoicingEntityIncome');
+        $data_zerofill = array('invoicingEntityIncome'); //'localIncomePercentage', 'localIncomeAmount', 
         $budget = $this->get_budget();
         $data['inputChecksum'] = generate_checksum('bl');
         $data['linkedBudgetLine'] = $this->budgetline['blid'];
         $data['altCid'] = $budget->get_affiliate()->name;
         $data['customerCountry'] = $budget->get_affiliate()->country;
         $data['saleType'] = 6; //Need to be acquire through DAL where isInterCoSale
+        $data['amount'] = $data['amount'] - $data['income'];
+        /* Apply Default Margin */
+        $data['income'] = $data['localIncomeAmount'] = $data['amount'] * 0.03;
+        $data['localIncomePercentage'] = 100;
 
         if(!empty($this->budgetline['linkedBudgetLine'])) {
             $ic_budgetline = new BudgetLines($this->budgetline['linkedBudgetLine']);
@@ -107,6 +111,7 @@ class BudgetLines {
                 return;
             }
         }
+
 
         $ic_budget = Budgets::get_data(array('affid' => $data['interCompanyPurchase'], 'spid' => $budget->spid, 'year' => $budget->year), array('simple' => false));
         if(!is_object($ic_budget)) {
@@ -135,10 +140,7 @@ class BudgetLines {
             $ic_budget = Budgets::get_data(array('affid' => $budgetdata_intercompany['affid'], 'spid' => $budget->spid, 'year' => $budget->year), array('simple' => false));
             $data['bid'] = $ic_budget->bid;
         }
-        $data['amount'] = $data['amount'] - $data['income'];
-        /* Apply Default Margin */
-        $data['income'] = $data['localIncomeAmount'] = $data['amount'] * 0.03;
-        $data['localIncomePercentage'] = 100;
+
         $ic_budgetline = new BudgetLines();
         $ic_budgetline->create($data);
 
