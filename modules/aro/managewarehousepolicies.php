@@ -34,7 +34,7 @@ if(!$core->input['action']) {
             'returnarray' => true
     );
     $warehouse_objs = Warehouses::get_data(array('affid' => $core->user['affiliates'], 'isActive' => 1), $dal_config);
-    $warehouse_list = parse_selectlist('warehousepolicy[warehouse]', 1, $warehouse_objs, '');
+    $warehouse_list = parse_selectlist('warehousepolicy[warehouse]', 1, $warehouse_objs, '', '', '', array('width' => '50%'));
 
     /* parse select list of covered countries currencies */
 
@@ -48,10 +48,10 @@ if(!$core->input['action']) {
             $currencies[$curr->numCode] = $curr->alphaCode;
         }
     }
-    $currencies_list = parse_selectlist('warehousepolicy[currency]', '', $currencies, $warehouse['currency'], '', '', array('width' => '100%'));
+    $currencies_list = parse_selectlist('warehousepolicy[currency]', '', $currencies, $warehouse['currency'], '', '', array('width' => '50%'));
     $uoms = Uom::get_data('name IS NOT NULL');
 
-    $reateuom = parse_selectlist('warehousepolicy[rate_uom]', '', $uoms, $warehouse['rate_uom'], '', '', array('width' => '100%'));
+    $reateuom = parse_selectlist('warehousepolicy[rate_uom]', '', $uoms, $warehouse['rate_uom'], '', '', array('width' => '50%'));
     eval("\$aro_managewarehousespolicies = \"".$template->get('aro_managewarehouses_policies')."\";");
     output_page($aro_managewarehousespolicies);
 }
