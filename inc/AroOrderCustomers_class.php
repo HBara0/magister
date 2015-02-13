@@ -3,29 +3,33 @@
  * Copyright © 2015 Orkila International Offshore, All Rights Reserved
  *
  * [Provide Short Descption Here]
- * $id: AroOrderIdentification_class.php
- * Created:        @tony.assaad    Feb 11, 2015 | 11:40:28 AM
- * Last Update:    @tony.assaad    Feb 11, 2015 | 11:40:28 AM
+ * $id: AroOrderCustomers_class.php
+ * Created:        @tony.assaad    Feb 13, 2015 | 2:23:37 PM
+ * Last Update:    @tony.assaad    Feb 13, 2015 | 2:23:37 PM
  */
 
 /**
- * Description of AroOrderIdentification_class
+ * Description of AroOrderCustomers_class
  *
  * @author tony.assaad
  */
-class AroOrderIdentification extends AbstractClass {
+class AroOrderCustomers extends AbstractClass {
     protected $data = array();
     protected $errorcode = 0;
 
-    const PRIMARY_KEY = 'aoiid';
-    const TABLE_NAME = 'aro_order_indentification';
+    const PRIMARY_KEY = 'aocid';
+    const TABLE_NAME = 'aro_order_customers';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'aoiid,affid,orderType';
+    const SIMPLEQ_ATTRS = 'aocid,ptid';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'affid,orderType';
+    const UNIQUE_ATTRS = 'cid';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
+    }
+
+    protected function update(array $data) {
+        ;
     }
 
     public function create(array $data) {
@@ -38,13 +42,11 @@ class AroOrderIdentification extends AbstractClass {
                 return false;
             }
         }
-
-        $policies_array = array('affid' => $data['affid'],
-                'orderType' => $data['orderType'],
-                'orderReference' => $data['orderReference'],
-                'inspectionType' => $data['inspectionType'],
-                'currency' => $data['currency'],
-                'exchangeRateToUSD' => $data['exchangeRateToUSD'],
+        $data['paymentTermBaseDate'] = strtotime($data['paymentTermBaseDate']);
+        $policies_array = array('cid' => $data['cid'],
+                'ptid' => $data['ptid'],
+                'paymentTermDesc' => $data['paymentTermDesc'],
+                'paymentTermBaseDate' => $data['paymentTermBaseDate'],
                 'ReferenceNumber' => $data['ReferenceNumber'],
                 'createdBy' => $core->user['uid'],
                 'createdOn' => TIME_NOW,
@@ -55,10 +57,6 @@ class AroOrderIdentification extends AbstractClass {
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             $this->errorcode = 0;
         }
-    }
-
-    protected function update(array $data) {
-        ;
     }
 
 }

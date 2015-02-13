@@ -19,21 +19,23 @@ if(!($core->input['action'])) {
         $affiliate[$affid] = new Affiliates($affid);
     }
 
-    $affiliate_list = parse_selectlist('documentsequence[affid]', 1, $affiliate, $documentsequence[affid], '', '', array('blankstart' => true, 'id' => "affid"));
+    $affiliate_list = parse_selectlist('orderid[affid]', 1, $affiliate, $orderid[affid], '', '', array('blankstart' => true, 'id' => "affid"));
     $purchasetypes = PurchaseTypes::get_data('name IS NOT NULL', array('returnarray' => true));
 
-    $purchasetypelist = parse_selectlist('documentsequence[purchaseType]', 4, $purchasetypes, $documentsequence['ptid'], '', '', array('blankstart' => true, 'id' => "purchasetype"));
+    $purchasetypelist = parse_selectlist('orderid[orderType]', 4, $purchasetypes, $orderid['ptid'], '', '', array('blankstart' => true, 'id' => "purchasetype"));
 
     $mainaffobj = new Affiliates($core->user['mainaffiliate']);
 
-
     $currencies = Currencies::get_data();
-
-    $currencies_list = parse_selectlist('documentsequence[currency]', 4, $currencies, '', '', '', array('blankstart' => 1, 'id' => "currencies"));
+    $checksum = generate_checksum('odercustomer');
+    $rowid = 1;
+    $currencies_list = parse_selectlist('orderid[currency]', 4, $currencies, '', '', '', array('blankstart' => 1, 'id' => "currencies"));
     $inspections = array('inspection1' => 'inspection');
-    $inspectionlist = parse_selectlist('documentsequence[inspectionType]', 4, $inspections, '');
+    $inspectionlist = parse_selectlist('orderid[inspectionType]', 4, $inspections, '');
     eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
-    $newcustomer_rowid = 1;
+
+    eval("\$aro_managedocuments_ordercustomers_rows = \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
+
     eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
 
     eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
@@ -42,14 +44,14 @@ if(!($core->input['action'])) {
 else {
 
 
-    if($core->input ['action'] == 'getexchangerate') {
+    if($core->input['action'] == 'getexchangerate') {
         $currencyobj = new Currencies($core->input['currency']);
-        $rateusd = $currencyobj->get_latest_fxrate($currencyobj->get()['numCode'], '', 840);
+        $rateusd = $currencyobj->get_latest_fxrate($currencyobj->get()['alphaCode'], null, 'USD');
         $exchangerate = array('exchangeRateToUSD' => $rateusd);
+
         echo json_encode($exchangerate);
     }
     if($core->input ['action'] == 'populate_documentpattern') {
-
         $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $core->input['affid'], 'ptid' => $core->input['ptid']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
         if(is_object($documentseq_obj)) {
             $orderreference = array('orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.$documentseq_obj->suffix);
@@ -57,8 +59,25 @@ else {
         }
         else {
             echo json_encode('error');
-
             exit;
+        }
+    }
+    if($core->input['action'] == 'ajaxaddmore_newcustomer') {
+        $rowid = intval($core->input['value']) + 1;
+        $checksum = generate_checksum('odercustomer');
+        eval("\$aro_managedocuments_ordercustomers_rows = \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
+        output($aro_managedocuments_ordercustomers_rows);
+    }
+    if($core->input['action'] == 'do_perform_managearodouments') {
+        if(isset($core->input[orderid]) && !empty($core->input[orderid][affid])) {
+            $orderident_obj = new AroOrderIdentification ();
+            $orderident_obj->set($core->input['orderid']);
+            $orderident_obj->save();
+        }
+        if(isset($core->input[orderid]) && !empty($core->input[orderid][affid])) {
+            $ordercust_obj = new AroOrderCustomers();
+            $ordercust_obj->set($core->input['customeroder']);
+            $ordercust_obj->save();
         }
     }
 }

@@ -66,7 +66,7 @@ class AroManageWarehousesPolicies extends AbstractClass {
             $data['modifiedOn'] = TIME_NOW;
             $query = $db->update_query(self::TABLE_NAME, $data, 'awpid ='.intval($this->data['awpid']));
             if($query) {
-                $log->record('aro_managewareshouses_policies', array('update'));
+                $log->record(self::TABLE_NAME, array('update'));
             }
         }
     }
