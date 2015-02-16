@@ -21,8 +21,12 @@ class AroManageApprovalChainPolicies extends AbstractClass {
     const TABLE_NAME = 'aro_approvalchain_policies';
     const DISPLAY_NAME = '';
     const UNIQUE_ATTRS = 'affid,purchaseType';
-    const SIMPLEQ_ATTRS = 'affid,purchaseType,effectiveFrom,effectiveTo';
+    const SIMPLEQ_ATTRS = 'aapcid,affid,purchaseType,effectiveFrom,effectiveTo';
     const CLASSNAME = __CLASS__;
+
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
+    }
 
     protected function create(array $data) {
         global $db, $core, $log;
