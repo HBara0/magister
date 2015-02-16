@@ -63,8 +63,11 @@ if(!$core->input['action']) {
                 'returnarray' => true
         );
     }
-
     $aroappr_pol = AroManageApprovalChainPolicies::get_data('effectiveFrom IS NOT NULL and effectiveTo IS NOT NULL', $dal_config);
+    if(!empty($filter_where)) {
+        $filter_where .='AND effectiveFrom IS NOT NULL and effectiveTo IS NOT NULL';
+    }
+    $aroappr_pol = AroManageApprovalChainPolicies::get_data($filter_where, $dal_config);
     if(is_array($aroappr_pol)) {
         foreach($aroappr_pol as $approvers) {
             $approvers->effectiveTo = date($core->settings['dateformat'], $approvers->effectiveTo);
@@ -73,7 +76,7 @@ if(!$core->input['action']) {
             $purchasetype_obj = new PurchaseTypes($approvers->purchaseType);
 
             $row_tools = '<a href=index.php?module=aro/manageapprovalchainspolicies&id='.$approvers->aapcid.' title="'.$lang->edit.'"><img src=./images/icons/edit.gif border=0 alt='.$lang->edit.'/></a>';
-            $row_tools .= ' <a href="#'.$approvers->aapcid.'" id="deletepolicy_'.$approvers->aapcid.'_aro/approvalchainspolicieslist_loadpopupbyid" rel="delete_'.$approvers->aapcid.'" title="'.$lang->delete.'"><img src="../images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>';
+            $row_tools .= ' <a href="#'.$approvers->aapcid.'" id="deletepolicy_'.$approvers->aapcid.'_aro/approvalchainspolicieslist_loadpopupbyid" rel="delete_'.$approvers->aapcid.'" title="'.$lang->delete.'"><img src="./images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>';
 
             eval("\$policies_approverpolicieslistrow .= \"".$template->get('aro_warehouses_approverpolicies_list_rows')."\";");
         }
