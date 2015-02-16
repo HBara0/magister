@@ -91,6 +91,8 @@ elseif($core->input['action'] == 'get_deletepolicy') {
 elseif($core->input['action'] == 'perform_deletepolicy') {
     $areotodel = new AroManageWarehousesPolicies($core->input[todelelete]);
     if(is_object($areotodel)) {
-        $areotodel->delete();
+        if($areotodel->delete()) {
+            output_xml('<status>true</status><message>'.$lang->successfullydeleted.'</message>');
+        }
     }
 }

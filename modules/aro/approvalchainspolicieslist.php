@@ -87,8 +87,11 @@ elseif($core->input['action'] == 'get_deletepolicy') {
     output($deletebox);
 }
 elseif($core->input['action'] == 'perform_deletepolicy') {
-    $areotodel = new AroManageApprovalChainPolicies($core->input['todelelete']);
+    $core->input['todelelete'] = explode('_', $core->input['todelelete']);
+    $areotodel = new AroManageApprovalChainPolicies($core->input['todelelete'][0]);
     if(is_object($areotodel)) {
-        $areotodel->delete();
+        if($areotodel->delete()) {
+            output_xml('<status>true</status><message>'.$lang->successfullydeleted.'</message>');
+        }
     }
 }

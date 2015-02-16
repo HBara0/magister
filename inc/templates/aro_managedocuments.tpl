@@ -50,7 +50,9 @@
                     {$aro_managedocuments_orderident}
                     {$aro_ordercustomers}
 
+                    <input type="submit" class="button" id="perform_aro/managearodouments_Button" value="{$lang->save}"/>
                 </form>
+                <div id="perform_aro/managearodouments_Results"></div>
             </div>
 
         </td>
