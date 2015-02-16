@@ -20,9 +20,9 @@ class AroOrderIdentification extends AbstractClass {
     const PRIMARY_KEY = 'aoiid';
     const TABLE_NAME = 'aro_order_indentification';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'aoiid,affid,orderType';
+    const SIMPLEQ_ATTRS = 'aoiid,affid,orderType,orderReference';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'affid,orderType';
+    const UNIQUE_ATTRS = 'affid,orderType,orderReference';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
