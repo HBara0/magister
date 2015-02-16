@@ -42,7 +42,7 @@ if(!($core->input['action'])) {
     $affiliate_list = parse_selectlist('documentsequence[affid]', 1, $affiliate, $documentsequence[affid]);
     $purchasetypes = PurchaseTypes::get_data('name IS NOT NULL', array('returnarray' => true));
 
-    $purchasetypelist = parse_selectlist('documentsequence[purchaseType]', 4, $purchasetypes, $documentsequence[ptid]);
+    $purchasetypelist = parse_selectlist('documentsequence[ptid]', 4, $purchasetypes, $documentsequence[ptid]);
 
     eval("\$aro_managedocumentsequence = \"".$template->get('aro_managedocumentsequence')."\";");
     output_page($aro_managedocumentsequence);
