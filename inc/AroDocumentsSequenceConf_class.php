@@ -84,4 +84,31 @@ class AroDocumentsSequenceConf extends AbstractClass {
         }
     }
 
+    public function get_intersecting_sequenceconf($confdata = array()) {
+        if(empty($confdata)) {
+            $confdata = $this->data;
+        }
+        if(!$this->validate_requiredfields($confdata)) {
+            $where = "affid=".$confdata['affid']." AND ptid=".$confdata['ptid']." AND ((effectiveFrom BETWEEN ".$confdata['effectiveFrom']." AND ".$confdata['effectiveTo']." ) OR (effectiveTo BETWEEN ".$confdata['effectiveFrom']." AND ".$confdata['effectiveTo'].")"
+                    ."OR (effectiveFrom < ".$confdata['effectiveFrom']." AND effectiveTo > ".$confdata['effectiveTo']."))";
+            $docsequenceconf = self::get_data($where);
+            if($docsequenceconf->adsid == $confdata['adsid']) {
+                return;
+            }
+            return $docsequenceconf;
+        }
+    }
+
+    private function validate_requiredfields(array $data = array()) {
+        if(is_array($data)) {
+            $required_fields = array('affid', 'ptid', 'effectiveFrom', 'effectiveTo'); // add required fields
+            foreach($required_fields as $field) {
+                if(empty($data[$field])) {
+                    $this->errorcode = 2;
+                    return true;
+                }
+            }
+        }
+    }
+
 }

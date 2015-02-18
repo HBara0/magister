@@ -1,4 +1,4 @@
-<div id="popup_deletewarehouse" title="{$lang->confirmdeletearopolicy}">
+<div id="popup_deletearopolicy" title="{$lang->confirmdeletearopolicy}">
     <form id="perform_aro/listpolicies_Form" name="perform_aro/listpolicies_Form" action="#" method="post">
         <input type="hidden" name="action" value="perform_deletearopolicy" />
         <input type="hidden" id="todelete" name="todelete" value="{$core->input[id]}" />

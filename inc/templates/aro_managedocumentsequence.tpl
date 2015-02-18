@@ -29,6 +29,9 @@
                     <tr><td>{$lang->affiliate} </td>
                         <td> {$affiliate_list}</td>
                     </tr>
+                    <tr><td>{$lang->purchasetype}  </td>
+                        <td>{$purchasetypelist} </td>
+                    </tr>
                     <tr ><td>{$lang->effromdate} </td>
                         <td> <input type="text" id="pickDate_from"  autocomplete="off" tabindex="2" value="{$documentsequence[effectiveFrom_output]}" required="required" /> </td>               </td>
 
@@ -51,9 +54,6 @@
                     </tr>
                     <tr><td>{$lang->suffix}  </td>
                         <td> <input type="text"    autocomplete="off" tabindex="2"  name="documentsequence[suffix]" value="{$documentsequence[suffix]}" />  </td>
-                    </tr>
-                    <tr><td>{$lang->purchasetype}  </td>
-                        <td>{$purchasetypelist} </td>
                     </tr>
                     <tr>
                 </table>
