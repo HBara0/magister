@@ -48,8 +48,8 @@ if(!($core->input['action'])) {
     output_page($aro_managedocumentsequence);
 }
 elseif($core->input['action'] == 'do_perform_arodocumentsequeneconf') {
-    $core->input['documentsequence']['effectiveFrom'] = strtotime($core->input['documentsequence']['effectiveFrom']);
-    $core->input['documentsequence']['effectiveTo'] = strtotime($core->input['documentsequence']['effectiveTo']);
+    $core->input['documentsequence']['effectiveFrom'] = strtotime("midnight", strtotime($core->input['documentsequence']['effectiveFrom']));
+    $core->input['documentsequence']['effectiveTo'] = strtotime("tomorrow midnight - 1 second", strtotime($core->input['documentsequence']['effectiveTo']));
     if($core->input['documentsequence']['effectiveFrom'] > $core->input['documentsequence']['effectiveTo']) {
         output_xml('<status>false</status><message>'.$lang->errordate.'</message>');
         exit;

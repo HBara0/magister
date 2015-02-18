@@ -84,4 +84,8 @@ class AroDocumentsSequenceConf extends AbstractClass {
         }
     }
 
+    public function get_nextaro_identification() {
+        return $this->data['nextNumber'] + $this->data['incrementBy'];
+    }
+
 }

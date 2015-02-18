@@ -1,8 +1,7 @@
-<a class="header " href="#"><h2>Order Identification content</h2></a>
+<a class="header" href="#"><h2>Order Identification</h2></a>
 <div>
     <p>
     <table width="100%">
-        <thead><th> order identification</th></thead>
         <tbody>
             <tr>
                 <td>Affiliate</td>
