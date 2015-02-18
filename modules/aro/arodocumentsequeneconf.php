@@ -15,7 +15,7 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if($core->usergroup['aro_canManagePolicies'] == 0) {
-    //error($lang->sectionnopermission);
+    error($lang->sectionnopermission);
 }
 
 if(!($core->input['action'])) {
@@ -42,7 +42,7 @@ if(!($core->input['action'])) {
     $affiliate_list = parse_selectlist('documentsequence[affid]', 1, $affiliate, $documentsequence[affid]);
     $purchasetypes = PurchaseTypes::get_data('name IS NOT NULL', array('returnarray' => true));
 
-    $purchasetypelist = parse_selectlist('documentsequence[purchaseType]', 4, $purchasetypes, $documentsequence[ptid]);
+    $purchasetypelist = parse_selectlist('documentsequence[ptid]', 4, $purchasetypes, $documentsequence[ptid]);
 
     eval("\$aro_managedocumentsequence = \"".$template->get('aro_managedocumentsequence')."\";");
     output_page($aro_managedocumentsequence);
@@ -54,9 +54,12 @@ elseif($core->input['action'] == 'do_perform_arodocumentsequeneconf') {
         output_xml('<status>false</status><message>'.$lang->errordate.'</message>');
         exit;
     }
-
     $arodoumentobj = new AroDocumentsSequenceConf();
     $arodoumentobj->set($core->input['documentsequence']);
+    if(is_object($arodoumentobj->get_intersecting_sequenceconf())) {
+        output_xml('<status>false</status><message>'.$lang->intersecterror.'</message>');
+        exit;
+    }
     $arodoumentobj->save();
     switch($arodoumentobj->get_errorcode()) {
         case 0:

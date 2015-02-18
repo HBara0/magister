@@ -56,13 +56,16 @@ if(!$core->input['action']) {
     if(is_array($approvers_objs)) {
         foreach($approvers_objs as $approver) {
             if($approver->is_apporved()) {
+                if(empty($approved)) {
+                    $seperator = '';
+                }
                 $approved .= $seperator.$approver->get_user()->get_displayname();
                 $seperator = ', ';
             }
             else {
                 $toapprove .= $seperator.$approver->get_user()->get_displayname();
-                $seperator = ', ';
             }
+            $seperator = ', ';
         }
     }
 

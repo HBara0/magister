@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->listasset}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->warehousespolicieslist}</title>
         {$headerinc}
     </head>
     <body>
@@ -11,11 +11,11 @@
                 <table class="datatable">
                     <thead>
                         <tr>
-                            <th style="width:15%">{$lang->warehouse} <a href="{$sort_url}&amp;sortby=warehouse&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=warehouse&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
-                            <th style="width:25%">{$lang->effromdate} <a href="{$sort_url}&amp;sortby=effectiveFrom&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=effectiveFrom&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
-                            <th style="width:15%;">{$lang->eftodate}<a href="{$sort_url}&amp;sortby=effectiveTo&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=effectiveTo&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th style="width:33%">{$lang->warehouse} <a href="{$sort_url}&amp;sortby=warehouse&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=warehouse&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th style="width:30%">{$lang->effromdate} <a href="{$sort_url}&amp;sortby=effectiveFrom&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=effectiveFrom&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th style="width:30%;">{$lang->eftodate}<a href="{$sort_url}&amp;sortby=effectiveTo&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=effectiveTo&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
                                     {$tools}
-                            <th>&nbsp;</th>
+
                         </tr>
                         {$filters_row}
                     </thead>

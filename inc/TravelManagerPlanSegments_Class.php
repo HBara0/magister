@@ -408,12 +408,15 @@ class TravelManagerPlanSegments extends AbstractClass {
                 }
                 $tocurr = new Currencies(840);
                 $fare = $transportation->get_convertedamount($tocurr);
+                $fromcurr = new Currencies($transportation->currency);
                 if($transportation->fare != 0 && $fare == 0) {
-                    $fromcurr = new Currencies($transportation->currency);
                     $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
                     $fare = $transportation->get_convertedamount($fromcurr);
                 }
                 $fare = $numfmt->formatCurrency(($fare), "USD");
+                if($fromcurr != $tocurr) {
+                    $fare .='<br/><small>'.$numfmt->formatCurrency($transportation->fare, $fromcurr->alphaCode).'</small>';
+                }
                 eval("\$segment_transpdetails .= \"".$template->get('travelmanager_viewplan_transpsegments')."\";");
                 $flight_details = '';
             }
@@ -428,14 +431,17 @@ class TravelManagerPlanSegments extends AbstractClass {
                 }
                 $tocurr = new Currencies(840);
                 $pricenight = $accomdation->get_convertedamount($tocurr);
+                $fromcurr = new Currencies($accomdation->currency);
                 if($accomdation->priceNight != 0 && $pricenight == 0) {
-                    $fromcurr = new Currencies($accomdation->currency);
                     $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
                     $pricenight = $accomdation->get_convertedamount($fromcurr);
                 }
-                $segment_hotel .= '<div style = " width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin-bottom:10px;display:block;"><em>'.$accomdation->numNights.' '.$lang->night.' x $'.$pricenight.' </em></span></div>'; // fix the html parse multiple hotl
+                if($fromcurr != $tocurr) {
+                    $priceinbasecurr .='<br/><small>'.$numfmt->formatCurrency($accomdation->numNights * $accomdation->priceNight, $fromcurr->alphaCode).'</small>';
+                }
+                $segment_hotel .= '<div style = "width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin-bottom:10px;display:block;"><em>'.$accomdation->numNights.' '.$lang->night.' x $'.$pricenight.' </em></span></div>'; // fix the html parse multiple hotl
 //    $segment_hotel .= '<div style = " width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
-                $segment_hotel .= '<div style = " width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;"><span>  '.$numfmt->formatCurrency(($accomdation->numNights * $pricenight), "USD").'</span> <br/> <small style="font-weight:normal;">[paid by: '.$paidby.' ]</small></div>'; // fix the html parse multiple hotl
+                $segment_hotel .= '<div style = "width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;vertical-align:top;"><span>  '.$numfmt->formatCurrency(($accomdation->numNights * $pricenight), "USD").$priceinbasecurr.'</span> <br/> <small style="font-weight:normal;">[paid by: '.$paidby.' ]</small></div>'; // fix the html parse multiple hotl
 //   $segment_hotelprice .='<div style = " width:45%; display: block;"> Nights '.$accomdation->numNights.' at $ '.$accomdation->priceNight.'/Night</div>';
             }
         }
@@ -454,13 +460,16 @@ class TravelManagerPlanSegments extends AbstractClass {
 
                 $tocurr = new Currencies(840);
                 $expectedAmt = $additionalexp->get_convertedamount($tocurr);
+                $fromcurr = new Currencies($additionalexp->currency);
                 if($additionalexp->expectedAmt != 0 && $expectedAmt == 0) {
-                    $fromcurr = new Currencies($additionalexp->currency);
                     $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
                     $expectedAmt = $additionalexp->get_convertedamount($fromcurr);
                 }
+                if($tocurr != $fromcurr) {
+                    $expectedAmtinbasecurr = '<br/><small>'.$numfmt->formatCurrency($additionalexp->expectedAmt, $fromcurr->alphaCode).'</small>';
+                }
                 $additional_expenses_details .= '<div style = "width:70%;display:inline-block;">'.$additionalexp_type->title.'</div>';
-                $additional_expenses_details .= '<div style = "width:25%;display:inline-block;font-size:14px;font-weight:bold;text-align:right;">'.$numfmt->formatCurrency($expectedAmt, "USD").'<br/><small style="font-weight:normal;">[paid by: '.$paidby.' ] </small> </div>';
+                $additional_expenses_details .= '<div style = "width:25%;display:inline-block;font-size:14px;font-weight:bold;text-align:right;vertical-align:top;">'.$numfmt->formatCurrency($expectedAmt, "USD").$expectedAmtinbasecurr.'<br/><small style="font-weight:normal;">[paid by: '.$paidby.' ] </small> </div>';
                 $additional_expenses_details .= '</div>';
             }
         }
@@ -491,11 +500,12 @@ class TravelManagerPlanSegments extends AbstractClass {
         $fxrate_query['accomodation'] = "(CASE WHEN tmpa.currency =840 THEN 1 ELSE (SELECT rate FROM currencies_fxrates WHERE baseCurrency=tmpa.currency AND currency=840
 				ORDER BY date DESC LIMIT 0, 1) END)";
         $expenses['accomodation'] = $db->fetch_field($db->query("SELECT SUM(priceNight*{$fxrate_query['accomodation']}*numNights) AS total FROM ".Tprefix."travelmanager_plan_accomodations tmpa WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid=".intval($this->tmpid).")"), 'total');
+        $expenses['accomodation'] = round($expenses['accomodation'], 2);
         if(empty($expenses['accomodation'])) {
             $expenses['accomodation'] = 0;
         }
         $expenses_total += $expenses['accomodation'];
-        $expenses_subtotal = $numfmt->formatCurrency($expenses_total, "USD");
+        // $expenses_subtotal = $numfmt->formatCurrency($expenses_total, "USD");
 
         $fxrate_query['expenses'] = "(CASE WHEN tme.currency =840 THEN 1 ELSE (SELECT rate FROM currencies_fxrates WHERE baseCurrency=tme.currency AND currency=840
 				ORDER BY date DESC LIMIT 0, 1)END)";
@@ -506,7 +516,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $additionalexp_type = new TravelManager_Expenses_Types($additionalexp['tmetid']);
                 $additional_expenses_details .= '<div style = "display:block;padding:5px 0px 5px 0px;">';
                 $additional_expenses_details .= '<div style = "width:85%;display:inline-block;">'.$additionalexp_type->title.'</div>';
-                $additional_expenses_details .= '<div style = "width:10%;display:inline-block;text-align:right;">'.$numfmt->formatCurrency($additionalexp['expectedAmt'], "USD").'</div>';
+                $additional_expenses_details .= '<div style = "width:10%;display:inline-block;text-align:right;">'.$numfmt->formatCurrency(round($additionalexp['expectedAmt'], 2), "USD").'</div>';
                 $additional_expenses_details .= '</div>';
                 $expenses['additional'] += $additionalexp['expectedAmt'];
             }

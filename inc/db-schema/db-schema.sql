@@ -169,6 +169,90 @@ CREATE TABLE `aro_requests` (
   `modifiedBy` int(10) NOT NULL,
   PRIMARY KEY (`arid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `aro_requests_approvals` (
+  `araid` int(10) NOT NULL AUTO_INCREMENT,
+  `arid` int(10) NOT NULL,
+  `uid` int(10) NOT NULL,
+  `isApproved` tinyint(1) NOT NULL,
+  `timeApproved` bigint(30) NOT NULL,
+  `sequence` tinyint(1) NOT NULL,
+  PRIMARY KEY (`araid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `aro_requests_curstksupervision`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `aro_requests_curstksupervision` (
+  `arcssid` int(10) NOT NULL AUTO_INCREMENT,
+  `pid` int(10) NOT NULL,
+  `quantity` float NOT NULL,
+  `stockValue` float NOT NULL,
+  `stockEntryDate` bigint(30) NOT NULL,
+  `expiryDate` bigint(30) NOT NULL,
+  `estDateOfSale` bigint(30) NOT NULL,
+  PRIMARY KEY (`arcssid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `aro_requests_fundsengaged`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `aro_requests_fundsengaged` (
+  `arfeid` int(10) NOT NULL AUTO_INCREMENT,
+  `orderShpInvOverdue` double NOT NULL,
+  `orderShpInvNotDue` double NOT NULL,
+  `ordersAppAwaitingShp` double NOT NULL,
+  `odersWaitingApproval` double NOT NULL,
+  PRIMARY KEY (`arfeid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `aro_requests_lines`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `aro_requests_lines` (
+  `arlid` int(10) NOT NULL AUTO_INCREMENT,
+  `quantity` float NOT NULL,
+  `daysInStock` int(11) NOT NULL,
+  `qtyPotentiallySold` float NOT NULL,
+  `qtyPotentiallySoldPerc` float NOT NULL,
+  `intialPrice` float NOT NULL,
+  `affBuyingPrice` float NOT NULL,
+  `totalBuyingValue` float NOT NULL,
+  `costPrice` float NOT NULL,
+  `costPriceMaj` float NOT NULL,
+  `sellingPrice` float NOT NULL,
+  `grossMarginMin` float NOT NULL,
+  `netMarginAff` float NOT NULL,
+  `netMarginIntermed` float NOT NULL,
+  `netMargin` float NOT NULL,
+  PRIMARY KEY (`arlid`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `aro_requests_linessupervision`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `aro_requests_linessupervision` (
+  `arlsid` int(11) NOT NULL,
+  `totalValue` int(11) NOT NULL,
+  `estTimeOfArrival` bigint(30) NOT NULL,
+  `shelfLife` float NOT NULL,
+  `estDateOfSale` bigint(30) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `aro_requests_messages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `aro_requests_messages` (
+  `armid` int(10) NOT NULL AUTO_INCREMENT,
+  `arid` int(10) NOT NULL,
+  `uid` int(10) NOT NULL,
+  `msgId` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `inReplyTo` int(10) NOT NULL,
+  `inReplyToMsgId` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `message` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `viewPermission` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`armid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_wareshouses_policies`;
   `awpid` int(10) NOT NULL AUTO_INCREMENT,

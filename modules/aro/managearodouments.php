@@ -48,9 +48,10 @@ if(!($core->input['action'])) {
 }
 else {
     if($core->input['action'] == 'getexchangerate') {
-        $currencyobj = new Currencies($core->input['currency']);
-        $rateusd = $currencyobj->get_latest_fxrate($currencyobj->get()['alphaCode'], null, 'USD');
-        $exchangerate = array('exchangeRateToUSD' => $rateusd);
+        $currencyobj = new Currencies('USD');
+        $tocurrency = new Currencies($core->input['currency']);
+        $rateusd = $currencyobj->get_latest_fxrate($tocurrency->alphaCode, null);
+        $exchangerate = array('exchangeRateToUSD' => 1 / $rateusd);
 
         echo json_encode($exchangerate);
     }

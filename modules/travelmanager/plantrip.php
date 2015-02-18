@@ -98,7 +98,7 @@ if(!$core->input['action']) {
             $rowid = 1;
             $expensestype[$sequence][$rowid]['display'] = "display:none;";
             $expensestype_obj = new Travelmanager_Expenses_Types();
-            $segments_expenses_output = $expensestype_obj->parse_expensesfield('', $sequence, $rowid, $expensestype);
+            $segments_expenses_output = $expensestype_obj->parse_expensesfield('', $sequence, $rowid, $expensestype, array('destcity' => $descity_obj));
 
             /* parse expenses --END */
 
@@ -237,7 +237,7 @@ else {
         /* parse expenses - START */
         $rowid = 1;
         $expensestype_obj = new Travelmanager_Expenses_Types();
-        $segments_expenses_output = $expensestype_obj->parse_expensesfield('', $sequence, $rowid);
+        $segments_expenses_output = $expensestype_obj->parse_expensesfield('', $sequence, $rowid, '', array('destcity' => $descity_obj));
         /* parse expenses - END */
 
         /* Get unaprroved hotel of the destcity  for the purpose to acquire the tmhid */
@@ -367,13 +367,13 @@ else {
     }
     elseif($core->input ['action'] == 'ajaxaddmore_expenses') {
         //  $expensestype_obj = Travelmanager_Expenses_Types::get_data('', array('returnarray' => false));
-
         $expensestypeobj = new Travelmanager_Expenses_Types();
         $rowid = $db->escape_string($core->input ['value']) + 1;
+        $destcity = new Cities($core->input['ajaxaddmoredata']['destcity']);
         //   $segexpenses_ojbs = Travelmanager_Expenses::get_data(array('tmetid' => key($expensestype_obj)), array('returnarray' => true));
         $sequence = $db->escape_string($core->input['id']);
 
-        $expenses = $expensestypeobj->parse_expensesfield($expensestype_obj, $sequence, $rowid, '', array('mode' => 'addrows'));
+        $expenses = $expensestypeobj->parse_expensesfield($expensestype_obj, $sequence, $rowid, '', array('mode' => 'addrows', 'destcity' => $destcity));
         //eval("\$expenses = \"".$template->get('travelmanager_expenses_types')."\";");
         echo $expenses;
     }

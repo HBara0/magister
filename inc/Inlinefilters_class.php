@@ -46,7 +46,7 @@ class Inlinefilters {
       )
       )
       );
-     * 
+     *
       EXAMPLE:
       $config = array(
       'parse' => array('filters' => array('fullName', 'displayName', 'mainAffid', 'position', 'reportsTo'),
@@ -106,6 +106,14 @@ class Inlinefilters {
                             $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', '', 0, $affiliate_where);
                             $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $affiliates, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
                             break;
+                        case 'ciid':
+                            $city = new Cities($core->input['filters'][$filter]);
+                            $filters[$filter] = '<input type="text" autocomplete="off" tabindex="1"  id="cities_cache_autocomplete" value="'.$city->get_displayname().'"/><input type="hidden" id="cities_cache_id" name="filters['.$filter.']"/>';
+                            break;
+                        case 'coid':
+                            $countries = Countries::get_data('');
+                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $countries, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
+                            break;
                         case 'posid':
                         case 'position':
                             $lang->load('positions');
@@ -141,6 +149,8 @@ class Inlinefilters {
                         case 'fromDate':
                         case 'toDate':
                         case 'date':
+                        case 'effectiveFrom':
+                        case 'effectiveTo':
                             $filters[$filter] = '<input type="text" id="pickDate_'.$filter.'" autocomplete="off" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter].'" /><input type="hidden" name="filters['.$filter.']" id="altpickDate_'.$filter.'" value="'.$core->input['filters'][$filter].'" />';
                             break;
                         default:
@@ -365,7 +375,7 @@ class Inlinefilters {
 
         $query_filter_statement = '';
         foreach($filters as $filteritem => $attr) {
-            if(isset($core->input['filters'][$filteritem]) && !empty($core->input['filters'][$filteritem])) {
+            if(isset($core->input['filters'][$filteritem]) && (!empty($core->input['filters'][$filteritem]) || ($core->input['filters'][$filteritem] == '0'))) {
                 $query_filter_statement .= $query_operator.$this->parse_whereentry($attr, $filteritem);
                 if($this->matching_rule == 'all') {
                     $query_operator = ' AND ';

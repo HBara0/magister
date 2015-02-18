@@ -28,7 +28,7 @@ if($core->input['authCode'] == AUTHCODE) {
             '0B366EFAE0524FDAA97A1322A57373BB' => 'invoice', //Orkila East Africa
             'DA0CE0FED12C4424AA9B51D492AE96D2' => 'invoice', //Orkila Nigeria
             'F2347759780B43B1A743BEE40BA213AD' => 'invoice', //Orkila Ghana
-            'BD9DC2F7883B4E11A90B02A9A47991DC' => 'order', //Orkila Lebanon
+            'BD9DC2F7883B4E11A90B02A9A47991DC' => 'invoice', //Orkila Lebanon
             '933EC892369245E485E922731D46FCB1' => 'invoice', //Orkila Senegal
             '51FB1280AB104EFCBBB982D50B3B7693' => 'invoice', //Orkila CI
             '7AD08388D369403A9DF4B8240E3AD7FF' => 'invoice' //Orkila International

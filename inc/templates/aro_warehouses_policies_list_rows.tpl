@@ -1,8 +1,8 @@
 <Tr class="trowtools">
-    <td>{$aro->warehouse}</td>
-    <td>{$aro->effectiveFrom}</td>
-    <td>{$aro->effectiveTo}</td>
-    <td id="edit_{$aro->awpid}_tools">
+    <td width="33%">{$aro->warehouse}</td>
+    <td width="30%">{$aro->effectiveFrom}</td>
+    <td width="30%">{$aro->effectiveTo}</td>
+    <td id="edit_{$aro->awpid}_tools"  width="7%">
         <div style="display: none;">
             {$row_tools}
         </div>
