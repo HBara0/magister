@@ -84,7 +84,8 @@ class AroDocumentsSequenceConf extends AbstractClass {
         }
     }
 
-    public function get_intersecting_sequenceconf($confdata = array()) {
+
+public function get_intersecting_sequenceconf($confdata = array()) {
         if(empty($confdata)) {
             $confdata = $this->data;
         }
@@ -110,5 +111,13 @@ class AroDocumentsSequenceConf extends AbstractClass {
             }
         }
     }
+
+
+         public function get_nextaro_identification() {
+        return $this->data['nextNumber'] + $this->data['incrementBy'];
+    }
+
+ 
+   
 
 }

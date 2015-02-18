@@ -31,14 +31,35 @@
                 $("#currencies").live('change', function() {
                     sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=getexchangerate&currency=' + $(this).val());
                 });
-                //   $("input[id$='_qtyPotentiallySold'],input[id$='_quantity']").live('change', function() {
+                $("select[id^='paymentermdays_']").live('change', function() {
+                    var id = $(this).attr('id').split('_');
+                    var avgesdateofsale = '11-02-2015';
+                    var parentContainer = $(this).closest('div');
+                    var paymentdays = [];
+                    parentContainer.children('table').find('tr').each(function() {
+                        /*check if the customer is selected */
+                        if($(this).find("input[id^='customer_']").val() != '') {
+                            $(this).find('select').each(function() {
+                                if($(this).val() != '') {
+                                    paymentdays.push($(this).val());
+                                }
+                            });
+                        }
+                    });
 
-                $("input[id$='_qtyPotentiallySoldPerc']").live('change', function() {
+                    alert(paymentdays);
+                    var purchasetype = $("input[id^='cpurchasetype']").val();
+
+                    sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=getestimatedate&avgesdateofsale= ' + avgesdateofsale + '&paymentermdays[]= ' + paymentdays + '&ptid= ' + purchasetype);
+                 });
+                    
+                 $("input[id$='_qtyPotentiallySoldPerc']").live('change', function() {
                     var id = $(this).attr('id').split("_");
                     var fields = '';
                     fields = '&' + id[2] + '=' + $("input[id='productline_" + id[1] + "_" + id[2] + "']").val();
                     var quantity = $("input[id='productline_" + id[1] + "_quantity']").val();
                     sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + fields + '&quantity=' + quantity);
+             
                 });
 
 

@@ -30,9 +30,8 @@ if(!($core->input['action'])) {
 
     $purchasetypelist = parse_selectlist('orderid[orderType]', 4, $purchasetypes, $orderid['ptid'], '', '', array('blankstart' => true, 'id' => "purchasetype"));
 
-    $mainaffobj = new Affiliates($core->user['mainaffiliate']);
-
-    $currencies = Currencies::get_data();
+    // $mainaffobj = new Affiliates($core->user['mainaffiliate']);
+    //$currencies = Currencies::get_data();
     $checksum = generate_checksum('odercustomer');
     $rowid = 1;
     $currencies_list = parse_selectlist('orderid[currency]', 4, $currencies, '', '', '', array('blankstart' => 1, 'id' => "currencies"));
@@ -101,9 +100,10 @@ if(!($core->input['action'])) {
 }
 else {
     if($core->input['action'] == 'getexchangerate') {
-        $currencyobj = new Currencies($core->input['currency']);
-        $rateusd = $currencyobj->get_latest_fxrate($currencyobj->get()['alphaCode'], null, 'USD');
-        $exchangerate = array('exchangeRateToUSD' => $rateusd);
+        $currencyobj = new Currencies('USD');
+        $tocurrency = new Currencies($core->input['currency']);
+        $rateusd = $currencyobj->get_latest_fxrate($tocurrency->alphaCode, null);
+        $exchangerate = array('exchangeRateToUSD' => 1 / $rateusd);
 
         echo json_encode($exchangerate);
     }
@@ -134,11 +134,10 @@ else {
             $orderident_obj = new AroOrderRequest ();
             /* get arodocument of the affid and pruchase type */
             $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $core->input['orderid']['affid'], 'ptid' => $core->input['orderid']['orderType']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
-            // $nextsequence_number = $documentseq_obj->get_nextaro_identification();
-            //  print_R($nextsequence_number);
-            //  exit;
+            $nextsequence_number = $documentseq_obj->get_nextaro_identification();
+            $core->input['orderid']['nextnumid']['nextnum'] = $nextsequence_number;
 
-            $orderident_obj->set($core->input);
+            $orderident_obj->set($core->input['orderid']);
             $orderident_obj->save();
         }
 
@@ -157,35 +156,44 @@ else {
             $ordercust_obj->save();
         }
     }
+
     if($core->input['action'] == 'getestimatedate') {
+        if(is_array($core->input[paymentermdays])) {
+            $paymentermdays = explode(',', $core->input[paymentermdays][0]);
+        }
+
         $purchasetype = new PurchaseTypes($core->input['ptid']);
         if($purchasetype->isPurchasedByEndUser != 0) {
             echo json_encode('error');
             exit;
         }
-
-//        $datarray[] = Array(timeAdded => $core->input['avgesdateofsale'],
-//                timeRead => $core->input['patmertermdays']
-//        );
-        // averge of paymnetterdays and them to the  timestamp avgesdateofsale
-        $paymentermobj = new PaymentTerms($core->input['paymentermdays']);
-        $intervalspayment_terms[] = $paymentermobj->overduePaymentDays; //get days
-
+        if(is_array($paymentermdays)) {
+            foreach($paymentermdays as $paymenterm) {
+                $paymentermobjs = new PaymentTerms($paymenterm, false);
+                $intervalspayment_terms[] = $paymentermobjs->overduePaymentDays; //get days
+                $intervalspayment_terms = array_unique($intervalspayment_terms);
+                if(!empty($intervalspayment_terms)) {
+                    $countintervalspayment_terms = count($intervalspayment_terms);
+                    $sumintervalspayment_terms = array_sum($intervalspayment_terms);
+                    $avgpaymentterms = ($sumintervalspayment_terms / $countintervalspayment_terms);
+                }
+            }
+        }
         $avgesdateofsale = strtotime($core->input['avgesdateofsale']);  // arraysum later
-        ///   $avgpaymentterms = array_sum($intervalspayment_terms / count($intervalspayment_terms[0]));
-        $est_averagedate = $avgpaymentterms + $avgesdateofsale;
-        //    $averagedate = array('avgeliduedate' => $est_averagedate);
-        echo json_encode(array('avgeliduedate' => $est_averagedate)); //return json to the ajax request to populate in the form
-    }
-    if($core->input['action'] == 'ajaxaddmore_productline') {
+        /* convert the average days of the paymentterms to days in order to sum them with the average date of sale */
+        $est_averagedate = $avgpaymentterms * (86400) + $avgesdateofsale;
+        $conv = date($core->settings['dateformat'], ($est_averagedate));
+        echo json_encode(array('avgeliduedate' => $conv)); //return json to the ajax request to populate in the form
+        }
+        
+         if($core->input['action'] == 'ajaxaddmore_productline') {
         $plrowid = intval($core->input['value']) + 1;
         $display = 'none';
         $productlines_data = $core->input['ajaxaddmoredata'];
         $productline['inputChecksum'] = generate_checksum('pl');
         $segments = ProductsSegments::get_segments('');
         $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
-        $packaging = Packaging::get_data('name IS NOT NULL');
-        $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."packing", 'blankstart' => 1));
+       $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."packing", 'blankstart' => 1));
         $uom = Uom::get_data('name IS NOT NULL');
         $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, '', '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1));
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");

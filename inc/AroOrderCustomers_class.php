@@ -42,12 +42,19 @@ class AroOrderCustomers extends AbstractClass {
                 return false;
             }
         }
+
+        if(isset($data['altcid']) && !empty($data['altcid'])) {
+            $data['altcid'] = $data['altcid'];
+            $data['cid'] = 0;
+        }
+
+
         $data['paymentTermBaseDate'] = strtotime($data['paymentTermBaseDate']);
         $policies_array = array('cid' => $data['cid'],
                 'ptid' => $data['ptid'],
+                'altCid' => $data['altcid'],
                 'paymentTermDesc' => $data['paymentTermDesc'],
                 'paymentTermBaseDate' => $data['paymentTermBaseDate'],
-                'ReferenceNumber' => $data['ReferenceNumber'],
                 'createdBy' => $core->user['uid'],
                 'createdOn' => TIME_NOW,
         );
@@ -56,6 +63,20 @@ class AroOrderCustomers extends AbstractClass {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             $this->errorcode = 0;
+        }
+    }
+
+    public static function get_average($arraydates) {
+
+        foreach($arraydates as $key) {
+
+            $newTimeAdd = new DateTime($key["timeAdded"]);
+            $newTimeRead = new DateTime($key["timeRead"]);
+            $interval = $newTimeAdd->diff($newTimeRead);
+            $intervals[] = $interval->days; //get days
+        }
+        if(!empty($intervals)) {
+            return array_sum($intervals / count($intervals));
         }
     }
 
