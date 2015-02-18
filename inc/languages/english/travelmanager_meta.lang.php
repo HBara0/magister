@@ -92,4 +92,8 @@ $lang['vehiclenumber'] = 'Vehicle Number';
 $lang['paidby'] = 'Paid By';
 $lang['seatingdescription'] = 'Transportation Seating Description';
 $lang['considerleisuretourism'] = 'Consider leisure/tourism';
+$lang['otherapprovedhotels'] = 'Other Approved Hotels';
+$lang['hotelname'] = 'Hotel';
+$lang['avgprice'] = 'Avg. Price';
+$lang['iscontracted'] = 'Is Contracted';
 ?>
