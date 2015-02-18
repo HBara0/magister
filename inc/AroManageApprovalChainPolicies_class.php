@@ -45,6 +45,10 @@ class AroManageApprovalChainPolicies extends AbstractClass {
                     // continue;
                 }
                 if(is_array($approverfield)) {
+                    if($approverfield['approver'] == 'user' && is_empty($approverfield['uid'])) {
+                        $this->errorcode = 2;
+                        return false;
+                    }
                     $policies_array['approvalChain'] = @serialize($approverfield);
                 }
             }
@@ -75,6 +79,10 @@ class AroManageApprovalChainPolicies extends AbstractClass {
                         // continue;
                     }
                     if(is_array($approverfield)) {
+                        if($approverfield['approver'] == 'user' && is_empty($approverfield['uid'])) {
+                            $this->errorcode = 2;
+                            return false;
+                        }
                         $policies_array['approvalChain'] = @serialize($approverfield);
                     }
                 }
