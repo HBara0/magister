@@ -4,23 +4,23 @@
     <table width="100%">
         <thead>
             <tr style="vertical-align: top;">
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->product}</td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->packaging}</td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->quantity}</td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->daysinstock}</td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->qtypotentiallysold}</td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->qtypotentiallysold}(%)</td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->intialprice}</td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->affbuyingprice}<a href="#" title="{$lang->affbuyingpricetooltip}"><img src="./images/icons/question.gif"/></a></td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->totalbuyingvalue}<a href="#" title="{$lang->totalbuyingvaluetooltip}"><img src="./images/icons/question.gif"/></a></td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->costprice}</td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->costpriceatriskratio}</td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->sellingprice}</td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->sellingpriceatriskratio}</td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->netmarginaff}</td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->netmarginintermed}</td>
-                <td width="" class="border_right" rowspan="2" valign="top" align="center">{$lang->netmarginperc}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->product}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->packaging}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->quantity}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->daysinstock}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->qtypotentiallysold}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->qtypotentiallysold}(%)</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->intialprice}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->affbuyingprice}<a href="#" title="{$lang->affbuyingpricetooltip}"><img src="./images/icons/question.gif"/></a></td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->totalbuyingvalue}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->costprice}<a href="#" title="{$lang->costpricetooltip}"><img src="./images/icons/question.gif"/></a></td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->costpriceatriskratio}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->sellingprice}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->sellingpriceatriskratio}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->netmarginaff}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->netmarginintermed}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->netmarginperc}</td>
         </thead>
 
         <tbody id="productline_{$plrowid}_tbody" style="width:100%;">

@@ -210,7 +210,13 @@ DROP TABLE IF EXISTS `aro_requests_lines`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `aro_requests_lines` (
   `arlid` int(10) NOT NULL AUTO_INCREMENT,
+  `inputChecksum` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `aorid` int(10) NOT NULL,
+  `pid` int(10) NOT NULL,
+  `psid` int(10) NOT NULL,
+  `packing` int(10) NOT NULL,
   `quantity` float NOT NULL,
+  `uom` int(10) NOT NULL,
   `daysInStock` int(11) NOT NULL,
   `qtyPotentiallySold` float NOT NULL,
   `qtyPotentiallySoldPerc` float NOT NULL,
@@ -218,14 +224,14 @@ CREATE TABLE `aro_requests_lines` (
   `affBuyingPrice` float NOT NULL,
   `totalBuyingValue` float NOT NULL,
   `costPrice` float NOT NULL,
-  `costPriceMaj` float NOT NULL,
+  `costPriceAtRiskRatio` float NOT NULL,
   `sellingPrice` float NOT NULL,
-  `grossMarginMin` float NOT NULL,
+  `grossMarginAtRiskRatio` float NOT NULL,
   `netMarginAff` float NOT NULL,
   `netMarginIntermed` float NOT NULL,
-  `netMargin` float NOT NULL,
+  `netMarginPerc` float NOT NULL,
   PRIMARY KEY (`arlid`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_requests_linessupervision`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

@@ -59,7 +59,9 @@ $lang['intialprice'] = 'Intial Price (Manuf.)';
 $lang['affbuyingprice'] = 'Affiliate\'s Buying Price';
 $lang['affbuyingpricetooltip'] = 'Includes Intermediary commission and fees paid by intermediary';
 $lang['totalbuyingvalue'] = 'Total Buying Value (Intermediary)';
-$lang['totalbuyingvaluetooltip'] = 'Should include all fees needed for goods to reach final destination (bank fees, clearing, customs, delivery to warehouse …)';
+$lang['costpricetooltip'] = 'Should include all fees needed for goods to reach final destination (bank fees, clearing, customs, delivery to warehouse …)
+<br/><br/>FOR RE-INVOICING AFFILIATE And LSP ORDERS, these should be added on affiliate buying price<br/>
+FOR RE-INVOICINC CUSTOMER, it rather should be added on Manufacturer price --- do not forget to add fees related to logistics if any (shipping, insurance, labeling ...)';
 $lang['costprice'] = 'Cost Price';
 $lang['costpriceatriskratio'] = 'Cost Price maj';
 $lang['sellingprice'] = 'selling Price';
