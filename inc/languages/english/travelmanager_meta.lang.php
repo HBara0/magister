@@ -94,6 +94,6 @@ $lang['seatingdescription'] = 'Transportation Seating Description';
 $lang['considerleisuretourism'] = 'Consider leisure/tourism';
 $lang['otherapprovedhotels'] = 'Other Approved Hotels';
 $lang['hotelname'] = 'Hotel';
-$lang['avgprice'] = 'Avg. Price';
+$lang['avgprice'] = 'Average Price';
 $lang['iscontracted'] = 'Is Contracted';
 ?>

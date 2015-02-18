@@ -90,17 +90,32 @@ elseif($core->input['action'] == 'email') {
             $segment_details .= $segment->parse_segment();
             $segment_expenses = $segment->parse_expensesummary();
         }
-        /* Get and parse all the possibe transportations */
-        $transportaion_fields_title = '<div style="font-size: 24px;color: #91B64F;font-weight: 100;">'.$lang->allpossibleflights.'</div>';
+        /* Get and parse all the possibe Flights */
         foreach($segment_objs as $segmentid => $segment) {
             if(!empty($segment->get()[apiFlightdata])) {
-                $transportaionsegment_fields .='<div style="horizontal-align: middle; font-weight: bold;border-bottom: 1px dashed #666;font-size: 14px;padding:5px; background-color: #92D050 ; ">'.$segment->get_origincity()->name.' - '.$segment->get_destinationcity()->name.'</div>';
+                $transportaionsegment_fields .='<div style="font-size: 24px;color: #91B64F;font-weight: 100;">'.$segment->get_origincity()->name.' - '.$segment->get_destinationcity()->name.'</div>';
+                $transportaionsegment_fields .= '<div style="horizontal-align: middle; font-weight: bold;border-bottom: 1px dashed #666;font-size: 14px;padding:5px; background-color: #92D050 ; ">'.$lang->allpossibleflights.'</div>';
                 $transportaionsegment_fields .= TravelManagerAirlines::parse_bestflight($segment->get()[apiFlightdata], array(), $sequence, 'email');
+            }
+            /* Get and parse all the possibe Approved Hotels */
+            $destcity = new Cities($segment->destinationCity);
+            $approvedhotels = $destcity->get_approvedhotels();
+            if(is_array($approvedhotels)) {
+                foreach($approvedhotels as $hotel) {
+                    $iscontractedicon = '<img src="./images/invalid.gif" />';
+                    if($hotel->isContracted == 1) {
+                        $iscontractedicon = '<img src="./images/valid.gif" />';
+                    }
+                    /* parse ratings */
+                    //  $stars .= '<div class="rateit" id="ratingdiv_'.$hotel->stars.'" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$hotel->stars.'"></div>';
+                    eval("\$otherapprovedhotels .= \"".$template->get('travelmanager_approvedhotel_row')."\";");
+                }
+                eval("\$transportaionsegment_fields .= \"".$template->get('travelmanager_viewplan_approvedhotels')."\";");
             }
         }
         if(!empty($transportaionsegment_fields)) {
-            $transportaion_fields .= $transportaion_fields_title.$transportaionsegment_fields;
-            unset($transportaionsegment_fields, $transportaion_fields_title);
+            $transportaion_fields .= $transportaionsegment_fields;
+            unset($transportaionsegment_fields);
         }
     }
     eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpanemail')."\";");

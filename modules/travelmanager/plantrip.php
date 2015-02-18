@@ -98,7 +98,7 @@ if(!$core->input['action']) {
             $rowid = 1;
             $expensestype[$sequence][$rowid]['display'] = "display:none;";
             $expensestype_obj = new Travelmanager_Expenses_Types();
-            $segments_expenses_output = $expensestype_obj->parse_expensesfield('', $sequence, $rowid, $expensestype, array('destcity' => $destcity_obj));
+            $segments_expenses_output = $expensestype_obj->parse_expensesfield('', $sequence, $rowid, $expensestype, array('destcity' => $descity_obj));
 
             /* parse expenses --END */
 
@@ -237,7 +237,7 @@ else {
         /* parse expenses - START */
         $rowid = 1;
         $expensestype_obj = new Travelmanager_Expenses_Types();
-        $segments_expenses_output = $expensestype_obj->parse_expensesfield('', $sequence, $rowid, '', array('destcity' => $destcity_obj));
+        $segments_expenses_output = $expensestype_obj->parse_expensesfield('', $sequence, $rowid, '', array('destcity' => $descity_obj));
         /* parse expenses - END */
 
         /* Get unaprroved hotel of the destcity  for the purpose to acquire the tmhid */
