@@ -1,10 +1,10 @@
 <a class="header " href="#"><h2>Order Customers content</h2></a>
 <div>
     <p>
-    <table width="100%">
+    <table>
         <thead><th>Order Customers</th></thead>
 
-        <tbody id="newcustomer_{$rowid}_tbody" style="width:100%;">
+        <tbody id="newcustomer_{$rowid}_tbody">
             {$aro_managedocuments_ordercustomers_rows}
         </tbody>
         <tfoot>

@@ -13,7 +13,18 @@ if(!defined("DIRECT_ACCESS")) {
 }
 if(!$core->input['action']) {
     $sort_url = sort_url();
-    $paymentterms = PaymentTerms::get_data('', array('returnarray' => true));
+    if(isset($core->input['sortby']) && !empty($core->input['sortby'])) {
+        $dal_config = array(
+                'order' => array('by' => $core->input['sortby'], 'sort' => $core->input['order']),
+                'returnarray' => true
+        );
+    }
+    else {
+        $dal_config = array(
+                'returnarray' => true
+        );
+    }
+    $paymentterms = PaymentTerms::get_data('', $dal_config);
     if(is_array($paymentterms)) {
         foreach($paymentterms as $paymentterm) {
             $edit_link = "<a href ='#{$paymentterm->ptid}' id ='addpaymentterms_{$paymentterm->ptid}_entities/paymenttermslist_loadpopupbyid'><img src ='../images/icons/edit.gif' border ='0' alt = '".$lang->editpaymentterm."'/></a>";
@@ -38,9 +49,9 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'do_perform_addpaymentterms') {
         unset($core->input['identifier'], $core->input['module'], $core->input['action']);
-        if(isset($core->input['paymentterms']['ptid']) && empty($core->input['paymentterms']['ptid'])) {
-            $exisitingpaymentterm = PaymentTerms::get_data(array('title' => $core->input['paymentterms']['title']), array('returnarray' => true));
-            if(is_array($exisitingpaymentterm)) {
+        $exisitingpaymentterm = PaymentTerms::get_data(array('title' => $core->input['paymentterms']['title']));
+        if(is_object($exisitingpaymentterm)) {
+            if($exisitingpaymentterm->ptid != $core->input['paymentterms']['ptid']) {
                 output_xml('<status>false</status><message>'.$lang->titleerror.'</message>');
                 exit;
             }

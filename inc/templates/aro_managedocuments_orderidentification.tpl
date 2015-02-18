@@ -1,7 +1,7 @@
 <a class="header " href="#"><h2>Order Identification content</h2></a>
 <div>
     <p>
-    <table width="100%">
+    <table>
         <thead><th> order identification</th></thead>
         <tbody>
             <tr>

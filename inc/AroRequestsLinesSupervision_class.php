@@ -8,7 +8,7 @@
  * Last Update:    @rasha.aboushakra    Feb 13, 2015 | 1:32:20 PM
  */
 
-class AroRequestLines extends AbstractClass {
+class AroRequestLinesSupervision extends AbstractClass {
     protected $data = array();
     protected $errorcode = 0;
 

@@ -38,7 +38,7 @@ if(!$core->input['action']) {
     $purchasetypelist = parse_selectlist('chainpolicy[purchaseType]', 4, $purchasetypes, $chainpolicy[purchaseType]);
 
     if(is_array(unserialize($chainpolicy['approvalChain'])) && !empty($core->input['id'])) {
-        $approvers = array('BM' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lofm' => 'Local Finance Manager', 'gm' => 'General Manager', 'fm' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'user' => 'user');
+        $approvers = array('BM' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lofm' => 'Local Finance Manager', 'generalManager' => 'General Manager', 'fm' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'user' => 'user');
 
         foreach(unserialize($chainpolicy[approvalChain]) as $key => $approverdata) {
 
@@ -63,7 +63,7 @@ if(!$core->input['action']) {
             }
 
             foreach($approvers as $key => $approver) {
-                $list .= ' <div style="display: inline-block; width:45%;"><input  type="radio"  '.$checkbox[$key]['checked'].'   onchange =\''.$onchange_actions.'\' name="chainpolicy[approverchain]['.$rowid.'][approver]" value="'.$key.'" id="'.$key.'_'.$rowid.'_approver"'.$checked.'/> '.$val.' '.$approver.'</div>';
+                $list .= ' <div style="display: inline-block; width:32%;"><input  type="radio"  '.$checkbox[$key]['checked'].'   onchange =\''.$onchange_actions.'\' name="chainpolicy[approverchain]['.$rowid.'][approver]" value="'.$key.'" id="'.$key.'_'.$rowid.'_approver"'.$checked.'/> '.$val.' '.$approver.'</div>';
             }
             eval("\$aro_manageapprovalchainspolicies_approversrows  .= \"".$template->get('aro_manageapprovalchainspolicies_approversrows')."\";");
             unset($list, $checkbox);
@@ -72,11 +72,11 @@ if(!$core->input['action']) {
 
     /* approvers predfined */
     else {
-        $approvers = array('BM' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lofm' => 'Local Finance Manager', 'gm' => 'General Manager', 'fm' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'user' => 'user');
+        $approvers = array('BM' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lofm' => 'Local Finance Manager', 'generalManager' => 'General Manager', 'fm' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'user' => 'user');
         $rowid = 1;
         $display[1][uid] = 'display:none;';
         foreach($approvers as $key => $approver) {
-            $list .= ' <div style="display: inline-block; width:45%;"><input  type="radio"  onchange =\''.$onchange_actions.'\' name="chainpolicy[approverchain]['.$rowid.'][approver]" value="'.$key.'" id="'.$key.'_'.$rowid.'_approver"'.$checked.'/> '.$val.''.$approver.'</div>';
+            $list .= ' <div style="display: inline-block; width:32%;"><input  type="radio"  onchange =\''.$onchange_actions.'\' name="chainpolicy[approverchain]['.$rowid.'][approver]" value="'.$key.'" id="'.$key.'_'.$rowid.'_approver"'.$checked.'/> '.$val.''.$approver.'</div>';
         }
         eval("\$aro_manageapprovalchainspolicies_approversrows= \"".$template->get('aro_manageapprovalchainspolicies_approversrows')."\";");
         // $rowid = intval($core->input['value']) + 1;
@@ -108,11 +108,11 @@ else if($core->input['action'] == 'do_perform_manageapprovalchainspolicies') {
 }
 else if($core->input['action'] == 'ajaxaddmore_approvers') {
     $rowid = intval($core->input['value']) + 1;
-    $approvers = array('BM' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lofm' => 'Local Finance Manager', 'gm' => 'General Manager', 'fm' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'user' => 'user');
+    $approvers = array('BM' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lofm' => 'Local Finance Manager', 'generalManager' => 'General Manager', 'fm' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'user' => 'user');
     //$rowid = 1;
     $display[$rowid][uid] = 'display:none;';
     foreach($approvers as $key => $approver) {
-        $list .= ' <div style="display: inline-block; width:45%;"><input  type="radio"  onchange =\''.$onchange_actions.'\' name="chainpolicy[approverchain]['.$rowid.'][approver]" value="'.$key.'" id="'.$key.'_'.$rowid.'_approver"'.$checked.'/> '.$val.''.$approver.'</div>';
+        $list .= ' <div style="display: inline-block; width:32%;"><input  type="radio"  onchange =\''.$onchange_actions.'\' name="chainpolicy[approverchain]['.$rowid.'][approver]" value="'.$key.'" id="'.$key.'_'.$rowid.'_approver"'.$checked.'/> '.$val.''.$approver.'</div>';
     }
     eval("\$aro_manageapprovalchainspolicies_approversrows= \"".$template->get('aro_manageapprovalchainspolicies_approversrows')."\";");
     output($aro_manageapprovalchainspolicies_approversrows);
