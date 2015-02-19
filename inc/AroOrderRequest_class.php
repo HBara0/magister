@@ -39,11 +39,6 @@ class AroOrderRequest extends AbstractClass {
                 return false;
             }
         }
-        if(isset($orderid_data[nextnumid]) && !empty($orderid_data[nextnumid])) {
-            print_R($orderid_data[nextnumid]);
-            exit;
-        }
-
 
         $policies_array = array('affid' => $orderid_data['affid'],
                 'orderType' => $orderid_data['orderType'],
@@ -58,11 +53,25 @@ class AroOrderRequest extends AbstractClass {
         $query = $db->insert_query(self::TABLE_NAME, $policies_array);
         if($query) {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
-
+            if(isset($orderid_data['nextnumid']) && !empty($orderid_data['nextnumid']['nextnum'])) {
+                /* update nextnumber  in the document sequence based on affid and ptid */
+                $this->set_documentsequencenumber($orderid_data);
+            }
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+
+            // $this->save_productlines($data['productline']);
+            $this->save_ordercustomers($data['customeroder']);
             $this->errorcode = 0;
-            $this->save_productlines($data['productline']);
+        }
+    }
+
+    private function set_documentsequencenumber($doc_sequencedata) {
+        $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $doc_sequencedata['affid'], 'ptid' => $doc_sequencedata['orderType']), array('returnarray' => false, 'simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
+        if(is_object($documentseq_obj)) {
+            $nextNumber = $doc_sequencedata['nextnumid']['nextnum'];
+            $documentseq_obj->set(array('nextNumber' => $nextNumber));
+            $documentseq_obj->save();
         }
     }
 
@@ -90,22 +99,27 @@ class AroOrderRequest extends AbstractClass {
         );
         $query = $db->update_query(self::TABLE_NAME, $policies_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
-            if(isset($orderid_data['nextnumid']) && !empty($orderid_data['nextnumid']['nextnum'])) {
-                /* update nextnumber  in the document sequence based on affid and ptid */
-                $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $orderid_data['affid'], 'ptid' => $orderid_data['orderType']), array('returnarray' => false, 'simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
-                if(is_object($documentseq_obj)) {
-                    $nextNumber = $orderid_data['nextnumid']['nextnum'];
-                    $documentseq_obj->set(array('nextNumber' => $nextNumber));
-                    $documentseq_obj->save();
-                }
-            }
-
             $this->data[self::PRIMARY_KEY] = $db->last_id();
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+            // $this->save_productlines($data['productline']);
+            $this->save_ordercustomers($data['customeroder']);
             $this->errorcode = 0;
-            $this->save_productlines($data['productline']);
         }
+    }
+
+    private function save_ordercustomers($customersdetails) {
+        foreach($customersdetails as $cusomeroder) {
+
+            foreach($cusomeroder as $order) {
+
+                if(isset($order['cid']) && !empty($order['cid'])) {
+                    $ordercust_obj = new AroOrderCustomers();
+                    $ordercust_obj->set($order);
+                    $ordercust_obj->save();
+                }
+            }
+        }exit;
     }
 
     private function save_productlines($arorequestlines) {

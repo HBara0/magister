@@ -711,6 +711,7 @@ $(function() {
             url: rootdir + "index.php?module=" + id[1] + "&action=ajaxaddmore_" + id[2],
             data: "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + $('input[id^=ajaxaddmoredata_]').serialize(),
             beforeSend: function() {
+
                 $("body").append("<div id='modal-loading'></div>");
                 $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
                 });
@@ -903,22 +904,24 @@ $(function() {
                 dataType: "text",
                 url: querystring,
                 //  data: $(this).serialize() + "&" + $.param(data),
-                beforeSend: function() {
-                    $("body").append("<div id='modal-loading'></div>");
-                    $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
-                    });
-                },
-                complete: function() {
 
+                complete: function() {
                     $("#modal-loading").dialog("close").remove();
                 },
                 success: function(returnedData) {
                     //{"orderreference":"LB-9-aor1"}
                     //  var json = eval("({'orderreference':'Lb - 1 - 2014'});"); /* convert the json to object */
-                    var json = eval("(" + returnedData + ");"); /* convert the json to object */
-                    var form = document.forms[formname];
-                    $(form).populate(json, {resetForm: 0});
+                    if(!returnedData) {
+                        $("#orderreference").val(''); //hardcoded temp
+                    }
+                    if(typeof returnedData !== typeof undefined && returnedData !== '') {
+                        var json = eval("(" + returnedData + ");"); /* convert the json to object */
+                        var form = document.forms[formname];
+                        $(form).populate(json, {resetForm: 0});
+
+                    }
                 }
+
             });
             ///return json from ajax
 

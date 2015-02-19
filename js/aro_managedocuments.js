@@ -28,7 +28,14 @@ $(function() {
         if(ptid !== '' && ptid != typeof undefined) {
             sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid);
         }
+
     });
+    $('select[id=affid]').live('change', function() {
+
+        $('select[id=purchasetype]').trigger('change');
+    });
+
+
     $("#currencies").live('change', function() {
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=getexchangerate&currency=' + $(this).val());
     });
@@ -74,4 +81,3 @@ $(function() {
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + '&ptid=' + ptid + fields);
     });
 });
- 

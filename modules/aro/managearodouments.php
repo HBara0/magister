@@ -39,7 +39,7 @@ if(!($core->input['action'])) {
     $inspectionlist = parse_selectlist('orderid[inspectionType]', 4, $inspections, '');
     $payment_terms = PaymentTerms::get_data('', array('returnarray' => ture));
 
-    $payment_term = parse_selectlist('customeroder[corder]['.$rowid.']['.$checksum.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
+    $payment_term = parse_selectlist('customeroder[corder]['.$rowid.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
     $altpayment_term = parse_selectlist('customeroder[altcorder][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
 
     eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
@@ -116,16 +116,12 @@ else {
             $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.date('y', $documentseq_obj->effectiveFrom).'-'.$documentseq_obj->suffix);
             echo json_encode($orderreference); //return json to the ajax request to populate in the form
         }
-        else {
-            echo json_encode('error');
-            exit;
-        }
     }
     if($core->input['action'] == 'ajaxaddmore_newcustomer') {
         $rowid = intval($core->input['value']) + 1;
         $checksum = generate_checksum('odercustomer');
         $payment_terms = PaymentTerms::get_data('', array('returnarray' => ture));
-        $payment_term = parse_selectlist('customeroder[corder]['.$rowid.']['.$checksum.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
+        $payment_term = parse_selectlist('customeroder[corder]['.$rowid.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
         eval("\$aro_managedocuments_ordercustomers_rows = \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
         output($aro_managedocuments_ordercustomers_rows);
     }
@@ -136,25 +132,16 @@ else {
             $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $core->input['orderid']['affid'], 'ptid' => $core->input['orderid']['orderType']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
             $nextsequence_number = $documentseq_obj->get_nextaro_identification();
             $core->input['orderid']['nextnumid']['nextnum'] = $nextsequence_number;
-
             $orderident_obj->set($core->input);
             $orderident_obj->save();
         }
 
-        foreach($core->input['customeroder']['corder'] as $cusomeroder) {
-            foreach($cusomeroder as $order) {
-                if(isset($order['cid']) && !empty($order['cid'])) {
-                    $ordercust_obj = new AroOrderCustomers();
-                    $ordercust_obj->set($order);
-                    $ordercust_obj->save();
-                }
-            }
-        }
-        if(isset($core->input[customeroder]['altcorder'][altcid])) {
-            $ordercust_obj = new AroOrderCustomers();
-            $ordercust_obj->set($core->input[customeroder]['altcorder']);
-            $ordercust_obj->save();
-        }
+
+//        if(isset($core->input[customeroder]['altcorder'][altcid])) {
+//            $ordercust_obj = new AroOrderCustomers();
+//            $ordercust_obj->set($core->input[customeroder]['altcorder']);
+//            $ordercust_obj->save();
+//        }
     }
 
     if($core->input['action'] == 'getestimatedate') {
