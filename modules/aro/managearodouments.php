@@ -137,7 +137,7 @@ else {
             $nextsequence_number = $documentseq_obj->get_nextaro_identification();
             $core->input['orderid']['nextnumid']['nextnum'] = $nextsequence_number;
 
-            $orderident_obj->set($core->input['orderid']);
+            $orderident_obj->set($core->input);
             $orderident_obj->save();
         }
 
@@ -184,16 +184,16 @@ else {
         $est_averagedate = $avgpaymentterms * (86400) + $avgesdateofsale;
         $conv = date($core->settings['dateformat'], ($est_averagedate));
         echo json_encode(array('avgeliduedate' => $conv)); //return json to the ajax request to populate in the form
-        }
-        
-         if($core->input['action'] == 'ajaxaddmore_productline') {
+    }
+
+    if($core->input['action'] == 'ajaxaddmore_productline') {
         $plrowid = intval($core->input['value']) + 1;
         $display = 'none';
         $productlines_data = $core->input['ajaxaddmoredata'];
         $productline['inputChecksum'] = generate_checksum('pl');
         $segments = ProductsSegments::get_segments('');
         $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
-       $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."packing", 'blankstart' => 1));
+        $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."packing", 'blankstart' => 1));
         $uom = Uom::get_data('name IS NOT NULL');
         $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, '', '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1));
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
