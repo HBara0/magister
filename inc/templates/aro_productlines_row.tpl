@@ -17,6 +17,7 @@
     </td>
     <td>
         <input style="width:50px;" type="number"  step="1" name="productline[$plrowid][daysInStock]" id="productline_{$plrowid}_daysInStock" value="{$productline[daysInStock]} {$disabled_fields[daysInStock]}" style="width:100px;"/>
+        <input type="hidden" id="productline_{$plrowid}_daysInStock_disabled" value="1"/>
     </td>
     <td>
         <input type="number"  step="any" name="productline[$plrowid][qtyPotentiallySold]" id="productline_{$plrowid}_qtyPotentiallySold" value="{$productline[qtyPotentiallySold]}" {$disabled_fields[qtyPotentiallySold]} style="width:100px;"/>

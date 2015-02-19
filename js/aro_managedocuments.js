@@ -54,6 +54,7 @@ $(function() {
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=getestimatedate&avgesdateofsale= ' + avgesdateofsale + '&paymentermdays[]= ' + paymentdays + '&ptid= ' + purchasetype);
     });
 
+
     $("input[id$='_qtyPotentiallySoldPerc']").live('change', function() {
         var id = $(this).attr('id').split("_");
         var fields = '';
@@ -65,13 +66,29 @@ $(function() {
 
     $("input[id^='productline_']").live('change', function() {
         var id = $(this).attr('id').split("_");
+        // if(!(id[2] == 'qtyPotentiallySoldPerc')) {
         var fields_array = ["quantity", "qtyPotentiallySold", "intialPrice", "costPrice"];
         var fields = '';
         $.each(fields_array, function(index, value) {
             fields += '&' + value + '=' + $("input[id='productline_" + id[1] + "_" + value + "']").val();
         });
         var ptid = $("#purchasetype").val();
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + '&ptid=' + ptid + fields);
+        var exchangeRateToUSD = $("#exchangeRateToUSD").val();
+        fields += '&ptid=' + ptid + '&exchangeRateToUSD=' + exchangeRateToUSD;
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + fields);
+        //}
+    });
+
+
+    $("input[id$='_quantity']").live('change keyup', function() {
+        var id = $(this).attr('id').split("_");
+        var fields = ["daysInStock", "qtyPotentiallySold"];
+        for(var i = 0; i < fields.length; i++) {
+            if($("input[id='productline_" + id[1] + "_" + fields[i] + "_disabled']").val() == 0) {
+                $("input[id='productline_" + id[1] + "_" + fields[i] + "']").attr("disabled", "true");
+            } else {
+                $("input[id='productline_" + id[1] + "_" + fields[i] + "']").removeAttr("disabled");
+            }
+        }
     });
 });
- 
