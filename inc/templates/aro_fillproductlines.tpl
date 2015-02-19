@@ -18,8 +18,7 @@
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->costpriceatriskratio}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->sellingprice}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->sellingpriceatriskratio}</td>
-                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->netmarginaff}</td>
-                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->netmarginintermed}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->netmargin}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->netmarginperc}</td>
         </thead>
 
