@@ -66,6 +66,5 @@ $lang['costprice'] = 'Cost Price';
 $lang['costpriceatriskratio'] = 'Cost Price maj';
 $lang['sellingprice'] = 'selling Price';
 $lang['sellingpriceatriskratio'] = 'Gross margin min at';
-$lang['netmarginaff'] = 'Net Margin Affiliate (USD)';
-$lang['netmarginintermed'] = 'Net Margin Intermed. (USD)';
+$lang['netmargin'] = 'Net Margin (USD)';
 $lang['netmarginperc'] = 'Net Margin %';

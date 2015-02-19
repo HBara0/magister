@@ -20,6 +20,8 @@
     </td>
     <td>
         <input type="number"  step="any" name="productline[$plrowid][qtyPotentiallySold]" id="productline_{$plrowid}_qtyPotentiallySold" value="{$productline[qtyPotentiallySold]}" {$disabled_fields[qtyPotentiallySold]} style="width:100px;"/>
+        <input type="hidden" id="productline_{$plrowid}_qtyPotentiallySold_disabled" value="1"/>
+
     </td>
     <td>
         <input type="number"  step="any" name="productline[$plrowid][qtyPotentiallySoldPerc]" id="productline_{$plrowid}_qtyPotentiallySoldPerc" value="{$productline[qtyPotentiallySoldPerc]}" style="width:70px;"/>
@@ -46,10 +48,7 @@
         <input type="text" name="productline[$plrowid][grossMarginAtRiskRatio]" id="productline_{$plrowid}_grossMarginAtRiskRatio"  value="{$productline[grossMarginAtRiskRatio]}" readonly style="width:70px;"/>
     </td>
     <td>
-        <input type="text" name="productline[$plrowid][netMarginAff]" id="productline_{$plrowid}_netMarginAff" value="{$productline[netMarginAff]}" readonly style="width:100px;"/>
-    </td>
-    <td>
-        <input type="text" name="productline[$plrowid][netMarginIntermed]" id="productline_{$plrowid}_netMarginIntermed" value="{$productline[netMarginIntermed]}" readonly style="width:100px;"/>
+        <input type="text" name="productline[$plrowid][netMargin]" id="productline_{$plrowid}_netMargin" value="{$productline[netMargin]}" readonly style="width:100px;"/>
     </td>
     <td>
         <input type="text" name="productline[$plrowid][netMarginPerc]" id="productline_{$plrowid}_netMarginPerc" value="{$productline[netMarginPerc]}" readonly style="width:70px;"/>
