@@ -30,27 +30,28 @@ class AroOrderRequest extends AbstractClass {
 
     public function create(array $data) {
         global $db, $core, $log;
+        $orderid_data = $data['orderid'];
         $required_fields = array('affid', 'orderType'); //warehsuoe
         foreach($required_fields as $field) {
-            $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
-            if(is_empty($data[$field])) {
+            $orderid_data[$field] = $core->sanitize_inputs($orderid_data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
+            if(is_empty($orderid_data[$field])) {
                 $this->errorcode = 2;
                 return false;
             }
         }
-        if(isset($data[nextnumid]) && !empty($data[nextnumid])) {
-            print_R($data[nextnumid]);
+        if(isset($orderid_data[nextnumid]) && !empty($orderid_data[nextnumid])) {
+            print_R($orderid_data[nextnumid]);
             exit;
         }
 
 
-        $policies_array = array('affid' => $data['affid'],
-                'orderType' => $data['orderType'],
-                'orderReference' => $data['orderReference'],
-                'inspectionType' => $data['inspectionType'],
-                'currency' => $data['currency'],
-                'exchangeRateToUSD' => $data['exchangeRateToUSD'],
-                'ReferenceNumber' => $data['ReferenceNumber'],
+        $policies_array = array('affid' => $orderid_data['affid'],
+                'orderType' => $orderid_data['orderType'],
+                'orderReference' => $orderid_data['orderReference'],
+                'inspectionType' => $orderid_data['inspectionType'],
+                'currency' => $orderid_data['currency'],
+                'exchangeRateToUSD' => $orderid_data['exchangeRateToUSD'],
+                'ReferenceNumber' => $orderid_data['ReferenceNumber'],
                 'createdBy' => $core->user['uid'],
                 'createdOn' => TIME_NOW,
         );
@@ -59,40 +60,41 @@ class AroOrderRequest extends AbstractClass {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
 
             /* update the docuent conf with the next number */
-
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             $this->errorcode = 0;
+            $this->save_productlines($data['productline']);
         }
     }
 
     protected function update(array $data) {
         global $db, $core, $log;
+        $orderid_data = $data['orderid'];
         $required_fields = array('affid', 'orderType'); //warehsuoe
         foreach($required_fields as $field) {
-            $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
-            if(is_empty($data[$field])) {
+            $orderid_data[$field] = $core->sanitize_inputs($orderid_data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
+            if(is_empty($orderid_data[$field])) {
                 $this->errorcode = 2;
                 return false;
             }
         }
 
-        $policies_array = array('affid' => $data['affid'],
-                'orderType' => $data['orderType'],
-                'orderReference' => $data['orderReference'],
-                'inspectionType' => $data['inspectionType'],
-                'currency' => $data['currency'],
-                'exchangeRateToUSD' => $data['exchangeRateToUSD'],
-                'ReferenceNumber' => $data['ReferenceNumber'],
+        $policies_array = array('affid' => $orderid_data['affid'],
+                'orderType' => $orderid_data['orderType'],
+                'orderReference' => $orderid_data['orderReference'],
+                'inspectionType' => $orderid_data['inspectionType'],
+                'currency' => $orderid_data['currency'],
+                'exchangeRateToUSD' => $orderid_data['exchangeRateToUSD'],
+                'ReferenceNumber' => $orderid_data['ReferenceNumber'],
                 'createdBy' => $core->user['uid'],
                 'createdOn' => TIME_NOW,
         );
         $query = $db->update_query(self::TABLE_NAME, $policies_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
-            if(isset($data['nextnumid']) && !empty($data['nextnumid']['nextnum'])) {
+            if(isset($orderid_data['nextnumid']) && !empty($orderid_data['nextnumid']['nextnum'])) {
                 /* update nextnumber  in the document sequence based on affid and ptid */
-                $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $data['affid'], 'ptid' => $data['orderType']), array('returnarray' => false, 'simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
+                $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $orderid_data['affid'], 'ptid' => $orderid_data['orderType']), array('returnarray' => false, 'simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
                 if(is_object($documentseq_obj)) {
-                    $nextNumber = $data['nextnumid']['nextnum'];
+                    $nextNumber = $orderid_data['nextnumid']['nextnum'];
                     $documentseq_obj->set(array('nextNumber' => $nextNumber));
                     $documentseq_obj->save();
                 }
@@ -102,6 +104,25 @@ class AroOrderRequest extends AbstractClass {
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             $this->errorcode = 0;
+            $this->save_productlines($data['productline']);
+        }
+    }
+
+    private function save_productlines($arorequestlines) {
+        if(is_array($arorequestlines)) {
+            foreach($arorequestlines as $arorequestline) {
+                $arorequestline['aorid'] = $this->data[self::PRIMARY_KEY];
+                $requestline = new AroRequestLines();
+                $requestline->set($arorequestline);
+                $requestline->save();
+                $this->errorcode = $requestline->errorcode;
+                switch($this->get_errorcode()) {
+                    case 0:
+                        continue;
+                    case 2:
+                        return;
+                }
+            }
         }
     }
 
