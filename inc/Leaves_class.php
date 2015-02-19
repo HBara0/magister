@@ -183,6 +183,13 @@ class Leaves extends AbstractClass {
         }
     }
 
+    public function is_approved() {
+        if(count($this->get_approvals(0)) == 0) {
+            return true;
+        }
+        return false;
+    }
+
     public function get_approval_byappover($approver) {
         return AttLeavesApproval::get_approvals('lid='.$this->data['lid'].' AND uid='.intval($approver));
     }
