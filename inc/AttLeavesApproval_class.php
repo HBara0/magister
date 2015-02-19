@@ -95,8 +95,4 @@ class AttLeavesApproval extends AbstractClass {
 
     }
 
-    public function save(array $data = array()) {
-
-    }
-
 }
