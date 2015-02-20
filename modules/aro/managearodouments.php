@@ -25,36 +25,63 @@ if(!($core->input['action'])) {
         $affiliate[$affid] = new Affiliates($affid);
     }
 
-    $affiliate_list = parse_selectlist('affid', 1, $affiliate, $orderid[affid], '', '', array('blankstart' => true, 'id' => "affid"));
     $purchasetypes = PurchaseTypes::get_data('name IS NOT NULL', array('returnarray' => true));
-
-    $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $orderid['ptid'], '', '', array('blankstart' => true, 'id' => "purchasetype"));
-
-    // $mainaffobj = new Affiliates($core->user['mainaffiliate']);
-    //$currencies = Currencies::get_data();
-    $checksum = generate_checksum('odercustomer');
-    $rowid = 1;
-    $currencies_list = parse_selectlist('currency', 4, $currencies, '', '', '', array('blankstart' => 1, 'id' => "currencies"));
     $inspections = array('inspection1' => 'inspection');
-    $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, '');
     $payment_terms = PaymentTerms::get_data('', array('returnarray' => ture));
-
-    $payment_term = parse_selectlist('customeroder[corder]['.$rowid.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
-    $altpayment_term = parse_selectlist('customeroder[altcorder][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
-
-    eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
-
-    eval("\$aro_managedocuments_ordercustomers_rows = \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
-
-    eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
-
-    //********** ARO Product Lines **************//
     $segments = ProductsSegments::get_segments('');
     $packaging = Packaging::get_data('name IS NOT NULL');
     $uom = Uom::get_data('name IS NOT NULL');
+
+    if(!isset($core->input['id'])) {
+        //order identification
+        $affiliate_list = parse_selectlist('affid', 1, $affiliate, $orderid[affid], '', '', array('blankstart' => true, 'id' => "affid"));
+        $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $orderid['ptid'], '', '', array('blankstart' => true, 'id' => "purchasetype"));
+        $currencies_list = parse_selectlist('currency', 4, $currencies, '', '', '', array('blankstart' => 1, 'id' => "currencies"));
+        $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, '');
+
+        //order Customers
+        $checksum = generate_checksum('odercustomer');
+        $rowid = 1;
+        $payment_term = parse_selectlist('customeroder[corder]['.$rowid.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
+        $altpayment_term = parse_selectlist('customeroder[altcorder][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
+        eval("\$aro_managedocuments_ordercustomers_rows = \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
+
+        //product Lines
+        $plrowid = 1;
+        $productline['inputChecksum'] = generate_checksum('pl');
+        $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
+        $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."packing", 'blankstart' => 1));
+        $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, '', '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
+        eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
+    }
+
     if(isset($core->input['id'])) {
-        $aroorderrequest = AroOrderRequest::get_data(array('aorid' => $core->input['id']));
+        $aroorderrequest = AroOrderRequest::get_data(array('aorid' => $core->input['id']), array('simple' => false));
         if(is_object($aroorderrequest)) {
+            $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => "affid"));
+            $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => "purchasetype"));
+            $currencies_list = parse_selectlist('currency', 4, $currencies, $aroorderrequest->currency, '', '', array('blankstart' => 1, 'id' => "currencies"));
+            $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, $aroorderrequest->inspectionType);
+
+            //*********Aro Order Customers -Start *********//
+            $requestcustomers = AroOrderCustomers::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true));
+            $rowid = 1;
+            if(is_array($requestcustomers)) {
+                foreach($requestcustomers as $customer) {
+                    $customeroder = $customer->get();
+                    $payment_term = parse_selectlist('customeroder[corder]['.$rowid.'][ptid]', 4, $payment_terms, $customeroder['ptid'], '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
+                    $altpayment_term = parse_selectlist('customeroder[altcorder][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
+                    eval("\$aro_managedocuments_ordercustomers_rows .= \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
+                    $rowid++;
+                }
+            }
+            else {
+                $payment_term = parse_selectlist('customeroder[corder]['.$rowid.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
+                $altpayment_term = parse_selectlist('customeroder[altcorder][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
+                eval("\$aro_managedocuments_ordercustomers_rows .= \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
+            }
+            //*********Aro Orde Customers - End *********//
+            //********** ARO Product Lines -Start **************//
             $plrowid = 1;
             $productlines = AroRequestLines::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true));
             if(is_array($productlines)) {
@@ -83,18 +110,16 @@ if(!($core->input['action'])) {
                 $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, '', '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
                 eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
             }
+            //********** ARO Product Lines **************//
+        }
+        else {
+            redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
         }
     }
-    else {
-        $plrowid = 1;
-        $productline['inputChecksum'] = generate_checksum('pl');
-        $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
-        $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."packing", 'blankstart' => 1));
-        $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, '', '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
-        eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
-    }
+
     eval("\$aro_productlines = \"".$template->get('aro_fillproductlines')."\";");
-    //********** ARO Product Lines **************//
+    eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
+    eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
     eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
     output_page($aro_managedocuments);
 }
