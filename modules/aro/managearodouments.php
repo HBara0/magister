@@ -42,7 +42,7 @@ if(!($core->input['action'])) {
         $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, '');
 
         //order Customers
-        $checksum = generate_checksum('odercustomer');
+        $customeroder['inputChecksum'] = generate_checksum('pl');
         $rowid = 1;
         $payment_term = parse_selectlist('customeroder[corder]['.$rowid.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
         $altpayment_term = parse_selectlist('customeroder[altcorder][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
@@ -78,6 +78,7 @@ if(!($core->input['action'])) {
                 }
             }
             else {
+                $customeroder['inputChecksum'] = generate_checksum('pl');
                 $payment_term = parse_selectlist('customeroder[corder]['.$rowid.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
                 $altpayment_term = parse_selectlist('customeroder[altcorder][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
                 eval("\$aro_managedocuments_ordercustomers_rows .= \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
@@ -157,8 +158,10 @@ else {
         $orderident_obj = new AroOrderRequest ();
         /* get arodocument of the affid and pruchase type */
         $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $core->input['affid'], 'ptid' => $core->input['orderType']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
-        $nextsequence_number = $documentseq_obj->get_nextaro_identification();
-        $core->input['nextnumid']['nextnum'] = $nextsequence_number;
+        if(is_object($documentseq_obj)) {
+            $nextsequence_number = $documentseq_obj->get_nextaro_identification();
+            $core->input['nextnumid']['nextnum'] = $nextsequence_number;
+        }
         $orderident_obj->set($core->input);
         $orderident_obj->save();
 
@@ -169,9 +172,6 @@ else {
                 break;
             case 2:
                 output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
-                break;
-            case 3:
-                output_xml('<status>false</status><message>Error</message>');
                 break;
         }
         //  }

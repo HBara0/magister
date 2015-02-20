@@ -61,7 +61,6 @@ class AroOrderRequest extends AbstractClass {
             }
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
-
             $this->save_productlines($data['productline']);
             $this->save_ordercustomers($data['customeroder']);
             $this->errorcode = 0;
@@ -110,16 +109,22 @@ class AroOrderRequest extends AbstractClass {
 
     private function save_ordercustomers($customersdetails) {
         foreach($customersdetails as $cusomeroder) {
-
             foreach($cusomeroder as $order) {
-
-                if(isset($order['cid']) && !empty($order['cid'])) {
-                    $ordercust_obj = new AroOrderCustomers();
-                    $ordercust_obj->set($order);
-                    $ordercust_obj->save();
+                $order[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+                // if(isset($order['cid']) && !empty($order['cid'])) {
+                $ordercust_obj = new AroOrderCustomers();
+                $ordercust_obj->set($order);
+                $ordercust_obj->save();
+                // }
+                $this->errorcode = $ordercust_obj->errorcode;
+                switch($this->get_errorcode()) {
+                    case 0:
+                        continue;
+                    case 2:
+                        return;
                 }
             }
-        }exit;
+        }
     }
 
     private function save_productlines($arorequestlines) {
