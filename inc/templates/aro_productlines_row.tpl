@@ -16,7 +16,7 @@
         {$uom_list}
     </td>
     <td>
-        <input style="width:50px;" type="number"  step="1" name="productline[$plrowid][daysInStock]" id="productline_{$plrowid}_daysInStock" value="{$productline[daysInStock]} {$disabled_fields[daysInStock]}" style="width:100px;"/>
+        <input style="width:50px;" type="number"  step="1" name="productline[$plrowid][daysInStock]" id="productline_{$plrowid}_daysInStock" value="{$productline[daysInStock]}" {$disabled_fields[daysInStock]} style="width:100px;"/>
         <input type="hidden" id="productline_{$plrowid}_daysInStock_disabled" value="1"/>
     </td>
     <td>
@@ -53,5 +53,9 @@
     </td>
     <td>
         <input type="text" name="productline[$plrowid][netMarginPerc]" id="productline_{$plrowid}_netMarginPerc" value="{$productline[netMarginPerc]}" readonly style="width:70px;"/>
+    </td>
+    <td>
+        <input type="checkbox" class="deletecheckbox" id="productline_{$plrowid}_todelete" name="productline[$plrowid][todelete]" value="1" label="Delete" oldtitle="If check-box is checked row is deleted">
+        <label for="productline_{$plrowid}_todelete"></label></input>
     </td>
 </tr>

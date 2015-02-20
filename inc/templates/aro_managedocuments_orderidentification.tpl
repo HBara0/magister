@@ -13,9 +13,9 @@
             </tr>
             <tr>
                 <td>Order Reference</td>
-                <td><input type="text"   readonly="readonly" name="orderid[orderReference]" id="orderreference"/></td>
+                <td><input type="text"   readonly="readonly" name="orderReference" id="orderreference"/></td>
                 <td>Exchange rate to usd</td>
-                <td><input type="number"  step="any" name="orderid[exchangeRateToUSD]" id="exchangeRateToUSD"/></td>
+                <td><input type="number"  step="any" name="exchangeRateToUSD" id="exchangeRateToUSD"/></td>
             </tr>
 
             <tr>

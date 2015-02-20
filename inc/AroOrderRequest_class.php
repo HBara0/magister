@@ -30,37 +30,39 @@ class AroOrderRequest extends AbstractClass {
 
     public function create(array $data) {
         global $db, $core, $log;
-        $orderid_data = $data['orderid'];
+
         $required_fields = array('affid', 'orderType'); //warehsuoe
         foreach($required_fields as $field) {
-            $orderid_data[$field] = $core->sanitize_inputs($orderid_data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
-            if(is_empty($orderid_data[$field])) {
+            $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
+            if(is_empty($data[$field])) {
                 $this->errorcode = 2;
                 return false;
             }
         }
 
-        $policies_array = array('affid' => $orderid_data['affid'],
-                'orderType' => $orderid_data['orderType'],
-                'orderReference' => $orderid_data['orderReference'],
-                'inspectionType' => $orderid_data['inspectionType'],
-                'currency' => $orderid_data['currency'],
-                'exchangeRateToUSD' => $orderid_data['exchangeRateToUSD'],
-                'ReferenceNumber' => $orderid_data['ReferenceNumber'],
+
+        //
+        $orderrequest_array = array('affid' => $data['affid'],
+                'orderType' => $data['orderType'],
+                'orderReference' => $data['orderReference'],
+                'inspectionType' => $data['inspectionType'],
+                'currency' => $data['currency'],
+                'exchangeRateToUSD' => $data['exchangeRateToUSD'],
+                'ReferenceNumber' => $data['ReferenceNumber'],
                 'createdBy' => $core->user['uid'],
                 'createdOn' => TIME_NOW,
         );
-        $query = $db->insert_query(self::TABLE_NAME, $policies_array);
+        $query = $db->insert_query(self::TABLE_NAME, $orderrequest_array);
         if($query) {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
-            if(isset($orderid_data['nextnumid']) && !empty($orderid_data['nextnumid']['nextnum'])) {
+            if(isset($data['nextnumid']) && !empty($data['nextnumid']['nextnum'])) {
                 /* update nextnumber  in the document sequence based on affid and ptid */
-                $this->set_documentsequencenumber($orderid_data);
+                $this->set_documentsequencenumber($data);
             }
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
 
-            // $this->save_productlines($data['productline']);
+            $this->save_productlines($data['productline']);
             $this->save_ordercustomers($data['customeroder']);
             $this->errorcode = 0;
         }
@@ -77,27 +79,25 @@ class AroOrderRequest extends AbstractClass {
 
     protected function update(array $data) {
         global $db, $core, $log;
-        $orderid_data = $data['orderid'];
         $required_fields = array('affid', 'orderType'); //warehsuoe
         foreach($required_fields as $field) {
-            $orderid_data[$field] = $core->sanitize_inputs($orderid_data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
-            if(is_empty($orderid_data[$field])) {
+            $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
+            if(is_empty($data[$field])) {
                 $this->errorcode = 2;
                 return false;
             }
         }
-
-        $policies_array = array('affid' => $orderid_data['affid'],
-                'orderType' => $orderid_data['orderType'],
-                'orderReference' => $orderid_data['orderReference'],
-                'inspectionType' => $orderid_data['inspectionType'],
-                'currency' => $orderid_data['currency'],
-                'exchangeRateToUSD' => $orderid_data['exchangeRateToUSD'],
-                'ReferenceNumber' => $orderid_data['ReferenceNumber'],
-                'createdBy' => $core->user['uid'],
-                'createdOn' => TIME_NOW,
+        $orderrequest_array = array('affid' => $data['affid'],
+                'orderType' => $data['orderType'],
+                'orderReference' => $data['orderReference'],
+                'inspectionType' => $data['inspectionType'],
+                'currency' => $data['currency'],
+                'exchangeRateToUSD' => $data['exchangeRateToUSD'],
+                'ReferenceNumber' => $data['ReferenceNumber'],
+                'modifiedBy' => $core->user['uid'],
+                'modifiedOn' => TIME_NOW,
         );
-        $query = $db->update_query(self::TABLE_NAME, $policies_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        $query = $db->update_query(self::TABLE_NAME, $orderrequest_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
             /* update the docuent conf with the next number */
@@ -123,9 +123,18 @@ class AroOrderRequest extends AbstractClass {
     }
 
     private function save_productlines($arorequestlines) {
+        global $db;
         if(is_array($arorequestlines)) {
             foreach($arorequestlines as $arorequestline) {
                 $arorequestline['aorid'] = $this->data[self::PRIMARY_KEY];
+                $arorequestline['exchangeRateToUSD'] = $this->data['exchangeRateToUSD'];
+                if(isset($arorequestline['todelete']) && !empty($arorequestline['todelete'])) {
+                    $requestline = AroRequestLines::get_data(array('inputChecksum' => $arorequestline['inputChecksum']));
+                    if(is_object($requestline)) {
+                        $db->delete_query('aro_requests_lines', 'arlid='.$requestline->arlid.'');
+                    }
+                    continue;
+                }
                 $requestline = new AroRequestLines();
                 $requestline->set($arorequestline);
                 $requestline->save();

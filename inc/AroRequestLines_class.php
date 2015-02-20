@@ -10,7 +10,7 @@
 
 class AroRequestLines extends AbstractClass {
     protected $data = array();
-    protected $errorcode = 0;
+    public $errorcode = 0;
 
     const PRIMARY_KEY = 'arlid';
     const TABLE_NAME = 'aro_requests_lines';
@@ -24,16 +24,43 @@ class AroRequestLines extends AbstractClass {
     }
 
     protected function create(array $data) {
-        global $db, $core;
-
-        $data = $this->calculate_values();
-        //  if(!$this->validate_requiredfields($data)) {
-        $query = $db->insert_query(self::TABLE_NAME, $data);
-        // }
+        global $db, $core, $log;
+        if(!$this->validate_requiredfields($data)) {
+            $data = $this->calculate_values();
+            if(empty($data['psid'])) {
+                $product = new Products($data['pid']);
+                $data['psid'] = $product->get_segment()['psid'];
+            }
+            if($data['costPrice'] < $data['affBuyingPrice']) {
+                $this->errorcode = 3;
+                return;
+            }
+            unset($data['qtyPotentiallySold_disabled'], $data['daysInStock_disabled']);
+            $query = $db->insert_query(self::TABLE_NAME, $data);
+            if($query) {
+                $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+            }
+        }
     }
 
     protected function update(array $data) {
-
+        global $db, $core, $log;
+        if(!$this->validate_requiredfields($data)) {
+            $data = $this->calculate_values();
+            if(empty($data['psid'])) {
+                $product = new Products($data['pid']);
+                $data['psid'] = $product->get_segment()['psid'];
+            }
+            if($data['costPrice'] < $data['affBuyingPrice']) {
+                $this->errorcode = 3;
+                return;
+            }
+            unset($data['qtyPotentiallySold_disabled'], $data['daysInStock_disabled']);
+            $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
+            if($query) {
+                $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+            }
+        }
     }
 
     public function calculate_values(array $data = array()) {
@@ -48,7 +75,7 @@ class AroRequestLines extends AbstractClass {
             $data['ptid'] = $aroorderrequest->orderType;
         }
         if(isset($data['ptid']) && !empty($data['ptid'])) {
-            $purchasetype = new PurchaseTypes(array('ptid' => $data['ptid']));
+            $purchasetype = new PurchaseTypes($data['ptid']);
             unset($data['ptid']);
         }
         /* Get Aro request order type - End */
@@ -57,9 +84,9 @@ class AroRequestLines extends AbstractClass {
             if(!isset($data['qtyPotentiallySoldPerc']) && isset($data['qtyPotentiallySold'])) {
                 $data['qtyPotentiallySoldPerc'] = round(($data['qtyPotentiallySold'] / $data['quantity']) * 100, 2);
             }
-        }
-        if(isset($data['qtyPotentiallySoldPerc']) && !empty($data['qtyPotentiallySoldPerc'])) {
-            $data['qtyPotentiallySold'] = (($data['qtyPotentiallySoldPerc'] * $data['quantity']) / 100);
+            else {
+                $data['qtyPotentiallySold'] = (($data['qtyPotentiallySoldPerc'] * $data['quantity']) / 100);
+            }
         }
 
         if(is_object($purchasetype)) {
@@ -69,13 +96,46 @@ class AroRequestLines extends AbstractClass {
                 $data['affBuyingPrice'] = '-';
                 $data['totalBuyingValue'] = round($data['intialPrice'] * $data['quantity'], 2);
             }
+            $data['qtyPotentiallySold_disabled'] = $data['daysInStock_disabled'] = 1;
+            if($purchasetype->qtyIsNotStored == 1) {
+                $data['qtyPotentiallySold_disabled'] = 0;
+                $data['daysInStock_disabled'] = 0;
+            }
         }
         if(isset($data['quantity']) && !empty($data['quantity'])) {
             $data['costPriceAtRiskRatio'] = round(($data['costPrice'] + (($data['totalBuyingValue'] * $riskratio) / $data['quantity'])), 2);
         }
         $data['grossMarginAtRiskRatio'] = round((($data['sellingPrice'] - $data['costPriceAtRiskRatio']) * $data['quantity']), 2);
 
+        $data['netMargin'] = $this->calculate_netmargin($data, $purchasetype);
+        unset($data['exchangeRateToUSD']);
+
+
         return $data;
+    }
+
+    private function calculate_netmargin($data, $purchasetype) {
+        $exchangeRateToUSD = $data['exchangeRateToUSD'];
+
+        if($purchasetype->title == 'RIC') {
+            //   return ($data['grossMarginAtRiskRatio'] - (($data['quantity'] * $data['costPriceAtRiskRatio']) * BR / years * pol) * $exchangeRateToUSD);
+        }
+        else {
+            //   return (($data['grossMarginAtRiskRatio'] - (($data['quantity'] * $data['affBuyingPrice'] * BR) / (years * pol))) * $exchangeRateToUSD);
+            //    ((N27-((D27*I27*LocalBR)/YearDays*POI_L))*X_USD-(((WH_TL*D27)/TotalQty)*(E27/WH_PR)*WH_R))
+        }
+    }
+
+    private function validate_requiredfields(array $data = array()) {
+        if(is_array($data)) {
+            $required_fields = array('pid', 'quantity');
+            foreach($required_fields as $field) {
+                if(empty($data[$field]) && $data[$field] != '0') {
+                    $this->errorcode = 2;
+                    return true;
+                }
+            }
+        }
     }
 
 }

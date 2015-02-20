@@ -25,18 +25,18 @@ if(!($core->input['action'])) {
         $affiliate[$affid] = new Affiliates($affid);
     }
 
-    $affiliate_list = parse_selectlist('orderid[affid]', 1, $affiliate, $orderid[affid], '', '', array('blankstart' => true, 'id' => "affid"));
+    $affiliate_list = parse_selectlist('affid', 1, $affiliate, $orderid[affid], '', '', array('blankstart' => true, 'id' => "affid"));
     $purchasetypes = PurchaseTypes::get_data('name IS NOT NULL', array('returnarray' => true));
 
-    $purchasetypelist = parse_selectlist('orderid[orderType]', 4, $purchasetypes, $orderid['ptid'], '', '', array('blankstart' => true, 'id' => "purchasetype"));
+    $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $orderid['ptid'], '', '', array('blankstart' => true, 'id' => "purchasetype"));
 
     // $mainaffobj = new Affiliates($core->user['mainaffiliate']);
     //$currencies = Currencies::get_data();
     $checksum = generate_checksum('odercustomer');
     $rowid = 1;
-    $currencies_list = parse_selectlist('orderid[currency]', 4, $currencies, '', '', '', array('blankstart' => 1, 'id' => "currencies"));
+    $currencies_list = parse_selectlist('currency', 4, $currencies, '', '', '', array('blankstart' => 1, 'id' => "currencies"));
     $inspections = array('inspection1' => 'inspection');
-    $inspectionlist = parse_selectlist('orderid[inspectionType]', 4, $inspections, '');
+    $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, '');
     $payment_terms = PaymentTerms::get_data('', array('returnarray' => ture));
 
     $payment_term = parse_selectlist('customeroder[corder]['.$rowid.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
@@ -126,17 +126,28 @@ else {
         output($aro_managedocuments_ordercustomers_rows);
     }
     if($core->input['action'] == 'do_perform_managearodouments') {
-        if(isset($core->input['orderid']) && !empty($core->input['orderid']['affid'])) {
-            $orderident_obj = new AroOrderRequest ();
-            /* get arodocument of the affid and pruchase type */
-            $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $core->input['orderid']['affid'], 'ptid' => $core->input['orderid']['orderType']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
-            $nextsequence_number = $documentseq_obj->get_nextaro_identification();
-            $core->input['orderid']['nextnumid']['nextnum'] = $nextsequence_number;
-            $orderident_obj->set($core->input);
-            $orderident_obj->save();
+        //    if(isset($core->input['orderid']) && !empty($core->input['affid'])) {
+        $orderident_obj = new AroOrderRequest ();
+        /* get arodocument of the affid and pruchase type */
+        $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $core->input['affid'], 'ptid' => $core->input['orderType']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
+        $nextsequence_number = $documentseq_obj->get_nextaro_identification();
+        $core->input['nextnumid']['nextnum'] = $nextsequence_number;
+        $orderident_obj->set($core->input);
+        $orderident_obj->save();
+
+        switch($orderident_obj->get_errorcode()) {
+            case 0:
+            case 1:
+                output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+                break;
+            case 2:
+                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+                break;
+            case 3:
+                output_xml('<status>false</status><message>Error</message>');
+                break;
         }
-
-
+        //  }
 //        if(isset($core->input[customeroder]['altcorder'][altcid])) {
 //            $ordercust_obj = new AroOrderCustomers();
 //            $ordercust_obj->set($core->input[customeroder]['altcorder']);
@@ -178,11 +189,12 @@ else {
         $display = 'none';
         $productlines_data = $core->input['ajaxaddmoredata'];
         $productline['inputChecksum'] = generate_checksum('pl');
+        $packaging = Packaging::get_data('name IS NOT NULL');
         $segments = ProductsSegments::get_segments('');
         $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
         $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."packing", 'blankstart' => 1));
         $uom = Uom::get_data('name IS NOT NULL');
-        $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, '', '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1));
+        $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, '', '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
         output($aroproductlines_rows);
     }
@@ -197,15 +209,17 @@ else {
             if(!empty($value)) {
                 $productline['productline_'.$rowid.'_'.$key] = $value;
             }
+            if($key == 'qtyPotentiallySold_disabled' || $key == 'daysInStock_disabled') {
+                $productline['productline_'.$rowid.'_'.$key] = $value;
+            }
         }
-
         //$purchasetype = new PurchaseTypes(array('ptid' => $core->input['ptid']));
         //if($purchasetype->qtyIsNotStored == 1) {
-        //$disabled_fields['daysInStock'] = $disabled_fields['qtyPotentiallySold'] = 'disabled="disabled"';
+        //$disabled_fields['daysInStock'] = $disabled_fields['qtyPotentiallySold'] = 'disabled = "disabled"';
         // }
         //if($productline['daysInStock'] == 0) {
-        // $disabled_fields['qtyPotentiallySold'] = 'disabled="disabled"';
-
+        // $disabled_fields['qtyPotentiallySold'] = 'disabled = "disabled"';
+        //}
         echo json_encode($productline);
     }
 }
