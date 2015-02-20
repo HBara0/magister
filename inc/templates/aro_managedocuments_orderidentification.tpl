@@ -5,7 +5,10 @@
         <tbody>
             <tr>
                 <td>Affiliate</td>
-                <td>{$affiliate_list}</td>
+                <td>
+                    {$affiliate_list}
+                    <input type='hidden' name='aorid' value='{$aroorderrequest->aorid}'/>
+                </td>
                 <td>order Type</td>
                 <td>{$purchasetypelist}</td>
                 <td>Buying Currency</td>

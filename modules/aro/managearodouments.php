@@ -154,6 +154,7 @@ else {
         output($aro_managedocuments_ordercustomers_rows);
     }
     if($core->input['action'] == 'do_perform_managearodouments') {
+        unset($core->input['module'], $core->input['action']);
         //    if(isset($core->input['orderid']) && !empty($core->input['affid'])) {
         $orderident_obj = new AroOrderRequest ();
         /* get arodocument of the affid and pruchase type */
