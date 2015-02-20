@@ -86,8 +86,7 @@ $(function() {
         //}
     });
 
-
-    $("input[id$='_quantity']").live('change keyup', function() {
+    $("input[id$='_quantity']").live('change keyup live', function() {
         var id = $(this).attr('id').split("_");
         var fields = ["daysInStock", "qtyPotentiallySold"];
         for(var i = 0; i < fields.length; i++) {
@@ -98,4 +97,13 @@ $(function() {
             }
         }
     });
+    $("input[id$='_daysInStock']").live('change keyup', function() {
+        var id = $(this).attr('id').split("_");
+        $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").removeAttr("disabled");
+        //|| ($("input[id='productline_" + id[1] + "_qtyPotentiallySold_disabled']").val() == 0)
+        if($(this).val() == 0) {
+            $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").attr("disabled", "true");
+        }
+    });
+
 });

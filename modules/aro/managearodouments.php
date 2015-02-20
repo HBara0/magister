@@ -31,6 +31,8 @@ if(!($core->input['action'])) {
     $segments = ProductsSegments::get_segments('');
     $packaging = Packaging::get_data('name IS NOT NULL');
     $uom = Uom::get_data('name IS NOT NULL');
+    $mainaffobj = new Affiliates($core->user['mainaffiliate']);
+    $currencies = Currencies::get_data();
 
     if(!isset($core->input['id'])) {
         //order identification
@@ -93,13 +95,13 @@ if(!($core->input['action'])) {
                     $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $productline['uom'], '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
                     $product = new Products($productline['pid']);
                     $productline[productName] = $product->get_displayname();
-//                    $purchasetype = new PurchaseTypes(array('ptid' => $aroorderrequest->orderType));
-//                    if($purchasetype->qtyIsNotStored == 1) {
-//                        $disabled_fields['daysInStock'] = $disabled_fields['qtyPotentiallySold'] = 'disabled="disabled"';
-//                    }
-//                    if($productline['daysInStock'] == 0) {
-//                        $disabled_fields['qtyPotentiallySold'] = 'disabled="disabled"';
-//                    }
+                    $purchasetype = new PurchaseTypes(array('ptid' => $aroorderrequest->orderType));
+                    if($purchasetype->qtyIsNotStored == 1) {
+                        $disabled_fields['daysInStock'] = $disabled_fields['qtyPotentiallySold'] = 'disabled="disabled"';
+                    }
+                    if($productline['daysInStock'] == 0) {
+                        $disabled_fields['qtyPotentiallySold'] = 'disabled="disabled"';
+                    }
                     eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
                     $plrowid++;
                 }
