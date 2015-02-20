@@ -29,12 +29,19 @@ class AroOrderCustomers extends AbstractClass {
     }
 
     protected function update(array $data) {
-        ;
+        global $db, $core, $log;
+        if(!$this->validate_requiredfields($data)) {
+
+            $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
+            if($query) {
+                $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+            }
+        }
     }
 
     public function create(array $data) {
         global $db, $core, $log;
-        $required_fields = array('affid', 'orderType'); //warehsuoe
+        $required_fields = array('paymentTermBaseDate', 'cid'); //warehsuoe
         foreach($required_fields as $field) {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
             if(is_empty($data[$field])) {
@@ -42,16 +49,16 @@ class AroOrderCustomers extends AbstractClass {
                 return false;
             }
         }
-
         if(isset($data['altcid']) && !empty($data['altcid'])) {
             $data['altcid'] = $data['altcid'];
             $data['cid'] = 0;
         }
 
-
         $data['paymentTermBaseDate'] = strtotime($data['paymentTermBaseDate']);
         $policies_array = array('cid' => $data['cid'],
                 'ptid' => $data['ptid'],
+                'inputChecksum' => $data['ptid'],
+                'aorid' => $data['aorid'],
                 'altCid' => $data['altcid'],
                 'paymentTermDesc' => $data['paymentTermDesc'],
                 'paymentTermBaseDate' => $data['paymentTermBaseDate'],
