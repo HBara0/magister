@@ -197,7 +197,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         $transp_obj = new TravelManagerPlanTransps();
                         $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                         $transit['tmtcid'] = $transit['tmtcid'];
-
+                        //  $check['inputChecksum'] = $transit['inputChecksum'];
                         $transp_obj->set($transit);
                         $transp_obj->save();
                     }
@@ -223,13 +223,22 @@ class TravelManagerPlanSegments extends AbstractClass {
                     }
                     // $data['tmtcid'] = $category;
                     $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+                    //$check['inputChecksum'] = $data['inputChecksum'];
                     $transp_obj->set($data);
                     $transp_obj->save();
                 }
             }
             unset($chkdata);
         }
-
+//        $saved_transps = TravelManagerPlanTransps::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
+//        if(is_array($saved_transps)) {
+//            foreach($saved_transps as $saved_transp) {
+//                if(in_array($saved_transp->inputChecksum, $check)) {
+//                    continue;
+//                }
+//                $saved_transp->delete();
+//            }
+//        }
 
         if(is_array($segmentdata['tmhid'])) {
             $segment_hotels['tmhid'] = $segmentdata['tmhid'];
