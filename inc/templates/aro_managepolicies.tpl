@@ -3,6 +3,14 @@
         <title>{$core->settings[systemtitle]} | {$lang->managepolicies}</title>
         {$headerinc}
         <script>
+            $(function() {
+                $("input[id^='pickDate_from']").live('change', function() {
+                    var minDate = $("input[id^='altpickDate_from']").val();
+                    var date = minDate.split("-");
+                    $("input[id^='pickDate_to']").datepicker("option", "minDate", new Date(date[2], date[1] - 1, date[0]));
+                    //  $("input[id^='pickDate_to']").focus();
+                })
+            });
         </script>
     </head>
     <body>
@@ -23,40 +31,40 @@
                     <tr>
                         <td>{$lang->effromdate}</td>
                         <td>
-                            <input type="text" id="pickDate_from"  autocomplete="off" tabindex="2" value="{$aropolicy[effectiveFrom_output]}" required="required" />
+                            <input type="text" id="pickDate_from" autocomplete="off" tabindex="2" value="{$aropolicy[effectiveFrom_output]}" required="required" />
                             <input type="hidden" name="aropolicy[effectiveFrom]" id="altpickDate_from" value="{$aropolicy[effectiveFrom_formatted]}"/>
                         </td>
                     </tr>
                     <tr>
                         <td>{$lang->eftodate}</td>
                         <td>
-                            <input type="text" id="pickDate_to"  autocomplete="off" tabindex="2" value="{$aropolicy[effectiveTo_output]}" required="required" />
+                            <input type="text" id="pickDate_to" autocomplete="off" tabindex="2" value="{$aropolicy[effectiveTo_output]}" required="required" />
                             <input type="hidden" name="aropolicy[effectiveTo]" id="altpickDate_to" value="{$aropolicy[effectiveTo_formatted]}"/>
                         </td>
                     </tr>
                     <tr>
                         <td>{$lang->riskratio}</td>
-                        <td><input type="number" step="any" min="0" name="aropolicy[riskRatio]" id="aropolicy_riskRatio" value="{$aropolicy[riskRatio]}"/></td>
+                        <td><input type="number" step="any" min="0" name="aropolicy[riskRatio]" id="aropolicy_riskRatio" value="{$aropolicy[riskRatio]}"/> %</td>
                     </tr>
                     <tr>
                         <td>{$lang->yearlyintrestrate}</td>
-                        <td><input type="number" step="any" min="0" name="aropolicy[yearlyInterestRate]" id="aropolicy_yearlyInterestRate" value="{$aropolicy[yearlyInterestRate]}"/></td>
+                        <td><input type="number" step="any" min="0" name="aropolicy[yearlyInterestRate]" id="aropolicy_yearlyInterestRate" value="{$aropolicy[yearlyInterestRate]}"/> %</td>
                     </tr>
                     <tr>
                         <td>{$lang->defaultcommissioncharged}</td>
-                        <td><input type="number" step="any" min="0" name="aropolicy[commissionCharged]" id="aropolicy_commissionCharged" value="{$aropolicy[commissionCharged]}"/></td>
+                        <td><input type="number" step="any" min="0" name="aropolicy[commissionCharged]" id="aropolicy_commissionCharged" value="{$aropolicy[commissionCharged]}"/> %</td>
                     </tr>
                     <tr>
                         <td>{$lang->riskratiodiffcurrcp}</td>
-                        <td><input type="number" step="any" min="0" name="aropolicy[riskRatioDiffCurrCP]" id="aropolicy_riskRatioDiffCurrCP" value="{$aropolicy[riskRatioDiffCurrCP]}"/></td>
+                        <td><input type="number" step="any" min="0" name="aropolicy[riskRatioDiffCurrCP]" id="aropolicy_riskRatioDiffCurrCP" value="{$aropolicy[riskRatioDiffCurrCP]}"/> %</td>
                     </tr>
                     <tr>
                         <td width="40%">{$lang->riskratiomonthlyincrease}</td>
-                        <td><input type="number" step="any" min="0" name="aropolicy[riskRatioMonthlyIncreaseDiffCurrCN]" id="aropolicy_riskRatioMonthlyIncreaseDiffCurrCN" value="{$aropolicy[riskRatioMonthlyIncreaseDiffCurrCN]}"/></td>
+                        <td><input type="number" step="any" min="0" name="aropolicy[riskRatioMonthlyIncreaseDiffCurrCN]" id="aropolicy_riskRatioMonthlyIncreaseDiffCurrCN" value="{$aropolicy[riskRatioMonthlyIncreaseDiffCurrCN]}"/> %</td>
                     </tr>
                     <tr>
                         <td>{$lang->riskratiosamecurrcn}</td>
-                        <td><input type="number" step="any" min="0" name="aropolicy[riskRatioSameCurrCN]" id="aropolicy_riskRatioSameCurrCN" value="{$aropolicy[riskRatioSameCurrCN]}"/></td>
+                        <td><input type="number" step="any" min="0" name="aropolicy[riskRatioSameCurrCN]" id="aropolicy_riskRatioSameCurrCN" value="{$aropolicy[riskRatioSameCurrCN]}"/> %</td>
                     </tr>
                     <tr>
                         <td>
