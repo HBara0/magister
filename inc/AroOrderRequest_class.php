@@ -31,7 +31,7 @@ class AroOrderRequest extends AbstractClass {
     public function create(array $data) {
         global $db, $core, $log;
 
-        $required_fields = array('affid', 'orderType'); //warehsuoe
+        $required_fields = array('affid', 'orderType', 'currency'); //warehsuoe
         foreach($required_fields as $field) {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
             if(is_empty($data[$field])) {
@@ -61,6 +61,10 @@ class AroOrderRequest extends AbstractClass {
             }
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+
+            //$netmarginparms=$data['netmarginparms];
+            //$this->save_productlines($data['productline'],$netmarginparms);
+
             $this->save_productlines($data['productline']);
             $this->save_ordercustomers($data['customeroder']);
             $this->errorcode = 0;
@@ -78,7 +82,7 @@ class AroOrderRequest extends AbstractClass {
 
     protected function update(array $data) {
         global $db, $core, $log;
-        $required_fields = array('affid', 'orderType'); //warehsuoe
+        $required_fields = array('affid', 'orderType', 'currency'); //warehsuoe
         foreach($required_fields as $field) {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
             if(is_empty($data[$field])) {
@@ -101,7 +105,7 @@ class AroOrderRequest extends AbstractClass {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
-            // $this->save_productlines($data['productline']);
+            $this->save_productlines($data['productline']);
             $this->save_ordercustomers($data['customeroder']);
             $this->errorcode = 0;
         }
@@ -127,12 +131,13 @@ class AroOrderRequest extends AbstractClass {
         }
     }
 
-    private function save_productlines($arorequestlines) {
+    private function save_productlines($arorequestlines) {  //$netmarginparms
         global $db;
         if(is_array($arorequestlines)) {
             foreach($arorequestlines as $arorequestline) {
                 $arorequestline['aorid'] = $this->data[self::PRIMARY_KEY];
                 $arorequestline['exchangeRateToUSD'] = $this->data['exchangeRateToUSD'];
+                //$arorequestline['parmsfornetmargin']=$netmarginparms;
                 if(isset($arorequestline['todelete']) && !empty($arorequestline['todelete'])) {
                     $requestline = AroRequestLines::get_data(array('inputChecksum' => $arorequestline['inputChecksum']));
                     if(is_object($requestline)) {
