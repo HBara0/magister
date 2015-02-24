@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Sessions Class
  * $id: Sessions_class.php
  * Last Update: @zaher.reda 	August 30, 2012 | 12:27 PM
@@ -131,7 +131,7 @@ class Sessions {
               return false;
               } */
 
-            if((TIME_NOW - $session_information['time']) > (60 * 5)) {
+            if((TIME_NOW - $session_information['time']) > (60 * 2)) {
                 $db->update_query('users', array('lastVisit' => TIME_NOW), "uid='".$this->uid."'");
                 $db->update_query('sessions', array('time' => TIME_NOW), "sid='".$this->sid."'");
                 $this->create_cookie('sid', $this->sid, (TIME_NOW + (60 * $core->settings['idletime']))); //60*SESSION_EXPIRE
@@ -141,7 +141,7 @@ class Sessions {
 
         if($this->uid != $session_information['uid']) {
             $query = $db->update_query('sessions', $session_data, "sid='".$this->sid."'");
-            //if($db->affected_rows() == 0) { 
+            //if($db->affected_rows() == 0) {
             //$this->create_dbsession();
             //}
         }
@@ -152,7 +152,7 @@ class Sessions {
         if(empty($core->cookies['loginKey'])) {
             unset($core->user);
             $this->uid = 0;
-            //$this->create(); 
+            //$this->create();
             return false;
         }
         else {
