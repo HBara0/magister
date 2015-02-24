@@ -46,7 +46,7 @@ class Inlinefilters {
       )
       )
       );
-     * 
+     *
       EXAMPLE:
       $config = array(
       'parse' => array('filters' => array('fullName', 'displayName', 'mainAffid', 'position', 'reportsTo'),
@@ -365,7 +365,7 @@ class Inlinefilters {
 
         $query_filter_statement = '';
         foreach($filters as $filteritem => $attr) {
-            if(isset($core->input['filters'][$filteritem]) && !empty($core->input['filters'][$filteritem])) {
+            if(isset($core->input['filters'][$filteritem]) && (!empty($core->input['filters'][$filteritem]) || $core->input['filters'][$filteritem] == '0')) {
                 $query_filter_statement .= $query_operator.$this->parse_whereentry($attr, $filteritem);
                 if($this->matching_rule == 'all') {
                     $query_operator = ' AND ';
