@@ -12,7 +12,7 @@ if(!defined("DIRECT_ACCESS")) {
     die("Direct initialization of this file is not allowed.");
 }
 
-if($core->usergroup['grouppurchase_canUpdateForecast'] == 0) {
+if($core->usergroup['grouppurchase_canGenerateReports'] == 0) {
     error($lang->sectionnopermission);
 }
 
@@ -23,10 +23,8 @@ if(!$core->input['action']) {
         $affiliate_where .= " AND affid IN ({$inaffiliates})";
     }
 
-
     $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, "{$affiliate_where}");
     if(is_array($affiliates)) {
-
         foreach($affiliates as $key => $value) {
             if($key == 0) {
                 continue;
@@ -36,7 +34,6 @@ if(!$core->input['action']) {
             $affiliates_list .='<td><input id="affiliatefilter_check_'.$key.'" name="forecast[affiliates][]"  type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
         }
     }
-
 
     if($core->usergroup['canViewAllSupp'] == 0) {
         $insupplier = implode(',', $core->user['suppliers']['eid']);
@@ -57,7 +54,6 @@ if(!$core->input['action']) {
             $suppliers_list .= '<td><input id="supplierfilter_check_'.$key.'" name="forecast[suppliers][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td><tr>';
         }
     }
-
 
     $years = array_combine(range(date('Y') + 1, date('Y')), range(date('Y') + 1, date('Y')));
     if(is_array($years)) {
@@ -80,7 +76,7 @@ if(!$core->input['action']) {
 
     $dimensions = array('affid' => $lang->affiliate, 'spid' => $lang->supplier, 'pid' => $lang->product, 'saleType' => $lang->saletype, 'businessMgr' => $lang->bm, 'psid' => $lang->segment, 'year' => $lang->year);
     foreach($dimensions as $dimensionid => $dimension) {
-        $dimension_item.='<li class = "ui-state-default" id = '.$dimensionid.' title = "Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
+        $dimension_item.='<li class="ui-state-default" id='.$dimensionid.' title="Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
     }
 
     eval("\$gpforecastgenerate = \"".$template->get('grouppurchase_generateforecast')."\";");
