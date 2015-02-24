@@ -76,6 +76,9 @@ if($session->uid > 0) {
 
     eval("\$header = \"".$template->get('header')."\";");
     eval("\$footer = \"".$template->get('footer')."\";");
+    if($core->user['lastVisit'] == 0) {
+        eval("\$footer .= \"".$template->get('global_quickintrovideo')."\";");
+    }
 }
 else {
     if(strpos(strtolower($_SERVER['PHP_SELF']), 'users.php') === false) {
