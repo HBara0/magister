@@ -25,18 +25,23 @@ if($core->input['authCode'] == AUTHCODE) {
             'BD9DC2F7883B4E11A90B02A9A47991DC' => 1, //Orkila Lebanon
             '933EC892369245E485E922731D46FCB1' => 20, //Orkila Senegal
             '51FB1280AB104EFCBBB982D50B3B7693' => 21, //Orkila CI
-            '7AD08388D369403A9DF4B8240E3AD7FF' => 27 //Orkila International
+            'ED9F0447A2484096B8B0FFF4EC389100' => 2, //Orkila Jordan
+            '301ACDBEC89D4CAAA92B60FC6FA22D89' => 7, //Orkila Cyprus
+            'B707EFC1670F4392A973EB09569D470B' => 29, //Orkila Turkey
+            '0075845F20F24C8CBAFFCABF1EB08FFE' => 16, //Orkila Iraq
+//            '7AD08388D369403A9DF4B8240E3AD7FF' => 27 //Orkila International
     );
 
     $affiliates_addrecpt = array(
             19 => array(244, 356),
-            22 => array(248, 246, 287, 270, 356),
+            22 => array(248, 246, 287, 270, 356, 63),
             23 => array('zadok.oppong-boahene', 'courage.dzandu', 322, 321, 'tarek.chalhoub', 63, 356),
             1 => array(12, 333, 182, 43, 356),
-            21 => array(63, 158, 'bamou.diop', 'annick.kouame', 'abel.laho', 'boulongo.diata', 356),
+            21 => array(63, 158, 'patrice.mossan', 'marcelle.nklo', 'abel.laho', 'boulongo.diata', 356, 'kenan.amjeh'),
             27 => array(12, 333, 68, 67, 342, 30, 356),
-            20 => array('michel.mbengue', 'abdoulaye.lo', 'ansou.dabo', 'fatimatou.diallo', 356),
-            11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 356)
+            20 => array('michel.mbengue', 'samba.kandji', 'ansou.dabo', 'fatimatou.diallo', 356),
+            11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 356, 63),
+            2 => array('amal.dababneh')
     );
 
     $integration = new IntegrationOB($db_info, 'C08F137534222BD001345B7B2E8F182D', $affiliates_index, 3, array('from' => '2010-01-01'));
@@ -142,6 +147,9 @@ if($core->input['authCode'] == AUTHCODE) {
 
         $integration->set_organisations(array($orgid));
         $inputs = $integration->get_fifoinputs(array($orgid), array('hasqty' => true));
+        if(empty($inputs)) {
+            continue;
+        }
         $fxrates['usd'] = $currency_obj->get_latest_fxrate($affiliate['currency']);
 
         foreach($configs as $report => $config) {
@@ -768,10 +776,10 @@ if($core->input['authCode'] == AUTHCODE) {
         $message = '<html><head><title>Stock Report</title></head><body>';
         $message .= '<h1>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')<br /><small style="color:red;">New Feature: Check the new Expiry Aging table, and its summaries</small></h1>';
         $message .= $stockevolution_output.$alerts.$summaries_ouput.$output.$fxratesoverview_output;
-
+        unset($stockevolution_output, $alerts, $summaries_ouput, $output, $fxratesoverview_output);
         $email_data = array();
-        $email_data['to'][] = $affiliateobj->get_generalmanager()->get()['email'];
-        $email_data['to'][] = $affiliateobj->get_supervisor()->get()['email'];
+        $email_data['to'][] = $affiliateobj->get_generalmanager()->email;
+        $email_data['to'][] = $affiliateobj->get_supervisor()->email;
 
         if(isset($affiliates_addrecpt[$affid])) {
             foreach($affiliates_addrecpt[$affid] as $uid) {
@@ -785,6 +793,7 @@ if($core->input['authCode'] == AUTHCODE) {
             }
         }
 
+        array_unique($email_data['to']);
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_required_contenttypes(array('html'));
