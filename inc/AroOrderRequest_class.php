@@ -22,7 +22,7 @@ class AroOrderRequest extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = 'aorid,affid,orderType';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'affid,orderType';
+    const UNIQUE_ATTRS = 'affid,orderType,orderReference';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -102,7 +102,7 @@ class AroOrderRequest extends AbstractClass {
         );
         $query = $db->update_query(self::TABLE_NAME, $orderrequest_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
-            $this->data[self::PRIMARY_KEY] = $db->last_id();
+            //  $this->data[self::PRIMARY_KEY] = $db->last_id();
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             $this->save_productlines($data['productline']);
@@ -112,21 +112,17 @@ class AroOrderRequest extends AbstractClass {
     }
 
     private function save_ordercustomers($customersdetails) {
-        foreach($customersdetails as $cusomeroder) {
-            foreach($cusomeroder as $order) {
-                $order[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
-                // if(isset($order['cid']) && !empty($order['cid'])) {
-                $ordercust_obj = new AroOrderCustomers();
-                $ordercust_obj->set($order);
-                $ordercust_obj->save();
-                // }
-                $this->errorcode = $ordercust_obj->errorcode;
-                switch($this->get_errorcode()) {
-                    case 0:
-                        continue;
-                    case 2:
-                        return;
-                }
+        foreach($customersdetails as $order) {
+            $order['aorid'] = $this->data[self::PRIMARY_KEY];
+            $ordercust_obj = new AroOrderCustomers();
+            $ordercust_obj->set($order);
+            $ordercust_obj->save();
+            $this->errorcode = $ordercust_obj->errorcode;
+            switch($this->get_errorcode()) {
+                case 0:
+                    continue;
+                case 2:
+                    return;
             }
         }
     }
@@ -157,6 +153,33 @@ class AroOrderRequest extends AbstractClass {
                 }
             }
         }
+    }
+
+    public function calculate_netmaginparms($data = array()) {
+        $parmsfornetmargin = array('estimatedLocalPayment' => 10,
+                'estimatedImtermedPayment' => 100,
+                'estimatedManufacturerPayment' => 98 //strtotime()
+        );
+
+        $where = 'warehouse='.$data['warehouse'].' AND '.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo';
+        $warehousepolicy = AroManageWarehousesPolicies::get_data($where);
+        $currency = new Currencies($warehousepolicy->currency);
+        $uom = new Uom($warehousepolicy->rate_uom);
+        $data['warehousingRate'] = $warehousepolicy->rate.'  '.$currency->alphaCode.'/'.$uom->get_displayname().'/'.$warehousepolicy->datePeriod.' Days';
+        $data['warehousingPeriod'] = $warehousepolicy->datePeriod;
+
+        $purchasetype = new PurchaseTypes($data['ptid']);
+        $data['intermedPeriodOfInterest'] = $data['localPeriodOfInterest'] = 0;
+        $data['intermedPeriodOfInterest'] = $parmsfornetmargin['estimatedImtermedPayment'] - $parmsfornetmargin['estimatedManufacturerPayment'];
+        if($purchasetype->isPurchasedByEndUser == 1) {
+            $data['localPeriodOfInterest'] = max($parmsfornetmargin['estimatedLocalPayment'] - $parmsfornetmargin['estimatedImtermedPayment'], 0);
+        }
+        else {
+            $data['localPeriodOfInterest'] = max($parmsfornetmargin['estimatedLocalPayment'] - $parmsfornetmargin['estimatedManufacturerPayment'], 0);
+        }
+
+
+        return $data;
     }
 
 }

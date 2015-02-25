@@ -20,7 +20,7 @@ class AroOrderCustomers extends AbstractClass {
     const PRIMARY_KEY = 'aocid';
     const TABLE_NAME = 'aro_order_customers';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'aocid,ptid';
+    const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'cid';
 
@@ -30,36 +30,43 @@ class AroOrderCustomers extends AbstractClass {
 
     protected function update(array $data) {
         global $db, $core, $log;
-        if(!$this->validate_requiredfields($data)) {
-
-            $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
-            if($query) {
-                $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
-            }
+        // if(!$this->validate_requiredfields($data)) {
+        //  $data['modifiedOn'] =;
+        // $data['modifiedBy'] =;
+        $data['paymentTermBaseDate'] = strtotime($data['paymentTermBaseDate']);
+        $data_array = array('cid' => $data['cid'],
+                'ptid' => $data['ptid'],
+                'inputChecksum' => $data['inputChecksum'],
+                'aorid' => $data['aorid'],
+                'paymentTermDesc' => $data['paymentTermDesc'],
+                'paymentTermBaseDate' => $data['paymentTermBaseDate'],
+                'modifiedBy' => $core->user['uid'],
+                'modifiedOn' => TIME_NOW,
+        );
+        $query = $db->update_query(self::TABLE_NAME, $data_array, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
+        if($query) {
+            $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
         }
+        //  }
     }
 
     public function create(array $data) {
         global $db, $core, $log;
-        $required_fields = array('paymentTermBaseDate', 'cid'); //warehsuoe
+        $required_fields = array('cid');
+        //paymentTermBaseDate
         foreach($required_fields as $field) {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
-            if(is_empty($data[$field])) {
+            if(is_empty($data[$field]) && $data[$field] != 0) {
                 $this->errorcode = 2;
                 return false;
             }
-        }
-        if(isset($data['altcid']) && !empty($data['altcid'])) {
-            $data['altcid'] = $data['altcid'];
-            $data['cid'] = 0;
         }
 
         $data['paymentTermBaseDate'] = strtotime($data['paymentTermBaseDate']);
         $policies_array = array('cid' => $data['cid'],
                 'ptid' => $data['ptid'],
-                'inputChecksum' => $data['ptid'],
+                'inputChecksum' => $data['inputChecksum'],
                 'aorid' => $data['aorid'],
-                'altCid' => $data['altcid'],
                 'paymentTermDesc' => $data['paymentTermDesc'],
                 'paymentTermBaseDate' => $data['paymentTermBaseDate'],
                 'createdBy' => $core->user['uid'],

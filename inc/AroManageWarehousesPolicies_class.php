@@ -20,8 +20,8 @@ class AroManageWarehousesPolicies extends AbstractClass {
     const PRIMARY_KEY = 'awpid';
     const TABLE_NAME = 'aro_wareshouses_policies';
     const DISPLAY_NAME = '';
-    const UNIQUE_ATTRS = 'effectiveFrom,effectiveTo';
-    const SIMPLEQ_ATTRS = 'awpid,warehouse,effectiveFrom,effectiveTo,rate';
+    const UNIQUE_ATTRS = 'warehouse,effectiveFrom,effectiveTo';
+    const SIMPLEQ_ATTRS = 'awpid,warehouse,effectiveFrom,effectiveTo,rate,currency,datePeriod,rate_uom';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -60,8 +60,6 @@ class AroManageWarehousesPolicies extends AbstractClass {
     protected function update(array $data) {
         global $db, $core, $log;
         if(is_array($data)) {
-//            $data['effectiveFrom'] = strtotime($data['effectiveFrom']);
-//            $data['effectiveTo'] = strtotime($data['effectiveTo']);
             $data['modifiedBy'] = $core->user['uid'];
             $data['modifiedOn'] = TIME_NOW;
             $query = $db->update_query(self::TABLE_NAME, $data, 'awpid ='.intval($this->data['awpid']));

@@ -44,7 +44,7 @@ class AroRequestLines extends AbstractClass {
     }
 
     protected function update(array $data) {
-        global $db, $core, $log;
+        global $db, $log;
         if(!$this->validate_requiredfields($data)) {
             $data = $this->calculate_values();
             if(empty($data['psid'])) {
@@ -67,7 +67,19 @@ class AroRequestLines extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
-        $fees = $inter_com = $riskratio = 10;
+        //$parmsfornetmargin = $data['parmsfornetmargin'];
+        $parmsfornetmargin = array('fees' => 10,
+                'inter_com' => 10 / 100,
+                'riskRatio' => 3 / 100,
+                'localBankInterestRate' => 8 / 100,
+                'localPeriodOfInterest' => 0,
+                'warehousingTotalLoad' => 10,
+                'warehousingPeriod' => 1,
+                'warehousingRate' => 0.25,
+                'totalQty' => 37.500
+        );
+        $parmsfornetmargin['YearDays'] = 365;
+        //unset($data['parmsfornetmargin']);
 
         /* Get Aro request order type - Start */
         if(empty($data['ptid']) && !empty($data['aorid'])) {
@@ -90,40 +102,47 @@ class AroRequestLines extends AbstractClass {
         }
 
         if(is_object($purchasetype)) {
-            $data['affBuyingPrice'] = round((($data['intialPrice'] + $fees) + ($data['intialPrice'] * $inter_com)), 2);
+            $data['affBuyingPrice'] = round((($data['intialPrice'] + $parmsfornetmargin['fees']) + ($data['intialPrice'] * $parmsfornetmargin['inter_com'])), 2);
             $data['totalBuyingValue'] = round($data['quantity'] * $data['affBuyingPrice'], 2);
             if($purchasetype->isPurchasedByEndUser == 1) {
                 $data['affBuyingPrice'] = '-';
                 $data['totalBuyingValue'] = round($data['intialPrice'] * $data['quantity'], 2);
             }
-            $data['qtyPotentiallySold_disabled'] = $data['daysInStock_disabled'] = 1;
-            if($purchasetype->qtyIsNotStored == 1) {
-                $data['qtyPotentiallySold_disabled'] = 0;
-                $data['daysInStock_disabled'] = 0;
-            }
+//            $data['qtyPotentiallySold_disabled'] = $data['daysInStock_disabled'] = 1;
+//            if($purchasetype->qtyIsNotStored == 1) {
+//                $data['qtyPotentiallySold_disabled'] = 0;
+//                $data['daysInStock_disabled'] = 0;
+//            }
         }
         if(isset($data['quantity']) && !empty($data['quantity'])) {
-            $data['costPriceAtRiskRatio'] = round(($data['costPrice'] + (($data['totalBuyingValue'] * $riskratio) / $data['quantity'])), 2);
+            $data['costPriceAtRiskRatio'] = ceil(($data['costPrice'] + (($data['totalBuyingValue'] * $parmsfornetmargin['riskRatio']) / $data['quantity'])));
         }
-        $data['grossMarginAtRiskRatio'] = round((($data['sellingPrice'] - $data['costPriceAtRiskRatio']) * $data['quantity']), 2);
+        $data['grossMarginAtRiskRatio'] = floor((($data['sellingPrice'] - $data['costPriceAtRiskRatio']) * $data['quantity']));
 
-        $data['netMargin'] = $this->calculate_netmargin($data, $purchasetype);
+        $data['netMargin'] = $this->calculate_netmargin($purchasetype, $data, $parmsfornetmargin);
+
+        if($data['sellingPrice'] * $data['quantity'] != 0) {
+            $data['netMarginPerc'] = $data['netMargin'] / (( $data['sellingPrice'] * $data['quantity']) * $data['exchangeRateToUSD']);
+        }
         unset($data['exchangeRateToUSD']);
-
-
         return $data;
     }
 
-    private function calculate_netmargin($data, $purchasetype) {
-        $exchangeRateToUSD = $data['exchangeRateToUSD'];
-
-        if($purchasetype->title == 'RIC') {
-            //   return ($data['grossMarginAtRiskRatio'] - (($data['quantity'] * $data['costPriceAtRiskRatio']) * BR / years * pol) * $exchangeRateToUSD);
+    private function calculate_netmargin($purchasetype, $data = array(), $parms = array()) {
+        $parmsfornetmargin['YearDays'] = 365;
+        if($purchasetype->isPurchasedByEndUser == 1) {
+            if($parms['localPeriodOfInterest'] != 0) {
+                $netmargin = ($data['grossMarginAtRiskRatio'] - (($data['quantity'] * $data['costPriceAtRiskRatio']) * $parms['localBankInterestRate'] / $parmsfornetmargin['YearDays'] * $parms['localPeriodOfInterest']) * $data['exchangeRateToUSD']);
+            }
         }
         else {
-            //   return (($data['grossMarginAtRiskRatio'] - (($data['quantity'] * $data['affBuyingPrice'] * BR) / (years * pol))) * $exchangeRateToUSD);
-            //    ((N27-((D27*I27*LocalBR)/YearDays*POI_L))*X_USD-(((WH_TL*D27)/TotalQty)*(E27/WH_PR)*WH_R))
+            $parms['localPeriodOfInterest'] = '10';
+            $netmargin = (($data['grossMarginAtRiskRatio'] - (($data['quantity'] * $data['affBuyingPrice'] * $parms['localBankInterestRate']) / ( $parmsfornetmargin['YearDays'] * $parms['localPeriodOfInterest']))) * $data['exchangeRateToUSD']);
+            if($parms['warehousingPeriod'] != 0) {
+                $netmargin -= ((($parms['warehousingTotalLoad'] * $data['quantity']) / $parms['totalQty']) * ($data['daysInStock'] / $parms['warehousingPeriod']) * $parms['warehousingRate']);
+            }
         }
+        return $netmargin;
     }
 
     private function validate_requiredfields(array $data = array()) {

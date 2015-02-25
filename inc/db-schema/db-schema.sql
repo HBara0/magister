@@ -126,15 +126,17 @@ DROP TABLE IF EXISTS `aro_order_customers`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `aro_order_customers` (
   `aocid` int(10) NOT NULL AUTO_INCREMENT,
+  `aorid` int(10) NOT NULL,
   `ptid` int(10) NOT NULL,
-  `paymentTermDesc` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `PaymentTermBaseDate` bigint(30) NOT NULL,
+  `paymentTermDesc` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `paymentTermBaseDate` bigint(30) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
+  `inputChecksum` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cid` int(10) NOT NULL,
   PRIMARY KEY (`aocid`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_order_indentification`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
