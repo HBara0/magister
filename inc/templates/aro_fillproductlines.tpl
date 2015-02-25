@@ -28,7 +28,6 @@
         <tfoot>
             <tr><td valign="top">
                     <input name="numrows_productlines{$plrowid}" type="hidden" id="numrows_productline_{$plrowid}" value="{$plrowid}">
-                <!--    <input type="hidden" name="ajaxaddmoredata[affid]" id="ajaxaddmoredata_affid" value="{$budget_data[affid]}"/> -->
                     <img src="./images/add.gif" id="ajaxaddmore_aro/managearodouments_productline_{$plrowid}" alt="{$lang->add}">
                 </td>
             </tr>

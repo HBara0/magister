@@ -706,7 +706,6 @@ $(function() {
         if($("#numrows_" + uniquename).length != 0) {
             var num_rows = parseInt($("#numrows_" + uniquename).val());
         }
-
         $.ajax({type: 'post',
             url: rootdir + "index.php?module=" + id[1] + "&action=ajaxaddmore_" + id[2],
             data: "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + $('input[id^=ajaxaddmoredata_]').serialize(),
@@ -724,7 +723,6 @@ $(function() {
                 if($("#numrows_" + uniquename).length != 0) {
                     $("#numrows_" + uniquename).val(num_rows + 1);
                 }
-
                 /*find the offset of the first input in the last tr*/
                 $("html, body").animate({scrollTop: $('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').offset().top}, 1000);
                 $('#' + uniquename + '_tbody > tr:last').effect("highlight", {color: '#D6EAAC'}, 1500).find('input').first().focus();
@@ -911,14 +909,18 @@ $(function() {
                 success: function(returnedData) {
                     //{"orderreference":"LB-9-aor1"}
                     //  var json = eval("({'orderreference':'Lb - 1 - 2014'});"); /* convert the json to object */
-                    if(!returnedData) {
-                        $("#orderreference").val(''); //hardcoded temp
-                    }
-                    if(typeof returnedData !== typeof undefined && returnedData !== '') {
-                        var json = eval("(" + returnedData + ");"); /* convert the json to object */
-                        var form = document.forms[formname];
-                        $(form).populate(json, {resetForm: 0});
+                    try {
+                        if(!returnedData) {
+                            $("#orderreference").val(''); //hardcoded temp
+                        }
 
+                        if(typeof returnedData !== typeof undefined && returnedData !== '') {
+                            var json = eval("(" + returnedData + ");"); /* convert the json to object */
+                            var form = document.forms[formname];
+                            $(form).populate(json, {resetForm: 0});
+                        }
+                    } catch(e) {
+                        alert(returnedData);
                     }
                 }
 

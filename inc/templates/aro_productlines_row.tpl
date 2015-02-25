@@ -25,7 +25,7 @@
 
     </td>
     <td>
-        <input type="number"  step="any" name="productline[$plrowid][qtyPotentiallySoldPerc]" id="productline_{$plrowid}_qtyPotentiallySoldPerc" value="{$productline[qtyPotentiallySoldPerc]}" style="width:70px;"/>
+        <input type="number"  step="any" name="productline[$plrowid][qtyPotentiallySoldPerc]" id="productline_{$plrowid}_qtyPotentiallySoldPerc" value="{$productline[qtyPotentiallySoldPerc]}" style="width:70px;" readonly/>
     </td>
     <td>
         <input type="number"  step="any" name="productline[$plrowid][intialPrice]" id="productline_{$plrowid}_intialPrice" value="{$productline[intialPrice]}" style="width:100px;"/>
