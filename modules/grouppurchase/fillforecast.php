@@ -22,7 +22,9 @@ if(!$core->input['action']) {
     $affiliate = new Affiliates($forecast_data['affid']);
     $supplier = new Entities($forecast_data['spid']);
     $supplier_segments = array_filter($supplier->get_segments());
-    $saletypes = SaleTypes::get_data();
+
+    $allowed_saletypes = array('localindent', 'proxydirect', 'localexstock', 'localreinvoicing');
+    $saletypes = SaleTypes::get_data(array('name' => $allowed_saletypes), array('operators' => array('name' => 'IN')));
     $rowid = 1;
 
     for($i = 1; $i < 13; $i++) {
@@ -55,13 +57,13 @@ if(!$core->input['action']) {
                         if(in_array($field, $months)) {
                             $total[$field] += $gpforecastline->$field;
                             $forecastline['quantity'] +=$gpforecastline->$field;
-                            $forecastline[$field] = number_format($forecastline[$field], 2);
-                            $forecastline['quantity'] = number_format($forecastline['quantity'], 2);
+                            $forecastline[$field] = round($forecastline[$field], 2);
+                            $forecastline['quantity'] = round($forecastline['quantity'], 2);
                             /* disable input fields on update for past months */
                             $date_str = $forecast_data['year'].'-'.trim($field, 'month');
-                            if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
-                                $readonly[$field] = 'readonly="readonly"';
-                            }
+//                            if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
+//                                $readonly[$field] = 'readonly="readonly"';
+//                            }
                         }
                 }
             }
@@ -78,7 +80,7 @@ if(!$core->input['action']) {
      * Upon opening the forecast page for the 1st time, read data from commercial budgets and parse the rows accordingly */
     else {
         if(isset($budget['bid']) && !empty($budget['bid'])) {
-            $sql = "SELECT businessMgr,pid,psid,saleType, sum(quantity*s1Perc/100) AS s1quantity,sum(quantity*s2Perc/100) AS s2quantity from budgeting_budgets_lines where businessMgr=".$core->user['uid']." AND bid=".$budget['bid']." GROUP by pid,psid,saleType";
+            $sql = "SELECT businessMgr, pid, psid, saleType, SUM(quantity*s1Perc/100) AS s1quantity, SUM(quantity*s2Perc/100) AS s2quantity FROM budgeting_budgets_lines WHERE businessMgr=".$core->user['uid']." AND bid=".$budget['bid']." AND saletype IN (".implode(', ', array_keys($saletypes)).") GROUP by pid, psid, saleType";
             $query = $db->query($sql);
             if($db->num_rows($query) > 0) {
                 $fields = array('pid', 'saleType', 's1quantity', 's2quantity');
@@ -90,9 +92,9 @@ if(!$core->input['action']) {
                                     $forecastline[$months[$i]] = ($line['s1quantity'] / 6 );
                                     $total[$months[$i]] += $forecastline[$months[$i]];
                                     $date_str = $forecast_data[year].'-'.$i;
-                                    if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
-                                        $readonly[$months[$i]] = 'readonly = "readonly"';
-                                    }
+//                                    if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
+//                                        $readonly[$months[$i]] = 'readonly = "readonly"';
+//                                    }
                                 }
                                 break;
                             case 's2quantity':
@@ -100,9 +102,9 @@ if(!$core->input['action']) {
                                     $forecastline[$months[$i]] = $line['s2quantity'] / 6;
                                     $total[$months[$i]] += $forecastline[$months[$i]];
                                     $date_str = $forecast_data[year].'-'.$i;
-                                    if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
-                                        $readonly[$months[$i]] = 'readonly = "readonly"';
-                                    }
+//                                    if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
+//                                        $readonly[$months[$i]] = 'readonly = "readonly"';
+//                                    }
                                 }
                                 break;
                             case 'saleType';
@@ -121,10 +123,10 @@ if(!$core->input['action']) {
                         $segments_selectlist = parse_selectlist('forecastline['.$rowid.'][psid]', 3, $supplier_segments, $forecastline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
                     }
                     foreach($months as $month) {
-                        $forecastline[$month] = number_format($forecastline[$month], 2);
+                        $forecastline[$month] = round($forecastline[$month], 2);
                     }
                     $forecastline['inputChecksum'] = generate_checksum('gp');
-                    $forecastline['quantity'] = number_format($forecastline['quantity'], 2);
+                    $forecastline['quantity'] = round($forecastline['quantity'], 2);
                     eval("\$forecastlines .= \"".$template->get('grouppurchase_fill_forecastlines')."\";");
                     $rowid++;
                 }
@@ -142,7 +144,7 @@ if(!$core->input['action']) {
         }
     }
     foreach($months as $month) { /* output total row */
-        $total_output .='<td class = "border_right" align = "center"><span style = "font-weight:bold;" id = "forecastline_total_'.$month.'">'.number_format($total[$month], 2).'</span></td>';
+        $total_output .= '<td class = "border_right" align = "center"><span style = "font-weight:bold;" id = "forecastline_total_'.$month.'">'.number_format($total[$month], 2).'</span></td>';
     }
     eval("\$fillforecast = \"".$template->get('grouppurchase_fill_forecast')."\";");
     output_page($fillforecast);
@@ -165,7 +167,7 @@ else if($core->input['action'] == 'do_perform_fillforecast') {
     switch($gpforecast->get_errorcode()) {
         case 0:
         case 1:
-            if(isset($core->input['notify']) && $core->input['notify'] == 1) {
+            if(isset($core->input['notify']) && $core->input ['notify'] == 1) {
                 $mailer = new Mailer();
                 $mailer = $mailer->get_mailerobj();
                 $mailer->set_type();

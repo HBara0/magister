@@ -98,17 +98,17 @@
             <hr />
 
             <p style="text-align: justify;">
-            <div class="subtitle">Another Orkila award for BEST DISTRIBUTOR</div>
-            <p style="text-align: justify;">We are very pleased to announce that Maroof  Mohamed (Orkila FZE Dubai) has been awarded <strong>CEAMSA GOLD MEDAL</strong> for his success in developing a new Product with KRAFT! Replacing Ceamsa’s main competitor.</p>
-            <p style="text-align: justify;">This is an exceptional nomination as Orkila was selected among 18 distributors and around 52 people were contesting for this award. There were three categories Gold, Silver & Bronze.</p>
+            <div class="subtitle">SUPPLIER AWARD</div>
+            <p style="text-align: justify;">We are very pleased to announce that Maroof Mohamed (Orkila FZE Dubai) has been awarded <strong>CEAMSA GOLD MEDAL</strong> for his success in developing a new Product with KRAFT! Replacing Ceamsa’s main competitor.</p>
+            <p style="text-align: justify;">This is an exceptional nomination as Orkila was selected among 18 distributors and around 52 people were contesting for this award. There were three categories Gold, Silver & Bronze</p>
             </p>
             <hr />
 
             <p style="text-align: justify;">
-            <div class="subtitle">Another Orkila award for BEST DISTRIBUTOR</div>
-            <p style="text-align: justify;">Orkila ranks 6th among chemicals distributors in Middle East and Africa and maintains its position as <strong>leading distributor of specialty products.</strong> (ICIS Top 100 Chemical Distributors 2014)
+            <div class="subtitle">ICIS - Top Chemical Distributors 2014</div>
+            <p style="text-align: justify;">Orkila ranks 6th among chemicals distributors in Middle East and Africa and maintains its position as leading <strong>distributor of specialty products</strong>. (ICIS Top 100 Chemical Distributors 2014)
                 <br /><br />
-                The list of ICIS Top 100 Chemical Companies highlights the top players in the global chemical distribution business, measured by sales.
+                The list of ICIS Top 100 Chemical Companies highlights the top players in the global chemical distribution business that form the critical link in the supply chain, ranked by sales revenues, measured by sales, with a look at regional leaders in North America, Europe, Asia, Latin America, and Middle East & Africa.
             </p>
             </p>
             <hr />

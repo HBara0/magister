@@ -424,12 +424,13 @@ if($core->input['action']) {
 
             $cbreak = $sbreak = $profile['suppliersList'] = $profile['customersList'] = '';
             while($entity = $db->fetch_assoc($query3)) {
+                $entity_obj = new Entities($entity['eid']);
                 if($entity['type'] == 'c') {
                     if(++$customers_counter > 2) {
-                        $hidden_customers .= $cbreak.$entity['companyName'];
+                        $hidden_customers .= $cbreak.$entity_obj->parse_link();
                     }
                     else {
-                        $usercustomers .= $cbreak.$entity['companyName'];
+                        $usercustomers .= $cbreak.$entity_obj->parse_link();
                     }
                     $cbreak = '<br />';
 
@@ -439,10 +440,10 @@ if($core->input['action']) {
                 }
                 else {
                     if(++$suppliers_counter > 2) {
-                        $hidden_suppliers .= $sbreak.$entity['companyName'];
+                        $hidden_suppliers .= $sbreak.$entity_obj->parse_link();
                     }
                     else {
-                        $usersuppliers .= $sbreak.$entity['companyName'];
+                        $usersuppliers .= $sbreak.$entity_obj->parse_link();
                     }
                     $sbreak = '<br />';
 
@@ -450,6 +451,7 @@ if($core->input['action']) {
                         $profile['suppliersList'] = $usersuppliers.", <a href='#suppliers' id='showmore_suppliers_{$profile[uid]}' class='smalltext'>{$lang->readmore}</a> <span style='display:none;' id='suppliers_{$profile[uid]}'>{$hidden_suppliers}</span>";
                     }
                 }
+                unset($entity_obj);
             }
 
             if(!empty($profile['building'])) {

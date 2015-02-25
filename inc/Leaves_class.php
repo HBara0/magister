@@ -183,6 +183,13 @@ class Leaves extends AbstractClass {
         }
     }
 
+    public function is_approved() {
+        if(count($this->get_approvals(0)) == 0) {
+            return true;
+        }
+        return false;
+    }
+
     public function get_approval_byappover($approver) {
         return AttLeavesApproval::get_approvals('lid='.$this->data['lid'].' AND uid='.intval($approver));
     }
@@ -211,6 +218,135 @@ class Leaves extends AbstractClass {
             return $approvers;
         }
         return false;
+    }
+
+    public function generate_approvalchain() {
+        $type = $this->get_leavetype(false);
+        $toapprove = unserialize($type->toApprove);
+
+        if(is_array($toapprove)) {
+            $requester = $this->get_requester();
+            $affiliate = $requester->get_mainaffiliate(false);
+            foreach($toapprove as $key => $val) {
+                switch($val) {
+                    case 'reportsTo':
+                        $approvers['reportsTo'] = $requester->reportsTo;
+                        break;
+                    case 'generalManager':
+                        $approvers['generalManager'] = $affiliate->get_generalmanager()->uid;
+                        break;
+                    case 'hrManager':
+                        $approvers['hrManager'] = $affiliate->get_hrmanager()->uid;
+                        break;
+                    case 'supervisor':
+                        $approvers['supervisor'] = $affiliate->get_supervisor()->uid;
+                        break;
+                    case 'segmentCoordinator':
+                        /* If leave has segment selected */
+                        if(is_object($this->get_segment())) {
+                            $leave_segmobjs = $this->get_segment();
+                            $leave_segment_coordinatorobjs = $leave_segmobjs->get_coordinators();
+                            if(is_array($leave_segment_coordinatorobjs)) {
+                                $leave_segment_coordinatorobj = $leave_segment_coordinatorobjs[array_rand($leave_segment_coordinatorobjs, 1)];
+                                $approvers['segmentCoordinator'] = $leave_segment_coordinatorobj->get_coordinator()->get()['uid'];
+                            }
+                        }
+                        break;
+                    case 'financialManager':
+                        $approvers['financialManager'] = $affiliate->get_financialemanager()->uid;
+                        break;
+                    default:
+                        if(is_int($val)) {
+                            $approvers[$val] = $val;
+                        }
+                        break;
+                }
+            }
+            /* Make list of approvers unique */
+            $approvers = array_unique($approvers);
+
+            /* Remove the user himself from the approval chain */
+            unset($approvers[array_search($requester->uid, $approvers)]);
+
+            return $approvers;
+        }
+        return null;
+    }
+
+    public function create_approvalchain($approvers = null) {
+        global $core;
+
+        if(empty($approvers)) {
+            $approvers = $this->generate_approvalchain();
+        }
+        $approve_immediately = $this->should_approveimmediately();
+        foreach($approvers as $key => $val) {
+            if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
+                continue;
+            }
+
+            $approve_status = $timeapproved = 0;
+            if(($val == $core->user['uid'] && $approve_immediately == true) || ($approve_immediately == true && $key == 'reportsTo' && $core->user['uid'] == $this->get_requester()->get_reportsto()->uid)) {
+                if($val == $core->user['uid']) {
+                    $approve_immediately = true;
+                }
+                $approve_status = 1;
+                $timeapproved = TIME_NOW;
+            }
+
+            $sequence = 1;
+            if(is_array($toapprove)) {
+                $sequence = array_search($key, $toapprove);
+            }
+
+            $approver = new AttLeavesApproval();
+            $approver->set(array('lid' => $this->lid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
+            $approver->save();
+        }
+        return true;
+    }
+
+    public function should_approveimmediately() {
+        global $core;
+
+        $requester = $this->get_requester();
+        $reportsto = $requester->get_reportsto();
+        $leavetype = $this->get_type(false);
+        $approve_immediately = false;
+
+        if($core->user['uid'] == $this->uid) {
+            return $approve_immediately;
+        }
+
+        $is_onbehalf = false;
+        if($core->user['uid'] != $this->uid) {
+            $is_onbehalf = true;
+        }
+
+        if($is_onbehalf == true) {
+            if($core->user['uid'] == $reportsto->uid || $core->usergroup['attenance_canApproveAllLeaves'] == 1 || !is_object($requester->get_reportsto())) {
+                $approve_immediately = true; //To be fully implemented at second stage
+            }
+        }
+        else {
+            if(empty($reportsto->uid)) {
+                $approve_immediately = true;
+            }
+        }
+
+        if($leavetype->isBusiness == 1) {
+            $approve_immediately = false;
+        }
+
+        if(!isset($leavetype->toApprove) || empty($leavetype->toApprove)) {
+            $approve_immediately = true;
+        }
+
+        return $approve_immediately;
+    }
+
+    public function get_firstapprover() {
+        return $this->get_approvers(array('order' => array('sort' => 'ASC', 'by' => 'sequence'), 'limit' => '0, 1'));
     }
 
     public static function get_leaves_expencesdata($data_filter = array(), array $config = array()) {

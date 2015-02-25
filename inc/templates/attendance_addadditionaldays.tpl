@@ -24,7 +24,7 @@
                         <td style="vertical-align:top"><input type="text" id='AttendanceAddDays[numDays]' name="AttendanceAddDays[numDays]" required='required' size="5" accept="numeric" tabindex="2"/></td>
                         <td style="vertical-align:top"><input type='text' id='pickDate_date' autocomplete='off' tabindex="3" required='required'/><br />
                             <input type='hidden' name='AttendanceAddDays[date]' id='altpickDate_date' />
-                            <input type='checkbox' name='AttendanceAddDays[correspondToDate]' id='AttendanceAddDays[correspondToDate]' value="1">{$lang->correspondtoperiod}</td>
+                            <input type='checkbox' name='AttendanceAddDays[correspondToDate]' id='AttendanceAddDays[correspondToDate]' value="1" checked="checked">{$lang->correspondtoperiod}</td>
                         <td style="vertical-align:top"><input type="text" id='AttendanceAddDays[remark]' name="AttendanceAddDays[remark]" size="40" tabindex="4" required='required' /></td>
                     </tr>
 

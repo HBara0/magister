@@ -31,19 +31,20 @@ if(!$core->input['action']) {
     }
 
     /* Perform inline filtering - START */
-    $quarter_scale = range(1, 4);
-    array_unshift($quarter_scale, '');
+    $quarter_scale[''] = '';
+    $quarter_scale += array_combine(range(1, 4), range(1, 4));
+
     $year_scale = range(date('Y'), 2009);
     array_unshift($year_scale, ''); // Creates array years use the first array(range from 2004 to current year) as the keys and the second as the values
     $filters_config = array(
             'parse' => array('filters' => array('checkbox', 'affid', 'spid', 'quarter', 'year', 'status'),
-                    'overwriteField' => array('checkbox' => '', 'quarter' => parse_selectlist('filters[quarter]', '3', $quarter_scale, $core->input['filters']['quarter']), 'year' => parse_selectlist('filters[year]', '4', array_combine($year_scale, $year_scale), $core->input['filters']['year']), 'status' => '')
+                    'overwriteField' => array('checkbox' => '', 'quarter' => parse_selectlist('filters[quarter]', '3', $quarter_scale, $core->input['filters']['quarter']), 'year' => parse_selectlist('filters[year]', '4', array_combine($year_scale, $year_scale), $core->input['filters']['year']), 'status' => parse_selectlist('filters[status]', '5', array(1 => $lang->finalized, 0 => $lang->notfinished), $core->input['filters']['status']))
             ),
             'process' => array(
                     'filterKey' => 'rid',
                     'mainTable' => array(
                             'name' => 'reports',
-                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'quarter' => 'quarter', 'year' => 'year'),
+                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'quarter' => 'quarter', 'year' => 'year', 'status' => 'status'),
                     ),
                     'secTables' => array(
                             'entities' => array(

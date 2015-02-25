@@ -136,7 +136,7 @@ class GroupPurchaseForecast extends AbstractClass {
     public static function get_grppurchpermissions($groupdata) {
         global $core;
 
-        if($core->usergroup['grouppurchasing_canViewAllForecasts'] == 1) {
+        if($core->usergroup['grouppurchase_canViewAllForecasts'] == 1) {
             $filter_where['affid'] = $groupdata['affiliates'];
             $filter_where['spid'] = $groupdata['suppliers'];
             return $filter_where;
@@ -144,8 +144,9 @@ class GroupPurchaseForecast extends AbstractClass {
         if(empty($groupdata['suppliers'])) {
             $groupdata['suppliers'] = $core->user['suppliers']['eid'];
         }
-        $filter_where['spid'] = array_intersect($groupdata['suppliers'], $core->user['suppliers']['eid']);
-
+        if(is_array($core->user['suppliers']['eid'])) {
+            $filter_where['spid'] = array_intersect($groupdata['suppliers'], $core->user['suppliers']['eid']);
+        }
         $affiliates_where = '(affid IN ('.implode(',', $core->user['affiliates']).') AND(generalManager='.$core->user['uid'].' OR supervisor='.$core->user['uid'].'))';
         $affiliates_filter = Affiliates::get_affiliates(array('affid' => $affiliates_where), array('returnarray' => true, 'simple' => false, 'operators' => array('affid' => 'CUSTOMSQL')));
         if(is_array($affiliates_filter)) {

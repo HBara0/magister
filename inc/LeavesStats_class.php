@@ -23,6 +23,7 @@ class LeavesStats extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = 'uid,ltid,periodStart,periodEnd';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -254,15 +255,6 @@ class LeavesStats extends AbstractClass {
     private static function count_workingdays(array $data) {
         require_once ROOT.INC_ROOT.'attendance_functions.php';
         return count_workingdays($data['uid'], $data['fromDate'], $data['toDate'], $data['isWholeDay']);
-    }
-
-    public function save(array $data = array()) {
-        if(isset($this->data[self::PRIMARY_KEY]) && !empty($this->data[self::PRIMARY_KEY])) {
-            $this->update($data);
-        }
-        else {
-
-        }
     }
 
     protected function create(array $data) {

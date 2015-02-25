@@ -11,8 +11,8 @@
 if(!defined("DIRECT_ACCESS")) {
     die("Direct initialization of this file is not allowed.");
 }
-if($core->usergroup['grouppurchasing_canViewAllForecasts'] == 0) {
-// error($lang->sectionnopermission);
+if($core->usergroup['grouppurchase_canGenerateReports'] == 0) {
+    error($lang->sectionnopermission);
 }
 if(!($core->input['action'])) {
     $report_type = $core->input['forecast']['reporttype'];
@@ -63,6 +63,7 @@ if(!($core->input['action'])) {
             foreach($purchase_forcastobjs as $groupforecast) {
                 $gplines_filter = GroupPurchaseForecastLines::get_forecastlinespermisiions($groupforecast);
                 $gplines_filter['gpfid'] = $groupforecast->gpfid;
+
                 $gpforecastlines = GroupPurchaseForecastLines::get_data($gplines_filter, array('returnarray' => true, 'simple' => false, 'operators' => array('psid' => 'IN')));
                 if(is_array($gpforecastlines)) {
                     foreach($gpforecastlines as $grouppurchasline) {
