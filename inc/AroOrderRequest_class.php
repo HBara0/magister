@@ -31,7 +31,7 @@ class AroOrderRequest extends AbstractClass {
     public function create(array $data) {
         global $db, $core, $log;
 
-        $required_fields = array('affid', 'orderType', 'currency'); //warehsuoe
+        $required_fields = array('affid', 'orderType', 'currency');
         foreach($required_fields as $field) {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
             if(is_empty($data[$field])) {
@@ -39,17 +39,13 @@ class AroOrderRequest extends AbstractClass {
                 return false;
             }
         }
+        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber');
+        foreach($orderrequest_fields as $orderrequest_field) {
+            $orderrequest_array[$orderrequest_field] = $data[$orderrequest_field];
+        }
+        $orderrequest_array['createdBy'] = $core->user['uid'];
+        $orderrequest_array['createdOn'] = TIME_NOW;
 
-        $orderrequest_array = array('affid' => $data['affid'],
-                'orderType' => $data['orderType'],
-                'orderReference' => $data['orderReference'],
-                'inspectionType' => $data['inspectionType'],
-                'currency' => $data['currency'],
-                'exchangeRateToUSD' => $data['exchangeRateToUSD'],
-                'ReferenceNumber' => $data['ReferenceNumber'],
-                'createdBy' => $core->user['uid'],
-                'createdOn' => TIME_NOW,
-        );
         $query = $db->insert_query(self::TABLE_NAME, $orderrequest_array);
         if($query) {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
@@ -59,12 +55,15 @@ class AroOrderRequest extends AbstractClass {
             }
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
-
-            //$netmarginparms=$data['netmarginparms];
-            //$this->save_productlines($data['productline'],$netmarginparms);
-
-            $this->save_productlines($data['productline']);
             $this->save_ordercustomers($data['customeroder']);
+
+            $netmargnparms_obj = new AroNetMarginParameters();
+            $data['parmsfornetmargin']['aorid'] = $this->data[self::PRIMARY_KEY];
+            $netmargnparms_obj->set($data['parmsfornetmargin']);
+            $netmargnparms_obj->save();
+
+            $data['productline']['parmsfornetmargin'] = $data['parmsfornetmargin'];
+            $this->save_productlines($data['productline']);
             $this->errorcode = 0;
         }
     }
@@ -88,22 +87,25 @@ class AroOrderRequest extends AbstractClass {
                 return false;
             }
         }
-        $orderrequest_array = array('affid' => $data['affid'],
-                'orderType' => $data['orderType'],
-                'orderReference' => $data['orderReference'],
-                'inspectionType' => $data['inspectionType'],
-                'currency' => $data['currency'],
-                'exchangeRateToUSD' => $data['exchangeRateToUSD'],
-                'ReferenceNumber' => $data['ReferenceNumber'],
-                'modifiedBy' => $core->user['uid'],
-                'modifiedOn' => TIME_NOW,
-        );
+        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber');
+        foreach($orderrequest_fields as $orderrequest_field) {
+            $orderrequest_array[$orderrequest_field] = $data[$orderrequest_field];
+        }
+        $orderrequest_array['modifiedBy'] = $core->user['uid'];
+        $orderrequest_array['modifiedOn'] = TIME_NOW;
         $query = $db->update_query(self::TABLE_NAME, $orderrequest_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
-            $this->save_productlines($data['productline']);
             $this->save_ordercustomers($data['customeroder']);
+
+            $netmargnparms_obj = new AroNetMarginParameters();
+            $data['parmsfornetmargin']['aorid'] = $this->data[self::PRIMARY_KEY];
+            $netmargnparms_obj->set($data['parmsfornetmargin']);
+            $netmargnparms_obj->save();
+            $data['productline']['parmsfornetmargin'] = $data['parmsfornetmargin'];
+            $this->save_productlines($data['productline']);
+
             $this->errorcode = 0; // need to check error code
         }
     }
