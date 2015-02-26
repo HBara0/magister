@@ -53,7 +53,8 @@ $(function() {
         $('select[id=purchasetype]').trigger('change');
     });
 
-    /*Disable days in Stock and QPS according to seleced purchasetype*/
+    /*Disable days in Stock, QPS and warehousing section according to seleced purchasetype*/
+    /*trigger productline fields*/
     $("#purchasetype").live('change', function() {
         var ptid = $(this).val();
         $.getJSON(rootdir + 'index.php?module=aro/managearodouments&action=disablefields&ptid=' + ptid, function(data) {
@@ -72,7 +73,6 @@ $(function() {
                     $("input[id$='" + fields[i] + "']").removeAttr("readonly");
                 }
             }
-
             var warehousing_fields = ["warehouse", "warehousingRate", "warehousingPeriod", "warehousingTotalLoad", "uom"];
             for(var i = 0; i < warehousing_fields.length; i++) {
                 if($("input[id='parmsfornetmargin_warehousing_disabled']").val() == 0) {
@@ -88,6 +88,11 @@ $(function() {
                 }
             }
         });
+
+        var plfields = ["quantity", "qtyPotentiallySold", "intialPrice", "costPrice", "sellingPrice", "daysInStock"];
+        for(var i = 0; i < plfields.length; i++) {
+            $("input[id^='productline_'][id$='_" + plfields[i] + "']").trigger('change');
+        }
     });
 
     $("#currencies").live('change', function() {
@@ -171,6 +176,3 @@ $(function() {
 
     });
 });
-
-
-/// Check additional triggers
