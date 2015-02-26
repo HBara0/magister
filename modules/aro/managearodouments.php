@@ -58,9 +58,10 @@ if(!($core->input['action'])) {
         $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."packing", 'blankstart' => 1));
         $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, '', '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
+
+        //Net Margin Parameters
+        $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '70px'));
     }
-    //Net Margin Parameters
-    $uom_list = parse_selectlist('parmsfornetmargin[uom]', '', $uom, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '70px'));
 
     if(isset($core->input['id'])) {
         $aroorderrequest = AroOrderRequest::get_data(array('aorid' => $core->input['id']), array('simple' => false));
@@ -108,6 +109,14 @@ if(!($core->input['action'])) {
                 eval("\$aro_managedocuments_ordercustomers_rows = \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
             }
             //*********Aro Order Customers - End *********//
+            //*********Parameters Influencing Net Margin Calculation -Start ********//
+            $netmarginparms = AroNetMarginParameters::get_data(array('aorid' => $core->input['id']));
+            $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, $netmarginparms->uom, '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '70px'));
+            $warehouse = Warehouses::get_data(array('wid' => $netmarginparms->warehouse));
+            $warehouse_list = '<select><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option></select>';
+            $netmarginparms_warehousingRate = '<option value="'.$netmarginparms->warehousingRate.'">'.$netmarginparms->warehousingRate.'</option>';
+            //  $netmarginparms->warehousingRate_output
+            //*********Parameters Influencing Net Margin Calculation -End ********//
             //********** ARO Product Lines -Start **************//
             $plrowid = 1;
             $productlines = AroRequestLines::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true));
@@ -187,7 +196,7 @@ else {
     }
     if($core->input['action'] == 'do_perform_managearodouments') {
         unset($core->input['module'], $core->input['action']);
-        $orderident_obj = new AroOrderRequest ();
+        $orderident_obj = new AroOrderRequest();
         /* get arodocument of the affid and pruchase type */
         $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $core->input['affid'], 'ptid' => $core->input['orderType']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
         if(is_object($documentseq_obj)) {
