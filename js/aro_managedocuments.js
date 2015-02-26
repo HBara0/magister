@@ -22,14 +22,17 @@ $(function() {
             return;
         }
         $(this).data('affid', $('select[id=affid]').val());
-        var affid = $(this).data('affid')
+        var affid = $(this).data('affid');
         $(this).data('purchasetype', $('select[id=purchasetype]').val());
-        var ptid = $(this).data('purchasetype')
+        var ptid = $(this).data('purchasetype');
         if(ptid !== '' && ptid != typeof undefined) {
             sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid);
+            sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid= ' + affid + '&ptid= ' + ptid);
+
         }
 
     });
+    /*Get Affiliate Warehouses*/
     $('select[id=affid]').live('change', function() {
         $('select[id=purchasetype]').trigger('change');
         var affid = $(this).val();
@@ -38,6 +41,8 @@ $(function() {
             data: "affid=" + affid,
             beforeSend: function() {
                 $("body").append("<div id='modal-loading'></div>");
+                $("#modal-loading").dialog({height: 150, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
+                });
             },
             complete: function() {
                 $("#modal-loading").dialog("close").remove();
@@ -48,6 +53,27 @@ $(function() {
         });
     });
 
+    /*Disable days in Stock and QPS according to seleced purchasetype*/
+    $("#purchasetype").live('change', function() {
+        var ptid = $(this).val();
+        $.getJSON(rootdir + 'index.php?module=aro/managearodouments&action=disablefields&ptid=' + ptid, function(data) {
+            var jsonStr = JSON.stringify(data);
+            obj = JSON.parse(jsonStr);
+            jQuery.each(obj, function(i, val) {
+                $("input[id^='" + i + "']").val(val);
+            });
+            var fields = ["daysInStock", "qtyPotentiallySold"];
+            for(var i = 0; i < fields.length; i++) {
+                if($("input[id='productline_" + fields[i] + "_disabled']").val() == 0) {
+                    $("input[id$='" + fields[i] + "']").val('0');
+                    $("input[id$='" + fields[i] + "']").attr("disabled", "true");
+                }
+                else {
+                    $("input[id$='" + fields[i] + "']").removeAttr("disabled");
+                }
+            }
+        });
+    });
 
     $("#currencies").live('change', function() {
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=getexchangerate&currency=' + $(this).val());
@@ -59,9 +85,9 @@ $(function() {
         var paymentdays = [];
         parentContainer.children('table').find('tr').each(function() {
             /*check if the customer is selected */
-            if($(this).find("input[id^='customer_']").val() != '') {
+            if($(this).find("input[id^='customer_']").val() !== '') {
                 $(this).find('select').each(function() {
-                    if($(this).val() != '') {
+                    if($(this).val() !== '') {
                         paymentdays.push($(this).val());
                     }
                 });
@@ -74,31 +100,6 @@ $(function() {
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=getestimatedate&avgesdateofsale= ' + avgesdateofsale + '&paymentermdays[]= ' + paymentdays + '&ptid= ' + purchasetype);
     });
 
-    $("input[id$='_quantity'],input[id$='_daysInStock']").live('change keyup', function() {
-        var id = $(this).attr('id').split("_");
-        $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").removeAttr("disabled");
-        $("input[id='productline_" + id[1] + "_daysInStock']").removeAttr("disabled");
-        var ptid = $("#purchasetype").val();
-        var daysInStock = $("input[id='productline_" + id[1] + "_daysInStock']").val();
-        var fields = 'rowid=' + id[1] + '&ptid=' + ptid;
-        if(daysInStock !== '' && daysInStock != typeof undefined) {
-            fields = fields + '&daysInStock=' + daysInStock;
-        }
-        if(sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=disablefields&' + fields)) {
-            var fields = ["daysInStock", "qtyPotentiallySold"];
-            alert($("input[id='productline_" + id[1] + "_" + fields[i] + "_disabled']").val());
-            for(var i = 0; i < fields.length; i++) {
-                if($("input[id='productline_" + id[1] + "_" + fields[i] + "_disabled']").val() == 0) {
-                    $("input[id='productline_" + id[1] + fields[i] + "']").val('0');
-                    $("input[id='productline_" + id[1] + "_" + fields[i] + "']").attr("disabled", "true");
-                }
-                else {
-                    $("input[id='productline_" + id[1] + "_" + fields[i] + "']").removeAttr("disabled");
-                }
-            }
-        }
-    });
-
     $("input[id^='productline_']").live('change', function() {
         var id = $(this).attr('id').split("_");
         var fields_array = ["quantity", "qtyPotentiallySold", "intialPrice", "costPrice", "sellingPrice", "daysInStock"];
@@ -109,26 +110,44 @@ $(function() {
         var ptid = $("#purchasetype").val();
         var exchangeRateToUSD = $("#exchangeRateToUSD").val();
         fields += '&ptid=' + ptid + '&exchangeRateToUSD=' + exchangeRateToUSD;
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + fields);
+        var parmsfornetmargin_fields = new Array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'intermedBankInterestRate', 'intermedPeriodOfInterest');
+        var parmsfornetmargin = '';
+        $.each(parmsfornetmargin_fields, function(index, value) {
+            parmsfornetmargin += '&' + value + '=' + $("input[id='parmsfornetmargin_" + value + "']").val();
+        });
+        parmsfornetmargin += '&warehousingRate=' + $("select[id='parmsfornetmargin_warehousingRate']").val();
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + fields + '&parmsfornetmargin=' + parmsfornetmargin);
     });
 
-
-    //  $("input[id$='_daysInStock']").live('change keyup', function() {
-    //     var id = $(this).attr('id').split("_");
-    //     $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").removeAttr("disabled");
-    //     if($(this).val() == 0) {
-    //         $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").attr("disabled", "true");
-    //      }
-    // });
-
-    $("#parmsfornetmargin_warehouse").live('change', function() {
-        var warehouse = $(this).val();
-        var ptid = $("#purchasetype").val();
-        if(warehouse !== '' && warehouse != typeof undefined) {
-            sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatewarehousepolicy&warehouse= ' + warehouse + '&ptid=' + ptid);
+    /* Disable qtyPotentiallySold if daysInStock =0*/
+    $("input[id$='_daysInStock']").live('change keyup', function() {
+        var id = $(this).attr('id').split("_");
+        $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").removeAttr("disabled");
+        if($(this).val() == 0) {
+            $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").attr("disabled", "true");
         }
     });
 
+    /*Get Warehouse policy parms*/
+    $("#parmsfornetmargin_warehouse").live('change', function() {
+        var warehouse = $(this).val();
+        var ptid = $("#purchasetype").val();
+        if(warehouse !== '' && warehouse !== typeof undefined) {
+            $.getJSON(rootdir + 'index.php?module=aro/managearodouments&action=populatewarehousepolicy&warehouse= ' + warehouse + '&ptid=' + ptid, function(data) {
+                var jsonStr = JSON.stringify(data);
+                obj = JSON.parse(jsonStr);
+                jQuery.each(obj, function(i, val) {
+                    if(i === 'parmsfornetmargin_warehousingRate') {
+                        var id = val.split(" ");
+                        $("<option value='" + id[0] + "' selected>" + val + "</option>").appendTo($("select[id^='" + i + "']"));
+                    }
+                    else {
+                        $("input[id^='" + i + "']").val(val);
+                    }
+                });
+            });
+        }
+    });
 
     $("#orderreference").live('change', function() {
         $('select[id=affid]').trigger('change');
@@ -137,3 +156,6 @@ $(function() {
 
     });
 });
+
+
+/// Check additional triggers

@@ -40,8 +40,6 @@ class AroOrderRequest extends AbstractClass {
             }
         }
 
-
-        //
         $orderrequest_array = array('affid' => $data['affid'],
                 'orderType' => $data['orderType'],
                 'orderReference' => $data['orderReference'],
@@ -82,7 +80,7 @@ class AroOrderRequest extends AbstractClass {
 
     protected function update(array $data) {
         global $db, $core, $log;
-        $required_fields = array('affid', 'orderType', 'currency'); //warehsuoe
+        $required_fields = array('affid', 'orderType', 'currency');
         foreach($required_fields as $field) {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
             if(is_empty($data[$field])) {
@@ -102,12 +100,11 @@ class AroOrderRequest extends AbstractClass {
         );
         $query = $db->update_query(self::TABLE_NAME, $orderrequest_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
-            //  $this->data[self::PRIMARY_KEY] = $db->last_id();
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             $this->save_productlines($data['productline']);
             $this->save_ordercustomers($data['customeroder']);
-            $this->errorcode = 0;
+            $this->errorcode = 0; // need to check error code
         }
     }
 
@@ -133,7 +130,6 @@ class AroOrderRequest extends AbstractClass {
             foreach($arorequestlines as $arorequestline) {
                 $arorequestline['aorid'] = $this->data[self::PRIMARY_KEY];
                 $arorequestline['exchangeRateToUSD'] = $this->data['exchangeRateToUSD'];
-                //$arorequestline['parmsfornetmargin']=$netmarginparms;
                 if(isset($arorequestline['todelete']) && !empty($arorequestline['todelete'])) {
                     $requestline = AroRequestLines::get_data(array('inputChecksum' => $arorequestline['inputChecksum']));
                     if(is_object($requestline)) {
@@ -150,15 +146,17 @@ class AroOrderRequest extends AbstractClass {
                         continue;
                     case 2:
                         return;
+                    case 3:
+                        return;
                 }
             }
         }
     }
 
     public function calculate_netmaginparms($data = array()) {
-        $parmsfornetmargin = array('estimatedLocalPayment' => 10,
-                'estimatedImtermedPayment' => 100,
-                'estimatedManufacturerPayment' => 98 //strtotime()
+        $parmsfornetmargin = array('estimatedLocalPayment' => 200, // Add default dates and strtotime()
+                'estimatedImtermedPayment' => 100, //
+                'estimatedManufacturerPayment' => 100 //
         );
 
         $where = 'warehouse='.$data['warehouse'].' AND '.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo';
@@ -170,14 +168,11 @@ class AroOrderRequest extends AbstractClass {
 
         $purchasetype = new PurchaseTypes($data['ptid']);
         $data['intermedPeriodOfInterest'] = $data['localPeriodOfInterest'] = 0;
-        $data['intermedPeriodOfInterest'] = $parmsfornetmargin['estimatedImtermedPayment'] - $parmsfornetmargin['estimatedManufacturerPayment'];
+        $data['intermedPeriodOfInterest'] = max($parmsfornetmargin['estimatedImtermedPayment'] - $parmsfornetmargin['estimatedManufacturerPayment'], 0);
+        $data['localPeriodOfInterest'] = max($parmsfornetmargin['estimatedLocalPayment'] - $parmsfornetmargin['estimatedManufacturerPayment'], 0);
         if($purchasetype->isPurchasedByEndUser == 1) {
             $data['localPeriodOfInterest'] = max($parmsfornetmargin['estimatedLocalPayment'] - $parmsfornetmargin['estimatedImtermedPayment'], 0);
         }
-        else {
-            $data['localPeriodOfInterest'] = max($parmsfornetmargin['estimatedLocalPayment'] - $parmsfornetmargin['estimatedManufacturerPayment'], 0);
-        }
-
 
         return $data;
     }

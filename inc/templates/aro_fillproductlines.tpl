@@ -8,8 +8,10 @@
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->packaging}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->quantity}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
-                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->daysinstock}</td>
-                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->qtypotentiallysold}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->daysinstock}
+                    <input type="hidden" id="productline_daysInStock_disabled" value="1"/></td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->qtypotentiallysold}
+                    <input type="hidden" id="productline_qtyPotentiallySold_disabled" value="1"/></td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->qtypotentiallysold}(%)</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->intialprice}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->affbuyingprice}<a href="#" title="{$lang->affbuyingpricetooltip}"><img src="./images/icons/question.gif"/></a></td>
@@ -27,7 +29,7 @@
         </tbody>
         <tfoot>
             <tr><td valign="top">
-                    <input name="numrows_productlines{$plrowid}" type="hidden" id="numrows_productline_{$plrowid}" value="{$plrowid}">
+                    <input name="numrows_productline{$plrowid}" type="hidden" id="numrows_productline_{$plrowid}" value="{$plrowid}">
                     <img src="./images/add.gif" id="ajaxaddmore_aro/managearodouments_productline_{$plrowid}" alt="{$lang->add}">
                 </td>
             </tr>

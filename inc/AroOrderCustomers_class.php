@@ -30,13 +30,10 @@ class AroOrderCustomers extends AbstractClass {
 
     protected function update(array $data) {
         global $db, $core, $log;
-        // if(!$this->validate_requiredfields($data)) {
-        //  $data['modifiedOn'] =;
-        // $data['modifiedBy'] =;
         $data['paymentTermBaseDate'] = strtotime($data['paymentTermBaseDate']);
         $data_array = array('cid' => $data['cid'],
-                'ptid' => $data['ptid'],
                 'inputChecksum' => $data['inputChecksum'],
+                'ptid' => $data['ptid'],
                 'aorid' => $data['aorid'],
                 'paymentTermDesc' => $data['paymentTermDesc'],
                 'paymentTermBaseDate' => $data['paymentTermBaseDate'],
@@ -47,13 +44,11 @@ class AroOrderCustomers extends AbstractClass {
         if($query) {
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
         }
-        //  }
     }
 
     public function create(array $data) {
         global $db, $core, $log;
         $required_fields = array('cid');
-        //paymentTermBaseDate
         foreach($required_fields as $field) {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
             if(is_empty($data[$field]) && $data[$field] != 0) {
@@ -65,7 +60,6 @@ class AroOrderCustomers extends AbstractClass {
         $data['paymentTermBaseDate'] = strtotime($data['paymentTermBaseDate']);
         $policies_array = array('cid' => $data['cid'],
                 'ptid' => $data['ptid'],
-                'inputChecksum' => $data['inputChecksum'],
                 'aorid' => $data['aorid'],
                 'paymentTermDesc' => $data['paymentTermDesc'],
                 'paymentTermBaseDate' => $data['paymentTermBaseDate'],

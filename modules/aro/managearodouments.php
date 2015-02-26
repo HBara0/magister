@@ -61,6 +61,7 @@ if(!($core->input['action'])) {
     }
     //Net Margin Parameters
     $uom_list = parse_selectlist('parmsfornetmargin[uom]', '', $uom, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '70px'));
+
     if(isset($core->input['id'])) {
         $aroorderrequest = AroOrderRequest::get_data(array('aorid' => $core->input['id']), array('simple' => false));
         if(is_object($aroorderrequest)) {
@@ -81,16 +82,17 @@ if(!($core->input['action'])) {
                         continue;
                     }
                     $customer = new Customers($customeroder['cid']);
-                    $payment_term = parse_selectlist('customeroder[corder]['.$rowid.'][ptid]', 4, $payment_terms, $customeroder['ptid'], '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
+                    $payment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, $customeroder['ptid'], '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
                     $customeroder['customerName'] = $customer->get_displayname();
                     eval("\$aro_managedocuments_ordercustomers_rows .= \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
                     $rowid++;
                 }
                 $clrowid = $rowid - 1;
                 $rowid = 0;
-                $altpayment_term = parse_selectlist('customeroder[corder]['.$rowid.'][ptid]', 4, $payment_terms, $customeroder['ptid'], '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
                 if(isset($unspecifiedcust) && !empty($unspecifiedcust)) {
                     $checked['unsepcifiedCustomer'] = 'checked="checked"';
+                    $customeroder = $unspecifiedcust;
+                    $altpayment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, $customeroder['ptid'], '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
                 }
                 eval("\$unspecified_customer_row = \"".$template->get('aro_unspecifiedcustomer_row')."\";");
                 $rowid = $clrowid;
@@ -126,6 +128,7 @@ if(!($core->input['action'])) {
                     }
                     eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
                     $plrowid++;
+                    unset($disabled_fields);
                 }
             }
             else {
@@ -176,15 +179,14 @@ else {
     }
     if($core->input['action'] == 'ajaxaddmore_newcustomer') {
         $rowid = intval($core->input['value']) + 1;
-        $checksum = generate_checksum('odercustomer');
+        $customeroder['inputChecksum'] = generate_checksum('cl');
         $payment_terms = PaymentTerms::get_data('', array('returnarray' => ture));
-        $payment_term = parse_selectlist('customeroder[corder]['.$rowid.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
+        $payment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
         eval("\$aro_managedocuments_ordercustomers_rows = \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
         output($aro_managedocuments_ordercustomers_rows);
     }
     if($core->input['action'] == 'do_perform_managearodouments') {
         unset($core->input['module'], $core->input['action']);
-        //    if(isset($core->input['orderid']) && !empty($core->input['affid'])) {
         $orderident_obj = new AroOrderRequest ();
         /* get arodocument of the affid and pruchase type */
         $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $core->input['affid'], 'ptid' => $core->input['orderType']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
@@ -204,12 +206,6 @@ else {
                 output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
                 break;
         }
-        //  }
-//        if(isset($core->input[customeroder]['altcorder'][altcid])) {
-//            $ordercust_obj = new AroOrderCustomers();
-//            $ordercust_obj->set($core->input[customeroder]['altcorder']);
-//            $ordercust_obj->save();
-//        }
     }
     if($core->input['action'] == 'getestimatedate') {
         if(is_array($core->input[paymentermdays])) {
@@ -254,29 +250,26 @@ else {
         output($aroproductlines_rows);
     }
     if($core->input['action'] == 'disablefields') {
-        $rowid = $core->input['rowid'];
         $purchasetype = new PurchaseTypes($core->input['ptid']);
-        $data['daysInStock_disabled'] = $data['qtyPotentiallySold_disabled'] = 0;
+        $data['daysInStock_disabled'] = $data['qtyPotentiallySold_disabled'] = 1;
         if(is_object($purchasetype)) {
-            if($purchasetype->qtyIsNotStored == 0) {
-                $data['daysInStock_disabled'] = 1;
-            }
-            if($purchasetype->qtyIsNotStored == 0) {
-                $data['qtyPotentiallySold_disabled'] = 1;
-            }
-            if(isset($core->input['daysInStock']) && empty($core->input['daysInStock'])) {
+            if($purchasetype->qtyIsNotStored == 1) {
+                $data['daysInStock_disabled'] = 0;
                 $data['qtyPotentiallySold_disabled'] = 0;
             }
         }
-        $productline = array('productline_'.$rowid.'_qtyPotentiallySold_disabled' => $data['qtyPotentiallySold_disabled'],
-                'productline_'.$rowid.'_daysInStock_disabled' => $data['daysInStock_disabled']);
-
+        $productline = array('productline_qtyPotentiallySold_disabled' => $data['qtyPotentiallySold_disabled'],
+                'productline_daysInStock_disabled' => $data['daysInStock_disabled']);
         echo json_encode($productline);
     }
     if($core->input['action'] == 'populateproductlinefields') {
         $productline_obj = new AroRequestLines();
         $rowid = $core->input['rowid'];
         unset($core->input['action'], $core->input['module'], $core->input['rowid']);
+        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest');
+        foreach($parmsfornetmargin as $parm) {
+            $core->input['parmsfornetmargin'][$parm] = $core->input[$parm];
+        }
         $data = $core->input;
         $productline_data = $productline_obj->calculate_values($data);
         foreach($productline_data as $key => $value) {
@@ -302,5 +295,17 @@ else {
         $warehouse_objs = Warehouses::get_data(array('affid' => $core->input['affid'], 'isActive' => 1), array('returnarray' => true));
         $warehouse_list = parse_selectlist('parmsfornetmargin[warehouse]', 1, $warehouse_objs, '', '', '', array('id' => 'parmsfornetmargin_warehouse', 'blankstart' => 1, 'width' => '100%'));
         output(($warehouse_list));
+    }
+    if($core->input['action'] == 'populateaffpolicy') {
+        unset($core->input['action'], $core->input['module']);
+        $localaffpolicy = AroPolicies::get_data(array('affid' => $core->input['affid'], 'purchaseType' => $core->input['ptid'], 'isActive' => 1));
+        $core->input['intermed_affid'] = 27;
+        $intermedpolicy = AroPolicies::get_data(array('affid' => $core->input['intermed_affid'], 'purchaseType' => $core->input['ptid'], 'isActive' => 1));
+        $aropolicy_data = array('parmsfornetmargin_localBankInterestRate' => $localaffpolicy->yearlyInterestRate,
+                'parmsfornetmargin_localRiskRatio' => $localaffpolicy->riskRatio,
+                'parmsfornetmargin_intermedBankInterestRate' => $intermedpolicy->yearlyInterestRate,
+                'parmsfornetmargin_intermedRiskRatio' => $intermedpolicy->riskRatio
+        );
+        echo json_encode($aropolicy_data);
     }
 }
