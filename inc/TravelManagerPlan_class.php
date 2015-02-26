@@ -66,7 +66,7 @@ class TravelManagerPlan {
         //key = '.$core->settings['googleapikey'].' &
 
         $googledirection_api = 'http://maps.googleapis.com/maps/api/directions/json?origin='.$directiondata['origincity']['name'].',+'.$directiondata['origincity']['country'].'&destination='.$directiondata['destcity']['name'].',+'.$directiondata['destcity']['country'].'&sensor=false&mode='.$directiondata['drivemode'].'&units=metric&departure_time='.$directiondata['departuretime'];
-        // $json = file_get_contents($googledirection_api);
+        $json = file_get_contents($googledirection_api);
         $data = json_decode($json);
         return $data;
     }
@@ -596,14 +596,14 @@ class TravelManagerPlan {
                     if(!empty($expenses->description)) {
                         $expensestype[$segmentid][$rowid]['otherdesc'] = $expenses->description;
                     }
-                    $segments_expenses_output .= $expenses->get_types()->parse_expensesfield($expensesoptions, $sequence, $rowid, $expensestype, array('destcity' => $destcity_obj));
+                    $segments_expenses_output .= $expenses->get_types()->parse_expensesfield($expensesoptions, $sequence, $rowid, $expensestype);
                 }
             }
             else {
                 $rowid = 1;
                 $expensestype[$sequence][$rowid]['display'] = "display:none;";
                 $expensestype_obj = new Travelmanager_Expenses_Types();
-                $segments_expenses_output = $expensestype_obj->parse_expensesfield('', $sequence, $rowid, $expensestype, array('destcity' => $destcity_obj));
+                $segments_expenses_output = $expensestype_obj->parse_expensesfield('', $sequence, $rowid, $expensestype);
             }
 
             /* parse expenses --END */
