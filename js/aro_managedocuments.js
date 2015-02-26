@@ -66,10 +66,10 @@ $(function() {
             for(var i = 0; i < fields.length; i++) {
                 if($("input[id='productline_" + fields[i] + "_disabled']").val() == 0) {
                     $("input[id$='" + fields[i] + "']").val('0');
-                    $("input[id$='" + fields[i] + "']").attr("disabled", "true");
+                    $("input[id$='" + fields[i] + "']").attr("readonly", "true");
                 }
                 else {
-                    $("input[id$='" + fields[i] + "']").removeAttr("disabled");
+                    $("input[id$='" + fields[i] + "']").removeAttr("readonly");
                 }
             }
 
@@ -77,10 +77,14 @@ $(function() {
             for(var i = 0; i < warehousing_fields.length; i++) {
                 if($("input[id='parmsfornetmargin_warehousing_disabled']").val() == 0) {
                     $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "']").val('0');
-                    $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "'],select[id='parmsfornetmargin_" + warehousing_fields[i] + "']").attr("disabled", "true");
+                    $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "']").attr("readonly", "true");
+                    $("select[id ='parmsfornetmargin_" + warehousing_fields[i] + "']").append('<option value="0" selected></option>');
+                    $("select[id ='parmsfornetmargin_" + warehousing_fields[i] + "']").attr("disabled", "true");
+
                 }
                 else {
-                    $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "'],select[id='parmsfornetmargin_" + warehousing_fields[i] + "']").removeAttr("disabled");
+                    $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "']").removeAttr("readonly");
+                    $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "'],select[id ='parmsfornetmargin_" + warehousing_fields[i] + "']").removeAttr("disabled");
                 }
             }
         });
