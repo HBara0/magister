@@ -559,6 +559,10 @@ $(function() {
     $('input[title],a[title],div[title],span[title]').qtip({style: {classes: 'ui-tooltip-green ui-tooltip-shadow'}, show: {event: 'focus mouseenter', solo: true}, hide: 'unfocus mouseleave', position: {viewport: $(window)}});
 
     function popUp(module, template, id) {
+        if(id === undefined) {
+            id = '';
+        }
+
         if(id.length > 1) {
             id = id.split("_");
         }
@@ -576,10 +580,6 @@ $(function() {
             if(sharedFunctions.checkSession() == false) {
                 return;
             }
-        }
-
-        if(id === undefined) {
-            id = '';
         }
 
         //$("#popupBox").hide("fast");
