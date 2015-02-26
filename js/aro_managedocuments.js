@@ -34,7 +34,6 @@ $(function() {
     });
     /*Get Affiliate Warehouses*/
     $('select[id=affid]').live('change', function() {
-        $('select[id=purchasetype]').trigger('change');
         var affid = $(this).val();
         $.ajax({type: 'post',
             url: rootdir + "index.php?module=aro/managearodouments&action=getwarehouses",
@@ -51,6 +50,7 @@ $(function() {
                 $('#warehouse_list_td').html(returnedData);
             }
         });
+        $('select[id=purchasetype]').trigger('change');
     });
 
     /*Disable days in Stock and QPS according to seleced purchasetype*/
@@ -70,6 +70,17 @@ $(function() {
                 }
                 else {
                     $("input[id$='" + fields[i] + "']").removeAttr("disabled");
+                }
+            }
+
+            var warehousing_fields = ["warehouse", "warehousingRate", "warehousingPeriod", "warehousingTotalLoad", "uom"];
+            for(var i = 0; i < warehousing_fields.length; i++) {
+                if($("input[id='parmsfornetmargin_warehousing_disabled']").val() == 0) {
+                    $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "']").val('0');
+                    $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "'],select[id='parmsfornetmargin_" + warehousing_fields[i] + "']").attr("disabled", "true");
+                }
+                else {
+                    $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "'],select[id='parmsfornetmargin_" + warehousing_fields[i] + "']").removeAttr("disabled");
                 }
             }
         });

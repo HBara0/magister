@@ -251,15 +251,17 @@ else {
     }
     if($core->input['action'] == 'disablefields') {
         $purchasetype = new PurchaseTypes($core->input['ptid']);
-        $data['daysInStock_disabled'] = $data['qtyPotentiallySold_disabled'] = 1;
+        $data['daysInStock_disabled'] = $data['qtyPotentiallySold_disabled'] = $data['parmsfornetmargin_warehousing_disabled'] = 1;
         if(is_object($purchasetype)) {
             if($purchasetype->qtyIsNotStored == 1) {
                 $data['daysInStock_disabled'] = 0;
                 $data['qtyPotentiallySold_disabled'] = 0;
+                $data['parmsfornetmargin_warehousing_disabled'] = 0;
             }
         }
         $productline = array('productline_qtyPotentiallySold_disabled' => $data['qtyPotentiallySold_disabled'],
-                'productline_daysInStock_disabled' => $data['daysInStock_disabled']);
+                'productline_daysInStock_disabled' => $data['daysInStock_disabled'],
+                'parmsfornetmargin_warehousing_disabled' => $data['parmsfornetmargin_warehousing_disabled']);
         echo json_encode($productline);
     }
     if($core->input['action'] == 'populateproductlinefields') {
