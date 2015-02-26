@@ -121,6 +121,22 @@ CREATE TABLE `aro_documentsequences` (
   `modifiedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`adsid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=165 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `aro_netmargin_parameters` (
+  `anpid` int(10) NOT NULL AUTO_INCREMENT,
+  `aorid` int(11) NOT NULL,
+  `localBankInterestRate` float NOT NULL,
+  `localPeriodOfInterest` int(11) NOT NULL,
+  `localRiskRatio` float NOT NULL,
+  `intermedBankInterestRate` float NOT NULL,
+  `intermedPeriodOfInterest` int(11) NOT NULL,
+  `intermedRiskRatio` float NOT NULL,
+  `warehouse` int(10) NOT NULL,
+  `warehousingRate` float NOT NULL,
+  `warehousingPeriod` int(11) NOT NULL,
+  `warehousingTotalLoad` float NOT NULL,
+  `uom` smallint(10) NOT NULL,
+  PRIMARY KEY (`anpid`)
+) ENGINE=MyISAM AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 DROP TABLE IF EXISTS `aro_order_customers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
