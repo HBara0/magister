@@ -13,7 +13,7 @@
             <tr class="altrow2">
                 {$unspecified_customer_row}
             </tr>
-            <Tr><Td colspan="3">Estimated local invoices due date if any </Td> <Td><input type="hidden" name ="cpurchasetype" id="cpurchasetype"/><input type="text"   name="avgeliduedate" id="avgeliduedate"/> </Td></tr>
+            <tr><td colspan="3">{$lang->estimatedduedate}</td> <td><input type="hidden" name ="cpurchasetype" id="cpurchasetype"/><input type="text"   name="avgeliduedate" id="avgeliduedate"/> </td></tr>
         </tfoot>
     </table>
 </p>
