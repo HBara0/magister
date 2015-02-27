@@ -8,6 +8,7 @@
  * Last Update:    @zaher.reda    Dec 24, 2014 | 11:33:41 AM
  */
 $lang['createentityloc'] = 'Create Entity Locations';
+$lang['entitylocations'] = 'Entity Locations';
 $lang['locationtype'] = 'Location Type';
 $lang['plant'] = 'Plant';
 $lang['office'] = 'Office';

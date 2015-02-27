@@ -440,6 +440,10 @@ class Entities extends AbstractClass {
         return false;
     }
 
+    public function get_locations() {
+        return EntityLocations::get_data(array('eid' => $this->data[self::PRIMARY_KEY]), array('simple' => false, 'returnarray' => true));
+    }
+
     private function create_representative() {
         global $core, $db, $lang;
 
