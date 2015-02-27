@@ -77,7 +77,8 @@ if(!($core->input['action'])) {
             if(is_array($requestcustomers)) {
                 foreach($requestcustomers as $customer) {
                     $customeroder = $customer->get();
-                    $customeroder['paymenttermbasedate_output'] = date('d-m-Y', $customeroder['paymentTermBaseDate']);
+                    $customeroder['paymenttermbasedate_output'] = date($core->settings['dateformat'], $customeroder['paymentTermBaseDate']);
+                    $customeroder['paymenttermbasedate_formatted'] = date('d-m-Y', $customeroder['paymentTermBaseDate']);
                     if($customeroder['cid'] == 0) {
                         $unspecifiedcust = $customeroder;
                         continue;
@@ -90,13 +91,25 @@ if(!($core->input['action'])) {
                 }
                 $clrowid = $rowid - 1;
                 $rowid = 0;
+                //Always parse the unspecified customer row
+                unset($customeroder);
                 if(isset($unspecifiedcust) && !empty($unspecifiedcust)) {
                     $checked['unsepcifiedCustomer'] = 'checked="checked"';
                     $customeroder = $unspecifiedcust;
-                    $altpayment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, $customeroder['ptid'], '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
                 }
+                $customeroder['inputChecksum'] = generate_checksum('ucl');
+                $altpayment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, $unspecifiedcust['ptid'], '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
                 eval("\$unspecified_customer_row = \"".$template->get('aro_unspecifiedcustomer_row')."\";");
                 $rowid = $clrowid;
+
+                // If only unspecified customer row exist, parse default customer order row
+                if(empty($aro_managedocuments_ordercustomers_rows)) {
+                    unset($customeroder);
+                    $customeroder['inputChecksum'] = generate_checksum('cl');
+                    $rowid = 1;
+                    $payment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
+                    eval("\$aro_managedocuments_ordercustomers_rows .= \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
+                }
             }
             else {
                 $customeroder['inputChecksum'] = generate_checksum('ucl');

@@ -62,6 +62,7 @@ class AroOrderCustomers extends AbstractClass {
             $data['paymentTermBaseDate'] = strtotime($data['paymentTermBaseDate']);
             $policies_array = array('cid' => $data['cid'],
                     'ptid' => $data['ptid'],
+                    'inputChecksum' => $data['inputChecksum'],
                     'aorid' => $data['aorid'],
                     'paymentTermDesc' => $data['paymentTermDesc'],
                     'paymentTermBaseDate' => $data['paymentTermBaseDate'],

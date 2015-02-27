@@ -1,4 +1,4 @@
-<td><input type="checkbox" value="{$customeroder[cid]}" name="customeroder[$rowid][cid]" {$checked[unsepcifiedCustomer]}/>
+<td><input type="checkbox" value="0" name="customeroder[$rowid][cid]" {$checked[unsepcifiedCustomer]}/>
     <input type="hidden" name="customeroder[$rowid][aocid]" value='{$customeroder[aocid]}'/>
     <input type="hidden" name="customeroder[$rowid][inputChecksum]" value="{$customeroder[inputChecksum]}"/>
 </td>
