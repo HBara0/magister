@@ -141,9 +141,9 @@ class Sessions {
 
         if($this->uid != $session_information['uid']) {
             $query = $db->update_query('sessions', $session_data, "sid='".$this->sid."'");
-            //if($db->affected_rows() == 0) {
-            //$this->create_dbsession();
-            //}
+            if($db->affected_rows() == 0) {
+                $this->create_dbsession();
+            }
         }
     }
 
