@@ -106,8 +106,10 @@ elseif($core->input['action'] == 'email') {
                     if($hotel->isContracted == 1) {
                         $iscontractedicon = '<img src="./images/valid.gif" />';
                     }
+                    if($hotel->stars == 0) {
+                        $hotel->stars = ' - ';
+                    }
                     /* parse ratings */
-                    //  $stars .= '<div class="rateit" id="ratingdiv_'.$hotel->stars.'" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$hotel->stars.'"></div>';
                     eval("\$otherapprovedhotels .= \"".$template->get('travelmanager_approvedhotel_row')."\";");
                 }
                 eval("\$transportaionsegment_fields .= \"".$template->get('travelmanager_viewplan_approvedhotels')."\";");
