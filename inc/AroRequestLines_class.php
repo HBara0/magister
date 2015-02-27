@@ -123,10 +123,10 @@ class AroRequestLines extends AbstractClass {
         }
         $data['grossMarginAtRiskRatio'] = floor((($data['sellingPrice'] - $data['costPriceAtRiskRatio']) * $data['quantity']));
 
-        $data['netMargin'] = $this->calculate_netmargin($purchasetype, $data, $parmsfornetmargin);
+        $data['netMargin'] = round($this->calculate_netmargin($purchasetype, $data, $parmsfornetmargin), 2);
 
         if((($data['sellingPrice'] * $data['quantity']) * $data['exchangeRateToUSD']) != 0) {
-            $data['netMarginPerc'] = $data['netMargin'] / (( $data['sellingPrice'] * $data['quantity']) * $data['exchangeRateToUSD']);
+            $data['netMarginPerc'] = round($data['netMargin'] / (( $data['sellingPrice'] * $data['quantity']) * $data['exchangeRateToUSD']), 2);
         }
         unset($data['exchangeRateToUSD']);
         return $data;
