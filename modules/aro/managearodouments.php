@@ -227,6 +227,9 @@ else {
             case 2:
                 output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
                 break;
+            case 3:
+                output_xml('<status>false</status><message>Cost price cannot be lower than affiliate buying price</message>');
+                break;
         }
     }
     if($core->input['action'] == 'getestimatedate') {
@@ -300,9 +303,6 @@ else {
             if(!empty($value)) {
                 $productline['productline_'.$rowid.'_'.$key] = $value;
             }
-//            if($key == 'qtyPotentiallySold_disabled' || $key == 'daysInStock_disabled') {
-//                $productline['productline_'.$rowid.'_'.$key] = $value;
-//            }
         }
         echo json_encode($productline);
     }

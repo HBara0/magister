@@ -62,8 +62,10 @@ class AroOrderRequest extends AbstractClass {
             $netmargnparms_obj->set($data['parmsfornetmargin']);
             $netmargnparms_obj->save();
 
-            $data['productline']['parmsfornetmargin'] = $data['parmsfornetmargin'];
-            $this->save_productlines($data['productline']);
+            // $data['productline']['parmsfornetmargin'] = $data['parmsfornetmargin'];
+            // $this->save_productlines($data['productline']);
+            $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
+
             $this->errorcode = 0;
         }
     }
@@ -95,6 +97,7 @@ class AroOrderRequest extends AbstractClass {
         $orderrequest_array['modifiedOn'] = TIME_NOW;
         $query = $db->update_query(self::TABLE_NAME, $orderrequest_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
+            $this->errorcode = 0; // need to check error code
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             $this->save_ordercustomers($data['customeroder']);
@@ -103,35 +106,36 @@ class AroOrderRequest extends AbstractClass {
             $data['parmsfornetmargin']['aorid'] = $this->data[self::PRIMARY_KEY];
             $netmargnparms_obj->set($data['parmsfornetmargin']);
             $netmargnparms_obj->save();
-            $data['productline']['parmsfornetmargin'] = $data['parmsfornetmargin'];
-            $this->save_productlines($data['productline']);
-
-            $this->errorcode = 0; // need to check error code
+            //    $data['productline']['parmsfornetmargin'] = $data['parmsfornetmargin'];
+            $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
         }
     }
 
     private function save_ordercustomers($customersdetails) {
-        foreach($customersdetails as $order) {
-            $order['aorid'] = $this->data[self::PRIMARY_KEY];
-            $ordercust_obj = new AroOrderCustomers();
-            $ordercust_obj->set($order);
-            $ordercust_obj->save();
-            $this->errorcode = $ordercust_obj->errorcode;
-            switch($this->get_errorcode()) {
-                case 0:
-                    continue;
-                case 2:
-                    return;
+        if(is_array($customersdetails)) {
+            foreach($customersdetails as $order) {
+                $order['aorid'] = $this->data[self::PRIMARY_KEY];
+                $ordercust_obj = new AroOrderCustomers();
+                $ordercust_obj->set($order);
+                $ordercust_obj->save();
+                $this->errorcode = $ordercust_obj->errorcode;
+                switch($this->get_errorcode()) {
+                    case 0:
+                        continue;
+                    case 2:
+                        return;
+                }
             }
         }
     }
 
-    private function save_productlines($arorequestlines) {  //$netmarginparms
+    private function save_productlines($arorequestlines, $parmsfornetmargin) {  //$netmarginparms
         global $db;
         if(is_array($arorequestlines)) {
             foreach($arorequestlines as $arorequestline) {
                 $arorequestline['aorid'] = $this->data[self::PRIMARY_KEY];
                 $arorequestline['exchangeRateToUSD'] = $this->data['exchangeRateToUSD'];
+                $arorequestline['parmsfornetmargin'] = $parmsfornetmargin;
                 if(isset($arorequestline['todelete']) && !empty($arorequestline['todelete'])) {
                     $requestline = AroRequestLines::get_data(array('inputChecksum' => $arorequestline['inputChecksum']));
                     if(is_object($requestline)) {
