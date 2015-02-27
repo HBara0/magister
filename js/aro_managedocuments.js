@@ -142,9 +142,9 @@ $(function() {
     /* Disable qtyPotentiallySold if daysInStock =0*/
     $("input[id$='_daysInStock']").live('change keyup', function() {
         var id = $(this).attr('id').split("_");
-        $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").removeAttr("disabled");
+        $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").removeAttr("readonly");
         if($(this).val() == 0) {
-            $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").attr("disabled", "true");
+            $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").attr("readonly", "true");
         }
     });
 
@@ -175,4 +175,17 @@ $(function() {
 
 
     });
+
+
+// Form Submitting after 20 seconds.
+    var auto_refresh = setInterval(function() {
+        submitform();
+    }, 20000);
+// Form submit function.
+    function submitform() {
+        //   alert('Form is submitting.....');
+        $("input[id^='perform_'][id$='_Button']").trigger("click");
+    }
+
+
 });
