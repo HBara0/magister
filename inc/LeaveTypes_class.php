@@ -169,7 +169,7 @@ class LeaveTypes extends AbstractClass {
                         $data = get_specificdata($field_settings['table'], $field_settings['attributes'], $field_settings['key_attribute'], $field_settings['value_attribute'], array('by' => $field_settings['value_attribute'], 'sort' => 'ASC'), 0, $field_settings['where']);
 
                         if(is_array($data)) {
-                            $field = parse_selectlist($attribute, 0, $data, $field_settings['key_attribute_value'], $field_settings['mulitpleselect'], '', array('required' => true));
+                            $field = parse_selectlist($attribute, 0, $data, $field_settings['key_attribute_value'], $field_settings['mulitpleselect'], '', array('required' => true, 'placeholder' => ' '));
                         }
                         else {
                             $field = '<span class="red_text">'.$lang->{$field_settings['errorlang_nodata']}.'</span>';
