@@ -65,6 +65,8 @@ if(!($core->input['action'])) {
 
     if(isset($core->input['id'])) {
         $aroorderrequest = AroOrderRequest::get_data(array('aorid' => $core->input['id']), array('simple' => false));
+        $purchasetype = new PurchaseTypes($aroorderrequest->orderType);
+
         if(is_object($aroorderrequest)) {
             $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => "affid"));
             $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => "purchasetype"));
@@ -141,12 +143,11 @@ if(!($core->input['action'])) {
                     $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $productline['uom'], '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
                     $product = new Products($productline['pid']);
                     $productline[productName] = $product->get_displayname();
-                    $purchasetype = new PurchaseTypes(array('ptid' => $aroorderrequest->orderType));
                     if($purchasetype->qtyIsNotStored == 1) {
-                        $disabled_fields['daysInStock'] = $disabled_fields['qtyPotentiallySold'] = 'disabled="disabled"';
+                        $disabled_fields['daysInStock'] = $disabled_fields['qtyPotentiallySold'] = 'readonly="readonly"';
                     }
                     if($productline['daysInStock'] == 0) {
-                        $disabled_fields['qtyPotentiallySold'] = 'disabled="disabled"';
+                        $disabled_fields['qtyPotentiallySold'] = 'readonly="readonly"';
                     }
                     eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
                     $plrowid++;

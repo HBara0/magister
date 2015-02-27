@@ -31,7 +31,7 @@ class AroOrderRequest extends AbstractClass {
     public function create(array $data) {
         global $db, $core, $log;
 
-        $required_fields = array('affid', 'orderType', 'currency');
+        $required_fields = array('affid', 'orderType', 'currency', 'orderReference');
         foreach($required_fields as $field) {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
             if(is_empty($data[$field])) {
@@ -81,7 +81,7 @@ class AroOrderRequest extends AbstractClass {
 
     protected function update(array $data) {
         global $db, $core, $log;
-        $required_fields = array('affid', 'orderType', 'currency');
+        $required_fields = array('affid', 'orderType', 'currency', 'orderReference');
         foreach($required_fields as $field) {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
             if(is_empty($data[$field])) {
@@ -169,9 +169,10 @@ class AroOrderRequest extends AbstractClass {
         $warehousepolicy = AroManageWarehousesPolicies::get_data($where);
         $currency = new Currencies($warehousepolicy->currency);
         $uom = new Uom($warehousepolicy->rate_uom);
-        $data['warehousingRate'] = $warehousepolicy->rate.'  '.$currency->alphaCode.'/'.$uom->get_displayname().'/'.$warehousepolicy->datePeriod.' Days';
-        $data['warehousingPeriod'] = $warehousepolicy->datePeriod;
-
+        if(is_object($warehousepolicy)) {
+            $data['warehousingRate'] = $warehousepolicy->rate.'  '.$currency->alphaCode.'/'.$uom->get_displayname().'/'.$warehousepolicy->datePeriod.' Days';
+            $data['warehousingPeriod'] = $warehousepolicy->datePeriod;
+        }
         $purchasetype = new PurchaseTypes($data['ptid']);
         $data['intermedPeriodOfInterest'] = $data['localPeriodOfInterest'] = 0;
         $data['intermedPeriodOfInterest'] = max($parmsfornetmargin['estimatedImtermedPayment'] - $parmsfornetmargin['estimatedManufacturerPayment'], 0);
