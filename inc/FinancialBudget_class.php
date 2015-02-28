@@ -432,7 +432,6 @@ Class FinancialBudget extends AbstractClass {
     public static function parse_financialbudget($options = array()) {
         global $db, $template, $core, $lang;
         if(isset($options['budgettypes']) && !empty($options['budgettypes'])) {
-
             /* get currenceis by consolidated budgetfinamce id */
             $financial_obj = FinancialBudget::get_data(array('bfbid' => $options['filter']), array('simple' => false, 'returnarray' => true));
             $prev_financial_obj = FinancialBudget::get_data(array('affid' => $options['affid'], 'year' => array(($options['year'] - 1), ($options['year'] - 2), ($options['year'] - 3))), array('simple' => false, 'returnarray' => true));
@@ -526,7 +525,6 @@ Class FinancialBudget extends AbstractClass {
                     $output['currfxrates'] .= '</li></ul></div>';
                 }
             }
-            /**/
 
             if(count($options['budgettypes']) === 1) {
                 if($options['budgettypes'][0] === 'headcount') {

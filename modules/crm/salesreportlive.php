@@ -16,7 +16,7 @@ if(!defined('DIRECT_ACCESS')) {
 if($core->usergroup['crm_canGenerateSalesReports'] == 0) {
     error($lang->sectionnopermission);
 }
-
+ini_set('max_execution_time', 0);
 $lang->load('crm_salesreport');
 if(!$core->input['action']) {
     $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('returnarray' => true));
@@ -424,7 +424,7 @@ else {
             $mailer = $mailer->get_mailerobj();
             $mailer->set_required_contenttypes(array('html'));
             $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
-            $mailer->set_subject('Sales Report '.$core->input['fromDate'].' - '.$core->input['toDate']);
+            $mailer->set_subject('Sales Report '.$affiliate->name.' '.$core->input['fromDate'].' - '.$core->input['toDate']);
             $mailer->set_message($salesreport);
 
             $mailer->set_to(array(

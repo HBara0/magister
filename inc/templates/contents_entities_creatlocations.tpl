@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->addentity}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->createentityloc}</title>
         {$headerinc}
     </head>
 

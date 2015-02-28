@@ -18,6 +18,9 @@ if(!$core->input['action']) {
         redirect($_SERVER['HTTP_REFERER']);
     }
 
+    $lang->load('contents_meta');
+    $lang->load('contents_addentities');
+
     $eid = $db->escape_string($core->input['eid']);
     $entity = new Entities($eid, '', false);
     $profile = $entity->get();
@@ -235,6 +238,17 @@ if(!$core->input['action']) {
          */
         /* Load supplier's quarterly reports - End */
 
+        /* Load the locations  - Start */
+        $locations = $entity->get_locations();
+        if(is_array($locations)) {
+            foreach($locations as $location) {
+                $location->city = $location->get_city();
+                $locationslist .= '<tr><td>'.$lang->{$location->locationType}.'</td><td>'.$location->addressLine1.'<br />'.$location->addressLine2.'</td><td>'.$location->city->name.'</td><td>'.$location->city->get_country()->get_displayname().'</td></tr>';
+            }
+            eval("\$products_section = \"".$template->get('profiles_entityprofile_locations')."\";");
+            unset($location);
+        }
+        /* Load the locations  - END */
         /* Load supplier's products list - Start */
         $products = $entity->get_products();
         if(is_array($products)) {
@@ -249,7 +263,7 @@ if(!$core->input['action']) {
                 $productslist .= '<tr><td style="width:50%;">'.$product->name.'</td><td>'.$defaultchemfunc_output.'</td></tr>';
                 unset($defaultchemfunc_output);
             }
-            eval("\$products_section = \"".$template->get('profiles_entityprofile_products')."\";");
+            eval("\$products_section .= \"".$template->get('profiles_entityprofile_products')."\";");
         }
         /* Load supplier's products list - End */
 

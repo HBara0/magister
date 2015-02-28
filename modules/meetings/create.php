@@ -83,11 +83,15 @@ if(!$core->input['action']) {
             $entity_obj = new Entities($associatons['cid']);
             $meeting['associations']['cutomername'] = $entity_obj->get()['companyName'];
             $meeting['associations']['spid'] = $associatons['cid'];
+            if(is_array($associatons['spid'])) {
+                $associatons['spid'] = current($associatons['spid']);
+            }
             $entity_obj = new Entities($associatons['spid']);
             $meeting['associations']['suppliername'] = $entity_obj->get()['companyName'];
             $meeting['associations']['spid'] = $associatons['spid'];
-            /* parse Attachments ---START */
+            /* parse Attachments - START */
             $attachmentrow = 0;
+
             $meeting_attachobjs = $meeting_obj->get_attachments();
             if(is_array($meeting_attachobjs)) {
                 foreach($meeting_attachobjs as $meeting_attachobj) {
@@ -245,11 +249,12 @@ else {
     }
     elseif($core->input['action'] == 'get_addnew_representative') {
         eval("\$addrepresentativebox = \"".$template->get('popup_addrepresentative')."\";");
-        output_page($addrepresentativebox);
+        output($addrepresentativebox);
+        exit;
     }
     ?>
     <script language="javascript" type="text/javascript">
-        $(function() {
+        $(function () {
             top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
         });
     </script>

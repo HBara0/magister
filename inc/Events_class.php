@@ -30,10 +30,11 @@ class Events extends AbstractClass {
 
     protected function create(array $data) {
         global $db, $core;
-        $fields = array('title', 'alias', 'description', 'place', 'type', 'isPublic', 'publishOnWebsite');
+        $fields = array('title', 'description', 'place', 'type', 'isPublic', 'publishOnWebsite');
         foreach($fields as $field) {
             $event_data[$field] = $data[$field];
         }
+        $event_data['alias'] = generate_alias($data['title']);
         $event_data['identifier'] = substr(md5(uniqid(microtime())), 0, 10);
         $event_data['description'] = ucfirst(strtolower($event_data['description']));
         $event_data['fromDate'] = strtotime($data['fromDate']);

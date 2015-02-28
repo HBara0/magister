@@ -427,8 +427,10 @@ if(!($core->input['action'])) {
                                 }
                             }
                             if(!empty($budgetline['purchasingEntityId'])) {
-                                $purchasingentity = new Affiliates($budgetline['purchasingEntityId']);
-                                $budgetline['purchasingEntity'] = $purchasingentity->name;
+                                if($budgetline['purchasingEntity'] != 'customer') {
+                                    $purchasingentity = new Affiliates($budgetline['purchasingEntityId']);
+                                    $budgetline['purchasingEntity'] = $purchasingentity->name;
+                                }
                             }
                             $budget['manager'] = $budgetline_obj->get_businessMgr()->get();
                             $budget['managerid'] = $budgetline_obj->get_businessMgr()->get()['uid'];
@@ -613,8 +615,10 @@ elseif($core->input['action'] == 'exportexcel') {
                     }
 
                     if(!empty($budgetline[$counter]['purchasingEntityId'])) {
-                        $purchasingentity = new Affiliates($budgetline[$counter]['purchasingEntityId']);
-                        $budgetline[$counter]['purchasingEntity'] = $purchasingentity->name;
+                        if($budgetline[$counter]['purchasingEntity'] != 'customer') {
+                            $purchasingentity = new Affiliates($budgetline[$counter]['purchasingEntityId']);
+                            $budgetline[$counter]['purchasingEntity'] = $purchasingentity->name;
+                        }
                     }
 
                     if(!empty($budgetline[$counter]['commissionSplitAffid'])) {

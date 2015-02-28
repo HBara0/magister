@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Additional Days Class
  * $id: AttendanceAddDays_class.php
  * Created:        @tony.assaad    Apr 23, 2013 | 2:18:23 PM
@@ -17,6 +17,12 @@ class AttendanceAddDays Extends Attendance {
     private $status = 0; //0=No errors;1=Subject missing;2=Entry exists;3=Error saving;4=validation violation
     private $additionaldays = array();
 
+    const PRIMARY_KEY = 'adid';
+    const TABLE_NAME = 'attendance_additionalleaves';
+    const DISPLAY_NAME = '';
+    const SIMPLEQ_ATTRS = '*';
+    const CLASSNAME = __CLASS__;
+
     public function __construct($attedadddays_data = array()) {
         if(!empty($attedadddays_data['adid']) && isset($attedadddays_data['adid'])) {
             $this->read($attedadddays_data['adid'], '');
@@ -25,6 +31,12 @@ class AttendanceAddDays Extends Attendance {
         elseif(!empty($attedadddays_data['identifier']) && isset($attedadddays_data['identifier'])) {
             $this->read('', $attedadddays_data['identifier']);
             return true;
+        }
+        else {
+            if(is_numeric($attedadddays_data)) {
+                $this->read($attedadddays_data, '');
+                return true;
+            }
         }
     }
 
@@ -167,9 +179,9 @@ class AttendanceAddDays Extends Attendance {
             $period = TIME_NOW;
         }
 
-        $leavestats_query = $db->query("SELECT lsid, additionalDays 
-										FROM ".Tprefix."leavesstats 
-										WHERE uid={$this->additionaldays['uid']} AND ltid=1 AND {$period} BETWEEN periodStart AND periodEnd");
+        $leavestats_query = $db->query("SELECT lsid, additionalDays
+                                        FROM ".Tprefix."leavesstats
+                                        WHERE uid={$this->additionaldays['uid']} AND ltid=1 AND {$period} BETWEEN periodStart AND periodEnd");
         if($db->num_rows($leavestats_query) > 0) {
             while($leavestat = $db->fetch_array($leavestats_query)) {
                 $additionalDays = $leavestat['additionalDays'];
@@ -195,6 +207,11 @@ class AttendanceAddDays Extends Attendance {
             return true;
         }
         return false;
+    }
+
+    public static function get_data($filters = '', $configs = array()) {
+        $data = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
     }
 
     public function get() {
