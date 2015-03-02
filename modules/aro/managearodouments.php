@@ -125,10 +125,14 @@ if(!($core->input['action'])) {
             }
             //*********Aro Order Customers - End *********//
             //*********Parameters Influencing Net Margin Calculation -Start ********//
+            if($purchasetype->qtyIsNotStored == 1) {
+                $disabled['warehousing'] = 'disabled="disabled"';
+                $readonly['warehousing'] = 'readonly="readonly"';
+            }
             $netmarginparms = AroNetMarginParameters::get_data(array('aorid' => $core->input['id']));
             $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, $netmarginparms->uom, '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '70px'));
             $warehouse = Warehouses::get_data(array('wid' => $netmarginparms->warehouse));
-            $warehouse_list = '<select><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option></select>';
+            $warehouse_list = '<select '.$disabled['warehousing'].'><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option></select>';
             $netmarginparms_warehousingRate = '<option value="'.$netmarginparms->warehousingRate.'">'.$netmarginparms->warehousingRate.'</option>';
             //  $netmarginparms->warehousingRate_output
             //*********Parameters Influencing Net Margin Calculation -End ********//

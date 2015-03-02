@@ -7,6 +7,7 @@
  * Last Update:    @tony.assaad    Feb 19, 2015 | 9:59:17 AM
  */
 $(function() {
+
     $('.accordion .header').accordion({collapsible: true});
     $('.accordion .header').click(function() {
         $(this).next().toggle();
@@ -113,10 +114,7 @@ $(function() {
                 });
             }
         });
-
-        alert(paymentdays);
         var purchasetype = $("input[id^='cpurchasetype']").val();
-
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=getestimatedate&avgesdateofsale= ' + avgesdateofsale + '&paymentermdays[]= ' + paymentdays + '&ptid= ' + purchasetype);
     });
 
@@ -177,15 +175,17 @@ $(function() {
     });
 
 
-// Form Submitting after 20 seconds.
+// Form Submitting after 20 seconds
     var auto_refresh = setInterval(function() {
         submitform();
     }, 20000);
 // Form submit function.
     function submitform() {
-        //   alert('Form is submitting.....');
         $("input[id^='perform_'][id$='_Button']").trigger("click");
     }
 
+    $(window).load(function() {
+        $("select[id^='paymentermdays_']").trigger("change");
+    });
 
 });

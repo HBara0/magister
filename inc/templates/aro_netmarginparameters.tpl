@@ -25,9 +25,9 @@
                 <td class="border_right" ><input type="number" min="0" name="parmsfornetmargin[localPeriodOfInterest]" id="parmsfornetmargin_localPeriodOfInterest" value="{$netmarginparms->localPeriodOfInterest}" style="width:150px;" readonly/></td>
                 <td class="border_right" ><input type="number" min="0" name="parmsfornetmargin[intermedPeriodOfInterest]" id="parmsfornetmargin_intermedPeriodOfInterest" value="{$netmarginparms->localPeriodOfInterest}" style="width:150px;" readonly/></td>
                 <td class="border_right" valign="top">{$lang->rate}</td>
-                <td>  <select name="parmsfornetmargin[warehousingRate]" id="parmsfornetmargin_warehousingRate" style="width:150px;">{$netmarginparms_warehousingRate}</select><input type="hidden" id="parmsfornetmargin_warehousing_disabled" value="1"/></td>
+                <td>  <select name="parmsfornetmargin[warehousingRate]" id="parmsfornetmargin_warehousingRate" style="width:150px;" {$disabled[warehousing]}>{$netmarginparms_warehousingRate}</select><input type="hidden" id="parmsfornetmargin_warehousing_disabled" value="1"/></td>
                 <td valign="top">{$lang->period}</td>
-                <td> <input type="text" name="parmsfornetmargin[warehousingPeriod]" id="parmsfornetmargin_warehousingPeriod" value="{$netmarginparms->warehousingPeriod}" style="width:150px;"/>
+                <td> <input type="text" name="parmsfornetmargin[warehousingPeriod]" id="parmsfornetmargin_warehousingPeriod" value="{$netmarginparms->warehousingPeriod}" style="width:150px;" {$readonly[warehousing]}/>
                 </td>
             </tr>
             <tr>
@@ -35,7 +35,7 @@
                 <td class="border_right" ><input type="text" name="parmsfornetmargin[localRiskRatio]" id="parmsfornetmargin_localRiskRatio" value="{$netmarginparms->localRiskRatio}" style="width:150px;" readonly/></td>
                 <td class="border_right" ><input type="text" name="parmsfornetmargin[intermedRiskRatio]" id="parmsfornetmargin_intermedRiskRatio" value="{$netmarginparms->intermedRiskRatio}" style="width:150px;" readonly/></td>
                 <td valign="top">{$lang->totalload}</td>
-                <td><input type="text" name="parmsfornetmargin[warehousingTotalLoad]" id="parmsfornetmargin_warehousingTotalLoad" value="{$netmarginparms->warehousingTotalLoad}" style="width:150px;"/></td>
+                <td><input type="text" name="parmsfornetmargin[warehousingTotalLoad]" id="parmsfornetmargin_warehousingTotalLoad" value="{$netmarginparms->warehousingTotalLoad}" style="width:150px;" {$readonly[warehousing]}/></td>
                 <td valign="top">{$lang->uom}</td>
                 <td>{$netmarginparms_uomlist}</td>
             </tr>
