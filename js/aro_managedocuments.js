@@ -67,7 +67,7 @@ $(function() {
             var fields = ["daysInStock", "qtyPotentiallySold"];
             for(var i = 0; i < fields.length; i++) {
                 if($("input[id='productline_" + fields[i] + "_disabled']").val() == 0) {
-                    $("input[id$='" + fields[i] + "']").val('0');
+                    $("input[id$='" + fields[i] + "']").attr("value", "0")
                     $("input[id$='" + fields[i] + "']").attr("readonly", "true");
                 }
                 else {
@@ -77,7 +77,7 @@ $(function() {
             var warehousing_fields = ["warehouse", "warehousingRate", "warehousingPeriod", "warehousingTotalLoad", "uom"];
             for(var i = 0; i < warehousing_fields.length; i++) {
                 if($("input[id='parmsfornetmargin_warehousing_disabled']").val() == 0) {
-                    $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "']").val('0');
+                    $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "']").attr('value', '0');
                     $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "']").attr("readonly", "true");
                     $("select[id ='parmsfornetmargin_" + warehousing_fields[i] + "']").append('<option value="0" selected></option>');
                     $("select[id ='parmsfornetmargin_" + warehousing_fields[i] + "']").attr("disabled", "true");
@@ -142,6 +142,7 @@ $(function() {
         var id = $(this).attr('id').split("_");
         $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").removeAttr("readonly");
         if($(this).val() == 0) {
+            $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").attr('value', '0');
             $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").attr("readonly", "true");
         }
     });
@@ -170,8 +171,6 @@ $(function() {
     $("#orderreference").live('change', function() {
         $('select[id=affid]').trigger('change');
         $('select[id=parmsfornetmargin_warehouse]').trigger('change');
-
-
     });
 
 
@@ -186,6 +185,9 @@ $(function() {
 
     $(window).load(function() {
         $("select[id^='paymentermdays_']").trigger("change");
+
+        //      $("#pldiv").addClass("ui-state-disabled");
+
     });
 
 });
