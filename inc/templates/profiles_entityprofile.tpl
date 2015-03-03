@@ -9,8 +9,8 @@
         </style>
         <script src="{$core->settings[rootdir]}/js/jquery.rateit.min.js" type="text/javascript"></script>
         <script type="text/javascript">
-            $(function() {
-                $("a[id^='loadentityusers_'],a[id^='loadallusers_']").click(function() {
+            $(function () {
+                $("a[id^='loadentityusers_'],a[id^='loadallusers_']").click(function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -110,7 +110,7 @@
                                     <div class="timeline_column timeline_column_heading" style="width:15%;">{$lang->endproduct}</div>
                                     <div class="timeline_column timeline_column_heading">{$lang->annualpotential}</div>
                                     <div class="timeline_column timeline_column_heading">{$lang->price}</div>
-                                    <div class="timeline_column timeline_column_heading">{$lang->marketshare}</div>
+                                    <div class="timeline_column timeline_column_heading">{$lang->marketshareperc}</div>
                                     <div class="timeline_column timeline_column_heading">{$lang->marketshareqty}</div>
                                     <div class="timeline_column timeline_column_heading" style="width:1%;"></div>
                                 </div>
