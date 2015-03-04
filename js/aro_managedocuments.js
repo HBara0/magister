@@ -29,7 +29,6 @@ $(function() {
         if(ptid !== '' && ptid != typeof undefined) {
             sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid);
             sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid= ' + affid + '&ptid= ' + ptid);
-
         }
 
     });
@@ -53,7 +52,6 @@ $(function() {
         });
         $('select[id=purchasetype]').trigger('change');
     });
-
     /*Disable days in Stock, QPS and warehousing section according to seleced purchasetype*/
     /*trigger productline fields*/
     $("#purchasetype").live('change', function() {
@@ -81,7 +79,6 @@ $(function() {
                     $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "']").attr("readonly", "true");
                     $("select[id ='parmsfornetmargin_" + warehousing_fields[i] + "']").append('<option value="0" selected></option>');
                     $("select[id ='parmsfornetmargin_" + warehousing_fields[i] + "']").attr("disabled", "true");
-
                 }
                 else {
                     $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "']").removeAttr("readonly");
@@ -89,13 +86,11 @@ $(function() {
                 }
             }
         });
-
         var plfields = ["quantity", "qtyPotentiallySold", "intialPrice", "costPrice", "sellingPrice", "daysInStock"];
         for(var i = 0; i < plfields.length; i++) {
             $("input[id^='productline_'][id$='_" + plfields[i] + "']").trigger('change');
         }
     });
-
     $("#currencies").live('change', function() {
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=getexchangerate&currency=' + $(this).val());
     });
@@ -117,7 +112,6 @@ $(function() {
         var purchasetype = $("input[id^='cpurchasetype']").val();
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=getestimatedate&avgesdateofsale= ' + avgesdateofsale + '&paymentermdays[]= ' + paymentdays + '&ptid= ' + purchasetype);
     });
-
     $("input[id^='productline_']").live('change', function() {
         var id = $(this).attr('id').split("_");
         var fields_array = ["quantity", "qtyPotentiallySold", "intialPrice", "costPrice", "sellingPrice", "daysInStock"];
@@ -136,7 +130,6 @@ $(function() {
         parmsfornetmargin += '&warehousingRate=' + $("select[id='parmsfornetmargin_warehousingRate']").val();
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + fields + '&parmsfornetmargin=' + parmsfornetmargin);
     });
-
     /* Disable qtyPotentiallySold if daysInStock =0*/
     $("input[id$='_daysInStock']").live('change keyup', function() {
         var id = $(this).attr('id').split("_");
@@ -146,7 +139,6 @@ $(function() {
             $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").attr("readonly", "true");
         }
     });
-
     /*Get Warehouse policy parms*/
     $("#parmsfornetmargin_warehouse").live('change', function() {
         var warehouse = $(this).val();
@@ -167,17 +159,14 @@ $(function() {
             });
         }
     });
-
     $("#orderreference").live('change', function() {
         $('select[id=affid]').trigger('change');
         $('select[id=parmsfornetmargin_warehouse]').trigger('change');
     });
-
-
 // Form Submitting after 20 seconds
-    var auto_refresh = setInterval(function() {
-        submitform();
-    }, 20000);
+    // var auto_refresh = setInterval(function() {
+    //      submitform();
+    //   }, 20000);
 // Form submit function.
     function submitform() {
         $("input[id^='perform_'][id$='_Button']").trigger("click");
@@ -185,9 +174,40 @@ $(function() {
 
     $(window).load(function() {
         $("select[id^='paymentermdays_']").trigger("change");
-
-        //      $("#pldiv").addClass("ui-state-disabled");
-
     });
 
+    $("input[id$='_sellingPrice']").live('change', function() {
+        var id = $(this).attr('id').split('_');
+        var fields = operation = '';
+        $("tbody[id^='productline_']").find($("input[id^='productline_" + id[1] + "'],select[id^='productline_" + id[1] + "']")).each(function() {
+            var field = $(this).attr('id').split('_');
+            if(!(($(this).val().length == 0) || ($(this).val() == null))) {
+                var value = $(this).val();
+                if(field[2] === 'inputChecksum') {
+                    if($("input[id='actualpurchase_" + id[1] + "_inputChecksum']").val() == value) {
+                        operation = 'update';
+                    }
+                }
+                fields = fields + "&" + field[2] + "=" + value;
+            }
+        });
+        var aprowid = $("input[id^='numrows_actualpurchaserow_']").val();
+        fields = fields + "&productName=" + $("input[id$='product_noexception_" + id[1] + "_autocomplete']").val() + "&pid=" + $("input[id$='product_noexception_" + id[1] + "_id_output']").val();
+        if(operation == 'update') {
+            sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + aprowid + '&fields=' + fields);
+        } else {
+            if(addactualpurchaserow(id[1]) == true) {
+                sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + aprowid + '&fields=' + fields);
+            }
+        }
+
+    });
+    var rowid = ''
+    function addactualpurchaserow() {
+        if(rowid == '') {
+            rowid = $("input[id^='numrows_actualpurchaserow_']").val();
+        }
+        $("img[id='ajaxaddmore_aro/managearodouments_actualpurchaserow_" + rowid + "']").click();
+        return true;
+    }
 });

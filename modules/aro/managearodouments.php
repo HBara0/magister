@@ -55,12 +55,14 @@ if(!($core->input['action'])) {
         $plrowid = 1;
         $productline['inputChecksum'] = generate_checksum('pl');
         $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
-        $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."packing", 'blankstart' => 1));
+        $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
         $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, '', '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
 
         //Net Margin Parameters
         $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '70px'));
+
+        eval("\$actualpurchase_rows = \"".$template->get('aro_actualpurchase_row')."\";");
     }
 
     if(isset($core->input['id'])) {
@@ -144,7 +146,7 @@ if(!($core->input['action'])) {
                 foreach($productlines as $line) {
                     $productline = $line->get();
                     $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, $productline['psid'], null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
-                    $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, $productline['packing'], '', '', array('id' => "productline_".$plrowid."packing", 'blankstart' => 1));
+                    $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, $productline['packing'], '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
                     $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $productline['uom'], '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
                     $product = new Products($productline['pid']);
                     $productline[productName] = $product->get_displayname();
@@ -162,7 +164,7 @@ if(!($core->input['action'])) {
             else {
                 $productline['inputChecksum'] = generate_checksum('pl');
                 $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
-                $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."packing", 'blankstart' => 1));
+                $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
                 $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, '', '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
                 eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
             }
@@ -177,6 +179,7 @@ if(!($core->input['action'])) {
     eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
     eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
     eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
+    eval("\$actualpurchase = \"".$template->get('aro_actualpurchase')."\";");
     eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
     output_page($aro_managedocuments);
 }
@@ -267,14 +270,14 @@ else {
         echo json_encode(array('avgeliduedate' => $conv)); //return json to the ajax request to populate in the form
     }
     if($core->input['action'] == 'ajaxaddmore_productline') {
-        $plrowid = intval($core->input['value']) + 1;
+        $plrowid = intval($core->input['value']);
         $display = 'none';
         $productlines_data = $core->input['ajaxaddmoredata'];
         $productline['inputChecksum'] = generate_checksum('pl');
         $packaging = Packaging::get_data('name IS NOT NULL');
         $segments = ProductsSegments::get_segments('');
         $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
-        $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."packing", 'blankstart' => 1));
+        $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
         $uom = Uom::get_data('name IS NOT NULL');
         $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, '', '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
@@ -337,5 +340,33 @@ else {
                 'parmsfornetmargin_intermedRiskRatio' => $intermedpolicy->riskRatio
         );
         echo json_encode($aropolicy_data);
+    }
+    if($core->input['action'] == 'ajaxaddmore_actualpurchaserow') {
+        $rowid = intval($core->input['value']);
+        unset($core->input['action'], $core->input['module']);
+        $plfields = array("productName", "pid", "packing", "quantity", "inputChecksum");
+        foreach($plfields as $field) {
+            $actualpurchase[$field] = $core->input[$field];
+        }
+        $packaging = Packaging::get_data('name IS NOT NULL');
+        $packaging_list = parse_selectlist('actualpurchase['.$rowid.'][packing]', '', $packaging, $actualpurchase[packing], '', '', array('id' => "actualpurchase_".$plrowid."_packing", 'blankstart' => 1));
+        eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row')."\";");
+        output($actualpurchase_rows);
+    }
+    if($core->input['action'] == 'populateactualpurchaserow') {
+        $rowid = $core->input['rowid'];
+        unset($core->input['action'], $core->input['module']); //can  move to a function
+        $plfields = array("productName", "pid", "packing", "quantity", "inputChecksum");
+        foreach($plfields as $field) {
+            $actualpurchase[$field] = $core->input[$field];
+        }
+        $packaging = Packaging::get_data('name IS NOT NULL');
+        $packaging_list = parse_selectlist('actualpurchase['.$plrowid.'][packing]', '', $packaging, $actualpurchase[packing], '', '', array('id' => "actualpurchase_".$plrowid."_packing", 'blankstart' => 1));
+        $actualpurchase_data = array('product_noexception_'.$rowid.'_autocomplete' => $actualpurchase['productName'],
+                'actualpurchase_'.$rowid.'_quantity' => $actualpurchase['quantity'],
+                'actualpurchase_'.$rowid.'_inputChecksum' => $actualpurchase['inputChecksum'],
+                //'parmsfornetmargin_intermedRiskRatio' => $intermedpolicy->riskRatio,
+        );
+        echo json_encode($actualpurchase_data);
     }
 }
