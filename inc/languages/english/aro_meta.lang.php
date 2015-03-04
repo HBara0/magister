@@ -87,3 +87,5 @@ $lang['orderreference'] = 'Order Reference';
 $lang['buyingcurr'] = 'Buying Currency';
 $lang['orderidentification'] = 'Order Identification';
 $lang['inspectiontype'] = 'Inspection Type';
+$lang['createdon'] = 'Created On';
+$lang['aroorderrequest'] = 'Aro Order Request';
