@@ -112,9 +112,17 @@ class AroOrderRequest extends AbstractClass {
     }
 
     private function save_ordercustomers($customersdetails) {
+        global $db;
         if(is_array($customersdetails)) {
             foreach($customersdetails as $order) {
                 $order['aorid'] = $this->data[self::PRIMARY_KEY];
+                if(isset($order['todelete']) && !empty($order['todelete'])) {
+                    $ordercustomer = AroOrderCustomers::get_data(array('inputChecksum' => $order['inputChecksum']));
+                    if(is_object($ordercustomer)) {
+                        $db->delete_query('aro_order_customers', 'aocid='.$ordercustomer->aocid.'');
+                    }
+                    continue;
+                }
                 $ordercust_obj = new AroOrderCustomers();
                 $ordercust_obj->set($order);
                 $ordercust_obj->save();
@@ -153,6 +161,24 @@ class AroOrderRequest extends AbstractClass {
                     case 2:
                         return;
                     case 3:
+                        return;
+                }
+            }
+        }
+    }
+
+    private function save_linessupervision($linessupervision) {
+        if(is_array($linessupervision)) {
+            foreach($linessupervision as $linesupervision) {
+                $linesupervision['aorid'] = $this->data[self::PRIMARY_KEY];
+                $requestlinesupervision = new AroRequestLinesSupervision();
+                $requestlinesupervision->set($arorequestline);
+                $requestlinesupervision->save();
+                $this->errorcode = $requestlinesupervision->errorcode;
+                switch($this->get_errorcode()) {
+                    case 0:
+                        continue;
+                    case 2:
                         return;
                 }
             }
