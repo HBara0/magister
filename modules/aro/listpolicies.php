@@ -29,7 +29,7 @@ if(!$core->input['action']) {
                     'filterKey' => 'apid',
                     'mainTable' => array(
                             'name' => 'aro_policies',
-                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'purchaseType' => array('operatorType' => 'equal', 'name' => 'purchaseType'), 'effectiveFrom', 'effectiveTo', 'isActive' => array('operatorType' => 'equal', 'name' => 'isActive')),
+                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'purchaseType' => array('operatorType' => 'equal', 'name' => 'purchaseType'), 'effectiveFrom' => array('operatorType' => 'date', 'name' => 'effectiveFrom'), 'effectiveTo' => array('operatorType' => 'date', 'name' => 'effectiveTo'), 'isActive' => array('operatorType' => 'equal', 'name' => 'isActive')),
                     ),
     ));
     $filter = new Inlinefilters($filters_config);

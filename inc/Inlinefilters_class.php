@@ -151,7 +151,8 @@ class Inlinefilters {
                         case 'date':
                         case 'effectiveFrom':
                         case 'effectiveTo':
-                            $filters[$filter] = '<input type="text" id="pickDate_'.$filter.'" autocomplete="off" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter].'" /><input type="hidden" name="filters['.$filter.']" id="altpickDate_'.$filter.'" value="'.$core->input['filters'][$filter].'" />';
+                            $filters[$filter] = '<input type="text" id="pickDate_'.$filter.'_from" autocomplete="off" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter]['from'].'" /><input type="hidden" name="filters['.$filter.'][from]" id="altpickDate_'.$filter.'_from" value="'.$core->input['filters'][$filter]['from'].'" /><br />';
+                            $filters[$filter] .= '<input type="text" id="pickDate_'.$filter.'_to" autocomplete="off" tabindex="'.($tabindex + 1).'" value="'.$core->input['filters'][$filter]['to'].'" /><input type="hidden" name="filters['.$filter.'][to]" id="altpickDate_'.$filter.'_to" value="'.$core->input['filters'][$filter]['to'].'" />';
                             break;
                         default:
                             $filters[$filter] = '<input type="text" width="100%" name="filters['.$filter.']" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter].'" id="filers_'.$filter.'" title="'.$this->config['parse']['filterTitles'][$filter].'">';
@@ -376,12 +377,17 @@ class Inlinefilters {
         $query_filter_statement = '';
         foreach($filters as $filteritem => $attr) {
             if(isset($core->input['filters'][$filteritem]) && (!empty($core->input['filters'][$filteritem]) || ($core->input['filters'][$filteritem] == '0'))) {
-                $query_filter_statement .= $query_operator.$this->parse_whereentry($attr, $filteritem);
-                if($this->matching_rule == 'all') {
-                    $query_operator = ' AND ';
+                $wherestatement = $this->parse_whereentry($attr, $filteritem);
+                if(!empty($query_filter_statement)) {
+                    if($this->matching_rule == 'all') {
+                        $query_operator = ' AND ';
+                    }
+                    else {
+                        $query_operator = ' OR ';
+                    }
                 }
-                else {
-                    $query_operator = ' OR ';
+                if(!empty($wherestatement)) {
+                    $query_filter_statement .= $query_operator.$wherestatement;
                 }
             }
         }
@@ -411,7 +417,16 @@ class Inlinefilters {
             $query_where = $sec_query_operator.'('.$attr['name'].' BETWEEN '.$db->escape_string($core->input['filters'][$filteritem]['start']).' AND '.$db->escape_string($core->input['filters'][$filteritem]['end']).')';
         }
         elseif($attr['operatorType'] == 'date') {
-            $query_where = $sec_query_operator.'('.$attr['name'].' BETWEEN '.strtotime($core->input['filters'][$filteritem]).' AND '.(strtotime($core->input['filters'][$filteritem]) + (60 * 60 * 24) - 1).')';
+            if(empty($core->input['filters'][$filteritem]['from'])) {
+                if(empty($core->input['filters'][$filteritem]['to'])) {
+                    return null;
+                }
+                $core->input['filters'][$filteritem]['from'] = date('Y-M-d', strtotime($core->input['filters'][$filteritem]['from'])).' 00:00:00';
+            }
+            if(empty($core->input['filters'][$filteritem]['to'])) {
+                $core->input['filters'][$filteritem]['to'] = date('Y-m-d', strtotime($core->input['filters'][$filteritem]['from'])).' 23:59:59';
+            }
+            $query_where = $sec_query_operator.'('.$attr['name'].' BETWEEN '.strtotime($core->input['filters'][$filteritem]['from']).' AND '.(strtotime($core->input['filters'][$filteritem]['to'])).')';
         }
         elseif($attr['operatorType'] == 'equal') {
             $query_where = $sec_query_operator.$attr['name'].'="'.$db->escape_string($core->input['filters'][$filteritem]).'"';
