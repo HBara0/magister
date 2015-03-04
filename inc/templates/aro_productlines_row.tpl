@@ -1,7 +1,7 @@
 <tr id="{$plrowid}">
     <td>
         <input type='hidden' name='productline[$plrowid][arlid]' value='{$productline[arlid]}'/>
-        <input type='hidden' name='productline[$plrowid][inputChecksum]' value='{$productline[inputChecksum]}'/>
+        <input type='hidden' name='productline[$plrowid][inputChecksum]' value='{$productline[inputChecksum]}' id="productline_{$plrowid}_inputChecksum"/>
         <input type='text' id="product_noexception_{$plrowid}_autocomplete" value="{$productline[productName]}" autocomplete='off' {$required}/>
         <input type='hidden' name="productline[$plrowid][pid]" id='product_noexception_{$plrowid}_id_output' value="{$productline[pid]}"/>
         {$segments_selectlist}
