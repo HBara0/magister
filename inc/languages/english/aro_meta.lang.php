@@ -92,3 +92,5 @@ $lang['totalvalue'] = 'Total Value';
 $lang['estdateofstockentry'] = 'Est. Date of Stock Entry';
 $lang['shelflife'] = 'Shelf-life (years)';
 $lang['estdateofsale'] = 'Est. Date of Sale';
+$lang['createdon'] = 'Created On';
+$lang['aroorderrequest'] = 'Aro Order Request';
