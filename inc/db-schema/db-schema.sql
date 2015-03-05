@@ -247,8 +247,7 @@ CREATE TABLE `aro_requests_lines` (
   `costPriceAtRiskRatio` float NOT NULL,
   `sellingPrice` float NOT NULL,
   `grossMarginAtRiskRatio` float NOT NULL,
-  `netMarginAff` float NOT NULL,
-  `netMarginIntermed` float NOT NULL,
+  `netMargin` float NOT NULL,
   `netMarginPerc` float NOT NULL,
   PRIMARY KEY (`arlid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
