@@ -143,7 +143,7 @@ if(!$core->input['action']) {
             array('img' => 'portal-affiliates.png', 'title' => 'affiliateslist', 'link' => 'index.php?module=profiles/affiliateslist', 'permission' => 'canAccessSystem'),
             array('img' => 'portal-suppliers.png', 'title' => 'supplierslist', 'link' => 'index.php?module=profiles/supplierslist', 'permission' => 'canAccessSystem'),
             array('img' => 'portal-customers.png', 'title' => 'customerslist', 'link' => 'index.php?module=profiles/customerslist', 'permission' => 'canAccessSystem'),
-            array('img' => 'portal-grouppurchase.png', 'title' => 'grouppurchase', 'link' => 'index.php?module=grouppurchase/pricing', 'permission' => 'canUseGroupPurchase'),
+            array('img' => 'portal-grouppurchase.png', 'title' => 'grouppurchase', 'link' => 'index.php?module=grouppurchase/createforecast', 'permission' => 'canUseGroupPurchase'),
             array('img' => 'portal-hr.png', 'title' => 'humanresources', 'link' => 'index.php?module=hr/employeeslist', 'permission' => 'canUseHR'),
             array('img' => 'portal-filesharing.png', 'title' => 'filesharing', 'link' => 'index.php?module=filesharing/fileslist', 'permission' => 'canUseFileSharing'),
             array('img' => 'portal-successstories.png', 'title' => 'successstories', 'link' => 'index.php?module=filesharing/fileslist&amp;ffid=6', 'permission' => 'canUseFileSharing')
@@ -167,7 +167,7 @@ if(!$core->input['action']) {
     $affiliates_currencies['EUR']['name'] = array('alphaCode' => 'EUR', 'name' => 'EUR');
     $affiliates_currencies['GBP']['name'] = array('alphaCode' => 'GBP', 'name' => 'GBP');
 
-    $affiliatecurrenciesquery = $db->query('SELECT affid, cur.alphaCode, cur.name 
+    $affiliatecurrenciesquery = $db->query('SELECT affid, cur.alphaCode, cur.name
 											FROM '.Tprefix.'countries c
 											JOIN '.Tprefix.'currencies cur ON (c.mainCurrency=cur.numCode)
 											WHERE affid IN('.implode(',', $core->user['affiliates']).')
