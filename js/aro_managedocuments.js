@@ -150,7 +150,7 @@ $(function() {
                 jQuery.each(obj, function(i, val) {
                     if(i === 'parmsfornetmargin_warehousingRate') {
                         var id = val.split(" ");
-                        $("<option value='" + id[0] + "' selected>" + val + "</option>").appendTo($("select[id^='" + i + "']"));
+                        $("select[id^='" + i + "']").empty().append("<option value='" + id[0] + "' selected>" + val + "</option>");
                     }
                     else {
                         $("input[id^='" + i + "']").val(val);
@@ -200,10 +200,10 @@ $(function() {
             fields = fields + "&productName=" + $("input[id$='product_noexception_" + id[1] + "_autocomplete']").val() + "&pid=" + $("input[id$='product_noexception_" + id[1] + "_id_output']").val();
             fields = fields + "&ptid=" + $('select[id=purchasetype]').val();
             if(operation == 'update') {
-                sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + id[1] + '&fields=' + fields);
+                sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + id[1] + '&fields=' + fields);
             } else {
                 if(addactualpurchaserow() == true) {
-                    sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + id[1] + '&fields=' + fields);
+                    sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + id[1] + '&fields=' + fields);
                 }
             }
         }

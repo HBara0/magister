@@ -13,18 +13,18 @@
  *
  * @author tony.assaad
  */
-class AroOrderRequest extends AbstractClass {
+class AroRequests extends AbstractClass {
     protected $data = array();
     protected $errorcode = 0;
 
     const PRIMARY_KEY = 'aorid';
-    const TABLE_NAME = 'aro_order_requests';
+    const TABLE_NAME = 'aro_requests';
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = 'aorid,affid,orderType';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'affid,orderType,orderReference';
 
-    public function __construct($id = '', $simple = true) {
+    public function __construct($id = null, $simple = true) {
         parent::__construct($id, $simple);
     }
 
@@ -193,7 +193,7 @@ class AroOrderRequest extends AbstractClass {
                 'estimatedManufacturerPayment' => date_create('20-02-2014') //
         );
 
-        $where = 'warehouse='.$data['warehouse'].' AND '.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo';
+        $where = 'warehouse='.$data['warehouse'].' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         $warehousepolicy = AroManageWarehousesPolicies::get_data($where);
         $currency = new Currencies($warehousepolicy->currency);
         $uom = new Uom($warehousepolicy->rate_uom);
