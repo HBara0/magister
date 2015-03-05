@@ -65,7 +65,7 @@ $(function() {
             var fields = ["daysInStock", "qtyPotentiallySold"];
             for(var i = 0; i < fields.length; i++) {
                 if($("input[id='productline_" + fields[i] + "_disabled']").val() == 0) {
-                    $("input[id$='" + fields[i] + "']").attr("value", "0")
+                    $("input[id$='" + fields[i] + "']").attr('value', '0')
                     $("input[id$='" + fields[i] + "']").attr("readonly", "true");
                 }
                 else {
@@ -169,18 +169,22 @@ $(function() {
     //   }, 20000);
 // Form submit function.
     function submitform() {
-        $("input[id^='perform_'][id$='_Button']").trigger("click");
+        //  $("input[id^='perform_'][id$='_Button']").trigger("click");
     }
 
     $(window).load(function() {
         $("select[id^='paymentermdays_']").trigger("change");
     });
-
-    $("input[id$='_sellingPrice']").live('change', function() {
+    $("input[id$='_sellingPrice'],input[id$='_quantity'],input[id$='_daysInStock'],input[id$='_qtyPotentiallySold'],input[id$='_intialPrice'],input[id$='_intialPrice'],input[id$='_costPrice']").live('change unfocus', function() {
         var id = $(this).attr('id').split('_');
         var fields = operation = '';
         $("tbody[id^='productline_']").find($("input[id^='productline_" + id[1] + "'],select[id^='productline_" + id[1] + "']")).each(function() {
+            //input:not([id$='netMargin'])
             var field = $(this).attr('id').split('_');
+            if((($(this).val().length == 0) || ($(this).val() == null))) {
+                fields = '';
+                return false;
+            }
             if(!(($(this).val().length == 0) || ($(this).val() == null))) {
                 var value = $(this).val();
                 if(field[2] === 'inputChecksum') {
@@ -190,24 +194,27 @@ $(function() {
                 }
                 fields = fields + "&" + field[2] + "=" + value;
             }
+
         });
-        var aprowid = $("input[id^='numrows_actualpurchaserow_']").val();
-        fields = fields + "&productName=" + $("input[id$='product_noexception_" + id[1] + "_autocomplete']").val() + "&pid=" + $("input[id$='product_noexception_" + id[1] + "_id_output']").val();
-        if(operation == 'update') {
-            sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + aprowid + '&fields=' + fields);
-        } else {
-            if(addactualpurchaserow(id[1]) == true) {
-                sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + aprowid + '&fields=' + fields);
+        if(fields != '') {
+            fields = fields + "&productName=" + $("input[id$='product_noexception_" + id[1] + "_autocomplete']").val() + "&pid=" + $("input[id$='product_noexception_" + id[1] + "_id_output']").val();
+            fields = fields + "&ptid=" + $('select[id=purchasetype]').val();
+            if(operation == 'update') {
+                sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + id[1] + '&fields=' + fields);
+            } else {
+                if(addactualpurchaserow() == true) {
+                    sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + id[1] + '&fields=' + fields);
+                }
             }
         }
 
     });
-    var rowid = ''
-    function addactualpurchaserow() {
-        if(rowid == '') {
-            rowid = $("input[id^='numrows_actualpurchaserow_']").val();
-        }
-        $("img[id='ajaxaddmore_aro/managearodouments_actualpurchaserow_" + rowid + "']").click();
-        return true;
-    }
 });
+var rowid = '';
+function addactualpurchaserow() {
+    if(rowid == '') {
+        rowid = $("input[id^='numrows_actualpurchaserow_']").val();
+    }
+    $("img[id='ajaxaddmore_aro/managearodouments_actualpurchaserow_" + rowid + "']").trigger("click");
+    return true;
+}
