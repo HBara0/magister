@@ -21,16 +21,24 @@ if(!($core->input['action'])) {
     if($core->usergroup['canViewAllAff'] == 0) {
         $inaffiliates = $core->user['affiliates'];
     }
-    foreach($inaffiliates as $affid) {
-        $affiliate[$affid] = new Affiliates($affid);
+    if(is_array($inaffiliates)) {
+        foreach($inaffiliates as $affid) {
+            $affiliate[$affid] = new Affiliates($affid);
+        }
+    }
+    else {
+        $affiliate = Affiliates::get_affiliates();
     }
 
     $purchasetypes = PurchaseTypes::get_data('name IS NOT NULL', array('returnarray' => true));
+    if(!is_array($purchasetypes)) {
+        error($lang->missingconfigurations.' (Purchase Types)');
+    }
     $inspections = array('inspection1' => 'inspection');
     $payment_terms = PaymentTerms::get_data('', array('returnarray' => ture));
     $segments = ProductsSegments::get_segments('');
-    $packaging = Packaging::get_data('name IS NOT NULL');
-    $uom = Uom::get_data('name IS NOT NULL');
+    $packaging = Packaging::get_data('name IS NOT NULL', array('returnarray' => ture));
+    $uom = Uom::get_data('name IS NOT NULL', array('returnarray' => ture));
     $mainaffobj = new Affiliates($core->user['mainaffiliate']);
     $currencies = Currencies::get_data();
 
@@ -66,7 +74,7 @@ if(!($core->input['action'])) {
     }
 
     if(isset($core->input['id'])) {
-        $aroorderrequest = AroOrderRequest::get_data(array('aorid' => $core->input['id']), array('simple' => false));
+        $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
         $purchasetype = new PurchaseTypes($aroorderrequest->orderType);
 
         if(is_object($aroorderrequest)) {
@@ -191,7 +199,7 @@ else {
         }
         $rateusd = $currencyobj->get_latest_fxrate($tocurrency->alphaCode, null);
         if(!empty($rateusd)) {
-            $exchangerate = array('exchangeRateToUSD' => 1 / $rateusd);
+            $exchangerate = array('exchangeRateToUSD' => round(1 / $rateusd, 2));
         }
         else {
             $exchangerate = array('exchangeRateToUSD' => '');
@@ -204,7 +212,7 @@ else {
         $documentseq_obj = AroDocumentsSequenceConf::get_data(array('time' => $filter['filter']['time'], 'affid' => $core->input['affid'], 'ptid' => $core->input['ptid']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in', 'time' => 'CUSTOMSQLSECURE')));
         if(is_object($documentseq_obj)) {
             /* create the array to be encoded each dimension of the array represent the html element in the form */
-            $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.date('y', $documentseq_obj->effectiveFrom).'-'.$documentseq_obj->suffix);
+            $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.$documentseq_obj->suffix);
             echo json_encode($orderreference); //return json to the ajax request to populate in the form
         }
     }
@@ -218,7 +226,7 @@ else {
     }
     if($core->input['action'] == 'do_perform_managearodouments') {
         unset($core->input['module'], $core->input['action']);
-        $orderident_obj = new AroOrderRequest();
+        $orderident_obj = new AroRequests();
         /* get arodocument of the affid and pruchase type */
         $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $core->input['affid'], 'ptid' => $core->input['orderType']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
         if(is_object($documentseq_obj)) {
@@ -309,7 +317,7 @@ else {
         $data = $core->input;
         $productline_data = $productline_obj->calculate_values($data);
         foreach($productline_data as $key => $value) {
-            if(!empty($value)) {
+            if(!empty($value) || ($value == 0)) {
                 $productline['productline_'.$rowid.'_'.$key] = $value;
             }
         }
@@ -317,7 +325,7 @@ else {
     }
     if($core->input['action'] == 'populatewarehousepolicy') {
         unset($core->input['action'], $core->input['module']);
-        $aroorderrequest = new AroOrderRequest();
+        $aroorderrequest = new AroRequests();
         $netmarginparms_data = $aroorderrequest->calculate_netmaginparms($core->input);
         foreach($netmarginparms_data as $key => $value) {
             $parmsfornetmargin['parmsfornetmargin_'.$key] = $value;
