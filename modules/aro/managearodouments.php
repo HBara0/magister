@@ -74,16 +74,6 @@ if(!($core->input['action'])) {
             $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => 'purchasetype', 'required' => 'required'));
             $currencies_list = parse_selectlist('currency', 4, $currencies, $aroorderrequest->currency, '', '', array('blankstart' => 1, 'id' => 'currencies', 'required' => 'required'));
             $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, $aroorderrequest->inspectionType);
-            //*********Aro Audit Trail -Start *********//
-            $aroorderrequest->createdOn_output = date($core->settings['dateformat'], $aroorderrequest->createdOn);
-            $aroorderrequest->modifiedOn_output = date($core->settings['dateformat'], $aroorderrequest->modifiedOn);
-            $createdby_username = new Users($aroorderrequest->createdBy);
-            $modifiedby_username = new Users($aroorderrequest->modifiedBy);
-            $aroorderrequest->createdBy_output = $createdby_username->parse_link($attributes_param = array('target' => "_blank"));
-            $aroorderrequest->modifiedBy_output = $modifiedby_username->parse_link($attributes_param = array('target' => '__blank'));
-            $aroorderrequest->revision_output = $aroorderrequest->revision;
-            eval("\$aro_managedocuments_audittrail_rows .= \"".$template->get('aro_managedocuments_audittrail_rows')."\";");
-            //*********Aro Audit Trail -End *********//
             //*********Aro Order Customers -Start *********//
             $requestcustomers = AroOrderCustomers::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true));
             $rowid = 1;
@@ -178,6 +168,30 @@ if(!($core->input['action'])) {
                 eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
             }
             //********** ARO Product Lines **************//
+            //*********Aro Actual Purchase -Start *********//
+            $aroreqlinesupervision = AroRequestLinesSupervision::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true));
+            if(is_array($aroreqlinesupervision)) {
+                foreach($aroreqlinesupervision as $actualpurchase) {
+                    $products = new Products($actualpurchase->pid);
+                    $actualpurchase->productName = $products->get_displayname();
+                    $actualpurchase->estDateOfSale_output = date($core->settings['dateformat'], $actualpurchase->estDateOfSale);
+                    $actualpurchase->estDateOfStockEntry_output = date($core->settings['dateformat'], $actualpurchase->estDateOfStockEntry);
+                    $packaging_selected_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, $actualpurchase->packing, '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
+                    eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row')."\";");
+                    unset($products);
+                }
+            }
+            //*********Aro Actual Purchase-End *********//
+            //*********Aro Audit Trail -Start *********//
+            $aroorderrequest->createdOn_output = date($core->settings['dateformat'], $aroorderrequest->createdOn);
+            $aroorderrequest->modifiedOn_output = date($core->settings['dateformat'], $aroorderrequest->modifiedOn);
+            $createdby_username = new Users($aroorderrequest->createdBy);
+            $modifiedby_username = new Users($aroorderrequest->modifiedBy);
+            $aroorderrequest->createdBy_output = $createdby_username->parse_link($attributes_param = array('target' => "_blank"));
+            $aroorderrequest->modifiedBy_output = $modifiedby_username->parse_link($attributes_param = array('target' => '__blank'));
+            $aroorderrequest->revision_output = $aroorderrequest->revision;
+            eval("\$aro_managedocuments_audittrail_rows .= \"".$template->get('aro_managedocuments_audittrail_rows')."\";");
+            //*********Aro Audit Trail -End *********//
         }
         else {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
