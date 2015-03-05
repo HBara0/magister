@@ -107,7 +107,7 @@ DROP TABLE IF EXISTS `aro_documentsequences`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `aro_documentsequences` (
   `adsid` int(10) NOT NULL AUTO_INCREMENT,
-  `affid` int(10) NOT NULL,
+  `affid` smallint(10) NOT NULL,
   `ptid` int(10) NOT NULL,
   `effectiveFrom` bigint(30) NOT NULL,
   `effectiveTo` bigint(30) NOT NULL,
@@ -123,7 +123,7 @@ CREATE TABLE `aro_documentsequences` (
 ) ENGINE=MyISAM AUTO_INCREMENT=165 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 CREATE TABLE `aro_netmargin_parameters` (
   `anpid` int(10) NOT NULL AUTO_INCREMENT,
-  `aorid` int(11) NOT NULL,
+  `aorid` int(10) NOT NULL,
   `localBankInterestRate` float NOT NULL,
   `localPeriodOfInterest` int(11) NOT NULL,
   `localRiskRatio` float NOT NULL,
@@ -154,13 +154,33 @@ CREATE TABLE `aro_order_customers` (
   `cid` int(10) NOT NULL,
   PRIMARY KEY (`aocid`)
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `aro_order_indentification`;
+DROP TABLE IF EXISTS `aro_policies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `aro_managewareshouses_policies` (
-CREATE TABLE `aro_order_indentification` (
-  `aoiid` int(10) NOT NULL AUTO_INCREMENT,
-CREATE TABLE `aro_order_requests` (
+CREATE TABLE `aro_policies` (
+  `apid` int(11) NOT NULL AUTO_INCREMENT,
+  `affid` smallint(6) NOT NULL,
+  `purchaseType` int(11) NOT NULL,
+  `effectiveFrom` bigint(30) NOT NULL,
+  `effectiveTo` bigint(30) NOT NULL,
+  `riskRatio` decimal(10,0) NOT NULL,
+  `yearlyInterestRate` decimal(10,0) NOT NULL,
+  `commissionCharged` decimal(10,0) NOT NULL,
+  `riskRatioDiffCurrCP` decimal(10,0) NOT NULL,
+  `riskRatioMonthlyIncreaseDiffCurrCN` decimal(10,0) NOT NULL,
+  `riskRatioSameCurrCN` decimal(10,0) NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`apid`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `aro_requests`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `aro_requests` (
   `aorid` int(10) NOT NULL AUTO_INCREMENT,
   `affid` int(10) NOT NULL,
   `orderType` int(10) NOT NULL,
@@ -168,7 +188,8 @@ CREATE TABLE `aro_order_requests` (
   `inspectionType` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `currency` int(10) NOT NULL,
   `exchangeRateToUSD` float NOT NULL,
-  `ReferenceNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `referenceNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `revision` int(2) NOT NULL DEFAULT '0',
   `createdOn` bigint(30) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
@@ -177,18 +198,9 @@ CREATE TABLE `aro_order_requests` (
   UNIQUE KEY `aoiid` (`aorid`),
   FULLTEXT KEY `orderReference` (`orderReference`)
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `aro_requests`;
+DROP TABLE IF EXISTS `aro_requests_approvals`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `aro_requests` (
-  `arid` int(10) NOT NULL AUTO_INCREMENT,
-  `aoiid` int(10) NOT NULL,
-  `createdBy` int(10) NOT NULL,
-  `createdOn` bigint(30) NOT NULL,
-  `modifiedOn` bigint(30) NOT NULL,
-  `modifiedBy` int(10) NOT NULL,
-  PRIMARY KEY (`arid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 CREATE TABLE `aro_requests_approvals` (
   `araid` int(10) NOT NULL AUTO_INCREMENT,
   `arid` int(10) NOT NULL,
@@ -285,6 +297,7 @@ CREATE TABLE `aro_requests_messages` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_wareshouses_policies`;
+CREATE TABLE `aro_wareshouses_policies` (
   `awpid` int(10) NOT NULL AUTO_INCREMENT,
   `warehouse` int(10) NOT NULL,
   `effectiveFrom` bigint(30) NOT NULL,
@@ -299,26 +312,7 @@ DROP TABLE IF EXISTS `aro_wareshouses_policies`;
   `modifiedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`awpid`),
   UNIQUE KEY `awpid` (`awpid`)
-) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-CREATE TABLE `aro_policies` (
-  `apid` int(11) NOT NULL AUTO_INCREMENT,
-  `affid` smallint(6) NOT NULL,
-  `purchaseType` int(11) NOT NULL,
-  `effectiveFrom` bigint(30) NOT NULL,
-  `effectiveTo` bigint(30) NOT NULL,
-  `riskRatio` decimal(10,0) NOT NULL,
-  `yearlyInterestRate` decimal(10,0) NOT NULL,
-  `commissionCharged` decimal(10,0) NOT NULL,
-  `riskRatioDiffCurrCP` decimal(10,0) NOT NULL,
-  `riskRatioMonthlyIncreaseDiffCurrCN` decimal(10,0) NOT NULL,
-  `riskRatioSameCurrCN` decimal(10,0) NOT NULL,
-  `isActive` tinyint(1) NOT NULL,
-  `createdOn` bigint(30) NOT NULL,
-  `createdBy` int(10) NOT NULL,
-  `modifiedOn` bigint(30) NOT NULL,
-  `modifiedBy` int(10) NOT NULL,
-  PRIMARY KEY (`apid`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `assets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3869,6 +3863,10 @@ CREATE TABLE `usergroups` (
   `contents_canManageWarehouses` tinyint(1) NOT NULL,
   `aro_canManagePolicies` tinyint(1) NOT NULL,
   `aro_canManageWarehousePolicies` tinyint(1) NOT NULL,
+  `aro_canManageApprovalPolicies` tinyint(1) NOT NULL DEFAULT '0',
+  `aro_canManagePolicies` tinyint(1) NOT NULL DEFAULT '0',
+  `aro_canManageWarehousePolicies` tinyint(1) NOT NULL DEFAULT '0',
+  `canUseAro` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`gid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
