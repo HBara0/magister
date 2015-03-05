@@ -24,7 +24,7 @@ Abstract class AbstractClass {
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = null;
 
-    public function __construct($id = '', $simple = true) {
+    public function __construct($id = null, $simple = true) {
         if(isset($id)) {
             $this->read($id, $simple);
         }
