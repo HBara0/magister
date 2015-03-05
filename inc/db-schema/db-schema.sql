@@ -256,10 +256,15 @@ DROP TABLE IF EXISTS `aro_requests_linessupervision`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `aro_requests_linessupervision` (
   `arlsid` int(11) NOT NULL,
+  `aorid` int(10) NOT NULL,
+  `quantity` float NOT NULL,
+  `pid` int(10) NOT NULL,
+  `packing` int(10) NOT NULL,
   `totalValue` int(11) NOT NULL,
-  `estTimeOfArrival` bigint(30) NOT NULL,
+  `estDateOfStockEntry` bigint(30) NOT NULL,
   `shelfLife` float NOT NULL,
-  `estDateOfSale` bigint(30) NOT NULL
+  `estDateOfSale` bigint(30) NOT NULL,
+  `inputChecksum` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_requests_messages`;
