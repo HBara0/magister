@@ -65,6 +65,7 @@ class AroOrderRequest extends AbstractClass {
             // $data['productline']['parmsfornetmargin'] = $data['parmsfornetmargin'];
             // $this->save_productlines($data['productline']);
             $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
+            $this->save_linessupervision($data['actualpurchase']);
 
             $this->errorcode = 0;
         }
@@ -108,6 +109,7 @@ class AroOrderRequest extends AbstractClass {
             $netmargnparms_obj->save();
             //    $data['productline']['parmsfornetmargin'] = $data['parmsfornetmargin'];
             $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
+            $this->save_linessupervision($data['actualpurchase']);
         }
     }
 
@@ -172,7 +174,7 @@ class AroOrderRequest extends AbstractClass {
             foreach($linessupervision as $linesupervision) {
                 $linesupervision['aorid'] = $this->data[self::PRIMARY_KEY];
                 $requestlinesupervision = new AroRequestLinesSupervision();
-                $requestlinesupervision->set($arorequestline);
+                $requestlinesupervision->set($linesupervision);
                 $requestlinesupervision->save();
                 $this->errorcode = $requestlinesupervision->errorcode;
                 switch($this->get_errorcode()) {
