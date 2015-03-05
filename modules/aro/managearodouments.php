@@ -79,8 +79,8 @@ if(!($core->input['action'])) {
             $aroorderrequest->modifiedOn_output = date($core->settings['dateformat'], $aroorderrequest->modifiedOn);
             $createdby_username = new Users($aroorderrequest->createdBy);
             $modifiedby_username = new Users($aroorderrequest->modifiedBy);
-            $aroorderrequest->createdBy_output = $createdby_username->parse_link($attributes_param);
-            $aroorderrequest->modifiedBy_output = $modifiedby_username->parse_link($attributes_param);
+            $aroorderrequest->createdBy_output = $createdby_username->parse_link($attributes_param = array('target' => "_blank"));
+            $aroorderrequest->modifiedBy_output = $modifiedby_username->parse_link($attributes_param = array('target' => '__blank'));
             $aroorderrequest->revision_output = $aroorderrequest->revision;
             eval("\$aro_managedocuments_audittrail_rows .= \"".$template->get('aro_managedocuments_audittrail_rows')."\";");
             //*********Aro Audit Trail -End *********//
