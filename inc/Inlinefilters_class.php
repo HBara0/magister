@@ -149,6 +149,7 @@ class Inlinefilters {
                         case 'fromDate':
                         case 'toDate':
                         case 'date':
+                        case 'createdOn':
                         case 'effectiveFrom':
                         case 'effectiveTo':
                             $filters[$filter] = '<input type="text" id="pickDate_'.$filter.'_from" autocomplete="off" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter]['from'].'" /><input type="hidden" name="filters['.$filter.'][from]" id="altpickDate_'.$filter.'_from" value="'.$core->input['filters'][$filter]['from'].'" /><br />';

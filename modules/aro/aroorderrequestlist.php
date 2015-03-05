@@ -30,7 +30,7 @@ if(!$core->input['action']) {
                     'filterKey' => 'aorid',
                     'mainTable' => array(
                             'name' => 'aro_order_requests',
-                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'orderType' => array('operatorType' => 'equal', 'name' => 'orderType'), 'orderReference' => array('single', 'name' => 'orderReference'), 'currency' => array('multiple', 'name' => 'currency'), 'createdOn'),
+                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'orderType' => array('operatorType' => 'equal', 'name' => 'orderType'), 'orderReference' => array('single', 'name' => 'orderReference'), 'currency' => array('multiple', 'name' => 'currency'), 'createdOn' => array('operatorType' => 'date', 'name' => 'createdOn')),
                     ),
     ));
     $filter = new Inlinefilters($filters_config);
