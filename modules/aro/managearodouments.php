@@ -74,7 +74,16 @@ if(!($core->input['action'])) {
             $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => "purchasetype"));
             $currencies_list = parse_selectlist('currency', 4, $currencies, $aroorderrequest->currency, '', '', array('blankstart' => 1, 'id' => "currencies"));
             $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, $aroorderrequest->inspectionType);
-
+            //*********Aro Audit Trail -Start *********//
+            $aroorderrequest->createdOn_output = date($core->settings['dateformat'], $aroorderrequest->createdOn);
+            $aroorderrequest->modifiedOn_output = date($core->settings['dateformat'], $aroorderrequest->modifiedOn);
+            $createdby_username = new Users($aroorderrequest->createdBy);
+            $modifiedby_username = new Users($aroorderrequest->modifiedBy);
+            $aroorderrequest->createdBy_output = $createdby_username->parse_link($attributes_param);
+            $aroorderrequest->modifiedBy_output = $modifiedby_username->parse_link($attributes_param);
+            $aroorderrequest->revision_output = $aroorderrequest->revision;
+            eval("\$aro_managedocuments_audittrail_rows .= \"".$template->get('aro_managedocuments_audittrail_rows')."\";");
+            //*********Aro Audit Trail -End *********//
             //*********Aro Order Customers -Start *********//
             $requestcustomers = AroOrderCustomers::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true));
             $rowid = 1;
@@ -180,6 +189,7 @@ if(!($core->input['action'])) {
     eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
     eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
     eval("\$actualpurchase = \"".$template->get('aro_actualpurchase')."\";");
+    eval("\$aro_audittrail= \"".$template->get('aro_managedocuments_audittrail')."\";");
     eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
     output_page($aro_managedocuments);
 }

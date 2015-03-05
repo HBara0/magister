@@ -18,6 +18,7 @@
                     {$aro_netmarginparms}
                     {$aro_productlines}
                     {$actualpurchase}
+                    {$aro_audittrail}
                     <input type="submit" class="button" id="perform_aro/managearodouments_Button" value="{$lang->save}"/>
                 </form>
                 <div id="perform_aro/managearodouments_Results"></div>
