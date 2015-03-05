@@ -15,7 +15,7 @@ class Warehouses extends AbstractClass {
     const PRIMARY_KEY = 'wid';
     const TABLE_NAME = 'warehouses';
     const DISPLAY_NAME = 'name';
-    const SIMPLEQ_ATTRS = 'wid,affid,name,addressLine1,addressLine2,postalCode,ciid,coid,isActive,idOB,X(geoLocation) AS longitude,Y(geoLocation) AS latitude';
+    const SIMPLEQ_ATTRS = 'wid,affid,name,addressLine1,addressLine2,postalCode,ciid,coid,isActive,integrationOBId,X(geoLocation) AS longitude,Y(geoLocation) AS latitude';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'affid,name';
 
@@ -76,7 +76,7 @@ class Warehouses extends AbstractClass {
 
     private function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
-            $required_fields = array('affid', 'name', 'ciid', 'idOB');
+            $required_fields = array('affid', 'name', 'ciid', 'integrationOBId');
             foreach($required_fields as $field) {
                 if(empty($data[$field])) {
                     $this->errorcode = 2;
