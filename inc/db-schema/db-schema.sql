@@ -160,20 +160,22 @@ DROP TABLE IF EXISTS `aro_order_indentification`;
 CREATE TABLE `aro_managewareshouses_policies` (
 CREATE TABLE `aro_order_indentification` (
   `aoiid` int(10) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `aro_order_requests` (
+  `aorid` int(10) NOT NULL AUTO_INCREMENT,
   `affid` int(10) NOT NULL,
   `orderType` int(10) NOT NULL,
   `orderReference` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `inspectionType` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `Currency` int(10) NOT NULL,
+  `currency` int(10) NOT NULL,
   `exchangeRateToUSD` float NOT NULL,
   `ReferenceNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
-  PRIMARY KEY (`aoiid`),
-  UNIQUE KEY `aoiid` (`aoiid`),
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`aorid`),
+  UNIQUE KEY `aoiid` (`aorid`),
   FULLTEXT KEY `orderReference` (`orderReference`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_requests`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
