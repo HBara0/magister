@@ -69,9 +69,7 @@ class AroRequestLines extends AbstractClass {
         $parmsfornetmargin['localBankInterestRate'] = $parmsfornetmargin['localBankInterestRate'] / 100;
         $parmsfornetmargin['localBankInterestRate'] = $parmsfornetmargin['localBankInterestRate'] / 100;
         $parmsfornetmargin['intermedBankInterestRate'] = $parmsfornetmargin['intermedBankInterestRate'] / 100;
-        $parmsfornetmargin['intermedPeriodOfInterest'] = $parmsfornetmargin['intermedPeriodOfInterest'] / 100;
-
-
+        //   $parmsfornetmargin['intermedPeriodOfInterest'] = $parmsfornetmargin['intermedPeriodOfInterest'] / 100;
         // $parmsfornetmargin['riskRatio'] = $parmsfornetmargin['riskRatio'] / 100;
         $parmsfornetmargin['fees'] = 10;
         $parmsfornetmargin['inter_com'] = 8 / 100;
@@ -123,6 +121,11 @@ class AroRequestLines extends AbstractClass {
         }
         $data['grossMarginAtRiskRatio'] = floor((($data['sellingPrice'] - $data['costPriceAtRiskRatio']) * $data['quantity']));
 
+        if($purchasetype->isPurchasedByEndUser == 1) {
+            $data['daysInStock'] = 0;
+            $data['qtyPotentiallySold'] = 0;
+            $data['qtyPotentiallySoldPerc'] = 0;
+        }
         $data['netMargin'] = round($this->calculate_netmargin($purchasetype, $data, $parmsfornetmargin), 2);
 
         if((($data['sellingPrice'] * $data['quantity']) * $data['exchangeRateToUSD']) != 0) {
@@ -140,8 +143,6 @@ class AroRequestLines extends AbstractClass {
             $netmargin -= ((($parms['warehousingTotalLoad'] * $data['quantity']) / $parms['totalQty']) * ($data['daysInStock'] / $parms['warehousingPeriod']) * $parms['warehousingRate']);
         }
         if($purchasetype->isPurchasedByEndUser == 1) {
-            $data['daysInStock'] = 0;
-            $data['qtyPotentiallySold'] = 0;
             if($parms['localPeriodOfInterest'] != 0) {
                 $netmargin = ($data['grossMarginAtRiskRatio'] - (($data['quantity'] * $data['costPriceAtRiskRatio']) * $parms['intermedBankInterestRate'] / $parmsfornetmargin['YearDays'] * $parms['intermedPeriodOfInterest']) * $data['exchangeRateToUSD']);
             }

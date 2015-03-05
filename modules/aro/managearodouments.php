@@ -36,9 +36,9 @@ if(!($core->input['action'])) {
 
     if(!isset($core->input['id'])) {
         //order identification
-        $affiliate_list = parse_selectlist('affid', 1, $affiliate, $orderid[affid], '', '', array('blankstart' => true, 'id' => "affid"));
-        $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $orderid['ptid'], '', '', array('blankstart' => true, 'id' => "purchasetype"));
-        $currencies_list = parse_selectlist('currency', 4, $currencies, '', '', '', array('blankstart' => 1, 'id' => "currencies"));
+        $affiliate_list = parse_selectlist('affid', 1, $affiliate, $orderid[affid], '', '', array('blankstart' => true, 'id' => "affid", 'required' => 'required'));
+        $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $orderid['ptid'], '', '', array('blankstart' => true, 'id' => "purchasetype", 'required' => 'required'));
+        $currencies_list = parse_selectlist('currency', 4, $currencies, '', '', '', array('blankstart' => 1, 'id' => "currencies", 'required' => 'required'));
         $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, '');
 
         //order Customers
@@ -62,7 +62,7 @@ if(!($core->input['action'])) {
         //Net Margin Parameters
         $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '70px'));
 
-        eval("\$actualpurchase_rows = \"".$template->get('aro_actualpurchase_row')."\";");
+        // eval("\$actualpurchase_rows = \"".$template->get('aro_actualpurchase_row')."\";");
     }
 
     if(isset($core->input['id'])) {
@@ -70,9 +70,9 @@ if(!($core->input['action'])) {
         $purchasetype = new PurchaseTypes($aroorderrequest->orderType);
 
         if(is_object($aroorderrequest)) {
-            $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => "affid"));
-            $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => "purchasetype"));
-            $currencies_list = parse_selectlist('currency', 4, $currencies, $aroorderrequest->currency, '', '', array('blankstart' => 1, 'id' => "currencies"));
+            $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'required' => 'required'));
+            $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => 'purchasetype', 'required' => 'required'));
+            $currencies_list = parse_selectlist('currency', 4, $currencies, $aroorderrequest->currency, '', '', array('blankstart' => 1, 'id' => 'currencies', 'required' => 'required'));
             $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, $aroorderrequest->inspectionType);
 
             //*********Aro Order Customers -Start *********//
@@ -270,7 +270,7 @@ else {
         echo json_encode(array('avgeliduedate' => $conv)); //return json to the ajax request to populate in the form
     }
     if($core->input['action'] == 'ajaxaddmore_productline') {
-        $plrowid = intval($core->input['value']);
+        $plrowid = intval($core->input['value']) + 1;
         $display = 'none';
         $productlines_data = $core->input['ajaxaddmoredata'];
         $productline['inputChecksum'] = generate_checksum('pl');
@@ -331,9 +331,23 @@ else {
     }
     if($core->input['action'] == 'populateaffpolicy') {
         unset($core->input['action'], $core->input['module']);
-        $localaffpolicy = AroPolicies::get_data(array('affid' => $core->input['affid'], 'purchaseType' => $core->input['ptid'], 'isActive' => 1));
+        if($core->input['affid'] != ' ' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
+            $filter = 'affid='.$core->input['affid'].' AND purchaseType='.$core->input['ptid'].' AND isActive=1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+            $localaffpolicy = AroPolicies::get_data($filter);
+        }
+        if(!is_object($localaffpolicy)) {
+            $localaffpolicy = new AroPolicies();
+            $localaffpolicy_data['yearlyInterestRate'] = $localaffpolicy_data['riskRatio'] = 0;
+            $localaffpolicy->set($localaffpolicy_data);
+        }
         $core->input['intermed_affid'] = 27;
-        $intermedpolicy = AroPolicies::get_data(array('affid' => $core->input['intermed_affid'], 'purchaseType' => $core->input['ptid'], 'isActive' => 1));
+        $intermedpolicy_filter = 'affid='.$core->input['intermed_affid'].' AND purchaseType='.$core->input['ptid'].' AND isActive=1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $intermedpolicy = AroPolicies::get_data($intermedpolicy_filter);
+        if(!is_object($intermedpolicy)) {
+            $intermedpolicy = new AroPolicies();
+            $intermedpolicy_data['yearlyInterestRate'] = $intermedpolicy_data['riskRatio'] = 0;
+            $intermedpolicy->set($intermedpolicy_data);
+        }
         $aropolicy_data = array('parmsfornetmargin_localBankInterestRate' => $localaffpolicy->yearlyInterestRate,
                 'parmsfornetmargin_localRiskRatio' => $localaffpolicy->riskRatio,
                 'parmsfornetmargin_intermedBankInterestRate' => $intermedpolicy->yearlyInterestRate,
@@ -343,30 +357,22 @@ else {
     }
     if($core->input['action'] == 'ajaxaddmore_actualpurchaserow') {
         $rowid = intval($core->input['value']);
-        unset($core->input['action'], $core->input['module']);
-        $plfields = array("productName", "pid", "packing", "quantity", "inputChecksum");
-        foreach($plfields as $field) {
-            $actualpurchase[$field] = $core->input[$field];
-        }
         $packaging = Packaging::get_data('name IS NOT NULL');
-        $packaging_list = parse_selectlist('actualpurchase['.$rowid.'][packing]', '', $packaging, $actualpurchase[packing], '', '', array('id' => "actualpurchase_".$plrowid."_packing", 'blankstart' => 1));
+        $packaging_list = parse_selectlist('actualpurchase['.$rowid.'][packing]', '', $packaging, $actualpurchase [packing], '', '', array('id' => "actualpurchase_".$plrowid."_packing", 'blankstart' => 1));
         eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row')."\";");
         output($actualpurchase_rows);
     }
     if($core->input['action'] == 'populateactualpurchaserow') {
         $rowid = $core->input['rowid'];
-        unset($core->input['action'], $core->input['module']); //can  move to a function
-        $plfields = array("productName", "pid", "packing", "quantity", "inputChecksum");
-        foreach($plfields as $field) {
-            $actualpurchase[$field] = $core->input[$field];
-        }
-        $packaging = Packaging::get_data('name IS NOT NULL');
-        $packaging_list = parse_selectlist('actualpurchase['.$plrowid.'][packing]', '', $packaging, $actualpurchase[packing], '', '', array('id' => "actualpurchase_".$plrowid."_packing", 'blankstart' => 1));
+        $actualpurchase_obj = new AroRequestLinesSupervision();
+        $actualpurchase = $actualpurchase_obj->calculate_actualpurchasevalues($core->input);
         $actualpurchase_data = array('product_noexception_'.$rowid.'_autocomplete' => $actualpurchase['productName'],
-                'actualpurchase_'.$rowid.'_quantity' => $actualpurchase['quantity'],
-                'actualpurchase_'.$rowid.'_inputChecksum' => $actualpurchase['inputChecksum'],
-                //'parmsfornetmargin_intermedRiskRatio' => $intermedpolicy->riskRatio,
-        );
+                'product_noexception_'.$rowid.'_id_output' => $actualpurchase['pid']);
+
+        $fields = array('quantity', 'inputChecksum', 'totalValue', 'estDateOfStockEntry', 'estDateOfSale', 'shelfLife');
+        foreach($fields as $field) {
+            $actualpurchase_data['actualpurchase_'.$rowid.'_'.$field] = $actualpurchase[$field];
+        }
         echo json_encode($actualpurchase_data);
     }
 }
