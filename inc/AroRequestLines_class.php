@@ -90,7 +90,7 @@ class AroRequestLines extends AbstractClass {
 
         /* Get Aro request order type - Start */
         if(empty($data['ptid']) && !empty($data['aorid'])) {
-            $aroorderrequest = AroOrderRequest::get_data(array('aorid' => $data['aorid']));
+            $aroorderrequest = AroRequests::get_data(array('aorid' => $data['aorid']));
             $data['ptid'] = $aroorderrequest->orderType;
         }
         if(isset($data['ptid']) && !empty($data['ptid'])) {
@@ -106,6 +106,9 @@ class AroRequestLines extends AbstractClass {
             else {
                 $data['qtyPotentiallySold'] = (($data['qtyPotentiallySoldPerc'] * $data['quantity']) / 100);
             }
+        }
+        if(empty($data['qtyPotentiallySold'])) {
+            $data['qtyPotentiallySoldPerc'] = 0;
         }
 
         if(is_object($purchasetype)) {

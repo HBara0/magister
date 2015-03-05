@@ -8,8 +8,6 @@
  * Last Update:    @tony.assaad    Feb 10, 2015 | 3:58:14 PM
  */
 
-
-
 if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
@@ -34,11 +32,13 @@ if(!($core->input['action'])) {
 
     if($core->usergroup['canViewAllAff'] == 0) {
         $inaffiliates = $core->user['affiliates'];
+        foreach($inaffiliates as $affid) {
+            $affiliate[$affid] = new Affiliates($affid);
+        }
     }
-    foreach($inaffiliates as $affid) {
-        $affiliate[$affid] = new Affiliates($affid);
+    else {
+        $affiliate = Affiliates::get_affiliates();
     }
-
     $affiliate_list = parse_selectlist('documentsequence[affid]', 1, $affiliate, $documentsequence[affid]);
     $purchasetypes = PurchaseTypes::get_data('name IS NOT NULL', array('returnarray' => true));
 

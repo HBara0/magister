@@ -71,10 +71,10 @@ if(!$core->input['action']) {
                 'simple' => false
         );
     }
-    $arodocumentrequest = AroOrderRequest::get_data(array('affid' => array_keys($affiliates)), $dal_config);
+    $arodocumentrequest = AroRequests::get_data(array('affid' => array_keys($affiliates)), $dal_config);
 
     if(!empty($filter_where)) {
-        $arodocumentrequest = AroOrderRequest::get_data($filter_where, array('returnarray' => true, 'simple' => false));
+        $arodocumentrequest = AroRequests::get_data($filter_where, array('returnarray' => true, 'simple' => false));
     }
 
     if(is_array($arodocumentrequest)) {
