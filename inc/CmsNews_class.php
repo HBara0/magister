@@ -32,9 +32,12 @@ class CmsNews extends Cms {
         $this->data = $data;
         $this->categories = $this->data['categories'];
 
-        if(is_empty($this->data['title'], $this->data['alias'])) {
+        if(is_empty($this->data['title'])) {
             $this->status = 1;
             return false;
+        }
+        if(empty($this->data['alias'])) {
+            $this->data['alias'] = generate_alias($this->data['title']);
         }
         $this->settings = parent::read_settings_db(false);
 
@@ -119,45 +122,46 @@ class CmsNews extends Cms {
                         $this->settings['websiteaudits'] = explode(';', $this->settings['websiteaudits']);
                     }
 
-                    $news_approvers = unserialize($this->settings[websiteaudits]['value']);
-                    foreach($news_approvers as $approver) {
-                        $user_object = new Users($approver);
-                        $email_data['to'][] = $user_object->email;
-                    }
-                    $mailer = new Mailer();
-                    $mailer = $mailer->get_mailerobj();
-                    $mailer->set_type();
-                    $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
-                    $mailer->set_to($email_data['to']);
+                    $news_approvers = unserialize($this->settings['websiteaudits']['value']);
+                    if(is_array($news_approvers)) {
+                        foreach($news_approvers as $approver) {
+                            $user_object = new Users($approver);
+                            $email_data['to'][] = $user_object->email;
+                        }
+                        $mailer = new Mailer();
+                        $mailer = $mailer->get_mailerobj();
+                        $mailer->set_type();
+                        $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
+                        $mailer->set_to($email_data['to']);
 
 
-                    if($options['operationtype'] == 'updateversion') {
-                        print_R($this->prevversion);
-                        $mailer->set_subject($lang->sprint($lang->modifynotification_subject, $this->prevversion['title']));
-                        $emailmessage = $lang->sprint($lang->modifynotification_body, $this->prevversion['title'], //1
-                                similar_text($this->prevversion['title'], $this->data['title']), //2
-                                $this->data['title'], //3
-                                similar_text($this->prevversion['summary'], $this->data['summary']), //4
-                                $this->data['summary'], //5
-                                similar_text($this->prevversion['bodyText'], $this->data['bodyText']), //6
-                                get_stringdiff($this->oldnews['bodyText'], $this->data['bodyText'])); //7
+                        if($options['operationtype'] == 'updateversion') {
+                            $mailer->set_subject($lang->sprint($lang->modifynotification_subject, $this->prevversion['title']));
+                            $emailmessage = $lang->sprint($lang->modifynotification_body, $this->prevversion['title'], //1
+                                    similar_text($this->prevversion['title'], $this->data['title']), //2
+                                    $this->data['title'], //3
+                                    similar_text($this->prevversion['summary'], $this->data['summary']), //4
+                                    $this->data['summary'], //5
+                                    similar_text($this->prevversion['bodyText'], $this->data['bodyText']), //6
+                                    get_stringdiff($this->oldnews['bodyText'], $this->data['bodyText'])); //7
 
-                        $mailer->set_message($emailmessage);
-                    }
-                    else {
-                        $mailer->set_subject($lang->sprint($lang->newnotification_subject, $this->data['title']));
-                        $emailmessage = $lang->sprint($lang->newnotification_body, $this->data['title'], $this->data['summary'], $this->data['bodyText']);
-                        $mailer->set_message($emailmessage);
-                    }
-                    /* Attach new attachments to the message and indicate that in the message body */
+                            $mailer->set_message($emailmessage);
+                        }
+                        else {
+                            $mailer->set_subject($lang->sprint($lang->newnotification_subject, $this->data['title']));
+                            $emailmessage = $lang->sprint($lang->newnotification_body, $this->data['title'], $this->data['summary'], $this->data['bodyText']);
+                            $mailer->set_message($emailmessage);
+                        }
+                        /* Attach new attachments to the message and indicate that in the message body */
 //HERE
-                    $mailer->send();
+                        $mailer->send();
+                    }
                 }
                 /* Inform audits about the change, and request approval - END */
 
                 /* Upload related files - START */
 
-                $ftp_settings = array('server' => $this->settings['ftpserver'], 'username' => $this->settings['ftpusername'], 'password' => $this->settings['ftppassword']);
+                $ftp_settings = array('server' => $this->settings['ftpserver']['value'], 'username' => $this->settings['ftpusername']['value'], 'password' => $this->settings['ftppassword']['value']);
 //                $upload = new Uploader('', array(), array(), 'constructonly');
 //                $upload->establish_ftp($ftp_settings);
 

@@ -169,6 +169,6 @@ else {
             }
         }
 
-        message('index.php?module=attendance/leavesstats', 1, $lang->successfullysaved);
+        redirect('index.php?module=attendance/leavesstats', 1, $lang->successfullysaved);
     }
 }

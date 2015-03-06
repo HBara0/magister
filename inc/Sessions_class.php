@@ -115,7 +115,8 @@ class Sessions {
         $this->authenticate_cookie();
 
         $session_data = array(
-                'uid' => $this->uid
+                'uid' => $this->uid,
+                'time' => TIME_NOW
         );
 
         $session_information = $db->fetch_assoc($db->query("SELECT uid, time, ip FROM ".Tprefix."sessions WHERE sid='".$this->sid."' ORDER BY time DESC LIMIT 0,1"));
@@ -141,9 +142,9 @@ class Sessions {
 
         if($this->uid != $session_information['uid']) {
             $query = $db->update_query('sessions', $session_data, "sid='".$this->sid."'");
-            //if($db->affected_rows() == 0) {
-            //$this->create_dbsession();
-            //}
+            if($db->affected_rows() == 0) {
+                $this->create_dbsession();
+            }
         }
     }
 
