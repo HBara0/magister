@@ -113,7 +113,10 @@ if(!$core->input['action']) {
                             case 'pid':
                                 $product = new Products($line['pid']);
                                 $forecastline['pid'] = $line['pid'];
-                                $forecastline['psid'] = $product->get_genericproduct()->get_segment()->psid;
+                                $forecastline['psid'] = $line['psid'];
+                                if(empty($forecastline['psid'])) {
+                                    $forecastline['psid'] = $product->get_genericproduct()->get_segment()->psid;
+                                }
                                 $forecastline['productName'] = $product->name;
                         }
                     }
