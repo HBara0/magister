@@ -407,7 +407,7 @@ else {
         $actualpurchase = $actualpurchase_obj->calculate_actualpurchasevalues($core->input);
         $packing = new Packaging($actualpurchase['packing']);
         $actualpurchase['packing'] = $packing->get_displayname();
-        $fields = array('productName', 'pid', 'quantity', 'packing', 'totalValue', 'shelfLife', 'inputChecksum');
+        $fields = array('productName', 'pid', 'quantity', 'packing', 'totalValue', 'shelfLife', 'inputChecksum','daysInStock');
         foreach($fields as $field) {
             $actualpurchase_data['actualpurchase_'.$rowid.'_'.$field] = $actualpurchase[$field];
         }
