@@ -273,7 +273,7 @@ else {
                 output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
                 break;
             case 3:
-                output_xml('<status>false</status><message>Cost price cannot be lower than affiliate buying price</message>');
+                output_xml('<status>false</status><message>Cost price cannot be lower than affiliate buying price in product line number: '.$orderident_obj->get_errorid().'</message>');
                 break;
         }
     }
@@ -407,7 +407,7 @@ else {
         $actualpurchase = $actualpurchase_obj->calculate_actualpurchasevalues($core->input);
         $packing = new Packaging($actualpurchase['packing']);
         $actualpurchase['packing'] = $packing->get_displayname();
-        $fields = array('productName', 'pid', 'quantity', 'packing', 'totalValue', 'shelfLife', 'inputChecksum','daysInStock');
+        $fields = array('productName', 'pid', 'quantity', 'packing', 'totalValue', 'shelfLife', 'inputChecksum', 'daysInStock');
         foreach($fields as $field) {
             $actualpurchase_data['actualpurchase_'.$rowid.'_'.$field] = $actualpurchase[$field];
         }

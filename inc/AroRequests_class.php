@@ -56,18 +56,22 @@ class AroRequests extends AbstractClass {
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             $this->save_ordercustomers($data['customeroder']);
-
+            if($this->errorcode != 0) {
+                return false;
+            }
             $netmargnparms_obj = new AroNetMarginParameters();
             $data['parmsfornetmargin']['aorid'] = $this->data[self::PRIMARY_KEY];
             $netmargnparms_obj->set($data['parmsfornetmargin']);
             $netmargnparms_obj->save();
-
-            // $data['productline']['parmsfornetmargin'] = $data['parmsfornetmargin'];
-            // $this->save_productlines($data['productline']);
+            if($netmargnparms_obj->get_errorcode() != 0) {
+                return false;
+            }
+            $this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
+            if($this->errorcode != 0) {
+                return false;
+            }
             $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
             $this->save_linessupervision($data['actualpurchase']);
-
-            $this->errorcode = 0;
         }
     }
 
@@ -102,12 +106,21 @@ class AroRequests extends AbstractClass {
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             $this->save_ordercustomers($data['customeroder']);
-
+            if($this->errorcode != 0) {
+                return false;
+            }
             $netmargnparms_obj = new AroNetMarginParameters();
             $data['parmsfornetmargin']['aorid'] = $this->data[self::PRIMARY_KEY];
             $netmargnparms_obj->set($data['parmsfornetmargin']);
             $netmargnparms_obj->save();
-            //    $data['productline']['parmsfornetmargin'] = $data['parmsfornetmargin'];
+            if($netmargnparms_obj->get_errorcode() != 0) {
+                return false;
+            }
+//    $data['productline']['parmsfornetmargin'] = $data['parmsfornetmargin'];
+            $this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
+            if($this->errorcode != 0) {
+                return false;
+            }
             $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
             $this->save_linessupervision($data['actualpurchase']);
         }
@@ -128,11 +141,38 @@ class AroRequests extends AbstractClass {
                 $ordercust_obj = new AroOrderCustomers();
                 $ordercust_obj->set($order);
                 $ordercust_obj->save();
+
                 $this->errorcode = $ordercust_obj->errorcode;
                 switch($this->get_errorcode()) {
                     case 0:
                         continue;
                     case 2:
+                        return;
+                }
+            }
+        }
+    }
+
+    //loop through product line for validation 
+    private function validate_productlines($arorequestlines, $parmsfornetmargin) {
+        $plrowid = 0;
+        if(is_array($arorequestlines)) {
+            foreach($arorequestlines as $arorequestline) {
+                $plrowid++;
+                $arorequestline['aorid'] = $this->data[self::PRIMARY_KEY];
+                $arorequestline['exchangeRateToUSD'] = $this->data['exchangeRateToUSD'];
+                $arorequestline['parmsfornetmargin'] = $parmsfornetmargin;
+                $requestline = new AroRequestLines();
+                $requestline->set($arorequestline);
+                $requestline->validate_requiredfields();
+                $this->errorcode = $requestline->errorcode;
+                switch($this->get_errorcode()) {
+                    case 0:
+                        continue;
+                    case 2:
+                        return;
+                    case 3:
+                        $this->errorid = $plrowid;
                         return;
                 }
             }
@@ -160,15 +200,15 @@ class AroRequests extends AbstractClass {
                 $requestline = new AroRequestLines();
                 $requestline->set($arorequestline);
                 $requestline->save();
-                $this->errorcode = $requestline->errorcode;
-                switch($this->get_errorcode()) {
-                    case 0:
-                        continue;
-                    case 2:
-                        return;
-                    case 3:
-                        return;
-                }
+//                $this->errorcode = $requestline->errorcode;
+//                switch($this->get_errorcode()) {
+//                    case 0:
+//                        continue;
+//                    case 2:
+//                        return;
+//                    case 3:
+//                        return;
+//                }
             }
         }
     }
@@ -223,6 +263,10 @@ class AroRequests extends AbstractClass {
         }
 
         return $data;
+    }
+
+    public function get_errorid() {
+        return $this->errorid;
     }
 
 }

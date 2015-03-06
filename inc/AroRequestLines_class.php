@@ -25,40 +25,32 @@ class AroRequestLines extends AbstractClass {
 
     protected function create(array $data) {
         global $db, $log;
-        if(!$this->validate_requiredfields($data)) {
-            $data = $this->calculate_values();
-            if(empty($data['psid'])) {
-                $product = new Products($data['pid']);
-                $data['psid'] = $product->get_segment()['psid'];
-            }
-            if($data['costPrice'] < $data['affBuyingPrice']) {
-                $this->errorcode = 3;
-                return;
-            }
-            $query = $db->insert_query(self::TABLE_NAME, $data);
-            if($query) {
-                $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
-            }
+        //   if(!$this->validate_requiredfields($data)) {
+        $data = $this->calculate_values();
+        if(empty($data['psid'])) {
+            $product = new Products($data['pid']);
+            $data['psid'] = $product->get_segment()['psid'];
         }
+        $query = $db->insert_query(self::TABLE_NAME, $data);
+        if($query) {
+            $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+        }
+        // }
     }
 
     protected function update(array $data) {
         global $db, $log;
-        if(!$this->validate_requiredfields($data)) {
-            $data = $this->calculate_values();
-            if(empty($data['psid'])) {
-                $product = new Products($data['pid']);
-                $data['psid'] = $product->get_segment()['psid'];
-            }
-            if($data['costPrice'] < $data['affBuyingPrice']) {
-                $this->errorcode = 3;
-                return;
-            }
-            $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
-            if($query) {
-                $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
-            }
+        //  if(!$this->validate_requiredfields($data)) {
+        $data = $this->calculate_values();
+        if(empty($data['psid'])) {
+            $product = new Products($data['pid']);
+            $data['psid'] = $product->get_segment()['psid'];
         }
+        $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
+        if($query) {
+            $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+        }
+        // }
     }
 
     public function calculate_values(array $data = array()) {
@@ -151,14 +143,21 @@ class AroRequestLines extends AbstractClass {
         return $netmargin;
     }
 
-    private function validate_requiredfields(array $data = array()) {
+    public function validate_requiredfields(array $data = array()) {
+        if(empty($data)) {
+            $data = $this->data;
+        }
         if(is_array($data)) {
             $required_fields = array('pid', 'quantity');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
                     $this->errorcode = 2;
-                    return true;
+                    return;
                 }
+            }
+            if($data['costPrice'] < $data['affBuyingPrice']) {
+                $this->errorcode = 3;
+                return;
             }
         }
     }
