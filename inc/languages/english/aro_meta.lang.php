@@ -100,3 +100,4 @@ $lang['lasteditdate'] = 'Last Edit Date';
 $lang['createdby'] = 'Created By';
 $lang['modifiedby'] = 'Modified By';
 $lang['timesmodified'] = 'Times Modified';
+$lang['nopolicy'] = 'Error No policy';

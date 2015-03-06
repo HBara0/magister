@@ -151,6 +151,10 @@ class AroRequests extends AbstractClass {
                     if(is_object($requestline)) {
                         $db->delete_query('aro_requests_lines', 'arlid='.$requestline->arlid.'');
                     }
+                    $actualpurchaseline = AroRequestLinesSupervision::get_data(array('inputChecksum' => $arorequestline['inputChecksum']));
+                    if(is_object($actualpurchaseline)) {
+                        $db->delete_query('aro_requests_linessupervision', 'arlsid='.$actualpurchaseline->arlsid.'');
+                    }
                     continue;
                 }
                 $requestline = new AroRequestLines();
@@ -200,6 +204,10 @@ class AroRequests extends AbstractClass {
         if(is_object($warehousepolicy)) {
             $data['warehousingRate'] = $warehousepolicy->rate.'  '.$currency->alphaCode.'/'.$uom->get_displayname().'/'.$warehousepolicy->datePeriod.' Days';
             $data['warehousingPeriod'] = $warehousepolicy->datePeriod;
+        }
+        if(!is_object($warehousepolicy)) {
+            output($lang->nopolicy);
+            exit;
         }
         $purchasetype = new PurchaseTypes($data['ptid']);
         $data['intermedPeriodOfInterest'] = $data['localPeriodOfInterest'] = 0;
