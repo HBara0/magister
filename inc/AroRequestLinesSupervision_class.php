@@ -68,10 +68,7 @@ class AroRequestLinesSupervision extends AbstractClass {
         foreach($plfields as $field) {
             $actualpurchase[$field] = $data[$field];
         }
-        $actualpurchase['totalValue'] = $actualpurchase['totalBuyingValue'];
-
         $purchasetype = new PurchaseTypes($data['ptid']);
-
         $actualpurchase['transitTime'] = 20;
         $actualpurchase['clearanceTime'] = 1;
         $actualpurchase['dateOfStockEntry'] = '01-03-2015';
@@ -83,9 +80,9 @@ class AroRequestLinesSupervision extends AbstractClass {
         $actualpurchase['estDateOfStockEntry'] = strtotime($clearance, $actualpurchase['estDateOfStockEntry']);
         $actualpurchase['estDateOfStockEntry_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfStockEntry']);
         $daysinstock = '+'.$actualpurchase['daysInStock'].' days';
+
         $actualpurchase['estDateOfSale'] = strtotime($daysinstock, $actualpurchase['estDateOfStockEntry']);
         $actualpurchase['estDateOfSale_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfSale']);
-
         $actualpurchase['shelfLife'] = 2;
         if($purchasetype->qtyIsNotStored == 1) {
             $actualpurchase['estDateOfSale'] = $actualpurchase['shelfLife'] = $actualpurchase['estDateOfStockEntry'] = '-';
