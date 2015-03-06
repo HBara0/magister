@@ -1,13 +1,13 @@
 <tr>
     <td>
         <input type='hidden' name='actualpurchase[$rowid][inputChecksum]' id="actualpurchase_{$rowid}_inputChecksum" value='{$actualpurchase->inputChecksum}'/>
-        <input type='text' id="actualpurchase_{$rowid}_productName" value="{$actualpurchase[productName]}" style="width:200px;" readonly/>
-        <input type='hidden' id="actualpurchase_{$rowid}_pid" name="actualpurchase[$rowid][pid]" value="{$actualpurchase[pid]}"/>
-        <input type='hidden' id="actualpurchase_{$rowid}_daysInStock" name="actualpurchase[$rowid][daysInStock]" value="{$actualpurchase[daysInStock]}"/>
+        <input type='text' id="actualpurchase_{$rowid}_productName" value="{$actualpurchase->productName}" style="width:200px;" readonly/>
+        <input type='hidden' id="actualpurchase_{$rowid}_pid" name="actualpurchase[$rowid][pid]" value="{$actualpurchase->pid}"/>
+        <input type='hidden' id="actualpurchase_{$rowid}_daysInStock" name="actualpurchase[$rowid][daysInStock]" value="{$actualpurchase->daysInStock}"/>
 
     </td>
     <td>
-        <input type="text"  step="1" name="actualpurchase[$rowid][packing]" id="actualpurchase_{$rowid}_packing" value="{$actualpurchase[packing]}" style="width:100px;" readonly/>
+        <input type="text" name="actualpurchase[$rowid][packing]" id="actualpurchase_{$rowid}_packing" value="{$actualpurchase->packing}" style="width:100px;" readonly/>
 
     </td>
     <td>
