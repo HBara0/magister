@@ -23,7 +23,7 @@ if(!$core->input['action']) {
     $ordercurrency = Currencies::get_data('', array('returnarray' => true));
     $filters_config = array(
             'parse' => array('filters' => array('affid', 'orderType', 'orderReference', 'currency', 'createdOn'),
-                    'overwriteField' => array('orderType' => parse_selectlist('filters[orderType]', '', $ordertypes, $core->input['filters']['orderType'], '', '', array('placeholder' => 'select order type')), 'currency' => parse_selectlist('filters[currency]', '', $ordercurrency, $core->input['filters']['currency'], '', '', array('placeholder' => 'select order type'))),
+                    'overwriteField' => array('orderType' => parse_selectlist('filters[orderType]', '', $ordertypes, $core->input['filters']['orderType'], '', '', array('placeholder' => 'Select Order Type')), 'currency' => parse_selectlist('filters[currency]', '', $ordercurrency, $core->input['filters']['currency'], '', '', array('placeholder' => 'Select Currency'))),
                     'fieldsSequence' => array('affid' => 1, 'orderType' => 2, 'orderReference' => 3, 'currency' => 4, 'createdOn' => 5)
             ),
             'process' => array(

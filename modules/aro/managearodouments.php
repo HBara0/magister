@@ -178,19 +178,22 @@ if(!($core->input['action'])) {
             //********** ARO Product Lines **************//
             //*********Aro Actual Purchase -Start *********//
             $aroreqlinesupervision = AroRequestLinesSupervision::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true));
+
+            $rowid = 1;
             if(is_array($aroreqlinesupervision)) {
                 foreach($aroreqlinesupervision as $actualpurchase) {
                     $products = new Products($actualpurchase->pid);
                     $actualpurchase->productName = $products->get_displayname();
-                    $actualpurchase->estDateOfSale_output = date($core->settings['dateformat'], $actualpurchase->estDateOfSale);
                     $actualpurchase->estDateOfStockEntry_output = date($core->settings['dateformat'], $actualpurchase->estDateOfStockEntry);
+                    $actualpurchase->estDateOfSale_output = date($core->settings['dateformat'], $actualpurchase->estDateOfSale);
                     $packaging_selected_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, $actualpurchase->packing, '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
                     eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row')."\";");
-                    unset($products);
+                    $rowid++;
                 }
             }
             //*********Aro Actual Purchase-End *********//
             //*********Aro Audit Trail -Start *********//
+
             $aroorderrequest->createdOn_output = date($core->settings['dateformat'], $aroorderrequest->createdOn);
             $aroorderrequest->modifiedOn_output = date($core->settings['dateformat'], $aroorderrequest->modifiedOn);
             $createdby_username = new Users($aroorderrequest->createdBy);
@@ -199,6 +202,8 @@ if(!($core->input['action'])) {
             $aroorderrequest->modifiedBy_output = $modifiedby_username->parse_link($attributes_param = array('target' => '__blank'));
             $aroorderrequest->revision_output = $aroorderrequest->revision;
             eval("\$aro_managedocuments_audittrail_rows .= \"".$template->get('aro_managedocuments_audittrail_rows')."\";");
+            eval("\$aro_audittrail= \"".$template->get('aro_managedocuments_audittrail')."\";");
+
             //*********Aro Audit Trail -End *********//
         }
         else {
@@ -211,7 +216,6 @@ if(!($core->input['action'])) {
     eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
     eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
     eval("\$actualpurchase = \"".$template->get('aro_actualpurchase')."\";");
-    eval("\$aro_audittrail= \"".$template->get('aro_managedocuments_audittrail')."\";");
     eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
     output_page($aro_managedocuments);
 }
@@ -403,10 +407,12 @@ else {
         $actualpurchase = $actualpurchase_obj->calculate_actualpurchasevalues($core->input);
         $packing = new Packaging($actualpurchase['packing']);
         $actualpurchase['packing'] = $packing->get_displayname();
-        $fields = array('productName', 'pid', 'quantity', 'packing', 'totalValue', 'estDateOfStockEntry_output', 'estDateOfSale_output', 'shelfLife', 'inputChecksum');
+        $fields = array('productName', 'pid', 'quantity', 'packing', 'totalValue', 'shelfLife', 'inputChecksum');
         foreach($fields as $field) {
             $actualpurchase_data['actualpurchase_'.$rowid.'_'.$field] = $actualpurchase[$field];
         }
+        $actualpurchase_data['pickDate_from_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_output];
+        $actualpurchase_data['pickDate_from_sale_'.$rowid.''] = $actualpurchase[estDateOfSale_output];
         echo json_encode($actualpurchase_data);
     }
 }
