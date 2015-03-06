@@ -344,10 +344,13 @@ else {
             $localaffpolicy = AroPolicies::get_data($filter);
         }
         if(!is_object($localaffpolicy)) {
-            $localaffpolicy = new AroPolicies();
-            $localaffpolicy_data['yearlyInterestRate'] = $localaffpolicy_data['riskRatio'] = 0;
-            $localaffpolicy->set($localaffpolicy_data);
+//            $localaffpolicy = new AroPolicies();
+//            $localaffpolicy_data['yearlyInterestRate'] = $localaffpolicy_data['riskRatio'] = 0;
+//            $localaffpolicy->set($localaffpolicy_data);
+            output($lang->nopolicy);
+            exit;
         }
+
         $core->input['intermed_affid'] = 27;
         $intermedpolicy_filter = 'affid='.$core->input['intermed_affid'].' AND purchaseType='.$core->input['ptid'].' AND isActive=1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         $intermedpolicy = AroPolicies::get_data($intermedpolicy_filter);
@@ -365,19 +368,18 @@ else {
     }
     if($core->input['action'] == 'ajaxaddmore_actualpurchaserow') {
         $rowid = intval($core->input['value']);
-        $packaging = Packaging::get_data('name IS NOT NULL');
-        $packaging_list = parse_selectlist('actualpurchase['.$rowid.'][packing]', '', $packaging, $actualpurchase [packing], '', '', array('id' => "actualpurchase_".$plrowid."_packing", 'blankstart' => 1));
         eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row')."\";");
         output($actualpurchase_rows);
     }
     if($core->input['action'] == 'populateactualpurchaserow') {
         $rowid = $core->input['rowid'];
+        $core->input['totalValue'] = $core->input['totalBuyingValue'];
+        unset($core->input['action'], $core->input['module'], $core->input['totalBuyingValue']);
         $actualpurchase_obj = new AroRequestLinesSupervision();
         $actualpurchase = $actualpurchase_obj->calculate_actualpurchasevalues($core->input);
-        $actualpurchase_data = array('product_noexception_'.$rowid.'_autocomplete' => $actualpurchase['productName'],
-                'product_noexception_'.$rowid.'_id_output' => $actualpurchase['pid']);
-
-        $fields = array('quantity', 'inputChecksum', 'totalValue', 'estDateOfStockEntry', 'estDateOfSale', 'shelfLife');
+        $packing = new Packaging($actualpurchase['packing']);
+        $actualpurchase['packing'] = $packing->get_displayname();
+        $fields = array('productName', 'pid', 'quantity', 'packing', 'totalValue', 'estDateOfStockEntry_output', 'estDateOfSale_output', 'shelfLife', 'inputChecksum');
         foreach($fields as $field) {
             $actualpurchase_data['actualpurchase_'.$rowid.'_'.$field] = $actualpurchase[$field];
         }

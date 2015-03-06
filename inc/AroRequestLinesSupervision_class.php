@@ -25,8 +25,11 @@ class AroRequestLinesSupervision extends AbstractClass {
     protected function create(array $data) {
         global $db, $log;
         if(!$this->validate_requiredfields($data)) {
-            unset($actualpurchase['estDateOfStockEntry_output']);
-            $query = $db->insert_query(self::TABLE_NAME, $data);
+            $aorid = $data['aorid'];
+            $actualpurchase = $this->calculate_actualpurchasevalues($data);
+            $actualpurchase['aorid'] = $aorid;
+            unset($actualpurchase['estDateOfStockEntry_output'], $actualpurchase['estDateOfSale_output'], $actualpurchase['productName'], $actualpurchase['daysInStock']);
+            $query = $db->insert_query(self::TABLE_NAME, $actualpurchase);
             if($query) {
                 $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             }
@@ -36,8 +39,10 @@ class AroRequestLinesSupervision extends AbstractClass {
     protected function update(array $data) {
         global $db, $log;
         if(!$this->validate_requiredfields($data)) {
-            unset($actualpurchase['estDateOfStockEntry_output']);
-            $query = $db->update_query(self::TABLE_NAME, $data, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+            $actualpurchase['aorid'] = $data['aorid'];
+            $actualpurchase = $this->calculate_actualpurchasevalues($data);
+            unset($actualpurchase['estDateOfStockEntry_output'], $actualpurchase['estDateOfSale_output'], $actualpurchase['productName'], $actualpurchase['daysInStock']);
+            $query = $db->update_query(self::TABLE_NAME, $actualpurchase, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
             if($query) {
                 $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             }
@@ -58,14 +63,13 @@ class AroRequestLinesSupervision extends AbstractClass {
 
     public function calculate_actualpurchasevalues($data = array()) {
         global $core;
-        $rowid = $data['rowid'];
-        unset($data['action'], $data['module']); //can  move to a function
-        $plfields = array("productName", "pid", "packing", "quantity", "inputChecksum", "totalBuyingValue", "daysInStock");
+
+        $plfields = array("productName", "pid", "packing", "quantity", "inputChecksum", "totalValue", "daysInStock");
         foreach($plfields as $field) {
             $actualpurchase[$field] = $data[$field];
         }
-        $packaging = Packaging::get_data('name IS NOT NULL');
-        $packaging_list = parse_selectlist('actualpurchase['.$rowid.'][packing]', '', $packaging, $actualpurchase [packing], '', '', array('id' => "actualpurchase_".$plrowid."_packing", 'blankstart' => 1));
+        $actualpurchase['totalValue'] = $actualpurchase['totalBuyingValue'];
+
         $purchasetype = new PurchaseTypes($data['ptid']);
 
         $actualpurchase['transitTime'] = 20;
@@ -78,12 +82,15 @@ class AroRequestLinesSupervision extends AbstractClass {
         $actualpurchase['estDateOfStockEntry'] = strtotime($transittime, $actualpurchase['dateOfStockEntry']);
         $actualpurchase['estDateOfStockEntry'] = strtotime($clearance, $actualpurchase['estDateOfStockEntry']);
         $actualpurchase['estDateOfStockEntry_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfStockEntry']);
-        $actualpurchase['estDateOfSale'] = strtotime('+'.$actualpurchase['daysInStock'].' days', $actualpurchase['estDateOfStockEntry']);
+        $daysinstock = '+'.$actualpurchase['daysInStock'].' days';
+        $actualpurchase['estDateOfSale'] = strtotime($daysinstock, $actualpurchase['estDateOfStockEntry']);
+        $actualpurchase['estDateOfSale_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfSale']);
 
         $actualpurchase['shelfLife'] = 2;
         if($purchasetype->qtyIsNotStored == 1) {
             $actualpurchase['estDateOfSale'] = $actualpurchase['shelfLife'] = $actualpurchase['estDateOfStockEntry'] = '-';
         }
+        unset($actualpurchase['transitTime'], $actualpurchase['clearanceTime'], $actualpurchase['dateOfStockEntry'], $actualpurchase['totalBuyingValue']);
         return $actualpurchase;
     }
 

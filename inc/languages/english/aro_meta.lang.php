@@ -94,3 +94,4 @@ $lang['shelflife'] = 'Shelf-life (years)';
 $lang['estdateofsale'] = 'Est. Date of Sale';
 $lang['createdon'] = 'Created On';
 $lang['aroorderrequest'] = 'Aro Order Request';
+$lang['nopolicy'] = 'Error No policy';
