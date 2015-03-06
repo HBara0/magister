@@ -179,8 +179,10 @@ $(function() {
         var id = $(this).attr('id').split('_');
         var fields = operation = '';
         $("tbody[id^='productline_']").find($("input[id^='productline_" + id[1] + "'],select[id^='productline_" + id[1] + "']")).each(function() {
-            //input:not([id$='netMargin'])
             var field = $(this).attr('id').split('_');
+            if(field[2] == 'netMargin' || field[2] == 'netMarginPerc' || field[2] == 'grossMarginAtRiskRatio') {
+                return true;
+            }
             if((($(this).val().length == 0) || ($(this).val() == null))) {
                 fields = '';
                 return false;
@@ -188,7 +190,7 @@ $(function() {
             if(!(($(this).val().length == 0) || ($(this).val() == null))) {
                 var value = $(this).val();
                 if(field[2] === 'inputChecksum') {
-                    if($("input[id='actualpurchase_" + id[1] + "_inputChecksum']").val() == value) {
+                    if($("input[id='actualpurchase_" + field[1] + "_inputChecksum']").val() == value) {
                         operation = 'update';
                     }
                 }

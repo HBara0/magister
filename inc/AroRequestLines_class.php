@@ -65,16 +65,7 @@ class AroRequestLines extends AbstractClass {
         $parmsfornetmargin['inter_com'] = 8 / 100;
         $parmsfornetmargin['riskRatio'] = 3 / 100;
         $parmsfornetmargin['totalQty'] = 37;
-        //$parmsfornetmargin=array('fees' => 10,
-        ////       'inter_com' => 10 / 100,
-        //      'riskRatio' => 3 / 100,
-        //  'localBankInterestRate' => 8 / 100,
-        // 'localPeriodOfInterest' => 0,
-        // 'warehousingTotalLoad' => 10,
-        // 'warehousingPeriod' => 1,
-        // 'warehousingRate' => 0.25,
-        //    'totalQty' => 37.500
-        //   );
+
         $parmsfornetmargin['YearDays'] = 365;
         unset($data['parmsfornetmargin']);
 
@@ -90,7 +81,7 @@ class AroRequestLines extends AbstractClass {
         /* Get Aro request order type - End */
 
         if(isset($data['quantity']) && !empty($data['quantity'])) {
-            if(!isset($data['qtyPotentiallySoldPerc']) && isset($data['qtyPotentiallySold'])) {
+            if(isset($data['qtyPotentiallySold']) && !empty($data['qtyPotentiallySold'])) {
                 $data['qtyPotentiallySoldPerc'] = round(($data['qtyPotentiallySold'] / $data['quantity']) * 100, 2);
             }
             else {
