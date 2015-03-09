@@ -141,8 +141,7 @@ class AroRequests extends AbstractClass {
                 $ordercust_obj = new AroOrderCustomers();
                 $ordercust_obj->set($order);
                 $ordercust_obj->save();
-
-                $this->errorcode = $ordercust_obj->errorcode;
+                $this->errorcode = $ordercust_obj->get_errorcode();
                 switch($this->get_errorcode()) {
                     case 0:
                         continue;
@@ -153,7 +152,7 @@ class AroRequests extends AbstractClass {
         }
     }
 
-    //loop through product line for validation 
+    //loop through product line for validation
     private function validate_productlines($arorequestlines, $parmsfornetmargin) {
         $plrowid = 0;
         if(is_array($arorequestlines)) {

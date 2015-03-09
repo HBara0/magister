@@ -263,7 +263,6 @@ else {
         }
         $orderident_obj->set($core->input);
         $orderident_obj->save();
-
         switch($orderident_obj->get_errorcode()) {
             case 0:
             case 1:
@@ -273,7 +272,7 @@ else {
                 output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
                 break;
             case 3:
-                output_xml('<status>false</status><message>Cost price cannot be lower than affiliate buying price in product line number: '.$orderident_obj->get_errorid().'</message>');
+                output_xml('<status>false</status><message>'.$lang->productlineerror.$orderident_obj->get_errorid().'</message>');
                 break;
         }
     }

@@ -101,3 +101,4 @@ $lang['createdby'] = 'Created By';
 $lang['modifiedby'] = 'Modified By';
 $lang['timesmodified'] = 'Times Modified';
 $lang['nopolicy'] = 'Error No policy';
+$lang['productlineerror'] = 'Cost price cannot be lower than affiliate buying price in product line number: ';
