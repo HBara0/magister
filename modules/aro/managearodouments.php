@@ -255,6 +255,22 @@ else {
     if($core->input['action'] == 'do_perform_managearodouments') {
         unset($core->input['module'], $core->input['action']);
         $orderident_obj = new AroRequests();
+        $orderreq_obj = AroRequests::get_data(array('aorid' => $core->input['aorid']));
+        if(!is_object($orderreq_obj)) {
+            $orderident_obj->create($core->input);
+            switch($orderident_obj->get_errorcode()) {
+                case 0:
+                case 1:
+                    output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+                    break;
+                case 2:
+                    output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+                    break;
+                case 3:
+                    output_xml('<status>false</status><message>'.$lang->productlineerror.$orderident_obj->get_errorid().'</message>');
+                    break;
+            }
+        }
         /* get arodocument of the affid and pruchase type */
         $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $core->input['affid'], 'ptid' => $core->input['orderType']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
         if(is_object($documentseq_obj)) {
