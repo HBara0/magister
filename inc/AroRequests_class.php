@@ -160,10 +160,8 @@ class AroRequests extends AbstractClass {
                     continue;
                 }
                 $ordercust_obj = new AroOrderCustomers();
-                $ordercust_obj->set($order);
-                $ordercust_obj->save();
-
-                $this->errorcode = $ordercust_obj->errorcode;
+                $ordercust_obj->create($order);
+                $this->errorcode = $ordercust_obj->get_errorcode();
                 switch($this->get_errorcode()) {
                     case 0:
                         continue;

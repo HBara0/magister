@@ -130,3 +130,5 @@ $lang['ptacceptablemargin'] = 'PT acceptable margin';
 $lang['desc'] = 'description';
 $lang['totalfees'] = 'Fees included in affiliate\'s buying price in (paid by intermed):';
 $lang['commisionlimit'] = '(At least 250 USD commission)';
+$lang['productlineerror'] = 'Cost price cannot be lower than affiliate buying price in product line number: ';
+
