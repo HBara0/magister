@@ -34,13 +34,16 @@ if(!($core->input['action'])) {
     if(!is_array($purchasetypes)) {
         error($lang->missingconfigurations.' (Purchase Types)');
     }
+    $dal_config = array('returnarray' => true);
     $inspections = array('inspection1' => 'inspection');
-    $payment_terms = PaymentTerms::get_data('', array('returnarray' => ture));
+    $payment_terms = PaymentTerms::get_data('', $dal_config);
     $segments = ProductsSegments::get_segments('');
-    $packaging = Packaging::get_data('name IS NOT NULL', array('returnarray' => ture));
-    $uom = Uom::get_data('name IS NOT NULL', array('returnarray' => ture));
+    $packaging = Packaging::get_data('name IS NOT NULL', $dal_config);
+    $uom = Uom::get_data('name IS NOT NULL', $dal_config);
     $mainaffobj = new Affiliates($core->user['mainaffiliate']);
-    $currencies = Currencies::get_data();
+    $currencies = Currencies::get_data('');
+    $incoterms = Incoterms::get_data('name IS NOT NULL', $dal_config);
+    $countries = Countries::get_data('', $dal_config);
 
     if(!isset($core->input['id'])) {
         //order identification
@@ -70,13 +73,24 @@ if(!($core->input['action'])) {
         //Net Margin Parameters
         $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '70px'));
 
-        // eval("\$actualpurchase_rows = \"".$template->get('aro_actualpurchase_row')."\";");
-    }
 
+        /////
+        $parties = array('intermed', 'vendor');
+        foreach($parties as $party) {
+            $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => 'required', 'width' => '100%'));
+            $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => 'required', 'width' => '100%'));
+            $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => 'required', 'width' => '100%'));
+        }
+        $countryofshipment_list = parse_selectlist('partiesinfo[shipmentCountry]', '', $countries, '', '', '', array('blankstart' => 1, 'width' => '150px'));
+        $countryoforigin_list = parse_selectlist('partiesinfo[originCountry]', '', $countries, '', '', '', array('blankstart' => 1, 'width' => '150px'));
+        $display = 'style="display:none;"';
+        eval("\$interm_vendor = \"".$template->get('aro_partiesinfo_intermediary_vendor')."\";");
+        eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
+        eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
+    }
     if(isset($core->input['id'])) {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
         $purchasetype = new PurchaseTypes($aroorderrequest->orderType);
-
         if(is_object($aroorderrequest)) {
             $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'required' => 'required'));
             $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => 'purchasetype', 'required' => 'required'));
@@ -105,7 +119,7 @@ if(!($core->input['action'])) {
                 //Always parse the unspecified customer row
                 unset($customeroder);
                 if(isset($unspecifiedcust) && !empty($unspecifiedcust)) {
-                    $checked['unsepcifiedCustomer'] = 'checked="checked"';
+                    $checked['unsepcifiedCustomer'] = 'checked = "checked"';
                     $customeroder = $unspecifiedcust;
                 }
                 $customeroder['inputChecksum'] = generate_checksum('ucl');
@@ -139,12 +153,13 @@ if(!($core->input['action'])) {
                 $readonly['warehousing'] = 'readonly="readonly"';
             }
             $netmarginparms = AroNetMarginParameters::get_data(array('aorid' => $core->input['id']));
-            $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, $netmarginparms->uom, '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '70px'));
-            $warehouse = Warehouses::get_data(array('wid' => $netmarginparms->warehouse));
-            $warehouse_list = '<select '.$disabled['warehousing'].'><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option>'
-                    .'<option value="0"></option></select>';
-            $netmarginparms_warehousingRate = '<option value="'.$netmarginparms->warehousingRate.'">'.$netmarginparms->warehousingRate.'</option>';
-            //  $netmarginparms->warehousingRate_output
+            if(is_object($netmarginparms)) {
+                $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, $netmarginparms->uom, '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '70px'));
+                $warehouse = Warehouses::get_data(array('wid' => $netmarginparms->warehouse));
+                $warehouse_list = '<select '.$disabled['warehousing'].'><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option>'
+                        .'<option value="0"></option></select>';
+                $netmarginparms_warehousingRate = '<option value = "'.$netmarginparms->warehousingRate.'">'.$netmarginparms->warehousingRate.'</option>';
+            }
             //*********Parameters Influencing Net Margin Calculation -End ********//
             //********** ARO Product Lines -Start **************//
             $plrowid = 1;
@@ -158,10 +173,10 @@ if(!($core->input['action'])) {
                     $product = new Products($productline['pid']);
                     $productline[productName] = $product->get_displayname();
                     if($purchasetype->qtyIsNotStored == 1) {
-                        $disabled_fields['daysInStock'] = $disabled_fields['qtyPotentiallySold'] = 'readonly="readonly"';
+                        $disabled_fields['daysInStock'] = $disabled_fields['qtyPotentiallySold'] = 'readonly = "readonly"';
                     }
                     if($productline['daysInStock'] == 0) {
-                        $disabled_fields['qtyPotentiallySold'] = 'readonly="readonly"';
+                        $disabled_fields['qtyPotentiallySold'] = 'readonly = "readonly"';
                     }
                     eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
                     $plrowid++;
@@ -205,17 +220,81 @@ if(!($core->input['action'])) {
             eval("\$aro_audittrail= \"".$template->get('aro_managedocuments_audittrail')."\";");
 
             //*********Aro Audit Trail -End *********//
+            //
+            //*********Aro Parties Information -Start *********//
+            $aropartiesinfo_obj = AroPartiesInformation::get_data(array('aorid' => $aroorderrequest->aorid));
+            $parties = array('intermed', 'vendor');
+            $disabled_list = '';
+            $aff['intermed'] = $aff['vendor'] = 0;
+            if(is_object($aropartiesinfo_obj)) {
+                $aff['intermed'] = $aropartiesinfo_obj->intermedAff;
+                $aff['vendor'] = $aropartiesinfo_obj->vendorAff;
+                $paymentterm['intermed'] = $aropartiesinfo_obj->intermedPaymentTerm;
+                $paymentterm['vendor'] = $aropartiesinfo_obj->vendorPaymentTerm;
+                $incoterms['intermed'] = $aropartiesinfo_obj->intermedIncoterms;
+                $incoterms['vendor'] = $aropartiesinfo_obj->vendorIncoterms;
+                $shipmentcountry = $aropartiesinfo_obj->shipmentCountry;
+                $origincountry = $aropartiesinfo_obj->originCountry;
+                if($aropartiesinfo_obj->vendorIsAff == 1) {
+                    $checked = 'checked="checked"';
+                    $display = 'style="display:block;"';
+                    $disabled = 'disabled="disabled"';
+                    $disabled_list = 'disabled';
+                }
+                else {
+                    $vendor = new Entities($aropartiesinfo_obj->vendorEid);
+                    $vendor_displayname = $vendor->get_displayname();
+                    $display = 'style="display:none;"';
+                }
+                $fields = array('vendorEstDateOfPayment', 'intermedEstDateOfPayment', 'promiseOfPayment', 'estDateOfShipment');
+                foreach($fields as $field) {
+                    if($aropartiesinfo_obj->$field != 0) {
+                        $partiesinfo[$field.'_output'] = date('d-m-Y', $aropartiesinfo_obj->$field);
+                        $partiesinfo[$field.'_formatted'] = date($core->settings['dateformat'], $aropartiesinfo_obj->$field);
+                    }
+                }
+                $fees = array('freight', 'bankFees', 'insurance', 'otherFees', 'legalization', 'courier');
+                foreach($fees as $fee) {
+                    $partiesinfo['totalfees'] +=$aropartiesinfo_obj->$fee;
+                }
+            }
+            else {
+                $display = 'style="display:none;"';
+            }
+            foreach($parties as $party) {
+                if($party == 'intermed') {
+                    $disabled = $disabled_list;
+                }
+                $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, $aff[$party], '', '', array('blankstart' => true, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => 'required', 'width' => '100%', $disabled => $disabled));
+                $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, $paymentterm[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => 'required', 'width' => '100%', $disabled => $disabled));
+                $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, $incoterms[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => 'required', 'width' => '100%', $disabled => $disabled));
+            }
+            $countryofshipment_list = parse_selectlist('partiesinfo[shipmentCountry]', '', $countries, $shipmentcountry, '', '', array('blankstart' => 1, 'width' => '150px'));
+            $countryoforigin_list = parse_selectlist('partiesinfo[originCountry]', '', $countries, $origincountry, '', '', array('blankstart' => 1, 'width' => '150px'));
+
+            eval("\$interm_vendor = \"".$template->get('aro_partiesinfo_intermediary_vendor')."\";");
+            eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
+            eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
+            //*********Aro Parties Information-End *********//
         }
         else {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
         }
     }
-
     eval("\$aro_productlines = \"".$template->get('aro_fillproductlines')."\";");
     eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
     eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
+
+    if(empty($disabled['warehousing'])) {
+        $disabled['warehousing'] = '';
+    }
+    if(empty($readonly['warehousing'])) {
+        $readonly['warehousing'] = '';
+    }
+
     eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
     eval("\$actualpurchase = \"".$template->get('aro_actualpurchase')."\";");
+    eval("\$partiesinformation = \"".$template->get('aro_partiesinformation')."\";");
     eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
     output_page($aro_managedocuments);
 }
@@ -279,7 +358,7 @@ else {
     }
     if($core->input['action'] == 'getestimatedate') {
         if(is_array($core->input[paymentermdays])) {
-            $paymentermdays = explode(',', $core->input[paymentermdays][0]);
+            $paymentermdays = explode(', ', $core->input[paymentermdays][0]);
         }
 
         $purchasetype = new PurchaseTypes($core->input['ptid']);
@@ -368,31 +447,30 @@ else {
     if($core->input['action'] == 'populateaffpolicy') {
         unset($core->input['action'], $core->input['module']);
         if($core->input['affid'] != ' ' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
-            $filter = 'affid='.$core->input['affid'].' AND purchaseType='.$core->input['ptid'].' AND isActive=1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+            $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
             $localaffpolicy = AroPolicies::get_data($filter);
         }
         if(!is_object($localaffpolicy)) {
-//            $localaffpolicy = new AroPolicies();
-//            $localaffpolicy_data['yearlyInterestRate'] = $localaffpolicy_data['riskRatio'] = 0;
-//            $localaffpolicy->set($localaffpolicy_data);
             output($lang->nopolicy);
             exit;
         }
-
-        $core->input['intermed_affid'] = 27;
-        $intermedpolicy_filter = 'affid='.$core->input['intermed_affid'].' AND purchaseType='.$core->input['ptid'].' AND isActive=1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
-        $intermedpolicy = AroPolicies::get_data($intermedpolicy_filter);
-        if(!is_object($intermedpolicy)) {
-            $intermedpolicy = new AroPolicies();
-            $intermedpolicy_data['yearlyInterestRate'] = $intermedpolicy_data['riskRatio'] = 0;
-            $intermedpolicy->set($intermedpolicy_data);
-        }
         $aropolicy_data = array('parmsfornetmargin_localBankInterestRate' => $localaffpolicy->yearlyInterestRate,
-                'parmsfornetmargin_localRiskRatio' => $localaffpolicy->riskRatio,
-                'parmsfornetmargin_intermedBankInterestRate' => $intermedpolicy->yearlyInterestRate,
-                'parmsfornetmargin_intermedRiskRatio' => $intermedpolicy->riskRatio
+                'parmsfornetmargin_localRiskRatio' => $localaffpolicy->riskRatio
         );
         echo json_encode($aropolicy_data);
+    }
+    if($core->input['action'] == 'populateintermedaffpolicy') {
+        if($core->input['intermedAff'] != ' ' && !empty($core->input['intermedAff']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
+            $intermedpolicy_filter = 'affid='.$core->input['intermedAff'].' AND purchaseType='.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+            $intermedpolicy = AroPolicies::get_data($intermedpolicy_filter);
+        }
+        if(!is_object($intermedpolicy)) {
+            output($lang->nointermedpolicy);
+            exit;
+        }
+        $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => $intermedpolicy->yearlyInterestRate,
+                'parmsfornetmargin_intermedRiskRatio' => $intermedpolicy->riskRatio);
+        echo json_encode($intermedpolicy_data);
     }
     if($core->input['action'] == 'ajaxaddmore_actualpurchaserow') {
         $rowid = intval($core->input['value']);
@@ -414,5 +492,26 @@ else {
         $actualpurchase_data['pickDate_from_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_output];
         $actualpurchase_data['pickDate_from_sale_'.$rowid.''] = $actualpurchase[estDateOfSale_output];
         echo json_encode($actualpurchase_data);
+    }
+    if($core->input['action'] == 'populatepartiesinfofields') {
+        $partiesinfo_obj = new AroPartiesInformation();
+        if(isset($core->input['estDateOfShipment']) && !empty($core->input['estDateOfShipment'])) {
+            $intermediarydates = $partiesinfo_obj->get_intermediarydates($core->input);
+            $partiesinfo['vendorEstDateOfPayment'] = $partiesinfo_obj->get_vendordates($core->input);
+            $partiesinfo['intermedEstDateOfPayment'] = $intermediarydates['intermedEstDateOfPayment'];
+            $partiesinfo['promiseOfPayment'] = $intermediarydates['promiseOfPayment'];
+
+            $fields = array('vendorEstDateOfPayment', 'intermedEstDateOfPayment', 'promiseOfPayment');
+            foreach($fields as $field) {
+                if($partiesinfo[$field] != 0) {
+                    $partiesinfo[$field.'_formatted'] = date('d-m-Y', $partiesinfo[$field]);
+                }
+            }
+            $partiesinfo_data = array('pickDate_vendor_estdateofpayment' => $partiesinfo['vendorEstDateOfPayment_formatted'],
+                    'pickDate_intermed_estdateofpayment' => $partiesinfo['intermedEstDateOfPayment_formatted'],
+                    'pickDate_intermed_promiseofpayment' => $partiesinfo['promiseOfPayment_formatted']
+            );
+            echo json_encode($partiesinfo_data);
+        }
     }
 }

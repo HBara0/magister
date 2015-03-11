@@ -30,8 +30,14 @@ $(function() {
             sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid);
             sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid= ' + affid + '&ptid= ' + ptid);
         }
-
     });
+    //populate intermediary affiliate policy
+    $("select[id='partiesinfo_intermed_aff']").live('change', function() {
+        var ptid = $("select[id='purchasetype']").val();
+        var intermedAff = $("select[id='partiesinfo_intermed_aff']").val();
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateintermedaffpolicy&ptid= ' + ptid + '&intermedAff=' + intermedAff);
+    });
+
     /*Get Affiliate Warehouses*/
     $('select[id=affid]').live('change', function() {
         var affid = $(this).val();
@@ -90,10 +96,13 @@ $(function() {
         for(var i = 0; i < plfields.length; i++) {
             $("input[id^='productline_'][id$='_" + plfields[i] + "']").trigger('change');
         }
+        // $("select[id='partiesinfo_intermed_aff']").trigger("change");
     });
+
     $("#currencies").live('change', function() {
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=getexchangerate&currency=' + $(this).val());
     });
+
     $("select[id^='paymentermdays_']").live('change', function() {
         var id = $(this).attr('id').split('_');
         var avgesdateofsale = '11-02-2015';
@@ -169,12 +178,13 @@ $(function() {
     //   }, 20000);
 // Form submit function.
     function submitform() {
-        //  $("input[id^='perform_'][id$='_Button']").trigger("click");
+        $("input[id^='perform_'][id$='_Button']").trigger("click");
     }
 
     $(window).load(function() {
         $("select[id^='paymentermdays_']").trigger("change");
     });
+
     $("input[id$='_sellingPrice'],input[id$='_quantity'],input[id$='_daysInStock'],input[id$='_qtyPotentiallySold'],input[id$='_intialPrice'],input[id$='_intialPrice'],input[id$='_costPrice']").live('change unfocus', function() {
         var id = $(this).attr('id').split('_');
         var fields = operation = '';
@@ -211,6 +221,82 @@ $(function() {
         }
 
     });
+
+    //If Vendor is affiliate, such select affiliate not entity and Disable  intermediary section
+    $("input[id='vendor_isaffiliate']").change(function() {
+
+        $("td[id='vendor_affiliate']").css("display", "none");
+        $("input[id='supplier_1_autocomplete']").attr('value', '');
+        $("input[id='supplier_1_id']").attr('value', '');
+        $("input[id='supplier_1_autocomplete']").removeAttr("disabled");
+
+        var fields = ["aff", "paymentterm", "incoterms", "IncotermsDesc", "PaymentTermDesc", "ptAcceptableMargin"];
+        for(var i = 0; i < fields.length; i++) {
+            $("input[id='partiesinfo_intermed_" + fields[i] + "']").removeAttr("disabled");
+            $("select[id='partiesinfo_intermed_" + fields[i] + "']").removeAttr("disabled");
+            $("input[id='pickDate_intermed_" + fields[i] + "']").removeAttr("disabled");
+            $("select[id='partiesinfo_intermed_" + fields[i] + "'] option[value='0']").remove();
+        }
+
+        if($(this).is(":checked")) {
+            var fields = ["aff", "paymentterm", "incoterms", "IncotermsDesc", "PaymentTermDesc", "ptAcceptableMargin"];
+            for(var i = 0; i < fields.length; i++) {
+                $("input[id='partiesinfo_intermed_" + fields[i] + "']").attr("value", "");
+                $("input[id='partiesinfo_intermed_" + fields[i] + "']").attr("disabled", "true");
+                $("select[id='partiesinfo_intermed_" + fields[i] + "']").removeAttr("selected");
+                $("select[id='partiesinfo_intermed_" + fields[i] + "']").append('<option value="0" selected="selected"></option>');
+                $("select[id='partiesinfo_intermed_" + fields[i] + "']").attr("disabled", "true");
+                $("input[id='pickDate_intermed_" + fields[i] + "']").attr("value", "");
+                $("input[id='pickDate_intermed_" + fields[i] + "']").attr("disabled", "true");
+                $("input[id='altpickDate_intermed_" + fields[i] + "']").attr("value", "");
+            }
+            $("input[id='supplier_1_autocomplete']").attr("disabled", "true");
+            $("td[id='vendor_affiliate']").css("display", "block");
+        }
+    });
+
+    // If Inco terms are different between intermediary and vendor, freight is mandatory
+    $("select[id='partiesinfo_intermed_incoterms'],select[id='partiesinfo_vendor_incoterms']").live('change', function() {
+        $("input[id='partiesinfo_freight']").removeAttr("required");
+        if($("select[id='partiesinfo_intermed_incoterms']").val() !== '' || $("select[id='partiesinfo_vendor_incoterms']").val() !== '') {
+            if($("select[id='partiesinfo_intermed_incoterms']").val() !== $("select[id='partiesinfo_vendor_incoterms']").val()) {
+                $("input[id='partiesinfo_freight']").attr("required", "true");
+            }
+        }
+    });
+
+    //
+    $("input[id='pickDate_estDateOfShipment'],select[id='partiesinfo_intermed_paymentterm'],select[id='partiesinfo_vendor_paymentterm'],input[id='partiesinfo_intermed_ptAcceptableMargin']").live('change', function() {
+        var estDateOfShipment = $("input[id='pickDate_estDateOfShipment']").val();
+        var ptAcceptableMargin = $("input[id='partiesinfo_intermed_ptAcceptableMargin']").val();
+        var intermedPaymentTerm = $("select[id = 'partiesinfo_intermed_paymentterm']").val();
+        var vendorPaymentTerm = $("select[id ='partiesinfo_vendor_paymentterm']").val();
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatepartiesinfofields&intermedPaymentTerm=' + intermedPaymentTerm + '&vendorPaymentTerm=' + vendorPaymentTerm + '&estDateOfShipment=' + estDateOfShipment + '&ptAcceptableMargin=' + ptAcceptableMargin);
+    });
+
+    //Calculate Total Fees (used for product lines in aff buying price)
+    $("input[id$='freight'],input[id$='bankFees'],input[id$='insurance'],input[id$='legalization'],input[id$='courier'],input[id$='otherFees']").bind('change keyup', function() {
+        var total = 0;
+        $("input[id$='freight'],input[id$='bankFees'],input[id$='insurance'],input[id$='legalization'],input[id$='courier'],input[id$='otherFees']").each(function() {
+            if(!jQuery.isEmptyObject(this.value)) {
+                total += parseFloat(this.value);
+            }
+        });
+        $("input[id='partiesinfo_totalfees']").val(total);
+        $("input[id$='_affBuyingPrice']").trigger("change");
+    });
+
+    //On change of commission re-calculate product lines aff buying price
+    $("input[id='partiesinfo_commission']").live('change', function() {
+        var totalQty = 5000;
+        var commission = ($("input[id='partiesinfo_commission']").val() / 100) * totalQty;
+        if(commission < 250) {
+            var commpercentage = (250 * 100) / totalQty;
+            $("input[id='partiesinfo_commission']").val(commpercentage);
+        }
+        $("input[id$='_affBuyingPrice']").trigger("change");
+    });
+
 });
 var rowid = '';
 function addactualpurchaserow() {

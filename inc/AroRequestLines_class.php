@@ -60,9 +60,8 @@ class AroRequestLines extends AbstractClass {
         $parmsfornetmargin = $data['parmsfornetmargin'];
         $parmsfornetmargin['localBankInterestRate'] = $parmsfornetmargin['localBankInterestRate'] / 100;
         $parmsfornetmargin['intermedBankInterestRate'] = $parmsfornetmargin['intermedBankInterestRate'] / 100;
-        // $parmsfornetmargin['riskRatio'] = $parmsfornetmargin['riskRatio'] / 100;
-        $parmsfornetmargin['fees'] = 10;
-        $parmsfornetmargin['inter_com'] = 8 / 100;
+        //$parmsfornetmargin['fees'] = 10;
+        $parmsfornetmargin['commission'] = $parmsfornetmargin['commission'] / 100;
         $parmsfornetmargin['riskRatio'] = 3 / 100;
         $parmsfornetmargin['totalQty'] = 37;
 
@@ -93,7 +92,7 @@ class AroRequestLines extends AbstractClass {
         }
 
         if(is_object($purchasetype)) {
-            $data['affBuyingPrice'] = round((($data['intialPrice'] + $parmsfornetmargin['fees']) + ($data['intialPrice'] * $parmsfornetmargin['inter_com'])), 2);
+            $data['affBuyingPrice'] = round((($data['intialPrice'] + $parmsfornetmargin['fees']) + ($data['intialPrice'] * $parmsfornetmargin['commission'])), 2);
             $data['totalBuyingValue'] = round($data['quantity'] * $data['affBuyingPrice'], 2);
             if($purchasetype->isPurchasedByEndUser == 1) {
                 $data['affBuyingPrice'] = '-';

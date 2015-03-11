@@ -45,7 +45,6 @@ class AroRequests extends AbstractClass {
         }
         $orderrequest_array['createdBy'] = $core->user['uid'];
         $orderrequest_array['createdOn'] = TIME_NOW;
-
         $query = $db->insert_query(self::TABLE_NAME, $orderrequest_array);
         if($query) {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
@@ -59,6 +58,13 @@ class AroRequests extends AbstractClass {
             if($this->errorcode != 0) {
                 return false;
             }
+
+            //Save parties Information data
+            $partiesinformation_obj = new AroPartiesInformation();
+            $data['partiesinfo']['aorid'] = $this->data[self::PRIMARY_KEY];
+            $partiesinformation_obj->set($data['partiesinfo']);
+            $partiesinformation_obj->save();
+
             $netmargnparms_obj = new AroNetMarginParameters();
             $data['parmsfornetmargin']['aorid'] = $this->data[self::PRIMARY_KEY];
             $netmargnparms_obj->set($data['parmsfornetmargin']);
@@ -66,6 +72,10 @@ class AroRequests extends AbstractClass {
             if($netmargnparms_obj->get_errorcode() != 0) {
                 return false;
             }
+
+            $data['parmsfornetmargin']['fees'] = $data['partiesinfo']['totalfees'];
+            $data['parmsfornetmargin']['commission'] = $data['partiesinfo']['commission'];
+
             $this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
             if($this->errorcode != 0) {
                 return false;
@@ -103,12 +113,20 @@ class AroRequests extends AbstractClass {
         $query = $db->update_query(self::TABLE_NAME, $orderrequest_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
             $this->errorcode = 0; // need to check error code
-            /* update the docuent conf with the next number */
+            /* update the document conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             $this->save_ordercustomers($data['customeroder']);
             if($this->errorcode != 0) {
                 return false;
             }
+
+            //Save parties Information data
+            $partiesinformation_obj = new AroPartiesInformation();
+            $data['partiesinfo']['aorid'] = $this->data[self::PRIMARY_KEY];
+            $partiesinformation_obj->set($data['partiesinfo']);
+            $partiesinformation_obj->save();
+
+
             $netmargnparms_obj = new AroNetMarginParameters();
             $data['parmsfornetmargin']['aorid'] = $this->data[self::PRIMARY_KEY];
             $netmargnparms_obj->set($data['parmsfornetmargin']);
@@ -116,7 +134,10 @@ class AroRequests extends AbstractClass {
             if($netmargnparms_obj->get_errorcode() != 0) {
                 return false;
             }
-//    $data['productline']['parmsfornetmargin'] = $data['parmsfornetmargin'];
+
+            $data['parmsfornetmargin']['fees'] = $data['partiesinfo']['totalfees'];
+            $data['parmsfornetmargin']['commission'] = $data['partiesinfo']['commission'];
+
             $this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
             if($this->errorcode != 0) {
                 return false;
@@ -153,7 +174,7 @@ class AroRequests extends AbstractClass {
         }
     }
 
-    //loop through product line for validation 
+    //loop through product line for validation
     private function validate_productlines($arorequestlines, $parmsfornetmargin) {
         $plrowid = 0;
         if(is_array($arorequestlines)) {

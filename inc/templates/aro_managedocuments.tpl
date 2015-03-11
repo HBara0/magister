@@ -14,6 +14,7 @@
             <div class="accordion">
                 <form name="perform_aro/managearodouments_Form" id="perform_aro/managearodouments_Form"  action="#" method="post">
                     {$aro_managedocuments_orderident}
+                    {$partiesinformation}
                     {$aro_ordercustomers}
                     {$aro_netmarginparms}
                     {$aro_productlines}

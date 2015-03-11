@@ -8,7 +8,7 @@
  * Last Update:    @rasha.aboushakra    Feb 13, 2015 | 2:38:35 PM
  */
 
-class AroRequestsCurStkSupervision extends AbstractClass {
+class AroRequestsApprovals extends AbstractClass {
     protected $data = array();
     protected $errorcode = 0;
 
