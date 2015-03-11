@@ -222,7 +222,7 @@ if(!($core->input['action'])) {
             //*********Aro Audit Trail -End *********//
             //
             //*********Aro Parties Information -Start *********//
-            $aropartiesinfo_obj = AroPartiesInformation::get_data(array('aorid' => $aroorderrequest->aorid));
+            $aropartiesinfo_obj = AroRequestsPartiesInformation::get_data(array('aorid' => $aroorderrequest->aorid));
             $parties = array('intermed', 'vendor');
             $disabled_list = '';
             $aff['intermed'] = $aff['vendor'] = 0;
@@ -494,7 +494,7 @@ else {
         echo json_encode($actualpurchase_data);
     }
     if($core->input['action'] == 'populatepartiesinfofields') {
-        $partiesinfo_obj = new AroPartiesInformation();
+        $partiesinfo_obj = new AroRequestsPartiesInformation();
         if(isset($core->input['estDateOfShipment']) && !empty($core->input['estDateOfShipment'])) {
             $intermediarydates = $partiesinfo_obj->get_intermediarydates($core->input);
             $partiesinfo['vendorEstDateOfPayment'] = $partiesinfo_obj->get_vendordates($core->input);

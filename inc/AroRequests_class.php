@@ -60,7 +60,7 @@ class AroRequests extends AbstractClass {
             }
 
             //Save parties Information data
-            $partiesinformation_obj = new AroPartiesInformation();
+            $partiesinformation_obj = new AroRequestsPartiesInformation();
             $data['partiesinfo']['aorid'] = $this->data[self::PRIMARY_KEY];
             $partiesinformation_obj->set($data['partiesinfo']);
             $partiesinformation_obj->save();
@@ -121,7 +121,7 @@ class AroRequests extends AbstractClass {
             }
 
             //Save parties Information data
-            $partiesinformation_obj = new AroPartiesInformation();
+            $partiesinformation_obj = new AroRequestsPartiesInformation();
             $data['partiesinfo']['aorid'] = $this->data[self::PRIMARY_KEY];
             $partiesinformation_obj->set($data['partiesinfo']);
             $partiesinformation_obj->save();

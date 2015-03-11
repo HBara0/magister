@@ -8,12 +8,12 @@
  * Last Update:    @rasha.aboushakra    Mar 10, 2015 | 9:43:04 AM
  */
 
-class AroPartiesInformation extends AbstractClass {
+class AroRequestsPartiesInformation extends AbstractClass {
     protected $data = array();
     public $errorcode = 0;
 
     const PRIMARY_KEY = 'apiid';
-    const TABLE_NAME = 'aro_partiesinformation';
+    const TABLE_NAME = 'aro_requests_partiesinformation';
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
