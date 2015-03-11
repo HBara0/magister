@@ -34,7 +34,7 @@
 
                         <td> <input type="hidden" name="chainpolicy[effectiveFrom]" id="altpickDate_from" value="{$chainpolicy[effectiveFrom_formatted]}"/></td>
                     </tr>
-                    <tr><td>{$lang->effromdate}  </td>
+                    <tr><td>{$lang->eftodate}  </td>
                         <td> <input type="text" id="pickDate_to" autocomplete="off" tabindex="2" value="{$chainpolicy[effectiveTo_output]}" required="required" />  </td>
                         <td> <input type="hidden" name="chainpolicy[effectiveTo]" id="altpickDate_to" value="{$chainpolicy[effectiveTo_formatted]}"/></td>
 

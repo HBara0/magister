@@ -18,7 +18,7 @@ if(!$core->input['action']) {
         $inaffiliates = $core->user['affiliates'];
     }
     if(isset($core->input['id']) && !empty($core->input['id'])) {
-        $chainpolicyobj = new AroManageApprovalChainPolicies($core->input['id'], false);
+        $chainpolicyobj = new AroApprovalChainPolicies($core->input['id'], false);
         $chainpolicy = $chainpolicyobj->get();
         /* parse approvers */
 
@@ -38,7 +38,7 @@ if(!$core->input['action']) {
     $purchasetypelist = parse_selectlist('chainpolicy[purchaseType]', 4, $purchasetypes, $chainpolicy[purchaseType]);
 
     if(is_array(unserialize($chainpolicy['approvalChain'])) && !empty($core->input['id'])) {
-        $approvers = array('BM' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lofm' => 'Local Finance Manager', 'generalManager' => 'General Manager', 'fm' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'user' => 'user');
+        $approvers = array('businessManager' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lfinancialManager' => 'Local Finance Manager', 'generalManager' => 'General Manager', 'gfinancialManager' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'user' => 'user');
 
         foreach(unserialize($chainpolicy[approvalChain]) as $key => $approverdata) {
 
@@ -72,7 +72,7 @@ if(!$core->input['action']) {
 
     /* approvers predfined */
     else {
-        $approvers = array('BM' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lofm' => 'Local Finance Manager', 'generalManager' => 'General Manager', 'fm' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'user' => 'user');
+        $approvers = array('businessManager' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lfinancialManager' => 'Local Finance Manager', 'generalManager' => 'General Manager', 'gfinancialManager' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'user' => 'user');
         $rowid = 1;
         $display[1][uid] = 'display:none;';
         foreach($approvers as $key => $approver) {
@@ -87,7 +87,7 @@ if(!$core->input['action']) {
 else if($core->input['action'] == 'do_perform_manageapprovalchainspolicies') {
 
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
-    $aroapproval_policy = new AroManageApprovalChainPolicies();
+    $aroapproval_policy = new AroApprovalChainPolicies();
     $core->input['chainpolicy']['effectiveFrom'] = strtotime($core->input['chainpolicy']['effectiveFrom']);
     $core->input['chainpolicy']['effectiveTo'] = strtotime($core->input['chainpolicy']['effectiveTo']);
     if($core->input['chainpolicy']['effectiveFrom'] > $core->input['chainpolicy']['effectiveTo']) {
@@ -108,7 +108,7 @@ else if($core->input['action'] == 'do_perform_manageapprovalchainspolicies') {
 }
 else if($core->input['action'] == 'ajaxaddmore_approvers') {
     $rowid = intval($core->input['value']) + 1;
-    $approvers = array('BM' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lofm' => 'Local Finance Manager', 'generalManager' => 'General Manager', 'fm' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'user' => 'user');
+    $approvers = array('businessManager' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lfinancialManager' => 'Local Finance Manager', 'generalManager' => 'General Manager', 'gfinancialManager' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'user' => 'user');
     //$rowid = 1;
     $display[$rowid][uid] = 'display:none;';
     foreach($approvers as $key => $approver) {

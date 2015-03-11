@@ -13,14 +13,14 @@
  *
  * @author tony.assaad
  */
-class AroManageApprovalChainPolicies extends AbstractClass {
+class AroApprovalChainPolicies extends AbstractClass {
     protected $data = array();
     public $errorcode = 0;
 
     const PRIMARY_KEY = 'aapcid';
     const TABLE_NAME = 'aro_approvalchain_policies';
     const DISPLAY_NAME = '';
-    const UNIQUE_ATTRS = 'affid,purchaseType';
+    const UNIQUE_ATTRS = 'affid,purchaseType,effectiveFrom,effectiveTo';
     const SIMPLEQ_ATTRS = 'aapcid,affid,purchaseType,effectiveFrom,effectiveTo';
     const CLASSNAME = __CLASS__;
 

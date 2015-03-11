@@ -63,11 +63,11 @@ if(!$core->input['action']) {
                 'returnarray' => true
         );
     }
-    $aroappr_pol = AroManageApprovalChainPolicies::get_data('effectiveFrom IS NOT NULL and effectiveTo IS NOT NULL', $dal_config);
+    $aroappr_pol = AroApprovalChainPolicies::get_data('effectiveFrom IS NOT NULL and effectiveTo IS NOT NULL', $dal_config);
     if(!empty($filter_where)) {
         $filter_where .='AND effectiveFrom IS NOT NULL and effectiveTo IS NOT NULL';
     }
-    $aroappr_pol = AroManageApprovalChainPolicies::get_data($filter_where, $dal_config);
+    $aroappr_pol = AroApprovalChainPolicies::get_data($filter_where, $dal_config);
     if(is_array($aroappr_pol)) {
         foreach($aroappr_pol as $approvers) {
             $approvers->effectiveTo = date($core->settings['dateformat'], $approvers->effectiveTo);
@@ -91,7 +91,7 @@ elseif($core->input['action'] == 'get_deletepolicy') {
 }
 elseif($core->input['action'] == 'perform_deletepolicy') {
     $core->input['todelelete'] = explode('_', $core->input['todelelete']);
-    $areotodel = new AroManageApprovalChainPolicies($core->input['todelelete'][0]);
+    $areotodel = new AroApprovalChainPolicies($core->input['todelelete'][0]);
     if(is_object($areotodel)) {
         if($areotodel->delete()) {
             output_xml('<status>true</status><message>'.$lang->successfullydeleted.'</message>');

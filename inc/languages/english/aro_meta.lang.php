@@ -10,7 +10,7 @@
 $lang['managewarehousepolicies'] = 'Manage Warehouse Policies';
 $lang['aro'] = 'ARO';
 $lang['warehouse'] = 'warehouse';
-$lang['eftodate'] = 'Effective to';
+$lang['eftodate'] = 'Effective To';
 $lang['effromdate'] = 'Effective From';
 $lang['currency'] = 'currency';
 $lang['affiliate'] = 'affiliate';
