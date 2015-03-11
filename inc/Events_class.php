@@ -30,7 +30,7 @@ class Events extends AbstractClass {
 
     protected function create(array $data) {
         global $db, $core;
-        $fields = array('title', 'description', 'place', 'type', 'isPublic', 'publishOnWebsite');
+        $fields = array('title', 'description', 'place', 'type', 'isPublic', 'publishOnWebsite', 'isFeatured', 'fromTime', 'toTime');
         foreach($fields as $field) {
             $event_data[$field] = $data[$field];
         }
@@ -41,6 +41,10 @@ class Events extends AbstractClass {
         $event_data['toDate'] = strtotime($data['toDate']);
         $event_data['createdOn'] = TIME_NOW;
         $event_data['createdBy'] = $data['uid'] = $core->user['uid'];
+        $event_data['isFeatured'] = $data['isFeatured'];
+        $event_data['isPublic'] = $data['isPublic'];
+        $event_date['fromTime'] = $data['fromTime'];
+        $event_date['toTime'] = $data['toTime'];
         unset($event_data['restrictto']);
         // $data['restricto'] = implode(',', $ $data['restricto']);
         //  'affid' => $core->input['event']['affid'],
@@ -63,7 +67,7 @@ class Events extends AbstractClass {
                 if($upload_obj->get_status() != 4) {
                     ?>
                     <script language="javascript" type="text/javascript">
-                        $(function() {
+                        $(function () {
                             top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
                         });
                     </script>
@@ -77,7 +81,7 @@ class Events extends AbstractClass {
 
     protected function update(array $data) {
         global $db, $core;
-        $fields = array('title', 'description', 'place', 'type', 'isPublic', 'publishOnWebsite');
+        $fields = array('title', 'description', 'place', 'type', 'isPublic', 'publishOnWebsite', 'isFeatured', 'fromTime', 'toTime');
         foreach($fields as $field) {
             $event_data[$field] = $data[$field];
         }
@@ -86,6 +90,10 @@ class Events extends AbstractClass {
         $event_data['toDate'] = strtotime($data['toDate']);
         $event_data['editedOn'] = TIME_NOW;
         $event_data['editedBy'] = $core->user['uid'];
+        $event_data['isFeatured'] = $date['isFeatured'];
+        $event_data['isPublic'] = $data['isPublic'];
+        $event_date['fromTime'] = $data['fromTime'];
+        $event_date['toTime'] = $data['toTime'];
         unset($event_data['restrictto']);
         //'affid' => $core->input['event']['affid'],
         //'spid' => $core->input['event']['spid'],

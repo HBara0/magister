@@ -17,11 +17,13 @@ if(!$core->input['action']) {
         $event_obj = Events::get_data(array('ceid' => $core->input['id']), array('simple' => false));
         if(is_object($event_obj)) {
             $event = $event_obj->get();
+            if($event['isFeatured'] == 1) {
+                $checkedbox['isFeatured'] = "checked='checked'";
+            }
             $event['fromDate_output'] = date($core->settings['dateformat'], $event['fromDate']);
             $event['toDate_output'] = date($core->settings['dateformat'], $event['toDate']);
-            if(isset($event['publishOnWebsite']) && !empty($event['publishOnWebsite'])) {
-                $checkbox_checked['publishOnWebsite'] = 'checked="checked"';
-            }
+            $event['toTime_output'] = $event['toTime'];
+            $event['fromTime_output'] = $event['fromTime'];
             $disabled['alias'] = 'readonly="readonly"';
         }
     }
@@ -29,19 +31,15 @@ if(!$core->input['action']) {
     $eventtypes = CalendarEventTypes::get_data('');
     $eventtypes_list = parse_selectlist('event[type]', '', $eventtypes, $event['type']);
     if($core->usergroup['canViewAllAff'] == 0) {
-        $inaffiliates = implode(',', $core->user['affiliates']);
+        $inaffiliates = implode(', ', $core->user['affiliates']);
         $affiliate_where = 'affid IN ('.$inaffiliates.')';
     }
     $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0, $affiliate_where);
     $eventaffiliates_selectlist = parse_selectlist('event[affid]', 2, $affiliates, $event['affid'], '', '', array('blankstart' => 1));
     $affiliates_selectlist = parse_selectlist('event[restrictto][]', 1, $affiliates, '', 1);
     if($core->usergroup['calendar_canAddPublicEvents'] == 1) {
-        if(isset($event['isPublic']) && !empty($event['isPublic'])) {
-            $checkbox_checked['isPublic'] = 'checked="checked"';
-        }
-        $ispublic_checkbox = '<div style="display:block;padding-top:5px;"><div style="width:15%; display:inline-block;">'.$lang->ispublic.'</div><div style="width:70%; display:inline-block;"><input name="event[isPublic]" type="checkbox" value="1"'.$checkbox_checked['isPublic'].'/></div></div>';
-        $restriction_selectlist = '<div style="display:block;padding-top:5px;"><div style="width:15%; display:inline-block; vertical-align:top;">'.$lang->restricto.'</div><div style="width:70%; display:inline-block;">'.$affiliates_selectlist.'</div></div>';
-        $notifyevent_checkbox = '<div style="display:block;padding-top:5px;"><div style="width:15%; display:inline-block;">'.$lang->notifyevent.'</div><div style="width:70%; display:inline-block;"><input name="event[notify]" type="checkbox" value="1" /></div></div>';
+        $restriction_selectlist = '<div style = "display:block;padding-top:5px;"><div style = "width:15%; display:inline-block; vertical-align:top;">'.$lang->restricto.'</div><div style = "width:70%; display:inline-block;">'.$affiliates_selectlist.'</div></div>';
+        $notifyevent_checkbox = '<div style = "display:block;padding-top:5px;"><div style = "width:15%; display:inline-block;">'.$lang->notifyevent.'</div><div style = "width:70%; display:inline-block;"><input name = "event[notify]" type = "checkbox" value = "1" /></div></div>';
     }
 
     /* parse invitees - START */
@@ -53,8 +51,8 @@ if(!$core->input['action']) {
                 continue;
             }
             $checked = $rowclass = '';
-            $invitees_list .='<tr class="'.$rowclass.'">';
-            $invitees_list .='<td><input id="affiliatefilter_check_'.$key.'" name="event[invitees][]"  type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
+            $invitees_list .='<tr class = "'.$rowclass.'">';
+            $invitees_list .='<td><input id = "affiliatefilter_check_'.$key.'" name = "event[invitees][]" type = "checkbox"'.$checked.' value = "'.$key.'">'.$value.'</td></tr>';
         }
     }
     eval("\$createevent=\"".$template->get('cms_events_add')."\";");

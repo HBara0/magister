@@ -106,4 +106,8 @@ $lang['attacheventlogo'] = 'Attach Event Logo';
 $lang['type'] = 'Type';
 $lang['employees'] = 'employees';
 $lang['inviteemployees'] = 'Invite Employees';
-
+$lang['featureevents'] = 'Feature Event';
+$lang['fromdate'] = 'From Date';
+$lang['fromtime'] = 'From Time';
+$lang['todate'] = 'To Date';
+$lang['totime'] = 'To Time';
