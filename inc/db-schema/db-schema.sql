@@ -296,6 +296,40 @@ CREATE TABLE `aro_requests_messages` (
   PRIMARY KEY (`armid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+CREATE TABLE `aro_requests_partiesinformation` (
+  `apiid` int(10) NOT NULL AUTO_INCREMENT,
+  `aorid` int(10) NOT NULL,
+  `intermedAff` smallint(5) NOT NULL,
+  `intermedIncoterms` int(10) NOT NULL,
+  `intermedIncotermsDesc` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `intermedPaymentTerm` int(10) NOT NULL,
+  `intermedPaymentTermDesc` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `ptAcceptableMargin` int(10) NOT NULL,
+  `promiseOfPayment` bigint(30) NOT NULL,
+  `intermedEstDateOfPayment` bigint(30) NOT NULL,
+  `commission` int(10) NOT NULL,
+  `totalDiscount` int(10) NOT NULL,
+  `vendorEid` int(10) NOT NULL,
+  `vendorIsAff` tinyint(1) NOT NULL,
+  `vendorAff` smallint(5) NOT NULL,
+  `vendorIncoterms` int(10) NOT NULL,
+  `vendorIncotermsDesc` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `vendorPaymentTerm` int(10) NOT NULL,
+  `vendorPaymentTermDesc` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `vendorEstDateOfPayment` bigint(30) NOT NULL,
+  `estDateOfShipment` bigint(30) NOT NULL,
+  `transitTime` int(10) NOT NULL,
+  `clearanceTime` int(10) NOT NULL,
+  `shipmentCountry` int(10) NOT NULL,
+  `originCountry` int(10) NOT NULL,
+  `freight` float NOT NULL,
+  `bankFees` float NOT NULL,
+  `insurance` float NOT NULL,
+  `legalization` float NOT NULL,
+  `courier` float NOT NULL,
+  `otherFees` float NOT NULL,
+  PRIMARY KEY (`apiid`)
+) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 DROP TABLE IF EXISTS `aro_wareshouses_policies`;
 CREATE TABLE `aro_wareshouses_policies` (
   `awpid` int(10) NOT NULL AUTO_INCREMENT,
