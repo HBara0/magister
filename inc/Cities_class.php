@@ -308,7 +308,6 @@ class Cities extends AbstractClass {
         eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
         // eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
 
-
         /* Parse Flights */
         if($transpdata['origincity']['coid'] != $transpdata ['destcity']['coid']) {
             $transpdata['inputChecksum'] = generate_checksum();
@@ -356,8 +355,7 @@ class Cities extends AbstractClass {
 
     }
 
-    protected
-            function update(array $data) {
+    protected function update(array $data) {
 
     }
 

@@ -58,24 +58,10 @@ class Countries extends AbstractClass {
         return false;
     }
 
-    public function __set($name, $value) {
-        $this->data[$name] = $value;
-    }
-
-    public function __get($name) {
-        if(array_key_exists($name, $this->data)) {
-            return $this->data[$name];
-        }
-    }
-
     public function save(array $data = array()) {
         global $db;
         /* Add validations */
         $db->update_query('countries', $this->data, 'coid='.intval($this->data['coid']));
-    }
-
-    public function get() {
-        return $this->data;
     }
 
     protected function create(array $data) {
