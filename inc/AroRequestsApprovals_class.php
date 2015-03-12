@@ -23,15 +23,26 @@ class AroRequestsApprovals extends AbstractClass {
     }
 
     protected function create(array $data) {
-
+        global $db, $log;
+        $query = $db->insert_query(self::TABLE_NAME, $data);
+        if($query) {
+            $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+        }
     }
 
     protected function update(array $data) {
-
+        global $db, $log;
+        $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
+        if($query) {
+            $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+        }
     }
 
-    public function save(array $data = array()) {
-
+    public function is_apporved() {
+        if($this->data['isApproved'] == 1) {
+            return true;
+        }
+        return false;
     }
 
 }
