@@ -203,7 +203,7 @@ DROP TABLE IF EXISTS `aro_requests_approvals`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `aro_requests_approvals` (
   `araid` int(10) NOT NULL AUTO_INCREMENT,
-  `arid` int(10) NOT NULL,
+  `aorid` int(10) NOT NULL,
   `uid` int(10) NOT NULL,
   `isApproved` tinyint(1) NOT NULL,
   `timeApproved` bigint(30) NOT NULL,
