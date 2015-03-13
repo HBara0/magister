@@ -212,5 +212,12 @@ class Affiliates {
         }
     }
 
+    public function get_logisticsmanager() {
+        $position = Positions::get_data(array('name' => 'logisticsmanager'));
+        $users = AffiliatedEmployees::get_data(array('affid' => $this->affid, 'isMain' => 1), array('returnarray' => true));
+        $userposition = UsersPositions::get_data(array('posid' => $position->posid, 'uid' => array_keys($users)), array('operators' => array('uid' => 'in')));
+        return new Users($userposition->uid);
+    }
+
 }
 ?>
