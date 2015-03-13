@@ -22,7 +22,7 @@ class AroOrderCustomers extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'cid';
+    const UNIQUE_ATTRS = 'cid,aorid';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);

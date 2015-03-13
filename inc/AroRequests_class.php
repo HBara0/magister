@@ -174,7 +174,7 @@ class AroRequests extends AbstractClass {
                     continue;
                 }
                 $ordercust_obj = new AroOrderCustomers();
-                $ordercust_obj->create($order);
+                $ordercust_obj->save($order);
                 $this->errorcode = $ordercust_obj->get_errorcode();
                 switch($this->get_errorcode()) {
                     case 0:
@@ -361,7 +361,6 @@ class AroRequests extends AbstractClass {
                 $approve_status = 1;
                 $timeapproved = TIME_NOW;
             }
-
             $sequence = 1;
             if(is_array($approvers)) {
                 $sequence = array_search($key, $approvers);
