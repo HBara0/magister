@@ -26,18 +26,22 @@ class AroRequestsPartiesInformation extends AbstractClass {
     protected function create(array $data) {
         global $db, $log;
         $partiesinfo_data = $this->calculate_partiesinfofields($data);
-        $query = $db->insert_query(self::TABLE_NAME, $partiesinfo_data);
-        if($query) {
-            $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+        if(is_array($partiesinfo_data)) {
+            $query = $db->insert_query(self::TABLE_NAME, $partiesinfo_data);
+            if($query) {
+                $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+            }
         }
     }
 
     protected function update(array $data) {
         global $db, $log;
         $partiesinfo_data = $this->calculate_partiesinfofields($data);
-        $query = $db->update_query(self::TABLE_NAME, $partiesinfo_data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
-        if($query) {
-            $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+        if(is_array($partiesinfo_data)) {
+            $query = $db->update_query(self::TABLE_NAME, $partiesinfo_data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
+            if($query) {
+                $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+            }
         }
     }
 
