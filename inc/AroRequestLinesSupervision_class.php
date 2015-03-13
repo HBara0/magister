@@ -65,13 +65,12 @@ class AroRequestLinesSupervision extends AbstractClass {
     public function calculate_actualpurchasevalues($data = array()) {
         global $core;
 
-        $plfields = array("productName", "pid", "packing", "quantity", "inputChecksum", "totalValue", "daysInStock");
+        $plfields = array("productName", "pid", "packing", "quantity", "inputChecksum", "totalValue", "daysInStock", "transitTime", "clearanceTime");
         foreach($plfields as $field) {
             $actualpurchase[$field] = $data[$field];
         }
         $purchasetype = new PurchaseTypes($data['ptid']);
-        $actualpurchase['transitTime'] = 20;
-        $actualpurchase['clearanceTime'] = 1;
+
         $actualpurchase['dateOfStockEntry'] = '01-03-2015';
 
         $actualpurchase['dateOfStockEntry'] = strtotime($actualpurchase['dateOfStockEntry']);

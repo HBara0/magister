@@ -911,7 +911,7 @@ $(function() {
                     //  var json = eval("({'orderreference':'Lb - 1 - 2014'});"); /* convert the json to object */
                     try {
                         if(!returnedData) {
-                            $("#orderreference").val(''); //hardcoded temp
+                            //   $("#orderreference").val(''); //hardcoded temp
                         }
 
                         if(typeof returnedData !== typeof undefined && returnedData !== '') {

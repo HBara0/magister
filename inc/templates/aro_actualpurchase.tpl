@@ -13,13 +13,13 @@
                 <td class="border_right" rowspan="2" valign="top" align="center" style="width:150px;">{$lang->estdateofsale} </td>
         </thead>
 
-        <tbody id="actualpurchaserow_{$rowid}_tbody" style="width:100%;">
+        <tbody id="actualpurchaserow_{$aprowid}_tbody" style="width:100%;">
             {$actualpurchase_rows}
         </tbody>
         <tfoot>
             <tr><td valign="top">
-                    <input name="numrows_actualpurchaserow{$rowid}"  id="numrows_actualpurchaserow_{$rowid}" value="{$rowid}">
-                    <img src="./images/add.gif" id="ajaxaddmore_aro/managearodouments_actualpurchaserow_{$rowid}" alt="{$lang->add}" style="display:none;">
+                    <input type="hidden" name="numrows_actualpurchaserow{$aprowid}"  id="numrows_actualpurchaserow_{$aprowid}" value="{$aprowid}">
+                    <img src="./images/add.gif" id="ajaxaddmore_aro/managearodouments_actualpurchaserow_{$aprowid}" alt="{$lang->add}" style="display:none;">
                 </td>
             </tr>
         </tfoot>

@@ -69,12 +69,13 @@ if(!($core->input['action'])) {
         $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
         $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, '', '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
+//
+        $aprowid = 0;
 
         //Net Margin Parameters
         $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '70px'));
 
-
-        /////
+        //Parties Information
         $parties = array('intermed', 'vendor');
         foreach($parties as $party) {
             $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => 'required', 'width' => '100%'));
@@ -162,10 +163,11 @@ if(!($core->input['action'])) {
             }
             //*********Parameters Influencing Net Margin Calculation -End ********//
             //********** ARO Product Lines -Start **************//
-            $plrowid = 1;
-            $productlines = AroRequestLines::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true));
+            $plrowid = 0;
+            $productlines = AroRequestLines::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'order' => array('by' => 'inputChecksum', 'sort' => 'ASC')));
             if(is_array($productlines)) {
                 foreach($productlines as $line) {
+                    $plrowid++;
                     $productline = $line->get();
                     $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, $productline['psid'], null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
                     $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, $productline['packing'], '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
@@ -179,7 +181,6 @@ if(!($core->input['action'])) {
                         $disabled_fields['qtyPotentiallySold'] = 'readonly = "readonly"';
                     }
                     eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
-                    $plrowid++;
                     unset($disabled_fields);
                 }
             }
@@ -192,18 +193,20 @@ if(!($core->input['action'])) {
             }
             //********** ARO Product Lines **************//
             //*********Aro Actual Purchase -Start *********//
-            $aroreqlinesupervision = AroRequestLinesSupervision::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true));
+            $aroreqlinesupervision = AroRequestLinesSupervision::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'order' => array('by' => 'inputChecksum', 'sort' => 'ASC')));
 
-            $rowid = 1;
+            $aprowid = 0;
             if(is_array($aroreqlinesupervision)) {
                 foreach($aroreqlinesupervision as $actualpurchase) {
+                    $aprowid++;
                     $products = new Products($actualpurchase->pid);
                     $actualpurchase->productName = $products->get_displayname();
                     $actualpurchase->estDateOfStockEntry_output = date($core->settings['dateformat'], $actualpurchase->estDateOfStockEntry);
                     $actualpurchase->estDateOfSale_output = date($core->settings['dateformat'], $actualpurchase->estDateOfSale);
-                    $packaging_selected_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, $actualpurchase->packing, '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
+                    $packing = new Packaging($actualpurchase->packing);
+                    $actualpurchase->packingTitle = $packing->get_displayname();
+                    //  $packaging_selected_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, $actualpurchase->packing, '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
                     eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row')."\";");
-                    $rowid++;
                 }
             }
             //*********Aro Actual Purchase-End *********//
@@ -238,7 +241,7 @@ if(!($core->input['action'])) {
                 if($aropartiesinfo_obj->vendorIsAff == 1) {
                     $checked = 'checked="checked"';
                     $display = 'style="display:block;"';
-                    $disabled = 'disabled="disabled"';
+                    $isdisabled = 'disabled="disabled"';
                     $disabled_list = 'disabled';
                 }
                 else {
@@ -263,11 +266,11 @@ if(!($core->input['action'])) {
             }
             foreach($parties as $party) {
                 if($party == 'intermed') {
-                    $disabled = $disabled_list;
+                    $isdisabled = $disabled_list;
                 }
-                $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, $aff[$party], '', '', array('blankstart' => true, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => 'required', 'width' => '100%', $disabled => $disabled));
-                $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, $paymentterm[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => 'required', 'width' => '100%', $disabled => $disabled));
-                $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, $incoterms[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => 'required', 'width' => '100%', $disabled => $disabled));
+                $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, $aff[$party], '', '', array('blankstart' => true, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => 'required', 'width' => '100%', $isdisabled => $isdisabled));
+                $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, $paymentterm[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => 'required', 'width' => '100%', $isdisabled => $isdisabled));
+                $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, $incoterms[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => 'required', 'width' => '100%', $isdisabled => $isdisabled));
             }
             $countryofshipment_list = parse_selectlist('partiesinfo[shipmentCountry]', '', $countries, $shipmentcountry, '', '', array('blankstart' => 1, 'width' => '150px'));
             $countryoforigin_list = parse_selectlist('partiesinfo[originCountry]', '', $countries, $origincountry, '', '', array('blankstart' => 1, 'width' => '150px'));
@@ -284,13 +287,6 @@ if(!($core->input['action'])) {
     eval("\$aro_productlines = \"".$template->get('aro_fillproductlines')."\";");
     eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
     eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
-
-    if(empty($disabled['warehousing'])) {
-        $disabled['warehousing'] = '';
-    }
-    if(empty($readonly['warehousing'])) {
-        $readonly['warehousing'] = '';
-    }
 
     eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
     eval("\$actualpurchase = \"".$template->get('aro_actualpurchase')."\";");
@@ -314,14 +310,16 @@ else {
         echo json_encode($exchangerate);
     }
     if($core->input ['action'] == 'populatedocnum') {
-        $filter['filter']['time'] = '('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
-
-        $documentseq_obj = AroDocumentsSequenceConf::get_data(array('time' => $filter['filter']['time'], 'affid' => $core->input['affid'], 'ptid' => $core->input['ptid']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in', 'time' => 'CUSTOMSQLSECURE')));
-        if(is_object($documentseq_obj)) {
-            /* create the array to be encoded each dimension of the array represent the html element in the form */
-            $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.$documentseq_obj->suffix);
-            echo json_encode($orderreference); //return json to the ajax request to populate in the form
+        $orderreference = array('orderreference' => '');
+        if(!empty($core->input['affid']) && !empty($core->input['ptid'])) {
+            $filter['filter']['time'] = '('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+            $documentseq_obj = AroDocumentsSequenceConf::get_data(array('time' => $filter['filter']['time'], 'affid' => $core->input['affid'], 'ptid' => $core->input['ptid']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in', 'time' => 'CUSTOMSQLSECURE')));
+            if(is_object($documentseq_obj)) {
+                /* create the array to be encoded each dimension of the array represent the html element in the form */
+                $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.$documentseq_obj->suffix);
+            }
         }
+        echo json_encode($orderreference);
     }
     if($core->input['action'] == 'ajaxaddmore_newcustomer') {
         $rowid = intval($core->input['value']) + 1;
@@ -341,8 +339,9 @@ else {
             $core->input['nextnumid']['nextnum'] = $nextsequence_number;
         }
         $orderident_obj->set($core->input);
-        $orderident_obj->save();
-        switch($orderident_obj->get_errorcode()) {
+        $errorcode = $orderident_obj->save();
+        $x = $orderident_obj->get_errorcode();
+        switch($errorcode) {
             case 0:
             case 1:
                 output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
@@ -366,6 +365,7 @@ else {
             exit;
         }
         if(is_array($paymentermdays)) {
+
             foreach($paymentermdays as $paymenterm) {
                 $paymentermobjs = new PaymentTerms($paymenterm, false);
                 $intervalspayment_terms[] = $paymentermobjs->overduePaymentDays; //get days
@@ -416,14 +416,15 @@ else {
         $productline_obj = new AroRequestLines();
         $rowid = $core->input['rowid'];
         unset($core->input['action'], $core->input['module'], $core->input['rowid']);
-        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest');
+        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest', 'fees', 'commission');
         foreach($parmsfornetmargin as $parm) {
             $core->input['parmsfornetmargin'][$parm] = $core->input[$parm];
         }
         $data = $core->input;
         $productline_data = $productline_obj->calculate_values($data);
         foreach($productline_data as $key => $value) {
-            if(!empty($value) || ($value == 0)) {
+            // if(!empty($value) || ($value == 0)) {
+            if($value != $data[$key]) {
                 $productline['productline_'.$rowid.'_'.$key] = $value;
             }
         }
@@ -444,35 +445,46 @@ else {
         output(($warehouse_list));
     }
     if($core->input['action'] == 'populateaffpolicy') {
+        $aropolicy_data = array('parmsfornetmargin_localBankInterestRate' => '',
+                'parmsfornetmargin_localRiskRatio' => ''
+        );
         unset($core->input['action'], $core->input['module']);
         if($core->input['affid'] != ' ' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
             $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
             $localaffpolicy = AroPolicies::get_data($filter);
+            if(!is_object($localaffpolicy)) {
+                output($lang->nopolicy);
+                exit;
+            }
+            $aropolicy_data = array('parmsfornetmargin_localBankInterestRate' => $localaffpolicy->yearlyInterestRate,
+                    'parmsfornetmargin_localRiskRatio' => $localaffpolicy->riskRatio,
+            );
         }
-        if(!is_object($localaffpolicy)) {
-            output($lang->nopolicy);
-            exit;
-        }
-        $aropolicy_data = array('parmsfornetmargin_localBankInterestRate' => $localaffpolicy->yearlyInterestRate,
-                'parmsfornetmargin_localRiskRatio' => $localaffpolicy->riskRatio
-        );
         echo json_encode($aropolicy_data);
     }
     if($core->input['action'] == 'populateintermedaffpolicy') {
-        if($core->input['intermedAff'] != ' ' && !empty($core->input['intermedAff']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
+        $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => '',
+                'parmsfornetmargin_intermedRiskRatio' => '',
+                'parmsfornetmargin_intermedPeriodOfInterest' => '');
+        if($core->input ['intermedAff'] != ' ' && !empty($core->input['intermedAff']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
             $intermedpolicy_filter = 'affid='.$core->input['intermedAff'].' AND purchaseType='.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
             $intermedpolicy = AroPolicies::get_data($intermedpolicy_filter);
+            if(isset($core->input['estimatedImtermedPayment']) && !empty($core->input['estimatedImtermedPayment']) && isset($core->input['estimatedManufacturerPayment']) && !empty($core->input['estimatedManufacturerPayment'])) {
+                $intermedpolicy->intermedPeriodOfInterest = date_diff(date_create($core->input['estimatedImtermedPayment']), date_create($core->input['estimatedManufacturerPayment']));
+                $intermedpolicy->intermedPeriodOfInterest = $intermedpolicy->intermedPeriodOfInterest->format("%a");
+            }
+            if(!is_object($intermedpolicy)) {
+                output($lang->nointermedpolicy);
+                exit;
+            }
+            $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => $intermedpolicy->yearlyInterestRate,
+                    'parmsfornetmargin_intermedRiskRatio' => $intermedpolicy->riskRatio,
+                    'parmsfornetmargin_intermedPeriodOfInterest' => $intermedpolicy->intermedPeriodOfInterest);
         }
-        if(!is_object($intermedpolicy)) {
-            output($lang->nointermedpolicy);
-            exit;
-        }
-        $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => $intermedpolicy->yearlyInterestRate,
-                'parmsfornetmargin_intermedRiskRatio' => $intermedpolicy->riskRatio);
         echo json_encode($intermedpolicy_data);
     }
     if($core->input['action'] == 'ajaxaddmore_actualpurchaserow') {
-        $rowid = intval($core->input['value']);
+        $aprowid = intval($core->input['value']) + 1;
         eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row')."\";");
         output($actualpurchase_rows);
     }
@@ -483,8 +495,8 @@ else {
         $actualpurchase_obj = new AroRequestLinesSupervision();
         $actualpurchase = $actualpurchase_obj->calculate_actualpurchasevalues($core->input);
         $packing = new Packaging($actualpurchase['packing']);
-        $actualpurchase['packing'] = $packing->get_displayname();
-        $fields = array('productName', 'pid', 'quantity', 'packing', 'totalValue', 'shelfLife', 'inputChecksum', 'daysInStock');
+        $actualpurchase['packingTitle'] = $packing->get_displayname();
+        $fields = array('productName', 'pid', 'quantity', 'packing', 'packingTitle', 'totalValue', 'shelfLife', 'inputChecksum', 'daysInStock');
         foreach($fields as $field) {
             $actualpurchase_data['actualpurchase_'.$rowid.'_'.$field] = $actualpurchase[$field];
         }
@@ -494,7 +506,7 @@ else {
     }
     if($core->input['action'] == 'populatepartiesinfofields') {
         $partiesinfo_obj = new AroRequestsPartiesInformation();
-        if(isset($core->input['estDateOfShipment']) && !empty($core->input['estDateOfShipment'])) {
+        if(isset($core->input ['estDateOfShipment']) && !empty($core->input['estDateOfShipment'])) {
             $intermediarydates = $partiesinfo_obj->get_intermediarydates($core->input);
             $partiesinfo['vendorEstDateOfPayment'] = $partiesinfo_obj->get_vendordates($core->input);
             $partiesinfo['intermedEstDateOfPayment'] = $intermediarydates['intermedEstDateOfPayment'];
