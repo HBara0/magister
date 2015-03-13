@@ -56,7 +56,7 @@ class AroRequests extends AbstractClass {
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             $this->save_ordercustomers($data['customeroder']);
             if($this->errorcode != 0) {
-                return false;
+                return $this->errorcode;
             }
 
             //Save parties Information data
@@ -64,13 +64,18 @@ class AroRequests extends AbstractClass {
             $data['partiesinfo']['aorid'] = $this->data[self::PRIMARY_KEY];
             $partiesinformation_obj->set($data['partiesinfo']);
             $partiesinformation_obj->save();
+            $this->errorcode = $partiesinformation_obj->errorcode;
+            if($this->errorcode != 0) {
+                return $this->errorcode;
+            }
 
             $netmargnparms_obj = new AroNetMarginParameters();
             $data['parmsfornetmargin']['aorid'] = $this->data[self::PRIMARY_KEY];
             $netmargnparms_obj->set($data['parmsfornetmargin']);
             $netmargnparms_obj->save();
-            if($netmargnparms_obj->get_errorcode() != 0) {
-                return false;
+            $this->errorcode = $netmargnparms_obj->get_errorcode();
+            if($this->errorcode != 0) {
+                return $this->errorcode;
             }
 
             $data['parmsfornetmargin']['fees'] = $data['partiesinfo']['totalfees'];
@@ -78,10 +83,11 @@ class AroRequests extends AbstractClass {
 
             $this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
             if($this->errorcode != 0) {
-                return false;
+                return $this->errorcode;
             }
             $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
-            $this->save_linessupervision($data['actualpurchase']);
+
+            $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime']);
         }
     }
 
@@ -101,7 +107,7 @@ class AroRequests extends AbstractClass {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
             if(is_empty($data[$field])) {
                 $this->errorcode = 2;
-                return false;
+                return $this->errorcode;
             }
         }
         $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber');
@@ -112,12 +118,11 @@ class AroRequests extends AbstractClass {
         $orderrequest_array['modifiedOn'] = TIME_NOW;
         $query = $db->update_query(self::TABLE_NAME, $orderrequest_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
-            $this->errorcode = 0; // need to check error code
             /* update the document conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             $this->save_ordercustomers($data['customeroder']);
             if($this->errorcode != 0) {
-                return false;
+                return $this->errorcode;
             }
 
             //Save parties Information data
@@ -125,25 +130,31 @@ class AroRequests extends AbstractClass {
             $data['partiesinfo']['aorid'] = $this->data[self::PRIMARY_KEY];
             $partiesinformation_obj->set($data['partiesinfo']);
             $partiesinformation_obj->save();
+            $this->errorcode = $partiesinformation_obj->errorcode;
+            if($this->errorcode != 0) {
+                return $this->errorcode;
+            }
 
 
             $netmargnparms_obj = new AroNetMarginParameters();
             $data['parmsfornetmargin']['aorid'] = $this->data[self::PRIMARY_KEY];
             $netmargnparms_obj->set($data['parmsfornetmargin']);
             $netmargnparms_obj->save();
+            $this->errorcode = $netmargnparms_obj->get_errorcode();
             if($netmargnparms_obj->get_errorcode() != 0) {
-                return false;
+                return $this->errorcode;
             }
 
             $data['parmsfornetmargin']['fees'] = $data['partiesinfo']['totalfees'];
             $data['parmsfornetmargin']['commission'] = $data['partiesinfo']['commission'];
 
             $this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
+            $x = $this->errorcode;
             if($this->errorcode != 0) {
-                return false;
+                return $this->errorcode;
             }
             $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
-            $this->save_linessupervision($data['actualpurchase']);
+            $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime']);
         }
     }
 
@@ -151,6 +162,9 @@ class AroRequests extends AbstractClass {
         global $db;
         if(is_array($customersdetails)) {
             foreach($customersdetails as $order) {
+                if(empty($order['cid']) && empty($order['ptid'])) {
+                    continue;
+                }
                 $order['aorid'] = $this->data[self::PRIMARY_KEY];
                 if(isset($order['todelete']) && !empty($order['todelete'])) {
                     $ordercustomer = AroOrderCustomers::get_data(array('inputChecksum' => $order['inputChecksum']));
@@ -219,23 +233,16 @@ class AroRequests extends AbstractClass {
                 $requestline = new AroRequestLines();
                 $requestline->set($arorequestline);
                 $requestline->save();
-//                $this->errorcode = $requestline->errorcode;
-//                switch($this->get_errorcode()) {
-//                    case 0:
-//                        continue;
-//                    case 2:
-//                        return;
-//                    case 3:
-//                        return;
-//                }
             }
         }
     }
 
-    private function save_linessupervision($linessupervision) {
+    private function save_linessupervision($linessupervision, $transittime, $clearancetime) {
         if(is_array($linessupervision)) {
             foreach($linessupervision as $linesupervision) {
                 $linesupervision['aorid'] = $this->data[self::PRIMARY_KEY];
+                $linesupervision['transitTime'] = $transittime;
+                $linesupervision['clearanceTime'] = $clearancetime;
                 $requestlinesupervision = new AroRequestLinesSupervision();
                 $requestlinesupervision->set($linesupervision);
                 $requestlinesupervision->save();
@@ -270,9 +277,8 @@ class AroRequests extends AbstractClass {
         }
         $purchasetype = new PurchaseTypes($data['ptid']);
         $data['intermedPeriodOfInterest'] = $data['localPeriodOfInterest'] = 0;
-        $data['intermedPeriodOfInterest'] = date_diff($parmsfornetmargin['estimatedImtermedPayment'], $parmsfornetmargin['estimatedManufacturerPayment']);
-        $data['intermedPeriodOfInterest'] = $data['intermedPeriodOfInterest']->format("%a");
-
+//        $data['intermedPeriodOfInterest'] = date_diff($parmsfornetmargin['estimatedImtermedPayment'], $parmsfornetmargin['estimatedManufacturerPayment']);
+//        $data['intermedPeriodOfInterest'] = $data['intermedPeriodOfInterest']->format("%a");
         $data['localPeriodOfInterest'] = date_diff($parmsfornetmargin['estimatedLocalPayment'], $parmsfornetmargin['estimatedManufacturerPayment']);
         $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%a");
 
@@ -286,6 +292,85 @@ class AroRequests extends AbstractClass {
 
     public function get_errorid() {
         return $this->errorid;
+    }
+
+    public function generate_approvalchain() {
+        global $core;
+        $filter = 'affid = '.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
+        if(is_object($aroapprovalchain_policies)) {
+            $approvalchain = unserialize($aroapprovalchain_policies->approvalChain);
+        }
+        $affiliate = new Affiliate($this->affid);
+        if(is_array($approvalchain)) {
+            foreach($approvalchain as $key => $val) {
+                switch($val) {
+                    case 'businessManager':
+                        // Aro request businessManager
+                        $approvers['generalManager'] = $this->businessManager;
+                        break;
+                    case 'lolm':
+                        $approvers['lolm'] = $affiliate->get_logisticsmanager()->uid;
+                        break;
+                    case 'lfinancialManager':
+                        $approvers['lfinancialManager'] = $affiliate->get_financialemanager()->uid;
+                        break;
+                    case 'generalManager':
+                        $approvers['generalManager'] = $affiliate->get_generalmanager()->uid;
+                        break;
+                    case 'gfinancialManager':
+                        $aropartiesinfo = AroRequestsPartiesInformation::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]));
+                        $intermediaryAff = new Affiliates($aropartiesinfo->intermedAff);
+                        $approvers['gfinancialManager'] = $intermediaryAff->get_financialemanager()->uid;
+                        break;
+                    case 'cfo':
+                        $position = Positions::get_data(array('name' => 'cfo'));
+                        $userposition = UsersPositions::get_data(array('posid' => $position->posid));
+                        $approvers['cfo'] = $userposition->uid;
+                        break;
+                    case 'user':
+                        break;
+                    default:
+                        if(is_int($val)) {
+                            $approvers[$val] = $val;
+                        }
+                        break;
+                }
+            }
+            /* Make list of approvers unique */
+            $approvers = array_unique($approvers);
+
+            /* Remove the user himself from the approval chain */
+            unset($approvers[array_search($core->user['uid'], $approvers)]);
+
+            return $approvers;
+        }
+        return null;
+    }
+
+    public function create_approvalchain($approvers = null) {
+        global $core;
+
+        if(empty($approvers)) {
+            $approvers = $this->generate_approvalchain();
+        }
+        //  $approve_immediately = $this->should_approveimmediately();
+        foreach($approvers as $key => $val) {
+            $approve_status = $timeapproved = 0;
+            if($val == $core->user['uid'] && $approve_immediately == true) {
+                $approve_status = 1;
+                $timeapproved = TIME_NOW;
+            }
+
+            $sequence = 1;
+            if(is_array($approvers)) {
+                $sequence = array_search($key, $approvers);
+            }
+            $approver = new AroRequestsApprovals();
+            $approver->set(array('aorid' => $this->aorid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
+            $approver->save();
+        }
+        return true;
     }
 
 }
