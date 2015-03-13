@@ -152,7 +152,6 @@ $(function() {
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + fields + '&parmsfornetmargin=' + parmsfornetmargin);
 
         addactualpurchaselines(id[1]);
-
     });
 
     /*-------------Disable qtyPotentiallySold if daysInStock=0 ------------------*/
@@ -189,8 +188,9 @@ $(function() {
     //---------------------------------------------------------------------------//
 
     //------Form Submitting after 30 seconds--------------//
-    // var auto_refresh = setInterval(function() {
-    //      submitform(); }, 30000);
+    var auto_refresh = setInterval(function() {
+        submitform();
+    }, 30000);
     function submitform() {     //Form submit function
         $("input[id^='perform_'][id$='_Button']").trigger("click");
     }
@@ -317,7 +317,7 @@ function addactualpurchaselines(id) {
             sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + id + '&fields=' + fields);
         } else if(operation == 'create') {
             if(addactualpurchaserow() == true) {
-                setTimeout(function() {
+                var x = setTimeout(function() {
                     sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + id + '&fields=' + fields);
                 }, 3000);
             }
