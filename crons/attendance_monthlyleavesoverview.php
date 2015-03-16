@@ -256,7 +256,7 @@ if(!$core->input['action']) {
                     if(isset($total[$ltid][$uid][$i]) && !empty($total[$ltid][$uid][$i])) {
                         $fromdate = mktime(0, 0, 0, $i, 1, date('Y', TIME_NOW));
                         $todate = mktime(23, 59, 0, $i, 31, date('Y', TIME_NOW));
-                        $output[$val['affid']][$ltid][$uid] .= '<td style="text-align:right;"><a href="'.DOMAIN.'/index.php?module=attendance/listleaves&uid='.$uid.'&fromdate='.$fromdate.'&todate='.$todate.'" target="_blank">'.$total[$ltid][$uid][$i].'</a></td>';
+                        $output[$val['affid']][$ltid][$uid] .= '<td style="text-align:right;"><a href="'.DOMAIN.'/index.php?module=attendance/listleaves&uid='.$uid.'&fromdate='.$fromdate.'&todate='.$todate.'" target="_blank">'.round($total[$ltid][$uid][$i], 1).'</a></td>';
                     }
                     else {
                         $output[$val['affid']][$ltid][$uid] .= '<td style="text-align:right;">0</td>';
@@ -264,7 +264,7 @@ if(!$core->input['action']) {
                 }
 
                 if(is_array($total[$ltid][$uid])) {
-                    $output[$val['affid']][$ltid][$uid] .= '<td style="font-style:italic; font-weight: bold; text-align:right;">'.array_sum($total[$ltid][$uid]).'</td>';
+                    $output[$val['affid']][$ltid][$uid] .= '<td style="font-style:italic; font-weight: bold; text-align:right;">'.round(array_sum($total[$ltid][$uid]), 1).'</td>';
                 }
                 else {
                     $output[$val['affid']][$ltid][$uid] .= '<td style="font-style:italic; text-align:right;">0</td>';
@@ -303,7 +303,7 @@ if(!$core->input['action']) {
                     if($balance[$ltid][$uid] < 0) {
                         $output_style = ' color: red;';
                     }
-                    $output[$val['affid']][$ltid][$uid] .= '<td style="text-align: right; font-weight:bold;'.$output_style.'">'.$balance[$ltid][$uid].'</td></tr>';
+                    $output[$val['affid']][$ltid][$uid] .= '<td style="text-align: right; font-weight:bold;'.$output_style.'">'.round($balance[$ltid][$uid], 1).'</td></tr>';
                 }
                 else {
                     $output[$val['affid']][$ltid][$uid] .= '<td style="font-weight:bold; text-align:right;">0</td></tr>';
@@ -569,7 +569,6 @@ if(!$core->input['action']) {
             $mail = new Mailer($email_data, 'php');
             if($mail->get_status() === true) {
                 $log->record($lang->monthlyleavesoverview, $email_data['to']);
-//					$result['successfully'][]= $supid;
             }
             else {
                 $result['error'][] = $supid;

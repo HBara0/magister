@@ -1,7 +1,7 @@
 <?php
 $module['name'] = 'grouppurchase';
 $module['title'] = $lang->grouppurchase;
-$module['homepage'] = 'generateforecast';
+$module['homepage'] = 'createforecast';
 $module['globalpermission'] = 'canUseGroupPurchase';
 $module['menu'] = array('file' => array('pricing', 'priceslist', 'createforecast', 'generateforecast'),
         'title' => array('priceproduct', 'priceslist', 'createforecast', 'generateforecast'),

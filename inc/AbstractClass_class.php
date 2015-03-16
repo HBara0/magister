@@ -151,7 +151,7 @@ Abstract class AbstractClass {
 
     public function __toString() {
         if(is_null($this->data[static::DISPLAY_NAME])) {
-            return 'NULL';
+            return '';
         }
         return $this->get_displayname();
     }

@@ -57,7 +57,7 @@ if(!$core->input['action']) {
             //$where = ' WHERE (".TIME_NOW." BETWEEN periodStart AND periodEnd) AND ';
             $uid_where = ' ls.uid="'.$core->user['uid'].'"';
             if($core->usergroup['attendance_canViewAffAllLeaves'] == 1) {
-                $query = $db->query("SELECT u.uid FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE isMain=1 AND affid='{$core->user[mainaffiliate]}'");
+                $query = $db->query("SELECT u.uid FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE isMain=1 AND (affid IN (select affid FROM ".Tprefix." affiliatedemployees WHERE canHR=1 AND uid='{$core->user[uid]}') OR affid='{$core->user[mainaffiliate]}')");
                 if($db->num_rows($query) > 1) {
                     while($user = $db->fetch_assoc($query)) {
                         $users[] = $user['uid'];

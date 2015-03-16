@@ -46,7 +46,6 @@ class TravelManagerAirlines {
     }
 
     public static function build_flightrequestdata($requestdata) {
-
         if(!is_numeric($requestdata['date'])) {
             $requestdata['date'] = strtotime($requestdata['date']);
         }
@@ -197,27 +196,24 @@ class TravelManagerAirlines {
         $response_flightdata = json_decode($data);
         //$flights_records = '<div class = "subtitle" style = "width:100%;margin:10px; box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px  rgba(0, 0, 0, 0.1) solid;;">Best Flights</div>';
 
-        return self::
-                parse_responsefilghts($response_flightdata, $transpcat, $sequence, $source);
+        return self::parse_responsefilghts($response_flightdata, $transpcat, $sequence, $source);
     }
 
     public static function get_flights($request, $apikey = null) {
-//        $ch = curl_init('https://www.googleapis.com/qpxExpress/v1/trips/search?key=AIzaSyDXUgYSlAux8xlE8mA38T0-_HviEPiM5dU');
-        // curl_setopt($ch, CURLOPT_POST, true);
-//        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-//        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
-//        $result = curl_exec($ch);
-        //$result = file_get_contents('./modules/travelmanager/jsonflightdetails_roundtrip.txt');
-        $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt'
-        );
-        //      curl_close($ch);
+        $ch = curl_init('https://www.googleapis.com/qpxExpress/v1/trips/search?key=AIzaSyDXUgYSlAux8xlE8mA38T0-_HviEPiM5dU');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
+        $result = curl_exec($ch);
+        curl_close($ch);
         return $result;
     }
 
     public function __get($name) {
-        if(array_key_exists($name, $this->
-                        airlines)) {
+        if(array_key_exists($name, $this->airlines)) {
             return $this->airlines[$name];
         }
     }
