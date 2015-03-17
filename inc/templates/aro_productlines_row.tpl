@@ -29,6 +29,9 @@
         <input type="number"  step="any" name="productline[$plrowid][intialPrice]" id="productline_{$plrowid}_intialPrice" value="{$productline[intialPrice]}" style="width:100px;"/>
     </td>
     <td>
+        <input type="number" step="any" id="productline_{$plrowid}_fees" readonly style="width:100px;"/>
+    </td>
+    <td>
         <input type="text" name="productline[$plrowid][affBuyingPrice]" id="productline_{$plrowid}_affBuyingPrice" value="{$productline[affBuyingPrice]}" readonly style="width:100px;"/>
     </td>
     <td>

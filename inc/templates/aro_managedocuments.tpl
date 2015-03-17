@@ -9,7 +9,7 @@
         {$header}
         {$menu}
         <td class="contentContainer" colspan="2">
-            <h1>{$lang->managedoumentsequence} </h1>
+            <h1>Aro Document</h1>
 
             <div class="accordion">
                 <form name="perform_aro/managearodouments_Form" id="perform_aro/managearodouments_Form"  action="#" method="post">
@@ -20,6 +20,7 @@
                     {$aro_productlines}
                     {$actualpurchase}
                     {$aro_audittrail}
+                    {$orderummary}
                     <input type="submit" class="button" id="perform_aro/managearodouments_Button" value="{$lang->save}"/>
                 </form>
                 <div id="perform_aro/managearodouments_Results"></div>

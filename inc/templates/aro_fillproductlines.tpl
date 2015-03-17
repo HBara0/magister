@@ -14,6 +14,7 @@
                     <input type="hidden" id="productline_qtyPotentiallySold_disabled" value="1"/></td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->qtypotentiallysold}(%)</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->intialprice}</td>
+                <td class="border_right" rowspan="2" valign="top" align="center">{$lang->fees}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->affbuyingprice}<a href="#" title="{$lang->affbuyingpricetooltip}"><img src="./images/icons/question.gif"/></a></td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->totalbuyingvalue}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->costprice}<a href="#" title="{$lang->costpricetooltip}"><img src="./images/icons/question.gif"/></a></td>
@@ -22,6 +23,7 @@
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->sellingpriceatriskratio}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->netmargin}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->netmarginperc}</td>
+            </tr>
         </thead>
 
         <tbody id="productline_{$plrowid}_tbody" style="width:100%;">
