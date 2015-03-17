@@ -1,25 +1,20 @@
 <?php
 /*
- * Copyright © 2014 Orkila International Offshore, All Rights Reserved
+ * Copyright © 2015 Orkila International Offshore, All Rights Reserved
  *
  * [Provide Short Descption Here]
- * $id: TravelManagerPlanHotels_Class.php
- * Created:        @tony.assaad    May 23, 2014 | 4:04:55 PM
- * Last Update:    @tony.assaad    May 23, 2014 | 4:04:55 PM
+ * $id: TravelManagerPlanFinance_class.php
+ * Created:        @hussein.barakat    Mar 17, 2015 | 1:41:36 PM
+ * Last Update:    @hussein.barakat    Mar 17, 2015 | 1:41:36 PM
  */
 
-/**
- * Description of TravelManagerPlanHotels_Class
- *
- * @author tony.assaad
- */
-class TravelManagerPlanaccomodations extends AbstractClass {
+class TravelManagerPlanFinance extends AbstractClass {
     protected $data = array();
 
-    const PRIMARY_KEY = 'tmpaid';
-    const TABLE_NAME = 'travelmanager_plan_accomodations';
-    const SIMPLEQ_ATTRS = 'tmpsid,tmhid,tmpaid,priceNight,numNights';
-    const UNIQUE_ATTRS = 'tmpsid,tmhid';
+    const PRIMARY_KEY = 'tmpfid';
+    const TABLE_NAME = 'travelmanager_plan_finance';
+    const SIMPLEQ_ATTRS = 'tmpsid,amount,currency,paidBy,paidById';
+    const UNIQUE_ATTRS = 'tmpfid,tmpsid';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '') {
@@ -38,15 +33,10 @@ class TravelManagerPlanaccomodations extends AbstractClass {
         global $db;
 
         $tanspdata_array = array('tmpsid' => $data['tmpsid'],
-                'tmhid' => $data['tmhid'],
-                'priceNight' => $data['priceNight'],
-                'inputChecksum' => $data['inputChecksum'],
-                'numNights' => $data['numNights'],
+                'amount' => $data['amount'],
                 'currency' => $data['currency'],
                 'paidBy' => $data['paidBy'],
                 'paidById' => $data['paidById'],
-                'address' => $data['address'],
-                'phone' => $data['phone']
         );
 
         $db->insert_query(self::TABLE_NAME, $data);
@@ -56,22 +46,16 @@ class TravelManagerPlanaccomodations extends AbstractClass {
     protected function update(array $data) {
         global $db, $core;
         if(is_array($data)) {
-            $hoteldata['priceNight'] = $data['priceNight'];
-            $hoteldata['numNights'] = $data['numNights'];
-            $hoteldata['inputChecksum'] = $data['inputChecksum'];
-            $hoteldata['paidBy'] = $data['paidBy'];
-            $hoteldata['paidById'] = $data['paidById'];
-            $hoteldata['currency'] = $data['currency'];
-            $hoteldata['modifiedBy'] = $core->user['uid'];
-            $hoteldata['modifiedOn'] = TIME_NOW;
-            $hoteldata['address'] = $data['address'];
-            $hoteldata['phone'] = $data['phone'];
+            $financedata['amount'] = $data['amount'];
+            $financedata['paidBy'] = $data['paidBy'];
+            $financedata['paidById'] = $data['paidById'];
+            $financedata['currency'] = $data['currency'];
 
-            $db->update_query(self::TABLE_NAME, $hoteldata, ' tmhid='.intval($this->data['tmhid']).' AND tmpsid='.intval($this->data['tmpsid']));
+            $db->update_query(self::TABLE_NAME, $financedata, ' tmpfid='.intval($this->data['tmpfid']).' AND tmpsid='.intval($this->data['tmpsid']));
         }
     }
 
-    public static function get_planacco_byattr($attr, $value) {
+    public static function get_planfina_byattr($attr, $value) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects_byattr($attr, $value);
     }
@@ -111,21 +95,13 @@ class TravelManagerPlanaccomodations extends AbstractClass {
         return $paid_options;
     }
 
-    public function get_hotel() {
-        return new TravelManagerHotels($this->data['tmhid']);
-    }
-
-    public function get_accomodationtype() {
-        return new TravelManagerPlanaccomodationtype($this->data['accomType']);
-    }
-
     public function get() {
         return $this->data;
     }
 
     public function get_convertedamount(Currencies $tocurrency) {
         if($this->currency == $tocurrency->numCode) {
-            return $this->priceNight;
+            return $this->amount;
         }
         $fromcurrency = new Currencies($this->currency);
         $exchangerate = $tocurrency->get_latest_fxrate($tocurrency->alphaCode, array(), $fromcurrency->alphaCode);

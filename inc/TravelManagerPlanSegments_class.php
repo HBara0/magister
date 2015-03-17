@@ -66,6 +66,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 'sequence' => $segmentdata['sequence'],
                 'createdOn' => TIME_NOW,
                 'isNoneBusiness' => $segmentdata['isNoneBusiness'],
+                'noAccomodation' => $segmentdata['noAccomodation'],
         );
 
         $db->insert_query(self::TABLE_NAME, $segmentdata_array);
@@ -136,7 +137,8 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $hoteldata['numNights'] = $hotel['numNights'];
                 $hoteldata['paidBy'] = $hotel['entites'];
                 $hoteldata['paidById'] = $hotel['paidById'];
-
+                $hoteldata['address'] = $hotel['address'];
+                $hoteldata['phone'] = $hotel['phone'];
                 $accod_obj = new TravelManagerPlanaccomodations();
                 $accod_obj->set($hoteldata);
                 $accod_obj->save();
@@ -161,6 +163,19 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $this->errorode = 0;
             }
         }
+
+        $finances = $segmentdata['finances'];
+        if(is_array($finances)) {
+            $financedata['tmpsid'] = $this->data[self::PRIMARY_KEY];
+            $financedata['amount'] = $finances['amount'];
+            $financedata['currency'] = $finances['currency'];
+            $financedata['paidBy'] = $finances['paidBy'];
+            $financedata['paidById'] = $finances['paidById'];
+            $finance_obj = new TravelManagerPlanFinance();
+            $finance_obj->set($financedata);
+            $finance_obj->save();
+            $this->errorode = 0;
+        }
     }
 
     public function update(array $segmentdata) {
@@ -170,7 +185,7 @@ class TravelManagerPlanSegments extends AbstractClass {
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
         }
 
-        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'purpose', 'isNoneBusiness');
+        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'purpose', 'isNoneBusiness', 'noAccomodation');
         /* Consider using array intersection */
         foreach($valid_fields as $attr) {
             $segmentnewdata[$attr] = $segmentdata[$attr];
@@ -253,6 +268,8 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $hoteldata['currency'] = $hotel['currency'];
                     $hoteldata['paidBy'] = $hotel['entites'];
                     $hoteldata['paidById'] = $hotel['paidById'];
+                    $hoteldata['address'] = $hotel['address'];
+                    $hoteldata['phone'] = $hotel['phone'];
                     $accod_obj = new TravelManagerPlanaccomodations();
                     $accod_obj->set($hoteldata);
                     $accod_obj->save();
@@ -278,6 +295,16 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $expenses_obj->save();
                 $this->errorode = 0;
             }
+        }
+        $finances = $segmentdata['tmpfid'];
+        if(is_array($finances)) {
+            $financedata['amount'] = $finances['amount'];
+            $financedata['currency'] = $finances['currency'];
+            $financedata['paidBy'] = $finances['paidBy'];
+            $financedata['paidById'] = $finances['paidById'];
+            $finance_obj = new TravelManagerPlanFinance();
+            $finance_obj->update($financedata);
+            $this->errorode = 0;
         }
     }
 
