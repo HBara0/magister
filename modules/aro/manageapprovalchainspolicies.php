@@ -78,6 +78,7 @@ if(!$core->input['action']) {
         foreach($approvers as $key => $approver) {
             $list .= ' <div style="display: inline-block; width:32%;"><input  type="radio"  onchange =\''.$onchange_actions.'\' name="chainpolicy[approverchain]['.$rowid.'][approver]" value="'.$key.'" id="'.$key.'_'.$rowid.'_approver"'.$checked.'/> '.$val.''.$approver.'</div>';
         }
+        $approverdata[sequence] = $rowid;
         eval("\$aro_manageapprovalchainspolicies_approversrows= \"".$template->get('aro_manageapprovalchainspolicies_approversrows')."\";");
         // $rowid = intval($core->input['value']) + 1;
     }
@@ -114,6 +115,7 @@ else if($core->input['action'] == 'ajaxaddmore_approvers') {
     foreach($approvers as $key => $approver) {
         $list .= ' <div style="display: inline-block; width:32%;"><input  type="radio"  onchange =\''.$onchange_actions.'\' name="chainpolicy[approverchain]['.$rowid.'][approver]" value="'.$key.'" id="'.$key.'_'.$rowid.'_approver"'.$checked.'/> '.$val.''.$approver.'</div>';
     }
+    $approverdata[sequence] = $rowid;
     eval("\$aro_manageapprovalchainspolicies_approversrows= \"".$template->get('aro_manageapprovalchainspolicies_approversrows')."\";");
     output($aro_manageapprovalchainspolicies_approversrows);
 }
