@@ -30,7 +30,7 @@ class ChemicalFunctions {
         global $db;
         $query_select = '*';
         if($simple == true) {
-            $query_select = 'cfid, name, title';
+            $query_select = 'cfid, name, title,description';
         }
         $this->chemfunction = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemicalfunctions WHERE cfid='.intval($id)));
     }
@@ -57,6 +57,7 @@ class ChemicalFunctions {
             $chemicalfunctions_data = array(
                     'name' => $data['name'],
                     'title' => $data['title'],
+                    'description' => $data['description'],
                     'createdBy' => $core->user['uid'],
                     'createdOn' => TIME_NOW
             );
@@ -131,6 +132,20 @@ class ChemicalFunctions {
                 $applications[$application['safid']] = new SegmentApplications($application['psaid']);
             }
             return $applications;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public function get_segmentapplicationfunction() {
+        global $db;
+        $query = $db->query('SELECT safid FROM '.Tprefix.'segapplicationfunctions WHERE cfid='.$this->chemfunction['cfid']);
+        if($db->num_rows($query) > 0) {
+            while($applicationfunction = $db->fetch_assoc($query)) {
+                $applicationfunctions[$applicationfunction['safid']] = new SegApplicationFunctions($applicationfunction['safid']);
+            }
+            return $applicationfunctions;
         }
         else {
             return false;

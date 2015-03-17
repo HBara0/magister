@@ -13,30 +13,34 @@
  *
  * @author tony.assaad
  */
-class ChemFunctionProducts {
-    private $chemfuntionproducts = array();
+class ChemFunctionProducts extends AbstractClass {
+    protected $data = array();
     private $segmentapplicationfunction = null;
 
     const PRIMARY_KEY = 'cfpid';
     const TABLE_NAME = 'chemfunctionproducts';
+    const DISPLAY_NAME = '';
+    const SIMPLEQ_ATTRS = '*';
+    const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = null;
 
-    public function __construct($id, $simple = true) {
-        if(isset($id)) {
-            $this->read($id, $simple);
-        }
+    protected $errorcode = 0;
+
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
-    private function read($id, $simple) {
-        global $db;
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'cfpid, pid, safid';
-        }
-        $this->chemfuntionproducts = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemfunctionproducts WHERE cfpid='.intval($id)));
-    }
+//    private function read($id, $simple) {
+//        global $db;
+//        $query_select = '*';
+//        if($simple == true) {
+//            $query_select = 'cfpid, pid, safid';
+//        }
+//        $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemfunctionproducts WHERE cfpid='.intval($id)));
+//    }
 
     public function get_segapplicationfunction() {
-        $this->segmentapplicationfunction = new SegApplicationFunctions($this->chemfuntionproducts['safid']);  /* we store object in the var to avoid multiple instantiation thus will avoid multiple queries */
+        $this->segmentapplicationfunction = new SegApplicationFunctions($this->data['safid']);  /* we store object in the var to avoid multiple instantiation thus will avoid multiple queries */
         return $this->segmentapplicationfunction;
     }
 
@@ -63,26 +67,34 @@ class ChemFunctionProducts {
     }
 
     public function get_produt() {
-        return new Products($this->chemfuntionproducts['pid']);
+        return new Products($this->data['pid']);
     }
 
     public function get_createdby() {
-        return new Users($this->chemfuntionproducts['createdBy']);
+        return new Users($this->data['createdBy']);
     }
 
     public function get_modifiedby() {
-        return new Users($this->chemfuntionproducts['modifiedBy']);
+        return new Users($this->data['modifiedBy']);
     }
 
     public function __get($attr) {
-        if(isset($this->chemfuntionproducts[$attr])) {
-            return $this->chemfuntionproducts[$attr];
+        if(isset($this->data[$attr])) {
+            return $this->data[$attr];
         }
         return false;
     }
 
     public function get() {
-        return $this->chemfuntionproducts;
+        return $this->data;
+    }
+
+    protected function create(array $data) {
+
+    }
+
+    protected function update(array $data) {
+
     }
 
 }
