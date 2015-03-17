@@ -9,6 +9,9 @@
                 <td><strong>{$lang->applications}</strong></td><td><select name="chemicalfunctions[segapplications][]" multiple="true">{$applications_list}</select></td>
             </tr>
             <tr>
+                <td><strong>{$lang->description}</strong></td><td><textarea rows="5" cols="30" class="redactor_editor" name="chemicalfunctions[description]"></textarea></td>
+            </tr>
+            <tr>
                 <td colspan="2" align="left">
                     <hr />
                     <input type='button' id='perform_products/functions_Button' value='{$lang->savecaps}' class='button'/>

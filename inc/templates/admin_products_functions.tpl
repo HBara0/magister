@@ -17,6 +17,7 @@
                         <th>{$lang->name} <a href="{$sort_url}&amp;sortby=name&amp;order=ASC"><img src="../images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=name&amp;order=DESC"><img src="../images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
                         <th>{$lang->title} <a href="{$sort_url}&amp;sortby=title&amp;order=ASC"><img src="../images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=title&amp;order=DESC"><img src="../images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
                         <th>{$lang->appsegment}</th>
+                        <th>{$lang->description}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,5 +39,6 @@
 </tr>
 {$footer}
 {$popup_createfunction}
+{$popup_applicationdescription}
 </body>
 </html>
