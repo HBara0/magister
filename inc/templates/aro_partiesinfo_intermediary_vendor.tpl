@@ -9,7 +9,7 @@
                     </tr>
                     <tr class="altrow2"><td>{$lang->partiesinvolved}</td>
                         <td>{$affiliates_list['intermed']}</td>
-                        <td><input id="supplier_1_autocomplete" autocomplete="off" type="text" value="{$vendor_displayname}" style="width:150px;" {$disabled}>
+                        <td><input id="supplier_1_autocomplete" autocomplete="off" type="text" value="{$vendor_displayname}" style="width:150px;" {$is_disabled}>
                             <input id="supplier_1_id" name="partiesinfo[vendorEid]"  value="{$aropartiesinfo_obj->vendorEid}" type="hidden">
                             <div id="searchQuickResults_1" class="searchQuickResults" style="display: none;"></div>
                         </td>
@@ -22,7 +22,7 @@
 
                     </tr>
                     <tr class="altrow"><td>{$lang->incotermsdesc}</td>
-                        <td><input type="text"  name="partiesinfo[intermedIncotermsDesc]" id="partiesinfo_intermed_IncotermsDesc" value="{$aropartiesinfo_obj->intermedIncotermsDesc}" placeholder="" required='required' style="width:150px;" {$disabled}/></td>
+                        <td><input type="text"  name="partiesinfo[intermedIncotermsDesc]" id="partiesinfo_intermed_IncotermsDesc" value="{$aropartiesinfo_obj->intermedIncotermsDesc}" placeholder="" required='required' style="width:150px;" {$is_disabled}/></td>
                         <td><input type="text"  name="partiesinfo[vendorIncotermsDesc]" id="partiesinfo_vendor_IncotermsDesc" value="{$aropartiesinfo_obj->vendorIncotermsDesc}" placeholder="" required='required' style="width:150px;"/></td>
 
                     </tr>
@@ -31,16 +31,16 @@
                         <td>{$paymentterms_list['vendor']}</td>
                     </tr>
                     <tr class="altrow2"><td>{$lang->paymenttermsdesc}</td>
-                        <td><input type="text"  name="partiesinfo[intermedPaymentTermDesc]" id="partiesinfo_intermed_PaymentTermDesc" value="{$aropartiesinfo_obj->intermedPaymentTermDesc}" placeholder="" required='required' style="width:150px;" {$disabled}/></td>
+                        <td><input type="text"  name="partiesinfo[intermedPaymentTermDesc]" id="partiesinfo_intermed_PaymentTermDesc" value="{$aropartiesinfo_obj->intermedPaymentTermDesc}" placeholder="" required='required' style="width:150px;" {$is_disabled}/></td>
                         <td><input type="text"  name="partiesinfo[vendorPaymentTermDesc]" id="partiesinfo_vendor_PaymentTermDesc" value="{$aropartiesinfo_obj->vendorPaymentTermDesc}" placeholder="" required='required' style="width:150px;"/></td>
 
                     </tr>
                     <tr><td>{$lang->ptacceptablemargin}</td>
-                        <td><input type="number" step="any" name="partiesinfo[ptAcceptableMargin]" id="partiesinfo_intermed_ptAcceptableMargin" value="{$aropartiesinfo_obj->ptAcceptableMargin}" {$disabled}/></td>
+                        <td><input type="number" step="any" name="partiesinfo[ptAcceptableMargin]" id="partiesinfo_intermed_ptAcceptableMargin" value="{$aropartiesinfo_obj->ptAcceptableMargin}" {$is_disabled}/></td>
                     </tr>
                     <tr class="altrow2"><td>{$lang->promiseofpayment}</td>
-                        <td><input type="text" id="pickDate_intermed_promiseofpayment" autocomplete="off" tabindex="2" value="{$partiesinfo[promiseOfPayment_output]}" required="required" style="width:150px;" disabled="disabled"/>
-                            <input type="hidden" name="partiesinfo[promiseOfPayment]" id="altpickDate_intermed_promiseOfPayment" value="{$partiesinfo[promiseOfPayment_formatted]}"/>
+                        <td><input type="text" id="pickDate_intermed_promiseofpayment" autocomplete="off" tabindex="2" value="{$partiesinfo[promiseOfPayment_formatted]}" required="required" style="width:150px;" disabled="disabled"/>
+                            <input type="hidden" name="partiesinfo[promiseOfPayment]" id="altpickDate_intermed_promiseOfPayment" value="{$partiesinfo[promiseOfPayment_output]}"/>
                         </td>
                     </tr>
                     <tr><td>{$lang->commission} <small>{$lang->commisionlimit}</small></td>

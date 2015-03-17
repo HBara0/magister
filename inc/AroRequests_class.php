@@ -87,7 +87,7 @@ class AroRequests extends AbstractClass {
             }
             $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
 
-            $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime']);
+            $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
         }
     }
 
@@ -154,7 +154,7 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
             $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
-            $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime']);
+            $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
         }
     }
 
@@ -237,12 +237,13 @@ class AroRequests extends AbstractClass {
         }
     }
 
-    private function save_linessupervision($linessupervision, $transittime, $clearancetime) {
+    private function save_linessupervision($linessupervision, $transittime, $clearancetime, $dateOfStockEntry) {
         if(is_array($linessupervision)) {
             foreach($linessupervision as $linesupervision) {
                 $linesupervision['aorid'] = $this->data[self::PRIMARY_KEY];
                 $linesupervision['transitTime'] = $transittime;
                 $linesupervision['clearanceTime'] = $clearancetime;
+                $linesupervision['dateOfStockEntry'] = $dateOfStockEntry;
                 $requestlinesupervision = new AroRequestLinesSupervision();
                 $requestlinesupervision->set($linesupervision);
                 $requestlinesupervision->save();

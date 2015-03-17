@@ -65,16 +65,13 @@ class AroRequestLinesSupervision extends AbstractClass {
     public function calculate_actualpurchasevalues($data = array()) {
         global $core;
 
-        $plfields = array("productName", "pid", "packing", "quantity", "inputChecksum", "totalValue", "daysInStock", "transitTime", "clearanceTime");
+        $plfields = array("productName", "pid", "packing", "quantity", "inputChecksum", "totalValue", "daysInStock", "transitTime", "clearanceTime", "dateOfStockEntry", "estDateOfSale");
         foreach($plfields as $field) {
             $actualpurchase[$field] = $data[$field];
         }
         $purchasetype = new PurchaseTypes($data['ptid']);
 
-        $actualpurchase['dateOfStockEntry'] = '01-03-2015';
-
         $actualpurchase['dateOfStockEntry'] = strtotime($actualpurchase['dateOfStockEntry']);
-
 
         if(isset($actualpurchase['estDateOfStockEntry']) && !empty($actualpurchase['estDateOfStockEntry'])) {
             $actualpurchase['estDateOfStockEntry'] = strtotime($actualpurchase['estDateOfStockEntry']);
@@ -85,18 +82,22 @@ class AroRequestLinesSupervision extends AbstractClass {
             $clearance = '+'.$actualpurchase['clearanceTime'].' days';
             $actualpurchase['estDateOfStockEntry'] = strtotime($transittime, $actualpurchase['dateOfStockEntry']);
             $actualpurchase['estDateOfStockEntry'] = strtotime($clearance, $actualpurchase['estDateOfStockEntry']);
-
-            $daysinstock = '+'.$actualpurchase['daysInStock'].' days';
-            $actualpurchase['estDateOfSale'] = strtotime($daysinstock, $actualpurchase['estDateOfStockEntry']);
+            $actualpurchase['estDateOfSale'] = strtotime($actualpurchase['estDateOfSale']);
+            if(isset($actualpurchase['daysInStock']) && !empty($actualpurchase['daysInStock'])) {
+                $daysinstock = '+'.$actualpurchase['daysInStock'].' days';
+                $actualpurchase['estDateOfSale'] = strtotime($daysinstock, $actualpurchase['estDateOfStockEntry']);
+            }
         }
         $actualpurchase['estDateOfStockEntry_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfStockEntry']);
         $actualpurchase['estDateOfSale_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfSale']);
+//           $actualpurchase['estDateOfStockEntry_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfStockEntry']);
+//        $actualpurchase['estDateOfSale_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfSale']);
 
         $actualpurchase['shelfLife'] = 2;
         if($purchasetype->qtyIsNotStored == 1) {
             $actualpurchase['estDateOfSale'] = $actualpurchase['shelfLife'] = $actualpurchase['estDateOfStockEntry'] = '-';
         }
-        unset($actualpurchase['transitTime'], $actualpurchase['clearanceTime'], $actualpurchase['dateOfStockEntry'], $actualpurchase['totalBuyingValue']);
+        unset($actualpurchase['transitTime'], $actualpurchase['clearanceTime'], $actualpurchase['dateOfStockEntry'], $actualpurchase['totalBuyingValue'], $actualpurchase['daysInStock']);
         return $actualpurchase;
     }
 

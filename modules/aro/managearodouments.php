@@ -88,6 +88,7 @@ if(!($core->input['action'])) {
         eval("\$interm_vendor = \"".$template->get('aro_partiesinfo_intermediary_vendor')."\";");
         eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
         eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
+        eval("\$orderummary = \"".$template->get('aro_ordersummary')."\";");
     }
     if(isset($core->input['id'])) {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
@@ -241,7 +242,7 @@ if(!($core->input['action'])) {
                 if($aropartiesinfo_obj->vendorIsAff == 1) {
                     $checked = 'checked="checked"';
                     $display = 'style="display:block;"';
-                    $isdisabled = 'disabled="disabled"';
+                    $is_disabled = 'disabled="disabled"';
                     $disabled_list = 'disabled';
                 }
                 else {
@@ -271,6 +272,7 @@ if(!($core->input['action'])) {
                 $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, $aff[$party], '', '', array('blankstart' => true, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => 'required', 'width' => '100%', $isdisabled => $isdisabled));
                 $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, $paymentterm[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => 'required', 'width' => '100%', $isdisabled => $isdisabled));
                 $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, $incoterms[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => 'required', 'width' => '100%', $isdisabled => $isdisabled));
+                $isdisabled = '';
             }
             $countryofshipment_list = parse_selectlist('partiesinfo[shipmentCountry]', '', $countries, $shipmentcountry, '', '', array('blankstart' => 1, 'width' => '150px'));
             $countryoforigin_list = parse_selectlist('partiesinfo[originCountry]', '', $countries, $origincountry, '', '', array('blankstart' => 1, 'width' => '150px'));
@@ -409,7 +411,8 @@ else {
         }
         $productline = array('productline_qtyPotentiallySold_disabled' => $data['qtyPotentiallySold_disabled'],
                 'productline_daysInStock_disabled' => $data['daysInStock_disabled'],
-                'parmsfornetmargin_warehousing_disabled' => $data['parmsfornetmargin_warehousing_disabled']);
+                'parmsfornetmargin_warehousing_disabled' => $data['parmsfornetmargin_warehousing_disabled']
+        );
         echo json_encode($productline);
     }
     if($core->input['action'] == 'populateproductlinefields') {
@@ -423,11 +426,11 @@ else {
         $data = $core->input;
         $productline_data = $productline_obj->calculate_values($data);
         foreach($productline_data as $key => $value) {
-            // if(!empty($value) || ($value == 0)) {
             if($value != $data[$key]) {
                 $productline['productline_'.$rowid.'_'.$key] = $value;
             }
         }
+        $productline['productline_'.$rowid.'_fees'] = $productline_data['fees'];
         echo json_encode($productline);
     }
     if($core->input['action'] == 'populatewarehousepolicy') {
@@ -479,7 +482,8 @@ else {
             }
             $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => $intermedpolicy->yearlyInterestRate,
                     'parmsfornetmargin_intermedRiskRatio' => $intermedpolicy->riskRatio,
-                    'parmsfornetmargin_intermedPeriodOfInterest' => $intermedpolicy->intermedPeriodOfInterest);
+                    'parmsfornetmargin_intermedPeriodOfInterest' => $intermedpolicy->intermedPeriodOfInterest,
+                    'partiesinfo_commission' => $intermedpolicy->commissionCharged);
         }
         echo json_encode($intermedpolicy_data);
     }
@@ -500,8 +504,10 @@ else {
         foreach($fields as $field) {
             $actualpurchase_data['actualpurchase_'.$rowid.'_'.$field] = $actualpurchase[$field];
         }
-        $actualpurchase_data['pickDate_from_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_output];
-        $actualpurchase_data['pickDate_from_sale_'.$rowid.''] = $actualpurchase[estDateOfSale_output];
+        $actualpurchase_data['pickDate_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_output];
+        $actualpurchase_data['pickDate_sale_'.$rowid.''] = $actualpurchase[estDateOfSale_output];
+        $actualpurchase_data['pickDate_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_formatted];
+        $actualpurchase_data['pickDate_sale_'.$rowid.''] = $actualpurchase[estDateOfSale_formatted];
         echo json_encode($actualpurchase_data);
     }
     if($core->input['action'] == 'populatepartiesinfofields') {
@@ -515,7 +521,8 @@ else {
             $fields = array('vendorEstDateOfPayment', 'intermedEstDateOfPayment', 'promiseOfPayment');
             foreach($fields as $field) {
                 if($partiesinfo[$field] != 0) {
-                    $partiesinfo[$field.'_formatted'] = date('d-m-Y', $partiesinfo[$field]);
+                    $partiesinfo[$field.'_output'] = date('d-m-Y', $partiesinfo[$field]);
+                    $partiesinfo[$field.'_formatted'] = date($core->settings['dateformat'], $partiesinfo[$field]);
                 }
             }
             $partiesinfo_data = array('pickDate_vendor_estdateofpayment' => $partiesinfo['vendorEstDateOfPayment_formatted'],
@@ -524,5 +531,48 @@ else {
             );
             echo json_encode($partiesinfo_data);
         }
+    }
+    if($core->input['action'] == 'populateordersummary') {
+        $intermedaffiliate = new Affiliates($core->input['intermedAff']);
+        $affiliate = new Affiliates($core->input['aff']);
+        $qtyperunit = $core->input['qtyperunit'];
+        $feeperunit = $core->input['feeperunit'];
+        $qtyperunit = split('_', $qtyperunit);
+        $feeperunit = split('_', $feeperunit);
+
+        $i = 0;
+        $lang->totalintermedfees = $lang->sprint($lang->totalintermedfees, $core->input['intermedAff']);
+
+        foreach($qtyperunit as $qty) {
+            $i++;
+            $qty = split(':', $qty);
+            $uom = new Uom($qty[0]);
+            $qtyperunit_array[$i] = $qty[1]."/".$uom->get_displayname();
+        }
+        $quantityperuom = implode("\n", $qtyperunit_array);
+
+        foreach($feeperunit as $fee) {
+            $i++;
+            $fee = split(':', $fee);
+            $uom = new Uom($fee[0]);
+            $feeperunit_array[$i] = $fee[1]."/".$uom->get_displayname();
+            $feeperunit_usdarray[$i] = ($fee[1] * $core->input['exchangeRateToUSD'])."/".$uom->get_displayname();
+        }
+        $feeperunit_array = implode("\n", $feeperunit_array);
+        $feeperunit_usdarray = implode("\n", $feeperunit_usdarray);
+        $data = array('ordersummary_intermedaff' => $intermedaffiliate->get_displayname(),
+                'ordersummary_localaff' => $affiliate->get_displayname(),
+                'ordersummary_totalintermedfees' => $core->input['totalfees'],
+                'ordersummary_totalintermedfees_usd' => ($core->input['totalfees'] * $core->input['exchangeRateToUSD']),
+                'ordersummary_totalquantity' => $quantityperuom,
+                'ordersummary_totalfees' => $feeperunit_array,
+                'ordersummary_totalintermedfees_usd' => $feeperunit_usdarray,
+                'ordersummary_invoicevalue_intermed' => $core->input['invoicevalue_intermed'],
+                'ordersummary_invoicevalueusd_intermed' => ($core->input['invoicevalue_intermed'] * $core->input['exchangeRateToUSD']),
+                'ordersummary_invoicevalue_local' => $core->input['invoicevalue_local'],
+                'ordersummary_invoicevalueusd_local' => ($core->input['invoicevalue_local'] * $core->input['invoicevalue_local']),
+                'test' => $lang->totalintermedfees
+        );
+        echo json_encode($data);
     }
 }

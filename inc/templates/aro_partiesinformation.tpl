@@ -14,11 +14,11 @@
                 <td class="subtitle">{$lang->vendor}</td>
             </tr>
             <tr><td>{$lang->estdateofpayment}</td>
-                <td><input type="text" id="pickDate_intermed_estdateofpayment" autocomplete="off" tabindex="2" value="{$partiesinfo[intermedEstDateOfPayment_output]}" required="required" style="width:150px;" disabled="disabled"/>
-                    <input type="hidden" name="partiesinfo[intermedEstDateOfPayment]" id="altpickDate_intermed_estdateofpayment" value="{$partiesinfo[intermedEstDateOfPayment_formatted]}"/>
+                <td><input type="text" id="pickDate_intermed_estdateofpayment" autocomplete="off" tabindex="2" value="{$partiesinfo[intermedEstDateOfPayment_formatted]}" required="required" style="width:150px;" disabled="disabled"/>
+                    <input type="hidden" name="partiesinfo[intermedEstDateOfPayment]" id="altpickDate_intermed_estdateofpayment" value="{$partiesinfo[intermedEstDateOfPayment_output]}"/>
                 </td>
                 <td><input type="text" id="pickDate_vendor_estdateofpayment" autocomplete="off" tabindex="2" value="{$partiesinfo['vendorEstDateOfPayment_formatted']}" required="required" style="width:150px;" disabled="disabled"/>
-                    <input type="hidden" name="partiesinfo[vendorEstDateOfPayment]" id="altpickDate_vendor_estdateofpayment" value="{$partiesinfo['vendorEstDateOfPayment_formatted']}"/>
+                    <input type="hidden" name="partiesinfo[vendorEstDateOfPayment]" id="altpickDate_vendor_estdateofpayment" value="{$partiesinfo['vendorEstDateOfPayment_output']}"/>
                 </td>
             </tr>
 

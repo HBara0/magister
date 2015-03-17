@@ -25,32 +25,30 @@ class AroRequestLines extends AbstractClass {
 
     protected function create(array $data) {
         global $db, $log;
-        //   if(!$this->validate_requiredfields($data)) {
         $data = $this->calculate_values();
         if(empty($data['psid'])) {
             $product = new Products($data['pid']);
             $data['psid'] = $product->get_segment()['psid'];
         }
+        unset($data['fees']);
         $query = $db->insert_query(self::TABLE_NAME, $data);
         if($query) {
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
         }
-        // }
     }
 
     protected function update(array $data) {
         global $db, $log;
-        //  if(!$this->validate_requiredfields($data)) {
         $data = $this->calculate_values();
         if(empty($data['psid'])) {
             $product = new Products($data['pid']);
             $data['psid'] = $product->get_segment()['psid'];
         }
+        unset($data['fees']);
         $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
         }
-        // }
     }
 
     public function calculate_values(array $data = array()) {
@@ -60,7 +58,6 @@ class AroRequestLines extends AbstractClass {
         $parmsfornetmargin = $data['parmsfornetmargin'];
         $parmsfornetmargin['localBankInterestRate'] = $parmsfornetmargin['localBankInterestRate'] / 100;
         $parmsfornetmargin['intermedBankInterestRate'] = $parmsfornetmargin['intermedBankInterestRate'] / 100;
-        //$parmsfornetmargin['fees'] = 10;
         $parmsfornetmargin['commission'] = $parmsfornetmargin['commission'] / 100;
         $parmsfornetmargin['riskRatio'] = 3 / 100;
         $parmsfornetmargin['totalQty'] = 37;
@@ -115,6 +112,7 @@ class AroRequestLines extends AbstractClass {
             $data['netMarginPerc'] = round($data['netMargin'] / (( $data['sellingPrice'] * $data['quantity']) * $data['exchangeRateToUSD']), 2);
         }
         unset($data['exchangeRateToUSD']);
+        $data['fees'] = $parmsfornetmargin['fees'];
         return $data;
     }
 
