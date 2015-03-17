@@ -51,7 +51,6 @@ if(!$core->input['action']) {
             $leave[$sequence]['toDate'] = $leave['toDate'];
             $fromDate = new DateTime($segment[$sequence]['fromDate_output']);
             $todate = new DateTime($segment[$sequence]['toDate_output']);
-
             $segment[$sequence]['numberdays'] = $fromDate->diff($todate)->format(' %d days');
             $origincity_obj = new Cities($leave['sourceCity']);
             $segment[$sequence]['origincity'] = $origincity_obj->get();
@@ -62,6 +61,7 @@ if(!$core->input['action']) {
             $segment[$sequence]['destinationcity'] = $descity_obj->get();                 /* Will get the capital city of the visited country of leave */
             $segment[$sequence]['destinationcity']['name'] = $segment[$sequence]['destinationcity']['name'];  /* Will get the capital city of the visited country of leave */
             $segment[$sequence]['destinationcity']['ciid'] = $segment[$sequence]['destinationcity']['ciid'];  /* Will get the capital city of the visited country of leave */
+            $segment[$sequence][reason_output] = $leave['reason'];
             $disabled = 'disabled="true"';
 //$leave_destcity
             $otherhotel_checksum = generate_checksum('accomodation');
@@ -93,7 +93,19 @@ if(!$core->input['action']) {
             }
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
             // $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
-
+            //parse Finances---Start
+            $finance_obj = new TravelManagerPlanFinance();
+            $paidby_list = $finance_obj->parse_paidby();
+            $destcity_obj = new Cities($destcity);
+            $mainaffobj = new Affiliates($core->user['mainaffiliate']);
+            $currencies_f[] = $destcity_obj->get_country()->get_maincurrency();
+            $currencies_f[] = $mainaffobj->get_country()->get_maincurrency();
+            $currencies_f[] = new Currencies(840, true);
+            $currencies_f = array_unique($currencies_f);
+            $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid][currency]', 4, $currencies_f, '840');
+            $segments_financess_output.=$currencies_listf;
+            eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
+            //parse Finances---End
             /* parse expenses --START */
             $rowid = 1;
             $expensestype[$sequence][$rowid]['display'] = "display:none;";
@@ -171,6 +183,7 @@ else {
             $city_obj = new Cities($core->input['destcity']);
             $descitydata = $city_obj->get();
             /* origin city of the new  segment is destination of previous segment */
+            $segment[$sequence][reason_output] = $segment[$sequence]['reason'];
             $segment[$sequence]['origincity']['name'] = $descitydata['name'];
             $segment[$sequence]['origincity']['ciid'] = $descitydata['ciid'];
             /* Overwrite from date of next segment with  TOdate of prev segment */
