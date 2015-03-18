@@ -63,11 +63,22 @@ class TravelManagerPlan {
         if($directiondata['departuretime'] < TIME_NOW) {
             $directiondata['departuretime'] = TIME_NOW + 3600;
         }
-        //key = '.$core->settings['googleapikey'].' &
 
-        $googledirection_api = 'http://maps.googleapis.com/maps/api/directions/json?origin='.$directiondata['origincity']['name'].',+'.$directiondata['origincity']['country'].'&destination='.$directiondata['destcity']['name'].',+'.$directiondata['destcity']['country'].'&sensor=false&mode='.$directiondata['drivemode'].'&units=metric&departure_time='.$directiondata['departuretime'];
-        // $json = file_get_contents($googledirection_api);
+        $googledirection_api = 'https://maps.googleapis.com/maps/api/directions/json?key='.$core->settings['googleapikey'].'&origin='.$directiondata['origincity']['name'].',+'.$directiondata['origincity']['country'].'&destination='.$directiondata['destcity']['name'].',+'.$directiondata['destcity']['country'].'&sensor=false&mode='.$directiondata['drivemode'].'&units=metric&departure_time='.$directiondata['departuretime'];
+        $json = file_get_contents($googledirection_api);
         $data = json_decode($json);
+        if(empty($data->routes)) {
+            /* Attempt with reverse Geo Coding */
+            $origin_geocode_api = 'http://maps.google.com/maps/api/geocode/json?address='.$directiondata['origincity']['name'].',+'.$directiondata['origincity']['country'].'&sensor=false';
+            $destination_geocode_api = 'http://maps.google.com/maps/api/geocode/json?address='.$directiondata['destcity']['name'].',+'.$directiondata['destcity']['country'].'&sensor=false';
+            $origin = json_decode(file_get_contents($origin_geocode_api));
+            $destination = json_decode(file_get_contents($destination_geocode_api));
+            if(!empty($origin->results) && !empty($destination->results)) {
+                $googledirection_api = 'https://maps.googleapis.com/maps/api/directions/json?key='.$core->settings['googleapikey'].'&origin='.$origin->results[0]->geometry->location->lat.','.$origin->results[0]->geometry->location->lng.'&destination='.$destination->results[0]->geometry->location->lat.','.$destination->results[0]->geometry->location->lng.'&sensor=false&mode='.$directiondata['drivemode'].'&units=metric&departure_time='.$directiondata['departuretime'];
+                $json = file_get_contents($googledirection_api);
+                $data = json_decode($json);
+            }
+        }
         return $data;
     }
 
