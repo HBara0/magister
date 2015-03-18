@@ -174,8 +174,12 @@ CREATE TABLE `aro_policies` (
   `createdBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
+  `defaultIntermed` int(10) NOT NULL,
+  `defaultIncoterms` int(10) NOT NULL,
+  `defaultPaymentTerm` int(10) NOT NULL,
+  `defaultAcceptableMargin` float NOT NULL,
+  `defaultCurrency` int(3) NOT NULL,
   PRIMARY KEY (`apid`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_requests`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
