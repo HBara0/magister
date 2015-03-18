@@ -83,9 +83,16 @@ $(function() {
                     }
                 }
             });
-            //  $("select[id='partiesinfo_intermed_aff']").trigger("change");
-        }
 
+            $("select[id='partiesinfo_intermed_aff']").trigger("change");
+        }
+        /* Loop over all product lines to update the numbers based on the new policy */
+        $("tbody[id^='productline_']").find($("select[id$='_quatity']")).each(function () {
+            var id = $(this).attr('id').split('_');
+            if($("input[id='product_noexception_" + id[1] + "_id_output']").val().length > 0) {
+                $(this).trigger("change");
+            }
+        });
     });
     //-----------------Get Exchang Rate  ------------------------//
     $("#currencies").live('change', function() {
@@ -130,9 +137,10 @@ $(function() {
     }); //Trigger payment terms days on modify
     //-----------------------------------------------------------------------------------
 
-    $("input[id^='productline_'],select[id$='packing']").live('change', function() {
+    var fields_array = ["quantity", "qtyPotentiallySold", "intialPrice", "costPrice", "sellingPrice", "daysInStock"];
+    $("input[id^='productline_'],select[id$='packing']").live('change', function () {
         var id = $(this).attr('id').split("_");
-        var fields_array = ["quantity", "qtyPotentiallySold", "intialPrice", "costPrice", "sellingPrice", "daysInStock"];
+
         var fields = '';
         $.each(fields_array, function(index, value) {
             fields += '&' + value + '=' + $("input[id='productline_" + id[1] + "_" + value + "']").val();
@@ -184,11 +192,17 @@ $(function() {
 
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + fields + '&parmsfornetmargin=' + parmsfornetmargin);
         addactualpurchaselines(id[1]);
+    });
 
-        $("tbody[id^='productline_']").find($("select[id$='_uom']")).each(function() {
-            $("input[id$='_quantity']").trigger("change");
-        });
-
+    $("input[id^='productline_'],select[id$='packing']").live('keyup', function () {
+        var id = $(this).attr('id').split("_");
+        if($.inArray(id[id.length - 1 ], fields_array) != -1) {
+            $("tbody[id^='productline_1']").find($("input[id$='_quantity']")).each(function () {
+                if(id.join('_') !== $(this).attr('id')) {
+                    $(this).trigger("change");
+                }
+            });
+        }
     });
     /*-------------Disable qtyPotentiallySold if daysInStock=0 ------------------*/
     $("input[id$='_daysInStock']").live('change keyup', function() {
