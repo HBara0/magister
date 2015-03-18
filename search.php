@@ -255,7 +255,6 @@ if($core->input['type'] == 'quick') {
                 $extra_where = $restrictcountry_filter;
             }
 
-
             $table = 'cities';
             $attributes = array('name');
             $key_attribute = 'ciid';
@@ -263,6 +262,9 @@ if($core->input['type'] == 'quick') {
             $extra_info = array('table' => 'countries');
             $descinfo = 'citycountry';
             $order = array('by' => 'name', 'sort' => 'ASC');
+            if($core->input['for'] == 'sourcecity' || $core->input['for'] == 'destinationcity') {
+                $order = array('by' => 'defaultAirport DESC, name', 'sort' => 'ASC');
+            }
         }
         elseif($core->input['for'] == 'countries') {
             $table = 'countries';
