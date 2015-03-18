@@ -1,154 +1,154 @@
 <?php
 /*
- * Copyright © 2013 Orkila International Offshore, All Rights Reserved
+ * Copyright © 2015 Orkila International Offshore, All Rights Reserved
  *
- * Stock Summary Report from OB
- * $id: ob_report_stockaging.php
- * Created:        @zaher.reda    Sep 2, 2013 | 1:04:11 PM
- * Last Update:    @zaher.reda    Sep 2, 2013 | 1:04:11 PM
+ * [Provide Short Descption Here]
+ * $id: stockreportlive.php
+ * Created:        @zaher.reda    Mar 16, 2015 | 8:57:18 PM
+ * Last Update:    @zaher.reda    Mar 16, 2015 | 8:57:18 PM
  */
-exit;
-require '../inc/init.php';
 
-define('AUTHCODE', 'X1iIMm7pG06ip6o95HEa');
-if($core->input['authCode'] == AUTHCODE) {
-    $currency_obj = new Currencies('USD');
-    $date_info = getdate_custom(TIME_NOW);
+if(!defined('DIRECT_ACCESS')) {
+    die('Direct initialization of this file is not allowed.');
+}
 
-    $db_info = array('database' => 'openbrav_production', 'username' => 'openbrav_appuser', 'password' => '8w8;MFRy4g^3', 'engine' => 'postgre');
+if($core->usergroup['warehousemgmt_canGenerateReports'] == 0) {
+    error($lang->sectionnopermission);
+}
+ini_set('max_execution_time', 0);
 
-    $affiliates_index = array(
-            'C08F137534222BD001345BAA60661B97' => 19, //Orkila Tunisia
-            '0B366EFAE0524FDAA97A1322A57373BB' => 22, //Orkila East Africa
-            'DA0CE0FED12C4424AA9B51D492AE96D2' => 11, //Orkila Nigeria
-            'F2347759780B43B1A743BEE40BA213AD' => 23, //Orkila Ghana
-            'BD9DC2F7883B4E11A90B02A9A47991DC' => 1, //Orkila Lebanon
-            '933EC892369245E485E922731D46FCB1' => 20, //Orkila Senegal
-            '51FB1280AB104EFCBBB982D50B3B7693' => 21, //Orkila CI
-            'ED9F0447A2484096B8B0FFF4EC389100' => 2, //Orkila Jordan
-            '301ACDBEC89D4CAAA92B60FC6FA22D89' => 7, //Orkila Cyprus
-            'B707EFC1670F4392A973EB09569D470B' => 29, //Orkila Turkey
-            '0075845F20F24C8CBAFFCABF1EB08FFE' => 16, //Orkila Iraq
-//            '7AD08388D369403A9DF4B8240E3AD7FF' => 27 //Orkila International
-    );
+if(!$core->input['action']) {
+    $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('returnarray' => true));
+    $affiliates_list = parse_selectlist('affid', 2, $affiliates, '');
 
-    $affiliates_addrecpt = array(
-            19 => array(244, 356),
-            22 => array(248, 246, 287, 270, 356, 63),
-            23 => array('zadok.oppong-boahene', 'courage.dzandu', 322, 321, 'tarek.chalhoub', 63, 356),
-            1 => array(12, 333, 182, 43, 356),
-            21 => array(63, 158, 'patrice.mossan', 'marcelle.nklo', 'abel.laho', 'boulongo.diata', 356, 'kenan.amjeh'),
-            27 => array(12, 333, 68, 67, 342, 30, 356),
-            20 => array('michel.mbengue', 'samba.kandji', 'ansou.dabo', 'fatimatou.diallo', 356),
-            11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 356, 63),
-            2 => array('amal.dababneh')
-    );
+    eval("\$generatepage = \"".$template->get('warehousemgmt_generatereport_live')."\";");
+    output_page($generatepage);
+}
+else {
+    if($core->input['action'] == 'do_generatereport') {
+        require_once ROOT.INC_ROOT.'integration_config.php';
+        if(empty($core->input['affid'])) {
+            redirect('index.php?module=warehousemgmt/stockreportlive');
+        }
 
-    $integration = new IntegrationOB($db_info, 'C08F137534222BD001345B7B2E8F182D', $affiliates_index, 3, array('from' => '2010-01-01'));
+        $report_period = array('from' => '2005-01-01');
+        $report_period['to'] = 'tomorrow -1 second';
+        if(!empty($core->input['asOf'])) {
+            $report_period['to'] = $core->input['asOf'];
+        }
+        $date_info = getdate_custom(strtotime($report_period['to']));
+        /* In-line CSS styles in form of array in order to be compatible with email message */
+        $css_styles['table-datacell'] = 'text-align: right;';
+        $css_styles['altrow'] = 'background-color: #f7fafd;';
+        $css_styles['altrow2'] = 'background-color: #F2FAED;';
+        $css_styles['greenrow'] = 'background-color: #F2FAED;';
 
-    $status = $integration->get_status();
-    if(!empty($status)) {
-        echo 'Error';
-        exit;
-    }
+        $currency_obj = new Currencies('USD');
 
-    /* Configurations Section - START */
-    $report_options = array('roundto' => 0);
+        $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
+        //$integration = new IntegrationOB($db_info, 'C08F137534222BD001345B7B2E8F182D', $affiliates_index, 3, array('from' => '2010-01-01'));
+        /* Configurations Section - START */
+        $report_options = array('roundto' => 0);
 
-    $configs['summary']['info'] = array('title' => 'Stock Details');
-    $configs['summary']['output_fields'] = array(
+        $configs['summary']['info'] = array('title' => 'Stock Details');
+        $configs['summary']['output_fields'] = array(
 //			'manager' => 'Business Manager',
-            'category' => array('source' => array('product', 'category'), 'attribute' => 'value', 'title' => 'Segment', 'styles' => 'width: 5%;'),
-            'supplier' => array('source' => 'supplier', 'attribute' => 'value', 'title' => 'Supplier'),
-            'product' => array('source' => 'product', 'attribute' => 'name', 'title' => 'Product'),
-            'warehouse' => array('source' => 'warehouse', 'attribute' => 'value', 'title' => 'Warehouse'),
+                'category' => array('source' => array('product', 'category'), 'attribute' => 'value', 'title' => 'Segment', 'styles' => 'width: 5%;'),
+                'supplier' => array('source' => 'supplier', 'attribute' => 'value', 'title' => 'Supplier'),
+                'product' => array('source' => 'product', 'attribute' => 'name', 'title' => 'Product'),
+                'warehouse' => array('source' => 'warehouse', 'attribute' => 'value', 'title' => 'Warehouse'),
 //			'lot' => array('source' => array('transaction', 'attributes'), 'attribute' => 'lot', 'title' => 'Lot'),
-            'packaging' => array('source' => array('transaction', 'attributes'), 'attribute' => 'packaging', 'title' => 'Packaging'),
-            'initialquantity' => array('source' => 'stack', 'attribute' => 'qty', 'title' => 'Qty Received', 'numformat' => true),
-            'quantitysold' => array('source' => 'stack', 'attribute' => 'soldqty', 'title' => 'Sold Qty', 'numformat' => true),
-            'quantity' => array('source' => 'stack', 'attribute' => 'remaining_qty', 'title' => 'Stock Qty', 'numformat' => true),
-            'uom' => array('source' => array('product', 'uom'), 'attribute' => 'uomsymbol', 'title' => 'UoM'),
-            'unitcost' => array('source' => null, 'title' => 'Unit Cost', 'numformat' => true),
-            'unitcostusd' => array('source' => null, 'title' => 'Unit Cost<br />(USD)', 'numformat' => true),
-            'cost' => array('source' => 'stack', 'attribute' => 'remaining_cost', 'title' => 'Cost', 'numformat' => true),
-            'costusd' => array('source' => null, 'title' => 'Cost (USD)', 'numformat' => true),
-            'inputdate' => array('source' => 'transaction', 'attribute' => 'movementdate', 'title' => 'Entry Date', 'isdate' => true),
-            'daysinstock' => array('source' => 'stack', 'attribute' => 'daysinstock', 'title' => 'In Stock<br />(Days)', 'styles' => array(150 => 'background-color: #F1594A; text-align: center;', 120 => 'background-color: #F8C830; text-align: center;', 90 => 'background-color: #F2EB80; text-align: center;', 0 => 'background-color: #ABD25E; text-align: center;')),
-            'expirydate' => array('source' => array('transaction', 'attributes'), 'attribute' => 'guaranteedate', 'title' => 'Expiry Date', 'isdate' => true),
-            'daystoexpire' => array('source' => array('transaction', 'attributes'), 'attribute' => 'daystoexpire', 'title' => 'Days to Expire', 'styles' => array(0 => 'background-color: #F1594A; text-align: center;', 90 => 'background-color: #F8C830; text-align: center;', 180 => 'background-color: #F2EB80; text-align: center;', 270 => 'background-color: #ABD25E; text-align: center;'))
-    );
+                'packaging' => array('source' => array('transaction', 'attributes'), 'attribute' => 'packaging', 'title' => 'Packaging'),
+                'initialquantity' => array('source' => 'stack', 'attribute' => 'qty', 'title' => 'Qty Received', 'numformat' => true),
+                'quantitysold' => array('source' => 'stack', 'attribute' => 'soldqty', 'title' => 'Sold Qty', 'numformat' => true),
+                'quantity' => array('source' => 'stack', 'attribute' => 'remaining_qty', 'title' => 'Stock Qty', 'numformat' => true),
+                'uom' => array('source' => array('product', 'uom'), 'attribute' => 'uomsymbol', 'title' => 'UoM'),
+                'unitcost' => array('source' => null, 'title' => 'Unit Cost', 'numformat' => true),
+                'unitcostusd' => array('source' => null, 'title' => 'Unit Cost<br />(USD)', 'numformat' => true),
+                'cost' => array('source' => 'stack', 'attribute' => 'remaining_cost', 'title' => 'Cost', 'numformat' => true),
+                'costusd' => array('source' => null, 'title' => 'Cost (USD)', 'numformat' => true),
+                'inputdate' => array('source' => 'transaction', 'attribute' => 'movementdate', 'title' => 'Entry Date', 'isdate' => true),
+                'daysinstock' => array('source' => 'stack', 'attribute' => 'daysinstock', 'title' => 'In Stock<br />(Days)', 'styles' => array(150 => 'background-color: #F1594A; text-align: center;', 120 => 'background-color: #F8C830; text-align: center;', 90 => 'background-color: #F2EB80; text-align: center;', 0 => 'background-color: #ABD25E; text-align: center;')),
+                'expirydate' => array('source' => array('transaction', 'attributes'), 'attribute' => 'guaranteedate', 'title' => 'Expiry Date', 'isdate' => true),
+                'daystoexpire' => array('source' => array('transaction', 'attributes'), 'attribute' => 'daystoexpire', 'title' => 'Days to Expire', 'styles' => array(0 => 'background-color: #F1594A; text-align: center;', 90 => 'background-color: #F8C830; text-align: center;', 180 => 'background-color: #F2EB80; text-align: center;', 270 => 'background-color: #ABD25E; text-align: center;'))
+        );
 
-    $configs['summary']['summary_categories'] = array('category' => 'm_product_category_id', 'warehouse' => 'm_warehouse_id', 'product' => 'm_product_id', 'supplier' => 'c_bpartner_id');
-    $configs['summary']['summary_reqinfo'] = array('quantity', 'cost', 'costusd');
-    $configs['summary']['summary_order_attr'] = 'costusd';
-    $configs['summary']['order_attr'] = 'remaining_cost';
-    $configs['summary']['maintable_hiddencols'] = array('supplier', 'warehouse', 'category', 'product', 'packaging', 'uom', 'unitcost', 'inputdate', 'expirydate', 'daystoexpire');
-    $configs['summary']['total_types'] = array('initialquantity', 'quantitysold', 'quantity', 'cost', 'costusd');
+        $configs['summary']['summary_categories'] = array('category' => 'm_product_category_id', 'warehouse' => 'm_warehouse_id', 'product' => 'm_product_id', 'supplier' => 'c_bpartner_id');
+        $configs['summary']['summary_reqinfo'] = array('quantity', 'cost', 'costusd');
+        $configs['summary']['summary_order_attr'] = 'costusd';
+        $configs['summary']['order_attr'] = 'remaining_cost';
+        $configs['summary']['maintable_hiddencols'] = array('supplier', 'warehouse', 'category', 'product', 'packaging', 'uom', 'unitcost', 'inputdate', 'expirydate', 'daystoexpire');
+        $configs['summary']['total_types'] = array('initialquantity', 'quantitysold', 'quantity', 'cost', 'costusd');
 
 
-    $configs['aging']['summary_categories'] = $configs['aging']['summary_categories'] = array('category' => 'm_product_category_id', 'warehouse' => 'm_warehouse_id', 'supplier' => 'c_bpartner_id');
-    $configs['aging']['summary_reqinfo'] = array('quantity', 'cost', 'range1cost', 'range1qty', /* 'range2cost', 'range2qty', 'range3cost', 'range3qty', */ 'range4cost', 'range4qty', 'range5cost', 'range5qty');
-    $configs['aging']['summary_order_attr'] = 'cost';
-    $configs['aging']['order_attr'] = 'cost';
-    $configs['aging']['maintable_hiddencols'] = array('supplier', 'warehouse', 'category');
-    $configs['aging']['total_types'] = array('quantity', 'cost', 'costusd', 'range1cost', 'range1qty', 'range1costusd', /* 'range2cost', 'range2qty', 'range3cost', 'range3qty', */ 'range4cost', 'range4qty', 'range4costusd', 'range5cost', 'range5qty', 'range5costusd');
+        $configs['aging']['summary_categories'] = $configs['aging']['summary_categories'] = array('category' => 'm_product_category_id', 'warehouse' => 'm_warehouse_id', 'supplier' => 'c_bpartner_id');
+        $configs['aging']['summary_reqinfo'] = array('quantity', 'cost', 'range1cost', 'range1qty', /* 'range2cost', 'range2qty', 'range3cost', 'range3qty', */ 'range4cost', 'range4qty', 'range5cost', 'range5qty');
+        $configs['aging']['summary_order_attr'] = 'cost';
+        $configs['aging']['order_attr'] = 'cost';
+        $configs['aging']['maintable_hiddencols'] = array('supplier', 'warehouse', 'category');
+        $configs['aging']['total_types'] = array('quantity', 'cost', 'costusd', 'range1cost', 'range1qty', 'range1costusd', /* 'range2cost', 'range2qty', 'range3cost', 'range3qty', */ 'range4cost', 'range4qty', 'range4costusd', 'range5cost', 'range5qty', 'range5costusd');
 
-    $configs['aging']['info'] = array('title' => 'Stock Aging');
-    $configs['aging']['output_fields'] = array(
-            //			'manager' => 'Business Manager',
-            'product' => array('source' => 'product', 'attribute' => 'name', 'title' => 'Product'),
-            'supplier' => array('source' => 'supplier', 'attribute' => 'value', 'title' => 'Supplier'),
-            'warehouse' => array('source' => 'warehouse', 'attribute' => 'value', 'title' => 'Warehouse'),
-            'category' => array('source' => array('product', 'category'), 'attribute' => 'value', 'title' => 'Segment'),
-            'quantity' => array('source' => null, 'title' => 'Stock Qty', 'numformat' => true),
-            'uom' => array('source' => array('product', 'uom'), 'attribute' => 'uomsymbol', 'title' => 'UoM'),
-            'cost' => array('source' => 'entries', 'attribute' => 'cost', 'title' => 'Cost', 'numformat' => true),
-            'costusd' => array('source' => null, 'title' => 'Cost (USD)', 'numformat' => true),
-            'range1cost' => array('source' => array('entries', 'costs'), 'attribute' => 1, 'title' => '0-90<br />Amt', 'numformat' => true, 'styles' => 'background-color: #ABD25E;', 'chartlinecolor' => array('R' => 171, 'G' => 210, 'B' => 94)),
-            'range1costusd' => array('source' => null, 'attribute' => 1, 'title' => '0-90<br />Amt USD', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
-            'range1qty' => array('source' => array('entries', 'qty'), 'attribute' => 1, 'title' => '0-90<br />Qty', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
-            'range4cost' => array('source' => array('entries', 'costs'), 'attribute' => 4, 'title' => '90-180<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F8C830;', 'chartlinecolor' => array('R' => 248, 'G' => 200, 'B' => 48)),
-            'range4costusd' => array('source' => null, 'attribute' => 4, 'title' => '90-180<br />Amt USD', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
-            'range4qty' => array('source' => array('entries', 'qty'), 'attribute' => 4, 'title' => '90-180<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
-            'range5cost' => array('source' => array('entries', 'costs'), 'attribute' => 5, 'title' => '> 180<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F1594A;', 'chartlinecolor' => array('R' => 241, 'G' => 89, 'B' => 74)),
-            'range5costusd' => array('source' => null, 'attribute' => 5, 'title' => '> 180<br />Amt USD', 'numformat' => true, 'styles' => 'background-color: #F1594A;'),
-            'range5qty' => array('source' => array('entries', 'qty'), 'attribute' => 5, 'title' => '> 180<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F1594A;')
-    );
+        $configs['aging']['info'] = array('title' => 'Stock Aging');
+        $configs['aging']['output_fields'] = array(
+                //			'manager' => 'Business Manager',
+                'product' => array('source' => 'product', 'attribute' => 'name', 'title' => 'Product'),
+                'supplier' => array('source' => 'supplier', 'attribute' => 'value', 'title' => 'Supplier'),
+                'warehouse' => array('source' => 'warehouse', 'attribute' => 'value', 'title' => 'Warehouse'),
+                'category' => array('source' => array('product', 'category'), 'attribute' => 'value', 'title' => 'Segment'),
+                'quantity' => array('source' => null, 'title' => 'Stock Qty', 'numformat' => true),
+                'uom' => array('source' => array('product', 'uom'), 'attribute' => 'uomsymbol', 'title' => 'UoM'),
+                'cost' => array('source' => 'entries', 'attribute' => 'cost', 'title' => 'Cost', 'numformat' => true),
+                'costusd' => array('source' => null, 'title' => 'Cost (USD)', 'numformat' => true),
+                'range1cost' => array('source' => array('entries', 'costs'), 'attribute' => 1, 'title' => '0-90<br />Amt', 'numformat' => true, 'styles' => 'background-color: #ABD25E;', 'chartlinecolor' => array('R' => 171, 'G' => 210, 'B' => 94)),
+                'range1costusd' => array('source' => null, 'attribute' => 1, 'title' => '0-90<br />Amt USD', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
+                'range1qty' => array('source' => array('entries', 'qty'), 'attribute' => 1, 'title' => '0-90<br />Qty', 'numformat' => true, 'styles' => 'background-color: #ABD25E;'),
+                'range4cost' => array('source' => array('entries', 'costs'), 'attribute' => 4, 'title' => '90-180<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F8C830;', 'chartlinecolor' => array('R' => 248, 'G' => 200, 'B' => 48)),
+                'range4costusd' => array('source' => null, 'attribute' => 4, 'title' => '90-180<br />Amt USD', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
+                'range4qty' => array('source' => array('entries', 'qty'), 'attribute' => 4, 'title' => '90-180<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
+                'range5cost' => array('source' => array('entries', 'costs'), 'attribute' => 5, 'title' => '> 180<br />Amt', 'numformat' => true, 'styles' => 'background-color: #F1594A;', 'chartlinecolor' => array('R' => 241, 'G' => 89, 'B' => 74)),
+                'range5costusd' => array('source' => null, 'attribute' => 5, 'title' => '> 180<br />Amt USD', 'numformat' => true, 'styles' => 'background-color: #F1594A;'),
+                'range5qty' => array('source' => array('entries', 'qty'), 'attribute' => 5, 'title' => '> 180<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F1594A;')
+        );
 
-    $configs['expiryaging']['summary_categories'] = $configs['aging']['summary_categories'];
-    $configs['expiryaging']['summary_reqinfo'] = array('quantity', 'range1qty', 'range2qty', 'range3qty', 'range4qty');
-    $configs['expiryaging']['summary_order_attr'] = 'quantity';
-    $configs['expiryaging']['maintable_hiddencols'] = $configs['aging']['maintable_hiddencols'];
-    $configs['expiryaging']['total_types'] = array('quantity', 'range1qty', 'range2qty', 'range3qty', 'range4qty');
+        $configs['expiryaging']['summary_categories'] = $configs['aging']['summary_categories'];
+        $configs['expiryaging']['summary_reqinfo'] = array('quantity', 'range1qty', 'range2qty', 'range3qty', 'range4qty');
+        $configs['expiryaging']['summary_order_attr'] = 'quantity';
+        $configs['expiryaging']['maintable_hiddencols'] = $configs['aging']['maintable_hiddencols'];
+        $configs['expiryaging']['total_types'] = array('quantity', 'range1qty', 'range2qty', 'range3qty', 'range4qty');
 
-    $configs['expiryaging']['info'] = array('title' => 'Expiry Aging');
-    $configs['expiryaging']['output_fields'] = array(
-            //			'manager' => 'Business Manager',
-            'product' => array('source' => 'product', 'attribute' => 'name', 'title' => 'Product'),
-            'supplier' => array('source' => 'supplier', 'attribute' => 'value', 'title' => 'Supplier'),
-            'warehouse' => array('source' => 'warehouse', 'attribute' => 'value', 'title' => 'Warehouse'),
-            'category' => array('source' => array('product', 'category'), 'attribute' => 'value', 'title' => 'Segment'),
-            'quantity' => array('source' => null, 'title' => 'Stock Qty', 'numformat' => true),
-            'uom' => array('source' => array('product', 'uom'), 'attribute' => 'uomsymbol', 'title' => 'UoM'),
-            'range1qty' => array('source' => array('entries', 'qty'), 'attribute' => 1, 'title' => '0-90<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F1594A;'),
-            'range2qty' => array('source' => array('entries', 'qty'), 'attribute' => 2, 'title' => '90-180<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
-            'range3qty' => array('source' => array('entries', 'qty'), 'attribute' => 3, 'title' => '180-270<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F2EB80;'),
-            'range4qty' => array('source' => array('entries', 'qty'), 'attribute' => 4, 'title' => '>270<br />Qty', 'numformat' => true, 'styles' => 'background-color: #ABD25E;')
-    );
+        $configs['expiryaging']['info'] = array('title' => 'Expiry Aging');
+        $configs['expiryaging']['output_fields'] = array(
+                //			'manager' => 'Business Manager',
+                'product' => array('source' => 'product', 'attribute' => 'name', 'title' => 'Product'),
+                'supplier' => array('source' => 'supplier', 'attribute' => 'value', 'title' => 'Supplier'),
+                'warehouse' => array('source' => 'warehouse', 'attribute' => 'value', 'title' => 'Warehouse'),
+                'category' => array('source' => array('product', 'category'), 'attribute' => 'value', 'title' => 'Segment'),
+                'quantity' => array('source' => null, 'title' => 'Stock Qty', 'numformat' => true),
+                'uom' => array('source' => array('product', 'uom'), 'attribute' => 'uomsymbol', 'title' => 'UoM'),
+                'range1qty' => array('source' => array('entries', 'qty'), 'attribute' => 1, 'title' => '0-90<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F1594A;'),
+                'range2qty' => array('source' => array('entries', 'qty'), 'attribute' => 2, 'title' => '90-180<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
+                'range3qty' => array('source' => array('entries', 'qty'), 'attribute' => 3, 'title' => '180-270<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F2EB80;'),
+                'range4qty' => array('source' => array('entries', 'qty'), 'attribute' => 4, 'title' => '>270<br />Qty', 'numformat' => true, 'styles' => 'background-color: #ABD25E;')
+        );
+        /* Configurations Section - END */
 
-    //$aging_ranges = array('aging' => array(29))
-    /* Configurations Section - END */
 
-    foreach($affiliates_index as $orgid => $affid) {
         $output = $summaries_ouput = '';
-        $affiliateobj = new Affiliates($affid, false);
+
+        $affiliateobj = new Affiliates($core->input['affid'], false);
+        if(!in_array($affiliateobj->affid, $core->user['affiliates']) && !in_array($affiliateobj->affid, $core->user['auditedaffids'])) {
+            error($lang->sectionnopermission);
+        }
+        $orgid = $affiliateobj->integrationOBOrgId;
         $affiliate = $affiliateobj->get();
         $affiliate['currency'] = $affiliateobj->get_country()->get_maincurrency()->get()['alphaCode'];
 
         $integration->set_organisations(array($orgid));
+        $integration->set_sync_interval($report_period);
         $inputs = $integration->get_fifoinputs(array($orgid), array('hasqty' => true));
         if(empty($inputs)) {
-            continue;
+            error($lang->nomatchfound);
+            exit;
         }
         $fxrates['usd'] = $currency_obj->get_latest_fxrate($affiliate['currency']);
 
@@ -674,7 +674,8 @@ if($core->input['authCode'] == AUTHCODE) {
         else {
             $date_from = strtotime('last day of this month', strtotime($first_transaction->get()['trxprocessdate']));
         }
-        $date_to = strtotime('tomorrow -1 second');
+
+        $date_to = strtotime($report_period['to']);
         while($date_from < $date_to) {
             $date = getdate_custom($date_from);
 
@@ -718,9 +719,13 @@ if($core->input['authCode'] == AUTHCODE) {
             $stockevolution_chart_linecolors[$age] = $configs['aging']['output_fields']['range'.$key.'cost']['chartlinecolor'];
         }
 
-        $stockevolution_chart = new Charts(array('x' => $chart_data['x'], 'y' => $chart_data['y']), 'line', array('path' => '../tmp/charts/', 'labelrotationangle' => 90, 'height' => 400, 'width' => 900, 'yaxisname' => 'K. USD', 'graphareay2margin' => 50, 'scale' => SCALE_START0, 'seriesweight' => 2, 'nosort' => true, 'linescolors' => $stockevolution_chart_linecolors));
-//$stockevolution_output = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($stockevolution_chart->get_chart())).'" />'.$stockevolution_output;
-        $stockevolution_output = '<img src="cid:stockevolutionchart" />'.$stockevolution_output;
+        $stockevolution_chart = new Charts(array('x' => $chart_data['x'], 'y' => $chart_data['y']), 'line', array('path' => './tmp/charts/', 'labelrotationangle' => 90, 'height' => 400, 'width' => 900, 'yaxisname' => 'K. USD', 'graphareay2margin' => 50, 'scale' => SCALE_START0, 'seriesweight' => 2, 'nosort' => true, 'linescolors' => $stockevolution_chart_linecolors));
+        if($core->input['reporttype'] == 'email') {
+            $stockevolution_output = '<img src="cid:stockevolutionchart" />'.$stockevolution_output;
+        }
+        else {
+            $stockevolution_output = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($stockevolution_chart->get_chart())).'" />'.$stockevolution_output;
+        }
         /* Parse FX Rates Chart - START */
         $currency_rates_year = $currency_obj->get_yearaverage_fxrate_monthbased($affiliate['currency'], $date_info['year'], array('distinct_by' => 'alphaCode', 'precision' => 4, 'monthasname' => true), 'USD'); /* GET the fxrate of previous quarter year */
         $currency_rates_year = array_slice($currency_rates_year, 0, date('n', TIME_NOW));
@@ -730,15 +735,17 @@ if($core->input['authCode'] == AUTHCODE) {
         $overyears_rates = $overyears_rates + $currency_rates_year;
         $index1 = 8;
         $index2 = count($overyears_rates) - 1;
-        $fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 USD' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$date_info['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholddata' => array('firstindex' => $index1, 'secondindex' => $index2), 'hasthreshold' => 1, 'width' => 700, 'height' => 200, 'scale' => SCALE_START0, 'path' => '../tmp/charts/', 'writelabel' => true));
+        $fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 USD' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$date_info['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholddata' => array('firstindex' => $index1, 'secondindex' => $index2), 'hasthreshold' => 1, 'width' => 700, 'height' => 200, 'scale' => SCALE_START0, 'path' => './tmp/charts/', 'writelabel' => true));
 
         $fxratesoverview_output = '<h1>FX Rates Evolution</h1>';
-// $fxratesoverview_output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($fxrates_linechart->get_chart())).'" />';
-        $fxratesoverview_output .= '<img src="cid:fxratesoverview" />';
+        if($core->input['reporttype'] == 'email') {
+            $fxratesoverview_output .= '<img src="cid:fxratesoverview" />';
+        }
+        else {
+            $fxratesoverview_output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($fxrates_linechart->get_chart())).'" />';
+        }
 
         /* Parse FX Rates Chart - END */
-
-
 
         /* Parse Stock Evolution Report - END */
 
@@ -774,43 +781,83 @@ if($core->input['authCode'] == AUTHCODE) {
         $message .= '</body></html>';
 
         $message = '<html><head><title>Stock Report</title></head><body>';
-        $message .= '<h1>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')<br /><small style="color:red;">New Feature: Check the new Expiry Aging table, and its summaries</small></h1>';
+        $message .= '<h1>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].'/'.$date_info['year'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')<br /><small style="color:red;">New Feature: Check the new Expiry Aging table, and its summaries</small></h1>';
         $message .= $stockevolution_output.$alerts.$summaries_ouput.$output.$fxratesoverview_output;
         unset($stockevolution_output, $alerts, $summaries_ouput, $output, $fxratesoverview_output);
-        $email_data = array();
-        $email_data['to'][] = $affiliateobj->get_generalmanager()->email;
-        $email_data['to'][] = $affiliateobj->get_supervisor()->email;
 
-        if(isset($affiliates_addrecpt[$affid])) {
-            foreach($affiliates_addrecpt[$affid] as $uid) {
+        $affiliates_addrecpt = array(
+                19 => array(244, 356),
+                22 => array(248, 246, 287, 270, 356, 63),
+                23 => array('zadok.oppong-boahene', 'courage.dzandu', 322, 321, 'tarek.chalhoub', 63, 356),
+                1 => array(12, 333, 182, 43, 356),
+                21 => array(63, 158, 'patrice.mossan', 'marcelle.nklo', 'abel.laho', 'boulongo.diata', 356, 'kenan.amjeh'),
+                27 => array(12, 333, 68, 67, 342, 30, 356),
+                20 => array('michel.mbengue', 'samba.kandji', 'ansou.dabo', 'fatimatou.diallo', 356),
+                11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 356, 63),
+                2 => array('amal.dababneh')
+        );
+
+        $recipients[] = $affiliateobj->get_generalmanager()->email;
+        $recipients[] = $affiliateobj->get_supervisor()->email;
+        $recipients[] = $core->user_obj->email;
+
+        if(isset($affiliates_addrecpt[$affiliate['affid']])) {
+            foreach($affiliates_addrecpt[$affiliate['affid']] as $uid) {
                 if(!is_numeric($uid)) {
                     $adduser = Users::get_user_byattr('username', $uid);
                 }
                 else {
                     $adduser = new Users($uid);
                 }
-                $email_data['to'][] = $adduser->get()['email'];
+                $recipients[] = $adduser->get()['email'];
             }
         }
 
-        array_unique($email_data['to']);
-        $mailer = new Mailer();
-        $mailer = $mailer->get_mailerobj();
-        $mailer->set_required_contenttypes(array('html'));
-        $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
-        $mailer->set_subject('Stock Report - '.$affiliate['name'].' - Week '.$date_info['week']);
-        $mailer->set_message($message);
+        array_unique($recipients);
+        if($core->input['reporttype'] == 'email') {
+            $mailer = new Mailer();
+            $mailer = $mailer->get_mailerobj();
+            $mailer->set_required_contenttypes(array('html'));
+            $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
+            $mailer->set_subject('Stock Report - '.$affiliate['name'].' - Week '.$date_info['week'].'/'.$date_info['year']);
+            $mailer->set_message($message);
 
-        $mailer->add_attachment($stockevolution_chart->get_chart(), '', array('contentid' => 'stockevolutionchart'));
-        $mailer->add_attachment($fxrates_linechart->get_chart(), '', array('contentid' => 'fxratesoverview'));
-        $stockevolution_chart->delete_chartfile();
-        $fxrates_linechart->delete_chartfile();
-        unset($stockevolution_chart, $chart_data, $stockevolution_chart, $overyears_rates);
-        $mailer->set_to($email_data['to']);
+            $mailer->add_attachment($stockevolution_chart->get_chart(), '', array('contentid' => 'stockevolutionchart'));
+            $mailer->add_attachment($fxrates_linechart->get_chart(), '', array('contentid' => 'fxratesoverview'));
+            $stockevolution_chart->delete_chartfile();
+            $fxrates_linechart->delete_chartfile();
+            unset($stockevolution_chart, $chart_data, $stockevolution_chart, $overyears_rates);
+            $mailer->set_to($recipients);
 
-        //print_r($mailer->debug_info());
-        $mailer->send();
+            print_r($mailer->debug_info());
+            //$mailer->send();
+
+            if($mailer->get_status() === true) {
+                unset($core->input['reporttype']);
+                redirect('index.php?'.http_build_query($core->input), 1, 'Success');
+            }
+            else {
+                error($lang->errorsendingemail);
+            }
+            unset($message);
+        }
+        else {
+            $page['content'] = $message;
+//            $recipients = array(
+//                    $affiliateobj->get_generalmanager()->displayName,
+//                    $affiliateobj->get_supervisor()->displayName,
+//                    $affiliateobj->get_financialemanager()->displayName,
+//                    $core->user_obj->displayName);
+
+            if(is_array($recipients)) {
+                $recipients = array_filter($recipients);
+                $page['content'] .= '<hr /><div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>This report will be sent to <ul><li>'.implode('</li><li>', $recipients).'</li></ul></p></div>';
+                $page['content'] .= '<a href="index.php?reporttype=email&amp;'.http_build_query($core->input).'"><button class="button">Send by email</button></a>';
+            }
+
+            eval("\$report = \"".$template->get('general_container')."\";");
+            output_page($report);
+        }
         unset($message);
     }
 }
-?>
