@@ -22,8 +22,8 @@ if(!$core->input['action']) {
             }
             $event['fromDate_output'] = date($core->settings['dateformat'], $event['fromDate']);
             $event['toDate_output'] = date($core->settings['dateformat'], $event['toDate']);
-            $event['toTime_output'] = $event['toTime'];
-            $event['fromTime_output'] = $event['fromTime'];
+            $event['toTime_output'] = gmdate("H:i:s", strtotime(date($core->settings['timeformat'], $event['toDate'])));
+            $event['fromTime_output'] = gmdate("H:i:s", strtotime(date($core->settings['timeformat'], $event['fromDate'])));
             $disabled['alias'] = 'readonly="readonly"';
         }
     }

@@ -3,7 +3,7 @@
         <tr>
             <td width="18%">{$lang->fromdate}</td>
             <td><input type="text" id="pickDate_from_{$sequence}"  disabled="disabled"   autocomplete="off" tabindex="1" value="{$segment[$sequence][fromDate_output]}" required="required"/>
-                <input type="hidden" name="segment[{$sequence}][fromDate]" id="altpickDate_from_{$sequence}" value="{$segment[$sequence][fromDate_formatted]}" /></td>
+                <input type="hidden" name="segment[{$sequence}][fromDate]" id="altpickDate_from_{$sequence}"  value="{$segment[$sequence][fromDate_formatted]}" /></td>
             </td>
 
             <td>{$lang->todate}</td>
@@ -26,7 +26,7 @@
         </tr>
         <tr><td>{$lang->purpose}</td><td>{$segment_purposlist}</td></tr>
         <tr><td>{$lang->considerleisuretourism}</td><td><input type="checkbox" name="segment[{$sequence}][isNoneBusiness]" value="1" {$checkbox_checked['isNoneBusiness']}/></td></tr>
-        <tr><td>{$lang->reason}</td><td><textarea name="segment[{$sequence}][reason]"  cols="30" rows="3" required="required">{$segment[$sequence][reason]}</textarea></td></tr>
+        <tr><td>{$lang->reason}</td><td><textarea name="segment[{$sequence}][reason]"  cols="30" rows="3" required="required">{$segment[$sequence][reason_output]}</textarea></td></tr>
     </table>
     <div id="content_detailsloader_{$sequence}"></div>
     <div id="content_details_{$sequence}">

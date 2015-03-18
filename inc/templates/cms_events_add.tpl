@@ -41,8 +41,7 @@
                      <!-- <input type="time" name="event[toTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="{$current_date[hours]}:{$current_date[minutes]}" required="required">-->
                         </div>
                         <div style="display:inline-block;width:10%">{$lang->totime}</div>
-                        <input type="time" name="event[toTime]" value='{$event[toTime_output]}'pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="{$current_date[hours]}:{$current_date[minutes]}">
-
+                        <input type="time" name="event[toTime]" value="{$event['toTime_output']}" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="{$current_date[hours]}:{$current_date[minutes]}">
                     </div>
                     <div style="display:block;">
                         <div style="display:inline-block;width:10%">{$lang->location}</div>
