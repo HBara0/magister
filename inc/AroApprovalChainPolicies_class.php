@@ -59,6 +59,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                 'approvalChain' => @serialize($data['approverchain']),
                 'createdBy' => $core->user['uid'],
                 'purchaseType' => $data['purchaseType'],
+                'informCoordinators' => $data['informCoordinators'],
                 'createdOn' => TIME_NOW,
         );
         $query = $db->insert_query(self::TABLE_NAME, $policies_array);
@@ -94,6 +95,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                     'approvalChain' => @serialize($data['approverchain']),
                     'modifiedBy' => $core->user['uid'],
                     'purchaseType' => $data['purchaseType'],
+                    'informCoordinators' => $data['informCoordinators'],
                     'modifiedOn' => TIME_NOW,
             );
             unset($data['approvalChain']);
