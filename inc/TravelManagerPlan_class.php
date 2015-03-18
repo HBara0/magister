@@ -625,6 +625,15 @@ class TravelManagerPlan {
         return $plantrip;
     }
 
+    public function get_displayname() {
+        global $lang, $core;
+        $leave = $this->get_leave();
+        $leavetype = $leave->get_type();
+
+        /* Need to add country, supplier, or affiliate name */
+        return $leavetype->name.' '.$lang->request.': '.date($core->settings['dateformat'].' ', $leave->fromDate).' ->  '.date($core->settings['dateformat'].' ', $leave->toDate);
+    }
+
     public function is_finalized() {
         if($this->data['isFinalized'] == 1) {
             return true;
