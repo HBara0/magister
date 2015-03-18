@@ -17,7 +17,7 @@ class AroPolicies extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'affid,purchaseType';
+    const UNIQUE_ATTRS = 'affid,purchaseType,effectiveFrom,effectiveTo';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -44,6 +44,9 @@ class AroPolicies extends AbstractClass {
         if(!$this->validate_requiredfields($data)) {
             $data['modifiedOn'] = TIME_NOW;
             $data['modifiedBy'] = $core->user['uid'];
+            if(!isset($data['isActive'])) {
+                $data['isActive'] = 0;
+            }
             $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
             if($query) {
                 $id = $db->last_id();
